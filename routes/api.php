@@ -25,6 +25,8 @@ use App\Http\Controllers\API\PokerController;
 use App\Http\Controllers\API\NotificationController;
 use App\Http\Controllers\API\FriendController;
 use App\Http\Controllers\API\NewsController;
+use App\Http\Controllers\API\ShortController;
+use App\Http\Controllers\API\ShoppingController;
 use Illuminate\Support\Facades\Route;
 
 // 공개 인증
@@ -46,6 +48,15 @@ Route::get('businesses',            [BusinessController::class,'index']);
 Route::get('businesses/{business}', [BusinessController::class,'show']);
 Route::get('profile/{username}',    [ProfileController::class, 'show']);
 Route::get('search',                [SearchController::class,  'search']);
+
+// 숏츠 (공개)
+Route::get('shorts/feed',           [ShortController::class,   'feed']);
+
+// 쇼핑정보 (공개)
+Route::get('shopping/stores',       [ShoppingController::class, 'stores']);
+Route::get('shopping/deals',        [ShoppingController::class, 'deals']);
+Route::get('shopping/deals/{id}',   [ShoppingController::class, 'showDeal']);
+Route::get('shopping/categories',   [ShoppingController::class, 'categories']);
 
 // Chat (공개 방 목록)
 Route::get('chat/rooms',        [ChatController::class, 'rooms']);
@@ -213,6 +224,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('notifications/unread',            [NotificationController::class, 'unreadCount']);
     Route::post('notifications/{id}/read',        [NotificationController::class, 'markRead']);
     Route::post('notifications/read-all',         [NotificationController::class, 'markAllRead']);
+
+    // 숏츠 (인증 필요 작업)
+    Route::post('shorts',               [ShortController::class, 'store']);
+    Route::post('shorts/{id}/like',     [ShortController::class, 'like']);
+    Route::post('shorts/{id}/view',     [ShortController::class, 'view']);
+    Route::get('shorts/my',             [ShortController::class, 'myShorts']);
+    Route::delete('shorts/{id}',        [ShortController::class, 'destroy']);
+    Route::post('shorts/interests',     [ShortController::class, 'saveInterests']);
+    Route::get('shorts/interests',      [ShortController::class, 'getInterests']);
 
     // Admin
     Route::middleware('admin')->prefix('admin')->group(function () {

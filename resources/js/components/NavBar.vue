@@ -76,6 +76,8 @@
         <RouterLink to="/ride"      class="nav-link">알바라이드</RouterLink>
         <RouterLink to="/elder"     class="nav-link">안심서비스</RouterLink>
         <RouterLink to="/news"      class="nav-link">뉴스</RouterLink>
+        <RouterLink to="/shorts"    class="nav-link font-semibold text-red-500">📱 숏츠</RouterLink>
+        <RouterLink to="/shopping"  class="nav-link font-semibold text-green-600">🛒 쇼핑정보</RouterLink>
       </div>
     </div>
   </nav>

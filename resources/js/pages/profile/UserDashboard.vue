@@ -38,7 +38,7 @@
 
     <!-- 통계 카드 -->
     <div class="max-w-[1200px] mx-auto px-4 mt-3">
-      <div class="bg-white rounded-2xl shadow-lg p-4 grid grid-cols-4 gap-2 text-center mb-5">
+      <div class="bg-white rounded-2xl shadow-lg p-4 grid grid-cols-5 gap-2 text-center mb-5">
         <div>
           <div class="text-xl font-black text-blue-600">{{ stats.posts }}</div>
           <div class="text-xs text-gray-500">게시글</div>
@@ -48,12 +48,16 @@
           <div class="text-xs text-gray-500">댓글</div>
         </div>
         <div>
+          <div class="text-xl font-black text-red-500">{{ stats.shorts || 0 }}</div>
+          <div class="text-xs text-gray-500">숏츠</div>
+        </div>
+        <div>
           <div class="text-xl font-black text-purple-600">{{ (auth.user?.points_total ?? 0).toLocaleString() }}</div>
           <div class="text-xs text-gray-500">포인트</div>
         </div>
         <div>
           <div class="text-xl font-black text-orange-600">{{ stats.likes }}</div>
-          <div class="text-xs text-gray-500">받은 좋아요</div>
+          <div class="text-xs text-gray-500">좋아요</div>
         </div>
       </div>
     </div>
@@ -417,8 +421,46 @@
           </button>
         </div>
 
-        <!-- Content list (non-clubs) -->
-        <div v-if="manageSubTab !== 'clubs'" class="bg-white rounded-2xl shadow-sm p-5">
+        <!-- 숏츠 그리드 뷰 -->
+        <div v-if="manageSubTab === 'shorts'" class="bg-white rounded-2xl shadow-sm p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-gray-800 text-sm">내가 공유한 숏츠</h3>
+            <RouterLink to="/shorts/upload" class="text-xs bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600">+ 새 숏츠</RouterLink>
+          </div>
+          <div v-if="manageLoading" class="text-center py-8 text-gray-400">불러오는 중...</div>
+          <div v-else-if="manageItems.length === 0" class="text-center py-8">
+            <div class="text-4xl mb-2">📱</div>
+            <p class="text-gray-400 text-sm">아직 공유한 숏츠가 없습니다</p>
+            <RouterLink to="/shorts/upload" class="inline-block mt-3 bg-red-500 text-white px-4 py-2 rounded-xl text-sm font-bold">숏츠 공유하기</RouterLink>
+          </div>
+          <div v-else class="grid grid-cols-3 gap-2">
+            <div v-for="item in manageItems" :key="item.id"
+              class="relative aspect-[9/16] rounded-lg overflow-hidden bg-black cursor-pointer group">
+              <img v-if="item.thumbnail" :src="item.thumbnail" class="w-full h-full object-cover opacity-80" />
+              <div v-else class="w-full h-full flex items-center justify-center text-2xl">
+                {{ item.platform === 'youtube' ? '▶️' : item.platform === 'tiktok' ? '🎵' : '📸' }}
+              </div>
+              <!-- 오버레이 -->
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                <a :href="item.url" target="_blank" class="text-white text-xs bg-white/20 px-2 py-1 rounded">원본</a>
+                <button @click="deleteManageItem(item.id)" class="text-red-400 text-xs bg-white/20 px-2 py-1 rounded">삭제</button>
+              </div>
+              <!-- 좋아요 수 -->
+              <div class="absolute bottom-1 left-1 text-white text-[10px] flex items-center gap-0.5">
+                <svg class="w-3 h-3 fill-current text-red-400" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                {{ item.like_count }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content list (non-clubs, non-shorts) -->
+        <div v-if="manageSubTab !== 'clubs' && manageSubTab !== 'shorts'" class="bg-white rounded-2xl shadow-sm p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-gray-800 text-sm">
+              {{ manageTabs.find(t=>t.id===manageSubTab)?.icon }} {{ manageTabs.find(t=>t.id===manageSubTab)?.label }}
+            </h3>
+          </div>
           <div v-if="manageLoading" class="text-center py-8 text-gray-400">불러오는 중...</div>
           <div v-else-if="manageItems.length === 0" class="text-center py-8 text-gray-400">항목이 없습니다</div>
           <div v-else class="space-y-3">
@@ -426,7 +468,11 @@
               class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50">
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-gray-800 text-sm truncate">{{ item.title || item.name || item.content }}</p>
-                <p class="text-xs text-gray-400">{{ formatDate(item.created_at) }}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <p class="text-xs text-gray-400">{{ formatDate(item.created_at) }}</p>
+                  <span v-if="item.view_count" class="text-xs text-gray-300">조회 {{ item.view_count }}</span>
+                  <span v-if="item.like_count" class="text-xs text-red-400">♥ {{ item.like_count }}</span>
+                </div>
               </div>
               <div class="flex gap-2 flex-shrink-0">
                 <button class="text-xs text-blue-600 hover:underline">수정</button>
@@ -726,6 +772,11 @@ async function loadActivity() {
     myComments.value = commentsRes.data.data || commentsRes.data
     stats.value.posts    = myPosts.value.length
     stats.value.comments = myComments.value.length
+    // 숏츠 카운트 로드
+    try {
+      const { data: sh } = await axios.get('/api/shorts/my?page=1')
+      stats.value.shorts = sh.total || (sh.data?.length ?? 0)
+    } catch {}
   } catch (e) {}
   loadingActivity.value = false
 }
@@ -777,12 +828,14 @@ function formatDate(dt) {
 // ── 관리 탭 ──────────────────────────────────────────────────────────────────
 const manageSubTab = ref('posts')
 const manageTabs = [
-  { id: 'posts', icon: '📝', label: '게시글' },
+  { id: 'posts',    icon: '📝', label: '게시글' },
   { id: 'comments', icon: '💬', label: '댓글' },
-  { id: 'jobs', icon: '💼', label: '구인구직' },
-  { id: 'market', icon: '🛒', label: '중고장터' },
-  { id: 'bookmarks', icon: '🔖', label: '북마크' },
-  { id: 'clubs', icon: '👥', label: '내 동호회' },
+  { id: 'jobs',     icon: '💼', label: '구인구직' },
+  { id: 'market',   icon: '🛒', label: '중고장터' },
+  { id: 'shorts',   icon: '📱', label: '내 숏츠' },
+  { id: 'news',     icon: '📰', label: '공유뉴스' },
+  { id: 'bookmarks',icon: '🔖', label: '북마크' },
+  { id: 'clubs',    icon: '👥', label: '내 동호회' },
 ]
 const manageItems = ref([])
 const manageLoading = ref(false)
@@ -791,10 +844,12 @@ async function loadManageItems() {
   if (manageSubTab.value === 'clubs') { loadMyClubs(); return }
   manageLoading.value = true
   const endpoints = {
-    posts: '/api/profile/me/posts',
-    comments: '/api/profile/me/comments',
-    jobs: '/api/jobs?mine=1',
-    market: '/api/market?mine=1',
+    posts:     '/api/profile/me/posts',
+    comments:  '/api/profile/me/comments',
+    jobs:      '/api/jobs?mine=1',
+    market:    '/api/market?mine=1',
+    shorts:    '/api/shorts/my',
+    news:      '/api/news?mine=1',
     bookmarks: '/api/bookmarks',
   }
   try {

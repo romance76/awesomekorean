@@ -25,12 +25,14 @@
         <span>채팅</span>
       </RouterLink>
 
-      <RouterLink to="/games" class="bottom-nav-item" :class="{ active: $route.path.startsWith('/games') }">
+      <RouterLink to="/shorts" class="bottom-nav-item" :class="{ active: $route.path.startsWith('/shorts') }">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>
+            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        <span>게임</span>
+        <span>숏츠</span>
       </RouterLink>
 
       <RouterLink v-if="auth.isLoggedIn" to="/notifications" class="bottom-nav-item relative"

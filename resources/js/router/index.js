@@ -112,6 +112,13 @@ const routes = [
     // 친구
     { path: '/friends', component: () => import('../pages/friends/FriendList.vue'), name: 'friends', meta: { auth: true } },
 
+    // 숏츠
+    { path: '/shorts',        component: () => import('../pages/shorts/ShortsHome.vue'),   name: 'shorts' },
+    { path: '/shorts/upload', component: () => import('../pages/shorts/ShortsUpload.vue'), name: 'shorts-upload', meta: { auth: true } },
+
+    // 쇼핑정보
+    { path: '/shopping', component: () => import('../pages/shopping/ShoppingHome.vue'), name: 'shopping' },
+
     // 코인 규칙
     { path: '/rules', component: () => import('../pages/PointRules.vue'), name: 'rules' },
 
