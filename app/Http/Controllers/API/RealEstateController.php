@@ -104,6 +104,7 @@ class RealEstateController extends Controller
         return response()->json(['message' => '삭제되었습니다.']);
     }
 
+public function getComments($id)    {        $comments = Comment::where("commentable_type", "real_estate_listing")            ->where("commentable_id", $id)            ->with("user:id,name,username,avatar")            ->latest()->get();        return response()->json($comments);    }
     public function comment(Request $request, $id)
     {
         RealEstateListing::findOrFail($id);

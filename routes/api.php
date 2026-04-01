@@ -129,6 +129,7 @@ Route::get('market',                [MarketController::class,  'index']);
 Route::get('market/{item}',         [MarketController::class,  'show']);
 Route::get('realestate',             [RealEstateController::class, 'index']);
 Route::get('realestate/{id}',         [RealEstateController::class, 'show']);
+Route::get("realestate/{id}/comments", [RealEstateController::class, "getComments"]);
 
 Route::get('businesses',            [BusinessController::class,'index']);
 
