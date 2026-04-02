@@ -177,7 +177,7 @@
     <div class="hidden lg:flex flex-col h-full">
       <!-- 상단 배너 + 카테고리 (flex-shrink-0) -->
       <div class="px-6 pt-4 pb-3 flex-shrink-0">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-6 rounded-2xl mb-3 flex items-center justify-between">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-5 rounded-2xl mb-3 flex items-center justify-between">
           <div><h1 class="text-xl font-black">💬 채팅방</h1><p class="text-sm opacity-80 mt-0.5">실시간 커뮤니티 채팅</p></div>
           <button @click="showCreateModal = true" class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50">+ 채팅방 개설</button>
         </div>

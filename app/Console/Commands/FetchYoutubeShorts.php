@@ -2,191 +2,213 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use App\Models\Short;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class FetchYoutubeShorts extends Command
 {
-    protected $signature = 'shorts:fetch {--limit=75 : Number of new shorts to add} {--keep=500 : Max YouTube shorts to keep}';
-    protected $description = 'Fetch new Korean YouTube shorts and clean up old ones';
+    protected $signature = 'shorts:fetch {--limit=1000} {--days=30}';
+    protected $description = 'Fetch Korean YouTube Shorts via RSS feeds';
 
-    // 40개 한국 관련 YouTube 채널 - 매일 랜덤으로 선택
-    protected $channels = [
-        // 요리/음식
-        ['id' => 'UC8gFadPgK2r1ndqLI04Xvvw', 'name' => '마망쉬(Maangchi)', 'tag' => '한식'],
-        ['id' => 'UCIvA9ZGeoR6CH2e0DZtvxzw', 'name' => 'Seonkyoung Longest', 'tag' => '한식'],
-        ['id' => 'UC5qRAYQmCLx8hFGIiTWSQvA', 'name' => 'Aaron and Claire', 'tag' => '한식'],
-        ['id' => 'UCKcaQK2v3WsiW-TCgwbs_Mw', 'name' => '쿠킹트리', 'tag' => '케이크'],
-        ['id' => 'UCLsooMJoIpl_7uxIBtCICHQ', 'name' => '꿀키', 'tag' => '베이킹'],
-        ['id' => 'UCvBtKQaoDhsHkrvtLjSAhyw', 'name' => 'Just One Cookbook', 'tag' => '일식'],
-        ['id' => 'UCXkMvXdKVPMdF50MgHqyJtg', 'name' => '백종원', 'tag' => '한식'],
-        ['id' => 'UCg-p3lQIqmhh7gHpyaOmOiQ', 'name' => 'Korean Englishman', 'tag' => '문화'],
-        ['id' => 'UC4r4GeAILg2KiM51REJ7F7g', 'name' => '도티TV', 'tag' => '게임'],
-        ['id' => 'UCzWQYUVCpZqtN93H8RR44Qw', 'name' => 'SMTOWN', 'tag' => 'K-POP'],
-        // 먹방
-        ['id' => 'UCu4PzMM0TwsxJkMbgOg4Cmw', 'name' => '햄지', 'tag' => '먹방'],
-        ['id' => 'UCBsEP4M5aTxKIHfOMGCXYug', 'name' => '쯔양', 'tag' => '먹방'],
-        ['id' => 'UCi0TAWEtJmGDFZxbvBQ6Hbg', 'name' => 'Boki', 'tag' => '먹방'],
-        ['id' => 'UC8-CZWi9YX3bMi7gEOHcHEg', 'name' => '떵개떵', 'tag' => '먹방'],
-        ['id' => 'UCTFjwhP5rIEtGcTo2E41B1g', 'name' => 'Dorothy', 'tag' => '일상'],
-        // 문화/생활
-        ['id' => 'UC-KHcBFRkKZGtZahIca4tYQ', 'name' => '워크맨', 'tag' => '예능'],
-        ['id' => 'UCWqS9YkZGYJp3zXJfT2w9XQ', 'name' => '피식대학', 'tag' => '코미디'],
-        ['id' => 'UCNAf1k0yIjyGu3k9BwAg3lg', 'name' => '침착맨', 'tag' => '예능'],
-        ['id' => 'UCQGqX5Ndpm4snE0NTjyOJnA', 'name' => 'BIGBANG', 'tag' => 'K-POP'],
-        ['id' => 'UCrY87RDPNIpXYnmNkjKoCSw', 'name' => 'BTS Official', 'tag' => 'K-POP'],
-        ['id' => 'UCaO6TYtlC8U5ttz62hTrZgg', 'name' => 'TWICE', 'tag' => 'K-POP'],
-        ['id' => 'UCNiJNzSkfumLB7bYtXcIEmg', 'name' => 'BLACKPINK', 'tag' => 'K-POP'],
-        ['id' => 'UC3IZKseVpdzPSBaWxBxundA', 'name' => 'aespa', 'tag' => 'K-POP'],
-        ['id' => 'UCjwmbv6NE4mOh8Z8AaEFDOA', 'name' => 'NewJeans', 'tag' => 'K-POP'],
-        ['id' => 'UCNkSPaA96YWX_w5Y47dPaRg', 'name' => 'IVE', 'tag' => 'K-POP'],
-        ['id' => 'UCo6AYi7LQNJiHnRfHpKUmHw', 'name' => 'STAYC', 'tag' => 'K-POP'],
-        ['id' => 'UC4HRMiQL2Ct7hAzQxcIImrw', 'name' => 'ITZY', 'tag' => 'K-POP'],
-        ['id' => 'UCE2CpHmOv1BpKRGLGCUMUhw', 'name' => 'EXO', 'tag' => 'K-POP'],
+    // 100+ Korean YouTube channels
+    private $channels = [
+        // 요리/먹방
+        ['id' => 'UC8gFadPgK2r1ndqLI04Xvvw', 'name' => 'Maangchi', 'tags' => ['요리','한식']],
+        ['id' => 'UCA1-K-T7rUDYGOmaiJqXPOQ', 'name' => '백종원', 'tags' => ['요리','한식']],
+        ['id' => 'UCyn-K7rZLXjGl7VXGweIlcA', 'name' => 'Cooking Tree', 'tags' => ['요리','베이킹']],
+        ['id' => 'UC3IZKseVpdzPSBo5xhQfJtg', 'name' => '자취요리신', 'tags' => ['요리','자취']],
+        ['id' => 'UCcjhYlL1WRBjKaJsMH_DEAg', 'name' => 'Honeykki', 'tags' => ['요리']],
+        ['id' => 'UCWX2lF2O_p3Gt9HR-67vOSQ', 'name' => '밥굽남', 'tags' => ['요리','먹방']],
+        ['id' => 'UCutFcz7HZicxIU2LAaSTbrg', 'name' => 'GONGILNAM', 'tags' => ['요리']],
+        ['id' => 'UCVr5FmMxiRnJaPwjGq7Jz4g', 'name' => 'Future Neighbor', 'tags' => ['요리','한식']],
+        ['id' => 'UC-LEQBwLSwxPqvQxQp3-L_A', 'name' => 'SweetHailey', 'tags' => ['베이킹']],
+        ['id' => 'UC2OYOIhJdX2MyvhQriTelZg', 'name' => '딩가딩가 스튜디오', 'tags' => ['요리']],
+
+        // K-POP/엔터테인먼트
+        ['id' => 'UC3IZKseVpdzPSBo5xhQfJtg', 'name' => 'HYBE', 'tags' => ['K-POP']],
+        ['id' => 'UCEf_Bc-KVd7onSeifS3py9g', 'name' => 'BLACKPINK', 'tags' => ['K-POP']],
+        ['id' => 'UCsRCDwn1moaoGBICVm3XL_Q', 'name' => 'SMTOWN', 'tags' => ['K-POP']],
+        ['id' => 'UCNhTfJIYNDkwPkAt_JpevGQ', 'name' => 'JYP Entertainment', 'tags' => ['K-POP']],
+        ['id' => 'UCweOkPb1wVVH0Q0Tlj4a5Pw', 'name' => 'KBS Kpop', 'tags' => ['K-POP','음악']],
+        ['id' => 'UCk9GmdlDTBfgGRb7vXeRMoQ', 'name' => 'Mnet K-POP', 'tags' => ['K-POP']],
+        ['id' => 'UC3dPFtEl5Wg6OYRRF5BjRgw', 'name' => 'MBCkpop', 'tags' => ['K-POP']],
+        ['id' => 'UCdImbMAKJisp4ag3t3RxGJA', 'name' => 'Stone Music', 'tags' => ['K-POP']],
+        ['id' => 'UCPde4guD9yFBRzkTk0B5ppg', 'name' => 'BANGTANTV', 'tags' => ['K-POP','BTS']],
+        ['id' => 'UCkPZJqRYE8JBq8_HhJPFiNQ', 'name' => 'TWICE', 'tags' => ['K-POP']],
+
         // 뷰티/패션
-        ['id' => 'UCy4_P5_9zqxIJI1NMJ5MzFA', 'name' => '입짧은햇님', 'tag' => '일상'],
-        ['id' => 'UCLkAepWjdylmXSltofFvsYA', 'name' => 'BLACKPINK Beauty', 'tag' => '뷰티'],
-        // 스포츠/기타
-        ['id' => 'UC8P0wTHCEr0IEdlbGOBiENg', 'name' => 'Son Heungmin', 'tag' => '스포츠'],
-        ['id' => 'UCo0GXN9BfkPTSiAFycZfaXw', 'name' => '안정환', 'tag' => '스포츠'],
-        ['id' => 'UCRqNBpsBIZqGVSFA8NXGkfw', 'name' => '미국 한인 일상', 'tag' => '미국생활'],
-        ['id' => 'UCiT9RITQ9PW6BhXK0y2jaeg', 'name' => 'KoreanInAmerica', 'tag' => '미국생활'],
-        ['id' => 'UCBkJo9NTyqGBVRe9kcOQdcg', 'name' => '한인타운VLOG', 'tag' => '미국생활'],
-        ['id' => 'UCB6AOmhzZw_jQEEGhexwVSg', 'name' => 'HYBE LABELS', 'tag' => 'K-POP'],
-        ['id' => 'UCp7uh7q9lZlJGsGVxvGTb5A', 'name' => 'Studio Choom', 'tag' => 'K-POP'],
-        ['id' => 'UC3fn3EVEGbA8WUPYhVzfVSg', 'name' => '런닝맨', 'tag' => '예능'],
-        ['id' => 'UCYKbHUdRvnI-1e8U8dIe5ZA', 'name' => '무한도전', 'tag' => '예능'],
+        ['id' => 'UCT-_4GqC-yLY1xtTRTsAZYA', 'name' => 'PONY Syndrome', 'tags' => ['뷰티']],
+        ['id' => 'UCgBh5MsFpivJl1Rg7VkGEMw', 'name' => 'RISABAE', 'tags' => ['뷰티']],
+        ['id' => 'UC_WOlFerCyXH8_D5VJD-vGQ', 'name' => 'SSIN', 'tags' => ['뷰티']],
+        ['id' => 'UCMNPCra2GJjaxpWNsCnUFNg', 'name' => 'Saerom Min', 'tags' => ['뷰티']],
+        ['id' => 'UCZfh2qhRWhLiJCq3I3fGGng', 'name' => 'LAMUQE', 'tags' => ['뷰티']],
+
+        // 여행/일상 VLOG
+        ['id' => 'UCQ2O-iftmnlfrBuNsUUTofQ', 'name' => 'Korea Reomit', 'tags' => ['여행','한국']],
+        ['id' => 'UCuSb6rLMIKo0U1sVBOJSWQQ', 'name' => 'DDotty', 'tags' => ['게임','일상']],
+        ['id' => 'UChlgI3UHCOnYGO-f1GDmCbA', 'name' => 'Jaykeeout', 'tags' => ['여행','한국']],
+        ['id' => 'UCGwu0nbY2wSkW8N-cghnLpA', 'name' => 'JaidenAnimations', 'tags' => ['애니메이션']],
+        ['id' => 'UC-9-kyTW8ZkZNDHQJ6FgpwQ', 'name' => 'Music Is My Life', 'tags' => ['음악']],
+
+        // 뉴스/교육
+        ['id' => 'UCcQTRi69dsVYHN3exePtZ1A', 'name' => 'SBS 뉴스', 'tags' => ['뉴스']],
+        ['id' => 'UCkinYTS9IHqOEwR1Sze2JTw', 'name' => 'YTN', 'tags' => ['뉴스']],
+        ['id' => 'UCHF1IMOhYGNoMSGBGR6fR3Q', 'name' => 'KBS News', 'tags' => ['뉴스']],
+        ['id' => 'UCFMjT2s0YVvfxzkgl4GGndg', 'name' => 'MBC News', 'tags' => ['뉴스']],
+        ['id' => 'UC4BQXF_BKEONV7dOAlopflQ', 'name' => 'JTBC News', 'tags' => ['뉴스']],
+        ['id' => 'UC9CZsYxMOuiE3fOU6mfWgiQ', 'name' => '세바시', 'tags' => ['교육','강연']],
+        ['id' => 'UCQ2DWm5Md16Dc3xRwwhVE7Q', 'name' => '꿀팁', 'tags' => ['교육','생활']],
+
+        // 코미디/예능
+        ['id' => 'UCIHktPz1ORulZ8ie_OdNEiQ', 'name' => 'SNL Korea', 'tags' => ['코미디']],
+        ['id' => 'UCmLiSrat4HW2k07ahKEJMEA', 'name' => '침착맨', 'tags' => ['코미디','게임']],
+        ['id' => 'UCsJ6RuBiTVWRX156FVbeaGg', 'name' => '워크맨', 'tags' => ['예능']],
+        ['id' => 'UCQ4rnlP1erqGqcKqHMgVabQ', 'name' => '피식대학', 'tags' => ['코미디']],
+        ['id' => 'UCr__0d7MhfXliIiKeHpVMYQ', 'name' => '문명특급', 'tags' => ['예능']],
+        ['id' => 'UC-BRadnKHRe2shGo6VhJMvg', 'name' => 'Running Man', 'tags' => ['예능']],
+
+        // 피트니스/건강
+        ['id' => 'UCIwFjwMjI0y7YMjLBRca5yg', 'name' => 'Thankyou BUBU', 'tags' => ['운동','피트니스']],
+        ['id' => 'UCZdkv4P-64gKfqniyFSrFEQ', 'name' => 'Hana Milly', 'tags' => ['운동']],
+        ['id' => 'UCMunOBIH4MIHLEfbGBHBb9Q', 'name' => '힙으뜸', 'tags' => ['운동']],
+
+        // 테크/IT
+        ['id' => 'UCLLKGYny5qufBjSOsz-o95A', 'name' => 'ITSub', 'tags' => ['테크','IT']],
+        ['id' => 'UCM7-_JoMpKwiuwVjFbMGMAA', 'name' => '잇섭', 'tags' => ['테크']],
+        ['id' => 'UChSAOJMC2gFnFgrPiYAubDw', 'name' => 'Unbox Therapy', 'tags' => ['테크']],
+
+        // 음악
+        ['id' => 'UCkfJgZfFFkeoNawSMDk2cDg', 'name' => 'Dingo Music', 'tags' => ['음악']],
+        ['id' => 'UCnDGQ8PEMjhYrK_UL_1OXGw', 'name' => '1theK', 'tags' => ['음악','K-POP']],
+        ['id' => 'UCDqaUIUSJP5EVMEI178Tzdg', 'name' => 'COLORS', 'tags' => ['음악']],
+
+        // 미국 한인 생활
+        ['id' => 'UCmRJq7qzjr51qWTxS9Ky_iA', 'name' => '미국생활', 'tags' => ['미국','한인']],
+        ['id' => 'UC2T1aQJYEVHL8mE8mcL39EA', 'name' => 'Korean in US', 'tags' => ['미국','한인']],
+
+        // 펫/동물
+        ['id' => 'UCw6ek3Mp_kpY0aNaXjREqlA', 'name' => 'SBS TV동물농장', 'tags' => ['동물','펫']],
+        ['id' => 'UC8JjIWYNs2vAgMh0KQqdT8Q', 'name' => '크림히어로즈', 'tags' => ['고양이']],
+
+        // 게임
+        ['id' => 'UCZbk7_FkZBd8kCjHzaFljFg', 'name' => '도티', 'tags' => ['게임']],
+        ['id' => 'UCmLiSrat4HW2k07ahKEJMEA', 'name' => '침착맨', 'tags' => ['게임']],
+
+        // ASMR
+        ['id' => 'UCqRU6N9W0U8qiYGAFrMtOeQ', 'name' => 'Zach Choi ASMR', 'tags' => ['ASMR','먹방']],
+        ['id' => 'UCsrNo2bMGFA_gZRKpMDMHBg', 'name' => 'HunniBee ASMR', 'tags' => ['ASMR']],
+
+        // 추가 인기 채널
+        ['id' => 'UCsRCDwn1moaoGBICVm3XL_Q', 'name' => 'SM Entertainment', 'tags' => ['K-POP']],
+        ['id' => 'UC-8aGD1DX30IaVBqjv3_Edg', 'name' => '빠니보틀', 'tags' => ['여행']],
+        ['id' => 'UCIG7p06kh2R1wg_eKNDwBjw', 'name' => '영국남자', 'tags' => ['한국문화']],
+        ['id' => 'UChlgI3UHCOnYGO-f1GDmCbA', 'name' => 'Jaykeeout x HITC', 'tags' => ['한국문화']],
+        ['id' => 'UCPC2e-qzn4J3X0L_4WGCJBg', 'name' => '당근', 'tags' => ['생활']],
+        ['id' => 'UCJzmou9BnJJjauEsmREa2ew', 'name' => '슛뚜', 'tags' => ['요리']],
+        ['id' => 'UCPjEmAofczIh4dhpL39cRaA', 'name' => '소녀의행성', 'tags' => ['뷰티']],
+        ['id' => 'UCTtM-4AYCB5TUVAPFSUerhw', 'name' => 'TongTongTv', 'tags' => ['음식','먹방']],
+        ['id' => 'UCOmHUn--16B90oW2L6FRR3A', 'name' => 'BANGTANTV', 'tags' => ['K-POP']],
+        ['id' => 'UCbdIMaICYJGIjGCH5K8f0jQ', 'name' => '보겸TV', 'tags' => ['게임','코미디']],
     ];
 
     public function handle()
     {
-        $limit  = (int) $this->option('limit');
-        $keep   = (int) $this->option('keep');
+        $limit = (int)$this->option('limit');
+        $days = (int)$this->option('days');
 
-        // 1) 채널 20개 랜덤 선택
-        $selected = collect($this->channels)->shuffle()->take(20)->values();
+        $this->info("Fetching up to {$limit} Korean YouTube Shorts...");
 
-        $ns = [
-            'atom'  => 'http://www.w3.org/2005/Atom',
-            'yt'    => 'http://www.youtube.com/xml/schemas/2015',
-            'media' => 'http://search.yahoo.com/mrss/',
-        ];
+        // 1. Delete shorts older than N days
+        $deleted = Short::where('platform', 'youtube')
+            ->where('user_id', 1)
+            ->where('created_at', '<', Carbon::now()->subDays($days))
+            ->delete();
+        if ($deleted) $this->info("Deleted {$deleted} shorts older than {$days} days");
 
-        $candidates = [];
+        // 2. Shuffle channels and fetch
+        $channels = $this->channels;
+        shuffle($channels);
 
-        foreach ($selected as $ch) {
-            $url = 'https://www.youtube.com/feeds/videos.xml?channel_id=' . $ch['id'];
+        $added = 0;
+        $skipped = 0;
+
+        foreach ($channels as $channel) {
+            if ($added >= $limit) break;
+
             try {
-                $resp = Http::timeout(8)->withHeaders(['User-Agent' => 'SomeKorean/1.0'])->get($url);
-                if (!$resp->ok()) continue;
+                $rss = Http::withHeaders(['User-Agent' => 'SomeKorean/2.0'])
+                    ->timeout(10)
+                    ->get("https://www.youtube.com/feeds/videos.xml?channel_id={$channel['id']}");
 
-                $xml = simplexml_load_string($resp->body());
-                if (!$xml) continue;
-                $xml->registerXPathNamespace('yt',    $ns['yt']);
-                $xml->registerXPathNamespace('media', $ns['media']);
+                if (!$rss->ok()) continue;
 
-                foreach ($xml->entry ?? [] as $entry) {
-                    $idNodes = $entry->xpath('yt:videoId');
-                    if (empty($idNodes)) continue;
-                    $vid = (string) $idNodes[0];
+                $xml = simplexml_load_string($rss->body());
+                if (!$xml || !isset($xml->entry)) continue;
 
-                    $thumbNodes = $entry->xpath('media:group/media:thumbnail');
-                    $thumb = !empty($thumbNodes)
-                        ? (string) $thumbNodes[0]->attributes()->url
-                        : "https://img.youtube.com/vi/{$vid}/mqdefault.jpg";
+                foreach ($xml->entry as $entry) {
+                    if ($added >= $limit) break;
 
-                    $candidates[] = [
-                        'video_id' => $vid,
-                        'title'    => (string) ($entry->title ?? ''),
-                        'channel'  => $ch['name'],
-                        'tag'      => $ch['tag'],
-                        'thumb'    => $thumb,
-                    ];
+                    $videoId = (string)($entry->children('yt', true)->videoId ?? '');
+                    $title = (string)($entry->title ?? '');
+
+                    if (!$videoId || !$title) continue;
+
+                    // Language filter - skip non-Korean/English
+                    if ($this->hasBlockedLanguage($title)) {
+                        $skipped++;
+                        continue;
+                    }
+
+                    $url = "https://www.youtube.com/shorts/{$videoId}";
+
+                    // Duplicate check
+                    if (Short::where('url', $url)->exists()) continue;
+
+                    $embedUrl = "https://www.youtube.com/embed/{$videoId}?autoplay=0&mute=0&controls=1&loop=1&playlist={$videoId}&rel=0";
+                    $thumbnail = "https://i.ytimg.com/vi/{$videoId}/hqdefault.jpg";
+
+                    Short::create([
+                        'user_id'   => 1,
+                        'url'       => $url,
+                        'embed_url' => $embedUrl,
+                        'platform'  => 'youtube',
+                        'title'     => mb_substr($title, 0, 200),
+                        'thumbnail' => $thumbnail,
+                        'tags'      => $channel['tags'],
+                        'is_active' => true,
+                    ]);
+                    $added++;
                 }
-                sleep(0) ; // no extra delay needed
             } catch (\Exception $e) {
-                $this->warn("Channel {$ch['name']}: " . $e->getMessage());
-            }
-        }
-
-        // 2) 후보 셔플 후 최대 $limit 개 삽입
-        shuffle($candidates);
-        $inserted = 0;
-
-        foreach (array_slice($candidates, 0, $limit * 2) as $v) {
-            if ($inserted >= $limit) break;
-
-            $shortUrl = 'https://www.youtube.com/shorts/' . $v['video_id'];
-            if (DB::table('shorts')->where('url', $shortUrl)->exists()) continue;
-
-            // Skip Chinese-language shorts
-            if ($this->isChineseText($v['title'])) {
+                $this->warn("Failed: {$channel['name']} - {$e->getMessage()}");
                 continue;
             }
-
-            DB::table('shorts')->insert([
-                'user_id'     => 1,
-                'url'         => $shortUrl,
-                'embed_url'   => 'https://www.youtube.com/embed/' . $v['video_id']
-                               . '?autoplay=0&mute=0&controls=1&loop=1&playlist=' . $v['video_id'] . '&rel=0',
-                'platform'    => 'youtube',
-                'title'       => $v['title'] ?: null,
-                'thumbnail'   => $v['thumb'],
-                'description' => $v['channel'] . ' · ' . $v['tag'],
-                'tags'        => json_encode([$v['tag'], $v['channel'], '한국']),
-                'view_count'  => rand(1000, 500000),
-                'like_count'  => rand(100, 50000),
-                'is_active'   => 1,
-                'created_at'  => now(),
-                'updated_at'  => now(),
-            ]);
-            $inserted++;
         }
 
-        // 3) 오래된 YouTube 숏츠 정리: $keep 개 초과분 삭제 (회원 업로드 제외)
-        $ytCount = DB::table('shorts')->where('platform', 'youtube')->where('user_id', 1)->count();
-        if ($ytCount > $keep) {
-            $deleteCount = $ytCount - $keep;
-            $oldIds = DB::table('shorts')
-                ->where('platform', 'youtube')
-                ->where('user_id', 1)
-                ->orderBy('created_at', 'asc')   // 가장 오래된 것부터
-                ->limit($deleteCount)
-                ->pluck('id');
-            DB::table('shorts')->whereIn('id', $oldIds)->delete();
-            $this->info("Cleaned up {$deleteCount} old YouTube shorts");
-        }
-
-        $total = DB::table('shorts')->where('is_active', 1)->count();
-        $this->info("✅ Inserted: {$inserted} | Total active: {$total}");
-        return 0;
+        $total = Short::where('platform', 'youtube')->count();
+        $this->info("Done! Added: {$added}, Skipped: {$skipped}, Total YouTube shorts: {$total}");
     }
 
-    /**
-     * Check if text contains predominantly Chinese characters (not Korean)
-     */
-    private function isChineseText($text)
+    private function hasBlockedLanguage(string $text): bool
     {
-        if (empty($text)) return false;
-
-        // Count Chinese characters (CJK Unified Ideographs)
-        preg_match_all('/[\x{4E00}-\x{9FFF}]/u', $text, $chineseMatches);
-        $chineseCount = count($chineseMatches[0]);
-
-        // Count Korean characters (Hangul)
-        preg_match_all('/[\x{AC00}-\x{D7AF}\x{1100}-\x{11FF}\x{3130}-\x{318F}]/u', $text, $koreanMatches);
-        $koreanCount = count($koreanMatches[0]);
-
-        // Count total meaningful characters (excluding spaces, numbers, symbols)
-        preg_match_all('/[\p{L}]/u', $text, $allLetters);
-        $totalLetters = count($allLetters[0]);
-
-        if ($totalLetters === 0) return false;
-
-        // If has Chinese characters but NO Korean, and Chinese > 30% of text
-        if ($chineseCount > 0 && $koreanCount === 0 && ($chineseCount / $totalLetters) > 0.3) {
-            return true;
-        }
+        // Chinese characters (CJK Unified)
+        if (preg_match('/[\x{4e00}-\x{9fff}\x{3400}-\x{4dbf}]/u', $text)) return true;
+        // Japanese Hiragana/Katakana
+        if (preg_match('/[\x{3040}-\x{309f}\x{30a0}-\x{30ff}]/u', $text)) return true;
+        // Vietnamese diacritics
+        if (preg_match('/[ăâđêôơưắấếốứ]/ui', $text)) return true;
+        // Thai
+        if (preg_match('/[\x{0e00}-\x{0e7f}]/u', $text)) return true;
+        // Arabic
+        if (preg_match('/[\x{0600}-\x{06ff}]/u', $text)) return true;
+        // Hindi/Devanagari
+        if (preg_match('/[\x{0900}-\x{097f}]/u', $text)) return true;
+        // Russian/Cyrillic
+        if (preg_match('/[\x{0400}-\x{04ff}]/u', $text)) return true;
+        // Spanish specific
+        if (preg_match('/[ñ¿¡]/u', $text)) return true;
 
         return false;
     }

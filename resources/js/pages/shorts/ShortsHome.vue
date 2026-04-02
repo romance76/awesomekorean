@@ -132,7 +132,7 @@ async function loadShorts(reset = false) {
   loadingMore = true
   try {
     const res = await axios.get('/api/shorts', {
-      params: { page, per_page: 20, tab: activeTab.value }
+      params: { page, per_page: 20, tab: activeTab.value, sort: 'random' }
     })
     const items = res.data.data || res.data || []
     if (items.length === 0) {

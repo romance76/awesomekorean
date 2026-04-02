@@ -19,7 +19,7 @@ class ShortController extends Controller
 
         $shorts = Short::with("user:id,username,avatar")
             ->where("is_active", true)
-            ->orderBy("id")
+            ->when($request->input("sort") === "random", fn($q) => $q->inRandomOrder(), fn($q) => $q->latest())
             ->limit($perPage)
             ->when(request('search'), fn($q, $s) => $q->where('title', 'LIKE', '%'.$s.'%'))->get()
             ->map(function ($s) use ($user) {
