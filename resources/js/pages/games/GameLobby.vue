@@ -3,10 +3,10 @@
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
 
       <!-- 헤더 -->
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl px-6 py-6 mb-5 shadow-lg text-white">
+      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl px-6 py-5 mb-5 shadow-lg text-white">
         <div class="flex items-center justify-between mb-3">
           <div>
-            <h1 class="text-2xl font-black">🎮 게임 센터</h1>
+            <h1 class="text-xl font-black">🎮 게임 센터</h1>
             <p class="text-indigo-200 text-sm">연령별 맞춤 게임 · 두뇌트레이닝 · 커뮤니티 게임</p>
           </div>
           <div v-if="auth.isLoggedIn" class="text-right">

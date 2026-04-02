@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 pb-20">
     <!-- Header Banner -->
-    <div class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-4 py-6 text-center">
+    <div class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-5 text-center">
       <h1 class="text-2xl font-bold flex items-center justify-center gap-2">
         <span class="text-3xl">💙</span> 노인 안심 서비스
       </h1>
