@@ -32,6 +32,7 @@
 
       <!-- Video -->
       <div class="sc-video">
+        <!-- Active slide: play iframe -->
         <iframe
           v-if="short.platform === 'youtube' && idx === currentIndex"
           :src="embedUrl(short)"
@@ -41,8 +42,14 @@
           playsinline
           class="w-full h-full"
         ></iframe>
-        <div v-else-if="short.platform !== 'youtube'" class="sc-novideo">
-          <span>{{ short.title }}</span>
+        <!-- Inactive slide: show thumbnail -->
+        <div v-else class="w-full h-full flex items-center justify-center bg-black relative">
+          <img v-if="short.thumbnail" :src="short.thumbnail" class="w-full h-full object-cover" :alt="short.title" />
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-16 h-16 bg-white/30 backdrop-blur rounded-full flex items-center justify-center">
+              <span class="text-white text-3xl ml-1">▶</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -162,7 +169,7 @@ function embedUrl(short) {
     const vidMatch = short.embed_url.match(/embed\/([^?&/]+)/)
     if (vidMatch) {
       const vid = vidMatch[1]
-      return `https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&loop=1&playlist=${vid}&rel=0&controls=1&playsinline=1&enablejsapi=1`
+      return `https://www.youtube.com/embed/${vid}?autoplay=1&mute=0&loop=1&playlist=${vid}&rel=0&controls=1&playsinline=1&enablejsapi=1`
     }
     return short.embed_url
   }
@@ -170,7 +177,7 @@ function embedUrl(short) {
   if (short.url) {
     const vid = extractYouTubeId(short.url)
     if (vid) {
-      return `https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&loop=1&playlist=${vid}&rel=0&controls=1&playsinline=1&enablejsapi=1`
+      return `https://www.youtube.com/embed/${vid}?autoplay=1&mute=0&loop=1&playlist=${vid}&rel=0&controls=1&playsinline=1&enablejsapi=1`
     }
   }
   return ''

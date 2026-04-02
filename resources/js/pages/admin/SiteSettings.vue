@@ -826,11 +826,73 @@
         </div>
       </div>
     </div>
+
+    <!-- API 키 관리 -->
+    <div v-if="activeTab === 'api'" class="space-y-6">
+      <div class="bg-white rounded-xl border p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-bold">🔑 API 키 관리</h3>
+          <button @click="showAddApiKey = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">+ 새 API 키</button>
+        </div>
+        
+        <div class="space-y-3">
+          <div v-for="key in apiKeys" :key="key.id" class="border rounded-xl p-4 flex items-center justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-bold text-gray-800">{{ key.name }}</span>
+                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{{ key.service }}</span>
+                <span :class="key.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="text-xs px-2 py-0.5 rounded-full">{{ key.is_active ? '활성' : '비활성' }}</span>
+              </div>
+              <p v-if="key.description" class="text-xs text-gray-500 mt-1">{{ key.description }}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <code class="text-xs bg-gray-100 px-2 py-1 rounded font-mono">{{ key.showFull ? key.fullKey : key.masked_key }}</code>
+                <button @click="toggleReveal(key)" class="text-xs text-blue-600 hover:underline">{{ key.showFull ? '숨기기' : '보기' }}</button>
+                <button @click="copyKey(key)" class="text-xs text-gray-500 hover:underline">복사</button>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button @click="toggleApiKeyActive(key)" :class="key.is_active ? 'text-orange-600' : 'text-green-600'" class="text-xs hover:underline">{{ key.is_active ? '비활성화' : '활성화' }}</button>
+              <button @click="deleteApiKey(key.id)" class="text-xs text-red-600 hover:underline">삭제</button>
+            </div>
+          </div>
+          <div v-if="!apiKeys.length" class="text-center py-8 text-gray-400 text-sm">등록된 API 키가 없습니다</div>
+        </div>
+      </div>
+
+      <!-- 새 API 키 추가 모달 -->
+      <div v-if="showAddApiKey" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showAddApiKey = false">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+          <h3 class="font-bold text-lg mb-4">🔑 새 API 키 등록</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">서비스 이름</label>
+              <input v-model="newApiKey.name" placeholder="예: YouTube Data API v3" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">서비스 코드</label>
+              <input v-model="newApiKey.service" placeholder="예: youtube, stripe, openai" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">API 키</label>
+              <input v-model="newApiKey.api_key" placeholder="키 입력..." class="w-full border rounded-lg px-3 py-2 text-sm font-mono" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">설명 (선택)</label>
+              <input v-model="newApiKey.description" placeholder="용도 설명" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button @click="showAddApiKey = false" class="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-semibold">취소</button>
+              <button @click="saveApiKey" class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">등록</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
 
 // ─── Sub-component: Toggle Row ────────────────────────────────────────────────
@@ -874,6 +936,7 @@ const tabs = [
   { key: 'footer', label: '푸터 편집' },
   { key: 'terms', label: '약관 관리' },
   { key: 'notifications', label: '결제/알림 설정' },
+  { key: 'api', label: '🔑 API 키 관리' },
 ]
 
 const termsTabs = [
@@ -1328,8 +1391,59 @@ async function saveMenus() {
   }
 }
 
+// ─── API 키 관리 ──────────────────────────────────────────────────────────────
+const apiKeys = ref([])
+const showAddApiKey = ref(false)
+const newApiKey = ref({ name: '', service: '', api_key: '', description: '' })
+
+async function loadApiKeys() {
+  try {
+    const { data } = await axios.get('/api/admin/api-keys')
+    apiKeys.value = (data || []).map(k => ({ ...k, showFull: false, fullKey: '' }))
+  } catch {}
+}
+
+async function saveApiKey() {
+  try {
+    await axios.post('/api/admin/api-keys', newApiKey.value)
+    showAddApiKey.value = false
+    newApiKey.value = { name: '', service: '', api_key: '', description: '' }
+    loadApiKeys()
+  } catch (e) { alert(e.response?.data?.message || '등록 실패') }
+}
+
+async function deleteApiKey(id) {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  await axios.delete('/api/admin/api-keys/' + id)
+  loadApiKeys()
+}
+
+async function toggleApiKeyActive(key) {
+  await axios.put('/api/admin/api-keys/' + key.id, { is_active: !key.is_active })
+  loadApiKeys()
+}
+
+async function toggleReveal(key) {
+  if (!key.showFull) {
+    const { data } = await axios.get('/api/admin/api-keys/' + key.id + '/reveal')
+    key.fullKey = data.api_key
+  }
+  key.showFull = !key.showFull
+}
+
+function copyKey(key) {
+  const text = key.showFull ? key.fullKey : key.masked_key
+  navigator.clipboard.writeText(key.fullKey || text)
+  alert('복사되었습니다!')
+}
+
 onMounted(loadSettings)
 onMounted(loadMenus)
+
+watch(() => activeTab.value, (tab) => {
+  if (tab === 'api') loadApiKeys()
+})
+
 </script>
 
 <style scoped>

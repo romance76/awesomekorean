@@ -92,6 +92,14 @@ class ShortController extends Controller
             'description' => 'nullable|string|max:300',
             'tags'        => 'nullable|array|max:5',
         ]);
+        // YouTube URLs must be Shorts (vertical) only
+        $url = $request->url;
+        if (preg_match('/youtube\.com|youtu\.be/i', $url)) {
+            if (!preg_match('/youtube\.com\/shorts\//i', $url)) {
+                return response()->json(['message' => '세로형 YouTube Shorts URL만 등록 가능합니다. (youtube.com/shorts/...)'], 422);
+            }
+        }
+
 
         $parsed = $this->parseEmbed($request->url);
 

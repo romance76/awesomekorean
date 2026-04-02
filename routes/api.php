@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\API\ApiKeyController;
 use App\Http\Controllers\API\AuthController;
 
 use App\Http\Controllers\API\PostController;
@@ -1176,6 +1176,12 @@ Route::middleware('auth:api')->group(function () {
         Route::post('businesses/import', [AdminBusinessController::class, 'bulkImport']);
 
         Route::get('businesses/crawl-status', [AdminBusinessController::class, 'crawlStatus']);
+        // API 키 관리
+        Route::get("api-keys", [ApiKeyController::class, "index"]);
+        Route::post("api-keys", [ApiKeyController::class, "store"]);
+        Route::put("api-keys/{id}", [ApiKeyController::class, "update"]);
+        Route::delete("api-keys/{id}", [ApiKeyController::class, "destroy"]);
+        Route::get("api-keys/{id}/reveal", [ApiKeyController::class, "reveal"]);
 
     });
 
