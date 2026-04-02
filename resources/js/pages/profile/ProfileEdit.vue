@@ -13,7 +13,7 @@
           </div>
           <div>
             <input type="file" ref="avatarInput" accept="image/*" class="hidden" @change="onAvatarChange" />
-            <button @click="$refs.avatarInput.click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">사진 변경</button>
+            <button @click="$refsavatarInput.click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition">사진 변경</button>
             <p class="text-xs text-gray-400 mt-1">JPG, PNG (최대 2MB)</p>
           </div>
         </div>
