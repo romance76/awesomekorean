@@ -9,7 +9,7 @@
       <div class="max-w-[1200px] mx-auto px-4 py-10 md:py-14 relative">
         <div class="text-center">
           <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm mb-4 backdrop-blur-sm">
-            <span>{{ langStore.$t('common.flag') || '🇰🇷' }}</span>
+            <span>🇰🇷</span>
             <span class="font-semibold">{{ locale === 'ko' ? '미국 한인 No.1 커뮤니티' : 'Korean American #1 Community' }}</span>
           </div>
           <h1 class="text-3xl md:text-5xl font-black tracking-tight">SomeKorean</h1>
@@ -33,11 +33,11 @@
 
           <!-- CTA Buttons -->
           <div v-if="!auth.isLoggedIn" class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <router-link to="/auth/register"
+            <router-link to="/register"
               class="bg-white text-blue-700 font-bold px-8 py-3 rounded-xl hover:bg-blue-50 transition shadow-lg text-sm">
               {{ locale === 'ko' ? '무료로 시작하기' : 'Get Started Free' }}
             </router-link>
-            <router-link to="/auth/login"
+            <router-link to="/login"
               class="border-2 border-white/50 text-white font-semibold px-8 py-3 rounded-xl hover:bg-white/10 transition text-sm">
               {{ langStore.$t('auth.login') || (locale === 'ko' ? '로그인' : 'Login') }}
             </router-link>
@@ -131,13 +131,13 @@
             <router-link v-for="job in jobs" :key="job.id" :to="`/jobs/${job.id}`"
               class="px-4 py-3 hover:bg-blue-50/50 dark:hover:bg-gray-700/50 transition block border-b border-gray-50 dark:border-gray-700 last:border-0">
               <div class="flex items-center gap-2 mb-0.5">
-                <span class="text-[11px] px-1.5 py-0.5 rounded-full font-semibold" :class="jobTypeColor(job.job_type)">
-                  {{ jobTypeLabel(job.job_type) }}
+                <span class="text-[11px] px-1.5 py-0.5 rounded-full font-semibold" :class="jobTypeColor(job.type)">
+                  {{ jobTypeLabel(job.type) }}
                 </span>
-                <span class="text-xs text-gray-400">{{ job.region }}</span>
+                <span class="text-xs text-gray-400">{{ job.city }}, {{ job.state }}</span>
               </div>
               <div class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ job.title }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ job.company_name }} · {{ job.salary_range }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ job.company }} · ${{ job.salary_min }}~${{ job.salary_max }}/{{ job.salary_type }}</div>
             </router-link>
             <div v-if="!jobs.length" class="px-4 py-8 text-center text-sm text-gray-400">
               {{ locale === 'ko' ? '채용공고가 없습니다' : 'No job posts yet' }}
@@ -172,7 +172,7 @@
             </div>
             <div class="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">{{ item.title }}</div>
             <div class="text-blue-600 font-bold text-xs mt-0.5">${{ Number(item.price).toLocaleString() }}</div>
-            <div class="text-[10px] text-gray-400 mt-0.5">{{ item.region }}</div>
+            <div class="text-[10px] text-gray-400 mt-0.5">{{ item.city }}, {{ item.state }}</div>
           </router-link>
         </div>
       </section>
@@ -193,15 +193,15 @@
             class="px-4 py-3 flex gap-3 hover:bg-blue-50/50 dark:hover:bg-gray-700/50 transition block">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex flex-col items-center justify-center flex-shrink-0">
               <div class="text-[10px] text-blue-600 dark:text-blue-300 font-bold uppercase leading-none">
-                {{ formatEventMonth(ev.event_date) }}
+                {{ formatEventMonth(ev.start_date) }}
               </div>
               <div class="text-xl font-black text-blue-700 dark:text-blue-200 leading-tight">
-                {{ formatEventDay(ev.event_date) }}
+                {{ formatEventDay(ev.start_date) }}
               </div>
             </div>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ ev.title }}</div>
-              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ ev.location }} · {{ ev.region }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ ev.venue }} · {{ ev.city }}, {{ ev.state }}</div>
             </div>
           </router-link>
         </div>
@@ -347,11 +347,15 @@ async function loadAll() {
     axios.get('/api/news/yesterday-summary'),
   ])
 
-  if (postsRes.status === 'fulfilled') posts.value = postsRes.value.data?.data?.slice(0, 6) ?? []
-  if (jobsRes.status === 'fulfilled') jobs.value = jobsRes.value.data?.data?.slice(0, 6) ?? []
-  if (marketRes.status === 'fulfilled') market.value = marketRes.value.data?.data?.slice(0, 6) ?? []
-  if (eventsRes.status === 'fulfilled') events.value = eventsRes.value.data?.data?.slice(0, 3) ?? []
-  if (newsRes.status === 'fulfilled') yesterdayNews.value = newsRes.value.data ?? { date: '', total: 0, items: [] }
+  // API returns { success, data: { current_page, data: [...items] } }
+  if (postsRes.status === 'fulfilled') posts.value = postsRes.value.data?.data?.data?.slice(0, 6) ?? []
+  if (jobsRes.status === 'fulfilled') jobs.value = jobsRes.value.data?.data?.data?.slice(0, 6) ?? []
+  if (marketRes.status === 'fulfilled') market.value = marketRes.value.data?.data?.data?.slice(0, 6) ?? []
+  if (eventsRes.status === 'fulfilled') events.value = eventsRes.value.data?.data?.data?.slice(0, 3) ?? []
+  if (newsRes.status === 'fulfilled') {
+    const newsData = newsRes.value.data?.data?.data ?? newsRes.value.data?.data ?? []
+    yesterdayNews.value = { items: Array.isArray(newsData) ? newsData.slice(0, 5) : [] }
+  }
 
   loadingPosts.value = false
   loadingJobs.value = false
