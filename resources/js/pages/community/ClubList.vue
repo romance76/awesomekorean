@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50 pb-16">
+
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
       <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl">
         <div class="flex items-center justify-between px-6 py-5">
@@ -24,24 +25,10 @@
         </button>
       </div>
     </div>
-    <!-- Search bar -->
+
+    <!-- Location Bar -->
     <div class="max-w-[1200px] mx-auto px-4 mt-2">
-      <div class="bg-white rounded-2xl shadow-sm p-3">
-        <div class="flex items-center gap-2">
-          <select v-model="radius" class="border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white">
-            <option :value="5">📍 5mi</option>
-            <option :value="10">📍 10mi</option>
-            <option :value="20">📍 20mi</option>
-            <option :value="30">📍 30mi</option>
-            <option :value="50">📍 50mi</option>
-            <option :value="100">📍 100mi</option>
-            <option :value="0">📍 전체</option>
-          </select>
-          <input v-model="search" type="text" placeholder="동호회 검색..."
-            class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 min-w-0" />
-          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700">검색</button>
-        </div>
-      </div>
+      <LocationBar placeholder="동호회 검색..." @search="onLocationSearch" @location-change="onLocationChange" />
     </div>
     <!-- Content area -->
     <div class="max-w-[1200px] mx-auto px-4 py-4">
@@ -201,6 +188,7 @@
 import { useRouter } from 'vue-router'
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import LocationBar from '../../components/location/LocationBar.vue'
 
 const router = useRouter()
 const radius = ref(30);
@@ -344,6 +332,18 @@ async function fetchClubs() {
 onMounted(() => {
   fetchClubs();
 });
+
+// LocationBar handlers
+function onLocationSearch(keyword) {
+  search.value = keyword
+  fetchClubs()
+}
+
+function onLocationChange(location) {
+  console.log('Location changed:', location)
+  fetchClubs()
+}
+
 </script>
 
 <style scoped>

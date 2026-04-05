@@ -39,33 +39,54 @@ class ProfileController extends Controller
 
         $request->validate([
             'name'     => 'sometimes|string|max:50',
+            'nickname' => 'nullable|string|max:50',
             'username' => ['sometimes', 'string', 'max:30', 'alpha_dash', Rule::unique('users')->ignore($user->id)],
-            'bio'      => 'nullable|string|max:255',
+            'bio'      => 'nullable|string|max:500',
+            'phone'    => 'nullable|string|max:20',
+            'address'  => 'nullable|string|max:255',
+            'address2' => 'nullable|string|max:255',
+            'city'     => 'nullable|string|max:100',
+            'state'    => 'nullable|string|max:50',
+            'zip_code' => 'nullable|string|max:20',
             'region'   => 'nullable|string|max:100',
-            'lang'     => 'nullable|in:ko,en',
+            'lang'     => 'nullable|in:ko,en,both',
+            'default_radius' => 'nullable|integer|min:0|max:500',
             'avatar'   => 'nullable|image|max:2048',
         ]);
 
-        $data = $request->only(['name', 'username', 'bio', 'region', 'lang']);
+        $data = $request->only(['name', 'nickname', 'username', 'bio', 'phone', 'address', 'address2', 'city', 'state', 'zip_code', 'region', 'lang', 'default_radius']);
 
         if ($request->hasFile('avatar')) {
             if ($user->avatar) Storage::disk('public')->delete($user->avatar);
             $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
+        // Auto-set lat/lng from city
+        $cityCoords = [
+            'Los Angeles'=>[34.0522,-118.2437],'Koreatown'=>[34.0577,-118.3005],
+            'New York'=>[40.7128,-74.0060],'Flushing'=>[40.7654,-73.8318],
+            'Fort Lee'=>[40.8509,-73.9701],'Atlanta'=>[33.749,-84.388],
+            'Duluth'=>[34.0029,-84.1446],'Suwanee'=>[34.0515,-84.0713],
+            'Dallas'=>[32.7767,-96.797],'Houston'=>[29.7604,-95.3698],
+            'Chicago'=>[41.8781,-87.6298],'Seattle'=>[47.6062,-122.3321],
+            'San Francisco'=>[37.7749,-122.4194],'Annandale'=>[38.8304,-77.1961],
+            'Boston'=>[42.3601,-71.0589],'San Diego'=>[32.7157,-117.1611],
+            'Irvine'=>[33.6846,-117.8265],'Denver'=>[39.7392,-104.9903],
+            'Philadelphia'=>[39.9526,-75.1652],
+        ];
+        if (!empty($data['city'])) {
+            foreach ($cityCoords as $cn => $co) {
+                if (stripos($data['city'], $cn) !== false) {
+                    $data['lat'] = $co[0]; $data['lng'] = $co[1]; break;
+                }
+            }
+        }
+
         $user->update($data);
 
         return response()->json([
             'message' => '프로필이 수정되었습니다.',
-            'user'    => [
-                'id'       => $user->id,
-                'name'     => $user->name,
-                'username' => $user->username,
-                'avatar'   => $user->avatar ? asset('storage/' . $user->avatar) : null,
-                'bio'      => $user->bio,
-                'region'   => $user->region,
-                'lang'     => $user->lang,
-            ],
+            'user'    => $user->fresh()->makeHidden(['password','remember_token'])->toArray(),
         ]);
     }
 

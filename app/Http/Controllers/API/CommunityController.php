@@ -32,7 +32,14 @@ class CommunityController extends Controller
 
     public function categories()
     {
-        return response()->json($this->categories);
+        $cats = collect($this->categories)->map(function ($cat) {
+            $count = \App\Models\BoardPost::where('category_slug', $cat['slug'])->whereNull('deleted_at')->count();
+            $latest = \App\Models\BoardPost::where('category_slug', $cat['slug'])->whereNull('deleted_at')->max('created_at');
+            $cat['count'] = $count;
+            $cat['latest_at'] = $latest;
+            return $cat;
+        });
+        return response()->json($cats);
     }
 
     public function posts($slug)

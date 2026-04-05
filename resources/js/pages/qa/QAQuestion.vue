@@ -249,8 +249,8 @@ async function recommendQuestion() {
   if (!isLoggedIn) return router.push('/auth/login')
   try {
     const resp = await axios.post('/api/qa-v2/questions/' + questionId.value + '/recommend', {}, { headers: headers })
-    question.value.recommend_count = resp.data.recommend_count !== undefined ? resp.data.recommend_count : (question.value.recommend_count || 0) + 1
-    question.value.is_recommended = !question.value.is_recommended
+    question.value.recommend_count = resp.data.recommend_count
+    question.value.is_recommended = resp.data.recommended
   } catch (e) { console.error(e) }
 }
 
@@ -258,8 +258,8 @@ async function likeAnswer(ans) {
   if (!isLoggedIn) return router.push('/auth/login')
   try {
     const resp = await axios.post('/api/qa-v2/answers/' + ans.id + '/like', {}, { headers: headers })
-    ans.likes_count = resp.data.likes_count !== undefined ? resp.data.likes_count : (ans.likes_count || 0) + 1
-    ans.is_liked = !ans.is_liked
+    ans.likes_count = resp.data.like_count
+    ans.is_liked = resp.data.liked
   } catch (e) { console.error(e) }
 }
 

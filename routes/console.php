@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('shorts:fetch --limit=75 --keep=500')->dailyAt('03:00');
+Schedule::command('shorts:fetch --limit=1000 --days=30')->dailyAt('03:00');
 Schedule::command('maangchi:fetch')->weeklyOn(1, '04:00');
 
 Schedule::command('elder:check')->everyMinute();

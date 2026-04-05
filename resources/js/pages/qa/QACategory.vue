@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50">
     <!-- 배너 -->
     <div class="bg-gradient-to-r from-blue-600 to-indigo-500 rounded-2xl shadow-lg text-white">
-      <div class="max-w-[1200px] mx-auto px-4 py-8">
+      <div class="max-w-[1200px] mx-auto px-6 py-5">
         <div class="flex items-center justify-between">
           <div>
             <div class="flex items-center gap-2 mb-1">
@@ -10,7 +10,7 @@
               <span class="text-blue-300">/</span>
               <span class="font-bold">{{ categoryInfo.name || slug }}</span>
             </div>
-            <h1 class="text-2xl font-bold">{{ categoryInfo.name || slug }}</h1>
+            <h1 class="text-xl font-black">{{ categoryInfo.name || slug }}</h1>
             <p v-if="categoryInfo.description" class="text-blue-100 mt-1 text-sm">{{ categoryInfo.description }}</p>
           </div>
           <router-link to="/qa/write"
@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <div class="max-w-[1200px] mx-auto px-4 py-6">
+    <div class="max-w-[1200px] mx-auto px-4 pt-4">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- 좌: 카테고리 사이드바 -->
         <div class="lg:col-span-2">

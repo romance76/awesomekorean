@@ -6,9 +6,11 @@ use App\Models\Business;
 use App\Models\BusinessReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\HasDistanceFilter;
 
 class BusinessController extends Controller
 {
+    use HasDistanceFilter;
     public function index(Request $request)
     {
         $query = Business::where('status', 'active');
@@ -88,6 +90,7 @@ class BusinessController extends Controller
               ->orderByDesc('rating_avg');
 
         $perPage = min((int)($request->per_page ?? 20), 50);
+        $this->applyDistanceFilter($query, $request, "latitude", "longitude");
         return response()->json($query->paginate($perPage));
     }
 

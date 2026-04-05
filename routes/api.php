@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\API\ApiKeyController;
 use App\Http\Controllers\API\AuthController;
 
 use App\Http\Controllers\API\PostController;
@@ -76,6 +76,7 @@ use App\Http\Controllers\API\CallController;
 use App\Http\Controllers\API\QaController;
 
 use App\Http\Controllers\API\RecipeController;
+use App\Http\Controllers\API\UserLocationController;
 
 use App\Http\Controllers\API\MusicController;
 
@@ -129,6 +130,7 @@ Route::get('market',                [MarketController::class,  'index']);
 Route::get('market/{item}',         [MarketController::class,  'show']);
 Route::get('realestate',             [RealEstateController::class, 'index']);
 Route::get('realestate/{id}',         [RealEstateController::class, 'show']);
+Route::get("realestate/{id}/comments", [RealEstateController::class, "getComments"]);
 
 Route::get('businesses',            [BusinessController::class,'index']);
 
@@ -296,6 +298,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('auth/logout',  [AuthController::class, 'logout']);
 
     Route::post('auth/refresh', [AuthController::class, 'refresh']);
+    Route::get('user/location', [UserLocationController::class, 'get']);
 
     Route::get('auth/me',       [AuthController::class, 'me']);
     Route::delete('auth/account',  [AuthController::class, 'deleteAccount']);
@@ -1173,6 +1176,12 @@ Route::middleware('auth:api')->group(function () {
         Route::post('businesses/import', [AdminBusinessController::class, 'bulkImport']);
 
         Route::get('businesses/crawl-status', [AdminBusinessController::class, 'crawlStatus']);
+        // API 키 관리
+        Route::get("api-keys", [ApiKeyController::class, "index"]);
+        Route::post("api-keys", [ApiKeyController::class, "store"]);
+        Route::put("api-keys/{id}", [ApiKeyController::class, "update"]);
+        Route::delete("api-keys/{id}", [ApiKeyController::class, "destroy"]);
+        Route::get("api-keys/{id}/reveal", [ApiKeyController::class, "reveal"]);
 
     });
 

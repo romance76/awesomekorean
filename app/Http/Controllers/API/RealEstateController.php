@@ -7,10 +7,12 @@ use App\Models\Bookmark;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\HasDistanceFilter;
 use Illuminate\Support\Facades\Storage;
 
 class RealEstateController extends Controller
 {
+    use HasDistanceFilter;
     public function index(Request $request)
     {
         $query = RealEstateListing::with('user:id,name,username')
@@ -29,6 +31,7 @@ class RealEstateController extends Controller
             });
         }
 
+        $this->applyDistanceFilter($query, $request, "latitude", "longitude");
         return response()->json($query->paginate(20));
     }
 
@@ -104,6 +107,7 @@ class RealEstateController extends Controller
         return response()->json(['message' => '삭제되었습니다.']);
     }
 
+public function getComments($id)    {        $comments = Comment::where("commentable_type", "real_estate_listing")            ->where("commentable_id", $id)            ->with("user:id,name,username,avatar")            ->latest()->get();        return response()->json($comments);    }
     public function comment(Request $request, $id)
     {
         RealEstateListing::findOrFail($id);

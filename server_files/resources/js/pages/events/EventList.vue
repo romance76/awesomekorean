@@ -65,7 +65,7 @@
             </div>
             <h3 class="font-bold text-gray-800 truncate">{{ event.title }}</h3>
             <p class="text-gray-500 text-sm truncate mt-0.5">📍 {{ event.location || event.region }}</p>
-            <p class="text-gray-400 text-xs mt-1">주최: {{ event.user?.name || event.organizer_name || '커뮤니티' }}</p>
+            <p class="text-gray-400 text-xs mt-1">주최: {{ event.organizer?.nickname || event.organizer?.name || event.user?.nickname || event.user?.name || event.organizer_name || '커뮤니티' }}</p>
           </div>
           <div class="text-right">
             <p v-if="event.price > 0" class="font-bold text-blue-600 text-sm">${{ event.price }}</p>

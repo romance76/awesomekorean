@@ -36,4 +36,7 @@ return [
     ],
 
     'openai' => ['key' => env('OPENAI_API_KEY', '')],
+    'youtube' => [
+        'api_key' => env('YOUTUBE_API_KEY'),
+    ],
 ];

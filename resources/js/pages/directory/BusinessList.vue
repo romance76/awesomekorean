@@ -1,11 +1,12 @@
 <template>
   <div class="min-h-screen bg-gray-50 pb-16">
+
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
-      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-6 rounded-2xl">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-5 rounded-2xl">
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-xl font-black">📋 한인 업소록</h1>
-            <p class="text-blue-100 text-sm mt-0.5">한인 비즈니스 정보 디렉토리</p>
+            <p class="text-blue-100 text-sm mt-0.5 opacity-80">한인 비즈니스 정보 디렉토리</p>
           </div>
           <router-link v-if="authStore.isLoggedIn" to="/directory/register"
             class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50">+ 업소 등록</router-link>
@@ -23,50 +24,12 @@
         </button>
       </div>
     </div>
-    <!-- State filter buttons -->
+
+    <!-- Location Bar -->
     <div class="max-w-[1200px] mx-auto px-4 mt-2">
-      <div class="flex gap-1.5 overflow-x-auto pb-1 flex-wrap" style="scrollbar-width:none">
-        <button v-for="st in stateButtons" :key="st.code" @click="selectState(st)"
-          :class="['flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition',
-            selectedState===st.code
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-white text-gray-600 border-gray-200 hover:border-blue-400 hover:text-blue-600']">
-          {{ st.label }}
-        </button>
-      </div>
+      <LocationBar placeholder="업소록 검색..." @search="onLocationSearch" @location-change="onLocationChange" />
     </div>
 
-    <!-- Search bar -->
-    <div class="max-w-[1200px] mx-auto px-4 mt-2">
-      <div class="bg-white rounded-2xl shadow-sm p-3">
-        <div class="flex items-center gap-2">
-          <select v-model="radius" class="border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white flex-shrink-0">
-            <option :value="5">📍 5mi</option>
-            <option :value="10">📍 10mi</option>
-            <option :value="20">📍 20mi</option>
-            <option :value="30">📍 30mi</option>
-            <option :value="50">📍 50mi</option>
-            <option :value="100">📍 100mi</option>
-            <option :value="0">📍 전체</option>
-          </select>
-          <input v-model="search" @keyup.enter="load(1)" type="text" placeholder="업소명 검색..."
-            class="flex-1 min-w-[100px] border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
-          <select v-model="region" @change="load(1)" class="border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white flex-shrink-0 max-w-[140px]">
-            <option value="">전체 지역</option>
-            <option v-for="r in regions" :key="r" :value="r">{{ r || '전체 지역' }}</option>
-          </select>
-          <button @click="load(1)" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 flex-shrink-0">검색</button>
-          <div class="flex gap-1 flex-shrink-0">
-            <button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="p-2 rounded-lg">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-            </button>
-            <button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="p-2 rounded-lg">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- Content area -->
     <div class="max-w-[1200px] mx-auto px-4 py-4">
 
@@ -174,11 +137,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import axios from 'axios';
+import LocationBar from '../../components/location/LocationBar.vue'
 
 const authStore = useAuthStore();
 const radius = ref(30);
 const viewMode = ref('grid');
 const businesses = ref([]);
+
 const loading = ref(true);
 const search = ref('');
 const category = ref('');
@@ -189,16 +154,25 @@ const totalCount = ref(0);
 const selectedState = ref('');
 const userLat = ref(null);
 const userLng = ref(null);
+const userRadius = ref(30);
 
-// Get user location for distance filtering
 function getUserLocation() {
+  const saved = localStorage.getItem('sk_user_location');
+  if (saved) {
+    const loc = JSON.parse(saved);
+    userLat.value = loc.lat;
+    userLng.value = loc.lng;
+    return;
+  }
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         userLat.value = pos.coords.latitude;
         userLng.value = pos.coords.longitude;
+        localStorage.setItem('sk_user_location', JSON.stringify({lat: pos.coords.latitude, lng: pos.coords.longitude}));
       },
-      () => { /* silently fail - distance filter will just be ignored */ }
+      () => {},
+      { timeout: 5000 }
     );
   }
 }
@@ -308,6 +282,17 @@ async function load(page = 1) {
 
 // Reload when radius changes
 watch(radius, () => load(1));
+
+// LocationBar handlers
+function onLocationSearch(keyword) {
+  search.value = keyword
+  load()
+}
+
+function onLocationChange(location) {
+  console.log('Location changed:', location)
+  load()
+}
 
 onMounted(() => {
   getUserLocation();

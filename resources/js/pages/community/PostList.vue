@@ -3,7 +3,7 @@
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
 
       <!-- 상단 그라디언트 헤더 -->
-      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-4 rounded-2xl mb-4">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-5 rounded-2xl mb-4">
         <div class="flex items-center gap-2 mb-2">
           <router-link to="/community" class="text-blue-200 text-sm hover:text-white transition">← 커뮤니티</router-link>
           <span v-if="board" class="bg-white/20 text-xs px-3 py-1 rounded-full">{{ board.name }}</span>

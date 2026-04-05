@@ -8,12 +8,14 @@ use App\Models\ClubMember;
 use App\Models\ClubPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\HasDistanceFilter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ClubController extends Controller
 {
+    use HasDistanceFilter;
     public function index(Request $request)
     {
         $query = Club::with('creator:id,name,username,avatar');
@@ -29,6 +31,7 @@ class ClubController extends Controller
         if ($request->region) {
             $query->where('region', $request->region);
         }
+        $this->applyDistanceFilter($query, $request, "latitude", "longitude");
         $clubs = $query->orderByDesc('created_at')->paginate(20);
         return response()->json($clubs);
     }

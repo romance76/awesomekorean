@@ -124,6 +124,7 @@ class AuthController extends Controller
         return [
             'id'        => $user->id,
             'name'      => $user->name,
+            'nickname'  => $user->nickname,
             'username'  => $user->username,
             'email'     => $user->email,
             'avatar'    => $user->avatar ? asset('storage/' . $user->avatar) : null,
@@ -131,10 +132,22 @@ class AuthController extends Controller
             'points'    => $user->points_total,
             'points_total' => $user->points_total,
             'cash'      => $user->cash_balance,
+            'bio'       => $user->bio,
+            'phone'     => $user->phone,
+            'address'   => $user->address,
+            'address2'  => $user->address2,
+            'city'      => $user->city,
+            'state'     => $user->state,
+            'zip_code'  => $user->zip_code,
             'region'    => $user->region,
+            'default_radius' => $user->default_radius,
+            'lat'       => $user->lat,
+            'lng'       => $user->lng,
             'is_admin'  => $user->is_admin,
             'verified'  => !is_null($user->email_verified_at),
             'lang'      => $user->lang,
+            'payment_method' => $user->payment_method,
+            'payment_last4'  => $user->payment_last4,
         ];
     }
 }

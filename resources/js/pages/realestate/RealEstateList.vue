@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-gray-50 pb-16">
     <!-- Header -->
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
-      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-6 rounded-2xl">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-5 rounded-2xl">
         <div class="flex items-center justify-between gap-2">
           <div>
             <h1 class="text-xl font-black">🏠 부동산</h1>
-            <p class="text-blue-100 text-sm mt-0.5">한인 부동산 매물 정보</p>
+            <p class="text-blue-100 text-sm mt-0.5 opacity-80">한인 부동산 매물 정보</p>
           </div>
           <router-link v-if="authStore.isLoggedIn" to="/realestate/write"
             class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-50">+ 매물 등록</router-link>
@@ -26,36 +26,9 @@
       </div>
     </div>
 
-    <!-- Search bar -->
+    <!-- LocationBar -->
     <div class="max-w-[1200px] mx-auto px-4 mt-2">
-      <div class="bg-white rounded-2xl shadow-sm p-3">
-        <div class="flex items-center gap-2">
-          <select v-model="radius" class="border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white flex-shrink-0">
-            <option :value="5">📍 5mi</option>
-            <option :value="10">📍 10mi</option>
-            <option :value="20">📍 20mi</option>
-            <option :value="30">📍 30mi</option>
-            <option :value="50">📍 50mi</option>
-            <option :value="100">📍 100mi</option>
-            <option :value="0">📍 전체</option>
-          </select>
-          <input v-model="search" @keyup.enter="load(1)" type="text" placeholder="지역, 주소, 키워드 검색..."
-            class="flex-1 min-w-0 w-full sm:flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" />
-          <select v-model="region" class="border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white hidden sm:block">
-            <option value="">전체 지역</option>
-            <option v-for="r in regions" :key="r" :value="r">{{ r }}</option>
-          </select>
-          <div class="flex gap-2">
-            <button @click="load(1)" class="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700">검색</button>
-            <button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="p-2 rounded-lg">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-            </button>
-            <button @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'" class="p-2 rounded-lg">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
+      <LocationBar placeholder="부동산 검색..." @search="onLocationSearch" @location-change="onLocationChange" />
     </div>
 
     <!-- Content -->
@@ -142,6 +115,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import LocationBar from '../../components/location/LocationBar.vue'
 
 const authStore = useAuthStore()
 
@@ -165,6 +139,31 @@ const search = ref('')
 const region = ref('')
 const radius = ref(30)
 const viewMode = ref('grid')
+
+const userLat = ref(null);
+const userLng = ref(null);
+const userRadius = ref(30);
+
+function getUserLocation() {
+  const saved = localStorage.getItem('sk_user_location');
+  if (saved) {
+    const loc = JSON.parse(saved);
+    userLat.value = loc.lat;
+    userLng.value = loc.lng;
+    return;
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userLat.value = pos.coords.latitude;
+        userLng.value = pos.coords.longitude;
+        localStorage.setItem('sk_user_location', JSON.stringify({lat: pos.coords.latitude, lng: pos.coords.longitude}));
+      },
+      () => {},
+      { timeout: 5000 }
+    );
+  }
+}
 const loading = ref(false)
 const items = ref([])
 const page = ref(1)
@@ -215,6 +214,19 @@ function load(p = 1) {
 
 function formatDate(d) {
   return new Date(d).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+}
+
+
+function onLocationSearch({ keyword, city, radius }) {
+  search.value = keyword
+  if (city?.lat) { userLat.value = city.lat; userLng.value = city.lng }
+  if (radius !== '전국') userRadius.value = parseInt(radius)
+  load()
+}
+function onLocationChange({ city, radius }) {
+  if (city?.lat) { userLat.value = city.lat; userLng.value = city.lng }
+  userRadius.value = radius === '전국' ? 0 : parseInt(radius)
+  load()
 }
 
 onMounted(() => load())

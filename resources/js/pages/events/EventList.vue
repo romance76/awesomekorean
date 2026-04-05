@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20">
+  <div class="min-h-screen bg-gray-50 pb-16">
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
       <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl">
-        <div class="flex items-center justify-between px-6 py-6 gap-3">
+        <div class="flex items-center justify-between px-6 py-5 gap-3">
           <div>
             <h1 class="text-xl font-black">🎉 이벤트 & 모임</h1>
             <p class="text-blue-100 text-sm mt-0.5">한인 커뮤니티 행사와 모임</p>
@@ -24,24 +24,9 @@
         </button>
       </div>
     </div>
-    <!-- Search bar -->
+    <!-- LocationBar -->
     <div class="max-w-[1200px] mx-auto px-4 mt-2">
-      <div class="bg-white rounded-2xl shadow-sm p-3">
-        <div class="flex items-center gap-2">
-          <select v-model="radius" class="border border-gray-200 rounded-lg px-2 py-2 text-sm bg-white">
-            <option :value="5">📍 5mi</option>
-            <option :value="10">📍 10mi</option>
-            <option :value="20">📍 20mi</option>
-            <option :value="30">📍 30mi</option>
-            <option :value="50">📍 50mi</option>
-            <option :value="100">📍 100mi</option>
-            <option :value="0">📍 전체</option>
-          </select>
-          <input v-model="search" @keyup.enter="load()" type="text" placeholder="이벤트 검색..."
-            class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400 min-w-0" />
-          <button @click="load()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700">검색</button>
-        </div>
-      </div>
+      <LocationBar placeholder="이벤트 검색..." @search="onLocationSearch" @location-change="onLocationChange" />
     </div>
     <!-- Content area -->
     <div class="max-w-[1200px] mx-auto px-4 py-4 space-y-3">
@@ -86,6 +71,7 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import LocationBar from '../../components/location/LocationBar.vue'
 
 const auth = useAuthStore()
 const events      = ref([])
@@ -122,6 +108,45 @@ async function load() {
     events.value = []
   }
   finally { loading.value = false }
+}
+
+
+const userLat = ref(null);
+const userLng = ref(null);
+const userRadius = ref(30);
+
+function getUserLocation() {
+  const saved = localStorage.getItem('sk_user_location');
+  if (saved) {
+    const loc = JSON.parse(saved);
+    userLat.value = loc.lat;
+    userLng.value = loc.lng;
+    return;
+  }
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userLat.value = pos.coords.latitude;
+        userLng.value = pos.coords.longitude;
+        localStorage.setItem('sk_user_location', JSON.stringify({lat: pos.coords.latitude, lng: pos.coords.longitude}));
+      },
+      () => {},
+      { timeout: 5000 }
+    );
+  }
+}
+
+
+function onLocationSearch({ keyword, city, radius }) {
+  search.value = keyword
+  if (city?.lat) { userLat.value = city.lat; userLng.value = city.lng }
+  if (radius !== '전국') userRadius.value = parseInt(radius)
+  load()
+}
+function onLocationChange({ city, radius }) {
+  if (city?.lat) { userLat.value = city.lat; userLng.value = city.lng }
+  userRadius.value = radius === '전국' ? 0 : parseInt(radius)
+  load()
 }
 
 onMounted(load)

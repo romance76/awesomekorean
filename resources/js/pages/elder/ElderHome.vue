@@ -1,11 +1,15 @@
 <template>
   <div class="min-h-screen bg-gray-50 pb-20">
+    <div class="max-w-[1200px] mx-auto px-4 pt-4">
     <!-- Header Banner -->
-    <div class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-4 py-6 text-center">
-      <h1 class="text-2xl font-bold flex items-center justify-center gap-2">
-        <span class="text-3xl">💙</span> 노인 안심 서비스
-      </h1>
-      <p class="mt-2 text-blue-100 text-lg">매일 체크인으로 보호자에게 안전 알림</p>
+    <div class="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-5 rounded-2xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-xl font-black">💙 노인 안심 서비스</h1>
+          <p class="text-sm opacity-80 mt-0.5">매일 체크인으로 보호자에게 안전 알림</p>
+        </div>
+      </div>
+    </div>
     </div>
 
     <div class="max-w-lg mx-auto px-4 mt-6 space-y-5">

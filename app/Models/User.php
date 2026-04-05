@@ -14,7 +14,8 @@ class User extends Authenticatable implements JWTSubject
         'name', 'username', 'email', 'password',
         'phone', 'avatar', 'region', 'address', 'lat', 'lng',
         'level', 'points_total', 'cash_balance',
-        'is_elder', 'is_driver', 'lang', 'status', 'is_admin', 'bio',
+        'nickname', 'is_elder', 'is_driver', 'lang', 'status', 'is_admin', 'bio',
+        'address2', 'city', 'state', 'zip_code', 'payment_method', 'payment_last4',
     ];
 
     protected $hidden = ['password', 'remember_token'];

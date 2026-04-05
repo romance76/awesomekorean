@@ -7,10 +7,12 @@ use App\Models\Bookmark;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\HasDistanceFilter;
 use Illuminate\Support\Facades\DB;
 
 class MarketController extends Controller
 {
+    use HasDistanceFilter;
     public function index(Request $request)
     {
         $query = MarketItem::with('user:id,name,username,avatar')
@@ -26,6 +28,7 @@ class MarketController extends Controller
             });
         }
 
+        $this->applyDistanceFilter($query, $request, "latitude", "longitude");
         return response()->json($query->orderByDesc('created_at')->paginate(20));
     }
 

@@ -31,6 +31,7 @@ class RecipeController extends Controller {
                   ->orWhere('title_ko', 'like', "%$s%")
                   ->orWhere('intro', 'like', "%$s%")
                   ->orWhere('intro_ko', 'like', "%$s%")
+                  ->orWhereJsonContains('ingredients', $s)
                   ->orWhereJsonContains('tags', $s);
             });
         }

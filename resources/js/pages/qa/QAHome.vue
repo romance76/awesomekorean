@@ -1,11 +1,11 @@
 <template>
-  <div class="max-w-[1200px] mx-auto px-4 py-6">
+  <div class="max-w-[1200px] mx-auto px-4 pt-4">
 
     <!-- 상단 배너 (커뮤니티와 동일 스타일) -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-500 rounded-2xl px-6 py-6 mb-8 shadow-lg">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-500 rounded-2xl px-6 py-5 mb-8 shadow-lg">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-white text-2xl font-black mb-1">❓ Q&A 지식인</h1>
+          <h1 class="text-white text-xl font-black mb-1">❓ Q&A 지식인</h1>
           <p class="text-blue-100 text-sm">궁금한 것을 물어보고, 아는 것을 나눠주세요</p>
         </div>
         <router-link to="/qa/write"

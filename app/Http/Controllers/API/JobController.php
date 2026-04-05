@@ -7,10 +7,12 @@ use App\Models\Bookmark;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\HasDistanceFilter;
 use Illuminate\Support\Facades\DB;
 
 class JobController extends Controller
 {
+    use HasDistanceFilter;
     public function index(Request $request)
     {
         $query = JobPost::with('user:id,name,username')
@@ -27,6 +29,7 @@ class JobController extends Controller
             });
         }
 
+        $this->applyDistanceFilter($query, $request, "latitude", "longitude");
         return response()->json($query->paginate(20));
     }
 

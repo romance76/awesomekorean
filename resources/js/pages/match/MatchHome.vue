@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-gray-50 pb-16">
     <!-- Header -->
     <div class="max-w-[1200px] mx-auto px-4 pt-4">
-      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-6 rounded-2xl">
+      <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-6 py-5 rounded-2xl">
         <div class="flex items-center justify-between">
           <div>
             <h1 class="text-xl font-black">💝 소개팅 · Senior Dating</h1>
-            <p class="text-blue-100 text-sm mt-0.5">오늘의 인연을 만나보세요 — Find your special someone</p>
+            <p class="text-sm opacity-80 mt-0.5">오늘의 인연을 만나보세요 — Find your special someone</p>
           </div>
           <button @click="$router.push('/dashboard?tab=match')" class="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">
             내 프로필 ✏️
