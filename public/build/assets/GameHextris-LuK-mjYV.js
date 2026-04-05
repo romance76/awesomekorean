@@ -1,1 +1,0 @@
-import e from"./ArcadeGame-DlCXUsBU.js";import{s as r,f as t}from"./app-DGxdtLEZ.js";const i={__name:"GameHextris",setup(s){return(a,o)=>(t(),r(e,{"game-slug":"hextris","game-id":"hextris",title:"🔷 헥스트리스","points-per-score":2}))}};export{i as default};

@@ -1,1 +1,0 @@
-import e from"./ArcadeGame-DlCXUsBU.js";import{s as a,f as r}from"./app-DGxdtLEZ.js";const n={__name:"GameSnake",setup(s){return(t,o)=>(r(),a(e,{"game-slug":"snake","game-id":"snake",title:"🐍 뱀 게임","points-per-score":2}))}};export{n as default};
