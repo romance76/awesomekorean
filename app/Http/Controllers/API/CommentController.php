@@ -35,6 +35,7 @@ class CommentController extends Controller
     /**
      * GET /api/comments/{type}/{id}
      * Get comments for a commentable entity, threaded.
+     * Comments use is_hidden (not status).
      */
     public function index($type, $id)
     {
@@ -46,12 +47,12 @@ class CommentController extends Controller
         $comments = Comment::where('commentable_type', $modelClass)
             ->where('commentable_id', $id)
             ->whereNull('parent_id')
-            ->where('status', 'active')
+            ->where('is_hidden', false)
             ->with([
-                'user:id,name,nickname,avatar,level',
+                'user:id,name,nickname,avatar',
                 'replies' => function ($q) {
-                    $q->where('status', 'active')
-                      ->with('user:id,name,nickname,avatar,level')
+                    $q->where('is_hidden', false)
+                      ->with('user:id,name,nickname,avatar')
                       ->orderBy('created_at');
                 },
             ])
@@ -93,7 +94,6 @@ class CommentController extends Controller
             'user_id'          => auth()->id(),
             'parent_id'        => $request->parent_id,
             'content'          => $request->content,
-            'is_anonymous'     => $request->is_anonymous ?? false,
         ]);
 
         // Increment comment_count on parent if it has that column
@@ -114,8 +114,7 @@ class CommentController extends Controller
                     'user_id' => $parent->user_id,
                     'type'    => 'comment',
                     'title'   => '새 댓글이 달렸습니다',
-                    'body'    => auth()->user()->name . '님: ' . mb_substr($request->content, 0, 50),
-                    'url'     => null,
+                    'content' => auth()->user()->name . '님: ' . mb_substr($request->content, 0, 50),
                 ]);
             }
         } catch (\Exception $e) {
@@ -136,7 +135,7 @@ class CommentController extends Controller
     {
         $comment = Comment::findOrFail($id);
 
-        if ($comment->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($comment->user_id !== auth()->id() && !(auth()->user() && auth()->user()->role === 'admin')) {
             return response()->json(['success' => false, 'message' => '수정 권한이 없습니다.'], 403);
         }
 
@@ -152,12 +151,13 @@ class CommentController extends Controller
 
     /**
      * DELETE /api/comments/{id}
+     * Hide comment using is_hidden (not status)
      */
     public function destroy($id)
     {
         $comment = Comment::findOrFail($id);
 
-        if ($comment->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($comment->user_id !== auth()->id() && !(auth()->user() && auth()->user()->role === 'admin')) {
             return response()->json(['success' => false, 'message' => '삭제 권한이 없습니다.'], 403);
         }
 
@@ -171,7 +171,7 @@ class CommentController extends Controller
             // Ignore
         }
 
-        $comment->update(['status' => 'deleted']);
+        $comment->update(['is_hidden' => true]);
         $comment->delete();
 
         return response()->json([

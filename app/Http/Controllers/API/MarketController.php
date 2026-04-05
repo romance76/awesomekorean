@@ -40,7 +40,7 @@ class MarketController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                  ->orWhere('content', 'like', "%{$search}%");
             });
         }
 
@@ -83,7 +83,7 @@ class MarketController extends Controller
     {
         $request->validate([
             'title'       => 'required|string|max:200',
-            'description' => 'required|string',
+            'content' => 'required|string',
             'price'       => 'required|numeric|min:0',
             'category'    => 'nullable|string|max:50',
             'condition'   => 'nullable|string|max:50',
@@ -100,8 +100,8 @@ class MarketController extends Controller
 
         $item = MarketItem::create(array_merge(
             $request->only([
-                'title', 'description', 'price', 'price_negotiable',
-                'category', 'condition', 'region',
+                'title', 'content', 'price', 'is_negotiable',
+                'category', 'condition',
             ]),
             [
                 'user_id' => auth()->id(),
@@ -129,13 +129,13 @@ class MarketController extends Controller
 
         $request->validate([
             'title'       => 'sometimes|string|max:200',
-            'description' => 'sometimes|string',
+            'content' => 'sometimes|string',
             'price'       => 'sometimes|numeric|min:0',
         ]);
 
         $data = $request->only([
-            'title', 'description', 'price', 'price_negotiable',
-            'category', 'condition', 'region', 'status',
+            'title', 'content', 'price', 'is_negotiable',
+            'category', 'condition', 'status',
         ]);
 
         // Handle new image uploads

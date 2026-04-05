@@ -56,8 +56,7 @@ class ReportController extends Controller
             'reportable_type' => $reportableType,
             'reportable_id'   => $request->reportable_id,
             'reason'          => $request->reason,
-            'detail'          => $request->description,
-            'ip_address'      => $request->ip(),
+            'content'         => $request->description,
         ]);
 
         // Count total reports for this content
@@ -88,8 +87,11 @@ class ReportController extends Controller
     {
         try {
             $model = $modelClass::find($id);
-            if ($model && isset($model->status)) {
-                $model->update(['status' => 'hidden']);
+            if ($model) {
+                // Posts and comments use is_hidden
+                if (isset($model->is_hidden)) {
+                    $model->update(['is_hidden' => true]);
+                }
             }
         } catch (\Exception $e) {
             // Silently handle
@@ -102,13 +104,13 @@ class ReportController extends Controller
     private function notifyAdmins(string $type, int $id, int $count): void
     {
         try {
-            $adminIds = DB::table('users')->where('is_admin', true)->pluck('id');
+            $adminIds = DB::table('users')->where('role', 'admin')->pluck('id');
             foreach ($adminIds as $adminId) {
                 Notification::create([
                     'user_id' => $adminId,
                     'type'    => 'report_alert',
                     'title'   => '신고 누적 콘텐츠',
-                    'body'    => "{$type} #{$id}에 신고가 {$count}회 누적되었습니다.",
+                    'content' => "{$type} #{$id}에 신고가 {$count}회 누적되었습니다.",
                     'url'     => '/admin/reports',
                 ]);
             }

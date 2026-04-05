@@ -46,7 +46,7 @@ class CommunityController extends Controller
     {
         $sort = request('sort', 'latest');
 
-        $query = BoardPost::with(['user:id,name,username,avatar'])
+        $query = BoardPost::with(['user:id,name,nickname,avatar'])
             ->where('category_slug', $slug)
             ->whereNull('deleted_at');
 
@@ -60,7 +60,7 @@ class CommunityController extends Controller
 
         $posts->getCollection()->transform(function ($post) {
             if ($post->is_anonymous) {
-                $post->user = (object)['id' => 0, 'name' => '익명', 'username' => 'anonymous', 'avatar' => null];
+                $post->user = (object)['id' => 0, 'name' => '익명', 'nickname' => '익명', 'avatar' => null];
             }
             $post->author_name = $post->user->name ?? '알수없음';
             return $post;
@@ -73,11 +73,11 @@ class CommunityController extends Controller
     {
         if ($id === null) { $id = $slugOrId; }
 
-        $post = BoardPost::with(['user:id,name,username,avatar'])->findOrFail($id);
+        $post = BoardPost::with(['user:id,name,nickname,avatar'])->findOrFail($id);
         $post->increment('view_count');
 
         if ($post->is_anonymous) {
-            $post->user = (object)['id' => 0, 'name' => '익명', 'username' => 'anonymous', 'avatar' => null];
+            $post->user = (object)['id' => 0, 'name' => '익명', 'nickname' => '익명', 'avatar' => null];
         }
 
         $post->author_name = $post->is_anonymous ? '익명' : ($post->user->name ?? '알수없음');
@@ -91,12 +91,12 @@ class CommunityController extends Controller
         // Load comments separately
         $comments = BoardComment::where('post_id', $id)
             ->whereNull('deleted_at')
-            ->with(['user:id,name,username,avatar'])
+            ->with(['user:id,name,nickname,avatar'])
             ->orderBy('created_at')
             ->get()
             ->transform(function ($c) {
                 if ($c->is_anonymous) {
-                    $c->user = (object)['id' => 0, 'name' => '익명', 'username' => 'anonymous', 'avatar' => null];
+                    $c->user = (object)['id' => 0, 'name' => '익명', 'nickname' => '익명', 'avatar' => null];
                 }
                 $c->author_name = $c->is_anonymous ? '익명' : ($c->user->name ?? '알수없음');
                 return $c;
@@ -124,7 +124,7 @@ class CommunityController extends Controller
             'is_anonymous' => $request->is_anonymous ?? false,
         ]);
 
-        return response()->json($post->load('user:id,name,username,avatar'), 201);
+        return response()->json($post->load('user:id,name,nickname,avatar'), 201);
     }
 
     public function update(Request $request, $slugOrId, $id = null)
@@ -178,12 +178,12 @@ class CommunityController extends Controller
     {
         $comments = BoardComment::where('post_id', $postId)
             ->whereNull('deleted_at')
-            ->with(['user:id,name,username,avatar'])
+            ->with(['user:id,name,nickname,avatar'])
             ->orderBy('created_at')
             ->get()
             ->transform(function ($c) {
                 if ($c->is_anonymous) {
-                    $c->user = (object)['id' => 0, 'name' => '익명', 'username' => 'anonymous', 'avatar' => null];
+                    $c->user = (object)['id' => 0, 'name' => '익명', 'nickname' => '익명', 'avatar' => null];
                 }
                 $c->author_name = $c->is_anonymous ? '익명' : ($c->user->name ?? '알수없음');
                 return $c;
@@ -212,7 +212,7 @@ class CommunityController extends Controller
 
         $post->increment('comment_count');
 
-        return response()->json($comment->load('user:id,name,username,avatar'), 201);
+        return response()->json($comment->load('user:id,name,nickname,avatar'), 201);
     }
 
     public function destroyComment($id)

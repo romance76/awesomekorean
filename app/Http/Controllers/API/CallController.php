@@ -45,7 +45,7 @@ class CallController extends Controller
             'user_id'    => $request->receiver_id,
             'type'       => 'call_request',
             'title'      => '전화가 왔습니다',
-            'body'       => $user->name . '님이 전화를 걸었습니다.',
+            'content'       => $user->name . '님이 전화를 걸었습니다.',
             'url'        => '/chat',
             'is_read'    => false,
             'created_at' => now(),

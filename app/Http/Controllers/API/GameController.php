@@ -87,7 +87,7 @@ class GameController extends Controller
         return response()->json(
             GameRoom::where('status','waiting')
                 ->withCount('players')
-                ->with('creator:id,username,name')
+                ->with('creator:id,nickname,name')
                 ->latest()->limit(20)->get()
         );
     }
@@ -109,7 +109,7 @@ class GameController extends Controller
         ]);
         GamePlayer::create(['game_room_id'=>$room->id,'user_id'=>$user->id,'seat'=>1]);
 
-        return response()->json($room->load('players.user:id,username,name'));
+        return response()->json($room->load('players.user:id,nickname,name'));
     }
 
     // ── API: 방 입장 ──────────────────────────────────────────────────────────
@@ -130,8 +130,8 @@ class GameController extends Controller
                 'seat'         => $room->players()->count() + 1,
             ]);
         }
-        broadcast(new GameStateChanged($room->id, 'player_joined', ['user_id'=>$user->id,'username'=>$user->username]));
-        return response()->json($room->load('players.user:id,username,name'));
+        broadcast(new GameStateChanged($room->id, 'player_joined', ['user_id'=>$user->id,'nickname'=>$user->nickname]));
+        return response()->json($room->load('players.user:id,nickname,name'));
     }
 
     // ── API: 준비 ─────────────────────────────────────────────────────────────
@@ -194,7 +194,7 @@ class GameController extends Controller
         return response()->json([
             'room'    => $room->only(['id','code','type','status','bet_points','max_players','min_players']),
             'state'   => $state ? $this->playerState($state, $user->id) : null,
-            'players' => $room->players()->with('user:id,username,name')->get(),
+            'players' => $room->players()->with('user:id,nickname,name')->get(),
         ]);
     }
 
@@ -361,15 +361,15 @@ class GameController extends Controller
                 $earned = $bet * ($players->count() - 1) * (1 + $goBonus * 0.1);
                 $earned = (int)$earned;
                 $p->update(['points_result'=>$earned]);
-                User::where('id',$winner)->increment('points_total',$earned);
+                User::where('id',$winner)->increment('points',$earned);
                 DB::table('point_logs')->insert([
                     'user_id'=>$winner,'type'=>'earn','action'=>'game_win',
-                    'amount'=>$earned,'balance_after'=>User::find($winner)?->points_total ?? $earned,
+                    'amount'=>$earned,'balance_after'=>User::find($winner)?->points ?? $earned,
                     'ref_id'=>$room->id,'memo'=>"고스톱 승리 ({$room->code})",'created_at'=>now(),'updated_at'=>now(),
                 ]);
             } else {
                 $p->update(['points_result'=>-$bet]);
-                User::where('id',$p->user_id)->decrement('points_total',$bet);
+                User::where('id',$p->user_id)->decrement('points',$bet);
             }
         }
     }
@@ -402,25 +402,25 @@ class GameController extends Controller
             $data = DB::table('users')
                 ->join('posts','users.id','=','posts.user_id')
                 ->where('users.status','active')
-                ->select('users.id','users.username','users.name','users.level',
+                ->select('users.id','users.nickname','users.name','users.role',
                     DB::raw('COUNT(posts.id) as value'))
-                ->groupBy('users.id','users.username','users.name','users.level')
+                ->groupBy('users.id','users.nickname','users.name','users.role')
                 ->orderByDesc('value')->limit(20)->get();
         } elseif ($type === 'quiz') {
             $data = DB::table('users')
                 ->join('quiz_attempts','users.id','=','quiz_attempts.user_id')
                 ->where('quiz_attempts.is_correct',true)
                 ->where('users.status','active')
-                ->select('users.id','users.username','users.name','users.level',
+                ->select('users.id','users.nickname','users.name','users.role',
                     DB::raw('SUM(quiz_attempts.points_earned) as value'),
                     DB::raw('COUNT(quiz_attempts.id) as correct_count'))
-                ->groupBy('users.id','users.username','users.name','users.level')
+                ->groupBy('users.id','users.nickname','users.name','users.role')
                 ->orderByDesc('value')->limit(20)->get();
         } else {
             $data = DB::table('users')
                 ->where('status','active')
-                ->select('id','username','name','level','points_total as value')
-                ->orderByDesc('points_total')->limit(20)->get();
+                ->select('id','nickname','name','points as value')
+                ->orderByDesc('points')->limit(20)->get();
         }
 
         return response()->json(['type'=>$type,'data'=>$data]);
@@ -457,12 +457,12 @@ class GameController extends Controller
         $itemId = (int)$request->input('item_id');
         $cost   = $costs[$itemId];
 
-        if ($user->points_total < $cost) {
-            return response()->json(['message'=>"포인트가 부족합니다. 필요: {$cost}P, 보유: {$user->points_total}P"], 422);
+        if ($user->points < $cost) {
+            return response()->json(['message'=>"포인트가 부족합니다. 필요: {$cost}P, 보유: {$user->points}P"], 422);
         }
 
-        $user->decrement('points_total', $cost);
-        $bal = $user->fresh()->points_total;
+        $user->decrement('points', $cost);
+        $bal = $user->fresh()->points;
 
         DB::table('point_logs')->insert([
             'user_id'       => $user->id,
@@ -478,7 +478,7 @@ class GameController extends Controller
 
         return response()->json([
             'message'        => "{$names[$itemId]} 구매 완료!",
-            'points_total'   => $bal,
+            'points'   => $bal,
             'item_purchased' => $names[$itemId],
         ]);
     }

@@ -95,7 +95,7 @@ class PokerController extends Controller
     {
         return response()->json(
             GameRoom::where('type', 'poker')->where('status', 'waiting')
-                ->withCount('players')->with('creator:id,username,name')
+                ->withCount('players')->with('creator:id,nickname,name')
                 ->latest()->limit(20)->get()
         );
     }
@@ -107,7 +107,7 @@ class PokerController extends Controller
         $user = $request->user();
         $buyIn = $request->input('buy_in', 500);
 
-        if ($user->points_total < $buyIn)
+        if ($user->points < $buyIn)
             return response()->json(['message' => "포인트 부족. 필요: {$buyIn}P"], 422);
 
         $room = GameRoom::create([
@@ -121,7 +121,7 @@ class PokerController extends Controller
         ]);
         GamePlayer::create(['game_room_id' => $room->id, 'user_id' => $user->id, 'seat' => 1]);
 
-        return response()->json($room->load('players.user:id,username,name'));
+        return response()->json($room->load('players.user:id,nickname,name'));
     }
 
     // ── API: 입장 ─────────────────────────────────────────────────────────────
@@ -131,13 +131,13 @@ class PokerController extends Controller
         $user = $request->user();
         if ($room->status !== 'waiting') return response()->json(['message' => '이미 시작됨'], 422);
         if ($room->players()->count() >= $room->max_players) return response()->json(['message' => '방 꽉참'], 422);
-        if ($user->points_total < $room->bet_points) return response()->json(['message' => '포인트 부족'], 422);
+        if ($user->points < $room->bet_points) return response()->json(['message' => '포인트 부족'], 422);
 
         if (!$room->players()->where('user_id', $user->id)->exists()) {
             GamePlayer::create(['game_room_id' => $room->id, 'user_id' => $user->id, 'seat' => $room->players()->count() + 1]);
         }
         broadcast(new GameStateChanged($room->id, 'player_joined', ['user_id' => $user->id]));
-        return response()->json($room->load('players.user:id,username,name'));
+        return response()->json($room->load('players.user:id,nickname,name'));
     }
 
     // ── API: 준비 → 게임 시작 ─────────────────────────────────────────────────
@@ -215,7 +215,7 @@ class PokerController extends Controller
         return response()->json([
             'room'    => $room->only(['id','code','type','status','bet_points','max_players','min_players']),
             'state'   => $room->state ? $this->playerState($room->state, $user->id) : null,
-            'players' => $room->players()->with('user:id,username,name')->get(),
+            'players' => $room->players()->with('user:id,nickname,name')->get(),
         ]);
     }
 
@@ -408,13 +408,13 @@ class PokerController extends Controller
         $players = $room->players()->get();
 
         $room->players()->where('user_id', $winner)->update(['points_result' => $pot]);
-        User::where('id', $winner)->increment('points_total', $pot);
+        User::where('id', $winner)->increment('points', $pot);
 
         foreach ($players as $p) {
             if ((int)$p->user_id !== (int)$winner) {
                 $lost = $room->bet_points - ($state['chips'][$p->user_id] ?? 0);
                 $p->update(['points_result' => -$lost]);
-                User::where('id', $p->user_id)->decrement('points_total', $lost);
+                User::where('id', $p->user_id)->decrement('points', $lost);
             }
         }
 
@@ -423,7 +423,7 @@ class PokerController extends Controller
             'type'         => 'earn',
             'action'       => 'game_win',
             'amount'       => $pot,
-            'balance_after'=> User::find($winner)?->points_total ?? $pot,
+            'balance_after'=> User::find($winner)?->points ?? $pot,
             'ref_id'       => $room->id,
             'memo'         => "포커 승리 ({$room->code}) - {$state['winner_hand']}",
             'created_at'   => now(), 'updated_at' => now(),

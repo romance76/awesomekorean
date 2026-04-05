@@ -66,7 +66,7 @@ class QAController extends Controller
      */
     public function index(Request $request)
     {
-        $query = QaQuestion::with('user:id,nickname,username,avatar,title');
+        $query = QaQuestion::with('user:id,nickname,nickname,avatar,title');
 
         // Category filter
         if ($request->filled('category')) {
@@ -122,14 +122,14 @@ class QAController extends Controller
     public function show($id)
     {
         $question = QaQuestion::with([
-            'user:id,nickname,username,avatar,title',
+            'user:id,nickname,nickname,avatar,title',
             'answers' => function ($q) {
-                $q->with('user:id,nickname,username,avatar,title,total_accepted')
+                $q->with('user:id,nickname,nickname,avatar,title,total_accepted')
                   ->orderByDesc('is_accepted')
                   ->orderByDesc('like_count')
                   ->orderBy('created_at');
             },
-            'acceptedAnswer.user:id,nickname,username,avatar,title',
+            'acceptedAnswer.user:id,nickname,nickname,avatar,title',
         ])->findOrFail($id);
 
         $question->increment('view_count');
@@ -189,7 +189,7 @@ class QAController extends Controller
         return response()->json([
             'success' => true,
             'message' => '질문이 등록되었습니다.',
-            'data'    => $question->load('user:id,nickname,username,avatar'),
+            'data'    => $question->load('user:id,nickname,nickname,avatar'),
         ], 201);
     }
 
@@ -219,7 +219,7 @@ class QAController extends Controller
         return response()->json([
             'success' => true,
             'message' => '답변이 등록되었습니다.',
-            'data'    => $answer->load('user:id,nickname,username,avatar,title'),
+            'data'    => $answer->load('user:id,nickname,nickname,avatar,title'),
         ], 201);
     }
 
@@ -266,7 +266,7 @@ class QAController extends Controller
         return response()->json([
             'success' => true,
             'message' => '답변이 채택되었습니다.',
-            'data'    => $answer->fresh()->load('user:id,nickname,username,avatar,title'),
+            'data'    => $answer->fresh()->load('user:id,nickname,nickname,avatar,title'),
         ]);
     }
 
@@ -387,17 +387,17 @@ class QAController extends Controller
         $period = $request->input('period', 'month');
 
         if ($period === 'month') {
-            $leaders = User::select('users.id', 'users.nickname', 'users.username', 'users.avatar', 'users.title')
+            $leaders = User::select('users.id', 'users.nickname', 'users.nickname', 'users.avatar', 'users.title')
                 ->selectRaw('COUNT(qa_question_answers.id) as monthly_accepted')
                 ->join('qa_question_answers', 'users.id', '=', 'qa_question_answers.user_id')
                 ->where('qa_question_answers.is_accepted', true)
                 ->where('qa_question_answers.created_at', '>=', now()->startOfMonth())
-                ->groupBy('users.id', 'users.nickname', 'users.username', 'users.avatar', 'users.title')
+                ->groupBy('users.id', 'users.nickname', 'users.nickname', 'users.avatar', 'users.title')
                 ->orderByDesc('monthly_accepted')
                 ->limit(10)
                 ->get();
         } else {
-            $leaders = User::select('id', 'nickname', 'username', 'avatar', 'title', 'total_accepted')
+            $leaders = User::select('id', 'nickname', 'nickname', 'avatar', 'title', 'total_accepted')
                 ->where('total_accepted', '>', 0)
                 ->orderByDesc('total_accepted')
                 ->limit(10)

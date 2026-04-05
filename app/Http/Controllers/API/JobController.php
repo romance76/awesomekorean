@@ -14,34 +14,37 @@ class JobController extends Controller
     public function index(Request $request)
     {
         $query = JobPost::with('user:id,name,nickname,avatar')
-            ->where('status', 'active');
+            ->where('is_active', true);
 
         // Category filter
         if ($request->category) {
             $query->where('category', $request->category);
         }
 
-        // Job type filter
+        // Job type filter – column is 'type' not 'job_type'
         if ($request->type) {
-            $query->where('job_type', $request->type);
+            $query->where('type', $request->type);
         }
 
-        // Region filter
-        if ($request->region) {
-            $query->where('region', 'like', '%' . $request->region . '%');
+        // City/state filter
+        if ($request->city) {
+            $query->where('city', 'like', '%' . $request->city . '%');
+        }
+        if ($request->state) {
+            $query->where('state', $request->state);
         }
 
-        // Search
+        // Search – column is 'company' not 'company_name'
         if ($request->search) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('content', 'like', "%{$search}%")
-                  ->orWhere('company_name', 'like', "%{$search}%");
+                  ->orWhere('company', 'like', "%{$search}%");
             });
         }
 
-        // Distance filter
+        // Distance filter – job_posts use lat/lng columns
         if ($request->lat && $request->lng) {
             $lat = (float) $request->lat;
             $lng = (float) $request->lng;
@@ -50,7 +53,7 @@ class JobController extends Controller
                   ->having('distance', '<=', $radius)
                   ->orderBy('distance');
         } else {
-            $query->orderByDesc('is_pinned')->orderByDesc('created_at');
+            $query->orderByDesc('created_at');
         }
 
         return response()->json([
@@ -81,20 +84,28 @@ class JobController extends Controller
         $request->validate([
             'title'         => 'required|string|max:200',
             'content'       => 'required|string',
-            'company_name'  => 'nullable|string|max:200',
+            'company'       => 'nullable|string|max:200',
+            'category'      => 'nullable|string|max:50',
+            'type'          => 'nullable|string|max:50',
+            'salary_min'    => 'nullable|numeric',
+            'salary_max'    => 'nullable|numeric',
+            'salary_type'   => 'nullable|string|max:50',
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string|max:20',
-            'job_type'      => 'nullable|string|max:50',
-            'salary_range'  => 'nullable|string|max:100',
-            'region'        => 'nullable|string|max:100',
-            'address'       => 'nullable|string|max:255',
-            'deadline'      => 'nullable|date',
+            'city'          => 'nullable|string|max:100',
+            'state'         => 'nullable|string|max:50',
+            'zipcode'       => 'nullable|string|max:20',
+            'lat'           => 'nullable|numeric',
+            'lng'           => 'nullable|numeric',
+            'expires_at'    => 'nullable|date',
         ]);
 
         $job = JobPost::create(array_merge(
             $request->only([
-                'title', 'content', 'company_name', 'contact_email', 'contact_phone',
-                'job_type', 'salary_range', 'region', 'address', 'deadline',
+                'title', 'content', 'company', 'category', 'type',
+                'salary_min', 'salary_max', 'salary_type',
+                'contact_email', 'contact_phone',
+                'city', 'state', 'zipcode', 'lat', 'lng', 'expires_at',
             ]),
             ['user_id' => auth()->id()]
         ));
@@ -113,26 +124,30 @@ class JobController extends Controller
     {
         $job = JobPost::findOrFail($id);
 
-        if ($job->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($job->user_id !== auth()->id() && !(auth()->user() && auth()->user()->role === 'admin')) {
             return response()->json(['success' => false, 'message' => '수정 권한이 없습니다.'], 403);
         }
 
         $request->validate([
             'title'         => 'sometimes|string|max:200',
             'content'       => 'sometimes|string',
-            'company_name'  => 'nullable|string|max:200',
+            'company'       => 'nullable|string|max:200',
             'contact_email' => 'nullable|email',
             'contact_phone' => 'nullable|string|max:20',
-            'job_type'      => 'nullable|string|max:50',
-            'salary_range'  => 'nullable|string|max:100',
-            'region'        => 'nullable|string|max:100',
-            'address'       => 'nullable|string|max:255',
-            'deadline'      => 'nullable|date',
+            'type'          => 'nullable|string|max:50',
+            'salary_min'    => 'nullable|numeric',
+            'salary_max'    => 'nullable|numeric',
+            'salary_type'   => 'nullable|string|max:50',
+            'city'          => 'nullable|string|max:100',
+            'state'         => 'nullable|string|max:50',
+            'zipcode'       => 'nullable|string|max:20',
+            'expires_at'    => 'nullable|date',
         ]);
 
         $job->update($request->only([
-            'title', 'content', 'company_name', 'contact_email', 'contact_phone',
-            'job_type', 'salary_range', 'region', 'address', 'deadline',
+            'title', 'content', 'company', 'contact_email', 'contact_phone',
+            'type', 'salary_min', 'salary_max', 'salary_type',
+            'city', 'state', 'zipcode', 'expires_at',
         ]));
 
         return response()->json([
@@ -149,7 +164,7 @@ class JobController extends Controller
     {
         $job = JobPost::findOrFail($id);
 
-        if ($job->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($job->user_id !== auth()->id() && !(auth()->user() && auth()->user()->role === 'admin')) {
             return response()->json(['success' => false, 'message' => '삭제 권한이 없습니다.'], 403);
         }
 

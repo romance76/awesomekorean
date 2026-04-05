@@ -18,8 +18,8 @@ class RealEstateController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RealEstateListing::with('user:id,name,username,avatar')
-            ->where('status', 'active');
+        $query = RealEstateListing::with('user:id,name,nickname,avatar')
+            ->where('is_active', true);
 
         // Type filter (rent/sale/roommate)
         if ($request->filled('type')) {
@@ -44,9 +44,12 @@ class RealEstateController extends Controller
             $query->where('bedrooms', '>=', (int) $request->bedrooms);
         }
 
-        // Region
-        if ($request->filled('region')) {
-            $query->where('region', 'like', '%' . $request->region . '%');
+        // City/state filter
+        if ($request->filled('city')) {
+            $query->where('city', 'like', '%' . $request->city . '%');
+        }
+        if ($request->filled('state')) {
+            $query->where('state', $request->state);
         }
 
         // Search
@@ -55,8 +58,8 @@ class RealEstateController extends Controller
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'like', "%{$s}%")
                   ->orWhere('address', 'like', "%{$s}%")
-                  ->orWhere('region', 'like', "%{$s}%")
-                  ->orWhere('description', 'like', "%{$s}%");
+                  ->orWhere('city', 'like', "%{$s}%")
+                  ->orWhere('content', 'like', "%{$s}%");
             });
         }
 
@@ -71,12 +74,12 @@ class RealEstateController extends Controller
             $r = (float) $radius;
 
             $query->selectRaw(
-                "*, (3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance",
+                "*, (3959 * acos(cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?)) + sin(radians(?)) * sin(radians(lat)))) AS distance",
                 [$lat, $lng, $lat]
             )->having('distance', '<', $r)
               ->orderBy('distance');
         } else {
-            $query->orderByDesc('is_pinned')->orderByDesc('created_at');
+            $query->orderByDesc('created_at');
         }
 
         return response()->json([
@@ -91,7 +94,7 @@ class RealEstateController extends Controller
      */
     public function show($id)
     {
-        $listing = RealEstateListing::with('user:id,name,username,avatar')->findOrFail($id);
+        $listing = RealEstateListing::with('user:id,name,nickname,avatar')->findOrFail($id);
         $listing->increment('view_count');
 
         $data = $listing->toArray();
@@ -108,7 +111,7 @@ class RealEstateController extends Controller
         // Comments
         $data['comments'] = Comment::where('commentable_type', 'real_estate_listing')
             ->where('commentable_id', $id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->latest()
             ->get();
 
@@ -127,22 +130,22 @@ class RealEstateController extends Controller
         $request->validate([
             'title'       => 'required|string|max:200',
             'type'        => 'required|in:렌트,매매,룸메이트,상가,전세',
-            'description' => 'nullable|string',
+            'content'     => 'nullable|string',
             'address'     => 'required|string',
             'price'       => 'nullable|numeric|min:0',
             'deposit'     => 'nullable|numeric|min:0',
             'bedrooms'    => 'nullable|integer|min:0',
             'bathrooms'   => 'nullable|integer|min:0',
             'sqft'        => 'nullable|integer|min:0',
-            'latitude'    => 'nullable|numeric',
-            'longitude'   => 'nullable|numeric',
-            'photos'      => 'nullable|array|max:10',
+            'lat'         => 'nullable|numeric',
+            'lng'         => 'nullable|numeric',
+            'images'      => 'nullable|array|max:10',
             'photos.*'    => 'image|max:5120',
         ]);
 
         $photos = [];
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $file) {
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
                 $path = $file->store('realestate', 'public');
                 $photos[] = Storage::url($path);
             }
@@ -150,14 +153,14 @@ class RealEstateController extends Controller
 
         $listing = RealEstateListing::create(array_merge(
             $request->only([
-                'title', 'description', 'type', 'property_type', 'price', 'deposit',
-                'address', 'region', 'latitude', 'longitude',
+                'title', 'content', 'type', 'property_type', 'price', 'deposit',
+                'address', 'city', 'state', 'zipcode', 'lat', 'lng',
                 'bedrooms', 'bathrooms', 'sqft',
-                'move_in_date', 'pet_policy', 'phone', 'email',
+                'contact_phone', 'contact_email',
             ]),
             [
                 'user_id' => Auth::id(),
-                'photos'  => $photos,
+                'images'  => $photos,
             ]
         ));
 
@@ -187,13 +190,13 @@ class RealEstateController extends Controller
             'title'    => 'sometimes|string|max:200',
             'type'     => 'sometimes|in:렌트,매매,룸메이트,상가,전세',
             'price'    => 'nullable|numeric|min:0',
-            'photos'   => 'nullable|array|max:10',
+            'images'   => 'nullable|array|max:10',
             'photos.*' => 'image|max:5120',
         ]);
 
-        if ($request->hasFile('photos')) {
+        if ($request->hasFile('images')) {
             $photos = [];
-            foreach ($request->file('photos') as $file) {
+            foreach ($request->file('images') as $file) {
                 $path = $file->store('realestate', 'public');
                 $photos[] = Storage::url($path);
             }
@@ -201,10 +204,10 @@ class RealEstateController extends Controller
         }
 
         $listing->fill($request->only([
-            'title', 'description', 'type', 'property_type', 'price', 'deposit',
-            'address', 'region', 'latitude', 'longitude',
+            'title', 'content', 'type', 'property_type', 'price', 'deposit',
+            'address', 'city', 'state', 'zipcode', 'lat', 'lng',
             'bedrooms', 'bathrooms', 'sqft',
-            'move_in_date', 'pet_policy', 'phone', 'email', 'status',
+            'contact_phone', 'contact_email', 'is_active',
         ]));
         $listing->save();
 
@@ -255,7 +258,7 @@ class RealEstateController extends Controller
         return response()->json([
             'success' => true,
             'message' => '댓글이 등록되었습니다.',
-            'data'    => $comment->load('user:id,name,username,avatar'),
+            'data'    => $comment->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 
@@ -298,8 +301,8 @@ class RealEstateController extends Controller
         if ($request->filled('type')) {
             $q->where('type', $request->type);
         }
-        if ($request->filled('status')) {
-            $q->where('status', $request->status);
+        if ($request->filled('is_active')) {
+            $q->where('is_active', (bool) $request->is_active);
         }
 
         return response()->json(['success' => true, 'data' => $q->paginate(25)]);
@@ -320,13 +323,13 @@ class RealEstateController extends Controller
     public function adminToggle($id)
     {
         $listing = RealEstateListing::findOrFail($id);
-        $listing->status = ($listing->status === 'active') ? 'closed' : 'active';
+        $listing->is_active = !$listing->is_active;
         $listing->save();
 
         return response()->json([
             'success' => true,
             'message' => '상태가 변경되었습니다.',
-            'data'    => ['status' => $listing->status],
+            'data'    => ['is_active' => $listing->is_active],
         ]);
     }
 }

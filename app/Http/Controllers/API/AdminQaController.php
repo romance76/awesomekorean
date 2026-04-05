@@ -26,15 +26,19 @@ class AdminQaController extends Controller
                 $query->where('category_id', $categoryId);
             }
             if ($status = $request->input('status')) {
-                $query->where('status', $status);
+                if ($status === 'solved' || $status === 'resolved') {
+                    $query->where('is_resolved', true);
+                } elseif ($status === 'pending') {
+                    $query->where('is_resolved', false);
+                }
             }
 
             $posts = $query->orderByDesc('created_at')->paginate($request->input('per_page', 25));
 
             $stats = [
                 'total'   => QaPost::count(),
-                'solved'  => QaPost::where('status', 'solved')->count(),
-                'pending' => QaPost::where('status', 'pending')->count(),
+                'solved'  => QaPost::where('is_resolved', true)->count(),
+                'pending' => QaPost::where('is_resolved', false)->count(),
                 'answers' => QaAnswer::count(),
             ];
 

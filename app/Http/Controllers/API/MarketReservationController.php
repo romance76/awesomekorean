@@ -45,23 +45,23 @@ class MarketReservationController extends Controller
         $pointsRequired = (int) ($item->reservation_points ?? 0);
 
         // Check buyer has enough points
-        if ($pointsRequired > 0 && ($buyer->points_total ?? 0) < $pointsRequired) {
+        if ($pointsRequired > 0 && ($buyer->points ?? 0) < $pointsRequired) {
             return response()->json([
                 'success' => false,
-                'message' => "보증금이 부족합니다. 필요: {$pointsRequired}P, 보유: {$buyer->points_total}P",
+                'message' => "보증금이 부족합니다. 필요: {$pointsRequired}P, 보유: {$buyer->points}P",
             ], 400);
         }
 
         return DB::transaction(function () use ($item, $buyer, $pointsRequired) {
             // Deduct points from buyer
             if ($pointsRequired > 0) {
-                $buyer->decrement('points_total', $pointsRequired);
+                $buyer->decrement('points', $pointsRequired);
                 PointLog::create([
                     'user_id'       => $buyer->id,
                     'type'          => 'reservation_hold',
                     'action'        => 'spend',
                     'amount'        => -$pointsRequired,
-                    'balance_after' => $buyer->fresh()->points_total,
+                    'balance_after' => $buyer->fresh()->points,
                     'memo'          => "찜 보증금 ({$item->title})",
                 ]);
             }
@@ -85,7 +85,7 @@ class MarketReservationController extends Controller
                 'user_id' => $item->user_id,
                 'type'    => 'market_reservation',
                 'title'   => '찜 알림',
-                'body'    => $buyer->name . '님이 "' . mb_substr($item->title, 0, 20) . '" 물품을 찜했습니다.',
+                'content'    => $buyer->name . '님이 "' . mb_substr($item->title, 0, 20) . '" 물품을 찜했습니다.',
                 'url'     => '/market/' . $item->id,
             ]);
 
@@ -119,13 +119,13 @@ class MarketReservationController extends Controller
             if ($reservation->points_held > 0) {
                 $seller = User::find($reservation->seller_id);
                 if ($seller) {
-                    $seller->increment('points_total', $reservation->points_held);
+                    $seller->increment('points', $reservation->points_held);
                     PointLog::create([
                         'user_id'       => $seller->id,
                         'type'          => 'reservation_complete',
                         'action'        => 'earn',
                         'amount'        => $reservation->points_held,
-                        'balance_after' => $seller->fresh()->points_total,
+                        'balance_after' => $seller->fresh()->points,
                         'memo'          => '거래 성사 보증금 수령',
                     ]);
                 }
@@ -175,13 +175,13 @@ class MarketReservationController extends Controller
                 if ($buyerRefund > 0) {
                     $buyer = User::find($reservation->buyer_id);
                     if ($buyer) {
-                        $buyer->increment('points_total', $buyerRefund);
+                        $buyer->increment('points', $buyerRefund);
                         PointLog::create([
                             'user_id'       => $buyer->id,
                             'type'          => 'reservation_cancel_refund',
                             'action'        => 'earn',
                             'amount'        => $buyerRefund,
-                            'balance_after' => $buyer->fresh()->points_total,
+                            'balance_after' => $buyer->fresh()->points,
                             'memo'          => '찜 취소 보증금 반환 (50%)',
                         ]);
                     }
@@ -191,13 +191,13 @@ class MarketReservationController extends Controller
                 if ($sellerShare > 0) {
                     $seller = User::find($reservation->seller_id);
                     if ($seller) {
-                        $seller->increment('points_total', $sellerShare);
+                        $seller->increment('points', $sellerShare);
                         PointLog::create([
                             'user_id'       => $seller->id,
                             'type'          => 'reservation_cancel_penalty',
                             'action'        => 'earn',
                             'amount'        => $sellerShare,
-                            'balance_after' => $seller->fresh()->points_total,
+                            'balance_after' => $seller->fresh()->points,
                             'memo'          => '구매자 찜 취소 위약금 수령',
                         ]);
                     }
@@ -220,7 +220,7 @@ class MarketReservationController extends Controller
                 'user_id' => $reservation->seller_id,
                 'type'    => 'market_reservation_cancel',
                 'title'   => '찜 취소',
-                'body'    => '찜이 취소되었습니다.',
+                'content'    => '찜이 취소되었습니다.',
                 'url'     => '/market/' . $reservation->market_item_id,
             ]);
 

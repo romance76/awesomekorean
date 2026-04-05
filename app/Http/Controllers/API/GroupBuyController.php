@@ -17,7 +17,7 @@ class GroupBuyController extends Controller
      */
     public function index(Request $request)
     {
-        $query = GroupBuy::with('user:id,name,username,avatar')
+        $query = GroupBuy::with('user:id,name,nickname,avatar')
             ->withCount('participants')
             ->where('status', '!=', 'cancelled');
 
@@ -64,8 +64,8 @@ class GroupBuyController extends Controller
     public function show($id)
     {
         $gb = GroupBuy::with([
-            'user:id,name,username,avatar',
-            'participants.user:id,name,username,avatar',
+            'user:id,name,nickname,avatar',
+            'participants.user:id,name,nickname,avatar',
         ])->withCount('participants')->findOrFail($id);
 
         return response()->json([
@@ -125,7 +125,7 @@ class GroupBuyController extends Controller
         return response()->json([
             'success' => true,
             'message' => '공동구매가 등록되었습니다.',
-            'data'    => $gb->load('user:id,name,username,avatar'),
+            'data'    => $gb->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 

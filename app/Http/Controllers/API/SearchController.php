@@ -32,7 +32,7 @@ class SearchController extends Controller
 
         if (in_array($type, ['all', 'posts'])) {
             $result['posts'] = Post::with(['user:id,name,nickname,avatar', 'board:id,name,slug'])
-                ->where('status', 'active')
+                ->where('is_hidden', false)
                 ->where(function ($query) use ($q) {
                     $query->where('title', 'like', "%{$q}%")
                           ->orWhere('content', 'like', "%{$q}%");
@@ -44,11 +44,11 @@ class SearchController extends Controller
 
         if (in_array($type, ['all', 'jobs'])) {
             $result['jobs'] = JobPost::with('user:id,name,nickname')
-                ->where('status', 'active')
+                ->where('is_active', true)
                 ->where(function ($query) use ($q) {
                     $query->where('title', 'like', "%{$q}%")
                           ->orWhere('content', 'like', "%{$q}%")
-                          ->orWhere('company_name', 'like', "%{$q}%");
+                          ->orWhere('company', 'like', "%{$q}%");
                 })
                 ->orderByDesc('created_at')
                 ->limit($limit)
@@ -57,10 +57,10 @@ class SearchController extends Controller
 
         if (in_array($type, ['all', 'market'])) {
             $result['market'] = MarketItem::with('user:id,name,nickname')
-                ->where('status', 'active')
+                ->whereIn('status', ['active', 'reserved'])
                 ->where(function ($query) use ($q) {
                     $query->where('title', 'like', "%{$q}%")
-                          ->orWhere('description', 'like', "%{$q}%");
+                          ->orWhere('content', 'like', "%{$q}%");
                 })
                 ->orderByDesc('created_at')
                 ->limit($limit)
@@ -68,8 +68,7 @@ class SearchController extends Controller
         }
 
         if (in_array($type, ['all', 'businesses'])) {
-            $result['businesses'] = Business::where('status', 'active')
-                ->where(function ($query) use ($q) {
+            $result['businesses'] = Business::where(function ($query) use ($q) {
                     $query->where('name', 'like', "%{$q}%")
                           ->orWhere('description', 'like', "%{$q}%")
                           ->orWhere('category', 'like', "%{$q}%");
@@ -80,8 +79,7 @@ class SearchController extends Controller
         }
 
         if (in_array($type, ['all', 'events'])) {
-            $result['events'] = Event::where('status', 'active')
-                ->where(function ($query) use ($q) {
+            $result['events'] = Event::where(function ($query) use ($q) {
                     $query->where('title', 'like', "%{$q}%")
                           ->orWhere('description', 'like', "%{$q}%");
                 })
@@ -92,7 +90,6 @@ class SearchController extends Controller
 
         if (in_array($type, ['all', 'qa'])) {
             $result['qa'] = QaPost::with('user:id,name,nickname')
-                ->where('status', 'active')
                 ->where(function ($query) use ($q) {
                     $query->where('title', 'like', "%{$q}%")
                           ->orWhere('content', 'like', "%{$q}%");
@@ -104,10 +101,9 @@ class SearchController extends Controller
 
         if (in_array($type, ['all', 'recipes'])) {
             $result['recipes'] = RecipePost::with('user:id,name,nickname')
-                ->where('status', 'active')
+                ->where('is_hidden', false)
                 ->where(function ($query) use ($q) {
-                    $query->where('title', 'like', "%{$q}%")
-                          ->orWhere('description', 'like', "%{$q}%");
+                    $query->where('title', 'like', "%{$q}%");
                 })
                 ->orderByDesc('created_at')
                 ->limit($limit)

@@ -40,7 +40,7 @@ class RecipeController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RecipePost::with('user:id,nickname,username,avatar', 'category:id,name,name_ko,key,icon')
+        $query = RecipePost::with('user:id,nickname,nickname,avatar', 'category:id,name,name_ko,key,icon')
             ->where('is_hidden', false);
 
         // Category filter
@@ -94,9 +94,9 @@ class RecipeController extends Controller
     public function show($id)
     {
         $recipe = RecipePost::with([
-            'user:id,nickname,username,avatar',
+            'user:id,nickname,nickname,avatar',
             'category:id,name,name_ko,key,icon',
-            'comments' => fn($q) => $q->with('user:id,nickname,username,avatar')->latest()->limit(20),
+            'comments' => fn($q) => $q->with('user:id,nickname,nickname,avatar')->latest()->limit(20),
         ])->findOrFail($id);
 
         $recipe->increment('view_count');
@@ -360,7 +360,7 @@ class RecipeController extends Controller
         return response()->json([
             'success' => true,
             'message' => '댓글이 등록되었습니다.',
-            'data'    => $comment->load('user:id,nickname,username,avatar'),
+            'data'    => $comment->load('user:id,nickname,nickname,avatar'),
         ], 201);
     }
 

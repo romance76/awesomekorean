@@ -191,7 +191,7 @@ class ElderController extends Controller
                     'user_id' => $settings->guardian_user_id,
                     'type'    => 'elder_sos',
                     'title'   => 'SOS 긴급 알림',
-                    'body'    => ($user->nickname ?? $user->name) . '님이 SOS 긴급 신호를 보냈습니다.',
+                    'content'    => ($user->nickname ?? $user->name) . '님이 SOS 긴급 신호를 보냈습니다.',
                     'data'    => json_encode([
                         'sos_id'  => $sosId,
                         'user_id' => $user->id,
@@ -209,7 +209,7 @@ class ElderController extends Controller
                         'data'   => [
                             'title'     => '긴급 SOS',
                             'message'   => ($user->nickname ?? $user->name) . '님이 SOS를 발동했습니다!',
-                            'body'      => ($user->nickname ?? $user->name) . '님이 SOS를 발동했습니다!',
+                            'content'      => ($user->nickname ?? $user->name) . '님이 SOS를 발동했습니다!',
                             'url'       => '/elder/guardian',
                             'elderId'   => $user->id,
                             'elderName' => $user->nickname ?? $user->name,
@@ -419,7 +419,7 @@ class ElderController extends Controller
                     'user_id' => $sosLog->user_id,
                     'type'    => 'elder_sos',
                     'title'   => 'SOS 해제',
-                    'body'    => 'SOS 신호가 ' . ($status === 'resolved' ? '확인 처리' : '오인 처리') . '되었습니다.',
+                    'content'    => 'SOS 신호가 ' . ($status === 'resolved' ? '확인 처리' : '오인 처리') . '되었습니다.',
                     'data'    => json_encode(['sos_id' => $sosLog->id]),
                     'url'     => '/elder/sos-history',
                 ]);
@@ -464,7 +464,7 @@ class ElderController extends Controller
                 'user_id' => $guardian->id,
                 'type'    => 'elder_sos',
                 'title'   => '노인안심 보호자 지정',
-                'body'    => (Auth::user()->nickname ?? Auth::user()->name) . '님이 귀하를 보호자로 지정했습니다.',
+                'content'    => (Auth::user()->nickname ?? Auth::user()->name) . '님이 귀하를 보호자로 지정했습니다.',
                 'data'    => json_encode(['elder_user_id' => Auth::id()]),
                 'url'     => '/elder/guardian/' . Auth::id(),
             ]);
@@ -804,7 +804,7 @@ class ElderController extends Controller
                     'user_id' => $settings->guardian_user_id,
                     'type'    => 'elder_checkin_missed',
                     'title'   => '노인안심 수동 알림',
-                    'body'    => '관리자가 ' . ($user->nickname ?? $user->name) . '님의 안부 확인을 요청합니다.',
+                    'content'    => '관리자가 ' . ($user->nickname ?? $user->name) . '님의 안부 확인을 요청합니다.',
                     'data'    => json_encode(['elder_user_id' => $id]),
                     'url'     => '/elder/guardian/' . $id,
                 ]);
@@ -814,7 +814,7 @@ class ElderController extends Controller
                 'user_id' => $id,
                 'type'    => 'elder_checkin_missed',
                 'title'   => '안부 확인 요청',
-                'body'    => '관리자가 안부 확인을 요청합니다. 체크인을 해주세요.',
+                'content'    => '관리자가 안부 확인을 요청합니다. 체크인을 해주세요.',
                 'data'    => json_encode([]),
                 'url'     => '/elder',
             ]);

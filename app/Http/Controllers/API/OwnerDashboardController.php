@@ -12,8 +12,8 @@ class OwnerDashboardController extends Controller
     private function getOwnedBusiness()
     {
         return DB::table('businesses')
-            ->where('owner_user_id', Auth::id())
-            ->where('status', 'active')
+            ->where('owner_id', Auth::id())
+            ->where('is_verified', true)
             ->first();
     }
 
@@ -30,7 +30,7 @@ class OwnerDashboardController extends Controller
 
         $biz->recent_reviews = DB::table('business_reviews as r')
             ->join('users as u', 'r.user_id', '=', 'u.id')
-            ->select('r.*', 'u.nickname', 'u.profile_image')
+            ->select('r.*', 'u.nickname', 'u.avatar')
             ->where('r.business_id', $biz->id)
             ->where('r.is_visible', true)
             ->orderByDesc('r.created_at')->limit(5)->get();
@@ -148,7 +148,7 @@ class OwnerDashboardController extends Controller
         if (!$biz) return response()->json(['error' => '없음'], 404);
         $reviews = DB::table('business_reviews as r')
             ->join('users as u', 'r.user_id', '=', 'u.id')
-            ->select('r.*', 'u.nickname', 'u.profile_image')
+            ->select('r.*', 'u.nickname', 'u.avatar')
             ->where('r.business_id', $biz->id)
             ->when($req->query('no_reply'), fn($q) => $q->whereNull('r.owner_reply'))
             ->when($req->query('reported'), fn($q) => $q->where('r.report_count', '>', 0))

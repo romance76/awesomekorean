@@ -19,30 +19,32 @@ class EventController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Event::whereNotIn('status', ['cancelled', 'draft'])
-            ->with('user:id,name,username,avatar');
+        $query = Event::query();
 
         // Category filter
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
-        // Region filter
-        if ($request->filled('region')) {
-            $query->where('region', $request->region);
+        // City/state filter (no 'region' column)
+        if ($request->filled('city')) {
+            $query->where('city', $request->city);
+        }
+        if ($request->filled('state')) {
+            $query->where('state', $request->state);
         }
 
-        // Date range filter
+        // Date range filter – use start_date (no event_date column)
         if ($request->filled('start_date')) {
-            $query->where('event_date', '>=', $request->start_date);
+            $query->where('start_date', '>=', $request->start_date);
         }
         if ($request->filled('end_date')) {
-            $query->where('event_date', '<=', $request->end_date);
+            $query->where('end_date', '<=', $request->end_date);
         }
 
         // By default show upcoming events
         if (!$request->filled('start_date') && !$request->filled('show_past')) {
-            $query->where('event_date', '>=', now());
+            $query->where('start_date', '>=', now());
         }
 
         // Search
@@ -51,23 +53,24 @@ class EventController extends Controller
             $query->where(function ($q) use ($s) {
                 $q->where('title', 'like', "%{$s}%")
                   ->orWhere('description', 'like', "%{$s}%")
-                  ->orWhere('location', 'like', "%{$s}%");
+                  ->orWhere('venue', 'like', "%{$s}%")
+                  ->orWhere('address', 'like', "%{$s}%");
             });
         }
 
-        // Distance filter (Haversine)
+        // Distance filter (Haversine) – events use lat/lng columns
         $lat = $request->input('lat');
         $lng = $request->input('lng');
         $radius = $request->input('radius');
 
         if ($lat && $lng && $radius && (float) $radius > 0) {
             $query->selectRaw(
-                "*, (3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance",
+                "*, (3959 * acos(cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?)) + sin(radians(?)) * sin(radians(lat)))) AS distance",
                 [(float) $lat, (float) $lng, (float) $lat]
             )->having('distance', '<', (float) $radius)
               ->orderBy('distance');
         } else {
-            $query->orderBy('event_date');
+            $query->orderBy('start_date');
         }
 
         return response()->json([
@@ -82,7 +85,7 @@ class EventController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with('user:id,name,username,avatar')->findOrFail($id);
+        $event = Event::findOrFail($id);
         $event->increment('view_count');
 
         $isAttending = false;
@@ -112,7 +115,7 @@ class EventController extends Controller
 
         $comments = Comment::where('commentable_type', 'event')
             ->where('commentable_id', $id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->latest()
             ->get();
 
@@ -135,18 +138,21 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title'         => 'required|string|max:100',
-            'description'   => 'nullable|string',
-            'location'      => 'nullable|string',
-            'region'        => 'nullable|string',
-            'category'      => 'nullable|in:general,meetup,food,culture,sports,education,business,social',
-            'max_attendees' => 'nullable|integer|min:1',
-            'price'         => 'nullable|numeric|min:0',
-            'event_date'    => 'required|date|after:now',
-            'is_online'     => 'nullable|boolean',
-            'latitude'      => 'nullable|numeric',
-            'longitude'     => 'nullable|numeric',
-            'image'         => 'nullable|image|max:5120',
+            'title'       => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'content'     => 'nullable|string',
+            'venue'       => 'nullable|string',
+            'address'     => 'nullable|string',
+            'city'        => 'nullable|string',
+            'state'       => 'nullable|string',
+            'zipcode'     => 'nullable|string',
+            'category'    => 'nullable|string',
+            'price'       => 'nullable|numeric|min:0',
+            'start_date'  => 'required|date|after:now',
+            'end_date'    => 'nullable|date|after:start_date',
+            'lat'         => 'nullable|numeric',
+            'lng'         => 'nullable|numeric',
+            'image'       => 'nullable|image|max:5120',
         ]);
 
         if ($request->hasFile('image')) {
@@ -154,12 +160,15 @@ class EventController extends Controller
             $data['image_url'] = Storage::url($path);
         }
 
-        $event = Event::create(array_merge($data, ['user_id' => Auth::id()]));
+        // Remove 'image' key since the column is 'image_url'
+        unset($data['image']);
+
+        $event = Event::create($data);
 
         return response()->json([
             'success' => true,
             'message' => '이벤트가 등록되었습니다.',
-            'data'    => $event->load('user:id,name,username'),
+            'data'    => $event,
         ], 201);
     }
 
@@ -170,14 +179,11 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        if ($event->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            return response()->json(['success' => false, 'message' => '수정 권한이 없습니다.'], 403);
-        }
-
         $event->fill($request->only([
-            'title', 'description', 'location', 'region', 'category',
-            'event_date', 'is_online', 'max_attendees', 'price',
-            'latitude', 'longitude',
+            'title', 'description', 'content', 'venue', 'address',
+            'city', 'state', 'zipcode', 'category',
+            'start_date', 'end_date', 'price',
+            'lat', 'lng',
         ]));
         $event->save();
 
@@ -190,31 +196,23 @@ class EventController extends Controller
 
     /**
      * DELETE /api/events/{id}
+     * Delete event (no status column, just delete)
      */
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
+        $event->delete();
 
-        if ($event->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            return response()->json(['success' => false, 'message' => '삭제 권한이 없습니다.'], 403);
-        }
-
-        $event->update(['status' => 'cancelled']);
-
-        return response()->json(['success' => true, 'message' => '이벤트가 취소되었습니다.']);
+        return response()->json(['success' => true, 'message' => '이벤트가 삭제되었습니다.']);
     }
 
     /**
      * POST /api/events/{id}/attend
-     * Toggle attendance (going/interested or remove)
+     * Toggle attendance
      */
     public function toggleAttend($id)
     {
         $event = Event::findOrFail($id);
-
-        if (in_array($event->status, ['cancelled', 'draft'])) {
-            return response()->json(['success' => false, 'message' => '참가할 수 없는 이벤트입니다.'], 422);
-        }
 
         $exists = DB::table('event_attendees')
             ->where('event_id', $id)
@@ -237,10 +235,6 @@ class EventController extends Controller
             ]);
         }
 
-        if ($event->max_attendees && $event->attendee_count >= $event->max_attendees) {
-            return response()->json(['success' => false, 'message' => '정원이 초과되었습니다.'], 422);
-        }
-
         DB::table('event_attendees')->insert([
             'event_id'   => $id,
             'user_id'    => Auth::id(),
@@ -250,7 +244,9 @@ class EventController extends Controller
         $event->increment('attendee_count');
 
         // Points
-        Auth::user()->addPoints(2, 'event_attend', 'earn', (int) $id, '이벤트 참가');
+        if (Auth::user() && method_exists(Auth::user(), 'addPoints')) {
+            Auth::user()->addPoints(2, 'event_attend', 'earn', (int) $id, '이벤트 참가');
+        }
 
         return response()->json([
             'success' => true,
@@ -341,14 +337,14 @@ class EventController extends Controller
 
         // Points (max 10 per day)
         $todayCount = Comment::where('user_id', Auth::id())->whereDate('created_at', today())->count();
-        if ($todayCount <= 10) {
+        if ($todayCount <= 10 && Auth::user() && method_exists(Auth::user(), 'addPoints')) {
             Auth::user()->addPoints(5, 'comment_write', 'earn', $comment->id, '댓글 작성');
         }
 
         return response()->json([
             'success' => true,
             'message' => '댓글이 등록되었습니다.',
-            'data'    => $comment->load('user:id,name,username,avatar'),
+            'data'    => $comment->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 }

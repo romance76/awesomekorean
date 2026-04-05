@@ -19,7 +19,7 @@ class GameCategoryController extends Controller
         $leaders = DB::table('user_wallets as w')
             ->join('users as u', 'w.user_id', '=', 'u.id')
             ->leftJoin(DB::raw('(SELECT user_id, COUNT(*) as play_count FROM game_sessions GROUP BY user_id) as gs'), 'gs.user_id', '=', 'u.id')
-            ->select('u.id', 'u.nickname', 'u.username', 'w.coin_balance',
+            ->select('u.id', 'u.nickname', 'u.nickname', 'w.coin_balance',
                      'w.lifetime_earned as total_reward',
                      DB::raw('COALESCE(gs.play_count, 0) as play_count'))
             ->orderByDesc('w.lifetime_earned')->limit(20)->get();

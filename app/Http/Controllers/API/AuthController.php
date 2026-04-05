@@ -35,7 +35,7 @@ class AuthController extends Controller
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'nickname' => $request->nickname ?? $request->name,
-            'lang'     => $request->lang ?? 'ko',
+            'language' => $request->language ?? 'ko',
         ]);
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -77,7 +77,8 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if ($user->status === 'banned') {
+        // Use is_banned instead of status
+        if ($user->is_banned) {
             return response()->json([
                 'success' => false,
                 'message' => '정지된 계정입니다.',
@@ -113,7 +114,7 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        $user = $request->user()->load(['boards']);
+        $user = $request->user();
 
         return response()->json([
             'success' => true,
@@ -123,6 +124,7 @@ class AuthController extends Controller
 
     /**
      * Format user data for response.
+     * Uses actual DB column names: points, zipcode, latitude, longitude, language, role
      */
     private function formatUser(User $user): array
     {
@@ -132,17 +134,17 @@ class AuthController extends Controller
             'nickname'  => $user->nickname,
             'email'     => $user->email,
             'avatar'    => $user->avatar ? asset('storage/' . $user->avatar) : null,
-            'level'     => $user->level ?? '씨앗',
-            'points'    => $user->points_total ?? 0,
+            'points'    => $user->points ?? 0,
             'bio'       => $user->bio,
             'phone'     => $user->phone,
             'city'      => $user->city,
             'state'     => $user->state,
-            'zip_code'  => $user->zip_code,
-            'lat'       => $user->lat,
-            'lng'       => $user->lng,
-            'is_admin'  => (bool) $user->is_admin,
-            'lang'      => $user->lang ?? 'ko',
+            'zipcode'   => $user->zipcode,
+            'latitude'  => $user->latitude,
+            'longitude' => $user->longitude,
+            'is_admin'  => $user->role === 'admin',
+            'role'      => $user->role,
+            'language'  => $user->language ?? 'ko',
             'created_at' => $user->created_at,
         ];
     }

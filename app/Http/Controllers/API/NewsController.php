@@ -110,7 +110,7 @@ class NewsController extends Controller
         // Comments
         $data['comments'] = Comment::where('commentable_type', 'news')
             ->where('commentable_id', $id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->latest()
             ->get();
 
@@ -307,7 +307,7 @@ class NewsController extends Controller
         return response()->json([
             'success' => true,
             'message' => '댓글이 등록되었습니다.',
-            'data'    => $comment->load('user:id,name,username,avatar'),
+            'data'    => $comment->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 }

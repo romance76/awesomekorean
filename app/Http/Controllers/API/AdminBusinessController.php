@@ -19,7 +19,7 @@ class AdminBusinessController extends Controller
     {
         try {
             $query = DB::table('businesses as b')
-                ->leftJoin('users as u', 'b.owner_user_id', '=', 'u.id')
+                ->leftJoin('users as u', 'b.owner_id', '=', 'u.id')
                 ->select(
                     'b.*',
                     'u.nickname as owner_name',
@@ -46,11 +46,11 @@ class AdminBusinessController extends Controller
             if ($request->has('is_premium')) {
                 $query->where('b.is_premium', (bool) $request->input('is_premium'));
             }
-            if ($region = $request->input('region')) {
-                $query->where('b.region', $region);
+            if ($city = $request->input('city')) {
+                $query->where('b.city', 'like', "%{$city}%");
             }
-            if ($status = $request->input('status')) {
-                $query->where('b.status', $status);
+            if ($request->has('is_verified')) {
+                $query->where('b.is_verified', (bool) $request->input('is_verified'));
             }
 
             $query->orderByDesc('b.is_premium')->orderByDesc('b.created_at');
@@ -72,7 +72,7 @@ class AdminBusinessController extends Controller
 
             $data = $request->only([
                 'name', 'name_ko', 'name_en', 'category', 'address', 'phone',
-                'website', 'region', 'status', 'is_active', 'is_premium',
+                'website', 'city', 'state', 'zipcode',
                 'premium_type', 'is_claimed', 'description', 'hours',
             ]);
 
@@ -92,7 +92,7 @@ class AdminBusinessController extends Controller
     {
         try {
             $business = Business::findOrFail($id);
-            $business->update(['status' => 'inactive']);
+            $business->delete();
 
             return response()->json(['success' => true, 'message' => '업소가 비활성화되었습니다.']);
         } catch (\Exception $e) {
@@ -157,7 +157,7 @@ class AdminBusinessController extends Controller
 
             // 업소 소유자 설정
             DB::table('businesses')->where('id', $claim->business_id)->update([
-                'owner_user_id' => $claim->user_id,
+                'owner_id' => $claim->user_id,
                 'is_claimed'    => true,
                 'updated_at'    => now(),
             ]);

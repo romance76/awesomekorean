@@ -105,7 +105,7 @@ class PaymentController extends Controller
 
         return DB::transaction(function () use ($userId, $points, $pi, $paymentIntentId) {
             $user = \App\Models\User::findOrFail($userId);
-            $user->increment('points_total', $points);
+            $user->increment('points', $points);
 
             Payment::create([
                 'user_id'           => $userId,
@@ -124,7 +124,7 @@ class PaymentController extends Controller
                 'type'          => 'purchase',
                 'action'        => 'earn',
                 'amount'        => $points,
-                'balance_after' => $user->fresh()->points_total,
+                'balance_after' => $user->fresh()->points,
                 'memo'          => "포인트 구매: {$points}P",
             ]);
 
@@ -133,7 +133,7 @@ class PaymentController extends Controller
                 'message' => "포인트 {$points}P가 충전되었습니다.",
                 'data'    => [
                     'points'  => $points,
-                    'balance' => $user->fresh()->points_total,
+                    'balance' => $user->fresh()->points,
                 ],
             ]);
         });

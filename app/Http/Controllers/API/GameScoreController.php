@@ -161,11 +161,11 @@ class GameScoreController extends Controller
     {
         $leaders = DB::table('game_sessions as gs')
             ->join('users as u', 'gs.user_id', '=', 'u.id')
-            ->select('u.id', 'u.nickname', 'u.username',
+            ->select('u.id', 'u.nickname', 'u.nickname',
                      DB::raw('MAX(gs.score) as best_score'),
                      DB::raw('COUNT(gs.id) as play_count'))
             ->where('gs.game_id', $gameId)
-            ->groupBy('u.id', 'u.nickname', 'u.username')
+            ->groupBy('u.id', 'u.nickname', 'u.nickname')
             ->orderByDesc('best_score')
             ->limit(20)
             ->get();

@@ -21,18 +21,18 @@ class FriendController extends Controller
 
         $query = Friend::where('status', $status)
             ->where(function ($q) use ($userId) {
-                $q->where('requester_id', $userId)
-                  ->orWhere('recipient_id', $userId);
+                $q->where('user_id', $userId)
+                  ->orWhere('friend_id', $userId);
             })
             ->with([
-                'requester:id,name,username,avatar,region,level,points_total,phone,email,kakao_id,telegram_id',
-                'recipient:id,name,username,avatar,region,level,points_total,phone,email,kakao_id,telegram_id',
+                'user:id,name,nickname,avatar',
+                'friend:id,name,nickname,avatar',
             ]);
 
         $friends = $query->get()->map(function ($friend) use ($userId) {
-            $other = $friend->requester_id === $userId
-                ? $friend->recipient
-                : $friend->requester;
+            $other = $friend->user_id === $userId
+                ? $friend->friend
+                : $friend->user;
             if ($other && $other->avatar) {
                 $other->avatar = asset('storage/' . $other->avatar);
             }
@@ -61,10 +61,10 @@ class FriendController extends Controller
 
         // Check existing relationship in either direction
         $exists = Friend::where(function ($q) use ($authId, $userId) {
-                $q->where('requester_id', $authId)->where('recipient_id', $userId);
+                $q->where('user_id', $authId)->where('friend_id', $userId);
             })
             ->orWhere(function ($q) use ($authId, $userId) {
-                $q->where('requester_id', $userId)->where('recipient_id', $authId);
+                $q->where('user_id', $userId)->where('friend_id', $authId);
             })
             ->exists();
 
@@ -73,8 +73,8 @@ class FriendController extends Controller
         }
 
         Friend::create([
-            'requester_id' => $authId,
-            'recipient_id' => $userId,
+            'user_id' => $authId,
+            'friend_id' => $userId,
             'status'       => 'pending',
         ]);
 
@@ -90,8 +90,8 @@ class FriendController extends Controller
      */
     public function accept(int $userId)
     {
-        $friend = Friend::where('requester_id', $userId)
-            ->where('recipient_id', Auth::id())
+        $friend = Friend::where('user_id', $userId)
+            ->where('friend_id', Auth::id())
             ->where('status', 'pending')
             ->firstOrFail();
 
@@ -106,8 +106,8 @@ class FriendController extends Controller
      */
     public function reject(int $userId)
     {
-        $friend = Friend::where('requester_id', $userId)
-            ->where('recipient_id', Auth::id())
+        $friend = Friend::where('user_id', $userId)
+            ->where('friend_id', Auth::id())
             ->where('status', 'pending')
             ->firstOrFail();
 
@@ -126,17 +126,17 @@ class FriendController extends Controller
 
         // Remove existing friendship
         Friend::where(function ($q) use ($authId, $userId) {
-                $q->where('requester_id', $authId)->where('recipient_id', $userId);
+                $q->where('user_id', $authId)->where('friend_id', $userId);
             })
             ->orWhere(function ($q) use ($authId, $userId) {
-                $q->where('requester_id', $userId)->where('recipient_id', $authId);
+                $q->where('user_id', $userId)->where('friend_id', $authId);
             })
             ->delete();
 
         // Create blocked relationship
         Friend::create([
-            'requester_id' => $authId,
-            'recipient_id' => $userId,
+            'user_id' => $authId,
+            'friend_id' => $userId,
             'status'       => 'blocked',
         ]);
 
@@ -152,10 +152,10 @@ class FriendController extends Controller
         $authId = Auth::id();
 
         $deleted = Friend::where(function ($q) use ($authId, $userId) {
-                $q->where('requester_id', $authId)->where('recipient_id', $userId);
+                $q->where('user_id', $authId)->where('friend_id', $userId);
             })
             ->orWhere(function ($q) use ($authId, $userId) {
-                $q->where('requester_id', $userId)->where('recipient_id', $authId);
+                $q->where('user_id', $userId)->where('friend_id', $authId);
             })
             ->delete();
 
@@ -172,19 +172,19 @@ class FriendController extends Controller
      */
     public function pendingRequests()
     {
-        $requests = Friend::where('recipient_id', Auth::id())
+        $requests = Friend::where('friend_id', Auth::id())
             ->where('status', 'pending')
-            ->with('requester:id,name,username,avatar,region,level')
+            ->with('user:id,name,nickname,avatar')
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($friend) {
-                $user = $friend->requester;
+                $user = $friend->user;
                 if ($user && $user->avatar) {
                     $user->avatar = asset('storage/' . $user->avatar);
                 }
                 return [
                     'id'           => $friend->id,
-                    'requester_id' => $friend->requester_id,
+                    'user_id' => $friend->user_id,
                     'requester'    => $user,
                     'requested_at' => $friend->created_at,
                 ];
@@ -199,19 +199,19 @@ class FriendController extends Controller
      */
     public function sentRequests()
     {
-        $requests = Friend::where('requester_id', Auth::id())
+        $requests = Friend::where('user_id', Auth::id())
             ->where('status', 'pending')
-            ->with('recipient:id,name,username,avatar,region,level')
+            ->with('friend:id,name,nickname,avatar')
             ->orderByDesc('created_at')
             ->get()
             ->map(function ($friend) {
-                $user = $friend->recipient;
+                $user = $friend->friend;
                 if ($user && $user->avatar) {
                     $user->avatar = asset('storage/' . $user->avatar);
                 }
                 return [
                     'id'           => $friend->id,
-                    'recipient_id' => $friend->recipient_id,
+                    'friend_id' => $friend->friend_id,
                     'recipient'    => $user,
                     'requested_at' => $friend->created_at,
                 ];
@@ -232,8 +232,8 @@ class FriendController extends Controller
             return response()->json(['success' => true, 'data' => ['status' => 'self']]);
         }
 
-        $sent = Friend::where('requester_id', $authId)
-            ->where('recipient_id', $userId)
+        $sent = Friend::where('user_id', $authId)
+            ->where('friend_id', $userId)
             ->first();
 
         if ($sent) {
@@ -246,8 +246,8 @@ class FriendController extends Controller
             ]);
         }
 
-        $received = Friend::where('requester_id', $userId)
-            ->where('recipient_id', $authId)
+        $received = Friend::where('user_id', $userId)
+            ->where('friend_id', $authId)
             ->first();
 
         if ($received) {
@@ -275,20 +275,20 @@ class FriendController extends Controller
         $query = $request->input('q');
 
         // Gather existing relationship IDs
-        $friendIds = Friend::where('requester_id', $authId)
-            ->orWhere('recipient_id', $authId)
+        $friendIds = Friend::where('user_id', $authId)
+            ->orWhere('friend_id', $authId)
             ->get()
-            ->flatMap(fn($f) => [$f->requester_id, $f->recipient_id])
+            ->flatMap(fn($f) => [$f->user_id, $f->friend_id])
             ->unique()
             ->push($authId)
             ->values();
 
         $users = User::where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('username', 'like', "%{$query}%");
+                  ->orWhere('nickname', 'like', "%{$query}%");
             })
             ->whereNotIn('id', $friendIds)
-            ->select('id', 'name', 'username', 'avatar', 'region', 'level')
+            ->select('id', 'name', 'nickname', 'avatar')
             ->limit(10)
             ->get()
             ->map(function ($user) {

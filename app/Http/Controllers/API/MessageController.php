@@ -32,7 +32,7 @@ class MessageController extends Controller
                     $q2->where('receiver_id', $userId)->whereNotIn('status', ['deleted_by_receiver']);
                 });
             })
-            ->with(['sender:id,name,username,avatar', 'receiver:id,name,username,avatar'])
+            ->with(['sender:id,name,nickname,avatar', 'receiver:id,name,nickname,avatar'])
             ->orderByDesc('created_at')
             ->get();
 
@@ -68,7 +68,7 @@ class MessageController extends Controller
     {
         $messages = Message::where('receiver_id', Auth::id())
             ->whereIn('status', ['active', 'deleted_by_sender'])
-            ->with('sender:id,name,username,avatar')
+            ->with('sender:id,name,nickname,avatar')
             ->orderByDesc('created_at')
             ->paginate(20);
 
@@ -102,7 +102,7 @@ class MessageController extends Controller
         return response()->json([
             'success' => true,
             'message' => '메시지를 보냈습니다.',
-            'data'    => $message->load(['sender:id,name,username,avatar', 'receiver:id,name,username,avatar']),
+            'data'    => $message->load(['sender:id,name,nickname,avatar', 'receiver:id,name,nickname,avatar']),
         ], 201);
     }
 
@@ -112,7 +112,7 @@ class MessageController extends Controller
      */
     public function show($id)
     {
-        $message = Message::with(['sender:id,name,username,avatar', 'receiver:id,name,username,avatar'])
+        $message = Message::with(['sender:id,name,nickname,avatar', 'receiver:id,name,nickname,avatar'])
             ->findOrFail($id);
 
         if ($message->receiver_id !== Auth::id() && $message->sender_id !== Auth::id()) {
@@ -141,7 +141,7 @@ class MessageController extends Controller
             ->orWhere(function ($q) use ($authId, $userId) {
                 $q->where('sender_id', $userId)->where('receiver_id', $authId);
             })
-            ->with(['sender:id,name,username,avatar', 'receiver:id,name,username,avatar'])
+            ->with(['sender:id,name,nickname,avatar', 'receiver:id,name,nickname,avatar'])
             ->orderByDesc('created_at')
             ->paginate(20);
 

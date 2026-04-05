@@ -129,7 +129,7 @@ class ChatController extends Controller
         }
 
         $messages = ChatMessage::where('chat_room_id', $room->id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->latest()
             ->limit(80)
             ->get()
@@ -155,7 +155,7 @@ class ChatController extends Controller
         $room = ChatRoom::where('slug', $slug)->firstOrFail();
 
         $messages = ChatMessage::where('chat_room_id', $room->id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->orderByDesc('id')
             ->paginate(50);
 
@@ -198,7 +198,7 @@ class ChatController extends Controller
             ]);
         }
 
-        $msg->load('user:id,name,username,avatar');
+        $msg->load('user:id,name,nickname,avatar');
 
         try {
             broadcast(new MessageSent($msg))->toOthers();
@@ -225,7 +225,7 @@ class ChatController extends Controller
 
         $messages = ChatMessage::where('chat_room_id', $room->id)
             ->where('message', 'like', "%{$q}%")
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->orderByDesc('id')
             ->limit(30)
             ->get();

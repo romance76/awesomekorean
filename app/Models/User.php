@@ -76,6 +76,9 @@ class User extends Authenticatable implements JWTSubject
     public function realEstateListings() { return $this->hasMany(RealEstateListing::class); }
     public function groupBuys()       { return $this->hasMany(GroupBuy::class); }
 
+    // ── Accessors ───────────────────────────────────────────────
+    public function getIsAdminAttribute(): bool { return $this->role === 'admin'; }
+
     // ── Helpers ──────────────────────────────────────────────────
     public function isAdmin(): bool   { return $this->role === 'admin'; }
     public function isGuardian(): bool { return $this->role === 'guardian'; }

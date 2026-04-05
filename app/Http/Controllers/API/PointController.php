@@ -36,9 +36,9 @@ class PointController extends Controller
         return response()->json([
             'success' => true,
             'data'    => [
-                'points'       => $user->points_total ?? 0,
+                'points'       => $user->points ?? 0,
                 'game_points'  => $user->game_points ?? 0,
-                'level'        => $user->level ?? '씨앗',
+                'role'         => $user->role ?? 'user',
             ],
         ]);
     }
@@ -76,14 +76,14 @@ class PointController extends Controller
 
         // Add points
         if ($points > 0) {
-            $user->increment('points_total', $points);
+            $user->increment('points', $points);
 
             PointLog::create([
                 'user_id'       => $user->id,
                 'type'          => 'daily_spin',
                 'action'        => 'earn',
                 'amount'        => $points,
-                'balance_after' => $user->fresh()->points_total,
+                'balance_after' => $user->fresh()->points,
                 'memo'          => "일일 룰렛 +{$points}P",
             ]);
         }
@@ -93,7 +93,7 @@ class PointController extends Controller
             'message' => $points > 0 ? "축하합니다! {$points}P를 획득했습니다!" : '아쉽게도 0P입니다. 내일 다시 도전하세요!',
             'data'    => [
                 'points_won' => $points,
-                'balance'    => $user->fresh()->points_total,
+                'balance'    => $user->fresh()->points,
             ],
         ]);
     }

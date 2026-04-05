@@ -14,11 +14,12 @@ class ProfileController extends Controller
     /**
      * GET /api/users/{id}
      * Public user profile with stats.
+     * Users table has no 'status' column. Use is_banned check.
      */
     public function show($id)
     {
         $user = User::where('id', $id)
-            ->where('status', 'active')
+            ->where('is_banned', false)
             ->firstOrFail();
 
         return response()->json([
@@ -29,13 +30,12 @@ class ProfileController extends Controller
                 'nickname'      => $user->nickname,
                 'avatar'        => $user->avatar ? asset('storage/' . $user->avatar) : null,
                 'bio'           => $user->bio,
-                'level'         => $user->level ?? '씨앗',
-                'points'        => $user->points_total ?? 0,
+                'points'        => $user->points ?? 0,
                 'city'          => $user->city,
                 'state'         => $user->state,
                 'joined'        => $user->created_at?->format('Y-m'),
-                'post_count'    => $user->posts()->where('status', 'active')->count(),
-                'comment_count' => $user->comments()->where('status', 'active')->count(),
+                'post_count'    => $user->posts()->where('is_hidden', false)->count(),
+                'comment_count' => $user->comments()->where('is_hidden', false)->count(),
             ],
         ]);
     }
@@ -43,6 +43,7 @@ class ProfileController extends Controller
     /**
      * PUT /api/user/profile
      * Update own profile.
+     * Uses actual column names: zipcode, language
      */
     public function update(Request $request)
     {
@@ -55,13 +56,13 @@ class ProfileController extends Controller
             'phone'     => 'nullable|string|max:20',
             'city'      => 'nullable|string|max:100',
             'state'     => 'nullable|string|max:50',
-            'zip_code'  => 'nullable|string|max:20',
-            'lang'      => 'nullable|in:ko,en,both',
+            'zipcode'   => 'nullable|string|max:20',
+            'language'  => 'nullable|in:ko,en,both',
         ]);
 
         $data = $request->only([
             'name', 'nickname', 'bio', 'phone',
-            'city', 'state', 'zip_code', 'lang',
+            'city', 'state', 'zipcode', 'language',
         ]);
 
         $user->update($data);
@@ -110,7 +111,7 @@ class ProfileController extends Controller
 
         $posts = Post::with('board:id,name,slug')
             ->where('user_id', $user->id)
-            ->where('status', 'active')
+            ->where('is_hidden', false)
             ->orderByDesc('created_at')
             ->paginate(20);
 

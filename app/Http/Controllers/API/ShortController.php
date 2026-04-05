@@ -20,7 +20,7 @@ class ShortController extends Controller
         $perPage = min((int) ($request->per_page ?? 20), 500);
         $user = Auth::user();
 
-        $query = Short::with('user:id,username,avatar')
+        $query = Short::with('user:id,nickname,avatar')
             ->where('is_active', true);
 
         // Search
@@ -68,7 +68,7 @@ class ShortController extends Controller
      */
     public function show($id)
     {
-        $short = Short::with('user:id,username,avatar')->findOrFail($id);
+        $short = Short::with('user:id,nickname,avatar')->findOrFail($id);
 
         $short->liked = false;
         if (Auth::check()) {
@@ -121,7 +121,7 @@ class ShortController extends Controller
         return response()->json([
             'success' => true,
             'message' => '숏츠가 등록되었습니다.',
-            'data'    => $short->load('user:id,username,avatar'),
+            'data'    => $short->load('user:id,nickname,avatar'),
         ], 201);
     }
 
@@ -197,7 +197,7 @@ class ShortController extends Controller
         $limit = 10;
         $user = Auth::user();
 
-        $query = Short::with('user:id,username,avatar')
+        $query = Short::with('user:id,nickname,avatar')
             ->where('is_active', true);
 
         if ($user) {

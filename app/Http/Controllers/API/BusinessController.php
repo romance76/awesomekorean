@@ -19,8 +19,7 @@ class BusinessController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Business::where('status', 'active')
-            ->with('owner:id,name,username,avatar');
+        $query = Business::query();
 
         // Category filter
         if ($request->filled('category')) {
@@ -35,13 +34,13 @@ class BusinessController extends Controller
             $query->where('subcategory', $request->subcategory);
         }
 
-        // Region filter
-        if ($request->filled('region')) {
-            $query->where('region', 'like', '%' . $request->region . '%');
+        // City filter
+        if ($request->filled('city')) {
+            $query->where('city', 'like', '%' . $request->city . '%');
         }
 
         // State filter
-        if ($request->filled('state') && !$request->filled('region')) {
+        if ($request->filled('state') && !$request->filled('city')) {
             $stateCities = [
                 'CA' => ['Los Angeles', 'LA', 'San Francisco', 'San Diego'],
                 'NY' => ['New York', 'NY', 'Flushing'],
@@ -68,7 +67,7 @@ class BusinessController extends Controller
             if (isset($stateCities[$s])) {
                 $query->where(function ($q) use ($stateCities, $s) {
                     foreach ($stateCities[$s] as $city) {
-                        $q->orWhere('region', 'like', '%' . $city . '%');
+                        $q->orWhere('city', 'like', '%' . $city . '%');
                     }
                 });
             }
@@ -96,7 +95,7 @@ class BusinessController extends Controller
             $r = (float) $radius;
 
             $query->selectRaw(
-                "*, (3959 * acos(cos(radians(?)) * cos(radians(COALESCE(lat, latitude, 0))) * cos(radians(COALESCE(lng, longitude, 0)) - radians(?)) + sin(radians(?)) * sin(radians(COALESCE(lat, latitude, 0))))) AS distance",
+                "*, (3959 * acos(cos(radians(?)) * cos(radians(COALESCE(lat, 0))) * cos(radians(COALESCE(lng, 0)) - radians(?)) + sin(radians(?)) * sin(radians(COALESCE(lat, 0))))) AS distance",
                 [$lat, $lng, $lat]
             )->having('distance', '<', $r);
         }
@@ -105,7 +104,7 @@ class BusinessController extends Controller
         $sort = $request->input('sort', 'default');
         switch ($sort) {
             case 'rating':
-                $query->orderByDesc('rating_avg');
+                $query->orderByDesc('rating');
                 break;
             case 'distance':
                 if ($lat && $lng) {
@@ -116,7 +115,7 @@ class BusinessController extends Controller
                 $query->orderByDesc('created_at');
                 break;
             default:
-                $query->orderByDesc('is_sponsored')->orderByDesc('rating_avg');
+                $query->orderByDesc('rating');
                 break;
         }
 
@@ -135,8 +134,8 @@ class BusinessController extends Controller
     public function show($id)
     {
         $business = Business::with([
-            'owner:id,name,username,avatar',
-            'reviews.user:id,name,username,avatar',
+            'owner:id,name,nickname,avatar',
+            'reviews.user:id,name,nickname,avatar',
         ])->findOrFail($id);
 
         $business->increment('view_count');
@@ -172,7 +171,9 @@ class BusinessController extends Controller
             'phone'       => 'nullable|string|max:20',
             'website'     => 'nullable|string|max:255',
             'hours'       => 'nullable|string|max:500',
-            'region'      => 'nullable|string|max:100',
+            'city'        => 'nullable|string|max:100',
+            'state'       => 'nullable|string|max:50',
+            'zipcode'     => 'nullable|string|max:20',
             'lat'         => 'nullable|numeric',
             'lng'         => 'nullable|numeric',
             'logo'        => 'nullable|image|max:3072',
@@ -196,8 +197,8 @@ class BusinessController extends Controller
         $business = Business::create(array_merge(
             $request->only([
                 'name', 'name_ko', 'name_en', 'category', 'subcategory',
-                'description', 'address', 'lat', 'lng', 'phone', 'website',
-                'hours', 'region',
+                'description', 'address', 'city', 'state', 'zipcode',
+                'lat', 'lng', 'phone', 'website', 'hours',
             ]),
             [
                 'owner_id' => Auth::id(),
@@ -257,7 +258,7 @@ class BusinessController extends Controller
         $business->fill($request->only([
             'name', 'name_ko', 'name_en', 'category', 'subcategory',
             'description', 'address', 'lat', 'lng', 'phone', 'website',
-            'hours', 'region', 'status',
+            'hours', 'city', 'state', 'zipcode',
         ]));
 
         $business->save();
@@ -278,7 +279,7 @@ class BusinessController extends Controller
         Business::findOrFail($id);
 
         $reviews = BusinessReview::where('business_id', $id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->orderByDesc('created_at')
             ->paginate(20);
 
@@ -316,14 +317,14 @@ class BusinessController extends Controller
         // Recalculate averages
         $avg = $business->reviews()->avg('rating');
         $business->update([
-            'rating_avg'   => round($avg, 1),
+            'rating'       => round($avg, 1),
             'review_count' => $business->reviews()->count(),
         ]);
 
         return response()->json([
             'success' => true,
             'message' => '리뷰가 등록되었습니다.',
-            'data'    => $review->load('user:id,name,username,avatar'),
+            'data'    => $review->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 

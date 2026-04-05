@@ -70,13 +70,17 @@ class NotificationController extends Controller
      */
     public static function send(int $userId, string $type, string $title, string $body, ?string $url = null, ?array $data = null): void
     {
+        $notifData = $data ?? [];
+        if ($url) {
+            $notifData['url'] = $url;
+        }
+
         Notification::create([
             'user_id' => $userId,
             'type'    => $type,
             'title'   => $title,
-            'body'    => $body,
-            'url'     => $url,
-            'data'    => $data ? json_encode($data) : null,
+            'content' => $body,
+            'data'    => !empty($notifData) ? json_encode($notifData) : null,
         ]);
     }
 }

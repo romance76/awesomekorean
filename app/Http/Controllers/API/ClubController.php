@@ -20,13 +20,13 @@ class ClubController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Club::with('creator:id,name,username,avatar');
+        $query = Club::with('user:id,name,nickname,avatar');
 
-        // Online / local filter
+        // Online / local filter – clubs use 'type' column
         if ($request->input('filter') === 'online') {
-            $query->where('is_online', true);
+            $query->where('type', 'online');
         } elseif ($request->input('filter') === 'local') {
-            $query->where('is_online', false);
+            $query->where('type', 'local');
         }
 
         // Category filter
@@ -34,9 +34,9 @@ class ClubController extends Controller
             $query->where('category', $request->category);
         }
 
-        // Region filter
-        if ($request->filled('region')) {
-            $query->where('region', $request->region);
+        // Zipcode filter
+        if ($request->filled('zipcode')) {
+            $query->where('zipcode', $request->zipcode);
         }
 
         // Search
@@ -48,25 +48,7 @@ class ClubController extends Controller
             });
         }
 
-        // Distance filter for local clubs
-        $lat = $request->input('lat');
-        $lng = $request->input('lng');
-        $radius = $request->input('radius');
-
-        if ($lat && $lng && $radius && (float) $radius > 0) {
-            $query->where(function ($q) use ($lat, $lng, $radius) {
-                $q->where('is_online', true)
-                  ->orWhere(function ($q2) use ($lat, $lng, $radius) {
-                      $q2->where('is_online', false)
-                         ->whereNotNull('latitude')
-                         ->whereNotNull('longitude')
-                         ->whereRaw(
-                             "(3959 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) <= ?",
-                             [(float) $lat, (float) $lng, (float) $lat, (float) $radius]
-                         );
-                  });
-            });
-        }
+        // Note: clubs table doesn't have lat/lng columns, distance filtering not supported
 
         return response()->json([
             'success' => true,
@@ -81,9 +63,9 @@ class ClubController extends Controller
     public function show($id)
     {
         $club = Club::with([
-            'creator:id,name,username,avatar',
+            'user:id,name,nickname,avatar',
             'members' => function ($q) {
-                $q->where('status', 'approved')->with('user:id,name,username,avatar');
+                $q->where('status', 'approved')->with('user:id,name,nickname,avatar');
             },
         ])->findOrFail($id);
 
@@ -146,19 +128,14 @@ class ClubController extends Controller
         }
 
         $club = Club::create([
-            'creator_id'   => Auth::id(),
+            'user_id'      => Auth::id(),
             'name'         => $request->name,
             'category'     => $request->category,
             'description'  => $request->description,
-            'region'       => $region,
-            'cover_image'  => $coverPath,
-            'is_approval'  => filter_var($request->is_approval, FILTER_VALIDATE_BOOLEAN),
-            'is_online'    => $isOnline,
+            'image'        => $coverPath,
+            'type'         => $isOnline ? 'online' : 'local',
             'member_count' => 1,
-            'zip_code'     => $request->zip_code,
-            'address'      => $request->address,
-            'latitude'     => $latitude,
-            'longitude'    => $longitude,
+            'zipcode'      => $request->zip_code,
         ]);
 
         // Creator becomes owner member
@@ -172,7 +149,7 @@ class ClubController extends Controller
         return response()->json([
             'success' => true,
             'message' => '동호회가 생성되었습니다.',
-            'data'    => $club->load('creator:id,name,username,avatar'),
+            'data'    => $club->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 
@@ -205,25 +182,16 @@ class ClubController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            if ($club->cover_image) {
-                Storage::disk('public')->delete($club->cover_image);
+            if ($club->image) {
+                Storage::disk('public')->delete($club->image);
             }
-            $club->cover_image = $request->file('cover_image')->store('clubs', 'public');
+            $club->image = $request->file('cover_image')->store('clubs', 'public');
         }
 
-        $club->fill($request->only(['name', 'description', 'region', 'category']));
+        $club->fill($request->only(['name', 'description', 'category']));
 
-        if ($request->has('is_approval')) {
-            $club->is_approval = filter_var($request->is_approval, FILTER_VALIDATE_BOOLEAN);
-        }
-        if ($request->has('is_online')) {
-            $club->is_online = filter_var($request->is_online, FILTER_VALIDATE_BOOLEAN);
-            if ($club->is_online) {
-                $club->latitude = null;
-                $club->longitude = null;
-                $club->zip_code = null;
-                $club->address = null;
-            }
+        if ($request->has('type')) {
+            $club->type = $request->type;
         }
 
         $club->save();
@@ -254,7 +222,7 @@ class ClubController extends Controller
             return response()->json(['success' => false, 'message' => $msg], 400);
         }
 
-        $status = $club->is_approval ? 'pending' : 'approved';
+        $status = 'approved';
 
         ClubMember::create([
             'club_id' => $id,
@@ -263,13 +231,9 @@ class ClubController extends Controller
             'status'  => $status,
         ]);
 
-        if (!$club->is_approval) {
-            $club->increment('member_count');
-        }
+        $club->increment('member_count');
 
-        $message = $club->is_approval
-            ? '가입 신청이 완료되었습니다. 방장의 승인을 기다려주세요.'
-            : '동호회에 가입되었습니다.';
+        $message = '동호회에 가입되었습니다.';
 
         return response()->json([
             'success' => true,
@@ -321,7 +285,7 @@ class ClubController extends Controller
         Club::findOrFail($id);
 
         $posts = ClubPost::where('club_id', $id)
-            ->with('user:id,name,username,avatar')
+            ->with('user:id,name,nickname,avatar')
             ->latest()
             ->paginate(20);
 
@@ -363,7 +327,7 @@ class ClubController extends Controller
         return response()->json([
             'success' => true,
             'message' => '게시글이 등록되었습니다.',
-            'data'    => $post->load('user:id,name,username,avatar'),
+            'data'    => $post->load('user:id,name,nickname,avatar'),
         ], 201);
     }
 
@@ -377,7 +341,7 @@ class ClubController extends Controller
             ->where('status', 'approved')
             ->pluck('club_id');
 
-        $clubs = Club::with('creator:id,name,username,avatar')
+        $clubs = Club::with('user:id,name,nickname,avatar')
             ->whereIn('id', $clubIds)
             ->orderByDesc('created_at')
             ->get();
@@ -397,7 +361,7 @@ class ClubController extends Controller
             ->where('club_members.club_id', $id)
             ->where('club_members.status', 'approved')
             ->select(
-                'users.id', 'users.name', 'users.username', 'users.avatar',
+                'users.id', 'users.name', 'users.nickname', 'users.avatar',
                 'club_members.role', 'club_members.status',
                 'club_members.created_at as joined_at'
             )
@@ -415,7 +379,7 @@ class ClubController extends Controller
     {
         $club = Club::findOrFail($clubId);
 
-        if ($club->creator_id !== Auth::id() && !Auth::user()->is_admin) {
+        if ($club->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return response()->json(['success' => false, 'message' => '방장만 승인할 수 있습니다.'], 403);
         }
 
@@ -441,7 +405,7 @@ class ClubController extends Controller
     {
         $club = Club::findOrFail($clubId);
 
-        if ($club->creator_id !== Auth::id() && !Auth::user()->is_admin) {
+        if ($club->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return response()->json(['success' => false, 'message' => '방장만 거절할 수 있습니다.'], 403);
         }
 
@@ -461,15 +425,15 @@ class ClubController extends Controller
     {
         $club = Club::findOrFail($id);
 
-        if ($club->creator_id !== Auth::id() && !Auth::user()->is_admin) {
+        if ($club->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return response()->json(['success' => false, 'message' => '방장만 삭제할 수 있습니다.'], 403);
         }
 
         ClubMember::where('club_id', $id)->delete();
         ClubPost::where('club_id', $id)->delete();
 
-        if ($club->cover_image) {
-            Storage::disk('public')->delete($club->cover_image);
+        if ($club->image) {
+            Storage::disk('public')->delete($club->image);
         }
 
         $club->delete();

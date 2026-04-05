@@ -265,7 +265,11 @@ class AdminController extends Controller
             }
 
             if ($status = $request->input('status')) {
-                $query->where('status', $status);
+                if ($status === 'hidden') {
+                    $query->where('is_hidden', true);
+                } elseif ($status === 'active') {
+                    $query->where('is_hidden', false);
+                }
             }
 
             $posts = $query->orderByDesc('created_at')->paginate($request->input('per_page', 25));
@@ -284,7 +288,7 @@ class AdminController extends Controller
     {
         try {
             $post = Post::findOrFail($id);
-            $post->update(['status' => 'hidden']);
+            $post->update(['is_hidden' => true]);
 
             return response()->json(['success' => true, 'message' => '게시글이 숨김 처리되었습니다.']);
         } catch (\Exception $e) {
@@ -317,11 +321,11 @@ class AdminController extends Controller
     {
         try {
             $post = Post::findOrFail($id);
-            $newStatus = $post->status === 'hidden' ? 'active' : 'hidden';
-            $post->update(['status' => $newStatus]);
+            $newHidden = !$post->is_hidden;
+            $post->update(['is_hidden' => $newHidden]);
 
-            $label = $newStatus === 'hidden' ? '숨김' : '공개';
-            return response()->json(['success' => true, 'message' => "게시글이 {$label} 처리되었습니다.", 'status' => $newStatus]);
+            $label = $newHidden ? '숨김' : '공개';
+            return response()->json(['success' => true, 'message' => "게시글이 {$label} 처리되었습니다.", 'is_hidden' => $newHidden]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
@@ -426,7 +430,11 @@ class AdminController extends Controller
                 $query->where('title', 'like', "%{$search}%");
             }
             if ($status = $request->input('status')) {
-                $query->where('status', $status);
+                if ($status === 'active') {
+                    $query->where('is_active', true);
+                } elseif ($status === 'inactive') {
+                    $query->where('is_active', false);
+                }
             }
 
             return response()->json(['success' => true, 'data' => $query->orderByDesc('created_at')->paginate(25)]);
@@ -607,7 +615,7 @@ class AdminController extends Controller
     public function events(Request $request)
     {
         try {
-            $query = Event::with('user:id,name,nickname');
+            $query = Event::query();
 
             if ($search = $request->input('search')) {
                 $query->where('title', 'like', "%{$search}%");
@@ -790,7 +798,12 @@ class AdminController extends Controller
 
         switch ($action) {
             case 'hide':
-                DB::table($table)->where('id', $report->reportable_id)->update(['status' => 'hidden']);
+                // posts/comments use is_hidden, market_items has status column
+                if (in_array($table, ['posts', 'comments'])) {
+                    DB::table($table)->where('id', $report->reportable_id)->update(['is_hidden' => true]);
+                } else {
+                    DB::table($table)->where('id', $report->reportable_id)->update(['is_hidden' => true]);
+                }
                 break;
             case 'delete':
                 DB::table($table)->where('id', $report->reportable_id)->delete();

@@ -16,8 +16,8 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Post::with(['user:id,name,nickname,avatar,level', 'board:id,name,slug'])
-            ->where('status', 'active');
+        $query = Post::with(['user:id,name,nickname,avatar', 'board:id,name,slug'])
+            ->where('is_hidden', false);
 
         // Filter by board
         if ($request->board_id) {
@@ -43,7 +43,7 @@ class PostController extends Controller
             });
         }
 
-        // Distance filter
+        // Distance filter – posts use lat/lng columns
         if ($request->lat && $request->lng) {
             $lat = (float) $request->lat;
             $lng = (float) $request->lng;
@@ -74,11 +74,12 @@ class PostController extends Controller
     public function show($id)
     {
         $post = Post::with([
-            'user:id,name,nickname,avatar,level',
+            'user:id,name,nickname,avatar',
             'board:id,name,slug',
         ])->findOrFail($id);
 
-        if ($post->status !== 'active') {
+        // Use is_hidden instead of status
+        if ($post->is_hidden) {
             return response()->json(['success' => false, 'message' => '삭제된 게시글입니다.'], 404);
         }
 
@@ -122,12 +123,12 @@ class PostController extends Controller
         }
 
         $post = Post::create([
-            'board_id'     => $request->board_id,
-            'user_id'      => auth()->id(),
-            'title'        => $request->title,
-            'content'      => $request->content,
-            'images'       => !empty($images) ? json_encode($images) : null,
-            'is_anonymous' => $request->is_anonymous ?? false,
+            'board_id'  => $request->board_id,
+            'user_id'   => auth()->id(),
+            'title'     => $request->title,
+            'content'   => $request->content,
+            'images'    => !empty($images) ? json_encode($images) : null,
+            'category'  => $request->category,
         ]);
 
         return response()->json([
@@ -144,7 +145,7 @@ class PostController extends Controller
     {
         $post = Post::findOrFail($id);
 
-        if ($post->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($post->user_id !== auth()->id() && !(auth()->user() && auth()->user()->role === 'admin')) {
             return response()->json(['success' => false, 'message' => '수정 권한이 없습니다.'], 403);
         }
 
@@ -164,16 +165,17 @@ class PostController extends Controller
 
     /**
      * DELETE /api/posts/{id}
+     * Hide post using is_hidden column (no status column)
      */
     public function destroy($id)
     {
         $post = Post::findOrFail($id);
 
-        if ($post->user_id !== auth()->id() && !auth()->user()->is_admin) {
+        if ($post->user_id !== auth()->id() && !(auth()->user() && auth()->user()->role === 'admin')) {
             return response()->json(['success' => false, 'message' => '삭제 권한이 없습니다.'], 403);
         }
 
-        $post->update(['status' => 'deleted']);
+        $post->update(['is_hidden' => true]);
         $post->delete();
 
         return response()->json([
