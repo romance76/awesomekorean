@@ -30,6 +30,7 @@ use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\ElderController;
 use App\Http\Controllers\API\MarketReservationController;
 use App\Http\Controllers\API\GameScoreController;
+use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AdminSettingsController;
 
@@ -168,6 +169,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/music/playlists/{id}/tracks/{trackId}', [MusicController::class, 'removeTrack']);
     Route::delete('/music/playlists/{id}', [MusicController::class, 'deletePlaylist']);
     Route::get('/music/search', [MusicController::class, 'searchTracks']);
+
+    // Payments (Stripe)
+    Route::get('/payments/packages', [PaymentController::class, 'packages']);
+    Route::post('/payments/create-intent', [PaymentController::class, 'createIntent']);
+    Route::post('/payments/confirm', [PaymentController::class, 'confirm']);
+    Route::get('/payments/history', [PaymentController::class, 'history']);
 
     Route::get('/elder/settings', [ElderController::class, 'settings']);
     Route::put('/elder/settings', [ElderController::class, 'updateSettings']);
