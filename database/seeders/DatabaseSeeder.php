@@ -70,6 +70,7 @@ class DatabaseSeeder extends Seeder
         $this->seedGameSettings();
         $this->seedSiteSettings();
         $this->seedShopping();
+        $this->seedRegionalChatRooms();
     }
 
     private function rCity() { return $this->cities[array_rand($this->cities)]; }
@@ -795,5 +796,51 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         $this->command->info('✅ 6 stores + 15 shopping deals');
+    }
+
+    // ════════════════════════════════════════
+    // 20. REGIONAL CHAT ROOMS (지역별 24시간 채팅방)
+    // ════════════════════════════════════════
+    private function seedRegionalChatRooms()
+    {
+        $rooms = [
+            '🗽 뉴욕 한인 채팅방', '🏙️ 뉴저지 한인 채팅방', '🍑 아틀란타 한인 채팅방',
+            '🌴 LA 한인 채팅방', '🌁 샌프란시스코 한인 채팅방', '🤠 달라스 한인 채팅방',
+            '🚀 휴스턴 한인 채팅방', '☕ 시애틀 한인 채팅방', '🏛️ 워싱턴DC 한인 채팅방',
+            '🔔 필라델피아 한인 채팅방', '🌬️ 시카고 한인 채팅방', '🎰 라스베가스 한인 채팅방',
+            '🌺 호놀룰루 한인 채팅방', '🍊 어바인/OC 한인 채팅방', '💬 자유 수다방',
+        ];
+
+        foreach ($rooms as $name) {
+            $room = \App\Models\ChatRoom::create([
+                'name' => $name,
+                'type' => 'group',
+                'created_by' => 1, // admin
+            ]);
+
+            // 더미 메시지 추가
+            $messages = [
+                '안녕하세요! 여기 사시는 분들 반갑습니다 👋',
+                '오늘 날씨가 정말 좋네요 ☀️',
+                '이 동네 한식당 추천해주세요!',
+                '주말에 같이 등산 가실 분?',
+                '방금 이사 왔는데 한인 마트 어디 있나요?',
+                '오늘 한인 행사 있다고 들었는데 아시는 분?',
+                '좋은 한인 교회 추천 부탁드려요',
+                '여기 치안은 어떤가요?',
+            ];
+
+            $userIds = \App\Models\User::pluck('id')->toArray();
+            foreach (array_slice($messages, 0, rand(3, 8)) as $msg) {
+                \App\Models\ChatMessage::create([
+                    'chat_room_id' => $room->id,
+                    'user_id' => $userIds[array_rand($userIds)],
+                    'content' => $msg,
+                    'type' => 'text',
+                    'created_at' => now()->subMinutes(rand(1, 1440)),
+                ]);
+            }
+        }
+        $this->command->info('✅ 15 regional chat rooms + messages');
     }
 }
