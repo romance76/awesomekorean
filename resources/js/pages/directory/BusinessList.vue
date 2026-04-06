@@ -20,6 +20,10 @@
           <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
           <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
         </form>
+        <div class="flex gap-1">
+          <button @click="viewMode='list'" class="p-1.5 rounded" :class="viewMode==='list'?'bg-amber-100 text-amber-700':'text-gray-400'">☰</button>
+          <button @click="viewMode='card'" class="p-1.5 rounded" :class="viewMode==='card'?'bg-amber-100 text-amber-700':'text-gray-400'">⊞</button>
+        </div>
         <RouterLink v-if="auth.isLoggedIn" to="/directory/register" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
       </div>
     </div>
@@ -61,6 +65,29 @@
     </div>
     <!-- 목록 모드 -->
     <div v-else-if="!items.length" class="text-center py-12 text-gray-400">검색 결과 없음</div>
+    <!-- 카드형 -->
+    <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div v-for="item in items" :key="item.id" @click="openItem(item)"
+        class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">🏪</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold text-gray-800 truncate">{{ item.name }}</div>
+            <div class="text-[10px] text-gray-400">{{ item.category }} · {{ item.subcategory }}</div>
+          </div>
+          <div v-if="item.rating" class="text-amber-400 text-xs">{{ '★'.repeat(Math.round(item.rating)) }} {{ item.rating }}</div>
+        </div>
+        <div class="text-xs text-gray-500 line-clamp-2 mb-2">{{ (item.description || '').slice(0, 80) }}</div>
+        <div class="flex items-center justify-between text-[10px] text-gray-400">
+          <span>📍 {{ item.city }}, {{ item.state }}</span>
+          <div class="flex gap-2">
+            <span v-if="item.phone">📱 {{ item.phone }}</span>
+            <span>👁 {{ item.view_count || 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 리스트형 -->
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div v-for="item in items" :key="item.id" @click="openItem(item)"
         class="px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
@@ -108,6 +135,7 @@ import axios from 'axios'
 const auth = useAuthStore()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 const activeCat = ref('')
+const viewMode = ref('list')
 const activeItem = ref(null)
 async function openItem(item) {
   try { const { data } = await axios.get(`/api/businesses/${item.id}`); activeItem.value = data.data }
