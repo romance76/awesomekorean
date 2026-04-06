@@ -130,11 +130,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import { useMenuConfig } from '../../composables/useMenuConfig'
 import axios from 'axios'
 
 const auth = useAuthStore()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 const activeCat = ref('')
+const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const activeItem = ref(null)
 async function openItem(item) {
@@ -223,6 +225,7 @@ async function loadPage(p = 1) {
 }
 
 onMounted(async () => {
+  await loadConfig(); viewMode.value = getDefaultView('directory')
   await initLocation()
   if (city.value) {
     myCity.value = { ...city.value }

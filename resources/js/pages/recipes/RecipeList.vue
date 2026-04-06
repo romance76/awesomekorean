@@ -83,12 +83,14 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import { useMenuConfig } from '../../composables/useMenuConfig'
 import axios from 'axios'
 const auth = useAuthStore()
 const items = ref([])
 const categories = ref([{ name: '전체', id: null }])
 const activeCat = ref(null)
 const loading = ref(true)
+const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const search = ref('')
 const page = ref(1)
@@ -108,6 +110,7 @@ async function loadRecipes(p = 1) {
 }
 
 onMounted(async () => {
+  await loadConfig(); viewMode.value = getDefaultView('recipes')
   try { const { data } = await axios.get('/api/recipes/categories'); categories.value = [{ name: '전체', id: null }, ...(data.data || [])] } catch {}
   loadRecipes()
 })

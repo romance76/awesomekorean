@@ -144,10 +144,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import { useMenuConfig } from '../../composables/useMenuConfig'
 import axios from 'axios'
 
 const auth = useAuthStore()
 const activeCat = ref('')
+const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const reCategories = [
   { value: '', label: '전체' },{ value: 'rent', label: '🔑 렌트' },
@@ -239,6 +241,7 @@ async function loadPage(p = 1) {
 }
 
 onMounted(async () => {
+  await loadConfig(); viewMode.value = getDefaultView('realestate')
   await initLocation()
   if (city.value) {
     myCity.value = { ...city.value }

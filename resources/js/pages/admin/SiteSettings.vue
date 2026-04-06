@@ -256,6 +256,7 @@
           <span class="w-16 text-center">순서</span>
           <span class="w-16 text-center">로그인</span>
           <span class="w-16 text-center">관리자</span>
+          <span class="w-14 text-center">뷰</span>
           <span class="w-12 text-center">표시</span>
         </div>
 
@@ -283,6 +284,12 @@
               <input type="checkbox" v-model="item.admin_only" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
               <span class="hidden lg:inline">관리자</span>
             </label>
+            <!-- 기본 뷰 (카드형 지원 메뉴만) -->
+            <select v-if="item.hasCardView" v-model="item.defaultView" class="text-[10px] border rounded px-1 py-0.5 text-gray-500 w-14" title="기본 보기">
+              <option value="list">☰</option>
+              <option value="card">⊞</option>
+            </select>
+            <span v-else class="w-14"></span>
             <!-- Enable toggle -->
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="item.enabled" class="sr-only peer" />
@@ -1425,51 +1432,48 @@ const menuList = ref([])
 const menuSaving = ref(false)
 
 const allMenuDefs = [
-  { key: 'qa',        label: 'Q&A',         icon: '❓' },
-  { key: 'community', label: '커뮤니티', icon: '💬' },
-  { key: 'jobs',      label: '구인구직', icon: '💼' },
-  { key: 'market',    label: '중고장터', icon: '🛍️' },
-  { key: 'realestate',label: '부동산',   icon: '🏠' },
-  { key: 'clubs',     label: '동호회',   icon: '👥' },
-  { key: 'directory', label: '업소록',   icon: '🏪' },
-  { key: 'news',      label: '뉴스',     icon: '📰' },
-  { key: 'recipes',   label: '레시피',   icon: '🍳' },
-  { key: 'shopping',  label: '쇼핑정보', icon: '🛒' },
-  { key: 'groupbuy',  label: '공동구매', icon: '🤝' },
-  { key: 'mentor',    label: '멘토링',   icon: '🎓' },
-  { key: 'chat',      label: '체팅',     icon: '💬' },
-  { key: 'games',     label: '게임',     icon: '🀄' },
-  { key: 'shorts',    label: '쇼츠',     icon: '📱' },
-  { key: 'ride',      label: '알바라이드', icon: '🚗' },
-  { key: 'elder',     label: '안심서비스', icon: '💙' },
-  { key: 'events',    label: '이벤트',   icon: '🎉' },
-  { key: 'ai',        label: 'AI검색',   icon: '🤖' },
-  { key: 'friends',   label: '친구',     icon: '👫' },
-  { key: 'match',     label: '매칭',     icon: '💝' },
-  { key: 'music',     label: '음악듣기', icon: '🎵' },
+  { key: 'home',      label: '홈',       label_en: 'Home',       icon: '🏠', path: '/' },
+  { key: 'community', label: '커뮤니티', label_en: 'Community',  icon: '💬', path: '/community' },
+  { key: 'qa',        label: 'Q&A',      label_en: 'Q&A',        icon: '❓', path: '/qa' },
+  { key: 'jobs',      label: '구인구직', label_en: 'Jobs',       icon: '💼', path: '/jobs' },
+  { key: 'market',    label: '중고장터', label_en: 'Market',     icon: '🛒', path: '/market', hasCardView: true },
+  { key: 'directory', label: '업소록',   label_en: 'Directory',  icon: '🏪', path: '/directory', hasCardView: true },
+  { key: 'realestate',label: '부동산',   label_en: 'Real Estate',icon: '🏠', path: '/realestate', hasCardView: true },
+  { key: 'events',    label: '이벤트',   label_en: 'Events',     icon: '🎉', path: '/events', hasCardView: true },
+  { key: 'news',      label: '뉴스',     label_en: 'News',       icon: '📰', path: '/news' },
+  { key: 'recipes',   label: '레시피',   label_en: 'Recipes',    icon: '🍳', path: '/recipes', hasCardView: true },
+  { key: 'clubs',     label: '동호회',   label_en: 'Clubs',      icon: '👥', path: '/clubs' },
+  { key: 'games',     label: '게임',     label_en: 'Games',      icon: '🎮', path: '/games' },
+  { key: 'shorts',    label: '숏츠',     label_en: 'Shorts',     icon: '📱', path: '/shorts' },
+  { key: 'music',     label: '음악듣기', label_en: 'Music',      icon: '🎵', path: '/music' },
+  { key: 'groupbuy',  label: '공동구매', label_en: 'Group Buy',  icon: '🤝', path: '/groupbuy' },
+  { key: 'shopping',  label: '쇼핑',     label_en: 'Shopping',   icon: '🛍️', path: '/shopping' },
+  { key: 'chat',      label: '채팅',     label_en: 'Chat',       icon: '💭', path: '/chat' },
+  { key: 'friends',   label: '친구',     label_en: 'Friends',    icon: '👫', path: '/friends' },
+  { key: 'elder',     label: '안심서비스',label_en: 'Elder Care', icon: '💙', path: '/elder' },
 ]
 
 async function loadMenus() {
   try {
     const { data } = await axios.get('/api/admin/settings/menus')
-    const saved = Array.isArray(data) ? data : []
+    const saved = Array.isArray(data?.data || data) ? (data?.data || data) : []
     if (saved.length > 0) {
       const ordered = []
       saved.forEach(m => {
         const def = allMenuDefs.find(d => d.key === m.key)
-        if (def) ordered.push({ ...def, enabled: m.enabled !== false, login_required: m.login_required || false, admin_only: m.admin_only || false, order: m.order ?? 999 })
+        if (def) ordered.push({ ...def, ...m, enabled: m.enabled !== false, login_required: m.login_required || false, admin_only: m.admin_only || false, defaultView: m.defaultView || 'list', order: m.order ?? 999 })
       })
       allMenuDefs.forEach(def => {
         if (!ordered.find(m => m.key === def.key)) {
-          ordered.push({ ...def, enabled: true, login_required: false, admin_only: false, order: 999 })
+          ordered.push({ ...def, enabled: true, login_required: false, admin_only: false, defaultView: 'list', order: 999 })
         }
       })
       menuList.value = ordered.sort((a, b) => a.order - b.order)
     } else {
-      menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, order: i }))
+      menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, defaultView: 'list', order: i }))
     }
   } catch {
-    menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, order: i }))
+    menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, defaultView: 'list', order: i }))
   }
 }
 
@@ -1491,10 +1495,16 @@ async function saveMenus() {
   try {
     const menus = menuList.value.map((item, i) => ({
       key: item.key,
+      label: item.label,
+      label_en: item.label_en,
+      icon: item.icon,
+      path: item.path,
       enabled: item.enabled,
       order: i,
       login_required: item.login_required || false,
       admin_only: item.admin_only || false,
+      defaultView: item.defaultView || 'list',
+      hasCardView: item.hasCardView || false,
     }))
     await axios.post('/api/admin/settings/menus/batch', { menus })
     showToast('메뉴 설정이 저장되었습니다.')
