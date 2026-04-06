@@ -1,27 +1,12 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- 헤더 -->
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="text-xl font-black text-gray-800">💼 구인구직</h1>
-        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
-    </div>
-
-    <div class="grid grid-cols-12 gap-4">
-    <!-- 왼쪽: 카테고리 -->
-    <div class="col-span-12 lg:col-span-2 hidden lg:block">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-        <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-        <button v-for="c in jobCategories" :key="c.value" @click="activeCat=c.value; loadPage()"
-          class="w-full text-left px-3 py-2 text-xs transition"
-          :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
-      </div>
-    </div>
-
-    <!-- 메인 -->
-    <div class="col-span-12 lg:col-span-7">
-    <!-- 위치 필터 바 -->
+    <!-- 헤더 + 위치 필터 (한 줄) -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <h1 class="text-lg font-black text-gray-800">💼 구인구직</h1>
+        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
+      </div>
       <div class="flex flex-wrap items-center gap-2">
         <!-- 도시 선택 -->
         <div class="flex items-center gap-1">
@@ -52,9 +37,20 @@
       <div class="text-[10px] text-gray-400 mt-1.5">{{ locationInfo }}</div>
     </div>
 
+    <div class="grid grid-cols-12 gap-4">
+    <!-- 왼쪽: 카테고리 -->
+    <div class="col-span-12 lg:col-span-2 hidden lg:block">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
+        <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
+        <button v-for="c in jobCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
+          class="w-full text-left px-3 py-2 text-xs transition"
+          :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-7">
+
     <!-- ═══ 상세 모드 ═══ -->
     <div v-if="activeItem">
-      <button @click="activeItem=null" class="text-xs text-amber-600 font-semibold mb-3 hover:text-amber-800">← 목록으로</button>
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-5 py-4 border-b">
           <div class="flex items-center gap-2 mb-2">
@@ -77,6 +73,12 @@
           <div v-if="activeItem.contact_phone" class="text-sm text-gray-700">📱 {{ activeItem.contact_phone }}</div>
           <div v-if="activeItem.contact_email" class="text-sm text-gray-700">📧 {{ activeItem.contact_email }}</div>
         </div>
+      </div>
+      <!-- 이전글/다음글 -->
+      <div class="flex justify-between mt-3">
+        <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
+        <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
+        <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
       </div>
     </div>
 
@@ -154,10 +156,18 @@ const items = ref([])
 const loading = ref(true)
 const activeItem = ref(null)
 
+const currentIdx = ref(-1)
+
 async function openItem(item) {
+  currentIdx.value = items.value.findIndex(i => i.id === item.id)
   try { const { data } = await axios.get(`/api/jobs/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function navItem(dir) {
+  const newIdx = currentIdx.value + dir
+  if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
 }
 const page = ref(1)
 const lastPage = ref(1)
