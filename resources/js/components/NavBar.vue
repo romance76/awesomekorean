@@ -114,11 +114,30 @@ const defaultMenus = [
 ]
 
 const visibleMenus = computed(() => {
-  const menus = menuConfig.value || defaultMenus
   const ko = langStore.locale === 'ko'
-  return menus
+  // DB에서 가져온 설정이 있으면 defaultMenus와 머지
+  if (menuConfig.value && Array.isArray(menuConfig.value)) {
+    // DB 설정 기반으로 defaultMenus 정보를 합침
+    const defaultMap = {}
+    defaultMenus.forEach(m => { defaultMap[m.key] = m })
+    return menuConfig.value
+      .filter(m => m.enabled !== false)
+      .filter(m => !m.admin_only || auth.isAdmin)
+      .filter(m => !m.login_required || auth.isLoggedIn)
+      .map(m => {
+        const def = defaultMap[m.key] || {}
+        return {
+          ...def,
+          ...m,
+          path: m.path || def.path || `/${m.key}`,
+          label: ko ? (m.label || def.label || m.key) : (m.label_en || def.label_en || m.label || def.label || m.key),
+        }
+      })
+      .filter(m => m.path) // path 없는 항목 제거
+  }
+  // DB 설정 없으면 기본값
+  return defaultMenus
     .filter(m => m.enabled !== false)
-    .filter(m => !m.admin_only || auth.isAdmin)
     .filter(m => !m.login_required || auth.isLoggedIn)
     .map(m => ({ ...m, label: ko ? m.label : (m.label_en || m.label) }))
 })
