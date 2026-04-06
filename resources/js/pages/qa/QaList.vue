@@ -30,7 +30,6 @@
 
         <!-- ═══ 상세 모드 ═══ -->
         <div v-if="activeItem">
-          <button @click="activeItem=null; answers=[]" class="text-xs text-amber-600 font-semibold mb-3 hover:text-amber-800">← Q&A 목록</button>
 
           <!-- 질문 카드 -->
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-3">
@@ -70,6 +69,13 @@
             <h3 class="font-bold text-sm text-gray-800 mb-2">✍️ 답변 작성</h3>
             <textarea v-model="newAnswer" rows="4" placeholder="답변을 입력하세요..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea>
             <button @click="submitAnswer" :disabled="!newAnswer.trim()" class="mt-2 bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">답변 등록</button>
+          </div>
+
+          <!-- 이전/다음글 -->
+          <div class="flex justify-between mt-3">
+            <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
+            <button @click="activeItem=null; answers=[]" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
+            <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
           </div>
         </div>
 
@@ -137,6 +143,12 @@ const statusFilter = ref('')
 const activeItem = ref(null)
 const answers = ref([])
 const newAnswer = ref('')
+const currentIdx = ref(-1)
+
+function navItem(dir) {
+  const newIdx = currentIdx.value + dir
+  if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
+}
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
@@ -156,7 +168,7 @@ function formatDate(dt) {
 }
 
 async function openItem(item) {
-  // 상세 데이터 로딩
+  currentIdx.value = items.value.findIndex(i => i.id === item.id)
   try {
     const { data } = await axios.get(`/api/qa/${item.id}`)
     activeItem.value = data.data

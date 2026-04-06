@@ -59,7 +59,6 @@
     </div>
     <!-- 상세 모드 -->
     <div v-if="activeItem">
-      <button @click="activeItem=null" class="text-xs text-amber-600 font-semibold mb-3">← 목록으로</button>
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="px-5 py-4">
           <div class="flex items-center gap-2 mb-2">

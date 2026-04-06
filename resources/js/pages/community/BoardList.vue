@@ -42,7 +42,6 @@
 
         <!-- ═══ 상세 모드 ═══ -->
         <div v-if="activeItem">
-          <button @click="activeItem=null; comments=[]" class="text-xs text-amber-600 font-semibold mb-3 hover:text-amber-800">← 목록으로</button>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-3">
             <div class="px-5 py-4 border-b">
               <div class="flex items-center gap-2 mb-2">
@@ -81,6 +80,13 @@
               <div class="text-sm text-gray-600">{{ c.content }}</div>
             </div>
             <div v-if="!comments.length" class="px-5 py-6 text-center text-sm text-gray-400">첫 댓글을 남겨보세요!</div>
+          </div>
+
+          <!-- 이전/다음글 -->
+          <div class="flex justify-between mt-3">
+            <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
+            <button @click="activeItem=null; comments=[]" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
+            <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
           </div>
         </div>
 
@@ -186,11 +192,18 @@ const lastPage = ref(1)
 
 // 인라인 상세
 const activeItem = ref(null)
+const currentIdx = ref(-1)
 const comments = ref([])
 const newComment = ref('')
 const liked = ref(false)
 
+function navItem(dir) {
+  const newIdx = currentIdx.value + dir
+  if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
+}
+
 async function openItem(item) {
+  currentIdx.value = items.value.findIndex(i => i.id === item.id)
   try {
     const { data } = await axios.get(`/api/posts/${item.id}`)
     activeItem.value = data.data
