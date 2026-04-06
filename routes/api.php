@@ -76,6 +76,15 @@ Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublic']);
 Route::get('/games/leaderboard/{gameType}', [GameScoreController::class, 'leaderboard']);
 
+// 게임 호환 API (old_site GameLobby용)
+Route::get('/game-categories', function () {
+    $settings = \App\Models\GameSetting::all()->groupBy('game_type');
+    return response()->json($settings);
+});
+Route::get('/game-leaderboard', function () {
+    return response()->json(['data' => []]);
+});
+
 // ─── Authenticated ───
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -156,6 +165,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/points/daily-spin', [PointController::class, 'dailySpin']);
 
     Route::post('/reports', [ReportController::class, 'store']);
+
+    // Wallet (게임 호환)
+    Route::get('/wallet/balance', function () {
+        $u = auth()->user();
+        return response()->json(['coin' => $u->points, 'chip' => $u->game_points, 'gem' => 0, 'star' => 0]);
+    });
+    Route::post('/wallet/daily-bonus', [PointController::class, 'dailySpin']);
 
     // Games
     Route::post('/games/scores', [GameScoreController::class, 'store']);
