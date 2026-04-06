@@ -1,22 +1,13 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <div class="flex items-center justify-between mb-4">
+    <!-- 헤더: 제목 + 타입 + 위치 + 등록 (구인 스타일 통일) -->
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="text-xl font-black text-gray-800">👥 동호회</h1>
-      <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">+ 동호회 만들기</RouterLink>
-    </div>
-
-    <!-- 위치 필터 바 (이벤트와 동일) -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-4">
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- 타입 필터 -->
-        <div class="flex gap-1">
-          <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
-            class="px-3 py-1.5 rounded-full text-xs font-bold transition"
-            :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
-        </div>
-
-        <!-- 도시 선택 (지역 동호회일 때) -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
+          class="px-3 py-1.5 rounded-full text-xs font-bold transition"
+          :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
         <div v-if="type !== 'online'" class="flex items-center gap-1">
           <span class="text-amber-600 text-sm">📍</span>
           <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
@@ -32,20 +23,14 @@
         </div>
 
         <!-- 검색 -->
-        <form @submit.prevent="loadClubs()" class="flex-1 flex gap-2 min-w-[150px]">
-          <input v-model="search" type="text" placeholder="동호회 검색..." class="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">검색</button>
+        <form @submit.prevent="loadClubs()" class="flex gap-1">
+          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
+          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
         </form>
+        <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">+ 동호회 만들기</RouterLink>
       </div>
-      <div v-if="type !== 'online'" class="text-[10px] text-gray-400 mt-1.5">{{ locationInfo }}</div>
     </div>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="!clubs.length" class="text-center py-12">
-      <div class="text-4xl mb-3">👥</div>
-      <div class="text-gray-500 font-semibold">검색 결과가 없습니다</div>
-      <div v-if="type==='local'" class="text-xs text-gray-400 mt-1">다른 도시를 선택하거나 '전국'으로 검색해보세요</div>
-    </div>
     <div class="grid grid-cols-12 gap-4">
     <!-- 왼쪽: 카테고리 -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">

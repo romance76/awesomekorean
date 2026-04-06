@@ -1,6 +1,28 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
+    <!-- 헤더: 제목 + 위치필터 + 등록 (구인 스타일 통일) -->
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h1 class="text-xl font-black text-gray-800">🏪 업소록</h1>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-amber-600 text-sm">📍</span>
+        <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
+          <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
+          <option value="-1">🇺🇸 전국</option>
+          <optgroup label="한인 밀집 도시">
+            <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
+          </optgroup>
+        </select>
+        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+          <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
+        </select>
+        <form @submit.prevent="loadPage()" class="flex gap-1">
+          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
+          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+        </form>
+        <RouterLink v-if="auth.isLoggedIn" to="/directory/register" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
+      </div>
+    </div>
 
     <div class="grid grid-cols-12 gap-4">
     <!-- 왼쪽: 카테고리 -->
@@ -13,42 +35,6 @@
       </div>
     </div>
     <div class="col-span-12 lg:col-span-7">
-    <!-- 위치 필터 바 -->
-    <!-- 헤더 + 위치필터 통일 -->
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-xl font-black text-gray-800">🏪 업소록</h1>
-      <div class="flex items-center gap-2 flex-wrap flex-1 justify-end">
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- 도시 선택 -->
-        <div class="flex items-center gap-1">
-          <span class="text-amber-600 text-sm">📍</span>
-          <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
-            <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
-            <option value="-1">🇺🇸 전국</option>
-            <optgroup label="한인 밀집 도시">
-              <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
-            </optgroup>
-          </select>
-        </div>
-
-        <!-- 반경 -->
-        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none focus:ring-2 focus:ring-amber-400">
-          <option value="10">10mi 이내</option>
-          <option value="30">30mi 이내</option>
-          <option value="50">50mi 이내</option>
-          <option value="100">100mi 이내</option>
-        </select>
-
-        <!-- 검색 -->
-        <form @submit.prevent="loadPage()" class="flex-1 flex gap-2 min-w-[200px]">
-          <input v-model="search" type="text" placeholder="검색..." class="flex-1 border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
-        </form>
-      </div>
-      <RouterLink v-if="auth.isLoggedIn" to="/directory/register" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500 flex-shrink-0">✏️ 등록</RouterLink>
-      </div>
-      <div class="text-[10px] text-gray-400 mt-0.5">{{ locationInfo }}</div>
-    </div>
 
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
