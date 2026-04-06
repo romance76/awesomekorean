@@ -18,6 +18,8 @@ class ElderController extends Controller
 
     public function checkin(Request $request) {
         $log = ElderCheckinLog::create(['user_id'=>auth()->id(),'checked_in_at'=>now(),'lat'=>$request->lat,'lng'=>$request->lng,'status'=>'ok']);
+        // 체크인 포인트 +5
+        auth()->user()->addPoints(5, '안심서비스 체크인');
         return response()->json(['success'=>true,'data'=>$log]);
     }
 

@@ -27,9 +27,12 @@ class AuthController extends Controller
             'language' => 'ko',
         ]);
 
+        // 가입 보너스 +10 포인트
+        $user->addPoints(10, '회원가입 보너스');
+
         $token = JWTAuth::fromUser($user);
 
-        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user]]);
+        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user->fresh()]]);
     }
 
     public function login(Request $request)
@@ -47,6 +50,12 @@ class AuthController extends Controller
         }
 
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);
+
+        // 일일 로그인 보너스 +2
+        $lastLogin = $user->getOriginal('last_login_at');
+        if (!$lastLogin || now()->diffInHours($lastLogin) >= 12) {
+            $user->addPoints(2, '일일 로그인 보너스');
+        }
 
         return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user]]);
     }

@@ -51,6 +51,12 @@ class CommentController extends Controller
             'content' => $request->content,
         ]);
 
+        // 댓글 작성 포인트 +3 (일일 최대 10회)
+        $todayComments = Comment::where('user_id', auth()->id())->whereDate('created_at', today())->count();
+        if ($todayComments <= 10) {
+            auth()->user()->addPoints(3, '댓글 작성');
+        }
+
         // Increment comment count on parent model
         $parent = $modelType::find($request->commentable_id);
         if ($parent && method_exists($parent, 'increment')) {

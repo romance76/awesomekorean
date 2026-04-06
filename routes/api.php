@@ -28,6 +28,7 @@ use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\FriendController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\ElderController;
+use App\Http\Controllers\API\MarketReservationController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AdminSettingsController;
 
@@ -90,6 +91,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/market', [MarketController::class, 'store']);
     Route::put('/market/{id}', [MarketController::class, 'update']);
     Route::delete('/market/{id}', [MarketController::class, 'destroy']);
+
+    // Market Reservations (에스크로)
+    Route::post('/market/{id}/reserve', [MarketReservationController::class, 'reserve']);
+    Route::post('/market/reservations/{id}/complete', [MarketReservationController::class, 'complete']);
+    Route::post('/market/reservations/{id}/cancel', [MarketReservationController::class, 'cancel']);
 
     Route::post('/businesses', [BusinessController::class, 'store']);
     Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview']);
