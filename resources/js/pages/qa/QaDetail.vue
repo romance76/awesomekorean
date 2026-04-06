@@ -3,7 +3,8 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <button @click="$router.back()" class="text-sm text-gray-500 hover:text-amber-600 mb-3">← Q&A 목록</button>
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="qa">
+    <div v-else-if="qa" class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 lg:col-span-9">
       <!-- 질문 카드 -->
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
         <div class="px-5 py-4">
@@ -42,6 +43,13 @@
         <textarea v-model="newAnswer" rows="4" placeholder="답변을 입력하세요..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea>
         <button @click="submitAnswer" :disabled="!newAnswer.trim()" class="mt-2 bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">답변 등록</button>
       </div>
+      </div>
+      <!-- 사이드바 -->
+      <div class="col-span-12 lg:col-span-3 hidden lg:block">
+        <SidebarWidgets api-url="/api/qa" detail-path="/qa/" :current-id="qa.id"
+          label="질문" recommend-label="추천 질문" quick-label="실시간 질문"
+          :links="[{to:'/qa',icon:'📋',label:'전체 Q&A'},{to:'/qa/write',icon:'✏️',label:'질문하기'},{to:'/community',icon:'💬',label:'커뮤니티'}]" />
+      </div>
     </div>
   </div>
 </div>
@@ -50,6 +58,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()

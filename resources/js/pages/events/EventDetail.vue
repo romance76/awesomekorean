@@ -3,7 +3,8 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <button @click="$router.back()" class="text-sm text-gray-500 hover:text-amber-600 mb-3">← 이벤트 목록</button>
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="event" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div v-else-if="event" class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 lg:col-span-9 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div v-if="event.image_url" class="h-48 bg-gray-200 overflow-hidden">
         <img :src="event.image_url" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
       </div>
@@ -29,6 +30,12 @@
       </div>
       <div class="px-5 py-2 border-t text-xs text-gray-400">👁 {{ event.view_count }}조회</div>
     </div>
+    <div class="col-span-12 lg:col-span-3 hidden lg:block">
+      <SidebarWidgets api-url="/api/events" detail-path="/events/" :current-id="event.id"
+        label="이벤트" recommend-label="추천 이벤트" quick-label="다가오는 이벤트"
+        :links="[{to:'/events',icon:'📋',label:'전체 이벤트'},{to:'/events/create',icon:'✏️',label:'이벤트 등록'}]" />
+    </div>
+    </div>
   </div>
 </div>
 </template>
@@ -36,6 +43,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()

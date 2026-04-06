@@ -3,7 +3,8 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <button @click="$router.back()" class="text-sm text-gray-500 hover:text-amber-600 mb-3">← 레시피 목록</button>
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="recipe" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div v-else-if="recipe" class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 lg:col-span-9 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="px-5 py-4 border-b">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ recipe.category?.name }}</span>
@@ -35,12 +36,20 @@
       <div class="px-5 py-4 text-sm text-gray-700 whitespace-pre-wrap">{{ recipe.content }}</div>
       <div class="px-5 py-3 border-t text-xs text-gray-400">{{ recipe.user?.name }} · {{ formatDate(recipe.created_at) }}</div>
     </div>
+    <!-- 사이드바 -->
+    <div class="col-span-12 lg:col-span-3 hidden lg:block">
+      <SidebarWidgets api-url="/api/recipes" detail-path="/recipes/" :current-id="recipe.id"
+        label="레시피" recommend-label="추천 레시피" quick-label="최신 레시피"
+        :links="[{to:'/recipes',icon:'📋',label:'전체 레시피'},{to:'/recipes/write',icon:'✏️',label:'레시피 등록'}]" />
+    </div>
+    </div>
   </div>
 </div>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 const route = useRoute()
 const recipe = ref(null)

@@ -3,7 +3,8 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <button @click="$router.back()" class="text-sm text-gray-500 hover:text-amber-600 mb-3">← 부동산 목록</button>
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="listing" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div v-else-if="listing" class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 lg:col-span-9 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div class="px-5 py-4">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="listing.type==='sale'?'bg-red-100 text-red-700':listing.type==='rent'?'bg-blue-100 text-blue-700':'bg-green-100 text-green-700'">
@@ -31,12 +32,19 @@
         <div v-if="listing.contact_email" class="text-sm text-gray-700">📧 {{ listing.contact_email }}</div>
       </div>
     </div>
+    <div class="col-span-12 lg:col-span-3 hidden lg:block">
+      <SidebarWidgets api-url="/api/realestate" detail-path="/realestate/" :current-id="listing.id"
+        label="매물" recommend-label="추천 매물" quick-label="최신 매물"
+        :links="[{to:'/realestate',icon:'📋',label:'전체 부동산'},{to:'/realestate/write',icon:'✏️',label:'매물 등록'}]" />
+    </div>
+    </div>
   </div>
 </div>
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 const route = useRoute()
 const listing = ref(null)
