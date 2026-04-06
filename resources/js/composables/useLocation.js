@@ -28,9 +28,9 @@ export function useLocation() {
       if (!token) return
       const res = await fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
       const data = await res.json()
-      const u = data.user || data
+      const u = data.user || data.data || data
       if (u.city && u.state) {
-        const c = { name: u.city, state: u.state, lat: u.lat ? parseFloat(u.lat) : null, lng: u.lng ? parseFloat(u.lng) : null }
+        const c = { name: u.city, state: u.state, lat: u.latitude ? parseFloat(u.latitude) : (u.lat ? parseFloat(u.lat) : null), lng: u.longitude ? parseFloat(u.longitude) : (u.lng ? parseFloat(u.lng) : null) }
         city.value = c
         localStorage.setItem(STORAGE_KEY, JSON.stringify(c))
       }

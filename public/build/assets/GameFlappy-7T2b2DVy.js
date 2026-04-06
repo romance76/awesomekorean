@@ -1,1 +1,0 @@
-import e from"./ArcadeGame-Bd3Y2_Af.js";import{m as a,k as p}from"./app-CvQMTHjY.js";import"./_plugin-vue_export-helper-DlAUqK2U.js";const l={__name:"GameFlappy",setup(r){return(t,o)=>(p(),a(e,{"game-slug":"flappy","game-id":"flappy",title:"🐦 클럼지 버드","points-per-score":5}))}};export{l as default};
