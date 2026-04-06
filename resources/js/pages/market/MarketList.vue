@@ -20,10 +20,6 @@
           <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
           <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
         </form>
-        <div class="flex gap-1">
-          <button @click="viewMode='list'" class="p-1.5 rounded" :class="viewMode==='list'?'bg-amber-100 text-amber-700':'text-gray-400'">☰</button>
-          <button @click="viewMode='card'" class="p-1.5 rounded" :class="viewMode==='card'?'bg-amber-100 text-amber-700':'text-gray-400'">⊞</button>
-        </div>
         <RouterLink v-if="auth.isLoggedIn" to="/market/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
       </div>
     </div>

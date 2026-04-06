@@ -284,12 +284,11 @@
               <input type="checkbox" v-model="item.admin_only" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
               <span class="hidden lg:inline">관리자</span>
             </label>
-            <!-- 기본 뷰 (카드형 지원 메뉴만) -->
-            <select v-if="item.hasCardView" v-model="item.defaultView" class="text-[10px] border rounded px-1 py-0.5 text-gray-500 w-14" title="기본 보기">
+            <!-- 기본 뷰 -->
+            <select v-model="item.defaultView" class="text-[10px] border rounded px-1 py-0.5 text-gray-500 w-14" title="기본 보기">
               <option value="list">☰</option>
               <option value="card">⊞</option>
             </select>
-            <span v-else class="w-14"></span>
             <!-- Enable toggle -->
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="item.enabled" class="sr-only peer" />
