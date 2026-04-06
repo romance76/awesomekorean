@@ -1,6 +1,11 @@
 <template>
 <div>
-  <h1 class="text-xl font-black text-gray-800 mb-4">📰 뉴스 관리</h1>
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-xl font-black text-gray-800">📰 뉴스 관리</h1>
+    <button @click="fetchNews" :disabled="fetching" class="bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-blue-600 disabled:opacity-50">
+      {{ fetching ? '수집 중...' : '🔄 뉴스 수집' }}
+    </button>
+  </div>
   <div v-if="loading" class="text-center py-8 text-gray-400">로딩중...</div>
   <div v-else-if="!items.length" class="text-center py-8 text-gray-400">데이터 없음</div>
   <div v-else class="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -32,7 +37,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-const items = ref([]); const loading = ref(true); const page = ref(1); const lastPage = ref(1)
+const items = ref([]); const loading = ref(true); const page = ref(1); const lastPage = ref(1); const fetching = ref(false)
+async function fetchNews() {
+  fetching.value = true
+  try { await axios.post('/api/admin/fetch-news'); alert('뉴스 수집이 시작되었습니다! 잠시 후 새로고침하세요.'); load() } catch(e) { alert(e.response?.data?.message || '수집 실패') }
+  fetching.value = false
+}
 async function load(p=1) { loading.value=true; page.value=p; try { const{data}=await axios.get('/api/news',{params:{page:p}}); items.value=data.data?.data||data.data||[]; lastPage.value=data.data?.last_page||1 }catch{}; loading.value=false }
 async function deleteItem(item) { if(!confirm('삭제?'))return; try { await axios.delete('/api/news/'+item.id); items.value=items.value.filter(x=>x.id!==item.id) }catch{} }
 onMounted(()=>load())

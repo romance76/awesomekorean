@@ -42,8 +42,34 @@
             <button @click="toggleLike" class="flex items-center gap-1 text-sm" :class="liked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'">
               {{ liked ? '❤️' : '🤍' }} 좋아요 {{ post.like_count }}
             </button>
-            <button class="text-gray-400 text-sm hover:text-amber-600">🔖 북마크</button>
-            <button class="text-gray-400 text-sm hover:text-amber-600">🔗 공유</button>
+            <button @click="toggleBookmark" class="text-sm" :class="bookmarked ? 'text-amber-600' : 'text-gray-400 hover:text-amber-600'">🔖 {{ bookmarked ? '저장됨' : '북마크' }}</button>
+            <button @click="sharePost" class="text-gray-400 text-sm hover:text-amber-600">🔗 공유</button>
+            <button @click="showReport=true" class="text-gray-400 text-sm hover:text-red-400 ml-auto">🚨 신고</button>
+            <!-- 작성자 전용: 수정/삭제 -->
+            <template v-if="auth.user?.id === post.user_id">
+              <RouterLink :to="`/community/write/${post.board?.slug}?edit=${post.id}`" class="text-gray-400 text-sm hover:text-amber-600">✏️ 수정</RouterLink>
+              <button @click="deletePost" class="text-gray-400 text-sm hover:text-red-500">🗑️ 삭제</button>
+            </template>
+          </div>
+
+          <!-- 신고 모달 -->
+          <div v-if="showReport" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showReport=false">
+            <div class="bg-white rounded-xl p-5 w-full max-w-sm shadow-xl">
+              <h3 class="font-bold text-gray-800 mb-3">🚨 신고하기</h3>
+              <select v-model="reportReason" class="w-full border rounded-lg px-3 py-2 text-sm mb-3">
+                <option value="">신고 사유 선택</option>
+                <option value="spam">스팸/광고</option>
+                <option value="abuse">욕설/비방</option>
+                <option value="inappropriate">부적절한 내용</option>
+                <option value="fraud">사기/허위정보</option>
+                <option value="other">기타</option>
+              </select>
+              <textarea v-model="reportContent" rows="3" placeholder="상세 사유 (선택)" class="w-full border rounded-lg px-3 py-2 text-sm resize-none mb-3"></textarea>
+              <div class="flex gap-2">
+                <button @click="submitReport" :disabled="!reportReason" class="bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-sm flex-1 hover:bg-red-600 disabled:opacity-50">신고</button>
+                <button @click="showReport=false" class="text-gray-500 px-4 py-2">취소</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -65,13 +91,32 @@
             <div class="flex items-center gap-2 mb-1">
               <span class="text-sm font-semibold text-gray-800">{{ comment.user?.name }}</span>
               <span class="text-xs text-gray-400">{{ formatDate(comment.created_at) }}</span>
+              <template v-if="auth.user?.id === comment.user_id">
+                <button v-if="editingComment!==comment.id" @click="startEditComment(comment)" class="text-[10px] text-gray-400 hover:text-amber-600 ml-auto">수정</button>
+                <button @click="deleteComment(comment.id)" class="text-[10px] text-gray-400 hover:text-red-500">삭제</button>
+              </template>
+              <button v-if="auth.isLoggedIn" @click="replyTo=replyTo===comment.id?null:comment.id" class="text-[10px] text-gray-400 hover:text-amber-600" :class="{'ml-auto': auth.user?.id !== comment.user_id}">답글</button>
             </div>
-            <div class="text-sm text-gray-600">{{ comment.content }}</div>
-            <!-- 대댓글 -->
+            <!-- 댓글 수정 모드 -->
+            <div v-if="editingComment===comment.id" class="flex gap-2 mt-1">
+              <input v-model="editCommentText" class="flex-1 border rounded-lg px-2 py-1 text-sm" @keyup.enter="saveEditComment(comment.id)" />
+              <button @click="saveEditComment(comment.id)" class="text-amber-600 text-xs font-bold">저장</button>
+              <button @click="editingComment=null" class="text-gray-400 text-xs">취소</button>
+            </div>
+            <div v-else class="text-sm text-gray-600">{{ comment.content }}</div>
+            <!-- 대댓글 입력 -->
+            <div v-if="replyTo===comment.id" class="mt-2 flex gap-2">
+              <input v-model="replyText" @keyup.enter="submitReply(comment.id)" type="text" placeholder="답글 입력..." class="flex-1 border rounded-lg px-2 py-1.5 text-xs" />
+              <button @click="submitReply(comment.id)" class="text-amber-600 text-xs font-bold">등록</button>
+            </div>
+            <!-- 대댓글 목록 -->
             <div v-for="reply in (comment.replies || [])" :key="reply.id" class="ml-6 mt-2 pl-3 border-l-2 border-gray-100">
               <div class="flex items-center gap-2 mb-0.5">
                 <span class="text-sm font-semibold text-gray-700">{{ reply.user?.name }}</span>
                 <span class="text-xs text-gray-400">{{ formatDate(reply.created_at) }}</span>
+                <template v-if="auth.user?.id === reply.user_id">
+                  <button @click="deleteComment(reply.id)" class="text-[10px] text-gray-400 hover:text-red-500 ml-auto">삭제</button>
+                </template>
               </div>
               <div class="text-sm text-gray-500">{{ reply.content }}</div>
             </div>
@@ -117,18 +162,27 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 
 const route = useRoute()
 const auth = useAuthStore()
+const router = useRouter()
 const post = ref(null)
 const comments = ref([])
 const loading = ref(true)
 const liked = ref(false)
+const bookmarked = ref(false)
 const newComment = ref('')
+const showReport = ref(false)
+const reportReason = ref('')
+const reportContent = ref('')
+const editingComment = ref(null)
+const editCommentText = ref('')
+const replyTo = ref(null)
+const replyText = ref('')
 
 function formatDate(dt) {
   if (!dt) return ''
@@ -161,6 +215,77 @@ async function submitComment() {
     })
     comments.value.unshift(data.data)
     newComment.value = ''
+    post.value.comment_count++
+  } catch {}
+}
+
+async function toggleBookmark() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'post', bookmarkable_id: post.value.id })
+    bookmarked.value = data.bookmarked
+  } catch {}
+}
+
+function sharePost() {
+  const url = window.location.href
+  if (navigator.share) {
+    navigator.share({ title: post.value.title, url })
+  } else {
+    navigator.clipboard.writeText(url)
+    alert('링크가 복사되었습니다!')
+  }
+}
+
+async function submitReport() {
+  if (!reportReason.value) return
+  try {
+    await axios.post('/api/reports', {
+      reportable_type: 'post', reportable_id: post.value.id,
+      reason: reportReason.value, content: reportContent.value
+    })
+    showReport.value = false; reportReason.value = ''; reportContent.value = ''
+    alert('신고가 접수되었습니다')
+  } catch {}
+}
+
+async function deletePost() {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  try { await axios.delete(`/api/posts/${post.value.id}`); router.push('/community') } catch {}
+}
+
+function startEditComment(c) { editingComment.value = c.id; editCommentText.value = c.content }
+
+async function saveEditComment(id) {
+  try {
+    await axios.put(`/api/comments/${id}`, { content: editCommentText.value })
+    const c = comments.value.find(c => c.id === id)
+    if (c) c.content = editCommentText.value
+    editingComment.value = null
+  } catch {}
+}
+
+async function deleteComment(id) {
+  if (!confirm('댓글을 삭제하시겠습니까?')) return
+  try {
+    await axios.delete(`/api/comments/${id}`)
+    comments.value = comments.value.filter(c => c.id !== id)
+    // 대댓글도 제거
+    comments.value.forEach(c => { if (c.replies) c.replies = c.replies.filter(r => r.id !== id) })
+    post.value.comment_count--
+  } catch {}
+}
+
+async function submitReply(parentId) {
+  if (!replyText.value.trim()) return
+  try {
+    const { data } = await axios.post('/api/comments', {
+      commentable_type: 'post', commentable_id: post.value.id,
+      content: replyText.value, parent_id: parentId
+    })
+    const parent = comments.value.find(c => c.id === parentId)
+    if (parent) { if (!parent.replies) parent.replies = []; parent.replies.push(data.data) }
+    replyText.value = ''; replyTo.value = null
     post.value.comment_count++
   } catch {}
 }

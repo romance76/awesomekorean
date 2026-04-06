@@ -41,11 +41,39 @@
           <div class="flex justify-between"><span>언어</span><span class="font-semibold text-gray-800">{{ auth.user.language === 'ko' ? '한국어' : 'English' }}</span></div>
         </div>
       </div>
+
+      <!-- 계정 관리 -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+        <h3 class="font-bold text-sm text-amber-900 mb-3">⚙️ 계정 관리</h3>
+        <div class="flex flex-wrap gap-3">
+          <button @click="handleLogout" class="text-sm bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200">🚪 로그아웃</button>
+          <button @click="deleteAccount" class="text-sm text-red-400 px-4 py-2 rounded-lg hover:bg-red-50 hover:text-red-600">⚠️ 회원 탈퇴</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 </template>
 <script setup>
 import { useAuthStore } from '../../stores/auth'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
 const auth = useAuthStore()
+const router = useRouter()
+
+async function handleLogout() {
+  await auth.logout()
+  router.push('/login')
+}
+
+async function deleteAccount() {
+  const confirmed = prompt('정말 탈퇴하시겠습니까? "탈퇴합니다"를 입력하세요:')
+  if (confirmed !== '탈퇴합니다') { alert('탈퇴가 취소되었습니다'); return }
+  try {
+    await axios.delete('/api/user/delete')
+    auth.logout()
+    router.push('/')
+    alert('회원 탈퇴가 완료되었습니다')
+  } catch (e) { alert(e.response?.data?.message || '탈퇴 실패') }
+}
 </script>

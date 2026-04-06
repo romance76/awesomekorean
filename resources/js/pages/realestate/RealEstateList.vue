@@ -66,6 +66,11 @@
           <div v-if="activeItem.contact_email">📧 {{ activeItem.contact_email }}</div>
         </div>
       </div>
+      <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
+        <RouterLink :to="`/realestate/write?edit=${activeItem.id}`" class="text-xs text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
+        <button @click="deleteActiveItem" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
+      </div>
+      <button @click="activeItem=null" class="text-xs text-gray-400 mt-2 hover:text-gray-600">← 목록</button>
     </div>
     <!-- 목록 모드 -->
     <div v-else-if="!items.length" class="text-center py-12 text-gray-400">검색 결과 없음</div>
@@ -128,6 +133,10 @@ async function openItem(item) {
   try { const { data } = await axios.get(`/api/realestate/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+async function deleteActiveItem() {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  try { await axios.delete(`/api/realestate/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 const page = ref(1)
 const lastPage = ref(1)

@@ -55,7 +55,10 @@
         </div>
         <div class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ activeItem.content || activeItem.description }}</div>
       </div>
-      <div class="flex justify-between mt-3">
+      <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
+        <button @click="deleteActiveItem('events')" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
+      </div>
+      <div class="flex justify-between mt-2">
         <button @click="navItem(-1)" :disabled="currentIdx<=0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
         <button @click="activeItem=null" class="text-xs text-gray-400">목록</button>
         <button @click="navItem(1)" :disabled="currentIdx>=items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
@@ -126,6 +129,11 @@ async function openItem(item) {
 function navItem(dir) {
   const newIdx = currentIdx.value + dir
   if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
+}
+
+async function deleteActiveItem(type) {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  try { await axios.delete(`/api/${type}/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR', { year:'numeric',month:'long',day:'numeric' }) : '' }

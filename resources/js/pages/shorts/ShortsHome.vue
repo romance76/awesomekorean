@@ -30,14 +30,14 @@
             <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-xl">{{ liked ? '❤️' : '🤍' }}</div>
             <span class="text-white text-[10px] mt-1">{{ current.like_count }}</span>
           </button>
-          <div class="flex flex-col items-center">
+          <button @click="showComments=!showComments" class="flex flex-col items-center">
             <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-xl">💬</div>
             <span class="text-white text-[10px] mt-1">{{ current.comment_count }}</span>
-          </div>
-          <div class="flex flex-col items-center">
+          </button>
+          <button @click="shareShort" class="flex flex-col items-center">
             <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-xl">🔗</div>
             <span class="text-white text-[10px] mt-1">공유</span>
-          </div>
+          </button>
         </div>
 
         <!-- 하단 정보 -->
@@ -63,6 +63,25 @@
       {{ idx + 1 }} / {{ shorts.length }}
     </div>
   </div>
+
+  <!-- 댓글 패널 -->
+  <div v-if="showComments" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[50vh] overflow-y-auto shadow-xl">
+    <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white">
+      <span class="font-bold text-sm text-gray-800">💬 댓글</span>
+      <button @click="showComments=false" class="text-gray-400">✕</button>
+    </div>
+    <div v-if="comments.length" class="divide-y">
+      <div v-for="c in comments" :key="c.id" class="px-4 py-2.5">
+        <div class="flex items-center gap-2 mb-0.5"><span class="text-xs font-semibold text-gray-700">{{ c.user?.name }}</span><span class="text-[10px] text-gray-400">{{ c.created_at?.slice(0,10) }}</span></div>
+        <div class="text-sm text-gray-600">{{ c.content }}</div>
+      </div>
+    </div>
+    <div v-else class="px-4 py-6 text-center text-sm text-gray-400">아직 댓글이 없습니다</div>
+    <div v-if="auth.isLoggedIn" class="px-4 py-3 border-t flex gap-2 sticky bottom-0 bg-white">
+      <input v-model="newComment" type="text" placeholder="댓글 입력..." class="flex-1 border rounded-full px-3 py-1.5 text-sm" @keyup.enter="submitComment" />
+      <button @click="submitComment" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-full text-sm">등록</button>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -76,6 +95,9 @@ const shorts = ref([])
 const idx = ref(0)
 const loading = ref(true)
 const liked = ref(false)
+const showComments = ref(false)
+const comments = ref([])
+const newComment = ref('')
 
 const current = computed(() => shorts.value[idx.value] || {})
 
@@ -92,6 +114,26 @@ async function toggleLike() {
     const { data } = await axios.post(`/api/shorts/${current.value.id}/like`)
     liked.value = data.liked
     shorts.value[idx.value].like_count += data.liked ? 1 : -1
+  } catch {}
+}
+
+function shareShort() {
+  const url = `${window.location.origin}/shorts?v=${current.value.id}`
+  if (navigator.share) { navigator.share({ title: current.value.title, url }) }
+  else { navigator.clipboard.writeText(url); alert('링크가 복사되었습니다!') }
+}
+
+async function loadComments() {
+  if (!current.value.id) return
+  try { const { data } = await axios.get(`/api/comments/short/${current.value.id}`); comments.value = data.data || [] } catch { comments.value = [] }
+}
+
+async function submitComment() {
+  if (!newComment.value.trim() || !current.value.id) return
+  try {
+    const { data } = await axios.post('/api/comments', { commentable_type: 'short', commentable_id: current.value.id, content: newComment.value })
+    comments.value.push(data.data); newComment.value = ''
+    shorts.value[idx.value].comment_count = (shorts.value[idx.value].comment_count || 0) + 1
   } catch {}
 }
 

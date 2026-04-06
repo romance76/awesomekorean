@@ -1,7 +1,13 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">📰 뉴스</h1>
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h1 class="text-xl font-black text-gray-800">📰 뉴스</h1>
+      <form @submit.prevent="loadNews()" class="flex gap-1">
+        <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
+        <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+      </form>
+    </div>
 
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 카테고리 -->
@@ -108,6 +114,7 @@ const items = ref([])
 const categories = ref([])
 const activeCat = ref(null)
 const activeItem = ref(null)
+const searchQ = ref('')
 
 // 본문 이미지 중복 체크 (확장자 무시)
 const hasImageInContent = computed(() => {
@@ -178,6 +185,7 @@ async function loadNews(p = 1) {
   loading.value = true; page.value = p
   const params = { page: p, per_page: 20 }
   if (activeCat.value) params.category_id = activeCat.value.id
+  if (searchQ.value) params.search = searchQ.value
   try {
     const { data } = await axios.get('/api/news', { params })
     items.value = data.data?.data || []

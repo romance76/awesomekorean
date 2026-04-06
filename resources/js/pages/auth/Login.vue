@@ -11,7 +11,8 @@
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <button type="submit" :disabled="submitting" class="w-full bg-amber-400 text-amber-900 font-bold py-2.5 rounded-lg hover:bg-amber-500 transition disabled:opacity-50">{{ submitting ? '로그인 중...' : '로그인' }}</button>
     </form>
-    <div class="text-center mt-4 text-sm text-gray-500">계정이 없으신가요? <RouterLink to="/register" class="text-amber-600 font-semibold">회원가입</RouterLink></div>
+    <div class="text-center mt-3"><RouterLink to="/forgot-password" class="text-sm text-gray-400 hover:text-amber-600">비밀번호를 잊으셨나요?</RouterLink></div>
+    <div class="text-center mt-2 text-sm text-gray-500">계정이 없으신가요? <RouterLink to="/register" class="text-amber-600 font-semibold">회원가입</RouterLink></div>
   </div>
 </div>
 </template>

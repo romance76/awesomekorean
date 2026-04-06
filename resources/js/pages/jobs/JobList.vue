@@ -64,6 +64,11 @@
           <div v-if="activeItem.contact_email" class="text-sm text-gray-700">📧 {{ activeItem.contact_email }}</div>
         </div>
       </div>
+      <!-- 작성자 전용 수정/삭제 -->
+      <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
+        <RouterLink :to="`/jobs/write?edit=${activeItem.id}`" class="text-xs text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
+        <button @click="deleteItem" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
+      </div>
       <!-- 이전글/다음글 -->
       <div class="flex justify-between mt-3">
         <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
@@ -158,6 +163,11 @@ async function openItem(item) {
 function navItem(dir) {
   const newIdx = currentIdx.value + dir
   if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
+}
+
+async function deleteItem() {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  try { await axios.delete(`/api/jobs/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 const page = ref(1)
 const lastPage = ref(1)

@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">💼 채용공고 등록</h1>
+    <h1 class="text-xl font-black text-gray-800 mb-4">💼 {{ isEdit ? '채용공고 수정' : '채용공고 등록' }}</h1>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
       <div>
         <label class="text-sm font-semibold text-gray-700">제목</label>
@@ -51,7 +51,7 @@
       </div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <div class="flex gap-3 pt-2">
-        <button @click="submit" :disabled="submitting" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ submitting ? '등록 중...' : '등록하기' }}</button>
+        <button @click="submit" :disabled="submitting" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ submitting ? '저장 중...' : (isEdit ? '수정하기' : '등록하기') }}</button>
         <button @click="$router.back()" class="text-gray-500 px-6 py-2.5">취소</button>
       </div>
     </div>
@@ -59,10 +59,11 @@
 </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 const router = useRouter()
+const route = useRoute()
 const form = reactive({ title:'',company:'',category:'restaurant',type:'full',salary_min:15,salary_max:25,salary_type:'hourly',content:'',contact_phone:'',contact_email:'' })
 const categories = [
   {value:'restaurant',label:'요식업'},{value:'it',label:'IT'},{value:'beauty',label:'미용'},
@@ -71,13 +72,31 @@ const categories = [
 ]
 const error = ref('')
 const submitting = ref(false)
+const isEdit = ref(false)
+const editId = ref(null)
+
 async function submit() {
   if (!form.title || !form.company || !form.content) { error.value = '필수 항목을 입력해주세요'; return }
   submitting.value = true; error.value = ''
   try {
-    const { data } = await axios.post('/api/jobs', form)
-    router.push(`/jobs/${data.data.id}`)
+    if (isEdit.value) {
+      await axios.put(`/api/jobs/${editId.value}`, form)
+      router.push(`/jobs/${editId.value}`)
+    } else {
+      const { data } = await axios.post('/api/jobs', form)
+      router.push(`/jobs/${data.data.id}`)
+    }
   } catch (e) { error.value = e.response?.data?.message || '등록 실패' }
   submitting.value = false
 }
+
+onMounted(async () => {
+  if (route.query.edit) {
+    editId.value = route.query.edit; isEdit.value = true
+    try {
+      const { data } = await axios.get(`/api/jobs/${editId.value}`)
+      const j = data.data; Object.keys(form).forEach(k => { if (j[k] !== undefined) form[k] = j[k] })
+    } catch {}
+  }
+})
 </script>

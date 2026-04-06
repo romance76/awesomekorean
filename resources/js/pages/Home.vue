@@ -128,6 +128,7 @@
             <h4 class="font-bold text-sm text-amber-900 mb-3">🔥 인기 키워드</h4>
             <div class="flex flex-wrap gap-1.5">
               <span v-for="tag in ['이민','영주권','맛집','구인','중고차','부동산','세금','학교']" :key="tag"
+                @click="router.push({path:'/search',query:{q:tag}})"
                 class="bg-amber-50 text-amber-700 px-2 py-1 rounded-lg text-xs font-medium cursor-pointer hover:bg-amber-100">#{{ tag }}</span>
             </div>
           </div>

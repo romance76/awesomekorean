@@ -27,10 +27,33 @@
         <template v-if="auth.isLoggedIn">
           <RouterLink to="/notifications" class="relative p-1.5 text-gray-500 hover:text-amber-600">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span v-if="unreadCount>0" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
           </RouterLink>
-          <RouterLink to="/dashboard" class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold">
-            {{ (auth.user?.name || '?')[0] }}
-          </RouterLink>
+          <!-- 프로필 드롭다운 -->
+          <div class="relative">
+            <button @click="showDropdown=!showDropdown" class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm font-bold focus:ring-2 focus:ring-amber-300">
+              {{ (auth.user?.name || '?')[0] }}
+            </button>
+            <div v-if="showDropdown" class="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-lg py-2 w-48 z-50" @click="showDropdown=false">
+              <div class="px-4 py-2 border-b">
+                <div class="text-sm font-bold text-gray-800 truncate">{{ auth.user?.name }}</div>
+                <div class="text-[10px] text-gray-400 truncate">{{ auth.user?.email }}</div>
+                <div class="text-[10px] text-amber-600 font-semibold mt-0.5">{{ auth.user?.points || 0 }}P</div>
+              </div>
+              <RouterLink to="/dashboard" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700">👤 마이페이지</RouterLink>
+              <RouterLink to="/profile/edit" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700">✏️ 프로필 수정</RouterLink>
+              <RouterLink to="/points" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700">💰 포인트</RouterLink>
+              <RouterLink to="/bookmarks" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700">🔖 북마크</RouterLink>
+              <RouterLink to="/messages" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700">✉️ 쪽지</RouterLink>
+              <RouterLink to="/friends" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700">👫 친구</RouterLink>
+              <div v-if="auth.isAdmin">
+                <div class="border-t my-1"></div>
+                <RouterLink to="/admin" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">🔧 관리자</RouterLink>
+              </div>
+              <div class="border-t my-1"></div>
+              <button @click="handleLogout" class="w-full text-left px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 hover:text-red-500">🚪 로그아웃</button>
+            </div>
+          </div>
         </template>
         <template v-else>
           <RouterLink to="/login" class="text-sm text-gray-600 hover:text-amber-700 px-2 py-1 hidden sm:block">로그인</RouterLink>
@@ -56,7 +79,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLangStore } from '../stores/lang'
@@ -66,6 +90,32 @@ const langStore = useLangStore()
 const router = useRouter()
 const route = useRoute()
 const searchQ = ref('')
+const showDropdown = ref(false)
+const unreadCount = ref(0)
+
+// 알림 뱃지 로드
+async function loadUnread() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.get('/api/notifications')
+    const list = data.data?.data || data.data || []
+    unreadCount.value = list.filter(n => !n.is_read).length
+  } catch {}
+}
+
+async function handleLogout() {
+  await auth.logout()
+  router.push('/login')
+}
+
+// 드롭다운 외부 클릭 닫기
+if (typeof window !== 'undefined') {
+  window.addEventListener('click', (e) => {
+    if (showDropdown.value && !e.target.closest('.relative')) showDropdown.value = false
+  })
+}
+
+onMounted(() => loadUnread())
 
 const navItems = computed(() => {
   const ko = langStore.locale === 'ko'

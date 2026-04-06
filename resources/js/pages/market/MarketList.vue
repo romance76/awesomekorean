@@ -57,6 +57,14 @@
         </div>
         <div class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ activeItem.content }}</div>
       </div>
+      <!-- 작성자 전용 수정/삭제 -->
+      <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
+        <RouterLink :to="`/market/write?edit=${activeItem.id}`" class="text-xs text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
+        <button @click="deleteItem('market')" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
+      </div>
+      <div class="flex justify-between mt-2">
+        <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">← 목록</button>
+      </div>
     </div>
     <!-- 목록 모드 -->
     <div v-else-if="!items.length" class="text-center py-12 text-gray-400">검색 결과 없음</div>
@@ -120,6 +128,11 @@ async function openItem(item) {
   try { const { data } = await axios.get(`/api/market/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+async function deleteItem(type) {
+  if (!confirm('정말 삭제하시겠습니까?')) return
+  try { await axios.delete(`/api/${type}/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 const page = ref(1)
 const lastPage = ref(1)

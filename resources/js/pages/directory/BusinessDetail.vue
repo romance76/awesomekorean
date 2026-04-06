@@ -34,6 +34,11 @@
           </div>
         </div>
         <div v-if="biz.description" class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ biz.description }}</div>
+        <!-- 지도 -->
+        <div v-if="biz.address || (biz.lat && biz.lng)" class="px-5 py-4 border-t">
+          <h3 class="font-bold text-sm text-gray-800 mb-2">📍 위치</h3>
+          <LeafletMap :address="biz.address ? `${biz.address}, ${biz.city}, ${biz.state}` : ''" :lat="biz.lat" :lng="biz.lng" style="height:200px" class="rounded-lg overflow-hidden" />
+        </div>
       </div>
 
       <!-- 리뷰 -->
@@ -78,6 +83,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import LeafletMap from '../../components/LeafletMap.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()

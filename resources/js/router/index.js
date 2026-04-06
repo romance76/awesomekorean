@@ -17,6 +17,7 @@ const routes = [
   { path: '/', name: 'home', component: p('Home') },
   { path: '/login', name: 'login', component: p('auth/Login'), meta: { guest: true } },
   { path: '/register', name: 'register', component: p('auth/Register'), meta: { guest: true } },
+  { path: '/forgot-password', name: 'forgot-password', component: p('auth/ForgotPassword'), meta: { guest: true } },
 
   // Community
   { path: '/community', name: 'community', component: p('community/BoardList') },
@@ -130,6 +131,9 @@ const routes = [
   { path: '/points', name: 'points', component: p('points/PointDashboard'), meta: { auth: true } },
   { path: '/points/rules', component: p('PointRules') },
   { path: '/search', name: 'search', component: p('Search') },
+  { path: '/about', name: 'about', component: p('static/About') },
+  { path: '/terms', name: 'terms', component: p('static/Terms') },
+  { path: '/privacy', name: 'privacy', component: p('static/Privacy') },
   { path: '/profile/edit', component: p('profile/ProfileEdit'), meta: { auth: true } },
   { path: '/profile/:id', name: 'profile', component: p('profile/UserProfile') },
   { path: '/dashboard', name: 'dashboard', component: p('profile/UserDashboard'), meta: { auth: true } },

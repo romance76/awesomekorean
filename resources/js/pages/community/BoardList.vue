@@ -4,6 +4,12 @@
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-xl font-black text-gray-800">💬 커뮤니티</h1>
       <div class="flex items-center gap-2">
+        <select v-model="sortBy" @change="loadPosts()" class="border rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+          <option value="latest">최신순</option>
+          <option value="popular">인기순</option>
+          <option value="views">조회순</option>
+          <option value="comments">댓글순</option>
+        </select>
         <button @click="viewMode='list'" class="p-1.5 rounded" :class="viewMode==='list'?'bg-amber-100 text-amber-700':'text-gray-400'">☰</button>
         <button @click="viewMode='card'" class="p-1.5 rounded" :class="viewMode==='card'?'bg-amber-100 text-amber-700':'text-gray-400'">⊞</button>
         <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 글쓰기</RouterLink>
@@ -186,6 +192,7 @@ const recentJobs = ref([])
 const activeBoard = ref(null)
 const mobileBoardId = ref(null)
 const viewMode = ref('list')
+const sortBy = ref('latest')
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
@@ -252,7 +259,7 @@ function onMobileBoard() {
 async function loadPosts(p = 1) {
   loading.value = true
   page.value = p
-  const params = { page: p, per_page: 20 }
+  const params = { page: p, per_page: 20, sort: sortBy.value }
   if (activeBoard.value) params.board_id = activeBoard.value.id
   try {
     const { data } = await axios.get('/api/posts', { params })

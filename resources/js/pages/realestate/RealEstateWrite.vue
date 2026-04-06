@@ -35,18 +35,39 @@
 </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 const router = useRouter()
+const route = useRoute()
 const form = reactive({ title:'',type:'rent',property_type:'apt',price:0,bedrooms:1,bathrooms:1,sqft:0,content:'',contact_phone:'',contact_email:'' })
 const error = ref('')
 const submitting = ref(false)
+const isEdit = ref(false)
+const editId = ref(null)
+
 async function submit() {
   if (!form.title || !form.content || !form.price) { error.value = '필수 항목을 입력해주세요'; return }
   submitting.value = true; error.value = ''
-  try { const { data } = await axios.post('/api/realestate', form); router.push(`/realestate/${data.data.id}`) }
-  catch (e) { error.value = e.response?.data?.message || '등록 실패' }
+  try {
+    if (isEdit.value) {
+      await axios.put(`/api/realestate/${editId.value}`, form)
+      router.push(`/realestate/${editId.value}`)
+    } else {
+      const { data } = await axios.post('/api/realestate', form)
+      router.push(`/realestate/${data.data.id}`)
+    }
+  } catch (e) { error.value = e.response?.data?.message || '등록 실패' }
   submitting.value = false
 }
+
+onMounted(async () => {
+  if (route.query.edit) {
+    editId.value = route.query.edit; isEdit.value = true
+    try {
+      const { data } = await axios.get(`/api/realestate/${editId.value}`)
+      const r = data.data; Object.keys(form).forEach(k => { if (r[k] !== undefined) form[k] = r[k] })
+    } catch {}
+  }
+})
 </script>

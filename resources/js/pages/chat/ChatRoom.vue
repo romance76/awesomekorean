@@ -65,6 +65,19 @@ async function sendMsg() {
   } catch {}
 }
 
+let pollTimer = null
+async function pollMessages() {
+  try {
+    const { data } = await axios.get(`/api/chat/rooms/${route.params.id}/messages`)
+    const newMsgs = (data.data?.data || data.data || []).reverse()
+    if (newMsgs.length !== messages.value.length) {
+      messages.value = newMsgs
+      await nextTick()
+      if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
+    }
+  } catch {}
+}
+
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/chat/rooms/${route.params.id}/messages`)
@@ -73,5 +86,10 @@ onMounted(async () => {
     if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
   } catch {}
   loading.value = false
+  // 5초마다 새 메시지 폴링
+  pollTimer = setInterval(pollMessages, 5000)
 })
+
+import { onUnmounted } from 'vue'
+onUnmounted(() => { if (pollTimer) clearInterval(pollTimer) })
 </script>

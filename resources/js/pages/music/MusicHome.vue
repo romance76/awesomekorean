@@ -24,12 +24,15 @@
             <button @click="showCreatePL = true" class="text-amber-600 text-xs hover:text-amber-800">+ 새로 만들기</button>
           </div>
           <div v-if="!playlists.length" class="px-4 py-3 text-xs text-gray-400">플레이리스트가 없습니다</div>
-          <button v-for="pl in playlists" :key="pl.id" @click="selectPlaylist(pl)"
-            class="w-full text-left px-4 py-2.5 text-sm transition flex items-center justify-between"
-            :class="activePL?.id === pl.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-600 hover:bg-blue-50/50'">
-            <span class="truncate">{{ pl.name }}</span>
-            <span class="text-[10px] text-gray-400">{{ pl.tracks_count || 0 }}곡</span>
-          </button>
+          <div v-for="pl in playlists" :key="pl.id" class="flex items-center group">
+            <button @click="selectPlaylist(pl)"
+              class="flex-1 text-left px-4 py-2.5 text-sm transition flex items-center justify-between"
+              :class="activePL?.id === pl.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-600 hover:bg-blue-50/50'">
+              <span class="truncate">{{ pl.name }}</span>
+              <span class="text-[10px] text-gray-400">{{ pl.tracks_count || 0 }}곡</span>
+            </button>
+            <button @click.stop="deletePlaylist(pl.id)" class="text-red-400 text-xs px-2 opacity-0 group-hover:opacity-100 hover:text-red-600" title="삭제">✕</button>
+          </div>
         </div>
 
         <!-- 검색 -->
@@ -208,6 +211,16 @@ async function addToPL(plId) {
     await loadPlaylists()
   } catch (e) { siteStore.toast(e.response?.data?.message || '실패', 'error') }
   addTrackTarget.value = null
+}
+
+async function deletePlaylist(plId) {
+  if (!confirm('플레이리스트를 삭제하시겠습니까?')) return
+  try {
+    await axios.delete(`/api/music/playlists/${plId}`)
+    if (activePL.value?.id === plId) { activePL.value = null; plTracks.value = [] }
+    await loadPlaylists()
+    siteStore.toast('삭제되었습니다', 'info')
+  } catch {}
 }
 
 async function removeFromPL(track) {

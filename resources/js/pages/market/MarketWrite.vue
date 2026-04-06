@@ -32,24 +32,43 @@
 </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 const router = useRouter()
+const route = useRoute()
 const form = reactive({ title:'',price:0,category:'electronics',condition:'good',content:'',is_negotiable:false })
 const files = ref([])
 const error = ref('')
 const submitting = ref(false)
+const isEdit = ref(false)
+const editId = ref(null)
+
 async function submit() {
   if (!form.title || !form.content) { error.value = '제목과 설명을 입력해주세요'; return }
   submitting.value = true; error.value = ''
   try {
-    const fd = new FormData()
-    Object.keys(form).forEach(k => fd.append(k, form[k]))
-    files.value.forEach(f => fd.append('images[]', f))
-    const { data } = await axios.post('/api/market', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-    router.push(`/market/${data.data.id}`)
+    if (isEdit.value) {
+      await axios.put(`/api/market/${editId.value}`, form)
+      router.push(`/market/${editId.value}`)
+    } else {
+      const fd = new FormData()
+      Object.keys(form).forEach(k => fd.append(k, form[k]))
+      files.value.forEach(f => fd.append('images[]', f))
+      const { data } = await axios.post('/api/market', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      router.push(`/market/${data.data.id}`)
+    }
   } catch (e) { error.value = e.response?.data?.message || '등록 실패' }
   submitting.value = false
 }
+
+onMounted(async () => {
+  if (route.query.edit) {
+    editId.value = route.query.edit; isEdit.value = true
+    try {
+      const { data } = await axios.get(`/api/market/${editId.value}`)
+      const m = data.data; Object.keys(form).forEach(k => { if (m[k] !== undefined) form[k] = m[k] })
+    } catch {}
+  }
+})
 </script>

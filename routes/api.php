@@ -37,6 +37,8 @@ use App\Http\Controllers\API\AdminSettingsController;
 // ─── Public Auth ───
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 // ─── Public Read ───
 Route::get('/boards', [BoardController::class, 'index']);
@@ -90,6 +92,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/user/profile', [ProfileController::class, 'update']);
+    Route::post('/user/avatar', [ProfileController::class, 'uploadAvatar']);
+    Route::delete('/user/delete', [ProfileController::class, 'deleteAccount']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     Route::post('/posts', [PostController::class, 'store']);
     Route::put('/posts/{id}', [PostController::class, 'update']);
@@ -229,6 +234,16 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/settings', [AdminSettingsController::class, 'index']);
     Route::put('/settings', [AdminSettingsController::class, 'update']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
+
+    // 수동 수집
+    Route::post('/fetch-news', function () {
+        try { \Artisan::call('news:fetch'); return response()->json(['success' => true, 'message' => '뉴스 수집 완료']); }
+        catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
+    });
+    Route::post('/fetch-shorts', function () {
+        try { \Artisan::call('shorts:fetch'); return response()->json(['success' => true, 'message' => '숏츠 수집 완료']); }
+        catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
+    });
 
     // Admin Music
     Route::post('/music/categories', [MusicController::class, 'storeCategory']);

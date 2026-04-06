@@ -1,6 +1,11 @@
 <template>
 <div>
-  <h1 class="text-xl font-black text-gray-800 mb-4">📱 숏츠 관리</h1>
+  <div class="flex items-center justify-between mb-4">
+    <h1 class="text-xl font-black text-gray-800">📱 숏츠 관리</h1>
+    <button @click="fetchShorts" :disabled="fetching" class="bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-blue-600 disabled:opacity-50">
+      {{ fetching ? '수집 중...' : '🔄 YouTube 숏츠 수집' }}
+    </button>
+  </div>
 
   <!-- 통계 카드 -->
   <div class="grid grid-cols-3 gap-3 mb-4">
@@ -74,7 +79,12 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 const items = ref([]); const loading = ref(true); const page = ref(1); const lastPage = ref(1)
-const search = ref(''); const totalShorts = ref(0)
+const search = ref(''); const totalShorts = ref(0); const fetching = ref(false)
+async function fetchShorts() {
+  fetching.value = true
+  try { await axios.post('/api/admin/fetch-shorts'); alert('YouTube 숏츠 수집이 시작되었습니다!'); load() } catch(e) { alert(e.response?.data?.message || '수집 실패') }
+  fetching.value = false
+}
 const totalViews = computed(() => items.value.reduce((s, i) => s + (i.view_count || 0), 0))
 const totalLikes = computed(() => items.value.reduce((s, i) => s + (i.like_count || 0), 0))
 
