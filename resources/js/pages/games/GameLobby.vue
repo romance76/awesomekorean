@@ -1,311 +1,124 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20">
-    <div class="max-w-[1200px] mx-auto px-4 pt-4">
+<div class="min-h-screen bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 py-5">
+    <!-- 헤더 -->
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-xl font-black text-gray-800">🎮 게임</h1>
+      <div v-if="auth.isLoggedIn" class="flex items-center gap-2 text-xs">
+        <span class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-bold">🪙 {{ (auth.user?.points || 0).toLocaleString() }}P</span>
+        <RouterLink to="/points" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-full hover:bg-amber-500">🎰 일일 룰렛</RouterLink>
+      </div>
+    </div>
 
-      <!-- 헤더 -->
-      <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl px-6 py-5 mb-5 shadow-lg text-white">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-xl font-black">🎮 게임 센터</h1>
-            <p class="text-sm opacity-80 mt-0.5">연령별 맞춤 게임 · 두뇌트레이닝 · 커뮤니티 게임</p>
-          </div>
-          <div v-if="auth.isLoggedIn" class="text-right">
-            <div class="text-xs text-indigo-200 mb-1">내 지갑</div>
-            <div class="flex items-center gap-2 flex-wrap justify-end">
-              <span class="bg-white/20 px-2 py-1 rounded-lg text-sm font-bold">🪙 {{ wallet.coin.toLocaleString() }}</span>
-              <span class="bg-yellow-500/30 px-2 py-1 rounded-lg text-sm font-bold border border-yellow-400/40">🎰 {{ wallet.chip.toLocaleString() }}</span>
-              <span v-if="wallet.gem > 0" class="bg-white/20 px-2 py-1 rounded-lg text-sm font-bold">💎 {{ wallet.gem.toLocaleString() }}</span>
-              <span v-if="wallet.star > 0" class="bg-white/20 px-2 py-1 rounded-lg text-sm font-bold">⭐ {{ wallet.star.toLocaleString() }}</span>
-            </div>
-          </div>
-        </div>
-        <!-- 일일 보너스 + 룰렛 버튼 -->
-        <div v-if="auth.isLoggedIn" class="flex items-center gap-2 flex-wrap mt-2">
-          <button @click="claimDaily" :disabled="dailyClaimed"
-            class="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 disabled:opacity-60 text-gray-900 px-4 py-2 rounded-xl text-sm font-bold transition">
-            🎁 {{ dailyClaimed ? '출석 완료' : '출석 +50 COIN' }}
-          </button>
-          <button @click="showSpinModal = true"
-            class="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white px-4 py-2 rounded-xl text-sm font-bold transition shadow-lg animate-pulse-slow">
-            🎡 무료 게임머니
-          </button>
-          <button @click="showLeaderboard = !showLeaderboard" class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-xl text-sm font-semibold transition">
-            🏆 리더보드
+    <div class="grid grid-cols-12 gap-4">
+      <!-- 왼쪽: 카테고리 -->
+      <div class="col-span-12 lg:col-span-2 hidden lg:block">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
+          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
+          <button v-for="cat in categories" :key="cat.key" @click="activeCat=cat.key"
+            class="w-full text-left px-3 py-2 text-xs transition"
+            :class="activeCat===cat.key ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+            {{ cat.icon }} {{ cat.label }}
           </button>
         </div>
       </div>
 
-
-      <!-- 연령별 탭 -->
-      <div class="bg-white rounded-2xl shadow-sm mb-5 overflow-hidden">
-        <div class="flex overflow-x-auto" style="scrollbar-width:none">
-          <button v-for="tab in ageTabs" :key="tab.key"
-            @click="activeAge = tab.key"
-            class="flex-shrink-0 flex items-center gap-2 px-5 py-4 text-sm font-semibold transition border-b-2"
-            :class="activeAge === tab.key
-              ? 'border-indigo-500 text-indigo-600 bg-indigo-50'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'">
-            <span class="text-xl">{{ tab.icon }}</span>
-            <span class="whitespace-nowrap">{{ tab.label }}</span>
-            <span class="text-[11px] text-gray-400">({{ tab.ages }})</span>
+      <!-- 메인: 게임 카드 -->
+      <div class="col-span-12 lg:col-span-7">
+        <!-- 모바일 카테고리 -->
+        <div class="lg:hidden flex gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+          <button v-for="cat in categories" :key="cat.key" @click="activeCat=cat.key"
+            class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition flex-shrink-0"
+            :class="activeCat===cat.key ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500'">
+            {{ cat.icon }} {{ cat.label }}
           </button>
         </div>
-      </div>
 
-      <!-- 리더보드 (토글) -->
-      <div v-if="showLeaderboard" class="bg-white rounded-2xl shadow-sm p-5 mb-5">
-        <h3 class="font-bold text-gray-700 mb-4">🏆 리더보드</h3>
-        <div class="space-y-2">
-          <div v-for="(u,i) in leaders" :key="u.id" class="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-            <span class="w-6 text-center font-bold text-sm">
-              <template v-if="i===0">🥇</template>
-              <template v-else-if="i===1">🥈</template>
-              <template v-else-if="i===2">🥉</template>
-              <template v-else>{{ i+1 }}</template>
-            </span>
-            <span class="flex-1 text-sm font-medium text-gray-700">{{ u.nickname || u.username }}</span>
-            <span class="text-xs text-gray-400">{{ u.play_count }}게임</span>
-            <span class="text-sm font-bold text-indigo-600">{{ Number(u.total_reward).toLocaleString() }} COIN</span>
-          </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <RouterLink v-for="game in filteredGames" :key="game.path" :to="game.path"
+            class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all text-center group">
+            <div class="text-3xl mb-2">{{ game.icon }}</div>
+            <div class="text-sm font-bold text-gray-800 group-hover:text-amber-700">{{ game.name }}</div>
+            <div class="text-[10px] text-gray-400 mt-0.5">{{ game.desc }}</div>
+          </RouterLink>
         </div>
       </div>
 
-      <!-- 게임 그리드 -->
-      <div v-if="loading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        <div v-for="i in 8" :key="i" class="bg-white rounded-2xl p-4 animate-pulse h-36"></div>
-      </div>
-
-      <div v-else>
-        <!-- 현재 연령 그룹 소개 -->
-        <div v-if="activeTabInfo" class="mb-4 p-4 rounded-xl" :style="{background: activeTabInfo.bg}">
-          <p class="text-sm font-semibold" :style="{color: activeTabInfo.color}">
-            {{ activeTabInfo.icon }} {{ activeTabInfo.desc }}
-          </p>
+      <!-- 오른쪽: 위젯 -->
+      <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">🔥 인기 게임</div>
+          <RouterLink v-for="g in popularGames" :key="g.path" :to="g.path"
+            class="block px-3 py-2 hover:bg-amber-50/50 transition text-xs text-gray-600 hover:text-amber-700">
+            {{ g.icon }} {{ g.name }}
+          </RouterLink>
         </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          <div v-for="game in currentGames" :key="game.id"
-            @click="playGame(game)"
-            class="relative bg-white rounded-2xl shadow-sm p-4 cursor-pointer hover:shadow-md transition hover:scale-[1.02] group">
-            <!-- 게임 아이콘/썸네일 -->
-            <div class="text-3xl mb-2 text-center group-hover:scale-110 transition-transform">{{ getGameEmoji(game) }}</div>
-            <!-- 이름 -->
-            <h3 class="text-sm font-bold text-gray-800 text-center mb-1 line-clamp-1">{{ game.name }}</h3>
-            <!-- 설명 -->
-            <p class="text-[11px] text-gray-400 text-center line-clamp-2 mb-2">{{ game.description }}</p>
-            <!-- 보상 + 타입 뱃지 -->
-            <div class="flex items-center justify-between">
-              <span v-if="isBettingGame(game)" class="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-orange-500 text-white">
-                🎰 베팅
-              </span>
-              <span v-else-if="game.type === 'educational'" class="text-[10px] px-1.5 py-0.5 rounded-full font-bold bg-purple-500 text-white">
-                📚 교육
-              </span>
-              <span v-else class="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
-                :class="typeClass(game.type)">
-                {{ typeLabel(game.type) }}
-              </span>
-              <span v-if="isBettingGame(game)" class="text-[10px] font-bold text-orange-400">
-                게임머니
-              </span>
-              <span v-else-if="game.reward_base > 0" class="text-[11px] font-bold text-yellow-600">
-                +{{ Math.min(5, Math.max(1, Math.floor(game.reward_base * 0.01) + 1)) }} 🪙
-              </span>
-            </div>
-            <!-- NEW 배지 -->
-            <div v-if="game.is_new" class="absolute top-2 right-2 bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">NEW</div>
-            <!-- 준비중 오버레이 -->
-            <div v-if="!game.route_name" class="absolute inset-0 bg-gray-900/40 rounded-2xl flex items-center justify-center">
-              <span class="bg-gray-700 text-white text-[11px] px-2.5 py-1 rounded-full font-bold">준비중</span>
-            </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
+          <div class="font-bold text-xs text-gray-800 mb-2">📢 게임 안내</div>
+          <div class="text-[10px] text-gray-500 space-y-1">
+            <div>• 게임 플레이 시 포인트 획득</div>
+            <div>• 일일 룰렛으로 무료 포인트</div>
+            <div>• 리더보드에 도전하세요</div>
           </div>
-        </div>
-
-        <div v-if="currentGames.length === 0" class="text-center py-16 text-gray-400">
-          <div class="text-5xl mb-3">🎮</div>
-          <p class="text-sm">준비 중인 게임이 있습니다. 곧 오픈 예정!</p>
         </div>
       </div>
-
-      <!-- 통화 설명 -->
-      <div class="mt-8 bg-white rounded-2xl shadow-sm p-5">
-        <h3 class="font-bold text-gray-700 mb-4">💰 게임 화폐 안내</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="bg-pink-50 rounded-xl p-3 text-center">
-            <div class="text-2xl mb-1">⭐</div>
-            <div class="font-bold text-pink-600 text-sm">STAR</div>
-            <div class="text-xs text-pink-400">유아/어린이 전용</div>
-          </div>
-          <div class="bg-blue-50 rounded-xl p-3 text-center">
-            <div class="text-2xl mb-1">💎</div>
-            <div class="font-bold text-blue-600 text-sm">GEM</div>
-            <div class="text-xs text-blue-400">어린이/청소년 전용</div>
-          </div>
-          <div class="bg-yellow-50 rounded-xl p-3 text-center">
-            <div class="text-2xl mb-1">🪙</div>
-            <div class="font-bold text-yellow-600 text-sm">COIN</div>
-            <div class="text-xs text-yellow-500">일반 게임 보상</div>
-          </div>
-          <div class="bg-purple-50 rounded-xl p-3 text-center">
-            <div class="text-2xl mb-1">🎰</div>
-            <div class="font-bold text-purple-600 text-sm">게임머니</div>
-            <div class="text-xs text-purple-400">베팅 게임 전용</div>
-          </div>
-        </div>
-        <div class="mt-3 text-xs text-gray-400 space-y-1">
-          <p>* 일반 게임: 게임 플레이 시 소량의 COIN 획득 (1~5 COIN)</p>
-          <p>* 베팅 게임 (고스톱/홀덤/블랙잭): 게임머니로 플레이</p>
-          <p>* 일일 룰렛로 무료 게임머니를 받을 수 있습니다</p>
-        </div>
-      </div>
-
     </div>
   </div>
-
-  <!-- 준비중 토스트 -->
-  <div v-if="showComingSoon" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full text-sm z-50">
-    🚧 이 게임은 준비 중입니다
-  </div>
-
-  <!-- 일일 룰렛 모달 -->
-  <DailySpinModal :show="showSpinModal" @close="showSpinModal = false" @earned="onSpinEarned" />
+</div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import DailySpinModal from '../../components/DailySpinModal.vue'
-import axios from 'axios'
-
-const router = useRouter()
 
 const auth = useAuthStore()
-const loading = ref(false)
-const categories = ref([])
-const leaders = ref([])
-const showLeaderboard = ref(false)
-const showComingSoon = ref(false)
-const showSpinModal = ref(false)
-const dailyClaimed = ref(false)
-const wallet = ref({ star: 0, gem: 0, coin: 1000, chip: 0 })
-const activeAge = ref('arcade')
+const activeCat = ref('all')
 
-const ageTabs = [
-  { key: 'arcade', icon: '🕹️', label: '아케이드', ages: '전체', bg: '#F5F3FF', color: '#7C3AED', desc: '클래식 아케이드 게임! 스네이크, 팟맨, 플래피버드 등 🕹️ 지금 바로 플레이' },
-  { key: 'baby',   icon: '👶', label: '유아',   ages: '3-6세',   bg: '#FFF0F6', color: '#DB2777', desc: '한글/영어/숫자를 재미있게 배워요! 정답 시 ⭐ STAR 획득' },
-  { key: 'kids',   icon: '🧒', label: '어린이', ages: '7-12세',  bg: '#F0FDF4', color: '#15803D', desc: '재미있는 게임으로 학습! 게임 클리어 시 💎 GEM 획득' },
-  { key: 'teen',   icon: '🧑', label: '청소년', ages: '13-18세', bg: '#EFF6FF', color: '#1D4ED8', desc: '전략과 학습의 조화! 퀴즈와 챌린지로 💎 GEM 적립' },
-  { key: 'adult',  icon: '👨', label: '성인',   ages: '19-59세', bg: '#FFFBEB', color: '#B45309', desc: '전통 카드게임부터 전략게임까지! 🪙 COIN으로 즐기세요' },
-  { key: 'senior', icon: '👴', label: '시니어', ages: '60세+',   bg: '#F5F3FF', color: '#6D28D9', desc: '두뇌 건강을 지키는 인지훈련 게임! 매일 참여하면 🪙 COIN 획득' },
+const categories = [
+  { key: 'all', icon: '🎮', label: '전체' },
+  { key: 'card', icon: '🃏', label: '카드' },
+  { key: 'brain', icon: '🧠', label: '두뇌' },
+  { key: 'arcade', icon: '👾', label: '아케이드' },
+  { key: 'word', icon: '📝', label: '단어/퀴즈' },
+  { key: 'education', icon: '📚', label: '교육' },
 ]
 
-const activeTabInfo = computed(() => ageTabs.find(t => t.key === activeAge.value))
+const allGames = [
+  { path: '/games/gostop', icon: '🎴', name: '고스톱', desc: '한국 전통 카드', cat: 'card' },
+  { path: '/games/poker', icon: '♠️', name: '포커', desc: '텍사스 홀덤', cat: 'card' },
+  { path: '/games/holdem', icon: '♦️', name: '홀덤', desc: '1인 홀덤', cat: 'card' },
+  { path: '/games/blackjack', icon: '🂡', name: '블랙잭', desc: '21 카드', cat: 'card' },
+  { path: '/games/memory', icon: '🧩', name: '메모리', desc: '카드 짝맞추기', cat: 'brain' },
+  { path: '/games/2048', icon: '🔢', name: '2048', desc: '숫자 퍼즐', cat: 'brain' },
+  { path: '/games/omok', icon: '⚫', name: '오목', desc: '5목', cat: 'brain' },
+  { path: '/games/puzzle', icon: '🧩', name: '퍼즐', desc: '조각 맞추기', cat: 'brain' },
+  { path: '/games/bingo', icon: '📋', name: '빙고', desc: '빙고 게임', cat: 'brain' },
+  { path: '/games/speedcalc', icon: '➕', name: '빠른계산', desc: '암산 훈련', cat: 'brain' },
+  { path: '/games/seniormemory', icon: '🧠', name: '시니어 기억력', desc: '기억력 훈련', cat: 'brain' },
+  { path: '/games/snake', icon: '🐍', name: '스네이크', desc: '뱀 키우기', cat: 'arcade' },
+  { path: '/games/towerdefense', icon: '🏰', name: '타워 디펜스', desc: '타워 방어', cat: 'arcade' },
+  { path: '/games/slots', icon: '🎰', name: '슬롯머신', desc: '행운의 슬롯', cat: 'arcade' },
+  { path: '/games/stocksim', icon: '📈', name: '주식 시뮬', desc: '모의 투자', cat: 'arcade' },
+  { path: '/games/wordle', icon: '🔤', name: '워들', desc: '5글자 단어', cat: 'word' },
+  { path: '/games/quiz', icon: '❓', name: '퀴즈', desc: '일반 상식', cat: 'word' },
+  { path: '/games/wordchain', icon: '🔗', name: '끝말잇기', desc: '단어 이어가기', cat: 'word' },
+  { path: '/games/wordblank', icon: '📝', name: '빈칸채우기', desc: '단어 완성', cat: 'word' },
+  { path: '/games/spelling', icon: '📖', name: '스펠링', desc: '영단어', cat: 'word' },
+  { path: '/games/typing', icon: '⌨️', name: '타이핑', desc: '타자 연습', cat: 'word' },
+  { path: '/games/hangul', icon: '🇰🇷', name: '한글', desc: '한글 학습', cat: 'education' },
+  { path: '/games/counting', icon: '🔢', name: '수세기', desc: '유아 수학', cat: 'education' },
+  { path: '/games/colors', icon: '🎨', name: '색깔', desc: '색상 학습', cat: 'education' },
+  { path: '/games/shapes', icon: '🔷', name: '도형', desc: '도형 학습', cat: 'education' },
+  { path: '/games/satwords', icon: '📚', name: 'SAT 단어', desc: 'SAT 준비', cat: 'education' },
+  { path: '/games/proverb', icon: '📜', name: '속담 퀴즈', desc: '한국 속담', cat: 'education' },
+  { path: '/games/flag', icon: '🏳️', name: '국기 퀴즈', desc: '세계 국기', cat: 'education' },
+  { path: '/games/uslife', icon: '🇺🇸', name: '미국 생활', desc: '시민권 퀴즈', cat: 'education' },
+]
 
-const currentGames = computed(() => {
-  const cat = categories.value.find(c => c.age_group === activeAge.value)
-  return cat ? cat.games : []
+const filteredGames = computed(() => {
+  if (activeCat.value === 'all') return allGames
+  return allGames.filter(g => g.cat === activeCat.value)
 })
 
-const gameEmojis = {
-  '한글 자음모음 퍼즐': '🔤', '영어 알파벳 퍼즐': '🔡', '숫자 세기 게임': '🔢', '색깔 맞추기': '🎨',
-  '동물 이름 퀴즈': '🐾', '모양 맞추기': '🔷', '낱말 카드 게임': '📝', '덧셈 뺄셈': '➕',
-  '자동차 점프': '🚗', '끝말잇기': '💬', '타자 연습': '⌨️', '구구단 마스터': '✖️',
-  '한국어 단어 맞추기': '🇰🇷', '미로 탈출': '🌀', '그림 조각 퍼즐': '🧩', '영어 단어 카드': '📚',
-  '주식 시뮬레이션': '📈', 'SAT 단어 퀴즈': '📖', '수학 챌린지': '🧮', '세계 지리 퀴즈': '🌍',
-  '한국어 맞춤법 퀴즈': '✏️', '스피드 계산': '⚡', '타워 디펜스': '🏰', '코딩 퀴즈': '💻',
-  '고스톱': '🎴', '텍사스 홀덤': '♠️', '블랙잭': '🃏', '포커': '🎰', '오목': '⚫',
-  '2048': '🔢', '빙고': '🎯', '기억력 카드': '🃏', '일일 퀴즈': '❓',
-  '한국어 워들': '🔡', '미국 생활 상식 퀴즈': '🇺🇸', '슬롯머신': '🎰', '맞고 (화투)': '🎴',
-  '숫자 기억하기': '🔢', '그림 기억 게임': '🖼️', '속담 완성하기': '📜', '색깔 단어 스트룹': '🎨',
-  '계산 훈련': '🧮', '단어 찾기': '🔍', '고향 지리 퀴즈': '🗺️', '명상 호흡 게임': '🧘',
-}
-
-function getGameEmoji(game) {
-  return gameEmojis[game.name] || '🎮'
-}
-
-function typeLabel(t) {
-  return { single: '1인게임', multi: '멀티', betting: '베팅', educational: '학습', arcade: '아케이드' }[t] || t
-}
-
-function typeClass(t) {
-  return {
-    single: 'bg-blue-100 text-blue-600',
-    multi: 'bg-green-100 text-green-600',
-    betting: 'bg-orange-100 text-orange-600',
-    educational: 'bg-purple-100 text-purple-600',
-    arcade: 'bg-pink-100 text-pink-600',
-  }[t] || 'bg-gray-100 text-gray-600'
-}
-
-function currencyIcon(c) {
-  return { star: '⭐', gem: '💎', coin: '🪙', chip: '🎰' }[c] || '🪙'
-}
-
-function isBettingGame(game) {
-  return game.type === 'betting' || game.min_bet > 0
-}
-
-function onSpinEarned({ points, balance }) {
-  wallet.value.chip = balance
-}
-
-async function loadWallet() {
-  if (!auth.isLoggedIn) return
-  try {
-    const { data } = await axios.get('/api/wallet/balance')
-    wallet.value = data
-  } catch {}
-}
-
-async function claimDaily() {
-  try {
-    const { data } = await axios.post('/api/wallet/daily-bonus')
-    wallet.value.coin = data.coin
-    dailyClaimed.value = true
-    alert(data.message)
-  } catch (e) {
-    if (e.response?.data?.error) {
-      dailyClaimed.value = true
-    }
-  }
-}
-
-async function loadLeaderboard() {
-  try {
-    const { data } = await axios.get('/api/game-leaderboard')
-    leaders.value = data.slice ? data.slice(0,10) : (data.data || []).slice(0,10)
-  } catch {}
-}
-
-function playGame(game) {
-  if (game.route_name) {
-    router.push({ name: game.route_name })
-  } else {
-    showComingSoon.value = true
-    setTimeout(() => showComingSoon.value = false, 2000)
-  }
-}
-
-onMounted(async () => {
-  loading.value = true
-  try {
-    const { data } = await axios.get('/api/game-categories')
-    categories.value = data
-  } catch {}
-  loading.value = false
-  await Promise.all([loadWallet(), loadLeaderboard()])
-})
+const popularGames = allGames.slice(0, 8)
 </script>
-
-<style scoped>
-.line-clamp-1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
-.line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
-}
-.animate-pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
-</style>
