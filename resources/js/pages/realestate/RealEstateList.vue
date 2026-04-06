@@ -1,12 +1,21 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- 헤더 -->
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-xl font-black text-gray-800">🏠 부동산</h1>
-        <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
+      <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 등록</RouterLink>
     </div>
-
+    <div class="grid grid-cols-12 gap-4">
+    <!-- 왼쪽: 카테고리 -->
+    <div class="col-span-12 lg:col-span-2 hidden lg:block">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
+        <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 유형</div>
+        <button v-for="c in reCategories" :key="c.value" @click="activeCat=c.value; loadPage()"
+          class="w-full text-left px-3 py-2 text-xs transition"
+          :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+      </div>
+    </div>
+    <div class="col-span-12 lg:col-span-7">
     <!-- 위치 필터 바 -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-4">
       <div class="flex flex-wrap items-center gap-2">
@@ -68,10 +77,17 @@
       </RouterLink>
     </div>
 
-    <!-- 페이지네이션 -->
     <div v-if="lastPage > 1" class="flex justify-center gap-1.5 mt-4">
       <button v-for="pg in Math.min(lastPage, 10)" :key="pg" @click="loadPage(pg)"
         class="px-3 py-1 rounded text-sm" :class="pg===page?'bg-amber-400 text-amber-900 font-bold':'bg-white text-gray-600 border hover:bg-amber-50'">{{ pg }}</button>
+    </div>
+    </div>
+    <!-- 오른쪽 위젯 -->
+    <div class="col-span-12 lg:col-span-3 hidden lg:block">
+      <SidebarWidgets api-url="/api/realestate" detail-path="/realestate/" :current-id="0"
+        label="매물" recommend-label="추천 매물" quick-label="최신 매물"
+        :links="[{to:'/realestate',icon:'📋',label:'전체 부동산'},{to:'/realestate/write',icon:'✏️',label:'매물 등록'}]" />
+    </div>
     </div>
   </div>
 </div>
@@ -80,9 +96,15 @@
 import { ref, computed, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
+const activeCat = ref('')
+const reCategories = [
+  { value: '', label: '전체' },{ value: 'rent', label: '🔑 렌트' },
+  { value: 'sale', label: '🏠 매매' },{ value: 'roommate', label: '👥 룸메이트' },
+]
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
 const items = ref([])
@@ -128,9 +150,9 @@ async function loadPage(p = 1) {
 
   const params = { page: p, per_page: 20 }
   if (search.value) params.search = search.value
+  if (activeCat.value) params.type = activeCat.value
 
   if (radius.value !== '0') {
-    // 도시 선택에 따라 좌표 결정
     let lat, lng
     const idx = parseInt(selectedCityIdx.value)
     if (idx >= 0) {
