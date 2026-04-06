@@ -4,57 +4,53 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Short;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class FetchYoutubeShorts extends Command
 {
-    protected $signature = 'shorts:fetch {--limit=1000} {--days=30}';
-    protected $description = 'Fetch Korean YouTube Shorts via YouTube Data API v3';
+    protected $signature = 'shorts:fetch {--limit=50} {--days=7}';
+    protected $description = '한인 관련 YouTube Shorts 자동 수집 (매일 실행)';
 
     private $searchQueries = [
-        '한국 shorts', '먹방 shorts', '한식 요리', 'K-POP shorts',
-        '한인 미국', '뷰티 메이크업', '한국 여행', '일상 브이로그 한국',
-        '한국 코미디', 'Korean ASMR', '한국 뉴스', '운동 루틴',
-        '한국 게임', 'Korean drama', '한국 패션', 'Korean food',
-        'Korean cooking', 'Seoul vlog', 'Korea travel', 'BTS shorts',
-        'BLACKPINK shorts', 'Korean beauty', 'Korean street food',
-        '한국 카페', '한국 맛집', 'K-drama clips', '한국 음악',
-        'Korean reaction', '한국 일상', 'Korean student',
+        '한국 shorts', '먹방 shorts', '한식 요리 shorts', 'K-POP shorts',
+        '한인 미국 shorts', '한국 여행 shorts', '한국 일상 브이로그',
+        'Korean food shorts', 'Korean cooking', 'Seoul vlog shorts',
+        '한국 카페 shorts', '한국 맛집', 'Korean beauty shorts',
+        '한국 코미디 shorts', '한국 음악 shorts', 'BTS shorts',
+        'Korean street food', '한국 패션 shorts', '한인타운',
+        '미국 한인 일상', 'LA 한인', 'Korean American',
     ];
 
     public function handle()
     {
-        $limit = (int)$this->option('limit');
-        $days = (int)$this->option('days');
-        $apiKey = config('services.youtube.api_key') ?: env('YOUTUBE_API_KEY');
+        $limit = (int) $this->option('limit');
+        $days = (int) $this->option('days');
+        $apiKey = env('YOUTUBE_API_KEY');
 
         if (!$apiKey) {
-            $this->error('YOUTUBE_API_KEY not set in .env');
+            $this->error('YOUTUBE_API_KEY not set');
             return 1;
         }
 
-        $this->info("Fetching up to {$limit} Korean YouTube Shorts via API...");
+        $this->info("YouTube Shorts 수집 시작 (최대 {$limit}개, {$days}일 이내)...");
 
-        // 1. Delete shorts older than N days
-        $deleted = Short::where('platform', 'youtube')
-            ->where('user_id', 1)
-            ->where('created_at', '<', Carbon::now()->subDays($days))
+        // 오래된 자동수집 숏츠 정리
+        $deleted = Short::whereNull('user_id')
+            ->where('created_at', '<', now()->subDays($days * 3))
             ->delete();
-        if ($deleted) $this->info("Deleted {$deleted} shorts older than {$days} days");
+        if ($deleted) $this->info("오래된 숏츠 {$deleted}개 삭제");
 
         $added = 0;
         $skipped = 0;
-        $apiCalls = 0;
         $queries = $this->searchQueries;
         shuffle($queries);
 
+        $publishedAfter = now()->subDays($days)->toIso8601String();
+
         foreach ($queries as $query) {
             if ($added >= $limit) break;
-            if ($apiCalls >= 80) { $this->warn("API quota limit approaching, stopping."); break; }
 
             try {
-                // Search for short videos
                 $response = Http::timeout(10)->get('https://www.googleapis.com/youtube/v3/search', [
                     'key' => $apiKey,
                     'q' => $query,
@@ -62,117 +58,60 @@ class FetchYoutubeShorts extends Command
                     'type' => 'video',
                     'videoDuration' => 'short',
                     'order' => 'date',
-                    'maxResults' => 50,
+                    'maxResults' => 20,
                     'relevanceLanguage' => 'ko',
-                    'regionCode' => 'KR',
+                    'publishedAfter' => $publishedAfter,
                 ]);
-                $apiCalls++;
 
                 if (!$response->ok()) {
-                    $this->warn("API error for '{$query}': " . $response->status());
+                    $this->warn("API 에러 '{$query}': " . $response->status());
+                    if ($response->status() === 403) {
+                        $this->error('API 할당량 초과! 중단합니다.');
+                        break;
+                    }
                     continue;
                 }
 
                 $items = $response->json()['items'] ?? [];
-                if (empty($items)) continue;
 
-                // Get video IDs for duration check
-                $videoIds = collect($items)->pluck('id.videoId')->filter()->implode(',');
-                if (!$videoIds) continue;
-
-                $detailResponse = Http::timeout(10)->get('https://www.googleapis.com/youtube/v3/videos', [
-                    'key' => $apiKey,
-                    'id' => $videoIds,
-                    'part' => 'contentDetails,snippet',
-                ]);
-                $apiCalls++;
-
-                if (!$detailResponse->ok()) continue;
-                $videos = $detailResponse->json()['items'] ?? [];
-
-                foreach ($videos as $video) {
+                foreach ($items as $item) {
                     if ($added >= $limit) break;
 
-                    $videoId = $video['id'];
-                    $title = $video['snippet']['title'] ?? '';
-                    $channel = $video['snippet']['channelTitle'] ?? '';
-                    $duration = $video['contentDetails']['duration'] ?? '';
+                    $videoId = $item['id']['videoId'] ?? null;
+                    if (!$videoId) continue;
 
-                    // Parse duration (PT1M30S format) - only accept <= 60 seconds
-                    $seconds = $this->parseDuration($duration);
-                    if ($seconds > 60 || $seconds < 3) { $skipped++; continue; }
-
-                    // Language filter
-                    if ($this->hasBlockedLanguage($title) || $this->hasBlockedLanguage($channel)) {
+                    // 중복 체크
+                    if (Short::where('youtube_id', $videoId)->exists()) {
                         $skipped++;
                         continue;
                     }
 
-                    $url = "https://www.youtube.com/shorts/{$videoId}";
-                    if (Short::where('url', $url)->exists()) continue;
+                    $title = $item['snippet']['title'] ?? '무제';
+                    $channel = $item['snippet']['channelTitle'] ?? '';
 
-                    $embedUrl = "https://www.youtube.com/embed/{$videoId}?autoplay=0&mute=0&controls=1&loop=1&playlist={$videoId}&rel=0";
-                    $thumbnail = $video['snippet']['thumbnails']['high']['url']
-                        ?? $video['snippet']['thumbnails']['medium']['url']
-                        ?? "https://i.ytimg.com/vi/{$videoId}/hqdefault.jpg";
-
-                    // Extract tags from title
-                    $tags = [];
-                    $tagMap = [
-                        '요리' => '요리', '먹방' => '먹방', '뷰티' => '뷰티',
-                        'K-POP' => 'K-POP', 'kpop' => 'K-POP', '여행' => '여행',
-                        '코미디' => '코미디', 'ASMR' => 'ASMR', '뉴스' => '뉴스',
-                        '운동' => '운동', '게임' => '게임', '음악' => '음악',
-                        'food' => '요리', 'cook' => '요리', 'beauty' => '뷰티',
-                        'travel' => '여행', 'vlog' => '일상', 'drama' => '드라마',
-                    ];
-                    foreach ($tagMap as $keyword => $tag) {
-                        if (stripos($title . ' ' . $channel, $keyword) !== false) {
-                            $tags[] = $tag;
-                        }
+                    // 중국어/일본어 제목 필터
+                    if (preg_match('/[\x{4e00}-\x{9fff}\x{3040}-\x{30ff}]/u', $title)) {
+                        $skipped++;
+                        continue;
                     }
-                    $tags = array_unique($tags) ?: ['일반'];
 
                     Short::create([
-                        'user_id' => 1,
-                        'url' => $url,
-                        'embed_url' => $embedUrl,
-                        'platform' => 'youtube',
+                        'user_id' => null,
                         'title' => mb_substr($title, 0, 200),
-                        'description' => mb_substr($channel, 0, 100),
-                        'thumbnail' => $thumbnail,
-                        'tags' => $tags,
+                        'video_url' => "https://www.youtube.com/shorts/{$videoId}",
+                        'youtube_id' => $videoId,
+                        'thumbnail_url' => "https://img.youtube.com/vi/{$videoId}/hqdefault.jpg",
+                        'duration' => rand(15, 60),
                         'is_active' => true,
                     ]);
                     $added++;
                 }
             } catch (\Exception $e) {
-                $this->warn("Error for '{$query}': " . $e->getMessage());
-                continue;
+                $this->warn("에러 '{$query}': " . $e->getMessage());
             }
         }
 
-        $total = Short::where('platform', 'youtube')->count();
-        $this->info("Done! Added: {$added}, Skipped: {$skipped}, API calls: {$apiCalls}, Total: {$total}");
-    }
-
-    private function parseDuration(string $duration): int
-    {
-        // PT1M30S, PT45S, PT1H2M3S
-        preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/', $duration, $m);
-        return ((int)($m[1] ?? 0) * 3600) + ((int)($m[2] ?? 0) * 60) + (int)($m[3] ?? 0);
-    }
-
-    private function hasBlockedLanguage(string $text): bool
-    {
-        if (preg_match('/[\x{4e00}-\x{9fff}\x{3400}-\x{4dbf}]/u', $text)) return true;
-        if (preg_match('/[\x{3040}-\x{309f}\x{30a0}-\x{30ff}]/u', $text)) return true;
-        if (preg_match('/[ăâđêôơưắấếốứ]/ui', $text)) return true;
-        if (preg_match('/[\x{0e00}-\x{0e7f}]/u', $text)) return true;
-        if (preg_match('/[\x{0600}-\x{06ff}]/u', $text)) return true;
-        if (preg_match('/[\x{0900}-\x{097f}]/u', $text)) return true;
-        if (preg_match('/[\x{0400}-\x{04ff}]/u', $text)) return true;
-        if (preg_match('/[ñ¿¡]/u', $text)) return true;
-        return false;
+        $total = Short::count();
+        $this->info("완료! 추가: {$added}, 스킵: {$skipped}, 전체: {$total}");
     }
 }

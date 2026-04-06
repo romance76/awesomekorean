@@ -91,7 +91,7 @@ class FetchNews extends Command
                         continue;
                     }
 
-                    if (News::where('url', $link)->exists()) {
+                    if (News::where('source_url', $link)->exists()) {
                         $skipped++;
                         continue;
                     }
@@ -140,13 +140,17 @@ class FetchNews extends Command
 
                     $category = $this->detectCategory($title . ' ' . $description);
 
+                    // 카테고리 매핑
+                    $categoryId = \App\Models\NewsCategory::where('name', 'like', "%{$category}%")->first()?->id
+                        ?? \App\Models\NewsCategory::first()?->id;
+
                     News::create([
                         'title'        => $title,
                         'summary'      => $summary ?: mb_substr($content, 0, 300),
                         'content'      => $content,
-                        'url'          => $link,
+                        'source_url'   => $link,
                         'source'       => $source,
-                        'category'     => $category,
+                        'category_id'  => $categoryId,
                         'image_url'    => $imageUrl,
                         'published_at' => $publishedAt ?? now(),
                     ]);
