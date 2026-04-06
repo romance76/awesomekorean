@@ -29,6 +29,7 @@ use App\Http\Controllers\API\FriendController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\ElderController;
 use App\Http\Controllers\API\MarketReservationController;
+use App\Http\Controllers\API\GameScoreController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AdminSettingsController;
 
@@ -72,6 +73,7 @@ Route::get('/music/tracks/{categoryId}', [MusicController::class, 'tracks']);
 Route::get('/search', [SearchController::class, 'search']);
 Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublic']);
+Route::get('/games/leaderboard/{gameType}', [GameScoreController::class, 'leaderboard']);
 
 // ─── Authenticated ───
 Route::middleware('auth:api')->group(function () {
@@ -153,6 +155,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/points/daily-spin', [PointController::class, 'dailySpin']);
 
     Route::post('/reports', [ReportController::class, 'store']);
+
+    // Games
+    Route::post('/games/scores', [GameScoreController::class, 'store']);
+    Route::get('/games/my-scores', [GameScoreController::class, 'myScores']);
 
     // Music playlists
     Route::get('/music/playlists', [MusicController::class, 'playlists']);
