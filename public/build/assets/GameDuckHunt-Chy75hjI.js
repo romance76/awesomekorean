@@ -1,0 +1,1 @@
+import e from"./ArcadeGame-BuI73c_d.js";import{m as t,k as r}from"./app-CNvvNlsX.js";const n={__name:"GameDuckHunt",setup(a){return(c,o)=>(r(),t(e,{"game-slug":"duckhunt","game-id":"duckhunt",title:"🦆 덕 헌트","points-per-score":1}))}};export{n as default};

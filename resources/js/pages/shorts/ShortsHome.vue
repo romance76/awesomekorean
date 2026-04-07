@@ -49,14 +49,17 @@
     </div>
 
     <!-- 위/아래 네비 버튼 -->
-    <button @click="prev" :disabled="idx <= 0"
-      class="absolute top-1/3 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/40 disabled:opacity-20 transition">
-      ▲
-    </button>
-    <button @click="next" :disabled="idx >= shorts.length - 1"
-      class="absolute top-1/2 right-4 w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/40 disabled:opacity-20 transition">
-      ▼
-    </button>
+    <!-- 위/아래 버튼: 영상 바로 오른쪽 옆 -->
+    <div class="absolute top-1/2 left-1/2 -translate-y-1/2 flex flex-col gap-3" style="margin-left: calc(224px + 16px);">
+      <button @click="prev" :disabled="idx <= 0"
+        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/40 disabled:opacity-20 transition">
+        ▲
+      </button>
+      <button @click="next" :disabled="idx >= shorts.length - 1"
+        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/40 disabled:opacity-20 transition">
+        ▼
+      </button>
+    </div>
 
     <!-- 카운터 -->
     <div class="absolute bottom-4 right-4 text-white/50 text-xs">
