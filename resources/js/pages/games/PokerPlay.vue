@@ -93,32 +93,37 @@
         :paid-slots="paidSlots" :fold-reveals="foldReveals" :is-player-turn="isPlayerTurn" />
     </div>
 
-    <!-- Bottom panel: fixed height to prevent layout jumping -->
-    <div class="shrink-0 h-[180px] flex flex-col">
-      <!-- Action log + result (fixed slot) -->
-      <div class="text-center px-3 h-[40px] flex items-center justify-center overflow-hidden">
-        <div v-if="lastAction && !gameOver" class="inline-flex items-center gap-2 bg-black/30 rounded-lg px-3 py-1">
-          <span class="text-gray-300 text-xs truncate max-w-[50vw]">{{ lastAction }}</span>
-        </div>
-        <div v-else-if="bustMsg" class="text-red-500 text-xs truncate">{{ bustMsg }}</div>
-        <div v-else-if="handResults && gameOver"
-          :class="handResults.winners[0]?.name === '\uB098' ? 'text-emerald-400' : 'text-red-400'"
-          class="text-sm font-semibold truncate">
-          {{ handResults.msg }}
-        </div>
+    <!-- Bottom panel: fixed, no jumping -->
+    <div class="shrink-0">
+      <!-- Result/Action log (1줄) -->
+      <div v-if="lastAction || bustMsg || (handResults && gameOver)" class="text-center px-3 py-1">
+        <span v-if="handResults && gameOver" :class="handResults.winners[0]?.name === '\uB098' ? 'text-emerald-400' : 'text-red-400'" class="text-sm font-bold">{{ handResults.msg }}</span>
+        <span v-else-if="bustMsg" class="text-red-400 text-xs">{{ bustMsg }}</span>
+        <span v-else class="text-gray-400 text-xs">{{ lastAction }}</span>
       </div>
 
-      <!-- Coaching/Fold (fixed slot) -->
-      <div class="h-[70px] overflow-hidden">
-        <PokerCoaching :coach-tips="coachTips" :fold-reveals="foldReveals" :show-coach="showCoach" :game-over="gameOver" />
-      </div>
+      <!-- 액션 버튼 (먼저!) -->
+      <PokerActions :is-player-turn="isPlayerTurn" :game-over="gameOver" :tourney-over="tourneyOver"
+        :can-check="canCheck" :call-amt="callAmt" :current-bet-level="currentBetLevel"
+        :player-chips="playerSeat?.chips || 0" :blind-b-b="bl.bb" :raise-amt="raiseAmt"
+        @action="doPlayerAction" @update-raise="raiseAmt = $event" @next-hand="nextHand" />
 
-      <!-- Player Actions (fixed slot) -->
-      <div class="h-[70px]">
-        <PokerActions :is-player-turn="isPlayerTurn" :game-over="gameOver" :tourney-over="tourneyOver"
-          :can-check="canCheck" :call-amt="callAmt" :current-bet-level="currentBetLevel"
-          :player-chips="playerSeat?.chips || 0" :blind-b-b="bl.bb" :raise-amt="raiseAmt"
-          @action="doPlayerAction" @update-raise="raiseAmt = $event" @next-hand="nextHand" />
+      <!-- 코칭 + 폴드 (컴팩트, 좌측 정렬) -->
+      <div v-if="(showCoach && coachTips && !gameOver) || foldReveals.length > 0" class="flex gap-2 px-3 py-1.5 bg-black/30 overflow-hidden max-h-[60px]">
+        <!-- 코칭: 좌측 컴팩트 -->
+        <div v-if="showCoach && coachTips && !gameOver" class="flex items-center gap-3 text-xs shrink-0">
+          <span class="bg-blue-500/20 border border-blue-500/30 rounded px-1.5 text-blue-400 font-bold">{{ coachTips.posName }}</span>
+          <span :class="coachTips.equity >= 60 ? 'text-emerald-400' : coachTips.equity >= 40 ? 'text-amber-400' : 'text-red-400'" class="font-bold">{{ coachTips.equity }}%</span>
+          <span :style="{ color: coachTips.rec.color }" class="font-bold">{{ coachTips.rec.action }}</span>
+          <span class="text-gray-400 hidden sm:inline max-w-[200px] truncate">{{ coachTips.rec.reason }}</span>
+        </div>
+        <!-- 폴드 카드: 우측 -->
+        <div v-if="foldReveals.length > 0" class="flex items-center gap-2 text-xs ml-auto shrink-0">
+          <span class="text-amber-600 font-bold">폴드:</span>
+          <span v-for="(fr, i) in foldReveals.slice(-2)" :key="i" class="text-gray-400">
+            {{ fr.emoji }}{{ fr.name }}
+          </span>
+        </div>
       </div>
     </div>
   </template>
@@ -138,7 +143,7 @@ import { usePokerWallet } from '@/composables/usePokerWallet'
 import PokerTable from '@/components/poker/PokerTable.vue'
 import PokerMonitor from '@/components/poker/PokerMonitor.vue'
 import PokerActions from '@/components/poker/PokerActions.vue'
-import PokerCoaching from '@/components/poker/PokerCoaching.vue'
+// PokerCoaching now inlined in bottom panel for compact layout
 
 const router = useRouter()
 const { saveGame } = usePokerWallet()
