@@ -43,7 +43,60 @@
       <!-- 메인: 친구 목록 -->
       <div class="col-span-12 lg:col-span-9">
         <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-        <div v-else-if="!filteredFriends.length" class="text-center py-12 text-gray-400">{{ statusFilter==='pending'?'대기중인 요청이 없습니다':'친구가 없습니다' }}</div>
+
+        <!-- 소개 페이지 (친구가 하나도 없을 때) -->
+        <div v-else-if="!allFriends.length" class="space-y-6">
+          <div class="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl p-8 text-center border border-amber-200">
+            <div class="text-6xl mb-4">🤝</div>
+            <h2 class="text-2xl font-black text-gray-800 mb-2">SomeKorean 친구</h2>
+            <p class="text-gray-500 text-sm max-w-md mx-auto">미국에서 만난 한인 친구들과 더 가까워지세요. 커뮤니티, 구인구직, 중고장터 등 다양한 곳에서 만난 인연을 이어갈 수 있습니다.</p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl shadow-sm border p-5 text-center">
+              <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🟢</div>
+              <h3 class="font-bold text-gray-800 text-sm mb-1">실시간 온라인 확인</h3>
+              <p class="text-xs text-gray-500">친구가 온라인인지 자리비움인지 실시간으로 확인하고 바로 연락하세요</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border p-5 text-center">
+              <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">💬</div>
+              <h3 class="font-bold text-gray-800 text-sm mb-1">1:1 & 그룹 채팅</h3>
+              <p class="text-xs text-gray-500">친구와 프라이빗 채팅, 여러 친구를 모아 그룹 채팅방도 만들 수 있어요</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border p-5 text-center">
+              <div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🏷️</div>
+              <h3 class="font-bold text-gray-800 text-sm mb-1">만난 곳 기억하기</h3>
+              <p class="text-xs text-gray-500">커뮤니티, 구인구직, 장터 등 어디서 만났는지 자동으로 기록됩니다</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border p-5 text-center">
+              <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">✉️</div>
+              <h3 class="font-bold text-gray-800 text-sm mb-1">쪽지 & 소통</h3>
+              <p class="text-xs text-gray-500">친구에게 쪽지를 보내거나 프로필을 확인할 수 있어요</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border p-5 text-center">
+              <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🛡️</div>
+              <h3 class="font-bold text-gray-800 text-sm mb-1">차단 & 관리</h3>
+              <p class="text-xs text-gray-500">원치 않는 사람은 차단하고, 친구 목록을 자유롭게 관리하세요</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border p-5 text-center">
+              <div class="w-14 h-14 bg-cyan-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🌏</div>
+              <h3 class="font-bold text-gray-800 text-sm mb-1">한인 네트워크</h3>
+              <p class="text-xs text-gray-500">LA, NY, Atlanta 등 미국 각지의 한인들과 네트워크를 넓혀보세요</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl shadow-sm border p-6 text-center">
+            <h3 class="font-bold text-gray-800 mb-2">첫 친구를 만들어보세요!</h3>
+            <p class="text-xs text-gray-500 mb-4">게시글에서 마음에 드는 사람의 프로필을 방문하고 👫 친구 추가를 눌러보세요</p>
+            <div class="flex justify-center gap-3">
+              <RouterLink to="/community" class="bg-amber-400 text-amber-900 font-bold px-5 py-2.5 rounded-lg text-sm hover:bg-amber-500">💬 커뮤니티 둘러보기</RouterLink>
+              <RouterLink to="/clubs" class="bg-white border text-gray-700 font-bold px-5 py-2.5 rounded-lg text-sm hover:bg-amber-50">👥 동호회 찾기</RouterLink>
+            </div>
+          </div>
+        </div>
+
+        <!-- 필터 결과 없음 -->
+        <div v-else-if="!filteredFriends.length" class="text-center py-12 text-gray-400">{{ statusFilter==='pending'?'대기중인 요청이 없습니다': sourceFilter ? '이 섹션의 친구가 없습니다' : '친구가 없습니다' }}</div>
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <div v-for="f in filteredFriends" :key="f.id"
             class="bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition">
