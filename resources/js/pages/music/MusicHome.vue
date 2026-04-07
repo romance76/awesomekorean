@@ -64,7 +64,11 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-4 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
             <span>🎶 {{ showFavorites ? '❤️ 즐겨찾기' : (activePL ? activePL.name : (activeCat?.name || '트랙')) }}</span>
-            <span class="text-xs text-gray-400">{{ displayTracks.length }}곡</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-400">{{ displayTracks.length }}곡</span>
+              <button v-if="displayTracks.length" @click="playAll" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold hover:bg-amber-200">▶ 전체</button>
+              <button v-if="displayTracks.length" @click="shufflePlay" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold hover:bg-blue-200">🔀 랜덤</button>
+            </div>
           </div>
           <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-gray-400">{{ showFavorites ? '즐겨찾기한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
           <div v-for="(track, i) in displayTracks" :key="track.id"
@@ -105,6 +109,8 @@
             <div class="flex gap-2 mt-3">
               <button @click="prevTrack" class="bg-gray-100 px-3 py-1 rounded text-xs hover:bg-gray-200">⏮</button>
               <button @click="nextTrack" class="bg-gray-100 px-3 py-1 rounded text-xs hover:bg-gray-200 flex-1">다음 ⏭</button>
+              <button @click="shufflePlay" class="bg-blue-100 px-2 py-1 rounded text-xs hover:bg-blue-200" :class="isShuffled?'text-blue-700 font-bold':'text-blue-400'">🔀</button>
+              <button @click="toggleRepeat" class="bg-gray-100 px-2 py-1 rounded text-xs hover:bg-gray-200" :class="repeatMode?'text-amber-700 font-bold':'text-gray-400'">{{ repeatMode === 'one' ? '🔂' : '🔁' }}</button>
               <button v-if="auth.isLoggedIn" @click="toggleFav(playing)" class="text-sm" :class="isFav(playing.id)?'text-red-500':'text-gray-300'">{{ isFav(playing.id)?'❤️':'🤍' }}</button>
             </div>
           </div>
@@ -181,6 +187,8 @@ const addTrackTarget = ref(null)
 const trackPage = ref(1)
 const trackLastPage = ref(1)
 const playQueue = ref([])
+const isShuffled = ref(false)
+const repeatMode = ref(null) // null, 'all', 'one'
 
 const displayTracks = computed(() => {
   if (showFavorites.value) return favoriteTracks.value
@@ -202,10 +210,12 @@ function playTrack(track) {
 }
 
 function nextTrack() {
+  if (repeatMode.value === 'one') { playing.value = { ...playing.value }; return } // 같은 곡 재시작
   const list = playQueue.value.length ? playQueue.value : displayTracks.value
   const idx = list.findIndex(t => t.id === playing.value?.id)
   if (idx >= 0 && idx < list.length - 1) playing.value = list[idx + 1]
-  else if (list.length) playing.value = list[0] // 처음으로
+  else if (repeatMode.value === 'all' && list.length) playing.value = list[0] // 전체 반복
+  else if (list.length) playing.value = list[0]
 }
 
 function prevTrack() {
@@ -214,9 +224,37 @@ function prevTrack() {
   if (idx > 0) playing.value = list[idx - 1]
 }
 
+function playAll() {
+  const list = [...displayTracks.value]
+  if (!list.length) return
+  playQueue.value = list
+  isShuffled.value = false
+  playing.value = list[0]
+}
+
+function shufflePlay() {
+  const list = [...displayTracks.value]
+  if (!list.length) return
+  // Fisher-Yates shuffle
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]]
+  }
+  playQueue.value = list
+  isShuffled.value = true
+  playing.value = list[0]
+}
+
+function toggleRepeat() {
+  if (!repeatMode.value) repeatMode.value = 'all'
+  else if (repeatMode.value === 'all') repeatMode.value = 'one'
+  else repeatMode.value = null
+}
+
 function playAllFavorites() {
   if (!favoriteTracks.value.length) return
   playQueue.value = [...favoriteTracks.value]
+  isShuffled.value = false
   playing.value = favoriteTracks.value[0]
 }
 

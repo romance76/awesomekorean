@@ -115,7 +115,7 @@ class FetchMusicTracks extends Command
                 'q' => $query . ' music',
                 'type' => 'video',
                 'videoCategoryId' => '10',
-                'videoDuration' => 'short', // 4분 이하 우선 (medium=4-20분)
+                'videoDuration' => 'medium', // 4-20분 (duration 체크로 10분 초과 필터)
                 'part' => 'snippet',
                 'maxResults' => $perPage,
                 'order' => 'relevance',
@@ -156,8 +156,8 @@ class FetchMusicTracks extends Command
                 $channel = $item['snippet']['channelTitle'] ?? '';
                 $seconds = $durations[$videoId] ?? 0;
 
-                // 5분(300초) 초과 필터링
-                if ($seconds > 300) continue;
+                // 10분(600초) 초과 필터링
+                if ($seconds > 600) continue;
                 // 10초 미만도 제외 (짧은 클립)
                 if ($seconds > 0 && $seconds < 10) continue;
 
