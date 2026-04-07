@@ -1,8 +1,6 @@
 <template>
-<div ref="gameWrapper" class="select-none h-screen bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden flex justify-center"
+<div ref="gameWrapper" class="select-none h-screen bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden flex flex-col"
   style="font-family:'Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif;">
-<!-- 스케일 컨테이너: 고정 1400x800 기준, 중앙 정렬 + 자동 스케일 -->
-<div ref="scaleContainer" class="origin-top flex flex-col" :style="scaleStyle">
 
   <!-- ===== RESULT SCREEN ===== -->
   <div v-if="tourneyOver" class="min-h-screen flex items-center justify-center p-4">
@@ -72,8 +70,8 @@
     <!-- 3-column: 코칭(left) + 테이블(center) + 모니터(right) -->
     <div class="flex-1 min-h-0 flex">
 
-      <!-- ◀ 좌측: 코칭 + 폴드 -->
-      <div class="w-[220px] shrink-0 bg-[#080c14]/90 border-r border-gray-800/30 flex flex-col overflow-hidden hidden xl:flex">
+      <!-- ◀ 좌측: 코칭 + 폴드 (왼쪽 끝 붙임) -->
+      <div class="w-[200px] shrink-0 bg-[#080c14] border-r border-gray-800/30 flex flex-col overflow-hidden hidden xl:flex">
         <!-- 코칭 (고정 공간) -->
         <div class="p-2.5 border-b border-gray-800/30 h-[250px] overflow-hidden">
         <template v-if="coachTips && !gameOver">
@@ -130,8 +128,8 @@
           :paid-slots="paidSlots" :fold-reveals="foldReveals" :is-player-turn="isPlayerTurn" />
       </div>
 
-      <!-- ▶ 우측: 모니터(항상) + 채팅 -->
-      <div class="w-[230px] shrink-0 bg-[#080c14]/90 border-l border-gray-800/30 flex flex-col overflow-hidden hidden xl:flex">
+      <!-- ▶ 우측: 모니터(항상) + 채팅 (오른쪽 끝 붙임) -->
+      <div class="w-[220px] shrink-0 bg-[#080c14] border-l border-gray-800/30 flex flex-col overflow-hidden hidden xl:flex">
         <!-- 토너먼트 모니터 (항상 표시) -->
         <div class="p-3 border-b border-gray-800/30">
           <div class="text-blue-400 text-sm font-bold tracking-wider mb-2">🏆 TOURNAMENT</div>
@@ -192,7 +190,6 @@
   <div v-else class="min-h-screen flex items-center justify-center">
     <div class="text-gray-300 text-sm">로딩 중...</div>
   </div>
-</div><!-- /scaleContainer -->
 </div><!-- /gameWrapper -->
 </template>
 
@@ -208,25 +205,7 @@ import PokerActions from '@/components/poker/PokerActions.vue'
 
 const router = useRouter()
 
-// 스케일 시스템: 고정 해상도 1400x800 기준, 뷰포트에 자동 맞춤
-const BASE_W = 1400
-const BASE_H = 800
 const gameWrapper = ref(null)
-const scaleContainer = ref(null)
-const scaleFactor = ref(1)
-
-function updateScale() {
-  if (!gameWrapper.value) return
-  const w = gameWrapper.value.clientWidth
-  const h = gameWrapper.value.clientHeight
-  scaleFactor.value = Math.min(w / BASE_W, h / BASE_H)
-}
-
-const scaleStyle = computed(() => ({
-  width: BASE_W + 'px',
-  height: BASE_H + 'px',
-  transform: `scale(${scaleFactor.value})`,
-}))
 const { saveGame } = usePokerWallet()
 
 const {
@@ -291,10 +270,6 @@ function saveResult() {
 let tourneyWatcher = null
 
 onMounted(() => {
-  // 스케일 초기화 + 리사이즈 감지
-  updateScale()
-  window.addEventListener('resize', updateScale)
-
   // Read config from sessionStorage (set by PokerLobby)
   const saved = sessionStorage.getItem('pokerConfig')
   if (saved) {
@@ -312,7 +287,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateScale)
   cleanup()
   if (tourneyWatcher) { clearInterval(tourneyWatcher); tourneyWatcher = null }
 })
