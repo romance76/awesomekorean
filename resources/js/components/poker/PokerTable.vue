@@ -4,8 +4,8 @@
     <div class="absolute inset-0 opacity-[0.07]"
       style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;" />
 
-    <!-- 검은 쿠션 — 전체 15% 축소 -->
-    <div class="absolute left-[12%] right-[12%] top-[16%] bottom-[14%] p-[8px]"
+    <!-- 검은 쿠션 — 더 축소 -->
+    <div class="absolute left-[15%] right-[15%] top-[22%] bottom-[18%] p-[7px]"
       style="border-radius: 999px; background: linear-gradient(180deg, #3a3a3a, #1a1a1a, #2a2a2a); box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.5);">
 
       <!-- 나무 림 -->
@@ -89,17 +89,17 @@ const props = defineProps({
   chatBubbles: { type: Object, default: () => ({}) }
 })
 
-// 스타디움(pill) 좌석 — 테이블 축소에 맞게 안쪽으로
+// 좌석 — 축소된 테이블에 맞게
 const seatPositions = [
-  { x: 50, y: 86 },   // 0: 나 (하단 중앙)
-  { x: 20, y: 78 },   // 1: 좌하
-  { x: 6,  y: 48 },   // 2: 좌
-  { x: 20, y: 18 },   // 3: 좌상
-  { x: 38, y: 5 },    // 4: 상좌
-  { x: 50, y: 2 },    // 5: 상단 중앙
-  { x: 62, y: 5 },    // 6: 상우
-  { x: 80, y: 18 },   // 7: 우상
-  { x: 94, y: 48 }    // 8: 우
+  { x: 50, y: 82 },   // 0: 나 (하단 중앙)
+  { x: 22, y: 74 },   // 1: 좌하
+  { x: 10, y: 48 },   // 2: 좌
+  { x: 22, y: 22 },   // 3: 좌상
+  { x: 38, y: 10 },   // 4: 상좌
+  { x: 50, y: 6 },    // 5: 상단 중앙
+  { x: 62, y: 10 },   // 6: 상우
+  { x: 78, y: 22 },   // 7: 우상
+  { x: 90, y: 48 }    // 8: 우
 ]
 
 const stageLabel = computed(() => STAGE_NAMES[props.stage] || props.stage)
