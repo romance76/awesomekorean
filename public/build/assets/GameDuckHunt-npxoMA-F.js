@@ -1,1 +1,0 @@
-import e from"./ArcadeGame-NXebv_1y.js";import{m as t,k as r}from"./app-B3qOLFdi.js";import"./_plugin-vue_export-helper-DlAUqK2U.js";const p={__name:"GameDuckHunt",setup(a){return(c,o)=>(r(),t(e,{"game-slug":"duckhunt","game-id":"duckhunt",title:"🦆 덕 헌트","points-per-score":1}))}};export{p as default};

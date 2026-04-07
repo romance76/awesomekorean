@@ -87,5 +87,16 @@ const showNav = computed(() => {
 .toast-enter-from { transform: translateX(100%); opacity: 0; }
 .toast-leave-to { transform: translateX(100%); opacity: 0; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* 마퀴 애니메이션 - hover시 긴 제목 스크롤 */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.group:hover .group-hover\:animate-marquee {
+  animation: marquee 5s linear infinite;
+  display: inline-block;
+  padding-right: 2rem;
+}
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 </style>

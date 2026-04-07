@@ -50,10 +50,16 @@
             <input v-model="searchQ" type="text" placeholder="제목/아티스트 검색" class="flex-1 border rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-amber-400 outline-none" />
             <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-2 py-1.5 rounded-lg text-xs">검색</button>
           </form>
-          <div v-if="searchResults.length" class="mt-2 space-y-1">
-            <div v-for="t in searchResults" :key="t.id" class="flex items-center justify-between py-1 text-xs">
-              <div class="truncate flex-1"><span class="font-semibold text-gray-700">{{ t.title }}</span> <span class="text-gray-400">{{ t.artist }}</span></div>
-              <button @click="playTrack(t)" class="text-amber-600 ml-1">▶</button>
+          <div v-if="searchResults.length" class="mt-2 space-y-0.5 max-h-80 overflow-y-auto">
+            <div class="text-[10px] text-gray-400 mb-1">{{ searchResults.length }}곡 검색됨</div>
+            <div v-for="t in searchResults" :key="t.id" class="flex items-center gap-1 py-1.5 px-1 rounded hover:bg-amber-50 group">
+              <button @click="playTrack(t)" class="text-amber-600 flex-shrink-0 text-xs">▶</button>
+              <div class="flex-1 min-w-0 overflow-hidden">
+                <div class="text-xs font-semibold text-gray-700 whitespace-nowrap group-hover:animate-marquee">{{ t.title }}</div>
+                <div class="text-[10px] text-gray-400 truncate">{{ t.artist }}</div>
+              </div>
+              <button v-if="auth.isLoggedIn" @click.stop="toggleFav(t)" class="text-sm flex-shrink-0" :class="isFav(t.id)?'text-red-500':'text-gray-300'">{{ isFav(t.id)?'❤️':'🤍' }}</button>
+              <button v-if="auth.isLoggedIn && playlists.length" @click.stop="showAddToPL(t)" class="text-sm flex-shrink-0" :class="isInPlaylist(t.id)?'text-amber-500':'text-gray-300'">{{ isInPlaylist(t.id)?'⭐':'☆' }}</button>
             </div>
           </div>
         </div>

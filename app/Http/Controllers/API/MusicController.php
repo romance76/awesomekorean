@@ -86,7 +86,7 @@ class MusicController extends Controller
         if (!$q) return response()->json(['success' => true, 'data' => []]);
         $tracks = MusicTrack::where('title', 'like', "%{$q}%")
             ->orWhere('artist', 'like', "%{$q}%")
-            ->limit(20)->get();
+            ->limit(50)->get();
         return response()->json(['success' => true, 'data' => $tracks]);
     }
 
