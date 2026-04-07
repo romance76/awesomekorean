@@ -236,9 +236,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/leaderboard', [PokerController::class, 'leaderboard']);
         Route::get('/history', [PokerController::class, 'history']);
 
-        // 토너먼트
-        Route::get('/tournaments', [PokerTournamentController::class, 'index']);
-        Route::get('/tournaments/{id}', [PokerTournamentController::class, 'show']);
+        // 토너먼트 (GET은 public으로 이동됨, 여기는 POST/DELETE만)
         Route::post('/tournaments/{id}/register', [PokerTournamentController::class, 'register']);
         Route::delete('/tournaments/{id}/register', [PokerTournamentController::class, 'unregister']);
         Route::post('/tournaments/{id}/heartbeat', [PokerTournamentController::class, 'heartbeat']);

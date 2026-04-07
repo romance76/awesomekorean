@@ -7,7 +7,7 @@
       <button @click="$router.back()" class="absolute left-0 top-1 text-white/50 hover:text-white text-lg">&#9664;</button>
       <div class="text-4xl mb-2">&#128218;</div>
       <h1 class="text-2xl font-black text-amber-400">&#54252;&#52964; &#47344; &amp; &#53916;&#53664;&#47532;&#50620;</h1>
-      <p class="text-gray-600 text-xs tracking-[0.3em] mt-1">TEXAS HOLD'EM TOURNAMENT GUIDE</p>
+      <p class="text-gray-400 text-xs tracking-[0.3em] mt-1">TEXAS HOLD'EM TOURNAMENT GUIDE</p>
     </div>
 
     <!-- Table of Contents -->
@@ -54,8 +54,8 @@
           class="flex items-center gap-3 bg-black/20 rounded-lg px-3 py-2">
           <span class="text-amber-400 font-mono text-sm w-5 text-right font-bold">{{ i + 1 }}</span>
           <span :style="{ color: h.color }" class="font-bold text-sm min-w-[100px]">{{ h.name }}</span>
-          <span class="text-gray-500 text-xs flex-1">{{ h.desc }}</span>
-          <span class="text-gray-600 text-xs font-mono hidden sm:inline">{{ h.example }}</span>
+          <span class="text-gray-300 text-xs flex-1">{{ h.desc }}</span>
+          <span class="text-gray-400 text-xs font-mono hidden sm:inline">{{ h.example }}</span>
         </div>
       </div>
     </section>
@@ -63,14 +63,14 @@
     <!-- 3. Position Guide -->
     <section id="position" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#128205; &#54252;&#51648;&#49496; &#44032;&#51060;&#46300;</h2>
-      <p class="text-xs text-gray-500 mb-3">&#54252;&#51648;&#49496;&#51008; &#54252;&#52964;&#50640;&#49436; &#44032;&#51109; &#51473;&#50836;&#54620; &#50836;&#49548; &#51473; &#54616;&#45208;&#51077;&#45768;&#45796;. &#45734;&#44172; &#54665;&#46041;&#54624;&#49688;&#47197; &#50976;&#47532;&#54633;&#45768;&#45796;.</p>
+      <p class="text-xs text-gray-300 mb-3">&#54252;&#51648;&#49496;&#51008; &#54252;&#52964;&#50640;&#49436; &#44032;&#51109; &#51473;&#50836;&#54620; &#50836;&#49548; &#51473; &#54616;&#45208;&#51077;&#45768;&#45796;. &#45734;&#44172; &#54665;&#46041;&#54624;&#49688;&#47197; &#50976;&#47532;&#54633;&#45768;&#45796;.</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div v-for="pos in positions" :key="pos.abbr"
           class="bg-black/20 rounded-lg p-3 flex items-start gap-3 border-l-4" :class="pos.borderClass">
           <span :class="pos.badgeClass" class="text-[10px] font-extrabold text-white px-2 py-0.5 rounded shrink-0 mt-0.5">{{ pos.abbr }}</span>
           <div>
             <div class="text-gray-200 text-sm font-semibold">{{ pos.full }}</div>
-            <div class="text-gray-500 text-xs mt-0.5 leading-relaxed">{{ pos.tip }}</div>
+            <div class="text-gray-300 text-xs mt-0.5 leading-relaxed">{{ pos.tip }}</div>
           </div>
         </div>
       </div>
@@ -79,11 +79,11 @@
     <!-- 4. Blind Structure -->
     <section id="blinds" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#9202;&#65039; &#48660;&#46972;&#51064;&#46300; &#49828;&#52992;&#51460;</h2>
-      <p class="text-xs text-gray-500 mb-3">&#48660;&#46972;&#51064;&#46300;&#45716; &#49884;&#44036;&#51060; &#51648;&#45216;&#49688;&#47197; &#51216;&#51216; &#50732;&#46972;&#44049;&#45768;&#45796;. &#44033; &#47112;&#48296;&#51032; &#51648;&#49549; &#49884;&#44036;&#51060; &#51648;&#45208;&#47732; &#45796;&#51020; &#47112;&#48296;&#47196; &#51088;&#46041; &#51204;&#54872;&#46121;&#45768;&#45796;.</p>
+      <p class="text-xs text-gray-300 mb-3">&#48660;&#46972;&#51064;&#46300;&#45716; &#49884;&#44036;&#51060; &#51648;&#45216;&#49688;&#47197; &#51216;&#51216; &#50732;&#46972;&#44049;&#45768;&#45796;. &#44033; &#47112;&#48296;&#51032; &#51648;&#49549; &#49884;&#44036;&#51060; &#51648;&#45208;&#47732; &#45796;&#51020; &#47112;&#48296;&#47196; &#51088;&#46041; &#51204;&#54872;&#46121;&#45768;&#45796;.</p>
       <div class="overflow-x-auto">
         <table class="w-full text-xs">
           <thead>
-            <tr class="text-gray-500 border-b border-white/10">
+            <tr class="text-gray-300 border-b border-white/10">
               <th class="py-2 text-center">&#47112;&#48296;</th>
               <th class="py-2 text-center">SB</th>
               <th class="py-2 text-center">BB</th>
@@ -99,7 +99,7 @@
               <td class="text-center font-mono">{{ b.sb.toLocaleString() }}</td>
               <td class="text-center font-mono">{{ b.bb.toLocaleString() }}</td>
               <td class="text-center font-mono" :class="b.ante > 0 ? 'text-amber-400' : 'text-gray-700'">{{ b.ante > 0 ? b.ante.toLocaleString() : '-' }}</td>
-              <td class="text-center text-gray-500">{{ b.dur }}&#48516;</td>
+              <td class="text-center text-gray-300">{{ b.dur }}&#48516;</td>
             </tr>
           </tbody>
         </table>
@@ -151,24 +151,24 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="bg-gray-800 rounded-lg p-3">
             <div class="text-xs text-blue-400 font-bold mb-1">&#54252;&#51648;&#49496; &#51221;&#48372;</div>
-            <p class="text-xs text-gray-500">&#54788;&#51116; &#51088;&#49888;&#51032; &#54252;&#51648;&#49496;&#44284; &#44428;&#51109; &#54540;&#47112;&#51060; &#48276;&#50948; &#54364;&#49884;</p>
+            <p class="text-xs text-gray-300">&#54788;&#51116; &#51088;&#49888;&#51032; &#54252;&#51648;&#49496;&#44284; &#44428;&#51109; &#54540;&#47112;&#51060; &#48276;&#50948; &#54364;&#49884;</p>
           </div>
           <div class="bg-gray-800 rounded-lg p-3">
             <div class="text-xs text-green-400 font-bold mb-1">&#49849;&#47456; (Equity)</div>
-            <p class="text-xs text-gray-500">&#54788;&#51116; &#54648;&#46300;&#44032; &#51060;&#44600; &#54869;&#47456;&#51012; &#48148; &#52264;&#53944;&#47196; &#54364;&#49884;</p>
+            <p class="text-xs text-gray-300">&#54788;&#51116; &#54648;&#46300;&#44032; &#51060;&#44600; &#54869;&#47456;&#51012; &#48148; &#52264;&#53944;&#47196; &#54364;&#49884;</p>
           </div>
           <div class="bg-gray-800 rounded-lg p-3">
             <div class="text-xs text-yellow-400 font-bold mb-1">&#54055;&#50724;&#51592; (Pot Odds)</div>
-            <p class="text-xs text-gray-500">&#53084; &#48708;&#50857; &#45824;&#48708; &#54055; &#53356;&#44592;&#51032; &#48708;&#50984;. &#49849;&#47456;&#51060; &#54055;&#50724;&#51592;&#48372;&#45796; &#45458;&#51004;&#47732; &#53084;&#51060; &#51060;&#51061;</p>
+            <p class="text-xs text-gray-300">&#53084; &#48708;&#50857; &#45824;&#48708; &#54055; &#53356;&#44592;&#51032; &#48708;&#50984;. &#49849;&#47456;&#51060; &#54055;&#50724;&#51592;&#48372;&#45796; &#45458;&#51004;&#47732; &#53084;&#51060; &#51060;&#51061;</p>
           </div>
           <div class="bg-gray-800 rounded-lg p-3">
             <div class="text-xs text-amber-400 font-bold mb-1">&#52628;&#52380; &#50561;&#49496;</div>
-            <p class="text-xs text-gray-500">&#49345;&#54889;&#50640; &#47582;&#45716; &#52572;&#51201; &#54665;&#46041;&#44284; &#51060;&#50976; &#49444;&#47749;</p>
+            <p class="text-xs text-gray-300">&#49345;&#54889;&#50640; &#47582;&#45716; &#52572;&#51201; &#54665;&#46041;&#44284; &#51060;&#50976; &#49444;&#47749;</p>
           </div>
         </div>
         <div class="bg-gray-800 rounded-lg p-3 mt-2">
           <div class="text-xs text-gray-400 font-bold mb-1">&#127183; &#54260;&#46300; &#52852;&#46300; &#44277;&#44060;</div>
-          <p class="text-xs text-gray-500">AI &#54540;&#47112;&#51060;&#50612;&#44032; &#54260;&#46300;&#54620; &#52852;&#46300;&#50752; &#51060;&#50976;&#51012; &#44277;&#44060;&#54633;&#45768;&#45796;. &#49345;&#45824;&#51032; &#49828;&#53440;&#51068;&#51012; &#54028;&#50501;&#54616;&#45716; &#45936; &#46020;&#50880;&#51060; &#46121;&#45768;&#45796;!</p>
+          <p class="text-xs text-gray-300">AI &#54540;&#47112;&#51060;&#50612;&#44032; &#54260;&#46300;&#54620; &#52852;&#46300;&#50752; &#51060;&#50976;&#51012; &#44277;&#44060;&#54633;&#45768;&#45796;. &#49345;&#45824;&#51032; &#49828;&#53440;&#51068;&#51012; &#54028;&#50501;&#54616;&#45716; &#45936; &#46020;&#50880;&#51060; &#46121;&#45768;&#45796;!</p>
         </div>
       </div>
     </section>
@@ -182,17 +182,17 @@
           <div class="bg-gray-800 rounded-lg p-4 text-center">
             <div class="text-green-400 font-bold text-base mb-2">&#51077;&#44552;</div>
             <p class="text-xs text-gray-400">&#54252;&#51064;&#53944; &#8594; &#52841;</p>
-            <p class="text-xs text-gray-600 mt-1">1:1 &#44368;&#54872; &#48708;&#50984;</p>
+            <p class="text-xs text-gray-400 mt-1">1:1 &#44368;&#54872; &#48708;&#50984;</p>
           </div>
           <div class="bg-gray-800 rounded-lg p-4 text-center">
             <div class="text-red-400 font-bold text-base mb-2">&#52636;&#44552;</div>
             <p class="text-xs text-gray-400">&#52841; &#8594; &#54252;&#51064;&#53944;</p>
-            <p class="text-xs text-gray-600 mt-1">&#49688;&#49688;&#47308; &#51201;&#50857; &#44032;&#45733;</p>
+            <p class="text-xs text-gray-400 mt-1">&#49688;&#49688;&#47308; &#51201;&#50857; &#44032;&#45733;</p>
           </div>
           <div class="bg-gray-800 rounded-lg p-4 text-center">
             <div class="text-amber-400 font-bold text-base mb-2">&#49345;&#44552;</div>
             <p class="text-xs text-gray-400">&#51077;&#49345; &#49884; &#51088;&#46041; &#51648;&#44553;</p>
-            <p class="text-xs text-gray-600 mt-1">&#48148;&#50868;&#54000;&#46020; &#48324;&#46020; &#51648;&#44553;</p>
+            <p class="text-xs text-gray-400 mt-1">&#48148;&#50868;&#54000;&#46020; &#48324;&#46020; &#51648;&#44553;</p>
           </div>
         </div>
       </div>
@@ -206,9 +206,9 @@
           class="bg-black/20 rounded-lg px-3 py-2">
           <div class="flex items-center gap-2 mb-0.5">
             <span class="text-xs font-bold text-blue-400">{{ term.en }}</span>
-            <span class="text-xs text-gray-500">{{ term.kr }}</span>
+            <span class="text-xs text-gray-300">{{ term.kr }}</span>
           </div>
-          <p class="text-[11px] text-gray-500 leading-relaxed">{{ term.desc }}</p>
+          <p class="text-[11px] text-gray-300 leading-relaxed">{{ term.desc }}</p>
         </div>
       </div>
     </section>

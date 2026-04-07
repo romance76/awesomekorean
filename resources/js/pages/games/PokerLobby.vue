@@ -33,12 +33,12 @@
 
             <div v-if="tournamentsLoading" class="text-center py-8">
               <div class="inline-block w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-              <p class="text-xs text-gray-500 mt-2">로딩 중...</p>
+              <p class="text-xs text-gray-300 mt-2">로딩 중...</p>
             </div>
 
             <div v-else-if="upcomingTournaments.length === 0" class="bg-gray-900 rounded-xl border border-gray-800 p-6 text-center">
               <span class="text-3xl">&#128566;</span>
-              <p class="text-sm text-gray-500 mt-2">예정된 토너먼트가 없습니다</p>
+              <p class="text-sm text-gray-300 mt-2">예정된 토너먼트가 없습니다</p>
             </div>
 
             <div v-else class="space-y-3">
@@ -129,7 +129,7 @@
               class="group bg-gray-900 rounded-xl border border-gray-800 hover:border-green-400/40 p-5 transition hover:shadow-lg hover:shadow-green-500/5 block">
               <div class="text-3xl mb-3">&#129302;</div>
               <h3 class="text-sm font-bold text-green-400 group-hover:text-green-300 mb-1">솔로 AI 연습</h3>
-              <p class="text-xs text-gray-500">AI 상대 연습 모드. 부담 없이 실력을 키워보세요.</p>
+              <p class="text-xs text-gray-300">AI 상대 연습 모드. 부담 없이 실력을 키워보세요.</p>
             </RouterLink>
 
             <!-- 블랙잭 -->
@@ -137,7 +137,7 @@
               class="group bg-gray-900 rounded-xl border border-gray-800 hover:border-purple-400/40 p-5 transition hover:shadow-lg hover:shadow-purple-500/5 block">
               <div class="text-3xl mb-3">&#127183;</div>
               <h3 class="text-sm font-bold text-purple-400 group-hover:text-purple-300 mb-1">솔로 블랙잭</h3>
-              <p class="text-xs text-gray-500">딜러와 1:1 블랙잭. 21에 가까워지세요!</p>
+              <p class="text-xs text-gray-300">딜러와 1:1 블랙잭. 21에 가까워지세요!</p>
             </RouterLink>
 
             <!-- 룰 & 튜토리얼 -->
@@ -145,7 +145,7 @@
               class="group bg-gray-900 rounded-xl border border-gray-800 hover:border-blue-400/40 p-5 transition hover:shadow-lg hover:shadow-blue-500/5 block">
               <div class="text-3xl mb-3">&#128218;</div>
               <h3 class="text-sm font-bold text-blue-400 group-hover:text-blue-300 mb-1">룰 &amp; 튜토리얼</h3>
-              <p class="text-xs text-gray-500">포커 규칙과 전략을 배워보세요.</p>
+              <p class="text-xs text-gray-300">포커 규칙과 전략을 배워보세요.</p>
             </RouterLink>
           </div>
         </section>
@@ -166,7 +166,7 @@
               <div class="text-4xl font-black text-amber-400 font-mono leading-tight">
                 {{ (wallet.chips_balance || 0).toLocaleString() }}
               </div>
-              <div class="text-xs text-gray-500 mt-1">보유 칩</div>
+              <div class="text-xs text-gray-300 mt-1">보유 칩</div>
             </div>
 
             <!-- Points -->
@@ -174,7 +174,7 @@
               <div class="text-lg font-bold text-blue-400 font-mono">
                 {{ (auth.user?.points || 0).toLocaleString() }}P
               </div>
-              <div class="text-xs text-gray-500">포인트 잔액</div>
+              <div class="text-xs text-gray-300">포인트 잔액</div>
             </div>
 
             <!-- Deposit / Withdraw -->
@@ -196,7 +196,7 @@
           </div>
 
           <div v-else class="text-center py-4">
-            <p class="text-sm text-gray-500">로그인 후 이용 가능</p>
+            <p class="text-sm text-gray-300">로그인 후 이용 가능</p>
           </div>
 
           <div v-if="walletError" class="text-xs text-red-400 mt-3 text-center">{{ walletError }}</div>
@@ -209,27 +209,27 @@
           </h2>
           <div v-if="auth.isLoggedIn" class="space-y-2">
             <div class="flex justify-between text-xs">
-              <span class="text-gray-500">참가 횟수</span>
+              <span class="text-gray-300">참가 횟수</span>
               <span class="text-white font-bold font-mono">{{ myStats.gamesPlayed || myStats.games_played || 0 }}</span>
             </div>
             <div class="flex justify-between text-xs">
-              <span class="text-gray-500">최고 성적</span>
+              <span class="text-gray-300">최고 성적</span>
               <span class="text-amber-400 font-bold font-mono">{{ bestPlacement || '-' }}</span>
             </div>
             <div class="flex justify-between text-xs">
-              <span class="text-gray-500">총 상금</span>
+              <span class="text-gray-300">총 상금</span>
               <span class="text-green-400 font-bold font-mono">{{ (myStats.totalWinnings || myStats.total_prize_won || 0).toLocaleString() }}</span>
             </div>
             <div class="flex justify-between text-xs">
-              <span class="text-gray-500">승률</span>
+              <span class="text-gray-300">승률</span>
               <span class="text-blue-400 font-bold font-mono">{{ myStats.winRate ? myStats.winRate + '%' : '-' }}</span>
             </div>
             <div class="flex justify-between text-xs">
-              <span class="text-gray-500">바운티</span>
+              <span class="text-gray-300">바운티</span>
               <span class="text-yellow-400 font-bold font-mono">{{ myStats.bounties || myStats.total_bounties || 0 }}</span>
             </div>
           </div>
-          <div v-else class="text-xs text-gray-600 text-center py-3">로그인 후 확인 가능</div>
+          <div v-else class="text-xs text-gray-400 text-center py-3">로그인 후 확인 가능</div>
         </div>
 
         <!-- ===== 5. 리더보드 (Top 5) ===== -->
@@ -244,14 +244,14 @@
             <div v-for="(entry, i) in leaderboard.slice(0, 5)" :key="i"
               class="flex items-center gap-2 text-xs">
               <span class="w-6 text-center font-bold"
-                :class="i === 0 ? 'text-amber-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-gray-500'">
+                :class="i === 0 ? 'text-amber-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-orange-400' : 'text-gray-300'">
                 {{ i === 0 ? '&#127942;' : i === 1 ? '&#129352;' : i === 2 ? '&#129353;' : (i + 1) }}
               </span>
               <span class="flex-1 text-gray-300 truncate">{{ entry.user_name || entry.user?.name || entry.name || '익명' }}</span>
               <span class="text-amber-400 font-bold font-mono">{{ (entry.total_winnings || entry.total_prize_won || 0).toLocaleString() }}</span>
             </div>
           </div>
-          <div v-else class="text-xs text-gray-600 text-center py-3">아직 데이터 없음</div>
+          <div v-else class="text-xs text-gray-400 text-center py-3">아직 데이터 없음</div>
         </div>
       </div>
     </div>
