@@ -1,1 +1,0 @@
-import e from"./ArcadeGame-Ya0LWQ_-.js";import{m as t,k as o}from"./app-DfBSdz9L.js";const p={__name:"GameSlots",setup(s){return(r,a)=>(o(),t(e,{"game-slug":"slots","game-id":"slots",title:"🎰 슬롯머신","points-per-score":1}))}};export{p as default};

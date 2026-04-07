@@ -55,7 +55,7 @@
               </div>
               <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title }}</h2>
               <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                <span>{{ activeItem.user?.name }}</span>
+                <button @click="openPopup(activeItem.user?.id)" class="hover:text-amber-700 hover:underline">{{ activeItem.user?.name }}</button>
                 <span>{{ formatDate(activeItem.created_at) }}</span>
                 <span>👁 {{ activeItem.view_count }}</span>
                 <span>❤️ {{ activeItem.like_count }}</span>
@@ -80,7 +80,7 @@
             </div>
             <div v-for="c in comments" :key="c.id" class="px-5 py-3 border-b last:border-0">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-sm font-semibold text-gray-800">{{ c.user?.name }}</span>
+                <button @click="openPopup(c.user?.id || c.user_id)" class="text-sm font-semibold text-gray-800 hover:text-amber-700 hover:underline">{{ c.user?.name }}</button>
                 <span class="text-xs text-gray-400">{{ formatDate(c.created_at) }}</span>
               </div>
               <div class="text-sm text-gray-600">{{ c.content }}</div>
@@ -111,7 +111,7 @@
               <span v-if="item.comment_count" class="text-[10px] text-amber-500 font-bold flex-shrink-0">[{{ item.comment_count }}]</span>
             </div>
             <div class="flex items-center gap-2 mt-1 text-xs text-gray-400">
-              <span>{{ item.user?.name }}</span>
+              <button @click.stop="openPopup(item.user?.id)" class="hover:text-amber-700 hover:underline">{{ item.user?.name }}</button>
               <span>{{ item.view_count }}조회</span>
               <span>❤️{{ item.like_count }}</span>
               <span>{{ formatDate(item.created_at) }}</span>
@@ -244,6 +244,10 @@ async function submitComment() {
     newComment.value = ''
     activeItem.value.comment_count++
   } catch {}
+}
+
+function openPopup(userId) {
+  if (userId && window.openUserPopup) window.openUserPopup(userId)
 }
 
 function formatDate(dt) {
