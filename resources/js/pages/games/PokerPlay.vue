@@ -84,38 +84,43 @@
       :my-bounties="myBounties" :prize-pool="prizePool" :elapsed-time="elapsedTime"
       :start-chips="config.startChips" @close="showMonitor = false" />
 
-    <!-- Poker Table -->
-    <PokerTable :seats="seats" :community="community" :pot="pot" :stage="stage"
-      :dealer-idx="dealerIdx" :showdown="showdown" :hand-results="handResults"
-      :game-over="gameOver" :bl="bl" :act-idx="actIdx" :chat-bubbles="chatBubbles"
-      :current-bet-level="currentBetLevel" :blind-level="blindLevel" :total-remaining="totalRemaining"
-      :paid-slots="paidSlots" :fold-reveals="foldReveals" :is-player-turn="isPlayerTurn" />
-
-    <!-- Action log + term tip -->
-    <div class="text-center px-3 shrink-0">
-      <div v-if="lastAction && !gameOver" class="inline-flex items-center gap-2 bg-black/30 rounded-lg px-3 py-1 mb-0.5">
-        <span class="text-gray-300 text-xs">{{ lastAction }}</span>
-        <span v-if="termTip" class="text-blue-400 text-[10px] border-l border-gray-700 pl-2">&#128172; {{ termTip.kr }}({{ termTip.en }}): {{ termTip.desc }}</span>
-      </div>
-      <div v-if="bustMsg" class="text-red-500 text-xs mb-0.5">{{ bustMsg }}</div>
-      <div v-if="handResults && gameOver"
-        :class="handResults.winners[0]?.name === '\uB098' ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-red-500/[0.06] border-red-500/15'"
-        class="border rounded-xl px-3.5 py-2 mb-1 inline-block">
-        <div class="text-gray-300 text-sm font-semibold">{{ handResults.msg }}</div>
-        <div v-if="handResults.all" class="text-gray-500 text-[11px] mt-1">
-          {{ handResults.all.map(a => `${a.emoji}${a.name}: ${a.hand}`).join(' | ') }}
-        </div>
-      </div>
+    <!-- Poker Table (with top padding so cards don't clip) -->
+    <div class="flex-1 min-h-0 pt-2">
+      <PokerTable :seats="seats" :community="community" :pot="pot" :stage="stage"
+        :dealer-idx="dealerIdx" :showdown="showdown" :hand-results="handResults"
+        :game-over="gameOver" :bl="bl" :act-idx="actIdx" :chat-bubbles="chatBubbles"
+        :current-bet-level="currentBetLevel" :blind-level="blindLevel" :total-remaining="totalRemaining"
+        :paid-slots="paidSlots" :fold-reveals="foldReveals" :is-player-turn="isPlayerTurn" />
     </div>
 
-    <!-- Coaching + Fold reveals -->
-    <PokerCoaching :coach-tips="coachTips" :fold-reveals="foldReveals" :show-coach="showCoach" :game-over="gameOver" />
+    <!-- Bottom panel: fixed height to prevent layout jumping -->
+    <div class="shrink-0 h-[180px] flex flex-col">
+      <!-- Action log + result (fixed slot) -->
+      <div class="text-center px-3 h-[40px] flex items-center justify-center overflow-hidden">
+        <div v-if="lastAction && !gameOver" class="inline-flex items-center gap-2 bg-black/30 rounded-lg px-3 py-1">
+          <span class="text-gray-300 text-xs truncate max-w-[50vw]">{{ lastAction }}</span>
+        </div>
+        <div v-else-if="bustMsg" class="text-red-500 text-xs truncate">{{ bustMsg }}</div>
+        <div v-else-if="handResults && gameOver"
+          :class="handResults.winners[0]?.name === '\uB098' ? 'text-emerald-400' : 'text-red-400'"
+          class="text-sm font-semibold truncate">
+          {{ handResults.msg }}
+        </div>
+      </div>
 
-    <!-- Player Actions -->
-    <PokerActions :is-player-turn="isPlayerTurn" :game-over="gameOver" :tourney-over="tourneyOver"
-      :can-check="canCheck" :call-amt="callAmt" :current-bet-level="currentBetLevel"
-      :player-chips="playerSeat?.chips || 0" :blind-b-b="bl.bb" :raise-amt="raiseAmt"
-      @action="doPlayerAction" @update-raise="raiseAmt = $event" @next-hand="nextHand" />
+      <!-- Coaching/Fold (fixed slot) -->
+      <div class="h-[70px] overflow-hidden">
+        <PokerCoaching :coach-tips="coachTips" :fold-reveals="foldReveals" :show-coach="showCoach" :game-over="gameOver" />
+      </div>
+
+      <!-- Player Actions (fixed slot) -->
+      <div class="h-[70px]">
+        <PokerActions :is-player-turn="isPlayerTurn" :game-over="gameOver" :tourney-over="tourneyOver"
+          :can-check="canCheck" :call-amt="callAmt" :current-bet-level="currentBetLevel"
+          :player-chips="playerSeat?.chips || 0" :blind-b-b="bl.bb" :raise-amt="raiseAmt"
+          @action="doPlayerAction" @update-raise="raiseAmt = $event" @next-hand="nextHand" />
+      </div>
+    </div>
   </template>
 
   <!-- Loading -->

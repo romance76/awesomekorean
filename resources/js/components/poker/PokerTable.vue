@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-1 relative min-h-0 mx-auto w-full max-w-[720px]">
+  <div class="h-full relative mx-auto w-full max-w-[720px]">
     <!-- Table shadow/glow -->
     <div
       class="absolute left-[8%] right-[8%] top-[10%] bottom-[18%] rounded-full bg-black/40 blur-[20px]"
@@ -138,15 +138,15 @@ const props = defineProps({
 })
 
 const seatPositions = [
-  { x: 50, y: 82 },   // 0: player (bottom)
-  { x: 12, y: 74 },   // 1: left-bottom
-  { x: 3, y: 50 },    // 2: left
-  { x: 12, y: 26 },   // 3: left-top
-  { x: 32, y: 8 },    // 4: top-left
-  { x: 50, y: 2 },    // 5: top center
-  { x: 68, y: 8 },    // 6: top-right
-  { x: 88, y: 26 },   // 7: right-top
-  { x: 97, y: 50 }    // 8: right
+  { x: 50, y: 80 },   // 0: player (bottom)
+  { x: 12, y: 72 },   // 1: left-bottom
+  { x: 4, y: 50 },    // 2: left
+  { x: 12, y: 28 },   // 3: left-top
+  { x: 32, y: 14 },   // 4: top-left
+  { x: 50, y: 10 },   // 5: top center
+  { x: 68, y: 14 },   // 6: top-right
+  { x: 88, y: 28 },   // 7: right-top
+  { x: 96, y: 50 }    // 8: right
 ]
 
 const stageLabel = computed(() => STAGE_NAMES[props.stage] || props.stage)
