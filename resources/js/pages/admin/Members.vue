@@ -108,6 +108,8 @@
                 </select></div>
               <div><label class="text-[10px] text-gray-500">상태</label>
                 <select v-model="userData.user.is_banned" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5"><option :value="false">활동</option><option :value="true">정지</option></select></div>
+              <div><label class="text-[10px] text-gray-500">친구요청</label>
+                <select v-model="userData.user.allow_friend_request" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5"><option :value="true">수락</option><option :value="false">거절</option></select></div>
             </div>
             <div class="mt-2"><label class="text-[10px] text-gray-500">소개</label><textarea v-model="userData.user.bio" rows="2" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5 resize-none"></textarea></div>
             <div class="mt-2 flex items-center gap-4 text-[10px] text-gray-400">
