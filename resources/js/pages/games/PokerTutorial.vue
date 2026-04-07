@@ -1,5 +1,5 @@
 <template>
-<div class="min-h-screen bg-gray-950 text-gray-300">
+<div class="min-h-screen bg-gray-950 text-gray-200">
   <div class="max-w-4xl mx-auto px-4 py-6 space-y-8">
 
     <!-- Header -->
@@ -22,7 +22,7 @@
     </nav>
 
     <!-- 1. Game Overview -->
-    <section id="overview" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="overview" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#127918; &#53581;&#49324;&#49828; &#54848;&#45924;&#51060;&#46976;?</h2>
       <div class="text-sm space-y-3 leading-relaxed">
         <p>&#53581;&#49324;&#49828; &#54848;&#45924;&#51008; &#49464;&#44228;&#50640;&#49436; &#44032;&#51109; &#51064;&#44592; &#51080;&#45716; &#54252;&#52964; &#44172;&#51076;&#51077;&#45768;&#45796;. &#44033; &#54540;&#47112;&#51060;&#50612;&#50640;&#44172; 2&#51109;&#51032; &#44060;&#51064; &#52852;&#46300;(&#54848; &#52852;&#46300;)&#44032; &#51452;&#50612;&#51648;&#44256;, &#53580;&#51060;&#48660; &#51473;&#50521;&#50640; 5&#51109;&#51032; &#44277;&#50976; &#52852;&#46300;(&#52964;&#48036;&#45768;&#54000; &#52852;&#46300;)&#44032; &#44277;&#44060;&#46121;&#45768;&#45796;. &#44060;&#51064; &#52852;&#46300; 2&#51109;&#44284; &#52964;&#48036;&#45768;&#54000; &#52852;&#46300; 5&#51109; &#51473; &#52572;&#44256;&#51032; 5&#51109; &#51312;&#54633;&#51004;&#47196; &#49849;&#51088;&#47484; &#44208;&#51221;&#54633;&#45768;&#45796;.</p>
@@ -47,7 +47,7 @@
     </section>
 
     <!-- 2. Hand Rankings -->
-    <section id="hands" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="hands" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#127183; &#54648;&#46300; &#46321;&#44553; (&#44053;&#54620; &#49692;&#49436;)</h2>
       <div class="space-y-2">
         <div v-for="(h, i) in handRankings" :key="i"
@@ -61,7 +61,7 @@
     </section>
 
     <!-- 3. Position Guide -->
-    <section id="position" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="position" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#128205; &#54252;&#51648;&#49496; &#44032;&#51060;&#46300;</h2>
       <p class="text-xs text-gray-500 mb-3">&#54252;&#51648;&#49496;&#51008; &#54252;&#52964;&#50640;&#49436; &#44032;&#51109; &#51473;&#50836;&#54620; &#50836;&#49548; &#51473; &#54616;&#45208;&#51077;&#45768;&#45796;. &#45734;&#44172; &#54665;&#46041;&#54624;&#49688;&#47197; &#50976;&#47532;&#54633;&#45768;&#45796;.</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -77,7 +77,7 @@
     </section>
 
     <!-- 4. Blind Structure -->
-    <section id="blinds" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="blinds" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#9202;&#65039; &#48660;&#46972;&#51064;&#46300; &#49828;&#52992;&#51460;</h2>
       <p class="text-xs text-gray-500 mb-3">&#48660;&#46972;&#51064;&#46300;&#45716; &#49884;&#44036;&#51060; &#51648;&#45216;&#49688;&#47197; &#51216;&#51216; &#50732;&#46972;&#44049;&#45768;&#45796;. &#44033; &#47112;&#48296;&#51032; &#51648;&#49549; &#49884;&#44036;&#51060; &#51648;&#45208;&#47732; &#45796;&#51020; &#47112;&#48296;&#47196; &#51088;&#46041; &#51204;&#54872;&#46121;&#45768;&#45796;.</p>
       <div class="overflow-x-auto">
@@ -107,7 +107,7 @@
     </section>
 
     <!-- 5. Tournament Rules -->
-    <section id="rules" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="rules" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#127942; &#53664;&#45320;&#47676;&#53944; &#44508;&#52825;</h2>
       <div class="space-y-4">
         <!-- Bounty -->
@@ -144,7 +144,7 @@
     </section>
 
     <!-- 6. Coaching System -->
-    <section id="coaching" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="coaching" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#128161; &#53076;&#52845; &#49884;&#49828;&#53596;</h2>
       <div class="text-sm space-y-3 leading-relaxed">
         <p>&#44172;&#51076; &#51473; &#53076;&#52845; &#54056;&#45328;&#51060; &#49892;&#49884;&#44036;&#51004;&#47196; &#46020;&#50880;&#51012; &#51469;&#45768;&#45796;. &#49345;&#45800; &#128161; &#48260;&#53948;&#51004;&#47196; &#53664;&#44544;&#54624; &#49688; &#51080;&#49845;&#45768;&#45796;.</p>
@@ -174,7 +174,7 @@
     </section>
 
     <!-- 7. Wallet System -->
-    <section id="wallet" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="wallet" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#128176; &#51648;&#44049; &#49884;&#49828;&#53596;</h2>
       <div class="text-sm space-y-3 leading-relaxed">
         <p>&#54252;&#52964; &#44172;&#51076;&#51008; &#51204;&#50857; &#52841; &#51648;&#44049;&#51012; &#49324;&#50857;&#54633;&#45768;&#45796;. &#54252;&#51064;&#53944;&#47484; &#52841;&#51004;&#47196; &#44368;&#54872;&#54616;&#50668; &#54540;&#47112;&#51060;&#54624; &#49688; &#51080;&#49845;&#45768;&#45796;.</p>
@@ -199,7 +199,7 @@
     </section>
 
     <!-- 8. Poker Terms -->
-    <section id="terms" class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+    <section id="terms" class="bg-gray-900 rounded-xl border border-gray-700 p-5">
       <h2 class="text-lg font-bold text-amber-400 mb-3">&#128214; &#54252;&#52964; &#50857;&#50612; &#49324;&#51204;</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div v-for="(term, key) in basicTerms" :key="key"
@@ -229,14 +229,14 @@ import { BLIND_SCHEDULE } from '@/composables/useBlindSchedule'
 import { POS_FULL, POS_TIP, TERMS } from '@/composables/useCoaching'
 
 const sections = [
-  { id: 'overview', icon: '&#127918;', label: '&#44172;&#51076; &#44060;&#50836;' },
-  { id: 'hands', icon: '&#127183;', label: '&#54648;&#46300; &#46321;&#44553;' },
-  { id: 'position', icon: '&#128205;', label: '&#54252;&#51648;&#49496;' },
-  { id: 'blinds', icon: '&#9202;', label: '&#48660;&#46972;&#51064;&#46300;' },
-  { id: 'rules', icon: '&#127942;', label: '&#53664;&#45320;&#47676;&#53944; &#44508;&#52825;' },
-  { id: 'coaching', icon: '&#128161;', label: '&#53076;&#52845;' },
-  { id: 'wallet', icon: '&#128176;', label: '&#51648;&#44049;' },
-  { id: 'terms', icon: '&#128214;', label: '&#50857;&#50612;' },
+  { id: 'overview', icon: '\u{1F3AE}', label: '\uAC8C\uC784 \uAC1C\uC694' },
+  { id: 'hands', icon: '\u{1F0CF}', label: '\uD578\uB4DC \uB4F1\uAE09' },
+  { id: 'position', icon: '\u{1F4CD}', label: '\uD3EC\uC9C0\uC158' },
+  { id: 'blinds', icon: '\u23F2', label: '\uBE14\uB77C\uC778\uB4DC' },
+  { id: 'rules', icon: '\u{1F3C6}', label: '\uD1A0\uB108\uBA3C\uD2B8 \uADDC\uCE59' },
+  { id: 'coaching', icon: '\u{1F4A1}', label: '\uCF54\uCE6D' },
+  { id: 'wallet', icon: '\u{1F4B0}', label: '\uC9C0\uAC11' },
+  { id: 'terms', icon: '\u{1F4D6}', label: '\uC6A9\uC5B4' },
 ]
 
 function scrollTo(id) {

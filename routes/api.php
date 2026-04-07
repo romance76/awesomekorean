@@ -84,6 +84,11 @@ Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublic']);
 Route::get('/games/leaderboard/{gameType}', [GameScoreController::class, 'leaderboard']);
 
+// ─── Public Poker ───
+Route::get('/poker/tournaments', [PokerTournamentController::class, 'index']);
+Route::get('/poker/tournaments/{id}', [PokerTournamentController::class, 'show']);
+Route::get('/poker/leaderboard', [PokerController::class, 'leaderboard']);
+
 // 게임 호환 API (old_site GameLobby용)
 Route::get('/game-categories', function () {
     $settings = \App\Models\GameSetting::all()->groupBy('game_type');
