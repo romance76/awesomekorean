@@ -181,8 +181,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+
+const route = useRoute()
 
 const auth = useAuthStore()
 const items = ref([])
@@ -281,6 +284,16 @@ onMounted(async () => {
   if (pRes.status === 'fulfilled') { items.value = pRes.value.data?.data?.data || []; lastPage.value = pRes.value.data?.data?.last_page || 1 }
   if (popRes.status === 'fulfilled') popularPosts.value = (popRes.value.data?.data?.data || []).slice(0, 10)
   if (jRes.status === 'fulfilled') recentJobs.value = (jRes.value.data?.data?.data || []).slice(0, 5)
+
+  // URL에 board slug가 있으면 해당 게시판 자동 선택
+  const boardSlug = route.params.board
+  if (boardSlug && boards.value.length) {
+    const found = boards.value.find(b => b.slug === boardSlug)
+    if (found) {
+      activeBoard.value = found
+      loadPosts()
+    }
+  }
   loading.value = false
 })
 </script>

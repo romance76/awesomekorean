@@ -22,7 +22,7 @@ const routes = [
   // Community
   { path: '/community', name: 'community', component: p('community/BoardList') },
   { path: '/community/write/:board?', name: 'post-write', component: p('community/PostWrite'), meta: { auth: true } },
-  { path: '/community/:board', name: 'board', component: p('community/CommunityHome') },
+  { path: '/community/:board', name: 'board', component: p('community/BoardList') },
   { path: '/community/:board/:id', name: 'post-detail', component: p('community/PostDetail') },
 
   // Q&A
