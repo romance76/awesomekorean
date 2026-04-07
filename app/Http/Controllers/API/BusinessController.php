@@ -21,10 +21,12 @@ class BusinessController extends Controller
             $query->nearby($request->lat, $request->lng, $request->radius ?? 50);
         }
 
-        $sort = $request->sort ?? 'rating';
-        if ($sort === 'rating') $query->orderByDesc('rating');
+        $sort = $request->sort ?? 'random';
+        if ($sort === 'random') $query->inRandomOrder();
+        elseif ($sort === 'rating') $query->orderByDesc('rating');
         elseif ($sort === 'newest') $query->orderByDesc('created_at');
         elseif ($sort === 'reviews') $query->orderByDesc('review_count');
+        elseif ($sort === 'views') $query->orderByDesc('view_count');
 
         return response()->json(['success' => true, 'data' => $query->paginate(20)]);
     }
