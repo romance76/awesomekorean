@@ -1,8 +1,8 @@
 <template>
-<div ref="gameWrapper" class="select-none h-screen bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden"
+<div ref="gameWrapper" class="select-none h-screen bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden flex justify-center"
   style="font-family:'Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif;">
-<!-- 스케일 컨테이너: 고정 1400x800 기준, 뷰포트에 맞게 자동 축소/확대 -->
-<div ref="scaleContainer" class="origin-top-left flex flex-col" :style="scaleStyle">
+<!-- 스케일 컨테이너: 고정 1400x800 기준, 중앙 정렬 + 자동 스케일 -->
+<div ref="scaleContainer" class="origin-top flex flex-col" :style="scaleStyle">
 
   <!-- ===== RESULT SCREEN ===== -->
   <div v-if="tourneyOver" class="min-h-screen flex items-center justify-center p-4">
