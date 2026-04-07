@@ -25,14 +25,14 @@ class FetchMusicTracks extends Command
 
     // 카테고리별 팝송 검색어
     private $popQueries = [
-        'ballad'  => ['pop ballad hits', 'best ballad songs', 'romantic ballads', 'slow songs 2024'],
-        'trot'    => ['japanese enka', 'retro pop music', 'oldies music hits'],
-        'kpop'    => ['pop music 2024', 'top 40 hits', 'pop music trending', 'Billboard hot 100'],
-        'hiphop'  => ['hip hop hits 2024', 'rap music trending', 'hip hop playlist', 'best rap songs'],
-        'rnb'     => ['R&B hits 2024', 'R&B playlist', 'best R&B songs', 'soul music'],
-        'jazz'    => ['jazz music', 'jazz classics', 'smooth jazz', 'jazz cafe music'],
-        'classic' => ['classical music', 'piano classical', 'orchestra famous', 'beethoven mozart'],
-        'ost'     => ['movie soundtrack', 'film OST popular', 'anime OST', 'Hollywood soundtrack'],
+        'ballad'  => ['American pop ballad', 'Ed Sheeran ballad', 'Adele songs', 'Sam Smith songs', 'best English ballads'],
+        'trot'    => ['oldies American music', 'Elvis Presley', '60s 70s pop hits', 'retro American pop'],
+        'kpop'    => ['Billboard hot 100 official', 'US pop hits 2024', 'Taylor Swift', 'Dua Lipa', 'The Weeknd'],
+        'hiphop'  => ['US hip hop hits', 'Drake songs', 'Kendrick Lamar', 'Eminem', 'American rap'],
+        'rnb'     => ['American R&B', 'SZA songs', 'Daniel Caesar', 'US R&B hits', 'Frank Ocean'],
+        'jazz'    => ['American jazz', 'jazz standards', 'smooth jazz USA', 'Norah Jones jazz'],
+        'classic' => ['classical music performance', 'piano concerto famous', 'London symphony', 'classical masterpieces'],
+        'ost'     => ['Hollywood movie soundtrack', 'Disney OST', 'English movie theme song', 'American film score'],
     ];
 
     public function handle()
@@ -164,6 +164,8 @@ class FetchMusicTracks extends Command
                 if (MusicTrack::where('youtube_id', $videoId)->exists()) continue;
                 if (mb_strlen($title) < 3) continue;
                 if (preg_match('/live stream|라이브 방송|24\/7|radio|playlist|모음|메들리/i', $title)) continue;
+                // 비영어권 외국어 필터 (힌디, 아랍, 태국, 베트남, 터키, 인도네시아 등)
+                if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{1E00}-\x{1EFF}]|Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer/ui', $title . ' ' . $channel)) continue;
 
                 MusicTrack::create([
                     'category_id' => $categoryId,
