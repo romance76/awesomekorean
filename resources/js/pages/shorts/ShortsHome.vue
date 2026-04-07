@@ -145,6 +145,15 @@ function onKeydown(e) {
   if (e.key === 'ArrowUp' || e.key === 'k') prev()
 }
 
+let scrollCooldown = false
+function onWheel(e) {
+  if (scrollCooldown) return
+  scrollCooldown = true
+  if (e.deltaY > 0) next()
+  else if (e.deltaY < 0) prev()
+  setTimeout(() => { scrollCooldown = false }, 800)
+}
+
 onMounted(async () => {
   try {
     const { data } = await axios.get('/api/shorts?per_page=50')
@@ -152,7 +161,8 @@ onMounted(async () => {
   } catch {}
   loading.value = false
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('wheel', onWheel, { passive: true })
 })
 
-onUnmounted(() => { window.removeEventListener('keydown', onKeydown) })
+onUnmounted(() => { window.removeEventListener('keydown', onKeydown); window.removeEventListener('wheel', onWheel) })
 </script>
