@@ -142,8 +142,8 @@ async function loadCategories() {
     // 각 카테고리별 트랙 수 로딩
     for (const cat of categories.value) {
       try {
-        const { data: tData } = await axios.get(`/api/music/tracks/${cat.id}`)
-        trackCounts.value[cat.id] = (tData.data || []).length
+        const { data: tData } = await axios.get(`/api/music/tracks/${cat.id}`, { params: { per_page: 1 } })
+        trackCounts.value[cat.id] = tData.data?.total || (tData.data?.data || tData.data || []).length
       } catch { trackCounts.value[cat.id] = 0 }
     }
   } catch {}
@@ -152,8 +152,8 @@ async function loadCategories() {
 async function selectCategory(cat) {
   activeCat.value = cat
   try {
-    const { data } = await axios.get(`/api/music/tracks/${cat.id}`)
-    tracks.value = data.data || []
+    const { data } = await axios.get(`/api/music/tracks/${cat.id}`, { params: { per_page: 100 } })
+    tracks.value = data.data?.data || data.data || []
   } catch {}
 }
 
