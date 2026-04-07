@@ -56,6 +56,18 @@
       </div>
     </div>
 
+    <!-- 딜러 (내 맞은편 상단 중앙) -->
+    <div class="absolute left-1/2 -translate-x-1/2 z-[5]" style="top: 14%">
+      <div class="flex flex-col items-center">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-700 to-amber-900 border-2 border-amber-500 shadow-lg flex items-center justify-center">
+          <span class="text-2xl">🎩</span>
+        </div>
+        <div class="bg-black/70 rounded px-2 py-0.5 -mt-1 text-center border border-amber-500/30">
+          <span class="text-amber-400 text-[10px] font-bold">DEALER</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Player Seats -->
     <PokerSeat v-for="(seat, i) in displayOrder" :key="seat.id + '-' + i"
       :seat="seat" :position="seatPositions[i]"
@@ -89,17 +101,17 @@ const props = defineProps({
   chatBubbles: { type: Object, default: () => ({}) }
 })
 
-// 좌석 — 축소된 테이블에 맞게
+// 좌석 — 딜러가 상단 중앙이므로 9명은 딜러 양옆으로
 const seatPositions = [
-  { x: 50, y: 82 },   // 0: 나 (하단 중앙)
-  { x: 22, y: 74 },   // 1: 좌하
-  { x: 10, y: 48 },   // 2: 좌
-  { x: 22, y: 22 },   // 3: 좌상
-  { x: 38, y: 10 },   // 4: 상좌
-  { x: 50, y: 6 },    // 5: 상단 중앙
-  { x: 62, y: 10 },   // 6: 상우
-  { x: 78, y: 22 },   // 7: 우상
-  { x: 90, y: 48 }    // 8: 우
+  { x: 50, y: 84 },   // 0: 나 (하단 중앙)
+  { x: 22, y: 76 },   // 1: 좌하
+  { x: 8,  y: 50 },   // 2: 좌
+  { x: 18, y: 24 },   // 3: 좌상
+  { x: 34, y: 10 },   // 4: 상좌 (딜러 왼쪽)
+  { x: 66, y: 10 },   // 5: 상우 (딜러 오른쪽) ← 중앙은 딜러
+  { x: 82, y: 24 },   // 6: 우상
+  { x: 92, y: 50 },   // 7: 우
+  { x: 78, y: 76 }    // 8: 우하
 ]
 
 const stageLabel = computed(() => STAGE_NAMES[props.stage] || props.stage)
