@@ -164,8 +164,15 @@ class FetchMusicTracks extends Command
                 if (MusicTrack::where('youtube_id', $videoId)->exists()) continue;
                 if (mb_strlen($title) < 3) continue;
                 if (preg_match('/live stream|라이브 방송|24\/7|radio|playlist|모음|메들리/i', $title)) continue;
-                // 비영어권 외국어 필터 (힌디, 아랍, 태국, 베트남, 터키, 인도네시아 등)
-                if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{1E00}-\x{1EFF}]|Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer/ui', $title . ' ' . $channel)) continue;
+                // 한국어+영어 외 모든 외국어 필터
+                $text = $title . ' ' . $channel;
+                // 중국어/일본어(히라가나/가타카나/한자 - 단, 한국 한자는 제외하기 어려우므로 일본어 가나로 판별)
+                if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $text)) continue; // 히라가나/가타카나 = 일본어
+                if (preg_match('/[\x{4E00}-\x{9FFF}]{3,}/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) continue; // 한자 3자 이상 + 한글 없음 = 중국어
+                // 힌디/데바나가리/아랍/태국/베트남/터키/인도네시아/타갈로그/크메르 등
+                if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $text)) continue;
+                // 키워드 필터
+                if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|ภาษาไทย|Tiếng Việt|Myanmar|Lao|Cambodian|Filipino|Bahasa/i', $text)) continue;
 
                 MusicTrack::create([
                     'category_id' => $categoryId,
