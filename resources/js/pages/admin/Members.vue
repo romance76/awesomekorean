@@ -109,7 +109,7 @@
               <div><label class="text-[10px] text-gray-500">상태</label>
                 <select v-model="userData.user.is_banned" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5"><option :value="false">활동</option><option :value="true">정지</option></select></div>
               <div><label class="text-[10px] text-gray-500">친구요청</label>
-                <select v-model="userData.user.allow_friend_request" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5"><option :value="true">수락</option><option :value="false">거절</option></select></div>
+                <select v-model="friendRequestVal" @change="userData.user.allow_friend_request = friendRequestVal === 'true'" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5"><option value="true">수락</option><option value="false">거절</option></select></div>
             </div>
             <div class="mt-2"><label class="text-[10px] text-gray-500">소개</label><textarea v-model="userData.user.bio" rows="2" class="w-full border rounded px-2 py-1.5 text-sm mt-0.5 resize-none"></textarea></div>
             <div class="mt-2 flex items-center gap-4 text-[10px] text-gray-400">
@@ -236,6 +236,7 @@ const page = ref(1); const lastPage = ref(1); const totalUsers = ref(0)
 
 const activeUser = ref(null); const userData = ref(null); const userLoading = ref(false)
 const userTab = ref('info'); const banReason = ref(''); const addPoints = ref(0)
+const friendRequestVal = ref('true')
 
 const roleOptions = [
   { value: 'super_admin', label: '슈퍼관리자', icon: '👑', bgClass: 'bg-red-100', desc: '모든 권한 (사이트 설정, 회원 관리, 콘텐츠 삭제)' },
@@ -278,7 +279,7 @@ async function loadUsers(p = 1) {
 
 async function openUser(u) {
   activeUser.value = u; userLoading.value = true; userData.value = null; userTab.value = 'info'
-  try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data } catch {}
+  try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data; friendRequestVal.value = userData.value?.user?.allow_friend_request ? 'true' : 'false' } catch {}
   userLoading.value = false
 }
 
