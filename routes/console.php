@@ -10,7 +10,7 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 // 매일 새 YouTube Shorts 수집
-Schedule::command('shorts:fetch --limit=50 --days=7')->dailyAt('03:00');
+Schedule::command('shorts:fetch --limit=500 --korean-ratio=70')->dailyAt('03:00');
 
 // 뉴스 RSS 수집 (하루 3번)
 Schedule::command('news:fetch')->dailyAt('06:00');

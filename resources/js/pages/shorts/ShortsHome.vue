@@ -105,10 +105,15 @@ const newComment = ref('')
 const current = computed(() => shorts.value[idx.value] || {})
 
 function next() {
-  if (idx.value < shorts.value.length - 1) { idx.value++; liked.value = false }
+  if (idx.value < shorts.value.length - 1) { idx.value++; liked.value = false; markViewed() }
 }
 function prev() {
   if (idx.value > 0) { idx.value--; liked.value = false }
+}
+
+async function markViewed() {
+  if (!auth.isLoggedIn || !current.value.id) return
+  try { await axios.post(`/api/shorts/${current.value.id}/viewed`) } catch {}
 }
 
 async function toggleLike() {

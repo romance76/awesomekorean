@@ -140,6 +140,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/shorts', [ShortController::class, 'store']);
     Route::post('/shorts/{id}/like', [ShortController::class, 'toggleLike']);
+    Route::post('/shorts/{id}/viewed', [ShortController::class, 'markViewed']);
 
     Route::post('/comments', [CommentController::class, 'store']);
     Route::put('/comments/{id}', [CommentController::class, 'update']);

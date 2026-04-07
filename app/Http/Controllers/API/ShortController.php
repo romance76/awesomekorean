@@ -8,9 +8,44 @@ class ShortController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Short::with('user:id,name,nickname,avatar')->where('is_active', true);
-        if ($request->sort === 'random') $query->inRandomOrder(); else $query->orderByDesc('created_at');
-        return response()->json(['success' => true, 'data' => $query->paginate(20)]);
+        $userId = auth()->id();
+
+        if ($userId) {
+            // 로그인: 안 본 숏츠 먼저 (랜덤) + 본 숏츠 나중에 (랜덤)
+            $viewedIds = \DB::table('short_views')->where('user_id', $userId)->pluck('short_id')->toArray();
+
+            $unseen = Short::where('is_active', true)
+                ->whereNotIn('id', $viewedIds)
+                ->inRandomOrder()
+                ->limit(50)
+                ->get();
+
+            $seen = Short::where('is_active', true)
+                ->whereIn('id', $viewedIds)
+                ->inRandomOrder()
+                ->limit(20)
+                ->get();
+
+            $shorts = $unseen->concat($seen);
+        } else {
+            // 비로그인: 전체 랜덤
+            $shorts = Short::where('is_active', true)->inRandomOrder()->limit(50)->get();
+        }
+
+        return response()->json(['success' => true, 'data' => ['data' => $shorts]]);
+    }
+
+    // 숏츠 본 기록 저장
+    public function markViewed(Request $request, $id)
+    {
+        $userId = auth()->id();
+        if (!$userId) return response()->json(['success' => true]);
+
+        \DB::table('short_views')->updateOrInsert(
+            ['user_id' => $userId, 'short_id' => $id],
+            ['viewed_at' => now()]
+        );
+        return response()->json(['success' => true]);
     }
 
     public function store(Request $request)
@@ -29,10 +64,10 @@ class ShortController extends Controller
     public function toggleLike($id)
     {
         $short = Short::findOrFail($id);
-        $like = \App\Models\ShortLike::where('short_id',$id)->where('user_id',auth()->id())->first();
-        if ($like) { $like->delete(); $short->decrement('like_count'); return response()->json(['success'=>true,'liked'=>false]); }
-        \App\Models\ShortLike::create(['short_id'=>$id,'user_id'=>auth()->id()]);
+        $like = \App\Models\ShortLike::where('short_id', $id)->where('user_id', auth()->id())->first();
+        if ($like) { $like->delete(); $short->decrement('like_count'); return response()->json(['success' => true, 'liked' => false]); }
+        \App\Models\ShortLike::create(['short_id' => $id, 'user_id' => auth()->id()]);
         $short->increment('like_count');
-        return response()->json(['success'=>true,'liked'=>true]);
+        return response()->json(['success' => true, 'liked' => true]);
     }
 }
