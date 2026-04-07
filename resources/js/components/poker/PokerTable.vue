@@ -4,8 +4,8 @@
     <div class="absolute inset-0 opacity-[0.07]"
       style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;" />
 
-    <!-- 검은 쿠션 — 더 축소 -->
-    <div class="absolute left-[15%] right-[15%] top-[22%] bottom-[18%] p-[7px]"
+    <!-- 검은 쿠션 — 딜러 허리에 테이블 상단 맞춤 -->
+    <div class="absolute left-[15%] right-[15%] top-[24%] bottom-[14%] p-[7px]"
       style="border-radius: 999px; background: linear-gradient(180deg, #3a3a3a, #1a1a1a, #2a2a2a); box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.5);">
 
       <!-- 나무 림 -->
@@ -57,9 +57,9 @@
     </div>
 
     <!-- 딜러 이미지 (내 맞은편 상단 중앙) -->
-    <div class="absolute left-1/2 -translate-x-1/2 z-[5]" style="top: 0%">
+    <div class="absolute left-1/2 -translate-x-1/2 z-[5]" style="top: -2%">
       <div class="flex flex-col items-center">
-        <img src="/images/dealer.png" alt="Dealer" class="h-[200px] w-auto object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.9)]" />
+        <img src="/images/dealer.png" alt="Dealer" class="h-[185px] w-auto object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.9)]" />
       </div>
     </div>
 

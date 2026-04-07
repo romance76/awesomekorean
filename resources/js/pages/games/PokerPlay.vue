@@ -121,8 +121,8 @@
         </div>
       </div>
 
-      <!-- ■ 중앙: 테이블 -->
-      <div class="flex-1 min-h-0 min-w-0">
+      <!-- ■ 중앙: 테이블 (가운데 정렬) -->
+      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center">
         <PokerTable :seats="seats" :community="community" :pot="pot" :stage="stage"
           :dealer-idx="dealerIdx" :showdown="showdown" :hand-results="handResults"
           :game-over="gameOver" :bl="bl" :act-idx="actIdx" :chat-bubbles="chatBubbles"
