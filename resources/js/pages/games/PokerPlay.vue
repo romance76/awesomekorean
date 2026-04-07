@@ -70,7 +70,7 @@
     <div class="flex-1 min-h-0 flex">
 
       <!-- ◀ 좌측: 코칭 + 폴드 -->
-      <div class="w-[220px] shrink-0 bg-[#080c14] border-r border-gray-800/50 flex flex-col overflow-hidden hidden lg:flex">
+      <div class="w-[200px] shrink-0 bg-[#080c14]/90 border-r border-gray-800/30 flex flex-col overflow-hidden hidden xl:flex">
         <!-- 코칭 -->
         <div v-if="coachTips && !gameOver" class="p-2.5 border-b border-gray-800/30">
           <div class="flex items-center justify-between mb-1.5">
@@ -125,7 +125,7 @@
       </div>
 
       <!-- ▶ 우측: 모니터(항상) + 채팅 -->
-      <div class="w-[240px] shrink-0 bg-[#080c14] border-l border-gray-800/50 flex flex-col overflow-hidden hidden lg:flex">
+      <div class="w-[210px] shrink-0 bg-[#080c14]/90 border-l border-gray-800/30 flex flex-col overflow-hidden hidden xl:flex">
         <!-- 토너먼트 모니터 (항상 표시) -->
         <div class="p-2.5 border-b border-gray-800/30">
           <div class="text-blue-400 text-xs font-bold tracking-wider mb-1.5">🏆 TOURNAMENT</div>
