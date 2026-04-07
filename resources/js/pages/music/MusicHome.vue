@@ -89,7 +89,7 @@
         </div>
 
         <!-- 페이지네이션 -->
-        <div v-if="trackLastPage > 1" class="flex justify-center gap-1.5 mt-3">
+        <div v-if="trackLastPage > 1 && activeCat && !showFavorites && !activePL" class="flex justify-center gap-1.5 mt-3">
           <button v-for="pg in Math.min(trackLastPage, 10)" :key="pg" @click="loadCategoryPage(pg)"
             class="px-3 py-1 rounded text-sm" :class="pg===trackPage?'bg-amber-400 text-amber-900 font-bold':'bg-white text-gray-600 border hover:bg-amber-50'">{{ pg }}</button>
         </div>
