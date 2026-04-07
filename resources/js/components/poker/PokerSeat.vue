@@ -58,24 +58,6 @@
       >
         <span :class="isMe ? 'text-[26px]' : 'text-xl'">{{ seat.emoji }}</span>
 
-        <!-- Position badge -->
-        <div
-          v-if="!seat.isOut && posLabel"
-          class="absolute -top-1 -right-1 z-[2]"
-        >
-          <span
-            class="inline-block rounded px-1.5 py-0.5 text-[9px] font-extrabold text-white border border-white/30 leading-tight"
-            :class="{
-              'bg-amber-400': posLabel === 'BTN',
-              'bg-blue-400': posLabel === 'SB',
-              'bg-red-500': posLabel === 'BB',
-              'bg-gray-600': posLabel !== 'BTN' && posLabel !== 'SB' && posLabel !== 'BB'
-            }"
-          >
-            {{ posLabel }}
-          </span>
-        </div>
-
         <!-- Winner crown -->
         <div
           v-if="isWinner"
@@ -85,9 +67,9 @@
         </div>
       </div>
 
-      <!-- Name + Chips -->
+      <!-- Name + Position + Chips -->
       <div
-        class="rounded-md px-2.5 py-[3px] -mt-1 text-center backdrop-blur-sm"
+        class="rounded-md px-2 py-[3px] -mt-1 text-center backdrop-blur-sm"
         :class="[
           isMe ? 'min-w-[80px]' : 'min-w-[60px]',
           isWinner
@@ -95,13 +77,16 @@
             : 'bg-black/70 border border-white/[0.08]'
         ]"
       >
-        <div
-          class="font-bold whitespace-nowrap"
-          :class="[
-            isMe ? 'text-blue-300 text-sm' : 'text-white text-xs'
-          ]"
-        >
-          {{ seat.name }}
+        <div class="flex items-center justify-center gap-1 whitespace-nowrap">
+          <span v-if="!seat.isOut && posLabel"
+            class="inline-block rounded px-1 py-[1px] text-[8px] font-extrabold text-white border border-white/30 leading-tight"
+            :class="{
+              'bg-amber-500': posLabel === 'BTN',
+              'bg-blue-500': posLabel === 'SB',
+              'bg-red-600': posLabel === 'BB',
+              'bg-gray-600': !['BTN','SB','BB'].includes(posLabel)
+            }">{{ posLabel }}</span>
+          <span :class="isMe ? 'text-blue-300 text-sm font-bold' : 'text-white text-xs font-bold'">{{ seat.name }}</span>
         </div>
         <div
           class="font-extrabold font-mono"

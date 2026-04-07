@@ -62,6 +62,7 @@
             <span class="font-bold text-sm">{{ totalRemaining }}</span>/{{ config.totalPlayers }}명
           </div>
           <div v-if="myBounties.length > 0" class="text-amber-300 text-[11px] font-bold">💰x{{ myBounties.length }}</div>
+          <button @click="confirmExit" class="bg-red-600/80 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1 rounded transition">나가기</button>
         </div>
       </div>
     </div>
@@ -229,6 +230,13 @@ function calcPrize() {
   if (finalPlace.value <= 6) return Math.floor(pool * 0.07)
   if (finalPlace.value <= 10) return Math.floor(pool * 0.04)
   return Math.floor(pool * 0.02)
+}
+
+function confirmExit() {
+  if (confirm('토너먼트를 포기하고 나가시겠습니까?')) {
+    cleanup()
+    router.push('/games/poker')
+  }
 }
 
 function handleRestart() {
