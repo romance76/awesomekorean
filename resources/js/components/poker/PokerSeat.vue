@@ -64,7 +64,7 @@
           class="absolute -top-1 -right-1 z-[2]"
         >
           <span
-            class="inline-block rounded px-1 py-[1px] text-[7px] font-extrabold text-white border border-white/30 leading-tight cursor-help"
+            class="inline-block rounded px-1.5 py-0.5 text-[9px] font-extrabold text-white border border-white/30 leading-tight"
             :class="{
               'bg-amber-400': posLabel === 'BTN',
               'bg-blue-400': posLabel === 'SB',
@@ -98,7 +98,7 @@
         <div
           class="font-bold whitespace-nowrap"
           :class="[
-            isMe ? 'text-blue-400 text-[11px]' : 'text-gray-300 text-[9px]'
+            isMe ? 'text-blue-300 text-sm' : 'text-white text-xs'
           ]"
         >
           {{ seat.name }}
@@ -106,15 +106,15 @@
         <div
           class="font-extrabold font-mono"
           :class="[
-            isMe ? 'text-xs' : 'text-[10px]',
-            seat.isOut ? 'text-gray-600' : 'text-amber-400'
+            isMe ? 'text-sm' : 'text-xs',
+            seat.isOut ? 'text-gray-500' : 'text-amber-400'
           ]"
         >
           {{ seat.isOut ? '탈락' : seat.chips.toLocaleString() }}
         </div>
         <div
           v-if="seat.allIn && !seat.isOut"
-          class="text-red-400 text-[8px] font-extrabold tracking-wider"
+          class="text-red-400 text-[10px] font-extrabold tracking-wider"
         >
           ALL-IN
         </div>

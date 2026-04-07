@@ -1,25 +1,27 @@
 <template>
-  <div class="h-full relative mx-auto w-full max-w-[720px]">
-    <!-- Table shadow/glow -->
+  <div class="h-full relative mx-auto w-full">
+    <!-- Table shadow/glow (타원형) -->
     <div
-      class="absolute left-[8%] right-[8%] top-[10%] bottom-[18%] rounded-full bg-black/40 blur-[20px]"
+      class="absolute left-[5%] right-[5%] top-[12%] bottom-[14%] bg-black/40 blur-[20px]"
+      style="border-radius: 50% / 45%"
     />
 
-    <!-- Table border (wood rim) -->
+    <!-- Table border (wood rim, 타원형) -->
     <div
-      class="absolute left-[7%] right-[7%] top-[9%] bottom-[17%] rounded-full p-1.5"
-      style="background: linear-gradient(145deg, #5d3a1a, #3e2510, #5d3a1a)"
+      class="absolute left-[4%] right-[4%] top-[11%] bottom-[13%] p-1.5"
+      style="border-radius: 50% / 45%; background: linear-gradient(145deg, #6d4a2a, #4e3520, #6d4a2a)"
     >
-      <!-- Felt -->
+      <!-- Felt (타원형) -->
       <div
-        class="w-full h-full rounded-full relative overflow-visible"
+        class="w-full h-full relative overflow-visible"
         style="
-          background: radial-gradient(ellipse at 40% 40%, #2d7a4a 0%, #1a5c35 30%, #13442a 60%, #0d3320 100%);
+          border-radius: 50% / 45%;
+          background: radial-gradient(ellipse at 45% 40%, #2d7a4a 0%, #1a5c35 30%, #13442a 60%, #0d3320 100%);
           box-shadow: inset 0 4px 30px rgba(0,0,0,0.4), inset 0 0 60px rgba(0,0,0,0.2);
         "
       >
         <!-- Felt texture overlay -->
-        <div class="absolute inset-0 rounded-full opacity-50" style="background: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22><rect width=%224%22 height=%224%22 fill=%22rgba(0,0,0,0.03)%22/><rect width=%221%22 height=%221%22 fill=%22rgba(255,255,255,0.02)%22/></svg>')" />
+        <div class="absolute inset-0 opacity-50" style="border-radius: 50% / 45%; background: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22><rect width=%224%22 height=%224%22 fill=%22rgba(0,0,0,0.03)%22/><rect width=%221%22 height=%221%22 fill=%22rgba(255,255,255,0.02)%22/></svg>')" />
 
         <!-- Community Cards -->
         <div class="absolute top-[42%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-[4]">
@@ -40,7 +42,7 @@
             </template>
           </div>
           <!-- Stage label on felt -->
-          <div class="text-emerald-300/70 text-[9px] tracking-[2px] mb-1 uppercase">
+          <div class="text-emerald-300 text-xs tracking-[2px] mb-1 uppercase">
             {{ stageLabel }} {{ stageDesc }}
           </div>
         </div>
@@ -63,8 +65,8 @@
             </div>
           </div>
           <div class="bg-black/55 rounded-full px-4 py-1 flex items-center gap-1.5 backdrop-blur-sm border border-white/10">
-            <span class="text-gray-400 text-[9px] font-semibold">POT</span>
-            <span class="text-amber-400 text-lg font-extrabold font-mono" style="text-shadow: 0 0 8px rgba(255,215,0,0.3)">
+            <span class="text-gray-300 text-xs font-bold">POT</span>
+            <span class="text-amber-400 text-xl font-extrabold font-mono" style="text-shadow: 0 0 8px rgba(255,215,0,0.3)">
               {{ pot.toLocaleString() }}
             </span>
           </div>
@@ -137,16 +139,17 @@ const props = defineProps({
   chatBubbles: { type: Object, default: () => ({}) }
 })
 
+// 타원형 배치 (가로 넓고, 세로 좁게)
 const seatPositions = [
-  { x: 50, y: 80 },   // 0: player (bottom)
-  { x: 12, y: 72 },   // 1: left-bottom
-  { x: 4, y: 50 },    // 2: left
-  { x: 12, y: 28 },   // 3: left-top
-  { x: 32, y: 14 },   // 4: top-left
-  { x: 50, y: 10 },   // 5: top center
-  { x: 68, y: 14 },   // 6: top-right
-  { x: 88, y: 28 },   // 7: right-top
-  { x: 96, y: 50 }    // 8: right
+  { x: 50, y: 84 },   // 0: player (bottom center)
+  { x: 15, y: 72 },   // 1: left-bottom
+  { x: 3, y: 48 },    // 2: left
+  { x: 15, y: 24 },   // 3: left-top
+  { x: 35, y: 10 },   // 4: top-left
+  { x: 50, y: 6 },    // 5: top center
+  { x: 65, y: 10 },   // 6: top-right
+  { x: 85, y: 24 },   // 7: right-top
+  { x: 97, y: 48 }    // 8: right
 ]
 
 const stageLabel = computed(() => STAGE_NAMES[props.stage] || props.stage)

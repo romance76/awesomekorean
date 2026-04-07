@@ -30,7 +30,7 @@
         <div class="text-yellow-300 text-sm font-mono mt-1">+{{ (myBounties.length * Math.floor(config.buyIn * 0.1)).toLocaleString() }} &#52841;</div>
       </div>
 
-      <div class="text-gray-600 text-sm">&#54540;&#47112;&#51060; &#54592;&#46300;: {{ handNum }} | &#52572;&#44256; &#48660;&#46972;&#51064;&#46300;: {{ bl.sb }}/{{ bl.bb }}</div>
+      <div class="text-gray-400 text-sm">&#54540;&#47112;&#51060; &#54592;&#46300;: {{ handNum }} | &#52572;&#44256; &#48660;&#46972;&#51064;&#46300;: {{ bl.sb }}/{{ bl.bb }}</div>
 
       <div class="flex gap-3 justify-center pt-2">
         <button @click="handleRestart"
@@ -75,41 +75,41 @@
         <div v-if="coachTips && !gameOver" class="p-2.5 border-b border-gray-800/30">
           <div class="flex items-center justify-between mb-1.5">
             <div class="flex items-center gap-1">
-              <span class="bg-blue-500/20 border border-blue-500/30 rounded px-1.5 py-0.5 text-blue-400 text-[10px] font-bold">{{ coachTips.posName }}</span>
-              <span class="text-gray-400 text-[10px]">{{ coachTips.posFullName }}</span>
+              <span class="bg-blue-500/20 border border-blue-500/30 rounded px-1.5 py-0.5 text-blue-400 text-xs font-bold">{{ coachTips.posName }}</span>
+              <span class="text-gray-400 text-xs">{{ coachTips.posFullName }}</span>
             </div>
-            <span :class="coachTips.m <= 10 ? 'text-red-400' : 'text-gray-500'" class="text-[10px] font-mono">{{ coachTips.m }}BB</span>
+            <span :class="coachTips.m <= 10 ? 'text-red-400' : 'text-gray-300'" class="text-xs font-mono">{{ coachTips.m }}BB</span>
           </div>
           <div class="mb-1.5">
             <div class="flex justify-between items-center mb-0.5">
-              <span class="text-gray-400 text-[10px]">승률</span>
+              <span class="text-gray-400 text-xs">승률</span>
               <span :class="coachTips.equity >= 60 ? 'text-emerald-400' : coachTips.equity >= 40 ? 'text-amber-400' : 'text-red-400'" class="text-base font-black">{{ coachTips.equity }}%</span>
             </div>
             <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
               <div :class="coachTips.equity >= 60 ? 'bg-emerald-500' : coachTips.equity >= 40 ? 'bg-amber-500' : 'bg-red-500'" class="h-full rounded-full transition-all" :style="{ width: coachTips.equity + '%' }" />
             </div>
           </div>
-          <div v-if="coachTips.toCall > 0" class="bg-black/30 rounded px-2 py-0.5 mb-1.5 text-[9px] text-gray-300">
+          <div v-if="coachTips.toCall > 0" class="bg-black/30 rounded px-2 py-0.5 mb-1.5 text-[11px] text-gray-300">
             팟오즈 {{ coachTips.potOddsPct }}% ({{ coachTips.toCall }}/{{ coachTips.pot + coachTips.toCall }})
           </div>
           <div class="rounded px-2 py-1" :style="{ background: coachTips.rec.color + '15', border: '1px solid ' + coachTips.rec.color + '30' }">
             <span :style="{ color: coachTips.rec.color }" class="text-xs font-black">→ {{ coachTips.rec.action }}</span>
-            <div class="text-gray-400 text-[9px] mt-0.5 leading-tight">{{ coachTips.rec.reason }}</div>
+            <div class="text-gray-400 text-[11px] mt-0.5 leading-tight">{{ coachTips.rec.reason }}</div>
           </div>
-          <div v-if="coachTips.handDesc || coachTips.madeHand" class="text-gray-500 text-[9px] mt-1">
+          <div v-if="coachTips.handDesc || coachTips.madeHand" class="text-gray-300 text-[11px] mt-1">
             {{ coachTips.madeHand ? '메이드: ' + coachTips.madeHand : coachTips.handDesc }}
           </div>
         </div>
 
         <!-- 폴드 카드 -->
         <div class="flex-1 overflow-y-auto p-2.5">
-          <div class="text-amber-600/80 text-[10px] font-bold mb-1">🃏 폴드 카드</div>
-          <div v-if="foldReveals.length === 0" class="text-gray-600 text-[9px]">아직 없음</div>
+          <div class="text-amber-600/80 text-xs font-bold mb-1">🃏 폴드 카드</div>
+          <div v-if="foldReveals.length === 0" class="text-gray-400 text-[11px]">아직 없음</div>
           <div v-for="(fr, i) in foldReveals.slice(-6)" :key="i" class="flex items-start gap-1.5 mb-1.5">
             <span class="text-xs shrink-0">{{ fr.emoji }}</span>
             <div class="min-w-0">
-              <div class="text-gray-300 text-[10px] font-bold">{{ fr.name }} <span class="text-gray-600">({{ fr.posLabel }})</span></div>
-              <div class="text-amber-800 text-[9px] leading-tight">{{ fr.reason }}</div>
+              <div class="text-gray-300 text-xs font-bold">{{ fr.name }} <span class="text-gray-400">({{ fr.posLabel }})</span></div>
+              <div class="text-amber-800 text-[11px] leading-tight">{{ fr.reason }}</div>
             </div>
           </div>
         </div>
@@ -128,43 +128,43 @@
       <div class="w-[240px] shrink-0 bg-[#080c14] border-l border-gray-800/50 flex flex-col overflow-hidden hidden lg:flex">
         <!-- 토너먼트 모니터 (항상 표시) -->
         <div class="p-2.5 border-b border-gray-800/30">
-          <div class="text-blue-400 text-[10px] font-bold tracking-wider mb-1.5">🏆 TOURNAMENT</div>
+          <div class="text-blue-400 text-xs font-bold tracking-wider mb-1.5">🏆 TOURNAMENT</div>
           <div class="text-center mb-1.5">
-            <div class="text-gray-500 text-[8px] tracking-widest">LEVEL {{ blindLevel + 1 }} · {{ bl.sb }}/{{ bl.bb }}{{ bl.ante > 0 ? ' (A' + bl.ante + ')' : '' }}</div>
+            <div class="text-gray-300 text-[8px] tracking-widest">LEVEL {{ blindLevel + 1 }} · {{ bl.sb }}/{{ bl.bb }}{{ bl.ante > 0 ? ' (A' + bl.ante + ')' : '' }}</div>
             <div :class="levelTimer <= 60 ? 'text-red-500' : 'text-emerald-400'" class="text-2xl font-extrabold font-mono leading-none">{{ fmtTime(levelTimer) }}</div>
             <div class="w-full h-[3px] bg-white/[0.06] rounded mt-1 overflow-hidden">
               <div :class="levelTimer <= 60 ? 'bg-red-500' : 'bg-emerald-500'" class="h-full rounded transition-all duration-1000" :style="{ width: (levelTimer / (bl.dur * 60) * 100) + '%' }" />
             </div>
-            <div class="text-gray-600 text-[8px] mt-0.5">NEXT: {{ nextBl.sb }}/{{ nextBl.bb }} · 경과 {{ fmtElapsed(elapsedTime) }}</div>
+            <div class="text-gray-400 text-[8px] mt-0.5">NEXT: {{ nextBl.sb }}/{{ nextBl.bb }} · 경과 {{ fmtElapsed(elapsedTime) }}</div>
           </div>
           <div class="space-y-0.5">
-            <div class="flex justify-between text-[10px]"><span class="text-gray-500">REMAINING</span><span :class="totalRemaining <= paidSlots ? 'text-emerald-400' : 'text-blue-400'" class="font-bold font-mono">{{ totalRemaining }}/{{ config.totalPlayers }}</span></div>
-            <div class="flex justify-between text-[10px]"><span class="text-gray-500">AVG STACK</span><span class="text-amber-400 font-bold font-mono">{{ Math.floor(config.startChips * config.totalPlayers / Math.max(1, totalRemaining)).toLocaleString() }}</span></div>
-            <div class="flex justify-between text-[10px]"><span class="text-gray-500">MY STACK</span><span :class="(playerSeat?.chips || 0) < bl.bb * 10 ? 'text-red-400' : 'text-white'" class="font-bold font-mono">{{ (playerSeat?.chips || 0).toLocaleString() }}</span></div>
-            <div class="flex justify-between text-[10px]"><span class="text-gray-500">RANK</span><span :class="myRank <= paidSlots ? 'text-emerald-400' : 'text-gray-300'" class="font-bold font-mono">~{{ myRank }}위</span></div>
-            <div class="flex justify-between text-[10px]"><span class="text-gray-500">BOUNTIES</span><span :class="myBounties.length > 0 ? 'text-amber-400' : 'text-gray-600'" class="font-bold font-mono">{{ myBounties.length }}</span></div>
+            <div class="flex justify-between text-xs"><span class="text-gray-300">REMAINING</span><span :class="totalRemaining <= paidSlots ? 'text-emerald-400' : 'text-blue-400'" class="font-bold font-mono">{{ totalRemaining }}/{{ config.totalPlayers }}</span></div>
+            <div class="flex justify-between text-xs"><span class="text-gray-300">AVG STACK</span><span class="text-amber-400 font-bold font-mono">{{ Math.floor(config.startChips * config.totalPlayers / Math.max(1, totalRemaining)).toLocaleString() }}</span></div>
+            <div class="flex justify-between text-xs"><span class="text-gray-300">MY STACK</span><span :class="(playerSeat?.chips || 0) < bl.bb * 10 ? 'text-red-400' : 'text-white'" class="font-bold font-mono">{{ (playerSeat?.chips || 0).toLocaleString() }}</span></div>
+            <div class="flex justify-between text-xs"><span class="text-gray-300">RANK</span><span :class="myRank <= paidSlots ? 'text-emerald-400' : 'text-gray-300'" class="font-bold font-mono">~{{ myRank }}위</span></div>
+            <div class="flex justify-between text-xs"><span class="text-gray-300">BOUNTIES</span><span :class="myBounties.length > 0 ? 'text-amber-400' : 'text-gray-400'" class="font-bold font-mono">{{ myBounties.length }}</span></div>
           </div>
-          <div class="flex justify-between text-[10px] mt-1 pt-1 border-t border-gray-800/30">
-            <span class="text-gray-500">PRIZE</span><span class="text-amber-400 font-bold">${{ prizePool.toLocaleString() }}</span>
+          <div class="flex justify-between text-xs mt-1 pt-1 border-t border-gray-800/30">
+            <span class="text-gray-300">PRIZE</span><span class="text-amber-400 font-bold">${{ prizePool.toLocaleString() }}</span>
           </div>
           <div v-if="totalRemaining <= paidSlots * 1.2 && totalRemaining > paidSlots" class="text-center mt-1.5 bg-amber-500/10 rounded py-0.5">
-            <span class="text-amber-400 text-[9px] font-bold">🫧 BUBBLE — {{ totalRemaining - paidSlots }}명</span>
+            <span class="text-amber-400 text-[11px] font-bold">🫧 BUBBLE — {{ totalRemaining - paidSlots }}명</span>
           </div>
           <div v-else-if="totalRemaining <= paidSlots" class="text-center mt-1.5 bg-emerald-500/10 rounded py-0.5">
-            <span class="text-emerald-400 text-[9px] font-bold">💰 IN THE MONEY</span>
+            <span class="text-emerald-400 text-[11px] font-bold">💰 IN THE MONEY</span>
           </div>
         </div>
 
         <!-- 채팅 (준비 중) -->
         <div class="flex-1 flex flex-col overflow-hidden">
           <div class="p-2 border-b border-gray-800/30">
-            <span class="text-gray-500 text-[10px] font-bold">💬 채팅</span>
+            <span class="text-gray-300 text-xs font-bold">💬 채팅</span>
           </div>
           <div class="flex-1 overflow-y-auto p-2">
-            <div v-if="lastAction" class="text-gray-400 text-[10px] mb-1">{{ lastAction }}</div>
-            <div v-if="bustMsg" class="text-red-400 text-[10px] mb-1">{{ bustMsg }}</div>
-            <div v-for="(log, i) in tourneyLog.slice(-8)" :key="i" class="text-gray-500 text-[9px] mb-0.5">{{ log }}</div>
-            <div v-if="!lastAction && !bustMsg && tourneyLog.length === 0" class="text-gray-700 text-[9px]">게임이 시작되면 여기에 로그가 표시됩니다</div>
+            <div v-if="lastAction" class="text-gray-400 text-xs mb-1">{{ lastAction }}</div>
+            <div v-if="bustMsg" class="text-red-400 text-xs mb-1">{{ bustMsg }}</div>
+            <div v-for="(log, i) in tourneyLog.slice(-8)" :key="i" class="text-gray-300 text-[11px] mb-0.5">{{ log }}</div>
+            <div v-if="!lastAction && !bustMsg && tourneyLog.length === 0" class="text-gray-700 text-[11px]">게임이 시작되면 여기에 로그가 표시됩니다</div>
           </div>
         </div>
       </div>
@@ -184,7 +184,7 @@
 
   <!-- Loading -->
   <div v-else class="min-h-screen flex items-center justify-center">
-    <div class="text-gray-500 text-sm">&#47196;&#46377; &#51473;...</div>
+    <div class="text-gray-300 text-sm">&#47196;&#46377; &#51473;...</div>
   </div>
 </div>
 </template>
