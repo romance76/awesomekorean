@@ -1,0 +1,1 @@
+import a from"./ArcadeGame-e6X8L8KV.js";import{m as e,k as m}from"./app-Dh2FdWQK.js";const n={__name:"GamePacman",setup(r){return(c,t)=>(m(),e(a,{"game-slug":"pacman","game-id":"pacman",title:"👾 팩맨","points-per-score":1}))}};export{n as default};

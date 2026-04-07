@@ -4,7 +4,7 @@
     <div class="max-w-7xl mx-auto px-4 flex items-center h-14">
       <!-- Logo 왼쪽 -->
       <RouterLink to="/" class="flex items-center gap-2 flex-shrink-0">
-        <div class="w-8 h-8 bg-amber-400 rounded-lg flex items-center justify-center text-sm font-black text-amber-900">SK</div>
+        <img src="/images/logo_00.jpg" alt="SomeKorean" class="w-8 h-8 rounded-lg object-cover" @error="e => e.target.outerHTML='<div class=\'w-8 h-8 bg-amber-400 rounded-lg flex items-center justify-center text-sm font-black text-amber-900\'>SK</div>'" />
         <div class="hidden sm:block">
           <div class="font-black text-gray-900 text-sm leading-none">SomeKorean</div>
           <div class="text-[10px] text-amber-600 font-medium">미국 한인 커뮤니티</div>
