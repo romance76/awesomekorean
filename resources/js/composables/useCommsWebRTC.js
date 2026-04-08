@@ -79,16 +79,25 @@ export function useCommsWebRTC() {
           startDurationTimer()
         }
       }
-      // failed만 로그 — 바로 끊지 않음 (TURN으로 재시도 가능)
       if (pc?.connectionState === 'failed') {
-        console.error('[WebRTC] ❌ Connection failed — but keeping call alive')
-        // 10초 후에도 failed면 종료
+        console.error('[WebRTC] ❌ Connection failed')
         setTimeout(() => {
-          if (pc?.connectionState === 'failed') {
-            console.error('[WebRTC] ❌ Still failed after 10s — ending call')
+          if (pc?.connectionState === 'failed') handleCallEnded()
+        }, 5000)
+      }
+      // 상대방이 끊으면 disconnected → closed
+      if (pc?.connectionState === 'disconnected') {
+        console.log('[WebRTC] Peer disconnected — waiting 3s...')
+        setTimeout(() => {
+          if (pc?.connectionState === 'disconnected' || pc?.connectionState === 'closed') {
+            console.log('[WebRTC] Peer still disconnected — ending call')
             handleCallEnded()
           }
-        }, 10000)
+        }, 3000)
+      }
+      if (pc?.connectionState === 'closed') {
+        console.log('[WebRTC] Connection closed — ending call')
+        handleCallEnded()
       }
     }
 
