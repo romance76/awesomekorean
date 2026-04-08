@@ -21,6 +21,8 @@
     <!-- 글로벌 미니 프로필 팝업 -->
     <UserPopup :show="showUserPopup" :user-id="popupUserId" @close="showUserPopup=false" />
 
+    <CommHub v-if="auth.isLoggedIn" ref="commHub" />
+
     <main>
       <router-view v-slot="{ Component }" :key="route.fullPath">
         <keep-alive :include="['Home']">
@@ -71,12 +73,26 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSiteStore } from './stores/site'
+import { useAuthStore } from './stores/auth'
 import NavBar from './components/NavBar.vue'
 import BottomNav from './components/BottomNav.vue'
 import UserPopup from './components/UserPopup.vue'
+import CommHub from './components/comms/CommHub.vue'
 
 const route = useRoute()
 const siteStore = useSiteStore()
+const auth = useAuthStore()
+const commHub = ref(null)
+
+// 글로벌: 어디서든 window.openCommChat(partner, convId) / window.startCommCall(partner) 호출 가능
+if (typeof window !== 'undefined') {
+  window.openCommChat = (partner, conversationId) => {
+    commHub.value?.openChat(partner, conversationId)
+  }
+  window.startCommCall = (partner) => {
+    commHub.value?.startCall(partner)
+  }
+}
 
 // 글로벌 유저 팝업
 const showUserPopup = ref(false)

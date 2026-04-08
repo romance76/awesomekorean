@@ -123,6 +123,7 @@
             <div class="flex gap-1.5">
               <template v-if="f.status==='accepted'">
                 <button @click="openChat(f.friend?.id)" class="flex-1 text-[10px] bg-amber-100 text-amber-700 py-1.5 rounded-lg font-bold hover:bg-amber-200">💬 채팅</button>
+                <button @click="startCall(f.friend)" class="flex-1 text-[10px] bg-green-100 text-green-700 py-1.5 rounded-lg font-bold hover:bg-green-200">📞 전화</button>
                 <button @click="sendMessageTo(f.friend)" class="flex-1 text-[10px] bg-blue-100 text-blue-700 py-1.5 rounded-lg font-bold hover:bg-blue-200">✉️ 쪽지</button>
                 <button @click="removeFriend(f.id)" class="text-[10px] text-gray-400 px-2 py-1.5 hover:text-red-500">✕</button>
               </template>
@@ -241,10 +242,34 @@ async function removeFriend(id) {
 }
 
 async function openChat(friendId) {
-  try {
-    const { data } = await axios.post('/api/friends/private-chat', { friend_id: friendId })
-    router.push(`/chat/${data.data.room_id}`)
-  } catch {}
+  // 안심 채팅 (CommHub 사용)
+  if (window.openCommChat) {
+    const friend = allFriends.value.find(f => f.friend?.id === friendId)?.friend
+    if (friend) {
+      window.openCommChat({
+        id: friend.id,
+        name: friend.nickname || friend.name,
+        avatar: friend.avatar,
+        online: false,
+      }, null) // conversationId는 CommHub에서 자동 생성
+    }
+  } else {
+    // 기존 채팅 폴백
+    try {
+      const { data } = await axios.post('/api/friends/private-chat', { friend_id: friendId })
+      router.push(`/chat/${data.data.room_id}`)
+    } catch {}
+  }
+}
+
+function startCall(friend) {
+  if (window.startCommCall && friend) {
+    window.startCommCall({
+      id: friend.id,
+      name: friend.nickname || friend.name,
+      avatar: friend.avatar,
+    })
+  }
 }
 
 function sendMessageTo(friend) {

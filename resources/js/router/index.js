@@ -123,6 +123,9 @@ const routes = [
   // Music
   { path: '/music', name: 'music', component: p('music/MusicHome') },
 
+  // 안심 커뮤니케이션
+  { path: '/comms', name: 'comms', component: p('comms/CommsHome'), meta: { auth: true } },
+
   // Elder
   { path: '/elder', name: 'elder', component: p('elder/ElderHome') },
   { path: '/elder/checkin', component: p('elder/ElderCheckin'), meta: { auth: true } },
