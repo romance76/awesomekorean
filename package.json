@@ -20,6 +20,7 @@
         "firebase": "^12.11.0",
         "laravel-echo": "^1.19.0",
         "leaflet": "^1.9.4",
+        "peerjs": "^1.5.5",
         "pinia": "^3.0.4",
         "pusher-js": "^8.4.3",
         "socket.io-client": "^4.8.3",
