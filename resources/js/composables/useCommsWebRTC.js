@@ -24,6 +24,7 @@ const ICE_SERVERS = {
     },
   ],
   iceCandidatePoolSize: 10,
+  iceTransportPolicy: 'relay',  // TURN 강제 (디버깅용 — 나중에 제거)
 }
 
 export function useCommsWebRTC() {
