@@ -49,12 +49,21 @@ export function useCommsWebRTC() {
   let pendingIceCandidates = []
 
   // ── SDP 정리 ──────────────────────────────────────────────────
+  // iOS Safari의 SDP에 a=ssrc msid 줄이 있는데 Android Chrome이 파싱 못 함
+  // "a=ssrc:1234 msid:uuid1 uuid2" 형태 → 제거
   function sanitizeSdp(sdpObj) {
     if (!sdpObj || !sdpObj.sdp) return sdpObj
-    return {
-      type: sdpObj.type,
-      sdp: sdpObj.sdp.replace(/ +(\r?\n)/g, '$1').replace(/\r?\n/g, '\r\n')
-    }
+    let sdp = sdpObj.sdp
+    // 1. a=ssrc:NNN msid: 줄 제거 (iOS Safari → Android Chrome 호환 문제)
+    sdp = sdp.replace(/^a=ssrc:\d+ msid:.*$/gm, '')
+    // 2. a=ssrc:NNN mslabel/label 줄도 제거 (구형 SDP)
+    sdp = sdp.replace(/^a=ssrc:\d+ mslabel:.*$/gm, '')
+    sdp = sdp.replace(/^a=ssrc:\d+ label:.*$/gm, '')
+    // 3. 빈 줄 정리
+    sdp = sdp.replace(/\n{3,}/g, '\n\n')
+    // 4. 줄 끝 공백 + CRLF 통일
+    sdp = sdp.replace(/ +(\r?\n)/g, '$1').replace(/\r?\n/g, '\r\n')
+    return { type: sdpObj.type, sdp }
   }
 
   // ── PeerConnection ──────────────────────────────────────────────
