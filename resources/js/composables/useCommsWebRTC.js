@@ -95,8 +95,18 @@ export function useCommsWebRTC() {
 
   async function getLocalStream() {
     if (localStream) return localStream
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-    return localStream
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+      return localStream
+    } catch (err) {
+      console.error('[WebRTC] 마이크 접근 실패:', err.name, err.message)
+      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        throw new Error('마이크를 찾을 수 없습니다. 마이크가 연결되어 있는지 확인해주세요.')
+      } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        throw new Error('마이크 권한이 거부되었습니다. 브라우저 설정에서 마이크를 허용해주세요.')
+      }
+      throw new Error('마이크를 사용할 수 없습니다: ' + err.message)
+    }
   }
 
   function startDurationTimer() {

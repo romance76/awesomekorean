@@ -21,7 +21,7 @@
         @click="openChat(conv)"
         class="bg-white rounded-xl border p-4 flex items-center gap-3 cursor-pointer hover:bg-amber-50 transition">
         <div class="relative shrink-0">
-          <img :src="conv.partner?.avatar || '/images/default-avatar.png'" class="w-12 h-12 rounded-full object-cover" @error="$event.target.src='/images/default-avatar.png'" />
+          <img :src="conv.partner?.avatar || '/images/default-avatar.svg'" class="w-12 h-12 rounded-full object-cover" @error="$event.target.src='/images/default-avatar.svg'" />
           <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white" :class="conv.partner?.online ? 'bg-green-500' : 'bg-gray-300'" />
         </div>
         <div class="flex-1 min-w-0">
@@ -45,7 +45,7 @@
         <p>통화 기록이 없습니다</p>
       </div>
       <div v-for="call in callHistory" :key="call.id" class="bg-white rounded-xl border p-4 flex items-center gap-3">
-        <img :src="call.partner_avatar || '/images/default-avatar.png'" class="w-10 h-10 rounded-full object-cover shrink-0" @error="$event.target.src='/images/default-avatar.png'" />
+        <img :src="call.partner_avatar || '/images/default-avatar.svg'" class="w-10 h-10 rounded-full object-cover shrink-0" @error="$event.target.src='/images/default-avatar.svg'" />
         <div class="flex-1 min-w-0">
           <div class="font-bold text-gray-800 text-sm truncate">{{ call.partner_name }}</div>
           <div class="text-xs text-gray-400 flex items-center gap-1 mt-0.5">

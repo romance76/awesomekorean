@@ -15,9 +15,9 @@
         <!-- Caller info -->
         <div class="text-center mt-10">
           <div class="relative inline-block">
-            <img :src="incomingCall?.caller_avatar || '/images/default-avatar.png'"
+            <img :src="incomingCall?.caller_avatar || '/images/default-avatar.svg'"
                  class="w-24 h-24 rounded-full object-cover border-[3px] border-green-500/50 animate-pulse-ring"
-                 @error="$event.target.src = '/images/default-avatar.png'">
+                 @error="$event.target.src = '/images/default-avatar.svg'">
           </div>
           <p class="text-2xl font-bold mt-4">{{ incomingCall?.caller_name }}</p>
           <p class="text-sm text-white/60 mt-1">음성 통화 수신 중...</p>
@@ -63,9 +63,9 @@
 
         <!-- Remote user avatar + name -->
         <div class="text-center mb-8">
-          <img :src="remoteUser?.avatar || '/images/default-avatar.png'"
+          <img :src="remoteUser?.avatar || '/images/default-avatar.svg'"
                class="w-28 h-28 rounded-full object-cover border-[3px] border-white/15 mx-auto"
-               @error="$event.target.src = '/images/default-avatar.png'">
+               @error="$event.target.src = '/images/default-avatar.svg'">
           <p class="text-2xl font-bold mt-4">{{ remoteUser?.name }}</p>
         </div>
 

@@ -12,10 +12,10 @@
 
       <div class="flex items-center gap-3 flex-1 min-w-0">
         <div class="relative flex-shrink-0">
-          <img :src="partner.avatar || '/images/default-avatar.png'"
+          <img :src="partner.avatar || '/images/default-avatar.svg'"
                :alt="partner.name"
                class="w-9 h-9 rounded-full object-cover"
-               @error="$event.target.src = '/images/default-avatar.png'">
+               @error="$event.target.src = '/images/default-avatar.svg'">
           <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-gray-800"
                 :class="partner.online ? 'bg-green-500' : 'bg-gray-500'"></span>
         </div>
@@ -55,9 +55,9 @@
            :class="msg.sender_id === myUserId ? 'flex-row-reverse' : ''">
         <!-- Partner avatar (only for their messages) -->
         <img v-if="msg.sender_id !== myUserId"
-             :src="partner.avatar || '/images/default-avatar.png'"
+             :src="partner.avatar || '/images/default-avatar.svg'"
              class="w-7 h-7 rounded-full object-cover flex-shrink-0"
-             @error="$event.target.src = '/images/default-avatar.png'">
+             @error="$event.target.src = '/images/default-avatar.svg'">
 
         <div class="flex flex-col max-w-[70%]"
              :class="msg.sender_id === myUserId ? 'items-end' : 'items-start'">
