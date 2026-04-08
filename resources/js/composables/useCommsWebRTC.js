@@ -196,6 +196,19 @@ export function useCommsWebRTC() {
           return
         }
 
+        // 다른 기기에서 수락됨 → 이 기기에서 벨 중지
+        if (type === 'call-answered-elsewhere') {
+          console.log('[WebRTC] Call answered on another device')
+          stopRingtone()
+          if (missedTimer) { clearTimeout(missedTimer); missedTimer = null }
+          incomingCall.value = null
+          currentRoomId.value = null
+          pendingOffer = null
+          pendingIceCandidates = []
+          callStatus.value = 'idle'
+          return
+        }
+
         if (type === 'call-ended') {
           endCall(false)
         }

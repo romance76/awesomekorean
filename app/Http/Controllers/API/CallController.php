@@ -59,7 +59,10 @@ class CallController extends Controller
     {
         abort_unless($call->callee_id === $request->user()->id, 403);
         $call->answer();
+        // 발신자에게 알림
         broadcast(new CommWebRtcSignal($call->caller_id, $call->room_id, 'call-answered', []));
+        // 수신자의 다른 기기에도 알림 (다른 기기에서 벨 중지)
+        broadcast(new CommWebRtcSignal($call->callee_id, $call->room_id, 'call-answered-elsewhere', []))->toOthers();
         return response()->json(['status' => 'answered']);
     }
 
