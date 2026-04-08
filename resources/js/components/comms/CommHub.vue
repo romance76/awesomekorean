@@ -1,10 +1,12 @@
 <template>
   <div>
     <slot />
-    <!-- 원격 오디오 (통화 시 상대방 음성) -->
-    <audio id="sk-remote-audio" autoplay playsinline style="display:none" />
-    <!-- 벨소리 전용 오디오 (DOM 엘리먼트 — 모바일 unlock 용) -->
-    <audio id="sk-ringtone" loop playsinline preload="none" style="display:none" />
+    <!-- 원격 오디오 — display:none 대신 크기 0 (모바일에서 display:none이면 재생 안 됨) -->
+    <audio id="sk-remote-audio" autoplay playsinline
+           style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0" />
+    <!-- 벨소리 -->
+    <audio id="sk-ringtone" loop playsinline preload="none"
+           style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0" />
 
     <!-- Chat window overlay -->
     <div v-if="activeChatPartner" class="fixed inset-0 z-[900]">
