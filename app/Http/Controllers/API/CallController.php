@@ -94,6 +94,11 @@ class CallController extends Controller
             'type'           => 'required|in:offer,answer,ice-candidate',
             'payload'        => 'required|array',
         ]);
+        \Log::info('[SIGNAL] ' . $request->type, [
+            'from' => $request->user()->id,
+            'to' => $request->target_user_id,
+            'room' => $request->room_id,
+        ]);
         broadcast(new CommWebRtcSignal(
             $request->target_user_id,
             $request->room_id,
