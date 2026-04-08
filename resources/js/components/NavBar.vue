@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50" style="padding-top: var(--sat)">
+  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50" style="padding-top: env(safe-area-inset-top, 0px)">
     <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth -->
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
       <!-- 햄버거 메뉴 (모바일) -->
@@ -16,11 +16,11 @@
       </RouterLink>
 
       <!-- Search -->
-      <div class="flex-1 flex justify-center px-1">
-        <form @submit.prevent="goSearch" class="flex border-2 border-amber-400 rounded-lg overflow-hidden w-full max-w-lg">
-          <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
-            class="flex-1 px-2 py-1 text-sm outline-none min-w-0" />
-          <button type="submit" class="bg-amber-400 px-3 text-amber-900 hover:bg-amber-500 transition flex-shrink-0">
+      <div class="flex-1 mx-2 min-w-0">
+        <form @submit.prevent="goSearch" class="flex border border-amber-400 rounded-lg overflow-hidden">
+          <input v-model="searchQ" type="text" placeholder="검색"
+            class="flex-1 px-2 py-1.5 text-sm outline-none min-w-0" />
+          <button type="submit" class="bg-amber-400 px-2.5 text-amber-900 hover:bg-amber-500 transition flex-shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           </button>
         </form>
