@@ -11,6 +11,14 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2563eb">
+    <script>
+    // 깨진 서비스워커 복구
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(r) { r.update().catch(function(){}); });
+      });
+    }
+    </script>
 </head>
 <body>
     <div id="app"></div>
