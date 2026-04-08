@@ -28,3 +28,14 @@ Broadcast::channel('poker.tournament.{tournamentId}', function ($user, $tourname
 Broadcast::channel('poker.table.{tableId}', function ($user, $tableId) {
     return auth()->check();
 });
+
+// 안심 커뮤니케이션 채널
+Broadcast::channel('conversation.{conversationId}', function ($user, int $conversationId) {
+    $conversation = \App\Models\Conversation::find($conversationId);
+    if (!$conversation) return false;
+    return in_array($user->id, [$conversation->user_a_id, $conversation->user_b_id]);
+});
+
+Broadcast::channel('user.{userId}', function ($user, int $userId) {
+    return $user->id === $userId;
+});

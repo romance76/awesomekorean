@@ -35,7 +35,11 @@ use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\AdminSettingsController;
 use App\Http\Controllers\API\PokerController;
 use App\Http\Controllers\API\PokerTournamentController;
+use App\Http\Controllers\API\ConversationController;
+use App\Http\Controllers\API\CallController;
+use App\Http\Controllers\API\UserBlockController;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Cache;
 
 // ─── Broadcasting Auth ───
 Broadcast::routes(['middleware' => ['auth:api']]);
@@ -224,6 +228,38 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/users/{id}', [ProfileController::class, 'show']);
     Route::get('/users/{id}/posts', [ProfileController::class, 'posts']);
+
+    // ─── 안심 커뮤니케이션 ───
+    Route::prefix('comms')->group(function () {
+        // 채팅
+        Route::get('/conversations', [ConversationController::class, 'index']);
+        Route::get('/conversations/{conversation}/messages', [ConversationController::class, 'messages']);
+        Route::post('/conversations/{partnerId}/send', [ConversationController::class, 'send']);
+
+        // 통화
+        Route::post('/calls/initiate', [CallController::class, 'initiate']);
+        Route::post('/calls/signal', [CallController::class, 'signal']);
+        Route::post('/calls/{call}/answer', [CallController::class, 'answer']);
+        Route::post('/calls/{call}/end', [CallController::class, 'end']);
+        Route::get('/calls/history', [CallController::class, 'history']);
+
+        // 차단
+        Route::post('/users/{user}/block', [UserBlockController::class, 'block']);
+        Route::delete('/users/{user}/block', [UserBlockController::class, 'unblock']);
+
+        // FCM 토큰 등록
+        Route::post('/push/register', function (\Illuminate\Http\Request $request) {
+            $request->validate(['fcm_token' => 'required|string', 'platform' => 'required|in:web,ios,android']);
+            $request->user()->update(['fcm_token' => $request->fcm_token, 'push_platform' => $request->platform]);
+            return response()->json(['success' => true]);
+        });
+
+        // 온라인 heartbeat
+        Route::post('/presence/ping', function (\Illuminate\Http\Request $request) {
+            Cache::put('user-online-' . $request->user()->id, true, now()->addSeconds(30));
+            return response()->json(['success' => true]);
+        });
+    });
 
     // ─── Poker ───
     Route::prefix('poker')->group(function () {
