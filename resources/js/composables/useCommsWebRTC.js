@@ -4,30 +4,23 @@ import { startRingtone, stopRingtone } from '@/services/RingtoneService'
 
 const ICE_SERVERS = {
   iceServers: [
-    // STUN 서버 (무료, NAT 감지용)
+    // STUN
     { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    // TURN 서버 (무료, NAT 뒤에서 중계)
-    // Metered.ca 무료 TURN (API 키 방식)
+    // 자체 TURN 서버 (somekorean.com 서버에 coturn 설치)
     {
-      urls: 'turn:a.relay.metered.ca:80',
-      username: 'e43cb0be4e81eab1718c498e',
-      credential: 'qVJIJRkN4/zrbiUn',
+      urls: 'turn:68.183.60.70:3478',
+      username: 'somekorean',
+      credential: 'Skrtc2026!',
     },
     {
-      urls: 'turn:a.relay.metered.ca:80?transport=tcp',
-      username: 'e43cb0be4e81eab1718c498e',
-      credential: 'qVJIJRkN4/zrbiUn',
+      urls: 'turn:68.183.60.70:3478?transport=tcp',
+      username: 'somekorean',
+      credential: 'Skrtc2026!',
     },
     {
-      urls: 'turn:a.relay.metered.ca:443',
-      username: 'e43cb0be4e81eab1718c498e',
-      credential: 'qVJIJRkN4/zrbiUn',
-    },
-    {
-      urls: 'turns:a.relay.metered.ca:443?transport=tcp',
-      username: 'e43cb0be4e81eab1718c498e',
-      credential: 'qVJIJRkN4/zrbiUn',
+      urls: 'turns:68.183.60.70:5349',
+      username: 'somekorean',
+      credential: 'Skrtc2026!',
     },
   ],
   iceCandidatePoolSize: 10,
