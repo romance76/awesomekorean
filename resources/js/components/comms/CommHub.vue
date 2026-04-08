@@ -76,8 +76,12 @@ const {
 let heartbeatInterval = null
 
 onMounted(async () => {
-  if (!myUserId) return
+  if (!myUserId) {
+    console.warn('[CommHub] No user ID, skipping init')
+    return
+  }
 
+  try {
   // Listen for incoming calls and WebRTC signals
   console.log('[CommHub] Initializing for user:', myUserId)
   listenForSignals(myUserId)
@@ -98,6 +102,9 @@ onMounted(async () => {
 
   // Handle Service Worker notification clicks forwarded to the app
   navigator.serviceWorker?.addEventListener('message', handleSwMessage)
+  } catch (err) {
+    console.error('[CommHub] Init error (non-fatal):', err)
+  }
 })
 
 onUnmounted(() => {

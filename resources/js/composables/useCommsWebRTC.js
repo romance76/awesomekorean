@@ -368,7 +368,7 @@ export function useCommsWebRTC() {
     return `${m}:${s}`
   })
 
-  onUnmounted(() => { endCall(false) })
+  onUnmounted(() => { try { endCall(false) } catch {} })
 
   return {
     callStatus, callDuration, durationFormatted, isMuted, isSpeaker,

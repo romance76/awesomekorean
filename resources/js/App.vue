@@ -21,7 +21,7 @@
     <!-- 글로벌 미니 프로필 팝업 -->
     <UserPopup :show="showUserPopup" :user-id="popupUserId" @close="showUserPopup=false" />
 
-    <CommHub v-if="auth.isLoggedIn" ref="commHub" />
+    <CommHub v-if="auth.isLoggedIn && auth.user" ref="commHub" />
 
     <main>
       <router-view v-slot="{ Component }" :key="route.fullPath">
