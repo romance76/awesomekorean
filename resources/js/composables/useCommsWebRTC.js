@@ -45,6 +45,7 @@ export function useCommsWebRTC() {
   let disconnectTimer = null  // disconnected 상태 딜레이 타이머
   let pendingOffer = null  // 수신 중 도착한 offer 버퍼
   let pendingIceCandidates = []  // PC 생성 전 도착한 ICE 후보 버퍼
+  let remoteAudioCtx = null  // 원격 오디오용 AudioContext (모바일 fallback)
 
   // SDP 문자열 정리 (브라우저 간 호환성 문제 방지)
   function sanitizeSdp(sdpObj) {
@@ -74,15 +75,26 @@ export function useCommsWebRTC() {
     }
 
     pc.ontrack = (event) => {
-      console.log('[WebRTC] Remote track received')
+      const stream = event.streams[0]
+      console.log('[WebRTC] Remote track received, audio tracks:', stream.getAudioTracks().length)
+
+      // 방법 1: <audio> 엘리먼트 (데스크톱 + 일부 모바일)
       const audio = document.getElementById('sk-remote-audio')
       if (audio) {
-        audio.srcObject = event.streams[0]
-        // 이미 unlockRemoteAudio()로 재생 중이면 srcObject만 바꿔도 OK
-        // 아직 안 된 경우 다시 시도
-        audio.play().catch(e => {
-          console.warn('[WebRTC] Remote audio play failed:', e.name, '— will retry on user gesture')
-        })
+        audio.srcObject = stream
+        const p = audio.play()
+        if (p) {
+          p.then(() => {
+            console.log('[WebRTC] ✅ Remote audio playing via <audio> element')
+          }).catch(e => {
+            console.warn('[WebRTC] <audio> play blocked:', e.name, '— trying AudioContext')
+            // 방법 2: AudioContext로 직접 라우팅 (모바일 fallback)
+            routeAudioViaContext(stream)
+          })
+        }
+      } else {
+        // <audio> 엘리먼트 없으면 바로 AudioContext
+        routeAudioViaContext(stream)
       }
     }
 
@@ -154,6 +166,7 @@ export function useCommsWebRTC() {
     stopRingtone()
     if (missedTimer) { clearTimeout(missedTimer); missedTimer = null }
     if (disconnectTimer) { clearTimeout(disconnectTimer); disconnectTimer = null }
+    if (remoteAudioCtx) { try { remoteAudioCtx.close() } catch {}; remoteAudioCtx = null }
     localStream?.getTracks().forEach(t => t.stop())
     if (pc) { try { pc.close() } catch {} }
     pc = null
@@ -281,33 +294,29 @@ export function useCommsWebRTC() {
       })
   }
 
-  // ── 모바일 원격 오디오 unlock ────────────────────────────────────
-  // 사용자 제스처(전화걸기/수락) 직후 즉시 호출하여 <audio> 재생 허용
-  function unlockRemoteAudio() {
-    // 1. AudioContext unlock
-    unlockAudio()
-
-    // 2. 무음 MediaStream을 만들어서 <audio>에 소스로 설정 후 play
-    //    소스 없이 play()하면 모바일에서 거부됨 → 반드시 소스 필요
-    const audio = document.getElementById('sk-remote-audio')
-    if (!audio) return
-
+  // ── AudioContext로 원격 오디오 재생 (모바일 fallback) ─────────────
+  function routeAudioViaContext(stream) {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      if (ctx.state === 'suspended') ctx.resume()
-      // 무음 스트림 생성 (oscillator 없이 destination만)
-      const dest = ctx.createMediaStreamDestination()
-      audio.srcObject = dest.stream
-      audio.play().then(() => {
-        console.log('[WebRTC] ✅ Remote audio unlocked with silent stream')
-      }).catch(e => {
-        console.warn('[WebRTC] Remote audio unlock failed:', e.name)
-      })
+      if (!remoteAudioCtx) {
+        remoteAudioCtx = new (window.AudioContext || window.webkitAudioContext)()
+      }
+      if (remoteAudioCtx.state === 'suspended') {
+        remoteAudioCtx.resume()
+      }
+      const source = remoteAudioCtx.createMediaStreamSource(stream)
+      source.connect(remoteAudioCtx.destination)
+      console.log('[WebRTC] ✅ Remote audio playing via AudioContext')
     } catch (e) {
-      // AudioContext 실패 시 fallback
-      audio.play().catch(() => {})
-      console.warn('[WebRTC] Silent stream creation failed:', e)
+      console.error('[WebRTC] ❌ AudioContext fallback also failed:', e)
     }
+  }
+
+  // ── 모바일 오디오 준비 ──────────────────────────────────────────
+  // 사용자 제스처 중 호출 → AudioContext unlock만 수행
+  // <audio> 엘리먼트는 건드리지 않음 (ontrack에서 실제 스트림 설정)
+  function unlockRemoteAudio() {
+    unlockAudio()
+    // getUserMedia가 바로 뒤에 호출되므로 그것이 진짜 오디오 unlock 역할
   }
 
   // ── 발신 ───────────────────────────────────────────────────────
