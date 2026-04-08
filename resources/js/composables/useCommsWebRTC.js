@@ -102,13 +102,9 @@ export function useCommsWebRTC() {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
       return localStream
     } catch (err) {
-      console.error('[WebRTC] 마이크 접근 실패:', err.name, err.message)
-      if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-        throw new Error('마이크를 찾을 수 없습니다. 마이크가 연결되어 있는지 확인해주세요.')
-      } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        throw new Error('마이크 권한이 거부되었습니다. 브라우저 설정에서 마이크를 허용해주세요.')
-      }
-      throw new Error('마이크를 사용할 수 없습니다: ' + err.message)
+      console.warn('[WebRTC] 마이크 접근 실패:', err.name, err.message)
+      // throw하지 않고 null 리턴 — 호출자가 null 체크
+      return null
     }
   }
 
@@ -265,13 +261,12 @@ export function useCommsWebRTC() {
       currentRoomId.value = data.room_id
       console.log('[WebRTC] Call initiated:', data.call_id, data.room_id)
 
-      // 마이크 (실패해도 계속 진행)
-      let stream = null
-      try {
-        stream = await getLocalStream()
+      // 마이크 (null이면 마이크 없이 진행)
+      const stream = await getLocalStream()
+      if (stream) {
         console.log('[WebRTC] Microphone OK')
-      } catch (micErr) {
-        console.warn('[WebRTC] Microphone failed:', micErr.message, '— proceeding without mic')
+      } else {
+        console.log('[WebRTC] No microphone — proceeding without')
       }
 
       console.log('[WebRTC] Creating PeerConnection...')
@@ -329,13 +324,12 @@ export function useCommsWebRTC() {
         // API 실패해도 계속 진행 (로컬 통화는 시도)
       }
 
-      // 2. 마이크 스트림 (실패해도 계속 진행)
-      let stream = null
-      try {
-        stream = await getLocalStream()
+      // 2. 마이크 스트림 (null이면 수신 전용)
+      const stream = await getLocalStream()
+      if (stream) {
         console.log('[WebRTC] Step 2 OK: Microphone acquired')
-      } catch (micErr) {
-        console.warn('[WebRTC] Step 2 WARN: No microphone —', micErr.message, '(수신 전용)')
+      } else {
+        console.log('[WebRTC] Step 2: No microphone — listen only mode')
       }
 
       // 3. PeerConnection 생성
