@@ -339,45 +339,71 @@ export function useCommsWebRTC() {
 
   // ── 수신 수락 ──────────────────────────────────────────────────
   async function answerCall() {
-    if (!incomingCall.value) return
+    console.log('[WebRTC] answerCall called, incomingCall:', !!incomingCall.value,
+      'pendingOffer:', !!pendingOffer, 'status:', callStatus.value)
 
-    // ★ await 전에 데이터 복사 (async 중 null 방지)
+    if (!incomingCall.value) {
+      console.error('[WebRTC] ❌ answerCall: incomingCall is null!')
+      return
+    }
+
+    // ★ await 전에 데이터 복사
     const { call_id, room_id, caller_id, caller_name, caller_avatar } = { ...incomingCall.value }
+    const savedPendingOffer = pendingOffer  // offer도 미리 저장
+    const savedIceCandidates = [...pendingIceCandidates]
 
     // 즉시 상태 업데이트
     currentCallId.value = call_id
     currentRoomId.value = room_id
     remoteUser.value = { id: caller_id, name: caller_name, avatar: caller_avatar }
-    callStatus.value = 'connecting'  // ★ 'connected' 아님! P2P 연결 전
+    callStatus.value = 'connecting'
     incomingCall.value = null
     stopRingtone()
     if (missedTimer) { clearTimeout(missedTimer); missedTimer = null }
 
-    // ★ getUserMedia — 마이크 권한 (user gesture 체인)
+    // ★ getUserMedia — 마이크 권한
+    console.log('[WebRTC] Getting microphone...')
     const stream = await getLocalStream()
+    console.log('[WebRTC] Mic result:', stream ? 'OK' : 'FAILED')
+
     startCallMonitor()
 
     try {
       // 서버에 수락 알림
-      await axios.post(`/api/comms/calls/${call_id}/answer`).catch(() => {})
+      console.log('[WebRTC] Sending answer API for call', call_id)
+      await axios.post(`/api/comms/calls/${call_id}/answer`).catch(e => {
+        console.warn('[WebRTC] Answer API error:', e.response?.status)
+      })
 
       // PeerConnection 생성 + 트랙 추가
       createPeerConnection(room_id, caller_id)
       if (stream && pc) {
         stream.getTracks().forEach(t => pc.addTrack(t, stream))
+        console.log('[WebRTC] Local tracks added')
+      } else {
+        console.warn('[WebRTC] No local tracks (stream:', !!stream, 'pc:', !!pc, ')')
       }
 
-      // 버퍼된 offer 처리
-      if (pendingOffer && pendingOffer.room_id === room_id) {
-        await pc.setRemoteDescription(sanitizeSdp(pendingOffer.sdp))
+      // 버퍼된 offer 처리 (저장한 변수 사용!)
+      const offer = savedPendingOffer || pendingOffer
+      console.log('[WebRTC] Offer available:', !!offer, 'room match:',
+        offer?.room_id === room_id, 'offer room:', offer?.room_id, 'call room:', room_id)
 
-        if (pendingIceCandidates.length > 0) {
-          for (const c of pendingIceCandidates) await pc.addIceCandidate(c).catch(() => {})
-          pendingIceCandidates = []
+      if (offer && offer.room_id === room_id) {
+        console.log('[WebRTC] Setting remote description...')
+        await pc.setRemoteDescription(sanitizeSdp(offer.sdp))
+
+        // ICE 후보 처리
+        const iceCandidates = savedIceCandidates.length > 0 ? savedIceCandidates : pendingIceCandidates
+        if (iceCandidates.length > 0) {
+          console.log('[WebRTC] Adding', iceCandidates.length, 'ICE candidates')
+          for (const c of iceCandidates) await pc.addIceCandidate(c).catch(() => {})
         }
+        pendingIceCandidates = []
 
         const answer = await pc.createAnswer()
         await pc.setLocalDescription(answer)
+        console.log('[WebRTC] Answer SDP created, sending...')
 
         await axios.post('/api/comms/calls/signal', {
           target_user_id: caller_id,
@@ -386,11 +412,13 @@ export function useCommsWebRTC() {
           payload: { sdp: { type: answer.type, sdp: answer.sdp } },
         })
         pendingOffer = null
-        console.log('[WebRTC] ✅ Answer sent')
+        console.log('[WebRTC] ✅ Answer sent to caller!')
+      } else {
+        console.error('[WebRTC] ❌ NO OFFER! Cannot create answer.',
+          'pendingOffer:', !!pendingOffer, 'saved:', !!savedPendingOffer)
       }
-      // ★ 여기서 connected 설정 안 함 — onconnectionstatechange가 처리
     } catch (err) {
-      console.error('[WebRTC] answerCall error:', err.message || err)
+      console.error('[WebRTC] ❌ answerCall error:', err.message || err, err)
     }
   }
 
