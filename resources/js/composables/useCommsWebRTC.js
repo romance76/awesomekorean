@@ -245,13 +245,25 @@ export function useCommsWebRTC() {
       const { data } = await axios.post('/api/comms/calls/initiate', { callee_id: targetUser.id })
       currentCallId.value = data.call_id
       currentRoomId.value = data.room_id
+      console.log('[WebRTC] Call initiated:', data.call_id, data.room_id)
 
-      const stream = await getLocalStream()
+      // 마이크 (실패해도 계속 진행)
+      let stream = null
+      try {
+        stream = await getLocalStream()
+        console.log('[WebRTC] Microphone OK')
+      } catch (micErr) {
+        console.warn('[WebRTC] Microphone failed:', micErr.message, '— proceeding without mic')
+      }
+
       createPeerConnection(data.room_id, targetUser.id)
-      stream.getTracks().forEach(t => pc.addTrack(t, stream))
+      if (stream) {
+        stream.getTracks().forEach(t => pc.addTrack(t, stream))
+      }
 
-      const offer = await pc.createOffer()
+      const offer = await pc.createOffer({ offerToReceiveAudio: true })
       await pc.setLocalDescription(offer)
+      console.log('[WebRTC] Offer created, sending...')
 
       await axios.post('/api/comms/calls/signal', {
         target_user_id: targetUser.id,
@@ -259,7 +271,7 @@ export function useCommsWebRTC() {
         type: 'offer',
         payload: { sdp: offer },
       })
-      console.log('[WebRTC] Offer sent to', targetUser.name)
+      console.log('[WebRTC] ✅ Offer sent to', targetUser.name)
     } catch (err) {
       console.error('[WebRTC] startCall failed:', err)
       handleCallEnded()
