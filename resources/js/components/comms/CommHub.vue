@@ -4,39 +4,32 @@
     <!-- 원격 오디오 (통화 시 상대방 음성) -->
     <audio id="sk-remote-audio" autoplay playsinline style="display:none" />
 
-    <!-- Chat window overlay (via Teleport) -->
-    <Teleport to="body">
-      <Transition name="comm-slide-up">
-        <div v-if="activeChatPartner"
-             class="fixed inset-0 z-[900]">
-          <ChatWindow
-            :partner="activeChatPartner"
-            :conversation-id="activeConversationId"
-            :my-user-id="myUserId"
-            @close="closeChat"
-            @start-call="handleStartCall"
-          />
-        </div>
-      </Transition>
-    </Teleport>
-
-    <!-- Call screen overlay (via Teleport) -->
-    <Teleport to="body">
-      <CallScreen
-        :show="callStatus !== 'idle'"
-        :call-status="callStatus"
-        :incoming-call="incomingCall"
-        :remote-user="remoteUser"
-        :is-muted="isMuted"
-        :is-speaker="isSpeaker"
-        :duration-formatted="durationFormatted"
-        @answer="answerCall"
-        @decline="declineCall"
-        @end="endCall"
-        @toggle-mute="toggleMute"
-        @toggle-speaker="toggleSpeaker"
+    <!-- Chat window overlay -->
+    <div v-if="activeChatPartner" class="fixed inset-0 z-[900]">
+      <ChatWindow
+        :partner="activeChatPartner"
+        :conversation-id="activeConversationId"
+        :my-user-id="myUserId"
+        @close="closeChat"
+        @start-call="handleStartCall"
       />
-    </Teleport>
+    </div>
+
+    <!-- Call screen overlay -->
+    <CallScreen
+      :show="callStatus !== 'idle'"
+      :call-status="callStatus"
+      :incoming-call="incomingCall"
+      :remote-user="remoteUser"
+      :is-muted="isMuted"
+      :is-speaker="isSpeaker"
+      :duration-formatted="durationFormatted"
+      @answer="answerCall"
+      @decline="declineCall"
+      @end="endCall"
+      @toggle-mute="toggleMute"
+      @toggle-speaker="toggleSpeaker"
+    />
   </div>
 </template>
 

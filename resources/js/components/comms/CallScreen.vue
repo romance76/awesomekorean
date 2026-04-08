@@ -1,13 +1,9 @@
 <template>
-  <Transition name="call-slide">
     <div v-if="show"
          class="fixed inset-0 z-[999] flex flex-col items-center justify-center
                 bg-gradient-to-br from-gray-950 via-gray-900 to-green-950
                 text-white font-sans"
-         :style="{
-           paddingTop: 'calc(60px + env(safe-area-inset-top))',
-           paddingBottom: 'calc(40px + env(safe-area-inset-bottom))',
-         }">
+         style="padding-top: 60px; padding-bottom: 40px;">
 
       <!-- ═══ Incoming call (ringing) ═══ -->
       <div v-if="callStatus === 'ringing'"
@@ -128,7 +124,6 @@
         </div>
       </div>
     </div>
-  </Transition>
 </template>
 
 <script setup>
