@@ -196,26 +196,14 @@ export function useCommsWebRTC() {
           return
         }
 
-        // 다른 기기에서 수락됨 → 이 기기가 벨 울리는 중이면 중지
-        // (connected/calling 상태면 무시 — 이미 통화 중인 기기)
-        if (type === 'call-answered-elsewhere') {
-          if (callStatus.value === 'ringing' && currentCallId.value === null) {
-            console.log('[WebRTC] Call answered on another device — stopping ring')
-            stopRingtone()
-            if (missedTimer) { clearTimeout(missedTimer); missedTimer = null }
-            incomingCall.value = null
-            currentRoomId.value = null
-            pendingOffer = null
-            pendingIceCandidates = []
-            callStatus.value = 'idle'
-          } else {
-            console.log('[WebRTC] call-answered-elsewhere ignored (status:', callStatus.value, 'callId:', currentCallId.value, ')')
-          }
-          return
-        }
-
         if (type === 'call-ended') {
-          endCall(false)
+          // 현재 진행 중인 통화의 room만 종료
+          if (room_id === currentRoomId.value) {
+            console.log('[WebRTC] Call ended by remote')
+            endCall(false)
+          } else {
+            console.log('[WebRTC] call-ended for different room, ignoring')
+          }
         }
       })
       .listen('.call.initiated', (event) => {
