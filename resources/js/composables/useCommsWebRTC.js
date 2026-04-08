@@ -257,17 +257,28 @@ export function useCommsWebRTC() {
         if (type === 'answer') {
           if (pc && currentRoomId.value === room_id) {
             try {
-              const cleanAnswer = sanitizeSdp(payload.sdp)
+              // SDP를 sanitize하지 않고 그대로 사용 시도
+              const rawSdp = payload.sdp
               axios.post('/api/comms/calls/client-log', {
-                message: 'caller: got answer, setting remote desc',
+                message: 'caller: got answer RAW',
                 data: {
-                  answerType: cleanAnswer.type,
-                  answerLen: cleanAnswer.sdp?.length,
+                  answerType: rawSdp.type,
+                  answerLen: rawSdp.sdp?.length,
+                  sdpFirst200: rawSdp.sdp?.substring(0, 200),
+                  sdpLast200: rawSdp.sdp?.substring(rawSdp.sdp.length - 200),
                   pendingIce: pendingIceCandidates.length,
-                  pcState: pc.signalingState,
                 }
               }).catch(() => {})
-              await pc.setRemoteDescription(cleanAnswer)
+              // sanitize 없이 시도 → 실패하면 sanitize 후 시도
+              try {
+                await pc.setRemoteDescription(rawSdp)
+              } catch (e1) {
+                axios.post('/api/comms/calls/client-log', {
+                  message: 'caller: raw failed, trying sanitized',
+                  data: { rawError: e1.message }
+                }).catch(() => {})
+                await pc.setRemoteDescription(sanitizeSdp(rawSdp))
+              }
               axios.post('/api/comms/calls/client-log', {
                 message: 'caller: remote desc set OK',
                 data: { iceState: pc.iceConnectionState, connState: pc.connectionState }
@@ -430,17 +441,19 @@ export function useCommsWebRTC() {
       })
 
       if (offer && offer.room_id === room_id) {
-        const cleanSdp = sanitizeSdp(offer.sdp)
-        // SDP에서 candidate 줄 수 확인
-        const candidateCount = (cleanSdp.sdp.match(/^a=candidate:/gm) || []).length
-        const hasAudio = cleanSdp.sdp.includes('m=audio')
-        dbg('answerCall: setRemoteDescription', {
-          sdpType: cleanSdp.type,
-          sdpLen: cleanSdp.sdp.length,
-          candidatesInSdp: candidateCount,
-          hasAudio,
-        })
-        await pc.setRemoteDescription(cleanSdp)
+        // SDP를 sanitize 없이 먼저 시도 → 실패하면 sanitize 후 시도
+        try {
+          dbg('answerCall: trying raw setRemoteDescription', {
+            sdpType: offer.sdp.type,
+            sdpLen: offer.sdp.sdp?.length,
+          })
+          await pc.setRemoteDescription(offer.sdp)
+          dbg('answerCall: raw setRemoteDescription OK')
+        } catch (rawErr) {
+          dbg('answerCall: raw failed, trying sanitized', { error: rawErr.message })
+          await pc.setRemoteDescription(sanitizeSdp(offer.sdp))
+          dbg('answerCall: sanitized setRemoteDescription OK')
+        }
 
         // ICE 후보 처리
         const iceCandidates = savedIceCandidates.length > 0 ? savedIceCandidates : pendingIceCandidates
