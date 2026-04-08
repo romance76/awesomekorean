@@ -316,6 +316,7 @@ export function useCommsWebRTC() {
     remoteUser.value = { id: caller_id, name: caller_name, avatar: caller_avatar }
     callStatus.value = 'connected'
     incomingCall.value = null
+    startDurationTimer()  // 수락 즉시 타이머 시작
 
     try {
       // 1. 서버에 수락 알림
