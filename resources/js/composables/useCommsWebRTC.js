@@ -85,18 +85,9 @@ export function useCommsWebRTC() {
           if (pc?.connectionState === 'failed') handleCallEnded()
         }, 5000)
       }
-      // 상대방이 끊으면 disconnected → closed
-      if (pc?.connectionState === 'disconnected') {
-        console.log('[WebRTC] Peer disconnected — waiting 3s...')
-        setTimeout(() => {
-          if (pc?.connectionState === 'disconnected' || pc?.connectionState === 'closed') {
-            console.log('[WebRTC] Peer still disconnected — ending call')
-            handleCallEnded()
-          }
-        }, 3000)
-      }
-      if (pc?.connectionState === 'closed') {
-        console.log('[WebRTC] Connection closed — ending call')
+      // 상대방이 끊으면 즉시 종료
+      if (pc?.connectionState === 'disconnected' || pc?.connectionState === 'closed') {
+        console.log('[WebRTC] Peer disconnected/closed — ending call NOW')
         handleCallEnded()
       }
     }
