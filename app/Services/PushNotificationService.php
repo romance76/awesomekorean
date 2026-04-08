@@ -79,9 +79,7 @@ class PushNotificationService
                     'priority' => 'high',
                     'notification' => [
                         'channel_id' => 'calls',
-                        'priority'   => 'max',
                         'sound'      => 'default',
-                        'vibrate_timings' => ['0.5s', '0.2s', '0.5s', '0.2s', '0.5s'],
                     ],
                 ]));
 
