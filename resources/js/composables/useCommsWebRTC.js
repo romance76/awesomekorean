@@ -284,19 +284,30 @@ export function useCommsWebRTC() {
   // ── 모바일 원격 오디오 unlock ────────────────────────────────────
   // 사용자 제스처(전화걸기/수락) 직후 즉시 호출하여 <audio> 재생 허용
   function unlockRemoteAudio() {
-    const audio = document.getElementById('sk-remote-audio')
-    if (audio) {
-      // 사용자 제스처 콜스택 내에서 play() → 모바일 autoplay 정책 해제
-      audio.muted = true
-      audio.play().then(() => {
-        audio.muted = false
-        console.log('[WebRTC] Remote audio unlocked (user gesture)')
-      }).catch(() => {
-        audio.muted = false
-      })
-    }
-    // AudioContext도 함께 unlock
+    // 1. AudioContext unlock
     unlockAudio()
+
+    // 2. 무음 MediaStream을 만들어서 <audio>에 소스로 설정 후 play
+    //    소스 없이 play()하면 모바일에서 거부됨 → 반드시 소스 필요
+    const audio = document.getElementById('sk-remote-audio')
+    if (!audio) return
+
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      if (ctx.state === 'suspended') ctx.resume()
+      // 무음 스트림 생성 (oscillator 없이 destination만)
+      const dest = ctx.createMediaStreamDestination()
+      audio.srcObject = dest.stream
+      audio.play().then(() => {
+        console.log('[WebRTC] ✅ Remote audio unlocked with silent stream')
+      }).catch(e => {
+        console.warn('[WebRTC] Remote audio unlock failed:', e.name)
+      })
+    } catch (e) {
+      // AudioContext 실패 시 fallback
+      audio.play().catch(() => {})
+      console.warn('[WebRTC] Silent stream creation failed:', e)
+    }
   }
 
   // ── 발신 ───────────────────────────────────────────────────────
@@ -305,22 +316,23 @@ export function useCommsWebRTC() {
     remoteUser.value = targetUser
     callStatus.value = 'calling'
 
-    // ★ 사용자 제스처 직후 즉시 오디오 unlock (async 전에!)
+    // ★ 사용자 제스처 직후 즉시: 오디오 unlock + 마이크 획득
     unlockRemoteAudio()
+
+    // 마이크를 API 호출 전에 획득 (user gesture 체인 안에서!)
+    // getUserMedia 성공 → 브라우저가 오디오 권한 부여 → 원격 오디오 재생도 허용
+    const stream = await getLocalStream()
+    if (stream) {
+      console.log('[WebRTC] Microphone OK')
+    } else {
+      console.log('[WebRTC] No microphone — proceeding without')
+    }
 
     try {
       const { data } = await axios.post('/api/comms/calls/initiate', { callee_id: targetUser.id })
       currentCallId.value = data.call_id
       currentRoomId.value = data.room_id
       console.log('[WebRTC] Call initiated:', data.call_id, data.room_id)
-
-      // 마이크 (null이면 마이크 없이 진행)
-      const stream = await getLocalStream()
-      if (stream) {
-        console.log('[WebRTC] Microphone OK')
-      } else {
-        console.log('[WebRTC] No microphone — proceeding without')
-      }
 
       console.log('[WebRTC] Creating PeerConnection...')
       createPeerConnection(data.room_id, targetUser.id)
@@ -358,8 +370,12 @@ export function useCommsWebRTC() {
       return
     }
 
-    // ★ 사용자 제스처 직후 즉시 오디오 unlock (async 전에!)
+    // ★ 사용자 제스처 직후 즉시: 오디오 unlock + 마이크 획득
     unlockRemoteAudio()
+
+    // 마이크를 최우선 획득 (user gesture 체인 안에서!)
+    // getUserMedia 성공 → 오디오 권한 확보 → 원격 소리 재생 가능
+    const stream = await getLocalStream()
 
     stopRingtone()
     if (missedTimer) { clearTimeout(missedTimer); missedTimer = null }
@@ -381,18 +397,9 @@ export function useCommsWebRTC() {
         console.log('[WebRTC] Step 1 OK: Server responded', resp.status, resp.data)
       } catch (apiErr) {
         console.error('[WebRTC] Step 1 FAILED: API error', apiErr.response?.status, apiErr.response?.data)
-        // API 실패해도 계속 진행 (로컬 통화는 시도)
       }
 
-      // 2. 마이크 스트림 (null이면 수신 전용)
-      const stream = await getLocalStream()
-      if (stream) {
-        console.log('[WebRTC] Step 2 OK: Microphone acquired')
-      } else {
-        console.log('[WebRTC] Step 2: No microphone — listen only mode')
-      }
-
-      // 3. PeerConnection 생성
+      // 2. PeerConnection 생성 (마이크는 이미 획득됨)
       createPeerConnection(room_id, caller_id)
       if (stream) {
         stream.getTracks().forEach(t => pc.addTrack(t, stream))
