@@ -60,27 +60,6 @@ async function initWebPush() {
 
 async function initCapacitorPush() {
   // Capacitor native push (iOS/Android)
-  // TODO: Add when Capacitor is set up
-  try {
-    const { PushNotifications } = await import('@capacitor/push-notifications')
-    const perm = await PushNotifications.requestPermissions()
-    if (perm.receive !== 'granted') return
-
-    await PushNotifications.register()
-
-    PushNotifications.addListener('registration', async (token) => {
-      const platform = window.Capacitor.getPlatform()
-      await axios.post('/api/comms/push/register', {
-        fcm_token: token.value,
-        platform,
-      })
-    })
-
-    PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
-      const url = action.notification.data?.url
-      if (url) window.location.href = url
-    })
-  } catch (err) {
-    console.warn('[PushService] Capacitor push setup failed:', err)
-  }
+  // TODO: Install @capacitor/push-notifications when building native apps
+  console.warn('[PushService] Capacitor push not available — install @capacitor/push-notifications')
 }
