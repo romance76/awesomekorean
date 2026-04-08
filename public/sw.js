@@ -1,25 +1,20 @@
 // ── Firebase Cloud Messaging (백그라운드 푸시) ──────────────────
-// getToken()이 작동하려면 SW에서 firebase-messaging 초기화 필요
-importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+// try/catch로 감싸서 Firebase 로드 실패해도 SW가 죽지 않도록
+try {
+  importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+  importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+  firebase.initializeApp({
+    apiKey: 'AIzaSyAOfIdUvVXqblgb7NrmPGWViIawuZNpDTA',
+    projectId: 'somekorean-c9430',
+    messagingSenderId: '430136797121',
+    appId: '1:430136797121:web:768cffa39c96a35e81f140',
+  });
+  firebase.messaging();
+} catch (e) {
+  console.warn('[SW] Firebase init failed (non-fatal):', e);
+}
 
-firebase.initializeApp({
-  apiKey: 'AIzaSyAOfIdUvVXqblgb7NrmPGWViIawuZNpDTA',
-  projectId: 'somekorean-c9430',
-  messagingSenderId: '430136797121',
-  appId: '1:430136797121:web:768cffa39c96a35e81f140',
-});
-
-const fbMessaging = firebase.messaging();
-
-// 백그라운드 메시지 수신 (페이지가 닫혀있을 때)
-fbMessaging.onBackgroundMessage((payload) => {
-  console.log('[SW] Background FCM message:', payload);
-  // push 이벤트 핸들러에서 이미 처리하므로 여기서는 추가 처리 불필요
-  // Firebase SDK가 자동으로 notification을 표시하지 않도록 data-only 메시지는 여기서 처리
-});
-
-const CACHE_NAME = 'somekorean-v3';
+const CACHE_NAME = 'somekorean-v4';
 const STATIC_ASSETS = ['/', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
