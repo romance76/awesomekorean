@@ -41,7 +41,7 @@
         <div class="flex gap-2">
           <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
           <div class="flex-1">
-            <textarea v-model="replyText" rows="2" :placeholder="`@${replyName} 에게 답글...`" class="w-full border-0 border-b border-gray-200 px-0 py-1 text-xs resize-none outline-none focus:border-amber-400"></textarea>
+            <textarea v-model="replyText" rows="2" placeholder="답글 추가..." class="w-full border-0 border-b border-gray-200 px-0 py-1 text-xs resize-none outline-none focus:border-amber-400"></textarea>
             <div class="flex justify-end gap-2 mt-1">
               <button @click="replyTo=null; replyText=''" class="text-[10px] text-gray-500 px-2 py-1 rounded-full hover:bg-gray-100">취소</button>
               <button @click="submitComment(c.id)" :disabled="!replyText.trim()" class="text-[10px] bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50">답글</button>
@@ -79,7 +79,7 @@ const totalCount = computed(() => {
 function openReply(commentId, userName) {
   replyTo.value = commentId
   replyName.value = userName
-  replyText.value = `@${userName} `
+  replyText.value = ''
 }
 
 async function submitComment(parentId) {
