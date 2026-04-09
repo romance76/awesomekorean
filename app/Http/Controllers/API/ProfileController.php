@@ -17,6 +17,27 @@ class ProfileController extends Controller
         $user = auth()->user();
         $user->update($request->only('name','nickname','bio','phone','address1','address2','city','state','zipcode','default_radius','language','allow_friend_request','allow_messages','allow_elder_service'));
 
+        // 우편번호로 도시/주/좌표 자동 채우기
+        $zipcode = $request->zipcode ?: $user->zipcode;
+        if ($zipcode && (!$user->latitude || $request->has('zipcode'))) {
+            try {
+                $response = @file_get_contents("https://api.zippopotam.us/us/{$zipcode}");
+                if ($response) {
+                    $geo = json_decode($response, true);
+                    $place = $geo['places'][0] ?? null;
+                    if ($place) {
+                        $updates = [
+                            'latitude' => $place['latitude'],
+                            'longitude' => $place['longitude'],
+                        ];
+                        if (!$user->city) $updates['city'] = $place['place name'];
+                        if (!$user->state) $updates['state'] = $place['state abbreviation'];
+                        $user->update($updates);
+                    }
+                }
+            } catch (\Exception $e) {}
+        }
+
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->update(['avatar' => '/storage/' . $path]);
