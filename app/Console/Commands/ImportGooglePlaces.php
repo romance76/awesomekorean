@@ -249,12 +249,20 @@ class ImportGooglePlaces extends Command
             }
         }
 
-        // 사진 URL (최대 5장)
+        // 사진 다운로드 (최대 3장, 서버에 저장)
         $images = [];
-        foreach (array_slice($details['photos'] ?? [], 0, 5) as $photo) {
+        foreach (array_slice($details['photos'] ?? [], 0, 3) as $photo) {
             $ref = $photo['photo_reference'] ?? null;
             if ($ref) {
-                $images[] = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference={$ref}&key={$this->apiKey}";
+                try {
+                    $imgUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference={$ref}&key={$this->apiKey}";
+                    $imgContent = @file_get_contents($imgUrl);
+                    if ($imgContent && strlen($imgContent) > 1000) {
+                        $filename = 'businesses/' . md5($ref) . '.jpg';
+                        \Storage::disk('public')->put($filename, $imgContent);
+                        $images[] = '/storage/' . $filename;
+                    }
+                } catch (\Exception $e) {}
             }
         }
 
