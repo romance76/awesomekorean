@@ -3,6 +3,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Notification;
+use App\Events\NewNotification;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -47,6 +48,10 @@ class MessageController extends Controller
             'content' => auth()->user()->name . '님이 쪽지를 보냈습니다.',
             'data' => ['message_id' => $msg->id, 'sender_id' => auth()->id(), 'sender_name' => auth()->user()->name],
         ]);
+
+        // WebSocket 실시간 알림
+        $unread = Notification::where('user_id', $request->receiver_id)->whereNull('read_at')->count();
+        broadcast(new NewNotification($request->receiver_id, $unread, '새 쪽지가 도착했습니다'))->toOthers();
 
         return response()->json(['success' => true, 'data' => $msg], 201);
     }

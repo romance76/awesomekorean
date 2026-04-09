@@ -294,19 +294,39 @@ function goSearch() {
 }
 
 let pollInterval = null
+let echoChannel = null
+
 onMounted(() => {
   loadUnread()
   loadMenuConfig()
-  // 60초마다 알림 카운트 + 온라인 heartbeat
   if (auth.isLoggedIn) {
+    // WebSocket 실시간 알림 수신
+    if (window.Echo && auth.user?.id) {
+      echoChannel = window.Echo.private(`user.${auth.user.id}`)
+      echoChannel.listen('.notification.new', (e) => {
+        unreadCount.value = e.unread_count || unreadCount.value + 1
+        loadUnread() // 목록도 새로고침
+      })
+    }
+    // WebSocket 실패 시 fallback: 120초 폴링
     pollInterval = setInterval(() => {
       loadUnread()
       axios.post('/api/heartbeat').catch(() => {})
-    }, 60000)
+    }, 120000)
   }
 })
 
-onUnmounted(() => { if (pollInterval) clearInterval(pollInterval) })
+function onVisibility() {
+  if (!document.hidden && auth.isLoggedIn) loadUnread()
+}
+
+onMounted(() => { document.addEventListener('visibilitychange', onVisibility) })
+
+onUnmounted(() => {
+  if (pollInterval) clearInterval(pollInterval)
+  if (echoChannel) echoChannel.stopListening('.notification.new')
+  document.removeEventListener('visibilitychange', onVisibility)
+})
 </script>
 
 <style scoped>
