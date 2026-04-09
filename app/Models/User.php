@@ -15,7 +15,9 @@ class User extends Authenticatable implements JWTSubject
         'name', 'nickname', 'email', 'password', 'phone',
         'address', 'city', 'state', 'zipcode', 'latitude', 'longitude',
         'avatar', 'bio', 'language', 'points', 'game_points',
-        'role', 'is_banned', 'ban_reason', 'allow_friend_request', 'last_login_at', 'last_active_at', 'login_count',
+        'address1', 'address2',
+        'role', 'is_banned', 'ban_reason', 'allow_friend_request', 'allow_messages', 'allow_elder_service',
+        'last_login_at', 'last_active_at', 'login_count',
         'provider', 'provider_id',
         'fcm_token', 'push_platform',
     ];
@@ -34,6 +36,9 @@ class User extends Authenticatable implements JWTSubject
             'login_count' => 'integer',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
+            'allow_friend_request' => 'boolean',
+            'allow_messages' => 'boolean',
+            'allow_elder_service' => 'boolean',
         ];
     }
 

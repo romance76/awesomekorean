@@ -20,6 +20,7 @@
     <div v-if="tab==='profile'" class="space-y-4">
       <div class="bg-white rounded-xl shadow-sm border p-5">
         <h2 class="font-bold text-gray-800 mb-4">📝 프로필 수정</h2>
+        <!-- 아바타 -->
         <div class="flex items-center gap-4 mb-5">
           <div class="w-16 h-16 rounded-full bg-amber-400 text-white flex items-center justify-center text-2xl font-bold">{{ (auth.user?.name||'?')[0] }}</div>
           <label class="cursor-pointer text-sm text-amber-600 font-bold hover:text-amber-800">
@@ -27,22 +28,68 @@
           </label>
           <span v-if="avatarMsg" class="text-xs text-green-600">{{ avatarMsg }}</span>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <!-- 이메일 (읽기 전용) -->
+        <div class="mb-3">
+          <label class="text-xs font-bold text-gray-600 mb-1 block">이메일</label>
+          <input :value="auth.user?.email" disabled class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500 cursor-not-allowed" />
+        </div>
+        <!-- 이름/닉네임 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <div><label class="text-xs font-bold text-gray-600 mb-1 block">이름</label><input v-model="pf.name" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
           <div><label class="text-xs font-bold text-gray-600 mb-1 block">닉네임</label><input v-model="pf.nickname" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
         </div>
         <div class="mb-3"><label class="text-xs font-bold text-gray-600 mb-1 block">소개</label><textarea v-model="pf.bio" rows="3" placeholder="자기소개를 적어주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea></div>
-        <div class="mb-3"><label class="text-xs font-bold text-gray-600 mb-1 block">전화번호</label><input v-model="pf.phone" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+        <!-- 전화번호 (필수) -->
+        <div class="mb-3">
+          <label class="text-xs font-bold text-gray-600 mb-1 block">전화번호 <span class="text-red-500">*필수</span></label>
+          <input v-model="pf.phone" placeholder="전화번호를 입력하세요" class="w-full border rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <!-- 주소 -->
+        <div class="mb-3">
+          <label class="text-xs font-bold text-gray-600 mb-1 block">주소 1</label>
+          <input v-model="pf.address1" placeholder="주소 1 (예: 123 Main St)" class="w-full border rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div class="mb-3">
+          <label class="text-xs font-bold text-gray-600 mb-1 block">주소 2</label>
+          <input v-model="pf.address2" placeholder="주소 2 (예: Apt 4B)" class="w-full border rounded-lg px-3 py-2 text-sm" />
+        </div>
         <div class="grid grid-cols-3 gap-3 mb-3">
           <div><label class="text-xs font-bold text-gray-600 mb-1 block">도시</label><input v-model="pf.city" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
           <div><label class="text-xs font-bold text-gray-600 mb-1 block">주</label><input v-model="pf.state" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
           <div><label class="text-xs font-bold text-gray-600 mb-1 block">우편번호</label><input v-model="pf.zipcode" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
         </div>
-        <div class="mb-3">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">친구 요청 허용</label>
-          <div class="flex gap-4"><label class="text-sm"><input type="radio" v-model="pf.allow_friend_request" :value="true" /> 수락</label><label class="text-sm"><input type="radio" v-model="pf.allow_friend_request" :value="false" /> 거절</label></div>
+
+        <!-- 프라이버시 설정 -->
+        <div class="border-t pt-4 mt-4">
+          <h3 class="font-bold text-gray-700 text-sm mb-3">🔐 프라이버시 설정</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs font-bold text-gray-600 mb-1 block">친구 요청</label>
+              <div class="flex gap-4">
+                <label class="text-sm"><input type="radio" v-model="pf.allow_friend_request" :value="true" /> 허용</label>
+                <label class="text-sm"><input type="radio" v-model="pf.allow_friend_request" :value="false" /> 거절</label>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 mb-1 block">쪽지 수신</label>
+              <div class="flex gap-4">
+                <label class="text-sm"><input type="radio" v-model="pf.allow_messages" :value="true" :disabled="!pf.allow_friend_request" /> 허용</label>
+                <label class="text-sm"><input type="radio" v-model="pf.allow_messages" :value="false" /> 거절</label>
+              </div>
+              <p v-if="!pf.allow_friend_request" class="text-[10px] text-red-400 mt-1">친구 요청을 거절하면 쪽지도 자동으로 차단됩니다.</p>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 mb-1 block">안심서비스 이용</label>
+              <div class="flex gap-4">
+                <label class="text-sm"><input type="radio" v-model="pf.allow_elder_service" :value="true" /> 허용</label>
+                <label class="text-sm"><input type="radio" v-model="pf.allow_elder_service" :value="false" /> 거절</label>
+              </div>
+              <p class="text-[10px] text-gray-400 mt-1">허용 시 보호자가 안심 서비스를 등록할 수 있습니다.</p>
+            </div>
+          </div>
         </div>
-        <div class="mb-4">
+
+        <div class="mb-4 mt-4">
           <label class="text-xs font-bold text-gray-600 mb-1 block">언어</label>
           <select v-model="pf.language" class="border rounded-lg px-3 py-2 text-sm"><option value="ko">한국어</option><option value="en">English</option></select>
         </div>
@@ -175,22 +222,79 @@
 
     <!-- ═══ 안심서비스 탭 ═══ -->
     <div v-else-if="tab==='elder'" class="space-y-4">
+      <!-- 보호대상 등록 -->
       <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">🛡️ 안심서비스 설정</h2>
-        <div class="space-y-3 max-w-lg">
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">보호자 이메일</label><input v-model="elder.guardian_email" type="email" placeholder="보호자 이메일" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">보호자 전화번호</label><input v-model="elder.guardian_phone" placeholder="보호자 전화번호" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-          <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">체크인 알림 간격</label>
-            <select v-model="elder.checkin_interval" class="border rounded-lg px-3 py-2 text-sm">
-              <option :value="12">12시간</option><option :value="24">24시간</option><option :value="48">48시간</option>
-            </select>
-          </div>
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">건강 메모</label><textarea v-model="elder.health_notes" rows="3" placeholder="복용 약물, 건강 상태 등" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea></div>
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">긴급 연락처 (SOS)</label><input v-model="elder.sos_contacts" placeholder="예: 911, 가족번호" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+        <h2 class="font-bold text-gray-800 mb-4">🛡️ 보호대상 등록</h2>
+        <p class="text-xs text-gray-500 mb-3">보호하고 싶은 분의 이메일을 검색하여 안심서비스를 등록하세요.</p>
+        <div class="flex gap-2 mb-3">
+          <input v-model="wardSearch" type="email" placeholder="보호대상 이메일 입력" class="flex-1 border rounded-lg px-3 py-2 text-sm" />
+          <button @click="searchWard" :disabled="wardSearching" class="bg-green-600 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">{{ wardSearching?'검색중...':'검색' }}</button>
         </div>
-        <div v-if="elderMsg" class="text-sm mt-2" :class="elderMsgType==='success'?'text-green-600':'text-red-500'">{{ elderMsg }}</div>
-        <button @click="saveElder" :disabled="elderSaving" class="mt-4 bg-green-600 text-white font-bold px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">{{ elderSaving?'저장중...':'저장하기' }}</button>
+        <div v-if="wardResult" class="rounded-lg p-3 text-sm" :class="wardResult.ok ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-700'">
+          {{ wardResult.message }}
+          <div v-if="wardResult.ok && wardResult.user" class="mt-2 flex items-center justify-between">
+            <span class="font-bold">{{ wardResult.user.name }} ({{ wardResult.user.city }}, {{ wardResult.user.state }})</span>
+            <button @click="registerWard(wardResult.user.id)" class="bg-green-600 text-white font-bold px-3 py-1 rounded-lg text-xs hover:bg-green-700">등록하기</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 내 보호대상 목록 -->
+      <div class="bg-white rounded-xl shadow-sm border p-5">
+        <h2 class="font-bold text-gray-800 mb-4">👥 내 보호대상</h2>
+        <div v-if="!elderWards.length" class="text-sm text-gray-400 py-4 text-center">등록된 보호대상이 없습니다</div>
+        <div v-for="w in elderWards" :key="w.id" class="border rounded-lg p-4 mb-3">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-lg font-bold text-green-700">{{ (w.ward?.name||'?')[0] }}</div>
+              <div>
+                <div class="text-sm font-bold text-gray-800">{{ w.ward?.name }}</div>
+                <div class="text-[10px] text-gray-400">{{ w.ward?.email }}</div>
+              </div>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="w.status==='active'?'bg-green-100 text-green-700':w.status==='pending'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'">{{ {active:'활성',pending:'대기',rejected:'거절'}[w.status] }}</span>
+          </div>
+
+          <!-- 스케줄 설정 (활성 상태만) -->
+          <div v-if="w.status==='active'" class="border-t pt-3">
+            <h4 class="text-xs font-bold text-gray-600 mb-2">📞 전화 스케줄</h4>
+            <div class="space-y-2">
+              <div>
+                <label class="text-[10px] font-bold text-gray-500">서비스 유형</label>
+                <div class="flex gap-3 mt-1">
+                  <label class="text-xs"><input type="radio" v-model="w._type" value="random" /> 랜덤 시간</label>
+                  <label class="text-xs"><input type="radio" v-model="w._type" value="scheduled" /> 스케줄 <span class="text-amber-600">(유료)</span></label>
+                </div>
+              </div>
+              <template v-if="w._type==='random'">
+                <div class="grid grid-cols-2 gap-2">
+                  <div><label class="text-[10px] font-bold text-gray-500">시작</label><input type="time" v-model="w._time_start" class="w-full border rounded px-2 py-1 text-xs" /></div>
+                  <div><label class="text-[10px] font-bold text-gray-500">종료</label><input type="time" v-model="w._time_end" class="w-full border rounded px-2 py-1 text-xs" /></div>
+                </div>
+              </template>
+              <template v-if="w._type==='scheduled'">
+                <div><label class="text-[10px] font-bold text-gray-500">하루 몇 번</label>
+                  <select v-model="w._calls_per_day" class="border rounded px-2 py-1 text-xs ml-1">
+                    <option :value="1">1회</option><option :value="2">2회</option><option :value="3">3회</option>
+                  </select>
+                </div>
+                <div><label class="text-[10px] font-bold text-gray-500">요일 선택</label>
+                  <div class="flex gap-1 mt-1">
+                    <label v-for="d in dayOptions" :key="d.key" class="text-[10px]">
+                      <input type="checkbox" :value="d.key" v-model="w._days" class="mr-0.5" />{{ d.label }}
+                    </label>
+                  </div>
+                </div>
+                <div><label class="text-[10px] font-bold text-gray-500">시간 (쉼표로 구분)</label>
+                  <input v-model="w._scheduled_times_str" placeholder="09:00, 14:00, 18:00" class="w-full border rounded px-2 py-1 text-xs mt-1" />
+                </div>
+                <p class="text-[10px] text-amber-600">* 스케줄 전화는 1회당 50P가 차감됩니다.</p>
+              </template>
+              <button @click="saveSchedule(w)" class="bg-green-600 text-white font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-green-700 mt-1">스케줄 저장</button>
+              <span v-if="w._schedMsg" class="text-xs ml-2" :class="w._schedOk?'text-green-600':'text-red-500'">{{ w._schedMsg }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -224,7 +328,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
@@ -264,15 +368,18 @@ function fmtDate(dt) {
 }
 
 // ─── 프로필 ───
-const pf = reactive({ name: '', nickname: '', bio: '', phone: '', city: '', state: '', zipcode: '', language: 'ko', allow_friend_request: true })
+const pf = reactive({ name: '', nickname: '', bio: '', phone: '', address1: '', address2: '', city: '', state: '', zipcode: '', language: 'ko', allow_friend_request: true, allow_messages: true, allow_elder_service: false })
 const pfMsg = ref(''); const pfMsgType = ref(''); const pfSaving = ref(false); const avatarMsg = ref('')
 const pw = reactive({ current_password: '', password: '', password_confirmation: '' })
 const pwMsg = ref(''); const pwMsgType = ref(''); const pwSaving = ref(false)
 
 function loadProfile() {
   const u = auth.user
-  if (u) Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone, city: u.city, state: u.state, zipcode: u.zipcode, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false })
+  if (u) Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone, address1: u.address1, address2: u.address2, city: u.city, state: u.state, zipcode: u.zipcode, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false, allow_messages: u.allow_messages !== false, allow_elder_service: !!u.allow_elder_service })
 }
+// 친구요청 거절 → 쪽지도 자동 차단
+watch(() => pf.allow_friend_request, (v) => { if (!v) pf.allow_messages = false })
+
 async function saveProfile() {
   pfSaving.value = true; pfMsg.value = ''
   try { await axios.put('/api/user/profile', pf); await auth.fetchUser(); pfMsg.value = '저장되었습니다!'; pfMsgType.value = 'success' }
@@ -330,14 +437,47 @@ const bookmarks = ref([])
 async function loadBookmarks() { try { const { data } = await axios.get('/api/bookmarks'); bookmarks.value = data.data?.data || data.data || [] } catch {} }
 
 // ─── 안심서비스 ───
-const elder = reactive({ guardian_email: '', guardian_phone: '', checkin_interval: 24, health_notes: '', sos_contacts: '' })
-const elderMsg = ref(''); const elderMsgType = ref(''); const elderSaving = ref(false)
-async function loadElder() { try { const { data } = await axios.get('/api/elder/settings'); if (data.data) Object.assign(elder, data.data) } catch {} }
-async function saveElder() {
-  elderSaving.value = true; elderMsg.value = ''
-  try { await axios.put('/api/elder/settings', elder); elderMsg.value = '저장되었습니다!'; elderMsgType.value = 'success' }
-  catch (e) { elderMsg.value = e.response?.data?.message || '저장 실패'; elderMsgType.value = 'error' }
-  elderSaving.value = false
+const wardSearch = ref(''); const wardSearching = ref(false); const wardResult = ref(null)
+const elderWards = ref([])
+const dayOptions = [{ key: 'mon', label: '월' },{ key: 'tue', label: '화' },{ key: 'wed', label: '수' },{ key: 'thu', label: '목' },{ key: 'fri', label: '금' },{ key: 'sat', label: '토' },{ key: 'sun', label: '일' }]
+
+async function searchWard() {
+  if (!wardSearch.value.trim()) return
+  wardSearching.value = true; wardResult.value = null
+  try {
+    const { data } = await axios.post('/api/elder/search-ward', { email: wardSearch.value.trim() })
+    wardResult.value = data
+  } catch (e) {
+    wardResult.value = { ok: false, message: e.response?.data?.message || '검색 실패' }
+  }
+  wardSearching.value = false
+}
+async function registerWard(wardId) {
+  try {
+    await axios.post('/api/elder/register-ward', { ward_user_id: wardId })
+    wardResult.value = null; wardSearch.value = ''
+    await loadElder()
+  } catch (e) { alert(e.response?.data?.message || '등록 실패') }
+}
+async function loadElder() {
+  try {
+    const { data } = await axios.get('/api/elder/my-wards')
+    elderWards.value = (data.data || []).map(w => ({
+      ...w, _type: w.schedule?.type || 'random', _time_start: w.schedule?.time_start || '09:00', _time_end: w.schedule?.time_end || '18:00',
+      _calls_per_day: w.schedule?.calls_per_day || 1, _days: w.schedule?.days || ['mon','tue','wed','thu','fri'],
+      _scheduled_times_str: (w.schedule?.scheduled_times || []).join(', '), _schedMsg: '', _schedOk: false,
+    }))
+  } catch {}
+}
+async function saveSchedule(w) {
+  try {
+    await axios.post('/api/elder/save-schedule', {
+      elder_guardian_id: w.id, type: w._type, time_start: w._time_start, time_end: w._time_end,
+      calls_per_day: w._calls_per_day, days: w._days,
+      scheduled_times: w._type === 'scheduled' ? w._scheduled_times_str.split(',').map(t => t.trim()).filter(Boolean) : [],
+    })
+    w._schedMsg = '저장됨!'; w._schedOk = true
+  } catch (e) { w._schedMsg = e.response?.data?.message || '실패'; w._schedOk = false }
 }
 
 // ─── 결제 ───

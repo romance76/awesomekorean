@@ -230,6 +230,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/elder/settings', [ElderController::class, 'settings']);
     Route::put('/elder/settings', [ElderController::class, 'updateSettings']);
+    Route::post('/elder/search-ward', [ElderController::class, 'searchWard']);
+    Route::post('/elder/register-ward', [ElderController::class, 'registerWard']);
+    Route::get('/elder/my-wards', [ElderController::class, 'myWards']);
+    Route::post('/elder/save-schedule', [ElderController::class, 'saveSchedule']);
     Route::post('/elder/checkin', [ElderController::class, 'checkin']);
     Route::post('/elder/sos', [ElderController::class, 'sos']);
     Route::get('/elder/checkin-history', [ElderController::class, 'checkinHistory']);

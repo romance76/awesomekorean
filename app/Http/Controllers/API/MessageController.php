@@ -27,6 +27,12 @@ class MessageController extends Controller
     public function store(Request $request) {
         $request->validate(['receiver_id' => 'required|exists:users,id', 'content' => 'required|max:500']);
 
+        // 쪽지 수신 거부 체크
+        $receiver = \App\Models\User::find($request->receiver_id);
+        if ($receiver && !$receiver->allow_messages) {
+            return response()->json(['success' => false, 'message' => '상대방이 쪽지 수신을 거부했습니다.'], 403);
+        }
+
         $msg = Message::create([
             'sender_id' => auth()->id(),
             'receiver_id' => $request->receiver_id,
