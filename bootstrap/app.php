@@ -36,7 +36,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->booted(function () {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(1000)->by($request->user()?->id ?: $request->ip());
+            if ($request->user()) return Limit::none();
+            return Limit::perMinute(60)->by($request->ip());
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
