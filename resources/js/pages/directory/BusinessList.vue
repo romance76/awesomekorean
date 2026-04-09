@@ -62,11 +62,13 @@
         </div>
         <!-- 지도 -->
         <div v-if="activeItem.lat && activeItem.lng" class="px-5 py-3 border-t">
-          <a :href="`https://www.google.com/maps/search/?api=1&query=${activeItem.lat},${activeItem.lng}&query_place_id=${activeItem.google_place_id||''}`"
-            target="_blank" class="block rounded-lg overflow-hidden border hover:shadow-md transition cursor-pointer">
-            <img :src="`https://maps.googleapis.com/maps/api/staticmap?center=${activeItem.lat},${activeItem.lng}&zoom=15&size=600x200&markers=color:red|${activeItem.lat},${activeItem.lng}&key=${googleKey}`"
-              class="w-full h-36 object-cover" @error="e=>e.target.parentElement.style.display='none'" />
-            <div class="bg-gray-50 px-3 py-1.5 text-xs text-amber-600 font-bold text-center">📍 Google Maps에서 보기 →</div>
+          <div class="rounded-lg overflow-hidden border">
+            <iframe :src="`https://www.openstreetmap.org/export/embed.html?bbox=${Number(activeItem.lng)-0.008},${Number(activeItem.lat)-0.004},${Number(activeItem.lng)+0.008},${Number(activeItem.lat)+0.004}&layer=mapnik&marker=${activeItem.lat},${activeItem.lng}`"
+              class="w-full h-40 border-0" loading="lazy"></iframe>
+          </div>
+          <a :href="`https://www.google.com/maps/search/?api=1&query=${activeItem.lat},${activeItem.lng}`"
+            target="_blank" class="block bg-gray-50 px-3 py-1.5 text-xs text-amber-600 font-bold text-center rounded-b-lg border border-t-0 hover:bg-amber-50 transition">
+            📍 Google Maps에서 보기 →
           </a>
         </div>
         <div v-if="activeItem.description" class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ activeItem.description }}</div>
