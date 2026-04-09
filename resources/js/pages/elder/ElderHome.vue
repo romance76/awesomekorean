@@ -10,8 +10,8 @@
         <h1 class="text-3xl md:text-4xl font-black leading-tight">미국에서 혼자 계신<br/>한인 분들의 안전을 지킵니다</h1>
         <p class="text-blue-100 mt-4 max-w-xl mx-auto">매일 한 번의 체크인으로 가족에게 안부를 전하고, 위급 시 한 번의 터치로 도움을 요청하세요.</p>
         <div class="mt-8 flex justify-center gap-3">
-          <button v-if="auth.isLoggedIn" @click="page='setup'" class="bg-white text-blue-600 font-bold px-8 py-3 rounded-xl text-lg hover:bg-blue-50 shadow-lg transition">시작하기</button>
-          <RouterLink v-else to="/register" class="bg-white text-blue-600 font-bold px-8 py-3 rounded-xl text-lg hover:bg-blue-50 shadow-lg transition">회원가입하고 시작</RouterLink>
+          <RouterLink v-if="auth.isLoggedIn" to="/dashboard?tab=elder" class="bg-white text-blue-600 font-bold px-8 py-3 rounded-xl text-lg hover:bg-blue-50 shadow-lg transition">서비스 사용하기</RouterLink>
+          <RouterLink v-else to="/login?redirect=/dashboard?tab=elder" class="bg-white text-blue-600 font-bold px-8 py-3 rounded-xl text-lg hover:bg-blue-50 shadow-lg transition">로그인하고 시작</RouterLink>
           <a href="#how" class="border-2 border-white/50 text-white font-bold px-8 py-3 rounded-xl text-lg hover:bg-white/10 transition">자세히 보기 ↓</a>
         </div>
       </div>
@@ -115,134 +115,20 @@
     </div>
   </div>
 
-  <!-- ═══ 설정 단계 ═══ -->
-  <div v-else-if="page === 'setup'" class="max-w-xl mx-auto px-4 py-8">
-    <div class="bg-white rounded-2xl shadow-sm border p-6">
-      <h2 class="text-lg font-black text-gray-800 mb-1">💙 안심서비스 설정</h2>
-      <p class="text-xs text-gray-400 mb-5">보호자 정보와 체크인 시간을 설정하세요</p>
-      <div class="space-y-4">
-        <div>
-          <label class="text-sm font-semibold text-gray-700">보호자 이메일 *</label>
-          <input v-model="setupForm.guardian_email" type="email" placeholder="가족/지인 이메일" class="w-full border rounded-lg px-3 py-2.5 mt-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none" />
-        </div>
-        <div>
-          <label class="text-sm font-semibold text-gray-700">보호자 전화번호</label>
-          <input v-model="setupForm.guardian_phone" type="text" placeholder="010-0000-0000" class="w-full border rounded-lg px-3 py-2.5 mt-1 text-sm focus:ring-2 focus:ring-blue-400 outline-none" />
-        </div>
-        <div>
-          <label class="text-sm font-semibold text-gray-700">체크인 마감 시간</label>
-          <select v-model="setupForm.checkin_deadline" class="w-full border rounded-lg px-3 py-2.5 mt-1 text-sm outline-none">
-            <option value="10:00">오전 10:00</option><option value="12:00">낮 12:00</option><option value="14:00">오후 2:00</option><option value="18:00">오후 6:00</option><option value="20:00">오후 8:00</option>
-          </select>
-        </div>
-      </div>
-      <div class="flex gap-3 mt-6">
-        <button @click="saveSetup" :disabled="!setupForm.guardian_email" class="flex-1 bg-blue-500 text-white font-bold py-3 rounded-xl hover:bg-blue-600 disabled:opacity-50">저장하고 시작</button>
-        <button @click="page='landing'" class="text-gray-500 px-4">취소</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ 대시보드 ═══ -->
-  <div v-else class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">💙 안심서비스</h1>
-
-    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl p-6 text-white text-center mb-4 shadow-lg">
-      <div class="text-4xl mb-2">{{ checkedIn ? '✅' : '💙' }}</div>
-      <h2 class="text-xl font-black">{{ checkedIn ? '오늘 체크인 완료!' : '오늘의 체크인' }}</h2>
-      <p class="text-blue-100 text-xs mt-1">{{ checkedIn ? '보호자에게 안부가 전달되었습니다' : '안전하게 잘 지내고 있다는 걸 알려주세요' }}</p>
-      <button @click="checkin" :disabled="checkedIn" class="mt-4 bg-white text-blue-600 font-bold px-8 py-3 rounded-xl hover:bg-blue-50 transition disabled:opacity-50 shadow">
-        {{ checkedIn ? '✅ 완료' : '체크인하기 (+5P)' }}
-      </button>
-    </div>
-
-    <div class="grid grid-cols-3 gap-3 mb-4">
-      <button @click="sendSOS" class="bg-red-50 border-2 border-red-200 rounded-xl p-4 text-center hover:bg-red-100 transition">
-        <div class="text-2xl mb-1">🚨</div>
-        <div class="text-xs font-bold text-red-700">긴급 SOS</div>
-      </button>
-      <RouterLink to="/elder/checkin" class="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition">
-        <div class="text-2xl mb-1">📋</div>
-        <div class="text-xs font-bold text-gray-700">체크인 기록</div>
-      </RouterLink>
-      <RouterLink to="/elder/guardian" class="bg-white rounded-xl shadow-sm border p-4 text-center hover:shadow-md transition">
-        <div class="text-2xl mb-1">👨‍👩‍👧</div>
-        <div class="text-xs font-bold text-gray-700">보호자 화면</div>
-      </RouterLink>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
-      <div class="px-4 py-3 border-b font-bold text-sm text-gray-800">📋 최근 체크인</div>
-      <div v-if="!recentCheckins.length" class="px-4 py-6 text-center text-sm text-gray-400">아직 기록이 없습니다</div>
-      <div v-for="c in recentCheckins" :key="c.id" class="px-4 py-2.5 border-b last:border-0 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-green-500"></span>
-          <span class="text-sm text-gray-700">{{ c.created_at?.slice(0, 10) }}</span>
-        </div>
-        <span class="text-xs text-gray-400">{{ c.created_at?.slice(11, 16) }}</span>
-      </div>
-    </div>
-
-    <button @click="page='setup'" class="text-xs text-gray-400 hover:text-blue-500">⚙️ 설정 변경</button>
+  <!-- 로그인한 사용자는 대시보드로 안내 -->
+  <div v-else class="max-w-3xl mx-auto px-4 py-12 text-center">
+    <div class="text-4xl mb-4">💙</div>
+    <h2 class="text-xl font-black text-gray-800 mb-2">안심서비스 관리</h2>
+    <p class="text-sm text-gray-500 mb-6">대시보드에서 보호대상 등록, 스케줄 설정 등을 관리할 수 있습니다.</p>
+    <RouterLink to="/dashboard?tab=elder" class="bg-blue-500 text-white font-bold px-8 py-3 rounded-xl text-lg hover:bg-blue-600 shadow-lg transition inline-block">대시보드에서 관리하기</RouterLink>
   </div>
 </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import { useSiteStore } from '../../stores/site'
-import axios from 'axios'
 
 const auth = useAuthStore()
-const siteStore = useSiteStore()
-const page = ref('landing')
-const checkedIn = ref(false)
-const recentCheckins = ref([])
-const setupForm = reactive({ guardian_email: '', guardian_phone: '', checkin_deadline: '12:00' })
-
-async function checkin() {
-  try {
-    await axios.post('/api/elder/checkin', { lat: null, lng: null })
-    checkedIn.value = true
-    siteStore.toast('체크인 완료! +5P', 'success')
-    loadCheckins()
-  } catch (e) { siteStore.toast(e.response?.data?.message || '체크인 실패', 'error') }
-}
-
-async function sendSOS() {
-  if (!confirm('정말 SOS를 보내시겠습니까?\n보호자에게 긴급 알림이 전송됩니다.')) return
-  try {
-    await axios.post('/api/elder/sos', { message: '긴급 도움 요청' })
-    siteStore.toast('🚨 SOS가 전송되었습니다', 'error')
-  } catch (e) { siteStore.toast('SOS 전송 실패', 'error') }
-}
-
-async function saveSetup() {
-  try {
-    await axios.put('/api/elder/settings', setupForm)
-    page.value = 'dashboard'
-    siteStore.toast('안심서비스가 설정되었습니다!', 'success')
-  } catch (e) { siteStore.toast(e.response?.data?.message || '설정 실패', 'error') }
-}
-
-async function loadCheckins() {
-  try { const { data } = await axios.get('/api/elder/checkin-history'); recentCheckins.value = (data.data?.data || data.data || []).slice(0, 7) } catch {}
-}
-
-onMounted(async () => {
-  if (!auth.isLoggedIn) { page.value = 'landing'; return }
-  try {
-    const { data } = await axios.get('/api/elder/settings')
-    if (data.data?.guardian_email || data.data?.id) {
-      page.value = 'dashboard'
-      if (data.data.guardian_email) setupForm.guardian_email = data.data.guardian_email
-      if (data.data.guardian_phone) setupForm.guardian_phone = data.data.guardian_phone
-      if (data.data.checkin_deadline) setupForm.checkin_deadline = data.data.checkin_deadline
-    } else {
-      page.value = 'landing'
-    }
-  } catch { page.value = 'landing' }
-  loadCheckins()
-})
+const page = ref(auth.isLoggedIn ? 'loggedIn' : 'landing')
 </script>
