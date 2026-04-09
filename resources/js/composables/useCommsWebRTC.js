@@ -7,6 +7,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import axios from 'axios'
 import Peer from 'peerjs'
+import { useAuthStore } from '@/stores/auth'
 import { startRingtone, stopRingtone } from '@/services/RingtoneService'
 
 export function useCommsWebRTC() {
@@ -286,13 +287,14 @@ export function useCommsWebRTC() {
       }
       console.log('[PeerJS] Calling', targetPeerId)
 
+      const auth = useAuthStore()
       currentMediaConn = peer.call(targetPeerId, stream, {
         metadata: {
           call_id: data.call_id,
           room_id: data.room_id,
-          caller_id: targetUser.id,  // 이건 나의 ID가 아닌 상대방 — 수정 필요 없음, meta는 참고용
-          caller_name: null,
-          caller_avatar: null,
+          caller_id: auth.user?.id,
+          caller_name: auth.user?.nickname || auth.user?.name || '알 수 없음',
+          caller_avatar: auth.user?.avatar || null,
         },
       })
 
@@ -359,6 +361,7 @@ export function useCommsWebRTC() {
 
   // ── 통화 종료 ──────────────────────────────────────────────────
   async function endCall(notifyServer = true) {
+    console.log('[PeerJS] endCall called, notifyServer:', notifyServer, 'callId:', currentCallId.value, 'remoteUser:', remoteUser.value?.id)
     if (notifyServer && currentCallId.value) {
       // 상대에게 시그널
       if (remoteUser.value?.id && currentRoomId.value) {
@@ -367,9 +370,16 @@ export function useCommsWebRTC() {
           room_id: currentRoomId.value,
           type: 'call-ended',
           payload: {},
-        }).catch(() => {})
+        }).catch(e => console.warn('[PeerJS] signal end failed:', e))
       }
-      await axios.post(`/api/comms/calls/${currentCallId.value}/end`).catch(() => {})
+      try {
+        await axios.post(`/api/comms/calls/${currentCallId.value}/end`)
+        console.log('[PeerJS] ✅ End API sent OK for call', currentCallId.value)
+      } catch (e) {
+        console.error('[PeerJS] ❌ End API failed:', e.response?.status, e.response?.data)
+      }
+    } else {
+      console.log('[PeerJS] endCall: skipping server notify (notifyServer:', notifyServer, 'callId:', currentCallId.value, ')')
     }
     handleCallEnded()
   }
