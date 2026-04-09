@@ -352,7 +352,10 @@
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useModal } from '../../composables/useModal'
 import axios from 'axios'
+
+const { showAlert, showConfirm, showPrompt } = useModal()
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -437,23 +440,24 @@ async function loadPoints() {
   } catch {}
 }
 async function buyPackage(pkg) {
-  if (!confirm(`${pkg.label} (${(pkg.points+pkg.bonus).toLocaleString()}P) — $${pkg.price}\n구매하시겠습니까?`)) return
+  const ok = await showConfirm(`${pkg.label} (${(pkg.points+pkg.bonus).toLocaleString()}P) — $${pkg.price}\n구매하시겠습니까?`, '포인트 구매')
+  if (!ok) return
   selectedPkg.value = pkg.key
   try {
     const { data } = await axios.post('/api/payments/create-intent', { package_key: pkg.key })
     if (data.data?.client_secret) {
-      alert('Stripe 결제 창으로 이동합니다. (추후 구현)')
+      await showAlert('Stripe 결제 창으로 이동합니다. (추후 구현)', '결제')
     }
   } catch (e) {
     const msg = e.response?.data?.message || '결제 실패'
-    if (msg.includes('Stripe')) alert('결제 시스템 준비 중입니다. 관리자에게 문의하세요.')
-    else alert(msg)
+    if (msg.includes('Stripe')) await showAlert('결제 시스템 준비 중입니다.\n관리자에게 문의하세요.', '안내')
+    else await showAlert(msg, '오류')
   }
   selectedPkg.value = ''
 }
 async function dailySpin() {
   try { const { data } = await axios.post('/api/points/daily-spin'); spinResult.value = data.points || data.amount; spun.value = true; ptBalance.value += (data.points || data.amount || 0); await auth.fetchUser() }
-  catch (e) { alert(e.response?.data?.message || '실패') }
+  catch (e) { showAlert(e.response?.data?.message || '실패', '오류') }
 }
 
 // ─── 쪽지 ───
@@ -470,7 +474,7 @@ function replyMsg(m) { activeMsg.value = null; replyTarget.value = { id: m.sende
 async function sendReply() {
   if (!replyText.value.trim()) return; replySending.value = true
   try { await axios.post('/api/messages', { receiver_id: replyTarget.value.id, content: replyText.value.trim() }); replyTarget.value = null; replyText.value = '' }
-  catch (e) { alert(e.response?.data?.message || '전송 실패') }
+  catch (e) { showAlert(e.response?.data?.message || '전송 실패', '오류') }
   replySending.value = false
 }
 
@@ -503,7 +507,7 @@ async function registerWard(wardId) {
     await axios.post('/api/elder/register-ward', { ward_user_id: wardId })
     wardResult.value = null; wardSearch.value = ''
     await loadElder()
-  } catch (e) { alert(e.response?.data?.message || '등록 실패') }
+  } catch (e) { showAlert(e.response?.data?.message || '등록 실패', '오류') }
 }
 async function loadElder() {
   try {
@@ -539,9 +543,9 @@ function loadTab(key) {
 // ─── 계정 ───
 async function handleLogout() { await auth.logout(); router.push('/login') }
 async function deleteAccount() {
-  const c = prompt('정말 탈퇴하시겠습니까? "탈퇴합니다"를 입력하세요.')
+  const c = await showPrompt('정말 탈퇴하시겠습니까?\n"탈퇴합니다"를 입력하세요.', '회원 탈퇴', '탈퇴합니다')
   if (c !== '탈퇴합니다') return
-  try { await axios.delete('/api/user/delete'); await auth.logout(); router.push('/') } catch (e) { alert(e.response?.data?.message || '실패') }
+  try { await axios.delete('/api/user/delete'); await auth.logout(); router.push('/') } catch (e) { showAlert(e.response?.data?.message || '실패', '오류') }
 }
 
 let msgPoll = null

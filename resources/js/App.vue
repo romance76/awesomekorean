@@ -20,6 +20,7 @@
     <NavBar v-if="showNav" />
     <!-- 글로벌 미니 프로필 팝업 -->
     <UserPopup :show="showUserPopup" :user-id="popupUserId" @close="showUserPopup=false" />
+    <SiteModal />
 
     <CommHub v-if="auth.isLoggedIn && auth.user" ref="commHub" />
 
@@ -77,6 +78,7 @@ import { useAuthStore } from './stores/auth'
 import NavBar from './components/NavBar.vue'
 import BottomNav from './components/BottomNav.vue'
 import UserPopup from './components/UserPopup.vue'
+import SiteModal from './components/SiteModal.vue'
 import CommHub from './components/comms/CommHub.vue'
 
 const route = useRoute()
