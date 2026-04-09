@@ -42,7 +42,7 @@
         <!-- 전화번호 (필수) -->
         <div class="mb-3">
           <label class="text-xs font-bold text-gray-600 mb-1 block">전화번호 <span class="text-red-500">*필수</span></label>
-          <input v-model="pf.phone" placeholder="전화번호를 입력하세요" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          <input :value="pf.phone" @input="onPhoneInput" placeholder="000-000-0000" maxlength="12" class="w-full border rounded-lg px-3 py-2 text-sm" />
         </div>
         <!-- 주소 -->
         <div class="mb-3">
@@ -509,14 +509,27 @@ const pwMsg = ref(''); const pwMsgType = ref(''); const pwSaving = ref(false)
 
 function loadProfile() {
   const u = auth.user
-  if (u) Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone, address1: u.address1, address2: u.address2, city: u.city, state: u.state, zipcode: u.zipcode, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false, allow_messages: u.allow_messages !== false, allow_elder_service: !!u.allow_elder_service })
+  if (u) {
+    Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone ? formatPhone(u.phone) : '', address1: u.address1, address2: u.address2, city: u.city, state: u.state, zipcode: u.zipcode, default_radius: u.default_radius || 30, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false, allow_messages: u.allow_messages !== false, allow_elder_service: !!u.allow_elder_service })
+  }
 }
 // 친구요청 거절 → 쪽지도 자동 차단
 watch(() => pf.allow_friend_request, (v) => { if (!v) pf.allow_messages = false })
 
+function formatPhone(val) {
+  const digits = val.replace(/\D/g, '').slice(0, 10)
+  if (digits.length <= 3) return digits
+  if (digits.length <= 6) return digits.slice(0, 3) + '-' + digits.slice(3)
+  return digits.slice(0, 3) + '-' + digits.slice(3, 6) + '-' + digits.slice(6)
+}
+function onPhoneInput(e) {
+  pf.phone = formatPhone(e.target.value)
+}
 async function saveProfile() {
   pfSaving.value = true; pfMsg.value = ''
-  try { await axios.put('/api/user/profile', pf); await auth.fetchUser(); pfMsg.value = '저장되었습니다!'; pfMsgType.value = 'success' }
+  const phoneDigits = (pf.phone || '').replace(/\D/g, '')
+  if (!phoneDigits || phoneDigits.length < 10) { pfMsg.value = '전화번호를 정확히 입력하세요 (10자리)'; pfMsgType.value = 'error'; pfSaving.value = false; return }
+  try { await axios.put('/api/user/profile', pf); await auth.fetchUser(); localStorage.removeItem('sk_location'); pfMsg.value = '저장되었습니다!'; pfMsgType.value = 'success' }
   catch (e) { pfMsg.value = e.response?.data?.message || '저장 실패'; pfMsgType.value = 'error' }
   pfSaving.value = false
 }
