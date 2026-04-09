@@ -437,12 +437,18 @@ async function loadPoints() {
   } catch {}
 }
 async function buyPackage(pkg) {
+  if (!confirm(`${pkg.label} (${(pkg.points+pkg.bonus).toLocaleString()}P) — $${pkg.price}\n구매하시겠습니까?`)) return
   selectedPkg.value = pkg.key
   try {
-    const { data } = await axios.post('/api/payments/create-intent', { package_key: pkg.key, amount: pkg.price, points: pkg.points + pkg.bonus })
-    if (data.data?.url) window.location.href = data.data.url
-    else alert('결제 페이지 준비 중입니다. Stripe 연동이 필요합니다.')
-  } catch (e) { alert(e.response?.data?.message || '결제 실패') }
+    const { data } = await axios.post('/api/payments/create-intent', { package_key: pkg.key })
+    if (data.data?.client_secret) {
+      alert('Stripe 결제 창으로 이동합니다. (추후 구현)')
+    }
+  } catch (e) {
+    const msg = e.response?.data?.message || '결제 실패'
+    if (msg.includes('Stripe')) alert('결제 시스템 준비 중입니다. 관리자에게 문의하세요.')
+    else alert(msg)
+  }
   selectedPkg.value = ''
 }
 async function dailySpin() {
