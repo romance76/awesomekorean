@@ -5,6 +5,8 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -32,7 +34,17 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\UpdateLastActive::class,
         ]);
     })
+    ->booted(function () {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(300)->by($request->user()?->id ?: $request->ip());
+        });
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (\Illuminate\Http\Exceptions\ThrottleRequestsException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => '요청이 너무 많습니다. 잠시 후 다시 시도하세요.'], 429);
+            }
+        });
         $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json([
