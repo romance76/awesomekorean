@@ -16,6 +16,10 @@ class CommentController extends Controller
             'club_post' => 'App\\Models\\ClubPost',
             'market' => 'App\\Models\\MarketItem',
             'qa' => 'App\\Models\\QaPost',
+            'job' => 'App\\Models\\JobPost',
+            'event' => 'App\\Models\\Event',
+            'groupbuy' => 'App\\Models\\GroupBuy',
+            'realestate' => 'App\\Models\\RealEstateListing',
             default => null,
         };
     }

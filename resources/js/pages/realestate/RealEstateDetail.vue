@@ -32,6 +32,10 @@
         <div v-if="listing.contact_email" class="text-sm text-gray-700">📧 {{ listing.contact_email }}</div>
       </div>
     </div>
+
+    <!-- 댓글 -->
+    <CommentSection :type="'realestate'" :typeId="listing.id" class="mt-4 col-span-12 lg:col-span-9" />
+
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/realestate" detail-path="/realestate/" :current-id="listing.id"
         label="매물" recommend-label="추천 매물" quick-label="최신 매물"
@@ -45,6 +49,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 const route = useRoute()
 const listing = ref(null)

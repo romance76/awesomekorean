@@ -32,6 +32,9 @@
       </div>
     </div>
 
+    <!-- 댓글 -->
+    <CommentSection :type="'market'" :typeId="item.id" class="mt-4 col-span-12 lg:col-span-9" />
+
     <!-- 사이드바 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets
@@ -58,6 +61,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()

@@ -31,6 +31,9 @@
             <div v-if="job.contact_email" class="text-sm text-gray-700">📧 <a :href="'mailto:'+job.contact_email" class="text-amber-600 hover:underline">{{ job.contact_email }}</a></div>
           </div>
         </div>
+
+        <!-- 댓글 -->
+        <CommentSection :type="'job'" :typeId="job.id" class="mt-4" />
       </div>
 
       <!-- 사이드바 -->
@@ -57,6 +60,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 const route = useRoute()
 const job = ref(null)

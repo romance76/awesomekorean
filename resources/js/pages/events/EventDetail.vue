@@ -30,6 +30,10 @@
       </div>
       <div class="px-5 py-2 border-t text-xs text-gray-400">👁 {{ event.view_count }}조회</div>
     </div>
+
+    <!-- 댓글 -->
+    <CommentSection :type="'event'" :typeId="event.id" class="mt-4 col-span-12 lg:col-span-9" />
+
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/events" detail-path="/events/" :current-id="event.id"
         label="이벤트" recommend-label="추천 이벤트" quick-label="다가오는 이벤트"
@@ -44,6 +48,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()
