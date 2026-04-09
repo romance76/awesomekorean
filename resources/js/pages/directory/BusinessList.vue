@@ -114,8 +114,7 @@
     <!-- 오른쪽 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets :inline="true" @select="openItem" api-url="/api/businesses" detail-path="/directory/" :current-id="0"
-        label="업소" recommend-label="추천 업소" quick-label="최근 등록"
-        :links="[{to:'/directory',icon:'📋',label:'전체 업소록'},{to:'/directory/register',icon:'✏️',label:'업소 등록'}]" />
+        label="업소" />
     </div>
     </div>
   </div>

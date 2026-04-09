@@ -70,8 +70,7 @@
     <!-- 오른쪽 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/clubs" detail-path="/clubs/" :current-id="0"
-        label="동호회" recommend-label="인기 동호회" quick-label="최근 개설"
-        :links="[{to:'/clubs',icon:'📋',label:'전체 동호회'},{to:'/community',icon:'💬',label:'커뮤니티'}]" />
+        label="동호회" />
     </div>
     </div>
   </div>

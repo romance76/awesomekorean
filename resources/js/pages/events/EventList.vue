@@ -125,8 +125,7 @@
     </div>
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/events" detail-path="/events/" :current-id="0"
-        label="이벤트" recommend-label="추천 이벤트" quick-label="다가오는"
-        :links="[{to:'/events',icon:'📋',label:'전체 이벤트'},{to:'/events/create',icon:'✏️',label:'이벤트 등록'}]" />
+        label="이벤트" />
     </div>
     </div>
   </div>

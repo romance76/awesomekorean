@@ -108,8 +108,7 @@
       <!-- 오른쪽: 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
         <SidebarWidgets :inline="true" @select="openItem" api-url="/api/news" detail-path="/news/" :current-id="0"
-          label="뉴스" recommend-label="좋아할 기사" quick-label="실시간 뉴스"
-          :links="[{to:'/news',icon:'📰',label:'전체 뉴스'},{to:'/community',icon:'💬',label:'커뮤니티'}]" />
+          label="뉴스" />
       </div>
     </div>
   </div>

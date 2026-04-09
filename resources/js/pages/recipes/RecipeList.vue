@@ -72,8 +72,7 @@
       <!-- 오른쪽 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
         <SidebarWidgets api-url="/api/recipes" detail-path="/recipes/" :current-id="0"
-          label="레시피" recommend-label="인기 레시피" quick-label="최신 레시피"
-          :links="[{to:'/recipes',icon:'📋',label:'전체 레시피'},{to:'/recipes/write',icon:'✏️',label:'레시피 등록'}]" />
+          label="레시피" />
       </div>
     </div>
   </div>

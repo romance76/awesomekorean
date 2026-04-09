@@ -73,8 +73,7 @@
     </div>
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/groupbuys" detail-path="/groupbuy/" :current-id="0"
-        label="공동구매" recommend-label="인기" quick-label="마감 임박"
-        :links="[{to:'/groupbuy',icon:'📋',label:'전체 공동구매'},{to:'/market',icon:'🛒',label:'중고장터'}]" />
+        label="공동구매" />
     </div>
     </div>
   </div>
