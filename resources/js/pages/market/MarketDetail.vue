@@ -33,7 +33,9 @@
     </div>
 
     <!-- 댓글 -->
-    <CommentSection :type="'market'" :typeId="item.id" class="mt-4 col-span-12 lg:col-span-9" />
+    <div class="col-span-12 lg:col-span-9">
+      <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" class="mt-4" />
+    </div>
 
     <!-- 사이드바 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">

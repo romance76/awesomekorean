@@ -32,7 +32,9 @@
     </div>
 
     <!-- 댓글 -->
-    <CommentSection :type="'event'" :typeId="event.id" class="mt-4 col-span-12 lg:col-span-9" />
+    <div class="col-span-12 lg:col-span-9">
+      <CommentSection v-if="event.id" :type="'event'" :typeId="event.id" class="mt-4" />
+    </div>
 
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/events" detail-path="/events/" :current-id="event.id"

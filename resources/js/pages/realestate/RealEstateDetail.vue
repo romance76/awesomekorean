@@ -34,7 +34,9 @@
     </div>
 
     <!-- 댓글 -->
-    <CommentSection :type="'realestate'" :typeId="listing.id" class="mt-4 col-span-12 lg:col-span-9" />
+    <div class="col-span-12 lg:col-span-9">
+      <CommentSection v-if="listing.id" :type="'realestate'" :typeId="listing.id" class="mt-4" />
+    </div>
 
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/realestate" detail-path="/realestate/" :current-id="listing.id"

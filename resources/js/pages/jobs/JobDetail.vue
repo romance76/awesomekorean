@@ -33,7 +33,7 @@
         </div>
 
         <!-- 댓글 -->
-        <CommentSection :type="'job'" :typeId="job.id" class="mt-4" />
+        <CommentSection v-if="job.id" :type="'job'" :typeId="job.id" class="mt-4" />
       </div>
 
       <!-- 사이드바 -->
