@@ -117,7 +117,7 @@
           <div class="py-1">
             <button v-for="(p, i) in popularPosts" :key="p.id" @click="openItem(p)"
               class="flex items-start gap-2 px-3 py-1.5 hover:bg-amber-50/50 transition w-full text-left">
-              <span class="text-[10px] font-bold w-4 text-center flex-shrink-0" :class="i<3?'text-amber-600':'text-gray-400'">{{ i+1 }}</span>
+              <span class="text-[10px] font-bold w-4 text-center flex-shrink-0" :class="(popPage-1)*10+i<3?'text-amber-600':'text-gray-400'">{{ (popPage-1)*10+i+1 }}</span>
               <span class="text-xs text-gray-700 leading-snug line-clamp-1 flex-1">{{ p.title }}</span>
             </button>
           </div>
@@ -222,7 +222,7 @@ function onMobileBoard() {
 async function loadPopular(p = 1) {
   popPage.value = p
   try {
-    const { data } = await axios.get('/api/posts', { params: { sort: 'popular', per_page: 15, page: p } })
+    const { data } = await axios.get('/api/posts', { params: { sort: 'popular', per_page: 10, page: p } })
     popularPosts.value = data.data?.data || []
     popLastPage.value = data.data?.last_page || 1
   } catch {}
