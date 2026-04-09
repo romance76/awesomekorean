@@ -46,9 +46,9 @@
     <!-- 상세 모드 -->
     <div v-if="activeItem">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <!-- 사진 갤러리 -->
+        <!-- 사진 갤러리 (클릭 확대) -->
         <div v-if="activeItem.images?.length" class="flex gap-1 overflow-x-auto p-2 bg-gray-50">
-          <img v-for="(img, i) in activeItem.images" :key="i" :src="img" class="h-32 rounded-lg object-cover flex-shrink-0" @error="e=>e.target.style.display='none'" />
+          <img v-for="(img, i) in activeItem.images" :key="i" :src="img" @click="lightboxImg=img" class="h-32 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition" @error="e=>e.target.style.display='none'" />
         </div>
         <div class="px-5 py-4">
           <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ activeItem.subcategory || activeItem.category }}</span>
@@ -56,9 +56,18 @@
           <div class="flex items-center gap-1 mt-1"><span class="text-amber-400">{{'★'.repeat(Math.round(activeItem.rating))}}</span><span class="text-sm text-gray-600">{{ activeItem.rating }}</span><span class="text-xs text-gray-400">({{ activeItem.review_count }}리뷰)</span></div>
         </div>
         <div class="px-5 py-3 border-t text-sm text-gray-600 space-y-1">
-          <div v-if="activeItem.phone">📱 {{ activeItem.phone }}</div>
-          <div v-if="activeItem.address">📍 {{ activeItem.address }}, {{ activeItem.city }}, {{ activeItem.state }}</div>
-          <div v-if="activeItem.website">🌐 <a :href="activeItem.website" target="_blank" class="text-amber-600">{{ activeItem.website }}</a></div>
+          <div v-if="activeItem.phone">📱 <a :href="'tel:'+activeItem.phone" class="text-amber-600 hover:underline">{{ activeItem.phone }}</a></div>
+          <div v-if="activeItem.address">📍 {{ activeItem.address }}</div>
+          <div v-if="activeItem.website">🌐 <a :href="activeItem.website" target="_blank" class="text-amber-600 hover:underline truncate block">{{ activeItem.website }}</a></div>
+        </div>
+        <!-- 지도 -->
+        <div v-if="activeItem.lat && activeItem.lng" class="px-5 py-3 border-t">
+          <a :href="`https://www.google.com/maps/search/?api=1&query=${activeItem.lat},${activeItem.lng}&query_place_id=${activeItem.google_place_id||''}`"
+            target="_blank" class="block rounded-lg overflow-hidden border hover:shadow-md transition cursor-pointer">
+            <img :src="`https://maps.googleapis.com/maps/api/staticmap?center=${activeItem.lat},${activeItem.lng}&zoom=15&size=600x200&markers=color:red|${activeItem.lat},${activeItem.lng}&key=${googleKey}`"
+              class="w-full h-36 object-cover" @error="e=>e.target.parentElement.style.display='none'" />
+            <div class="bg-gray-50 px-3 py-1.5 text-xs text-amber-600 font-bold text-center">📍 Google Maps에서 보기 →</div>
+          </a>
         </div>
         <div v-if="activeItem.description" class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ activeItem.description }}</div>
         <!-- 영업시간 -->
@@ -116,10 +125,11 @@
       <div v-for="item in items" :key="item.id" @click="openItem(item)"
         class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">🏪</div>
+          <img v-if="item.images?.length" :src="item.images[0]" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" @error="e=>{e.target.style.display='none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display='flex')}" />
+          <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" :style="item.images?.length ? 'display:none' : ''">🏪</div>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-bold text-gray-800 truncate">{{ item.name }}</div>
-            <div class="text-[10px] text-gray-400">{{ item.category }} · {{ item.subcategory }}</div>
+            <div class="text-[10px] text-gray-400">{{ item.subcategory || item.category }}</div>
           </div>
           <div v-if="item.rating" class="text-amber-400 text-xs">{{ '★'.repeat(Math.round(item.rating)) }} {{ item.rating }}</div>
         </div>
@@ -168,6 +178,11 @@
     </div>
     </div>
   </div>
+  <!-- 사진 라이트박스 -->
+  <div v-if="lightboxImg" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" @click="lightboxImg=null">
+    <button @click="lightboxImg=null" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300">✕</button>
+    <img :src="lightboxImg" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl" @click.stop />
+  </div>
 </div>
 </template>
 <script setup>
@@ -187,6 +202,8 @@ const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const activeItem = ref(null)
 const activeReviews = ref([])
+const lightboxImg = ref(null)
+const googleKey = import.meta.env.VITE_GOOGLE_MAPS_KEY || 'AIzaSyAeG46feoDm6HJbre4_FODaxyhz9SBBsAE'
 const reviewRating = ref(0)
 const reviewText = ref('')
 
