@@ -297,12 +297,12 @@ let pollInterval = null
 onMounted(() => {
   loadUnread()
   loadMenuConfig()
-  // 30초마다 알림 카운트 + 온라인 heartbeat
+  // 60초마다 알림 카운트 + 온라인 heartbeat
   if (auth.isLoggedIn) {
     pollInterval = setInterval(() => {
       loadUnread()
       axios.post('/api/heartbeat').catch(() => {})
-    }, 30000)
+    }, 60000)
   }
 })
 

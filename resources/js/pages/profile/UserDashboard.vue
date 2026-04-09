@@ -653,7 +653,7 @@ onMounted(() => {
   loadProfile(); loaded.profile = true
   if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
-  msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 15000)
+  msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 60000)
 })
 onUnmounted(() => { if (msgPoll) clearInterval(msgPoll) })
 </script>
