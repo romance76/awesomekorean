@@ -183,7 +183,7 @@ async function openItem(item) {
     activeItem.value = item
     answers.value = []
   }
-  // 스크롤 위로
+  if (activeItem.value?.category_id) activeCat.value = categories.value.find(c => c.id === activeItem.value.category_id) || null
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 

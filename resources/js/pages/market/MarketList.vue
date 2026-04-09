@@ -164,6 +164,7 @@ async function openItem(item) {
   try { const { data } = await axios.get(`/api/market/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
   currentIdx.value = items.value.findIndex(i => i.id === item.id)
+  if (activeItem.value?.category) activeCat.value = activeItem.value.category
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 function navItem(dir) {

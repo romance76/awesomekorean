@@ -122,9 +122,14 @@
             </button>
           </div>
           <!-- 인기글 페이지네이션 -->
-          <div v-if="popLastPage > 1" class="px-3 py-2 border-t flex justify-center gap-1.5 flex-wrap">
-            <button v-for="pg in Math.min(popLastPage, 10)" :key="pg" @click="loadPopular(pg)"
-              class="w-7 h-7 rounded-lg text-xs font-bold" :class="pg===popPage?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
+          <div v-if="popLastPage > 1" class="px-3 py-2 border-t flex justify-center items-center gap-1">
+            <button @click="loadPopular(1)" :disabled="popPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">«</button>
+            <button @click="loadPopular(popPage-1)" :disabled="popPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">‹</button>
+            <template v-for="pg in popPages" :key="pg">
+              <button @click="loadPopular(pg)" class="w-6 h-6 rounded text-[10px] font-bold" :class="pg===popPage?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
+            </template>
+            <button @click="loadPopular(popPage+1)" :disabled="popPage>=popLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">›</button>
+            <button @click="loadPopular(popLastPage)" :disabled="popPage>=popLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">»</button>
           </div>
         </div>
       </div>
@@ -134,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import CommentSection from '../../components/CommentSection.vue'
@@ -151,6 +156,13 @@ const mobileBoardId = ref(null)
 const sortBy = ref('latest')
 const popPage = ref(1)
 const popLastPage = ref(1)
+const popPages = computed(() => {
+  const start = Math.max(1, popPage.value - 2)
+  const end = Math.min(popLastPage.value, start + 4)
+  const pages = []
+  for (let i = Math.max(1, end - 4); i <= end; i++) pages.push(i)
+  return pages
+})
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
@@ -172,6 +184,12 @@ async function openItem(item) {
     const { data } = await axios.get(`/api/posts/${item.id}`)
     activeItem.value = data.data
   } catch { activeItem.value = item }
+  // 해당 글의 게시판으로 사이드바+타이틀 변경
+  const post = activeItem.value
+  if (post?.board_id) {
+    activeBoard.value = boards.value.find(b => b.id === post.board_id) || null
+    mobileBoardId.value = post.board_id
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 

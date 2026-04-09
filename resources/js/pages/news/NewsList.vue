@@ -66,6 +66,11 @@
               <a :href="activeItem.source_url" target="_blank" class="text-amber-600 text-sm hover:underline">📎 원문 보기 →</a>
             </div>
           </div>
+          <div class="flex justify-between mt-3">
+            <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
+            <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
+            <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
+          </div>
         </div>
 
         <!-- ═══ 목록 모드 ═══ -->
@@ -170,10 +175,17 @@ const contentBlocks = computed(() => {
   return blocks
 })
 
+const currentIdx = ref(-1)
 async function openItem(item) {
+  currentIdx.value = items.value.findIndex(i => i.id === item.id)
   try { const { data } = await axios.get(`/api/news/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
+  if (activeItem.value?.category_id) activeCat.value = categories.value.find(c => c.id === activeItem.value.category_id) || null
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+function navItem(dir) {
+  const newIdx = currentIdx.value + dir
+  if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
 }
 const loading = ref(true)
 const page = ref(1)

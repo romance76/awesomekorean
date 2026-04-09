@@ -155,6 +155,7 @@ async function openItem(item) {
   currentIdx.value = items.value.findIndex(i => i.id === item.id)
   try { const { data } = await axios.get(`/api/events/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
+  if (activeItem.value?.category) activeCat.value = activeItem.value.category
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
