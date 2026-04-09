@@ -31,10 +31,8 @@
         <div v-if="listing.contact_phone" class="text-sm text-gray-700">📱 {{ listing.contact_phone }}</div>
         <div v-if="listing.contact_email" class="text-sm text-gray-700">📧 {{ listing.contact_email }}</div>
       </div>
-    </div>
 
-    <!-- 댓글 -->
-    <div class="col-span-12 lg:col-span-9">
+      <!-- 댓글 -->
       <CommentSection v-if="listing.id" :type="'realestate'" :typeId="listing.id" class="mt-4" />
     </div>
 

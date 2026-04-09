@@ -22,7 +22,7 @@
       <button @click="vote('dislike')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full" :class="myVote==='dislike' ? 'text-red-500' : 'text-gray-400'">
         👎 <span v-if="localDislikes">{{ localDislikes }}</span>
       </button>
-      <button v-if="!isReply" @click="$emit('reply', comment.id, comment.user?.name)" class="text-xs text-gray-500 font-bold hover:bg-gray-100 px-2 py-0.5 rounded-full">답글</button>
+      <button v-if="!isReply && auth.user?.id !== comment.user_id" @click="$emit('reply', comment.id, comment.user?.name)" class="text-xs text-gray-500 font-bold hover:bg-gray-100 px-2 py-0.5 rounded-full">답글</button>
     </div>
   </div>
 </div>

@@ -30,10 +30,8 @@
           class="bg-amber-400 text-amber-900 font-bold px-6 py-2 rounded-lg text-sm hover:bg-amber-500">🛒 찜하기 (100P)</button>
         <RouterLink v-if="auth.isLoggedIn" to="/chat" class="bg-gray-100 text-gray-700 font-semibold px-6 py-2 rounded-lg text-sm hover:bg-gray-200">💬 채팅하기</RouterLink>
       </div>
-    </div>
 
-    <!-- 댓글 -->
-    <div class="col-span-12 lg:col-span-9">
+      <!-- 댓글 -->
       <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" class="mt-4" />
     </div>
 
