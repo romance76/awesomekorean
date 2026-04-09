@@ -225,13 +225,14 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 
 const auth = useAuthStore()
 const router = useRouter()
-const tab = ref('profile')
+const route = useRoute()
+const tab = ref(route.query.tab || 'profile')
 
 const tabs = [
   { key: 'profile', icon: '📝', label: '프로필' },
@@ -353,5 +354,9 @@ async function deleteAccount() {
   try { await axios.delete('/api/user/delete'); await auth.logout(); router.push('/') } catch (e) { alert(e.response?.data?.message || '실패') }
 }
 
-onMounted(() => { loadProfile(); loaded.profile = true })
+onMounted(() => {
+  loadProfile(); loaded.profile = true
+  // URL 쿼리로 탭 지정된 경우 해당 탭 로드
+  if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
+})
 </script>

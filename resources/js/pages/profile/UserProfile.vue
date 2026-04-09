@@ -62,7 +62,7 @@ async function sendFriendRequest() {
   } catch (e) { alert(e.response?.data?.message || '요청 실패') }
 }
 
-function openMessage() { router.push('/messages') }
+function openMessage() { router.push('/dashboard?tab=messages') }
 
 async function reportUser() {
   const reason = prompt('신고 사유를 입력하세요:')

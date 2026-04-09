@@ -73,7 +73,7 @@
               <RouterLink to="/dashboard" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">👤 마이페이지</RouterLink>
               <RouterLink to="/profile/edit" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">✏️ 프로필 수정</RouterLink>
               <RouterLink to="/points" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">💰 포인트</RouterLink>
-              <RouterLink to="/messages" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">✉️ 쪽지</RouterLink>
+              <RouterLink to="/dashboard?tab=messages" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">✉️ 쪽지</RouterLink>
               <RouterLink to="/friends" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">👫 친구</RouterLink>
               <div v-if="auth.isAdmin">
                 <div class="border-t my-1"></div>
@@ -259,9 +259,9 @@ function clickNotif(n) {
     axios.post(`/api/notifications/${n.id}/read`).catch(() => {})
   }
   showNotifs.value = false
-  // 쪽지 알림이면 쪽지 페이지로
+  // 쪽지 알림이면 대시보드 쪽지 탭으로
   if (n.type === 'message') {
-    router.push('/messages')
+    router.push('/dashboard?tab=messages')
   } else if (n.data?.url) {
     router.push(n.data.url)
   }
