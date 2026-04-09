@@ -7,7 +7,7 @@
     <div class="flex gap-3">
       <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
       <div class="flex-1">
-        <textarea v-model="newComment" rows="2" placeholder="댓글 추가..." class="w-full border-0 border-b border-gray-200 px-0 py-1 text-sm resize-none outline-none focus:border-amber-400 transition"></textarea>
+        <textarea v-model="newComment" rows="1" placeholder="댓글 추가..." class="w-full border-0 border-b border-gray-200 px-0 pb-1 text-sm resize-none outline-none focus:border-amber-400 transition leading-snug" @focus="$event.target.rows=2" @blur="if(!newComment.trim()) $event.target.rows=1"></textarea>
         <div v-if="newComment.trim()" class="flex justify-end gap-2 mt-2">
           <button @click="newComment=''" class="text-xs text-gray-500 px-3 py-1.5 rounded-full hover:bg-gray-100">취소</button>
           <button @click="submitComment(null)" class="text-xs bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-full hover:bg-amber-500">댓글</button>
@@ -41,7 +41,7 @@
         <div class="flex gap-2">
           <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
           <div class="flex-1">
-            <textarea v-model="replyText" rows="2" placeholder="답글 추가..." class="w-full border-0 border-b border-gray-200 px-0 py-1 text-xs resize-none outline-none focus:border-amber-400"></textarea>
+            <textarea v-model="replyText" rows="1" placeholder="답글 추가..." class="w-full border-0 border-b border-gray-200 px-0 pb-1 text-xs resize-none outline-none focus:border-amber-400 leading-snug" @focus="$event.target.rows=2"></textarea>
             <div class="flex justify-end gap-2 mt-1">
               <button @click="replyTo=null; replyText=''" class="text-[10px] text-gray-500 px-2 py-1 rounded-full hover:bg-gray-100">취소</button>
               <button @click="submitComment(c.id)" :disabled="!replyText.trim()" class="text-[10px] bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50">답글</button>
