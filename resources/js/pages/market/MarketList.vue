@@ -67,8 +67,10 @@
         <RouterLink :to="`/market/write?edit=${activeItem.id}`" class="text-xs text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
         <button @click="deleteItem('market')" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
       </div>
-      <div class="flex justify-between mt-2">
-        <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">← 목록</button>
+      <div class="flex justify-between mt-3">
+        <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
+        <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
+        <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
       </div>
     </div>
     <!-- 목록 모드 -->
@@ -157,10 +159,16 @@ const marketCategories = [
 const items = ref([])
 const loading = ref(true)
 const activeItem = ref(null)
+const currentIdx = ref(-1)
 async function openItem(item) {
   try { const { data } = await axios.get(`/api/market/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
+  currentIdx.value = items.value.findIndex(i => i.id === item.id)
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+function navItem(dir) {
+  const newIdx = currentIdx.value + dir
+  if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
 }
 
 async function deleteItem(type) {
