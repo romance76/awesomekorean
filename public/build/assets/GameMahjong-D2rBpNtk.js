@@ -1,1 +1,0 @@
-import e from"./ArcadeGame-CTqmi_nj.js";import{m as a,k as o}from"./app-DQ-1WaEA.js";const s={__name:"GameMahjong",setup(r){return(m,t)=>(o(),a(e,{"game-slug":"mahjong","game-id":"mahjong",title:"🀄 마작 솔리테어","points-per-score":1}))}};export{s as default};

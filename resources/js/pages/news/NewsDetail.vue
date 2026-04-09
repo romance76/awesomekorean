@@ -40,6 +40,8 @@
             <a :href="news.source_url" target="_blank" class="text-amber-600 text-sm hover:underline">📎 원문 보기 →</a>
           </div>
         </div>
+
+        <CommentSection v-if="news.id" :type="'news'" :typeId="news.id" class="mt-4" />
       </div>
 
       <!-- 오른쪽: 위젯 -->
@@ -56,6 +58,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 
 const route = useRoute()

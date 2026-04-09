@@ -33,6 +33,8 @@
           </div>
           <div v-if="!posts.length" class="px-5 py-6 text-center text-sm text-gray-400">아직 게시글이 없습니다</div>
         </div>
+
+        <CommentSection v-if="club.id" :type="'club'" :typeId="club.id" class="mt-4" />
       </div>
 
       <!-- 사이드바 -->
@@ -51,6 +53,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()

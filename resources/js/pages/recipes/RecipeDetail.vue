@@ -36,6 +36,8 @@
       <div class="px-5 py-4 text-sm text-gray-700 whitespace-pre-wrap">{{ recipe.content }}</div>
       <div class="px-5 py-3 border-t text-xs text-gray-400"><UserName :userId="recipe.user?.id" :name="recipe.user?.name" /> · {{ formatDate(recipe.created_at) }}</div>
     </div>
+
+    <CommentSection v-if="recipe.id" :type="'recipe'" :typeId="recipe.id" class="mt-4" />
     <!-- 사이드바 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets api-url="/api/recipes" detail-path="/recipes/" :current-id="recipe.id"
@@ -50,6 +52,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 const route = useRoute()
 const recipe = ref(null)

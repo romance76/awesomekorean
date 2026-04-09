@@ -32,6 +32,11 @@
           </select>
         </div>
 
+        <div v-if="activeCat && !activeItem" class="mb-3 text-sm text-gray-600">
+          <span class="font-bold text-amber-700">{{ activeCat.name }}</span>
+          <button @click="activeCat=null; loadNews()" class="ml-2 text-xs text-gray-400 hover:text-gray-600">✕ 전체보기</button>
+        </div>
+
         <!-- ═══ 상세 모드 ═══ -->
         <div v-if="activeItem">
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

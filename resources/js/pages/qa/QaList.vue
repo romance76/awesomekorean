@@ -88,6 +88,11 @@
             </select>
           </div>
 
+          <div v-if="activeCat" class="mb-3 text-sm text-gray-600">
+            <span class="font-bold text-amber-700">{{ activeCat.name }}</span>
+            <button @click="activeCat=null; loadQa()" class="ml-2 text-xs text-gray-400 hover:text-gray-600">✕ 전체보기</button>
+          </div>
+
           <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
           <div v-else-if="!items.length" class="text-center py-12">
             <div class="text-4xl mb-3">❓</div>

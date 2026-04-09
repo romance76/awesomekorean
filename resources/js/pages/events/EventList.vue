@@ -36,6 +36,11 @@
     </div>
     <div class="col-span-12 lg:col-span-7">
 
+    <div v-if="activeCat" class="mb-3 text-sm text-gray-600">
+      <span class="font-bold text-amber-700">{{ eventCategories.find(c => c.value === activeCat)?.label || activeCat }}</span>
+      <button @click="activeCat=null; loadPage()" class="ml-2 text-xs text-gray-400 hover:text-gray-600">✕ 전체보기</button>
+    </div>
+
     <!-- 상세 모드 -->
     <div v-if="activeItem">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
