@@ -19,9 +19,9 @@
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 게시판</div>
-          <button @click="activeBoard=null; loadPosts()" class="w-full text-left px-3 py-2 text-xs transition"
+          <button @click="activeBoard=null; activeItem=null; comments=[]; loadPosts()" class="w-full text-left px-3 py-2 text-xs transition"
             :class="!activeBoard ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">전체</button>
-          <button v-for="b in boards" :key="b.id" @click="activeBoard=b; loadPosts()"
+          <button v-for="b in boards" :key="b.id" @click="activeBoard=b; activeItem=null; comments=[]; loadPosts()"
             class="w-full text-left px-3 py-2 text-xs transition"
             :class="activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
             {{ b.name }}
@@ -137,9 +137,9 @@
             </button>
           </div>
           <!-- 인기글 페이지네이션 -->
-          <div v-if="popLastPage > 1" class="px-3 py-2 border-t flex justify-center gap-1">
-            <button v-for="pg in popLastPage" :key="pg" @click="loadPopular(pg)"
-              class="w-6 h-6 rounded text-[10px]" :class="pg===popPage?'bg-amber-400 text-amber-900 font-bold':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
+          <div v-if="popLastPage > 1" class="px-3 py-2 border-t flex justify-center gap-1.5 flex-wrap">
+            <button v-for="pg in Math.min(popLastPage, 10)" :key="pg" @click="loadPopular(pg)"
+              class="w-7 h-7 rounded-lg text-xs font-bold" :class="pg===popPage?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
           </div>
         </div>
       </div>
