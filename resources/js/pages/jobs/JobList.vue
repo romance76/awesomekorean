@@ -14,15 +14,15 @@
               <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
             </optgroup>
           </select>
-          <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
-            <option value="10">10mi 이내</option>
-            <option value="30">30mi 이내</option>
-            <option value="50">50mi 이내</option>
-            <option value="100">100mi 이내</option>
-          </select>
         </div>
       </div>
       <div class="flex gap-1.5">
+        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none flex-shrink-0">
+          <option value="10">10mi 이내</option>
+          <option value="30">30mi 이내</option>
+          <option value="50">50mi 이내</option>
+          <option value="100">100mi 이내</option>
+        </select>
         <form @submit.prevent="loadPage()" class="flex gap-1 flex-1">
           <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none flex-1 min-w-0" />
           <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500 flex-shrink-0">검색</button>
