@@ -229,15 +229,216 @@ class MusicController extends Controller
     public function storeCategory(Request $request)
     {
         $request->validate(['name' => 'required|max:50']);
-        $slug = $request->slug ?: \Illuminate\Support\Str::slug($request->name);
+        $slug = $request->slug ?: \Illuminate\Support\Str::slug($request->name) ?: 'cat-'.time();
         $cat = MusicCategory::create([
             'name' => $request->name,
             'slug' => $slug,
-            'sort_order' => MusicCategory::max('sort_order') + 1,
+            'sort_order' => (MusicCategory::max('sort_order') ?? 0) + 1,
             'korean_queries' => $request->korean_queries,
             'pop_queries' => $request->pop_queries,
         ]);
         return response()->json(['success' => true, 'data' => $cat], 201);
+    }
+
+    // 관리자: 카테고리 이름 변경
+    public function updateCategory(Request $request, $id)
+    {
+        $cat = MusicCategory::findOrFail($id);
+        $request->validate(['name' => 'required|max:50']);
+        $cat->update([
+            'name' => $request->name,
+            'slug' => $request->slug ?: $cat->slug,
+        ]);
+        return response()->json(['success' => true, 'data' => $cat]);
+    }
+
+    // 관리자: 카테고리 삭제 (소속 트랙은 '미분류' 이동 or 함께 삭제 선택)
+    public function destroyCategory(Request $request, $id)
+    {
+        $cat = MusicCategory::findOrFail($id);
+        $trackCount = MusicTrack::where('category_id', $id)->count();
+
+        if ($trackCount > 0 && !$request->boolean('delete_tracks')) {
+            return response()->json([
+                'success' => false,
+                'message' => "이 카테고리에 {$trackCount}개 트랙이 있습니다. delete_tracks=true 를 전달해 함께 삭제하세요.",
+                'track_count' => $trackCount,
+            ], 409);
+        }
+
+        if ($trackCount > 0) {
+            MusicTrack::where('category_id', $id)->delete();
+        }
+        $cat->delete();
+        return response()->json(['success' => true, 'deleted_tracks' => $trackCount]);
+    }
+
+    // 관리자: YouTube 일괄 가져오기 (playlist / channel / urls)
+    public function bulkImport(Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:music_categories,id',
+            'mode' => 'required|in:playlist,channel,urls',
+            'url' => 'required|string',
+        ]);
+
+        $apiKey = $this->getYoutubeApiKey();
+        if (!$apiKey) return response()->json(['success' => false, 'message' => 'YouTube API 키가 설정되지 않았습니다'], 500);
+
+        $catId = (int) $request->category_id;
+        $mode = $request->mode;
+        $input = trim($request->url);
+
+        $videoIds = [];
+        $errors = [];
+
+        try {
+            if ($mode === 'playlist') {
+                // playlist ID 추출
+                if (preg_match('/[?&]list=([a-zA-Z0-9_-]+)/', $input, $m)) {
+                    $plId = $m[1];
+                } elseif (preg_match('/^[a-zA-Z0-9_-]{10,}$/', $input)) {
+                    $plId = $input;
+                } else {
+                    return response()->json(['success' => false, 'message' => '플레이리스트 URL이 올바르지 않습니다'], 422);
+                }
+                $videoIds = $this->fetchPlaylistVideos($apiKey, $plId, 200);
+            } elseif ($mode === 'channel') {
+                $channelId = null;
+                if (preg_match('/channel\/([a-zA-Z0-9_-]+)/', $input, $m)) {
+                    $channelId = $m[1];
+                } elseif (preg_match('/@([a-zA-Z0-9._-]+)/', $input, $m)) {
+                    // @handle → channel ID 조회
+                    $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/search', [
+                        'key' => $apiKey, 'q' => '@'.$m[1], 'type' => 'channel', 'part' => 'snippet', 'maxResults' => 1,
+                    ]);
+                    $channelId = $res->json('items.0.snippet.channelId');
+                } elseif (preg_match('/^UC[a-zA-Z0-9_-]{20,}$/', $input)) {
+                    $channelId = $input;
+                }
+                if (!$channelId) return response()->json(['success' => false, 'message' => '채널을 찾을 수 없습니다'], 422);
+                $videoIds = $this->fetchChannelVideos($apiKey, $channelId, 200);
+            } else { // urls
+                $lines = preg_split('/[\s,\r\n]+/', $input);
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if (!$line) continue;
+                    if (preg_match('/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([a-zA-Z0-9_-]{11})/', $line, $m)) {
+                        $videoIds[] = $m[1];
+                    } elseif (preg_match('/^[a-zA-Z0-9_-]{11}$/', $line)) {
+                        $videoIds[] = $line;
+                    }
+                }
+                $videoIds = array_unique($videoIds);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => '가져오기 실패: '.$e->getMessage()], 500);
+        }
+
+        if (empty($videoIds)) {
+            return response()->json(['success' => false, 'message' => '가져올 영상이 없습니다'], 422);
+        }
+
+        // 배치 처리 (YouTube videos.list는 최대 50개씩)
+        $added = 0; $skipped = 0; $skipReasons = [];
+        foreach (array_chunk($videoIds, 50) as $chunk) {
+            $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/videos', [
+                'key' => $apiKey, 'id' => implode(',', $chunk), 'part' => 'snippet,contentDetails',
+            ]);
+            if (!$res->ok()) continue;
+
+            foreach ($res->json('items', []) as $v) {
+                $vid = $v['id'] ?? null;
+                if (!$vid) { $skipped++; continue; }
+                if (MusicTrack::where('youtube_id', $vid)->exists()) { $skipped++; $skipReasons[] = '중복'; continue; }
+
+                $title = $v['snippet']['title'] ?? '';
+                $channel = $v['snippet']['channelTitle'] ?? '';
+                $iso = $v['contentDetails']['duration'] ?? 'PT0S';
+                preg_match('/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/', $iso, $dm);
+                $seconds = (intval($dm[1] ?? 0) * 3600) + (intval($dm[2] ?? 0) * 60) + intval($dm[3] ?? 0);
+
+                // duration 필수 (라이브/미확인 차단)
+                if ($seconds <= 0) { $skipped++; $skipReasons[] = '라이브/길이불명'; continue; }
+                // 5분 초과 차단
+                if ($seconds > 300) { $skipped++; $skipReasons[] = '5분초과'; continue; }
+                // 너무 짧음 (10초 미만)
+                if ($seconds < 10) { $skipped++; $skipReasons[] = '10초미만'; continue; }
+                if (mb_strlen($title) < 2) { $skipped++; continue; }
+
+                // 언어 필터
+                $text = $title . ' ' . $channel;
+                if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $text)) { $skipped++; $skipReasons[] = '일본어'; continue; }
+                if (preg_match('/[\x{4E00}-\x{9FFF}]/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) { $skipped++; $skipReasons[] = '중국어'; continue; }
+                if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $text)) { $skipped++; $skipReasons[] = '힌디/아랍/태국'; continue; }
+                if (preg_match('/[ăâđêôơưừứửữựắằẳẵặẻẽẹểễệốồổỗộớờởỡợýỷỹỵ]/u', $text)) { $skipped++; $skipReasons[] = '베트남어'; continue; }
+                if (preg_match('/[áéíóúñ¿¡]/u', $text)) { $skipped++; $skipReasons[] = '스페인어'; continue; }
+
+                MusicTrack::create([
+                    'category_id' => $catId,
+                    'title' => mb_substr($title, 0, 200),
+                    'artist' => mb_substr($channel, 0, 100),
+                    'youtube_id' => $vid,
+                    'youtube_url' => "https://www.youtube.com/watch?v={$vid}",
+                    'duration' => $seconds,
+                    'sort_order' => 0,
+                    'is_user_submitted' => false,
+                ]);
+                $added++;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'added' => $added,
+            'skipped' => $skipped,
+            'total_found' => count($videoIds),
+            'skip_reasons' => array_count_values($skipReasons),
+            'message' => "추가 {$added}곡 / 제외 {$skipped}곡 (총 ".count($videoIds)."개 영상)",
+        ]);
+    }
+
+    // ─── helpers ───
+    private function getYoutubeApiKey()
+    {
+        $apiKey = config('services.youtube.api_key');
+        if (!$apiKey && file_exists(base_path('.env'))) {
+            if (preg_match('/YOUTUBE_API_KEY=(.+)/', file_get_contents(base_path('.env')), $m)) {
+                $apiKey = trim($m[1]);
+            }
+        }
+        return $apiKey;
+    }
+
+    private function fetchPlaylistVideos($apiKey, $playlistId, $maxItems = 200)
+    {
+        $ids = [];
+        $pageToken = null;
+        do {
+            $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/playlistItems', [
+                'key' => $apiKey, 'playlistId' => $playlistId, 'part' => 'snippet',
+                'maxResults' => 50, 'pageToken' => $pageToken,
+            ]);
+            if (!$res->ok()) break;
+            foreach ($res->json('items', []) as $item) {
+                $vid = $item['snippet']['resourceId']['videoId'] ?? null;
+                if ($vid) $ids[] = $vid;
+                if (count($ids) >= $maxItems) break 2;
+            }
+            $pageToken = $res->json('nextPageToken');
+        } while ($pageToken);
+        return $ids;
+    }
+
+    private function fetchChannelVideos($apiKey, $channelId, $maxItems = 200)
+    {
+        // 채널의 uploads 플레이리스트 ID 가져오기
+        $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/channels', [
+            'key' => $apiKey, 'id' => $channelId, 'part' => 'contentDetails',
+        ]);
+        $uploadsId = $res->json('items.0.contentDetails.relatedPlaylists.uploads');
+        if (!$uploadsId) return [];
+        return $this->fetchPlaylistVideos($apiKey, $uploadsId, $maxItems);
     }
 
     // 관리자: 트랙 추가 (YouTube API로 duration 조회 후 5분 이하만 허용)

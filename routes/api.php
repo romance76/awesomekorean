@@ -391,6 +391,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // Admin Music
     Route::post('/music/categories', [MusicController::class, 'storeCategory']);
+    Route::put('/music/categories/{id}', [MusicController::class, 'updateCategory']);
+    Route::delete('/music/categories/{id}', [MusicController::class, 'destroyCategory']);
+    Route::post('/music/bulk-import', [MusicController::class, 'bulkImport']);
     Route::post('/music/tracks', [MusicController::class, 'storeTrack']);
     Route::delete('/music/tracks/{id}', [MusicController::class, 'destroyTrack']);
 
