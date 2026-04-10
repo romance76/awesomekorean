@@ -4,7 +4,7 @@
     <!-- 헤더 -->
     <div class="flex items-center flex-wrap gap-2 mb-4">
       <h1 class="text-xl font-black text-gray-800">🤝 공동구매</h1>
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1.5 ml-auto">
         <span class="text-amber-600 text-sm">📍</span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>

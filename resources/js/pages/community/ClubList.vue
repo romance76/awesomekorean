@@ -4,7 +4,7 @@
     <!-- 헤더 -->
     <div class="flex items-center flex-wrap gap-2 mb-4">
       <h1 class="text-xl font-black text-gray-800">👥 동호회</h1>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 ml-auto">
         <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
           class="px-2.5 py-1 rounded-full text-[10px] font-bold transition"
           :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
