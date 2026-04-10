@@ -24,7 +24,7 @@ class ChatController extends Controller
 
         $rooms = ChatRoom::whereIn('id', $allRoomIds)
             ->withCount('users')
-            ->with(['messages' => fn($q) => $q->latest()->limit(1)->with('user:id,name,nickname,avatar')])
+            ->with(['messages' => fn($q) => $q->latest()->limit(1)->with('user:id,name,nickname,avatar,role')])
             ->orderByDesc('updated_at')
             ->get();
 
@@ -43,12 +43,31 @@ class ChatController extends Controller
         $banned = DB::table('chat_room_bans')->where('chat_room_id', $id)->where('user_id', auth()->id())->exists();
         if ($banned) return response()->json(['success'=>false,'message'=>'이 채팅방에서 차단되었습니다.'], 403);
 
-        $messages = ChatMessage::with('user:id,name,nickname,avatar')->where('chat_room_id',$id)->orderByDesc('created_at')->paginate(50);
-        return response()->json(['success'=>true,'data'=>$messages]);
+        $messages = ChatMessage::with('user:id,name,nickname,avatar,role')
+            ->where('chat_room_id',$id)
+            ->orderByDesc('created_at')
+            ->paginate(50);
+
+        // 활성 공지 (pinned_until > now)
+        $pinned = ChatMessage::with('user:id,name,nickname,avatar,role')
+            ->where('chat_room_id', $id)
+            ->where('type', 'system')
+            ->where('pinned_until', '>', now())
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json(['success'=>true,'data'=>$messages,'pinned'=>$pinned]);
     }
 
     public function sendMessage(Request $request, $id) {
-        $request->validate(['content' => 'required']);
+        $request->validate([
+            'content' => 'nullable|string|max:2000',
+            'image' => 'nullable|image|max:10240',
+        ]);
+
+        if (!$request->filled('content') && !$request->hasFile('image')) {
+            return response()->json(['success'=>false,'message'=>'내용 또는 이미지가 필요합니다'], 422);
+        }
 
         // 영구제명된 유저 차단
         if (auth()->user()->is_banned) {
@@ -68,10 +87,23 @@ class ChatController extends Controller
             );
         }
 
-        $msg = ChatMessage::create(['chat_room_id'=>$id,'user_id'=>auth()->id(),'content'=>$request->content,'type'=>$request->type??'text']);
+        $data = [
+            'chat_room_id' => $id,
+            'user_id' => auth()->id(),
+            'content' => $request->content ?: '',
+            'type' => $request->type ?? 'text',
+        ];
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('chat-images', 'public');
+            $data['file_url'] = '/storage/' . $path;
+            $data['type'] = 'image';
+        }
+
+        $msg = ChatMessage::create($data);
 
         // 실시간 브로드캐스트
-        try { event(new \App\Events\MessageSent($msg->load('user:id,name,nickname,avatar'))); } catch (\Exception $e) {}
-        return response()->json(['success'=>true,'data'=>$msg->load('user:id,name,nickname,avatar')],201);
+        try { event(new \App\Events\MessageSent($msg->load('user:id,name,nickname,avatar,role'))); } catch (\Exception $e) {}
+        return response()->json(['success'=>true,'data'=>$msg->load('user:id,name,nickname,avatar,role')],201);
     }
 }

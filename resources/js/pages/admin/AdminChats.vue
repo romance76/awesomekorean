@@ -73,7 +73,8 @@
         <div v-if="detailLoading" class="p-10 text-center text-gray-400">로딩중...</div>
         <div v-else-if="roomDetail">
           <!-- 💬 메시지 탭 -->
-          <div v-if="tab === 'messages'" class="p-3 max-h-[65vh] overflow-y-auto">
+          <div v-if="tab === 'messages'" class="flex flex-col">
+          <div class="p-3 max-h-[55vh] overflow-y-auto">
             <div v-if="!roomDetail.messages?.length" class="text-center py-8 text-gray-400">메시지 없음</div>
             <div v-else class="space-y-1.5">
               <div v-for="m in [...roomDetail.messages].reverse()" :key="m.id"
@@ -98,11 +99,33 @@
               </div>
             </div>
           </div>
+          <!-- 관리자 메시지 입력창 -->
+          <div class="border-t px-3 py-2 flex gap-2 items-center bg-red-50/50">
+            <span class="text-[10px] bg-red-500 text-white px-2 py-1 rounded-full font-bold flex-shrink-0">👑 관리자</span>
+            <input v-model="adminMsg" @keyup.enter="sendAdminMessage" placeholder="관리자로 메시지 전송..."
+              class="flex-1 border rounded-full px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-red-300" />
+            <button @click="sendAdminMessage" :disabled="!adminMsg.trim() || sendingMsg"
+              class="bg-red-500 text-white font-bold px-3 py-1.5 rounded-full text-xs disabled:opacity-50">
+              {{ sendingMsg ? '...' : '전송' }}
+            </button>
+          </div>
+          </div>
 
           <!-- 📢 공지 탭 -->
           <div v-else-if="tab === 'announce'" class="p-4">
             <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
               <div class="text-xs font-bold text-amber-700 mb-2">📢 새 공지 작성</div>
+              <div class="mb-2">
+                <div class="text-[10px] font-bold text-amber-800 mb-1">⏰ 공지 유지 기간</div>
+                <div class="flex flex-wrap gap-1">
+                  <button v-for="opt in durationOptions" :key="opt.value"
+                    @click="selectedDuration = opt.value"
+                    :class="selectedDuration === opt.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-600 hover:bg-amber-100'"
+                    class="px-2.5 py-1 rounded text-[10px] font-bold transition">{{ opt.label }}</button>
+                </div>
+                <input v-if="selectedDuration === 'custom'" v-model="customExpires" type="datetime-local"
+                  class="w-full border rounded px-2 py-1 text-xs mt-2" />
+              </div>
               <textarea v-model="announceText" rows="3" placeholder="공지 내용을 입력하세요..."
                 class="w-full border rounded px-3 py-2 text-sm resize-none"></textarea>
               <div class="flex justify-end mt-2">
@@ -311,6 +334,21 @@ const tab = ref('messages')
 
 const announceText = ref('')
 const announcing = ref(false)
+const selectedDuration = ref('1h')
+const customExpires = ref('')
+
+const durationOptions = [
+  { value: '10m', label: '10분' },
+  { value: '30m', label: '30분' },
+  { value: '1h', label: '1시간' },
+  { value: '6h', label: '6시간' },
+  { value: '12h', label: '12시간' },
+  { value: '1d', label: '하루' },
+  { value: 'custom', label: '날짜 선택' },
+]
+
+const adminMsg = ref('')
+const sendingMsg = ref(false)
 
 const showCreate = ref(false)
 const newRoomName = ref('')
@@ -383,13 +421,32 @@ async function deleteRoom(r) {
 
 async function sendAnnounce() {
   if (!announceText.value.trim()) return
+  if (selectedDuration.value === 'custom' && !customExpires.value) {
+    alert('날짜를 선택해주세요')
+    return
+  }
   announcing.value = true
   try {
-    await axios.post(`/api/admin/chat/rooms/${activeRoom.value.id}/announce`, { content: announceText.value })
+    const payload = { content: announceText.value, duration: selectedDuration.value }
+    if (selectedDuration.value === 'custom') payload.expires_at = customExpires.value
+    const { data } = await axios.post(`/api/admin/chat/rooms/${activeRoom.value.id}/announce`, payload)
     announceText.value = ''
+    customExpires.value = ''
+    alert(data.message || '공지가 발송되었습니다')
     await loadRoomDetail()
   } catch (e) { alert(e.response?.data?.message || '실패') }
   announcing.value = false
+}
+
+async function sendAdminMessage() {
+  if (!adminMsg.value.trim() || !activeRoom.value) return
+  sendingMsg.value = true
+  try {
+    await axios.post(`/api/chat/rooms/${activeRoom.value.id}/messages`, { content: adminMsg.value })
+    adminMsg.value = ''
+    await loadRoomDetail()
+  } catch (e) { alert(e.response?.data?.message || '전송 실패') }
+  sendingMsg.value = false
 }
 
 async function deleteMessage(m) {

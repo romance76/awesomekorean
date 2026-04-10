@@ -650,9 +650,34 @@ async function saveProfile() {
   pfSaving.value = false
 }
 async function uploadAvatar(e) {
-  const file = e.target.files[0]; if (!file) return
-  const fd = new FormData(); fd.append('avatar', file)
-  try { await axios.post('/api/user/avatar', fd); await auth.fetchUser(); avatarMsg.value = '변경됨!' } catch { avatarMsg.value = '실패' }
+  const file = e.target.files[0]
+  if (!file) return
+  // 10MB 초과 즉시 차단
+  if (file.size > 10 * 1024 * 1024) {
+    avatarMsg.value = `파일이 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 최대 10MB.`
+    e.target.value = ''
+    return
+  }
+  const fd = new FormData()
+  fd.append('avatar', file)
+  avatarMsg.value = '업로드 중...'
+  try {
+    const { data } = await axios.post('/api/user/avatar', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+    await auth.fetchUser()
+    avatarMsg.value = '변경됨! ✓'
+    // 캐시 버스팅: 유저 아바타 URL에 타임스탬프 쿼리 추가
+    if (auth.user && auth.user.avatar) {
+      auth.user.avatar = auth.user.avatar.split('?')[0] + '?t=' + Date.now()
+    }
+  } catch (err) {
+    const msg = err.response?.data?.errors?.avatar?.[0]
+      || err.response?.data?.message
+      || err.message
+      || '업로드 실패'
+    avatarMsg.value = '실패: ' + msg
+  }
+  // 같은 파일 재선택 가능하도록 리셋
+  e.target.value = ''
 }
 async function changePw() {
   if (pw.password !== pw.password_confirmation) { pwMsg.value = '비밀번호가 일치하지 않습니다'; pwMsgType.value = 'error'; return }

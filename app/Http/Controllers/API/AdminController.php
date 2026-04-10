@@ -407,18 +407,33 @@ class AdminController extends Controller
     }
 
     public function chatAnnounce(Request $request, $id) {
-        $request->validate(['content' => 'required|string']);
+        $request->validate([
+            'content' => 'required|string',
+            'duration' => 'nullable|string',
+            'expires_at' => 'nullable|date',
+        ]);
         ChatRoom::findOrFail($id);
+
+        // 만료 시각 계산
+        $map = ['10m' => 10, '30m' => 30, '1h' => 60, '6h' => 360, '12h' => 720, '1d' => 1440];
+        if (isset($map[$request->duration])) {
+            $pinnedUntil = now()->addMinutes($map[$request->duration]);
+        } elseif ($request->duration === 'custom' && $request->expires_at) {
+            $pinnedUntil = \Carbon\Carbon::parse($request->expires_at);
+        } else {
+            $pinnedUntil = now()->addHour(); // 기본 1시간
+        }
 
         $msg = ChatMessage::create([
             'chat_room_id' => $id,
             'user_id' => auth()->id(),
             'content' => '📢 [공지] ' . $request->content,
             'type' => 'system',
+            'pinned_until' => $pinnedUntil,
         ]);
 
-        try { event(new \App\Events\MessageSent($msg->load('user:id,name,nickname,avatar'))); } catch (\Exception $e) {}
-        return response()->json(['success'=>true,'data'=>$msg->load('user:id,name,nickname,avatar'),'message'=>'공지가 발송되었습니다']);
+        try { event(new \App\Events\MessageSent($msg->load('user:id,name,nickname,avatar,role'))); } catch (\Exception $e) {}
+        return response()->json(['success'=>true,'data'=>$msg->load('user:id,name,nickname,avatar,role'),'message'=>'공지가 발송되었습니다 (만료: '.$pinnedUntil->format('Y-m-d H:i').')']);
     }
 
     public function chatKickMember($id, $userId) {
