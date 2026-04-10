@@ -36,6 +36,12 @@
     </div>
     <div class="col-span-12 lg:col-span-7">
 
+    <!-- 모바일 카테고리 -->
+    <div class="lg:hidden mb-3">
+      <select @change="e => { activeCat = e.target.value; activeItem = null; loadPage() }" :value="activeCat" class="w-full border rounded-lg px-3 py-2 text-sm">
+        <option v-for="c in bizCategories" :key="c.value" :value="c.value">{{ c.label }}</option>
+      </select>
+    </div>
     <div class="mb-2">
       <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (bizCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
       <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 업소를 볼 수 있습니다</span>
