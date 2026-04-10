@@ -11,53 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
+    # 주의: frontend 빌드는 서버에서 수행합니다.
+    # GitHub Actions runner 에는 .env(VITE_REVERB_APP_KEY 등)가 없어서
+    # 여기서 build 하면 Pusher/Reverb 키가 비어있는 번들이 만들어지고
+    # Vue 앱 전체가 로드되지 않는 문제가 있었습니다.
+    # deploy.sh 가 서버의 .env 를 읽어서 올바르게 빌드합니다.
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install NPM dependencies
-        run: npm ci
-
-      - name: Build frontend (Vue3 + Vite)
-        run: npm run build
-
-      - name: Copy built assets to server via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
-          source: "public/build"
-          target: "/var/www/somekorean/public"
-          strip_components: 1
-
-      - name: Deploy backend via SSH
+      - name: Deploy via SSH (server builds with proper .env)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          command_timeout: 20m
           script: |
             set -e
             cd /var/www/somekorean
-            git config --global --add safe.directory /var/www/somekorean
-            git pull origin main
-            composer install --no-dev --optimize-autoloader --no-interaction -q
-            php8.2 artisan migrate --force
-            php8.2 artisan config:cache
-            php8.2 artisan route:cache
-            php8.2 artisan view:cache
-            php8.2 artisan storage:link --force 2>/dev/null || true
-            chown -R www-data:www-data storage bootstrap/cache public/build
-            chmod -R 775 storage bootstrap/cache
-            systemctl restart php8.2-fpm
-            supervisorctl reload 2>/dev/null || true
+            bash deploy.sh
             echo "Deployed successfully to somekorean.com!"
