@@ -2,15 +2,15 @@
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 헤더 -->
-    <div class="flex items-center flex-wrap gap-2 mb-4">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="text-xl font-black text-gray-800">👥 동호회</h1>
-      <div class="flex items-center gap-1 ml-auto">
-        <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
-          class="px-2.5 py-1 rounded-full text-[10px] font-bold transition"
-          :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
-      </div>
-      <template v-if="type !== 'online'">
-        <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="flex items-center gap-1">
+          <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
+            class="px-2.5 py-1 rounded-full text-[10px] font-bold transition"
+            :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
+        </div>
+        <template v-if="type !== 'online'">
           <span class="text-amber-600 text-sm">📍</span>
           <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
             <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
@@ -22,13 +22,13 @@
           <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
             <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
           </select>
-        </div>
-      </template>
-      <form @submit.prevent="loadClubs()" class="flex gap-1 flex-1 min-w-[150px]">
-        <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
-        <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
-      </form>
-      <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">+ 동호회 만들기</RouterLink>
+        </template>
+        <form @submit.prevent="loadClubs()" class="flex gap-1">
+          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
+          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+        </form>
+        <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">+ 동호회 만들기</RouterLink>
+      </div>
     </div>
 
     <div class="grid grid-cols-12 gap-4">
