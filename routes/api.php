@@ -377,16 +377,63 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // 수동 수집
     Route::post('/fetch-music', function () {
-        try { \Artisan::call('music:fetch', ['--daily' => 100, '--korean-ratio' => 75]); return response()->json(['success' => true, 'message' => '음악 100곡 수집 완료 (한국 75%)']); }
-        catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
+        try {
+            $before = \App\Models\MusicTrack::count();
+            \Artisan::call('music:fetch', ['--daily' => 100, '--korean-ratio' => 75]);
+            $output = \Artisan::output();
+            $after = \App\Models\MusicTrack::count();
+            $added = $after - $before;
+
+            // API 할당량 초과 감지
+            if (str_contains($output, 'API 오류: 403')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "YouTube API 할당량 초과! 추가된 곡: {$added}곡. 내일 다시 시도하거나 YouTube 데이터 API 키의 할당량을 확인하세요.",
+                    'added' => $added,
+                    'total' => $after,
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $added > 0 ? "음악 {$added}곡 추가 완료 (전체 {$after}곡)" : "추가된 곡 없음 (전체 {$after}곡, 중복/필터로 제외)",
+                'added' => $added,
+                'total' => $after,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     });
     Route::post('/fetch-news', function () {
         try { \Artisan::call('news:fetch'); return response()->json(['success' => true, 'message' => '뉴스 수집 완료']); }
         catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
     });
     Route::post('/fetch-shorts', function () {
-        try { \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]); return response()->json(['success' => true, 'message' => '숏츠 100개 수집 완료 (한국 75%)']); }
-        catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
+        try {
+            $before = \App\Models\Short::count();
+            \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]);
+            $output = \Artisan::output();
+            $after = \App\Models\Short::count();
+            $added = $after - $before;
+
+            if (str_contains($output, 'API 할당량 초과') || str_contains($output, '403')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "YouTube API 할당량 초과! 추가된 쇼츠: {$added}개. 내일 다시 시도하세요.",
+                    'added' => $added,
+                    'total' => $after,
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $added > 0 ? "쇼츠 {$added}개 추가 완료 (전체 {$after}개)" : "추가된 쇼츠 없음 (전체 {$after}개)",
+                'added' => $added,
+                'total' => $after,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     });
 
     // Admin Music
