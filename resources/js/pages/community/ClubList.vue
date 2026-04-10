@@ -22,11 +22,11 @@
         </div>
       </div>
       <div class="flex gap-1.5">
-        <select v-if="type !== 'online' && selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none flex-shrink-0">
+        <select v-if="type !== 'online' && selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="border border-gray-200 rounded-lg px-1.5 py-1 text-[10px] text-gray-600 outline-none flex-shrink-0 w-14">
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadClubs()" class="flex gap-1 flex-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none flex-1 min-w-0" />
+          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-2 py-1 text-xs focus:ring-2 focus:ring-amber-400 outline-none flex-1 min-w-0" />
           <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500 flex-shrink-0">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500 flex-shrink-0">+ 동호회 만들기</RouterLink>
