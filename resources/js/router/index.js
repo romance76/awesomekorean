@@ -166,6 +166,7 @@ const routes = [
       { path: 'shopping', component: p('admin/AdminShopping') },
       { path: 'shorts', component: p('admin/AdminShorts') },
       { path: 'directory', component: p('admin/Business') },
+      { path: 'claims', component: p('admin/AdminClaims') },
       { path: 'games', component: p('admin/AdminGames') },
       { path: 'poker', component: p('admin/AdminPoker') },
       { path: 'music', component: p('admin/AdminMusic') },

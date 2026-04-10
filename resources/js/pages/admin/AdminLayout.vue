@@ -100,6 +100,7 @@ const menuGroups = [
     title: '서비스',
     items: [
       { to: '/admin/directory', icon: '🏪', label: '업소록' },
+      { to: '/admin/claims', icon: '📋', label: '클레임 관리' },
       { to: '/admin/games', icon: '🎮', label: '게임' },
       { to: '/admin/poker', icon: '♠️', label: '포커 관리' },
       { to: '/admin/music', icon: '🎵', label: '음악' },
