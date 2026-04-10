@@ -109,9 +109,15 @@ class BusinessController extends Controller
             return response()->json(['success' => false, 'message' => '이미 신청 중입니다'], 400);
         }
 
+        $documentUrl = null;
+        if ($request->hasFile('document')) {
+            $documentUrl = '/storage/' . $request->file('document')->store('claims', 'public');
+        }
+
         $claim = BusinessClaim::create([
             'business_id' => $id,
             'user_id' => auth()->id(),
+            'document_url' => $documentUrl,
             'notes' => $request->phone,
             'status' => 'pending',
         ]);

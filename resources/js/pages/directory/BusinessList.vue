@@ -51,9 +51,18 @@
           <img v-for="(img, i) in activeItem.images" :key="i" :src="img" @click="lightboxImg=img" class="h-32 rounded-lg object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition" @error="e=>e.target.style.display='none'" />
         </div>
         <div class="px-5 py-4">
-          <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ activeItem.subcategory || activeItem.category }}</span>
-          <h2 class="text-lg font-bold text-gray-900 mt-2">🏪 {{ activeItem.name }} <span v-if="activeItem.is_claimed" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold align-middle">✅ 인증</span></h2>
-          <div class="flex items-center gap-1 mt-1"><span class="text-amber-400">{{'★'.repeat(Math.round(activeItem.rating))}}</span><span class="text-sm text-gray-600">{{ activeItem.rating }}</span><span class="text-xs text-gray-400">({{ activeItem.review_count }}리뷰)</span></div>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ activeItem.subcategory || activeItem.category }}</span>
+              <h2 class="text-lg font-bold text-gray-900 mt-2">🏪 {{ activeItem.name }}</h2>
+              <div class="flex items-center gap-1 mt-1"><span class="text-amber-400">{{'★'.repeat(Math.round(activeItem.rating))}}</span><span class="text-sm text-gray-600">{{ activeItem.rating }}</span><span class="text-xs text-gray-400">({{ activeItem.review_count }}리뷰)</span></div>
+            </div>
+            <div class="flex-shrink-0 mt-2">
+              <span v-if="activeItem.is_claimed" class="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold">✅ 인증업체</span>
+              <span v-else-if="claimStatus==='pending'" class="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-bold">⏳ 승인대기</span>
+              <button v-else-if="auth.isLoggedIn" @click="showClaimModal=true" class="text-xs bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-bold hover:bg-amber-500">🏪 내가 주인</button>
+            </div>
+          </div>
         </div>
         <div class="px-5 py-3 border-t text-sm text-gray-600 space-y-1">
           <div v-if="activeItem.phone">📱 <a :href="'tel:'+activeItem.phone" class="text-amber-600 hover:underline">{{ activeItem.phone }}</a></div>
@@ -118,20 +127,6 @@
             </div>
           </div>
           <div v-if="!activeReviews.length" class="px-5 py-6 text-center text-xs text-gray-400">아직 리뷰가 없습니다</div>
-        </div>
-      </div>
-
-      <!-- 오너 클레임 -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-3 px-5 py-3">
-        <div v-if="activeItem.is_claimed" class="flex items-center gap-2">
-          <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-bold">✅ 인증된 업소</span>
-        </div>
-        <div v-else-if="auth.isLoggedIn">
-          <div v-if="claimStatus==='pending'" class="text-xs text-amber-600 font-bold">⏳ 소유권 승인 대기 중</div>
-          <div v-else>
-            <button @click="showClaimModal=true" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">🏪 내가 주인입니다</button>
-            <p class="text-[10px] text-gray-400 mt-1">이 업소의 실제 운영자라면 소유권을 신청하세요</p>
-          </div>
         </div>
       </div>
 
@@ -214,6 +209,11 @@
         <label class="text-xs font-bold text-gray-600 mb-1 block">연락처 (본인 확인용)</label>
         <input v-model="claimPhone" placeholder="000-000-0000" class="w-full border rounded-lg px-3 py-2 text-sm" />
       </div>
+      <div class="mb-3">
+        <label class="text-xs font-bold text-gray-600 mb-1 block">사업자등록증 또는 증빙서류</label>
+        <input type="file" accept="image/*,.pdf" @change="e => claimFile = e.target.files[0]" class="w-full border rounded-lg px-3 py-2 text-xs" />
+        <p class="text-[10px] text-gray-400 mt-1">선택사항. 빠른 승인을 위해 증빙서류를 첨부해주세요</p>
+      </div>
       <div class="flex gap-2">
         <button @click="submitClaim" :disabled="!claimPhone" class="flex-1 bg-amber-400 text-amber-900 font-bold py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">신청하기</button>
         <button @click="showClaimModal=false" class="px-4 py-2 text-gray-500 text-sm">취소</button>
@@ -245,6 +245,7 @@ const reviewRating = ref(0)
 const reviewText = ref('')
 const showClaimModal = ref(false)
 const claimPhone = ref('')
+const claimFile = ref(null)
 const claimStatus = ref(null) // null, 'pending', 'approved'
 
 async function openItem(item) {
@@ -283,10 +284,14 @@ async function submitReview() {
 
 async function submitClaim() {
   try {
-    await axios.post(`/api/businesses/${activeItem.value.id}/claim`, { phone: claimPhone.value })
+    const fd = new FormData()
+    fd.append('phone', claimPhone.value)
+    if (claimFile.value) fd.append('document', claimFile.value)
+    await axios.post(`/api/businesses/${activeItem.value.id}/claim`, fd)
     claimStatus.value = 'pending'
     showClaimModal.value = false
     claimPhone.value = ''
+    claimFile.value = null
     alert('소유권 신청이 완료되었습니다. 관리자 승인 후 이용 가능합니다.')
   } catch(e) { alert(e.response?.data?.message || '신청 실패') }
 }
