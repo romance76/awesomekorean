@@ -144,29 +144,15 @@ const contentBlocks = computed(() => {
 
   for (let i = 0; i < parts.length; i++) {
     if (i % 2 === 0) {
-      // 텍스트 파트 — 문장 단위로 단락 분리
       const textPart = parts[i].trim()
       if (!textPart) continue
-
-      // '다.' '했다.' '한다.' 등으로 끝나는 문장 뒤에 줄바꿈 추가
       const paragraphs = textPart
-        .replace(/([.!?])(\s*)([가-힣A-Z"'\[])/g, '$1\n\n$3')
         .split(/\n{2,}/)
         .map(p => p.trim())
-        .filter(p => p.length > 0)
-
-      paragraphs.forEach(p => {
-        if (p.length > 10) blocks.push({ type: 'text', text: p })
-      })
+        .filter(p => p.length > 10)
+      paragraphs.forEach(p => blocks.push({ type: 'text', text: p }))
     } else {
-      // 이미지 URL
-      const src = parts[i]
-      // 대표 이미지와 같은 URL이면 건너뛰기 (확장자 무시)
-      const baseUrl = activeItem.value?.image_url?.replace(/\.\w+$/, '') || ''
-      const srcBase = src.replace(/\.\w+$/, '')
-      if (srcBase !== baseUrl) {
-        blocks.push({ type: 'img', src })
-      }
+      blocks.push({ type: 'img', src: parts[i] })
     }
   }
 
