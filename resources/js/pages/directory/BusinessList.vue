@@ -137,26 +137,32 @@
     </div>
     <!-- 목록 모드 -->
     <div v-else-if="!items.length" class="text-center py-12 text-gray-400">검색 결과 없음</div>
-    <!-- 카드형 -->
+    <!-- 카드형 (Yelp 스타일) -->
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div v-for="item in items" :key="item.id" @click="openItem(item)"
-        class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
-        <div class="flex items-center gap-3 mb-3">
-          <img v-if="item.images?.length" :src="item.images[0]" class="w-14 h-14 rounded-xl object-cover flex-shrink-0" @error="e=>{e.target.style.display='none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display='flex')}" />
-          <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-2xl flex-shrink-0" :style="item.images?.length ? 'display:none' : ''">🏪</div>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-bold text-gray-800 truncate">{{ item.name }}</div>
-            <div class="text-[10px] text-gray-400">{{ item.subcategory || item.category }}</div>
-          </div>
-          <div v-if="item.rating" class="text-amber-400 text-xs">{{ '★'.repeat(Math.round(item.rating)) }} {{ item.rating }}</div>
+        class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex">
+        <!-- 왼쪽: 사진 -->
+        <div class="w-28 flex-shrink-0 bg-gray-100">
+          <img v-if="item.images?.length" :src="item.images[0]" class="w-full h-full object-cover" @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-3xl bg-amber-50\'>🏪</div>'" />
+          <div v-else class="w-full h-full flex items-center justify-center text-3xl bg-amber-50">🏪</div>
         </div>
-        <div class="text-xs text-gray-500 line-clamp-2 mb-2">{{ (item.description || '').slice(0, 80) }}</div>
-        <div class="flex items-center justify-between text-[10px] text-gray-400">
-          <span>📍 {{ item.city }}, {{ item.state }}</span>
-          <div class="flex gap-2">
-            <span v-if="item.phone">📱 {{ item.phone }}</span>
-            <span>👁 {{ item.view_count || 0 }}</span>
+        <!-- 오른쪽: 정보 -->
+        <div class="flex-1 p-3 min-w-0">
+          <div class="flex items-start justify-between gap-1">
+            <div class="text-sm font-bold text-gray-800 truncate">{{ item.name }}</div>
+            <span v-if="item.is_claimed" class="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0">✅</span>
           </div>
+          <div class="flex items-center gap-1 mt-0.5">
+            <span class="text-amber-400 text-xs">{{'★'.repeat(Math.round(item.rating || 0))}}</span>
+            <span class="text-xs text-gray-500">{{ item.rating || 0 }}</span>
+            <span class="text-[10px] text-gray-400">({{ item.review_count || 0 }})</span>
+          </div>
+          <div class="text-[10px] text-gray-400 mt-1">{{ item.subcategory || item.category }}</div>
+          <div class="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+            <span>📍 {{ item.city }}, {{ item.state }}</span>
+            <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
+          </div>
+          <div v-if="item.phone" class="text-[10px] text-gray-400 mt-0.5">📱 {{ item.phone }}</div>
         </div>
       </div>
     </div>
