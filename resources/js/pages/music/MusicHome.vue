@@ -68,7 +68,7 @@
           <div class="px-4 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
             <span>🎶 {{ showFavorites ? '❤️ 즐겨찾기' : (activePL ? activePL.name : (activeCat?.name || '트랙')) }}</span>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-400">{{ displayTracks.length }}곡</span>
+              <span class="text-xs text-gray-400">{{ totalCount }}곡</span>
               <button v-if="displayTracks.length" @click="playAll" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold hover:bg-amber-200">▶ 전체</button>
               <button v-if="displayTracks.length" @click="shufflePlay" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold hover:bg-blue-200">🔀 랜덤</button>
             </div>
@@ -202,6 +202,7 @@ const newPLName = ref('')
 const addTrackTarget = ref(null)
 const trackPage = ref(1)
 const trackLastPage = ref(1)
+const trackTotal = ref(0)
 const playQueue = ref([])
 const isShuffled = ref(false)
 const repeatMode = ref(null) // null, 'all', 'one'
@@ -210,6 +211,14 @@ const displayTracks = computed(() => {
   if (showFavorites.value) return favoriteTracks.value
   if (activePL.value) return plTracks.value
   return tracks.value
+})
+
+// 헤더에 표시할 총 곡수 (카테고리는 전체 total, 즐겨찾기/플레이리스트는 현재 배열 길이)
+const totalCount = computed(() => {
+  if (showFavorites.value) return favoriteTracks.value.length
+  if (activePL.value) return plTracks.value.length
+  if (activeCat.value) return trackTotal.value
+  return 0
 })
 
 function formatDuration(sec) {
@@ -287,6 +296,7 @@ async function loadCategoryPage(p = 1) {
     const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { page: p, per_page: 20 } })
     tracks.value = data.data?.data || data.data || []
     trackLastPage.value = data.data?.last_page || 1
+    trackTotal.value = data.data?.total || tracks.value.length
   } catch {}
 }
 
