@@ -12,8 +12,8 @@
             :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
         </div>
       </div>
-      <!-- 2행: 위치 + 반경 -->
-      <div v-if="type !== 'online'" class="flex items-center gap-1.5">
+      <!-- 2행: 위치 + 반경 (오른쪽 정렬) -->
+      <div v-if="type !== 'online'" class="flex items-center gap-1.5 justify-end">
         <span class="text-amber-600 text-sm">📍</span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
@@ -32,7 +32,7 @@
           <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-2 py-1 text-xs focus:ring-2 focus:ring-amber-400 outline-none flex-1 min-w-0" />
           <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-2 py-1 rounded-lg text-[10px] hover:bg-amber-500 flex-shrink-0">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-2 py-1 rounded-lg text-xs hover:bg-amber-500 flex-shrink-0 whitespace-nowrap">+ 만들기</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/clubs" class="bg-amber-400 text-amber-900 font-bold px-2 py-1 rounded-lg text-xs hover:bg-amber-500 flex-shrink-0">+<span class="hidden sm:inline"> 만들기</span></RouterLink>
       </div>
     </div>
 
