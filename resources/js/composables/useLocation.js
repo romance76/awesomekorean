@@ -1,9 +1,7 @@
 import { ref, computed } from 'vue'
 
-const STORAGE_KEY = 'sk_location'
 const city = ref(null)
 const radius = ref('30')
-const initialized = ref(false)
 
 // 한인 밀집 주요 도시 목록
 const KOREAN_CITIES = [
@@ -27,52 +25,34 @@ const KOREAN_CITIES = [
 ]
 
 export function useLocation() {
-  async function init() {
-    if (initialized.value) return
-    initialized.value = true
-
-    // 1. 캐시에서 복원
-    const cached = localStorage.getItem(STORAGE_KEY)
-    if (cached) {
-      try { city.value = JSON.parse(cached); return } catch {}
-    }
-
-    // 2. 로그인된 유저의 저장된 위치
+  // 매 페이지 진입 시 프로필 기본 위치로 리셋 (auth store에서 읽음)
+  function init() {
     try {
-      const token = localStorage.getItem('sk_token')
-      if (!token) return
-      const res = await fetch('/api/user', { headers: { Authorization: 'Bearer ' + token } })
-      const data = await res.json()
-      const u = data.data || data.user || data
+      const userStr = localStorage.getItem('sk_user')
+      if (!userStr) return
+      const u = JSON.parse(userStr)
       if (u.default_radius) radius.value = String(u.default_radius)
-      if (u.city && u.state) {
-        const c = {
+      if (u.city && u.state && (u.latitude || u.lat)) {
+        city.value = {
           name: u.city, state: u.state,
           lat: parseFloat(u.latitude || u.lat || 0),
           lng: parseFloat(u.longitude || u.lng || 0),
           label: u.city,
         }
-        city.value = c
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(c))
-        return
+      } else {
+        city.value = null
       }
     } catch {}
   }
 
-  function setCity(c) {
-    city.value = c
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(c))
-  }
+  function setCity(c) { city.value = c }
 
   function selectKoreanCity(index) {
     if (index === -1) {
-      // '전국' 선택
       city.value = null
       radius.value = '0'
-      localStorage.removeItem(STORAGE_KEY)
     } else {
-      const kc = KOREAN_CITIES[index]
-      setCity(kc)
+      city.value = KOREAN_CITIES[index]
       radius.value = '30'
     }
   }
