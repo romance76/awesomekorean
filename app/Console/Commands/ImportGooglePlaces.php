@@ -39,26 +39,56 @@ class ImportGooglePlaces extends Command
     ];
 
     private $searches = [
+        // 음식점
         'Korean restaurant' => 'restaurant',
         'Korean BBQ' => 'restaurant',
         'Korean bakery' => 'restaurant',
         'Korean cafe' => 'restaurant',
+        'Korean fried chicken' => 'restaurant',
+        'Korean noodle' => 'restaurant',
+        'Korean tofu house' => 'restaurant',
+        // 마트/식료품
         'Korean grocery' => 'mart',
         'Korean market' => 'mart',
         'Korean supermarket' => 'mart',
+        'H Mart' => 'mart',
+        'Assi Plaza' => 'mart',
+        'Zion Market' => 'mart',
+        'Lotte Plaza' => 'mart',
+        'Hankook Supermarket' => 'mart',
+        'Asian grocery' => 'mart',
+        // 미용
         'Korean beauty salon' => 'beauty',
         'Korean nail salon' => 'beauty',
         'Korean hair salon' => 'beauty',
         'Korean spa' => 'beauty',
-        'Korean church' => 'etc',
-        'Korean auto repair' => 'auto',
+        // 의료
         'Korean dentist' => 'medical',
         'Korean doctor' => 'medical',
+        'Korean pharmacy' => 'medical',
+        'Korean optometrist' => 'medical',
+        // 전문서비스
         'Korean lawyer' => 'professional',
         'Korean accountant' => 'professional',
+        'Korean CPA' => 'professional',
+        'Korean insurance agent' => 'professional',
+        'Korean tax service' => 'professional',
+        // 자동차
+        'Korean auto repair' => 'auto',
+        'Korean auto body shop' => 'auto',
+        // 부동산
         'Korean real estate' => 'realestate',
+        'Korean realtor' => 'realestate',
+        // 교육
         'Korean school' => 'education',
         'Korean academy' => 'education',
+        'Korean tutoring' => 'education',
+        'Korean SAT prep' => 'education',
+        // 기타
+        'Korean church' => 'etc',
+        'Korean travel agency' => 'etc',
+        'Korean dry cleaner' => 'etc',
+        'Korean taekwondo' => 'etc',
     ];
 
     public function handle()
