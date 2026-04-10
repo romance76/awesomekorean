@@ -32,16 +32,20 @@ class MessageSent implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'id'         => $this->message->id,
-            'user_id'    => $this->message->user_id,
-            'content'    => $this->message->content,
-            'type'       => $this->message->type,
-            'created_at' => $this->message->created_at?->toISOString(),
-            'user'       => [
+            'id'           => $this->message->id,
+            'chat_room_id' => $this->message->chat_room_id,
+            'user_id'      => $this->message->user_id,
+            'content'      => $this->message->content,
+            'type'         => $this->message->type,
+            'file_url'     => $this->message->file_url,
+            'pinned_until' => $this->message->pinned_until?->toISOString(),
+            'created_at'   => $this->message->created_at?->toISOString(),
+            'user'         => [
                 'id'       => $this->message->user->id ?? 0,
                 'name'     => $this->message->user->name ?? '',
                 'nickname' => $this->message->user->nickname ?? '',
                 'avatar'   => $this->message->user->avatar ?? null,
+                'role'     => $this->message->user->role ?? 'user',
             ],
         ];
     }

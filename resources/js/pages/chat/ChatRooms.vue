@@ -152,7 +152,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
@@ -237,9 +237,38 @@ function formatTime(dt) {
   return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + ' ' + d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
 }
 
+let currentChannel = null
+
+function unsubscribeChannel() {
+  if (currentChannel && window.Echo) {
+    try { window.Echo.leaveChannel('chat.' + currentChannel) } catch (e) {}
+    currentChannel = null
+  }
+}
+
+function subscribeToRoom(roomId) {
+  unsubscribeChannel()
+  if (!window.Echo) return
+  currentChannel = roomId
+  window.Echo.channel('chat.' + roomId)
+    .listen('.message.sent', (payload) => {
+      // 중복 방지: 이미 같은 id가 있으면 무시
+      if (activeMessages.value.some(m => m.id === payload.id)) return
+      activeMessages.value.push(payload)
+      // 공지면 핀 배너에도 반영
+      if (payload.type === 'system' && payload.pinned_until) {
+        pinnedAnnouncements.value = [payload, ...pinnedAnnouncements.value.filter(p => p.id !== payload.id)]
+      }
+      nextTick(() => {
+        if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
+      })
+    })
+}
+
 async function selectRoom(room) {
   activeRoom.value = room
   clearImage()
+  subscribeToRoom(room.id)
   try {
     const { data } = await axios.get(`/api/chat/rooms/${room.id}/messages`)
     activeMessages.value = (data.data?.data || data.data || []).reverse()
@@ -289,5 +318,9 @@ onMounted(async () => {
     if (rooms.value.length) selectRoom(rooms.value[0])
   } catch {}
   loading.value = false
+})
+
+onUnmounted(() => {
+  unsubscribeChannel()
 })
 </script>
