@@ -134,6 +134,8 @@ class FetchYoutubeShorts extends Command
                     if (preg_match('/[áéíóúñ¿¡]/u', $text)) continue;
                     // 언어/문화권 키워드
                     if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Vietnamese|Việt|中文|日本語|Myanmar|Bahasa|Mandarin|Cantonese/i', $text)) continue;
+                    // 인도 지역어 및 해시태그
+                    if (preg_match('/Haryanvi|Haryana|Bhojpuri|Marathi|Gujarati|Bengali|Kannada|Malayalam|Urdu|Sindhi|Nepali|Sinhala|Desi|Punjabi|#haryanvi|#bhojpuri|#desi|#bollywood|#hindi/i', $text)) continue;
                     if (preg_match('/español|castellano|México|Mexico|Argentina|España|Espana|Latino|Reggaeton|Bachata|Cumbia|Salsa/i', $text)) continue;
 
                     Short::create([
