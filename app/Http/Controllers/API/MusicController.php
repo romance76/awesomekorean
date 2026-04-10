@@ -304,19 +304,8 @@ class MusicController extends Controller
                 }
                 $videoIds = $this->fetchPlaylistVideos($apiKey, $plId, 200);
             } elseif ($mode === 'channel') {
-                $channelId = null;
-                if (preg_match('/channel\/([a-zA-Z0-9_-]+)/', $input, $m)) {
-                    $channelId = $m[1];
-                } elseif (preg_match('/@([a-zA-Z0-9._-]+)/', $input, $m)) {
-                    // @handle → channel ID 조회
-                    $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/search', [
-                        'key' => $apiKey, 'q' => '@'.$m[1], 'type' => 'channel', 'part' => 'snippet', 'maxResults' => 1,
-                    ]);
-                    $channelId = $res->json('items.0.snippet.channelId');
-                } elseif (preg_match('/^UC[a-zA-Z0-9_-]{20,}$/', $input)) {
-                    $channelId = $input;
-                }
-                if (!$channelId) return response()->json(['success' => false, 'message' => '채널을 찾을 수 없습니다'], 422);
+                $channelId = $this->resolveChannelId($apiKey, $input);
+                if (!$channelId) return response()->json(['success' => false, 'message' => '채널을 찾을 수 없습니다. URL을 확인해주세요.'], 422);
                 $videoIds = $this->fetchChannelVideos($apiKey, $channelId, 200);
             } else { // urls
                 $lines = preg_split('/[\s,\r\n]+/', $input);
@@ -439,6 +428,94 @@ class MusicController extends Controller
         $uploadsId = $res->json('items.0.contentDetails.relatedPlaylists.uploads');
         if (!$uploadsId) return [];
         return $this->fetchPlaylistVideos($apiKey, $uploadsId, $maxItems);
+    }
+
+    /**
+     * 여러 형식의 YouTube 채널 입력을 channel ID(UCxxx)로 변환.
+     * 지원: /channel/UCxxx, /@핸들(한글 포함), UCxxx 직접, /c/xxx, /user/xxx, 검색어
+     */
+    private function resolveChannelId($apiKey, $input)
+    {
+        $input = trim($input);
+        if ($input === '') return null;
+
+        // 0. URL 디코딩 (한글 핸들 지원)
+        $decoded = urldecode($input);
+
+        // 1. 직접 UC로 시작하는 channel ID
+        if (preg_match('/^UC[\w-]{20,}$/', $decoded)) {
+            return $decoded;
+        }
+
+        // 2. /channel/UCxxx 패턴
+        if (preg_match('#/channel/(UC[\w-]{20,})#', $decoded, $m)) {
+            return $m[1];
+        }
+
+        // 3. /@핸들 패턴 (한글/유니코드 지원)
+        if (preg_match('#/@([^/?#\s]+)#u', $decoded, $m)) {
+            $handle = $m[1];
+            return $this->handleToChannelId($apiKey, $handle);
+        }
+
+        // 4. 순수 @핸들 입력
+        if (preg_match('/^@(.+)$/u', $decoded, $m)) {
+            return $this->handleToChannelId($apiKey, $m[1]);
+        }
+
+        // 5. /c/xxx 또는 /user/xxx (legacy) → 검색으로 추정
+        if (preg_match('#/(?:c|user)/([^/?#\s]+)#u', $decoded, $m)) {
+            return $this->searchChannelByName($apiKey, $m[1]);
+        }
+
+        // 6. 그냥 채널 이름/검색어 입력
+        return $this->searchChannelByName($apiKey, $decoded);
+    }
+
+    /**
+     * @핸들(한글 포함) → channel ID
+     * 1) channels.list?forHandle 시도 (YouTube API v3 공식)
+     * 2) 실패 시 search.list 폴백
+     */
+    private function handleToChannelId($apiKey, $handle)
+    {
+        $handle = ltrim($handle, '@');
+        if ($handle === '') return null;
+
+        // 1) forHandle 직접 조회 (YouTube 공식, 한글 핸들 지원)
+        try {
+            $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/channels', [
+                'key' => $apiKey,
+                'forHandle' => '@' . $handle,
+                'part' => 'id',
+            ]);
+            if ($res->ok()) {
+                $id = $res->json('items.0.id');
+                if ($id) return $id;
+            }
+        } catch (\Exception $e) {}
+
+        // 2) search 폴백 (핸들 이름으로 검색)
+        return $this->searchChannelByName($apiKey, $handle);
+    }
+
+    private function searchChannelByName($apiKey, $name)
+    {
+        try {
+            $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/search', [
+                'key' => $apiKey,
+                'q' => $name,
+                'type' => 'channel',
+                'part' => 'snippet',
+                'maxResults' => 1,
+            ]);
+            if ($res->ok()) {
+                // 결과에서 channelId 또는 id.channelId 추출
+                $cid = $res->json('items.0.snippet.channelId') ?: $res->json('items.0.id.channelId');
+                if ($cid) return $cid;
+            }
+        } catch (\Exception $e) {}
+        return null;
     }
 
     // 관리자: 트랙 추가 (YouTube API로 duration 조회 후 5분 이하만 허용)
