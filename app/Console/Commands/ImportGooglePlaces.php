@@ -89,7 +89,9 @@ class ImportGooglePlaces extends Command
         'Korean tutoring' => 'education',
         'Korean SAT prep' => 'education',
         // 기타
-        'Korean church' => 'etc',
+        'Korean church' => 'religion',
+        'Korean temple' => 'religion',
+        'Korean Buddhist temple' => 'religion',
         'Korean travel agency' => 'etc',
         'Korean dry cleaner' => 'etc',
         'Korean taekwondo' => 'etc',

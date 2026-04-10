@@ -311,7 +311,7 @@ function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') :
 const bizCategories = [
   { value: '', label: '전체' },{ value: 'restaurant', label: '🍽️ 음식점' },{ value: 'mart', label: '🛒 마트' },
   { value: 'beauty', label: '💅 미용' },{ value: 'medical', label: '🏥 의료' },{ value: 'professional', label: '💼 전문서비스' },
-  { value: 'auto', label: '🚗 자동차' },{ value: 'realestate', label: '🏠 부동산' },{ value: 'education', label: '📚 교육' },{ value: 'etc', label: '📋 기타' },
+  { value: 'auto', label: '🚗 자동차' },{ value: 'realestate', label: '🏠 부동산' },{ value: 'education', label: '📚 교육' },{ value: 'religion', label: '⛪ 종교' },{ value: 'etc', label: '📋 기타' },
 ]
 
 const items = ref([])
