@@ -4,9 +4,9 @@
     <!-- 헤더 -->
     <div class="mb-4">
       <!-- 1행: 제목 + 위치 -->
-      <div class="flex items-center justify-between mb-2">
-        <h1 class="text-xl font-black text-gray-800">🏪 업소록</h1>
-        <div class="flex items-center gap-1.5">
+      <div class="flex items-center justify-between mb-2 gap-2">
+        <h1 class="text-lg font-black text-gray-800 flex-shrink-0 whitespace-nowrap">🏪 업소록</h1>
+        <div class="flex items-center gap-1.5 min-w-0">
           <span class="text-amber-600 text-sm">📍</span>
           <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
             <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
