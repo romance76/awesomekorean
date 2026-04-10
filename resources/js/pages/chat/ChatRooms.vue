@@ -66,6 +66,16 @@
                     class="block w-full h-auto cursor-pointer hover:opacity-90 transition" />
                   <div v-if="msg.content" class="px-2 py-1 text-xs bg-gray-50">{{ msg.content }}</div>
                 </div>
+                <!-- 압축파일(file) 메시지 -->
+                <a v-else-if="msg.type === 'file' && msg.file_url" :href="msg.file_url" target="_blank" download
+                  class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-blue-50 border border-blue-200 hover:bg-blue-100 transition no-underline"
+                  :class="msg.user_id === auth.user?.id ? 'text-amber-900' : 'text-gray-800'">
+                  <span class="text-xl">📦</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-semibold truncate">{{ msg.content || '파일' }}</div>
+                    <div class="text-[10px] text-blue-600">📥 다운로드</div>
+                  </div>
+                </a>
                 <!-- 일반 텍스트 메시지 -->
                 <div v-else class="px-3 py-2 rounded-xl text-sm"
                   :class="[
@@ -81,23 +91,39 @@
             <div v-if="!activeMessages.length" class="text-center py-8 text-sm text-gray-400">첫 메시지를 보내보세요! 👋</div>
           </div>
 
-          <!-- 선택된 이미지 미리보기 -->
-          <div v-if="selectedImage" class="border-t px-4 py-2 flex items-center gap-2 bg-blue-50 flex-shrink-0">
-            <img :src="imagePreview" class="w-12 h-12 object-cover rounded" />
-            <span class="text-xs text-gray-600 truncate flex-1">{{ selectedImage.name }}</span>
-            <button @click="clearImage" class="text-red-500 text-xs font-bold">✕ 취소</button>
+          <!-- 선택된 파일 미리보기 (다중) -->
+          <div v-if="selectedFiles.length" class="border-t px-3 py-2 bg-blue-50 flex-shrink-0">
+            <div class="flex gap-2 overflow-x-auto">
+              <div v-for="(item, idx) in selectedFiles" :key="idx"
+                class="flex-shrink-0 relative group">
+                <div v-if="item.type === 'image'" class="w-14 h-14 rounded overflow-hidden border border-blue-300 bg-white">
+                  <img :src="item.preview" class="w-full h-full object-cover" />
+                </div>
+                <div v-else class="w-14 h-14 rounded border border-blue-300 bg-white flex flex-col items-center justify-center p-1">
+                  <span class="text-lg">📦</span>
+                  <span class="text-[8px] text-gray-600 truncate w-full text-center">{{ item.file.name.split('.').pop().toUpperCase() }}</span>
+                </div>
+                <button @click="removeSelectedFile(idx)"
+                  class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold opacity-0 group-hover:opacity-100 transition">✕</button>
+                <div class="text-[8px] text-gray-500 text-center mt-0.5 max-w-[56px] truncate" :title="item.file.name">{{ formatSize(item.file.size) }}</div>
+              </div>
+            </div>
+            <div class="text-[9px] text-blue-700 mt-1">
+              📎 {{ selectedFiles.length }}개 선택됨 · 이미지는 자동 압축됨
+              <button @click="clearFiles" class="ml-2 text-red-500 font-bold">모두 취소</button>
+            </div>
           </div>
 
           <!-- 입력 -->
           <div class="border-t px-4 py-3 flex-shrink-0">
             <form @submit.prevent="sendMsg" class="flex gap-2 items-center">
-              <label class="bg-gray-100 text-gray-600 w-10 h-10 flex items-center justify-center rounded-full text-base hover:bg-gray-200 cursor-pointer flex-shrink-0" :class="!auth.isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''" title="이미지 첨부">
-                📷
-                <input type="file" accept="image/*" @change="onSelectImage" class="hidden" :disabled="!auth.isLoggedIn" />
+              <label class="bg-gray-100 text-gray-600 w-10 h-10 flex items-center justify-center rounded-full text-base hover:bg-gray-200 cursor-pointer flex-shrink-0" :class="!auth.isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''" title="이미지·압축파일 첨부">
+                📎
+                <input type="file" accept="image/*,.zip,.rar,.7z,.tar,.gz,.tgz,application/zip,application/x-rar-compressed,application/x-7z-compressed,application/gzip" multiple @change="onSelectFiles" class="hidden" :disabled="!auth.isLoggedIn" />
               </label>
               <input v-model="newMsg" type="text" :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'" :disabled="!auth.isLoggedIn"
                 class="flex-1 border rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none disabled:bg-gray-100" />
-              <button type="submit" :disabled="(!newMsg.trim() && !selectedImage) || !auth.isLoggedIn || sending"
+              <button type="submit" :disabled="(!newMsg.trim() && !selectedFiles.length) || !auth.isLoggedIn || sending"
                 class="bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-full text-sm hover:bg-amber-500 disabled:opacity-50">{{ sending ? '전송중' : '전송' }}</button>
             </form>
           </div>
@@ -156,6 +182,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -168,8 +195,7 @@ const showCreate = ref(false)
 const newRoomName = ref('')
 const newMsg = ref('')
 const msgArea = ref(null)
-const selectedImage = ref(null)
-const imagePreview = ref('')
+const selectedFiles = ref([])   // [{file, preview, type}]
 const sending = ref(false)
 const lightboxSrc = ref(null)
 
@@ -196,23 +222,72 @@ function timeRemaining(until) {
   return hh > 0 ? `${d}일 ${hh}시간` : `${d}일`
 }
 
-function onSelectImage(e) {
-  const file = e.target.files[0]
-  if (!file) return
-  if (file.size > 10 * 1024 * 1024) {
-    alert(`파일이 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 최대 10MB`)
-    e.target.value = ''
-    return
+async function onSelectFiles(e) {
+  const files = Array.from(e.target.files || [])
+  e.target.value = '' // 같은 파일 재선택 가능
+  if (!files.length) return
+
+  const rejected = []
+  for (const file of files) {
+    // 이미지: 압축 (내부에서 자동으로 1600px, JPEG 0.8 품질)
+    if (isImage(file)) {
+      try {
+        const compressed = await compressImage(file, { maxDim: 1600, quality: 0.8 })
+        // 압축 후에도 10MB 초과면 거절
+        if (compressed.size > 10 * 1024 * 1024) {
+          rejected.push(file.name + ' (압축 후에도 10MB 초과)')
+          continue
+        }
+        selectedFiles.value.push({
+          file: compressed,
+          preview: URL.createObjectURL(compressed),
+          type: 'image',
+          originalSize: file.size,
+        })
+      } catch (err) {
+        rejected.push(file.name + ' (압축 실패)')
+      }
+      continue
+    }
+    // 압축파일만 허용
+    if (isArchive(file)) {
+      if (file.size > 10 * 1024 * 1024) {
+        rejected.push(file.name + ' (10MB 초과)')
+        continue
+      }
+      selectedFiles.value.push({
+        file,
+        preview: null,
+        type: 'archive',
+        originalSize: file.size,
+      })
+      continue
+    }
+    // 그 외(문서 등) 거부
+    rejected.push(file.name + ' (이미지 또는 압축파일만 가능)')
   }
-  selectedImage.value = file
-  imagePreview.value = URL.createObjectURL(file)
-  e.target.value = ''
+
+  if (rejected.length) {
+    alert('다음 파일은 업로드할 수 없습니다:\n\n• ' + rejected.join('\n• '))
+  }
 }
 
-function clearImage() {
-  selectedImage.value = null
-  if (imagePreview.value) URL.revokeObjectURL(imagePreview.value)
-  imagePreview.value = ''
+function removeSelectedFile(idx) {
+  const item = selectedFiles.value[idx]
+  if (item?.preview) URL.revokeObjectURL(item.preview)
+  selectedFiles.value.splice(idx, 1)
+}
+
+function clearFiles() {
+  selectedFiles.value.forEach(f => { if (f.preview) URL.revokeObjectURL(f.preview) })
+  selectedFiles.value = []
+}
+
+function formatSize(bytes) {
+  if (!bytes) return ''
+  if (bytes < 1024) return bytes + 'B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + 'KB'
+  return (bytes / 1024 / 1024).toFixed(1) + 'MB'
 }
 
 // 눈팅용: 현재 선택 외 다른 방 3개 + 마지막 메시지
@@ -279,22 +354,28 @@ async function selectRoom(room) {
 }
 
 async function sendMsg() {
-  if ((!newMsg.value.trim() && !selectedImage.value) || !auth.isLoggedIn || !activeRoom.value) return
+  if ((!newMsg.value.trim() && !selectedFiles.value.length) || !auth.isLoggedIn || !activeRoom.value) return
   sending.value = true
   try {
     const fd = new FormData()
     if (newMsg.value.trim()) fd.append('content', newMsg.value)
-    if (selectedImage.value) fd.append('image', selectedImage.value)
+    selectedFiles.value.forEach(item => fd.append('files[]', item.file))
     const { data } = await axios.post(`/api/chat/rooms/${activeRoom.value.id}/messages`, fd, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
-    activeMessages.value.push(data.data)
+    // 응답의 messages 배열이 있으면 여러 개 push, 없으면 data 하나
+    const msgs = data.messages || (data.data ? [data.data] : [])
+    msgs.forEach(m => {
+      if (!activeMessages.value.some(x => x.id === m.id)) activeMessages.value.push(m)
+    })
     newMsg.value = ''
-    clearImage()
+    clearFiles()
     await nextTick()
     if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
   } catch (e) {
-    alert(e.response?.data?.message || e.response?.data?.errors?.image?.[0] || '전송 실패')
+    const err = e.response?.data
+    const msg = err?.message || err?.errors?.['files.0']?.[0] || err?.errors?.files?.[0] || '전송 실패'
+    alert(msg)
   }
   sending.value = false
 }

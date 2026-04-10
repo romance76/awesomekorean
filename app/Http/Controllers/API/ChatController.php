@@ -63,10 +63,16 @@ class ChatController extends Controller
         $request->validate([
             'content' => 'nullable|string|max:2000',
             'image' => 'nullable|image|max:10240',
+            'files' => 'nullable|array|max:10',
+            'files.*' => 'file|max:10240', // 각 파일 10MB
         ]);
 
-        if (!$request->filled('content') && !$request->hasFile('image')) {
-            return response()->json(['success'=>false,'message'=>'내용 또는 이미지가 필요합니다'], 422);
+        $hasContent = $request->filled('content');
+        $hasImage = $request->hasFile('image');
+        $hasFiles = $request->hasFile('files');
+
+        if (!$hasContent && !$hasImage && !$hasFiles) {
+            return response()->json(['success'=>false,'message'=>'내용 또는 파일이 필요합니다'], 422);
         }
 
         // 영구제명된 유저 차단
@@ -87,23 +93,91 @@ class ChatController extends Controller
             );
         }
 
-        $data = [
-            'chat_room_id' => $id,
-            'user_id' => auth()->id(),
-            'content' => $request->content ?: '',
-            'type' => $request->type ?? 'text',
-        ];
+        $created = [];
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('chat-images', 'public');
-            $data['file_url'] = '/storage/' . $path;
-            $data['type'] = 'image';
+        // 1) 텍스트 메시지 (단독 content 가 있을 때만 별도 메시지 하나)
+        if ($hasContent && !$hasImage && !$hasFiles) {
+            $msg = ChatMessage::create([
+                'chat_room_id' => $id,
+                'user_id' => auth()->id(),
+                'content' => $request->content,
+                'type' => 'text',
+            ]);
+            $created[] = $msg;
         }
 
-        $msg = ChatMessage::create($data);
+        // 2) 단일 image 필드 (기존 호환)
+        if ($hasImage) {
+            $path = $request->file('image')->store('chat-images', 'public');
+            $msg = ChatMessage::create([
+                'chat_room_id' => $id,
+                'user_id' => auth()->id(),
+                'content' => $request->content ?: '',
+                'type' => 'image',
+                'file_url' => '/storage/' . $path,
+            ]);
+            $created[] = $msg;
+        }
 
-        // 실시간 브로드캐스트
-        try { event(new \App\Events\MessageSent($msg->load('user:id,name,nickname,avatar,role'))); } catch (\Exception $e) {}
-        return response()->json(['success'=>true,'data'=>$msg->load('user:id,name,nickname,avatar,role')],201);
+        // 3) 다중 files 배열 (이미지 또는 압축 파일)
+        if ($hasFiles) {
+            $allowedArchiveMimes = [
+                'application/zip','application/x-zip-compressed','application/x-zip',
+                'application/x-rar-compressed','application/vnd.rar',
+                'application/x-7z-compressed','application/x-7zip','application/octet-stream',
+                'application/x-tar','application/gzip','application/x-gzip',
+            ];
+            $allowedArchiveExts = ['zip','rar','7z','tar','gz','tgz'];
+            $firstContentUsed = !$hasImage && $hasContent; // 첫 파일에 content 붙일지
+
+            foreach ($request->file('files') as $idx => $file) {
+                $mime = $file->getMimeType();
+                $ext = strtolower($file->getClientOriginalExtension());
+                $isImage = str_starts_with($mime ?: '', 'image/');
+                $isArchive = in_array($mime, $allowedArchiveMimes) || in_array($ext, $allowedArchiveExts);
+
+                if (!$isImage && !$isArchive) {
+                    // 문서 등은 거부
+                    continue;
+                }
+
+                if ($isImage) {
+                    $path = $file->store('chat-images', 'public');
+                    $type = 'image';
+                } else {
+                    $path = $file->store('chat-files', 'public');
+                    $type = 'file';
+                }
+
+                $msg = ChatMessage::create([
+                    'chat_room_id' => $id,
+                    'user_id' => auth()->id(),
+                    'content' => ($firstContentUsed && $idx === 0) ? '' : (($idx === 0 && $hasContent) ? $request->content : $file->getClientOriginalName()),
+                    'type' => $type,
+                    'file_url' => '/storage/' . $path,
+                ]);
+                $created[] = $msg;
+
+                // content 는 첫 번째 파일 메시지에만 붙임
+                if ($idx === 0 && $hasContent) $firstContentUsed = true;
+            }
+
+            if (empty($created)) {
+                return response()->json(['success'=>false,'message'=>'허용된 파일이 없습니다 (이미지 또는 압축파일만 가능)'], 422);
+            }
+        }
+
+        // 실시간 브로드캐스트 (각 메시지마다)
+        foreach ($created as $m) {
+            try { event(new \App\Events\MessageSent($m->load('user:id,name,nickname,avatar,role'))); } catch (\Exception $e) {}
+        }
+
+        // 마지막 메시지를 대표로 반환 (기존 호환) + 전체 배열도 제공
+        $last = end($created);
+        return response()->json([
+            'success' => true,
+            'data' => $last->load('user:id,name,nickname,avatar,role'),
+            'messages' => collect($created)->map(fn($m) => $m->load('user:id,name,nickname,avatar,role')),
+        ], 201);
     }
 }
