@@ -21,7 +21,7 @@
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1 flex-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-2 py-1 text-xs focus:ring-2 focus:ring-amber-400 outline-none flex-1 min-w-0" />
+          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-2 py-1 text-xs focus:ring-2 focus:ring-amber-400 outline-none flex-1 min-w-0 max-w-[120px] sm:max-w-none" />
           <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500 flex-shrink-0">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500 flex-shrink-0">✏️<span class="hidden sm:inline"> 등록</span></RouterLink>
