@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Http;
 
 class FetchMusicTracks extends Command
 {
-    protected $signature = 'music:fetch {--daily=500} {--korean-ratio=70}';
-    protected $description = '음악 트랙 자동 수집 (매일 500곡, 한국 70% + 팝 30%, 7일 롤링)';
+    protected $signature = 'music:fetch {--daily=500} {--korean-ratio=75}';
+    protected $description = '음악 트랙 자동 수집 (매일 500곡, 한국 75% + 팝 25%, 5분 미만, 7일 롤링, 유저 업로드 제외)';
 
     // 카테고리별 한국 검색어
     private $koreanQueries = [
@@ -68,9 +68,11 @@ class FetchMusicTracks extends Command
         $this->info("=== 음악 트랙 자동 수집 시작 ===");
         $this->info("목표: {$dailyLimit}곡 (한국 {$koreanCount} + 팝 {$popCount})");
 
-        // 1단계: 7일 이상 된 트랙 삭제
-        $deleted = MusicTrack::where('created_at', '<', now()->subDays(7))->delete();
-        $this->info("🗑 7일 이상 된 트랙 {$deleted}곡 삭제");
+        // 1단계: 7일 이상 된 트랙 삭제 (단, 유저 업로드 트랙은 유지)
+        $deleted = MusicTrack::where('created_at', '<', now()->subDays(7))
+            ->where('is_user_submitted', false)
+            ->delete();
+        $this->info("🗑 7일 이상 된 시스템 트랙 {$deleted}곡 삭제 (유저 업로드 제외)");
 
         $totalAdded = 0;
         $perCategory = (int) ceil($dailyLimit / $categories->count());
@@ -115,7 +117,7 @@ class FetchMusicTracks extends Command
                 'q' => $query . ' music',
                 'type' => 'video',
                 'videoCategoryId' => '10',
-                'videoDuration' => 'medium', // 4-20분 (duration 체크로 10분 초과 필터)
+                'videoDuration' => 'short', // YouTube 기준 < 4분 (5분 미만 보장에 더 적합)
                 'part' => 'snippet',
                 'maxResults' => $perPage,
                 'order' => 'relevance',
@@ -156,23 +158,30 @@ class FetchMusicTracks extends Command
                 $channel = $item['snippet']['channelTitle'] ?? '';
                 $seconds = $durations[$videoId] ?? 0;
 
-                // 10분(600초) 초과 필터링
-                if ($seconds > 600) continue;
+                // 5분(300초) 초과 필터링
+                if ($seconds > 300) continue;
                 // 10초 미만도 제외 (짧은 클립)
                 if ($seconds > 0 && $seconds < 10) continue;
 
                 if (MusicTrack::where('youtube_id', $videoId)->exists()) continue;
                 if (mb_strlen($title) < 3) continue;
                 if (preg_match('/live stream|라이브 방송|24\/7|radio|playlist|모음|메들리/i', $title)) continue;
-                // 한국어+영어 외 모든 외국어 필터
+
+                // ─── 한국어+영어 외 언어 필터 ───
                 $text = $title . ' ' . $channel;
-                // 중국어/일본어(히라가나/가타카나/한자 - 단, 한국 한자는 제외하기 어려우므로 일본어 가나로 판별)
-                if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $text)) continue; // 히라가나/가타카나 = 일본어
-                if (preg_match('/[\x{4E00}-\x{9FFF}]{3,}/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) continue; // 한자 3자 이상 + 한글 없음 = 중국어
-                // 힌디/데바나가리/아랍/태국/베트남/터키/인도네시아/타갈로그/크메르 등
+                // 일본어 (Hiragana + Katakana)
+                if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $text)) continue;
+                // 중국어 (한자 + 한국어 없음)
+                if (preg_match('/[\x{4E00}-\x{9FFF}]/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) continue;
+                // 힌디/데바나가리/아랍/태국/벵골
                 if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $text)) continue;
-                // 키워드 필터
+                // 베트남어 (확장 라틴 diacritics)
+                if (preg_match('/[ăâđêôơưừứửữựắằẳẵặẻẽẹểễệốồổỗộớờởỡợýỷỹỵ]/u', $text)) continue;
+                // 스페인어 diacritics/punctuation
+                if (preg_match('/[áéíóúñ¿¡]/u', $text)) continue;
+                // 언어/문화권 키워드
                 if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|ภาษาไทย|Tiếng Việt|Myanmar|Lao|Cambodian|Filipino|Bahasa/i', $text)) continue;
+                if (preg_match('/español|castellano|México|Mexico|Argentina|España|Espana|Latino|Reggaeton|Bachata|Cumbia|Salsa/i', $text)) continue;
 
                 MusicTrack::create([
                     'category_id' => $categoryId,
@@ -182,6 +191,7 @@ class FetchMusicTracks extends Command
                     'youtube_url' => "https://www.youtube.com/watch?v={$videoId}",
                     'duration' => $seconds,
                     'sort_order' => 0,
+                    'is_user_submitted' => false,
                 ]);
 
                 $added++;
@@ -205,13 +215,40 @@ class FetchMusicTracks extends Command
                     ]);
 
                     if ($response2->ok()) {
+                        // fallback 블록도 duration 조회 및 언어 필터 적용
+                        $fallbackIds = collect($response2->json('items', []))->pluck('id.videoId')->filter()->implode(',');
+                        $fbDurations = [];
+                        if ($fallbackIds) {
+                            $fbDetail = Http::get('https://www.googleapis.com/youtube/v3/videos', [
+                                'key' => $apiKey, 'id' => $fallbackIds, 'part' => 'contentDetails',
+                            ]);
+                            if ($fbDetail->ok()) {
+                                foreach ($fbDetail->json('items', []) as $v) {
+                                    $fbDurations[$v['id']] = $this->parseDuration($v['contentDetails']['duration'] ?? 'PT0S');
+                                }
+                            }
+                        }
+
                         foreach ($response2->json('items', []) as $item2) {
                             if ($added >= $limit) break;
                             $vid = $item2['id']['videoId'] ?? null;
                             if (!$vid || MusicTrack::where('youtube_id', $vid)->exists()) continue;
                             $t = $item2['snippet']['title'] ?? '';
                             $c = $item2['snippet']['channelTitle'] ?? '';
+                            $sec2 = $fbDurations[$vid] ?? 0;
+
+                            // 5분 초과 제외
+                            if ($sec2 > 300 || ($sec2 > 0 && $sec2 < 10)) continue;
                             if (mb_strlen($t) < 3 || preg_match('/live stream|라이브|24\/7/i', $t)) continue;
+
+                            // 언어 필터
+                            $fbText = $t . ' ' . $c;
+                            if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $fbText)) continue;
+                            if (preg_match('/[\x{4E00}-\x{9FFF}]/u', $fbText) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $fbText)) continue;
+                            if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $fbText)) continue;
+                            if (preg_match('/[ăâđêôơưừứửữựắằẳẵặẻẽẹểễệốồổỗộớờởỡợýỷỹỵ]/u', $fbText)) continue;
+                            if (preg_match('/[áéíóúñ¿¡]/u', $fbText)) continue;
+                            if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|Myanmar|Lao|Cambodian|Filipino|Bahasa|español|castellano|México|Argentina|España|Latino|Reggaeton|Bachata/i', $fbText)) continue;
 
                             MusicTrack::create([
                                 'category_id' => $categoryId,
@@ -219,8 +256,9 @@ class FetchMusicTracks extends Command
                                 'artist' => mb_substr($c, 0, 100),
                                 'youtube_id' => $vid,
                                 'youtube_url' => "https://www.youtube.com/watch?v={$vid}",
-                                'duration' => 0,
+                                'duration' => $sec2,
                                 'sort_order' => 0,
+                                'is_user_submitted' => false,
                             ]);
                             $added++;
                         }

@@ -814,7 +814,7 @@ class DatabaseSeeder extends Seeder
         foreach ($rooms as $name) {
             $room = \App\Models\ChatRoom::create([
                 'name' => $name,
-                'type' => 'group',
+                'type' => 'public',
                 'created_by' => 1, // admin
             ]);
 

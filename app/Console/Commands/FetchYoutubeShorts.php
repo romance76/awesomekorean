@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Http;
 
 class FetchYoutubeShorts extends Command
 {
-    protected $signature = 'shorts:fetch {--limit=500} {--korean-ratio=70}';
-    protected $description = '숏츠 자동 수집 (매일 500개, 한국 70% + 북미 30%, 세로형만, 30일 롤링)';
+    protected $signature = 'shorts:fetch {--limit=500} {--korean-ratio=75}';
+    protected $description = '숏츠 자동 수집 (매일 500개, 한국 75% + 북미 25%, 세로형만, 14일 이내 신규, 30일 롤링)';
 
     // 한국 검색어
     private $koreanQueries = [
@@ -121,11 +121,20 @@ class FetchYoutubeShorts extends Command
                     $seconds = (intval($dm[1] ?? 0) * 60) + intval($dm[2] ?? 0);
                     if ($seconds > 60 || $seconds < 5) continue;
 
-                    // 비영어/비한국어 필터 (인도/중국/아시아 등)
-                    if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $text)) continue; // 일본어
-                    if (preg_match('/[\x{4E00}-\x{9FFF}]{3,}/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) continue; // 중국어
+                    // ─── 비한국/비영어 언어 필터 ───
+                    // 일본어 (Hiragana + Katakana)
+                    if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $text)) continue;
+                    // 중국어 (한국어 없는 한자)
+                    if (preg_match('/[\x{4E00}-\x{9FFF}]/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) continue;
+                    // 힌디/아랍/태국/벵골
                     if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $text)) continue;
+                    // 베트남어 (확장 라틴 + diacritics)
+                    if (preg_match('/[ăâđêôơưừứửữựắằẳẵặẻẽẹểễệốồổỗộớờởỡợýỷỹỵ]/u', $text)) continue;
+                    // 스페인어 diacritics/punctuation
+                    if (preg_match('/[áéíóúñ¿¡]/u', $text)) continue;
+                    // 언어/문화권 키워드
                     if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Vietnamese|Việt|中文|日本語|Myanmar|Bahasa|Mandarin|Cantonese/i', $text)) continue;
+                    if (preg_match('/español|castellano|México|Mexico|Argentina|España|Espana|Latino|Reggaeton|Bachata|Cumbia|Salsa/i', $text)) continue;
 
                     Short::create([
                         'user_id' => null,

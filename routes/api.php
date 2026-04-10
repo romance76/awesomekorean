@@ -377,7 +377,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // 수동 수집
     Route::post('/fetch-music', function () {
-        try { \Artisan::call('music:fetch', ['--daily' => 100, '--korean-ratio' => 70]); return response()->json(['success' => true, 'message' => '음악 100곡 수집 완료']); }
+        try { \Artisan::call('music:fetch', ['--daily' => 100, '--korean-ratio' => 75]); return response()->json(['success' => true, 'message' => '음악 100곡 수집 완료 (한국 75%)']); }
         catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
     });
     Route::post('/fetch-news', function () {
@@ -385,7 +385,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
     });
     Route::post('/fetch-shorts', function () {
-        try { \Artisan::call('shorts:fetch'); return response()->json(['success' => true, 'message' => '숏츠 수집 완료']); }
+        try { \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]); return response()->json(['success' => true, 'message' => '숏츠 100개 수집 완료 (한국 75%)']); }
         catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
     });
 

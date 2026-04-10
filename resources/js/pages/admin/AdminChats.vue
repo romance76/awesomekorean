@@ -276,8 +276,8 @@
       <h3 class="font-black text-gray-800 mb-3">💬 새 채팅방 개설</h3>
       <input v-model="newRoomName" placeholder="방 이름" class="w-full border rounded-lg px-3 py-2 text-sm mb-3" />
       <select v-model="newRoomType" class="w-full border rounded-lg px-3 py-2 text-sm mb-3">
-        <option value="group">그룹 채팅</option>
-        <option value="public">공개 채팅</option>
+        <option value="public">공개 채팅 (모든 유저 접근)</option>
+        <option value="group">그룹 채팅 (초대 전용)</option>
       </select>
       <div class="flex gap-2 justify-end">
         <button @click="showCreate=false" class="px-4 py-2 text-gray-500 text-sm">취소</button>
@@ -314,7 +314,7 @@ const announcing = ref(false)
 
 const showCreate = ref(false)
 const newRoomName = ref('')
-const newRoomType = ref('group')
+const newRoomType = ref('public')
 
 const userActionModal = ref(null)
 

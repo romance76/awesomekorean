@@ -10,7 +10,7 @@
       <!-- 왼쪽: 지역 채팅방 목록 -->
       <div class="col-span-12 lg:col-span-3">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">🌐 지역 채팅방 (24시간)</div>
+          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">🌐 공개 채팅방</div>
           <div v-if="loading" class="py-4 text-center text-xs text-gray-400">로딩중...</div>
           <button v-for="room in rooms" :key="room.id" @click="selectRoom(room)"
             class="w-full text-left px-3 py-2.5 border-b last:border-0 transition text-xs"
@@ -36,7 +36,7 @@
           <!-- 채팅방 헤더 -->
           <div class="px-4 py-3 border-b bg-amber-50 flex items-center justify-between flex-shrink-0">
             <div class="font-bold text-sm text-amber-900">{{ activeRoom.name }}</div>
-            <span class="text-[10px] text-green-600 bg-green-100 px-2 py-0.5 rounded-full">🟢 24시간 열림</span>
+            <span class="text-[10px] text-green-600 bg-green-100 px-2 py-0.5 rounded-full">🟢 공개 채팅방</span>
           </div>
 
           <!-- 메시지 영역 -->
@@ -87,7 +87,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3">
           <div class="font-bold text-xs text-gray-800 mb-2">📢 채팅 안내</div>
           <div class="text-[10px] text-gray-500 space-y-1">
-            <div>• 지역별 24시간 개방 채팅방입니다</div>
+            <div>• 누구나 참여할 수 있는 공개 채팅방입니다</div>
             <div>• 로그인 후 메시지를 보낼 수 있어요</div>
             <div>• 욕설/광고는 자동 차단됩니다</div>
           </div>

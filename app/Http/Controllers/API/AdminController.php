@@ -296,7 +296,7 @@ class AdminController extends Controller
         $request->validate(['name' => 'required|string|max:100']);
         $room = ChatRoom::create([
             'name' => $request->name,
-            'type' => $request->type ?? 'group',
+            'type' => $request->type ?? 'public',
             'created_by' => auth()->id(),
         ]);
         ChatRoomUser::create(['chat_room_id' => $room->id, 'user_id' => auth()->id()]);

@@ -136,10 +136,10 @@ class MusicController extends Controller
                     $channel = $item['snippet']['channelTitle'] ?? '';
                     if ($title === 'Private video' || $title === 'Deleted video') continue;
 
-                    // DB에 트랙 저장 (없으면 생성)
+                    // DB에 트랙 저장 (없으면 생성) - 유저 업로드로 표시
                     $track = MusicTrack::firstOrCreate(
                         ['youtube_id' => $videoId],
-                        ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}", 'category_id' => 1, 'duration' => 0, 'sort_order' => 0]
+                        ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}", 'category_id' => 1, 'duration' => 0, 'sort_order' => 0, 'is_user_submitted' => true]
                     );
 
                     // 플레이리스트에 추가 (중복 체크)
@@ -182,7 +182,7 @@ class MusicController extends Controller
 
         $track = MusicTrack::firstOrCreate(
             ['youtube_id' => $videoId],
-            ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}", 'category_id' => 1, 'duration' => $seconds, 'sort_order' => 0]
+            ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}", 'category_id' => 1, 'duration' => $seconds, 'sort_order' => 0, 'is_user_submitted' => true]
         );
 
         if (!UserPlaylistTrack::where('playlist_id', $plId)->where('track_id', $track->id)->exists()) {
