@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class WarmThumbnails extends Command
 {
-    protected $signature = 'thumbs:warm {model=all : recipes|businesses|news|shopping|all} {--widths=240,480} {--force : regenerate even if exists}';
+    protected $signature = 'thumbs:warm {model=all : recipes|businesses|news|shopping|all} {--widths=240,480} {--force : regenerate even if exists} {--mod=} {--total=}';
     protected $description = 'Pre-generate thumbnails for list images so first page load is instant';
 
     private array $allowedHosts = [
@@ -45,14 +45,17 @@ class WarmThumbnails extends Command
             }
         };
 
+        $mod = $this->option('mod');
+        $totalWorkers = $this->option('total');
+        $useShard = ($mod !== null && $totalWorkers !== null);
+
         if ($model === 'all' || $model === 'recipes') {
-            $this->info('→ Recipes');
+            $this->info('→ Recipes' . ($useShard ? " [worker $mod/$totalWorkers]" : ''));
             $q = DB::table('recipe_posts')->whereNotNull('thumbnail')->where('thumbnail', '!=', '');
-            $bar = $this->output->createProgressBar($q->count());
-            $q->orderBy('id')->chunk(50, function ($rows) use ($process, $bar) {
-                foreach ($rows as $r) { $process($r->thumbnail); $bar->advance(); }
+            if ($useShard) $q->whereRaw('id % ? = ?', [(int)$totalWorkers, (int)$mod]);
+            $q->orderBy('id')->chunk(50, function ($rows) use ($process) {
+                foreach ($rows as $r) { $process($r->thumbnail); }
             });
-            $bar->finish();
             $this->newLine();
         }
 
