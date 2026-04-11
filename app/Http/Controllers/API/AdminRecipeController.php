@@ -19,21 +19,27 @@ class AdminRecipeController extends Controller
         if ($request->status !== null && $request->status !== '') {
             $query->where('is_active', (bool) $request->status);
         }
-        return response()->json($query->orderByDesc('id')->paginate(20));
+        return response()->json([
+            'success' => true,
+            'data' => $query->orderByDesc('id')->paginate(20),
+        ]);
     }
 
     // GET /api/admin/recipes/stats
     public function stats()
     {
         return response()->json([
-            'total'    => RecipePost::count(),
-            'active'   => RecipePost::where('is_active', true)->count(),
-            'inactive' => RecipePost::where('is_active', false)->count(),
-            'categories' => RecipePost::whereNotNull('category')
-                ->where('category', '!=', '')
-                ->groupBy('category')
-                ->selectRaw('category, count(*) as count')
-                ->pluck('count', 'category'),
+            'success' => true,
+            'data' => [
+                'total'    => RecipePost::count(),
+                'active'   => RecipePost::where('is_active', true)->count(),
+                'inactive' => RecipePost::where('is_active', false)->count(),
+                'categories' => RecipePost::whereNotNull('category')
+                    ->where('category', '!=', '')
+                    ->groupBy('category')
+                    ->selectRaw('category, count(*) as count')
+                    ->pluck('count', 'category'),
+            ],
         ]);
     }
 

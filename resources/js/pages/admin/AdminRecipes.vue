@@ -231,11 +231,11 @@ const selected = ref([])
 const editTarget = ref(null)
 
 async function loadStats() {
-  try { const { data } = await axios.get('/api/admin/recipes/stats'); stats.value = data } catch {}
+  try { const { data } = await axios.get('/api/admin/recipes/stats'); stats.value = data.data || data } catch {}
 }
 
 async function loadCategories() {
-  try { const { data } = await axios.get('/api/recipes/categories'); categories.value = data || [] } catch {}
+  try { const { data } = await axios.get('/api/recipes/categories'); categories.value = data.data || [] } catch {}
 }
 
 async function loadList(p = 1) {
@@ -247,8 +247,8 @@ async function loadList(p = 1) {
   if (filterStatus.value !== '') params.status = filterStatus.value
   try {
     const { data } = await axios.get('/api/admin/recipes', { params })
-    list.value = data.data || []
-    lastPage.value = data.last_page || 1
+    list.value = data.data?.data || []
+    lastPage.value = data.data?.last_page || 1
   } catch {}
   listLoading.value = false
 }

@@ -107,7 +107,7 @@ function parseTags(tagStr) {
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/recipes/${route.params.id}`)
-    recipe.value = data
+    recipe.value = data.data || data
   } catch {}
   loading.value = false
 })
