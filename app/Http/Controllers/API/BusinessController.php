@@ -37,16 +37,22 @@ class BusinessController extends Controller
         $paginated = $query->paginate(10);
         $paginated->getCollection()->transform(function ($b) {
             $imgs = is_array($b->images) ? $b->images : (is_string($b->images) ? json_decode($b->images, true) : []);
-            $first = is_array($imgs) && !empty($imgs) ? $imgs[0] : null;
-            // businesses/xxx.jpg 처럼 상대 경로로 저장된 경우 /storage/ 접두사
-            if ($first && !str_starts_with($first, 'http') && !str_starts_with($first, '/')) {
-                $first = '/storage/' . $first;
+            // Google Places photoreference 는 만료되어 403 → 로컬 이미지만 사용
+            $valid = [];
+            if (is_array($imgs)) {
+                foreach ($imgs as $img) {
+                    if (!is_string($img)) continue;
+                    if (str_contains($img, 'maps.googleapis.com')) continue;
+                    // businesses/xxx.jpg 처럼 상대 경로로 저장된 경우 /storage/ 접두사
+                    if (!str_starts_with($img, 'http') && !str_starts_with($img, '/')) {
+                        $img = '/storage/' . $img;
+                    }
+                    $valid[] = $img;
+                }
             }
+            $first = !empty($valid) ? $valid[0] : null;
             $b->thumbnail_url = $first ? ThumbHelper::url($first, 240) : null;
-            // 캐시 키를 위해 원본도 정리해서 내려줌 (프론트에서 fallback 용)
-            if ($first) {
-                $b->images = array_merge([$first], array_slice((array)$imgs, 1));
-            }
+            $b->images = $valid;
             return $b;
         });
         return response()->json(['success' => true, 'data' => $paginated]);

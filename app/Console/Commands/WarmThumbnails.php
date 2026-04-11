@@ -66,16 +66,27 @@ class WarmThumbnails extends Command
 
         if ($model === 'all' || $model === 'businesses') {
             $this->info('→ Businesses');
-            $q = DB::table('businesses')->whereNotNull('images')->where('images', '!=', '[]')->where('images', '!=', '');
-            $bar = $this->output->createProgressBar($q->count());
-            $q->orderBy('id')->chunk(50, function ($rows) use ($process, $bar) {
+            // 로컬 이미지(/storage/businesses/...) 만 warmup. Google Places photo URL 은
+            // photoreference 가 만료되어 403 을 반환하므로 skip.
+            $q = DB::table('businesses')
+                ->whereNotNull('images')
+                ->where('images', '!=', '[]')
+                ->where('images', '!=', '')
+                ->where('images', 'like', '%businesses/%');
+            if ($useShard) $q->whereRaw('id % ? = ?', [(int)$totalWorkers, (int)$mod]);
+            $q->orderBy('id')->chunk(50, function ($rows) use ($process) {
                 foreach ($rows as $r) {
                     $imgs = is_string($r->images) ? json_decode($r->images, true) : $r->images;
-                    if (is_array($imgs) && isset($imgs[0])) $process($imgs[0]);
-                    $bar->advance();
+                    if (!is_array($imgs)) continue;
+                    // Google Places URL 은 건너뛰고 첫 번째 로컬 이미지만 처리
+                    foreach ($imgs as $img) {
+                        if (is_string($img) && !str_contains($img, 'maps.googleapis.com')) {
+                            $process($img);
+                            break;
+                        }
+                    }
                 }
             });
-            $bar->finish();
             $this->newLine();
         }
 
