@@ -75,17 +75,25 @@
         </div>
       </div>
 
-      <!-- 재료 (한영) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="text-sm font-semibold text-gray-700">재료 (한글) <span class="text-red-500">*</span></label>
-          <textarea v-model="form.ingredients" rows="6" placeholder="묵은 김치 2컵&#10;삼겹살 200g&#10;두부 1/2모&#10;대파 1대"
-            class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none font-mono"></textarea>
+      <!-- 재료 (구조화 입력) -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-sm font-semibold text-gray-700">재료 목록 <span class="text-red-500">*</span></label>
+          <button @click="addIngredient" type="button" class="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-bold hover:bg-amber-200">+ 재료 추가</button>
         </div>
-        <div>
-          <label class="text-sm font-semibold text-gray-700">Ingredients (English)</label>
-          <textarea v-model="form.ingredients_en" rows="6" placeholder="Aged kimchi 2 cups&#10;Pork belly 200g&#10;Firm tofu 1/2 block&#10;Green onion 1 stalk"
-            class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none font-mono"></textarea>
+        <div class="space-y-2">
+          <div v-for="(ing, idx) in structuredIngredients" :key="idx" class="flex gap-2 items-center">
+            <input v-model="ing.name_ko" placeholder="한글 (예: 묵은 김치)"
+              class="flex-1 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+            <input v-model="ing.name_en" placeholder="English (e.g. Kimchi)"
+              class="flex-1 border rounded-lg px-3 py-2 text-sm italic outline-none focus:ring-2 focus:ring-amber-400" />
+            <input v-model="ing.amount" placeholder="분량 (2컵)"
+              class="w-24 border rounded-lg px-3 py-2 text-sm text-right outline-none focus:ring-2 focus:ring-amber-400" />
+            <button @click="removeIngredient(idx)" type="button" class="text-red-400 hover:text-red-600 text-sm w-6">✕</button>
+          </div>
+          <div v-if="!structuredIngredients.length" class="text-center py-3 text-xs text-gray-400 border-2 border-dashed rounded-lg">
+            "+ 재료 추가" 버튼으로 재료를 추가하세요
+          </div>
         </div>
       </div>
 
@@ -160,16 +168,23 @@ const form = reactive({
   category: '',
   cook_method: '',
   servings: '',
-  ingredients: '',
-  ingredients_en: '',
   hash_tags: '',
 })
 
+const structuredIngredients = ref([])
 const steps = ref([])
 const thumbnailFile = ref(null)
 const thumbnailPreview = ref('')
 const error = ref('')
 const submitting = ref(false)
+
+function addIngredient() {
+  structuredIngredients.value.push({ name_ko: '', name_en: '', amount: '' })
+}
+
+function removeIngredient(idx) {
+  structuredIngredients.value.splice(idx, 1)
+}
 
 function addStep() {
   steps.value.push({ order: steps.value.length + 1, text: '', text_en: '', image_url: null, image_file: null, image_uploading: false })
@@ -215,8 +230,21 @@ async function onStepImageSelect(e, idx) {
 async function submit() {
   error.value = ''
   if (!form.title.trim()) { error.value = '제목을 입력해주세요'; return }
-  if (!form.ingredients.trim()) { error.value = '재료를 입력해주세요'; return }
+  const validIngredients = structuredIngredients.value.filter(i => (i.name_ko || '').trim())
+  if (!validIngredients.length) { error.value = '재료를 최소 1개 이상 입력해주세요'; return }
   if (!steps.value.length || !steps.value.some(s => s.text.trim())) { error.value = '조리 순서를 최소 1단계 이상 입력해주세요'; return }
+
+  // 구조화 재료 → plain text 자동 생성
+  const ingredientsText = validIngredients.map(i => {
+    const parts = [i.name_ko.trim()]
+    if (i.amount) parts.push(i.amount.trim())
+    return parts.join(' ')
+  }).join(', ')
+  const ingredientsEnText = validIngredients.filter(i => i.name_en).map(i => {
+    const parts = [i.name_en.trim()]
+    if (i.amount) parts.push(i.amount.trim())
+    return parts.join(' ')
+  }).join(', ')
 
   submitting.value = true
   try {
@@ -226,8 +254,9 @@ async function submit() {
     if (form.category) fd.append('category', form.category)
     if (form.cook_method) fd.append('cook_method', form.cook_method)
     if (form.servings) fd.append('servings', form.servings)
-    fd.append('ingredients', form.ingredients)
-    if (form.ingredients_en) fd.append('ingredients_en', form.ingredients_en)
+    fd.append('ingredients', ingredientsText)
+    if (ingredientsEnText) fd.append('ingredients_en', ingredientsEnText)
+    fd.append('ingredients_structured', JSON.stringify(validIngredients))
     if (form.hash_tags) fd.append('hash_tags', form.hash_tags)
     if (thumbnailFile.value) fd.append('thumbnail_file', thumbnailFile.value)
 
@@ -265,10 +294,20 @@ async function loadExisting() {
     form.category = r.category || ''
     form.cook_method = r.cook_method || ''
     form.servings = r.servings || ''
-    form.ingredients = r.ingredients || ''
-    form.ingredients_en = r.ingredients_en || ''
     form.hash_tags = r.hash_tags || ''
     if (r.thumbnail) thumbnailPreview.value = r.thumbnail
+
+    // 구조화 재료가 있으면 복원, 없으면 빈 행 하나
+    if (r.ingredients_structured && r.ingredients_structured.length) {
+      structuredIngredients.value = r.ingredients_structured.map(i => ({
+        name_ko: i.name_ko || i.name || '',
+        name_en: i.name_en || '',
+        amount: i.amount || '',
+      }))
+    } else {
+      structuredIngredients.value = [{ name_ko: '', name_en: '', amount: '' }]
+    }
+
     steps.value = (r.steps || []).map((s, i) => ({
       order: s.order || i + 1,
       text: s.text || '',
@@ -280,7 +319,11 @@ async function loadExisting() {
 }
 
 onMounted(() => {
-  if (isEdit.value) loadExisting()
-  else addStep() // 기본 단계 1개
+  if (isEdit.value) {
+    loadExisting()
+  } else {
+    addIngredient()
+    addStep()
+  }
 })
 </script>

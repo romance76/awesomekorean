@@ -15,6 +15,7 @@ class RecipePost extends Model
         'cook_method',
         'ingredients',
         'ingredients_en',
+        'ingredients_structured',
         'servings',
         'calories',
         'carbs',
@@ -30,12 +31,15 @@ class RecipePost extends Model
         'rating_count',
         'favorite_count',
         'is_active',
+        'translated_at',
     ];
 
     protected $casts = [
         'steps' => 'array',
+        'ingredients_structured' => 'array',
         'is_active' => 'boolean',
         'rating_avg' => 'decimal:2',
+        'translated_at' => 'datetime',
     ];
 
     public function user()

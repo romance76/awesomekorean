@@ -96,6 +96,7 @@ class RecipeController extends Controller
             'cook_method' => 'nullable|string|max:50',
             'ingredients' => 'nullable|string',
             'ingredients_en' => 'nullable|string',
+            'ingredients_structured' => 'nullable',
             'servings' => 'nullable|string|max:50',
             'steps' => 'nullable',
             'thumbnail_file' => 'nullable|image|max:10240',
@@ -116,6 +117,14 @@ class RecipeController extends Controller
         }
         if (!is_array($steps)) $steps = [];
 
+        // ingredients_structured
+        $structured = $request->ingredients_structured;
+        if (is_string($structured)) {
+            $decoded = json_decode($structured, true);
+            if (is_array($decoded)) $structured = $decoded;
+        }
+        if (!is_array($structured)) $structured = null;
+
         $recipe = RecipePost::create([
             'user_id' => auth()->id(),
             'source' => 'user',
@@ -125,6 +134,7 @@ class RecipeController extends Controller
             'cook_method' => $request->cook_method,
             'ingredients' => $request->ingredients,
             'ingredients_en' => $request->ingredients_en,
+            'ingredients_structured' => $structured,
             'servings' => $request->servings,
             'steps' => $steps,
             'thumbnail' => $thumbnailUrl,
@@ -167,6 +177,13 @@ class RecipeController extends Controller
         }
         if (is_array($steps)) $data['steps'] = $steps;
 
+        $structured = $request->ingredients_structured;
+        if (is_string($structured)) {
+            $decoded = json_decode($structured, true);
+            if (is_array($decoded)) $structured = $decoded;
+        }
+        if (is_array($structured)) $data['ingredients_structured'] = $structured;
+
         $recipe->update($data);
         return response()->json(['success' => true, 'data' => $recipe->fresh()]);
     }
@@ -179,12 +196,12 @@ class RecipeController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // POST /api/recipes/{id}/rate — 별점 주기
+    // POST /api/recipes/{id}/rate — 별점 주기 (댓글 선택)
     public function rate(Request $request, $id)
     {
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'nullable|string|max:500',
+            'comment' => 'nullable|string|max:1000',
         ]);
 
         $recipe = RecipePost::findOrFail($id);
@@ -202,6 +219,31 @@ class RecipeController extends Controller
             'rating_count' => $recipe->fresh()->rating_count,
             'my_rating' => $request->rating,
         ]);
+    }
+
+    // GET /api/recipes/{id}/comments — 댓글(평점+리뷰) 리스트
+    public function comments($id)
+    {
+        $comments = RecipeRating::with('user:id,name,nickname,avatar')
+            ->where('recipe_id', $id)
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
+        return response()->json(['success' => true, 'data' => $comments]);
+    }
+
+    // DELETE /api/recipes/{id}/comments/{commentId} — 본인 댓글 삭제
+    public function deleteComment($id, $commentId)
+    {
+        $comment = RecipeRating::where('user_id', auth()->id())
+            ->where('recipe_id', $id)
+            ->findOrFail($commentId);
+        $comment->delete();
+
+        $recipe = RecipePost::find($id);
+        if ($recipe) $recipe->recomputeRating();
+
+        return response()->json(['success' => true]);
     }
 
     // POST /api/recipes/{id}/favorite — 찜 토글

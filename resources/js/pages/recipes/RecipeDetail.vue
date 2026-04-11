@@ -91,10 +91,26 @@
             </div>
           </div>
 
-          <!-- 재료 (한영) -->
-          <div v-if="recipe.ingredients || recipe.ingredients_en" class="px-5 py-4 border-b">
-            <h2 class="text-base font-black text-gray-800 mb-2">
-              📝 재료 <span v-if="recipe.servings" class="text-xs text-gray-500 font-normal">({{ recipe.servings }})</span>
+          <!-- 재료 — 구조화 테이블 (있으면) -->
+          <div v-if="recipe.ingredients_structured && recipe.ingredients_structured.length" class="px-5 py-4 border-b">
+            <h2 class="text-base font-black text-gray-800 mb-3 border-b-2 border-amber-400 pb-1 inline-block">
+              재료 <span v-if="recipe.servings" class="text-xs text-gray-500 font-normal">({{ recipe.servings }})</span>
+            </h2>
+            <div class="divide-y divide-gray-100">
+              <div v-for="(ing, idx) in recipe.ingredients_structured" :key="idx"
+                class="flex items-center justify-between py-2 text-sm">
+                <div class="flex items-baseline gap-2 flex-1 min-w-0">
+                  <span class="font-bold text-gray-800">{{ ing.name_ko || ing.name }}</span>
+                  <span v-if="ing.name_en" class="text-amber-600 text-xs italic">{{ ing.name_en }}</span>
+                </div>
+                <span class="text-gray-500 text-sm ml-3 flex-shrink-0">{{ ing.amount || '' }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- 재료 — 일반 텍스트 (fallback) -->
+          <div v-else-if="recipe.ingredients || recipe.ingredients_en" class="px-5 py-4 border-b">
+            <h2 class="text-base font-black text-gray-800 mb-2 border-b-2 border-amber-400 pb-1 inline-block">
+              재료 <span v-if="recipe.servings" class="text-xs text-gray-500 font-normal">({{ recipe.servings }})</span>
             </h2>
             <div class="bg-amber-50/50 rounded-lg p-3">
               <div v-if="recipe.ingredients" class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ recipe.ingredients }}</div>
@@ -122,21 +138,59 @@
             </div>
           </div>
 
-          <!-- 별점 주기 -->
+          <!-- 별점 + 리뷰 -->
           <div class="px-5 py-4 border-b bg-amber-50/30">
-            <h2 class="text-base font-black text-gray-800 mb-2">⭐ 별점 주기</h2>
-            <div v-if="!auth.isLoggedIn" class="text-sm text-gray-500">로그인 후 별점을 줄 수 있습니다</div>
-            <div v-else class="flex items-center gap-3">
-              <div class="flex">
-                <button v-for="s in 5" :key="s" @click="rateRecipe(s)"
-                  class="text-3xl transition hover:scale-110"
-                  :class="s <= (hoverRating || recipe.my_rating || 0) ? 'text-amber-400' : 'text-gray-300'"
-                  @mouseenter="hoverRating = s" @mouseleave="hoverRating = 0">
-                  ★
+            <h2 class="text-base font-black text-gray-800 mb-3">⭐ 별점 & 리뷰 ({{ comments.length }})</h2>
+
+            <!-- 작성 폼 (로그인 시) -->
+            <div v-if="!auth.isLoggedIn" class="text-sm text-gray-500 mb-3">로그인 후 별점과 리뷰를 남길 수 있습니다</div>
+            <div v-else class="bg-white rounded-lg border border-amber-200 p-3 mb-4">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs text-gray-500">내 별점:</span>
+                <div class="flex">
+                  <button v-for="s in 5" :key="s" @click="setRating(s)"
+                    class="text-2xl transition hover:scale-110"
+                    :class="s <= (hoverRating || myRating || 0) ? 'text-amber-400' : 'text-gray-300'"
+                    @mouseenter="hoverRating = s" @mouseleave="hoverRating = 0">
+                    ★
+                  </button>
+                </div>
+                <span v-if="myRating" class="text-xs text-amber-600 font-bold">{{ myRating }}점</span>
+              </div>
+              <textarea v-model="myComment" rows="2" placeholder="이 레시피에 대한 리뷰를 남겨주세요 (선택)"
+                class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400 resize-none"></textarea>
+              <div class="flex justify-end mt-2 gap-2">
+                <span v-if="ratingMsg" class="text-xs text-green-600 font-bold self-center">{{ ratingMsg }}</span>
+                <button @click="submitRating" :disabled="!myRating || submittingRating"
+                  class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs disabled:opacity-50">
+                  {{ submittingRating ? '저장중...' : '등록' }}
                 </button>
               </div>
-              <span v-if="recipe.my_rating" class="text-xs text-gray-600">내 평점: <strong class="text-amber-600">{{ recipe.my_rating }}점</strong></span>
-              <span v-if="ratingMsg" class="text-xs text-green-600 font-bold">{{ ratingMsg }}</span>
+            </div>
+
+            <!-- 댓글 리스트 -->
+            <div v-if="loadingComments" class="text-center py-4 text-xs text-gray-400">로딩중...</div>
+            <div v-else-if="!comments.length" class="text-center py-4 text-xs text-gray-400">첫 번째 리뷰를 남겨보세요</div>
+            <div v-else class="space-y-3">
+              <div v-for="c in comments" :key="c.id" class="bg-white rounded-lg border p-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-sm font-bold text-amber-800 flex-shrink-0">
+                      {{ (c.user?.nickname || c.user?.name || '?')[0] }}
+                    </div>
+                    <div>
+                      <div class="text-xs font-bold text-gray-800">{{ c.user?.nickname || c.user?.name || '익명' }}</div>
+                      <div class="flex items-center gap-1">
+                        <span class="text-amber-400 text-[11px]">{{ '★'.repeat(c.rating) }}{{ '☆'.repeat(5 - c.rating) }}</span>
+                        <span class="text-[10px] text-gray-400">{{ fmtDate(c.created_at) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button v-if="auth.user && c.user_id === auth.user.id" @click="deleteComment(c.id)"
+                    class="text-[10px] text-red-400 hover:text-red-600">삭제</button>
+                </div>
+                <div v-if="c.comment" class="text-sm text-gray-700 mt-2 whitespace-pre-wrap leading-relaxed">{{ c.comment }}</div>
+              </div>
             </div>
           </div>
 
@@ -185,6 +239,11 @@ const loading = ref(true)
 const categories = ref([])
 const hoverRating = ref(0)
 const ratingMsg = ref('')
+const myRating = ref(0)
+const myComment = ref('')
+const submittingRating = ref(false)
+const comments = ref([])
+const loadingComments = ref(false)
 
 const nutritionItems = [
   { key: 'calories', label: '칼로리(kcal)' },
@@ -206,9 +265,12 @@ function parseTags(tagStr) {
 async function loadRecipe(id) {
   loading.value = true
   recipe.value = null
+  comments.value = []
   try {
     const { data } = await axios.get(`/api/recipes/${id}`)
     recipe.value = data.data || data
+    myRating.value = recipe.value?.my_rating || 0
+    await loadComments()
   } catch {}
   loading.value = false
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -232,18 +294,63 @@ async function toggleFavorite() {
   }
 }
 
-async function rateRecipe(stars) {
-  if (!auth.isLoggedIn || !recipe.value) return
+function setRating(stars) {
+  myRating.value = stars
+}
+
+async function submitRating() {
+  if (!auth.isLoggedIn || !recipe.value || !myRating.value) return
+  submittingRating.value = true
   try {
-    const { data } = await axios.post(`/api/recipes/${recipe.value.id}/rate`, { rating: stars })
+    const { data } = await axios.post(`/api/recipes/${recipe.value.id}/rate`, {
+      rating: myRating.value,
+      comment: myComment.value,
+    })
     recipe.value.my_rating = data.my_rating
     recipe.value.rating_avg = data.rating_avg
     recipe.value.rating_count = data.rating_count
-    ratingMsg.value = '평점이 등록되었습니다!'
+    ratingMsg.value = '등록 완료!'
+    myComment.value = ''
     setTimeout(() => { ratingMsg.value = '' }, 2000)
+    await loadComments()
   } catch (e) {
     alert(e.response?.data?.message || '실패')
   }
+  submittingRating.value = false
+}
+
+async function loadComments() {
+  if (!recipe.value) return
+  loadingComments.value = true
+  try {
+    const { data } = await axios.get(`/api/recipes/${recipe.value.id}/comments`)
+    comments.value = data.data?.data || []
+  } catch {}
+  loadingComments.value = false
+}
+
+async function deleteComment(commentId) {
+  if (!confirm('이 리뷰를 삭제할까요?')) return
+  try {
+    await axios.delete(`/api/recipes/${recipe.value.id}/comments/${commentId}`)
+    await loadComments()
+    // 평점도 갱신
+    const { data } = await axios.get(`/api/recipes/${recipe.value.id}`)
+    recipe.value.rating_avg = data.data?.rating_avg
+    recipe.value.rating_count = data.data?.rating_count
+    recipe.value.my_rating = data.data?.my_rating
+    if (!data.data?.my_rating) myRating.value = 0
+  } catch (e) { alert(e.response?.data?.message || '실패') }
+}
+
+function fmtDate(dt) {
+  if (!dt) return ''
+  const d = new Date(dt)
+  const diff = Date.now() - d.getTime()
+  if (diff < 60000) return '방금'
+  if (diff < 3600000) return Math.floor(diff / 60000) + '분 전'
+  if (diff < 86400000) return Math.floor(diff / 3600000) + '시간 전'
+  return d.toLocaleDateString('ko-KR')
 }
 
 async function deleteRecipe() {

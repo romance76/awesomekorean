@@ -74,6 +74,7 @@ Route::get('/news/{id}', [NewsController::class, 'show']);
 Route::get('/recipes', [RecipeController::class, 'index']);
 Route::get('/recipes/categories', [RecipeController::class, 'categories']);
 Route::get('/recipes/{id}', [RecipeController::class, 'show']);
+Route::get('/recipes/{id}/comments', [RecipeController::class, 'comments']);
 Route::get('/groupbuys', [GroupBuyController::class, 'index']);
 Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/events', [EventController::class, 'index']);
@@ -165,6 +166,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/recipes/{id}', [RecipeController::class, 'update']);
     Route::delete('/recipes/{id}', [RecipeController::class, 'destroy']);
     Route::post('/recipes/{id}/rate', [RecipeController::class, 'rate']);
+    Route::delete('/recipes/{id}/comments/{commentId}', [RecipeController::class, 'deleteComment']);
     Route::post('/recipes/{id}/favorite', [RecipeController::class, 'toggleFavorite']);
 
     Route::post('/groupbuys', [GroupBuyController::class, 'store']);
