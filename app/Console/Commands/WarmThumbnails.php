@@ -16,6 +16,12 @@ class WarmThumbnails extends Command
         'lh3.googleusercontent.com', 'lh4.googleusercontent.com',
         'lh5.googleusercontent.com', 'lh6.googleusercontent.com',
         'maps.googleapis.com', 'maps.gstatic.com',
+        // 한국 뉴스 이미지 호스트
+        'www.chosun.com', 'chosun.com', 'img.chosun.com',
+        'flexible.img.hani.co.kr', 'img.hani.co.kr', 'www.hani.co.kr',
+        'dimg.donga.com', 'image.donga.com', 'img.donga.com',
+        'img.sbs.co.kr', 'mimgnews.pstatic.net', 'imgnews.pstatic.net',
+        'news.kbs.co.kr', 'img.kbs.co.kr',
         'somekorean.com', 'www.somekorean.com',
     ];
 
