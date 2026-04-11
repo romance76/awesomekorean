@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\NewsCategory;
+use App\Support\ThumbHelper;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -22,7 +23,12 @@ class NewsController extends Controller
         // 중복 제거
         $query->distinct();
 
-        return response()->json(['success' => true, 'data' => $query->paginate(20)]);
+        $paginated = $query->paginate(20);
+        $paginated->getCollection()->transform(function ($n) {
+            $n->thumbnail_url = ThumbHelper::url($n->image_url, 200);
+            return $n;
+        });
+        return response()->json(['success' => true, 'data' => $paginated]);
     }
 
     public function show($id)

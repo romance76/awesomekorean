@@ -8,6 +8,7 @@ use App\Models\BusinessClaim;
 use App\Models\BusinessMenu;
 use App\Models\BusinessMenuOption;
 use App\Models\BusinessReview;
+use App\Support\ThumbHelper;
 use Illuminate\Http\Request;
 
 class BusinessController extends Controller
@@ -33,7 +34,18 @@ class BusinessController extends Controller
         elseif ($sort === 'reviews') $query->orderByDesc('review_count');
         elseif ($sort === 'views') $query->orderByDesc('view_count');
 
-        return response()->json(['success' => true, 'data' => $query->paginate(10)]);
+        $paginated = $query->paginate(10);
+        $paginated->getCollection()->transform(function ($b) {
+            $imgs = is_array($b->images) ? $b->images : (is_string($b->images) ? json_decode($b->images, true) : []);
+            $first = is_array($imgs) && !empty($imgs) ? $imgs[0] : null;
+            // businesses/xxx.jpg 처럼 상대 경로로 저장된 경우 /storage/ 접두사
+            if ($first && !str_starts_with($first, 'http') && !str_starts_with($first, '/')) {
+                $first = '/storage/' . $first;
+            }
+            $b->thumbnail_url = $first ? ThumbHelper::url($first, 240) : null;
+            return $b;
+        });
+        return response()->json(['success' => true, 'data' => $paginated]);
     }
 
     public function show($id)

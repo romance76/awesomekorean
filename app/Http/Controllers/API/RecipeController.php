@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RecipePost;
 use App\Models\RecipeFavorite;
 use App\Models\RecipeRating;
+use App\Support\ThumbHelper;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
@@ -43,16 +44,19 @@ class RecipeController extends Controller
         $perPage = (int) ($request->per_page ?? 20);
         $paginated = $query->paginate($perPage);
 
-        // 로그인 유저면 각 레시피에 is_favorited 주입
+        $favIds = [];
         if (auth()->check()) {
             $ids = collect($paginated->items())->pluck('id');
             $favIds = RecipeFavorite::where('user_id', auth()->id())
                 ->whereIn('recipe_id', $ids)->pluck('recipe_id')->toArray();
-            $paginated->getCollection()->transform(function ($r) use ($favIds) {
-                $r->is_favorited = in_array($r->id, $favIds);
-                return $r;
-            });
         }
+
+        // 각 레시피에 thumbnail_url (정적 경로) 주입 → 브라우저가 nginx 정적으로 직접 요청
+        $paginated->getCollection()->transform(function ($r) use ($favIds) {
+            $r->is_favorited = in_array($r->id, $favIds);
+            $r->thumbnail_url = ThumbHelper::url($r->thumbnail, 240);
+            return $r;
+        });
 
         return response()->json(['success' => true, 'data' => $paginated]);
     }

@@ -82,7 +82,7 @@
             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-amber-300 transition cursor-pointer">
             <div class="flex gap-3 p-3">
               <div v-if="item.image_url" class="w-24 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                <img :src="thumb(item.image_url, 200)" loading="lazy" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+                <img :src="item.thumbnail_url || thumb(item.image_url, 200)" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
