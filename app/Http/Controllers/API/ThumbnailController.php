@@ -28,6 +28,8 @@ class ThumbnailController extends Controller
         'lh4.googleusercontent.com',
         'lh5.googleusercontent.com',
         'lh6.googleusercontent.com',
+        'maps.googleapis.com',
+        'maps.gstatic.com',
         'somekorean.com',
         'www.somekorean.com',
     ];

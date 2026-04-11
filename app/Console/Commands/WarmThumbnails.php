@@ -15,6 +15,7 @@ class WarmThumbnails extends Command
         'i.ytimg.com', 'img.youtube.com', 'yt3.ggpht.com',
         'lh3.googleusercontent.com', 'lh4.googleusercontent.com',
         'lh5.googleusercontent.com', 'lh6.googleusercontent.com',
+        'maps.googleapis.com', 'maps.gstatic.com',
         'somekorean.com', 'www.somekorean.com',
     ];
 
@@ -30,11 +31,15 @@ class WarmThumbnails extends Command
 
         $process = function ($url) use ($widths, $force, &$total, &$ok, &$skip, &$fail) {
             if (!$url) return;
+            // Business images stored as "businesses/xxx.jpg" (no leading /)
+            if (!str_starts_with($url, 'http') && !str_starts_with($url, '/')) {
+                $url = '/storage/' . $url;
+            }
             foreach ($widths as $w) {
                 $total++;
                 $path = $this->cachePath($url, $w);
                 if (!$force && file_exists($path)) { $skip++; continue; }
-                $body = $this->fetchUrl($url);
+                $body = $this->loadBody($url);
                 if (!$body || strlen($body) < 100) { $fail++; continue; }
                 try {
                     $this->writeResized($body, $path, $w);
@@ -76,7 +81,7 @@ class WarmThumbnails extends Command
 
         if ($model === 'all' || $model === 'news') {
             $this->info('→ News');
-            $q = DB::table('news_articles')->whereNotNull('image_url')->where('image_url', '!=', '');
+            $q = DB::table('news')->whereNotNull('image_url')->where('image_url', '!=', '');
             $bar = $this->output->createProgressBar($q->count());
             $q->orderBy('id')->chunk(50, function ($rows) use ($process, $bar) {
                 foreach ($rows as $r) { $process($r->image_url); $bar->advance(); }
@@ -108,6 +113,17 @@ class WarmThumbnails extends Command
         $dir = storage_path("app/public/thumbs/" . substr($hash, 0, 2));
         if (!is_dir($dir)) @mkdir($dir, 0775, true);
         return $dir . '/' . substr($hash, 2) . "_{$width}.jpg";
+    }
+
+    // /storage/ 내부 파일 또는 외부 HTTP URL 에서 이미지 바이트 로드
+    private function loadBody(string $url): ?string
+    {
+        if (str_starts_with($url, '/storage/')) {
+            $abs = public_path($url);
+            if (!file_exists($abs)) return null;
+            return file_get_contents($abs) ?: null;
+        }
+        return $this->fetchUrl($url);
     }
 
     private function fetchUrl(string $url): ?string

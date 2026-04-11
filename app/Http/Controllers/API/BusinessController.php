@@ -43,6 +43,10 @@ class BusinessController extends Controller
                 $first = '/storage/' . $first;
             }
             $b->thumbnail_url = $first ? ThumbHelper::url($first, 240) : null;
+            // 캐시 키를 위해 원본도 정리해서 내려줌 (프론트에서 fallback 용)
+            if ($first) {
+                $b->images = array_merge([$first], array_slice((array)$imgs, 1));
+            }
             return $b;
         });
         return response()->json(['success' => true, 'data' => $paginated]);
