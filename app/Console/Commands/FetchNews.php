@@ -217,15 +217,23 @@ class FetchNews extends Command
 
             $text = null;
 
+            // 미주중앙일보 (koreadaily): <!--#dev body--> 와 <!-- 태그 영역 --> 사이
+            if (str_contains($url, 'koreadaily.com') && preg_match('/<!--#dev body-->(.*?)<!--\s*태그 영역/s', $html, $matches)) {
+                $text = $matches[1];
+            }
+            // SBS 뉴스: w_article_cont (본문 전체) — text_area 보다 넓은 범위
+            elseif (str_contains($url, 'sbs.co.kr') && preg_match('/<div[^>]*class=["\'][^"\']*w_article_cont[^"\']*["\'][^>]*>(.*?)<div[^>]*class=["\'][^"\']*(?:w_article_side|article_relation_area|w_article_byline)/si', $html, $matches)) {
+                $text = $matches[1];
+            }
             // 조선일보 전용: article_body
-            if (preg_match('/<section[^>]*class=["\'][^"\']*article_body[^"\']*["\'][^>]*>(.*?)<\/section>/si', $html, $matches)) {
+            elseif (preg_match('/<section[^>]*class=["\'][^"\']*article_body[^"\']*["\'][^>]*>(.*?)<\/section>/si', $html, $matches)) {
                 $text = $matches[1];
             }
             // 동아일보: article_txt
             elseif (preg_match('/<div[^>]*class=["\'][^"\']*article_txt[^"\']*["\'][^>]*>(.*?)<\/div>/si', $html, $matches)) {
                 $text = $matches[1];
             }
-            // SBS: text_area
+            // SBS: text_area (단일 caption 용 fallback)
             elseif (preg_match('/<div[^>]*class=["\'][^"\']*text_area[^"\']*["\'][^>]*>(.*?)<\/div>/si', $html, $matches)) {
                 $text = $matches[1];
             }
