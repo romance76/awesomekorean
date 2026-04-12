@@ -27,6 +27,7 @@ class WarmThumbnails extends Command
         // TIME magazine CDN
         'api.time.com', 'time.com', 'www.time.com',
         'i0.wp.com', 'i1.wp.com', 'i2.wp.com',
+        'gcp-na-images.contentstack.com',
         'somekorean.com', 'www.somekorean.com',
     ];
 
