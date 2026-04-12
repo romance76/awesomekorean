@@ -81,15 +81,21 @@
           <div v-for="item in items" :key="item.id" @click="openItem(item)"
             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-amber-300 transition cursor-pointer">
             <div class="flex gap-3 p-3">
-              <div v-if="item.image_url" class="w-24 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                <img :src="item.thumbnail_url || thumb(item.image_url, 200)" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+              <!-- 썸네일 (항상 표시: 이미지 있으면 이미지, 없으면 이모지) -->
+              <div class="w-24 h-16 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
+                <img v-if="item.thumbnail_url || item.image_url"
+                  :src="item.thumbnail_url || thumb(item.image_url, 200)"
+                  loading="lazy" decoding="async"
+                  class="w-full h-full object-cover"
+                  @error="e => { e.target.style.display='none'; e.target.parentElement.innerHTML='<span class=\'text-2xl\'>📰</span>' }" />
+                <span v-else class="text-2xl">📰</span>
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
                   <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || '뉴스' }}</span>
                   <span class="text-[10px] text-gray-400">{{ item.source }}</span>
                 </div>
-                <div class="text-sm font-medium text-gray-800 line-clamp-2">{{ item.title }}</div>
+                <div class="text-sm font-medium text-gray-800 line-clamp-2 leading-snug">{{ item.title }}</div>
                 <div class="text-[10px] text-gray-400 mt-1">👁 {{ item.view_count }} · {{ formatDate(item.published_at) }}</div>
               </div>
             </div>
