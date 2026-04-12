@@ -24,6 +24,9 @@ class WarmThumbnails extends Command
         'news.kbs.co.kr', 'img.kbs.co.kr',
         'newsimg.hankookilbo.com', 'www.hankookilbo.com',
         'www.koreadaily.com', 'koreadaily.com',
+        // TIME magazine CDN
+        'api.time.com', 'time.com', 'www.time.com',
+        'i0.wp.com', 'i1.wp.com', 'i2.wp.com',
         'somekorean.com', 'www.somekorean.com',
     ];
 

@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\Schedule;
 // 매일 새 YouTube Shorts 수집
 Schedule::command('shorts:fetch --limit=500 --korean-ratio=70')->dailyAt('03:00');
 
-// 뉴스 수집: 미주중앙일보 4개 섹션 × 각 100건, 2시간마다 (하루 12번)
-Schedule::command('news:fetch --per-section=100')->cron('0 */2 * * *')->withoutOverlapping();
+// 뉴스 수집: SBS + TIME RSS, 2시간마다 (하루 12번)
+Schedule::command('news:fetch')->cron('0 */2 * * *')->withoutOverlapping();
 
 // 음악 트랙 자동 수집 (매일 02:00, 500곡, 한국70%+팝30%, 7일 롤링)
 Schedule::command('music:fetch --daily=500 --korean-ratio=70')->dailyAt('02:00');

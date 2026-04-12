@@ -73,6 +73,26 @@
                 class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
                 ⓘ 본문 일부만 표시됩니다. 전체 기사는 아래 <b>원문 보기</b> 링크에서 확인하세요.
               </div>
+
+              <!-- English Original (TIME 기사만) -->
+              <div v-if="activeItem.content_en" class="mt-6 border-t pt-4">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">English Original</span>
+                  <button @click="showEnglish = !showEnglish" class="text-xs text-gray-500 hover:text-amber-600 underline">
+                    {{ showEnglish ? '접기' : '펼치기' }}
+                  </button>
+                </div>
+                <div v-if="showEnglish" class="text-sm text-gray-600 leading-7">
+                  <h3 v-if="activeItem.title_en" class="font-bold text-gray-800 mb-3">{{ activeItem.title_en }}</h3>
+                  <template v-for="(block, i) in englishContentBlocks" :key="'en-'+i">
+                    <img v-if="block.type==='img'" :src="block.src"
+                      class="block mx-auto rounded-lg my-4"
+                      style="max-width: 100%; width: auto; height: auto;"
+                      @error="e=>e.target.style.display='none'" />
+                    <p v-else class="mb-3 text-gray-500 italic" style="text-indent: 0.5em;">{{ block.text }}</p>
+                  </template>
+                </div>
+              </div>
             </div>
             <div v-if="activeItem.source_url" class="px-5 py-3 border-t bg-amber-50/30">
               <a :href="activeItem.source_url" target="_blank"
@@ -108,6 +128,7 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
                   <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || '뉴스' }}</span>
+                  <span v-if="item.source?.startsWith('TIME')" class="text-[10px] bg-blue-100 text-blue-700 px-1 py-0.5 rounded-full font-bold">EN→KO</span>
                   <span class="text-[10px] text-gray-400">{{ item.source }}</span>
                 </div>
                 <div class="text-sm font-medium text-gray-800 line-clamp-2 leading-snug">{{ item.title }}</div>
@@ -146,24 +167,13 @@ const categories = ref([])
 const activeCat = ref(null)
 const activeItem = ref(null)
 const searchQ = ref('')
+const showEnglish = ref(false)
 
-// 본문 이미지 중복 체크 (확장자 무시)
-const hasImageInContent = computed(() => {
-  if (!activeItem.value?.content || !activeItem.value?.image_url) return false
-  // 확장자 제거 후 비교
-  const baseUrl = activeItem.value.image_url.replace(/\.\w+$/, '')
-  return activeItem.value.content.includes(baseUrl)
-})
-
-// 본문 파싱: 마크다운 이미지 + 단락 분리
-const contentBlocks = computed(() => {
-  if (!activeItem.value?.content) return []
-  const text = activeItem.value.content
-
-  // 마크다운 이미지 분리
-  const parts = text.split(/!\[.*?\]\((.+?)\)/)
+// 마크다운 이미지 + 단락 분리 공유 함수
+function parseContentToBlocks(content) {
+  if (!content) return []
+  const parts = content.split(/!\[.*?\]\((.+?)\)/)
   const blocks = []
-
   for (let i = 0; i < parts.length; i++) {
     if (i % 2 === 0) {
       const textPart = parts[i].trim()
@@ -173,18 +183,19 @@ const contentBlocks = computed(() => {
         .replace(/펼침.*?기사를 읽어드립니다/g, '')
         .replace(/기자수정 \d{4}-\d{2}-\d{2} \d{2}:\d{2}/g, '')
         .replace(/본문사회/g, '')
-      const paragraphs = cleaned
-        .split(/\n{2,}/)
-        .map(p => p.trim())
-        .filter(p => p.length > 10)
+        .replace(/Read full article/gi, '')
+        .replace(/Comments/gi, '')
+      const paragraphs = cleaned.split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 10)
       paragraphs.forEach(p => blocks.push({ type: 'text', text: p }))
     } else {
       blocks.push({ type: 'img', src: parts[i] })
     }
   }
-
   return blocks
-})
+}
+
+const contentBlocks = computed(() => parseContentToBlocks(activeItem.value?.content))
+const englishContentBlocks = computed(() => parseContentToBlocks(activeItem.value?.content_en))
 
 const currentIdx = ref(-1)
 async function openItem(item) {
