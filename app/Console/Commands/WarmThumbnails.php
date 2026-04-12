@@ -37,6 +37,8 @@ class WarmThumbnails extends Command
 
         $process = function ($url) use ($widths, $force, &$total, &$ok, &$skip, &$fail) {
             if (!$url) return;
+            // HTML 엔티티 디코딩 (뉴스 URL 에 &amp; 섞여 있음)
+            $url = html_entity_decode($url, ENT_QUOTES | ENT_HTML5);
             // Business images stored as "businesses/xxx.jpg" (no leading /)
             if (!str_starts_with($url, 'http') && !str_starts_with($url, '/')) {
                 $url = '/storage/' . $url;
@@ -157,7 +159,7 @@ class WarmThumbnails extends Command
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 20,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; SomeKorean-Thumb/1.0)',
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         ]);
         $body = curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);

@@ -22,6 +22,8 @@ class ThumbHelper
         if (str_starts_with($sourceUrl, 'data:') || str_starts_with($sourceUrl, 'blob:')) {
             return $sourceUrl;
         }
+        // HTML 엔티티 디코딩 (chosun 뉴스 URL 에 &amp; 섞여 있는 경우)
+        $sourceUrl = html_entity_decode($sourceUrl, ENT_QUOTES | ENT_HTML5);
 
         $hash = md5($sourceUrl);
         $relPath = 'thumbs/' . substr($hash, 0, 2) . '/' . substr($hash, 2) . '_' . $width . '.jpg';

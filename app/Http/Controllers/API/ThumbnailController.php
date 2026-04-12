@@ -89,6 +89,8 @@ class ThumbnailController extends Controller
     // 순수 curl 사용 (Guzzle 은 일부 환경에서 connection reset 발생)
     private function fetchUrl(string $url): ?string
     {
+        // HTML 엔티티 디코딩 (뉴스 URL 에 &amp; 섞여 있는 경우)
+        $url = html_entity_decode($url, ENT_QUOTES | ENT_HTML5);
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -98,7 +100,7 @@ class ThumbnailController extends Controller
             CURLOPT_SSL_VERIFYHOST => false,
             CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => 20,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; SomeKorean-Thumb/1.0)',
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         ]);
         $body = curl_exec($ch);

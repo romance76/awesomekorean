@@ -25,6 +25,10 @@ class NewsController extends Controller
 
         $paginated = $query->paginate(20);
         $paginated->getCollection()->transform(function ($n) {
+            // HTML 엔티티 디코딩 (chosun 등 &amp; 섞여 있음)
+            if ($n->image_url) {
+                $n->image_url = html_entity_decode($n->image_url, ENT_QUOTES | ENT_HTML5);
+            }
             $n->thumbnail_url = ThumbHelper::url($n->image_url, 200);
             return $n;
         });
