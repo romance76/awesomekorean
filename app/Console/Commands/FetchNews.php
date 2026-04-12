@@ -16,7 +16,7 @@ class FetchNews extends Command
         // 미주 한인 언론
         '미주중앙일보'  => ['url' => 'https://www.koreadaily.com/sitemap/latest-articles',  'type' => 'sitemap_news'],
         '한국일보'     => ['url' => 'https://www.hankookilbo.com/sitemap/latest-articles', 'type' => 'sitemap_news'],
-        '코리아타임스'  => ['url' => 'https://www.koreatimes.co.kr/www2/common/rss.asp',   'type' => 'rss'],
+        // koreatimes.co.kr 는 Next.js SPA 로 전환되어 RSS 엔드포인트가 모두 HTML 반환함 (제거)
         // 한국 주요 언론
         '조선일보'     => ['url' => 'https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml', 'type' => 'rss'],
         '동아일보'     => ['url' => 'https://rss.donga.com/total.xml', 'type' => 'rss'],
