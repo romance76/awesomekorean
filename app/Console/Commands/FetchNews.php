@@ -39,9 +39,10 @@ class FetchNews extends Command
     private array $categoryIdCache = [];
 
     // 영어 키워드 → 카테고리 slug 매핑 (아리랑/TIME 공용)
+    // 순서 중요: 먼저 매칭되면 해당 카테고리로 확정
     private array $enCategoryRules = [
-        'sports' => ['soccer', 'football', 'baseball', 'basketball', 'golf', 'tennis', 'Olympic', 'athlete', 'FIFA', 'MLB', 'NBA', 'NFL', 'Premier League', 'Champions League', 'World Cup', 'BTS', 'K-pop', 'tournament', 'match', 'game score', 'season', 'league', 'coach', 'player'],
-        'entertainment' => ['movie', 'film', 'drama', 'Netflix', 'Disney', 'actor', 'actress', 'singer', 'concert', 'album', 'K-drama', 'celebrity', 'Oscar', 'Cannes', 'box office', 'streaming', 'TV show', 'entertainment', 'Hollywood', 'music', 'idol', 'award'],
+        'entertainment' => ['BTS', 'BLACKPINK', 'K-pop', 'K-POP', 'Kpop', 'idol', 'concert', 'world tour', 'Billboard', 'album', 'singer', 'band', 'movie', 'film', 'drama', 'Netflix', 'Disney', 'actor', 'actress', 'K-drama', 'celebrity', 'Oscar', 'Cannes', 'box office', 'streaming', 'TV show', 'entertainment', 'Hollywood', 'music', 'award', 'MONSTA X', 'Jennie', 'Hallyu'],
+        'sports' => ['soccer', 'football', 'baseball', 'basketball', 'golf', 'tennis', 'Olympic', 'athlete', 'FIFA', 'MLB', 'NBA', 'NFL', 'Premier League', 'Champions League', 'World Cup', 'KOSPI', 'tournament', 'match score', 'season record', 'league standing', 'coach', 'goalkeeper', 'striker'],
         'economy' => ['economy', 'economic', 'GDP', 'stock', 'market', 'trade', 'export', 'import', 'inflation', 'interest rate', 'unemployment', 'investment', 'Samsung', 'Hyundai', 'business', 'company', 'corporate', 'revenue', 'profit', 'dollar', 'won', 'currency', 'tariff', 'semiconductor', 'chip'],
         'tech' => ['AI ', 'artificial intelligence', 'robot', 'tech', 'technology', 'digital', 'cyber', 'hack', 'software', 'startup', 'drone', 'EV ', 'electric vehicle', 'battery', 'semiconductor', 'chip', 'space', 'NASA', 'satellite', 'SpaceX', '5G', '6G', 'quantum'],
         'society' => ['crime', 'police', 'court', 'trial', 'sentence', 'accident', 'crash', 'earthquake', 'typhoon', 'flood', 'fire', 'death', 'victim', 'protest', 'rally', 'human rights', 'discrimination', 'education', 'school', 'university', 'student'],
