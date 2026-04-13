@@ -330,16 +330,16 @@ function isSelected(pos, slot) { return selectedSlot.value?.position === pos && 
 
 function selectSlot(position, slot, tier) {
   selectedSlot.value = { position, slot, tier }
-  // 최소 입찰가로 자동 설정
+  // 항상 해당 슬롯의 최소 입찰가로 리셋
   const min = (getBasePrice(position, tier) + geoExtra.value) * pageCount.value
-  adForm.bid_amount = Math.max(adForm.bid_amount, min)
+  adForm.bid_amount = min
   saveDraft()
 }
 
-// 지역/페이지 변경 시 최소 입찰가 업데이트
+// 지역/페이지 변경 시 최소 입찰가로 리셋
 watch([() => adForm.geo_scope, pageCount], () => {
   if (selectedSlot.value) {
-    adForm.bid_amount = Math.max(adForm.bid_amount, totalMinBid.value)
+    adForm.bid_amount = totalMinBid.value
   }
 })
 
