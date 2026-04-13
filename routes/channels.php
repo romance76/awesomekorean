@@ -29,6 +29,12 @@ Broadcast::channel('poker.table.{tableId}', function ($user, $tableId) {
     return auth()->check();
 });
 
+// 멀티플레이어 포커 게임 (Presence — 참가자만)
+Broadcast::channel('poker.{gameId}', function ($user, $gameId) {
+    if (!auth()->check()) return false;
+    return ['id' => $user->id, 'name' => $user->nickname ?? $user->name];
+});
+
 // 안심 커뮤니케이션 채널
 Broadcast::channel('conversation.{conversationId}', function ($user, int $conversationId) {
     $conversation = \App\Models\Conversation::find($conversationId);

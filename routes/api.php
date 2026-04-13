@@ -341,6 +341,15 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/tournaments/{id}/register', [PokerTournamentController::class, 'register']);
         Route::delete('/tournaments/{id}/register', [PokerTournamentController::class, 'unregister']);
         Route::post('/tournaments/{id}/heartbeat', [PokerTournamentController::class, 'heartbeat']);
+
+        // 멀티플레이어
+        Route::post('/multi/quick-match', [\App\Http\Controllers\API\PokerMultiController::class, 'quickMatch']);
+        Route::get('/multi/game/{gameId}', [\App\Http\Controllers\API\PokerMultiController::class, 'getState']);
+        Route::post('/multi/game/{gameId}/action', [\App\Http\Controllers\API\PokerMultiController::class, 'action']);
+        Route::post('/multi/game/{gameId}/chat', [\App\Http\Controllers\API\PokerMultiController::class, 'chat']);
+        Route::get('/multi/game/{gameId}/timeout', [\App\Http\Controllers\API\PokerMultiController::class, 'checkTimeout']);
+        Route::post('/tournaments/{id}/join', [\App\Http\Controllers\API\PokerMultiController::class, 'joinTournament']);
+        Route::get('/tournaments/{id}/waiting', [\App\Http\Controllers\API\PokerMultiController::class, 'waitingRoom']);
     });
 });
 
