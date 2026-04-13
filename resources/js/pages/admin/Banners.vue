@@ -22,7 +22,7 @@
   </div>
 
   <div v-if="loading" class="text-center py-8 text-gray-400">로딩중...</div>
-  <div v-else-if="!items.length" class="text-center py-8 text-gray-400">배너 신청 없음</div>
+  <div v-else-if="!items.length" class="text-center py-8 text-gray-400">광고 신청 없음</div>
   <div v-else class="space-y-3">
     <div v-for="item in items" :key="item.id" class="bg-white rounded-xl border p-4">
       <div class="flex gap-4">
