@@ -198,12 +198,14 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePokerGame } from '@/composables/usePokerGame'
 import { usePokerWallet } from '@/composables/usePokerWallet'
+import { usePokerSound } from '@/composables/usePokerSound'
 import PokerTable from '@/components/poker/PokerTable.vue'
 // PokerMonitor now inlined in right panel
 import PokerActions from '@/components/poker/PokerActions.vue'
 // PokerCoaching now inlined in bottom panel for compact layout
 
 const router = useRouter()
+const { soundDeal, soundBet, soundFold, soundCheck, soundAllIn, soundWin, soundLose, soundMyTurn, soundFlop, resumeAudio } = usePokerSound()
 
 const gameWrapper = ref(null)
 const { saveGame } = usePokerWallet()
@@ -222,6 +224,34 @@ const playerSeat = computed(() => seats.value.find(s => s.isPlayer))
 const canCheck = computed(() => currentBetLevel.value <= (playerSeat.value?.bet || 0))
 const callAmt = computed(() => Math.max(0, currentBetLevel.value - (playerSeat.value?.bet || 0)))
 const inMoney = computed(() => finalPlace.value <= paidSlots.value)
+
+// ─── 효과음 연결 ───
+import { watch } from 'vue'
+
+// 스테이지 변경 시 (플롭/턴/리버) 카드 오픈 사운드
+watch(stage, (newStage, oldStage) => {
+  if (['flop', 'turn', 'river'].includes(newStage) && newStage !== oldStage) soundFlop()
+})
+
+// 내 턴 시 알림음
+watch(isPlayerTurn, (v) => { if (v) soundMyTurn() })
+
+// AI 액션 사운드
+watch(lastAction, (action) => {
+  if (!action) return
+  if (action.type === 'fold') soundFold()
+  else if (action.type === 'check') soundCheck()
+  else if (action.type === 'call' || action.type === 'raise') soundBet()
+  else if (action.type === 'allin') soundAllIn()
+})
+
+// 게임 종료 사운드
+watch(tourneyOver, (v) => {
+  if (v) { inMoney.value ? soundWin() : soundLose() }
+})
+
+// 핸드 시작 시 딜링 사운드
+watch(handNum, () => { soundDeal() })
 
 function calcPrize() {
   if (finalPlace.value > paidSlots.value) return 0
@@ -270,6 +300,10 @@ function saveResult() {
 let tourneyWatcher = null
 
 onMounted(() => {
+  // 효과음 AudioContext 활성화 (모바일)
+  resumeAudio()
+  document.addEventListener('touchstart', resumeAudio, { once: true })
+
   // Read config from sessionStorage (set by PokerLobby)
   const saved = sessionStorage.getItem('pokerConfig')
   if (saved) {

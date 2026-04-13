@@ -41,7 +41,7 @@
       <!-- Circular avatar -->
       <div
         class="rounded-full flex items-center justify-center relative transition-all duration-300"
-        :class="isMe ? 'w-[52px] h-[52px]' : 'w-[42px] h-[42px]'"
+        :class="isMe ? 'w-[64px] h-[64px]' : 'w-[40px] h-[40px]'"
         :style="{
           background: `linear-gradient(135deg, ${seatColor}, ${seatColor}88)`,
           border: isActive
@@ -56,7 +56,7 @@
               : '0 2px 8px rgba(0,0,0,0.4)'
         }"
       >
-        <span :class="isMe ? 'text-[26px]' : 'text-xl'">{{ seat.emoji }}</span>
+        <span :class="isMe ? 'text-[30px]' : 'text-lg'">{{ seat.emoji }}</span>
 
         <!-- Winner crown -->
         <div
@@ -69,12 +69,14 @@
 
       <!-- Name + Position + Chips -->
       <div
-        class="rounded-md px-2 py-[3px] -mt-1 text-center backdrop-blur-sm"
+        class="rounded-md text-center backdrop-blur-sm"
         :class="[
-          isMe ? 'min-w-[80px]' : 'min-w-[60px]',
+          isMe ? 'min-w-[100px] px-3 py-1.5 -mt-1.5 rounded-lg' : 'min-w-[56px] px-1.5 py-[2px] -mt-1',
           isWinner
-            ? 'bg-black/70 border border-amber-600/40'
-            : 'bg-black/70 border border-white/[0.08]'
+            ? 'bg-black/80 border-2 border-amber-500/60'
+            : isMe
+              ? 'bg-black/80 border-2 border-yellow-500/50 shadow-lg shadow-yellow-500/20'
+              : 'bg-black/70 border border-white/[0.08]'
         ]"
       >
         <div class="flex items-center justify-center gap-1 whitespace-nowrap">
@@ -86,7 +88,7 @@
               'bg-red-600': posLabel === 'BB',
               'bg-gray-600': !['BTN','SB','BB'].includes(posLabel)
             }">{{ posLabel }}</span>
-          <span :class="isMe ? 'text-blue-300 text-sm font-bold' : 'text-white text-xs font-bold'">{{ seat.name }}</span>
+          <span :class="isMe ? 'text-yellow-300 text-sm font-black' : 'text-white text-[11px] font-bold'">{{ seat.name }}</span>
         </div>
         <div
           class="font-extrabold font-mono"
@@ -106,14 +108,11 @@
       </div>
     </div>
 
-    <!-- Bet chips (positioned toward center) -->
+    <!-- Bet chips (positioned toward table center, no overlap with cards) -->
     <div
       v-if="seat.bet > 0 && !showdown"
       class="absolute z-[6] pointer-events-none"
-      :style="{
-        left: (chipX - position.x) * 3 + 'px',
-        top: (chipY - position.y) * 2 + 'px'
-      }"
+      :style="betChipStyle"
     >
       <ChipStack :amount="seat.bet" :bb="bb" />
     </div>
@@ -164,9 +163,18 @@ const props = defineProps({
 const isMe = computed(() => props.seat.isPlayer)
 const seatColor = computed(() => props.seat.color || '#888')
 
-// Bet chip position (between seat and center)
-const chipX = computed(() => props.position.x + (50 - props.position.x) * 0.4)
-const chipY = computed(() => props.position.y + (50 - props.position.y) * 0.4)
+// Bet chip position — 좌석에서 테이블 중앙 방향으로 오프셋
+const betChipStyle = computed(() => {
+  const dx = 50 - props.position.x
+  const dy = 50 - props.position.y
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1
+  const offsetX = (dx / dist) * (isMe.value ? 60 : 45)
+  const offsetY = (dy / dist) * (isMe.value ? 35 : 25)
+  return {
+    left: offsetX + 'px',
+    top: offsetY - 15 + 'px',
+  }
+})
 
 // Chat bubble visibility (4 second window)
 const isChatVisible = ref(false)
