@@ -122,12 +122,6 @@
               🚀 상위노출 (100P/일)
             </button>
 
-            <!-- 채팅 -->
-            <RouterLink v-if="auth.isLoggedIn && !isOwner" to="/chat"
-              class="block w-full bg-amber-400 text-amber-900 font-bold py-3 rounded-xl text-sm text-center hover:bg-amber-500">
-              💬 채팅하기
-            </RouterLink>
-
             <!-- 좋아요 + 신고 -->
             <div class="flex gap-2">
               <button @click="toggleLike" class="flex-1 py-2.5 rounded-xl border text-sm font-semibold transition"
@@ -157,6 +151,10 @@
                 <div class="text-[10px] text-gray-400 mt-0.5">가입: {{ formatFullDate(item.user?.created_at) }}</div>
                 <div class="text-[10px] text-amber-600 font-semibold mt-0.5">거래 {{ sellerTradeCount }}회</div>
               </div>
+            </div>
+            <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-2 mt-3">
+              <button @click="addFriend" class="flex-1 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-2 rounded-lg text-xs hover:bg-blue-100">👋 친구추가</button>
+              <button @click="sendMessage" class="flex-1 bg-amber-50 text-amber-700 border border-amber-200 font-bold py-2 rounded-lg text-xs hover:bg-amber-100">✉️ 쪽지</button>
             </div>
           </div>
 
@@ -303,6 +301,17 @@ async function submitBoost() {
 }
 
 function toggleLike() { liked.value = !liked.value }
+
+async function addFriend() {
+  try {
+    await axios.post('/api/friends/request', { to_user_id: item.value.user_id })
+    siteStore.toast('친구 요청을 보냈습니다', 'success')
+  } catch (e) { siteStore.toast(e.response?.data?.message || '요청 실패', 'error') }
+}
+
+function sendMessage() {
+  router.push(`/friends?message=${item.value.user_id}`)
+}
 const showReport = ref(false)
 const reportReason = ref('')
 function submitReport() { siteStore.toast('신고가 접수되었습니다', 'success'); showReport.value = false }
