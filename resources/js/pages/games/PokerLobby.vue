@@ -446,7 +446,7 @@ function typeBadgeLabel(type) {
 }
 
 // ─── Date / Countdown Formatting ───
-const now = ref(Date.now())
+// now는 위에서 이미 선언됨
 let clockInterval = null
 
 function formatTournamentTime(dateStr) {
