@@ -3,12 +3,11 @@
   <div class="max-w-5xl mx-auto px-4 py-5">
     <h1 class="text-xl font-black text-gray-800 mb-2">📢 광고 신청 (월간 경매)</h1>
     <p class="text-sm text-gray-500 mb-1">매달 말일 24시간 동안 입찰 접수 → 최고 입찰자 순으로 슬롯 배정</p>
-    <p class="text-xs text-amber-600 font-bold mb-5">다음 경매: {{ nextAuctionDate }} · 최소 입찰: {{ minBid }}P</p>
+    <p class="text-xs text-amber-600 font-bold mb-5">다음 경매: {{ nextAuctionDate }} · 최소 입찰: {{ slotPrices.left || 50 }}P~</p>
 
     <!-- ═══ Step 1: 페이지 선택 ═══ -->
     <div class="bg-white rounded-2xl shadow-sm border p-5 mb-5">
       <h2 class="font-bold text-gray-800 text-sm mb-3">1️⃣ 광고 노출 페이지 선택</h2>
-
       <div class="flex gap-3 mb-4">
         <button @click="pageType='home'" class="flex-1 py-3 rounded-xl font-bold text-sm border-2 transition"
           :class="pageType==='home' ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-gray-200 text-gray-500 hover:border-amber-300'">
@@ -19,8 +18,6 @@
           📄 서브 페이지
         </button>
       </div>
-
-      <!-- 서브 페이지 복수 선택 -->
       <div v-if="pageType==='sub'" class="grid grid-cols-3 sm:grid-cols-4 gap-2">
         <label v-for="sp in subPages" :key="sp.key"
           class="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition text-xs font-bold"
@@ -37,7 +34,7 @@
     <!-- ═══ Step 2: 슬롯 위치 선택 ═══ -->
     <div class="bg-white rounded-2xl shadow-sm border p-5 mb-5">
       <h2 class="font-bold text-gray-800 text-sm mb-3">2️⃣ 광고 슬롯 선택</h2>
-      <p class="text-xs text-gray-400 mb-4">왼쪽 또는 오른쪽 사이드바 슬롯을 선택하세요</p>
+      <p class="text-xs text-gray-400 mb-4">왼쪽 또는 오른쪽 사이드바 슬롯을 선택하세요 (최소 월 입찰가 표시)</p>
 
       <div class="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-50">
         <div class="bg-gradient-to-r from-amber-400 to-orange-400 h-8 flex items-center px-4">
@@ -58,6 +55,7 @@
               <div class="text-xs mb-0.5">{{ selectedSlot?.position==='left' && selectedSlot?.slot===slot ? '✅' : '📍' }}</div>
               <div class="text-[9px] font-bold" :class="selectedSlot?.position==='left' && selectedSlot?.slot===slot ? 'text-amber-700' : 'text-blue-600'">좌측 {{ slot }}</div>
               <div class="text-[8px] text-gray-400">200×150px</div>
+              <div class="text-[8px] font-bold text-red-500 mt-0.5">최소 {{ slotPrices.left }}P/월</div>
             </div>
           </div>
           <!-- 메인 콘텐츠 (장식) -->
@@ -83,6 +81,7 @@
               <div class="text-xs mb-0.5">{{ selectedSlot?.position==='right' && selectedSlot?.slot===slot ? '✅' : '📍' }}</div>
               <div class="text-[9px] font-bold" :class="selectedSlot?.position==='right' && selectedSlot?.slot===slot ? 'text-amber-700' : 'text-orange-600'">우측 {{ slot }}</div>
               <div class="text-[8px] text-gray-400">300×250px</div>
+              <div class="text-[8px] font-bold text-red-500 mt-0.5">최소 {{ slotPrices.right }}P/월</div>
             </div>
           </div>
         </div>
@@ -108,7 +107,7 @@
         <div class="space-y-4">
           <div>
             <label class="text-xs font-bold text-gray-600 block mb-1">광고 제목</label>
-            <input v-model="adForm.title" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="광고 이름" />
+            <input v-model="adForm.title" @input="saveDraft" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="광고 이름" />
           </div>
 
           <div>
@@ -121,10 +120,10 @@
 
           <div>
             <label class="text-xs font-bold text-gray-600 block mb-1">클릭 시 이동 URL (선택)</label>
-            <input v-model="adForm.link_url" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
+            <input v-model="adForm.link_url" @input="saveDraft" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
           </div>
 
-          <!-- 지역 타겟팅 -->
+          <!-- 지역 타겟팅 (시티 제거) -->
           <div class="border rounded-lg p-4 bg-gray-50/50">
             <label class="text-xs font-bold text-gray-600 block mb-2">🌍 타겟 지역</label>
             <div class="grid grid-cols-2 gap-3">
@@ -132,7 +131,6 @@
                 <option value="all">전국 (비로그인 유저에게도 노출)</option>
                 <option value="state">주 (로그인 유저에게만)</option>
                 <option value="county">카운티 (로그인 유저에게만)</option>
-                <option value="city">시티 (로그인 유저에게만)</option>
               </select>
               <div v-if="adForm.geo_scope !== 'all'">
                 <div class="flex gap-2">
@@ -145,25 +143,26 @@
               <span class="text-[10px] text-green-600 font-bold">✅ {{ adForm.geo_value }} 설정됨</span>
             </div>
             <p class="text-[10px] text-gray-400 mt-2">
-              💡 전국 광고: 비로그인 + 전국 브라우징 유저에게 노출<br>
-              💡 로컬 광고: 해당 지역 로그인 유저에게만 노출 (타겟이 좁아 경쟁 적음)
+              💡 전국: 비로그인 + 전국 브라우징 유저 노출 · 로컬: 해당 지역 로그인 유저만 (경쟁 적음)
             </p>
           </div>
 
-          <!-- 입찰 금액 (핵심) -->
+          <!-- 입찰 금액 -->
           <div class="border-2 border-amber-300 rounded-xl p-4 bg-amber-50/50">
-            <label class="text-xs font-bold text-amber-800 block mb-2">💰 월간 입찰 금액 (최소 {{ minBid }}P)</label>
+            <label class="text-xs font-bold text-amber-800 block mb-2">💰 월간 입찰 금액 (최소 {{ currentMinBid }}P)</label>
             <div class="flex items-center gap-3">
-              <input type="number" v-model.number="adForm.bid_amount" :min="minBid" step="10"
+              <input type="number" v-model.number="adForm.bid_amount" :min="currentMinBid" step="10" @input="saveDraft"
                 class="flex-1 border-2 border-amber-400 rounded-lg px-4 py-3 text-lg font-black text-amber-800 text-center" />
               <span class="text-lg font-black text-amber-700">P</span>
             </div>
-            <p class="text-[10px] text-amber-600 mt-2">
-              높은 입찰 = 높은 순위. 동일 슬롯에 여러 입찰자가 있으면 최고 금액 순으로 배정됩니다.
-            </p>
-            <div v-if="adForm.bid_amount >= minBid" class="mt-2 text-xs">
-              <span :class="hasEnough ? 'text-green-600' : 'text-red-600'">
-                내 포인트: {{ (auth.user?.points||0).toLocaleString() }}P {{ hasEnough ? '✅' : '❌ 부족' }}
+            <p class="text-[10px] text-amber-600 mt-2">높은 입찰 = 높은 순위. 동일 슬롯 여러 입찰자 → 최고 금액 순 배정</p>
+            <div class="mt-2 text-xs">
+              <span v-if="hasEnough" class="text-green-600">내 포인트: {{ (auth.user?.points||0).toLocaleString() }}P ✅</span>
+              <span v-else class="text-red-600">
+                내 포인트: {{ (auth.user?.points||0).toLocaleString() }}P ❌ 부족
+                <button @click="goPointShop" class="ml-2 bg-red-500 text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-red-600">
+                  포인트 충전하기 →
+                </button>
               </span>
             </div>
           </div>
@@ -208,13 +207,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useModal } from '../../composables/useModal'
 import axios from 'axios'
 
+const router = useRouter()
 const auth = useAuthStore()
-const { showAlert } = useModal()
+const { showAlert, showConfirm } = useModal()
 
 const loading = ref(true)
 const myAds = ref([])
@@ -227,11 +228,15 @@ const zipLoading = ref(false)
 const zipResult = ref(null)
 const pageType = ref('home')
 const selectedSubs = ref([])
-const minBid = 50
+
+// 관리자 설정에서 가져오는 슬롯별 최소 가격
+const slotPrices = ref({ left: 50, right: 50 })
 
 const adForm = reactive({
   title: '', link_url: '', geo_scope: 'all', geo_value: '', bid_amount: 50
 })
+
+const DRAFT_KEY = 'sk_ad_draft'
 
 const subPages = [
   { key: 'community', icon: '💬', label: '커뮤니티' },
@@ -258,18 +263,61 @@ const nextAuctionDate = computed(() => {
   return `${lastDay.getFullYear()}.${lastDay.getMonth()+1}.${lastDay.getDate()}`
 })
 
+const currentMinBid = computed(() => slotPrices.value[selectedSlot.value?.position] || 50)
 const hasEnough = computed(() => (auth.user?.points || 0) >= (adForm.bid_amount || 0))
 const canSubmit = computed(() => {
   if (!adForm.title || !adImage.value || !selectedSlot.value) return false
-  if (adForm.bid_amount < minBid) return false
+  if (adForm.bid_amount < currentMinBid.value) return false
   if (!hasEnough.value) return false
   if (pageType.value === 'sub' && !selectedSubs.value.length) return false
   if (adForm.geo_scope !== 'all' && !adForm.geo_value) return false
   return true
 })
 
+// ─── localStorage 임시저장 ───
+function saveDraft() {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      pageType: pageType.value,
+      selectedSubs: selectedSubs.value,
+      selectedSlot: selectedSlot.value,
+      adForm: { ...adForm },
+      zipInput: zipInput.value,
+      ts: Date.now()
+    }))
+  } catch {}
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    if (!raw) return
+    const d = JSON.parse(raw)
+    // 24시간 이내 저장분만 복원
+    if (Date.now() - d.ts > 86400000) { localStorage.removeItem(DRAFT_KEY); return }
+    pageType.value = d.pageType || 'home'
+    selectedSubs.value = d.selectedSubs || []
+    selectedSlot.value = d.selectedSlot || null
+    if (d.adForm) Object.assign(adForm, d.adForm)
+    zipInput.value = d.zipInput || ''
+  } catch {}
+}
+
+function clearDraft() { try { localStorage.removeItem(DRAFT_KEY) } catch {} }
+
+// 폼 변경 감시 → 자동 저장
+watch([pageType, selectedSubs, selectedSlot], saveDraft, { deep: true })
+
+// ─── 포인트 부족 → 충전 페이지 ───
+async function goPointShop() {
+  saveDraft() // 현재 상태 저장
+  router.push('/dashboard?tab=points')
+}
+
 function selectSlot(position, slot) {
   selectedSlot.value = { position, slot }
+  adForm.bid_amount = Math.max(adForm.bid_amount, slotPrices.value[position] || 50)
+  saveDraft()
 }
 
 function onImageChange(e) {
@@ -277,7 +325,7 @@ function onImageChange(e) {
   if (file) { adImage.value = file; imagePreview.value = URL.createObjectURL(file) }
 }
 
-function onGeoScopeChange() { adForm.geo_value = ''; zipResult.value = null; zipInput.value = '' }
+function onGeoScopeChange() { adForm.geo_value = ''; zipResult.value = null; zipInput.value = ''; saveDraft() }
 function onZipInput() { if (zipInput.value.length === 5) lookupZip() }
 
 async function lookupZip() {
@@ -291,8 +339,8 @@ async function lookupZip() {
     if (place) {
       zipResult.value = { state: place['state abbreviation'], city: place['place name'] }
       if (adForm.geo_scope === 'state') adForm.geo_value = place['state abbreviation']
-      else if (adForm.geo_scope === 'city') adForm.geo_value = place['place name']
-      else adForm.geo_value = place['place name']
+      else if (adForm.geo_scope === 'county') adForm.geo_value = place['place name']
+      saveDraft()
     }
   } catch { showAlert('유효하지 않은 Zip Code', '오류') }
   zipLoading.value = false
@@ -300,6 +348,12 @@ async function lookupZip() {
 
 async function submitAd() {
   if (!canSubmit.value || submitting.value) return
+  // 포인트 부족 더블체크
+  if (!hasEnough.value) {
+    const ok = await showConfirm(`포인트가 부족합니다 (보유: ${(auth.user?.points||0).toLocaleString()}P, 필요: ${adForm.bid_amount}P).\n포인트 충전 페이지로 이동하시겠습니까?`, '포인트 부족')
+    if (ok) goPointShop()
+    return
+  }
   submitting.value = true
   const fd = new FormData()
   fd.append('title', adForm.title)
@@ -316,10 +370,17 @@ async function submitAd() {
     const { data } = await axios.post('/api/banners/apply', fd)
     showAlert(data.message, '입찰 신청')
     selectedSlot.value = null
-    Object.assign(adForm, { title:'', link_url:'', geo_scope:'all', geo_value:'', bid_amount: 50 })
+    Object.assign(adForm, { title:'', link_url:'', geo_scope:'all', geo_value:'', bid_amount: currentMinBid.value })
     adImage.value = null; imagePreview.value = null; selectedSubs.value = []
+    clearDraft()
     await loadMyAds()
-  } catch (e) { showAlert(e.response?.data?.message || '신청 실패', '오류') }
+  } catch (e) {
+    const msg = e.response?.data?.message || '신청 실패'
+    if (msg.includes('포인트 부족') || msg.includes('부족')) {
+      const ok = await showConfirm(`${msg}\n\n포인트 충전 페이지로 이동하시겠습니까?`, '포인트 부족')
+      if (ok) goPointShop()
+    } else { showAlert(msg, '오류') }
+  }
   submitting.value = false
 }
 
@@ -328,7 +389,21 @@ async function loadMyAds() {
   loading.value = false
 }
 
-onMounted(loadMyAds)
+async function loadSlotPrices() {
+  try {
+    const { data } = await axios.get('/api/ad-settings/public')
+    const cfg = data.data || {}
+    if (cfg.slot_min_prices) {
+      slotPrices.value = cfg.slot_min_prices
+    }
+  } catch {}
+}
+
+onMounted(() => {
+  loadMyAds()
+  loadSlotPrices()
+  loadDraft() // localStorage에서 임시저장 복원
+})
 </script>
 
 <style scoped>

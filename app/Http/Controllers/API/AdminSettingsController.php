@@ -314,6 +314,16 @@ class AdminSettingsController extends Controller
         return $config;
     }
 
+    public function getSlotMinPrices() {
+        $setting = SiteSetting::where('key', 'ad_slot_min_prices')->first();
+        return $setting ? json_decode($setting->value, true) : ['left' => 50, 'right' => 50];
+    }
+
+    public function saveSlotMinPrices(Request $request) {
+        SiteSetting::updateOrCreate(['key' => 'ad_slot_min_prices'], ['value' => json_encode($request->prices)]);
+        return response()->json(['success' => true, 'message' => '최소 입찰가 저장됨']);
+    }
+
     private function pageLabel($key) {
         return match($key) {
             'home' => '홈', 'community' => '커뮤니티', 'qa' => 'Q&A', 'jobs' => '구인구직',
@@ -323,10 +333,14 @@ class AdminSettingsController extends Controller
         };
     }
 
-    // 공개 API — 프론트엔드에서 광고 슬롯 수 가져오기
+    // 공개 API — 프론트엔드에서 광고 슬롯 수 + 최소 가격 가져오기
     public function getAdPageSettingsPublic() {
         $setting = SiteSetting::where('key', 'ad_page_config')->first();
         $config = $setting ? json_decode($setting->value, true) : $this->defaultAdPageConfig();
+
+        $pricesSetting = SiteSetting::where('key', 'ad_slot_min_prices')->first();
+        $config['slot_min_prices'] = $pricesSetting ? json_decode($pricesSetting->value, true) : ['left' => 50, 'right' => 50];
+
         return response()->json(['success' => true, 'data' => $config]);
     }
 

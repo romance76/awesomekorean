@@ -364,6 +364,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/banners', [AdminController::class, 'bannerList']);
     Route::get('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettings']);
     Route::post('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveAdPageSettings']);
+    Route::post('/ad-slot-prices', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveSlotMinPrices']);
     Route::post('/banners', [AdminController::class, 'createBanner']);
     Route::post('/banners/{id}/approve', [AdminController::class, 'approveBanner']);
     Route::post('/banners/{id}/reject', [AdminController::class, 'rejectBanner']);

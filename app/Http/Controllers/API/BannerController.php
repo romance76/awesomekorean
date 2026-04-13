@@ -86,7 +86,7 @@ class BannerController extends Controller
             'page' => 'required|in:home,sub,all',
             'position' => 'required|in:left,right',
             'slot_number' => 'required|integer|min:1|max:5',
-            'geo_scope' => 'required|in:all,state,county,city',
+            'geo_scope' => 'required|in:all,state,county',
             'geo_value' => 'nullable|string|max:100',
             'bid_amount' => 'required|integer|min:50',
         ]);
