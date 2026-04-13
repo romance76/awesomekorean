@@ -77,7 +77,11 @@ async function submit() {
       router.push(`/market/${editId.value}`)
     } else {
       const fd = new FormData()
-      Object.keys(form).forEach(k => fd.append(k, form[k]))
+      Object.keys(form).forEach(k => {
+        const v = form[k]
+        // boolean → "1"/"0" 변환 (FormData 는 문자열만 지원)
+        fd.append(k, typeof v === 'boolean' ? (v ? '1' : '0') : v)
+      })
       files.value.forEach(f => fd.append('images[]', f))
       const { data } = await axios.post('/api/market', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       router.push(`/market/${data.data.id}`)

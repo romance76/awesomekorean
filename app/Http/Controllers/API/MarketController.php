@@ -48,6 +48,12 @@ class MarketController extends Controller
 
     public function store(Request $request)
     {
+        // FormData 에서 boolean 은 문자열로 오므로 merge 전에 변환
+        $request->merge([
+            'hold_enabled' => filter_var($request->hold_enabled, FILTER_VALIDATE_BOOLEAN),
+            'is_negotiable' => filter_var($request->is_negotiable, FILTER_VALIDATE_BOOLEAN),
+        ]);
+
         $request->validate([
             'title' => 'required|max:200',
             'content' => 'required',
@@ -57,6 +63,7 @@ class MarketController extends Controller
             'hold_enabled' => 'nullable|boolean',
             'hold_price_per_6h' => 'nullable|integer|min:0',
             'hold_max_hours' => 'nullable|integer|min:6|max:168',
+            'images.*' => 'nullable|image|max:10240',
         ]);
 
         $images = [];
