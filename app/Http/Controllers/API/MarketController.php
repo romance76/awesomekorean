@@ -73,6 +73,22 @@ class MarketController extends Controller
             }
         }
 
+        // 추가 사진 포인트 차감 (기본 3장 무료)
+        $freePhotos = 3;  // TODO: 관리자 설정에서 가져오기
+        $extraPhotoPoints = 50;
+        $extraCount = max(0, count($images) - $freePhotos);
+        $extraCost = $extraCount * $extraPhotoPoints;
+        if ($extraCost > 0) {
+            $user = auth()->user();
+            if ($user->points < $extraCost) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "추가 사진 {$extraCount}장에 {$extraCost}P 필요. 보유: {$user->points}P"
+                ], 422);
+            }
+            $user->decrement('points', $extraCost);
+        }
+
         $item = MarketItem::create(array_merge(
             $request->only('title', 'content', 'price', 'category', 'condition', 'lat', 'lng', 'city', 'state', 'is_negotiable', 'hold_enabled', 'hold_price_per_6h', 'hold_max_hours'),
             ['user_id' => auth()->id(), 'images' => $images ?: null]
