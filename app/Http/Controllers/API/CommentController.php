@@ -58,10 +58,12 @@ class CommentController extends Controller
             'content' => $request->content,
         ]);
 
-        // 댓글 작성 포인트 +3 (일일 최대 10회)
+        // 댓글 작성 포인트 (point_settings에서 값 로드)
+        $commentPoints = (int) (\DB::table('point_settings')->where('key', 'comment_write')->value('value') ?? 3);
+        $commentMaxDaily = (int) (\DB::table('point_settings')->where('key', 'comment_write_daily_max')->value('value') ?? 20);
         $todayComments = Comment::where('user_id', auth()->id())->whereDate('created_at', today())->count();
-        if ($todayComments <= 10) {
-            auth()->user()->addPoints(3, '댓글 작성');
+        if ($todayComments <= $commentMaxDaily && $commentPoints > 0) {
+            auth()->user()->addPoints($commentPoints, '댓글 작성', 'earn');
         }
 
         // Increment comment count on parent model

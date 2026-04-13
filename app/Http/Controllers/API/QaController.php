@@ -77,8 +77,15 @@ class QaController extends Controller
         $post->update(['is_resolved' => true, 'best_answer_id' => $answerId]);
         $answer->update(['is_best' => true]);
 
+        // 바운티 포인트 지급 (addPoints로 point_logs에 기록)
         if ($post->bounty_points > 0) {
-            $answer->user->increment('points', $post->bounty_points);
+            $answer->user->addPoints($post->bounty_points, "Q&A 바운티: {$post->title}", 'earn');
+        }
+
+        // Q&A 채택 보너스 +20P (point_settings에서 값 로드)
+        $acceptBonus = (int) (\DB::table('point_settings')->where('key', 'qa_answer_accepted')->value('value') ?? 20);
+        if ($acceptBonus > 0) {
+            $answer->user->addPoints($acceptBonus, "Q&A 채택 보너스: {$post->title}", 'earn');
         }
 
         return response()->json(['success' => true, 'message' => '채택되었습니다']);

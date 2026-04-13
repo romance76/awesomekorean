@@ -64,8 +64,44 @@ class MarketController extends Controller
             'hold_enabled' => 'nullable|boolean',
             'hold_price_per_6h' => 'nullable|integer|min:0',
             'hold_max_hours' => 'nullable|integer|min:6|max:168',
+            'images' => 'nullable|array|max:10',
             'images.*' => 'nullable|image|max:10240',
         ]);
+
+        // 스팸 방지: 24시간 동일 카테고리 제한 (1무료, 2=100P, 3=200P, MAX 3)
+        $user = auth()->user();
+        $todaySameCategory = MarketItem::where('user_id', $user->id)
+            ->where('category', $request->category)
+            ->where('created_at', '>=', now()->subHours(24))
+            ->count();
+
+        $maxPerDay = (int) (\DB::table('point_settings')->where('key', 'market_max_same_category_daily')->value('value') ?? 3);
+        if ($todaySameCategory >= $maxPerDay) {
+            return response()->json(['success' => false, 'message' => "동일 카테고리에 24시간 내 최대 {$maxPerDay}건만 등록 가능합니다."], 422);
+        }
+
+        $spamCost = 0;
+        if ($todaySameCategory === 1) {
+            $spamCost = (int) (\DB::table('point_settings')->where('key', 'market_2nd_post_cost')->value('value') ?? 100);
+        } elseif ($todaySameCategory >= 2) {
+            $spamCost = (int) (\DB::table('point_settings')->where('key', 'market_3rd_post_cost')->value('value') ?? 200);
+        }
+
+        if ($spamCost > 0) {
+            if ($user->points < $spamCost) {
+                return response()->json(['success' => false, 'message' => "동일 카테고리 {$todaySameCategory+1}번째 등록에 {$spamCost}P 필요. 보유: {$user->points}P"], 422);
+            }
+            $user->addPoints(-$spamCost, "장터 추가 등록 ({$request->category} {$todaySameCategory+1}번째)", 'spend');
+        }
+
+        // 동일 제목 중복 등록 방지
+        $duplicateTitle = MarketItem::where('user_id', $user->id)
+            ->where('title', $request->title)
+            ->where('created_at', '>=', now()->subHours(24))
+            ->exists();
+        if ($duplicateTitle) {
+            return response()->json(['success' => false, 'message' => '동일한 제목의 물품이 이미 등록되어 있습니다.'], 422);
+        }
 
         $images = [];
         if ($request->hasFile('images')) {

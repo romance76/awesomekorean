@@ -43,6 +43,14 @@ class ProfileController extends Controller
             $user->update(['avatar' => '/storage/' . $path]);
         }
 
+        // 프로필 완성 보너스 +30P (최초 1회)
+        $user = $user->fresh();
+        if (!$user->profile_bonus_given && $user->phone && $user->address1 && $user->city && $user->state && $user->zipcode) {
+            $bonus = (int) (\DB::table('point_settings')->where('key', 'profile_complete')->value('value') ?? 30);
+            $user->addPoints($bonus, '프로필 완성 보너스', 'earn');
+            $user->update(['profile_bonus_given' => true]);
+        }
+
         return response()->json(['success' => true, 'data' => $user->fresh()]);
     }
 

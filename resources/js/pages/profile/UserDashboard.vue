@@ -700,9 +700,12 @@ function fmtDateFull(dt) {
   return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 }
 
+function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML }
+
 function printInvoice(p) {
   const w = window.open('', '_blank', 'width=600,height=700')
-  w.document.write(`<!DOCTYPE html><html><head><title>Invoice #${p.id}</title>
+  if (!w) { showAlert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', '오류'); return }
+  w.document.write(`<!DOCTYPE html><html><head><title>Invoice #${esc(String(p.id))}</title>
 <style>body{font-family:'Noto Sans KR',sans-serif;padding:40px;color:#1f2937}
 .header{text-align:center;border-bottom:3px solid #f59e0b;padding-bottom:20px;margin-bottom:30px}
 .logo{font-size:24px;font-weight:900;color:#92400e}
@@ -715,12 +718,12 @@ td:last-child{text-align:right;font-weight:600}
 @media print{body{padding:20px}}</style></head><body>
 <div class="header"><div class="logo">SomeKorean</div><h1>결제 인보이스</h1></div>
 <table>
-<tr><td>인보이스 번호</td><td>#${p.id}</td></tr>
-<tr><td>결제일</td><td>${fmtDateFull(p.created_at)}</td></tr>
-<tr><td>상태</td><td>${p.status==='completed'?'✅ 완료':'⏳ 대기'}</td></tr>
-<tr><td>구매자</td><td>${auth.user?.name} (${auth.user?.email})</td></tr>
-<tr><td>상품</td><td>포인트 ${p.points_purchased?.toLocaleString()}P</td></tr>
-<tr class="total"><td>결제 금액</td><td>$${p.amount} USD</td></tr>
+<tr><td>인보이스 번호</td><td>#${esc(String(p.id))}</td></tr>
+<tr><td>결제일</td><td>${esc(fmtDateFull(p.created_at))}</td></tr>
+<tr><td>상태</td><td>${p.status==='completed'?'완료':'대기'}</td></tr>
+<tr><td>구매자</td><td>${esc(auth.user?.name||'')} (${esc(auth.user?.email||'')})</td></tr>
+<tr><td>상품</td><td>포인트 ${esc(String(p.points_purchased?.toLocaleString()||0))}P</td></tr>
+<tr class="total"><td>결제 금액</td><td>$${esc(String(p.amount))} USD</td></tr>
 </table>
 <div class="footer">SomeKorean — 미국 한인 커뮤니티<br>이 인보이스는 자동 생성되었습니다.</div>
 <script>setTimeout(()=>window.print(),300)<\/script></body></html>`)
@@ -841,7 +844,9 @@ async function buyPackage(pkg) {
         await new Promise(r => s.onload = r)
       }
       const { data: sd } = await axios.get('/api/settings/points')
-      stripe = window.Stripe(document.querySelector('meta[name="stripe-key"]')?.content || 'pk_test_51THnmRPg1ubIggWTCCl54BiED9Q9ZE0ZvrUTtK5ddJBU3EcLCfZUKYWvPIM2acKqbDo1S76auDkfD0RlEeuIdFty00helczpYq')
+      const stripeKey = document.querySelector('meta[name="stripe-key"]')?.content
+      if (!stripeKey) { await showAlert('Stripe 설정이 없습니다. 관리자에게 문의하세요.', '오류'); return }
+      stripe = window.Stripe(stripeKey)
     }
     payModal.value = true
     // Stripe Elements 마운트

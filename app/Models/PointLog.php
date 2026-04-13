@@ -5,4 +5,8 @@ class PointLog extends Model
 {
     protected $fillable = ['user_id','amount','type','reason','related_type','related_id','balance_after'];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
