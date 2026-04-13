@@ -1,6 +1,6 @@
 <template>
 <div>
-  <h1 class="text-xl font-black text-gray-800 mb-4">📢 배너/광고 관리</h1>
+  <h1 class="text-xl font-black text-gray-800 mb-4">📢 광고 관리</h1>
 
   <div class="grid grid-cols-4 gap-3 mb-4">
     <div class="bg-white rounded-xl border p-3 text-center">

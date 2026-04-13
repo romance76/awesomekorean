@@ -99,11 +99,11 @@ class BannerController extends Controller
         ]);
 
         // 포인트 차감
-        $user->addPoints(-$totalCost, "배너 광고 신청: {$request->title} ({$days}일)", 'banner');
+        $user->addPoints(-$totalCost, "광고 신청: {$request->title} ({$days}일)", 'banner');
 
         return response()->json([
             'success' => true,
-            'message' => "배너 신청 완료! {$totalCost}P 차감. 관리자 승인 후 게시됩니다.",
+            'message' => "광고 신청 완료! {$totalCost}P 차감. 관리자 승인 후 게시됩니다.",
             'data' => $banner,
         ], 201);
     }

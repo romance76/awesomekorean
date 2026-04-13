@@ -665,7 +665,7 @@ const tabs = [
   { key: 'messages', icon: '✉️', label: '쪽지' },
   { key: 'posts', icon: '📄', label: '내 글' },
   { key: 'market', icon: '🛒', label: '내 장터' },
-  { key: 'ads', icon: '📢', label: '광고 신청' },
+  { key: 'ads', icon: '📢', label: '광고 신청', link: '/ad-apply' },
   { key: 'bookmarks', icon: '🔖', label: '북마크' },
   { key: 'elder', icon: '🛡️', label: '안심' },
   { key: 'payments', icon: '💳', label: '결제' },
@@ -675,6 +675,9 @@ const tabs = [
 const loaded = reactive({})
 
 function switchTab(key) {
+  // 광고 신청은 독립 페이지로 이동
+  const tabObj = tabs.find(t => t.key === key)
+  if (tabObj?.link) { router.push(tabObj.link); return }
   tab.value = key
   if (!loaded[key]) { loadTab(key); loaded[key] = true }
   else if (key === 'messages') loadMessages() // 쪽지 탭은 매번 새로고침

@@ -108,7 +108,7 @@ const subTabs = {
     { to: '/admin/chats', icon: '💬', label: '채팅' },
   ],
   system: [
-    { to: '/admin/banners', icon: '🖼️', label: '배너' },
+    { to: '/admin/banners', icon: '📢', label: '광고관리' },
     { to: '/admin/payments', icon: '💳', label: '결제' },
     { to: '/admin/security', icon: '🔒', label: '보안' },
     { to: '/admin/settings', icon: '⚙️', label: '설정' },
