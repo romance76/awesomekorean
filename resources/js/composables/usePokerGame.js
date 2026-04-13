@@ -286,7 +286,7 @@ export function usePokerGame() {
       } else {
         processAction(s, nextIdx, newPot, newBetLvl, curStage, curComm, dlrIdx, blLvl);
       }
-    }, 600);
+    }, 1200); // AI 턴 간격 (이전 600ms → 1200ms)
   }
 
   function findNextActor(s, fromIdx) {
@@ -328,15 +328,36 @@ export function usePokerGame() {
     if (liveIdxs.length === 0) { resolveHand(newSeats, curPot, newComm, dlrIdx, blLvl); return; }
     const firstAct = liveIdxs.find(i => i > dlrIdx) || liveIdxs[0];
 
-    setTimeout(() => processAction(newSeats, firstAct, curPot, 0, nextStage, newComm, dlrIdx, blLvl), 500);
+    setTimeout(() => processAction(newSeats, firstAct, curPot, 0, nextStage, newComm, dlrIdx, blLvl), 1000); // 카드 오픈 후 잠시 대기
   }
 
   function runOutBoard(s, curPot, curComm, dlrIdx, blLvl) {
-    let comm = [...curComm]; const d = [...deckArr];
-    while (comm.length < 5) { comm.push(d.shift()); }
+    // 모든 참여자 카드 오픈 (올인 쇼다운)
+    const newSeats = s.map(x => (!x.isOut && !x.folded) ? { ...x, showCards: true } : x);
+    seats.value = newSeats;
+    showdown.value = true;
+
+    let comm = [...curComm];
+    const d = [...deckArr];
+    const cardsNeeded = 5 - comm.length;
+
+    // 카드 하나씩 딜레이로 보여주기 (1.5초 간격)
+    let delay = 500;
+    for (let i = 0; i < cardsNeeded; i++) {
+      const card = d.shift();
+      setTimeout(() => {
+        comm.push(card);
+        community.value = [...comm];
+        if (comm.length === 3) stage.value = 'flop';
+        else if (comm.length === 4) stage.value = 'turn';
+        else if (comm.length === 5) stage.value = 'river';
+      }, delay);
+      delay += 1500;
+    }
+
     deckArr = d;
-    community.value = comm; stage.value = 'river';
-    setTimeout(() => resolveHand(s, curPot, comm, dlrIdx, blLvl), 800);
+    // 마지막 카드 후 2초 뒤에 결과
+    setTimeout(() => resolveHand(newSeats, curPot, comm, dlrIdx, blLvl), delay + 2000);
   }
 
   // ─── RESOLVE HAND ───

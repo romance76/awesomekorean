@@ -32,14 +32,23 @@
 
       <div class="text-gray-400 text-sm">&#54540;&#47112;&#51060; &#54592;&#46300;: {{ handNum }} | &#52572;&#44256; &#48660;&#46972;&#51064;&#46300;: {{ bl.sb }}/{{ bl.bb }}</div>
 
+      <!-- 칩 부족 안내 -->
+      <div v-if="!inMoney" class="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mt-2">
+        <div class="text-red-400 text-sm font-bold">칩이 부족하신가요?</div>
+        <div class="text-red-300/70 text-xs mt-1">포인트를 칩으로 환전하여 다시 도전하세요!</div>
+        <router-link to="/games/poker" class="inline-block mt-2 bg-amber-500 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-amber-400">
+          💰 칩 충전하러 가기
+        </router-link>
+      </div>
+
       <div class="flex gap-3 justify-center pt-2">
         <button @click="handleRestart"
           class="px-8 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-gray-950 font-bold text-base transition">
-          &#45796;&#49884; &#46020;&#51204;
+          다시 도전
         </button>
         <router-link to="/games/poker"
           class="px-8 py-3 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold text-base border border-gray-700 transition">
-          &#47196;&#48708;&#47196;
+          로비로
         </router-link>
       </div>
     </div>
