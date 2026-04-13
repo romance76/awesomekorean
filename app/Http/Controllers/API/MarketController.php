@@ -25,9 +25,9 @@ class MarketController extends Controller
         if ($request->lat && $request->lng) {
             $query->nearby($request->lat, $request->lng, $request->radius ?? 10);
         } else {
-            // 부스트된 아이템 먼저, 그 다음 최신순
+            // 부스트 → 범프(끌어올리기) → 최신순
             $query->orderByRaw('CASE WHEN boosted_until > NOW() THEN 0 ELSE 1 END')
-                  ->orderByDesc('created_at');
+                  ->orderByRaw('COALESCE(bumped_at, created_at) DESC');
         }
 
         return response()->json(['success' => true, 'data' => $query->paginate($request->per_page ?? 20)]);
@@ -55,6 +55,13 @@ class MarketController extends Controller
             'is_negotiable' => filter_var($request->is_negotiable, FILTER_VALIDATE_BOOLEAN),
         ]);
 
+        // 관리자 설정 로드
+        $getSetting = fn($key, $default) => (int) (\DB::table('point_settings')->where('key', $key)->value('value') ?? $default);
+        $maxPerCategory = $getSetting('market_max_same_category_daily', 1);
+        $maxPhotos = $getSetting('market_max_photos', 10);
+        $freePhotos = $getSetting('market_free_photos', 5);
+        $extraPhotoPoints = $getSetting('market_extra_photo_cost', 50);
+
         $request->validate([
             'title' => 'required|max:200',
             'content' => 'required',
@@ -64,35 +71,19 @@ class MarketController extends Controller
             'hold_enabled' => 'nullable|boolean',
             'hold_price_per_6h' => 'nullable|integer|min:0',
             'hold_max_hours' => 'nullable|integer|min:6|max:168',
-            'images' => 'nullable|array|max:10',
+            'images' => "nullable|array|max:{$maxPhotos}",
             'images.*' => 'nullable|image|max:10240',
         ]);
 
-        // 스팸 방지: 24시간 동일 카테고리 제한 (1무료, 2=100P, 3=200P, MAX 3)
+        // 동일 카테고리 하루 제한 (기본 1건)
         $user = auth()->user();
         $todaySameCategory = MarketItem::where('user_id', $user->id)
             ->where('category', $request->category)
             ->where('created_at', '>=', now()->subHours(24))
             ->count();
 
-        $maxPerDay = (int) (\DB::table('point_settings')->where('key', 'market_max_same_category_daily')->value('value') ?? 3);
-        if ($todaySameCategory >= $maxPerDay) {
-            return response()->json(['success' => false, 'message' => "동일 카테고리에 24시간 내 최대 {$maxPerDay}건만 등록 가능합니다."], 422);
-        }
-
-        $spamCost = 0;
-        if ($todaySameCategory === 1) {
-            $spamCost = (int) (\DB::table('point_settings')->where('key', 'market_2nd_post_cost')->value('value') ?? 100);
-        } elseif ($todaySameCategory >= 2) {
-            $spamCost = (int) (\DB::table('point_settings')->where('key', 'market_3rd_post_cost')->value('value') ?? 200);
-        }
-
-        if ($spamCost > 0) {
-            $postNum = $todaySameCategory + 1;
-            if ($user->points < $spamCost) {
-                return response()->json(['success' => false, 'message' => "동일 카테고리 {$postNum}번째 등록에 {$spamCost}P 필요. 보유: {$user->points}P"], 422);
-            }
-            $user->addPoints(-$spamCost, "장터 추가 등록 ({$request->category} {$postNum}번째)", 'spend');
+        if ($todaySameCategory >= $maxPerCategory) {
+            return response()->json(['success' => false, 'message' => "동일 카테고리에 24시간 내 최대 {$maxPerCategory}건만 등록 가능합니다."], 422);
         }
 
         // 동일 제목 중복 등록 방지
@@ -104,16 +95,25 @@ class MarketController extends Controller
             return response()->json(['success' => false, 'message' => '동일한 제목의 물품이 이미 등록되어 있습니다.'], 422);
         }
 
+        // 이미지 업로드 + 압축 저장
         $images = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
-                $images[] = $img->store('market', 'public');
+                $filename = 'market/' . uniqid() . '.jpg';
+                try {
+                    $image = \Intervention\Image\Facades\Image::make($img);
+                    // 최대 800px로 리사이즈 (원본 비율 유지), 품질 75%
+                    $image->resize(800, 800, function ($c) { $c->aspectRatio(); $c->upSize(); });
+                    $image->save(storage_path('app/public/' . $filename), 75);
+                    $images[] = $filename;
+                } catch (\Exception $e) {
+                    // Intervention 실패 시 원본 저장
+                    $images[] = $img->store('market', 'public');
+                }
             }
         }
 
-        // 추가 사진 포인트 차감 (기본 3장 무료)
-        $freePhotos = 3;  // TODO: 관리자 설정에서 가져오기
-        $extraPhotoPoints = 50;
+        // 추가 사진 포인트 차감 (관리자 설정 기반)
         $extraCount = max(0, count($images) - $freePhotos);
         $extraCost = $extraCount * $extraPhotoPoints;
         if ($extraCost > 0) {
@@ -121,10 +121,10 @@ class MarketController extends Controller
             if ($user->points < $extraCost) {
                 return response()->json([
                     'success' => false,
-                    'message' => "추가 사진 {$extraCount}장에 {$extraCost}P 필요. 보유: {$user->points}P"
+                    'message' => "추가 사진 {$extraCount}장에 {$extraCost}P 필요 (무료 {$freePhotos}장 초과). 보유: {$user->points}P"
                 ], 422);
             }
-            $user->addPoints(-$extraCost, "추가 사진 {$extraCount}장", 'photo');
+            $user->addPoints(-$extraCost, "추가 사진 {$extraCount}장 ({$extraPhotoPoints}P/장)", 'photo');
         }
 
         // 위치 정보 없으면 유저 프로필에서 가져오기
@@ -146,6 +146,54 @@ class MarketController extends Controller
         $item = MarketItem::where('user_id', auth()->id())->findOrFail($id);
         $item->update($request->only('title', 'content', 'price', 'category', 'condition', 'status', 'is_negotiable', 'hold_enabled', 'hold_price_per_6h', 'hold_max_hours'));
         return response()->json(['success' => true, 'data' => $item]);
+    }
+
+    // 끌어올리기 (범프) — 기존 글을 오늘 날짜로 상위 노출
+    public function bump($id)
+    {
+        $user = auth()->user();
+        $item = MarketItem::where('user_id', $user->id)->findOrFail($id);
+
+        // 관리자 설정 로드
+        $getSetting = fn($key, $default) => (int) (\DB::table('point_settings')->where('key', $key)->value('value') ?? $default);
+        $bumpBaseCost = $getSetting('market_bump_base_cost', 100);
+        $bumpIncrement = $getSetting('market_bump_increment', 200);
+        $bumpMaxTimes = $getSetting('market_bump_max_times', 5);
+        $bumpCooldownHours = $getSetting('market_bump_cooldown_hours', 24);
+
+        // 범프 횟수 확인
+        $bumpCount = $item->bump_count ?? 0;
+        if ($bumpCount >= $bumpMaxTimes) {
+            return response()->json(['success' => false, 'message' => "최대 {$bumpMaxTimes}회까지만 끌어올리기 가능합니다."], 422);
+        }
+
+        // 24시간 쿨다운 확인
+        $lastBump = $item->last_bumped_at;
+        if ($lastBump && now()->diffInHours($lastBump) < $bumpCooldownHours) {
+            $remaining = $bumpCooldownHours - now()->diffInHours($lastBump);
+            return response()->json(['success' => false, 'message' => "끌어올리기는 {$bumpCooldownHours}시간 간격으로 가능합니다. {$remaining}시간 후 가능."], 422);
+        }
+
+        // 비용 계산: 100, 300, 500, 700, 900 (기본100 + 횟수×200)
+        $cost = $bumpBaseCost + ($bumpCount * $bumpIncrement);
+
+        if ($user->points < $cost) {
+            return response()->json(['success' => false, 'message' => "포인트 부족. 필요: {$cost}P ({$bumpCount}+1회차), 보유: {$user->points}P"], 422);
+        }
+
+        // 포인트 차감 + 범프 처리
+        $user->addPoints(-$cost, "장터 끌어올리기: {$item->title} ({$bumpCount}+1회)", 'bump');
+        $item->update([
+            'bump_count' => $bumpCount + 1,
+            'last_bumped_at' => now(),
+            'bumped_at' => now(), // 정렬 기준 날짜 (created_at은 원본 유지)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "끌어올리기 완료! {$cost}P 차감. ({$bumpCount}+1/{$bumpMaxTimes}회)",
+            'data' => $item->fresh(),
+        ]);
     }
 
     public function destroy($id)

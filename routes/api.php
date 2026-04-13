@@ -158,6 +158,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/market/{id}/hold/cancel', [MarketController::class, 'cancelHold']);
     // 상위노출 (판매자가 포인트로 부스트)
     Route::post('/market/{id}/boost', [MarketController::class, 'boost']);
+    Route::post('/market/{id}/bump', [MarketController::class, 'bump']);
 
     Route::post('/businesses', [BusinessController::class, 'store']);
     Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview']);
