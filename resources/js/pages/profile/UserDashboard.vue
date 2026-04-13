@@ -386,6 +386,10 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="text-sm font-bold text-gray-800">{{ c.partner_name }}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                  :class="(c.call_type||'friend')==='elder' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+                  {{ (c.call_type||'friend')==='elder' ? '🛡️안심' : '👫친구' }}
+                </span>
                 <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
                   :class="c.status==='ended'||c.status==='answered' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
                   {{ c.direction==='outgoing' ? '발신' : '수신' }} · {{ {ended:'완료',answered:'응답',initiated:'부재중'}[c.status]||c.status }}

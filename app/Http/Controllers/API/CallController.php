@@ -27,10 +27,12 @@ class CallController extends Controller
         }
 
         $roomId = 'sk-' . uniqid('', true);
+        $callType = $request->call_type ?? 'friend'; // friend 또는 elder
         $call = Call::create([
             'room_id'   => $roomId,
             'caller_id' => $callerId,
             'callee_id' => $calleeId,
+            'call_type' => $callType,
             'status'    => 'ringing',
         ]);
 
@@ -154,10 +156,12 @@ class CallController extends Controller
                 return [
                     'id'             => $call->id,
                     'direction'      => $isCaller ? 'outgoing' : 'incoming',
+                    'call_type'      => $call->call_type ?? 'friend',
                     'status'         => $call->status,
-                    'partner_name'   => $partner->name,
+                    'partner_name'   => $partner->name ?? '알 수 없음',
                     'partner_avatar' => $partner->avatar,
                     'duration'       => $call->duration_formatted,
+                    'duration_sec'   => $call->duration ?? 0,
                     'created_at'     => $call->created_at->toISOString(),
                 ];
             });

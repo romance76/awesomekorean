@@ -46,6 +46,7 @@
       <thead class="bg-gray-50 border-b">
         <tr>
           <th class="px-3 py-2 text-left text-gray-500">ID</th>
+          <th class="px-3 py-2 text-center text-gray-500">유형</th>
           <th class="px-3 py-2 text-left text-gray-500">발신자</th>
           <th class="px-3 py-2 text-center text-gray-500">→</th>
           <th class="px-3 py-2 text-left text-gray-500">수신자</th>
@@ -57,6 +58,12 @@
       <tbody>
         <tr v-for="c in calls" :key="c.id" class="border-b last:border-0 hover:bg-amber-50/30">
           <td class="px-3 py-2 text-gray-400">#{{ c.id }}</td>
+          <td class="px-3 py-2 text-center">
+            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+              :class="(c.call_type||'friend')==='elder' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+              {{ (c.call_type||'friend')==='elder' ? '🛡️안심' : '👫친구' }}
+            </span>
+          </td>
           <td class="px-3 py-2">
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center text-[9px] font-bold">{{ (c.caller?.name||'?')[0] }}</div>

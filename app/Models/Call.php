@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Call extends Model
 {
-    protected $fillable = ['room_id', 'caller_id', 'callee_id', 'status', 'answered_at', 'ended_at', 'duration'];
+    protected $fillable = ['room_id', 'caller_id', 'callee_id', 'call_type', 'status', 'answered_at', 'ended_at', 'duration'];
     protected $casts    = ['answered_at' => 'datetime', 'ended_at' => 'datetime'];
 
     // ── Relationships ───────────────────────────────────────
