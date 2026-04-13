@@ -140,7 +140,7 @@
 </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -151,6 +151,7 @@ import axios from 'axios'
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
 const activeCat = ref('')
@@ -165,12 +166,8 @@ const items = ref([])
 const loading = ref(true)
 const activeItem = ref(null)
 const currentIdx = ref(-1)
-async function openItem(item) {
-  try { const { data } = await axios.get(`/api/market/${item.id}`); activeItem.value = data.data }
-  catch { activeItem.value = item }
-  currentIdx.value = items.value.findIndex(i => i.id === item.id)
-  if (activeItem.value?.category) activeCat.value = activeItem.value.category
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+function openItem(item) {
+  router.push(`/market/${item.id}`)
 }
 function navItem(dir) {
   const newIdx = currentIdx.value + dir
