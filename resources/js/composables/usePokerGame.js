@@ -46,6 +46,11 @@ export function usePokerGame() {
   let deckArr = [];
   let actionTimeout = null;
   let timerInterval = null;
+  let turnTimerInterval = null;
+
+  // ── 턴 타이머 ──
+  const turnTimer = ref(0);
+  const turnTimerMax = ref(15); // 일반 15초, 스피드 10초
 
   // ─── Computed ───
   const bl = computed(() => getCurrentBlind(blindLevel.value));
@@ -211,6 +216,8 @@ export function usePokerGame() {
     if (seat.isPlayer) {
       seats.value = s; pot.value = curPot; currentBetLevel.value = curBetLvl; actIdx.value = seatIdx;
       isPlayerTurn.value = true;
+      // 턴 타이머 시작
+      startTurnTimer(s, seatIdx, curPot, curBetLvl, curStage, curComm, dlrIdx, blLvl);
       const bLevel = getCurrentBlind(blLvl);
       raiseAmt.value = Math.min(Math.max(curBetLvl * 2, bLevel.bb * 2), seat.chips);
       // Update coaching
@@ -287,6 +294,30 @@ export function usePokerGame() {
         processAction(s, nextIdx, newPot, newBetLvl, curStage, curComm, dlrIdx, blLvl);
       }
     }, 1200); // AI 턴 간격 (이전 600ms → 1200ms)
+  }
+
+  function startTurnTimer(s, seatIdx, curPot, curBetLvl, curStage, curComm, dlrIdx, blLvl) {
+    stopTurnTimer();
+    turnTimer.value = turnTimerMax.value;
+    turnTimerInterval = setInterval(() => {
+      turnTimer.value--;
+      if (turnTimer.value <= 0) {
+        stopTurnTimer();
+        // 시간초과: 체크 가능하면 체크, 아니면 폴드
+        const seat = s[seatIdx];
+        const toCall = Math.max(0, curBetLvl - (seat?.bet || 0));
+        if (toCall === 0) {
+          doPlayerAction('check');
+        } else {
+          doPlayerAction('fold');
+        }
+      }
+    }, 1000);
+  }
+
+  function stopTurnTimer() {
+    if (turnTimerInterval) { clearInterval(turnTimerInterval); turnTimerInterval = null; }
+    turnTimer.value = 0;
   }
 
   function findNextActor(s, fromIdx) {
@@ -484,6 +515,7 @@ export function usePokerGame() {
   function doPlayerAction(action, amount = 0) {
     if (!isPlayerTurn.value) return;
     isPlayerTurn.value = false;
+    stopTurnTimer();
     const s = [...seats.value];
     const pi = s.findIndex(x => x.isPlayer);
     const seat = s[pi];
@@ -529,7 +561,7 @@ export function usePokerGame() {
     screen, config, blindLevel, totalRemaining, myRank, handNum, tourneyLog, myBounties, chatBubbles,
     seats, dealerIdx, community, pot, stage, actIdx, lastAction, isPlayerTurn, gameOver, showdown,
     raiseAmt, coachTips, showCoach, showMonitor, bustMsg, handResults, tourneyOver, finalPlace,
-    currentBetLevel, levelTimer, elapsedTime, foldReveals, termTip,
+    currentBetLevel, levelTimer, elapsedTime, foldReveals, termTip, turnTimer, turnTimerMax,
     // Computed
     bl, nextBl, paidSlots, prizePool, prizes,
     // Methods

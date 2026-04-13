@@ -134,7 +134,8 @@
           :dealer-idx="dealerIdx" :showdown="showdown" :hand-results="handResults"
           :game-over="gameOver" :bl="bl" :act-idx="actIdx" :chat-bubbles="chatBubbles"
           :current-bet-level="currentBetLevel" :blind-level="blindLevel" :total-remaining="totalRemaining"
-          :paid-slots="paidSlots" :fold-reveals="foldReveals" :is-player-turn="isPlayerTurn" />
+          :paid-slots="paidSlots" :fold-reveals="foldReveals" :is-player-turn="isPlayerTurn"
+          :turn-timer="turnTimer" :turn-timer-max="turnTimerMax" />
       </div>
 
       <!-- ▶ 우측: 모니터(항상) + 채팅 (오른쪽 끝 붙임) -->
@@ -223,7 +224,7 @@ const {
   screen, config, blindLevel, totalRemaining, myRank, handNum, tourneyLog, myBounties, chatBubbles,
   seats, dealerIdx, community, pot, stage, actIdx, lastAction, isPlayerTurn, gameOver, showdown,
   raiseAmt, coachTips, showCoach, showMonitor, bustMsg, handResults, tourneyOver, finalPlace,
-  currentBetLevel, levelTimer, elapsedTime, foldReveals, termTip,
+  currentBetLevel, levelTimer, elapsedTime, foldReveals, termTip, turnTimer, turnTimerMax,
   bl, nextBl, paidSlots, prizePool, prizes,
   startTournament, doPlayerAction, nextHand, resetTournament, cleanup,
   BLIND_SCHEDULE, fmtTime, fmtElapsed,

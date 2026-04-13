@@ -56,10 +56,31 @@
       </div>
     </div>
 
-    <!-- 딜러 이미지 (내 맞은편 상단 중앙) -->
+    <!-- 딜러 이미지 + 턴 타이머 -->
     <div class="absolute left-1/2 -translate-x-1/2 z-[5]" style="top: 4%">
-      <div class="flex flex-col items-center">
+      <div class="flex flex-col items-center relative">
         <img src="/images/dealer.png" alt="Dealer" class="h-[185px] w-auto object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.9)]" />
+        <!-- 턴 타이머 (딜러 오른쪽) -->
+        <div v-if="turnTimer > 0 && actIdx >= 0 && !gameOver"
+          class="absolute right-[-70px] top-[40%] flex flex-col items-center">
+          <div class="relative w-14 h-14">
+            <svg class="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
+              <circle cx="28" cy="28" r="24" fill="none"
+                :stroke="turnTimer <= 5 ? '#ef4444' : turnTimer <= 10 ? '#f59e0b' : '#22c55e'"
+                stroke-width="4" stroke-linecap="round"
+                :stroke-dasharray="150.8"
+                :stroke-dashoffset="150.8 - (150.8 * turnTimer / turnTimerMax)"
+                class="transition-all duration-1000"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-lg font-black font-mono" :class="turnTimer <= 5 ? 'text-red-400 animate-pulse' : 'text-white'">
+                {{ turnTimer }}
+              </span>
+            </div>
+          </div>
+          <div class="text-[9px] text-white/50 font-bold mt-0.5">{{ activePlayerName }}</div>
+        </div>
       </div>
     </div>
 
@@ -93,7 +114,14 @@ const props = defineProps({
   gameOver: { type: Boolean, default: false },
   bl: { type: Object, default: () => ({ sb: 10, bb: 20, ante: 0 }) },
   actIdx: { type: Number, default: -1 },
-  chatBubbles: { type: Object, default: () => ({}) }
+  chatBubbles: { type: Object, default: () => ({}) },
+  turnTimer: { type: Number, default: 0 },
+  turnTimerMax: { type: Number, default: 15 },
+})
+
+const activePlayerName = computed(() => {
+  if (props.actIdx < 0 || !props.seats[props.actIdx]) return ''
+  return props.seats[props.actIdx].name || ''
 })
 
 // 좌석 — 딜러가 상단 중앙이므로 9명은 딜러 양옆으로
