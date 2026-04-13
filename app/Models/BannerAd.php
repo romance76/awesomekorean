@@ -8,14 +8,17 @@ class BannerAd extends Model
 {
     protected $fillable = [
         'user_id', 'title', 'image_url', 'link_url',
-        'page', 'position', 'geo_scope', 'geo_value',
-        'start_date', 'end_date', 'daily_cost', 'total_cost',
+        'page', 'target_pages', 'position', 'slot_number',
+        'geo_scope', 'geo_value',
+        'start_date', 'end_date', 'auction_month', 'auction_rank',
+        'daily_cost', 'total_cost', 'bid_amount',
         'impressions', 'clicks', 'status', 'reject_reason',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'target_pages' => 'array',
     ];
 
     public function user() { return $this->belongsTo(User::class); }
