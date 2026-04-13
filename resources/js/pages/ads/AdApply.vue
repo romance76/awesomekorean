@@ -157,7 +157,11 @@
           </div>
           <div>
             <label class="text-xs font-bold text-gray-600 block mb-1">클릭 시 URL (선택)</label>
-            <input v-model="adForm.link_url" @input="saveDraft" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
+            <div class="flex gap-2">
+              <input v-model="adForm.link_url" @input="saveDraft" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="somekorean.com 또는 https://..." />
+              <button v-if="adForm.link_url" @click="previewUrl" type="button" class="bg-blue-500 text-white font-bold px-3 py-2 rounded-lg text-xs hover:bg-blue-600 flex-shrink-0">확인</button>
+            </div>
+            <div v-if="urlConfirmed" class="mt-1 text-[10px] text-green-600 font-bold">✅ {{ normalizedUrl }} 확정됨</div>
           </div>
 
           <!-- 입찰 금액 (자동 계산) -->
@@ -252,6 +256,8 @@ const adImage = ref(null)
 const zipInput = ref('')
 const zipLoading = ref(false)
 const zipResult = ref(null)
+const urlConfirmed = ref(false)
+const normalizedUrl = ref('')
 const pageType = ref('home')
 const selectedSubs = ref([])
 const DRAFT_KEY = 'sk_ad_draft'
@@ -344,6 +350,32 @@ watch([() => adForm.geo_scope, pageCount], () => {
 })
 
 function onImageChange(e) { const f = e.target.files[0]; if (f) { adImage.value = f; imagePreview.value = URL.createObjectURL(f) } }
+
+// URL 정규화 + 미리보기 팝업
+function normalizeUrl(raw) {
+  let url = raw.trim()
+  if (!url) return ''
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url
+  return url
+}
+
+async function previewUrl() {
+  const url = normalizeUrl(adForm.link_url)
+  if (!url) return
+  normalizedUrl.value = url
+
+  const ok = await showConfirm(
+    `이 주소가 맞습니까?\n\n${url}\n\n맞으면 "확인", 다시 입력하려면 "취소"`,
+    'URL 확인'
+  )
+  if (ok) {
+    adForm.link_url = url
+    urlConfirmed.value = true
+    saveDraft()
+  } else {
+    urlConfirmed.value = false
+  }
+}
 function onZipInput() { if (zipInput.value.length === 5) lookupZip() }
 
 async function lookupZip() {
