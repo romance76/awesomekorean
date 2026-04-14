@@ -76,13 +76,32 @@
       <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
         style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;" />
 
-      <!-- 중앙: 테이블 (위로 올림 + 높이 축소) -->
-      <div class="flex-1 min-h-0 min-w-0 flex items-start justify-center px-2">
-        <div class="w-full" style="max-width: 78%; max-height: 75%; height: 75%;">
+      <!-- 중앙: 테이블 + 액션 버튼 (고정 비율) -->
+      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center relative">
+        <div class="relative" style="width: min(100%, 900px); aspect-ratio: 16/10;">
           <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
             :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
             :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
             :act-idx="gameState?.actIdx??-1" :turn-timer="turnCountdown" :turn-timer-max="gameState?.turnTime||15" />
+
+          <!-- 액션 버튼: 내 자리 오른쪽에 배치 -->
+          <div v-if="isMyTurn && !amIOut" class="absolute z-30"
+            style="bottom: 4%; right: 2%; max-width: 380px;">
+            <div class="bg-gray-900/90 backdrop-blur rounded-xl border border-gray-700/50 px-3 py-2">
+              <div class="flex items-center gap-2 mb-1.5">
+                <button @click="sendAction('fold')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs">폴드</button>
+                <button v-if="canCheck" @click="sendAction('check')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs">체크</button>
+                <button v-else @click="sendAction('call')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs">콜 {{ callAmount }}</button>
+                <button @click="sendAction('allin')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs">올인</button>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="range" v-model.number="raiseAmount" :min="minRaise" :max="myChips" class="flex-1 h-1" />
+                <button @click="sendAction('raise', raiseAmount)" class="bg-green-600 hover:bg-green-500 text-white font-bold px-2.5 py-1 rounded-lg text-xs whitespace-nowrap">
+                  레이즈 {{ raiseAmount.toLocaleString() }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -168,26 +187,6 @@
       </div>
     </div>
 
-    <!-- Bottom: 액션 버튼 (고정 높이) -->
-    <div class="shrink-0 h-[100px] bg-gray-900/95 border-t border-gray-800">
-      <div v-if="isMyTurn && !amIOut" class="px-4 py-2">
-        <div class="flex items-center justify-center gap-2 max-w-lg mx-auto">
-          <button @click="sendAction('fold')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-xl text-sm">폴드</button>
-          <button v-if="canCheck" @click="sendAction('check')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-sm">체크</button>
-          <button v-else @click="sendAction('call')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-sm">콜 {{ callAmount }}</button>
-          <button @click="sendAction('allin')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-sm">올인</button>
-        </div>
-        <div class="flex items-center gap-2 max-w-lg mx-auto mt-1.5">
-          <input type="range" v-model.number="raiseAmount" :min="minRaise" :max="myChips" class="flex-1 h-1.5" />
-          <button @click="sendAction('raise', raiseAmount)" class="bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-1.5 rounded-xl text-sm whitespace-nowrap">
-            레이즈 {{ raiseAmount.toLocaleString() }}
-          </button>
-        </div>
-      </div>
-      <div v-else class="flex items-center justify-center h-full text-gray-500 text-sm">
-        {{ amIOut ? '💀 탈락' : gameState?.status === 'showdown' ? '🃏 쇼다운 결과 확인 중...' : '⏳ 상대 턴 대기 중...' }}
-      </div>
-    </div>
   </template>
 </div>
 </template>
