@@ -1,15 +1,31 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">💼 {{ isEdit ? '채용공고 수정' : '채용공고 등록' }}</h1>
+    <h1 class="text-xl font-black text-gray-800 mb-4">💼 {{ isEdit ? '공고 수정' : '공고 등록' }}</h1>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
+      <!-- 구인/구직 선택 -->
+      <div>
+        <label class="text-sm font-semibold text-gray-700 block mb-2">공고 유형</label>
+        <div class="flex gap-2">
+          <button type="button" @click="form.post_type='hiring'"
+            class="flex-1 py-2.5 rounded-lg font-bold text-sm transition border-2"
+            :class="form.post_type==='hiring' ? 'bg-amber-400 border-amber-400 text-amber-900' : 'bg-white border-gray-200 text-gray-500 hover:border-amber-300'">
+            구인 (채용합니다)
+          </button>
+          <button type="button" @click="form.post_type='seeking'"
+            class="flex-1 py-2.5 rounded-lg font-bold text-sm transition border-2"
+            :class="form.post_type==='seeking' ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white border-gray-200 text-gray-500 hover:border-blue-300'">
+            구직 (일자리 찾습니다)
+          </button>
+        </div>
+      </div>
       <div>
         <label class="text-sm font-semibold text-gray-700">제목</label>
         <input v-model="form.title" type="text" placeholder="예: 한식당 주방보조 구합니다" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="text-sm font-semibold text-gray-700">회사명</label>
+          <label class="text-sm font-semibold text-gray-700">{{ form.post_type==='seeking' ? '이름/경력 (선택)' : '회사명' }}</label>
           <input v-model="form.company" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
         </div>
         <div>
@@ -64,7 +80,7 @@ import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 const router = useRouter()
 const route = useRoute()
-const form = reactive({ title:'',company:'',category:'restaurant',type:'full',salary_min:15,salary_max:25,salary_type:'hourly',content:'',contact_phone:'',contact_email:'' })
+const form = reactive({ post_type:'hiring',title:'',company:'',category:'restaurant',type:'full',salary_min:15,salary_max:25,salary_type:'hourly',content:'',contact_phone:'',contact_email:'' })
 const categories = [
   {value:'restaurant',label:'요식업'},{value:'it',label:'IT'},{value:'beauty',label:'미용'},
   {value:'driving',label:'운전'},{value:'retail',label:'판매'},{value:'office',label:'사무직'},
@@ -76,7 +92,7 @@ const isEdit = ref(false)
 const editId = ref(null)
 
 async function submit() {
-  if (!form.title || !form.company || !form.content) { error.value = '필수 항목을 입력해주세요'; return }
+  if (!form.title || (!form.company && form.post_type==='hiring') || !form.content) { error.value = '필수 항목을 입력해주세요'; return }
   submitting.value = true; error.value = ''
   try {
     if (isEdit.value) {

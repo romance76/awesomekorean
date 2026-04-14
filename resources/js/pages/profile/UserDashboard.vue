@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-4xl mx-auto px-4 py-5">
+  <div class="max-w-6xl mx-auto px-4 py-5">
     <h1 class="text-xl font-black text-gray-800 mb-4">📋 내 대시보드</h1>
 
     <!-- 포인트 카드 -->
@@ -649,6 +649,79 @@
       </div>
     </div>
 
+    <!-- ═══ 이력서 탭 ═══ -->
+    <div v-else-if="tab==='resume'" class="space-y-4">
+      <div class="bg-white rounded-xl shadow-sm border p-5">
+        <h2 class="font-bold text-gray-800 mb-4">📄 이력서 관리</h2>
+        <div class="space-y-3">
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">이력서 제목</label>
+            <input v-model="resume.title" placeholder="예: 요식업 경력 3년 구직자" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div><label class="text-xs font-bold text-gray-600 mb-1 block">이름</label><input v-model="resume.name" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+            <div><label class="text-xs font-bold text-gray-600 mb-1 block">연락처</label><input v-model="resume.phone" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">이메일</label>
+            <input v-model="resume.email" type="email" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">자기소개</label>
+            <textarea v-model="resume.introduction" rows="4" placeholder="간단한 자기소개를 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-gray-600 mb-1 block">희망 직종</label>
+              <select v-model="resume.desired_category" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option value="">선택해주세요</option>
+                <option value="restaurant">요식업</option><option value="it">IT</option><option value="beauty">미용</option>
+                <option value="driving">운전</option><option value="retail">판매</option><option value="office">사무직</option>
+                <option value="construction">건설</option><option value="medical">의료</option><option value="education">교육</option><option value="etc">기타</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 mb-1 block">희망 근무형태</label>
+              <select v-model="resume.desired_type" class="w-full border rounded-lg px-3 py-2 text-sm">
+                <option value="full">풀타임</option><option value="part">파트타임</option><option value="contract">계약직</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">희망 급여</label>
+            <input v-model="resume.desired_salary" placeholder="예: 시급 $18 이상, 월급 $3000 이상" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">경력사항</label>
+            <textarea v-model="resume.experience" rows="4" placeholder="경력사항을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">학력</label>
+            <textarea v-model="resume.education" rows="3" placeholder="학력사항을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">보유기술</label>
+            <textarea v-model="resume.skills" rows="3" placeholder="보유 기술을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-gray-600 mb-1 block">자격증</label>
+            <textarea v-model="resume.certifications" rows="3" placeholder="자격증을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+          </div>
+          <div class="flex items-center gap-3 pt-2 border-t">
+            <label class="text-xs font-bold text-gray-600">공개 여부</label>
+            <button @click="resume.is_public=!resume.is_public" class="relative w-10 h-5 rounded-full transition"
+              :class="resume.is_public ? 'bg-amber-400' : 'bg-gray-300'">
+              <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
+                :class="resume.is_public ? 'left-5' : 'left-0.5'"></span>
+            </button>
+            <span class="text-xs text-gray-500">{{ resume.is_public ? '공개 (구인 업체가 볼 수 있음)' : '비공개' }}</span>
+          </div>
+          <div v-if="resumeMsg" class="text-sm" :class="resumeMsgType==='success' ? 'text-green-600' : 'text-red-500'">{{ resumeMsg }}</div>
+          <button @click="saveResume" :disabled="resumeSaving" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ resumeSaving ? '저장 중...' : '저장하기' }}</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 결제 모달 -->
     <div v-if="payModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="payModal=false">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
@@ -708,6 +781,7 @@ const tabs = [
   { key: 'elder', icon: '🛡️', label: '안심' },
   { key: 'payments', icon: '💳', label: '결제' },
   { key: 'mybiz', icon: '🏪', label: '내 업소' },
+  { key: 'resume', icon: '📄', label: '이력서' },
 ]
 
 const loaded = reactive({})
@@ -1129,9 +1203,31 @@ async function deleteMenu(menu) {
   } catch {}
 }
 
+// ─── 이력서 ───
+const resume = reactive({ title:'', name:'', phone:'', email:'', introduction:'', desired_category:'', desired_type:'full', desired_salary:'', experience:'', education:'', skills:'', certifications:'', is_public:false })
+const resumeMsg = ref(''); const resumeMsgType = ref(''); const resumeSaving = ref(false)
+
+async function loadResume() {
+  try {
+    const { data } = await axios.get('/api/my-resume')
+    if (data.data) Object.keys(resume).forEach(k => { if (data.data[k] !== undefined) resume[k] = data.data[k] })
+  } catch {}
+}
+
+async function saveResume() {
+  resumeSaving.value = true; resumeMsg.value = ''
+  try {
+    await axios.post('/api/resumes', { ...resume })
+    resumeMsg.value = '이력서가 저장되었습니다.'; resumeMsgType.value = 'success'
+  } catch (e) {
+    resumeMsg.value = e.response?.data?.message || '저장 실패'; resumeMsgType.value = 'error'
+  }
+  resumeSaving.value = false
+}
+
 // ─── 탭 로딩 ───
 function loadTab(key) {
-  const loaders = { profile: loadProfile, points: loadPoints, messages: loadMessages, posts: loadPosts, market: loadMyMarket, ads: loadMyAds, calls: loadCallHistory, bookmarks: loadBookmarks, elder: loadElder, payments: loadPayments, mybiz: loadMyBiz }
+  const loaders = { profile: loadProfile, points: loadPoints, messages: loadMessages, posts: loadPosts, market: loadMyMarket, ads: loadMyAds, calls: loadCallHistory, bookmarks: loadBookmarks, elder: loadElder, payments: loadPayments, mybiz: loadMyBiz, resume: loadResume }
   if (loaders[key]) loaders[key]()
 }
 

@@ -58,6 +58,8 @@ Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
+Route::get('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'index']);
+Route::get('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'show']);
 Route::get('/market', [MarketController::class, 'index']);
 Route::get('/market/{id}', [MarketController::class, 'show']);
 Route::get('/businesses', [BusinessController::class, 'index']);
@@ -140,6 +142,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/jobs', [JobController::class, 'store']);
     Route::put('/jobs/{id}', [JobController::class, 'update']);
     Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
+
+    // 이력서
+    Route::get('/my-resume', [\App\Http\Controllers\API\ResumeController::class, 'myResume']);
+    Route::post('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'store']);
+    Route::put('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'update']);
+    Route::delete('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'destroy']);
 
     Route::post('/market', [MarketController::class, 'store']);
     Route::put('/market/{id}', [MarketController::class, 'update']);

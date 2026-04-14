@@ -5,108 +5,134 @@
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="text-xl font-black text-gray-800">💼 구인구직</h1>
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-amber-600 text-sm">📍</span>
-        <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
+        <span class="text-sm" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">📍</span>
+        <select v-model="selectedCityIdx" @change="onCityChange"
+          class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 bg-amber-50"
+          :class="postType === 'hiring' ? 'focus:ring-amber-400' : 'focus:ring-blue-400'">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
             <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
           </optgroup>
         </select>
-        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()"
+          class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
           <option value="10">10mi 이내</option>
           <option value="30">30mi 이내</option>
           <option value="50">50mi 이내</option>
           <option value="100">100mi 이내</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 outline-none w-40"
+            :class="postType === 'hiring' ? 'focus:ring-amber-400' : 'focus:ring-blue-400'" />
+          <button type="submit" class="font-bold px-3 py-1.5 rounded-lg text-xs"
+            :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900 hover:bg-amber-500' : 'bg-blue-500 text-white hover:bg-blue-600'">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">✏️ 등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="font-bold px-3 py-1.5 rounded-lg text-xs"
+          :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900 hover:bg-amber-500' : 'bg-blue-500 text-white hover:bg-blue-600'">✏️ 등록</RouterLink>
+      </div>
+    </div>
+
+    <!-- 구인/구직 탭 -->
+    <div class="flex gap-2 mb-3">
+      <button @click="postType = 'hiring'; activeCat = ''; loadPage()"
+        class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
+        :class="postType === 'hiring'
+          ? 'bg-amber-400 text-amber-900 shadow-md shadow-amber-200'
+          : 'bg-white text-gray-500 border border-gray-200 hover:bg-amber-50'">
+        💼 구인 (채용)
+      </button>
+      <button @click="postType = 'seeking'; activeCat = ''; loadPage()"
+        class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
+        :class="postType === 'seeking'
+          ? 'bg-blue-500 text-white shadow-md shadow-blue-200'
+          : 'bg-white text-gray-500 border border-gray-200 hover:bg-blue-50'">
+        🙋 구직 (인재)
+      </button>
+    </div>
+
+    <!-- 카테고리 가로 스크롤 (모든 화면에서 표시) -->
+    <div class="mb-3 overflow-x-auto scrollbar-hide">
+      <div class="flex gap-1.5 pb-1 min-w-max">
+        <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage()"
+          class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border"
+          :class="activeCat === c.value
+            ? (postType === 'hiring'
+              ? 'bg-amber-400 text-amber-900 border-amber-400 shadow-sm'
+              : 'bg-blue-500 text-white border-blue-500 shadow-sm')
+            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'">
+          {{ c.label }}
+        </button>
       </div>
     </div>
 
     <div class="grid grid-cols-12 gap-4">
-    <!-- 왼쪽: 카테고리 -->
+    <!-- 왼쪽: 카테고리 사이드바 (lg 이상에서만 표시) -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-        <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-        <button v-for="c in jobCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
+        <div class="px-3 py-2.5 border-b font-bold text-xs"
+          :class="postType === 'hiring' ? 'text-amber-900' : 'text-blue-900'">📋 카테고리</div>
+        <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage()"
           class="w-full text-left px-3 py-2 text-xs transition"
-          :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
-              <AdSlot page="jobs" position="left" :maxSlots="2" />
+          :class="activeCat === c.value
+            ? (postType === 'hiring' ? 'bg-amber-50 text-amber-700 font-bold' : 'bg-blue-50 text-blue-700 font-bold')
+            : 'text-gray-600 hover:bg-gray-50'">{{ c.label }}</button>
+            <AdSlot page="jobs" position="left" :maxSlots="2" />
       </div>
     </div>
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (jobCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
-      <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 채용 공고를 볼 수 있습니다</span>
+      <span class="text-sm font-bold" :class="postType === 'hiring' ? 'text-amber-700' : 'text-blue-700'">
+        {{ activeCat ? (jobCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}
+      </span>
+      <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">
+        {{ postType === 'hiring' ? '모든 채용 공고를 볼 수 있습니다' : '모든 구직 인재를 볼 수 있습니다' }}
+      </span>
     </div>
 
-    <!-- ═══ 상세 모드 ═══ -->
-    <div v-if="activeItem">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-5 py-4 border-b">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs px-2 py-0.5 rounded-full font-bold"
-              :class="activeItem.type==='full'?'bg-blue-100 text-blue-700':activeItem.type==='part'?'bg-green-100 text-green-700':'bg-orange-100 text-orange-700'">
-              {{ {full:'풀타임',part:'파트타임',contract:'계약직'}[activeItem.type] || activeItem.type }}
-            </span>
-            <span class="text-xs text-gray-400">{{ activeItem.city }}, {{ activeItem.state }}</span>
-          </div>
-          <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title }}</h2>
-          <div class="text-sm text-amber-700 font-semibold mt-1">{{ activeItem.company }}</div>
-          <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
-            <span>💰 ${{ activeItem.salary_min }}~${{ activeItem.salary_max }}/{{ activeItem.salary_type }}</span>
-            <span>👁 {{ activeItem.view_count }}</span>
-          </div>
-        </div>
-        <div class="px-5 py-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
-        <div v-if="activeItem.contact_phone || activeItem.contact_email" class="px-5 py-4 border-t bg-amber-50">
-          <div class="text-sm font-semibold text-amber-900 mb-1">📞 연락처</div>
-          <div v-if="activeItem.contact_phone" class="text-sm text-gray-700">📱 {{ activeItem.contact_phone }}</div>
-          <div v-if="activeItem.contact_email" class="text-sm text-gray-700">📧 {{ activeItem.contact_email }}</div>
-        </div>
-      </div>
-      <!-- 작성자 전용 수정/삭제 -->
-      <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
-        <RouterLink :to="`/jobs/write?edit=${activeItem.id}`" class="text-xs text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
-        <button @click="deleteItem" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
-      </div>
-      <CommentSection v-if="activeItem.id" :type="'job'" :typeId="activeItem.id" class="mt-3" />
-      <!-- 이전글/다음글 -->
-      <div class="flex justify-between mt-3">
-        <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
-        <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
-        <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
-      </div>
-    </div>
-
-    <!-- ═══ 목록 모드 ═══ -->
-    <div v-else>
+    <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
     <div v-else-if="!items.length" class="text-center py-12">
-      <div class="text-4xl mb-3">💼</div>
+      <div class="text-4xl mb-3">{{ postType === 'hiring' ? '💼' : '🙋' }}</div>
       <div class="text-gray-500 font-semibold">검색 결과가 없습니다</div>
     </div>
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div v-for="item in items" :key="item.id" @click="openItem(item)"
-        class="px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
+      <div v-for="item in items" :key="item.id" @click="goDetail(item)"
+        class="px-4 py-3 border-b border-gray-50 transition cursor-pointer"
+        :class="postType === 'hiring'
+          ? 'hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400'
+          : 'hover:bg-blue-50/50 hover:border-l-2 hover:border-l-blue-400'">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
             <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-              <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name || item.company || item.organizer" className="text-gray-600" /><span v-else-if="item.company || item.organizer">{{ item.company || item.organizer }}</span>
+              <!-- 구인: 회사명 표시, 구직: 유저 이름 표시 -->
+              <template v-if="postType === 'seeking'">
+                <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name" className="text-blue-600 font-semibold" />
+                <span v-else class="text-blue-600 font-semibold">{{ item.user?.name || '익명' }}</span>
+              </template>
+              <template v-else>
+                <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name || item.company || item.organizer" className="text-gray-600" />
+                <span v-else-if="item.company || item.organizer">{{ item.company || item.organizer }}</span>
+              </template>
               <span v-if="item.city" class="flex items-center gap-0.5">📍{{ item.city }}, {{ item.state }}</span>
-              <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
+              <span v-if="item.distance !== undefined && item.distance !== null"
+                class="font-semibold" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+                {{ Number(item.distance).toFixed(1) }}mi
+              </span>
               <span v-if="item.view_count">👁{{ item.view_count }}</span>
             </div>
           </div>
           <div class="ml-3 flex-shrink-0 text-right">
-            <div v-if="item.price !== undefined && item.price !== null" class="text-amber-600 font-bold text-sm">${{ Number(item.price).toLocaleString() }}</div>
-            <div v-if="item.salary_min" class="text-amber-600 font-bold text-xs">${{ item.salary_min }}~${{ item.salary_max }}/{{ item.salary_type }}</div>
+            <div v-if="item.price !== undefined && item.price !== null"
+              class="font-bold text-sm" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+              ${{ Number(item.price).toLocaleString() }}
+            </div>
+            <div v-if="item.salary_min"
+              class="font-bold text-xs" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+              ${{ item.salary_min }}~${{ item.salary_max }}/{{ item.salary_type }}
+            </div>
             <div v-if="item.rating" class="text-amber-400 text-xs">{{'★'.repeat(Math.round(item.rating))}} {{ item.rating }}</div>
           </div>
         </div>
@@ -115,15 +141,17 @@
 
     <div v-if="lastPage > 1" class="flex justify-center gap-1.5 mt-4">
       <button v-for="pg in Math.min(lastPage, 10)" :key="pg" @click="loadPage(pg)"
-        class="px-3 py-1 rounded text-sm" :class="pg===page?'bg-amber-400 text-amber-900 font-bold':'bg-white text-gray-600 border hover:bg-amber-50'">{{ pg }}</button>
-    </div>
+        class="px-3 py-1 rounded text-sm"
+        :class="pg === page
+          ? (postType === 'hiring' ? 'bg-amber-400 text-amber-900 font-bold' : 'bg-blue-500 text-white font-bold')
+          : 'bg-white text-gray-600 border hover:bg-gray-50'">{{ pg }}</button>
     </div>
     </div>
 
     <!-- 오른쪽: 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets :inline="true" @select="openItem" api-url="/api/jobs" detail-path="/jobs/" :current-id="0"
-        label="채용" :filter-params="locationParams" />
+      <SidebarWidgets :inline="true" api-url="/api/jobs" detail-path="/jobs/" :current-id="0"
+        :label="postType === 'hiring' ? '채용' : '구직'" :filter-params="locationParams" />
         <AdSlot page="jobs" position="right" :maxSlots="2" />
     </div>
     </div>
@@ -131,17 +159,19 @@
 </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
-import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
+
+const postType = ref('hiring')
 const activeCat = ref('')
 const jobCategories = [
   { value: '', label: '전체' },
@@ -160,27 +190,11 @@ const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation
 
 const items = ref([])
 const loading = ref(true)
-const activeItem = ref(null)
 
-const currentIdx = ref(-1)
-
-async function openItem(item) {
-  currentIdx.value = items.value.findIndex(i => i.id === item.id)
-  try { const { data } = await axios.get(`/api/jobs/${item.id}`); activeItem.value = data.data }
-  catch { activeItem.value = item }
-  if (activeItem.value?.category) activeCat.value = activeItem.value.category
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+function goDetail(item) {
+  router.push('/jobs/' + item.id)
 }
 
-function navItem(dir) {
-  const newIdx = currentIdx.value + dir
-  if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
-}
-
-async function deleteItem() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
-  try { await axios.delete(`/api/jobs/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
-}
 const page = ref(1)
 const lastPage = ref(1)
 const search = ref('')
@@ -231,6 +245,7 @@ async function loadPage(p = 1) {
   const params = { page: p, per_page: 20 }
   if (search.value) params.search = search.value
   if (activeCat.value) params.category = activeCat.value
+  params.post_type = postType.value
 
   if (radius.value !== '0') {
     // 도시 선택에 따라 좌표 결정
@@ -272,11 +287,13 @@ onMounted(async () => {
   }
   loadPage()
 })
-
-watch(() => route.params.id, (newId, oldId) => {
-  if (oldId && !newId) {
-    loadPage()
-    activeItem.value = null
-  }
-})
 </script>
+<style scoped>
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+</style>

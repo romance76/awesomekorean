@@ -12,6 +12,7 @@ class JobController extends Controller
     {
         $query = JobPost::with('user:id,name,nickname')
             ->active()
+            ->when($request->post_type, fn($q, $v) => $q->where('post_type', $v))
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
             ->when($request->type, fn($q, $v) => $q->where('type', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
@@ -35,16 +36,27 @@ class JobController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $postType = $request->post_type ?? 'hiring';
+
+        $rules = [
             'title' => 'required|max:200',
-            'company' => 'required|max:100',
             'content' => 'required',
             'category' => 'required',
             'type' => 'required|in:full,part,contract',
-        ]);
+            'post_type' => 'sometimes|in:hiring,seeking',
+        ];
+
+        // 구인은 회사명 필수, 구직은 선택
+        if ($postType === 'hiring') {
+            $rules['company'] = 'required|max:100';
+        } else {
+            $rules['company'] = 'nullable|max:100';
+        }
+
+        $request->validate($rules);
 
         $job = JobPost::create(array_merge(
-            $request->only('title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'lat', 'lng', 'city', 'state', 'zipcode', 'contact_email', 'contact_phone', 'expires_at'),
+            $request->only('post_type', 'title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'lat', 'lng', 'city', 'state', 'zipcode', 'contact_email', 'contact_phone', 'expires_at'),
             ['user_id' => auth()->id()]
         ));
 
@@ -54,7 +66,7 @@ class JobController extends Controller
     public function update(Request $request, $id)
     {
         $job = JobPost::where('user_id', auth()->id())->findOrFail($id);
-        $job->update($request->only('title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'contact_email', 'contact_phone', 'is_active'));
+        $job->update($request->only('post_type', 'title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'contact_email', 'contact_phone', 'is_active'));
         return response()->json(['success' => true, 'data' => $job]);
     }
 
