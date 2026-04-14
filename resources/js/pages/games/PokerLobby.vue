@@ -134,35 +134,9 @@
             </div>
           </div>
 
-          <!-- 종료된 토너먼트 -->
-          <div v-if="pastTournaments.length > 0" class="mt-4">
-            <h3 class="text-sm font-bold text-gray-500 mb-3 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-gray-600"></span>
-              종료된 토너먼트
-            </h3>
-            <div class="space-y-2">
-              <div v-for="t in pastTournaments" :key="t.id"
-                class="bg-gray-900/50 rounded-xl border border-gray-800/50 p-3 opacity-60 hover:opacity-80 transition">
-                <div class="flex items-center justify-between">
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                      <span class="text-sm font-bold text-gray-400 truncate">{{ t.title }}</span>
-                      <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-500 font-bold">
-                        {{ t.status === 'finished' ? '완료' : '취소' }}
-                      </span>
-                    </div>
-                    <div class="text-[10px] text-gray-600 mt-0.5">
-                      {{ formatTournamentTime(t.scheduled_at) }} · {{ t.buy_in }}칩 · {{ t.registered_count || 0 }}명
-                    </div>
-                  </div>
-                  <button v-if="t.status === 'finished'" @click.stop="showResults(t)" class="text-[10px] text-amber-600 hover:text-amber-400 font-bold">결과보기</button>
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
 
-        <!-- ===== 2. 게임 모드 카드 ===== -->
+        <!-- ===== 2. 게임 모드 카드 (토너먼트 바로 아래) ===== -->
         <section>
           <h2 class="text-lg font-black text-amber-400 flex items-center gap-2 mb-4">
             <span>&#127918;</span> 게임 모드
@@ -200,6 +174,44 @@
               <h3 class="text-sm font-bold text-blue-400 group-hover:text-blue-300 mb-1">룰 &amp; 튜토리얼</h3>
               <p class="text-xs text-gray-300">포커 규칙과 전략을 배워보세요.</p>
             </RouterLink>
+          </div>
+        </section>
+
+        <!-- ===== 3. 종료된 토너먼트 (접기 + 페이징) ===== -->
+        <section v-if="pastTournaments.length > 0">
+          <div class="flex items-center justify-between cursor-pointer" @click="showPastTournaments = !showPastTournaments">
+            <h2 class="text-sm font-bold text-gray-500 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-gray-600"></span>
+              종료된 토너먼트 ({{ pastTournaments.length }})
+            </h2>
+            <span class="text-gray-500 text-xs">{{ showPastTournaments ? '&#9650; 접기' : '&#9660; 펼치기' }}</span>
+          </div>
+          <div v-if="showPastTournaments" class="mt-3 space-y-2">
+            <div v-for="t in pagedPastTournaments" :key="t.id"
+              class="bg-gray-900/50 rounded-xl border border-gray-800/50 p-3 opacity-60 hover:opacity-80 transition">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-gray-400 truncate">{{ t.title }}</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded-full bg-gray-700 text-gray-500 font-bold">
+                      {{ t.status === 'finished' ? '완료' : '취소' }}
+                    </span>
+                  </div>
+                  <div class="text-[10px] text-gray-600 mt-0.5">
+                    {{ formatTournamentTime(t.scheduled_at || t.finished_at) }} · {{ t.buy_in }}칩 · {{ t.registered_count || 0 }}명
+                  </div>
+                </div>
+                <button v-if="t.status === 'finished'" @click.stop="showResults(t)" class="text-[10px] text-amber-600 hover:text-amber-400 font-bold">결과보기</button>
+              </div>
+            </div>
+            <!-- 페이징 -->
+            <div v-if="pastTournaments.length > pastPageSize" class="flex justify-center gap-2 pt-2">
+              <button @click="pastPage = Math.max(1, pastPage - 1)" :disabled="pastPage <= 1"
+                class="text-xs text-gray-400 hover:text-white disabled:opacity-30 px-2 py-1">&#9664; 이전</button>
+              <span class="text-xs text-gray-500">{{ pastPage }} / {{ pastTotalPages }}</span>
+              <button @click="pastPage = Math.min(pastTotalPages, pastPage + 1)" :disabled="pastPage >= pastTotalPages"
+                class="text-xs text-gray-400 hover:text-white disabled:opacity-30 px-2 py-1">다음 &#9654;</button>
+            </div>
           </div>
         </section>
       </div>
@@ -393,10 +405,17 @@ const liveTournaments = computed(() =>
 )
 const pastTournaments = computed(() =>
   tournaments.value
-    .filter(t => ['finished', 'cancelled'].includes(t.status) || (new Date(t.scheduled_at) < new Date(now.value - 3600000) && t.status !== 'running'))
-    .sort((a, b) => new Date(b.scheduled_at) - new Date(a.scheduled_at))
-    .slice(0, 10)
+    .filter(t => ['finished', 'cancelled'].includes(t.status))
+    .sort((a, b) => new Date(b.finished_at || b.scheduled_at) - new Date(a.finished_at || a.scheduled_at))
 )
+const showPastTournaments = ref(false)
+const pastPage = ref(1)
+const pastPageSize = 10
+const pastTotalPages = computed(() => Math.ceil(pastTournaments.value.length / pastPageSize))
+const pagedPastTournaments = computed(() => {
+  const start = (pastPage.value - 1) * pastPageSize
+  return pastTournaments.value.slice(start, start + pastPageSize)
+})
 function isPast(t) { return ['finished', 'cancelled'].includes(t.status) }
 
 const myRegisteredIds = ref([])
