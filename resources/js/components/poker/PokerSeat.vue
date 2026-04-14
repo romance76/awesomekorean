@@ -108,11 +108,11 @@
       </div>
     </div>
 
-    <!-- Bet chips (positioned toward table center, no overlap with cards) -->
+    <!-- Bet chips (카드 오른쪽에 통일) -->
     <div
       v-if="seat.bet > 0 && !showdown"
       class="absolute z-[6] pointer-events-none"
-      :style="betChipStyle"
+      style="top: -10px; left: 100%; margin-left: 4px;"
     >
       <ChipStack :amount="seat.bet" :bb="bb" />
     </div>
@@ -163,18 +163,7 @@ const props = defineProps({
 const isMe = computed(() => props.seat.isPlayer)
 const seatColor = computed(() => props.seat.color || '#888')
 
-// Bet chip position — 좌석에서 테이블 중앙 방향으로 오프셋
-const betChipStyle = computed(() => {
-  const dx = 50 - props.position.x
-  const dy = 50 - props.position.y
-  const dist = Math.sqrt(dx * dx + dy * dy) || 1
-  const offsetX = (dx / dist) * (isMe.value ? 60 : 45)
-  const offsetY = (dy / dist) * (isMe.value ? 35 : 25)
-  return {
-    left: offsetX + 'px',
-    top: offsetY - 15 + 'px',
-  }
-})
+// (betChipStyle removed — chips now always positioned right of cards)
 
 // Chat bubble visibility (4 second window)
 const isChatVisible = ref(false)
