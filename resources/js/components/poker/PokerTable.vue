@@ -2,7 +2,7 @@
   <div class="h-full w-full relative">
 
     <!-- 검은 쿠션 -->
-    <div class="absolute left-[15%] right-[15%] top-[20%] bottom-[18%] p-[7px]"
+    <div class="absolute left-[15%] right-[15%] top-[16%] bottom-[24%] p-[7px]"
       style="border-radius: 999px; background: linear-gradient(180deg, #3a3a3a, #1a1a1a, #2a2a2a); box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.5);">
 
       <!-- 나무 림 -->
@@ -122,11 +122,10 @@ const activePlayerName = computed(() => {
 })
 
 // 좌석 — 딜러가 상단 중앙이므로 9명은 딜러 양옆으로
-// 타원 기반 좌석 배치: 시계방향 순서 (나→좌하→좌→좌상→상좌→상우→우상→우→우하)
-// 쿠션(top:20%,bottom:18%) → 중심(50%,51%)
+// 타원 기반 좌석 배치: 시계방향 순서
+// 쿠션(top:16%,bottom:24%) → 중심(50%,46%)
 const seatPositions = (() => {
-  const cx = 50, cy = 51, a = 40, b = 35
-  // 0=나(아래), 시계방향으로 1~8
+  const cx = 50, cy = 46, a = 40, b = 33
   const angles = [270, 305, 345, 25, 55, 125, 155, 195, 235]
   return angles.map(deg => {
     const rad = deg * Math.PI / 180
