@@ -1,6 +1,6 @@
 <template>
-<div class="select-none h-screen bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden flex flex-col"
-  style="font-family:'Noto Sans KR',sans-serif">
+<div ref="gameRoot" class="select-none bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden flex flex-col"
+  style="font-family:'Noto Sans KR',sans-serif; width: 100vw; height: 100vh;"
 
   <!-- ═══ 매칭 대기 화면 ═══ -->
   <div v-if="screen==='matching'" class="flex-1 flex items-center justify-center">
@@ -71,19 +71,17 @@
       </div>
     </div>
 
-    <!-- 카드 무늬 배경 (전체) + 3칼럼 -->
-    <div class="flex-1 min-h-0 flex relative" style="background-color: #0b1018;">
-      <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;" />
+    <!-- 솔로와 동일한 3칼럼: 테이블(center) + 모니터(right) -->
+    <div class="flex-1 min-h-0 flex">
 
-      <!-- 중앙: 테이블 (솔로와 동일하게 전체 채움) -->
+      <!-- 중앙: 테이블 (솔로와 동일) -->
       <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center relative">
         <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
           :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
           :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
           :act-idx="gameState?.actIdx??-1" :turn-timer="turnCountdown" :turn-timer-max="gameState?.turnTime||15" />
 
-        <!-- 액션 버튼: 내 자리(하단 중앙) 바로 오른쪽 -->
+        <!-- 액션 버튼: 내 자리 오른쪽 -->
         <div v-if="isMyTurn && !amIOut" class="absolute z-30"
           style="bottom: 2%; left: 55%;">
           <div class="bg-gray-900/90 backdrop-blur rounded-xl border border-gray-700/50 px-3 py-2">
@@ -472,8 +470,29 @@ watch(() => gameState.value?.status, (s) => {
   }
 })
 
+const gameRoot = ref(null)
+
+// 브라우저 확대/축소 보정: 항상 동일한 크기 유지
+function fixZoom() {
+  if (!gameRoot.value) return
+  const browserZoom = Math.round(window.devicePixelRatio * 100) / 100
+  const baseZoom = window.screen.width > 1920 ? 1 : 1
+  if (browserZoom !== 1) {
+    gameRoot.value.style.transform = `scale(${1 / browserZoom})`
+    gameRoot.value.style.transformOrigin = 'top left'
+    gameRoot.value.style.width = `${browserZoom * 100}vw`
+    gameRoot.value.style.height = `${browserZoom * 100}vh`
+  } else {
+    gameRoot.value.style.transform = ''
+    gameRoot.value.style.width = '100vw'
+    gameRoot.value.style.height = '100vh'
+  }
+}
+
 onMounted(() => {
   resumeAudio()
+  fixZoom()
+  window.addEventListener('resize', fixZoom)
 
   // URL 파라미터로 토너먼트 모드 체크
   const tId = route.query.tournament
@@ -483,5 +502,8 @@ onMounted(() => {
   }
 })
 
-onUnmounted(cleanup)
+onUnmounted(() => {
+  cleanup()
+  window.removeEventListener('resize', fixZoom)
+})
 </script>
