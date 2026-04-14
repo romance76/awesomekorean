@@ -1,7 +1,7 @@
 <template>
   <!-- Face Down Card -->
   <div
-    v-if="faceDown"
+    v-if="faceDown || !parsedCard"
     :class="[
       'rounded-lg border-2 border-blue-700 flex items-center justify-center flex-shrink-0',
       'bg-gradient-to-br from-blue-900 to-blue-950 shadow-lg',
@@ -21,7 +21,7 @@
 
   <!-- Face Up Card -->
   <div
-    v-else-if="card"
+    v-else-if="parsedCard"
     :class="[
       'rounded-lg border-2 flex flex-col items-center justify-center flex-shrink-0',
       tiny ? 'w-11 h-[60px] gap-[1px]' : 'w-[72px] h-[100px] gap-1',
@@ -39,9 +39,9 @@
       ]"
       :style="{ color: suitColor }"
     >
-      {{ card.rank }}
+      {{ parsedCard.rank }}
     </div>
-    <SuitIcon :suit="card.suit" :size="suitSize" :color="suitColor" />
+    <SuitIcon :suit="parsedCard.suit" :size="suitSize" :color="suitColor" />
   </div>
 </template>
 
@@ -50,15 +50,31 @@ import { computed } from 'vue'
 import SuitIcon from './SuitIcon.vue'
 
 const SC = { '♠': '#1a1a2e', '♥': '#cc0000', '♦': '#cc0000', '♣': '#1a1a2e' }
+const SUIT_MAP = { s: '♠', h: '♥', d: '♦', c: '♣' }
+const RANK_MAP = { T: '10', J: 'J', Q: 'Q', K: 'K', A: 'A' }
 
 const props = defineProps({
-  card: { type: Object, default: null },
+  card: { type: [Object, String], default: null },
   faceDown: { type: Boolean, default: false },
   highlight: { type: Boolean, default: false },
   tiny: { type: Boolean, default: false },
   winner: { type: Boolean, default: false }
 })
 
-const suitColor = computed(() => props.card ? SC[props.card.suit] || '#1a1a2e' : '#1a1a2e')
+// 서버 문자열 ('As', 'Kh', '2d') → { rank, suit } 파싱
+const parsedCard = computed(() => {
+  if (!props.card) return null
+  if (typeof props.card === 'object') return props.card
+  if (props.card === '??' || props.card === '?') return null
+  const str = String(props.card)
+  const rankChar = str.slice(0, -1)
+  const suitChar = str.slice(-1)
+  return {
+    rank: RANK_MAP[rankChar] || rankChar,
+    suit: SUIT_MAP[suitChar] || suitChar,
+  }
+})
+
+const suitColor = computed(() => parsedCard.value ? SC[parsedCard.value.suit] || '#1a1a2e' : '#1a1a2e')
 const suitSize = computed(() => props.tiny ? 20 : 32)
 </script>

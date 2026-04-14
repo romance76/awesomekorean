@@ -24,7 +24,7 @@
         v-for="(c, j) in seat.cards"
         :key="j"
         :card="c"
-        :face-down="!seat.showCards && !isMe"
+        :face-down="(!seat.showCards && !isMe) || c === '??' || c === '?'"
         :highlight="isMe"
         :tiny="!isMe"
         :winner="isWinner"

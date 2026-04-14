@@ -72,14 +72,13 @@
     </div>
 
     <!-- 카드 무늬 배경 (전체) + 3칼럼 -->
-    <div class="flex-1 min-h-0 flex relative"
-      style="background-color: #0b1018; background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;">
-      <div class="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style="background-image: inherit; background-size: inherit;" />
+    <div class="flex-1 min-h-0 flex relative" style="background-color: #0b1018;">
+      <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;" />
 
-      <!-- 중앙: 테이블 -->
-      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center p-2">
-        <div class="w-full h-full" style="max-width: 78%; max-height: 88%; margin: auto;">
+      <!-- 중앙: 테이블 (위로 올림) -->
+      <div class="flex-1 min-h-0 min-w-0 flex items-start justify-center pt-1 px-2">
+        <div class="w-full h-full" style="max-width: 78%; max-height: 92%;">
           <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
             :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
             :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
