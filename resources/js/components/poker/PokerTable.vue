@@ -1,8 +1,8 @@
 <template>
   <div class="h-full w-full relative">
 
-    <!-- 검은 쿠션 — 딜러 허리에 맞춤 -->
-    <div class="absolute left-[15%] right-[15%] top-[26%] bottom-[12%] p-[7px]"
+    <!-- 검은 쿠션 -->
+    <div class="absolute left-[15%] right-[15%] top-[20%] bottom-[18%] p-[7px]"
       style="border-radius: 999px; background: linear-gradient(180deg, #3a3a3a, #1a1a1a, #2a2a2a); box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.5);">
 
       <!-- 나무 림 -->
@@ -54,7 +54,7 @@
     </div>
 
     <!-- 딜러 이미지 + 턴 타이머 -->
-    <div class="absolute left-1/2 -translate-x-1/2 z-[5]" style="top: 4%">
+    <div class="absolute left-1/2 -translate-x-1/2 z-[5]" style="top: 0%">
       <div class="flex flex-col items-center relative">
         <img src="/images/dealer.png" alt="Dealer" class="h-[185px] w-auto object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.9)]" />
         <!-- 턴 타이머 (딜러 오른쪽) -->
@@ -122,11 +122,9 @@ const activePlayerName = computed(() => {
 })
 
 // 좌석 — 딜러가 상단 중앙이므로 9명은 딜러 양옆으로
-// 타원 기반 좌석 배치: 중심(50%,57%), 반지름(a=38%,b=34%)
-// 9자리를 타원 위에 균등 배치 (하단 중앙=나, 시계방향)
+// 타원 기반 좌석 배치: 쿠션(top:20%,bottom:18%) → 중심(50%,51%), 반지름(a=38%,b=33%)
 const seatPositions = (() => {
-  const cx = 50, cy = 55, a = 38, b = 36
-  // 각도: 나(아래)부터 시계반대 방향
+  const cx = 50, cy = 51, a = 40, b = 35
   const angles = [270, 235, 195, 155, 125, 55, 25, 345, 305]
   return angles.map(deg => {
     const rad = deg * Math.PI / 180
