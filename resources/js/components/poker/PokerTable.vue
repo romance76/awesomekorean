@@ -18,7 +18,7 @@
             style="border-radius: 999px;" />
 
           <!-- Community Cards (center) -->
-          <div class="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-[4]">
+          <div class="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-[4]">
             <div class="flex gap-2.5 justify-center mb-2">
               <PokerCard v-for="(c, i) in community" :key="i" :card="c" :winner="hasWinner" />
               <template v-if="community.length < 5 && !showdown">
@@ -30,7 +30,7 @@
           </div>
 
           <!-- Pot (칩은 POT 글씨 옆에 배치) -->
-          <div v-if="pot > 0" class="absolute top-[58%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[4]"
+          <div v-if="pot > 0" class="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[4]"
             :style="potAnimStyle">
             <div class="flex items-center gap-3">
               <div v-if="!isChipFlying" class="bg-black/60 rounded-full px-4 py-1 flex items-center gap-1.5 backdrop-blur border border-white/10">
