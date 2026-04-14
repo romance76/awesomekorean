@@ -24,6 +24,8 @@ Schedule::command('reservations:expire')->everyMinute();
 
 // 포커 토너먼트 자동 생성 (매일 00:10 — 내일 스케줄 생성)
 Schedule::command('poker:generate-tournaments')->dailyAt('00:10');
+// 포커 토너먼트 자동 시작 (매분 — 시간 된 토너먼트 시작)
+Schedule::command('poker:start-tournaments')->everyMinute()->withoutOverlapping();
 
 // 매일 새벽 3시 한인 업소 Google Places 업데이트
 Schedule::command('places:import')->dailyAt('03:30');

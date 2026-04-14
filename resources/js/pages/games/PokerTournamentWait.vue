@@ -177,6 +177,18 @@
     </div>
   </Transition>
 
+  <!-- Tournament Starting Overlay -->
+  <Transition name="fade">
+    <div v-if="startingAnimation" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[60]">
+      <div class="text-center animate-pulse">
+        <div class="text-6xl mb-4">🎮</div>
+        <h2 class="text-3xl font-black text-amber-400 mb-2">토너먼트 시작!</h2>
+        <p class="text-gray-400 text-sm">테이블로 이동 중...</p>
+        <div class="mt-4 w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+      </div>
+    </div>
+  </Transition>
+
 </div>
 </template>
 
@@ -199,9 +211,11 @@ const registering = ref(false)
 const cancelling = ref(false)
 const errorMsg = ref('')
 const now = ref(Date.now())
+const startingAnimation = ref(false)
 
 let heartbeatInterval = null
 let countdownInterval = null
+let startCheckInterval = null
 let echoChannel = null
 let errorTimeout = null
 
@@ -340,11 +354,31 @@ async function fetchTournament() {
   try {
     const { data } = await axios.get(`/api/poker/tournaments/${tournamentId.value}`)
     if (data.success !== false) {
-      tournament.value = data.data || data
+      const t = data.data?.tournament || data.data || data
+      tournament.value = t
       entries.value = data.data?.entries || data.entries || []
+
+      // 이미 시작된 토너먼트면 게임 화면으로 이동
+      if (t.status === 'running' && auth.isLoggedIn) {
+        checkAndRedirectToGame()
+      }
     }
   } catch (e) {
     showError('토너먼트 정보를 불러올 수 없습니다')
+  }
+}
+
+async function checkAndRedirectToGame() {
+  try {
+    const { data } = await axios.get(`/api/poker/tournaments/${tournamentId.value}/game`)
+    if (data.success && data.data?.gameId) {
+      startingAnimation.value = true
+      setTimeout(() => {
+        router.push(`/games/poker/multi?tournament=${tournamentId.value}&game=${data.data.gameId}`)
+      }, 1500)
+    }
+  } catch {
+    // 게임 아직 준비 안 됨
   }
 }
 
@@ -397,6 +431,15 @@ function setupEcho() {
   echoChannel.listen('.tournament.updated', () => {
     fetchTournament()
   })
+  echoChannel.listen('.tournament.started', (e) => {
+    // 토너먼트 시작! → 게임 화면으로 이동
+    if (e.game_id && e.player_ids?.includes(auth.user?.id)) {
+      startingAnimation.value = true
+      setTimeout(() => {
+        router.push(`/games/poker/multi?tournament=${tournamentId.value}&game=${e.game_id}`)
+      }, 2000) // 2초 애니메이션 후 이동
+    }
+  })
 }
 
 function cleanupEcho() {
@@ -426,11 +469,21 @@ onMounted(async () => {
 
   // WebSocket
   setupEcho()
+
+  // Fallback: 5초마다 토너먼트 상태 폴링 (시작 시간 근처)
+  startCheckInterval = setInterval(async () => {
+    if (startingAnimation.value) return
+    const remaining = timeRemaining.value
+    if (remaining !== null && remaining <= 60000) {
+      await fetchTournament()
+    }
+  }, 5000)
 })
 
 onUnmounted(() => {
   if (countdownInterval) clearInterval(countdownInterval)
   if (heartbeatInterval) clearInterval(heartbeatInterval)
+  if (startCheckInterval) clearInterval(startCheckInterval)
   if (errorTimeout) clearTimeout(errorTimeout)
   cleanupEcho()
 })

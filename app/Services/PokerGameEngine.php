@@ -423,6 +423,178 @@ class PokerGameEngine
         return self::processAction($gameId, $seat['id'], $action, $amount);
     }
 
+    // ── 토너먼트: 다음 핸드 딜 ──
+    public static function nextHand(string $gameId): ?array
+    {
+        $state = self::getGameState($gameId);
+        if (!$state) return null;
+
+        // 탈락자 처리 (칩 0 → isOut)
+        $eliminated = [];
+        foreach ($state['seats'] as $i => &$seat) {
+            if (!$seat['isOut'] && $seat['chips'] <= 0) {
+                $seat['isOut'] = true;
+                $eliminated[] = $seat;
+            }
+        }
+        unset($seat);
+
+        // 남은 플레이어 수
+        $alive = array_filter($state['seats'], fn($s) => !$s['isOut']);
+        $aliveCount = count($alive);
+
+        // 1명 남으면 토너먼트 종료
+        if ($aliveCount <= 1) {
+            $state['status'] = 'finished';
+            $state['stage'] = 'tournament_end';
+
+            // 순위 계산 (칩 많은 순)
+            $ranked = $alive;
+            usort($ranked, fn($a, $b) => $b['chips'] - $a['chips']);
+            $state['finalRanking'] = array_map(function ($s, $i) {
+                return ['seatIdx' => $s['seatIdx'], 'name' => $s['name'], 'id' => $s['id'], 'chips' => $s['chips'], 'place' => $i + 1];
+            }, $ranked, array_keys($ranked));
+
+            self::saveGameState($gameId, $state);
+            return $state;
+        }
+
+        // 블라인드 레벨 업 체크
+        $config = $state['config'] ?? [];
+        $blindSchedule = $config['blindSchedule'] ?? [];
+        $currentLevel = $config['blindLevel'] ?? 0;
+        $blindStartedAt = $config['blindStartedAt'] ?? time();
+
+        if (!empty($blindSchedule) && isset($blindSchedule[$currentLevel])) {
+            $duration = ($blindSchedule[$currentLevel]['duration'] ?? 10) * 60; // 분→초
+            if (time() - $blindStartedAt >= $duration && isset($blindSchedule[$currentLevel + 1])) {
+                $currentLevel++;
+                $state['config']['blindLevel'] = $currentLevel;
+                $state['config']['blindStartedAt'] = time();
+                $state['sb'] = $blindSchedule[$currentLevel]['sb'];
+                $state['bb'] = $blindSchedule[$currentLevel]['bb'];
+                $state['blindLevelUp'] = true; // 프론트엔드 알림용
+            }
+        }
+
+        // 덱 새로 섞기
+        $deck = self::createDeck();
+
+        // 딜러 이동 (다음 살아있는 사람)
+        $dealerIdx = $state['dealerIdx'];
+        $total = count($state['seats']);
+        for ($i = 1; $i <= $total; $i++) {
+            $next = ($dealerIdx + $i) % $total;
+            if (!$state['seats'][$next]['isOut']) {
+                $dealerIdx = $next;
+                break;
+            }
+        }
+        $state['dealerIdx'] = $dealerIdx;
+
+        // SB/BB 위치
+        $sbIdx = null;
+        $bbIdx = null;
+        $pos = $dealerIdx;
+        for ($i = 1; $i <= $total; $i++) {
+            $pos = ($dealerIdx + $i) % $total;
+            if (!$state['seats'][$pos]['isOut']) {
+                if ($sbIdx === null) $sbIdx = $pos;
+                elseif ($bbIdx === null) { $bbIdx = $pos; break; }
+            }
+        }
+
+        // 헤즈업(2명)일 때 딜러=SB
+        if ($aliveCount === 2) {
+            $sbIdx = $dealerIdx;
+            for ($i = 1; $i <= $total; $i++) {
+                $pos = ($dealerIdx + $i) % $total;
+                if (!$state['seats'][$pos]['isOut']) { $bbIdx = $pos; break; }
+            }
+        }
+
+        // 카드 딜 + 리셋
+        foreach ($state['seats'] as $i => &$seat) {
+            if (!$seat['isOut']) {
+                $seat['cards'] = [array_shift($deck), array_shift($deck)];
+                $seat['bet'] = 0;
+                $seat['folded'] = false;
+                $seat['allIn'] = false;
+            } else {
+                $seat['cards'] = [];
+                $seat['bet'] = 0;
+                $seat['folded'] = true;
+            }
+        }
+        unset($seat);
+
+        // SB/BB 강제 베팅
+        $sb = $state['sb'];
+        $bb = $state['bb'];
+        $state['seats'][$sbIdx]['bet'] = min($sb, $state['seats'][$sbIdx]['chips']);
+        $state['seats'][$sbIdx]['chips'] -= $state['seats'][$sbIdx]['bet'];
+        if ($state['seats'][$sbIdx]['chips'] <= 0) $state['seats'][$sbIdx]['allIn'] = true;
+
+        $state['seats'][$bbIdx]['bet'] = min($bb, $state['seats'][$bbIdx]['chips']);
+        $state['seats'][$bbIdx]['chips'] -= $state['seats'][$bbIdx]['bet'];
+        if ($state['seats'][$bbIdx]['chips'] <= 0) $state['seats'][$bbIdx]['allIn'] = true;
+
+        // UTG (BB 다음 살아있는 사람)
+        $utg = null;
+        for ($i = 1; $i <= $total; $i++) {
+            $pos = ($bbIdx + $i) % $total;
+            if (!$state['seats'][$pos]['isOut'] && !$state['seats'][$pos]['allIn']) {
+                $utg = $pos;
+                break;
+            }
+        }
+
+        $state['deck'] = $deck;
+        $state['community'] = [];
+        $state['pot'] = $state['seats'][$sbIdx]['bet'] + $state['seats'][$bbIdx]['bet'];
+        $state['stage'] = 'preflop';
+        $state['betLevel'] = $bb;
+        $state['actIdx'] = $utg ?? $sbIdx;
+        $state['turnDeadline'] = time() + ($state['turnTime'] ?? 15);
+        $state['lastAction'] = null;
+        $state['status'] = 'playing';
+        $state['handNum'] = ($state['handNum'] ?? 1) + 1;
+        unset($state['result'], $state['blindLevelUp']);
+
+        self::saveGameState($gameId, $state);
+        return $state;
+    }
+
+    // ── 토너먼트 상금 계산 ──
+    public static function calculatePrizes(int $totalBuyIn, int $playerCount, int $bountyPct = 10): array
+    {
+        $bountyPool = intdiv($totalBuyIn * $bountyPct, 100);
+        $prizePool = $totalBuyIn - $bountyPool;
+
+        // 상금 구조 (참가자 수에 따라)
+        if ($playerCount <= 4) {
+            $structure = [0.60, 0.40];
+        } elseif ($playerCount <= 6) {
+            $structure = [0.50, 0.30, 0.20];
+        } elseif ($playerCount <= 9) {
+            $structure = [0.40, 0.25, 0.18, 0.17];
+        } else {
+            $structure = [0.35, 0.22, 0.15, 0.10, 0.08, 0.05, 0.05];
+        }
+
+        $prizes = [];
+        foreach ($structure as $i => $pct) {
+            $prizes[$i + 1] = (int) round($prizePool * $pct);
+        }
+
+        return [
+            'prizePool' => $prizePool,
+            'bountyPool' => $bountyPool,
+            'bountyPerKill' => $playerCount > 1 ? intdiv($bountyPool, $playerCount - 1) : 0,
+            'prizes' => $prizes,
+        ];
+    }
+
     // ── 유저에게 보낼 상태 (자기 카드만 보이게) ──
     public static function getPlayerView(array $state, int $userId): array
     {

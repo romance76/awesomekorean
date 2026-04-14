@@ -14,14 +14,20 @@ use Illuminate\Http\Request;
 class PokerTournamentController extends Controller
 {
     // 토너먼트 목록 (예정 + 진행중)
-    public function index()
+    public function index(Request $request)
     {
+        $userId = $request->user()?->id;
+
         $upcoming = PokerTournament::upcoming()
             ->where('is_template', false)
             ->withCount(['entries as registered_count', 'entries as online_count' => function ($q) {
                 $q->where('is_online', true);
             }])
-            ->get();
+            ->get()
+            ->map(function ($t) use ($userId) {
+                $t->is_registered = $userId ? $t->entries()->where('user_id', $userId)->exists() : false;
+                return $t;
+            });
 
         $running = PokerTournament::running()
             ->where('is_template', false)
@@ -30,7 +36,11 @@ class PokerTournamentController extends Controller
             }, 'entries as remaining_count' => function ($q) {
                 $q->whereIn('status', ['seated', 'playing']);
             }])
-            ->get();
+            ->get()
+            ->map(function ($t) use ($userId) {
+                $t->is_registered = $userId ? $t->entries()->where('user_id', $userId)->exists() : false;
+                return $t;
+            });
 
         return response()->json([
             'success' => true,
@@ -42,11 +52,14 @@ class PokerTournamentController extends Controller
     }
 
     // 토너먼트 상세 + 대기실 명단
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $tournament = PokerTournament::withCount(['entries as registered_count', 'entries as online_count' => function ($q) {
             $q->where('is_online', true);
         }])->findOrFail($id);
+
+        $userId = $request->user()?->id;
+        $tournament->is_registered = $userId ? $tournament->entries()->where('user_id', $userId)->exists() : false;
 
         $entries = PokerTournamentEntry::where('tournament_id', $id)
             ->with('user:id,name,nickname,avatar')

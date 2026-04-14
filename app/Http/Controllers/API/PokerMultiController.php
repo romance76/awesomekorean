@@ -4,9 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Events\PokerAction;
 use App\Events\PokerChat;
+use App\Events\PokerTournamentUpdate;
 use App\Http\Controllers\Controller;
 use App\Models\PokerGame;
+use App\Models\PokerStat;
 use App\Models\PokerTournament;
+use App\Models\PokerTournamentEntry;
+use App\Models\PokerWallet;
 use App\Services\PokerGameEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -225,7 +229,11 @@ class PokerMultiController extends Controller
     {
         $state = PokerGameEngine::getGameState($gameId);
         if (!$state || $state['status'] !== 'playing') {
-            return response()->json(['success' => true, 'timeout' => false]);
+            // 쇼다운 후 토너먼트면 → 자동 다음 핸드
+            if ($state && $state['status'] === 'showdown' && ($state['config']['type'] ?? '') === 'tournament') {
+                return $this->handleTournamentShowdown($gameId, $state);
+            }
+            return response()->json(['success' => true, 'timeout' => false, 'state' => $state ? PokerGameEngine::getPlayerView($state, auth()->id()) : null]);
         }
 
         $actIdx = $state['actIdx'];
@@ -246,6 +254,12 @@ class PokerMultiController extends Controller
                 }
 
                 $finalState = PokerGameEngine::getGameState($gameId);
+
+                // 쇼다운 체크 → 토너먼트면 자동 다음 핸드
+                if ($finalState && $finalState['status'] === 'showdown' && ($finalState['config']['type'] ?? '') === 'tournament') {
+                    return $this->handleTournamentShowdown($gameId, $finalState);
+                }
+
                 return response()->json([
                     'success' => true,
                     'timeout' => false,
@@ -261,9 +275,247 @@ class PokerMultiController extends Controller
             $toCall = max(0, $state['betLevel'] - $seat['bet']);
             $action = $toCall === 0 ? 'check' : 'fold';
             $result = PokerGameEngine::processAction($gameId, $seat['id'], $action);
+
+            // 쇼다운 체크
+            $freshState = PokerGameEngine::getGameState($gameId);
+            if ($freshState && $freshState['status'] === 'showdown' && ($freshState['config']['type'] ?? '') === 'tournament') {
+                return $this->handleTournamentShowdown($gameId, $freshState);
+            }
+
             return response()->json(['success' => true, 'timeout' => true, 'action' => $action]);
         }
 
         return response()->json(['success' => true, 'timeout' => false, 'remaining' => max(0, $state['turnDeadline'] - time())]);
+    }
+
+    // ── 토너먼트 쇼다운 처리 → 다음 핸드 or 토너먼트 종료 ──
+    private function handleTournamentShowdown(string $gameId, array $state): \Illuminate\Http\JsonResponse
+    {
+        $tournamentId = $state['config']['tournamentId'] ?? null;
+
+        // 3초 대기 (쇼다운 결과 보여주기)
+        $showdownAt = Cache::get("poker_showdown_{$gameId}");
+        if (!$showdownAt) {
+            Cache::put("poker_showdown_{$gameId}", time(), 30);
+            return response()->json([
+                'success' => true,
+                'timeout' => false,
+                'state' => PokerGameEngine::getPlayerView($state, auth()->id()),
+                'showdown_wait' => 3,
+            ]);
+        }
+
+        if (time() - $showdownAt < 3) {
+            return response()->json([
+                'success' => true,
+                'timeout' => false,
+                'state' => PokerGameEngine::getPlayerView($state, auth()->id()),
+                'showdown_wait' => max(0, 3 - (time() - $showdownAt)),
+            ]);
+        }
+
+        Cache::forget("poker_showdown_{$gameId}");
+
+        // 다음 핸드 딜
+        $nextState = PokerGameEngine::nextHand($gameId);
+        if (!$nextState) {
+            return response()->json(['success' => false, 'message' => '게임 상태 오류']);
+        }
+
+        // 탈락자 DB 업데이트
+        if ($tournamentId) {
+            $this->updateTournamentEliminations($tournamentId, $nextState);
+        }
+
+        // 토너먼트 종료?
+        if ($nextState['status'] === 'finished') {
+            if ($tournamentId) {
+                $this->finishTournament($tournamentId, $nextState);
+            }
+            return response()->json([
+                'success' => true,
+                'tournament_finished' => true,
+                'state' => PokerGameEngine::getPlayerView($nextState, auth()->id()),
+                'ranking' => $nextState['finalRanking'] ?? [],
+            ]);
+        }
+
+        // 브로드캐스트 (새 핸드 시작)
+        foreach ($nextState['seats'] as $seat) {
+            if (isset($seat['id']) && $seat['id'] > 0 && !$seat['isOut']) {
+                broadcast(new PokerAction($gameId, PokerGameEngine::getPlayerView($nextState, $seat['id']), ['type' => 'new_hand']))->toOthers();
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'new_hand' => true,
+            'hand_num' => $nextState['handNum'] ?? 0,
+            'blind_level_up' => $nextState['blindLevelUp'] ?? false,
+            'state' => PokerGameEngine::getPlayerView($nextState, auth()->id()),
+        ]);
+    }
+
+    // ── 탈락자 DB 업데이트 ──
+    private function updateTournamentEliminations(int $tournamentId, array $state): void
+    {
+        $alive = array_filter($state['seats'], fn($s) => !$s['isOut']);
+        $aliveCount = count($alive);
+
+        foreach ($state['seats'] as $seat) {
+            if ($seat['isOut'] && $seat['id'] > 0) {
+                $entry = PokerTournamentEntry::where('tournament_id', $tournamentId)
+                    ->where('user_id', $seat['id'])
+                    ->whereNull('finish_position')
+                    ->first();
+
+                if ($entry) {
+                    $entry->update([
+                        'status' => 'eliminated',
+                        'finish_position' => $aliveCount + 1, // 남은 인원 + 1 = 내 순위
+                        'chips' => 0,
+                        'eliminated_at' => now(),
+                    ]);
+                }
+            }
+        }
+
+        // 살아있는 플레이어 칩 업데이트
+        foreach ($alive as $seat) {
+            if ($seat['id'] > 0) {
+                PokerTournamentEntry::where('tournament_id', $tournamentId)
+                    ->where('user_id', $seat['id'])
+                    ->update(['chips' => $seat['chips']]);
+            }
+        }
+    }
+
+    // ── 토너먼트 종료 + 상금 지급 ──
+    private function finishTournament(int $tournamentId, array $state): void
+    {
+        $tournament = PokerTournament::find($tournamentId);
+        if (!$tournament) return;
+
+        $humanEntries = PokerTournamentEntry::where('tournament_id', $tournamentId)->get();
+        $playerCount = $humanEntries->count();
+        $totalBuyIn = $tournament->buy_in * $playerCount;
+
+        $prizeInfo = PokerGameEngine::calculatePrizes($totalBuyIn, $playerCount, $tournament->bounty_pct ?? 10);
+
+        // 최종 랭킹에서 상금 지급
+        $ranking = $state['finalRanking'] ?? [];
+
+        // 우승자 (1명 남은 사람) DB 업데이트
+        foreach ($ranking as $r) {
+            if ($r['id'] > 0) {
+                $entry = PokerTournamentEntry::where('tournament_id', $tournamentId)
+                    ->where('user_id', $r['id'])
+                    ->first();
+                if ($entry) {
+                    $prize = $prizeInfo['prizes'][$r['place']] ?? 0;
+                    $entry->update([
+                        'status' => 'finished',
+                        'finish_position' => $r['place'],
+                        'prize_won' => $prize,
+                        'chips' => $r['chips'],
+                    ]);
+
+                    // 칩 지갑에 상금 입금
+                    if ($prize > 0) {
+                        $wallet = PokerWallet::firstOrCreate(
+                            ['user_id' => $r['id']],
+                            ['chips_balance' => 0, 'total_deposited' => 0, 'total_withdrawn' => 0]
+                        );
+                        $wallet->deposit($prize, "토너먼트 상금 ({$r['place']}등): {$tournament->title}");
+                    }
+
+                    // 통계 업데이트
+                    $stat = PokerStat::firstOrCreate(['user_id' => $r['id']], [
+                        'games_played' => 0, 'hands_played' => 0, 'tournaments_won' => 0,
+                        'in_the_money' => 0, 'best_place' => 999, 'total_prize_won' => 0,
+                        'total_bounties' => 0, 'total_buy_ins' => 0, 'biggest_pot_won' => 0,
+                    ]);
+                    $stat->increment('games_played');
+                    if ($r['place'] === 1) $stat->increment('tournaments_won');
+                    if ($prize > 0) $stat->increment('in_the_money');
+                    $stat->increment('total_prize_won', $prize);
+                    $stat->increment('total_buy_ins', $tournament->buy_in);
+                    if ($r['place'] < $stat->best_place) $stat->update(['best_place' => $r['place']]);
+                }
+            }
+        }
+
+        // 탈락자들도 통계 업데이트 (상금 없는 사람)
+        $rankedIds = collect($ranking)->pluck('id')->filter(fn($id) => $id > 0)->toArray();
+        $eliminatedEntries = $humanEntries->filter(fn($e) => !in_array($e->user_id, $rankedIds));
+        foreach ($eliminatedEntries as $entry) {
+            $prize = $prizeInfo['prizes'][$entry->finish_position] ?? 0;
+            if ($prize > 0) {
+                $wallet = PokerWallet::firstOrCreate(
+                    ['user_id' => $entry->user_id],
+                    ['chips_balance' => 0, 'total_deposited' => 0, 'total_withdrawn' => 0]
+                );
+                $wallet->deposit($prize, "토너먼트 상금 ({$entry->finish_position}등): {$tournament->title}");
+                $entry->update(['prize_won' => $prize]);
+            }
+
+            $stat = PokerStat::firstOrCreate(['user_id' => $entry->user_id], [
+                'games_played' => 0, 'hands_played' => 0, 'tournaments_won' => 0,
+                'in_the_money' => 0, 'best_place' => 999, 'total_prize_won' => 0,
+                'total_bounties' => 0, 'total_buy_ins' => 0, 'biggest_pot_won' => 0,
+            ]);
+            $stat->increment('games_played');
+            if ($prize > 0) $stat->increment('in_the_money');
+            $stat->increment('total_prize_won', $prize);
+            $stat->increment('total_buy_ins', $tournament->buy_in);
+            if (($entry->finish_position ?? 999) < $stat->best_place) {
+                $stat->update(['best_place' => $entry->finish_position]);
+            }
+        }
+
+        // 토너먼트 종료
+        $tournament->update([
+            'status' => 'finished',
+            'finished_at' => now(),
+            'prize_pool' => $prizeInfo,
+        ]);
+
+        broadcast(new PokerTournamentUpdate($tournament->fresh()->loadCount([
+            'entries as registered_count',
+        ])));
+    }
+
+    // ── 토너먼트 게임 상태 조회 (특수: 토너먼트 메타 포함) ──
+    public function tournamentGameState($tournamentId)
+    {
+        $gameId = Cache::get("poker_tournament_game_{$tournamentId}");
+        if (!$gameId) {
+            return response()->json(['success' => false, 'message' => '게임이 아직 시작되지 않았습니다.'], 404);
+        }
+
+        $state = PokerGameEngine::getGameState($gameId);
+        if (!$state) {
+            return response()->json(['success' => false, 'message' => '게임을 찾을 수 없습니다.'], 404);
+        }
+
+        $tournament = PokerTournament::find($tournamentId);
+        $alive = array_filter($state['seats'], fn($s) => !$s['isOut']);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'gameId' => $gameId,
+                'state' => PokerGameEngine::getPlayerView($state, auth()->id()),
+                'tournament' => [
+                    'id' => $tournament?->id,
+                    'title' => $tournament?->title,
+                    'status' => $tournament?->status,
+                    'blind_level' => $state['config']['blindLevel'] ?? 0,
+                    'hand_num' => $state['handNum'] ?? 1,
+                    'players_alive' => count($alive),
+                    'players_total' => count($state['seats']),
+                ],
+            ],
+        ]);
     }
 }

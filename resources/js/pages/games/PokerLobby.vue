@@ -43,7 +43,8 @@
 
             <div v-else class="space-y-3">
               <div v-for="t in upcomingTournaments" :key="t.id"
-                class="bg-gray-900 rounded-xl border border-gray-800 hover:border-amber-400/30 p-4 transition">
+                @click="goToWaitingRoom(t)"
+                class="bg-gray-900 rounded-xl border border-gray-800 hover:border-amber-400/30 p-4 transition cursor-pointer">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <!-- Info -->
                   <div class="flex-1 min-w-0">
@@ -52,6 +53,9 @@
                       <span class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
                         :class="typeBadgeClass(t.type)">
                         {{ typeBadgeLabel(t.type) }}
+                      </span>
+                      <span v-if="isRegistered(t)" class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                        참가중
                       </span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-xs text-gray-400">
@@ -68,7 +72,7 @@
                     </div>
                   </div>
                   <!-- Action -->
-                  <div class="shrink-0">
+                  <div class="shrink-0" @click.stop>
                     <button v-if="isRegistered(t)"
                       @click="unregisterTournament(t.id)"
                       :disabled="t._actionLoading"
@@ -386,6 +390,10 @@ function isRegistered(tournament) {
   return !!tournament.is_registered
 }
 
+function goToWaitingRoom(t) {
+  router.push(`/games/poker/tournament/${t.id}`)
+}
+
 async function registerTournament(id) {
   const t = tournaments.value.find(x => x.id === id)
   if (t) t._actionLoading = true
@@ -491,6 +499,14 @@ function setupEcho() {
     echoChannel = window.Echo.channel('poker.lobby')
     echoChannel.listen('.tournament.updated', () => {
       fetchTournaments()
+    })
+    echoChannel.listen('.tournament.started', (e) => {
+      // 내가 참가한 토너먼트가 시작됨 → 자동 이동
+      if (e.player_ids?.includes(auth.user?.id) && e.tournament_id && e.game_id) {
+        router.push(`/games/poker/multi?tournament=${e.tournament_id}&game=${e.game_id}`)
+      } else {
+        fetchTournaments()
+      }
     })
   }
 }

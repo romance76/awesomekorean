@@ -350,6 +350,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/multi/game/{gameId}/timeout', [\App\Http\Controllers\API\PokerMultiController::class, 'checkTimeout']);
         Route::post('/tournaments/{id}/join', [\App\Http\Controllers\API\PokerMultiController::class, 'joinTournament']);
         Route::get('/tournaments/{id}/waiting', [\App\Http\Controllers\API\PokerMultiController::class, 'waitingRoom']);
+        Route::get('/tournaments/{id}/game', [\App\Http\Controllers\API\PokerMultiController::class, 'tournamentGameState']);
     });
 });
 

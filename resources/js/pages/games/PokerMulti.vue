@@ -58,11 +58,20 @@
       <div class="flex justify-between items-center">
         <div class="flex items-center gap-2">
           <span class="text-blue-400 text-sm font-bold font-mono">{{ gameState?.sb }}/{{ gameState?.bb }}</span>
-          <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="gameType==='speed' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'">
+          <span v-if="isTournament" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-600 text-white">
+            🏆 토너먼트
+          </span>
+          <span v-else class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="gameType==='speed' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'">
             {{ gameType==='speed' ? '⚡스피드' : '🕐일반' }}
           </span>
         </div>
-        <div class="text-white text-xs font-mono">{{ gameState?.gameId?.slice(-6) }}</div>
+        <div class="flex items-center gap-3 text-xs">
+          <span v-if="isTournament" class="text-gray-400">
+            <span class="text-green-400 font-bold">{{ playersAlive }}</span>/{{ playersTotal }}명
+            · 핸드 #{{ gameState?.handNum || 1 }}
+          </span>
+          <span v-else class="text-white font-mono">{{ currentGameId?.slice(-6) }}</span>
+        </div>
         <button @click="leaveGame" class="bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1 rounded">나가기</button>
       </div>
     </div>
@@ -91,8 +100,8 @@
       </div>
     </div>
 
-    <!-- 결과 오버레이 -->
-    <div v-if="gameState?.status==='showdown' && gameState?.result" class="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+    <!-- 핸드 결과 오버레이 (캐시게임 or 토너먼트 핸드 결과) -->
+    <div v-if="gameState?.status==='showdown' && gameState?.result && !isTournament" class="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
       <div class="bg-gray-900 rounded-2xl border border-amber-500/30 p-6 max-w-md text-center">
         <div class="text-3xl mb-2">{{ didIWin ? '🏆' : '😢' }}</div>
         <h3 class="text-xl font-black mb-3" :class="didIWin ? 'text-amber-400' : 'text-gray-400'">
@@ -107,6 +116,36 @@
           </div>
         </div>
         <button @click="startMatch" class="mt-4 bg-amber-500 text-gray-950 font-bold px-6 py-2 rounded-xl">다시 매칭</button>
+      </div>
+    </div>
+
+    <!-- 토너먼트 탈락 오버레이 -->
+    <div v-if="isTournament && amIOut && !tournamentFinished" class="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+      <div class="bg-gray-900 rounded-2xl border border-red-500/30 p-6 max-w-md text-center">
+        <div class="text-5xl mb-3">💀</div>
+        <h3 class="text-2xl font-black text-red-400 mb-2">탈락!</h3>
+        <p class="text-gray-400 text-sm mb-4">칩이 모두 소진되었습니다</p>
+        <button @click="router.push('/games/poker')" class="bg-amber-500 text-gray-950 font-bold px-6 py-2 rounded-xl">로비로 돌아가기</button>
+      </div>
+    </div>
+
+    <!-- 토너먼트 종료 오버레이 -->
+    <div v-if="tournamentFinished" class="absolute inset-0 bg-black/85 flex items-center justify-center z-50">
+      <div class="bg-gray-900 rounded-2xl border border-amber-500/40 p-8 max-w-md text-center">
+        <div class="text-5xl mb-3">🏆</div>
+        <h3 class="text-2xl font-black text-amber-400 mb-4">토너먼트 종료!</h3>
+        <div class="space-y-2 mb-6">
+          <div v-for="(r, i) in tournamentRanking" :key="i"
+            class="flex items-center justify-between text-sm px-4 py-2 rounded-lg"
+            :class="r.id === myId ? 'bg-amber-500/20 border border-amber-500/30' : 'bg-gray-800'">
+            <span class="font-bold" :class="i === 0 ? 'text-amber-400' : i === 1 ? 'text-gray-300' : 'text-orange-400'">
+              {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }} {{ r.place }}등
+            </span>
+            <span class="text-white">{{ r.name }}</span>
+            <span class="text-amber-400 font-mono font-bold">{{ (r.chips || 0).toLocaleString() }}</span>
+          </div>
+        </div>
+        <button @click="router.push('/games/poker')" class="bg-amber-500 text-gray-950 font-bold px-6 py-2.5 rounded-xl text-sm">로비로 돌아가기</button>
       </div>
     </div>
 
@@ -129,13 +168,14 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePokerSound } from '@/composables/usePokerSound'
 import PokerTable from '@/components/poker/PokerTable.vue'
 import axios from 'axios'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const { soundDeal, soundBet, soundFold, soundCheck, soundAllIn, soundWin, soundLose, soundMyTurn, soundFlop, resumeAudio } = usePokerSound()
 
@@ -151,6 +191,14 @@ const turnCountdown = ref(0)
 const raiseAmount = ref(40)
 const matchWait = ref(0)
 
+// 토너먼트 모드
+const isTournament = ref(false)
+const tournamentId = ref(null)
+const tournamentMeta = ref(null)
+const tournamentFinished = ref(false)
+const tournamentRanking = ref([])
+const currentGameId = ref(null)
+
 let matchInterval = null
 let waitCounter = null
 let timeoutInterval = null
@@ -159,6 +207,7 @@ let echoChannel = null
 const myId = computed(() => auth.user?.id)
 const mySeat = computed(() => gameState.value?.seats?.find(s => s.id === myId.value))
 const myChips = computed(() => mySeat.value?.chips || 0)
+const amIOut = computed(() => mySeat.value?.isOut === true)
 const isMyTurn = computed(() => {
   if (!gameState.value || gameState.value.status !== 'playing') return false
   return gameState.value.seats[gameState.value.actIdx]?.id === myId.value
@@ -170,6 +219,8 @@ const canCheck = computed(() => {
 const callAmount = computed(() => Math.max(0, (gameState.value?.betLevel || 0) - (mySeat.value?.bet || 0)))
 const minRaise = computed(() => Math.max((gameState.value?.betLevel || 0) * 2, (gameState.value?.bb || 20) * 2))
 const didIWin = computed(() => gameState.value?.result?.winners?.some(w => gameState.value.seats[w.seatIdx]?.id === myId.value))
+const playersAlive = computed(() => gameState.value?.seats?.filter(s => !s.isOut)?.length || 0)
+const playersTotal = computed(() => gameState.value?.seats?.length || 0)
 
 const displaySeats = computed(() => {
   if (!gameState.value?.seats) return []
@@ -177,18 +228,93 @@ const displaySeats = computed(() => {
     ...s,
     name: s.name,
     isPlayer: s.id === myId.value,
-    emoji: s.id === myId.value ? '😎' : '👤',
-    color: s.id === myId.value ? '#f59e0b' : '#6b7280',
+    emoji: s.id === myId.value ? '😎' : s.isOut ? '💀' : '👤',
+    color: s.id === myId.value ? '#f59e0b' : s.isOut ? '#374151' : '#6b7280',
     showCards: s.id === myId.value || gameState.value.status === 'showdown',
-    isOut: false,
   }))
 })
+
+// ── 토너먼트 모드 초기화 ──
+async function initTournament(tId, gameId) {
+  isTournament.value = true
+  tournamentId.value = tId
+  currentGameId.value = gameId
+
+  try {
+    const { data } = await axios.get(`/api/poker/tournaments/${tId}/game`)
+    if (data.success && data.data) {
+      currentGameId.value = data.data.gameId
+      gameState.value = data.data.state
+      tournamentMeta.value = data.data.tournament
+      screen.value = 'game'
+      soundDeal()
+      startEcho(data.data.gameId)
+      startTournamentPoller(data.data.gameId)
+    }
+  } catch (e) {
+    console.error('Tournament init error:', e)
+    // Fallback: 직접 게임 상태 조회
+    if (gameId) {
+      try {
+        const { data } = await axios.get(`/api/poker/multi/game/${gameId}`)
+        if (data.success) {
+          gameState.value = data.data
+          screen.value = 'game'
+          startEcho(gameId)
+          startTournamentPoller(gameId)
+        }
+      } catch {}
+    }
+  }
+}
+
+// ── 토너먼트 전용 폴링 (AI + 다음 핸드 자동 처리) ──
+function startTournamentPoller(gameId) {
+  if (timeoutInterval) clearInterval(timeoutInterval)
+  timeoutInterval = setInterval(async () => {
+    if (tournamentFinished.value) return
+    try {
+      const { data } = await axios.get(`/api/poker/multi/game/${gameId}/timeout`)
+
+      // 토너먼트 종료
+      if (data.tournament_finished) {
+        tournamentFinished.value = true
+        tournamentRanking.value = data.ranking || []
+        gameState.value = data.state
+        soundWin()
+        return
+      }
+
+      // 새 핸드 시작
+      if (data.new_hand) {
+        gameState.value = data.state
+        if (data.blind_level_up) {
+          // 블라인드 레벨업 알림 (간단히 콘솔)
+          console.log('블라인드 레벨 업!')
+        }
+        soundDeal()
+        return
+      }
+
+      // 일반 업데이트
+      if (data.state) {
+        gameState.value = data.state
+      }
+
+      turnCountdown.value = data.remaining || 0
+      if (data.ai_acted) soundBet()
+
+    } catch {}
+  }, 1200)
+}
 
 // ── 매칭 ──
 async function startMatch() {
   matching.value = true
   screen.value = 'matching'
   gameState.value = null
+  isTournament.value = false
+  tournamentFinished.value = false
   resumeAudio()
 
   matchWait.value = 0
@@ -209,6 +335,8 @@ async function pollMatch() {
     if (data.status === 'started') {
       matching.value = false
       if (matchInterval) { clearInterval(matchInterval); matchInterval = null }
+      if (waitCounter) { clearInterval(waitCounter); waitCounter = null }
+      currentGameId.value = data.gameId
       gameState.value = data.state
       screen.value = 'game'
       soundDeal()
@@ -236,7 +364,7 @@ function startEcho(gameId) {
       if (e.action?.action === 'fold') soundFold()
       else if (e.action?.action === 'call' || e.action?.action === 'raise') soundBet()
       else if (e.action?.action === 'allin') soundAllIn()
-      else if (e.action?.type === 'game_start') soundDeal()
+      else if (e.action?.type === 'game_start' || e.action?.type === 'new_hand') soundDeal()
 
       // 스테이지 변경 시
       if (['flop', 'turn', 'river'].includes(e.state?.stage)) soundFlop()
@@ -247,8 +375,9 @@ function startEcho(gameId) {
     })
 }
 
-// ── 타임아웃 폴링 ──
+// ── 타임아웃 폴링 (캐시게임용) ──
 function startTimeoutPoller(gameId) {
+  if (timeoutInterval) clearInterval(timeoutInterval)
   timeoutInterval = setInterval(async () => {
     if (!gameState.value || gameState.value.status !== 'playing') return
     try {
@@ -268,8 +397,9 @@ function startTimeoutPoller(gameId) {
 // ── 액션 전송 ──
 async function sendAction(action, amount = 0) {
   if (!isMyTurn.value || !gameState.value) return
+  const gameId = currentGameId.value || gameState.value.gameId
   try {
-    const { data } = await axios.post(`/api/poker/multi/game/${gameState.value.gameId}/action`, { action, amount })
+    const { data } = await axios.post(`/api/poker/multi/game/${gameId}/action`, { action, amount })
     if (data.success) {
       gameState.value = data.data
       if (action === 'fold') soundFold()
@@ -285,8 +415,9 @@ async function sendAction(action, amount = 0) {
 // ── 채팅 ──
 async function sendChat() {
   if (!chatInput.value.trim() || !gameState.value) return
+  const gameId = currentGameId.value || gameState.value.gameId
   try {
-    await axios.post(`/api/poker/multi/game/${gameState.value.gameId}/chat`, { message: chatInput.value.trim() })
+    await axios.post(`/api/poker/multi/game/${gameId}/chat`, { message: chatInput.value.trim() })
     chatMessages.value.push({ userName: auth.user?.nickname || auth.user?.name, message: chatInput.value.trim() })
     chatInput.value = ''
   } catch {}
@@ -308,11 +439,24 @@ function cleanup() {
 
 // 내 턴 알림
 watch(isMyTurn, (v) => { if (v) soundMyTurn() })
-// 승패 사운드
+// 승패 사운드 (캐시게임 쇼다운)
 watch(() => gameState.value?.status, (s) => {
-  if (s === 'showdown') { didIWin.value ? soundWin() : soundLose() }
+  if (s === 'showdown' && !isTournament.value) {
+    if (didIWin.value) soundWin()
+    else soundLose()
+  }
 })
 
-onMounted(resumeAudio)
+onMounted(() => {
+  resumeAudio()
+
+  // URL 파라미터로 토너먼트 모드 체크
+  const tId = route.query.tournament
+  const gameId = route.query.game
+  if (tId) {
+    initTournament(tId, gameId)
+  }
+})
+
 onUnmounted(cleanup)
 </script>
