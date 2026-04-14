@@ -52,114 +52,136 @@
     </div>
   </div>
 
-  <!-- ═══ 게임 화면 ═══ -->
+  <!-- ═══ 게임 화면 (솔로 모드와 동일한 3칼럼 레이아웃) ═══ -->
   <template v-else-if="screen==='game'">
+    <!-- Top bar -->
     <div class="bg-gradient-to-b from-[#0a1628] to-[#0d1f38] border-b-2 border-blue-900/60 shrink-0 px-2.5 py-1">
       <div class="flex justify-between items-center">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
+          <span v-if="isTournament" class="bg-amber-600 rounded px-2 py-0.5 text-[11px] font-extrabold text-white">TOURNAMENT</span>
+          <span v-else class="bg-blue-600 rounded px-2 py-0.5 text-[11px] font-extrabold text-white">{{ gameType==='speed' ? 'SPEED' : 'CASH' }}</span>
           <span class="text-blue-400 text-sm font-bold font-mono">{{ gameState?.sb }}/{{ gameState?.bb }}</span>
-          <span v-if="isTournament" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-600 text-white">
-            🏆 토너먼트
-          </span>
-          <span v-else class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="gameType==='speed' ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'">
-            {{ gameType==='speed' ? '⚡스피드' : '🕐일반' }}
-          </span>
         </div>
-        <div class="flex items-center gap-3 text-xs">
-          <span v-if="isTournament" class="text-gray-400">
-            <span class="text-green-400 font-bold">{{ playersAlive }}</span>/{{ playersTotal }}명
-            · 핸드 #{{ gameState?.handNum || 1 }}
-          </span>
-          <span v-else class="text-white font-mono">{{ currentGameId?.slice(-6) }}</span>
+        <div class="flex items-center gap-1.5 text-[11px]">
+          <span class="font-bold text-sm" :class="playersAlive <= 2 ? 'text-red-400' : 'text-gray-300'">{{ playersAlive }}</span>
+          <span class="text-gray-500">/{{ playersTotal }}명</span>
+          <span v-if="isTournament" class="text-gray-500">· #{{ gameState?.handNum || 1 }}</span>
+          <button @click="leaveGame" class="bg-red-600/80 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1 rounded ml-2">나가기</button>
         </div>
-        <button @click="leaveGame" class="bg-red-700 hover:bg-red-600 text-white text-xs font-bold px-3 py-1 rounded">나가기</button>
       </div>
     </div>
 
-    <!-- 테이블 -->
-    <div class="flex-1 relative">
-      <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
-        :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
-        :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
-        :act-idx="gameState?.actIdx??-1" :turn-timer="turnCountdown" :turn-timer-max="gameState?.turnTime||15" />
-    </div>
+    <!-- 3칼럼: 테이블(center) + 우측(모니터+채팅) -->
+    <div class="flex-1 min-h-0 flex relative">
 
-    <!-- 액션 버튼 (내 턴일 때 + 게임중이면 항상 표시 영역) -->
-    <div v-if="isMyTurn && !amIOut" class="bg-gray-900/95 border-t border-gray-800 px-4 py-3 shrink-0 z-30">
-      <div class="flex items-center justify-center gap-3 max-w-lg mx-auto">
-        <button @click="sendAction('fold')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm">폴드</button>
-        <button v-if="canCheck" @click="sendAction('check')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm">체크</button>
-        <button v-else @click="sendAction('call')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm">콜 ({{ callAmount }})</button>
-        <button @click="sendAction('allin')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm">올인</button>
+      <!-- 중앙: 테이블 -->
+      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center">
+        <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
+          :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
+          :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
+          :act-idx="gameState?.actIdx??-1" :turn-timer="turnCountdown" :turn-timer-max="gameState?.turnTime||15" />
       </div>
-      <div class="flex items-center gap-2 max-w-lg mx-auto mt-2">
-        <input type="range" v-model.number="raiseAmount" :min="minRaise" :max="myChips" class="flex-1" />
-        <button @click="sendAction('raise', raiseAmount)" class="bg-green-600 hover:bg-green-500 text-white font-bold px-4 py-2 rounded-xl text-sm whitespace-nowrap">
-          레이즈 {{ raiseAmount.toLocaleString() }}
-        </button>
-      </div>
-    </div>
 
-    <!-- 핸드 결과 오버레이 (캐시게임 or 토너먼트 핸드 결과) -->
-    <div v-if="gameState?.status==='showdown' && gameState?.result && !isTournament" class="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div class="bg-gray-900 rounded-2xl border border-amber-500/30 p-6 max-w-md text-center">
-        <div class="text-3xl mb-2">{{ didIWin ? '🏆' : '😢' }}</div>
-        <h3 class="text-xl font-black mb-3" :class="didIWin ? 'text-amber-400' : 'text-gray-400'">
-          {{ didIWin ? '승리!' : '패배' }}
-        </h3>
-        <div v-for="w in gameState.result.winners" :key="w.seatIdx" class="text-sm text-gray-300 mb-1">
-          {{ w.name }} — {{ w.hand }} (+{{ w.pot.toLocaleString() }})
-        </div>
-        <div v-if="gameState.result.showdown" class="mt-3 space-y-1">
-          <div v-for="s in gameState.result.showdown" :key="s.seatIdx" class="text-xs text-gray-500">
-            {{ s.name }}: {{ s.cards.join(' ') }} → {{ s.hand }}
+      <!-- 우측: 모니터 + 채팅 -->
+      <div class="w-[220px] shrink-0 bg-[#080c14] border-l border-gray-800/30 flex flex-col overflow-hidden hidden lg:flex">
+        <!-- 토너먼트/게임 모니터 -->
+        <div class="p-3 border-b border-gray-800/30">
+          <div class="text-blue-400 text-sm font-bold tracking-wider mb-2">{{ isTournament ? '🏆 TOURNAMENT' : '🎮 CASH GAME' }}</div>
+          <div class="space-y-1">
+            <div class="flex justify-between text-sm"><span class="text-gray-400">BLINDS</span><span class="text-blue-400 font-bold font-mono">{{ gameState?.sb }}/{{ gameState?.bb }}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">REMAINING</span><span class="text-emerald-400 font-bold font-mono">{{ playersAlive }}/{{ playersTotal }}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">MY STACK</span><span :class="myChips < (gameState?.bb||20)*10 ? 'text-red-400' : 'text-white'" class="font-bold font-mono">{{ myChips.toLocaleString() }}</span></div>
+            <div v-if="isTournament" class="flex justify-between text-sm"><span class="text-gray-400">HAND</span><span class="text-gray-200 font-bold font-mono">#{{ gameState?.handNum || 1 }}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-400">STATUS</span>
+              <span class="font-bold text-xs" :class="isMyTurn ? 'text-amber-400' : amIOut ? 'text-red-400' : 'text-gray-400'">
+                {{ isMyTurn ? 'MY TURN' : amIOut ? 'BUSTED' : gameState?.status === 'showdown' ? 'SHOWDOWN' : 'WAITING' }}
+              </span>
+            </div>
           </div>
         </div>
-        <button @click="startMatch" class="mt-4 bg-amber-500 text-gray-950 font-bold px-6 py-2 rounded-xl">다시 매칭</button>
-      </div>
-    </div>
 
-    <!-- 토너먼트 탈락 오버레이 -->
-    <div v-if="isTournament && amIOut && !tournamentFinished" class="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
-      <div class="bg-gray-900 rounded-2xl border border-red-500/30 p-6 max-w-md text-center">
-        <div class="text-5xl mb-3">💀</div>
-        <h3 class="text-2xl font-black text-red-400 mb-2">탈락!</h3>
-        <p class="text-gray-400 text-sm mb-4">칩이 모두 소진되었습니다</p>
-        <button @click="router.push('/games/poker')" class="bg-amber-500 text-gray-950 font-bold px-6 py-2 rounded-xl">로비로 돌아가기</button>
-      </div>
-    </div>
-
-    <!-- 토너먼트 종료 오버레이 -->
-    <div v-if="tournamentFinished" class="absolute inset-0 bg-black/85 flex items-center justify-center z-50">
-      <div class="bg-gray-900 rounded-2xl border border-amber-500/40 p-8 max-w-md text-center">
-        <div class="text-5xl mb-3">🏆</div>
-        <h3 class="text-2xl font-black text-amber-400 mb-4">토너먼트 종료!</h3>
-        <div class="space-y-2 mb-6">
-          <div v-for="(r, i) in tournamentRanking" :key="i"
-            class="flex items-center justify-between text-sm px-4 py-2 rounded-lg"
-            :class="r.id === myId ? 'bg-amber-500/20 border border-amber-500/30' : 'bg-gray-800'">
-            <span class="font-bold" :class="i === 0 ? 'text-amber-400' : i === 1 ? 'text-gray-300' : 'text-orange-400'">
-              {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }} {{ r.place }}등
-            </span>
-            <span class="text-white">{{ r.name }}</span>
-            <span class="text-amber-400 font-mono font-bold">{{ (r.chips || 0).toLocaleString() }}</span>
+        <!-- 채팅 -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+          <div class="p-2 border-b border-gray-800/30">
+            <span class="text-gray-300 text-xs font-bold">💬 채팅</span>
+          </div>
+          <div class="flex-1 overflow-y-auto p-2 space-y-0.5" ref="chatScroll">
+            <div v-if="chatMessages.length === 0" class="text-gray-600 text-[11px]">채팅을 입력하세요</div>
+            <div v-for="(msg, i) in chatMessages" :key="i" class="text-[11px]">
+              <span class="text-amber-400 font-bold">{{ msg.userName }}:</span>
+              <span class="text-gray-300"> {{ msg.message }}</span>
+            </div>
+          </div>
+          <div class="p-2 border-t border-gray-800/30 flex gap-1">
+            <input v-model="chatInput" @keyup.enter="sendChat" placeholder="채팅..."
+              maxlength="200" class="flex-1 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs text-white outline-none focus:border-amber-500" />
+            <button @click="sendChat" class="bg-amber-500 hover:bg-amber-400 text-gray-950 text-xs px-2 py-1 rounded font-bold">전송</button>
           </div>
         </div>
-        <button @click="router.push('/games/poker')" class="bg-amber-500 text-gray-950 font-bold px-6 py-2.5 rounded-xl text-sm">로비로 돌아가기</button>
+      </div>
+
+      <!-- 오버레이들 -->
+      <!-- 캐시게임 쇼다운 결과 -->
+      <div v-if="gameState?.status==='showdown' && gameState?.result && !isTournament" class="absolute inset-0 bg-black/60 flex items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl border border-amber-500/30 p-6 max-w-md text-center">
+          <div class="text-3xl mb-2">{{ didIWin ? '🏆' : '😢' }}</div>
+          <h3 class="text-xl font-black mb-3" :class="didIWin ? 'text-amber-400' : 'text-gray-400'">{{ didIWin ? '승리!' : '패배' }}</h3>
+          <div v-for="w in gameState.result.winners" :key="w.seatIdx" class="text-sm text-gray-300 mb-1">
+            {{ w.name }} — {{ w.hand }} (+{{ w.pot.toLocaleString() }})
+          </div>
+          <button @click="startMatch" class="mt-4 bg-amber-500 text-gray-950 font-bold px-6 py-2 rounded-xl">다시 매칭</button>
+        </div>
+      </div>
+
+      <!-- 토너먼트 탈락 -->
+      <div v-if="isTournament && amIOut && !tournamentFinished" class="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl border border-red-500/30 p-6 max-w-md text-center">
+          <div class="text-5xl mb-3">💀</div>
+          <h3 class="text-2xl font-black text-red-400 mb-2">탈락!</h3>
+          <p class="text-gray-400 text-sm mb-4">칩이 모두 소진되었습니다</p>
+          <button @click="router.push('/games/poker')" class="bg-amber-500 text-gray-950 font-bold px-6 py-2 rounded-xl">로비로</button>
+        </div>
+      </div>
+
+      <!-- 토너먼트 종료 -->
+      <div v-if="tournamentFinished" class="absolute inset-0 bg-black/85 flex items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-2xl border border-amber-500/40 p-8 max-w-md text-center">
+          <div class="text-5xl mb-3">🏆</div>
+          <h3 class="text-2xl font-black text-amber-400 mb-4">토너먼트 종료!</h3>
+          <div class="space-y-2 mb-6">
+            <div v-for="(r, i) in tournamentRanking" :key="i"
+              class="flex items-center justify-between text-sm px-4 py-2 rounded-lg"
+              :class="r.id === myId ? 'bg-amber-500/20 border border-amber-500/30' : 'bg-gray-800'">
+              <span class="font-bold" :class="i === 0 ? 'text-amber-400' : i === 1 ? 'text-gray-300' : 'text-orange-400'">
+                {{ i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉' }} {{ r.place }}등
+              </span>
+              <span class="text-white">{{ r.name }}</span>
+              <span class="text-amber-400 font-mono font-bold">{{ (r.chips || 0).toLocaleString() }}</span>
+            </div>
+          </div>
+          <button @click="router.push('/games/poker')" class="bg-amber-500 text-gray-950 font-bold px-6 py-2.5 rounded-xl text-sm">로비로</button>
+        </div>
       </div>
     </div>
 
-    <!-- 인게임 채팅 -->
-    <div class="absolute left-2 w-64 z-20" :style="{ bottom: isMyTurn ? '140px' : '16px' }">
-      <div class="max-h-32 overflow-y-auto mb-1 space-y-0.5">
-        <div v-for="(msg, i) in chatMessages" :key="i" class="text-xs bg-black/50 text-white/80 rounded px-2 py-0.5">
-          <span class="text-amber-400 font-bold">{{ msg.userName }}:</span> {{ msg.message }}
+    <!-- Bottom: 액션 버튼 (고정 높이) -->
+    <div class="shrink-0 h-[100px] bg-gray-900/95 border-t border-gray-800">
+      <div v-if="isMyTurn && !amIOut" class="px-4 py-2">
+        <div class="flex items-center justify-center gap-2 max-w-lg mx-auto">
+          <button @click="sendAction('fold')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-xl text-sm">폴드</button>
+          <button v-if="canCheck" @click="sendAction('check')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-sm">체크</button>
+          <button v-else @click="sendAction('call')" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2 rounded-xl text-sm">콜 {{ callAmount }}</button>
+          <button @click="sendAction('allin')" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 py-2 rounded-xl text-sm">올인</button>
+        </div>
+        <div class="flex items-center gap-2 max-w-lg mx-auto mt-1.5">
+          <input type="range" v-model.number="raiseAmount" :min="minRaise" :max="myChips" class="flex-1 h-1.5" />
+          <button @click="sendAction('raise', raiseAmount)" class="bg-green-600 hover:bg-green-500 text-white font-bold px-3 py-1.5 rounded-xl text-sm whitespace-nowrap">
+            레이즈 {{ raiseAmount.toLocaleString() }}
+          </button>
         </div>
       </div>
-      <div class="flex gap-1">
-        <input v-model="chatInput" @keyup.enter="sendChat" placeholder="채팅..." maxlength="200"
-          class="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 text-xs text-white outline-none" />
-        <button @click="sendChat" class="bg-amber-500/80 text-xs px-2 py-1 rounded font-bold">전송</button>
+      <div v-else class="flex items-center justify-center h-full text-gray-500 text-sm">
+        {{ amIOut ? '💀 탈락' : gameState?.status === 'showdown' ? '🃏 쇼다운 결과 확인 중...' : '⏳ 상대 턴 대기 중...' }}
       </div>
     </div>
   </template>
