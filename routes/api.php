@@ -90,7 +90,6 @@ Route::get('/recipes/{id}/comments', [RecipeController::class, 'comments']);
 Route::get('/groupbuys', [GroupBuyController::class, 'index']);
 Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
-Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/events/{id}/attendees', [EventController::class, 'attendees']);
@@ -589,8 +588,4 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::patch('/recipes/{id}/toggle', [AdminRecipeController::class, 'toggle']);
     Route::delete('/recipes/{id}', [AdminRecipeController::class, 'destroy']);
 
-    // 공동구매 관리자 승인
-    Route::post('/groupbuys/{id}/approve', [GroupBuyController::class, 'adminApprove']);
-    Route::post('/groupbuys/{id}/reject', [GroupBuyController::class, 'adminReject']);
-    Route::post('/groupbuys/{id}/complete', [GroupBuyController::class, 'adminComplete']);
 });
