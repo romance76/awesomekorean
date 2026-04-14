@@ -23,8 +23,12 @@ class PostController extends Controller
         }
 
         $sort = $request->sort ?? 'latest';
-        if ($sort === 'popular') $query->orderByDesc('like_count');
-        else $query->orderByDesc('is_pinned')->orderByDesc('created_at');
+        if ($sort === 'popular') {
+            $query->orderByDesc('like_count')->orderByDesc('created_at');
+        } else {
+            // 최신순: 순수 시간순 (고정글도 시간순으로)
+            $query->orderByDesc('created_at');
+        }
 
         return response()->json(['success' => true, 'data' => $query->paginate($request->per_page ?? 20)]);
     }
