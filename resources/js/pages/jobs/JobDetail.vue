@@ -83,13 +83,20 @@
           <!-- Apply / Contact bar -->
           <div class="px-3 lg:px-5 py-3 border-t border-b border-gray-100 bg-gray-50/50">
             <div class="flex items-center gap-3 flex-wrap">
-              <a v-if="job.contact_phone" :href="'tel:' + job.contact_phone"
+              <!-- 구인 글 → 지원하기 (이력서 모달) -->
+              <button v-if="job.post_type === 'hiring'"
+                @click="openApplyModal"
                 class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
-                {{ job.post_type === 'hiring' ? '지원하기' : '연락하기' }}
+                지원하기
+              </button>
+              <!-- 구직 글 → 연락하기 (전화/이메일) -->
+              <a v-else-if="job.contact_phone" :href="'tel:' + job.contact_phone"
+                class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
+                연락하기
               </a>
               <a v-else-if="job.contact_email" :href="'mailto:' + job.contact_email"
-                class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
-                {{ job.post_type === 'hiring' ? '지원하기' : '연락하기' }}
+                class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
+                연락하기
               </a>
             </div>
             <div class="flex items-center gap-4 mt-2 text-sm text-gray-600 flex-wrap">
@@ -101,6 +108,89 @@
               </a>
             </div>
           </div>
+
+          <!-- ══════════ 지원 모달 ══════════ -->
+          <Teleport to="body">
+            <div v-if="showApplyModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" @click.self="showApplyModal = false">
+              <div class="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md mx-4 overflow-hidden">
+                <!-- 모달 헤더 -->
+                <div class="px-5 py-4 border-b bg-amber-50">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-base font-bold text-gray-900">지원하기</h3>
+                    <button @click="showApplyModal = false" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">{{ job.company }} — {{ job.title }}</p>
+                </div>
+
+                <!-- 로그인 안됨 -->
+                <div v-if="!auth.isLoggedIn" class="p-5 text-center">
+                  <div class="text-3xl mb-3">🔒</div>
+                  <p class="text-sm text-gray-600 mb-4">지원하려면 로그인이 필요합니다</p>
+                  <router-link to="/login" @click="showApplyModal = false"
+                    class="inline-block bg-amber-500 text-white font-bold text-sm px-6 py-2.5 rounded-lg hover:bg-amber-600 transition">
+                    로그인하기
+                  </router-link>
+                </div>
+
+                <!-- 로그인 됨 -->
+                <div v-else class="p-5">
+                  <!-- 이력서 로딩 중 -->
+                  <div v-if="resumeLoading" class="text-center py-6 text-gray-400 text-sm">이력서 확인 중...</div>
+
+                  <!-- 이력서 있음 → 가져와서 지원 -->
+                  <div v-else-if="myResume">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                      <div class="flex items-center gap-2 mb-2">
+                        <span class="text-green-600 text-lg">✅</span>
+                        <span class="text-sm font-bold text-green-800">내 이력서</span>
+                      </div>
+                      <div class="text-sm text-gray-700 font-semibold">{{ myResume.title }}</div>
+                      <div class="text-xs text-gray-500 mt-1">
+                        {{ myResume.name }} · {{ myResume.category ? categoryLabel(myResume.category) : '' }}
+                        <span v-if="myResume.city"> · {{ myResume.city }}</span>
+                      </div>
+                    </div>
+
+                    <button @click="submitApplication"
+                      :disabled="applySubmitting"
+                      class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm py-3 rounded-lg transition disabled:opacity-50">
+                      {{ applySubmitting ? '지원 중...' : '이 이력서로 지원하기' }}
+                    </button>
+
+                    <div class="flex items-center gap-2 mt-3">
+                      <router-link to="/dashboard?tab=resume" @click="showApplyModal = false"
+                        class="flex-1 text-center text-xs text-amber-600 hover:text-amber-800 py-2 border border-amber-200 rounded-lg transition">
+                        이력서 수정하기
+                      </router-link>
+                    </div>
+                  </div>
+
+                  <!-- 이력서 없음 → 작성 유도 -->
+                  <div v-else class="text-center">
+                    <div class="text-4xl mb-3">📝</div>
+                    <p class="text-sm text-gray-600 mb-1">등록된 이력서가 없습니다</p>
+                    <p class="text-xs text-gray-400 mb-5">이력서를 먼저 작성하면 간편하게 지원할 수 있어요</p>
+
+                    <div class="flex flex-col gap-2">
+                      <router-link to="/dashboard?tab=resume" @click="showApplyModal = false"
+                        class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm py-3 rounded-lg text-center transition">
+                        이력서 작성하기
+                      </router-link>
+                      <button @click="applyDirect"
+                        class="w-full text-xs text-gray-500 hover:text-gray-700 py-2 border border-gray-200 rounded-lg transition">
+                        이력서 없이 바로 연락하기
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 지원 완료 메시지 -->
+                  <div v-if="applyDone" class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                    <span class="text-blue-700 text-sm font-medium">✅ 지원이 완료되었습니다!</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Teleport>
 
           <!-- Content body -->
           <div class="px-3 lg:px-5 py-3 lg:py-5 text-xs lg:text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ job.content }}</div>
@@ -138,12 +228,12 @@
         </div>
       </main>
 
-      <!-- ══════════ RIGHT: Related Jobs (md+) ══════════ -->
-      <!-- ══════════ RIGHT: 같은 카테고리 관련 목록 ══════════ -->
+      <!-- ══════════ RIGHT: 내 위치 기반 관련 목록 ══════════ -->
       <aside class="col-span-4 md:col-span-4 lg:col-span-3 hidden md:block">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900 flex items-center gap-1">
             <span>{{ categoryLabel(job.category) }}</span>
+            <span v-if="nearbyLabel" class="text-[10px] text-gray-400 font-normal">· {{ nearbyLabel }}</span>
             <span class="text-gray-400 font-normal ml-auto">{{ sameCategoryJobs.length }}건</span>
           </div>
           <div class="max-h-[70vh] overflow-y-auto divide-y divide-gray-50">
@@ -157,7 +247,7 @@
               </div>
             </router-link>
             <div v-if="!sameCategoryJobs.length" class="px-3 py-4 text-xs text-gray-400 text-center">
-              같은 카테고리 공고가 없습니다
+              내 지역 근처 공고가 없습니다
             </div>
           </div>
         </div>
@@ -179,6 +269,7 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useLocation } from '../../composables/useLocation'
 import CommentSection from '../../components/CommentSection.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import axios from 'axios'
@@ -191,6 +282,14 @@ const job = ref(null)
 const loading = ref(true)
 const sameCategoryJobs = ref([])
 const relatedJobs = ref([])
+const nearbyLabel = ref('')
+
+// ── Apply modal state ──
+const showApplyModal = ref(false)
+const myResume = ref(null)
+const resumeLoading = ref(false)
+const applySubmitting = ref(false)
+const applyDone = ref(false)
 
 // ── Prev / Next navigation ──
 const currentJobIdx = computed(() => {
@@ -260,37 +359,80 @@ function formatDate(dt) {
   return `${y}년 ${m}월 ${day}일`
 }
 
+// ── Apply modal functions ──
+async function openApplyModal() {
+  showApplyModal.value = true
+  applyDone.value = false
+  if (!auth.isLoggedIn) return
+
+  // 내 이력서 불러오기
+  resumeLoading.value = true
+  myResume.value = null
+  try {
+    const { data } = await axios.get('/api/my-resume')
+    myResume.value = data.data
+  } catch {}
+  resumeLoading.value = false
+}
+
+async function submitApplication() {
+  if (!job.value || !myResume.value) return
+  applySubmitting.value = true
+  try {
+    await axios.post(`/api/jobs/${job.value.id}/apply`, { resume_id: myResume.value.id })
+    applyDone.value = true
+  } catch (e) {
+    // 이미 지원했거나 에러
+    const msg = e.response?.data?.message || '지원 중 오류가 발생했습니다'
+    alert(msg)
+  }
+  applySubmitting.value = false
+}
+
+function applyDirect() {
+  showApplyModal.value = false
+  // 전화 또는 이메일 직접 연결
+  if (job.value.contact_phone) {
+    window.location.href = 'tel:' + job.value.contact_phone
+  } else if (job.value.contact_email) {
+    window.location.href = 'mailto:' + job.value.contact_email
+  }
+}
+
+// ── Location (useLocation composable — JobList와 동일) ──
+const { city: locCity, init: initLocation } = useLocation()
+
 // ── Load data ──
 async function loadJob(id) {
   loading.value = true
   job.value = null
   sameCategoryJobs.value = []
   relatedJobs.value = []
+  nearbyLabel.value = ''
 
   try {
     const { data } = await axios.get(`/api/jobs/${id}`)
     job.value = data.data
 
-    // Load same-category and related jobs in parallel
     const cat = job.value.category
     const postType = job.value.post_type
-    const [sameRes, relRes] = await Promise.all([
-      axios.get('/api/jobs', { params: { category: cat, post_type: postType, per_page: 20 } }),
-      axios.get('/api/jobs', { params: { category: cat, per_page: 10, page: 2 } }),
-    ])
 
-    const sameRaw = sameRes.data?.data?.data || []
+    // useLocation에서 유저 프로필 위치 읽기
+    await initLocation()
+    const loc = locCity.value
+
+    // 위치 기반 같은 카테고리 목록
+    const sameParams = { category: cat, post_type: postType, per_page: 30 }
+    if (loc?.lat && loc?.lng) {
+      sameParams.lat = loc.lat
+      sameParams.lng = loc.lng
+      sameParams.radius = 50
+      nearbyLabel.value = loc.label || loc.name || loc.state || '내 주변'
+    }
+
+    const { data: sameData } = await axios.get('/api/jobs', { params: sameParams })
+    const sameRaw = sameData?.data?.data || []
     sameCategoryJobs.value = sameRaw
-
-    // Related: exclude current job, take from both requests to fill
-    const relRaw = relRes.data?.data?.data || []
-    const combined = [...relRaw, ...sameRaw]
-    const seen = new Set()
-    relatedJobs.value = combined.filter(j => {
-      if (j.id === job.value.id || seen.has(j.id)) return false
-      seen.add(j.id)
-      return true
-    }).slice(0, 8)
   } catch (e) {
     job.value = null
   }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\JobPost;
+use App\Models\JobApplication;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
@@ -74,5 +75,58 @@ class JobController extends Controller
     {
         JobPost::where('user_id', auth()->id())->findOrFail($id)->update(['is_active' => false]);
         return response()->json(['success' => true, 'message' => '삭제되었습니다']);
+    }
+
+    // 이력서로 지원하기
+    public function apply(Request $request, $id)
+    {
+        $job = JobPost::findOrFail($id);
+
+        // 자기 공고에 지원 불가
+        if ($job->user_id === auth()->id()) {
+            return response()->json(['success' => false, 'message' => '본인 공고에는 지원할 수 없습니다'], 422);
+        }
+
+        // 중복 지원 체크
+        $exists = JobApplication::where('job_post_id', $id)
+            ->where('user_id', auth()->id())
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['success' => false, 'message' => '이미 지원한 공고입니다'], 422);
+        }
+
+        $application = JobApplication::create([
+            'job_post_id' => $id,
+            'user_id' => auth()->id(),
+            'resume_id' => $request->resume_id,
+            'message' => $request->message,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $application, 'message' => '지원이 완료되었습니다']);
+    }
+
+    // 내 지원 내역
+    public function myApplications()
+    {
+        $apps = JobApplication::with(['jobPost:id,title,company,city,state,category', 'resume:id,title'])
+            ->where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
+        return response()->json(['success' => true, 'data' => $apps]);
+    }
+
+    // 내 공고에 들어온 지원자 목록
+    public function applicants($id)
+    {
+        $job = JobPost::where('user_id', auth()->id())->findOrFail($id);
+
+        $apps = JobApplication::with(['user:id,name,nickname,avatar', 'resume'])
+            ->where('job_post_id', $id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json(['success' => true, 'data' => $apps]);
     }
 }

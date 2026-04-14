@@ -142,6 +142,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/jobs', [JobController::class, 'store']);
     Route::put('/jobs/{id}', [JobController::class, 'update']);
     Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
+    Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
+    Route::get('/my-applications', [JobController::class, 'myApplications']);
+    Route::get('/jobs/{id}/applicants', [JobController::class, 'applicants']);
 
     // 이력서
     Route::get('/my-resume', [\App\Http\Controllers\API\ResumeController::class, 'myResume']);
