@@ -84,9 +84,13 @@
             <!-- Action buttons -->
             <div class="flex items-center gap-2 mt-4 flex-wrap">
               <template v-if="auth.isLoggedIn">
-                <button v-if="!isMember" @click="joinClub"
+                <button v-if="myStatus === 'pending'" disabled
+                  class="bg-gray-200 text-gray-500 font-bold px-6 py-2.5 rounded-xl text-sm cursor-not-allowed">
+                  ⏳ 승인 대기 중
+                </button>
+                <button v-else-if="!isMember" @click="joinClub"
                   class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-amber-500 shadow-md shadow-amber-200 transition">
-                  가입하기
+                  가입 신청
                 </button>
                 <button v-else-if="!isOwner" @click="leaveClub"
                   class="bg-gray-100 text-gray-600 font-semibold px-5 py-2 rounded-xl text-sm hover:bg-gray-200 transition">
@@ -191,6 +195,23 @@
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
               <textarea v-model="newPost.content" rows="4" placeholder="내용을 입력하세요..."
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none resize-none focus:ring-2 focus:ring-amber-400"></textarea>
+              <!-- Image upload -->
+              <div>
+                <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-500 hover:text-amber-700 transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  사진 첨부
+                  <input type="file" multiple accept="image/*" class="hidden" @change="handlePostImages" />
+                </label>
+                <div v-if="postImagePreviews.length" class="flex flex-wrap gap-2 mt-2">
+                  <div v-for="(preview, idx) in postImagePreviews" :key="idx" class="relative group">
+                    <img :src="preview" class="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                    <button @click="removePostImage(idx)" type="button"
+                      class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                      &times;
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div class="flex gap-2">
                 <button @click="submitPost" :disabled="postSubmitting"
                   class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-xs hover:bg-amber-500 disabled:opacity-50 transition">

@@ -196,6 +196,9 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);
     Route::post('/clubs/{id}/join', [ClubController::class, 'join']);
     Route::post('/clubs/{id}/leave', [ClubController::class, 'leave']);
+    Route::get('/clubs/{id}/pending-members', [ClubController::class, 'pendingMembers']);
+    Route::post('/clubs/{id}/members/{userId}/approve', [ClubController::class, 'approveMember']);
+    Route::post('/clubs/{id}/members/{userId}/reject', [ClubController::class, 'rejectMember']);
     Route::put('/clubs/{id}/members/{userId}', [ClubController::class, 'updateMember']);
     Route::delete('/clubs/{id}/members/{userId}', [ClubController::class, 'removeMember']);
     Route::post('/clubs/{id}/boards', [ClubController::class, 'createBoard']);

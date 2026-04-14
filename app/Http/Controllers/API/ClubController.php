@@ -13,7 +13,7 @@ class ClubController extends Controller
 {
     private function getMemberGrade($clubId, $userId)
     {
-        return ClubMember::where('club_id', $clubId)->where('user_id', $userId)->value('grade');
+        return ClubMember::where('club_id', $clubId)->where('user_id', $userId)->where('status', 'approved')->value('grade');
     }
 
     public function index(Request $request)
@@ -36,17 +36,23 @@ class ClubController extends Controller
     public function show($id)
     {
         $club = Club::with('user:id,name,nickname')->findOrFail($id);
-        $grade = auth()->check() ? $this->getMemberGrade($id, auth()->id()) : null;
+        $membership = auth()->check()
+            ? ClubMember::where('club_id', $id)->where('user_id', auth()->id())->first()
+            : null;
+        $grade = $membership && $membership->status === 'approved' ? $membership->grade : null;
         $boards = ClubBoard::where('club_id', $id)->where('is_active', true)->orderBy('sort_order')->get();
-        $memberCount = ClubMember::where('club_id', $id)->count();
+        $memberCount = ClubMember::where('club_id', $id)->where('status', 'approved')->count();
+        $pendingCount = ClubMember::where('club_id', $id)->where('status', 'pending')->count();
 
         return response()->json([
             'success' => true,
             'data' => $club,
             'is_member' => !!$grade,
             'my_grade' => $grade,
+            'my_status' => $membership?->status, // approved, pending, rejected, null
             'boards' => $boards,
             'member_count' => $memberCount,
+            'pending_count' => $pendingCount,
         ]);
     }
 
@@ -157,12 +163,11 @@ class ClubController extends Controller
     {
         $club = Club::findOrFail($id);
 
-        if (ClubMember::where('club_id', $id)->where('user_id', auth()->id())->exists()) {
+        $existing = ClubMember::where('club_id', $id)->where('user_id', auth()->id())->first();
+        if ($existing) {
+            if ($existing->status === 'pending') return response()->json(['success' => false, 'message' => '가입 승인 대기 중입니다'], 400);
+            if ($existing->status === 'rejected') return response()->json(['success' => false, 'message' => '가입이 거절되었습니다. 운영자에게 문의하세요'], 400);
             return response()->json(['success' => false, 'message' => '이미 가입됨'], 400);
-        }
-
-        if (!$club->is_public) {
-            return response()->json(['success' => false, 'message' => '비공개 모임입니다'], 403);
         }
 
         if ($club->max_members && $club->member_count >= $club->max_members) {
@@ -174,12 +179,48 @@ class ClubController extends Controller
             'user_id' => auth()->id(),
             'role' => 'member',
             'grade' => 'member',
+            'status' => 'pending', // 운영자 승인 대기
             'joined_at' => now(),
         ]);
 
-        $club->increment('member_count');
+        return response()->json(['success' => true, 'message' => '가입 신청이 완료되었습니다. 운영자 승인을 기다려주세요.', 'status' => 'pending']);
+    }
 
-        return response()->json(['success' => true]);
+    // 운영자: 가입 승인
+    public function approveMember($id, $userId)
+    {
+        $myGrade = $this->getMemberGrade($id, auth()->id());
+        if (!in_array($myGrade, ['owner', 'admin'])) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+
+        $member = ClubMember::where('club_id', $id)->where('user_id', $userId)->firstOrFail();
+        $member->update(['status' => 'approved']);
+        Club::find($id)->increment('member_count');
+
+        return response()->json(['success' => true, 'message' => '승인되었습니다']);
+    }
+
+    // 운영자: 가입 거절
+    public function rejectMember($id, $userId)
+    {
+        $myGrade = $this->getMemberGrade($id, auth()->id());
+        if (!in_array($myGrade, ['owner', 'admin'])) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+
+        $member = ClubMember::where('club_id', $id)->where('user_id', $userId)->firstOrFail();
+        $member->update(['status' => 'rejected']);
+
+        return response()->json(['success' => true, 'message' => '거절되었습니다']);
+    }
+
+    // 가입 대기 목록
+    public function pendingMembers($id)
+    {
+        $myGrade = $this->getMemberGrade($id, auth()->id());
+        if (!in_array($myGrade, ['owner', 'admin'])) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+
+        $pending = ClubMember::with('user:id,name,nickname,avatar')
+            ->where('club_id', $id)->where('status', 'pending')->get();
+
+        return response()->json(['success' => true, 'data' => $pending]);
     }
 
     public function leave($id)
@@ -204,6 +245,7 @@ class ClubController extends Controller
     {
         $members = ClubMember::with('user:id,name,nickname,avatar')
             ->where('club_id', $id)
+            ->where('status', 'approved')
             ->orderByRaw("FIELD(grade, 'owner', 'admin', 'member', 'restricted')")
             ->get();
 
@@ -389,7 +431,7 @@ class ClubController extends Controller
         $imagesPaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $img) {
-                $imagesPaths[] = $img->store('club_posts', 'public');
+                $imagesPaths[] = '/storage/' . $img->store('club_posts', 'public');
             }
         }
 
