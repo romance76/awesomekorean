@@ -382,8 +382,13 @@ async function fetchMyRegistrations() {
   if (!auth.isLoggedIn) return
   try {
     const { data } = await axios.get('/api/poker/my-registrations')
-    if (data.success) myRegisteredIds.value = data.data || []
-  } catch {}
+    if (data.success) {
+      myRegisteredIds.value = data.data || []
+      console.log('[Poker] myRegisteredIds:', JSON.stringify(myRegisteredIds.value))
+    }
+  } catch (e) {
+    console.error('[Poker] fetchMyRegistrations error:', e)
+  }
 }
 
 async function fetchTournaments() {
@@ -399,11 +404,11 @@ async function fetchTournaments() {
       const raw = Array.isArray(data.data)
         ? data.data
         : [...(data.data.upcoming || []), ...(data.data.running || [])]
-      tournaments.value = raw.map(t => ({
-        ...t,
-        _actionLoading: false,
-        is_registered: myRegisteredIds.value.includes(t.id),
-      }))
+      tournaments.value = raw.map(t => {
+        const reg = myRegisteredIds.value.includes(t.id)
+        if (reg) console.log('[Poker] Tournament', t.id, t.title, 'is_registered=true')
+        return { ...t, _actionLoading: false, is_registered: reg }
+      })
     } else {
       tournaments.value = []
     }
