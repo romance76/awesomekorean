@@ -13,7 +13,7 @@ class RecipeController extends Controller
     // GET /api/recipes — 공용 목록
     public function index(Request $request)
     {
-        $query = RecipePost::select('id', 'title', 'title_en', 'thumbnail', 'category', 'difficulty', 'cook_time', 'servings', 'rating_avg', 'rating_count', 'view_count', 'user_id', 'created_at')
+        $query = RecipePost::select('id', 'title', 'title_en', 'thumbnail', 'category', 'cook_method', 'servings', 'calories', 'rating_avg', 'rating_count', 'view_count', 'user_id', 'created_at')
             ->where('is_active', true);
 
         if ($request->search) {
