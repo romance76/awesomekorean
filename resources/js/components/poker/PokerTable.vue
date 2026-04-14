@@ -41,11 +41,7 @@
             </div>
           </div>
 
-          <!-- Dealer chip -->
-          <div v-if="dealerSeat && !dealerSeat.isOut"
-            class="absolute z-[8] flex items-center justify-center w-7 h-7 rounded-full text-xs font-black text-gray-800 border-2 border-amber-400 shadow-lg"
-            style="background: linear-gradient(135deg, #fff, #e8e0d0); transform: translate(-50%, -50%)"
-            :style="{ left: dealerChipPos.x + '%', top: dealerChipPos.y + '%' }">D</div>
+          <!-- Dealer chip은 PokerSeat 안에서 표시 -->
         </div>
       </div>
     </div>
@@ -84,7 +80,8 @@
       :is-active="actIdx === getSeatGlobalIdx(seat) && !gameOver"
       :is-winner="isWinnerSeat(seat)" :pos-label="getPosLabel(seat)"
       :chat-bubble="chatBubbles[getSeatGlobalIdx(seat)]"
-      :showdown="showdown" :community="community" :bb="bl?.bb || 20" />
+      :showdown="showdown" :community="community" :bb="bl?.bb || 20"
+      :is-dealer="getSeatGlobalIdx(seat) === dealerIdx" />
   </div>
 </template>
 
@@ -123,14 +120,14 @@ const activePlayerName = computed(() => {
 // 수동 좌석 배치
 const seatPositions = [
   { x: 50, y: 80 },   // 0: 나
-  { x: 24, y: 76 },   // 1: 좌하
-  { x: 10, y: 52 },   // 2: 좌 (소피아) — 내려줌
+  { x: 24, y: 78 },   // 1: 좌하 — 내려줌
+  { x: 10, y: 54 },   // 2: 좌
   { x: 12, y: 28 },   // 3: 좌상
   { x: 32, y: 17 },   // 4: 상좌
   { x: 68, y: 17 },   // 5: 상우
   { x: 86, y: 28 },   // 6: 우상
-  { x: 88, y: 52 },   // 7: 우 (린다) — 내려줌
-  { x: 76, y: 76 },   // 8: 우하
+  { x: 88, y: 54 },   // 7: 우
+  { x: 76, y: 78 },   // 8: 우하 — 내려줌
 ]
 
 // 딜러 칩: 테이블 안쪽으로 더 크게 오프셋

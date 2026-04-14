@@ -59,6 +59,13 @@
       >
         <span :class="isMe ? 'text-[30px]' : 'text-lg'">{{ seat.emoji }}</span>
 
+        <!-- Dealer button (아이콘 옆) -->
+        <div v-if="isDealer && !seat.isOut"
+          class="absolute -right-2 -bottom-1 w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-gray-800 border-2 border-amber-400 shadow-lg z-10"
+          style="background: linear-gradient(135deg, #fff, #e8e0d0); box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 8px rgba(255,200,0,0.3)">
+          D
+        </div>
+
         <!-- Winner crown -->
         <div
           v-if="isWinner"
@@ -160,7 +167,8 @@ const props = defineProps({
   chatBubble: { type: Object, default: null },
   showdown: { type: Boolean, default: false },
   community: { type: Array, default: () => [] },
-  bb: { type: Number, default: 20 }
+  bb: { type: Number, default: 20 },
+  isDealer: { type: Boolean, default: false }
 })
 
 const isMe = computed(() => props.seat.isPlayer)
