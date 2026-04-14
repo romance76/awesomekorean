@@ -91,11 +91,20 @@
     <!-- 왼쪽: 카테고리 -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-        <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 분류</div>
+        <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
         <button v-for="c in clubCategories" :key="c.value" @click="catFilter=c.value; loadClubs()"
           class="w-full text-left px-3 py-2 text-xs transition"
           :class="catFilter===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
-              <AdSlot page="clubs" position="left" :maxSlots="2" />
+
+        <!-- 내 동호회 -->
+        <template v-if="auth.isLoggedIn && myClubs.length">
+          <div class="px-3 py-2.5 border-t border-b font-bold text-xs text-amber-900 mt-1">👤 내 동호회</div>
+          <router-link v-for="mc in myClubs" :key="mc.id" :to="`/clubs/${mc.id}`"
+            class="block w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-amber-50/50 transition truncate">
+            {{ mc.name }}
+          </router-link>
+        </template>
+        <AdSlot page="clubs" position="left" :maxSlots="2" />
       </div>
     </div>
     <!-- 메인 -->
@@ -151,11 +160,15 @@ const { city, locationQuery, koreanCities, init: initLocation, selectKoreanCity 
 const clubs = ref([])
 const loading = ref(true)
 const showFilter = ref(false)
+const myClubs = ref([])
 const catFilter = ref('')
 const clubCategories = [
-  { value: '', label: '전체' },{ value: 'sports', label: '⚽ 운동' },{ value: 'books', label: '📚 독서' },
-  { value: 'cooking', label: '🍳 요리' },{ value: 'photo', label: '📷 사진' },{ value: 'tech', label: '💻 기술' },
-  { value: 'finance', label: '💰 재테크' },{ value: 'parenting', label: '👶 육아' },
+  { value: '', label: '전체' },
+  { value: 'hiking', label: '🥾 등산' },{ value: 'golf', label: '⛳ 골프' },{ value: 'tennis', label: '🎾 테니스' },
+  { value: 'bowling', label: '🎳 볼링' },{ value: 'books', label: '📚 독서' },{ value: 'cooking', label: '🍳 요리' },
+  { value: 'photo', label: '📷 사진' },{ value: 'music', label: '🎵 음악' },{ value: 'fitness', label: '💪 운동' },
+  { value: 'movie', label: '🎬 영화' },{ value: 'gaming', label: '🎮 게임' },{ value: 'travel', label: '✈️ 여행' },
+  { value: 'fishing', label: '🎣 낚시' },{ value: 'etc', label: '📋 기타' },
 ]
 const type = ref('')
 const search = ref('')
@@ -217,11 +230,17 @@ async function loadClubs() {
   loading.value = false
 }
 
+async function loadMyClubs() {
+  if (!auth.isLoggedIn) return
+  try { const { data } = await axios.get('/api/my-clubs'); myClubs.value = data.data || [] } catch {}
+}
+
 onMounted(async () => {
   await initLocation()
   if (city.value) { myCity.value = { ...city.value }; selectedCityIdx.value = '-2' }
   else { selectedCityIdx.value = '-1'; radius.value = '0' }
   loadClubs()
+  loadMyClubs()
 })
 
 watch(() => route.params.id, (newId, oldId) => {

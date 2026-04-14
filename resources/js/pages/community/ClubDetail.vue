@@ -17,13 +17,21 @@
       <!-- Left sidebar: Category list (like ClubList) -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 분류</div>
+          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
           <router-link v-for="c in clubCategories" :key="c.value"
             :to="c.value ? `/clubs?category=${c.value}` : '/clubs'"
             class="w-full text-left px-3 py-2 text-xs transition block"
             :class="club.category === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
             {{ c.label }}
           </router-link>
+          <template v-if="auth.isLoggedIn && myClubs.length">
+            <div class="px-3 py-2.5 border-t border-b font-bold text-xs text-amber-900 mt-1">👤 내 동호회</div>
+            <router-link v-for="mc in myClubs" :key="mc.id" :to="`/clubs/${mc.id}`"
+              class="block w-full text-left px-3 py-2 text-xs transition truncate"
+              :class="mc.id === club.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+              {{ mc.name }}
+            </router-link>
+          </template>
           <AdSlot page="clubs" position="left" :maxSlots="1" />
         </div>
       </div>
@@ -542,6 +550,7 @@ const loading = ref(true)
 const isMember = ref(false)
 const myGrade = ref('member')
 const myStatus = ref(null)
+const myClubs = ref([])
 
 // Description accordion
 const descExpanded = ref(false)
@@ -587,13 +596,11 @@ const editingBoard = ref(null)
 // Category list (same as ClubList)
 const clubCategories = [
   { value: '', label: '전체' },
-  { value: 'sports', label: '⚽ 운동' },
-  { value: 'books', label: '📚 독서' },
-  { value: 'cooking', label: '🍳 요리' },
-  { value: 'photo', label: '📷 사진' },
-  { value: 'tech', label: '💻 기술' },
-  { value: 'finance', label: '💰 재테크' },
-  { value: 'parenting', label: '👶 육아' },
+  { value: 'hiking', label: '🥾 등산' },{ value: 'golf', label: '⛳ 골프' },{ value: 'tennis', label: '🎾 테니스' },
+  { value: 'bowling', label: '🎳 볼링' },{ value: 'books', label: '📚 독서' },{ value: 'cooking', label: '🍳 요리' },
+  { value: 'photo', label: '📷 사진' },{ value: 'music', label: '🎵 음악' },{ value: 'fitness', label: '💪 운동' },
+  { value: 'movie', label: '🎬 영화' },{ value: 'gaming', label: '🎮 게임' },{ value: 'travel', label: '✈️ 여행' },
+  { value: 'fishing', label: '🎣 낚시' },{ value: 'etc', label: '📋 기타' },
 ]
 
 // Category mapping
@@ -674,6 +681,10 @@ async function loadClub() {
     // If owner, ensure admin
     if (auth.user?.id === club.value?.user_id) {
       myGrade.value = 'owner'
+    }
+    // 내 동호회 로드
+    if (auth.isLoggedIn) {
+      try { const { data: mc } = await axios.get('/api/my-clubs'); myClubs.value = mc.data || [] } catch {}
     }
   } catch {
     club.value = null

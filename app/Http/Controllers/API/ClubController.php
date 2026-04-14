@@ -16,6 +16,13 @@ class ClubController extends Controller
         return ClubMember::where('club_id', $clubId)->where('user_id', $userId)->where('status', 'approved')->value('grade');
     }
 
+    public function myClubs()
+    {
+        $clubIds = ClubMember::where('user_id', auth()->id())->where('status', 'approved')->pluck('club_id');
+        $clubs = Club::whereIn('id', $clubIds)->where('is_active', true)->select('id', 'name', 'category', 'image')->get();
+        return response()->json(['success' => true, 'data' => $clubs]);
+    }
+
     public function index(Request $request)
     {
         $query = Club::with('user:id,name,nickname')

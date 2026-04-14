@@ -191,6 +191,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/realestate/{id}', [RealEstateController::class, 'update']);
     Route::delete('/realestate/{id}', [RealEstateController::class, 'destroy']);
 
+    Route::get('/my-clubs', [ClubController::class, 'myClubs']);
     Route::post('/clubs', [ClubController::class, 'store']);
     Route::put('/clubs/{id}', [ClubController::class, 'update']);
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);
