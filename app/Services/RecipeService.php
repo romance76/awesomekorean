@@ -104,6 +104,12 @@ class RecipeService
             $text   = trim($row['MANUAL' . $suffix] ?? '');
             $img    = trim($row['MANUAL_IMG' . $suffix] ?? '');
             if ($text === '') break;
+            // 끝에 불필요한 알파벳 1자 제거 (a, b, c 등 — API 데이터 오류)
+            $text = preg_replace('/[a-zA-Z]$/', '', $text);
+            // 앞에 "1. ", "2. " 등 중복 번호 제거
+            $text = preg_replace('/^\d+\.\s*/', '', $text);
+            $text = trim($text);
+            if ($text === '') continue;
             $steps[] = [
                 'order'     => $i,
                 'text'      => $text,
