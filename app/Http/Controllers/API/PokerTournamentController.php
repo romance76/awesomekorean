@@ -16,7 +16,7 @@ class PokerTournamentController extends Controller
     // 토너먼트 목록 (예정 + 진행중)
     public function index(Request $request)
     {
-        $userId = $request->user()?->id;
+        $userId = $request->user()?->id ?? auth('api')->id();
 
         $upcoming = PokerTournament::upcoming()
             ->where('is_template', false)
@@ -58,7 +58,7 @@ class PokerTournamentController extends Controller
             $q->where('is_online', true);
         }])->findOrFail($id);
 
-        $userId = $request->user()?->id;
+        $userId = $request->user()?->id ?? auth('api')->id();
         $tournament->is_registered = $userId ? $tournament->entries()->where('user_id', $userId)->exists() : false;
 
         $entries = PokerTournamentEntry::where('tournament_id', $id)
