@@ -76,9 +76,9 @@
       <div class="absolute inset-0 opacity-[0.03] pointer-events-none"
         style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22><text x=%225%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♠</text><text x=%2230%22 y=%2220%22 font-size=%2214%22 fill=%22white%22>♥</text><text x=%225%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♦</text><text x=%2230%22 y=%2245%22 font-size=%2214%22 fill=%22white%22>♣</text></svg>'); background-size: 60px 60px;" />
 
-      <!-- 중앙: 테이블 + 액션 버튼 (고정 비율) -->
-      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center relative">
-        <div class="relative" style="width: min(100%, 900px); aspect-ratio: 16/10;">
+      <!-- 중앙: 테이블 + 액션 버튼 (고정 비율, 위로 올림) -->
+      <div class="flex-1 min-h-0 min-w-0 flex items-start justify-center relative pt-0">
+        <div class="relative" style="width: min(100%, 1100px); aspect-ratio: 16/10;">
           <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
             :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
             :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
