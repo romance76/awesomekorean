@@ -102,9 +102,11 @@ Route::get('/settings/points', function () {
 });
 Route::get('/games/leaderboard/{gameType}', [GameScoreController::class, 'leaderboard']);
 
-// ─── Public Poker ───
-Route::get('/poker/tournaments', [PokerTournamentController::class, 'index']);
-Route::get('/poker/tournaments/{id}', [PokerTournamentController::class, 'show']);
+// ─── Public Poker (optional auth로 로그인 유저 감지) ───
+Route::middleware('auth:api')->group(function () {
+    Route::get('/poker/tournaments', [PokerTournamentController::class, 'index']);
+    Route::get('/poker/tournaments/{id}', [PokerTournamentController::class, 'show']);
+});
 Route::get('/poker/leaderboard', [PokerController::class, 'leaderboard']);
 
 // 게임 호환 API (old_site GameLobby용)
