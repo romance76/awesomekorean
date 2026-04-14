@@ -117,7 +117,7 @@ if (typeof window !== 'undefined') {
 
 const showNav = computed(() => {
   const p = route.path
-  return p !== '/login' && p !== '/register' && !p.startsWith('/admin') && p !== '/games/poker/play' && !p.startsWith('/games/poker/tournament/')
+  return p !== '/login' && p !== '/register' && !p.startsWith('/admin') && p !== '/games/poker/play' && !p.startsWith('/games/poker/multi') && !p.startsWith('/games/poker/tournament/')
 })
 </script>
 
