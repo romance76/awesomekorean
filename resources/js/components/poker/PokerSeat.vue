@@ -109,12 +109,12 @@
       </div>
     </div>
 
-    <!-- Bet chips (카드 오른쪽에 통일, prevBets도 잠시 표시) -->
+    <!-- Bet chips (라운드 종료 시 팟 중앙으로 이동 애니메이션) -->
     <div
       v-if="displayBet > 0"
-      class="absolute z-[6] pointer-events-none transition-opacity duration-500"
-      :class="seat.bet > 0 ? 'opacity-100' : 'opacity-70'"
-      style="top: -10px; left: 100%; margin-left: 4px;"
+      class="absolute z-[6] pointer-events-none"
+      :class="chipMovingToPot ? 'chip-to-pot' : ''"
+      :style="chipMovingToPot ? chipToPotStyle : 'top: -10px; left: 100%; margin-left: 4px;'"
     >
       <ChipStack :amount="displayBet" :bb="bb" />
     </div>
@@ -164,19 +164,40 @@ const props = defineProps({
 
 const isMe = computed(() => props.seat.isPlayer)
 
-// 베팅 칩 표시: bet이 0이 되어도 이전 값을 1.5초간 유지
+// 베팅 칩: bet→0 시 팟 중앙으로 이동 애니메이션
 const lastBet = ref(0)
+const chipMovingToPot = ref(false)
 let betTimer = null
+
 const displayBet = computed(() => props.seat.bet > 0 ? props.seat.bet : lastBet.value)
+
+// 칩→팟 이동 스타일 (좌석 위치 → 테이블 중앙)
+const chipToPotStyle = computed(() => {
+  const dx = 50 - props.position.x
+  const dy = 50 - props.position.y
+  return {
+    position: 'absolute',
+    top: '-10px',
+    left: '100%',
+    marginLeft: '4px',
+    transform: `translate(${dx * 3}px, ${dy * 3}px) scale(0.3)`,
+    opacity: 0,
+    transition: 'all 0.8s ease-in',
+  }
+})
 
 watch(() => props.seat.bet, (newBet, oldBet) => {
   if (oldBet > 0 && newBet === 0) {
-    // 베팅이 0으로 리셋됨 → 이전 값 유지
     lastBet.value = oldBet
+    chipMovingToPot.value = true
     clearTimeout(betTimer)
-    betTimer = setTimeout(() => { lastBet.value = 0 }, 1500)
+    betTimer = setTimeout(() => {
+      chipMovingToPot.value = false
+      lastBet.value = 0
+    }, 1000)
   } else if (newBet > 0) {
     lastBet.value = 0
+    chipMovingToPot.value = false
     clearTimeout(betTimer)
   }
 })

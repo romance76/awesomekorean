@@ -29,10 +29,9 @@
             <div class="text-emerald-200 text-sm font-medium tracking-widest uppercase">{{ stageLabel }} {{ stageDesc }}</div>
           </div>
 
-          <!-- Pot (승리 시 애니메이션) -->
-          <div class="absolute top-[58%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[4] flex flex-col items-center gap-1 transition-all duration-1000"
-            :class="winnerAnimClass"
-            :style="winnerAnimStyle">
+          <!-- Pot (승리 시 우승자에게 이동) -->
+          <div class="absolute top-[58%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[4] flex flex-col items-center gap-1"
+            :style="potAnimStyle">
             <div class="flex gap-1 justify-center">
               <div v-for="ci in potChipColumns" :key="ci" class="flex flex-col items-center">
                 <div v-for="si in Math.min(Math.ceil((ci + 1) * 0.8), 4)" :key="si"
@@ -182,34 +181,36 @@ function getPosLabel(seat) {
 
 // ── 승리 시 팟 칩 → 우승자에게 날아가는 애니메이션 ──
 const isChipFlying = ref(false)
-const chipFlyTarget = ref({ x: 50, y: 50 })
+const chipFlyTarget = ref({ x: 50, y: 58 })
 
-const winnerAnimClass = computed(() => isChipFlying.value ? 'opacity-0 scale-50' : '')
-const winnerAnimStyle = computed(() => {
-  if (!isChipFlying.value) return {}
+const potAnimStyle = computed(() => {
+  if (!isChipFlying.value) return { transition: 'none' }
+  const tx = chipFlyTarget.value.x - 50 // 현재 left:50% 기준 이동량
+  const ty = chipFlyTarget.value.y - 58 // 현재 top:58% 기준 이동량
   return {
-    transform: `translate(${chipFlyTarget.value.x - 50}%, ${chipFlyTarget.value.y - 58}%) scale(0.3)`,
-    opacity: 0,
+    transition: 'all 1.2s cubic-bezier(0.25, 0.1, 0.25, 1)',
+    left: chipFlyTarget.value.x + '%',
+    top: chipFlyTarget.value.y + '%',
+    transform: 'translate(-50%, -50%) scale(0.4)',
+    opacity: '0',
   }
 })
 
 watch(() => props.showdown, (val) => {
   if (val && props.handResults?.winners?.length) {
-    // 1초 후 칩 날리기 시작
+    // 1.5초 후 칩을 우승자에게 날리기
     setTimeout(() => {
       const winnerIdx = props.handResults.winners[0].seatIdx
       const winnerSeat = props.seats[winnerIdx]
       if (winnerSeat) {
         const dIdx = displayOrder.value.indexOf(winnerSeat)
         if (dIdx >= 0 && seatPositions[dIdx]) {
-          chipFlyTarget.value = seatPositions[dIdx]
+          chipFlyTarget.value = { x: seatPositions[dIdx].x, y: seatPositions[dIdx].y }
         }
       }
       isChipFlying.value = true
-
-      // 2초 후 리셋
-      setTimeout(() => { isChipFlying.value = false }, 2000)
-    }, 1000)
+      setTimeout(() => { isChipFlying.value = false }, 1500)
+    }, 1500)
   }
 })
 </script>
