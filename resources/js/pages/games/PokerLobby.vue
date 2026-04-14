@@ -103,19 +103,29 @@
             </h3>
             <div class="space-y-3">
               <div v-for="t in liveTournaments" :key="t.id"
-                class="bg-gray-900 rounded-xl border border-red-500/20 p-4">
+                @click="isRegistered(t) ? enterTournamentGame(t) : null"
+                class="bg-gray-900 rounded-xl border border-red-500/20 p-4 transition"
+                :class="isRegistered(t) ? 'hover:border-green-400/40 cursor-pointer' : ''">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
                       <span class="text-base font-bold text-white truncate">{{ t.title }}</span>
                       <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">LIVE</span>
+                      <span v-if="isRegistered(t)" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                        참가중
+                      </span>
                     </div>
                     <div class="flex flex-wrap items-center gap-3 text-xs text-gray-400">
-                      <span>&#128101; {{ t.remaining_players || '?' }}/{{ t.max_players }}명 남음</span>
-                      <span v-if="t.online_count" class="text-green-400">&#128994; {{ t.online_count }}명 관전</span>
+                      <span>&#128101; {{ t.remaining_count || t.registered_count || '?' }}/{{ t.max_players }}명</span>
+                      <span v-if="t.online_count" class="text-green-400">&#128994; {{ t.online_count }}명 접속</span>
                     </div>
                   </div>
-                  <button disabled
+                  <button v-if="isRegistered(t)"
+                    @click.stop="enterTournamentGame(t)"
+                    class="bg-green-600 hover:bg-green-500 text-white text-xs font-bold px-5 py-2 rounded-lg transition animate-pulse">
+                    &#127918; 게임 입장
+                  </button>
+                  <button v-else disabled
                     class="bg-gray-700 text-gray-400 text-xs font-bold px-4 py-2 rounded-lg cursor-not-allowed">
                     관전 (준비 중)
                   </button>
@@ -392,6 +402,20 @@ function isRegistered(tournament) {
 
 function goToWaitingRoom(t) {
   router.push(`/games/poker/tournament/${t.id}`)
+}
+
+async function enterTournamentGame(t) {
+  try {
+    const { data } = await axios.get(`/api/poker/tournaments/${t.id}/game`)
+    if (data.success && data.data?.gameId) {
+      router.push(`/games/poker/multi?tournament=${t.id}&game=${data.data.gameId}`)
+    } else {
+      // 게임이 아직 준비 안 됨 → 대기실로
+      router.push(`/games/poker/tournament/${t.id}`)
+    }
+  } catch {
+    router.push(`/games/poker/tournament/${t.id}`)
+  }
 }
 
 async function registerTournament(id) {
