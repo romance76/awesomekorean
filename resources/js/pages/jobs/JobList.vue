@@ -33,33 +33,18 @@
       </div>
     </div>
 
-    <!-- 구인/구직 탭 -->
-    <div class="flex gap-2 mb-3">
-      <button @click="postType = 'hiring'; activeCat = ''; loadPage()"
-        class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
-        :class="postType === 'hiring'
-          ? 'bg-amber-400 text-amber-900 shadow-md shadow-amber-200'
-          : 'bg-white text-gray-500 border border-gray-200 hover:bg-amber-50'">
-        💼 구인 (채용)
-      </button>
-      <button @click="postType = 'seeking'; activeCat = ''; loadPage()"
-        class="flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
-        :class="postType === 'seeking'
-          ? 'bg-blue-500 text-white shadow-md shadow-blue-200'
-          : 'bg-white text-gray-500 border border-gray-200 hover:bg-blue-50'">
-        🙋 구직 (인재)
-      </button>
-    </div>
-
-    <!-- 카테고리 가로 스크롤 (모든 화면에서 표시) -->
-    <div class="mb-3 overflow-x-auto scrollbar-hide">
+    <!-- 모바일 카테고리 (lg 미만에서만 표시) -->
+    <div class="mb-3 overflow-x-auto scrollbar-hide lg:hidden">
       <div class="flex gap-1.5 pb-1 min-w-max">
+        <button @click="postType = postType === 'hiring' ? 'seeking' : 'hiring'; loadPage()"
+          class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition"
+          :class="postType === 'seeking' ? 'bg-blue-500 text-white border-blue-500' : 'bg-amber-400 text-amber-900 border-amber-400'">
+          {{ postType === 'hiring' ? '💼 구인' : '🙋 구직' }}
+        </button>
         <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage()"
           class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border"
           :class="activeCat === c.value
-            ? (postType === 'hiring'
-              ? 'bg-amber-400 text-amber-900 border-amber-400 shadow-sm'
-              : 'bg-blue-500 text-white border-blue-500 shadow-sm')
+            ? (postType === 'hiring' ? 'bg-amber-400 text-amber-900 border-amber-400' : 'bg-blue-500 text-white border-blue-500')
             : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'">
           {{ c.label }}
         </button>
@@ -67,11 +52,25 @@
     </div>
 
     <div class="grid grid-cols-12 gap-4">
-    <!-- 왼쪽: 카테고리 사이드바 (lg 이상에서만 표시) -->
+    <!-- 왼쪽: 카테고리 사이드바 + 구인/구직 토글 (lg 이상) -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-        <div class="px-3 py-2.5 border-b font-bold text-xs"
-          :class="postType === 'hiring' ? 'text-amber-900' : 'text-blue-900'">📋 카테고리</div>
+        <div class="px-3 py-2.5 border-b font-bold text-xs text-gray-800 flex items-center justify-between">
+          <span>📋 카테고리</span>
+        </div>
+        <!-- 구인/구직 작은 토글 -->
+        <div class="flex border-b">
+          <button @click="postType = 'hiring'; loadPage()"
+            class="flex-1 py-1.5 text-[10px] font-bold transition"
+            :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'text-gray-400 hover:bg-gray-50'">
+            💼 구인
+          </button>
+          <button @click="postType = 'seeking'; loadPage()"
+            class="flex-1 py-1.5 text-[10px] font-bold transition"
+            :class="postType === 'seeking' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-50'">
+            🙋 구직
+          </button>
+        </div>
         <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage()"
           class="w-full text-left px-3 py-2 text-xs transition"
           :class="activeCat === c.value

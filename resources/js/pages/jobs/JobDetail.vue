@@ -10,7 +10,7 @@
     <div v-else-if="job" class="grid grid-cols-12 gap-4">
 
       <!-- ══════════ LEFT: 같은 카테고리 목록 (lg only) ══════════ -->
-      <aside class="col-span-3 hidden lg:block">
+      <aside class="col-span-2 hidden lg:block">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900 flex items-center gap-1">
             <span>{{ categoryLabel(job.category) }}</span>
@@ -35,7 +35,7 @@
       </aside>
 
       <!-- ══════════ CENTER: Job Detail Card ══════════ -->
-      <main class="col-span-12 lg:col-span-6 md:col-span-8">
+      <main class="col-span-12 lg:col-span-7 md:col-span-8">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
           <!-- Header: badges + title + company + location -->
