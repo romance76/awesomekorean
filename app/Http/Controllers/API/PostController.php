@@ -37,6 +37,25 @@ class PostController extends Controller
     {
         $post = Post::with('user:id,name,nickname,avatar', 'board:id,name,slug')->findOrFail($id);
         $post->increment('view_count');
+
+        // 좋아요/북마크 상태
+        $userId = auth('api')->id();
+        if ($userId) {
+            $post->is_liked = \DB::table('likes')
+                ->where('likeable_type', 'App\\Models\\Post')
+                ->where('likeable_id', $id)
+                ->where('user_id', $userId)
+                ->exists();
+            $post->is_bookmarked = \DB::table('bookmarks')
+                ->where('bookmarkable_type', 'post')
+                ->where('bookmarkable_id', $id)
+                ->where('user_id', $userId)
+                ->exists();
+        } else {
+            $post->is_liked = false;
+            $post->is_bookmarked = false;
+        }
+
         return response()->json(['success' => true, 'data' => $post]);
     }
 

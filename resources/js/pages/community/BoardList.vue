@@ -65,7 +65,9 @@
             <div class="px-5 py-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
             <div class="px-5 py-3 border-t flex gap-4">
               <button @click="toggleLike" class="text-sm" :class="liked ? 'text-red-500' : 'text-gray-400'">{{ liked ? '❤️' : '🤍' }} 좋아요</button>
-              <span class="text-gray-400 text-sm">🔖 북마크</span>
+              <button @click="toggleBookmark" class="text-sm" :class="bookmarked ? 'text-amber-600' : 'text-gray-400 hover:text-amber-600'">
+                🔖 {{ bookmarked ? '저장됨' : '북마크' }}
+              </button>
             </div>
           </div>
 
@@ -174,6 +176,7 @@ const lastPage = ref(1)
 const activeItem = ref(null)
 const currentIdx = ref(-1)
 const liked = ref(false)
+const bookmarked = ref(false)
 const commentSection = ref(null)
 
 function navItem(dir) {
@@ -183,11 +186,15 @@ function navItem(dir) {
 
 async function openItem(item) {
   currentIdx.value = items.value.findIndex(i => i.id === item.id)
+  liked.value = false
+  bookmarked.value = false
   try {
     const { data } = await axios.get(`/api/posts/${item.id}`)
     activeItem.value = data.data
+    // 좋아요/북마크 상태 로드
+    liked.value = !!data.data?.is_liked
+    bookmarked.value = !!data.data?.is_bookmarked
   } catch { activeItem.value = item }
-  // 해당 글의 게시판으로 사이드바+타이틀 변경
   const post = activeItem.value
   if (post?.board_id) {
     activeBoard.value = boards.value.find(b => b.id === post.board_id) || null
@@ -202,6 +209,17 @@ async function toggleLike() {
     const { data } = await axios.post(`/api/posts/${activeItem.value.id}/like`)
     liked.value = data.liked
     activeItem.value.like_count += data.liked ? 1 : -1
+  } catch {}
+}
+
+async function toggleBookmark() {
+  if (!auth.isLoggedIn || !activeItem.value) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', {
+      bookmarkable_type: 'post',
+      bookmarkable_id: activeItem.value.id
+    })
+    bookmarked.value = data.bookmarked
   } catch {}
 }
 
