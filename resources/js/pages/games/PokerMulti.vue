@@ -78,7 +78,7 @@
 
       <!-- 중앙: 테이블 + 액션 버튼 (고정 비율, 위로 올림) -->
       <div class="flex-1 min-h-0 min-w-0 flex items-start justify-center relative pt-0">
-        <div class="relative" style="width: min(100%, 1100px); aspect-ratio: 16/10;">
+        <div class="relative" style="width: min(100%, 1400px); aspect-ratio: 16/10;">
           <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
             :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
             :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
