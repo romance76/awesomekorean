@@ -74,12 +74,14 @@
     <!-- 3칼럼: 테이블(center) + 우측(모니터+채팅) -->
     <div class="flex-1 min-h-0 flex relative">
 
-      <!-- 중앙: 테이블 -->
-      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center">
-        <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
-          :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
-          :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
-          :act-idx="gameState?.actIdx??-1" :turn-timer="turnCountdown" :turn-timer-max="gameState?.turnTime||15" />
+      <!-- 중앙: 테이블 (80% 크기로 축소) -->
+      <div class="flex-1 min-h-0 min-w-0 flex items-center justify-center p-2">
+        <div class="w-full h-full" style="max-width: 80%; max-height: 90%; margin: auto;">
+          <PokerTable :seats="displaySeats" :community="gameState?.community||[]" :pot="gameState?.pot||0"
+            :stage="gameState?.stage||'preflop'" :dealer-idx="gameState?.dealerIdx||0" :showdown="gameState?.status==='showdown'"
+            :hand-results="gameState?.result" :game-over="gameState?.status==='finished'" :bl="{sb:gameState?.sb||10,bb:gameState?.bb||20}"
+            :act-idx="gameState?.actIdx??-1" :turn-timer="turnCountdown" :turn-timer-max="gameState?.turnTime||15" />
+        </div>
       </div>
 
       <!-- 우측: 모니터 + 채팅 -->
