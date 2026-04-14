@@ -33,22 +33,21 @@
       </div>
     </div>
 
-    <!-- 모바일 카테고리 (lg 미만에서만 표시) -->
-    <div class="mb-3 overflow-x-auto scrollbar-hide lg:hidden">
-      <div class="flex gap-1.5 pb-1 min-w-max">
-        <button @click="postType = postType === 'hiring' ? 'seeking' : 'hiring'; loadPage()"
-          class="px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition"
-          :class="postType === 'seeking' ? 'bg-blue-500 text-white border-blue-500' : 'bg-amber-400 text-amber-900 border-amber-400'">
-          {{ postType === 'hiring' ? '💼 구인' : '🙋 구직' }}
-        </button>
-        <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage()"
-          class="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border"
-          :class="activeCat === c.value
-            ? (postType === 'hiring' ? 'bg-amber-400 text-amber-900 border-amber-400' : 'bg-blue-500 text-white border-blue-500')
-            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'">
-          {{ c.label }}
-        </button>
+    <!-- 모바일: 구인/구직 토글 + 카테고리 드롭다운 (lg 미만) -->
+    <div class="flex items-center gap-2 mb-3 lg:hidden">
+      <div class="flex rounded-lg border border-gray-200 overflow-hidden">
+        <button @click="postType = 'hiring'; loadPage()"
+          class="px-3 py-1.5 text-xs font-bold transition"
+          :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'bg-white text-gray-400'">구인</button>
+        <button @click="postType = 'seeking'; loadPage()"
+          class="px-3 py-1.5 text-xs font-bold transition"
+          :class="postType === 'seeking' ? 'bg-blue-500 text-white' : 'bg-white text-gray-400'">구직</button>
       </div>
+      <select v-model="activeCat" @change="loadPage()"
+        class="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white outline-none"
+        :class="postType === 'hiring' ? 'focus:ring-amber-400 focus:ring-2' : 'focus:ring-blue-400 focus:ring-2'">
+        <option v-for="c in jobCategories" :key="c.value" :value="c.value">{{ c.label }}</option>
+      </select>
     </div>
 
     <div class="grid grid-cols-12 gap-4">
