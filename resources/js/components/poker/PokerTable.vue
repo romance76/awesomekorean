@@ -118,17 +118,18 @@ const activePlayerName = computed(() => {
 })
 
 // 좌석 — 딜러가 상단 중앙이므로 9명은 딜러 양옆으로
-// 타원 기반 좌석 배치: 포커 시계방향 (내 왼쪽부터)
-// 쿠션(top:16%,bottom:24%) → 중심(50%,46%)
-const seatPositions = (() => {
-  const cx = 50, cy = 46, a = 40, b = 33
-  // 나(아래) → 좌하 → 좌 → 좌상 → 상좌 → 상우 → 우상 → 우 → 우하
-  const angles = [270, 235, 195, 155, 125, 55, 25, 345, 305]
-  return angles.map(deg => {
-    const rad = deg * Math.PI / 180
-    return { x: Math.round(cx + a * Math.cos(rad)), y: Math.round(cy - b * Math.sin(rad)) }
-  })
-})()
+// 수동 좌석 배치 (시계방향: 나→좌하→좌→좌상→상좌→상우→우상→우→우하)
+const seatPositions = [
+  { x: 50, y: 80 },   // 0: 나 (하단 중앙)
+  { x: 25, y: 75 },   // 1: 좌하 (마이크)
+  { x: 9,  y: 56 },   // 2: 좌 (재민) — 살짝 아래+오른쪽
+  { x: 12, y: 30 },   // 3: 좌상 (하나 MP) — 그대로
+  { x: 32, y: 16 },   // 4: 상좌 (유나) — 오른쪽으로
+  { x: 68, y: 16 },   // 5: 상우 — 왼쪽으로
+  { x: 88, y: 30 },   // 6: 우상 (소피아) — 그대로
+  { x: 91, y: 56 },   // 7: 우 (린다) — 살짝 아래+왼쪽
+  { x: 75, y: 75 },   // 8: 우하 (빅터) — 내려주고
+]
 
 const stageLabel = computed(() => STAGE_NAMES[props.stage] || props.stage)
 const stageDesc = computed(() => STAGE_DESCS[props.stage] || '')
