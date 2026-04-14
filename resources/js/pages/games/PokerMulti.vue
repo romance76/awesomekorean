@@ -1,6 +1,6 @@
 <template>
 <div ref="gameRoot" class="select-none bg-gradient-to-b from-gray-950 via-[#0e1525] to-[#0b1018] overflow-hidden flex flex-col"
-  style="font-family:'Noto Sans KR',sans-serif; width: 100vw; height: 100vh;"
+  style="font-family:'Noto Sans KR',sans-serif; width: 100vw; height: 100vh;">
 
   <!-- ═══ 매칭 대기 화면 ═══ -->
   <div v-if="screen==='matching'" class="flex-1 flex items-center justify-center">
