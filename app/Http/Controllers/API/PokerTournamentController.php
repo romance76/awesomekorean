@@ -14,9 +14,18 @@ use Illuminate\Http\Request;
 class PokerTournamentController extends Controller
 {
     // 토너먼트 목록 (예정 + 진행중)
+    private function resolveUserId(Request $request): ?int
+    {
+        try {
+            return $request->user()?->id ?? auth('api')->id();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     public function index(Request $request)
     {
-        $userId = $request->user()?->id ?? auth('api')->id();
+        $userId = $this->resolveUserId($request);
 
         $upcoming = PokerTournament::upcoming()
             ->where('is_template', false)
@@ -58,7 +67,7 @@ class PokerTournamentController extends Controller
             $q->where('is_online', true);
         }])->findOrFail($id);
 
-        $userId = $request->user()?->id ?? auth('api')->id();
+        $userId = $this->resolveUserId($request);
         $tournament->is_registered = $userId ? $tournament->entries()->where('user_id', $userId)->exists() : false;
 
         $entries = PokerTournamentEntry::where('tournament_id', $id)
