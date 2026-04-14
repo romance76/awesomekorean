@@ -12,7 +12,7 @@ class NewsController extends Controller
 {
     public function index(Request $request)
     {
-        $query = News::select('id', 'title', 'source', 'image_url', 'link', 'category_id', 'view_count', 'published_at', 'created_at')
+        $query = News::select('id', 'title', 'source', 'image_url', 'local_image', 'link', 'category_id', 'view_count', 'published_at', 'created_at')
             ->with('category:id,name,slug')
             ->when($request->category_id, fn($q, $v) => $q->where('category_id', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"));
@@ -21,16 +21,19 @@ class NewsController extends Controller
         if ($sort === 'popular') $query->orderByDesc('view_count');
         else $query->orderByDesc('published_at')->orderByDesc('id');
 
-        // 중복 제거
         $query->distinct();
 
         $paginated = $query->paginate(10);
         $paginated->getCollection()->transform(function ($n) {
-            // HTML 엔티티 디코딩 (chosun 등 &amp; 섞여 있음)
-            if ($n->image_url) {
-                $n->image_url = html_entity_decode($n->image_url, ENT_QUOTES | ENT_HTML5);
+            // 로컬 이미지 우선 → 없으면 외부 URL 썸네일
+            if ($n->local_image) {
+                $n->thumbnail_url = $n->local_image;
+            } else {
+                if ($n->image_url) {
+                    $n->image_url = html_entity_decode($n->image_url, ENT_QUOTES | ENT_HTML5);
+                }
+                $n->thumbnail_url = $n->image_url ? ThumbHelper::url($n->image_url, 200) : null;
             }
-            $n->thumbnail_url = ThumbHelper::url($n->image_url, 200);
             return $n;
         });
         return response()->json(['success' => true, 'data' => $paginated]);

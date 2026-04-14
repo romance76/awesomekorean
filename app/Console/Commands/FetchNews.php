@@ -88,6 +88,12 @@ class FetchNews extends Command
                     $publishedAt = now();
                 }
 
+                // 이미지 로컬 다운로드
+                $localImage = null;
+                if ($imageUrl) {
+                    $localImage = $this->downloadImage($imageUrl);
+                }
+
                 News::create([
                     'title'        => $title,
                     'content'      => $content,
@@ -95,6 +101,7 @@ class FetchNews extends Command
                     'source'       => '오마이뉴스',
                     'source_url'   => $link,
                     'image_url'    => $imageUrl,
+                    'local_image'  => $localImage,
                     'category_id'  => $categoryId,
                     'published_at' => $publishedAt,
                 ]);
@@ -160,5 +167,47 @@ class FetchNews extends Command
 
         if (mb_strlen($text) > 8000) $text = mb_substr($text, 0, 8000);
         return trim($text);
+    }
+
+    /**
+     * 외부 이미지를 로컬에 다운로드 → /storage/app/public/news/YYYY-MM/hash.jpg
+     */
+    private function downloadImage(string $url): ?string
+    {
+        try {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_TIMEOUT => 10,
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; SomeKorean/1.0)',
+            ]);
+            $imageData = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+            curl_close($ch);
+
+            if ($httpCode !== 200 || !$imageData || strlen($imageData) < 1000) return null;
+            if (!str_contains($contentType ?? '', 'image')) return null;
+
+            // 파일명: MD5 해시 + 확장자
+            $ext = 'jpg';
+            if (str_contains($contentType, 'png')) $ext = 'png';
+            elseif (str_contains($contentType, 'webp')) $ext = 'webp';
+
+            $dir = 'news/' . now()->format('Y-m');
+            $filename = md5($url) . '.' . $ext;
+            $relPath = $dir . '/' . $filename;
+
+            $absDir = storage_path('app/public/' . $dir);
+            if (!is_dir($absDir)) mkdir($absDir, 0775, true);
+
+            file_put_contents(storage_path('app/public/' . $relPath), $imageData);
+
+            return '/storage/' . $relPath;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 }
