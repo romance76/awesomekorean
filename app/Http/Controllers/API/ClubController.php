@@ -202,7 +202,7 @@ class ClubController extends Controller
 
     public function members($id)
     {
-        $members = ClubMember::with('user:id,name,nickname,profile_photo')
+        $members = ClubMember::with('user:id,name,nickname,avatar')
             ->where('club_id', $id)
             ->orderByRaw("FIELD(grade, 'owner', 'admin', 'member', 'restricted')")
             ->get();
@@ -341,7 +341,7 @@ class ClubController extends Controller
 
     public function posts($id)
     {
-        $posts = ClubPost::with('user:id,name,nickname,profile_photo')
+        $posts = ClubPost::with('user:id,name,nickname,avatar')
             ->where('club_id', $id)
             ->orderByDesc('is_pinned')
             ->orderByDesc('created_at')
@@ -354,7 +354,7 @@ class ClubController extends Controller
     {
         ClubBoard::where('club_id', $id)->where('id', $boardId)->firstOrFail();
 
-        $posts = ClubPost::with('user:id,name,nickname,profile_photo')
+        $posts = ClubPost::with('user:id,name,nickname,avatar')
             ->where('club_id', $id)
             ->where('board_id', $boardId)
             ->orderByDesc('is_pinned')
