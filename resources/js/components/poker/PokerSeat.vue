@@ -182,6 +182,16 @@ watchEffect(() => {
   }
 })
 
+// 서버 문자열 카드 ('As','Kh') → 객체 ({rank,suit}) 변환
+const SUIT_MAP = { s: '♠', h: '♥', d: '♦', c: '♣' }
+const RANK_MAP = { T: '10' }
+function parseCard(c) {
+  if (!c || c === '??' || typeof c === 'object') return c
+  const r = c.slice(0, -1)
+  const s = c.slice(-1)
+  return { rank: RANK_MAP[r] || r, suit: SUIT_MAP[s] || s }
+}
+
 // Hand evaluation for showdown
 const handEval = computed(() => {
   if (
@@ -190,7 +200,11 @@ const handEval = computed(() => {
     props.seat.cards?.length === 2 &&
     props.community?.length >= 3
   ) {
-    return evalHand([...props.seat.cards, ...props.community])
+    const allCards = [...props.seat.cards, ...props.community]
+      .map(c => typeof c === 'string' ? parseCard(c) : c)
+      .filter(c => c && c.rank && c.suit)
+    if (allCards.length < 5) return null
+    return evalHand(allCards)
   }
   return null
 })
