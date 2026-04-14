@@ -417,17 +417,27 @@ async function loadJob(id) {
     const cat = job.value.category
     const postType = job.value.post_type
 
-    // useLocation에서 유저 프로필 위치 읽기
+    // 1순위: 유저 프로필 위치, 2순위: 현재 공고 위치
     await initLocation()
-    const loc = locCity.value
+    const userLoc = locCity.value
+    let lat, lng, label
+    if (userLoc?.lat && userLoc?.lng) {
+      lat = userLoc.lat
+      lng = userLoc.lng
+      label = userLoc.label || userLoc.name || '내 주변'
+    } else if (job.value.lat && job.value.lng) {
+      lat = parseFloat(job.value.lat)
+      lng = parseFloat(job.value.lng)
+      label = job.value.city || job.value.state || '이 공고 주변'
+    }
 
     // 위치 기반 같은 카테고리 목록
     const sameParams = { category: cat, post_type: postType, per_page: 30 }
-    if (loc?.lat && loc?.lng) {
-      sameParams.lat = loc.lat
-      sameParams.lng = loc.lng
+    if (lat && lng) {
+      sameParams.lat = lat
+      sameParams.lng = lng
       sameParams.radius = 50
-      nearbyLabel.value = loc.label || loc.name || loc.state || '내 주변'
+      nearbyLabel.value = label
     }
 
     const { data: sameData } = await axios.get('/api/jobs', { params: sameParams })
