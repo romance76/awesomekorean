@@ -441,13 +441,16 @@ async function registerTournament(id) {
   if (t) t._actionLoading = true
   try {
     await axios.post(`/api/poker/tournaments/${id}/register`)
-    await fetchTournaments()
-    if (auth.isLoggedIn) await fetchWallet()
   } catch (e) {
-    alert(e.response?.data?.message || '참가 신청에 실패했습니다.')
-  } finally {
-    if (t) t._actionLoading = false
+    const msg = e.response?.data?.message || ''
+    if (!msg.includes('이미')) {
+      alert(msg || '참가 신청에 실패했습니다.')
+    }
   }
+  // 성공이든 실패든 항상 새로고침
+  await fetchTournaments()
+  if (auth.isLoggedIn) await fetchWallet()
+  if (t) t._actionLoading = false
 }
 
 async function unregisterTournament(id) {
