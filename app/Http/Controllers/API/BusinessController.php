@@ -15,21 +15,17 @@ class BusinessController extends Controller
 {
     public function index(Request $request)
     {
-        // 목록용 필드만 선택 (images/description 제외 → 전송량 감소)
-        $columns = ['id','name','category','subcategory','phone','address','city','state','zipcode','lat','lng','rating','review_count','view_count','logo','images','is_claimed','created_at'];
-
-        $query = Business::query()->select($columns)
+        $query = Business::query()
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
             ->when($request->search, fn($q, $v) => $q->where('name', 'like', "%{$v}%"))
             ->when($request->state, fn($q, $v) => $q->where('state', $v))
             ->when($request->city, fn($q, $v) => $q->where('city', $v));
 
-        // 위치 필터 — bounding box 사전 필터 + Haversine
+        // 위치 필터 — bounding box 사전 필터 (인덱스 활용) + Haversine
         if ($request->lat && $request->lng) {
             $lat = (float) $request->lat;
             $lng = (float) $request->lng;
             $radius = (int) ($request->radius ?? 50);
-            // bounding box 사전 필터 (인덱스 활용)
             $latDelta = $radius / 69.0;
             $lngDelta = $radius / (69.0 * cos(deg2rad($lat)));
             $query->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
