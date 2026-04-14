@@ -158,7 +158,7 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import { thumb } from '../../utils/thumb'
 import axios from 'axios'
@@ -260,5 +260,12 @@ onMounted(async () => {
     try { const { data } = await axios.get('/api/news/' + itemId); activeItem.value = data.data } catch {}
   }
   loading.value = false
+})
+
+watch(() => route.params.id, (newId, oldId) => {
+  if (oldId && !newId) {
+    loadNews()
+    activeItem.value = null
+  }
 })
 </script>

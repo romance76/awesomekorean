@@ -141,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AdSlot from '../../components/AdSlot.vue'
@@ -279,5 +279,26 @@ onMounted(async () => {
   }
 
   loading.value = false
+})
+
+// 같은 컴포넌트 내 라우트 변경 감지 (상세→리스트 복귀 시 새로 로드)
+watch(() => route.params.id, (newId, oldId) => {
+  if (oldId && !newId) {
+    // 상세에서 리스트로 복귀 → 리스트 새로고침
+    loadPosts()
+    activeItem.value = null
+  }
+})
+
+watch(() => route.params.board, (newBoard, oldBoard) => {
+  if (newBoard !== oldBoard) {
+    const found = boards.value.find(b => b.slug === newBoard)
+    if (found) {
+      activeBoard.value = found
+      page.value = 1
+      loadPosts()
+    }
+    activeItem.value = null
+  }
 })
 </script>

@@ -83,7 +83,7 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
@@ -191,5 +191,11 @@ onMounted(async () => {
     radius.value = '0'
   }
   loadPage()
+})
+
+watch(() => route.params.id, (newId, oldId) => {
+  if (oldId && !newId) {
+    loadPage()
+  }
 })
 </script>

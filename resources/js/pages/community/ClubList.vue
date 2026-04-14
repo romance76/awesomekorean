@@ -80,7 +80,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
@@ -88,6 +89,7 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
+const route = useRoute()
 const { city, locationQuery, koreanCities, init: initLocation, selectKoreanCity } = useLocation()
 
 const clubs = ref([])
@@ -163,5 +165,11 @@ onMounted(async () => {
   if (city.value) { myCity.value = { ...city.value }; selectedCityIdx.value = '-2' }
   else { selectedCityIdx.value = '-1'; radius.value = '0' }
   loadClubs()
+})
+
+watch(() => route.params.id, (newId, oldId) => {
+  if (oldId && !newId) {
+    loadClubs()
+  }
 })
 </script>

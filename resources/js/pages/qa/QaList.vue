@@ -137,7 +137,7 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
@@ -227,5 +227,13 @@ onMounted(async () => {
     try { const { data } = await axios.get('/api/qa/' + itemId); activeItem.value = data.data } catch {}
   }
   loading.value = false
+})
+
+watch(() => route.params.id, (newId, oldId) => {
+  if (oldId && !newId) {
+    loadQa()
+    activeItem.value = null
+    answers.value = []
+  }
 })
 </script>
