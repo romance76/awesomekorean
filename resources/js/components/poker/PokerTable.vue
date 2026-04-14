@@ -123,14 +123,27 @@ const activePlayerName = computed(() => {
 // 수동 좌석 배치 (시계방향: 나→좌하→좌→좌상→상좌→상우→우상→우→우하)
 const seatPositions = [
   { x: 50, y: 80 },   // 0: 나 (하단 중앙)
-  { x: 25, y: 75 },   // 1: 좌하 (마이크)
-  { x: 9,  y: 56 },   // 2: 좌 (재민) — 살짝 아래+오른쪽
-  { x: 12, y: 30 },   // 3: 좌상 (하나 MP) — 그대로
-  { x: 32, y: 16 },   // 4: 상좌 (유나) — 오른쪽으로
-  { x: 68, y: 16 },   // 5: 상우 — 왼쪽으로
-  { x: 88, y: 30 },   // 6: 우상 (소피아) — 그대로
-  { x: 91, y: 56 },   // 7: 우 (린다) — 살짝 아래+왼쪽
-  { x: 75, y: 75 },   // 8: 우하 (빅터) — 내려주고
+  { x: 25, y: 75 },   // 1: 좌하
+  { x: 7,  y: 52 },   // 2: 좌 — 왼쪽으로 더
+  { x: 10, y: 28 },   // 3: 좌상 — 왼쪽으로 더
+  { x: 32, y: 14 },   // 4: 상좌
+  { x: 68, y: 14 },   // 5: 상우
+  { x: 88, y: 28 },   // 6: 우상
+  { x: 88, y: 52 },   // 7: 우 — 왼쪽으로 이동(91→88)
+  { x: 75, y: 75 },   // 8: 우하
+]
+
+// 딜러 칩 위치: 각 좌석별로 테이블 안쪽 방향에 배치
+const dealerChipOffsets = [
+  { dx: 0,  dy: -12 },  // 0: 나 — 카드 가운데 위
+  { dx: 8,  dy: -6 },   // 1: 좌하 — 오른쪽 위
+  { dx: 10, dy: -2 },   // 2: 좌 — 오른쪽
+  { dx: 8,  dy: 8 },    // 3: 좌상 — 오른쪽 아래
+  { dx: 4,  dy: 10 },   // 4: 상좌 — 아래
+  { dx: -4, dy: 10 },   // 5: 상우 — 아래
+  { dx: -8, dy: 8 },    // 6: 우상 — 왼쪽 아래
+  { dx: -10,dy: -2 },   // 7: 우 — 왼쪽
+  { dx: -8, dy: -6 },   // 8: 우하 — 왼쪽 위
 ]
 
 const stageLabel = computed(() => STAGE_NAMES[props.stage] || props.stage)
@@ -151,7 +164,8 @@ const dealerChipPos = computed(() => {
   const dDispIdx = displayOrder.value.indexOf(dealerSeat.value)
   if (dDispIdx < 0) return { x: 50, y: 50 }
   const dp = seatPositions[dDispIdx]
-  return { x: dp.x + (50 - dp.x) * 0.18, y: dp.y + (50 - dp.y) * 0.18 }
+  const offset = dealerChipOffsets[dDispIdx] || { dx: 0, dy: 0 }
+  return { x: dp.x + offset.dx, y: dp.y + offset.dy }
 })
 
 function getSeatGlobalIdx(seat) { return props.seats.indexOf(seat) }
