@@ -1,11 +1,10 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- Back link -->
-    <button @click="$router.push('/clubs')" class="text-sm text-gray-500 hover:text-amber-600 mb-3 inline-flex items-center gap-1">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-      동호회 목록
-    </button>
+    <!-- Title link (like ClubList) -->
+    <router-link to="/clubs" class="text-xl font-black text-gray-800 mb-3 inline-block hover:text-amber-600 transition">
+      👥 동호회
+    </router-link>
 
     <!-- Loading -->
     <div v-if="loading" class="text-center py-20">
@@ -15,36 +14,16 @@
 
     <!-- Main content -->
     <div v-else-if="club" class="grid grid-cols-12 gap-4">
-      <!-- Left sidebar -->
+      <!-- Left sidebar: Category list (like ClubList) -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">동호회 메뉴</div>
-          <div class="py-1">
-            <button @click="$router.push('/clubs')"
-              class="w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-amber-50/50 transition flex items-center gap-2">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-              전체 동호회
-            </button>
-            <button v-if="isMember" @click="activeTab = 'board'"
-              class="w-full text-left px-3 py-2 text-xs transition flex items-center gap-2"
-              :class="activeTab === 'board' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-              게시판
-            </button>
-            <button v-if="isMember" @click="activeTab = 'members'; loadMembers()"
-              class="w-full text-left px-3 py-2 text-xs transition flex items-center gap-2"
-              :class="activeTab === 'members' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              회원목록
-            </button>
-            <button v-if="isAdmin" @click="activeTab = 'settings'; loadPendingMembers()"
-              class="w-full text-left px-3 py-2 text-xs transition flex items-center gap-2"
-              :class="activeTab === 'settings' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-              설정
-              <span v-if="pendingMembers.length" class="ml-auto bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
-            </button>
-          </div>
+          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 분류</div>
+          <router-link v-for="c in clubCategories" :key="c.value"
+            :to="c.value ? `/clubs?category=${c.value}` : '/clubs'"
+            class="w-full text-left px-3 py-2 text-xs transition block"
+            :class="club.category === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+            {{ c.label }}
+          </router-link>
           <AdSlot page="clubs" position="left" :maxSlots="1" />
         </div>
       </div>
@@ -79,8 +58,22 @@
               </div>
             </div>
 
-            <!-- Description -->
-            <p class="text-sm text-gray-600 mt-3 leading-relaxed whitespace-pre-line">{{ club.description }}</p>
+            <!-- Description: collapsible for members, full for non-members -->
+            <div v-if="club.description" class="mt-3">
+              <template v-if="isMember">
+                <div class="relative">
+                  <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"
+                    :class="{ 'line-clamp-2': !descExpanded }">{{ club.description }}</p>
+                  <button @click="descExpanded = !descExpanded"
+                    class="text-xs text-amber-600 hover:text-amber-700 font-semibold mt-1 inline-block">
+                    {{ descExpanded ? '접기' : '더보기' }}
+                  </button>
+                </div>
+              </template>
+              <template v-else>
+                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ club.description }}</p>
+              </template>
+            </div>
 
             <!-- Action buttons -->
             <div class="flex items-center gap-2 mt-4 flex-wrap">
@@ -122,23 +115,23 @@
           <div class="px-5 py-4 text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ club.rules }}</div>
         </div>
 
-        <!-- Mobile tab bar (shown on mobile for members) -->
-        <div v-if="isMember" class="lg:hidden flex border-b bg-white rounded-t-xl shadow-sm mb-0 overflow-hidden">
+        <!-- Horizontal tab buttons (inside center content) -->
+        <div v-if="isMember" class="flex items-center gap-1 mb-4 bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-2 overflow-x-auto">
           <button @click="activeTab = 'board'"
-            class="flex-1 py-3 text-xs font-bold text-center transition"
-            :class="activeTab === 'board' ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50' : 'text-gray-400'">
+            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap"
+            :class="activeTab === 'board' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50'">
             게시판
           </button>
           <button @click="activeTab = 'members'; loadMembers()"
-            class="flex-1 py-3 text-xs font-bold text-center transition"
-            :class="activeTab === 'members' ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50' : 'text-gray-400'">
+            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap"
+            :class="activeTab === 'members' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50'">
             회원목록
           </button>
           <button v-if="isAdmin" @click="activeTab = 'settings'; loadPendingMembers()"
-            class="flex-1 py-3 text-xs font-bold text-center transition relative"
-            :class="activeTab === 'settings' ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50' : 'text-gray-400'">
+            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap relative"
+            :class="activeTab === 'settings' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50'">
             설정
-            <span v-if="pendingMembers.length" class="absolute top-1 right-2 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
+            <span v-if="pendingMembers.length" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
           </button>
         </div>
 
@@ -224,42 +217,56 @@
               <div v-if="postError" class="text-red-500 text-xs">{{ postError }}</div>
             </div>
 
-            <!-- Posts list -->
+            <!-- Posts list (single-line BBS style) -->
             <div v-if="postsLoading" class="py-8 text-center text-sm text-gray-400">
               <div class="inline-block w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
             <div v-else-if="posts.length">
+              <!-- BBS header row -->
+              <div class="hidden sm:flex items-center px-5 py-2 border-b bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
+                <span class="flex-1">제목</span>
+                <span class="w-20 text-center">작성자</span>
+                <span class="w-16 text-center">날짜</span>
+                <span class="w-10 text-center">댓글</span>
+                <span class="w-12"></span>
+              </div>
               <div v-for="post in posts" :key="post.id">
-                <!-- Post row -->
+                <!-- Post row (single line) -->
                 <div @click="togglePost(post)"
-                  class="px-5 py-3 border-b cursor-pointer hover:bg-amber-50/30 transition"
+                  class="flex items-center px-5 py-2.5 border-b cursor-pointer hover:bg-amber-50/30 transition"
                   :class="{ 'bg-amber-50/50': expandedPost === post.id }">
-                  <div class="flex items-center justify-between">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2">
-                        <span v-if="post.board_name" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500">{{ post.board_name }}</span>
-                        <span class="text-sm font-medium text-gray-800 truncate">{{ post.title }}</span>
-                      </div>
-                      <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
-                        <UserName :userId="post.user?.id" :name="post.user?.name" />
-                        <span>{{ formatDate(post.created_at) }}</span>
-                        <span v-if="post.comment_count" class="text-amber-600 font-semibold">{{ post.comment_count }}</span>
-                      </div>
-                    </div>
-                    <!-- Delete button for own posts or admin -->
+                  <div class="flex-1 min-w-0 flex items-center gap-2">
+                    <span v-if="post.board_name" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 flex-shrink-0">{{ post.board_name }}</span>
+                    <span class="text-sm font-medium text-gray-800 truncate">{{ post.title }}</span>
+                  </div>
+                  <span class="hidden sm:block w-20 text-center text-xs text-gray-500 truncate flex-shrink-0">
+                    <UserName :userId="post.user?.id" :name="post.user?.name" />
+                  </span>
+                  <span class="hidden sm:block w-16 text-center text-[11px] text-gray-400 flex-shrink-0">{{ formatDate(post.created_at) }}</span>
+                  <span class="hidden sm:block w-10 text-center text-xs flex-shrink-0"
+                    :class="post.comment_count ? 'text-amber-600 font-semibold' : 'text-gray-300'">
+                    {{ post.comment_count || 0 }}
+                  </span>
+                  <div class="w-12 flex items-center justify-end gap-1 flex-shrink-0">
                     <button v-if="canDeletePost(post)" @click.stop="deletePost(post)"
-                      class="text-gray-300 hover:text-red-500 p-1 rounded hover:bg-red-50 transition flex-shrink-0 mr-1"
+                      class="text-gray-300 hover:text-red-500 p-0.5 rounded hover:bg-red-50 transition"
                       title="삭제">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     </button>
-                    <svg class="w-4 h-4 text-gray-300 flex-shrink-0 transition-transform" :class="{ 'rotate-180': expandedPost === post.id }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-3.5 h-3.5 text-gray-300 transition-transform" :class="{ 'rotate-180': expandedPost === post.id }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                   </div>
                 </div>
 
-                <!-- Expanded post content -->
+                <!-- Expanded post content (inline) -->
                 <div v-if="expandedPost === post.id" class="px-5 py-4 bg-gray-50 border-b">
+                  <!-- Mobile meta (shown only on mobile since header row is hidden) -->
+                  <div class="sm:hidden text-xs text-gray-400 mb-2 flex items-center gap-2">
+                    <UserName :userId="post.user?.id" :name="post.user?.name" />
+                    <span>{{ formatDate(post.created_at) }}</span>
+                    <span v-if="post.comment_count" class="text-amber-600 font-semibold">{{ post.comment_count }}개 댓글</span>
+                  </div>
                   <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line mb-4">{{ post.content }}</div>
                   <!-- Post images -->
                   <div v-if="post.images && post.images.length" class="flex flex-wrap gap-2 mb-4">
@@ -276,16 +283,8 @@
             <div v-else class="px-5 py-8 text-center text-sm text-gray-400">게시글이 없습니다</div>
 
             <!-- Posts pagination -->
-            <div v-if="postsMeta.last_page > 1" class="px-4 py-3 border-t flex justify-center items-center gap-1">
-              <button @click="postsPage = 1; loadPosts()" :disabled="postsPage <= 1"
-                class="w-7 h-7 rounded text-xs font-bold disabled:opacity-30 text-gray-400 hover:bg-amber-50">1</button>
-              <button @click="postsPage--; loadPosts()" :disabled="postsPage <= 1"
-                class="w-7 h-7 rounded text-xs font-bold disabled:opacity-30 text-gray-400 hover:bg-amber-50">&lsaquo;</button>
-              <span class="text-xs text-gray-500 px-2">{{ postsPage }} / {{ postsMeta.last_page }}</span>
-              <button @click="postsPage++; loadPosts()" :disabled="postsPage >= postsMeta.last_page"
-                class="w-7 h-7 rounded text-xs font-bold disabled:opacity-30 text-gray-400 hover:bg-amber-50">&rsaquo;</button>
-              <button @click="postsPage = postsMeta.last_page; loadPosts()" :disabled="postsPage >= postsMeta.last_page"
-                class="w-7 h-7 rounded text-xs font-bold disabled:opacity-30 text-gray-400 hover:bg-amber-50">{{ postsMeta.last_page }}</button>
+            <div v-if="postsMeta.last_page > 1" class="px-4 py-3 border-t">
+              <Pagination :page="postsPage" :lastPage="postsMeta.last_page" @page="onPostPage" />
             </div>
           </div>
         </div>
@@ -505,7 +504,7 @@
         </div>
 
         <SidebarWidgets api-url="/api/clubs" detail-path="/clubs/" :current-id="club.id"
-          label="동호회" recommend-label="추천 동호회" />
+          label="동호회" />
 
         <AdSlot page="clubs" position="right" :maxSlots="2" class="mt-3" />
       </div>
@@ -529,6 +528,7 @@ import { useSiteStore } from '../../stores/site'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import AdSlot from '../../components/AdSlot.vue'
+import Pagination from '../../components/Pagination.vue'
 import axios from 'axios'
 
 const route = useRoute()
@@ -542,6 +542,9 @@ const loading = ref(true)
 const isMember = ref(false)
 const myGrade = ref('member')
 const myStatus = ref(null)
+
+// Description accordion
+const descExpanded = ref(false)
 
 // Tabs
 const activeTab = ref('board')
@@ -580,6 +583,18 @@ const postImagePreviews = ref([])
 const showAddBoard = ref(false)
 const newBoardName = ref('')
 const editingBoard = ref(null)
+
+// Category list (same as ClubList)
+const clubCategories = [
+  { value: '', label: '전체' },
+  { value: 'sports', label: '⚽ 운동' },
+  { value: 'books', label: '📚 독서' },
+  { value: 'cooking', label: '🍳 요리' },
+  { value: 'photo', label: '📷 사진' },
+  { value: 'tech', label: '💻 기술' },
+  { value: 'finance', label: '💰 재테크' },
+  { value: 'parenting', label: '👶 육아' },
+]
 
 // Category mapping
 const categoryMap = {
@@ -717,6 +732,12 @@ async function loadMembers() {
     members.value = []
   }
   membersLoading.value = false
+}
+
+// Pagination handler
+function onPostPage(page) {
+  postsPage.value = page
+  loadPosts()
 }
 
 // Club actions
@@ -962,6 +983,7 @@ watch(() => route.params.id, async (newId, oldId) => {
     expandedPost.value = null
     postsPage.value = 1
     selectedBoard.value = null
+    descExpanded.value = false
     await loadClub()
     if (club.value) {
       await loadBoards()
