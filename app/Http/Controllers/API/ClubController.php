@@ -32,7 +32,15 @@ class ClubController extends Controller
             ->when($request->search, fn($q, $v) => $q->where('name', 'like', "%{$v}%"));
 
         if ($request->lat && $request->lng) {
-            $query->nearby($request->lat, $request->lng, $request->radius ?? 50);
+            // 위치 있는 동호회는 거리순, 없는 동호회(온라인 등)도 포함
+            $lat = $request->lat;
+            $lng = $request->lng;
+            $radius = $request->radius ?? 50;
+            $query->where(function ($q) use ($lat, $lng, $radius) {
+                $q->whereNull('lat')
+                  ->orWhereNull('lng')
+                  ->orWhereRaw("(3959*acos(cos(radians(?))*cos(radians(lat))*cos(radians(lng)-radians(?))+sin(radians(?))*sin(radians(lat)))) < ?", [$lat, $lng, $lat, $radius]);
+            })->orderByDesc('member_count');
         } else {
             $query->orderByDesc('member_count');
         }
@@ -81,6 +89,14 @@ class ClubController extends Controller
         $data = $request->only('name', 'description', 'rules', 'category', 'type', 'zipcode', 'lat', 'lng', 'max_members');
         $data['user_id'] = auth()->id();
         $data['member_count'] = 1;
+        // lat/lng 없으면 유저 프로필에서 가져오기
+        if (empty($data['lat']) && empty($data['lng'])) {
+            $user = auth()->user();
+            if ($user->latitude && $user->longitude) {
+                $data['lat'] = $user->latitude;
+                $data['lng'] = $user->longitude;
+            }
+        }
         $data['is_public'] = filter_var($request->input('is_public', true), FILTER_VALIDATE_BOOLEAN);
 
         if ($request->hasFile('image')) {
