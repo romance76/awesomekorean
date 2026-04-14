@@ -2,7 +2,7 @@
   <div class="h-full w-full relative">
 
     <!-- 검은 쿠션 (딜러 허리에 걸치도록) -->
-    <div class="absolute left-[15%] right-[15%] top-[24%] bottom-[16%] p-[7px]"
+    <div class="absolute left-[15%] right-[15%] top-[20%] bottom-[20%] p-[7px]"
       style="border-radius: 999px; background: linear-gradient(180deg, #3a3a3a, #1a1a1a, #2a2a2a); box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(0,0,0,0.5);">
 
       <!-- 나무 림 -->
@@ -120,17 +120,17 @@ const activePlayerName = computed(() => {
 })
 
 // 좌석 — 딜러가 상단 중앙이므로 9명은 딜러 양옆으로
-// 수동 좌석 배치 (테이블 top:24%에 맞춤, 나는 고정)
+// 수동 좌석 배치 (테이블 top:20%에 맞춤)
 const seatPositions = [
-  { x: 50, y: 82 },   // 0: 나 (하단 중앙) — 고정
-  { x: 25, y: 78 },   // 1: 좌하
-  { x: 7,  y: 56 },   // 2: 좌
-  { x: 10, y: 33 },   // 3: 좌상
-  { x: 32, y: 20 },   // 4: 상좌
-  { x: 68, y: 20 },   // 5: 상우
-  { x: 88, y: 33 },   // 6: 우상
-  { x: 88, y: 56 },   // 7: 우
-  { x: 75, y: 78 },   // 8: 우하
+  { x: 50, y: 80 },   // 0: 나
+  { x: 25, y: 76 },   // 1: 좌하
+  { x: 7,  y: 54 },   // 2: 좌
+  { x: 10, y: 30 },   // 3: 좌상
+  { x: 32, y: 17 },   // 4: 상좌
+  { x: 68, y: 17 },   // 5: 상우
+  { x: 88, y: 30 },   // 6: 우상
+  { x: 88, y: 54 },   // 7: 우
+  { x: 75, y: 76 },   // 8: 우하
 ]
 
 // 딜러 칩 위치: 각 좌석별로 테이블 안쪽 방향에 배치
