@@ -34,26 +34,61 @@
     <!-- ═══ Step 2: 지역 선택 (가격에 영향) ═══ -->
     <div class="bg-white rounded-2xl shadow-sm border p-5 mb-5">
       <h2 class="font-bold text-gray-800 text-sm mb-3">2️⃣ 타겟 지역 선택</h2>
-      <p class="text-xs text-gray-400 mb-3">지역 범위에 따라 최소 입찰가가 달라집니다</p>
-      <div class="grid grid-cols-3 gap-3 mb-3">
-        <button @click="adForm.geo_scope='county'" class="py-3 rounded-xl font-bold text-sm border-2 transition"
-          :class="adForm.geo_scope==='county' ? 'border-green-500 bg-green-50 text-green-800' : 'border-gray-200 text-gray-500 hover:border-green-300'">
-          📍 카운티<br><span class="text-[10px] font-normal">기본가</span>
-        </button>
-        <button @click="adForm.geo_scope='state'" class="py-3 rounded-xl font-bold text-sm border-2 transition"
-          :class="adForm.geo_scope==='state' ? 'border-blue-500 bg-blue-50 text-blue-800' : 'border-gray-200 text-gray-500 hover:border-blue-300'">
-          🏛️ 주<br><span class="text-[10px] font-normal">기본가 +{{ geoMarkup.state.toLocaleString() }}P</span>
-        </button>
-        <button @click="adForm.geo_scope='all'" class="py-3 rounded-xl font-bold text-sm border-2 transition"
-          :class="adForm.geo_scope==='all' ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-gray-200 text-gray-500 hover:border-amber-300'">
-          🌍 전국<br><span class="text-[10px] font-normal">기본가 +{{ (geoMarkup.state + geoMarkup.national).toLocaleString() }}P</span>
-        </button>
+      <p class="text-xs text-gray-400 mb-3">페이지 종류에 따라 지역 설정이 다릅니다</p>
+
+      <!-- 전국 페이지 안내 -->
+      <div v-if="selectedNationalPages.length" class="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-3">
+        <div class="text-xs font-bold text-blue-700 mb-1">🌐 전국 페이지 (자동 전국 노출)</div>
+        <div class="text-[10px] text-blue-600">
+          {{ selectedNationalPages.map(k => subPages.find(s => s.key === k)?.label || (k === 'home' ? '홈' : k)).join(', ') }}
+          — 별도 지역 설정 불필요
+        </div>
       </div>
-      <div v-if="adForm.geo_scope !== 'all'" class="flex gap-2">
-        <input v-model="zipInput" @input="onZipInput" placeholder="Zip Code (5자리)" maxlength="5" class="flex-1 border rounded-lg px-3 py-2 text-sm" />
-        <button @click="lookupZip" :disabled="zipLoading" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-xs">{{ zipLoading ? '...' : '조회' }}</button>
+
+      <!-- 지역별 페이지 개별 설정 -->
+      <div v-if="selectedRegionalPages.length">
+        <div class="text-xs font-bold text-gray-700 mb-2">📍 지역별 페이지 (개별 지역 선택)</div>
+        <div class="space-y-2 mb-3">
+          <div v-for="pk in selectedRegionalPages" :key="pk" class="border rounded-xl p-3 bg-gray-50">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-xs font-bold text-gray-700">{{ subPages.find(s => s.key === pk)?.icon }} {{ subPages.find(s => s.key === pk)?.label }}</span>
+              <span v-if="pageGeoSettings[pk]?.value" class="text-[10px] text-green-600 font-bold ml-auto">✅ {{ pageGeoSettings[pk].value }}</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <label class="flex items-center gap-1 cursor-pointer text-xs">
+                <input type="radio" :name="'geo_'+pk" value="county" :checked="pageGeoSettings[pk]?.geo==='county'" @change="setPageGeo(pk,'county')" class="accent-green-500" />
+                <span :class="pageGeoSettings[pk]?.geo==='county' ? 'text-green-700 font-bold' : 'text-gray-500'">카운티</span>
+                <span class="text-[10px] text-gray-400">기본</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer text-xs">
+                <input type="radio" :name="'geo_'+pk" value="state" :checked="pageGeoSettings[pk]?.geo==='state'" @change="setPageGeo(pk,'state')" class="accent-blue-500" />
+                <span :class="pageGeoSettings[pk]?.geo==='state' ? 'text-blue-700 font-bold' : 'text-gray-500'">주</span>
+                <span class="text-[10px] text-gray-400">+{{ geoMarkup.state.toLocaleString() }}P</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer text-xs">
+                <input type="radio" :name="'geo_'+pk" value="all" :checked="pageGeoSettings[pk]?.geo==='all'" @change="setPageGeo(pk,'all')" class="accent-amber-500" />
+                <span :class="pageGeoSettings[pk]?.geo==='all' ? 'text-amber-700 font-bold' : 'text-gray-500'">전국</span>
+                <span class="text-[10px] text-gray-400">+{{ (geoMarkup.state + geoMarkup.national).toLocaleString() }}P</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zip Code 공유 조회 (카운티/주 선택된 페이지가 있을 때만) -->
+        <div v-if="hasRegionalNeedingZip" class="border-t pt-3">
+          <div class="text-xs font-bold text-gray-600 mb-2">📮 Zip Code 조회 (카운티/주 페이지에 일괄 적용)</div>
+          <div class="flex gap-2">
+            <input v-model="zipInput" @input="onZipInput" placeholder="Zip Code (5자리)" maxlength="5" class="flex-1 border rounded-lg px-3 py-2 text-sm" />
+            <button @click="lookupZip" :disabled="zipLoading" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-xs">{{ zipLoading ? '...' : '조회' }}</button>
+          </div>
+          <div v-if="zipResult" class="mt-2 text-[10px] text-green-600 font-bold">✅ {{ zipResult.city }}, {{ zipResult.state }} — 해당 페이지에 적용됨</div>
+        </div>
       </div>
-      <div v-if="zipResult && adForm.geo_scope !== 'all'" class="mt-2 text-[10px] text-green-600 font-bold">✅ {{ adForm.geo_value }} 설정됨</div>
+
+      <!-- 선택된 페이지 없을 때 -->
+      <div v-if="!selectedNationalPages.length && !selectedRegionalPages.length" class="text-center py-4 text-xs text-gray-400">
+        먼저 Step 1에서 페이지를 선택해 주세요
+      </div>
     </div>
 
     <!-- ═══ Step 3: 슬롯 등급 선택 ═══ -->
@@ -188,7 +223,7 @@
                 <span class="font-bold">{{ basePricePerSlot.toLocaleString() }}P</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-500">지역: {{ geoLabels[adForm.geo_scope] }}</span>
+                <span class="text-gray-500">지역 추가금 합계</span>
                 <span class="font-bold">+{{ geoExtra.toLocaleString() }}P</span>
               </div>
               <div class="flex justify-between">
@@ -284,7 +319,7 @@ const basePrices = ref({
 // 지역별 추가금 (관리자 설정에서 로드)
 const geoMarkup = ref({ state: 2000, national: 3000 })
 
-const adForm = reactive({ title: '', link_url: '', geo_scope: 'county', geo_value: '', bid_amount: 4000 })
+const adForm = reactive({ title: '', link_url: '', bid_amount: 4000 })
 
 const subPages = [
   { key: 'community', icon: '💬', label: '커뮤니티' }, { key: 'qa', icon: '❓', label: 'Q&A' },
@@ -292,8 +327,17 @@ const subPages = [
   { key: 'realestate', icon: '🏠', label: '부동산' }, { key: 'directory', icon: '🏪', label: '업소록' },
   { key: 'clubs', icon: '👥', label: '동호회' }, { key: 'news', icon: '📰', label: '뉴스' },
   { key: 'recipes', icon: '🍳', label: '레시피' }, { key: 'groupbuy', icon: '🤝', label: '공동구매' },
-  { key: 'events', icon: '🎉', label: '이벤트' },
+  { key: 'events', icon: '🎉', label: '이벤트' }, { key: 'shorts', icon: '🎬', label: '숏츠' },
+  { key: 'games', icon: '🎮', label: '게임' }, { key: 'music', icon: '🎵', label: '음악' },
 ]
+
+// 전국 페이지 (자동 geo_scope='all')
+const nationalPages = ['home', 'community', 'qa', 'news', 'recipes', 'shorts', 'games', 'music']
+// 지역별 페이지 (개별 geo 선택 필요)
+const regionalPages = ['jobs', 'market', 'realestate', 'directory', 'clubs', 'events', 'groupbuy']
+
+// 페이지별 지역 설정
+const pageGeoSettings = ref({})
 
 const posLabels = { left: '좌측', right: '우측' }
 const tierLabels = { premium: '🥇 프리미엄', standard: '🥈 스탠다드', economy: '🥉 이코노미' }
@@ -315,25 +359,97 @@ function getBasePrice(position, tier) {
   return basePrices.value[`${position}_${tier}`] || 4000
 }
 
-// 지역 추가금
-const geoExtra = computed(() => {
-  if (adForm.geo_scope === 'state') return geoMarkup.value.state
-  if (adForm.geo_scope === 'all') return geoMarkup.value.state + geoMarkup.value.national
-  return 0
+// 현재 선택된 전국 페이지 목록
+const selectedNationalPages = computed(() => {
+  if (pageType.value === 'home') return ['home']
+  return selectedSubs.value.filter(k => nationalPages.includes(k))
 })
 
-// 슬롯 1개의 최소가 (카운티기본 + 지역추가)
+// 현재 선택된 지역별 페이지 목록
+const selectedRegionalPages = computed(() => {
+  if (pageType.value === 'home') return []
+  return selectedSubs.value.filter(k => regionalPages.includes(k))
+})
+
+// 카운티/주 선택된 지역 페이지가 있는지 (zip 조회 필요 여부)
+const hasRegionalNeedingZip = computed(() => {
+  return selectedRegionalPages.value.some(pk => {
+    const g = pageGeoSettings.value[pk]?.geo
+    return g === 'county' || g === 'state'
+  })
+})
+
+// 페이지별 geo 설정 함수
+function setPageGeo(pageKey, geo) {
+  if (!pageGeoSettings.value[pageKey]) pageGeoSettings.value[pageKey] = { geo: 'county', value: '' }
+  pageGeoSettings.value[pageKey] = { ...pageGeoSettings.value[pageKey], geo, value: geo === 'all' ? '' : pageGeoSettings.value[pageKey].value }
+  saveDraft()
+}
+
+// 선택/해제 시 pageGeoSettings 자동 관리
+watch(selectedSubs, (newVal, oldVal) => {
+  const current = { ...pageGeoSettings.value }
+  // 새로 추가된 페이지
+  for (const key of newVal) {
+    if (!current[key]) {
+      if (nationalPages.includes(key)) {
+        current[key] = { geo: 'all', value: '' }
+      } else {
+        current[key] = { geo: 'county', value: '' }
+      }
+    }
+  }
+  // 제거된 페이지
+  for (const key of Object.keys(current)) {
+    if (!newVal.includes(key) && key !== 'home') {
+      delete current[key]
+    }
+  }
+  pageGeoSettings.value = current
+}, { deep: true })
+
+// 홈 선택 시 자동 설정
+watch(pageType, (val) => {
+  if (val === 'home') {
+    pageGeoSettings.value = { home: { geo: 'all', value: '' } }
+  }
+})
+
+// 페이지별 지역 추가금 계산
+function getPageGeoExtra(pageKey) {
+  const setting = pageGeoSettings.value[pageKey]
+  if (!setting || setting.geo === 'county') return 0
+  if (setting.geo === 'state') return geoMarkup.value.state
+  if (setting.geo === 'all') return geoMarkup.value.state + geoMarkup.value.national
+  return 0
+}
+
+// 전체 지역 추가금 합계
+const geoExtra = computed(() => {
+  if (pageType.value === 'home') {
+    return geoMarkup.value.state + geoMarkup.value.national // 홈은 전국
+  }
+  let total = 0
+  for (const key of selectedSubs.value) {
+    total += getPageGeoExtra(key)
+  }
+  return total
+})
+
+// 슬롯 1개의 기본가
 const basePricePerSlot = computed(() => {
   if (!selectedSlot.value) return 0
   return getBasePrice(selectedSlot.value.position, selectedSlot.value.tier)
 })
 
-// 총 최소 입찰가 = (기본가 + 지역추가) × 페이지 수
-const totalMinBid = computed(() => (basePricePerSlot.value + geoExtra.value) * pageCount.value)
+// 총 최소 입찰가 = 기본가 × 페이지 수 + 각 페이지별 지역 추가금 합계
+const totalMinBid = computed(() => basePricePerSlot.value * pageCount.value + geoExtra.value)
 
-// 슬롯 선택 UI에 표시할 가격 (현재 지역 기준)
+// 슬롯 선택 UI에 표시할 가격 (페이지당 평균 geo 적용)
 function slotMinPrice(position, tier) {
-  return getBasePrice(position, tier) + geoExtra.value
+  const base = getBasePrice(position, tier)
+  const avgGeo = pageCount.value > 0 ? Math.round(geoExtra.value / pageCount.value) : 0
+  return base + avgGeo
 }
 
 const hasEnough = computed(() => (auth.user?.points || 0) >= (adForm.bid_amount || 0))
@@ -342,7 +458,11 @@ const canSubmit = computed(() => {
   if (adForm.bid_amount < totalMinBid.value) return false
   if (!hasEnough.value) return false
   if (pageType.value === 'sub' && !selectedSubs.value.length) return false
-  if (adForm.geo_scope !== 'all' && !adForm.geo_value) return false
+  // 지역별 페이지는 카운티/주 선택 시 geo_value 필수
+  for (const pk of selectedRegionalPages.value) {
+    const s = pageGeoSettings.value[pk]
+    if (s && s.geo !== 'all' && !s.value) return false
+  }
   return true
 })
 
@@ -351,17 +471,17 @@ function isSelected(pos, slot) { return selectedSlot.value?.position === pos && 
 function selectSlot(position, slot, tier) {
   selectedSlot.value = { position, slot, tier }
   // 항상 해당 슬롯의 최소 입찰가로 리셋
-  const min = (getBasePrice(position, tier) + geoExtra.value) * pageCount.value
-  adForm.bid_amount = min
+  const base = getBasePrice(position, tier)
+  adForm.bid_amount = base * pageCount.value + geoExtra.value
   saveDraft()
 }
 
 // 지역/페이지 변경 시 최소 입찰가로 리셋
-watch([() => adForm.geo_scope, pageCount], () => {
+watch([pageCount, pageGeoSettings], () => {
   if (selectedSlot.value) {
     adForm.bid_amount = totalMinBid.value
   }
-})
+}, { deep: true })
 
 const fileInput = ref(null)
 const imgWidth = ref(0)
@@ -432,15 +552,27 @@ async function lookupZip() {
   try {
     const r = await fetch(`https://api.zippopotam.us/us/${zipInput.value}`)
     if (!r.ok) throw 0; const d = await r.json(); const p = d.places?.[0]
-    if (p) { zipResult.value = { state: p['state abbreviation'], city: p['place name'] }; adForm.geo_value = adForm.geo_scope === 'state' ? p['state abbreviation'] : p['place name']; saveDraft() }
+    if (p) {
+      zipResult.value = { state: p['state abbreviation'], city: p['place name'] }
+      // 모든 지역별 페이지(카운티/주)에 일괄 적용
+      const updated = { ...pageGeoSettings.value }
+      for (const pk of selectedRegionalPages.value) {
+        const s = updated[pk]
+        if (s && s.geo !== 'all') {
+          updated[pk] = { ...s, value: s.geo === 'state' ? p['state abbreviation'] : p['place name'] }
+        }
+      }
+      pageGeoSettings.value = updated
+      saveDraft()
+    }
   } catch { showAlert('유효하지 않은 Zip Code', '오류') }
   zipLoading.value = false
 }
 
-function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ pageType: pageType.value, selectedSubs: selectedSubs.value, selectedSlot: selectedSlot.value, adForm: { ...adForm }, zipInput: zipInput.value, ts: Date.now() })) } catch {} }
-function loadDraft() { try { const r = localStorage.getItem(DRAFT_KEY); if (!r) return; const d = JSON.parse(r); if (Date.now() - d.ts > 86400000) { localStorage.removeItem(DRAFT_KEY); return }; pageType.value = d.pageType || 'home'; selectedSubs.value = d.selectedSubs || []; selectedSlot.value = d.selectedSlot || null; if (d.adForm) Object.assign(adForm, d.adForm); zipInput.value = d.zipInput || '' } catch {} }
+function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ pageType: pageType.value, selectedSubs: selectedSubs.value, selectedSlot: selectedSlot.value, adForm: { ...adForm }, pageGeoSettings: pageGeoSettings.value, zipInput: zipInput.value, ts: Date.now() })) } catch {} }
+function loadDraft() { try { const r = localStorage.getItem(DRAFT_KEY); if (!r) return; const d = JSON.parse(r); if (Date.now() - d.ts > 86400000) { localStorage.removeItem(DRAFT_KEY); return }; pageType.value = d.pageType || 'home'; selectedSubs.value = d.selectedSubs || []; selectedSlot.value = d.selectedSlot || null; if (d.adForm) Object.assign(adForm, d.adForm); if (d.pageGeoSettings) pageGeoSettings.value = d.pageGeoSettings; zipInput.value = d.zipInput || '' } catch {} }
 function clearDraft() { try { localStorage.removeItem(DRAFT_KEY) } catch {} }
-watch([pageType, selectedSubs, selectedSlot], saveDraft, { deep: true })
+watch([pageType, selectedSubs, selectedSlot, pageGeoSettings], saveDraft, { deep: true })
 
 function goPointShop() { saveDraft(); router.push('/dashboard?tab=points') }
 
@@ -451,17 +583,29 @@ async function submitAd() {
   const fd = new FormData()
   fd.append('title', adForm.title); fd.append('link_url', adForm.link_url || '')
   fd.append('page', pageType.value === 'home' ? 'home' : 'sub')
-  fd.append('target_pages', JSON.stringify(pageType.value === 'home' ? ['home'] : selectedSubs.value))
+  // 페이지별 지역 설정 포함한 target_pages
+  const targetPages = []
+  if (pageType.value === 'home') {
+    targetPages.push({ page: 'home', geo: 'all', geo_value: '' })
+  } else {
+    for (const pk of selectedNationalPages.value) {
+      targetPages.push({ page: pk, geo: 'all', geo_value: '' })
+    }
+    for (const pk of selectedRegionalPages.value) {
+      const s = pageGeoSettings.value[pk] || { geo: 'county', value: '' }
+      targetPages.push({ page: pk, geo: s.geo, geo_value: s.value })
+    }
+  }
+  fd.append('target_pages', JSON.stringify(targetPages))
   fd.append('position', selectedSlot.value.position); fd.append('slot_number', selectedSlot.value.slot)
   fd.append('tier', selectedSlot.value.tier)
-  fd.append('geo_scope', adForm.geo_scope); fd.append('geo_value', adForm.geo_value)
   fd.append('bid_amount', adForm.bid_amount)
   if (adImage.value) fd.append('image', adImage.value)
   try {
     const { data } = await axios.post('/api/banners/apply', fd)
     showAlert(data.message, '입찰 신청'); selectedSlot.value = null
-    Object.assign(adForm, { title: '', link_url: '', geo_scope: 'county', geo_value: '', bid_amount: 4000 })
-    adImage.value = null; imagePreview.value = null; selectedSubs.value = []; clearDraft()
+    Object.assign(adForm, { title: '', link_url: '', bid_amount: 4000 })
+    adImage.value = null; imagePreview.value = null; selectedSubs.value = []; pageGeoSettings.value = {}; clearDraft()
     await loadMyAds()
   } catch (e) {
     const m = e.response?.data?.message || '실패'
