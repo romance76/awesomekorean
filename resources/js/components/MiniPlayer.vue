@@ -4,7 +4,7 @@
   <div v-if="music.hasTrack && !hideUI && !isExpanded"
     class="fixed z-[9998] cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
     :style="miniStyle"
-    @click="isExpanded = true">
+    @click="expandAndRestore">
     <div class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 shadow-xl flex items-center justify-center relative">
       <span class="text-white text-xl">{{ music.isPlaying ? '🎵' : '⏸' }}</span>
       <svg class="absolute inset-0 w-14 h-14 -rotate-90 pointer-events-none" viewBox="0 0 56 56">
@@ -119,12 +119,20 @@ const miniStyle = computed(() => {
   return { right: '16px', bottom: '80px' }
 })
 
-// 음악 페이지 진입 → 자동 펼침 + 위치 오른쪽 상단
+// 음악 페이지 진입 → 자동 펼침 + Player 복구
 watch(isMusicPage, (isMp) => {
   if (isMp) {
     isExpanded.value = true
     posRight.value = calcMusicPageRight()
     posTop.value = 170
+    // Player가 죽었으면 재생성
+    if (music.currentTrack?.youtubeId) {
+      nextTick(() => {
+        if (!ytPlayer || !ytPlayer.getPlayerState) {
+          createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)
+        }
+      })
+    }
   }
 })
 
@@ -143,12 +151,15 @@ watch(() => music.currentTrack?.youtubeId, (vid) => {
   else { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
 
   nextTick(() => {
-    if (ytPlayer?.loadVideoById && currentVideoId !== vid) {
-      ytPlayer.loadVideoById({ videoId: vid, startSeconds: 0 })
-      currentVideoId = vid
-    } else if (!ytPlayer) {
-      createPlayer(vid, 0)
-    }
+    try {
+      if (ytPlayer?.loadVideoById && ytPlayer?.getPlayerState) {
+        ytPlayer.loadVideoById({ videoId: vid, startSeconds: 0 })
+        currentVideoId = vid
+        return
+      }
+    } catch {}
+    // Player 없거나 에러 → 재생성
+    createPlayer(vid, 0)
   })
 })
 
@@ -254,6 +265,18 @@ function seekTo(e) {
   const pct = (e.clientX - rect.left) / rect.width
   ytPlayer.seekTo(pct * ytPlayer.getDuration(), true)
 }
+function expandAndRestore() {
+  isExpanded.value = true
+  // Player가 죽었으면 재생성
+  if (music.currentTrack?.youtubeId) {
+    nextTick(() => {
+      try { if (ytPlayer?.getPlayerState) return } catch {}
+      // Player 없거나 에러 → 재생성
+      createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)
+    })
+  }
+}
+
 function closePlayer() {
   // ✕ = 일시정지 + 숨김 (🎵 버튼은 유지)
   if (ytPlayer?.pauseVideo) try { ytPlayer.pauseVideo() } catch {}
