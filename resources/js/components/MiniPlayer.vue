@@ -254,9 +254,11 @@ function seekTo(e) {
   ytPlayer.seekTo(pct * ytPlayer.getDuration(), true)
 }
 function closePlayer() {
-  if (ytPlayer?.stopVideo) try { ytPlayer.stopVideo() } catch {}
-  music.stop()
+  // 닫기 = 음악 정지 + 플레이어 숨김
+  if (ytPlayer?.pauseVideo) try { ytPlayer.pauseVideo() } catch {}
+  music.pause()
   isExpanded.value = false
+  // hasTrack은 유지 → 🎵 버튼 계속 보임
 }
 function setVolume() { if (ytPlayer?.setVolume) ytPlayer.setVolume(volume.value) }
 
