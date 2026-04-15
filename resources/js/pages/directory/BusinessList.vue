@@ -84,8 +84,8 @@
         <button v-for="c in bizCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
           class="w-full text-left px-3 py-2 text-xs transition"
           :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
-              <AdSlot page="directory" position="left" :maxSlots="2" />
       </div>
+      <AdSlot page="directory" position="left" :maxSlots="2" class="mt-3" />
     </div>
     <div class="col-span-12 lg:col-span-7">
 

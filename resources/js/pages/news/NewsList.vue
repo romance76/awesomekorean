@@ -62,8 +62,8 @@
           <button v-for="cat in categories" :key="cat.id" @click="activeCat=cat; activeItem=null; loadNews()"
             class="w-full text-left px-3 py-2 text-xs transition"
             :class="activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ cat.name }}</button>
-                <AdSlot page="news" position="left" :maxSlots="2" />
       </div>
+      <AdSlot page="news" position="left" :maxSlots="2" class="mt-3" />
       </div>
 
       <!-- 메인: 뉴스 목록 -->

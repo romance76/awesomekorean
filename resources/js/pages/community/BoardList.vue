@@ -79,7 +79,7 @@
             {{ b.name }}
           </button>
         </div>
-        <AdSlot page="community" position="left" :maxSlots="2" />
+        <AdSlot page="community" position="left" :maxSlots="2" class="mt-3" />
       </div>
 
       <!-- 메인: 게시글 목록 -->

@@ -72,8 +72,8 @@
           <button v-for="s in statusFilters" :key="s.value" @click="statusFilter=s.value; activeItem=null; loadQa()"
             class="w-full text-left px-3 py-2 text-xs transition"
             :class="statusFilter===s.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ s.label }}</button>
-                <AdSlot page="qa" position="left" :maxSlots="2" />
       </div>
+      <AdSlot page="qa" position="left" :maxSlots="2" class="mt-3" />
       </div>
 
       <!-- 메인: 목록 또는 상세 (인라인 전환) -->

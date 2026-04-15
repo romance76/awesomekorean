@@ -118,8 +118,8 @@
           :class="activeCat === c.value
             ? (postType === 'hiring' ? 'bg-amber-50 text-amber-700 font-bold' : 'bg-blue-50 text-blue-700 font-bold')
             : 'text-gray-600 hover:bg-gray-50'">{{ c.label }}</button>
-            <AdSlot page="jobs" position="left" :maxSlots="2" />
       </div>
+      <AdSlot page="jobs" position="left" :maxSlots="2" class="mt-3" />
     </div>
     <div class="col-span-12 lg:col-span-7">
 

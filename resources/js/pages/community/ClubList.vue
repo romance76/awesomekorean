@@ -104,8 +104,8 @@
             {{ mc.name }}
           </router-link>
         </template>
-        <AdSlot page="clubs" position="left" :maxSlots="2" />
       </div>
+      <AdSlot page="clubs" position="left" :maxSlots="2" class="mt-3" />
     </div>
     <!-- 메인 -->
     <div class="col-span-12 lg:col-span-7">
