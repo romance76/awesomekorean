@@ -106,8 +106,8 @@
       </div>
     </template>
 
-    <!-- Hidden YouTube player — 음악 페이지에서는 자체 iframe 사용, 다른 페이지에서 MiniPlayer가 재생 -->
-    <div v-if="music.currentTrack?.youtubeId && !isShortsPage && !isMusicPage" class="w-0 h-0 overflow-hidden absolute">
+    <!-- Hidden YouTube player — 모든 페이지에서 재생 (음악 페이지 포함) -->
+    <div v-if="music.currentTrack?.youtubeId && !isShortsPage" class="w-0 h-0 overflow-hidden absolute">
       <div ref="ytPlayerEl" id="yt-mini-player"></div>
     </div>
   </div>
@@ -129,7 +129,7 @@ let currentVideoId = null
 
 const isShortsPage = computed(() => route.path.startsWith('/shorts'))
 const isMusicPage = computed(() => route.path.startsWith('/music'))
-const hideUI = computed(() => isShortsPage.value)
+const hideUI = computed(() => isShortsPage.value || isMusicPage.value)
 
 // YouTube IFrame API 로드
 function loadYTApi() {
@@ -203,18 +203,8 @@ watch(isShortsPage, (isShorts) => {
   if (isShorts && music.isPlaying) music.pause()
 })
 
-// 음악 페이지 떠나면 MiniPlayer가 이어받아 재생
-watch(isMusicPage, (isMp, wasMp) => {
-  if (!isMp && wasMp && music.currentTrack?.youtubeId && music.isPlaying) {
-    // 음악 페이지를 떠남 → MiniPlayer 초기화
-    setTimeout(() => {
-      if (music.currentTrack?.youtubeId) {
-        initPlayer(music.currentTrack.youtubeId, music.currentTime || 0)
-        startProgressTimer()
-      }
-    }, 500)
-  }
-})
+// 음악 페이지에서는 플로팅 UI 숨김 (인라인 바로 표시되니까)
+// YouTube Player는 계속 재생 유지
 
 onMounted(() => {
   if (music.currentTrack?.youtubeId) {
