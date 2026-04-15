@@ -52,16 +52,22 @@ class JobController extends Controller
         $userState = $request->user_state ? strtoupper(trim($request->user_state)) : null;
         $neighborStates = \App\Support\StateNeighbors::neighbors($userState);
 
-        // JSON_CONTAINS OR 조건 생성 (MySQL 5.7+ 호환)
+        // promotion_states JSON 에 사용자 주/인접주가 들어있는지 OR 조건 (MySQL 5.7+ 호환)
         $statePlusCond = 'FALSE';
         if ($neighborStates) {
             $parts = [];
+            $neighborSqlList = [];
             foreach ($neighborStates as $st) {
                 if (preg_match('/^[A-Z]{2}$/', $st)) {
                     $parts[] = "JSON_CONTAINS(promotion_states, '\"" . $st . "\"')";
+                    $neighborSqlList[] = "'{$st}'";
                 }
             }
-            if ($parts) $statePlusCond = '(' . implode(' OR ', $parts) . ')';
+            if ($parts) {
+                // 폴백: promotion_states 가 비어있으면 공고의 state 컬럼으로 매칭 (예전 데이터 호환)
+                $fallback = '(promotion_states IS NULL OR JSON_LENGTH(promotion_states) = 0) AND state IN (' . implode(',', $neighborSqlList) . ')';
+                $statePlusCond = '((' . implode(' OR ', $parts) . ') OR (' . $fallback . '))';
+            }
         }
 
         $stateSql = $userState && preg_match('/^[A-Z]{2}$/', $userState) ? "'{$userState}'" : "''";
