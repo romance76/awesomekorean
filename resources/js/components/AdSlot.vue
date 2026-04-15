@@ -23,12 +23,11 @@ const props = defineProps({
 
 const ads = ref([])
 
-// 슬롯 사이즈: 왼쪽 200×100, 오른쪽 300×200
+// 슬롯 사이즈: 왼쪽 200×70, 오른쪽 300×140
 const imgStyle = computed(() => {
-  if (props.position === 'left') return { width: '200px', height: '100px', objectFit: 'cover', display: 'block' }
-  if (props.position === 'right') return { width: '100%', maxWidth: '300px', height: '200px', objectFit: 'cover', display: 'block' }
-  // 모바일 인라인 (리스트 사이)
-  return { width: '100%', height: '80px', objectFit: 'cover', display: 'block', borderRadius: '8px' }
+  if (props.position === 'left') return { width: '200px', height: '70px', objectFit: 'cover', display: 'block' }
+  if (props.position === 'right') return { width: '100%', maxWidth: '300px', height: '140px', objectFit: 'cover', display: 'block' }
+  return { width: '100%', height: '70px', objectFit: 'cover', display: 'block', borderRadius: '8px' }
 })
 
 async function loadAds() {

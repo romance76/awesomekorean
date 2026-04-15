@@ -100,7 +100,7 @@
                 :class="isSelected('left',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-yellow-400 bg-yellow-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('left',1) ? '✅' : '🥇' }}</div>
                 <div class="text-[9px] font-black text-yellow-700">프리미엄</div>
-                <div class="text-[8px] text-gray-500">고정 독점 · 200×150</div>
+                <div class="text-[8px] text-gray-500">고정 독점 · 200×70</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('left','premium').toLocaleString() }}P/월</div>
               </div>
 
@@ -109,7 +109,7 @@
                 :class="isSelected('left',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-blue-300 bg-blue-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('left',2) ? '✅' : '🥈' }}</div>
                 <div class="text-[9px] font-black text-blue-700">스탠다드</div>
-                <div class="text-[8px] text-gray-500">2개 랜덤 · 200×150</div>
+                <div class="text-[8px] text-gray-500">2개 랜덤 · 200×70</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('left','standard').toLocaleString() }}P/월</div>
               </div>
 
@@ -118,7 +118,7 @@
                 :class="isSelected('left',3) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-green-300 bg-green-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('left',3) ? '✅' : '🥉' }}</div>
                 <div class="text-[9px] font-black text-green-700">이코노미</div>
-                <div class="text-[8px] text-gray-500">5개 랜덤 · 200×150</div>
+                <div class="text-[8px] text-gray-500">5개 랜덤 · 200×70</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('left','economy').toLocaleString() }}P/월</div>
               </div>
             </div>
@@ -140,7 +140,7 @@
                 :class="isSelected('right',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-yellow-400 bg-yellow-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('right',1) ? '✅' : '🥇' }}</div>
                 <div class="text-[9px] font-black text-yellow-700">프리미엄</div>
-                <div class="text-[8px] text-gray-500">고정 독점 · 300×250</div>
+                <div class="text-[8px] text-gray-500">고정 독점 · 300×140</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('right','premium').toLocaleString() }}P/월</div>
               </div>
 
@@ -149,7 +149,7 @@
                 :class="isSelected('right',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-green-300 bg-green-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('right',2) ? '✅' : '🥉' }}</div>
                 <div class="text-[9px] font-black text-green-700">이코노미</div>
-                <div class="text-[8px] text-gray-500">3개 랜덤 · 300×250</div>
+                <div class="text-[8px] text-gray-500">3개 랜덤 · 300×140</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('right','economy').toLocaleString() }}P/월</div>
               </div>
             </div>
@@ -446,7 +446,7 @@ const imgWidth = ref(0)
 const imgHeight = ref(0)
 const imageConfirmed = ref(false)
 
-const recommendedSize = computed(() => selectedSlot.value?.position === 'left' ? '200×150px' : '300×250px')
+const recommendedSize = computed(() => selectedSlot.value?.position === 'left' ? '200×70px' : '300×140px')
 const recommendedW = computed(() => selectedSlot.value?.position === 'left' ? 200 : 300)
 const recommendedH = computed(() => selectedSlot.value?.position === 'left' ? 150 : 250)
 const recommendedRatio = computed(() => `${recommendedW.value}:${recommendedH.value}`)
