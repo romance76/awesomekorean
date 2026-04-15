@@ -102,18 +102,18 @@
         </div>
         <!-- 구인/구직 작은 토글 -->
         <div class="flex border-b">
-          <button @click="postType = 'hiring'; loadPage(); loadFeatured()"
+          <button @click="postType = 'hiring'; loadPage()"
             class="flex-1 py-1.5 text-[10px] font-bold transition"
             :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'text-gray-400 hover:bg-gray-50'">
             💼 구인
           </button>
-          <button @click="postType = 'seeking'; loadPage(); loadFeatured()"
+          <button @click="postType = 'seeking'; loadPage()"
             class="flex-1 py-1.5 text-[10px] font-bold transition"
             :class="postType === 'seeking' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-50'">
             🙋 구직
           </button>
         </div>
-        <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage(); loadFeatured()"
+        <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value; loadPage()"
           class="w-full text-left px-3 py-2 text-xs transition"
           :class="activeCat === c.value
             ? (postType === 'hiring' ? 'bg-amber-50 text-amber-700 font-bold' : 'bg-blue-50 text-blue-700 font-bold')
@@ -132,42 +132,6 @@
       </span>
     </div>
 
-    <!-- ═══ Featured: 오늘의 추천 (심플 텍스트 2개) ═══ -->
-    <!-- 내 위치 모드: state_plus 풀 / 전국 모드: national 풀 -->
-    <div v-if="featured.length" class="mb-4 rounded-xl overflow-hidden border"
-      :class="featuredTier === 'national' ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'">
-      <div class="flex items-center justify-between px-3 py-1.5 border-b"
-        :class="featuredTier === 'national' ? 'border-red-100' : 'border-blue-100'">
-        <div class="flex items-center gap-1.5">
-          <span class="text-xs font-black"
-            :class="featuredTier === 'national' ? 'text-red-700' : 'text-blue-700'">
-            {{ featuredTier === 'national' ? '🌍' : '⭐' }} 오늘의 추천
-          </span>
-          <span class="text-[10px]"
-            :class="featuredTier === 'national' ? 'text-red-500' : 'text-blue-500'">
-            {{ featuredTier === 'national' ? '전국 상위노출' : '주(State) 상위노출' }}
-          </span>
-        </div>
-        <button @click="loadFeatured" :disabled="featuredLoading"
-          class="text-[10px] font-bold disabled:opacity-50"
-          :class="featuredTier === 'national' ? 'text-red-600 hover:text-red-800' : 'text-blue-600 hover:text-blue-800'">
-          🔄 {{ featuredLoading ? '...' : '다시' }}
-        </button>
-      </div>
-      <div class="divide-y" :class="featuredTier === 'national' ? 'divide-red-100' : 'divide-blue-100'">
-        <div v-for="f in featured" :key="f.id" @click="goDetail(f)"
-          class="px-3 py-2 hover:bg-white/60 cursor-pointer transition flex items-center gap-2 text-sm">
-          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0"
-            :class="featuredTier === 'national' ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'">
-            {{ featuredTier === 'national' ? '전국' : '주+' }}
-          </span>
-          <span class="flex-shrink-0">{{ categoryEmoji(f.category) }}</span>
-          <span class="font-bold text-gray-800 truncate flex-1">{{ f.title }}</span>
-          <span class="text-xs text-gray-500 truncate hidden sm:inline">{{ f.company || f.user?.name }}</span>
-          <span v-if="f.city" class="text-[10px] text-gray-400 whitespace-nowrap">{{ f.city }}{{ f.state ? ', '+f.state : '' }}</span>
-        </div>
-      </div>
-    </div>
 
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
@@ -371,10 +335,9 @@ function onCityChange() {
   // 페이지 내 이동에서도 유지되도록 섹션 스토어에 저장
   locFilter.set('jobs', { cityIdx: selectedCityIdx.value, radius: radius.value })
   loadPage()
-  loadFeatured()
 }
 
-// 현재 위치 파라미터 계산 (featured와 일반 리스트가 공유)
+// 현재 위치 파라미터 계산
 function buildLocationParams() {
   const p = {}
   const idx = parseInt(selectedCityIdx.value)
@@ -421,34 +384,6 @@ async function loadPage(p = 1) {
   loading.value = false
 }
 
-// ─── Featured: 위치 모드에 따라 state_plus(내 위치) 또는 national(전국) 중
-// 카테고리별 상위 5개 풀에서 랜덤 2개 추출 ───
-const featured = ref([])
-const featuredLoading = ref(false)
-const featuredTier = ref('state_plus') // 표시용: 현재 어떤 티어를 보여주는지
-async function loadFeatured() {
-  featuredLoading.value = true
-  const locParams = buildLocationParams()
-  const hasLocation = !!locParams.lat
-  // 내 위치 모드 → state_plus / 전국 모드 → national
-  featuredTier.value = hasLocation ? 'state_plus' : 'national'
-
-  const params = {
-    per_category: 5,
-    count: 2,
-    post_type: postType.value,
-    promotion_filter: 'auto',
-    ...locParams,
-  }
-  // 특정 카테고리 선택 시 그 카테고리만
-  if (activeCat.value) params.category = activeCat.value
-
-  try {
-    const { data } = await axios.get('/api/jobs/featured', { params })
-    featured.value = data.data || []
-  } catch { featured.value = [] }
-  featuredLoading.value = false
-}
 
 onMounted(async () => {
   // URL 쿼리 파라미터 반영
@@ -475,7 +410,6 @@ onMounted(async () => {
     radius.value = '0'
   }
   loadPage()
-  loadFeatured()
 })
 </script>
 <style scoped>
