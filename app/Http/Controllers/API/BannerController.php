@@ -72,6 +72,32 @@ class BannerController extends Controller
         return response()->json(['success' => true, 'data' => $results]);
     }
 
+    // 모바일: 가중 랜덤 1개 광고 (프리미엄 50%, 스탠다드 30%, 이코노미 20%)
+    public function mobileAd(Request $request)
+    {
+        $page = $request->page ?: 'home';
+        $query = BannerAd::active()
+            ->where(function ($q) use ($page) {
+                $q->where('page', $page)->orWhere('page', 'all')
+                  ->orWhereJsonContains('target_pages', $page)
+                  ->orWhere('target_pages', 'LIKE', '%"' . $page . '"%');
+            });
+
+        $ads = $query->orderByDesc('bid_amount')->limit(10)->get();
+        if ($ads->isEmpty()) return response()->json(['success' => true, 'data' => null]);
+
+        // 가중 랜덤: 슬롯 1(프리미엄)=50%, 슬롯 2(스탠다드)=30%, 슬롯 3(이코노미)=20%
+        $weighted = [];
+        foreach ($ads as $ad) {
+            $w = match((int) $ad->slot_number) { 1 => 5, 2 => 3, 3 => 2, default => 1 };
+            for ($i = 0; $i < $w; $i++) $weighted[] = $ad;
+        }
+        $picked = $weighted[array_rand($weighted)];
+        $picked->increment('impressions');
+
+        return response()->json(['success' => true, 'data' => $picked]);
+    }
+
     // 배너 클릭 추적
     public function click($id)
     {

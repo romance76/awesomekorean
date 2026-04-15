@@ -15,6 +15,9 @@ const app = createApp(App)
 app.component('UserName', UserName)
 app.component('Pagination', Pagination)
 app.component('MobileFilter', MobileFilter)
+
+import MobileAdInline from './components/MobileAdInline.vue'
+app.component('MobileAdInline', MobileAdInline)
 app.use(pinia)
 app.use(router)
 

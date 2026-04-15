@@ -80,6 +80,7 @@ Route::get('/news/{id}', [NewsController::class, 'show']);
 // 썸네일 프록시/캐시 (모든 리스트 페이지가 공유)
 Route::get('/thumb', [ThumbnailController::class, 'show']);
 Route::get('/banners/active', [\App\Http\Controllers\API\BannerController::class, 'show']);
+Route::get('/banners/mobile', [\App\Http\Controllers\API\BannerController::class, 'mobileAd']);
 Route::post('/banners/{id}/click', [\App\Http\Controllers\API\BannerController::class, 'click']);
 Route::get('/ad-settings/public', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettingsPublic']);
 
