@@ -26,10 +26,8 @@
       </div>
     </div>
 
-    <!-- YouTube -->
-    <div class="aspect-video bg-black flex-shrink-0">
-      <div id="yt-mini-player" class="w-full h-full"></div>
-    </div>
+    <!-- YouTube 영상 영역 (실제 Player는 별도) -->
+    <div id="yt-slot" class="aspect-video bg-black flex-shrink-0"></div>
 
     <!-- 컨트롤 -->
     <div class="px-3 py-2 flex items-center gap-2 flex-shrink-0">
@@ -63,6 +61,12 @@
       곡을 클릭하면 여기에 재생 목록이 표시됩니다
     </div>
   </div>
+
+  <!-- YouTube Player — 항상 DOM에 존재 (v-if 밖) -->
+  <div v-if="music.hasTrack && music.currentTrack?.youtubeId && !isShutdown"
+    :style="ytContainerStyle" class="fixed z-[9997] overflow-hidden">
+    <div id="yt-mini-player" class="w-full h-full"></div>
+  </div>
 </Teleport>
 </template>
 
@@ -78,6 +82,21 @@ const showPL = ref(true)
 const isExpanded = ref(false)
 const isShutdown = ref(false) // 완전 종료 상태
 const window_w = ref(window.innerWidth)
+
+// YouTube container: 펼침이면 영상 슬롯 위에, 아니면 화면 밖 (오디오만)
+const ytContainerStyle = computed(() => {
+  if (isExpanded.value) {
+    // yt-slot 위에 오버레이
+    const el = document.getElementById('yt-slot')
+    if (el) {
+      const r = el.getBoundingClientRect()
+      return { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' }
+    }
+    return { width: '280px', height: '158px', right: posRight.value + 'px', top: (posTop.value + 40) + 'px' }
+  }
+  // 숨김 — 화면 밖 (오디오 계속 재생)
+  return { width: '1px', height: '1px', left: '-9999px', top: '-9999px' }
+})
 let ytPlayer = null
 let progressTimer = null
 let currentVideoId = null
