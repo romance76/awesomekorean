@@ -8,8 +8,20 @@ use Illuminate\Support\Facades\Http;
 
 class FetchMusicTracks extends Command
 {
-    protected $signature = 'music:fetch {--daily=500} {--korean-ratio=75}';
-    protected $description = '음악 트랙 자동 수집 (매일 500곡, 한국 75% + 팝 25%, 5분 미만, 7일 롤링, 유저 업로드 제외)';
+    protected $signature = 'music:fetch {--daily=500}';
+    protected $description = '음악 트랙 자동 수집 (카테고리별 한국/미국 비율 차등, 2분30초~5분, 7일 롤링)';
+
+    // 카테고리별 한국:미국 비율 (한국 %)
+    private $ratios = [
+        'ballad'  => 100, // 한국 발라드만
+        'trot'    => 100, // 트로트는 한국만
+        'kpop'    => 100, // K-POP 한국만
+        'hiphop'  => 60,  // 한국 60% 미국 40%
+        'rnb'     => 40,  // 한국 40% 미국 60%
+        'jazz'    => 40,  // 한국 40% 미국 60%
+        'classic' => 50,  // 한국/미국/유럽 반반
+        'ost'     => 50,  // 한국 50% 미국 50%
+    ];
 
     // 카테고리별 한국 검색어
     private $koreanQueries = [
@@ -19,7 +31,7 @@ class FetchMusicTracks extends Command
         'hiphop'  => ['한국 힙합', '한국 랩', '쇼미더머니', 'Korean hip hop', '한국 힙합 명곡', '한국 래퍼'],
         'rnb'     => ['한국 R&B', 'Korean R&B', '한국 알앤비', 'K-R&B 인기곡', '딘 R&B', '크러쉬 노래'],
         'jazz'    => ['한국 재즈', 'Korean jazz', '재즈 카페 음악', '한국 재즈 보컬', '재즈 명곡'],
-        'classic' => ['한국 클래식', 'Korean classical', '클래식 피아노', '클래식 명곡 연주', '한국 클래식 연주'],
+        'classic' => ['한국 클래식', 'Korean classical', '클래식 피아노', '클래식 명곡 연주'],
         'ost'     => ['한국 드라마 OST', 'K-drama OST', '드라마 OST 명곡', '영화 OST 한국', 'OST 인기곡 2024'],
     ];
 
@@ -31,16 +43,13 @@ class FetchMusicTracks extends Command
         'hiphop'  => ['US hip hop hits', 'Drake songs', 'Kendrick Lamar', 'Eminem', 'American rap'],
         'rnb'     => ['American R&B', 'SZA songs', 'Daniel Caesar', 'US R&B hits', 'Frank Ocean'],
         'jazz'    => ['American jazz', 'jazz standards', 'smooth jazz USA', 'Norah Jones jazz'],
-        'classic' => ['classical music performance', 'piano concerto famous', 'London symphony', 'classical masterpieces'],
+        'classic' => ['classical music performance', 'piano concerto famous', 'Beethoven symphony', 'Mozart piano', 'Vienna classical', 'Chopin nocturne'],
         'ost'     => ['Hollywood movie soundtrack', 'Disney OST', 'English movie theme song', 'American film score'],
     ];
 
     public function handle()
     {
         $dailyLimit = (int) $this->option('daily');
-        $koreanRatio = (int) $this->option('korean-ratio');
-        $koreanCount = (int) ($dailyLimit * $koreanRatio / 100);
-        $popCount = $dailyLimit - $koreanCount;
 
         $apiKey = config('services.youtube.api_key');
         if (!$apiKey) {
@@ -66,21 +75,22 @@ class FetchMusicTracks extends Command
         }
 
         $this->info("=== 음악 트랙 자동 수집 시작 ===");
-        $this->info("목표: {$dailyLimit}곡 (한국 {$koreanCount} + 팝 {$popCount})");
+        $this->info("목표: {$dailyLimit}곡 (카테고리별 한국/미국 비율 차등)");
 
-        // 1단계: 7일 이상 된 트랙 삭제 (단, 유저 업로드 트랙은 유지)
+        // 1단계: 7일 이상 된 트랙 삭제 (유저 업로드 제외)
         $deleted = MusicTrack::where('created_at', '<', now()->subDays(7))
             ->where('is_user_submitted', false)
             ->delete();
-        $this->info("🗑 7일 이상 된 시스템 트랙 {$deleted}곡 삭제 (유저 업로드 제외)");
+        $this->info("🗑 7일 이상 된 시스템 트랙 {$deleted}곡 삭제");
 
         $totalAdded = 0;
         $perCategory = (int) ceil($dailyLimit / $categories->count());
-        $koreanPerCat = (int) ceil($koreanCount / $categories->count());
-        $popPerCat = $perCategory - $koreanPerCat;
 
         foreach ($categories as $cat) {
-            $this->info("\n📂 {$cat->name} ({$cat->slug}) - 한국 {$koreanPerCat}곡 + 팝 {$popPerCat}곡");
+            $ratio = $this->ratios[$cat->slug] ?? 75;
+            $koreanPerCat = (int) ceil($perCategory * $ratio / 100);
+            $popPerCat = $perCategory - $koreanPerCat;
+            $this->info("\n📂 {$cat->name} ({$cat->slug}) - 한국 {$koreanPerCat}곡({$ratio}%) + 팝 {$popPerCat}곡");
 
             // 한국 곡 수집 — DB 검색어 우선, 없으면 하드코딩 fallback
             $kQueries = $cat->korean_queries
@@ -117,7 +127,7 @@ class FetchMusicTracks extends Command
                 'q' => $query . ' music',
                 'type' => 'video',
                 'videoCategoryId' => '10',
-                'videoDuration' => 'short', // YouTube 기준 < 4분 (5분 미만 보장에 더 적합)
+                'videoDuration' => 'medium', // YouTube 기준 < 4분 (5분 미만 보장에 더 적합)
                 'part' => 'snippet',
                 'maxResults' => $perPage,
                 'order' => 'relevance',
@@ -158,12 +168,12 @@ class FetchMusicTracks extends Command
                 $channel = $item['snippet']['channelTitle'] ?? '';
                 $seconds = $durations[$videoId] ?? 0;
 
-                // duration 정보 필수 (0이면 라이브/믹스 가능성 → 차단)
+                // duration 정보 필수
                 if ($seconds <= 0) continue;
-                // 5분(300초) 초과 필터링
+                // 2분30초(150초) 미만 제외 (숏츠/클립)
+                if ($seconds < 150) continue;
+                // 5분(300초) 초과 제외 (메들리/라이브)
                 if ($seconds > 300) continue;
-                // 10초 미만 제외 (짧은 클립)
-                if ($seconds < 10) continue;
 
                 if (MusicTrack::where('youtube_id', $videoId)->exists()) continue;
                 if (mb_strlen($title) < 3) continue;

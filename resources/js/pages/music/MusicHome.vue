@@ -85,7 +85,7 @@
             <!-- 즐겨찾기 버튼 -->
             <button v-if="auth.isLoggedIn" @click.stop="toggleFav(track)" class="text-sm transition" :class="isFav(track.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'">{{ isFav(track.id) ? '❤️' : '🤍' }}</button>
             <!-- 플레이리스트 추가 -->
-            <button v-if="auth.isLoggedIn && !activePL && playlists.length" @click.stop="showAddToPL(track)" class="text-sm transition" :class="isInPlaylist(track.id) ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'" :title="isInPlaylist(track.id) ? '플레이리스트에 추가됨' : '플레이리스트에 추가'">{{ isInPlaylist(track.id) ? '⭐' : '☆' }}</button>
+            <button v-if="auth.isLoggedIn && !activePL" @click.stop="playlists.length ? showAddToPL(track) : (addTrackTarget = track, showCreatePL = true)" class="text-sm transition" :class="isInPlaylist(track.id) ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'" title="플레이리스트에 추가">{{ isInPlaylist(track.id) ? '⭐' : '➕' }}</button>
             <!-- 플레이리스트에서 제거 -->
             <button v-if="auth.isLoggedIn && activePL" @click.stop="removeFromPL(track)" class="text-red-400 text-xs hover:text-red-600 opacity-0 group-hover:opacity-100">✕</button>
           </div>

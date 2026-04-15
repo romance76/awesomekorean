@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Http;
 
 class FetchYoutubeShorts extends Command
 {
-    protected $signature = 'shorts:fetch {--limit=500} {--korean-ratio=75}';
-    protected $description = '숏츠 자동 수집 (매일 500개, 한국 75% + 북미 25%, 세로형만, 14일 이내 신규, 30일 롤링)';
+    protected $signature = 'shorts:fetch {--limit=500} {--korean-ratio=90}';
+    protected $description = '숏츠 자동 수집 (매일 500개, 한국 90% + 북미 10%, 세로형만, 14일 이내 신규, 30일 롤링)';
 
     // 한국 검색어
     private $koreanQueries = [
