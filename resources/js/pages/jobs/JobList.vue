@@ -142,14 +142,23 @@
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="goDetail(item)"
         class="px-4 py-3 border-b border-gray-50 transition cursor-pointer"
-        :class="postType === 'hiring'
-          ? 'hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400'
-          : 'hover:bg-blue-50/50 hover:border-l-2 hover:border-l-blue-400'">
-        <div class="flex items-center justify-between">
+        :class="[
+          isPromoted(item) ? promotionClass(item) : (postType === 'hiring' ? 'hover:bg-amber-50/50' : 'hover:bg-blue-50/50')
+        ]">
+        <div class="flex items-center gap-3">
+          <!-- 로고 -->
+          <img v-if="item.logo" :src="item.logo" class="w-12 h-12 rounded object-cover flex-shrink-0 border" @error="$event.target.style.display='none'" />
+          <div v-else class="w-12 h-12 rounded bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">{{ categoryEmoji(item.category) }}</div>
+
           <div class="flex-1 min-w-0">
+            <!-- 프로모션 뱃지 -->
+            <div v-if="isPromoted(item)" class="flex items-center gap-1 mb-0.5">
+              <span v-if="item.promotion_tier==='national'" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌍 전국</span>
+              <span v-else-if="item.promotion_tier==='state_plus'" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
+              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서드</span>
+            </div>
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
             <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
-              <!-- 구인: 회사명 표시, 구직: 유저 이름 표시 -->
               <template v-if="postType === 'seeking'">
                 <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name" className="text-blue-600 font-semibold" />
                 <span v-else class="text-blue-600 font-semibold">{{ item.user?.name || '익명' }}</span>
@@ -163,7 +172,12 @@
                 class="font-semibold" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
                 {{ Number(item.distance).toFixed(1) }}mi
               </span>
+              <span v-if="item.created_at" class="text-gray-400">🕐 {{ fmtDate(item.created_at) }}</span>
               <span v-if="item.view_count">👁{{ item.view_count }}</span>
+            </div>
+            <!-- 직종 태그 -->
+            <div v-if="item.job_tags && item.job_tags.length" class="flex items-center gap-1 mt-1 flex-wrap">
+              <span v-for="tag in item.job_tags.slice(0,5)" :key="tag" class="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{{ jobTagLabel(tag) }}</span>
             </div>
           </div>
           <div class="ml-3 flex-shrink-0 text-right">
@@ -239,6 +253,37 @@ watch(() => route.query, (q) => {
   if (q.search !== undefined) search.value = q.search || ''
   loadPage()
 })
+
+// 프로모션 헬퍼
+function isPromoted(item) {
+  return item.promotion_tier && item.promotion_tier !== 'none'
+}
+function promotionClass(item) {
+  if (item.promotion_tier === 'national') return 'bg-red-50 border-l-4 border-l-red-500 hover:bg-red-100/60'
+  if (item.promotion_tier === 'state_plus') return 'bg-blue-50 border-l-4 border-l-blue-500 hover:bg-blue-100/60'
+  if (item.promotion_tier === 'sponsored') return 'bg-amber-50 border-l-4 border-l-amber-500 hover:bg-amber-100/60'
+  return ''
+}
+
+// 카테고리 이모지
+const categoryEmojis = { restaurant:'🍳', it:'💻', beauty:'💅', driving:'🚗', retail:'🛒', office:'🏢', construction:'🔨', medical:'🏥', education:'📚', etc:'📋' }
+function categoryEmoji(cat) { return categoryEmojis[cat] || '📋' }
+
+// 직종 태그 레이블
+const jobTagLabels = { cook:'요리', server:'서빙', cashier:'캐셔', manager:'매니저', barista:'바리스타', delivery:'배달', driver:'운전', mechanic:'정비', accountant:'회계', receptionist:'접수', cleaner:'청소', nail:'네일', hair:'미용사', esthetician:'피부관리', teacher:'강사', tutor:'과외', developer:'개발자', designer:'디자이너', sales:'영업', nurse:'간호사', security:'보안', warehouse:'창고' }
+function jobTagLabel(tag) { return jobTagLabels[tag] || tag }
+
+// 날짜 포맷 (상대시간)
+function fmtDate(dt) {
+  if (!dt) return ''
+  const d = new Date(dt)
+  const diff = (Date.now() - d.getTime()) / 1000
+  if (diff < 60) return '방금'
+  if (diff < 3600) return Math.floor(diff/60) + '분 전'
+  if (diff < 86400) return Math.floor(diff/3600) + '시간 전'
+  if (diff < 604800) return Math.floor(diff/86400) + '일 전'
+  return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+}
 
 function goDetail(item) {
   router.push('/jobs/' + item.id)

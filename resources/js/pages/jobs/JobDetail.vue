@@ -41,21 +41,31 @@
           <!-- Header: badges + title + company + location -->
           <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-100">
             <div class="flex items-center gap-2 flex-wrap mb-2">
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold"
-                :class="typeClass(job.type)">
-                {{ typeLabel(job.type) }}
-              </span>
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold"
-                :class="job.post_type === 'hiring' ? 'bg-indigo-100 text-indigo-700' : 'bg-pink-100 text-pink-700'">
+              <!-- 프로모션 뱃지 -->
+              <span v-if="job.promotion_tier === 'national'" class="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">🌍 전국 상위노출</span>
+              <span v-else-if="job.promotion_tier === 'state_plus'" class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold">⭐ 주+인접 상위노출</span>
+              <span v-else-if="job.promotion_tier === 'sponsored'" class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">📢 스폰서드</span>
+              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="typeClass(job.type)">{{ typeLabel(job.type) }}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="job.post_type === 'hiring' ? 'bg-indigo-100 text-indigo-700' : 'bg-pink-100 text-pink-700'">
                 {{ job.post_type === 'hiring' ? '구인' : '구직' }}
               </span>
             </div>
-            <h1 class="text-xl lg:text-2xl font-bold text-gray-900 leading-snug">{{ job.title }}</h1>
-            <div v-if="job.company" class="text-sm lg:text-base text-amber-700 font-semibold mt-1">{{ job.company }}</div>
-            <div class="text-xs lg:text-sm text-gray-500 mt-1 flex items-center gap-1">
-              <span v-if="job.city || job.state || job.zipcode">
-                {{ [job.city, job.state, job.zipcode].filter(Boolean).join(', ') }}
-              </span>
+            <div class="flex items-start gap-3">
+              <!-- 로고 -->
+              <img v-if="job.logo" :src="job.logo" class="w-16 h-16 rounded-lg object-cover border flex-shrink-0" @error="$event.target.style.display='none'" />
+              <div class="flex-1 min-w-0">
+                <h1 class="text-xl lg:text-2xl font-bold text-gray-900 leading-snug">{{ job.title }}</h1>
+                <div v-if="job.company" class="text-sm lg:text-base text-amber-700 font-semibold mt-1">{{ job.company }}</div>
+                <div class="text-xs lg:text-sm text-gray-500 mt-1">
+                  <span v-if="job.city || job.state || job.zipcode">
+                    {{ [job.city, job.state, job.zipcode].filter(Boolean).join(', ') }}
+                  </span>
+                </div>
+                <!-- 직종 태그 -->
+                <div v-if="job.job_tags && job.job_tags.length" class="flex items-center gap-1 mt-2 flex-wrap">
+                  <span v-for="tag in job.job_tags" :key="tag" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-semibold">{{ jobTagLabel(tag) }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -192,8 +202,25 @@
             </div>
           </Teleport>
 
-          <!-- Content body -->
-          <div class="px-3 lg:px-5 py-3 lg:py-5 text-xs lg:text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ job.content }}</div>
+          <!-- Content body (HTML 또는 plain) -->
+          <div class="px-3 lg:px-5 py-3 lg:py-5 text-xs lg:text-sm text-gray-700 leading-relaxed job-content"
+            v-html="safeContent"></div>
+
+          <!-- 복리후생 -->
+          <div v-if="job.benefits && job.benefits.length" class="px-3 lg:px-5 py-3 border-t border-gray-100">
+            <div class="text-xs font-bold text-gray-600 mb-2">🎁 복리후생</div>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span v-for="b in job.benefits" :key="b" class="text-xs bg-green-50 text-green-700 px-2 py-1 rounded font-medium">{{ benefitLabel(b) }}</span>
+            </div>
+          </div>
+
+          <!-- 회사 소개 PDF -->
+          <div v-if="job.company_pdf" class="px-3 lg:px-5 py-3 border-t border-gray-100">
+            <a :href="job.company_pdf" target="_blank"
+              class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs px-3 py-2 rounded-lg transition">
+              📄 회사 소개서 (PDF) 다운로드
+            </a>
+          </div>
 
           <!-- Footer: author + date + actions -->
           <div class="px-3 lg:px-5 py-3 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between flex-wrap gap-2">
@@ -350,6 +377,21 @@ function formatSalary(j) {
 }
 
 // ── Date helper ──
+// 직종 태그/복리후생 레이블
+const jobTagLabels = { cook:'요리사', server:'서빙', cashier:'캐셔', manager:'매니저', barista:'바리스타', delivery:'배달', driver:'운전', mechanic:'정비', accountant:'회계', receptionist:'접수', cleaner:'청소', nail:'네일', hair:'미용사', esthetician:'피부관리', teacher:'강사', tutor:'과외', developer:'개발자', designer:'디자이너', sales:'영업', nurse:'간호사', security:'보안', warehouse:'창고' }
+const benefitLabels = { health:'건강보험', dental:'치과보험', vision:'비전보험', '401k':'401K', paid_vacation:'유급휴가', sick_leave:'병가', meal:'식사제공', tips:'팁', bonus:'보너스', sponsor:'비자 스폰서', training:'교육지원', parking:'주차지원' }
+function jobTagLabel(tag) { return jobTagLabels[tag] || tag }
+function benefitLabel(b) { return benefitLabels[b] || b }
+
+// HTML인지 plain text인지 감지해서 safe하게 렌더
+const safeContent = computed(() => {
+  if (!job.value?.content) return ''
+  const c = job.value.content
+  // HTML 태그 있으면 그대로, 없으면 <br> 변환
+  if (/<[a-z][\s\S]*>/i.test(c)) return c
+  return c.replace(/\n/g, '<br>')
+})
+
 function formatDate(dt) {
   if (!dt) return ''
   const d = new Date(dt)
@@ -470,3 +512,13 @@ onMounted(() => {
   if (route.params.id) loadJob(route.params.id)
 })
 </script>
+
+<style scoped>
+.job-content :deep(h2) { font-size: 1.1rem; font-weight: bold; margin: 12px 0 6px; }
+.job-content :deep(h3) { font-size: 1rem; font-weight: bold; margin: 10px 0 5px; }
+.job-content :deep(img) { max-width: 100%; height: auto; border-radius: 6px; margin: 8px 0; }
+.job-content :deep(ul), .job-content :deep(ol) { padding-left: 20px; margin: 6px 0; }
+.job-content :deep(ul) { list-style: disc; }
+.job-content :deep(ol) { list-style: decimal; }
+.job-content :deep(p) { margin: 6px 0; }
+</style>

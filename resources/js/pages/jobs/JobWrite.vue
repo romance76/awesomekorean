@@ -38,6 +38,29 @@
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">기본 정보</h2>
       </div>
       <div class="p-5 space-y-4">
+        <!-- 로고 업로드 -->
+        <div>
+          <label class="text-sm font-semibold text-gray-700 block mb-2">로고 이미지 (선택)</label>
+          <div class="flex items-center gap-4">
+            <div class="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <img v-if="logoPreview" :src="logoPreview" class="w-full h-full object-cover" />
+              <svg v-else class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1">
+              <input ref="logoInputRef" type="file" accept="image/*" @change="onLogoSelect" class="hidden" />
+              <button type="button" @click="logoInputRef?.click()"
+                class="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+                {{ logoFile || logoPreview ? '로고 변경' : '로고 선택' }}
+              </button>
+              <button v-if="logoFile || logoPreview" type="button" @click="clearLogo"
+                class="ml-2 px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition">
+                제거
+              </button>
+              <p class="text-xs text-gray-400 mt-1">최대 5MB, JPG/PNG</p>
+            </div>
+          </div>
+        </div>
+
         <!-- 제목 -->
         <div>
           <label class="text-sm font-semibold text-gray-700 block mb-1">
@@ -72,6 +95,22 @@
             <option value="" disabled>카테고리를 선택하세요</option>
             <option v-for="c in categories" :key="c.value" :value="c.value">{{ c.label }}</option>
           </select>
+        </div>
+
+        <!-- 직종 태그 (multi-select) -->
+        <div v-if="isHiring">
+          <label class="text-sm font-semibold text-gray-700 block mb-2">직종 태그 (여러 개 선택 가능)</label>
+          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            <button v-for="t in jobTagOptions" :key="t.value" type="button"
+              @click="toggleJobTag(t.value)"
+              class="py-2 px-2 rounded-lg text-xs font-semibold transition border-2"
+              :class="selectedJobTags.includes(t.value)
+                ? 'border-amber-400 bg-amber-50 text-amber-800'
+                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+              {{ t.label }}
+            </button>
+          </div>
+          <p class="text-xs text-gray-400 mt-1.5">선택됨: {{ selectedJobTags.length }}개</p>
         </div>
 
         <!-- 고용형태 -->
@@ -162,31 +201,22 @@
         <h2 class="text-sm font-bold text-amber-800">복리후생 (Benefits)</h2>
       </div>
       <div class="p-5 space-y-3">
-        <p class="text-xs text-gray-500">해당하는 복리후생을 클릭하세요. 상세 설명에 자동으로 추가됩니다.</p>
-        <div class="flex flex-wrap gap-2">
-          <button v-for="b in benefitChips" :key="b"
-            type="button" @click="toggleBenefit(b)"
-            class="px-3 py-1.5 rounded-full text-xs font-medium transition border"
-            :class="selectedBenefits.has(b)
-              ? 'bg-amber-100 border-amber-400 text-amber-800'
-              : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-amber-300 hover:bg-amber-50'">
-            <span v-if="selectedBenefits.has(b)" class="mr-1">&#10003;</span>{{ b }}
-          </button>
-        </div>
-        <!-- Custom benefit input -->
-        <div class="flex gap-2 mt-2">
-          <input v-model="customBenefit" type="text" placeholder="직접 입력 (예: Free meals)"
-            @keyup.enter="addCustomBenefit"
-            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
-          <button type="button" @click="addCustomBenefit"
-            class="px-4 py-2 rounded-lg text-xs font-bold bg-amber-100 text-amber-700 hover:bg-amber-200 transition">
-            + 추가
+        <p class="text-xs text-gray-500">제공하는 복리후생을 모두 선택하세요.</p>
+        <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+          <button v-for="b in benefitOptions" :key="b.value" type="button"
+            @click="toggleBenefit(b.value)"
+            class="py-2 px-2 rounded-lg text-xs font-semibold transition border-2 flex items-center justify-center gap-1"
+            :class="selectedBenefits.includes(b.value)
+              ? 'border-amber-400 bg-amber-50 text-amber-800'
+              : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+            <span v-if="selectedBenefits.includes(b.value)">&#10003;</span>
+            {{ b.label }}
           </button>
         </div>
       </div>
     </section>
 
-    <!-- Section 5: 상세 설명 -->
+    <!-- Section 5: 상세 설명 (rich text) -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">상세 설명</h2>
@@ -195,13 +225,63 @@
         <label class="text-xs text-gray-500 block mb-2">
           {{ isHiring ? '근무 조건, 자격 요건, 우대사항 등을 자세히 작성해주세요' : '본인 소개, 경력, 희망 근무조건 등을 작성해주세요' }}
         </label>
-        <textarea v-model="form.content" rows="10"
-          :placeholder="isHiring
-            ? '예:\n- 근무시간: 월~금 9am~6pm\n- 자격요건: 영어 가능자\n- 우대사항: 한식 조리 경험자\n- 지원방법: 이메일 또는 전화'
-            : '예:\n- 경력: 요식업 3년\n- 가능업무: 주방보조, 서빙, 카운터\n- 희망지역: LA 한인타운\n- 영어: 일상회화 가능'"
-          class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm transition outline-none resize-none leading-relaxed"
-          :class="focusRing"></textarea>
-        <p class="text-xs text-gray-400 mt-1 text-right">{{ form.content.length }} 자</p>
+
+        <!-- Toolbar -->
+        <div class="flex flex-wrap items-center gap-1 mb-2 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+          <button type="button" @click="execCmd('bold')" title="굵게"
+            class="w-8 h-8 rounded hover:bg-gray-200 font-bold text-gray-700">B</button>
+          <button type="button" @click="execCmd('italic')" title="기울임"
+            class="w-8 h-8 rounded hover:bg-gray-200 italic text-gray-700">I</button>
+          <button type="button" @click="execCmd('underline')" title="밑줄"
+            class="w-8 h-8 rounded hover:bg-gray-200 underline text-gray-700">U</button>
+          <span class="w-px h-5 bg-gray-300 mx-1"></span>
+          <button type="button" @click="execCmd('formatBlock', 'H2')" title="제목 H2"
+            class="px-2 h-8 rounded hover:bg-gray-200 text-xs font-bold text-gray-700">H2</button>
+          <button type="button" @click="execCmd('formatBlock', 'H3')" title="제목 H3"
+            class="px-2 h-8 rounded hover:bg-gray-200 text-xs font-bold text-gray-700">H3</button>
+          <button type="button" @click="execCmd('formatBlock', 'P')" title="단락"
+            class="px-2 h-8 rounded hover:bg-gray-200 text-xs text-gray-700">P</button>
+          <span class="w-px h-5 bg-gray-300 mx-1"></span>
+          <button type="button" @click="execCmd('insertUnorderedList')" title="글머리 기호"
+            class="w-8 h-8 rounded hover:bg-gray-200 text-gray-700">•</button>
+          <button type="button" @click="execCmd('insertOrderedList')" title="번호 목록"
+            class="w-8 h-8 rounded hover:bg-gray-200 text-xs text-gray-700">1.</button>
+          <span class="w-px h-5 bg-gray-300 mx-1"></span>
+          <button type="button" @click="contentImageInputRef?.click()" title="이미지 삽입"
+            class="w-8 h-8 rounded hover:bg-gray-200 text-gray-700">
+            <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </button>
+          <input ref="contentImageInputRef" type="file" accept="image/*" @change="onInsertImage" class="hidden" />
+          <button type="button" @click="execCmd('removeFormat')" title="서식 지우기"
+            class="ml-auto px-2 h-8 rounded hover:bg-gray-200 text-xs text-gray-500">지우기</button>
+        </div>
+
+        <div ref="editorRef" contenteditable="true"
+          @input="onEditorInput"
+          class="w-full min-h-[240px] border border-gray-300 rounded-lg px-4 py-3 text-sm transition outline-none leading-relaxed prose prose-sm max-w-none"
+          :class="focusRing"
+          :data-placeholder="isHiring
+            ? '근무시간, 자격요건, 우대사항, 지원방법 등을 작성해주세요'
+            : '경력, 가능업무, 희망지역 등을 작성해주세요'"></div>
+        <p class="text-xs text-gray-400 mt-1 text-right">{{ contentTextLength }} 자</p>
+
+        <!-- 회사 소개 PDF -->
+        <div class="mt-5 pt-5 border-t border-gray-100">
+          <label class="text-sm font-semibold text-gray-700 block mb-2">회사 소개 PDF (선택)</label>
+          <div class="flex items-center gap-3">
+            <input ref="pdfInputRef" type="file" accept="application/pdf" @change="onPdfSelect" class="hidden" />
+            <button type="button" @click="pdfInputRef?.click()"
+              class="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+              {{ pdfName ? 'PDF 변경' : 'PDF 선택' }}
+            </button>
+            <div v-if="pdfName" class="flex items-center gap-2 flex-1 min-w-0">
+              <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+              <span class="text-xs text-gray-700 truncate">{{ pdfName }}</span>
+              <button type="button" @click="clearPdf" class="text-xs text-red-600 hover:underline flex-shrink-0">제거</button>
+            </div>
+            <span v-else class="text-xs text-gray-400">최대 10MB</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -247,6 +327,64 @@
       </div>
     </section>
 
+    <!-- Section 8: 상위노출 (Promotion) -->
+    <section v-if="!isEdit" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="px-5 py-3 border-b border-gray-100 bg-purple-50">
+        <h2 class="text-sm font-bold text-purple-800">상위노출 (선택)</h2>
+      </div>
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-gray-500">공고를 상단에 노출하려면 선택하세요. 포인트가 차감됩니다.</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button type="button" @click="selectPromotion('none')"
+            class="p-3 rounded-lg border-2 text-left transition"
+            :class="promotion.tier === 'none' ? 'border-gray-400 bg-gray-50' : 'border-gray-200 bg-white hover:border-gray-300'">
+            <div class="font-bold text-sm text-gray-800">사용 안 함</div>
+            <div class="text-xs text-gray-500">일반 등록</div>
+          </button>
+          <button type="button" @click="selectPromotion('sponsored')"
+            class="p-3 rounded-lg border-2 text-left transition"
+            :class="promotion.tier === 'sponsored' ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-white hover:border-gray-300'">
+            <div class="font-bold text-sm text-gray-800">스폰서드 (Sponsored)</div>
+            <div class="text-xs text-purple-600 font-semibold">하루 20P</div>
+          </button>
+          <button type="button" @click="selectPromotion('state_plus')"
+            class="p-3 rounded-lg border-2 text-left transition"
+            :class="promotion.tier === 'state_plus' ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-white hover:border-gray-300'">
+            <div class="font-bold text-sm text-gray-800">주(State) 상위노출</div>
+            <div class="text-xs text-purple-600 font-semibold">하루 50P</div>
+          </button>
+          <button type="button" @click="selectPromotion('national')"
+            class="p-3 rounded-lg border-2 text-left transition"
+            :class="promotion.tier === 'national' ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-white hover:border-gray-300'">
+            <div class="font-bold text-sm text-gray-800">전국(National) 상위노출</div>
+            <div class="text-xs text-purple-600 font-semibold">하루 100P</div>
+          </button>
+        </div>
+
+        <div v-if="promotion.tier !== 'none'" class="space-y-3 pt-3 border-t border-gray-100">
+          <div>
+            <label class="text-sm font-semibold text-gray-700 block mb-1">노출 기간 (일)</label>
+            <input v-model.number="promotion.days" type="number" min="1" max="30"
+              class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400" />
+          </div>
+
+          <div class="bg-purple-50 rounded-lg p-3 flex items-center justify-between">
+            <span class="text-sm text-purple-800">총 비용</span>
+            <span class="text-lg font-black text-purple-800">{{ totalPromotionCost.toLocaleString() }} P</span>
+          </div>
+
+          <div v-if="slotInfo && slotInfo.available === false" class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
+            <div class="font-bold mb-1">현재 슬롯 만석</div>
+            <div v-if="slotInfo.next_available_at">다음 슬롯: {{ slotInfo.next_available_at }} 이후 가능</div>
+          </div>
+          <div v-else-if="slotInfo && slotInfo.available === true" class="text-xs text-green-700">
+            슬롯 사용 가능 ({{ slotInfo.remaining ?? '' }} 남음)
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Error -->
     <div v-if="error" class="bg-red-50 border border-red-200 text-red-600 rounded-xl px-5 py-3 text-sm font-medium">
       {{ error }}
@@ -271,7 +409,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
@@ -321,26 +459,68 @@ const salaryTypes = [
   { value: 'yearly', label: '연봉 (Yearly)' },
 ]
 
-const benefitChips = [
-  'Health insurance',
-  'Dental insurance',
-  'Vision insurance',
-  '401(k)',
-  'Paid time off',
-  'Paid sick leave',
-  'On-the-job training',
-  'Employee discount',
-  'Flexible schedule',
-  'Free meals',
-  'Commuter assistance',
-  'Tuition reimbursement',
-  'Referral program',
-  'Life insurance',
-  'Retirement plan',
+const jobTagOptions = [
+  { value: 'cook', label: '요리사' },
+  { value: 'server', label: '서빙' },
+  { value: 'cashier', label: '캐셔' },
+  { value: 'manager', label: '매니저' },
+  { value: 'barista', label: '바리스타' },
+  { value: 'delivery', label: '배달' },
+  { value: 'driver', label: '운전' },
+  { value: 'mechanic', label: '정비' },
+  { value: 'accountant', label: '회계' },
+  { value: 'receptionist', label: '접수' },
+  { value: 'cleaner', label: '청소' },
+  { value: 'nail', label: '네일' },
+  { value: 'hair', label: '미용사' },
+  { value: 'esthetician', label: '피부관리' },
+  { value: 'teacher', label: '강사' },
+  { value: 'tutor', label: '과외' },
+  { value: 'developer', label: '개발자' },
+  { value: 'designer', label: '디자이너' },
+  { value: 'sales', label: '영업' },
+  { value: 'nurse', label: '간호사' },
 ]
 
-const selectedBenefits = reactive(new Set())
-const customBenefit = ref('')
+const benefitOptions = [
+  { value: 'health', label: '건강보험' },
+  { value: 'dental', label: '치과보험' },
+  { value: 'vision', label: '비전보험' },
+  { value: '401k', label: '401K' },
+  { value: 'paid_vacation', label: '유급휴가' },
+  { value: 'sick_leave', label: '병가' },
+  { value: 'meal', label: '식사제공' },
+  { value: 'tips', label: '팁' },
+  { value: 'bonus', label: '보너스' },
+  { value: 'sponsor', label: '비자 스폰서' },
+  { value: 'training', label: '교육지원' },
+  { value: 'parking', label: '주차지원' },
+]
+
+const selectedJobTags = ref([])
+const selectedBenefits = ref([])
+
+// Logo
+const logoFile = ref(null)
+const logoPreview = ref(null)
+const logoInputRef = ref(null)
+const existingLogoUrl = ref(null)
+
+// PDF
+const pdfFile = ref(null)
+const pdfName = ref('')
+const pdfInputRef = ref(null)
+const existingPdfUrl = ref(null)
+
+// Rich text editor
+const editorRef = ref(null)
+const contentImageInputRef = ref(null)
+const contentTextLength = ref(0)
+
+// Promotion
+const promotion = reactive({ tier: 'none', days: 7, states: [] })
+const slotInfo = ref(null)
+
 const error = ref('')
 const submitting = ref(false)
 const isEdit = ref(false)
@@ -351,67 +531,179 @@ const focusRing = computed(() =>
   isHiring.value ? 'focus:ring-2 focus:ring-amber-400 focus:border-amber-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
 )
 
-function toggleBenefit(b) {
-  if (selectedBenefits.has(b)) {
-    selectedBenefits.delete(b)
-  } else {
-    selectedBenefits.add(b)
+const tierPricing = { national: 100, state_plus: 50, sponsored: 20, none: 0 }
+const totalPromotionCost = computed(() => {
+  const unit = tierPricing[promotion.tier] || 0
+  const days = Math.max(1, Math.min(30, Number(promotion.days) || 0))
+  return unit * days
+})
+
+function toggleJobTag(v) {
+  const idx = selectedJobTags.value.indexOf(v)
+  if (idx >= 0) selectedJobTags.value.splice(idx, 1)
+  else selectedJobTags.value.push(v)
+}
+
+function toggleBenefit(v) {
+  const idx = selectedBenefits.value.indexOf(v)
+  if (idx >= 0) selectedBenefits.value.splice(idx, 1)
+  else selectedBenefits.value.push(v)
+}
+
+// Logo handlers
+function onLogoSelect(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    error.value = '로고 파일 크기는 5MB 이하여야 합니다.'
+    e.target.value = ''
+    return
+  }
+  logoFile.value = file
+  const reader = new FileReader()
+  reader.onload = () => { logoPreview.value = reader.result }
+  reader.readAsDataURL(file)
+}
+function clearLogo() {
+  logoFile.value = null
+  logoPreview.value = null
+  existingLogoUrl.value = null
+  if (logoInputRef.value) logoInputRef.value.value = ''
+}
+
+// PDF handlers
+function onPdfSelect(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (file.type !== 'application/pdf') {
+    error.value = 'PDF 파일만 업로드할 수 있습니다.'
+    e.target.value = ''
+    return
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    error.value = 'PDF 파일 크기는 10MB 이하여야 합니다.'
+    e.target.value = ''
+    return
+  }
+  pdfFile.value = file
+  pdfName.value = file.name
+}
+function clearPdf() {
+  pdfFile.value = null
+  pdfName.value = ''
+  existingPdfUrl.value = null
+  if (pdfInputRef.value) pdfInputRef.value.value = ''
+}
+
+// Rich text editor
+function execCmd(cmd, value = null) {
+  editorRef.value?.focus()
+  document.execCommand(cmd, false, value)
+  syncContent()
+}
+function onEditorInput() {
+  syncContent()
+}
+function syncContent() {
+  if (!editorRef.value) return
+  form.content = editorRef.value.innerHTML
+  contentTextLength.value = (editorRef.value.innerText || '').length
+}
+function onInsertImage(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  if (file.size > 5 * 1024 * 1024) {
+    error.value = '이미지는 5MB 이하여야 합니다.'
+    e.target.value = ''
+    return
+  }
+  const reader = new FileReader()
+  reader.onload = () => {
+    execCmd('insertImage', reader.result)
+    e.target.value = ''
+  }
+  reader.readAsDataURL(file)
+}
+
+// Promotion
+async function selectPromotion(tier) {
+  promotion.tier = tier
+  slotInfo.value = null
+  if (tier === 'none' || tier === 'sponsored') return
+  try {
+    const { data } = await axios.get('/api/jobs/promotion-slots', { params: { tier } })
+    slotInfo.value = data?.data ?? data
+  } catch (e) {
+    slotInfo.value = null
   }
 }
 
-function addCustomBenefit() {
-  const val = customBenefit.value.trim()
-  if (val && !selectedBenefits.has(val)) {
-    selectedBenefits.add(val)
-    customBenefit.value = ''
-  }
-}
-
-function buildContentWithBenefits() {
-  let content = form.content.trim()
-  if (selectedBenefits.size > 0) {
-    const benefitsList = Array.from(selectedBenefits).join(', ')
-    // Remove any existing benefits block so we don't duplicate
-    content = content.replace(/\n?\n?---BENEFITS---\n[\s\S]*?---END BENEFITS---/g, '').trim()
-    content += `\n\n---BENEFITS---\n${benefitsList}\n---END BENEFITS---`
-  }
-  return content
-}
-
-function parseBenefitsFromContent(content) {
-  if (!content) return
-  const match = content.match(/---BENEFITS---\n([\s\S]*?)\n---END BENEFITS---/)
-  if (match) {
-    const benefits = match[1].split(',').map(b => b.trim()).filter(Boolean)
-    benefits.forEach(b => selectedBenefits.add(b))
-    // Remove the benefits block from content for display
-    form.content = content.replace(/\n?\n?---BENEFITS---\n[\s\S]*?---END BENEFITS---/, '').trim()
-  }
-}
+watch(() => promotion.tier, (t) => {
+  if (t !== 'none') selectPromotion(t)
+})
 
 async function submit() {
+  syncContent()
+  const plainText = (editorRef.value?.innerText || '').trim()
+
   if (!form.title) { error.value = '제목을 입력해주세요'; return }
   if (!form.company && isHiring.value) { error.value = '회사명을 입력해주세요'; return }
   if (!form.category) { error.value = '카테고리를 선택해주세요'; return }
-  if (!form.content.trim()) { error.value = '상세 설명을 입력해주세요'; return }
+  if (!plainText) { error.value = '상세 설명을 입력해주세요'; return }
 
   submitting.value = true
   error.value = ''
 
-  const payload = { ...form, content: buildContentWithBenefits() }
-  // Clean empty values
-  if (!payload.expires_at) delete payload.expires_at
-  if (!payload.salary_min) delete payload.salary_min
-  if (!payload.salary_max) delete payload.salary_max
+  const fd = new FormData()
+  fd.append('post_type', form.post_type)
+  fd.append('title', form.title)
+  fd.append('company', form.company || '')
+  fd.append('category', form.category)
+  fd.append('type', form.type)
+  if (form.salary_min !== null && form.salary_min !== '') fd.append('salary_min', form.salary_min)
+  if (form.salary_max !== null && form.salary_max !== '') fd.append('salary_max', form.salary_max)
+  fd.append('salary_type', form.salary_type)
+  fd.append('city', form.city || '')
+  fd.append('state', form.state || '')
+  fd.append('zipcode', form.zipcode || '')
+  fd.append('content', form.content)
+  fd.append('contact_phone', form.contact_phone || '')
+  fd.append('contact_email', form.contact_email || '')
+  if (form.expires_at) fd.append('expires_at', form.expires_at)
+
+  fd.append('job_tags', JSON.stringify(selectedJobTags.value))
+  fd.append('benefits', JSON.stringify(selectedBenefits.value))
+
+  if (logoFile.value) fd.append('logo', logoFile.value)
+  if (pdfFile.value) fd.append('company_pdf', pdfFile.value)
 
   try {
+    let createdId = editId.value
     if (isEdit.value) {
-      await axios.put(`/api/jobs/${editId.value}`, payload)
-      router.push(`/jobs/${editId.value}`)
+      fd.append('_method', 'PUT')
+      await axios.post(`/api/jobs/${editId.value}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
     } else {
-      const { data } = await axios.post('/api/jobs', payload)
-      router.push(`/jobs/${data.data.id}`)
+      const { data } = await axios.post('/api/jobs', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
+      createdId = data?.data?.id ?? data?.id
     }
+
+    if (!isEdit.value && promotion.tier !== 'none' && createdId) {
+      try {
+        await axios.post(`/api/jobs/${createdId}/promote`, {
+          tier: promotion.tier,
+          days: promotion.days,
+          states: promotion.states,
+        })
+      } catch (promoErr) {
+        console.warn('Promotion failed', promoErr)
+      }
+    }
+
+    router.push(`/jobs/${createdId}`)
   } catch (e) {
     error.value = e.response?.data?.message || '등록에 실패했습니다. 다시 시도해주세요.'
   }
@@ -428,9 +720,70 @@ onMounted(async () => {
       Object.keys(form).forEach(k => {
         if (j[k] !== undefined && j[k] !== null) form[k] = j[k]
       })
-      // Parse benefits from content
-      parseBenefitsFromContent(form.content)
+      // Load tags and benefits
+      if (Array.isArray(j.job_tags)) selectedJobTags.value = [...j.job_tags]
+      else if (typeof j.job_tags === 'string') {
+        try { selectedJobTags.value = JSON.parse(j.job_tags) || [] } catch { selectedJobTags.value = [] }
+      }
+      if (Array.isArray(j.benefits)) selectedBenefits.value = [...j.benefits]
+      else if (typeof j.benefits === 'string') {
+        try { selectedBenefits.value = JSON.parse(j.benefits) || [] } catch { selectedBenefits.value = [] }
+      }
+      // Logo
+      if (j.logo_url || j.logo) {
+        existingLogoUrl.value = j.logo_url || j.logo
+        logoPreview.value = existingLogoUrl.value
+      }
+      // PDF
+      if (j.company_pdf_url || j.company_pdf) {
+        existingPdfUrl.value = j.company_pdf_url || j.company_pdf
+        pdfName.value = (existingPdfUrl.value || '').split('/').pop() || 'company.pdf'
+      }
+
+      await nextTick()
+      if (editorRef.value) {
+        editorRef.value.innerHTML = form.content || ''
+        contentTextLength.value = (editorRef.value.innerText || '').length
+      }
     } catch {}
+  } else {
+    await nextTick()
+    if (editorRef.value) {
+      editorRef.value.innerHTML = ''
+      contentTextLength.value = 0
+    }
   }
 })
 </script>
+
+<style scoped>
+[contenteditable="true"]:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+[contenteditable="true"] img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 8px 0;
+}
+[contenteditable="true"] h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+[contenteditable="true"] h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+[contenteditable="true"] ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+[contenteditable="true"] ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+</style>

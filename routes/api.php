@@ -57,6 +57,7 @@ Route::get('/boards', [BoardController::class, 'index']);
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/jobs/promotion-slots', [JobController::class, 'promotionSlots']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 Route::get('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'index']);
 Route::get('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'show']);
@@ -151,6 +152,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
     Route::get('/my-applications', [JobController::class, 'myApplications']);
     Route::get('/jobs/{id}/applicants', [JobController::class, 'applicants']);
+    Route::post('/jobs/{id}/promote', [JobController::class, 'promote']);
 
     // 이력서
     Route::get('/my-resume', [\App\Http\Controllers\API\ResumeController::class, 'myResume']);
