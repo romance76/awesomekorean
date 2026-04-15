@@ -29,15 +29,121 @@ class JobController extends Controller
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
             ->when($request->state, fn($q, $v) => $q->where('state', $v));
 
-        if ($request->lat && $request->lng) {
+        $hasLocation = $request->lat && $request->lng;
+        if ($hasLocation) {
             $query->nearby($request->lat, $request->lng, $request->radius ?? 50);
         }
 
-        // 프로모션 우선 정렬: national > state_plus > sponsored > 최신
-        $query->orderByRaw("CASE promotion_tier WHEN 'national' THEN 1 WHEN 'state_plus' THEN 2 WHEN 'sponsored' THEN 3 ELSE 4 END")
-              ->orderByDesc('created_at');
+        // ─── 프로모션 우선순위 (사용자 주 기반) ───
+        // national: 어디서나 최상위
+        // state_plus: 광고주가 지정한 promotion_states 에 사용자 주 또는 인접 주가 포함된 경우만 상위
+        //            (예: 아틀란타/GA 사용자 → promotion_states 에 GA/AL/FL/NC/SC/TN 중 하나라도 있으면 부스트)
+        // sponsored: 같은 주 한정 상위
+        // 그 외: 일반 최신순
+        $userState = $request->user_state ? strtoupper(trim($request->user_state)) : null;
+        $neighborStates = \App\Support\StateNeighbors::neighbors($userState);
+
+        // JSON_CONTAINS OR 조건 생성 (MySQL 5.7+ 호환)
+        $statePlusCond = 'FALSE';
+        if ($neighborStates) {
+            $parts = [];
+            foreach ($neighborStates as $st) {
+                if (preg_match('/^[A-Z]{2}$/', $st)) {
+                    $parts[] = "JSON_CONTAINS(promotion_states, '\"" . $st . "\"')";
+                }
+            }
+            if ($parts) $statePlusCond = '(' . implode(' OR ', $parts) . ')';
+        }
+
+        $stateSql = $userState && preg_match('/^[A-Z]{2}$/', $userState) ? "'{$userState}'" : "''";
+
+        if ($hasLocation && $userState) {
+            // 지역 모드 + 주 정보 있음
+            $query->orderByRaw("
+                CASE
+                    WHEN promotion_tier = 'national' THEN 1
+                    WHEN promotion_tier = 'state_plus' AND {$statePlusCond} THEN 2
+                    WHEN promotion_tier = 'sponsored' AND state = {$stateSql} THEN 3
+                    WHEN promotion_tier = 'state_plus' THEN 4
+                    WHEN promotion_tier = 'sponsored' THEN 5
+                    ELSE 9
+                END
+            ");
+        } else {
+            // 전국 모드 또는 주 정보 없음: national 만 상위
+            $query->orderByRaw("
+                CASE
+                    WHEN promotion_tier = 'national' THEN 1
+                    WHEN promotion_tier = 'state_plus' THEN 2
+                    WHEN promotion_tier = 'sponsored' THEN 3
+                    ELSE 9
+                END
+            ");
+        }
+        $query->orderByDesc('created_at');
 
         return response()->json(['success' => true, 'data' => $query->paginate($request->per_page ?? 20)]);
+    }
+
+    // 카테고리별 상위 N개 → 풀에서 랜덤 K개 (Featured 섹션용)
+    // 파라미터: lat,lng,radius,user_state (선택) | per_category=5 | count=5 | post_type=hiring
+    public function featured(Request $request)
+    {
+        $categories = ['restaurant','it','beauty','driving','retail','office','construction','medical','education','etc'];
+        $perCategory = max(1, min(10, (int) ($request->per_category ?? 5)));
+        $count = max(1, min(10, (int) ($request->count ?? 5)));
+        $postType = $request->post_type ?: 'hiring';
+
+        $hasLocation = $request->lat && $request->lng;
+        $userState = $request->user_state ? strtoupper(trim($request->user_state)) : null;
+        $neighborStates = \App\Support\StateNeighbors::neighbors($userState);
+
+        $pool = collect();
+
+        foreach ($categories as $cat) {
+            $q = JobPost::with('user:id,name,nickname')->active()
+                ->where('post_type', $postType)
+                ->where('category', $cat);
+
+            if ($hasLocation) {
+                $q->nearby($request->lat, $request->lng, $request->radius ?? 50);
+            }
+
+            // 프로모션 우선 + 최신순
+            if ($userState && $neighborStates) {
+                $parts = [];
+                foreach ($neighborStates as $st) {
+                    if (preg_match('/^[A-Z]{2}$/', $st)) {
+                        $parts[] = "JSON_CONTAINS(promotion_states, '\"" . $st . "\"')";
+                    }
+                }
+                $statePlusCond = $parts ? '(' . implode(' OR ', $parts) . ')' : 'FALSE';
+                $stateSql = preg_match('/^[A-Z]{2}$/', $userState) ? "'{$userState}'" : "''";
+                $q->orderByRaw("
+                    CASE
+                        WHEN promotion_tier = 'national' THEN 1
+                        WHEN promotion_tier = 'state_plus' AND {$statePlusCond} THEN 2
+                        WHEN promotion_tier = 'sponsored' AND state = {$stateSql} THEN 3
+                        ELSE 9
+                    END
+                ");
+            } else {
+                $q->orderByRaw("CASE WHEN promotion_tier = 'national' THEN 1 ELSE 9 END");
+            }
+            $q->orderByDesc('created_at');
+
+            $pool = $pool->merge($q->limit($perCategory)->get());
+        }
+
+        // 중복 제거 (같은 공고가 여러 카테고리에 걸쳐 있을 가능성 대비) 후 랜덤 샘플
+        $unique = $pool->unique('id')->values();
+        $random = $unique->shuffle()->take($count)->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $random,
+            'pool_size' => $unique->count(),
+        ]);
     }
 
     // 프로모션 슬롯 현황 조회

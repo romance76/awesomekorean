@@ -214,4 +214,15 @@ router.beforeEach(async (to, from, next) => {
   next()
 })
 
+// 섹션(/jobs, /market 등) 간 이동 시 이전 섹션의 위치 필터 상태 리셋
+router.afterEach((to, from) => {
+  try {
+    // 동적 import 로 순환 참조 방지
+    import('../stores/locationFilter').then(({ useLocationFilterStore }) => {
+      const store = useLocationFilterStore()
+      store.onRouteChange(to.path, from.path)
+    })
+  } catch {}
+})
+
 export default router

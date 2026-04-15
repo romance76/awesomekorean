@@ -102,12 +102,12 @@
         </div>
         <!-- 구인/구직 작은 토글 -->
         <div class="flex border-b">
-          <button @click="postType = 'hiring'; loadPage()"
+          <button @click="postType = 'hiring'; loadPage(); loadFeatured()"
             class="flex-1 py-1.5 text-[10px] font-bold transition"
             :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'text-gray-400 hover:bg-gray-50'">
             💼 구인
           </button>
-          <button @click="postType = 'seeking'; loadPage()"
+          <button @click="postType = 'seeking'; loadPage(); loadFeatured()"
             class="flex-1 py-1.5 text-[10px] font-bold transition"
             :class="postType === 'seeking' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-50'">
             🙋 구직
@@ -130,6 +130,45 @@
       <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">
         {{ postType === 'hiring' ? '모든 채용 공고를 볼 수 있습니다' : '모든 구직 인재를 볼 수 있습니다' }}
       </span>
+    </div>
+
+    <!-- ═══ Featured: 오늘의 추천 (카테고리별 상위 × 10 풀에서 랜덤 5) ═══ -->
+    <div v-if="featured.length" class="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl shadow-sm border border-amber-200 overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-2 border-b border-amber-100">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-black text-amber-800">🔥 오늘의 추천</span>
+          <span class="text-[10px] text-amber-600">
+            {{ selectedCityIdx == -1 || selectedCityIdx == '-1' ? '전국' : (myCity?.label || '내 지역') }} 기준
+          </span>
+        </div>
+        <button @click="loadFeatured" :disabled="featuredLoading"
+          class="text-[10px] text-amber-600 hover:text-amber-800 font-bold disabled:opacity-50">
+          🔄 {{ featuredLoading ? '섞는 중...' : '다시 섞기' }}
+        </button>
+      </div>
+      <!-- 모바일: 가로 스크롤 / 태블릿+: 그리드 -->
+      <div class="flex sm:grid sm:grid-cols-2 lg:grid-cols-5 gap-2 p-2 overflow-x-auto sm:overflow-visible scrollbar-hide">
+        <div v-for="f in featured" :key="f.id" @click="goDetail(f)"
+          class="bg-white rounded-lg p-2.5 border border-gray-100 hover:border-amber-300 hover:shadow-md transition cursor-pointer flex-shrink-0 w-[170px] sm:w-auto">
+          <div class="flex items-start gap-2">
+            <img v-if="f.logo" :src="f.logo" class="w-10 h-10 rounded object-cover flex-shrink-0 border"
+              @error="$event.target.style.display='none'" />
+            <div v-else class="w-10 h-10 rounded bg-amber-50 flex items-center justify-center text-lg flex-shrink-0">
+              {{ categoryEmoji(f.category) }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div v-if="f.promotion_tier && f.promotion_tier !== 'none'" class="flex items-center gap-1 mb-0.5">
+                <span v-if="f.promotion_tier==='national'" class="text-[8px] bg-red-500 text-white font-bold px-1 py-0.5 rounded">🌍</span>
+                <span v-else-if="f.promotion_tier==='state_plus'" class="text-[8px] bg-blue-500 text-white font-bold px-1 py-0.5 rounded">⭐</span>
+                <span v-else-if="f.promotion_tier==='sponsored'" class="text-[8px] bg-amber-500 text-white font-bold px-1 py-0.5 rounded">📢</span>
+              </div>
+              <div class="text-xs font-bold text-gray-800 truncate">{{ f.title }}</div>
+              <div class="text-[10px] text-gray-500 truncate">{{ f.company || f.user?.name }}</div>
+              <div v-if="f.city" class="text-[9px] text-gray-400 mt-0.5">📍 {{ f.city }}{{ f.state ? ', ' + f.state : '' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 목록 -->
@@ -215,6 +254,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useLocationFilterStore } from '../../stores/locationFilter'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
@@ -222,6 +262,7 @@ import AdSlot from '../../components/AdSlot.vue'
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+const locFilter = useLocationFilterStore()
 
 const postType = ref('hiring')
 const activeCat = ref('')
@@ -329,38 +370,50 @@ function onCityChange() {
     selectKoreanCity(idx)
     radius.value = '30'
   }
+  // 페이지 내 이동에서도 유지되도록 섹션 스토어에 저장
+  locFilter.set('jobs', { cityIdx: selectedCityIdx.value, radius: radius.value })
   loadPage()
+  loadFeatured()
+}
+
+// 현재 위치 파라미터 계산 (featured와 일반 리스트가 공유)
+function buildLocationParams() {
+  const p = {}
+  const idx = parseInt(selectedCityIdx.value)
+  // user_state 는 프로모션 주 인접 매칭용: 내 위치/한인도시일 때 전달
+  if (radius.value !== '0') {
+    let lat, lng, state
+    if (idx >= 0) {
+      const kc = koreanCities[idx]
+      lat = kc.lat; lng = kc.lng; state = kc.state
+    } else if (idx === -2 && myCity.value?.lat) {
+      lat = myCity.value.lat; lng = myCity.value.lng; state = myCity.value.state
+    } else {
+      const loc = locationQuery.value
+      lat = loc.lat; lng = loc.lng
+      state = myCity.value?.state
+    }
+    if (lat && lng) {
+      p.lat = lat
+      p.lng = lng
+      p.radius = parseInt(radius.value)
+      if (state) p.user_state = state
+    }
+  } else {
+    // 전국 모드라도 user_state 는 프로모션 가중치에 사용 (있으면 전달)
+    if (myCity.value?.state) p.user_state = myCity.value.state
+  }
+  return p
 }
 
 async function loadPage(p = 1) {
   loading.value = true
   page.value = p
 
-  const params = { page: p, per_page: 20 }
+  const params = { page: p, per_page: 20, ...buildLocationParams() }
   if (search.value) params.search = search.value
   if (activeCat.value) params.category = activeCat.value
   params.post_type = postType.value
-
-  if (radius.value !== '0') {
-    // 도시 선택에 따라 좌표 결정
-    let lat, lng
-    const idx = parseInt(selectedCityIdx.value)
-    if (idx >= 0) {
-      const kc = koreanCities[idx]
-      lat = kc.lat; lng = kc.lng
-    } else if (idx === -2 && myCity.value?.lat) {
-      lat = myCity.value.lat; lng = myCity.value.lng
-    } else {
-      const loc = locationQuery.value
-      lat = loc.lat; lng = loc.lng
-    }
-
-    if (lat && lng) {
-      params.lat = lat
-      params.lng = lng
-      params.radius = parseInt(radius.value)
-    }
-  }
 
   try {
     const { data } = await axios.get('/api/jobs', { params })
@@ -368,6 +421,19 @@ async function loadPage(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+}
+
+// ─── Featured: 카테고리별 상위 5개 × 10 카테고리 풀에서 랜덤 5개 ───
+const featured = ref([])
+const featuredLoading = ref(false)
+async function loadFeatured() {
+  featuredLoading.value = true
+  const params = { per_category: 5, count: 5, post_type: postType.value, ...buildLocationParams() }
+  try {
+    const { data } = await axios.get('/api/jobs/featured', { params })
+    featured.value = data.data || []
+  } catch { featured.value = [] }
+  featuredLoading.value = false
 }
 
 onMounted(async () => {
@@ -378,14 +444,24 @@ onMounted(async () => {
   if (route.query.search) search.value = route.query.search
 
   await initLocation()
+  // myCity 는 항상 사용자 프로필 기준으로 세팅 (기본 위치)
   if (city.value) {
     myCity.value = { ...city.value }
+  }
+
+  // 이전에 이 섹션에서 선택한 필터 복원 (/jobs → /jobs/123 → /jobs 로 돌아왔을 때)
+  const saved = locFilter.get('jobs')
+  if (saved) {
+    selectedCityIdx.value = saved.cityIdx
+    radius.value = saved.radius
+  } else if (myCity.value) {
     selectedCityIdx.value = '-2'
   } else {
     selectedCityIdx.value = '-1'
     radius.value = '0'
   }
   loadPage()
+  loadFeatured()
 })
 </script>
 <style scoped>

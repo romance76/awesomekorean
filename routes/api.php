@@ -57,6 +57,7 @@ Route::get('/boards', [BoardController::class, 'index']);
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/jobs', [JobController::class, 'index']);
+Route::get('/jobs/featured', [JobController::class, 'featured']);
 Route::get('/jobs/promotion-slots', [JobController::class, 'promotionSlots']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 Route::get('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'index']);
