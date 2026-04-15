@@ -64,7 +64,7 @@
 
   <!-- YouTube Player — v-if 밖, 항상 DOM에 존재, 위치만 이동 -->
   <div id="yt-float"
-    class="fixed z-[9997] overflow-hidden"
+    class="fixed z-[9999] overflow-hidden"
     :style="ytFloatStyle">
     <div id="yt-mini-player" style="width:100%;height:100%"></div>
   </div>
