@@ -301,8 +301,19 @@ class JobController extends Controller
             $data['user_id'] = auth()->id();
 
             // 빈 문자열은 null 로 변환 (DB 에러 방지)
-            foreach (['salary_min','salary_max','salary_type','city','state','zipcode','contact_email','contact_phone','expires_at'] as $k) {
+            foreach (['salary_min','salary_max','salary_type','city','state','zipcode','contact_email','contact_phone','expires_at','lat','lng'] as $k) {
                 if (isset($data[$k]) && $data[$k] === '') $data[$k] = null;
+            }
+
+            // lat/lng 없으면 zipcode → 좌표 자동 지오코딩 (중요: 없으면 거리 필터에서 빠짐)
+            if (empty($data['lat']) || empty($data['lng'])) {
+                $geo = $this->geocodeZipcode($data['zipcode'] ?? null);
+                if ($geo) {
+                    $data['lat'] = $geo['lat'];
+                    $data['lng'] = $geo['lng'];
+                    if (empty($data['city'])) $data['city'] = $geo['city'];
+                    if (empty($data['state'])) $data['state'] = $geo['state'];
+                }
             }
 
             // 리치에디터 content 안에 삽입된 base64 이미지를 파일로 저장하고 URL 로 치환 + 압축
@@ -344,10 +355,25 @@ class JobController extends Controller
     {
         $job = $this->findOwnedOrAdmin(JobPost::class, $id);
         try {
-            $data = $request->only('post_type', 'title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'city', 'state', 'zipcode', 'contact_email', 'contact_phone', 'expires_at', 'is_active');
-            foreach (['salary_min','salary_max','salary_type','city','state','zipcode','contact_email','contact_phone','expires_at'] as $k) {
+            $data = $request->only('post_type', 'title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'city', 'state', 'zipcode', 'contact_email', 'contact_phone', 'expires_at', 'is_active', 'lat', 'lng');
+            foreach (['salary_min','salary_max','salary_type','city','state','zipcode','contact_email','contact_phone','expires_at','lat','lng'] as $k) {
                 if (isset($data[$k]) && $data[$k] === '') $data[$k] = null;
             }
+
+            // zipcode 가 바뀌었거나 좌표가 비어있으면 재지오코딩
+            $zipChanged = isset($data['zipcode']) && $data['zipcode'] !== $job->zipcode;
+            $hasCoords = !empty($data['lat']) && !empty($data['lng']);
+            if (!$hasCoords && ($zipChanged || !$job->lat || !$job->lng)) {
+                $zip = $data['zipcode'] ?? $job->zipcode;
+                $geo = $this->geocodeZipcode($zip);
+                if ($geo) {
+                    $data['lat'] = $geo['lat'];
+                    $data['lng'] = $geo['lng'];
+                    if (empty($data['city'])) $data['city'] = $geo['city'];
+                    if (empty($data['state'])) $data['state'] = $geo['state'];
+                }
+            }
+
             if (!empty($data['content'])) $data['content'] = $this->extractAndCompressBase64Images($data['content'], 'job_content', 1200, 80);
             if ($request->filled('job_tags')) {
                 $tags = is_string($request->job_tags) ? json_decode($request->job_tags, true) : $request->job_tags;
@@ -439,5 +465,36 @@ class JobController extends Controller
             ->get();
 
         return response()->json(['success' => true, 'data' => $apps]);
+    }
+
+    /**
+     * 미국 zipcode → {lat, lng, city, state} 지오코딩.
+     * zippopotam.us 무료 API 사용. 실패 시 null.
+     * 같은 zipcode 는 24시간 캐시해서 중복 호출 방지.
+     */
+    private function geocodeZipcode(?string $zipcode): ?array
+    {
+        if (!$zipcode || !preg_match('/^\d{5}$/', $zipcode)) return null;
+
+        $cacheKey = "geo_zip_{$zipcode}";
+        try {
+            return \Cache::remember($cacheKey, now()->addHours(24), function () use ($zipcode) {
+                $ctx = stream_context_create(['http' => ['timeout' => 3]]);
+                $resp = @file_get_contents("https://api.zippopotam.us/us/{$zipcode}", false, $ctx);
+                if (!$resp) return null;
+                $data = json_decode($resp, true);
+                $place = $data['places'][0] ?? null;
+                if (!$place) return null;
+                return [
+                    'lat'   => (float) $place['latitude'],
+                    'lng'   => (float) $place['longitude'],
+                    'city'  => $place['place name'] ?? null,
+                    'state' => $place['state abbreviation'] ?? null,
+                ];
+            });
+        } catch (\Throwable $e) {
+            \Log::warning('Zipcode geocoding failed', ['zip' => $zipcode, 'err' => $e->getMessage()]);
+            return null;
+        }
     }
 }
