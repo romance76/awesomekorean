@@ -16,7 +16,7 @@
   </div>
 
   <!-- ═══ 펼친 플레이어 (드래그 가능) ═══ -->
-  <div v-if="music.hasTrack && !hideUI && isExpanded"
+  <div v-if="(music.hasTrack || isMusicPage) && !hideUI && isExpanded"
     class="fixed z-[9998] w-[320px] bg-[#1a1a2e] rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden"
     :style="expandedStyle" style="max-height:75vh;">
 
@@ -112,7 +112,7 @@ const miniStyle = computed(() => {
 
 // 음악 페이지 진입 → 자동 펼침 + 위치 오른쪽 상단
 watch(isMusicPage, (isMp) => {
-  if (isMp && music.hasTrack) {
+  if (isMp) {
     isExpanded.value = true
     posRight.value = 16
     posTop.value = 80
@@ -265,10 +265,14 @@ function startProgressTimer() {
 }
 
 onMounted(() => {
+  // 음악 페이지면 항상 펼침 (곡 선택 전에도)
+  if (isMusicPage.value) {
+    isExpanded.value = true
+    posRight.value = 16; posTop.value = 80
+  }
   if (music.currentTrack?.youtubeId) {
     isExpanded.value = true
-    if (isMusicPage.value) { posRight.value = 16; posTop.value = 80 }
-    else { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
+    if (!isMusicPage.value) { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
     nextTick(() => createPlayer(music.currentTrack.youtubeId, music.currentTime || 0))
   }
 })
