@@ -203,7 +203,7 @@ class FetchMusicTracks extends Command
 
                 MusicTrack::create([
                     'category_id' => $categoryId,
-                    'title' => mb_substr($title, 0, 200),
+                    'title' => mb_substr(html_entity_decode($title, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 0, 200),
                     'artist' => mb_substr($channel, 0, 100),
                     'youtube_id' => $videoId,
                     'youtube_url' => "https://www.youtube.com/watch?v={$videoId}",
