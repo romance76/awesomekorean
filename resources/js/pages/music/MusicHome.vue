@@ -74,11 +74,10 @@
             </div>
           </div>
           <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-gray-400">{{ showFavorites ? '즐겨찾기한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
-          <div class="max-h-[60vh] overflow-y-auto music-scrollbar">
           <div v-for="(track, i) in displayTracks" :key="track.id"
             class="flex items-center gap-3 px-4 py-2.5 border-b last:border-0 hover:bg-amber-50/50 transition cursor-pointer group"
             :class="playing?.id === track.id ? 'bg-amber-50' : ''">
-            <span class="text-xs text-gray-400 w-5 text-center">{{ i + 1 + (trackPage - 1) * 20 }}</span>
+            <span class="text-xs text-gray-400 w-5 text-center">{{ i + 1 + (trackPage - 1) * 12 }}</span>
             <div class="flex-1 min-w-0" @click="playTrack(track)">
               <div class="text-sm font-medium text-gray-800 truncate">{{ playing?.id === track.id ? '🔊 ' : '' }}{{ track.title }}</div>
               <div class="text-[10px] text-gray-400">{{ track.artist }} {{ track.duration ? '· ' + formatDuration(track.duration) : '' }}</div>
@@ -89,7 +88,6 @@
             <button v-if="auth.isLoggedIn && !activePL && playlists.length" @click.stop="showAddToPL(track)" class="text-sm transition" :class="isInPlaylist(track.id) ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'" :title="isInPlaylist(track.id) ? '플레이리스트에 추가됨' : '플레이리스트에 추가'">{{ isInPlaylist(track.id) ? '⭐' : '☆' }}</button>
             <!-- 플레이리스트에서 제거 -->
             <button v-if="auth.isLoggedIn && activePL" @click.stop="removeFromPL(track)" class="text-red-400 text-xs hover:text-red-600 opacity-0 group-hover:opacity-100">✕</button>
-          </div>
           </div>
         </div>
 
@@ -192,9 +190,10 @@ function isInPlaylist(id) { return plTrackIds.value.has(id) }
 
 function playTrack(track) {
   playing.value = track
-  playQueue.value = [...displayTracks.value]
+  // 곡 클릭 → 그 곡 하나만 재생 (큐에 안 넣음)
+  playQueue.value = [track]
   musicStore.play({ ...track, youtubeId: track.youtube_id, thumbnail: track.thumbnail_url || track.thumbnail })
-  musicStore.playlist = playQueue.value.map(t => ({ ...t, youtubeId: t.youtube_id, thumbnail: t.thumbnail_url || t.thumbnail }))
+  musicStore.playlist = [{ ...track, youtubeId: track.youtube_id, thumbnail: track.thumbnail_url || track.thumbnail }]
 }
 
 function nextTrack() {
@@ -218,12 +217,12 @@ function playAll() {
   playQueue.value = list
   isShuffled.value = false
   playing.value = list[0]
+  syncToMiniPlayer(list, list[0])
 }
 
 function shufflePlay() {
   const list = [...displayTracks.value]
   if (!list.length) return
-  // Fisher-Yates shuffle
   for (let i = list.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [list[i], list[j]] = [list[j], list[i]]
@@ -231,6 +230,12 @@ function shufflePlay() {
   playQueue.value = list
   isShuffled.value = true
   playing.value = list[0]
+  syncToMiniPlayer(list, list[0])
+}
+
+function syncToMiniPlayer(list, current) {
+  musicStore.play({ ...current, youtubeId: current.youtube_id, thumbnail: current.thumbnail_url || current.thumbnail })
+  musicStore.playlist = list.map(t => ({ ...t, youtubeId: t.youtube_id, thumbnail: t.thumbnail_url || t.thumbnail }))
 }
 
 function toggleRepeat() {
@@ -241,9 +246,11 @@ function toggleRepeat() {
 
 function playAllFavorites() {
   if (!favoriteTracks.value.length) return
-  playQueue.value = [...favoriteTracks.value]
+  const list = [...favoriteTracks.value]
+  playQueue.value = list
   isShuffled.value = false
-  playing.value = favoriteTracks.value[0]
+  playing.value = list[0]
+  syncToMiniPlayer(list, list[0])
 }
 
 async function selectCategory(cat) {
@@ -255,7 +262,7 @@ async function selectCategory(cat) {
 async function loadCategoryPage(p = 1) {
   trackPage.value = p
   try {
-    const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { page: p, per_page: 20 } })
+    const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { page: p, per_page: 12 } })
     tracks.value = data.data?.data || data.data || []
     trackLastPage.value = data.data?.last_page || 1
     trackTotal.value = data.data?.total || tracks.value.length
@@ -267,13 +274,24 @@ async function selectPlaylist(pl) {
   try {
     const { data } = await axios.get(`/api/music/playlists/${pl.id}`)
     plTracks.value = (data.data?.tracks || []).map(pt => pt.track).filter(Boolean)
+    // 플레이리스트 전체 재생
+    if (plTracks.value.length) {
+      playQueue.value = [...plTracks.value]
+      playing.value = plTracks.value[0]
+      syncToMiniPlayer(plTracks.value, plTracks.value[0])
+    }
   } catch {}
 }
 
 async function loadFavorites() {
   showFavorites.value = true; activeCat.value = null; activePL.value = null
   if (!auth.isLoggedIn) return
-  try { const { data } = await axios.get('/api/music/favorites'); favoriteTracks.value = data.data || [] } catch {}
+  try {
+    const { data } = await axios.get('/api/music/favorites')
+    favoriteTracks.value = data.data || []
+    // 즐겨찾기 전체 자동 재생
+    if (favoriteTracks.value.length) playAllFavorites()
+  } catch {}
 }
 
 async function toggleFav(track) {
