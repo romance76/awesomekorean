@@ -36,16 +36,15 @@ class BannerController extends Controller
                       ->orWhereJsonContains('target_pages', $page);
                 });
 
-            // 지역 필터
+            // 지역 필터: 로그인 유저는 매칭된 광고만, 비로그인은 전부 표시
             if ($user && $userState) {
                 $query->where(function ($q) use ($userState, $userCounty) {
                     $q->where('geo_scope', 'all')
                       ->orWhere(function ($q2) use ($userState) { $q2->where('geo_scope', 'state')->where('geo_value', $userState); })
                       ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'county')->where('geo_value', $userCounty); });
                 });
-            } else {
-                $query->where('geo_scope', 'all');
             }
+            // 비로그인: geo 필터 없이 모든 광고 표시
 
             // 등급별 처리
             if ($cfg['tier'] === 'premium') {
