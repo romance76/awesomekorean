@@ -1,7 +1,14 @@
 <template>
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">🛒 {{ isEdit ? '물품 수정' : '물품 등록' }}</h1>
+  <div class="max-w-3xl mx-auto px-4 py-5 space-y-4">
+    <h1 class="text-xl font-black text-gray-800">🛒 {{ isEdit ? '물품 수정' : '물품 등록' }}</h1>
+
+    <!-- 상위노출 (최상단) -->
+    <PromotionSection resource="market" :is-edit="isEdit"
+      :category="form.category" :state="userState"
+      v-model="promotion" ref="promoRef"
+      category-label="카테고리" />
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
 
       <!-- ═══ 1. 사진 (맨 위) ═══ -->
@@ -108,13 +115,20 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import PromotionSection from '../../components/PromotionSection.vue'
+import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
 const route = useRoute()
+const auth = useAuthStore()
 const form = reactive({
   title: '', price: 0, category: 'electronics', condition: 'good', content: '',
   is_negotiable: false, hold_enabled: false, hold_price_per_6h: 100, hold_max_hours: 24,
 })
+const promotion = reactive({ tier: 'none', days: 7 })
+const promoRef = ref(null)
+// 유저 프로필의 state 를 state_plus 매칭에 사용 (매물 등록자의 주)
+const userState = computed(() => auth.user?.state || '')
 
 const categories = [
   { value: 'electronics', label: '📱 전자기기' },
@@ -167,6 +181,12 @@ const editId = ref(null)
 
 async function submit() {
   if (!form.title || !form.content) { error.value = '제목과 설명을 입력해주세요'; return }
+  // 프로모션 슬롯 만석 차단
+  if (['state_plus','national'].includes(promotion.tier) && promoRef.value?.isSlotFull) {
+    const t = promoRef.value?.nextSlotTimeFmt
+    error.value = t ? `상위노출 슬롯 만석. ${t} 이후 가능합니다.` : '상위노출 슬롯 만석.'
+    return
+  }
   submitting.value = true; error.value = ''
   try {
     if (isEdit.value) {
@@ -178,16 +198,23 @@ async function submit() {
         const v = form[k]
         fd.append(k, typeof v === 'boolean' ? (v ? '1' : '0') : v)
       })
-      // 사진 업로드 순서는 유지 + 사용자가 고른 메인 사진 인덱스를 별도로 전송
       if (photoList.value.length) {
         photoList.value.forEach(p => fd.append('images[]', p.file))
         fd.append('thumbnail_index', String(mainPhotoIdx.value || 0))
       }
-      // 추가 사진 포인트 비용
       fd.append('extra_photo_cost', extraPhotoCost.value)
 
       const { data } = await axios.post('/api/market', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      router.push(`/market/${data.data.id}`)
+      const createdId = data?.data?.id
+      // 프로모션 적용
+      if (createdId && promotion.tier !== 'none') {
+        try {
+          await axios.post(`/api/market/${createdId}/promote`, {
+            tier: promotion.tier, days: promotion.days,
+          })
+        } catch (pe) { console.warn('promote failed', pe?.response?.data?.message) }
+      }
+      router.push(`/market/${createdId}`)
     }
   } catch (e) {
     const msg = e.response?.data?.message || ''

@@ -1,7 +1,14 @@
 <template>
 <div class="min-h-screen bg-gray-50">
-  <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">🏠 매물 등록</h1>
+  <div class="max-w-3xl mx-auto px-4 py-5 space-y-4">
+    <h1 class="text-xl font-black text-gray-800">🏠 매물 등록</h1>
+
+    <!-- 상위노출 (최상단) -->
+    <PromotionSection resource="realestate" :is-edit="false"
+      :category="form.type" :state="userState"
+      v-model="promotion" ref="promoRef"
+      category-label="유형 (렌트/매매/룸메이트)" />
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
       <div><label class="text-sm font-semibold text-gray-700">제목</label><input v-model="form.title" type="text" placeholder="예: LA 1BR 아파트 렌트" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
       <div class="grid grid-cols-2 gap-3">
@@ -35,12 +42,18 @@
 </div>
 </template>
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import PromotionSection from '../../components/PromotionSection.vue'
+import { useAuthStore } from '../../stores/auth'
 const router = useRouter()
 const route = useRoute()
+const auth = useAuthStore()
 const form = reactive({ title:'',type:'rent',property_type:'apt',price:0,bedrooms:1,bathrooms:1,sqft:0,content:'',contact_phone:'',contact_email:'' })
+const promotion = reactive({ tier: 'none', days: 7 })
+const promoRef = ref(null)
+const userState = computed(() => auth.user?.state || '')
 const error = ref('')
 const submitting = ref(false)
 const isEdit = ref(false)
@@ -48,6 +61,11 @@ const editId = ref(null)
 
 async function submit() {
   if (!form.title || !form.content || !form.price) { error.value = '필수 항목을 입력해주세요'; return }
+  if (['state_plus','national'].includes(promotion.tier) && promoRef.value?.isSlotFull) {
+    const t = promoRef.value?.nextSlotTimeFmt
+    error.value = t ? `상위노출 슬롯 만석. ${t} 이후 가능합니다.` : '상위노출 슬롯 만석.'
+    return
+  }
   submitting.value = true; error.value = ''
   try {
     if (isEdit.value) {
@@ -55,7 +73,11 @@ async function submit() {
       router.push(`/realestate/${editId.value}`)
     } else {
       const { data } = await axios.post('/api/realestate', form)
-      router.push(`/realestate/${data.data.id}`)
+      const createdId = data?.data?.id
+      if (createdId && promotion.tier !== 'none') {
+        try { await axios.post(`/api/realestate/${createdId}/promote`, { tier: promotion.tier, days: promotion.days }) } catch {}
+      }
+      router.push(`/realestate/${createdId}`)
     }
   } catch (e) { error.value = e.response?.data?.message || '등록 실패' }
   submitting.value = false

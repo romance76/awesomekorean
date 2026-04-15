@@ -217,7 +217,8 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex h-32">
+        class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex h-32"
+        :class="bizPromoClass(item)">
         <!-- 왼쪽: 사진 -->
         <div class="w-28 flex-shrink-0 bg-gray-100">
           <img v-if="item.thumbnail_url || item.images?.length" :src="item.thumbnail_url || thumb(item.images[0], 240)" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-3xl bg-amber-50\'>🏪</div>'" />
@@ -225,6 +226,11 @@
         </div>
         <!-- 오른쪽: 정보 -->
         <div class="flex-1 p-3 min-w-0">
+          <div class="flex items-center gap-1.5 mb-0.5" v-if="item.promotion_tier && item.promotion_tier !== 'none'">
+            <span v-if="item.promotion_tier === 'national'" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌍 전국</span>
+            <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
+            <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
+          </div>
           <div class="flex items-start justify-between gap-1">
             <div class="text-sm font-bold text-gray-800 truncate">{{ item.name }}</div>
             <span v-if="item.is_claimed" class="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex-shrink-0">✅</span>
@@ -436,6 +442,13 @@ function onCityChange() {
     radius.value = '30'
   }
   loadPage()
+}
+
+function bizPromoClass(item) {
+  if (item.promotion_tier === 'national') return 'bg-red-50 border-red-300'
+  if (item.promotion_tier === 'state_plus') return 'bg-blue-50 border-blue-300'
+  if (item.promotion_tier === 'sponsored') return 'bg-amber-50 border-amber-300'
+  return 'bg-white border-gray-100'
 }
 
 async function loadPage(p = 1) {

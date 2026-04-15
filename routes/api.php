@@ -59,19 +59,25 @@ Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/jobs/featured', [JobController::class, 'featured']);
 Route::get('/jobs/promotion-slots', [JobController::class, 'promotionSlots']);
-Route::get('/promotion/settings', function () {
+Route::get('/promotion/settings', function (\Illuminate\Http\Request $r) {
+    if ($r->resource && in_array($r->resource, \App\Support\PromotionSettings::RESOURCES)) {
+        return response()->json(['success' => true, 'data' => \App\Support\PromotionSettings::forResource($r->resource)]);
+    }
     return response()->json(['success' => true, 'data' => \App\Support\PromotionSettings::all()]);
 });
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 Route::get('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'index']);
 Route::get('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'show']);
 Route::get('/market', [MarketController::class, 'index']);
+Route::get('/market/promotion-slots', [MarketController::class, 'promotionSlots']);
 Route::get('/market/{id}', [MarketController::class, 'show']);
 Route::get('/businesses', [BusinessController::class, 'index']);
+Route::get('/businesses/promotion-slots', [BusinessController::class, 'promotionSlots']);
 Route::get('/businesses/{id}', [BusinessController::class, 'show']);
 Route::get('/businesses/{id}/reviews', [BusinessController::class, 'reviews']);
 Route::get('/businesses/{id}/menus', [BusinessController::class, 'menus']);
 Route::get('/realestate', [RealEstateController::class, 'index']);
+Route::get('/realestate/promotion-slots', [RealEstateController::class, 'promotionSlots']);
 Route::get('/realestate/{id}', [RealEstateController::class, 'show']);
 Route::get('/clubs', [ClubController::class, 'index']);
 Route::get('/clubs/{id}', [ClubController::class, 'show']);
@@ -184,6 +190,9 @@ Route::middleware('auth:api')->group(function () {
     // 상위노출 (판매자가 포인트로 부스트)
     Route::post('/market/{id}/boost', [MarketController::class, 'boost']);
     Route::post('/market/{id}/bump', [MarketController::class, 'bump']);
+    Route::post('/market/{id}/promote', [MarketController::class, 'promote']);
+    Route::post('/realestate/{id}/promote', [RealEstateController::class, 'promote']);
+    Route::post('/businesses/{id}/promote', [BusinessController::class, 'promote']);
 
     Route::post('/businesses', [BusinessController::class, 'store']);
     Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview']);

@@ -8,15 +8,33 @@ use App\Models\MarketReservation;
 use App\Models\User;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class MarketController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads;
+    use AdminAuthorizes, CompressesUploads, HasPromotions;
+
+    protected string $promoResource = 'market';
+    protected string $promoModel = MarketItem::class;
+    protected string $promoCategoryColumn = 'category';
+
+    public function promote(Request $request, $id)
+    {
+        $item = $this->findOwnedOrAdmin(MarketItem::class, $id);
+        return $this->handlePromote($item, $request);
+    }
+
+    public function promotionSlots(Request $request)
+    {
+        return $this->handlePromotionSlots($request);
+    }
 
     public function index(Request $request)
     {
+        $this->expireStalePromotions();
+
         $query = MarketItem::with('user:id,name,nickname')
             ->when($request->user_id, fn($q, $v) => $q->where('user_id', $v)->whereIn('status', ['active','reserved','sold']),
                 fn($q) => $q->whereIn('status', ['active', 'reserved']))
@@ -26,10 +44,20 @@ class MarketController extends Controller
             ->when($request->min_price, fn($q, $v) => $q->where('price', '>=', $v))
             ->when($request->max_price, fn($q, $v) => $q->where('price', '<=', $v));
 
-        if ($request->lat && $request->lng) {
+        $hasLocation = $request->lat && $request->lng;
+        if ($hasLocation) {
             $query->nearby($request->lat, $request->lng, $request->radius ?? 10);
+        }
+
+        // 위치 모드별 프로모션 티어 제외 + 프로모션 우선 정렬
+        $this->excludeCrossTierPromotion($query, $hasLocation);
+        $this->applyPromotionOrdering($query, $request->user_state, $hasLocation);
+
+        if ($hasLocation) {
+            // 위치 정렬 후 기본 최신/부스트
+            $query->orderByRaw('CASE WHEN boosted_until > NOW() THEN 0 ELSE 1 END')
+                  ->orderByRaw('COALESCE(bumped_at, created_at) DESC');
         } else {
-            // 부스트 → 범프(끌어올리기) → 최신순
             $query->orderByRaw('CASE WHEN boosted_until > NOW() THEN 0 ELSE 1 END')
                   ->orderByRaw('COALESCE(bumped_at, created_at) DESC');
         }

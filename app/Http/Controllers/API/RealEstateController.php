@@ -6,14 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Models\RealEstateListing;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 
 class RealEstateController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads;
+    use AdminAuthorizes, CompressesUploads, HasPromotions;
+
+    protected string $promoResource = 'realestate';
+    protected string $promoModel = \App\Models\RealEstateListing::class;
+    // 부동산은 type (sale/rent/roommate) 을 카테고리로 사용
+    protected string $promoCategoryColumn = 'type';
+
+    public function promote(Request $request, $id)
+    {
+        $item = $this->findOwnedOrAdmin(\App\Models\RealEstateListing::class, $id);
+        return $this->handlePromote($item, $request);
+    }
+
+    public function promotionSlots(Request $request)
+    {
+        return $this->handlePromotionSlots($request);
+    }
 
     public function index(Request $request)
     {
+        $this->expireStalePromotions();
+
         $query = RealEstateListing::with('user:id,name,nickname')
             ->active()
             ->when($request->type, fn($q, $v) => $q->where('type', $v))
@@ -23,11 +42,14 @@ class RealEstateController extends Controller
             ->when($request->bedrooms, fn($q, $v) => $q->where('bedrooms', '>=', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"));
 
-        if ($request->lat && $request->lng) {
+        $hasLocation = $request->lat && $request->lng;
+        if ($hasLocation) {
             $query->nearby($request->lat, $request->lng, $request->radius ?? 50);
-        } else {
-            $query->orderByDesc('created_at');
         }
+
+        $this->excludeCrossTierPromotion($query, $hasLocation);
+        $this->applyPromotionOrdering($query, $request->user_state, $hasLocation);
+        $query->orderByDesc('created_at');
 
         return response()->json(['success' => true, 'data' => $query->paginate(20)]);
     }

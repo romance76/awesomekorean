@@ -9,21 +9,41 @@ use App\Models\BusinessMenu;
 use App\Models\BusinessMenuOption;
 use App\Models\BusinessReview;
 use App\Support\ThumbHelper;
+use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 
 class BusinessController extends Controller
 {
-    use CompressesUploads;
+    use AdminAuthorizes, CompressesUploads, HasPromotions;
+
+    protected string $promoResource = 'business';
+    protected string $promoModel = Business::class;
+    protected string $promoCategoryColumn = 'category';
+
+    public function promote(Request $request, $id)
+    {
+        $item = $this->findOwnedOrAdmin(Business::class, $id);
+        return $this->handlePromote($item, $request);
+    }
+
+    public function promotionSlots(Request $request)
+    {
+        return $this->handlePromotionSlots($request);
+    }
 
     public function index(Request $request)
     {
+        $this->expireStalePromotions();
+
         $query = Business::query()
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
             ->when($request->search, fn($q, $v) => $q->where('name', 'like', "%{$v}%"))
             ->when($request->state, fn($q, $v) => $q->where('state', $v))
             ->when($request->city, fn($q, $v) => $q->where('city', $v));
 
+        $hasLocation = false;
         // 위치 필터 — bounding box 사전 필터 (인덱스 활용) + Haversine
         if ($request->lat && $request->lng) {
             $lat = (float) $request->lat;
@@ -34,7 +54,12 @@ class BusinessController extends Controller
             $query->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
                   ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta]);
             $query->nearby($lat, $lng, $radius);
+            $hasLocation = true;
         }
+
+        // 프로모션 티어 제외 + 우선 정렬 (사용자 정렬 옵션보다 먼저 적용)
+        $this->excludeCrossTierPromotion($query, $hasLocation);
+        $this->applyPromotionOrdering($query, $request->user_state, $hasLocation);
 
         $sort = $request->sort ?? 'popular';
         if ($sort === 'distance' && $request->lat) $query->orderBy('distance');

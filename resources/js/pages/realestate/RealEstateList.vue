@@ -167,7 +167,8 @@
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="flex border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer overflow-hidden">
+        class="flex border-b border-gray-50 hover:border-l-2 transition cursor-pointer overflow-hidden"
+        :class="promoRowClass(item)">
         <!-- 썸네일 -->
         <div class="w-28 h-24 flex-shrink-0 bg-gray-100">
           <img v-if="item.images?.length"
@@ -180,6 +181,11 @@
         </div>
         <div class="flex items-center justify-between flex-1 min-w-0 px-4 py-3">
           <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span v-if="item.promotion_tier === 'national'" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌍 전국</span>
+              <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
+              <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
+            </div>
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
             <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
               <span v-if="item.user?.name"><UserName :userId="item.user?.id" :name="item.user?.name" /></span>
@@ -295,6 +301,13 @@ function onCityChange() {
     radius.value = '30'
   }
   loadPage()
+}
+
+function promoRowClass(item) {
+  if (item.promotion_tier === 'national') return 'bg-red-50/70 border-l-4 border-l-red-500 hover:bg-red-100/70'
+  if (item.promotion_tier === 'state_plus') return 'bg-blue-50/70 border-l-4 border-l-blue-500 hover:bg-blue-100/70'
+  if (item.promotion_tier === 'sponsored') return 'bg-amber-50/70 border-l-4 border-l-amber-500 hover:bg-amber-100/70'
+  return 'hover:bg-amber-50/50 hover:border-l-amber-400'
 }
 
 function realEstateThumb(item) {
