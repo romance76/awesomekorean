@@ -396,12 +396,26 @@
             <span class="text-lg font-black text-purple-800">{{ totalPromotionCost.toLocaleString() }} P</span>
           </div>
 
-          <div v-if="slotInfo && slotInfo.available === false" class="bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-700">
-            <div class="font-bold mb-1">현재 슬롯 만석</div>
-            <div v-if="slotInfo.next_available_at">다음 슬롯: {{ slotInfo.next_available_at }} 이후 가능</div>
+          <!-- 슬롯 만석 경고 -->
+          <div v-if="isSlotFull" class="bg-red-50 border-2 border-red-300 rounded-lg p-3 text-xs text-red-700">
+            <div class="font-bold mb-1 text-red-800">⚠️ 슬롯 만석 — 현재 선택 불가</div>
+            <div class="mb-1">
+              {{ promotion.tier === 'national' ? '전국' : '주(State)' }} 상위노출은
+              카테고리당 최대 {{ slotInfo?.max_slots ?? 5 }}개까지 가능합니다.
+            </div>
+            <div v-if="nextSlotTimeFmt" class="font-bold text-red-700">
+              📅 {{ nextSlotTimeFmt }} 이후 가능합니다.
+            </div>
           </div>
-          <div v-else-if="slotInfo && slotInfo.available === true" class="text-xs text-green-700">
-            슬롯 사용 가능 ({{ slotInfo.remaining ?? '' }} 남음)
+          <!-- 슬롯 여유 안내 -->
+          <div v-else-if="slotInfo && !isSlotFull" class="text-xs text-green-700 bg-green-50 rounded-lg p-2">
+            ✅ 슬롯 사용 가능 ({{ slotInfo.used }}/{{ slotInfo.max_slots }} 사용 중, {{ slotInfo.available }}개 남음)
+          </div>
+          <!-- 선행 입력 필요 안내 -->
+          <div v-else-if="!form.category || (promotion.tier === 'state_plus' && !form.state)"
+            class="text-xs text-amber-700 bg-amber-50 rounded-lg p-2">
+            ⚠️ 슬롯 확인을 위해
+            <b v-if="!form.category">카테고리</b><span v-if="!form.category && promotion.tier === 'state_plus' && !form.state">와 </span><b v-if="promotion.tier === 'state_plus' && !form.state">근무 위치 State</b>를 먼저 입력해주세요.
           </div>
         </div>
       </div>
@@ -659,18 +673,39 @@ function onInsertImage(e) {
 // Promotion
 async function selectPromotion(tier) {
   promotion.tier = tier
+  await refreshSlotInfo()
+}
+
+// 슬롯 정보 갱신: tier/카테고리/주 중 하나라도 바뀌면 호출
+async function refreshSlotInfo() {
   slotInfo.value = null
+  const tier = promotion.tier
   if (tier === 'none' || tier === 'sponsored') return
+  if (!form.category) return // 카테고리 선택 전엔 조회 안함
+  if (tier === 'state_plus' && !form.state) return // 주 선택 전엔 조회 안함
   try {
-    const { data } = await axios.get('/api/jobs/promotion-slots', { params: { tier } })
+    const params = { tier, category: form.category }
+    if (tier === 'state_plus') params.state = (form.state || '').toUpperCase()
+    const { data } = await axios.get('/api/jobs/promotion-slots', { params })
     slotInfo.value = data?.data ?? data
-  } catch (e) {
+  } catch {
     slotInfo.value = null
   }
 }
 
 watch(() => promotion.tier, (t) => {
-  if (t !== 'none') selectPromotion(t)
+  if (t !== 'none') refreshSlotInfo()
+})
+// 카테고리/주 바뀌면 슬롯 재조회 (state_plus/national 선택 상태일 때)
+watch(() => form.category, () => { if (['state_plus','national'].includes(promotion.tier)) refreshSlotInfo() })
+watch(() => form.state, () => { if (promotion.tier === 'state_plus') refreshSlotInfo() })
+
+// 만석일 때 등록 차단에 쓰는 플래그
+const isSlotFull = computed(() => slotInfo.value?.is_full === true)
+const nextSlotTimeFmt = computed(() => {
+  if (!slotInfo.value?.next_slot_time) return null
+  const d = new Date(slotInfo.value.next_slot_time)
+  return `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 })
 
 async function submit() {
@@ -681,6 +716,13 @@ async function submit() {
   if (!form.company && isHiring.value) { error.value = '회사명을 입력해주세요'; return }
   if (!form.category) { error.value = '카테고리를 선택해주세요'; return }
   if (!plainText) { error.value = '상세 설명을 입력해주세요'; return }
+  // 프로모션 선택했지만 슬롯 만석 → 등록 차단
+  if (['state_plus','national'].includes(promotion.tier) && isSlotFull.value) {
+    error.value = nextSlotTimeFmt.value
+      ? `상위노출 슬롯 만석. ${nextSlotTimeFmt.value} 이후 가능합니다. 상위노출을 "사용 안 함" 으로 바꾸거나 다시 선택해주세요.`
+      : '상위노출 슬롯이 모두 사용 중입니다. 상위노출을 "사용 안 함" 으로 바꾸거나 다시 선택해주세요.'
+    return
+  }
 
   submitting.value = true
   error.value = ''

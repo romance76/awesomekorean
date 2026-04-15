@@ -169,32 +169,61 @@ class JobController extends Controller
         ]);
     }
 
-    // 프로모션 슬롯 현황 조회
+    // 프로모션 슬롯 현황 조회 (카테고리별 최대 5개)
+    // 파라미터:
+    //   tier: state_plus | national (sponsored 는 무제한)
+    //   category: 필수 (카테고리별 슬롯이 분리됨)
+    //   state: state_plus 일 때 공고의 주 (필수)
     public function promotionSlots(Request $request)
     {
         $tier = $request->tier ?: 'national';
+        $category = $request->category;
         $state = $request->state;
 
-        $query = JobPost::where('promotion_tier', $tier)
-            ->where('promotion_expires_at', '>', now());
-
-        if ($tier === 'state_plus' && $state) {
-            $query->whereJsonContains('promotion_states', $state);
+        if (!$category) {
+            return response()->json(['success' => false, 'message' => 'category 파라미터가 필요합니다'], 422);
         }
 
-        $active = $query->orderBy('promotion_expires_at')->get(['id', 'title', 'promotion_expires_at']);
-        $used = $active->count();
-        $available = max(JobPromotion::MAX_SLOTS - $used, 0);
+        $query = JobPost::where('promotion_tier', $tier)
+            ->where('category', $category)
+            ->where('promotion_expires_at', '>', now());
 
-        $nextSlotTime = $used >= JobPromotion::MAX_SLOTS ? $active->first()?->promotion_expires_at : null;
+        // state_plus: promotion_states 에 주어진 state 가 포함된 것만 카운트
+        //   (같은 주 그룹의 슬롯 경쟁. 예: GA 공고는 다른 GA 공고와 경쟁)
+        //   빈 promotion_states 는 공고의 state 컬럼으로 폴백
+        if ($tier === 'state_plus') {
+            if (!$state || !preg_match('/^[A-Z]{2}$/i', $state)) {
+                return response()->json(['success' => false, 'message' => 'state_plus 는 state 파라미터가 필요합니다'], 422);
+            }
+            $stUp = strtoupper($state);
+            $query->where(function ($q) use ($stUp) {
+                $q->whereJsonContains('promotion_states', $stUp)
+                  ->orWhere(function ($inner) use ($stUp) {
+                      $inner->where(function ($x) {
+                          $x->whereNull('promotion_states')
+                            ->orWhereRaw('JSON_LENGTH(promotion_states) = 0');
+                      })->where('state', $stUp);
+                  });
+            });
+        }
+
+        $active = $query->orderBy('promotion_expires_at')
+            ->get(['id', 'title', 'promotion_expires_at']);
+        $used = $active->count();
+        $max = JobPromotion::MAX_SLOTS; // 5
+        $available = max($max - $used, 0);
+        $nextSlotTime = $used >= $max ? $active->first()?->promotion_expires_at : null;
 
         return response()->json([
             'success' => true,
             'data' => [
                 'tier' => $tier,
-                'max_slots' => JobPromotion::MAX_SLOTS,
+                'category' => $category,
+                'state' => $tier === 'state_plus' ? strtoupper($state) : null,
+                'max_slots' => $max,
                 'used' => $used,
                 'available' => $available,
+                'is_full' => $used >= $max,
                 'daily_cost' => JobPromotion::pricePerDay($tier),
                 'next_slot_time' => $nextSlotTime,
             ]
@@ -228,16 +257,47 @@ class JobController extends Controller
             $autoStates = \App\Support\StateNeighbors::neighbors($job->state);
         }
 
-        // 슬롯 체크
+        // 슬롯 체크 (카테고리별 최대 5개. sponsored 는 무제한)
         if ($tier !== 'sponsored') {
-            $slotQuery = JobPost::where('promotion_tier', $tier)->where('promotion_expires_at', '>', now());
-            if ($tier === 'state_plus' && $autoStates) {
-                $slotQuery->where(function ($q) use ($autoStates) {
-                    foreach ($autoStates as $st) $q->orWhereJsonContains('promotion_states', $st);
+            if (!$job->category) {
+                return response()->json(['success' => false, 'message' => '공고의 카테고리가 필요합니다'], 422);
+            }
+
+            $slotQuery = JobPost::where('promotion_tier', $tier)
+                ->where('category', $job->category)
+                ->where('promotion_expires_at', '>', now());
+
+            if ($tier === 'state_plus') {
+                $stUp = strtoupper($job->state);
+                $slotQuery->where(function ($q) use ($stUp) {
+                    $q->whereJsonContains('promotion_states', $stUp)
+                      ->orWhere(function ($inner) use ($stUp) {
+                          $inner->where(function ($x) {
+                              $x->whereNull('promotion_states')
+                                ->orWhereRaw('JSON_LENGTH(promotion_states) = 0');
+                          })->where('state', $stUp);
+                      });
                 });
             }
-            if ($slotQuery->count() >= JobPromotion::MAX_SLOTS) {
-                return response()->json(['success' => false, 'message' => '슬롯이 모두 사용 중입니다'], 422);
+
+            $usedCount = $slotQuery->count();
+            if ($usedCount >= JobPromotion::MAX_SLOTS) {
+                $nextSlot = $slotQuery->orderBy('promotion_expires_at')->first();
+                $when = $nextSlot?->promotion_expires_at?->format('Y-m-d H:i');
+                $tierLabel = $tier === 'national' ? '전국 상위노출' : '주(State) 상위노출';
+                $where = $tier === 'state_plus' ? " ({$job->state} 주)" : '';
+                $msg = "{$tierLabel}{$where} - '{$job->category}' 카테고리 슬롯이 모두 사용 중입니다. "
+                    . ($when ? "{$when} 이후 가능합니다." : '');
+                return response()->json([
+                    'success' => false,
+                    'message' => $msg,
+                    'data' => [
+                        'is_full' => true,
+                        'next_slot_time' => $nextSlot?->promotion_expires_at,
+                        'used' => $usedCount,
+                        'max_slots' => JobPromotion::MAX_SLOTS,
+                    ],
+                ], 422);
             }
         }
 
