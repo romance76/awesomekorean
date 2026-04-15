@@ -156,7 +156,7 @@
             <div v-if="isPromoted(item)" class="flex items-center gap-1 mb-0.5">
               <span v-if="item.promotion_tier==='national'" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌍 전국</span>
               <span v-else-if="item.promotion_tier==='state_plus'" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
-              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서드</span>
+              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
             </div>
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
             <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">

@@ -345,7 +345,7 @@
           <button type="button" @click="selectPromotion('sponsored')"
             class="p-3 rounded-lg border-2 text-left transition"
             :class="promotion.tier === 'sponsored' ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-white hover:border-gray-300'">
-            <div class="font-bold text-sm text-gray-800">스폰서드 (Sponsored)</div>
+            <div class="font-bold text-sm text-gray-800">스폰서 (Sponsored)</div>
             <div class="text-xs text-purple-600 font-semibold">하루 20P</div>
           </button>
           <button type="button" @click="selectPromotion('state_plus')"

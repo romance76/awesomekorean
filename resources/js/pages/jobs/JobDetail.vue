@@ -44,7 +44,7 @@
               <!-- 프로모션 뱃지 -->
               <span v-if="job.promotion_tier === 'national'" class="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">🌍 전국 상위노출</span>
               <span v-else-if="job.promotion_tier === 'state_plus'" class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold">⭐ 주+인접 상위노출</span>
-              <span v-else-if="job.promotion_tier === 'sponsored'" class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">📢 스폰서드</span>
+              <span v-else-if="job.promotion_tier === 'sponsored'" class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">📢 스폰서</span>
               <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="typeClass(job.type)">{{ typeLabel(job.type) }}</span>
               <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="job.post_type === 'hiring' ? 'bg-indigo-100 text-indigo-700' : 'bg-pink-100 text-pink-700'">
                 {{ job.post_type === 'hiring' ? '구인' : '구직' }}

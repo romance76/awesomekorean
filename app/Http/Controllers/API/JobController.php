@@ -66,25 +66,20 @@ class JobController extends Controller
 
         $stateSql = $userState && preg_match('/^[A-Z]{2}$/', $userState) ? "'{$userState}'" : "''";
 
+        // 상위 고정: 내 위치 모드 → 내 주/인접주 매칭 state_plus 만
+        //           전국 모드 → national 만
+        // sponsored 는 상위 부스트 없이 일반 순서(최신순)로 배치 (색만 다름)
         if ($hasLocation && $userState) {
-            // 지역 모드 + 주 정보 있음
             $query->orderByRaw("
                 CASE
-                    WHEN promotion_tier = 'national' THEN 1
-                    WHEN promotion_tier = 'state_plus' AND {$statePlusCond} THEN 2
-                    WHEN promotion_tier = 'sponsored' AND state = {$stateSql} THEN 3
-                    WHEN promotion_tier = 'state_plus' THEN 4
-                    WHEN promotion_tier = 'sponsored' THEN 5
+                    WHEN promotion_tier = 'state_plus' AND {$statePlusCond} THEN 1
                     ELSE 9
                 END
             ");
         } else {
-            // 전국 모드 또는 주 정보 없음: national 만 상위
             $query->orderByRaw("
                 CASE
                     WHEN promotion_tier = 'national' THEN 1
-                    WHEN promotion_tier = 'state_plus' THEN 2
-                    WHEN promotion_tier = 'sponsored' THEN 3
                     ELSE 9
                 END
             ");
