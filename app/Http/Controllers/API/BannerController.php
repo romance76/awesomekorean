@@ -44,7 +44,8 @@ class BannerController extends Controller
                 $query->where(function ($q) use ($userState, $userCounty) {
                     $q->where('geo_scope', 'all')
                       ->orWhere(function ($q2) use ($userState) { $q2->where('geo_scope', 'state')->where('geo_value', $userState); })
-                      ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'county')->where('geo_value', $userCounty); });
+                      ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'county')->where('geo_value', $userCounty); })
+                      ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'city')->where('geo_value', $userCounty); });
                 });
             }
 

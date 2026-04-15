@@ -46,24 +46,36 @@
 
       <!-- 지역별 페이지 설정 -->
       <div v-else>
-        <div class="text-xs font-bold text-gray-700 mb-2">📍 지역 선택</div>
+        <div class="text-xs font-bold text-gray-700 mb-2">📍 타겟 지역 선택</div>
         <div class="border rounded-xl p-3 bg-gray-50 mb-3">
           <div class="flex items-center gap-2 flex-wrap">
-            <label class="flex items-center gap-1 cursor-pointer text-xs">
+            <label class="flex items-center gap-1 cursor-pointer text-xs px-2 py-1.5 rounded-lg border transition"
+              :class="adForm.geo_scope==='city' ? 'border-purple-400 bg-purple-50' : 'border-gray-200'">
+              <input type="radio" name="geo_scope" value="city" v-model="adForm.geo_scope" class="accent-purple-500" />
+              <span :class="adForm.geo_scope==='city' ? 'text-purple-700 font-bold' : 'text-gray-500'">시티</span>
+              <span class="text-[10px] text-gray-400">-{{ geoMarkup.cityDiscount.toLocaleString() }}P</span>
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer text-xs px-2 py-1.5 rounded-lg border transition"
+              :class="adForm.geo_scope==='county' ? 'border-green-400 bg-green-50' : 'border-gray-200'">
               <input type="radio" name="geo_scope" value="county" v-model="adForm.geo_scope" class="accent-green-500" />
               <span :class="adForm.geo_scope==='county' ? 'text-green-700 font-bold' : 'text-gray-500'">카운티</span>
-              <span class="text-[10px] text-gray-400">기본</span>
+              <span class="text-[10px] text-amber-600 font-bold">기본</span>
             </label>
-            <label class="flex items-center gap-1 cursor-pointer text-xs">
+            <label class="flex items-center gap-1 cursor-pointer text-xs px-2 py-1.5 rounded-lg border transition"
+              :class="adForm.geo_scope==='state' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'">
               <input type="radio" name="geo_scope" value="state" v-model="adForm.geo_scope" class="accent-blue-500" />
               <span :class="adForm.geo_scope==='state' ? 'text-blue-700 font-bold' : 'text-gray-500'">주</span>
               <span class="text-[10px] text-gray-400">+{{ geoMarkup.state.toLocaleString() }}P</span>
             </label>
-            <label class="flex items-center gap-1 cursor-pointer text-xs">
+            <label class="flex items-center gap-1 cursor-pointer text-xs px-2 py-1.5 rounded-lg border transition"
+              :class="adForm.geo_scope==='all' ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
               <input type="radio" name="geo_scope" value="all" v-model="adForm.geo_scope" class="accent-amber-500" />
               <span :class="adForm.geo_scope==='all' ? 'text-amber-700 font-bold' : 'text-gray-500'">전국</span>
               <span class="text-[10px] text-gray-400">+{{ (geoMarkup.state + geoMarkup.national).toLocaleString() }}P</span>
             </label>
+          </div>
+          <div class="mt-2 text-[10px] text-gray-400">
+            {{ adForm.geo_scope === 'city' ? '특정 시티만 타겟 (가장 저렴)' : adForm.geo_scope === 'county' ? '카운티 전체 타겟 (기본가)' : adForm.geo_scope === 'state' ? '주 전체 타겟' : '미국 전국 타겟' }}
           </div>
         </div>
 
@@ -74,7 +86,9 @@
             <input v-model="zipInput" @input="onZipInput" placeholder="Zip Code (5자리)" maxlength="5" class="flex-1 border rounded-lg px-3 py-2 text-sm" />
             <button @click="lookupZip" :disabled="zipLoading" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-xs">{{ zipLoading ? '...' : '조회' }}</button>
           </div>
-          <div v-if="zipResult" class="mt-2 text-[10px] text-green-600 font-bold">✅ {{ zipResult.city }}, {{ zipResult.state }} — 적용됨</div>
+          <div v-if="zipResult" class="mt-2 text-[10px] text-green-600 font-bold">
+            ✅ {{ adForm.geo_scope === 'city' ? zipResult.city + ', ' + zipResult.state : adForm.geo_scope === 'county' ? zipResult.county + ', ' + zipResult.state : zipResult.state }} — {{ adForm.geo_scope === 'city' ? '시티' : adForm.geo_scope === 'county' ? '카운티' : '주' }} 타겟 적용됨
+          </div>
         </div>
       </div>
     </div>
@@ -304,7 +318,7 @@ const basePrices = ref({
   right_premium: 10000, right_economy: 6000
 })
 // 지역별 추가금 (관리자 설정에서 로드)
-const geoMarkup = ref({ state: 2000, national: 3000 })
+const geoMarkup = ref({ cityDiscount: 1000, state: 2000, national: 3000 })
 
 // 페이지별 슬롯 설정 (관리자 API에서 로드)
 const pageConfigs = ref({})
@@ -373,7 +387,8 @@ const geoExtra = computed(() => {
   if (isNationalPage.value) {
     return geoMarkup.value.state + geoMarkup.value.national
   }
-  // 지역별 페이지
+  // 지역별 페이지: 카운티가 기본(0), 시티는 -1000, 주는 +2000, 전국은 +5000
+  if (adForm.geo_scope === 'city') return -geoMarkup.value.cityDiscount
   if (adForm.geo_scope === 'county') return 0
   if (adForm.geo_scope === 'state') return geoMarkup.value.state
   if (adForm.geo_scope === 'all') return geoMarkup.value.state + geoMarkup.value.national
@@ -511,7 +526,11 @@ async function lookupZip() {
     if (!r.ok) throw 0; const d = await r.json(); const p = d.places?.[0]
     if (p) {
       zipResult.value = { state: p['state abbreviation'], city: p['place name'] }
-      adForm.geo_value = adForm.geo_scope === 'state' ? p['state abbreviation'] : p['place name']
+      // geo_scope에 따라 값 설정
+      if (adForm.geo_scope === 'city') adForm.geo_value = p['place name']
+      else if (adForm.geo_scope === 'county') adForm.geo_value = p['place name'] // county는 zip API에서 city로 대체
+      else if (adForm.geo_scope === 'state') adForm.geo_value = p['state abbreviation']
+      else adForm.geo_value = ''
       saveDraft()
     }
   } catch { showAlert('유효하지 않은 Zip Code', '오류') }
