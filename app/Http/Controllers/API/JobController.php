@@ -34,12 +34,21 @@ class JobController extends Controller
             $query->nearby($request->lat, $request->lng, $request->radius ?? 50);
         }
 
+        // ─── 위치 모드별 프로모션 티어 분리 ───
+        // 내 위치 모드 (lat/lng 있음): national 프로모션 제외 (전국 광고는 '전국' 탭에서만)
+        // 전국 모드 (lat/lng 없음): state_plus, sponsored 제외 (주 단위 광고는 '내 위치' 탭에서만)
+        // 일반 공고 (promotion_tier='none') 는 양쪽 모두 노출
+        if ($hasLocation) {
+            $query->where('promotion_tier', '!=', 'national');
+        } else {
+            $query->whereNotIn('promotion_tier', ['state_plus', 'sponsored']);
+        }
+
         // ─── 프로모션 우선순위 (사용자 주 기반) ───
-        // national: 어디서나 최상위
-        // state_plus: 광고주가 지정한 promotion_states 에 사용자 주 또는 인접 주가 포함된 경우만 상위
+        // state_plus: 광고주의 promotion_states 에 사용자 주 또는 인접 주가 포함된 경우만 상위
         //            (예: 아틀란타/GA 사용자 → promotion_states 에 GA/AL/FL/NC/SC/TN 중 하나라도 있으면 부스트)
         // sponsored: 같은 주 한정 상위
-        // 그 외: 일반 최신순
+        // national: 전국 모드에서만 최상위
         $userState = $request->user_state ? strtoupper(trim($request->user_state)) : null;
         $neighborStates = \App\Support\StateNeighbors::neighbors($userState);
 
