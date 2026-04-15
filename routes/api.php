@@ -264,6 +264,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/bookmarks', [BookmarkController::class, 'toggle']);
     Route::get('/bookmarks', [BookmarkController::class, 'index']);
+    Route::get('/bookmarks/check', [BookmarkController::class, 'check']);
 
     Route::get('/chat/rooms', [ChatController::class, 'rooms']);
     Route::post('/chat/rooms', [ChatController::class, 'createRoom']);

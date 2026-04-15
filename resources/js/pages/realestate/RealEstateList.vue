@@ -82,9 +82,14 @@
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 유형</div>
-          <button v-for="c in reCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
+          <button v-for="c in reCategories" :key="c.value" @click="showFavorites=false; activeCat=c.value; activeItem=null; loadPage()"
             class="w-full text-left px-3 py-2 text-xs transition"
-            :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+            :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+          <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
+            class="w-full text-left px-3 py-2 text-xs transition border-t"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+            ❤️ 내 좋아요
+          </button>
         </div>
         <AdSlot page="realestate" position="left" :maxSlots="2" />
       </div>
@@ -92,8 +97,11 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (reCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
-      <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 부동산 매물을 볼 수 있습니다</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 좋아요 부동산</span>
+      <template v-else>
+        <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (reCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
+        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 부동산 매물을 볼 수 있습니다</span>
+      </template>
     </div>
 
     <!-- 목록 -->
@@ -139,44 +147,73 @@
     </div>
     <!-- 목록 모드 -->
     <div v-else-if="!items.length" class="text-center py-12 text-gray-400">검색 결과 없음</div>
-    <!-- 카드형 -->
+    <!-- 카드형 (Zillow 스타일: 사진 위 + 정보 아래) -->
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex"
-        :class="promoRowClass(item)">
-        <!-- 썸네일 -->
-        <div class="w-32 h-32 flex-shrink-0 bg-gray-100">
+        class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer border-2"
+        :class="promoBorderClass(item)">
+        <!-- 사진 영역 (좋아요 + 상단 뱃지 오버레이) -->
+        <div class="relative aspect-[4/3] bg-gray-100">
           <img v-if="item.images?.length" :src="realEstateThumb(item)" loading="lazy" decoding="async"
             class="w-full h-full object-cover"
-            @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-4xl bg-amber-50\'>🏠</div>'" />
-          <div v-else class="w-full h-full flex items-center justify-center text-4xl bg-amber-50">
+            @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-6xl bg-amber-50\'>🏠</div>'" />
+          <div v-else class="w-full h-full flex items-center justify-center text-6xl bg-amber-50">
             {{ item.type==='sale'?'🏠':item.type==='rent'?'🔑':'👥' }}
           </div>
-        </div>
-        <div class="flex-1 p-3 min-w-0 flex flex-col justify-between">
-          <div>
-            <!-- 태그 줄 (왼쪽: 뱃지, 오른쪽: 가격) -->
-            <div class="flex items-center justify-between gap-1 mb-0.5">
-              <div class="flex items-center gap-1 flex-wrap min-w-0">
-                <span v-if="item.promotion_tier === 'national'" class="text-[8px] bg-red-500 text-white font-bold px-1 py-px rounded">🌍전국</span>
-                <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[8px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐주+</span>
-                <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[8px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢스폰</span>
-                <span class="text-[8px] bg-gray-100 text-gray-600 font-bold px-1 py-px rounded">{{ {rent:'렌트',sale:'매매',roommate:'룸메'}[item.type] || item.type }}</span>
-              </div>
-              <div class="text-amber-600 font-black text-base whitespace-nowrap flex-shrink-0">${{ Number(item.price || 0).toLocaleString() }}{{ item.type==='rent'?'/월':'' }}</div>
-            </div>
-            <!-- 제목 -->
-            <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
-            <div class="text-[10px] text-gray-400 mt-0.5">{{ item.property_type }}</div>
-            <div class="text-xs text-gray-500 line-clamp-1 mt-1">{{ (item.content || '').slice(0, 60) }}</div>
+          <!-- 좌상단: 프로모션 뱃지 -->
+          <div v-if="item.promotion_tier && item.promotion_tier !== 'none'" class="absolute top-2 left-2">
+            <span v-if="item.promotion_tier === 'national'" class="text-[10px] bg-red-500 text-white font-bold px-2 py-1 rounded shadow">🌍 전국</span>
+            <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-2 py-1 rounded shadow">⭐ 주+</span>
+            <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-2 py-1 rounded shadow">📢 스폰서</span>
           </div>
-          <!-- 하단: 위치 + 침실 + 날짜 -->
-          <div class="text-[10px] text-gray-400 flex items-center gap-1.5 flex-wrap">
-            <span>📍 {{ item.city }}{{ item.state ? ', '+item.state : '' }}</span>
-            <span v-if="item.bedrooms">🛏{{ item.bedrooms }}</span>
-            <span v-if="item.sqft">📐 {{ item.sqft }}sqft</span>
-            <span v-if="item.created_at">🕐 {{ fmtDate(item.created_at) }}</span>
+          <!-- 우상단: 좋아요 -->
+          <button v-if="auth.isLoggedIn" @click.stop="toggleFav(item)"
+            class="absolute top-2 right-2 w-9 h-9 rounded-full bg-white/90 hover:bg-white shadow flex items-center justify-center transition">
+            <span class="text-lg" :class="favorited.has(item.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'">
+              {{ favorited.has(item.id) ? '❤️' : '🤍' }}
+            </span>
+          </button>
+        </div>
+
+        <!-- 정보 영역 -->
+        <div class="p-3 space-y-1">
+          <!-- 1. 종류/렌트매매 태그 -->
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-bold"
+              :class="item.type==='rent' ? 'bg-blue-100 text-blue-700' : item.type==='sale' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">
+              {{ {rent:'렌트',sale:'매매',roommate:'룸메이트'}[item.type] || item.type }}
+            </span>
+            <span v-if="item.property_type" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-gray-100 text-gray-600">
+              {{ propertyTypeLabel(item.property_type) }}
+            </span>
+          </div>
+
+          <!-- 2. 가격 -->
+          <div class="text-xl font-black text-gray-900">
+            ${{ Number(item.price || 0).toLocaleString() }}<span v-if="item.type==='rent'" class="text-sm font-bold text-gray-500">/월</span>
+          </div>
+
+          <!-- 3. 제목 -->
+          <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
+
+          <!-- 4. 방/화장실/sqft -->
+          <div class="flex items-center gap-2 text-[11px] text-gray-600 font-semibold">
+            <span v-if="item.bedrooms"><b>{{ item.bedrooms }}</b> bd</span>
+            <span v-if="item.bathrooms" class="text-gray-300">|</span>
+            <span v-if="item.bathrooms"><b>{{ item.bathrooms }}</b> ba</span>
+            <span v-if="item.sqft" class="text-gray-300">|</span>
+            <span v-if="item.sqft"><b>{{ Number(item.sqft).toLocaleString() }}</b> sqft</span>
+          </div>
+
+          <!-- 5. 위치 + 올린사람 + 올린날짜 -->
+          <div class="text-[10px] text-gray-500 flex items-center gap-1.5 flex-wrap pt-1 border-t border-gray-100 mt-1">
+            <span>📍 {{ item.address ? item.address + ', ' : '' }}{{ item.city }}{{ item.state ? ', '+item.state : '' }}</span>
+          </div>
+          <div class="text-[10px] text-gray-400 flex items-center gap-1.5">
+            <UserName v-if="item.user?.id" :userId="item.user.id" :name="item.user.name" className="text-[10px] text-gray-400" />
+            <span v-if="item.created_at">· 🕐 {{ fmtDate(item.created_at) }}</span>
+            <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">· {{ Number(item.distance).toFixed(1) }}mi</span>
           </div>
         </div>
       </div>
@@ -253,6 +290,22 @@ const auth = useAuthStore()
 const route = useRoute()
 const showFilter = ref(false)
 const activeCat = ref('')
+const showFavorites = ref(false)
+
+// 내 좋아요 부동산만 로드
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', {
+      params: { type: 'App\\Models\\RealEstateListing', per_page: 50 },
+    })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavorited()
+  } catch {}
+  loading.value = false
+}
 const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 // 부동산 유형 (property_type) — 사용자 요청 항목
@@ -338,6 +391,43 @@ function promoRowClass(item) {
   return 'hover:bg-amber-50/50 hover:border-l-amber-400'
 }
 
+// 카드형: 배경색 대신 테두리 색만 (너무 어지럽지 않게)
+function promoBorderClass(item) {
+  if (item.promotion_tier === 'national') return 'border-red-400'
+  if (item.promotion_tier === 'state_plus') return 'border-blue-400'
+  if (item.promotion_tier === 'sponsored') return 'border-amber-400'
+  return 'border-gray-100'
+}
+
+const propertyTypeLabels = { house:'하우스', apt:'아파트', condo:'콘도', studio:'스튜디오', office:'오피스', commercial:'상가', etc:'기타' }
+function propertyTypeLabel(t) { return propertyTypeLabels[t] || t }
+
+// 좋아요 (Bookmark polymorphic)
+const favorited = ref(new Set())
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', {
+      params: { type: 'App\\Models\\RealEstateListing', ids },
+    })
+    favorited.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', {
+      bookmarkable_type: 'App\\Models\\RealEstateListing',
+      bookmarkable_id: item.id,
+    })
+    if (data.bookmarked) favorited.value.add(item.id)
+    else favorited.value.delete(item.id)
+    // reactivity trigger
+    favorited.value = new Set(favorited.value)
+  } catch {}
+}
+
 function fmtDate(dt) {
   if (!dt) return ''
   const d = new Date(dt)
@@ -395,6 +485,7 @@ async function loadPage(p = 1) {
     const { data } = await axios.get('/api/realestate', { params })
     items.value = data.data?.data || []
     lastPage.value = data.data?.last_page || 1
+    loadFavorited()
   } catch {}
   loading.value = false
 }
