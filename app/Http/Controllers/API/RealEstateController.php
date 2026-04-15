@@ -75,9 +75,27 @@ class RealEstateController extends Controller
             foreach ($request->file('images') as $img) $images[] = $this->storeCompressedImageRaw($img, 'realestate', 1400, 80);
         }
 
+        $data = $request->only('title', 'content', 'type', 'property_type', 'price', 'deposit', 'address', 'city', 'state', 'zipcode', 'lat', 'lng', 'bedrooms', 'bathrooms', 'sqft', 'contact_phone', 'contact_email');
+
+        // zipcode 기반 lat/lng 자동 지오코딩 (좌표 없으면 거리 필터에서 빠짐)
+        if ((empty($data['lat']) || empty($data['lng'])) && !empty($data['zipcode'])) {
+            $geo = $this->geocodeZip($data['zipcode']);
+            if ($geo) {
+                $data['lat'] = $geo['lat'];
+                $data['lng'] = $geo['lng'];
+                if (empty($data['city'])) $data['city'] = $geo['city'];
+                if (empty($data['state'])) $data['state'] = $geo['state'];
+            }
+        }
+        // 여전히 좌표 없으면 유저 프로필로 fallback
+        $u = auth()->user();
+        if (empty($data['lat'])) $data['lat'] = $u->latitude;
+        if (empty($data['lng'])) $data['lng'] = $u->longitude;
+        if (empty($data['city'])) $data['city'] = $u->city;
+        if (empty($data['state'])) $data['state'] = $u->state;
+
         $listing = RealEstateListing::create(array_merge(
-            $request->only('title', 'content', 'type', 'property_type', 'price', 'deposit', 'address', 'city', 'state', 'zipcode', 'lat', 'lng', 'bedrooms', 'bathrooms', 'sqft', 'contact_phone', 'contact_email'),
-            ['user_id' => auth()->id(), 'images' => $images ?: null]
+            $data, ['user_id' => auth()->id(), 'images' => $images ?: null]
         ));
 
         return response()->json(['success' => true, 'data' => $listing], 201);
@@ -86,8 +104,38 @@ class RealEstateController extends Controller
     public function update(Request $request, $id)
     {
         $listing = $this->findOwnedOrAdmin(RealEstateListing::class, $id);
-        $listing->update($request->only('title', 'content', 'price', 'deposit', 'is_active'));
+        $data = $request->only('title', 'content', 'type', 'property_type', 'price', 'deposit', 'address', 'city', 'state', 'zipcode', 'bedrooms', 'bathrooms', 'sqft', 'contact_phone', 'contact_email', 'is_active');
+        // zipcode 변경시 좌표 재지오코딩
+        if (!empty($data['zipcode']) && $data['zipcode'] !== $listing->zipcode) {
+            $geo = $this->geocodeZip($data['zipcode']);
+            if ($geo) {
+                $data['lat'] = $geo['lat'];
+                $data['lng'] = $geo['lng'];
+            }
+        }
+        $listing->update($data);
         return response()->json(['success' => true, 'data' => $listing]);
+    }
+
+    private function geocodeZip(?string $zip): ?array
+    {
+        if (!$zip || !preg_match('/^\d{5}$/', $zip)) return null;
+        try {
+            return \Cache::remember("geo_zip_{$zip}", now()->addHours(24), function () use ($zip) {
+                $ctx = stream_context_create(['http' => ['timeout' => 3]]);
+                $resp = @file_get_contents("https://api.zippopotam.us/us/{$zip}", false, $ctx);
+                if (!$resp) return null;
+                $d = json_decode($resp, true);
+                $place = $d['places'][0] ?? null;
+                if (!$place) return null;
+                return [
+                    'lat' => (float) $place['latitude'],
+                    'lng' => (float) $place['longitude'],
+                    'city' => $place['place name'] ?? null,
+                    'state' => $place['state abbreviation'] ?? null,
+                ];
+            });
+        } catch (\Throwable $e) { return null; }
     }
 
     public function destroy($id)
