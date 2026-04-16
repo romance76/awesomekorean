@@ -75,15 +75,15 @@
             </div>
           </div>
 
-          <!-- 오른쪽: 판매자 정보 -->
+          <!-- 오른쪽: 판매자 정보 (부동산 스타일) -->
           <div class="hidden lg:block flex-shrink-0" style="width:200px;">
             <div class="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
               <div class="px-3 py-2 border-b bg-amber-50 font-bold text-[11px] text-amber-900">📋 판매자 정보</div>
               <div class="p-3 space-y-2">
-                <div class="flex items-center gap-2">
-                  <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700 overflow-hidden flex-shrink-0">
-                    <img v-if="item.user?.avatar" :src="'/storage/' + item.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
-                    <span v-else>{{ (item.user?.name || '?')[0] }}</span>
+                <div v-if="item.user" class="flex items-center gap-2">
+                  <img v-if="item.user.avatar" :src="'/storage/' + item.user.avatar" class="w-10 h-10 rounded-full object-cover border-2 border-amber-200" @error="e => e.target.style.display='none'" />
+                  <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700">
+                    {{ (item.user.nickname || item.user.name || '?')[0] }}
                   </div>
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-gray-800 truncate">{{ item.user?.nickname || item.user?.name }}</div>
@@ -91,29 +91,41 @@
                     <div class="text-[9px] text-amber-600 font-semibold">거래 {{ sellerTradeCount }}회</div>
                   </div>
                 </div>
+                <!-- 친구/쪽지 -->
                 <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-1.5 pt-2 border-t">
                   <button @click="addFriend" class="flex-1 text-[11px] bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100">👫 친구</button>
                   <button @click="sendMessage" class="flex-1 text-[11px] bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100">✉️ 쪽지</button>
                 </div>
+                <!-- 전화 (있으면) -->
+                <a v-if="item.user?.phone" :href="'tel:'+item.user.phone"
+                  class="flex items-center justify-center w-full bg-amber-400 text-amber-900 font-bold py-1.5 rounded-lg hover:bg-amber-500 text-[11px]">
+                  📱 {{ item.user.phone }}
+                </a>
+                <!-- 홀드 -->
+                <button v-if="item.hold_enabled && item.status==='active' && auth.isLoggedIn && !isOwner && !item.active_hold"
+                  @click="showHoldModal = true" class="w-full bg-blue-500 text-white font-bold py-1.5 rounded-lg text-[11px] hover:bg-blue-600">
+                  🔒 홀드 ({{ item.hold_price_per_6h }}P/6h)
+                </button>
+                <!-- 부스트 -->
+                <button v-if="isOwner && item.status === 'active'" @click="showBoostModal = true"
+                  class="w-full bg-purple-500 text-white font-bold py-1.5 rounded-lg text-[11px] hover:bg-purple-600">🚀 상위노출</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 액션 버튼 -->
-        <div class="bg-white rounded-xl shadow-sm border p-4 space-y-2">
-          <div v-if="item.active_hold" class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
+        <!-- 홀드 상태 + 수정/삭제 (모바일에서도 보이게) -->
+        <div v-if="item.active_hold || isOwner || (item.hold_enabled && item.status==='active' && auth.isLoggedIn && !isOwner && !item.active_hold)" class="bg-white rounded-xl shadow-sm border p-4 space-y-2 lg:hidden">
+          <div v-if="item.active_hold" class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
             <span class="text-amber-600 font-bold text-sm">🔒 홀드 중</span>
             <div class="text-xs text-gray-500">{{ item.active_hold.buyer?.nickname || item.active_hold.buyer?.name }}님 · 만료: {{ formatDateTime(item.active_hold.hold_until) }}</div>
           </div>
-          <div class="flex gap-2">
-            <button v-if="item.hold_enabled && item.status==='active' && auth.isLoggedIn && !isOwner && !item.active_hold"
-              @click="showHoldModal = true" class="flex-1 bg-blue-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-blue-600">
-              🔒 홀드하기 ({{ item.hold_price_per_6h }}P/6h)
-            </button>
-            <button v-if="isOwner && item.status === 'active'" @click="showBoostModal = true"
-              class="flex-1 bg-purple-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-purple-600">🚀 상위노출</button>
-          </div>
+          <button v-if="item.hold_enabled && item.status==='active' && auth.isLoggedIn && !isOwner && !item.active_hold"
+            @click="showHoldModal = true" class="w-full bg-blue-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-blue-600">
+            🔒 홀드하기 ({{ item.hold_price_per_6h }}P/6h)
+          </button>
+          <button v-if="isOwner && item.status === 'active'" @click="showBoostModal = true"
+            class="w-full bg-purple-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-purple-600">🚀 상위노출</button>
           <div v-if="isOwner" class="flex gap-2 pt-1 border-t mt-2">
             <RouterLink :to="`/market/write?edit=${item.id}`" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2 rounded-lg text-xs text-center">✏️ 수정</RouterLink>
             <button @click="deleteItem" class="flex-1 bg-red-50 text-red-600 font-semibold py-2 rounded-lg text-xs">🗑️ 삭제</button>
