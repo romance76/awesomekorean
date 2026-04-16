@@ -20,16 +20,20 @@
               <RouterLink to="/realestate?type=sale" class="flex-1 py-1.5 text-[10px] font-bold text-center transition"
                 :class="listing.type==='sale' ? 'bg-red-500 text-white' : 'text-gray-400 hover:bg-gray-50'">🏠 매매</RouterLink>
             </div>
-            <RouterLink to="/realestate" class="block w-full text-left px-3 py-1.5 text-xs transition"
-              :class="'text-gray-600 hover:bg-amber-50/50'">전체</RouterLink>
+            <RouterLink to="/realestate" class="block w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:bg-amber-50/50">전체</RouterLink>
             <template v-for="group in sideSubcats" :key="group.label">
               <div class="px-3 py-1 bg-gray-50 text-[9px] text-gray-500 font-bold border-t">{{ group.label }}</div>
-              <div v-for="c in group.items" :key="c.value"
-                class="px-3 py-1 text-[11px] pl-5 transition"
-                :class="listing.property_type === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600'">
+              <RouterLink v-for="c in group.items" :key="c.value"
+                :to="`/realestate?type=${listing.type}&cat=${c.value}`"
+                class="block px-3 py-1 text-[11px] pl-5 transition cursor-pointer"
+                :class="listing.property_type === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/30'">
                 {{ c.label }}
-              </div>
+              </RouterLink>
             </template>
+            <!-- 즐겨찾기 -->
+            <RouterLink to="/realestate?fav=1" class="block w-full text-left px-3 py-1.5 text-xs transition border-t text-gray-600 hover:bg-red-50/50">
+              ❤️ 즐겨찾기 <span v-if="favCount > 0" class="text-red-500 font-bold">({{ favCount }})</span>
+            </RouterLink>
           </div>
           <AdSlot page="realestate" position="left" :maxSlots="2" />
         </div>
@@ -201,6 +205,26 @@
       </div>
     </div>
   </div>
+
+  <!-- 신고 모달 -->
+  <div v-if="reportModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" @click.self="reportModal=false">
+    <div class="bg-white rounded-xl max-w-sm w-full p-5 space-y-4">
+      <h3 class="font-bold text-base text-gray-800">🚨 신고하기</h3>
+      <select v-model="reportReason" class="w-full border rounded-lg px-3 py-2.5 text-sm outline-none">
+        <option value="">신고 사유 선택</option>
+        <option value="spam">스팸/광고</option>
+        <option value="fake">허위 매물</option>
+        <option value="fraud">사기 의심</option>
+        <option value="inappropriate">부적절한 내용</option>
+        <option value="duplicate">중복 게시</option>
+        <option value="other">기타</option>
+      </select>
+      <div class="flex gap-2">
+        <button @click="reportModal=false" class="flex-1 bg-gray-100 text-gray-700 font-bold py-2.5 rounded-lg text-sm hover:bg-gray-200">취소</button>
+        <button @click="submitReport" :disabled="!reportReason" class="flex-1 bg-red-500 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-red-600 disabled:opacity-40">신고</button>
+      </div>
+    </div>
+  </div>
 </div>
 </template>
 
@@ -224,6 +248,9 @@ const msgModal = ref(false)
 const msgText = ref('')
 const isFavorited = ref(false)
 const isReported = ref(false)
+const favCount = ref(0)
+const reportModal = ref(false)
+const reportReason = ref('')
 
 // 왼쪽 사이드바 카테고리 데이터
 const rentSubcats = [
@@ -276,6 +303,15 @@ async function toggleFav() {
       bookmarkable_id: listing.value.id,
     })
     isFavorited.value = data.bookmarked
+    if (data.bookmarked) favCount.value++
+    else favCount.value = Math.max(0, favCount.value - 1)
+  } catch {}
+}
+async function loadFavCount() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'App\\Models\\RealEstateListing', per_page: 1 } })
+    favCount.value = data.data?.total || 0
   } catch {}
 }
 
@@ -321,12 +357,20 @@ async function reportUser() {
     alert('신고가 접수되었습니다')
   } catch (e) { alert(e.response?.data?.message || '실패') }
 }
-async function reportListing() {
-  const reason = prompt('이 매물을 신고하는 이유를 입력해주세요:')
-  if (!reason) return
+function reportListing() {
+  reportModal.value = true
+  reportReason.value = ''
+}
+async function submitReport() {
+  if (!reportReason.value) return
   try {
-    await axios.post('/api/reports', { reportable_type: 'App\\Models\\RealEstateListing', reportable_id: listing.value.id, reason })
+    await axios.post('/api/reports', {
+      reportable_type: 'App\\Models\\RealEstateListing',
+      reportable_id: listing.value.id,
+      reason: reportReason.value,
+    })
     isReported.value = true
+    reportModal.value = false
     alert('신고가 접수되었습니다')
   } catch (e) { alert(e.response?.data?.message || '실패') }
 }
@@ -336,6 +380,7 @@ onMounted(async () => {
     const { data } = await axios.get(`/api/realestate/${route.params.id}`)
     listing.value = data.data
     checkFav()
+    loadFavCount()
   } catch {}
   loading.value = false
 })
