@@ -360,7 +360,7 @@ async function selectRoom(room) {
   // 클릭 즉시 이전 메시지 초기화 (이전 방 메시지가 잠깐 보이는 문제 방지)
   activeMessages.value = []
   pinnedAnnouncements.value = []
-  clearImage()
+  clearFiles()
   subscribeToRoom(room.id)
   try {
     const { data } = await axios.get(`/api/chat/rooms/${room.id}/messages`, {
