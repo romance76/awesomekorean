@@ -43,7 +43,7 @@ const routes = [
   // Real Estate
   { path: '/realestate', name: 'realestate', component: p('realestate/RealEstateList') },
   { path: '/realestate/write', name: 'realestate-write', component: p('realestate/RealEstateWrite'), meta: { auth: true } },
-  { path: '/realestate/:id', name: 'realestate-detail', component: p('realestate/RealEstateList') },
+  { path: '/realestate/:id', name: 'realestate-detail', component: p('realestate/RealEstateDetail') },
 
   // Clubs
   { path: '/clubs', name: 'clubs', component: p('community/ClubList') },
