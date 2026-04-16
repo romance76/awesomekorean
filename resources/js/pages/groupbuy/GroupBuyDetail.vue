@@ -247,7 +247,7 @@
             </div>
           </div>
 
-          <SidebarWidgets api-url="/api/groupbuys" detail-path="/groupbuy/" :current-id="gb.id" label="공동구매"
+          <SidebarWidgets mode="detail" :currentCategory="gb?.category || ''" api-url="/api/groupbuys" detail-path="/groupbuy/" :current-id="gb.id" label="공동구매"
             :filter-params="gb.lat && gb.lng ? { lat: gb.lat, lng: gb.lng, radius: 50 } : {}" />
           <AdSlot page="groupbuy" position="right" :maxSlots="2" />
         </div>

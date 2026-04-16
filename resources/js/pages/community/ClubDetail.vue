@@ -523,7 +523,7 @@
           </div>
         </div>
 
-        <SidebarWidgets api-url="/api/clubs" detail-path="/clubs/" :current-id="club.id"
+        <SidebarWidgets mode="detail" :currentCategory="club?.category || ''" api-url="/api/clubs" detail-path="/clubs/" :current-id="club.id"
           label="동호회" />
 
         <AdSlot page="clubs" position="right" :maxSlots="2" class="mt-3" />

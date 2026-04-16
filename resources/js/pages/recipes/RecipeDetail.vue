@@ -215,7 +215,7 @@
 
       <!-- 오른쪽: 사이드바 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <SidebarWidgets api-url="/api/recipes" detail-path="/recipes/" :current-id="recipe?.id || 0"
+        <SidebarWidgets mode="detail" :currentCategory="recipe?.category || ''" api-url="/api/recipes" detail-path="/recipes/" :current-id="recipe?.id || 0"
           label="레시피"
           :second-tab="{ label: '⭐ 별점 순', sort: 'rating' }" />
       </div>

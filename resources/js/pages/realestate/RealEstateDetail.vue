@@ -160,7 +160,7 @@
 
       <!-- 오른쪽: 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
-        <SidebarWidgets api-url="/api/realestate" detail-path="/realestate/" :current-id="listing.id"
+        <SidebarWidgets mode="detail" :currentCategory="listing?.property_type || ''" api-url="/api/realestate" detail-path="/realestate/" :current-id="listing.id"
           label="매물"
           :filter-params="{ ...(listing.lat && listing.lng ? { lat: listing.lat, lng: listing.lng, radius: 50 } : {}), property_type: listing.property_type, type: listing.type }" />
         <AdSlot page="realestate" position="right" :maxSlots="2" />

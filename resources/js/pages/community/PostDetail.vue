@@ -77,7 +77,7 @@
         </div>
 
         <!-- 공통 사이드바 위젯 -->
-        <SidebarWidgets
+        <SidebarWidgets mode="detail" :currentCategory="post?.category || ''"
           :api-url="`/api/posts?board_id=${post.board_id}`"
           :detail-path="`/community/${post.board?.slug || 'free'}/`"
           :current-id="post.id"

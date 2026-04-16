@@ -139,7 +139,7 @@
     </div>
     <!-- 오른쪽 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets api-url="/api/clubs" detail-path="/clubs/" :current-id="0"
+      <SidebarWidgets :currentCategory="catFilter" api-url="/api/clubs" detail-path="/clubs/" :current-id="0"
         label="동호회" :filter-params="locationParams" />
         <AdSlot page="clubs" position="right" :maxSlots="2" />
     </div>

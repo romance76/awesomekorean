@@ -73,7 +73,7 @@
       </div>
       <!-- 사이드바 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <SidebarWidgets api-url="/api/businesses" detail-path="/directory/" :current-id="biz.id"
+        <SidebarWidgets mode="detail" :currentCategory="biz?.category || ''" api-url="/api/businesses" detail-path="/directory/" :current-id="biz.id"
           label="업소" recommend-label="추천 업소" quick-label="최근 등록"
           :filter-params="biz.lat && biz.lng ? { lat: biz.lat, lng: biz.lng, radius: 50 } : {}"
           :links="[{to:'/directory',icon:'📋',label:'전체 업소록'},{to:'/directory/register',icon:'✏️',label:'업소 등록'}]" />

@@ -57,7 +57,7 @@
       </div>
       <!-- 사이드바 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <SidebarWidgets api-url="/api/qa" detail-path="/qa/" :current-id="qa.id"
+        <SidebarWidgets mode="detail" :currentCategory="qa?.category || ''" api-url="/api/qa" detail-path="/qa/" :current-id="qa.id"
           label="질문" recommend-label="추천 질문" quick-label="실시간 질문"
           :links="[{to:'/qa',icon:'📋',label:'전체 Q&A'},{to:'/qa/write',icon:'✏️',label:'질문하기'},{to:'/community',icon:'💬',label:'커뮤니티'}]" />
       </div>

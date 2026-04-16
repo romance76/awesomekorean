@@ -187,7 +187,7 @@
     <Pagination :page="page" :lastPage="lastPage" @page="loadPage" />
     </div>
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets api-url="/api/events" detail-path="/events/" :current-id="0"
+      <SidebarWidgets :currentCategory="activeCat" api-url="/api/events" detail-path="/events/" :current-id="0"
         label="이벤트" :filter-params="locationParams" />
         <AdSlot page="events" position="right" :maxSlots="2" />
     </div>

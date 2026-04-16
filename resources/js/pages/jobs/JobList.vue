@@ -214,7 +214,7 @@
 
     <!-- 오른쪽: 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets api-url="/api/jobs" detail-path="/jobs/" :current-id="0"
+      <SidebarWidgets :currentCategory="activeCat" api-url="/api/jobs" detail-path="/jobs/" :current-id="0"
         :label="postType === 'hiring' ? '채용' : '구직'" :filter-params="locationParams" />
         <AdSlot page="jobs" position="right" :maxSlots="2" />
     </div>

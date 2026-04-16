@@ -296,7 +296,7 @@
     </div>
     <!-- 오른쪽 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets :inline="true" @select="openItem" api-url="/api/realestate" detail-path="/realestate/" :current-id="0"
+      <SidebarWidgets :currentCategory="activeCat" :inline="true" @select="openItem" api-url="/api/realestate" detail-path="/realestate/" :current-id="0"
         label="매물" :filter-params="locationParams" />
         <AdSlot page="realestate" position="right" :maxSlots="2" />
     </div>

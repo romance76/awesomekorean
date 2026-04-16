@@ -97,7 +97,7 @@
 
       <!-- 사이드바 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <SidebarWidgets api-url="/api/events" detail-path="/events/" :current-id="event.id"
+        <SidebarWidgets mode="detail" :currentCategory="event?.category || ''" api-url="/api/events" detail-path="/events/" :current-id="event.id"
           label="이벤트" recommend-label="추천 이벤트" quick-label="다가오는 이벤트"
           :filter-params="event.lat && event.lng ? { lat: event.lat, lng: event.lng, radius: 50 } : {}"
           :links="[{to:'/events',icon:'📋',label:'전체 이벤트'},{to:'/events/create',icon:'✏️',label:'이벤트 등록'}]" />

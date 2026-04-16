@@ -159,7 +159,7 @@
           </div>
 
           <!-- 위젯 -->
-          <SidebarWidgets :inline="true" api-url="/api/market" detail-path="/market/" :current-id="item.id" label="물품"
+          <SidebarWidgets :inline="true" mode="detail" :currentCategory="item?.category || ''" api-url="/api/market" detail-path="/market/" :current-id="item.id" label="물품"
             :filter-params="item.lat && item.lng ? { lat: item.lat, lng: item.lng, radius: 50 } : {}" />
         </div>
       </div>

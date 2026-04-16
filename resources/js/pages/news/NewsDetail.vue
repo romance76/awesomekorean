@@ -46,7 +46,7 @@
 
       <!-- 오른쪽: 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <SidebarWidgets api-url="/api/news" detail-path="/news/" :current-id="news.id"
+        <SidebarWidgets mode="detail" :currentCategory="news?.source || ''" api-url="/api/news" detail-path="/news/" :current-id="news.id"
           label="뉴스" recommend-label="좋아할 기사" quick-label="실시간 뉴스"
           :links="[{to:'/news',icon:'📰',label:'전체 뉴스'},{to:'/community',icon:'💬',label:'커뮤니티'}]" />
       </div>
