@@ -304,18 +304,22 @@ class ImportGooglePlaces extends Command
             }
         }
 
-        // 사진 다운로드 (최대 3장, 서버에 저장)
+        // 사진 다운로드 (최대 3장, 서버에 저장 + 리사이즈 600px)
         $images = [];
         foreach (array_slice($details['photos'] ?? [], 0, 3) as $photo) {
             $ref = $photo['photo_reference'] ?? null;
             if ($ref) {
                 try {
                     $imgUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photoreference={$ref}&key={$this->apiKey}";
-                    $imgContent = @file_get_contents($imgUrl);
+                    $imgContent = Http::timeout(15)->get($imgUrl)->body();
                     if ($imgContent && strlen($imgContent) > 1000) {
+                        // Intervention Image로 리사이즈 + JPEG 압축
+                        $img = \Intervention\Image\Laravel\Facades\Image::read($imgContent);
+                        $img->scaleDown(600, 600);
+                        $resized = $img->toJpeg(80)->toString();
                         $filename = 'businesses/' . md5($ref) . '.jpg';
-                        \Storage::disk('public')->put($filename, $imgContent);
-                        $images[] = '/storage/' . $filename;
+                        \Storage::disk('public')->put($filename, $resized);
+                        $images[] = $filename; // 로컬 경로만 저장 (Google CDN URL 아님)
                     }
                 } catch (\Exception $e) {}
             }
