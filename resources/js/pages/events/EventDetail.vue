@@ -10,12 +10,16 @@
           <div v-if="event.image_url" class="h-48 lg:h-64 bg-gray-200 overflow-hidden">
             <img :src="event.image_url" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
           </div>
-          <div v-else-if="event.event_type === 'somekorean'" class="h-32 flex items-center justify-center text-center px-6"
-            :style="{ backgroundColor: event.banner_color || '#F5A623' }">
-            <div>
-              <div class="text-3xl font-black text-white">{{ event.title.split(' ')[0] }}</div>
-              <div v-if="event.banner_subtitle" class="text-sm text-white/80 mt-1">{{ event.banner_subtitle }}</div>
+          <div v-else-if="event.event_type === 'somekorean'" class="relative flex items-center justify-between px-6 overflow-hidden"
+            :style="{ background: 'linear-gradient(135deg, ' + (event.banner_color || '#F5A623') + ', ' + (event.banner_color || '#F5A623') + '99)', height: '280px' }">
+            <div class="z-10 max-w-[65%]">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs bg-white/30 text-white font-bold px-2.5 py-1 rounded-full">⭐ 썸코리안 공식</span>
+              </div>
+              <h2 class="text-2xl lg:text-3xl font-black text-white leading-tight">{{ event.title }}</h2>
+              <div v-if="event.banner_subtitle" class="text-base text-white/80 mt-2">{{ event.banner_subtitle }}</div>
             </div>
+            <div class="text-9xl opacity-15 flex-shrink-0">{{ event.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
           </div>
           <div v-else class="h-32 bg-gradient-to-r from-amber-100 to-orange-100 flex items-center justify-center text-4xl">🎉</div>
 

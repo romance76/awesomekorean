@@ -1,44 +1,48 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Hero: 카카오 스타일 노란 그라디언트 -->
-    <div class="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400">
-      <div class="max-w-7xl mx-auto px-4 py-8 text-center">
-        <div class="inline-flex items-center gap-2 bg-white/30 rounded-full px-4 py-1 text-sm font-bold text-amber-900 mb-3">
-          🇰🇷 미국 한인 No.1 커뮤니티
+    <!-- Hero 슬라이드: 기본 홈 + 이벤트 배너 -->
+    <div class="relative overflow-hidden">
+      <!-- 슬라이드 0: 기본 홈 (노란 그라디언트 + 검색창) -->
+      <div v-show="heroIdx === 0" class="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 transition-opacity duration-500">
+        <div class="max-w-7xl mx-auto px-4 py-8 text-center">
+          <div class="inline-flex items-center gap-2 bg-white/30 rounded-full px-4 py-1 text-sm font-bold text-amber-900 mb-3">
+            🇰🇷 미국 한인 No.1 커뮤니티
+          </div>
+          <h1 class="text-3xl md:text-4xl font-black text-amber-900">SomeKorean</h1>
+          <p class="text-amber-800 mt-2">한인들의 일상을 함께하는 올인원 플랫폼</p>
+          <div class="mt-5 max-w-xl mx-auto bg-white/80 rounded-xl flex items-center px-4 py-2.5 shadow-lg">
+            <svg class="w-5 h-5 text-amber-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input v-model="searchQ" @keyup.enter="goSearch" type="text" placeholder="업소, 구인, 장터를 검색하세요..."
+              class="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder-gray-400" />
+          </div>
         </div>
-        <h1 class="text-3xl md:text-4xl font-black text-amber-900">SomeKorean</h1>
-        <p class="text-amber-800 mt-2">한인들의 일상을 함께하는 올인원 플랫폼</p>
-        <div class="mt-5 max-w-xl mx-auto bg-white/80 rounded-xl flex items-center px-4 py-2.5 shadow-lg">
-          <svg class="w-5 h-5 text-amber-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input v-model="searchQ" @keyup.enter="goSearch" type="text" placeholder="업소, 구인, 장터를 검색하세요..."
-            class="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder-gray-400" />
+      </div>
+      <!-- 슬라이드 1~N: 이벤트 배너 -->
+      <div v-for="(b, i) in heroBanners" :key="b.id" v-show="heroIdx === i + 1"
+        class="cursor-pointer transition-opacity duration-500"
+        :style="{ backgroundColor: b.bg_color || '#F5A623' }"
+        @click="clickHeroBanner(b)">
+        <div class="max-w-7xl mx-auto px-4 py-8 text-center">
+          <div class="text-3xl md:text-4xl font-black" :style="{ color: b.text_color || '#fff' }">{{ b.title }}</div>
+          <div v-if="b.subtitle" class="text-base mt-2 opacity-90" :style="{ color: b.text_color || '#fff' }">{{ b.subtitle }}</div>
+          <button class="mt-5 bg-white/30 hover:bg-white/50 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
+            {{ b.link_type === 'event' ? '이벤트 보러가기 →' : '바로가기 →' }}
+          </button>
         </div>
+      </div>
+      <!-- 인디케이터 + 화살표 -->
+      <div v-if="totalSlides > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+        <button @click="heroIdx = (heroIdx - 1 + totalSlides) % totalSlides" class="w-6 h-6 rounded-full bg-black/20 text-white text-xs flex items-center justify-center hover:bg-black/40">‹</button>
+        <div class="flex gap-1.5">
+          <button v-for="idx in totalSlides" :key="idx" @click="heroIdx = idx - 1"
+            class="w-2 h-2 rounded-full transition-all"
+            :class="heroIdx === idx - 1 ? 'bg-white scale-125' : 'bg-white/50'"></button>
+        </div>
+        <button @click="heroIdx = (heroIdx + 1) % totalSlides" class="w-6 h-6 rounded-full bg-black/20 text-white text-xs flex items-center justify-center hover:bg-black/40">›</button>
       </div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-5">
-      <!-- 히어로 배너 슬라이드 -->
-      <div v-if="heroBanners.length" class="mb-5 relative rounded-2xl overflow-hidden shadow-lg" style="height: 120px;">
-        <transition-group name="hero-slide" tag="div" class="relative w-full h-full">
-          <div v-for="(b, i) in heroBanners" :key="b.id" v-show="heroIdx === i"
-            class="absolute inset-0 flex items-center justify-center cursor-pointer transition-all duration-500"
-            :style="{ backgroundColor: b.bg_color || '#F5A623' }"
-            @click="clickHeroBanner(b)">
-            <img v-if="b.image_url" :src="b.image_url" class="absolute inset-0 w-full h-full object-cover" />
-            <div class="relative z-10 text-center px-6">
-              <div class="text-2xl md:text-3xl font-black" :style="{ color: b.text_color || '#fff' }">{{ b.title }}</div>
-              <div v-if="b.subtitle" class="text-sm mt-1 opacity-90" :style="{ color: b.text_color || '#fff' }">{{ b.subtitle }}</div>
-            </div>
-          </div>
-        </transition-group>
-        <!-- 인디케이터 -->
-        <div v-if="heroBanners.length > 1" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-          <button v-for="(_, i) in heroBanners" :key="i" @click="heroIdx = i"
-            class="w-2 h-2 rounded-full transition-all"
-            :class="heroIdx === i ? 'bg-white scale-125' : 'bg-white/50'"></button>
-        </div>
-      </div>
-
       <!-- 퀵 메뉴: 카카오 카드 스타일 -->
       <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2 mb-5">
         <RouterLink v-for="svc in services" :key="svc.to" :to="svc.to"
@@ -165,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AdSlot from '../components/AdSlot.vue'
@@ -175,10 +179,12 @@ const router = useRouter()
 const auth = useAuthStore()
 const searchQ = ref('')
 
-// 히어로 배너
+// 히어로 슬라이드 (기본 홈 + 이벤트 배너)
 const heroBanners = ref([])
 const heroIdx = ref(0)
 let heroInterval = null
+
+const totalSlides = computed(() => 1 + heroBanners.value.length) // 기본홈(1) + 배너 수
 
 function clickHeroBanner(b) {
   if (b.link_type === 'event' && b.event_id) router.push('/events/' + b.event_id)
@@ -187,9 +193,9 @@ function clickHeroBanner(b) {
 }
 
 function startHeroSlide() {
-  if (heroBanners.value.length <= 1) return
+  if (totalSlides.value <= 1) return
   heroInterval = setInterval(() => {
-    heroIdx.value = (heroIdx.value + 1) % heroBanners.value.length
+    heroIdx.value = (heroIdx.value + 1) % totalSlides.value
   }, 4000)
 }
 

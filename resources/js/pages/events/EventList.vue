@@ -99,21 +99,50 @@
     <!-- 상세 모드 -->
     <div v-if="activeItem">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-5 py-4">
+        <!-- 공식 이벤트: 배너 색상 헤더 (280px) -->
+        <div v-if="activeItem.event_type === 'somekorean'" class="relative flex items-center justify-between px-6 overflow-hidden"
+          :style="{ background: 'linear-gradient(135deg, ' + (activeItem.banner_color || '#F5A623') + ', ' + (activeItem.banner_color || '#F5A623') + '99)', height: '200px' }">
+          <div class="z-10 max-w-[60%]">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-xs bg-white/30 text-white font-bold px-2.5 py-1 rounded-full">⭐ 썸코리안 공식</span>
+              <span class="text-xs bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">{{ eventStatusLabel(activeItem) }}</span>
+            </div>
+            <h2 class="text-xl font-black text-white leading-tight">{{ activeItem.title }}</h2>
+            <div v-if="activeItem.banner_subtitle" class="text-sm text-white/80 mt-2">{{ activeItem.banner_subtitle }}</div>
+            <div v-if="activeItem.reward_points" class="mt-2">
+              <span class="text-xs bg-white/30 text-white font-bold px-2 py-0.5 rounded">🎁 최대 {{ activeItem.reward_points }}P</span>
+            </div>
+          </div>
+          <div class="text-8xl opacity-20 flex-shrink-0">{{ activeItem.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
+        </div>
+        <!-- 일반 이벤트: 기존 헤더 -->
+        <div v-else class="px-5 py-4">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ activeItem.category }}</span>
             <span v-if="!activeItem.price || activeItem.price == 0" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">무료</span>
             <span v-else class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${{ activeItem.price }}</span>
           </div>
           <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title }}</h2>
-          <div class="grid grid-cols-2 gap-2 mt-3 text-sm text-gray-600">
-            <div>📅 {{ formatDate(activeItem.start_date) }}</div>
+        </div>
+        <!-- 공통 정보 -->
+        <div class="px-5 py-3 bg-gray-50/50 border-t border-b">
+          <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
+            <div>📅 {{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</div>
             <div>📍 {{ activeItem.venue || activeItem.city }}</div>
             <div>🏢 {{ activeItem.organizer }}</div>
-            <div>👥 {{ activeItem.attendee_count }}명 참가</div>
+            <div>👥 {{ activeItem.attendee_count }}명 참가 · 👁 {{ activeItem.view_count }}회</div>
           </div>
         </div>
-        <div class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ activeItem.content || activeItem.description }}</div>
+        <!-- 참여 버튼 (공식 이벤트) -->
+        <div v-if="activeItem.event_url" class="px-5 py-3 border-b">
+          <button @click="$router.push(activeItem.event_url)"
+            class="w-full py-2.5 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
+            :style="{ backgroundColor: activeItem.banner_color || '#F59E0B' }">
+            {{ activeItem.event_url.includes('realestate') ? '🏠 리스팅 등록하러 가기' : activeItem.event_url.includes('music') ? '🎵 음악듣기 바로가기' : activeItem.event_url.includes('chat') ? '💬 채팅방 입장하기' : '🎯 참여하기' }}
+          </button>
+        </div>
+        <!-- 본문 -->
+        <div class="px-5 py-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
       </div>
       <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
         <button @click="deleteActiveItem('events')" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
@@ -133,33 +162,51 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="rounded-xl shadow-sm border p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
-        :class="item.event_type === 'somekorean' ? 'bg-amber-50/50 border-amber-200' : 'bg-white border-gray-100'">
-        <!-- 공식 이벤트 배지 + 기간 -->
-        <div v-if="item.event_type === 'somekorean' || item.reward_points" class="flex items-center gap-2 mb-2">
-          <span v-if="item.event_type === 'somekorean'" class="text-[10px] bg-amber-400 text-amber-900 font-bold px-2 py-0.5 rounded-full">⭐ 썸코리안 공식</span>
-          <span v-if="item.reward_points" class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">🎁 {{ item.reward_points }}P</span>
-          <span v-if="item.start_date" class="text-[10px] text-gray-400 ml-auto">{{ formatDate(item.start_date) }}{{ item.end_date ? ' ~ ' + formatDate(item.end_date) : ' ~' }}</span>
-        </div>
-        <div class="flex items-center gap-3 mb-3">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-            :class="item.event_type === 'somekorean' ? 'bg-amber-200' : 'bg-amber-100'"
-            :style="item.banner_color ? { backgroundColor: item.banner_color + '20' } : {}">
-            {{ item.event_type === 'somekorean' ? '⭐' : '🎉' }}
+        class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
+        :class="item.event_type === 'somekorean' ? 'border-amber-200' : 'bg-white border-gray-100'">
+
+        <!-- 공식 이벤트: 배너 색상 상단 영역 -->
+        <div v-if="item.event_type === 'somekorean'" class="relative flex items-center justify-between px-5 py-4"
+          :style="{ background: 'linear-gradient(135deg, ' + (item.banner_color || '#F5A623') + ', ' + (item.banner_color || '#F5A623') + 'cc)' }">
+          <div class="z-10">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[10px] bg-white/30 text-white font-bold px-2 py-0.5 rounded-full">⭐ 썸코리안 공식</span>
+              <span class="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">
+                {{ eventStatusLabel(item) }}
+              </span>
+            </div>
+            <div class="text-white font-black text-base leading-tight">{{ item.title }}</div>
+            <div v-if="item.banner_subtitle" class="text-white/80 text-xs mt-1">{{ item.banner_subtitle }}</div>
           </div>
-          <div class="flex-1 min-w-0">
-            <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
-            <div class="text-[10px] text-gray-400">{{ item.category || '기타' }} · <template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
-          </div>
-          <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
-          <div v-else class="text-green-600 text-xs font-bold">무료</div>
+          <div class="text-5xl opacity-30 flex-shrink-0 ml-3">{{ item.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
         </div>
-        <div class="text-xs text-gray-500 line-clamp-3 mb-2">{{ (item.content || '').slice(0, 150) }}</div>
-        <div class="flex items-center justify-between text-[10px] text-gray-400">
-          <span>📍 {{ item.city || item.venue }}, {{ item.state }}</span>
-          <div class="flex items-center gap-1.5">
-            <span>📅 {{ item.start_date?.slice(0,10) }}</span>
-            <span v-if="item.created_at">🕐 {{ fmtDate(item.created_at) }}</span>
+
+        <!-- 일반 이벤트: 기존 카드 헤더 -->
+        <div v-else class="p-4">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">🎉</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
+              <div class="text-[10px] text-gray-400">{{ item.category || '기타' }} · <template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
+            </div>
+            <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+            <div v-else class="text-green-600 text-xs font-bold">무료</div>
+          </div>
+        </div>
+
+        <!-- 공통: 정보 영역 -->
+        <div class="px-4 pb-3" :class="item.event_type === 'somekorean' ? 'bg-amber-50/50 pt-3' : ''">
+          <div v-if="item.event_type === 'somekorean'" class="flex items-center gap-2 mb-2 flex-wrap">
+            <span v-if="item.reward_points" class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">🎁 최대 {{ item.reward_points }}P</span>
+            <span class="text-[10px] text-gray-400">📅 {{ formatDate(item.start_date) }}{{ item.end_date ? ' ~ ' + formatDate(item.end_date) : '' }}</span>
+          </div>
+          <div class="text-xs text-gray-500 line-clamp-2 mb-2">{{ (item.content || '').slice(0, 120) }}</div>
+          <div class="flex items-center justify-between text-[10px] text-gray-400">
+            <span v-if="item.city">📍 {{ item.city }}, {{ item.state }}</span>
+            <div class="flex items-center gap-2">
+              <span>👁 {{ item.view_count || 0 }}</span>
+              <span>👥 {{ item.attendee_count || 0 }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -258,6 +305,14 @@ async function deleteActiveItem(type) {
 }
 
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR', { year:'numeric',month:'long',day:'numeric' }) : '' }
+function eventStatusLabel(item) {
+  const now = new Date()
+  const start = item.start_date ? new Date(item.start_date) : null
+  const end = item.end_date ? new Date(item.end_date) : null
+  if (end && end < now) return '종료'
+  if (start && start > now) return '진행예정'
+  return '진행중'
+}
 const eventCategories = [
   { value: '', label: '전체' },{ value: 'somekorean', label: '⭐ 썸코리안', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
   { value: 'education', label: '📚 교육' },{ value: 'community', label: '👥 커뮤니티' },
