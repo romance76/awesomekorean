@@ -19,15 +19,20 @@
       </div>
       <!-- 슬라이드 1~N: 이벤트 배너 -->
       <div v-for="(b, i) in heroBanners" :key="b.id" v-show="heroIdx === i + 1"
-        class="absolute inset-0 flex items-center justify-center cursor-pointer transition-opacity duration-500"
+        class="absolute inset-0 cursor-pointer transition-opacity duration-500"
         :style="{ backgroundColor: b.bg_color || '#F5A623' }"
         @click="clickHeroBanner(b)">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-          <div class="text-3xl md:text-4xl font-black" :style="{ color: b.text_color || '#fff' }">{{ b.title }}</div>
-          <div v-if="b.subtitle" class="text-base mt-2 opacity-90" :style="{ color: b.text_color || '#fff' }">{{ b.subtitle }}</div>
-          <button class="mt-4 bg-white/30 hover:bg-white/50 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
-            {{ b.link_type === 'event' ? '이벤트 보러가기 →' : '바로가기 →' }}
-          </button>
+        <!-- 이미지가 있으면 이미지만 표시 -->
+        <img v-if="b.image_url" :src="b.image_url" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
+        <!-- 이미지 없으면 텍스트 표시 -->
+        <div v-else class="absolute inset-0 flex items-center justify-center">
+          <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="text-3xl md:text-4xl font-black" :style="{ color: b.text_color || '#fff' }">{{ b.title }}</div>
+            <div v-if="b.subtitle" class="text-base mt-2 opacity-90" :style="{ color: b.text_color || '#fff' }">{{ b.subtitle }}</div>
+            <button class="mt-4 bg-white/30 hover:bg-white/50 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
+              {{ b.link_type === 'event' ? '이벤트 보러가기 →' : '바로가기 →' }}
+            </button>
+          </div>
         </div>
       </div>
       <!-- 인디케이터 + 화살표 -->
