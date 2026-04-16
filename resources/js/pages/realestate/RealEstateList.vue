@@ -154,7 +154,7 @@
         class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer border-2"
         :class="promoBorderClass(item)">
         <!-- 사진 영역 (좋아요 + 상단 뱃지 오버레이) -->
-        <div class="relative h-[250px] bg-gray-100">
+        <div class="relative h-[150px] bg-gray-100">
           <img v-if="item.images?.length" :src="realEstateThumb(item)" loading="lazy" decoding="async"
             class="w-full h-full object-cover"
             @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-6xl bg-amber-50\'>🏠</div>'" />
