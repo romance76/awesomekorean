@@ -10,166 +10,155 @@
 
       <!-- 왼쪽: 카테고리 -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-          <RouterLink v-for="c in categories" :key="c.value" :to="c.value ? `/market?category=${c.value}` : '/market'"
-            class="block w-full text-left px-3 py-2 text-xs transition"
-            :class="item.category === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
-            {{ c.label }}
-          </RouterLink>
+        <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
+            <RouterLink v-for="c in categories" :key="c.value" :to="c.value ? `/market?category=${c.value}` : '/market'"
+              class="block w-full text-left px-3 py-2 text-xs transition"
+              :class="item.category === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+              {{ c.label }}
+            </RouterLink>
+          </div>
+          <AdSlot page="market" position="left" :maxSlots="2" />
         </div>
       </div>
 
-      <!-- 가운데: 이미지 + 설명 -->
-      <div class="col-span-12 lg:col-span-7">
-        <div class="mb-2">
-          <span class="font-bold text-amber-700 text-sm">{{ categoryLabel }}</span>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <!-- 이미지 갤러리 -->
-          <div v-if="item.images?.length" class="bg-gray-50 p-3">
-            <div class="rounded-lg overflow-hidden bg-white flex items-center justify-center cursor-pointer mb-2" style="height: 360px;" @click="lightboxImg = mainImage">
-              <img v-if="mainImage" :src="mainImage" class="max-w-full max-h-full object-contain" />
+      <!-- 가운데: 상세 -->
+      <div class="col-span-12 lg:col-span-7 space-y-4">
+        <!-- 사진 갤러리 (전체 폭) -->
+        <div v-if="item.images?.length" class="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div class="relative cursor-pointer" @click="lightboxImg = mainImage">
+            <img :src="mainImage" style="width:100%; height:380px; object-fit:contain; background:#f9fafb;" />
+          </div>
+          <div v-if="item.images.length > 1" class="flex gap-1 p-2 overflow-x-auto bg-gray-50">
+            <div v-for="(img, i) in item.images" :key="i" @click="selectedImgIdx = i"
+              class="flex-shrink-0 rounded cursor-pointer border-2 transition overflow-hidden"
+              :class="i === selectedImgIdx ? 'border-amber-400' : 'border-transparent hover:border-gray-300'"
+              style="width:60px; height:45px;">
+              <img :src="getImageUrl(img)" style="width:100%;height:100%;object-fit:cover;" />
             </div>
-            <div v-if="item.images.length > 1" class="flex gap-2 overflow-x-auto">
-              <div v-for="(img, i) in item.images" :key="i" @click="selectedImgIdx = i"
-                class="w-16 h-16 rounded-lg overflow-hidden border-2 cursor-pointer flex-shrink-0"
-                :class="selectedImgIdx === i ? 'border-amber-400' : 'border-gray-200'">
-                <img :src="getImageUrl(img)" class="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div v-else class="bg-gray-100 rounded-xl flex items-center justify-center text-5xl" style="height:200px;">📦</div>
+
+        <!-- 가격/정보 + 판매자 (나란히) — 부동산 스타일 -->
+        <div class="flex gap-3">
+          <!-- 왼쪽: 상품 정보 -->
+          <div class="flex-1 min-w-0 bg-white rounded-xl shadow-sm p-4"
+            :style="item.promotion_tier && item.promotion_tier !== 'none' ? promoBorderStyle : 'border: 1px solid #e5e7eb; border-radius: 12px;'">
+            <!-- 1행: 뱃지 + ❤️🚨 -->
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs px-2 py-0.5 rounded-full font-bold"
+                  :class="{'bg-green-100 text-green-700':item.status==='active','bg-amber-100 text-amber-700':item.status==='reserved','bg-gray-200 text-gray-500':item.status==='sold'}">
+                  {{ {active:'판매중',reserved:'예약중',sold:'판매완료'}[item.status] }}
+                </span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">{{ conditionLabel }}</span>
+                <span v-if="item.is_negotiable" class="text-[10px] text-amber-600 font-semibold">가격협의</span>
+                <span v-if="item.hold_enabled" class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">🔒 홀드가능</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <button @click="toggleLike" class="text-xl hover:scale-125 transition">{{ liked ? '❤️' : '🤍' }}</button>
+                <button @click="showReport = true" class="text-lg hover:scale-125 transition" style="filter:grayscale(100%);opacity:0.35;">🚨</button>
               </div>
             </div>
-          </div>
-          <div v-else class="h-48 bg-gray-100 flex items-center justify-center text-5xl">📦</div>
-
-          <!-- 상세 설명 -->
-          <div class="px-5 py-4 border-t">
-            <h3 class="font-bold text-sm text-gray-800 mb-2">📋 상세 설명</h3>
-            <div class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ item.content }}</div>
-          </div>
-
-          <!-- 주의사항 -->
-          <div class="mx-5 mb-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <div class="flex items-start gap-2">
-              <span class="text-amber-500 flex-shrink-0">⚠️</span>
-              <div class="text-xs text-gray-500 leading-relaxed">
-                <b class="text-gray-700">거래 전 주의!</b> 해당 게시글은 회원이 등록한 것으로 SomeKorean은 등록된 내용에 대하여 일체의 책임을 지지 않습니다.
-                직거래 시 안전한 장소에서 만나시고, 선입금 요구에 주의하세요.
-              </div>
-            </div>
-          </div>
-
-          <!-- 댓글 -->
-          <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" />
-        </div>
-
-        <div class="flex justify-between mt-3">
-          <button @click="$router.back()" class="text-xs text-gray-400 hover:text-gray-600">← 목록</button>
-        </div>
-      </div>
-
-      <!-- 오른쪽: 상품 정보 + 액션 + 판매자 -->
-      <div class="col-span-12 lg:col-span-3">
-        <div class="space-y-3 lg:sticky lg:top-20">
-
-          <!-- 상품 정보 카드 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <!-- 상태 뱃지 -->
-            <div class="flex items-center gap-1.5 flex-wrap mb-2">
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold"
-                :class="{'bg-green-100 text-green-700':item.status==='active','bg-amber-100 text-amber-700':item.status==='reserved','bg-gray-200 text-gray-500':item.status==='sold'}">
-                {{ {active:'판매중',reserved:'예약중',sold:'판매완료'}[item.status] }}
-              </span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600">{{ conditionLabel }}</span>
-              <span v-if="item.is_negotiable" class="text-[10px] text-amber-600 font-semibold">가격협의</span>
-              <span v-if="item.hold_enabled" class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700">🔒 홀드가능</span>
-            </div>
-
-            <!-- 제목 -->
-            <h1 class="text-lg font-bold text-gray-900 leading-snug">{{ item.title }}</h1>
-
             <!-- 가격 -->
-            <div class="text-2xl font-black text-amber-600 mt-2">${{ Number(item.price).toLocaleString() }}</div>
-
-            <!-- 위치 + 조회 -->
-            <div class="flex items-center gap-2 text-xs text-gray-500 mt-2">
-              <span>📍 {{ item.city }}, {{ item.state }}</span>
-              <span>👁 {{ item.view_count }}</span>
-              <span>{{ timeAgo(item.created_at) }}</span>
+            <div class="text-2xl font-black text-amber-600">${{ Number(item.price).toLocaleString() }}</div>
+            <h1 class="text-base font-bold text-gray-800 mt-1">{{ item.title }}</h1>
+            <div class="text-xs text-gray-500 mt-1">📍 {{ item.city }}, {{ item.state }}</div>
+            <!-- 스펙 + 등록일 -->
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t">
+              <div class="text-center"><div class="text-lg font-black text-gray-800">{{ item.view_count || 0 }}</div><div class="text-[10px] text-gray-500">조회</div></div>
+              <div class="ml-auto text-xs text-gray-600 text-right font-semibold">
+                등록일: {{ formatFullDate(item.created_at) }}
+              </div>
             </div>
           </div>
 
-          <!-- 액션 버튼 카드 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-2">
-            <!-- 홀드 상태 -->
-            <div v-if="item.active_hold" class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
-              <span class="text-amber-600 font-bold text-sm">🔒 홀드 중</span>
-              <div class="text-xs text-gray-500">{{ item.active_hold.buyer?.nickname || item.active_hold.buyer?.name }}님</div>
-              <div class="text-xs text-amber-700">만료: {{ formatDateTime(item.active_hold.hold_until) }}</div>
+          <!-- 오른쪽: 판매자 정보 -->
+          <div class="hidden lg:block flex-shrink-0" style="width:200px;">
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
+              <div class="px-3 py-2 border-b bg-amber-50 font-bold text-[11px] text-amber-900">📋 판매자 정보</div>
+              <div class="p-3 space-y-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700 overflow-hidden flex-shrink-0">
+                    <img v-if="item.user?.avatar" :src="'/storage/' + item.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
+                    <span v-else>{{ (item.user?.name || '?')[0] }}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-xs font-bold text-gray-800 truncate">{{ item.user?.nickname || item.user?.name }}</div>
+                    <div class="text-[9px] text-gray-400">가입: {{ formatFullDate(item.user?.created_at) }}</div>
+                    <div class="text-[9px] text-amber-600 font-semibold">거래 {{ sellerTradeCount }}회</div>
+                  </div>
+                </div>
+                <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-1.5 pt-2 border-t">
+                  <button @click="addFriend" class="flex-1 text-[11px] bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100">👫 친구</button>
+                  <button @click="sendMessage" class="flex-1 text-[11px] bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100">✉️ 쪽지</button>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- 홀드 버튼 (취소 없음) -->
+        <!-- 액션 버튼 -->
+        <div class="bg-white rounded-xl shadow-sm border p-4 space-y-2">
+          <div v-if="item.active_hold" class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-2">
+            <span class="text-amber-600 font-bold text-sm">🔒 홀드 중</span>
+            <div class="text-xs text-gray-500">{{ item.active_hold.buyer?.nickname || item.active_hold.buyer?.name }}님 · 만료: {{ formatDateTime(item.active_hold.hold_until) }}</div>
+          </div>
+          <div class="flex gap-2">
             <button v-if="item.hold_enabled && item.status==='active' && auth.isLoggedIn && !isOwner && !item.active_hold"
-              @click="showHoldModal = true"
-              class="w-full bg-blue-500 text-white font-bold py-3 rounded-xl text-sm hover:bg-blue-600">
+              @click="showHoldModal = true" class="flex-1 bg-blue-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-blue-600">
               🔒 홀드하기 ({{ item.hold_price_per_6h }}P/6h)
             </button>
-
-            <!-- 부스트 (판매자) -->
-            <button v-if="isOwner && item.status === 'active'"
-              @click="showBoostModal = true"
-              class="w-full bg-purple-500 text-white font-bold py-3 rounded-xl text-sm hover:bg-purple-600">
-              🚀 상위노출 (100P/일)
-            </button>
-
-            <!-- 좋아요 + 신고 -->
-            <div class="flex gap-2">
-              <button @click="toggleLike" class="flex-1 py-2.5 rounded-xl border text-sm font-semibold transition"
-                :class="liked ? 'bg-red-50 border-red-200 text-red-500' : 'bg-white border-gray-200 text-gray-500 hover:text-red-400'">
-                {{ liked ? '❤️ 좋아요' : '🤍 좋아요' }}
-              </button>
-              <button @click="showReport = true" class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-500 text-sm hover:text-red-500">🚨</button>
-            </div>
-
-            <!-- 수정/삭제 -->
-            <div v-if="isOwner" class="flex gap-2 pt-1 border-t mt-2">
-              <RouterLink :to="`/market/write?edit=${item.id}`" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2 rounded-lg text-xs text-center">✏️ 수정</RouterLink>
-              <button @click="deleteItem" class="flex-1 bg-red-50 text-red-600 font-semibold py-2 rounded-lg text-xs">🗑️ 삭제</button>
-            </div>
+            <button v-if="isOwner && item.status === 'active'" @click="showBoostModal = true"
+              class="flex-1 bg-purple-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-purple-600">🚀 상위노출</button>
           </div>
-
-          <!-- 판매자 정보 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <div class="text-xs font-bold text-gray-500 mb-3">판매자 정보</div>
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-lg font-bold text-amber-700 overflow-hidden flex-shrink-0">
-                <img v-if="item.user?.avatar" :src="'/storage/' + item.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
-                <span v-else>{{ (item.user?.name || '?')[0] }}</span>
-              </div>
-              <div class="flex-1">
-                <div class="font-bold text-gray-800 text-sm">{{ item.user?.nickname || item.user?.name }}</div>
-                <div class="text-[10px] text-gray-400 mt-0.5">가입: {{ formatFullDate(item.user?.created_at) }}</div>
-                <div class="text-[10px] text-amber-600 font-semibold mt-0.5">거래 {{ sellerTradeCount }}회</div>
-              </div>
-            </div>
-            <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-2 mt-3">
-              <button @click="addFriend" class="flex-1 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-2 rounded-lg text-xs hover:bg-blue-100">👋 친구추가</button>
-              <button @click="sendMessage" class="flex-1 bg-amber-50 text-amber-700 border border-amber-200 font-bold py-2 rounded-lg text-xs hover:bg-amber-100">✉️ 쪽지</button>
-            </div>
+          <div v-if="isOwner" class="flex gap-2 pt-1 border-t mt-2">
+            <RouterLink :to="`/market/write?edit=${item.id}`" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2 rounded-lg text-xs text-center">✏️ 수정</RouterLink>
+            <button @click="deleteItem" class="flex-1 bg-red-50 text-red-600 font-semibold py-2 rounded-lg text-xs">🗑️ 삭제</button>
           </div>
-
-          <!-- 위젯 -->
-          <SidebarWidgets :inline="true" mode="detail" :currentCategory="item?.category || ''" api-url="/api/market" detail-path="/market/" :current-id="item.id" label="물품"
-            :filter-params="item.lat && item.lng ? { lat: item.lat, lng: item.lng, radius: 50 } : {}" />
         </div>
+
+        <!-- 상세 설명 -->
+        <div class="bg-white rounded-xl shadow-sm border p-4">
+          <h2 class="font-bold text-sm text-gray-800 mb-2">📋 상세 설명</h2>
+          <div class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ item.content }}</div>
+        </div>
+
+        <!-- 주의사항 -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+          <div class="flex items-start gap-2">
+            <span class="text-amber-500 flex-shrink-0">⚠️</span>
+            <div class="text-xs text-gray-500 leading-relaxed">
+              <b class="text-gray-700">거래 전 주의!</b> 해당 게시글은 회원이 등록한 것으로 SomeKorean은 등록된 내용에 대하여 일체의 책임을 지지 않습니다.
+              직거래 시 안전한 장소에서 만나시고, 선입금 요구에 주의하세요.
+            </div>
+          </div>
+        </div>
+
+        <!-- 수정/삭제 -->
+        <div class="flex items-center gap-3 justify-end">
+          <button @click="$router.back()" class="text-sm text-gray-400 hover:text-gray-600">← 목록</button>
+        </div>
+
+        <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" />
+      </div>
+
+      <!-- 오른쪽: 위젯 -->
+      <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
+        <SidebarWidgets mode="detail" :currentCategory="item?.category || ''" :categoryLabel="categoryLabel"
+          :inline="true" api-url="/api/market" detail-path="/market/" :current-id="item.id" label="물품"
+          :filter-params="item.lat && item.lng ? { lat: item.lat, lng: item.lng, radius: 50 } : {}" />
+        <AdSlot page="market" position="right" :maxSlots="2" />
       </div>
     </div>
   </div>
 
   <!-- 라이트박스 -->
-  <div v-if="lightboxImg" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" @click="lightboxImg=null">
-    <button @click="lightboxImg=null" class="absolute top-4 right-4 text-white text-3xl">✕</button>
-    <img :src="lightboxImg" class="max-w-full max-h-[90vh] rounded-lg" @click.stop />
+  <div v-if="lightboxImg" class="fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center" @click.self="lightboxImg=null">
+    <button class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10" @click="lightboxImg=null">✕</button>
+    <img :src="lightboxImg" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;" />
   </div>
 
   <!-- 홀드 모달 -->
@@ -230,6 +219,7 @@ import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import ReportModal from '../../components/ReportModal.vue'
 import MessageModal from '../../components/MessageModal.vue'
+import AdSlot from '../../components/AdSlot.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import axios from 'axios'
 
@@ -257,6 +247,13 @@ const categoryLabel = computed(() => categories.find(c => c.value === item.value
 const mainImage = computed(() => {
   if (!item.value?.images?.length) return null
   return getImageUrl(item.value.images[selectedImgIdx.value] || item.value.images[0])
+})
+const promoBorderStyle = computed(() => {
+  const t = item.value?.promotion_tier
+  if (t === 'national') return 'border: 2px solid #fca5a5; border-radius: 12px;'
+  if (t === 'state_plus') return 'border: 2px solid #93c5fd; border-radius: 12px;'
+  if (t === 'sponsored') return 'border: 2px solid #fde68a; border-radius: 12px;'
+  return 'border: 1px solid #e5e7eb; border-radius: 12px;'
 })
 
 function getImageUrl(img) {
@@ -318,7 +315,7 @@ function formatDateTime(dt) { if (!dt) return ''; const d = new Date(dt); return
 function formatFullDate(dt) {
   if (!dt) return ''
   const d = new Date(dt)
-  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`
+  return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`
 }
 function timeAgo(dt) {
   if (!dt) return ''; const s = (Date.now() - new Date(dt)) / 1000
@@ -330,7 +327,6 @@ async function loadItem() {
   try {
     const { data } = await axios.get(`/api/market/${route.params.id}`)
     item.value = data.data
-    // 판매자 거래 횟수
     try {
       const { data: trades } = await axios.get(`/api/market?user_id=${item.value.user_id}&per_page=1`)
       sellerTradeCount.value = trades.data?.total || 0
