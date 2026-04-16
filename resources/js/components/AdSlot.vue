@@ -13,11 +13,8 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useBannerStore } from '../stores/banners'
 import axios from 'axios'
-
-// 인메모리 캐시 — 같은 page+position은 5분간 재사용
-const _adCache = new Map()
-const AD_CACHE_TTL = 300000
 
 const props = defineProps({
   page: { type: String, required: true },
@@ -25,9 +22,9 @@ const props = defineProps({
   maxSlots: { type: Number, default: 3 }
 })
 
+const bannerStore = useBannerStore()
 const ads = ref([])
 
-// 슬롯 사이즈: 좌/우 모두 컬럼 폭을 넘지 않도록 width 100% + max-width
 const imgStyle = computed(() => {
   if (props.position === 'left') return { width: '100%', maxWidth: '200px', aspectRatio: '200 / 140', objectFit: 'cover', display: 'block', margin: '0 auto' }
   if (props.position === 'right') return { width: '100%', maxWidth: '300px', aspectRatio: '300 / 210', objectFit: 'cover', display: 'block', margin: '0 auto' }
@@ -35,19 +32,9 @@ const imgStyle = computed(() => {
 })
 
 async function loadAds() {
-  const cacheKey = `${props.page}|${props.position}|${props.maxSlots}`
-  const cached = _adCache.get(cacheKey)
-  if (cached && Date.now() - cached.ts < AD_CACHE_TTL) {
-    ads.value = cached.data
-    return
-  }
-  try {
-    const { data } = await axios.get('/api/banners/active', {
-      params: { page: props.page, position: props.position, limit: props.maxSlots }
-    })
-    ads.value = data.data || []
-    _adCache.set(cacheKey, { data: ads.value, ts: Date.now() })
-  } catch {}
+  await bannerStore.loadForPage(props.page)
+  const all = props.position === 'left' ? bannerStore.getLeft(props.page) : bannerStore.getRight(props.page)
+  ads.value = all.slice(0, props.maxSlots)
 }
 
 function handleClick(ad) {

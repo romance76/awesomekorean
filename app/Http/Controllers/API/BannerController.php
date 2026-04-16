@@ -126,6 +126,86 @@ class BannerController extends Controller
         return response()->json(['success' => true, 'data' => $picked]);
     }
 
+    // 통합: left + right + mobile 한번에 반환 (30분 Redis 캐시)
+    public function all(Request $request)
+    {
+        $page = $request->page ?: 'home';
+        $user = auth('api')->user();
+        $userState = $user->state ?? null;
+
+        $cacheKey = "banners_all_{$page}_" . ($userState ?: 'all');
+        $cached = Cache::get($cacheKey);
+        if ($cached) {
+            // impression 증가
+            $allIds = collect($cached['left'] ?? [])->pluck('id')
+                ->merge(collect($cached['right'] ?? [])->pluck('id'))
+                ->merge(isset($cached['mobile']->id) ? [$cached['mobile']->id] : (isset($cached['mobile']['id']) ? [$cached['mobile']['id']] : []))
+                ->filter();
+            if ($allIds->count()) BannerAd::whereIn('id', $allIds->toArray())->increment('impressions');
+            return response()->json(['success' => true, 'data' => $cached]);
+        }
+
+        // left/right 배너 수집
+        $result = ['left' => [], 'right' => [], 'mobile' => null];
+
+        foreach (['left', 'right'] as $position) {
+            $slotConfig = $position === 'left'
+                ? [1 => ['tier' => 'premium', 'max' => 1], 2 => ['tier' => 'standard', 'max' => 2], 3 => ['tier' => 'economy', 'max' => 5]]
+                : [1 => ['tier' => 'premium', 'max' => 1], 2 => ['tier' => 'economy', 'max' => 3]];
+
+            foreach ($slotConfig as $slotNum => $cfg) {
+                $query = BannerAd::active()->where('position', $position)->where('slot_number', $slotNum);
+                $query->where(function ($q) use ($page) {
+                    $q->where('page', $page)->orWhere('page', 'all')
+                      ->orWhereJsonContains('target_pages', $page)
+                      ->orWhere('target_pages', 'LIKE', '%"' . $page . '"%');
+                });
+                $nationalPages = ['home','community','qa','news','recipes','shorts','games','music','poker'];
+                if (!in_array($page, $nationalPages) && $user && $userState) {
+                    $query->where(function ($q) use ($userState, $userCounty = $user->city ?? null) {
+                        $q->where('geo_scope', 'all')
+                          ->orWhere(function ($q2) use ($userState) { $q2->where('geo_scope', 'state')->where('geo_value', $userState); })
+                          ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'county')->where('geo_value', $userCounty); })
+                          ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'city')->where('geo_value', $userCounty); });
+                    });
+                }
+                if ($cfg['tier'] === 'premium') {
+                    $ad = $query->orderByDesc('bid_amount')->first();
+                    if ($ad) $result[$position][] = $ad;
+                } else {
+                    $candidates = $query->orderByDesc('bid_amount')->limit($cfg['max'])->get();
+                    if ($candidates->count()) $result[$position][] = $candidates->random();
+                }
+            }
+        }
+
+        // mobile 배너
+        $mQuery = BannerAd::active()->where(function ($q) use ($page) {
+            $q->where('page', $page)->orWhere('page', 'all')
+              ->orWhereJsonContains('target_pages', $page)
+              ->orWhere('target_pages', 'LIKE', '%"' . $page . '"%');
+        });
+        $mAds = $mQuery->orderByDesc('bid_amount')->limit(10)->get();
+        if ($mAds->count()) {
+            $weighted = [];
+            foreach ($mAds as $ad) {
+                $w = match((int) $ad->slot_number) { 1 => 5, 2 => 3, 3 => 2, default => 1 };
+                for ($i = 0; $i < $w; $i++) $weighted[] = $ad;
+            }
+            $result['mobile'] = $weighted[array_rand($weighted)];
+        }
+
+        // impression + 캐시
+        $allIds = collect($result['left'])->pluck('id')
+            ->merge(collect($result['right'])->pluck('id'))
+            ->merge($result['mobile'] ? [$result['mobile']->id] : [])
+            ->filter();
+        if ($allIds->count()) BannerAd::whereIn('id', $allIds->toArray())->increment('impressions');
+        Cache::put($cacheKey, $result, 1800);
+
+        return response()->json(['success' => true, 'data' => $result]);
+    }
+
     // 배너 클릭 추적
     public function click($id)
     {
