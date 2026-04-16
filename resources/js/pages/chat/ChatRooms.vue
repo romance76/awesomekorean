@@ -338,8 +338,8 @@ function subscribeToRoom(roomId) {
   window.Echo.channel('chat.' + roomId)
     .listen('.message.sent', (payload) => {
       // 가드: 현재 활성 방의 메시지만 받음 (다른 방 채널 잔존 방지)
-      if (activeRoom.value?.id !== roomId) return
-      if (payload.chat_room_id && payload.chat_room_id !== roomId) return
+      if (Number(activeRoom.value?.id) !== Number(roomId)) return
+      if (payload.chat_room_id && Number(payload.chat_room_id) !== Number(roomId)) return
       // 중복 방지: 이미 같은 id가 있으면 무시
       if (activeMessages.value.some(m => m.id === payload.id)) return
       activeMessages.value.push(payload)
@@ -369,8 +369,9 @@ async function selectRoom(room) {
     // 도착 사이 다른 방으로 이동했으면 결과 무시 (race condition)
     if (seq !== selectRoomSeq || activeRoom.value?.id !== room.id) return
     const msgs = (data.data?.data || data.data || []).reverse()
-    // 안전: chat_room_id 가 다른 메시지 (혹시 백엔드 버그 대비) 필터
-    activeMessages.value = msgs.filter(m => !m.chat_room_id || m.chat_room_id === room.id)
+    // 안전: chat_room_id 가 다른 메시지 필터 (== 로 string/number 모두 매칭)
+    const rid = Number(room.id)
+    activeMessages.value = msgs.filter(m => !m.chat_room_id || Number(m.chat_room_id) === rid)
     pinnedAnnouncements.value = data.pinned || []
     await nextTick()
     if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
