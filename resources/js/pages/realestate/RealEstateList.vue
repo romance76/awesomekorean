@@ -305,7 +305,7 @@
 </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -317,6 +317,7 @@ import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const showFilter = ref(false)
 const activeCat = ref('')
 const reType = ref('rent') // rent | sale
@@ -388,12 +389,8 @@ const items = ref([])
 const loading = ref(true)
 const activeItem = ref(null)
 const currentIdx = ref(-1)
-async function openItem(item) {
-  currentIdx.value = items.value.findIndex(i => i.id === item.id)
-  try { const { data } = await axios.get(`/api/realestate/${item.id}`); activeItem.value = data.data }
-  catch { activeItem.value = item }
-  if (activeItem.value?.type) activeCat.value = activeItem.value.type
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+function openItem(item) {
+  router.push('/realestate/' + item.id)
 }
 function navItem(dir) {
   const newIdx = currentIdx.value + dir
