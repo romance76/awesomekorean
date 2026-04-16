@@ -99,21 +99,24 @@
     <!-- 상세 모드 -->
     <div v-if="activeItem">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <!-- 공식 이벤트: 배너 색상 헤더 (280px) -->
-        <div v-if="activeItem.event_type === 'somekorean'" class="relative flex items-center justify-between px-6 overflow-hidden"
-          :style="{ background: 'linear-gradient(135deg, ' + (activeItem.banner_color || '#F5A623') + ', ' + (activeItem.banner_color || '#F5A623') + '99)', height: '200px' }">
-          <div class="z-10 max-w-[60%]">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-xs bg-white/30 text-white font-bold px-2.5 py-1 rounded-full">⭐ 썸코리안 공식</span>
-              <span class="text-xs bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">{{ eventStatusLabel(activeItem) }}</span>
+        <!-- 공식 이벤트: 배너 이미지 또는 색상 헤더 -->
+        <div v-if="activeItem.event_type === 'somekorean'" class="relative overflow-hidden"
+          :style="{ backgroundColor: activeItem.banner_color || '#F5A623', height: '180px' }">
+          <!-- 이미지가 있으면 이미지만 (높이 맞춤, 비율 유지) -->
+          <img v-if="activeItem.banner_image || activeItem.image_url" :src="activeItem.banner_image || activeItem.image_url"
+            class="absolute inset-0 m-auto h-full object-contain" />
+          <!-- 이미지 없으면 텍스트 -->
+          <div v-else class="absolute inset-0 flex items-center justify-between px-6">
+            <div class="z-10 max-w-[60%]">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xs bg-white/30 text-white font-bold px-2.5 py-1 rounded-full">⭐ 썸코리안 공식</span>
+                <span class="text-xs bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">{{ eventStatusLabel(activeItem) }}</span>
+              </div>
+              <h2 class="text-xl font-black text-white leading-tight">{{ activeItem.title }}</h2>
+              <div v-if="activeItem.banner_subtitle" class="text-sm text-white/80 mt-2">{{ activeItem.banner_subtitle }}</div>
             </div>
-            <h2 class="text-xl font-black text-white leading-tight">{{ activeItem.title }}</h2>
-            <div v-if="activeItem.banner_subtitle" class="text-sm text-white/80 mt-2">{{ activeItem.banner_subtitle }}</div>
-            <div v-if="activeItem.reward_points" class="mt-2">
-              <span class="text-xs bg-white/30 text-white font-bold px-2 py-0.5 rounded">🎁 최대 {{ activeItem.reward_points }}P</span>
-            </div>
+            <div class="text-8xl opacity-20 flex-shrink-0">{{ activeItem.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
           </div>
-          <div class="text-8xl opacity-20 flex-shrink-0">{{ activeItem.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
         </div>
         <!-- 일반 이벤트: 기존 헤더 -->
         <div v-else class="px-5 py-4">
@@ -245,7 +248,7 @@
     <Pagination :page="page" :lastPage="lastPage" @page="loadPage" />
     </div>
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets :currentCategory="activeCat" api-url="/api/events" detail-path="/events/" :current-id="0"
+      <SidebarWidgets :currentCategory="activeCat" :inline="true" @select="openItem" api-url="/api/events" detail-path="/events/" :current-id="activeItem?.id || 0"
         label="이벤트" :filter-params="locationParams" />
         <AdSlot page="events" position="right" :maxSlots="2" />
     </div>
