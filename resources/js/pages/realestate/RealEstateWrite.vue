@@ -98,7 +98,7 @@
       </div>
 
       <!-- 상위노출 (주소 다음, 설명 이전) -->
-      <PromotionSection resource="realestate" :is-edit="false"
+      <PromotionSection resource="realestate" :is-edit="isEdit"
         :category="form.type" :state="form.state || userState"
         v-model="promotion" ref="promoRef"
         category-label="유형 (렌트/매매/룸메이트)" />

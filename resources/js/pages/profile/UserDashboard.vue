@@ -255,7 +255,7 @@
         <h2 class="font-bold text-gray-800 mb-4">📄 내가 쓴 글</h2>
         <div v-if="!myPosts.length" class="text-sm text-gray-400 py-6 text-center">작성한 글이 없습니다</div>
         <div v-else class="space-y-2">
-          <RouterLink v-for="p in myPosts" :key="p.id" :to="'/community/post/'+p.id" class="block border rounded-lg p-3 hover:bg-amber-50/50 transition">
+          <RouterLink v-for="p in myPosts" :key="p.id" :to="'/community/'+(p.board?.slug||'free')+'/'+p.id" class="block border rounded-lg p-3 hover:bg-amber-50/50 transition">
             <div class="text-sm font-bold text-gray-800 truncate">{{ p.title }}</div>
             <div class="flex items-center gap-2 mt-1">
               <span class="text-[10px] text-gray-400">{{ fmtDate(p.created_at) }}</span>

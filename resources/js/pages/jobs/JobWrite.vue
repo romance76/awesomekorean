@@ -362,7 +362,6 @@
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
-import { neighborsOf } from '../../utils/stateNeighbors'
 import PromotionSection from '../../components/PromotionSection.vue'
 
 // 공통 컴포넌트로 프로모션 관리 (jobPromotion 으로 v-model)
@@ -493,10 +492,6 @@ const editorRef = ref(null)
 const contentImageInputRef = ref(null)
 const contentTextLength = ref(0)
 
-// Promotion
-const promotion = reactive({ tier: 'none', days: 7, states: [] })
-const slotInfo = ref(null)
-
 const error = ref('')
 const submitting = ref(false)
 const isEdit = ref(false)
@@ -506,39 +501,6 @@ const isHiring = computed(() => form.post_type === 'hiring')
 const focusRing = computed(() =>
   isHiring.value ? 'focus:ring-2 focus:ring-amber-400 focus:border-amber-400' : 'focus:ring-2 focus:ring-blue-400 focus:border-blue-400'
 )
-
-// 관리자 설정 기반 가격/슬롯 (onMounted 에서 로드)
-const promoPrices = reactive({ national: 100, state_plus: 50, sponsored: 20 })
-const promoMax = reactive({ national: 5, state_plus: 5 })
-async function loadPromoSettings() {
-  try {
-    const { data } = await axios.get('/api/promotion/settings')
-    const s = data?.data
-    if (s?.price_per_day) {
-      promoPrices.national = s.price_per_day.national ?? 100
-      promoPrices.state_plus = s.price_per_day.state_plus ?? 50
-      promoPrices.sponsored = s.price_per_day.sponsored ?? 20
-    }
-    if (s?.max_slots) {
-      promoMax.national = s.max_slots.national ?? 5
-      promoMax.state_plus = s.max_slots.state_plus ?? 5
-    }
-  } catch {}
-}
-
-const totalPromotionCost = computed(() => {
-  const unit = promoPrices[promotion.tier] || 0
-  const days = Math.max(1, Math.min(30, Number(promotion.days) || 0))
-  return unit * days
-})
-
-// state_plus 선택 시 자동 계산되는 노출 주 목록 (서버 StateNeighbors 와 동일 규칙)
-const autoStatePlusStates = computed(() => {
-  if (promotion.tier !== 'state_plus') return []
-  const st = (form.state || '').trim().toUpperCase()
-  if (!st) return []
-  return neighborsOf(st)
-})
 
 function toggleJobTag(v) {
   const idx = selectedJobTags.value.indexOf(v)
@@ -627,44 +589,6 @@ function onInsertImage(e) {
   reader.readAsDataURL(file)
 }
 
-// Promotion
-async function selectPromotion(tier) {
-  promotion.tier = tier
-  await refreshSlotInfo()
-}
-
-// 슬롯 정보 갱신: tier/카테고리/주 중 하나라도 바뀌면 호출
-async function refreshSlotInfo() {
-  slotInfo.value = null
-  const tier = promotion.tier
-  if (tier === 'none' || tier === 'sponsored') return
-  if (!form.category) return // 카테고리 선택 전엔 조회 안함
-  if (tier === 'state_plus' && !form.state) return // 주 선택 전엔 조회 안함
-  try {
-    const params = { tier, category: form.category }
-    if (tier === 'state_plus') params.state = (form.state || '').toUpperCase()
-    const { data } = await axios.get('/api/jobs/promotion-slots', { params })
-    slotInfo.value = data?.data ?? data
-  } catch {
-    slotInfo.value = null
-  }
-}
-
-watch(() => promotion.tier, (t) => {
-  if (t !== 'none') refreshSlotInfo()
-})
-// 카테고리/주 바뀌면 슬롯 재조회 (state_plus/national 선택 상태일 때)
-watch(() => form.category, () => { if (['state_plus','national'].includes(promotion.tier)) refreshSlotInfo() })
-watch(() => form.state, () => { if (promotion.tier === 'state_plus') refreshSlotInfo() })
-
-// 만석일 때 등록 차단에 쓰는 플래그
-const isSlotFull = computed(() => slotInfo.value?.is_full === true)
-const nextSlotTimeFmt = computed(() => {
-  if (!slotInfo.value?.next_slot_time) return null
-  const d = new Date(slotInfo.value.next_slot_time)
-  return `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
-})
-
 async function submit() {
   syncContent()
   const plainText = (editorRef.value?.innerText || '').trim()
@@ -749,7 +673,6 @@ async function submit() {
 }
 
 onMounted(async () => {
-  loadPromoSettings()
   if (route.query.edit) {
     editId.value = route.query.edit
     isEdit.value = true

@@ -76,7 +76,8 @@ class ProfileController extends Controller
 
     public function posts($id)
     {
-        $posts = \App\Models\Post::where('user_id', $id)->visible()->orderByDesc('created_at')->paginate(20);
+        $posts = \App\Models\Post::with('board:id,slug,name')
+            ->where('user_id', $id)->visible()->orderByDesc('created_at')->paginate(20);
         return response()->json(['success' => true, 'data' => $posts]);
     }
 }
