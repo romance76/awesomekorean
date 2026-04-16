@@ -6,9 +6,9 @@
     <div v-else-if="listing">
 
       <!-- ═══ 사진 갤러리 (가로 스크롤) ═══ -->
-      <div v-if="photos.length" class="mb-4">
+      <div v-if="listing.images && listing.images.length" class="mb-4">
         <div class="flex gap-2 overflow-x-auto pb-2 rounded-xl" style="-webkit-overflow-scrolling: touch;">
-          <div v-for="(p, idx) in photos" :key="idx"
+          <div v-for="(p, idx) in listing.images" :key="idx"
             class="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition relative bg-gray-100"
             style="min-width: 200px; height: 280px;"
             @click="openLightbox(idx)">
@@ -22,7 +22,7 @@
             </template>
           </div>
         </div>
-        <div class="text-[10px] text-gray-400 mt-1">📷 {{ photos.length }}장 · 클릭하면 크게 보기</div>
+        <div class="text-[10px] text-gray-400 mt-1">📷 {{ listing.images.length }}장 · 클릭하면 크게 보기</div>
       </div>
       <div v-else class="bg-gray-100 rounded-xl h-[150px] flex items-center justify-center text-4xl mb-4">🏠</div>
 
@@ -134,8 +134,8 @@
     <button class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300" @click="lightboxIdx=null">✕</button>
     <button class="absolute left-4 top-1/2 -translate-y-1/2 text-white text-3xl hover:text-gray-300" @click="prevPhoto">‹</button>
     <button class="absolute right-4 top-1/2 -translate-y-1/2 text-white text-3xl hover:text-gray-300" @click="nextPhoto">›</button>
-    <img :src="photoUrl(photos[lightboxIdx])" class="max-w-[90vw] max-h-[85vh] object-contain rounded-lg" />
-    <div class="absolute bottom-4 text-white text-sm">{{ lightboxIdx + 1 }} / {{ photos.length }}</div>
+    <img v-if="listing?.images?.[lightboxIdx]" :src="photoUrl(listing.images[lightboxIdx])" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;" />
+    <div class="absolute bottom-4 text-white text-sm">{{ lightboxIdx + 1 }} / {{ listing?.images?.length || 0 }}</div>
   </div>
 </div>
 </template>
@@ -169,7 +169,7 @@ function photoUrl(path) {
 
 function openLightbox(idx) { lightboxIdx.value = idx }
 function prevPhoto() { if (lightboxIdx.value > 0) lightboxIdx.value-- }
-function nextPhoto() { if (lightboxIdx.value < photos.value.length - 1) lightboxIdx.value++ }
+function nextPhoto() { if (lightboxIdx.value < (listing.value?.images?.length || 1) - 1) lightboxIdx.value++ }
 
 function fmtDate(dt) {
   if (!dt) return ''
