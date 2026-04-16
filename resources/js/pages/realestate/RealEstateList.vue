@@ -322,41 +322,37 @@ const activeCat = ref('')
 const reType = ref('rent') // rent | sale
 const showFavorites = ref(false)
 
-// 렌트 세부 카테고리
+// 렌트 카테고리 (간소화)
 const rentSubcats = [
-  { label: '주거용 렌트', items: [
+  { label: '주거용', items: [
     { value: 'studio', label: '스튜디오' },
     { value: '1br', label: '1BR' },
     { value: '2br', label: '2BR' },
-    { value: '3br', label: '3BR' },
-    { value: '4br_plus', label: '4BR 이상' },
-  ]},
-  { label: '공유 및 단기 렌트', items: [
+    { value: '3br_plus', label: '3BR 이상' },
     { value: 'roommate', label: '룸메이트' },
-    { value: 'sublet', label: '서블렛' },
-    { value: 'room_share', label: '방쉐어' },
     { value: 'minbak', label: '민박' },
-    { value: 'homestay', label: '홈스테이' },
-  ]},
-  { label: '상업용 렌트', items: [
-    { value: 'office_rent', label: '오피스/코워킹' },
-    { value: 'retail_factory', label: '소매/공장' },
-    { value: 'restaurant_store', label: '레스토랑/상가' },
-    { value: 'land_rent', label: '토지/용지' },
-    { value: 'garage_etc', label: '차고/창고/기타' },
-  ]},
-]
-// 매매 세부 카테고리
-const saleSubcats = [
-  { label: '주거용 매매', items: [
-    { value: 'house', label: '하우스' },
-    { value: 'condo', label: '콘도' },
-    { value: 'duplex', label: '듀플렉스' },
-    { value: 'villa', label: '빌라' },
-    { value: 'townhouse', label: '타운하우스' },
     { value: 'etc_home', label: '기타' },
   ]},
-  { label: '상업용 매매', items: [
+  { label: '상업용', items: [
+    { value: 'office_rent', label: '오피스' },
+    { value: 'retail_rent', label: '소매' },
+    { value: 'store_rent', label: '상가' },
+    { value: 'building_rent', label: '건물' },
+    { value: 'etc_commercial', label: '기타' },
+  ]},
+]
+// 매매 카테고리 (간소화)
+const saleSubcats = [
+  { label: '주거용', items: [
+    { value: 'studio', label: '스튜디오' },
+    { value: '1br', label: '1BR' },
+    { value: '2br', label: '2BR' },
+    { value: '3br_plus', label: '3BR 이상' },
+    { value: 'roommate', label: '룸메이트' },
+    { value: 'minbak', label: '민박' },
+    { value: 'etc_home', label: '기타' },
+  ]},
+  { label: '상업용', items: [
     { value: 'office_sale', label: '오피스' },
     { value: 'retail_sale', label: '소매' },
     { value: 'store_sale', label: '상가' },
