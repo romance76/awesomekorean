@@ -111,6 +111,7 @@ const subTabs = {
   ],
   ad: [
     { to: '/admin/banners', icon: '📢', label: '광고 목록' },
+    { to: '/admin/hero-banners', icon: '🎪', label: '히어로 배너' },
     { to: '/admin/ad-settings', icon: '📐', label: '페이지별 설정' },
     { to: '/admin/payments', icon: '💳', label: '결제/오더' },
   ],

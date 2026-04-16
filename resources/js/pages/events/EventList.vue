@@ -133,9 +133,20 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer">
+        class="rounded-xl shadow-sm border p-4 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
+        :class="item.event_type === 'somekorean' ? 'bg-amber-50/50 border-amber-200' : 'bg-white border-gray-100'">
+        <!-- 공식 이벤트 배지 + 기간 -->
+        <div v-if="item.event_type === 'somekorean' || item.reward_points" class="flex items-center gap-2 mb-2">
+          <span v-if="item.event_type === 'somekorean'" class="text-[10px] bg-amber-400 text-amber-900 font-bold px-2 py-0.5 rounded-full">⭐ 썸코리안 공식</span>
+          <span v-if="item.reward_points" class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">🎁 {{ item.reward_points }}P</span>
+          <span v-if="item.start_date" class="text-[10px] text-gray-400 ml-auto">{{ formatDate(item.start_date) }}{{ item.end_date ? ' ~ ' + formatDate(item.end_date) : ' ~' }}</span>
+        </div>
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">🎉</div>
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+            :class="item.event_type === 'somekorean' ? 'bg-amber-200' : 'bg-amber-100'"
+            :style="item.banner_color ? { backgroundColor: item.banner_color + '20' } : {}">
+            {{ item.event_type === 'somekorean' ? '⭐' : '🎉' }}
+          </div>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
             <div class="text-[10px] text-gray-400">{{ item.category || '기타' }} · <template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
@@ -143,7 +154,7 @@
           <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
           <div v-else class="text-green-600 text-xs font-bold">무료</div>
         </div>
-        <div class="text-xs text-gray-500 line-clamp-2 mb-2">{{ (item.content || '').slice(0, 80) }}</div>
+        <div class="text-xs text-gray-500 line-clamp-3 mb-2">{{ (item.content || '').slice(0, 150) }}</div>
         <div class="flex items-center justify-between text-[10px] text-gray-400">
           <span>📍 {{ item.city || item.venue }}, {{ item.state }}</span>
           <div class="flex items-center gap-1.5">
@@ -248,7 +259,7 @@ async function deleteActiveItem(type) {
 
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR', { year:'numeric',month:'long',day:'numeric' }) : '' }
 const eventCategories = [
-  { value: '', label: '전체' },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
+  { value: '', label: '전체' },{ value: 'somekorean', label: '⭐ 썸코리안', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
   { value: 'education', label: '📚 교육' },{ value: 'community', label: '👥 커뮤니티' },
   { value: 'sports', label: '⚽ 스포츠' },{ value: 'food', label: '🍽️ 음식' },
 ]
@@ -304,7 +315,10 @@ async function loadPage(p = 1) {
 
   const params = { page: p, per_page: 20 }
   if (search.value) params.search = search.value
-  if (activeCat.value) params.category = activeCat.value
+  // 썸코리안 이벤트는 event_type으로, 나머지는 category로
+  const catInfo = eventCategories.find(c => c.value === activeCat.value)
+  if (activeCat.value && catInfo?.isType) params.event_type = activeCat.value
+  else if (activeCat.value) params.category = activeCat.value
 
   if (radius.value !== '0') {
     let lat, lng

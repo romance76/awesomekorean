@@ -6,15 +6,24 @@
     <div v-else-if="event" class="grid grid-cols-12 gap-4">
       <div class="col-span-12 lg:col-span-9">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <!-- 이미지 -->
+          <!-- 이미지 또는 배너 색상 -->
           <div v-if="event.image_url" class="h-48 lg:h-64 bg-gray-200 overflow-hidden">
             <img :src="event.image_url" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+          </div>
+          <div v-else-if="event.event_type === 'somekorean'" class="h-32 flex items-center justify-center text-center px-6"
+            :style="{ backgroundColor: event.banner_color || '#F5A623' }">
+            <div>
+              <div class="text-3xl font-black text-white">{{ event.title.split(' ')[0] }}</div>
+              <div v-if="event.banner_subtitle" class="text-sm text-white/80 mt-1">{{ event.banner_subtitle }}</div>
+            </div>
           </div>
           <div v-else class="h-32 bg-gradient-to-r from-amber-100 to-orange-100 flex items-center justify-center text-4xl">🎉</div>
 
           <!-- 헤더 -->
           <div class="px-4 lg:px-5 py-4">
             <div class="flex items-center gap-2 flex-wrap mb-2">
+              <span v-if="event.event_type === 'somekorean'" class="text-xs bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full font-bold">⭐ 썸코리안 공식</span>
+              <span v-if="event.reward_points" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">🎁 최대 {{ event.reward_points }}P</span>
               <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ event.category || '이벤트' }}</span>
               <span v-if="event.is_free || !event.price" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">무료</span>
               <span v-else class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">${{ Number(event.price).toLocaleString() }}</span>
@@ -77,6 +86,19 @@
           <!-- 본문 -->
           <div class="px-4 lg:px-5 py-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ event.content || event.description }}</div>
 
+          <!-- 공식 이벤트 참여하기 버튼 -->
+          <div v-if="event.event_url || event.event_type === 'somekorean'" class="px-4 lg:px-5 py-3 border-t">
+            <button v-if="event.event_url" @click="$router.push(event.event_url)"
+              class="w-full py-3 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
+              :style="{ backgroundColor: event.banner_color || '#F59E0B' }">
+              {{ eventActionLabel }}
+            </button>
+            <button v-else @click="scrollToComments"
+              class="w-full py-3 rounded-xl bg-amber-400 text-amber-900 font-bold text-sm hover:bg-amber-500 transition">
+              📸 댓글로 참여하기
+            </button>
+          </div>
+
           <!-- 하단: 작성자 + 수정/삭제 -->
           <div class="px-4 lg:px-5 py-3 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between flex-wrap gap-2">
             <div class="text-xs text-gray-500">
@@ -129,6 +151,18 @@ const loading = ref(true)
 const myStatus = ref(null)
 
 const isPast = computed(() => event.value?.start_date && new Date(event.value.start_date) < new Date())
+
+const eventActionLabel = computed(() => {
+  const url = event.value?.event_url || ''
+  if (url.includes('realestate')) return '🏠 리스팅 등록하러 가기'
+  if (url.includes('music')) return '🎵 음악듣기 바로가기'
+  if (url.includes('chat')) return '💬 채팅방 입장하기'
+  return '🎯 참여하기'
+})
+
+function scrollToComments() {
+  document.querySelector('.comment-section, [class*=CommentSection]')?.scrollIntoView({ behavior: 'smooth' })
+}
 const canEdit = computed(() => {
   if (!event.value || !auth.user) return false
   return event.value.user_id === auth.user.id || ['admin','super_admin'].includes(auth.user.role)

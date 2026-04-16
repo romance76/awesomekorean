@@ -17,6 +17,28 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-5">
+      <!-- 히어로 배너 슬라이드 -->
+      <div v-if="heroBanners.length" class="mb-5 relative rounded-2xl overflow-hidden shadow-lg" style="height: 120px;">
+        <transition-group name="hero-slide" tag="div" class="relative w-full h-full">
+          <div v-for="(b, i) in heroBanners" :key="b.id" v-show="heroIdx === i"
+            class="absolute inset-0 flex items-center justify-center cursor-pointer transition-all duration-500"
+            :style="{ backgroundColor: b.bg_color || '#F5A623' }"
+            @click="clickHeroBanner(b)">
+            <img v-if="b.image_url" :src="b.image_url" class="absolute inset-0 w-full h-full object-cover" />
+            <div class="relative z-10 text-center px-6">
+              <div class="text-2xl md:text-3xl font-black" :style="{ color: b.text_color || '#fff' }">{{ b.title }}</div>
+              <div v-if="b.subtitle" class="text-sm mt-1 opacity-90" :style="{ color: b.text_color || '#fff' }">{{ b.subtitle }}</div>
+            </div>
+          </div>
+        </transition-group>
+        <!-- 인디케이터 -->
+        <div v-if="heroBanners.length > 1" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+          <button v-for="(_, i) in heroBanners" :key="i" @click="heroIdx = i"
+            class="w-2 h-2 rounded-full transition-all"
+            :class="heroIdx === i ? 'bg-white scale-125' : 'bg-white/50'"></button>
+        </div>
+      </div>
+
       <!-- 퀵 메뉴: 카카오 카드 스타일 -->
       <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2 mb-5">
         <RouterLink v-for="svc in services" :key="svc.to" :to="svc.to"
@@ -143,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AdSlot from '../components/AdSlot.vue'
@@ -152,6 +174,26 @@ import axios from 'axios'
 const router = useRouter()
 const auth = useAuthStore()
 const searchQ = ref('')
+
+// 히어로 배너
+const heroBanners = ref([])
+const heroIdx = ref(0)
+let heroInterval = null
+
+function clickHeroBanner(b) {
+  if (b.link_type === 'event' && b.event_id) router.push('/events/' + b.event_id)
+  else if (b.link_type === 'page' && b.link_page) router.push(b.link_page)
+  else if (b.link_type === 'url' && b.link_url) window.open(b.link_url, '_blank')
+}
+
+function startHeroSlide() {
+  if (heroBanners.value.length <= 1) return
+  heroInterval = setInterval(() => {
+    heroIdx.value = (heroIdx.value + 1) % heroBanners.value.length
+  }, 4000)
+}
+
+onUnmounted(() => { if (heroInterval) clearInterval(heroInterval) })
 const posts = ref([])
 const jobs = ref([])
 const market = ref([])
@@ -192,6 +234,13 @@ function openPopup(userId) {
 
 onMounted(async () => {
   loading.value = true
+  // 히어로 배너 로드
+  try {
+    const { data } = await axios.get('/api/hero-banners')
+    heroBanners.value = data.data || []
+    startHeroSlide()
+  } catch {}
+
   const [postsRes, jobsRes, marketRes] = await Promise.allSettled([
     axios.get('/api/posts?per_page=8'),
     axios.get('/api/jobs?per_page=5'),
@@ -204,3 +253,7 @@ onMounted(async () => {
   loading.value = false
 })
 </script>
+<style scoped>
+.hero-slide-enter-active, .hero-slide-leave-active { transition: opacity 0.5s ease; }
+.hero-slide-enter-from, .hero-slide-leave-to { opacity: 0; }
+</style>

@@ -15,6 +15,7 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $query = Event::query()
+            ->when($request->event_type, fn($q, $v) => $q->where('event_type', $v))
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
             ->when($request->search, fn($q, $v) => $q->where(function ($q2) use ($v) {
                 $q2->where('title', 'like', "%{$v}%")
@@ -25,11 +26,14 @@ class EventController extends Controller
             ->when(!$request->boolean('past'), fn($q) => $q->where('start_date', '>=', now()))
             ->when($request->has('is_active'), fn($q) => $q->where('is_active', $request->boolean('is_active')), fn($q) => $q->where('is_active', true));
 
+        // 공식 이벤트 상단 고정
+        $query->orderByDesc('is_pinned');
+
         if ($request->lat && $request->lng) {
             $query->nearby($request->lat, $request->lng, $request->radius ?? 50)
                   ->orderBy('distance');
         } else {
-            $query->orderBy('start_date');
+            $query->orderByDesc('created_at');
         }
 
         return response()->json(['success' => true, 'data' => $query->paginate($request->per_page ?? 20)]);

@@ -95,6 +95,9 @@ Route::get('/thumb', [ThumbnailController::class, 'show']);
 Route::get('/banners/active', [\App\Http\Controllers\API\BannerController::class, 'show']);
 Route::get('/banners/mobile', [\App\Http\Controllers\API\BannerController::class, 'mobileAd']);
 Route::get('/banners/all', [\App\Http\Controllers\API\BannerController::class, 'all']);
+Route::get('/hero-banners', function () {
+    return response()->json(['success' => true, 'data' => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()]);
+})->middleware('cache.api:1800');
 Route::post('/banners/{id}/click', [\App\Http\Controllers\API\BannerController::class, 'click']);
 Route::get('/ad-settings/public', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettingsPublic']);
 
@@ -449,6 +452,13 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/banners/{id}/reject', [AdminController::class, 'rejectBanner']);
     Route::post('/banners/{id}/pause', [AdminController::class, 'pauseBanner']);
     Route::delete('/banners/{id}', [AdminController::class, 'deleteBanner']);
+
+    // 히어로 배너 관리
+    Route::get('/hero-banners', fn() => response()->json(['success'=>true, 'data'=> \App\Models\HeroBanner::orderBy('sort_order')->get()]));
+    Route::post('/hero-banners', function (\Illuminate\Http\Request $r) { return response()->json(['success'=>true, 'data'=> \App\Models\HeroBanner::create($r->all())]); });
+    Route::put('/hero-banners/{id}', function (\Illuminate\Http\Request $r, $id) { \App\Models\HeroBanner::findOrFail($id)->update($r->all()); return response()->json(['success'=>true]); });
+    Route::delete('/hero-banners/{id}', function ($id) { \App\Models\HeroBanner::findOrFail($id)->delete(); return response()->json(['success'=>true]); });
+
     Route::get('/ip-bans', [AdminController::class, 'ipBans']);
     Route::post('/ip-bans', [AdminController::class, 'createIpBan']);
     Route::delete('/ip-bans/{id}', [AdminController::class, 'deleteIpBan']);
