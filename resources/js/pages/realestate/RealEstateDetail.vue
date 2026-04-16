@@ -9,10 +9,11 @@
       <div v-if="photos.length" class="mb-4">
         <div class="flex gap-2 overflow-x-auto pb-2 rounded-xl" style="-webkit-overflow-scrolling: touch;">
           <div v-for="(p, idx) in photos" :key="idx"
-            class="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition relative"
+            class="flex-shrink-0 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition relative bg-gray-100"
+            style="min-width: 200px; height: 280px;"
             @click="openLightbox(idx)">
-            <img :src="photoUrl(p)" class="h-[280px] w-auto object-cover"
-              @error="e => e.target.style.display='none'" />
+            <img :src="photoUrl(p)" style="height: 280px; width: auto; object-fit: cover;"
+              @error="e => e.target.parentElement.innerHTML='<div style=\'width:200px;height:280px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:#f5f5f5\'>🏠</div>'" />
             <!-- 첫번째 사진에 프로모션 뱃지 -->
             <template v-if="idx === 0 && listing.promotion_tier && listing.promotion_tier !== 'none'">
               <span v-if="listing.promotion_tier==='national'" class="absolute top-2 left-2 text-[10px] bg-red-500 text-white font-bold px-2 py-1 rounded shadow">🌐 전국구</span>
