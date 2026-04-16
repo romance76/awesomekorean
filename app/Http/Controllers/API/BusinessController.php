@@ -72,27 +72,62 @@ class BusinessController extends Controller
         $this->applyPromotionOrdering($query, $request->user_state, $hasLocation);
 
         $sort = $request->sort ?? 'random';
+        $perPage = min((int) ($request->per_page ?? 16), 50);
+
         if ($sort === 'distance' && $request->lat) $query->orderBy('distance');
         elseif ($sort === 'popular') $query->orderByDesc('view_count');
         elseif ($sort === 'rating') $query->orderByDesc('rating');
         elseif ($sort === 'newest') $query->orderByDesc('created_at');
         elseif ($sort === 'reviews') $query->orderByDesc('review_count');
         elseif ($sort === 'random') {
-            // seed 가 있으면 RAND(seed) 로 페이지 내 일관성 보장
-            $seed = (int) ($request->rand_seed ?? 0);
-            if ($seed > 0) {
-                $query->orderByRaw('RAND(?)', [$seed]);
-            } else {
-                $query->inRandomOrder();
+            // 랜덤 ID 목록을 10분간 캐싱 → RAND() 풀스캔 제거
+            $cacheKey = 'biz_rand_' . ($request->category ?: 'all') . '_' . ($request->state ?: 'all') . '_' . ($hasLocation ? 'loc' : 'nat');
+            $randomIds = Cache::remember($cacheKey, 600, function () use ($query) {
+                return (clone $query)->inRandomOrder()->limit(500)->pluck('id')->toArray();
+            });
+
+            if (!empty($randomIds)) {
+                $page = max(1, (int) $request->input('page', 1));
+                $offset = ($page - 1) * $perPage;
+                $pageIds = array_slice($randomIds, $offset, $perPage);
+                $total = count($randomIds);
+
+                if (!empty($pageIds)) {
+                    $idList = implode(',', $pageIds);
+                    $results = Business::query()
+                        ->select('id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
+                                 'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
+                                 'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
+                                 'promotion_expires_at', 'promotion_states', 'created_at')
+                        ->whereIn('id', $pageIds)
+                        ->orderByRaw("FIELD(id, {$idList})")
+                        ->get();
+
+                    $this->transformImages($results);
+
+                    return response()->json(['success' => true, 'data' => [
+                        'data' => $results,
+                        'current_page' => $page,
+                        'per_page' => $perPage,
+                        'total' => $total,
+                        'last_page' => (int) ceil($total / $perPage),
+                    ]]);
+                }
             }
+            // fallback
+            $query->inRandomOrder();
         }
         else $query->orderByDesc('view_count');
 
-        $perPage = min((int) ($request->per_page ?? 16), 50);
         $paginated = $query->paginate($perPage);
 
-        // 이미지 정리 — file_exists 없이 해시 경로만 계산
-        $paginated->getCollection()->transform(function ($b) {
+        $this->transformImages($paginated->getCollection());
+        return response()->json(['success' => true, 'data' => $paginated]);
+    }
+
+    private function transformImages($collection)
+    {
+        $collection->transform(function ($b) {
             $imgs = is_array($b->images) ? $b->images : (is_string($b->images) ? json_decode($b->images, true) : []);
             $valid = [];
             if (is_array($imgs)) {
@@ -115,7 +150,6 @@ class BusinessController extends Controller
             $b->images = $valid;
             return $b;
         });
-        return response()->json(['success' => true, 'data' => $paginated]);
     }
 
     public function show($id)

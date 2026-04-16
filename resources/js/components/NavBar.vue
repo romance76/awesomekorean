@@ -176,7 +176,8 @@ const mobileMenu = ref(false)
 const unreadCount = ref(0)
 const showNotifs = ref(false)
 const notifList = ref([])
-const menuConfig = ref(null)
+import { useSiteStore } from '../stores/site'
+const siteStore = useSiteStore()
 
 const defaultMenus = [
   { key: 'home', label: '홈', label_en: 'Home', icon: '🏠', path: '/', enabled: true },
@@ -200,10 +201,11 @@ const defaultMenus = [
 
 const visibleMenus = computed(() => {
   const ko = langStore.locale === 'ko'
-  if (menuConfig.value && Array.isArray(menuConfig.value)) {
+  const mc = siteStore.menuConfig
+  if (mc && Array.isArray(mc)) {
     const defaultMap = {}
     defaultMenus.forEach(m => { defaultMap[m.key] = m })
-    return menuConfig.value
+    return mc
       .filter(m => m.enabled !== false)
       .filter(m => !m.admin_only || auth.isAdmin)
       .filter(m => !m.login_required || auth.isLoggedIn)
@@ -224,15 +226,7 @@ const visibleMenus = computed(() => {
     .map(m => ({ ...m, label: ko ? m.label : (m.label_en || m.label) }))
 })
 
-async function loadMenuConfig() {
-  try {
-    const { data } = await axios.get('/api/settings/public')
-    if (data.data?.menu_config) {
-      const parsed = typeof data.data.menu_config === 'string' ? JSON.parse(data.data.menu_config) : data.data.menu_config
-      if (Array.isArray(parsed) && parsed.length) menuConfig.value = parsed
-    }
-  } catch {}
-}
+// menuConfig는 siteStore.load()에서 자동으로 로드됨
 
 async function loadUnread() {
   if (!auth.isLoggedIn) return
@@ -311,7 +305,7 @@ let echoChannel = null
 
 onMounted(() => {
   loadUnread()
-  loadMenuConfig()
+  siteStore.load() // settings + menuConfig 한번에
   if (auth.isLoggedIn) {
     // WebSocket 실시간 알림 수신
     if (window.Echo && auth.user?.id) {

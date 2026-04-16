@@ -1,27 +1,18 @@
-import { ref } from 'vue'
-import axios from 'axios'
-
-const menuConfig = ref(null)
-let loaded = false
+import { useSiteStore } from '../stores/site'
 
 export function useMenuConfig() {
+  const siteStore = useSiteStore()
+
   async function loadConfig() {
-    if (loaded) return
-    try {
-      const { data } = await axios.get('/api/settings/public')
-      if (data.data?.menu_config) {
-        const parsed = typeof data.data.menu_config === 'string' ? JSON.parse(data.data.menu_config) : data.data.menu_config
-        if (Array.isArray(parsed)) menuConfig.value = parsed
-      }
-      loaded = true
-    } catch {}
+    await siteStore.load() // 스토어에서 한 번만 로드
   }
 
   function getDefaultView(key) {
-    if (!menuConfig.value) return 'list'
-    const menu = menuConfig.value.find(m => m.key === key)
+    const mc = siteStore.menuConfig
+    if (!mc) return 'list'
+    const menu = mc.find(m => m.key === key)
     return menu?.defaultView || 'list'
   }
 
-  return { menuConfig, loadConfig, getDefaultView }
+  return { menuConfig: siteStore.menuConfig, loadConfig, getDefaultView }
 }

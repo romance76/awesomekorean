@@ -11,6 +11,9 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+const _mobileAdCache = new Map()
+const MAD_CACHE_TTL = 300000
+
 const props = defineProps({
   page: { type: String, required: true }
 })
@@ -18,9 +21,15 @@ const props = defineProps({
 const ad = ref(null)
 
 async function loadAd() {
+  const cached = _mobileAdCache.get(props.page)
+  if (cached && Date.now() - cached.ts < MAD_CACHE_TTL) {
+    ad.value = cached.data
+    return
+  }
   try {
     const { data } = await axios.get('/api/banners/mobile', { params: { page: props.page } })
     ad.value = data.data
+    _mobileAdCache.set(props.page, { data: ad.value, ts: Date.now() })
   } catch {}
 }
 

@@ -73,6 +73,19 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
+// 글로벌 인메모리 캐시 — 같은 apiUrl+sort 조합은 5분간 재사용
+const _cache = new Map()
+const CACHE_TTL = 300000 // 5분
+
+async function cachedGet(url, params) {
+  const key = url + '|' + JSON.stringify(params)
+  const cached = _cache.get(key)
+  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data
+  const { data } = await axios.get(url, { params })
+  _cache.set(key, { data, ts: Date.now() })
+  return data
+}
+
 const props = defineProps({
   apiUrl: { type: String, required: true },
   detailPath: { type: String, required: true },
@@ -124,7 +137,7 @@ async function loadTab(tab, page = 1) {
   if (tab === 'views') sort = 'popular'
   else if (props.secondTab?.sort) sort = props.secondTab.sort
   try {
-    const { data } = await axios.get(props.apiUrl, { params: { sort, per_page: 10, page, ...props.filterParams } })
+    const data = await cachedGet(props.apiUrl, { sort, per_page: 10, page, ...props.filterParams })
     const items = (data.data?.data || []).filter(i => i.id !== Number(props.currentId)).slice(0, 10)
     const totalItems = data.data?.total || items.length
     const lastPg = Math.ceil(totalItems / 10) || 1
@@ -152,7 +165,7 @@ onMounted(async () => {
   // 추천 (recommendLabel 있을 때만)
   if (props.recommendLabel) {
     try {
-      const { data } = await axios.get(props.apiUrl, { params: { per_page: 5 } })
+      const data = await cachedGet(props.apiUrl, { per_page: 5 })
       recommendItems.value = (data.data?.data || []).filter(i => i.id !== Number(props.currentId)).slice(0, 5)
     } catch {}
   }

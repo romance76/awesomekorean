@@ -15,6 +15,10 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
 
+// 인메모리 캐시 — 같은 page+position은 5분간 재사용
+const _adCache = new Map()
+const AD_CACHE_TTL = 300000
+
 const props = defineProps({
   page: { type: String, required: true },
   position: { type: String, required: true },
@@ -31,11 +35,18 @@ const imgStyle = computed(() => {
 })
 
 async function loadAds() {
+  const cacheKey = `${props.page}|${props.position}|${props.maxSlots}`
+  const cached = _adCache.get(cacheKey)
+  if (cached && Date.now() - cached.ts < AD_CACHE_TTL) {
+    ads.value = cached.data
+    return
+  }
   try {
     const { data } = await axios.get('/api/banners/active', {
       params: { page: props.page, position: props.position, limit: props.maxSlots }
     })
     ads.value = data.data || []
+    _adCache.set(cacheKey, { data: ads.value, ts: Date.now() })
   } catch {}
 }
 
