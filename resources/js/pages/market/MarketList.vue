@@ -152,11 +152,11 @@
             <!-- 태그 줄 (왼쪽: 뱃지들, 오른쪽: 가격) -->
             <div class="flex items-center justify-between gap-1 mb-0.5">
               <div class="flex items-center gap-1 flex-wrap min-w-0">
-                <span v-if="item.promotion_tier === 'national'" class="text-[8px] bg-red-500 text-white font-bold px-1 py-px rounded">🌐 전국구</span>
-                <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[8px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐주+</span>
-                <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[8px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢스폰</span>
-                <span v-if="item.is_negotiable" class="text-[8px] bg-green-100 text-green-700 font-bold px-1 py-px rounded">가격협의</span>
-                <span v-if="item.hold_enabled" class="text-[8px] bg-blue-100 text-blue-700 font-bold px-1 py-px rounded">홀드가능</span>
+                <span v-if="item.promotion_tier === 'national'" class="text-[10px] bg-red-500 text-white font-bold px-1 py-px rounded">🌐 전국구</span>
+                <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐주+</span>
+                <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢스폰</span>
+                <span v-if="item.is_negotiable" class="text-[10px] bg-green-100 text-green-700 font-bold px-1 py-px rounded">가격협의</span>
+                <span v-if="item.hold_enabled" class="text-[10px] bg-blue-100 text-blue-700 font-bold px-1 py-px rounded">홀드가능</span>
               </div>
               <div class="text-amber-600 font-black text-base whitespace-nowrap flex-shrink-0">${{ Number(item.price || 0).toLocaleString() }}</div>
             </div>

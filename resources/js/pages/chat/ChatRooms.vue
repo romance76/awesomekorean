@@ -18,9 +18,9 @@
             <div class="flex items-center justify-between gap-1">
               <span class="truncate flex-1">{{ room.name }}</span>
               <!-- 한번도 안들어간 방: NEW -->
-              <span v-if="room.is_new" class="text-[9px] bg-red-500 text-white font-bold px-1 py-0.5 rounded flex-shrink-0">NEW</span>
+              <span v-if="room.is_new" class="text-[11px] bg-red-500 text-white font-bold px-1 py-0.5 rounded flex-shrink-0">NEW</span>
               <!-- 미읽음 있음: (N) 또는 300+ -->
-              <span v-else-if="room.unread_count > 0" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded flex-shrink-0">
+              <span v-else-if="room.unread_count > 0" class="text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded flex-shrink-0">
                 {{ room.unread_count > 300 ? '300+' : room.unread_count }}
               </span>
               <span v-else-if="room.messages?.length" class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></span>
@@ -74,7 +74,7 @@
               <span class="text-amber-600 flex-shrink-0">📢</span>
               <div class="flex-1 min-w-0">
                 <div class="text-xs text-amber-900 font-semibold break-words">{{ cleanAnnounceContent(a.content) }}</div>
-                <div class="text-[9px] text-amber-600">⏰ {{ timeRemaining(a.pinned_until) }} 남음</div>
+                <div class="text-[11px] text-amber-600">⏰ {{ timeRemaining(a.pinned_until) }} 남음</div>
               </div>
             </div>
           </div>
@@ -128,7 +128,7 @@
                   ]">
                   {{ msg.content }}
                 </div>
-                <div class="text-[9px] text-gray-300 mt-0.5" :class="msg.user_id === auth.user?.id ? 'text-right' : ''">
+                <div class="text-[11px] text-gray-300 mt-0.5" :class="msg.user_id === auth.user?.id ? 'text-right' : ''">
                   {{ formatTime(msg.created_at) }}
                 </div>
               </div>
@@ -153,14 +153,14 @@
                 </div>
                 <div v-else class="w-14 h-14 rounded border border-blue-300 bg-white flex flex-col items-center justify-center p-1">
                   <span class="text-lg">📦</span>
-                  <span class="text-[8px] text-gray-600 truncate w-full text-center">{{ item.file.name.split('.').pop().toUpperCase() }}</span>
+                  <span class="text-[10px] text-gray-600 truncate w-full text-center">{{ item.file.name.split('.').pop().toUpperCase() }}</span>
                 </div>
                 <button @click="removeSelectedFile(idx)"
-                  class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold opacity-0 group-hover:opacity-100 transition">✕</button>
-                <div class="text-[8px] text-gray-500 text-center mt-0.5 max-w-[56px] truncate" :title="item.file.name">{{ formatSize(item.file.size) }}</div>
+                  class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[11px] flex items-center justify-center font-bold opacity-0 group-hover:opacity-100 transition">✕</button>
+                <div class="text-[10px] text-gray-500 text-center mt-0.5 max-w-[56px] truncate" :title="item.file.name">{{ formatSize(item.file.size) }}</div>
               </div>
             </div>
-            <div class="text-[9px] text-blue-700 mt-1">
+            <div class="text-[11px] text-blue-700 mt-1">
               📎 {{ selectedFiles.length }}개 선택됨 · 이미지는 자동 압축됨
               <button @click="clearFiles" class="ml-2 text-red-500 font-bold">모두 취소</button>
             </div>
@@ -206,17 +206,17 @@
                 <img v-if="u.avatar" :src="u.avatar" class="w-6 h-6 rounded-full object-cover flex-shrink-0" />
                 <div v-else class="w-6 h-6 rounded-full bg-amber-200 flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
                 <span class="text-[11px] font-bold text-amber-900 truncate flex-1">{{ u.nickname || u.name }}</span>
-                <span class="text-[9px] bg-amber-300 text-amber-900 px-1 rounded">나</span>
+                <span class="text-[11px] bg-amber-300 text-amber-900 px-1 rounded">나</span>
               </div>
               <!-- 다른 사람: 한 줄 컴팩트 레이아웃 -->
               <div v-else class="px-2 py-1.5 border-b hover:bg-amber-50/40 flex items-center gap-1.5">
                 <!-- 아이콘 작게 -->
                 <img v-if="u.avatar" :src="u.avatar" class="w-5 h-5 rounded-full object-cover flex-shrink-0" @error="e=>e.target.style.display='none'" />
-                <div v-else class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[9px] font-bold text-gray-600 flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
+                <div v-else class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold text-gray-600 flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
                 <!-- 아이디 -->
                 <span class="text-[11px] font-semibold text-gray-800 truncate flex-1 min-w-0">
                   {{ u.nickname || u.name }}
-                  <span v-if="u.role === 'admin' || u.role === 'super_admin'" class="text-[9px] bg-red-500 text-white px-0.5 rounded ml-0.5">👑</span>
+                  <span v-if="u.role === 'admin' || u.role === 'super_admin'" class="text-[11px] bg-red-500 text-white px-0.5 rounded ml-0.5">👑</span>
                 </span>
                 <!-- 사는 곳 (축약) -->
                 <span class="text-[10px] text-gray-400 truncate max-w-[60px]">{{ u.city || '' }}</span>

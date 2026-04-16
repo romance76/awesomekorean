@@ -3,7 +3,7 @@
     <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth -->
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
       <!-- 햄버거 메뉴 (모바일) -->
-      <button @click="mobileMenu = !mobileMenu" class="md:hidden p-1.5 text-gray-500 hover:text-amber-600 flex-shrink-0">
+      <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2.5 -ml-1 text-gray-500 hover:text-amber-600 flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path v-if="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
           <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -32,12 +32,12 @@
       <div class="flex items-center gap-1.5 flex-shrink-0">
         <template v-if="auth.isLoggedIn">
           <div class="relative notif-bell">
-            <button @click="toggleNotifs" class="relative p-1 text-gray-500 hover:text-amber-600">
+            <button @click="toggleNotifs" class="relative p-2 text-gray-500 hover:text-amber-600">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
               <span v-if="unreadCount>0" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
             </button>
             <!-- 알림 드롭다운 -->
-            <div v-if="showNotifs" class="absolute right-0 top-9 bg-white border border-gray-200 rounded-xl shadow-xl w-80 z-50 overflow-hidden">
+            <div v-if="showNotifs" class="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden" style="width: min(320px, calc(100vw - 2rem));">
               <div class="px-4 py-2.5 border-b flex items-center justify-between bg-amber-50">
                 <span class="text-sm font-bold text-amber-900">🔔 알림</span>
                 <button v-if="notifList.some(n=>!n.read_at)" @click="markAllRead" class="text-[10px] text-amber-600 hover:text-amber-800 font-bold">전체 읽음</button>
@@ -61,7 +61,7 @@
             </div>
           </div>
           <div class="relative">
-            <button @click="showDropdown=!showDropdown" class="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">
+            <button @click="showDropdown=!showDropdown" class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">
               {{ (auth.user?.name || '?')[0] }}
             </button>
             <div v-if="showDropdown" class="absolute right-0 top-9 bg-white border border-gray-200 rounded-xl shadow-lg py-2 w-48 z-50" @click="showDropdown=false">
@@ -86,7 +86,7 @@
           <RouterLink to="/login" class="text-xs text-gray-600 hover:text-amber-700 px-1.5 py-1 hidden sm:block">로그인</RouterLink>
           <RouterLink to="/register" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded-lg hover:bg-amber-500">가입</RouterLink>
         </template>
-        <button @click="langStore.toggle()" class="text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-200">
+        <button @click="langStore.toggle()" class="text-[11px] font-bold px-2 py-1 rounded border border-gray-200">
           {{ langStore.locale === 'ko' ? 'EN' : '한' }}
         </button>
       </div>
@@ -130,13 +130,26 @@
           </div>
           <!-- 메뉴 목록 -->
           <div class="py-2">
-            <RouterLink v-for="item in visibleMenus" :key="item.path" :to="item.path"
-              @click="mobileMenu=false"
-              class="flex items-center gap-3 px-4 py-2.5 text-sm transition"
-              :class="isActive(item.path) ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-gray-50'">
-              <span class="text-base">{{ item.icon || '📄' }}</span>
-              <span>{{ item.label }}</span>
-            </RouterLink>
+            <div v-for="item in visibleMenus" :key="item.path"
+              class="flex items-center transition"
+              :class="isActive(item.path) ? 'bg-amber-50' : 'hover:bg-gray-50'">
+              <RouterLink :to="item.path" @click="mobileMenu=false"
+                class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2.5 text-sm"
+                :class="isActive(item.path) ? 'text-amber-700 font-bold' : 'text-gray-600'">
+                <span class="text-base">{{ item.icon || '📄' }}</span>
+                <span>{{ item.label }}</span>
+              </RouterLink>
+              <button @click.stop="navFavStore.toggleFavorite(item.key)"
+                class="px-3 py-2.5 text-sm flex-shrink-0 transition"
+                :class="navFavStore.isFavorite(item.key) ? 'text-amber-400' : 'text-gray-300 hover:text-amber-300'"
+                :title="navFavStore.isFavorite(item.key) ? '하단바에서 제거' : '하단바에 추가'">
+                {{ navFavStore.isFavorite(item.key) ? '⭐' : '☆' }}
+              </button>
+            </div>
+          </div>
+          <!-- 즐겨찾기 안내 -->
+          <div class="px-4 py-2 border-t text-[10px] text-gray-400">
+            ⭐ 눌러서 하단 메뉴에 추가/제거 (최대 {{ navFavStore.MAX_FAVORITES }}개)
           </div>
         </div>
       </Transition>
@@ -153,6 +166,8 @@ import { useLangStore } from '../stores/lang'
 
 const auth = useAuthStore()
 const langStore = useLangStore()
+import { useNavFavoritesStore } from '../stores/navFavorites'
+const navFavStore = useNavFavoritesStore()
 const router = useRouter()
 const route = useRoute()
 const searchQ = ref('')

@@ -162,10 +162,10 @@
           <div class="flex-1 min-w-0">
             <!-- 1행: 프로모션 뱃지 + 직종 태그 (제목 위로) -->
             <div class="flex items-center gap-1 mb-0.5 flex-wrap">
-              <span v-if="item.promotion_tier==='national'" class="text-[8px] bg-red-500 text-white font-bold px-1 py-px rounded">🌐 전국구</span>
-              <span v-else-if="item.promotion_tier==='state_plus'" class="text-[8px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐ 주+</span>
-              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[8px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢 스폰서</span>
-              <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[8px] bg-gray-100 text-gray-600 px-1 py-px rounded">{{ jobTagLabel(tag) }}</span>
+              <span v-if="item.promotion_tier==='national'" class="text-[10px] bg-red-500 text-white font-bold px-1 py-px rounded">🌐 전국구</span>
+              <span v-else-if="item.promotion_tier==='state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐ 주+</span>
+              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢 스폰서</span>
+              <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[10px] bg-gray-100 text-gray-600 px-1 py-px rounded">{{ jobTagLabel(tag) }}</span>
             </div>
             <!-- 2행: 제목 -->
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
