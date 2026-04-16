@@ -413,7 +413,18 @@ onMounted(async () => {
     selectedCityIdx.value = '-1'
     radius.value = '0'
   }
-  loadPage()
+  await loadPage()
+
+  // 메인 배너에서 ?open={id} 로 왔을 때 해당 이벤트 자동 열기
+  if (route.query.open) {
+    try {
+      const { data } = await axios.get('/api/events/' + route.query.open)
+      if (data.data) {
+        activeItem.value = data.data
+        if (data.data.category) activeCat.value = data.data.event_type === 'somekorean' ? 'somekorean' : data.data.category
+      }
+    } catch {}
+  }
 })
 
 watch(() => route.params.id, (newId, oldId) => {

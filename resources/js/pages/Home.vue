@@ -187,7 +187,7 @@ let heroInterval = null
 const totalSlides = computed(() => 1 + heroBanners.value.length) // 기본홈(1) + 배너 수
 
 function clickHeroBanner(b) {
-  if (b.link_type === 'event' && b.event_id) router.push('/events/' + b.event_id)
+  if (b.link_type === 'event' && b.event_id) router.push('/events?open=' + b.event_id)
   else if (b.link_type === 'page' && b.link_page) router.push(b.link_page)
   else if (b.link_type === 'url' && b.link_url) window.open(b.link_url, '_blank')
 }
