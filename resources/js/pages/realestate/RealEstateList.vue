@@ -385,17 +385,17 @@ function onCityChange() {
 }
 
 function promoRowClass(item) {
-  if (item.promotion_tier === 'national') return 'bg-red-50/70 border-l-4 border-l-red-500 hover:bg-red-100/70'
-  if (item.promotion_tier === 'state_plus') return 'bg-blue-50/70 border-l-4 border-l-blue-500 hover:bg-blue-100/70'
-  if (item.promotion_tier === 'sponsored') return 'bg-amber-50/70 border-l-4 border-l-amber-500 hover:bg-amber-100/70'
-  return 'hover:bg-amber-50/50 hover:border-l-amber-400'
+  if (item.promotion_tier === 'national') return 'border-l-4 border-l-red-500 hover:bg-gray-50'
+  if (item.promotion_tier === 'state_plus') return 'border-l-4 border-l-blue-500 hover:bg-gray-50'
+  if (item.promotion_tier === 'sponsored') return 'border-l-4 border-l-amber-400 hover:bg-gray-50'
+  return 'hover:bg-amber-50/50'
 }
 
-// 카드형: 배경색 대신 테두리 색만 (너무 어지럽지 않게)
+// 카드형: 왼쪽 보더 색만 (깔끔하게)
 function promoBorderClass(item) {
-  if (item.promotion_tier === 'national') return 'border-red-400'
-  if (item.promotion_tier === 'state_plus') return 'border-blue-400'
-  if (item.promotion_tier === 'sponsored') return 'border-amber-400'
+  if (item.promotion_tier === 'national') return 'border-gray-100 border-l-4 border-l-red-500'
+  if (item.promotion_tier === 'state_plus') return 'border-gray-100 border-l-4 border-l-blue-500'
+  if (item.promotion_tier === 'sponsored') return 'border-gray-100 border-l-4 border-l-amber-400'
   return 'border-gray-100'
 }
 

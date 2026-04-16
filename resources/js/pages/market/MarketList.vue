@@ -328,12 +328,12 @@ function fmtDate(dt) {
   return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
 }
 
-// 프로모션 티어별 행 배경/테두리 클래스
+// 프로모션 티어별 보더만 (배경색 없이 깔끔하게)
 function promoRowClass(item) {
-  if (item.promotion_tier === 'national') return 'bg-red-50/70 border-l-4 border-l-red-500 hover:bg-red-100/70'
-  if (item.promotion_tier === 'state_plus') return 'bg-blue-50/70 border-l-4 border-l-blue-500 hover:bg-blue-100/70'
-  if (item.promotion_tier === 'sponsored') return 'bg-amber-50/70 border-l-4 border-l-amber-500 hover:bg-amber-100/70'
-  return 'hover:bg-amber-50/50 hover:border-l-amber-400'
+  if (item.promotion_tier === 'national') return 'border-l-4 border-l-red-500 hover:bg-gray-50'
+  if (item.promotion_tier === 'state_plus') return 'border-l-4 border-l-blue-500 hover:bg-gray-50'
+  if (item.promotion_tier === 'sponsored') return 'border-l-4 border-l-amber-400 hover:bg-gray-50'
+  return 'hover:bg-amber-50/50'
 }
 
 // 사용자가 썸네일로 선택한 이미지. 없으면 첫 번째 이미지.

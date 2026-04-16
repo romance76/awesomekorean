@@ -144,23 +144,24 @@
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="goDetail(item)"
-        class="px-4 py-3 border-b border-gray-50 transition cursor-pointer"
-        :class="[
-          isPromoted(item) ? promotionClass(item) : (postType === 'hiring' ? 'hover:bg-amber-50/50' : 'hover:bg-blue-50/50')
-        ]">
+        class="px-4 py-3 border-b border-gray-50 transition cursor-pointer border-l-4"
+        :class="jobBorderClass(item)">
         <div class="flex items-center gap-3">
           <!-- 로고 -->
           <img v-if="item.logo" :src="item.logo" class="w-12 h-12 rounded object-cover flex-shrink-0 border" @error="$event.target.style.display='none'" />
           <div v-else class="w-12 h-12 rounded bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">{{ categoryEmoji(item.category) }}</div>
 
           <div class="flex-1 min-w-0">
-            <!-- 프로모션 뱃지 -->
-            <div v-if="isPromoted(item)" class="flex items-center gap-1 mb-0.5">
-              <span v-if="item.promotion_tier==='national'" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌍 전국</span>
-              <span v-else-if="item.promotion_tier==='state_plus'" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
-              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
+            <!-- 1행: 프로모션 뱃지 + 직종 태그 (제목 위로) -->
+            <div class="flex items-center gap-1 mb-0.5 flex-wrap">
+              <span v-if="item.promotion_tier==='national'" class="text-[8px] bg-red-500 text-white font-bold px-1 py-px rounded">🌍 전국</span>
+              <span v-else-if="item.promotion_tier==='state_plus'" class="text-[8px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐ 주+</span>
+              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[8px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢 스폰서</span>
+              <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[8px] bg-gray-100 text-gray-600 px-1 py-px rounded">{{ jobTagLabel(tag) }}</span>
             </div>
+            <!-- 2행: 제목 -->
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
+            <!-- 3행: 메타 -->
             <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
               <template v-if="postType === 'seeking'">
                 <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name" className="text-blue-600 font-semibold" />
@@ -178,21 +179,17 @@
               <span v-if="item.created_at" class="text-gray-400">🕐 {{ fmtDate(item.created_at) }}</span>
               <span v-if="item.view_count">👁{{ item.view_count }}</span>
             </div>
-            <!-- 직종 태그 -->
-            <div v-if="item.job_tags && item.job_tags.length" class="flex items-center gap-1 mt-1 flex-wrap">
-              <span v-for="tag in item.job_tags.slice(0,5)" :key="tag" class="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{{ jobTagLabel(tag) }}</span>
-            </div>
           </div>
+          <!-- 급여 (크게) -->
           <div class="ml-3 flex-shrink-0 text-right">
-            <div v-if="item.price !== undefined && item.price !== null"
-              class="font-bold text-sm" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+            <div v-if="item.salary_min"
+              class="font-black text-base whitespace-nowrap" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+              ${{ item.salary_min }}~${{ item.salary_max }} <span class="text-xs font-bold text-gray-500">/ {{ {hourly:'hr',monthly:'mo',yearly:'yr'}[item.salary_type] || item.salary_type }}</span>
+            </div>
+            <div v-else-if="item.price !== undefined && item.price !== null"
+              class="font-black text-base" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
               ${{ Number(item.price).toLocaleString() }}
             </div>
-            <div v-if="item.salary_min"
-              class="font-bold text-xs" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
-              ${{ item.salary_min }}~${{ item.salary_max }}/{{ item.salary_type }}
-            </div>
-            <div v-if="item.rating" class="text-amber-400 text-xs">{{'★'.repeat(Math.round(item.rating))}} {{ item.rating }}</div>
           </div>
         </div>
       </div>
@@ -268,6 +265,14 @@ function promotionClass(item) {
   if (item.promotion_tier === 'state_plus') return 'bg-blue-50 border-l-4 border-l-blue-500 hover:bg-blue-100/60'
   if (item.promotion_tier === 'sponsored') return 'bg-amber-50 border-l-4 border-l-amber-500 hover:bg-amber-100/60'
   return ''
+}
+
+// 깔끔 보더 스타일 (배경색 X, 왼쪽 보더만)
+function jobBorderClass(item) {
+  if (item.promotion_tier === 'national') return 'border-l-red-500 hover:bg-gray-50'
+  if (item.promotion_tier === 'state_plus') return 'border-l-blue-500 hover:bg-gray-50'
+  if (item.promotion_tier === 'sponsored') return 'border-l-amber-400 hover:bg-gray-50'
+  return 'border-l-transparent hover:bg-gray-50'
 }
 
 // 카테고리 이모지
