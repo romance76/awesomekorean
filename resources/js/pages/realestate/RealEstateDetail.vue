@@ -51,26 +51,39 @@
 
         <!-- 가격/정보 + 판매자 (나란히) -->
         <div class="flex gap-3">
-          <!-- 왼쪽: 가격 + 정보 -->
+          <!-- 왼쪽: 매물 정보 + ❤️/🚨 + 등록일/조회 -->
           <div class="flex-1 min-w-0 bg-white rounded-xl shadow-sm border p-4">
-            <div class="flex items-center gap-2 mb-1">
-              <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" :class="listing.type==='sale'?'bg-red-100 text-red-700':'bg-blue-100 text-blue-700'">
-                {{ listing.type==='sale' ? '매매' : '렌트' }}
-              </span>
-              <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full font-bold">{{ listing.property_type }}</span>
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" :class="listing.type==='sale'?'bg-red-100 text-red-700':'bg-blue-100 text-blue-700'">
+                  {{ listing.type==='sale' ? '매매' : '렌트' }}
+                </span>
+                <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full font-bold">{{ listing.property_type }}</span>
+              </div>
+              <!-- ❤️ 좋아요 + 🚨 신고 -->
+              <div class="flex items-center gap-2">
+                <button v-if="auth.isLoggedIn" @click="toggleFav" class="text-lg hover:scale-110 transition">
+                  {{ isFavorited ? '❤️' : '🤍' }}
+                </button>
+                <button v-if="auth.isLoggedIn && listing.user_id !== auth.user?.id" @click="reportUser"
+                  class="text-sm hover:scale-110 transition" style="filter: grayscale(100%); opacity:0.4;" title="신고">🚨</button>
+              </div>
             </div>
             <div class="text-2xl font-black text-gray-900">${{ Number(listing.price).toLocaleString() }}<span v-if="listing.type==='rent'" class="text-sm font-bold text-gray-500">/월</span></div>
             <h1 class="text-base font-bold text-gray-800 mt-1">{{ listing.title }}</h1>
             <div class="text-xs text-gray-500 mt-1">📍 {{ listing.address ? listing.address + ', ' : '' }}{{ listing.city }}, {{ listing.state }} {{ listing.zipcode }}</div>
-            <div class="flex items-center gap-4 mt-3 pt-3 border-t text-center">
-              <div v-if="listing.bedrooms"><div class="text-lg font-black text-gray-800">{{ listing.bedrooms }}</div><div class="text-[10px] text-gray-500">beds</div></div>
-              <div v-if="listing.bathrooms"><div class="text-lg font-black text-gray-800">{{ listing.bathrooms }}</div><div class="text-[10px] text-gray-500">baths</div></div>
-              <div v-if="listing.sqft"><div class="text-lg font-black text-gray-800">{{ Number(listing.sqft).toLocaleString() }}</div><div class="text-[10px] text-gray-500">sqft</div></div>
-              <div><div class="text-lg font-black text-gray-800">{{ listing.view_count || 0 }}</div><div class="text-[10px] text-gray-500">조회</div></div>
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t">
+              <div v-if="listing.bedrooms" class="text-center"><div class="text-lg font-black text-gray-800">{{ listing.bedrooms }}</div><div class="text-[10px] text-gray-500">beds</div></div>
+              <div v-if="listing.bathrooms" class="text-center"><div class="text-lg font-black text-gray-800">{{ listing.bathrooms }}</div><div class="text-[10px] text-gray-500">baths</div></div>
+              <div v-if="listing.sqft" class="text-center"><div class="text-lg font-black text-gray-800">{{ Number(listing.sqft).toLocaleString() }}</div><div class="text-[10px] text-gray-500">sqft</div></div>
+              <div class="text-center"><div class="text-lg font-black text-gray-800">{{ listing.view_count || 0 }}</div><div class="text-[10px] text-gray-500">조회</div></div>
+              <div class="ml-auto text-[10px] text-gray-400 text-right">
+                <div>등록일: {{ fmtDate(listing.created_at) }}</div>
+              </div>
             </div>
           </div>
 
-          <!-- 오른쪽: 판매자 정보 -->
+          <!-- 오른쪽: 판매자 정보 (친구추가/쪽지 + 전화/이메일) -->
           <div class="hidden lg:block flex-shrink-0" style="width:200px;">
             <div class="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
               <div class="px-3 py-2 border-b bg-amber-50 font-bold text-[11px] text-amber-900">📋 판매자 정보</div>
@@ -85,10 +98,12 @@
                     <div class="text-[9px] text-gray-400">가입: {{ fmtDate(listing.user.created_at) }}</div>
                   </div>
                 </div>
+                <!-- 친구추가/쪽지 (항상 보임) -->
                 <div v-if="auth.isLoggedIn && listing.user_id !== auth.user?.id" class="space-y-1.5 pt-2 border-t">
                   <button @click="sendFriendRequest" class="w-full text-[11px] bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100">👫 친구추가</button>
                   <button @click="sendMessage" class="w-full text-[11px] bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100">✉️ 쪽지</button>
                 </div>
+                <!-- 전화/이메일 (등록자가 입력한 경우만) -->
                 <div v-if="listing.contact_phone || listing.contact_email" class="space-y-1.5 pt-2 border-t">
                   <a v-if="listing.contact_phone" :href="'tel:'+listing.contact_phone"
                     class="flex items-center justify-center w-full bg-amber-400 text-amber-900 font-bold py-1.5 rounded-lg hover:bg-amber-500 text-[11px]">
@@ -98,13 +113,6 @@
                     class="flex items-center justify-center w-full bg-gray-100 text-gray-700 font-bold py-1.5 rounded-lg hover:bg-gray-200 text-[11px]">
                     📧 이메일
                   </a>
-                </div>
-                <div v-if="auth.isLoggedIn && listing.user_id !== auth.user?.id" class="pt-2 border-t">
-                  <button @click="reportUser" class="w-full text-[10px] text-gray-400 hover:text-red-500">🚨 신고</button>
-                </div>
-                <div class="text-[9px] text-gray-400 pt-2 border-t space-y-0.5">
-                  <div>📅 등록: {{ fmtDate(listing.created_at) }}</div>
-                  <div>👁 조회: {{ listing.view_count }}회</div>
                 </div>
               </div>
             </div>
@@ -200,6 +208,27 @@ const lightboxIdx = ref(null)
 const activePhotoIdx = ref(0)
 const msgModal = ref(false)
 const msgText = ref('')
+const isFavorited = ref(false)
+
+async function checkFav() {
+  if (!auth.isLoggedIn || !listing.value) return
+  try {
+    const { data } = await axios.get('/api/bookmarks/check', {
+      params: { type: 'App\\Models\\RealEstateListing', ids: listing.value.id },
+    })
+    isFavorited.value = (data.data || []).includes(listing.value.id)
+  } catch {}
+}
+async function toggleFav() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', {
+      bookmarkable_type: 'App\\Models\\RealEstateListing',
+      bookmarkable_id: listing.value.id,
+    })
+    isFavorited.value = data.bookmarked
+  } catch {}
+}
 
 const allPhotos = computed(() => {
   const imgs = listing.value?.images
@@ -245,7 +274,11 @@ async function reportUser() {
 }
 
 onMounted(async () => {
-  try { const { data } = await axios.get(`/api/realestate/${route.params.id}`); listing.value = data.data } catch {}
+  try {
+    const { data } = await axios.get(`/api/realestate/${route.params.id}`)
+    listing.value = data.data
+    checkFav()
+  } catch {}
   loading.value = false
 })
 </script>
