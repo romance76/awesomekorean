@@ -4,8 +4,8 @@
   <template v-if="mode === 'detail'">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <!-- 카테고리 헤더 -->
-      <div v-if="categoryLabel" class="px-3 py-2.5 border-b bg-amber-50">
-        <span class="text-xs font-bold text-amber-800">📁 {{ categoryLabel }}</span>
+      <div v-if="displayCategoryLabel" class="px-3 py-2.5 border-b bg-amber-50">
+        <span class="text-xs font-bold text-amber-800">📁 {{ displayCategoryLabel }}</span>
         <span v-if="detailTotal" class="text-[10px] text-amber-600 ml-1">{{ detailTotal }}건</span>
       </div>
       <div class="py-1">
@@ -142,9 +142,16 @@ const props = defineProps({
   preloadedPopular: { type: Array, default: null },
   preloadedLatest: { type: Array, default: null },
   usePageData: { type: Boolean, default: false }, // true면 preloaded 대기, 자체 API 안 함
+  categoryParam: { type: String, default: 'category' }, // API 파라미터명 (property_type, category_id 등)
 })
 
 const emit = defineEmits(['select'])
+
+const displayCategoryLabel = computed(() => {
+  if (props.categoryLabel) return props.categoryLabel
+  if (props.currentCategory) return props.currentCategory
+  return ''
+})
 
 // ── 리스트 모드 데이터 ──
 const popTab = ref('views')
@@ -187,7 +194,7 @@ const detailVisiblePages = computed(() => {
 // ── API 호출 헬퍼: 카테고리 파라미터 자동 포함 ──
 function buildParams(extra = {}) {
   const params = { ...props.filterParams, ...extra }
-  if (props.currentCategory) params.category = props.currentCategory
+  if (props.currentCategory) params[props.categoryParam] = props.currentCategory
   return params
 }
 

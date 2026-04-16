@@ -178,7 +178,7 @@
 
       <!-- 오른쪽: 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <SidebarWidgets :currentCategory="activeCat" :inline="true" @select="openItem" api-url="/api/qa" detail-path="/qa/" :current-id="activeItem?.id || 0"
+        <SidebarWidgets :currentCategory="activeCat" categoryParam="category_id" :inline="true" @select="openItem" api-url="/api/qa" detail-path="/qa/" :current-id="activeItem?.id || 0"
           label="질문" />
         <AdSlot page="qa" position="right" :maxSlots="2" />
       </div>
