@@ -74,6 +74,16 @@ class BusinessController extends Controller
         $sort = $request->sort ?? 'random';
         $perPage = min((int) ($request->per_page ?? 16), 50);
 
+        // popular/latest/rating 정렬은 결과 캐싱 (5분)
+        $cacheableSorts = ['popular', 'newest', 'rating', 'reviews'];
+        if (in_array($sort, $cacheableSorts) && !$request->search && !$hasLocation) {
+            $sCacheKey = "biz_{$sort}_" . ($request->category ?: 'all') . '_' . ($request->state ?: 'all') . "_{$perPage}_" . ($request->page ?: 1);
+            $cached = Cache::get($sCacheKey);
+            if ($cached) {
+                return response()->json(['success' => true, 'data' => $cached]);
+            }
+        }
+
         if ($sort === 'distance' && $request->lat) $query->orderBy('distance');
         elseif ($sort === 'popular') $query->orderByDesc('view_count');
         elseif ($sort === 'rating') $query->orderByDesc('rating');
@@ -122,6 +132,12 @@ class BusinessController extends Controller
         $paginated = $query->paginate($perPage);
 
         $this->transformImages($paginated->getCollection());
+
+        // cacheable 정렬 결과 저장 (5분)
+        if (isset($sCacheKey)) {
+            Cache::put($sCacheKey, $paginated, 300);
+        }
+
         return response()->json(['success' => true, 'data' => $paginated]);
     }
 
