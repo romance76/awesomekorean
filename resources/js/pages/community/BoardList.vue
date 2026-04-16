@@ -160,28 +160,11 @@
         </div>
       </div>
 
-      <!-- 오른쪽: 인기글 -->
+      <!-- 오른쪽: 사이드바 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">🔥 인기 게시글</div>
-          <div class="py-1">
-            <button v-for="(p, i) in popularPosts" :key="p.id" @click="openItem(p)"
-              class="flex items-start gap-2 px-3 py-1.5 hover:bg-amber-50/50 transition w-full text-left">
-              <span class="text-[10px] font-bold w-4 text-center flex-shrink-0" :class="(popPage-1)*10+i<3?'text-amber-600':'text-gray-400'">{{ (popPage-1)*10+i+1 }}</span>
-              <span class="text-xs text-gray-700 leading-snug line-clamp-1 flex-1">{{ p.title }}</span>
-            </button>
-          </div>
-          <!-- 인기글 페이지네이션 -->
-          <div v-if="popLastPage > 1" class="px-3 py-2 border-t flex justify-center items-center gap-1">
-            <button @click="loadPopular(1)" :disabled="popPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">«</button>
-            <button @click="loadPopular(popPage-1)" :disabled="popPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">‹</button>
-            <template v-for="pg in popPages" :key="pg">
-              <button @click="loadPopular(pg)" class="w-6 h-6 rounded text-[10px] font-bold" :class="pg===popPage?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
-            </template>
-            <button @click="loadPopular(popPage+1)" :disabled="popPage>=popLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">›</button>
-            <button @click="loadPopular(popLastPage)" :disabled="popPage>=popLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">»</button>
-          </div>
-        </div>
+        <SidebarWidgets :currentCategory="activeBoard?.id || ''" categoryParam="board_id" :inline="true" @select="openItem"
+          :api-url="'/api/posts'" detail-path="/community/free/" :current-id="activeItem?.id || 0"
+          label="게시글" />
         <AdSlot page="community" position="right" :maxSlots="2" />
       </div>
     </div>
@@ -194,6 +177,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AdSlot from '../../components/AdSlot.vue'
+import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import axios from 'axios'
 
