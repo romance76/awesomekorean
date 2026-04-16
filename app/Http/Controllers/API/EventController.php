@@ -33,8 +33,20 @@ class EventController extends Controller
         $query->orderByDesc('is_pinned');
 
         if ($request->lat && $request->lng) {
-            $query->nearby($request->lat, $request->lng, $request->radius ?? 50)
-                  ->orderBy('distance');
+            $lat = (float) $request->lat;
+            $lng = (float) $request->lng;
+            $radius = (int) ($request->radius ?? 50);
+            // 공식 이벤트(is_pinned)는 위치 필터에서 제외하여 항상 표시
+            $query->where(function ($q) use ($lat, $lng, $radius) {
+                $q->where('is_pinned', true) // 공식 이벤트는 무조건 포함
+                  ->orWhere(function ($q2) use ($lat, $lng, $radius) {
+                      $latDelta = $radius / 69.0;
+                      $lngDelta = $radius / (69.0 * cos(deg2rad($lat)));
+                      $q2->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
+                         ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta]);
+                  });
+            });
+            $query->orderByDesc('is_pinned')->orderByDesc('created_at');
         } else {
             $query->orderByDesc('created_at');
         }
