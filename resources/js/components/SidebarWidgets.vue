@@ -138,6 +138,9 @@ const props = defineProps({
   currentCategory: { type: String, default: '' },
   categoryLabel: { type: String, default: '' },
   mode: { type: String, default: 'list' }, // 'list' | 'detail'
+  // 부모에서 미리 로드한 데이터 (있으면 자체 API 호출 안 함)
+  preloadedPopular: { type: Array, default: null },
+  preloadedLatest: { type: Array, default: null },
 })
 
 const emit = defineEmits(['select'])
@@ -222,6 +225,19 @@ async function loadDetail(page = 1) {
   tabLoading.value = false
 }
 
+// ── preloaded 데이터 변경 watch ──
+watch(() => props.preloadedPopular, (v) => {
+  if (v && props.mode !== 'detail') {
+    viewsItems.value = v.filter(i => i.id !== Number(props.currentId)).slice(0, 10)
+  }
+})
+watch(() => props.preloadedLatest, (v) => {
+  if (v && props.mode !== 'detail') {
+    secondItemsData.value = v.filter(i => i.id !== Number(props.currentId)).slice(0, 10)
+    quickItems.value = secondItemsData.value.slice(0, 6)
+  }
+})
+
 // ── 카테고리 변경 watch ──
 watch(() => props.currentCategory, () => {
   // 캐시 무효화 (카테고리 바뀌면 다른 결과)
@@ -243,7 +259,21 @@ onMounted(async () => {
   if (props.mode === 'detail') {
     await loadDetail(1)
   } else {
-    await Promise.allSettled([loadTab('views', 1), loadTab('second', 1)])
+    // preloaded 데이터가 있으면 API 호출 없이 바로 사용
+    if (props.preloadedPopular) {
+      viewsItems.value = props.preloadedPopular.filter(i => i.id !== Number(props.currentId)).slice(0, 10)
+      viewsLastPage.value = 1
+    }
+    if (props.preloadedLatest) {
+      secondItemsData.value = props.preloadedLatest.filter(i => i.id !== Number(props.currentId)).slice(0, 10)
+      secondLastPage.value = 1
+    }
+    if (!props.preloadedPopular || !props.preloadedLatest) {
+      await Promise.allSettled([
+        !props.preloadedPopular ? loadTab('views', 1) : Promise.resolve(),
+        !props.preloadedLatest ? loadTab('second', 1) : Promise.resolve(),
+      ])
+    }
     if (props.recommendLabel) {
       try {
         const data = await cachedGet(props.apiUrl, buildParams({ per_page: 5 }))

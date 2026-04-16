@@ -73,6 +73,7 @@ Route::get('/market', [MarketController::class, 'index']);
 Route::get('/market/promotion-slots', [MarketController::class, 'promotionSlots']);
 Route::get('/market/{id}', [MarketController::class, 'show']);
 Route::get('/businesses', [BusinessController::class, 'index']);
+Route::get('/businesses/page-data', [BusinessController::class, 'pageData']);
 Route::get('/businesses/promotion-slots', [BusinessController::class, 'promotionSlots']);
 Route::get('/businesses/{id}', [BusinessController::class, 'show']);
 Route::get('/businesses/{id}/reviews', [BusinessController::class, 'reviews']);

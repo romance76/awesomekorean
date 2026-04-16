@@ -298,7 +298,8 @@
     <!-- 오른쪽 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">
       <SidebarWidgets :currentCategory="activeCat" :inline="true" @select="openItem" api-url="/api/businesses" detail-path="/directory/" :current-id="0"
-        label="업소" :filter-params="locationParams" />
+        label="업소" :filter-params="locationParams"
+        :preloaded-popular="sidebarPopular" :preloaded-latest="sidebarLatest" />
         <AdSlot page="directory" position="right" :maxSlots="2" />
     </div>
     </div>
@@ -419,6 +420,8 @@ const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
 const search = ref('')
+const sidebarPopular = ref(null)
+const sidebarLatest = ref(null)
 const radius = ref(String(auth.user?.default_radius || 30))
 const selectedCityIdx = ref('-2') // -2=내위치, -1=전국, 0~=도시
 const myCity = ref(null)
@@ -499,9 +502,13 @@ async function loadPage(p = 1) {
   }
 
   try {
-    const { data } = await axios.get('/api/businesses', { params })
-    items.value = data.data?.data || []
-    lastPage.value = data.data?.last_page || 1
+    const { data } = await axios.get('/api/businesses/page-data', { params })
+    const pd = data.data || {}
+    items.value = pd.main?.data || []
+    lastPage.value = pd.main?.last_page || 1
+    // 사이드바 데이터도 함께 받음 (SidebarWidgets API 호출 제거)
+    if (pd.sidebar_popular) sidebarPopular.value = pd.sidebar_popular
+    if (pd.sidebar_latest) sidebarLatest.value = pd.sidebar_latest
   } catch {}
   loading.value = false
 }

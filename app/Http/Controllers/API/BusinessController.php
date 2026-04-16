@@ -147,6 +147,118 @@ class BusinessController extends Controller
         return response()->json(['success' => true, 'data' => $paginated]);
     }
 
+    /**
+     * 통합 API: 메인목록 + 사이드바(인기/최신) 한번에 반환
+     */
+    public function pageData(Request $request)
+    {
+        Cache::remember('biz_promo_expired', 300, function () {
+            $this->expireStalePromotions();
+            return true;
+        });
+
+        $category = $request->category ?: '';
+        $state = $request->state ?: '';
+        $search = $request->search ?: '';
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = min((int) ($request->per_page ?? 16), 50);
+        $hasLocation = $request->lat && $request->lng;
+
+        $selectCols = ['id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
+            'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
+            'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
+            'promotion_expires_at', 'promotion_states', 'created_at'];
+
+        // 공통 필터 빌더
+        $baseQuery = function () use ($request, $category, $state, $search, $selectCols, $hasLocation) {
+            $q = Business::query()->select($selectCols)
+                ->when($category, fn($q, $v) => $q->where('category', $v))
+                ->when($search, fn($q, $v) => $q->where('name', 'like', "%{$v}%"))
+                ->when($state, fn($q, $v) => $q->where('state', $v))
+                ->when($request->city, fn($q, $v) => $q->where('city', $v));
+
+            if ($hasLocation) {
+                $lat = (float) $request->lat;
+                $lng = (float) $request->lng;
+                $radius = (int) ($request->radius ?? 50);
+                $latDelta = $radius / 69.0;
+                $lngDelta = $radius / (69.0 * cos(deg2rad($lat)));
+                $q->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
+                  ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta])
+                  ->nearby($lat, $lng, $radius);
+            }
+
+            $this->excludeCrossTierPromotion($q, $hasLocation);
+            $this->applyPromotionOrdering($q, $request->user_state, $hasLocation);
+            return $q;
+        };
+
+        $cacheBase = "biz_pd_{$category}_{$state}_{$search}_" . ($hasLocation ? 'loc' : 'nat');
+
+        // 메인 목록 (랜덤)
+        $mainQuery = $baseQuery();
+        if ($hasLocation) {
+            $seed = (int) ($request->rand_seed ?? 0);
+            $mainQuery->orderByRaw($seed > 0 ? "RAND({$seed})" : 'RAND()');
+        } else {
+            $randCacheKey = "biz_rand_{$category}_{$state}_nat";
+            $randomIds = Cache::remember($randCacheKey, 600, function () use ($mainQuery) {
+                return (clone $mainQuery)->select('id')->inRandomOrder()->limit(500)->pluck('id')->toArray();
+            });
+            if (!empty($randomIds)) {
+                $offset = ($page - 1) * $perPage;
+                $pageIds = array_slice($randomIds, $offset, $perPage);
+                if (!empty($pageIds)) {
+                    $idList = implode(',', $pageIds);
+                    $mainItems = Business::query()->select($this->selectCols())
+                        ->whereIn('id', $pageIds)->orderByRaw("FIELD(id, {$idList})")->get();
+                    $this->transformImages($mainItems);
+                    $mainData = [
+                        'data' => $mainItems, 'current_page' => $page,
+                        'per_page' => $perPage, 'total' => count($randomIds),
+                        'last_page' => (int) ceil(count($randomIds) / $perPage),
+                    ];
+                }
+            }
+        }
+        if (!isset($mainData)) {
+            $paginated = $mainQuery->paginate($perPage);
+            $this->transformImages($paginated->getCollection());
+            $mainData = $paginated;
+        }
+
+        // 사이드바: 인기순 (5분 Redis 캐시)
+        $popularData = Cache::remember("{$cacheBase}_popular", 300, function () use ($baseQuery) {
+            $items = $baseQuery()->orderByDesc('view_count')->limit(10)->get();
+            $this->transformImages($items);
+            return $items;
+        });
+
+        // 사이드바: 최신순 (5분 Redis 캐시)
+        $latestData = Cache::remember("{$cacheBase}_latest", 300, function () use ($baseQuery) {
+            $items = $baseQuery()->orderByDesc('created_at')->limit(10)->get();
+            $this->transformImages($items);
+            return $items;
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'main' => $mainData,
+                'sidebar_popular' => $popularData,
+                'sidebar_latest' => $latestData,
+            ],
+        ]);
+    }
+
+    private function selectCols()
+    {
+        return ['id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
+            'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
+            'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
+            'promotion_expires_at', 'promotion_states', 'created_at'];
+    }
+
     private function transformImages($collection)
     {
         $collection->transform(function ($b) {
