@@ -22,8 +22,8 @@
         class="absolute inset-0 cursor-pointer transition-opacity duration-500"
         :style="{ backgroundColor: b.bg_color || '#F5A623' }"
         @click="clickHeroBanner(b)">
-        <!-- 이미지가 있으면 이미지만 표시 -->
-        <img v-if="b.image_url" :src="b.image_url" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
+        <!-- 이미지가 있으면 배경색 + 이미지(높이 맞춤, 비율 유지, 가운데 정렬) -->
+        <img v-if="b.image_url" :src="b.image_url" class="absolute inset-0 m-auto h-full object-contain" @error="e => e.target.style.display='none'" />
         <!-- 이미지 없으면 텍스트 표시 -->
         <div v-else class="absolute inset-0 flex items-center justify-center">
           <div class="max-w-7xl mx-auto px-4 text-center">
