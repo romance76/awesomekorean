@@ -143,35 +143,10 @@
           <div class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ listing.content }}</div>
         </div>
 
-        <!-- 위치 및 주변 학교 (통합 지도) -->
+        <!-- 위치 (Leaflet 지도) -->
         <div v-if="listing.lat && listing.lng" class="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div class="px-4 pt-3 pb-2 flex items-center justify-between">
-            <h2 class="font-bold text-sm text-gray-800">📍 위치 및 주변 학교</h2>
-            <button @click="showSchoolMarkers = !showSchoolMarkers"
-              class="text-xs font-bold px-2.5 py-1 rounded-lg transition"
-              :class="showSchoolMarkers ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-green-50'">
-              🏫 {{ showSchoolMarkers ? '학교 숨기기' : '학교 표시' }}
-            </button>
-          </div>
-          <!-- Leaflet 지도 -->
-          <div ref="mapEl" style="height:300px; width:100%; z-index:0;"></div>
-          <!-- 학교 목록 (토글) -->
-          <div v-if="showSchoolMarkers && schools.length" class="border-t max-h-48 overflow-y-auto">
-            <button v-for="(s, i) in schools" :key="i" @click="focusSchool(s, i)"
-              class="w-full text-left px-4 py-2 hover:bg-green-50/50 transition flex items-center gap-2 border-b last:border-0"
-              :class="selectedSchool === i ? 'bg-green-50' : ''">
-              <span class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold"
-                :class="selectedSchool === i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'">{{ i + 1 }}</span>
-              <div class="flex-1 min-w-0">
-                <div class="text-xs font-bold text-gray-800 truncate">{{ s.name }}</div>
-                <div class="text-[10px] text-gray-500 truncate">{{ s.address }}</div>
-              </div>
-              <div v-if="s.rating" class="text-[10px] text-amber-600 font-bold flex-shrink-0">⭐{{ s.rating }}</div>
-            </button>
-          </div>
-          <div v-if="showSchoolMarkers && schoolLoading" class="border-t px-4 py-3 text-xs text-gray-400 text-center">학교 검색중...</div>
-          <div v-if="showSchoolMarkers && !schoolLoading && !schools.length && schoolError" class="border-t px-4 py-2 text-xs text-red-400 text-center">{{ schoolError }}</div>
-          <div v-if="showSchoolMarkers && !schoolLoading && !schools.length && !schoolError" class="border-t px-4 py-2 text-xs text-gray-400 text-center">주변에 학교가 없습니다</div>
+          <h2 class="font-bold text-sm text-gray-800 px-4 pt-3 mb-1">📍 위치</h2>
+          <div ref="mapEl" style="height:280px; width:100%; z-index:0;"></div>
         </div>
 
         <!-- 수정/삭제 -->
@@ -246,15 +221,9 @@ const isReported = ref(false)
 const favCount = ref(0)
 const reportModal = ref(false)
 
-// 지도 + 학교
+// 지도
 const mapEl = ref(null)
-const showSchoolMarkers = ref(false)
-const schools = ref([])
-const schoolLoading = ref(false)
-const schoolError = ref('')
-const selectedSchool = ref(-1)
 let mapInstance = null
-let schoolMarkers = []
 
 // 왼쪽 사이드바 카테고리 데이터
 const rentSubcats = [
@@ -383,69 +352,6 @@ async function initMap() {
   window.L.marker([lat, lng], { icon: homeIcon }).addTo(mapInstance)
     .bindPopup(`<b>📍 매물 위치</b><br>${listing.value.address || ''}`)
 }
-
-async function loadSchools() {
-  if (!listing.value?.lat || !listing.value?.lng) return
-  schoolLoading.value = true
-  schoolError.value = ''
-  try {
-    const { data } = await axios.get('/api/places/nearby-schools', {
-      params: { lat: listing.value.lat, lng: listing.value.lng, radius: 16000 }
-    })
-    if (data.success === false) {
-      schoolError.value = data.message || '학교 검색 실패'
-      schools.value = []
-    } else {
-      schools.value = data.data || []
-    }
-  } catch {
-    schoolError.value = '학교 검색 중 오류 발생'
-    schools.value = []
-  }
-  schoolLoading.value = false
-  addSchoolMarkers()
-}
-
-function addSchoolMarkers() {
-  if (!mapInstance || !window.L) return
-  schoolMarkers.forEach(m => mapInstance.removeLayer(m))
-  schoolMarkers = []
-  schools.value.forEach((s, i) => {
-    if (!s.lat || !s.lng) return
-    const icon = window.L.divIcon({
-      className: '',
-      html: `<div style="background:#22c55e;color:white;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:bold;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3);">${i + 1}</div>`,
-      iconSize: [20, 20], iconAnchor: [10, 10],
-    })
-    const marker = window.L.marker([s.lat, s.lng], { icon })
-      .addTo(mapInstance)
-      .bindPopup(`<b>${s.name}</b><br><span style="font-size:11px;">${s.address || ''}</span>${s.rating ? '<br>⭐ ' + s.rating : ''}`)
-    schoolMarkers.push(marker)
-  })
-}
-
-function removeSchoolMarkers() {
-  schoolMarkers.forEach(m => mapInstance?.removeLayer(m))
-  schoolMarkers = []
-}
-
-function focusSchool(s, i) {
-  selectedSchool.value = i
-  if (mapInstance && s.lat && s.lng) {
-    mapInstance.setView([s.lat, s.lng], 16, { animate: true })
-    if (schoolMarkers[i]) schoolMarkers[i].openPopup()
-  }
-}
-
-// showSchoolMarkers 토글 watch
-watch(showSchoolMarkers, async (v) => {
-  if (v) {
-    if (!schools.value.length && !schoolLoading.value) await loadSchools()
-    else addSchoolMarkers()
-  } else {
-    removeSchoolMarkers()
-  }
-})
 
 onMounted(async () => {
   try {
