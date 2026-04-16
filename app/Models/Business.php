@@ -10,5 +10,5 @@ class Business extends Model
     public function reviews() { return $this->hasMany(BusinessReview::class); }
     public function claims() { return $this->hasMany(BusinessClaim::class); }
     public function menus() { return $this->hasMany(BusinessMenu::class); }
-    public function scopeNearby($q,$lat,$lng,$r=50) { return $q->selectRaw("*, (3959*acos(cos(radians(?))*cos(radians(lat))*cos(radians(lng)-radians(?))+sin(radians(?))*sin(radians(lat)))) AS distance",[$lat,$lng,$lat])->having('distance','<',$r); }
+    public function scopeNearby($q,$lat,$lng,$r=50) { return $q->addSelect(\Illuminate\Support\Facades\DB::raw("(3959*acos(cos(radians({$lat}))*cos(radians(lat))*cos(radians(lng)-radians({$lng}))+sin(radians({$lat}))*sin(radians(lat)))) AS distance"))->having('distance','<',$r); }
 }

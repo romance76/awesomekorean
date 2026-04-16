@@ -90,42 +90,48 @@ class BusinessController extends Controller
         elseif ($sort === 'newest') $query->orderByDesc('created_at');
         elseif ($sort === 'reviews') $query->orderByDesc('review_count');
         elseif ($sort === 'random') {
-            // 랜덤 ID 목록을 10분간 캐싱 → RAND() 풀스캔 제거
-            $cacheKey = 'biz_rand_' . ($request->category ?: 'all') . '_' . ($request->state ?: 'all') . '_' . ($hasLocation ? 'loc' : 'nat');
-            $randomIds = Cache::remember($cacheKey, 600, function () use ($query) {
-                return (clone $query)->inRandomOrder()->limit(500)->pluck('id')->toArray();
-            });
+            if ($hasLocation) {
+                // 위치 필터 시: Haversine having 절 때문에 pluck 불가 → seed RAND 사용
+                $seed = (int) ($request->rand_seed ?? 0);
+                $query->orderByRaw($seed > 0 ? "RAND({$seed})" : 'RAND()');
+            } else {
+                // 위치 없을 때: ID 캐시 사용 → RAND 풀스캔 제거
+                $cacheKey = 'biz_rand_' . ($request->category ?: 'all') . '_' . ($request->state ?: 'all');
+                $randomIds = Cache::remember($cacheKey, 600, function () use ($query) {
+                    return (clone $query)->select('id')->inRandomOrder()->limit(500)->pluck('id')->toArray();
+                });
 
-            if (!empty($randomIds)) {
-                $page = max(1, (int) $request->input('page', 1));
-                $offset = ($page - 1) * $perPage;
-                $pageIds = array_slice($randomIds, $offset, $perPage);
-                $total = count($randomIds);
+                if (!empty($randomIds)) {
+                    $page = max(1, (int) $request->input('page', 1));
+                    $offset = ($page - 1) * $perPage;
+                    $pageIds = array_slice($randomIds, $offset, $perPage);
+                    $total = count($randomIds);
 
-                if (!empty($pageIds)) {
-                    $idList = implode(',', $pageIds);
-                    $results = Business::query()
-                        ->select('id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
-                                 'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
-                                 'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
-                                 'promotion_expires_at', 'promotion_states', 'created_at')
-                        ->whereIn('id', $pageIds)
-                        ->orderByRaw("FIELD(id, {$idList})")
-                        ->get();
+                    if (!empty($pageIds)) {
+                        $idList = implode(',', $pageIds);
+                        $results = Business::query()
+                            ->select('id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
+                                     'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
+                                     'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
+                                     'promotion_expires_at', 'promotion_states', 'created_at')
+                            ->whereIn('id', $pageIds)
+                            ->orderByRaw("FIELD(id, {$idList})")
+                            ->get();
 
-                    $this->transformImages($results);
+                        $this->transformImages($results);
 
-                    return response()->json(['success' => true, 'data' => [
-                        'data' => $results,
-                        'current_page' => $page,
-                        'per_page' => $perPage,
-                        'total' => $total,
-                        'last_page' => (int) ceil($total / $perPage),
-                    ]]);
+                        return response()->json(['success' => true, 'data' => [
+                            'data' => $results,
+                            'current_page' => $page,
+                            'per_page' => $perPage,
+                            'total' => $total,
+                            'last_page' => (int) ceil($total / $perPage),
+                        ]]);
+                    }
                 }
+                // fallback
+                $query->inRandomOrder();
             }
-            // fallback
-            $query->inRandomOrder();
         }
         else $query->orderByDesc('view_count');
 
