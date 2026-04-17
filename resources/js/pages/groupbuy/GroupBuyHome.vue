@@ -111,6 +111,7 @@
                 {{ {recruiting:'모집중',confirmed:'확정',completed:'완료',cancelled:'취소'}[item.status] || item.status }}
               </span>
               <span v-if="item.category" class="text-[10px] bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded">{{ item.category }}</span>
+              <span v-if="myJoinedIds.has(item.id)" class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-400 text-amber-900">🙋 참여중</span>
             </div>
             <div class="text-sm font-medium text-gray-800 truncate">{{ item.title }}</div>
             <div class="text-xs text-gray-400 mt-1 flex items-center gap-1.5 flex-wrap">
@@ -180,6 +181,7 @@ const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation
 
 const items = ref([])
 const loading = ref(true)
+const myJoinedIds = ref(new Set())
 const page = ref(1)
 const lastPage = ref(1)
 const search = ref('')
@@ -310,6 +312,14 @@ async function toggleFav(item) {
     favorited.value = new Set(favorited.value)
   }
 }
+async function loadMyJoined() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.get('/api/groupbuys/my-joined')
+    myJoinedIds.value = new Set(data.data || [])
+  } catch {}
+}
+
 async function loadFavoritesPage() {
   loading.value = true
   try {
@@ -324,6 +334,7 @@ async function loadFavoritesPage() {
 
 onMounted(async () => {
   bStore.loadAll()
+  loadMyJoined()
   await initLocation()
   if (city.value) {
     myCity.value = { ...city.value }

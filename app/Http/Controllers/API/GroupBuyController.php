@@ -40,6 +40,19 @@ class GroupBuyController extends Controller
         return response()->json(['success' => true, 'data' => $items]);
     }
 
+    /**
+     * 내가 참여한 공동구매 ID 목록
+     */
+    public function myJoined()
+    {
+        $ids = GroupBuyParticipant::where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'paid'])
+            ->pluck('group_buy_id')
+            ->toArray();
+
+        return response()->json(['success' => true, 'data' => $ids]);
+    }
+
     public function show($id)
     {
         $gb = GroupBuy::with(['user:id,name,nickname,avatar', 'participants' => function($q) {

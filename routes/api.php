@@ -245,6 +245,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/recipes/{id}/comments/{commentId}', [RecipeController::class, 'deleteComment']);
     Route::post('/recipes/{id}/favorite', [RecipeController::class, 'toggleFavorite']);
 
+    Route::get('/groupbuys/my-joined', [GroupBuyController::class, 'myJoined']);
     Route::post('/groupbuys', [GroupBuyController::class, 'store']);
     Route::put('/groupbuys/{id}', [GroupBuyController::class, 'update']);
     Route::delete('/groupbuys/{id}', [GroupBuyController::class, 'destroy']);
