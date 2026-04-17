@@ -1,0 +1,221 @@
+- generic [ref=e3]:
+  - navigation [ref=e26]:
+    - generic [ref=e27]:
+      - button [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+      - link "SomeKorean" [ref=e31] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e32]
+      - generic [ref=e33]:
+        - button "9+" [ref=e35] [cursor=pointer]:
+          - img [ref=e36]
+          - generic [ref=e38]: 9+
+        - button "k" [ref=e40] [cursor=pointer]
+        - button "EN" [ref=e41] [cursor=pointer]
+  - main [ref=e4]:
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: 🇰🇷 미국 한인 No.1 커뮤니티
+          - heading "SomeKorean" [level=1] [ref=e47]
+          - paragraph [ref=e48]: 한인들의 일상을 함께하는 올인원 플랫폼
+          - generic [ref=e49]:
+            - img [ref=e50]
+            - textbox "업소, 구인, 장터를 검색하세요..." [ref=e52]
+        - generic [ref=e53]:
+          - button "‹" [ref=e54] [cursor=pointer]
+          - generic [ref=e55]:
+            - button [ref=e56] [cursor=pointer]
+            - button [ref=e57] [cursor=pointer]
+            - button [ref=e58] [cursor=pointer]
+            - button [ref=e59] [cursor=pointer]
+            - button [ref=e60] [cursor=pointer]
+          - button "›" [ref=e61] [cursor=pointer]
+      - generic [ref=e62]:
+        - generic [ref=e63]:
+          - link "💬 커뮤니티" [ref=e64] [cursor=pointer]:
+            - /url: /community
+            - generic [ref=e65]: 💬
+            - generic [ref=e66]: 커뮤니티
+          - link "💼 구인구직" [ref=e67] [cursor=pointer]:
+            - /url: /jobs
+            - generic [ref=e68]: 💼
+            - generic [ref=e69]: 구인구직
+          - link "🛒 중고장터" [ref=e70] [cursor=pointer]:
+            - /url: /market
+            - generic [ref=e71]: 🛒
+            - generic [ref=e72]: 중고장터
+          - link "🏪 업소록" [ref=e73] [cursor=pointer]:
+            - /url: /directory
+            - generic [ref=e74]: 🏪
+            - generic [ref=e75]: 업소록
+          - link "🏠 부동산" [ref=e76] [cursor=pointer]:
+            - /url: /realestate
+            - generic [ref=e77]: 🏠
+            - generic [ref=e78]: 부동산
+          - link "📰 뉴스" [ref=e79] [cursor=pointer]:
+            - /url: /news
+            - generic [ref=e80]: 📰
+            - generic [ref=e81]: 뉴스
+          - link "🎉 이벤트" [ref=e82] [cursor=pointer]:
+            - /url: /events
+            - generic [ref=e83]: 🎉
+            - generic [ref=e84]: 이벤트
+          - link "❓ Q&A" [ref=e85] [cursor=pointer]:
+            - /url: /qa
+            - generic [ref=e86]: ❓
+            - generic [ref=e87]: Q&A
+          - link "👥 동호회" [ref=e88] [cursor=pointer]:
+            - /url: /clubs
+            - generic [ref=e89]: 👥
+            - generic [ref=e90]: 동호회
+          - link "🍳 레시피" [ref=e91] [cursor=pointer]:
+            - /url: /recipes
+            - generic [ref=e92]: 🍳
+            - generic [ref=e93]: 레시피
+          - link "🎮 게임" [ref=e94] [cursor=pointer]:
+            - /url: /games
+            - generic [ref=e95]: 🎮
+            - generic [ref=e96]: 게임
+          - link "💙 안심서비스" [ref=e97] [cursor=pointer]:
+            - /url: /elder
+            - generic [ref=e98]: 💙
+            - generic [ref=e99]: 안심서비스
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - heading "💬 최신 게시글" [level=3] [ref=e104]
+              - link "더보기 →" [ref=e105] [cursor=pointer]:
+                - /url: /community
+            - generic [ref=e106]:
+              - link "맛집후기 오라오라 스시집 Henry 26" [ref=e107] [cursor=pointer]:
+                - /url: /community/food/301
+                - generic [ref=e108]:
+                  - generic [ref=e109]: 맛집후기
+                  - generic [ref=e110]: 오라오라 스시집
+                - generic [ref=e111]:
+                  - button "Henry" [ref=e112]
+                  - generic [ref=e113]: "26"
+              - link "고민상담 한인 의사 추천 부탁드립니다 [4] chris_s 658" [ref=e114] [cursor=pointer]:
+                - /url: /community/advice/235
+                - generic [ref=e115]:
+                  - generic [ref=e116]: 고민상담
+                  - generic [ref=e117]: 한인 의사 추천 부탁드립니다
+                  - generic [ref=e118]: "[4]"
+                - generic [ref=e119]:
+                  - button "chris_s" [ref=e120]
+                  - generic [ref=e121]: "658"
+              - link "이민생활 HSA 계좌 활용하는 똑똑한 방법 [9] LA한인 800" [ref=e122] [cursor=pointer]:
+                - /url: /community/immigration/172
+                - generic [ref=e123]:
+                  - generic [ref=e124]: 이민생활
+                  - generic [ref=e125]: HSA 계좌 활용하는 똑똑한 방법
+                  - generic [ref=e126]: "[9]"
+                - generic [ref=e127]:
+                  - button "LA한인" [ref=e128]
+                  - generic [ref=e129]: "800"
+              - link "여행이야기 한인 교회 추천해주세요 [7] 요리초보94 659" [ref=e130] [cursor=pointer]:
+                - /url: /community/travel/284
+                - generic [ref=e131]:
+                  - generic [ref=e132]: 여행이야기
+                  - generic [ref=e133]: 한인 교회 추천해주세요
+                  - generic [ref=e134]: "[7]"
+                - generic [ref=e135]:
+                  - button "요리초보94" [ref=e136]
+                  - generic [ref=e137]: "659"
+              - link "자유게시판 미국 생활 10년차가 알려주는 꿀팁 모음 이민자일기 605" [ref=e138] [cursor=pointer]:
+                - /url: /community/free/223
+                - generic [ref=e139]:
+                  - generic [ref=e140]: 자유게시판
+                  - generic [ref=e141]: 미국 생활 10년차가 알려주는 꿀팁 모음
+                - generic [ref=e142]:
+                  - button "이민자일기" [ref=e143]
+                  - generic [ref=e144]: "605"
+              - link "맛집후기 운전면허 필기시험 꿀팁 [21] atl_korean 705" [ref=e145] [cursor=pointer]:
+                - /url: /community/food/114
+                - generic [ref=e146]:
+                  - generic [ref=e147]: 맛집후기
+                  - generic [ref=e148]: 운전면허 필기시험 꿀팁
+                  - generic [ref=e149]: "[21]"
+                - generic [ref=e150]:
+                  - button "atl_korean" [ref=e151]
+                  - generic [ref=e152]: "705"
+              - link "이민생활 세금 신고 TurboTax vs CPA 어떤게 나을까요 [14] housewife_us 700" [ref=e153] [cursor=pointer]:
+                - /url: /community/immigration/37
+                - generic [ref=e154]:
+                  - generic [ref=e155]: 이민생활
+                  - generic [ref=e156]: 세금 신고 TurboTax vs CPA 어떤게 나을까요
+                  - generic [ref=e157]: "[14]"
+                - generic [ref=e158]:
+                  - button "housewife_us" [ref=e159]
+                  - generic [ref=e160]: "700"
+              - link "홍보/광고 LA 한인타운 맛집 리스트 2026 [9] 소확행24 288" [ref=e161] [cursor=pointer]:
+                - /url: /community/promotion/252
+                - generic [ref=e162]:
+                  - generic [ref=e163]: 홍보/광고
+                  - generic [ref=e164]: LA 한인타운 맛집 리스트 2026
+                  - generic [ref=e165]: "[9]"
+                - generic [ref=e166]:
+                  - button "소확행24" [ref=e167]
+                  - generic [ref=e168]: "288"
+          - generic [ref=e169]:
+            - generic [ref=e170]:
+              - heading "💼 최신 구인구직" [level=3] [ref=e171]
+              - link "더보기 →" [ref=e172] [cursor=pointer]:
+                - /url: /jobs
+            - link "풀타임 Suwanee, GA asdf asd · $3~$6/hourly" [ref=e174] [cursor=pointer]:
+              - /url: /jobs/368
+              - generic [ref=e175]:
+                - generic [ref=e176]: 풀타임
+                - generic [ref=e177]: Suwanee, GA
+              - generic [ref=e178]: asdf
+              - generic [ref=e179]: asd · $3~$6/hourly
+            - link "풀타임 Suwanee, GA asdfasd asdfa · $4~$5/hourly" [ref=e181] [cursor=pointer]:
+              - /url: /jobs/370
+              - generic [ref=e182]:
+                - generic [ref=e183]: 풀타임
+                - generic [ref=e184]: Suwanee, GA
+              - generic [ref=e185]: asdfasd
+              - generic [ref=e186]: asdfa · $4~$5/hourly
+            - link "풀타임 New York, NY 한영 통번역 (법률사무소) Kim & Park Law · $55000~$75000/yearly" [ref=e188] [cursor=pointer]:
+              - /url: /jobs/321
+              - generic [ref=e189]:
+                - generic [ref=e190]: 풀타임
+                - generic [ref=e191]: New York, NY
+              - generic [ref=e192]: 한영 통번역 (법률사무소)
+              - generic [ref=e193]: Kim & Park Law · $55000~$75000/yearly
+            - link "풀타임 Carrollton, TX 회계사무소 Bookkeeper Seoul Accounting · $45000~$60000/yearly" [ref=e195] [cursor=pointer]:
+              - /url: /jobs/322
+              - generic [ref=e196]:
+                - generic [ref=e197]: 풀타임
+                - generic [ref=e198]: Carrollton, TX
+              - generic [ref=e199]: 회계사무소 Bookkeeper
+              - generic [ref=e200]: Seoul Accounting · $45000~$60000/yearly
+            - link "풀타임 Los Angeles, CA 화장품 매장 뷰티 어드바이저 Amore Pacific · $17~$22/hourly" [ref=e202] [cursor=pointer]:
+              - /url: /jobs/316
+              - generic [ref=e203]:
+                - generic [ref=e204]: 풀타임
+                - generic [ref=e205]: Los Angeles, CA
+              - generic [ref=e206]: 화장품 매장 뷰티 어드바이저
+              - generic [ref=e207]: Amore Pacific · $17~$22/hourly
+  - generic [ref=e209]:
+    - link "🏠 홈" [ref=e210] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e211]: 🏠
+      - generic [ref=e212]: 홈
+    - link "💬 커뮤니티" [ref=e213] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e214]: 💬
+      - generic [ref=e215]: 커뮤니티
+    - link "🎮 게임" [ref=e216] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e217]: 🎮
+      - generic [ref=e218]: 게임
+    - link "💭 채팅" [ref=e219] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e220]: 💭
+      - generic [ref=e221]: 채팅
+    - link "👤 MY" [ref=e222] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e223]: 👤
+      - generic [ref=e224]: MY

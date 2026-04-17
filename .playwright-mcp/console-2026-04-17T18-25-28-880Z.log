@@ -1,0 +1,7 @@
+[    1910ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://somekorean.com/login:0
+[   25054ms] [LOG] [CommHub] Initializing for user: 203 @ https://somekorean.com/build/assets/app-DKi76lAd.js:47
+[   25054ms] [LOG] [PeerJS] Initializing as sk-203-dnie @ https://somekorean.com/build/assets/app-DKi76lAd.js:47
+[   25055ms] [LOG] [Echo] Authorizing channel: private-user.203 token: yes @ https://somekorean.com/build/assets/app-DKi76lAd.js:7
+[   25056ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://somekorean.com/build/assets/app-DKi76lAd.js:47
+[   25174ms] [LOG] [Echo] Channel authorized OK: private-user.203 @ https://somekorean.com/build/assets/app-DKi76lAd.js:7
+[   25306ms] [LOG] [PeerJS] ✅ Connected as sk-203-dnie @ https://somekorean.com/build/assets/app-DKi76lAd.js:47

@@ -306,8 +306,8 @@
       <button class="absolute top-4 right-4 text-white text-3xl">✕</button>
     </div>
 
-    <!-- 새 채팅 모달 (타입·참여자 선택 Issue #20) -->
-    <div v-if="showCreate" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" @click.self="closeCreate">
+    <!-- 새 채팅 모달 (타입·참여자 선택 Issue #20) — z-[70] 로 NavBar/BottomNav 위에 -->
+    <div v-if="showCreate" class="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center" style="z-index: 70;" @click.self="closeCreate">
       <div class="bg-white rounded-t-xl sm:rounded-xl w-full max-w-sm shadow-xl max-h-[90vh] overflow-y-auto">
         <div class="sticky top-0 bg-white border-b px-5 py-3 flex items-center justify-between">
           <h3 class="font-bold text-gray-800">새 채팅</h3>
