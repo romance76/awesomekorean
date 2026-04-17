@@ -177,7 +177,7 @@
             <!-- 제목 -->
             <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
             <div class="text-[10px] text-gray-400 mt-0.5">
-              {{ item.category || '기타' }} · <UserName :userId="item.user?.id" :name="item.user?.name" className="text-[10px] text-gray-400 inline" />
+              <template v-if="!activeCat">{{ item.category || '기타' }} · </template><UserName :userId="item.user?.id" :name="item.user?.name" className="text-[10px] text-gray-400 inline" />
             </div>
             <div class="text-xs text-gray-500 line-clamp-1 mt-1">{{ (item.content || '').slice(0, 60) }}</div>
           </div>

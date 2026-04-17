@@ -146,7 +146,7 @@
           <div @click="openItem(item)"
             class="px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
             <div class="flex items-center gap-2">
-              <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">{{ item.board?.name || '자유' }}</span>
+              <span v-if="!activeBoard" class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">{{ item.board?.name || '자유' }}</span>
               <span class="text-sm font-medium text-gray-800 truncate flex-1">{{ item.title }}</span>
             </div>
             <div class="flex items-center gap-2 mt-1 text-xs text-gray-400">

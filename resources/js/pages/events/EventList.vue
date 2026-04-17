@@ -200,7 +200,7 @@
             <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">🎉</div>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
-              <div class="text-[10px] text-gray-400">{{ item.category || '기타' }} · <template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
+              <div class="text-[10px] text-gray-400"><template v-if="!activeCat">{{ item.category || '기타' }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
             </div>
             <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
             <div v-else class="text-green-600 text-xs font-bold">무료</div>

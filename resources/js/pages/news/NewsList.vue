@@ -176,7 +176,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 mb-1">
-                  <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || '뉴스' }}</span>
+                  <span v-if="!activeCat" class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || '뉴스' }}</span>
                   <span v-if="item.source?.startsWith('TIME')" class="text-[10px] bg-blue-100 text-blue-700 px-1 py-0.5 rounded-full font-bold">EN→KO</span>
                   <span class="text-[10px] text-gray-400">{{ item.source }}</span>
                 </div>
