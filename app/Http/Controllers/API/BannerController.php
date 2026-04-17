@@ -162,7 +162,8 @@ class BannerController extends Controller
                 });
                 $nationalPages = ['home','community','qa','news','recipes','shorts','games','music','poker'];
                 if (!in_array($page, $nationalPages) && $user && $userState) {
-                    $query->where(function ($q) use ($userState, $userCounty = $user->city ?? null) {
+                    $userCounty = $user->city ?? null;
+                    $query->where(function ($q) use ($userState, $userCounty) {
                         $q->where('geo_scope', 'all')
                           ->orWhere(function ($q2) use ($userState) { $q2->where('geo_scope', 'state')->where('geo_value', $userState); })
                           ->orWhere(function ($q2) use ($userCounty) { $q2->where('geo_scope', 'county')->where('geo_value', $userCounty); })
