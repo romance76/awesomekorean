@@ -147,7 +147,7 @@
                 <span class="text-[9px] text-gray-400">({{ item.rating_count || 0 }})</span>
               </div>
               <div class="text-[10px] text-gray-400 mt-0.5">
-                <span v-if="item.category" class="inline-block bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold mr-1">{{ item.category }}</span>
+                <span v-if="!activeCat && item.category" class="inline-block bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold mr-1">{{ item.category }}</span>
                 <span v-if="item.cook_method">{{ item.cook_method }}</span>
               </div>
               <div class="text-[10px] text-gray-500 mt-1 flex items-center gap-2 flex-wrap">

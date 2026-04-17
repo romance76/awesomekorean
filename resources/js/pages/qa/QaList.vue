@@ -170,7 +170,7 @@
             <div @click="openItem(item)"
               class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 hover:shadow-md hover:border-amber-300 transition cursor-pointer">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || 'Q&A' }}</span>
+                <span v-if="!activeCat" class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || 'Q&A' }}</span>
                 <span v-if="item.bounty_points > 0" class="text-[10px] bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full font-bold">🏆 {{ item.bounty_points }}P</span>
                 <span v-if="item.is_resolved" class="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">✅ 해결</span>
                 <span v-else class="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">미해결</span>
