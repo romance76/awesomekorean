@@ -88,8 +88,8 @@ class PostController extends Controller
             'zipcode' => $request->zipcode,
         ]);
 
-        // 글 작성 포인트 +5
-        auth()->user()->addPoints(5, '게시글 작성');
+        // 글 작성 포인트 +5 (Issue #12: 대상 post 연결)
+        auth()->user()->addPoints(5, '게시글 작성', 'earn', ['type' => \App\Models\Post::class, 'id' => $post->id]);
 
         return response()->json(['success' => true, 'data' => $post], 201);
     }

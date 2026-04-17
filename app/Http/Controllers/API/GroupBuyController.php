@@ -224,7 +224,7 @@ class GroupBuyController extends Controller
         $paidParticipants = $gb->participants()->where('status', 'paid')->get();
         foreach ($paidParticipants as $p) {
             if ($p->payment_type === 'point' && $p->paid_amount > 0) {
-                $p->user->addPoints($p->paid_amount, 'groupbuy_refund', "공동구매 취소 환불: {$gb->title}");
+                $p->user->addPoints($p->paid_amount, "공동구매 취소 환불: {$gb->title}", 'groupbuy_refund', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
             }
             $p->update(['status' => 'refunded']);
         }
@@ -291,7 +291,7 @@ class GroupBuyController extends Controller
                     if ($user->points < $amount) {
                         return response()->json(['success' => false, 'message' => '포인트가 부족합니다.'], 400);
                     }
-                    $user->addPoints(-$amount, 'groupbuy_join', "공동구매 참여: {$gb->title}");
+                    $user->addPoints(-$amount, "공동구매 참여: {$gb->title}", 'groupbuy_join', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
                     $paymentType = 'point';
                     $status = 'paid';
                     break;
@@ -308,7 +308,7 @@ class GroupBuyController extends Controller
                         if ($user->points < $amount) {
                             return response()->json(['success' => false, 'message' => '포인트가 부족합니다.'], 400);
                         }
-                        $user->addPoints(-$amount, 'groupbuy_join', "공동구매 참여: {$gb->title}");
+                        $user->addPoints(-$amount, "공동구매 참여: {$gb->title}", 'groupbuy_join', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
                         $status = 'paid';
                     } else {
                         $paymentId = $request->input('payment_id');
@@ -354,7 +354,7 @@ class GroupBuyController extends Controller
         DB::transaction(function() use ($gb, $user, $participant) {
             if ($participant->status === 'paid' && $participant->paid_amount > 0) {
                 if ($participant->payment_type === 'point') {
-                    $user->addPoints($participant->paid_amount, 'groupbuy_refund', "공동구매 참여 취소 환불: {$gb->title}");
+                    $user->addPoints($participant->paid_amount, "공동구매 참여 취소 환불: {$gb->title}", 'groupbuy_refund', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
                 }
             }
 

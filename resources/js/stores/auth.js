@@ -88,5 +88,26 @@ export const useAuthStore = defineStore('auth', () => {
     delete axios.defaults.headers.common['Authorization']
   }
 
-  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, register, logout, fetchUser, resolveInit }
+  // Issue #13: 포인트 값 부분 갱신 + localStorage 동기화
+  function updatePoints(points, gamePoints = null) {
+    if (!user.value) return
+    if (points !== null && points !== undefined) user.value.points = points
+    if (gamePoints !== null) user.value.game_points = gamePoints
+    try {
+      const { primary } = storages()
+      primary.setItem('sk_user', JSON.stringify(user.value))
+    } catch {}
+  }
+
+  // Issue #13: 최신 잔액 서버 조회 후 localStorage 반영 (캐싱 없이)
+  async function refreshBalance() {
+    try {
+      const { data } = await axios.get('/api/points/balance')
+      const p = data.data?.points
+      const gp = data.data?.game_points
+      updatePoints(p, gp)
+    } catch {}
+  }
+
+  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
 })

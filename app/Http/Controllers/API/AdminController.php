@@ -26,12 +26,15 @@ class AdminController extends Controller
     }
 
     public function banUser(Request $request, $id) {
-        User::findOrFail($id)->update(['is_banned'=>true,'ban_reason'=>$request->reason]);
+        $u = User::findOrFail($id);
+        // Issue #6: 민감 필드는 forceFill 로 명시 설정
+        $u->forceFill(['is_banned'=>true,'ban_reason'=>$request->reason])->save();
         return response()->json(['success'=>true]);
     }
 
     public function unbanUser($id) {
-        User::findOrFail($id)->update(['is_banned'=>false,'ban_reason'=>null]);
+        $u = User::findOrFail($id);
+        $u->forceFill(['is_banned'=>false,'ban_reason'=>null])->save();
         return response()->json(['success'=>true]);
     }
 

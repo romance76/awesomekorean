@@ -179,6 +179,10 @@ const notifList = ref([])
 import { useSiteStore } from '../stores/site'
 const siteStore = useSiteStore()
 
+// ⚠️ Issue #18: 실제 노출 메뉴는 DB site_settings.menu_config 가 오버라이드한다.
+// - 관리자 UI:    /admin/site-settings → "메뉴 구성" 탭
+// - DB 조회:      SELECT value FROM site_settings WHERE key='menu_config';
+// - 이 배열은 DB 값이 없을 때의 폴백일 뿐이며, 운영 상태와 다를 수 있음.
 const defaultMenus = [
   { key: 'home', label: '홈', label_en: 'Home', icon: '🏠', path: '/', enabled: true },
   { key: 'community', label: '커뮤니티', label_en: 'Community', icon: '💬', path: '/community', enabled: true },

@@ -63,7 +63,7 @@ class CommentController extends Controller
         $commentMaxDaily = (int) (\DB::table('point_settings')->where('key', 'comment_write_daily_max')->value('value') ?? 20);
         $todayComments = Comment::where('user_id', auth()->id())->whereDate('created_at', today())->count();
         if ($todayComments <= $commentMaxDaily && $commentPoints > 0) {
-            auth()->user()->addPoints($commentPoints, '댓글 작성', 'earn');
+            auth()->user()->addPoints($commentPoints, '댓글 작성', 'earn', ['type' => \App\Models\Comment::class, 'id' => $comment->id]);
         }
 
         // Increment comment count on parent model

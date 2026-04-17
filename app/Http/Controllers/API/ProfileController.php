@@ -69,7 +69,9 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         // 관련 데이터 소프트 삭제 (실제로는 is_active = false 처리)
-        $user->update(['is_banned' => true, 'ban_reason' => '회원 자발적 탈퇴', 'email' => 'deleted_' . $user->id . '@deleted.com']);
+        // Issue #6: is_banned/ban_reason 은 forceFill 로 명시 설정
+        $user->forceFill(['is_banned' => true, 'ban_reason' => '회원 자발적 탈퇴'])->save();
+        $user->update(['email' => 'deleted_' . $user->id . '@deleted.com']);
         try { \Tymon\JWTAuth\Facades\JWTAuth::invalidate(\Tymon\JWTAuth\Facades\JWTAuth::getToken()); } catch (\Exception $e) {}
         return response()->json(['success' => true, 'message' => '회원 탈퇴가 완료되었습니다']);
     }
