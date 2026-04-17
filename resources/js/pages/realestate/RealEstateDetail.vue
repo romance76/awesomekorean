@@ -337,6 +337,11 @@ async function ensureLeaflet() {
 
 async function initMap() {
   if (!listing.value?.lat || !listing.value?.lng || !mapEl.value) return
+  // mapEl이 실제 크기를 가질 때까지 대기
+  if (mapEl.value.offsetHeight === 0) {
+    await new Promise(r => setTimeout(r, 200))
+    if (!mapEl.value || mapEl.value.offsetHeight === 0) return
+  }
   await ensureLeaflet()
   const lat = Number(listing.value.lat), lng = Number(listing.value.lng)
   mapInstance = window.L.map(mapEl.value, { zoomControl: true, scrollWheelZoom: true }).setView([lat, lng], 14)
@@ -360,7 +365,8 @@ onMounted(async () => {
     checkFav()
     loadFavCount()
     await nextTick()
-    initMap()
+    // Leaflet은 DOM이 완전히 렌더된 후 초기화해야 함
+    setTimeout(() => initMap(), 100)
   } catch {}
   loading.value = false
 })
