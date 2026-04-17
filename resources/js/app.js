@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import { useSiteStore } from './stores/site'
+import { initSentry } from './sentry'
 
 const pinia = createPinia()
 import UserName from './components/UserName.vue'
@@ -20,6 +21,9 @@ import MobileAdInline from './components/MobileAdInline.vue'
 app.component('MobileAdInline', MobileAdInline)
 app.use(pinia)
 app.use(router)
+
+// Sentry 초기화 (DSN 없으면 no-op, Kay 가 나중에 DSN 입력 시 자동 활성화)
+initSentry(app, router)
 
 const authStore = useAuthStore()
 authStore.initialize()
