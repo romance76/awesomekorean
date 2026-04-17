@@ -9,7 +9,10 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, \Spatie\Permission\Traits\HasRoles;
+
+    // Spatie Permission: API·Web 동일 guard 사용 (JWT 인증이 web guard 기반)
+    protected $guard_name = 'web';
 
     // Issue #6: 민감 필드(role, is_banned, points, game_points)는 mass assignment 금지.
     // 이들은 내부 서비스 로직에서만 forceFill / update(['key' => ...]) 로 명시 설정.
