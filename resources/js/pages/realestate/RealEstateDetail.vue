@@ -30,9 +30,9 @@
                 {{ c.label }}
               </RouterLink>
             </template>
-            <!-- 즐겨찾기 -->
+            <!-- 내 하트 -->
             <RouterLink to="/realestate?fav=1" class="block w-full text-left px-3 py-1.5 text-xs transition border-t text-gray-600 hover:bg-red-50/50">
-              ❤️ 즐겨찾기 <span v-if="favCount > 0" class="text-red-500 font-bold">({{ favCount }})</span>
+              ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5 text-red-500 font-bold">({{ favCount }})</span>
             </RouterLink>
           </div>
           <AdSlot page="realestate" position="left" :maxSlots="2" />

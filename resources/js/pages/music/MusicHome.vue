@@ -17,12 +17,12 @@
           </button>
         </div>
 
-        <!-- 즐겨찾기 -->
+        <!-- 내 하트 -->
         <div v-if="auth.isLoggedIn" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <button @click="loadFavorites"
             class="w-full text-left px-4 py-3 border-b font-bold text-sm transition"
             :class="showFavorites ? 'bg-red-50 text-red-700' : 'text-amber-900'">
-            ❤️ 즐겨찾기 {{ favoriteTracks.length }}곡
+            ❤️ 내 하트 {{ favoriteTracks.length }}곡
           </button>
         </div>
 
@@ -66,14 +66,14 @@
       <div class="col-span-12 lg:col-span-6">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-4 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
-            <span>🎶 {{ showFavorites ? '❤️ 즐겨찾기' : (activePL ? activePL.name : (activeCat?.name || '트랙')) }}</span>
+            <span>🎶 {{ showFavorites ? '❤️ 내 하트' : (activePL ? activePL.name : (activeCat?.name || '트랙')) }}</span>
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-400">{{ totalCount }}곡</span>
               <button v-if="displayTracks.length" @click="playAll" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold hover:bg-amber-200">▶ 전체</button>
               <button v-if="displayTracks.length" @click="shufflePlay" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold hover:bg-blue-200">🔀 랜덤</button>
             </div>
           </div>
-          <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-gray-400">{{ showFavorites ? '즐겨찾기한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
+          <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-gray-400">{{ showFavorites ? '하트한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
           <div v-for="(track, i) in displayTracks" :key="track.id"
             class="flex items-center gap-3 px-4 py-2.5 border-b last:border-0 hover:bg-amber-50/50 transition cursor-pointer group"
             :class="playing?.id === track.id ? 'bg-amber-50' : ''">

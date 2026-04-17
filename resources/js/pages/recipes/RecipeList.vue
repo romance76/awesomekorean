@@ -123,7 +123,7 @@
         <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
         <div v-else-if="!items.length" class="text-center py-12">
           <div class="text-4xl mb-3">{{ showFavorites ? '💖' : '🍳' }}</div>
-          <div class="text-gray-500 font-semibold">{{ showFavorites ? '찜한 레시피가 없습니다' : '검색 결과가 없습니다' }}</div>
+          <div class="text-gray-500 font-semibold">{{ showFavorites ? '하트한 레시피가 없습니다' : '검색 결과가 없습니다' }}</div>
         </div>
 
         <!-- 카드 그리드 -->

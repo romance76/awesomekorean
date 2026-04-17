@@ -22,7 +22,7 @@
           </RouterLink>
           <RouterLink v-if="auth.isLoggedIn" to="/recipes?favorites=1"
             class="block w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-red-50/50 transition border-t">
-            💖 찜한 레시피
+            ❤️ 내 하트
           </RouterLink>
         </div>
       </div>
