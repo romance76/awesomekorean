@@ -31,8 +31,8 @@
       </div>
 
       <!-- ══════════ CENTER: Detail ══════════ -->
-      <main class="col-span-12 lg:col-span-7 md:col-span-7">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <main class="col-span-12 lg:col-span-7 md:col-span-7" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'opacity-60' : ''">
+        <div class="bg-white rounded-xl shadow-sm border overflow-hidden" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'border-gray-300' : 'border-gray-100'">
 
           <!-- Header: status + title + organizer -->
           <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-100">
@@ -210,21 +210,9 @@
           </div>
         </div>
 
-        <!-- Comments -->
-        <CommentSection v-if="gb.id" type="groupbuy" :typeId="gb.id" class="mt-4" />
-
-        <!-- Back to list -->
-        <div class="flex justify-center mt-4">
-          <router-link to="/groupbuy" class="text-xs font-bold text-amber-700 hover:text-amber-500 bg-white rounded-xl px-6 py-3 border shadow-sm">
-            📋 목록으로
-          </router-link>
-        </div>
-      </main>
-
-      <!-- ══════════ RIGHT: Sidebar ══════════ -->
-      <aside class="col-span-4 md:col-span-4 lg:col-span-3 hidden md:block">
-        <div class="space-y-3 sticky top-20">
-          <!-- Organizer info -->
+        <!-- 주최자 + 공동구매 정보 (본문 안에 2열) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+          <!-- 주최자 정보 -->
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <div class="text-xs font-bold text-gray-500 mb-3">주최자 정보</div>
             <div class="flex items-center gap-3">
@@ -244,7 +232,7 @@
             </div>
           </div>
 
-          <!-- Quick info card -->
+          <!-- 공동구매 정보 -->
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <div class="text-xs font-bold text-gray-500 mb-3">공동구매 정보</div>
             <div class="space-y-2 text-xs">
@@ -270,7 +258,22 @@
               </div>
             </div>
           </div>
+        </div>
 
+        <!-- Comments -->
+        <CommentSection v-if="gb.id" type="groupbuy" :typeId="gb.id" class="mt-4" />
+
+        <!-- Back to list -->
+        <div class="flex justify-center mt-4">
+          <router-link to="/groupbuy" class="text-xs font-bold text-amber-700 hover:text-amber-500 bg-white rounded-xl px-6 py-3 border shadow-sm">
+            📋 목록으로
+          </router-link>
+        </div>
+      </main>
+
+      <!-- ══════════ RIGHT: Sidebar ══════════ -->
+      <aside class="col-span-4 md:col-span-4 lg:col-span-3 hidden md:block">
+        <div class="space-y-3 sticky top-20">
           <SidebarWidgets mode="detail" :currentCategory="gb?.category || ''" api-url="/api/groupbuys" detail-path="/groupbuy/" :current-id="gb.id" label="공동구매"
             :filter-params="gb.lat && gb.lng ? { lat: gb.lat, lng: gb.lng, radius: 50 } : {}" />
           <AdSlot page="groupbuy" position="right" :maxSlots="2" />

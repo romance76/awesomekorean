@@ -101,7 +101,8 @@
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <RouterLink :to="'/groupbuy/' + item.id"
-        class="block px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 transition">
+        class="block px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 transition"
+        :class="item.status === 'completed' || item.status === 'cancelled' ? 'opacity-50' : ''">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5 mb-1">
