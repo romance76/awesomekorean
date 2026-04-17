@@ -564,17 +564,22 @@ async function loadFavoritesPage() {
 }
 
 onMounted(async () => {
+  // 병렬: 설정 + 위치 + 북마크 동시 로드, 데이터는 전국으로 즉시 시작
   bStore.loadAll()
-  await loadConfig(); viewMode.value = getDefaultView('directory')
+  const configP = loadConfig().then(() => { viewMode.value = getDefaultView('directory') })
+  // 전국 모드로 즉시 로드 (위치 감지 기다리지 않음)
+  selectedCityIdx.value = '-1'
+  radius.value = '0'
+  loadPage()
+  // 위치 감지 완료 후 재로드
+  await configP
   await initLocation()
   if (city.value) {
     myCity.value = { ...city.value }
     selectedCityIdx.value = '-2'
-  } else {
-    selectedCityIdx.value = '-1'
-    radius.value = '0'
+    radius.value = '30'
+    loadPage() // 위치 기반으로 재로드
   }
-  loadPage()
 })
 
 watch(() => route.params.id, (newId, oldId) => {
