@@ -1,0 +1,78 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - button "9+" [ref=e39] [cursor=pointer]:
+          - img [ref=e14]
+          - generic [ref=e40]: 9+
+        - button "k" [ref=e17] [cursor=pointer]
+        - button "EN" [ref=e18] [cursor=pointer]
+  - main [ref=e41]:
+    - generic [ref=e176]:
+      - generic [ref=e177]:
+        - generic [ref=e178]:
+          - button "뒤로가기" [ref=e179] [cursor=pointer]: ←
+          - generic [ref=e180]: 직장인A57
+        - generic [ref=e181]:
+          - button "🔍" [ref=e182] [cursor=pointer]
+          - generic [ref=e183]: 🟢 공개
+      - generic [ref=e184]:
+        - generic [ref=e187]: 오늘
+        - generic [ref=e190]:
+          - generic [ref=e191]: "[QA-seed] 안녕하세요 테스트 메시지입니다"
+          - generic [ref=e192]: 오전 10:57
+        - generic [ref=e194]:
+          - generic [ref=e196]: 👑 관리자
+          - generic [ref=e197]: "[QA-seed] 네 안녕하세요 잘 도착했습니다"
+          - generic [ref=e198]: 오전 10:58
+        - generic [ref=e200]:
+          - generic [ref=e201]: "[QA-seed] DM 기능 테스트 중입니다"
+          - generic [ref=e202]: 오전 10:59
+        - generic [ref=e204]:
+          - generic [ref=e206]: 👑 관리자
+          - generic [ref=e207]: "[QA-seed] 좋습니다 잘 보입니다"
+          - generic [ref=e208]: 오전 11:00
+        - generic [ref=e210]:
+          - generic [ref=e211]: "[QA-seed] 이모지 테스트 🙂"
+          - generic [ref=e212]: 오전 11:01
+        - generic [ref=e214]:
+          - generic [ref=e216]: 👑 관리자
+          - generic [ref=e217]: "[QA-seed] 이모지 렌더링 정상입니다 👍"
+          - generic [ref=e218]: 오전 11:02
+        - generic [ref=e220]:
+          - generic [ref=e221]: "[QA-seed] 긴 메시지 테스트: somekorean 은 미국 한인분들을 위한 올인원 플랫폼입니다. 중고장터 부동산 구인구직 등 다양한 기능 제공"
+          - generic [ref=e222]: 오전 11:04
+        - generic [ref=e224]:
+          - generic [ref=e226]: 👑 관리자
+          - generic [ref=e227]: "[QA-seed] 긴 메시지도 잘 출력됩니다"
+          - generic [ref=e228]: 오전 11:06
+      - generic [ref=e230]:
+        - generic "이미지·압축파일 첨부" [ref=e231] [cursor=pointer]: 📎
+        - textbox "메시지 입력..." [ref=e232]
+        - button "전송" [disabled] [ref=e233]
+  - generic [ref=e20]:
+    - link "🏠 홈" [ref=e21] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e22]: 🏠
+      - generic [ref=e23]: 홈
+    - link "💬 커뮤니티" [ref=e24] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e25]: 💬
+      - generic [ref=e26]: 커뮤니티
+    - link "🎮 게임" [ref=e27] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e28]: 🎮
+      - generic [ref=e29]: 게임
+    - link "💭 채팅" [ref=e30] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e31]: 💭
+      - generic [ref=e32]: 채팅
+    - link "👤 MY" [ref=e33] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e34]: 👤
+      - generic [ref=e35]: MY

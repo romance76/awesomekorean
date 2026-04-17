@@ -116,4 +116,36 @@ class PushNotificationService
             Log::warning('[FCM] sendNewMessage failed: ' . $e->getMessage());
         }
     }
+
+    /**
+     * P2B-4: 범용 push 발송 (title/body/data).
+     * Firebase 미설정 시 조용히 skip.
+     */
+    public function sendToToken(
+        string $fcmToken,
+        string $title,
+        string $body,
+        array  $data = []
+    ): void {
+        if (!$this->messaging) {
+            Log::info('[FCM] sendToToken skipped — Firebase not configured');
+            return;
+        }
+        try {
+            $message = CloudMessage::withTarget('token', $fcmToken)
+                ->withNotification(Notification::create($title, mb_substr($body, 0, 200)))
+                ->withData(array_map('strval', $data))
+                ->withWebPushConfig(WebPushConfig::fromArray([
+                    'notification' => [
+                        'title'    => $title,
+                        'body'     => mb_substr($body, 0, 200),
+                        'icon'     => '/images/icons/icon-192.png',
+                    ],
+                ]));
+            $this->messaging->send($message);
+            Log::info('[FCM] sendToToken sent to ' . substr($fcmToken, 0, 10) . '...');
+        } catch (\Throwable $e) {
+            Log::warning('[FCM] sendToToken failed: ' . $e->getMessage());
+        }
+    }
 }

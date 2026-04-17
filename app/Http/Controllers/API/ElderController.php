@@ -18,9 +18,14 @@ class ElderController extends Controller
 
     public function checkin(Request $request) {
         $log = ElderCheckinLog::create(['user_id'=>auth()->id(),'checked_in_at'=>now(),'lat'=>$request->lat,'lng'=>$request->lng,'status'=>'ok']);
-        // 체크인 포인트 +5
-        auth()->user()->addPoints(5, '안심서비스 체크인');
-        return response()->json(['success'=>true,'data'=>$log]);
+        // 체크인 포인트 (P2B-2: DB 동적 min~max 범위 랜덤)
+        $min = \App\Support\PointRules::get('checkin_min', 5);
+        $max = \App\Support\PointRules::get('checkin_max', $min);
+        $amount = $max > $min ? random_int($min, $max) : $min;
+        if ($amount > 0) {
+            auth()->user()->addPoints($amount, '안심서비스 체크인', 'earn', ['type' => \App\Models\ElderCheckinLog::class, 'id' => $log->id]);
+        }
+        return response()->json(['success'=>true,'data'=>$log,'points_earned'=>$amount]);
     }
 
     public function sos(Request $request) {

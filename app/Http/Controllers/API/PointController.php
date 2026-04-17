@@ -21,7 +21,11 @@ class PointController extends Controller
     public function dailySpin() {
         $today = now()->toDateString();
         $userId = auth()->id();
-        $won = collect([0,0,10,10,20,30,50,100,200,300])->random();
+        // P2B-2: 룰렛 보상 배열 DB 동적 (`daily_spin_rewards` CSV 또는 JSON)
+        $rewardsRaw = \App\Support\PointRules::raw('daily_spin_rewards', '0,0,10,10,20,30,50,100,200,300');
+        $rewards = array_map('intval', array_filter(explode(',', $rewardsRaw), fn($v) => is_numeric(trim($v))));
+        if (empty($rewards)) $rewards = [0,0,10,10,20,30,50,100,200,300];
+        $won = $rewards[array_rand($rewards)];
 
         // Issue #14: DB UNIQUE(user_id, spun_date) + 트랜잭션으로 race 완전 방어
         try {

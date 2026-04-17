@@ -1,0 +1,35 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - button [ref=e13] [cursor=pointer]:
+          - img [ref=e14]
+        - button "k" [ref=e17] [cursor=pointer]
+        - button "EN" [ref=e18] [cursor=pointer]
+  - main
+  - generic [ref=e20]:
+    - link "🏠 홈" [ref=e21] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e22]: 🏠
+      - generic [ref=e23]: 홈
+    - link "💬 커뮤니티" [ref=e24] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e25]: 💬
+      - generic [ref=e26]: 커뮤니티
+    - link "🎮 게임" [ref=e27] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e28]: 🎮
+      - generic [ref=e29]: 게임
+    - link "💭 채팅" [ref=e30] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e31]: 💭
+      - generic [ref=e32]: 채팅
+    - link "👤 MY" [ref=e33] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e34]: 👤
+      - generic [ref=e35]: MY

@@ -1,0 +1,71 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - button "9+" [ref=e39] [cursor=pointer]:
+          - img [ref=e14]
+          - generic [ref=e40]: 9+
+        - button "k" [ref=e17] [cursor=pointer]
+        - button "EN" [ref=e18] [cursor=pointer]
+  - main [ref=e41]:
+    - generic [ref=e149]:
+      - generic [ref=e150]:
+        - generic [ref=e151]:
+          - button "뒤로가기" [ref=e152] [cursor=pointer]: ←
+          - generic [ref=e153]: 🍑 아틀란타 한인 채팅방
+        - generic [ref=e154]:
+          - button "🔍" [ref=e155] [cursor=pointer]
+          - generic [ref=e156]: 🟢 공개
+      - generic [ref=e157]:
+        - generic [ref=e160]: 2026년 4월 5일
+        - generic [ref=e163]:
+          - generic [ref=e165]: dmv_korean
+          - generic [ref=e166]: 이 동네 한식당 추천해주세요!
+          - generic [ref=e167]: 4월 5일 오후 03:34
+        - generic [ref=e169]:
+          - generic [ref=e171]: 싱글맘75
+          - generic [ref=e172]: 안녕하세요! 여기 사시는 분들 반갑습니다 👋
+          - generic [ref=e173]: 4월 5일 오후 06:12
+        - generic [ref=e175]:
+          - generic [ref=e177]: 고양이집사
+          - generic [ref=e178]: 오늘 날씨가 정말 좋네요 ☀️
+          - generic [ref=e179]: 4월 5일 오후 06:37
+        - generic [ref=e181]:
+          - generic [ref=e183]: 대구사람
+          - generic [ref=e184]: 주말에 같이 등산 가실 분?
+          - generic [ref=e185]: 4월 5일 오후 09:59
+        - generic [ref=e188]: 2026년 4월 14일
+        - generic [ref=e191]:
+          - generic [ref=e193]: Henry
+          - generic [ref=e194]: hello
+          - generic [ref=e195]: 4월 14일 오전 09:01
+      - generic [ref=e197]:
+        - generic "이미지·압축파일 첨부" [ref=e198] [cursor=pointer]: 📎
+        - textbox "메시지 입력..." [ref=e199]
+        - button "전송" [disabled] [ref=e200]
+  - generic [ref=e20]:
+    - link "🏠 홈" [ref=e21] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e22]: 🏠
+      - generic [ref=e23]: 홈
+    - link "💬 커뮤니티" [ref=e24] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e25]: 💬
+      - generic [ref=e26]: 커뮤니티
+    - link "🎮 게임" [ref=e27] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e28]: 🎮
+      - generic [ref=e29]: 게임
+    - link "💭 채팅" [ref=e30] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e31]: 💭
+      - generic [ref=e32]: 채팅
+    - link "👤 MY" [ref=e33] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e34]: 👤
+      - generic [ref=e35]: MY

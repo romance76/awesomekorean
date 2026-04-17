@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // 미들웨어 별칭 등록
         $middleware->alias([
             'admin'        => \App\Http\Middleware\AdminMiddleware::class,
+            'role'         => \App\Http\Middleware\EnsureRole::class, // P2B-5
             'check.ip.ban' => \App\Http\Middleware\CheckIpBan::class,
             'detect.bot'   => \App\Http\Middleware\DetectBot::class,
             'auth'         => \App\Http\Middleware\Authenticate::class,

@@ -371,6 +371,8 @@ class AdminSettingsController extends Controller
         }
         // 상위노출 설정 캐시 즉시 무효화
         \App\Support\PromotionSettings::flush();
+        // P2B-2: PointRules 캐시도 무효화
+        \App\Support\PointRules::flush();
         return response()->json(['success' => true, 'message' => '포인트 설정이 저장되었습니다.']);
     }
 }
