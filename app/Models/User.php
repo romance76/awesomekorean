@@ -74,7 +74,8 @@ class User extends Authenticatable implements JWTSubject
 
     // JWT
     public function getJWTIdentifier() { return $this->getKey(); }
-    public function getJWTCustomClaims() { return []; }
+    // P2B-20: JWT claims 에 role 포함 (프론트 권한 체크 효율화)
+    public function getJWTCustomClaims() { return ['role' => $this->role]; }
 
     // Accessors
     public function getIsAdminAttribute(): bool { return in_array($this->role, ['admin', 'super_admin', 'moderator']); }
