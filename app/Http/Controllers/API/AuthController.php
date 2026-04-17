@@ -6,16 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+    // Issue #3: 비밀번호 공통 정책 — 8자 이상 + 대소문자/숫자 혼합, 일반 취약 비번 차단
+    protected function passwordRules(): array
+    {
+        return [
+            'required',
+            'confirmed',
+            Password::min(8)->mixedCase()->numbers(),
+        ];
+    }
+
     public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:50',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
+            'password' => $this->passwordRules(),
             'nickname' => 'nullable|string|max:50',
         ]);
 
@@ -72,21 +83,37 @@ class AuthController extends Controller
         return response()->json(['success' => true, 'data' => auth()->user()]);
     }
 
-    // 비밀번호 재설정 요청 (코드 발송)
+    // 비밀번호 재설정 요청 (코드 발송) — Issue #7: 계정 열거 방어 + Issue #8: 쿨다운
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
         $user = User::where('email', $request->email)->first();
+
+        // 공통 응답 (계정 존재 여부 노출 금지)
+        $publicResponse = response()->json([
+            'success' => true,
+            'message' => '해당 이메일이 등록되어 있다면 재설정 코드를 전송했습니다',
+        ]);
+
         if (!$user) {
-            return response()->json(['success' => false, 'message' => '해당 이메일로 등록된 계정이 없습니다'], 404);
+            // 타이밍 공격 완화용 소량 지연 (비활성 경로 속도 차이 숨김)
+            usleep(random_int(50_000, 150_000));
+            return $publicResponse;
         }
+
+        // 5분 쿨다운 — 동일 이메일 연속 요청 차단
+        $existing = \DB::table('password_reset_tokens')->where('email', $request->email)->first();
+        if ($existing && now()->diffInMinutes($existing->created_at) < 5) {
+            return $publicResponse; // 응답은 동일하지만 내부적으로 skip
+        }
+
         // 6자리 코드 생성 (DB에 저장)
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         \DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
             ['token' => Hash::make($code), 'created_at' => now()]
         );
-        // 실제 환경에서는 이메일 전송. 지금은 코드를 응답에 포함 (개발용)
+
         try {
             \Mail::raw("SomeKorean 비밀번호 재설정 코드: {$code}", function ($msg) use ($request) {
                 $msg->to($request->email)->subject('[SomeKorean] 비밀번호 재설정 코드');
@@ -94,7 +121,16 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             // 메일 전송 실패해도 코드는 생성됨
         }
-        return response()->json(['success' => true, 'message' => '재설정 코드가 이메일로 전송되었습니다', 'dev_code' => app()->environment('local') ? $code : null]);
+
+        // 로컬 환경에서만 코드 노출 (테스트 편의)
+        if (app()->environment('local')) {
+            return response()->json([
+                'success' => true,
+                'message' => '해당 이메일이 등록되어 있다면 재설정 코드를 전송했습니다',
+                'dev_code' => $code,
+            ]);
+        }
+        return $publicResponse;
     }
 
     // 비밀번호 재설정 (코드 확인 + 새 비밀번호)
@@ -103,7 +139,7 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'code' => 'required|string|size:6',
-            'password' => 'required|min:6|confirmed',
+            'password' => $this->passwordRules(),
         ]);
         $record = \DB::table('password_reset_tokens')->where('email', $request->email)->first();
         if (!$record || !Hash::check($request->code, $record->token)) {
@@ -124,7 +160,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'password' => 'required|min:6|confirmed',
+            'password' => $this->passwordRules(),
         ]);
         $user = auth()->user();
         if (!Hash::check($request->current_password, $user->password)) {

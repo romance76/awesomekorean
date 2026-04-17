@@ -48,10 +48,11 @@ use Illuminate\Support\Facades\Cache;
 Broadcast::routes(['middleware' => ['auth:api']]);
 
 // ─── Public Auth ───
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,10'); // 10분당 10회
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:20,10');       // 10분당 20회
+// Issue #8: 비밀번호 찾기/재설정 Rate Limit
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,10'); // 10분당 3회
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,10');   // 10분당 5회
 
 // ─── Public Read ───
 // 포인트 규칙 (Issue #10): 관리자 설정값을 공개 페이지에 노출

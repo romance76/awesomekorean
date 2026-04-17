@@ -9,8 +9,19 @@
       <div><label class="text-sm font-semibold text-gray-700">이름</label><input v-model="form.name" type="text" required class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
       <div><label class="text-sm font-semibold text-gray-700">닉네임</label><input v-model="form.nickname" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
       <div><label class="text-sm font-semibold text-gray-700">이메일</label><input v-model="form.email" type="email" required class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-      <div><label class="text-sm font-semibold text-gray-700">비밀번호</label><input v-model="form.password" type="password" required minlength="6" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-      <div><label class="text-sm font-semibold text-gray-700">비밀번호 확인</label><input v-model="form.password_confirmation" type="password" required class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+      <div>
+        <label class="text-sm font-semibold text-gray-700">비밀번호</label>
+        <input v-model="form.password" type="password" required minlength="8"
+          class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+        <div class="text-[11px] text-gray-400 mt-1">📌 최소 8자, 영문 대소문자 + 숫자 포함</div>
+        <div v-if="form.password" class="flex gap-1 mt-1 text-[10px]">
+          <span :class="pwChecks.len ? 'text-green-600' : 'text-gray-400'">{{ pwChecks.len ? '✓' : '·' }} 8자</span>
+          <span :class="pwChecks.upper ? 'text-green-600' : 'text-gray-400'">{{ pwChecks.upper ? '✓' : '·' }} 대문자</span>
+          <span :class="pwChecks.lower ? 'text-green-600' : 'text-gray-400'">{{ pwChecks.lower ? '✓' : '·' }} 소문자</span>
+          <span :class="pwChecks.num ? 'text-green-600' : 'text-gray-400'">{{ pwChecks.num ? '✓' : '·' }} 숫자</span>
+        </div>
+      </div>
+      <div><label class="text-sm font-semibold text-gray-700">비밀번호 확인</label><input v-model="form.password_confirmation" type="password" required minlength="8" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
       <div class="flex items-start gap-2 mb-2">
         <div class="flex-1">
           <label class="text-sm font-semibold text-gray-700 mb-1 block">친구 요청 허용</label>
@@ -36,7 +47,7 @@
 </div>
 </template>
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 const auth = useAuthStore()
@@ -45,6 +56,13 @@ const form = reactive({ name: '', nickname: '', email: '', password: '', passwor
 const error = ref('')
 const submitting = ref(false)
 const agreeTerms = ref(false)
+// 비밀번호 복잡도 체크 (Issue #3)
+const pwChecks = computed(() => ({
+  len: form.password.length >= 8,
+  upper: /[A-Z]/.test(form.password),
+  lower: /[a-z]/.test(form.password),
+  num: /\d/.test(form.password),
+}))
 async function handleRegister() {
   submitting.value = true; error.value = ''
   try { await auth.register(form); router.push('/') }

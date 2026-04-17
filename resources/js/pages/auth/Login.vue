@@ -8,6 +8,12 @@
     <form @submit.prevent="handleLogin" class="space-y-4">
       <div><label class="text-sm font-semibold text-gray-700">이메일</label><input v-model="form.email" type="email" required class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
       <div><label class="text-sm font-semibold text-gray-700">비밀번호</label><input v-model="form.password" type="password" required class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+      <!-- Issue #4: 로그인 유지 토글 -->
+      <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+        <input v-model="remember" type="checkbox" class="accent-amber-500 w-4 h-4" />
+        <span>로그인 유지</span>
+        <span class="text-[11px] text-gray-400 ml-1">(공용 기기는 해제)</span>
+      </label>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <button type="submit" :disabled="submitting" class="w-full bg-amber-400 text-amber-900 font-bold py-2.5 rounded-lg hover:bg-amber-500 transition disabled:opacity-50">{{ submitting ? '로그인 중...' : '로그인' }}</button>
     </form>
@@ -25,9 +31,11 @@ const router = useRouter()
 const form = reactive({ email: '', password: '' })
 const error = ref('')
 const submitting = ref(false)
+// Issue #4: 이전 선택 복원 (기본 true)
+const remember = ref(localStorage.getItem('sk_auth_persist') !== '0')
 async function handleLogin() {
   submitting.value = true; error.value = ''
-  try { await auth.login(form.email, form.password); router.push('/') }
+  try { await auth.login(form.email, form.password, remember.value); router.push('/') }
   catch (e) { error.value = e.response?.data?.message || '로그인 실패' }
   finally { submitting.value = false }
 }
