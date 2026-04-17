@@ -42,9 +42,6 @@
           :class="postType === 'hiring' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'">
           {{ postType === 'hiring' ? '💼 구인' : '🙋 구직' }}
         </span>
-        <span v-if="activeCat" class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-          {{ jobCategories.find(c => c.value === activeCat)?.label || activeCat }}
-        </span>
         <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
           📍{{ selectedCityIdx == -1 ? '전국' : (koreanCities[selectedCityIdx]?.label || '내 위치') }}
         </span>

@@ -1,0 +1,7 @@
+[     119ms] [LOG] [CommHub] Initializing for user: 203 @ https://somekorean.com/build/assets/app-D2ddEw7u.js:47
+[     120ms] [LOG] [PeerJS] Initializing as sk-203-ucy7 @ https://somekorean.com/build/assets/app-D2ddEw7u.js:47
+[     122ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://somekorean.com/build/assets/app-D2ddEw7u.js:47
+[     216ms] [LOG] [Echo] Authorizing channel: private-user.203 token: yes @ https://somekorean.com/build/assets/app-D2ddEw7u.js:7
+[     352ms] [LOG] [PeerJS] ✅ Connected as sk-203-ucy7 @ https://somekorean.com/build/assets/app-D2ddEw7u.js:47
+[     385ms] [LOG] [Echo] Channel authorized OK: private-user.203 @ https://somekorean.com/build/assets/app-D2ddEw7u.js:7
+[    1089ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://somekorean.com/api/posts/301:0
