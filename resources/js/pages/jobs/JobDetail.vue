@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <router-link to="/jobs" class="text-xl font-black text-gray-800 mb-3 inline-block hover:text-amber-600 transition">
+    <DetailHeader :title="job?.title || '구인구직'" fallback="/jobs" />
+    <router-link to="/jobs" class="hidden lg:inline-block text-xl font-black text-gray-800 mb-3 hover:text-amber-600 transition">
       💼 구인구직
     </router-link>
 
@@ -245,6 +246,9 @@
 
         <!-- Comments -->
         <CommentSection v-if="job.id" type="job" :typeId="job.id" class="mt-4" />
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/jobs" detail-base="/jobs/" />
 
         <!-- Prev / List / Next -->
         <div class="flex justify-between items-center mt-4 bg-white rounded-xl p-3 border">
@@ -299,6 +303,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useLocation } from '../../composables/useLocation'
 import CommentSection from '../../components/CommentSection.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
@@ -309,6 +315,8 @@ const auth = useAuthStore()
 
 const job = ref(null)
 const loading = ref(true)
+const prev = ref(null)
+const next = ref(null)
 const jobFavorited = ref(false)
 const sameCategoryJobs = ref([])
 const relatedJobs = ref([])
@@ -458,6 +466,8 @@ async function loadJob(id) {
   try {
     const { data } = await axios.get(`/api/jobs/${id}`)
     job.value = data.data
+    prev.value = data.prev
+    next.value = data.next
 
     const cat = job.value.category
     const postType = job.value.post_type

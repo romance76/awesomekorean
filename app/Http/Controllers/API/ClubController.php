@@ -8,11 +8,12 @@ use App\Models\ClubPost;
 use App\Models\ChatRoom;
 use App\Models\ChatRoomUser;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 
 class ClubController extends Controller
 {
-    use CompressesUploads;
+    use CompressesUploads, HasAdjacent;
 
     private function getMemberGrade($clubId, $userId)
     {
@@ -62,6 +63,7 @@ class ClubController extends Controller
         $memberCount = ClubMember::where('club_id', $id)->where('status', 'approved')->count();
         $pendingCount = ClubMember::where('club_id', $id)->where('status', 'pending')->count();
 
+        $adj = $this->adjacentPair(Club::class, $id, 'name', ['category' => $club->category]);
         return response()->json([
             'success' => true,
             'data' => $club,
@@ -72,6 +74,8 @@ class ClubController extends Controller
             'member_count' => $memberCount,
             'pending_count' => $pendingCount,
             'chat_room_id' => $club->chat_room_id,
+            'prev' => $adj['prev'],
+            'next' => $adj['next'],
         ]);
     }
 

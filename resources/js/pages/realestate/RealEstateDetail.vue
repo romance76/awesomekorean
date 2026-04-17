@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <div class="flex items-center justify-between mb-4">
+    <DetailHeader :title="listing?.title || '부동산'" fallback="/realestate" />
+    <div class="hidden lg:flex items-center justify-between mb-4">
       <h1 class="text-xl font-black text-gray-800">🏠 부동산</h1>
       <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">✏️ 등록</RouterLink>
     </div>
@@ -155,6 +156,9 @@
         </div>
 
         <CommentSection v-if="listing.id" type="realestate" :typeId="listing.id" />
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/realestate" detail-base="/realestate/" />
       </div>
 
       <!-- 오른쪽: 위젯 -->
@@ -207,6 +211,8 @@ import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import ShareButton from '../../components/ShareButton.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -359,10 +365,15 @@ async function initMap() {
     .bindPopup(`<b>📍 매물 위치</b><br>${listing.value.address || ''}`)
 }
 
+const prev = ref(null)
+const next = ref(null)
+
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/realestate/${route.params.id}`)
     listing.value = data.data
+    prev.value = data.prev
+    next.value = data.next
     checkFav()
     loadFavCount()
     await nextTick()

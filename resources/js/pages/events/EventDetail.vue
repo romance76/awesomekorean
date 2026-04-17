@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <router-link to="/events" class="text-sm text-gray-500 hover:text-amber-600 mb-3 inline-block">← 이벤트 목록</router-link>
+    <DetailHeader :title="event?.title || '이벤트'" fallback="/events" />
+    <router-link to="/events" class="hidden lg:inline-block text-sm text-gray-500 hover:text-amber-600 mb-3">← 이벤트 목록</router-link>
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
     <div v-else-if="event" class="grid grid-cols-12 gap-4">
       <div class="col-span-12 lg:col-span-9">
@@ -119,6 +120,9 @@
 
         <!-- 댓글 -->
         <CommentSection v-if="event.id" type="event" :typeId="event.id" class="mt-4" />
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/events" detail-base="/events/" />
       </div>
 
       <!-- 사이드바 -->
@@ -145,6 +149,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import axios from 'axios'
 
 const route = useRoute()
@@ -153,6 +159,8 @@ const auth = useAuthStore()
 const event = ref(null)
 const loading = ref(true)
 const myStatus = ref(null)
+const prev = ref(null)
+const next = ref(null)
 
 const isPast = computed(() => event.value?.start_date && new Date(event.value.start_date) < new Date())
 
@@ -204,6 +212,8 @@ onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/events/${route.params.id}`)
     event.value = data.data
+    prev.value = data.prev
+    next.value = data.next
     myStatus.value = data.data.my_status || null
   } catch (err) {
     if (err.response?.status === 404) router.replace('/404')

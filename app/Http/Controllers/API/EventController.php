@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventAttendee;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    use CompressesUploads;
+    use CompressesUploads, HasAdjacent;
 
     public function index(Request $request)
     {
@@ -65,7 +66,8 @@ class EventController extends Controller
             $data['my_status'] = $attendee?->status;
         }
 
-        return response()->json(['success' => true, 'data' => $data]);
+        $adj = $this->adjacentPair(Event::class, $id, 'title', ['category' => $event->category]);
+        return response()->json(['success' => true, 'data' => $data, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)

@@ -1,0 +1,105 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - link "가입" [ref=e12] [cursor=pointer]:
+          - /url: /register
+        - button "EN" [ref=e13] [cursor=pointer]
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: 🇰🇷 미국 한인 No.1 커뮤니티
+        - heading "SomeKorean" [level=1] [ref=e20]
+        - paragraph [ref=e21]: 한인들의 일상을 함께하는 올인원 플랫폼
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - textbox "업소, 구인, 장터를 검색하세요..." [ref=e25]
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - link "💬 커뮤니티" [ref=e28] [cursor=pointer]:
+            - /url: /community
+            - generic [ref=e29]: 💬
+            - generic [ref=e30]: 커뮤니티
+          - link "💼 구인구직" [ref=e31] [cursor=pointer]:
+            - /url: /jobs
+            - generic [ref=e32]: 💼
+            - generic [ref=e33]: 구인구직
+          - link "🛒 중고장터" [ref=e34] [cursor=pointer]:
+            - /url: /market
+            - generic [ref=e35]: 🛒
+            - generic [ref=e36]: 중고장터
+          - link "🏪 업소록" [ref=e37] [cursor=pointer]:
+            - /url: /directory
+            - generic [ref=e38]: 🏪
+            - generic [ref=e39]: 업소록
+          - link "🏠 부동산" [ref=e40] [cursor=pointer]:
+            - /url: /realestate
+            - generic [ref=e41]: 🏠
+            - generic [ref=e42]: 부동산
+          - link "📰 뉴스" [ref=e43] [cursor=pointer]:
+            - /url: /news
+            - generic [ref=e44]: 📰
+            - generic [ref=e45]: 뉴스
+          - link "🎉 이벤트" [ref=e46] [cursor=pointer]:
+            - /url: /events
+            - generic [ref=e47]: 🎉
+            - generic [ref=e48]: 이벤트
+          - link "❓ Q&A" [ref=e49] [cursor=pointer]:
+            - /url: /qa
+            - generic [ref=e50]: ❓
+            - generic [ref=e51]: Q&A
+          - link "👥 동호회" [ref=e52] [cursor=pointer]:
+            - /url: /clubs
+            - generic [ref=e53]: 👥
+            - generic [ref=e54]: 동호회
+          - link "🍳 레시피" [ref=e55] [cursor=pointer]:
+            - /url: /recipes
+            - generic [ref=e56]: 🍳
+            - generic [ref=e57]: 레시피
+          - link "🎮 게임" [ref=e58] [cursor=pointer]:
+            - /url: /games
+            - generic [ref=e59]: 🎮
+            - generic [ref=e60]: 게임
+          - link "💙 안심서비스" [ref=e61] [cursor=pointer]:
+            - /url: /elder
+            - generic [ref=e62]: 💙
+            - generic [ref=e63]: 안심서비스
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e67]:
+              - heading "💬 최신 게시글" [level=3] [ref=e68]
+              - link "더보기 →" [ref=e69] [cursor=pointer]:
+                - /url: /community
+            - generic [ref=e70]: 로딩중...
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - heading "💼 최신 구인구직" [level=3] [ref=e73]
+              - link "더보기 →" [ref=e74] [cursor=pointer]:
+                - /url: /jobs
+            - generic [ref=e75]: 채용공고가 없습니다
+  - generic [ref=e77]:
+    - link "🏠 홈" [ref=e78] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e79]: 🏠
+      - generic [ref=e80]: 홈
+    - link "💬 커뮤니티" [ref=e81] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e82]: 💬
+      - generic [ref=e83]: 커뮤니티
+    - link "🎮 게임" [ref=e84] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e85]: 🎮
+      - generic [ref=e86]: 게임
+    - link "💭 채팅" [ref=e87] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e88]: 💭
+      - generic [ref=e89]: 채팅
+    - link "👤 MY" [ref=e90] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e91]: 👤
+      - generic [ref=e92]: MY

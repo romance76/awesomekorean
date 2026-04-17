@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 class QaController extends Controller
 {
+    use \App\Traits\HasAdjacent;
+
     public function index(Request $request)
     {
         $query = QaPost::with('user:id,name,nickname,avatar', 'category:id,name')
@@ -43,7 +45,8 @@ class QaController extends Controller
             });
         }
 
-        return response()->json(['success' => true, 'data' => $post]);
+        $adj = $this->adjacentPair(QaPost::class, $id, 'title', ['category_id' => $post->category_id]);
+        return response()->json(['success' => true, 'data' => $post, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)

@@ -8,13 +8,14 @@ use App\Models\MarketReservation;
 use App\Models\User;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 class MarketController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads, HasPromotions;
+    use AdminAuthorizes, CompressesUploads, HasAdjacent, HasPromotions;
 
     protected string $promoResource = 'market';
     protected string $promoModel = MarketItem::class;
@@ -76,7 +77,10 @@ class MarketController extends Controller
         $activeHold = $item->reservations->first();
         $item->active_hold = $activeHold;
 
-        return response()->json(['success' => true, 'data' => $item]);
+        // Kay 요청: 이전글/다음글 (같은 카테고리 내)
+        $adj = $this->adjacentPair(MarketItem::class, $id, 'title', ['category' => $item->category]);
+
+        return response()->json(['success' => true, 'data' => $item, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)

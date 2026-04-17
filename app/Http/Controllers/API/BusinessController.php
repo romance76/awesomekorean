@@ -11,13 +11,14 @@ use App\Models\BusinessReview;
 use App\Support\ThumbHelper;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class BusinessController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads, HasPromotions;
+    use AdminAuthorizes, CompressesUploads, HasAdjacent, HasPromotions;
 
     protected string $promoResource = 'business';
     protected string $promoModel = Business::class;
@@ -290,7 +291,8 @@ class BusinessController extends Controller
     {
         $biz = Business::with('reviews.user:id,name,nickname,avatar')->findOrFail($id);
         $biz->increment('view_count');
-        return response()->json(['success' => true, 'data' => $biz]);
+        $adj = $this->adjacentPair(Business::class, $id, 'name', ['category' => $biz->category]);
+        return response()->json(['success' => true, 'data' => $biz, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)
