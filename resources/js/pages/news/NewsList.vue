@@ -163,7 +163,8 @@
         <div v-else class="space-y-2">
           <template v-for="(item, i) in items" :key="item.id">
           <div @click="openItem(item)"
-            class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-amber-300 transition cursor-pointer">
+            class="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-amber-300 transition cursor-pointer">
+            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
             <div class="flex gap-3 p-3">
               <!-- 썸네일 (항상 표시: 이미지 있으면 이미지, 없으면 이모지) -->
               <div class="w-24 h-16 bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -183,7 +184,6 @@
                 <div class="text-sm font-medium text-gray-800 line-clamp-2 leading-snug">{{ item.title }}</div>
                 <div class="flex items-center justify-between mt-1">
                   <div class="text-[10px] text-gray-400">👁 {{ item.view_count }} · {{ formatDate(item.published_at) }}</div>
-                  <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="flex-shrink-0" />
                 </div>
               </div>
             </div>

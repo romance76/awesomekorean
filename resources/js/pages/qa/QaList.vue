@@ -168,7 +168,8 @@
           <div v-else class="space-y-2">
             <template v-for="(item, i) in items" :key="item.id">
             <div @click="openItem(item)"
-              class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 hover:shadow-md hover:border-amber-300 transition cursor-pointer">
+              class="relative bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 hover:shadow-md hover:border-amber-300 transition cursor-pointer">
+              <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
               <div class="flex items-center gap-2 mb-1">
                 <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ item.category?.name || 'Q&A' }}</span>
                 <span v-if="item.bounty_points > 0" class="text-[10px] bg-yellow-400 text-yellow-900 px-1.5 py-0.5 rounded-full font-bold">🏆 {{ item.bounty_points }}P</span>
@@ -181,7 +182,6 @@
                 <span>💬 답변 {{ item.answer_count }}개</span>
                 <span>👁 {{ item.view_count }}</span>
                 <span>{{ formatDate(item.created_at) }}</span>
-                <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
               </div>
             </div>
             <MobileAdInline v-if="i === 4" page="qa" />

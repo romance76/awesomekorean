@@ -144,7 +144,8 @@
         <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <template v-for="(item, i) in items" :key="item.id">
           <div @click="openItem(item)"
-            class="px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
+            class="relative px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
+            <BookmarkToggle v-if="auth.isLoggedIn" :active="favoritedList.has(item.id)" @toggle="toggleFavList(item)" ribbon />
             <div class="flex items-center gap-2">
               <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">{{ item.board?.name || '자유' }}</span>
               <span class="text-sm font-medium text-gray-800 truncate flex-1">{{ item.title }}</span>
@@ -155,7 +156,6 @@
               <span>{{ item.view_count }}회</span>
               <span>❤️{{ item.like_count }}</span>
               <span>{{ formatDate(item.created_at) }}</span>
-              <BookmarkToggle v-if="auth.isLoggedIn" :active="favoritedList.has(item.id)" @toggle="toggleFavList(item)" size="sm" class="ml-auto" />
             </div>
           </div>
           <MobileAdInline v-if="i === 4" page="community" />

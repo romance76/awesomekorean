@@ -152,8 +152,9 @@
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="goDetail(item)"
-        class="px-4 py-3 border-b border-gray-50 transition cursor-pointer"
+        class="relative px-4 py-3 border-b border-gray-50 transition cursor-pointer"
         :class="jobBorderClass(item)" :style="jobBorderStyle(item)">
+        <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
         <div class="flex items-center gap-3">
           <!-- 로고 -->
           <img v-if="item.logo" :src="item.logo" class="w-12 h-12 rounded object-cover flex-shrink-0 border" @error="$event.target.style.display='none'" />
@@ -198,7 +199,6 @@
               class="font-black text-base" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
               ${{ Number(item.price).toLocaleString() }}
             </div>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" />
           </div>
         </div>
       </div>

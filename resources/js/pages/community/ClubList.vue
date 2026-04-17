@@ -119,7 +119,8 @@
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(club, i) in clubs" :key="club.id">
       <RouterLink :to="`/clubs/${club.id}`"
-        class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        class="relative bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(club.id)" @toggle="toggleFav(club)" ribbon />
         <div class="flex items-center gap-3 mb-3">
           <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">👥</div>
           <div class="flex-1 min-w-0">
@@ -135,7 +136,6 @@
             <span class="px-2 py-0.5 rounded-full" :class="club.type==='online' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'">
               {{ club.type === 'online' ? '🌐 온라인' : '📍 지역' }}
             </span>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(club.id)" @toggle="toggleFav(club)" size="sm" />
           </div>
         </div>
       </RouterLink>

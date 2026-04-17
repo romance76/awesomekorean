@@ -180,8 +180,9 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer border-2"
+        class="relative bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-all cursor-pointer border-2"
         :class="promoBorderClass(item)">
+        <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
         <!-- 사진 영역 -->
         <div class="relative h-[120px] bg-gray-100">
           <img v-if="item.images?.length" :src="realEstateThumb(item)" loading="lazy" decoding="async"
@@ -195,10 +196,6 @@
             <span v-if="item.promotion_tier === 'national'" class="text-[10px] bg-red-500 text-white font-bold px-2 py-1 rounded shadow">🌐 전국구</span>
             <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-2 py-1 rounded shadow">⭐ 주+</span>
             <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-2 py-1 rounded shadow">📢 스폰서</span>
-          </div>
-          <!-- 우상단: 좋아요 -->
-          <div v-if="auth.isLoggedIn" class="absolute top-2 right-2" @click.stop>
-            <BookmarkToggle :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" />
           </div>
         </div>
 

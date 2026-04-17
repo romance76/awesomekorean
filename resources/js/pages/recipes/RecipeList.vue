@@ -131,6 +131,7 @@
           <template v-for="(item, i) in items" :key="item.id">
           <RouterLink :to="'/recipes/' + item.id"
             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all flex h-32 relative">
+            <BookmarkToggle v-if="auth.isLoggedIn" :active="recipeFavorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
             <!-- 왼쪽: 사진 (썸네일 프록시) -->
             <div class="w-28 flex-shrink-0 bg-gray-100 relative">
               <img v-if="item.thumbnail_url || item.thumbnail" :src="item.thumbnail_url || thumb(item.thumbnail, 240)" loading="lazy" decoding="async" class="w-full h-full object-cover"
@@ -158,10 +159,6 @@
                 <span>👁 {{ item.view_count || 0 }}</span>
                 <span v-if="item.favorite_count">💖 {{ item.favorite_count }}</span>
               </div>
-            </div>
-            <!-- 북마크 토글 -->
-            <div v-if="auth.isLoggedIn" class="absolute top-1.5 right-1.5" @click.prevent.stop>
-              <BookmarkToggle :active="recipeFavorited.has(item.id)" @toggle="toggleFav(item)" size="sm" />
             </div>
           </RouterLink>
           <MobileAdInline v-if="i === 4" page="recipes" />

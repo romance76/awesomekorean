@@ -176,8 +176,9 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
+        class="relative rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
         :class="item.event_type === 'somekorean' ? 'border-amber-200' : 'bg-white border-gray-100'">
+        <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
 
         <!-- 공식 이벤트: 배너 색상 상단 영역 -->
         <div v-if="item.event_type === 'somekorean'" class="relative flex items-center justify-between px-5 py-4"
@@ -205,7 +206,6 @@
             </div>
             <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
             <div v-else class="text-green-600 text-xs font-bold">무료</div>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-1" />
           </div>
         </div>
 
@@ -221,7 +221,6 @@
             <div class="flex items-center gap-2">
               <span>👁 {{ item.view_count || 0 }}</span>
               <span>👥 {{ item.attendee_count || 0 }}</span>
-              <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" />
             </div>
           </div>
         </div>

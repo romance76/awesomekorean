@@ -146,8 +146,9 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex"
+        class="relative rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex"
         :class="promoRowClass(item)">
+        <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
         <!-- 왼쪽: 썸네일 -->
         <div class="w-32 h-32 flex-shrink-0 bg-gray-100">
           <img v-if="item.images?.length" :src="marketThumb(item)" loading="lazy" decoding="async"
@@ -183,7 +184,6 @@
             <span v-if="item.city">📍 {{ item.city }}{{ item.state ? ', '+item.state : '' }}</span>
             <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
             <span v-if="item.created_at">🕐 {{ fmtDate(item.created_at) }}</span>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
           </div>
         </div>
       </div>

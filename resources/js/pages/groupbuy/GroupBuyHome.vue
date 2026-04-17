@@ -101,8 +101,9 @@
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <RouterLink :to="'/groupbuy/' + item.id"
-        class="block px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 transition"
+        class="relative block px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 transition"
         :class="item.status === 'completed' || item.status === 'cancelled' ? 'opacity-50' : ''">
+        <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" ribbon />
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5 mb-1">
@@ -134,7 +135,6 @@
             <div v-if="item.original_price" class="text-xs text-gray-400 line-through">${{ Number(item.original_price).toLocaleString() }}</div>
             <div class="text-amber-600 font-bold text-sm">${{ Number(item.group_price || item.original_price).toLocaleString() }}</div>
             <div v-if="currentDiscount(item)" class="text-[10px] text-red-500 font-bold">{{ currentDiscount(item) }}% OFF</div>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" />
           </div>
         </div>
       </RouterLink>
