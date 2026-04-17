@@ -1,0 +1,78 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - link "가입" [ref=e12] [cursor=pointer]:
+          - /url: /register
+        - button "EN" [ref=e13] [cursor=pointer]
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - link "← 로비" [ref=e17] [cursor=pointer]:
+          - /url: /games
+        - heading "🎴 맞고" [level=1] [ref=e18]
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]: 🎴
+          - heading "맞고" [level=2] [ref=e22]
+          - paragraph [ref=e23]: 1:1 대전 카드 게임
+        - generic [ref=e24]:
+          - link "🤖 컴퓨터 대전 AI와 연습 게임" [ref=e25] [cursor=pointer]:
+            - /url: /games/gostop/solo
+            - generic [ref=e26]:
+              - generic [ref=e27]: 🤖
+              - generic [ref=e28]:
+                - generic [ref=e29]: 컴퓨터 대전
+                - generic [ref=e30]: AI와 연습 게임
+          - button "⚡ 빠른 대전 자동 매칭으로 바로 시작" [ref=e31] [cursor=pointer]:
+            - generic [ref=e32]:
+              - generic [ref=e33]: ⚡
+              - generic [ref=e34]:
+                - generic [ref=e35]: 빠른 대전
+                - generic [ref=e36]: 자동 매칭으로 바로 시작
+          - button "👥 친구와 대전 방 코드로 초대하기" [ref=e37] [cursor=pointer]:
+            - generic [ref=e38]:
+              - generic [ref=e39]: 👥
+              - generic [ref=e40]:
+                - generic [ref=e41]: 친구와 대전
+                - generic [ref=e42]: 방 코드로 초대하기
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]: 🎰 게임머니 잔액
+            - generic [ref=e46]: "0"
+          - generic [ref=e47]:
+            - paragraph [ref=e48]: 게임머니가 부족합니다
+            - button "🎡 룰렛 돌리러 가기" [ref=e49] [cursor=pointer]
+          - generic [ref=e50]:
+            - generic [ref=e51]: 베팅 게임머니
+            - combobox [ref=e52]:
+              - option "50 (연습)"
+              - option "100" [selected]
+              - option "500"
+              - option "1,000"
+  - generic [ref=e54]:
+    - link "🏠 홈" [ref=e55] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e56]: 🏠
+      - generic [ref=e57]: 홈
+    - link "💬 커뮤니티" [ref=e58] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e59]: 💬
+      - generic [ref=e60]: 커뮤니티
+    - link "🎮 게임" [ref=e61] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e62]: 🎮
+      - generic [ref=e63]: 게임
+    - link "💭 채팅" [ref=e64] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e65]: 💭
+      - generic [ref=e66]: 채팅
+    - link "👤 MY" [ref=e67] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e68]: 👤
+      - generic [ref=e69]: MY

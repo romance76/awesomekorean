@@ -1,0 +1,50 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - link "가입" [ref=e12] [cursor=pointer]:
+          - /url: /register
+        - button "EN" [ref=e13] [cursor=pointer]
+  - main [ref=e14]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - heading "🏠 부동산" [level=1] [ref=e19]
+          - button "🔍 필터" [ref=e21] [cursor=pointer]
+        - generic [ref=e22]:
+          - button "🔑 렌트" [ref=e23] [cursor=pointer]
+          - button "🏠 매매" [ref=e24] [cursor=pointer]
+          - button "👥 룸메이트" [ref=e25] [cursor=pointer]
+        - generic [ref=e27]: 📍전국
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: 👥 룸메이트
+          - text: 모든 룸메이트 매물
+        - generic [ref=e32]: 로딩중...
+        - generic [ref=e33]: 검색 결과 없음
+  - generic [ref=e35]:
+    - link "🏠 홈" [ref=e36] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e37]: 🏠
+      - generic [ref=e38]: 홈
+    - link "💬 커뮤니티" [ref=e39] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e40]: 💬
+      - generic [ref=e41]: 커뮤니티
+    - link "🎮 게임" [ref=e42] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e43]: 🎮
+      - generic [ref=e44]: 게임
+    - link "💭 채팅" [ref=e45] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e46]: 💭
+      - generic [ref=e47]: 채팅
+    - link "👤 MY" [ref=e48] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e49]: 👤
+      - generic [ref=e50]: MY

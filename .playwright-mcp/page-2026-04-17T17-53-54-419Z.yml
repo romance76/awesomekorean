@@ -1,0 +1,39 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - link "가입" [ref=e12] [cursor=pointer]:
+          - /url: /register
+        - button "EN" [ref=e13] [cursor=pointer]
+  - main [ref=e14]:
+    - generic [ref=e16]:
+      - button "← 돌아가기" [ref=e17] [cursor=pointer]
+      - heading "📋 포인트 적립·사용 규칙" [level=1] [ref=e18]
+      - paragraph [ref=e19]: 관리자 설정과 실시간 동기화되는 공식 규칙입니다.
+      - generic [ref=e20]: 로딩 중...
+  - generic [ref=e22]:
+    - link "🏠 홈" [ref=e23] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e24]: 🏠
+      - generic [ref=e25]: 홈
+    - link "💬 커뮤니티" [ref=e26] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e27]: 💬
+      - generic [ref=e28]: 커뮤니티
+    - link "🎮 게임" [ref=e29] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e30]: 🎮
+      - generic [ref=e31]: 게임
+    - link "💭 채팅" [ref=e32] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e33]: 💭
+      - generic [ref=e34]: 채팅
+    - link "👤 MY" [ref=e35] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e36]: 👤
+      - generic [ref=e37]: MY

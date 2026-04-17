@@ -52,7 +52,7 @@
       </div>
 
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
-        :style="isMobile ? 'bottom: 56px; z-index: 40;' : ''">
+        :style="isMobile ? 'bottom: 56px; z-index: 60;' : ''">
         <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: 70vh'">
           <!-- 채팅방 헤더 -->
           <div class="px-4 py-3 border-b bg-amber-50 flex items-center justify-between flex-shrink-0">
