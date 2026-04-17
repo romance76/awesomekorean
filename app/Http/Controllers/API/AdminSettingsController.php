@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Log;
 class AdminSettingsController extends Controller
 {
     /**
-     * 설정 저장 후 캐시·config 재생성 공통 훅 (2026-04-17 Phase 2-C 묶음 1).
+     * 설정 저장 후 캐시·config 재생성 공통 훅 (2026-04-17 Phase 2-C 묶음 1·7).
      * .env 를 건드린 경우 $envChanged=true 로 config:cache 재실행해 php-fpm 워커 동기화.
+     * 이벤트 브로드캐스트로 활성 클라이언트 siteStore 실시간 재로드 유도.
      */
-    protected function afterSettingsSave(bool $envChanged = false): void
+    protected function afterSettingsSave(bool $envChanged = false, array $keys = [], string $scope = 'general'): void
     {
         // public 설정 캐시 무효화 (60초 이내 자동 반영)
         Cache::forget('public_settings');
@@ -28,6 +29,13 @@ class AdminSettingsController extends Controller
             } catch (\Throwable $e) {
                 Log::warning('config cache rebuild after env change failed: ' . $e->getMessage());
             }
+        }
+
+        // Reverb 실시간 브로드캐스트 (프론트 siteStore 자동 재로드)
+        try {
+            event(new \App\Events\SiteSettingsUpdated($keys, $scope));
+        } catch (\Throwable $e) {
+            Log::info('SiteSettingsUpdated broadcast skipped: ' . $e->getMessage());
         }
     }
 
@@ -67,20 +75,22 @@ class AdminSettingsController extends Controller
 
     // 회사 정보 저장
     public function saveCompany(Request $request) {
+        $keys = array_keys($request->all());
         foreach ($request->all() as $key => $value) {
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value]);
         }
-        $this->afterSettingsSave();
+        $this->afterSettingsSave(false, $keys, 'company');
         return response()->json(['success'=>true,'message'=>'회사 정보가 저장되었습니다']);
     }
 
     // 사이트 설정 저장
     public function saveSite(Request $request) {
+        $keys = array_keys($request->all());
         foreach ($request->all() as $key => $value) {
             $storeValue = is_bool($value) ? ($value ? '1' : '0') : (is_array($value) ? json_encode($value) : $value);
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$storeValue]);
         }
-        $this->afterSettingsSave();
+        $this->afterSettingsSave(false, $keys, 'site');
         return response()->json(['success'=>true,'message'=>'사이트 설정이 저장되었습니다']);
     }
 

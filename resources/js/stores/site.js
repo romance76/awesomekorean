@@ -32,6 +32,15 @@ export const useSiteStore = defineStore('site', () => {
     return loadPromise
   }
 
+  /**
+   * 관리자 저장 후 Reverb 브로드캐스트 수신 시 강제 재로드 (Phase 2-C 묶음 7).
+   */
+  async function forceReload() {
+    loaded.value = false
+    loadPromise = null
+    return await load()
+  }
+
   async function _doLoad() {
     try {
       const { data } = await axios.get('/api/settings/public')
@@ -72,6 +81,6 @@ export const useSiteStore = defineStore('site', () => {
 
   return {
     siteName, logoUrl, menus, loaded, darkMode, toasts, settings, menuConfig,
-    toast, removeToast, load, getSetting, isEnabled, getOrder,
+    toast, removeToast, load, forceReload, getSetting, isEnabled, getOrder,
   }
 })

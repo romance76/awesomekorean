@@ -50,6 +50,21 @@ window.Echo = new Echo({
     }),
 });
 
+// 사이트 설정 실시간 반영 (Phase 2-C 묶음 7)
+// 관리자 저장 시 Reverb 'site-settings' 채널로 브로드캐스트 → siteStore 강제 재로드
+try {
+    window.Echo.channel('site-settings')
+        .listen('.settings.updated', (e) => {
+            console.log('[site-settings] update received', e)
+            import('./stores/site.js').then(({ useSiteStore }) => {
+                const store = useSiteStore()
+                store.forceReload().catch(() => {})
+            })
+        })
+} catch (err) {
+    console.warn('[site-settings] listener setup failed', err)
+}
+
 // 401 처리: 토큰 만료 시 조용히 재시도 (broadcasting/auth 같은 public 엔드포인트는 로그아웃시키지 않음)
 const PUBLIC_401_ENDPOINTS = ['/broadcasting/auth', '/api/banners/active', '/api/banners/mobile', '/api/settings/', '/api/user'];
 axios.interceptors.response.use(
