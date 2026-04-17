@@ -82,9 +82,14 @@
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-          <button v-for="c in eventCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
+          <button v-for="c in eventCategories" :key="c.value" @click="showFavorites=false; activeCat=c.value; activeItem=null; loadPage()"
             class="w-full text-left px-3 py-2 text-xs transition"
-            :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+            :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+          <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
+            class="w-full text-left px-3 py-2 text-xs transition border-t"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+            ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+          </button>
         </div>
         <AdSlot page="events" position="left" :maxSlots="2" />
       </div>
@@ -92,8 +97,11 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (eventCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
-      <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 이벤트를 볼 수 있습니다</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
+      <template v-else>
+        <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (eventCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
+        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 이벤트를 볼 수 있습니다</span>
+      </template>
     </div>
 
     <!-- 상세 모드 -->
@@ -125,7 +133,10 @@
             <span v-if="!activeItem.price || activeItem.price == 0" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">무료</span>
             <span v-else class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${{ activeItem.price }}</span>
           </div>
-          <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title }}</h2>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-gray-900 flex-1">{{ activeItem.title }}</h2>
+            <button v-if="auth.isLoggedIn" @click="toggleFav(activeItem)" class="text-xl hover:scale-125 transition flex-shrink-0">{{ favorited.has(activeItem.id) ? '❤️' : '🤍' }}</button>
+          </div>
         </div>
         <!-- 공통 정보 -->
         <div class="px-5 py-3 bg-gray-50/50 border-t border-b">
@@ -209,6 +220,9 @@
             <div class="flex items-center gap-2">
               <span>👁 {{ item.view_count || 0 }}</span>
               <span>👥 {{ item.attendee_count || 0 }}</span>
+              <button v-if="auth.isLoggedIn" @click.stop="toggleFav(item)" class="text-sm">
+                {{ favorited.has(item.id) ? '❤️' : '🤍' }}
+              </button>
             </div>
           </div>
         </div>
@@ -261,6 +275,7 @@ import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { useMenuConfig } from '../../composables/useMenuConfig'
@@ -282,7 +297,12 @@ function fmtDate(dt) {
   return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
 }
 
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\Event'
 const showFilter = ref(false)
+const showFavorites = ref(false)
+const favorited = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const activeCat = ref('')
 const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
@@ -404,9 +424,41 @@ async function loadPage(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+  loadFavorited()
+}
+
+// 좋아요 (Bookmark)
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\Event', ids } })
+    favorited.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\Event', bookmarkable_id: item.id })
+    if (data.bookmarked) favorited.value.add(item.id)
+    else favorited.value.delete(item.id)
+    favorited.value = new Set(favorited.value)
+  } catch {}
+}
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'App\\Models\\Event', per_page: 50 } })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavorited()
+  } catch {}
+  loading.value = false
 }
 
 onMounted(async () => {
+  bStore.loadAll()
   await loadConfig(); viewMode.value = getDefaultView('events')
   await initLocation()
   if (city.value) {

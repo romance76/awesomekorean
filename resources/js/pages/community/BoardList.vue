@@ -72,12 +72,17 @@
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 게시판</div>
-            <button @click="activeBoard=null; activeItem=null; loadPosts()" class="w-full text-left px-3 py-2 text-xs transition"
-              :class="!activeBoard ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">전체</button>
-            <button v-for="b in boards" :key="b.id" @click="activeBoard=b; activeItem=null; loadPosts()"
+            <button @click="showFavorites=false; activeBoard=null; activeItem=null; loadPosts()" class="w-full text-left px-3 py-2 text-xs transition"
+              :class="!showFavorites && !activeBoard ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">전체</button>
+            <button v-for="b in boards" :key="b.id" @click="showFavorites=false; activeBoard=b; activeItem=null; loadPosts()"
               class="w-full text-left px-3 py-2 text-xs transition"
-              :class="activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+              :class="!showFavorites && activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
               {{ b.name }}
+            </button>
+            <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
+              class="w-full text-left px-3 py-2 text-xs transition border-t"
+              :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+              ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
             </button>
           </div>
           <AdSlot page="community" position="left" :maxSlots="2" />
@@ -88,9 +93,12 @@
       <div class="col-span-12 lg:col-span-7">
 
         <div class="mb-2">
-          <span class="font-bold text-amber-700 text-sm">{{ activeBoard ? activeBoard.name : '전체' }}</span>
-          <span v-if="activeBoard?.description" class="text-xs text-gray-400 ml-2">{{ activeBoard.description }}</span>
-          <span v-if="!activeBoard" class="text-xs text-gray-400 ml-2">모든 게시판의 글을 볼 수 있습니다</span>
+          <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
+          <template v-else>
+            <span class="font-bold text-amber-700 text-sm">{{ activeBoard ? activeBoard.name : '전체' }}</span>
+            <span v-if="activeBoard?.description" class="text-xs text-gray-400 ml-2">{{ activeBoard.description }}</span>
+            <span v-if="!activeBoard" class="text-xs text-gray-400 ml-2">모든 게시판의 글을 볼 수 있습니다</span>
+          </template>
         </div>
 
         <!-- ═══ 상세 모드 ═══ -->
@@ -111,10 +119,8 @@
             </div>
             <div class="px-5 py-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
             <div class="px-5 py-3 border-t flex gap-4">
-              <button @click="toggleLike" class="text-sm" :class="liked ? 'text-red-500' : 'text-gray-400'">{{ liked ? '❤️' : '🤍' }} 좋아요</button>
-              <button @click="toggleBookmark" class="text-sm" :class="bookmarked ? 'text-amber-600' : 'text-gray-400 hover:text-amber-600'">
-                🔖 {{ bookmarked ? '저장됨' : '북마크' }}
-              </button>
+              <button @click="toggleLike" class="text-sm" :class="liked ? 'text-red-500' : 'text-gray-400'">{{ liked ? '❤️' : '🤍' }} 좋아요 {{ activeItem.like_count }}</button>
+              <button @click="toggleFavList(activeItem)" class="text-lg hover:scale-125 transition">{{ favoritedList.has(activeItem.id) ? '❤️' : '🤍' }}</button>
             </div>
           </div>
 
@@ -149,6 +155,9 @@
               <span>{{ item.view_count }}회</span>
               <span>❤️{{ item.like_count }}</span>
               <span>{{ formatDate(item.created_at) }}</span>
+              <button v-if="auth.isLoggedIn" @click.stop="toggleFavList(item)" class="ml-auto text-sm">
+                {{ favoritedList.has(item.id) ? '❤️' : '🤍' }}
+              </button>
             </div>
           </div>
           <MobileAdInline v-if="i === 4" page="community" />
@@ -176,6 +185,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import AdSlot from '../../components/AdSlot.vue'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
@@ -184,7 +194,12 @@ import axios from 'axios'
 const route = useRoute()
 
 const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'post'
 const showFilter = ref(false)
+const showFavorites = ref(false)
+const favoritedList = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const items = ref([])
 const boards = ref([])
 const popularPosts = ref([])
@@ -292,9 +307,41 @@ async function loadPosts(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+  loadFavoritedList()
+}
+
+// 리스트 하트 (Bookmark)
+async function loadFavoritedList() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'post', ids } })
+    favoritedList.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFavList(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'post', bookmarkable_id: item.id })
+    if (data.bookmarked) favoritedList.value.add(item.id)
+    else favoritedList.value.delete(item.id)
+    favoritedList.value = new Set(favoritedList.value)
+  } catch {}
+}
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'post', per_page: 50 } })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavoritedList()
+  } catch {}
+  loading.value = false
 }
 
 onMounted(async () => {
+  bStore.loadAll()
   // 게시판 목록 + 게시글 + 인기글 + 구인 동시 로딩
   const [bRes, pRes] = await Promise.allSettled([
     axios.get('/api/boards'),

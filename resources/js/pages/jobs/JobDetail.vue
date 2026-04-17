@@ -88,6 +88,10 @@
               {{ salaryTypeLabel(job.salary_type) }}
             </span>
             <span class="text-xs text-gray-400 ml-auto">{{ job.view_count }}회 조회</span>
+            <button v-if="auth.isLoggedIn" @click="toggleJobFav"
+              class="text-base ml-2">
+              {{ jobFavorited ? '❤️' : '🤍' }}
+            </button>
           </div>
 
           <!-- Apply / Contact bar -->
@@ -307,6 +311,7 @@ const auth = useAuthStore()
 
 const job = ref(null)
 const loading = ref(true)
+const jobFavorited = ref(false)
 const sameCategoryJobs = ref([])
 const relatedJobs = ref([])
 const nearbyLabel = ref('')
@@ -489,6 +494,21 @@ async function loadJob(id) {
     job.value = null
   }
   loading.value = false
+  // 즐겨찾기 체크
+  if (auth.isLoggedIn && job.value) {
+    try {
+      const { data: bData } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\JobPost', ids: job.value.id } })
+      jobFavorited.value = (bData.data || []).includes(job.value.id)
+    } catch {}
+  }
+}
+
+async function toggleJobFav() {
+  if (!auth.isLoggedIn || !job.value) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\JobPost', bookmarkable_id: job.value.id })
+    jobFavorited.value = data.bookmarked
+  } catch {}
 }
 
 // ── Delete ──

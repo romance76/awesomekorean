@@ -71,7 +71,7 @@
               <button @click="toggleFavorite" :disabled="!auth.isLoggedIn"
                 class="px-4 py-1.5 rounded-full text-xs font-bold transition"
                 :class="recipe.is_favorited ? 'bg-red-500 text-white' : 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'">
-                {{ recipe.is_favorited ? '❤️ 찜한 레시피' : '🤍 찜하기' }}
+                {{ recipe.is_favorited ? '❤️' : '🤍' }}
               </button>
               <span v-if="!auth.isLoggedIn" class="text-[10px] text-gray-400 self-center">로그인 필요</span>
             </div>

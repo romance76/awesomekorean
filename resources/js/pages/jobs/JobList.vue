@@ -122,7 +122,7 @@
           <button v-if="auth.isLoggedIn" @click="loadFavoritesPage()"
             class="w-full text-left px-3 py-2 text-xs transition border-t"
             :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-            ❤️ 즐겨찾기
+            ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
           </button>
         </div>
         <AdSlot page="jobs" position="left" :maxSlots="2" />
@@ -131,7 +131,7 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 즐겨찾기 구인</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
       <template v-else>
         <span class="text-sm font-bold" :class="postType === 'hiring' ? 'text-amber-700' : 'text-blue-700'">
           {{ activeCat ? (jobCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}
@@ -227,12 +227,15 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\JobPost'
 const route = useRoute()
 const router = useRouter()
 const locFilter = useLocationFilterStore()
@@ -317,6 +320,7 @@ async function toggleFav(item) {
 
 // 즐겨찾기 모드
 const showFavorites = ref(false)
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 async function loadFavoritesPage() {
   loading.value = true
   showFavorites.value = true
@@ -452,6 +456,7 @@ async function loadPage(p = 1) {
 
 
 onMounted(async () => {
+  bStore.loadAll()
   // URL 쿼리 파라미터 반영
   if (route.query.category) activeCat.value = route.query.category
   if (route.query.type === 'seeking') postType.value = 'seeking'

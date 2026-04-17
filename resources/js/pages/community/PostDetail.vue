@@ -42,7 +42,7 @@
             <button @click="toggleLike" class="flex items-center gap-1 text-sm" :class="liked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'">
               {{ liked ? '❤️' : '🤍' }} 좋아요 {{ post.like_count }}
             </button>
-            <button @click="toggleBookmark" class="text-sm" :class="bookmarked ? 'text-amber-600' : 'text-gray-400 hover:text-amber-600'">🔖 {{ bookmarked ? '저장됨' : '북마크' }}</button>
+            <button @click="toggleBookmark" class="text-lg hover:scale-125 transition">{{ bookmarked ? '❤️' : '🤍' }}</button>
             <button @click="sharePost" class="text-gray-400 text-sm hover:text-amber-600">🔗 공유</button>
             <button @click="showReport=true" class="text-gray-400 text-sm hover:text-red-400 ml-auto">🚨 신고</button>
             <!-- 작성자 전용: 수정/삭제 -->

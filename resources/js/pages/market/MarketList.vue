@@ -82,9 +82,14 @@
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-          <button v-for="c in marketCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
+          <button v-for="c in marketCategories" :key="c.value" @click="showFavorites=false; activeCat=c.value; activeItem=null; loadPage()"
             class="w-full text-left px-3 py-2 text-xs transition"
-            :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+            :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+          <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
+            class="w-full text-left px-3 py-2 text-xs transition border-t"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+            ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+          </button>
         </div>
         <AdSlot page="market" position="left" :maxSlots="2" />
       </div>
@@ -92,8 +97,11 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (marketCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
-      <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 중고 물품을 볼 수 있습니다</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
+      <template v-else>
+        <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (marketCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
+        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 중고 물품을 볼 수 있습니다</span>
+      </template>
     </div>
 
     <!-- 목록 -->
@@ -111,7 +119,10 @@
             <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="{'bg-green-100 text-green-700':activeItem.status==='active','bg-amber-100 text-amber-700':activeItem.status==='reserved','bg-gray-200 text-gray-500':activeItem.status==='sold'}">{{ {active:'판매중',reserved:'예약중',sold:'판매완료'}[activeItem.status] }}</span>
             <span class="text-xs text-gray-400">{{ activeItem.condition }}</span>
           </div>
-          <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title }}</h2>
+          <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-gray-900 flex-1">{{ activeItem.title }}</h2>
+            <button v-if="auth.isLoggedIn" @click="toggleFav(activeItem)" class="text-xl hover:scale-125 transition flex-shrink-0">{{ favorited.has(activeItem.id) ? '❤️' : '🤍' }}</button>
+          </div>
           <div class="text-2xl font-black text-amber-600 mt-2">${{ Number(activeItem.price).toLocaleString() }}</div>
           <div class="text-xs text-gray-400 mt-1">{{ activeItem.city }}, {{ activeItem.state }} · {{ activeItem.view_count }}회</div>
         </div>
@@ -167,11 +178,14 @@
             </div>
             <div class="text-xs text-gray-500 line-clamp-1 mt-1">{{ (item.content || '').slice(0, 60) }}</div>
           </div>
-          <!-- 하단: 위치 + 날짜 -->
+          <!-- 하단: 위치 + 날짜 + 하트 -->
           <div class="text-[10px] text-gray-400 flex items-center gap-1.5 flex-wrap">
             <span v-if="item.city">📍 {{ item.city }}{{ item.state ? ', '+item.state : '' }}</span>
             <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
             <span v-if="item.created_at">🕐 {{ fmtDate(item.created_at) }}</span>
+            <button v-if="auth.isLoggedIn" @click.stop="toggleFav(item)" class="ml-auto text-sm">
+              {{ favorited.has(item.id) ? '❤️' : '🤍' }}
+            </button>
           </div>
         </div>
       </div>
@@ -236,6 +250,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { useMenuConfig } from '../../composables/useMenuConfig'
@@ -247,7 +262,12 @@ const route = useRoute()
 const router = useRouter()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\MarketItem'
 const showFilter = ref(false)
+const showFavorites = ref(false)
+const favorited = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const activeCat = ref('')
 const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
@@ -387,6 +407,37 @@ async function loadPage(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+  loadFavorited()
+}
+
+// 좋아요 (Bookmark)
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\MarketItem', ids } })
+    favorited.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\MarketItem', bookmarkable_id: item.id })
+    if (data.bookmarked) favorited.value.add(item.id)
+    else favorited.value.delete(item.id)
+    favorited.value = new Set(favorited.value)
+  } catch {}
+}
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'App\\Models\\MarketItem', per_page: 50 } })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavorited()
+  } catch {}
+  loading.value = false
 }
 
 // URL 쿼리 변경 시 반영
@@ -398,6 +449,7 @@ watch(() => route.query, (q) => {
 })
 
 onMounted(async () => {
+  bStore.loadAll()
   await loadConfig()
   viewMode.value = getDefaultView('market')
   if (route.query.category) activeCat.value = route.query.category

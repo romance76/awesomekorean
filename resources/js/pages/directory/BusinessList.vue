@@ -82,9 +82,14 @@
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 업종</div>
-          <button v-for="c in bizCategories" :key="c.value" @click="activeCat=c.value; activeItem=null; loadPage()"
+          <button v-for="c in bizCategories" :key="c.value" @click="showFavorites=false; activeCat=c.value; activeItem=null; loadPage()"
             class="w-full text-left px-3 py-2 text-xs transition"
-            :class="activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+            :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+          <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
+            class="w-full text-left px-3 py-2 text-xs transition border-t"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+            ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+          </button>
         </div>
         <AdSlot page="directory" position="left" :maxSlots="2" />
       </div>
@@ -92,8 +97,11 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (bizCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
-      <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 업소를 볼 수 있습니다</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
+      <template v-else>
+        <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (bizCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
+        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 업소를 볼 수 있습니다</span>
+      </template>
     </div>
 
     <!-- 상세 모드 -->
@@ -110,7 +118,8 @@
               <h2 class="text-lg font-bold text-gray-900 mt-2">🏪 {{ activeItem.name }}</h2>
               <div class="flex items-center gap-1 mt-1"><span class="text-amber-400">{{'★'.repeat(Math.round(activeItem.rating))}}</span><span class="text-sm text-gray-600">{{ activeItem.rating }}</span><span class="text-xs text-gray-400">({{ activeItem.review_count }}리뷰)</span></div>
             </div>
-            <div class="flex-shrink-0 mt-2">
+            <div class="flex-shrink-0 mt-2 flex items-center gap-2">
+              <button v-if="auth.isLoggedIn" @click="toggleFav(activeItem)" class="text-xl hover:scale-125 transition">{{ favorited.has(activeItem.id) ? '❤️' : '🤍' }}</button>
               <span v-if="activeItem.is_claimed" class="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-full font-bold">✅ 인증업체</span>
               <span v-else-if="claimStatus==='pending'" class="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-bold">⏳ 승인대기</span>
               <button v-else-if="auth.isLoggedIn" @click="showClaimModal=true" class="text-xs bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-bold hover:bg-amber-500">🏪 내가 주인</button>
@@ -236,9 +245,13 @@
         class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer flex h-32"
         :class="bizPromoClass(item)">
         <!-- 왼쪽: 사진 -->
-        <div class="w-28 flex-shrink-0 bg-gray-100">
+        <div class="w-28 flex-shrink-0 bg-gray-100 relative">
           <img v-if="item.thumbnail_url || item.images?.length" :src="item.thumbnail_url || thumb(item.images[0], 240)" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-3xl bg-amber-50\'>🏪</div>'" />
           <div v-else class="w-full h-full flex items-center justify-center text-3xl bg-amber-50">🏪</div>
+          <button v-if="auth.isLoggedIn" @click.stop="toggleFav(item)"
+            class="absolute top-1 right-1 w-7 h-7 rounded-full bg-white/90 hover:bg-white shadow flex items-center justify-center transition">
+            <span class="text-sm">{{ favorited.has(item.id) ? '❤️' : '🤍' }}</span>
+          </button>
         </div>
         <!-- 오른쪽: 정보 -->
         <div class="flex-1 p-3 min-w-0">
@@ -336,6 +349,7 @@ import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import { useMenuConfig } from '../../composables/useMenuConfig'
 import { thumb } from '../../utils/thumb'
@@ -343,6 +357,8 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\Business'
 const route = useRoute()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 const showFilter = ref(false)
@@ -415,6 +431,9 @@ const bizCategories = [
   { value: 'auto', label: '🚗 자동차' },{ value: 'realestate', label: '🏠 부동산' },{ value: 'education', label: '📚 교육' },{ value: 'religion', label: '⛪ 종교' },{ value: 'etc', label: '📋 기타' },
 ]
 
+const showFavorites = ref(false)
+const favorited = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const items = ref([])
 const loading = ref(true)
 const page = ref(1)
@@ -511,9 +530,41 @@ async function loadPage(p = 1) {
     if (pd.sidebar_latest) sidebarLatest.value = pd.sidebar_latest
   } catch {}
   loading.value = false
+  loadFavorited()
+}
+
+// 좋아요 (Bookmark)
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\Business', ids } })
+    favorited.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\Business', bookmarkable_id: item.id })
+    if (data.bookmarked) favorited.value.add(item.id)
+    else favorited.value.delete(item.id)
+    favorited.value = new Set(favorited.value)
+  } catch {}
+}
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'App\\Models\\Business', per_page: 50 } })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavorited()
+  } catch {}
+  loading.value = false
 }
 
 onMounted(async () => {
+  bStore.loadAll()
   await loadConfig(); viewMode.value = getDefaultView('directory')
   await initLocation()
   if (city.value) {

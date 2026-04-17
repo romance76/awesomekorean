@@ -58,11 +58,16 @@
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-            <button @click="activeCat=null; activeItem=null; loadNews()" class="w-full text-left px-3 py-2 text-xs transition"
-              :class="!activeCat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">전체</button>
-            <button v-for="cat in categories" :key="cat.id" @click="activeCat=cat; activeItem=null; loadNews()"
+            <button @click="showFavorites=false; activeCat=null; activeItem=null; loadNews()" class="w-full text-left px-3 py-2 text-xs transition"
+              :class="!showFavorites && !activeCat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">전체</button>
+            <button v-for="cat in categories" :key="cat.id" @click="showFavorites=false; activeCat=cat; activeItem=null; loadNews()"
               class="w-full text-left px-3 py-2 text-xs transition"
-              :class="activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ cat.name }}</button>
+              :class="!showFavorites && activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ cat.name }}</button>
+            <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
+              class="w-full text-left px-3 py-2 text-xs transition border-t"
+              :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+              ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+            </button>
           </div>
           <AdSlot page="news" position="left" :maxSlots="2" />
         </div>
@@ -72,8 +77,11 @@
       <div class="col-span-12 lg:col-span-7">
 
         <div class="mb-2">
-          <span class="font-bold text-amber-700 text-sm">{{ activeCat ? activeCat.name : '전체' }}</span>
-          <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 뉴스를 볼 수 있습니다</span>
+          <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
+          <template v-else>
+            <span class="font-bold text-amber-700 text-sm">{{ activeCat ? activeCat.name : '전체' }}</span>
+            <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 뉴스를 볼 수 있습니다</span>
+          </template>
         </div>
 
         <!-- ═══ 상세 모드 ═══ -->
@@ -88,6 +96,7 @@
               <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
                 <span>{{ formatDate(activeItem.published_at) }}</span>
                 <span>👁 {{ activeItem.view_count }}회</span>
+                <button v-if="auth.isLoggedIn" @click="toggleFav(activeItem)" class="text-lg hover:scale-125 transition ml-auto">{{ favorited.has(activeItem.id) ? '❤️' : '🤍' }}</button>
               </div>
             </div>
             <!-- 대표 이미지 (본문에 이미지가 없을 때만) -->
@@ -172,7 +181,12 @@
                   <span class="text-[10px] text-gray-400">{{ item.source }}</span>
                 </div>
                 <div class="text-sm font-medium text-gray-800 line-clamp-2 leading-snug">{{ item.title }}</div>
-                <div class="text-[10px] text-gray-400 mt-1">👁 {{ item.view_count }} · {{ formatDate(item.published_at) }}</div>
+                <div class="flex items-center justify-between mt-1">
+                  <div class="text-[10px] text-gray-400">👁 {{ item.view_count }} · {{ formatDate(item.published_at) }}</div>
+                  <button v-if="auth.isLoggedIn" @click.stop="toggleFav(item)" class="flex-shrink-0 text-sm">
+                    {{ favorited.has(item.id) ? '❤️' : '🤍' }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -197,13 +211,22 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+
+import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import { thumb } from '../../utils/thumb'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
+const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\News'
 const route = useRoute()
 const showFilter = ref(false)
+const showFavorites = ref(false)
+const favorited = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const items = ref([])
 const categories = ref([])
 const activeCat = ref(null)
@@ -283,9 +306,41 @@ async function loadNews(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+  loadFavorited()
+}
+
+// 좋아요 (Bookmark)
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\News', ids } })
+    favorited.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\News', bookmarkable_id: item.id })
+    if (data.bookmarked) favorited.value.add(item.id)
+    else favorited.value.delete(item.id)
+    favorited.value = new Set(favorited.value)
+  } catch {}
+}
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'App\\Models\\News', per_page: 50 } })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavorited()
+  } catch {}
+  loading.value = false
 }
 
 onMounted(async () => {
+  bStore.loadAll()
   const [nRes, cRes] = await Promise.allSettled([
     axios.get('/api/news?per_page=20'),
     axios.get('/api/news/categories'),

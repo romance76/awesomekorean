@@ -114,7 +114,7 @@
           <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
             class="w-full text-left px-3 py-1.5 text-xs transition border-t"
             :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-            ❤️ 내 좋아요
+            ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
           </button>
         </div>
         <AdSlot page="realestate" position="left" :maxSlots="2" />
@@ -123,7 +123,7 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 좋아요 부동산</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
       <template v-else>
         <span class="font-bold text-sm" :class="reType==='rent' ? 'text-blue-700' : 'text-red-700'">
           {{ reType==='rent' ? '🔑 렌트' : '🏠 매매' }}
@@ -309,6 +309,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { useMenuConfig } from '../../composables/useMenuConfig'
@@ -316,12 +317,15 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\RealEstateListing'
 const route = useRoute()
 const router = useRouter()
 const showFilter = ref(false)
 const activeCat = ref('')
 const reType = ref('rent') // rent | sale
 const showFavorites = ref(false)
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 
 // 렌트 카테고리
 const rentSubcats = [
@@ -552,6 +556,7 @@ async function loadPage(p = 1) {
 }
 
 onMounted(async () => {
+  bStore.loadAll()
   await loadConfig(); viewMode.value = getDefaultView('realestate')
 
   // URL 쿼리 파라미터 반영 (?type=sale&cat=house&fav=1)

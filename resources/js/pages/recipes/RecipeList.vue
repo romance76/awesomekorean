@@ -91,7 +91,7 @@
             <button v-if="auth.isLoggedIn" @click="selectFavorites"
               class="w-full text-left px-3 py-2 text-xs transition border-t"
               :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-              💖 찜한 레시피
+              ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
             </button>
           </div>
           <AdSlot page="recipes" position="left" :maxSlots="2" />
@@ -102,7 +102,7 @@
       <div class="col-span-12 lg:col-span-7">
         <div class="mb-2 flex items-center justify-between">
           <div>
-            <span v-if="showFavorites" class="font-bold text-red-600 text-sm">💖 찜한 레시피</span>
+            <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
             <template v-else>
               <span class="font-bold text-amber-700 text-sm">{{ activeCat || '전체' }}</span>
               <span v-if="sort === 'random'" class="text-xs text-gray-400 ml-2">랜덤 순서</span>
@@ -159,8 +159,11 @@
                 <span v-if="item.favorite_count">💖 {{ item.favorite_count }}</span>
               </div>
             </div>
-            <!-- 찜 표시 (로그인 + 이미 찜한 경우) -->
-            <span v-if="item.is_favorited" class="absolute top-1.5 right-1.5 text-red-500 text-base">❤️</span>
+            <!-- 찜 토글 -->
+            <button v-if="auth.isLoggedIn" @click.prevent.stop="toggleFav(item)"
+              class="absolute top-1.5 right-1.5 text-base">
+              {{ recipeFavorited.has(item.id) ? '❤️' : '🤍' }}
+            </button>
           </RouterLink>
           <MobileAdInline v-if="i === 4" page="recipes" />
           </template>
@@ -186,12 +189,15 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import { thumb } from '../../utils/thumb'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\RecipePost'
 const route = useRoute()
 const showFilter = ref(false)
 const items = ref([])
@@ -203,6 +209,8 @@ const page = ref(1)
 const lastPage = ref(1)
 const loading = ref(true)
 const showFavorites = ref(false)
+const recipeFavorited = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const randomSeed = ref(Math.floor(Math.random() * 999999) + 1)
 
 function newSeed() {
@@ -244,6 +252,39 @@ async function loadPage(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+  loadRecipeFavorited()
+}
+
+// 리스트 하트 토글
+async function loadRecipeFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\RecipePost', ids } })
+    recipeFavorited.value = new Set(data.data || [])
+  } catch {
+    // fallback: is_favorited 필드 사용
+    const set = new Set()
+    items.value.forEach(i => { if (i.is_favorited) set.add(i.id) })
+    recipeFavorited.value = set
+  }
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\RecipePost', bookmarkable_id: item.id })
+    if (data.bookmarked) recipeFavorited.value.add(item.id)
+    else recipeFavorited.value.delete(item.id)
+    recipeFavorited.value = new Set(recipeFavorited.value)
+  } catch {
+    // fallback: 기존 API
+    try {
+      const { data } = await axios.post(`/api/recipes/${item.id}/favorite`)
+      if (data.is_favorited) recipeFavorited.value.add(item.id)
+      else recipeFavorited.value.delete(item.id)
+      recipeFavorited.value = new Set(recipeFavorited.value)
+    } catch {}
+  }
 }
 
 async function loadCategories() {
@@ -283,6 +324,7 @@ watch(() => route.query, (q) => {
 })
 
 onMounted(() => {
+  bStore.loadAll()
   loadCategories()
   if (route.query.category) activeCat.value = route.query.category
   if (route.query.favorites === '1' && auth.isLoggedIn) showFavorites.value = true

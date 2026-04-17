@@ -77,9 +77,14 @@
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 상태</div>
-          <button v-for="s in statusFilters" :key="s.value" @click="statusFilter=s.value; loadPage()"
+          <button v-for="s in statusFilters" :key="s.value" @click="showFavorites=false; statusFilter=s.value; loadPage()"
             class="w-full text-left px-3 py-2 text-xs transition"
-            :class="statusFilter===s.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ s.label }}</button>
+            :class="!showFavorites && statusFilter===s.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ s.label }}</button>
+          <button v-if="auth.isLoggedIn" @click="showFavorites=true; loadFavoritesPage()"
+            class="w-full text-left px-3 py-2 text-xs transition border-t"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
+            ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+          </button>
         </div>
         <AdSlot page="groupbuy" position="left" :maxSlots="2" />
       </div>
@@ -127,6 +132,9 @@
             <div v-if="item.original_price" class="text-xs text-gray-400 line-through">${{ Number(item.original_price).toLocaleString() }}</div>
             <div class="text-amber-600 font-bold text-sm">${{ Number(item.group_price || item.original_price).toLocaleString() }}</div>
             <div v-if="currentDiscount(item)" class="text-[10px] text-red-500 font-bold">{{ currentDiscount(item) }}% OFF</div>
+            <button v-if="auth.isLoggedIn" @click.prevent.stop="toggleFav(item)" class="mt-1 text-sm">
+              {{ favorited.has(item.id) ? '❤️' : '🤍' }}
+            </button>
           </div>
         </div>
       </RouterLink>
@@ -150,12 +158,18 @@ import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
+import { useBookmarkStore } from '../../stores/bookmarks'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 
 const auth = useAuthStore()
+const bStore = useBookmarkStore()
+const BM_TYPE = 'App\\Models\\GroupBuy'
 const route = useRoute()
+const showFavorites = ref(false)
+const favorited = ref(new Set())
+const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const statusFilter = ref('')
 const statusFilters = [
   { value: '', label: '전체' },{ value: 'recruiting', label: '🟢 모집중' },
@@ -274,9 +288,41 @@ async function loadPage(p = 1) {
     lastPage.value = data.data?.last_page || 1
   } catch {}
   loading.value = false
+  loadFavorited()
+}
+
+// 좋아요 (Bookmark)
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !items.value.length) return
+  try {
+    const ids = items.value.map(i => i.id).join(',')
+    const { data } = await axios.get('/api/bookmarks/check', { params: { type: 'App\\Models\\GroupBuy', ids } })
+    favorited.value = new Set(data.data || [])
+  } catch {}
+}
+async function toggleFav(item) {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: 'App\\Models\\GroupBuy', bookmarkable_id: item.id })
+    if (data.bookmarked) favorited.value.add(item.id)
+    else favorited.value.delete(item.id)
+    favorited.value = new Set(favorited.value)
+  } catch {}
+}
+async function loadFavoritesPage() {
+  loading.value = true
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: 'App\\Models\\GroupBuy', per_page: 50 } })
+    const bms = data.data?.data || []
+    items.value = bms.map(b => b.bookmarkable).filter(Boolean)
+    lastPage.value = 1
+    loadFavorited()
+  } catch {}
+  loading.value = false
 }
 
 onMounted(async () => {
+  bStore.loadAll()
   await initLocation()
   if (city.value) {
     myCity.value = { ...city.value }
