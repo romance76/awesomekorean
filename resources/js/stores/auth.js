@@ -17,7 +17,28 @@ export const useAuthStore = defineStore('auth', () => {
   const initPromise = new Promise(r => { _resolveInit = r })
 
   const isLoggedIn = computed(() => !!token.value)
-  const isAdmin = computed(() => ['admin', 'super_admin'].includes(user.value?.role))
+  const isAdmin = computed(() => {
+    // 레거시 role 컬럼 또는 Spatie roles 배열 둘 다 지원
+    if (['admin', 'super_admin', 'manager', 'moderator'].includes(user.value?.role)) return true
+    const roles = user.value?.roles ?? []
+    return roles.some(r => ['super_admin', 'manager', 'moderator'].includes(typeof r === 'string' ? r : r?.name))
+  })
+
+  // Spatie Permission 헬퍼 (Phase 2-C 묶음 2)
+  function hasRole(name) {
+    if (!user.value) return false
+    if (user.value.role === name) return true
+    const roles = user.value.roles ?? []
+    return roles.some(r => (typeof r === 'string' ? r : r?.name) === name)
+  }
+  function hasPermission(name) {
+    if (!user.value) return false
+    // super_admin 은 무조건 true (백엔드도 동일 규칙)
+    if (hasRole('super_admin') || user.value.role === 'super_admin') return true
+    const perms = user.value.permissions ?? []
+    return perms.some(p => (typeof p === 'string' ? p : p?.name) === name)
+  }
+  function can(perm) { return hasPermission(perm) }
 
   // 어느 스토리지에 있든 토큰 읽기 (세션 → 로컬 순)
   function readStoredAuth() {
@@ -109,5 +130,5 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {}
   }
 
-  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
+  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance, hasRole, hasPermission, can }
 })

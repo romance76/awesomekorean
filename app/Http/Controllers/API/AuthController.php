@@ -45,7 +45,7 @@ class AuthController extends Controller
 
         $token = JWTAuth::fromUser($user);
 
-        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user->fresh()]]);
+        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $this->enrichUser($user->fresh())]]);
     }
 
     public function login(Request $request)
@@ -71,7 +71,7 @@ class AuthController extends Controller
             if ($loginBonus > 0) $user->addPoints($loginBonus, '일일 로그인 보너스');
         }
 
-        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user]]);
+        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $this->enrichUser($user)]]);
     }
 
     public function logout()
@@ -82,7 +82,25 @@ class AuthController extends Controller
 
     public function user()
     {
-        return response()->json(['success' => true, 'data' => auth()->user()]);
+        return response()->json(['success' => true, 'data' => $this->enrichUser(auth()->user())]);
+    }
+
+    /**
+     * 로그인/조회 응답에 Spatie roles + permissions 배열 포함 (Phase 2-C 묶음 2).
+     * 프론트 auth.can() / hasRole() 헬퍼가 이 필드를 사용.
+     */
+    private function enrichUser($user)
+    {
+        if (!$user) return null;
+        $arr = $user->toArray();
+        try {
+            $arr['roles'] = $user->getRoleNames()->values()->all();
+            $arr['permissions'] = $user->getAllPermissions()->pluck('name')->values()->all();
+        } catch (\Throwable $e) {
+            $arr['roles'] = [];
+            $arr['permissions'] = [];
+        }
+        return $arr;
     }
 
     // 비밀번호 재설정 요청 (코드 발송) — Issue #7: 계정 열거 방어 + Issue #8: 쿨다운
