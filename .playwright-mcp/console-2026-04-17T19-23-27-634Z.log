@@ -1,0 +1,13 @@
+[     152ms] [LOG] [CommHub] Initializing for user: 203 @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     152ms] [LOG] [PeerJS] Initializing as sk-203-sz07 @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     153ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     238ms] [LOG] [Echo] Authorizing channel: private-user.203 token: yes @ https://somekorean.com/build/assets/app-iDk1K4DK.js:7
+[     388ms] [LOG] [PeerJS] ✅ Connected as sk-203-sz07 @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     400ms] [LOG] [Echo] Channel authorized OK: private-user.203 @ https://somekorean.com/build/assets/app-iDk1K4DK.js:7
+[  150227ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://somekorean.com/api/comms/presence/ping:0
+[  175219ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://somekorean.com/api/comms/presence/ping:0
+[  200222ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://somekorean.com/api/comms/presence/ping:0
+[  225223ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://somekorean.com/api/comms/presence/ping:0
+[  240225ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://somekorean.com/api/heartbeat:0
+[  240286ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://somekorean.com/api/notifications:0
+[  240557ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://somekorean.com/login:0

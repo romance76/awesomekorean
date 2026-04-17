@@ -39,8 +39,9 @@ class AuthController extends Controller
             'allow_friend_request' => $request->allow_friend_request ?? true,
         ]);
 
-        // 가입 보너스 +10 포인트
-        $user->addPoints(10, '회원가입 보너스');
+        // 가입 보너스 (P2B-2: DB 동적)
+        $signupBonus = \App\Support\PointRules::get('signup_bonus', 10);
+        if ($signupBonus > 0) $user->addPoints($signupBonus, '회원가입 보너스');
 
         $token = JWTAuth::fromUser($user);
 
@@ -63,10 +64,11 @@ class AuthController extends Controller
 
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);
 
-        // 일일 로그인 보너스 +2
+        // 일일 로그인 보너스 (P2B-2: DB 동적)
         $lastLogin = $user->getOriginal('last_login_at');
         if (!$lastLogin || now()->diffInHours($lastLogin) >= 12) {
-            $user->addPoints(2, '일일 로그인 보너스');
+            $loginBonus = \App\Support\PointRules::get('daily_login_bonus', 2);
+            if ($loginBonus > 0) $user->addPoints($loginBonus, '일일 로그인 보너스');
         }
 
         return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user]]);

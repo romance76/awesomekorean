@@ -78,6 +78,7 @@
               </div>
               <div class="flex items-center gap-3">
                 <BookmarkToggle :active="isFavorited" @toggle="toggleFav" size="lg" />
+                <ShareButton :title="listing.title" :text="'부동산: ' + listing.title" label="" />
                 <button v-if="listing.user_id !== auth.user?.id" @click="reportListing"
                   class="text-lg hover:scale-125 transition" :style="isReported ? '' : 'filter:grayscale(100%);opacity:0.35;'"
                   :title="isReported ? '신고됨' : '신고'">🚨</button>
@@ -205,6 +206,7 @@ import { useFriendAction } from '../../composables/useSocialActions'
 import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import ShareButton from '../../components/ShareButton.vue'
 
 const route = useRoute()
 const router = useRouter()

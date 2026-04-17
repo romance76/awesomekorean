@@ -63,6 +63,7 @@
               </div>
               <div class="flex items-center gap-3">
                 <BookmarkToggle :active="liked" @toggle="toggleLike" size="lg" />
+                <ShareButton :title="item.title" :text="'중고장터: ' + item.title" label="" />
                 <button @click="showReport = true" class="text-lg hover:scale-125 transition" style="filter:grayscale(100%);opacity:0.35;">🚨</button>
               </div>
             </div>
@@ -237,6 +238,7 @@ import ReportModal from '../../components/ReportModal.vue'
 import MessageModal from '../../components/MessageModal.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import ShareButton from '../../components/ShareButton.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import axios from 'axios'

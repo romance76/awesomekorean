@@ -115,9 +115,10 @@
               </div>
             </div>
             <div class="px-5 py-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
-            <div class="px-5 py-3 border-t flex gap-4">
+            <div class="px-5 py-3 border-t flex gap-4 items-center">
               <button @click="toggleLike" class="text-sm" :class="liked ? 'text-red-500' : 'text-gray-400'">{{ liked ? '❤️' : '🤍' }} 좋아요 {{ activeItem.like_count }}</button>
               <BookmarkToggle :active="favoritedList.has(activeItem.id)" @toggle="toggleFavList(activeItem)" size="lg" />
+              <ShareButton :title="activeItem.title" :text="activeItem.content?.slice(0, 100)" label="공유" />
             </div>
           </div>
 
@@ -185,6 +186,7 @@ import AdSlot from '../../components/AdSlot.vue'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import ShareButton from '../../components/ShareButton.vue'
 import axios from 'axios'
 
 const route = useRoute()

@@ -1,0 +1,6 @@
+[     137ms] [LOG] [CommHub] Initializing for user: 203 @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     137ms] [LOG] [PeerJS] Initializing as sk-203-12sm @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     138ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     218ms] [LOG] [Echo] Authorizing channel: private-user.203 token: yes @ https://somekorean.com/build/assets/app-iDk1K4DK.js:7
+[     362ms] [LOG] [PeerJS] ✅ Connected as sk-203-12sm @ https://somekorean.com/build/assets/app-iDk1K4DK.js:47
+[     369ms] [LOG] [Echo] Channel authorized OK: private-user.203 @ https://somekorean.com/build/assets/app-iDk1K4DK.js:7

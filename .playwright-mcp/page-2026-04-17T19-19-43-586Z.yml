@@ -1,0 +1,125 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - button [ref=e6] [cursor=pointer]:
+        - img [ref=e7]
+      - link "SomeKorean" [ref=e9] [cursor=pointer]:
+        - /url: /
+        - img "SomeKorean" [ref=e10]
+      - generic [ref=e11]:
+        - button "9+" [ref=e39] [cursor=pointer]:
+          - img [ref=e14]
+          - generic [ref=e40]: 9+
+        - button "k" [ref=e17] [cursor=pointer]
+        - button "EN" [ref=e18] [cursor=pointer]
+  - main [ref=e41]:
+    - generic [ref=e204]:
+      - generic [ref=e205]:
+        - heading "💬 채팅" [level=1] [ref=e206]
+        - button "+ 새 채팅" [ref=e207] [cursor=pointer]
+      - generic [ref=e208]:
+        - button "전체" [ref=e209] [cursor=pointer]: 전체
+        - button "💌 쪽지 (1)" [ref=e210] [cursor=pointer]
+        - button "👥 그룹 (1)" [ref=e211] [cursor=pointer]
+        - button "🌐 공개 (15)" [ref=e212] [cursor=pointer]
+      - generic [ref=e213]:
+        - generic [ref=e214]: 💬 전체 채팅방
+        - button "👥 [QA-seed] 그룹방 테스트 6" [ref=e215] [cursor=pointer]:
+          - generic [ref=e216]:
+            - generic [ref=e217]: 👥
+            - generic [ref=e218]: "[QA-seed] 그룹방 테스트"
+            - generic [ref=e219]: "6"
+        - button "💌 직장인A57 4" [ref=e220] [cursor=pointer]:
+          - generic [ref=e221]:
+            - generic [ref=e222]: 💌
+            - generic [ref=e223]: 직장인A57
+            - generic [ref=e224]: "4"
+        - button "🌐 test 채팅방" [ref=e225] [cursor=pointer]:
+          - generic [ref=e226]:
+            - generic [ref=e227]: 🌐
+            - generic [ref=e228]: test 채팅방
+        - button "🌐 🔔 필라델피아 한인 채팅방" [ref=e230] [cursor=pointer]:
+          - generic [ref=e231]:
+            - generic [ref=e232]: 🌐
+            - generic [ref=e233]: 🔔 필라델피아 한인 채팅방
+        - button "🌐 💬 자유 수다방" [ref=e235] [cursor=pointer]:
+          - generic [ref=e236]:
+            - generic [ref=e237]: 🌐
+            - generic [ref=e238]: 💬 자유 수다방
+        - button "🌐 🍊 어바인/OC 한인 채팅방 1" [ref=e240] [cursor=pointer]:
+          - generic [ref=e241]:
+            - generic [ref=e242]: 🌐
+            - generic [ref=e243]: 🍊 어바인/OC 한인 채팅방
+            - generic [ref=e244]: "1"
+        - button "🌐 🌺 호놀룰루 한인 채팅방" [ref=e245] [cursor=pointer]:
+          - generic [ref=e246]:
+            - generic [ref=e247]: 🌐
+            - generic [ref=e248]: 🌺 호놀룰루 한인 채팅방
+        - button "🌐 🎰 라스베가스 한인 채팅방" [ref=e250] [cursor=pointer]:
+          - generic [ref=e251]:
+            - generic [ref=e252]: 🌐
+            - generic [ref=e253]: 🎰 라스베가스 한인 채팅방
+        - button "🌐 🌬️ 시카고 한인 채팅방" [ref=e255] [cursor=pointer]:
+          - generic [ref=e256]:
+            - generic [ref=e257]: 🌐
+            - generic [ref=e258]: 🌬️ 시카고 한인 채팅방
+        - button "🌐 🏛️ 워싱턴DC 한인 채팅방" [ref=e260] [cursor=pointer]:
+          - generic [ref=e261]:
+            - generic [ref=e262]: 🌐
+            - generic [ref=e263]: 🏛️ 워싱턴DC 한인 채팅방
+        - button "🌐 ☕ 시애틀 한인 채팅방 NEW" [ref=e265] [cursor=pointer]:
+          - generic [ref=e266]:
+            - generic [ref=e267]: 🌐
+            - generic [ref=e268]: ☕ 시애틀 한인 채팅방
+            - generic [ref=e269]: NEW
+        - button "🌐 🚀 휴스턴 한인 채팅방 NEW" [ref=e270] [cursor=pointer]:
+          - generic [ref=e271]:
+            - generic [ref=e272]: 🌐
+            - generic [ref=e273]: 🚀 휴스턴 한인 채팅방
+            - generic [ref=e274]: NEW
+        - button "🌐 🤠 달라스 한인 채팅방" [ref=e275] [cursor=pointer]:
+          - generic [ref=e276]:
+            - generic [ref=e277]: 🌐
+            - generic [ref=e278]: 🤠 달라스 한인 채팅방
+        - button "🌐 🌁 샌프란시스코 한인 채팅방 5" [ref=e280] [cursor=pointer]:
+          - generic [ref=e281]:
+            - generic [ref=e282]: 🌐
+            - generic [ref=e283]: 🌁 샌프란시스코 한인 채팅방
+            - generic [ref=e284]: "5"
+        - button "🌐 🗽 뉴욕 한인 채팅방" [ref=e285] [cursor=pointer]:
+          - generic [ref=e286]:
+            - generic [ref=e287]: 🌐
+            - generic [ref=e288]: 🗽 뉴욕 한인 채팅방
+        - button "🌐 🌴 LA 한인 채팅방" [ref=e290] [cursor=pointer]:
+          - generic [ref=e291]:
+            - generic [ref=e292]: 🌐
+            - generic [ref=e293]: 🌴 LA 한인 채팅방
+        - button "🌐 🍑 아틀란타 한인 채팅방" [ref=e295] [cursor=pointer]:
+          - generic [ref=e296]:
+            - generic [ref=e297]: 🌐
+            - generic [ref=e298]: 🍑 아틀란타 한인 채팅방
+        - button "🌐 🏙️ 뉴저지 한인 채팅방" [ref=e300] [cursor=pointer]:
+          - generic [ref=e301]:
+            - generic [ref=e302]: 🌐
+            - generic [ref=e303]: 🏙️ 뉴저지 한인 채팅방
+  - generic [ref=e20]:
+    - link "🏠 홈" [ref=e21] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e22]: 🏠
+      - generic [ref=e23]: 홈
+    - link "💬 커뮤니티" [ref=e24] [cursor=pointer]:
+      - /url: /community
+      - generic [ref=e25]: 💬
+      - generic [ref=e26]: 커뮤니티
+    - link "🎮 게임" [ref=e27] [cursor=pointer]:
+      - /url: /games
+      - generic [ref=e28]: 🎮
+      - generic [ref=e29]: 게임
+    - link "💭 채팅" [ref=e30] [cursor=pointer]:
+      - /url: /chat
+      - generic [ref=e31]: 💭
+      - generic [ref=e32]: 채팅
+    - link "👤 MY" [ref=e33] [cursor=pointer]:
+      - /url: /dashboard
+      - generic [ref=e34]: 👤
+      - generic [ref=e35]: MY
