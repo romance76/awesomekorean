@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <router-link to="/groupbuy" class="text-xl font-black text-gray-800 mb-3 inline-block hover:text-amber-600 transition">
+    <DetailHeader :title="gb?.title || '공동구매'" fallback="/groupbuy" />
+    <router-link to="/groupbuy" class="hidden lg:inline-block text-xl font-black text-gray-800 mb-3 hover:text-amber-600 transition">
       🤝 공동구매
     </router-link>
 
@@ -263,6 +264,9 @@
 
         <!-- Comments -->
         <CommentSection v-if="gb.id" type="groupbuy" :typeId="gb.id" class="mt-4" />
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/groupbuy" detail-base="/groupbuy/" />
 
         <!-- Back to list -->
         <div class="flex justify-center mt-4">
@@ -416,6 +420,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import CommentSection from '../../components/CommentSection.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import ReportModal from '../../components/ReportModal.vue'
@@ -430,6 +436,8 @@ const auth = useAuthStore()
 
 const gbStore = useBookmarkStore()
 const gb = ref(null)
+const prev = ref(null)
+const next = ref(null)
 const loading = ref(true)
 const gbFavorited = ref(false)
 const gbFavCount = computed(() => gbStore.getBookmarkedIds('App\\Models\\GroupBuy').length)
@@ -584,6 +592,8 @@ async function loadDetail(id) {
   try {
     const { data } = await axios.get(`/api/groupbuys/${id}`)
     gb.value = data.data
+    prev.value = data.prev
+    next.value = data.next
 
     // Load participants
     try {

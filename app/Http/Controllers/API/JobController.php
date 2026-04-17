@@ -8,11 +8,12 @@ use App\Models\JobApplication;
 use App\Models\JobPromotion;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads;
+    use AdminAuthorizes, CompressesUploads, HasAdjacent;
 
     public function index(Request $request)
     {
@@ -350,7 +351,12 @@ class JobController extends Controller
     {
         $job = JobPost::with('user:id,name,nickname,avatar')->findOrFail($id);
         $job->increment('view_count');
-        return response()->json(['success' => true, 'data' => $job]);
+        // Kay 요청: 같은 카테고리·post_type 내 이전/다음
+        $adj = $this->adjacentPair(JobPost::class, $id, 'title', [
+            'category' => $job->category,
+            'post_type' => $job->post_type,
+        ]);
+        return response()->json(['success' => true, 'data' => $job, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)

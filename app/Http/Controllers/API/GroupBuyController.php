@@ -6,13 +6,14 @@ use App\Models\GroupBuy;
 use App\Models\GroupBuyParticipant;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class GroupBuyController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads;
+    use AdminAuthorizes, CompressesUploads, HasAdjacent;
 
     public function index(Request $request)
     {
@@ -92,13 +93,19 @@ class GroupBuyController extends Controller
                 ->first();
         }
 
-        return response()->json(['success' => true, 'data' => array_merge($gb->toArray(), [
-            'progress' => min($progress, 100),
-            'time_remaining' => $timeRemaining,
-            'next_tier' => $nextTier,
-            'participants_count' => $gb->participants->count(),
-            'my_participation' => $myParticipation,
-        ])]);
+        $adj = $this->adjacentPair(GroupBuy::class, $id, 'title', ['category' => $gb->category]);
+        return response()->json([
+            'success' => true,
+            'data' => array_merge($gb->toArray(), [
+                'progress' => min($progress, 100),
+                'time_remaining' => $timeRemaining,
+                'next_tier' => $nextTier,
+                'participants_count' => $gb->participants->count(),
+                'my_participation' => $myParticipation,
+            ]),
+            'prev' => $adj['prev'],
+            'next' => $adj['next'],
+        ]);
     }
 
     public function store(Request $request)

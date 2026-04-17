@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+    <DetailHeader :title="recipe?.title || '레시피'" fallback="/recipes" />
+    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="text-xl font-black text-gray-800">🍳 레시피</h1>
       <button @click="$router.push('/recipes')" class="text-sm text-gray-500 hover:text-amber-600">← 레시피 목록</button>
     </div>
@@ -206,6 +207,10 @@
           </div>
         </div>
 
+        <PostNavigator v-if="recipe" :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/recipes" detail-base="/recipes/" />
+
         <div v-else class="text-center py-16 text-gray-400">레시피를 찾을 수 없습니다</div>
       </div>
 
@@ -227,11 +232,15 @@ import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const recipe = ref(null)
+const prev = ref(null)
+const next = ref(null)
 const loading = ref(true)
 const categories = ref([])
 const hoverRating = ref(0)
@@ -266,6 +275,8 @@ async function loadRecipe(id) {
   try {
     const { data } = await axios.get(`/api/recipes/${id}`)
     recipe.value = data.data || data
+    prev.value = data.prev
+    next.value = data.next
     myRating.value = recipe.value?.my_rating || 0
     await loadComments()
   } catch (err) {

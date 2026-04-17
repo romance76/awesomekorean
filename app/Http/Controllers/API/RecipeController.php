@@ -7,11 +7,12 @@ use App\Models\RecipeFavorite;
 use App\Models\RecipeRating;
 use App\Support\ThumbHelper;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 
 class RecipeController extends Controller
 {
-    use CompressesUploads;
+    use CompressesUploads, HasAdjacent;
 
     // GET /api/recipes — 공용 목록
     public function index(Request $request)
@@ -81,7 +82,8 @@ class RecipeController extends Controller
             $recipe->my_rating = $userRating?->rating;
         }
 
-        return response()->json(['success' => true, 'data' => $recipe]);
+        $adj = $this->adjacentPair(RecipePost::class, $id, 'title', ['category' => $recipe->category]);
+        return response()->json(['success' => true, 'data' => $recipe, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     // GET /api/recipes/categories

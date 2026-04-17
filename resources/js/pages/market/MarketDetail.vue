@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <div class="flex items-center justify-between mb-4">
+    <DetailHeader :title="item?.title || '중고장터'" fallback="/market" />
+    <div class="hidden lg:flex items-center justify-between mb-4">
       <h1 class="text-xl font-black text-gray-800">🛒 중고장터</h1>
     </div>
 
@@ -160,6 +161,9 @@
         </div>
 
         <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" />
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/market" detail-base="/market/" />
       </div>
 
       <!-- 오른쪽: 위젯 -->
@@ -239,6 +243,8 @@ import MessageModal from '../../components/MessageModal.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import ShareButton from '../../components/ShareButton.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import axios from 'axios'
@@ -349,10 +355,15 @@ function timeAgo(dt) {
   if (s < 604800) return Math.floor(s/86400) + '일 전'; return new Date(dt).toLocaleDateString('ko-KR')
 }
 
+const prev = ref(null)
+const next = ref(null)
+
 async function loadItem() {
   try {
     const { data } = await axios.get(`/api/market/${route.params.id}`)
     item.value = data.data
+    prev.value = data.prev
+    next.value = data.next
     try {
       const { data: trades } = await axios.get(`/api/market?user_id=${item.value.user_id}&per_page=1`)
       sellerTradeCount.value = trades.data?.total || 0

@@ -7,11 +7,12 @@ use App\Models\Post;
 use App\Models\PostLike;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads;
+    use AdminAuthorizes, CompressesUploads, HasAdjacent;
 
     public function index(Request $request)
     {
@@ -60,7 +61,8 @@ class PostController extends Controller
             $post->is_bookmarked = false;
         }
 
-        return response()->json(['success' => true, 'data' => $post]);
+        $adj = $this->adjacentPair(Post::class, $id, 'title', ['board_id' => $post->board_id]);
+        return response()->json(['success' => true, 'data' => $post, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)

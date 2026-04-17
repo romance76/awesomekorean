@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\RealEstateListing;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
+use App\Traits\HasAdjacent;
 use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 
 class RealEstateController extends Controller
 {
-    use AdminAuthorizes, CompressesUploads, HasPromotions;
+    use AdminAuthorizes, CompressesUploads, HasAdjacent, HasPromotions;
 
     protected string $promoResource = 'realestate';
     protected string $promoModel = \App\Models\RealEstateListing::class;
@@ -63,7 +64,9 @@ class RealEstateController extends Controller
     {
         $listing = RealEstateListing::with('user:id,name,nickname,avatar')->findOrFail($id);
         $listing->increment('view_count');
-        return response()->json(['success' => true, 'data' => $listing]);
+        // Kay 요청: 같은 type(rent/sale/roommate) 내에서 이전/다음
+        $adj = $this->adjacentPair(RealEstateListing::class, $id, 'title', ['type' => $listing->type]);
+        return response()->json(['success' => true, 'data' => $listing, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)
