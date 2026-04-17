@@ -590,8 +590,9 @@ async function loadDetail(id) {
       const { data: pData } = await axios.get(`/api/groupbuys/${id}/participants`)
       participants.value = pData.data || []
     } catch {}
-  } catch {
+  } catch (err) {
     gb.value = null
+    if (err.response?.status === 404) router.replace('/404')
   }
 
   loading.value = false

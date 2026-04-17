@@ -345,7 +345,7 @@
 </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -361,6 +361,7 @@ const auth = useAuthStore()
 const bStore = useBookmarkStore()
 const BM_TYPE = 'App\\Models\\Business'
 const route = useRoute()
+const router = useRouter()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 const showFilter = ref(false)
 const activeCat = ref('')
@@ -581,13 +582,31 @@ onMounted(async () => {
     radius.value = '30'
     loadPage() // 위치 기반으로 재로드
   }
+  // URL /directory/:id 자동 오픈 (Issue #16)
+  await ensureActiveBizFromRoute()
 })
+
+async function ensureActiveBizFromRoute() {
+  const bizId = route.params.id
+  if (!bizId) return
+  try {
+    const { data } = await axios.get(`/api/businesses/${bizId}`)
+    // openItem 로직과 동일하게 상세 진입 처리
+    await openItem(data.data)
+  } catch (err) {
+    if (err.response?.status === 404) router.replace('/404')
+  }
+}
 
 watch(() => route.params.id, (newId, oldId) => {
   if (oldId && !newId) {
     loadPage()
     activeItem.value = null
     activeReviews.value = []
+    return
+  }
+  if (newId && String(newId) !== String(activeItem.value?.id)) {
+    ensureActiveBizFromRoute()
   }
 })
 </script>

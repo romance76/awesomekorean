@@ -9,14 +9,25 @@
           <h1 class="text-xl font-black text-gray-800">💬 채팅</h1>
           <button @click="showCreate = true" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">+ 새 채팅</button>
         </div>
+        <!-- 타입 필터 탭 (Issue #21) -->
+        <div class="flex gap-1 mb-2 bg-white rounded-lg border border-gray-100 p-1 text-[11px]">
+          <button v-for="t in roomFilterTabs" :key="t.value"
+            @click="roomFilter = t.value"
+            :class="['flex-1 py-1.5 rounded-md font-semibold transition',
+              roomFilter===t.value ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50']">
+            {{ t.icon }} {{ t.label }} <span class="opacity-60">{{ filterCount(t.value) }}</span>
+          </button>
+        </div>
+
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">🌐 공개 채팅방</div>
+          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">{{ currentFilterTitle }}</div>
           <div v-if="loading" class="py-4 text-center text-xs text-gray-400">로딩중...</div>
-          <button v-for="room in rooms" :key="room.id" @click="selectRoom(room)"
+          <button v-for="room in filteredRooms" :key="room.id" @click="selectRoom(room)"
             class="w-full text-left px-3 py-2.5 border-b last:border-0 transition text-xs"
             :class="activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
             <div class="flex items-center justify-between gap-1">
-              <span class="truncate flex-1">{{ room.name }}</span>
+              <span class="flex-shrink-0 text-[11px]">{{ roomTypeIcon(room.type) }}</span>
+              <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
               <!-- 한번도 안들어간 방: NEW -->
               <span v-if="room.is_new" class="text-[11px] bg-red-500 text-white font-bold px-1 py-0.5 rounded flex-shrink-0">NEW</span>
               <!-- 미읽음 있음: (N) 또는 300+ -->
@@ -26,7 +37,7 @@
               <span v-else-if="room.messages?.length" class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></span>
             </div>
           </button>
-          <div v-if="!rooms.length && !loading" class="px-3 py-4 text-xs text-gray-400 text-center">채팅방 없음</div>
+          <div v-if="!filteredRooms.length && !loading" class="px-3 py-4 text-xs text-gray-400 text-center">채팅방 없음</div>
         </div>
       </div>
 
@@ -46,8 +57,8 @@
           <!-- 채팅방 헤더 -->
           <div class="px-4 py-3 border-b bg-amber-50 flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-2">
-              <button @click="activeRoom = null; activeMessages = []" class="lg:hidden text-amber-700 text-sm font-bold mr-1">←</button>
-              <div class="font-bold text-sm text-amber-900">{{ activeRoom.name }}</div>
+              <button @click="goBackToList" class="lg:hidden text-amber-700 text-lg font-bold mr-1 px-2 py-1 -ml-2" aria-label="뒤로가기">←</button>
+              <div class="font-bold text-sm text-amber-900 truncate">{{ roomDisplayName(activeRoom) }}</div>
             </div>
             <div class="flex items-center gap-2">
               <button @click="openMsgSearch" class="text-amber-700 hover:text-amber-900 text-base" title="메시지 검색">🔍</button>
@@ -295,14 +306,94 @@
       <button class="absolute top-4 right-4 text-white text-3xl">✕</button>
     </div>
 
-    <!-- 새 채팅 모달 -->
-    <div v-if="showCreate" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showCreate = false">
-      <div class="bg-white rounded-xl p-5 w-full max-w-sm shadow-xl">
-        <h3 class="font-bold text-gray-800 mb-3">새 채팅방</h3>
-        <input v-model="newRoomName" type="text" placeholder="채팅방 이름" class="w-full border rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-amber-400 outline-none" />
-        <div class="flex gap-2">
-          <button @click="createRoom" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm flex-1 hover:bg-amber-500">만들기</button>
-          <button @click="showCreate = false" class="text-gray-500 px-4 py-2">취소</button>
+    <!-- 새 채팅 모달 (타입·참여자 선택 Issue #20) -->
+    <div v-if="showCreate" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center" @click.self="closeCreate">
+      <div class="bg-white rounded-t-xl sm:rounded-xl w-full max-w-sm shadow-xl max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b px-5 py-3 flex items-center justify-between">
+          <h3 class="font-bold text-gray-800">새 채팅</h3>
+          <button @click="closeCreate" class="text-gray-400 text-xl leading-none">×</button>
+        </div>
+
+        <!-- 타입 선택 -->
+        <div class="px-5 pt-4">
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <button v-for="t in createTypes" :key="t.value"
+              @click="createType = t.value"
+              :class="['py-2 px-2 rounded-lg text-xs font-semibold border transition',
+                createType===t.value ? 'bg-amber-400 text-amber-900 border-amber-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50']">
+              <div class="text-base mb-0.5">{{ t.icon }}</div>
+              {{ t.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- DM: 친구 1명 선택 -->
+        <div v-if="createType==='dm'" class="px-5 pb-4">
+          <div class="text-xs font-semibold text-gray-600 mb-2">1:1 대화 상대</div>
+          <input v-model="friendQuery" type="text" placeholder="친구 이름 검색..."
+            class="w-full border rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:ring-2 focus:ring-amber-400" />
+          <div v-if="friendsLoading" class="text-xs text-gray-400 text-center py-4">로딩중...</div>
+          <div v-else-if="!filteredFriends.length" class="text-xs text-gray-400 text-center py-4">
+            {{ friendQuery ? '검색 결과 없음' : '친구가 없습니다. 친구부터 추가하세요.' }}
+          </div>
+          <div v-else class="max-h-48 overflow-y-auto border rounded-lg divide-y">
+            <button v-for="f in filteredFriends" :key="f.id"
+              @click="selectedFriendIds = [f.id]"
+              :class="['w-full flex items-center gap-2 px-3 py-2 text-left text-sm',
+                selectedFriendIds.includes(f.id) ? 'bg-amber-50 text-amber-900 font-semibold' : 'hover:bg-gray-50']">
+              <img v-if="f.avatar" :src="f.avatar" class="w-7 h-7 rounded-full object-cover" />
+              <div v-else class="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700">{{ (f.nickname || f.name || '?')[0] }}</div>
+              <span class="flex-1 truncate">{{ f.nickname || f.name }}</span>
+              <span v-if="selectedFriendIds.includes(f.id)" class="text-amber-500">✓</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 그룹: 이름 + 다중 선택 -->
+        <div v-if="createType==='group'" class="px-5 pb-4 space-y-2">
+          <div>
+            <div class="text-xs font-semibold text-gray-600 mb-1">그룹 이름</div>
+            <input v-model="newRoomName" type="text" placeholder="예: 애틀란타 한식 덕후들" maxlength="50"
+              class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          </div>
+          <div>
+            <div class="text-xs font-semibold text-gray-600 mb-1 flex items-center justify-between">
+              <span>초대할 친구 <span class="text-amber-600">{{ selectedFriendIds.length }}명</span></span>
+            </div>
+            <input v-model="friendQuery" type="text" placeholder="친구 이름 검색..."
+              class="w-full border rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:ring-2 focus:ring-amber-400" />
+            <div v-if="friendsLoading" class="text-xs text-gray-400 text-center py-3">로딩중...</div>
+            <div v-else-if="!filteredFriends.length" class="text-xs text-gray-400 text-center py-3">친구가 없습니다</div>
+            <div v-else class="max-h-48 overflow-y-auto border rounded-lg divide-y">
+              <label v-for="f in filteredFriends" :key="f.id"
+                class="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                <input type="checkbox" :value="f.id" v-model="selectedFriendIds" class="accent-amber-500" />
+                <img v-if="f.avatar" :src="f.avatar" class="w-6 h-6 rounded-full object-cover" />
+                <div v-else class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-[10px] font-bold text-amber-700">{{ (f.nickname || f.name || '?')[0] }}</div>
+                <span class="flex-1 truncate">{{ f.nickname || f.name }}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 공개방 -->
+        <div v-if="createType==='public'" class="px-5 pb-4 space-y-2">
+          <div class="text-xs font-semibold text-gray-600 mb-1">공개 채팅방 이름</div>
+          <input v-model="newRoomName" type="text" placeholder="예: 둘루스 한인 모임" maxlength="50"
+            class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          <div class="text-[11px] text-gray-400">누구나 입장 가능한 공개방이 생성됩니다.</div>
+        </div>
+
+        <!-- 에러 / 버튼 -->
+        <div class="px-5 pb-5">
+          <div v-if="createError" class="text-xs text-red-500 mb-2">{{ createError }}</div>
+          <div class="flex gap-2">
+            <button @click="createRoom" :disabled="creating"
+              class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm flex-1 hover:bg-amber-500 disabled:opacity-50">
+              {{ creating ? '생성 중...' : '만들기' }}
+            </button>
+            <button @click="closeCreate" class="text-gray-500 px-4 py-2">취소</button>
+          </div>
         </div>
       </div>
     </div>
@@ -311,14 +402,15 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const siteStore = useSiteStore()
 const windowWidth = ref(window.innerWidth)
@@ -668,7 +760,7 @@ async function submitPartAction() {
   partSubmitting.value = false
 }
 
-async function selectRoom(room) {
+async function selectRoom(room, opts = {}) {
   const seq = ++selectRoomSeq
   // 이전 방에 markRead — 방 나갈 때 읽음 시각 저장
   const prevRoomId = activeRoom.value?.id
@@ -677,6 +769,11 @@ async function selectRoom(room) {
     // 리스트의 미읽음 배지 즉시 0 처리
     const prev = rooms.value.find(r => r.id === prevRoomId)
     if (prev) { prev.unread_count = 0; prev.is_new = false; prev.has_entered = true }
+  }
+
+  // URL 동기화 (/chat/:id) — route 변화로 역진입 시엔 skipRoute=true 로 중복 push 방지
+  if (!opts.skipRoute && String(route.params.id || '') !== String(room.id)) {
+    router.push(`/chat/${room.id}`)
   }
 
   activeRoom.value = room
@@ -739,26 +836,211 @@ async function sendMsg() {
   sending.value = false
 }
 
-async function createRoom() {
-  if (!newRoomName.value.trim()) return
+// ─── 타입 필터 (Issue #21) ───
+const roomFilter = ref('all')
+const roomFilterTabs = [
+  { value: 'all',    label: '전체', icon: '' },
+  { value: 'dm',     label: '쪽지', icon: '💌' },
+  { value: 'group',  label: '그룹', icon: '👥' },
+  { value: 'public', label: '공개', icon: '🌐' },
+]
+function matchesFilter(room, filter) {
+  if (filter === 'all') return true
+  if (filter === 'dm') return room.type === 'dm' || room.type === 'private'
+  return room.type === filter
+}
+const filteredRooms = computed(() => rooms.value.filter(r => matchesFilter(r, roomFilter.value)))
+function filterCount(filter) {
+  if (filter === 'all') return ''
+  const n = rooms.value.filter(r => matchesFilter(r, filter)).length
+  return n ? `(${n})` : ''
+}
+const currentFilterTitle = computed(() => {
+  if (roomFilter.value === 'dm') return '💌 1:1 쪽지'
+  if (roomFilter.value === 'group') return '👥 그룹'
+  if (roomFilter.value === 'public') return '🌐 공개 채팅방'
+  return '💬 전체 채팅방'
+})
+function roomTypeIcon(type) {
+  if (type === 'dm' || type === 'private') return '💌'
+  if (type === 'group') return '👥'
+  return '🌐'
+}
+
+// DM 방은 상대방 이름으로 라벨 표시 (Issue #22)
+function roomDisplayName(room) {
+  if (!room) return ''
+  if (room.name) return room.name
+  if (room.type === 'dm' || room.type === 'private') {
+    const others = (room.participants || room.users || []).filter(u => u.id !== auth.user?.id)
+    if (others.length) {
+      return others.map(u => u.display_name || u.nickname || u.name).join(', ')
+    }
+  }
+  return '채팅방'
+}
+
+// 뒤로가기: /chat 리스트로 복귀 (모바일에서만 보임)
+function goBackToList() {
+  // 읽음 처리
+  if (activeRoom.value?.id) {
+    try { axios.post(`/api/chat/rooms/${activeRoom.value.id}/read`) } catch {}
+  }
+  activeRoom.value = null
+  activeMessages.value = []
+  unsubscribeChannel()
+  router.push('/chat')
+}
+
+// ─── 새 채팅 모달 (Issue #20) ───
+const createTypes = [
+  { value: 'dm',     label: '1:1 쪽지',  icon: '💌' },
+  { value: 'group',  label: '그룹',      icon: '👥' },
+  { value: 'public', label: '공개방',    icon: '🌐' },
+]
+const createType = ref('dm')
+const friendList = ref([])
+const friendsLoading = ref(false)
+const friendQuery = ref('')
+const selectedFriendIds = ref([])
+const createError = ref('')
+const creating = ref(false)
+
+const filteredFriends = computed(() => {
+  const q = friendQuery.value.trim().toLowerCase()
+  const accepted = friendList.value.filter(f => f.status === 'accepted')
+  if (!q) return accepted
+  return accepted.filter(f =>
+    (f.nickname || '').toLowerCase().includes(q) ||
+    (f.name || '').toLowerCase().includes(q)
+  )
+})
+
+async function loadFriends() {
+  if (friendList.value.length) return
+  friendsLoading.value = true
   try {
-    const { data } = await axios.post('/api/chat/rooms', { name: newRoomName.value, type: 'group' })
-    rooms.value.unshift(data.data)
-    showCreate.value = false
-    newRoomName.value = ''
-    selectRoom(data.data)
+    const { data } = await axios.get('/api/friends', { params: { status: 'accepted' } })
+    // API 응답 구조: [{ friend: {...user}, status, ... }] — 친구 객체로 평탄화
+    friendList.value = (data.data || []).map(x => ({
+      id: x.friend?.id,
+      name: x.friend?.name,
+      nickname: x.friend?.nickname,
+      avatar: x.friend?.avatar,
+      status: x.status,
+    })).filter(f => f.id)
   } catch {}
+  friendsLoading.value = false
+}
+
+function closeCreate() {
+  showCreate.value = false
+  createError.value = ''
+  creating.value = false
+}
+
+// 모달 열릴 때 친구 로드
+watch(showCreate, (v) => { if (v) { loadFriends(); resetCreateForm() } })
+
+function resetCreateForm() {
+  createType.value = 'dm'
+  newRoomName.value = ''
+  friendQuery.value = ''
+  selectedFriendIds.value = []
+  createError.value = ''
+}
+
+async function createRoom() {
+  createError.value = ''
+  // 검증
+  if (createType.value === 'dm') {
+    if (!selectedFriendIds.value.length) { createError.value = '상대를 선택하세요'; return }
+  } else {
+    if (!newRoomName.value.trim()) { createError.value = '방 이름을 입력하세요'; return }
+    if (createType.value === 'group' && !selectedFriendIds.value.length) {
+      createError.value = '초대할 친구를 최소 1명 선택하세요'; return
+    }
+  }
+  creating.value = true
+  try {
+    const payload = {
+      type: createType.value,
+      name: newRoomName.value.trim() || null,
+      user_ids: selectedFriendIds.value,
+    }
+    const { data } = await axios.post('/api/chat/rooms', payload)
+    const room = data.data
+    // 목록에 없으면 상단 추가
+    if (!rooms.value.find(r => Number(r.id) === Number(room.id))) {
+      rooms.value.unshift(room)
+    }
+    closeCreate()
+    selectRoom(room)
+  } catch (e) {
+    createError.value = e.response?.data?.message || '생성 실패'
+  }
+  creating.value = false
 }
 
 const onResize = () => { windowWidth.value = window.innerWidth }
+
+// 라우트의 :id 에 해당하는 방을 열거나, 없으면 기본 선택
+async function restoreFromRoute() {
+  const routeId = Number(route.params.id)
+  if (routeId) {
+    let room = rooms.value.find(r => Number(r.id) === routeId)
+    if (!room) {
+      // 목록에 없으면 개별 조회 (DM/그룹/참여방)
+      try {
+        const { data } = await axios.get(`/api/chat/rooms/${routeId}`)
+        room = data.data || data
+      } catch (e) {
+        if (e.response?.status === 404) {
+          siteStore.toast('채팅방을 찾을 수 없습니다', 'error')
+          router.replace('/chat')
+          return
+        }
+      }
+    }
+    if (room) return selectRoom(room, { skipRoute: true })
+  }
+  // :id 없으면: PC 에서만 첫 번째 방 자동 선택
+  if (rooms.value.length && !isMobile.value) selectRoom(rooms.value[0])
+}
+
+// URL /chat/:id 변경 감지 — 브라우저 뒤/앞 또는 외부 push 반영
+watch(() => route.params.id, async (newId) => {
+  if (!newId) {
+    // /chat 로 돌아오면 active 정리
+    if (activeRoom.value) {
+      activeRoom.value = null
+      activeMessages.value = []
+      unsubscribeChannel()
+    }
+    return
+  }
+  if (String(activeRoom.value?.id) === String(newId)) return
+  const room = rooms.value.find(r => Number(r.id) === Number(newId))
+  if (room) selectRoom(room, { skipRoute: true })
+  else {
+    try {
+      const { data } = await axios.get(`/api/chat/rooms/${newId}`)
+      selectRoom(data.data || data, { skipRoute: true })
+    } catch (e) {
+      if (e.response?.status === 404) {
+        siteStore.toast('채팅방을 찾을 수 없습니다', 'error')
+        router.replace('/chat')
+      }
+    }
+  }
+})
 
 onMounted(async () => {
   window.addEventListener('resize', onResize)
   try {
     const { data } = await axios.get('/api/chat/rooms')
     rooms.value = data.data || []
-    // PC에서만 첫 번째 방 자동 선택 (모바일은 목록 먼저 보여줌)
-    if (rooms.value.length && !isMobile.value) selectRoom(rooms.value[0])
+    await restoreFromRoute()
   } catch {}
   loading.value = false
 })

@@ -10,6 +10,17 @@
           <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg">✏️ 등록</RouterLink>
         </div>
       </div>
+
+      <!-- 세그먼트 컨트롤: 매매/렌트/룸메이트 (Issue #23) -->
+      <div class="flex border rounded-lg overflow-hidden bg-white mb-2">
+        <button v-for="t in reTypeTabs" :key="t.value"
+          @click="changeReType(t.value)"
+          :class="['flex-1 py-2 text-xs font-bold transition',
+            reType===t.value ? `${t.activeBg} text-white` : 'text-gray-500 hover:bg-gray-50']">
+          {{ t.icon }} {{ t.label }}
+        </button>
+      </div>
+
       <div class="flex items-center gap-1.5 overflow-x-auto">
         <span v-if="activeCat" class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
           {{ reCategories.find(c => c.value === activeCat)?.label || activeCat }}
@@ -82,17 +93,13 @@
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
           <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 부동산</div>
-          <!-- 렌트/매매 토글 -->
+          <!-- 렌트/매매/룸메이트 토글 (Issue #23) -->
           <div class="flex border-b">
-            <button @click="reType='rent'; activeCat=''; showFavorites=false; activeItem=null; loadPage()"
+            <button v-for="t in reTypeTabs" :key="t.value"
+              @click="changeReType(t.value)"
               class="flex-1 py-1.5 text-[10px] font-bold transition"
-              :class="reType==='rent' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-50'">
-              🔑 렌트
-            </button>
-            <button @click="reType='sale'; activeCat=''; showFavorites=false; activeItem=null; loadPage()"
-              class="flex-1 py-1.5 text-[10px] font-bold transition"
-              :class="reType==='sale' ? 'bg-red-500 text-white' : 'text-gray-400 hover:bg-gray-50'">
-              🏠 매매
+              :class="reType===t.value ? `${t.activeBg} text-white` : 'text-gray-400 hover:bg-gray-50'">
+              {{ t.icon }} {{ t.label }}
             </button>
           </div>
           <!-- 전체 -->
@@ -125,11 +132,11 @@
     <div class="mb-2">
       <span v-if="showFavorites" class="font-bold text-red-600 text-sm">🔖 내 북마크</span>
       <template v-else>
-        <span class="font-bold text-sm" :class="reType==='rent' ? 'text-blue-700' : 'text-red-700'">
-          {{ reType==='rent' ? '🔑 렌트' : '🏠 매매' }}
+        <span class="font-bold text-sm" :class="reType==='rent' ? 'text-blue-700' : reType==='sale' ? 'text-red-700' : 'text-green-700'">
+          {{ reType==='rent' ? '🔑 렌트' : reType==='sale' ? '🏠 매매' : '👥 룸메이트' }}
           <span v-if="activeCat" class="text-gray-600"> · {{ currentSubcats.flatMap(g=>g.items).find(c=>c.value===activeCat)?.label || activeCat }}</span>
         </span>
-        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">{{ reType==='rent' ? '모든 렌트 매물' : '모든 매매 매물' }}</span>
+        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">{{ reType==='rent' ? '모든 렌트 매물' : reType==='sale' ? '모든 매매 매물' : '모든 룸메이트 매물' }}</span>
       </template>
     </div>
 
@@ -318,7 +325,26 @@ const route = useRoute()
 const router = useRouter()
 const showFilter = ref(false)
 const activeCat = ref('')
-const reType = ref('rent') // rent | sale
+const reType = ref('rent') // rent | sale | roommate
+
+// 세그먼트 컨트롤 탭 정의 (Issue #23)
+const reTypeTabs = [
+  { value: 'rent',     label: '렌트',     icon: '🔑', activeBg: 'bg-blue-500' },
+  { value: 'sale',     label: '매매',     icon: '🏠', activeBg: 'bg-red-500' },
+  { value: 'roommate', label: '룸메이트', icon: '👥', activeBg: 'bg-green-500' },
+]
+
+function changeReType(v) {
+  if (reType.value === v) return
+  reType.value = v
+  activeCat.value = ''
+  showFavorites.value = false
+  activeItem.value = null
+  // URL 쿼리 동기화
+  const query = { ...route.query, type: v }
+  router.replace({ query })
+  loadPage()
+}
 const showFavorites = ref(false)
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 
@@ -359,7 +385,20 @@ const saleSubcats = [
     { value: 'etc_commercial', label: '기타' },
   ]},
 ]
-const currentSubcats = computed(() => reType.value === 'rent' ? rentSubcats : saleSubcats)
+// 룸메이트 전용 서브카테고리 (선택 사항 필터)
+const roommateSubcats = [
+  { label: '룸메이트', items: [
+    { value: 'shared_room', label: '쉐어 룸' },
+    { value: 'private_room', label: '개인 룸' },
+    { value: 'master_room', label: '마스터 룸' },
+    { value: 'etc_room', label: '기타' },
+  ]},
+]
+const currentSubcats = computed(() => {
+  if (reType.value === 'rent') return rentSubcats
+  if (reType.value === 'sale') return saleSubcats
+  return roommateSubcats
+})
 
 // 내 좋아요 부동산만 로드
 async function loadFavoritesPage() {
@@ -550,9 +589,10 @@ onMounted(async () => {
   bStore.loadAll()
   await loadConfig(); viewMode.value = getDefaultView('realestate')
 
-  // URL 쿼리 파라미터 반영 (?type=sale&cat=house&fav=1)
-  if (route.query.type === 'sale') reType.value = 'sale'
-  else if (route.query.type === 'rent') reType.value = 'rent'
+  // URL 쿼리 파라미터 반영 (?type=sale|rent|roommate, cat, fav) — Issue #23
+  if (['rent', 'sale', 'roommate'].includes(route.query.type)) {
+    reType.value = route.query.type
+  }
   if (route.query.cat) activeCat.value = route.query.cat
   if (route.query.fav === '1') { showFavorites.value = true }
 

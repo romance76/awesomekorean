@@ -25,7 +25,11 @@ class ChatController extends Controller
 
         $rooms = ChatRoom::whereIn('id', $allRoomIds)
             ->withCount('users')
-            ->with(['messages' => fn($q) => $q->latest()->limit(1)->with('user:id,name,nickname,avatar,role')])
+            ->with([
+                'messages' => fn($q) => $q->latest()->limit(1)->with('user:id,name,nickname,avatar,role'),
+                // DM 방 이름 매핑(Issue #22)용 — 실제 User 엔티티 로드
+                'participants:id,name,nickname,avatar,role',
+            ])
             ->orderByDesc('updated_at')
             ->get();
 
@@ -61,6 +65,30 @@ class ChatController extends Controller
         return response()->json(['success'=>true,'data'=>$rooms]);
     }
 
+    // 단일 방 조회 (URL /chat/:id 직접 진입·새로고침 복원용)
+    public function showRoom($id) {
+        $userId = auth()->id();
+        $room = ChatRoom::with(['participants:id,name,nickname,avatar,role'])
+            ->withCount('users')
+            ->findOrFail($id);
+
+        // 공개방은 모두 허용, 그 외에는 멤버만
+        if ($room->type !== 'public') {
+            $isMember = ChatRoomUser::where('chat_room_id', $id)
+                ->where('user_id', $userId)->exists();
+            if (!$isMember) {
+                return response()->json(['success'=>false,'message'=>'접근 권한이 없습니다'], 403);
+            }
+        }
+
+        // 차단된 유저 차단
+        $banned = DB::table('chat_room_bans')
+            ->where('chat_room_id', $id)->where('user_id', $userId)->exists();
+        if ($banned) return response()->json(['success'=>false,'message'=>'차단된 방입니다'], 403);
+
+        return response()->json(['success'=>true,'data'=>$room]);
+    }
+
     // 채팅방 읽음 표시 (last_read_at = now)
     public function markRead($id) {
         $userId = auth()->id();
@@ -87,10 +115,70 @@ class ChatController extends Controller
     }
 
     public function createRoom(Request $request) {
-        $room = ChatRoom::create(['name'=>$request->name,'type'=>$request->type??'dm','created_by'=>auth()->id()]);
-        ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>auth()->id()]);
-        if ($request->user_id) ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$request->user_id]);
-        return response()->json(['success'=>true,'data'=>$room],201);
+        $data = $request->validate([
+            'name' => 'nullable|string|max:100',
+            'type' => 'required|in:dm,group,public',
+            'user_id' => 'nullable|integer|exists:users,id',     // 구버전 호환 (DM 1명)
+            'user_ids' => 'nullable|array',                        // 신규: 그룹 다중 선택
+            'user_ids.*' => 'integer|exists:users,id',
+        ]);
+
+        $meId = auth()->id();
+
+        // DM: 상대 지정 필수, 기존 1:1 방 있으면 재사용
+        if ($data['type'] === 'dm') {
+            $otherId = $data['user_id'] ?? ($data['user_ids'][0] ?? null);
+            if (!$otherId || $otherId == $meId) {
+                return response()->json(['success'=>false,'message'=>'상대를 선택하세요'], 422);
+            }
+            // 기존 DM 방 재사용 (두 유저가 모두 멤버인 dm 방)
+            $existingId = ChatRoom::where('type','dm')
+                ->whereHas('users', fn($q)=>$q->where('chat_room_users.user_id',$meId))
+                ->whereHas('users', fn($q)=>$q->where('chat_room_users.user_id',$otherId))
+                ->pluck('id')->first();
+            if ($existingId) {
+                $room = ChatRoom::findOrFail($existingId);
+                return response()->json(['success'=>true,'data'=>$room]);
+            }
+
+            $room = ChatRoom::create([
+                'name' => null,       // DM 이름은 프론트에서 상대 이름으로 렌더
+                'type' => 'dm',
+                'created_by' => $meId,
+            ]);
+            ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$meId]);
+            ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$otherId]);
+            return response()->json(['success'=>true,'data'=>$room], 201);
+        }
+
+        // 그룹: 이름 + 초대 멤버
+        if ($data['type'] === 'group') {
+            if (empty($data['name'])) {
+                return response()->json(['success'=>false,'message'=>'그룹 이름을 입력하세요'], 422);
+            }
+            $memberIds = collect($data['user_ids'] ?? [])->push($meId)->unique()->values();
+            $room = ChatRoom::create([
+                'name' => $data['name'],
+                'type' => 'group',
+                'created_by' => $meId,
+            ]);
+            foreach ($memberIds as $uid) {
+                ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$uid]);
+            }
+            return response()->json(['success'=>true,'data'=>$room], 201);
+        }
+
+        // 공개방
+        if (empty($data['name'])) {
+            return response()->json(['success'=>false,'message'=>'방 이름을 입력하세요'], 422);
+        }
+        $room = ChatRoom::create([
+            'name' => $data['name'],
+            'type' => 'public',
+            'created_by' => $meId,
+        ]);
+        ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$meId]);
+        return response()->json(['success'=>true,'data'=>$room], 201);
     }
 
     // 채팅방에 실제로 글을 남긴 유저들 (참가자) + 멤버 등록된 유저 합친 목록

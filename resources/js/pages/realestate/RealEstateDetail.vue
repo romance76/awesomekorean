@@ -366,7 +366,9 @@ onMounted(async () => {
     await nextTick()
     // Leaflet은 DOM이 완전히 렌더된 후 초기화해야 함
     setTimeout(() => initMap(), 100)
-  } catch {}
+  } catch (err) {
+    if (err.response?.status === 404) router.replace('/404')
+  }
   loading.value = false
 })
 </script>

@@ -355,7 +355,14 @@ async function loadItem() {
       const { data: trades } = await axios.get(`/api/market?user_id=${item.value.user_id}&per_page=1`)
       sellerTradeCount.value = trades.data?.total || 0
     } catch {}
-  } catch {}
+  } catch (err) {
+    // Issue #17: 존재하지 않는 id → /404
+    if (err.response?.status === 404) {
+      router.replace('/404')
+    } else {
+      siteStore.toast?.('페이지를 불러올 수 없습니다', 'error')
+    }
+  }
 }
 
 onMounted(async () => {

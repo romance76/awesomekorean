@@ -36,7 +36,9 @@
       <div class="grid grid-cols-2 gap-3">
         <div><label class="text-sm font-semibold text-gray-700">유형</label>
           <select v-model="form.type" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
-            <option value="rent">렌트</option><option value="sale">매매</option>
+            <option value="rent">🔑 렌트</option>
+            <option value="sale">🏠 매매</option>
+            <option value="roommate">👥 룸메이트</option>
           </select></div>
         <div><label class="text-sm font-semibold text-gray-700">종류</label>
           <select v-model="form.property_type" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
@@ -47,7 +49,6 @@
                 <option value="1br">1BR</option>
                 <option value="2br">2BR</option>
                 <option value="3br_plus">3BR 이상</option>
-                <option value="roommate">룸메이트</option>
                 <option value="minbak">민박</option>
                 <option value="etc_home">기타</option>
               </optgroup>
@@ -57,6 +58,15 @@
                 <option value="store_rent">상가</option>
                 <option value="building_rent">건물</option>
                 <option value="etc_commercial">기타</option>
+              </optgroup>
+            </template>
+            <!-- 룸메이트 -->
+            <template v-else-if="form.type==='roommate'">
+              <optgroup label="룸메이트">
+                <option value="shared_room">쉐어 룸</option>
+                <option value="private_room">개인 룸</option>
+                <option value="master_room">마스터 룸</option>
+                <option value="etc_room">기타</option>
               </optgroup>
             </template>
             <!-- 매매 -->

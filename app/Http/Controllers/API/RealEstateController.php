@@ -71,7 +71,7 @@ class RealEstateController extends Controller
         $request->validate([
             'title' => 'required|max:200',
             'content' => 'required',
-            'type' => 'required|in:rent,sale',
+            'type' => 'required|in:rent,sale,roommate',
             'property_type' => 'required',
             'price' => 'required|numeric',
             'images' => 'nullable|array|max:20',

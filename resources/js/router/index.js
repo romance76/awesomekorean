@@ -77,9 +77,9 @@ const routes = [
   { path: '/directory/register', name: 'business-register', component: p('directory/BusinessRegister'), meta: { auth: true } },
   { path: '/directory/:id', name: 'business-detail', component: p('directory/BusinessList') },
 
-  // Chat
+  // Chat — /chat/:id 는 동일 ChatRooms 로 라우팅 (내부에서 activeRoom 복원)
   { path: '/chat', name: 'chat', component: p('chat/ChatRooms'), meta: { auth: true } },
-  { path: '/chat/:id', name: 'chat-room', component: p('chat/ChatRoom'), meta: { auth: true } },
+  { path: '/chat/:id', name: 'chat-room', component: p('chat/ChatRooms'), meta: { auth: true } },
 
   // Games (인기 게임만 라우트, 나머지는 GameLobby에서 접근)
   { path: '/games', name: 'games', component: p('games/GameLobby') },

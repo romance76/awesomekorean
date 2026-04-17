@@ -203,7 +203,7 @@
 </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -216,6 +216,7 @@ const auth = useAuthStore()
 const bStore = useBookmarkStore()
 const BM_TYPE = 'App\\Models\\QaPost'
 const route = useRoute()
+const router = useRouter()
 const showFilter = ref(false)
 const showFavorites = ref(false)
 const favorited = ref(new Set())
@@ -360,13 +361,27 @@ onMounted(async () => {
     items.value = qRes.value.data?.data?.data || []; lastPage.value = qRes.value.data?.data?.last_page || 1
   }
 
-  // URL에 id가 있으면 해당 항목 인라인 열기
-  const itemId = route.params.id
-  if (itemId) {
-    try { const { data } = await axios.get('/api/qa/' + itemId); activeItem.value = data.data } catch {}
-  }
+  // URL에 id가 있으면 해당 항목 인라인 열기 (Issue #16)
+  await ensureActiveFromRoute()
   loading.value = false
 })
+
+// URL /qa/:id 자동 오픈 + 404 처리 (Issue #16 / #17)
+async function ensureActiveFromRoute() {
+  const itemId = route.params.id
+  if (!itemId) return
+  try {
+    const { data } = await axios.get('/api/qa/' + itemId)
+    activeItem.value = data.data
+    answers.value = data.data?.answers || []
+    currentIdx.value = items.value.findIndex(i => Number(i.id) === Number(itemId))
+    if (activeItem.value?.category_id) {
+      activeCat.value = categories.value.find(c => c.id === activeItem.value.category_id) || activeCat.value
+    }
+  } catch (err) {
+    if (err.response?.status === 404) router.replace('/404')
+  }
+}
 
 // URL 쿼리 변경 시 카테고리 반영
 watch(() => route.query.category, (catId) => {
@@ -380,6 +395,10 @@ watch(() => route.params.id, (newId, oldId) => {
     loadQa()
     activeItem.value = null
     answers.value = []
+    return
+  }
+  if (newId && String(newId) !== String(activeItem.value?.id)) {
+    ensureActiveFromRoute()
   }
 })
 </script>

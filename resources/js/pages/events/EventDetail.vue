@@ -205,7 +205,9 @@ onMounted(async () => {
     const { data } = await axios.get(`/api/events/${route.params.id}`)
     event.value = data.data
     myStatus.value = data.data.my_status || null
-  } catch {}
+  } catch (err) {
+    if (err.response?.status === 404) router.replace('/404')
+  }
   loading.value = false
 })
 </script>

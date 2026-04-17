@@ -181,7 +181,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import AdSlot from '../../components/AdSlot.vue'
@@ -191,6 +191,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
 
 const route = useRoute()
+const router = useRouter()
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -360,29 +361,38 @@ onMounted(async () => {
     }
   }
 
-  // URL에 id가 있으면 해당 글을 인라인으로 열기
-  const postId = route.params.id
-  if (postId) {
-    try {
-      const { data } = await axios.get(`/api/posts/${postId}`)
-      activeItem.value = data.data
-      // 댓글도 로드
-      try {
-        const { data: cData } = await axios.get(`/api/comments/post/${postId}`)
-        comments.value = cData.data || []
-      } catch {}
-    } catch {}
-  }
+  // URL에 id가 있으면 해당 글을 인라인으로 열기 (Issue #16)
+  await ensureActivePostFromRoute()
 
   loading.value = false
 })
 
-// 같은 컴포넌트 내 라우트 변경 감지 (상세→리스트 복귀 시 새로 로드)
+async function ensureActivePostFromRoute() {
+  const postId = route.params.id
+  if (!postId) return
+  try {
+    const { data } = await axios.get(`/api/posts/${postId}`)
+    activeItem.value = data.data
+    // 댓글 로드
+    try {
+      const { data: cData } = await axios.get(`/api/comments/post/${postId}`)
+      comments.value = cData.data || []
+    } catch {}
+  } catch (err) {
+    if (err.response?.status === 404) router.replace('/404')
+  }
+}
+
+// 같은 컴포넌트 내 라우트 변경 감지 (상세↔리스트)
 watch(() => route.params.id, (newId, oldId) => {
   if (oldId && !newId) {
     // 상세에서 리스트로 복귀 → 리스트 새로고침
     loadPosts()
     activeItem.value = null
+    return
+  }
+  if (newId && String(newId) !== String(activeItem.value?.id)) {
+    ensureActivePostFromRoute()
   }
 })
 

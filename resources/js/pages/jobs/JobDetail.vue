@@ -490,6 +490,7 @@ async function loadJob(id) {
     sameCategoryJobs.value = sameRaw
   } catch (e) {
     job.value = null
+    if (e.response?.status === 404) router.replace('/404')
   }
   loading.value = false
   // 즐겨찾기 체크

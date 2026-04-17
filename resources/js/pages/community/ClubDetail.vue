@@ -716,8 +716,9 @@ async function loadClub() {
     if (auth.isLoggedIn) {
       try { const { data: mc } = await axios.get('/api/my-clubs'); myClubs.value = mc.data || [] } catch {}
     }
-  } catch {
+  } catch (err) {
     club.value = null
+    if (err.response?.status === 404) router.replace('/404')
   }
   loading.value = false
   // 하트 체크

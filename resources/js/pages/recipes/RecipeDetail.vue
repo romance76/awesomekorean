@@ -268,7 +268,9 @@ async function loadRecipe(id) {
     recipe.value = data.data || data
     myRating.value = recipe.value?.my_rating || 0
     await loadComments()
-  } catch {}
+  } catch (err) {
+    if (err.response?.status === 404) router.replace('/404')
+  }
   loading.value = false
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
