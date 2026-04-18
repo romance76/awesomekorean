@@ -50,7 +50,10 @@
     <!-- 📝 게시글 -->
     <div v-if="activeTab==='posts'">
       <AdminListView :icon="icon" :title="''" :api-url="apiUrl" :delete-url="deleteUrl || apiUrl"
-        :extra-cols="extraCols" :board-slug="slug" @open-user="u => $emit('openUser', u)" />
+        :extra-cols="extraCols" :board-slug="slug"
+        :category-filter="postCategoryFilter" :category-filter-label="postCategoryFilterLabel"
+        @open-user="u => $emit('openUser', u)"
+        @clear-filter="postCategoryFilter = null; postCategoryFilterLabel = ''" />
     </div>
 
     <!-- 📂 카테고리 -->
@@ -79,6 +82,9 @@
           <label class="text-xs flex items-center gap-1"><input type="checkbox" v-model="c.is_active"> 활성</label>
           <span v-if="c.post_count" class="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded">{{ c.post_count }}개</span>
           <span v-if="c.auto_detected" class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">자동감지</span>
+          <button @click="viewCategoryPosts(c)" class="text-[10px] bg-amber-400 text-amber-900 px-2 py-1 rounded hover:bg-amber-500 font-bold">
+            📝 게시글 보기
+          </button>
           <button @click="removeCategory(i)" class="text-red-500 text-xs px-2">삭제</button>
         </div>
       </div>
@@ -259,6 +265,15 @@ const tabs = computed(() => [
 const overview = ref({})
 const categories = ref([])
 const usesTable = ref(false)
+const postCategoryFilter = ref(null)
+const postCategoryFilterLabel = ref('')
+
+function viewCategoryPosts(c) {
+  // FK 기반이면 id, 문자열 기반이면 slug/name 사용
+  postCategoryFilter.value = c.id || c.slug || c.name
+  postCategoryFilterLabel.value = c.name || c.slug
+  activeTab.value = 'posts'
+}
 const settingValues = ref({})
 const pointValues = ref({})
 const banners = ref([])

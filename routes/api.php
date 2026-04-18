@@ -463,6 +463,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::post('/posts/{id}/toggle',   [$c, 'toggleField']);
         Route::post('/posts/{id}/category', [$c, 'changeCategory']);
         Route::post('/posts/{id}/points',   [$c, 'adjustPoints']);
+        // 댓글 관리
+        Route::post('/comments/{id}/toggle', [$c, 'toggleComment']);
+        Route::delete('/comments/{id}',      [$c, 'deleteComment']);
     });
 
     Route::get('/users', [AdminController::class, 'users']);

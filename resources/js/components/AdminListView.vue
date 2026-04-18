@@ -5,7 +5,11 @@
 
   <!-- 검색 + 필터 -->
   <div class="bg-white rounded-xl shadow-sm border p-3 mb-4">
-    <div class="flex flex-wrap gap-2">
+    <div class="flex flex-wrap gap-2 items-center">
+      <div v-if="categoryFilter" class="flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-3 py-1 text-xs">
+        📂 카테고리: <strong>{{ categoryFilterLabel || categoryFilter }}</strong>
+        <button @click="$emit('clearFilter')" class="ml-1 text-blue-500 hover:text-blue-700">✕</button>
+      </div>
       <slot name="filters"></slot>
       <form @submit.prevent="load()" class="flex-1 flex gap-1 min-w-[150px]">
         <input v-model="search" type="text" placeholder="제목/작성자 검색..." class="flex-1 border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
@@ -177,6 +181,49 @@
         <!-- 본문 -->
         <div v-if="!editMode" class="px-4 py-3 border-t text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto">{{ activeItem.content || activeItem.description || '(내용 없음)' }}</div>
 
+        <!-- 댓글 + 답글 -->
+        <div v-if="detailData?.comments" class="px-4 py-3 border-t">
+          <div class="text-xs font-bold text-gray-700 mb-2">💬 댓글 {{ commentTotalCount }}개</div>
+          <div v-if="!detailData.comments.length" class="text-[10px] text-gray-400 py-2">댓글이 없습니다</div>
+          <div v-else class="space-y-2 max-h-[300px] overflow-y-auto">
+            <div v-for="c in detailData.comments" :key="c.id" class="border rounded p-2 bg-gray-50">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1 text-[10px] mb-1">
+                    <button @click="$emit('openUser', c.user)" class="text-blue-600 hover:underline font-semibold">{{ c.user?.name || '?' }}</button>
+                    <span class="text-gray-400">·</span>
+                    <span class="text-gray-500">{{ c.created_at?.slice(0,16).replace('T',' ') }}</span>
+                    <span v-if="c.like_count" class="text-red-500">♥ {{ c.like_count }}</span>
+                    <span v-if="c.is_hidden" class="bg-gray-300 text-gray-700 px-1 rounded">숨김</span>
+                  </div>
+                  <div class="text-xs text-gray-700 whitespace-pre-wrap" :class="c.is_hidden ? 'line-through text-gray-400' : ''">{{ c.content }}</div>
+                </div>
+                <div class="flex gap-1 shrink-0">
+                  <button @click="toggleCommentHide(c)" class="text-[10px] text-orange-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
+                  <button @click="deleteComment(c)" class="text-[10px] text-red-500 hover:underline">삭제</button>
+                </div>
+              </div>
+              <!-- 답글 -->
+              <div v-if="c.replies?.length" class="mt-2 ml-4 space-y-1 border-l-2 border-amber-200 pl-2">
+                <div v-for="r in c.replies" :key="r.id" class="text-[11px]">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1">
+                      <span class="text-blue-600 font-semibold">↳ {{ r.user?.name || '?' }}</span>
+                      <span class="text-gray-400 ml-1">{{ r.created_at?.slice(5,16).replace('T',' ') }}</span>
+                      <span v-if="r.is_hidden" class="bg-gray-300 text-gray-700 px-1 rounded ml-1">숨김</span>
+                      <div class="text-gray-700 mt-0.5" :class="r.is_hidden ? 'line-through text-gray-400' : ''">{{ r.content }}</div>
+                    </div>
+                    <div class="flex gap-1 shrink-0">
+                      <button @click="toggleCommentHide(r)" class="text-[10px] text-orange-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
+                      <button @click="deleteComment(r)" class="text-[10px] text-red-500">삭제</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 포인트 내역 -->
         <div v-if="detailData?.point_logs?.length" class="px-4 py-3 border-t">
           <div class="text-xs font-bold text-gray-700 mb-2">💰 이 게시글 관련 포인트 ({{ detailData.point_logs.length }})</div>
@@ -243,7 +290,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
 
 const props = defineProps({
@@ -255,9 +302,12 @@ const props = defineProps({
   extraCols: { type: Array, default: () => [] },
   // board-manager 모드: slug 주면 /api/admin/board-manager/{slug}/* 를 사용 (관리 액션 지원)
   boardSlug: { type: String, default: null },
+  // 카테고리 필터 (외부에서 주입 — 카테고리 탭에서 "게시글 보기" 클릭 시)
+  categoryFilter: { type: [String, Number], default: null },
+  categoryFilterLabel: { type: String, default: '' },
 })
 
-const emit = defineEmits(['openUser'])
+const emit = defineEmits(['openUser', 'clearFilter'])
 
 const items = ref([]); const loading = ref(true)
 const page = ref(1); const lastPage = ref(1); const total = ref(0)
@@ -273,6 +323,32 @@ const showMoveModal = ref(false)
 const newCategory = ref('')
 
 const actions = computed(() => detailData.value?.actions || {})
+const commentTotalCount = computed(() => {
+  const cs = detailData.value?.comments || []
+  return cs.reduce((sum, c) => sum + 1 + (c.replies?.length || 0), 0)
+})
+
+async function toggleCommentHide(c) {
+  if (!props.boardSlug) return
+  try {
+    const { data } = await axios.post(`/api/admin/board-manager/${props.boardSlug}/comments/${c.id}/toggle`, { field: 'is_hidden' })
+    c.is_hidden = data.data.is_hidden
+  } catch (e) { alert(e.response?.data?.message || '실패') }
+}
+
+async function deleteComment(c) {
+  if (!props.boardSlug) return
+  if (!confirm('댓글을 삭제하시겠습니까? (답글도 함께 삭제됩니다)')) return
+  try {
+    await axios.delete(`/api/admin/board-manager/${props.boardSlug}/comments/${c.id}`)
+    // 로컬 업데이트
+    const comments = detailData.value?.comments || []
+    for (let i = comments.length - 1; i >= 0; i--) {
+      if (comments[i].id === c.id) { comments.splice(i, 1); return }
+      comments[i].replies = (comments[i].replies || []).filter(r => r.id !== c.id)
+    }
+  } catch (e) { alert(e.response?.data?.message || '실패') }
+}
 
 function getNestedVal(obj, key) {
   return key.split('.').reduce((o, k) => o?.[k], obj) || '-'
@@ -374,14 +450,26 @@ async function load(p=1) {
   loading.value = true; page.value = p
   const params = { page: p, per_page: 20 }
   if (search.value) params.search = search.value
+  if (props.categoryFilter !== null && props.categoryFilter !== undefined && props.categoryFilter !== '') {
+    params.category = props.categoryFilter
+    params.category_id = props.categoryFilter
+    params.board_id = props.categoryFilter
+  }
+  // board-manager 모드면 관리자 posts 엔드포인트 사용 (필터 지원)
+  const url = props.boardSlug
+    ? `/api/admin/board-manager/${props.boardSlug}/posts`
+    : props.apiUrl
   try {
-    const { data } = await axios.get(props.apiUrl, { params })
+    const { data } = await axios.get(url, { params })
     items.value = data.data?.data || data.data || []
     lastPage.value = data.data?.last_page || 1
     total.value = data.data?.total || items.value.length
   } catch {}
   loading.value = false
 }
+
+// 카테고리 필터 변경 시 자동 재로드
+watch(() => props.categoryFilter, () => load(1))
 
 async function deleteItem(item) {
   if (!confirm('정말 삭제하시겠습니까?')) return

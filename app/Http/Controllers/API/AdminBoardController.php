@@ -130,6 +130,17 @@ class AdminBoardController extends Controller
         $item = $model::with('user:id,name,email,nickname')->findOrFail($id);
         $fields = (new $model)->getFillable();
 
+        // 카테고리 이름도 함께 로드 (FK 기반)
+        if ($cfg['category_model']) {
+            $catField = $cfg['category_field'] ?? 'category';
+            $catId = $item->$catField ?? null;
+            if ($catId) {
+                $catModel = $cfg['category_model'];
+                $cat = $catModel::find($catId);
+                $item->setAttribute('_category_name', $cat?->name);
+            }
+        }
+
         $actions = [
             'pin'            => in_array('is_pinned', $fields),
             'hide'           => in_array('is_hidden', $fields),
@@ -145,22 +156,58 @@ class AdminBoardController extends Controller
             'editable_fields'=> array_values(array_intersect($fields, ['title','name','content','description','price','category','city','state'])),
         ];
 
+        // 댓글 + 답글 (polymorphic: commentable_type = model class, commentable_id = post id)
+        $comments = Comment::with([
+                'user:id,name,email,nickname',
+                'replies.user:id,name,email,nickname',
+            ])
+            ->where('commentable_type', $model)
+            ->where('commentable_id', $id)
+            ->whereNull('parent_id')  // 최상위 댓글만 (답글은 replies 로 중첩)
+            ->orderByDesc('created_at')
+            ->get();
+
         // 게시글 관련 포인트 로그
         $pointLogs = PointLog::where('related_type', $model)
             ->where('related_id', $id)
             ->orderByDesc('created_at')->limit(20)->get();
 
-        // 신고 수
-        $reports = Report::where('reportable_type', $model)
+        // 신고
+        $reports = Report::with('reporter:id,name,email')
+            ->where('reportable_type', $model)
             ->where('reportable_id', $id)
             ->orderByDesc('created_at')->get();
 
         return response()->json(['success' => true, 'data' => [
             'item' => $item,
             'actions' => $actions,
+            'comments' => $comments,
             'point_logs' => $pointLogs,
             'reports' => $reports,
         ]]);
+    }
+
+    /**
+     * 댓글 삭제/숨김
+     */
+    public function toggleComment(string $slug, $commentId, Request $request)
+    {
+        $this->config($slug);
+        $comment = Comment::findOrFail($commentId);
+        $field = $request->input('field', 'is_hidden');
+        if ($field === 'is_hidden') {
+            $comment->update(['is_hidden' => !$comment->is_hidden]);
+            return response()->json(['success'=>true,'data'=>['is_hidden'=>$comment->is_hidden]]);
+        }
+        return response()->json(['success'=>false], 422);
+    }
+
+    public function deleteComment(string $slug, $commentId)
+    {
+        $this->config($slug);
+        Comment::where('id', $commentId)->delete();
+        Comment::where('parent_id', $commentId)->delete(); // 답글도 같이
+        return response()->json(['success'=>true]);
     }
 
     /**
