@@ -21,7 +21,7 @@ class AdminBoardController extends Controller
     protected array $registry = [
         'market'     => ['model' => MarketItem::class,        'label' => '장터',    'icon' => '🛒', 'has_category_field' => true,  'category_model' => null],
         'jobs'       => ['model' => JobPost::class,           'label' => '구인구직', 'icon' => '💼', 'has_category_field' => true,  'category_model' => null],
-        'realestate' => ['model' => RealEstateListing::class, 'label' => '부동산',  'icon' => '🏠', 'has_category_field' => false, 'category_model' => null, 'category_field' => 'property_type'],
+        'realestate' => ['model' => RealEstateListing::class, 'label' => '부동산',  'icon' => '🏠', 'has_category_field' => true,  'category_model' => null, 'category_field' => 'property_type'],
         'events'     => ['model' => Event::class,             'label' => '이벤트',  'icon' => '🎉', 'has_category_field' => true,  'category_model' => null],
         'clubs'      => ['model' => Club::class,              'label' => '동호회',  'icon' => '👥', 'has_category_field' => true,  'category_model' => null],
         'qa'         => ['model' => QaPost::class,            'label' => 'Q&A',    'icon' => '❓', 'has_category_field' => true,  'category_model' => QaCategory::class, 'category_field' => 'category_id'],
@@ -97,7 +97,11 @@ class AdminBoardController extends Controller
     {
         $cfg = $this->config($slug);
         $model = $cfg['model'];
-        $query = $model::query()->with('user:id,name,email,nickname')->latest();
+        $fields = (new $model)->getFillable();
+        $query = $model::query()->latest();
+        if (in_array('user_id', $fields) && method_exists(new $model, 'user')) {
+            $query->with('user:id,name,email,nickname');
+        }
 
         if ($request->search) {
             $s = "%{$request->search}%";
@@ -127,8 +131,13 @@ class AdminBoardController extends Controller
     {
         $cfg = $this->config($slug);
         $model = $cfg['model'];
-        $item = $model::with('user:id,name,email,nickname')->findOrFail($id);
         $fields = (new $model)->getFillable();
+        // user 관계는 user_id 있는 모델만 로드 (News 등은 없음)
+        $query = $model::query();
+        if (in_array('user_id', $fields) && method_exists(new $model, 'user')) {
+            $query->with('user:id,name,email,nickname');
+        }
+        $item = $query->findOrFail($id);
 
         // 카테고리 이름도 함께 로드 (FK 기반)
         if ($cfg['category_model']) {

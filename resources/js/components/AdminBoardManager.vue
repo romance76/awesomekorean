@@ -92,6 +92,11 @@
       </div>
     </div>
 
+    <!-- 커스텀 탭 슬롯 (부모가 탭 키를 render) -->
+    <div v-else-if="isCustomTab(activeTab)">
+      <slot :name="`tab-${activeTab}`"></slot>
+    </div>
+
     <!-- ⚙️ 설정 -->
     <div v-else-if="activeTab==='set'">
       <div class="text-sm text-gray-600 mb-3">이 게시판만의 기본 설정입니다. 키 형식: <code class="bg-gray-100 px-1 rounded">board.{{ slug }}.*</code></div>
@@ -251,18 +256,27 @@ const props = defineProps({
   // 게시판 고유 설정 스키마 (key → { label, type, default, options })
   settingSchema: { type: Object, default: () => ({}) },
   pointSchema:   { type: Object, default: () => ({}) },
+  // 커스텀 탭 (slug 별 추가 탭 — key/label/icon, 삽입 위치는 afterCategory 또는 afterPosts)
+  customTabs: { type: Array, default: () => [] },
 })
 defineEmits(['openUser'])
 
 const activeTab = ref('posts')
-const tabs = computed(() => [
-  { key: 'posts', label: '📝 게시글' },
-  { key: 'cat',   label: '📂 카테고리' },
-  { key: 'set',   label: '⚙️ 설정' },
-  { key: 'point', label: '💰 포인트' },
-  { key: 'ban',   label: '📢 배너/광고', badge: bannerStats.value?.pending || 0 },
-  { key: 'rep',   label: '🚨 신고', badge: overview.value?.pending_reports || 0 },
-])
+const tabs = computed(() => {
+  const base = [
+    { key: 'posts', label: '📝 게시글' },
+    { key: 'cat',   label: '📂 카테고리' },
+  ]
+  // afterCategory 위치의 커스텀 탭 (예: 공구 승인)
+  const afterCat = (props.customTabs || []).filter(t => !t.position || t.position === 'afterCategory')
+  const rest = [
+    { key: 'set',   label: '⚙️ 설정' },
+    { key: 'point', label: '💰 포인트' },
+    { key: 'ban',   label: '📢 배너/광고', badge: bannerStats.value?.pending || 0 },
+    { key: 'rep',   label: '🚨 신고', badge: overview.value?.pending_reports || 0 },
+  ]
+  return [...base, ...afterCat, ...rest]
+})
 
 const overview = ref({})
 const categories = ref([])
@@ -280,6 +294,10 @@ function viewCategoryPosts(c) {
 function onSetCategoryFilter({ value, label }) {
   postCategoryFilter.value = value
   postCategoryFilterLabel.value = label
+}
+
+function isCustomTab(key) {
+  return (props.customTabs || []).some(t => t.key === key)
 }
 const settingValues = ref({})
 const pointValues = ref({})

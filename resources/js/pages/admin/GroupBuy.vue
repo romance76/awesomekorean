@@ -1,35 +1,52 @@
 <template>
 <div>
-  <!-- 승인 대기 공구 -->
-  <div v-if="pending.length" class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
-    <div class="flex justify-between items-center mb-2">
-      <div class="font-bold text-sm text-orange-800">⏳ 승인 대기 공동구매 {{ pending.length }}건</div>
-      <button @click="loadPending" class="text-xs text-orange-700 hover:underline">새로고침</button>
-    </div>
-    <div class="space-y-1">
-      <div v-for="item in pending" :key="item.id" class="flex items-center gap-2 text-xs bg-white rounded p-2">
-        <span class="flex-1 font-medium truncate">{{ item.title }}</span>
-        <span class="text-gray-500">{{ item.category }}</span>
-        <span class="text-gray-500">${{ item.original_price }} → ${{ item.group_price }}</span>
-        <span class="text-gray-500">{{ item.user?.name }}</span>
-        <a v-if="item.business_doc" :href="item.business_doc" target="_blank" class="text-blue-600">사업자증</a>
-        <button @click="approve(item.id)" class="bg-green-500 text-white px-2 py-0.5 rounded text-[10px]">승인</button>
-        <button @click="reject(item.id)" class="bg-red-500 text-white px-2 py-0.5 rounded text-[10px]">거절</button>
-      </div>
-    </div>
-  </div>
-
   <AdminBoardManager
     slug="groupbuy"
     label="공동구매"
     icon="🛍"
     api-url="/api/groupbuys"
     delete-url="/api/admin/groupbuys"
-    :extra-cols='[{"key":"category","label":"카테고리"},{"key":"status","label":"상태"},{"key":"current_participants","label":"참여"},{"key":"group_price","label":"공동가"},{"key":"is_approved","label":"승인"}]'
+    :extra-cols='[{"key":"category","label":"카테고리"},{"key":"status","label":"상태"},{"key":"current_participants","label":"참여"},{"key":"group_price","label":"공동가"}]'
     :setting-schema="settingSchema"
     :point-schema="pointSchema"
+    :custom-tabs="[{ key: 'approval', label: '⏳ 승인 대기', badge: pending.length, position: 'afterCategory' }]"
     @open-user="u => { selectedUserId = u?.id; showUser = true }"
-  />
+  >
+    <template #tab-approval>
+      <div class="mb-3 flex justify-between items-center">
+        <div class="text-sm text-gray-600">공동구매 신규 등록 건은 승인 후 공개됩니다</div>
+        <button @click="loadPending" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded">🔄 새로고침</button>
+      </div>
+
+      <div v-if="pending.length === 0" class="text-center text-gray-400 py-12 text-sm">
+        ✅ 승인 대기 중인 공동구매가 없습니다
+      </div>
+
+      <div v-else class="space-y-2">
+        <div v-for="item in pending" :key="item.id" class="border rounded-lg p-3 bg-orange-50/50 hover:bg-orange-50 transition">
+          <div class="flex items-start gap-3">
+            <img v-if="item.images && item.images[0]" :src="item.images[0]" class="w-16 h-16 object-cover rounded shrink-0" @error="e=>e.target.style.display='none'" />
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">{{ item.title }}</div>
+              <div class="flex gap-3 text-xs text-gray-500 mt-1 flex-wrap">
+                <span>📂 {{ item.category }}</span>
+                <span>💰 ${{ item.original_price }} → ${{ item.group_price }}</span>
+                <span>👥 최소 {{ item.min_participants }}명</span>
+                <button @click="$emit('openUser', item.user)" class="text-blue-600 hover:underline">👤 {{ item.user?.name }}</button>
+                <a v-if="item.business_doc" :href="item.business_doc" target="_blank" class="text-amber-700 hover:underline">📎 사업자등록증</a>
+                <span class="text-gray-400">{{ item.created_at?.slice(0,10) }}</span>
+              </div>
+              <div v-if="item.content" class="text-xs text-gray-600 mt-2 line-clamp-2">{{ item.content }}</div>
+            </div>
+            <div class="flex flex-col gap-1 shrink-0">
+              <button @click="approve(item.id)" class="bg-green-500 hover:bg-green-600 text-white font-bold px-3 py-1 rounded text-xs">✅ 승인</button>
+              <button @click="reject(item.id)" class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1 rounded text-xs">❌ 거절</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </AdminBoardManager>
   <AdminUserModal :show="showUser" :user-id="selectedUserId" @close="showUser=false" />
 </div>
 </template>
@@ -46,7 +63,7 @@ const pending = ref([])
 
 async function loadPending() {
   try {
-    const { data } = await axios.get('/api/groupbuys', { params: { is_approved: 0, admin: 1, per_page: 20 } })
+    const { data } = await axios.get('/api/groupbuys', { params: { is_approved: 0, admin: 1, per_page: 50 } })
     pending.value = data.data?.data || []
   } catch {}
 }
@@ -79,7 +96,6 @@ const pointSchema = {
   groupbuy_create:  { label: '공구 등록 (승인 후)',    default: 50, daily_max: 1 },
   groupbuy_join:    { label: '공구 참여',             default: 10, daily_max: 5 },
   groupbuy_complete:{ label: '공구 완료 (주최자)',    default: 100, daily_max: 0 },
-  rejected:         { label: '거절된 공구 (-차감)',    is_deduction: true, default: -0, daily_max: 0 },
   reported:         { label: '신고 당함 (-차감)',      is_deduction: true, default: -20, daily_max: 0 },
 }
 
