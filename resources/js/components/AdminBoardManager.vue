@@ -9,6 +9,20 @@
     </div>
   </div>
 
+  <!-- 대분류 탭 (jobs: 구인/구직, realestate: 렌트/매매/룸메이트) -->
+  <div v-if="majorTypes && majorTypes.length" class="flex gap-2 mb-4 flex-wrap">
+    <button @click="setMajorType('')"
+      class="px-4 py-2 rounded-lg text-sm font-bold border transition"
+      :class="!activeMajorType ? 'bg-amber-400 text-amber-900 border-amber-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-amber-50'">
+      전체 ({{ overview.total || 0 }})
+    </button>
+    <button v-for="mt in majorTypes" :key="mt.key" @click="setMajorType(mt.key)"
+      class="px-4 py-2 rounded-lg text-sm font-bold border transition"
+      :class="activeMajorType === mt.key ? 'bg-amber-400 text-amber-900 border-amber-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-amber-50'">
+      {{ mt.label }} ({{ mt.count }})
+    </button>
+  </div>
+
   <!-- 통계 카드 -->
   <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
     <div class="bg-white rounded-lg border p-3">
@@ -53,6 +67,7 @@
         :extra-cols="extraCols" :board-slug="slug"
         :categories="categories" :uses-table="usesTable"
         :category-filter="postCategoryFilter" :category-filter-label="postCategoryFilterLabel"
+        :major-type="activeMajorType"
         @open-user="u => $emit('openUser', u)"
         @clear-filter="postCategoryFilter = null; postCategoryFilterLabel = ''"
         @set-category-filter="onSetCategoryFilter" />
@@ -62,7 +77,13 @@
     <div v-else-if="activeTab==='cat'">
       <div class="flex justify-between items-center mb-3">
         <div class="text-sm text-gray-600">
-          {{ label }} 전용 카테고리
+          <span v-if="activeMajorType">
+            <strong class="text-amber-700">{{ activeMajorTypeLabel }}</strong> 카테고리
+          </span>
+          <span v-else>{{ label }} 전용 카테고리</span>
+          <span v-if="majorTypes.length && !activeMajorType" class="text-[10px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded ml-1">
+            ⚠️ 상단에서 대분류 선택 필요
+          </span>
           <span v-if="usesTable" class="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded ml-1">DB 테이블</span>
           <span v-else class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded ml-1">설정 저장</span>
         </div>
@@ -70,6 +91,9 @@
           <button @click="addCategory" class="bg-blue-600 text-white rounded px-3 py-1.5 text-sm">+ 추가</button>
           <button @click="saveCategories" class="bg-amber-400 text-amber-900 font-bold rounded px-3 py-1.5 text-sm">저장</button>
         </div>
+      </div>
+      <div v-if="majorTypes.length && !activeMajorType" class="bg-orange-50 border border-orange-200 rounded p-3 text-sm text-orange-800 mb-3">
+        💡 이 게시판은 <strong>대분류별로 카테고리가 분리</strong>되어 있습니다. 위의 {{ majorTypes.map(m=>m.label).join(' / ') }} 중 하나를 먼저 선택하세요.
       </div>
       <div v-if="hasAutoDetected" class="bg-blue-50 border border-blue-200 text-blue-800 rounded p-2 text-xs mb-3">
         💡 기존 데이터에서 자동 감지된 카테고리입니다. 이름을 한글로 수정하고 <strong>"저장"</strong>을 누르면 확정됩니다.
@@ -283,6 +307,20 @@ const categories = ref([])
 const usesTable = ref(false)
 const postCategoryFilter = ref(null)
 const postCategoryFilterLabel = ref('')
+const activeMajorType = ref('')
+
+const majorTypes = computed(() => overview.value?.major_types_breakdown || [])
+const activeMajorTypeLabel = computed(() => {
+  const m = majorTypes.value.find(mt => mt.key === activeMajorType.value)
+  return m?.label || ''
+})
+
+function setMajorType(key) {
+  activeMajorType.value = key
+  postCategoryFilter.value = null
+  postCategoryFilterLabel.value = ''
+  loadCategories()
+}
 
 function viewCategoryPosts(c) {
   // FK 기반이면 id, 문자열 기반이면 slug/name 사용
@@ -314,7 +352,9 @@ async function loadOverview() {
 
 async function loadCategories() {
   try {
-    const { data } = await axios.get(`/api/admin/board-manager/${props.slug}/categories`)
+    const params = {}
+    if (activeMajorType.value) params.major_type = activeMajorType.value
+    const { data } = await axios.get(`/api/admin/board-manager/${props.slug}/categories`, { params })
     categories.value = (data.data || []).map(c => ({
       id: c.id,
       name: c.name || '',
@@ -332,7 +372,9 @@ function addCategory() { categories.value.push({ name: '', slug: '', icon: '🏷
 function removeCategory(i) { categories.value.splice(i, 1) }
 async function saveCategories() {
   try {
-    await axios.post(`/api/admin/board-manager/${props.slug}/categories`, { categories: categories.value })
+    const payload = { categories: categories.value }
+    if (activeMajorType.value) payload.major_type = activeMajorType.value
+    await axios.post(`/api/admin/board-manager/${props.slug}/categories`, payload)
     alert('카테고리가 저장되었습니다')
     loadCategories()
   } catch (e) { alert(e.response?.data?.message || '저장 실패') }

@@ -83,8 +83,7 @@ const subTabs = {
   member: [
     { to: '/admin/members', icon: '👥', label: '회원관리' },
     { to: '/admin/friends', icon: '👫', label: '친구' },
-    { to: '/admin/chats', icon: '💬', label: '채팅' },
-    { to: '/admin/calls', icon: '📞', label: '통화' },
+    { to: '/admin/communication', icon: '💬', label: '채팅·통화' },
   ],
   board: [
     { to: '/admin/community', icon: '💬', label: '커뮤니티' },

@@ -20,8 +20,8 @@ class AdminBoardController extends Controller
      */
     protected array $registry = [
         'market'     => ['model' => MarketItem::class,        'label' => '장터',    'icon' => '🛒', 'has_category_field' => true,  'category_model' => null],
-        'jobs'       => ['model' => JobPost::class,           'label' => '구인구직', 'icon' => '💼', 'has_category_field' => true,  'category_model' => null],
-        'realestate' => ['model' => RealEstateListing::class, 'label' => '부동산',  'icon' => '🏠', 'has_category_field' => true,  'category_model' => null, 'category_field' => 'property_type'],
+        'jobs'       => ['model' => JobPost::class,           'label' => '구인구직', 'icon' => '💼', 'has_category_field' => true,  'category_model' => null, 'major_type_field' => 'post_type', 'major_types' => ['hiring' => '💼 구인', 'seeking' => '🙋 구직']],
+        'realestate' => ['model' => RealEstateListing::class, 'label' => '부동산',  'icon' => '🏠', 'has_category_field' => true,  'category_model' => null, 'category_field' => 'property_type', 'major_type_field' => 'type', 'major_types' => ['rent' => '🏘 렌트', 'sale' => '💰 매매', 'roommate' => '👥 룸메이트']],
         'events'     => ['model' => Event::class,             'label' => '이벤트',  'icon' => '🎉', 'has_category_field' => true,  'category_model' => null],
         'clubs'      => ['model' => Club::class,              'label' => '동호회',  'icon' => '👥', 'has_category_field' => true,  'category_model' => null],
         'qa'         => ['model' => QaPost::class,            'label' => 'Q&A',    'icon' => '❓', 'has_category_field' => true,  'category_model' => QaCategory::class, 'category_field' => 'category_id'],
@@ -77,6 +77,23 @@ class AdminBoardController extends Controller
             $q->where('page', $slug)->orWhereJsonContains('target_pages', $slug)->orWhere('page', 'all');
         })->where('status', 'active')->count();
 
+        // 대분류(major_type) 통계 — 구인/구직, 렌트/매매 등
+        $majorTypesBreakdown = null;
+        if (!empty($cfg['major_types']) && !empty($cfg['major_type_field'])) {
+            $field = $cfg['major_type_field'];
+            $counts = $model::select($field)
+                ->selectRaw('COUNT(*) as cnt')
+                ->groupBy($field)->pluck('cnt', $field)->all();
+            $majorTypesBreakdown = [];
+            foreach ($cfg['major_types'] as $key => $label) {
+                $majorTypesBreakdown[] = [
+                    'key' => $key,
+                    'label' => $label,
+                    'count' => $counts[$key] ?? 0,
+                ];
+            }
+        }
+
         return response()->json(['success' => true, 'data' => [
             'total' => $fq()->count(),
             'today' => $fq()->whereDate('created_at', today())->count(),
@@ -87,6 +104,9 @@ class AdminBoardController extends Controller
                 in_array('promotion_tier', (new $model)->getFillable()),
                 fn($q) => $q->whereNotNull('promotion_tier')->where('promotion_expires_at', '>', now())
             )->count(),
+            'major_types' => $cfg['major_types'] ?? null,
+            'major_type_field' => $cfg['major_type_field'] ?? null,
+            'major_types_breakdown' => $majorTypesBreakdown,
         ]]);
     }
 
@@ -115,6 +135,10 @@ class AdminBoardController extends Controller
         if ($request->category) {
             $catField = $cfg['category_field'] ?? 'category';
             $query->where($catField, $request->category);
+        }
+        // 대분류(major_type) 필터 — 구인/구직, 렌트/매매
+        if ($request->major_type && !empty($cfg['major_type_field'])) {
+            $query->where($cfg['major_type_field'], $request->major_type);
         }
 
         return response()->json(['success' => true, 'data' => $query->paginate(20)]);
@@ -315,9 +339,10 @@ class AdminBoardController extends Controller
     //   카테고리 관리
     // ═════════════════════════════════════
 
-    public function categories(string $slug)
+    public function categories(string $slug, Request $request)
     {
         $cfg = $this->config($slug);
+        $majorType = $request->query('major_type'); // 구인/구직, 렌트/매매 — scope 분리
 
         if ($cfg['category_model']) {
             // FK 테이블 기반 (qa, recipes, news) — sort_order 있으면 그 기준, 없으면 id
@@ -327,8 +352,10 @@ class AdminBoardController extends Controller
             $query = $modelClass::query();
             $items = ($hasSort ? $query->orderBy('sort_order') : $query->orderBy('id'))->get();
         } else {
-            // 문자열 필드 기반 (market, jobs 등) — settings 에서 JSON 리스트로 관리
-            $key = "board.{$slug}.categories";
+            // 문자열 필드 기반 — major_type 이 있으면 별도 키로 저장
+            $key = $majorType
+                ? "board.{$slug}.categories.{$majorType}"
+                : "board.{$slug}.categories";
             $setting = DB::table('point_settings')->where('key', $key)->first();
             $items = $setting && $setting->value ? json_decode($setting->value, true) : [];
 
@@ -336,11 +363,15 @@ class AdminBoardController extends Controller
             $catField = $cfg['category_field'] ?? 'category';
             if (empty($items) && $catField && ($cfg['has_category_field'] ?? false)) {
                 $model = $cfg['model'];
-                $distinct = $model::query()
+                $q = $model::query()
                     ->select($catField)
                     ->whereNotNull($catField)
-                    ->where($catField, '!=', '')
-                    ->groupBy($catField)
+                    ->where($catField, '!=', '');
+                // major_type 스코프 제한
+                if ($majorType && !empty($cfg['major_type_field'])) {
+                    $q->where($cfg['major_type_field'], $majorType);
+                }
+                $distinct = $q->groupBy($catField)
                     ->selectRaw("COUNT(*) as cnt")
                     ->orderByDesc('cnt')
                     ->get();
@@ -355,13 +386,19 @@ class AdminBoardController extends Controller
             }
         }
 
-        return response()->json(['success' => true, 'data' => $items, 'uses_table' => !!$cfg['category_model']]);
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+            'uses_table' => !!$cfg['category_model'],
+            'major_type' => $majorType,
+        ]);
     }
 
     public function saveCategories(string $slug, Request $request)
     {
         $cfg = $this->config($slug);
         $categories = $request->input('categories', []);
+        $majorType = $request->input('major_type');
 
         if ($cfg['category_model']) {
             $modelClass = $cfg['category_model'];
@@ -383,7 +420,9 @@ class AdminBoardController extends Controller
             }
             $items = $modelClass::orderBy('sort_order')->get();
         } else {
-            $key = "board.{$slug}.categories";
+            $key = $majorType
+                ? "board.{$slug}.categories.{$majorType}"
+                : "board.{$slug}.categories";
             $clean = array_map(fn($c) => [
                 'name' => $c['name'] ?? '',
                 'slug' => $c['slug'] ?? null,
@@ -392,7 +431,7 @@ class AdminBoardController extends Controller
             ], $categories);
             DB::table('point_settings')->updateOrInsert(
                 ['key' => $key],
-                ['category' => 'board_meta', 'label' => "{$cfg['label']} 카테고리", 'value' => json_encode($clean, JSON_UNESCAPED_UNICODE), 'updated_at' => now(), 'created_at' => now()]
+                ['category' => 'board_meta', 'label' => "{$cfg['label']} 카테고리".($majorType ? " ({$majorType})" : ''), 'value' => json_encode($clean, JSON_UNESCAPED_UNICODE), 'updated_at' => now(), 'created_at' => now()]
             );
             $items = $clean;
         }

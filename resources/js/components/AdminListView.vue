@@ -327,6 +327,8 @@ const props = defineProps({
   // 카테고리 목록 (드롭다운 필터용 — AdminBoardManager 에서 로드됨)
   categories: { type: Array, default: () => [] },
   usesTable: { type: Boolean, default: false },
+  // 대분류 필터 (구인/구직, 렌트/매매 등)
+  majorType: { type: String, default: '' },
 })
 
 const emit = defineEmits(['openUser', 'clearFilter', 'setCategoryFilter'])
@@ -516,6 +518,7 @@ async function load(p=1) {
     params.category_id = props.categoryFilter
     params.board_id = props.categoryFilter
   }
+  if (props.majorType) params.major_type = props.majorType
   // board-manager 모드면 관리자 posts 엔드포인트 사용 (필터 지원)
   const url = props.boardSlug
     ? `/api/admin/board-manager/${props.boardSlug}/posts`
@@ -529,8 +532,9 @@ async function load(p=1) {
   loading.value = false
 }
 
-// 카테고리 필터 변경 시 자동 재로드
+// 카테고리/대분류 필터 변경 시 자동 재로드
 watch(() => props.categoryFilter, () => load(1))
+watch(() => props.majorType, () => load(1))
 
 async function deleteItem(item) {
   if (!confirm('정말 삭제하시겠습니까?')) return
