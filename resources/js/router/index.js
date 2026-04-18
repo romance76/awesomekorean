@@ -240,7 +240,7 @@ const routes = [
 
       // 묶음 4 — 보안 (신규 + 기존 매핑)
       { path: 'security/reports',    component: p('admin/v2/ReportsV2') },
-      { path: 'security/ip-bans',    component: p('admin/AdminSecurity') },
+      { path: 'security/ip-bans',    component: p('admin/v2/IpBans') },
       { path: 'security/login-logs', component: p('admin/v2/SecurityLoginLogs') },
       { path: 'security/audit',      component: p('admin/v2/AuditLog') },
       { path: 'security/anomaly',    component: p('admin/v2/AnomalyDashboard') },
@@ -257,7 +257,7 @@ const routes = [
 
       // 묶음 5 — 사이트 설정 (기존 1702라인 재사용 + 개별 페이지는 차후)
       { path: 'site/company', component: p('admin/SiteSettings') },
-      { path: 'site/pages',   component: p('admin/SiteSettings') },
+      { path: 'site/pages',   component: p('admin/v2/StaticPagesAdmin') },
       { path: 'site/footer',  component: p('admin/SiteSettings') },
       { path: 'site/faq',     component: p('admin/SiteSettings') },
       { path: 'site/seo',     component: p('admin/SiteSettings') },
@@ -271,6 +271,7 @@ const routes = [
 
       // 묶음 8
       { path: 'server/overview',   component: p('admin/v2/ServerOverview') },
+      { path: 'server/health',     component: p('admin/v2/SystemHealth') },
       { path: 'server/metrics',    component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '📈', title: '서버 메트릭 차트', description: 'DO Monitoring API 연동 (Mock 지원)' } },
       { path: 'server/plan',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '💳', title: '플랜 업그레이드', description: 'Droplet resize (DO Token 필요)' } },
       { path: 'server/snapshots',  component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '📸', title: 'Snapshots', description: 'DO Snapshot 생성·복원 (Mock 리스트 제공)' } },

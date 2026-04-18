@@ -25,6 +25,7 @@
         "peerjs": "^1.5.5",
         "pinia": "^3.0.4",
         "pusher-js": "^8.4.3",
+        "quill": "^2.0.3",
         "socket.io-client": "^4.8.3",
         "vue": "^3.5.31",
         "vue-chartjs": "^5.3.3",

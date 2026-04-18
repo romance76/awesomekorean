@@ -297,6 +297,7 @@ const groups = [
     key: 'server', icon: '🖥️', label: '서버 관리', perm: 'server.view',
     items: [
       { to: '/admin/v2/server/overview',   label: '개요',         perm: 'server.view' },
+      { to: '/admin/v2/server/health',     label: '🩺 헬스 체크', perm: 'server.view' },
       { to: '/admin/v2/server/metrics',    label: 'Metrics',      perm: 'server.view' },
       { to: '/admin/v2/server/plan',       label: '플랜',         perm: 'server.manage' },
       { to: '/admin/v2/server/automation', label: '자동화',       perm: 'server.manage' },

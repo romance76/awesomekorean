@@ -593,6 +593,16 @@ Route::middleware(['auth:api', 'admin', 'admin.audit'])->prefix('admin')->group(
     // Admin: 이상 활동 탐지 (Phase 2-C Post - Kay #9)
     Route::get('/anomaly/overview', [\App\Http\Controllers\API\AdminAnomalyController::class, 'overview'])->middleware('permission:audit.view');
 
+    // Admin: IP 차단 관리 v2 (Phase 2-C Post - Kay #5 UI, 단일 IP + CIDR 통합)
+    $ipb = \App\Http\Controllers\API\AdminIpBansController::class;
+    Route::get('/ip-bans-v2',              [$ipb, 'index'])->middleware('permission:ipbans.view');
+    Route::post('/ip-bans-v2',             [$ipb, 'store'])->middleware('permission:ipbans.manage');
+    Route::delete('/ip-bans-v2/{id}',      [$ipb, 'destroy'])->middleware('permission:ipbans.manage');
+    Route::post('/ip-bans-v2/bulk-delete', [$ipb, 'bulkDestroy'])->middleware('permission:ipbans.manage');
+
+    // Admin: 시스템 헬스 체크 (Phase 2-C Post)
+    Route::get('/system/health', [\App\Http\Controllers\API\AdminSystemHealthController::class, 'check']);
+
     // Admin: 전역 검색 + Impersonation + 공지사항 (Phase 2-C Post)
     $gl = \App\Http\Controllers\API\AdminGlobalController::class;
     Route::get('/search',                    [$gl, 'search']);

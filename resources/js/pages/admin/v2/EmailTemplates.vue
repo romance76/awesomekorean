@@ -54,8 +54,8 @@
             <input v-model="form.subject" class="w-full border rounded px-3 py-2 mt-1 text-sm" />
           </label>
           <label class="block">
-            <span class="text-xs text-gray-500">HTML 본문</span>
-            <textarea v-model="form.body_html" rows="8" class="w-full border rounded px-3 py-2 mt-1 text-sm font-mono"></textarea>
+            <span class="text-xs text-gray-500">HTML 본문 (WYSIWYG)</span>
+            <RichEditor v-model="form.body_html" :height="250" placeholder="내용을 입력하세요..." />
           </label>
           <label class="block">
             <span class="text-xs text-gray-500">텍스트 본문 (폴백, 선택)</span>
@@ -98,6 +98,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import axios from 'axios'
 import DataTable from '../../../components/admin/DataTable.vue'
+import RichEditor from '../../../components/admin/RichEditor.vue'
 import { useSiteStore } from '../../../stores/site'
 
 const site = useSiteStore()
