@@ -203,12 +203,58 @@ const routes = [
       { path: 'analytics/content', component: p('admin/v2/AnalyticsDashboard') },
       { path: 'analytics/revenue', component: p('admin/v2/AnalyticsDashboard') },
       { path: 'analytics/custom',  component: p('admin/v2/AnalyticsDashboard') },
+
+      // 묶음 4 — 기존 Admin 페이지를 v2 레이아웃으로 재사용 (점진 마이그레이션)
+      { path: 'users',      component: p('admin/Members') },
+      { path: 'content',    component: p('admin/Content') },
+      { path: 'comments',   component: p('admin/Content') },  // 임시
+      { path: 'boards',     component: p('admin/BoardManager') },
+      { path: 'friends',    component: p('admin/AdminFriends') },
+      { path: 'qa',         component: p('admin/AdminQa') },
+      { path: 'directory',  component: p('admin/Business') },
+      { path: 'claims',     component: p('admin/AdminClaims') },
+      { path: 'jobs',       component: p('admin/AdminJobs') },
+      { path: 'market',     component: p('admin/AdminMarket') },
+      { path: 'realestate', component: p('admin/AdminRealestate') },
+      { path: 'groupbuy',   component: p('admin/GroupBuy') },
+      { path: 'shopping',   component: p('admin/AdminShopping') },
+      { path: 'news',       component: p('admin/AdminNews') },
+      { path: 'recipes',    component: p('admin/AdminRecipes') },
+      { path: 'music',      component: p('admin/AdminMusic') },
+      { path: 'shorts',     component: p('admin/AdminShorts') },
+      { path: 'events',     component: p('admin/AdminEvents') },
+      { path: 'clubs',      component: p('admin/AdminClubs') },
+      { path: 'banners',        component: p('admin/Banners') },
+      { path: 'ad-settings',    component: p('admin/AdSettings') },
+      { path: 'payments',       component: p('admin/Payments') },
+      { path: 'point-settings', component: p('admin/AdminPointSettings') },
+      { path: 'hero-banners',   component: p('admin/AdminHeroBanners') },
+      { path: 'poker',      component: p('admin/AdminPoker') },
+      { path: 'games',      component: p('admin/AdminGames') },
+      { path: 'chats',      component: p('admin/AdminChats') },
+      { path: 'calls',      component: p('admin/AdminCalls') },
+      { path: 'elder',      component: p('admin/AdminElder') },
+
+      // 묶음 4 — 보안 (신규 + 기존 매핑)
+      { path: 'security/reports',    component: p('admin/AdminSecurity') },
+      { path: 'security/ip-bans',    component: p('admin/AdminSecurity') },
+      { path: 'security/login-logs', component: p('admin/v2/SecurityLoginLogs') },
+      { path: 'security/audit',      component: p('admin/v2/ScaffoldPage'), props: { bundle: 4, icon: '📜', title: '관리자 감사 로그', description: 'admin_audit_log 테이블 기반 (차후 구현)' } },
+
+      // 묶음 5 — 사이트 설정 (기존 1702라인 재사용 + 개별 페이지는 차후)
+      { path: 'site/company', component: p('admin/SiteSettings') },
+      { path: 'site/pages',   component: p('admin/SiteSettings') },
+      { path: 'site/footer',  component: p('admin/SiteSettings') },
+      { path: 'site/faq',     component: p('admin/SiteSettings') },
+      { path: 'site/seo',     component: p('admin/SiteSettings') },
+
       // 묶음 6
       { path: 'integrations/api-keys',     component: p('admin/v2/ApiKeysPage') },
-      { path: 'integrations/stripe',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 6, icon: '💳', title: 'Stripe 연동', description: 'Stripe 키 관리 (묶음 6)' } },
-      { path: 'integrations/sentry',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 10, icon: '🚨', title: 'Sentry DSN', description: 'DSN 입력 시 자동 활성화 (kay_final_inputs.md 참조)' } },
-      { path: 'integrations/digitalocean', component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '🌊', title: 'DigitalOcean Token', description: 'Token 입력 시 Mock → 실데이터 전환' } },
-      { path: 'integrations/firebase',     component: p('admin/v2/ScaffoldPage'), props: { bundle: 6, icon: '🔥', title: 'Firebase FCM', description: '푸시 알림용 7개 필드 (kay_final_inputs.md 참조)' } },
+      { path: 'integrations/stripe',       component: p('admin/SiteSettings') },  // Stripe 탭
+      { path: 'integrations/sentry',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 10, icon: '🚨', title: 'Sentry DSN', description: '.env VITE_SENTRY_DSN + SENTRY_LARAVEL_DSN 입력 시 즉시 활성 (kay_final_inputs.md)' } },
+      { path: 'integrations/digitalocean', component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '🌊', title: 'DigitalOcean Token', description: '.env DO_API_TOKEN 입력 시 Mock → 실데이터 전환' } },
+      { path: 'integrations/firebase',     component: p('admin/SiteSettings') },  // Firebase 탭
+
       // 묶음 8
       { path: 'server/overview',   component: p('admin/v2/ServerOverview') },
       { path: 'server/metrics',    component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '📈', title: '서버 메트릭 차트', description: 'DO Monitoring API 연동 (Mock 지원)' } },
@@ -216,6 +262,7 @@ const routes = [
       { path: 'server/snapshots',  component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '📸', title: 'Snapshots', description: 'DO Snapshot 생성·복원 (Mock 리스트 제공)' } },
       { path: 'server/automation', component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '⚙️', title: '자동화', description: '자동 백업·알림 임계치' } },
       { path: 'server/backup',     component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '💾', title: '백업 이력', description: 'server_backups 테이블 UI' } },
+
       // 범용 fallback
       { path: ':pathMatch(.*)*', component: p('admin/v2/ScaffoldPage') },
     ],
