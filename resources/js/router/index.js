@@ -206,7 +206,8 @@ const routes = [
       { path: 'analytics/custom',  component: p('admin/v2/AnalyticsDashboard') },
 
       // 묶음 4 — 기존 Admin 페이지를 v2 레이아웃으로 재사용 (점진 마이그레이션)
-      { path: 'users',      component: p('admin/Members') },
+      // Post: Members 는 DataTable 기반 MembersV2 로 업그레이드
+      { path: 'users',      component: p('admin/v2/MembersV2') },
       { path: 'content',    component: p('admin/Content') },
       { path: 'comments',   component: p('admin/Content') },  // 임시
       { path: 'boards',     component: p('admin/BoardManager') },
