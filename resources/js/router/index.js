@@ -243,6 +243,12 @@ const routes = [
       { path: 'security/audit',      component: p('admin/v2/AuditLog') },
       // 유저 운영 (포인트 대량 지급/회수, 강제 비번 리셋)
       { path: 'users/point-ops',     component: p('admin/v2/UserPointOps') },
+      // 대량 알림·이메일 발송
+      { path: 'communication/broadcast', component: p('admin/v2/Broadcast') },
+      { path: 'communication/notices',   component: p('admin/v2/Broadcast') },
+      { path: 'communication/push',      component: p('admin/v2/Broadcast') },
+      { path: 'communication/email-templates', component: p('admin/v2/ScaffoldPage'), props: { bundle: 4, icon: '📧', title: '이메일 템플릿', description: '정형화된 이메일 템플릿 CRUD (차후)' } },
+      { path: 'communication/messages',  component: p('admin/AdminChats') },
 
       // 묶음 5 — 사이트 설정 (기존 1702라인 재사용 + 개별 페이지는 차후)
       { path: 'site/company', component: p('admin/SiteSettings') },

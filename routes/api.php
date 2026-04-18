@@ -185,6 +185,11 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/security/sessions/{id}', [$sec, 'terminateSession']);
     Route::post('/security/sessions/terminate-others', [$sec, 'terminateOtherSessions']);
 
+    // ─── Phase 2-C Post: 알림 프리퍼런스 ───
+    $np = \App\Http\Controllers\API\NotificationPreferencesController::class;
+    Route::get('/user/notification-preferences', [$np, 'show']);
+    Route::put('/user/notification-preferences', [$np, 'update']);
+
     Route::post('/posts', [PostController::class, 'store']);
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
@@ -536,7 +541,7 @@ Route::middleware(['auth:api', 'admin', 'admin.audit'])->prefix('admin')->group(
     Route::post('/api-keys',          [$ak, 'store']);
     Route::put('/api-keys/{id}',      [$ak, 'update']);
     Route::delete('/api-keys/{id}',   [$ak, 'destroy']);
-    Route::get('/api-keys/{id}/reveal', [$ak, 'reveal']);  // super_admin 전용 (프론트에서 permission 체크)
+    Route::get('/api-keys/{id}/reveal', [$ak, 'reveal'])->middleware('permission:api.keys.reveal');  // super_admin 전용
     Route::post('/api-keys/{id}/test',  [$ak, 'test']);
 
     // ─── 서버 관리 (Phase 2-C 묶음 8) ───
@@ -562,12 +567,18 @@ Route::middleware(['auth:api', 'admin', 'admin.audit'])->prefix('admin')->group(
     Route::get('/users/{id}/login-history', [\App\Http\Controllers\API\SecurityController::class, 'adminUserLoginHistory']);
     Route::get('/security/failed-logins', [\App\Http\Controllers\API\SecurityController::class, 'adminFailedLogins']);
 
-    // Admin: 유저 운영 (Phase 2-C Post)
+    // Admin: 유저 운영 (Phase 2-C Post) — Spatie permission 미들웨어 강제
     $uo = \App\Http\Controllers\API\AdminUserOpsController::class;
-    Route::post('/users/{id}/force-password-reset', [$uo, 'forcePasswordReset']);
-    Route::post('/users/bulk-grant-points',         [$uo, 'bulkGrantPoints']);
-    Route::post('/users/{id}/revoke-points',        [$uo, 'revokePoints']);
-    Route::get('/users/{id}/point-history',         [$uo, 'userPointHistory']);
+    Route::post('/users/{id}/force-password-reset', [$uo, 'forcePasswordReset'])->middleware('permission:users.password.reset');
+    Route::post('/users/bulk-grant-points',         [$uo, 'bulkGrantPoints'])->middleware('permission:users.points.adjust');
+    Route::post('/users/{id}/revoke-points',        [$uo, 'revokePoints'])->middleware('permission:users.points.revoke');
+    Route::get('/users/{id}/point-history',         [$uo, 'userPointHistory'])->middleware('permission:users.points.adjust');
+
+    // Admin: 대량 알림 (Phase 2-C Post) — notifications.send/bulk 권한 필수
+    $bc = \App\Http\Controllers\API\AdminBroadcastController::class;
+    Route::post('/broadcast/notification',     [$bc, 'broadcastNotification'])->middleware('permission:notifications.send');
+    Route::post('/broadcast/email',            [$bc, 'broadcastEmail'])->middleware('permission:notifications.bulk');
+    Route::post('/broadcast/audience-preview', [$bc, 'audiencePreview'])->middleware('permission:notifications.send');
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
     Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);

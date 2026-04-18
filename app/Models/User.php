@@ -25,6 +25,7 @@ class User extends Authenticatable implements JWTSubject
         'last_login_at', 'last_active_at', 'login_count',
         'provider', 'provider_id',
         'fcm_token', 'push_platform',
+        'notification_preferences',
     ];
 
     // 민감 필드 명시적 보호 (가이드 주석)
@@ -72,6 +73,7 @@ class User extends Authenticatable implements JWTSubject
             'allow_friend_request' => 'boolean',
             'allow_messages' => 'boolean',
             'allow_elder_service' => 'boolean',
+            'notification_preferences' => 'array',
         ];
     }
 

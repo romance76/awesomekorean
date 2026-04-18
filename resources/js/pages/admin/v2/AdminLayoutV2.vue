@@ -110,6 +110,15 @@ const groups = [
     ],
   },
   {
+    key: 'communication', icon: '📣', label: '커뮤니케이션', perm: 'notifications.send',
+    items: [
+      { to: '/admin/v2/communication/broadcast', label: '📢 대량 알림/이메일', perm: 'notifications.send' },
+      { to: '/admin/v2/communication/notices',   label: '📰 공지사항',           perm: 'notifications.send' },
+      { to: '/admin/v2/communication/messages',  label: '💬 채팅 관리',          perm: 'content.moderate' },
+      { to: '/admin/v2/communication/email-templates', label: '📧 이메일 템플릿',  perm: 'notifications.send' },
+    ],
+  },
+  {
     key: 'services', icon: '🏪', label: '서비스', perm: 'content.view',
     items: [
       { to: '/admin/v2/directory',   label: '업소록',      perm: 'content.view' },
