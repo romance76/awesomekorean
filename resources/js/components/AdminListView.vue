@@ -6,8 +6,19 @@
   <!-- 검색 + 필터 -->
   <div class="bg-white rounded-xl shadow-sm border p-3 mb-4">
     <div class="flex flex-wrap gap-2 items-center">
+      <!-- 카테고리 드롭다운 (categories 전달되면 표시) -->
+      <select v-if="categories.length"
+        :value="categoryFilter || ''"
+        @change="onCategorySelect($event.target.value)"
+        class="border rounded-lg px-3 py-1.5 text-sm bg-white">
+        <option value="">📂 전체 카테고리</option>
+        <option v-for="c in categories" :key="c.id || c.slug || c.name"
+          :value="usesTable ? c.id : (c.slug || c.name)">
+          {{ c.icon || '🏷' }} {{ c.name }} <template v-if="c.post_count">({{ c.post_count }})</template>
+        </option>
+      </select>
       <div v-if="categoryFilter" class="flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-3 py-1 text-xs">
-        📂 카테고리: <strong>{{ categoryFilterLabel || categoryFilter }}</strong>
+        📂 <strong>{{ categoryFilterLabel || categoryFilter }}</strong>
         <button @click="$emit('clearFilter')" class="ml-1 text-blue-500 hover:text-blue-700">✕</button>
       </div>
       <slot name="filters"></slot>
@@ -16,7 +27,10 @@
         <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">검색</button>
       </form>
     </div>
-    <div class="text-[10px] text-gray-400 mt-1">전체 {{ total }}건</div>
+    <div class="text-[10px] text-gray-400 mt-1">
+      전체 {{ total }}건
+      <span v-if="categoryFilter" class="text-blue-600">· "{{ categoryFilterLabel || categoryFilter }}" 필터링됨</span>
+    </div>
   </div>
 
   <div v-if="loading" class="text-center py-8 text-gray-400">로딩중...</div>
@@ -50,7 +64,12 @@
                 <div class="text-[10px] text-gray-400 truncate mt-0.5">{{ (item.content || item.description || '').slice(0, 60) }}{{ (item.content || item.description || '').length > 60 ? '...' : '' }}</div>
               </td>
               <td v-for="col in extraCols" :key="col.key" v-show="!activeItem" class="px-3 py-2.5">
-                <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">{{ getNestedVal(item, col.key) }}</span>
+                <button v-if="isCategoryCol(col.key)"
+                  @click.stop="clickCategoryCell(item, col)"
+                  class="text-[10px] bg-amber-100 text-amber-700 hover:bg-amber-200 px-1.5 py-0.5 rounded-full font-semibold transition cursor-pointer">
+                  {{ getNestedVal(item, col.key) }}
+                </button>
+                <span v-else class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">{{ getNestedVal(item, col.key) }}</span>
               </td>
               <td class="px-3 py-2.5">
                 <button @click.stop="$emit('openUser', item.user || {id: item.user_id})" class="text-xs text-blue-600 hover:underline">{{ item.user?.name || '-' }}</button>
@@ -305,9 +324,12 @@ const props = defineProps({
   // 카테고리 필터 (외부에서 주입 — 카테고리 탭에서 "게시글 보기" 클릭 시)
   categoryFilter: { type: [String, Number], default: null },
   categoryFilterLabel: { type: String, default: '' },
+  // 카테고리 목록 (드롭다운 필터용 — AdminBoardManager 에서 로드됨)
+  categories: { type: Array, default: () => [] },
+  usesTable: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['openUser', 'clearFilter'])
+const emit = defineEmits(['openUser', 'clearFilter', 'setCategoryFilter'])
 
 const items = ref([]); const loading = ref(true)
 const page = ref(1); const lastPage = ref(1); const total = ref(0)
@@ -352,6 +374,45 @@ async function deleteComment(c) {
 
 function getNestedVal(obj, key) {
   return key.split('.').reduce((o, k) => o?.[k], obj) || '-'
+}
+
+// 카테고리 컬럼인지 자동 감지 (category, category_id, board_id, category.name, board.name 등)
+function isCategoryCol(key) {
+  return /^(category|board)(_id|\.name|\.slug)?$/i.test(key)
+}
+
+// 행의 카테고리 셀 클릭 → 필터
+function clickCategoryCell(item, col) {
+  const val = getNestedVal(item, col.key)
+  if (!val || val === '-') return
+  // FK 기반이면 ID 추출, 문자열이면 그대로
+  let filterVal = val
+  let label = val
+  if (col.key.includes('.name')) {
+    // 관계 객체 접근 - 부모 id 찾기
+    const parent = col.key.split('.')[0]  // 'board' or 'category'
+    filterVal = item[parent]?.id ?? item[parent + '_id'] ?? val
+    label = val
+  } else if (col.key === 'category_id' || col.key === 'board_id') {
+    // ID 이지만 라벨은 카테고리 목록에서 찾기
+    filterVal = item[col.key]
+    const match = props.categories.find(c => c.id === filterVal)
+    label = match?.name || String(filterVal)
+  }
+  emit('setCategoryFilter', { value: filterVal, label })
+}
+
+function onCategorySelect(val) {
+  if (!val) {
+    emit('clearFilter')
+    return
+  }
+  // 선택된 카테고리의 라벨 찾기
+  const match = props.categories.find(c =>
+    (props.usesTable ? c.id : (c.slug || c.name)) === val ||
+    String(props.usesTable ? c.id : (c.slug || c.name)) === String(val)
+  )
+  emit('setCategoryFilter', { value: val, label: match?.name || val })
 }
 
 function statusClass(s) {

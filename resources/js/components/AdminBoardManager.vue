@@ -51,9 +51,11 @@
     <div v-if="activeTab==='posts'">
       <AdminListView :icon="icon" :title="''" :api-url="apiUrl" :delete-url="deleteUrl || apiUrl"
         :extra-cols="extraCols" :board-slug="slug"
+        :categories="categories" :uses-table="usesTable"
         :category-filter="postCategoryFilter" :category-filter-label="postCategoryFilterLabel"
         @open-user="u => $emit('openUser', u)"
-        @clear-filter="postCategoryFilter = null; postCategoryFilterLabel = ''" />
+        @clear-filter="postCategoryFilter = null; postCategoryFilterLabel = ''"
+        @set-category-filter="onSetCategoryFilter" />
     </div>
 
     <!-- 📂 카테고리 -->
@@ -274,6 +276,11 @@ function viewCategoryPosts(c) {
   postCategoryFilterLabel.value = c.name || c.slug
   activeTab.value = 'posts'
 }
+
+function onSetCategoryFilter({ value, label }) {
+  postCategoryFilter.value = value
+  postCategoryFilterLabel.value = label
+}
 const settingValues = ref({})
 const pointValues = ref({})
 const banners = ref([])
@@ -421,6 +428,7 @@ watch(activeTab, (tab) => {
 
 onMounted(() => {
   loadOverview()
+  loadCategories() // 게시글 탭 드롭다운 필터에 필요
   loadBanners() // for badge count
 })
 </script>
