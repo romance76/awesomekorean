@@ -163,6 +163,7 @@ const routes = [
       { path: 'members', component: p('admin/Members') },
       { path: 'friends', component: p('admin/AdminFriends') },
       { path: 'content', component: p('admin/Content') },
+      { path: 'community', component: p('admin/AdminCommunity') },
       { path: 'boards', component: p('admin/BoardManager') },
       { path: 'news', component: p('admin/AdminNews') },
       { path: 'jobs', component: p('admin/AdminJobs') },

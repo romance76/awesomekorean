@@ -87,7 +87,8 @@ const subTabs = {
     { to: '/admin/calls', icon: '📞', label: '통화' },
   ],
   board: [
-    { to: '/admin/content', icon: '💬', label: '커뮤니티' },
+    { to: '/admin/community', icon: '💬', label: '커뮤니티' },
+    { to: '/admin/content', icon: '📋', label: '전체글' },
     { to: '/admin/market', icon: '🛒', label: '장터' },
     { to: '/admin/jobs', icon: '💼', label: '구인구직' },
     { to: '/admin/realestate', icon: '🏠', label: '부동산' },

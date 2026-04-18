@@ -27,7 +27,7 @@ class AdminBoardController extends Controller
         'qa'         => ['model' => QaPost::class,            'label' => 'Q&A',    'icon' => '❓', 'has_category_field' => true,  'category_model' => QaCategory::class, 'category_field' => 'category_id'],
         'recipes'    => ['model' => RecipePost::class,        'label' => '레시피',  'icon' => '🍳', 'has_category_field' => true,  'category_model' => RecipeCategory::class, 'category_field' => 'category_id'],
         'news'       => ['model' => News::class,              'label' => '뉴스',    'icon' => '📰', 'has_category_field' => true,  'category_model' => NewsCategory::class, 'category_field' => 'category_id'],
-        'community'  => ['model' => Post::class,              'label' => '커뮤니티', 'icon' => '💬', 'has_category_field' => false, 'category_model' => null, 'category_field' => 'board_id'],
+        'community'  => ['model' => Post::class,              'label' => '커뮤니티', 'icon' => '💬', 'has_category_field' => true, 'category_model' => Board::class, 'category_field' => 'board_id'],
         'business'   => ['model' => Business::class,          'label' => '업소록',   'icon' => '🏪', 'has_category_field' => true,  'category_model' => null],
         'music'      => ['model' => MusicTrack::class,        'label' => '음악',     'icon' => '🎵', 'has_category_field' => true,  'category_model' => MusicCategory::class, 'category_field' => 'category_id'],
         'groupbuy'   => ['model' => GroupBuy::class,          'label' => '공동구매', 'icon' => '🛍', 'has_category_field' => true,  'category_model' => null],
