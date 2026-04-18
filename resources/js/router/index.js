@@ -188,13 +188,34 @@ const routes = [
     ],
   },
 
-  // Admin v2 (Phase 2-C 묶음 4 스캐폴드 — 11 카테고리 그룹·역할 기반 동적 노출)
+  // Admin v2 (Phase 2-C 묶음 4 레이아웃 + 묶음 6·8·9 구현 페이지)
   {
     path: '/admin/v2',
     component: p('admin/v2/AdminLayoutV2'),
     meta: { auth: true, admin: true },
     children: [
       { path: '', redirect: '/admin/v2/dashboard' },
+      // 묶음 9
+      { path: 'dashboard', component: p('admin/v2/AnalyticsDashboard') },
+      { path: 'analytics/users',   component: p('admin/v2/AnalyticsDashboard') },
+      { path: 'analytics/content', component: p('admin/v2/AnalyticsDashboard') },
+      { path: 'analytics/revenue', component: p('admin/v2/AnalyticsDashboard') },
+      { path: 'analytics/custom',  component: p('admin/v2/AnalyticsDashboard') },
+      // 묶음 6
+      { path: 'integrations/api-keys',     component: p('admin/v2/ApiKeysPage') },
+      { path: 'integrations/stripe',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 6, icon: '💳', title: 'Stripe 연동', description: 'Stripe 키 관리 (묶음 6)' } },
+      { path: 'integrations/sentry',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 10, icon: '🚨', title: 'Sentry DSN', description: 'DSN 입력 시 자동 활성화 (kay_final_inputs.md 참조)' } },
+      { path: 'integrations/digitalocean', component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '🌊', title: 'DigitalOcean Token', description: 'Token 입력 시 Mock → 실데이터 전환' } },
+      { path: 'integrations/firebase',     component: p('admin/v2/ScaffoldPage'), props: { bundle: 6, icon: '🔥', title: 'Firebase FCM', description: '푸시 알림용 7개 필드 (kay_final_inputs.md 참조)' } },
+      // 묶음 8
+      { path: 'server/overview',   component: p('admin/v2/ServerOverview') },
+      { path: 'server/metrics',    component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '📈', title: '서버 메트릭 차트', description: 'DO Monitoring API 연동 (Mock 지원)' } },
+      { path: 'server/plan',       component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '💳', title: '플랜 업그레이드', description: 'Droplet resize (DO Token 필요)' } },
+      { path: 'server/snapshots',  component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '📸', title: 'Snapshots', description: 'DO Snapshot 생성·복원 (Mock 리스트 제공)' } },
+      { path: 'server/automation', component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '⚙️', title: '자동화', description: '자동 백업·알림 임계치' } },
+      { path: 'server/backup',     component: p('admin/v2/ScaffoldPage'), props: { bundle: 8, icon: '💾', title: '백업 이력', description: 'server_backups 테이블 UI' } },
+      // 범용 fallback
+      { path: ':pathMatch(.*)*', component: p('admin/v2/ScaffoldPage') },
     ],
   },
 

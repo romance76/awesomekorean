@@ -519,6 +519,37 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/site-content/faqs/{id}', [$sc, 'faqDestroy']);
     // 설정 이력
     Route::get('/site-content/settings-history', [$sc, 'settingsHistory']);
+
+    // ─── API 키 중앙 관리 (Phase 2-C 묶음 6) ───
+    $ak = \App\Http\Controllers\API\AdminApiKeysController::class;
+    Route::get('/api-keys',           [$ak, 'index']);
+    Route::get('/api-keys/usage',     [$ak, 'usage']);
+    Route::get('/api-keys/logs',      [$ak, 'logs']);
+    Route::get('/api-keys/history',   [$ak, 'history']);
+    Route::post('/api-keys',          [$ak, 'store']);
+    Route::put('/api-keys/{id}',      [$ak, 'update']);
+    Route::delete('/api-keys/{id}',   [$ak, 'destroy']);
+    Route::get('/api-keys/{id}/reveal', [$ak, 'reveal']);  // super_admin 전용 (프론트에서 permission 체크)
+    Route::post('/api-keys/{id}/test',  [$ak, 'test']);
+
+    // ─── 서버 관리 (Phase 2-C 묶음 8) ───
+    $sv = \App\Http\Controllers\API\AdminServerController::class;
+    Route::get('/server/overview',    [$sv, 'overview']);
+    Route::get('/server/metrics',     [$sv, 'metrics']);
+    Route::get('/server/plans',       [$sv, 'plans']);
+    Route::get('/server/snapshots',   [$sv, 'snapshots']);
+    Route::post('/server/snapshots',  [$sv, 'createSnapshot']);
+    Route::get('/server/backups',     [$sv, 'backups']);
+
+    // ─── 통계·감사 (Phase 2-C 묶음 9) ───
+    $an = \App\Http\Controllers\API\AdminAnalyticsController::class;
+    Route::get('/analytics/kpi',        [$an, 'kpi']);
+    Route::get('/analytics/funnel',     [$an, 'funnel']);
+    Route::get('/analytics/top-users',  [$an, 'topUsers']);
+    Route::get('/analytics/feed',       [$an, 'feed']);
+    Route::get('/analytics/audit-log',  [$an, 'auditLog']);
+    Route::get('/analytics/preferences',[$an, 'preferences']);
+    Route::put('/analytics/preferences',[$an, 'savePreferences']);
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
     Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
