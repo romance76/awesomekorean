@@ -1,13 +1,18 @@
 <template>
-  <!-- /admin/v2/dashboard (Phase 2-C 묶음 9) -->
+  <!-- /admin/v2/dashboard (Phase 2-C 묶음 9 + Post Charts) -->
   <div class="space-y-4">
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between flex-wrap gap-2">
       <h2 class="text-xl font-bold">📊 통계 대시보드</h2>
-      <select v-model="days" @change="load()" class="px-3 py-1 border rounded text-sm">
-        <option value="7">최근 7일</option>
-        <option value="30">최근 30일</option>
-        <option value="90">최근 90일</option>
-      </select>
+      <div class="flex items-center gap-2">
+        <select v-model="days" @change="load()" class="px-3 py-1 border rounded text-sm">
+          <option value="7">최근 7일</option>
+          <option value="30">최근 30일</option>
+          <option value="90">최근 90일</option>
+        </select>
+        <button @click="exportCsv" :disabled="!kpi?.series?.length" class="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-semibold disabled:opacity-50">
+          📥 CSV Export
+        </button>
+      </div>
     </div>
 
     <div v-if="loading" class="text-sm text-gray-400 p-6 text-center">로딩 중...</div>
@@ -46,6 +51,18 @@
         <p class="text-xs text-gray-500">신고</p>
         <p class="text-2xl font-bold">{{ kpi.summary.reports_sum }}</p>
       </div>
+    </div>
+
+    <!-- 유저 성장 라인 차트 -->
+    <div v-if="kpi?.series?.length" class="bg-white rounded-xl shadow-sm p-4">
+      <h3 class="font-semibold mb-3">📈 유저·콘텐츠 추이 (최근 {{ days }}일)</h3>
+      <KpiLineChart :series="kpi.series" />
+    </div>
+
+    <!-- 매출 바 차트 -->
+    <div v-if="kpi?.series?.length && kpi.summary.revenue_sum > 0" class="bg-white rounded-xl shadow-sm p-4">
+      <h3 class="font-semibold mb-3">💰 일별 매출</h3>
+      <RevenueBarChart :series="kpi.series" />
     </div>
 
     <!-- 시계열 간이 테이블 -->
@@ -119,6 +136,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import KpiLineChart from '../../../components/admin/KpiLineChart.vue'
+import RevenueBarChart from '../../../components/admin/RevenueBarChart.vue'
 
 const loading = ref(true)
 const days = ref(30)
@@ -145,6 +164,21 @@ async function load() {
   } finally {
     loading.value = false
   }
+}
+
+function exportCsv() {
+  if (!kpi.value?.series?.length) return
+  const cols = ['date', 'total_users', 'new_users', 'dau', 'mau', 'posts_count', 'comments_count', 'market_items_count', 'real_estate_count', 'jobs_count', 'payments_count', 'revenue_usd', 'reports_count']
+  const header = cols.join(',')
+  const rows = kpi.value.series.map(r => cols.map(c => JSON.stringify(r[c] ?? '')).join(','))
+  const csv = '\uFEFF' + [header, ...rows].join('\n')  // BOM for Excel UTF-8
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `kpi_${kpi.value.from}_${kpi.value.to}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 onMounted(load)
