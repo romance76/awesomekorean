@@ -161,7 +161,7 @@ const routes = [
     component: p('mypage/MyPageLayout'),
     meta: { auth: true },
     children: [
-      { path: '', redirect: '/mypage/profile' },
+      { path: '', component: p('mypage/MyPageHome') },  // Post UX: 카드형 홈
       // Phase 2-C 묶음 3 실 구현 7개
       { path: 'profile',               component: p('mypage/MyProfile') },
       { path: 'security',              component: p('mypage/MySecurity') },
@@ -199,8 +199,8 @@ const routes = [
     meta: { auth: true, admin: true },
     children: [
       { path: '', redirect: '/admin/v2/dashboard' },
-      // 묶음 9
-      { path: 'dashboard', component: p('admin/v2/AnalyticsDashboard') },
+      // 묶음 9 + Post UX: 새 홈 대시보드 (기존 Analytics 는 /analytics/users 로 이동)
+      { path: 'dashboard', component: p('admin/v2/DashboardHome') },
       { path: 'analytics/users',   component: p('admin/v2/AnalyticsDashboard') },
       { path: 'analytics/content', component: p('admin/v2/AnalyticsDashboard') },
       { path: 'analytics/revenue', component: p('admin/v2/AnalyticsDashboard') },

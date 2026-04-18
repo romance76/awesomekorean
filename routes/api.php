@@ -197,6 +197,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user/notification-preferences', [$np, 'show']);
     Route::put('/user/notification-preferences', [$np, 'update']);
 
+    // ─── Phase 2-C Post UX: MyPage 홈 통합 ───
+    Route::get('/mypage/home', [\App\Http\Controllers\API\MyPageHomeController::class, 'summary']);
+
     Route::post('/posts', [PostController::class, 'store']);
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
