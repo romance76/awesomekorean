@@ -242,7 +242,8 @@ const routes = [
       { path: 'security/login-logs', component: p('admin/v2/SecurityLoginLogs') },
       { path: 'security/audit',      component: p('admin/v2/AuditLog') },
       // 유저 운영 (포인트 대량 지급/회수, 강제 비번 리셋)
-      { path: 'users/point-ops',     component: p('admin/v2/UserPointOps') },
+      { path: 'users/point-ops',            component: p('admin/v2/UserPointOps') },
+      { path: 'users/:id/point-history',    component: p('admin/v2/UserPointHistory') },
       // 대량 알림·이메일 발송
       { path: 'communication/broadcast', component: p('admin/v2/Broadcast') },
       { path: 'communication/notices',   component: p('admin/v2/Broadcast') },
