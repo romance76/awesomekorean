@@ -66,6 +66,9 @@
           <button @click="saveCategories" class="bg-amber-400 text-amber-900 font-bold rounded px-3 py-1.5 text-sm">저장</button>
         </div>
       </div>
+      <div v-if="hasAutoDetected" class="bg-blue-50 border border-blue-200 text-blue-800 rounded p-2 text-xs mb-3">
+        💡 기존 데이터에서 자동 감지된 카테고리입니다. 이름을 한글로 수정하고 <strong>"저장"</strong>을 누르면 확정됩니다.
+      </div>
       <div v-if="categories.length === 0" class="text-center text-gray-400 py-8 text-sm">카테고리가 없습니다. "+ 추가" 버튼을 눌러주세요.</div>
       <div v-else class="space-y-2">
         <div v-for="(c, i) in categories" :key="i" class="flex items-center gap-2 border rounded p-2 bg-gray-50">
@@ -74,6 +77,8 @@
           <input v-model="c.name" placeholder="이름" class="border rounded px-2 py-1 text-sm flex-1 bg-white" />
           <input v-model="c.slug" placeholder="slug" class="border rounded px-2 py-1 text-sm w-28 bg-white" />
           <label class="text-xs flex items-center gap-1"><input type="checkbox" v-model="c.is_active"> 활성</label>
+          <span v-if="c.post_count" class="text-[10px] bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded">{{ c.post_count }}개</span>
+          <span v-if="c.auto_detected" class="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">자동감지</span>
           <button @click="removeCategory(i)" class="text-red-500 text-xs px-2">삭제</button>
         </div>
       </div>
@@ -276,10 +281,13 @@ async function loadCategories() {
       slug: c.slug || '',
       icon: c.icon || '',
       is_active: c.is_active !== false,
+      post_count: c.post_count || 0,
+      auto_detected: !!c.auto_detected,
     }))
     usesTable.value = !!data.uses_table
   } catch (e) { console.warn('categories load failed', e) }
 }
+const hasAutoDetected = computed(() => categories.value.some(c => c.auto_detected))
 function addCategory() { categories.value.push({ name: '', slug: '', icon: '🏷', is_active: true }) }
 function removeCategory(i) { categories.value.splice(i, 1) }
 async function saveCategories() {

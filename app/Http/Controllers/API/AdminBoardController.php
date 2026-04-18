@@ -5,10 +5,12 @@ use App\Http\Controllers\Controller;
 use App\Models\{
     MarketItem, JobPost, RealEstateListing, Event, Club, QaPost, RecipePost,
     Post, News, Business, Comment, Report, BannerAd, PointLog,
-    QaCategory, MusicCategory, NewsCategory, RecipeCategory, Board
+    QaCategory, MusicCategory, NewsCategory, RecipeCategory, Board,
+    MusicTrack, GroupBuy, Short
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AdminBoardController extends Controller
 {
@@ -26,6 +28,10 @@ class AdminBoardController extends Controller
         'recipes'    => ['model' => RecipePost::class,        'label' => '레시피',  'icon' => '🍳', 'has_category_field' => true,  'category_model' => RecipeCategory::class, 'category_field' => 'category_id'],
         'news'       => ['model' => News::class,              'label' => '뉴스',    'icon' => '📰', 'has_category_field' => true,  'category_model' => NewsCategory::class, 'category_field' => 'category_id'],
         'community'  => ['model' => Post::class,              'label' => '커뮤니티', 'icon' => '💬', 'has_category_field' => false, 'category_model' => null, 'category_field' => 'board_id'],
+        'business'   => ['model' => Business::class,          'label' => '업소록',   'icon' => '🏪', 'has_category_field' => true,  'category_model' => null],
+        'music'      => ['model' => MusicTrack::class,        'label' => '음악',     'icon' => '🎵', 'has_category_field' => true,  'category_model' => MusicCategory::class, 'category_field' => 'category_id'],
+        'groupbuy'   => ['model' => GroupBuy::class,          'label' => '공동구매', 'icon' => '🛍', 'has_category_field' => true,  'category_model' => null],
+        'shorts'     => ['model' => Short::class,             'label' => '숏츠',     'icon' => '🎬', 'has_category_field' => false, 'category_model' => null, 'category_field' => null],
     ];
 
     protected function config(string $slug): array
@@ -119,13 +125,39 @@ class AdminBoardController extends Controller
         $cfg = $this->config($slug);
 
         if ($cfg['category_model']) {
-            // FK 테이블 기반 (qa, recipes, news)
-            $items = $cfg['category_model']::orderBy('sort_order')->get();
+            // FK 테이블 기반 (qa, recipes, news) — sort_order 있으면 그 기준, 없으면 id
+            $modelClass = $cfg['category_model'];
+            $table = (new $modelClass)->getTable();
+            $hasSort = Schema::hasColumn($table, 'sort_order');
+            $query = $modelClass::query();
+            $items = ($hasSort ? $query->orderBy('sort_order') : $query->orderBy('id'))->get();
         } else {
             // 문자열 필드 기반 (market, jobs 등) — settings 에서 JSON 리스트로 관리
             $key = "board.{$slug}.categories";
             $setting = DB::table('point_settings')->where('key', $key)->first();
             $items = $setting && $setting->value ? json_decode($setting->value, true) : [];
+
+            // settings 비어있으면 실제 데이터에서 distinct 자동 수집 (카테고리 필드 있을 때만)
+            $catField = $cfg['category_field'] ?? 'category';
+            if (empty($items) && $catField && ($cfg['has_category_field'] ?? false)) {
+                $model = $cfg['model'];
+                $distinct = $model::query()
+                    ->select($catField)
+                    ->whereNotNull($catField)
+                    ->where($catField, '!=', '')
+                    ->groupBy($catField)
+                    ->selectRaw("COUNT(*) as cnt")
+                    ->orderByDesc('cnt')
+                    ->get();
+                $items = $distinct->map(fn($r) => [
+                    'name' => $r->$catField,
+                    'slug' => $r->$catField,
+                    'icon' => '🏷',
+                    'is_active' => true,
+                    'post_count' => $r->cnt,
+                    'auto_detected' => true,
+                ])->all();
+            }
         }
 
         return response()->json(['success' => true, 'data' => $items, 'uses_table' => !!$cfg['category_model']]);
