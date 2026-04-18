@@ -41,19 +41,26 @@
 
       <!-- 메인 영역 -->
       <main class="col-span-12 lg:col-span-9">
-        <!-- 모바일 가로 스크롤 탭 -->
-        <div class="lg:hidden mb-3 overflow-x-auto scrollbar-hide">
-          <div class="flex gap-2 whitespace-nowrap pb-2">
-            <router-link
-              v-for="item in flatItems"
-              :key="item.to"
-              :to="item.to"
-              class="px-3 py-1.5 rounded-full text-xs bg-gray-100 hover:bg-amber-100"
-              active-class="bg-amber-400 text-white font-semibold"
-            >
-              {{ item.icon }} {{ item.label }}
-            </router-link>
-          </div>
+        <!-- 모바일 그룹 아코디언 네비 (가로 스크롤보다 보기 쉬움) -->
+        <div class="lg:hidden mb-3 bg-white rounded-xl shadow-sm p-2">
+          <details v-for="group in navGroups" :key="group.label" class="group/nav">
+            <summary class="flex items-center justify-between px-3 py-2 cursor-pointer rounded-lg hover:bg-amber-50">
+              <span class="font-semibold text-sm">{{ group.label }}</span>
+              <span class="text-xs text-gray-400 group-open/nav:rotate-180 transition">▼</span>
+            </summary>
+            <div class="grid grid-cols-3 gap-1 p-2">
+              <router-link
+                v-for="item in group.items"
+                :key="item.to"
+                :to="item.to"
+                class="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-amber-50 text-center"
+                active-class="bg-amber-100 text-amber-900 font-semibold"
+              >
+                <span class="text-lg">{{ item.icon }}</span>
+                <span class="text-xs">{{ item.label }}</span>
+              </router-link>
+            </div>
+          </details>
         </div>
         <router-view v-slot="{ Component }">
           <keep-alive>
