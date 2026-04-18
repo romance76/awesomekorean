@@ -158,9 +158,30 @@ class AdminController extends Controller
         $comments = \App\Models\Comment::where('user_id',$id)->orderByDesc('created_at')->limit(20)->get();
         $jobs = JobPost::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
         $market = MarketItem::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+        $realestate = RealEstateListing::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+        $clubs = Club::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+        $events = Event::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+        $qa = QaPost::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+        $banners = \App\Models\BannerAd::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+        $reports_filed = Report::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
+
+        // 요약 통계
+        $summary = [
+            'total_spent_usd' => Payment::where('user_id',$id)->where('status','completed')->sum('amount'),
+            'total_points_earned' => (int)\App\Models\PointLog::where('user_id',$id)->where('amount','>',0)->sum('amount'),
+            'total_points_spent' => abs((int)\App\Models\PointLog::where('user_id',$id)->where('amount','<',0)->sum('amount')),
+            'posts_total' => $posts->count() + $jobs->count() + $market->count() + $realestate->count() + $events->count() + $qa->count() + $clubs->count(),
+            'ads_active' => \App\Models\BannerAd::where('user_id',$id)->where('status','active')->count(),
+        ];
+
         return response()->json(['success'=>true,'data'=>[
-            'user'=>$user, 'posts'=>$posts, 'payments'=>$payments,
-            'points'=>$points, 'comments'=>$comments, 'jobs'=>$jobs, 'market'=>$market,
+            'user'=>$user, 'summary'=>$summary,
+            'posts'=>$posts, 'payments'=>$payments,
+            'points'=>$points, 'comments'=>$comments,
+            'jobs'=>$jobs, 'market'=>$market,
+            'realestate'=>$realestate, 'clubs'=>$clubs,
+            'events'=>$events, 'qa'=>$qa,
+            'banners'=>$banners, 'reports_filed'=>$reports_filed,
         ]]);
     }
 

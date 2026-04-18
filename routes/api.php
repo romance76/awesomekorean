@@ -440,6 +440,24 @@ Route::middleware('auth:api')->group(function () {
 // ─── Admin ───
 Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);
+
+    // ─── 게시판별 통합 관리 ───
+    Route::get('/board-manager/list', [\App\Http\Controllers\API\AdminBoardController::class, 'list']);
+    Route::get('/board-manager/full-report', [\App\Http\Controllers\API\AdminBoardController::class, 'fullReport']);
+    Route::prefix('board-manager/{slug}')->group(function () {
+        $c = \App\Http\Controllers\API\AdminBoardController::class;
+        Route::get('/overview',   [$c, 'overview']);
+        Route::get('/posts',      [$c, 'posts']);
+        Route::get('/categories', [$c, 'categories']);
+        Route::post('/categories', [$c, 'saveCategories']);
+        Route::get('/settings',   [$c, 'settings']);
+        Route::post('/settings',  [$c, 'saveSettings']);
+        Route::get('/points',     [$c, 'points']);
+        Route::post('/points',    [$c, 'savePoints']);
+        Route::get('/banners',    [$c, 'banners']);
+        Route::get('/reports',    [$c, 'reports']);
+    });
+
     Route::get('/users', [AdminController::class, 'users']);
     Route::post('/users/{id}/ban', [AdminController::class, 'banUser']);
     Route::post('/users/{id}/unban', [AdminController::class, 'unbanUser']);
