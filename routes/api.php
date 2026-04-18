@@ -178,6 +178,13 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/user/delete', [ProfileController::class, 'deleteAccount']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
+    // ─── Phase 2-C 묶음 3: 보안·세션 ───
+    $sec = \App\Http\Controllers\API\SecurityController::class;
+    Route::get('/security/login-history', [$sec, 'myLoginHistory']);
+    Route::get('/security/sessions', [$sec, 'mySessions']);
+    Route::delete('/security/sessions/{id}', [$sec, 'terminateSession']);
+    Route::post('/security/sessions/terminate-others', [$sec, 'terminateOtherSessions']);
+
     Route::post('/posts', [PostController::class, 'store']);
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
@@ -550,6 +557,10 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/analytics/audit-log',  [$an, 'auditLog']);
     Route::get('/analytics/preferences',[$an, 'preferences']);
     Route::put('/analytics/preferences',[$an, 'savePreferences']);
+
+    // Admin: 보안 (Phase 2-C 묶음 3)
+    Route::get('/users/{id}/login-history', [\App\Http\Controllers\API\SecurityController::class, 'adminUserLoginHistory']);
+    Route::get('/security/failed-logins', [\App\Http\Controllers\API\SecurityController::class, 'adminFailedLogins']);
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
     Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);

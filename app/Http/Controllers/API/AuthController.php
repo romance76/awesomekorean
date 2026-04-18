@@ -52,13 +52,24 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email', 'password' => 'required']);
 
+        // Phase 2-C 묶음 3: 로그인 시도 전수 기록
+        $logRow = [
+            'email'      => $request->email,
+            'ip'         => $request->ip(),
+            'user_agent' => substr($request->userAgent() ?? '', 0, 500),
+            'device'     => $this->detectDevice($request->userAgent() ?? ''),
+            'created_at' => now(),
+        ];
+
         if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
+            $this->recordLogin($logRow + ['successful' => false, 'failure_reason' => 'invalid_credentials']);
             return response()->json(['success' => false, 'message' => '이메일 또는 비밀번호가 올바르지 않습니다'], 401);
         }
 
         $user = auth()->user();
         if ($user->is_banned) {
             JWTAuth::invalidate($token);
+            $this->recordLogin($logRow + ['user_id' => $user->id, 'successful' => false, 'failure_reason' => 'banned']);
             return response()->json(['success' => false, 'message' => '정지된 계정입니다: ' . $user->ban_reason], 403);
         }
 
@@ -71,13 +82,47 @@ class AuthController extends Controller
             if ($loginBonus > 0) $user->addPoints($loginBonus, '일일 로그인 보너스');
         }
 
+        // 성공 로그
+        $jti = null;
+        try { $jti = JWTAuth::setToken($token)->getPayload()->get('jti'); } catch (\Throwable $e) {}
+        $this->recordLogin($logRow + ['user_id' => $user->id, 'successful' => true, 'jwt_jti' => $jti]);
+
         return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $this->enrichUser($user)]]);
     }
 
     public function logout()
     {
-        try { JWTAuth::invalidate(JWTAuth::getToken()); } catch (\Exception $e) {}
+        // 로그아웃 시 login_histories 의 현재 세션 레코드에 logged_out_at 표시
+        try {
+            $token = JWTAuth::getToken();
+            $jti = JWTAuth::setToken($token)->getPayload()->get('jti');
+            if ($jti) {
+                \DB::table('login_histories')->where('jwt_jti', $jti)->update(['logged_out_at' => now()]);
+            }
+            JWTAuth::invalidate($token);
+        } catch (\Throwable $e) {}
         return response()->json(['success' => true, 'message' => '로그아웃 완료']);
+    }
+
+    /** Phase 2-C 묶음 3: 로그인 기록 저장 */
+    protected function recordLogin(array $data): void
+    {
+        try {
+            \DB::table('login_histories')->insert($data);
+        } catch (\Throwable $e) {
+            \Log::warning('login_histories insert failed: ' . $e->getMessage());
+        }
+    }
+
+    /** User-Agent 에서 간단한 기기 종류 감지 */
+    protected function detectDevice(string $ua): string
+    {
+        if (preg_match('/iPhone|iPad|iPod/i', $ua))  return 'iOS';
+        if (preg_match('/Android/i', $ua))           return 'Android';
+        if (preg_match('/Windows/i', $ua))           return 'Windows';
+        if (preg_match('/Mac OS|Macintosh/i', $ua))  return 'macOS';
+        if (preg_match('/Linux/i', $ua))             return 'Linux';
+        return 'Unknown';
     }
 
     public function user()
