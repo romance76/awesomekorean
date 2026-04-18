@@ -14,8 +14,44 @@
             <span class="text-amber-500">⚙️</span> 관리자 v2
           </router-link>
         </div>
-        <div class="flex items-center gap-3">
-          <input v-model="globalSearch" placeholder="전체 검색" :class="['hidden md:block px-3 py-1.5 border rounded-lg text-sm w-64', darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : '']" />
+        <div class="flex items-center gap-3 relative">
+          <div class="relative">
+            <input
+              v-model="globalSearch"
+              @input="onSearchInput"
+              @focus="showResults = true"
+              @blur="setTimeout(() => showResults = false, 150)"
+              placeholder="전체 검색 (유저·글·결제·업소)"
+              :class="['hidden md:block px-3 py-1.5 border rounded-lg text-sm w-72', darkMode ? 'bg-gray-700 border-gray-600 text-gray-100' : '']"
+            />
+            <!-- 검색 결과 드롭다운 -->
+            <div v-if="showResults && globalSearch.length >= 2" :class="['absolute top-full mt-1 right-0 w-96 rounded-lg shadow-lg z-50 overflow-hidden border', darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white']">
+              <div v-if="searching" class="p-4 text-center text-sm text-gray-400">검색 중...</div>
+              <div v-else-if="!hasResults" class="p-4 text-center text-sm text-gray-400">결과 없음</div>
+              <div v-else class="max-h-96 overflow-y-auto">
+                <template v-for="(items, category) in searchResults" :key="category">
+                  <div class="px-3 py-1 text-xs font-semibold text-gray-500 bg-gray-50 border-b sticky top-0" :class="darkMode ? 'bg-gray-700 text-gray-300' : ''">
+                    {{ categoryLabel(category) }} ({{ items.length }})
+                  </div>
+                  <router-link
+                    v-for="item in items" :key="category + '-' + item.id"
+                    :to="item.url"
+                    @click="showResults = false; globalSearch = ''"
+                    class="block px-3 py-2 hover:bg-amber-50 border-b text-sm transition-colors"
+                    :class="darkMode ? 'hover:bg-gray-700 border-gray-600' : ''"
+                  >
+                    <div class="flex items-center gap-2">
+                      <img v-if="item.image" :src="item.image" @error="$event.target.src='/images/default-avatar.png'" class="w-6 h-6 rounded-full" />
+                      <div class="flex-1 min-w-0">
+                        <p class="font-semibold truncate">{{ item.title }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ item.meta }}</p>
+                      </div>
+                    </div>
+                  </router-link>
+                </template>
+              </div>
+            </div>
+          </div>
           <button @click="toggleDarkMode" :class="['p-2 rounded transition-colors', darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']" :title="darkMode ? '라이트 모드' : '다크 모드'">
             {{ darkMode ? '☀️' : '🌙' }}
           </button>
@@ -95,6 +131,28 @@ const darkMode = ref(localStorage.getItem('admin_dark_mode') === '1')
 function toggleDarkMode() {
   darkMode.value = !darkMode.value
   localStorage.setItem('admin_dark_mode', darkMode.value ? '1' : '0')
+}
+
+// 전역 검색 (Phase 2-C Post)
+const searchResults = ref({})
+const searching = ref(false)
+const showResults = ref(false)
+let searchDebounce = null
+const hasResults = computed(() => Object.keys(searchResults.value).length > 0)
+const categoryLabel = (c) => ({ users: '👤 회원', posts: '📝 게시글', payments: '💳 결제', businesses: '🏪 업소' }[c] || c)
+
+async function onSearchInput() {
+  if (searchDebounce) clearTimeout(searchDebounce)
+  if (globalSearch.value.length < 2) { searchResults.value = {}; return }
+  searching.value = true
+  searchDebounce = setTimeout(async () => {
+    try {
+      const axios = (await import('axios')).default
+      const { data } = await axios.get(`/api/admin/search?q=${encodeURIComponent(globalSearch.value)}`)
+      searchResults.value = data.data || {}
+    } catch { searchResults.value = {} }
+    finally { searching.value = false }
+  }, 250)
 }
 
 // 11 카테고리 구조 (관리자 상세 감사서 기반)

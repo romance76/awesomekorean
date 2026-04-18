@@ -18,6 +18,24 @@
     </Teleport>
 
     <NavBar v-if="showNav" />
+
+    <!-- 사이트 공지 배너 (Phase 2-C Post) -->
+    <div v-if="activeAnnouncement && !dismissedAnnouncementIds.includes(activeAnnouncement.id)"
+         :class="['px-4 py-2 text-sm flex items-center justify-center gap-3 relative', levelClass(activeAnnouncement.level)]">
+      <span class="font-semibold">{{ activeAnnouncement.title }}</span>
+      <span>{{ activeAnnouncement.message }}</span>
+      <a v-if="activeAnnouncement.link_url" :href="activeAnnouncement.link_url" class="underline font-semibold ml-2">
+        {{ activeAnnouncement.link_label || '자세히 →' }}
+      </a>
+      <button v-if="activeAnnouncement.dismissible" @click="dismissAnnouncement(activeAnnouncement.id)" class="absolute right-4 hover:opacity-70">✕</button>
+    </div>
+
+    <!-- Impersonation 배너 (관리자 유저 임시 로그인 시) -->
+    <div v-if="isImpersonating" class="bg-red-600 text-white px-4 py-2 text-sm flex items-center justify-center gap-3">
+      ⚠️ <strong>Impersonation 모드</strong> — 유저 계정으로 임시 로그인 중
+      <button @click="stopImpersonation" class="bg-white text-red-600 px-3 py-0.5 rounded font-semibold hover:bg-red-100">원래 계정으로 복귀</button>
+    </div>
+
     <!-- 글로벌 미니 프로필 팝업 -->
     <UserPopup :show="showUserPopup" :user-id="popupUserId" @close="showUserPopup=false" />
     <SiteModal />
@@ -103,10 +121,62 @@ if (auth.isLoggedIn) bookmarkStore.loadAll()
 const footerLinks = ref({})
 const SECTION_LABELS = { services: '서비스', content: '콘텐츠', info: '안내', legal: '법적 고지' }
 const sectionLabel = (k) => SECTION_LABELS[k] || k
+
+// 공지 배너 (Phase 2-C Post)
+const announcements = ref([])
+const dismissedAnnouncementIds = ref(
+  (() => { try { return JSON.parse(localStorage.getItem('dismissed_announcements') || '[]') } catch { return [] } })()
+)
+const activeAnnouncement = computed(() =>
+  announcements.value.find(a => !dismissedAnnouncementIds.value.includes(a.id))
+)
+function dismissAnnouncement(id) {
+  dismissedAnnouncementIds.value.push(id)
+  localStorage.setItem('dismissed_announcements', JSON.stringify(dismissedAnnouncementIds.value))
+}
+function levelClass(level) {
+  return {
+    info:    'bg-blue-500 text-white',
+    success: 'bg-green-500 text-white',
+    warning: 'bg-amber-500 text-white',
+    danger:  'bg-red-600 text-white',
+  }[level] || 'bg-blue-500 text-white'
+}
+
+// Impersonation 감지 (Phase 2-C Post)
+const isImpersonating = computed(() => {
+  try {
+    const tok = localStorage.getItem('sk_token') || sessionStorage.getItem('sk_token')
+    if (!tok) return false
+    const parts = tok.split('.')
+    if (parts.length !== 3) return false
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')))
+    return !!payload.impersonation
+  } catch { return false }
+})
+async function stopImpersonation() {
+  try {
+    const { data } = await axios.post('/api/admin/stop-impersonation')
+    if (data?.data?.token) {
+      auth.setAuth?.(data.data.token, data.data.user)
+      // setAuth 없으면 localStorage 에 직접 저장
+      localStorage.setItem('sk_token', data.data.token)
+      localStorage.setItem('sk_user', JSON.stringify(data.data.user))
+      window.location.href = '/admin/v2'
+    }
+  } catch (e) {
+    siteStore.toast('복귀 실패: ' + (e.response?.data?.message || e.message), 'error')
+  }
+}
 onMounted(async () => {
   try {
     const { data } = await axios.get('/api/site/footer-links')
     footerLinks.value = data?.data || {}
+  } catch {}
+  // 공지 배너 로드
+  try {
+    const { data } = await axios.get('/api/site/announcements')
+    announcements.value = data?.data || []
   } catch {}
   // 설정 변경 브로드캐스트 수신 시 Footer 도 재로드
   try {

@@ -247,7 +247,7 @@ const routes = [
       { path: 'users/:id/point-history',    component: p('admin/v2/UserPointHistory') },
       // 대량 알림·이메일 발송
       { path: 'communication/broadcast', component: p('admin/v2/Broadcast') },
-      { path: 'communication/notices',   component: p('admin/v2/Broadcast') },
+      { path: 'communication/notices',   component: p('admin/v2/Announcements') },
       { path: 'communication/push',      component: p('admin/v2/Broadcast') },
       { path: 'communication/email-templates', component: p('admin/v2/EmailTemplates') },
       { path: 'communication/messages',  component: p('admin/AdminChats') },

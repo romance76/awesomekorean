@@ -139,6 +139,10 @@ Route::get('/site/footer-links', [\App\Http\Controllers\API\SiteContentControlle
 Route::get('/site/static-pages/{slug}', [\App\Http\Controllers\API\SiteContentController::class, 'staticPage']);
 Route::get('/site/faqs', [\App\Http\Controllers\API\SiteContentController::class, 'faqs']);
 Route::post('/site/faqs/{id}/helpful', [\App\Http\Controllers\API\SiteContentController::class, 'faqHelpful']);
+
+// 공지사항 배너 (Phase 2-C Post)
+Route::get('/site/announcements', [\App\Http\Controllers\API\AnnouncementsController::class, 'active']);
+
 Route::get('/settings/points', function () {
     $settings = \DB::table('point_settings')->pluck('value', 'key');
     return response()->json(['success' => true, 'data' => $settings]);
@@ -582,6 +586,18 @@ Route::middleware(['auth:api', 'admin', 'admin.audit'])->prefix('admin')->group(
     Route::post('/broadcast/notification',     [$bc, 'broadcastNotification'])->middleware('permission:notifications.send');
     Route::post('/broadcast/email',            [$bc, 'broadcastEmail'])->middleware('permission:notifications.bulk');
     Route::post('/broadcast/audience-preview', [$bc, 'audiencePreview'])->middleware('permission:notifications.send');
+
+    // Admin: 전역 검색 + Impersonation + 공지사항 (Phase 2-C Post)
+    $gl = \App\Http\Controllers\API\AdminGlobalController::class;
+    Route::get('/search',                    [$gl, 'search']);
+    Route::post('/users/{id}/impersonate',   [$gl, 'impersonate'])->middleware('permission:users.edit');
+    Route::post('/stop-impersonation',       [$gl, 'stopImpersonation']);
+
+    $an = \App\Http\Controllers\API\AnnouncementsController::class;
+    Route::get('/announcements',             [$an, 'index']);
+    Route::post('/announcements',            [$an, 'store'])->middleware('permission:notifications.send');
+    Route::put('/announcements/{id}',        [$an, 'update'])->middleware('permission:notifications.send');
+    Route::delete('/announcements/{id}',     [$an, 'destroy'])->middleware('permission:notifications.send');
 
     // Admin: 이메일 템플릿 (Phase 2-C Post)
     $et = \App\Http\Controllers\API\AdminEmailTemplatesController::class;

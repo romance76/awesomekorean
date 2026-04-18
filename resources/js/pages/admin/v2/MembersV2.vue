@@ -63,6 +63,7 @@
       <template #actions="{ row }">
         <button @click="viewDetail(row)" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded mr-1">상세</button>
         <router-link :to="`/admin/v2/users/${row.id}/point-history`" class="text-xs px-2 py-1 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded mr-1">💰</router-link>
+        <button @click="impersonate(row)" class="text-xs px-2 py-1 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded mr-1" title="유저 계정으로 임시 로그인 (30분)">🎭</button>
         <button v-if="!row.is_banned" @click="ban(row)" class="text-xs px-2 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded">차단</button>
         <button v-else @click="unban(row)" class="text-xs px-2 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded">해제</button>
       </template>
@@ -140,6 +141,21 @@ async function unban(u) {
 
 function viewDetail(u) {
   window.open(`/profile/${u.id}`, '_blank')
+}
+
+async function impersonate(u) {
+  if (!confirm(`${u.email} 계정으로 30분간 임시 로그인하시겠습니까?\n모든 행동이 감사 로그에 기록됩니다.`)) return
+  try {
+    const { data } = await axios.post(`/api/admin/users/${u.id}/impersonate`)
+    if (data?.data?.token) {
+      localStorage.setItem('sk_token', data.data.token)
+      localStorage.setItem('sk_user', JSON.stringify(data.data.user))
+      site.toast('Impersonation 시작. 헤더 빨간 배너에서 복귀 가능.', 'info')
+      setTimeout(() => window.location.href = '/', 500)
+    }
+  } catch (e) {
+    site.toast(e.response?.data?.message || 'Impersonate 실패', 'error')
+  }
 }
 
 async function handleBulk({ key, rows }) {
