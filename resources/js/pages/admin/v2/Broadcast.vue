@@ -63,6 +63,14 @@
       </div>
 
       <div v-if="tab === 'email'" class="pt-3 border-t space-y-3">
+        <!-- 템플릿 선택 (Phase 2-C Post) -->
+        <label class="block">
+          <span class="text-xs text-gray-500">템플릿 (선택 시 자동 채움)</span>
+          <select v-model="selectedTemplate" @change="applyTemplate" class="w-full border rounded px-3 py-2 mt-1 text-sm">
+            <option :value="null">-- 직접 작성 --</option>
+            <option v-for="t in templates" :key="t.id" :value="t">{{ t.name }} ({{ t.slug }})</option>
+          </select>
+        </label>
         <label class="block">
           <span class="text-xs text-gray-500">이메일 제목</span>
           <input v-model="emailForm.subject" class="w-full border rounded px-3 py-2 mt-1 text-sm" />
@@ -90,11 +98,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useSiteStore } from '../../../stores/site'
 const site = useSiteStore()
 const tab = ref('notification')
+const templates = ref([])
+const selectedTemplate = ref(null)
 const tabs = [{ key: 'notification', label: '🔔 in-app 알림' }, { key: 'email', label: '✉️ 이메일' }]
 const audience = ref('all')
 const role = ref('')
@@ -151,4 +161,25 @@ const formatResult = (r) => {
   if (r.sent !== undefined) return `이메일 성공 ${r.sent} / 실패 ${r.failed}`
   return JSON.stringify(r)
 }
+
+async function loadTemplates() {
+  try {
+    const { data } = await axios.get('/api/admin/email-templates')
+    templates.value = (data.data || []).filter(t => t.is_active)
+  } catch {}
+}
+
+function applyTemplate() {
+  if (!selectedTemplate.value) return
+  emailForm.subject = selectedTemplate.value.subject
+  emailForm.body = selectedTemplate.value.body_text || stripHtml(selectedTemplate.value.body_html)
+}
+
+function stripHtml(html) {
+  const div = document.createElement('div')
+  div.innerHTML = html || ''
+  return div.textContent || div.innerText || ''
+}
+
+onMounted(loadTemplates)
 </script>

@@ -87,6 +87,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $managerPerms = [
             'users.view', 'users.edit', 'users.ban', 'users.unban',
             'users.points.adjust', 'users.points.revoke',
+            'users.password.reset', 'users.session.terminate',
             'users.login-history.view',
             'content.view', 'content.moderate', 'content.delete',
             'content.pin', 'content.hide', 'content.restore',
