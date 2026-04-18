@@ -240,7 +240,9 @@ const routes = [
       { path: 'security/reports',    component: p('admin/AdminSecurity') },
       { path: 'security/ip-bans',    component: p('admin/AdminSecurity') },
       { path: 'security/login-logs', component: p('admin/v2/SecurityLoginLogs') },
-      { path: 'security/audit',      component: p('admin/v2/ScaffoldPage'), props: { bundle: 4, icon: '📜', title: '관리자 감사 로그', description: 'admin_audit_log 테이블 기반 (차후 구현)' } },
+      { path: 'security/audit',      component: p('admin/v2/AuditLog') },
+      // 유저 운영 (포인트 대량 지급/회수, 강제 비번 리셋)
+      { path: 'users/point-ops',     component: p('admin/v2/UserPointOps') },
 
       // 묶음 5 — 사이트 설정 (기존 1702라인 재사용 + 개별 페이지는 차후)
       { path: 'site/company', component: p('admin/SiteSettings') },

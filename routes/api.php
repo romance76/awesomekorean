@@ -451,7 +451,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // ─── Admin ───
-Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth:api', 'admin', 'admin.audit'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);
     Route::get('/users', [AdminController::class, 'users']);
     Route::post('/users/{id}/ban', [AdminController::class, 'banUser']);
@@ -561,6 +561,13 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // Admin: 보안 (Phase 2-C 묶음 3)
     Route::get('/users/{id}/login-history', [\App\Http\Controllers\API\SecurityController::class, 'adminUserLoginHistory']);
     Route::get('/security/failed-logins', [\App\Http\Controllers\API\SecurityController::class, 'adminFailedLogins']);
+
+    // Admin: 유저 운영 (Phase 2-C Post)
+    $uo = \App\Http\Controllers\API\AdminUserOpsController::class;
+    Route::post('/users/{id}/force-password-reset', [$uo, 'forcePasswordReset']);
+    Route::post('/users/bulk-grant-points',         [$uo, 'bulkGrantPoints']);
+    Route::post('/users/{id}/revoke-points',        [$uo, 'revokePoints']);
+    Route::get('/users/{id}/point-history',         [$uo, 'userPointHistory']);
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
     Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);

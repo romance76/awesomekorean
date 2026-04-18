@@ -100,12 +100,13 @@ const groups = [
   {
     key: 'users', icon: '👥', label: '회원 & 커뮤니티', perm: 'users.view',
     items: [
-      { to: '/admin/v2/users',      label: '회원 관리',   perm: 'users.view' },
-      { to: '/admin/v2/content',    label: '게시글',       perm: 'content.view' },
-      { to: '/admin/v2/comments',   label: '댓글',         perm: 'comments.delete' },
-      { to: '/admin/v2/boards',     label: '게시판',       perm: 'site.settings.edit' },
-      { to: '/admin/v2/friends',    label: '친구 관리',    perm: 'users.view' },
-      { to: '/admin/v2/qa',         label: 'Q&A',         perm: 'content.view' },
+      { to: '/admin/v2/users',           label: '회원 관리',   perm: 'users.view' },
+      { to: '/admin/v2/users/point-ops', label: '💰 포인트 운영', perm: 'points.adjust' },
+      { to: '/admin/v2/content',         label: '게시글',       perm: 'content.view' },
+      { to: '/admin/v2/comments',        label: '댓글',         perm: 'comments.delete' },
+      { to: '/admin/v2/boards',          label: '게시판',       perm: 'site.settings.edit' },
+      { to: '/admin/v2/friends',         label: '친구 관리',    perm: 'users.view' },
+      { to: '/admin/v2/qa',              label: 'Q&A',         perm: 'content.view' },
     ],
   },
   {
