@@ -143,6 +143,9 @@ Route::post('/site/faqs/{id}/helpful', [\App\Http\Controllers\API\SiteContentCon
 // 공지사항 배너 (Phase 2-C Post)
 Route::get('/site/announcements', [\App\Http\Controllers\API\AnnouncementsController::class, 'active']);
 
+// 관리자 초대 수락 (공개 — 토큰 기반)
+Route::post('/admin-invitations/accept', [\App\Http\Controllers\API\AdminInvitationController::class, 'accept']);
+
 Route::get('/settings/points', function () {
     $settings = \DB::table('point_settings')->pluck('value', 'key');
     return response()->json(['success' => true, 'data' => $settings]);
@@ -587,11 +590,20 @@ Route::middleware(['auth:api', 'admin', 'admin.audit'])->prefix('admin')->group(
     Route::post('/broadcast/email',            [$bc, 'broadcastEmail'])->middleware('permission:notifications.bulk');
     Route::post('/broadcast/audience-preview', [$bc, 'audiencePreview'])->middleware('permission:notifications.send');
 
+    // Admin: 이상 활동 탐지 (Phase 2-C Post - Kay #9)
+    Route::get('/anomaly/overview', [\App\Http\Controllers\API\AdminAnomalyController::class, 'overview'])->middleware('permission:audit.view');
+
     // Admin: 전역 검색 + Impersonation + 공지사항 (Phase 2-C Post)
     $gl = \App\Http\Controllers\API\AdminGlobalController::class;
     Route::get('/search',                    [$gl, 'search']);
     Route::post('/users/{id}/impersonate',   [$gl, 'impersonate'])->middleware('permission:users.edit');
     Route::post('/stop-impersonation',       [$gl, 'stopImpersonation']);
+
+    // 관리자 초대 (super_admin 전용)
+    $inv = \App\Http\Controllers\API\AdminInvitationController::class;
+    Route::get('/admin-invitations',               [$inv, 'index'])->middleware('spatie.role:super_admin');
+    Route::post('/admin-invitations',              [$inv, 'store'])->middleware('spatie.role:super_admin');
+    Route::post('/admin-invitations/{id}/revoke',  [$inv, 'revoke'])->middleware('spatie.role:super_admin');
 
     $an = \App\Http\Controllers\API\AnnouncementsController::class;
     Route::get('/announcements',             [$an, 'index']);

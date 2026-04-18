@@ -64,6 +64,17 @@ class AutoBanBruteForce extends Command
             $bannedNew++;
             $this->info("Banned {$ip} ({$row->attempts} attempts)");
 
+            // 실시간 관리자 알림
+            try {
+                event(new \App\Events\AdminAlert(
+                    'auto_ban',
+                    "🔒 자동 IP 차단",
+                    "{$ip} ({$row->attempts}회 로그인 실패) {$banHours}시간 차단",
+                    '/admin/v2/security/login-logs',
+                    'critical'
+                ));
+            } catch (\Throwable $e) {}
+
             // admin_audit_log 기록
             if (\Schema::hasTable('admin_audit_log')) {
                 DB::table('admin_audit_log')->insert([

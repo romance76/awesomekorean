@@ -149,6 +149,7 @@ const routes = [
   { path: '/terms', name: 'terms', component: p('static/Terms') },
   { path: '/privacy', name: 'privacy', component: p('static/Privacy') },
   { path: '/faq', name: 'faq', component: p('static/FAQ') },
+  { path: '/admin/accept-invitation', component: p('auth/AcceptInvitation') },
   { path: '/profile/edit', component: p('profile/ProfileEdit'), meta: { auth: true } },
   { path: '/profile/:id', name: 'profile', component: p('profile/UserProfile') },
   { path: '/dashboard', name: 'dashboard', component: p('profile/UserDashboard'), meta: { auth: true } },
@@ -242,9 +243,11 @@ const routes = [
       { path: 'security/ip-bans',    component: p('admin/AdminSecurity') },
       { path: 'security/login-logs', component: p('admin/v2/SecurityLoginLogs') },
       { path: 'security/audit',      component: p('admin/v2/AuditLog') },
+      { path: 'security/anomaly',    component: p('admin/v2/AnomalyDashboard') },
       // 유저 운영 (포인트 대량 지급/회수, 강제 비번 리셋)
       { path: 'users/point-ops',            component: p('admin/v2/UserPointOps') },
       { path: 'users/:id/point-history',    component: p('admin/v2/UserPointHistory') },
+      { path: 'users/invitations',          component: p('admin/v2/AdminInvitations') },
       // 대량 알림·이메일 발송
       { path: 'communication/broadcast', component: p('admin/v2/Broadcast') },
       { path: 'communication/notices',   component: p('admin/v2/Announcements') },

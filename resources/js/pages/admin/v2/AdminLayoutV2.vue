@@ -55,7 +55,29 @@
           <button @click="toggleDarkMode" :class="['p-2 rounded transition-colors', darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']" :title="darkMode ? '라이트 모드' : '다크 모드'">
             {{ darkMode ? '☀️' : '🌙' }}
           </button>
-          <button :class="['relative p-2 rounded', darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']" title="알림">🔔</button>
+          <!-- 실시간 알림 뱃지 (Phase 2-C Post) -->
+          <div class="relative">
+            <button @click="showAlerts = !showAlerts" :class="['relative p-2 rounded', darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']" title="실시간 관리자 알림">
+              🔔
+              <span v-if="alerts.length" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">{{ alerts.length }}</span>
+            </button>
+            <div v-if="showAlerts" :class="['absolute right-0 top-full mt-1 w-80 rounded-lg shadow-lg border z-50 max-h-96 overflow-y-auto', darkMode ? 'bg-gray-800 border-gray-600' : 'bg-white']">
+              <div class="p-2 border-b flex items-center justify-between">
+                <span class="text-xs font-semibold">실시간 알림 ({{ alerts.length }})</span>
+                <button @click="alerts = []" class="text-xs text-amber-600 hover:text-amber-800">모두 지우기</button>
+              </div>
+              <div v-if="!alerts.length" class="p-6 text-center text-xs text-gray-400">알림 없음</div>
+              <router-link
+                v-for="(a, i) in alerts" :key="i" :to="a.link || '#'"
+                @click="alerts.splice(i, 1); showAlerts = false"
+                :class="['block p-3 border-b text-xs hover:bg-amber-50 transition-colors', darkMode ? 'hover:bg-gray-700 border-gray-600' : '']"
+              >
+                <p class="font-semibold">{{ a.title }}</p>
+                <p class="text-gray-500 truncate">{{ a.message }}</p>
+                <p class="text-gray-400 mt-0.5">{{ fmtTime(a.occurred_at) }}</p>
+              </router-link>
+            </div>
+          </div>
           <router-link to="/mypage/profile" :class="['flex items-center gap-2 rounded px-2 py-1', darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']">
             <img :src="auth.user?.avatar || '/images/default-avatar.png'" class="w-7 h-7 rounded-full" @error="$event.target.src='/images/default-avatar.png'" />
             <span class="text-sm hidden md:inline">{{ auth.user?.nickname || auth.user?.name }}</span>
@@ -118,7 +140,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../../stores/auth'
 
@@ -140,6 +162,29 @@ const showResults = ref(false)
 let searchDebounce = null
 const hasResults = computed(() => Object.keys(searchResults.value).length > 0)
 const categoryLabel = (c) => ({ users: '👤 회원', posts: '📝 게시글', payments: '💳 결제', businesses: '🏪 업소' }[c] || c)
+
+// 실시간 Admin 알림 (Reverb channel: admin-alerts)
+const alerts = ref([])
+const showAlerts = ref(false)
+const fmtTime = (s) => {
+  try { return new Date(s).toLocaleTimeString('ko-KR') } catch { return '' }
+}
+onMounted(() => {
+  try {
+    window.Echo?.channel('admin-alerts').listen('.admin.alert', (e) => {
+      alerts.value.unshift(e)
+      if (alerts.value.length > 20) alerts.value.length = 20
+      // 토스트 알림도 같이
+      try {
+        const msg = `[${e.severity === 'critical' ? '🚨' : e.severity === 'warning' ? '⚠️' : 'ℹ️'}] ${e.title}: ${e.message}`
+        const store = (window.__siteStore__ ?? null)
+        store?.toast?.(msg, e.severity === 'critical' ? 'error' : 'warning', 6000)
+      } catch {}
+    })
+  } catch (err) {
+    console.warn('[AdminLayoutV2] admin-alerts listener setup failed', err)
+  }
+})
 
 async function onSearchInput() {
   if (searchDebounce) clearTimeout(searchDebounce)
@@ -168,6 +213,7 @@ const groups = [
     items: [
       { to: '/admin/v2/users',           label: '회원 관리',   perm: 'users.view' },
       { to: '/admin/v2/users/point-ops', label: '💰 포인트 운영', perm: 'points.adjust' },
+      { to: '/admin/v2/users/invitations', label: '👑 관리자 초대', perm: 'users.role.change' },
       { to: '/admin/v2/content',         label: '게시글',       perm: 'content.view' },
       { to: '/admin/v2/comments',        label: '댓글',         perm: 'comments.delete' },
       { to: '/admin/v2/boards',          label: '게시판',       perm: 'site.settings.edit' },
@@ -265,6 +311,7 @@ const groups = [
       { to: '/admin/v2/security/ip-bans',    label: 'IP 차단',      perm: 'ipbans.view' },
       { to: '/admin/v2/security/login-logs', label: '로그인 기록', perm: 'users.login-history.view' },
       { to: '/admin/v2/security/audit',      label: '감사 로그',   perm: 'audit.view' },
+      { to: '/admin/v2/security/anomaly',    label: '⚠️ 이상 활동', perm: 'audit.view' },
     ],
   },
   {

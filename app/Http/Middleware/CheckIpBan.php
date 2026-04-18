@@ -11,11 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckIpBan
 {
     /**
-     * IP 차단 체크 미들웨어
-     * - 요청 IP가 ip_bans 테이블에 있는지 확인
-     * - 만료된 차단: 레코드 삭제 후 통과
-     * - 유효한 차단: 403 응답
-     * - 5분 캐시로 매 요청마다 DB 조회 방지
+     * IP 차단 체크 미들웨어 (Phase 2-C Post: CIDR 지원).
+     * - 단일 IP: 정확히 일치
+     * - CIDR: '1.2.3.0/24' 형태 대역 매칭
+     * - 만료: 레코드 삭제 후 통과
+     * - 5분 캐시 (IP 단위)
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -23,28 +23,46 @@ class CheckIpBan
         $cacheKey = "ip_ban:{$ip}";
 
         try {
-            // 캐시에서 차단 상태 확인 (5분 TTL)
             $banStatus = Cache::remember($cacheKey, 300, function () use ($ip) {
-                $ban = DB::table('ip_bans')
+                // 1) 정확 일치 단일 IP
+                $exact = DB::table('ip_bans')
                     ->where('ip_address', $ip)
                     ->first();
 
-                if (!$ban) {
-                    return ['banned' => false];
+                if ($exact) {
+                    if ($exact->expires_at && now()->greaterThan($exact->expires_at)) {
+                        DB::table('ip_bans')->where('id', $exact->id)->delete();
+                    } else {
+                        return [
+                            'banned' => true,
+                            'reason' => $exact->reason ?? '접근이 차단되었습니다.',
+                            'expires_at' => $exact->expires_at,
+                        ];
+                    }
                 }
 
-                // 만료 확인
-                if ($ban->expires_at && now()->greaterThan($ban->expires_at)) {
-                    // 만료된 차단 레코드 삭제
-                    DB::table('ip_bans')->where('id', $ban->id)->delete();
-                    return ['banned' => false];
+                // 2) CIDR 범위 매칭
+                if (\Schema::hasColumn('ip_bans', 'is_cidr')) {
+                    $cidrs = DB::table('ip_bans')
+                        ->where('is_cidr', true)
+                        ->get();
+
+                    foreach ($cidrs as $row) {
+                        if ($row->expires_at && now()->greaterThan($row->expires_at)) {
+                            DB::table('ip_bans')->where('id', $row->id)->delete();
+                            continue;
+                        }
+                        if ($this->ipInCidr($ip, $row->ip_address)) {
+                            return [
+                                'banned' => true,
+                                'reason' => $row->reason ?? '대역 차단',
+                                'expires_at' => $row->expires_at,
+                            ];
+                        }
+                    }
                 }
 
-                return [
-                    'banned' => true,
-                    'reason' => $ban->reason ?? '접근이 차단되었습니다.',
-                    'expires_at' => $ban->expires_at,
-                ];
+                return ['banned' => false];
             });
 
             if ($banStatus['banned']) {
@@ -56,9 +74,27 @@ class CheckIpBan
                 ], 403);
             }
         } catch (\Exception $e) {
-            // ip_bans 테이블이 없으면 무시하고 통과
+            // 테이블 없음 등 예외 시 통과
         }
 
         return $next($request);
+    }
+
+    /**
+     * IP 가 CIDR 범위 안에 있는지. IPv4 만 지원.
+     */
+    protected function ipInCidr(string $ip, string $cidr): bool
+    {
+        if (!str_contains($cidr, '/')) return false;
+        [$subnet, $mask] = explode('/', $cidr);
+        $mask = (int) $mask;
+        if ($mask < 0 || $mask > 32) return false;
+
+        $ipLong     = ip2long($ip);
+        $subnetLong = ip2long($subnet);
+        if ($ipLong === false || $subnetLong === false) return false;
+
+        $maskLong = $mask === 0 ? 0 : (~((1 << (32 - $mask)) - 1)) & 0xFFFFFFFF;
+        return ($ipLong & $maskLong) === ($subnetLong & $maskLong);
     }
 }
