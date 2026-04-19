@@ -10,9 +10,10 @@
         </svg>
       </button>
 
-      <!-- Logo -->
-      <RouterLink to="/" class="flex items-center flex-shrink-0">
-        <img src="/images/logo_00.jpg" alt="AwesomeKorean" class="h-8 rounded-lg object-contain" @error="e => e.target.outerHTML='<div class=\'w-7 h-7 bg-amber-400 rounded-lg flex items-center justify-center text-xs font-black text-amber-900\'>AK</div>'" />
+      <!-- Logo (임시 텍스트 로고 — 실제 로고 이미지 교체 예정) -->
+      <RouterLink to="/" class="flex items-center gap-2 flex-shrink-0">
+        <div class="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center text-white text-xs font-black shadow-sm">AK</div>
+        <span class="font-black text-amber-800 text-sm hidden sm:inline">AwesomeKorean</span>
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
