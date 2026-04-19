@@ -2,7 +2,7 @@
 <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
   <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
     <div class="text-center mb-6">
-      <div class="w-12 h-12 bg-amber-400 rounded-xl mx-auto mb-3 flex items-center justify-center text-xl font-black text-amber-900">SK</div>
+      <div class="w-12 h-12 bg-amber-400 rounded-xl mx-auto mb-3 flex items-center justify-center text-xl font-black text-amber-900">AK</div>
       <h1 class="text-xl font-black text-gray-800">비밀번호 찾기</h1>
       <p class="text-sm text-gray-500 mt-1">가입한 이메일을 입력하세요</p>
     </div>

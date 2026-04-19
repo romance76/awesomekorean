@@ -2,7 +2,7 @@
 <div class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
   <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
     <div class="text-center mb-6">
-      <div class="w-12 h-12 bg-amber-400 rounded-xl mx-auto mb-3 flex items-center justify-center text-xl font-black text-amber-900">SK</div>
+      <div class="w-12 h-12 bg-amber-400 rounded-xl mx-auto mb-3 flex items-center justify-center text-xl font-black text-amber-900">AK</div>
       <h1 class="text-xl font-black text-gray-800">로그인</h1>
     </div>
     <form @submit.prevent="handleLogin" class="space-y-4">

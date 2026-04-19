@@ -12,7 +12,7 @@
 
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center flex-shrink-0">
-        <img src="/images/logo_00.jpg" alt="AwesomeKorean" class="h-8 rounded-lg object-contain" @error="e => e.target.outerHTML='<div class=\'w-7 h-7 bg-amber-400 rounded-lg flex items-center justify-center text-xs font-black text-amber-900\'>SK</div>'" />
+        <img src="/images/logo_00.jpg" alt="AwesomeKorean" class="h-8 rounded-lg object-contain" @error="e => e.target.outerHTML='<div class=\'w-7 h-7 bg-amber-400 rounded-lg flex items-center justify-center text-xs font-black text-amber-900\'>AK</div>'" />
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
