@@ -3,7 +3,7 @@
   <!-- 히어로 -->
   <div class="bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-400 text-white">
     <div class="max-w-5xl mx-auto px-4 py-16 text-center">
-      <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-bold mb-4">💙 SomeKorean 안심서비스</div>
+      <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-bold mb-4">💙 AwesomeKorean 안심서비스</div>
       <h1 class="text-3xl md:text-4xl font-black leading-tight">소중한 분의 안전을<br/>전화 한 통으로 확인합니다</h1>
       <p class="text-blue-100 mt-4 max-w-xl mx-auto">보호자가 등록하면, 시스템이 자동으로 보호대상에게 전화를 걸어 안부를 확인합니다. 응답이 없으면 보호자에게 즉시 알림이 갑니다.</p>
       <div class="mt-8 flex justify-center gap-3 flex-wrap">

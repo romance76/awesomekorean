@@ -84,7 +84,7 @@ class DatabaseSeeder extends Seeder
     private function seedUsers()
     {
         $admin = User::create([
-            'name'=>'관리자','nickname'=>'관리자','email'=>'admin@somekorean.com',
+            'name'=>'관리자','nickname'=>'관리자','email'=>'admin@awesomekorean.com',
             'password'=>Hash::make('password'),'role'=>'admin','language'=>'ko','points'=>10000,
         ]);
 
@@ -735,11 +735,11 @@ class DatabaseSeeder extends Seeder
     private function seedSiteSettings()
     {
         $settings = [
-            ['key'=>'site_name','value'=>'SomeKorean','group'=>'general'],
+            ['key'=>'site_name','value'=>'AwesomeKorean','group'=>'general'],
             ['key'=>'site_description','value'=>'미국 한인 커뮤니티','group'=>'general'],
             ['key'=>'primary_color','value'=>'#F59E0B','group'=>'appearance'],
             ['key'=>'logo_url','value'=>'/images/logo_00.jpg','group'=>'appearance'],
-            ['key'=>'contact_email','value'=>'info@somekorean.com','group'=>'general'],
+            ['key'=>'contact_email','value'=>'info@awesomekorean.com','group'=>'general'],
         ];
         foreach ($settings as $s) SiteSetting::create($s);
         $this->command->info('✅ site settings');

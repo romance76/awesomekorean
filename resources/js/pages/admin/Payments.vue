@@ -88,8 +88,8 @@
             <div class="text-2xl font-black">#{{ detailItem.id }}</div>
           </div>
           <div class="text-right">
-            <div class="font-bold">SomeKorean</div>
-            <div class="text-xs opacity-80">somekorean.com</div>
+            <div class="font-bold">AwesomeKorean</div>
+            <div class="text-xs opacity-80">awesomekorean.com</div>
           </div>
         </div>
       </div>

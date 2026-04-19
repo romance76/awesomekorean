@@ -1010,7 +1010,7 @@ td:last-child{text-align:right;font-weight:600}
 .total{font-size:18px;font-weight:900;color:#d97706;border-top:2px solid #f59e0b}
 .footer{text-align:center;margin-top:40px;font-size:11px;color:#9ca3af}
 @media print{body{padding:20px}}</style></head><body>
-<div class="header"><div class="logo">SomeKorean</div><h1>결제 인보이스</h1></div>
+<div class="header"><div class="logo">AwesomeKorean</div><h1>결제 인보이스</h1></div>
 <table>
 <tr><td>인보이스 번호</td><td>#${esc(String(p.id))}</td></tr>
 <tr><td>결제일</td><td>${esc(fmtDateFull(p.created_at))}</td></tr>
@@ -1019,7 +1019,7 @@ td:last-child{text-align:right;font-weight:600}
 <tr><td>상품</td><td>포인트 ${esc(String(p.points_purchased?.toLocaleString()||0))}P</td></tr>
 <tr class="total"><td>결제 금액</td><td>$${esc(String(p.amount))} USD</td></tr>
 </table>
-<div class="footer">SomeKorean — 미국 한인 커뮤니티<br>이 인보이스는 자동 생성되었습니다.</div>
+<div class="footer">AwesomeKorean — 미국 한인 커뮤니티<br>이 인보이스는 자동 생성되었습니다.</div>
 <script>setTimeout(()=>window.print(),300)<\/script></body></html>`)
   w.document.close()
 }

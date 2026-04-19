@@ -11,7 +11,7 @@
           <div v-if="event.image_url" class="h-48 lg:h-64 bg-gray-200 overflow-hidden">
             <img :src="event.image_url" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
           </div>
-          <div v-else-if="event.event_type === 'somekorean'" class="relative flex items-center justify-between px-6 overflow-hidden"
+          <div v-else-if="event.event_type === 'awesomekorean'" class="relative flex items-center justify-between px-6 overflow-hidden"
             :style="{ background: 'linear-gradient(135deg, ' + (event.banner_color || '#F5A623') + ', ' + (event.banner_color || '#F5A623') + '99)', height: '280px' }">
             <div class="z-10 max-w-[65%]">
               <div class="flex items-center gap-2 mb-3">
@@ -27,7 +27,7 @@
           <!-- 헤더 -->
           <div class="px-4 lg:px-5 py-4">
             <div class="flex items-center gap-2 flex-wrap mb-2">
-              <span v-if="event.event_type === 'somekorean'" class="text-xs bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full font-bold">⭐ 썸코리안 공식</span>
+              <span v-if="event.event_type === 'awesomekorean'" class="text-xs bg-amber-400 text-amber-900 px-2 py-0.5 rounded-full font-bold">⭐ 썸코리안 공식</span>
               <span v-if="event.reward_points" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">🎁 최대 {{ event.reward_points }}P</span>
               <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ event.category || '이벤트' }}</span>
               <span v-if="event.is_free || !event.price" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">무료</span>
@@ -92,7 +92,7 @@
           <div class="px-4 lg:px-5 py-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ event.content || event.description }}</div>
 
           <!-- 공식 이벤트 참여하기 버튼 -->
-          <div v-if="event.event_url || event.event_type === 'somekorean'" class="px-4 lg:px-5 py-3 border-t">
+          <div v-if="event.event_url || event.event_type === 'awesomekorean'" class="px-4 lg:px-5 py-3 border-t">
             <button v-if="event.event_url" @click="$router.push(event.event_url)"
               class="w-full py-3 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
               :style="{ backgroundColor: event.banner_color || '#F59E0B' }">

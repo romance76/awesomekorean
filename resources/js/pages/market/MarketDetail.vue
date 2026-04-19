@@ -149,7 +149,7 @@
           <div class="flex items-start gap-2">
             <span class="text-amber-500 flex-shrink-0">⚠️</span>
             <div class="text-xs text-gray-500 leading-relaxed">
-              <b class="text-gray-700">거래 전 주의!</b> 해당 게시글은 회원이 등록한 것으로 SomeKorean은 등록된 내용에 대하여 일체의 책임을 지지 않습니다.
+              <b class="text-gray-700">거래 전 주의!</b> 해당 게시글은 회원이 등록한 것으로 AwesomeKorean은 등록된 내용에 대하여 일체의 책임을 지지 않습니다.
               직거래 시 안전한 장소에서 만나시고, 선입금 요구에 주의하세요.
             </div>
           </div>

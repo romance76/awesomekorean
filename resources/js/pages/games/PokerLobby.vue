@@ -7,7 +7,7 @@
       <button @click="$router.back()" class="text-white/50 hover:text-white text-lg absolute left-0 top-1/2 -translate-y-1/2">&#9664;</button>
       <div class="flex items-center justify-center gap-3 mb-1">
         <span class="text-4xl">&#127920;</span>
-        <h1 class="text-3xl font-black text-amber-400 tracking-wider">SomeKorean 포커</h1>
+        <h1 class="text-3xl font-black text-amber-400 tracking-wider">AwesomeKorean 포커</h1>
       </div>
       <p class="text-sm text-gray-400">토너먼트 &middot; AI 연습 &middot; 블랙잭 &mdash; 실력을 겨뤄보세요</p>
     </div>

@@ -1,4 +1,4 @@
-# SomeKorean 전체 기능 체크리스트
+# AwesomeKorean 전체 기능 체크리스트
 # ✅ = v2에 구현됨 | ❌ = 미구현 | 🚫 = 제거 대상 (ride/match/mentor/AI)
 
 ## 1. 인증 (Authentication)

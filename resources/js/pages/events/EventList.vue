@@ -105,7 +105,7 @@
     <div v-if="activeItem">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <!-- 공식 이벤트: 배너 이미지 또는 색상 헤더 -->
-        <div v-if="activeItem.event_type === 'somekorean'" class="relative overflow-hidden"
+        <div v-if="activeItem.event_type === 'awesomekorean'" class="relative overflow-hidden"
           :style="{ backgroundColor: activeItem.banner_color || '#F5A623', height: '180px' }">
           <!-- 이미지가 있으면 이미지만 (높이 맞춤, 비율 유지) -->
           <img v-if="activeItem.banner_image || activeItem.image_url" :src="activeItem.banner_image || activeItem.image_url"
@@ -174,9 +174,9 @@
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
         class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
-        :class="item.event_type === 'somekorean' ? 'border-amber-200' : 'bg-white border-gray-100'">
+        :class="item.event_type === 'awesomekorean' ? 'border-amber-200' : 'bg-white border-gray-100'">
         <!-- 공식 이벤트: 배너 색상 상단 영역 -->
-        <div v-if="item.event_type === 'somekorean'" class="relative flex items-center justify-between px-5 py-4"
+        <div v-if="item.event_type === 'awesomekorean'" class="relative flex items-center justify-between px-5 py-4"
           :style="{ background: 'linear-gradient(135deg, ' + (item.banner_color || '#F5A623') + ', ' + (item.banner_color || '#F5A623') + 'cc)' }">
           <div class="z-10">
             <div class="flex items-center gap-2 mb-1">
@@ -205,8 +205,8 @@
         </div>
 
         <!-- 공통: 정보 영역 -->
-        <div class="px-4 pb-3" :class="item.event_type === 'somekorean' ? 'bg-amber-50/50 pt-3' : ''">
-          <div v-if="item.event_type === 'somekorean'" class="flex items-center gap-2 mb-2 flex-wrap">
+        <div class="px-4 pb-3" :class="item.event_type === 'awesomekorean' ? 'bg-amber-50/50 pt-3' : ''">
+          <div v-if="item.event_type === 'awesomekorean'" class="flex items-center gap-2 mb-2 flex-wrap">
             <span v-if="item.reward_points" class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">🎁 최대 {{ item.reward_points }}P</span>
             <span class="text-[10px] text-gray-400">📅 {{ formatDate(item.start_date) }}{{ item.end_date ? ' ~ ' + formatDate(item.end_date) : '' }}</span>
           </div>
@@ -332,7 +332,7 @@ function eventStatusLabel(item) {
   return '진행중'
 }
 const eventCategories = [
-  { value: '', label: '전체' },{ value: 'somekorean', label: '⭐ 썸코리안', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
+  { value: '', label: '전체' },{ value: 'awesomekorean', label: '⭐ 썸코리안', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
   { value: 'education', label: '📚 교육' },{ value: 'community', label: '👥 커뮤니티' },
   { value: 'sports', label: '⚽ 스포츠' },{ value: 'food', label: '🍽️ 음식' },
 ]
@@ -471,7 +471,7 @@ onMounted(async () => {
       const { data } = await axios.get('/api/events/' + route.query.open)
       if (data.data) {
         activeItem.value = data.data
-        if (data.data.category) activeCat.value = data.data.event_type === 'somekorean' ? 'somekorean' : data.data.category
+        if (data.data.category) activeCat.value = data.data.event_type === 'awesomekorean' ? 'awesomekorean' : data.data.category
       }
     } catch {}
   }

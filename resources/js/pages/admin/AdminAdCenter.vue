@@ -85,7 +85,7 @@
   <!-- 슬롯 맵 시각화 (유저 신청 화면과 동일 레이아웃) -->
   <div v-if="slotMap" class="bg-gradient-to-b from-white to-amber-50/20 rounded-xl border overflow-hidden mb-4">
     <div class="bg-gradient-to-r from-amber-100 to-orange-100 px-4 py-2 font-bold text-sm">
-      🎯 SomeKorean — {{ slotMap.page_label }}
+      🎯 AwesomeKorean — {{ slotMap.page_label }}
       <span v-if="slotMap.geo_value" class="ml-2 text-xs text-gray-600">({{ slotMap.geo_scope }}: {{ slotMap.geo_value }})</span>
     </div>
 

@@ -46,8 +46,8 @@ class ThumbnailController extends Controller
         'img.arirang.com', 'www.arirang.com', 'm.arirang.com',
         // 오마이뉴스
         'ojsfile.ohmynews.com', 'www.ohmynews.com',
-        'somekorean.com',
-        'www.somekorean.com',
+        'awesomekorean.com',
+        'www.awesomekorean.com',
     ];
 
     public function show(Request $request)

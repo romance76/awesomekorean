@@ -57,7 +57,7 @@ async function geocode(query) {
   try {
     const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(query)
     const res = await fetch(url, {
-      headers: { 'Accept-Language': 'en', 'User-Agent': 'SomeKorean/1.0' }
+      headers: { 'Accept-Language': 'en', 'User-Agent': 'AwesomeKorean/1.0' }
     })
     const data = await res.json()
     if (data && data.length > 0) {

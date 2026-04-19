@@ -3,7 +3,7 @@
   <!-- 사이드바 -->
   <aside class="w-48 bg-white border-r hidden lg:flex flex-col h-screen sticky top-0">
     <div class="p-3 border-b bg-amber-50">
-      <div class="font-black text-amber-800 text-sm">⚙️ SomeKorean</div>
+      <div class="font-black text-amber-800 text-sm">⚙️ AwesomeKorean</div>
       <div v-if="auth.user" class="flex items-center gap-2 mt-2">
         <div class="w-7 h-7 bg-amber-400 rounded-full flex items-center justify-center text-white text-[10px] font-bold">{{ (auth.user.name||'?')[0] }}</div>
         <div>

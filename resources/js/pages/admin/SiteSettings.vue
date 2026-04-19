@@ -47,7 +47,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">사이트명</label>
-              <input v-model="company.site_name" type="text" class="input-field" placeholder="SomeKorean" />
+              <input v-model="company.site_name" type="text" class="input-field" placeholder="AwesomeKorean" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">사이트 부제목</label>
@@ -55,7 +55,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">회사명</label>
-              <input v-model="company.company_name" type="text" class="input-field" placeholder="SomeKorean Inc." />
+              <input v-model="company.company_name" type="text" class="input-field" placeholder="AwesomeKorean Inc." />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">대표자명</label>
@@ -75,7 +75,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-              <input v-model="company.email" type="email" class="input-field" placeholder="admin@somekorean.com" />
+              <input v-model="company.email" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">설립일</label>
@@ -333,7 +333,7 @@
           <!-- Copyright -->
           <div class="mb-5">
             <label class="block text-sm font-medium text-gray-700 mb-1">저작권 문구</label>
-            <input v-model="footer.copyright" type="text" class="input-field" placeholder="© 2024 SomeKorean Inc. All rights reserved." />
+            <input v-model="footer.copyright" type="text" class="input-field" placeholder="© 2024 AwesomeKorean Inc. All rights reserved." />
           </div>
 
           <!-- SNS Links -->
@@ -398,7 +398,7 @@
               </div>
             </div>
             <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-              <p class="text-xs">{{ footer.copyright || '© 2024 SomeKorean Inc.' }}</p>
+              <p class="text-xs">{{ footer.copyright || '© 2024 AwesomeKorean Inc.' }}</p>
               <div class="flex items-center gap-3">
                 <span v-if="footer.sns.facebook" class="text-xs hover:text-white cursor-pointer">Facebook</span>
                 <span v-if="footer.sns.instagram" class="text-xs hover:text-white cursor-pointer">Instagram</span>
@@ -810,15 +810,15 @@
           <div :class="['space-y-3 transition-opacity', notifications.email.enabled ? 'opacity-100' : 'opacity-40 pointer-events-none']">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">신규 가입 알림 수신 이메일</label>
-              <input v-model="notifications.email.new_user" type="email" class="input-field" placeholder="admin@somekorean.com" />
+              <input v-model="notifications.email.new_user" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">신고 접수 알림 수신 이메일</label>
-              <input v-model="notifications.email.report" type="email" class="input-field" placeholder="admin@somekorean.com" />
+              <input v-model="notifications.email.report" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">결제 알림 수신 이메일</label>
-              <input v-model="notifications.email.payment" type="email" class="input-field" placeholder="billing@somekorean.com" />
+              <input v-model="notifications.email.payment" type="email" class="input-field" placeholder="billing@awesomekorean.com" />
             </div>
           </div>
         </div>
@@ -862,18 +862,18 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">메타 타이틀 기본값</label>
-              <input v-model="seo.meta_title" type="text" class="input-field" placeholder="SomeKorean - 미국 한인 커뮤니티" />
+              <input v-model="seo.meta_title" type="text" class="input-field" placeholder="AwesomeKorean - 미국 한인 커뮤니티" />
               <p class="text-xs text-gray-400 mt-1">페이지별 타이틀이 없을 때 사용되는 기본 타이틀</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">메타 설명 기본값</label>
-              <textarea v-model="seo.meta_description" rows="2" class="input-field resize-none" placeholder="미국 한인 커뮤니티 플랫폼 SomeKorean에서 다양한 정보를 나누세요."></textarea>
+              <textarea v-model="seo.meta_description" rows="2" class="input-field resize-none" placeholder="미국 한인 커뮤니티 플랫폼 AwesomeKorean에서 다양한 정보를 나누세요."></textarea>
               <p class="text-xs text-gray-400 mt-1">검색 결과에 표시되는 사이트 설명 (150자 이내 권장)</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Open Graph 이미지 URL</label>
               <div class="flex items-center gap-3">
-                <input v-model="seo.og_image" type="text" class="input-field flex-1" placeholder="https://somekorean.com/images/og-image.jpg" />
+                <input v-model="seo.og_image" type="text" class="input-field flex-1" placeholder="https://awesomekorean.com/images/og-image.jpg" />
                 <div v-if="seo.og_image" class="w-16 h-10 border border-gray-200 rounded overflow-hidden flex-shrink-0">
                   <img :src="seo.og_image" alt="OG Preview" class="w-full h-full object-cover" @error="() => {}" />
                 </div>
@@ -897,7 +897,7 @@
 
             <div class="border-t border-gray-100 pt-4">
               <label class="block text-sm font-medium text-gray-700 mb-1">robots.txt 편집</label>
-              <textarea v-model="seo.robots_txt" rows="8" class="input-field resize-none font-mono text-xs" placeholder="User-agent: *&#10;Allow: /&#10;Sitemap: https://somekorean.com/sitemap.xml"></textarea>
+              <textarea v-model="seo.robots_txt" rows="8" class="input-field resize-none font-mono text-xs" placeholder="User-agent: *&#10;Allow: /&#10;Sitemap: https://awesomekorean.com/sitemap.xml"></textarea>
               <p class="text-xs text-gray-400 mt-1">검색 엔진 크롤러 접근 규칙을 설정합니다</p>
             </div>
           </div>
@@ -940,7 +940,7 @@
             </div>
             <div>
               <label class="text-xs text-gray-500 mb-1 block">Project ID</label>
-              <input v-model="firebase.projectId" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="somekorean-xxxxx" />
+              <input v-model="firebase.projectId" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="awesomekorean-xxxxx" />
             </div>
             <div>
               <label class="text-xs text-gray-500 mb-1 block">Messaging Sender ID</label>
@@ -1108,14 +1108,14 @@ function showToast(message, type = 'success') {
 
 // ─── Form Data ────────────────────────────────────────────────────────────────
 const company = reactive({
-  site_name: 'SomeKorean',
+  site_name: 'AwesomeKorean',
   site_subtitle: '미국 한인 커뮤니티',
-  company_name: 'SomeKorean Inc.',
+  company_name: 'AwesomeKorean Inc.',
   ceo_name: '',
   business_number: '',
   address: 'Los Angeles, CA, USA',
   phone: '',
-  email: 'admin@somekorean.com',
+  email: 'admin@awesomekorean.com',
   founded_date: '',
   logo_url: '',
   favicon_url: '',
@@ -1150,7 +1150,7 @@ const footer = reactive({
     { title: '커뮤니티', links: [{ label: '자유게시판', url: '/board' }, { label: '정보 공유', url: '/info' }] },
     { title: '정보', links: [{ label: '이용약관', url: '/terms' }, { label: '개인정보처리방침', url: '/privacy' }] },
   ],
-  copyright: '© 2024 SomeKorean Inc. All rights reserved.',
+  copyright: '© 2024 AwesomeKorean Inc. All rights reserved.',
   sns: {
     facebook: '',
     instagram: '',
@@ -1173,9 +1173,9 @@ const notifications = reactive({
   announcements: [],
   email: {
     enabled: true,
-    new_user: 'admin@somekorean.com',
-    report: 'admin@somekorean.com',
-    payment: 'billing@somekorean.com',
+    new_user: 'admin@awesomekorean.com',
+    report: 'admin@awesomekorean.com',
+    payment: 'billing@awesomekorean.com',
   },
   push: {
     vapid_public: '',
@@ -1211,12 +1211,12 @@ const payment = reactive({
 
 // ─── SEO Data ─────────────────────────────────────────────────────────────────
 const seo = reactive({
-  meta_title: 'SomeKorean - 미국 한인 커뮤니티',
+  meta_title: 'AwesomeKorean - 미국 한인 커뮤니티',
   meta_description: '',
   og_image: '',
   google_verification: '',
   naver_verification: '',
-  robots_txt: 'User-agent: *\nAllow: /\nSitemap: https://somekorean.com/sitemap.xml',
+  robots_txt: 'User-agent: *\nAllow: /\nSitemap: https://awesomekorean.com/sitemap.xml',
 })
 
 // ─── Load All Settings ────────────────────────────────────────────────────────

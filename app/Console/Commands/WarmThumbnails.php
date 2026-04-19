@@ -32,7 +32,7 @@ class WarmThumbnails extends Command
         'ojsfile.ohmynews.com', 'www.ohmynews.com',
         // 아리랑
         'img.arirang.com', 'www.arirang.com',
-        'somekorean.com', 'www.somekorean.com',
+        'awesomekorean.com', 'www.awesomekorean.com',
     ];
 
     public function handle()

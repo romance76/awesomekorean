@@ -1,4 +1,4 @@
-// SomeKorean Service Worker v6
+// AwesomeKorean Service Worker v6
 
 // ── Firebase Cloud Messaging ──────────────────────────────────────
 try {
@@ -6,7 +6,7 @@ try {
   importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
   firebase.initializeApp({
     apiKey: 'AIzaSyAOfIdUvVXqblgb7NrmPGWViIawuZNpDTA',
-    projectId: 'somekorean-c9430',
+    projectId: 'awesomekorean-c9430',
     messagingSenderId: '430136797121',
     appId: '1:430136797121:web:768cffa39c96a35e81f140',
   });
@@ -32,7 +32,7 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push received!', event.data?.text()?.substring(0, 100));
   if (!event.data) return;
   let data = {};
-  try { data = event.data.json(); } catch { data = { title: 'SomeKorean', body: event.data.text() }; }
+  try { data = event.data.json(); } catch { data = { title: 'AwesomeKorean', body: event.data.text() }; }
 
   // data-only 메시지: payload가 data 안에 있거나 최상위에 있을 수 있음
   const payload = data.data || data;
@@ -71,7 +71,7 @@ self.addEventListener('push', (event) => {
   }
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || data.title || 'SomeKorean', {
+    self.registration.showNotification(payload.title || data.title || 'AwesomeKorean', {
       body: payload.body || data.body || '새 알림이 있습니다',
       icon: '/images/icons/icon-192.png',
       vibrate: [200, 100, 200],

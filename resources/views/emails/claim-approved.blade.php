@@ -5,5 +5,5 @@
 <p><strong>{{ $businessName }}</strong> 업소의 소유권 신청이 승인되었습니다!</p>
 <p>이제 업주 대시보드에서 업소 정보를 직접 관리하실 수 있습니다.</p>
 <a href="{{ $dashboardUrl }}" class="btn">내 업소 관리하기</a>
-<p style="color:#666;font-size:12px">SomeKorean - 미국 한인 커뮤니티</p>
+<p style="color:#666;font-size:12px">AwesomeKorean - 미국 한인 커뮤니티</p>
 </body></html>

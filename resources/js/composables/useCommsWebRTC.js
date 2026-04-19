@@ -50,12 +50,12 @@ export function useCommsWebRTC() {
           { urls: 'stun:stun.l.google.com:19302' },
           {
             urls: 'turn:68.183.60.70:3478',
-            username: 'somekorean',
+            username: 'awesomekorean',
             credential: 'Skrtc2026!',
           },
           {
             urls: 'turn:68.183.60.70:3478?transport=tcp',
-            username: 'somekorean',
+            username: 'awesomekorean',
             credential: 'Skrtc2026!',
           },
         ],

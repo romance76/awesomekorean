@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 
 export const useSiteStore = defineStore('site', () => {
-  const siteName = ref('SomeKorean')
+  const siteName = ref('AwesomeKorean')
   const logoUrl = ref('/images/logo_00.jpg')
   const menus = ref([])
   const loaded = ref(false)
@@ -37,7 +37,7 @@ export const useSiteStore = defineStore('site', () => {
       const { data } = await axios.get('/api/settings/public')
       if (data.data) {
         settings.value = data.data
-        siteName.value = data.data.site_name || 'SomeKorean'
+        siteName.value = data.data.site_name || 'AwesomeKorean'
         logoUrl.value = data.data.logo_url || '/images/logo_00.jpg'
         // 메뉴 설정도 여기서 파싱
         if (data.data.menu_config) {

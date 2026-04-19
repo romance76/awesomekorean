@@ -11,7 +11,7 @@ node_modules/
 public/build/
 
 # Firebase credentials
-somekorean-c9430-firebase-adminsdk-*.json
+awesomekorean-c9430-firebase-adminsdk-*.json
 
 # QA 테스트 계정 자격증명 (Phase 1 전용)
 qa/.env.testing

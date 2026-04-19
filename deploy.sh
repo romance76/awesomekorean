@@ -1,7 +1,7 @@
 #!/bin/bash
 # P2B-22: 단계별 로그 + 실패 시 명확한 에러 메시지
 set -u
-APP_DIR="/var/www/somekorean"
+APP_DIR="/var/www/awesomekorean"
 LOG="$APP_DIR/storage/logs/deploy.log"
 
 log() { echo "[Deploy $(date +%Y-%m-%d_%H:%M:%S)] $*" | tee -a "$LOG"; }
@@ -14,7 +14,7 @@ COMMIT_BEFORE=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 log "Previous commit: $COMMIT_BEFORE"
 
 # Save build before git reset
-cp -r public/build /tmp/somekorean_build_backup 2>/dev/null || true
+cp -r public/build /tmp/awesomekorean_build_backup 2>/dev/null || true
 
 git config --global --add safe.directory "$APP_DIR" 2>/dev/null || true
 
@@ -25,7 +25,7 @@ COMMIT_AFTER=$(git rev-parse --short HEAD)
 log "New commit: $COMMIT_AFTER"
 
 if [ ! -f "public/build/manifest.json" ]; then
-    cp -r /tmp/somekorean_build_backup public/build 2>/dev/null || true
+    cp -r /tmp/awesomekorean_build_backup public/build 2>/dev/null || true
 fi
 
 log "▶ Step 2/7: composer install"
@@ -54,7 +54,7 @@ chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
 log "▶ Step 7/7: php-fpm restart"
 systemctl restart php8.2-fpm
 
-rm -rf /tmp/somekorean_build_backup
+rm -rf /tmp/awesomekorean_build_backup
 
 log "✅ DEPLOY SUCCESS: $COMMIT_BEFORE → $COMMIT_AFTER"
 log "─────────────────────────────────────────"

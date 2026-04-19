@@ -48,7 +48,7 @@
         <div v-else-if="!allFriends.length" class="space-y-6">
           <div class="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl p-8 text-center border border-amber-200">
             <div class="text-6xl mb-4">🤝</div>
-            <h2 class="text-2xl font-black text-gray-800 mb-2">SomeKorean 친구</h2>
+            <h2 class="text-2xl font-black text-gray-800 mb-2">AwesomeKorean 친구</h2>
             <p class="text-gray-500 text-sm max-w-md mx-auto">미국에서 만난 한인 친구들과 더 가까워지세요. 커뮤니티, 구인구직, 중고장터 등 다양한 곳에서 만난 인연을 이어갈 수 있습니다.</p>
           </div>
 

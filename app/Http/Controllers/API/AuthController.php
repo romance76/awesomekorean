@@ -117,8 +117,8 @@ class AuthController extends Controller
         );
 
         try {
-            \Mail::raw("SomeKorean 비밀번호 재설정 코드: {$code}", function ($msg) use ($request) {
-                $msg->to($request->email)->subject('[SomeKorean] 비밀번호 재설정 코드');
+            \Mail::raw("AwesomeKorean 비밀번호 재설정 코드: {$code}", function ($msg) use ($request) {
+                $msg->to($request->email)->subject('[AwesomeKorean] 비밀번호 재설정 코드');
             });
         } catch (\Exception $e) {
             // 메일 전송 실패해도 코드는 생성됨

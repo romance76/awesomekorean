@@ -39,7 +39,7 @@
       <div class="max-w-7xl mx-auto px-4 py-6">
         <div class="grid grid-cols-4 gap-4 mb-4">
           <div>
-            <div class="text-amber-400 font-black text-sm mb-2">SomeKorean</div>
+            <div class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
             <div class="text-xs text-gray-500">미국 한인 No.1 커뮤니티</div>
           </div>
           <div>
@@ -63,7 +63,7 @@
             <RouterLink to="/privacy" class="block text-xs hover:text-amber-400 mb-1">개인정보처리방침</RouterLink>
           </div>
         </div>
-        <div class="border-t border-gray-700 pt-4 text-xs text-center text-gray-500">&copy; 2026 SomeKorean. All rights reserved.</div>
+        <div class="border-t border-gray-700 pt-4 text-xs text-center text-gray-500">&copy; 2026 AwesomeKorean. All rights reserved.</div>
       </div>
     </footer>
 

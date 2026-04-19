@@ -102,7 +102,7 @@
       <template v-else>
         <div class="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-50">
           <div class="bg-gradient-to-r from-amber-400 to-orange-400 h-8 flex items-center px-4">
-            <span class="text-[10px] font-black text-amber-900">SomeKorean — {{ selectedPageLabel }}</span>
+            <span class="text-[10px] font-black text-amber-900">AwesomeKorean — {{ selectedPageLabel }}</span>
           </div>
           <div class="grid grid-cols-12 gap-2 p-3 min-h-[320px]">
             <!-- 왼쪽 사이드바 -->
@@ -213,7 +213,7 @@
           <div>
             <label class="text-xs font-bold text-gray-600 block mb-1">클릭 시 URL (선택)</label>
             <div class="flex gap-2">
-              <input v-model="adForm.link_url" @input="saveDraft" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="somekorean.com 또는 https://..." />
+              <input v-model="adForm.link_url" @input="saveDraft" class="flex-1 border rounded-lg px-3 py-2 text-sm" placeholder="awesomekorean.com 또는 https://..." />
               <button v-if="adForm.link_url" @click="previewUrl" type="button" class="bg-blue-500 text-white font-bold px-3 py-2 rounded-lg text-xs hover:bg-blue-600 flex-shrink-0">확인</button>
             </div>
             <div v-if="urlConfirmed" class="mt-1 text-[10px] text-green-600 font-bold">✅ {{ normalizedUrl }} 확정됨</div>

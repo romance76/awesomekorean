@@ -5,5 +5,5 @@
 <p><strong>{{ $businessName }}</strong> 업소의 소유권 신청을 위한 이메일 인증입니다.</p>
 <a href="{{ $verifyUrl }}" class="btn">이메일 인증하기</a>
 <p style="color:#666;font-size:14px">이 링크는 24시간 후 만료됩니다.</p>
-<p style="color:#666;font-size:12px">SomeKorean - 미국 한인 커뮤니티</p>
+<p style="color:#666;font-size:12px">AwesomeKorean - 미국 한인 커뮤니티</p>
 </body></html>

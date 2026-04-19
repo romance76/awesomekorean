@@ -181,7 +181,7 @@ class FetchNews extends Command
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_TIMEOUT => 10,
                 CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; SomeKorean/1.0)',
+                CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; AwesomeKorean/1.0)',
             ]);
             $imageData = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);

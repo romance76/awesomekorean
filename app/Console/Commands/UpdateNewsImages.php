@@ -50,7 +50,7 @@ class UpdateNewsImages extends Command
             $context = stream_context_create([
                 'http' => [
                     'timeout'    => 8,
-                    'user_agent' => 'Mozilla/5.0 (compatible; SomeKorean/1.0)',
+                    'user_agent' => 'Mozilla/5.0 (compatible; AwesomeKorean/1.0)',
                     'follow_location' => true,
                 ],
                 'ssl' => [

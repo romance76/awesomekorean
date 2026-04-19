@@ -226,7 +226,7 @@ class BannerController extends Controller
     // 유저: 광고 입찰 신청 (월간 경매)
     public function store(Request $request)
     {
-        // URL 자동 정규화: somekorean.com → https://somekorean.com
+        // URL 자동 정규화: awesomekorean.com → https://awesomekorean.com
         if ($request->link_url && !preg_match('#^https?://#i', $request->link_url)) {
             $request->merge(['link_url' => 'https://' . $request->link_url]);
         }

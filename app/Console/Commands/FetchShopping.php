@@ -34,7 +34,7 @@ class FetchShopping extends Command
                 $context = stream_context_create([
                     'http' => [
                         'timeout'    => 15,
-                        'user_agent' => 'Mozilla/5.0 (SomeKorean Bot)',
+                        'user_agent' => 'Mozilla/5.0 (AwesomeKorean Bot)',
                     ],
                     'ssl' => [
                         'verify_peer'      => false,

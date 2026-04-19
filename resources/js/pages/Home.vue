@@ -8,7 +8,7 @@
           <div class="inline-flex items-center gap-2 bg-white/30 rounded-full px-4 py-1 text-sm font-bold text-amber-900 mb-2">
             🇰🇷 미국 한인 No.1 커뮤니티
           </div>
-          <h1 class="text-3xl md:text-4xl font-black text-amber-900">SomeKorean</h1>
+          <h1 class="text-3xl md:text-4xl font-black text-amber-900">AwesomeKorean</h1>
           <p class="text-amber-800 mt-1 text-sm">한인들의 일상을 함께하는 올인원 플랫폼</p>
           <div class="mt-4 max-w-xl mx-auto bg-white/80 rounded-xl flex items-center px-4 py-2.5 shadow-lg">
             <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
