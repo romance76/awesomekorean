@@ -9,6 +9,7 @@ node_modules/
 
 # Build output — 서버에서만 빌드 (로컬 빌드 커밋 금지)
 public/build/
+public/hot
 
 # Firebase credentials
 awesomekorean-c9430-firebase-adminsdk-*.json
