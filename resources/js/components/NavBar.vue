@@ -87,8 +87,8 @@
           <RouterLink to="/login" class="text-xs text-gray-600 hover:text-amber-700 px-1.5 py-1 hidden sm:block">로그인</RouterLink>
           <RouterLink to="/register" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded-lg hover:bg-amber-500">가입</RouterLink>
         </template>
-        <button @click="togglePageLang()" class="text-[11px] font-bold px-2 py-1 rounded border border-gray-200" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
-          {{ isTranslatedEn ? '한' : 'EN' }}
+        <button @click="togglePageLang()" translate="no" class="notranslate text-[11px] font-bold px-2 py-1 rounded border border-gray-200" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
+          <span translate="no" class="notranslate">{{ isTranslatedEn ? '한' : 'EN' }}</span>
         </button>
       </div>
     </div>
