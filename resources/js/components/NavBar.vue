@@ -225,6 +225,9 @@ const defaultMenus = [
   { key: 'groupbuy', label: '공동구매', label_en: 'Group Buy', icon: '🤝', path: '/groupbuy', enabled: true },
   { key: 'chat', label: '채팅', label_en: 'Chat', icon: '💭', path: '/chat', enabled: true, login_required: true },
   { key: 'friends', label: '친구', label_en: 'Friends', icon: '👫', path: '/friends', enabled: true, login_required: true },
+  { key: 'elder', label: '안심서비스', label_en: 'Elder Care', icon: '💙', path: '/elder', enabled: true },
+  { key: 'comms', label: '안심 커뮤', label_en: 'Comms', icon: '📞', path: '/comms', enabled: true },
+  { key: 'shopping', label: '쇼핑', label_en: 'Shopping', icon: '🛍️', path: '/shopping', enabled: false },
 ]
 
 const visibleMenus = computed(() => {

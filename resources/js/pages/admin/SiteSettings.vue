@@ -1506,6 +1506,7 @@ const allMenuDefs = [
   { key: 'chat',      label: '채팅',     label_en: 'Chat',       icon: '💭', path: '/chat' },
   { key: 'friends',   label: '친구',     label_en: 'Friends',    icon: '👫', path: '/friends' },
   { key: 'elder',     label: '안심서비스',label_en: 'Elder Care', icon: '💙', path: '/elder' },
+  { key: 'comms',     label: '안심 커뮤', label_en: 'Comms',      icon: '📞', path: '/comms' },
 ]
 
 async function loadMenus() {

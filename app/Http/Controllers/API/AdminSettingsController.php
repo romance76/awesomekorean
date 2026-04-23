@@ -122,7 +122,21 @@ class AdminSettingsController extends Controller
 
     // 메뉴 일괄 저장
     public function saveMenus(Request $request) {
-        SiteSetting::updateOrCreate(['key'=>'menu_config'], ['value'=>json_encode($request->menus)]);
+        // 기존 DB 에만 있는 key 는 보존 (프론트 allMenuDefs 에 없는 항목 실수 삭제 방지)
+        $incoming = collect($request->menus ?? []);
+        $incomingKeys = $incoming->pluck('key')->filter()->all();
+        $existing = SiteSetting::where('key','menu_config')->first();
+        $existingArr = $existing ? (json_decode($existing->value, true) ?: []) : [];
+        $preserved = collect($existingArr)
+            ->filter(fn($m) => isset($m['key']) && !in_array($m['key'], $incomingKeys))
+            ->values()
+            ->all();
+        $merged = array_merge($incoming->all(), $preserved);
+        SiteSetting::updateOrCreate(['key'=>'menu_config'], ['value'=>json_encode($merged)]);
+        // /api/settings/public 캐시 즉시 무효화 (md5 로 저장되어 있어 태그 없음 — 알려진 URL 패턴만 제거)
+        foreach (['https://awesomekorean.com/api/settings/public','http://awesomekorean.com/api/settings/public','https://somekorean.com/api/settings/public'] as $u) {
+            \Cache::forget('api_cache_' . md5($u));
+        }
         return response()->json(['success'=>true,'message'=>'메뉴 설정이 저장되었습니다']);
     }
 
