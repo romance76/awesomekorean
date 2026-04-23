@@ -1,0 +1,107 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "AwesomeKorean" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "AwesomeKorean" [ref=e7]
+        - generic [ref=e9]:
+          - textbox "검색어를 입력하세요" [ref=e10]
+          - button [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+        - generic [ref=e14]:
+          - link "로그인" [ref=e15] [cursor=pointer]:
+            - /url: /login
+          - link "가입" [ref=e16] [cursor=pointer]:
+            - /url: /register
+          - button "EN" [ref=e17] [cursor=pointer]
+      - generic [ref=e19]:
+        - link "홈" [ref=e20] [cursor=pointer]:
+          - /url: /
+        - link "커뮤니티" [ref=e21] [cursor=pointer]:
+          - /url: /community
+        - link "Q&A" [ref=e22] [cursor=pointer]:
+          - /url: /qa
+        - link "구인구직" [ref=e23] [cursor=pointer]:
+          - /url: /jobs
+        - link "중고장터" [ref=e24] [cursor=pointer]:
+          - /url: /market
+        - link "부동산" [ref=e25] [cursor=pointer]:
+          - /url: /realestate
+        - link "업소록" [ref=e26] [cursor=pointer]:
+          - /url: /directory
+        - link "동호회" [ref=e27] [cursor=pointer]:
+          - /url: /clubs
+        - link "뉴스" [ref=e28] [cursor=pointer]:
+          - /url: /news
+        - link "레시피" [ref=e29] [cursor=pointer]:
+          - /url: /recipes
+        - link "공동구매" [ref=e30] [cursor=pointer]:
+          - /url: /groupbuy
+        - link "채팅" [ref=e31] [cursor=pointer]:
+          - /url: /chat
+        - link "게임" [ref=e32] [cursor=pointer]:
+          - /url: /games
+        - link "숏츠" [ref=e33] [cursor=pointer]:
+          - /url: /shorts
+        - link "이벤트" [ref=e34] [cursor=pointer]:
+          - /url: /events
+        - link "친구" [ref=e35] [cursor=pointer]:
+          - /url: /friends
+        - link "음악듣기" [ref=e36] [cursor=pointer]:
+          - /url: /music
+    - main [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - button "뒤로" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]: ←
+            - generic [ref=e42]: 뒤로
+          - generic [ref=e43]:
+            - generic [ref=e44]: ⚫
+            - generic [ref=e45]: 오목
+          - generic [ref=e47]: 수 0
+        - generic [ref=e49]:
+          - generic [ref=e51]:
+            - generic [ref=e52]: ● 흑돌 (나)
+            - generic [ref=e53]: 당신의 차례
+          - generic [ref=e54]:
+            - button "↩ 무르기" [disabled] [ref=e55]
+            - button "🔄 새 게임" [ref=e56] [cursor=pointer]
+          - generic [ref=e57]:
+            - img
+    - contentinfo [ref=e283]:
+      - generic [ref=e284]:
+        - generic [ref=e285]:
+          - generic [ref=e286]:
+            - generic [ref=e287]: AwesomeKorean
+            - generic [ref=e288]: 미국 한인 No.1 커뮤니티
+          - generic [ref=e289]:
+            - generic [ref=e290]: 서비스
+            - link "커뮤니티" [ref=e291] [cursor=pointer]:
+              - /url: /community
+            - link "구인구직" [ref=e292] [cursor=pointer]:
+              - /url: /jobs
+            - link "중고장터" [ref=e293] [cursor=pointer]:
+              - /url: /market
+            - link "업소록" [ref=e294] [cursor=pointer]:
+              - /url: /directory
+          - generic [ref=e295]:
+            - generic [ref=e296]: 콘텐츠
+            - link "뉴스" [ref=e297] [cursor=pointer]:
+              - /url: /news
+            - link "레시피" [ref=e298] [cursor=pointer]:
+              - /url: /recipes
+            - link "게임" [ref=e299] [cursor=pointer]:
+              - /url: /games
+            - link "음악" [ref=e300] [cursor=pointer]:
+              - /url: /music
+          - generic [ref=e301]:
+            - generic [ref=e302]: 안내
+            - link "소개" [ref=e303] [cursor=pointer]:
+              - /url: /about
+            - link "이용약관" [ref=e304] [cursor=pointer]:
+              - /url: /terms
+            - link "개인정보처리방침" [ref=e305] [cursor=pointer]:
+              - /url: /privacy
+        - generic [ref=e306]: © 2026 AwesomeKorean. All rights reserved.
+  - img [ref=e311]

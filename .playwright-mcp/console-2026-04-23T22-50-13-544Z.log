@@ -1,0 +1,8 @@
+[     410ms] [ERROR] TypeError: Cannot read properties of undefined (reading 'length')
+    at Proxy.<anonymous> (https://awesomekorean.com/build/assets/Leaderboard-85ffh8Oj.js:1:3035)
+    at ql (https://awesomekorean.com/build/assets/app-oRPZfBst.js:8:63272)
+    at rd.ie [as fn] (https://awesomekorean.com/build/assets/app-oRPZfBst.js:8:72796)
+    at rd.run (https://awesomekorean.com/build/assets/app-oRPZfBst.js:8:24510)
+    at rd.runIfDirty (https://awesomekorean.com/build/assets/app-oRPZfBst.js:8:24820)
+    at Ds (https://awesomekorean.com/build/assets/app-oRPZfBst.js:8:39448)
+    at Sd (https://awesomekorean.com/build/assets/app-oRPZfBst.js:8:41201) @ https://awesomekorean.com/build/assets/app-oRPZfBst.js:7

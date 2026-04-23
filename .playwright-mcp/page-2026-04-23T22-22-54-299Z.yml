@@ -1,0 +1,125 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "AwesomeKorean" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "AwesomeKorean" [ref=e7]
+        - generic [ref=e9]:
+          - textbox "검색어를 입력하세요" [ref=e10]
+          - button [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+        - generic [ref=e14]:
+          - link "로그인" [ref=e15] [cursor=pointer]:
+            - /url: /login
+          - link "가입" [ref=e16] [cursor=pointer]:
+            - /url: /register
+          - button "EN" [ref=e17] [cursor=pointer]
+      - generic [ref=e19]:
+        - link "홈" [ref=e20] [cursor=pointer]:
+          - /url: /
+        - link "커뮤니티" [ref=e21] [cursor=pointer]:
+          - /url: /community
+        - link "Q&A" [ref=e22] [cursor=pointer]:
+          - /url: /qa
+        - link "구인구직" [ref=e23] [cursor=pointer]:
+          - /url: /jobs
+        - link "중고장터" [ref=e24] [cursor=pointer]:
+          - /url: /market
+        - link "업소록" [ref=e25] [cursor=pointer]:
+          - /url: /directory
+        - link "부동산" [ref=e26] [cursor=pointer]:
+          - /url: /realestate
+        - link "이벤트" [ref=e27] [cursor=pointer]:
+          - /url: /events
+        - link "뉴스" [ref=e28] [cursor=pointer]:
+          - /url: /news
+        - link "레시피" [ref=e29] [cursor=pointer]:
+          - /url: /recipes
+        - link "동호회" [ref=e30] [cursor=pointer]:
+          - /url: /clubs
+        - link "게임" [ref=e31] [cursor=pointer]:
+          - /url: /games
+        - link "숏츠" [ref=e32] [cursor=pointer]:
+          - /url: /shorts
+        - link "음악듣기" [ref=e33] [cursor=pointer]:
+          - /url: /music
+        - link "공동구매" [ref=e34] [cursor=pointer]:
+          - /url: /groupbuy
+        - link "안심서비스" [ref=e35] [cursor=pointer]:
+          - /url: /elder
+        - link "안심 커뮤" [ref=e36] [cursor=pointer]:
+          - /url: /comms
+    - main [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - button "뒤로" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]: ←
+            - generic [ref=e42]: 뒤로
+          - generic [ref=e43]:
+            - generic [ref=e44]: 🏳️
+            - generic [ref=e45]: 국기 퀴즈
+          - generic [ref=e46]:
+            - generic [ref=e47]: Lv.1
+            - generic [ref=e48]: ⭐ 0
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - img "kr" [ref=e52]
+            - img "us" [ref=e53]
+            - img "jp" [ref=e54]
+            - img "fr" [ref=e55]
+          - heading "국기 퀴즈" [level=1] [ref=e56]
+          - paragraph [ref=e57]: 세계 국기를 보고 나라 이름을 맞춰요!
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: Lv.1
+              - generic [ref=e61]: 친숙한 국가 (10개국)
+            - generic [ref=e62]:
+              - generic [ref=e63]: Lv.2
+              - generic [ref=e64]: 주요 국가 (25개국)
+            - generic [ref=e65]:
+              - generic [ref=e66]: Lv.3
+              - generic [ref=e67]: 중급 국가 (40개국)
+            - generic [ref=e68]:
+              - generic [ref=e69]: Lv.4
+              - generic [ref=e70]: 고급 국가 + 제한시간
+            - generic [ref=e71]:
+              - generic [ref=e72]: Lv.5
+              - generic [ref=e73]: 마스터 (전 세계)
+          - button "불러오는 중..." [disabled] [ref=e74]
+    - contentinfo [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: AwesomeKorean
+            - generic [ref=e80]: 미국 한인 No.1 커뮤니티
+          - generic [ref=e81]:
+            - generic [ref=e82]: 서비스
+            - link "커뮤니티" [ref=e83] [cursor=pointer]:
+              - /url: /community
+            - link "구인구직" [ref=e84] [cursor=pointer]:
+              - /url: /jobs
+            - link "중고장터" [ref=e85] [cursor=pointer]:
+              - /url: /market
+            - link "업소록" [ref=e86] [cursor=pointer]:
+              - /url: /directory
+          - generic [ref=e87]:
+            - generic [ref=e88]: 콘텐츠
+            - link "뉴스" [ref=e89] [cursor=pointer]:
+              - /url: /news
+            - link "레시피" [ref=e90] [cursor=pointer]:
+              - /url: /recipes
+            - link "게임" [ref=e91] [cursor=pointer]:
+              - /url: /games
+            - link "음악" [ref=e92] [cursor=pointer]:
+              - /url: /music
+          - generic [ref=e93]:
+            - generic [ref=e94]: 안내
+            - link "소개" [ref=e95] [cursor=pointer]:
+              - /url: /about
+            - link "이용약관" [ref=e96] [cursor=pointer]:
+              - /url: /terms
+            - link "개인정보처리방침" [ref=e97] [cursor=pointer]:
+              - /url: /privacy
+        - generic [ref=e98]: © 2026 AwesomeKorean. All rights reserved.
+  - img [ref=e103]

@@ -1,0 +1,498 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "AwesomeKorean" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "AwesomeKorean" [ref=e7]
+        - generic [ref=e9]:
+          - textbox "검색어를 입력하세요" [ref=e10]
+          - button [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+        - generic [ref=e14]:
+          - link "로그인" [ref=e15] [cursor=pointer]:
+            - /url: /login
+          - link "가입" [ref=e16] [cursor=pointer]:
+            - /url: /register
+          - button "EN" [ref=e17] [cursor=pointer]
+      - generic [ref=e19]:
+        - link "홈" [ref=e20] [cursor=pointer]:
+          - /url: /
+        - link "커뮤니티" [ref=e21] [cursor=pointer]:
+          - /url: /community
+        - link "Q&A" [ref=e22] [cursor=pointer]:
+          - /url: /qa
+        - link "구인구직" [ref=e23] [cursor=pointer]:
+          - /url: /jobs
+        - link "중고장터" [ref=e24] [cursor=pointer]:
+          - /url: /market
+        - link "부동산" [ref=e25] [cursor=pointer]:
+          - /url: /realestate
+        - link "업소록" [ref=e26] [cursor=pointer]:
+          - /url: /directory
+        - link "동호회" [ref=e27] [cursor=pointer]:
+          - /url: /clubs
+        - link "뉴스" [ref=e28] [cursor=pointer]:
+          - /url: /news
+        - link "레시피" [ref=e29] [cursor=pointer]:
+          - /url: /recipes
+        - link "공동구매" [ref=e30] [cursor=pointer]:
+          - /url: /groupbuy
+        - link "채팅" [ref=e31] [cursor=pointer]:
+          - /url: /chat
+        - link "게임" [ref=e32] [cursor=pointer]:
+          - /url: /games
+        - link "숏츠" [ref=e33] [cursor=pointer]:
+          - /url: /shorts
+        - link "이벤트" [ref=e34] [cursor=pointer]:
+          - /url: /events
+        - link "친구" [ref=e35] [cursor=pointer]:
+          - /url: /friends
+        - link "음악듣기" [ref=e36] [cursor=pointer]:
+          - /url: /music
+    - main [ref=e37]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - button "◀" [ref=e41] [cursor=pointer]
+          - generic [ref=e42]: 📚
+          - heading "포커 룰 & 튜토리얼" [level=1] [ref=e43]
+          - paragraph [ref=e44]: TEXAS HOLD'EM TOURNAMENT GUIDE
+        - navigation [ref=e45]:
+          - heading "📑 목차" [level=2] [ref=e46]
+          - generic [ref=e47]:
+            - button "🎮 게임 개요" [ref=e48] [cursor=pointer]
+            - button "🃏 핸드 등급" [ref=e49] [cursor=pointer]
+            - button "📍 포지션" [ref=e50] [cursor=pointer]
+            - button "⏲ 블라인드" [ref=e51] [cursor=pointer]
+            - button "🏆 토너먼트 규칙" [ref=e52] [cursor=pointer]
+            - button "💡 코칭" [ref=e53] [cursor=pointer]
+            - button "💰 지갑" [ref=e54] [cursor=pointer]
+            - button "📖 용어" [ref=e55] [cursor=pointer]
+        - generic [ref=e56]:
+          - heading "🎮 텍사스 홀덤이란?" [level=2] [ref=e57]
+          - generic [ref=e58]:
+            - paragraph [ref=e59]: 텍사스 홀덤은 세계에서 가장 인기 있는 포커 게임입니다. 각 플레이어에게 2장의 개인 카드(홀 카드)가 주어지고, 테이블 중앙에 5장의 공유 카드(커뮤니티 카드)가 공개됩니다. 개인 카드 2장과 커뮤니티 카드 5장 중 최고의 5장 조합으로 승자를 결정합니다.
+            - paragraph [ref=e60]: 토너먼트 모드에서는 매핵에 칩을 걸고, 칩을 모두 잃으면 탈락합니다. 마지막에 남는 플레이어가 승리합니다!
+            - generic [ref=e61]:
+              - generic [ref=e62]: 게임 흐름
+              - generic [ref=e63]:
+                - generic [ref=e64]: 홀카드 2장 배분
+                - generic [ref=e65]: →
+                - generic [ref=e66]: 프리플럽 베팅
+                - generic [ref=e67]: →
+                - generic [ref=e68]: 플럽 (3장)
+                - generic [ref=e69]: →
+                - generic [ref=e70]: 턴 (4번째)
+                - generic [ref=e71]: →
+                - generic [ref=e72]: 리버 (5번째)
+                - generic [ref=e73]: →
+                - generic [ref=e74]: 쇼다운
+        - generic [ref=e75]:
+          - heading "🃏 핸드 등급 (강한 순서)" [level=2] [ref=e76]
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: "1"
+              - generic [ref=e80]: 로열 플러시
+              - generic [ref=e81]: 같은 무늘 A-K-Q-J-10
+              - generic [ref=e82]: A♠ K♠ Q♠ J♠ 10♠
+            - generic [ref=e83]:
+              - generic [ref=e84]: "2"
+              - generic [ref=e85]: 스트레이트 플러시
+              - generic [ref=e86]: 같은 무늑 연속 5장
+              - generic [ref=e87]: 9♥ 8♥ 7♥ 6♥ 5♥
+            - generic [ref=e88]:
+              - generic [ref=e89]: "3"
+              - generic [ref=e90]: 포카드
+              - generic [ref=e91]: 같은 숫자 4장
+              - generic [ref=e92]: K♠ K♥ K♦ K♣ A♠
+            - generic [ref=e93]:
+              - generic [ref=e94]: "4"
+              - generic [ref=e95]: 풀하우스
+              - generic [ref=e96]: 3장 + 2장 (트리플 + 원페어)
+              - generic [ref=e97]: J♠ J♥ J♦ 8♣ 8♠
+            - generic [ref=e98]:
+              - generic [ref=e99]: "5"
+              - generic [ref=e100]: 플러시
+              - generic [ref=e101]: 같은 무늑 5장
+              - generic [ref=e102]: A♣ J♣ 8♣ 5♣ 3♣
+            - generic [ref=e103]:
+              - generic [ref=e104]: "6"
+              - generic [ref=e105]: 스트레이트
+              - generic [ref=e106]: 연속된 5장 (무늑 달라도 OK)
+              - generic [ref=e107]: 10♠ 9♥ 8♦ 7♣ 6♠
+            - generic [ref=e108]:
+              - generic [ref=e109]: "7"
+              - generic [ref=e110]: 트리플
+              - generic [ref=e111]: 같은 숫자 3장
+              - generic [ref=e112]: Q♠ Q♥ Q♦ 9♣ 4♠
+            - generic [ref=e113]:
+              - generic [ref=e114]: "8"
+              - generic [ref=e115]: 투페어
+              - generic [ref=e116]: 같은 숫자 원페어 2조
+              - generic [ref=e117]: A♠ A♥ 7♦ 7♣ K♠
+            - generic [ref=e118]:
+              - generic [ref=e119]: "9"
+              - generic [ref=e120]: 원페어
+              - generic [ref=e121]: 같은 숫자 2장
+              - generic [ref=e122]: 10♠ 10♥ A♦ 8♣ 3♠
+            - generic [ref=e123]:
+              - generic [ref=e124]: "10"
+              - generic [ref=e125]: 하이카드
+              - generic [ref=e126]: 아무 조합도 없을 때 가장 높은 카드
+              - generic [ref=e127]: A♠ K♥ 9♦ 5♣ 2♠
+        - generic [ref=e128]:
+          - heading "📍 포지션 가이드" [level=2] [ref=e129]
+          - paragraph [ref=e130]: 포지션은 포커에서 가장 중요한 요소 중 하나입니다. 늦게 행동할수록 유리합니다.
+          - generic [ref=e131]:
+            - generic [ref=e132]:
+              - generic [ref=e133]: BTN
+              - generic [ref=e134]:
+                - generic [ref=e135]: 버튼(딜러)
+                - generic [ref=e136]: 가장 유리한 자리! 마지막에 행동하므로 넓은 범위로 플레이 가능.
+            - generic [ref=e137]:
+              - generic [ref=e138]: SB
+              - generic [ref=e139]:
+                - generic [ref=e140]: 스몰 블라인드
+                - generic [ref=e141]: 블라인드를 내야 하고 플랍 후 먼저 행동. 불리한 자리.
+            - generic [ref=e142]:
+              - generic [ref=e143]: BB
+              - generic [ref=e144]:
+                - generic [ref=e145]: 빅 블라인드
+                - generic [ref=e146]: 블라인드 투자됨. 적절한 핸드로 디펜드 가능.
+            - generic [ref=e147]:
+              - generic [ref=e148]: UTG
+              - generic [ref=e149]:
+                - generic [ref=e150]: 언더 더 건
+                - generic [ref=e151]: 가장 먼저 행동. 프리미엄 핸드만 플레이!
+            - generic [ref=e152]:
+              - generic [ref=e153]: UTG+1
+              - generic [ref=e154]:
+                - generic [ref=e155]: 언더 더 건+1
+                - generic [ref=e156]: 여전히 얼리 포지션. 타이트하게.
+            - generic [ref=e157]:
+              - generic [ref=e158]: MP
+              - generic [ref=e159]:
+                - generic [ref=e160]: 미들 포지션
+                - generic [ref=e161]: 중간 포지션. 조금 더 넓게 플레이 가능.
+            - generic [ref=e162]:
+              - generic [ref=e163]: MP+1
+              - generic [ref=e164]:
+                - generic [ref=e165]: 미들 포지션+1
+                - generic [ref=e166]: 미들 후반. 괜찮은 핸드 추가 가능.
+            - generic [ref=e167]:
+              - generic [ref=e168]: HJ
+              - generic [ref=e169]:
+                - generic [ref=e170]: 하이잭
+                - generic [ref=e171]: 레이트 포지션 시작. 스틸 기회 있음.
+            - generic [ref=e172]:
+              - generic [ref=e173]: CO
+              - generic [ref=e174]:
+                - generic [ref=e175]: 컷오프
+                - generic [ref=e176]: 버튼 바로 앞. 공격적 플레이 가능.
+        - generic [ref=e177]:
+          - heading "⏲️ 블라인드 스케줄" [level=2] [ref=e178]
+          - paragraph [ref=e179]: 블라인드는 시간이 지날수록 점점 올라갑니다. 각 레벨의 지속 시간이 지나면 다음 레벨로 자동 전환됩니다.
+          - table [ref=e181]:
+            - rowgroup [ref=e182]:
+              - row "레벨 SB BB 앤티 시간" [ref=e183]:
+                - columnheader "레벨" [ref=e184]
+                - columnheader "SB" [ref=e185]
+                - columnheader "BB" [ref=e186]
+                - columnheader "앤티" [ref=e187]
+                - columnheader "시간" [ref=e188]
+            - rowgroup [ref=e189]:
+              - row "1 10 20 - 15분" [ref=e190]:
+                - cell "1" [ref=e191]
+                - cell "10" [ref=e192]
+                - cell "20" [ref=e193]
+                - cell "-" [ref=e194]
+                - cell "15분" [ref=e195]
+              - row "2 15 30 - 15분" [ref=e196]:
+                - cell "2" [ref=e197]
+                - cell "15" [ref=e198]
+                - cell "30" [ref=e199]
+                - cell "-" [ref=e200]
+                - cell "15분" [ref=e201]
+              - row "3 25 50 5 15분" [ref=e202]:
+                - cell "3" [ref=e203]
+                - cell "25" [ref=e204]
+                - cell "50" [ref=e205]
+                - cell "5" [ref=e206]
+                - cell "15분" [ref=e207]
+              - row "4 50 100 10 15분" [ref=e208]:
+                - cell "4" [ref=e209]
+                - cell "50" [ref=e210]
+                - cell "100" [ref=e211]
+                - cell "10" [ref=e212]
+                - cell "15분" [ref=e213]
+              - row "5 75 150 15 12분" [ref=e214]:
+                - cell "5" [ref=e215]
+                - cell "75" [ref=e216]
+                - cell "150" [ref=e217]
+                - cell "15" [ref=e218]
+                - cell "12분" [ref=e219]
+              - row "6 100 200 25 12분" [ref=e220]:
+                - cell "6" [ref=e221]
+                - cell "100" [ref=e222]
+                - cell "200" [ref=e223]
+                - cell "25" [ref=e224]
+                - cell "12분" [ref=e225]
+              - row "7 150 300 25 12분" [ref=e226]:
+                - cell "7" [ref=e227]
+                - cell "150" [ref=e228]
+                - cell "300" [ref=e229]
+                - cell "25" [ref=e230]
+                - cell "12분" [ref=e231]
+              - row "8 200 400 50 10분" [ref=e232]:
+                - cell "8" [ref=e233]
+                - cell "200" [ref=e234]
+                - cell "400" [ref=e235]
+                - cell "50" [ref=e236]
+                - cell "10분" [ref=e237]
+              - row "9 300 600 75 10분" [ref=e238]:
+                - cell "9" [ref=e239]
+                - cell "300" [ref=e240]
+                - cell "600" [ref=e241]
+                - cell "75" [ref=e242]
+                - cell "10분" [ref=e243]
+              - row "10 400 800 100 10분" [ref=e244]:
+                - cell "10" [ref=e245]
+                - cell "400" [ref=e246]
+                - cell "800" [ref=e247]
+                - cell "100" [ref=e248]
+                - cell "10분" [ref=e249]
+              - row "11 500 1,000 100 10분" [ref=e250]:
+                - cell "11" [ref=e251]
+                - cell "500" [ref=e252]
+                - cell "1,000" [ref=e253]
+                - cell "100" [ref=e254]
+                - cell "10분" [ref=e255]
+              - row "12 600 1,200 200 8분" [ref=e256]:
+                - cell "12" [ref=e257]
+                - cell "600" [ref=e258]
+                - cell "1,200" [ref=e259]
+                - cell "200" [ref=e260]
+                - cell "8분" [ref=e261]
+              - row "13 800 1,600 200 8분" [ref=e262]:
+                - cell "13" [ref=e263]
+                - cell "800" [ref=e264]
+                - cell "1,600" [ref=e265]
+                - cell "200" [ref=e266]
+                - cell "8분" [ref=e267]
+              - row "14 1,000 2,000 300 8분" [ref=e268]:
+                - cell "14" [ref=e269]
+                - cell "1,000" [ref=e270]
+                - cell "2,000" [ref=e271]
+                - cell "300" [ref=e272]
+                - cell "8분" [ref=e273]
+              - row "15 1,500 3,000 400 8분" [ref=e274]:
+                - cell "15" [ref=e275]
+                - cell "1,500" [ref=e276]
+                - cell "3,000" [ref=e277]
+                - cell "400" [ref=e278]
+                - cell "8분" [ref=e279]
+              - row "16 2,000 4,000 500 8분" [ref=e280]:
+                - cell "16" [ref=e281]
+                - cell "2,000" [ref=e282]
+                - cell "4,000" [ref=e283]
+                - cell "500" [ref=e284]
+                - cell "8분" [ref=e285]
+        - generic [ref=e286]:
+          - heading "🏆 토너먼트 규칙" [level=2] [ref=e287]
+          - generic [ref=e288]:
+            - generic [ref=e289]:
+              - heading "💰 바운티 시스템" [level=3] [ref=e290]
+              - list [ref=e291]:
+                - listitem [ref=e292]: 상대를 탈락시키면 바이인의 10%를 바운티로 획득
+                - listitem [ref=e293]: "예: 바이인 400칩이면 바운티 40칩"
+                - listitem [ref=e294]: 바운티는 상금과 별도로 지급
+            - generic [ref=e295]:
+              - heading "💰 상금 구조" [level=3] [ref=e296]
+              - list [ref=e297]:
+                - listitem [ref=e298]: 참가자의 상위 15%가 입상권 (ITM)
+                - listitem [ref=e299]: "1위: 25%, 2위: 16%, 3위: 11%"
+                - listitem [ref=e300]: "4~6위: 각 7%, 7~10위: 각 4%"
+                - listitem [ref=e301]: "11위 이하: 나머지 균등 배분"
+            - generic [ref=e302]:
+              - heading "🧻 버블 & ITM" [level=3] [ref=e303]
+              - list [ref=e304]:
+                - listitem [ref=e305]:
+                  - strong [ref=e306]: "버블:"
+                  - text: 입상권 직전 상태. 1명만 탈락하면 나머지 모두 상금 수령
+                - listitem [ref=e307]:
+                  - strong [ref=e308]: "ITM (In The Money):"
+                  - text: 입상권에 진입한 상태. 최소 상금 보장
+                - listitem [ref=e309]: 버블 근처에서는 보수적 플레이 권장
+        - generic [ref=e310]:
+          - heading "💡 코칭 시스템" [level=2] [ref=e311]
+          - generic [ref=e312]:
+            - paragraph [ref=e313]: 게임 중 코칭 패널이 실시간으로 도움을 줍니다. 상단 💡 버튼으로 토글할 수 있습니다.
+            - generic [ref=e314]:
+              - generic [ref=e315]:
+                - generic [ref=e316]: 포지션 정보
+                - paragraph [ref=e317]: 현재 자신의 포지션과 권장 플레이 범위 표시
+              - generic [ref=e318]:
+                - generic [ref=e319]: 승률 (Equity)
+                - paragraph [ref=e320]: 현재 핸드가 이길 확률을 바 차트로 표시
+              - generic [ref=e321]:
+                - generic [ref=e322]: 팧오즈 (Pot Odds)
+                - paragraph [ref=e323]: 콜 비용 대비 팧 크기의 비율. 승률이 팧오즈보다 높으면 콜이 이익
+              - generic [ref=e324]:
+                - generic [ref=e325]: 추천 얁션
+                - paragraph [ref=e326]: 상황에 맞는 최적 행동과 이유 설명
+            - generic [ref=e327]:
+              - generic [ref=e328]: 🃏 폴드 카드 공개
+              - paragraph [ref=e329]: AI 플레이어가 폴드한 카드와 이유을 공개합니다. 상대의 스타일을 파악하는 데 도움이 됩니다!
+        - generic [ref=e330]:
+          - heading "💰 지갑 시스템" [level=2] [ref=e331]
+          - generic [ref=e332]:
+            - paragraph [ref=e333]: 포커 게임은 전용 칩 지갑을 사용합니다. 포인트를 칩으로 교환하여 플레이할 수 있습니다.
+            - generic [ref=e334]:
+              - generic [ref=e335]:
+                - generic [ref=e336]: 입금
+                - paragraph [ref=e337]: 포인트 → 칩
+                - paragraph [ref=e338]: 1:1 교환 비율
+              - generic [ref=e339]:
+                - generic [ref=e340]: 출금
+                - paragraph [ref=e341]: 칩 → 포인트
+                - paragraph [ref=e342]: 수수료 적용 가능
+              - generic [ref=e343]:
+                - generic [ref=e344]: 상금
+                - paragraph [ref=e345]: 입상 시 자동 지급
+                - paragraph [ref=e346]: 바운티도 별도 지급
+        - generic [ref=e347]:
+          - heading "📖 포커 용어 사전" [level=2] [ref=e348]
+          - generic [ref=e349]:
+            - generic [ref=e350]:
+              - generic [ref=e351]:
+                - generic [ref=e352]: Fold
+                - generic [ref=e353]: 폴드
+              - paragraph [ref=e354]: 카드를 버리고 핸드를 포기. 이미 넣은 칩은 돌려받지 못합니다.
+            - generic [ref=e355]:
+              - generic [ref=e356]:
+                - generic [ref=e357]: Check
+                - generic [ref=e358]: 체크
+              - paragraph [ref=e359]: 베팅 없이 다음 사람에게 넘김. 아무도 베팅하지 않았을 때만 가능.
+            - generic [ref=e360]:
+              - generic [ref=e361]:
+                - generic [ref=e362]: Call
+                - generic [ref=e363]: 콜
+              - paragraph [ref=e364]: 앞 사람의 베팅과 같은 금액을 내고 계속 참여.
+            - generic [ref=e365]:
+              - generic [ref=e366]:
+                - generic [ref=e367]: Raise
+                - generic [ref=e368]: 레이즈
+              - paragraph [ref=e369]: 앞 사람의 베팅보다 더 올려서 베팅. 상대에게 압박을 줌.
+            - generic [ref=e370]:
+              - generic [ref=e371]:
+                - generic [ref=e372]: All-in
+                - generic [ref=e373]: 올인
+              - paragraph [ref=e374]: 보유한 모든 칩을 걸기. 더 이상 베팅 결정이 없음.
+            - generic [ref=e375]:
+              - generic [ref=e376]:
+                - generic [ref=e377]: Blind
+                - generic [ref=e378]: 블라인드
+              - paragraph [ref=e379]: 카드를 받기 전에 의무적으로 내는 베팅. SB(스몰)와 BB(빅)가 있음.
+            - generic [ref=e380]:
+              - generic [ref=e381]:
+                - generic [ref=e382]: Ante
+                - generic [ref=e383]: 앤티
+              - paragraph [ref=e384]: 모든 플레이어가 핸드 시작 전에 내는 소액 의무 베팅.
+            - generic [ref=e385]:
+              - generic [ref=e386]:
+                - generic [ref=e387]: Pot
+                - generic [ref=e388]: 팟
+              - paragraph [ref=e389]: 현재 핸드에서 모든 플레이어가 베팅한 칩의 총합.
+            - generic [ref=e390]:
+              - generic [ref=e391]:
+                - generic [ref=e392]: Flop
+                - generic [ref=e393]: 플랍
+              - paragraph [ref=e394]: 커뮤니티 카드 3장이 동시에 공개되는 두 번째 베팅 라운드.
+            - generic [ref=e395]:
+              - generic [ref=e396]:
+                - generic [ref=e397]: Turn
+                - generic [ref=e398]: 턴
+              - paragraph [ref=e399]: 4번째 커뮤니티 카드가 공개되는 세 번째 베팅 라운드.
+            - generic [ref=e400]:
+              - generic [ref=e401]:
+                - generic [ref=e402]: River
+                - generic [ref=e403]: 리버
+              - paragraph [ref=e404]: 5번째(마지막) 커뮤니티 카드가 공개. 최종 베팅 라운드.
+            - generic [ref=e405]:
+              - generic [ref=e406]:
+                - generic [ref=e407]: Pot Odds
+                - generic [ref=e408]: 팟오즈
+              - paragraph [ref=e409]: 콜 비용 대비 팟 크기의 비율. 승률이 팟오즈보다 높으면 콜이 이익 (+EV).
+            - generic [ref=e410]:
+              - generic [ref=e411]:
+                - generic [ref=e412]: Equity
+                - generic [ref=e413]: 에퀴티/승률
+              - paragraph [ref=e414]: 현재 핸드가 최종적으로 이길 확률(%). 높을수록 유리.
+            - generic [ref=e415]:
+              - generic [ref=e416]:
+                - generic [ref=e417]: Expected Value
+                - generic [ref=e418]: 기대값(EV)
+              - paragraph [ref=e419]: +EV는 장기적으로 이익인 플레이, -EV는 손해. 항상 +EV를 선택하세요.
+            - generic [ref=e420]:
+              - generic [ref=e421]:
+                - generic [ref=e422]: Steal
+                - generic [ref=e423]: 스틸
+              - paragraph [ref=e424]: 레이트 포지션에서 약한 핸드로 레이즈하여 블라인드를 훔치는 전략.
+            - generic [ref=e425]:
+              - generic [ref=e426]:
+                - generic [ref=e427]: Continuation Bet
+                - generic [ref=e428]: 씨벳
+              - paragraph [ref=e429]: 프리플랍 레이저가 플랍에서도 이어서 베팅하는 것.
+            - generic [ref=e430]:
+              - generic [ref=e431]:
+                - generic [ref=e432]: Value Bet
+                - generic [ref=e433]: 밸류벳
+              - paragraph [ref=e434]: 상대가 더 약한 핸드로 콜해줄 것을 기대하고 하는 베팅. 강한 핸드일 때 사용.
+            - generic [ref=e435]:
+              - generic [ref=e436]:
+                - generic [ref=e437]: Bubble
+                - generic [ref=e438]: 버블
+              - paragraph [ref=e439]: 입상권 직전 상태. 1명만 더 탈락하면 남은 모두 상금 수령.
+            - generic [ref=e440]:
+              - generic [ref=e441]:
+                - generic [ref=e442]: Short Stack
+                - generic [ref=e443]: 숏스택
+              - paragraph [ref=e444]: 칩이 적은 상태 (보통 10BB 이하). 푸시/폴드 전략 필요.
+        - link "🎮 게임 시작" [ref=e446] [cursor=pointer]:
+          - /url: /games/poker
+    - contentinfo [ref=e447]:
+      - generic [ref=e448]:
+        - generic [ref=e449]:
+          - generic [ref=e450]:
+            - generic [ref=e451]: AwesomeKorean
+            - generic [ref=e452]: 미국 한인 No.1 커뮤니티
+          - generic [ref=e453]:
+            - generic [ref=e454]: 서비스
+            - link "커뮤니티" [ref=e455] [cursor=pointer]:
+              - /url: /community
+            - link "구인구직" [ref=e456] [cursor=pointer]:
+              - /url: /jobs
+            - link "중고장터" [ref=e457] [cursor=pointer]:
+              - /url: /market
+            - link "업소록" [ref=e458] [cursor=pointer]:
+              - /url: /directory
+          - generic [ref=e459]:
+            - generic [ref=e460]: 콘텐츠
+            - link "뉴스" [ref=e461] [cursor=pointer]:
+              - /url: /news
+            - link "레시피" [ref=e462] [cursor=pointer]:
+              - /url: /recipes
+            - link "게임" [ref=e463] [cursor=pointer]:
+              - /url: /games
+            - link "음악" [ref=e464] [cursor=pointer]:
+              - /url: /music
+          - generic [ref=e465]:
+            - generic [ref=e466]: 안내
+            - link "소개" [ref=e467] [cursor=pointer]:
+              - /url: /about
+            - link "이용약관" [ref=e468] [cursor=pointer]:
+              - /url: /terms
+            - link "개인정보처리방침" [ref=e469] [cursor=pointer]:
+              - /url: /privacy
+        - generic [ref=e470]: © 2026 AwesomeKorean. All rights reserved.
+  - img [ref=e475]

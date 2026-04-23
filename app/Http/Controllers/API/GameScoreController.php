@@ -50,6 +50,77 @@ class GameScoreController extends Controller
         ]);
     }
 
+    /** 통합 리더보드 (타입별): points / posts / quiz */
+    public function overallLeaderboard(Request $request)
+    {
+        $type = $request->query('type', 'points');
+        $limit = 20;
+
+        if ($type === 'points') {
+            $users = \App\Models\User::select('id', 'name', 'nickname', 'email', 'avatar', 'points', 'level')
+                ->orderByDesc('points')
+                ->limit($limit)
+                ->get()
+                ->map(fn($u) => [
+                    'id' => $u->id,
+                    'username' => $u->nickname ?: (explode('@', $u->email ?? '')[0] ?: $u->name),
+                    'name' => $u->name,
+                    'avatar' => $u->avatar,
+                    'level' => $u->level ?? '씨앗',
+                    'value' => (int) ($u->points ?? 0),
+                ]);
+        } elseif ($type === 'posts') {
+            // 커뮤니티 게시글 수 기준
+            $rows = DB::table('posts')
+                ->select('user_id', DB::raw('COUNT(*) as post_count'))
+                ->groupBy('user_id')
+                ->orderByDesc('post_count')
+                ->limit($limit)
+                ->get();
+            $userIds = $rows->pluck('user_id')->filter()->values();
+            $usersById = \App\Models\User::select('id', 'name', 'nickname', 'email', 'avatar', 'level')
+                ->whereIn('id', $userIds)->get()->keyBy('id');
+            $users = $rows->map(function ($r) use ($usersById) {
+                $u = $usersById[$r->user_id] ?? null;
+                if (!$u) return null;
+                return [
+                    'id' => $u->id,
+                    'username' => $u->nickname ?: (explode('@', $u->email ?? '')[0] ?: $u->name),
+                    'name' => $u->name,
+                    'avatar' => $u->avatar,
+                    'level' => $u->level ?? '씨앗',
+                    'value' => (int) $r->post_count,
+                ];
+            })->filter()->values();
+        } else { // quiz
+            // 솔로 게임 플레이의 최고 누적 점수 기준
+            $rows = DB::table('game_players')
+                ->select('user_id', DB::raw('SUM(score) as total_score'))
+                ->where('game_room_id', 0)
+                ->groupBy('user_id')
+                ->orderByDesc('total_score')
+                ->limit($limit)
+                ->get();
+            $userIds = $rows->pluck('user_id')->filter()->values();
+            $usersById = \App\Models\User::select('id', 'name', 'nickname', 'email', 'avatar', 'level')
+                ->whereIn('id', $userIds)->get()->keyBy('id');
+            $users = $rows->map(function ($r) use ($usersById) {
+                $u = $usersById[$r->user_id] ?? null;
+                if (!$u) return null;
+                return [
+                    'id' => $u->id,
+                    'username' => $u->nickname ?: (explode('@', $u->email ?? '')[0] ?: $u->name),
+                    'name' => $u->name,
+                    'avatar' => $u->avatar,
+                    'level' => $u->level ?? '씨앗',
+                    'value' => (int) $r->total_score,
+                ];
+            })->filter()->values();
+        }
+
+        return response()->json(['success' => true, 'data' => $users]);
+    }
+
     // 리더보드
     public function leaderboard(Request $request, $gameType)
     {

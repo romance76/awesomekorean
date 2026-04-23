@@ -139,6 +139,9 @@ Route::get('/settings/points', function () {
     $settings = \DB::table('point_settings')->pluck('value', 'key');
     return response()->json(['success' => true, 'data' => $settings]);
 });
+// 통합 리더보드 (?type=points|posts|quiz) — Leaderboard.vue 에서 사용
+Route::get('/games/leaderboard', [GameScoreController::class, 'overallLeaderboard']);
+// 게임 타입별 리더보드 (기존 호환)
 Route::get('/games/leaderboard/{gameType}', [GameScoreController::class, 'leaderboard']);
 
 // ─── Public Poker ───

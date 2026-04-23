@@ -1,100 +1,105 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-20">
-    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-8 px-4 text-center">
-      <div class="text-4xl mb-1">🏆</div>
-      <h1 class="text-xl font-bold">리더보드</h1>
-      <p class="text-yellow-100 text-sm mt-1">한인 커뮤니티 TOP 20</p>
+<GameShell title="리더보드" icon="🏆"
+  bg="linear-gradient(160deg,#fef3c7 0%,#fde68a 50%,#fbbf24 100%)">
+
+  <div class="lb-body">
+    <!-- 헤더 배너 -->
+    <div class="hero-banner">
+      <div class="hero-emoji">🏆</div>
+      <h2 class="hero-title">한인 커뮤니티 TOP 20</h2>
+      <p class="hero-sub">매일 갱신되는 실시간 랭킹</p>
     </div>
 
     <!-- 탭 -->
-    <div class="flex bg-white border-b">
+    <div class="tabs">
       <button v-for="tab in tabs" :key="tab.type"
         @click="activeTab = tab.type; loadData()"
-        class="flex-1 py-3 text-sm font-medium transition"
-        :class="activeTab === tab.type ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-500'">
+        class="tab-btn"
+        :class="activeTab === tab.type ? 'active' : ''">
         {{ tab.label }}
       </button>
     </div>
 
-    <div class="max-w-[1200px] mx-auto px-4 py-4">
+    <!-- 로딩 -->
+    <div v-if="loading" class="loading">불러오는 중...</div>
+    <div v-else-if="!data.length" class="empty">아직 랭킹 데이터가 없습니다</div>
+
+    <template v-else>
       <!-- TOP 3 포디움 -->
-      <div v-if="!loading && data.length >= 3" class="flex items-end justify-center gap-2 mb-6 mt-2">
+      <div v-if="data.length >= 3" class="podium">
         <!-- 2등 -->
-        <div class="flex flex-col items-center">
-          <img :src="getAvatar(data[1])" class="w-12 h-12 rounded-full border-2 border-gray-400 object-cover" />
-          <div class="w-20 bg-gray-300 rounded-t-xl pt-4 pb-2 mt-1 text-center">
-            <div class="text-xs font-bold text-gray-700 truncate px-1">{{ data[1].username }}</div>
-            <div class="text-xs text-gray-600">{{ formatVal(data[1].value) }}</div>
+        <div class="p-col p2">
+          <img :src="getAvatar(data[1])" class="p-avatar" @error="onAvatarErr" />
+          <div class="p-box box2">
+            <div class="p-name">{{ data[1].username }}</div>
+            <div class="p-val">{{ formatVal(data[1].value) }}</div>
           </div>
-          <div class="bg-gray-400 text-white text-xs font-bold w-20 py-1 text-center rounded-b-xl">🥈 2위</div>
+          <div class="p-rank rank2">🥈 2위</div>
         </div>
         <!-- 1등 -->
-        <div class="flex flex-col items-center -mb-2">
-          <div class="text-2xl mb-1">👑</div>
-          <img :src="getAvatar(data[0])" class="w-16 h-16 rounded-full border-4 border-yellow-400 object-cover shadow-lg" />
-          <div class="w-24 bg-yellow-400 rounded-t-xl pt-6 pb-2 mt-1 text-center">
-            <div class="text-xs font-bold text-yellow-900 truncate px-1">{{ data[0].username }}</div>
-            <div class="text-xs text-yellow-800">{{ formatVal(data[0].value) }}</div>
+        <div class="p-col p1">
+          <div class="p-crown">👑</div>
+          <img :src="getAvatar(data[0])" class="p-avatar big" @error="onAvatarErr" />
+          <div class="p-box box1">
+            <div class="p-name">{{ data[0].username }}</div>
+            <div class="p-val">{{ formatVal(data[0].value) }}</div>
           </div>
-          <div class="bg-yellow-500 text-white text-xs font-bold w-24 py-1 text-center rounded-b-xl">🥇 1위</div>
+          <div class="p-rank rank1">🥇 1위</div>
         </div>
         <!-- 3등 -->
-        <div class="flex flex-col items-center">
-          <img :src="getAvatar(data[2])" class="w-12 h-12 rounded-full border-2 border-orange-400 object-cover" />
-          <div class="w-20 bg-orange-200 rounded-t-xl pt-2 pb-2 mt-1 text-center">
-            <div class="text-xs font-bold text-orange-800 truncate px-1">{{ data[2].username }}</div>
-            <div class="text-xs text-orange-700">{{ formatVal(data[2].value) }}</div>
+        <div class="p-col p3">
+          <img :src="getAvatar(data[2])" class="p-avatar" @error="onAvatarErr" />
+          <div class="p-box box3">
+            <div class="p-name">{{ data[2].username }}</div>
+            <div class="p-val">{{ formatVal(data[2].value) }}</div>
           </div>
-          <div class="bg-orange-400 text-white text-xs font-bold w-20 py-1 text-center rounded-b-xl">🥉 3위</div>
+          <div class="p-rank rank3">🥉 3위</div>
         </div>
       </div>
 
-      <!-- 로딩 -->
-      <div v-if="loading" class="text-center py-10 text-gray-400">불러오는 중...</div>
-
       <!-- 리스트 (4위~) -->
-      <div v-else class="space-y-2">
-        <div v-for="(user, idx) in data.slice(3)" :key="user.id"
-          class="flex items-center gap-3 bg-white rounded-xl p-3 shadow-sm"
-          :class="user.id == myId ? 'ring-2 ring-blue-300' : ''">
-          <div class="w-8 text-center font-bold text-gray-400">{{ idx + 4 }}</div>
-          <img :src="getAvatar(user)" class="w-10 h-10 rounded-full object-cover" />
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1">
-              <span class="font-medium text-gray-800 truncate">{{ user.name || user.username }}</span>
-              <span class="text-xs px-1.5 py-0.5 rounded-full" :class="levelColor(user.level)">{{ user.level }}</span>
+      <div class="list">
+        <div v-for="(user, idx) in restList" :key="user.id"
+          class="list-row"
+          :class="user.id == myId ? 'me' : ''">
+          <div class="list-rank">{{ idx + startRank }}</div>
+          <img :src="getAvatar(user)" class="list-avatar" @error="onAvatarErr" />
+          <div class="list-info">
+            <div class="list-name">
+              <span>{{ user.name || user.username }}</span>
+              <span class="list-level" :class="levelColor(user.level)">{{ user.level }}</span>
             </div>
-            <div class="text-xs text-gray-500">@{{ user.username }}</div>
+            <div class="list-sub">@{{ user.username }}</div>
           </div>
-          <div class="text-right">
-            <div class="font-bold text-orange-600">{{ formatVal(user.value) }}</div>
-            <div class="text-xs text-gray-400">{{ unitLabel }}</div>
+          <div class="list-value">
+            <div class="value-main">{{ formatVal(user.value) }}</div>
+            <div class="value-unit">{{ unitLabel }}</div>
           </div>
         </div>
       </div>
 
       <!-- 내 순위 -->
-      <div v-if="myRank" class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <div class="flex items-center gap-3">
-          <div class="text-2xl font-bold text-blue-600">{{ myRank }}위</div>
-          <div>
-            <div class="font-medium text-gray-800">나의 순위</div>
-            <div class="text-sm text-gray-500">{{ unitLabel + ': ' + formatVal(myValue) }}</div>
-          </div>
+      <div v-if="myRank" class="my-rank">
+        <div class="my-badge">{{ myRank }}위</div>
+        <div>
+          <div class="my-title">나의 순위</div>
+          <div class="my-sub">{{ unitLabel }}: {{ formatVal(myValue) }}</div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
+</GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 
-const auth   = useAuthStore()
-const myId   = auth.user?.id
-const data   = ref([])
+const auth = useAuthStore()
+const myId = auth.user?.id
+const data = ref([])
 const loading = ref(false)
 const activeTab = ref('points')
 
@@ -108,8 +113,18 @@ const unitLabel = computed(() => ({
   points: 'P', posts: '개', quiz: 'P'
 }[activeTab.value]))
 
-const myRank  = computed(() => { const i = data.value.findIndex(u => u.id == myId); return i >= 0 ? i+1 : null })
-const myValue = computed(() => data.value.find(u => u.id == myId)?.value ?? 0)
+const restList = computed(() => data.value.length >= 3 ? data.value.slice(3) : data.value)
+const startRank = computed(() => data.value.length >= 3 ? 4 : 1)
+
+const myRank = computed(() => {
+  if (!myId) return null
+  const i = data.value.findIndex(u => u.id == myId)
+  return i >= 0 ? i + 1 : null
+})
+const myValue = computed(() => {
+  const m = data.value.find(u => u.id == myId)
+  return m?.value ?? 0
+})
 
 function formatVal(v) {
   const n = parseInt(v)
@@ -117,27 +132,99 @@ function formatVal(v) {
 }
 
 function getAvatar(user) {
-  return user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name||user.username)}&background=random`
+  if (!user) return fallbackAvatar('?')
+  return user.avatar || fallbackAvatar(user.name || user.username || '?')
+}
+function fallbackAvatar(name) {
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`
+}
+function onAvatarErr(e) {
+  e.target.src = fallbackAvatar('?')
 }
 
 function levelColor(level) {
   return {
-    '씨앗': 'bg-gray-100 text-gray-600',
-    '새싹': 'bg-green-100 text-green-700',
-    '나무': 'bg-blue-100 text-blue-700',
-    '숲':   'bg-emerald-100 text-emerald-700',
-    '참나무':'bg-yellow-100 text-yellow-700',
-  }[level] ?? 'bg-gray-100 text-gray-600'
+    '씨앗': 'lv-seed',
+    '새싹': 'lv-sprout',
+    '나무': 'lv-tree',
+    '숲':   'lv-forest',
+    '참나무':'lv-oak',
+  }[level] ?? 'lv-seed'
 }
 
 async function loadData() {
   loading.value = true
   try {
-    const { data: res } = await axios.get(`/api/games/leaderboard?type=${activeTab.value}`)
-    data.value = res.data
-  } catch { }
+    const { data: res } = await axios.get(`/api/games/leaderboard`, { params: { type: activeTab.value } })
+    const rows = res?.data ?? []
+    data.value = Array.isArray(rows) ? rows : []
+  } catch {
+    data.value = []
+  }
   loading.value = false
 }
 
 onMounted(loadData)
 </script>
+
+<style scoped>
+.lb-body { padding: 14px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+.hero-banner { text-align: center; padding: 18px 16px; background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; border-radius: 16px; margin-bottom: 14px; box-shadow: 0 6px 24px rgba(217,119,6,0.3); }
+.hero-emoji { font-size: 32px; margin-bottom: 4px; }
+.hero-title { font-size: 18px; font-weight: 900; margin: 0; }
+.hero-sub { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 4px; }
+
+.tabs { display: flex; background: rgba(255,255,255,0.8); border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 14px; }
+.tab-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; border: none; background: transparent; color: #78350f; cursor: pointer; border-radius: 8px; transition: all 0.15s; }
+.tab-btn:hover { background: rgba(217,119,6,0.1); }
+.tab-btn.active { background: #f59e0b; color: #fff; box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
+
+.loading, .empty { text-align: center; padding: 40px; color: #92400e; font-size: 14px; }
+
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin: 10px 0 20px; }
+.p-col { display: flex; flex-direction: column; align-items: center; }
+.p-col.p1 { margin-bottom: -8px; }
+.p-crown { font-size: 22px; margin-bottom: 2px; }
+.p-avatar { width: 52px; height: 52px; border-radius: 50%; border: 2px solid #d1d5db; object-fit: cover; background: #fff; }
+.p-avatar.big { width: 64px; height: 64px; border: 3px solid #fbbf24; box-shadow: 0 4px 14px rgba(251,191,36,0.5); }
+.p-col.p2 .p-avatar { border-color: #9ca3af; }
+.p-col.p3 .p-avatar { border-color: #fb923c; }
+.p-box { border-radius: 12px 12px 0 0; padding: 18px 10px 8px; margin-top: 4px; text-align: center; width: 88px; }
+.p-col.p1 .p-box { width: 96px; padding-top: 24px; }
+.box1 { background: #fbbf24; color: #78350f; }
+.box2 { background: #d1d5db; color: #374151; }
+.box3 { background: #fed7aa; color: #9a3412; }
+.p-name { font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px; }
+.p-val { font-size: 11px; margin-top: 2px; }
+.p-rank { font-size: 11px; font-weight: 800; color: #fff; padding: 4px; text-align: center; width: 88px; border-radius: 0 0 12px 12px; }
+.p-col.p1 .p-rank { width: 96px; }
+.rank1 { background: #f59e0b; }
+.rank2 { background: #6b7280; }
+.rank3 { background: #f97316; }
+
+.list { display: flex; flex-direction: column; gap: 6px; }
+.list-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.95); border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.15s; }
+.list-row:hover { transform: translateX(2px); }
+.list-row.me { background: #dbeafe; border: 2px solid #3b82f6; }
+.list-rank { width: 28px; text-align: center; font-weight: 800; color: #9ca3af; font-size: 14px; }
+.list-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #f3f4f6; flex-shrink: 0; }
+.list-info { flex: 1; min-width: 0; }
+.list-name { display: flex; align-items: center; gap: 6px; color: #1f2937; font-weight: 700; font-size: 14px; }
+.list-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-level { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+.lv-seed { background: #f3f4f6; color: #6b7280; }
+.lv-sprout { background: #d1fae5; color: #065f46; }
+.lv-tree { background: #dbeafe; color: #1e40af; }
+.lv-forest { background: #d1fae5; color: #047857; }
+.lv-oak { background: #fef3c7; color: #92400e; }
+.list-sub { font-size: 11px; color: #9ca3af; }
+.list-value { text-align: right; flex-shrink: 0; }
+.value-main { font-weight: 800; color: #d97706; font-size: 15px; }
+.value-unit { font-size: 10px; color: #9ca3af; }
+
+.my-rank { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding: 14px 18px; background: #dbeafe; border: 1px solid #93c5fd; border-radius: 14px; }
+.my-badge { font-size: 20px; font-weight: 900; color: #1d4ed8; }
+.my-title { font-weight: 700; color: #1f2937; font-size: 14px; }
+.my-sub { font-size: 12px; color: #6b7280; }
+</style>
