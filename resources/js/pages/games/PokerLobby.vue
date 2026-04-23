@@ -4,7 +4,7 @@
 
     <!-- Header -->
     <div class="text-center relative">
-      <button @click="$router.back()" class="text-white/50 hover:text-white text-lg absolute left-0 top-1/2 -translate-y-1/2">&#9664;</button>
+      <button @click="$router.push('/games/casino')" class="text-white/50 hover:text-white text-lg absolute left-0 top-1/2 -translate-y-1/2" title="카지노 로비">&#9664;</button>
       <div class="flex items-center justify-center gap-3 mb-1">
         <span class="text-4xl">&#127920;</span>
         <h1 class="text-3xl font-black text-amber-400 tracking-wider">AwesomeKorean 포커</h1>

@@ -20,9 +20,14 @@
         <div class="text-xs text-gray-500 mt-1">{{ game.description || game.slug }}</div>
         <div class="text-[11px] text-gray-400 mt-0.5">slug: <code class="bg-gray-100 px-1">{{ game.slug }}</code> · 경로: <code class="bg-gray-100 px-1">{{ game.path }}</code></div>
       </div>
-      <a :href="game.path" target="_blank" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-500 flex-shrink-0">
-        🔗 게임 열기
-      </a>
+      <div class="flex flex-col gap-1 flex-shrink-0">
+        <a :href="game.path" target="_blank" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-500 text-center">
+          🔗 게임 열기
+        </a>
+        <RouterLink v-if="isQuizGame" :to="`/admin/games/questions/${game.slug}`" class="text-xs bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-lg hover:bg-purple-200 text-center">
+          ❓ 퀴즈 문제
+        </RouterLink>
+      </div>
     </div>
 
     <!-- 기본 정보 수정 -->
@@ -111,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import axios from 'axios'
 
@@ -122,6 +127,8 @@ const loading = ref(true)
 const game = ref(null)
 const settings = ref([])
 const newRows = ref([])
+const QUIZ_GAMES = ['animals','flag','idiom','proverb','satwords','uslife','shapes','colors']
+const isQuizGame = computed(() => game.value && QUIZ_GAMES.includes(game.value.slug))
 const form = reactive({ name: '', icon: '', description: '', category: 'brain', is_active: true })
 const savingGame = ref(false)
 const savingSettings = ref(false)

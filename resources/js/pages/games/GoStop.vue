@@ -5,7 +5,7 @@
       <button v-if="currentView !== 'menu'" @click="goBack" class="text-green-300 hover:text-white">
         ← 뒤로
       </button>
-      <router-link v-else to="/games" class="text-green-300 hover:text-white">← 로비</router-link>
+      <router-link v-else to="/games/casino" class="text-green-300 hover:text-white">← 카지노</router-link>
       <h1 class="font-bold text-lg">🎴 맞고</h1>
       <span class="text-green-300 text-sm">{{ room?.code || '' }}</span>
     </div>
@@ -64,7 +64,7 @@
         </div>
         <div v-if="chipBalance === 0" class="bg-orange-600/30 border border-orange-500/50 rounded-xl p-3 text-center">
           <p class="text-orange-200 text-sm mb-2">게임머니가 부족합니다</p>
-          <button @click="$router.push('/games')" class="bg-orange-500 hover:bg-orange-400 text-white text-sm px-4 py-1.5 rounded-lg font-bold">
+          <button @click="$router.push('/points')" class="bg-orange-500 hover:bg-orange-400 text-white text-sm px-4 py-1.5 rounded-lg font-bold">
             🎡 룰렛 돌리러 가기
           </button>
         </div>
@@ -586,6 +586,8 @@ async function loadChipBalance() {
 // ---- URL 파라미터로 방 입장 ----
 onMounted(async () => {
   loadChipBalance()
+  const qBet = parseInt(route.query.bet)
+  if ([50,100,500,1000].includes(qBet)) betPoints.value = qBet
   const qRoom = route.query.room ? parseInt(route.query.room) : null
   if (qRoom) {
     roomId.value = qRoom

@@ -4,7 +4,7 @@
     <!-- ══ TOP BAR ══ -->
     <div class="flex items-center px-3 py-2 gap-2 flex-shrink-0 sticky top-0 z-20"
       style="background:rgba(0,0,0,.75);border-bottom:1px solid rgba(255,255,255,.08);">
-      <button @click="$router.back()" class="text-white/50 hover:text-white text-base w-8 flex-shrink-0">◀</button>
+      <button @click="$router.push('/games/casino')" class="text-white/50 hover:text-white text-base w-8 flex-shrink-0" title="카지노 로비">◀</button>
       <span class="text-yellow-300 font-black tracking-wider text-sm">Texas Hold'em</span>
       <span class="text-white/30 text-xs">솔로</span>
 

@@ -9,10 +9,23 @@ use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    /** 공개: 활성 게임 목록 (유저 GameLobby 용) */
-    public function publicIndex()
+    /** 공개: 활성 게임 목록 (유저 GameLobby 용)
+     *  - group_slug 가 있는 게임(ex: casino 의 하위 포커/홀덤/고스톱/블랙잭)은 메인 로비에서 제외.
+     *    해당 게임들은 카지노 대기실에서 접근.
+     *  - ?include_group=1 이면 전부 반환 (관리자 미리보기용) */
+    public function publicIndex(Request $request)
     {
-        $games = Game::active()->orderBy('sort_order')->get();
+        $q = Game::active()->orderBy('sort_order');
+        if (!$request->boolean('include_group')) {
+            $q->whereNull('group_slug');
+        }
+        return response()->json(['success' => true, 'data' => $q->get()]);
+    }
+
+    /** 공개: 특정 그룹에 속한 게임들 (예: group_slug=casino) */
+    public function groupGames($group)
+    {
+        $games = Game::active()->where('group_slug', $group)->orderBy('sort_order')->get();
         return response()->json(['success' => true, 'data' => $games]);
     }
 
@@ -32,6 +45,7 @@ class GameController extends Controller
             'description' => 'nullable|string|max:200',
             'icon'        => 'nullable|string|max:20',
             'category'    => 'nullable|in:card,brain,arcade,word,education',
+            'group_slug'  => 'nullable|string|max:50',
             'is_active'   => 'nullable|boolean',
             'sort_order'  => 'nullable|integer',
         ]);

@@ -83,6 +83,8 @@ const routes = [
 
   // Games (인기 게임만 라우트, 나머지는 GameLobby에서 접근)
   { path: '/games', name: 'games', component: p('games/GameLobby') },
+  { path: '/games/casino', component: p('games/CasinoLobby') },
+  { path: '/games/animals', component: p('games/GameAnimals') },
   { path: '/games/quiz', component: p('games/QuizGame') },
   { path: '/games/memory', component: p('games/MemoryGame') },
   { path: '/games/bingo', component: p('games/BingoGame') },
@@ -182,6 +184,7 @@ const routes = [
       { path: 'claims', component: p('admin/AdminClaims') },
       { path: 'games', component: p('admin/AdminGames') },
       { path: 'games/settings/:slug', component: p('admin/AdminGameSettings') },
+      { path: 'games/questions/:slug', component: p('admin/AdminQuizQuestions') },
       { path: 'poker', component: p('admin/AdminPoker') },
       { path: 'music', component: p('admin/AdminMusic') },
       { path: 'groupbuy', component: p('admin/GroupBuy') },

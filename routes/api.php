@@ -149,6 +149,10 @@ Route::get('/poker/leaderboard', [PokerController::class, 'leaderboard']);
 
 // 게임 목록 (유저 GameLobby 용, DB 기반 활성 게임)
 Route::get('/games', [\App\Http\Controllers\API\GameController::class, 'publicIndex']);
+Route::get('/games/group/{group}', [\App\Http\Controllers\API\GameController::class, 'groupGames']);
+
+// 퀴즈 문제 (공개: 동물/국기/속담 등에서 사용)
+Route::get('/quiz/{slug}', [\App\Http\Controllers\API\QuizQuestionController::class, 'publicIndex']);
 
 // 게임 호환 API (old_site GameLobby용)
 Route::get('/game-categories', function () {
@@ -550,6 +554,12 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/games/{slug}/settings', [\App\Http\Controllers\API\GameController::class, 'show']);
     Route::post('/games/{slug}/settings', [\App\Http\Controllers\API\GameController::class, 'saveSettings']);
     Route::delete('/games/{slug}/settings/{key}', [\App\Http\Controllers\API\GameController::class, 'deleteSetting']);
+
+    // 퀴즈 문제 CRUD (게임별: animals/flag/proverb/satwords/uslife 등)
+    Route::get('/games/{slug}/questions',          [\App\Http\Controllers\API\QuizQuestionController::class, 'index']);
+    Route::post('/games/{slug}/questions',         [\App\Http\Controllers\API\QuizQuestionController::class, 'store']);
+    Route::put('/games/{slug}/questions/{id}',     [\App\Http\Controllers\API\QuizQuestionController::class, 'update']);
+    Route::delete('/games/{slug}/questions/{id}',  [\App\Http\Controllers\API\QuizQuestionController::class, 'destroy']);
 
     // 할인 이벤트 관리
     Route::get('/pricing-promotions', [\App\Http\Controllers\API\PricingPromotionController::class, 'index']);

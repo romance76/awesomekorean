@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Game extends Model
 {
     protected $fillable = [
-        'slug','name','description','icon','category','path','is_active','sort_order',
+        'slug','name','description','icon','category','group_slug','path','is_active','sort_order',
     ];
 
     protected $casts = [

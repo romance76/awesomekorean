@@ -38,10 +38,27 @@
         <div v-else-if="!filteredGames.length" class="text-center py-16 text-sm text-gray-400">게임이 없습니다</div>
         <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <RouterLink v-for="game in filteredGames" :key="game.path" :to="game.path"
-            class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all text-center group">
-            <div class="text-3xl mb-2">{{ game.icon }}</div>
-            <div class="text-sm font-bold text-gray-800 group-hover:text-amber-700">{{ game.name }}</div>
-            <div class="text-[10px] text-gray-400 mt-0.5">{{ game.description }}</div>
+            class="rounded-xl shadow-sm border p-4 hover:shadow-md hover:-translate-y-0.5 transition-all text-center group"
+            :class="game.slug === 'casino'
+              ? 'bg-gradient-to-br from-amber-50 to-orange-100 border-amber-300 col-span-2 sm:col-span-3 flex items-center gap-4 text-left p-5'
+              : 'bg-white border-gray-100'">
+            <div :class="game.slug === 'casino' ? 'text-5xl flex-shrink-0' : 'text-3xl mb-2'">{{ game.icon }}</div>
+            <div class="flex-1 min-w-0">
+              <div :class="game.slug === 'casino'
+                ? 'text-lg font-black text-amber-900'
+                : 'text-sm font-bold text-gray-800 group-hover:text-amber-700'">
+                {{ game.name }}
+              </div>
+              <div :class="game.slug === 'casino' ? 'text-xs text-amber-700 mt-0.5' : 'text-[10px] text-gray-400 mt-0.5'">
+                {{ game.description }}
+              </div>
+              <div v-if="game.slug === 'casino'" class="flex gap-1 mt-2 text-lg">
+                <span>♠️</span><span>♦️</span><span>🎴</span><span>🂡</span>
+              </div>
+            </div>
+            <div v-if="game.slug === 'casino'" class="flex-shrink-0 bg-amber-500 text-white font-bold px-4 py-2 rounded-full text-sm group-hover:bg-amber-600">
+              입장 →
+            </div>
           </RouterLink>
         </div>
       </div>
@@ -99,6 +116,7 @@ onMounted(async () => {
   try {
     const { data } = await axios.get('/api/games')
     allGames.value = (data.data || []).map(g => ({
+      slug: g.slug,
       path: g.path,
       icon: g.icon,
       name: g.name,

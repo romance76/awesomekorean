@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-emerald-900 pb-24 select-none">
     <!-- Header -->
     <div class="bg-black/40 px-4 py-3 flex items-center gap-3">
-      <button @click="$router.back()" class="text-white/70 hover:text-white">
+      <button @click="$router.push('/games/casino')" class="text-white/70 hover:text-white">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
         </svg>
@@ -131,7 +131,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
+const route = useRoute()
 
 // ── 사운드 ───────────────────────────────────────────────────────────────────
 let _ac = null
@@ -360,5 +362,7 @@ async function syncChipBalance() {
 
 onMounted(() => {
   loadChipBalance()
+  const qbet = parseInt(route.query.bet)
+  if (qbet && betOptions.includes(qbet)) bet.value = qbet
 })
 </script>
