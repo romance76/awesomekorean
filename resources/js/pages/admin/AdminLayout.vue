@@ -108,7 +108,6 @@ const subTabs = {
   ad: [
     { to: '/admin/ad-center', icon: '🎯', label: '광고 센터' },
     { to: '/admin/banners', icon: '📢', label: '광고 목록' },
-    { to: '/admin/hero-banners', icon: '🎪', label: '히어로 배너' },
     { to: '/admin/ad-settings', icon: '📐', label: '페이지별 설정' },
     { to: '/admin/payments', icon: '💳', label: '결제/오더' },
   ],
@@ -116,6 +115,8 @@ const subTabs = {
     { to: '/admin/security', icon: '🔒', label: '보안/신고' },
     { to: '/admin/settings', icon: '⚙️', label: '설정' },
     { to: '/admin/point-settings', icon: '💰', label: '포인트' },
+    { to: '/admin/hero-banners', icon: '🎪', label: '히어로 배너' },
+    { to: '/admin/popup-banners', icon: '💬', label: '팝업 배너' },
     { to: '/admin/system', icon: '🖥️', label: '시스템' },
   ],
 }

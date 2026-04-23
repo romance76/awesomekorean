@@ -1,0 +1,343 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "AwesomeKorean" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "AwesomeKorean" [ref=e7]
+        - generic [ref=e9]:
+          - textbox "Please enter a search term." [ref=e72]
+          - button [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+        - generic [ref=e14]:
+          - button [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - button "avatar" [ref=e20] [cursor=pointer]:
+            - img "avatar" [ref=e21]
+          - button "한" [ref=e22] [cursor=pointer]
+      - generic [ref=e24]:
+        - link "Home" [ref=e25] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e73]: Home
+        - link "Community" [ref=e26] [cursor=pointer]:
+          - /url: /community
+          - generic [ref=e74]: Community
+        - link "Q&A" [ref=e27] [cursor=pointer]:
+          - /url: /qa
+          - generic [ref=e75]: Q&A
+        - link "Jobs" [ref=e28] [cursor=pointer]:
+          - /url: /jobs
+          - generic [ref=e76]: Jobs
+        - link "Market" [ref=e29] [cursor=pointer]:
+          - /url: /market
+          - generic [ref=e77]: Market
+        - link "Real Estate" [ref=e31] [cursor=pointer]:
+          - /url: /realestate
+          - generic [ref=e78]: Real Estate
+        - link "Directory" [ref=e30] [cursor=pointer]:
+          - /url: /directory
+          - generic [ref=e79]: Directory
+        - link "Clubs" [ref=e35] [cursor=pointer]:
+          - /url: /clubs
+          - generic [ref=e80]: Clubs
+        - link "News" [ref=e33] [cursor=pointer]:
+          - /url: /news
+          - generic [ref=e81]: News
+        - link "Recipes" [ref=e34] [cursor=pointer]:
+          - /url: /recipes
+          - generic [ref=e82]: Recipes
+        - link "Group Buy" [ref=e39] [cursor=pointer]:
+          - /url: /groupbuy
+          - generic [ref=e83]: Group Buy
+        - link "Chat" [ref=e40] [cursor=pointer]:
+          - /url: /chat
+          - generic [ref=e84]: Chat
+        - link "Games" [ref=e36] [cursor=pointer]:
+          - /url: /games
+          - generic [ref=e85]: Games
+        - link "Shorts" [ref=e37] [cursor=pointer]:
+          - /url: /shorts
+          - generic [ref=e86]: Shorts
+        - link "Elder Care" [ref=e87] [cursor=pointer]:
+          - /url: /elder
+          - generic [ref=e88]: Elder Care
+        - link "Events" [ref=e32] [cursor=pointer]:
+          - /url: /events
+          - generic [ref=e89]: Events
+        - link "Friends" [ref=e41] [cursor=pointer]:
+          - /url: /friends
+          - generic [ref=e90]: Friends
+        - link "Music" [ref=e38] [cursor=pointer]:
+          - /url: /music
+          - generic [ref=e91]: Music
+        - link "Comms" [ref=e92] [cursor=pointer]:
+          - /url: /comms
+          - generic [ref=e93]: Comms
+    - main [ref=e94]:
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - generic [ref=e410] [cursor=pointer]:
+            - generic [ref=e412]: 🐛 Catch the Bug!
+            - generic [ref=e414]: Report errors and get points
+            - button "View Event →" [ref=e415]:
+              - generic [ref=e416]: View Event →
+          - generic [ref=e109]:
+            - button "‹" [ref=e110] [cursor=pointer]:
+              - generic [ref=e111]: ‹
+            - generic [ref=e112]:
+              - button [ref=e113] [cursor=pointer]
+              - button [ref=e114] [cursor=pointer]
+              - button [ref=e115] [cursor=pointer]
+              - button [ref=e116] [cursor=pointer]
+              - button [ref=e117] [cursor=pointer]
+            - button "›" [ref=e118] [cursor=pointer]:
+              - generic [ref=e119]: ›
+        - generic [ref=e120]:
+          - generic [ref=e121]:
+            - link "💬 Community" [ref=e122] [cursor=pointer]:
+              - /url: /community
+              - generic [ref=e124]: 💬
+              - generic [ref=e126]: Community
+            - link "❓ Q&A" [ref=e127] [cursor=pointer]:
+              - /url: /qa
+              - generic [ref=e129]: ❓
+              - generic [ref=e131]: Q&A
+            - link "💼 Jobs" [ref=e132] [cursor=pointer]:
+              - /url: /jobs
+              - generic [ref=e134]: 💼
+              - generic [ref=e136]: Jobs
+            - link "🛒 Market" [ref=e137] [cursor=pointer]:
+              - /url: /market
+              - generic [ref=e139]: 🛒
+              - generic [ref=e141]: Market
+            - link "🏠 Real Estate" [ref=e142] [cursor=pointer]:
+              - /url: /realestate
+              - generic [ref=e144]: 🏠
+              - generic [ref=e146]: Real Estate
+            - link "🏪 Directory" [ref=e147] [cursor=pointer]:
+              - /url: /directory
+              - generic [ref=e149]: 🏪
+              - generic [ref=e151]: Directory
+            - link "👥 Clubs" [ref=e152] [cursor=pointer]:
+              - /url: /clubs
+              - generic [ref=e154]: 👥
+              - generic [ref=e156]: Clubs
+            - link "📰 News" [ref=e157] [cursor=pointer]:
+              - /url: /news
+              - generic [ref=e159]: 📰
+              - generic [ref=e161]: News
+            - link "🍳 Recipes" [ref=e162] [cursor=pointer]:
+              - /url: /recipes
+              - generic [ref=e164]: 🍳
+              - generic [ref=e166]: Recipes
+            - link "🤝 Group Buy" [ref=e167] [cursor=pointer]:
+              - /url: /groupbuy
+              - generic [ref=e169]: 🤝
+              - generic [ref=e171]: Group Buy
+            - link "💭 Chat" [ref=e172] [cursor=pointer]:
+              - /url: /chat
+              - generic [ref=e174]: 💭
+              - generic [ref=e176]: Chat
+            - link "🎮 Games" [ref=e177] [cursor=pointer]:
+              - /url: /games
+              - generic [ref=e179]: 🎮
+              - generic [ref=e181]: Games
+            - link "📱 Shorts" [ref=e182] [cursor=pointer]:
+              - /url: /shorts
+              - generic [ref=e184]: 📱
+              - generic [ref=e186]: Shorts
+            - link "💙 Elder Care" [ref=e187] [cursor=pointer]:
+              - /url: /elder
+              - generic [ref=e189]: 💙
+              - generic [ref=e191]: Elder Care
+            - link "🎉 Events" [ref=e192] [cursor=pointer]:
+              - /url: /events
+              - generic [ref=e194]: 🎉
+              - generic [ref=e196]: Events
+            - link "👫 Friends" [ref=e197] [cursor=pointer]:
+              - /url: /friends
+              - generic [ref=e199]: 👫
+              - generic [ref=e201]: Friends
+            - link "🎵 Music" [ref=e202] [cursor=pointer]:
+              - /url: /music
+              - generic [ref=e204]: 🎵
+              - generic [ref=e206]: Music
+            - link "📞 Comms" [ref=e207] [cursor=pointer]:
+              - /url: /comms
+              - generic [ref=e209]: 📞
+              - generic [ref=e211]: Comms
+          - generic [ref=e213]:
+            - generic [ref=e214]:
+              - generic [ref=e215]:
+                - heading "💬 Latest Posts" [level=3] [ref=e216]:
+                  - generic [ref=e217]: 💬 Latest Posts
+                - link "See more →" [ref=e218] [cursor=pointer]:
+                  - /url: /community
+                  - generic [ref=e219]: See more →
+              - generic [ref=e220]:
+                - link "Free Board mnoo Office Worker A57 8" [ref=e221] [cursor=pointer]:
+                  - /url: /community/free/303
+                  - generic [ref=e222]:
+                    - generic [ref=e224]: Free Board
+                    - generic [ref=e226]: mnoo
+                  - generic [ref=e227]:
+                    - button "Office Worker A57" [ref=e228]:
+                      - generic [ref=e229]: Office Worker A57
+                    - generic [ref=e231]: "8"
+                - link "Restaurant Reviews Oraora Sushi House Henry 30" [ref=e232] [cursor=pointer]:
+                  - /url: /community/food/301
+                  - generic [ref=e233]:
+                    - generic [ref=e235]: Restaurant Reviews
+                    - generic [ref=e237]: Oraora Sushi House
+                  - generic [ref=e238]:
+                    - button "Henry" [ref=e239]:
+                      - generic [ref=e240]: Henry
+                    - generic [ref=e242]: "30"
+                - link "Counseling I would appreciate a recommendation for a Korean doctor. [4] chris_s 662" [ref=e243] [cursor=pointer]:
+                  - /url: /community/advice/235
+                  - generic [ref=e244]:
+                    - generic [ref=e246]: Counseling
+                    - generic [ref=e248]: I would appreciate a recommendation for a Korean doctor.
+                    - generic [ref=e250]: "[4]"
+                  - generic [ref=e251]:
+                    - button "chris_s" [ref=e252]:
+                      - generic [ref=e253]: chris_s
+                    - generic [ref=e255]: "662"
+                - link "Immigrant life Smart ways to utilize HSA accounts [9] LA Koreans 803" [ref=e256] [cursor=pointer]:
+                  - /url: /community/immigration/172
+                  - generic [ref=e257]:
+                    - generic [ref=e259]: Immigrant life
+                    - generic [ref=e261]: Smart ways to utilize HSA accounts
+                    - generic [ref=e263]: "[9]"
+                  - generic [ref=e264]:
+                    - button "LA Koreans" [ref=e265]:
+                      - generic [ref=e266]: LA Koreans
+                    - generic [ref=e268]: "803"
+                - link "Free Board A collection of great tips from someone living in the U.S. for 10 years Immigrant Diary 607" [ref=e269] [cursor=pointer]:
+                  - /url: /community/free/223
+                  - generic [ref=e270]:
+                    - generic [ref=e272]: Free Board
+                    - generic [ref=e274]: A collection of great tips from someone living in the U.S. for 10 years
+                  - generic [ref=e275]:
+                    - button "Immigrant Diary" [ref=e276]:
+                      - generic [ref=e277]: Immigrant Diary
+                    - generic [ref=e279]: "607"
+                - link "Travel story Please recommend a Korean church. [7] Cooking Beginner 94 662" [ref=e280] [cursor=pointer]:
+                  - /url: /community/travel/284
+                  - generic [ref=e281]:
+                    - generic [ref=e283]: Travel story
+                    - generic [ref=e285]: Please recommend a Korean church.
+                    - generic [ref=e287]: "[7]"
+                  - generic [ref=e288]:
+                    - button "Cooking Beginner 94" [ref=e289]:
+                      - generic [ref=e290]: Cooking Beginner 94
+                    - generic [ref=e292]: "662"
+                - link "Restaurant Reviews Great tips for the driver's license written test [21] atl_korean 709" [ref=e293] [cursor=pointer]:
+                  - /url: /community/food/114
+                  - generic [ref=e294]:
+                    - generic [ref=e296]: Restaurant Reviews
+                    - generic [ref=e298]: Great tips for the driver's license written test
+                    - generic [ref=e300]: "[21]"
+                  - generic [ref=e301]:
+                    - button "atl_korean" [ref=e302]:
+                      - generic [ref=e303]: atl_korean
+                    - generic [ref=e305]: "709"
+                - 'link "Immigrant life Which is better for tax filing: TurboTax or a CPA? [14] housewife_us 702" [ref=e306] [cursor=pointer]':
+                  - /url: /community/immigration/37
+                  - generic [ref=e307]:
+                    - generic [ref=e309]: Immigrant life
+                    - generic [ref=e311]: "Which is better for tax filing: TurboTax or a CPA?"
+                    - generic [ref=e313]: "[14]"
+                  - generic [ref=e314]:
+                    - button "housewife_us" [ref=e315]:
+                      - generic [ref=e316]: housewife_us
+                    - generic [ref=e318]: "702"
+            - generic [ref=e319]:
+              - generic [ref=e320]:
+                - heading "💼 Latest Job Openings" [level=3] [ref=e321]:
+                  - generic [ref=e322]: 💼 Latest Job Openings
+                - link "See more →" [ref=e323] [cursor=pointer]:
+                  - /url: /jobs
+                  - generic [ref=e324]: See more →
+              - link "Full-time Duluth, GA SD sd · $5~$7/hourly" [ref=e326] [cursor=pointer]:
+                - /url: /jobs/375
+                - generic [ref=e327]:
+                  - generic [ref=e329]: Full-time
+                  - generic [ref=e331]: Duluth, GA
+                - generic [ref=e333]: SD
+                - generic [ref=e335]: sd · $5~$7/hourly
+              - link "Full-time Duluth, GA sadf sdf · $4~$4/hourly" [ref=e337] [cursor=pointer]:
+                - /url: /jobs/374
+                - generic [ref=e338]:
+                  - generic [ref=e340]: Full-time
+                  - generic [ref=e342]: Duluth, GA
+                - generic [ref=e344]: sadf
+                - generic [ref=e346]: sdf · $4~$4/hourly
+              - link "Full-time Suwanee, GA sdf sdf · $4~$6/hourly" [ref=e348] [cursor=pointer]:
+                - /url: /jobs/373
+                - generic [ref=e349]:
+                  - generic [ref=e351]: Full-time
+                  - generic [ref=e353]: Suwanee, GA
+                - generic [ref=e355]: sdf
+                - generic [ref=e357]: sdf · $4~$6/hourly
+              - link "Full-time Suwanee, GA asd sd · $3~$4/hourly" [ref=e359] [cursor=pointer]:
+                - /url: /jobs/372
+                - generic [ref=e360]:
+                  - generic [ref=e362]: Full-time
+                  - generic [ref=e364]: Suwanee, GA
+                - generic [ref=e366]: asd
+                - generic [ref=e368]: sd · $3~$4/hourly
+              - link "Full-time Suwanee, GA asdf asd · $~$/hourly" [ref=e370] [cursor=pointer]:
+                - /url: /jobs/371
+                - generic [ref=e371]:
+                  - generic [ref=e373]: Full-time
+                  - generic [ref=e375]: Suwanee, GA
+                - generic [ref=e377]: asdf
+                - generic [ref=e379]: asd · $~$/hourly
+    - contentinfo [ref=e42]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e380]: AwesomeKorean
+            - generic [ref=e381]: No. 1 Korean community in the U.S.
+          - generic [ref=e48]:
+            - generic [ref=e382]: service
+            - link "Community" [ref=e383] [cursor=pointer]:
+              - /url: /community
+              - generic [ref=e384]: Community
+            - link "Job Search" [ref=e385] [cursor=pointer]:
+              - /url: /jobs
+              - generic [ref=e386]: Job Search
+            - link "second-hand market" [ref=e387] [cursor=pointer]:
+              - /url: /market
+              - generic [ref=e388]: second-hand market
+            - link "Business Directory" [ref=e389] [cursor=pointer]:
+              - /url: /directory
+              - generic [ref=e390]: Business Directory
+          - generic [ref=e54]:
+            - generic [ref=e391]: Content
+            - link "news" [ref=e392] [cursor=pointer]:
+              - /url: /news
+              - generic [ref=e393]: news
+            - link "recipe" [ref=e394] [cursor=pointer]:
+              - /url: /recipes
+              - generic [ref=e395]: recipe
+            - link "game" [ref=e396] [cursor=pointer]:
+              - /url: /games
+              - generic [ref=e397]: game
+            - link "music" [ref=e398] [cursor=pointer]:
+              - /url: /music
+              - generic [ref=e399]: music
+          - generic [ref=e60]:
+            - generic [ref=e400]: guide
+            - link "introduction" [ref=e401] [cursor=pointer]:
+              - /url: /about
+              - generic [ref=e402]: introduction
+            - link "Terms of Use" [ref=e403] [cursor=pointer]:
+              - /url: /terms
+              - generic [ref=e404]: Terms of Use
+            - link "privacy policy" [ref=e405] [cursor=pointer]:
+              - /url: /privacy
+              - generic [ref=e406]: privacy policy
+        - generic [ref=e407]: © 2026 AwesomeKorean. All rights reserved.
+  - img [ref=e70]

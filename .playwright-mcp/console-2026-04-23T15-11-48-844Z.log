@@ -1,0 +1,167 @@
+[    1006ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1006ms] [LOG] [PeerJS] Initializing as sk-202-itwn @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1009ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1218ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1221ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1222ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1222ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1350ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1350ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1351ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1351ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1488ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1489ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1489ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1489ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1688ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1689ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1689ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1689ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1705ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/dashboard:0
+[    1705ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/dashboard:0
+[    1705ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/dashboard:0
+[    1807ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1807ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1807ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1807ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1939ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1939ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1939ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    1940ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2069ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2069ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2069ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2069ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2189ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2190ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2190ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2190ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2318ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2318ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2318ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2318ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2452ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2452ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2453ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2453ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2584ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2584ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2584ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2584ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2722ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2722ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2722ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2722ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2845ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2845ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2846ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2846ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2981ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2981ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2981ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    2981ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3103ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3103ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3103ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3103ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3225ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3225ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3225ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3225ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3356ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3356ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3356ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3356ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3473ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3473ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3473ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3473ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3613ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3613ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3613ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3614ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3759ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3759ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3759ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3759ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3924ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3924ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3924ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    3924ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4086ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4086ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4086ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4086ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4275ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4275ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4275ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4275ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4520ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4520ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4520ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4520ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4743ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4743ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4743ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    4743ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5123ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5123ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5124ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5124ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5416ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5416ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5416ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    5417ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6148ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6149ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6149ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6149ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6855ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6855ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6855ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    6855ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    7057ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    8004ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    8005ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    8005ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[    8005ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   10290ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   10290ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   10290ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   10291ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   11563ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   11563ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   11563ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   11563ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   14045ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   14045ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   14045ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   14045ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   17766ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   17766ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   17766ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   17766ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   21935ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   21935ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   21936ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   21936ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   24352ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   24352ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   24353ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   24353ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   26758ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   26758ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   26758ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   26759ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   30675ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   30676ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   30676ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   30676ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   33379ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   33380ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   33381ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   33381ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   34935ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-itwn&token=likw2ojgyak&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   34935ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   34935ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47
+[   34935ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-DeTOsOQ0.js:47

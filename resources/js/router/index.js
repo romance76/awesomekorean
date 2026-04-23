@@ -175,6 +175,7 @@ const routes = [
       { path: 'recipes', component: p('admin/AdminRecipes') },
       { path: 'events', component: p('admin/AdminEvents') },
       { path: 'hero-banners', component: p('admin/AdminHeroBanners') },
+      { path: 'popup-banners', component: p('admin/AdminPopupBanners') },
       { path: 'shopping', component: p('admin/AdminShopping') },
       { path: 'shorts', component: p('admin/AdminShorts') },
       { path: 'directory', component: p('admin/Business') },

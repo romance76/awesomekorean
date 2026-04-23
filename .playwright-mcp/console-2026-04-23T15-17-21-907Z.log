@@ -1,0 +1,8 @@
+[     188ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47
+[     188ms] [LOG] [PeerJS] Initializing as sk-202-clt1 @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47
+[     189ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47
+[    1639ms] [WARNING] WebSocket connection to 'wss://awesomekorean.com/app/awesomekorean_key_2026?protocol=7&client=js&version=8.4.0&flash=false' failed: WebSocket is closed before the connection is established. @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:6
+[    3107ms] [ERROR] WebSocket connection to 'wss://awesomekorean.com/peerjs/peerjs?key=peerjs&id=sk-202-clt1&token=fuy7aq4irv7&version=1.5.5' failed: Error during WebSocket handshake: Unexpected response code: 502 @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47
+[    3108ms] [ERROR] ERROR PeerJS:  Error: Lost connection to server. @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47
+[    3108ms] [ERROR] [PeerJS] ❌ Error: network Lost connection to server. @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47
+[    3108ms] [WARNING] [PeerJS] Disconnected, reconnecting... @ https://awesomekorean.com/build/assets/app-Bi6Os44c.js:47

@@ -109,6 +109,7 @@ Route::get('/banners/all', [\App\Http\Controllers\API\BannerController::class, '
 Route::get('/hero-banners', function () {
     return response()->json(['success' => true, 'data' => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()]);
 })->middleware('cache.api:1800');
+Route::get('/popup-banners/active', [\App\Http\Controllers\API\PopupBannerController::class, 'publicActive'])->middleware('cache.api:600');
 Route::post('/banners/{id}/click', [\App\Http\Controllers\API\BannerController::class, 'click']);
 Route::get('/ad-settings/public', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettingsPublic']);
 
@@ -528,6 +529,13 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/hero-banners', function (\Illuminate\Http\Request $r) { return response()->json(['success'=>true, 'data'=> \App\Models\HeroBanner::create($r->all())]); });
     Route::put('/hero-banners/{id}', function (\Illuminate\Http\Request $r, $id) { \App\Models\HeroBanner::findOrFail($id)->update($r->all()); return response()->json(['success'=>true]); });
     Route::delete('/hero-banners/{id}', function ($id) { \App\Models\HeroBanner::findOrFail($id)->delete(); return response()->json(['success'=>true]); });
+
+    // 팝업 배너 관리
+    Route::get('/popup-banners', [\App\Http\Controllers\API\PopupBannerController::class, 'index']);
+    Route::post('/popup-banners', [\App\Http\Controllers\API\PopupBannerController::class, 'store']);
+    Route::post('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'update']); // multipart 편의상 POST 허용
+    Route::put('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'update']);
+    Route::delete('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'destroy']);
 
     Route::get('/ip-bans', [AdminController::class, 'ipBans']);
     Route::post('/ip-bans', [AdminController::class, 'createIpBan']);

@@ -1,0 +1,209 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link "AwesomeKorean" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "AwesomeKorean" [ref=e7]
+      - generic [ref=e9]:
+        - textbox "검색어를 입력하세요" [ref=e10]
+        - button [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+      - generic [ref=e14]:
+        - button [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+        - button "avatar" [ref=e20] [cursor=pointer]:
+          - img "avatar" [ref=e21]
+        - button "EN" [ref=e22] [cursor=pointer]
+    - generic [ref=e24]:
+      - link "홈" [ref=e25] [cursor=pointer]:
+        - /url: /
+      - link "커뮤니티" [ref=e26] [cursor=pointer]:
+        - /url: /community
+      - link "Q&A" [ref=e27] [cursor=pointer]:
+        - /url: /qa
+      - link "구인구직" [ref=e28] [cursor=pointer]:
+        - /url: /jobs
+      - link "중고장터" [ref=e29] [cursor=pointer]:
+        - /url: /market
+      - link "부동산" [ref=e31] [cursor=pointer]:
+        - /url: /realestate
+      - link "업소록" [ref=e30] [cursor=pointer]:
+        - /url: /directory
+      - link "동호회" [ref=e35] [cursor=pointer]:
+        - /url: /clubs
+      - link "뉴스" [ref=e33] [cursor=pointer]:
+        - /url: /news
+      - link "레시피" [ref=e34] [cursor=pointer]:
+        - /url: /recipes
+      - link "공동구매" [ref=e39] [cursor=pointer]:
+        - /url: /groupbuy
+      - link "채팅" [ref=e40] [cursor=pointer]:
+        - /url: /chat
+      - link "게임" [ref=e36] [cursor=pointer]:
+        - /url: /games
+      - link "숏츠" [ref=e37] [cursor=pointer]:
+        - /url: /shorts
+      - link "안심서비스" [ref=e68] [cursor=pointer]:
+        - /url: /elder
+      - link "이벤트" [ref=e32] [cursor=pointer]:
+        - /url: /events
+      - link "친구" [ref=e41] [cursor=pointer]:
+        - /url: /friends
+      - link "음악듣기" [ref=e38] [cursor=pointer]:
+        - /url: /music
+      - link "안심 커뮤" [ref=e69] [cursor=pointer]:
+        - /url: /comms
+  - main [ref=e70]:
+    - generic [ref=e72]:
+      - heading "📋 내 대시보드" [level=1] [ref=e73]
+      - generic [ref=e74]:
+        - generic [ref=e75]: 내 포인트
+        - generic [ref=e76]: 11,953P
+      - generic [ref=e77]:
+        - button "📝 프로필" [ref=e78] [cursor=pointer]
+        - button "💰 포인트" [ref=e79] [cursor=pointer]
+        - button "✉️ 쪽지" [ref=e80] [cursor=pointer]
+        - button "📄 내 글" [ref=e81] [cursor=pointer]
+        - button "🛒 내 장터" [ref=e82] [cursor=pointer]
+        - button "💼 내 구인" [ref=e83] [cursor=pointer]
+        - button "🏠 내 부동산" [ref=e84] [cursor=pointer]
+        - button "📢 광고 신청" [ref=e85] [cursor=pointer]
+        - button "📞 통화내역" [ref=e86] [cursor=pointer]
+        - button "🔖 북마크" [ref=e87] [cursor=pointer]
+        - button "🛡️ 안심" [ref=e88] [cursor=pointer]
+        - button "💳 결제" [ref=e89] [cursor=pointer]
+        - button "🏪 내 업소" [ref=e90] [cursor=pointer]
+        - button "📄 이력서" [ref=e91] [cursor=pointer]
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - heading "📝 프로필 수정" [level=2] [ref=e94]
+          - generic [ref=e95]:
+            - img "avatar" [ref=e97]
+            - generic [ref=e98] [cursor=pointer]:
+              - text: 📷 사진 변경
+              - button "📷 사진 변경" [active] [ref=e176]
+            - generic [ref=e177]: 변경됨! ✓
+          - generic [ref=e99]:
+            - generic [ref=e100]: 이메일
+            - textbox [disabled] [ref=e101]: test@test.com
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]: 이름
+              - textbox [ref=e105]: 직장인A57
+            - generic [ref=e106]:
+              - generic [ref=e107]: 닉네임
+              - textbox [ref=e108]: 직장인A57
+          - generic [ref=e109]:
+            - generic [ref=e110]: 소개
+            - textbox "자기소개를 적어주세요" [ref=e111]
+          - generic [ref=e112]:
+            - generic [ref=e113]: 전화번호 *필수
+            - textbox "000-000-0000" [ref=e114]: 321-645-9798
+          - generic [ref=e115]:
+            - generic [ref=e116]: 주소 1
+            - 'textbox "주소 1 (예: 123 Main St)" [ref=e117]'
+          - generic [ref=e118]:
+            - generic [ref=e119]: 주소 2
+            - 'textbox "주소 2 (예: Apt 4B)" [ref=e120]'
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - generic [ref=e123]: 도시
+              - textbox [ref=e124]: Atlanta
+            - generic [ref=e125]:
+              - generic [ref=e126]: 주
+              - textbox [ref=e127]: GA
+            - generic [ref=e128]:
+              - generic [ref=e129]: 우편번호
+              - textbox [ref=e130]: "30024"
+          - generic [ref=e131]:
+            - generic [ref=e132]: 📍 기본 검색 반경
+            - combobox [ref=e133]:
+              - option "10마일 이내"
+              - option "30마일 이내" [selected]
+              - option "50마일 이내"
+              - option "100마일 이내"
+            - paragraph [ref=e134]: 구인구직, 중고장터, 부동산 등 위치 기반 게시판의 기본 검색 범위
+          - generic [ref=e135]:
+            - heading "🔐 프라이버시 설정" [level=3] [ref=e136]
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - generic [ref=e139]: 친구 요청
+                - generic [ref=e140]:
+                  - generic [ref=e141]:
+                    - radio "허용" [checked] [ref=e142]
+                    - text: 허용
+                  - generic [ref=e143]:
+                    - radio "거절" [ref=e144]
+                    - text: 거절
+              - generic [ref=e145]:
+                - generic [ref=e146]: 쪽지 수신
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - radio "허용" [checked] [ref=e149]
+                    - text: 허용
+                  - generic [ref=e150]:
+                    - radio "거절" [ref=e151]
+                    - text: 거절
+              - generic [ref=e152]:
+                - generic [ref=e153]: 안심서비스 이용
+                - generic [ref=e154]:
+                  - generic [ref=e155]:
+                    - radio "허용" [checked] [ref=e156]
+                    - text: 허용
+                  - generic [ref=e157]:
+                    - radio "거절" [ref=e158]
+                    - text: 거절
+                - paragraph [ref=e159]: 허용 시 보호자가 안심 서비스를 등록할 수 있습니다.
+          - generic [ref=e160]:
+            - generic [ref=e161]: 언어
+            - combobox [ref=e162]:
+              - option "한국어" [selected]
+              - option "English"
+          - button "저장하기" [ref=e163] [cursor=pointer]
+        - generic [ref=e164]:
+          - heading "🔒 비밀번호 변경" [level=2] [ref=e165]
+          - generic [ref=e166]:
+            - textbox "현재 비밀번호" [ref=e167]
+            - textbox "새 비밀번호" [ref=e168]
+            - textbox "새 비밀번호 확인" [ref=e169]
+          - button "변경하기" [ref=e170] [cursor=pointer]
+      - generic [ref=e171]:
+        - heading "⚙️ 계정 관리" [level=2] [ref=e172]
+        - generic [ref=e173]:
+          - button "🚪 로그아웃" [ref=e174] [cursor=pointer]
+          - button "⚠️ 회원 탈퇴" [ref=e175] [cursor=pointer]
+  - contentinfo [ref=e42]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - generic [ref=e46]: AwesomeKorean
+          - generic [ref=e47]: 미국 한인 No.1 커뮤니티
+        - generic [ref=e48]:
+          - generic [ref=e49]: 서비스
+          - link "커뮤니티" [ref=e50] [cursor=pointer]:
+            - /url: /community
+          - link "구인구직" [ref=e51] [cursor=pointer]:
+            - /url: /jobs
+          - link "중고장터" [ref=e52] [cursor=pointer]:
+            - /url: /market
+          - link "업소록" [ref=e53] [cursor=pointer]:
+            - /url: /directory
+        - generic [ref=e54]:
+          - generic [ref=e55]: 콘텐츠
+          - link "뉴스" [ref=e56] [cursor=pointer]:
+            - /url: /news
+          - link "레시피" [ref=e57] [cursor=pointer]:
+            - /url: /recipes
+          - link "게임" [ref=e58] [cursor=pointer]:
+            - /url: /games
+          - link "음악" [ref=e59] [cursor=pointer]:
+            - /url: /music
+        - generic [ref=e60]:
+          - generic [ref=e61]: 안내
+          - link "소개" [ref=e62] [cursor=pointer]:
+            - /url: /about
+          - link "이용약관" [ref=e63] [cursor=pointer]:
+            - /url: /terms
+          - link "개인정보처리방침" [ref=e64] [cursor=pointer]:
+            - /url: /privacy
+      - generic [ref=e65]: © 2026 AwesomeKorean. All rights reserved.
