@@ -359,7 +359,7 @@ const pageConfigs = ref({})
 
 const adForm = reactive({ title: '', link_url: '', bid_amount: 4000, geo_scope: 'county', geo_value: '' })
 
-// 광고 노출 가능 서브 페이지 — 활성 메뉴 기반 (home 제외, 관리자에서 슬롯 0/0 으로 꺼놓은 것도 제외)
+// 광고 노출 가능 서브 페이지 — 활성 메뉴 중 관리자 광고 슬롯이 > 0 인 것만
 const subPages = computed(() => {
   const mc = siteStore.menuConfig
   if (!mc || !Array.isArray(mc)) return []
@@ -367,7 +367,7 @@ const subPages = computed(() => {
     .filter(m => m.enabled !== false && !m.admin_only && m.key !== 'home')
     .filter(m => {
       const cfg = pageConfigs.value[m.key]
-      if (!cfg) return true // 설정이 없으면 일단 노출 (admin 에서 설정 전)
+      if (!cfg) return false // 관리자가 명시적으로 슬롯 수를 설정해야 노출
       return (cfg.left_slots || 0) > 0 || (cfg.right_slots || 0) > 0
     })
     .map(m => ({ key: m.key, icon: m.icon, label: m.label }))
