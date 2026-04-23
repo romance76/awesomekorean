@@ -8,19 +8,24 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    // 포인트 패키지 목록 (point_settings에서 로드)
+    // 포인트 패키지 목록 (point_settings에서 로드, 현재 유효한 할인 이벤트 반영)
     public function packages()
     {
+        $discount = \App\Models\PricingPromotion::currentDiscount('package'); // 0~95
         $pkgs = \DB::table('point_settings')
             ->where('key', 'like', 'pkg_%')
             ->orderBy('id')
             ->get()
-            ->map(function ($s) {
+            ->map(function ($s) use ($discount) {
                 $parts = explode('|', $s->value);
+                $original = (float) ($parts[0] ?? 0);
+                $final = $discount > 0 ? round($original * (100 - $discount) / 100, 2) : $original;
                 return [
                     'key' => $s->key,
                     'name' => $s->label ?? $s->key,
-                    'price' => (float) ($parts[0] ?? 0),
+                    'price' => $final,                  // 실제 결제 금액
+                    'original_price' => $original,      // 원가 (UI 취소선용)
+                    'discount_pct' => $discount,        // 0 이면 할인 없음
                     'points' => (int) ($parts[1] ?? 0),
                     'bonus' => (int) ($parts[2] ?? 0),
                 ];
@@ -38,10 +43,14 @@ class PaymentController extends Controller
         if (!$setting) return response()->json(['success' => false, 'message' => '잘못된 패키지'], 400);
 
         $parts = explode('|', $setting->value); // 가격|포인트|보너스
-        $price = (float) ($parts[0] ?? 0);
+        $original = (float) ($parts[0] ?? 0);
         $points = (int) ($parts[1] ?? 0);
         $bonus = (int) ($parts[2] ?? 0);
         $totalPoints = $points + $bonus;
+
+        // 현재 유효한 할인 이벤트 반영
+        $discount = \App\Models\PricingPromotion::currentDiscount('package');
+        $price = $discount > 0 ? round($original * (100 - $discount) / 100, 2) : $original;
 
         $pkg = ['points' => $totalPoints, 'price' => (int) round($price * 100)]; // cents
 

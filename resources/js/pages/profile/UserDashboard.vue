@@ -167,15 +167,24 @@
         <div class="text-3xl font-black text-amber-600 mb-4">{{ (auth.user?.points || ptBalance).toLocaleString() }}P</div>
         <!-- 포인트 구매 -->
         <div class="border-t pt-4 mt-4 mb-4">
-          <h3 class="font-bold text-gray-700 text-sm mb-3">🛒 포인트 구매</h3>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-gray-700 text-sm">🛒 포인트 구매</h3>
+            <span v-if="packagePromotion" class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">
+              🎉 {{ packagePromotion.title }} -{{ packagePromotion.discount_pct }}%
+            </span>
+          </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <button v-for="pkg in packages" :key="pkg.key" @click="buyPackage(pkg)"
-              class="border-2 rounded-xl p-3 text-center hover:border-amber-400 hover:bg-amber-50 transition"
+              class="border-2 rounded-xl p-3 text-center hover:border-amber-400 hover:bg-amber-50 transition relative"
               :class="selectedPkg===pkg.key ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
+              <span v-if="pkg.discount_pct > 0" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">-{{ pkg.discount_pct }}%</span>
               <div class="text-lg font-black text-amber-600">{{ (pkg.points + pkg.bonus).toLocaleString() }}P</div>
               <div v-if="pkg.bonus" class="text-[10px] text-green-600 font-bold">+{{ pkg.bonus.toLocaleString() }}P 보너스</div>
-              <div class="text-sm font-bold text-gray-800 mt-1">${{ pkg.price }}</div>
-              <div class="text-[9px] text-gray-400">{{ pkg.label }}</div>
+              <div class="mt-1">
+                <span v-if="pkg.discount_pct > 0" class="text-[10px] text-gray-400 line-through block leading-none">${{ pkg.original_price }}</span>
+                <span class="text-sm font-bold text-gray-800">${{ pkg.price }}</span>
+              </div>
+              <div class="text-[9px] text-gray-400 mt-0.5">{{ pkg.name }}</div>
             </button>
           </div>
         </div>
@@ -1143,19 +1152,24 @@ const rouletteSegments = [
   { points: 50, color: 'text-red-600', bg: '#fca5a5' },
 ]
 const packages = ref([]); const selectedPkg = ref('')
+const packagePromotion = ref(null)
 const payModal = ref(false); const payPkg = ref(null); const payError = ref(''); const paying = ref(false)
 let stripe = null; let cardElement = null; let clientSecret = null
 async function loadPoints() {
   try { const { data } = await axios.get('/api/points/balance'); ptBalance.value = data.data?.points || data.points || auth.user?.points || 0; spun.value = data.daily_spin_done || false } catch { ptBalance.value = auth.user?.points || 0 }
   try { const { data } = await axios.get('/api/points/history'); ptHistory.value = data.data?.data || data.data || [] } catch {}
-  // 패키지 로드
+  // 패키지 로드 (할인 이벤트 반영된 가격)
   try {
-    const { data } = await axios.get('/api/settings/points')
-    const ps = data.data || {}
-    packages.value = Object.entries(ps).filter(([k]) => k.startsWith('pkg_')).map(([k, v]) => {
-      const [price, points, bonus] = v.split('|').map(Number)
-      return { key: k, label: { pkg_starter:'스타터', pkg_basic:'베이직', pkg_standard:'스탠다드', pkg_pro:'프로', pkg_business:'비즈니스' }[k] || k, price, points, bonus }
-    })
+    const { data } = await axios.get('/api/payments/packages')
+    packages.value = (data.data || []).map(pkg => ({
+      ...pkg,
+      label: { pkg_starter:'스타터', pkg_basic:'베이직', pkg_standard:'스탠다드', pkg_pro:'프로', pkg_business:'비즈니스' }[pkg.key] || pkg.name,
+    }))
+  } catch {}
+  // 현재 활성 할인 이벤트 (표시용)
+  try {
+    const { data } = await axios.get('/api/pricing-promotions/active')
+    packagePromotion.value = data.data?.package || null
   } catch {}
 }
 async function buyPackage(pkg) {

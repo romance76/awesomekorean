@@ -3,7 +3,14 @@
   <div :class="embedded ? '' : 'max-w-5xl mx-auto px-4 py-5'">
     <h1 class="text-xl font-black text-gray-800 mb-2">📢 광고 신청 (월간 경매)</h1>
     <p class="text-sm text-gray-500 mb-1">매달 말일 24시간 입찰 접수 → 최고 입찰자 순으로 배정</p>
-    <p class="text-xs text-amber-600 font-bold mb-5">다음 경매: {{ nextAuctionDate }}</p>
+    <p class="text-xs text-amber-600 font-bold mb-2">다음 경매: {{ nextAuctionDate }}</p>
+    <div v-if="adDiscountPct" class="mb-5 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2">
+      <span class="text-lg">🎉</span>
+      <div class="flex-1">
+        <div class="text-sm font-bold text-red-700">{{ adPromotion?.title }} — 전체 광고 {{ adDiscountPct }}% 할인 진행중</div>
+        <div class="text-[10px] text-red-500">종료: {{ fmtPromoEnd(adPromotion?.ends_at) }}</div>
+      </div>
+    </div>
 
     <!-- ═══ Step 1: 페이지 선택 (단일 선택) ═══ -->
     <div class="bg-white rounded-2xl shadow-sm border p-5 mb-5">
@@ -115,7 +122,9 @@
                 <div class="text-xs mb-0.5">{{ isSelected('left',1) ? '✅' : '🥇' }}</div>
                 <div class="text-[9px] font-black text-yellow-700">프리미엄</div>
                 <div class="text-[8px] text-gray-500">고정 독점 · 200×140</div>
-                <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('left','premium').toLocaleString() }}P/월</div>
+                <div class="text-[9px] font-bold text-red-600 mt-0.5">
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('left','premium').toLocaleString() }}</span>{{ slotMinPrice('left','premium').toLocaleString() }}P/월
+                </div>
               </div>
 
               <div v-if="pageSlotConfig.left_slots >= 2" @click="selectSlot('left', 2, 'standard')"
@@ -124,7 +133,9 @@
                 <div class="text-xs mb-0.5">{{ isSelected('left',2) ? '✅' : '🥈' }}</div>
                 <div class="text-[9px] font-black text-blue-700">스탠다드</div>
                 <div class="text-[8px] text-gray-500">2개 랜덤 · 200×140</div>
-                <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('left','standard').toLocaleString() }}P/월</div>
+                <div class="text-[9px] font-bold text-red-600 mt-0.5">
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('left','standard').toLocaleString() }}</span>{{ slotMinPrice('left','standard').toLocaleString() }}P/월
+                </div>
               </div>
 
               <div v-if="pageSlotConfig.left_slots >= 3" @click="selectSlot('left', 3, 'economy')"
@@ -133,7 +144,9 @@
                 <div class="text-xs mb-0.5">{{ isSelected('left',3) ? '✅' : '🥉' }}</div>
                 <div class="text-[9px] font-black text-green-700">이코노미</div>
                 <div class="text-[8px] text-gray-500">5개 랜덤 · 200×140</div>
-                <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('left','economy').toLocaleString() }}P/월</div>
+                <div class="text-[9px] font-bold text-red-600 mt-0.5">
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('left','economy').toLocaleString() }}</span>{{ slotMinPrice('left','economy').toLocaleString() }}P/월
+                </div>
               </div>
             </div>
 
@@ -155,7 +168,9 @@
                 <div class="text-xs mb-0.5">{{ isSelected('right',1) ? '✅' : '🥇' }}</div>
                 <div class="text-[9px] font-black text-yellow-700">프리미엄</div>
                 <div class="text-[8px] text-gray-500">고정 독점 · 300×210</div>
-                <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('right','premium').toLocaleString() }}P/월</div>
+                <div class="text-[9px] font-bold text-red-600 mt-0.5">
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('right','premium').toLocaleString() }}</span>{{ slotMinPrice('right','premium').toLocaleString() }}P/월
+                </div>
               </div>
 
               <div v-if="pageSlotConfig.right_slots >= 2" @click="selectSlot('right', 2, 'economy')"
@@ -164,7 +179,9 @@
                 <div class="text-xs mb-0.5">{{ isSelected('right',2) ? '✅' : '🥉' }}</div>
                 <div class="text-[9px] font-black text-green-700">이코노미</div>
                 <div class="text-[8px] text-gray-500">3개 랜덤 · 300×210</div>
-                <div class="text-[9px] font-bold text-red-600 mt-0.5">{{ slotMinPrice('right','economy').toLocaleString() }}P/월</div>
+                <div class="text-[9px] font-bold text-red-600 mt-0.5">
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('right','economy').toLocaleString() }}</span>{{ slotMinPrice('right','economy').toLocaleString() }}P/월
+                </div>
               </div>
             </div>
           </div>
@@ -232,9 +249,16 @@
                 <span class="text-gray-500">지역 {{ geoExtra >= 0 ? '추가금' : '할인' }}</span>
                 <span class="font-bold" :class="geoExtra < 0 ? 'text-red-500' : ''">{{ geoExtra >= 0 ? '+' : '' }}{{ geoExtra.toLocaleString() }}P</span>
               </div>
+              <div v-if="adDiscountPct" class="flex justify-between text-red-600">
+                <span class="font-bold">🎉 {{ adPromotion?.title }}</span>
+                <span class="font-bold">-{{ adDiscountPct }}%</span>
+              </div>
               <div class="flex justify-between border-t pt-1 mt-1">
                 <span class="font-bold text-amber-800">최소 입찰가</span>
-                <span class="font-black text-amber-800">{{ totalMinBid.toLocaleString() }}P</span>
+                <span class="font-black text-amber-800 flex items-baseline gap-2">
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through text-xs font-normal">{{ totalMinBidOriginal.toLocaleString() }}P</span>
+                  {{ totalMinBid.toLocaleString() }}P
+                </span>
               </div>
             </div>
 
@@ -402,12 +426,33 @@ const basePricePerSlot = computed(() => {
   return getBasePrice(selectedSlot.value.position, selectedSlot.value.tier)
 })
 
-// 총 최소 입찰가 = 기본가 + 지역 추가금 (단일 페이지이므로 곱셈 없음)
-const totalMinBid = computed(() => basePricePerSlot.value + geoExtra.value)
+// 현재 활성 광고 할인 이벤트
+const adPromotion = ref(null)
+const adDiscountPct = computed(() => adPromotion.value?.discount_pct || 0)
 
-// 슬롯 선택 UI에 표시할 가격
-function slotMinPrice(position, tier) {
+function fmtPromoEnd(dt) {
+  if (!dt) return ''
+  const d = new Date(dt)
+  return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+}
+
+function applyDiscount(price) {
+  if (!adDiscountPct.value) return price
+  return Math.round(price * (100 - adDiscountPct.value) / 100)
+}
+
+// 원가(할인 전) — 취소선 표시용
+function slotOriginalPrice(position, tier) {
   return getBasePrice(position, tier) + geoExtra.value
+}
+
+// 총 최소 입찰가 = (기본가 + 지역 추가금) × 할인 적용
+const totalMinBid = computed(() => applyDiscount(basePricePerSlot.value + geoExtra.value))
+const totalMinBidOriginal = computed(() => basePricePerSlot.value + geoExtra.value)
+
+// 슬롯 선택 UI에 표시할 가격 (할인 적용)
+function slotMinPrice(position, tier) {
+  return applyDiscount(getBasePrice(position, tier) + geoExtra.value)
 }
 
 const hasEnough = computed(() => (auth.user?.points || 0) >= (adForm.bid_amount || 0))
@@ -612,6 +657,11 @@ async function loadPrices() {
   try {
     const { data } = await axios.get('/api/ad-settings/public')
     if (data.data?.slot_min_prices) basePrices.value = { ...basePrices.value, ...data.data.slot_min_prices }
+    // 활성 광고 할인 이벤트 별도 로드
+    try {
+      const promoRes = await axios.get('/api/pricing-promotions/active')
+      adPromotion.value = promoRes.data?.data?.ad || null
+    } catch {}
     if (data.data?.geo_markup) geoMarkup.value = { ...geoMarkup.value, ...data.data.geo_markup }
     // 페이지별 슬롯 설정: 서버는 top-level 에 페이지 키 (home, community...) 로 응답하므로
     // 특수 키 제외하고 left_slots/right_slots 구조를 가진 것만 수집

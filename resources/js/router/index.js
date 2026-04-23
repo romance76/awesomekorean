@@ -190,11 +190,12 @@ const routes = [
       { path: 'communication', component: p('admin/AdminCommunication') },
       { path: 'ad-center', component: p('admin/AdminAdCenter') },
       { path: 'banners', component: p('admin/Banners') },
-      { path: 'ad-settings', component: p('admin/AdSettings') },
+      { path: 'ad-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
+      { path: 'pricing', component: p('admin/AdminPricingCenter') },
       { path: 'payments', component: p('admin/Payments') },
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'settings', component: p('admin/SiteSettings') },
-      { path: 'point-settings', component: p('admin/AdminPointSettings') },
+      { path: 'point-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'system', component: p('admin/System') },
     ]
   },

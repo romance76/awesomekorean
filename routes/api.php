@@ -110,6 +110,7 @@ Route::get('/hero-banners', function () {
     return response()->json(['success' => true, 'data' => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()]);
 })->middleware('cache.api:1800');
 Route::get('/popup-banners/active', [\App\Http\Controllers\API\PopupBannerController::class, 'publicActive'])->middleware('cache.api:600');
+Route::get('/pricing-promotions/active', [\App\Http\Controllers\API\PricingPromotionController::class, 'publicActive']);
 Route::post('/banners/{id}/click', [\App\Http\Controllers\API\BannerController::class, 'click']);
 Route::get('/ad-settings/public', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettingsPublic']);
 
@@ -537,6 +538,12 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'update']); // multipart 편의상 POST 허용
     Route::put('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'update']);
     Route::delete('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'destroy']);
+
+    // 할인 이벤트 관리
+    Route::get('/pricing-promotions', [\App\Http\Controllers\API\PricingPromotionController::class, 'index']);
+    Route::post('/pricing-promotions', [\App\Http\Controllers\API\PricingPromotionController::class, 'store']);
+    Route::put('/pricing-promotions/{id}', [\App\Http\Controllers\API\PricingPromotionController::class, 'update']);
+    Route::delete('/pricing-promotions/{id}', [\App\Http\Controllers\API\PricingPromotionController::class, 'destroy']);
 
     Route::get('/ip-bans', [AdminController::class, 'ipBans']);
     Route::post('/ip-bans', [AdminController::class, 'createIpBan']);
