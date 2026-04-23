@@ -67,7 +67,7 @@ class GameScoreController extends Controller
         $limit = 20;
 
         if ($type === 'points') {
-            $users = \App\Models\User::select('id', 'name', 'nickname', 'email', 'avatar', 'points', 'level')
+            $users = \App\Models\User::select('id', 'name', 'nickname', 'email', 'avatar', 'points')
                 ->orderByDesc('points')
                 ->limit($limit)
                 ->get()
