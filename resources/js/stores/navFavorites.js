@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useLangStore } from './lang'
+import { useSiteStore } from './site'
+import { useAuthStore } from './auth'
 
 const ALL_MENUS = [
   { key: 'home', label: '홈', label_en: 'Home', icon: '🏠', path: '/' },
@@ -20,6 +22,9 @@ const ALL_MENUS = [
   { key: 'groupbuy', label: '공동구매', label_en: 'Group Buy', icon: '🤝', path: '/groupbuy' },
   { key: 'chat', label: '채팅', label_en: 'Chat', icon: '💭', path: '/chat' },
   { key: 'friends', label: '친구', label_en: 'Friends', icon: '👫', path: '/friends' },
+  { key: 'elder', label: '안심서비스', label_en: 'Elder Care', icon: '💙', path: '/elder' },
+  { key: 'comms', label: '안심 커뮤', label_en: 'Comms', icon: '📞', path: '/comms' },
+  { key: 'shopping', label: '쇼핑', label_en: 'Shopping', icon: '🛍️', path: '/shopping' },
   { key: 'dashboard', label: 'MY', label_en: 'My', icon: '👤', path: '/dashboard' },
 ]
 
@@ -47,12 +52,27 @@ export const useNavFavoritesStore = defineStore('navFavorites', () => {
 
   const favoriteMenus = computed(() => {
     const langStore = useLangStore()
+    const siteStore = useSiteStore()
+    const auth = useAuthStore()
     const ko = langStore.locale === 'ko'
     const menuMap = {}
     ALL_MENUS.forEach(m => { menuMap[m.key] = m })
+    // 관리자 메뉴 설정 맵 (enabled=false / admin_only 필터링용)
+    const mc = siteStore.menuConfig
+    const cfgMap = (mc && Array.isArray(mc)) ? Object.fromEntries(mc.map(m => [m.key, m])) : null
     return favoriteKeys.value
       .map(key => menuMap[key])
       .filter(Boolean)
+      .filter(m => {
+        // dashboard 는 항상 노출 (메뉴 설정과 무관)
+        if (m.key === 'dashboard') return true
+        if (!cfgMap) return true
+        const cfg = cfgMap[m.key]
+        if (!cfg) return true
+        if (cfg.enabled === false) return false
+        if (cfg.admin_only && !auth.isAdmin) return false
+        return true
+      })
       .map(m => ({
         ...m,
         label: ko ? m.label : (m.label_en || m.label),

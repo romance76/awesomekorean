@@ -937,9 +937,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
 import axios from 'axios'
 import AdApplyEmbed from '../ads/AdApply.vue'
@@ -948,32 +949,48 @@ import PromotionSection from '../../components/PromotionSection.vue'
 const { showAlert, showConfirm, showPrompt } = useModal()
 
 const auth = useAuthStore()
+const siteStore = useSiteStore()
 const router = useRouter()
 const route = useRoute()
 const tab = ref(route.query.tab || 'profile')
 
-const tabs = [
-  { key: 'profile', icon: '📝', label: '프로필' },
-  { key: 'points', icon: '💰', label: '포인트' },
-  { key: 'messages', icon: '✉️', label: '쪽지' },
-  { key: 'posts', icon: '📄', label: '내 글' },
-  { key: 'market', icon: '🛒', label: '내 장터' },
-  { key: 'jobs', icon: '💼', label: '내 구인' },
-  { key: 'realestate', icon: '🏠', label: '내 부동산' },
-  { key: 'ads', icon: '📢', label: '광고 신청' },
-  { key: 'calls', icon: '📞', label: '통화내역' },
-  { key: 'bookmarks', icon: '🔖', label: '북마크' },
-  { key: 'elder', icon: '🛡️', label: '안심' },
-  { key: 'payments', icon: '💳', label: '결제' },
-  { key: 'mybiz', icon: '🏪', label: '내 업소' },
-  { key: 'resume', icon: '📄', label: '이력서' },
+// menuKey 가 지정된 탭은 관리자 페이지에서 해당 메뉴가 숨김/관리자전용 처리되면 함께 숨김 처리됨
+const allTabs = [
+  { key: 'profile',    icon: '📝', label: '프로필' },
+  { key: 'points',     icon: '💰', label: '포인트' },
+  { key: 'messages',   icon: '✉️', label: '쪽지' },
+  { key: 'posts',      icon: '📄', label: '내 글' },
+  { key: 'market',     icon: '🛒', label: '내 장터',     menuKey: 'market' },
+  { key: 'jobs',       icon: '💼', label: '내 구인',     menuKey: 'jobs' },
+  { key: 'realestate', icon: '🏠', label: '내 부동산',   menuKey: 'realestate' },
+  { key: 'ads',        icon: '📢', label: '광고 신청' },
+  { key: 'calls',      icon: '📞', label: '통화내역',    menuKey: 'comms' },
+  { key: 'bookmarks',  icon: '🔖', label: '북마크' },
+  { key: 'elder',      icon: '🛡️', label: '안심',        menuKey: 'elder' },
+  { key: 'payments',   icon: '💳', label: '결제' },
+  { key: 'mybiz',      icon: '🏪', label: '내 업소',     menuKey: 'directory' },
+  { key: 'resume',     icon: '📄', label: '이력서',      menuKey: 'jobs' },
 ]
+
+const tabs = computed(() => {
+  const mc = siteStore.menuConfig
+  if (!mc || !Array.isArray(mc)) return allTabs
+  const map = Object.fromEntries(mc.map(m => [m.key, m]))
+  return allTabs.filter(t => {
+    if (!t.menuKey) return true
+    const menu = map[t.menuKey]
+    if (!menu) return true
+    if (menu.enabled === false) return false
+    if (menu.admin_only && !auth.isAdmin) return false
+    return true
+  })
+})
 
 const loaded = reactive({})
 
 function switchTab(key) {
   // 광고 신청은 독립 페이지로 이동
-  const tabObj = tabs.find(t => t.key === key)
+  const tabObj = tabs.value.find(t => t.key === key)
   if (tabObj?.link) { router.push(tabObj.link); return }
   tab.value = key
   if (!loaded[key]) { loadTab(key); loaded[key] = true }
@@ -982,8 +999,16 @@ function switchTab(key) {
 
 // URL ?tab= 이 바뀌면 탭 자동 전환 (NavBar 벨 알림 → /dashboard?tab=messages 대응)
 watch(() => route.query.tab, (newTab) => {
-  if (newTab && newTab !== tab.value && tabs.find(t => t.key === newTab)) {
+  if (newTab && newTab !== tab.value && tabs.value.find(t => t.key === newTab)) {
     switchTab(newTab)
+  }
+})
+
+// 관리자에서 메뉴를 숨기면 (enabled=false / admin_only) 해당 탭이 사라지므로,
+// 현재 선택 탭이 더 이상 노출되지 않으면 프로필로 자동 이동
+watch(tabs, (newTabs) => {
+  if (!newTabs.find(t => t.key === tab.value)) {
+    tab.value = 'profile'
   }
 })
 
@@ -1615,6 +1640,7 @@ async function deleteAccount() {
 
 let msgPoll = null
 onMounted(() => {
+  siteStore.load() // 탭 필터링에 메뉴 설정 필요 (NavBar 보다 먼저 마운트될 수 있어 명시)
   loadProfile(); loaded.profile = true
   if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
