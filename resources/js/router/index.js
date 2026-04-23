@@ -142,13 +142,6 @@ const routes = [
   { path: '/friends', name: 'friends', component: p('friends/FriendList'), meta: { auth: true } },
   // 기존 스탠드얼론 쪽지함은 대시보드 탭으로 통합 — 북마크/공유 링크 대응용 리다이렉트
   { path: '/messages', redirect: '/dashboard?tab=messages' },
-
-  // 홈 디자인 샘플 (임시 비교용)
-  { path: '/home-sample/portal',   component: p('samples/HomePortal') },
-  { path: '/home-sample/magazine', component: p('samples/HomeMagazine') },
-  { path: '/home-sample/feed',     component: p('samples/HomeFeed') },
-  { path: '/home-sample/unified',  component: p('samples/HomeUnified') },
-  { path: '/home-sample/final',    component: p('samples/HomeFinal') },
   { path: '/notifications', name: 'notifications', component: p('Notifications'), meta: { auth: true } },
   { path: '/points', name: 'points', component: p('points/PointDashboard'), meta: { auth: true } },
   { path: '/points/rules', component: p('PointRules') },

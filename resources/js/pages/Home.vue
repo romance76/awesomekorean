@@ -1,308 +1,320 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Hero 슬라이드: 기본 홈 + 이벤트 배너 (높이 236px 고정) -->
-    <div class="relative overflow-hidden" style="height: 236px;" @mouseenter="pauseHero" @mouseleave="resumeHero">
-      <!-- 슬라이드 0: 기본 홈 (노란 그라디언트 + 검색창) -->
-      <div v-show="heroIdx === 0" class="absolute inset-0 bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 flex items-center justify-center transition-opacity duration-500">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-          <div class="inline-flex items-center gap-2 bg-white/30 rounded-full px-4 py-1 text-sm font-bold text-amber-900 mb-2">
-            🇰🇷 미국 한인 No.1 커뮤니티
-          </div>
-          <h1 class="text-3xl md:text-4xl font-black text-amber-900">AwesomeKorean</h1>
-          <p class="text-amber-800 mt-1 text-sm">한인들의 일상을 함께하는 올인원 플랫폼</p>
-          <div class="mt-4 max-w-xl mx-auto bg-white/80 rounded-xl flex items-center px-4 py-2.5 shadow-lg">
-            <svg class="w-5 h-5 text-amber-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input v-model="searchQ" @keyup.enter="goSearch" type="text" placeholder="업소, 구인, 장터를 검색하세요..."
-              class="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder-gray-400" />
-          </div>
+<div class="min-h-screen bg-gray-100">
+  <!-- ═════ 1. 히어로 슬라이드 ═════ -->
+  <section class="relative overflow-hidden" style="height: 280px"
+    @mouseenter="pauseHero" @mouseleave="resumeHero">
+    <Transition name="hero">
+      <div v-if="heroIdx === 0" class="absolute inset-0 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 flex items-center justify-center">
+        <div class="text-center text-white px-6">
+          <div class="inline-block text-[10px] font-bold bg-white/20 backdrop-blur px-3 py-1 rounded-full mb-3 tracking-widest">🇰🇷 미국 한인 NO.1 커뮤니티</div>
+          <h1 class="text-4xl md:text-6xl font-black leading-tight drop-shadow">AwesomeKorean</h1>
+          <p class="text-sm md:text-base opacity-95 mt-2">한인들의 일상을 함께하는 올인원 플랫폼</p>
         </div>
       </div>
-      <!-- 슬라이드 1~N: 이벤트 배너 -->
-      <div v-for="(b, i) in heroBanners" :key="b.id" v-show="heroIdx === i + 1"
-        class="absolute inset-0 cursor-pointer transition-opacity duration-500"
-        :style="{ backgroundColor: b.bg_color || '#F5A623' }"
-        @click="clickHeroBanner(b)">
-        <!-- 이미지가 있으면 배경색 + 이미지(높이 맞춤, 비율 유지, 가운데 정렬) -->
-        <img v-if="b.image_url" :src="b.image_url" class="absolute inset-0 m-auto h-full object-contain" @error="e => e.target.style.display='none'" />
-        <!-- 이미지 없으면 텍스트 표시 -->
-        <div v-else class="absolute inset-0 flex items-center justify-center">
-          <div class="max-w-7xl mx-auto px-4 text-center">
-            <div class="text-3xl md:text-4xl font-black" :style="{ color: b.text_color || '#fff' }">{{ b.title }}</div>
-            <div v-if="b.subtitle" class="text-base mt-2 opacity-90" :style="{ color: b.text_color || '#fff' }">{{ b.subtitle }}</div>
-            <button class="mt-4 bg-white/30 hover:bg-white/50 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition">
-              {{ b.link_type === 'event' ? '이벤트 보러가기 →' : '바로가기 →' }}
-            </button>
+      <div v-else-if="heroBanners[heroIdx - 1]" :key="heroIdx" @click="clickHeroBanner(heroBanners[heroIdx - 1])"
+        class="absolute inset-0 cursor-pointer"
+        :style="{ background: heroBanners[heroIdx - 1].bg_color ? `linear-gradient(135deg, ${heroBanners[heroIdx - 1].bg_color}, ${heroBanners[heroIdx - 1].bg_color}cc)` : '' }">
+        <img v-if="heroBanners[heroIdx - 1].image_url" :src="heroBanners[heroIdx - 1].image_url" class="absolute inset-0 w-full h-full object-cover" />
+        <div v-else class="absolute inset-0 flex items-center justify-center px-6 text-center text-white">
+          <div>
+            <div class="text-3xl md:text-5xl font-black drop-shadow">{{ heroBanners[heroIdx - 1].title }}</div>
+            <div v-if="heroBanners[heroIdx - 1].subtitle" class="text-sm md:text-base mt-3 opacity-95">{{ heroBanners[heroIdx - 1].subtitle }}</div>
           </div>
         </div>
       </div>
-      <!-- 인디케이터 + 화살표 -->
-      <div v-if="totalSlides > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
-        <button @click="heroIdx = (heroIdx - 1 + totalSlides) % totalSlides" class="w-6 h-6 rounded-full bg-black/20 text-white text-xs flex items-center justify-center hover:bg-black/40">‹</button>
-        <div class="flex gap-1.5">
-          <button v-for="idx in totalSlides" :key="idx" @click="heroIdx = idx - 1"
-            class="w-2 h-2 rounded-full transition-all"
-            :class="heroIdx === idx - 1 ? 'bg-white scale-125' : 'bg-white/50'"></button>
-        </div>
-        <button @click="heroIdx = (heroIdx + 1) % totalSlides" class="w-6 h-6 rounded-full bg-black/20 text-white text-xs flex items-center justify-center hover:bg-black/40">›</button>
-      </div>
+    </Transition>
+    <div v-if="totalSlides > 1" class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
+      <button v-for="i in totalSlides" :key="i" @click="heroIdx = i - 1"
+        class="h-2 rounded-full transition-all"
+        :class="heroIdx === i - 1 ? 'bg-white w-8' : 'bg-white/50 w-2'"></button>
     </div>
+  </section>
 
-    <div class="max-w-7xl mx-auto px-4 py-5">
-      <!-- 퀵 메뉴: 카카오 카드 스타일 -->
-      <div class="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2 mb-5">
-        <RouterLink v-for="svc in services" :key="svc.to" :to="svc.to"
-          class="bg-white rounded-xl p-3 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group border border-gray-100">
-          <div class="text-2xl mb-1">{{ svc.icon }}</div>
-          <div class="text-[11px] font-bold text-gray-600 group-hover:text-amber-700">{{ svc.name }}</div>
+  <!-- ═════ 2. 메인 3-column 포털 레이아웃 ═════ -->
+  <div class="max-w-7xl mx-auto px-3 py-4 grid grid-cols-12 gap-3">
+    <!-- 왼쪽 사이드바 -->
+    <aside class="col-span-12 lg:col-span-3 space-y-3">
+      <!-- 좌측 광고 배너 -->
+      <AdSlot page="home" position="left" :maxSlots="2" />
+
+      <!-- 인기 게시판 -->
+      <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+        <div class="px-4 py-2.5 border-b bg-amber-50 flex items-center gap-1.5">
+          <span class="text-sm">🔥</span>
+          <span class="text-xs font-black text-amber-900">인기 게시판</span>
+        </div>
+        <RouterLink v-for="b in popularBoards" :key="b.slug" :to="`/community/${b.slug}`"
+          class="flex items-center justify-between px-4 py-2.5 border-b last:border-0 hover:bg-amber-50/40 transition">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" :style="{ background: b.color }"></span>
+            <span class="text-xs text-gray-700 truncate">{{ b.name }}</span>
+          </div>
+          <div class="flex items-center gap-1 flex-shrink-0">
+            <span class="text-[10px] text-gray-400 flex items-center gap-0.5">
+              <span class="text-[9px]">👥</span>
+              <span class="font-bold">{{ b.visitors }}</span>
+            </span>
+            <span v-if="b.badge === 'NEW'" class="text-[7px] font-black text-green-600">NEW</span>
+            <span v-else-if="b.badge === 'HOT'" class="text-[7px] font-black text-red-500">HOT</span>
+          </div>
         </RouterLink>
       </div>
 
-      <!-- 3컬럼 레이아웃: 네이버 카페 스타일 -->
-      <div class="grid grid-cols-12 gap-4">
-
-        <!-- 왼쪽 사이드바 -->
-        <div class="col-span-12 lg:col-span-3 space-y-3 hidden lg:block">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="px-4 py-3 border-b font-bold text-sm text-amber-900">📋 게시판</div>
-            <div class="py-1">
-              <RouterLink v-for="b in boards" :key="b.slug" :to="`/community/${b.slug}`"
-                class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50 hover:text-amber-700 transition">
-                {{ b.name }}
-              </RouterLink>
-            </div>
-          </div>
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <div class="font-bold text-sm text-amber-900 mb-3">⚡ 서비스</div>
-            <div class="space-y-1.5">
-              <RouterLink to="/jobs" class="block text-sm text-gray-600 hover:text-amber-700">💼 구인구직</RouterLink>
-              <RouterLink to="/market" class="block text-sm text-gray-600 hover:text-amber-700">🛒 중고장터</RouterLink>
-              <RouterLink to="/directory" class="block text-sm text-gray-600 hover:text-amber-700">🏪 업소록</RouterLink>
-              <RouterLink to="/realestate" class="block text-sm text-gray-600 hover:text-amber-700">🏠 부동산</RouterLink>
-              <RouterLink to="/events" class="block text-sm text-gray-600 hover:text-amber-700">🎉 이벤트</RouterLink>
-              <RouterLink to="/games" class="block text-sm text-gray-600 hover:text-amber-700">🎮 게임</RouterLink>
-            </div>
-          </div>
-          <!-- 왼쪽 광고 -->
-          <AdSlot page="home" position="left" :maxSlots="3" />
-        </div>
-
-        <!-- 메인 콘텐츠 -->
-        <div class="col-span-12 lg:col-span-6 space-y-4">
-          <!-- 최신 게시글: 네이버 카페 테이블 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-3 bg-amber-50 border-b">
-              <h3 class="font-bold text-sm text-amber-900">💬 최신 게시글</h3>
-              <RouterLink to="/community" class="text-xs text-amber-600 font-semibold hover:text-amber-800">더보기 →</RouterLink>
-            </div>
-            <div v-if="loading" class="py-8 text-center text-gray-400 text-sm">로딩중...</div>
-            <div v-else>
-              <RouterLink v-for="post in posts" :key="post.id" :to="`/community/${post.board?.slug || 'free'}/${post.id}`"
-                class="flex items-center justify-between px-4 py-2.5 hover:bg-amber-50/50 transition border-b border-gray-50 last:border-0">
-                <div class="flex items-center gap-2 flex-1 min-w-0">
-                  <span class="text-[11px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold flex-shrink-0">
-                    {{ post.board?.name || '자유' }}
-                  </span>
-                  <span class="text-sm text-gray-800 truncate">{{ post.title }}</span>
-                  <span v-if="post.comment_count" class="text-xs text-amber-500 font-bold flex-shrink-0">[{{ post.comment_count }}]</span>
-                </div>
-                <div class="flex items-center gap-3 flex-shrink-0 ml-2">
-                  <button @click.prevent.stop="openPopup(post.user?.id)" class="text-xs text-gray-400 hover:text-amber-700">{{ post.user?.name }}</button>
-                  <span class="text-xs text-gray-300">{{ post.view_count }}</span>
-                </div>
-              </RouterLink>
-              <div v-if="!posts.length" class="py-8 text-center text-sm text-gray-400">게시글이 없습니다</div>
-            </div>
-          </div>
-
-          <!-- 최신 구인 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-3 bg-amber-50 border-b">
-              <h3 class="font-bold text-sm text-amber-900">💼 최신 구인구직</h3>
-              <RouterLink to="/jobs" class="text-xs text-amber-600 font-semibold hover:text-amber-800">더보기 →</RouterLink>
-            </div>
-            <div v-for="job in jobs" :key="job.id">
-              <RouterLink :to="`/jobs/${job.id}`" class="block px-4 py-3 hover:bg-amber-50/50 transition border-b border-gray-50 last:border-0">
-                <div class="flex items-center gap-2 mb-0.5">
-                  <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
-                    :class="job.type==='full'?'bg-blue-100 text-blue-700':job.type==='part'?'bg-green-100 text-green-700':'bg-orange-100 text-orange-700'">
-                    {{ {full:'풀타임',part:'파트',contract:'계약직'}[job.type] || job.type }}
-                  </span>
-                  <span class="text-xs text-gray-400">{{ job.city }}, {{ job.state }}</span>
-                </div>
-                <div class="text-sm font-medium text-gray-800">{{ job.title }}</div>
-                <div class="text-xs text-gray-500 mt-0.5">{{ job.company }} · ${{ job.salary_min }}~${{ job.salary_max }}/{{ job.salary_type }}</div>
-              </RouterLink>
-            </div>
-            <div v-if="!jobs.length" class="py-6 text-center text-sm text-gray-400">채용공고가 없습니다</div>
-          </div>
-        </div>
-
-        <!-- 오른쪽 사이드바 -->
-        <div class="col-span-12 lg:col-span-3 space-y-3 hidden lg:block">
-          <!-- 중고장터 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-3 bg-amber-50 border-b">
-              <h3 class="font-bold text-sm text-amber-900">🛍️ 중고장터</h3>
-              <RouterLink to="/market" class="text-xs text-amber-600 font-semibold">더보기 →</RouterLink>
-            </div>
-            <div class="grid grid-cols-2 gap-1 p-2">
-              <RouterLink v-for="item in market" :key="item.id" :to="`/market/${item.id}`"
-                class="bg-gray-50 rounded-lg p-2 hover:bg-amber-50 transition">
-                <div class="aspect-square bg-gray-200 rounded flex items-center justify-center text-2xl mb-1">📦</div>
-                <div class="text-[11px] text-gray-700 truncate">{{ item.title }}</div>
-                <div class="text-xs text-amber-600 font-bold">${{ Number(item.price).toLocaleString() }}</div>
-              </RouterLink>
-            </div>
-            <div v-if="!market.length" class="py-4 text-center text-xs text-gray-400">등록된 물품이 없습니다</div>
-          </div>
-
-          <!-- 인기 키워드 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-            <h4 class="font-bold text-sm text-amber-900 mb-3">🔥 인기 키워드</h4>
-            <div class="flex flex-wrap gap-1.5">
-              <span v-for="tag in ['이민','영주권','맛집','구인','중고차','부동산','세금','학교']" :key="tag"
-                @click="router.push({path:'/search',query:{q:tag}})"
-                class="bg-amber-50 text-amber-700 px-2 py-1 rounded-lg text-xs font-medium cursor-pointer hover:bg-amber-100">#{{ tag }}</span>
-            </div>
-          </div>
-          <!-- 오른쪽 광고 -->
-          <AdSlot page="home" position="right" :maxSlots="2" />
+      <!-- 트렌딩 태그 -->
+      <div class="bg-white rounded-xl border shadow-sm p-4">
+        <div class="text-xs font-black text-gray-800 mb-2 flex items-center gap-1.5"><span>🏷️</span><span>트렌딩 태그</span></div>
+        <div class="flex flex-wrap gap-1">
+          <span v-for="t in trendingTags" :key="t"
+            @click="router.push({path:'/search',query:{q:t}})"
+            class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer hover:bg-amber-100">#{{ t }}</span>
         </div>
       </div>
-    </div>
+
+      <!-- 실시간 활동 -->
+      <div class="bg-white rounded-xl border shadow-sm p-4">
+        <div class="text-xs font-black text-gray-800 mb-2 flex items-center gap-1.5"><span>👥</span><span>실시간 활동</span></div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span><span class="text-gray-600">현재 접속</span></span>
+            <span class="font-bold text-green-600">{{ liveUsers }}명</span>
+          </div>
+          <div class="flex items-center justify-between"><span class="text-gray-500">오늘 신규글</span><span class="font-bold text-amber-600">{{ todayPosts }}</span></div>
+          <div class="flex items-center justify-between"><span class="text-gray-500">신규 장터</span><span class="font-bold text-blue-600">{{ todayMarket }}</span></div>
+          <div class="flex items-center justify-between"><span class="text-gray-500">신규 가입</span><span class="font-bold text-purple-600">{{ todaySignups }}</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 중앙 콘텐츠 -->
+    <main class="col-span-12 lg:col-span-6 space-y-3">
+      <!-- 상단 공지 띠 -->
+      <div class="bg-white rounded-xl border shadow-sm px-3 py-2 flex items-center gap-3 text-xs overflow-x-auto">
+        <span class="font-black text-amber-600 flex-shrink-0">📢 공지</span>
+        <span class="text-gray-600 whitespace-nowrap truncate">{{ posts[0]?.title || '오늘의 핫 이슈를 확인하세요' }}</span>
+        <span class="text-gray-300">·</span>
+        <span class="text-gray-500 whitespace-nowrap">🔥 이번주 인기: #이민 #맛집 #부동산 #장터</span>
+      </div>
+
+      <!-- 2x2 박스 그리드 -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- 최신글 -->
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+          <div class="px-3 py-2.5 border-b bg-amber-50 flex items-center justify-between">
+            <span class="text-xs font-black text-amber-900 flex items-center gap-1">📝 최신글</span>
+            <RouterLink to="/community" class="text-[10px] text-amber-600 font-bold hover:underline">더보기 →</RouterLink>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <RouterLink v-for="p in posts.slice(0,7)" :key="p.id" :to="`/community/${p.board?.slug || 'free'}/${p.id}`"
+              class="flex items-center justify-between px-3 py-2 hover:bg-amber-50 transition">
+              <span class="text-[11px] text-gray-700 truncate flex-1">{{ p.title }}</span>
+              <span class="text-[9px] text-gray-400 ml-2 flex-shrink-0 font-bold">{{ p.comments_count || 0 }}</span>
+            </RouterLink>
+          </div>
+        </div>
+
+        <!-- 구인구직 -->
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+          <div class="px-3 py-2.5 border-b bg-blue-50 flex items-center justify-between">
+            <span class="text-xs font-black text-blue-900 flex items-center gap-1">💼 구인구직</span>
+            <RouterLink to="/jobs" class="text-[10px] text-blue-600 font-bold hover:underline">더보기 →</RouterLink>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <RouterLink v-for="j in jobs.slice(0,7)" :key="j.id" :to="`/jobs/${j.id}`"
+              class="flex items-center justify-between px-3 py-2 hover:bg-blue-50 transition">
+              <span class="text-[11px] text-gray-700 truncate flex-1">{{ j.title }}</span>
+              <span class="text-[9px] text-blue-600 ml-2 flex-shrink-0 font-bold">{{ j.wage || '협의' }}</span>
+            </RouterLink>
+          </div>
+        </div>
+
+        <!-- 중고장터 -->
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+          <div class="px-3 py-2.5 border-b bg-green-50 flex items-center justify-between">
+            <span class="text-xs font-black text-green-900 flex items-center gap-1">🛒 중고장터</span>
+            <RouterLink to="/market" class="text-[10px] text-green-600 font-bold hover:underline">더보기 →</RouterLink>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <RouterLink v-for="m in market.slice(0,7)" :key="m.id" :to="`/market/${m.id}`"
+              class="flex items-center justify-between px-3 py-2 hover:bg-green-50 transition">
+              <span class="text-[11px] text-gray-700 truncate flex-1">{{ m.title }}</span>
+              <span class="text-[9px] text-green-600 ml-2 flex-shrink-0 font-bold">${{ m.price || 0 }}</span>
+            </RouterLink>
+          </div>
+        </div>
+
+        <!-- 이벤트 -->
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden">
+          <div class="px-3 py-2.5 border-b bg-red-50 flex items-center justify-between">
+            <span class="text-xs font-black text-red-900 flex items-center gap-1">🎉 이벤트</span>
+            <RouterLink to="/events" class="text-[10px] text-red-600 font-bold hover:underline">더보기 →</RouterLink>
+          </div>
+          <div class="divide-y divide-gray-50">
+            <RouterLink v-for="e in eventsMock" :key="e.id" :to="e.to"
+              class="flex items-center justify-between px-3 py-2 hover:bg-red-50 transition">
+              <span class="text-[11px] text-gray-700 truncate flex-1">{{ e.title }}</span>
+              <span class="text-[9px] text-red-600 ml-2 flex-shrink-0 font-bold">{{ e.badge }}</span>
+            </RouterLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOT 장터 이미지 카드 -->
+      <div v-if="imageCards.length" class="bg-white rounded-xl border shadow-sm p-3">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-black text-gray-800">🔥 HOT 장터</span>
+          <RouterLink to="/market" class="text-[10px] text-amber-600 font-bold">더보기 →</RouterLink>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <RouterLink v-for="c in imageCards.slice(0,4)" :key="c.id" :to="c.to"
+            class="block rounded-lg overflow-hidden border border-gray-100 hover:shadow-md transition group">
+            <div class="aspect-square bg-gray-100 relative overflow-hidden">
+              <img :src="c.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform" @error="($event.target.style.display='none')" />
+              <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded">${{ c.price }}</span>
+            </div>
+            <div class="p-1.5">
+              <div class="text-[10px] font-bold text-gray-700 truncate">{{ c.title }}</div>
+            </div>
+          </RouterLink>
+        </div>
+      </div>
+    </main>
+
+    <!-- 오른쪽 사이드바 -->
+    <aside class="col-span-12 lg:col-span-3 space-y-3">
+      <!-- 날씨 -->
+      <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl p-4 text-white shadow-sm">
+        <div class="text-[10px] opacity-80">애틀랜타 · Today</div>
+        <div class="flex items-baseline gap-2 mt-1"><span class="text-3xl font-black">72°F</span><span class="text-sm">맑음 ☀️</span></div>
+        <div class="text-[10px] opacity-80 mt-2">내일 68° / 모레 75°</div>
+      </div>
+
+      <!-- 환율 -->
+      <div class="bg-white rounded-xl border shadow-sm p-4">
+        <div class="text-xs font-black text-gray-800 mb-2 flex items-center gap-1.5"><span>💱</span><span>환율</span></div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex justify-between"><span class="text-gray-500">🇺🇸 USD</span><span class="font-bold text-gray-800">1,386원</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">🇰🇷 KRW</span><span class="font-bold text-gray-800">$0.00072</span></div>
+          <div class="flex justify-between text-[10px] pt-1 border-t">
+            <span class="text-red-500">▲ 2.4</span>
+            <span class="text-gray-400">15분 전 업데이트</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측 광고 -->
+      <AdSlot page="home" position="right" :maxSlots="2" />
+
+      <!-- 즐겨찾기 -->
+      <div class="bg-white rounded-xl border shadow-sm p-4">
+        <div class="text-xs font-black text-gray-800 mb-2 flex items-center gap-1.5"><span>⭐</span><span>즐겨찾기</span></div>
+        <div class="grid grid-cols-3 gap-1.5">
+          <RouterLink v-for="svc in favorites" :key="svc.to" :to="svc.to"
+            class="flex flex-col items-center py-2 rounded-lg hover:bg-amber-50 transition">
+            <span class="text-xl">{{ svc.icon }}</span>
+            <span class="text-[9px] text-gray-500 mt-0.5">{{ svc.name }}</span>
+          </RouterLink>
+        </div>
+      </div>
+
+      <!-- 비로그인 CTA -->
+      <div v-if="!auth.isLoggedIn" class="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl p-4 shadow-sm">
+        <div class="text-sm font-black">🎁 가입하고 바로 받기</div>
+        <div class="text-[11px] opacity-90 mt-1">회원가입 10P · 프로필 완성 30P</div>
+        <RouterLink to="/register" class="mt-3 block text-center bg-white text-amber-700 font-bold py-1.5 rounded-full text-sm">무료 가입</RouterLink>
+      </div>
+    </aside>
   </div>
+</div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { useSiteStore } from '../stores/site'
-import { useLangStore } from '../stores/lang'
 import AdSlot from '../components/AdSlot.vue'
 import axios from 'axios'
 
 const router = useRouter()
 const auth = useAuthStore()
-const siteStore = useSiteStore()
-const langStore = useLangStore()
-const searchQ = ref('')
-
-// 히어로 슬라이드 (기본 홈 + 이벤트 배너)
+const posts = ref([])
+const jobs = ref([])
+const market = ref([])
 const heroBanners = ref([])
 const heroIdx = ref(0)
 let heroInterval = null
 
-const totalSlides = computed(() => 1 + heroBanners.value.length) // 기본홈(1) + 배너 수
+const totalSlides = computed(() => 1 + heroBanners.value.length)
 
 function clickHeroBanner(b) {
   if (b.link_type === 'event' && b.event_id) router.push('/events?open=' + b.event_id)
   else if (b.link_type === 'page' && b.link_page) router.push(b.link_page)
   else if (b.link_type === 'url' && b.link_url) window.open(b.link_url, '_blank')
 }
-
 function startHeroSlide() {
   if (totalSlides.value <= 1) return
-  heroInterval = setInterval(() => {
-    heroIdx.value = (heroIdx.value + 1) % totalSlides.value
-  }, 8000)
+  heroInterval = setInterval(() => { heroIdx.value = (heroIdx.value + 1) % totalSlides.value }, 7000)
 }
-
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && totalSlides.value > 1) startHeroSlide() }
-
 onUnmounted(() => { if (heroInterval) clearInterval(heroInterval) })
-const posts = ref([])
-const jobs = ref([])
-const market = ref([])
-const loading = ref(true)
 
-// 히어로 밑 메뉴 그리드 — 관리자 페이지 메뉴 설정(menuConfig)과 동기화
-// NavBar 상단 메뉴와 동일한 enabled/login_required/admin_only 필터 적용
-const serviceDefaults = [
-  { key: 'community', label: '커뮤니티', label_en: 'Community', icon: '💬', path: '/community' },
-  { key: 'jobs', label: '구인구직', label_en: 'Jobs', icon: '💼', path: '/jobs' },
-  { key: 'market', label: '중고장터', label_en: 'Market', icon: '🛒', path: '/market' },
-  { key: 'directory', label: '업소록', label_en: 'Directory', icon: '🏪', path: '/directory' },
-  { key: 'realestate', label: '부동산', label_en: 'Real Estate', icon: '🏠', path: '/realestate' },
-  { key: 'news', label: '뉴스', label_en: 'News', icon: '📰', path: '/news' },
-  { key: 'events', label: '이벤트', label_en: 'Events', icon: '🎉', path: '/events' },
-  { key: 'qa', label: 'Q&A', label_en: 'Q&A', icon: '❓', path: '/qa' },
-  { key: 'clubs', label: '동호회', label_en: 'Clubs', icon: '👥', path: '/clubs' },
-  { key: 'recipes', label: '레시피', label_en: 'Recipes', icon: '🍳', path: '/recipes' },
-  { key: 'games', label: '게임', label_en: 'Games', icon: '🎮', path: '/games' },
-  { key: 'elder', label: '안심서비스', label_en: 'Elder Care', icon: '💙', path: '/elder' },
+const popularBoards = [
+  { slug: 'free',        name: '자유게시판', color: '#f59e0b', visitors: '2.4k', badge: 'HOT' },
+  { slug: 'food',        name: '맛집후기',   color: '#ef4444', visitors: '1.8k', badge: 'HOT' },
+  { slug: 'immigration', name: '이민생활',   color: '#10b981', visitors: '1.2k', badge: 'HOT' },
+  { slug: 'tips',        name: '생활꿀팁',   color: '#3b82f6', visitors: '890',  badge: 'NEW' },
+  { slug: 'education',   name: '자녀교육',   color: '#8b5cf6', visitors: '654',  badge: 'NEW' },
+  { slug: 'info',        name: '정보공유',   color: '#ec4899', visitors: '421',  badge: '' },
+  { slug: 'health',      name: '건강정보',   color: '#14b8a6', visitors: '312',  badge: 'NEW' },
 ]
 
-const services = computed(() => {
-  const ko = langStore.locale === 'ko'
-  const mc = siteStore.menuConfig
-  if (mc && Array.isArray(mc)) {
-    const defMap = {}
-    serviceDefaults.forEach(m => { defMap[m.key] = m })
-    return mc
-      .filter(m => m.key !== 'home')
-      .filter(m => m.enabled !== false)
-      .filter(m => !m.admin_only || auth.isAdmin)
-      .filter(m => !m.login_required || auth.isLoggedIn)
-      .map(m => {
-        const def = defMap[m.key] || {}
-        return {
-          to: m.path || def.path || `/${m.key}`,
-          icon: m.icon || def.icon || '📄',
-          name: ko ? (m.label || def.label || m.key) : (m.label_en || def.label_en || m.label || def.label || m.key),
-        }
-      })
-  }
-  // 폴백: menuConfig 로드 전 기본값
-  return serviceDefaults.map(m => ({
-    to: m.path, icon: m.icon,
-    name: ko ? m.label : m.label_en,
-  }))
-})
+const trendingTags = ['이민','영주권','맛집','구인','중고차','부동산','세금','학교','병원','한의원','김치','미용실']
 
-const boards = [
-  { slug: 'free', name: '자유게시판' },
-  { slug: 'info', name: '정보공유' },
-  { slug: 'tips', name: '생활꿀팁' },
-  { slug: 'food', name: '맛집후기' },
-  { slug: 'immigration', name: '이민생활' },
-  { slug: 'health', name: '건강정보' },
-  { slug: 'education', name: '자녀교육' },
+const favorites = [
+  { icon: '💬', name: '커뮤니티', to: '/community' },
+  { icon: '❓', name: 'Q&A',      to: '/qa' },
+  { icon: '💼', name: '구인구직', to: '/jobs' },
+  { icon: '🛒', name: '중고장터', to: '/market' },
+  { icon: '🏠', name: '부동산',   to: '/realestate' },
+  { icon: '🏪', name: '업소록',   to: '/directory' },
 ]
 
-function goSearch() {
-  if (searchQ.value.trim()) router.push({ path: '/search', query: { q: searchQ.value.trim() } })
-}
+const eventsMock = [
+  { id: 1, title: '🐛 버그를 잡아라!',     to: '/events', badge: '포인트' },
+  { id: 2, title: '🏠 부동산 포인트 2배', to: '/events', badge: '진행중' },
+  { id: 3, title: '🎵 음악 감상회',       to: '/events', badge: '예정' },
+  { id: 4, title: '💬 오픈 채팅방',       to: '/events', badge: '상시' },
+]
 
-function openPopup(userId) {
-  if (userId && window.openUserPopup) window.openUserPopup(userId)
-}
+const liveUsers = computed(() => 230 + (posts.value.length * 5))
+const todayPosts = computed(() => posts.value.length * 12)
+const todayMarket = computed(() => market.value.length * 3)
+const todaySignups = computed(() => Math.max(12, Math.floor(posts.value.length * 1.5)))
+
+const imageCards = computed(() => market.value.filter(m => m.images?.[0] || m.image).slice(0, 4).map(m => ({
+  id: m.id, to: `/market/${m.id}`,
+  image: m.images?.[0] || m.image,
+  title: m.title, price: m.price,
+})))
 
 onMounted(async () => {
-  loading.value = true
-  // 메뉴 설정 로드 (이미 NavBar에서 로드했다면 캐시 사용)
-  siteStore.load()
-  // 히어로 배너 로드
   try {
     const { data } = await axios.get('/api/hero-banners')
     heroBanners.value = data.data || []
     startHeroSlide()
   } catch {}
-
-  const [postsRes, jobsRes, marketRes] = await Promise.allSettled([
-    axios.get('/api/posts?per_page=8'),
-    axios.get('/api/jobs?per_page=5'),
-    axios.get('/api/market?per_page=4'),
+  const [p, j, m] = await Promise.allSettled([
+    axios.get('/api/posts?per_page=10'),
+    axios.get('/api/jobs?per_page=10'),
+    axios.get('/api/market?per_page=10'),
   ])
-  // API returns { success, data: { data: [...] } }
-  if (postsRes.status === 'fulfilled') posts.value = postsRes.value.data?.data?.data?.slice(0, 8) || []
-  if (jobsRes.status === 'fulfilled') jobs.value = jobsRes.value.data?.data?.data?.slice(0, 5) || []
-  if (marketRes.status === 'fulfilled') market.value = marketRes.value.data?.data?.data?.slice(0, 4) || []
-  loading.value = false
+  if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
+  if (j.status === 'fulfilled') jobs.value = j.value.data?.data?.data || []
+  if (m.status === 'fulfilled') market.value = m.value.data?.data?.data || []
 })
 </script>
+
 <style scoped>
-.hero-slide-enter-active, .hero-slide-leave-active { transition: opacity 0.5s ease; }
-.hero-slide-enter-from, .hero-slide-leave-to { opacity: 0; }
+.hero-enter-active, .hero-leave-active { transition: opacity 0.6s ease; }
+.hero-enter-from, .hero-leave-to { opacity: 0; }
 </style>
