@@ -613,8 +613,17 @@ async function loadPrices() {
     const { data } = await axios.get('/api/ad-settings/public')
     if (data.data?.slot_min_prices) basePrices.value = { ...basePrices.value, ...data.data.slot_min_prices }
     if (data.data?.geo_markup) geoMarkup.value = { ...geoMarkup.value, ...data.data.geo_markup }
-    // 페이지별 슬롯 설정 로드
-    if (data.data?.page_configs) pageConfigs.value = data.data.page_configs
+    // 페이지별 슬롯 설정: 서버는 top-level 에 페이지 키 (home, community...) 로 응답하므로
+    // 특수 키 제외하고 left_slots/right_slots 구조를 가진 것만 수집
+    const SPECIAL = new Set(['slot_min_prices','geo_markup'])
+    const cfgs = {}
+    Object.entries(data.data || {}).forEach(([k, v]) => {
+      if (SPECIAL.has(k)) return
+      if (v && typeof v === 'object' && ('left_slots' in v || 'right_slots' in v)) {
+        cfgs[k] = v
+      }
+    })
+    if (Object.keys(cfgs).length) pageConfigs.value = cfgs
   } catch {}
 }
 
