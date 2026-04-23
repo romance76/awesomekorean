@@ -525,10 +525,11 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/banners/{id}', [AdminController::class, 'deleteBanner']);
 
     // 히어로 배너 관리
-    Route::get('/hero-banners', fn() => response()->json(['success'=>true, 'data'=> \App\Models\HeroBanner::orderBy('sort_order')->get()]));
-    Route::post('/hero-banners', function (\Illuminate\Http\Request $r) { return response()->json(['success'=>true, 'data'=> \App\Models\HeroBanner::create($r->all())]); });
-    Route::put('/hero-banners/{id}', function (\Illuminate\Http\Request $r, $id) { \App\Models\HeroBanner::findOrFail($id)->update($r->all()); return response()->json(['success'=>true]); });
-    Route::delete('/hero-banners/{id}', function ($id) { \App\Models\HeroBanner::findOrFail($id)->delete(); return response()->json(['success'=>true]); });
+    Route::get('/hero-banners', [\App\Http\Controllers\API\HeroBannerController::class, 'index']);
+    Route::post('/hero-banners', [\App\Http\Controllers\API\HeroBannerController::class, 'store']);
+    Route::post('/hero-banners/{id}', [\App\Http\Controllers\API\HeroBannerController::class, 'update']); // multipart 편의상 POST 허용
+    Route::put('/hero-banners/{id}', [\App\Http\Controllers\API\HeroBannerController::class, 'update']);
+    Route::delete('/hero-banners/{id}', [\App\Http\Controllers\API\HeroBannerController::class, 'destroy']);
 
     // 팝업 배너 관리
     Route::get('/popup-banners', [\App\Http\Controllers\API\PopupBannerController::class, 'index']);
