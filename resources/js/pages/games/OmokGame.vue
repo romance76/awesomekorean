@@ -1,43 +1,29 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 text-white p-4 flex flex-col items-center">
+  <GameShell title="오목" icon="⚫" theme="dark"
+    bg="linear-gradient(135deg,#451a03 0%,#1c1917 50%,#451a03 100%)">
+    <template #meta>
+      <span class="shell-badge-custom">수 {{ moveCount }}</span>
+    </template>
 
-    <!-- Header -->
-    <div class="text-center mb-3">
-      <h1 class="text-3xl font-black text-amber-300 drop-shadow-lg">⚫ 오목 ⚪</h1>
-      <p class="text-amber-400/70 text-xs mt-1">5개를 먼저 이으면 승리!</p>
-    </div>
-
-    <!-- Info Bar -->
-    <div class="flex gap-3 mb-3">
-      <div class="bg-black/40 border border-amber-700/50 rounded-xl px-4 py-2 text-center">
-        <div class="text-xs text-amber-400">수</div>
-        <div class="text-xl font-bold text-amber-300">{{ moveCount }}</div>
-      </div>
-      <div class="bg-black/40 border rounded-xl px-4 py-2 text-center"
-        :class="currentTurn === 'black' ? 'border-gray-400' : 'border-amber-500'">
-        <div class="text-xs" :class="currentTurn === 'black' ? 'text-gray-300' : 'text-amber-300'">
+  <div class="omok-body">
+    <!-- Info / Turn -->
+    <div class="info-row">
+      <div class="turn-card" :class="currentTurn === 'black' ? 'black-turn' : 'white-turn'">
+        <div class="turn-label">
           {{ currentTurn === 'black' ? '● 흑돌 (나)' : '○ 백돌 (AI)' }}
         </div>
-        <div class="text-sm font-bold">
+        <div class="turn-status">
           {{ gameOver ? '게임 종료' : currentTurn === 'black' ? '당신의 차례' : 'AI 생각 중...' }}
         </div>
       </div>
     </div>
 
     <!-- Buttons -->
-    <div class="flex gap-3 mb-3">
+    <div class="btn-row">
       <button @click="undoMove"
         :disabled="gameOver || moveHistory.length < 2 || currentTurn !== 'black'"
-        class="bg-blue-800 hover:bg-blue-700 disabled:opacity-40 text-white font-bold px-4 py-2 rounded-xl text-sm">
-        ↩ 무르기
-      </button>
-      <button @click="restartGame"
-        class="bg-amber-700 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-xl text-sm">
-        🔄 새 게임
-      </button>
-      <button @click="$router.back()" class="bg-gray-700 hover:bg-gray-600 text-white font-bold px-4 py-2 rounded-xl text-sm">
-        ← 나가기
-      </button>
+        class="omok-btn btn-undo">↩ 무르기</button>
+      <button @click="restartGame" class="omok-btn btn-restart">🔄 새 게임</button>
     </div>
 
     <!-- Board -->
@@ -124,10 +110,12 @@
       </div>
     </Transition>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import GameShell from '../../components/GameShell.vue'
 
 const BOARD_SIZE = 15
 
@@ -349,6 +337,26 @@ function colLabel(c) { return String.fromCharCode(65+c) }
 </script>
 
 <style scoped>
+.omok-body { display: flex; flex-direction: column; align-items: center; padding: 12px; color: #fff; }
+.shell-badge-custom { background: rgba(251,191,36,0.2); color: #fcd34d; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; }
+
+.info-row { display: flex; gap: 12px; margin-bottom: 10px; }
+.turn-card { background: rgba(0,0,0,0.4); border: 1px solid; border-radius: 14px; padding: 8px 18px; text-align: center; min-width: 180px; }
+.turn-card.black-turn { border-color: #d1d5db; }
+.turn-card.white-turn { border-color: #f59e0b; }
+.turn-label { font-size: 12px; margin-bottom: 2px; }
+.black-turn .turn-label { color: #d1d5db; }
+.white-turn .turn-label { color: #fcd34d; }
+.turn-status { font-size: 14px; font-weight: 800; color: #fff; }
+
+.btn-row { display: flex; gap: 10px; margin-bottom: 12px; }
+.omok-btn { padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; color: #fff; border: none; cursor: pointer; transition: all 0.15s; }
+.omok-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-undo { background: #1e40af; }
+.btn-undo:hover:not(:disabled) { background: #1d4ed8; }
+.btn-restart { background: #b45309; }
+.btn-restart:hover { background: #d97706; }
+
 .modal-enter-active,.modal-leave-active{transition:opacity 0.3s}
 .modal-enter-from,.modal-leave-to{opacity:0}
 </style>

@@ -1,1 +1,2 @@
 [     331ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://awesomekorean.com/api/wallet/balance:0
+[  723061ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://awesomekorean.com/build/assets/MemoryGame-BZ2E5uS2.js:0

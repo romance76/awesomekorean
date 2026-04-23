@@ -127,7 +127,7 @@ const loading = ref(true)
 const game = ref(null)
 const settings = ref([])
 const newRows = ref([])
-const QUIZ_GAMES = ['animals','flag','idiom','proverb','satwords','uslife','shapes','colors']
+const QUIZ_GAMES = ['animals','flag','idiom','proverb','satwords','uslife','shapes','colors','wordcard']
 const isQuizGame = computed(() => game.value && QUIZ_GAMES.includes(game.value.slug))
 const form = reactive({ name: '', icon: '', description: '', category: 'brain', is_active: true })
 const savingGame = ref(false)
