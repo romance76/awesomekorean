@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen bg-gray-100">
-  <!-- ═════ 1. 히어로 슬라이드 ═════ -->
-  <section class="relative overflow-hidden" style="height: 280px"
+  <!-- ═════ 1. 히어로 슬라이드 (모바일 180px / 데스크톱 280px) ═════ -->
+  <section class="relative overflow-hidden h-[180px] md:h-[280px]"
     @mouseenter="pauseHero" @mouseleave="resumeHero">
     <Transition name="hero">
       <div v-if="heroIdx === 0" class="absolute inset-0 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 flex items-center justify-center">
@@ -30,10 +30,27 @@
     </div>
   </section>
 
+  <!-- ═════ 2-M. 모바일 전용: 카테고리 카드 그리드 + 배너 1 ═════ -->
+  <div class="lg:hidden max-w-7xl mx-auto px-3 pt-3">
+    <!-- 컬러 카테고리 그리드 (3열 × 3행) -->
+    <div class="grid grid-cols-3 gap-2 mb-3">
+      <RouterLink v-for="c in mobileCategories" :key="c.to" :to="c.to"
+        class="relative overflow-hidden rounded-xl shadow-sm p-3 flex flex-col items-center justify-center aspect-[5/4] text-white hover:scale-[1.02] transition-transform"
+        :style="{ background: c.gradient }">
+        <span class="text-2xl drop-shadow">{{ c.icon }}</span>
+        <span class="text-[11px] font-black mt-1 drop-shadow">{{ c.name }}</span>
+        <span class="text-[9px] opacity-90 mt-0.5 drop-shadow">{{ c.desc }}</span>
+      </RouterLink>
+    </div>
+
+    <!-- 모바일 배너 1 (프리미엄 — 히어로 직하) -->
+    <MobileBanner page="home" slot="premium" class="mb-3" />
+  </div>
+
   <!-- ═════ 2. 메인 3-column 포털 레이아웃 ═════ -->
   <div class="max-w-7xl mx-auto px-3 py-4 grid grid-cols-12 gap-3">
-    <!-- 왼쪽 사이드바 -->
-    <aside class="col-span-12 lg:col-span-3 space-y-3">
+    <!-- 왼쪽 사이드바 (데스크톱 전용) -->
+    <aside class="col-span-12 lg:col-span-3 space-y-3 hidden lg:block">
       <!-- 좌측 광고 배너 -->
       <AdSlot page="home" position="left" :maxSlots="2" />
 
@@ -184,6 +201,11 @@
           </RouterLink>
         </div>
       </div>
+
+      <!-- 모바일 배너 2 (랜덤 — 중앙 콘텐츠 끝) -->
+      <div class="lg:hidden">
+        <MobileBanner page="home" slot="random" />
+      </div>
     </main>
 
     <!-- 오른쪽 사이드바 -->
@@ -239,6 +261,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AdSlot from '../components/AdSlot.vue'
+import MobileBanner from '../components/MobileBanner.vue'
 import axios from 'axios'
 
 const router = useRouter()
@@ -277,6 +300,19 @@ const popularBoards = [
 ]
 
 const trendingTags = ['이민','영주권','맛집','구인','중고차','부동산','세금','학교','병원','한의원','김치','미용실']
+
+// 모바일 전용 컬러 카테고리 그리드 (히어로 바로 아래)
+const mobileCategories = [
+  { to: '/community',  icon: '💬', name: '커뮤니티', desc: '한인 이야기',  gradient: 'linear-gradient(135deg,#f59e0b,#ea580c)' },
+  { to: '/qa',         icon: '❓', name: 'Q&A',      desc: '질문/답변',     gradient: 'linear-gradient(135deg,#fbbf24,#d97706)' },
+  { to: '/jobs',       icon: '💼', name: '구인구직', desc: '일자리',        gradient: 'linear-gradient(135deg,#3b82f6,#1d4ed8)' },
+  { to: '/market',     icon: '🛒', name: '중고장터', desc: '사고 팔기',     gradient: 'linear-gradient(135deg,#10b981,#047857)' },
+  { to: '/realestate', icon: '🏠', name: '부동산',   desc: '렌트/매매',     gradient: 'linear-gradient(135deg,#6366f1,#4338ca)' },
+  { to: '/directory',  icon: '🏪', name: '업소록',   desc: '한인 업소',     gradient: 'linear-gradient(135deg,#ef4444,#dc2626)' },
+  { to: '/clubs',      icon: '👥', name: '동호회',   desc: '모임 찾기',     gradient: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' },
+  { to: '/events',     icon: '🎉', name: '이벤트',   desc: '포인트 기회',   gradient: 'linear-gradient(135deg,#ec4899,#be185d)' },
+  { to: '/news',       icon: '📰', name: '뉴스',     desc: '오마이뉴스',    gradient: 'linear-gradient(135deg,#64748b,#334155)' },
+]
 
 const favorites = [
   { icon: '💬', name: '커뮤니티', to: '/community' },

@@ -126,6 +126,55 @@ class BannerController extends Controller
         return response()->json(['success' => true, 'data' => $picked]);
     }
 
+    /**
+     * 모바일 전용 단일 슬롯 배너
+     * GET /api/banners/mobile-slot?page=home&slot=premium|random
+     *   premium → 슬롯 1 의 bid_amount 최고가 1개 확정
+     *   random  → 슬롯 2/3 가중 랜덤 (슬롯2=3/5, 슬롯3=2/5)
+     * 10분 Redis 캐시로 고정 회전.
+     */
+    public function mobileSlot(Request $request)
+    {
+        $page = $request->page ?: 'home';
+        $slot = $request->slot ?: 'random';
+        $cacheKey = "banner_mobile_{$page}_{$slot}";
+        $cached = \Cache::get($cacheKey);
+        if ($cached) {
+            if (isset($cached->id)) BannerAd::where('id', $cached->id)->increment('impressions');
+            return response()->json(['success' => true, 'data' => $cached]);
+        }
+
+        $query = BannerAd::active()->where('position', 'mobile')
+            ->where(function ($q) use ($page) {
+                $q->where('page', $page)->orWhere('page', 'all')
+                  ->orWhereJsonContains('target_pages', $page)
+                  ->orWhere('target_pages', 'LIKE', '%"' . $page . '"%');
+            });
+
+        if ($slot === 'premium') {
+            $ad = (clone $query)->where('slot_number', 1)->orderByDesc('bid_amount')->first();
+        } else {
+            $ads = (clone $query)->whereIn('slot_number', [2, 3])->orderByDesc('bid_amount')->limit(10)->get();
+            if ($ads->isEmpty()) {
+                // 슬롯 2/3 이 없으면 슬롯 1 로 fallback
+                $ad = (clone $query)->orderByDesc('bid_amount')->first();
+            } else {
+                $weighted = [];
+                foreach ($ads as $a) {
+                    $w = match((int) $a->slot_number) { 2 => 3, 3 => 2, default => 1 };
+                    for ($i = 0; $i < $w; $i++) $weighted[] = $a;
+                }
+                $ad = $weighted[array_rand($weighted)];
+            }
+        }
+
+        if (!$ad) return response()->json(['success' => true, 'data' => null]);
+
+        $ad->increment('impressions');
+        \Cache::put($cacheKey, $ad, 600);
+        return response()->json(['success' => true, 'data' => $ad]);
+    }
+
     // 통합: left + right + mobile 한번에 반환 (30분 Redis 캐시)
     public function all(Request $request)
     {
