@@ -77,6 +77,7 @@
     <div class="result-score">{{ score }}점</div>
     <div class="result-detail">{{ correct }} / {{ totalQ }} 정답</div>
     <div v-if="leveled" class="level-up-badge">🎉 레벨업! → 레벨 {{ level }}</div>
+    <GameResultExtras :rec="rec" slug="idiom" />
     <div class="result-btns">
       <button class="rbtn retry" @click="startGame">다시 하기 🔄</button>
       <button class="rbtn home" @click="$router.push('/games')">목록으로 🏠</button>
@@ -89,6 +90,9 @@
 import { ref, onUnmounted } from 'vue'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
+const rec = useGameRecord('idiom')
 
 const levelDesc = [
   {lv:1, desc:'기초 사자성어 (8개)'},
@@ -141,6 +145,7 @@ async function startGame() {
   maxTime.value = level.value >= 4 ? (level.value >= 5 ? 8 : 12) : 0
   queue = shuffle(pool.value).slice(0, Math.min(totalQ.value, pool.value.length))
   totalQ.value = queue.length
+  rec.start(level.value)
   phase.value = 'play'
   loadQuestion()
 }
@@ -204,15 +209,17 @@ function triggerFeedback(isCorrect) {
   }, 50)
 }
 
-function endGame() {
+async function endGame() {
   phase.value = 'result'
   const threshold = level.value <= 1 ? 7 : level.value <= 2 ? 8 : 9
-  if (correct.value >= threshold && level.value < 5) {
+  const won = correct.value >= threshold
+  if (won && level.value < 5) {
     level.value++
     localStorage.setItem('idiom_level', level.value)
     leveled.value = true
     loadPool()
   }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 onUnmounted(() => { clearInterval(fbTimer); clearInterval(countTimer) })

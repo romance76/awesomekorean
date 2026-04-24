@@ -46,6 +46,7 @@
       <div class="res-score">{{ score }}점</div>
       <div class="res-detail">{{ correct }}/{{ totalQ }} 정답</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="us_life" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -57,7 +58,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('us_life')
 
 const usQuiz = [
   {level:1,category:'운전',question:'미국에서 오른쪽에 빨간불이 있어도 할 수 있는 것은?',options:['우회전','유턴','좌회전','직진'],answer:'우회전',explain:'미국은 "No Turn On Red" 표지가 없으면 빨간불에도 우회전 가능해요.'},
@@ -106,6 +110,7 @@ function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.fl
 function startGame() {
   score.value=0; correct.value=0; leveled.value=false; qIdx.value=0
   queue=shuffle(getPool()).slice(0,totalQ.value)
+  rec.start(level.value)
   phase.value='play'; nextQuestion()
 }
 
@@ -138,9 +143,11 @@ function selectAnswer(opt) {
   setTimeout(nextQuestion,3000)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(timer); phase.value='result'
-  if(correct.value>=7){ level.value++; localStorage.setItem('uslife_level',level.value); leveled.value=true; speak('레벨업!') }
+  const won = correct.value >= 7
+  if(won){ level.value++; localStorage.setItem('uslife_level',level.value); leveled.value=true; speak('레벨업!') }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

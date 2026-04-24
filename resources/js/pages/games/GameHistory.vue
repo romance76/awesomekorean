@@ -47,6 +47,7 @@
       <div class="res-score">{{ score }}점</div>
       <div class="res-detail">{{ correct }}/{{ totalQ }} 정답</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="history" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -58,7 +59,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('history')
 
 const historyDB = [
   {level:1,era:'고조선',question:'우리나라 최초의 국가는?',options:['고조선','고구려','백제','신라'],answer:'고조선',year:'기원전 2333년',explain:'단군왕검이 세운 우리나라 최초의 국가예요.'},
@@ -109,6 +113,7 @@ function startGame() {
   score.value=0; correct.value=0; leveled.value=false; qIdx.value=0
   maxTime.value=level.value<=2?20:level.value<=4?15:12
   queue=shuffle(getPool()).slice(0,totalQ.value)
+  rec.start(level.value)
   phase.value='play'; nextQuestion()
 }
 
@@ -141,9 +146,11 @@ function selectAnswer(opt) {
   setTimeout(nextQuestion,2800)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(timer); phase.value='result'
-  if(correct.value>=8){ level.value++; localStorage.setItem('history_level',level.value); leveled.value=true; speak('레벨업!') }
+  const won = correct.value >= 8
+  if(won){ level.value++; localStorage.setItem('history_level',level.value); leveled.value=true; speak('레벨업!') }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

@@ -42,6 +42,7 @@
       <div class="res-score">{{ score }}점</div>
       <div class="res-detail">{{ correct }}/{{ totalQ }} 정답</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="health" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -53,7 +54,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('health')
 
 const healthQuiz = [
   {emoji:'🚶',question:'하루 권장 걷기 목표는 몇 보인가요?',options:['5,000보','10,000보','3,000보','20,000보'],answer:'10,000보',explain:'하루 만 보 걷기가 건강에 도움이 돼요.',level:1},
@@ -102,6 +106,7 @@ function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.fl
 function startGame() {
   score.value=0; correct.value=0; leveled.value=false; qIdx.value=0
   queue=shuffle(getPool()).slice(0,totalQ.value)
+  rec.start(level.value)
   phase.value='play'; nextQuestion()
 }
 
@@ -134,9 +139,11 @@ function selectAnswer(opt) {
   setTimeout(nextQuestion,3000)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(timer); phase.value='result'
-  if(correct.value>=7){ level.value++; localStorage.setItem('health_level',level.value); leveled.value=true; speak('레벨업!') }
+  const won = correct.value >= 7
+  if(won){ level.value++; localStorage.setItem('health_level',level.value); leveled.value=true; speak('레벨업!') }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

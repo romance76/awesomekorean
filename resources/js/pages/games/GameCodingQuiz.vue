@@ -48,6 +48,7 @@
       <div class="res-score">{{ score }}점</div>
       <div class="res-detail">{{ correct }}/{{ totalQ }} 정답</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="coding_quiz" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -59,7 +60,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('coding_quiz')
 
 const quizDB = [
   {level:1,category:'HTML',question:'웹페이지 제목을 나타내는 태그는?',options:['<title>','<head>','<h1>','<body>'],answer:'<title>',explain:'<title>은 브라우저 탭에 표시되는 페이지 제목이에요.',codeOptions:true},
@@ -111,6 +115,7 @@ function startGame() {
   score.value=0; correct.value=0; leveled.value=false; qIdx.value=0
   maxTime.value=level.value<=2?25:level.value<=4?20:15
   queue=shuffle(getPool()).slice(0,totalQ.value)
+  rec.start(level.value)
   phase.value='play'; nextQuestion()
 }
 
@@ -147,9 +152,11 @@ function selectAnswer(opt) {
   setTimeout(nextQuestion,2800)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(timer); phase.value='result'
-  if(correct.value>=8){level.value++;localStorage.setItem('coding_level',level.value);leveled.value=true;speak('레벨업!')}
+  const won = correct.value >= 8
+  if(won){level.value++;localStorage.setItem('coding_level',level.value);leveled.value=true;speak('레벨업!')}
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

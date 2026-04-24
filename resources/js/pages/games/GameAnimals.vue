@@ -84,6 +84,7 @@
     <div class="result-score">{{ score }}점</div>
     <div class="result-detail">{{ correct }} / {{ totalQ }} 정답</div>
     <div v-if="leveled" class="level-up-badge">🎉 레벨업! → 레벨 {{ level }}</div>
+    <GameResultExtras :rec="rec" slug="animals" />
     <div class="result-btns">
       <button class="rbtn retry" @click="startGame">다시 하기 🔄</button>
       <button class="rbtn home" @click="$router.push('/games')">목록으로 🏠</button>
@@ -96,6 +97,9 @@
 import { ref, onUnmounted } from 'vue'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
+const rec = useGameRecord('animals')
 
 const levelDesc = [
   {lv:1, desc:'기본 동물 (8마리)'},
@@ -160,6 +164,7 @@ async function startGame() {
   maxTime.value = level.value >= 3 ? 8 : 0
   queue = shuffle(pool.value).slice(0, Math.min(totalQ.value, pool.value.length))
   totalQ.value = queue.length
+  rec.start(level.value)
   phase.value = 'play'
   speak('동물 이름을 맞춰봐요!')
   loadQuestion()
@@ -228,19 +233,20 @@ function triggerFeedback(isCorrect) {
   }, 50)
 }
 
-function endGame() {
+async function endGame() {
   phase.value = 'result'
   const threshold = level.value <= 1 ? 7 : level.value <= 2 ? 8 : 9
-  if (correct.value >= threshold && level.value < 5) {
+  const won = correct.value >= threshold
+  if (won && level.value < 5) {
     level.value++
     localStorage.setItem('animal_level', level.value)
     leveled.value = true
     speak('레벨업! 레벨 ' + level.value + '!')
-    // 다음 레벨 풀 다시 로드
     loadPool()
   } else {
     speak(correct.value + '개 맞았어요! 잘했어요!')
   }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 onUnmounted(() => { clearInterval(fbTimer); clearInterval(countTimer); window.speechSynthesis?.cancel() })
