@@ -41,6 +41,7 @@
       <div class="res-stats">{{ moves }}번 · {{ elapsed }}초</div>
       <div v-if="isNewBest" class="new-best">🏆 새 기록!</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="memory" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -52,7 +53,10 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('memory')
 
 const allEmojis = ['🐶','🐱','🦊','🐸','🦁','🐘','🦋','🌺','🍎','🍌','⭐','🌙','🚗','✈️','🎸','🎁','🌈','🏆','🎯','🎲','🌍','🔥','💎','🦄']
 
@@ -99,6 +103,7 @@ function startGame() {
   elapsed.value = 0; startTime = Date.now()
   clearInterval(timerInterval)
   timerInterval = setInterval(() => { elapsed.value = Math.round((Date.now()-startTime)/1000) }, 1000)
+  rec.start(level.value)
   phase.value = 'play'
   speak('카드를 뒤집어 짝을 찾아요!')
 }
@@ -129,6 +134,7 @@ function flipCard(i) {
           leveled.value = true; speak('완성! 레벨업!')
         } else speak('완성!')
         phase.value = 'complete'
+        rec.end({ won: true, leveledUp: leveled.value, score: score.value })
       }
     } else {
       cards.value[flipped1.value] = {...c1, flipped: false}

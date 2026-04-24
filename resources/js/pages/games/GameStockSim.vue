@@ -61,6 +61,7 @@
         수익률: {{ profitRate }}%
       </div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="stock_sim" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 📊</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -72,7 +73,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('stock_sim')
 
 const level = ref(parseInt(localStorage.getItem('stock_level') || '1'))
 
@@ -129,6 +133,7 @@ function startGame() {
   holding.value = {}
   day.value = 1
   leveled.value = false
+  rec.start(level.value)
   phase.value = 'play'
   speak('주식 투자를 시작합니다!')
 }
@@ -174,8 +179,7 @@ function chartPoints(stock) {
   }).join(' ')
 }
 
-function endGame() {
-  // sell all
+async function endGame() {
   for (const stock of stocks.value) {
     if (holding.value[stock.name]) {
       cash.value += holding.value[stock.name] * stock.price
@@ -183,7 +187,8 @@ function endGame() {
     }
   }
   phase.value = 'result'
-  if (profitRate.value >= (level.value <= 2 ? 5 : level.value <= 4 ? 10 : 15)) {
+  const won = profitRate.value >= (level.value <= 2 ? 5 : level.value <= 4 ? 10 : 15)
+  if (won) {
     level.value++
     localStorage.setItem('stock_level', level.value)
     leveled.value = true
@@ -191,6 +196,7 @@ function endGame() {
   } else {
     speak('게임 종료! 수익률 ' + profitRate.value + '퍼센트')
   }
+  await rec.end({ won, leveledUp: leveled.value, score: Math.max(0, Math.round(profitRate.value * 10)) })
 }
 
 function goBack() { router.push('/games') }

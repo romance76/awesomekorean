@@ -37,6 +37,7 @@
       <div class="res-detail">{{ completedCycles }}회 호흡 완료</div>
       <div class="res-msg">몸과 마음이 편안해졌나요?</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="breathing" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -48,7 +49,10 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('breathing')
 
 const level = ref(parseInt(localStorage.getItem('breathing_level') || '1'))
 const phase = ref('start')
@@ -80,6 +84,7 @@ function speak(text, rate = 0.7) {
 
 function startGame() {
   completedCycles.value = 0; leveled.value = false
+  rec.start(level.value)
   phase.value = 'breathing'
   speak('호흡 명상을 시작합니다. 편안하게 앉으세요.')
   setTimeout(runBreathing, 2000)
@@ -114,6 +119,7 @@ async function runBreathing() {
       level.value++; localStorage.setItem('breathing_level', level.value)
       leveled.value = true
     }
+    await rec.end({ won: true, leveledUp: leveled.value, score: completedCycles.value * 10 })
   }
 }
 

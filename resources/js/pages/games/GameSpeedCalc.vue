@@ -48,6 +48,7 @@
       <div class="res-detail">정답 {{ correct }} · 오답 {{ wrong }}</div>
       <div class="res-best" v-if="isNewBest">🏆 신기록!</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="speed_calc" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 ⚡</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -59,7 +60,10 @@
 <script setup>
 import { ref, nextTick, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('speed_calc')
 
 const level = ref(parseInt(localStorage.getItem('speedcalc_level') || '1'))
 const bestScore = ref(parseInt(localStorage.getItem('speedcalc_best') || '0'))
@@ -115,6 +119,7 @@ function genEquation() {
 function startGame() {
   score.value=0; correct.value=0; wrong.value=0; leveled.value=false; isNewBest.value=false
   phase.value='play'; timeLeft.value=60; flashMsg.value=''
+  rec.start(level.value)
   genEquation(); userAnswer.value=''
   clearInterval(timer)
   timer=setInterval(()=>{
@@ -148,7 +153,7 @@ function toggleNeg() {
   else userAnswer.value='-'+userAnswer.value
 }
 
-function endGame() {
+async function endGame() {
   phase.value='result'
   if(correct.value>bestScore.value){
     bestScore.value=correct.value
@@ -156,10 +161,12 @@ function endGame() {
     isNewBest.value=true
   }
   const threshold=level.value<=2?10:level.value<=4?18:25
-  if(correct.value>=threshold){
+  const won = correct.value >= threshold
+  if(won){
     level.value++; localStorage.setItem('speedcalc_level',level.value)
     leveled.value=true; speak('레벨업!')
   } else speak('게임종료! ' + correct.value + '개 정답!')
+  await rec.end({ won, leveledUp: leveled.value, score: correct.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

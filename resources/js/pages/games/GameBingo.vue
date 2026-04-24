@@ -45,6 +45,7 @@
       <h2 class="res-title">빙고!</h2>
       <div class="res-detail">{{ bingoCount }}줄 빙고! {{ calledNums.length }}번 만에!</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="bingo" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -56,7 +57,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('bingo')
 
 const level = ref(parseInt(localStorage.getItem('bingo_level') || '1'))
 const phase = ref('start')
@@ -93,6 +97,7 @@ function startGame() {
   lastCalled.value = null
   bingoCount.value = 0
   leveled.value = false
+  rec.start(level.value)
   phase.value = 'play'
   speak(size + '곱하기 ' + size + ' 빙고 시작!')
 }
@@ -148,6 +153,7 @@ function checkBingo() {
         leveled.value = true
         speak('빙고! 레벨업!')
       }
+      rec.end({ won: true, leveledUp: leveled.value, score: bingoCount.value * 10 })
     }
   }
 }

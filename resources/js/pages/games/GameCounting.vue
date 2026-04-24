@@ -79,6 +79,7 @@
       <div v-if="leveledUp" class="levelup-banner">
         🎉 레벨업! 레벨 {{ level }} 🎉
       </div>
+      <GameResultExtras :rec="rec" slug="counting" />
       <div class="result-actions">
         <button class="action-btn retry-btn" @click="startGame">다시 하기 🔄</button>
         <button class="action-btn home-btn" @click="goBack">홈으로 🏠</button>
@@ -95,6 +96,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
+const rec = useGameRecord('counting')
 
 const router = useRouter()
 
@@ -162,6 +166,7 @@ function startGame() {
   correctCount.value = 0
   starsEarned.value = 0
   leveledUp.value = false
+  rec.start(level.value)
   gameState.value = 'playing'
   nextQuestion()
 }
@@ -224,7 +229,8 @@ function showResults() {
   localStorage.setItem('counting_stars', totalStars.value)
 
   // Level up logic: 8+ correct = level up
-  if (correctCount.value >= 8) {
+  const won = correctCount.value >= 8
+  if (won) {
     level.value++
     leveledUp.value = true
     localStorage.setItem('counting_level', level.value)
@@ -234,6 +240,7 @@ function showResults() {
   }
 
   gameState.value = 'result'
+  rec.end({ won, leveledUp: leveledUp.value, score: correctCount.value * 10 })
 }
 
 function sparkleStyle(i) {

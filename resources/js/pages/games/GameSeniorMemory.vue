@@ -39,6 +39,7 @@
       <div class="res-title">잘했어요!</div>
       <div class="res-stats">{{ moves }}번 만에 완성!</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="senior_memory" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -50,7 +51,10 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('senior_memory')
 
 const seniorEmojis = ['🌸','🌻','🌺','🍎','🍊','🍇','🌙','⭐','🌈','🦋','🐶','🐱','🌳','🏠','❤️','🎵']
 
@@ -90,6 +94,7 @@ function startGame() {
   elapsed.value = 0; startTime = Date.now()
   clearInterval(timerInterval)
   timerInterval = setInterval(() => { elapsed.value = Math.round((Date.now()-startTime)/1000) }, 1000)
+  rec.start(level.value)
   phase.value = 'play'
   speak('같은 그림을 찾아보세요!')
 }
@@ -112,6 +117,7 @@ function flipCard(i) {
         if (moves.value <= threshold) { level.value++; localStorage.setItem('senior_memory_level', level.value); leveled.value = true }
         phase.value = 'complete'
         speak(leveled.value ? '완성! 레벨업!' : '완성! 잘하셨어요!')
+        rec.end({ won: true, leveledUp: leveled.value, score: score.value })
       }
     } else {
       cards.value[f1.value] = {...c1, flipped:false}
