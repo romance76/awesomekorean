@@ -53,6 +53,7 @@
       <div class="res-score">{{ score }}점</div>
       <div class="res-detail">{{ correct }}/{{ totalQ }} · 최대콤보 {{ maxCombo }}🔥</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="math_challenge" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -64,7 +65,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('math_challenge')
 
 const level = ref(parseInt(localStorage.getItem('mathchallenge_level') || '1'))
 const score = ref(0)
@@ -147,6 +151,7 @@ function generateQuestion() {
 function startGame() {
   score.value=0; correct.value=0; combo.value=0; maxCombo.value=0; leveled.value=false
   qIdx.value=0; maxTime.value=getMaxTime()
+  rec.start(level.value)
   phase.value='play'
   nextRound()
 }
@@ -198,12 +203,14 @@ function selectAnswer(opt) {
   setTimeout(nextRound, 1500)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(timer); phase.value='result'
-  if (correct.value >= (level.value<=2?9:level.value<=4?10:11)) {
+  const won = correct.value >= (level.value<=2?9:level.value<=4?10:11)
+  if (won) {
     level.value++; localStorage.setItem('mathchallenge_level', level.value)
     leveled.value=true; speak('레벨업!')
   }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

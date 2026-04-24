@@ -44,6 +44,7 @@
       <div class="res-score">{{ score }}점</div>
       <div class="res-detail">{{ correct }}/{{ totalQ }} · 최대콤보 {{ maxCombo }}🔥</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="stroop" />
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -55,7 +56,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('stroop')
 
 const colors = [
   {name:'빨강',hex:'#ef4444'},
@@ -93,6 +97,7 @@ function startGame() {
   qIdx.value=0; maxTime.value=level.value<=2?8:level.value<=4?5:3
   const numColors = level.value<=2?4:level.value<=4?5:6
   colorChoices.value = colors.slice(0,numColors)
+  rec.start(level.value)
   phase.value='play'; nextRound()
 }
 
@@ -132,9 +137,11 @@ function selectColor(name) {
   setTimeout(nextRound, 1000)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(timer); phase.value='result'
-  if(correct.value>=12){ level.value++; localStorage.setItem('stroop_level',level.value); leveled.value=true }
+  const won = correct.value >= 12
+  if(won){ level.value++; localStorage.setItem('stroop_level',level.value); leveled.value=true }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(timer); router.push('/games') }

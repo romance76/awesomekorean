@@ -57,6 +57,7 @@
       <div class="result-score">{{ score }}점</div>
       <div class="result-detail">{{ correct }} / {{ totalQ }} 정답</div>
       <div v-if="leveled" class="level-up-badge">🎉 레벨업! → 레벨 {{ level }}</div>
+      <GameResultExtras :rec="rec" slug="colors" />
       <div class="result-btns">
         <button class="rbtn retry" @click="startGame">다시 하기 🔄</button>
         <button class="rbtn home" @click="goBack">목록으로 🏠</button>
@@ -68,7 +69,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('colors')
 
 const allColors = [
   {name:'빨간색', hex:'#ef4444'},
@@ -119,6 +123,7 @@ function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.fl
 function startGame() {
   score.value=0; correct.value=0; streak.value=0; leveled.value=false; qIdx.value=0
   queue = shuffle(getPool()).slice(0, totalQ.value)
+  rec.start(level.value)
   phase.value='play'; loadQuestion()
 }
 
@@ -163,12 +168,14 @@ function triggerFeedback(isCorrect) {
   }, 50)
 }
 
-function endGame() {
+async function endGame() {
   phase.value = 'result'
-  if (correct.value >= 9) {
+  const won = correct.value >= 9
+  if (won) {
     level.value++; localStorage.setItem('color_level', level.value)
     leveled.value = true; speak('레벨업!')
   }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(fbTimer); router.push('/games') }

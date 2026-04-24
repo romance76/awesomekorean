@@ -40,6 +40,7 @@
       <h2 class="end-title">{{ correct>=totalQ*0.7?'구구단 마스터!':'잘 했어요!' }}</h2>
       <p class="end-score">{{ score }}점 · {{ correct }}/{{ totalQ }} 정답</p>
       <div v-if="leveled" class="levelup-badge">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="multiplication" />
       <button class="start-btn" @click="startGame">다시 하기 🔄</button>
       <button class="home-btn" @click="$router.push('/games')">홈으로 🏠</button>
     </div>
@@ -63,7 +64,10 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('multiplication')
 const level = ref(parseInt(localStorage.getItem('mult_level')||'1'))
 const score = ref(0); const qIdx = ref(0); const correct = ref(0)
 const leveled = ref(false); const answered = ref(false); const phase = ref('start')
@@ -105,6 +109,7 @@ function genQ() {
 function startGame() {
   score.value=0; qIdx.value=0; correct.value=0; leveled.value=false
   answered.value=false; showFeedback.value=false; phase.value='play'
+  rec.start(level.value)
   questions.value = Array.from({length:totalQ}, genQ)
   speak('구구단을 풀어봐요!')
 }
@@ -139,6 +144,7 @@ async function endGame() {
     level.value++; localStorage.setItem('mult_level', level.value); leveled.value = true
     speak('구구단 마스터! 레벨업!')
   } else speak('다시 도전해봐요!')
+  await rec.end({ won: passed, leveledUp: leveled.value, score: score.value })
   const token = localStorage.getItem('token')
   if (token) {
     try {

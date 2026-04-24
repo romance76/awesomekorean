@@ -88,6 +88,7 @@
       <div class="result-score">{{ score }}점</div>
       <div class="result-detail">{{ correct }} / {{ totalQ }} 정답</div>
       <div v-if="leveled" class="level-up-badge">🎉 레벨업! → 레벨 {{ level }}</div>
+      <GameResultExtras :rec="rec" slug="world_geo" />
       <div class="result-btns">
         <button class="rbtn retry" @click="startGame">다시 하기 🔄</button>
         <button class="rbtn home" @click="goBack">목록으로 🏠</button>
@@ -99,7 +100,10 @@
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('world_geo')
 
 const geoData = [
   {id:'kr',code:'kr',country:'한국',capital:'서울',continent:'아시아',level:1,fact:'한국의 수도 서울은 600년 역사의 도시예요'},
@@ -175,6 +179,7 @@ function startGame() {
   maxTime.value = level.value <= 2 ? 15 : level.value <= 4 ? 12 : 10
   const pool = getPool()
   queue = shuffle(buildQuestions(pool)).slice(0, totalQ.value)
+  rec.start(level.value)
   phase.value = 'play'
   loadQuestion()
 }
@@ -242,13 +247,15 @@ function triggerFeedback(isCorrect) {
   }, 50)
 }
 
-function endGame() {
+async function endGame() {
   clearInterval(countTimer); phase.value = 'result'
   const threshold = level.value <= 2 ? 7 : level.value <= 4 ? 8 : 9
-  if (correct.value >= threshold) {
+  const won = correct.value >= threshold
+  if (won) {
     level.value++; localStorage.setItem('geo_level', level.value)
     leveled.value = true; speak('레벨업!')
   }
+  await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 function goBack() { clearInterval(fbTimer); clearInterval(countTimer); router.push('/games') }
