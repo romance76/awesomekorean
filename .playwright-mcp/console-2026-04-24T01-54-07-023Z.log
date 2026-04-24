@@ -1,0 +1,5 @@
+[     439ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
+[     439ms] [LOG] [PeerJS] Initializing as sk-202-ni9n @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
+[     440ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
+[     823ms] [LOG] [PeerJS] ✅ Connected as sk-202-ni9n @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
+[   19992ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-C203zmat.js:47

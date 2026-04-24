@@ -1,0 +1,66 @@
+- generic [active] [ref=e1]:
+  - main [ref=e4]:
+    - generic [ref=e5]:
+      - complementary [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]: ⚙️ AwesomeKorean
+          - generic [ref=e9]:
+            - generic [ref=e10]: 직
+            - generic [ref=e11]:
+              - generic [ref=e12]: 직장인A57
+              - generic [ref=e13]: Admin
+        - navigation [ref=e14]:
+          - link "📊 대시보드" [ref=e15] [cursor=pointer]:
+            - /url: /admin
+            - generic [ref=e16]: 📊
+            - generic [ref=e17]: 대시보드
+          - link "👥 회원" [ref=e18] [cursor=pointer]:
+            - /url: /admin/members
+            - generic [ref=e19]: 👥
+            - generic [ref=e20]: 회원
+          - link "📋 게시판" [ref=e21] [cursor=pointer]:
+            - /url: /admin/market
+            - generic [ref=e22]: 📋
+            - generic [ref=e23]: 게시판
+          - link "📢 광고관리" [ref=e24] [cursor=pointer]:
+            - /url: /admin/banners
+            - generic [ref=e25]: 📢
+            - generic [ref=e26]: 광고관리
+          - link "⚙️ 시스템" [ref=e27] [cursor=pointer]:
+            - /url: /admin/settings
+            - generic [ref=e28]: ⚙️
+            - generic [ref=e29]: 시스템
+        - link "🏠 사이트로 돌아가기" [ref=e31] [cursor=pointer]:
+          - /url: /
+      - main [ref=e32]:
+        - generic [ref=e33]:
+          - link "🎯 광고 센터" [ref=e34] [cursor=pointer]:
+            - /url: /admin/ad-center
+            - generic [ref=e35]: 🎯
+            - generic [ref=e36]: 광고 센터
+          - link "📢 광고 목록" [ref=e37] [cursor=pointer]:
+            - /url: /admin/banners
+            - generic [ref=e38]: 📢
+            - generic [ref=e39]: 광고 목록
+          - link "💳 결제/오더" [ref=e40] [cursor=pointer]:
+            - /url: /admin/payments
+            - generic [ref=e41]: 💳
+            - generic [ref=e42]: 결제/오더
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e47]: 관리자 › 광고 센터
+              - heading "📢 광고 센터 — 통합 관리" [level=1] [ref=e48]
+              - paragraph [ref=e49]: 페이지/위치별 슬롯 맵 · 광고주 · 결제 · 승인까지 한 화면에서
+            - generic [ref=e50]:
+              - button "🔍 샘플 배너 위치 확인" [ref=e51] [cursor=pointer]
+              - link "📋 전체 광고 목록" [ref=e52] [cursor=pointer]:
+                - /url: /admin/banners
+              - link "⚙️ 슬롯·가격 설정" [ref=e53] [cursor=pointer]:
+                - /url: /admin/ad-settings
+              - link "🎪 히어로 배너" [ref=e54] [cursor=pointer]:
+                - /url: /admin/hero-banners
+          - generic [ref=e57]:
+            - generic [ref=e58]: "📄 페이지:"
+            - combobox [ref=e59]
+  - img [ref=e64]
