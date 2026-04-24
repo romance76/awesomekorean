@@ -12,3 +12,5 @@
 [  707962ms] [LOG] [PeerJS] Initializing as sk-202-np1t @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
 [  707964ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
 [  708258ms] [LOG] [PeerJS] ✅ Connected as sk-202-np1t @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[  711445ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[  937678ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://awesomekorean.com/admin/ad-center:0

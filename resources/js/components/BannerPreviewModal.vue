@@ -216,13 +216,31 @@
       </div>
 
       <!-- ════════════════════════════════════════════════════════════ -->
-      <!-- 📄 상세 (게시글·물품·매물·업소) — 데스크톱 -->
+      <!-- 📄 상세 (게시글·물품·매물·업소) — 데스크톱 (3-column) -->
       <!-- ════════════════════════════════════════════════════════════ -->
       <div v-else-if="pageType === 'detail' && view === 'desktop'" class="desktop-mock">
         <div class="mock-nav">🌐 NavBar · 검색 · 로그인</div>
         <div class="mock-3col mock-3col-narrow">
-          <div class="mock-main mock-main-wide">
-            <div class="main-label">본문 영역 (9 grid cols)</div>
+          <!-- 좌측: 카테고리 (리스트 페이지와 동일 패턴) -->
+          <div class="mock-side">
+            <div class="side-label">좌측: 카테고리/필터</div>
+            <div class="side-filler">📋 전체 · 카테고리 A/B/C</div>
+            <div class="side-filler">📍 내 위치 / 범위</div>
+            <div class="side-filler">🔖 내 북마크</div>
+            <div class="ad-stack">
+              <div class="ad-stack-label">📢 좌측 광고 (카테고리 아래, 나란히)</div>
+              <div class="slot slot-premium" @click="selectSlot('detail-left-1')" :class="{highlight: highlighted==='detail-left-1'}">
+                <div class="slot-tag">🥇 프리미엄 · 200×150</div>
+              </div>
+              <div class="slot slot-economy" @click="selectSlot('detail-left-3')" :class="{highlight: highlighted==='detail-left-3'}">
+                <div class="slot-tag">🥉 이코노미 · 200×150</div>
+                <div class="slot-size">Top 랜덤</div>
+              </div>
+            </div>
+          </div>
+          <!-- 중앙: 본문 -->
+          <div class="mock-main">
+            <div class="main-label">본문 영역</div>
             <div class="main-block" style="padding:22px">🖼️ 이미지 갤러리 / 썸네일</div>
             <div class="main-block">제목 · 가격/급여 · 카테고리 · 위치 · 작성자</div>
             <div class="main-block" style="padding:32px">본문 내용 / 상세 설명</div>
@@ -233,6 +251,7 @@
             <div class="main-block">💬 댓글 / 리뷰 / 문의</div>
             <div class="main-block">◀ 이전글 · 다음글 ▶</div>
           </div>
+          <!-- 우측: 추천/관련 -->
           <div class="mock-side">
             <div class="side-label">우측: 추천/관련</div>
             <div class="side-filler">📂 같은 카테고리</div>

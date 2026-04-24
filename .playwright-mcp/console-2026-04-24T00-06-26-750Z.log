@@ -160,3 +160,11 @@
 [ 6493789ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
 [ 6494344ms] [LOG] [PeerJS] ✅ Connected as sk-202-p6oj @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
 [ 6495591ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-C203zmat.js:47
+[ 8108601ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://awesomekorean.com/build/assets/useLocation-DkiDh0Nr.js:0
+[ 8108602ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://awesomekorean.com/build/assets/GroupBuyHome-CJ6QenCq.js:0
+[ 8109227ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[ 8109227ms] [LOG] [PeerJS] Initializing as sk-202-8l3i @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[ 8109231ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[ 8110379ms] [LOG] [PeerJS] ✅ Connected as sk-202-8l3i @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[ 8110626ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-D0kywsP1.js:47
+[ 8134550ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://awesomekorean.com/storage//storage/avatars/img_69ea2201ab9733.97381590.png:0
