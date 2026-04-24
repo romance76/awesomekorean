@@ -97,7 +97,7 @@ function speak(text) {
   window.speechSynthesis.speak(u)
 }
 
-function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5) }
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 function rand(a, b) { return Math.floor(Math.random()*(b-a+1))+a }
 
 function generateQuestion() {

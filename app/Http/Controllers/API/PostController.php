@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\PostLike;
+use App\Services\BadWordFilter;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
@@ -68,6 +69,11 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $request->validate(['title' => 'required|max:200', 'content' => 'required', 'board_id' => 'required|exists:boards,id']);
+
+        $bad = BadWordFilter::firstMatch($request->title . ' ' . $request->content);
+        if ($bad !== null) {
+            return response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어 게시할 수 없습니다.'], 422);
+        }
 
         $images = [];
         if ($request->hasFile('images')) {

@@ -86,7 +86,7 @@ const timeLeft = ref(8)
 const maxTime = ref(8)
 let timer = null
 
-function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5) }
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 
 function startGame() {
   score.value=0; correct.value=0; combo.value=0; maxCombo.value=0; leveled.value=false

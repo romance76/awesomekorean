@@ -142,7 +142,7 @@ async function loadPool() {
   loadingPool.value = false
 }
 
-function shuffle(arr) { return [...arr].sort(() => Math.random()-0.5) }
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 
 async function startGame() {
   if (!pool.value.length) await loadPool()
@@ -163,13 +163,18 @@ function loadQuestion() {
   selectedOpt.value = null
   showFeedback.value = false
 
-  let wrongs = []
-  if (q.wrongs && q.wrongs.length >= 3) {
-    wrongs = shuffle(q.wrongs).slice(0, 3)
-  } else {
-    wrongs = shuffle(pool.value.filter(a => a.answer !== q.answer).map(a => a.answer)).slice(0, 3)
+  // 보기 중복 방지 — 정답 먼저 넣고 Set 으로 유일한 오답 3개까지 수집
+  const set = new Set([q.answer])
+  if (Array.isArray(q.wrongs)) {
+    for (const w of shuffle(q.wrongs)) { if (set.size >= 4) break; if (w && w !== q.answer) set.add(w) }
   }
-  choices.value = shuffle([q.answer, ...wrongs])
+  if (set.size < 4) {
+    for (const a of shuffle(pool.value)) {
+      if (set.size >= 4) break
+      if (a.answer && a.answer !== q.answer) set.add(a.answer)
+    }
+  }
+  choices.value = shuffle([...set])
 
   clearInterval(countTimer)
   if (maxTime.value > 0) {

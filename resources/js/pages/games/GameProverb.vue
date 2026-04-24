@@ -103,7 +103,7 @@ function speak(text) {
   window.speechSynthesis.speak(u)
 }
 
-function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5) }
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 
 function startGame() {
   score.value=0; correct.value=0; leveled.value=false; qIdx.value=0
@@ -116,8 +116,10 @@ function nextQuestion() {
   if(qIdx.value>=totalQ.value){endGame();return}
   const q=queue[qIdx.value]; qIdx.value++
   const pool=getPool()
-  const wrongs=shuffle(pool.filter(p=>p.meaning!==q.meaning)).slice(0,3).map(p=>p.meaning)
-  curQ.value={...q, options:shuffle([q.meaning,...wrongs])}
+  // 보기 중복 방지
+  const set=new Set([q.meaning])
+  for(const p of shuffle(pool)){ if(set.size>=4) break; if(p.meaning && p.meaning!==q.meaning) set.add(p.meaning) }
+  curQ.value={...q, options:shuffle([...set])}
   answered.value=false; wasRight.value=false; picked.value=''
   speak(q.proverb)
   startTimer()

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\{ChatRoom, ChatRoomUser, ChatMessage};
+use App\Services\BadWordFilter;
 use App\Traits\CompressesUploads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -265,6 +266,17 @@ class ChatController extends Controller
 
         if (!$hasContent && !$hasImage && !$hasFiles) {
             return response()->json(['success'=>false,'message'=>'내용 또는 파일이 필요합니다'], 422);
+        }
+
+        // 금칙어/욕설 필터
+        if ($hasContent) {
+            $bad = BadWordFilter::firstMatch((string) $request->content);
+            if ($bad !== null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '부적절한 표현이 포함되어 있어 전송할 수 없습니다.',
+                ], 422);
+            }
         }
 
         // 영구제명된 유저 차단

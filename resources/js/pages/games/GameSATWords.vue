@@ -130,7 +130,7 @@ function listenWord() {
   speak(curQ.value.word, 'en-US')
 }
 
-function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5) }
+function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 
 function startGame() {
   score.value = 0; correct.value = 0; leveled.value = false; qIdx.value = 0
@@ -145,8 +145,13 @@ function nextQuestion() {
   const q = queue[qIdx.value]; qIdx.value++
   curQ.value = q; answered.value = false; wasRight.value = false; picked.value = ''
   const pool = getPool()
-  const wrongs = shuffle(pool.filter(w => w.kor !== q.kor)).slice(0, 3).map(w => w.kor)
-  options.value = shuffle([q.kor, ...wrongs])
+  // 보기 중복 방지
+  const set = new Set([q.kor])
+  for (const w of shuffle(pool)) {
+    if (set.size >= 4) break
+    if (w.kor && w.kor !== q.kor) set.add(w.kor)
+  }
+  options.value = shuffle([...set])
   speak(q.word, 'en-US')
   startTimer()
 }

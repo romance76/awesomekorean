@@ -19,7 +19,9 @@ class QuizQuestionController extends Controller
         if ($levelMode === 'eq') { $q->where('level', $level); }
         else { $q->where('level', '<=', $level); }
 
-        $items = $q->orderBy('sort_order')->limit($limit)->get()->map(function ($q) {
+        // 매번 다른 문제가 나오도록 DB 레벨에서 랜덤 샘플링 (이전엔 sort_order 고정 순으로
+        // 같은 문제만 반복되던 버그)
+        $items = $q->inRandomOrder()->limit($limit)->get()->map(function ($q) {
             return [
                 'id'     => $q->id,
                 'level'  => $q->level,

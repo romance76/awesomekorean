@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
+use App\Services\BadWordFilter;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -46,6 +47,10 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         $request->validate(['commentable_type' => 'required', 'commentable_id' => 'required|integer', 'content' => 'required|max:1000']);
+
+        if (BadWordFilter::contains((string) $request->content)) {
+            return response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어 댓글을 작성할 수 없습니다.'], 422);
+        }
 
         $modelType = $this->resolveType($request->commentable_type);
         if (!$modelType) return response()->json(['success' => false, 'message' => 'Invalid type'], 400);
