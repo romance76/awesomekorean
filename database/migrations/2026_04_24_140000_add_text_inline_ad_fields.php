@@ -24,7 +24,7 @@ return new class extends Migration {
         DB::statement('ALTER TABLE banner_ads MODIFY image_url VARCHAR(500) NULL');
 
         // 샘플 텍스트 인라인 광고 3건 시드 (admin user_id=1 가정, 없으면 첫번째 유저)
-        $adminId = DB::table('users')->where('is_admin', true)->value('id')
+        $adminId = DB::table('users')->whereIn('role', ['admin', 'super_admin'])->value('id')
                    ?? DB::table('users')->orderBy('id')->value('id');
         if ($adminId) {
             $samples = [
