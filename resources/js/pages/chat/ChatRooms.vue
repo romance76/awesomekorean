@@ -92,7 +92,7 @@
 
           <!-- 메시지 영역 -->
           <div ref="msgArea" class="flex-1 overflow-y-auto px-4 py-3 space-y-3" @scroll="onMsgScroll">
-            <template v-for="(msg, idx) in activeMessages" :key="msg.id">
+            <template v-for="(msg, idx) in visibleMessages" :key="msg.id">
               <!-- 날짜 구분선 -->
               <div v-if="showDateDivider(idx)" class="flex items-center justify-center py-2">
                 <div class="h-px bg-gray-200 flex-1"></div>
@@ -106,10 +106,25 @@
                 <div class="h-px bg-red-200 flex-1"></div>
               </div>
             <div :id="'msg-' + msg.id"
-              class="flex" :class="[
+              class="flex group items-start gap-1" :class="[
                 msg.user_id === auth.user?.id ? 'justify-end' : 'justify-start',
                 msgSearchResults[msgSearchIdx]?.id === msg.id ? 'ring-2 ring-amber-400 rounded-lg' : '',
               ]">
+              <!-- 다른 사람 메시지 옆 ⋮ 메뉴 (신고/차단) -->
+              <div v-if="msg.user_id !== auth.user?.id && !isAdminUser(msg.user)" class="relative order-last pt-4">
+                <button @click.stop="toggleMsgMenu(msg.id)"
+                  class="text-gray-400 hover:text-gray-700 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 opacity-60 hover:opacity-100"
+                  title="옵션">⋮</button>
+                <div v-if="msgMenuOpenId === msg.id" @click.stop
+                  class="absolute top-6 right-0 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[130px]" style="z-index: 40;">
+                  <button @click="reportMsgUser(msg)" class="w-full px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                    <span>🚨</span><span>신고</span>
+                  </button>
+                  <button @click="confirmBlockUser(msg.user)" class="w-full px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <span>🚫</span><span>차단하기</span>
+                  </button>
+                </div>
+              </div>
               <div class="max-w-[75%]">
                 <div v-if="msg.user_id !== auth.user?.id" class="text-[10px] mb-0.5 flex items-center gap-1">
                   <span v-if="isAdminUser(msg.user)" class="bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">👑 관리자</span>
@@ -177,9 +192,27 @@
             </div>
           </div>
 
+          <!-- 😊 이모티콘 피커 (텔레그램 스타일) -->
+          <div v-if="showEmojiPicker" class="border-t bg-white flex-shrink-0" @click.stop>
+            <div class="flex gap-1 overflow-x-auto px-2 py-1.5 border-b">
+              <button v-for="cat in emojiCategories" :key="cat.key"
+                @click="emojiTab = cat.key"
+                :class="['px-2 py-1 rounded text-base flex-shrink-0', emojiTab===cat.key ? 'bg-amber-100' : 'hover:bg-gray-100']"
+                :title="cat.label">{{ cat.icon }}</button>
+            </div>
+            <div class="max-h-52 overflow-y-auto p-2 grid grid-cols-8 gap-1">
+              <button v-for="e in currentEmojis" :key="e" @click="insertEmoji(e)"
+                class="text-xl p-1 rounded hover:bg-amber-50 active:bg-amber-100 leading-none">{{ e }}</button>
+            </div>
+          </div>
+
           <!-- 입력 (아이폰 safe-area 대응) -->
           <div class="border-t px-3 py-2 flex-shrink-0" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
             <form @submit.prevent="sendMsg" class="flex gap-2 items-center">
+              <button type="button" @click="toggleEmojiPicker"
+                class="bg-gray-100 text-gray-600 w-9 h-9 flex items-center justify-center rounded-full text-base hover:bg-gray-200 flex-shrink-0"
+                :class="[!auth.isLoggedIn ? 'opacity-50 cursor-not-allowed' : '', showEmojiPicker ? 'bg-amber-200 text-amber-800' : '']"
+                :disabled="!auth.isLoggedIn" title="이모티콘">😊</button>
               <label class="bg-gray-100 text-gray-600 w-9 h-9 flex items-center justify-center rounded-full text-sm hover:bg-gray-200 cursor-pointer flex-shrink-0" :class="!auth.isLoggedIn ? 'opacity-50 cursor-not-allowed' : ''" title="이미지·압축파일 첨부">
                 📎
                 <input type="file" accept="image/*,.zip,.rar,.7z,.tar,.gz,.tgz,application/zip,application/x-rar-compressed,application/x-7z-compressed,application/gzip" multiple @change="onSelectFiles" class="hidden" :disabled="!auth.isLoggedIn" />
@@ -300,6 +333,23 @@
       </div>
     </div>
 
+    <!-- 🚫 차단 확인 다이얼로그 -->
+    <div v-if="blockConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style="z-index: 85;" @click.self="blockConfirm = null">
+      <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+        <div class="px-5 pt-5 pb-3">
+          <h3 class="font-bold text-gray-900 text-base mb-2">이 사람을 차단하시겠어요?</h3>
+          <div class="text-xs text-gray-600 leading-relaxed">
+            이 사용자의 메시지가 더 이상 보이지 않습니다. 상대방에게는 알림이 가지 않으며,
+            상대방은 여전히 공개 채팅방에 참여할 수 있습니다. 차단 해제는 언제든지 가능합니다.
+          </div>
+        </div>
+        <div class="px-5 py-3 flex justify-end gap-2 bg-gray-50 border-t">
+          <button @click="blockConfirm = null" class="text-gray-600 font-semibold text-sm px-4 py-2 rounded-lg hover:bg-gray-200">취소</button>
+          <button @click="doBlockUser" class="text-white bg-red-500 hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg">차단</button>
+        </div>
+      </div>
+    </div>
+
     <!-- 🖼️ 이미지 라이트박스 — 어디든 탭하면 닫힘, 하단 툴바 액션 -->
     <div v-if="lightboxSrc" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4" style="z-index: 80;" @click="lightboxSrc = null">
       <img :src="lightboxSrc" class="max-w-full max-h-full object-contain" />
@@ -316,10 +366,6 @@
         <button @click.stop="shareLightbox" class="flex flex-col items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition" title="공유">
           <span class="text-2xl">🔗</span>
           <span class="text-[11px]">공유</span>
-        </button>
-        <button @click.stop="openLightboxNewTab" class="flex flex-col items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition" title="새 창">
-          <span class="text-2xl">↗️</span>
-          <span class="text-[11px]">새창</span>
         </button>
       </div>
     </div>
@@ -446,6 +492,77 @@ const selectedFiles = ref([])   // [{file, preview, type}]
 const sending = ref(false)
 const lightboxSrc = ref(null)
 
+// ─── 차단 / 메시지별 메뉴 ───
+const BLOCK_KEY = 'chat_blocked_users'
+const blockedUserIds = ref([])
+try { blockedUserIds.value = JSON.parse(localStorage.getItem(BLOCK_KEY) || '[]') } catch {}
+const msgMenuOpenId = ref(null)
+const blockConfirm = ref(null) // { user }
+
+const visibleMessages = computed(() =>
+  activeMessages.value.filter(m => !blockedUserIds.value.includes(m.user_id))
+)
+
+function toggleMsgMenu(id) {
+  msgMenuOpenId.value = msgMenuOpenId.value === id ? null : id
+}
+function closeMsgMenu() { msgMenuOpenId.value = null }
+
+function reportMsgUser(msg) {
+  msgMenuOpenId.value = null
+  if (msg?.user) openPartAction('report', msg.user)
+}
+function confirmBlockUser(user) {
+  msgMenuOpenId.value = null
+  if (!user) return
+  blockConfirm.value = { user }
+}
+function doBlockUser() {
+  const u = blockConfirm.value?.user
+  if (!u) { blockConfirm.value = null; return }
+  if (!blockedUserIds.value.includes(u.id)) {
+    blockedUserIds.value = [...blockedUserIds.value, u.id]
+    try { localStorage.setItem(BLOCK_KEY, JSON.stringify(blockedUserIds.value)) } catch {}
+  }
+  siteStore.toast(`${u.nickname || u.name || '사용자'} 님을 차단했습니다`, 'success')
+  blockConfirm.value = null
+}
+
+// 외부 클릭으로 메뉴 닫기
+if (typeof window !== 'undefined') {
+  window.addEventListener('click', () => { if (msgMenuOpenId.value) closeMsgMenu() })
+}
+
+// ─── 😊 이모티콘 피커 ───
+const showEmojiPicker = ref(false)
+const emojiTab = ref('smileys')
+const emojiCategories = [
+  { key: 'smileys', icon: '😀', label: '표정' },
+  { key: 'hearts',  icon: '❤️', label: '하트' },
+  { key: 'gestures', icon: '👍', label: '손짓' },
+  { key: 'animals', icon: '🐶', label: '동물' },
+  { key: 'food',    icon: '🍜', label: '음식' },
+  { key: 'activity', icon: '⚽', label: '활동' },
+  { key: 'objects', icon: '💡', label: '사물' },
+  { key: 'symbols', icon: '✨', label: '기호' },
+]
+const EMOJI_BANK = {
+  smileys: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','😮‍💨','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+  hearts:  ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','💌','💋','🫶','💑','💏'],
+  gestures:['👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✋','🤚','🖐️','🖖','👋','🤏','💪','🙏','🤝','👏','🙌','👐','🤲','🫰','🫴','🫵','🫶','👊','✊','🤛','🤜'],
+  animals: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐽','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🐢','🐍','🦎','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🐾'],
+  food:    ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🥑','🍆','🥔','🥕','🌽','🌶️','🫑','🥒','🥬','🥦','🧄','🧅','🍄','🥜','🌰','🍞','🥐','🥖','🫓','🥨','🥯','🥞','🧇','🧀','🍖','🍗','🥩','🥓','🍔','🍟','🍕','🌭','🥪','🌮','🌯','🫔','🥙','🧆','🥚','🍳','🥘','🍲','🫕','🥣','🥗','🍿','🧈','🧂','🥫','🍱','🍘','🍙','🍚','🍛','🍜','🍝','🍠','🍢','🍣','🍤','🍥','🥮','🍡','🥟','🥠','🥡','🍦','🍧','🍨','🍩','🍪','🎂','🍰','🧁','🥧','🍫','🍬','🍭','🍮','🍯','🍼','🥛','☕','🍵','🧃','🥤','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾'],
+  activity:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤺','🤾','🏌️','🏇','🧘','🏃','🚴','🎯','🎮','🎲','🧩','♟️','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🎷','🎺','🎸','🪕','🎻'],
+  objects: ['💡','🔦','🕯️','🪔','🧯','🛢️','💸','💵','💴','💶','💷','💰','💳','💎','⚖️','🧰','🔧','🔨','⚒️','🛠️','⛏️','🪚','🔩','⚙️','🧱','⛓️','🧲','🔫','💣','🧨','🪓','🔪','🗡️','⚔️','🛡️','🚬','⚰️','🪦','⚱️','🏺','🔮','📿','🧿','💈','⚗️','🔭','🔬','🕳️','🩹','🩺','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡️','🧹','🪠','🧺','🧻','🚽','🚰','🚿','🛁','🛀','🧼','🪥','🪒','🧽','🪣','🧴','🛎️','🔑','🗝️','🚪','🪑','🛋️','🛏️','🛌','🧸','🪆','🖼️','🪞','🪟','🛍️','🛒','🎁','🎈','🎏','🎀','🎊','🎉','🎎','🏮','🎐','🧧','✉️','📩','📨','📧','💌','📥','📤','📦','🏷️','📪','📫','📬','📭','📮','📯','📜','📃','📄','📑','🧾','📊','📈','📉','🗒️','🗓️','📆','📅','📇','🗃️','🗳️','🗄️','📋','📁','📂','🗂️','🗞️','📰','📓','📔','📒','📕','📗','📘','📙','📚','📖','🔖','🔗','📎','🖇️','📐','📏','📌','📍','✂️','🖊️','🖋️','✒️','🖌️','🖍️','📝','✏️','🔍','🔎','🔏','🔐','🔒','🔓'],
+  symbols: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','☮️','✝️','☪️','🕉️','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘','❌','⭕','🛑','⛔','📛','🚫','💯','💢','♨️','🚷','🚯','🚳','🚱','🔞','📵','🚭','❗','❕','❓','❔','‼️','⁉️','🔅','🔆','〽️','⚠️','🚸','🔱','⚜️','🔰','♻️','✅','🈯','💹','❇️','✳️','❎','🌐','💠','Ⓜ️','🌀','💤','🏧','🚾','♿','🅿️','🛗','🈳','🈂️','🛂','🛃','🛄','🛅','🚹','🚺','🚼','⚧','🚻','🚮','🎦','📶','🈁','🔣','ℹ️','🔤','🔡','🔠','🆖','🆗','🆙','🆒','🆕','🆓','0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🔢','#️⃣','*️⃣','⏏️','▶️','⏸️','⏯️','⏹️','⏺️','⏭️','⏮️','⏩','⏪','⏫','⏬','◀️','🔼','🔽','➡️','⬅️','⬆️','⬇️','↗️','↘️','↙️','↖️','↕️','↔️','↪️','↩️','⤴️','⤵️','🔀','🔁','🔂','🔄','🔃','🎵','🎶','➕','➖','➗','✖️','♾️','💲','💱','™️','©️','®️','〰️','➰','➿','🔚','🔙','🔛','🔝','🔜','✔️','☑️','🔘','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔺','🔻','🔸','🔹','🔶','🔷','🔳','🔲','▪️','▫️','◾','◽','◼️','◻️','⬛','⬜','🟥','🟧','🟨','🟩','🟦','🟪','🟫','🔈','🔇','🔉','🔊','🔔','🔕','📣','📢','💬','💭','🗯️','♠️','♣️','♥️','♦️','🃏','🎴','🀄'],
+}
+const currentEmojis = computed(() => EMOJI_BANK[emojiTab.value] || [])
+function toggleEmojiPicker() {
+  if (!auth.isLoggedIn) return
+  showEmojiPicker.value = !showEmojiPicker.value
+}
+function insertEmoji(e) { newMsg.value = (newMsg.value || '') + e }
+
 async function downloadLightbox() {
   const url = lightboxSrc.value
   if (!url) return
@@ -482,9 +599,6 @@ async function shareLightbox() {
   }
 }
 
-function openLightboxNewTab() {
-  if (lightboxSrc.value) window.open(lightboxSrc.value, '_blank', 'noopener')
-}
 
 function isAdminUser(u) {
   return u && ['admin', 'super_admin'].includes(u.role)
@@ -644,8 +758,8 @@ function sameDay(a, b) {
 }
 function showDateDivider(idx) {
   if (idx === 0) return true
-  const cur = activeMessages.value[idx]?.created_at
-  const prev = activeMessages.value[idx - 1]?.created_at
+  const cur = visibleMessages.value[idx]?.created_at
+  const prev = visibleMessages.value[idx - 1]?.created_at
   return !sameDay(cur, prev)
 }
 function dateLabel(dt) {
@@ -660,8 +774,8 @@ function dateLabel(dt) {
 }
 function showUnreadDivider(idx) {
   if (!lastReadAt.value) return false
-  const cur = activeMessages.value[idx]
-  const prev = activeMessages.value[idx - 1]
+  const cur = visibleMessages.value[idx]
+  const prev = visibleMessages.value[idx - 1]
   if (!cur) return false
   // 본인 메시지는 경계선 스킵 (이미 읽은 것으로 간주)
   if (cur.user_id === auth.user?.id) return false
