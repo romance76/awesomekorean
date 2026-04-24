@@ -34,6 +34,10 @@
           </div>
         </div>
         <div v-if="biz.description" class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ biz.description }}</div>
+        <!-- 상위노출 (소유자만) -->
+        <div v-if="isOwner" class="px-5 py-4 border-t">
+          <BoostButton resource="businesses" :item="biz" size="md" @updated="reload" />
+        </div>
         <!-- 지도 -->
         <div v-if="biz.address || (biz.lat && biz.lng)" class="px-5 py-4 border-t">
           <h3 class="font-bold text-sm text-gray-800 mb-2">📍 위치</h3>
@@ -83,12 +87,13 @@
 </div>
 </template>
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import CommentSection from '../../components/CommentSection.vue'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import LeafletMap from '../../components/LeafletMap.vue'
+import BoostButton from '../../components/BoostButton.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()
@@ -96,6 +101,14 @@ const biz = ref(null)
 const reviews = ref([])
 const loading = ref(true)
 const reviewForm = reactive({ rating: 5, content: '' })
+const isOwner = computed(() => biz.value && auth.user?.id && String(biz.value.owner_id || biz.value.user_id) === String(auth.user.id))
+async function reload() {
+  try {
+    const { data } = await axios.get(`/api/businesses/${route.params.id}`)
+    biz.value = data.data
+    reviews.value = data.data.reviews || []
+  } catch {}
+}
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') : '' }
 async function submitReview() {
   if (!reviewForm.content.trim()) return

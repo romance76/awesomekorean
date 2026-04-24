@@ -149,6 +149,10 @@
           <div ref="mapEl" style="height:280px; width:100%; z-index:0;"></div>
         </div>
 
+        <!-- 상위노출 (소유자만) -->
+        <BoostButton v-if="isOwner"
+          resource="realestate" :item="listing" size="md" @updated="loadListing" />
+
         <!-- 수정/삭제 -->
         <div v-if="isOwner" class="flex items-center gap-3 justify-end">
           <RouterLink :to="`/realestate/write?edit=${listing.id}`" class="text-sm text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
@@ -212,6 +216,7 @@ import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import ShareButton from '../../components/ShareButton.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
+import BoostButton from '../../components/BoostButton.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 
 const route = useRoute()

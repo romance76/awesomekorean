@@ -242,6 +242,10 @@
               </button>
             </div>
           </div>
+          <!-- 상위노출 (소유자만) -->
+          <div v-if="auth.user?.id === job.user_id" class="mt-3">
+            <BoostButton resource="jobs" :item="job" size="md" @updated="() => loadJob(job.id)" />
+          </div>
         </div>
 
         <!-- Comments -->
@@ -307,6 +311,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import BoostButton from '../../components/BoostButton.vue'
 import axios from 'axios'
 
 const route = useRoute()

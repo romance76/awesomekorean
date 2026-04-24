@@ -9,11 +9,33 @@ use App\Models\ChatRoom;
 use App\Models\ChatRoomUser;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
+use App\Traits\HasPromotions;
 use Illuminate\Http\Request;
 
 class ClubController extends Controller
 {
-    use CompressesUploads, HasAdjacent;
+    use CompressesUploads, HasAdjacent, HasPromotions;
+
+    /** HasPromotions 설정 */
+    protected string $promoResource = 'clubs';
+    protected string $promoModel = \App\Models\Club::class;
+    protected string $promoCategoryColumn = 'category';
+
+    /** 소유자만 상위노출 가능 */
+    public function promote(Request $request, $id)
+    {
+        $club = Club::findOrFail($id);
+        if ($club->user_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => '동호회 소유자만 상위노출할 수 있습니다'], 403);
+        }
+        return $this->handlePromote($club, $request);
+    }
+
+    /** 슬롯 현황 */
+    public function promotionSlots(Request $request)
+    {
+        return $this->handlePromotionSlots($request);
+    }
 
     private function getMemberGrade($clubId, $userId)
     {

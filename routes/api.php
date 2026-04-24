@@ -93,6 +93,7 @@ Route::get('/realestate', [RealEstateController::class, 'index']);
 Route::get('/realestate/promotion-slots', [RealEstateController::class, 'promotionSlots']);
 Route::get('/realestate/{id}', [RealEstateController::class, 'show']);
 Route::get('/clubs', [ClubController::class, 'index']);
+Route::get('/clubs/promotion-slots', [ClubController::class, 'promotionSlots']);
 Route::get('/clubs/{id}', [ClubController::class, 'show']);
 Route::get('/clubs/{id}/members', [ClubController::class, 'members']);
 Route::get('/clubs/{id}/boards', [ClubController::class, 'boards']);
@@ -245,6 +246,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/clubs', [ClubController::class, 'store']);
     Route::put('/clubs/{id}', [ClubController::class, 'update']);
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);
+    Route::post('/clubs/{id}/promote', [ClubController::class, 'promote']);
     Route::post('/clubs/{id}/join', [ClubController::class, 'join']);
     Route::post('/clubs/{id}/leave', [ClubController::class, 'leave']);
     Route::get('/clubs/{id}/pending-members', [ClubController::class, 'pendingMembers']);
@@ -560,7 +562,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // 상위노출 강제 해제 (공통) — 리소스는 URL 세그먼트 (market/realestate/jobs/businesses)
     Route::post('/{resource}/{id}/clear-promotion', [\App\Http\Controllers\API\AdminController::class, 'clearPromotion'])
-        ->where('resource', 'market|realestate|jobs|businesses');
+        ->where('resource', 'market|realestate|jobs|businesses|clubs');
 
     // 퀴즈 문제 CRUD (게임별: animals/flag/proverb/satwords/uslife 등)
     Route::get('/games/{slug}/questions',          [\App\Http\Controllers\API\QuizQuestionController::class, 'index']);

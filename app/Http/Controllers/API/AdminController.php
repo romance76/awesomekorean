@@ -26,6 +26,7 @@ class AdminController extends Controller
             'realestate'  => RealEstateListing::class,
             'jobs'        => JobPost::class,
             'businesses'  => Business::class,
+            'clubs'       => Club::class,
         ];
         $modelClass = $map[$resource] ?? null;
         if (!$modelClass) {

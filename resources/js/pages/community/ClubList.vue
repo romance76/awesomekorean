@@ -119,7 +119,14 @@
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(club, i) in clubs" :key="club.id">
       <RouterLink :to="`/clubs/${club.id}`"
-        class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        class="rounded-xl shadow-sm p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
+        :class="clubRowClass(club)">
+        <div class="flex items-center gap-2 mb-1" v-if="isPromoted(club)">
+          <span v-if="club.promotion_tier === 'national'" class="text-[10px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌐 전국구</span>
+          <span v-else-if="club.promotion_tier === 'state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
+          <span v-else-if="club.promotion_tier === 'sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰</span>
+          <span v-else class="text-[10px] bg-purple-500 text-white font-bold px-1.5 py-0.5 rounded">🚀 상위노출</span>
+        </div>
         <div class="flex items-center gap-3 mb-3">
           <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">👥</div>
           <div class="flex-1 min-w-0">
@@ -218,6 +225,20 @@ const locationInfo = computed(() => {
   if (!c) return '위치를 선택해주세요'
   return (c.label || c.name) + ' 기준 ' + radius.value + 'mi 반경'
 })
+
+function isPromoted(club) {
+  if (club.promotion_tier && club.promotion_tier !== 'none' && club.promotion_expires_at
+      && new Date(club.promotion_expires_at) > new Date()) return true
+  if (club.boosted_until && new Date(club.boosted_until) > new Date()) return true
+  return false
+}
+function clubRowClass(club) {
+  if (club.promotion_tier === 'national') return 'bg-white border-2 border-red-400'
+  if (club.promotion_tier === 'state_plus') return 'bg-white border-2 border-blue-400'
+  if (club.promotion_tier === 'sponsored') return 'bg-white border-2 border-amber-400'
+  if (isPromoted(club)) return 'bg-purple-50/30 border-2 border-purple-400'
+  return 'bg-white border border-gray-100'
+}
 
 function onCityChange() {
   const idx = parseInt(selectedCityIdx.value)

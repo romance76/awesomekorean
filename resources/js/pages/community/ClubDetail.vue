@@ -373,6 +373,8 @@
                   <div class="text-xs text-gray-400">이름, 소개, 규칙, 이미지 등 변경</div>
                 </div>
               </RouterLink>
+              <!-- 상위노출 (소유자) -->
+              <BoostButton v-if="isOwner" resource="clubs" :item="club" size="md" @updated="loadClub" />
             </div>
           </div>
 
@@ -568,6 +570,7 @@ import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
+import BoostButton from '../../components/BoostButton.vue'
 
 const route = useRoute()
 const router = useRouter()

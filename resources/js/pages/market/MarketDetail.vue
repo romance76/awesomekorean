@@ -112,14 +112,9 @@
                   @click="showHoldModal = true" class="w-full bg-blue-500 text-white font-bold py-1.5 rounded-lg text-[11px] hover:bg-blue-600">
                   🔒 홀드 ({{ item.hold_price_per_6h }}P/6h)
                 </button>
-                <!-- 부스트 -->
-                <div v-if="isOwner && item.status === 'active'" class="w-full">
-                  <div v-if="isBoosted" class="w-full bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-400 text-purple-800 font-bold py-2 rounded-lg text-[11px] text-center">
-                    🚀 상위노출 중 · {{ boostRemaining }}
-                  </div>
-                  <button v-else @click="showBoostModal = true"
-                    class="w-full bg-purple-500 text-white font-bold py-1.5 rounded-lg text-[11px] hover:bg-purple-600">🚀 상위노출</button>
-                </div>
+                <!-- 부스트 (공용) -->
+                <BoostButton v-if="isOwner && item.status === 'active'"
+                  resource="market" :item="item" size="sm" @updated="loadItem" />
               </div>
             </div>
           </div>
@@ -135,13 +130,8 @@
             @click="showHoldModal = true" class="w-full bg-blue-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-blue-600">
             🔒 홀드하기 ({{ item.hold_price_per_6h }}P/6h)
           </button>
-          <div v-if="isOwner && item.status === 'active'" class="w-full">
-            <div v-if="isBoosted" class="w-full bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-400 text-purple-800 font-bold py-3 rounded-xl text-sm text-center">
-              🚀 상위노출 중 · {{ boostRemaining }} 남음
-            </div>
-            <button v-else @click="showBoostModal = true"
-              class="w-full bg-purple-500 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-purple-600">🚀 상위노출</button>
-          </div>
+          <BoostButton v-if="isOwner && item.status === 'active'"
+            resource="market" :item="item" size="md" @updated="loadItem" />
           <div v-if="isOwner" class="flex gap-2 pt-1 border-t mt-2">
             <RouterLink :to="`/market/write?edit=${item.id}`" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-2 rounded-lg text-xs text-center">✏️ 수정</RouterLink>
             <button @click="deleteItem" class="flex-1 bg-red-50 text-red-600 font-semibold py-2 rounded-lg text-xs">🗑️ 삭제</button>
@@ -214,29 +204,6 @@
     </div>
   </div>
 
-  <!-- 부스트 모달 -->
-  <div v-if="showBoostModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showBoostModal=false">
-    <div class="bg-white rounded-2xl p-5 w-full max-w-sm">
-      <h3 class="font-bold text-lg mb-3">🚀 상위노출</h3>
-      <div v-if="isBoosted" class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-3 text-xs">
-        <div class="font-bold text-purple-800">현재 상위노출 활성 중</div>
-        <div class="text-purple-600 mt-1">{{ boostRemaining }} 남음 · 만료 {{ formatDateTime(item.boosted_until) }}</div>
-        <div class="text-gray-500 mt-1">만료 후 다시 신청하실 수 있어요.</div>
-      </div>
-      <div class="grid grid-cols-3 gap-2 mb-3">
-        <button @click="boostDays=1" :class="boostDays===1?'bg-purple-500 text-white':'bg-gray-100'" class="py-3 rounded-lg text-sm font-bold">1일<br><span class="text-xs">100P</span></button>
-        <button @click="boostDays=3" :class="boostDays===3?'bg-purple-500 text-white':'bg-gray-100'" class="py-3 rounded-lg text-sm font-bold">3일<br><span class="text-xs">300P</span></button>
-        <button @click="boostDays=7" :class="boostDays===7?'bg-purple-500 text-white':'bg-gray-100'" class="py-3 rounded-lg text-sm font-bold">7일<br><span class="text-xs">700P</span></button>
-      </div>
-      <div class="bg-purple-50 rounded-lg p-3 mb-4 text-center"><div class="text-2xl font-black text-purple-600">{{ boostDays * 100 }}P</div></div>
-      <div class="flex gap-2">
-        <button @click="showBoostModal=false" class="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-semibold">취소</button>
-        <button @click="submitBoost" :disabled="boostingInProgress || isBoosted" class="flex-1 py-2 bg-purple-500 text-white rounded-lg text-sm font-bold disabled:opacity-50">
-          {{ isBoosted ? '활성 중' : '결제하기' }}
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- 신고 모달 -->
   <ReportModal :show="showReport" reportableType="App\Models\MarketItem" :reportableId="item?.id"
@@ -260,6 +227,7 @@ import MessageModal from '../../components/MessageModal.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import ShareButton from '../../components/ShareButton.vue'
+import BoostButton from '../../components/BoostButton.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
@@ -341,19 +309,6 @@ async function submitHold() {
   holdingInProgress.value = false
 }
 
-// 부스트
-const showBoostModal = ref(false)
-const boostDays = ref(1)
-const boostingInProgress = ref(false)
-async function submitBoost() {
-  if (!confirm(`${boostDays.value}일 상위노출에 ${boostDays.value * 100}P 차감`)) return
-  boostingInProgress.value = true
-  try {
-    const { data } = await axios.post(`/api/market/${item.value.id}/boost`, { days: boostDays.value })
-    siteStore.toast(data.message, 'success'); showBoostModal.value = false; loadItem()
-  } catch (e) { siteStore.toast(e.response?.data?.message || '실패', 'error') }
-  boostingInProgress.value = false
-}
 
 // 좋아요 (Bookmark API — bStore 동기화)
 const { liked, check: checkLike, toggle: doToggleLike } = useBookmarkLike(BM_TYPE)
