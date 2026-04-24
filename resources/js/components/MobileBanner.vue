@@ -1,7 +1,8 @@
 <template>
 <!-- 모바일 전용 배너 슬롯.
-     slot="premium" → bid_amount 최고가 확정 (히어로 아래 용)
-     slot="random"  → 슬롯 2/3 가중 랜덤 (콘텐츠 중간 용)
+     4광고 (프리미엄A/B + 스탠다드A/B) 가중 랜덤 회전 (35:35:15:15)
+     - 리스트 페이지: 5번째 ↔ 6번째 아이템 사이
+     - 상세 페이지: 댓글 ↔ 페이지네이션 사이 (텍스트 인라인은 상세에 없음)
 -->
 <a v-if="ad && ad.image_url" @click.prevent="handleClick"
   :href="ad.link_url || '#'"
@@ -19,7 +20,6 @@ import axios from 'axios'
 
 const props = defineProps({
   page: { type: String, default: 'home' },
-  slot: { type: String, default: 'random' }, // 'premium' | 'random'
 })
 
 const ad = ref(null)
@@ -27,7 +27,7 @@ const ad = ref(null)
 async function load() {
   try {
     const { data } = await axios.get('/api/banners/mobile-slot', {
-      params: { page: props.page, slot: props.slot }
+      params: { page: props.page }
     })
     ad.value = data.data || null
   } catch { ad.value = null }
@@ -40,7 +40,7 @@ function handleClick() {
 }
 
 onMounted(load)
-watch(() => [props.page, props.slot], load)
+watch(() => props.page, load)
 </script>
 
 <style scoped>

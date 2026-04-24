@@ -161,6 +161,8 @@
         </div>
 
         <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" />
+        <!-- 📱 모바일 상세 배너: 댓글 ↔ 페이지네이션 사이 (4광고 가중 랜덤) -->
+        <MobileBanner page="market" class="lg:hidden" />
         <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
           :next-id="next?.id" :next-title="next?.title"
           list-path="/market" detail-base="/market/" />
@@ -230,6 +232,7 @@ import ShareButton from '../../components/ShareButton.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
+import MobileBanner from '../../components/MobileBanner.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import axios from 'axios'

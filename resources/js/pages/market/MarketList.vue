@@ -187,14 +187,13 @@
           </div>
         </div>
       </div>
-      <MobileAdInline v-if="i === 4" page="market" />
-      <TextInlineAd v-if="i === 5" page="market" class="col-span-full" />
+      <!-- 📱 모바일 배너: 5번째↔6번째 사이 (4광고 가중 랜덤 회전) -->
+      <MobileBanner v-if="i === 4" page="market" class="col-span-full lg:hidden" />
       </template>
     </div>
     <!-- 리스트형 뷰 -->
     <div v-else class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
-      <TextInlineAd v-if="i === 5" page="market" />
       <div @click="openItem(item)"
         class="flex border-b border-gray-50 hover:border-l-2 transition cursor-pointer overflow-hidden"
         :class="promoRowClass(item)">
@@ -230,11 +229,13 @@
           </div>
         </div>
       </div>
-      <MobileAdInline v-if="i === 4" page="market" />
-      <TextInlineAd v-if="i === 5" page="market" />
+      <!-- 📱 모바일 배너: 5번째↔6번째 사이 -->
+      <MobileBanner v-if="i === 4" page="market" class="lg:hidden" />
       </template>
     </div>
 
+    <!-- 📝 텍스트 인라인: 페이지네이션 위 한 줄 -->
+    <TextInlineAd v-if="!activeItem" page="market" class="mt-3" />
     <Pagination v-if="!activeItem" :page="page" :lastPage="lastPage" @page="loadPage" />
     </div>
     <!-- 오른쪽 위젯 -->
@@ -259,6 +260,7 @@ import { useMenuConfig } from '../../composables/useMenuConfig'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
+import MobileBanner from '../../components/MobileBanner.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 
 const auth = useAuthStore()

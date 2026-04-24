@@ -194,3 +194,15 @@
 [ 4278602ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://awesomekorean.com/api/heartbeat:0
 [ 4278613ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ https://awesomekorean.com/api/notifications:0
 [ 4279036ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/login:0
+[37668720ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-DCBrgFTV.js:47
+[37668721ms] [LOG] [PeerJS] Initializing as sk-202-x3uv @ https://awesomekorean.com/build/assets/app-DCBrgFTV.js:47
+[37668722ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-DCBrgFTV.js:47
+[37668762ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://awesomekorean.com/build/assets/Home-CKC1mhHw.js:0
+[37668770ms] Failed to fetch dynamically imported module: https://awesomekorean.com/build/assets/Home-CKC1mhHw.js
+[37668800ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://awesomekorean.com/build/assets/AdSlot-CBIgi5j8.js:0
+[37668840ms] [LOG] [PeerJS] ✅ Connected as sk-202-x3uv @ https://awesomekorean.com/build/assets/app-DCBrgFTV.js:47
+[37668982ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[37668982ms] [LOG] [PeerJS] Initializing as sk-202-n6c7 @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[37668984ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[37669283ms] [LOG] [PeerJS] ✅ Connected as sk-202-n6c7 @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[37671897ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47

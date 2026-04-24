@@ -44,7 +44,7 @@
     </div>
 
     <!-- 모바일 배너 1 (프리미엄 — 히어로 직하) -->
-    <MobileBanner page="home" slot="premium" class="mb-3" />
+    <MobileBanner page="home" class="mb-3" />
   </div>
 
   <!-- ═════ 2. 메인 3-column 포털 레이아웃 ═════ -->
@@ -204,7 +204,7 @@
 
       <!-- 모바일 배너 2 (랜덤 — 중앙 콘텐츠 끝) -->
       <div class="lg:hidden">
-        <MobileBanner page="home" slot="random" />
+        <MobileBanner page="home" />
       </div>
     </main>
 

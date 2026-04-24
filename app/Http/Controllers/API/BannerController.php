@@ -224,52 +224,64 @@ class BannerController extends Controller
     }
 
     /**
-     * 모바일 전용 단일 슬롯 배너
-     * GET /api/banners/mobile-slot?page=home&slot=premium|random
-     *   premium → 슬롯 1 의 bid_amount 최고가 1개 확정
-     *   random  → 슬롯 2/3 가중 랜덤 (슬롯2=3/5, 슬롯3=2/5)
-     * 10분 Redis 캐시로 고정 회전.
+     * 모바일 리스트/상세 배너 슬롯 — 4개 광고 가중 랜덤 회전
+     * GET /api/banners/mobile-slot?page=community
+     *
+     * 규칙:
+     *   데스크톱 사이드바 4슬롯 (프리미엄A=left/1, 스탠다드A=left/2, 프리미엄B=right/1, 스탠다드B=right/2) 의
+     *   최고가 1명씩 풀로 수집 → 한 자리에서 35:35:15:15 가중 랜덤.
+     *   - 프리미엄 A/B = 각 35% (합 70%)
+     *   - 스탠다드 A/B = 각 15% (합 30%)
+     *
+     * 페이지당 5분 Redis 캐시 (너무 자주 바뀌면 회전 애니메이션 부자연스러움).
      */
     public function mobileSlot(Request $request)
     {
         $page = $request->page ?: 'home';
-        $slot = $request->slot ?: 'random';
-        $cacheKey = "banner_mobile_{$page}_{$slot}";
+        $cacheKey = "banner_mobile_rotation_{$page}";
         $cached = \Cache::get($cacheKey);
         if ($cached) {
             if (isset($cached->id)) BannerAd::where('id', $cached->id)->increment('impressions');
             return response()->json(['success' => true, 'data' => $cached]);
         }
 
-        $query = BannerAd::active()->where('position', 'mobile')
-            ->where(function ($q) use ($page) {
-                $q->where('page', $page)->orWhere('page', 'all')
-                  ->orWhereJsonContains('target_pages', $page)
-                  ->orWhere('target_pages', 'LIKE', '%"' . $page . '"%');
-            });
+        $pageMatch = function ($q) use ($page) {
+            $q->where('page', $page)->orWhere('page', 'all')
+              ->orWhereJsonContains('target_pages', $page)
+              ->orWhere('target_pages', 'LIKE', '%"' . $page . '"%');
+        };
 
-        if ($slot === 'premium') {
-            $ad = (clone $query)->where('slot_number', 1)->orderByDesc('bid_amount')->first();
-        } else {
-            $ads = (clone $query)->whereIn('slot_number', [2, 3])->orderByDesc('bid_amount')->limit(10)->get();
-            if ($ads->isEmpty()) {
-                // 슬롯 2/3 이 없으면 슬롯 1 로 fallback
-                $ad = (clone $query)->orderByDesc('bid_amount')->first();
-            } else {
-                $weighted = [];
-                foreach ($ads as $a) {
-                    $w = match((int) $a->slot_number) { 2 => 3, 3 => 2, default => 1 };
-                    for ($i = 0; $i < $w; $i++) $weighted[] = $a;
-                }
-                $ad = $weighted[array_rand($weighted)];
-            }
+        // 4개 슬롯별 최고가 광고 수집
+        $slots = [
+            ['left',  1, 35], // 프리미엄 A
+            ['right', 1, 35], // 프리미엄 B
+            ['left',  2, 15], // 스탠다드 A
+            ['right', 2, 15], // 스탠다드 B
+        ];
+
+        $pool = []; // [[ad, weight], ...]
+        foreach ($slots as [$pos, $slotNum, $weight]) {
+            $ad = BannerAd::active()
+                ->where('position', $pos)
+                ->where('slot_number', $slotNum)
+                ->where(function ($q) use ($pageMatch) { $pageMatch($q); })
+                ->orderByDesc('bid_amount')
+                ->first();
+            if ($ad) $pool[] = [$ad, $weight];
         }
 
-        if (!$ad) return response()->json(['success' => true, 'data' => null]);
+        if (empty($pool)) return response()->json(['success' => true, 'data' => null]);
 
-        $ad->increment('impressions');
-        \Cache::put($cacheKey, $ad, 600);
-        return response()->json(['success' => true, 'data' => $ad]);
+        // 가중 랜덤 뽑기
+        $weighted = [];
+        foreach ($pool as [$ad, $w]) {
+            for ($i = 0; $i < $w; $i++) $weighted[] = $ad;
+        }
+        $picked = $weighted[array_rand($weighted)];
+
+        $picked->increment('impressions');
+        \Cache::put($cacheKey, $picked, 300); // 5분 회전
+        return response()->json(['success' => true, 'data' => $picked]);
     }
 
     // 통합: left + right + mobile 한번에 반환 (30분 Redis 캐시)

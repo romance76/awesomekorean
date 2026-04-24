@@ -1,0 +1,6 @@
+[    1041ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/login?redirect=/dashboard?tab=ads:0
+[33144062ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[33144063ms] [LOG] [PeerJS] Initializing as sk-202-xg3e @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[33144063ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[33144295ms] [LOG] [PeerJS] ✅ Connected as sk-202-xg3e @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47
+[33146071ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-DtRmCA4K.js:47

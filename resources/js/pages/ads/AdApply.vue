@@ -127,7 +127,7 @@
                 class="border-2 rounded-lg p-2 text-center cursor-pointer transition-all"
                 :class="isSelected('left',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-yellow-400 bg-yellow-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('left',1) ? '✅' : '🥇' }}</div>
-                <div class="text-[9px] font-black text-yellow-700">프리미엄</div>
+                <div class="text-[9px] font-black text-yellow-700">프리미엄 A</div>
                 <div class="text-[8px] text-gray-500">고정 독점 · 200×140</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('left','premium').toLocaleString() }}</span>{{ slotMinPrice('left','premium').toLocaleString() }}P/월
@@ -138,21 +138,10 @@
                 class="border-2 rounded-lg p-2 text-center cursor-pointer transition-all"
                 :class="isSelected('left',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-blue-300 bg-blue-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('left',2) ? '✅' : '🥈' }}</div>
-                <div class="text-[9px] font-black text-blue-700">스탠다드</div>
-                <div class="text-[8px] text-gray-500">2개 랜덤 · 200×140</div>
+                <div class="text-[9px] font-black text-blue-700">스탠다드 A</div>
+                <div class="text-[8px] text-gray-500">고정 독점 · 200×140</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('left','standard').toLocaleString() }}</span>{{ slotMinPrice('left','standard').toLocaleString() }}P/월
-                </div>
-              </div>
-
-              <div v-if="pageSlotConfig.left_slots >= 3" @click="selectSlot('left', 3, 'economy')"
-                class="border-2 rounded-lg p-2 text-center cursor-pointer transition-all"
-                :class="isSelected('left',3) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-green-300 bg-green-50/50 hover:border-amber-400'">
-                <div class="text-xs mb-0.5">{{ isSelected('left',3) ? '✅' : '🥉' }}</div>
-                <div class="text-[9px] font-black text-green-700">이코노미</div>
-                <div class="text-[8px] text-gray-500">5개 랜덤 · 200×140</div>
-                <div class="text-[9px] font-bold text-red-600 mt-0.5">
-                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('left','economy').toLocaleString() }}</span>{{ slotMinPrice('left','economy').toLocaleString() }}P/월
                 </div>
               </div>
             </div>
@@ -189,33 +178,35 @@
                 class="border-2 rounded-lg p-2 text-center cursor-pointer transition-all"
                 :class="isSelected('right',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-yellow-400 bg-yellow-50/50 hover:border-amber-400'">
                 <div class="text-xs mb-0.5">{{ isSelected('right',1) ? '✅' : '🥇' }}</div>
-                <div class="text-[9px] font-black text-yellow-700">프리미엄</div>
+                <div class="text-[9px] font-black text-yellow-700">프리미엄 B</div>
                 <div class="text-[8px] text-gray-500">고정 독점 · 300×210</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('right','premium').toLocaleString() }}</span>{{ slotMinPrice('right','premium').toLocaleString() }}P/월
                 </div>
               </div>
 
-              <div v-if="pageSlotConfig.right_slots >= 2" @click="selectSlot('right', 2, 'economy')"
+              <div v-if="pageSlotConfig.right_slots >= 2" @click="selectSlot('right', 2, 'standard')"
                 class="border-2 rounded-lg p-2 text-center cursor-pointer transition-all"
-                :class="isSelected('right',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-green-300 bg-green-50/50 hover:border-amber-400'">
-                <div class="text-xs mb-0.5">{{ isSelected('right',2) ? '✅' : '🥉' }}</div>
-                <div class="text-[9px] font-black text-green-700">이코노미</div>
-                <div class="text-[8px] text-gray-500">3개 랜덤 · 300×210</div>
+                :class="isSelected('right',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-blue-300 bg-blue-50/50 hover:border-amber-400'">
+                <div class="text-xs mb-0.5">{{ isSelected('right',2) ? '✅' : '🥈' }}</div>
+                <div class="text-[9px] font-black text-blue-700">스탠다드 B</div>
+                <div class="text-[8px] text-gray-500">고정 독점 · 300×210</div>
                 <div class="text-[9px] font-bold text-red-600 mt-0.5">
-                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('right','economy').toLocaleString() }}</span>{{ slotMinPrice('right','economy').toLocaleString() }}P/월
+                  <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('right','standard').toLocaleString() }}</span>{{ slotMinPrice('right','standard').toLocaleString() }}P/월
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 등급 설명 -->
-        <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]">
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2"><span class="font-bold text-yellow-700">🥇 프리미엄</span><br>한 달 독점. 100% 보장.</div>
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2"><span class="font-bold text-blue-700">🥈 스탠다드</span><br>2명 랜덤 교대. ~50%.</div>
-          <div class="bg-green-50 border border-green-200 rounded-lg p-2"><span class="font-bold text-green-700">🥉 이코노미</span><br>3~5명 랜덤. 부담없는 가격.</div>
-          <div class="bg-purple-50 border border-purple-200 rounded-lg p-2"><span class="font-bold text-purple-700">📝 텍스트 인라인</span><br>이미지 불필요. 마퀴 노출. 최저가.</div>
+        <!-- 등급 설명 (각 슬롯은 1명 고정 독점) -->
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2 text-[10px]">
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2"><span class="font-bold text-yellow-700">🥇 프리미엄 (A/B)</span><br>데스크톱 고정 독점. 모바일 랜덤 회전 가중치 높음 (35% 각).</div>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2"><span class="font-bold text-blue-700">🥈 스탠다드 (A/B)</span><br>데스크톱 고정 독점. 모바일 랜덤 회전 가중치 낮음 (15% 각).</div>
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-2"><span class="font-bold text-purple-700">📝 텍스트 인라인</span><br>이미지 불필요. 리스트 페이지 페이지네이션 위에만 노출.</div>
+        </div>
+        <div class="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-2 text-[10px] text-amber-800">
+          💡 <strong>노출 규칙:</strong> 데스크톱 = 좌우 사이드바 각 위치 1명 고정. 모바일 = 프리미엄A/B·스탠다드A/B 4개가 리스트 중간 배너 한 자리에서 35:35:15:15 가중 랜덤 회전. 상세 페이지에서는 텍스트 인라인이 없고 댓글↔페이지네이션 사이에 4광고 랜덤 배너만 나옵니다.
         </div>
       </template>
     </div>
@@ -424,9 +415,13 @@ const DRAFT_KEY = 'sk_ad_draft'
 
 // 카운티 기본가 (관리자 설정에서 로드)
 const basePrices = ref({
-  left_premium: 8000, left_standard: 7000, left_economy: 4000,
-  right_premium: 10000, right_economy: 6000,
-  'inline-text_text': 1000, // 텍스트 인라인 (리스트 중간)
+  // 데스크톱 사이드바 4슬롯 (각 1명 고정 독점)
+  left_premium: 8000,    // 프리미엄 A
+  left_standard: 5000,   // 스탠다드 A
+  right_premium: 10000,  // 프리미엄 B
+  right_standard: 7000,  // 스탠다드 B
+  // 텍스트 인라인 (리스트 중앙 — 상세에는 노출 안됨)
+  'inline-text_text': 1000,
 })
 // 지역별 추가금 (관리자 설정에서 로드)
 const geoMarkup = ref({ cityDiscount: 1000, state: 2000, national: 3000 })
@@ -460,8 +455,8 @@ const subPages = computed(() => {
 // 전국 페이지 (자동 geo_scope='all')
 const nationalPages = ['home', 'community', 'qa', 'news', 'recipes', 'shorts', 'games', 'music']
 
-const posLabels = { left: '좌측', right: '우측', 'inline-text': '📝 리스트 중간' }
-const tierLabels = { premium: '🥇 프리미엄', standard: '🥈 스탠다드', economy: '🥉 이코노미', text: '📝 텍스트 인라인' }
+const posLabels = { left: '좌측 A', right: '우측 B', 'inline-text': '📝 리스트 중간' }
+const tierLabels = { premium: '🥇 프리미엄', standard: '🥈 스탠다드', text: '📝 텍스트 인라인' }
 const isTextAd = computed(() => selectedSlot.value?.tier === 'text')
 const statusLabels = { pending:'입찰대기', active:'게시중', rejected:'거절', expired:'만료', paused:'중지' }
 const statusClasses = { pending:'bg-amber-100 text-amber-700', active:'bg-green-100 text-green-700', rejected:'bg-red-100 text-red-700', expired:'bg-gray-200 text-gray-500', paused:'bg-gray-200 text-gray-500' }
