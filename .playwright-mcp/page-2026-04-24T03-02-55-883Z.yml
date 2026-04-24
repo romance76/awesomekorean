@@ -1,0 +1,146 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - link "AwesomeKorean" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - img "AwesomeKorean" [ref=e7]
+        - generic [ref=e9]:
+          - textbox "검색어를 입력하세요" [ref=e10]
+          - button [ref=e11] [cursor=pointer]:
+            - img [ref=e12]
+        - generic [ref=e14]:
+          - button [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - button "avatar" [ref=e20] [cursor=pointer]:
+            - img "avatar" [ref=e21]
+          - button "EN" [ref=e22] [cursor=pointer]
+      - generic [ref=e24]:
+        - link "홈" [ref=e25] [cursor=pointer]:
+          - /url: /
+        - link "커뮤니티" [ref=e26] [cursor=pointer]:
+          - /url: /community
+        - link "Q&A" [ref=e27] [cursor=pointer]:
+          - /url: /qa
+        - link "구인구직" [ref=e28] [cursor=pointer]:
+          - /url: /jobs
+        - link "중고장터" [ref=e29] [cursor=pointer]:
+          - /url: /market
+        - link "부동산" [ref=e30] [cursor=pointer]:
+          - /url: /realestate
+        - link "업소록" [ref=e31] [cursor=pointer]:
+          - /url: /directory
+        - link "동호회" [ref=e32] [cursor=pointer]:
+          - /url: /clubs
+        - link "뉴스" [ref=e33] [cursor=pointer]:
+          - /url: /news
+        - link "레시피" [ref=e34] [cursor=pointer]:
+          - /url: /recipes
+        - link "공동구매" [ref=e35] [cursor=pointer]:
+          - /url: /groupbuy
+        - link "채팅" [ref=e36] [cursor=pointer]:
+          - /url: /chat
+        - link "게임" [ref=e37] [cursor=pointer]:
+          - /url: /games
+        - link "숏츠" [ref=e38] [cursor=pointer]:
+          - /url: /shorts
+        - link "이벤트" [ref=e39] [cursor=pointer]:
+          - /url: /events
+        - link "친구" [ref=e40] [cursor=pointer]:
+          - /url: /friends
+        - link "음악듣기" [ref=e41] [cursor=pointer]:
+          - /url: /music
+    - main [ref=e42]:
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - heading "🛒 중고장터" [level=1] [ref=e46]
+          - generic [ref=e47]:
+            - generic [ref=e48]: 📍
+            - combobox [ref=e49]:
+              - option "📌 내 위치 (Atlanta)" [selected]
+              - option "🇺🇸 전국"
+              - option "LA (한인타운)"
+              - option "뉴욕"
+              - option "뉴저지 (버겐)"
+              - option "아틀란타"
+              - option "시카고"
+              - option "달라스"
+              - option "휴스턴"
+              - option "시애틀"
+              - option "샌프란시스코"
+              - option "워싱턴 DC"
+              - option "필라델피아"
+              - option "어바인 (OC)"
+              - option "풀러턴"
+              - option "플러싱 (퀸즈)"
+              - option "호놀룰루"
+              - option "라스베가스"
+              - option "덴버"
+            - combobox [ref=e50]:
+              - option "10mi"
+              - option "30mi" [selected]
+              - option "50mi"
+              - option "100mi"
+            - generic [ref=e51]:
+              - textbox "검색..." [ref=e52]
+              - button "검색" [ref=e53] [cursor=pointer]
+            - link "✏️ 등록" [ref=e54] [cursor=pointer]:
+              - /url: /market/write
+        - generic [ref=e55]:
+          - generic [ref=e58]:
+            - generic [ref=e59]: 📋 카테고리
+            - button "전체" [ref=e60] [cursor=pointer]
+            - button "📱 전자기기" [ref=e61] [cursor=pointer]
+            - button "🪑 가구" [ref=e62] [cursor=pointer]
+            - button "👕 의류" [ref=e63] [cursor=pointer]
+            - button "🚗 자동차" [ref=e64] [cursor=pointer]
+            - button "👶 유아" [ref=e65] [cursor=pointer]
+            - button "⚽ 스포츠" [ref=e66] [cursor=pointer]
+            - button "📚 도서" [ref=e67] [cursor=pointer]
+            - button "📋 기타" [ref=e68] [cursor=pointer]
+            - button "🔖 내 북마크" [ref=e69] [cursor=pointer]
+          - generic [ref=e70]:
+            - generic [ref=e71]: 전체모든 중고 물품을 볼 수 있습니다
+            - generic [ref=e72]: 로딩중...
+            - generic [ref=e73]: 검색 결과 없음
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - button "많이 본 물품" [ref=e78] [cursor=pointer]
+              - button "최신 물품" [ref=e79] [cursor=pointer]
+            - generic [ref=e81]: 로딩중...
+    - contentinfo [ref=e82]:
+      - generic [ref=e83]:
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - generic [ref=e86]: AwesomeKorean
+            - generic [ref=e87]: 미국 한인 No.1 커뮤니티
+          - generic [ref=e88]:
+            - generic [ref=e89]: 서비스
+            - link "커뮤니티" [ref=e90] [cursor=pointer]:
+              - /url: /community
+            - link "구인구직" [ref=e91] [cursor=pointer]:
+              - /url: /jobs
+            - link "중고장터" [ref=e92] [cursor=pointer]:
+              - /url: /market
+            - link "업소록" [ref=e93] [cursor=pointer]:
+              - /url: /directory
+          - generic [ref=e94]:
+            - generic [ref=e95]: 콘텐츠
+            - link "뉴스" [ref=e96] [cursor=pointer]:
+              - /url: /news
+            - link "레시피" [ref=e97] [cursor=pointer]:
+              - /url: /recipes
+            - link "게임" [ref=e98] [cursor=pointer]:
+              - /url: /games
+            - link "음악" [ref=e99] [cursor=pointer]:
+              - /url: /music
+          - generic [ref=e100]:
+            - generic [ref=e101]: 안내
+            - link "소개" [ref=e102] [cursor=pointer]:
+              - /url: /about
+            - link "이용약관" [ref=e103] [cursor=pointer]:
+              - /url: /terms
+            - link "개인정보처리방침" [ref=e104] [cursor=pointer]:
+              - /url: /privacy
+        - generic [ref=e105]: © 2026 AwesomeKorean. All rights reserved.
+  - img [ref=e110]

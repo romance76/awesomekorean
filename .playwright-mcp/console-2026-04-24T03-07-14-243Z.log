@@ -1,0 +1,19 @@
+[     219ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-DRPW1feL.js:47
+[     221ms] [LOG] [PeerJS] Initializing as sk-202-mxpm @ https://awesomekorean.com/build/assets/app-DRPW1feL.js:47
+[     223ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-DRPW1feL.js:47
+[     499ms] [LOG] [PeerJS] ✅ Connected as sk-202-mxpm @ https://awesomekorean.com/build/assets/app-DRPW1feL.js:47
+[     640ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/dashboard:0
+[     640ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/dashboard:0
+[     640ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://awesomekorean.com/dashboard:0
+[   12056ms] [LOG] [Ringtone] <audio> source pre-loaded (no play) @ https://awesomekorean.com/build/assets/app-DRPW1feL.js:47
+[   12348ms] [ERROR] TypeError: ce.find is not a function
+    at xy.fn (https://awesomekorean.com/build/assets/AdApply-C4YgcSyx.js:1:6136)
+    at cd (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:25923)
+    at get value (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:37546)
+    at Proxy.<anonymous> (https://awesomekorean.com/build/assets/AdApply-C4YgcSyx.js:7:6932)
+    at ql (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:63272)
+    at rd.ie [as fn] (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:72796)
+    at rd.run (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:24510)
+    at rd.runIfDirty (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:24820)
+    at Ds (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:39448)
+    at Sd (https://awesomekorean.com/build/assets/app-DRPW1feL.js:8:41201) @ https://awesomekorean.com/build/assets/app-DRPW1feL.js:7

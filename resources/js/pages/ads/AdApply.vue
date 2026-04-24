@@ -403,7 +403,7 @@ const isNationalPage = computed(() => nationalPages.includes(selectedSub.value))
 // 선택된 페이지의 라벨
 const selectedPageLabel = computed(() => {
   if (selectedSub.value === 'home') return '홈'
-  return subPages.find(s => s.key === selectedSub.value)?.label || selectedSub.value
+  return subPages.value.find(s => s.key === selectedSub.value)?.label || selectedSub.value
 })
 
 // 선택된 페이지의 슬롯 설정 — 관리자 설정이 없으면 0/0 으로 취급 (명시적 활성화 필요)
