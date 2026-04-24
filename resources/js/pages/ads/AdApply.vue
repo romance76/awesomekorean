@@ -168,9 +168,25 @@
 
             <!-- 메인 -->
             <div :class="mainColSpan">
-              <div class="bg-white rounded-lg border p-4 h-full flex flex-col justify-center items-center">
-                <div class="text-[10px] text-gray-300 font-bold mb-3">메인 콘텐츠 영역</div>
-                <div class="space-y-1.5 w-full"><div v-for="i in 5" :key="i" class="h-2 bg-gray-100 rounded w-full"></div></div>
+              <div class="bg-white rounded-lg border p-3 h-full flex flex-col gap-2">
+                <div class="text-[10px] text-gray-300 font-bold text-center">메인 콘텐츠 영역 (리스트 아이템)</div>
+                <div class="h-2 bg-gray-100 rounded w-full"></div>
+                <div class="h-2 bg-gray-100 rounded w-full"></div>
+
+                <!-- 📝 텍스트 인라인 슬롯 (리스트 중간) -->
+                <div @click="selectSlot('inline-text', 1, 'text')"
+                  class="border-2 rounded-lg p-2 text-center cursor-pointer transition-all"
+                  :class="isSelected('inline-text',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-purple-300 bg-purple-50/50 hover:border-amber-400'">
+                  <div class="text-xs mb-0.5">{{ isSelected('inline-text',1) ? '✅' : '📝' }}</div>
+                  <div class="text-[10px] font-black text-purple-700">텍스트 인라인</div>
+                  <div class="text-[8px] text-gray-500">상호+☎+설명 · 마퀴 · 리스트 중간</div>
+                  <div class="text-[9px] font-bold text-red-600 mt-0.5">
+                    <span v-if="adDiscountPct" class="text-gray-400 line-through font-normal mr-1">{{ slotOriginalPrice('inline-text','text').toLocaleString() }}</span>{{ slotMinPrice('inline-text','text').toLocaleString() }}P/월
+                  </div>
+                </div>
+
+                <div class="h-2 bg-gray-100 rounded w-full"></div>
+                <div class="h-2 bg-gray-100 rounded w-full"></div>
               </div>
             </div>
 
@@ -204,10 +220,11 @@
         </div>
 
         <!-- 등급 설명 -->
-        <div class="mt-3 grid grid-cols-3 gap-2 text-[10px]">
+        <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]">
           <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2"><span class="font-bold text-yellow-700">🥇 프리미엄</span><br>한 달 독점. 100% 보장.</div>
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-2"><span class="font-bold text-blue-700">🥈 스탠다드</span><br>2명 랜덤 교대. ~50%.</div>
           <div class="bg-green-50 border border-green-200 rounded-lg p-2"><span class="font-bold text-green-700">🥉 이코노미</span><br>3~5명 랜덤. 부담없는 가격.</div>
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-2"><span class="font-bold text-purple-700">📝 텍스트 인라인</span><br>이미지 불필요. 마퀴 노출. 최저가.</div>
         </div>
       </template>
     </div>
@@ -220,29 +237,57 @@
           <button @click="selectedSlot=null" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
         </div>
         <div class="space-y-4">
-          <div>
-            <label class="text-xs font-bold text-gray-600 block mb-1">광고 제목</label>
-            <input v-model="adForm.title" @input="saveDraft" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="광고 이름" />
-          </div>
-          <div>
-            <label class="text-xs font-bold text-gray-600 block mb-1">광고 이미지 <span class="text-amber-600 font-normal">(권장: {{ recommendedSize }})</span></label>
-            <input ref="fileInput" type="file" accept="image/*" @change="onImageChange" class="w-full border rounded-lg px-3 py-2 text-sm" />
-            <!-- 이미지 미리보기 + 사이즈 경고 -->
-            <div v-if="imagePreview" class="mt-2 border rounded-lg p-3 bg-gray-50">
-              <img :src="imagePreview" class="max-h-40 rounded-lg border mx-auto" />
-              <div class="mt-2 text-center">
-                <div class="text-xs text-gray-600">업로드 이미지: <span class="font-bold">{{ imgWidth }}×{{ imgHeight }}px</span></div>
-                <div v-if="imgSizeOk" class="text-xs text-green-600 font-bold mt-1">✅ 권장 사이즈와 일치합니다</div>
-                <div v-else-if="imgRatioOk" class="text-xs text-amber-600 font-bold mt-1">⚠️ 비율은 맞지만 사이즈가 다릅니다 (자동 조정됨)</div>
-                <div v-else class="text-xs text-red-600 font-bold mt-1">❌ 권장 비율({{ recommendedRatio }})과 다릅니다 — 이미지가 잘릴 수 있습니다</div>
-                <div class="flex justify-center gap-2 mt-2">
-                  <button @click="confirmImage" class="bg-green-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs">이대로 사용</button>
-                  <button @click="resetImage" class="bg-gray-300 text-gray-700 font-bold px-4 py-1.5 rounded-lg text-xs">다시 업로드</button>
+          <!-- 텍스트 인라인 선택 시 전용 필드 -->
+          <template v-if="isTextAd">
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-[11px] text-purple-700">
+              📝 <strong>텍스트 인라인 광고</strong> — 이미지 없이 상호 · 전화 · 한 줄 설명만 입력. 리스트 중간에 마퀴로 노출됩니다.
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">상호 *</label>
+              <input v-model="adForm.title" @input="saveDraft" maxlength="30" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="예: 💈 강남미용실" />
+              <div class="text-[10px] text-gray-400 mt-0.5">{{ adForm.title.length }}/30 · 이모지를 앞에 붙이면 눈에 잘 띕니다</div>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">전화번호</label>
+              <input v-model="adForm.phone" @input="saveDraft" maxlength="20" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="예: 770-555-1234" />
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">한 줄 설명 *</label>
+              <input v-model="adForm.description" @input="saveDraft" maxlength="120" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="예: 한인 전용 $30부터 · 첫방문 20% 할인 · Duluth GA" />
+              <div class="text-[10px] text-gray-400 mt-0.5">{{ (adForm.description || '').length }}/120</div>
+            </div>
+            <!-- 실시간 미리보기 -->
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">🔍 실시간 미리보기 (실제 노출 모양)</label>
+              <TextInlineAd :manualAd="textPreviewAd" :autoLoad="false" />
+            </div>
+          </template>
+
+          <!-- 이미지 광고 (기존) -->
+          <template v-else>
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">광고 제목</label>
+              <input v-model="adForm.title" @input="saveDraft" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="광고 이름" />
+            </div>
+            <div>
+              <label class="text-xs font-bold text-gray-600 block mb-1">광고 이미지 <span class="text-amber-600 font-normal">(권장: {{ recommendedSize }})</span></label>
+              <input ref="fileInput" type="file" accept="image/*" @change="onImageChange" class="w-full border rounded-lg px-3 py-2 text-sm" />
+              <div v-if="imagePreview" class="mt-2 border rounded-lg p-3 bg-gray-50">
+                <img :src="imagePreview" class="max-h-40 rounded-lg border mx-auto" />
+                <div class="mt-2 text-center">
+                  <div class="text-xs text-gray-600">업로드 이미지: <span class="font-bold">{{ imgWidth }}×{{ imgHeight }}px</span></div>
+                  <div v-if="imgSizeOk" class="text-xs text-green-600 font-bold mt-1">✅ 권장 사이즈와 일치합니다</div>
+                  <div v-else-if="imgRatioOk" class="text-xs text-amber-600 font-bold mt-1">⚠️ 비율은 맞지만 사이즈가 다릅니다 (자동 조정됨)</div>
+                  <div v-else class="text-xs text-red-600 font-bold mt-1">❌ 권장 비율({{ recommendedRatio }})과 다릅니다 — 이미지가 잘릴 수 있습니다</div>
+                  <div class="flex justify-center gap-2 mt-2">
+                    <button @click="confirmImage" class="bg-green-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs">이대로 사용</button>
+                    <button @click="resetImage" class="bg-gray-300 text-gray-700 font-bold px-4 py-1.5 rounded-lg text-xs">다시 업로드</button>
+                  </div>
                 </div>
               </div>
+              <div v-if="imageConfirmed" class="mt-1 text-[10px] text-green-600 font-bold">✅ 이미지 확정됨 ({{ imgWidth }}×{{ imgHeight }}px)</div>
             </div>
-            <div v-if="imageConfirmed" class="mt-1 text-[10px] text-green-600 font-bold">✅ 이미지 확정됨 ({{ imgWidth }}×{{ imgHeight }}px)</div>
-          </div>
+          </template>
           <div>
             <label class="text-xs font-bold text-gray-600 block mb-1">클릭 시 URL (선택)</label>
             <div class="flex gap-2">
@@ -333,6 +378,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
+import TextInlineAd from '../../components/TextInlineAd.vue'
 import axios from 'axios'
 
 const siteStore = useSiteStore()
@@ -359,7 +405,8 @@ const DRAFT_KEY = 'sk_ad_draft'
 // 카운티 기본가 (관리자 설정에서 로드)
 const basePrices = ref({
   left_premium: 8000, left_standard: 7000, left_economy: 4000,
-  right_premium: 10000, right_economy: 6000
+  right_premium: 10000, right_economy: 6000,
+  'inline-text_text': 1000, // 텍스트 인라인 (리스트 중간)
 })
 // 지역별 추가금 (관리자 설정에서 로드)
 const geoMarkup = ref({ cityDiscount: 1000, state: 2000, national: 3000 })
@@ -367,7 +414,14 @@ const geoMarkup = ref({ cityDiscount: 1000, state: 2000, national: 3000 })
 // 페이지별 슬롯 설정 (관리자 API에서 로드)
 const pageConfigs = ref({})
 
-const adForm = reactive({ title: '', link_url: '', bid_amount: 4000, geo_scope: 'county', geo_value: '' })
+const adForm = reactive({ title: '', link_url: '', bid_amount: 4000, geo_scope: 'county', geo_value: '', phone: '', description: '' })
+
+const textPreviewAd = computed(() => ({
+  id: 0,
+  title: adForm.title || '📝 상호를 입력하세요',
+  phone: adForm.phone,
+  description: adForm.description || '설명을 입력하면 여기에 보입니다',
+}))
 
 // 광고 노출 가능 서브 페이지 — 활성 메뉴 중 관리자 광고 슬롯이 > 0 인 것만
 const subPages = computed(() => {
@@ -386,8 +440,9 @@ const subPages = computed(() => {
 // 전국 페이지 (자동 geo_scope='all')
 const nationalPages = ['home', 'community', 'qa', 'news', 'recipes', 'shorts', 'games', 'music']
 
-const posLabels = { left: '좌측', right: '우측' }
-const tierLabels = { premium: '🥇 프리미엄', standard: '🥈 스탠다드', economy: '🥉 이코노미' }
+const posLabels = { left: '좌측', right: '우측', 'inline-text': '📝 리스트 중간' }
+const tierLabels = { premium: '🥇 프리미엄', standard: '🥈 스탠다드', economy: '🥉 이코노미', text: '📝 텍스트 인라인' }
+const isTextAd = computed(() => selectedSlot.value?.tier === 'text')
 const statusLabels = { pending:'입찰대기', active:'게시중', rejected:'거절', expired:'만료', paused:'중지' }
 const statusClasses = { pending:'bg-amber-100 text-amber-700', active:'bg-green-100 text-green-700', rejected:'bg-red-100 text-red-700', expired:'bg-gray-200 text-gray-500', paused:'bg-gray-200 text-gray-500' }
 
@@ -480,10 +535,16 @@ function slotMinPrice(position, tier) {
 const hasEnough = computed(() => (auth.user?.points || 0) >= (adForm.bid_amount || 0))
 const canSubmit = computed(() => {
   if (!selectedSub.value) return false
-  if (!adForm.title || !adImage.value || !imageConfirmed.value || !selectedSlot.value) return false
+  if (!selectedSlot.value) return false
+  if (!adForm.title) return false
+  // 텍스트 인라인은 이미지 불필요, 설명 필수
+  if (isTextAd.value) {
+    if (!adForm.description?.trim()) return false
+  } else {
+    if (!adImage.value || !imageConfirmed.value) return false
+  }
   if (adForm.bid_amount < totalMinBid.value) return false
   if (!hasEnough.value) return false
-  // 지역별 페이지에서 카운티/주 선택 시 geo_value 필수
   if (!isNationalPage.value && adForm.geo_scope !== 'all' && !adForm.geo_value) return false
   return true
 })
@@ -639,6 +700,33 @@ async function submitAd() {
   if (!canSubmit.value || submitting.value) return
   if (!hasEnough.value) { const ok = await showConfirm(`포인트 부족 (보유: ${(auth.user?.points || 0).toLocaleString()}P)\n충전?`, '부족'); if (ok) goPointShop(); return }
   submitting.value = true
+
+  // 텍스트 인라인은 별도 엔드포인트 (FormData 없이 JSON)
+  if (isTextAd.value) {
+    try {
+      const { data } = await axios.post('/api/banners/text-apply', {
+        title: adForm.title,
+        phone: adForm.phone || null,
+        description: adForm.description,
+        link_url: adForm.link_url || null,
+        page: selectedSub.value,
+        days: 30, // AdApply 는 월간 경매 기준
+        bid_amount: adForm.bid_amount,
+      })
+      showAlert(data.message, '텍스트 광고 신청')
+      selectedSlot.value = null
+      Object.assign(adForm, { title: '', link_url: '', bid_amount: 1000, geo_scope: 'county', geo_value: '', phone: '', description: '' })
+      selectedSub.value = ''; clearDraft()
+      await loadMyAds()
+    } catch (e) {
+      const m = e.response?.data?.message || '실패'
+      if (m.includes('부족')) { const ok = await showConfirm(m + '\n충전?', '부족'); if (ok) goPointShop() } else showAlert(m, '오류')
+    }
+    submitting.value = false
+    return
+  }
+
+  // 이미지 광고 (기존)
   const fd = new FormData()
   fd.append('title', adForm.title)
   fd.append('link_url', adForm.link_url || '')
@@ -663,7 +751,7 @@ async function submitAd() {
     const { data } = await axios.post('/api/banners/apply', fd)
     showAlert(data.message, '입찰 신청')
     selectedSlot.value = null
-    Object.assign(adForm, { title: '', link_url: '', bid_amount: 4000, geo_scope: 'county', geo_value: '' })
+    Object.assign(adForm, { title: '', link_url: '', bid_amount: 4000, geo_scope: 'county', geo_value: '', phone: '', description: '' })
     adImage.value = null; imagePreview.value = null; selectedSub.value = ''; clearDraft()
     await loadMyAds()
   } catch (e) {

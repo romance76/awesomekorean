@@ -1,0 +1,4 @@
+[     482ms] [LOG] [CommHub] Initializing for user: 202 @ https://awesomekorean.com/build/assets/app-Rehtgr3n.js:47
+[     483ms] [LOG] [PeerJS] Initializing as sk-202-afcb @ https://awesomekorean.com/build/assets/app-Rehtgr3n.js:47
+[     484ms] [WARNING] [PushService] Firebase config missing — push disabled @ https://awesomekorean.com/build/assets/app-Rehtgr3n.js:47
+[     916ms] [LOG] [PeerJS] ✅ Connected as sk-202-afcb @ https://awesomekorean.com/build/assets/app-Rehtgr3n.js:47
