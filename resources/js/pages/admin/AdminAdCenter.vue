@@ -7,12 +7,18 @@
       <h1 class="text-2xl font-black text-gray-800 mt-1">📢 광고 센터 — 통합 관리</h1>
       <p class="text-xs text-gray-400 mt-0.5">페이지/위치별 슬롯 맵 · 광고주 · 결제 · 승인까지 한 화면에서</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 flex-wrap">
+      <button @click="showPreview = true" class="bg-purple-500 text-white rounded-lg px-3 py-2 text-sm font-bold hover:bg-purple-600">
+        🔍 샘플 배너 위치 확인
+      </button>
       <RouterLink to="/admin/banners" class="bg-white border rounded-lg px-3 py-2 text-sm hover:bg-gray-50">📋 전체 광고 목록</RouterLink>
       <RouterLink to="/admin/ad-settings" class="bg-white border rounded-lg px-3 py-2 text-sm hover:bg-gray-50">⚙️ 슬롯·가격 설정</RouterLink>
       <RouterLink to="/admin/hero-banners" class="bg-white border rounded-lg px-3 py-2 text-sm hover:bg-gray-50">🎪 히어로 배너</RouterLink>
     </div>
   </div>
+
+  <!-- 샘플 배너 위치 미리보기 모달 -->
+  <BannerPreviewModal v-if="showPreview" @close="showPreview = false" />
 
   <!-- KPI -->
   <div v-if="overview" class="grid grid-cols-2 md:grid-cols-6 gap-2 mb-4">
@@ -281,11 +287,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import BannerPreviewModal from '../../components/BannerPreviewModal.vue'
 
 const overview = ref(null)
 const slotMap = ref(null)
 const selectedAd = ref(null)
 const adDetail = ref(null)
+const showPreview = ref(false)
 
 const filter = ref({ page: 'community', geo_scope: 'all', geo_value: '' })
 

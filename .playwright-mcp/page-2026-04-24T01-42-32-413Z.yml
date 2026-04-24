@@ -1,0 +1,184 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - generic [ref=e5]:
+        - button [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+        - link "AwesomeKorean" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - img "AwesomeKorean" [ref=e10]
+        - generic [ref=e11]:
+          - link "가입" [ref=e12] [cursor=pointer]:
+            - /url: /register
+          - button "EN" [ref=e13] [cursor=pointer]
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - generic [ref=e18]:
+          - generic [ref=e19]: 🇰🇷 미국 한인 NO.1 커뮤니티
+          - heading "AwesomeKorean" [level=1] [ref=e20]
+          - paragraph [ref=e21]: 한인들의 일상을 함께하는 올인원 플랫폼
+        - generic [ref=e23]:
+          - link "💬 커뮤니티 한인 이야기" [ref=e24] [cursor=pointer]:
+            - /url: /community
+            - generic [ref=e25]: 💬
+            - generic [ref=e26]: 커뮤니티
+            - generic [ref=e27]: 한인 이야기
+          - link "❓ Q&A 질문/답변" [ref=e28] [cursor=pointer]:
+            - /url: /qa
+            - generic [ref=e29]: ❓
+            - generic [ref=e30]: Q&A
+            - generic [ref=e31]: 질문/답변
+          - link "💼 구인구직 일자리" [ref=e32] [cursor=pointer]:
+            - /url: /jobs
+            - generic [ref=e33]: 💼
+            - generic [ref=e34]: 구인구직
+            - generic [ref=e35]: 일자리
+          - link "🛒 중고장터 사고 팔기" [ref=e36] [cursor=pointer]:
+            - /url: /market
+            - generic [ref=e37]: 🛒
+            - generic [ref=e38]: 중고장터
+            - generic [ref=e39]: 사고 팔기
+          - link "🏠 부동산 렌트/매매" [ref=e40] [cursor=pointer]:
+            - /url: /realestate
+            - generic [ref=e41]: 🏠
+            - generic [ref=e42]: 부동산
+            - generic [ref=e43]: 렌트/매매
+          - link "🏪 업소록 한인 업소" [ref=e44] [cursor=pointer]:
+            - /url: /directory
+            - generic [ref=e45]: 🏪
+            - generic [ref=e46]: 업소록
+            - generic [ref=e47]: 한인 업소
+          - link "👥 동호회 모임 찾기" [ref=e48] [cursor=pointer]:
+            - /url: /clubs
+            - generic [ref=e49]: 👥
+            - generic [ref=e50]: 동호회
+            - generic [ref=e51]: 모임 찾기
+          - link "🎉 이벤트 포인트 기회" [ref=e52] [cursor=pointer]:
+            - /url: /events
+            - generic [ref=e53]: 🎉
+            - generic [ref=e54]: 이벤트
+            - generic [ref=e55]: 포인트 기회
+          - link "📰 뉴스 오마이뉴스" [ref=e56] [cursor=pointer]:
+            - /url: /news
+            - generic [ref=e57]: 📰
+            - generic [ref=e58]: 뉴스
+            - generic [ref=e59]: 오마이뉴스
+        - generic [ref=e60]:
+          - main [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: 📢 공지
+              - generic [ref=e64]: 오늘의 핫 이슈를 확인하세요
+              - generic [ref=e65]: ·
+              - generic [ref=e66]: "🔥 이번주 인기: #이민 #맛집 #부동산 #장터"
+            - generic [ref=e67]:
+              - generic [ref=e69]:
+                - generic [ref=e70]: 📝 최신글
+                - link "더보기 →" [ref=e71] [cursor=pointer]:
+                  - /url: /community
+              - generic [ref=e73]:
+                - generic [ref=e74]: 💼 구인구직
+                - link "더보기 →" [ref=e75] [cursor=pointer]:
+                  - /url: /jobs
+              - generic [ref=e77]:
+                - generic [ref=e78]: 🛒 중고장터
+                - link "더보기 →" [ref=e79] [cursor=pointer]:
+                  - /url: /market
+              - generic [ref=e80]:
+                - generic [ref=e81]:
+                  - generic [ref=e82]: 🎉 이벤트
+                  - link "더보기 →" [ref=e83] [cursor=pointer]:
+                    - /url: /events
+                - generic [ref=e84]:
+                  - link "🐛 버그를 잡아라! 포인트" [ref=e85] [cursor=pointer]:
+                    - /url: /events
+                    - generic [ref=e86]: 🐛 버그를 잡아라!
+                    - generic [ref=e87]: 포인트
+                  - link "🏠 부동산 포인트 2배 진행중" [ref=e88] [cursor=pointer]:
+                    - /url: /events
+                    - generic [ref=e89]: 🏠 부동산 포인트 2배
+                    - generic [ref=e90]: 진행중
+                  - link "🎵 음악 감상회 예정" [ref=e91] [cursor=pointer]:
+                    - /url: /events
+                    - generic [ref=e92]: 🎵 음악 감상회
+                    - generic [ref=e93]: 예정
+                  - link "💬 오픈 채팅방 상시" [ref=e94] [cursor=pointer]:
+                    - /url: /events
+                    - generic [ref=e95]: 💬 오픈 채팅방
+                    - generic [ref=e96]: 상시
+          - complementary [ref=e97]:
+            - generic [ref=e98]:
+              - generic [ref=e99]: 애틀랜타 · Today
+              - generic [ref=e100]:
+                - generic [ref=e101]: 72°F
+                - generic [ref=e102]: 맑음 ☀️
+              - generic [ref=e103]: 내일 68° / 모레 75°
+            - generic [ref=e104]:
+              - generic [ref=e105]:
+                - generic [ref=e106]: 💱
+                - generic [ref=e107]: 환율
+              - generic [ref=e108]:
+                - generic [ref=e109]:
+                  - generic [ref=e110]: 🇺🇸 USD
+                  - generic [ref=e111]: 1,386원
+                - generic [ref=e112]:
+                  - generic [ref=e113]: 🇰🇷 KRW
+                  - generic [ref=e114]: $0.00072
+                - generic [ref=e115]:
+                  - generic [ref=e116]: ▲ 2.4
+                  - generic [ref=e117]: 15분 전 업데이트
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - generic [ref=e120]: ⭐
+                - generic [ref=e121]: 즐겨찾기
+              - generic [ref=e122]:
+                - link "💬 커뮤니티" [ref=e123] [cursor=pointer]:
+                  - /url: /community
+                  - generic [ref=e124]: 💬
+                  - generic [ref=e125]: 커뮤니티
+                - link "❓ Q&A" [ref=e126] [cursor=pointer]:
+                  - /url: /qa
+                  - generic [ref=e127]: ❓
+                  - generic [ref=e128]: Q&A
+                - link "💼 구인구직" [ref=e129] [cursor=pointer]:
+                  - /url: /jobs
+                  - generic [ref=e130]: 💼
+                  - generic [ref=e131]: 구인구직
+                - link "🛒 중고장터" [ref=e132] [cursor=pointer]:
+                  - /url: /market
+                  - generic [ref=e133]: 🛒
+                  - generic [ref=e134]: 중고장터
+                - link "🏠 부동산" [ref=e135] [cursor=pointer]:
+                  - /url: /realestate
+                  - generic [ref=e136]: 🏠
+                  - generic [ref=e137]: 부동산
+                - link "🏪 업소록" [ref=e138] [cursor=pointer]:
+                  - /url: /directory
+                  - generic [ref=e139]: 🏪
+                  - generic [ref=e140]: 업소록
+            - generic [ref=e141]:
+              - generic [ref=e142]: 🎁 가입하고 바로 받기
+              - generic [ref=e143]: 회원가입 10P · 프로필 완성 30P
+              - link "무료 가입" [ref=e144] [cursor=pointer]:
+                - /url: /register
+    - generic [ref=e146]:
+      - link "🏠 홈" [ref=e147] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e148]: 🏠
+        - generic [ref=e149]: 홈
+      - link "💬 커뮤니티" [ref=e150] [cursor=pointer]:
+        - /url: /community
+        - generic [ref=e151]: 💬
+        - generic [ref=e152]: 커뮤니티
+      - link "🎮 게임" [ref=e153] [cursor=pointer]:
+        - /url: /games
+        - generic [ref=e154]: 🎮
+        - generic [ref=e155]: 게임
+      - link "💭 채팅" [ref=e156] [cursor=pointer]:
+        - /url: /chat
+        - generic [ref=e157]: 💭
+        - generic [ref=e158]: 채팅
+      - link "👤 MY" [ref=e159] [cursor=pointer]:
+        - /url: /dashboard
+        - generic [ref=e160]: 👤
+        - generic [ref=e161]: MY
+  - img [ref=e167]
