@@ -11,7 +11,7 @@
           &times;
         </button>
 
-        <h2 class="text-center text-xl font-black text-yellow-300 mb-4">오늘의 무료 게임머니</h2>
+        <h2 class="text-center text-xl font-black text-yellow-300 mb-4">🎰 오늘의 무료 포인트</h2>
 
         <!-- 룰렛 휠 -->
         <div class="relative w-[260px] h-[260px] mx-auto mb-4">
@@ -59,12 +59,13 @@
           <div :class="isJackpot ? 'animate-bounce' : ''" class="mb-2">
             <span v-if="isJackpot" class="text-4xl">&#127881;</span>
             <span class="text-2xl font-black" :class="isJackpot ? 'text-yellow-300' : 'text-white'">
-              +{{ resultPoints.toLocaleString() }} 게임머니
+              {{ resultPoints > 0 ? '+' + resultPoints.toLocaleString() + 'P' : '꽝!' }}
             </span>
             <span v-if="isJackpot" class="text-4xl">&#127881;</span>
           </div>
           <div v-if="isJackpot" class="text-yellow-400 font-bold text-sm mb-2">잭팟!!</div>
-          <div class="text-purple-300 text-xs mb-3">잔액: {{ newBalance?.toLocaleString() }} 게임머니</div>
+          <div v-if="resultPoints > 0" class="text-purple-300 text-xs mb-3">포인트가 적립되었습니다</div>
+          <div v-else class="text-purple-300 text-xs mb-3">내일 다시 도전하세요!</div>
           <button @click="close" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 rounded-xl transition">
             확인
           </button>
@@ -72,8 +73,9 @@
 
         <!-- 이미 사용 -->
         <div v-else-if="alreadySpun" class="text-center">
-          <div class="text-purple-300 text-sm mb-2">오늘 이미 룰렛을 돌렸습니다</div>
-          <div v-if="todayPoints > 0" class="text-yellow-300 font-bold mb-3">오늘 획득: +{{ todayPoints.toLocaleString() }} 게임머니</div>
+          <div class="text-4xl mb-2">🌙</div>
+          <div class="text-yellow-300 font-bold text-base mb-1">오늘 이미 돌렸습니다</div>
+          <div class="text-purple-300 text-xs mb-3">자정 이후 다시 도전 가능합니다</div>
           <button @click="close" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 rounded-xl transition">
             닫기
           </button>
@@ -158,10 +160,11 @@ async function spin() {
   resultPoints.value = null
 
   try {
-    const { data } = await axios.post('/api/games/daily-spin')
+    const { data } = await axios.post('/api/points/daily-spin')
+    const points = data.data?.points_won ?? 0
 
     // 결과 섹터 계산
-    const targetIndex = findSectorIndex(data.points)
+    const targetIndex = findSectorIndex(points)
     // 섹터의 중앙 각도 (화살표는 상단=0도 위치)
     // 휠이 회전하면 화살표가 가리키는 섹터: 화살표는 0도 위치에 있고, 휠이 X도 회전하면
     // 화살표가 가리키는 섹터는 360-X도 위치의 섹터
@@ -176,26 +179,26 @@ async function spin() {
     // 4초 후 결과 표시 (CSS transition duration과 맞춤)
     setTimeout(() => {
       spinning.value = false
-      resultPoints.value = data.points
-      isJackpot.value = data.is_jackpot
-      newBalance.value = data.new_balance
-      emit('earned', { points: data.points, balance: data.new_balance })
+      resultPoints.value = points
+      isJackpot.value = points >= 200
+      emit('earned', { points })
     }, 4200)
   } catch (e) {
     spinning.value = false
-    if (e.response?.data?.already_spun) {
+    const msg = e.response?.data?.message || ''
+    if (msg.includes('이미') || e.response?.status === 400) {
       alreadySpun.value = true
     } else {
-      alert(e.response?.data?.error || '룰렛 오류가 발생했습니다')
+      alert(msg || '룰렛 오류가 발생했습니다')
     }
   }
 }
 
 async function checkStatus() {
   try {
-    const { data } = await axios.get('/api/games/daily-spin/status')
-    alreadySpun.value = data.already_spun
-    todayPoints.value = data.points_awarded || 0
+    const { data } = await axios.get('/api/points/balance')
+    alreadySpun.value = !!data.daily_spin_done
+    todayPoints.value = 0
   } catch {}
 }
 
@@ -203,7 +206,10 @@ function close() {
   emit('close')
 }
 
+import { watch } from 'vue'
+watch(() => props.show, (v) => { if (v) checkStatus() })
+
 onMounted(() => {
-  checkStatus()
+  if (props.show) checkStatus()
 })
 </script>

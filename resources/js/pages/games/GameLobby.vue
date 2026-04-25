@@ -2,13 +2,27 @@
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 헤더 -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="text-xl font-black text-gray-800">🎮 게임</h1>
-      <div v-if="auth.isLoggedIn" class="flex items-center gap-2 text-xs">
-        <span class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full font-bold">🪙 {{ (auth.user?.points || 0).toLocaleString() }}P</span>
-        <RouterLink to="/points" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-full hover:bg-amber-500">🎰 일일 룰렛</RouterLink>
+      <div v-if="auth.isLoggedIn" class="flex items-center gap-2 text-sm">
+        <!-- 강조된 포인트 표시 -->
+        <div class="bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-4 py-2 rounded-xl font-black shadow-md flex items-center gap-1.5 ring-2 ring-amber-300/50">
+          <span class="text-base">🪙</span>
+          <span class="text-base tracking-tight">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-xs">P</span></span>
+        </div>
+        <!-- 일일 룰렛 (팝업) -->
+        <button @click="onSpinClick"
+          :class="['font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition shadow-sm',
+            spunToday
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700']">
+          🎰 {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
+        </button>
       </div>
     </div>
+
+    <!-- 일일 룰렛 모달 -->
+    <DailySpinModal :show="showSpin" @close="showSpin=false" @earned="onSpinEarned" />
 
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 카테고리 -->
@@ -89,12 +103,40 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
+import { useSiteStore } from '../../stores/site'
+import DailySpinModal from '../../components/DailySpinModal.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
+const siteStore = useSiteStore()
 const activeCat = ref('all')
 const allGames = ref([])
 const loading = ref(true)
+const showSpin = ref(false)
+const spunToday = ref(false)
+
+function onSpinClick() {
+  if (!auth.isLoggedIn) return
+  if (spunToday.value) {
+    siteStore.toast('오늘은 이미 룰렛을 돌렸습니다 🌙', 'info')
+    return
+  }
+  showSpin.value = true
+}
+
+function onSpinEarned({ points }) {
+  spunToday.value = true
+  if (points > 0) auth.user.points = (auth.user.points || 0) + points
+}
+
+async function checkSpinStatus() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.get('/api/points/balance')
+    spunToday.value = !!data.daily_spin_done
+    if (typeof data.data?.points === 'number') auth.user.points = data.data.points
+  } catch {}
+}
 
 const categories = [
   { key: 'all', icon: '🎮', label: '전체' },
@@ -113,6 +155,7 @@ const filteredGames = computed(() => {
 const popularGames = computed(() => allGames.value.slice(0, 8))
 
 onMounted(async () => {
+  checkSpinStatus()
   try {
     const { data } = await axios.get('/api/games')
     allGames.value = (data.data || []).map(g => ({
