@@ -53,7 +53,8 @@ const pointsEarned = ref(0)
 const toastMsg = ref('')
 let toastTimer = null
 
-const gameUrl = computed(() => `/games/${props.gameSlug}/index.html`)
+// 캐시 무효화: 빌드/배포 시점 기준으로 매번 새 버전 강제 로드
+const gameUrl = computed(() => `/games/${props.gameSlug}/index.html?v=${Date.now()}`)
 
 function showToast(msg, duration = 3000) {
   toastMsg.value = msg
