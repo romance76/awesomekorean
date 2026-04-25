@@ -4,20 +4,27 @@
     <!-- 헤더 -->
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="text-xl font-black text-gray-800">🎮 게임</h1>
-      <div v-if="auth.isLoggedIn" class="flex items-center gap-2 text-sm">
-        <!-- 강조된 포인트 표시 -->
-        <div class="bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-4 py-2 rounded-xl font-black shadow-md flex items-center gap-1.5 ring-2 ring-amber-300/50">
-          <span class="text-base">🪙</span>
-          <span class="text-base tracking-tight">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-xs">P</span></span>
-        </div>
-        <!-- 일일 룰렛 (팝업) -->
-        <button @click="onSpinClick"
-          :class="['font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition shadow-sm',
-            spunToday
-              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700']">
-          🎰 {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
-        </button>
+      <div class="flex items-center gap-2 text-sm flex-wrap">
+        <!-- 리더보드 (로그인 불필요) -->
+        <RouterLink to="/games/leaderboard"
+          class="bg-white border border-amber-300 text-amber-700 hover:bg-amber-50 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition shadow-sm">
+          🏆 리더보드
+        </RouterLink>
+        <template v-if="auth.isLoggedIn">
+          <!-- 강조된 포인트 표시 -->
+          <div class="bg-gradient-to-r from-amber-400 to-orange-400 text-amber-900 px-4 py-2 rounded-xl font-black shadow-md flex items-center gap-1.5 ring-2 ring-amber-300/50">
+            <span class="text-base">🪙</span>
+            <span class="text-base tracking-tight">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-xs">P</span></span>
+          </div>
+          <!-- 일일 룰렛 (팝업) -->
+          <button @click="onSpinClick"
+            :class="['font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1 transition shadow-sm',
+              spunToday
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700']">
+            🎰 {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
+          </button>
+        </template>
       </div>
     </div>
 
