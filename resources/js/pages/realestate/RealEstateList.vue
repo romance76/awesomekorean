@@ -62,8 +62,19 @@
     </MobileFilter>
 
     <!-- 헤더: 데스크탑 -->
-    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-xl font-black text-gray-800">🏠 부동산</h1>
+    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-3">
+      <h1 class="text-xl font-black text-gray-800 flex-shrink-0">🏠 부동산</h1>
+
+      <!-- 렌트/매매/룸메이트 세그먼트 (데스크탑에서 큰 버튼으로) -->
+      <div class="flex border rounded-lg overflow-hidden bg-white shadow-sm flex-1 min-w-[320px] max-w-md">
+        <button v-for="t in reTypeTabs" :key="t.value"
+          @click="changeReType(t.value)"
+          :class="['flex-1 py-2 text-sm font-bold transition whitespace-nowrap',
+            reType===t.value ? `${t.activeBg} text-white` : 'text-gray-500 hover:bg-gray-50']">
+          {{ t.icon }} {{ t.label }}
+        </button>
+      </div>
+
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-amber-600 text-sm">📍</span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
@@ -89,15 +100,9 @@
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 부동산</div>
-          <!-- 렌트/매매/룸메이트 토글 (Issue #23) -->
-          <div class="flex border-b">
-            <button v-for="t in reTypeTabs" :key="t.value"
-              @click="changeReType(t.value)"
-              class="flex-1 py-1.5 text-[10px] font-bold transition"
-              :class="reType===t.value ? `${t.activeBg} text-white` : 'text-gray-400 hover:bg-gray-50'">
-              {{ t.icon }} {{ t.label }}
-            </button>
+          <div class="px-3 py-2.5 border-b font-bold text-xs"
+            :class="reType==='rent' ? 'text-blue-700' : reType==='sale' ? 'text-red-700' : 'text-green-700'">
+            {{ reType==='rent' ? '🔑 렌트' : reType==='sale' ? '🏠 매매' : '👥 룸메이트' }} 카테고리
           </div>
           <!-- 전체 -->
           <button @click="showFavorites=false; activeCat=''; activeItem=null; loadPage()"
