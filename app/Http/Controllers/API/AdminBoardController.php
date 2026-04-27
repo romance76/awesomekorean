@@ -117,8 +117,11 @@ class AdminBoardController extends Controller
     {
         $cfg = $this->config($slug);
         $model = $cfg['model'];
-        $fields = (new $model)->getFillable();
-        $query = $model::query()->latest();
+        $modelInstance = new $model;
+        $fields = $modelInstance->getFillable();
+        $table = $modelInstance->getTable();
+
+        $query = $model::query();
         if (in_array('user_id', $fields) && method_exists(new $model, 'user')) {
             $query->with('user:id,name,email,nickname');
         }
@@ -140,6 +143,18 @@ class AdminBoardController extends Controller
         if ($request->major_type && !empty($cfg['major_type_field'])) {
             $query->where($cfg['major_type_field'], $request->major_type);
         }
+
+        // 정렬 (sort_by + sort_dir) — 화이트리스트로 SQL injection 방지
+        $sortBy = $request->input('sort_by', 'id');
+        $sortDir = strtolower($request->input('sort_dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $allowed = array_unique(array_merge(
+            ['id', 'created_at', 'updated_at', 'view_count', 'user_id', 'title', 'name'],
+            $fields
+        ));
+        if (!in_array($sortBy, $allowed) || !\Schema::hasColumn($table, $sortBy)) {
+            $sortBy = 'id';
+        }
+        $query->orderBy($sortBy, $sortDir);
 
         return response()->json(['success' => true, 'data' => $query->paginate(20)]);
     }
@@ -402,6 +417,10 @@ class AdminBoardController extends Controller
 
         if ($cfg['category_model']) {
             $modelClass = $cfg['category_model'];
+            $table = (new $modelClass)->getTable();
+            $hasAutoFetch = Schema::hasColumn($table, 'auto_fetch');
+            $hasIsActive = Schema::hasColumn($table, 'is_active');
+
             $existingIds = collect($categories)->pluck('id')->filter()->all();
             // 삭제된 항목
             $modelClass::whereNotIn('id', $existingIds ?: [0])->delete();
@@ -412,6 +431,12 @@ class AdminBoardController extends Controller
                     'slug' => $cat['slug'] ?? null,
                     'sort_order' => $idx,
                 ];
+                if ($hasAutoFetch && array_key_exists('auto_fetch', $cat)) {
+                    $data['auto_fetch'] = (bool) $cat['auto_fetch'];
+                }
+                if ($hasIsActive && array_key_exists('is_active', $cat)) {
+                    $data['is_active'] = (bool) $cat['is_active'];
+                }
                 if (!empty($cat['id'])) {
                     $modelClass::where('id', $cat['id'])->update($data);
                 } else {

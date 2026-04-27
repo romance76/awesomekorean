@@ -68,9 +68,14 @@ class FetchMusicTracks extends Command
             return 1;
         }
 
-        $categories = MusicCategory::all();
+        // auto_fetch=true 인 카테고리만 자동 수집 대상
+        $categories = MusicCategory::where(function($q) {
+            $q->where('auto_fetch', true)->orWhereNull('auto_fetch');
+        })->get();
+        $skipped = MusicCategory::where('auto_fetch', false)->pluck('name')->all();
+        if ($skipped) $this->info('⏭  자동 수집 제외: ' . implode(', ', $skipped));
         if ($categories->isEmpty()) {
-            $this->error('음악 카테고리가 없습니다');
+            $this->error('자동 수집 대상 카테고리가 없습니다');
             return 1;
         }
 

@@ -27,9 +27,16 @@
         <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">검색</button>
       </form>
     </div>
-    <div class="text-[10px] text-gray-400 mt-1">
-      전체 {{ total }}건
-      <span v-if="categoryFilter" class="text-blue-600">· "{{ categoryFilterLabel || categoryFilter }}" 필터링됨</span>
+    <div class="flex items-center justify-between mt-1">
+      <div class="text-[10px] text-gray-400">
+        전체 {{ total }}건
+        <span v-if="categoryFilter" class="text-blue-600">· "{{ categoryFilterLabel || categoryFilter }}" 필터링됨</span>
+        <span v-if="selectedIds.size" class="text-red-600 ml-2">· 선택됨 {{ selectedIds.size }}건</span>
+      </div>
+      <button v-if="selectedIds.size > 0" @click="deleteSelected"
+        class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs">
+        🗑 선택 {{ selectedIds.size }}건 삭제
+      </button>
     </div>
   </div>
 
@@ -40,19 +47,39 @@
       <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b"><tr>
-            <th class="px-3 py-2 text-left text-xs text-gray-500 w-8">#</th>
-            <th class="px-3 py-2 text-left text-xs text-gray-500">{{ titleCol }}</th>
-            <th v-for="col in extraCols" :key="col.key" v-show="!activeItem" class="px-3 py-2 text-left text-xs text-gray-500">{{ col.label }}</th>
-            <th class="px-3 py-2 text-left text-xs text-gray-500">작성자</th>
+            <th class="px-2 py-2 w-8 text-center">
+              <input type="checkbox" :checked="allSelected" @change="toggleAll" @click.stop />
+            </th>
+            <th @click="clickSort('id')" class="px-3 py-2 text-left text-xs text-gray-500 w-8 cursor-pointer hover:bg-gray-100 select-none">
+              # <span v-if="sortBy==='id'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            </th>
+            <th @click="clickSort('title')" class="px-3 py-2 text-left text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+              {{ titleCol }} <span v-if="sortBy==='title'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            </th>
+            <th v-for="col in extraCols" :key="col.key" v-show="!activeItem"
+              @click="clickSort(col.key)"
+              class="px-3 py-2 text-left text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+              {{ col.label }} <span v-if="sortBy===col.key" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            </th>
+            <th @click="clickSort('user_id')" class="px-3 py-2 text-left text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+              작성자 <span v-if="sortBy==='user_id'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            </th>
             <th class="px-3 py-2 text-xs text-gray-500">상태</th>
-            <th class="px-3 py-2 text-xs text-gray-500">👁</th>
-            <th class="px-3 py-2 text-xs text-gray-500">날짜</th>
+            <th @click="clickSort('view_count')" class="px-3 py-2 text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+              👁 <span v-if="sortBy==='view_count'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            </th>
+            <th @click="clickSort('created_at')" class="px-3 py-2 text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+              날짜 <span v-if="sortBy==='created_at'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            </th>
           </tr></thead>
           <tbody>
             <tr v-for="item in items" :key="item.id"
               class="border-b last:border-0 hover:bg-amber-50/30 cursor-pointer transition"
-              :class="activeItem?.id===item.id ? 'bg-amber-50 border-l-2 border-l-amber-500' : ''"
+              :class="activeItem?.id===item.id ? 'bg-amber-50 border-l-2 border-l-amber-500' : (selectedIds.has(item.id) ? 'bg-red-50' : '')"
               @click="openItem(item)">
+              <td class="px-2 py-2 text-center" @click.stop>
+                <input type="checkbox" :checked="selectedIds.has(item.id)" @change="toggleOne(item.id)" />
+              </td>
               <td class="px-3 py-2 text-xs text-gray-400">{{ item.id }}</td>
               <td class="px-3 py-2.5 max-w-[250px]">
                 <div class="flex items-center gap-1">
@@ -357,6 +384,42 @@ const search = ref(''); const activeItem = ref(null)
 const detailData = ref(null)
 const editMode = ref(false)
 
+// 멀티 선택 + 정렬
+const selectedIds = ref(new Set())
+const sortBy = ref('id')
+const sortDir = ref('desc')
+const allSelected = computed(() => items.value.length > 0 && items.value.every(i => selectedIds.value.has(i.id)))
+function toggleAll() {
+  if (allSelected.value) selectedIds.value = new Set()
+  else selectedIds.value = new Set(items.value.map(i => i.id))
+}
+function toggleOne(id) {
+  if (selectedIds.value.has(id)) selectedIds.value.delete(id)
+  else selectedIds.value.add(id)
+  selectedIds.value = new Set(selectedIds.value)
+}
+function clickSort(col) {
+  if (sortBy.value === col) sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  else { sortBy.value = col; sortDir.value = 'asc' }
+  load(1)
+}
+async function deleteSelected() {
+  const ids = [...selectedIds.value]
+  if (!ids.length) return
+  if (!confirm(`선택한 ${ids.length}건을 삭제합니다. 계속?`)) return
+  const baseUrl = props.boardSlug
+    ? `/api/admin/board-manager/${props.boardSlug}/posts`
+    : (props.deleteUrl || props.apiUrl)
+  let success = 0, failed = 0
+  for (const id of ids) {
+    try { await axios.delete(`${baseUrl}/${id}`); success++ }
+    catch { failed++ }
+  }
+  selectedIds.value = new Set()
+  load(page.value)
+  alert(`삭제 완료: ${success}건 성공${failed ? `, ${failed}건 실패` : ''}`)
+}
+
 const showPointModal = ref(false)
 const pointAmount = ref(0)
 const pointReason = ref('관리자 수동 조정')
@@ -529,7 +592,7 @@ async function applyCategoryChange() {
 
 async function load(p=1) {
   loading.value = true; page.value = p
-  const params = { page: p, per_page: 20 }
+  const params = { page: p, per_page: 20, sort_by: sortBy.value, sort_dir: sortDir.value }
   if (search.value) params.search = search.value
   if (props.categoryFilter !== null && props.categoryFilter !== undefined && props.categoryFilter !== '') {
     params.category = props.categoryFilter
