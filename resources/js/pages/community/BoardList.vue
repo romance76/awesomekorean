@@ -125,11 +125,26 @@
           <!-- 댓글 -->
           <CommentSection :type="'post'" :typeId="activeItem.id" ref="commentSection" />
 
-          <!-- 이전/다음글 -->
-          <div class="flex justify-between mt-3">
-            <button @click="navItem(-1)" :disabled="currentIdx <= 0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
-            <button @click="activeItem=null" class="text-xs text-gray-400 hover:text-gray-600">목록</button>
-            <button @click="navItem(1)" :disabled="currentIdx >= items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
+          <!-- 이전글 / 목록 / 다음글 (제목 표시) -->
+          <div class="mt-4 flex items-stretch bg-white rounded-xl shadow-sm border border-gray-200 text-sm overflow-hidden">
+            <button v-if="currentIdx > 0" @click="navItem(-1)"
+              class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50 text-left text-gray-700 border-r border-gray-100 transition">
+              <div class="text-gray-400 text-xs">← 이전글</div>
+              <div class="text-xs text-gray-600 truncate mt-0.5">{{ items[currentIdx - 1]?.title || '' }}</div>
+            </button>
+            <div v-else class="flex-1 min-w-0 px-4 py-3 text-left text-gray-300 border-r border-gray-100 text-xs flex items-center">← 이전글 없음</div>
+
+            <button @click="activeItem=null"
+              class="px-5 py-3 hover:bg-amber-50 text-center text-gray-700 font-bold border-r border-gray-100 flex-shrink-0 transition">
+              목록
+            </button>
+
+            <button v-if="currentIdx < items.length - 1" @click="navItem(1)"
+              class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50 text-right text-gray-700 transition">
+              <div class="text-gray-400 text-xs">다음글 →</div>
+              <div class="text-xs text-gray-600 truncate mt-0.5">{{ items[currentIdx + 1]?.title || '' }}</div>
+            </button>
+            <div v-else class="flex-1 min-w-0 px-4 py-3 text-right text-gray-300 text-xs flex items-center justify-end">다음글 없음 →</div>
           </div>
         </div>
 
