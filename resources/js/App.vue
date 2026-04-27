@@ -36,7 +36,7 @@
     </main>
 
     <!-- 푸터 (데스크탑) -->
-    <footer v-if="showNav" class="bg-gray-800 text-gray-400 mt-8 hidden md:block">
+    <footer v-if="showNav" class="bg-gray-800 text-gray-400 hidden md:block">
       <div class="max-w-7xl mx-auto px-4 py-6">
         <div class="grid grid-cols-4 gap-4 mb-4">
           <div>
