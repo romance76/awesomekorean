@@ -426,9 +426,26 @@ class AdminBoardController extends Controller
             $modelClass::whereNotIn('id', $existingIds ?: [0])->delete();
             // upsert
             foreach ($categories as $idx => $cat) {
+                $name = trim($cat['name'] ?? '');
+                if ($name === '') continue;
+                $slug = trim($cat['slug'] ?? '');
+                if ($slug === '') {
+                    // slug 비었으면 name 기반 자동 생성 (한글은 transliterate, 공백/특수문자 -)
+                    $slug = \Str::slug($name);
+                    if ($slug === '') $slug = 'cat-' . substr(md5($name), 0, 8);
+                }
+                // 다른 row 와 slug 충돌 시 번호 붙이기
+                $base = $slug;
+                $i = 2;
+                while ($modelClass::where('slug', $slug)
+                    ->when(!empty($cat['id']), fn($q) => $q->where('id', '!=', $cat['id']))
+                    ->exists()) {
+                    $slug = $base . '-' . $i++;
+                }
+
                 $data = [
-                    'name' => $cat['name'] ?? '',
-                    'slug' => $cat['slug'] ?? null,
+                    'name' => $name,
+                    'slug' => $slug,
                     'sort_order' => $idx,
                 ];
                 if ($hasAutoFetch && array_key_exists('auto_fetch', $cat)) {
