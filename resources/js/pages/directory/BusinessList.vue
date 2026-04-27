@@ -324,8 +324,8 @@
     </div>
 
     <!-- 📝 텍스트 인라인: 페이지네이션 위 한 줄 -->
-    <TextInlineAd page="directory" class="mt-3" />
-    <Pagination :page="page" :lastPage="lastPage" @page="loadPage" />
+    <TextInlineAd v-if="!activeItem" page="directory" class="mt-3" />
+    <Pagination v-if="!activeItem" :page="page" :lastPage="lastPage" @page="loadPage" />
     </div>
     <!-- 오른쪽 위젯 -->
     <div class="col-span-12 lg:col-span-3 hidden lg:block">

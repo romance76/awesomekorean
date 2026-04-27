@@ -2,10 +2,10 @@
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="job?.title || '구인구직'" fallback="/jobs" />
-    <!-- 헤더: 데스크탑 (리스트와 동일한 구인/구직 세그먼트) -->
-    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <router-link to="/jobs" class="text-xl font-black text-gray-800 flex-shrink-0 hover:text-amber-600 transition">💼 구인구직</router-link>
-      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+    <!-- 헤더: 데스크탑 (구인/구직 세그먼트 중앙 정렬, 리스트와 동일) -->
+    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-2">
+      <router-link to="/jobs" class="text-xl font-black text-gray-800 hover:text-amber-600 transition justify-self-start">💼 구인구직</router-link>
+      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">
         <router-link to="/jobs?type=hiring"
           :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
             job?.post_type !== 'seeking' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50']">
@@ -17,8 +17,8 @@
           🙋 구직
         </router-link>
       </div>
-      <div class="flex-1"></div>
-      <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">✏️ 등록</RouterLink>
+      <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500 justify-self-end">✏️ 등록</RouterLink>
+      <span v-else></span>
     </div>
 
     <div v-if="loading" class="text-center py-20 text-gray-400">로딩중...</div>
@@ -28,18 +28,9 @@
       <!-- ══════════ LEFT: 카테고리 사이드바 (JobList와 동일) ══════════ -->
       <aside class="col-span-2 hidden lg:block">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-gray-800">📋 카테고리</div>
-          <div class="flex border-b">
-            <router-link to="/jobs?type=hiring"
-              class="flex-1 py-1.5 text-[10px] font-bold text-center transition"
-              :class="job.post_type !== 'seeking' ? 'bg-amber-400 text-amber-900' : 'text-gray-400 hover:bg-gray-50'">
-              💼 구인
-            </router-link>
-            <router-link to="/jobs?type=seeking"
-              class="flex-1 py-1.5 text-[10px] font-bold text-center transition"
-              :class="job.post_type === 'seeking' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-50'">
-              🙋 구직
-            </router-link>
+          <div class="px-3 py-2.5 border-b font-bold text-xs"
+            :class="job.post_type === 'seeking' ? 'text-blue-700' : 'text-amber-700'">
+            {{ job.post_type === 'seeking' ? '🙋 구직 카테고리' : '💼 구인 카테고리' }}
           </div>
           <router-link v-for="c in jobCategories" :key="c.value" :to="`/jobs${c.value ? '?category=' + c.value : ''}`"
             class="block w-full text-left px-3 py-2 text-xs transition"

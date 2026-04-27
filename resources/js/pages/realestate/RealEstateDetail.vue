@@ -2,10 +2,10 @@
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="listing?.title || '부동산'" fallback="/realestate" />
-    <!-- 헤더: 데스크탑 (리스트와 동일한 렌트/매매/룸메이트 세그먼트) -->
-    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-3">
-      <RouterLink to="/realestate" class="text-xl font-black text-gray-800 flex-shrink-0 hover:text-amber-600 transition">🏠 부동산</RouterLink>
-      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+    <!-- 헤더: 데스크탑 (렌트/매매/룸메이트 세그먼트 중앙 정렬, 리스트와 동일) -->
+    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-2">
+      <RouterLink to="/realestate" class="text-xl font-black text-gray-800 hover:text-amber-600 transition justify-self-start">🏠 부동산</RouterLink>
+      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">
         <RouterLink to="/realestate?type=rent"
           :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
             listing?.type === 'rent' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-50']">
@@ -22,8 +22,8 @@
           👥 룸메이트
         </RouterLink>
       </div>
-      <div class="flex-1"></div>
-      <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">✏️ 등록</RouterLink>
+      <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs justify-self-end">✏️ 등록</RouterLink>
+      <span v-else></span>
     </div>
 
     <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
@@ -33,12 +33,9 @@
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
           <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 부동산</div>
-            <div class="flex border-b">
-              <RouterLink to="/realestate?type=rent" class="flex-1 py-1.5 text-[10px] font-bold text-center transition"
-                :class="listing.type==='rent' ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-50'">🔑 렌트</RouterLink>
-              <RouterLink to="/realestate?type=sale" class="flex-1 py-1.5 text-[10px] font-bold text-center transition"
-                :class="listing.type==='sale' ? 'bg-red-500 text-white' : 'text-gray-400 hover:bg-gray-50'">🏠 매매</RouterLink>
+            <div class="px-3 py-2.5 border-b font-bold text-xs"
+              :class="listing.type==='rent' ? 'text-blue-700' : listing.type==='sale' ? 'text-red-700' : 'text-green-700'">
+              {{ listing.type==='rent' ? '🔑 렌트' : listing.type==='sale' ? '🏠 매매' : '👥 룸메이트' }} 카테고리
             </div>
             <RouterLink to="/realestate" class="block w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:bg-amber-50/50">전체</RouterLink>
             <template v-for="group in sideSubcats" :key="group.label">
