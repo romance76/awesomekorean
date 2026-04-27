@@ -97,6 +97,12 @@ class ImportNaverQa extends Command
         // 5) 더미 유저 캐시 (fake_name → user_id)
         $userCache = [];
 
+        // 5-1) author_mapping 의 fake_name 풀 — 질문 작성자가 NULL 일 때 랜덤 할당용
+        //      (source DB 의 모든 질문은 fake_author_name 이 NULL 이라 풀에서 랜덤 선택해야 함)
+        $authorPool = $sqlite->query("SELECT DISTINCT fake_name FROM author_mapping WHERE fake_name IS NOT NULL AND fake_name != ''")->fetchAll(\PDO::FETCH_COLUMN);
+        $authorPoolCount = count($authorPool);
+        $this->info("👤 더미 작성자 풀: {$authorPoolCount}개");
+
         $bar = $this->output->createProgressBar(count($questions));
         $bar->start();
 
@@ -106,7 +112,10 @@ class ImportNaverQa extends Command
 
         foreach ($questions as $q) {
             try {
-                $authorName = $q['fake_author_name'] ?: '익명';
+                // 질문 작성자: fake_author_name 이 있으면 사용, 없으면 풀에서 deterministic 랜덤 선택
+                $authorName = $q['fake_author_name'] ?: ($authorPoolCount > 0
+                    ? $authorPool[crc32('q' . $q['id']) % $authorPoolCount]
+                    : '익명');
                 $userId = $this->getOrCreateUser($authorName, $userCache, $newUsers);
 
                 $catId = $catMap[$q['category']] ?? null;
@@ -131,7 +140,9 @@ class ImportNaverQa extends Command
 
                 $bestAnswerId = null;
                 foreach ($answers as $a) {
-                    $aAuthor = $a['fake_author_name'] ?: '익명';
+                    $aAuthor = $a['fake_author_name'] ?: ($authorPoolCount > 0
+                        ? $authorPool[crc32('a' . $a['question_id'] . '_' . ($a['display_order'] ?? 0)) % $authorPoolCount]
+                        : '익명');
                     $aUserId = $this->getOrCreateUser($aAuthor, $userCache, $newUsers);
                     $aPostedAt = $a['posted_at'] ?: $postedAt;
 
