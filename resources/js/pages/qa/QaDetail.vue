@@ -54,6 +54,11 @@
         <textarea v-model="newAnswer" rows="4" placeholder="답변을 입력하세요..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea>
         <button @click="submitAnswer" :disabled="!newAnswer.trim()" class="mt-2 bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">답변 등록</button>
       </div>
+
+      <!-- 이전글 / 목록 / 다음글 -->
+      <PostNavigator v-if="qa" :prev-id="prev?.id" :prev-title="prev?.title"
+        :next-id="next?.id" :next-title="next?.title"
+        list-path="/qa" detail-base="/qa/" />
       </div>
       <!-- 사이드바 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
@@ -70,10 +75,13 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()
 const qa = ref(null)
+const prev = ref(null)
+const next = ref(null)
 const answers = ref([])
 const categories = ref([])
 const loading = ref(true)
@@ -94,7 +102,12 @@ onMounted(async () => {
       axios.get(`/api/qa/${route.params.id}`),
       axios.get('/api/qa/categories'),
     ])
-    if (qRes.status === 'fulfilled') { qa.value = qRes.value.data?.data; answers.value = qa.value?.answers || [] }
+    if (qRes.status === 'fulfilled') {
+      qa.value = qRes.value.data?.data
+      answers.value = qa.value?.answers || []
+      prev.value = qRes.value.data?.prev || null
+      next.value = qRes.value.data?.next || null
+    }
     if (cRes.status === 'fulfilled') categories.value = cRes.value.data?.data || []
   } catch {}
   loading.value = false

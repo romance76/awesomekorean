@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\NewsCategory;
 use App\Support\ThumbHelper;
+use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
+    use HasAdjacent;
     public function index(Request $request)
     {
         $query = News::select('id', 'title', 'source', 'image_url', 'local_image', 'source_url', 'category_id', 'view_count', 'published_at', 'created_at')
@@ -43,7 +45,8 @@ class NewsController extends Controller
     {
         $news = News::with('category:id,name,slug')->findOrFail($id);
         $news->increment('view_count');
-        return response()->json(['success' => true, 'data' => $news]);
+        $adj = $this->adjacentPair(News::class, $id, 'title', $news->category_id ? ['category_id' => $news->category_id] : []);
+        return response()->json(['success' => true, 'data' => $news, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function categories()

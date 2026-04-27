@@ -75,6 +75,11 @@
       <!-- 댓글 -->
       <CommentSection v-if="biz.id" :type="'business'" :typeId="biz.id" class="mt-4" />
       <MobileBanner page="directory" class="lg:hidden mt-3" />
+
+      <!-- 이전글 / 목록 / 다음글 -->
+      <PostNavigator v-if="biz.id" :prev-id="prev?.id" :prev-title="prev?.name || prev?.title"
+        :next-id="next?.id" :next-title="next?.name || next?.title"
+        list-path="/directory" detail-base="/directory/" />
       </div>
       <!-- 사이드바 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
@@ -93,6 +98,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import CommentSection from '../../components/CommentSection.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import LeafletMap from '../../components/LeafletMap.vue'
 import BoostButton from '../../components/BoostButton.vue'
@@ -100,6 +106,8 @@ import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()
 const biz = ref(null)
+const prev = ref(null)
+const next = ref(null)
 const reviews = ref([])
 const loading = ref(true)
 const reviewForm = reactive({ rating: 5, content: '' })
@@ -108,6 +116,8 @@ async function reload() {
   try {
     const { data } = await axios.get(`/api/businesses/${route.params.id}`)
     biz.value = data.data
+    prev.value = data.prev || null
+    next.value = data.next || null
     reviews.value = data.data.reviews || []
   } catch {}
 }
@@ -126,6 +136,8 @@ onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/businesses/${route.params.id}`)
     biz.value = data.data
+    prev.value = data.prev || null
+    next.value = data.next || null
     reviews.value = data.data.reviews || []
   } catch {}
   loading.value = false

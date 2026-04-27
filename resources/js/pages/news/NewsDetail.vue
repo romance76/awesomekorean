@@ -42,6 +42,11 @@
         </div>
 
         <CommentSection v-if="news.id" :type="'news'" :typeId="news.id" class="mt-4" />
+
+        <!-- 이전글 / 목록 / 다음글 -->
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          list-path="/news" detail-base="/news/" />
       </div>
 
       <!-- 오른쪽: 위젯 -->
@@ -59,10 +64,13 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import axios from 'axios'
 
 const route = useRoute()
 const news = ref(null)
+const prev = ref(null)
+const next = ref(null)
 const categories = ref([])
 const loading = ref(true)
 
@@ -74,7 +82,11 @@ onMounted(async () => {
       axios.get(`/api/news/${route.params.id}`),
       axios.get('/api/news/categories'),
     ])
-    if (nRes.status === 'fulfilled') news.value = nRes.value.data?.data
+    if (nRes.status === 'fulfilled') {
+      news.value = nRes.value.data?.data
+      prev.value = nRes.value.data?.prev || null
+      next.value = nRes.value.data?.next || null
+    }
     if (cRes.status === 'fulfilled') categories.value = cRes.value.data?.data || []
   } catch {}
   loading.value = false

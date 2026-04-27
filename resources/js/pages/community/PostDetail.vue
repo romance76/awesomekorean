@@ -60,6 +60,12 @@
 
         <!-- 댓글 섹션 -->
         <CommentSection :type="'post'" :typeId="post.id" class="mt-4" />
+
+        <!-- 이전글 / 목록 / 다음글 -->
+        <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
+          :next-id="next?.id" :next-title="next?.title"
+          :list-path="`/community/${post.board?.slug || 'free'}`"
+          :detail-base="`/community/${post.board?.slug || 'free'}/`" />
       </div>
 
       <!-- 사이드바 -->
@@ -102,6 +108,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
+import PostNavigator from '../../components/PostNavigator.vue'
 import ReportModal from '../../components/ReportModal.vue'
 import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
@@ -111,6 +118,8 @@ const route = useRoute()
 const auth = useAuthStore()
 const router = useRouter()
 const post = ref(null)
+const prev = ref(null)
+const next = ref(null)
 const comments = ref([])
 const loading = ref(true)
 const liked = ref(false)
@@ -221,6 +230,8 @@ onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/posts/${route.params.id}`)
     post.value = data.data
+    prev.value = data.prev || null
+    next.value = data.next || null
 
     // 댓글 로딩
     try {
