@@ -267,13 +267,6 @@
         <PostNavigator :prev-id="prev?.id" :prev-title="prev?.title"
           :next-id="next?.id" :next-title="next?.title"
           list-path="/groupbuy" detail-base="/groupbuy/" />
-
-        <!-- Back to list -->
-        <div class="flex justify-center mt-4">
-          <router-link to="/groupbuy" class="text-xs font-bold text-amber-700 hover:text-amber-500 bg-white rounded-xl px-6 py-3 border shadow-sm">
-            📋 목록으로
-          </router-link>
-        </div>
       </main>
 
       <!-- ══════════ RIGHT: Sidebar ══════════ -->
