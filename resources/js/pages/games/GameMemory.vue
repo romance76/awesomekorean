@@ -16,6 +16,20 @@
         <div>레벨 5+: 18쌍 카드 (6×6)</div>
       </div>
       <div class="best-time" v-if="bestTime">🏆 최단시간: {{ bestTime }}초</div>
+      <!-- 레벨 선택 (잠금 UI) -->
+      <div class="level-picker">
+        <div class="level-picker-label">레벨 선택</div>
+        <div class="level-picker-row">
+          <button v-for="lv in 6" :key="lv" type="button"
+            class="level-pick-btn"
+            :class="{ active: level===lv, locked: lv > Math.max(1, rec.maxUnlockedLevel.value || 1) }"
+            :disabled="lv > Math.max(1, rec.maxUnlockedLevel.value || 1)"
+            @click="level = lv">
+            <span v-if="lv > Math.max(1, rec.maxUnlockedLevel.value || 1)">🔒</span>
+            <span v-else>Lv.{{ lv }}</span>
+          </button>
+        </div>
+      </div>
       <div class="progress-info" v-if="rec.maxCompletedLevel.value > 0">
         🎯 최고 클리어: Lv.{{ rec.maxCompletedLevel.value }} · 다음 도전: Lv.{{ rec.maxUnlockedLevel.value }}
       </div>
@@ -170,6 +184,14 @@ onUnmounted(() => clearInterval(timerInterval))
 .level-info { background:rgba(0,0,0,0.2); border-radius:12px; padding:12px 20px; color:#bae6fd; font-size:14px; line-height:1.8; margin:12px auto; max-width:220px; text-align:left; }
 .best-time { color:#fbbf24; font-size:15px; margin:8px 0; }
 .progress-info { color:#bae6fd; font-size:14px; margin:6px 0; background:rgba(0,0,0,0.2); padding:6px 14px; border-radius:14px; display:inline-block; }
+.level-picker { margin:14px auto 6px; max-width:320px; }
+.level-picker-label { color:#bae6fd; font-size:13px; font-weight:700; margin-bottom:8px; }
+.level-picker-row { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+.level-pick-btn { flex:1 1 auto; min-width:46px; max-width:60px; padding:8px 4px; border-radius:10px; border:2px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; }
+.level-pick-btn:hover:not(:disabled) { border-color:#0ea5e9; background:rgba(14,165,233,0.25); }
+.level-pick-btn.active { background:#0ea5e9; border-color:#0ea5e9; color:#fff; }
+.level-pick-btn.locked { opacity:0.4; cursor:not-allowed; }
+.level-pick-btn:disabled { cursor:not-allowed; }
 .start-btn { background:#0ea5e9; color:#fff; border:none; padding:14px 40px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; margin-top:16px; }
 .play-area { display:flex; flex-direction:column; align-items:center; }
 .game-info { display:flex; gap:16px; margin-bottom:14px; }

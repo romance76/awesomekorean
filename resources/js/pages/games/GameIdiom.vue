@@ -8,10 +8,15 @@
     <h1 class="game-title">사자성어 퀴즈</h1>
     <p class="game-desc">뜻 풀이를 보고 알맞은 사자성어를 골라주세요</p>
     <div class="level-card">
-      <div class="lv-row" v-for="lv in levelDesc" :key="lv.lv" :class="{active: level>=lv.lv}">
-        <span class="lv-badge">Lv.{{ lv.lv }}</span>
+      <button v-for="lv in levelDesc" :key="lv.lv"
+        type="button"
+        class="lv-row lv-row-btn"
+        :class="{ active: level===lv.lv, locked: lv.lv > Math.max(1, rec.maxUnlockedLevel.value || 1) }"
+        :disabled="lv.lv > Math.max(1, rec.maxUnlockedLevel.value || 1)"
+        @click="level = lv.lv">
+        <span class="lv-badge">{{ lv.lv > Math.max(1, rec.maxUnlockedLevel.value || 1) ? '🔒' : 'Lv.' + lv.lv }}</span>
         <span>{{ lv.desc }}</span>
-      </div>
+      </button>
     </div>
     <div class="progress-info" v-if="rec.maxCompletedLevel.value > 0">
       🎯 최고 클리어: Lv.{{ rec.maxCompletedLevel.value }} · 다음 도전: Lv.{{ rec.maxUnlockedLevel.value }}
@@ -249,6 +254,11 @@ loadPool()
 .play-btn { background:linear-gradient(135deg,#d97706,#92400e); color:#fff; border:none; padding:16px 48px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; box-shadow:0 4px 20px rgba(217,119,6,0.4); }
 .play-btn:disabled { opacity: 0.6; cursor: default; }
 .progress-info { background:rgba(217,119,6,0.15); color:#92400e; padding:8px 16px; border-radius:14px; font-size:13px; font-weight:600; margin-bottom:14px; display:inline-block; }
+.lv-row-btn { width:100%; text-align:left; background:transparent; border:none; cursor:pointer; transition:all 0.15s; }
+.lv-row-btn:hover:not(:disabled) { background:rgba(217,119,6,0.1); }
+.lv-row-btn.active { background:rgba(217,119,6,0.2); color:#92400e; font-weight:700; }
+.lv-row-btn.locked { opacity:0.45; cursor:not-allowed; }
+.lv-row-btn:disabled { cursor:not-allowed; }
 
 .play-screen { padding:12px 16px; max-width:560px; margin:0 auto; width:100%; }
 .play-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }

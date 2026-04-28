@@ -8,10 +8,15 @@
     <h1 class="title">한국어 단어 카드</h1>
     <p class="subtitle">그림을 보고 한국어 단어를 맞춰요!</p>
     <div class="level-card">
-      <div class="lv-row" v-for="lv in levelDesc" :key="lv.lv" :class="{active: level>=lv.lv}">
-        <span class="lv-badge">Lv.{{ lv.lv }}</span>
+      <button v-for="lv in levelDesc" :key="lv.lv"
+        type="button"
+        class="lv-row lv-row-btn"
+        :class="{ active: level===lv.lv, locked: lv.lv > Math.max(1, maxUnlockedLevel || 1) }"
+        :disabled="lv.lv > Math.max(1, maxUnlockedLevel || 1)"
+        @click="level = lv.lv">
+        <span class="lv-badge">{{ lv.lv > Math.max(1, maxUnlockedLevel || 1) ? '🔒' : 'Lv.' + lv.lv }}</span>
         <span>{{ lv.desc }}</span>
-      </div>
+      </button>
     </div>
     <div class="progress-info" v-if="maxCompletedLevel > 0">
       🎯 최고 클리어: Lv.{{ maxCompletedLevel }} · 다음 도전: Lv.{{ maxUnlockedLevel }}
@@ -245,6 +250,11 @@ loadPool()
 .start-btn { background:linear-gradient(135deg,#0ea5e9,#0369a1); color:#fff; border:none; padding:16px 40px; border-radius:30px; font-size:18px; font-weight:800; cursor:pointer; box-shadow:0 4px 20px rgba(14,165,233,0.4); }
 .start-btn:disabled { opacity: 0.6; cursor: default; }
 .progress-info { background:rgba(14,165,233,0.15); color:#0c4a6e; padding:8px 16px; border-radius:14px; font-size:13px; font-weight:600; margin-bottom:14px; display:inline-block; }
+.lv-row-btn { width:100%; text-align:left; background:transparent; border:none; cursor:pointer; transition:all 0.15s; }
+.lv-row-btn:hover:not(:disabled) { background:rgba(14,165,233,0.1); }
+.lv-row-btn.active { background:rgba(14,165,233,0.2); color:#0c4a6e; font-weight:700; }
+.lv-row-btn.locked { opacity:0.45; cursor:not-allowed; }
+.lv-row-btn:disabled { cursor:not-allowed; }
 
 .play-box { max-width:520px; margin:0 auto; padding:12px 16px; width:100%; }
 .progress-bar { height:8px; background:rgba(255,255,255,0.5); border-radius:4px; margin-bottom:8px; overflow:hidden; }
