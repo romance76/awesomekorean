@@ -1,12 +1,12 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- 헤더: 데스크탑 -->
-    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-xl font-black text-gray-800 flex-shrink-0">💼 구인구직</h1>
+    <!-- 헤더: 데스크탑 (3컬럼: 좌 타이틀 | 중앙 토글 | 우 컨트롤) -->
+    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-2">
+      <h1 class="text-xl font-black text-gray-800 justify-self-start">💼 구인구직</h1>
 
-      <!-- 구인/구직 세그먼트 -->
-      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <!-- 구인/구직 세그먼트 (정 중앙) -->
+      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">
         <button @click="postType = 'hiring'; loadPage()"
           :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
             postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50']">
@@ -19,7 +19,7 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-2 flex-wrap">
+      <div class="flex items-center gap-2 flex-wrap justify-self-end">
         <select v-model="selectedCityIdx" @change="onCityChange"
           class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
