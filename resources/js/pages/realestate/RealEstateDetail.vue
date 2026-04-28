@@ -3,7 +3,7 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="listing?.title || '부동산'" fallback="/realestate" />
     <!-- 헤더: 데스크탑 (렌트/매매/룸메이트 세그먼트 중앙 정렬, 리스트와 동일) -->
-    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-2">
+    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
       <RouterLink to="/realestate" class="text-xl font-black text-gray-800 hover:text-amber-600 transition justify-self-start">🏠 부동산</RouterLink>
       <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">
         <RouterLink to="/realestate?type=rent"

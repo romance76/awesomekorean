@@ -1,9 +1,9 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- 헤더: 데스크탑 (3컬럼: 좌 타이틀 | 중앙 토글 | 우 컨트롤) -->
-    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-2">
-      <h1 class="text-xl font-black text-gray-800 justify-self-start">💼 구인구직</h1>
+    <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 (auto) | 우 컨트롤) -->
+    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
+      <h1 class="text-xl font-black text-gray-800 justify-self-start whitespace-nowrap">💼 구인구직</h1>
 
       <!-- 구인/구직 세그먼트 (정 중앙) -->
       <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">

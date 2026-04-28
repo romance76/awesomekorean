@@ -61,9 +61,9 @@
       </div>
     </MobileFilter>
 
-    <!-- 헤더: 데스크탑 (3컬럼: 좌 타이틀 | 중앙 토글 | 우 컨트롤) -->
-    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-3">
-      <h1 class="text-xl font-black text-gray-800 justify-self-start">🏠 부동산</h1>
+    <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 (auto) | 우 컨트롤) -->
+    <div class="hidden lg:grid items-center mb-4 gap-3" style="grid-template-columns: 1fr auto 1fr;">
+      <h1 class="text-xl font-black text-gray-800 justify-self-start whitespace-nowrap">🏠 부동산</h1>
 
       <!-- 렌트/매매/룸메이트 세그먼트 (정 중앙) -->
       <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">

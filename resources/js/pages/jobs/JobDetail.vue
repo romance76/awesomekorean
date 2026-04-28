@@ -3,7 +3,7 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="job?.title || '구인구직'" fallback="/jobs" />
     <!-- 헤더: 데스크탑 (구인/구직 세그먼트 중앙 정렬, 리스트와 동일) -->
-    <div class="hidden lg:grid grid-cols-3 items-center mb-4 gap-2">
+    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
       <router-link to="/jobs" class="text-xl font-black text-gray-800 hover:text-amber-600 transition justify-self-start">💼 구인구직</router-link>
       <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white justify-self-center">
         <router-link to="/jobs?type=hiring"
