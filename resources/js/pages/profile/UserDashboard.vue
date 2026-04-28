@@ -12,7 +12,7 @@
     <!-- 탭 -->
     <div class="flex gap-1 mb-4 bg-white rounded-xl p-1 shadow-sm border overflow-x-auto scrollbar-hide">
       <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
-        class="flex-shrink-0 text-xs font-bold py-2 px-3 rounded-lg transition whitespace-nowrap"
+        class="flex-shrink-0 text-xs sm:text-sm font-bold py-2.5 sm:py-2 px-3 sm:px-4 rounded-lg transition whitespace-nowrap min-h-[40px]"
         :class="tab===t.key ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50'">{{ t.icon }} {{ t.label }}</button>
     </div>
 
