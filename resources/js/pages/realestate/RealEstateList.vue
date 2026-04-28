@@ -61,12 +61,12 @@
       </div>
     </MobileFilter>
 
-    <!-- 헤더: 데스크탑 (좌·우는 자연 너비, 토글은 absolute 정중앙) -->
-    <div class="hidden lg:flex items-center justify-between mb-4 gap-3 relative">
-      <h1 class="text-xl font-black text-gray-800 whitespace-nowrap">🏠 부동산</h1>
+    <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 | 우 컨트롤 — grid 3컬럼) -->
+    <div class="hidden lg:grid items-center mb-4 gap-3" style="grid-template-columns: 1fr auto 1fr;">
+      <h1 class="text-xl font-black text-gray-800 whitespace-nowrap justify-self-start">🏠 부동산</h1>
 
-      <!-- 렌트/매매/룸메이트 세그먼트 (정 중앙 absolute) -->
-      <div class="absolute left-1/2 -translate-x-1/2 flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <!-- 렌트/매매/룸메이트 세그먼트 (정 중앙) -->
+      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
         <button v-for="t in reTypeTabs" :key="t.value"
           @click="changeReType(t.value)"
           :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
@@ -75,7 +75,7 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-2 flex-nowrap">
+      <div class="flex items-center gap-2 flex-nowrap justify-self-end">
         <span class="text-amber-600 text-sm">📍</span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>

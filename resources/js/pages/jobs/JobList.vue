@@ -1,12 +1,12 @@
 <template>
 <div class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- 헤더: 데스크탑 (좌·우는 자연 너비, 토글은 absolute 정중앙) -->
-    <div class="hidden lg:flex items-center justify-between mb-4 gap-2 relative">
-      <h1 class="text-xl font-black text-gray-800 whitespace-nowrap">💼 구인구직</h1>
+    <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 | 우 컨트롤 — grid 3컬럼) -->
+    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
+      <h1 class="text-xl font-black text-gray-800 whitespace-nowrap justify-self-start">💼 구인구직</h1>
 
-      <!-- 구인/구직 세그먼트 (정 중앙 absolute) -->
-      <div class="absolute left-1/2 -translate-x-1/2 flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <!-- 구인/구직 세그먼트 (정 중앙) -->
+      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
         <button @click="postType = 'hiring'; loadPage()"
           :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
             postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50']">
@@ -19,7 +19,7 @@
         </button>
       </div>
 
-      <div class="flex items-center gap-2 flex-nowrap">
+      <div class="flex items-center gap-2 flex-nowrap justify-self-end">
         <select v-model="selectedCityIdx" @change="onCityChange"
           class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
