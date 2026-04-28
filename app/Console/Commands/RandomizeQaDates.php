@@ -30,7 +30,7 @@ class RandomizeQaDates extends Command
 
         $now = Carbon::now();
         $cutoff = $now->copy()->subMonths($months);
-        $totalSec = $now->diffInSeconds($cutoff);
+        $totalSec = abs($now->diffInSeconds($cutoff));
 
         $this->info("📅 분포 범위: {$cutoff->format('Y-m-d')} ~ {$now->format('Y-m-d')} ({$months} 개월)");
         if ($dry) $this->warn('🔍 DRY RUN — 실제 업데이트 안 함');
@@ -65,7 +65,7 @@ class RandomizeQaDates extends Command
 
         foreach ($answers as $a) {
             $parentDate = $postDates[$a->qa_post_id] ?? $cutoff;
-            $afterParentSec = max(60, $now->diffInSeconds($parentDate));
+            $afterParentSec = max(60, abs($now->diffInSeconds($parentDate)));
             $randSec = mt_rand(0, $afterParentSec);
             $d = $parentDate->copy()->addSeconds($randSec);
             if (!$dry) {
@@ -103,7 +103,7 @@ class RandomizeQaDates extends Command
                     $base = $answerDateCache[$c->commentable_id];
                 }
                 if (!$base) { $bar->advance(); continue; }
-                $afterSec = max(60, $now->diffInSeconds($base));
+                $afterSec = max(60, abs($now->diffInSeconds($base)));
                 $d = $base->copy()->addSeconds(mt_rand(0, $afterSec));
                 if (!$dry) {
                     DB::table('comments')->where('id', $c->id)->update([
