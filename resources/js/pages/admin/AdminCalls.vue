@@ -1,106 +1,112 @@
 <template>
 <div>
-  <h1 class="text-xl font-black text-gray-800 mb-4">📞 통화 내역 관리</h1>
+  <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="phone" :size="20" /></span>
+    통화 내역 관리
+  </h1>
 
   <!-- 통계 -->
   <div class="grid grid-cols-5 gap-2 mb-4">
-    <div class="bg-white rounded-xl border p-3 text-center">
-      <div class="text-[10px] text-gray-500">전체</div>
-      <div class="text-lg font-black text-gray-800">{{ stats.total || 0 }}</div>
+    <div class="card p-3 text-center">
+      <div class="text-xs text-ink-muted">전체</div>
+      <div class="text-lg font-black text-ink">{{ stats.total || 0 }}</div>
     </div>
-    <div class="bg-white rounded-xl border p-3 text-center">
-      <div class="text-[10px] text-gray-500">통화 성공</div>
+    <div class="card p-3 text-center">
+      <div class="text-xs text-ink-muted">통화 성공</div>
       <div class="text-lg font-black text-green-600">{{ stats.answered || 0 }}</div>
     </div>
-    <div class="bg-white rounded-xl border p-3 text-center">
-      <div class="text-[10px] text-gray-500">부재중</div>
+    <div class="card p-3 text-center">
+      <div class="text-xs text-ink-muted">부재중</div>
       <div class="text-lg font-black text-red-600">{{ stats.missed || 0 }}</div>
     </div>
-    <div class="bg-white rounded-xl border p-3 text-center">
-      <div class="text-[10px] text-gray-500">오늘</div>
+    <div class="card p-3 text-center">
+      <div class="text-xs text-ink-muted">오늘</div>
       <div class="text-lg font-black text-blue-600">{{ stats.today || 0 }}</div>
     </div>
-    <div class="bg-white rounded-xl border p-3 text-center">
-      <div class="text-[10px] text-gray-500">평균 통화시간</div>
+    <div class="card p-3 text-center">
+      <div class="text-xs text-ink-muted">평균 통화시간</div>
       <div class="text-lg font-black text-purple-600">{{ formatSec(stats.avg_duration || 0) }}</div>
     </div>
   </div>
 
   <!-- 필터 -->
   <div class="flex gap-2 mb-4">
-    <select v-model="filter" @change="load" class="border rounded-lg px-3 py-1.5 text-xs">
+    <select v-model="filter" @change="load" class="input-soft !w-auto !px-3 !py-1.5 !text-xs">
       <option value="">전체 상태</option>
       <option value="ended">통화 완료</option>
       <option value="answered">응답</option>
       <option value="initiated">부재중</option>
     </select>
-    <input v-model="search" @keyup.enter="load" placeholder="이름 검색" class="border rounded-lg px-3 py-1.5 text-xs flex-1" />
-    <button @click="load" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs">검색</button>
+    <input v-model="search" @keyup.enter="load" placeholder="이름 검색" class="input-soft flex-1 !w-auto !px-3 !py-1.5 !text-xs" />
+    <button @click="load" class="btn-primary !px-4 !py-1.5 !text-xs">검색</button>
   </div>
 
   <!-- 목록 -->
-  <div v-if="loading" class="text-center py-8 text-gray-400">로딩중...</div>
-  <div v-else-if="!calls.length" class="text-center py-8 text-gray-400">통화 기록이 없습니다</div>
-  <div v-else class="bg-white rounded-xl border overflow-hidden">
+  <div v-if="loading" class="text-center py-8 text-ink-muted">로딩중...</div>
+  <div v-else-if="!calls.length" class="py-16 text-center">
+    <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="phone" :size="28" :stroke-width="1.5" /></div>
+    <p class="text-sm text-ink-muted">통화 기록이 없습니다</p>
+  </div>
+  <div v-else class="card overflow-hidden">
     <table class="w-full text-xs">
-      <thead class="bg-gray-50 border-b">
+      <thead class="bg-gray-50 border-b border-gray-50">
         <tr>
-          <th class="px-3 py-2 text-left text-gray-500">ID</th>
-          <th class="px-3 py-2 text-center text-gray-500">유형</th>
-          <th class="px-3 py-2 text-left text-gray-500">발신자</th>
-          <th class="px-3 py-2 text-center text-gray-500">→</th>
-          <th class="px-3 py-2 text-left text-gray-500">수신자</th>
-          <th class="px-3 py-2 text-center text-gray-500">상태</th>
-          <th class="px-3 py-2 text-center text-gray-500">통화시간</th>
-          <th class="px-3 py-2 text-right text-gray-500">일시</th>
+          <th class="px-3 py-2 text-left text-ink-muted">ID</th>
+          <th class="px-3 py-2 text-center text-ink-muted">유형</th>
+          <th class="px-3 py-2 text-left text-ink-muted">발신자</th>
+          <th class="px-3 py-2 text-center text-ink-muted">→</th>
+          <th class="px-3 py-2 text-left text-ink-muted">수신자</th>
+          <th class="px-3 py-2 text-center text-ink-muted">상태</th>
+          <th class="px-3 py-2 text-center text-ink-muted">통화시간</th>
+          <th class="px-3 py-2 text-right text-ink-muted">일시</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="c in calls" :key="c.id" class="border-b last:border-0 hover:bg-amber-50/30">
-          <td class="px-3 py-2 text-gray-400">#{{ c.id }}</td>
+        <tr v-for="c in calls" :key="c.id" class="border-b border-gray-50 last:border-0 hover:bg-amber-50/40 transition-colors">
+          <td class="px-3 py-2 text-ink-faint">#{{ c.id }}</td>
           <td class="px-3 py-2 text-center">
-            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold"
               :class="(c.call_type||'friend')==='elder' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
-              {{ (c.call_type||'friend')==='elder' ? '🛡️안심' : '👫친구' }}
+              {{ (c.call_type||'friend')==='elder' ? '안심' : '친구' }}
             </span>
           </td>
           <td class="px-3 py-2">
             <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center text-[9px] font-bold">{{ (c.caller?.name||'?')[0] }}</div>
+              <div class="w-6 h-6 rounded-full bg-amber-400 text-white flex items-center justify-center text-[11px] font-bold">{{ (c.caller?.name||'?')[0] }}</div>
               <div>
-                <div class="font-bold text-gray-800">{{ c.caller?.nickname || c.caller?.name }}</div>
-                <div class="text-[10px] text-gray-400">ID:{{ c.caller_id }}</div>
+                <div class="font-bold text-ink">{{ c.caller?.nickname || c.caller?.name }}</div>
+                <div class="text-[11px] text-ink-faint">ID:{{ c.caller_id }}</div>
               </div>
             </div>
           </td>
-          <td class="px-3 py-2 text-center text-gray-300">📞→</td>
+          <td class="px-3 py-2 text-center text-ink-faint"><AppIcon name="arrow-right" :size="13" class="inline" /></td>
           <td class="px-3 py-2">
             <div class="flex items-center gap-2">
-              <div class="w-6 h-6 rounded-full bg-blue-400 text-white flex items-center justify-center text-[9px] font-bold">{{ (c.callee?.name||'?')[0] }}</div>
+              <div class="w-6 h-6 rounded-full bg-blue-400 text-white flex items-center justify-center text-[11px] font-bold">{{ (c.callee?.name||'?')[0] }}</div>
               <div>
-                <div class="font-bold text-gray-800">{{ c.callee?.nickname || c.callee?.name }}</div>
-                <div class="text-[10px] text-gray-400">ID:{{ c.callee_id }}</div>
+                <div class="font-bold text-ink">{{ c.callee?.nickname || c.callee?.name }}</div>
+                <div class="text-[11px] text-ink-faint">ID:{{ c.callee_id }}</div>
               </div>
             </div>
           </td>
           <td class="px-3 py-2 text-center">
-            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
-              :class="{'bg-green-100 text-green-700': c.status==='ended'||c.status==='answered', 'bg-red-100 text-red-700': c.status==='initiated', 'bg-gray-100 text-gray-500': c.status==='missed'}">
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold"
+              :class="{'bg-green-100 text-green-700': c.status==='ended'||c.status==='answered', 'bg-red-100 text-red-700': c.status==='initiated', 'bg-gray-100 text-ink-light': c.status==='missed'}">
               {{ {ended:'완료',answered:'응답',initiated:'부재중',missed:'부재중'}[c.status] || c.status }}
             </span>
           </td>
-          <td class="px-3 py-2 text-center font-bold" :class="c.duration > 0 ? 'text-green-700' : 'text-gray-400'">
+          <td class="px-3 py-2 text-center font-bold" :class="c.duration > 0 ? 'text-green-700' : 'text-ink-faint'">
             {{ c.duration > 0 ? formatSec(c.duration) : '-' }}
           </td>
-          <td class="px-3 py-2 text-right text-gray-500">{{ fmtDate(c.created_at) }}</td>
+          <td class="px-3 py-2 text-right text-ink-muted">{{ fmtDate(c.created_at) }}</td>
         </tr>
       </tbody>
     </table>
 
     <!-- 페이지네이션 -->
-    <div v-if="lastPage > 1" class="flex justify-center gap-1 py-3 border-t">
-      <button v-for="p in lastPage" :key="p" @click="page=p; load()" class="w-7 h-7 rounded text-[10px] font-bold"
-        :class="p===page?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-gray-100'">{{ p }}</button>
+    <div v-if="lastPage > 1" class="flex justify-center gap-1 py-3 border-t border-gray-50">
+      <button v-for="p in lastPage" :key="p" @click="page=p; load()" class="w-8 h-8 rounded-lg text-xs font-bold transition-colors"
+        :class="p===page?'bg-amber-400 text-white':'text-ink-muted hover:bg-gray-100'">{{ p }}</button>
     </div>
   </div>
 </div>
@@ -109,6 +115,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 
 const calls = ref([])
 const stats = ref({})

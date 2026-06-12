@@ -1,54 +1,56 @@
 <template>
 <div>
   <div class="flex items-center gap-3 mb-4">
-    <RouterLink to="/admin/games" class="text-xs text-gray-500 hover:text-amber-600">← 게임 관리</RouterLink>
+    <RouterLink to="/admin/games" class="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-amber-600 transition-colors"><AppIcon name="arrow-left" :size="13" /> 게임 관리</RouterLink>
   </div>
 
-  <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-  <div v-else-if="!game" class="text-center py-12 text-red-400">게임을 찾을 수 없습니다</div>
+  <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
+  <div v-else-if="!game" class="text-center py-12 text-red-500">게임을 찾을 수 없습니다</div>
   <div v-else>
     <!-- 게임 헤더 -->
-    <div class="bg-white rounded-xl border shadow-sm p-5 mb-4 flex items-center gap-4">
+    <div class="card p-5 mb-4 flex items-center gap-4">
       <div class="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center text-4xl flex-shrink-0">{{ game.icon }}</div>
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2">
-          <h1 class="text-xl font-black text-gray-800">{{ game.name }}</h1>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded" :class="catBadge(game.category)">{{ catLabel(game.category) }}</span>
-          <span v-if="game.is_active" class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-100 text-green-700">활성</span>
-          <span v-else class="text-[10px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-500">비활성</span>
+          <h1 class="text-xl font-bold text-ink">{{ game.name }}</h1>
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="catBadge(game.category)">{{ catLabel(game.category) }}</span>
+          <span v-if="game.is_active" class="badge-green">활성</span>
+          <span v-else class="badge-gray">비활성</span>
         </div>
-        <div class="text-xs text-gray-500 mt-1">{{ game.description || game.slug }}</div>
-        <div class="text-[11px] text-gray-400 mt-0.5">slug: <code class="bg-gray-100 px-1">{{ game.slug }}</code> · 경로: <code class="bg-gray-100 px-1">{{ game.path }}</code></div>
+        <div class="text-xs text-ink-muted mt-1">{{ game.description || game.slug }}</div>
+        <div class="text-[11px] text-ink-faint mt-0.5">slug: <code class="bg-gray-100 px-1">{{ game.slug }}</code> · 경로: <code class="bg-gray-100 px-1">{{ game.path }}</code></div>
       </div>
       <div class="flex flex-col gap-1 flex-shrink-0">
-        <a :href="game.path" target="_blank" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-500 text-center">
-          🔗 게임 열기
+        <a :href="game.path" target="_blank" class="btn-primary !px-3 !py-1.5 !text-xs">
+          <AppIcon name="external-link" :size="13" /> 게임 열기
         </a>
-        <RouterLink v-if="isQuizGame" :to="`/admin/games/questions/${game.slug}`" class="text-xs bg-purple-100 text-purple-700 font-bold px-3 py-1.5 rounded-lg hover:bg-purple-200 text-center">
-          ❓ 퀴즈 문제
+        <RouterLink v-if="isQuizGame" :to="`/admin/games/questions/${game.slug}`" class="inline-flex items-center justify-center gap-1 text-xs bg-violet-50 text-violet-700 font-semibold px-3 py-1.5 rounded-xl hover:bg-violet-100 transition-colors">
+          <AppIcon name="help-circle" :size="13" /> 퀴즈 문제
         </RouterLink>
       </div>
     </div>
 
     <!-- 기본 정보 수정 -->
-    <div class="bg-white rounded-xl border shadow-sm p-5 mb-4">
-      <h2 class="font-black text-sm text-gray-800 mb-3">📝 기본 정보</h2>
+    <div class="card p-5 mb-4">
+      <h2 class="flex items-center gap-2 font-bold text-sm text-ink mb-3">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="14" /></span>기본 정보
+      </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label class="text-[11px] font-bold text-gray-600 block mb-0.5">게임 이름</label>
-          <input v-model="form.name" class="w-full border rounded px-2 py-1.5 text-sm" />
+          <label class="input-label">게임 이름</label>
+          <input v-model="form.name" class="input-soft" />
         </div>
         <div>
-          <label class="text-[11px] font-bold text-gray-600 block mb-0.5">아이콘 (이모지)</label>
-          <input v-model="form.icon" maxlength="8" class="w-full border rounded px-2 py-1.5 text-sm" />
+          <label class="input-label">아이콘 (이모지)</label>
+          <input v-model="form.icon" maxlength="8" class="input-soft" />
         </div>
         <div class="md:col-span-2">
-          <label class="text-[11px] font-bold text-gray-600 block mb-0.5">설명 (한 줄)</label>
-          <input v-model="form.description" class="w-full border rounded px-2 py-1.5 text-sm" />
+          <label class="input-label">설명 (한 줄)</label>
+          <input v-model="form.description" class="input-soft" />
         </div>
         <div>
-          <label class="text-[11px] font-bold text-gray-600 block mb-0.5">카테고리</label>
-          <select v-model="form.category" class="w-full border rounded px-2 py-1.5 text-sm">
+          <label class="input-label">카테고리</label>
+          <select v-model="form.category" class="input-soft">
             <option value="card">🃏 카드</option>
             <option value="brain">🧠 두뇌</option>
             <option value="arcade">👾 아케이드</option>
@@ -64,20 +66,22 @@
         </div>
       </div>
       <div class="flex items-center gap-3 mt-4">
-        <button @click="saveGame" :disabled="savingGame" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded text-xs hover:bg-amber-500 disabled:opacity-50">
-          {{ savingGame ? '저장중...' : '💾 기본 정보 저장' }}
+        <button @click="saveGame" :disabled="savingGame" class="btn-primary !px-4 !py-1.5 !text-xs">
+          {{ savingGame ? '저장중...' : '기본 정보 저장' }}
         </button>
         <span v-if="gameMsg" class="text-xs text-green-600">{{ gameMsg }}</span>
       </div>
     </div>
 
     <!-- 커스텀 설정 (key/value) -->
-    <div class="bg-white rounded-xl border shadow-sm p-5">
+    <div class="card p-5">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="font-black text-sm text-gray-800">⚙️ 커스텀 설정 <span class="font-normal text-xs text-gray-400">(게임별 파라미터)</span></h2>
-        <button @click="addRow" class="bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded text-xs">+ 항목 추가</button>
+        <h2 class="flex items-center gap-2 font-bold text-sm text-ink">
+          <span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="settings" :size="14" /></span>커스텀 설정 <span class="font-normal text-xs text-ink-faint">(게임별 파라미터)</span>
+        </h2>
+        <button @click="addRow" class="btn-soft !px-3 !py-1 !text-xs"><AppIcon name="plus" :size="13" /> 항목 추가</button>
       </div>
-      <p class="text-[11px] text-gray-500 mb-3">
+      <p class="text-xs text-ink-muted mb-3">
         이 게임에서만 사용되는 설정을 key/value 로 저장합니다.
         예시: <code class="bg-gray-100 px-1">max_players=4</code>,
         <code class="bg-gray-100 px-1">time_limit=60</code>,
@@ -85,28 +89,28 @@
         게임 코드에서 <code class="bg-gray-100 px-1">/api/game-settings/{slug}</code> 로 읽습니다.
       </p>
 
-      <div v-if="!settings.length && !newRows.length" class="text-center py-8 text-sm text-gray-400 bg-gray-50 rounded-lg">
+      <div v-if="!settings.length && !newRows.length" class="text-center py-8 text-sm text-ink-muted bg-gray-50 rounded-xl">
         등록된 설정이 없습니다
       </div>
 
       <div v-else class="space-y-2">
         <!-- 기존 설정 -->
         <div v-for="s in settings" :key="s.id || s.key" class="flex items-center gap-2">
-          <input :value="s.key" disabled class="w-40 border rounded px-2 py-1.5 text-xs font-mono bg-gray-50" />
-          <input v-model="s.value" class="flex-1 border rounded px-2 py-1.5 text-xs font-mono" />
-          <button @click="deleteSetting(s)" class="text-red-400 hover:text-red-600 text-xs flex-shrink-0">✕</button>
+          <input :value="s.key" disabled class="input-soft w-40 !px-2 !py-1.5 !text-xs font-mono opacity-70" />
+          <input v-model="s.value" class="input-soft flex-1 !w-auto !px-2 !py-1.5 !text-xs font-mono" />
+          <button @click="deleteSetting(s)" class="text-red-400 hover:text-red-600 flex-shrink-0 transition-colors"><AppIcon name="x" :size="14" /></button>
         </div>
         <!-- 신규 행 -->
         <div v-for="(r, i) in newRows" :key="'new' + i" class="flex items-center gap-2">
-          <input v-model="r.key" placeholder="key (예: max_players)" class="w-40 border rounded px-2 py-1.5 text-xs font-mono" />
-          <input v-model="r.value" placeholder="value" class="flex-1 border rounded px-2 py-1.5 text-xs font-mono" />
-          <button @click="newRows.splice(i, 1)" class="text-gray-400 hover:text-red-500 text-xs flex-shrink-0">✕</button>
+          <input v-model="r.key" placeholder="key (예: max_players)" class="input-soft w-40 !px-2 !py-1.5 !text-xs font-mono" />
+          <input v-model="r.value" placeholder="value" class="input-soft flex-1 !w-auto !px-2 !py-1.5 !text-xs font-mono" />
+          <button @click="newRows.splice(i, 1)" class="text-ink-faint hover:text-red-500 flex-shrink-0 transition-colors"><AppIcon name="x" :size="14" /></button>
         </div>
       </div>
 
       <div class="flex items-center gap-3 mt-4">
-        <button @click="saveSettings" :disabled="savingSettings" class="bg-amber-500 text-white font-bold px-4 py-1.5 rounded text-xs hover:bg-amber-600 disabled:opacity-50">
-          {{ savingSettings ? '저장중...' : '💾 설정 저장' }}
+        <button @click="saveSettings" :disabled="savingSettings" class="btn-primary !px-4 !py-1.5 !text-xs">
+          {{ savingSettings ? '저장중...' : '설정 저장' }}
         </button>
         <span v-if="settingMsg" class="text-xs text-green-600">{{ settingMsg }}</span>
       </div>
@@ -119,6 +123,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 
 const route = useRoute()
 const slug = route.params.slug
@@ -143,7 +148,7 @@ function catBadge(c) {
     card: 'bg-purple-100 text-purple-700', brain: 'bg-blue-100 text-blue-700',
     arcade: 'bg-red-100 text-red-700', word: 'bg-green-100 text-green-700',
     education: 'bg-amber-100 text-amber-700',
-  }[c] || 'bg-gray-100 text-gray-600'
+  }[c] || 'bg-gray-100 text-ink-light'
 }
 
 async function load() {

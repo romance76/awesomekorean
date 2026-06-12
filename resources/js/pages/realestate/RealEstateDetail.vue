@@ -1,56 +1,60 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="listing?.title || '부동산'" fallback="/realestate" />
     <!-- 헤더: 데스크탑 (grid 3컬럼 — 리스트와 동일) -->
     <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
-      <RouterLink to="/realestate" class="text-xl font-black text-gray-800 hover:text-amber-600 transition whitespace-nowrap justify-self-start">🏠 부동산</RouterLink>
-      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <RouterLink to="/realestate" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors whitespace-nowrap justify-self-start">
+        <span class="icon-chip w-9 h-9 bg-violet-50 text-violet-600"><AppIcon name="building" :size="20" /></span>
+        부동산
+      </RouterLink>
+      <div class="flex bg-gray-100 rounded-xl p-1">
         <RouterLink to="/realestate?type=rent"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            listing?.type === 'rent' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-50']">
-          🔑 렌트
+          :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
+            listing?.type === 'rent' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="key" :size="13" /> 렌트
         </RouterLink>
         <RouterLink to="/realestate?type=sale"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            listing?.type === 'sale' ? 'bg-red-500 text-white' : 'text-gray-500 hover:bg-gray-50']">
-          🏠 매매
+          :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
+            listing?.type === 'sale' ? 'bg-white text-red-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="home" :size="13" /> 매매
         </RouterLink>
         <RouterLink to="/realestate?type=roommate"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            listing?.type === 'roommate' ? 'bg-green-500 text-white' : 'text-gray-500 hover:bg-gray-50']">
-          👥 룸메이트
+          :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
+            listing?.type === 'roommate' ? 'bg-white text-green-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="users" :size="13" /> 룸메이트
         </RouterLink>
       </div>
       <div class="justify-self-end">
-        <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">✏️ 등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary px-3 py-1.5 text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
       </div>
     </div>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
+    <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="listing" class="grid grid-cols-12 gap-4">
 
       <!-- 왼쪽: 카테고리 (리스트와 동일) -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-3 py-2.5 border-b font-bold text-xs"
+          <div class="card overflow-hidden">
+            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs flex items-center gap-1"
               :class="listing.type==='rent' ? 'text-blue-700' : listing.type==='sale' ? 'text-red-700' : 'text-green-700'">
-              {{ listing.type==='rent' ? '🔑 렌트' : listing.type==='sale' ? '🏠 매매' : '👥 룸메이트' }} 카테고리
+              <AppIcon :name="listing.type==='rent' ? 'key' : listing.type==='sale' ? 'home' : 'users'" :size="13" />
+              {{ listing.type==='rent' ? '렌트' : listing.type==='sale' ? '매매' : '룸메이트' }} 카테고리
             </div>
-            <RouterLink to="/realestate" class="block w-full text-left px-3 py-1.5 text-xs text-gray-600 hover:bg-amber-50/50">전체</RouterLink>
+            <RouterLink to="/realestate" class="block w-full text-left px-3 py-1.5 text-xs text-ink-light hover:bg-amber-50/50 transition-colors">전체</RouterLink>
             <template v-for="group in sideSubcats" :key="group.label">
-              <div class="px-3 py-1 bg-gray-50 text-[9px] text-gray-500 font-bold border-t">{{ group.label }}</div>
+              <div class="px-3 py-1 bg-gray-50 text-[11px] text-ink-muted font-bold border-t border-gray-50">{{ group.label }}</div>
               <RouterLink v-for="c in group.items" :key="c.value"
                 :to="`/realestate?type=${listing.type}&cat=${c.value}`"
-                class="block px-3 py-1 text-[11px] pl-5 transition cursor-pointer"
-                :class="listing.property_type === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/30'">
+                class="block px-3 py-1 text-[11px] pl-5 transition-colors cursor-pointer"
+                :class="listing.property_type === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/30'">
                 {{ c.label }}
               </RouterLink>
             </template>
             <!-- 내 하트 -->
-            <RouterLink to="/realestate?fav=1" class="block w-full text-left px-3 py-1.5 text-xs transition border-t text-gray-600 hover:bg-red-50/50">
-              🔖 내 북마크<span v-if="favCount > 0" class="ml-0.5 text-red-500 font-bold">({{ favCount }})</span>
+            <RouterLink to="/realestate?fav=1" class="flex items-center gap-1 w-full text-left px-3 py-1.5 text-xs transition-colors border-t border-gray-50 text-ink-light hover:bg-red-50/50">
+              <AppIcon name="bookmark" :size="12" /> 내 북마크<span v-if="favCount > 0" class="ml-0.5 text-red-500 font-bold">({{ favCount }})</span>
             </RouterLink>
           </div>
           <AdSlot page="realestate" position="left" :maxSlots="2" />
@@ -60,7 +64,7 @@
       <!-- 중앙: 상세 -->
       <div class="col-span-12 lg:col-span-7 space-y-4">
         <!-- 사진 갤러리 (전체 폭) -->
-        <div v-if="allPhotos.length" class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <div v-if="allPhotos.length" class="card overflow-hidden">
           <div class="relative cursor-pointer" @click="openLightbox(activePhotoIdx)">
             <img :src="photoUrl(allPhotos[activePhotoIdx])" style="width:100%; height:400px; object-fit:cover;" />
             <div class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
@@ -76,43 +80,45 @@
             </div>
           </div>
         </div>
-        <div v-else class="bg-gray-100 rounded-xl flex items-center justify-center text-4xl" style="height:200px;">🏠</div>
+        <div v-else class="bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300" style="height:200px;">
+          <AppIcon name="home" :size="40" :stroke-width="1.5" />
+        </div>
 
         <!-- 가격/정보 + 판매자 (나란히) -->
         <div class="flex gap-3">
           <!-- 왼쪽: 매물 정보 -->
-          <div class="flex-1 min-w-0 bg-white rounded-xl shadow-sm p-4"
+          <div class="flex-1 min-w-0 card p-4"
             :style="promoBorderStyle">
             <!-- 1행: 태그 + ❤️🚨 -->
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" :class="listing.type==='sale'?'bg-red-100 text-red-700':'bg-blue-100 text-blue-700'">
+                <span class="font-bold" :class="listing.type==='sale'?'badge-red':'badge-blue'">
                   {{ listing.type==='sale' ? '매매' : '렌트' }}
                 </span>
-                <span class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full font-bold">{{ listing.property_type }}</span>
-                <span v-if="listing.promotion_tier==='national'" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌐 전국구</span>
-                <span v-else-if="listing.promotion_tier==='state_plus'" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
-                <span v-else-if="listing.promotion_tier==='sponsored'" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
+                <span class="badge-gray font-bold">{{ listing.property_type }}</span>
+                <span v-if="listing.promotion_tier==='national'" class="inline-flex items-center gap-0.5 text-[11px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="globe" :size="10" />전국구</span>
+                <span v-else-if="listing.promotion_tier==='state_plus'" class="inline-flex items-center gap-0.5 text-[11px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="star" :size="10" />주+</span>
+                <span v-else-if="listing.promotion_tier==='sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="megaphone" :size="10" />스폰서</span>
               </div>
               <div class="flex items-center gap-3">
                 <BookmarkToggle :active="isFavorited" @toggle="toggleFav" size="lg" />
                 <ShareButton :title="listing.title" :text="'부동산: ' + listing.title" label="" />
                 <button v-if="listing.user_id !== auth.user?.id" @click="reportListing"
-                  class="text-lg hover:scale-125 transition" :style="isReported ? '' : 'filter:grayscale(100%);opacity:0.35;'"
-                  :title="isReported ? '신고됨' : '신고'">🚨</button>
+                  class="text-red-500 hover:scale-125 transition" :style="isReported ? '' : 'filter:grayscale(100%);opacity:0.35;'"
+                  :title="isReported ? '신고됨' : '신고'"><AppIcon name="alert-circle" :size="18" /></button>
               </div>
             </div>
             <!-- 가격 -->
-            <div class="text-2xl font-black text-gray-900">${{ Number(listing.price).toLocaleString() }}<span v-if="listing.type==='rent'" class="text-sm font-bold text-gray-500">/월</span></div>
-            <h1 class="text-base font-bold text-gray-800 mt-1">{{ listing.title }}</h1>
-            <div class="text-xs text-gray-500 mt-1">📍 {{ listing.address ? listing.address + ', ' : '' }}{{ listing.city }}, {{ listing.state }} {{ listing.zipcode }}</div>
+            <div class="text-2xl font-black text-ink">${{ Number(listing.price).toLocaleString() }}<span v-if="listing.type==='rent'" class="text-sm font-bold text-ink-muted">/월</span></div>
+            <h1 class="text-base font-bold text-ink mt-1">{{ listing.title }}</h1>
+            <div class="text-xs text-ink-muted mt-1 flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> {{ listing.address ? listing.address + ', ' : '' }}{{ listing.city }}, {{ listing.state }} {{ listing.zipcode }}</div>
             <!-- 스펙 + 등록일 -->
-            <div class="flex items-center gap-4 mt-3 pt-3 border-t">
-              <div v-if="listing.bedrooms" class="text-center"><div class="text-lg font-black text-gray-800">{{ listing.bedrooms }}</div><div class="text-[10px] text-gray-500">beds</div></div>
-              <div v-if="listing.bathrooms" class="text-center"><div class="text-lg font-black text-gray-800">{{ listing.bathrooms }}</div><div class="text-[10px] text-gray-500">baths</div></div>
-              <div v-if="listing.sqft" class="text-center"><div class="text-lg font-black text-gray-800">{{ Number(listing.sqft).toLocaleString() }}</div><div class="text-[10px] text-gray-500">sqft</div></div>
-              <div class="text-center"><div class="text-lg font-black text-gray-800">{{ listing.view_count || 0 }}</div><div class="text-[10px] text-gray-500">조회</div></div>
-              <div class="ml-auto text-xs text-gray-600 text-right font-semibold">
+            <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
+              <div v-if="listing.bedrooms" class="text-center"><div class="text-lg font-black text-ink">{{ listing.bedrooms }}</div><div class="text-xs text-ink-muted">beds</div></div>
+              <div v-if="listing.bathrooms" class="text-center"><div class="text-lg font-black text-ink">{{ listing.bathrooms }}</div><div class="text-xs text-ink-muted">baths</div></div>
+              <div v-if="listing.sqft" class="text-center"><div class="text-lg font-black text-ink">{{ Number(listing.sqft).toLocaleString() }}</div><div class="text-xs text-ink-muted">sqft</div></div>
+              <div class="text-center"><div class="text-lg font-black text-ink">{{ listing.view_count || 0 }}</div><div class="text-xs text-ink-muted">조회</div></div>
+              <div class="ml-auto text-xs text-ink-light text-right font-semibold">
                 등록일: {{ fmtDate(listing.created_at) }}
               </div>
             </div>
@@ -120,8 +126,8 @@
 
           <!-- 오른쪽: 판매자 정보 (친구추가/쪽지 + 전화/이메일) -->
           <div class="hidden lg:block flex-shrink-0" style="width:200px;">
-            <div class="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
-              <div class="px-3 py-2 border-b bg-amber-50 font-bold text-[11px] text-amber-900">📋 판매자 정보</div>
+            <div class="card overflow-hidden h-full">
+              <div class="px-3 py-2 border-b border-gray-50 bg-amber-50 font-bold text-xs text-amber-700 flex items-center gap-1"><AppIcon name="user" :size="12" /> 판매자 정보</div>
               <div class="p-3 space-y-2">
                 <div v-if="listing.user" class="flex items-center gap-2">
                   <img v-if="listing.user.avatar" :src="listing.user.avatar" class="w-10 h-10 rounded-full object-cover border-2 border-amber-200" />
@@ -129,24 +135,24 @@
                     {{ (listing.user.nickname || listing.user.name || '?')[0] }}
                   </div>
                   <div class="min-w-0">
-                    <UserName :userId="listing.user.id" :name="listing.user.real_name || listing.user.name" className="text-xs font-bold text-gray-800 truncate block" />
-                    <div class="text-[9px] text-gray-400">가입: {{ fmtDate(listing.user.created_at) }}</div>
+                    <UserName :userId="listing.user.id" :name="listing.user.real_name || listing.user.name" className="text-xs font-bold text-ink truncate block" />
+                    <div class="text-[11px] text-ink-faint">가입: {{ fmtDate(listing.user.created_at) }}</div>
                   </div>
                 </div>
                 <!-- 친구추가/쪽지 -->
-                <div v-if="listing.user_id !== auth.user?.id" class="flex gap-1.5 pt-2 border-t">
-                  <button @click="sendFriendRequest" class="flex-1 text-[11px] bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100">👫 친구</button>
-                  <button @click="sendMessage" class="flex-1 text-[11px] bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100">✉️ 쪽지</button>
+                <div v-if="listing.user_id !== auth.user?.id" class="flex gap-1.5 pt-2 border-t border-gray-50">
+                  <button @click="sendFriendRequest" class="flex-1 flex items-center justify-center gap-1 text-xs bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100 transition-colors"><AppIcon name="heart-handshake" :size="12" /> 친구</button>
+                  <button @click="sendMessage" class="flex-1 flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100 transition-colors"><AppIcon name="mail" :size="12" /> 쪽지</button>
                 </div>
                 <!-- 전화/이메일 (등록자가 입력한 경우만) -->
-                <div v-if="listing.contact_phone || listing.contact_email" class="space-y-1.5 pt-2 border-t">
+                <div v-if="listing.contact_phone || listing.contact_email" class="space-y-1.5 pt-2 border-t border-gray-50">
                   <a v-if="listing.contact_phone" :href="'tel:'+listing.contact_phone"
-                    class="flex items-center justify-center w-full bg-amber-400 text-amber-900 font-bold py-1.5 rounded-lg hover:bg-amber-500 text-[11px]">
-                    📱 {{ listing.contact_phone }}
+                    class="btn-primary w-full py-1.5 px-2 text-xs">
+                    <AppIcon name="phone" :size="12" /> {{ listing.contact_phone }}
                   </a>
                   <a v-if="listing.contact_email" :href="'mailto:'+listing.contact_email"
-                    class="flex items-center justify-center w-full bg-gray-100 text-gray-700 font-bold py-1.5 rounded-lg hover:bg-gray-200 text-[11px]">
-                    📧 이메일
+                    class="flex items-center justify-center gap-1 w-full bg-gray-100 text-ink-light font-bold py-1.5 rounded-lg hover:bg-gray-200 text-xs transition-colors">
+                    <AppIcon name="mail" :size="12" /> 이메일
                   </a>
                 </div>
               </div>
@@ -155,14 +161,14 @@
         </div>
 
         <!-- 설명 -->
-        <div class="bg-white rounded-xl shadow-sm border p-4">
-          <h2 class="font-bold text-sm text-gray-800 mb-2">📝 상세 설명</h2>
-          <div class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ listing.content }}</div>
+        <div class="card p-4">
+          <h2 class="font-bold text-sm text-ink mb-2 flex items-center gap-1.5"><AppIcon name="edit" :size="14" class="text-amber-600" /> 상세 설명</h2>
+          <div class="text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ listing.content }}</div>
         </div>
 
         <!-- 위치 (Leaflet 지도) -->
-        <div v-if="listing.lat && listing.lng" class="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <h2 class="font-bold text-sm text-gray-800 px-4 pt-3 mb-1">📍 위치</h2>
+        <div v-if="listing.lat && listing.lng" class="card overflow-hidden">
+          <h2 class="font-bold text-sm text-ink px-4 pt-3 mb-1 flex items-center gap-1.5"><AppIcon name="map-pin" :size="14" class="text-amber-600" /> 위치</h2>
           <div ref="mapEl" style="height:280px; width:100%; z-index:0;"></div>
         </div>
 
@@ -172,8 +178,8 @@
 
         <!-- 수정/삭제 -->
         <div v-if="isOwner" class="flex items-center gap-3 justify-end">
-          <RouterLink :to="`/realestate/write?edit=${listing.id}`" class="text-sm text-amber-600 hover:text-amber-800">✏️ 수정</RouterLink>
-          <button @click="deleteListing" class="text-sm text-red-400 hover:text-red-600">🗑 삭제</button>
+          <RouterLink :to="`/realestate/write?edit=${listing.id}`" class="inline-flex items-center gap-1 text-sm text-amber-600 hover:text-amber-700 transition-colors"><AppIcon name="edit" :size="14" /> 수정</RouterLink>
+          <button @click="deleteListing" class="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-600 transition-colors"><AppIcon name="trash" :size="14" /> 삭제</button>
         </div>
 
         <CommentSection v-if="listing.id" type="realestate" :typeId="listing.id" />
@@ -195,7 +201,7 @@
 
   <!-- 라이트박스 -->
   <div v-if="lightboxIdx !== null" class="fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center" @click.self="lightboxIdx=null">
-    <button class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10" @click="lightboxIdx=null">✕</button>
+    <button class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10" @click="lightboxIdx=null"><AppIcon name="x" :size="30" /></button>
     <img v-if="allPhotos[lightboxIdx]" :src="photoUrl(allPhotos[lightboxIdx])" style="max-width:90vw;max-height:75vh;object-fit:contain;border-radius:8px;" />
     <div class="flex gap-2 mt-4 overflow-x-auto px-4">
       <div v-for="(p, idx) in allPhotos" :key="idx" @click="lightboxIdx=idx"
@@ -237,6 +243,7 @@ import ShareButton from '../../components/ShareButton.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const route = useRoute()
 const router = useRouter()

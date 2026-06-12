@@ -1,19 +1,19 @@
 <template>
 <div v-if="lastPage > 1" class="flex justify-center items-center gap-1 mt-4 flex-wrap">
   <button @click="$emit('page', 1)" :disabled="page <= 1"
-    class="pg-btn" :class="page <= 1 ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-100'">«</button>
+    class="pg-btn" :class="page <= 1 ? 'text-gray-300' : 'text-ink-muted hover:bg-gray-100'">«</button>
   <button @click="$emit('page', page - 1)" :disabled="page <= 1"
-    class="pg-btn" :class="page <= 1 ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-100'">‹</button>
+    class="pg-btn" :class="page <= 1 ? 'text-gray-300' : 'text-ink-muted hover:bg-gray-100'">‹</button>
 
   <button v-for="pg in visiblePages" :key="pg" @click="$emit('page', pg)"
-    class="pg-btn" :class="pg === page ? 'bg-amber-400 text-amber-900 font-bold' : 'bg-white text-gray-600 border border-gray-200 hover:bg-amber-50'">
+    class="pg-btn" :class="pg === page ? 'bg-amber-400 text-white font-bold' : 'text-ink-muted hover:bg-gray-100'">
     {{ pg }}
   </button>
 
   <button @click="$emit('page', page + 1)" :disabled="page >= lastPage"
-    class="pg-btn" :class="page >= lastPage ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-100'">›</button>
+    class="pg-btn" :class="page >= lastPage ? 'text-gray-300' : 'text-ink-muted hover:bg-gray-100'">›</button>
   <button @click="$emit('page', lastPage)" :disabled="page >= lastPage"
-    class="pg-btn" :class="page >= lastPage ? 'text-gray-300' : 'text-gray-500 hover:bg-gray-100'">»</button>
+    class="pg-btn" :class="page >= lastPage ? 'text-gray-300' : 'text-ink-muted hover:bg-gray-100'">»</button>
 </div>
 </template>
 
@@ -50,7 +50,7 @@ const visiblePages = computed(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 12px;
   transition: all 0.15s;
   cursor: pointer;

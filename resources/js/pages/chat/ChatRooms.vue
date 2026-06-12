@@ -1,30 +1,33 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
 
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 지역 채팅방 목록 (모바일: 채팅방 선택 전에만 표시) -->
       <div class="col-span-12 lg:col-span-3" :class="{ 'hidden': activeRoom && isMobile }">
         <div class="flex items-center justify-between mb-4">
-          <h1 class="text-xl font-black text-gray-800">💬 채팅</h1>
-          <button @click="showCreate = true" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">+ 새 채팅</button>
+          <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+            <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
+            채팅
+          </h1>
+          <button @click="showCreate = true" class="btn-primary text-sm px-4 py-2 flex items-center gap-1"><AppIcon name="plus" :size="15" />새 채팅</button>
         </div>
         <!-- 타입 필터 탭 (Issue #21) -->
-        <div class="flex gap-1 mb-2 bg-white rounded-lg border border-gray-200 p-1 text-[11px]">
+        <div class="flex gap-1 mb-2 bg-gray-100 rounded-xl p-1 text-[11px]">
           <button v-for="t in roomFilterTabs" :key="t.value"
             @click="roomFilter = t.value"
-            :class="['flex-1 py-1.5 rounded-md font-semibold transition',
-              roomFilter===t.value ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50']">
+            :class="['flex-1 py-1.5 rounded-lg transition',
+              roomFilter===t.value ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted']">
             {{ t.icon }} {{ t.label }} <span class="opacity-60">{{ filterCount(t.value) }}</span>
           </button>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">{{ currentFilterTitle }}</div>
-          <div v-if="loading" class="py-4 text-center text-xs text-gray-400">로딩중...</div>
+        <div class="card overflow-hidden">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">{{ currentFilterTitle }}</div>
+          <div v-if="loading" class="py-4 text-center text-xs text-ink-muted">로딩중...</div>
           <button v-for="room in filteredRooms" :key="room.id" @click="selectRoom(room)"
-            class="w-full text-left px-3 py-2.5 border-b last:border-0 transition text-xs"
-            :class="activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+            class="w-full text-left px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs"
+            :class="activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
             <div class="flex items-center justify-between gap-1">
               <span class="flex-shrink-0 text-[11px]">{{ roomTypeIcon(room.type) }}</span>
               <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
@@ -37,72 +40,72 @@
               <span v-else-if="room.messages?.length" class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></span>
             </div>
           </button>
-          <div v-if="!filteredRooms.length && !loading" class="px-3 py-4 text-xs text-gray-400 text-center">채팅방 없음</div>
+          <div v-if="!filteredRooms.length && !loading" class="px-3 py-4 text-xs text-ink-muted text-center">채팅방 없음</div>
         </div>
       </div>
 
       <!-- 메인: 채팅 창 -->
       <!-- 모바일: fixed 전체화면 / PC: 그리드 내 -->
       <div v-if="!activeRoom && !isMobile" class="col-span-12 lg:col-span-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
-          <div class="text-4xl mb-3">💬</div>
-          <div class="text-gray-500 font-semibold">채팅방을 선택해주세요</div>
-          <div class="text-xs text-gray-400 mt-1">왼쪽에서 지역 채팅방을 클릭하세요</div>
+        <div class="card p-12 text-center">
+          <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="message-circle" :size="28" :stroke-width="1.5" /></div>
+          <div class="text-ink-light font-semibold">채팅방을 선택해주세요</div>
+          <div class="text-xs text-ink-muted mt-1">왼쪽에서 지역 채팅방을 클릭하세요</div>
         </div>
       </div>
 
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bottom-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
         :style="isMobile ? 'z-index: 60;' : ''">
-        <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: 70vh'">
+        <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: 70vh'">
           <!-- 채팅방 헤더 -->
-          <div class="px-4 py-3 border-b bg-amber-50 flex items-center justify-between flex-shrink-0">
+          <div class="px-4 py-3 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-2">
-              <button @click="goBackToList" class="lg:hidden text-amber-700 text-lg font-bold mr-1 px-2 py-1 -ml-2" aria-label="뒤로가기">←</button>
-              <div class="font-bold text-sm text-amber-900 truncate">{{ roomDisplayName(activeRoom) }}</div>
+              <button @click="goBackToList" class="lg:hidden text-ink-light mr-1 px-2 py-1 -ml-2 hover:text-ink transition-colors" aria-label="뒤로가기"><AppIcon name="arrow-left" :size="20" /></button>
+              <div class="font-bold text-sm text-ink truncate">{{ roomDisplayName(activeRoom) }}</div>
             </div>
             <div class="flex items-center gap-2">
-              <button @click="openMsgSearch" class="text-amber-700 hover:text-amber-900 text-base" title="메시지 검색">🔍</button>
-              <span class="text-[10px] text-green-600 bg-green-100 px-2 py-0.5 rounded-full">🟢 공개</span>
+              <button @click="openMsgSearch" class="text-ink-muted hover:text-amber-600 transition-colors" title="메시지 검색"><AppIcon name="search" :size="18" /></button>
+              <span class="badge-green">공개</span>
             </div>
           </div>
 
           <!-- 메시지 검색 팝업 -->
-          <div v-if="msgSearchOpen" class="border-b bg-white px-3 py-2 flex items-center gap-2 flex-shrink-0">
+          <div v-if="msgSearchOpen" class="border-b border-gray-100 bg-white px-3 py-2 flex items-center gap-2 flex-shrink-0">
             <input ref="msgSearchInput" v-model="msgSearchQ" @input="runMsgSearch" @keydown.enter.prevent="navMsgSearch(1)"
               type="text" placeholder="메시지에서 검색..."
-              class="flex-1 border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
-            <span class="text-[10px] text-gray-400 whitespace-nowrap">
+              class="input-soft flex-1 px-3 py-1.5 text-sm" />
+            <span class="text-[11px] text-ink-muted whitespace-nowrap">
               {{ msgSearchResults.length ? (msgSearchIdx+1) + '/' + msgSearchResults.length : '0' }}
             </span>
-            <button @click="navMsgSearch(-1)" :disabled="!msgSearchResults.length" class="text-xs w-7 h-7 rounded hover:bg-gray-100 disabled:opacity-30" title="이전">↑</button>
-            <button @click="navMsgSearch(1)" :disabled="!msgSearchResults.length" class="text-xs w-7 h-7 rounded hover:bg-gray-100 disabled:opacity-30" title="다음">↓</button>
-            <button @click="closeMsgSearch" class="text-gray-500 hover:text-gray-800 text-lg px-1" title="닫기">×</button>
+            <button @click="navMsgSearch(-1)" :disabled="!msgSearchResults.length" class="w-7 h-7 rounded-lg hover:bg-gray-100 disabled:opacity-30 flex items-center justify-center text-ink-light transition-colors" title="이전"><AppIcon name="chevron-up" :size="15" /></button>
+            <button @click="navMsgSearch(1)" :disabled="!msgSearchResults.length" class="w-7 h-7 rounded-lg hover:bg-gray-100 disabled:opacity-30 flex items-center justify-center text-ink-light transition-colors" title="다음"><AppIcon name="chevron-down" :size="15" /></button>
+            <button @click="closeMsgSearch" class="text-ink-muted hover:text-ink px-1 transition-colors" title="닫기"><AppIcon name="x" :size="18" /></button>
           </div>
 
           <!-- 📌 활성 공지 배너 -->
-          <div v-if="pinnedAnnouncements.length" class="border-b bg-amber-50/80 px-4 py-2 space-y-1.5 flex-shrink-0 max-h-32 overflow-y-auto">
+          <div v-if="pinnedAnnouncements.length" class="border-b border-gray-100 bg-amber-50/80 px-4 py-2 space-y-1.5 flex-shrink-0 max-h-32 overflow-y-auto">
             <div v-for="a in pinnedAnnouncements" :key="'pin-'+a.id" class="flex items-start gap-2">
-              <span class="text-amber-600 flex-shrink-0">📢</span>
+              <span class="text-amber-600 flex-shrink-0 mt-0.5"><AppIcon name="megaphone" :size="14" /></span>
               <div class="flex-1 min-w-0">
                 <div class="text-xs text-amber-900 font-semibold break-words">{{ cleanAnnounceContent(a.content) }}</div>
-                <div class="text-[11px] text-amber-600">⏰ {{ timeRemaining(a.pinned_until) }} 남음</div>
+                <div class="text-[11px] text-amber-600 flex items-center gap-1"><AppIcon name="clock" :size="11" />{{ timeRemaining(a.pinned_until) }} 남음</div>
               </div>
             </div>
           </div>
 
           <!-- 메시지 영역 -->
-          <div ref="msgArea" class="flex-1 overflow-y-auto px-4 py-3 space-y-3" @scroll="onMsgScroll">
+          <div ref="msgArea" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50/70" @scroll="onMsgScroll">
             <template v-for="(msg, idx) in visibleMessages" :key="msg.id">
               <!-- 날짜 구분선 -->
               <div v-if="showDateDivider(idx)" class="flex items-center justify-center py-2">
                 <div class="h-px bg-gray-200 flex-1"></div>
-                <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full mx-2 whitespace-nowrap">{{ dateLabel(msg.created_at) }}</span>
+                <span class="text-[11px] text-ink-muted bg-gray-100 px-2 py-0.5 rounded-full mx-2 whitespace-nowrap">{{ dateLabel(msg.created_at) }}</span>
                 <div class="h-px bg-gray-200 flex-1"></div>
               </div>
               <!-- 읽음 경계선 -->
               <div v-if="showUnreadDivider(idx)" class="flex items-center justify-center py-1" :id="'unread-marker-' + activeRoom?.id">
                 <div class="h-px bg-red-200 flex-1"></div>
-                <span class="text-[10px] text-red-600 bg-red-50 px-2 py-0.5 rounded-full mx-2 whitespace-nowrap font-bold">여기까지 읽음</span>
+                <span class="text-[11px] text-red-600 bg-red-50 px-2 py-0.5 rounded-full mx-2 whitespace-nowrap font-bold">여기까지 읽음</span>
                 <div class="h-px bg-red-200 flex-1"></div>
               </div>
             <div :id="'msg-' + msg.id"
@@ -113,25 +116,25 @@
               <!-- 다른 사람 메시지 옆 ⋮ 메뉴 (신고/차단) -->
               <div v-if="msg.user_id !== auth.user?.id && !isAdminUser(msg.user)" class="relative order-last pt-4">
                 <button @click.stop="toggleMsgMenu(msg.id)"
-                  class="text-gray-400 hover:text-gray-700 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 opacity-60 hover:opacity-100"
-                  title="옵션">⋮</button>
+                  class="text-ink-muted hover:text-ink w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 opacity-60 hover:opacity-100 transition-colors"
+                  title="옵션"><AppIcon name="more-vertical" :size="14" /></button>
                 <div v-if="msgMenuOpenId === msg.id" @click.stop
-                  class="absolute top-6 right-0 bg-white rounded-lg shadow-xl border border-gray-200 py-1 min-w-[130px]" style="z-index: 40;">
-                  <button @click="reportMsgUser(msg)" class="w-full px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                    <span>🚨</span><span>신고</span>
+                  class="absolute top-6 right-0 bg-white rounded-lg shadow-lift border border-gray-100 py-1 min-w-[130px]" style="z-index: 40;">
+                  <button @click="reportMsgUser(msg)" class="w-full px-3 py-2 text-left text-xs text-ink-light hover:bg-gray-50 flex items-center gap-2 transition-colors">
+                    <AppIcon name="alert-circle" :size="14" /><span>신고</span>
                   </button>
-                  <button @click="confirmBlockUser(msg.user)" class="w-full px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                    <span>🚫</span><span>차단하기</span>
+                  <button @click="confirmBlockUser(msg.user)" class="w-full px-3 py-2 text-left text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                    <AppIcon name="shield" :size="14" /><span>차단하기</span>
                   </button>
                 </div>
               </div>
               <div class="max-w-[75%]">
-                <div v-if="msg.user_id !== auth.user?.id" class="text-[10px] mb-0.5 flex items-center gap-1">
+                <div v-if="msg.user_id !== auth.user?.id" class="text-[11px] mb-0.5 flex items-center gap-1">
                   <span v-if="isAdminUser(msg.user)" class="bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">👑 관리자</span>
-                  <span v-else class="text-gray-400">{{ msg.user?.nickname || msg.user?.name }}</span>
+                  <span v-else class="text-ink-muted">{{ msg.user?.nickname || msg.user?.name }}</span>
                 </div>
                 <!-- 이미지 메시지 -->
-                <div v-if="msg.type === 'image' && msg.file_url" class="rounded-xl overflow-hidden max-w-[160px]"
+                <div v-if="msg.type === 'image' && msg.file_url" class="rounded-2xl overflow-hidden max-w-[160px] shadow-card"
                   :class="isAdminUser(msg.user) ? 'border-2 border-red-300' : ''">
                   <img :src="msg.file_url" @click="lightboxSrc = msg.file_url"
                     class="block w-full h-auto cursor-pointer hover:opacity-90 transition" />
@@ -139,62 +142,62 @@
                 </div>
                 <!-- 압축파일(file) 메시지 -->
                 <a v-else-if="msg.type === 'file' && msg.file_url" :href="msg.file_url" target="_blank" download
-                  class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-blue-50 border border-blue-200 hover:bg-blue-100 transition no-underline"
-                  :class="msg.user_id === auth.user?.id ? 'text-amber-900' : 'text-gray-800'">
-                  <span class="text-xl">📦</span>
+                  class="flex items-center gap-2 px-3 py-2 rounded-2xl text-sm bg-blue-50 border border-blue-200 hover:bg-blue-100 transition no-underline"
+                  :class="msg.user_id === auth.user?.id ? 'text-ink' : 'text-ink'">
+                  <span class="text-blue-500"><AppIcon name="paperclip" :size="20" /></span>
                   <div class="flex-1 min-w-0">
                     <div class="text-xs font-semibold truncate">{{ msg.content || '파일' }}</div>
-                    <div class="text-[10px] text-blue-600">📥 다운로드</div>
+                    <div class="text-[11px] text-blue-600 flex items-center gap-1"><AppIcon name="download" :size="11" />다운로드</div>
                   </div>
                 </a>
                 <!-- 일반 텍스트 메시지 -->
-                <div v-else class="px-3 py-2 rounded-xl text-sm"
+                <div v-else class="px-3 py-2 rounded-2xl text-sm"
                   :class="[
-                    msg.user_id === auth.user?.id ? 'bg-amber-400 text-amber-900' : (isAdminUser(msg.user) ? 'bg-red-50 text-red-900 border border-red-200' : 'bg-gray-100 text-gray-800')
+                    msg.user_id === auth.user?.id ? 'bg-amber-400 text-white rounded-br-md' : (isAdminUser(msg.user) ? 'bg-red-50 text-red-900 border border-red-200 rounded-bl-md' : 'bg-white shadow-card text-ink rounded-bl-md')
                   ]">
                   {{ msg.content }}
                 </div>
-                <div class="text-[11px] text-gray-300 mt-0.5" :class="msg.user_id === auth.user?.id ? 'text-right' : ''">
+                <div class="text-[11px] text-ink-faint mt-0.5" :class="msg.user_id === auth.user?.id ? 'text-right' : ''">
                   {{ formatTime(msg.created_at) }}
                 </div>
               </div>
             </div>
             </template>
-            <div v-if="!activeMessages.length" class="text-center py-8 text-sm text-gray-400">첫 메시지를 보내보세요! 👋</div>
+            <div v-if="!activeMessages.length" class="text-center py-8 text-sm text-ink-muted">첫 메시지를 보내보세요! 👋</div>
           </div>
           <!-- 자동스크롤 일시정지 알림 -->
           <div v-if="autoScrollPaused && activeMessages.length" class="absolute bottom-20 right-6 z-10">
-            <button @click="scrollToBottomForce" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hover:bg-amber-600">
-              ↓ 최신 메시지로 {{ pausedNewCount ? '('+pausedNewCount+')' : '' }}
+            <button @click="scrollToBottomForce" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lift hover:bg-amber-600 flex items-center gap-1 transition-colors">
+              <AppIcon name="chevron-down" :size="13" />최신 메시지로 {{ pausedNewCount ? '('+pausedNewCount+')' : '' }}
             </button>
           </div>
 
           <!-- 선택된 파일 미리보기 (다중) -->
-          <div v-if="selectedFiles.length" class="border-t px-3 py-2 bg-blue-50 flex-shrink-0">
+          <div v-if="selectedFiles.length" class="border-t border-gray-100 px-3 py-2 bg-blue-50 flex-shrink-0">
             <div class="flex gap-2 overflow-x-auto">
               <div v-for="(item, idx) in selectedFiles" :key="idx"
                 class="flex-shrink-0 relative group">
-                <div v-if="item.type === 'image'" class="w-14 h-14 rounded overflow-hidden border border-blue-300 bg-white">
+                <div v-if="item.type === 'image'" class="w-14 h-14 rounded-lg overflow-hidden border border-blue-300 bg-white">
                   <img :src="item.preview" class="w-full h-full object-cover" />
                 </div>
-                <div v-else class="w-14 h-14 rounded border border-blue-300 bg-white flex flex-col items-center justify-center p-1">
-                  <span class="text-lg">📦</span>
-                  <span class="text-[10px] text-gray-600 truncate w-full text-center">{{ item.file.name.split('.').pop().toUpperCase() }}</span>
+                <div v-else class="w-14 h-14 rounded-lg border border-blue-300 bg-white flex flex-col items-center justify-center p-1">
+                  <span class="text-blue-400"><AppIcon name="paperclip" :size="18" /></span>
+                  <span class="text-[11px] text-ink-light truncate w-full text-center">{{ item.file.name.split('.').pop().toUpperCase() }}</span>
                 </div>
                 <button @click="removeSelectedFile(idx)"
                   class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-[11px] flex items-center justify-center font-bold opacity-0 group-hover:opacity-100 transition">✕</button>
-                <div class="text-[10px] text-gray-500 text-center mt-0.5 max-w-[56px] truncate" :title="item.file.name">{{ formatSize(item.file.size) }}</div>
+                <div class="text-[11px] text-ink-muted text-center mt-0.5 max-w-[56px] truncate" :title="item.file.name">{{ formatSize(item.file.size) }}</div>
               </div>
             </div>
-            <div class="text-[11px] text-blue-700 mt-1">
-              📎 {{ selectedFiles.length }}개 선택됨 · 이미지는 자동 압축됨
+            <div class="text-[11px] text-blue-700 mt-1 flex items-center gap-1">
+              <AppIcon name="paperclip" :size="11" />{{ selectedFiles.length }}개 선택됨 · 이미지는 자동 압축됨
               <button @click="clearFiles" class="ml-2 text-red-500 font-bold">모두 취소</button>
             </div>
           </div>
 
           <!-- 😊 이모티콘 피커 (텔레그램 스타일) -->
-          <div v-if="showEmojiPicker" class="border-t bg-white flex-shrink-0" @click.stop>
-            <div class="flex gap-1 overflow-x-auto px-2 py-1.5 border-b">
+          <div v-if="showEmojiPicker" class="border-t border-gray-100 bg-white flex-shrink-0" @click.stop>
+            <div class="flex gap-1 overflow-x-auto px-2 py-1.5 border-b border-gray-100">
               <button v-for="cat in emojiCategories" :key="cat.key"
                 @click="emojiTab = cat.key"
                 :class="['px-2 py-1 rounded text-base flex-shrink-0', emojiTab===cat.key ? 'bg-amber-100' : 'hover:bg-gray-100']"
@@ -207,32 +210,32 @@
           </div>
 
           <!-- 입력 (텔레그램 스타일: 이모티콘·첨부가 입력창 내부) -->
-          <div class="border-t px-3 py-2 flex-shrink-0" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
+          <div class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
             <form @submit.prevent="sendMsg" class="flex gap-2 items-center">
               <!-- 통합 입력 박스 -->
-              <div class="flex-1 min-w-0 flex items-center gap-1 bg-gray-50 border rounded-full pl-1 pr-1 focus-within:ring-2 focus-within:ring-amber-400 transition"
+              <div class="flex-1 min-w-0 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full pl-1 pr-1 focus-within:ring-2 focus-within:ring-amber-400 transition"
                 :class="!auth.isLoggedIn ? 'opacity-60' : ''">
                 <!-- 이모티콘 (왼쪽 끝) -->
                 <button type="button" @click="toggleEmojiPicker"
-                  class="w-8 h-8 flex items-center justify-center text-lg flex-shrink-0 rounded-full hover:bg-gray-200 transition"
-                  :class="showEmojiPicker ? 'bg-amber-100' : ''"
-                  :disabled="!auth.isLoggedIn" title="이모티콘">😊</button>
+                  class="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-200 hover:text-amber-600 transition"
+                  :class="showEmojiPicker ? 'bg-amber-100 text-amber-600' : ''"
+                  :disabled="!auth.isLoggedIn" title="이모티콘"><AppIcon name="smile" :size="20" /></button>
                 <!-- 입력 필드 -->
                 <input v-model="newMsg" type="text" :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'" :disabled="!auth.isLoggedIn"
                   class="flex-1 min-w-0 bg-transparent border-0 px-1 py-2 text-sm outline-none disabled:cursor-not-allowed" />
                 <!-- 파일 첨부 (오른쪽 끝) -->
-                <label class="w-8 h-8 flex items-center justify-center text-base flex-shrink-0 rounded-full hover:bg-gray-200 cursor-pointer transition"
+                <label class="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-200 hover:text-amber-600 cursor-pointer transition"
                   :class="!auth.isLoggedIn ? 'cursor-not-allowed' : ''" title="이미지·압축파일 첨부">
-                  📎
+                  <AppIcon name="paperclip" :size="18" />
                   <input type="file" accept="image/*,.zip,.rar,.7z,.tar,.gz,.tgz,application/zip,application/x-rar-compressed,application/x-7z-compressed,application/gzip" multiple @change="onSelectFiles" class="hidden" :disabled="!auth.isLoggedIn" />
                 </label>
               </div>
               <!-- 전송 버튼 (원형) -->
               <button type="submit" :disabled="(!newMsg.trim() && !selectedFiles.length) || !auth.isLoggedIn || sending"
-                class="bg-amber-400 text-amber-900 w-10 h-10 flex items-center justify-center rounded-full text-lg font-bold hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+                class="bg-amber-400 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-btn hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 transition-colors"
                 :title="sending ? '전송 중...' : '전송'">
                 <span v-if="sending" class="text-xs">...</span>
-                <span v-else>➤</span>
+                <AppIcon v-else name="send" :size="18" />
               </button>
             </form>
           </div>
@@ -241,53 +244,53 @@
 
       <!-- 오른쪽: 참가자 목록 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-3 py-2 border-b font-bold text-xs text-amber-900 flex items-center justify-between">
-            <span>👥 참가자 {{ participants.length ? '(' + participants.length + ')' : '' }}</span>
-            <button v-if="activeRoom" @click="loadParticipants" class="text-[10px] text-amber-600 hover:text-amber-800" title="새로고침">🔄</button>
+        <div class="card overflow-hidden">
+          <div class="px-3 py-2 border-b border-gray-50 font-bold text-xs text-ink flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><AppIcon name="users" :size="13" class="text-amber-600" />참가자 {{ participants.length ? '(' + participants.length + ')' : '' }}</span>
+            <button v-if="activeRoom" @click="loadParticipants" class="text-amber-600 hover:text-amber-800 transition-colors" title="새로고침"><AppIcon name="refresh" :size="12" /></button>
           </div>
           <!-- 참가자 검색 -->
-          <div v-if="activeRoom && participants.length > 3" class="px-2 py-1.5 border-b bg-gray-50">
+          <div v-if="activeRoom && participants.length > 3" class="px-2 py-1.5 border-b border-gray-50 bg-gray-50">
             <input v-model="partSearch" type="text" placeholder="이름 검색..."
-              class="w-full border rounded px-2 py-1 text-[11px] outline-none focus:ring-1 focus:ring-amber-400" />
+              class="input-soft w-full px-2 py-1 text-[11px]" />
           </div>
-          <div v-if="!activeRoom" class="px-3 py-4 text-xs text-gray-400 text-center">채팅방을 선택하세요</div>
-          <div v-else-if="participantsLoading" class="px-3 py-4 text-xs text-gray-400 text-center">로딩중...</div>
-          <div v-else-if="!filteredParticipants.length" class="px-3 py-4 text-xs text-gray-400 text-center">
+          <div v-if="!activeRoom" class="px-3 py-4 text-xs text-ink-muted text-center">채팅방을 선택하세요</div>
+          <div v-else-if="participantsLoading" class="px-3 py-4 text-xs text-ink-muted text-center">로딩중...</div>
+          <div v-else-if="!filteredParticipants.length" class="px-3 py-4 text-xs text-ink-muted text-center">
             {{ partSearch ? '검색 결과 없음' : '참가자가 없습니다' }}
           </div>
           <div v-else class="max-h-[550px] overflow-y-auto">
             <!-- 내 카드 (상단 고정) -->
             <template v-for="u in filteredParticipants" :key="u.id">
-              <div v-if="u.id === auth.user?.id" class="px-2 py-1.5 border-b bg-amber-50/60 flex items-center gap-1.5">
+              <div v-if="u.id === auth.user?.id" class="px-2 py-1.5 border-b border-gray-50 bg-amber-50/60 flex items-center gap-1.5">
                 <img v-if="u.avatar" :src="u.avatar" class="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-                <div v-else class="w-6 h-6 rounded-full bg-amber-200 flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
+                <div v-else class="w-6 h-6 rounded-full bg-amber-200 flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
                 <span class="text-[11px] font-bold text-amber-900 truncate flex-1">{{ u.nickname || u.name }}</span>
                 <span class="text-[11px] bg-amber-300 text-amber-900 px-1 rounded">나</span>
               </div>
               <!-- 다른 사람: 한 줄 컴팩트 레이아웃 -->
-              <div v-else class="px-2 py-1.5 border-b hover:bg-amber-50/40 flex items-center gap-1.5">
+              <div v-else class="px-2 py-1.5 border-b border-gray-50 hover:bg-amber-50/40 transition-colors flex items-center gap-1.5">
                 <!-- 아이콘 작게 -->
                 <img v-if="u.avatar" :src="u.avatar" class="w-5 h-5 rounded-full object-cover flex-shrink-0" @error="e=>e.target.style.display='none'" />
-                <div v-else class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold text-gray-600 flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
+                <div v-else class="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[11px] font-bold text-ink-light flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
                 <!-- 아이디 -->
-                <span class="text-[11px] font-semibold text-gray-800 truncate flex-1 min-w-0">
+                <span class="text-[11px] font-semibold text-ink truncate flex-1 min-w-0">
                   {{ u.nickname || u.name }}
                   <span v-if="u.role === 'admin' || u.role === 'super_admin'" class="text-[11px] bg-red-500 text-white px-0.5 rounded ml-0.5">👑</span>
                 </span>
                 <!-- 사는 곳 (축약) -->
-                <span class="text-[10px] text-gray-400 truncate max-w-[60px]">{{ u.city || '' }}</span>
+                <span class="text-[11px] text-ink-faint truncate max-w-[60px]">{{ u.city || '' }}</span>
                 <!-- 친구/쪽지/신고 버튼 (컴팩트) -->
                 <button @click="openPartAction('friend', u)" :disabled="!u.allow_friend_request"
-                  class="text-[11px] hover:bg-green-50 rounded px-1 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-                  :title="u.allow_friend_request ? '친구 요청' : '친구 요청 차단됨'">👫</button>
+                  class="text-emerald-500 hover:bg-green-50 rounded px-1 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  :title="u.allow_friend_request ? '친구 요청' : '친구 요청 차단됨'"><AppIcon name="user-plus" :size="13" /></button>
                 <button @click="openPartAction('message', u)" :disabled="!u.allow_messages"
-                  class="text-[11px] hover:bg-blue-50 rounded px-1 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed"
-                  :title="u.allow_messages ? '쪽지' : '쪽지 차단됨'">✉️</button>
+                  class="text-blue-500 hover:bg-blue-50 rounded px-1 py-0.5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  :title="u.allow_messages ? '쪽지' : '쪽지 차단됨'"><AppIcon name="mail" :size="13" /></button>
                 <button @click="openPartAction('report', u)"
-                  class="text-[11px] rounded px-1 py-0.5 hover:bg-red-50"
+                  class="text-red-500 rounded px-1 py-0.5 hover:bg-red-50 transition-colors"
                   :style="u.is_reported ? '' : 'filter: grayscale(100%); opacity: 0.4;'"
-                  :title="u.is_reported ? '이미 신고한 유저' : '신고'">🚨</button>
+                  :title="u.is_reported ? '이미 신고한 유저' : '신고'"><AppIcon name="alert-circle" :size="13" /></button>
               </div>
             </template>
           </div>
@@ -295,9 +298,9 @@
 
         <!-- (참가자 액션 모달은 사이드바 hidden 문제로 아래 최상위 영역에서 렌더링) -->
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-          <div class="font-bold text-xs text-gray-800 mb-2">📢 채팅 안내</div>
-          <div class="text-[10px] text-gray-500 space-y-1">
+        <div class="card p-3">
+          <div class="font-bold text-xs text-ink mb-2 flex items-center gap-1.5"><AppIcon name="megaphone" :size="13" class="text-amber-600" />채팅 안내</div>
+          <div class="text-[11px] text-ink-muted space-y-1">
             <div>• 누구나 참여할 수 있는 공개 채팅방입니다</div>
             <div>• 로그인 후 메시지를 보낼 수 있어요</div>
             <div>• 욕설/광고는 자동 차단됩니다</div>
@@ -308,37 +311,37 @@
 
     <!-- 👫✉️🚨 참가자 액션 모달 (사이드바 hidden lg:block 밖에서 렌더 — 모바일에서도 동작) -->
     <div v-if="partModal" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4" style="z-index: 85;" @click.self="partModal=null">
-      <div class="bg-white rounded-xl w-full max-w-sm shadow-xl p-4 space-y-3">
+      <div class="bg-white rounded-2xl w-full max-w-sm shadow-lift p-4 space-y-3">
         <div class="flex items-center gap-2">
           <img v-if="partModal.user.avatar" :src="partModal.user.avatar" class="w-10 h-10 rounded-full object-cover" />
           <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-700">{{ (partModal.user.nickname || partModal.user.name || '?')[0] }}</div>
           <div>
-            <div class="font-bold text-gray-800 text-sm">{{ partModal.user.nickname || partModal.user.name }}</div>
-            <div class="text-[10px] text-gray-400">{{ partModal.user.city || '' }}{{ partModal.user.state ? ', '+partModal.user.state : '' }}</div>
+            <div class="font-bold text-ink text-sm">{{ partModal.user.nickname || partModal.user.name }}</div>
+            <div class="text-[11px] text-ink-muted">{{ partModal.user.city || '' }}{{ partModal.user.state ? ', '+partModal.user.state : '' }}</div>
           </div>
         </div>
-        <h3 class="font-bold text-sm text-gray-800">
-          <span v-if="partModal.type === 'friend'">👫 친구 요청 보내기</span>
-          <span v-else-if="partModal.type === 'message'">✉️ 쪽지 보내기</span>
-          <span v-else>🚨 신고</span>
+        <h3 class="font-bold text-sm text-ink">
+          <span v-if="partModal.type === 'friend'" class="flex items-center gap-1.5"><AppIcon name="user-plus" :size="15" class="text-emerald-500" />친구 요청 보내기</span>
+          <span v-else-if="partModal.type === 'message'" class="flex items-center gap-1.5"><AppIcon name="mail" :size="15" class="text-blue-500" />쪽지 보내기</span>
+          <span v-else class="flex items-center gap-1.5"><AppIcon name="alert-circle" :size="15" class="text-red-500" />신고</span>
         </h3>
-        <textarea v-if="partModal.type === 'message'" v-model="partInput" rows="4" maxlength="500" placeholder="쪽지 내용..." class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400 resize-none"></textarea>
+        <textarea v-if="partModal.type === 'message'" v-model="partInput" rows="4" maxlength="500" placeholder="쪽지 내용..." class="input-soft w-full px-3 py-2 text-sm resize-none"></textarea>
         <div v-else-if="partModal.type === 'friend'">
-          <input v-model="partInput" maxlength="100" placeholder="인사말 (선택)" class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          <input v-model="partInput" maxlength="100" placeholder="인사말 (선택)" class="input-soft w-full px-3 py-2 text-sm" />
         </div>
         <div v-else>
-          <select v-model="partReportReason" class="w-full border rounded-lg px-3 py-2 text-sm mb-2">
+          <select v-model="partReportReason" class="input-soft w-full px-3 py-2 text-sm mb-2">
             <option value="spam">스팸/광고</option>
             <option value="abuse">욕설/비방</option>
             <option value="inappropriate">부적절한 내용</option>
             <option value="harassment">괴롭힘</option>
             <option value="other">기타</option>
           </select>
-          <textarea v-model="partInput" rows="3" maxlength="500" placeholder="신고 상세 (선택)" class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
+          <textarea v-model="partInput" rows="3" maxlength="500" placeholder="신고 상세 (선택)" class="input-soft w-full px-3 py-2 text-sm resize-none focus:ring-red-400"></textarea>
         </div>
         <div v-if="partMsg" class="text-xs" :class="partMsgOk ? 'text-green-600' : 'text-red-500'">{{ partMsg }}</div>
         <div class="flex gap-2 justify-end">
-          <button @click="partModal=null" class="text-gray-500 text-xs px-4 py-2">취소</button>
+          <button @click="partModal=null" class="btn-ghost text-xs px-4 py-2">취소</button>
           <button @click="submitPartAction" :disabled="partSubmitting"
             class="font-bold px-4 py-2 rounded-lg text-xs text-white disabled:opacity-50"
             :class="partModal.type === 'report' ? 'bg-red-500 hover:bg-red-600' : partModal.type === 'friend' ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'">
@@ -350,17 +353,17 @@
 
     <!-- 🚫 차단 확인 다이얼로그 -->
     <div v-if="blockConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style="z-index: 85;" @click.self="blockConfirm = null">
-      <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-lift w-full max-w-sm overflow-hidden">
         <div class="px-5 pt-5 pb-3">
-          <h3 class="font-bold text-gray-900 text-base mb-2">이 사람을 차단하시겠어요?</h3>
-          <div class="text-xs text-gray-600 leading-relaxed">
+          <h3 class="font-bold text-ink text-base mb-2">이 사람을 차단하시겠어요?</h3>
+          <div class="text-xs text-ink-light leading-relaxed">
             이 사용자의 메시지가 더 이상 보이지 않습니다. 상대방에게는 알림이 가지 않으며,
             상대방은 여전히 공개 채팅방에 참여할 수 있습니다. 차단 해제는 언제든지 가능합니다.
           </div>
         </div>
-        <div class="px-5 py-3 flex justify-end gap-2 bg-gray-50 border-t">
-          <button @click="blockConfirm = null" class="text-gray-600 font-semibold text-sm px-4 py-2 rounded-lg hover:bg-gray-200">취소</button>
-          <button @click="doBlockUser" class="text-white bg-red-500 hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg">차단</button>
+        <div class="px-5 py-3 flex justify-end gap-2 bg-gray-50 border-t border-gray-100">
+          <button @click="blockConfirm = null" class="btn-secondary text-sm px-4 py-2">취소</button>
+          <button @click="doBlockUser" class="text-white bg-red-500 hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg transition-colors">차단</button>
         </div>
       </div>
     </div>
@@ -369,17 +372,17 @@
     <div v-if="lightboxSrc" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4" style="z-index: 80;" @click="lightboxSrc = null">
       <img :src="lightboxSrc" class="max-w-full max-h-full object-contain" />
       <!-- 닫기 버튼 -->
-      <button @click.stop="lightboxSrc = null" class="absolute top-4 right-4 text-white text-2xl w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 active:bg-black/70">✕</button>
+      <button @click.stop="lightboxSrc = null" class="absolute top-4 right-4 text-white w-10 h-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 active:bg-black/70 transition-colors"><AppIcon name="x" :size="22" /></button>
       <!-- 하단 툴바: 다운로드 / 공유 / 새창 (탭 전파 차단) -->
       <div class="absolute left-0 right-0 flex items-center justify-center gap-6 text-white"
         style="bottom: max(1rem, env(safe-area-inset-bottom));"
         @click.stop>
         <button @click.stop="downloadLightbox" class="flex flex-col items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition" title="다운로드">
-          <span class="text-2xl">⬇️</span>
+          <AppIcon name="download" :size="24" />
           <span class="text-[11px]">저장</span>
         </button>
         <button @click.stop="shareLightbox" class="flex flex-col items-center gap-1 px-3 py-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition" title="공유">
-          <span class="text-2xl">🔗</span>
+          <AppIcon name="share" :size="24" />
           <span class="text-[11px]">공유</span>
         </button>
       </div>
@@ -387,10 +390,10 @@
 
     <!-- 새 채팅 모달 (타입·참여자 선택 Issue #20) — z-[70] 로 NavBar/BottomNav 위에 -->
     <div v-if="showCreate" class="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center" style="z-index: 70;" @click.self="closeCreate">
-      <div class="bg-white rounded-t-xl sm:rounded-xl w-full max-w-sm shadow-xl max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white border-b px-5 py-3 flex items-center justify-between">
-          <h3 class="font-bold text-gray-800">새 채팅</h3>
-          <button @click="closeCreate" class="text-gray-400 text-xl leading-none">×</button>
+      <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-sm shadow-lift max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-100 px-5 py-3 flex items-center justify-between">
+          <h3 class="font-bold text-ink">새 채팅</h3>
+          <button @click="closeCreate" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="20" /></button>
         </div>
 
         <!-- 타입 선택 -->
@@ -399,7 +402,7 @@
             <button v-for="t in createTypes" :key="t.value"
               @click="createType = t.value"
               :class="['py-2 px-2 rounded-lg text-xs font-semibold border transition',
-                createType===t.value ? 'bg-amber-400 text-amber-900 border-amber-500' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50']">
+                createType===t.value ? 'bg-amber-50 text-amber-700 border-amber-400' : 'bg-white text-ink-light border-gray-200 hover:bg-gray-50']">
               <div class="text-base mb-0.5">{{ t.icon }}</div>
               {{ t.label }}
             </button>
@@ -408,22 +411,22 @@
 
         <!-- DM: 친구 1명 선택 -->
         <div v-if="createType==='dm'" class="px-5 pb-4">
-          <div class="text-xs font-semibold text-gray-600 mb-2">1:1 대화 상대</div>
+          <div class="input-label mb-2">1:1 대화 상대</div>
           <input v-model="friendQuery" type="text" placeholder="친구 이름 검색..."
-            class="w-full border rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:ring-2 focus:ring-amber-400" />
-          <div v-if="friendsLoading" class="text-xs text-gray-400 text-center py-4">로딩중...</div>
-          <div v-else-if="!filteredFriends.length" class="text-xs text-gray-400 text-center py-4">
+            class="input-soft w-full px-3 py-2 text-sm mb-2" />
+          <div v-if="friendsLoading" class="text-xs text-ink-muted text-center py-4">로딩중...</div>
+          <div v-else-if="!filteredFriends.length" class="text-xs text-ink-muted text-center py-4">
             {{ friendQuery ? '검색 결과 없음' : '친구가 없습니다. 친구부터 추가하세요.' }}
           </div>
-          <div v-else class="max-h-48 overflow-y-auto border rounded-lg divide-y">
+          <div v-else class="max-h-48 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-50">
             <button v-for="f in filteredFriends" :key="f.id"
               @click="selectedFriendIds = [f.id]"
-              :class="['w-full flex items-center gap-2 px-3 py-2 text-left text-sm',
-                selectedFriendIds.includes(f.id) ? 'bg-amber-50 text-amber-900 font-semibold' : 'hover:bg-gray-50']">
+              :class="['w-full flex items-center gap-2 px-3 py-2 text-left text-sm transition-colors',
+                selectedFriendIds.includes(f.id) ? 'bg-amber-50 text-amber-700 font-semibold' : 'text-ink-light hover:bg-gray-50']">
               <img v-if="f.avatar" :src="f.avatar" class="w-7 h-7 rounded-full object-cover" />
               <div v-else class="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700">{{ (f.nickname || f.name || '?')[0] }}</div>
               <span class="flex-1 truncate">{{ f.nickname || f.name }}</span>
-              <span v-if="selectedFriendIds.includes(f.id)" class="text-amber-500">✓</span>
+              <span v-if="selectedFriendIds.includes(f.id)" class="text-amber-500"><AppIcon name="check" :size="15" /></span>
             </button>
           </div>
         </div>
@@ -431,25 +434,25 @@
         <!-- 그룹: 이름 + 다중 선택 -->
         <div v-if="createType==='group'" class="px-5 pb-4 space-y-2">
           <div>
-            <div class="text-xs font-semibold text-gray-600 mb-1">그룹 이름</div>
+            <div class="input-label mb-1">그룹 이름</div>
             <input v-model="newRoomName" type="text" placeholder="예: 애틀란타 한식 덕후들" maxlength="50"
-              class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+              class="input-soft w-full px-3 py-2 text-sm" />
           </div>
           <div>
-            <div class="text-xs font-semibold text-gray-600 mb-1 flex items-center justify-between">
+            <div class="input-label mb-1 flex items-center justify-between">
               <span>초대할 친구 <span class="text-amber-600">{{ selectedFriendIds.length }}명</span></span>
             </div>
             <input v-model="friendQuery" type="text" placeholder="친구 이름 검색..."
-              class="w-full border rounded-lg px-3 py-2 text-sm mb-2 outline-none focus:ring-2 focus:ring-amber-400" />
-            <div v-if="friendsLoading" class="text-xs text-gray-400 text-center py-3">로딩중...</div>
-            <div v-else-if="!filteredFriends.length" class="text-xs text-gray-400 text-center py-3">친구가 없습니다</div>
-            <div v-else class="max-h-48 overflow-y-auto border rounded-lg divide-y">
+              class="input-soft w-full px-3 py-2 text-sm mb-2" />
+            <div v-if="friendsLoading" class="text-xs text-ink-muted text-center py-3">로딩중...</div>
+            <div v-else-if="!filteredFriends.length" class="text-xs text-ink-muted text-center py-3">친구가 없습니다</div>
+            <div v-else class="max-h-48 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-50">
               <label v-for="f in filteredFriends" :key="f.id"
-                class="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50">
+                class="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 transition-colors">
                 <input type="checkbox" :value="f.id" v-model="selectedFriendIds" class="accent-amber-500" />
                 <img v-if="f.avatar" :src="f.avatar" class="w-6 h-6 rounded-full object-cover" />
-                <div v-else class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-[10px] font-bold text-amber-700">{{ (f.nickname || f.name || '?')[0] }}</div>
-                <span class="flex-1 truncate">{{ f.nickname || f.name }}</span>
+                <div v-else class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center text-[11px] font-bold text-amber-700">{{ (f.nickname || f.name || '?')[0] }}</div>
+                <span class="flex-1 truncate text-ink-light">{{ f.nickname || f.name }}</span>
               </label>
             </div>
           </div>
@@ -457,10 +460,10 @@
 
         <!-- 공개방 -->
         <div v-if="createType==='public'" class="px-5 pb-4 space-y-2">
-          <div class="text-xs font-semibold text-gray-600 mb-1">공개 채팅방 이름</div>
+          <div class="input-label mb-1">공개 채팅방 이름</div>
           <input v-model="newRoomName" type="text" placeholder="예: 둘루스 한인 모임" maxlength="50"
-            class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
-          <div class="text-[11px] text-gray-400">누구나 입장 가능한 공개방이 생성됩니다.</div>
+            class="input-soft w-full px-3 py-2 text-sm" />
+          <div class="text-[11px] text-ink-muted">누구나 입장 가능한 공개방이 생성됩니다.</div>
         </div>
 
         <!-- 에러 / 버튼 -->
@@ -468,10 +471,10 @@
           <div v-if="createError" class="text-xs text-red-500 mb-2">{{ createError }}</div>
           <div class="flex gap-2">
             <button @click="createRoom" :disabled="creating"
-              class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm flex-1 hover:bg-amber-500 disabled:opacity-50">
+              class="btn-primary text-sm flex-1 px-4 py-2 disabled:opacity-50">
               {{ creating ? '생성 중...' : '만들기' }}
             </button>
-            <button @click="closeCreate" class="text-gray-500 px-4 py-2">취소</button>
+            <button @click="closeCreate" class="btn-ghost px-4 py-2">취소</button>
           </div>
         </div>
       </div>
@@ -487,6 +490,7 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
+import AppIcon from '../../components/AppIcon.vue'
 
 const router = useRouter()
 const route = useRoute()

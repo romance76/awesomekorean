@@ -1,11 +1,11 @@
 <template>
 <GameShell title="리더보드" icon="🏆"
-  bg="linear-gradient(160deg,#fef3c7 0%,#fde68a 50%,#fbbf24 100%)">
+  bg="#F7F8FA">
 
   <div class="lb-body">
     <!-- 헤더 배너 -->
     <div class="hero-banner">
-      <div class="hero-emoji">🏆</div>
+      <div class="hero-emoji"><AppIcon name="trophy" :size="30" /></div>
       <h2 class="hero-title">한인 커뮤니티 TOP 20</h2>
       <p class="hero-sub">매일 갱신되는 실시간 랭킹</p>
     </div>
@@ -60,7 +60,7 @@
       <!-- 리스트 (4위~) -->
       <div class="list">
         <div v-for="(user, idx) in restList" :key="user.id"
-          class="list-row"
+          class="rank-row"
           :class="user.id == myId ? 'me' : ''">
           <div class="list-rank">{{ idx + startRank }}</div>
           <img :src="getAvatar(user)" class="list-avatar" @error="onAvatarErr" />
@@ -96,6 +96,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const myId = auth.user?.id
@@ -170,17 +171,17 @@ onMounted(loadData)
 <style scoped>
 .lb-body { padding: 14px; max-width: 900px; margin: 0 auto; width: 100%; }
 
-.hero-banner { text-align: center; padding: 18px 16px; background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; border-radius: 16px; margin-bottom: 14px; box-shadow: 0 6px 24px rgba(217,119,6,0.3); }
-.hero-emoji { font-size: 32px; margin-bottom: 4px; }
+.hero-banner { text-align: center; padding: 18px 16px; background: linear-gradient(135deg,#FF8A53,#F2570F); color: #fff; border-radius: 16px; margin-bottom: 14px; box-shadow: 0 6px 24px rgba(242,87,15,0.25); }
+.hero-emoji { display: flex; justify-content: center; margin-bottom: 6px; }
 .hero-title { font-size: 18px; font-weight: 900; margin: 0; }
-.hero-sub { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 4px; }
+.hero-sub { font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px; }
 
-.tabs { display: flex; background: rgba(255,255,255,0.8); border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 14px; }
-.tab-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; border: none; background: transparent; color: #78350f; cursor: pointer; border-radius: 8px; transition: all 0.15s; }
-.tab-btn:hover { background: rgba(217,119,6,0.1); }
-.tab-btn.active { background: #f59e0b; color: #fff; box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
+.tabs { display: flex; background: #fff; border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.tab-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 700; border: none; background: transparent; color: #8B95A1; cursor: pointer; border-radius: 8px; transition: all 0.15s; }
+.tab-btn:hover { background: rgba(255,107,44,0.08); }
+.tab-btn.active { background: #FF6B2C; color: #fff; box-shadow: 0 2px 8px rgba(255,107,44,0.3); }
 
-.loading, .empty { text-align: center; padding: 40px; color: #92400e; font-size: 14px; }
+.loading, .empty { text-align: center; padding: 40px; color: #8B95A1; font-size: 14px; }
 
 .podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; margin: 10px 0 20px; }
 .p-col { display: flex; flex-direction: column; align-items: center; }
@@ -204,27 +205,27 @@ onMounted(loadData)
 .rank3 { background: #f97316; }
 
 .list { display: flex; flex-direction: column; gap: 6px; }
-.list-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.95); border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.15s; }
-.list-row:hover { transform: translateX(2px); }
-.list-row.me { background: #dbeafe; border: 2px solid #3b82f6; }
-.list-rank { width: 28px; text-align: center; font-weight: 800; color: #9ca3af; font-size: 14px; }
+.rank-row { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 12px; padding: 10px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: transform 0.15s, box-shadow 0.15s; }
+.rank-row:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.rank-row.me { background: #FFF4EC; border: 2px solid #FF6B2C; }
+.list-rank { width: 28px; text-align: center; font-weight: 800; color: #8B95A1; font-size: 14px; }
 .list-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #f3f4f6; flex-shrink: 0; }
 .list-info { flex: 1; min-width: 0; }
-.list-name { display: flex; align-items: center; gap: 6px; color: #1f2937; font-weight: 700; font-size: 14px; }
+.list-name { display: flex; align-items: center; gap: 6px; color: #191F28; font-weight: 700; font-size: 14px; }
 .list-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list-level { flex-shrink: 0; font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
+.list-level { flex-shrink: 0; font-size: 11px; padding: 1px 6px; border-radius: 8px; font-weight: 700; }
 .lv-seed { background: #f3f4f6; color: #6b7280; }
 .lv-sprout { background: #d1fae5; color: #065f46; }
 .lv-tree { background: #dbeafe; color: #1e40af; }
 .lv-forest { background: #d1fae5; color: #047857; }
 .lv-oak { background: #fef3c7; color: #92400e; }
-.list-sub { font-size: 11px; color: #9ca3af; }
+.list-sub { font-size: 11px; color: #8B95A1; }
 .list-value { text-align: right; flex-shrink: 0; white-space: nowrap; display: inline-flex; align-items: baseline; gap: 3px; }
-.value-main { font-weight: 800; color: #d97706; font-size: 15px; }
-.value-unit { font-size: 11px; color: #9ca3af; font-weight: 600; }
+.value-main { font-weight: 800; color: #F2570F; font-size: 15px; }
+.value-unit { font-size: 11px; color: #8B95A1; font-weight: 600; }
 
-.my-rank { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding: 14px 18px; background: #dbeafe; border: 1px solid #93c5fd; border-radius: 14px; }
-.my-badge { font-size: 20px; font-weight: 900; color: #1d4ed8; }
-.my-title { font-weight: 700; color: #1f2937; font-size: 14px; }
-.my-sub { font-size: 12px; color: #6b7280; }
+.my-rank { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding: 14px 18px; background: #FFF4EC; border: 1px solid #FFC7A6; border-radius: 14px; }
+.my-badge { font-size: 20px; font-weight: 900; color: #F2570F; }
+.my-title { font-weight: 700; color: #191F28; font-size: 14px; }
+.my-sub { font-size: 12px; color: #4E5968; }
 </style>

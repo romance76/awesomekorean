@@ -14,33 +14,34 @@
   >
     <template #tab-approval>
       <div class="mb-3 flex justify-between items-center">
-        <div class="text-sm text-gray-600">공동구매 신규 등록 건은 승인 후 공개됩니다</div>
-        <button @click="loadPending" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded">🔄 새로고침</button>
+        <div class="text-sm text-ink-light">공동구매 신규 등록 건은 승인 후 공개됩니다</div>
+        <button @click="loadPending" class="btn-secondary !px-3 !py-1 text-xs"><AppIcon name="refresh" :size="12" /> 새로고침</button>
       </div>
 
-      <div v-if="pending.length === 0" class="text-center text-gray-400 py-12 text-sm">
-        ✅ 승인 대기 중인 공동구매가 없습니다
+      <div v-if="pending.length === 0" class="py-16 text-center">
+        <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="check" :size="28" :stroke-width="1.5" /></div>
+        <p class="text-sm text-ink-muted">승인 대기 중인 공동구매가 없습니다</p>
       </div>
 
       <div v-else class="space-y-2">
-        <div v-for="item in pending" :key="item.id" class="border rounded-lg p-3 bg-orange-50/50 hover:bg-orange-50 transition">
+        <div v-for="item in pending" :key="item.id" class="border border-orange-100 rounded-xl p-3 bg-orange-50/50 hover:bg-orange-50 transition-colors">
           <div class="flex items-start gap-3">
-            <img v-if="item.images && item.images[0]" :src="item.images[0]" class="w-16 h-16 object-cover rounded shrink-0" @error="e=>e.target.style.display='none'" />
+            <img v-if="item.images && item.images[0]" :src="item.images[0]" class="w-16 h-16 object-cover rounded-lg shrink-0" @error="e=>e.target.style.display='none'" />
             <div class="flex-1 min-w-0">
-              <div class="font-medium text-sm truncate">{{ item.title }}</div>
-              <div class="flex gap-3 text-xs text-gray-500 mt-1 flex-wrap">
-                <span>📂 {{ item.category }}</span>
-                <span>💰 ${{ item.original_price }} → ${{ item.group_price }}</span>
-                <span>👥 최소 {{ item.min_participants }}명</span>
-                <button @click="$emit('openUser', item.user)" class="text-blue-600 hover:underline">👤 {{ item.user?.name }}</button>
-                <a v-if="item.business_doc" :href="item.business_doc" target="_blank" class="text-amber-700 hover:underline">📎 사업자등록증</a>
-                <span class="text-gray-400">{{ item.created_at?.slice(0,10) }}</span>
+              <div class="font-semibold text-sm text-ink truncate">{{ item.title }}</div>
+              <div class="flex gap-3 text-xs text-ink-muted mt-1 flex-wrap">
+                <span class="inline-flex items-center gap-1"><AppIcon name="tag" :size="11" /> {{ item.category }}</span>
+                <span class="inline-flex items-center gap-1"><AppIcon name="dollar" :size="11" /> ${{ item.original_price }} → ${{ item.group_price }}</span>
+                <span class="inline-flex items-center gap-1"><AppIcon name="users" :size="11" /> 최소 {{ item.min_participants }}명</span>
+                <button @click="$emit('openUser', item.user)" class="text-blue-600 hover:underline transition-colors inline-flex items-center gap-1"><AppIcon name="user" :size="11" /> {{ item.user?.name }}</button>
+                <a v-if="item.business_doc" :href="item.business_doc" target="_blank" class="text-amber-700 hover:underline transition-colors inline-flex items-center gap-1"><AppIcon name="paperclip" :size="11" /> 사업자등록증</a>
+                <span class="text-ink-faint">{{ item.created_at?.slice(0,10) }}</span>
               </div>
-              <div v-if="item.content" class="text-xs text-gray-600 mt-2 line-clamp-2">{{ item.content }}</div>
+              <div v-if="item.content" class="text-xs text-ink-light mt-2 line-clamp-2">{{ item.content }}</div>
             </div>
             <div class="flex flex-col gap-1 shrink-0">
-              <button @click="approve(item.id)" class="bg-green-500 hover:bg-green-600 text-white font-bold px-3 py-1 rounded text-xs">✅ 승인</button>
-              <button @click="reject(item.id)" class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1 rounded text-xs">❌ 거절</button>
+              <button @click="approve(item.id)" class="inline-flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white font-bold px-3 py-1 rounded-lg text-xs transition-colors"><AppIcon name="check" :size="12" /> 승인</button>
+              <button @click="reject(item.id)" class="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1 rounded-lg text-xs transition-colors"><AppIcon name="x" :size="12" /> 거절</button>
             </div>
           </div>
         </div>
@@ -56,6 +57,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const showUser = ref(false)
 const selectedUserId = ref(null)

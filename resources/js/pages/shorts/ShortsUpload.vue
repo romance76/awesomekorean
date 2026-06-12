@@ -1,25 +1,28 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">📱 숏츠 업로드</h1>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="video" :size="20" /></span>
+      숏츠 업로드
+    </h1>
+    <div class="card p-5 space-y-4">
       <div>
-        <label class="text-sm font-semibold text-gray-700">YouTube URL</label>
+        <label class="input-label">YouTube URL</label>
         <input v-model="form.video_url" type="url" placeholder="https://youtube.com/shorts/... 또는 https://youtu.be/..."
-          @input="parseUrl" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+          @input="parseUrl" class="input-soft px-3" />
       </div>
-      <div v-if="preview" class="bg-gray-100 rounded-lg p-3">
-        <img :src="preview" class="w-32 h-56 object-cover rounded-lg mx-auto" />
-        <div class="text-center text-xs text-gray-500 mt-2">미리보기</div>
+      <div v-if="preview" class="bg-[#F4F6F8] rounded-xl p-3">
+        <img :src="preview" class="w-32 h-56 object-cover rounded-xl mx-auto" />
+        <div class="text-center text-xs text-ink-muted mt-2">미리보기</div>
       </div>
       <div>
-        <label class="text-sm font-semibold text-gray-700">제목</label>
-        <input v-model="form.title" type="text" placeholder="숏츠 제목" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+        <label class="input-label">제목</label>
+        <input v-model="form.title" type="text" placeholder="숏츠 제목" class="input-soft px-3" />
       </div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <div class="flex gap-3 pt-2">
-        <button @click="submit" :disabled="submitting || !form.video_url" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ submitting ? '업로드 중...' : '업로드' }}</button>
-        <button @click="$router.back()" class="text-gray-500 px-6 py-2.5">취소</button>
+        <button @click="submit" :disabled="submitting || !form.video_url" class="btn-primary px-6">{{ submitting ? '업로드 중...' : '업로드' }}</button>
+        <button @click="$router.back()" class="btn-secondary px-6">취소</button>
       </div>
     </div>
   </div>
@@ -29,6 +32,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 const router = useRouter()
 const form = reactive({ title: '', video_url: '' })
 const preview = ref(null)

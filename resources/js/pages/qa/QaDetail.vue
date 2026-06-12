@@ -1,47 +1,47 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <button @click="$router.back()" class="text-sm text-gray-500 hover:text-amber-600 mb-3">← Q&A 목록</button>
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
+    <button @click="$router.back()" class="btn-ghost mb-3 !px-2"><AppIcon name="arrow-left" :size="15" />Q&A 목록</button>
+    <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="qa" class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 카테고리 -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
-          <RouterLink to="/qa" class="block px-3 py-2 text-xs text-gray-600 hover:bg-amber-50/50">전체</RouterLink>
+        <div class="card overflow-hidden sticky top-20">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-amber-500" />카테고리</div>
+          <RouterLink to="/qa" class="block px-3 py-2 text-xs text-ink-light hover:bg-amber-50/50 transition-colors">전체</RouterLink>
           <RouterLink v-for="cat in categories" :key="cat.id" :to="`/qa?category=${cat.id}`"
-            class="block px-3 py-2 text-xs transition"
-            :class="qa.category_id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ cat.name }}</RouterLink>
+            class="block px-3 py-2 text-xs transition-colors"
+            :class="qa.category_id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ cat.name }}</RouterLink>
         </div>
       </div>
 
       <div class="col-span-12 lg:col-span-7">
       <!-- 질문 카드 -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+      <div class="card overflow-hidden mb-4">
         <div class="px-5 py-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ qa.category?.name }}</span>
-            <span v-if="qa.bounty_points > 0" class="text-xs bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded-full font-bold">🏆 {{ qa.bounty_points }}P 현상금</span>
-            <span v-if="qa.is_resolved" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">✅ 해결됨</span>
+            <span class="badge-primary">{{ qa.category?.name }}</span>
+            <span v-if="qa.bounty_points > 0" class="badge bg-amber-400 text-white font-bold"><AppIcon name="trophy" :size="11" />{{ qa.bounty_points }}P 현상금</span>
+            <span v-if="qa.is_resolved" class="badge-green font-bold"><AppIcon name="check" :size="11" />해결됨</span>
           </div>
-          <h1 class="text-lg font-bold text-gray-900">{{ qa.title }}</h1>
-          <div class="text-xs text-gray-400 mt-2"><UserName :userId="qa.user?.id" :name="qa.user?.name" className="text-xs text-gray-400 inline" /> · {{ qa.view_count }}회 · 답변 {{ qa.answer_count }}개</div>
+          <h1 class="text-lg font-bold text-ink">{{ qa.title }}</h1>
+          <div class="text-xs text-ink-muted mt-2"><UserName :userId="qa.user?.id" :name="qa.user?.name" className="text-xs text-ink-muted inline" /> · {{ qa.view_count }}회 · 답변 {{ qa.answer_count }}개</div>
         </div>
-        <div class="px-5 py-4 border-t text-sm text-gray-700 whitespace-pre-wrap">{{ qa.content }}</div>
+        <div class="px-5 py-4 border-t border-gray-50 text-sm text-ink-light whitespace-pre-wrap">{{ qa.content }}</div>
       </div>
 
       <!-- 답변 목록 -->
       <div class="space-y-3">
-        <h3 class="font-bold text-gray-800">💡 답변 {{ answers.length }}개</h3>
+        <h3 class="font-bold text-ink flex items-center gap-1.5"><AppIcon name="message-circle" :size="16" class="text-amber-500" />답변 {{ answers.length }}개</h3>
         <div v-for="ans in answers" :key="ans.id"
-          class="bg-white rounded-xl shadow-sm border overflow-hidden"
-          :class="ans.is_best ? 'border-amber-400' : 'border-gray-100'">
-          <div v-if="ans.is_best" class="bg-amber-50 px-4 py-1.5 text-xs font-bold text-amber-700">👑 채택된 답변</div>
+          class="card overflow-hidden border"
+          :class="ans.is_best ? 'border-amber-400' : 'border-transparent'">
+          <div v-if="ans.is_best" class="bg-amber-50 px-4 py-1.5 text-xs font-bold text-amber-700 flex items-center gap-1"><AppIcon name="trophy" :size="13" />채택된 답변</div>
           <div class="px-5 py-4">
-            <div class="text-sm text-gray-700 whitespace-pre-wrap">{{ ans.content }}</div>
-            <div class="flex items-center gap-3 mt-3 text-xs text-gray-400">
-              <UserName :userId="ans.user?.id" :name="ans.user?.name" className="font-semibold text-gray-600" />
-              <span>❤️ {{ ans.like_count }}</span>
+            <div class="text-sm text-ink-light whitespace-pre-wrap">{{ ans.content }}</div>
+            <div class="flex items-center gap-3 mt-3 text-xs text-ink-muted">
+              <UserName :userId="ans.user?.id" :name="ans.user?.name" className="font-semibold text-ink-light" />
+              <span class="flex items-center gap-1"><AppIcon name="heart" :size="12" />{{ ans.like_count }}</span>
               <span>{{ formatDate(ans.created_at) }}</span>
             </div>
           </div>
@@ -49,10 +49,10 @@
       </div>
 
       <!-- 답변 작성 -->
-      <div v-if="auth.isLoggedIn && !qa.is_resolved" class="bg-white rounded-xl shadow-sm border border-gray-200 mt-4 p-5">
-        <h3 class="font-bold text-sm text-gray-800 mb-3">✍️ 답변 작성</h3>
-        <textarea v-model="newAnswer" rows="4" placeholder="답변을 입력하세요..." class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea>
-        <button @click="submitAnswer" :disabled="!newAnswer.trim()" class="mt-2 bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">답변 등록</button>
+      <div v-if="auth.isLoggedIn && !qa.is_resolved" class="card mt-4 p-5">
+        <h3 class="font-bold text-sm text-ink mb-3 flex items-center gap-1.5"><AppIcon name="edit" :size="14" class="text-amber-500" />답변 작성</h3>
+        <textarea v-model="newAnswer" rows="4" placeholder="답변을 입력하세요..." class="input-soft"></textarea>
+        <button @click="submitAnswer" :disabled="!newAnswer.trim()" class="mt-2 btn-primary">답변 등록</button>
       </div>
 
       <!-- 이전글 / 목록 / 다음글 -->
@@ -76,6 +76,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 const route = useRoute()
 const auth = useAuthStore()

@@ -1,17 +1,20 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="text-lg font-black text-gray-800">💬 커뮤니티</h1>
+        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+          <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="message-circle" :size="20" /></span>
+          커뮤니티
+        </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg">🔍 필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg">✏️ 글쓰기</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary text-xs px-3 py-2"><AppIcon name="search" :size="14" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary text-xs px-3 py-2"><AppIcon name="edit" :size="14" />글쓰기</RouterLink>
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
-        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+        <span class="badge-gray">
           {{ {latest:'최신순',popular:'인기순',views:'조회순',comments:'댓글순'}[sortBy] }}
         </span>
       </div>
@@ -20,46 +23,49 @@
     <!-- 모바일 필터 바텀시트 -->
     <MobileFilter v-model="showFilter" @apply="loadPosts()" @reset="activeBoard = null; sortBy = 'latest'; loadPosts()">
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">게시판</label>
+        <label class="input-label mb-2">게시판</label>
         <div class="grid grid-cols-3 gap-1.5">
           <button @click="activeBoard = null"
-            class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="!activeBoard ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+            class="text-xs py-2 rounded-lg font-semibold border transition-colors"
+            :class="!activeBoard ? 'bg-amber-50 text-amber-700 border-amber-200' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
             전체
           </button>
           <button v-for="b in boards" :key="b.id" @click="activeBoard = b"
-            class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+            class="text-xs py-2 rounded-lg font-semibold border transition-colors"
+            :class="activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 border-amber-200' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
             {{ b.name }}
           </button>
         </div>
       </div>
       <div>
-        <label class="text-xs font-bold text-gray-600 mb-2 block">정렬</label>
+        <label class="input-label mb-2">정렬</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button @click="sortBy = 'latest'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sortBy === 'latest' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">🕐 최신순</button>
-          <button @click="sortBy = 'popular'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sortBy === 'popular' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">🔥 인기순</button>
-          <button @click="sortBy = 'views'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sortBy === 'views' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">👁 조회순</button>
-          <button @click="sortBy = 'comments'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sortBy === 'comments' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">💬 댓글순</button>
+          <button @click="sortBy = 'latest'" class="text-xs py-2 rounded-lg font-semibold border transition-colors flex items-center justify-center gap-1"
+            :class="sortBy === 'latest' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="clock" :size="13" />최신순</button>
+          <button @click="sortBy = 'popular'" class="text-xs py-2 rounded-lg font-semibold border transition-colors flex items-center justify-center gap-1"
+            :class="sortBy === 'popular' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="flame" :size="13" />인기순</button>
+          <button @click="sortBy = 'views'" class="text-xs py-2 rounded-lg font-semibold border transition-colors flex items-center justify-center gap-1"
+            :class="sortBy === 'views' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="eye" :size="13" />조회순</button>
+          <button @click="sortBy = 'comments'" class="text-xs py-2 rounded-lg font-semibold border transition-colors flex items-center justify-center gap-1"
+            :class="sortBy === 'comments' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="message-circle" :size="13" />댓글순</button>
         </div>
       </div>
     </MobileFilter>
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4">
-      <h1 class="text-xl font-black text-gray-800">💬 커뮤니티</h1>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="message-circle" :size="20" /></span>
+        커뮤니티
+      </h1>
       <div class="flex items-center gap-2">
-        <select v-model="sortBy" @change="loadPosts()" class="border rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+        <select v-model="sortBy" @change="loadPosts()" class="input-soft w-auto text-xs py-1.5">
           <option value="latest">최신순</option>
           <option value="popular">인기순</option>
           <option value="views">조회순</option>
           <option value="comments">댓글순</option>
         </select>
-        <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-amber-500">✏️ 글쓰기</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary px-4 py-2"><AppIcon name="edit" :size="15" />글쓰기</RouterLink>
       </div>
     </div>
 
@@ -67,19 +73,22 @@
       <!-- 왼쪽: 게시판 카테고리 -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 게시판</div>
-            <button @click="showFavorites=false; activeBoard=null; activeItem=null; loadPosts()" class="w-full text-left px-3 py-2 text-xs transition"
-              :class="!showFavorites && !activeBoard ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">전체</button>
+          <div class="card overflow-hidden">
+            <div class="px-3 py-2.5 border-b border-gray-50 flex items-center gap-2">
+              <span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="list" :size="14" /></span>
+              <span class="text-xs font-bold text-ink">게시판</span>
+            </div>
+            <button @click="showFavorites=false; activeBoard=null; activeItem=null; loadPosts()" class="w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="!showFavorites && !activeBoard ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">전체</button>
             <button v-for="b in boards" :key="b.id" @click="showFavorites=false; activeBoard=b; activeItem=null; loadPosts()"
-              class="w-full text-left px-3 py-2 text-xs transition"
-              :class="!showFavorites && activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+              class="w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="!showFavorites && activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
               {{ b.name }}
             </button>
             <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
-              class="w-full text-left px-3 py-2 text-xs transition border-t"
-              :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-              🔖 내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+              class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50"
+              :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
+              <span class="flex items-center gap-1"><AppIcon name="bookmark" :size="12" />내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span></span>
             </button>
           </div>
           <AdSlot page="community" position="left" :maxSlots="2" />
@@ -90,33 +99,33 @@
       <div class="col-span-12 lg:col-span-7">
 
         <div class="mb-2">
-          <span v-if="showFavorites" class="font-bold text-red-600 text-sm">🔖 내 북마크</span>
+          <span v-if="showFavorites" class="font-bold text-red-600 text-sm inline-flex items-center gap-1"><AppIcon name="bookmark" :size="14" />내 북마크</span>
           <template v-else>
             <span class="font-bold text-amber-700 text-sm">{{ activeBoard ? activeBoard.name : '전체' }}</span>
-            <span v-if="activeBoard?.description" class="text-xs text-gray-400 ml-2">{{ activeBoard.description }}</span>
-            <span v-if="!activeBoard" class="text-xs text-gray-400 ml-2">모든 게시판의 글을 볼 수 있습니다</span>
+            <span v-if="activeBoard?.description" class="text-xs text-ink-muted ml-2">{{ activeBoard.description }}</span>
+            <span v-if="!activeBoard" class="text-xs text-ink-muted ml-2">모든 게시판의 글을 볼 수 있습니다</span>
           </template>
         </div>
 
         <!-- ═══ 상세 모드 ═══ -->
         <div v-if="activeItem">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-3">
-            <div class="px-5 py-4 border-b">
+          <div class="card overflow-hidden mb-3">
+            <div class="px-5 py-4 border-b border-gray-50">
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ activeItem.board?.name }}</span>
+                <span class="badge-primary">{{ activeItem.board?.name }}</span>
               </div>
-              <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title }}</h2>
-              <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                <button @click="openPopup(activeItem.user?.id)" class="hover:text-amber-700">{{ activeItem.user?.name }}</button>
+              <h2 class="text-lg font-bold text-ink">{{ activeItem.title }}</h2>
+              <div class="flex items-center gap-3 mt-2 text-xs text-ink-muted">
+                <button @click="openPopup(activeItem.user?.id)" class="hover:text-amber-700 transition-colors">{{ activeItem.user?.name }}</button>
                 <span>{{ formatDate(activeItem.created_at) }}</span>
-                <span>👁 {{ activeItem.view_count }}</span>
-                <span>❤️ {{ activeItem.like_count }}</span>
-                <span>💬 {{ activeItem.comment_count }}</span>
+                <span class="flex items-center gap-1"><AppIcon name="eye" :size="13" />{{ activeItem.view_count }}</span>
+                <span class="flex items-center gap-1"><AppIcon name="heart" :size="13" />{{ activeItem.like_count }}</span>
+                <span class="flex items-center gap-1"><AppIcon name="message-circle" :size="13" />{{ activeItem.comment_count }}</span>
               </div>
             </div>
-            <div class="px-5 py-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
-            <div class="px-5 py-3 border-t flex gap-4 items-center">
-              <button @click="toggleLike" class="text-sm" :class="liked ? 'text-red-500' : 'text-gray-400'">{{ liked ? '❤️' : '🤍' }} 좋아요 {{ activeItem.like_count }}</button>
+            <div class="px-5 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
+            <div class="px-5 py-3 border-t border-gray-50 flex gap-4 items-center">
+              <button @click="toggleLike" class="text-sm flex items-center gap-1.5 font-semibold transition-colors" :class="liked ? 'text-red-500' : 'text-ink-muted hover:text-red-400'"><AppIcon name="heart" :size="16" :filled="liked" /> 좋아요 {{ activeItem.like_count }}</button>
               <BookmarkToggle :active="favoritedList.has(activeItem.id)" @toggle="toggleFavList(activeItem)" size="lg" />
               <ShareButton :title="activeItem.title" :text="activeItem.content?.slice(0, 100)" label="공유" />
             </div>
@@ -126,47 +135,50 @@
           <CommentSection :type="'post'" :typeId="activeItem.id" ref="commentSection" />
 
           <!-- 이전글 / 목록 / 다음글 (같은 게시판 한정, 서버 prev/next) -->
-          <div class="mt-4 flex items-stretch bg-white rounded-xl shadow-sm border border-gray-200 text-sm overflow-hidden">
+          <div class="mt-4 flex items-stretch card text-sm overflow-hidden">
             <button v-if="adjPrev" @click="navItem(-1)"
-              class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50 text-left text-gray-700 border-r border-gray-100 transition">
-              <div class="text-gray-400 text-xs">← 이전글</div>
-              <div class="text-xs text-gray-600 truncate mt-0.5">{{ adjPrev.title || '' }}</div>
+              class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50/60 text-left text-ink-light border-r border-gray-50 transition-colors">
+              <div class="text-ink-muted text-xs flex items-center gap-1"><AppIcon name="chevron-left" :size="12" />이전글</div>
+              <div class="text-xs text-ink-light truncate mt-0.5">{{ adjPrev.title || '' }}</div>
             </button>
-            <div v-else class="flex-1 min-w-0 px-4 py-3 text-left text-gray-300 border-r border-gray-100 text-xs flex items-center">← 이전글 없음</div>
+            <div v-else class="flex-1 min-w-0 px-4 py-3 text-left text-ink-faint border-r border-gray-50 text-xs flex items-center gap-1"><AppIcon name="chevron-left" :size="12" />이전글 없음</div>
 
             <button @click="activeItem=null; adjPrev=null; adjNext=null"
-              class="px-5 py-3 hover:bg-amber-50 text-center text-gray-700 font-bold border-r border-gray-100 flex-shrink-0 transition">
+              class="px-5 py-3 hover:bg-amber-50/60 text-center text-ink font-bold border-r border-gray-50 flex-shrink-0 transition-colors">
               목록
             </button>
 
             <button v-if="adjNext" @click="navItem(1)"
-              class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50 text-right text-gray-700 transition">
-              <div class="text-gray-400 text-xs">다음글 →</div>
-              <div class="text-xs text-gray-600 truncate mt-0.5">{{ adjNext.title || '' }}</div>
+              class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50/60 text-right text-ink-light transition-colors">
+              <div class="text-ink-muted text-xs flex items-center justify-end gap-1">다음글<AppIcon name="chevron-right" :size="12" /></div>
+              <div class="text-xs text-ink-light truncate mt-0.5">{{ adjNext.title || '' }}</div>
             </button>
-            <div v-else class="flex-1 min-w-0 px-4 py-3 text-right text-gray-300 text-xs flex items-center justify-end">다음글 없음 →</div>
+            <div v-else class="flex-1 min-w-0 px-4 py-3 text-right text-ink-faint text-xs flex items-center justify-end gap-1">다음글 없음<AppIcon name="chevron-right" :size="12" /></div>
           </div>
         </div>
 
         <!-- ═══ 목록 모드 ═══ -->
         <div v-else>
-        <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-        <div v-else-if="!items.length" class="text-center py-12 text-gray-400">게시글이 없습니다</div>
+        <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
+        <div v-else-if="!items.length" class="py-16 text-center">
+          <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="message-circle" :size="28" :stroke-width="1.5" /></div>
+          <p class="text-sm text-ink-muted">게시글이 없습니다</p>
+        </div>
 
         <!-- 리스트 뷰 -->
-        <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div v-else class="card overflow-hidden divide-y divide-gray-50">
           <template v-for="(item, i) in items" :key="item.id">
           <div @click="openItem(item)"
-            class="px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
+            class="list-row">
             <div class="flex items-center gap-2">
-              <span v-if="!activeBoard" class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold flex-shrink-0">{{ item.board?.name || '자유' }}</span>
-              <span class="text-sm font-medium text-gray-800 truncate flex-1">{{ item.title }}</span>
+              <span v-if="!activeBoard" class="badge-primary flex-shrink-0">{{ item.board?.name || '자유' }}</span>
+              <span class="text-sm font-semibold text-ink truncate flex-1">{{ item.title }}</span>
             </div>
-            <div class="flex items-center gap-2 mt-1 text-xs text-gray-400">
-              <button @click.stop="openPopup(item.user?.id)" class="hover:text-amber-700">{{ item.user?.name }}</button>
-              <span>👁{{ item.view_count }}</span>
-              <span>❤️{{ item.like_count }}</span>
-              <span v-if="item.comment_count">💬{{ item.comment_count }}</span>
+            <div class="flex items-center gap-2 mt-1 text-xs text-ink-muted">
+              <button @click.stop="openPopup(item.user?.id)" class="hover:text-amber-700 transition-colors">{{ item.user?.name }}</button>
+              <span class="flex items-center gap-0.5"><AppIcon name="eye" :size="12" />{{ item.view_count }}</span>
+              <span class="flex items-center gap-0.5"><AppIcon name="heart" :size="12" />{{ item.like_count }}</span>
+              <span v-if="item.comment_count" class="flex items-center gap-0.5"><AppIcon name="message-circle" :size="12" />{{ item.comment_count }}</span>
               <span>{{ formatDate(item.created_at) }}</span>
               <BookmarkToggle v-if="auth.isLoggedIn" :active="favoritedList.has(item.id)" @toggle="toggleFavList(item)" size="sm" class="ml-auto" />
             </div>
@@ -202,6 +214,7 @@ import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import ShareButton from '../../components/ShareButton.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 
 const route = useRoute()

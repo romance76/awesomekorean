@@ -1,89 +1,92 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">{{ isEdit ? '✏️ 글 수정' : '✏️ 글쓰기' }}</h1>
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="edit" :size="20" /></span>
+      {{ isEdit ? '글 수정' : '글쓰기' }}
+    </h1>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+    <div class="card p-5 space-y-4">
       <div>
-        <label class="text-sm font-semibold text-gray-700">게시판</label>
-        <select v-model="form.board_id" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+        <label class="input-label">게시판</label>
+        <select v-model="form.board_id" class="input-soft px-3">
           <option value="">게시판을 선택하세요</option>
           <option v-for="b in boards" :key="b.id" :value="b.id">{{ b.name }}</option>
         </select>
       </div>
       <div>
-        <label class="text-sm font-semibold text-gray-700">제목</label>
+        <label class="input-label">제목</label>
         <input v-model="form.title" type="text" placeholder="제목을 입력하세요" maxlength="120"
-          class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+          class="input-soft px-3" />
       </div>
 
       <!-- 탭: 작성/미리보기 (Issue #24) -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="text-sm font-semibold text-gray-700">내용</label>
-          <div class="flex gap-1 text-xs bg-gray-100 rounded-lg p-0.5">
+          <label class="input-label mb-0">내용</label>
+          <div class="flex gap-1 text-xs bg-gray-100 rounded-xl p-1">
             <button type="button" @click="tab='write'"
-              :class="['px-3 py-1 rounded-md transition', tab==='write' ? 'bg-white shadow-sm font-semibold text-gray-800' : 'text-gray-500']">✏️ 작성</button>
+              :class="['px-3 py-1 rounded-lg transition flex items-center gap-1', tab==='write' ? 'bg-white shadow-sm font-semibold text-ink' : 'text-ink-muted']"><AppIcon name="edit" :size="12" /> 작성</button>
             <button type="button" @click="tab='preview'"
-              :class="['px-3 py-1 rounded-md transition', tab==='preview' ? 'bg-white shadow-sm font-semibold text-gray-800' : 'text-gray-500']">👁️ 미리보기</button>
+              :class="['px-3 py-1 rounded-lg transition flex items-center gap-1', tab==='preview' ? 'bg-white shadow-sm font-semibold text-ink' : 'text-ink-muted']"><AppIcon name="eye" :size="12" /> 미리보기</button>
           </div>
         </div>
 
         <!-- 툴바 -->
-        <div v-show="tab==='write'" class="flex flex-wrap gap-1 border rounded-t-lg bg-gray-50 px-2 py-1 text-xs">
-          <button type="button" @click="wrapSelection('**','**')" class="px-2 py-1 rounded hover:bg-white font-bold" title="굵게 (Ctrl+B)">B</button>
-          <button type="button" @click="wrapSelection('*','*')" class="px-2 py-1 rounded hover:bg-white italic" title="기울임 (Ctrl+I)">I</button>
-          <button type="button" @click="wrapSelection('~~','~~')" class="px-2 py-1 rounded hover:bg-white line-through" title="취소선">S</button>
+        <div v-show="tab==='write'" class="flex flex-wrap gap-1 rounded-t-xl bg-[#F4F6F8] px-2 py-1.5 text-xs">
+          <button type="button" @click="wrapSelection('**','**')" class="px-2 py-1 rounded-lg hover:bg-white font-bold text-ink-light transition-colors" title="굵게 (Ctrl+B)">B</button>
+          <button type="button" @click="wrapSelection('*','*')" class="px-2 py-1 rounded-lg hover:bg-white italic text-ink-light transition-colors" title="기울임 (Ctrl+I)">I</button>
+          <button type="button" @click="wrapSelection('~~','~~')" class="px-2 py-1 rounded-lg hover:bg-white line-through text-ink-light transition-colors" title="취소선">S</button>
           <span class="w-px bg-gray-300 mx-1"></span>
-          <button type="button" @click="prefixLine('# ')" class="px-2 py-1 rounded hover:bg-white font-bold" title="제목">H1</button>
-          <button type="button" @click="prefixLine('## ')" class="px-2 py-1 rounded hover:bg-white font-bold" title="소제목">H2</button>
-          <button type="button" @click="prefixLine('- ')" class="px-2 py-1 rounded hover:bg-white" title="목록">• 목록</button>
-          <button type="button" @click="prefixLine('> ')" class="px-2 py-1 rounded hover:bg-white" title="인용">❝ 인용</button>
+          <button type="button" @click="prefixLine('# ')" class="px-2 py-1 rounded-lg hover:bg-white font-bold text-ink-light transition-colors" title="제목">H1</button>
+          <button type="button" @click="prefixLine('## ')" class="px-2 py-1 rounded-lg hover:bg-white font-bold text-ink-light transition-colors" title="소제목">H2</button>
+          <button type="button" @click="prefixLine('- ')" class="px-2 py-1 rounded-lg hover:bg-white text-ink-light transition-colors" title="목록">• 목록</button>
+          <button type="button" @click="prefixLine('> ')" class="px-2 py-1 rounded-lg hover:bg-white text-ink-light transition-colors" title="인용">❝ 인용</button>
           <span class="w-px bg-gray-300 mx-1"></span>
-          <button type="button" @click="insertLink" class="px-2 py-1 rounded hover:bg-white" title="링크">🔗 링크</button>
-          <button type="button" @click="$refs.imgInput.click()" class="px-2 py-1 rounded hover:bg-white" title="이미지 삽입">🖼️ 이미지</button>
+          <button type="button" @click="insertLink" class="px-2 py-1 rounded-lg hover:bg-white text-ink-light transition-colors inline-flex items-center gap-1" title="링크"><AppIcon name="external-link" :size="12" /> 링크</button>
+          <button type="button" @click="$refs.imgInput.click()" class="px-2 py-1 rounded-lg hover:bg-white text-ink-light transition-colors inline-flex items-center gap-1" title="이미지 삽입"><AppIcon name="image" :size="12" /> 이미지</button>
           <span class="w-px bg-gray-300 mx-1"></span>
-          <button type="button" @click="clearDraft" class="px-2 py-1 rounded hover:bg-white text-gray-500 ml-auto" title="임시저장 지우기">🗑️ 초기화</button>
+          <button type="button" @click="clearDraft" class="px-2 py-1 rounded-lg hover:bg-white text-ink-muted ml-auto transition-colors inline-flex items-center gap-1" title="임시저장 지우기"><AppIcon name="trash" :size="12" /> 초기화</button>
         </div>
 
         <!-- 에디터 (드래그앤드롭 지원) -->
         <textarea v-show="tab==='write'" ref="editorRef" v-model="form.content" rows="14"
           @keydown="onEditorKey" @drop.prevent="onDrop" @dragover.prevent
           placeholder="내용을 입력하세요. 이미지는 툴바·파일 선택·드래그앤드롭 모두 가능합니다."
-          class="w-full border border-t-0 rounded-b-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-y font-mono" style="min-height:340px"></textarea>
+          class="input-soft rounded-t-none px-3 resize-y font-mono" style="min-height:340px"></textarea>
 
         <!-- 미리보기 -->
-        <div v-show="tab==='preview'" class="border rounded-lg px-4 py-3 text-sm text-gray-800 min-h-[340px] whitespace-pre-wrap leading-relaxed bg-gray-50">
-          <div v-if="!form.content.trim()" class="text-gray-400 text-center py-10">미리볼 내용이 없습니다.</div>
+        <div v-show="tab==='preview'" class="bg-[#F4F6F8] rounded-xl px-4 py-3 text-sm text-ink min-h-[340px] whitespace-pre-wrap leading-relaxed">
+          <div v-if="!form.content.trim()" class="text-ink-muted text-center py-10">미리볼 내용이 없습니다.</div>
           <div v-else v-html="previewHtml"></div>
         </div>
 
         <!-- 상태 바 -->
-        <div class="flex items-center justify-between mt-1.5 text-[11px] text-gray-500">
-          <span>📝 {{ charCount }}자 · {{ lineCount }}줄</span>
-          <span v-if="draftSavedAt" class="text-green-600">💾 임시저장됨 ({{ draftSavedAt }})</span>
+        <div class="flex items-center justify-between mt-1.5 text-[11px] text-ink-muted">
+          <span class="flex items-center gap-1"><AppIcon name="edit" :size="12" /> {{ charCount }}자 · {{ lineCount }}줄</span>
+          <span v-if="draftSavedAt" class="text-green-600 flex items-center gap-1"><AppIcon name="check" :size="12" /> 임시저장됨 ({{ draftSavedAt }})</span>
         </div>
       </div>
 
       <div>
-        <label class="text-sm font-semibold text-gray-700">이미지 파일 (선택)</label>
-        <input type="file" multiple accept="image/*" @change="onFiles" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm" />
+        <label class="input-label">이미지 파일 (선택)</label>
+        <input type="file" multiple accept="image/*" @change="onFiles" class="input-soft px-3 py-2" />
         <input ref="imgInput" type="file" multiple accept="image/*" class="hidden" @change="onFiles" />
         <div v-if="previews.length" class="flex flex-wrap gap-2 mt-2">
           <div v-for="(p, i) in previews" :key="i" class="relative">
-            <img :src="p" class="w-20 h-20 object-cover rounded-lg border" />
-            <button @click="removeFile(i)" class="absolute -top-1 -right-1 bg-red-500 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center">x</button>
+            <img :src="p" class="w-20 h-20 object-cover rounded-xl border border-gray-100" />
+            <button @click="removeFile(i)" class="absolute -top-1 -right-1 bg-red-500 text-white w-4 h-4 rounded-full flex items-center justify-center"><AppIcon name="x" :size="10" /></button>
           </div>
         </div>
-        <div class="text-[11px] text-gray-400 mt-1">💡 본문에 드래그해서 놓으면 자동으로 첨부됩니다.</div>
+        <div class="text-xs text-ink-muted mt-1 flex items-center gap-1"><AppIcon name="info" :size="12" /> 본문에 드래그해서 놓으면 자동으로 첨부됩니다.</div>
       </div>
 
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <div class="flex gap-3 pt-2">
-        <button @click="submit" :disabled="submitting" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">
+        <button @click="submit" :disabled="submitting" class="btn-primary px-6">
           {{ submitting ? '저장 중...' : (isEdit ? '수정하기' : '등록하기 (+5P)') }}
         </button>
-        <button @click="$router.back()" class="text-gray-500 px-6 py-2.5">취소</button>
+        <button @click="$router.back()" class="btn-secondary px-6">취소</button>
       </div>
     </div>
   </div>
@@ -94,6 +97,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 
 const router = useRouter()
 const route = useRoute()

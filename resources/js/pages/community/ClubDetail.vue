@@ -1,39 +1,40 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="club?.name || '동호회'" fallback="/clubs" />
     <!-- Title link (like ClubList) -->
-    <router-link to="/clubs" class="hidden lg:inline-block text-xl font-black text-gray-800 mb-3 hover:text-amber-600 transition">
-      👥 동호회
+    <router-link to="/clubs" class="hidden lg:inline-flex items-center gap-2.5 text-xl font-bold text-ink mb-3 hover:text-amber-600 transition-colors">
+      <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
+      동호회
     </router-link>
 
     <!-- Loading -->
     <div v-if="loading" class="text-center py-20">
       <div class="inline-block w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-sm text-gray-400 mt-3">로딩중...</p>
+      <p class="text-sm text-ink-muted mt-3">로딩중...</p>
     </div>
 
     <!-- Main content -->
     <div v-else-if="club" class="grid grid-cols-12 gap-4">
       <!-- Left sidebar: Category list (like ClubList) -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
+        <div class="card overflow-hidden sticky top-20">
+          <div class="px-3 py-2.5 border-b border-gray-50 flex items-center gap-1.5 font-bold text-xs text-ink"><AppIcon name="list" :size="13" class="text-teal-600" />카테고리</div>
           <router-link v-for="c in clubCategories" :key="c.value"
             :to="c.value ? `/clubs?category=${c.value}` : '/clubs'"
-            class="w-full text-left px-3 py-2 text-xs transition block"
-            :class="club.category === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+            class="w-full text-left px-3 py-2 text-xs transition-colors block"
+            :class="club.category === c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
             {{ c.label }}
           </router-link>
           <router-link v-if="auth.isLoggedIn" to="/clubs?fav=1"
-            class="block w-full text-left px-3 py-2 text-xs transition border-t text-gray-600 hover:bg-red-50/50">
-            🔖 내 북마크
+            class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 text-ink-light hover:bg-red-50/50 flex items-center gap-1">
+            <AppIcon name="bookmark" :size="13" />내 북마크
           </router-link>
           <template v-if="auth.isLoggedIn && myClubs.length">
-            <div class="px-3 py-2.5 border-t border-b font-bold text-xs text-amber-900 mt-1">👤 내 동호회</div>
+            <div class="px-3 py-2.5 border-t border-b border-gray-50 flex items-center gap-1.5 font-bold text-xs text-ink mt-1"><AppIcon name="user" :size="13" class="text-teal-600" />내 동호회</div>
             <router-link v-for="mc in myClubs" :key="mc.id" :to="`/clubs/${mc.id}`"
-              class="block w-full text-left px-3 py-2 text-xs transition truncate"
-              :class="mc.id === club.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+              class="block w-full text-left px-3 py-2 text-xs transition-colors truncate"
+              :class="mc.id === club.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
               {{ mc.name }}
             </router-link>
           </template>
@@ -44,9 +45,9 @@
       <!-- Center content -->
       <div class="col-span-12 lg:col-span-7">
         <!-- Club header / banner -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+        <div class="card overflow-hidden mb-4">
           <!-- Cover image -->
-          <div class="h-36 sm:h-48 bg-gradient-to-r from-amber-400 to-orange-400 relative">
+          <div class="h-36 sm:h-48 bg-gradient-to-r from-[#FF8A53] to-[#F2570F] relative">
             <img v-if="club.cover_image" :src="coverImageUrl" class="w-full h-full object-cover"
               @error="$event.target.style.display='none'" />
           </div>
@@ -59,17 +60,17 @@
               </div>
               <div class="flex-1 min-w-0 pt-8">
                 <div class="flex items-center gap-2">
-                  <h1 class="text-lg font-black text-gray-900 truncate flex-1">{{ club.name }}</h1>
+                  <h1 class="text-lg font-bold text-ink truncate flex-1">{{ club.name }}</h1>
                   <BookmarkToggle v-if="auth.isLoggedIn" :active="clubFavorited" @toggle="toggleClubFav" size="lg" class="flex-shrink-0" />
                 </div>
-                <div class="flex items-center gap-3 mt-1 text-xs text-gray-400 flex-wrap">
-                  <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold">{{ categoryLabel }}</span>
-                  <span :class="club.type === 'online' ? 'text-blue-600' : 'text-green-600'" class="font-medium">
+                <div class="flex items-center gap-3 mt-1 text-xs text-ink-muted flex-wrap">
+                  <span class="badge-primary">{{ categoryLabel }}</span>
+                  <span :class="club.type === 'online' ? 'text-blue-600' : 'text-emerald-600'" class="font-medium">
                     {{ club.type === 'online' ? '온라인' : '지역 모임' }}
                   </span>
                   <span v-if="club.city">{{ club.city }}, {{ club.state }}</span>
                   <span>{{ club.member_count || 0 }}명</span>
-                  <span v-if="club.max_members > 0" class="text-gray-300">/ {{ club.max_members }}명</span>
+                  <span v-if="club.max_members > 0" class="text-ink-faint">/ {{ club.max_members }}명</span>
                 </div>
               </div>
             </div>
@@ -78,16 +79,16 @@
             <div v-if="club.description" class="mt-3">
               <template v-if="isMember">
                 <div class="relative">
-                  <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"
+                  <p class="text-sm text-ink-light leading-relaxed whitespace-pre-line"
                     :class="{ 'line-clamp-2': !descExpanded }">{{ club.description }}</p>
                   <button @click="descExpanded = !descExpanded"
-                    class="text-xs text-amber-600 hover:text-amber-700 font-semibold mt-1 inline-block">
+                    class="text-xs text-amber-600 hover:text-amber-700 font-semibold mt-1 inline-block transition-colors">
                     {{ descExpanded ? '접기' : '더보기' }}
                   </button>
                 </div>
               </template>
               <template v-else>
-                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ club.description }}</p>
+                <p class="text-sm text-ink-light leading-relaxed whitespace-pre-line">{{ club.description }}</p>
               </template>
             </div>
 
@@ -95,15 +96,15 @@
             <div class="flex items-center gap-2 mt-4 flex-wrap">
               <template v-if="auth.isLoggedIn">
                 <button v-if="myStatus === 'pending'" disabled
-                  class="bg-gray-200 text-gray-500 font-bold px-6 py-2.5 rounded-xl text-sm cursor-not-allowed">
-                  ⏳ 승인 대기 중
+                  class="inline-flex items-center gap-1.5 bg-gray-100 text-ink-muted font-bold px-6 py-2.5 rounded-xl text-sm cursor-not-allowed">
+                  <AppIcon name="clock" :size="14" />승인 대기 중
                 </button>
                 <button v-else-if="!isMember" @click="joinClub"
-                  class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-amber-500 shadow-md shadow-amber-200 transition">
+                  class="btn-primary !px-6">
                   가입 신청
                 </button>
                 <button v-else-if="!isOwner" @click="leaveClub"
-                  class="bg-gray-100 text-gray-600 font-semibold px-5 py-2 rounded-xl text-sm hover:bg-gray-200 transition">
+                  class="btn-secondary !px-5 !py-2">
                   탈퇴하기
                 </button>
                 <span v-if="isMember" class="px-3 py-1.5 rounded-full text-xs font-bold"
@@ -112,7 +113,7 @@
                 </span>
               </template>
               <template v-else>
-                <RouterLink to="/login" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-amber-500 shadow-md shadow-amber-200 transition">
+                <RouterLink to="/login" class="btn-primary !px-6">
                   로그인 후 가입
                 </RouterLink>
               </template>
@@ -121,56 +122,56 @@
         </div>
 
         <!-- Rules section (show for non-members, or if club has rules) -->
-        <div v-if="club.rules && (!isMember || activeTab === 'board')" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
-          <div class="px-5 py-3 border-b bg-amber-50/50">
-            <h3 class="text-sm font-bold text-amber-900 flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <div v-if="club.rules && (!isMember || activeTab === 'board')" class="card overflow-hidden mb-4">
+          <div class="px-5 py-3 border-b border-gray-50">
+            <h3 class="text-sm font-bold text-ink flex items-center gap-2">
+              <span class="icon-chip w-6 h-6 bg-amber-50 text-amber-600"><AppIcon name="book-open" :size="14" /></span>
               동호회 규칙
             </h3>
           </div>
-          <div class="px-5 py-4 text-sm text-gray-600 leading-relaxed whitespace-pre-line">{{ club.rules }}</div>
+          <div class="px-5 py-4 text-sm text-ink-light leading-relaxed whitespace-pre-line">{{ club.rules }}</div>
         </div>
 
         <!-- Horizontal tab buttons (inside center content) -->
-        <div v-if="isMember" class="flex items-center gap-1 mb-4 bg-white rounded-xl shadow-sm border border-gray-200 px-3 py-2 overflow-x-auto">
+        <div v-if="isMember" class="flex items-center gap-1 mb-4 card px-3 py-2 overflow-x-auto">
           <button @click="activeTab = 'board'"
-            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap"
-            :class="activeTab === 'board' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50'">
+            class="px-4 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap"
+            :class="activeTab === 'board' ? 'bg-amber-400 text-white' : 'text-ink-muted hover:bg-amber-50'">
             게시판
           </button>
           <button @click="activeTab = 'members'; loadMembers()"
-            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap"
-            :class="activeTab === 'members' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50'">
+            class="px-4 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap"
+            :class="activeTab === 'members' ? 'bg-amber-400 text-white' : 'text-ink-muted hover:bg-amber-50'">
             회원목록
           </button>
           <button v-if="isAdmin" @click="activeTab = 'settings'; loadPendingMembers()"
-            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap relative"
-            :class="activeTab === 'settings' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-amber-50'">
+            class="px-4 py-2 rounded-lg text-xs font-bold transition-colors whitespace-nowrap relative"
+            :class="activeTab === 'settings' ? 'bg-amber-400 text-white' : 'text-ink-muted hover:bg-amber-50'">
             설정
-            <span v-if="pendingMembers.length" class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
+            <span v-if="pendingMembers.length" class="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
           </button>
           <button v-if="chatRoomId" @click="chatStore.openRoom({ id: chatRoomId, name: club.name + ' 채팅', type: 'club' })"
-            class="px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap ml-auto bg-amber-100 text-amber-700 hover:bg-amber-200">
-            💬 채팅
+            class="ml-auto btn-soft !px-4 !py-2 !text-xs whitespace-nowrap">
+            <AppIcon name="message-circle" :size="14" />채팅
           </button>
         </div>
 
         <!-- ====== NON-MEMBER VIEW: Recent posts preview ====== -->
-        <div v-if="!isMember" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-5 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
+        <div v-if="!isMember" class="card overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center justify-between">
             <span>최근 게시글</span>
           </div>
           <div v-if="previewPosts.length">
-            <div v-for="post in previewPosts" :key="post.id" class="px-5 py-3 border-b last:border-0 hover:bg-amber-50/30 transition">
-              <div class="text-sm font-medium text-gray-800">{{ post.title }}</div>
-              <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
+            <div v-for="post in previewPosts" :key="post.id" class="px-5 py-3 border-b border-gray-50 last:border-0 hover:bg-amber-50/40 transition-colors">
+              <div class="text-sm font-semibold text-ink">{{ post.title }}</div>
+              <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-2">
                 <UserName :userId="post.user?.id" :name="post.user?.name" />
                 <span>{{ formatDate(post.created_at) }}</span>
                 <span v-if="post.comment_count" class="text-amber-600">{{ post.comment_count }}개 댓글</span>
               </div>
             </div>
           </div>
-          <div v-else class="px-5 py-8 text-center text-sm text-gray-400">
+          <div v-else class="px-5 py-8 text-center text-sm text-ink-muted">
             아직 게시글이 없습니다. 가입하고 첫 글을 작성해보세요!
           </div>
         </div>
@@ -178,42 +179,42 @@
         <!-- ====== MEMBER VIEW: Board Tab ====== -->
         <div v-if="isMember && activeTab === 'board'" class="space-y-4">
           <!-- Board selector -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b flex items-center justify-between flex-wrap gap-2">
+          <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50 flex items-center justify-between flex-wrap gap-2">
               <div class="flex items-center gap-2 flex-wrap">
                 <button @click="selectedBoard = null; loadPosts()"
-                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition"
-                  :class="!selectedBoard ? 'bg-amber-400 text-amber-900' : 'bg-gray-100 text-gray-500 hover:bg-amber-50'">
+                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                  :class="!selectedBoard ? 'bg-amber-400 text-white' : 'bg-gray-100 text-ink-muted hover:bg-amber-50'">
                   전체
                 </button>
                 <button v-for="board in boards" :key="board.id"
                   @click="selectedBoard = board; loadPosts()"
-                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition"
-                  :class="selectedBoard?.id === board.id ? 'bg-amber-400 text-amber-900' : 'bg-gray-100 text-gray-500 hover:bg-amber-50'">
+                  class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
+                  :class="selectedBoard?.id === board.id ? 'bg-amber-400 text-white' : 'bg-gray-100 text-ink-muted hover:bg-amber-50'">
                   {{ board.name }}
                 </button>
               </div>
               <button @click="showWritePost = !showWritePost"
-                class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500 transition flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                class="btn-primary !px-3 !py-1.5 !text-xs">
+                <AppIcon name="edit" :size="13" />
                 글쓰기
               </button>
             </div>
 
             <!-- Write post form (inline) -->
-            <div v-if="showWritePost" class="px-5 py-4 bg-amber-50/50 border-b space-y-3">
-              <select v-model="newPost.board_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400">
+            <div v-if="showWritePost" class="px-5 py-4 bg-amber-50/50 border-b border-gray-50 space-y-3">
+              <select v-model="newPost.board_id" class="input-soft">
                 <option value="" disabled>게시판 선택</option>
                 <option v-for="b in boards" :key="b.id" :value="b.id">{{ b.name }}</option>
               </select>
               <input v-model="newPost.title" type="text" placeholder="제목을 입력하세요"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+                class="input-soft" />
               <textarea v-model="newPost.content" rows="4" placeholder="내용을 입력하세요..."
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none resize-none focus:ring-2 focus:ring-amber-400"></textarea>
+                class="input-soft"></textarea>
               <!-- Image upload -->
               <div>
-                <label class="flex items-center gap-2 cursor-pointer text-xs text-gray-500 hover:text-amber-700 transition">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <label class="flex items-center gap-2 cursor-pointer text-xs text-ink-muted hover:text-amber-700 transition-colors">
+                  <AppIcon name="camera" :size="15" />
                   사진 첨부
                   <input type="file" multiple accept="image/*" class="hidden" @change="handlePostImages" />
                 </label>
@@ -229,21 +230,21 @@
               </div>
               <div class="flex gap-2">
                 <button @click="submitPost" :disabled="postSubmitting"
-                  class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-xs hover:bg-amber-500 disabled:opacity-50 transition">
+                  class="btn-primary !px-4 !py-2 !text-xs">
                   {{ postSubmitting ? '등록 중...' : '등록하기' }}
                 </button>
-                <button @click="showWritePost = false" class="text-gray-500 px-4 py-2 text-xs">취소</button>
+                <button @click="showWritePost = false" class="btn-ghost !px-4 !py-2 !text-xs">취소</button>
               </div>
               <div v-if="postError" class="text-red-500 text-xs">{{ postError }}</div>
             </div>
 
             <!-- Posts list (single-line BBS style) -->
-            <div v-if="postsLoading" class="py-8 text-center text-sm text-gray-400">
+            <div v-if="postsLoading" class="py-8 text-center text-sm text-ink-muted">
               <div class="inline-block w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
             <div v-else-if="posts.length">
               <!-- BBS header row -->
-              <div class="hidden sm:flex items-center px-5 py-2 border-b bg-gray-50 text-[10px] font-bold text-gray-400 uppercase">
+              <div class="hidden sm:flex items-center px-5 py-2 border-b border-gray-50 bg-gray-50 text-[11px] font-bold text-ink-faint uppercase">
                 <span class="flex-1">제목</span>
                 <span class="w-20 text-center">작성자</span>
                 <span class="w-16 text-center">날짜</span>
@@ -253,46 +254,44 @@
               <div v-for="post in posts" :key="post.id">
                 <!-- Post row (single line) -->
                 <div @click="togglePost(post)"
-                  class="flex items-center px-5 py-2.5 border-b cursor-pointer hover:bg-amber-50/30 transition"
+                  class="flex items-center px-5 py-2.5 border-b border-gray-50 cursor-pointer hover:bg-amber-50/40 transition-colors"
                   :class="{ 'bg-amber-50/50': expandedPost === post.id }">
                   <div class="flex-1 min-w-0 flex items-center gap-2">
-                    <span v-if="post.board_name" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 flex-shrink-0">{{ post.board_name }}</span>
-                    <span class="text-sm font-medium text-gray-800 truncate">{{ post.title }}</span>
+                    <span v-if="post.board_name" class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-gray-100 text-ink-muted flex-shrink-0">{{ post.board_name }}</span>
+                    <span class="text-sm font-semibold text-ink truncate">{{ post.title }}</span>
                   </div>
-                  <span class="hidden sm:block w-20 text-center text-xs text-gray-500 truncate flex-shrink-0">
+                  <span class="hidden sm:block w-20 text-center text-xs text-ink-light truncate flex-shrink-0">
                     <UserName :userId="post.user?.id" :name="post.user?.name" />
                   </span>
-                  <span class="hidden sm:block w-16 text-center text-[11px] text-gray-400 flex-shrink-0">{{ formatDate(post.created_at) }}</span>
+                  <span class="hidden sm:block w-16 text-center text-[11px] text-ink-faint flex-shrink-0">{{ formatDate(post.created_at) }}</span>
                   <span class="hidden sm:block w-10 text-center text-xs flex-shrink-0"
-                    :class="post.comment_count ? 'text-amber-600 font-semibold' : 'text-gray-300'">
+                    :class="post.comment_count ? 'text-amber-600 font-semibold' : 'text-ink-faint'">
                     {{ post.comment_count || 0 }}
                   </span>
                   <div class="w-12 flex items-center justify-end gap-1 flex-shrink-0">
                     <button v-if="canDeletePost(post)" @click.stop="deletePost(post)"
-                      class="text-gray-300 hover:text-red-500 p-0.5 rounded hover:bg-red-50 transition"
+                      class="text-gray-300 hover:text-red-500 p-0.5 rounded hover:bg-red-50 transition-colors"
                       title="삭제">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      <AppIcon name="trash" :size="14" />
                     </button>
-                    <svg class="w-3.5 h-3.5 text-gray-300 transition-transform" :class="{ 'rotate-180': expandedPost === post.id }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
+                    <AppIcon name="chevron-down" :size="14" class="text-gray-300 transition-transform" :class="{ 'rotate-180': expandedPost === post.id }" />
                   </div>
                 </div>
 
                 <!-- Expanded post content (inline) -->
-                <div v-if="expandedPost === post.id" class="px-5 py-4 bg-gray-50 border-b">
+                <div v-if="expandedPost === post.id" class="px-5 py-4 bg-gray-50 border-b border-gray-50">
                   <!-- Mobile meta (shown only on mobile since header row is hidden) -->
-                  <div class="sm:hidden text-xs text-gray-400 mb-2 flex items-center gap-2">
+                  <div class="sm:hidden text-xs text-ink-muted mb-2 flex items-center gap-2">
                     <UserName :userId="post.user?.id" :name="post.user?.name" />
                     <span>{{ formatDate(post.created_at) }}</span>
                     <span v-if="post.comment_count" class="text-amber-600 font-semibold">{{ post.comment_count }}개 댓글</span>
                   </div>
-                  <div class="text-sm text-gray-700 leading-relaxed whitespace-pre-line mb-4">{{ post.content }}</div>
+                  <div class="text-sm text-ink-light leading-relaxed whitespace-pre-line mb-4">{{ post.content }}</div>
                   <!-- Post images -->
                   <div v-if="post.images && post.images.length" class="flex flex-wrap gap-2 mb-4">
                     <a v-for="(img, idx) in post.images" :key="idx"
                       :href="img.url || `/storage/${img.path}`" target="_blank"
-                      class="block w-20 h-20 rounded-lg overflow-hidden border border-gray-200 hover:border-amber-400 transition flex-shrink-0">
+                      class="block w-20 h-20 rounded-lg overflow-hidden border border-gray-200 hover:border-amber-400 transition-colors flex-shrink-0">
                       <img :src="img.url || `/storage/${img.path}`" class="w-full h-full object-cover" @error="$event.target.parentElement.style.display='none'" />
                     </a>
                   </div>
@@ -300,10 +299,10 @@
                 </div>
               </div>
             </div>
-            <div v-else class="px-5 py-8 text-center text-sm text-gray-400">게시글이 없습니다</div>
+            <div v-else class="px-5 py-8 text-center text-sm text-ink-muted">게시글이 없습니다</div>
 
             <!-- Posts pagination -->
-            <div v-if="postsMeta.last_page > 1" class="px-4 py-3 border-t">
+            <div v-if="postsMeta.last_page > 1" class="px-4 py-3 border-t border-gray-50">
               <Pagination :page="postsPage" :lastPage="postsMeta.last_page" @page="onPostPage" />
             </div>
           </div>
@@ -311,16 +310,16 @@
 
         <!-- ====== MEMBER VIEW: Members Tab ====== -->
         <div v-if="isMember && activeTab === 'members'">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
+          <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center justify-between">
               <span>회원 목록 ({{ members.length }}명)</span>
             </div>
-            <div v-if="membersLoading" class="py-8 text-center text-sm text-gray-400">
+            <div v-if="membersLoading" class="py-8 text-center text-sm text-ink-muted">
               <div class="inline-block w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <div v-else class="divide-y">
+            <div v-else class="divide-y divide-gray-50">
               <div v-for="member in members" :key="member.id"
-                class="px-5 py-3 flex items-center gap-3 hover:bg-gray-50 transition">
+                class="px-5 py-3 flex items-center gap-3 hover:bg-amber-50/40 transition-colors">
                 <!-- Avatar -->
                 <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm flex-shrink-0 overflow-hidden">
                   <img v-if="member.user?.profile_photo" :src="member.user.profile_photo" class="w-full h-full object-cover"
@@ -330,28 +329,28 @@
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
-                    <UserName :userId="member.user?.id" :name="member.user?.name" class="text-sm font-semibold text-gray-800" />
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold" :class="gradeStyle(member.grade)">
+                    <UserName :userId="member.user?.id" :name="member.user?.name" class="text-sm font-semibold text-ink" />
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold" :class="gradeStyle(member.grade)">
                       {{ gradeLabel(member.grade) }}
                     </span>
                   </div>
-                  <div class="text-xs text-gray-400">가입일: {{ formatDate(member.created_at) }}</div>
+                  <div class="text-xs text-ink-muted">가입일: {{ formatDate(member.created_at) }}</div>
                 </div>
                 <!-- Admin actions -->
                 <div v-if="isAdmin && member.user?.id !== club.user_id" class="flex items-center gap-2 flex-shrink-0">
                   <select :value="member.grade" @change="changeGrade(member, $event.target.value)"
-                    class="border border-gray-200 rounded-lg px-2 py-1 text-xs outline-none focus:ring-2 focus:ring-amber-400">
+                    class="input-soft !w-auto !px-2 !py-1 !pr-8 !text-xs">
                     <option value="member">일반</option>
                     <option value="admin">관리자</option>
                   </select>
                   <button @click="kickMember(member)"
-                    class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 transition">
+                    class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 rounded hover:bg-red-50 transition-colors">
                     강퇴
                   </button>
                 </div>
               </div>
             </div>
-            <div v-if="!membersLoading && !members.length" class="px-5 py-8 text-center text-sm text-gray-400">
+            <div v-if="!membersLoading && !members.length" class="px-5 py-8 text-center text-sm text-ink-muted">
               아직 회원이 없습니다
             </div>
           </div>
@@ -360,17 +359,19 @@
         <!-- ====== ADMIN VIEW: Settings Tab ====== -->
         <div v-if="isMember && isAdmin && activeTab === 'settings'" class="space-y-4">
           <!-- Club settings -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b bg-amber-50">
-              <h3 class="text-sm font-bold text-amber-900">동호회 관리</h3>
+          <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50">
+              <h3 class="text-sm font-bold text-ink flex items-center gap-2">
+                <span class="icon-chip w-6 h-6 bg-amber-50 text-amber-600"><AppIcon name="settings" :size="14" /></span>동호회 관리
+              </h3>
             </div>
             <div class="p-5 space-y-3">
               <RouterLink :to="`/clubs/${club.id}/edit`"
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition-colors">
+                <AppIcon name="edit" :size="18" class="text-amber-600" />
                 <div>
-                  <div class="text-sm font-semibold text-gray-800">동호회 정보 수정</div>
-                  <div class="text-xs text-gray-400">이름, 소개, 규칙, 이미지 등 변경</div>
+                  <div class="text-sm font-semibold text-ink">동호회 정보 수정</div>
+                  <div class="text-xs text-ink-muted">이름, 소개, 규칙, 이미지 등 변경</div>
                 </div>
               </RouterLink>
               <!-- 상위노출 (소유자) -->
@@ -379,106 +380,112 @@
           </div>
 
           <!-- Board management -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b bg-amber-50 flex items-center justify-between">
-              <h3 class="text-sm font-bold text-amber-900">게시판 관리</h3>
+          <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-ink flex items-center gap-2">
+                <span class="icon-chip w-6 h-6 bg-blue-50 text-blue-600"><AppIcon name="list" :size="14" /></span>게시판 관리
+              </h3>
               <button @click="showAddBoard = !showAddBoard"
-                class="text-xs font-bold text-amber-700 hover:text-amber-900 transition">
-                + 게시판 추가
+                class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 transition-colors">
+                <AppIcon name="plus" :size="13" />게시판 추가
               </button>
             </div>
             <div class="p-5 space-y-3">
               <!-- Add board form -->
               <div v-if="showAddBoard" class="flex gap-2 mb-3">
                 <input v-model="newBoardName" type="text" placeholder="게시판 이름 (예: 자유게시판)"
-                  class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
-                <button @click="createBoard" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-xs hover:bg-amber-500 transition">
+                  class="input-soft flex-1" />
+                <button @click="createBoard" class="btn-primary !px-4 !py-2 !text-xs flex-shrink-0">
                   추가
                 </button>
               </div>
 
               <!-- Board list -->
               <div v-for="board in boards" :key="board.id"
-                class="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-200 transition">
+                class="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-200 transition-colors">
                 <div v-if="editingBoard?.id === board.id" class="flex-1 flex gap-2">
                   <input v-model="editingBoard.name" type="text"
-                    class="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
-                  <button @click="updateBoard" class="text-amber-700 font-bold text-xs px-2">저장</button>
-                  <button @click="editingBoard = null" class="text-gray-400 text-xs px-2">취소</button>
+                    class="input-soft flex-1 !py-1.5" />
+                  <button @click="updateBoard" class="text-amber-600 hover:text-amber-700 font-bold text-xs px-2 transition-colors">저장</button>
+                  <button @click="editingBoard = null" class="text-ink-muted hover:text-ink text-xs px-2 transition-colors">취소</button>
                 </div>
                 <div v-else class="flex items-center gap-2">
-                  <span class="text-sm font-medium text-gray-700">{{ board.name }}</span>
+                  <span class="text-sm font-semibold text-ink">{{ board.name }}</span>
                 </div>
                 <div v-if="editingBoard?.id !== board.id" class="flex items-center gap-1">
-                  <button @click="editingBoard = { ...board }" class="text-gray-400 hover:text-amber-600 text-xs px-2 py-1">수정</button>
-                  <button @click="deleteBoard(board)" class="text-gray-400 hover:text-red-500 text-xs px-2 py-1">삭제</button>
+                  <button @click="editingBoard = { ...board }" class="text-ink-muted hover:text-amber-600 text-xs px-2 py-1 transition-colors">수정</button>
+                  <button @click="deleteBoard(board)" class="text-ink-muted hover:text-red-500 text-xs px-2 py-1 transition-colors">삭제</button>
                 </div>
               </div>
 
-              <div v-if="!boards.length" class="text-center text-sm text-gray-400 py-4">
+              <div v-if="!boards.length" class="text-center text-sm text-ink-muted py-4">
                 아직 게시판이 없습니다. 게시판을 추가해주세요.
               </div>
             </div>
           </div>
 
           <!-- Pending members -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b bg-amber-50 flex items-center justify-between">
-              <h3 class="text-sm font-bold text-amber-900">가입 승인 대기</h3>
-              <button @click="loadPendingMembers" class="text-xs text-amber-700 hover:text-amber-900 font-bold transition">
+          <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-ink flex items-center gap-2">
+                <span class="icon-chip w-6 h-6 bg-emerald-50 text-emerald-600"><AppIcon name="user-plus" :size="14" /></span>가입 승인 대기
+              </h3>
+              <button @click="loadPendingMembers" class="text-xs text-amber-600 hover:text-amber-700 font-bold transition-colors">
                 새로고침
               </button>
             </div>
             <div v-if="pendingMembersLoading" class="py-6 text-center">
               <div class="inline-block w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <div v-else-if="pendingMembers.length" class="divide-y">
+            <div v-else-if="pendingMembers.length" class="divide-y divide-gray-50">
               <div v-for="pm in pendingMembers" :key="pm.id" class="px-5 py-3 flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm flex-shrink-0 overflow-hidden">
                   <img v-if="pm.user?.profile_photo" :src="pm.user.profile_photo" class="w-full h-full object-cover" @error="$event.target.style.display='none'" />
                   <span v-else>{{ (pm.user?.name || '?').charAt(0) }}</span>
                 </div>
                 <div class="flex-1 min-w-0">
-                  <UserName :userId="pm.user?.id" :name="pm.user?.name" class="text-sm font-semibold text-gray-800" />
-                  <div class="text-xs text-gray-400">{{ formatDate(pm.created_at) }}</div>
+                  <UserName :userId="pm.user?.id" :name="pm.user?.name" class="text-sm font-semibold text-ink" />
+                  <div class="text-xs text-ink-muted">{{ formatDate(pm.created_at) }}</div>
                 </div>
                 <div class="flex items-center gap-1.5 flex-shrink-0">
                   <button @click="approveMember(pm)"
-                    class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500 transition">
+                    class="btn-primary !px-3 !py-1.5 !text-xs">
                     승인
                   </button>
                   <button @click="rejectMember(pm)"
-                    class="bg-gray-100 text-gray-600 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-red-50 hover:text-red-600 transition">
+                    class="bg-gray-100 text-ink-light font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-red-50 hover:text-red-600 transition-colors">
                     거절
                   </button>
                 </div>
               </div>
             </div>
-            <div v-else class="px-5 py-6 text-center text-sm text-gray-400">
+            <div v-else class="px-5 py-6 text-center text-sm text-ink-muted">
               대기 중인 가입 신청이 없습니다
             </div>
           </div>
 
           <!-- Chat room -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-5 py-3 border-b bg-amber-50">
-              <h3 class="text-sm font-bold text-amber-900">채팅방</h3>
+          <div class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50">
+              <h3 class="text-sm font-bold text-ink flex items-center gap-2">
+                <span class="icon-chip w-6 h-6 bg-violet-50 text-violet-600"><AppIcon name="message-circle" :size="14" /></span>채팅방
+              </h3>
             </div>
             <div class="p-5 space-y-2">
               <button v-if="chatRoomId" @click="chatStore.openRoom({ id: chatRoomId, name: club.name + ' 채팅', type: 'club' })"
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 transition">
-                <span class="text-xl">💬</span>
-                <div>
-                  <div class="text-sm font-semibold text-amber-800">채팅방 열기</div>
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 transition-colors">
+                <span class="icon-chip w-9 h-9 bg-amber-100 text-amber-600"><AppIcon name="message-circle" :size="18" /></span>
+                <div class="text-left">
+                  <div class="text-sm font-semibold text-amber-700">채팅방 열기</div>
                   <div class="text-xs text-amber-600">동호회 채팅방이 있습니다</div>
                 </div>
               </button>
               <button v-else @click="createChatRoom"
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition">
-                <span class="text-xl">➕</span>
-                <div>
-                  <div class="text-sm font-semibold text-gray-800">채팅방 만들기</div>
-                  <div class="text-xs text-gray-400">회원들이 실시간으로 대화할 수 있는 채팅방</div>
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition-colors">
+                <span class="icon-chip w-9 h-9 bg-gray-100 text-ink-muted"><AppIcon name="plus" :size="18" /></span>
+                <div class="text-left">
+                  <div class="text-sm font-semibold text-ink">채팅방 만들기</div>
+                  <div class="text-xs text-ink-muted">회원들이 실시간으로 대화할 수 있는 채팅방</div>
                 </div>
               </button>
             </div>
@@ -497,43 +504,43 @@
       <!-- Right sidebar -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block">
         <!-- Club info card -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-3 sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">동호회 정보</div>
+        <div class="card overflow-hidden mb-3 sticky top-20">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">동호회 정보</div>
           <div class="p-3 space-y-2">
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">카테고리</span>
-              <span class="font-semibold text-gray-700">{{ categoryLabel }}</span>
+              <span class="text-ink-muted">카테고리</span>
+              <span class="font-semibold text-ink">{{ categoryLabel }}</span>
             </div>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">유형</span>
-              <span class="font-semibold" :class="club.type === 'online' ? 'text-blue-600' : 'text-green-600'">
+              <span class="text-ink-muted">유형</span>
+              <span class="font-semibold" :class="club.type === 'online' ? 'text-blue-600' : 'text-emerald-600'">
                 {{ club.type === 'online' ? '온라인' : '지역' }}
               </span>
             </div>
             <div v-if="club.city" class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">위치</span>
-              <span class="font-semibold text-gray-700">{{ club.city }}, {{ club.state }}</span>
+              <span class="text-ink-muted">위치</span>
+              <span class="font-semibold text-ink">{{ club.city }}, {{ club.state }}</span>
             </div>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">회원</span>
-              <span class="font-semibold text-gray-700">
+              <span class="text-ink-muted">회원</span>
+              <span class="font-semibold text-ink">
                 {{ club.member_count || 0 }}명
-                <span v-if="club.max_members > 0" class="text-gray-400 font-normal">/ {{ club.max_members }}</span>
+                <span v-if="club.max_members > 0" class="text-ink-faint font-normal">/ {{ club.max_members }}</span>
               </span>
             </div>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">공개</span>
-              <span class="font-semibold" :class="club.is_public ? 'text-green-600' : 'text-red-500'">
+              <span class="text-ink-muted">공개</span>
+              <span class="font-semibold" :class="club.is_public ? 'text-emerald-600' : 'text-red-500'">
                 {{ club.is_public ? '공개' : '비공개' }}
               </span>
             </div>
             <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">개설일</span>
-              <span class="font-semibold text-gray-700">{{ formatDate(club.created_at) }}</span>
+              <span class="text-ink-muted">개설일</span>
+              <span class="font-semibold text-ink">{{ formatDate(club.created_at) }}</span>
             </div>
             <div v-if="club.owner" class="flex items-center justify-between text-xs">
-              <span class="text-gray-400">운영자</span>
-              <UserName :userId="club.owner?.id || club.user_id" :name="club.owner?.name || '운영자'" class="font-semibold text-gray-700" />
+              <span class="text-ink-muted">운영자</span>
+              <UserName :userId="club.owner?.id || club.user_id" :name="club.owner?.name || '운영자'" class="font-semibold text-ink" />
             </div>
           </div>
         </div>
@@ -547,9 +554,9 @@
 
     <!-- Not found -->
     <div v-else-if="!loading" class="text-center py-20">
-      <div class="text-5xl mb-4">404</div>
-      <p class="text-gray-500 mb-4">동호회를 찾을 수 없습니다</p>
-      <RouterLink to="/clubs" class="text-amber-600 hover:text-amber-700 font-semibold text-sm">동호회 목록으로</RouterLink>
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="alert-circle" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-ink-muted mb-4">동호회를 찾을 수 없습니다</p>
+      <RouterLink to="/clubs" class="text-amber-600 hover:text-amber-700 font-semibold text-sm transition-colors">동호회 목록으로</RouterLink>
     </div>
   </div>
 
@@ -573,6 +580,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import BoostButton from '../../components/BoostButton.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -704,11 +712,11 @@ function gradeLabel(grade) {
 
 function gradeStyle(grade) {
   const map = {
-    owner: 'bg-amber-100 text-amber-800',
-    admin: 'bg-blue-100 text-blue-800',
-    member: 'bg-gray-100 text-gray-600',
+    owner: 'bg-amber-50 text-amber-700',
+    admin: 'bg-blue-50 text-blue-700',
+    member: 'bg-gray-100 text-ink-light',
   }
-  return map[grade] || 'bg-gray-100 text-gray-600'
+  return map[grade] || 'bg-gray-100 text-ink-light'
 }
 
 // Data loading

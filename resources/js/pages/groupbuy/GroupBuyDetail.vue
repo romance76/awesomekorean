@@ -1,30 +1,31 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="gb?.title || '공동구매'" fallback="/groupbuy" />
-    <router-link to="/groupbuy" class="hidden lg:inline-block text-xl font-black text-gray-800 mb-3 hover:text-amber-600 transition">
-      🤝 공동구매
+    <router-link to="/groupbuy" class="hidden lg:inline-flex items-center gap-2.5 text-xl font-bold text-ink mb-3 hover:text-amber-600 transition-colors">
+      <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
+      공동구매
     </router-link>
 
-    <div v-if="loading" class="text-center py-20 text-gray-400">로딩중...</div>
+    <div v-if="loading" class="text-center py-20 text-ink-muted">로딩중...</div>
 
     <div v-else-if="gb" class="grid grid-cols-12 gap-4">
 
       <!-- 왼쪽: 상태 필터 -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 상태</div>
-            <RouterLink to="/groupbuy" class="block w-full text-left px-3 py-2 text-xs transition text-gray-600 hover:bg-amber-50/50">전체</RouterLink>
-            <RouterLink to="/groupbuy?status=recruiting" class="block w-full text-left px-3 py-2 text-xs transition"
-              :class="gb.status==='recruiting' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">🟢 모집중</RouterLink>
-            <RouterLink to="/groupbuy?status=confirmed" class="block w-full text-left px-3 py-2 text-xs transition"
-              :class="gb.status==='confirmed' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">🔵 확정</RouterLink>
-            <RouterLink to="/groupbuy?status=completed" class="block w-full text-left px-3 py-2 text-xs transition"
-              :class="gb.status==='completed' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">✅ 완료</RouterLink>
+          <div class="card overflow-hidden">
+            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-lime-600" />상태</div>
+            <RouterLink to="/groupbuy" class="block w-full text-left px-3 py-2 text-xs transition-colors text-ink-light hover:bg-amber-50/50">전체</RouterLink>
+            <RouterLink to="/groupbuy?status=recruiting" class="block w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="gb.status==='recruiting' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">모집중</RouterLink>
+            <RouterLink to="/groupbuy?status=confirmed" class="block w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="gb.status==='confirmed' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">확정</RouterLink>
+            <RouterLink to="/groupbuy?status=completed" class="block w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="gb.status==='completed' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">완료</RouterLink>
             <button v-if="auth.isLoggedIn" @click="$router.push('/groupbuy?fav=1')"
-              class="w-full text-left px-3 py-2 text-xs transition border-t text-gray-600 hover:bg-red-50/50">
-              🔖 내 북마크<span v-if="gbFavCount > 0" class="ml-0.5">({{ gbFavCount }})</span>
+              class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 text-ink-light hover:bg-red-50/50 flex items-center gap-1">
+              <AppIcon name="bookmark" :size="12" />내 북마크<span v-if="gbFavCount > 0" class="ml-0.5">({{ gbFavCount }})</span>
             </button>
           </div>
           <AdSlot page="groupbuy" position="left" :maxSlots="2" />
@@ -33,33 +34,33 @@
 
       <!-- ══════════ CENTER: Detail ══════════ -->
       <main class="col-span-12 lg:col-span-7 md:col-span-7" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'opacity-60' : ''">
-        <div class="bg-white rounded-xl shadow-sm border overflow-hidden" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'border-gray-300' : 'border-gray-100'">
+        <div class="card overflow-hidden" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'ring-1 ring-gray-200' : ''">
 
           <!-- Header: status + title + organizer -->
-          <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-100">
+          <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-50">
             <div class="flex items-center gap-2 flex-wrap mb-2">
               <span class="text-xs px-2.5 py-0.5 rounded-full font-bold" :class="statusClass(gb.status)">
                 {{ statusLabel(gb.status) }}
               </span>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium">
+              <span class="badge-gray">
                 {{ categoryLabel(gb.category) }}
               </span>
-              <span v-if="myParticipation" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-400 text-amber-900">🙋 참여중</span>
+              <span v-if="myParticipation" class="inline-flex items-center gap-0.5 text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-400 text-white"><AppIcon name="check" :size="11" />참여중</span>
             </div>
             <div class="flex items-center gap-2">
-              <h1 class="text-xl lg:text-2xl font-bold text-gray-900 leading-snug flex-1">{{ gb.title }}</h1>
+              <h1 class="text-xl lg:text-2xl font-bold text-ink leading-snug flex-1">{{ gb.title }}</h1>
               <BookmarkToggle v-if="auth.isLoggedIn" :active="gbFavorited" @toggle="toggleGbFav" size="lg" />
             </div>
-            <div class="text-xs lg:text-sm text-gray-500 mt-1.5 flex items-center gap-2 flex-wrap">
+            <div class="text-xs lg:text-sm text-ink-muted mt-1.5 flex items-center gap-2 flex-wrap">
               <span class="flex items-center gap-1">
                 주최:
                 <UserName v-if="gb.user?.id" :userId="gb.user.id" :name="gb.user.nickname || gb.user.name" className="text-amber-700 font-semibold" />
                 <span v-else class="text-amber-700 font-semibold">{{ gb.user?.name || '알 수 없음' }}</span>
               </span>
-              <span v-if="gb.city" class="text-gray-400">📍 {{ gb.city }}<span v-if="gb.state">, {{ gb.state }}</span></span>
-              <span class="text-gray-300">|</span>
+              <span v-if="gb.city" class="text-ink-faint inline-flex items-center gap-0.5"><AppIcon name="map-pin" :size="12" />{{ gb.city }}<span v-if="gb.state">, {{ gb.state }}</span></span>
+              <span class="text-gray-200">|</span>
               <span>{{ formatDate(gb.created_at) }}</span>
-              <span class="text-gray-400 ml-auto text-xs">{{ gb.view_count || 0 }}회 조회</span>
+              <span class="text-ink-faint ml-auto text-xs">{{ gb.view_count || 0 }}회 조회</span>
             </div>
           </div>
 
@@ -78,9 +79,9 @@
           </div>
 
           <!-- Price info box -->
-          <div class="mx-3 lg:mx-5 my-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+          <div class="mx-3 lg:mx-5 my-3 bg-amber-50 rounded-xl px-4 py-3">
             <div class="flex items-center gap-3 flex-wrap">
-              <div v-if="gb.original_price" class="text-gray-400 line-through text-sm">${{ Number(gb.original_price).toLocaleString() }}</div>
+              <div v-if="gb.original_price" class="text-ink-faint line-through text-sm">${{ Number(gb.original_price).toLocaleString() }}</div>
               <div class="text-2xl font-black text-amber-600">${{ Number(currentPrice).toLocaleString() }}</div>
               <div v-if="currentDiscount > 0" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">-{{ currentDiscount }}%</div>
             </div>
@@ -96,8 +97,8 @@
               </div>
               <div class="flex justify-between mt-1">
                 <div v-for="(tier, idx) in sortedTiers" :key="idx"
-                  class="text-[10px] font-semibold"
-                  :class="(gb.participant_count || 0) >= tier.min_people ? 'text-amber-600' : 'text-gray-400'">
+                  class="text-[11px] font-semibold"
+                  :class="(gb.participant_count || 0) >= tier.min_people ? 'text-amber-600' : 'text-ink-faint'">
                   {{ tier.min_people }}명 ({{ tier.discount_pct }}%)
                 </div>
               </div>
@@ -105,7 +106,7 @@
           </div>
 
           <!-- Progress section -->
-          <div class="mx-3 lg:mx-5 my-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+          <div class="mx-3 lg:mx-5 my-3 bg-blue-50 rounded-xl px-4 py-3">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-bold text-blue-800">참여 현황</span>
               <span class="text-sm font-bold text-blue-600">
@@ -117,10 +118,10 @@
               <div class="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full transition-all duration-500"
                 :style="{ width: Math.min(progressPct, 100) + '%' }"></div>
             </div>
-            <div v-if="timeRemaining" class="text-xs text-blue-600 mt-2 font-semibold">
-              ⏰ {{ timeRemaining }}
+            <div v-if="timeRemaining" class="text-xs text-blue-600 mt-2 font-semibold inline-flex items-center gap-1">
+              <AppIcon name="clock" :size="12" />{{ timeRemaining }}
             </div>
-            <div class="text-[10px] text-gray-400 mt-1">
+            <div class="text-xs text-ink-faint mt-1">
               최소 {{ gb.min_participants }}명
               <span v-if="gb.max_participants"> · 최대 {{ gb.max_participants }}명</span>
             </div>
@@ -128,23 +129,23 @@
 
           <!-- Discount tiers table -->
           <div v-if="sortedTiers.length" class="mx-3 lg:mx-5 my-3">
-            <h3 class="text-sm font-bold text-gray-800 mb-2">할인 티어</h3>
-            <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <h3 class="text-sm font-bold text-ink mb-2">할인 티어</h3>
+            <div class="border border-gray-100 rounded-xl overflow-hidden">
               <table class="w-full text-sm">
                 <thead class="bg-gray-50">
                   <tr>
-                    <th class="text-left px-3 py-2 text-xs font-semibold text-gray-600">최소 인원</th>
-                    <th class="text-left px-3 py-2 text-xs font-semibold text-gray-600">할인율</th>
-                    <th class="text-right px-3 py-2 text-xs font-semibold text-gray-600">예상 가격</th>
+                    <th class="text-left px-3 py-2 text-xs font-semibold text-ink-light">최소 인원</th>
+                    <th class="text-left px-3 py-2 text-xs font-semibold text-ink-light">할인율</th>
+                    <th class="text-right px-3 py-2 text-xs font-semibold text-ink-light">예상 가격</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-50">
                   <tr v-for="(tier, idx) in sortedTiers" :key="idx"
                     :class="currentTier && currentTier.min_people === tier.min_people ? 'bg-amber-50 font-semibold' : ''">
                     <td class="px-3 py-2 text-xs">
                       {{ tier.min_people }}명 이상
                       <span v-if="currentTier && currentTier.min_people === tier.min_people"
-                        class="ml-1 text-[10px] bg-amber-400 text-amber-900 px-1.5 py-0.5 rounded-full">현재</span>
+                        class="ml-1 text-[11px] bg-amber-400 text-white font-bold px-1.5 py-0.5 rounded-full">현재</span>
                     </td>
                     <td class="px-3 py-2 text-xs text-red-500 font-bold">{{ tier.discount_pct }}%</td>
                     <td class="px-3 py-2 text-xs text-right text-amber-600 font-bold">
@@ -157,56 +158,56 @@
           </div>
 
           <!-- Content -->
-          <div class="px-3 lg:px-5 py-3 lg:py-5 border-t border-gray-100">
-            <h3 class="text-sm font-bold text-gray-800 mb-2">상세 설명</h3>
-            <div class="text-xs lg:text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ gb.content }}</div>
+          <div class="px-3 lg:px-5 py-3 lg:py-5 border-t border-gray-50">
+            <h3 class="text-sm font-bold text-ink mb-2">상세 설명</h3>
+            <div class="text-xs lg:text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ gb.content }}</div>
             <a v-if="gb.product_url" :href="gb.product_url" target="_blank" rel="noopener"
-              class="inline-flex items-center gap-1 mt-3 text-xs text-blue-600 hover:text-blue-800 font-semibold">
-              🔗 상품 링크 보기
+              class="inline-flex items-center gap-1 mt-3 text-xs text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+              <AppIcon name="external-link" :size="12" />상품 링크 보기
             </a>
           </div>
 
           <!-- Action buttons -->
-          <div class="px-3 lg:px-5 py-3 border-t border-gray-100 bg-gray-50/50">
+          <div class="px-3 lg:px-5 py-3 border-t border-gray-50 bg-gray-50/50">
             <div class="flex items-center gap-3 flex-wrap">
               <!-- 참여하기 -->
               <button v-if="canJoin"
                 @click="showJoinModal = true"
-                class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm px-6 py-2.5 rounded-lg transition">
-                🤝 참여하기
+                class="btn-primary px-6 py-2.5 text-sm">
+                <AppIcon name="heart-handshake" :size="16" />참여하기
               </button>
               <!-- 참여 취소 -->
               <button v-if="myParticipation"
                 @click="cancelParticipation"
-                class="inline-flex items-center gap-1.5 bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm px-5 py-2.5 rounded-lg transition">
+                class="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors">
                 참여 취소
               </button>
               <!-- 이미 참여 표시 (버튼 모양으로) -->
-              <span v-if="myParticipation" class="inline-flex items-center gap-1.5 bg-green-500 text-white font-bold text-sm px-6 py-2.5 rounded-lg">
-                ✅ 참여중
+              <span v-if="myParticipation" class="inline-flex items-center gap-1.5 bg-emerald-500 text-white font-bold text-sm px-6 py-2.5 rounded-xl">
+                <AppIcon name="check" :size="15" />참여중
               </span>
               <!-- 승인 대기 -->
-              <span v-if="gb.status === 'pending'" class="text-xs text-gray-500 font-medium">
+              <span v-if="gb.status === 'pending'" class="text-xs text-ink-muted font-medium">
                 관리자 승인 대기중입니다
               </span>
             </div>
 
             <!-- Owner actions -->
-            <div v-if="isOwner" class="flex items-center gap-3 mt-2 pt-2 border-t border-gray-200">
-              <button @click="deleteGb" class="text-xs text-red-400 hover:text-red-600 font-medium">삭제</button>
+            <div v-if="isOwner" class="flex items-center gap-3 mt-2 pt-2 border-t border-gray-100">
+              <button @click="deleteGb" class="text-xs text-red-400 hover:text-red-600 font-medium inline-flex items-center gap-1 transition-colors"><AppIcon name="trash" :size="12" />삭제</button>
             </div>
           </div>
 
           <!-- Participants -->
-          <div v-if="participants.length" class="px-3 lg:px-5 py-3 border-t border-gray-100">
-            <h3 class="text-sm font-bold text-gray-800 mb-3">참여자 ({{ participants.length }}명)</h3>
+          <div v-if="participants.length" class="px-3 lg:px-5 py-3 border-t border-gray-50">
+            <h3 class="text-sm font-bold text-ink mb-3">참여자 ({{ participants.length }}명)</h3>
             <div class="flex flex-wrap gap-3">
               <div v-for="p in participants" :key="p.id" class="flex items-center gap-2">
                 <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700 overflow-hidden flex-shrink-0">
                   <img v-if="p.user?.avatar" :src="'/storage/' + p.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
                   <span v-else>{{ (p.user?.nickname || p.user?.name || '?')[0] }}</span>
                 </div>
-                <span class="text-xs text-gray-700 font-medium">{{ p.user?.nickname || p.user?.name }}</span>
+                <span class="text-xs text-ink-light font-medium">{{ p.user?.nickname || p.user?.name }}</span>
               </div>
             </div>
           </div>
@@ -215,47 +216,47 @@
         <!-- 주최자 + 공동구매 정보 (본문 안에 2열) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
           <!-- 주최자 정보 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <div class="text-xs font-bold text-gray-500 mb-3">주최자 정보</div>
+          <div class="card p-4">
+            <div class="text-xs font-bold text-ink-muted mb-3">주최자 정보</div>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-lg font-bold text-amber-700 overflow-hidden flex-shrink-0">
                 <img v-if="gb.user?.avatar" :src="'/storage/' + gb.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
                 <span v-else>{{ (gb.user?.name || '?')[0] }}</span>
               </div>
               <div class="flex-1">
-                <div class="font-bold text-gray-800 text-sm">{{ gb.user?.nickname || gb.user?.name }}</div>
-                <div class="text-[10px] text-gray-400 mt-0.5">가입: {{ formatDate(gb.user?.created_at) }}</div>
+                <div class="font-bold text-ink text-sm">{{ gb.user?.nickname || gb.user?.name }}</div>
+                <div class="text-xs text-ink-faint mt-0.5">가입: {{ formatDate(gb.user?.created_at) }}</div>
               </div>
             </div>
             <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-2 mt-3">
-              <button @click="doAddFriend" :disabled="friendLoading" class="flex-1 bg-blue-50 text-blue-700 border border-blue-200 font-bold py-2 rounded-lg text-xs hover:bg-blue-100 disabled:opacity-50">👋 친구추가</button>
-              <button @click="msgModal=true" class="flex-1 bg-amber-50 text-amber-700 border border-amber-200 font-bold py-2 rounded-lg text-xs hover:bg-amber-100">✉️ 쪽지</button>
-              <button @click="reportShow=true" class="px-3 py-2 rounded-lg border border-gray-200 text-gray-400 text-xs hover:text-red-500 hover:border-red-200">🚨</button>
+              <button @click="doAddFriend" :disabled="friendLoading" class="flex-1 bg-blue-50 text-blue-700 font-semibold py-2 rounded-xl text-xs hover:bg-blue-100 disabled:opacity-50 inline-flex items-center justify-center gap-1 transition-colors"><AppIcon name="user-plus" :size="12" />친구추가</button>
+              <button @click="msgModal=true" class="flex-1 bg-amber-50 text-amber-700 font-semibold py-2 rounded-xl text-xs hover:bg-amber-100 inline-flex items-center justify-center gap-1 transition-colors"><AppIcon name="mail" :size="12" />쪽지</button>
+              <button @click="reportShow=true" class="px-3 py-2 rounded-xl bg-gray-50 text-ink-faint text-xs hover:text-red-500 hover:bg-red-50 transition-colors"><AppIcon name="flag" :size="13" /></button>
             </div>
           </div>
 
           <!-- 공동구매 정보 -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <div class="text-xs font-bold text-gray-500 mb-3">공동구매 정보</div>
+          <div class="card p-4">
+            <div class="text-xs font-bold text-ink-muted mb-3">공동구매 정보</div>
             <div class="space-y-2 text-xs">
               <div class="flex justify-between">
-                <span class="text-gray-500">종료 방식</span>
-                <span class="text-gray-800 font-semibold">{{ endTypeLabel(gb.end_type) }}</span>
+                <span class="text-ink-muted">종료 방식</span>
+                <span class="text-ink font-semibold">{{ endTypeLabel(gb.end_type) }}</span>
               </div>
               <div v-if="gb.deadline" class="flex justify-between">
-                <span class="text-gray-500">마감일</span>
-                <span class="text-gray-800 font-semibold">{{ formatDate(gb.deadline) }}</span>
+                <span class="text-ink-muted">마감일</span>
+                <span class="text-ink font-semibold">{{ formatDate(gb.deadline) }}</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-500">최소 인원</span>
-                <span class="text-gray-800 font-semibold">{{ gb.min_participants }}명</span>
+                <span class="text-ink-muted">최소 인원</span>
+                <span class="text-ink font-semibold">{{ gb.min_participants }}명</span>
               </div>
               <div v-if="gb.max_participants" class="flex justify-between">
-                <span class="text-gray-500">최대 인원</span>
-                <span class="text-gray-800 font-semibold">{{ gb.max_participants }}명</span>
+                <span class="text-ink-muted">최대 인원</span>
+                <span class="text-ink font-semibold">{{ gb.max_participants }}명</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-500">현재 참여</span>
+                <span class="text-ink-muted">현재 참여</span>
                 <span class="text-amber-600 font-bold">{{ gb.participant_count || 0 }}명</span>
               </div>
             </div>
@@ -280,15 +281,15 @@
     </div>
 
     <!-- Not found -->
-    <div v-else class="text-center py-20">
-      <div class="text-4xl mb-3">🤝</div>
-      <div class="text-gray-500 font-semibold">공동구매를 찾을 수 없습니다</div>
+    <div v-else class="py-20 text-center">
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="shopping-bag" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-sm text-ink-muted font-semibold">공동구매를 찾을 수 없습니다</p>
     </div>
   </div>
 
   <!-- Lightbox -->
   <div v-if="lightboxImg" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" @click="lightboxImg = null">
-    <button @click="lightboxImg = null" class="absolute top-4 right-4 text-white text-3xl">✕</button>
+    <button @click="lightboxImg = null" class="absolute top-4 right-4 text-white"><AppIcon name="x" :size="28" /></button>
     <img :src="lightboxImg" class="max-w-full max-h-[90vh] rounded-lg" @click.stop />
   </div>
 
@@ -297,20 +298,20 @@
     <div v-if="showJoinModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" @click.self="showJoinModal = false">
       <div class="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md mx-4 overflow-hidden">
         <!-- Modal header -->
-        <div class="px-5 py-4 border-b bg-amber-50">
+        <div class="px-5 py-4 border-b border-gray-50 bg-amber-50">
           <div class="flex items-center justify-between">
-            <h3 class="text-base font-bold text-gray-900">🤝 참여하기</h3>
-            <button @click="showJoinModal = false" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+            <h3 class="text-base font-bold text-ink flex items-center gap-1.5"><AppIcon name="heart-handshake" :size="17" class="text-amber-600" />참여하기</h3>
+            <button @click="showJoinModal = false" class="text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
           </div>
-          <p class="text-xs text-gray-500 mt-1">{{ gb.title }}</p>
+          <p class="text-xs text-ink-muted mt-1">{{ gb.title }}</p>
         </div>
 
         <!-- Not logged in -->
         <div v-if="!auth.isLoggedIn" class="p-5 text-center">
-          <div class="text-3xl mb-3">🔒</div>
-          <p class="text-sm text-gray-600 mb-4">참여하려면 로그인이 필요합니다</p>
+          <div class="icon-chip w-12 h-12 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="lock" :size="24" :stroke-width="1.5" /></div>
+          <p class="text-sm text-ink-light mb-4">참여하려면 로그인이 필요합니다</p>
           <router-link to="/login" @click="showJoinModal = false"
-            class="inline-block bg-amber-500 text-white font-bold text-sm px-6 py-2.5 rounded-lg hover:bg-amber-600 transition">
+            class="btn-primary px-6 py-2.5 text-sm">
             로그인하기
           </router-link>
         </div>
@@ -318,31 +319,31 @@
         <!-- Logged in -->
         <div v-else class="p-5 space-y-4">
           <!-- Price summary -->
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-            <div class="text-sm text-gray-600">참여 가격</div>
+          <div class="bg-amber-50 rounded-xl p-3 text-center">
+            <div class="text-sm text-ink-light">참여 가격</div>
             <div class="text-2xl font-black text-amber-600">${{ Number(currentPrice).toLocaleString() }}</div>
             <div v-if="currentDiscount > 0" class="text-xs text-red-500 font-semibold">{{ currentDiscount }}% 할인 적용</div>
           </div>
 
           <!-- Quantity -->
           <div>
-            <label class="text-sm font-semibold text-gray-700 mb-1 block">수량</label>
+            <label class="input-label">수량</label>
             <input v-model.number="joinQuantity" type="number" min="1" max="10"
-              class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
+              class="input-soft" />
           </div>
 
           <!-- Payment method -->
           <div v-if="gb.payment_method !== 'none'">
-            <label class="text-sm font-semibold text-gray-700 mb-2 block">결제 방법</label>
+            <label class="input-label">결제 방법</label>
 
             <!-- point only -->
             <div v-if="gb.payment_method === 'point'" class="space-y-2">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <div class="bg-blue-50 rounded-xl p-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-700">내 포인트</span>
+                  <span class="text-sm text-ink-light">내 포인트</span>
                   <span class="text-sm font-bold text-blue-600">{{ auth.user?.points?.toLocaleString() || 0 }}P</span>
                 </div>
-                <div class="text-xs text-gray-400 mt-1">
+                <div class="text-xs text-ink-faint mt-1">
                   차감 예정: {{ (currentPrice * 100 * joinQuantity).toLocaleString() }}P
                 </div>
               </div>
@@ -350,47 +351,47 @@
 
             <!-- stripe only -->
             <div v-else-if="gb.payment_method === 'stripe'" class="space-y-2">
-              <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-center text-sm text-gray-500">
-                💳 카드 결제 (Stripe)
-                <div class="text-[10px] text-gray-400 mt-1">참여 확정 후 결제가 진행됩니다</div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center text-sm text-ink-muted">
+                <span class="inline-flex items-center gap-1"><AppIcon name="wallet" :size="14" />카드 결제 (Stripe)</span>
+                <div class="text-xs text-ink-faint mt-1">참여 확정 후 결제가 진행됩니다</div>
               </div>
             </div>
 
             <!-- both -->
             <div v-else-if="gb.payment_method === 'both'" class="space-y-2">
-              <label class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition"
+              <label class="flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors"
                 :class="joinPaymentType === 'point' ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:bg-gray-50'">
                 <input v-model="joinPaymentType" type="radio" value="point" class="accent-amber-500" />
                 <div>
-                  <div class="text-sm font-semibold text-gray-800">포인트 결제</div>
-                  <div class="text-xs text-gray-400">보유: {{ auth.user?.points?.toLocaleString() || 0 }}P</div>
+                  <div class="text-sm font-semibold text-ink">포인트 결제</div>
+                  <div class="text-xs text-ink-faint">보유: {{ auth.user?.points?.toLocaleString() || 0 }}P</div>
                 </div>
               </label>
-              <label class="flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition"
+              <label class="flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors"
                 :class="joinPaymentType === 'stripe' ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:bg-gray-50'">
                 <input v-model="joinPaymentType" type="radio" value="stripe" class="accent-amber-500" />
                 <div>
-                  <div class="text-sm font-semibold text-gray-800">💳 카드 결제</div>
-                  <div class="text-xs text-gray-400">Stripe 결제</div>
+                  <div class="text-sm font-semibold text-ink flex items-center gap-1"><AppIcon name="wallet" :size="13" />카드 결제</div>
+                  <div class="text-xs text-ink-faint">Stripe 결제</div>
                 </div>
               </label>
             </div>
           </div>
 
           <!-- No payment needed -->
-          <div v-if="!gb.payment_method || gb.payment_method === 'none'" class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <div class="text-sm text-green-700 font-semibold">결제 없이 참여 가능합니다</div>
+          <div v-if="!gb.payment_method || gb.payment_method === 'none'" class="bg-emerald-50 rounded-xl p-3 text-center">
+            <div class="text-sm text-emerald-700 font-semibold">결제 없이 참여 가능합니다</div>
           </div>
 
           <!-- Submit join -->
           <button @click="submitJoin" :disabled="joining"
-            class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm py-3 rounded-lg transition disabled:opacity-50">
+            class="btn-primary w-full py-3 text-sm">
             {{ joining ? '참여 처리 중...' : '참여 확정' }}
           </button>
 
           <!-- Join done -->
-          <div v-if="joinDone" class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <span class="text-green-700 text-sm font-medium">✅ 참여가 완료되었습니다!</span>
+          <div v-if="joinDone" class="bg-emerald-50 rounded-xl p-3 text-center">
+            <span class="text-emerald-700 text-sm font-medium inline-flex items-center gap-1"><AppIcon name="check" :size="14" />참여가 완료되었습니다!</span>
           </div>
         </div>
       </div>
@@ -421,6 +422,7 @@ import ReportModal from '../../components/ReportModal.vue'
 import MessageModal from '../../components/MessageModal.vue'
 import { useFriendAction } from '../../composables/useSocialActions'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 
 const route = useRoute()

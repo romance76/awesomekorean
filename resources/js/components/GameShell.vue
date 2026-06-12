@@ -56,8 +56,8 @@ function onBack() {
 </script>
 
 <style scoped>
-.game-shell { min-height: 100vh; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; }
-.game-shell.theme-light { background: #f8fafc; color: #111827; }
+.game-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.game-shell.theme-light { background: #F7F8FA; color: #191F28; }
 .game-shell.theme-dark { background: #0b1020; color: #f3f4f6; }
 
 .shell-header {
@@ -93,9 +93,9 @@ function onBack() {
   font-size: 11px; font-weight: 800; padding: 4px 10px;
   border-radius: 14px; white-space: nowrap;
 }
-.badge-lv { background: #ddd6fe; color: #5b21b6; }
-.badge-score { background: #fef3c7; color: #92400e; }
-.badge-pts { background: #fef3c7; color: #92400e; }
+.badge-lv { background: #ede9fe; color: #6d28d9; }
+.badge-score { background: #FFF4EC; color: #E04E00; }
+.badge-pts { background: #FFF4EC; color: #E04E00; }
 .theme-dark .badge-lv { background: rgba(139,92,246,0.2); color: #c4b5fd; }
 .theme-dark .badge-score { background: rgba(251,191,36,0.2); color: #fcd34d; }
 .theme-dark .badge-pts { background: rgba(251,191,36,0.2); color: #fcd34d; }
@@ -112,6 +112,6 @@ function onBack() {
   .shell-title .shell-icon { font-size: 16px; }
   .shell-back .label { display: none; }
   .shell-back { padding: 6px 10px; }
-  .shell-badge { font-size: 10px; padding: 3px 8px; }
+  .shell-badge { font-size: 11px; padding: 3px 8px; }
 }
 </style>

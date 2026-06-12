@@ -2,7 +2,7 @@
 <div class="casino-lobby">
   <!-- 헤더 -->
   <header class="cl-header">
-    <button class="cl-back" @click="$router.push('/games')">← 게임 홈</button>
+    <button class="cl-back" @click="$router.push('/games')"><AppIcon name="arrow-left" :size="14" /> 게임 홈</button>
     <h1 class="cl-title">🎰 AwesomeKorean 카지노</h1>
     <div class="cl-wallet" v-if="auth.isLoggedIn">
       <span class="wallet-item" title="포인트">🪙 {{ pointsFmt }}</span>
@@ -18,7 +18,7 @@
       <div class="intro-sub">포커 · 홀덤 · 고스톱 · 블랙잭 — 원하는 베팅 금액을 선택하고 입장하세요</div>
     </div>
     <div class="intro-right">
-      <button class="exchange-btn" @click="showExchange = true">🪙 → 💰 포인트 환전</button>
+      <button class="exchange-btn" @click="showExchange = true"><AppIcon name="coins" :size="14" /> 포인트 환전</button>
     </div>
   </section>
 
@@ -64,21 +64,21 @@
   <!-- 통계/리더보드 -->
   <section class="cl-stats">
     <RouterLink to="/games/leaderboard" class="stats-card">
-      <div class="stats-icon">🏆</div>
+      <div class="stats-icon"><AppIcon name="trophy" :size="22" /></div>
       <div>
         <div class="stats-title">리더보드</div>
         <div class="stats-sub">최고의 플레이어</div>
       </div>
     </RouterLink>
     <RouterLink to="/games/shop" class="stats-card">
-      <div class="stats-icon">🛒</div>
+      <div class="stats-icon"><AppIcon name="shopping-cart" :size="22" /></div>
       <div>
         <div class="stats-title">포인트 샵</div>
         <div class="stats-sub">포인트로 칩 구매</div>
       </div>
     </RouterLink>
     <RouterLink to="/games/poker/tutorial" class="stats-card">
-      <div class="stats-icon">📖</div>
+      <div class="stats-icon"><AppIcon name="book-open" :size="22" /></div>
       <div>
         <div class="stats-title">포커 튜토리얼</div>
         <div class="stats-sub">룰 배우기</div>
@@ -97,6 +97,7 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import GameMoneyExchange from '../../components/GameMoneyExchange.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -178,31 +179,32 @@ onMounted(loadWallet)
 </script>
 
 <style scoped>
-.casino-lobby { min-height: 100vh; background: linear-gradient(160deg, #0b1020 0%, #1a1030 50%, #2a1040 100%); color: #f3f4f6; font-family: 'Noto Sans KR', sans-serif; padding-bottom: 40px; }
+.casino-lobby { min-height: 100vh; color: #191F28; padding-bottom: 40px; }
 
 .cl-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px; background: rgba(0, 0, 0, 0.35);
-  border-bottom: 1px solid rgba(251, 191, 36, 0.2);
+  padding: 14px 20px; background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #F2F4F6;
   backdrop-filter: blur(10px);
   position: sticky; top: 0; z-index: 10;
 }
-.cl-back { background: rgba(255,255,255,0.08); border: none; color: #fbbf24; padding: 6px 12px; border-radius: 18px; cursor: pointer; font-size: 13px; font-weight: 700; }
-.cl-back:hover { background: rgba(255,255,255,0.16); }
-.cl-title { font-size: 20px; font-weight: 900; color: #fbbf24; letter-spacing: 0.5px; margin: 0; }
+.cl-back { display: inline-flex; align-items: center; gap: 4px; background: #FFF4EC; border: none; color: #F2570F; padding: 6px 12px; border-radius: 18px; cursor: pointer; font-size: 13px; font-weight: 700; transition: background 0.15s; }
+.cl-back:hover { background: #FFE8DA; }
+.cl-title { font-size: 20px; font-weight: 900; color: #191F28; letter-spacing: 0.5px; margin: 0; }
 .cl-wallet { display: flex; gap: 8px; }
-.wallet-item { background: rgba(251, 191, 36, 0.15); color: #fcd34d; padding: 6px 12px; border-radius: 14px; font-size: 12px; font-weight: 800; border: 1px solid rgba(251, 191, 36, 0.3); }
-.wallet-chip { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.3); }
-.cl-login { color: #fbbf24; font-size: 13px; font-weight: 700; text-decoration: none; padding: 6px 14px; border-radius: 14px; border: 1px solid rgba(251,191,36,0.4); }
+.wallet-item { background: #FFF4EC; color: #E04E00; padding: 6px 12px; border-radius: 14px; font-size: 12px; font-weight: 800; border: 1px solid #FFDFC9; }
+.wallet-chip { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+.cl-login { color: #F2570F; font-size: 13px; font-weight: 700; text-decoration: none; padding: 6px 14px; border-radius: 14px; border: 1px solid #FFC7A6; transition: background 0.15s; }
+.cl-login:hover { background: #FFF4EC; }
 
 .cl-intro {
   max-width: 1100px; margin: 24px auto; padding: 0 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
   flex-wrap: wrap;
 }
-.intro-title { font-size: 24px; font-weight: 900; color: #fbbf24; margin-bottom: 4px; }
-.intro-sub { font-size: 13px; color: rgba(255,255,255,0.7); }
-.exchange-btn { background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; border: none; padding: 10px 18px; border-radius: 22px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4); }
+.intro-title { font-size: 24px; font-weight: 900; color: #191F28; margin-bottom: 4px; }
+.intro-sub { font-size: 13px; color: #4E5968; }
+.exchange-btn { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #FF8A53, #F2570F); color: #fff; border: none; padding: 10px 18px; border-radius: 22px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(255, 107, 44, 0.3); transition: transform 0.15s; }
 .exchange-btn:hover { transform: translateY(-1px); }
 
 .cl-games {
@@ -210,34 +212,35 @@ onMounted(loadWallet)
   display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
 }
 .game-card {
-  background: linear-gradient(160deg, rgba(24, 24, 39, 0.9), rgba(31, 24, 59, 0.9));
-  border: 1px solid rgba(251, 191, 36, 0.15); border-radius: 16px; padding: 16px;
+  background: #fff;
+  border: 1px solid #F2F4F6; border-radius: 16px; padding: 16px;
   display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   transition: all 0.2s;
 }
-.game-card:hover { transform: translateY(-3px); border-color: rgba(251, 191, 36, 0.4); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.game-card:hover { transform: translateY(-3px); border-color: #FFC7A6; box-shadow: 0 12px 28px rgba(25,31,40,0.08); }
 .card-top { display: flex; align-items: center; gap: 10px; }
 .card-icon { font-size: 36px; }
 .card-info { flex: 1; min-width: 0; }
-.card-title { font-size: 17px; font-weight: 900; color: #fff; }
-.card-desc { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 2px; }
-.card-type-badge { background: rgba(251,191,36,0.15); color: #fcd34d; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; border: 1px solid rgba(251,191,36,0.3); flex-shrink: 0; }
+.card-title { font-size: 17px; font-weight: 900; color: #191F28; }
+.card-desc { font-size: 11px; color: #8B95A1; margin-top: 2px; }
+.card-type-badge { background: #FFF4EC; color: #E04E00; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 10px; border: 1px solid #FFDFC9; flex-shrink: 0; }
 
-.bet-row { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; }
-.bet-label { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700; margin-bottom: 6px; }
+.bet-row { border-top: 1px solid #F2F4F6; padding-top: 12px; }
+.bet-label { font-size: 11px; color: #8B95A1; font-weight: 700; margin-bottom: 6px; }
 .bet-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-.bet-chip { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); padding: 6px 4px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.15s; }
-.bet-chip:hover { background: rgba(251,191,36,0.1); color: #fcd34d; }
-.bet-chip.active { background: rgba(251,191,36,0.2); border-color: rgba(251,191,36,0.5); color: #fcd34d; }
+.bet-chip { background: #F7F8FA; border: 1px solid #E5E8EB; color: #4E5968; padding: 6px 4px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.15s; }
+.bet-chip:hover { background: #FFF4EC; color: #F2570F; }
+.bet-chip.active { background: #FFF4EC; border-color: #FF6B2C; color: #F2570F; }
 
 .enter-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
 .require-info { display: flex; flex-direction: column; gap: 1px; }
-.req-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 700; }
-.req-value { font-size: 13px; font-weight: 800; color: #6ee7b7; }
-.req-value.insufficient { color: #fca5a5; }
-.enter-btn { background: linear-gradient(135deg, #f59e0b, #dc2626); color: #fff; border: none; padding: 9px 16px; border-radius: 18px; font-size: 12px; font-weight: 800; cursor: pointer; }
-.enter-btn:disabled { background: #374151; color: rgba(255,255,255,0.4); cursor: not-allowed; }
-.enter-btn:not(:disabled):hover { transform: translateX(2px); }
+.req-label { font-size: 11px; color: #B0B8C1; font-weight: 700; }
+.req-value { font-size: 13px; font-weight: 800; color: #059669; }
+.req-value.insufficient { color: #EF4444; }
+.enter-btn { background: #FF6B2C; color: #fff; border: none; padding: 9px 16px; border-radius: 18px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(255,107,44,0.25); transition: all 0.15s; }
+.enter-btn:disabled { background: #F2F4F6; color: #B0B8C1; cursor: not-allowed; box-shadow: none; }
+.enter-btn:not(:disabled):hover { background: #F2570F; transform: translateX(2px); }
 
 .cl-stats {
   max-width: 1100px; margin: 32px auto 0; padding: 0 20px;
@@ -245,14 +248,15 @@ onMounted(loadWallet)
 }
 .stats-card {
   display: flex; align-items: center; gap: 12px;
-  background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #fff; border: 1px solid #F2F4F6;
   border-radius: 14px; padding: 14px 16px; text-decoration: none; color: inherit;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   transition: all 0.15s;
 }
-.stats-card:hover { background: rgba(251, 191, 36, 0.06); border-color: rgba(251, 191, 36, 0.25); }
-.stats-icon { font-size: 28px; }
-.stats-title { font-size: 14px; font-weight: 800; color: #fff; }
-.stats-sub { font-size: 11px; color: rgba(255, 255, 255, 0.5); }
+.stats-card:hover { background: #FFFBF7; border-color: #FFC7A6; box-shadow: 0 6px 16px rgba(25,31,40,0.06); }
+.stats-icon { width: 44px; height: 44px; border-radius: 12px; background: #FFF4EC; color: #F2570F; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stats-title { font-size: 14px; font-weight: 800; color: #191F28; }
+.stats-sub { font-size: 11px; color: #8B95A1; }
 
 @media (max-width: 640px) {
   .cl-title { font-size: 16px; }

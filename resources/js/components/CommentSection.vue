@@ -1,33 +1,35 @@
 <template>
-<div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-  <div class="px-5 py-3 border-b font-bold text-sm text-gray-800">💬 댓글 {{ totalCount }}개</div>
+<div class="card overflow-hidden">
+  <div class="px-5 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center gap-2">
+    <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="14" /></span>댓글 {{ totalCount }}개
+  </div>
 
   <!-- 댓글 입력 -->
-  <div v-if="auth.isLoggedIn" class="px-5 py-3 border-b">
+  <div v-if="auth.isLoggedIn" class="px-5 py-3 border-b border-gray-50">
     <div class="flex gap-3">
       <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
       <div class="flex-1">
-        <textarea v-model="newComment" rows="1" placeholder="댓글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-sm resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3" @blur="blurComment($event)"></textarea>
+        <textarea v-model="newComment" rows="1" placeholder="댓글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-sm text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3" @blur="blurComment($event)"></textarea>
         <div v-if="newComment.trim()" class="flex justify-end gap-2 mt-2">
-          <button @click="newComment=''" class="text-xs text-gray-500 px-3 py-1.5 rounded-full hover:bg-gray-100">취소</button>
-          <button @click="submitComment(null)" class="text-xs bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-full hover:bg-amber-500">댓글</button>
+          <button @click="newComment=''" class="text-xs text-ink-muted px-3 py-1.5 rounded-full hover:bg-gray-100 transition-colors">취소</button>
+          <button @click="submitComment(null)" class="text-xs bg-amber-400 text-white font-bold px-4 py-1.5 rounded-full hover:bg-amber-500 transition-colors">댓글</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 댓글 목록 -->
-  <div class="divide-y">
+  <div class="divide-y divide-gray-50">
     <div v-for="c in comments" :key="c.id" class="px-5 py-3">
       <CommentItem :comment="c" :type="type" :typeId="typeId" @reply="openReply" @refresh="loadComments" @deleted="loadComments" />
 
       <!-- 대댓글 -->
       <div v-if="c.replies?.length" class="ml-11 mt-1">
-        <button v-if="!c._showReplies" @click="c._showReplies = true" class="text-xs text-blue-600 font-bold py-1 hover:bg-blue-50 px-2 rounded-full">
+        <button v-if="!c._showReplies" @click="c._showReplies = true" class="text-xs text-blue-600 font-bold py-1 hover:bg-blue-50 px-2 rounded-full transition-colors">
           ▼ 답글 {{ c.replies.length }}개
         </button>
         <template v-if="c._showReplies">
-          <button @click="c._showReplies = false" class="text-xs text-blue-600 font-bold py-1 hover:bg-blue-50 px-2 rounded-full mb-1">
+          <button @click="c._showReplies = false" class="text-xs text-blue-600 font-bold py-1 hover:bg-blue-50 px-2 rounded-full mb-1 transition-colors">
             ▲ 답글 숨기기
           </button>
           <div v-for="r in c.replies" :key="r.id" class="py-2">
@@ -39,12 +41,12 @@
       <!-- 답글 입력 -->
       <div v-if="replyTo === c.id" class="ml-11 mt-2">
         <div class="flex gap-2">
-          <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-[10px] font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
+          <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
           <div class="flex-1">
-            <textarea v-model="replyText" rows="1" placeholder="답글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-xs resize-none outline-none focus:border-amber-400" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3"></textarea>
+            <textarea v-model="replyText" rows="1" placeholder="답글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-xs text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3"></textarea>
             <div class="flex justify-end gap-2 mt-1">
-              <button @click="replyTo=null; replyText=''" class="text-[10px] text-gray-500 px-2 py-1 rounded-full hover:bg-gray-100">취소</button>
-              <button @click="submitComment(c.id)" :disabled="!replyText.trim()" class="text-[10px] bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50">답글</button>
+              <button @click="replyTo=null; replyText=''" class="text-[11px] text-ink-muted px-2 py-1 rounded-full hover:bg-gray-100 transition-colors">취소</button>
+              <button @click="submitComment(c.id)" :disabled="!replyText.trim()" class="text-[11px] bg-amber-400 text-white font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50 transition-colors">답글</button>
             </div>
           </div>
         </div>
@@ -52,7 +54,7 @@
     </div>
   </div>
 
-  <div v-if="!comments.length" class="px-5 py-8 text-center text-sm text-gray-400">첫 댓글을 남겨보세요!</div>
+  <div v-if="!comments.length" class="px-5 py-8 text-center text-sm text-ink-muted">첫 댓글을 남겨보세요!</div>
 </div>
 </template>
 
@@ -61,6 +63,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 import CommentItem from './CommentItem.vue'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({ type: String, typeId: [Number, String] })
 const auth = useAuthStore()

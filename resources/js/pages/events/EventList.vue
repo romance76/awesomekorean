@@ -1,20 +1,23 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="text-lg font-black text-gray-800">🎉 이벤트</h1>
+        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+          <span class="icon-chip w-8 h-8 bg-rose-50 text-rose-600"><AppIcon name="calendar" :size="17" /></span>
+          이벤트
+        </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg">🔍 필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/events/create" class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg">✏️ 등록</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="filter" :size="13" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/events/create" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
-        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-          📍{{ selectedCityIdx == -1 ? '전국' : (koreanCities[selectedCityIdx]?.label || '내 위치') }}
+        <span class="badge-gray">
+          <AppIcon name="map-pin" :size="11" />{{ selectedCityIdx == -1 ? '전국' : (koreanCities[selectedCityIdx]?.label || '내 위치') }}
         </span>
-        <span v-if="search" class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+        <span v-if="search" class="badge-gray">
           "{{ search }}"
         </span>
       </div>
@@ -23,9 +26,9 @@
     <!-- 모바일 필터 바텀시트 -->
     <MobileFilter v-model="showFilter" @apply="loadPage()" @reset="activeCat = ''; search = ''; selectedCityIdx = '-1'; onCityChange()">
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">지역</label>
+        <label class="input-label">지역</label>
         <select v-model="selectedCityIdx" @change="onCityChange"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:ring-2 focus:ring-amber-400">
+          class="input-soft">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
@@ -34,16 +37,16 @@
         </select>
       </div>
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">검색어</label>
+        <label class="input-label">검색어</label>
         <input v-model="search" type="text" placeholder="검색어 입력..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          class="input-soft" />
       </div>
       <div>
-        <label class="text-xs font-bold text-gray-600 mb-2 block">카테고리</label>
+        <label class="input-label">카테고리</label>
         <div class="grid grid-cols-3 gap-1.5">
           <button v-for="c in eventCategories" :key="c.value" @click="activeCat = c.value"
-            class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="activeCat === c.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+            class="text-xs py-2 rounded-lg font-semibold border transition-colors"
+            :class="activeCat === c.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
             {{ c.label }}
           </button>
         </div>
@@ -52,24 +55,27 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-xl font-black text-gray-800">🎉 이벤트</h1>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="calendar" :size="20" /></span>
+        이벤트
+      </h1>
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-amber-600 text-sm">📍</span>
-        <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
+        <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
+        <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs font-semibold">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
             <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
           </optgroup>
         </select>
-        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs">
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 py-1.5 text-sm" />
+          <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/events/create" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">✏️ 등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/events/create" class="btn-primary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
       </div>
     </div>
 
@@ -77,15 +83,15 @@
     <!-- 왼쪽: 카테고리 -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
+        <div class="card overflow-hidden">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-rose-600" />카테고리</div>
           <button v-for="c in eventCategories" :key="c.value" @click="showFavorites=false; activeCat=c.value; activeItem=null; loadPage()"
-            class="w-full text-left px-3 py-2 text-xs transition"
-            :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+            class="w-full text-left px-3 py-2 text-xs transition-colors"
+            :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ c.label }}</button>
           <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
-            class="w-full text-left px-3 py-2 text-xs transition border-t"
-            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-            🔖 내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+            class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 flex items-center gap-1"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
+            <AppIcon name="bookmark" :size="12" />내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
           </button>
         </div>
         <AdSlot page="events" position="left" :maxSlots="2" />
@@ -94,16 +100,16 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">🔖 내 북마크</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm inline-flex items-center gap-1"><AppIcon name="bookmark" :size="14" />내 북마크</span>
       <template v-else>
         <span class="font-bold text-amber-700 text-sm">{{ activeCat ? (eventCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}</span>
-        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">모든 이벤트를 볼 수 있습니다</span>
+        <span v-if="!activeCat" class="text-xs text-ink-muted ml-2">모든 이벤트를 볼 수 있습니다</span>
       </template>
     </div>
 
     <!-- 상세 모드 -->
     <div v-if="activeItem">
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="card overflow-hidden">
         <!-- 공식 이벤트: 배너 이미지 또는 색상 헤더 -->
         <div v-if="activeItem.event_type === 'awesomekorean'" class="relative overflow-hidden"
           :style="{ backgroundColor: activeItem.banner_color || '#F5A623', height: '180px' }">
@@ -114,7 +120,7 @@
           <div v-else class="absolute inset-0 flex items-center justify-between px-6">
             <div class="z-10 max-w-[60%]">
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs bg-white/30 text-white font-bold px-2.5 py-1 rounded-full">⭐ 어썸코리안 공식</span>
+                <span class="text-xs bg-white/30 text-white font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1"><AppIcon name="star" :size="11" />어썸코리안 공식</span>
                 <span class="text-xs bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">{{ eventStatusLabel(activeItem) }}</span>
               </div>
               <h2 class="text-xl font-black text-white leading-tight">{{ activeItem.title }}</h2>
@@ -126,26 +132,26 @@
         <!-- 일반 이벤트: 기존 헤더 -->
         <div v-else class="px-5 py-4">
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ activeItem.category }}</span>
-            <span v-if="!activeItem.price || activeItem.price == 0" class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">무료</span>
-            <span v-else class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">${{ activeItem.price }}</span>
+            <span class="badge-primary">{{ activeItem.category }}</span>
+            <span v-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
+            <span v-else class="badge-blue">${{ activeItem.price }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-gray-900 flex-1">{{ activeItem.title }}</h2>
+            <h2 class="text-lg font-bold text-ink flex-1">{{ activeItem.title }}</h2>
             <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(activeItem.id)" @toggle="toggleFav(activeItem)" size="lg" class="flex-shrink-0" />
           </div>
         </div>
         <!-- 공통 정보 -->
-        <div class="px-5 py-3 bg-gray-50/50 border-t border-b">
-          <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-            <div>📅 {{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</div>
-            <div>📍 {{ activeItem.venue || activeItem.city }}</div>
-            <div>🏢 {{ activeItem.organizer }}</div>
-            <div>👥 {{ activeItem.attendee_count }}명 참가 · 👁 {{ activeItem.view_count }}회</div>
+        <div class="px-5 py-3 bg-gray-50/50 border-t border-b border-gray-50">
+          <div class="grid grid-cols-2 gap-2 text-sm text-ink-light">
+            <div class="flex items-center gap-1.5"><AppIcon name="calendar" :size="14" class="text-ink-faint" />{{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</div>
+            <div class="flex items-center gap-1.5"><AppIcon name="map-pin" :size="14" class="text-ink-faint" />{{ activeItem.venue || activeItem.city }}</div>
+            <div class="flex items-center gap-1.5"><AppIcon name="building" :size="14" class="text-ink-faint" />{{ activeItem.organizer }}</div>
+            <div class="flex items-center gap-1.5"><AppIcon name="users" :size="14" class="text-ink-faint" />{{ activeItem.attendee_count }}명 참가 · <AppIcon name="eye" :size="14" class="text-ink-faint" />{{ activeItem.view_count }}회</div>
           </div>
         </div>
         <!-- 참여 버튼 (공식 이벤트) -->
-        <div v-if="activeItem.event_url" class="px-5 py-3 border-b">
+        <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
           <button @click="$router.push(activeItem.event_url)"
             class="w-full py-2.5 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
             :style="{ backgroundColor: activeItem.banner_color || '#F59E0B' }">
@@ -153,35 +159,38 @@
           </button>
         </div>
         <!-- 본문 -->
-        <div class="px-5 py-4 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
+        <div class="px-5 py-4 text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
       </div>
       <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
-        <button @click="deleteActiveItem('events')" class="text-xs text-red-400 hover:text-red-600">🗑️ 삭제</button>
+        <button @click="deleteActiveItem('events')" class="text-xs text-red-400 hover:text-red-600 inline-flex items-center gap-1 transition-colors"><AppIcon name="trash" :size="12" />삭제</button>
       </div>
       <CommentSection v-if="activeItem.id" type="event" :typeId="activeItem.id" class="mt-3" />
       <div class="flex justify-between mt-2">
-        <button @click="navItem(-1)" :disabled="currentIdx<=0" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">← 이전글</button>
-        <button @click="activeItem=null" class="text-xs text-gray-400">목록</button>
-        <button @click="navItem(1)" :disabled="currentIdx>=items.length-1" class="text-xs text-gray-500 hover:text-amber-700 disabled:opacity-30">다음글 →</button>
+        <button @click="navItem(-1)" :disabled="currentIdx<=0" class="text-xs text-ink-muted hover:text-amber-600 disabled:opacity-30 inline-flex items-center gap-0.5 transition-colors"><AppIcon name="chevron-left" :size="13" />이전글</button>
+        <button @click="activeItem=null" class="text-xs text-ink-muted hover:text-ink transition-colors">목록</button>
+        <button @click="navItem(1)" :disabled="currentIdx>=items.length-1" class="text-xs text-ink-muted hover:text-amber-600 disabled:opacity-30 inline-flex items-center gap-0.5 transition-colors">다음글<AppIcon name="chevron-right" :size="13" /></button>
       </div>
     </div>
 
     <!-- 목록 -->
-    <div v-else-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="!items.length" class="text-center py-12 text-gray-400">검색 결과 없음</div>
+    <div v-else-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
+    <div v-else-if="!items.length" class="py-16 text-center">
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="calendar" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-sm text-ink-muted">검색 결과 없음</p>
+    </div>
     <!-- 카드형 -->
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="rounded-xl shadow-sm border overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer"
-        :class="item.event_type === 'awesomekorean' ? 'border-amber-200' : 'bg-white border-gray-100'">
+        class="card card-hover overflow-hidden cursor-pointer"
+        :class="item.event_type === 'awesomekorean' ? 'ring-1 ring-amber-200' : ''">
         <!-- 공식 이벤트: 배너 색상 상단 영역 -->
         <div v-if="item.event_type === 'awesomekorean'" class="relative flex items-center justify-between px-5 py-4"
           :style="{ background: 'linear-gradient(135deg, ' + (item.banner_color || '#F5A623') + ', ' + (item.banner_color || '#F5A623') + 'cc)' }">
           <div class="z-10">
             <div class="flex items-center gap-2 mb-1">
-              <span class="text-[10px] bg-white/30 text-white font-bold px-2 py-0.5 rounded-full">⭐ 어썸코리안 공식</span>
-              <span class="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">
+              <span class="text-[11px] bg-white/30 text-white font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"><AppIcon name="star" :size="10" />어썸코리안 공식</span>
+              <span class="text-[11px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">
                 {{ eventStatusLabel(item) }}
               </span>
             </div>
@@ -194,28 +203,28 @@
         <!-- 일반 이벤트: 기존 카드 헤더 -->
         <div v-else class="p-4">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">🎉</div>
+            <div class="icon-chip w-12 h-12 bg-rose-50 text-rose-500"><AppIcon name="calendar" :size="22" /></div>
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
-              <div class="text-[10px] text-gray-400"><template v-if="!activeCat">{{ item.category || '기타' }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
+              <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
+              <div class="text-xs text-ink-faint"><template v-if="!activeCat">{{ item.category || '기타' }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
             </div>
             <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
-            <div v-else class="text-green-600 text-xs font-bold">무료</div>
+            <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
           </div>
         </div>
 
         <!-- 공통: 정보 영역 -->
         <div class="px-4 pb-3" :class="item.event_type === 'awesomekorean' ? 'bg-amber-50/50 pt-3' : ''">
           <div v-if="item.event_type === 'awesomekorean'" class="flex items-center gap-2 mb-2 flex-wrap">
-            <span v-if="item.reward_points" class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">🎁 최대 {{ item.reward_points }}P</span>
-            <span class="text-[10px] text-gray-400">📅 {{ formatDate(item.start_date) }}{{ item.end_date ? ' ~ ' + formatDate(item.end_date) : '' }}</span>
+            <span v-if="item.reward_points" class="badge-green"><AppIcon name="gift" :size="11" />최대 {{ item.reward_points }}P</span>
+            <span class="text-xs text-ink-faint inline-flex items-center gap-0.5"><AppIcon name="calendar" :size="11" />{{ formatDate(item.start_date) }}{{ item.end_date ? ' ~ ' + formatDate(item.end_date) : '' }}</span>
           </div>
-          <div class="text-xs text-gray-500 line-clamp-2 mb-2">{{ (item.content || '').slice(0, 120) }}</div>
-          <div class="flex items-center justify-between text-[10px] text-gray-400">
-            <span v-if="item.city">📍 {{ item.city }}, {{ item.state }}</span>
+          <div class="text-xs text-ink-muted line-clamp-2 mb-2">{{ (item.content || '').slice(0, 120) }}</div>
+          <div class="flex items-center justify-between text-xs text-ink-faint">
+            <span v-if="item.city" class="inline-flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ item.city }}, {{ item.state }}</span>
             <div class="flex items-center gap-2">
-              <span>👁 {{ item.view_count || 0 }}</span>
-              <span>👥 {{ item.attendee_count || 0 }}</span>
+              <span class="inline-flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count || 0 }}</span>
+              <span class="inline-flex items-center gap-0.5"><AppIcon name="users" :size="11" />{{ item.attendee_count || 0 }}</span>
               <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" />
             </div>
           </div>
@@ -225,24 +234,24 @@
       </template>
     </div>
     <!-- 리스트형 -->
-    <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div v-else class="card overflow-hidden divide-y divide-gray-50">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="px-4 py-3 border-b border-gray-50 hover:bg-amber-50/50 hover:border-l-2 hover:border-l-amber-400 transition cursor-pointer">
+        class="list-row">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
-            <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
+            <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
               <span v-if="item.user?.name"><UserName :userId="item.user?.id" :name="item.user?.name" /></span>
               <span v-else-if="item.company || item.organizer">{{ item.company || item.organizer }}</span>
-              <span v-if="item.city" class="flex items-center gap-0.5">📍{{ item.city }}, {{ item.state }}</span>
+              <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ item.city }}, {{ item.state }}</span>
               <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
-              <span v-if="item.created_at">🕐 {{ fmtDate(item.created_at) }}</span>
-              <span v-if="item.view_count">👁{{ item.view_count }}</span>
+              <span v-if="item.created_at" class="flex items-center gap-0.5"><AppIcon name="clock" :size="11" />{{ fmtDate(item.created_at) }}</span>
+              <span v-if="item.view_count" class="flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count }}</span>
             </div>
           </div>
           <div class="ml-3 flex-shrink-0 text-right">
-            <div v-if="item.price !== undefined && item.price !== null" class="text-amber-600 font-bold text-sm">${{ Number(item.price).toLocaleString() }}</div>
+            <div v-if="item.price !== undefined && item.price !== null" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
             <div v-if="item.salary_min" class="text-amber-600 font-bold text-xs">${{ item.salary_min }}~${{ item.salary_max }}/{{ item.salary_type }}</div>
             <div v-if="item.rating" class="text-amber-400 text-xs">{{'★'.repeat(Math.round(item.rating))}} {{ item.rating }}</div>
           </div>
@@ -276,6 +285,7 @@ import { useMenuConfig } from '../../composables/useMenuConfig'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const route = useRoute()

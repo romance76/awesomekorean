@@ -1,116 +1,118 @@
 <template>
-<section v-if="!isEdit" class="bg-white rounded-xl shadow-sm border-2 border-purple-300 overflow-hidden">
-  <div class="px-5 py-3 border-b border-purple-100 bg-purple-50 flex items-center gap-2">
-    <h2 class="text-sm font-black text-purple-800">🚀 상위노출 (선택)</h2>
-    <span class="text-[10px] text-purple-600">위치 입력 후 자동으로 슬롯 확인됩니다</span>
+<section v-if="!isEdit" class="card overflow-hidden">
+  <div class="px-5 py-3 border-b border-violet-100 bg-violet-50 flex items-center gap-2">
+    <h2 class="text-sm font-bold text-violet-700 flex items-center gap-2">
+      <span class="icon-chip w-7 h-7 bg-white text-violet-600"><AppIcon name="sparkles" :size="14" /></span>상위노출 (선택)
+    </h2>
+    <span class="text-[11px] text-violet-600">위치 입력 후 자동으로 슬롯 확인됩니다</span>
   </div>
   <div class="p-5 space-y-4">
-    <p class="text-xs text-gray-500">
+    <p class="text-xs text-ink-muted">
       카테고리당 <b>주(State)</b> / <b>전국(National)</b> 최대 {{ maxSlots.state_plus }}개 한정.
     </p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <!-- 사용 안함 -->
       <button type="button" @click="selectTier('none')"
-        class="p-3 rounded-lg border-2 text-left transition"
+        class="p-3 rounded-xl border-2 text-left transition"
         :class="tier === 'none' ? 'border-gray-400 bg-gray-50' : 'border-gray-200 bg-white hover:border-gray-300'">
-        <div class="font-bold text-sm text-gray-800">사용 안 함</div>
-        <div class="text-xs text-gray-500">일반 등록</div>
+        <div class="font-bold text-sm text-ink">사용 안 함</div>
+        <div class="text-xs text-ink-muted">일반 등록</div>
       </button>
 
       <!-- 스폰서 (슬롯 제한 없음) -->
       <button type="button" @click="selectTier('sponsored')"
-        class="p-3 rounded-lg border-2 text-left transition"
-        :class="tier === 'sponsored' ? 'border-purple-400 bg-purple-50' : 'border-gray-200 bg-white hover:border-gray-300'">
-        <div class="font-bold text-sm text-gray-800">스폰서 (Sponsored)</div>
-        <div class="text-xs text-purple-600 font-semibold">하루 {{ prices.sponsored }}P</div>
-        <div class="text-[10px] text-gray-500 mt-1">색상 강조만 (위치 부스트 없음)</div>
+        class="p-3 rounded-xl border-2 text-left transition"
+        :class="tier === 'sponsored' ? 'border-violet-400 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'">
+        <div class="font-bold text-sm text-ink">스폰서 (Sponsored)</div>
+        <div class="text-xs text-violet-600 font-semibold">하루 {{ prices.sponsored }}P</div>
+        <div class="text-[11px] text-ink-muted mt-1">색상 강조만 (위치 부스트 없음)</div>
       </button>
 
       <!-- 주(State) 상위노출 -->
       <button type="button" @click="selectTier('state_plus')"
         :disabled="statePlusUnselectable"
-        class="p-3 rounded-lg border-2 text-left transition relative"
+        class="p-3 rounded-xl border-2 text-left transition relative"
         :class="[
           statePlusFull ? 'border-red-300 bg-red-50 cursor-not-allowed opacity-75' :
-          tier === 'state_plus' ? 'border-purple-400 bg-purple-50' :
+          tier === 'state_plus' ? 'border-violet-400 bg-violet-50' :
           'border-gray-200 bg-white hover:border-gray-300',
         ]">
-        <div class="font-bold text-sm" :class="statePlusFull ? 'text-red-800' : 'text-gray-800'">
+        <div class="font-bold text-sm" :class="statePlusFull ? 'text-red-800' : 'text-ink'">
           주(State) 상위노출
         </div>
-        <div class="text-xs font-semibold" :class="statePlusFull ? 'text-red-600' : 'text-purple-600'">
+        <div class="text-xs font-semibold" :class="statePlusFull ? 'text-red-600' : 'text-violet-600'">
           하루 {{ prices.state_plus }}P
         </div>
 
         <!-- 슬롯 상태 메시지 (카드 안) -->
-        <div v-if="!state" class="text-[10px] text-amber-700 mt-1.5 bg-amber-100 rounded p-1.5">
-          ⚠️ State 입력 후 슬롯 확인
+        <div v-if="!state" class="text-[11px] text-amber-700 mt-1.5 bg-amber-50 rounded-lg p-1.5 flex items-center gap-1">
+          <AppIcon name="alert-circle" :size="12" /> State 입력 후 슬롯 확인
         </div>
-        <div v-else-if="statePlusFull" class="text-[10px] text-red-700 mt-1.5 bg-red-100 rounded p-1.5 leading-snug">
-          <div class="font-bold">⚠️ 슬롯 만석 — 현재 선택 불가</div>
+        <div v-else-if="statePlusFull" class="text-[11px] text-red-700 mt-1.5 bg-red-100 rounded-lg p-1.5 leading-snug">
+          <div class="font-bold flex items-center gap-1"><AppIcon name="alert-circle" :size="12" /> 슬롯 만석 — 현재 선택 불가</div>
           <div class="mt-0.5">카테고리당 최대 {{ slotInfoByTier.state_plus?.max_slots ?? maxSlots.state_plus }}개까지.</div>
-          <div v-if="nextStatePlusFmt" class="font-bold mt-0.5">📅 {{ nextStatePlusFmt }} 이후 가능</div>
+          <div v-if="nextStatePlusFmt" class="font-bold mt-0.5 flex items-center gap-1"><AppIcon name="calendar" :size="12" /> {{ nextStatePlusFmt }} 이후 가능</div>
         </div>
-        <div v-else-if="slotInfoByTier.state_plus" class="text-[10px] text-green-700 mt-1.5 bg-green-100 rounded p-1.5">
-          ✅ 사용 가능 ({{ slotInfoByTier.state_plus.used }}/{{ slotInfoByTier.state_plus.max_slots }})
+        <div v-else-if="slotInfoByTier.state_plus" class="text-[11px] text-emerald-700 mt-1.5 bg-emerald-50 rounded-lg p-1.5 flex items-center gap-1">
+          <AppIcon name="check" :size="12" /> 사용 가능 ({{ slotInfoByTier.state_plus.used }}/{{ slotInfoByTier.state_plus.max_slots }})
         </div>
-        <div v-else class="text-[10px] text-gray-500 mt-1.5">내 주 + 인접 주 자동 포함</div>
+        <div v-else class="text-[11px] text-ink-muted mt-1.5">내 주 + 인접 주 자동 포함</div>
       </button>
 
       <!-- 전국구 (National) -->
       <button type="button" @click="selectTier('national')"
         :disabled="nationalUnselectable"
-        class="p-3 rounded-lg border-2 text-left transition relative"
+        class="p-3 rounded-xl border-2 text-left transition relative"
         :class="[
           nationalFull ? 'border-red-300 bg-red-50 cursor-not-allowed opacity-75' :
-          tier === 'national' ? 'border-purple-400 bg-purple-50' :
+          tier === 'national' ? 'border-violet-400 bg-violet-50' :
           'border-gray-200 bg-white hover:border-gray-300',
         ]">
-        <div class="font-bold text-sm" :class="nationalFull ? 'text-red-800' : 'text-gray-800'">
+        <div class="font-bold text-sm" :class="nationalFull ? 'text-red-800' : 'text-ink'">
           전국구 (National)
         </div>
-        <div class="text-xs font-semibold" :class="nationalFull ? 'text-red-600' : 'text-purple-600'">
+        <div class="text-xs font-semibold" :class="nationalFull ? 'text-red-600' : 'text-violet-600'">
           하루 {{ prices.national }}P
         </div>
 
-        <div v-if="!category" class="text-[10px] text-amber-700 mt-1.5 bg-amber-100 rounded p-1.5">
-          ⚠️ {{ categoryLabel }} 선택 후 슬롯 확인
+        <div v-if="!category" class="text-[11px] text-amber-700 mt-1.5 bg-amber-50 rounded-lg p-1.5 flex items-center gap-1">
+          <AppIcon name="alert-circle" :size="12" /> {{ categoryLabel }} 선택 후 슬롯 확인
         </div>
-        <div v-else-if="nationalFull" class="text-[10px] text-red-700 mt-1.5 bg-red-100 rounded p-1.5 leading-snug">
-          <div class="font-bold">⚠️ 슬롯 만석 — 현재 선택 불가</div>
+        <div v-else-if="nationalFull" class="text-[11px] text-red-700 mt-1.5 bg-red-100 rounded-lg p-1.5 leading-snug">
+          <div class="font-bold flex items-center gap-1"><AppIcon name="alert-circle" :size="12" /> 슬롯 만석 — 현재 선택 불가</div>
           <div class="mt-0.5">카테고리당 최대 {{ slotInfoByTier.national?.max_slots ?? maxSlots.national }}개까지.</div>
-          <div v-if="nextNationalFmt" class="font-bold mt-0.5">📅 {{ nextNationalFmt }} 이후 가능</div>
+          <div v-if="nextNationalFmt" class="font-bold mt-0.5 flex items-center gap-1"><AppIcon name="calendar" :size="12" /> {{ nextNationalFmt }} 이후 가능</div>
         </div>
-        <div v-else-if="slotInfoByTier.national" class="text-[10px] text-green-700 mt-1.5 bg-green-100 rounded p-1.5">
-          ✅ 사용 가능 ({{ slotInfoByTier.national.used }}/{{ slotInfoByTier.national.max_slots }})
+        <div v-else-if="slotInfoByTier.national" class="text-[11px] text-emerald-700 mt-1.5 bg-emerald-50 rounded-lg p-1.5 flex items-center gap-1">
+          <AppIcon name="check" :size="12" /> 사용 가능 ({{ slotInfoByTier.national.used }}/{{ slotInfoByTier.national.max_slots }})
         </div>
-        <div v-else class="text-[10px] text-gray-500 mt-1.5">전 지역 노출</div>
+        <div v-else class="text-[11px] text-ink-muted mt-1.5">전 지역 노출</div>
       </button>
     </div>
 
     <!-- 선택된 티어 추가 설정 -->
     <div v-if="tier !== 'none'" class="space-y-3 pt-3 border-t border-gray-100">
-      <div v-if="tier === 'state_plus' && state && neighbors.length" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <div class="text-xs font-bold text-blue-800 mb-1.5">📍 자동 노출 주</div>
+      <div v-if="tier === 'state_plus' && state && neighbors.length" class="bg-blue-50 rounded-xl p-3">
+        <div class="text-xs font-bold text-blue-700 mb-1.5 flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> 자동 노출 주</div>
         <div class="flex flex-wrap gap-1">
           <span v-for="s in neighbors" :key="s"
-            class="text-[11px] font-bold px-2 py-0.5 rounded"
-            :class="s === state.toUpperCase() ? 'bg-blue-500 text-white' : 'bg-white border border-blue-300 text-blue-700'">
+            class="text-[11px] font-bold px-2 py-0.5 rounded-full"
+            :class="s === state.toUpperCase() ? 'bg-blue-500 text-white' : 'bg-white text-blue-700'">
             {{ s }}{{ s === state.toUpperCase() ? ' (내 주)' : '' }}
           </span>
         </div>
       </div>
 
       <div>
-        <label class="text-sm font-semibold text-gray-700 block mb-1">노출 기간 (일)</label>
+        <label class="input-label">노출 기간 (일)</label>
         <input v-model.number="daysLocal" type="number" min="1" max="30"
-          class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400" />
+          class="input-soft w-32" />
       </div>
 
-      <div class="bg-purple-50 rounded-lg p-3 flex items-center justify-between">
-        <span class="text-sm text-purple-800">총 비용</span>
-        <span class="text-lg font-black text-purple-800">{{ totalCost.toLocaleString() }} P</span>
+      <div class="bg-violet-50 rounded-xl p-3 flex items-center justify-between">
+        <span class="text-sm font-semibold text-violet-700">총 비용</span>
+        <span class="text-lg font-black text-violet-700">{{ totalCost.toLocaleString() }} P</span>
       </div>
     </div>
   </div>
@@ -121,6 +123,7 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { neighborsOf } from '../utils/stateNeighbors'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   resource: { type: String, required: true },

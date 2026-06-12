@@ -5,14 +5,17 @@
       style="max-height: 90vh; max-height: 90dvh;">
 
       <!-- 헤더 -->
-      <div class="px-4 py-3 border-b bg-green-50 flex items-center justify-between flex-shrink-0">
-        <h3 class="font-bold text-sm text-gray-800">🏫 주변 학교 (5마일 이내)</h3>
-        <button @click="$emit('close')" class="text-gray-400 hover:text-gray-600 p-1">✕</button>
+      <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between flex-shrink-0">
+        <h3 class="font-bold text-sm text-ink flex items-center gap-2">
+          <span class="icon-chip w-7 h-7 bg-emerald-50 text-emerald-600"><AppIcon name="graduation-cap" :size="15" /></span>
+          주변 학교 (5마일 이내)
+        </h3>
+        <button @click="$emit('close')" class="text-ink-faint hover:text-ink p-1 transition-colors"><AppIcon name="x" :size="18" /></button>
       </div>
 
       <!-- 지도 -->
       <div class="flex-shrink-0 relative">
-        <div v-if="mapLoading" class="flex items-center justify-center bg-gray-100 text-gray-400 text-sm" style="height:220px;">
+        <div v-if="mapLoading" class="flex items-center justify-center bg-gray-100 text-ink-muted text-sm" style="height:220px;">
           지도 로딩중...
         </div>
         <div v-show="!mapLoading" ref="mapEl" style="height:220px; width:100%; z-index:0;"></div>
@@ -22,46 +25,47 @@
       <div class="flex-1 overflow-y-auto min-h-0">
         <!-- 로딩 -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-12 gap-2">
-          <div class="animate-spin w-6 h-6 border-4 border-green-500 border-t-transparent rounded-full"></div>
-          <span class="text-sm text-gray-400">학교 검색중...</span>
+          <div class="animate-spin w-6 h-6 border-4 border-emerald-500 border-t-transparent rounded-full"></div>
+          <span class="text-sm text-ink-muted">학교 검색중...</span>
         </div>
 
         <!-- 결과 없음 -->
-        <div v-else-if="!schools.length" class="text-center py-12 text-sm text-gray-400">
-          주변 5마일 이내에 학교가 없습니다
+        <div v-else-if="!schools.length" class="py-12 text-center">
+          <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="graduation-cap" :size="28" :stroke-width="1.5" /></div>
+          <p class="text-sm text-ink-muted">주변 5마일 이내에 학교가 없습니다</p>
         </div>
 
         <!-- 학교 카드 목록 -->
-        <div v-else class="divide-y">
+        <div v-else class="divide-y divide-gray-50">
           <button v-for="(s, i) in schools" :key="i" @click="focusSchool(s, i)"
-            class="w-full text-left px-4 py-3 hover:bg-green-50/50 transition flex items-start gap-3"
-            :class="selectedIdx === i ? 'bg-green-50' : ''">
+            class="w-full text-left px-4 py-3 hover:bg-emerald-50/50 transition-colors flex items-start gap-3"
+            :class="selectedIdx === i ? 'bg-emerald-50' : ''">
             <!-- 번호 -->
-            <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold mt-0.5"
-              :class="selectedIdx === i ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'">
+            <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[11px] font-bold mt-0.5"
+              :class="selectedIdx === i ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-ink-muted'">
               {{ i + 1 }}
             </div>
             <!-- 정보 -->
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-bold text-gray-800 truncate">{{ s.name }}</div>
-              <div class="text-xs text-gray-500 mt-0.5 truncate">📍 {{ s.address }}</div>
+              <div class="text-sm font-bold text-ink truncate">{{ s.name }}</div>
+              <div class="text-xs text-ink-muted mt-0.5 truncate flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ s.address }}</div>
               <div class="flex items-center gap-2 mt-1 flex-wrap">
                 <!-- 별점 -->
                 <div v-if="s.rating" class="flex items-center gap-0.5">
-                  <span class="text-amber-400 text-xs">{{ '⭐'.repeat(Math.round(s.rating)) }}</span>
-                  <span class="text-xs font-bold text-gray-700">{{ s.rating }}</span>
-                  <span class="text-[10px] text-gray-400">({{ s.user_ratings_total }})</span>
+                  <span class="text-amber-400 text-xs">{{ '★'.repeat(Math.round(s.rating)) }}</span>
+                  <span class="text-xs font-bold text-ink">{{ s.rating }}</span>
+                  <span class="text-[11px] text-ink-faint">({{ s.user_ratings_total }})</span>
                 </div>
                 <!-- 학교 유형 뱃지 -->
                 <span v-for="t in schoolTypeBadges(s.types)" :key="t"
-                  class="text-[10px] px-1.5 py-0.5 rounded-full font-semibold"
+                  class="text-[11px] px-1.5 py-0.5 rounded-full font-semibold"
                   :class="typeBadgeClass(t)">
                   {{ t }}
                 </span>
               </div>
             </div>
             <!-- 거리 -->
-            <div class="text-[10px] text-gray-400 flex-shrink-0 mt-1">
+            <div class="text-[11px] text-ink-faint flex-shrink-0 mt-1">
               {{ calcDistance(s.lat, s.lng) }}
             </div>
           </button>
@@ -69,7 +73,7 @@
       </div>
 
       <!-- 푸터 -->
-      <div class="px-4 py-2 border-t bg-gray-50 text-[10px] text-gray-400 text-center flex-shrink-0">
+      <div class="px-4 py-2 border-t border-gray-50 bg-gray-50 text-[11px] text-ink-faint text-center flex-shrink-0">
         Google Places API 기반 · 매물 위치 반경 5마일 · {{ schools.length }}개 학교
       </div>
     </div>
@@ -79,6 +83,7 @@
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
+import AppIcon from './AppIcon.vue'
 import axios from 'axios'
 
 const props = defineProps({

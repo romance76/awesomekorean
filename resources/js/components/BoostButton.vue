@@ -11,22 +11,22 @@
 <div class="boost-wrap">
   <!-- 활성 중 배너 -->
   <div v-if="isActive" class="boost-active">
-    🚀 상위노출 중 · {{ remaining }}
+    <AppIcon name="sparkles" :size="14" /> 상위노출 중 · {{ remaining }}
   </div>
   <!-- 비활성: 버튼 -->
   <button v-else @click="showModal = true"
     class="boost-btn" :class="sizeClass">
-    🚀 상위노출
+    <AppIcon name="sparkles" :size="14" /> 상위노출
   </button>
 
   <!-- 모달 -->
   <Teleport to="body">
     <div v-if="showModal" class="boost-modal-overlay" @click.self="showModal = false">
       <div class="boost-modal">
-        <h3 class="modal-title">🚀 상위노출</h3>
+        <h3 class="modal-title"><span class="icon-chip w-8 h-8 bg-violet-50 text-violet-600"><AppIcon name="sparkles" :size="16" /></span>상위노출</h3>
 
         <div class="location-info">
-          📍 내 지역({{ item?.state || '?' }} + 인접 주) 사용자에게 우선 노출됩니다
+          <AppIcon name="map-pin" :size="13" /> 내 지역({{ item?.state || '?' }} + 인접 주) 사용자에게 우선 노출됩니다
         </div>
 
         <div class="days-grid">
@@ -62,6 +62,7 @@
 import { ref, computed } from 'vue'
 import axios from 'axios'
 import { useSiteStore } from '../stores/site'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   resource: { type: String, required: true },
@@ -152,21 +153,22 @@ function endpointFor(r) {
 .boost-wrap { display: contents; }
 
 .boost-btn {
-  background: linear-gradient(135deg, #a855f7, #9333ea);
-  color: #fff; border: none; font-weight: 800; border-radius: 10px; cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.15s;
+  background: #8b5cf6;
+  color: #fff; border: none; font-weight: 700; border-radius: 12px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
 }
-.boost-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35); }
+.boost-btn:hover { background: #7c3aed; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3); }
 .boost-btn.btn-md { padding: 10px 16px; font-size: 13px; width: 100%; }
-.boost-btn.btn-sm { padding: 6px 12px; font-size: 11px; }
+.boost-btn.btn-sm { padding: 6px 12px; font-size: 12px; }
 
 .boost-active {
-  background: linear-gradient(90deg, #f3e8ff, #fce7f3);
-  border: 2px solid #c084fc;
+  background: #f5f3ff;
+  border: 1.5px solid #ddd6fe;
   color: #7c3aed;
-  font-weight: 800;
-  text-align: center;
-  border-radius: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 12px;
   padding: 8px 14px;
   font-size: 12px;
 }
@@ -181,24 +183,25 @@ function endpointFor(r) {
   width: 100%; max-width: 380px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
-.modal-title { font-size: 17px; font-weight: 900; color: #1f2937; margin-bottom: 10px; }
+.modal-title { font-size: 17px; font-weight: 700; color: #191F28; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .location-info {
-  background: #f3e8ff; color: #6b21a8; border-radius: 10px; padding: 10px 12px;
-  font-size: 11px; font-weight: 700; margin-bottom: 14px;
+  background: #f5f3ff; color: #6d28d9; border-radius: 12px; padding: 10px 12px;
+  font-size: 12px; font-weight: 600; margin-bottom: 14px;
+  display: flex; align-items: flex-start; gap: 5px;
 }
 
 .days-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
 .day-btn {
-  background: #f3f4f6; border: 2px solid transparent; border-radius: 12px;
-  padding: 12px 8px; cursor: pointer; transition: all 0.15s;
+  background: #f3f4f6; border: 1.5px solid transparent; border-radius: 12px;
+  padding: 12px 8px; cursor: pointer; transition: all 0.15s; color: #4E5968;
 }
 .day-btn:hover { background: #ede9fe; }
-.day-btn.active { background: linear-gradient(135deg, #a855f7, #9333ea); border-color: #7c3aed; color: #fff; }
+.day-btn.active { background: #8b5cf6; border-color: #8b5cf6; color: #fff; }
 .day-num { font-size: 15px; font-weight: 900; }
 .day-price { font-size: 11px; margin-top: 4px; opacity: 0.85; }
 
 .total-box {
-  background: linear-gradient(90deg, #f3e8ff, #fce7f3);
+  background: #f5f3ff;
   border-radius: 12px; padding: 12px 16px; margin-bottom: 14px;
   display: flex; justify-content: space-between; align-items: center;
 }
@@ -206,11 +209,11 @@ function endpointFor(r) {
 .total-value { font-size: 20px; font-weight: 900; color: #7c3aed; }
 
 .modal-actions { display: flex; gap: 8px; }
-.btn-cancel, .btn-pay { flex: 1; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; transition: all 0.15s; }
-.btn-cancel { background: #f3f4f6; color: #374151; }
+.btn-cancel, .btn-pay { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; border: none; cursor: pointer; transition: all 0.15s; }
+.btn-cancel { background: #f3f4f6; color: #4E5968; }
 .btn-cancel:hover:not(:disabled) { background: #e5e7eb; }
-.btn-pay { background: linear-gradient(135deg, #a855f7, #9333ea); color: #fff; }
-.btn-pay:hover:not(:disabled) { box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4); }
+.btn-pay { background: #8b5cf6; color: #fff; }
+.btn-pay:hover:not(:disabled) { background: #7c3aed; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35); }
 .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .err-msg {

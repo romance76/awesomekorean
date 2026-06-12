@@ -2,11 +2,11 @@
 <div>
   <div class="flex justify-end gap-2 mb-3">
     <button @click="fetchMusic" :disabled="fetching"
-      class="bg-blue-500 text-white font-bold px-3 py-2 rounded-lg text-sm hover:bg-blue-600 disabled:opacity-50">
-      {{ fetching ? '수집중...' : '🔄 YouTube 자동수집 (100곡)' }}
+      class="inline-flex items-center gap-1.5 bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50">
+      <AppIcon name="refresh" :size="14" />{{ fetching ? '수집중...' : 'YouTube 자동수집 (100곡)' }}
     </button>
-    <button @click="showImport = true" class="bg-amber-400 text-amber-900 font-bold px-3 py-2 rounded-lg text-sm hover:bg-amber-500">
-      📥 플레이리스트/채널 가져오기
+    <button @click="showImport = true" class="btn-primary px-3 py-2 text-sm">
+      <AppIcon name="download" :size="14" />플레이리스트/채널 가져오기
     </button>
   </div>
 
@@ -25,58 +25,58 @@
 
   <!-- YouTube 가져오기 모달 (플레이리스트/채널/개별 URL) -->
   <div v-if="showImport" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="closeImport">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl overflow-hidden">
-      <div class="bg-gradient-to-r from-amber-50 to-orange-50 px-5 py-4 border-b flex justify-between items-center">
-        <div class="font-black text-gray-800">📥 YouTube에서 가져오기</div>
-        <button @click="closeImport" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">✕</button>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
+        <div class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="download" :size="15" /></span>YouTube에서 가져오기</div>
+        <button @click="closeImport" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="20" /></button>
       </div>
       <div class="p-5">
         <div class="mb-3">
-          <label class="text-xs font-bold text-gray-700">카테고리</label>
-          <select v-model="importCatId" class="w-full border rounded-lg px-3 py-2 text-sm mt-1">
+          <label class="input-label !text-xs">카테고리</label>
+          <select v-model="importCatId" class="input-soft px-3 py-2 mt-1">
             <option :value="null">카테고리 선택</option>
             <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
           </select>
         </div>
-        <div class="flex gap-2 mb-4">
-          <button @click="importMode='playlist'" class="flex-1 px-3 py-2 rounded-lg text-xs font-bold"
-            :class="importMode==='playlist' ? 'bg-amber-400 text-amber-900' : 'bg-gray-100 text-gray-600'">📋 플레이리스트</button>
-          <button @click="importMode='channel'" class="flex-1 px-3 py-2 rounded-lg text-xs font-bold"
-            :class="importMode==='channel' ? 'bg-amber-400 text-amber-900' : 'bg-gray-100 text-gray-600'">📺 채널</button>
-          <button @click="importMode='urls'" class="flex-1 px-3 py-2 rounded-lg text-xs font-bold"
-            :class="importMode==='urls' ? 'bg-amber-400 text-amber-900' : 'bg-gray-100 text-gray-600'">🔗 URL</button>
+        <div class="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1">
+          <button @click="importMode='playlist'" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-colors"
+            :class="importMode==='playlist' ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted'"><AppIcon name="list" :size="13" />플레이리스트</button>
+          <button @click="importMode='channel'" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-colors"
+            :class="importMode==='channel' ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted'"><AppIcon name="monitor" :size="13" />채널</button>
+          <button @click="importMode='urls'" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-xs transition-colors"
+            :class="importMode==='urls' ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted'"><AppIcon name="external-link" :size="13" />URL</button>
         </div>
 
         <div v-if="importMode==='playlist'">
           <input v-model="importUrl" placeholder="https://www.youtube.com/playlist?list=PLxxxxxx"
-            class="w-full border rounded-lg px-3 py-2 text-sm" />
-          <div class="text-[10px] text-gray-400 mt-1">최대 200개, 5분 이하만</div>
+            class="input-soft px-3 py-2" />
+          <div class="text-[11px] text-ink-faint mt-1">최대 200개, 5분 이하만</div>
         </div>
         <div v-else-if="importMode==='channel'">
           <input v-model="importUrl" placeholder="https://www.youtube.com/@channelname"
-            class="w-full border rounded-lg px-3 py-2 text-sm" />
-          <div class="text-[10px] text-gray-400 mt-1">채널 최근 업로드 최대 200개</div>
+            class="input-soft px-3 py-2" />
+          <div class="text-[11px] text-ink-faint mt-1">채널 최근 업로드 최대 200개</div>
         </div>
         <div v-else>
           <textarea v-model="importUrl" rows="6" placeholder="https://youtu.be/xxx&#10;https://youtu.be/yyy"
-            class="w-full border rounded-lg px-3 py-2 text-sm font-mono resize-none"></textarea>
+            class="input-soft px-3 py-2 font-mono"></textarea>
         </div>
 
-        <div class="mt-3 bg-blue-50 border border-blue-200 rounded p-2 text-[10px] text-blue-800">
-          📌 자동 필터: 5분 이하 · 비한국어 제외 · 라이브/믹스 제외 · 중복 스킵
+        <div class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-800 flex items-center gap-1.5">
+          <AppIcon name="info" :size="13" />자동 필터: 5분 이하 · 비한국어 제외 · 라이브/믹스 제외 · 중복 스킵
         </div>
 
-        <div v-if="importResult" class="mt-3 p-2 rounded text-xs"
+        <div v-if="importResult" class="mt-3 p-2 rounded-lg text-xs"
           :class="importResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
-          <div class="font-bold">{{ importResult.success ? '✅ 완료' : '❌ 실패' }}</div>
+          <div class="flex items-center gap-1 font-bold"><AppIcon :name="importResult.success ? 'check' : 'alert-circle'" :size="13" />{{ importResult.success ? '완료' : '실패' }}</div>
           <div>{{ importResult.message }}</div>
         </div>
       </div>
-      <div class="bg-gray-50 px-5 py-3 border-t flex justify-end gap-2">
-        <button @click="closeImport" class="text-gray-500 px-4 py-2 text-sm">닫기</button>
+      <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-end gap-2">
+        <button @click="closeImport" class="btn-ghost px-4 py-2 text-sm">닫기</button>
         <button @click="runImport" :disabled="!importUrl.trim() || !importCatId || importing"
-          class="bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded text-sm disabled:opacity-50">
-          {{ importing ? '가져오는 중...' : '📥 시작' }}
+          class="btn-primary px-5 py-2 text-sm">
+          <AppIcon name="download" :size="14" />{{ importing ? '가져오는 중...' : '시작' }}
         </button>
       </div>
     </div>
@@ -89,6 +89,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const showUser = ref(false)
 const selectedUserId = ref(null)

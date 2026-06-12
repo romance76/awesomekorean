@@ -2,28 +2,28 @@
 <div class="flex gap-3">
   <div class="flex-shrink-0 mt-0.5" :class="isReply ? 'w-6 h-6' : 'w-8 h-8'">
     <div class="w-full h-full bg-amber-100 rounded-full flex items-center justify-center font-bold text-amber-700"
-      :class="isReply ? 'text-[10px]' : 'text-xs'">{{ (comment.user?.name||'?')[0] }}</div>
+      :class="isReply ? 'text-[11px]' : 'text-xs'">{{ (comment.user?.name||'?')[0] }}</div>
   </div>
   <div class="flex-1 min-w-0">
     <!-- 헤더: 이름 + 날짜 + 신고 -->
     <div class="flex items-center gap-2">
-      <UserName :userId="comment.user?.id" :name="comment.user?.name" :className="isReply ? 'text-xs font-bold text-gray-800' : 'text-sm font-bold text-gray-800'" />
-      <span class="text-[10px] text-gray-400">{{ relativeDate }}</span>
-      <span class="text-[10px] text-gray-300">{{ fullDate }}</span>
-      <button v-if="auth.user?.id === comment.user_id" @click="deleteComment" class="ml-auto text-gray-300 hover:text-red-500 text-xs" title="삭제">🗑</button>
-      <button @click="showReportModal=true" class="text-gray-300 hover:text-gray-500 text-xs" :class="auth.user?.id === comment.user_id ? '' : 'ml-auto'" title="신고">⚑</button>
+      <UserName :userId="comment.user?.id" :name="comment.user?.name" :className="isReply ? 'text-xs font-bold text-ink' : 'text-sm font-bold text-ink'" />
+      <span class="text-[11px] text-ink-muted">{{ relativeDate }}</span>
+      <span class="text-[11px] text-ink-faint">{{ fullDate }}</span>
+      <button v-if="auth.user?.id === comment.user_id" @click="deleteComment" class="ml-auto text-gray-300 hover:text-red-500 transition-colors" title="삭제"><AppIcon name="trash" :size="14" /></button>
+      <button @click="showReportModal=true" class="text-gray-300 hover:text-ink-muted transition-colors" :class="auth.user?.id === comment.user_id ? '' : 'ml-auto'" title="신고"><AppIcon name="flag" :size="14" /></button>
     </div>
     <!-- 내용 -->
-    <div class="text-sm text-gray-700 mt-0.5 whitespace-pre-wrap leading-relaxed">{{ comment.content }}</div>
+    <div class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed">{{ comment.content }}</div>
     <!-- 액션: 좋아요 싫어요 답글 -->
     <div class="flex items-center gap-3 mt-1.5">
-      <button @click="vote('like')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full" :class="myVote==='like' ? 'text-blue-600' : 'text-gray-400'">
-        👍 <span v-if="localLikes">{{ localLikes }}</span>
+      <button @click="vote('like')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full transition-colors" :class="myVote==='like' ? 'text-blue-600' : 'text-ink-muted'">
+        <AppIcon name="thumbs-up" :size="13" /> <span v-if="localLikes">{{ localLikes }}</span>
       </button>
-      <button @click="vote('dislike')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full" :class="myVote==='dislike' ? 'text-red-500' : 'text-gray-400'">
-        👎 <span v-if="localDislikes">{{ localDislikes }}</span>
+      <button @click="vote('dislike')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full transition-colors" :class="myVote==='dislike' ? 'text-red-500' : 'text-ink-muted'">
+        <AppIcon name="thumbs-up" :size="13" class="rotate-180" /> <span v-if="localDislikes">{{ localDislikes }}</span>
       </button>
-      <button v-if="!isReply && auth.user?.id !== comment.user_id" @click="$emit('reply', comment.id, comment.user?.name)" class="text-xs text-gray-500 font-bold hover:bg-gray-100 px-2 py-0.5 rounded-full">답글</button>
+      <button v-if="!isReply && auth.user?.id !== comment.user_id" @click="$emit('reply', comment.id, comment.user?.name)" class="text-xs text-ink-muted font-bold hover:bg-gray-100 px-2 py-0.5 rounded-full transition-colors">답글</button>
     </div>
   </div>
 </div>
@@ -33,30 +33,32 @@
   <div v-if="showReportModal" class="fixed inset-0 z-[100] flex items-center justify-center" @click.self="showReportModal=false">
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-      <div class="px-5 py-3 flex items-center justify-between border-b">
-        <span class="font-black text-gray-800">신고</span>
-        <button @click="showReportModal=false" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+      <div class="px-5 py-3 flex items-center justify-between border-b border-gray-50">
+        <span class="font-black text-ink flex items-center gap-2">
+          <span class="icon-chip w-7 h-7 bg-red-50 text-red-500"><AppIcon name="flag" :size="14" /></span>신고
+        </span>
+        <button @click="showReportModal=false" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
       </div>
       <div class="px-5 py-3 max-h-80 overflow-y-auto">
-        <div v-for="r in reportReasons" :key="r" class="py-2.5 border-b last:border-0">
+        <div v-for="r in reportReasons" :key="r" class="py-2.5 border-b border-gray-50 last:border-0">
           <label class="flex items-center gap-3 cursor-pointer">
             <input type="radio" v-model="selectedReason" :value="r" class="w-4 h-4 text-amber-500" />
-            <span class="text-sm text-gray-700">{{ r }}</span>
+            <span class="text-sm text-ink-light">{{ r }}</span>
           </label>
         </div>
         <div class="py-2.5">
           <label class="flex items-start gap-3 cursor-pointer">
             <input type="radio" v-model="selectedReason" value="기타" class="w-4 h-4 text-amber-500 mt-0.5" />
             <div class="flex-1">
-              <span class="text-sm text-gray-700">기타</span>
-              <textarea v-if="selectedReason==='기타'" v-model="customReason" rows="2" placeholder="신고 사유를 입력하세요..." class="w-full border rounded-lg px-3 py-2 text-sm mt-1 resize-none outline-none focus:ring-2 focus:ring-amber-400"></textarea>
+              <span class="text-sm text-ink-light">기타</span>
+              <textarea v-if="selectedReason==='기타'" v-model="customReason" rows="2" placeholder="신고 사유를 입력하세요..." class="input-soft mt-1"></textarea>
             </div>
           </label>
         </div>
       </div>
-      <div class="px-5 py-3 border-t">
+      <div class="px-5 py-3 border-t border-gray-50">
         <button @click="submitReport" :disabled="!selectedReason || (selectedReason==='기타' && !customReason.trim())"
-          class="w-full bg-gray-100 text-gray-600 font-bold py-2.5 rounded-full hover:bg-amber-400 hover:text-amber-900 transition disabled:opacity-40">신고</button>
+          class="btn-primary w-full">신고</button>
       </div>
     </div>
   </div>
@@ -68,6 +70,7 @@ import { ref, computed } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useModal } from '../composables/useModal'
 import axios from 'axios'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({ comment: Object, type: String, typeId: [Number, String], isReply: Boolean })
 const emit = defineEmits(['reply', 'refresh', 'deleted'])

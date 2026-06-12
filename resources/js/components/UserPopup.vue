@@ -2,50 +2,50 @@
 <div v-if="show && user" class="fixed inset-0 z-50" @click.self="$emit('close')">
   <div class="absolute inset-0"></div>
   <!-- 팝업 컨테이너 -->
-  <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden animate-in transition-all duration-200" :class="view === 'message' ? 'w-80' : 'w-64'">
+  <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-xl overflow-hidden animate-in transition-all duration-200" :class="view === 'message' ? 'w-80' : 'w-64'">
 
     <!-- 헤더 -->
-    <div class="bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-2 flex items-center justify-between">
+    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] px-3 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center text-sm font-bold text-amber-900">{{ (user.name || '?')[0] }}</div>
+        <div class="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-sm font-bold text-white">{{ (user.name || '?')[0] }}</div>
         <div>
-          <div class="text-sm font-bold text-amber-900 leading-tight">{{ user.name }}</div>
-          <div class="text-[10px] text-amber-800/70">{{ user.city ? user.city + ', ' + user.state : '' }}</div>
+          <div class="text-sm font-bold text-white leading-tight">{{ user.name }}</div>
+          <div class="text-[11px] text-white/80">{{ user.city ? user.city + ', ' + user.state : '' }}</div>
         </div>
       </div>
-      <button @click="closeAll" class="text-amber-900/50 hover:text-amber-900 text-sm">✕</button>
+      <button @click="closeAll" class="text-white/70 hover:text-white transition-colors"><AppIcon name="x" :size="16" /></button>
     </div>
 
     <!-- 메인 뷰: 기본 버튼들 -->
     <div v-if="view === 'main'" class="p-2 flex flex-col gap-1.5">
       <div v-if="!isMe" class="flex gap-1.5">
-        <button @click="view = 'message'" class="flex-1 bg-blue-500 text-white text-[11px] font-bold py-1.5 rounded-lg hover:bg-blue-600">✉️ 쪽지</button>
+        <button @click="view = 'message'" class="flex-1 bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" /> 쪽지</button>
         <!-- 친구 아닌 경우 -->
-        <button v-if="user.allow_friend_request && !isFriend && !isPending" @click="view = 'confirm'" class="flex-1 bg-amber-400 text-amber-900 text-[11px] font-bold py-1.5 rounded-lg hover:bg-amber-500">👫 친구</button>
+        <button v-if="user.allow_friend_request && !isFriend && !isPending" @click="view = 'confirm'" class="flex-1 bg-amber-400 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-amber-500 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="user-plus" :size="12" /> 친구</button>
         <!-- 대기중 (내가 보낸 요청) -->
-        <button v-else-if="isPending && isSender" @click="view = 'pending'" class="flex-1 bg-gray-100 text-gray-500 text-[10px] font-bold py-1.5 rounded-lg hover:bg-gray-200">⏳ 대기중</button>
+        <button v-else-if="isPending && isSender" @click="view = 'pending'" class="flex-1 bg-gray-100 text-ink-muted text-xs font-bold py-1.5 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="clock" :size="12" /> 대기중</button>
         <!-- 대기중 (상대가 보낸 요청) -->
-        <button v-else-if="isPending && !isSender" @click="view = 'received'" class="flex-1 bg-orange-100 text-orange-600 text-[10px] font-bold py-1.5 rounded-lg hover:bg-orange-200">📩 요청받음</button>
+        <button v-else-if="isPending && !isSender" @click="view = 'received'" class="flex-1 bg-orange-100 text-orange-600 text-xs font-bold py-1.5 rounded-lg hover:bg-orange-200 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" /> 요청받음</button>
         <!-- 이미 친구 -->
-        <div v-else-if="isFriend" class="flex-1 text-center text-[10px] text-green-600 py-1.5 font-bold">✅ 친구</div>
+        <div v-else-if="isFriend" class="flex-1 text-center text-xs text-emerald-600 py-1.5 font-bold inline-flex items-center justify-center gap-1"><AppIcon name="check" :size="12" /> 친구</div>
         <!-- 친구요청 차단 -->
-        <div v-else-if="!user.allow_friend_request" class="flex-1 text-center text-[10px] text-gray-400 py-1.5">🔒</div>
+        <div v-else-if="!user.allow_friend_request" class="flex-1 flex items-center justify-center text-ink-faint py-1.5"><AppIcon name="lock" :size="12" /></div>
       </div>
       <template v-if="isFriend">
-        <RouterLink :to="`/profile/${user.id}`" @click="$emit('close')" class="text-center border text-gray-600 text-[11px] font-semibold py-1.5 rounded-lg hover:bg-gray-50">👤 프로필</RouterLink>
+        <RouterLink :to="`/profile/${user.id}`" @click="$emit('close')" class="flex items-center justify-center gap-1 text-center text-ink-light text-xs font-semibold py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"><AppIcon name="user" :size="12" /> 프로필</RouterLink>
       </template>
     </div>
 
     <!-- 친구요청 확인 뷰 -->
     <div v-else-if="view === 'confirm'" class="p-3">
-      <p class="text-sm font-bold text-gray-800 text-center mb-2">친구 요청을 하시겠습니까?</p>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3 text-[10px] text-amber-800 leading-relaxed">
+      <p class="text-sm font-bold text-ink text-center mb-2">친구 요청을 하시겠습니까?</p>
+      <div class="bg-amber-50 rounded-xl p-2 mb-3 text-[11px] text-amber-700 leading-relaxed">
         <p>• 요청 후 <b>24시간이 지나야</b> 취소할 수 있습니다.</p>
         <p>• 상대방이 <b>7일 이내</b> 수락하지 않으면 자동으로 만료됩니다.</p>
       </div>
       <div class="flex gap-1.5">
-        <button @click="view = 'main'" class="flex-1 bg-gray-100 text-gray-600 text-[11px] font-bold py-1.5 rounded-lg hover:bg-gray-200">취소</button>
-        <button @click="addFriend" :disabled="adding" class="flex-1 bg-amber-400 text-amber-900 text-[11px] font-bold py-1.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">
+        <button @click="view = 'main'" class="flex-1 bg-gray-100 text-ink-light text-xs font-bold py-1.5 rounded-lg hover:bg-gray-200 transition-colors">취소</button>
+        <button @click="addFriend" :disabled="adding" class="flex-1 bg-amber-400 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-amber-500 disabled:opacity-50 transition-colors">
           {{ adding ? '전송중...' : '요청 보내기' }}
         </button>
       </div>
@@ -53,48 +53,48 @@
 
     <!-- 대기중 상세 뷰 (취소 가능 여부) -->
     <div v-else-if="view === 'pending'" class="p-3">
-      <p class="text-sm font-bold text-gray-800 text-center mb-2">⏳ 친구 요청 대기중</p>
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-2 mb-3 text-[10px] text-gray-600 leading-relaxed">
+      <p class="text-sm font-bold text-ink text-center mb-2 flex items-center justify-center gap-1"><AppIcon name="clock" :size="14" /> 친구 요청 대기중</p>
+      <div class="bg-gray-50 rounded-xl p-2 mb-3 text-[11px] text-ink-light leading-relaxed">
         <p v-if="!canCancel">• 요청 후 24시간이 지나야 취소할 수 있습니다.</p>
         <p v-if="!canCancel && cancelTimeLeft">• 남은 시간: <b>{{ cancelTimeLeft }}</b></p>
         <p v-if="canCancel">• 지금 취소할 수 있습니다.</p>
         <p>• 7일 이내 수락하지 않으면 자동 만료됩니다.</p>
       </div>
       <div class="flex gap-1.5">
-        <button @click="view = 'main'" class="flex-1 bg-gray-100 text-gray-600 text-[11px] font-bold py-1.5 rounded-lg hover:bg-gray-200">돌아가기</button>
-        <button v-if="canCancel" @click="cancelFriend" :disabled="cancelling" class="flex-1 bg-red-500 text-white text-[11px] font-bold py-1.5 rounded-lg hover:bg-red-600 disabled:opacity-50">
+        <button @click="view = 'main'" class="flex-1 bg-gray-100 text-ink-light text-xs font-bold py-1.5 rounded-lg hover:bg-gray-200 transition-colors">돌아가기</button>
+        <button v-if="canCancel" @click="cancelFriend" :disabled="cancelling" class="flex-1 bg-red-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">
           {{ cancelling ? '취소중...' : '요청 취소' }}
         </button>
-        <div v-else class="flex-1 bg-gray-200 text-gray-400 text-[11px] font-bold py-1.5 rounded-lg text-center cursor-not-allowed">취소 불가</div>
+        <div v-else class="flex-1 bg-gray-200 text-ink-faint text-xs font-bold py-1.5 rounded-lg text-center cursor-not-allowed">취소 불가</div>
       </div>
     </div>
 
     <!-- 받은 요청 수락/거절 뷰 -->
     <div v-else-if="view === 'received'" class="p-3">
-      <p class="text-sm font-bold text-gray-800 text-center mb-2">📩 친구 요청을 받았습니다</p>
-      <div class="bg-orange-50 border border-orange-200 rounded-lg p-2 mb-3 text-[10px] text-orange-800 leading-relaxed">
+      <p class="text-sm font-bold text-ink text-center mb-2 flex items-center justify-center gap-1"><AppIcon name="mail" :size="14" /> 친구 요청을 받았습니다</p>
+      <div class="bg-orange-50 rounded-xl p-2 mb-3 text-[11px] text-orange-700 leading-relaxed">
         <p><b>{{ user.name }}</b>님이 친구 요청을 보냈습니다.</p>
         <p>수락하면 서로 친구가 됩니다.</p>
       </div>
       <div class="flex gap-1.5">
-        <button @click="view = 'main'" class="flex-1 bg-gray-100 text-gray-600 text-[11px] font-bold py-1.5 rounded-lg hover:bg-gray-200">돌아가기</button>
-        <button @click="acceptFriend" :disabled="accepting" class="flex-1 bg-green-500 text-white text-[11px] font-bold py-1.5 rounded-lg hover:bg-green-600 disabled:opacity-50">
-          {{ accepting ? '수락중...' : '✅ 수락' }}
+        <button @click="view = 'main'" class="flex-1 bg-gray-100 text-ink-light text-xs font-bold py-1.5 rounded-lg hover:bg-gray-200 transition-colors">돌아가기</button>
+        <button @click="acceptFriend" :disabled="accepting" class="flex-1 bg-emerald-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-1">
+          <AppIcon v-if="!accepting" name="check" :size="12" />{{ accepting ? '수락중...' : '수락' }}
         </button>
       </div>
-      <div v-if="acceptMsg" class="mt-2 text-center text-[11px] text-green-600 font-bold animate-fade">{{ acceptMsg }}</div>
+      <div v-if="acceptMsg" class="mt-2 text-center text-[11px] text-emerald-600 font-bold animate-fade">{{ acceptMsg }}</div>
     </div>
 
     <!-- 쪽지 보내기 뷰 -->
     <div v-else-if="view === 'message'" class="p-3">
       <template v-if="!msgSent">
-        <p class="text-xs font-bold text-gray-700 mb-2">✉️ {{ user.name }}님에게 쪽지</p>
-        <textarea v-model="msgContent" rows="5" maxlength="500" placeholder="쪽지 내용을 입력하세요..." class="w-full border border-gray-200 rounded-lg p-2.5 text-sm resize-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none"></textarea>
+        <p class="text-xs font-bold text-ink-light mb-2 flex items-center gap-1"><AppIcon name="mail" :size="13" /> {{ user.name }}님에게 쪽지</p>
+        <textarea v-model="msgContent" rows="5" maxlength="500" placeholder="쪽지 내용을 입력하세요..." class="input-soft"></textarea>
         <div class="flex justify-between items-center mt-1.5">
-          <span class="text-[10px] text-gray-400">{{ msgContent.length }}/500</span>
+          <span class="text-xs text-ink-faint">{{ msgContent.length }}/500</span>
           <div class="flex gap-1.5">
-            <button @click="view = 'main'; msgContent = ''" class="bg-gray-100 text-gray-600 text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200">취소</button>
-            <button @click="sendMsg" :disabled="sending || !msgContent.trim()" class="bg-blue-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg hover:bg-blue-600 disabled:opacity-50">
+            <button @click="view = 'main'; msgContent = ''" class="bg-gray-100 text-ink-light text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">취소</button>
+            <button @click="sendMsg" :disabled="sending || !msgContent.trim()" class="bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors">
               {{ sending ? '전송중...' : '보내기' }}
             </button>
           </div>
@@ -102,11 +102,11 @@
       </template>
       <!-- 전송 완료 → 보낸 내용 표시 -->
       <template v-else>
-        <p class="text-xs font-bold text-green-600 mb-2">✅ 쪽지를 보냈습니다</p>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-2.5 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">{{ sentContent }}</div>
+        <p class="text-xs font-bold text-emerald-600 mb-2 flex items-center gap-1"><AppIcon name="check" :size="13" /> 쪽지를 보냈습니다</p>
+        <div class="bg-blue-50 rounded-xl p-2.5 text-sm text-ink-light whitespace-pre-wrap leading-relaxed max-h-32 overflow-y-auto">{{ sentContent }}</div>
         <div class="flex gap-1.5 mt-2">
-          <button @click="msgSent = false; msgContent = ''" class="flex-1 bg-blue-500 text-white text-[11px] font-bold py-1.5 rounded-lg hover:bg-blue-600">새 쪽지 쓰기</button>
-          <button @click="msgSent = false; msgContent = ''; sentContent = ''; closeAll()" class="flex-1 bg-gray-100 text-gray-600 text-[11px] font-bold py-1.5 rounded-lg hover:bg-gray-200">닫기</button>
+          <button @click="msgSent = false; msgContent = ''" class="flex-1 bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-blue-600 transition-colors">새 쪽지 쓰기</button>
+          <button @click="msgSent = false; msgContent = ''; sentContent = ''; closeAll()" class="flex-1 bg-gray-100 text-ink-light text-xs font-bold py-1.5 rounded-lg hover:bg-gray-200 transition-colors">닫기</button>
         </div>
       </template>
     </div>
@@ -119,6 +119,7 @@
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({ show: Boolean, userId: [Number, String] })
 const emit = defineEmits(['close'])

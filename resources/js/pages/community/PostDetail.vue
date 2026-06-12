@@ -1,26 +1,26 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 뒤로가기 -->
-    <button @click="$router.back()" class="text-sm text-gray-500 hover:text-amber-600 mb-3 flex items-center gap-1">
-      ← 목록으로
+    <button @click="$router.back()" class="btn-ghost text-sm mb-3">
+      <AppIcon name="arrow-left" :size="15" /> 목록으로
     </button>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
+    <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
 
     <div v-else-if="post" class="grid grid-cols-12 gap-4">
       <!-- 메인 -->
       <div class="col-span-12 lg:col-span-9">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="card overflow-hidden">
           <!-- 헤더 -->
-          <div class="px-5 py-4 border-b">
+          <div class="px-5 py-4 border-b border-gray-50">
             <div class="flex items-center gap-2 mb-2">
-              <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{{ post.board?.name }}</span>
-              <span v-if="post.category" class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{{ post.category }}</span>
+              <span class="badge-primary">{{ post.board?.name }}</span>
+              <span v-if="post.category" class="badge-gray">{{ post.category }}</span>
             </div>
-            <h1 class="text-lg font-bold text-gray-900">{{ post.title }}</h1>
-            <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
-              <UserName :userId="post.user?.id" :name="post.user?.name" className="text-gray-800" />
+            <h1 class="text-lg font-bold text-ink">{{ post.title }}</h1>
+            <div class="flex items-center gap-3 mt-2 text-xs text-ink-muted">
+              <UserName :userId="post.user?.id" :name="post.user?.name" className="text-ink" />
               <span>{{ formatDate(post.created_at) }}</span>
               <span>{{ post.view_count }}회</span>
               <span>좋아요 {{ post.like_count }}</span>
@@ -29,26 +29,26 @@
           </div>
 
           <!-- 본문 -->
-          <div class="px-5 py-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{{ post.content }}</div>
+          <div class="px-5 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ post.content }}</div>
 
           <!-- 이미지 -->
           <div v-if="post.images?.length" class="px-5 pb-4 flex flex-wrap gap-2">
             <img v-for="(img, i) in post.images" :key="i" :src="'/storage/' + img"
-              class="w-32 h-32 object-cover rounded-lg border" @error="e => e.target.style.display='none'" />
+              class="w-32 h-32 object-cover rounded-lg border border-gray-100" @error="e => e.target.style.display='none'" />
           </div>
 
           <!-- 액션 버튼 -->
-          <div class="px-5 py-3 border-t flex items-center gap-4">
-            <button @click="toggleLike" class="flex items-center gap-1 text-sm" :class="liked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'">
-              {{ liked ? '❤️' : '🤍' }} 좋아요 {{ post.like_count }}
+          <div class="px-5 py-3 border-t border-gray-50 flex items-center gap-4">
+            <button @click="toggleLike" class="flex items-center gap-1.5 text-sm font-semibold transition-colors" :class="liked ? 'text-red-500' : 'text-ink-muted hover:text-red-400'">
+              <AppIcon name="heart" :size="16" :filled="liked" /> 좋아요 {{ post.like_count }}
             </button>
             <BookmarkToggle :active="bookmarked" @toggle="toggleBookmark" size="lg" />
-            <button @click="sharePost" class="text-gray-400 text-sm hover:text-amber-600">🔗 공유</button>
-            <button @click="showReport=true" class="text-gray-400 text-sm hover:text-red-400 ml-auto">🚨 신고</button>
+            <button @click="sharePost" class="text-ink-muted text-sm hover:text-amber-600 transition-colors flex items-center gap-1"><AppIcon name="share" :size="14" />공유</button>
+            <button @click="showReport=true" class="text-ink-muted text-sm hover:text-red-400 transition-colors flex items-center gap-1 ml-auto"><AppIcon name="flag" :size="14" />신고</button>
             <!-- 작성자 전용: 수정/삭제 -->
             <template v-if="auth.user?.id === post.user_id">
-              <RouterLink :to="`/community/write/${post.board?.slug}?edit=${post.id}`" class="text-gray-400 text-sm hover:text-amber-600">✏️ 수정</RouterLink>
-              <button @click="deletePost" class="text-gray-400 text-sm hover:text-red-500">🗑️ 삭제</button>
+              <RouterLink :to="`/community/write/${post.board?.slug}?edit=${post.id}`" class="text-ink-muted text-sm hover:text-amber-600 transition-colors flex items-center gap-1"><AppIcon name="edit" :size="14" />수정</RouterLink>
+              <button @click="deletePost" class="text-ink-muted text-sm hover:text-red-500 transition-colors flex items-center gap-1"><AppIcon name="trash" :size="14" />삭제</button>
             </template>
           </div>
 
@@ -71,13 +71,16 @@
       <!-- 사이드바 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
         <!-- 작성자 정보 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-          <div class="font-bold text-sm text-amber-900 mb-3">✍️ 작성자 정보</div>
-          <RouterLink :to="`/profile/${post.user?.id}`" class="flex items-center gap-2 hover:bg-amber-50 -mx-2 px-2 py-1 rounded-lg transition">
+        <div class="card p-4">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="user" :size="14" /></span>
+            <span class="text-[13px] font-bold text-ink">작성자 정보</span>
+          </div>
+          <RouterLink :to="`/profile/${post.user?.id}`" class="flex items-center gap-2 hover:bg-amber-50/60 -mx-2 px-2 py-1 rounded-lg transition-colors">
             <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-sm font-bold text-amber-700">{{ (post.user?.name || '?')[0] }}</div>
             <div>
-              <UserName :userId="post.user?.id" :name="post.user?.name" className="text-sm text-gray-700 font-semibold" />
-              <div v-if="post.user?.bio" class="text-[10px] text-gray-400 truncate max-w-[120px]">{{ post.user.bio }}</div>
+              <UserName :userId="post.user?.id" :name="post.user?.name" className="text-sm text-ink-light font-semibold" />
+              <div v-if="post.user?.bio" class="text-xs text-ink-muted truncate max-w-[120px]">{{ post.user.bio }}</div>
             </div>
           </RouterLink>
         </div>
@@ -113,6 +116,7 @@ import ReportModal from '../../components/ReportModal.vue'
 import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const route = useRoute()
 const auth = useAuthStore()

@@ -2,9 +2,9 @@
 <div class="fixed inset-0 bg-black z-40 flex flex-col">
   <!-- 상단 바 -->
   <div class="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3">
-    <RouterLink to="/" class="text-white text-sm font-bold opacity-80 hover:opacity-100">← 홈</RouterLink>
-    <h1 class="text-white font-black text-sm">📱 숏츠</h1>
-    <RouterLink v-if="auth.isLoggedIn" to="/shorts/upload" class="text-white text-sm opacity-80 hover:opacity-100">+ 업로드</RouterLink>
+    <RouterLink to="/" class="text-white text-sm font-bold opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="15" />홈</RouterLink>
+    <h1 class="text-white font-bold text-sm inline-flex items-center gap-1.5"><AppIcon name="video" :size="15" />숏츠</h1>
+    <RouterLink v-if="auth.isLoggedIn" to="/shorts/upload" class="text-white text-sm opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="plus" :size="14" />업로드</RouterLink>
     <span v-else></span>
   </div>
 
@@ -34,16 +34,16 @@
         <!-- 오른쪽 액션 버튼 -->
         <div class="absolute right-3 bottom-32 flex flex-col items-center gap-5">
           <button @click="toggleLike" class="flex flex-col items-center">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-xl">{{ liked ? '❤️' : '🤍' }}</div>
-            <span class="text-white text-[10px] mt-1">{{ current.like_count }}</span>
+            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center" :class="liked ? 'text-red-500' : 'text-white'"><AppIcon name="heart" :size="20" :filled="liked" /></div>
+            <span class="text-white text-xs mt-1">{{ current.like_count }}</span>
           </button>
           <button @click="showComments=!showComments" class="flex flex-col items-center">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-xl">💬</div>
-            <span class="text-white text-[10px] mt-1">{{ current.comment_count }}</span>
+            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="message-circle" :size="20" /></div>
+            <span class="text-white text-xs mt-1">{{ current.comment_count }}</span>
           </button>
           <button @click="shareShort" class="flex flex-col items-center">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-xl">🔗</div>
-            <span class="text-white text-[10px] mt-1">공유</span>
+            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="share" :size="20" /></div>
+            <span class="text-white text-xs mt-1">공유</span>
           </button>
         </div>
 
@@ -59,16 +59,16 @@
     <!-- PC 버튼 -->
     <div class="absolute top-1/2 left-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-3" style="margin-left: calc(224px + 16px);">
       <button @click="prev" :disabled="idx <= 0"
-        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/40 disabled:opacity-20 transition">▲</button>
+        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="20" /></button>
       <button @click="next" :disabled="idx >= shorts.length - 1"
-        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white text-xl hover:bg-white/40 disabled:opacity-20 transition">▼</button>
+        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="20" /></button>
     </div>
     <!-- 모바일 버튼 (하단 중앙) -->
     <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-6 lg:hidden z-20">
       <button @click="prev" :disabled="idx <= 0"
-        class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white text-xl active:bg-white/50 disabled:opacity-20 transition">▲</button>
+        class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white active:bg-white/50 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="22" /></button>
       <button @click="next" :disabled="idx >= shorts.length - 1"
-        class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white text-xl active:bg-white/50 disabled:opacity-20 transition">▼</button>
+        class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white active:bg-white/50 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="22" /></button>
     </div>
 
     <!-- 카운터 -->
@@ -78,21 +78,21 @@
   </div>
 
   <!-- 댓글 패널 -->
-  <div v-if="showComments" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[50vh] overflow-y-auto shadow-xl">
-    <div class="flex items-center justify-between px-4 py-3 border-b sticky top-0 bg-white">
-      <span class="font-bold text-sm text-gray-800">💬 댓글</span>
-      <button @click="showComments=false" class="text-gray-400">✕</button>
+  <div v-if="showComments" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[50vh] overflow-y-auto shadow-lift">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50 sticky top-0 bg-white">
+      <span class="font-bold text-sm text-ink inline-flex items-center gap-1.5"><AppIcon name="message-circle" :size="15" class="text-amber-600" />댓글</span>
+      <button @click="showComments=false" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="16" /></button>
     </div>
-    <div v-if="comments.length" class="divide-y">
+    <div v-if="comments.length" class="divide-y divide-gray-50">
       <div v-for="c in comments" :key="c.id" class="px-4 py-2.5">
-        <div class="flex items-center gap-2 mb-0.5"><span class="text-xs font-semibold text-gray-700">{{ c.user?.name }}</span><span class="text-[10px] text-gray-400">{{ c.created_at?.slice(0,10) }}</span></div>
-        <div class="text-sm text-gray-600">{{ c.content }}</div>
+        <div class="flex items-center gap-2 mb-0.5"><span class="text-xs font-semibold text-ink-light">{{ c.user?.name }}</span><span class="text-xs text-ink-faint">{{ c.created_at?.slice(0,10) }}</span></div>
+        <div class="text-sm text-ink-light">{{ c.content }}</div>
       </div>
     </div>
-    <div v-else class="px-4 py-6 text-center text-sm text-gray-400">아직 댓글이 없습니다</div>
-    <div v-if="auth.isLoggedIn" class="px-4 py-3 border-t flex gap-2 sticky bottom-0 bg-white">
-      <input v-model="newComment" type="text" placeholder="댓글 입력..." class="flex-1 border rounded-full px-3 py-1.5 text-sm" @keyup.enter="submitComment" />
-      <button @click="submitComment" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-full text-sm">등록</button>
+    <div v-else class="px-4 py-6 text-center text-sm text-ink-muted">아직 댓글이 없습니다</div>
+    <div v-if="auth.isLoggedIn" class="px-4 py-3 border-t border-gray-50 flex gap-2 sticky bottom-0 bg-white">
+      <input v-model="newComment" type="text" placeholder="댓글 입력..." class="input-soft flex-1 rounded-full px-3 py-1.5" @keyup.enter="submitComment" />
+      <button @click="submitComment" class="btn-primary rounded-full px-4 py-1.5">등록</button>
     </div>
   </div>
 </div>
@@ -101,6 +101,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()

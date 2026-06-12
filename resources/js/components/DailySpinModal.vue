@@ -7,11 +7,11 @@
       <!-- 모달 -->
       <div class="relative w-[340px] max-w-[95vw] bg-gradient-to-b from-purple-900 to-indigo-900 rounded-3xl p-6 shadow-2xl border border-purple-500/30">
         <!-- 닫기 -->
-        <button @click="close" class="absolute top-3 right-3 text-white/50 hover:text-white text-xl w-8 h-8 flex items-center justify-center">
-          &times;
+        <button @click="close" class="absolute top-3 right-3 text-white/50 hover:text-white w-8 h-8 flex items-center justify-center transition-colors">
+          <AppIcon name="x" :size="20" />
         </button>
 
-        <h2 class="text-center text-xl font-black text-yellow-300 mb-4">🎰 오늘의 무료 포인트</h2>
+        <h2 class="text-center text-xl font-black text-yellow-300 mb-4 flex items-center justify-center gap-2"><AppIcon name="coins" :size="20" /> 오늘의 무료 포인트</h2>
 
         <!-- 룰렛 휠 -->
         <div class="relative w-[260px] h-[260px] mx-auto mb-4">
@@ -37,7 +37,7 @@
               </g>
               <!-- 중앙 원 -->
               <circle cx="130" cy="130" r="28" fill="#1e1b4b" stroke="#fbbf24" stroke-width="3"/>
-              <text x="130" y="130" text-anchor="middle" dominant-baseline="central" class="text-[10px] font-bold" fill="#fbbf24">SPIN</text>
+              <text x="130" y="130" text-anchor="middle" dominant-baseline="central" class="text-[11px] font-bold" fill="#fbbf24">SPIN</text>
             </svg>
           </div>
         </div>
@@ -73,7 +73,7 @@
 
         <!-- 이미 사용 -->
         <div v-else-if="alreadySpun" class="text-center">
-          <div class="text-4xl mb-2">🌙</div>
+          <div class="flex justify-center mb-2 text-yellow-300"><AppIcon name="moon" :size="36" :stroke-width="1.5" /></div>
           <div class="text-yellow-300 font-bold text-base mb-1">오늘 이미 돌렸습니다</div>
           <div class="text-purple-300 text-xs mb-3">자정 이후 다시 도전 가능합니다</div>
           <button @click="close" class="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-2.5 rounded-xl transition">
@@ -88,6 +88,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   show: { type: Boolean, default: false },

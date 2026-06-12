@@ -1,53 +1,56 @@
 <template>
 <div>
-  <h1 class="text-xl font-black text-gray-800 mb-1">💰 가격/할인 센터</h1>
-  <p class="text-xs text-gray-500 mb-4">포인트 설정, 구매 패키지, 광고 슬롯 가격, 할인 이벤트를 한 곳에서 관리</p>
+  <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
+    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="20" /></span>
+    가격/할인 센터
+  </h1>
+  <p class="text-xs text-ink-muted mb-4">포인트 설정, 구매 패키지, 광고 슬롯 가격, 할인 이벤트를 한 곳에서 관리</p>
 
   <!-- 탭 네비게이션 -->
-  <div class="flex gap-1 mb-5 bg-white rounded-xl p-1 shadow-sm border overflow-x-auto">
+  <div class="flex gap-1 mb-5 bg-gray-100 rounded-xl p-1 overflow-x-auto">
     <button v-for="t in tabs" :key="t.key" @click="activeTab = t.key"
-      class="flex-1 text-xs font-bold py-2 px-3 rounded-lg whitespace-nowrap transition"
-      :class="activeTab === t.key ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50'">
-      {{ t.icon }} {{ t.label }}
+      class="flex-1 inline-flex items-center justify-center gap-1 text-xs py-2 px-3 whitespace-nowrap transition-colors"
+      :class="activeTab === t.key ? 'bg-white text-ink font-semibold rounded-lg shadow-sm' : 'text-ink-muted'">
+      <AppIcon :name="t.icon" :size="13" /> {{ t.label }}
     </button>
   </div>
 
-  <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
+  <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
 
   <!-- ═══ 탭 1: 포인트 설정 (카테고리 카드 그리드) ═══ -->
   <div v-else-if="activeTab === 'points'">
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-5">
-      <div v-for="cat in pointCategories" :key="cat" class="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div class="px-4 py-2.5 border-b font-bold text-sm flex items-center justify-between" :class="catStyles[cat].bg">
-          <span>{{ catStyles[cat].icon }} {{ catStyles[cat].label }}</span>
-          <span class="text-[10px] font-normal opacity-70">{{ (grouped[cat]||[]).length }}개</span>
+      <div v-for="cat in pointCategories" :key="cat" class="card overflow-hidden">
+        <div class="px-4 py-2.5 border-b border-gray-50 font-bold text-sm flex items-center justify-between" :class="catStyles[cat].bg">
+          <span class="flex items-center gap-1.5"><AppIcon :name="catStyles[cat].icon" :size="14" /> {{ catStyles[cat].label }}</span>
+          <span class="text-xs font-normal opacity-70">{{ (grouped[cat]||[]).length }}개</span>
         </div>
-        <div class="divide-y">
+        <div class="divide-y divide-gray-50">
           <div v-for="item in grouped[cat] || []" :key="item.key" class="px-4 py-2 flex items-center gap-3">
             <div class="flex-1 min-w-0">
-              <div class="text-xs font-semibold text-gray-800 truncate">{{ item.label }}</div>
-              <div class="text-[10px] text-gray-400 truncate">{{ item.key }}<span v-if="item.description"> · {{ item.description }}</span></div>
+              <div class="text-xs font-semibold text-ink truncate">{{ item.label }}</div>
+              <div class="text-[11px] text-ink-faint truncate">{{ item.key }}<span v-if="item.description"> · {{ item.description }}</span></div>
             </div>
-            <input v-model="item.value" class="border rounded px-2 py-1 text-xs w-32 text-right font-mono" />
+            <input v-model="item.value" class="input-soft !w-32 !px-2 !py-1 text-xs text-right font-mono" />
           </div>
         </div>
       </div>
     </div>
-    <button @click="savePointSettings" :disabled="savingPoints" class="bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">
-      {{ savingPoints ? '저장중...' : '💾 포인트 설정 저장' }}
+    <button @click="savePointSettings" :disabled="savingPoints" class="btn-primary">
+      {{ savingPoints ? '저장중...' : '포인트 설정 저장' }}
     </button>
     <span v-if="pointMsg" class="ml-3 text-xs" :class="pointMsgOk ? 'text-green-600' : 'text-red-500'">{{ pointMsg }}</span>
   </div>
 
   <!-- ═══ 탭 2: 포인트 패키지 ═══ -->
   <div v-else-if="activeTab === 'packages'">
-    <div class="bg-white rounded-xl shadow-sm border p-4 mb-4">
-      <div class="text-xs text-gray-500 mb-3">형식: <code class="bg-gray-100 px-1">가격($)|포인트|보너스</code> (예: <code class="bg-gray-100 px-1">4.99|500|0</code>)</div>
+    <div class="card p-4 mb-4">
+      <div class="text-xs text-ink-muted mb-3">형식: <code class="bg-gray-100 px-1 rounded">가격($)|포인트|보너스</code> (예: <code class="bg-gray-100 px-1 rounded">4.99|500|0</code>)</div>
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         <div v-for="pkg in grouped.package || []" :key="pkg.key" class="bg-amber-50 rounded-xl border border-amber-200 p-3">
           <div class="text-xs font-bold text-amber-800 mb-2">{{ pkg.label }}</div>
-          <input v-model="pkg.value" class="w-full border rounded px-2 py-1.5 text-xs font-mono text-center" />
-          <div class="text-[10px] text-gray-400 mt-1 truncate">{{ pkg.key }}</div>
+          <input v-model="pkg.value" class="input-soft !px-2 !py-1.5 text-xs font-mono text-center" />
+          <div class="text-[11px] text-ink-faint mt-1 truncate">{{ pkg.key }}</div>
           <div v-if="pkg.value && pkg.value.includes('|')" class="text-[11px] text-amber-700 mt-1 flex items-baseline gap-1 flex-wrap">
             <span class="font-bold">${{ (pkg.value.split('|')[0] || '0') }}</span>
             <span>→</span>
@@ -57,8 +60,8 @@
         </div>
       </div>
     </div>
-    <button @click="savePointSettings" :disabled="savingPoints" class="bg-amber-400 text-amber-900 font-bold px-5 py-2 rounded-lg text-sm hover:bg-amber-500 disabled:opacity-50">
-      {{ savingPoints ? '저장중...' : '💾 패키지 저장' }}
+    <button @click="savePointSettings" :disabled="savingPoints" class="btn-primary">
+      {{ savingPoints ? '저장중...' : '패키지 저장' }}
     </button>
     <span v-if="pointMsg" class="ml-3 text-xs" :class="pointMsgOk ? 'text-green-600' : 'text-red-500'">{{ pointMsg }}</span>
   </div>
@@ -66,92 +69,96 @@
   <!-- ═══ 탭 3: 광고 가격 ═══ -->
   <div v-else-if="activeTab === 'ads'" class="space-y-5">
     <!-- 등급별 최소 입찰가 -->
-    <div class="bg-white rounded-xl shadow-sm border p-4">
-      <div class="font-bold text-sm text-gray-800 mb-3">💰 등급별 최소 월 입찰가 (P)</div>
+    <div class="card p-4">
+      <div class="font-bold text-sm text-ink mb-3 flex items-center gap-2">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="14" /></span>등급별 최소 월 입찰가 (P)
+      </div>
       <div class="mb-3">
-        <div class="text-xs font-bold text-gray-600 mb-1">📌 좌측 사이드바</div>
+        <div class="text-xs font-bold text-ink-light mb-1 flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> 좌측 사이드바</div>
         <div class="grid grid-cols-3 gap-2">
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-yellow-700 block mb-1">🥇 프리미엄</label>
-            <input type="number" v-model.number="minPrices.left_premium" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-yellow-700 block mb-1">🥇 프리미엄</label>
+            <input type="number" v-model.number="minPrices.left_premium" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-blue-700 block mb-1">🥈 스탠다드</label>
-            <input type="number" v-model.number="minPrices.left_standard" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-blue-700 block mb-1">🥈 스탠다드</label>
+            <input type="number" v-model.number="minPrices.left_standard" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
-          <div class="bg-green-50 border border-green-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-green-700 block mb-1">🥉 이코노미</label>
-            <input type="number" v-model.number="minPrices.left_economy" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-green-50 border border-green-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-green-700 block mb-1">🥉 이코노미</label>
+            <input type="number" v-model.number="minPrices.left_economy" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
         </div>
       </div>
       <div class="mb-3">
-        <div class="text-xs font-bold text-gray-600 mb-1">📌 우측 사이드바</div>
+        <div class="text-xs font-bold text-ink-light mb-1 flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> 우측 사이드바</div>
         <div class="grid grid-cols-2 gap-2">
-          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-yellow-700 block mb-1">🥇 프리미엄</label>
-            <input type="number" v-model.number="minPrices.right_premium" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-yellow-700 block mb-1">🥇 프리미엄</label>
+            <input type="number" v-model.number="minPrices.right_premium" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
-          <div class="bg-green-50 border border-green-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-green-700 block mb-1">🥉 이코노미</label>
-            <input type="number" v-model.number="minPrices.right_economy" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-green-50 border border-green-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-green-700 block mb-1">🥉 이코노미</label>
+            <input type="number" v-model.number="minPrices.right_economy" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
         </div>
       </div>
       <div>
-        <div class="text-xs font-bold text-gray-600 mb-1">🌍 지역별 추가금</div>
+        <div class="text-xs font-bold text-ink-light mb-1 flex items-center gap-1"><AppIcon name="globe" :size="12" /> 지역별 추가금</div>
         <div class="grid grid-cols-2 gap-2">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-blue-700 block mb-1">주 (카운티 대비 +)</label>
-            <input type="number" v-model.number="geoMarkup.state" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-blue-700 block mb-1">주 (카운티 대비 +)</label>
+            <input type="number" v-model.number="geoMarkup.state" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-2">
-            <label class="text-[10px] font-bold text-amber-700 block mb-1">전국 (주 대비 +)</label>
-            <input type="number" v-model.number="geoMarkup.national" class="w-full border rounded px-1 py-1 text-xs text-center" />
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-2">
+            <label class="text-xs font-bold text-amber-700 block mb-1">전국 (주 대비 +)</label>
+            <input type="number" v-model.number="geoMarkup.national" class="input-soft !px-1 !py-1 text-xs text-center" />
           </div>
         </div>
       </div>
-      <button @click="saveAdPrices" :disabled="savingAds" class="mt-3 bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded text-xs hover:bg-amber-500 disabled:opacity-50">
-        {{ savingAds ? '저장중...' : '💾 가격 저장' }}
+      <button @click="saveAdPrices" :disabled="savingAds" class="btn-primary !px-4 !py-1.5 text-xs mt-3">
+        {{ savingAds ? '저장중...' : '가격 저장' }}
       </button>
       <span v-if="adPriceMsg" class="ml-3 text-xs text-green-600">{{ adPriceMsg }}</span>
     </div>
 
     <!-- 페이지별 슬롯 수 -->
-    <div class="bg-white rounded-xl shadow-sm border p-4">
-      <div class="font-bold text-sm text-gray-800 mb-1">📄 페이지별 광고 슬롯 수</div>
-      <p class="text-xs text-gray-500 mb-3">관리자 메뉴에서 활성화된 페이지가 자동으로 나열됩니다. 좌/우 둘 다 0 이면 해당 페이지 광고 자체가 꺼집니다.</p>
+    <div class="card p-4">
+      <div class="font-bold text-sm text-ink mb-1 flex items-center gap-2">
+        <span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="list" :size="14" /></span>페이지별 광고 슬롯 수
+      </div>
+      <p class="text-xs text-ink-muted mb-3">관리자 메뉴에서 활성화된 페이지가 자동으로 나열됩니다. 좌/우 둘 다 0 이면 해당 페이지 광고 자체가 꺼집니다.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div v-for="menu in adEligibleMenus" :key="menu.key" class="bg-gray-50 rounded-lg border p-3 flex items-center gap-3"
+        <div v-for="menu in adEligibleMenus" :key="menu.key" class="bg-gray-50 rounded-xl border border-gray-100 p-3 flex items-center gap-3"
           :class="isPageOff(menu.key) ? 'opacity-60 border-dashed' : ''">
           <div class="w-20 flex-shrink-0">
-            <div class="text-xs font-bold text-gray-800 flex items-center gap-1">
+            <div class="text-xs font-bold text-ink flex items-center gap-1">
               <span>{{ menu.icon }}</span>{{ menu.label }}
-              <span v-if="isPageOff(menu.key)" class="text-[9px] text-gray-400 font-normal">(꺼짐)</span>
+              <span v-if="isPageOff(menu.key)" class="text-[11px] text-ink-faint font-normal">(꺼짐)</span>
             </div>
-            <div class="text-[10px] text-gray-400">{{ menu.path }}</div>
+            <div class="text-[11px] text-ink-faint">{{ menu.path }}</div>
           </div>
           <div class="flex-1 grid grid-cols-2 gap-2">
             <div>
-              <label class="text-[10px] font-bold text-blue-600 block mb-0.5">좌</label>
+              <label class="text-xs font-bold text-blue-600 block mb-0.5">좌</label>
               <div class="flex items-center gap-1">
-                <input type="range" :value="slotOf(menu.key).left_slots" @input="setSlot(menu, 'left_slots', $event.target.value)" min="0" max="5" class="flex-1" />
+                <input type="range" :value="slotOf(menu.key).left_slots" @input="setSlot(menu, 'left_slots', $event.target.value)" min="0" max="5" class="flex-1 accent-amber-400" />
                 <span class="text-xs font-bold text-blue-700 w-4 text-center">{{ slotOf(menu.key).left_slots }}</span>
               </div>
             </div>
             <div>
-              <label class="text-[10px] font-bold text-orange-600 block mb-0.5">우</label>
+              <label class="text-xs font-bold text-orange-600 block mb-0.5">우</label>
               <div class="flex items-center gap-1">
-                <input type="range" :value="slotOf(menu.key).right_slots" @input="setSlot(menu, 'right_slots', $event.target.value)" min="0" max="5" class="flex-1" />
+                <input type="range" :value="slotOf(menu.key).right_slots" @input="setSlot(menu, 'right_slots', $event.target.value)" min="0" max="5" class="flex-1 accent-amber-400" />
                 <span class="text-xs font-bold text-orange-700 w-4 text-center">{{ slotOf(menu.key).right_slots }}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div v-if="!adEligibleMenus.length" class="text-center py-6 text-sm text-gray-400">활성화된 메뉴가 없습니다</div>
-      <button @click="savePageConfig" :disabled="savingPageConfig" class="mt-3 bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded text-xs hover:bg-amber-500 disabled:opacity-50">
-        {{ savingPageConfig ? '저장중...' : '💾 슬롯 수 저장' }}
+      <div v-if="!adEligibleMenus.length" class="text-center py-6 text-sm text-ink-muted">활성화된 메뉴가 없습니다</div>
+      <button @click="savePageConfig" :disabled="savingPageConfig" class="btn-primary !px-4 !py-1.5 text-xs mt-3">
+        {{ savingPageConfig ? '저장중...' : '슬롯 수 저장' }}
       </button>
       <span v-if="pageConfigMsg" class="ml-3 text-xs text-green-600">{{ pageConfigMsg }}</span>
     </div>
@@ -159,44 +166,44 @@
 
   <!-- ═══ 탭 4: 할인 이벤트 ═══ -->
   <div v-else-if="activeTab === 'promotions'">
-    <div class="bg-white rounded-xl shadow-sm border overflow-hidden mb-4">
-      <div class="px-4 py-3 border-b flex items-center justify-between">
+    <div class="card overflow-hidden mb-4">
+      <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
         <div>
-          <div class="font-bold text-sm text-gray-800">🎯 할인 이벤트</div>
-          <div class="text-[11px] text-gray-500 mt-0.5">기간 + 할인% 설정 — 광고/패키지 가격이 자동 할인됨</div>
+          <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="tag" :size="15" /> 할인 이벤트</div>
+          <div class="text-[11px] text-ink-muted mt-0.5">기간 + 할인% 설정 — 광고/패키지 가격이 자동 할인됨</div>
         </div>
-        <button @click="openPromoForm()" class="bg-amber-400 text-amber-900 font-bold px-3 py-1 rounded text-xs">+ 새 이벤트</button>
+        <button @click="openPromoForm()" class="btn-primary !px-3 !py-1 text-xs"><AppIcon name="plus" :size="13" /> 새 이벤트</button>
       </div>
 
       <!-- 폼 -->
-      <div v-if="showPromoForm" class="px-4 py-4 border-b bg-amber-50 space-y-3">
+      <div v-if="showPromoForm" class="px-4 py-4 border-b border-gray-50 bg-amber-50 space-y-3">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
-            <label class="text-[11px] font-bold text-gray-600 block mb-0.5">이벤트 제목 <span class="text-red-500">*</span></label>
-            <input v-model="promoForm.title" placeholder="예: 신년 40% 할인" class="w-full border rounded px-2 py-1 text-sm" />
+            <label class="input-label">이벤트 제목 <span class="text-red-500">*</span></label>
+            <input v-model="promoForm.title" placeholder="예: 신년 40% 할인" class="input-soft !px-3 !py-1.5 text-sm" />
           </div>
           <div>
-            <label class="text-[11px] font-bold text-gray-600 block mb-0.5">할인 % (0~100)</label>
-            <input v-model.number="promoForm.discount_pct" type="number" min="0" max="100" class="w-full border rounded px-2 py-1 text-sm" />
+            <label class="input-label">할인 % (0~100)</label>
+            <input v-model.number="promoForm.discount_pct" type="number" min="0" max="100" class="input-soft !px-3 !py-1.5 text-sm" />
           </div>
           <div>
-            <label class="text-[11px] font-bold text-gray-600 block mb-0.5">시작 일시</label>
-            <input v-model="promoForm.starts_at" type="datetime-local" class="w-full border rounded px-2 py-1 text-sm" />
+            <label class="input-label">시작 일시</label>
+            <input v-model="promoForm.starts_at" type="datetime-local" class="input-soft !px-3 !py-1.5 text-sm" />
           </div>
           <div>
-            <label class="text-[11px] font-bold text-gray-600 block mb-0.5">종료 일시</label>
-            <input v-model="promoForm.ends_at" type="datetime-local" class="w-full border rounded px-2 py-1 text-sm" />
+            <label class="input-label">종료 일시</label>
+            <input v-model="promoForm.ends_at" type="datetime-local" class="input-soft !px-3 !py-1.5 text-sm" />
           </div>
         </div>
-        <div class="flex items-center gap-4 text-sm">
-          <span class="text-[11px] font-bold text-gray-600">적용 대상:</span>
+        <div class="flex items-center gap-4 text-sm text-ink-light">
+          <span class="text-[11px] font-bold text-ink-light">적용 대상:</span>
           <label class="flex items-center gap-1.5">
             <input v-model="promoForm.applies_to_ads" type="checkbox" class="accent-amber-500 w-4 h-4" />
-            📢 광고
+            <AppIcon name="megaphone" :size="14" /> 광고
           </label>
           <label class="flex items-center gap-1.5">
             <input v-model="promoForm.applies_to_packages" type="checkbox" class="accent-amber-500 w-4 h-4" />
-            💳 포인트 패키지
+            <AppIcon name="wallet" :size="14" /> 포인트 패키지
           </label>
           <label class="flex items-center gap-1.5 ml-4">
             <input v-model="promoForm.is_active" type="checkbox" class="accent-amber-500 w-4 h-4" />
@@ -204,30 +211,33 @@
           </label>
         </div>
         <div class="flex gap-2">
-          <button @click="savePromo" :disabled="savingPromo" class="bg-amber-500 text-white font-bold px-4 py-1.5 rounded text-xs disabled:opacity-50">
+          <button @click="savePromo" :disabled="savingPromo" class="btn-primary !px-4 !py-1.5 text-xs">
             {{ savingPromo ? '저장중...' : (editPromoId ? '수정' : '등록') }}
           </button>
-          <button @click="resetPromoForm" class="text-gray-500 text-xs px-3">취소</button>
+          <button @click="resetPromoForm" class="btn-ghost !px-3 !py-1.5 text-xs">취소</button>
         </div>
       </div>
 
       <!-- 목록 -->
-      <div v-for="p in promotions" :key="p.id" class="px-4 py-3 border-b flex items-center gap-3">
+      <div v-for="p in promotions" :key="p.id" class="px-4 py-3 border-b border-gray-50 flex items-center gap-3 hover:bg-amber-50/40 transition-colors">
         <div class="text-2xl font-black text-red-500 w-14 text-center">-{{ p.discount_pct }}%</div>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-bold text-gray-800 truncate">{{ p.title }}</div>
-          <div class="text-[11px] text-gray-500">
+          <div class="text-sm font-bold text-ink truncate">{{ p.title }}</div>
+          <div class="text-[11px] text-ink-muted">
             {{ fmtDate(p.starts_at) }} ~ {{ fmtDate(p.ends_at) }}
-            · {{ p.applies_to_ads ? '📢광고' : '' }}{{ p.applies_to_ads && p.applies_to_packages ? ' + ' : '' }}{{ p.applies_to_packages ? '💳패키지' : '' }}
+            · {{ p.applies_to_ads ? '광고' : '' }}{{ p.applies_to_ads && p.applies_to_packages ? ' + ' : '' }}{{ p.applies_to_packages ? '패키지' : '' }}
           </div>
         </div>
-        <span v-if="isActiveNow(p)" class="text-[10px] bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded-full">진행중</span>
-        <span v-else-if="!p.is_active" class="text-[10px] bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">비활성</span>
-        <span v-else class="text-[10px] bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">대기/종료</span>
-        <button @click="editPromo(p)" class="text-xs text-amber-600">수정</button>
-        <button @click="deletePromo(p)" class="text-xs text-red-400">삭제</button>
+        <span v-if="isActiveNow(p)" class="badge-green">진행중</span>
+        <span v-else-if="!p.is_active" class="badge-gray">비활성</span>
+        <span v-else class="badge-gray">대기/종료</span>
+        <button @click="editPromo(p)" class="text-xs text-amber-600 hover:text-amber-700 transition-colors">수정</button>
+        <button @click="deletePromo(p)" class="text-xs text-red-400 hover:text-red-600 transition-colors">삭제</button>
       </div>
-      <div v-if="!promotions.length" class="px-4 py-8 text-center text-sm text-gray-400">등록된 이벤트가 없습니다</div>
+      <div v-if="!promotions.length" class="py-16 text-center">
+        <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="tag" :size="28" :stroke-width="1.5" /></div>
+        <p class="text-sm text-ink-muted">등록된 이벤트가 없습니다</p>
+      </div>
     </div>
   </div>
 </div>
@@ -237,6 +247,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useSiteStore } from '../../stores/site'
+import AppIcon from '../../components/AppIcon.vue'
 
 const siteStore = useSiteStore()
 
@@ -244,10 +255,10 @@ const siteStore = useSiteStore()
 const loading = ref(true)
 const activeTab = ref('points')
 const tabs = [
-  { key: 'points',     icon: '💰', label: '포인트 설정' },
-  { key: 'packages',   icon: '💳', label: '포인트 패키지' },
-  { key: 'ads',        icon: '📢', label: '광고 가격' },
-  { key: 'promotions', icon: '🎯', label: '할인 이벤트' },
+  { key: 'points',     icon: 'coins',     label: '포인트 설정' },
+  { key: 'packages',   icon: 'wallet',    label: '포인트 패키지' },
+  { key: 'ads',        icon: 'megaphone', label: '광고 가격' },
+  { key: 'promotions', icon: 'tag',       label: '할인 이벤트' },
 ]
 
 // ─── 포인트 설정 ────────────────────────────────────────────
@@ -257,12 +268,12 @@ const pointMsg = ref('')
 const pointMsgOk = ref(false)
 const pointCategories = ['earn','spend','image','spam','auction']
 const catStyles = {
-  earn:    { icon: '🎁', label: '포인트 적립',       bg: 'bg-green-50 text-green-800' },
-  spend:   { icon: '💸', label: '포인트 사용(차감)',  bg: 'bg-red-50 text-red-800' },
-  image:   { icon: '🖼️', label: '이미지 업로드',      bg: 'bg-blue-50 text-blue-800' },
-  spam:    { icon: '🛡️', label: '스팸 방지',          bg: 'bg-orange-50 text-orange-800' },
-  auction: { icon: '🏪', label: '업소록 옥션',        bg: 'bg-purple-50 text-purple-800' },
-  package: { icon: '💳', label: '구매 패키지',        bg: 'bg-amber-50 text-amber-800' },
+  earn:    { icon: 'gift',   label: '포인트 적립',       bg: 'bg-green-50 text-green-800' },
+  spend:   { icon: 'coins',  label: '포인트 사용(차감)',  bg: 'bg-red-50 text-red-800' },
+  image:   { icon: 'image',  label: '이미지 업로드',      bg: 'bg-blue-50 text-blue-800' },
+  spam:    { icon: 'shield', label: '스팸 방지',          bg: 'bg-orange-50 text-orange-800' },
+  auction: { icon: 'store',  label: '업소록 옥션',        bg: 'bg-purple-50 text-purple-800' },
+  package: { icon: 'wallet', label: '구매 패키지',        bg: 'bg-amber-50 text-amber-800' },
 }
 
 async function loadPoints() {

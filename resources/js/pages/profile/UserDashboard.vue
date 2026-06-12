@@ -1,135 +1,138 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-6xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">📋 내 대시보드</h1>
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="user" :size="20" /></span>
+      내 대시보드
+    </h1>
 
     <!-- 포인트 카드 -->
-    <div class="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 rounded-2xl p-5 mb-5 text-amber-900">
-      <div class="text-sm opacity-80">내 포인트</div>
+    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 mb-5 text-white shadow-card">
+      <div class="text-sm opacity-90">내 포인트</div>
       <div class="text-3xl font-black">{{ (auth.user?.points || 0).toLocaleString() }}P</div>
     </div>
 
     <!-- 탭 -->
-    <div class="flex gap-1 mb-4 bg-white rounded-xl p-1 shadow-sm border overflow-x-auto scrollbar-hide">
+    <div class="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1 overflow-x-auto scrollbar-hide">
       <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
-        class="flex-shrink-0 text-xs font-bold py-2 px-3 rounded-lg transition whitespace-nowrap"
-        :class="tab===t.key ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50'">{{ t.icon }} {{ t.label }}</button>
+        class="flex-shrink-0 flex items-center gap-1.5 text-xs py-2 px-3 rounded-lg transition whitespace-nowrap"
+        :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
     </div>
 
     <!-- ═══ 프로필 탭 ═══ -->
     <div v-if="tab==='profile'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">📝 프로필 수정</h2>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="15" /></span>프로필 수정</h2>
         <!-- 아바타 -->
         <div class="flex items-center gap-4 mb-5">
           <div class="w-16 h-16 rounded-full bg-amber-400 text-white flex items-center justify-center text-2xl font-bold overflow-hidden relative">
             <img v-if="auth.user?.avatar" :src="auth.user.avatar" alt="avatar" class="absolute inset-0 w-full h-full object-cover" @error="(e)=>{ e.target.style.display='none' }" />
             <span v-else>{{ (auth.user?.name||'?')[0] }}</span>
           </div>
-          <label class="cursor-pointer text-sm text-amber-600 font-bold hover:text-amber-800">
-            📷 사진 변경<input type="file" accept="image/*" @change="uploadAvatar" class="hidden" />
+          <label class="cursor-pointer text-sm text-amber-600 font-bold hover:text-amber-700 inline-flex items-center gap-1 transition-colors">
+            <AppIcon name="camera" :size="15" /> 사진 변경<input type="file" accept="image/*" @change="uploadAvatar" class="hidden" />
           </label>
           <span v-if="avatarMsg" class="text-xs text-green-600">{{ avatarMsg }}</span>
         </div>
         <!-- 이메일 (읽기 전용) -->
         <div class="mb-3">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">이메일</label>
-          <input :value="auth.user?.email" disabled class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500 cursor-not-allowed" />
+          <label class="input-label">이메일</label>
+          <input :value="auth.user?.email" disabled class="input-soft !bg-gray-50 text-ink-muted cursor-not-allowed" />
         </div>
         <!-- 이름/닉네임 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">이름</label><input v-model="pf.name" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">닉네임</label><input v-model="pf.nickname" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+          <div><label class="input-label">이름</label><input v-model="pf.name" class="input-soft" /></div>
+          <div><label class="input-label">닉네임</label><input v-model="pf.nickname" class="input-soft" /></div>
         </div>
-        <div class="mb-3"><label class="text-xs font-bold text-gray-600 mb-1 block">소개</label><textarea v-model="pf.bio" rows="3" placeholder="자기소개를 적어주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea></div>
+        <div class="mb-3"><label class="input-label">소개</label><textarea v-model="pf.bio" rows="3" placeholder="자기소개를 적어주세요" class="input-soft"></textarea></div>
         <!-- 전화번호 (필수) -->
         <div class="mb-3">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">전화번호 <span class="text-red-500">*필수</span></label>
-          <input :value="pf.phone" @input="onPhoneInput" placeholder="000-000-0000" maxlength="12" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          <label class="input-label">전화번호 <span class="text-red-500">*필수</span></label>
+          <input :value="pf.phone" @input="onPhoneInput" placeholder="000-000-0000" maxlength="12" class="input-soft" />
         </div>
         <!-- 주소 -->
         <div class="mb-3">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">주소 1</label>
-          <input v-model="pf.address1" placeholder="주소 1 (예: 123 Main St)" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          <label class="input-label">주소 1</label>
+          <input v-model="pf.address1" placeholder="주소 1 (예: 123 Main St)" class="input-soft" />
         </div>
         <div class="mb-3">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">주소 2</label>
-          <input v-model="pf.address2" placeholder="주소 2 (예: Apt 4B)" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          <label class="input-label">주소 2</label>
+          <input v-model="pf.address2" placeholder="주소 2 (예: Apt 4B)" class="input-soft" />
         </div>
         <div class="grid grid-cols-3 gap-3 mb-3">
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">도시</label><input v-model="pf.city" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">주</label><input v-model="pf.state" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-          <div><label class="text-xs font-bold text-gray-600 mb-1 block">우편번호</label><input v-model="pf.zipcode" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+          <div><label class="input-label">도시</label><input v-model="pf.city" class="input-soft" /></div>
+          <div><label class="input-label">주</label><input v-model="pf.state" class="input-soft" /></div>
+          <div><label class="input-label">우편번호</label><input v-model="pf.zipcode" class="input-soft" /></div>
         </div>
 
         <!-- 기본 검색 반경 -->
         <div class="mb-3">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">📍 기본 검색 반경</label>
-          <select v-model="pf.default_radius" class="w-full border rounded-lg px-3 py-2 text-sm">
+          <label class="input-label flex items-center gap-1"><AppIcon name="map-pin" :size="13" /> 기본 검색 반경</label>
+          <select v-model="pf.default_radius" class="input-soft">
             <option :value="10">10마일 이내</option>
             <option :value="30">30마일 이내</option>
             <option :value="50">50마일 이내</option>
             <option :value="100">100마일 이내</option>
           </select>
-          <p class="text-[10px] text-gray-400 mt-1">구인구직, 중고장터, 부동산 등 위치 기반 게시판의 기본 검색 범위</p>
+          <p class="text-xs text-ink-faint mt-1">구인구직, 중고장터, 부동산 등 위치 기반 게시판의 기본 검색 범위</p>
         </div>
 
         <!-- 프라이버시 설정 -->
-        <div class="border-t pt-4 mt-4">
-          <h3 class="font-bold text-gray-700 text-sm mb-3">🔐 프라이버시 설정</h3>
+        <div class="border-t border-gray-100 pt-4 mt-4">
+          <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="lock" :size="14" class="text-amber-600" />프라이버시 설정</h3>
           <div class="space-y-3">
             <div>
-              <label class="text-xs font-bold text-gray-600 mb-1 block">친구 요청</label>
+              <label class="input-label">친구 요청</label>
               <div class="flex gap-4">
                 <label class="text-sm"><input type="radio" v-model="pf.allow_friend_request" :value="true" /> 허용</label>
                 <label class="text-sm"><input type="radio" v-model="pf.allow_friend_request" :value="false" /> 거절</label>
               </div>
             </div>
             <div>
-              <label class="text-xs font-bold text-gray-600 mb-1 block">쪽지 수신</label>
+              <label class="input-label">쪽지 수신</label>
               <div class="flex gap-4">
                 <label class="text-sm"><input type="radio" v-model="pf.allow_messages" :value="true" :disabled="!pf.allow_friend_request" /> 허용</label>
                 <label class="text-sm"><input type="radio" v-model="pf.allow_messages" :value="false" /> 거절</label>
               </div>
-              <p v-if="!pf.allow_friend_request" class="text-[10px] text-red-400 mt-1">친구 요청을 거절하면 쪽지도 자동으로 차단됩니다.</p>
+              <p v-if="!pf.allow_friend_request" class="text-xs text-red-400 mt-1">친구 요청을 거절하면 쪽지도 자동으로 차단됩니다.</p>
             </div>
             <div>
-              <label class="text-xs font-bold text-gray-600 mb-1 block">안심서비스 이용</label>
+              <label class="input-label">안심서비스 이용</label>
               <div class="flex gap-4">
                 <label class="text-sm"><input type="radio" v-model="pf.allow_elder_service" :value="true" /> 허용</label>
                 <label class="text-sm"><input type="radio" v-model="pf.allow_elder_service" :value="false" /> 거절</label>
               </div>
-              <p class="text-[10px] text-gray-400 mt-1">허용 시 보호자가 안심 서비스를 등록할 수 있습니다.</p>
+              <p class="text-xs text-ink-faint mt-1">허용 시 보호자가 안심 서비스를 등록할 수 있습니다.</p>
             </div>
           </div>
         </div>
 
         <div class="mb-4 mt-4">
-          <label class="text-xs font-bold text-gray-600 mb-1 block">언어</label>
-          <select v-model="pf.language" class="border rounded-lg px-3 py-2 text-sm"><option value="ko">한국어</option><option value="en">English</option></select>
+          <label class="input-label">언어</label>
+          <select v-model="pf.language" class="input-soft w-auto"><option value="ko">한국어</option><option value="en">English</option></select>
         </div>
         <div v-if="pfMsg" class="text-sm mb-2" :class="pfMsgType==='success'?'text-green-600':'text-red-500'">{{ pfMsg }}</div>
-        <button @click="saveProfile" :disabled="pfSaving" class="bg-amber-400 text-amber-900 font-bold px-6 py-2 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ pfSaving ? '저장중...' : '저장하기' }}</button>
+        <button @click="saveProfile" :disabled="pfSaving" class="btn-primary px-6">{{ pfSaving ? '저장중...' : '저장하기' }}</button>
       </div>
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">🔒 비밀번호 변경</h2>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="lock" :size="15" /></span>비밀번호 변경</h2>
         <div class="space-y-3 max-w-sm">
-          <input v-model="pw.current_password" type="password" placeholder="현재 비밀번호" class="w-full border rounded-lg px-3 py-2 text-sm" />
-          <input v-model="pw.password" type="password" placeholder="새 비밀번호" class="w-full border rounded-lg px-3 py-2 text-sm" />
-          <input v-model="pw.password_confirmation" type="password" placeholder="새 비밀번호 확인" class="w-full border rounded-lg px-3 py-2 text-sm" />
+          <input v-model="pw.current_password" type="password" placeholder="현재 비밀번호" class="input-soft" />
+          <input v-model="pw.password" type="password" placeholder="새 비밀번호" class="input-soft" />
+          <input v-model="pw.password_confirmation" type="password" placeholder="새 비밀번호 확인" class="input-soft" />
         </div>
         <div v-if="pwMsg" class="text-sm mt-2" :class="pwMsgType==='success'?'text-green-600':'text-red-500'">{{ pwMsg }}</div>
-        <button @click="changePw" :disabled="pwSaving" class="mt-3 bg-gray-700 text-white font-bold px-6 py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50">{{ pwSaving ? '변경중...' : '변경하기' }}</button>
+        <button @click="changePw" :disabled="pwSaving" class="mt-3 btn-primary px-6">{{ pwSaving ? '변경중...' : '변경하기' }}</button>
       </div>
     </div>
 
     <!-- ═══ 포인트 탭 ═══ -->
     <div v-else-if="tab==='points'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
+      <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-gray-800">💰 포인트</h2>
-          <button @click="startRoulette" :disabled="spun || spinning" class="font-bold px-4 py-2 rounded-lg text-sm transition"
-            :class="spun ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-amber-400 text-amber-900 hover:bg-amber-500'">
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="15" /></span>포인트</h2>
+          <button @click="startRoulette" :disabled="spun || spinning" class="font-bold px-4 py-2 rounded-xl text-sm transition"
+            :class="spun ? 'bg-gray-100 text-ink-faint cursor-not-allowed' : 'bg-amber-400 text-white shadow-btn hover:bg-amber-500'">
             {{ spun ? '✅ 오늘 완료' : spinning ? '🎰 돌리는 중...' : '🎰 출석 체크' }}
           </button>
         </div>
@@ -145,7 +148,7 @@
               <div v-for="(seg, i) in rouletteSegments" :key="i"
                 class="absolute w-full h-full flex items-start justify-center"
                 :style="{ transform: `rotate(${i * (360/rouletteSegments.length) + (180/rouletteSegments.length)}deg)` }">
-                <span class="text-[10px] font-black mt-2" :class="seg.color">{{ seg.points }}P</span>
+                <span class="text-[11px] font-black mt-2" :class="seg.color">{{ seg.points }}P</span>
               </div>
               <!-- 중심 원 -->
               <div class="absolute inset-0 flex items-center justify-center">
@@ -166,10 +169,10 @@
         </div>
         <div class="text-3xl font-black text-amber-600 mb-4">{{ (auth.user?.points || ptBalance).toLocaleString() }}P</div>
         <!-- 포인트 구매 -->
-        <div class="border-t pt-4 mt-4 mb-4">
+        <div class="border-t border-gray-100 pt-4 mt-4 mb-4">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="font-bold text-gray-700 text-sm">🛒 포인트 구매</h3>
-            <span v-if="packagePromotion" class="text-[10px] bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">
+            <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm"><AppIcon name="shopping-cart" :size="14" class="text-amber-600" />포인트 구매</h3>
+            <span v-if="packagePromotion" class="badge-red">
               🎉 {{ packagePromotion.title }} -{{ packagePromotion.discount_pct }}%
             </span>
           </div>
@@ -177,27 +180,27 @@
             <button v-for="pkg in packages" :key="pkg.key" @click="buyPackage(pkg)"
               class="border-2 rounded-xl p-3 text-center hover:border-amber-400 hover:bg-amber-50 transition relative"
               :class="selectedPkg===pkg.key ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
-              <span v-if="pkg.discount_pct > 0" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">-{{ pkg.discount_pct }}%</span>
+              <span v-if="pkg.discount_pct > 0" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full shadow">-{{ pkg.discount_pct }}%</span>
               <div class="text-lg font-black text-amber-600">{{ (pkg.points + pkg.bonus).toLocaleString() }}P</div>
-              <div v-if="pkg.bonus" class="text-[10px] text-green-600 font-bold">+{{ pkg.bonus.toLocaleString() }}P 보너스</div>
+              <div v-if="pkg.bonus" class="text-xs text-emerald-600 font-bold">+{{ pkg.bonus.toLocaleString() }}P 보너스</div>
               <div class="mt-1">
-                <span v-if="pkg.discount_pct > 0" class="text-[10px] text-gray-400 line-through block leading-none">${{ pkg.original_price }}</span>
-                <span class="text-sm font-bold text-gray-800">${{ pkg.price }}</span>
+                <span v-if="pkg.discount_pct > 0" class="text-xs text-ink-faint line-through block leading-none">${{ pkg.original_price }}</span>
+                <span class="text-sm font-bold text-ink">${{ pkg.price }}</span>
               </div>
-              <div class="text-[9px] text-gray-400 mt-0.5">{{ pkg.name }}</div>
+              <div class="text-[11px] text-ink-faint mt-0.5">{{ pkg.name }}</div>
             </button>
           </div>
         </div>
-        <h3 class="font-bold text-gray-700 text-sm mb-2">📋 적립/사용 내역</h3>
-        <div v-if="!ptHistory.length" class="text-sm text-gray-400 py-4 text-center">내역이 없습니다</div>
-        <div v-else class="max-h-80 overflow-y-auto pr-2">
-          <div v-for="h in ptHistory" :key="h.id" class="flex items-center justify-between py-1.5 border-b last:border-0">
+        <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-amber-600" />적립/사용 내역</h3>
+        <div v-if="!ptHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
+        <div v-else class="max-h-80 overflow-y-auto pr-2 divide-y divide-gray-50">
+          <div v-for="h in ptHistory" :key="h.id" class="flex items-center justify-between py-1.5">
             <!-- 데스크톱: 한줄 / 모바일: 두줄 -->
             <div class="flex items-center gap-2 min-w-0 flex-1 sm:flex-row flex-col sm:items-center items-start">
-              <span class="text-xs text-gray-800 truncate">{{ h.reason }}</span>
-              <span class="text-[10px] text-gray-400 flex-shrink-0">{{ fmtDate(h.created_at) }}</span>
+              <span class="text-xs text-ink truncate">{{ h.reason }}</span>
+              <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(h.created_at) }}</span>
             </div>
-            <span :class="h.amount>0?'text-green-600':'text-red-500'" class="text-xs font-bold flex-shrink-0 ml-3">{{ h.amount>0?'+':'' }}{{ h.amount }}P</span>
+            <span :class="h.amount>0?'text-emerald-600':'text-red-500'" class="text-xs font-bold flex-shrink-0 ml-3">{{ h.amount>0?'+':'' }}{{ h.amount }}P</span>
           </div>
         </div>
       </div>
@@ -205,56 +208,56 @@
 
     <!-- ═══ 쪽지 탭 ═══ -->
     <div v-else-if="tab==='messages'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
+      <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-gray-800">✉️ 쪽지함</h2>
-          <span v-if="msgUnread" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ msgUnread }}</span>
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="mail" :size="15" /></span>쪽지함</h2>
+          <span v-if="msgUnread" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ msgUnread }}</span>
         </div>
-        <div class="flex gap-1 mb-3 bg-gray-50 rounded-lg p-1">
-          <button @click="msgTab='received'; loadMessages()" class="flex-1 text-xs font-bold py-1.5 rounded-lg" :class="msgTab==='received'?'bg-amber-400 text-amber-900':'text-gray-500'">📥 받은 쪽지</button>
-          <button @click="msgTab='sent'; loadMessages()" class="flex-1 text-xs font-bold py-1.5 rounded-lg" :class="msgTab==='sent'?'bg-blue-500 text-white':'text-gray-500'">📤 보낸 쪽지</button>
+        <div class="flex gap-1 mb-3 bg-gray-100 rounded-xl p-1">
+          <button @click="msgTab='received'; loadMessages()" class="flex-1 flex items-center justify-center gap-1 text-xs py-1.5 rounded-lg transition" :class="msgTab==='received'?'bg-white text-ink font-semibold shadow-sm':'text-ink-muted'"><AppIcon name="download" :size="12" /> 받은 쪽지</button>
+          <button @click="msgTab='sent'; loadMessages()" class="flex-1 flex items-center justify-center gap-1 text-xs py-1.5 rounded-lg transition" :class="msgTab==='sent'?'bg-white text-ink font-semibold shadow-sm':'text-ink-muted'"><AppIcon name="send" :size="12" /> 보낸 쪽지</button>
         </div>
-        <div v-if="!msgList.length" class="text-sm text-gray-400 py-6 text-center">{{ msgTab==='received'?'받은 쪽지가 없습니다':'보낸 쪽지가 없습니다' }}</div>
-        <div v-else class="space-y-0 max-h-96 overflow-y-auto">
-          <div v-for="m in msgList" :key="m.id" @click="openMsg(m)" class="flex items-center gap-2 px-3 py-2.5 border-b last:border-0 cursor-pointer hover:bg-amber-50/50" :class="msgTab==='received'&&!m.is_read?'bg-amber-50':''">
+        <div v-if="!msgList.length" class="text-sm text-ink-faint py-6 text-center">{{ msgTab==='received'?'받은 쪽지가 없습니다':'보낸 쪽지가 없습니다' }}</div>
+        <div v-else class="space-y-0 max-h-96 overflow-y-auto divide-y divide-gray-50">
+          <div v-for="m in msgList" :key="m.id" @click="openMsg(m)" class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-amber-50/50 transition-colors" :class="msgTab==='received'&&!m.is_read?'bg-amber-50':''">
             <span v-if="msgTab==='received'&&!m.is_read" class="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></span>
             <div class="w-7 h-7 bg-amber-100 rounded-full flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0">{{ ((msgTab==='received'?m.sender?.name:m.receiver?.name)||'?')[0] }}</div>
             <div class="min-w-0 flex-1">
-              <div class="text-xs font-bold text-gray-800 truncate">{{ msgTab==='received'?m.sender?.name:m.receiver?.name }}</div>
-              <div class="text-[11px] text-gray-500 truncate">{{ m.content }}</div>
+              <div class="text-xs font-bold text-ink truncate">{{ msgTab==='received'?m.sender?.name:m.receiver?.name }}</div>
+              <div class="text-[11px] text-ink-muted truncate">{{ m.content }}</div>
             </div>
-            <span class="text-[10px] text-gray-400 flex-shrink-0">{{ fmtDate(m.created_at) }}</span>
-            <button @click.stop="deleteMsg(m)" class="text-[10px] text-red-400 hover:text-red-600 flex-shrink-0 ml-1">✕</button>
+            <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(m.created_at) }}</span>
+            <button @click.stop="deleteMsg(m)" class="text-red-400 hover:text-red-600 flex-shrink-0 ml-1 transition-colors"><AppIcon name="x" :size="13" /></button>
           </div>
         </div>
       </div>
       <div v-if="activeMsg" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="activeMsg=null">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-          <div class="bg-gradient-to-r from-amber-400 to-orange-400 px-5 py-3 flex items-center justify-between">
-            <span class="text-sm font-bold text-amber-900">{{ msgTab==='received'?activeMsg.sender?.name:activeMsg.receiver?.name }}</span>
-            <button @click="activeMsg=null" class="text-amber-900/50 hover:text-amber-900">✕</button>
+        <div class="bg-white rounded-2xl shadow-lift w-full max-w-md overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-sm font-bold text-ink flex items-center gap-2"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="mail" :size="14" /></span>{{ msgTab==='received'?activeMsg.sender?.name:activeMsg.receiver?.name }}</span>
+            <button @click="activeMsg=null" class="text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
           </div>
           <div class="p-5">
-            <div class="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed mb-4">{{ activeMsg.content }}</div>
-            <div class="text-[10px] text-gray-400 mb-3">{{ fmtDate(activeMsg.created_at) }}</div>
+            <div class="text-sm text-ink-light whitespace-pre-wrap leading-relaxed mb-4">{{ activeMsg.content }}</div>
+            <div class="text-xs text-ink-faint mb-3">{{ fmtDate(activeMsg.created_at) }}</div>
             <div v-if="msgTab==='received'" class="flex gap-2">
-              <button @click="replyMsg(activeMsg)" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm flex-1 hover:bg-amber-500">↩️ 답장</button>
-              <button @click="activeMsg=null" class="text-gray-500 px-4 py-2 text-sm">닫기</button>
+              <button @click="replyMsg(activeMsg)" class="btn-primary flex-1"><AppIcon name="send" :size="14" /> 답장</button>
+              <button @click="activeMsg=null" class="btn-ghost px-4">닫기</button>
             </div>
           </div>
         </div>
       </div>
       <div v-if="replyTarget" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="replyTarget=null">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-5 py-3 flex items-center justify-between">
-            <span class="text-sm font-bold text-white">{{ replyTarget.name }}님에게 답장</span>
-            <button @click="replyTarget=null" class="text-white/50 hover:text-white">✕</button>
+        <div class="bg-white rounded-2xl shadow-lift w-full max-w-md overflow-hidden">
+          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+            <span class="text-sm font-bold text-ink flex items-center gap-2"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="send" :size="14" /></span>{{ replyTarget.name }}님에게 답장</span>
+            <button @click="replyTarget=null" class="text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
           </div>
           <div class="p-5">
-            <textarea v-model="replyText" rows="5" maxlength="500" placeholder="내용을 입력하세요..." class="w-full border rounded-lg p-3 text-sm resize-none"></textarea>
+            <textarea v-model="replyText" rows="5" maxlength="500" placeholder="내용을 입력하세요..." class="input-soft"></textarea>
             <div class="flex justify-between items-center mt-3">
-              <span class="text-[10px] text-gray-400">{{ replyText.length }}/500</span>
-              <button @click="sendReply" :disabled="replySending||!replyText.trim()" class="bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-blue-600 disabled:opacity-50">{{ replySending?'전송중...':'보내기' }}</button>
+              <span class="text-xs text-ink-faint">{{ replyText.length }}/500</span>
+              <button @click="sendReply" :disabled="replySending||!replyText.trim()" class="btn-primary">{{ replySending?'전송중...':'보내기' }}</button>
             </div>
           </div>
         </div>
@@ -263,17 +266,17 @@
 
     <!-- ═══ 내 글 탭 ═══ -->
     <div v-else-if="tab==='posts'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">📄 내가 쓴 글</h2>
-        <div v-if="!myPosts.length" class="text-sm text-gray-400 py-6 text-center">작성한 글이 없습니다</div>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="newspaper" :size="15" /></span>내가 쓴 글</h2>
+        <div v-if="!myPosts.length" class="text-sm text-ink-faint py-6 text-center">작성한 글이 없습니다</div>
         <div v-else class="space-y-2">
-          <RouterLink v-for="p in myPosts" :key="p.id" :to="'/community/'+(p.board?.slug||'free')+'/'+p.id" class="block border rounded-lg p-3 hover:bg-amber-50/50 transition">
-            <div class="text-sm font-bold text-gray-800 truncate">{{ p.title }}</div>
-            <div class="flex items-center gap-2 mt-1">
-              <span class="text-[10px] text-gray-400">{{ fmtDate(p.created_at) }}</span>
-              <span class="text-[10px] text-amber-600">💬 {{ p.comments_count||0 }}</span>
-              <span class="text-[10px] text-red-400">❤️ {{ p.likes_count||0 }}</span>
-              <span class="text-[10px] text-gray-400">👁 {{ p.views||0 }}</span>
+          <RouterLink v-for="p in myPosts" :key="p.id" :to="'/community/'+(p.board?.slug||'free')+'/'+p.id" class="block border border-gray-100 rounded-xl p-3 hover:bg-amber-50/50 transition-colors">
+            <div class="text-sm font-semibold text-ink truncate">{{ p.title }}</div>
+            <div class="flex items-center gap-2 mt-1 text-xs">
+              <span class="text-ink-faint">{{ fmtDate(p.created_at) }}</span>
+              <span class="text-amber-600 inline-flex items-center gap-0.5"><AppIcon name="message-circle" :size="11" /> {{ p.comments_count||0 }}</span>
+              <span class="text-red-400 inline-flex items-center gap-0.5"><AppIcon name="heart" :size="11" /> {{ p.likes_count||0 }}</span>
+              <span class="text-ink-faint inline-flex items-center gap-0.5"><AppIcon name="eye" :size="11" /> {{ p.views||0 }}</span>
             </div>
           </RouterLink>
         </div>
@@ -282,45 +285,44 @@
 
     <!-- ═══ 내 장터 탭 ═══ -->
     <div v-else-if="tab==='market'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
+      <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-gray-800">🛒 내 판매 물품</h2>
-          <RouterLink to="/market/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-amber-500">+ 등록</RouterLink>
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-emerald-50 text-emerald-600"><AppIcon name="shopping-cart" :size="15" /></span>내 판매 물품</h2>
+          <RouterLink to="/market/write" class="btn-primary px-4 py-1.5 text-xs"><AppIcon name="plus" :size="13" /> 등록</RouterLink>
         </div>
-        <div v-if="!myMarketItems.length" class="text-sm text-gray-400 py-6 text-center">등록한 물품이 없습니다</div>
+        <div v-if="!myMarketItems.length" class="text-sm text-ink-faint py-6 text-center">등록한 물품이 없습니다</div>
         <div v-else class="space-y-2">
-          <div v-for="m in myMarketItems" :key="m.id" class="border rounded-lg p-3 hover:bg-amber-50/30 transition">
+          <div v-for="m in myMarketItems" :key="m.id" class="border border-gray-100 rounded-xl p-3 hover:bg-amber-50/30 transition-colors">
             <div class="flex items-start gap-3">
               <div v-if="m.images?.length" class="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                 <img :src="m.images[(m.thumbnail_index || 0)]?.startsWith?.('http') ? m.images[m.thumbnail_index || 0] : '/storage/'+m.images[m.thumbnail_index || 0]" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
               </div>
-              <div v-else class="w-14 h-14 rounded-lg bg-amber-50 flex items-center justify-center text-2xl flex-shrink-0">🛒</div>
+              <div v-else class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0"><AppIcon name="shopping-cart" :size="24" :stroke-width="1.5" /></div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-[10px] px-1.5 py-0.5 rounded font-bold"
-                    :class="{'bg-green-100 text-green-700':m.status==='active','bg-amber-100 text-amber-700':m.status==='reserved','bg-gray-200 text-gray-500':m.status==='sold'}">
+                  <span :class="{'badge-green':m.status==='active','badge-primary':m.status==='reserved','badge-gray':m.status==='sold'}">
                     {{ {active:'판매중',reserved:'예약중',sold:'판매완료'}[m.status] }}
                   </span>
-                  <span v-if="m.promotion_tier === 'national' && m.promotion_expires_at && new Date(m.promotion_expires_at) > new Date()" class="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">🌐 전국구</span>
-                  <span v-else-if="m.promotion_tier === 'state_plus' && m.promotion_expires_at && new Date(m.promotion_expires_at) > new Date()" class="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold">⭐ 주+</span>
-                  <span v-else-if="m.promotion_tier === 'sponsored' && m.promotion_expires_at && new Date(m.promotion_expires_at) > new Date()" class="text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded font-bold">📢 스폰서</span>
-                  <span v-if="m.boosted_until && new Date(m.boosted_until) > new Date()" class="text-[9px] bg-purple-100 text-purple-700 px-1 py-0.5 rounded font-bold">🚀</span>
+                  <span v-if="m.promotion_tier === 'national' && m.promotion_expires_at && new Date(m.promotion_expires_at) > new Date()" class="badge-red">🌐 전국구</span>
+                  <span v-else-if="m.promotion_tier === 'state_plus' && m.promotion_expires_at && new Date(m.promotion_expires_at) > new Date()" class="badge-blue">⭐ 주+</span>
+                  <span v-else-if="m.promotion_tier === 'sponsored' && m.promotion_expires_at && new Date(m.promotion_expires_at) > new Date()" class="badge-primary">📢 스폰서</span>
+                  <span v-if="m.boosted_until && new Date(m.boosted_until) > new Date()" class="badge-purple">🚀</span>
                 </div>
                 <RouterLink :to="'/market/'+m.id" class="block mt-1">
-                  <div class="text-sm font-bold text-gray-800 truncate hover:text-amber-600">{{ m.title }}</div>
+                  <div class="text-sm font-semibold text-ink truncate hover:text-amber-600 transition-colors">{{ m.title }}</div>
                 </RouterLink>
-                <div class="flex items-center gap-2 mt-0.5 text-[10px] text-gray-400">
+                <div class="flex items-center gap-2 mt-0.5 text-xs text-ink-faint">
                   <span class="font-bold text-amber-600">${{ Number(m.price).toLocaleString() }}</span>
-                  <span>👁 {{ m.view_count }}</span>
+                  <span class="inline-flex items-center gap-0.5"><AppIcon name="eye" :size="11" /> {{ m.view_count }}</span>
                   <span>{{ m.city }}{{ m.state ? ', '+m.state : '' }}</span>
                 </div>
               </div>
             </div>
             <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
-              <RouterLink :to="'/market/write?edit='+m.id" class="flex-1 text-center text-xs font-bold py-1.5 rounded bg-amber-50 text-amber-700 hover:bg-amber-100">✏️ 수정</RouterLink>
-              <button @click="openMarketPromote(m)" class="flex-1 text-xs font-bold py-1.5 rounded bg-purple-50 text-purple-700 hover:bg-purple-100">🚀 상위노출</button>
-              <RouterLink :to="'/market/'+m.id" class="flex-1 text-center text-xs font-bold py-1.5 rounded bg-blue-50 text-blue-700 hover:bg-blue-100">👁 미리보기</RouterLink>
-              <button @click="deleteMarketItem(m)" class="text-xs font-bold py-1.5 px-3 rounded bg-red-50 text-red-600 hover:bg-red-100">🗑</button>
+              <RouterLink :to="'/market/write?edit='+m.id" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"><AppIcon name="edit" :size="12" /> 수정</RouterLink>
+              <button @click="openMarketPromote(m)" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors"><AppIcon name="sparkles" :size="12" /> 상위노출</button>
+              <RouterLink :to="'/market/'+m.id" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"><AppIcon name="eye" :size="12" /> 미리보기</RouterLink>
+              <button @click="deleteMarketItem(m)" class="flex items-center justify-center text-xs font-bold py-1.5 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"><AppIcon name="trash" :size="12" /></button>
             </div>
           </div>
         </div>
@@ -329,64 +331,62 @@
 
     <!-- ═══ 내 구인구직 탭 ═══ -->
     <div v-else-if="tab==='jobs'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
+      <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-gray-800">💼 내 구인/구직 공고</h2>
-          <RouterLink to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-amber-500">+ 등록</RouterLink>
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="15" /></span>내 구인/구직 공고</h2>
+          <RouterLink to="/jobs/write" class="btn-primary px-4 py-1.5 text-xs"><AppIcon name="plus" :size="13" /> 등록</RouterLink>
         </div>
-        <div v-if="!myJobs.length" class="text-sm text-gray-400 py-6 text-center">등록한 공고가 없습니다</div>
+        <div v-if="!myJobs.length" class="text-sm text-ink-faint py-6 text-center">등록한 공고가 없습니다</div>
         <div v-else class="space-y-2">
-          <div v-for="j in myJobs" :key="j.id" class="border rounded-lg p-3 hover:bg-amber-50/30 transition">
+          <div v-for="j in myJobs" :key="j.id" class="border border-gray-100 rounded-xl p-3 hover:bg-amber-50/30 transition-colors">
             <div class="flex items-start gap-3">
               <div v-if="j.logo" class="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                 <img :src="j.logo" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
               </div>
-              <div v-else class="w-14 h-14 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-2xl flex-shrink-0">
-                {{ j.post_type === 'hiring' ? '💼' : '🔍' }}
+              <div v-else class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
+                <AppIcon :name="j.post_type === 'hiring' ? 'briefcase' : 'search'" :size="24" :stroke-width="1.5" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-[10px] px-1.5 py-0.5 rounded font-bold"
-                    :class="j.post_type === 'hiring' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'">
+                  <span :class="j.post_type === 'hiring' ? 'badge-primary' : 'badge-blue'">
                     {{ j.post_type === 'hiring' ? '구인' : '구직' }}
                   </span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded font-bold"
-                    :class="j.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'">
+                  <span :class="j.is_active ? 'badge-green' : 'badge-gray'">
                     {{ j.is_active ? '게시중' : '종료' }}
                   </span>
                   <span v-if="j.promotion_tier && j.promotion_tier !== 'none' && j.promotion_expires_at && new Date(j.promotion_expires_at) > new Date()"
-                    class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-purple-100 text-purple-700">
+                    class="badge-purple">
                     ⭐ {{ {national:'전국',state_plus:'주',sponsored:'스폰'}[j.promotion_tier] }}
                   </span>
                 </div>
                 <RouterLink :to="'/jobs/'+j.id" class="block">
-                  <div class="text-sm font-bold text-gray-800 truncate mt-1 hover:text-amber-600">{{ j.title }}</div>
+                  <div class="text-sm font-semibold text-ink truncate mt-1 hover:text-amber-600 transition-colors">{{ j.title }}</div>
                 </RouterLink>
-                <div class="flex items-center gap-2 mt-0.5 text-[10px] text-gray-400">
+                <div class="flex items-center gap-2 mt-0.5 text-xs text-ink-faint">
                   <span v-if="j.company">{{ j.company }}</span>
                   <span v-if="j.city">· {{ j.city }}{{ j.state ? ', '+j.state : '' }}</span>
-                  <span>· 👁 {{ j.view_count || 0 }}</span>
+                  <span class="inline-flex items-center gap-0.5">· <AppIcon name="eye" :size="11" /> {{ j.view_count || 0 }}</span>
                   <span>· {{ fmtDate(j.created_at) }}</span>
                 </div>
               </div>
             </div>
             <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
               <RouterLink :to="'/jobs/write?edit='+j.id"
-                class="flex-1 text-center text-xs font-bold py-1.5 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 transition">
-                ✏️ 수정
+                class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
+                <AppIcon name="edit" :size="12" /> 수정
               </RouterLink>
               <button @click="toggleJobActive(j)"
-                class="flex-1 text-xs font-bold py-1.5 rounded transition"
-                :class="j.is_active ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-green-50 text-green-700 hover:bg-green-100'">
+                class="flex-1 text-xs font-bold py-1.5 rounded-lg transition-colors"
+                :class="j.is_active ? 'bg-gray-100 text-ink-light hover:bg-gray-200' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'">
                 {{ j.is_active ? '⏸ 비활성화' : '▶ 재게시' }}
               </button>
               <RouterLink :to="'/jobs/'+j.id"
-                class="flex-1 text-center text-xs font-bold py-1.5 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
-                👁 미리보기
+                class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors">
+                <AppIcon name="eye" :size="12" /> 미리보기
               </RouterLink>
               <button @click="deleteJob(j)"
-                class="text-xs font-bold py-1.5 px-3 rounded bg-red-50 text-red-600 hover:bg-red-100 transition">
-                🗑
+                class="flex items-center justify-center text-xs font-bold py-1.5 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
+                <AppIcon name="trash" :size="12" />
               </button>
             </div>
           </div>
@@ -396,32 +396,32 @@
 
     <!-- ═══ 내 부동산 탭 ═══ -->
     <div v-else-if="tab==='realestate'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
+      <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-gray-800">🏠 내 부동산 매물</h2>
-          <RouterLink to="/realestate/write" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-amber-500">+ 등록</RouterLink>
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-violet-50 text-violet-600"><AppIcon name="home" :size="15" /></span>내 부동산 매물</h2>
+          <RouterLink to="/realestate/write" class="btn-primary px-4 py-1.5 text-xs"><AppIcon name="plus" :size="13" /> 등록</RouterLink>
         </div>
-        <div v-if="!myRealEstate.length" class="text-sm text-gray-400 py-6 text-center">등록한 매물이 없습니다</div>
+        <div v-if="!myRealEstate.length" class="text-sm text-ink-faint py-6 text-center">등록한 매물이 없습니다</div>
         <div v-else class="space-y-2">
-          <div v-for="r in myRealEstate" :key="r.id" class="border rounded-lg p-3 hover:bg-amber-50/30 transition">
+          <div v-for="r in myRealEstate" :key="r.id" class="border border-gray-100 rounded-xl p-3 hover:bg-amber-50/30 transition-colors">
             <div class="flex items-start gap-3">
               <div v-if="r.images?.length" class="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                 <img :src="r.images[0]?.startsWith?.('http') ? r.images[0] : '/storage/'+r.images[0]" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
               </div>
-              <div v-else class="w-14 h-14 rounded-lg bg-amber-50 flex items-center justify-center text-2xl flex-shrink-0">
-                {{ r.type==='sale'?'🏠':r.type==='rent'?'🔑':'👥' }}
+              <div v-else class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0">
+                <AppIcon :name="r.type==='sale'?'home':r.type==='rent'?'key':'users'" :size="24" :stroke-width="1.5" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span class="text-[10px] px-1.5 py-0.5 rounded font-bold" :class="r.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'">{{ r.is_active ? '게시중' : '종료' }}</span>
-                  <span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-100 text-amber-700">{{ {rent:'렌트',sale:'매매',roommate:'룸메이트'}[r.type] }}</span>
-                  <span v-if="r.promotion_tier === 'national' && r.promotion_expires_at && new Date(r.promotion_expires_at) > new Date()" class="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">🌐 전국구</span>
-                  <span v-else-if="r.promotion_tier === 'state_plus' && r.promotion_expires_at && new Date(r.promotion_expires_at) > new Date()" class="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold">⭐ 주+</span>
+                  <span :class="r.is_active ? 'badge-green' : 'badge-gray'">{{ r.is_active ? '게시중' : '종료' }}</span>
+                  <span class="badge-primary">{{ {rent:'렌트',sale:'매매',roommate:'룸메이트'}[r.type] }}</span>
+                  <span v-if="r.promotion_tier === 'national' && r.promotion_expires_at && new Date(r.promotion_expires_at) > new Date()" class="badge-red">🌐 전국구</span>
+                  <span v-else-if="r.promotion_tier === 'state_plus' && r.promotion_expires_at && new Date(r.promotion_expires_at) > new Date()" class="badge-blue">⭐ 주+</span>
                 </div>
                 <RouterLink :to="'/realestate/'+r.id" class="block mt-1">
-                  <div class="text-sm font-bold text-gray-800 truncate hover:text-amber-600">{{ r.title }}</div>
+                  <div class="text-sm font-semibold text-ink truncate hover:text-amber-600 transition-colors">{{ r.title }}</div>
                 </RouterLink>
-                <div class="flex items-center gap-2 mt-0.5 text-[10px] text-gray-400">
+                <div class="flex items-center gap-2 mt-0.5 text-xs text-ink-faint">
                   <span class="font-bold text-amber-600">${{ Number(r.price).toLocaleString() }}{{ r.type==='rent'?'/월':'' }}</span>
                   <span>{{ r.city }}{{ r.state ? ', '+r.state : '' }}</span>
                   <span v-if="r.bedrooms">🛏 {{ r.bedrooms }}</span>
@@ -429,10 +429,10 @@
               </div>
             </div>
             <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
-              <RouterLink :to="'/realestate/write?edit='+r.id" class="flex-1 text-center text-xs font-bold py-1.5 rounded bg-amber-50 text-amber-700 hover:bg-amber-100">✏️ 수정</RouterLink>
-              <button @click="openRePromote(r)" class="flex-1 text-xs font-bold py-1.5 rounded bg-purple-50 text-purple-700 hover:bg-purple-100">🚀 상위노출</button>
-              <RouterLink :to="'/realestate/'+r.id" class="flex-1 text-center text-xs font-bold py-1.5 rounded bg-blue-50 text-blue-700 hover:bg-blue-100">👁 미리보기</RouterLink>
-              <button @click="deleteRealEstateItem(r)" class="text-xs font-bold py-1.5 px-3 rounded bg-red-50 text-red-600 hover:bg-red-100">🗑</button>
+              <RouterLink :to="'/realestate/write?edit='+r.id" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"><AppIcon name="edit" :size="12" /> 수정</RouterLink>
+              <button @click="openRePromote(r)" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors"><AppIcon name="sparkles" :size="12" /> 상위노출</button>
+              <RouterLink :to="'/realestate/'+r.id" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"><AppIcon name="eye" :size="12" /> 미리보기</RouterLink>
+              <button @click="deleteRealEstateItem(r)" class="flex items-center justify-center text-xs font-bold py-1.5 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"><AppIcon name="trash" :size="12" /></button>
             </div>
           </div>
         </div>
@@ -441,10 +441,10 @@
 
     <!-- 공통 상위노출 모달 (중고장터/부동산) -->
     <div v-if="resourcePromoTarget" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" @click.self="resourcePromoTarget=null">
-      <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 space-y-3">
+      <div class="bg-white rounded-2xl shadow-lift max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="font-bold text-gray-800">🚀 {{ resourcePromoTarget.title }} - 상위노출</h3>
-          <button @click="resourcePromoTarget=null" class="text-gray-400 text-xl">&times;</button>
+          <h3 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-violet-50 text-violet-600"><AppIcon name="sparkles" :size="14" /></span>{{ resourcePromoTarget.title }} - 상위노출</h3>
+          <button @click="resourcePromoTarget=null" class="text-ink-faint hover:text-ink text-xl transition-colors">&times;</button>
         </div>
         <PromotionSection :resource="resourcePromoType"
           :category="resourcePromoTarget.category || resourcePromoTarget.type"
@@ -453,9 +453,9 @@
           :category-label="resourcePromoType === 'realestate' ? '유형' : '카테고리'" />
         <div v-if="resourcePromoError" class="bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-xs">{{ resourcePromoError }}</div>
         <div class="flex gap-2 justify-end">
-          <button @click="resourcePromoTarget=null" class="text-gray-500 text-xs px-4 py-2">취소</button>
+          <button @click="resourcePromoTarget=null" class="btn-ghost text-xs px-4">취소</button>
           <button @click="submitResourcePromote" :disabled="resourcePromoSubmitting || resourcePromotion.tier === 'none'"
-            class="bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs disabled:opacity-50">
+            class="bg-violet-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors hover:bg-violet-600 disabled:opacity-50">
             {{ resourcePromoSubmitting ? '처리중...' : '상위노출 적용' }}
           </button>
         </div>
@@ -465,25 +465,25 @@
     <!-- ═══ 광고 신청 탭 ═══ -->
     <div v-else-if="tab==='ads'" class="space-y-4">
       <!-- 내 광고 목록 -->
-      <div class="bg-white rounded-xl shadow-sm border p-5">
+      <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-gray-800">📢 내 광고</h2>
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="megaphone" :size="15" /></span>내 광고</h2>
         </div>
-        <div v-if="!myAds.length" class="text-sm text-gray-400 py-6 text-center">신청한 광고가 없습니다</div>
-        <div v-for="ad in myAds" :key="ad.id" class="border rounded-lg p-3 flex gap-3 mb-2">
-          <div class="w-24 h-14 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+        <div v-if="!myAds.length" class="text-sm text-ink-faint py-6 text-center">신청한 광고가 없습니다</div>
+        <div v-for="ad in myAds" :key="ad.id" class="border border-gray-100 rounded-xl p-3 flex gap-3 mb-2">
+          <div class="w-24 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
             <img :src="ad.image_url" class="w-full h-full object-cover" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2">
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="{'bg-amber-100 text-amber-700':ad.status==='pending','bg-green-100 text-green-700':ad.status==='active','bg-red-100 text-red-700':ad.status==='rejected'}">
+              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="{'bg-amber-50 text-amber-700':ad.status==='pending','bg-emerald-50 text-emerald-700':ad.status==='active','bg-red-50 text-red-600':ad.status==='rejected'}">
                 {{ {pending:'승인대기',active:'게시중',rejected:'거절',expired:'만료',paused:'중지'}[ad.status] }}
               </span>
-              <span class="text-xs text-gray-400">{{ ad.bid_amount || ad.total_cost }}P</span>
+              <span class="text-xs text-ink-faint">{{ ad.bid_amount || ad.total_cost }}P</span>
             </div>
-            <div class="text-sm font-bold text-gray-800 truncate mt-0.5">{{ ad.title }}</div>
-            <div class="text-[10px] text-gray-400">{{ ad.start_date?.slice(0,10) }} ~ {{ ad.end_date?.slice(0,10) }} · 노출{{ ad.impressions }} · 클릭{{ ad.clicks }}</div>
-            <div v-if="ad.reject_reason" class="text-[10px] text-red-500 mt-0.5">거절사유: {{ ad.reject_reason }}</div>
+            <div class="text-sm font-semibold text-ink truncate mt-0.5">{{ ad.title }}</div>
+            <div class="text-xs text-ink-faint">{{ ad.start_date?.slice(0,10) }} ~ {{ ad.end_date?.slice(0,10) }} · 노출{{ ad.impressions }} · 클릭{{ ad.clicks }}</div>
+            <div v-if="ad.reject_reason" class="text-xs text-red-500 mt-0.5">거절사유: {{ ad.reject_reason }}</div>
           </div>
         </div>
       </div>
@@ -493,31 +493,31 @@
 
     <!-- ═══ 통화 내역 탭 ═══ -->
     <div v-else-if="tab==='calls'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">📞 통화 내역</h2>
-        <div v-if="!callHistory.length" class="text-sm text-gray-400 py-6 text-center">통화 기록이 없습니다</div>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-emerald-50 text-emerald-600"><AppIcon name="phone" :size="15" /></span>통화 내역</h2>
+        <div v-if="!callHistory.length" class="text-sm text-ink-faint py-6 text-center">통화 기록이 없습니다</div>
         <div v-else class="space-y-2">
-          <div v-for="c in callHistory" :key="c.id" class="border rounded-lg p-3 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-              :class="c.direction==='outgoing' ? 'bg-blue-500' : 'bg-green-500'">
-              {{ c.direction==='outgoing' ? '📤' : '📥' }}
+          <div v-for="c in callHistory" :key="c.id" class="border border-gray-100 rounded-xl p-3 flex items-center gap-3">
+            <div class="icon-chip w-10 h-10 rounded-full"
+              :class="c.direction==='outgoing' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'">
+              <AppIcon :name="c.direction==='outgoing' ? 'upload' : 'download'" :size="17" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-bold text-gray-800">{{ c.partner_name }}</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-                  :class="(c.call_type||'friend')==='elder' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">
+                <span class="text-sm font-bold text-ink">{{ c.partner_name }}</span>
+                <span class="text-xs px-1.5 py-0.5 rounded-full font-bold"
+                  :class="(c.call_type||'friend')==='elder' ? 'bg-violet-50 text-violet-700' : 'bg-blue-50 text-blue-700'">
                   {{ (c.call_type||'friend')==='elder' ? '🛡️안심' : '👫친구' }}
                 </span>
-                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
-                  :class="c.status==='ended'||c.status==='answered' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
+                <span class="text-xs px-2 py-0.5 rounded-full font-bold"
+                  :class="c.status==='ended'||c.status==='answered' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'">
                   {{ c.direction==='outgoing' ? '발신' : '수신' }} · {{ {ended:'완료',answered:'응답',initiated:'부재중'}[c.status]||c.status }}
                 </span>
               </div>
-              <div class="text-[10px] text-gray-400 mt-0.5">{{ fmtDateFull(c.created_at) }}</div>
+              <div class="text-xs text-ink-faint mt-0.5">{{ fmtDateFull(c.created_at) }}</div>
             </div>
             <div class="text-right flex-shrink-0">
-              <div class="text-sm font-bold" :class="c.duration && c.duration!=='0초' ? 'text-green-700' : 'text-gray-400'">{{ c.duration || '-' }}</div>
+              <div class="text-sm font-bold" :class="c.duration && c.duration!=='0초' ? 'text-emerald-700' : 'text-ink-faint'">{{ c.duration || '-' }}</div>
             </div>
           </div>
         </div>
@@ -526,16 +526,16 @@
 
     <!-- ═══ 북마크 탭 ═══ -->
     <div v-else-if="tab==='bookmarks'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">🔖 북마크</h2>
-        <div v-if="!bookmarks.length" class="text-sm text-gray-400 py-6 text-center">저장한 북마크가 없습니다</div>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="bookmark" :size="15" /></span>북마크</h2>
+        <div v-if="!bookmarks.length" class="text-sm text-ink-faint py-6 text-center">저장한 북마크가 없습니다</div>
         <div v-else class="space-y-2">
-          <div v-for="b in bookmarks" :key="b.id" class="border rounded-lg p-3 flex items-center gap-3">
-            <div class="flex-1 min-w-0 cursor-pointer hover:text-amber-700" @click="goBookmark(b)">
-              <div class="text-sm font-bold text-gray-800 truncate">{{ b.bookmarkable?.title || b.bookmarkable_type + ' #' + b.bookmarkable_id }}</div>
-              <div class="text-[10px] text-gray-400 mt-0.5">{{ fmtDate(b.created_at) }}</div>
+          <div v-for="b in bookmarks" :key="b.id" class="border border-gray-100 rounded-xl p-3 flex items-center gap-3 hover:bg-amber-50/30 transition-colors">
+            <div class="flex-1 min-w-0 cursor-pointer hover:text-amber-700 transition-colors" @click="goBookmark(b)">
+              <div class="text-sm font-semibold text-ink truncate">{{ b.bookmarkable?.title || b.bookmarkable_type + ' #' + b.bookmarkable_id }}</div>
+              <div class="text-xs text-ink-faint mt-0.5">{{ fmtDate(b.created_at) }}</div>
             </div>
-            <button @click="deleteBookmark(b)" class="text-xs text-red-400 hover:text-red-600 flex-shrink-0">삭제</button>
+            <button @click="deleteBookmark(b)" class="text-xs text-red-400 hover:text-red-600 flex-shrink-0 transition-colors">삭제</button>
           </div>
         </div>
       </div>
@@ -544,44 +544,44 @@
     <!-- ═══ 안심서비스 탭 ═══ -->
     <div v-else-if="tab==='elder'" class="space-y-4">
       <!-- 보호대상 등록 -->
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">🛡️ 보호대상 등록</h2>
-        <p class="text-xs text-gray-500 mb-3">보호하고 싶은 분의 이메일을 검색하여 안심서비스를 등록하세요.</p>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-emerald-50 text-emerald-600"><AppIcon name="shield" :size="15" /></span>보호대상 등록</h2>
+        <p class="text-xs text-ink-muted mb-3">보호하고 싶은 분의 이메일을 검색하여 안심서비스를 등록하세요.</p>
         <div class="flex gap-2 mb-3">
-          <input v-model="wardSearch" type="email" placeholder="보호대상 이메일 입력" class="flex-1 border rounded-lg px-3 py-2 text-sm" />
-          <button @click="searchWard" :disabled="wardSearching" class="bg-green-600 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50">{{ wardSearching?'검색중...':'검색' }}</button>
+          <input v-model="wardSearch" type="email" placeholder="보호대상 이메일 입력" class="input-soft flex-1 w-auto" />
+          <button @click="searchWard" :disabled="wardSearching" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors hover:bg-emerald-700 disabled:opacity-50">{{ wardSearching?'검색중...':'검색' }}</button>
         </div>
-        <div v-if="wardResult" class="rounded-lg p-3 text-sm" :class="wardResult.ok ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-700'">
+        <div v-if="wardResult" class="rounded-xl p-3 text-sm" :class="wardResult.ok ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-red-50 border border-red-200 text-red-700'">
           {{ wardResult.message }}
           <div v-if="wardResult.ok && wardResult.user" class="mt-2 flex items-center justify-between">
             <span class="font-bold">{{ wardResult.user.name }} ({{ wardResult.user.city }}, {{ wardResult.user.state }})</span>
-            <button @click="registerWard(wardResult.user.id)" class="bg-green-600 text-white font-bold px-3 py-1 rounded-lg text-xs hover:bg-green-700">등록하기</button>
+            <button @click="registerWard(wardResult.user.id)" class="bg-emerald-600 text-white font-bold px-3 py-1 rounded-lg text-xs transition-colors hover:bg-emerald-700">등록하기</button>
           </div>
         </div>
       </div>
 
       <!-- 내 보호대상 목록 -->
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">👥 내 보호대상</h2>
-        <div v-if="!elderWards.length" class="text-sm text-gray-400 py-4 text-center">등록된 보호대상이 없습니다</div>
-        <div v-for="w in elderWards" :key="w.id" class="border rounded-lg p-4 mb-3">
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-teal-50 text-teal-600"><AppIcon name="users" :size="15" /></span>내 보호대상</h2>
+        <div v-if="!elderWards.length" class="text-sm text-ink-faint py-4 text-center">등록된 보호대상이 없습니다</div>
+        <div v-for="w in elderWards" :key="w.id" class="border border-gray-100 rounded-xl p-4 mb-3">
           <div class="flex items-center justify-between mb-3">
             <div class="flex items-center gap-2">
-              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-lg font-bold text-green-700">{{ (w.ward?.name||'?')[0] }}</div>
+              <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-lg font-bold text-emerald-700">{{ (w.ward?.name||'?')[0] }}</div>
               <div>
-                <div class="text-sm font-bold text-gray-800">{{ w.ward?.name }}</div>
-                <div class="text-[10px] text-gray-400">{{ w.ward?.email }}</div>
+                <div class="text-sm font-bold text-ink">{{ w.ward?.name }}</div>
+                <div class="text-xs text-ink-faint">{{ w.ward?.email }}</div>
               </div>
             </div>
-            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="w.status==='active'?'bg-green-100 text-green-700':w.status==='pending'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700'">{{ {active:'활성',pending:'대기',rejected:'거절'}[w.status] }}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="w.status==='active'?'bg-emerald-50 text-emerald-700':w.status==='pending'?'bg-amber-50 text-amber-700':'bg-red-50 text-red-600'">{{ {active:'활성',pending:'대기',rejected:'거절'}[w.status] }}</span>
           </div>
 
           <!-- 스케줄 설정 (활성 상태만) -->
-          <div v-if="w.status==='active'" class="border-t pt-3">
-            <h4 class="text-xs font-bold text-gray-600 mb-2">📞 전화 스케줄</h4>
+          <div v-if="w.status==='active'" class="border-t border-gray-100 pt-3">
+            <h4 class="flex items-center gap-1 text-xs font-bold text-ink-light mb-2"><AppIcon name="phone" :size="12" class="text-emerald-600" />전화 스케줄</h4>
             <div class="space-y-2">
               <div>
-                <label class="text-[10px] font-bold text-gray-500">서비스 유형</label>
+                <label class="text-xs font-semibold text-ink-muted">서비스 유형</label>
                 <div class="flex gap-3 mt-1">
                   <label class="text-xs"><input type="radio" v-model="w._type" value="random" /> 랜덤 시간</label>
                   <label class="text-xs"><input type="radio" v-model="w._type" value="scheduled" /> 스케줄 <span class="text-amber-600">(유료)</span></label>
@@ -589,37 +589,37 @@
               </div>
               <template v-if="w._type==='random'">
                 <div class="grid grid-cols-2 gap-2">
-                  <div><label class="text-[10px] font-bold text-gray-500">시작</label><input type="time" v-model="w._time_start" class="w-full border rounded px-2 py-1 text-xs" /></div>
-                  <div><label class="text-[10px] font-bold text-gray-500">종료</label><input type="time" v-model="w._time_end" class="w-full border rounded px-2 py-1 text-xs" /></div>
+                  <div><label class="text-xs font-semibold text-ink-muted">시작</label><input type="time" v-model="w._time_start" class="input-soft px-2 py-1 text-xs" /></div>
+                  <div><label class="text-xs font-semibold text-ink-muted">종료</label><input type="time" v-model="w._time_end" class="input-soft px-2 py-1 text-xs" /></div>
                 </div>
               </template>
               <template v-if="w._type==='scheduled'">
-                <div><label class="text-[10px] font-bold text-gray-500">하루 몇 번</label>
-                  <select v-model="w._calls_per_day" @change="w._times = w._times.slice(0, w._calls_per_day)" class="border rounded px-2 py-1 text-xs ml-1">
+                <div><label class="text-xs font-semibold text-ink-muted">하루 몇 번</label>
+                  <select v-model="w._calls_per_day" @change="w._times = w._times.slice(0, w._calls_per_day)" class="input-soft w-auto px-2 py-1 text-xs ml-1">
                     <option :value="1">1회</option><option :value="2">2회</option><option :value="3">3회</option>
                   </select>
                 </div>
-                <div><label class="text-[10px] font-bold text-gray-500">요일 선택</label>
+                <div><label class="text-xs font-semibold text-ink-muted">요일 선택</label>
                   <div class="flex gap-1 mt-1">
-                    <label v-for="d in dayOptions" :key="d.key" class="text-[10px]">
+                    <label v-for="d in dayOptions" :key="d.key" class="text-xs">
                       <input type="checkbox" :value="d.key" v-model="w._days" class="mr-0.5" />{{ d.label }}
                     </label>
                   </div>
                 </div>
                 <div>
-                  <label class="text-[10px] font-bold text-gray-500">전화 시간</label>
+                  <label class="text-xs font-semibold text-ink-muted">전화 시간</label>
                   <div class="flex flex-wrap gap-1.5 mt-1">
-                    <div v-for="(t, ti) in w._times" :key="ti" class="flex items-center gap-0.5 bg-green-50 border border-green-200 rounded-lg px-1">
+                    <div v-for="(t, ti) in w._times" :key="ti" class="flex items-center gap-0.5 bg-emerald-50 border border-emerald-200 rounded-lg px-1">
                       <input type="time" v-model="w._times[ti]" class="border-0 bg-transparent text-xs py-1 px-1 outline-none w-20" />
-                      <button @click="w._times.splice(ti,1)" class="text-red-400 hover:text-red-600 text-xs px-1">✕</button>
+                      <button @click="w._times.splice(ti,1)" class="text-red-400 hover:text-red-600 text-xs px-1 transition-colors">✕</button>
                     </div>
-                    <button v-if="w._times.length < w._calls_per_day" @click="w._times.push('12:00')" class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-lg hover:bg-green-200">+ 시간 추가</button>
+                    <button v-if="w._times.length < w._calls_per_day" @click="w._times.push('12:00')" class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2 py-1 rounded-lg hover:bg-emerald-100 transition-colors">+ 시간 추가</button>
                   </div>
                 </div>
-                <p class="text-[10px] text-amber-600">* 스케줄 전화는 1회당 50P가 차감됩니다.</p>
+                <p class="text-xs text-amber-600">* 스케줄 전화는 1회당 50P가 차감됩니다.</p>
               </template>
-              <button @click="saveSchedule(w)" class="bg-green-600 text-white font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-green-700 mt-1">스케줄 저장</button>
-              <span v-if="w._schedMsg" class="text-xs ml-2" :class="w._schedOk?'text-green-600':'text-red-500'">{{ w._schedMsg }}</span>
+              <button @click="saveSchedule(w)" class="bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition-colors hover:bg-emerald-700 mt-1">스케줄 저장</button>
+              <span v-if="w._schedMsg" class="text-xs ml-2" :class="w._schedOk?'text-emerald-600':'text-red-500'">{{ w._schedMsg }}</span>
             </div>
           </div>
         </div>
@@ -628,23 +628,23 @@
 
     <!-- ═══ 결제 탭 ═══ -->
     <div v-else-if="tab==='payments'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">💳 결제 내역</h2>
-        <div v-if="!payments.length" class="text-sm text-gray-400 py-6 text-center">결제 내역이 없습니다</div>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="wallet" :size="15" /></span>결제 내역</h2>
+        <div v-if="!payments.length" class="text-sm text-ink-faint py-6 text-center">결제 내역이 없습니다</div>
         <div v-else class="space-y-2">
-          <div v-for="p in payments" :key="p.id" class="border rounded-lg p-4 hover:bg-amber-50/30 transition">
+          <div v-for="p in payments" :key="p.id" class="border border-gray-100 rounded-xl p-4 hover:bg-amber-50/30 transition-colors">
             <div class="flex items-center justify-between mb-2">
-              <div class="text-sm font-bold text-gray-800">포인트 구매 — {{ p.points_purchased?.toLocaleString() }}P</div>
-              <span class="text-[10px] px-2 py-0.5 rounded-full font-bold" :class="p.status==='completed'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'">{{ p.status==='completed'?'완료':'대기' }}</span>
+              <div class="text-sm font-bold text-ink">포인트 구매 — {{ p.points_purchased?.toLocaleString() }}P</div>
+              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="p.status==='completed'?'bg-emerald-50 text-emerald-700':'bg-gray-100 text-ink-muted'">{{ p.status==='completed'?'완료':'대기' }}</span>
             </div>
-            <div class="flex items-center justify-between text-xs text-gray-500">
+            <div class="flex items-center justify-between text-xs text-ink-muted">
               <div>
                 <span class="font-semibold">${{ p.amount }}</span>
                 <span class="mx-1">|</span>
                 <span>{{ fmtDateFull(p.created_at) }}</span>
               </div>
-              <button @click="printInvoice(p)" class="text-amber-600 hover:text-amber-800 font-bold flex items-center gap-1">
-                🧾 인보이스
+              <button @click="printInvoice(p)" class="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 transition-colors">
+                <AppIcon name="newspaper" :size="12" /> 인보이스
               </button>
             </div>
           </div>
@@ -654,36 +654,36 @@
 
     <!-- ═══ 내 업소 탭 ═══ -->
     <div v-else-if="tab==='mybiz'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">🏪 내 업소 관리</h2>
-        <div v-if="!myBizList.length" class="text-center py-8 text-gray-400">
-          <div class="text-3xl mb-2">🏪</div>
-          <div class="text-sm">등록된 업소가 없습니다</div>
-          <RouterLink to="/directory" class="text-xs text-amber-600 mt-2 inline-block">업소록에서 소유권 신청하기 →</RouterLink>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-pink-50 text-pink-600"><AppIcon name="store" :size="15" /></span>내 업소 관리</h2>
+        <div v-if="!myBizList.length" class="text-center py-8">
+          <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="store" :size="28" :stroke-width="1.5" /></div>
+          <div class="text-sm text-ink-muted">등록된 업소가 없습니다</div>
+          <RouterLink to="/directory" class="text-xs text-amber-600 mt-2 inline-block hover:text-amber-700 transition-colors">업소록에서 소유권 신청하기 →</RouterLink>
         </div>
 
         <!-- 업소 편집 모드 -->
         <div v-else-if="editBiz" class="space-y-3">
-          <button @click="editBiz=null" class="text-xs text-gray-500 hover:text-gray-700">← 목록으로</button>
+          <button @click="editBiz=null" class="text-xs text-ink-muted hover:text-ink transition-colors">← 목록으로</button>
           <h3 class="font-bold text-amber-700">{{ editBiz.name }}</h3>
 
           <!-- 기본 정보 -->
           <div class="grid grid-cols-2 gap-3">
-            <div><label class="text-xs font-bold text-gray-600 block mb-1">가게 이름</label><input v-model="editBiz.name" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-            <div><label class="text-xs font-bold text-gray-600 block mb-1">전화번호</label><input v-model="editBiz.phone" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+            <div><label class="input-label">가게 이름</label><input v-model="editBiz.name" class="input-soft" /></div>
+            <div><label class="input-label">전화번호</label><input v-model="editBiz.phone" class="input-soft" /></div>
           </div>
-          <div><label class="text-xs font-bold text-gray-600 block mb-1">주소</label><input v-model="editBiz.address" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+          <div><label class="input-label">주소</label><input v-model="editBiz.address" class="input-soft" /></div>
           <div class="grid grid-cols-3 gap-3">
-            <div><label class="text-xs font-bold text-gray-600 block mb-1">도시</label><input v-model="editBiz.city" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-            <div><label class="text-xs font-bold text-gray-600 block mb-1">주</label><input v-model="editBiz.state" maxlength="2" class="w-full border rounded-lg px-3 py-2 text-sm uppercase" /></div>
-            <div><label class="text-xs font-bold text-gray-600 block mb-1">우편번호</label>
-              <input v-model="editBiz.zipcode" maxlength="5" @input="onBizZipChange" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" />
+            <div><label class="input-label">도시</label><input v-model="editBiz.city" class="input-soft" /></div>
+            <div><label class="input-label">주</label><input v-model="editBiz.state" maxlength="2" class="input-soft uppercase" /></div>
+            <div><label class="input-label">우편번호</label>
+              <input v-model="editBiz.zipcode" maxlength="5" @input="onBizZipChange" class="input-soft font-mono" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="text-xs font-bold text-gray-600 block mb-1">카테고리 <span class="text-red-400">*</span></label>
-              <select v-model="editBiz.category" class="w-full border rounded-lg px-3 py-2 text-sm">
+              <label class="input-label">카테고리 <span class="text-red-400">*</span></label>
+              <select v-model="editBiz.category" class="input-soft">
                 <option value="">선택</option>
                 <option value="restaurant">🍽️ 음식점</option>
                 <option value="beauty">💅 미용</option>
@@ -697,7 +697,7 @@
                 <option value="etc">📋 기타</option>
               </select>
             </div>
-            <div><label class="text-xs font-bold text-gray-600 block mb-1">웹사이트</label><input v-model="editBiz.website" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+            <div><label class="input-label">웹사이트</label><input v-model="editBiz.website" class="input-soft" /></div>
           </div>
 
           <!-- 주소 기반 인라인 상위노출 -->
@@ -707,79 +707,79 @@
             category-label="카테고리" />
           <div class="flex items-center justify-end gap-2">
             <button @click="submitEditBizPromote" :disabled="editBizPromotion.tier === 'none' || editBizPromoSubmitting"
-              class="bg-purple-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs disabled:opacity-50">
-              {{ editBizPromoSubmitting ? '처리중...' : '🚀 상위노출 적용' }}
+              class="inline-flex items-center gap-1 bg-violet-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs transition-colors hover:bg-violet-600 disabled:opacity-50">
+              <AppIcon name="sparkles" :size="12" /> {{ editBizPromoSubmitting ? '처리중...' : '상위노출 적용' }}
             </button>
           </div>
-          <div v-if="editBizPromoMsg" class="text-xs" :class="editBizPromoMsg.ok ? 'text-green-600' : 'text-red-500'">{{ editBizPromoMsg.text }}</div>
+          <div v-if="editBizPromoMsg" class="text-xs" :class="editBizPromoMsg.ok ? 'text-emerald-600' : 'text-red-500'">{{ editBizPromoMsg.text }}</div>
 
-          <div><label class="text-xs font-bold text-gray-600 block mb-1">업소 소개</label><textarea v-model="editBiz.description" rows="4" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea></div>
+          <div><label class="input-label">업소 소개</label><textarea v-model="editBiz.description" rows="4" class="input-soft"></textarea></div>
 
           <!-- 사진 관리 -->
           <div>
-            <label class="text-xs font-bold text-gray-600 block mb-1">사진</label>
+            <label class="input-label">사진</label>
             <div class="flex gap-2 flex-wrap mb-2">
               <div v-for="(img, i) in editBiz.images" :key="i" class="relative">
                 <img :src="img" class="w-20 h-20 rounded-lg object-cover" />
                 <button @click="editBiz.images.splice(i,1)" class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs">✕</button>
               </div>
             </div>
-            <label class="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-amber-200 font-semibold">
-              📷 사진 추가
+            <label class="btn-soft text-xs px-3 py-1.5 cursor-pointer">
+              <AppIcon name="camera" :size="13" /> 사진 추가
               <input type="file" accept="image/*" multiple @change="uploadBizPhotos" class="hidden" />
             </label>
           </div>
 
-          <button @click="saveMyBiz" class="bg-amber-400 text-amber-900 font-bold px-6 py-2 rounded-lg hover:bg-amber-500">저장하기</button>
+          <button @click="saveMyBiz" class="btn-primary px-6">저장하기</button>
 
           <!-- 메뉴 관리 -->
-          <div class="border-t pt-4 mt-4">
+          <div class="border-t border-gray-100 pt-4 mt-4">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="font-bold text-gray-700 text-sm">📋 메뉴 관리</h3>
-              <button @click="showMenuForm=true" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg">+ 메뉴 추가</button>
+              <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm"><AppIcon name="list" :size="14" class="text-amber-600" />메뉴 관리</h3>
+              <button @click="showMenuForm=true" class="btn-primary text-xs px-3 py-1.5"><AppIcon name="plus" :size="12" /> 메뉴 추가</button>
             </div>
 
             <!-- 메뉴 추가/수정 폼 -->
-            <div v-if="showMenuForm" class="bg-amber-50 rounded-lg p-3 mb-3 space-y-2">
+            <div v-if="showMenuForm" class="bg-amber-50 rounded-xl p-3 mb-3 space-y-2">
               <div class="grid grid-cols-3 gap-2">
-                <div class="col-span-2"><input v-model="menuForm.name" placeholder="메뉴 이름" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-                <div><input v-model.number="menuForm.price" type="number" step="0.01" placeholder="가격" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+                <div class="col-span-2"><input v-model="menuForm.name" placeholder="메뉴 이름" class="input-soft" /></div>
+                <div><input v-model.number="menuForm.price" type="number" step="0.01" placeholder="가격" class="input-soft" /></div>
               </div>
-              <input v-model="menuForm.description" placeholder="설명 (선택)" class="w-full border rounded-lg px-3 py-2 text-sm" />
-              <select v-model="menuForm.category" class="border rounded-lg px-3 py-2 text-sm">
+              <input v-model="menuForm.description" placeholder="설명 (선택)" class="input-soft" />
+              <select v-model="menuForm.category" class="input-soft w-auto">
                 <option value="main">메인</option><option value="side">사이드</option><option value="drink">음료</option><option value="dessert">디저트</option><option value="etc">기타</option>
               </select>
 
               <!-- 옵션 (최대 5개) -->
-              <div class="text-xs font-bold text-gray-600">옵션 (최대 5개)</div>
+              <div class="text-xs font-bold text-ink-light">옵션 (최대 5개)</div>
               <div v-for="(opt, i) in menuForm.options" :key="i" class="flex gap-2">
-                <input v-model="opt.name" placeholder="옵션명" class="flex-1 border rounded-lg px-2 py-1 text-xs" />
-                <input v-model.number="opt.price_add" type="number" step="0.01" placeholder="+$" class="w-20 border rounded-lg px-2 py-1 text-xs" />
-                <button @click="menuForm.options.splice(i,1)" class="text-red-400 text-xs">✕</button>
+                <input v-model="opt.name" placeholder="옵션명" class="input-soft flex-1 w-auto px-2 py-1 text-xs" />
+                <input v-model.number="opt.price_add" type="number" step="0.01" placeholder="+$" class="input-soft w-20 px-2 py-1 text-xs" />
+                <button @click="menuForm.options.splice(i,1)" class="text-red-400 hover:text-red-600 text-xs transition-colors">✕</button>
               </div>
-              <button v-if="menuForm.options.length < 5" @click="menuForm.options.push({name:'',price_add:0})" class="text-xs text-amber-600">+ 옵션 추가</button>
+              <button v-if="menuForm.options.length < 5" @click="menuForm.options.push({name:'',price_add:0})" class="text-xs text-amber-600 hover:text-amber-700 transition-colors">+ 옵션 추가</button>
 
               <div class="flex gap-2">
-                <button @click="saveMenu" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs">저장</button>
-                <button @click="showMenuForm=false; menuForm={name:'',description:'',price:0,category:'main',options:[]}" class="text-xs text-gray-500">취소</button>
+                <button @click="saveMenu" class="btn-primary text-xs px-4 py-1.5">저장</button>
+                <button @click="showMenuForm=false; menuForm={name:'',description:'',price:0,category:'main',options:[]}" class="btn-ghost text-xs px-3 py-1.5">취소</button>
               </div>
             </div>
 
             <!-- 기존 메뉴 목록 -->
-            <div v-for="menu in editBiz.menus" :key="menu.id" class="border rounded-lg p-3 mb-2">
+            <div v-for="menu in editBiz.menus" :key="menu.id" class="border border-gray-100 rounded-xl p-3 mb-2">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="text-sm font-bold text-gray-800">{{ menu.name }}</span>
-                  <span class="text-xs text-gray-400 ml-2">{{ menu.category }}</span>
+                  <span class="text-sm font-bold text-ink">{{ menu.name }}</span>
+                  <span class="text-xs text-ink-faint ml-2">{{ menu.category }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-bold text-amber-600">${{ Number(menu.price).toFixed(2) }}</span>
-                  <button @click="editMenuItem(menu)" class="text-xs text-amber-600">수정</button>
-                  <button @click="deleteMenu(menu)" class="text-xs text-red-400">삭제</button>
+                  <button @click="editMenuItem(menu)" class="text-xs text-amber-600 hover:text-amber-700 transition-colors">수정</button>
+                  <button @click="deleteMenu(menu)" class="text-xs text-red-400 hover:text-red-600 transition-colors">삭제</button>
                 </div>
               </div>
               <div v-if="menu.options?.length" class="mt-1 flex gap-2 flex-wrap">
-                <span v-for="opt in menu.options" :key="opt.id" class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">{{ opt.name }} +${{ opt.price_add }}</span>
+                <span v-for="opt in menu.options" :key="opt.id" class="text-xs bg-gray-100 text-ink-light px-2 py-0.5 rounded-full">{{ opt.name }} +${{ opt.price_add }}</span>
               </div>
             </div>
           </div>
@@ -787,29 +787,29 @@
 
         <!-- 업소 목록 -->
         <div v-else class="space-y-2">
-          <div v-for="biz in myBizList" :key="biz.id" class="border rounded-lg p-3 hover:border-amber-400 transition">
+          <div v-for="biz in myBizList" :key="biz.id" class="border border-gray-100 rounded-xl p-3 hover:border-amber-300 transition-colors">
             <div class="flex items-center gap-3" @click="editBiz=biz" style="cursor:pointer">
               <img v-if="biz.images?.length" :src="biz.images[0]" class="w-12 h-12 rounded-lg object-cover" />
-              <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-xl" v-else>🏪</div>
+              <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-300" v-else><AppIcon name="store" :size="22" :stroke-width="1.5" /></div>
               <div class="flex-1">
                 <div class="flex items-center gap-1.5">
-                  <div class="text-sm font-bold text-gray-800">{{ biz.name }}</div>
-                  <span v-if="biz.promotion_tier === 'national' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()" class="text-[9px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌐 전국구</span>
-                  <span v-else-if="biz.promotion_tier === 'state_plus' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()" class="text-[9px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
-                  <span v-else-if="biz.promotion_tier === 'sponsored' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()" class="text-[9px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
+                  <div class="text-sm font-bold text-ink">{{ biz.name }}</div>
+                  <span v-if="biz.promotion_tier === 'national' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()" class="badge-red !text-[11px]">🌐 전국구</span>
+                  <span v-else-if="biz.promotion_tier === 'state_plus' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()" class="badge-blue !text-[11px]">⭐ 주+</span>
+                  <span v-else-if="biz.promotion_tier === 'sponsored' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()" class="badge-primary !text-[11px]">📢 스폰서</span>
                 </div>
-                <div class="text-xs text-gray-400">{{ biz.category }} · {{ biz.city }}, {{ biz.state }}</div>
+                <div class="text-xs text-ink-faint">{{ biz.category }} · {{ biz.city }}, {{ biz.state }}</div>
               </div>
             </div>
             <div class="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between gap-2">
               <div v-if="biz.promotion_tier && biz.promotion_tier !== 'none' && biz.promotion_expires_at && new Date(biz.promotion_expires_at) > new Date()"
-                class="text-[10px] text-gray-500">
+                class="text-xs text-ink-muted">
                 상위노출 만료: {{ fmtDateFull(biz.promotion_expires_at) }}
               </div>
-              <div v-else class="text-[10px] text-gray-400">상위노출 미적용</div>
+              <div v-else class="text-xs text-ink-faint">상위노출 미적용</div>
               <button @click="openBizPromote(biz)"
-                class="text-[10px] font-bold px-3 py-1 rounded bg-purple-100 text-purple-700 hover:bg-purple-200">
-                🚀 상위노출 {{ biz.promotion_tier === 'none' || !biz.promotion_expires_at || new Date(biz.promotion_expires_at) <= new Date() ? '신청' : '연장/변경' }}
+                class="inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors">
+                <AppIcon name="sparkles" :size="12" /> 상위노출 {{ biz.promotion_tier === 'none' || !biz.promotion_expires_at || new Date(biz.promotion_expires_at) <= new Date() ? '신청' : '연장/변경' }}
               </button>
             </div>
           </div>
@@ -819,10 +819,10 @@
 
     <!-- 업소 상위노출 신청 모달 -->
     <div v-if="bizPromoTarget" class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" @click.self="bizPromoTarget=null">
-      <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 space-y-3">
+      <div class="bg-white rounded-2xl shadow-lift max-w-lg w-full max-h-[90vh] overflow-y-auto p-4 space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="font-bold text-gray-800">🚀 {{ bizPromoTarget.name }} 상위노출</h3>
-          <button @click="bizPromoTarget=null" class="text-gray-400 text-xl">&times;</button>
+          <h3 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-violet-50 text-violet-600"><AppIcon name="sparkles" :size="14" /></span>{{ bizPromoTarget.name }} 상위노출</h3>
+          <button @click="bizPromoTarget=null" class="text-ink-faint hover:text-ink text-xl transition-colors">&times;</button>
         </div>
         <PromotionSection resource="business" :is-edit="false"
           :category="bizPromoTarget.category" :state="bizPromoTarget.state"
@@ -830,9 +830,9 @@
           category-label="업소 카테고리" />
         <div v-if="bizPromoError" class="bg-red-50 border border-red-200 text-red-600 rounded-lg px-3 py-2 text-xs">{{ bizPromoError }}</div>
         <div class="flex gap-2 justify-end">
-          <button @click="bizPromoTarget=null" class="text-gray-500 text-xs px-4 py-2">취소</button>
+          <button @click="bizPromoTarget=null" class="btn-ghost text-xs px-4">취소</button>
           <button @click="submitBizPromote" :disabled="bizPromoSubmitting || bizPromotion.tier === 'none'"
-            class="bg-purple-500 text-white font-bold px-4 py-2 rounded-lg text-xs disabled:opacity-50">
+            class="bg-violet-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition-colors hover:bg-violet-600 disabled:opacity-50">
             {{ bizPromoSubmitting ? '처리중...' : '상위노출 적용' }}
           </button>
         </div>
@@ -841,29 +841,29 @@
 
     <!-- ═══ 이력서 탭 ═══ -->
     <div v-else-if="tab==='resume'" class="space-y-4">
-      <div class="bg-white rounded-xl shadow-sm border p-5">
-        <h2 class="font-bold text-gray-800 mb-4">📄 이력서 관리</h2>
+      <div class="card p-5">
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="newspaper" :size="15" /></span>이력서 관리</h2>
         <div class="space-y-3">
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">이력서 제목</label>
-            <input v-model="resume.title" placeholder="예: 요식업 경력 3년 구직자" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <label class="input-label">이력서 제목</label>
+            <input v-model="resume.title" placeholder="예: 요식업 경력 3년 구직자" class="input-soft" />
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label class="text-xs font-bold text-gray-600 mb-1 block">이름</label><input v-model="resume.name" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
-            <div><label class="text-xs font-bold text-gray-600 mb-1 block">연락처</label><input v-model="resume.phone" class="w-full border rounded-lg px-3 py-2 text-sm" /></div>
+            <div><label class="input-label">이름</label><input v-model="resume.name" class="input-soft" /></div>
+            <div><label class="input-label">연락처</label><input v-model="resume.phone" class="input-soft" /></div>
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">이메일</label>
-            <input v-model="resume.email" type="email" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <label class="input-label">이메일</label>
+            <input v-model="resume.email" type="email" class="input-soft" />
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">자기소개</label>
-            <textarea v-model="resume.introduction" rows="4" placeholder="간단한 자기소개를 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+            <label class="input-label">자기소개</label>
+            <textarea v-model="resume.introduction" rows="4" placeholder="간단한 자기소개를 작성해주세요" class="input-soft"></textarea>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="text-xs font-bold text-gray-600 mb-1 block">희망 직종</label>
-              <select v-model="resume.desired_category" class="w-full border rounded-lg px-3 py-2 text-sm">
+              <label class="input-label">희망 직종</label>
+              <select v-model="resume.desired_category" class="input-soft">
                 <option value="">선택해주세요</option>
                 <option value="restaurant">요식업</option><option value="it">IT</option><option value="beauty">미용</option>
                 <option value="driving">운전</option><option value="retail">판매</option><option value="office">사무직</option>
@@ -871,74 +871,74 @@
               </select>
             </div>
             <div>
-              <label class="text-xs font-bold text-gray-600 mb-1 block">희망 근무형태</label>
-              <select v-model="resume.desired_type" class="w-full border rounded-lg px-3 py-2 text-sm">
+              <label class="input-label">희망 근무형태</label>
+              <select v-model="resume.desired_type" class="input-soft">
                 <option value="full">풀타임</option><option value="part">파트타임</option><option value="contract">계약직</option>
               </select>
             </div>
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">희망 급여</label>
-            <input v-model="resume.desired_salary" placeholder="예: 시급 $18 이상, 월급 $3000 이상" class="w-full border rounded-lg px-3 py-2 text-sm" />
+            <label class="input-label">희망 급여</label>
+            <input v-model="resume.desired_salary" placeholder="예: 시급 $18 이상, 월급 $3000 이상" class="input-soft" />
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">경력사항</label>
-            <textarea v-model="resume.experience" rows="4" placeholder="경력사항을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+            <label class="input-label">경력사항</label>
+            <textarea v-model="resume.experience" rows="4" placeholder="경력사항을 작성해주세요" class="input-soft"></textarea>
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">학력</label>
-            <textarea v-model="resume.education" rows="3" placeholder="학력사항을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+            <label class="input-label">학력</label>
+            <textarea v-model="resume.education" rows="3" placeholder="학력사항을 작성해주세요" class="input-soft"></textarea>
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">보유기술</label>
-            <textarea v-model="resume.skills" rows="3" placeholder="보유 기술을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+            <label class="input-label">보유기술</label>
+            <textarea v-model="resume.skills" rows="3" placeholder="보유 기술을 작성해주세요" class="input-soft"></textarea>
           </div>
           <div>
-            <label class="text-xs font-bold text-gray-600 mb-1 block">자격증</label>
-            <textarea v-model="resume.certifications" rows="3" placeholder="자격증을 작성해주세요" class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+            <label class="input-label">자격증</label>
+            <textarea v-model="resume.certifications" rows="3" placeholder="자격증을 작성해주세요" class="input-soft"></textarea>
           </div>
-          <div class="flex items-center gap-3 pt-2 border-t">
-            <label class="text-xs font-bold text-gray-600">공개 여부</label>
+          <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
+            <label class="text-xs font-bold text-ink-light">공개 여부</label>
             <button @click="resume.is_public=!resume.is_public" class="relative w-10 h-5 rounded-full transition"
               :class="resume.is_public ? 'bg-amber-400' : 'bg-gray-300'">
               <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
                 :class="resume.is_public ? 'left-5' : 'left-0.5'"></span>
             </button>
-            <span class="text-xs text-gray-500">{{ resume.is_public ? '공개 (구인 업체가 볼 수 있음)' : '비공개' }}</span>
+            <span class="text-xs text-ink-muted">{{ resume.is_public ? '공개 (구인 업체가 볼 수 있음)' : '비공개' }}</span>
           </div>
-          <div v-if="resumeMsg" class="text-sm" :class="resumeMsgType==='success' ? 'text-green-600' : 'text-red-500'">{{ resumeMsg }}</div>
-          <button @click="saveResume" :disabled="resumeSaving" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ resumeSaving ? '저장 중...' : '저장하기' }}</button>
+          <div v-if="resumeMsg" class="text-sm" :class="resumeMsgType==='success' ? 'text-emerald-600' : 'text-red-500'">{{ resumeMsg }}</div>
+          <button @click="saveResume" :disabled="resumeSaving" class="btn-primary px-6">{{ resumeSaving ? '저장 중...' : '저장하기' }}</button>
         </div>
       </div>
     </div>
 
     <!-- 결제 모달 -->
     <div v-if="payModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="payModal=false">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-        <div class="bg-gradient-to-r from-amber-400 to-orange-400 px-5 py-3">
-          <div class="text-sm font-black text-amber-900">💳 포인트 구매</div>
+      <div class="bg-white rounded-2xl shadow-lift w-full max-w-sm mx-4 overflow-hidden">
+        <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] px-5 py-3">
+          <div class="text-sm font-black text-white flex items-center gap-1.5"><AppIcon name="wallet" :size="15" /> 포인트 구매</div>
         </div>
         <div class="p-5">
           <div class="text-center mb-4">
             <div class="text-2xl font-black text-amber-600">{{ payPkg?.label }}</div>
-            <div class="text-lg font-bold text-gray-800">{{ ((payPkg?.points||0)+(payPkg?.bonus||0)).toLocaleString() }}P — ${{ payPkg?.price }}</div>
+            <div class="text-lg font-bold text-ink">{{ ((payPkg?.points||0)+(payPkg?.bonus||0)).toLocaleString() }}P — ${{ payPkg?.price }}</div>
           </div>
           <div id="card-element" class="border-2 border-gray-200 rounded-lg p-3 mb-3 min-h-[40px]"></div>
           <div v-if="payError" class="text-sm text-red-500 mb-2">{{ payError }}</div>
           <div class="flex gap-2">
-            <button @click="payModal=false" class="flex-1 bg-gray-100 text-gray-600 font-bold py-2.5 rounded-lg text-sm hover:bg-gray-200">취소</button>
-            <button @click="confirmPay" :disabled="paying" class="flex-1 bg-amber-500 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-amber-600 disabled:opacity-50">{{ paying ? '결제중...' : '결제하기' }}</button>
+            <button @click="payModal=false" class="btn-secondary flex-1">취소</button>
+            <button @click="confirmPay" :disabled="paying" class="btn-primary flex-1">{{ paying ? '결제중...' : '결제하기' }}</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 계정 관리 -->
-    <div class="bg-white rounded-xl shadow-sm border p-5 mt-5">
-      <h2 class="font-bold text-gray-700 mb-3">⚙️ 계정 관리</h2>
-      <div class="flex gap-3">
-        <button @click="handleLogout" class="bg-gray-100 text-gray-700 font-bold px-4 py-2 rounded-lg text-sm hover:bg-gray-200">🚪 로그아웃</button>
-        <button @click="deleteAccount" class="text-red-400 text-sm hover:text-red-600">⚠️ 회원 탈퇴</button>
+    <div class="card p-5 mt-5">
+      <h2 class="flex items-center gap-2 font-bold text-ink mb-3"><span class="icon-chip w-7 h-7 bg-gray-100 text-ink-muted"><AppIcon name="settings" :size="15" /></span>계정 관리</h2>
+      <div class="flex gap-3 items-center">
+        <button @click="handleLogout" class="btn-secondary text-sm px-4 py-2"><AppIcon name="log-out" :size="14" /> 로그아웃</button>
+        <button @click="deleteAccount" class="text-red-400 text-sm hover:text-red-600 inline-flex items-center gap-1 transition-colors"><AppIcon name="alert-circle" :size="14" /> 회원 탈퇴</button>
       </div>
     </div>
   </div>
@@ -954,6 +954,7 @@ import { useModal } from '../../composables/useModal'
 import axios from 'axios'
 import AdApplyEmbed from '../ads/AdApply.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const { showAlert, showConfirm, showPrompt } = useModal()
 
@@ -965,20 +966,20 @@ const tab = ref(route.query.tab || 'profile')
 
 // menuKey 가 지정된 탭은 관리자 페이지에서 해당 메뉴가 숨김/관리자전용 처리되면 함께 숨김 처리됨
 const allTabs = [
-  { key: 'profile',    icon: '📝', label: '프로필' },
-  { key: 'points',     icon: '💰', label: '포인트' },
-  { key: 'messages',   icon: '✉️', label: '쪽지함' },
-  { key: 'posts',      icon: '📄', label: '내 글' },
-  { key: 'market',     icon: '🛒', label: '내 장터',     menuKey: 'market' },
-  { key: 'jobs',       icon: '💼', label: '내 구인',     menuKey: 'jobs' },
-  { key: 'realestate', icon: '🏠', label: '내 부동산',   menuKey: 'realestate' },
-  { key: 'ads',        icon: '📢', label: '광고 신청' },
-  { key: 'calls',      icon: '📞', label: '통화내역',    menuKey: 'comms' },
-  { key: 'bookmarks',  icon: '🔖', label: '북마크' },
-  { key: 'elder',      icon: '🛡️', label: '안심',        menuKey: 'elder' },
-  { key: 'payments',   icon: '💳', label: '결제' },
-  { key: 'mybiz',      icon: '🏪', label: '내 업소',     menuKey: 'directory' },
-  { key: 'resume',     icon: '📄', label: '이력서',      menuKey: 'jobs' },
+  { key: 'profile',    icon: 'user',          label: '프로필' },
+  { key: 'points',     icon: 'coins',         label: '포인트' },
+  { key: 'messages',   icon: 'mail',          label: '쪽지함' },
+  { key: 'posts',      icon: 'edit',          label: '내 글' },
+  { key: 'market',     icon: 'shopping-cart', label: '내 장터',     menuKey: 'market' },
+  { key: 'jobs',       icon: 'briefcase',     label: '내 구인',     menuKey: 'jobs' },
+  { key: 'realestate', icon: 'home',          label: '내 부동산',   menuKey: 'realestate' },
+  { key: 'ads',        icon: 'megaphone',     label: '광고 신청' },
+  { key: 'calls',      icon: 'phone',         label: '통화내역',    menuKey: 'comms' },
+  { key: 'bookmarks',  icon: 'bookmark',      label: '북마크' },
+  { key: 'elder',      icon: 'shield',        label: '안심',        menuKey: 'elder' },
+  { key: 'payments',   icon: 'wallet',        label: '결제' },
+  { key: 'mybiz',      icon: 'store',         label: '내 업소',     menuKey: 'directory' },
+  { key: 'resume',     icon: 'newspaper',     label: '이력서',      menuKey: 'jobs' },
 ]
 
 const tabs = computed(() => {

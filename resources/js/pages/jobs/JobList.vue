@@ -1,27 +1,30 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 | 우 컨트롤 — grid 3컬럼) -->
     <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
-      <h1 class="text-xl font-black text-gray-800 whitespace-nowrap justify-self-start">💼 구인구직</h1>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap justify-self-start">
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="20" /></span>
+        구인구직
+      </h1>
 
       <!-- 구인/구직 세그먼트 (정 중앙) -->
-      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <div class="flex bg-gray-100 rounded-xl p-1">
         <button @click="postType = 'hiring'; loadPage()"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            postType === 'hiring' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50']">
-          💼 구인
+          :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+            postType === 'hiring' ? 'bg-white text-amber-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="briefcase" :size="13" />구인
         </button>
         <button @click="postType = 'seeking'; loadPage()"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            postType === 'seeking' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-50']">
-          🙋 구직
+          :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+            postType === 'seeking' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="user" :size="13" />구직
         </button>
       </div>
 
       <div class="flex items-center gap-2 flex-nowrap justify-self-end">
         <select v-model="selectedCityIdx" @change="onCityChange"
-          class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
+          class="input-soft w-auto px-2.5 py-1.5 pr-8 text-xs font-semibold">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
@@ -29,38 +32,40 @@
           </optgroup>
         </select>
         <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()"
-          class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+          class="input-soft w-auto px-2 py-1.5 pr-7 text-xs">
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
+          <button type="submit" class="btn-primary px-3 py-1.5 rounded-lg text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">✏️ 등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary px-3 py-1.5 rounded-lg text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
       </div>
     </div>
 
     <!-- 헤더: 모바일 (필터 바텀시트) -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="text-lg font-black text-gray-800">💼 구인구직</h1>
+        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="18" /></span>
+          구인구직
+        </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1">
-            🔍 필터
+          <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs">
+            <AppIcon name="filter" :size="13" />필터
           </button>
-          <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg">✏️ 등록</RouterLink>
+          <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
         </div>
       </div>
       <!-- 선택된 필터 태그 -->
       <div class="flex items-center gap-1.5 overflow-x-auto">
-        <span class="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
-          :class="postType === 'hiring' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'">
-          {{ postType === 'hiring' ? '💼 구인' : '🙋 구직' }}
+        <span :class="postType === 'hiring' ? 'badge-primary' : 'badge-blue'">
+          {{ postType === 'hiring' ? '구인' : '구직' }}
         </span>
-        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-          📍{{ selectedCityIdx == -1 ? '전국' : (koreanCities[selectedCityIdx]?.label || '내 위치') }}
+        <span class="badge-gray">
+          <AppIcon name="map-pin" :size="11" />{{ selectedCityIdx == -1 ? '전국' : (koreanCities[selectedCityIdx]?.label || '내 위치') }}
         </span>
-        <span v-if="search" class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+        <span v-if="search" class="badge-gray">
           "{{ search }}"
         </span>
       </div>
@@ -69,9 +74,9 @@
     <!-- 모바일 필터 (위→아래) -->
     <MobileFilter v-model="showFilter" @apply="loadPage()" @reset="postType = 'hiring'; activeCat = ''; search = ''; selectedCityIdx = -1; onCityChange()">
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">지역</label>
+        <label class="input-label">지역</label>
         <select v-model="selectedCityIdx" @change="onCityChange"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:ring-2 focus:ring-amber-400">
+          class="input-soft">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
@@ -80,25 +85,25 @@
         </select>
       </div>
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">검색어</label>
+        <label class="input-label">검색어</label>
         <input v-model="search" type="text" placeholder="직종, 회사명, 키워드..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          class="input-soft" />
       </div>
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">공고 유형</label>
+        <label class="input-label">공고 유형</label>
         <div class="flex gap-2">
-          <button @click="postType = 'hiring'" class="flex-1 py-2.5 rounded-lg font-bold text-sm border-2 transition"
-            :class="postType === 'hiring' ? 'bg-amber-400 text-amber-900 border-amber-400' : 'border-gray-200 text-gray-500'">💼 구인</button>
-          <button @click="postType = 'seeking'" class="flex-1 py-2.5 rounded-lg font-bold text-sm border-2 transition"
-            :class="postType === 'seeking' ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-200 text-gray-500'">🙋 구직</button>
+          <button @click="postType = 'hiring'" class="flex-1 py-2.5 rounded-xl font-bold text-sm border-2 transition flex items-center justify-center gap-1.5"
+            :class="postType === 'hiring' ? 'bg-amber-400 text-white border-amber-400 shadow-btn' : 'border-gray-200 text-ink-muted'"><AppIcon name="briefcase" :size="15" />구인</button>
+          <button @click="postType = 'seeking'" class="flex-1 py-2.5 rounded-xl font-bold text-sm border-2 transition flex items-center justify-center gap-1.5"
+            :class="postType === 'seeking' ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-200 text-ink-muted'"><AppIcon name="user" :size="15" />구직</button>
         </div>
       </div>
       <div>
-        <label class="text-xs font-bold text-gray-600 mb-2 block">카테고리</label>
+        <label class="input-label">카테고리</label>
         <div class="grid grid-cols-3 gap-1.5">
           <button v-for="c in jobCategories" :key="c.value" @click="activeCat = c.value"
             class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="activeCat === c.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+            :class="activeCat === c.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
             {{ c.label }}
           </button>
         </div>
@@ -109,20 +114,20 @@
     <!-- 왼쪽: 카테고리 사이드바 + 구인/구직 토글 (lg 이상) -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-3 py-2.5 border-b border-gray-200 font-bold text-xs flex items-center justify-between"
+        <div class="card overflow-hidden">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs flex items-center justify-between"
             :class="postType === 'hiring' ? 'text-amber-700' : 'text-blue-700'">
-            <span>{{ postType === 'hiring' ? '💼 구인 카테고리' : '🙋 구직 카테고리' }}</span>
+            <span>{{ postType === 'hiring' ? '구인 카테고리' : '구직 카테고리' }}</span>
           </div>
           <button v-for="c in jobCategories" :key="c.value" @click="showFavorites=false; activeCat = c.value; loadPage()"
-            class="w-full text-left px-3 py-2 text-xs transition"
+            class="w-full text-left px-3 py-2 text-xs transition-colors"
             :class="!showFavorites && activeCat === c.value
               ? (postType === 'hiring' ? 'bg-amber-50 text-amber-700 font-bold' : 'bg-blue-50 text-blue-700 font-bold')
-              : 'text-gray-600 hover:bg-gray-50'">{{ c.label }}</button>
+              : 'text-ink-light hover:bg-gray-50'">{{ c.label }}</button>
           <button v-if="auth.isLoggedIn" @click="loadFavoritesPage()"
-            class="w-full text-left px-3 py-2 text-xs transition border-t"
-            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-            🔖 내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+            class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 flex items-center gap-1"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
+            <AppIcon name="bookmark" :size="12" />내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
           </button>
         </div>
         <AdSlot page="jobs" position="left" :maxSlots="2" />
@@ -131,12 +136,12 @@
     <div class="col-span-12 lg:col-span-7">
 
     <div class="mb-2">
-      <span v-if="showFavorites" class="font-bold text-red-600 text-sm">🔖 내 북마크</span>
+      <span v-if="showFavorites" class="font-bold text-red-600 text-sm inline-flex items-center gap-1"><AppIcon name="bookmark" :size="14" />내 북마크</span>
       <template v-else>
         <span class="text-sm font-bold" :class="postType === 'hiring' ? 'text-amber-700' : 'text-blue-700'">
           {{ activeCat ? (jobCategories.find(c => c.value === activeCat)?.label || activeCat) : '전체' }}
         </span>
-        <span v-if="!activeCat" class="text-xs text-gray-400 ml-2">
+        <span v-if="!activeCat" class="text-xs text-ink-muted ml-2">
           {{ postType === 'hiring' ? '모든 채용 공고를 볼 수 있습니다' : '모든 구직 인재를 볼 수 있습니다' }}
         </span>
       </template>
@@ -144,55 +149,55 @@
 
 
     <!-- 목록 -->
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-    <div v-else-if="!items.length" class="text-center py-12">
-      <div class="text-4xl mb-3">{{ postType === 'hiring' ? '💼' : '🙋' }}</div>
-      <div class="text-gray-500 font-semibold">검색 결과가 없습니다</div>
+    <div v-if="loading" class="text-center py-12 text-sm text-ink-muted">로딩중...</div>
+    <div v-else-if="!items.length" class="py-16 text-center">
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon :name="postType === 'hiring' ? 'briefcase' : 'user'" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-sm text-ink-muted">검색 결과가 없습니다</p>
     </div>
-    <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div v-else class="card overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="goDetail(item)"
         class="px-4 py-3 border-b border-gray-50 transition cursor-pointer"
         :class="jobBorderClass(item)" :style="jobBorderStyle(item)">
         <div class="flex items-center gap-3">
           <!-- 로고 -->
-          <img v-if="item.logo" :src="item.logo" class="w-12 h-12 rounded object-cover flex-shrink-0 border" @error="$event.target.style.display='none'" />
-          <div v-else class="w-12 h-12 rounded bg-amber-50 flex items-center justify-center text-xl flex-shrink-0">{{ categoryEmoji(item.category) }}</div>
+          <img v-if="item.logo" :src="item.logo" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100" @error="$event.target.style.display='none'" />
+          <div v-else class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0"><AppIcon name="briefcase" :size="22" :stroke-width="1.5" /></div>
 
           <div class="flex-1 min-w-0">
             <!-- 1행: 프로모션 뱃지 + 직종 태그 (제목 위로) -->
             <div class="flex items-center gap-1 mb-0.5 flex-wrap">
-              <span v-if="item.promotion_tier==='national'" class="text-[10px] bg-red-500 text-white font-bold px-1 py-px rounded">🌐 전국구</span>
-              <span v-else-if="item.promotion_tier==='state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-1 py-px rounded">⭐ 주+</span>
-              <span v-else-if="item.promotion_tier==='sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-1 py-px rounded">📢 스폰서</span>
-              <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[10px] bg-gray-100 text-gray-600 px-1 py-px rounded">{{ jobTagLabel(tag) }}</span>
+              <span v-if="item.promotion_tier==='national'" class="inline-flex items-center gap-0.5 text-[11px] bg-red-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="globe" :size="10" />전국구</span>
+              <span v-else-if="item.promotion_tier==='state_plus'" class="inline-flex items-center gap-0.5 text-[11px] bg-blue-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="star" :size="10" />주+</span>
+              <span v-else-if="item.promotion_tier==='sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="megaphone" :size="10" />스폰서</span>
+              <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[11px] bg-gray-100 text-ink-light px-1.5 py-px rounded">{{ jobTagLabel(tag) }}</span>
             </div>
             <!-- 2행: 제목 -->
-            <div class="text-sm font-medium text-gray-800 truncate">{{ item.title || item.name }}</div>
+            <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
             <!-- 3행: 메타 -->
-            <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
               <template v-if="postType === 'seeking'">
                 <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name" className="text-blue-600 font-semibold" />
                 <span v-else class="text-blue-600 font-semibold">{{ item.user?.name || '익명' }}</span>
               </template>
               <template v-else>
-                <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name || item.company || item.organizer" className="text-gray-600" />
+                <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name || item.company || item.organizer" className="text-ink-light" />
                 <span v-else-if="item.company || item.organizer">{{ item.company || item.organizer }}</span>
               </template>
-              <span v-if="item.city" class="flex items-center gap-0.5">📍{{ item.city }}, {{ item.state }}</span>
+              <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ item.city }}, {{ item.state }}</span>
               <span v-if="item.distance !== undefined && item.distance !== null"
                 class="font-semibold" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
                 {{ Number(item.distance).toFixed(1) }}mi
               </span>
-              <span v-if="item.created_at" class="text-gray-400">🕐 {{ fmtDate(item.created_at) }}</span>
-              <span v-if="item.view_count">👁{{ item.view_count }}</span>
+              <span v-if="item.created_at" class="flex items-center gap-0.5 text-ink-faint"><AppIcon name="clock" :size="11" />{{ fmtDate(item.created_at) }}</span>
+              <span v-if="item.view_count" class="flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count }}</span>
             </div>
           </div>
           <!-- 급여 + 하트 -->
           <div class="ml-3 flex-shrink-0 text-right flex flex-col items-end gap-1">
             <div v-if="item.salary_min"
               class="font-black text-base whitespace-nowrap" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
-              ${{ item.salary_min }}~${{ item.salary_max }} <span class="text-xs font-bold text-gray-500">/ {{ {hourly:'hr',monthly:'mo',yearly:'yr'}[item.salary_type] || item.salary_type }}</span>
+              ${{ item.salary_min }}~${{ item.salary_max }} <span class="text-xs font-bold text-ink-muted">/ {{ {hourly:'hr',monthly:'mo',yearly:'yr'}[item.salary_type] || item.salary_type }}</span>
             </div>
             <div v-else-if="item.price !== undefined && item.price !== null"
               class="font-black text-base" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
@@ -234,6 +239,7 @@ import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -247,16 +253,16 @@ const activeCat = ref('')
 const showFilter = ref(false)
 const jobCategories = [
   { value: '', label: '전체' },
-  { value: 'restaurant', label: '🍳 요식업' },
-  { value: 'it', label: '💻 IT' },
-  { value: 'beauty', label: '💅 미용' },
-  { value: 'driving', label: '🚗 운전' },
-  { value: 'retail', label: '🛒 판매' },
-  { value: 'office', label: '🏢 사무직' },
-  { value: 'construction', label: '🔨 건설' },
-  { value: 'medical', label: '🏥 의료' },
-  { value: 'education', label: '📚 교육' },
-  { value: 'etc', label: '📋 기타' },
+  { value: 'restaurant', label: '요식업' },
+  { value: 'it', label: 'IT' },
+  { value: 'beauty', label: '미용' },
+  { value: 'driving', label: '운전' },
+  { value: 'retail', label: '판매' },
+  { value: 'office', label: '사무직' },
+  { value: 'construction', label: '건설' },
+  { value: 'medical', label: '의료' },
+  { value: 'education', label: '교육' },
+  { value: 'etc', label: '기타' },
 ]
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
@@ -291,7 +297,7 @@ function jobBorderClass(item) {
 function jobBorderStyle(item) {
   if (item.promotion_tier === 'national') return 'border: 2px solid #fca5a5; border-radius: 8px; background: #fef2f2;'
   if (item.promotion_tier === 'state_plus') return 'border: 2px solid #bfdbfe; border-radius: 8px; background: #f0f7ff;'
-  if (item.promotion_tier === 'sponsored') return 'border: 2px solid #fde68a; border-radius: 8px; background: #fffef5;'
+  if (item.promotion_tier === 'sponsored') return 'border: 2px solid #FFC9AD; border-radius: 8px; background: #FFF8F4;'
   return ''
 }
 

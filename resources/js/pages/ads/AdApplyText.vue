@@ -1,91 +1,94 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-2xl mx-auto px-4 py-5">
-    <RouterLink to="/ad-apply" class="text-xs text-gray-500 hover:text-amber-600 mb-2 block">← 이미지 광고 신청으로</RouterLink>
-    <h1 class="text-xl font-black text-gray-800 mb-1">📝 텍스트 인라인 광고 신청</h1>
-    <p class="text-sm text-gray-500 mb-4">상호 + 전화 + 한 줄 설명으로 리스트/상세 중간에 노출 · 이미지 불필요</p>
+    <RouterLink to="/ad-apply" class="text-xs text-ink-muted hover:text-amber-600 transition-colors mb-2 inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="13" />이미지 광고 신청으로</RouterLink>
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="20" /></span>
+      텍스트 인라인 광고 신청
+    </h1>
+    <p class="text-sm text-ink-muted mb-4">상호 + 전화 + 한 줄 설명으로 리스트/상세 중간에 노출 · 이미지 불필요</p>
 
     <!-- 실시간 미리보기 -->
     <div class="mb-5">
-      <div class="text-[11px] font-bold text-gray-500 mb-1.5">🔍 실시간 미리보기 (실제 노출 모양)</div>
+      <div class="text-xs font-bold text-ink-light mb-1.5 flex items-center gap-1"><AppIcon name="search" :size="13" class="text-amber-600" />실시간 미리보기 (실제 노출 모양)</div>
       <TextInlineAd :manualAd="previewAd" :autoLoad="false" />
     </div>
 
     <!-- 입력 폼 -->
-    <div class="bg-white rounded-xl border shadow-sm p-5 space-y-4">
+    <div class="card p-5 space-y-4">
       <!-- 상호 -->
       <div>
-        <label class="text-xs font-bold text-gray-700 block mb-1">상호 *</label>
-        <input v-model="form.title" maxlength="30" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
+        <label class="input-label">상호 *</label>
+        <input v-model="form.title" maxlength="30" class="input-soft"
           placeholder="예: 💈 강남미용실" />
-        <div class="text-[10px] text-gray-400 mt-0.5">{{ form.title.length }}/30 · 이모지 앞에 붙이면 눈에 잘 띕니다</div>
+        <div class="text-xs text-ink-faint mt-0.5">{{ form.title.length }}/30 · 이모지 앞에 붙이면 눈에 잘 띕니다</div>
       </div>
 
       <!-- 전화 -->
       <div>
-        <label class="text-xs font-bold text-gray-700 block mb-1">전화번호</label>
-        <input v-model="form.phone" maxlength="20" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
+        <label class="input-label">전화번호</label>
+        <input v-model="form.phone" maxlength="20" class="input-soft"
           placeholder="예: 770-555-1234" />
       </div>
 
       <!-- 설명 -->
       <div>
-        <label class="text-xs font-bold text-gray-700 block mb-1">한 줄 설명 *</label>
-        <input v-model="form.description" maxlength="120" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
+        <label class="input-label">한 줄 설명 *</label>
+        <input v-model="form.description" maxlength="120" class="input-soft"
           placeholder="예: 한인 전용 $30부터 · 첫방문 20% 할인 · Duluth GA" />
-        <div class="text-[10px] text-gray-400 mt-0.5">{{ form.description.length }}/120</div>
+        <div class="text-xs text-ink-faint mt-0.5">{{ form.description.length }}/120</div>
       </div>
 
       <!-- 링크 -->
       <div>
-        <label class="text-xs font-bold text-gray-700 block mb-1">클릭 시 이동 링크 (선택)</label>
-        <input v-model="form.link_url" type="url" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 outline-none"
+        <label class="input-label">클릭 시 이동 링크 (선택)</label>
+        <input v-model="form.link_url" type="url" class="input-soft"
           placeholder="https://example.com" />
       </div>
 
       <!-- 노출 페이지 -->
       <div>
-        <label class="text-xs font-bold text-gray-700 block mb-2">노출 페이지 *</label>
+        <label class="input-label mb-2">노출 페이지 *</label>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <button v-for="p in pages" :key="p.value" type="button"
             @click="form.page = p.value"
-            :class="form.page === p.value ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-white border-gray-200 text-gray-600 hover:border-purple-200'"
-            class="border-2 rounded-lg px-3 py-2 text-xs font-bold transition">
-            {{ p.icon }} {{ p.label }}
+            :class="form.page === p.value ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-white border-gray-200 text-ink-light hover:border-purple-200'"
+            class="border-2 rounded-lg px-3 py-2 text-xs font-bold transition-colors inline-flex items-center justify-center gap-1">
+            <AppIcon :name="p.icon" :size="13" /> {{ p.label }}
           </button>
         </div>
       </div>
 
       <!-- 기간 -->
       <div>
-        <label class="text-xs font-bold text-gray-700 block mb-2">노출 기간 *</label>
+        <label class="input-label mb-2">노출 기간 *</label>
         <div class="grid grid-cols-3 gap-2">
           <button v-for="p in periods" :key="p.days" type="button"
             @click="form.period = p.days"
-            :class="form.period === p.days ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-white border-gray-200 text-gray-600 hover:border-purple-200'"
-            class="border-2 rounded-lg p-3 text-center transition">
+            :class="form.period === p.days ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-white border-gray-200 text-ink-light hover:border-purple-200'"
+            class="border-2 rounded-lg p-3 text-center transition-colors">
             <div class="text-sm font-black">{{ p.label }}</div>
-            <div class="text-[11px] font-bold text-purple-600 mt-1">{{ p.price.toLocaleString() }}P</div>
+            <div class="text-xs font-bold text-purple-600 mt-1">{{ p.price.toLocaleString() }}P</div>
           </button>
         </div>
       </div>
 
       <!-- 결제 요약 -->
-      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between">
+      <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center justify-between">
         <div>
           <div class="text-xs text-purple-700">총 결제 금액</div>
-          <div class="text-[10px] text-gray-500">입찰가 (높을수록 노출 확률 ↑) 기본 {{ selectedPrice.toLocaleString() }}P</div>
+          <div class="text-xs text-ink-muted">입찰가 (높을수록 노출 확률 ↑) 기본 {{ selectedPrice.toLocaleString() }}P</div>
         </div>
         <div class="text-right">
           <input v-model.number="form.bid_amount" type="number" :min="selectedPrice" step="100"
-            class="w-32 border rounded-lg px-2 py-1 text-right text-lg font-black text-purple-800" />
-          <div class="text-[10px] text-gray-400">P (최소 {{ selectedPrice.toLocaleString() }})</div>
+            class="w-32 border-2 border-purple-300 rounded-xl px-2 py-1 text-right text-lg font-black text-purple-800 outline-none focus:ring-4 focus:ring-purple-400/10" />
+          <div class="text-xs text-ink-faint">P (최소 {{ selectedPrice.toLocaleString() }})</div>
         </div>
       </div>
 
       <!-- 제출 -->
       <button @click="submit" :disabled="!canSubmit || submitting"
-        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black py-3 rounded-lg disabled:opacity-50 hover:shadow-lg transition">
+        class="w-full bg-gradient-to-r from-[#FF8A53] to-[#F2570F] text-white font-bold py-3 rounded-xl disabled:opacity-50 hover:shadow-lg transition">
         {{ submitting ? '신청 중...' : `광고 신청 (${(form.bid_amount || 0).toLocaleString()}P)` }}
       </button>
 
@@ -104,6 +107,7 @@ import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import TextInlineAd from '../../components/TextInlineAd.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 
 const router = useRouter()
@@ -122,15 +126,15 @@ const form = reactive({
 })
 
 const pages = [
-  { value: 'all',         icon: '🌐', label: '전체' },
-  { value: 'home',        icon: '🏠', label: '홈' },
-  { value: 'community',   icon: '💬', label: '커뮤니티' },
-  { value: 'market',      icon: '🛒', label: '장터' },
-  { value: 'jobs',        icon: '💼', label: '구인구직' },
-  { value: 'realestate',  icon: '🏠', label: '부동산' },
-  { value: 'directory',   icon: '🏪', label: '업소록' },
-  { value: 'clubs',       icon: '👥', label: '동호회' },
-  { value: 'events',      icon: '🎉', label: '이벤트' },
+  { value: 'all',         icon: 'globe',          label: '전체' },
+  { value: 'home',        icon: 'home',           label: '홈' },
+  { value: 'community',   icon: 'message-circle', label: '커뮤니티' },
+  { value: 'market',      icon: 'shopping-cart',  label: '장터' },
+  { value: 'jobs',        icon: 'briefcase',      label: '구인구직' },
+  { value: 'realestate',  icon: 'building',       label: '부동산' },
+  { value: 'directory',   icon: 'store',          label: '업소록' },
+  { value: 'clubs',       icon: 'users',          label: '동호회' },
+  { value: 'events',      icon: 'calendar',       label: '이벤트' },
 ]
 
 const periods = [

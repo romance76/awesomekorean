@@ -1,32 +1,35 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 모바일 헤더 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="text-lg font-black text-gray-800">👥 동호회</h1>
+        <h1 class="flex items-center gap-2.5 text-lg font-bold text-ink">
+          <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
+          동호회
+        </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg">🔍 필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg">+ 만들기</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary !px-3 !py-2 !text-xs"><AppIcon name="search" :size="14" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="btn-primary !px-3 !py-2 !text-xs"><AppIcon name="plus" :size="14" />만들기</RouterLink>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 overflow-x-auto">
-        <span v-if="type" class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+      <div class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+        <span v-if="type" class="badge-primary">
           {{ types.find(t => t.value === type)?.label }}
         </span>
-        <span v-if="catFilter" class="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+        <span v-if="catFilter" class="badge-primary">
           {{ clubCategories.find(c => c.value === catFilter)?.label }}
         </span>
-        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-          📍{{ selectedCityIdx == -1 ? '전국' : (myCity?.label || '내 위치') }}
+        <span class="badge-gray">
+          <AppIcon name="map-pin" :size="12" />{{ selectedCityIdx == -1 ? '전국' : (myCity?.label || '내 위치') }}
         </span>
       </div>
     </div>
     <MobileFilter v-model="showFilter" @apply="loadClubs()" @reset="type = ''; catFilter = ''; search = ''; selectedCityIdx = '-1'; onCityChange()">
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">지역</label>
+        <label class="input-label">지역</label>
         <select v-model="selectedCityIdx" @change="onCityChange"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white outline-none focus:ring-2 focus:ring-amber-400">
+          class="input-soft">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
@@ -35,55 +38,58 @@
         </select>
       </div>
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">검색어</label>
+        <label class="input-label">검색어</label>
         <input v-model="search" type="text" placeholder="동호회 이름..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          class="input-soft" />
       </div>
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">유형</label>
+        <label class="input-label">유형</label>
         <div class="flex gap-2">
           <button v-for="t in types" :key="t.value" @click="type = t.value"
-            class="flex-1 py-2 rounded-lg font-bold text-xs border-2 transition"
-            :class="type === t.value ? 'bg-amber-400 text-amber-900 border-amber-400' : 'border-gray-200 text-gray-500'">{{ t.label }}</button>
+            class="flex-1 py-2 rounded-xl font-bold text-xs border-2 transition-colors"
+            :class="type === t.value ? 'bg-amber-400 text-white border-amber-400' : 'border-gray-200 text-ink-muted'">{{ t.label }}</button>
         </div>
       </div>
       <div>
-        <label class="text-xs font-bold text-gray-600 mb-2 block">분류</label>
+        <label class="input-label">분류</label>
         <div class="grid grid-cols-3 gap-1.5">
           <button v-for="c in clubCategories" :key="c.value" @click="catFilter = c.value"
-            class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="catFilter === c.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600'">{{ c.label }}</button>
+            class="text-xs py-2 rounded-xl font-semibold border transition-colors"
+            :class="catFilter === c.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light'">{{ c.label }}</button>
         </div>
       </div>
     </MobileFilter>
 
     <!-- 데스크탑 헤더 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-xl font-black text-gray-800">👥 동호회</h1>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
+        동호회
+      </h1>
       <div class="flex items-center gap-2 flex-wrap">
-        <div class="flex items-center gap-1">
+        <div class="flex items-center bg-gray-100 rounded-xl p-1">
           <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
-            class="px-2.5 py-1 rounded-full text-[10px] font-bold transition"
-            :class="type===t.value ? 'bg-amber-400 text-amber-900' : 'bg-white border text-gray-500 hover:bg-amber-50'">{{ t.label }}</button>
+            class="px-2.5 py-1 rounded-lg text-xs transition"
+            :class="type===t.value ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted'">{{ t.label }}</button>
         </div>
         <template v-if="type !== 'online'">
-          <span class="text-amber-600 text-sm">📍</span>
-          <select v-model="selectedCityIdx" @change="onCityChange" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:ring-2 focus:ring-amber-400 bg-amber-50">
+          <AppIcon name="map-pin" :size="16" class="text-amber-600" />
+          <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft !w-auto !pl-3 !py-1.5 !text-xs font-semibold">
             <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
             <option value="-1">🇺🇸 전국</option>
             <optgroup label="한인 밀집 도시">
               <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
             </optgroup>
           </select>
-          <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-600 outline-none">
+          <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="input-soft !w-auto !pl-3 !py-1.5 !text-xs">
             <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
           </select>
         </template>
-        <form @submit.prevent="loadClubs()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+        <form @submit.prevent="loadClubs()" class="flex gap-1.5">
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft !w-40 !py-1.5" />
+          <button type="submit" class="btn-primary !px-3 !py-1.5 !text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">+ 동호회 만들기</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="btn-primary !px-3 !py-1.5 !text-xs"><AppIcon name="plus" :size="14" />동호회 만들기</RouterLink>
       </div>
     </div>
 
@@ -91,21 +97,21 @@
     <!-- 왼쪽: 카테고리 -->
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 카테고리</div>
+        <div class="card overflow-hidden">
+          <div class="px-3 py-2.5 border-b border-gray-50 flex items-center gap-1.5 font-bold text-xs text-ink"><AppIcon name="list" :size="13" class="text-teal-600" />카테고리</div>
           <button v-for="c in clubCategories" :key="c.value" @click="showFavorites=false; catFilter=c.value; loadClubs()"
-            class="w-full text-left px-3 py-2 text-xs transition"
-            :class="catFilter===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">{{ c.label }}</button>
+            class="w-full text-left px-3 py-2 text-xs transition-colors"
+            :class="catFilter===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ c.label }}</button>
 
           <button v-if="auth.isLoggedIn" @click="showFavorites=true; loadFavoritesPage()"
-            class="w-full text-left px-3 py-2 text-xs transition border-t"
-            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-            🔖 내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+            class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 flex items-center gap-1"
+            :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
+            <AppIcon name="bookmark" :size="13" />내 북마크<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
           </button>
           <template v-if="auth.isLoggedIn && myClubs.length">
-            <div class="px-3 py-2.5 border-t border-b font-bold text-xs text-amber-900 mt-1">👤 내 동호회</div>
+            <div class="px-3 py-2.5 border-t border-b border-gray-50 flex items-center gap-1.5 font-bold text-xs text-ink mt-1"><AppIcon name="user" :size="13" class="text-teal-600" />내 동호회</div>
             <router-link v-for="mc in myClubs" :key="mc.id" :to="`/clubs/${mc.id}`"
-              class="block w-full text-left px-3 py-2 text-xs text-gray-600 hover:bg-amber-50/50 transition truncate">
+              class="block w-full text-left px-3 py-2 text-xs text-ink-light hover:bg-amber-50/50 transition-colors truncate">
               {{ mc.name }}
             </router-link>
           </template>
@@ -115,32 +121,35 @@
     </div>
     <!-- 메인 -->
     <div class="col-span-12 lg:col-span-7">
-    <div v-if="!clubs.length && !loading" class="text-center py-12 text-gray-400">동호회가 없습니다</div>
+    <div v-if="!clubs.length && !loading" class="py-16 text-center">
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="users" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-sm text-ink-muted">동호회가 없습니다</p>
+    </div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(club, i) in clubs" :key="club.id">
       <RouterLink :to="`/clubs/${club.id}`"
-        class="rounded-xl shadow-sm p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
+        class="card card-hover p-4"
         :class="clubRowClass(club)">
         <div class="flex items-center gap-2 mb-1" v-if="isPromoted(club)">
-          <span v-if="club.promotion_tier === 'national'" class="text-[10px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded">🌐 전국구</span>
-          <span v-else-if="club.promotion_tier === 'state_plus'" class="text-[10px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
-          <span v-else-if="club.promotion_tier === 'sponsored'" class="text-[10px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰</span>
-          <span v-else class="text-[10px] bg-purple-500 text-white font-bold px-1.5 py-0.5 rounded">🚀 상위노출</span>
+          <span v-if="club.promotion_tier === 'national'" class="inline-flex items-center gap-0.5 text-[11px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="globe" :size="11" />전국구</span>
+          <span v-else-if="club.promotion_tier === 'state_plus'" class="inline-flex items-center gap-0.5 text-[11px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="star" :size="11" />주+</span>
+          <span v-else-if="club.promotion_tier === 'sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="megaphone" :size="11" />스폰</span>
+          <span v-else class="inline-flex items-center gap-0.5 text-[11px] bg-purple-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="sparkles" :size="11" />상위노출</span>
         </div>
         <div class="flex items-center gap-3 mb-3">
-          <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-2xl">👥</div>
+          <div class="icon-chip w-12 h-12 bg-teal-50 text-teal-600"><AppIcon name="users" :size="24" /></div>
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-bold text-gray-800 truncate">{{ club.name }}</div>
-            <div class="text-[10px] text-gray-400">{{ club.category }} · {{ club.type === 'online' ? '온라인' : '지역' }}</div>
+            <div class="text-sm font-bold text-ink truncate">{{ club.name }}</div>
+            <div class="text-xs text-ink-muted">{{ club.category }} · {{ club.type === 'online' ? '온라인' : '지역' }}</div>
           </div>
         </div>
-        <div class="text-xs text-gray-500 line-clamp-2 mb-2">{{ club.description }}</div>
-        <div class="flex items-center justify-between text-[10px] text-gray-400">
-          <span>👥 {{ club.member_count }}명</span>
+        <div class="text-xs text-ink-muted line-clamp-2 mb-2">{{ club.description }}</div>
+        <div class="flex items-center justify-between text-xs text-ink-muted">
+          <span class="inline-flex items-center gap-1"><AppIcon name="users" :size="12" />{{ club.member_count }}명</span>
           <div class="flex items-center gap-2">
             <span v-if="club.distance !== undefined && club.distance !== null" class="text-amber-600 font-semibold">{{ Number(club.distance).toFixed(1) }}mi</span>
-            <span class="px-2 py-0.5 rounded-full" :class="club.type==='online' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'">
-              {{ club.type === 'online' ? '🌐 온라인' : '📍 지역' }}
+            <span class="px-2 py-0.5 rounded-full font-semibold" :class="club.type==='online' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'">
+              {{ club.type === 'online' ? '온라인' : '지역' }}
             </span>
             <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(club.id)" @toggle="toggleFav(club)" size="sm" />
           </div>
@@ -175,6 +184,7 @@ import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -241,7 +251,7 @@ function clubRowClass(club) {
   if (club.promotion_tier === 'state_plus') return 'bg-white border-2 border-blue-400'
   if (club.promotion_tier === 'sponsored') return 'bg-white border-2 border-amber-400'
   if (isPromoted(club)) return 'bg-purple-50/30 border-2 border-purple-400'
-  return 'bg-white border border-gray-200'
+  return 'bg-white'
 }
 
 function onCityChange() {

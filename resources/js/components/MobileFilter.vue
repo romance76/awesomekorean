@@ -10,16 +10,18 @@
       <div class="flex justify-center pb-1 pt-3"><div class="w-10 h-1 bg-gray-300 rounded-full"></div></div>
       <div class="px-5 pb-5">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-base font-bold text-gray-800">🔍 필터 설정</h2>
-          <button @click="$emit('update:modelValue', false)" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+          <h2 class="text-base font-bold text-ink flex items-center gap-2">
+            <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="filter" :size="14" /></span>필터 설정
+          </h2>
+          <button @click="$emit('update:modelValue', false)" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="20" /></button>
         </div>
         <slot />
         <button @click="$emit('apply'); $emit('update:modelValue', false)"
-          class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm transition shadow-lg shadow-amber-200 mt-4">
+          class="btn-primary w-full py-3 mt-4">
           적용하기
         </button>
         <button @click="$emit('reset')"
-          class="w-full text-gray-400 hover:text-gray-600 text-xs font-semibold py-2 mt-1">
+          class="w-full text-ink-muted hover:text-ink text-xs font-semibold py-2 mt-1 transition-colors">
           필터 초기화
         </button>
       </div>
@@ -29,6 +31,8 @@
 </template>
 
 <script setup>
+import AppIcon from './AppIcon.vue'
+
 defineProps({ modelValue: Boolean })
 defineEmits(['update:modelValue', 'apply', 'reset'])
 </script>

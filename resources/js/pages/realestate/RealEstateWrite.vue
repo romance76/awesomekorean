@@ -1,47 +1,50 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-5 space-y-4">
-    <h1 class="text-xl font-black text-gray-800">🏠 매물 등록</h1>
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <span class="icon-chip w-9 h-9 bg-violet-50 text-violet-600"><AppIcon name="home" :size="20" /></span>
+      매물 등록
+    </h1>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+    <div class="card p-5 space-y-4">
       <!-- 사진 업로드 (최대 20장, 기본 5장 무료) -->
       <div>
-        <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
-          📷 사진
-          <span class="text-xs text-gray-400 font-normal">기본 {{ freePhotos }}장 무료 · 추가 1장당 {{ extraPhotoPoints }}P · 최대 20장</span>
+        <label class="input-label flex items-center gap-2 mb-0">
+          <AppIcon name="camera" :size="16" /> 사진
+          <span class="text-xs text-ink-muted font-normal">기본 {{ freePhotos }}장 무료 · 추가 1장당 {{ extraPhotoPoints }}P · 최대 20장</span>
         </label>
         <div class="flex flex-wrap gap-2 mt-2">
           <div v-for="(photo, idx) in photoList" :key="idx"
-            class="relative w-20 h-20 rounded-lg overflow-hidden border-2 cursor-pointer group"
+            class="relative w-20 h-20 rounded-xl overflow-hidden border-2 cursor-pointer group"
             :class="mainPhotoIdx === idx ? 'border-amber-400 ring-2 ring-amber-200' : 'border-gray-200'"
             @click="mainPhotoIdx = idx">
             <img :src="photo.preview" class="w-full h-full object-cover" />
-            <div v-if="mainPhotoIdx === idx" class="absolute top-0.5 left-0.5 bg-amber-400 text-amber-900 text-[8px] font-bold px-1 py-px rounded">메인</div>
-            <div v-if="idx >= freePhotos" class="absolute top-0.5 right-0.5 bg-red-500 text-white text-[8px] font-bold px-1 py-px rounded">{{ extraPhotoPoints }}P</div>
-            <button @click.stop="removePhoto(idx)" class="absolute bottom-0.5 right-0.5 bg-black/60 text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100">✕</button>
+            <div v-if="mainPhotoIdx === idx" class="absolute top-0.5 left-0.5 bg-amber-400 text-white text-[11px] font-bold px-1 py-px rounded">메인</div>
+            <div v-if="idx >= freePhotos" class="absolute top-0.5 right-0.5 bg-red-500 text-white text-[11px] font-bold px-1 py-px rounded">{{ extraPhotoPoints }}P</div>
+            <button @click.stop="removePhoto(idx)" class="absolute bottom-0.5 right-0.5 bg-black/60 text-white w-4 h-4 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100"><AppIcon name="x" :size="10" /></button>
           </div>
-          <label v-if="photoList.length < 20" class="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-amber-400 hover:bg-amber-50/50 transition">
-            <span class="text-xl text-gray-400">+</span>
-            <span class="text-[9px] text-gray-400">사진 추가</span>
+          <label v-if="photoList.length < 20" class="w-20 h-20 rounded-xl bg-[#F4F6F8] text-ink-muted flex flex-col items-center justify-center cursor-pointer hover:bg-amber-50 transition-colors">
+            <AppIcon name="camera" :size="20" :stroke-width="1.5" />
+            <span class="text-[11px] mt-0.5">{{ photoList.length }}/20</span>
             <input type="file" multiple accept="image/*" @change="onSelectPhotos" class="hidden" />
           </label>
         </div>
-        <div v-if="extraPhotoCost > 0" class="mt-1.5 text-xs text-red-500 font-semibold">
-          ⚠️ 추가 사진 {{ photoList.length - freePhotos }}장 × {{ extraPhotoPoints }}P = <b>{{ extraPhotoCost }}P</b> 차감
+        <div v-if="extraPhotoCost > 0" class="mt-1.5 text-xs text-red-500 font-semibold flex items-center gap-1">
+          <AppIcon name="alert-circle" :size="14" /> 추가 사진 {{ photoList.length - freePhotos }}장 × {{ extraPhotoPoints }}P = <b>{{ extraPhotoCost }}P</b> 차감
         </div>
-        <div class="text-[10px] text-gray-400 mt-1">클릭하여 메인 사진 선택. 메인 사진이 리스트 썸네일로 표시됩니다.</div>
+        <div class="text-xs text-ink-muted mt-1">클릭하여 메인 사진 선택. 메인 사진이 리스트 썸네일로 표시됩니다.</div>
       </div>
 
-      <div><label class="text-sm font-semibold text-gray-700">제목</label><input v-model="form.title" type="text" placeholder="예: LA 1BR 아파트 렌트" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+      <div><label class="input-label">제목</label><input v-model="form.title" type="text" placeholder="예: LA 1BR 아파트 렌트" class="input-soft px-3" /></div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="text-sm font-semibold text-gray-700">유형</label>
-          <select v-model="form.type" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+        <div><label class="input-label">유형</label>
+          <select v-model="form.type" class="input-soft px-3">
             <option value="rent">🔑 렌트</option>
             <option value="sale">🏠 매매</option>
             <option value="roommate">👥 룸메이트</option>
           </select></div>
-        <div><label class="text-sm font-semibold text-gray-700">종류</label>
-          <select v-model="form.property_type" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+        <div><label class="input-label">종류</label>
+          <select v-model="form.property_type" class="input-soft px-3">
             <!-- 렌트 -->
             <template v-if="form.type==='rent'">
               <optgroup label="주거용">
@@ -90,20 +93,20 @@
           </select></div>
       </div>
       <div class="grid grid-cols-4 gap-3">
-        <div><label class="text-sm font-semibold text-gray-700">가격 ($)</label><input v-model.number="form.price" type="number" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">방</label><input v-model.number="form.bedrooms" type="number" min="0" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">화장실</label><input v-model.number="form.bathrooms" type="number" min="0" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">면적(sqft)</label><input v-model.number="form.sqft" type="number" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+        <div><label class="input-label">가격 ($)</label><input v-model.number="form.price" type="number" class="input-soft px-3" /></div>
+        <div><label class="input-label">방</label><input v-model.number="form.bedrooms" type="number" min="0" class="input-soft px-3" /></div>
+        <div><label class="input-label">화장실</label><input v-model.number="form.bathrooms" type="number" min="0" class="input-soft px-3" /></div>
+        <div><label class="input-label">면적(sqft)</label><input v-model.number="form.sqft" type="number" class="input-soft px-3" /></div>
       </div>
 
       <!-- 매물 주소 -->
-      <div class="bg-amber-50/50 border border-amber-200 rounded-lg p-3 space-y-2">
-        <label class="text-sm font-semibold text-gray-700">📍 매물 주소</label>
-        <input v-model="form.address" type="text" placeholder="예: 123 Main St" class="w-full border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+      <div class="bg-amber-50/50 rounded-xl p-3 space-y-2">
+        <label class="input-label flex items-center gap-1.5 mb-0"><AppIcon name="map-pin" :size="16" /> 매물 주소</label>
+        <input v-model="form.address" type="text" placeholder="예: 123 Main St" class="input-soft px-3" />
         <div class="grid grid-cols-3 gap-2">
-          <input v-model="form.city" type="text" placeholder="City" class="border rounded-lg px-3 py-2 text-sm outline-none" />
-          <input v-model="form.state" type="text" maxlength="2" placeholder="State (GA)" class="border rounded-lg px-3 py-2 text-sm outline-none uppercase" />
-          <input v-model="form.zipcode" type="text" maxlength="5" placeholder="Zip" @input="onReZipChange" class="border rounded-lg px-3 py-2 text-sm outline-none font-mono" />
+          <input v-model="form.city" type="text" placeholder="City" class="input-soft px-3" />
+          <input v-model="form.state" type="text" maxlength="2" placeholder="State (GA)" class="input-soft px-3 uppercase" />
+          <input v-model="form.zipcode" type="text" maxlength="5" placeholder="Zip" @input="onReZipChange" class="input-soft px-3 font-mono" />
         </div>
       </div>
 
@@ -113,15 +116,15 @@
         v-model="promotion" ref="promoRef"
         category-label="유형 (렌트/매매/룸메이트)" />
 
-      <div><label class="text-sm font-semibold text-gray-700">상세 설명</label><textarea v-model="form.content" rows="6" placeholder="위치, 시설, 조건 등을 자세히 작성해주세요" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea></div>
+      <div><label class="input-label">상세 설명</label><textarea v-model="form.content" rows="6" placeholder="위치, 시설, 조건 등을 자세히 작성해주세요" class="input-soft px-3"></textarea></div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="text-sm font-semibold text-gray-700">연락 전화</label><input v-model="form.contact_phone" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">연락 이메일</label><input v-model="form.contact_email" type="email" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+        <div><label class="input-label">연락 전화</label><input v-model="form.contact_phone" type="text" class="input-soft px-3" /></div>
+        <div><label class="input-label">연락 이메일</label><input v-model="form.contact_email" type="email" class="input-soft px-3" /></div>
       </div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <div class="flex gap-3 pt-2">
-        <button @click="submit" :disabled="submitting" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ submitting ? '등록 중...' : '매물 등록' }}</button>
-        <button @click="$router.back()" class="text-gray-500 px-6 py-2.5">취소</button>
+        <button @click="submit" :disabled="submitting" class="btn-primary px-6">{{ submitting ? '등록 중...' : '매물 등록' }}</button>
+        <button @click="$router.back()" class="btn-secondary px-6">취소</button>
       </div>
     </div>
   </div>
@@ -132,6 +135,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import PromotionSection from '../../components/PromotionSection.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import { useAuthStore } from '../../stores/auth'
 const router = useRouter()
 const route = useRoute()

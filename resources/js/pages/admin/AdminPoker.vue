@@ -1,25 +1,30 @@
 <template>
 <div>
-  <h1 class="text-xl font-bold text-gray-800 mb-6">♠ 포커 관리</h1>
+  <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-6">
+    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="gamepad" :size="20" /></span>
+    포커 관리
+  </h1>
 
   <!-- Overview Cards -->
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
-    <div v-for="s in overviewCards" :key="s.label" class="bg-white rounded-xl p-4 border shadow-sm">
-      <div class="text-gray-400 text-xs mb-1">{{ s.label }}</div>
+    <div v-for="s in overviewCards" :key="s.label" class="card p-4">
+      <div class="text-ink-muted text-xs mb-1">{{ s.label }}</div>
       <div class="text-lg font-bold" :class="s.color">{{ s.value }}</div>
     </div>
   </div>
 
   <!-- Wallet Management -->
-  <div class="bg-white rounded-xl border shadow-sm mb-6">
-    <div class="p-4 border-b flex justify-between items-center">
-      <h2 class="font-bold text-gray-800">&#128176; &#51648;&#44049; &#44288;&#47532;</h2>
-      <div class="text-xs text-gray-400">&#52509; {{ wallets.length }}&#44148;</div>
+  <div class="card mb-6 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center">
+      <h2 class="flex items-center gap-2 font-bold text-sm text-ink">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="14" /></span>지갑 관리
+      </h2>
+      <div class="text-xs text-ink-muted">총 {{ wallets.length }}건</div>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
-          <tr class="bg-gray-50 text-gray-500 text-xs">
+          <tr class="bg-gray-50 text-ink-muted text-xs">
             <th class="px-4 py-2 text-left">&#50976;&#51200;</th>
             <th class="px-4 py-2 text-left">&#51060;&#47700;&#51068;</th>
             <th class="px-4 py-2 text-right">&#52841; &#51092;&#44256;</th>
@@ -29,9 +34,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="w in wallets" :key="w.id" class="border-t hover:bg-gray-50">
-            <td class="px-4 py-2 font-semibold text-gray-800">{{ w.user?.name || w.user?.nickname || '?' }}</td>
-            <td class="px-4 py-2 text-gray-400 text-xs">{{ w.user?.email || '-' }}</td>
+          <tr v-for="w in wallets" :key="w.id" class="border-t border-gray-50 hover:bg-amber-50/40 transition-colors">
+            <td class="px-4 py-2 font-semibold text-ink">{{ w.user?.name || w.user?.nickname || '?' }}</td>
+            <td class="px-4 py-2 text-ink-muted text-xs">{{ w.user?.email || '-' }}</td>
             <td class="px-4 py-2 text-right font-mono font-bold text-amber-600">{{ (w.chips_balance || 0).toLocaleString() }}</td>
             <td class="px-4 py-2 text-right font-mono text-emerald-600">{{ (w.total_deposited || 0).toLocaleString() }}</td>
             <td class="px-4 py-2 text-right font-mono text-red-500">{{ (w.total_withdrawn || 0).toLocaleString() }}</td>
@@ -42,18 +47,20 @@
         </tbody>
       </table>
     </div>
-    <div v-if="wallets.length === 0" class="p-8 text-center text-gray-400 text-sm">&#51648;&#44049; &#45936;&#51060;&#53552;&#44032; &#50630;&#49845;&#45768;&#45796;.</div>
+    <div v-if="wallets.length === 0" class="p-8 text-center text-ink-muted text-sm">지갑 데이터가 없습니다.</div>
   </div>
 
   <!-- Tournament Management -->
-  <div class="bg-white rounded-xl border shadow-sm mb-6">
-    <div class="p-4 border-b flex justify-between items-center">
-      <h2 class="font-bold text-gray-800">🏆 토너먼트 관리</h2>
-      <button @click="showCreateTournament = true" class="bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold px-4 py-2 rounded-lg transition">+ 새 토너먼트</button>
+  <div class="card mb-6 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-50 flex justify-between items-center">
+      <h2 class="flex items-center gap-2 font-bold text-sm text-ink">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="trophy" :size="14" /></span>토너먼트 관리
+      </h2>
+      <button @click="showCreateTournament = true" class="btn-primary !px-4 !py-2 !text-xs"><AppIcon name="plus" :size="13" /> 새 토너먼트</button>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
-        <thead><tr class="bg-gray-50 text-gray-500 text-xs">
+        <thead><tr class="bg-gray-50 text-ink-muted text-xs">
           <th class="px-4 py-2 text-left">제목</th>
           <th class="px-4 py-2 text-center">상태</th>
           <th class="px-4 py-2 text-right">바이인</th>
@@ -62,17 +69,17 @@
           <th class="px-4 py-2 text-center">관리</th>
         </tr></thead>
         <tbody>
-          <tr v-for="t in tournaments" :key="t.id" class="border-t hover:bg-gray-50">
-            <td class="px-4 py-2 font-semibold">
+          <tr v-for="t in tournaments" :key="t.id" class="border-t border-gray-50 hover:bg-amber-50/40 transition-colors">
+            <td class="px-4 py-2 font-semibold text-ink">
               {{ t.title }}
-              <span v-if="t.is_template" class="ml-1 text-[10px] bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full font-bold">🔄 반복</span>
+              <span v-if="t.is_template" class="ml-1 inline-flex items-center gap-0.5 text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full font-bold"><AppIcon name="refresh" :size="10" /> 반복</span>
             </td>
             <td class="px-4 py-2 text-center">
-              <span :class="{'bg-blue-100 text-blue-700': t.status==='scheduled', 'bg-green-100 text-green-700': t.status==='registering', 'bg-amber-100 text-amber-700': t.status==='running', 'bg-gray-100 text-gray-500': t.status==='finished' || t.status==='cancelled'}" class="text-xs px-2 py-0.5 rounded-full font-bold">{{ t.status }}</span>
+              <span :class="{'bg-blue-50 text-blue-700': t.status==='scheduled', 'bg-emerald-50 text-emerald-700': t.status==='registering', 'bg-amber-50 text-amber-700': t.status==='running', 'bg-gray-100 text-ink-light': t.status==='finished' || t.status==='cancelled'}" class="text-xs px-2 py-0.5 rounded-full font-bold">{{ t.status }}</span>
             </td>
             <td class="px-4 py-2 text-right font-mono">{{ (t.buy_in || 0).toLocaleString() }}</td>
             <td class="px-4 py-2 text-right font-mono">{{ t.entries_count || 0 }}/{{ t.max_players }}</td>
-            <td class="px-4 py-2 text-center text-xs text-gray-500">{{ formatNY(t.scheduled_at) }}</td>
+            <td class="px-4 py-2 text-center text-xs text-ink-muted">{{ formatNY(t.scheduled_at) }}</td>
             <td class="px-4 py-2 text-center">
               <button v-if="t.status !== 'running' && t.status !== 'finished'" @click="cancelTournament(t.id)" class="text-xs text-red-500 hover:underline">취소</button>
             </td>
@@ -80,72 +87,78 @@
         </tbody>
       </table>
     </div>
-    <div v-if="!tournaments.length" class="p-6 text-center text-gray-400 text-sm">토너먼트가 없습니다.</div>
+    <div v-if="!tournaments.length" class="p-6 text-center text-ink-muted text-sm">토너먼트가 없습니다.</div>
   </div>
 
   <!-- Create Tournament Modal -->
   <div v-if="showCreateTournament" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showCreateTournament=false">
-    <div class="bg-white rounded-xl p-6 w-[420px] shadow-xl max-h-[90vh] overflow-y-auto">
-      <h3 class="font-bold text-gray-800 mb-4">🏆 토너먼트 생성</h3>
+    <div class="bg-white rounded-2xl p-6 w-[420px] shadow-xl max-h-[90vh] overflow-y-auto">
+      <h3 class="flex items-center gap-2 font-bold text-ink mb-4">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="trophy" :size="14" /></span>토너먼트 생성
+      </h3>
 
       <!-- 모드 선택 -->
-      <div class="flex gap-2 mb-4">
+      <div class="flex bg-gray-100 rounded-xl p-1 mb-4">
         <button @click="newTournament.is_schedule = false"
-          :class="!newTournament.is_schedule ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-600'"
-          class="flex-1 py-2 rounded-lg text-sm font-bold transition">일회성</button>
+          :class="!newTournament.is_schedule ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'"
+          class="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors">일회성</button>
         <button @click="newTournament.is_schedule = true"
-          :class="newTournament.is_schedule ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'"
-          class="flex-1 py-2 rounded-lg text-sm font-bold transition">🔄 반복 스케줄</button>
+          :class="newTournament.is_schedule ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'"
+          class="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="refresh" :size="13" /> 반복 스케줄</button>
       </div>
 
       <div class="space-y-3">
-        <div><label class="text-xs text-gray-500">제목</label><input v-model="newTournament.title" class="w-full border rounded px-3 py-2 text-sm" placeholder="18:00 데일리 $500"></div>
+        <div><label class="input-label">제목</label><input v-model="newTournament.title" class="input-soft" placeholder="18:00 데일리 $500"></div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="text-xs text-gray-500">타입</label><select v-model="newTournament.type" class="w-full border rounded px-3 py-2 text-sm"><option value="freeroll">프리롤</option><option value="micro">마이크로</option><option value="regular">레귤러</option><option value="high_roller">하이롤러</option></select></div>
-          <div><label class="text-xs text-gray-500">바이인</label><input v-model.number="newTournament.buy_in" type="number" class="w-full border rounded px-3 py-2 text-sm"></div>
+          <div><label class="input-label">타입</label><select v-model="newTournament.type" class="input-soft"><option value="freeroll">프리롤</option><option value="micro">마이크로</option><option value="regular">레귤러</option><option value="high_roller">하이롤러</option></select></div>
+          <div><label class="input-label">바이인</label><input v-model.number="newTournament.buy_in" type="number" class="input-soft"></div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="text-xs text-gray-500">시작 칩</label><input v-model.number="newTournament.starting_chips" type="number" class="w-full border rounded px-3 py-2 text-sm"></div>
-          <div><label class="text-xs text-gray-500">최대 인원</label><input v-model.number="newTournament.max_players" type="number" class="w-full border rounded px-3 py-2 text-sm"></div>
+          <div><label class="input-label">시작 칩</label><input v-model.number="newTournament.starting_chips" type="number" class="input-soft"></div>
+          <div><label class="input-label">최대 인원</label><input v-model.number="newTournament.max_players" type="number" class="input-soft"></div>
         </div>
 
         <!-- 일회성: 날짜/시간 선택 -->
         <div v-if="!newTournament.is_schedule">
-          <label class="text-xs text-gray-500">시작 시간</label>
-          <input v-model="newTournament.scheduled_at" type="datetime-local" class="w-full border rounded px-3 py-2 text-sm">
+          <label class="input-label">시작 시간</label>
+          <input v-model="newTournament.scheduled_at" type="datetime-local" class="input-soft">
         </div>
 
         <!-- 반복: 시간 + 요일 선택 -->
         <template v-else>
-          <div><label class="text-xs text-gray-500">매일 시작 시간</label><input v-model="newTournament.schedule_time" type="time" class="w-full border rounded px-3 py-2 text-sm"></div>
+          <div><label class="input-label">매일 시작 시간</label><input v-model="newTournament.schedule_time" type="time" class="input-soft"></div>
           <div>
-            <label class="text-xs text-gray-500 mb-1 block">반복 요일</label>
+            <label class="input-label">반복 요일</label>
             <div class="flex gap-1 flex-wrap">
               <button v-for="d in dayOptions" :key="d.value" @click="toggleDay(d.value)"
-                :class="newTournament.schedule_days.includes(d.value) ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'"
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition">{{ d.label }}</button>
+                :class="newTournament.schedule_days.includes(d.value) ? 'bg-amber-400 text-white shadow-btn' : 'bg-gray-100 text-ink-muted hover:bg-gray-200'"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">{{ d.label }}</button>
             </div>
           </div>
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-700">
-            ℹ️ 매일 자정에 다음 날 토너먼트가 자동 생성됩니다. 생성 즉시 참가 신청이 열립니다.
+          <div class="flex items-start gap-1.5 bg-blue-50 rounded-xl p-3 text-xs text-blue-700">
+            <AppIcon name="info" :size="14" class="mt-0.5" /> 매일 자정에 다음 날 토너먼트가 자동 생성됩니다. 생성 즉시 참가 신청이 열립니다.
           </div>
         </template>
       </div>
       <div class="flex gap-2 mt-4">
-        <button @click="createTournament" class="flex-1 bg-amber-500 hover:bg-amber-400 text-white py-2 rounded-lg font-bold text-sm">{{ newTournament.is_schedule ? '스케줄 등록' : '생성' }}</button>
-        <button @click="showCreateTournament=false" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-lg font-bold text-sm">취소</button>
+        <button @click="createTournament" class="btn-primary flex-1 !py-2">{{ newTournament.is_schedule ? '스케줄 등록' : '생성' }}</button>
+        <button @click="showCreateTournament=false" class="btn-secondary flex-1 !py-2">취소</button>
       </div>
     </div>
   </div>
 
   <!-- Settings -->
-  <div class="bg-white rounded-xl border shadow-sm">
-    <div class="p-4 border-b"><h2 class="font-bold text-gray-800">&#9881;&#65039; &#54252;&#52964; &#49444;&#51221;</h2></div>
+  <div class="card">
+    <div class="px-4 py-3 border-b border-gray-50">
+      <h2 class="flex items-center gap-2 font-bold text-sm text-ink">
+        <span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="settings" :size="14" /></span>포커 설정
+      </h2>
+    </div>
     <div class="p-4 space-y-4 max-w-lg">
       <div v-for="f in settingsFields" :key="f.key" class="flex items-center justify-between">
-        <label class="text-sm text-gray-600">{{ f.label }}</label>
+        <label class="text-sm text-ink-light">{{ f.label }}</label>
         <input v-if="f.type === 'number'" v-model.number="settings[f.key]" type="number"
-          class="w-32 border rounded px-3 py-1.5 text-sm text-right focus:border-amber-400 focus:outline-none" />
+          class="input-soft w-32 !px-3 !py-1.5 text-right" />
         <label v-else class="relative inline-flex items-center cursor-pointer">
           <input v-model="settings[f.key]" type="checkbox" class="sr-only peer">
           <div class="w-9 h-5 bg-gray-200 peer-checked:bg-amber-500 rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
@@ -153,7 +166,7 @@
       </div>
       <div class="pt-2">
         <button @click="saveSettings" :disabled="saving"
-          class="bg-amber-500 hover:bg-amber-400 disabled:bg-gray-300 text-white px-6 py-2 rounded-lg text-sm font-bold transition">
+          class="btn-primary !px-6 !py-2">
           {{ saving ? '&#51200;&#51109; &#51473;...' : '&#49444;&#51221; &#51200;&#51109;' }}
         </button>
       </div>
@@ -162,24 +175,24 @@
 
   <!-- Adjust Modal -->
   <div v-if="adjustWallet" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="adjustWallet = null">
-    <div class="bg-white rounded-xl p-6 w-80 shadow-xl">
-      <h3 class="font-bold text-gray-800 mb-4">&#52841; &#51092;&#44256; &#51312;&#51221;</h3>
-      <div class="text-sm text-gray-500 mb-1">{{ adjustWallet.user?.name || '?' }}</div>
-      <div class="text-xs text-gray-400 mb-3">&#54788;&#51116; &#51092;&#44256;: <span class="font-bold text-amber-600">{{ (adjustWallet.chips_balance || 0).toLocaleString() }}</span></div>
+    <div class="bg-white rounded-2xl p-6 w-80 shadow-xl">
+      <h3 class="font-bold text-ink mb-4">&#52841; &#51092;&#44256; &#51312;&#51221;</h3>
+      <div class="text-sm text-ink-light mb-1">{{ adjustWallet.user?.name || '?' }}</div>
+      <div class="text-xs text-ink-muted mb-3">&#54788;&#51116; &#51092;&#44256;: <span class="font-bold text-amber-600">{{ (adjustWallet.chips_balance || 0).toLocaleString() }}</span></div>
       <input v-model.number="adjustAmount" type="number"
-        class="w-full border rounded px-3 py-2 mb-2 text-sm focus:border-amber-400 focus:outline-none"
+        class="input-soft mb-2"
         placeholder="&#49352; &#51091;&#44256; &#51077;&#47141;" />
-      <div class="text-xs text-gray-400 mb-4">
+      <div class="text-xs text-ink-muted mb-4">
         &#52264;&#51060;: <span :class="adjustAmount - (adjustWallet.chips_balance || 0) >= 0 ? 'text-emerald-500' : 'text-red-500'" class="font-bold">
           {{ adjustAmount - (adjustWallet.chips_balance || 0) >= 0 ? '+' : '' }}{{ (adjustAmount - (adjustWallet.chips_balance || 0)).toLocaleString() }}
         </span>
       </div>
       <div class="flex gap-2">
         <button @click="submitAdjust" :disabled="adjusting"
-          class="flex-1 bg-amber-500 hover:bg-amber-400 disabled:bg-gray-300 text-white py-2 rounded-lg font-bold text-sm transition">
+          class="btn-primary flex-1 !py-2">
           {{ adjusting ? '&#52376;&#47532; &#51473;...' : '&#51200;&#51109;' }}
         </button>
-        <button @click="adjustWallet = null" class="flex-1 bg-gray-200 text-gray-600 py-2 rounded-lg font-bold text-sm hover:bg-gray-300 transition">&#52712;&#49548;</button>
+        <button @click="adjustWallet = null" class="btn-secondary flex-1 !py-2">&#52712;&#49548;</button>
       </div>
       <div v-if="adjustError" class="text-xs text-red-500 mt-2 text-center">{{ adjustError }}</div>
     </div>
@@ -190,6 +203,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 
 const overview = ref({})
 const wallets = ref([])
@@ -234,7 +248,7 @@ function formatNY(dt) {
 
 const overviewCards = computed(() => [
   { label: '\uCD1D \uAC8C\uC784', value: (overview.value.total_games || 0).toLocaleString(), color: 'text-blue-600' },
-  { label: '\uCD1D \uC9C0\uAC11', value: (overview.value.total_wallets || 0).toLocaleString(), color: 'text-gray-800' },
+  { label: '\uCD1D \uC9C0\uAC11', value: (overview.value.total_wallets || 0).toLocaleString(), color: 'text-ink' },
   { label: '\uCD1D \uC785\uAE08', value: (overview.value.total_deposited || 0).toLocaleString(), color: 'text-emerald-600' },
   { label: '\uCD1D \uCD9C\uAE08', value: (overview.value.total_withdrawn || 0).toLocaleString(), color: 'text-red-500' },
   { label: '\uC720\uD1B5 \uCE69', value: (overview.value.chips_in_circulation || 0).toLocaleString(), color: 'text-amber-600' },

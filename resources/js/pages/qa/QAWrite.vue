@@ -1,26 +1,29 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">❓ 질문 등록</h1>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="20" /></span>
+      질문 등록
+    </h1>
+    <div class="card p-5 space-y-4">
       <div>
-        <label class="text-sm font-semibold text-gray-700">카테고리</label>
-        <select v-model="form.category_id" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+        <label class="input-label">카테고리</label>
+        <select v-model="form.category_id" class="input-soft px-3">
           <option value="">선택하세요</option>
           <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
         </select>
       </div>
-      <div><label class="text-sm font-semibold text-gray-700">제목</label><input v-model="form.title" type="text" placeholder="질문을 간단히 요약해주세요" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-      <div><label class="text-sm font-semibold text-gray-700">내용</label><textarea v-model="form.content" rows="8" placeholder="자세한 상황을 설명해주세요" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea></div>
+      <div><label class="input-label">제목</label><input v-model="form.title" type="text" placeholder="질문을 간단히 요약해주세요" class="input-soft px-3" /></div>
+      <div><label class="input-label">내용</label><textarea v-model="form.content" rows="8" placeholder="자세한 상황을 설명해주세요" class="input-soft px-3"></textarea></div>
       <div>
-        <label class="text-sm font-semibold text-gray-700">현상금 포인트 (선택)</label>
-        <input v-model.number="form.bounty_points" type="number" min="0" placeholder="0" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" />
-        <p class="text-xs text-gray-400 mt-1">현상금을 설정하면 답변을 더 빨리 받을 수 있습니다. 채택 시 답변자에게 지급됩니다.</p>
+        <label class="input-label">현상금 포인트 (선택)</label>
+        <input v-model.number="form.bounty_points" type="number" min="0" placeholder="0" class="input-soft px-3" />
+        <p class="text-xs text-ink-muted mt-1">현상금을 설정하면 답변을 더 빨리 받을 수 있습니다. 채택 시 답변자에게 지급됩니다.</p>
       </div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <div class="flex gap-3 pt-2">
-        <button @click="submit" :disabled="submitting" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ submitting ? '등록 중...' : '질문 등록' }}</button>
-        <button @click="$router.back()" class="text-gray-500 px-6 py-2.5">취소</button>
+        <button @click="submit" :disabled="submitting" class="btn-primary px-6">{{ submitting ? '등록 중...' : '질문 등록' }}</button>
+        <button @click="$router.back()" class="btn-secondary px-6">취소</button>
       </div>
     </div>
   </div>
@@ -30,6 +33,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 const router = useRouter()
 const form = reactive({ category_id:'',title:'',content:'',bounty_points:0 })
 const categories = ref([])

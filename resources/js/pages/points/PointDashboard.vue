@@ -1,41 +1,51 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">⭐ 포인트</h1>
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="20" /></span>
+      포인트
+    </h1>
 
     <!-- 잔액 카드 -->
-    <div class="bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl p-5 text-amber-900 mb-4">
-      <div class="text-sm font-semibold opacity-80">내 포인트</div>
+    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 text-white mb-4 shadow-card">
+      <div class="text-sm font-semibold opacity-90">내 포인트</div>
       <div class="text-3xl font-black mt-1">{{ balance.toLocaleString() }}P</div>
       <div class="flex gap-3 mt-3">
-        <button @click="dailySpin" :disabled="spunToday" class="bg-white/30 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/50 transition disabled:opacity-50">
-          🎰 {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
+        <button @click="dailySpin" :disabled="spunToday" class="bg-white/20 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/30 transition-colors disabled:opacity-50 flex items-center gap-1.5">
+          <AppIcon name="sparkles" :size="14" /> {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
         </button>
-        <RouterLink to="/points/rules" class="bg-white/30 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/50 transition">📋 적립 규칙</RouterLink>
+        <RouterLink to="/points/rules" class="bg-white/20 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/30 transition-colors flex items-center gap-1.5">
+          <AppIcon name="list" :size="14" /> 적립 규칙
+        </RouterLink>
       </div>
     </div>
 
     <!-- 룰렛 결과 -->
     <div v-if="spinResult !== null" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4 text-center">
       <div class="text-3xl mb-2">🎉</div>
-      <div class="font-bold text-amber-800">{{ spinResult > 0 ? spinResult + 'P 당첨!' : '다음 기회에!' }}</div>
+      <div class="font-bold text-amber-700">{{ spinResult > 0 ? spinResult + 'P 당첨!' : '다음 기회에!' }}</div>
     </div>
 
     <!-- 거래 내역 -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-4 py-3 border-b font-bold text-sm text-amber-900">📊 포인트 내역</div>
-      <div v-if="loading" class="py-8 text-center text-gray-400">로딩중...</div>
-      <div v-else>
-        <div v-for="log in logs" :key="log.id" class="px-4 py-3 border-b last:border-0 flex justify-between items-center">
+    <div class="card overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center gap-2">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="chart-bar" :size="14" /></span>포인트 내역
+      </div>
+      <div v-if="loading" class="py-8 text-center text-ink-muted">로딩중...</div>
+      <div v-else class="divide-y divide-gray-50">
+        <div v-for="log in logs" :key="log.id" class="list-row flex justify-between items-center">
           <div>
-            <div class="text-sm text-gray-800">{{ log.reason }}</div>
-            <div class="text-[10px] text-gray-400">{{ formatDate(log.created_at) }}</div>
+            <div class="text-sm text-ink">{{ log.reason }}</div>
+            <div class="text-xs text-ink-muted">{{ formatDate(log.created_at) }}</div>
           </div>
           <div class="font-bold text-sm" :class="log.amount > 0 ? 'text-green-600' : 'text-red-500'">
             {{ log.amount > 0 ? '+' : '' }}{{ log.amount }}P
           </div>
         </div>
-        <div v-if="!logs.length" class="py-6 text-center text-sm text-gray-400">거래 내역이 없습니다</div>
+        <div v-if="!logs.length" class="py-16 text-center">
+          <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="coins" :size="28" :stroke-width="1.5" /></div>
+          <p class="text-sm text-ink-muted">거래 내역이 없습니다</p>
+        </div>
       </div>
     </div>
   </div>
@@ -44,6 +54,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useSiteStore } from '../../stores/site'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 const siteStore = useSiteStore()
 const balance = ref(0)

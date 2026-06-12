@@ -2,8 +2,11 @@
   <div class="max-w-[1200px] mx-auto px-4 py-6">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-xl font-bold text-gray-800">사이트 설정</h1>
-      <span class="text-xs text-gray-400">마지막 로드: {{ lastLoaded }}</span>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="settings" :size="20" /></span>
+        사이트 설정
+      </h1>
+      <span class="text-xs text-ink-faint">마지막 로드: {{ lastLoaded }}</span>
     </div>
 
     <!-- Toast -->
@@ -24,10 +27,10 @@
         :key="tab.key"
         @click="activeTab = tab.key"
         :class="[
-          'flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+          'flex-shrink-0 px-4 py-2 rounded-lg text-sm transition-all',
           activeTab === tab.key
-            ? 'bg-white text-blue-600 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
+            ? 'bg-white text-ink font-semibold shadow-sm'
+            : 'text-ink-muted hover:text-ink-light'
         ]"
       >
         {{ tab.label }}
@@ -36,76 +39,76 @@
 
     <!-- Loading -->
     <div v-if="loading" class="flex justify-center items-center py-20">
-      <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div class="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
     </div>
 
     <div v-else>
       <!-- ========================= TAB 1: 회사 정보 ========================= -->
       <div v-show="activeTab === 'company'">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-base font-semibold text-gray-800 mb-6">회사 정보</h2>
+        <div class="card p-6">
+          <h2 class="text-base font-semibold text-ink mb-6">회사 정보</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">사이트명</label>
+              <label class="input-label">사이트명</label>
               <input v-model="company.site_name" type="text" class="input-field" placeholder="AwesomeKorean" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">사이트 부제목</label>
+              <label class="input-label">사이트 부제목</label>
               <input v-model="company.site_subtitle" type="text" class="input-field" placeholder="미국 한인 커뮤니티" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">회사명</label>
+              <label class="input-label">회사명</label>
               <input v-model="company.company_name" type="text" class="input-field" placeholder="AwesomeKorean Inc." />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">대표자명</label>
+              <label class="input-label">대표자명</label>
               <input v-model="company.ceo_name" type="text" class="input-field" placeholder="홍길동" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">사업자등록번호</label>
+              <label class="input-label">사업자등록번호</label>
               <input v-model="company.business_number" type="text" class="input-field" placeholder="123-45-67890" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">주소</label>
+              <label class="input-label">주소</label>
               <input v-model="company.address" type="text" class="input-field" placeholder="Los Angeles, CA, USA" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
+              <label class="input-label">전화번호</label>
               <input v-model="company.phone" type="text" class="input-field" placeholder="+1-213-000-0000" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+              <label class="input-label">이메일</label>
               <input v-model="company.email" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">설립일</label>
+              <label class="input-label">설립일</label>
               <input v-model="company.founded_date" type="date" class="input-field" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Favicon URL</label>
+              <label class="input-label">Favicon URL</label>
               <input v-model="company.favicon_url" type="text" class="input-field" placeholder="/favicon.ico" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">메타 키워드</label>
+              <label class="input-label">메타 키워드</label>
               <input v-model="company.meta_keywords" type="text" class="input-field" placeholder="한인, 커뮤니티, 미국, LA" />
             </div>
           </div>
 
           <!-- Logo URL + Preview -->
           <div class="mt-5">
-            <label class="block text-sm font-medium text-gray-700 mb-1">로고 URL</label>
+            <label class="input-label">로고 URL</label>
             <div class="flex items-center gap-3">
               <input v-model="company.logo_url" type="text" class="input-field flex-1" placeholder="/images/logo.png" />
-              <div class="w-16 h-16 border border-gray-200 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
+              <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
                 <img v-if="company.logo_url" :src="company.logo_url" alt="Logo Preview" class="w-full h-full object-contain" @error="logoError = true" />
-                <span v-else class="text-xs text-gray-400">미리보기</span>
+                <span v-else class="text-xs text-ink-faint">미리보기</span>
               </div>
             </div>
           </div>
 
           <!-- Meta Description -->
           <div class="mt-5">
-            <label class="block text-sm font-medium text-gray-700 mb-1">메타 설명 (SEO)</label>
+            <label class="input-label">메타 설명 (SEO)</label>
             <textarea v-model="company.meta_description" rows="3" class="input-field resize-none" placeholder="미국 한인 커뮤니티 플랫폼..."></textarea>
           </div>
 
@@ -120,44 +123,44 @@
 
       <!-- ========================= TAB 2: 사이트 설정 ========================= -->
       <div v-show="activeTab === 'site'">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-base font-semibold text-gray-800 mb-6">사이트 설정</h2>
+        <div class="card p-6">
+          <h2 class="text-base font-semibold text-ink mb-6">사이트 설정</h2>
 
           <!-- 회원 설정 -->
           <div class="mb-6">
-            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">회원 설정</h3>
+            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">회원 설정</h3>
             <div class="space-y-4">
               <ToggleRow v-model="site.allow_signup" label="회원가입 허용" desc="신규 회원 가입을 허용합니다" />
               <ToggleRow v-model="site.require_email_verify" label="이메일 인증 필수" desc="가입 후 이메일 인증이 필요합니다" />
               <ToggleRow v-model="site.auto_approve" label="자동 승인" desc="가입 즉시 계정을 활성화합니다" />
               <ToggleRow v-model="site.allow_withdrawal" label="회원 탈퇴 허용" desc="회원이 스스로 탈퇴할 수 있습니다" />
               <div class="flex items-center gap-4">
-                <label class="text-sm text-gray-700 w-48">최소 비밀번호 길이</label>
+                <label class="text-sm text-ink-light w-48">최소 비밀번호 길이</label>
                 <input v-model.number="site.min_password_length" type="number" min="6" max="32" class="input-field w-24" />
-                <span class="text-sm text-gray-400">자리</span>
+                <span class="text-sm text-ink-faint">자리</span>
               </div>
             </div>
           </div>
 
           <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">포인트 설정</h3>
+            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">포인트 설정</h3>
             <div class="space-y-4">
               <ToggleRow v-model="site.enable_points" label="포인트 시스템 활성화" desc="포인트 적립/사용 기능을 활성화합니다" />
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                 <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">출석체크 포인트</label>
+                  <label class="input-label !text-xs">출석체크 포인트</label>
                   <input v-model.number="site.point_attendance" type="number" min="0" class="input-field" />
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">가입 포인트</label>
+                  <label class="input-label !text-xs">가입 포인트</label>
                   <input v-model.number="site.point_signup" type="number" min="0" class="input-field" />
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">게시글 포인트</label>
+                  <label class="input-label !text-xs">게시글 포인트</label>
                   <input v-model.number="site.point_post" type="number" min="0" class="input-field" />
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">댓글 포인트</label>
+                  <label class="input-label !text-xs">댓글 포인트</label>
                   <input v-model.number="site.point_comment" type="number" min="0" class="input-field" />
                 </div>
               </div>
@@ -165,45 +168,45 @@
           </div>
 
           <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">파일 업로드 설정</h3>
+            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">파일 업로드 설정</h3>
             <div class="flex flex-col gap-4">
               <div class="flex items-center gap-4">
-                <label class="text-sm text-gray-700 w-48">최대 업로드 파일 크기</label>
+                <label class="text-sm text-ink-light w-48">최대 업로드 파일 크기</label>
                 <input v-model.number="site.max_upload_mb" type="number" min="1" max="100" class="input-field w-24" />
-                <span class="text-sm text-gray-400">MB</span>
+                <span class="text-sm text-ink-faint">MB</span>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">허용 파일 형식</label>
+                <label class="input-label">허용 파일 형식</label>
                 <input v-model="site.allowed_file_types" type="text" class="input-field" placeholder="jpg,png,gif,pdf,doc" />
-                <p class="text-xs text-gray-400 mt-1">쉼표로 구분하여 입력하세요</p>
+                <p class="text-xs text-ink-faint mt-1">쉼표로 구분하여 입력하세요</p>
               </div>
             </div>
           </div>
 
           <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">점검 모드</h3>
+            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">점검 모드</h3>
             <ToggleRow v-model="site.maintenance_mode" label="점검 모드" desc="사이트를 점검 모드로 전환합니다" />
             <div v-if="site.maintenance_mode" class="mt-4 space-y-3">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">점검 안내 문구</label>
+                <label class="input-label">점검 안내 문구</label>
                 <textarea v-model="site.maintenance_reason" rows="2" class="input-field resize-none" placeholder="현재 시스템 점검 중입니다. 잠시 후 다시 이용해 주세요."></textarea>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">점검 종료 예정시각</label>
+                <label class="input-label">점검 종료 예정시각</label>
                 <input v-model="site.maintenance_until" type="datetime-local" class="input-field" />
               </div>
             </div>
           </div>
 
           <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">외부 연동</h3>
+            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">외부 연동</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">구글 Analytics ID</label>
+                <label class="input-label">구글 Analytics ID</label>
                 <input v-model="site.google_analytics_id" type="text" class="input-field" placeholder="G-XXXXXXXXXX" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">카카오 API 키</label>
+                <label class="input-label">카카오 API 키</label>
                 <input v-model="site.kakao_api_key" type="text" class="input-field" placeholder="카카오 REST API 키" />
               </div>
             </div>
@@ -222,12 +225,12 @@
       <div v-if="activeTab === 'menus'">
         <div class="flex items-center justify-between mb-5">
           <div>
-            <h2 class="text-base font-semibold text-gray-800">네비게이션 메뉴 관리</h2>
-            <p class="text-xs text-gray-400 mt-0.5">순서, 표시여부, 로그인/관리자 권한을 한 곳에서 설정하세요</p>
+            <h2 class="text-base font-semibold text-ink">네비게이션 메뉴 관리</h2>
+            <p class="text-xs text-ink-faint mt-0.5">순서, 표시여부, 로그인/관리자 권한을 한 곳에서 설정하세요</p>
           </div>
           <button @click="saveMenus" :disabled="menuSaving"
             class="btn-primary">
-            {{ menuSaving ? '저장 중...' : '💾 저장' }}
+            {{ menuSaving ? '저장 중...' : '저장' }}
           </button>
         </div>
 
@@ -238,8 +241,8 @@
             <div class="text-xs text-blue-400">활성 메뉴</div>
           </div>
           <div class="bg-gray-50 rounded-xl p-4 text-center">
-            <div class="text-2xl font-black text-gray-500">{{ menuList.filter(m => !m.enabled).length }}</div>
-            <div class="text-xs text-gray-400">비활성 메뉴</div>
+            <div class="text-2xl font-black text-ink-muted">{{ menuList.filter(m => !m.enabled).length }}</div>
+            <div class="text-xs text-ink-faint">비활성 메뉴</div>
           </div>
           <div class="bg-red-50 rounded-xl p-4 text-center">
             <div class="text-2xl font-black text-red-500">{{ menuList.filter(m => m.login_required).length }}</div>
@@ -248,7 +251,7 @@
         </div>
 
         <!-- 헤더 행 -->
-        <div class="flex items-center gap-3 px-4 py-2 text-xs text-gray-400 font-medium border-b border-gray-100 mb-2">
+        <div class="flex items-center gap-3 px-4 py-2 text-xs text-ink-faint font-medium border-b border-gray-100 mb-2">
           <span class="w-6 text-center">#</span>
           <span class="w-7"></span>
           <span class="flex-1">메뉴</span>
@@ -262,37 +265,37 @@
 
         <div class="space-y-2">
           <div v-for="(item, idx) in menuList" :key="item.key"
-            class="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 hover:border-blue-200 transition">
-            <span class="w-6 text-center text-xs font-bold text-gray-300">{{ idx + 1 }}</span>
-            <span class="text-xl w-7 text-center flex-shrink-0">{{ item.icon }}</span>
-            <span class="flex-1 text-sm font-semibold text-gray-800">{{ item.label }}</span>
-            <span class="text-xs text-gray-400 font-mono bg-gray-50 px-2 py-0.5 rounded hidden sm:inline">{{ item.key }}</span>
+            class="flex items-center gap-3 card px-4 py-3 hover:shadow-lift transition-all">
+            <span class="w-6 text-center text-xs font-bold text-ink-faint">{{ idx + 1 }}</span>
+            <span class="icon-chip w-7 h-7 flex-shrink-0" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="15" /></span>
+            <span class="flex-1 text-sm font-semibold text-ink">{{ item.label }}</span>
+            <span class="text-xs text-ink-faint font-mono bg-gray-50 px-2 py-0.5 rounded hidden sm:inline">{{ item.key }}</span>
             <!-- Up/Down -->
             <div class="flex gap-1">
               <button @click="moveMenu(idx, -1)" :disabled="idx === 0"
-                class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-20 transition text-xs">▲</button>
+                class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-ink-muted hover:bg-amber-50 hover:text-amber-600 disabled:opacity-20 transition-colors"><AppIcon name="chevron-up" :size="14" /></button>
               <button @click="moveMenu(idx, 1)" :disabled="idx === menuList.length - 1"
-                class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-20 transition text-xs">▼</button>
+                class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-ink-muted hover:bg-amber-50 hover:text-amber-600 disabled:opacity-20 transition-colors"><AppIcon name="chevron-down" :size="14" /></button>
             </div>
             <!-- Login required -->
-            <label class="flex items-center gap-1 text-xs text-gray-500 cursor-pointer" title="로그인 필요">
-              <input type="checkbox" v-model="item.login_required" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            <label class="flex items-center gap-1 text-xs text-ink-muted cursor-pointer" title="로그인 필요">
+              <input type="checkbox" v-model="item.login_required" class="rounded border-gray-300 text-amber-500 focus:ring-amber-400" />
               <span class="hidden lg:inline">로그인</span>
             </label>
             <!-- Admin only -->
-            <label class="flex items-center gap-1 text-xs text-gray-500 cursor-pointer" title="관리자만">
+            <label class="flex items-center gap-1 text-xs text-ink-muted cursor-pointer" title="관리자만">
               <input type="checkbox" v-model="item.admin_only" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
               <span class="hidden lg:inline">관리자</span>
             </label>
             <!-- 기본 뷰 -->
-            <select v-model="item.defaultView" class="text-[10px] border rounded px-1 py-0.5 text-gray-500 w-14" title="기본 보기">
+            <select v-model="item.defaultView" class="text-[11px] border border-gray-200 rounded-lg px-1 py-0.5 text-ink-muted w-14" title="기본 보기">
               <option value="list">☰</option>
               <option value="card">⊞</option>
             </select>
             <!-- Enable toggle -->
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="item.enabled" class="sr-only peer" />
-              <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+              <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-400"></div>
             </label>
           </div>
         </div>
@@ -300,22 +303,22 @@
         <div class="mt-4 flex justify-between items-center">
           <button @click="resetMenuOrder"
             class="btn-secondary text-xs">
-            🔄 기본 순서로 리셋
+            <AppIcon name="refresh" :size="13" />기본 순서로 리셋
           </button>
           <button @click="saveMenus" :disabled="menuSaving" class="btn-primary">
-            {{ menuSaving ? '저장 중...' : '💾 메뉴 설정 저장' }}
+            {{ menuSaving ? '저장 중...' : '메뉴 설정 저장' }}
           </button>
         </div>
       </div>
 
       <!-- ========================= TAB 3: 푸터 편집 ========================= -->
       <div v-show="activeTab === 'footer'">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-          <h2 class="text-base font-semibold text-gray-800 mb-6">푸터 편집</h2>
+        <div class="card p-6 mb-4">
+          <h2 class="text-base font-semibold text-ink mb-6">푸터 편집</h2>
 
           <!-- Footer columns -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div v-for="(col, ci) in footer.columns" :key="ci" class="border border-gray-200 rounded-lg p-4">
+            <div v-for="(col, ci) in footer.columns" :key="ci" class="border border-gray-100 rounded-xl p-4">
               <div class="flex items-center justify-between mb-3">
                 <input v-model="col.title" type="text" class="input-field text-sm font-medium" placeholder="섹션 제목" />
               </div>
@@ -326,38 +329,38 @@
                   <button @click="removeFooterLink(ci, li)" class="text-red-400 hover:text-red-600 flex-shrink-0 text-lg leading-none">&times;</button>
                 </div>
               </div>
-              <button @click="addFooterLink(ci)" class="text-xs text-blue-500 hover:text-blue-700 font-medium">+ 링크 추가</button>
+              <button @click="addFooterLink(ci)" class="text-xs text-amber-600 hover:text-amber-700 font-medium transition-colors">+ 링크 추가</button>
             </div>
           </div>
 
           <!-- Copyright -->
           <div class="mb-5">
-            <label class="block text-sm font-medium text-gray-700 mb-1">저작권 문구</label>
+            <label class="input-label">저작권 문구</label>
             <input v-model="footer.copyright" type="text" class="input-field" placeholder="© 2024 AwesomeKorean Inc. All rights reserved." />
           </div>
 
           <!-- SNS Links -->
           <div class="mb-5">
-            <h3 class="text-sm font-semibold text-gray-600 mb-3">SNS 링크</h3>
+            <h3 class="text-sm font-semibold text-ink-muted mb-3">SNS 링크</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 w-24 flex-shrink-0">Facebook</span>
+                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Facebook</span>
                 <input v-model="footer.sns.facebook" type="text" class="input-field text-sm flex-1" placeholder="https://facebook.com/..." />
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 w-24 flex-shrink-0">Instagram</span>
+                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Instagram</span>
                 <input v-model="footer.sns.instagram" type="text" class="input-field text-sm flex-1" placeholder="https://instagram.com/..." />
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 w-24 flex-shrink-0">Twitter/X</span>
+                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Twitter/X</span>
                 <input v-model="footer.sns.twitter" type="text" class="input-field text-sm flex-1" placeholder="https://twitter.com/..." />
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 w-24 flex-shrink-0">YouTube</span>
+                <span class="text-sm text-ink-muted w-24 flex-shrink-0">YouTube</span>
                 <input v-model="footer.sns.youtube" type="text" class="input-field text-sm flex-1" placeholder="https://youtube.com/..." />
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-500 w-24 flex-shrink-0">KakaoTalk</span>
+                <span class="text-sm text-ink-muted w-24 flex-shrink-0">KakaoTalk</span>
                 <input v-model="footer.sns.kakao" type="text" class="input-field text-sm flex-1" placeholder="카카오 채널 URL" />
               </div>
             </div>
@@ -365,7 +368,7 @@
 
           <!-- Additional Text -->
           <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-1">하단 추가 텍스트</label>
+            <label class="input-label">하단 추가 텍스트</label>
             <textarea v-model="footer.additional_text" rows="3" class="input-field resize-none text-sm" placeholder="사업자등록번호, 통신판매업 신고번호 등 법적 고지사항..."></textarea>
           </div>
 
@@ -414,8 +417,8 @@
 
       <!-- ========================= TAB 4: 약관 관리 ========================= -->
       <div v-show="activeTab === 'terms'">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 class="text-base font-semibold text-gray-800 mb-5">약관 관리</h2>
+        <div class="card p-6">
+          <h2 class="text-base font-semibold text-ink mb-5">약관 관리</h2>
 
           <!-- Sub tabs -->
           <div class="flex gap-1 mb-6 border-b border-gray-200">
@@ -426,8 +429,8 @@
               :class="[
                 'px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
                 activeTermsTab === st.key
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-amber-500 text-amber-700'
+                  : 'border-transparent text-ink-muted hover:text-ink-light'
               ]"
             >
               {{ st.label }}
@@ -436,7 +439,7 @@
 
           <div v-for="st in termsTabs" :key="st.key" v-show="activeTermsTab === st.key">
             <!-- Toolbar -->
-            <div class="flex items-center gap-1 mb-2 p-1 bg-gray-50 border border-gray-200 rounded-lg">
+            <div class="flex items-center gap-1 mb-2 p-1 bg-gray-50 border border-gray-100 rounded-xl">
               <button @click="formatText(st.key, 'bold')" class="toolbar-btn font-bold">B</button>
               <button @click="formatText(st.key, 'italic')" class="toolbar-btn italic">I</button>
               <div class="w-px h-5 bg-gray-300 mx-1"></div>
@@ -445,7 +448,7 @@
               <div class="w-px h-5 bg-gray-300 mx-1"></div>
               <button @click="formatText(st.key, 'list')" class="toolbar-btn">&#8801;</button>
               <button @click="formatText(st.key, 'link')" class="toolbar-btn">&#128279;</button>
-              <div class="ml-auto text-xs text-gray-400">{{ termsContent[st.key]?.length || 0 }}자</div>
+              <div class="ml-auto text-xs text-ink-faint">{{ termsContent[st.key]?.length || 0 }}자</div>
             </div>
 
             <textarea
@@ -457,7 +460,7 @@
             ></textarea>
 
             <div class="flex items-center justify-between mt-3">
-              <span class="text-xs text-gray-400">
+              <span class="text-xs text-ink-faint">
                 마지막 수정: {{ termsLastUpdated[st.key] || '미정' }}
               </span>
               <button @click="saveTerms(st.key)" :disabled="saving" class="btn-primary">
@@ -468,7 +471,7 @@
 
             <!-- Version History -->
             <div class="mt-6 border-t border-gray-100 pt-5">
-              <h3 class="text-sm font-semibold text-gray-700 mb-3">버전 히스토리</h3>
+              <h3 class="text-sm font-semibold text-ink-light mb-3">버전 히스토리</h3>
               <div v-if="termsHistory[st.key]?.length" class="space-y-2">
                 <div
                   v-for="(version, vi) in termsHistory[st.key]"
@@ -476,16 +479,16 @@
                   class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
                 >
                   <div>
-                    <span class="text-sm text-gray-700 font-medium">v{{ version.version }}</span>
-                    <span class="text-xs text-gray-400 ml-2">{{ version.date }}</span>
-                    <span class="text-xs text-gray-500 ml-2">{{ version.summary }}</span>
+                    <span class="text-sm text-ink-light font-medium">v{{ version.version }}</span>
+                    <span class="text-xs text-ink-faint ml-2">{{ version.date }}</span>
+                    <span class="text-xs text-ink-muted ml-2">{{ version.summary }}</span>
                   </div>
-                  <button @click="restoreVersion(st.key, version)" class="text-xs text-blue-500 hover:text-blue-700 font-medium border border-blue-200 px-3 py-1 rounded-lg hover:bg-blue-50 transition-colors">
+                  <button @click="restoreVersion(st.key, version)" class="btn-soft px-3 py-1 text-xs">
                     복원
                   </button>
                 </div>
               </div>
-              <div v-else class="text-sm text-gray-400 py-4 text-center">버전 히스토리가 없습니다.</div>
+              <div v-else class="text-sm text-ink-muted py-4 text-center">버전 히스토리가 없습니다.</div>
             </div>
           </div>
         </div>
@@ -495,35 +498,33 @@
       <div v-show="activeTab === 'notifications'">
 
         <!-- Stripe 결제 키 설정 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="card p-6 mb-4">
           <div class="flex items-center justify-between mb-5">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                 <span class="text-lg font-bold text-indigo-600">S</span>
               </div>
               <div>
-                <h2 class="text-base font-semibold text-gray-800">Stripe API 키 설정</h2>
-                <p class="text-xs text-gray-400">결제 처리를 위한 Stripe API 키 관리</p>
+                <h2 class="text-base font-semibold text-ink">Stripe API 키 설정</h2>
+                <p class="text-xs text-ink-faint">결제 처리를 위한 Stripe API 키 관리</p>
               </div>
             </div>
             <span :class="[
-              'text-xs font-medium px-3 py-1 rounded-full',
-              payment.stripe_publishable_key ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+              payment.stripe_publishable_key ? 'badge-green' : 'badge-red'
             ]">
               {{ payment.stripe_publishable_key ? 'API 키 설정됨' : '미설정' }}
             </span>
           </div>
 
           <!-- 테스트/라이브 모드 토글 -->
-          <div class="flex items-center gap-4 mb-5 p-3 bg-gray-50 rounded-lg">
-            <span class="text-sm text-gray-600 font-medium">결제 모드:</span>
+          <div class="flex items-center gap-4 mb-5 p-3 bg-gray-50 rounded-xl">
+            <span class="text-sm text-ink-light font-medium">결제 모드:</span>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="payment.stripe_test_mode" class="sr-only peer" />
               <div class="w-11 h-6 bg-green-500 peer-checked:bg-yellow-400 rounded-full transition-colors after:content-[''] after:absolute after:top-0.5 after:left-[2px] peer-checked:after:translate-x-full after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
             </label>
             <span :class="[
-              'text-xs font-medium px-2.5 py-1 rounded-full',
-              payment.stripe_test_mode ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'
+              payment.stripe_test_mode ? 'badge-primary' : 'badge-green'
             ]">
               {{ payment.stripe_test_mode ? '테스트 모드' : '라이브 (실결제)' }}
             </span>
@@ -532,17 +533,17 @@
           <!-- Stripe API 키 입력 -->
           <div class="space-y-4 mb-5">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Publishable Key</label>
+              <label class="input-label">Publishable Key</label>
               <input
                 v-model="payment.stripe_publishable_key"
                 type="text"
                 class="input-field font-mono text-sm"
                 :placeholder="payment.stripe_test_mode ? 'pk_test_...' : 'pk_live_...'"
               />
-              <p class="text-xs text-gray-400 mt-1">프론트엔드에서 사용되는 공개 키입니다</p>
+              <p class="text-xs text-ink-faint mt-1">프론트엔드에서 사용되는 공개 키입니다</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Secret Key</label>
+              <label class="input-label">Secret Key</label>
               <div class="relative">
                 <input
                   v-model="payment.stripe_secret_key"
@@ -553,22 +554,22 @@
                 <button
                   type="button"
                   @click="showStripeSecret = !showStripeSecret"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-ink-muted hover:text-ink px-2 py-1 rounded transition-colors"
                 >
                   {{ showStripeSecret ? '숨기기' : '보기' }}
                 </button>
               </div>
-              <p class="text-xs text-gray-400 mt-1">서버에서 사용되는 비밀 키입니다 (절대 노출하지 마세요)</p>
+              <p class="text-xs text-ink-faint mt-1">서버에서 사용되는 비밀 키입니다 (절대 노출하지 마세요)</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Webhook Secret <span class="text-gray-400">(선택)</span></label>
+              <label class="input-label">Webhook Secret <span class="text-ink-faint">(선택)</span></label>
               <input
                 v-model="payment.stripe_webhook_secret"
                 type="password"
                 class="input-field font-mono text-sm"
                 placeholder="whsec_..."
               />
-              <p class="text-xs text-gray-400 mt-1">Webhook 이벤트 검증용 (설정 시 보안 강화)</p>
+              <p class="text-xs text-ink-faint mt-1">Webhook 이벤트 검증용 (설정 시 보안 강화)</p>
             </div>
           </div>
 
@@ -581,27 +582,26 @@
         </div>
 
         <!-- 결제 일반 설정 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="card p-6 mb-4">
           <div class="flex items-center justify-between mb-5">
-            <h2 class="text-base font-semibold text-gray-800">결제 시스템 연결</h2>
+            <h2 class="text-base font-semibold text-ink">결제 시스템 연결</h2>
             <span :class="[
-              'text-xs font-medium px-3 py-1 rounded-full',
-              payment.stripe_connected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+              payment.stripe_connected ? 'badge-green' : 'badge-red'
             ]">
               {{ payment.stripe_connected ? '연결됨' : '미연결' }}
             </span>
           </div>
 
           <!-- Stripe 연동 상태 -->
-          <div class="border border-gray-200 rounded-lg p-4 mb-5">
+          <div class="border border-gray-100 rounded-xl p-4 mb-5">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                   <span class="text-lg font-bold text-indigo-600">S</span>
                 </div>
                 <div>
-                  <p class="text-sm font-semibold text-gray-800">Stripe</p>
-                  <p class="text-xs text-gray-400">결제 처리 서비스</p>
+                  <p class="text-sm font-semibold text-ink">Stripe</p>
+                  <p class="text-xs text-ink-faint">결제 처리 서비스</p>
                 </div>
               </div>
               <a href="/admin/payments" class="inline-flex items-center gap-1 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition-colors">
@@ -612,10 +612,9 @@
 
             <!-- 결제 모드 -->
             <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
-              <span class="text-sm text-gray-600">결제 모드:</span>
+              <span class="text-sm text-ink-light">결제 모드:</span>
               <span :class="[
-                'text-xs font-medium px-2.5 py-1 rounded-full',
-                payment.mode === 'live' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                payment.mode === 'live' ? 'badge-green' : 'badge-primary'
               ]">
                 {{ payment.mode === 'live' ? '라이브 (실결제)' : '테스트 모드' }}
               </span>
@@ -624,35 +623,32 @@
 
           <!-- 결제 수단 현황 -->
           <div class="mb-5">
-            <h3 class="text-sm font-semibold text-gray-600 mb-3">결제 수단 현황</h3>
+            <h3 class="text-sm font-semibold text-ink-muted mb-3">결제 수단 현황</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div class="flex items-center justify-between border border-gray-200 rounded-lg p-3">
+              <div class="flex items-center justify-between border border-gray-100 rounded-xl p-3">
                 <div class="flex items-center gap-2">
                   <span class="text-lg">&#128179;</span>
-                  <span class="text-sm text-gray-700">카드 결제</span>
+                  <span class="text-sm text-ink-light">카드 결제</span>
                 </div>
-                <span :class="['text-xs font-medium px-2 py-0.5 rounded-full',
-                  payment.card_enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500']">
+                <span :class="[payment.card_enabled ? 'badge-green' : 'badge-gray']">
                   {{ payment.card_enabled ? '활성' : '비활성' }}
                 </span>
               </div>
-              <div class="flex items-center justify-between border border-gray-200 rounded-lg p-3">
+              <div class="flex items-center justify-between border border-gray-100 rounded-xl p-3">
                 <div class="flex items-center gap-2">
                   <span class="text-lg">&#127822;</span>
-                  <span class="text-sm text-gray-700">Apple Pay</span>
+                  <span class="text-sm text-ink-light">Apple Pay</span>
                 </div>
-                <span :class="['text-xs font-medium px-2 py-0.5 rounded-full',
-                  payment.apple_pay_enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500']">
+                <span :class="[payment.apple_pay_enabled ? 'badge-green' : 'badge-gray']">
                   {{ payment.apple_pay_enabled ? '활성' : '비활성' }}
                 </span>
               </div>
-              <div class="flex items-center justify-between border border-gray-200 rounded-lg p-3">
+              <div class="flex items-center justify-between border border-gray-100 rounded-xl p-3">
                 <div class="flex items-center gap-2">
                   <span class="text-lg">G</span>
-                  <span class="text-sm text-gray-700">Google Pay</span>
+                  <span class="text-sm text-ink-light">Google Pay</span>
                 </div>
-                <span :class="['text-xs font-medium px-2 py-0.5 rounded-full',
-                  payment.google_pay_enabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500']">
+                <span :class="[payment.google_pay_enabled ? 'badge-green' : 'badge-gray']">
                   {{ payment.google_pay_enabled ? '활성' : '비활성' }}
                 </span>
               </div>
@@ -662,14 +658,14 @@
           <!-- 최소 결제금액 / 통화 설정 -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">최소 결제금액</label>
+              <label class="input-label">최소 결제금액</label>
               <div class="flex items-center gap-2">
                 <input v-model.number="payment.min_amount" type="number" min="0" step="0.01" class="input-field w-32" />
-                <span class="text-sm text-gray-500">{{ payment.currency }}</span>
+                <span class="text-sm text-ink-muted">{{ payment.currency }}</span>
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">기본 통화</label>
+              <label class="input-label">기본 통화</label>
               <select v-model="payment.currency" class="input-field">
                 <option value="USD">USD (미국 달러)</option>
                 <option value="KRW">KRW (한국 원)</option>
@@ -680,18 +676,18 @@
           </div>
 
           <!-- 이번달 결제 요약 -->
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h3 class="text-sm font-semibold text-gray-600 mb-3">이번달 결제 요약</h3>
+          <div class="bg-gray-50 rounded-xl p-4">
+            <h3 class="text-sm font-semibold text-ink-muted mb-3">이번달 결제 요약</h3>
             <div class="grid grid-cols-2 gap-4">
-              <div class="bg-white rounded-lg p-3 border border-gray-200">
-                <p class="text-xs text-gray-500 mb-1">총 결제 금액</p>
-                <p class="text-lg font-bold text-gray-800">
+              <div class="bg-white rounded-xl p-3 border border-gray-100">
+                <p class="text-xs text-ink-muted mb-1">총 결제 금액</p>
+                <p class="text-lg font-bold text-ink">
                   {{ payment.currency === 'USD' ? '$' : '' }}{{ payment.this_month_total.toLocaleString() }}
-                  <span v-if="payment.currency !== 'USD'" class="text-sm font-normal text-gray-500">{{ payment.currency }}</span>
+                  <span v-if="payment.currency !== 'USD'" class="text-sm font-normal text-ink-muted">{{ payment.currency }}</span>
                 </p>
               </div>
-              <div class="bg-white rounded-lg p-3 border border-gray-200">
-                <p class="text-xs text-gray-500 mb-1">결제 성공률</p>
+              <div class="bg-white rounded-xl p-3 border border-gray-100">
+                <p class="text-xs text-ink-muted mb-1">결제 성공률</p>
                 <p class="text-lg font-bold" :class="payment.this_month_success_rate >= 90 ? 'text-green-600' : payment.this_month_success_rate >= 70 ? 'text-yellow-600' : 'text-red-600'">
                   {{ payment.this_month_success_rate }}%
                 </p>
@@ -708,37 +704,37 @@
         </div>
 
         <!-- 시스템 공지사항 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+        <div class="card p-6 mb-4">
           <div class="flex items-center justify-between mb-5">
-            <h2 class="text-base font-semibold text-gray-800">시스템 공지사항</h2>
+            <h2 class="text-base font-semibold text-ink">시스템 공지사항</h2>
             <button @click="showAnnouncementForm = !showAnnouncementForm" class="btn-secondary text-sm">
               {{ showAnnouncementForm ? '취소' : '+ 새 공지 추가' }}
             </button>
           </div>
 
           <!-- New Announcement Form -->
-          <div v-if="showAnnouncementForm" class="border border-blue-100 bg-blue-50 rounded-xl p-5 mb-5">
-            <h3 class="text-sm font-semibold text-gray-700 mb-4">새 공지사항</h3>
+          <div v-if="showAnnouncementForm" class="border border-amber-100 bg-amber-50 rounded-xl p-5 mb-5">
+            <h3 class="text-sm font-semibold text-ink-light mb-4">새 공지사항</h3>
             <div class="grid grid-cols-1 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                <label class="input-label">제목</label>
                 <input v-model="newAnnouncement.title" type="text" class="input-field" placeholder="공지사항 제목" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">내용</label>
+                <label class="input-label">내용</label>
                 <textarea v-model="newAnnouncement.content" rows="3" class="input-field resize-none" placeholder="공지사항 내용..."></textarea>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">시작 날짜</label>
+                  <label class="input-label">시작 날짜</label>
                   <input v-model="newAnnouncement.start_date" type="date" class="input-field" />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">종료 날짜</label>
+                  <label class="input-label">종료 날짜</label>
                   <input v-model="newAnnouncement.end_date" type="date" class="input-field" />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">표시 위치</label>
+                  <label class="input-label">표시 위치</label>
                   <select v-model="newAnnouncement.display_position" class="input-field">
                     <option value="all">전체</option>
                     <option value="home">홈</option>
@@ -761,7 +757,7 @@
             <div
               v-for="(ann, ai) in notifications.announcements"
               :key="ai"
-              class="border border-gray-200 rounded-lg p-4"
+              class="border border-gray-100 rounded-xl p-4"
             >
               <div v-if="editingAnnouncement === ai">
                 <!-- Edit mode -->
@@ -787,54 +783,54 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 mb-1">
                     <span :class="['inline-block w-2 h-2 rounded-full', ann.active ? 'bg-green-400' : 'bg-gray-300']"></span>
-                    <span class="text-sm font-medium text-gray-800 truncate">{{ ann.title }}</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-500">{{ positionLabel(ann.display_position) }}</span>
+                    <span class="text-sm font-medium text-ink truncate">{{ ann.title }}</span>
+                    <span class="badge-gray !text-[11px]">{{ positionLabel(ann.display_position) }}</span>
                   </div>
-                  <p class="text-xs text-gray-500 truncate">{{ ann.content }}</p>
-                  <p class="text-xs text-gray-400 mt-1">{{ ann.start_date }} ~ {{ ann.end_date }}</p>
+                  <p class="text-xs text-ink-muted truncate">{{ ann.content }}</p>
+                  <p class="text-xs text-ink-faint mt-1">{{ ann.start_date }} ~ {{ ann.end_date }}</p>
                 </div>
                 <div class="flex items-center gap-2 ml-3 flex-shrink-0">
-                  <button @click="editingAnnouncement = ai" class="text-xs text-blue-500 hover:text-blue-700">수정</button>
-                  <button @click="removeAnnouncement(ai)" class="text-xs text-red-400 hover:text-red-600">삭제</button>
+                  <button @click="editingAnnouncement = ai" class="text-xs text-amber-600 hover:text-amber-700 transition-colors">수정</button>
+                  <button @click="removeAnnouncement(ai)" class="text-xs text-red-400 hover:text-red-600 transition-colors">삭제</button>
                 </div>
               </div>
             </div>
           </div>
-          <div v-else class="text-sm text-gray-400 py-6 text-center">등록된 공지사항이 없습니다.</div>
+          <div v-else class="text-sm text-ink-muted py-6 text-center">등록된 공지사항이 없습니다.</div>
         </div>
 
         <!-- 이메일 알림 설정 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-          <h2 class="text-base font-semibold text-gray-800 mb-5">이메일 알림 설정</h2>
+        <div class="card p-6 mb-4">
+          <h2 class="text-base font-semibold text-ink mb-5">이메일 알림 설정</h2>
           <ToggleRow v-model="notifications.email.enabled" label="알림 이메일 활성화" desc="관리자에게 이메일 알림을 전송합니다" class="mb-4" />
           <div :class="['space-y-3 transition-opacity', notifications.email.enabled ? 'opacity-100' : 'opacity-40 pointer-events-none']">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">신규 가입 알림 수신 이메일</label>
+              <label class="input-label">신규 가입 알림 수신 이메일</label>
               <input v-model="notifications.email.new_user" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">신고 접수 알림 수신 이메일</label>
+              <label class="input-label">신고 접수 알림 수신 이메일</label>
               <input v-model="notifications.email.report" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">결제 알림 수신 이메일</label>
+              <label class="input-label">결제 알림 수신 이메일</label>
               <input v-model="notifications.email.payment" type="email" class="input-field" placeholder="billing@awesomekorean.com" />
             </div>
           </div>
         </div>
 
         <!-- 푸시 알림 설정 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-          <h2 class="text-base font-semibold text-gray-800 mb-5">푸시 알림 설정 (VAPID)</h2>
+        <div class="card p-6 mb-4">
+          <h2 class="text-base font-semibold text-ink mb-5">푸시 알림 설정 (VAPID)</h2>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">VAPID Public Key</label>
+              <label class="input-label">VAPID Public Key</label>
               <div class="flex gap-2">
                 <input v-model="notifications.push.vapid_public" type="text" class="input-field flex-1 font-mono text-xs" placeholder="BFHtE3h..." readonly />
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">VAPID Private Key</label>
+              <label class="input-label">VAPID Private Key</label>
               <input
                 v-model="notifications.push.vapid_private"
                 :type="showVapidPrivate ? 'text' : 'password'"
@@ -848,7 +844,7 @@
                 <span v-if="generatingKeys" class="inline-block w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
                 키 생성
               </button>
-              <button @click="showVapidPrivate = !showVapidPrivate" class="text-sm text-gray-500 hover:text-gray-700">
+              <button @click="showVapidPrivate = !showVapidPrivate" class="text-sm text-ink-muted hover:text-ink transition-colors">
                 {{ showVapidPrivate ? '숨기기' : '보기' }}
               </button>
               <p class="text-xs text-amber-600">주의: 키를 재생성하면 기존 구독이 모두 해제됩니다.</p>
@@ -857,48 +853,48 @@
         </div>
 
         <!-- SEO 설정 -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-          <h2 class="text-base font-semibold text-gray-800 mb-5">SEO 설정</h2>
+        <div class="card p-6 mb-4">
+          <h2 class="text-base font-semibold text-ink mb-5">SEO 설정</h2>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">메타 타이틀 기본값</label>
+              <label class="input-label">메타 타이틀 기본값</label>
               <input v-model="seo.meta_title" type="text" class="input-field" placeholder="AwesomeKorean - 미국 한인 커뮤니티" />
-              <p class="text-xs text-gray-400 mt-1">페이지별 타이틀이 없을 때 사용되는 기본 타이틀</p>
+              <p class="text-xs text-ink-faint mt-1">페이지별 타이틀이 없을 때 사용되는 기본 타이틀</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">메타 설명 기본값</label>
+              <label class="input-label">메타 설명 기본값</label>
               <textarea v-model="seo.meta_description" rows="2" class="input-field resize-none" placeholder="미국 한인 커뮤니티 플랫폼 AwesomeKorean에서 다양한 정보를 나누세요."></textarea>
-              <p class="text-xs text-gray-400 mt-1">검색 결과에 표시되는 사이트 설명 (150자 이내 권장)</p>
+              <p class="text-xs text-ink-faint mt-1">검색 결과에 표시되는 사이트 설명 (150자 이내 권장)</p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Open Graph 이미지 URL</label>
+              <label class="input-label">Open Graph 이미지 URL</label>
               <div class="flex items-center gap-3">
                 <input v-model="seo.og_image" type="text" class="input-field flex-1" placeholder="https://awesomekorean.com/images/og-image.jpg" />
-                <div v-if="seo.og_image" class="w-16 h-10 border border-gray-200 rounded overflow-hidden flex-shrink-0">
+                <div v-if="seo.og_image" class="w-16 h-10 border border-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                   <img :src="seo.og_image" alt="OG Preview" class="w-full h-full object-cover" @error="() => {}" />
                 </div>
               </div>
-              <p class="text-xs text-gray-400 mt-1">SNS 공유 시 표시되는 대표 이미지 (1200x630px 권장)</p>
+              <p class="text-xs text-ink-faint mt-1">SNS 공유 시 표시되는 대표 이미지 (1200x630px 권장)</p>
             </div>
 
             <div class="border-t border-gray-100 pt-4">
-              <h3 class="text-sm font-semibold text-gray-600 mb-3">사이트 인증</h3>
+              <h3 class="text-sm font-semibold text-ink-muted mb-3">사이트 인증</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Google Site Verification</label>
+                  <label class="input-label">Google Site Verification</label>
                   <input v-model="seo.google_verification" type="text" class="input-field" placeholder="google-site-verification=..." />
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Naver Site Verification</label>
+                  <label class="input-label">Naver Site Verification</label>
                   <input v-model="seo.naver_verification" type="text" class="input-field" placeholder="naver-site-verification=..." />
                 </div>
               </div>
             </div>
 
             <div class="border-t border-gray-100 pt-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">robots.txt 편집</label>
+              <label class="input-label">robots.txt 편집</label>
               <textarea v-model="seo.robots_txt" rows="8" class="input-field resize-none font-mono text-xs" placeholder="User-agent: *&#10;Allow: /&#10;Sitemap: https://awesomekorean.com/sitemap.xml"></textarea>
-              <p class="text-xs text-gray-400 mt-1">검색 엔진 크롤러 접근 규칙을 설정합니다</p>
+              <p class="text-xs text-ink-faint mt-1">검색 엔진 크롤러 접근 규칙을 설정합니다</p>
             </div>
           </div>
 
@@ -923,79 +919,79 @@
     <div v-if="activeTab === 'api'" class="space-y-6">
 
       <!-- Firebase Cloud Messaging 설정 -->
-      <div class="bg-white rounded-xl border p-6">
+      <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold">🔔 Firebase Push Notification</h3>
-          <span :class="firebaseStatus ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'" class="text-xs px-3 py-1 rounded-full font-medium">
-            {{ firebaseStatus ? '✅ 연결됨' : '⚠️ 미설정' }}
+          <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-orange-50 text-orange-500"><AppIcon name="bell" :size="16" /></span>Firebase Push Notification</h3>
+          <span :class="firebaseStatus ? 'badge-green' : 'badge-primary'">
+            {{ firebaseStatus ? '연결됨' : '미설정' }}
           </span>
         </div>
-        <p class="text-xs text-gray-400 mb-4">안심통화 수신 알림, 백그라운드 푸시, 벨소리에 사용됩니다.</p>
+        <p class="text-xs text-ink-faint mb-4">안심통화 수신 알림, 백그라운드 푸시, 벨소리에 사용됩니다.</p>
 
         <div class="space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">API Key</label>
-              <input v-model="firebase.apiKey" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="AIzaSy..." />
+              <label class="input-label !text-xs">API Key</label>
+              <input v-model="firebase.apiKey" type="text" class="input-field font-mono" placeholder="AIzaSy..." />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">Project ID</label>
-              <input v-model="firebase.projectId" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="awesomekorean-xxxxx" />
+              <label class="input-label !text-xs">Project ID</label>
+              <input v-model="firebase.projectId" type="text" class="input-field font-mono" placeholder="awesomekorean-xxxxx" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">Messaging Sender ID</label>
-              <input v-model="firebase.messagingSenderId" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="123456789" />
+              <label class="input-label !text-xs">Messaging Sender ID</label>
+              <input v-model="firebase.messagingSenderId" type="text" class="input-field font-mono" placeholder="123456789" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">App ID</label>
-              <input v-model="firebase.appId" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="1:123:web:abc..." />
+              <label class="input-label !text-xs">App ID</label>
+              <input v-model="firebase.appId" type="text" class="input-field font-mono" placeholder="1:123:web:abc..." />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">Auth Domain</label>
-              <input v-model="firebase.authDomain" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="xxx.firebaseapp.com" />
+              <label class="input-label !text-xs">Auth Domain</label>
+              <input v-model="firebase.authDomain" type="text" class="input-field font-mono" placeholder="xxx.firebaseapp.com" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">Storage Bucket</label>
-              <input v-model="firebase.storageBucket" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="xxx.appspot.com" />
+              <label class="input-label !text-xs">Storage Bucket</label>
+              <input v-model="firebase.storageBucket" type="text" class="input-field font-mono" placeholder="xxx.appspot.com" />
             </div>
           </div>
           <div>
-            <label class="text-xs text-gray-500 mb-1 block">VAPID Key (웹 푸시 인증서)</label>
-            <input v-model="firebase.vapidKey" type="text" class="w-full border rounded-lg px-3 py-2 text-sm font-mono" placeholder="BA93MT..." />
+            <label class="input-label !text-xs">VAPID Key (웹 푸시 인증서)</label>
+            <input v-model="firebase.vapidKey" type="text" class="input-field font-mono" placeholder="BA93MT..." />
           </div>
           <div>
-            <label class="text-xs text-gray-500 mb-1 block">서비스 계정 JSON (백엔드용 — 서버에 직접 업로드)</label>
+            <label class="input-label !text-xs">서비스 계정 JSON (백엔드용 — 서버에 직접 업로드)</label>
             <div class="flex items-center gap-2">
-              <code class="text-xs bg-gray-100 px-3 py-2 rounded flex-1 font-mono text-gray-600">{{ firebase.credentialsPath || '/storage/app/firebase-service-account.json' }}</code>
-              <span :class="firebase.credentialsExists ? 'text-green-600' : 'text-red-500'" class="text-xs font-medium">{{ firebase.credentialsExists ? '✅ 파일 존재' : '❌ 파일 없음' }}</span>
+              <code class="text-xs bg-gray-100 px-3 py-2 rounded-lg flex-1 font-mono text-ink-light">{{ firebase.credentialsPath || '/storage/app/firebase-service-account.json' }}</code>
+              <span :class="firebase.credentialsExists ? 'text-green-600' : 'text-red-500'" class="text-xs font-medium">{{ firebase.credentialsExists ? '파일 존재' : '파일 없음' }}</span>
             </div>
           </div>
-          <button @click="saveFirebase" :disabled="savingFirebase" class="w-full py-2.5 bg-orange-500 text-white rounded-lg text-sm font-bold hover:bg-orange-600 disabled:opacity-50 mt-2">
-            {{ savingFirebase ? '저장 중...' : '🔔 Firebase 설정 저장' }}
+          <button @click="saveFirebase" :disabled="savingFirebase" class="btn-primary w-full mt-2">
+            {{ savingFirebase ? '저장 중...' : 'Firebase 설정 저장' }}
           </button>
         </div>
       </div>
 
       <!-- 기존 API 키 관리 -->
-      <div class="bg-white rounded-xl border p-6">
+      <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-bold">🔑 API 키 관리</h3>
-          <button @click="showAddApiKey = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700">+ 새 API 키</button>
+          <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 관리</h3>
+          <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
         </div>
-        
+
         <div class="space-y-3">
-          <div v-for="key in apiKeys" :key="key.id" class="border rounded-xl p-4 flex items-center justify-between">
+          <div v-for="key in apiKeys" :key="key.id" class="border border-gray-100 rounded-xl p-4 flex items-center justify-between">
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-bold text-gray-800">{{ key.name }}</span>
-                <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{{ key.service }}</span>
-                <span :class="key.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="text-xs px-2 py-0.5 rounded-full">{{ key.is_active ? '활성' : '비활성' }}</span>
+                <span class="text-sm font-bold text-ink">{{ key.name }}</span>
+                <span class="badge-blue !text-[11px]">{{ key.service }}</span>
+                <span :class="key.is_active ? 'badge-green' : 'badge-red'" class="!text-[11px]">{{ key.is_active ? '활성' : '비활성' }}</span>
               </div>
-              <p v-if="key.description" class="text-xs text-gray-500 mt-1">{{ key.description }}</p>
+              <p v-if="key.description" class="text-xs text-ink-muted mt-1">{{ key.description }}</p>
               <div class="flex items-center gap-2 mt-2">
-                <code class="text-xs bg-gray-100 px-2 py-1 rounded font-mono">{{ key.showFull ? key.fullKey : key.masked_key }}</code>
-                <button @click="toggleReveal(key)" class="text-xs text-blue-600 hover:underline">{{ key.showFull ? '숨기기' : '보기' }}</button>
-                <button @click="copyKey(key)" class="text-xs text-gray-500 hover:underline">복사</button>
+                <code class="text-xs bg-gray-100 px-2 py-1 rounded-lg font-mono text-ink-light">{{ key.showFull ? key.fullKey : key.masked_key }}</code>
+                <button @click="toggleReveal(key)" class="text-xs text-amber-600 hover:underline transition-colors">{{ key.showFull ? '숨기기' : '보기' }}</button>
+                <button @click="copyKey(key)" class="text-xs text-ink-muted hover:underline transition-colors">복사</button>
               </div>
             </div>
             <div class="flex gap-2">
@@ -1003,34 +999,34 @@
               <button @click="deleteApiKey(key.id)" class="text-xs text-red-600 hover:underline">삭제</button>
             </div>
           </div>
-          <div v-if="!apiKeys.length" class="text-center py-8 text-gray-400 text-sm">등록된 API 키가 없습니다</div>
+          <div v-if="!apiKeys.length" class="text-center py-8 text-ink-muted text-sm">등록된 API 키가 없습니다</div>
         </div>
       </div>
 
       <!-- 새 API 키 추가 모달 -->
       <div v-if="showAddApiKey" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showAddApiKey = false">
         <div class="bg-white rounded-2xl p-6 w-full max-w-md">
-          <h3 class="font-bold text-lg mb-4">🔑 새 API 키 등록</h3>
+          <h3 class="flex items-center gap-2 font-bold text-lg text-ink mb-4"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>새 API 키 등록</h3>
           <div class="space-y-3">
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">서비스 이름</label>
-              <input v-model="newApiKey.name" placeholder="예: YouTube Data API v3" class="w-full border rounded-lg px-3 py-2 text-sm" />
+              <label class="input-label !text-xs">서비스 이름</label>
+              <input v-model="newApiKey.name" placeholder="예: YouTube Data API v3" class="input-field" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">서비스 코드</label>
-              <input v-model="newApiKey.service" placeholder="예: youtube, stripe, openai" class="w-full border rounded-lg px-3 py-2 text-sm" />
+              <label class="input-label !text-xs">서비스 코드</label>
+              <input v-model="newApiKey.service" placeholder="예: youtube, stripe, openai" class="input-field" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">API 키</label>
-              <input v-model="newApiKey.api_key" placeholder="키 입력..." class="w-full border rounded-lg px-3 py-2 text-sm font-mono" />
+              <label class="input-label !text-xs">API 키</label>
+              <input v-model="newApiKey.api_key" placeholder="키 입력..." class="input-field font-mono" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 mb-1 block">설명 (선택)</label>
-              <input v-model="newApiKey.description" placeholder="용도 설명" class="w-full border rounded-lg px-3 py-2 text-sm" />
+              <label class="input-label !text-xs">설명 (선택)</label>
+              <input v-model="newApiKey.description" placeholder="용도 설명" class="input-field" />
             </div>
             <div class="flex gap-2 pt-2">
-              <button @click="showAddApiKey = false" class="flex-1 py-2 bg-gray-100 rounded-lg text-sm font-semibold">취소</button>
-              <button @click="saveApiKey" class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700">등록</button>
+              <button @click="showAddApiKey = false" class="btn-secondary flex-1 py-2">취소</button>
+              <button @click="saveApiKey" class="btn-primary flex-1 py-2">등록</button>
             </div>
           </div>
         </div>
@@ -1042,6 +1038,8 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
+import { menuIcon, menuChipColor } from '../../utils/menuIcons'
 
 // ─── Sub-component: Toggle Row ────────────────────────────────────────────────
 const ToggleRow = {
@@ -1674,20 +1672,15 @@ watch(() => activeTab.value, (tab) => {
 </script>
 
 <style scoped>
+/* 리뉴얼: input-soft 와 동일한 소프트 입력 스타일 (이 파일 전용 별칭) */
 .input-field {
-  @apply w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-colors bg-white;
+  @apply w-full bg-[#F4F6F8] border-[1.5px] border-transparent rounded-xl px-3 py-2 text-sm text-ink placeholder:text-ink-faint outline-none transition-all duration-150 focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10;
 }
 
-.btn-primary {
-  @apply inline-flex items-center px-5 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.btn-secondary {
-  @apply inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors;
-}
+/* btn-primary / btn-secondary 는 app.css 전역 공용 클래스를 사용 (로컬 정의 제거) */
 
 .toolbar-btn {
-  @apply px-2.5 py-1 text-sm text-gray-600 hover:bg-gray-200 rounded font-medium transition-colors;
+  @apply px-2.5 py-1 text-sm text-ink-light hover:bg-gray-200 rounded-lg font-medium transition-colors;
 }
 
 .toast-enter-active,

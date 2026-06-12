@@ -4,8 +4,8 @@
   <!-- 채팅 버튼 (접힌 상태) -->
   <button v-if="!open" @click="openChat"
     class="fixed bottom-20 right-4 z-[90] w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110">
-    <span class="text-2xl">💬</span>
-    <span v-if="unreadCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+    <AppIcon name="message-circle" :size="26" />
+    <span v-if="unreadCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
       {{ unreadCount > 9 ? '9+' : unreadCount }}
     </span>
   </button>
@@ -19,12 +19,12 @@
     <!-- 헤더 -->
     <div class="bg-amber-500 text-white px-4 py-3 flex items-center justify-between flex-shrink-0 safe-top">
       <div class="flex items-center gap-2 min-w-0">
-        <span class="text-lg">💬</span>
+        <AppIcon name="message-circle" :size="18" />
         <span class="font-bold text-sm truncate">{{ roomName }}</span>
       </div>
       <div class="flex items-center gap-1">
-        <button @click="open = false" class="w-7 h-7 rounded-full hover:bg-amber-600 flex items-center justify-center transition text-lg" title="최소화">−</button>
-        <button @click="open = false" class="w-7 h-7 rounded-full hover:bg-amber-600 flex items-center justify-center transition text-sm" title="닫기">✕</button>
+        <button @click="open = false" class="w-7 h-7 rounded-full hover:bg-amber-600 flex items-center justify-center transition-colors text-lg" title="최소화">−</button>
+        <button @click="open = false" class="w-7 h-7 rounded-full hover:bg-amber-600 flex items-center justify-center transition-colors" title="닫기"><AppIcon name="x" :size="15" /></button>
       </div>
     </div>
 
@@ -34,7 +34,8 @@
         <div class="inline-block w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
 
-      <div v-if="!messages.length && !loading" class="text-center py-8 text-gray-400 text-xs">
+      <div v-if="!messages.length && !loading" class="text-center py-8 text-ink-muted text-xs">
+        <div class="icon-chip w-12 h-12 bg-gray-100 text-gray-300 mx-auto mb-2"><AppIcon name="message-circle" :size="24" :stroke-width="1.5" /></div>
         아직 메시지가 없습니다.<br>첫 메시지를 보내보세요!
       </div>
 
@@ -42,22 +43,22 @@
         :class="msg.user_id === userId ? 'flex justify-end' : 'flex justify-start'">
         <div :class="msg.user_id === userId ? 'max-w-[75%]' : 'max-w-[75%]'">
           <!-- 상대방 이름 -->
-          <div v-if="msg.user_id !== userId" class="text-[10px] text-gray-400 mb-0.5 ml-1">
+          <div v-if="msg.user_id !== userId" class="text-[11px] text-ink-muted mb-0.5 ml-1">
             {{ msg.user?.nickname || msg.user?.name || '알수없음' }}
           </div>
           <!-- 메시지 버블 -->
           <div class="px-3 py-2 rounded-2xl text-sm break-words"
             :class="msg.user_id === userId
-              ? 'bg-amber-400 text-amber-900 rounded-br-md'
-              : 'bg-white border border-gray-200 text-gray-700 rounded-bl-md shadow-sm'">
+              ? 'bg-amber-400 text-white rounded-br-md'
+              : 'bg-white border border-gray-100 text-ink-light rounded-bl-md shadow-sm'">
             <div v-if="msg.type === 'image' && msg.file_url" class="mb-1">
               <img :src="msg.file_url" class="max-w-full rounded-lg max-h-32" @error="$event.target.style.display='none'" />
             </div>
             <span v-if="msg.content">{{ msg.content }}</span>
           </div>
           <!-- 시간 -->
-          <div class="text-[9px] mt-0.5 px-1"
-            :class="msg.user_id === userId ? 'text-right text-gray-400' : 'text-gray-300'">
+          <div class="text-[11px] mt-0.5 px-1 text-ink-faint"
+            :class="msg.user_id === userId ? 'text-right' : ''">
             {{ formatTime(msg.created_at) }}
           </div>
         </div>
@@ -65,14 +66,14 @@
     </div>
 
     <!-- 입력 영역 -->
-    <div class="border-t bg-white px-3 py-2 flex-shrink-0">
+    <div class="border-t border-gray-50 bg-white px-3 py-2 flex-shrink-0">
       <form @submit.prevent="sendMessage" class="flex items-center gap-2">
         <input v-model="newMessage" type="text" placeholder="메시지 입력..."
-          class="flex-1 border border-gray-200 rounded-full px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+          class="input-soft flex-1 !rounded-full !py-2"
           :disabled="sending" maxlength="2000" />
         <button type="submit" :disabled="!newMessage.trim() || sending"
-          class="w-9 h-9 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+          class="w-9 h-9 bg-amber-500 hover:bg-amber-600 text-white rounded-full flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0">
+          <AppIcon name="send" :size="16" />
         </button>
       </form>
     </div>
@@ -84,6 +85,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   roomId: { type: [Number, String], required: true },

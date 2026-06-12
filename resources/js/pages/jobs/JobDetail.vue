@@ -1,41 +1,44 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="job?.title || '구인구직'" fallback="/jobs" />
     <!-- 헤더: 데스크탑 (grid 3컬럼 — 리스트와 동일) -->
     <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
-      <router-link to="/jobs" class="text-xl font-black text-gray-800 hover:text-amber-600 transition whitespace-nowrap justify-self-start">💼 구인구직</router-link>
-      <div class="flex border border-gray-200 rounded-lg overflow-hidden bg-white">
+      <router-link to="/jobs" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors whitespace-nowrap justify-self-start">
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="20" /></span>
+        구인구직
+      </router-link>
+      <div class="flex bg-gray-100 rounded-xl p-1">
         <router-link to="/jobs?type=hiring"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            job?.post_type !== 'seeking' ? 'bg-amber-400 text-amber-900' : 'text-gray-500 hover:bg-gray-50']">
-          💼 구인
+          :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+            job?.post_type !== 'seeking' ? 'bg-white text-amber-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="briefcase" :size="13" />구인
         </router-link>
         <router-link to="/jobs?type=seeking"
-          :class="['px-3 py-1 text-xs font-bold transition whitespace-nowrap',
-            job?.post_type === 'seeking' ? 'bg-blue-500 text-white' : 'text-gray-500 hover:bg-gray-50']">
-          🙋 구직
+          :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+            job?.post_type === 'seeking' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+          <AppIcon name="user" :size="13" />구직
         </router-link>
       </div>
       <div class="justify-self-end">
-        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">✏️ 등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary px-3 py-1.5 rounded-lg text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
       </div>
     </div>
 
-    <div v-if="loading" class="text-center py-20 text-gray-400">로딩중...</div>
+    <div v-if="loading" class="text-center py-20 text-sm text-ink-muted">로딩중...</div>
 
     <div v-else-if="job" class="grid grid-cols-12 gap-4">
 
       <!-- ══════════ LEFT: 카테고리 사이드바 (JobList와 동일) ══════════ -->
       <aside class="col-span-2 hidden lg:block">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs"
+        <div class="card overflow-hidden sticky top-20">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs"
             :class="job.post_type === 'seeking' ? 'text-blue-700' : 'text-amber-700'">
-            {{ job.post_type === 'seeking' ? '🙋 구직 카테고리' : '💼 구인 카테고리' }}
+            {{ job.post_type === 'seeking' ? '구직 카테고리' : '구인 카테고리' }}
           </div>
           <router-link v-for="c in jobCategories" :key="c.value" :to="`/jobs${c.value ? '?category=' + c.value : ''}`"
-            class="block w-full text-left px-3 py-2 text-xs transition"
-            :class="c.value === job.category ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-gray-50'">
+            class="block w-full text-left px-3 py-2 text-xs transition-colors"
+            :class="c.value === job.category ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50'">
             {{ c.label }}
           </router-link>
           <AdSlot page="jobs" position="left" :maxSlots="2" />
@@ -44,86 +47,87 @@
 
       <!-- ══════════ CENTER: Job Detail Card ══════════ -->
       <main class="col-span-12 lg:col-span-7 md:col-span-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="card overflow-hidden">
 
           <!-- Header: badges + title + company + location -->
-          <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-100">
+          <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-50">
             <div class="flex items-center gap-2 flex-wrap mb-2">
               <!-- 프로모션 뱃지 -->
-              <span v-if="job.promotion_tier === 'national'" class="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">🌐 전국구</span>
-              <span v-else-if="job.promotion_tier === 'state_plus'" class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold">⭐ 주+인접 상위노출</span>
-              <span v-else-if="job.promotion_tier === 'sponsored'" class="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold">📢 스폰서</span>
+              <span v-if="job.promotion_tier === 'national'" class="inline-flex items-center gap-1 text-xs bg-red-500 text-white px-2 py-0.5 rounded-full font-bold"><AppIcon name="globe" :size="12" />전국구</span>
+              <span v-else-if="job.promotion_tier === 'state_plus'" class="inline-flex items-center gap-1 text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full font-bold"><AppIcon name="star" :size="12" />주+인접 상위노출</span>
+              <span v-else-if="job.promotion_tier === 'sponsored'" class="inline-flex items-center gap-1 text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-bold"><AppIcon name="megaphone" :size="12" />스폰서</span>
               <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="typeClass(job.type)">{{ typeLabel(job.type) }}</span>
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="job.post_type === 'hiring' ? 'bg-indigo-100 text-indigo-700' : 'bg-pink-100 text-pink-700'">
+              <span :class="job.post_type === 'hiring' ? 'badge-primary' : 'badge-blue'">
                 {{ job.post_type === 'hiring' ? '구인' : '구직' }}
               </span>
             </div>
             <div class="flex items-start gap-3">
               <!-- 로고 -->
-              <img v-if="job.logo" :src="job.logo" class="w-16 h-16 rounded-lg object-cover border flex-shrink-0" @error="$event.target.style.display='none'" />
+              <img v-if="job.logo" :src="job.logo" class="w-16 h-16 rounded-lg object-cover border border-gray-100 flex-shrink-0" @error="$event.target.style.display='none'" />
               <div class="flex-1 min-w-0">
-                <h1 class="text-xl lg:text-2xl font-bold text-gray-900 leading-snug">{{ job.title }}</h1>
+                <h1 class="text-xl lg:text-2xl font-bold text-ink leading-snug">{{ job.title }}</h1>
                 <div v-if="job.company" class="text-sm lg:text-base text-amber-700 font-semibold mt-1">{{ job.company }}</div>
-                <div class="text-xs lg:text-sm text-gray-500 mt-1">
+                <div class="text-xs lg:text-sm text-ink-muted mt-1">
                   <span v-if="job.city || job.state || job.zipcode">
                     {{ [job.city, job.state, job.zipcode].filter(Boolean).join(', ') }}
                   </span>
                 </div>
                 <!-- 직종 태그 -->
                 <div v-if="job.job_tags && job.job_tags.length" class="flex items-center gap-1 mt-2 flex-wrap">
-                  <span v-for="tag in job.job_tags" :key="tag" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-semibold">{{ jobTagLabel(tag) }}</span>
+                  <span v-for="tag in job.job_tags" :key="tag" class="text-[11px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-semibold">{{ jobTagLabel(tag) }}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Salary box -->
-          <div v-if="job.salary_min || job.salary_max" class="mx-3 lg:mx-5 my-3 bg-green-50 border border-green-200 rounded-lg px-3 lg:px-4 py-3">
-            <div class="text-green-800 font-bold text-base flex items-center gap-2">
+          <div v-if="job.salary_min || job.salary_max" class="mx-3 lg:mx-5 my-3 bg-emerald-50 rounded-xl px-3 lg:px-4 py-3">
+            <div class="text-emerald-700 font-bold text-base flex items-center gap-2">
+              <AppIcon name="dollar" :size="16" />
               <span>{{ formatSalary(job) }}</span>
             </div>
           </div>
 
           <!-- Tags: category + type -->
           <div class="px-3 lg:px-5 py-2 flex items-center gap-2 flex-wrap">
-            <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+            <span class="badge-gray">
               {{ categoryLabel(job.category) }}
             </span>
-            <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+            <span class="badge-gray">
               {{ typeLabel(job.type) }}
             </span>
-            <span v-if="job.salary_type" class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-600 font-medium">
+            <span v-if="job.salary_type" class="badge-gray">
               {{ salaryTypeLabel(job.salary_type) }}
             </span>
-            <span class="text-xs text-gray-400 ml-auto">{{ job.view_count }}회 조회</span>
+            <span class="inline-flex items-center gap-1 text-xs text-ink-muted ml-auto"><AppIcon name="eye" :size="12" />{{ job.view_count }}회 조회</span>
             <BookmarkToggle v-if="auth.isLoggedIn" :active="jobFavorited" @toggle="toggleJobFav" size="md" class="ml-2" />
           </div>
 
           <!-- Apply / Contact bar -->
-          <div class="px-3 lg:px-5 py-3 border-t border-b border-gray-100 bg-gray-50/50">
+          <div class="px-3 lg:px-5 py-3 border-t border-b border-gray-50 bg-gray-50/50">
             <div class="flex items-center gap-3 flex-wrap">
               <!-- 구인 글 → 지원하기 (이력서 모달) -->
               <button v-if="job.post_type === 'hiring'"
                 @click="openApplyModal"
-                class="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
+                class="btn-primary px-5 py-2 text-sm">
                 지원하기
               </button>
               <!-- 구직 글 → 연락하기 (전화/이메일) -->
               <a v-else-if="job.contact_phone" :href="'tel:' + job.contact_phone"
-                class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
-                연락하기
+                class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-5 py-2 rounded-xl transition-colors">
+                <AppIcon name="phone" :size="14" />연락하기
               </a>
               <a v-else-if="job.contact_email" :href="'mailto:' + job.contact_email"
-                class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-5 py-2 rounded-lg transition">
-                연락하기
+                class="inline-flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm px-5 py-2 rounded-xl transition-colors">
+                <AppIcon name="mail" :size="14" />연락하기
               </a>
             </div>
-            <div class="flex items-center gap-4 mt-2 text-sm text-gray-600 flex-wrap">
-              <a v-if="job.contact_phone" :href="'tel:' + job.contact_phone" class="hover:text-amber-600 transition">
-                {{ job.contact_phone }}
+            <div class="flex items-center gap-4 mt-2 text-sm text-ink-light flex-wrap">
+              <a v-if="job.contact_phone" :href="'tel:' + job.contact_phone" class="inline-flex items-center gap-1 hover:text-amber-600 transition-colors">
+                <AppIcon name="phone" :size="13" />{{ job.contact_phone }}
               </a>
-              <a v-if="job.contact_email" :href="'mailto:' + job.contact_email" class="hover:text-amber-600 transition">
-                {{ job.contact_email }}
+              <a v-if="job.contact_email" :href="'mailto:' + job.contact_email" class="inline-flex items-center gap-1 hover:text-amber-600 transition-colors">
+                <AppIcon name="mail" :size="13" />{{ job.contact_email }}
               </a>
             </div>
           </div>
@@ -133,20 +137,20 @@
             <div v-if="showApplyModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" @click.self="showApplyModal = false">
               <div class="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md mx-4 overflow-hidden">
                 <!-- 모달 헤더 -->
-                <div class="px-5 py-4 border-b bg-amber-50">
+                <div class="px-5 py-4 border-b border-gray-50 bg-amber-50">
                   <div class="flex items-center justify-between">
-                    <h3 class="text-base font-bold text-gray-900">지원하기</h3>
-                    <button @click="showApplyModal = false" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+                    <h3 class="text-base font-bold text-ink">지원하기</h3>
+                    <button @click="showApplyModal = false" class="text-ink-faint hover:text-ink-light text-xl leading-none transition-colors">&times;</button>
                   </div>
-                  <p class="text-xs text-gray-500 mt-1">{{ job.company }} — {{ job.title }}</p>
+                  <p class="text-xs text-ink-muted mt-1">{{ job.company }} — {{ job.title }}</p>
                 </div>
 
                 <!-- 로그인 안됨 -->
                 <div v-if="!auth.isLoggedIn" class="p-5 text-center">
-                  <div class="text-3xl mb-3">🔒</div>
-                  <p class="text-sm text-gray-600 mb-4">지원하려면 로그인이 필요합니다</p>
+                  <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="lock" :size="28" :stroke-width="1.5" /></div>
+                  <p class="text-sm text-ink-light mb-4">지원하려면 로그인이 필요합니다</p>
                   <router-link to="/login" @click="showApplyModal = false"
-                    class="inline-block bg-amber-500 text-white font-bold text-sm px-6 py-2.5 rounded-lg hover:bg-amber-600 transition">
+                    class="btn-primary px-6 py-2.5 text-sm">
                     로그인하기
                   </router-link>
                 </div>
@@ -154,17 +158,17 @@
                 <!-- 로그인 됨 -->
                 <div v-else class="p-5">
                   <!-- 이력서 로딩 중 -->
-                  <div v-if="resumeLoading" class="text-center py-6 text-gray-400 text-sm">이력서 확인 중...</div>
+                  <div v-if="resumeLoading" class="text-center py-6 text-ink-muted text-sm">이력서 확인 중...</div>
 
                   <!-- 이력서 있음 → 가져와서 지원 -->
                   <div v-else-if="myResume">
-                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="bg-emerald-50 rounded-xl p-4 mb-4">
                       <div class="flex items-center gap-2 mb-2">
-                        <span class="text-green-600 text-lg">✅</span>
-                        <span class="text-sm font-bold text-green-800">내 이력서</span>
+                        <span class="icon-chip w-6 h-6 bg-emerald-100 text-emerald-600"><AppIcon name="check" :size="14" /></span>
+                        <span class="text-sm font-bold text-emerald-700">내 이력서</span>
                       </div>
-                      <div class="text-sm text-gray-700 font-semibold">{{ myResume.title }}</div>
-                      <div class="text-xs text-gray-500 mt-1">
+                      <div class="text-sm text-ink font-semibold">{{ myResume.title }}</div>
+                      <div class="text-xs text-ink-muted mt-1">
                         {{ myResume.name }} · {{ myResume.category ? categoryLabel(myResume.category) : '' }}
                         <span v-if="myResume.city"> · {{ myResume.city }}</span>
                       </div>
@@ -172,13 +176,13 @@
 
                     <button @click="submitApplication"
                       :disabled="applySubmitting"
-                      class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm py-3 rounded-lg transition disabled:opacity-50">
+                      class="btn-primary w-full py-3 text-sm">
                       {{ applySubmitting ? '지원 중...' : '이 이력서로 지원하기' }}
                     </button>
 
                     <div class="flex items-center gap-2 mt-3">
                       <router-link to="/dashboard?tab=resume" @click="showApplyModal = false"
-                        class="flex-1 text-center text-xs text-amber-600 hover:text-amber-800 py-2 border border-amber-200 rounded-lg transition">
+                        class="btn-soft flex-1 py-2 text-xs">
                         이력서 수정하기
                       </router-link>
                     </div>
@@ -186,25 +190,25 @@
 
                   <!-- 이력서 없음 → 작성 유도 -->
                   <div v-else class="text-center">
-                    <div class="text-4xl mb-3">📝</div>
-                    <p class="text-sm text-gray-600 mb-1">등록된 이력서가 없습니다</p>
-                    <p class="text-xs text-gray-400 mb-5">이력서를 먼저 작성하면 간편하게 지원할 수 있어요</p>
+                    <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="edit" :size="28" :stroke-width="1.5" /></div>
+                    <p class="text-sm text-ink-light mb-1">등록된 이력서가 없습니다</p>
+                    <p class="text-xs text-ink-muted mb-5">이력서를 먼저 작성하면 간편하게 지원할 수 있어요</p>
 
                     <div class="flex flex-col gap-2">
                       <router-link to="/dashboard?tab=resume" @click="showApplyModal = false"
-                        class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm py-3 rounded-lg text-center transition">
+                        class="btn-primary w-full py-3 text-sm">
                         이력서 작성하기
                       </router-link>
                       <button @click="applyDirect"
-                        class="w-full text-xs text-gray-500 hover:text-gray-700 py-2 border border-gray-200 rounded-lg transition">
+                        class="btn-ghost w-full py-2 text-xs">
                         이력서 없이 바로 연락하기
                       </button>
                     </div>
                   </div>
 
                   <!-- 지원 완료 메시지 -->
-                  <div v-if="applyDone" class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-                    <span class="text-blue-700 text-sm font-medium">✅ 지원이 완료되었습니다!</span>
+                  <div v-if="applyDone" class="mt-4 bg-blue-50 rounded-xl p-3 text-center">
+                    <span class="inline-flex items-center gap-1 text-blue-700 text-sm font-semibold"><AppIcon name="check" :size="14" />지원이 완료되었습니다!</span>
                   </div>
                 </div>
               </div>
@@ -212,39 +216,39 @@
           </Teleport>
 
           <!-- Content body (HTML 또는 plain) -->
-          <div class="px-3 lg:px-5 py-3 lg:py-5 text-xs lg:text-sm text-gray-700 leading-relaxed job-content"
+          <div class="px-3 lg:px-5 py-3 lg:py-5 text-xs lg:text-sm text-ink-light leading-relaxed job-content"
             v-html="safeContent"></div>
 
           <!-- 복리후생 -->
-          <div v-if="job.benefits && job.benefits.length" class="px-3 lg:px-5 py-3 border-t border-gray-100">
-            <div class="text-xs font-bold text-gray-600 mb-2">🎁 복리후생</div>
+          <div v-if="job.benefits && job.benefits.length" class="px-3 lg:px-5 py-3 border-t border-gray-50">
+            <div class="text-xs font-bold text-ink-light mb-2 flex items-center gap-1"><AppIcon name="gift" :size="13" />복리후생</div>
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span v-for="b in job.benefits" :key="b" class="text-xs bg-green-50 text-green-700 px-2 py-1 rounded font-medium">{{ benefitLabel(b) }}</span>
+              <span v-for="b in job.benefits" :key="b" class="badge-green">{{ benefitLabel(b) }}</span>
             </div>
           </div>
 
           <!-- 회사 소개 PDF -->
-          <div v-if="job.company_pdf" class="px-3 lg:px-5 py-3 border-t border-gray-100">
+          <div v-if="job.company_pdf" class="px-3 lg:px-5 py-3 border-t border-gray-50">
             <a :href="job.company_pdf" target="_blank"
-              class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs px-3 py-2 rounded-lg transition">
-              📄 회사 소개서 (PDF) 다운로드
+              class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs px-3 py-2 rounded-xl transition-colors">
+              <AppIcon name="download" :size="14" />회사 소개서 (PDF) 다운로드
             </a>
           </div>
 
           <!-- Footer: author + date + actions -->
-          <div class="px-3 lg:px-5 py-3 border-t border-gray-100 bg-gray-50/30 flex items-center justify-between flex-wrap gap-2">
-            <div class="text-xs text-gray-500 flex items-center gap-2">
+          <div class="px-3 lg:px-5 py-3 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between flex-wrap gap-2">
+            <div class="text-xs text-ink-muted flex items-center gap-2">
               <span>작성자:</span>
-              <UserName v-if="job.user?.id" :userId="job.user.id" :name="job.user.nickname || job.user.name" className="text-gray-700 font-semibold" />
-              <span v-else class="text-gray-700 font-semibold">{{ job.company || '익명' }}</span>
-              <span class="text-gray-300">|</span>
+              <UserName v-if="job.user?.id" :userId="job.user.id" :name="job.user.nickname || job.user.name" className="text-ink-light font-semibold" />
+              <span v-else class="text-ink-light font-semibold">{{ job.company || '익명' }}</span>
+              <span class="text-gray-200">|</span>
               <span>{{ formatDate(job.created_at) }}</span>
             </div>
             <div v-if="auth.user?.id === job.user_id" class="flex items-center gap-3">
-              <router-link :to="`/jobs/write?edit=${job.id}`" class="text-xs text-amber-600 hover:text-amber-800 font-medium">
+              <router-link :to="`/jobs/write?edit=${job.id}`" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors">
                 수정
               </router-link>
-              <button @click="deleteJob" class="text-xs text-red-400 hover:text-red-600 font-medium">
+              <button @click="deleteJob" class="text-xs text-red-400 hover:text-red-600 font-semibold transition-colors">
                 삭제
               </button>
             </div>
@@ -265,23 +269,23 @@
 
       <!-- ══════════ RIGHT: 내 위치 기반 관련 목록 ══════════ -->
       <aside class="col-span-4 md:col-span-4 lg:col-span-3 hidden md:block">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900 flex items-center gap-1">
+        <div class="card overflow-hidden sticky top-20">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1">
             <span>{{ categoryLabel(job.category) }}</span>
-            <span v-if="nearbyLabel" class="text-[10px] text-gray-400 font-normal">· {{ nearbyLabel }}</span>
-            <span class="text-gray-400 font-normal ml-auto">{{ sameCategoryJobs.length }}건</span>
+            <span v-if="nearbyLabel" class="text-[11px] text-ink-faint font-normal">· {{ nearbyLabel }}</span>
+            <span class="text-ink-faint font-normal ml-auto">{{ sameCategoryJobs.length }}건</span>
           </div>
           <div class="max-h-[70vh] overflow-y-auto divide-y divide-gray-50">
             <router-link v-for="j in sameCategoryJobs" :key="j.id" :to="`/jobs/${j.id}`"
-              class="block px-3 py-2.5 text-xs transition hover:bg-amber-50/60"
-              :class="j.id === job.id ? 'border-l-3 border-l-amber-400 bg-amber-50 font-bold' : ''">
-              <div class="text-gray-800 truncate leading-snug">{{ j.title }}</div>
-              <div class="text-gray-400 mt-0.5 truncate">
+              class="block px-3 py-2.5 text-xs transition-colors hover:bg-amber-50/60"
+              :class="j.id === job.id ? 'border-l-4 border-l-amber-400 bg-amber-50 font-bold' : ''">
+              <div class="text-ink-light truncate leading-snug">{{ j.title }}</div>
+              <div class="text-ink-muted mt-0.5 truncate">
                 <span v-if="j.company">{{ j.company }}</span>
                 <span v-if="j.city" class="ml-1">· {{ j.city }}</span>
               </div>
             </router-link>
-            <div v-if="!sameCategoryJobs.length" class="px-3 py-4 text-xs text-gray-400 text-center">
+            <div v-if="!sameCategoryJobs.length" class="px-3 py-4 text-xs text-ink-muted text-center">
               내 지역 근처 공고가 없습니다
             </div>
           </div>
@@ -293,8 +297,8 @@
 
     <!-- Not found -->
     <div v-else class="text-center py-20">
-      <div class="text-4xl mb-3">&#128188;</div>
-      <div class="text-gray-500 font-semibold">공고를 찾을 수 없습니다</div>
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="briefcase" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-sm text-ink-muted">공고를 찾을 수 없습니다</p>
     </div>
   </div>
 </div>
@@ -312,6 +316,7 @@ import PostNavigator from '../../components/PostNavigator.vue'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import BoostButton from '../../components/BoostButton.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 
 const route = useRoute()
@@ -350,9 +355,9 @@ const nextJob = computed(() => {
 
 // ── Category helpers ──
 const categoryMap = {
-  restaurant: '🍳 요식업', it: '💻 IT', beauty: '💅 미용', driving: '🚗 운전',
-  retail: '🛒 판매', office: '🏢 사무직', construction: '🔨 건설',
-  medical: '🏥 의료', education: '📚 교육', etc: '📋 기타',
+  restaurant: '요식업', it: 'IT', beauty: '미용', driving: '운전',
+  retail: '판매', office: '사무직', construction: '건설',
+  medical: '의료', education: '교육', etc: '기타',
 }
 
 const jobCategories = [

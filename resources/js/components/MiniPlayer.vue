@@ -1,10 +1,10 @@
 <template>
 <Teleport to="body">
-  <!-- 🎵 최소화 버튼 -->
+  <!-- 음악 최소화 버튼 -->
   <div v-if="showMiniBtn"
-    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
+    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A53] to-[#F2570F] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
     @click="expand">
-    <span class="text-white text-xl">{{ music.isPlaying ? '🎵' : '⏸' }}</span>
+    <span class="text-white"><AppIcon :name="music.isPlaying ? 'music' : 'play'" :size="22" :filled="!music.isPlaying" /></span>
   </div>
 
   <!-- 플레이어 UI (영상 제외) -->
@@ -15,14 +15,14 @@
 
     <!-- 헤더 -->
     <div @mousedown="startDrag" @touchstart.passive="startDrag"
-      class="px-3 py-2 flex items-center justify-between cursor-move bg-gradient-to-r from-indigo-700 to-purple-700 select-none flex-shrink-0">
+      class="px-3 py-2 flex items-center justify-between cursor-move bg-gradient-to-r from-[#FF8A53] to-[#F2570F] select-none flex-shrink-0">
       <div class="flex items-center gap-2 flex-1 min-w-0">
-        <span class="text-sm">🎵</span>
+        <span class="text-white/90"><AppIcon name="music" :size="14" /></span>
         <p class="text-white text-xs font-bold truncate">{{ music.currentTrack?.title || '재생 대기 중' }}</p>
       </div>
       <div class="flex items-center gap-1 flex-shrink-0">
-        <button @click.stop="minimize" class="w-6 h-6 rounded hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center text-sm" title="최소화">−</button>
-        <button @click.stop="shutdown" class="w-6 h-6 rounded hover:bg-red-500/40 text-white/70 hover:text-white flex items-center justify-center text-xs" title="종료">✕</button>
+        <button @click.stop="minimize" class="w-6 h-6 rounded hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-colors" title="최소화"><AppIcon name="chevron-down" :size="14" /></button>
+        <button @click.stop="shutdown" class="w-6 h-6 rounded hover:bg-red-500/40 text-white/70 hover:text-white flex items-center justify-center transition-colors" title="종료"><AppIcon name="x" :size="13" /></button>
       </div>
     </div>
 
@@ -31,30 +31,33 @@
 
     <!-- 컨트롤 -->
     <div class="px-3 py-2 flex items-center gap-2 flex-shrink-0">
-      <button @click="doPrev" class="w-7 h-7 rounded-full text-gray-400 hover:text-white flex items-center justify-center text-xs">⏮</button>
-      <button @click="togglePlay" class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-500 text-sm">{{ music.isPlaying ? '⏸' : '▶' }}</button>
-      <button @click="doNext" class="w-7 h-7 rounded-full text-gray-400 hover:text-white flex items-center justify-center text-xs">⏭</button>
+      <button @click="doPrev" class="w-7 h-7 rounded-full text-gray-400 hover:text-white flex items-center justify-center transition-colors"><AppIcon name="chevron-left" :size="16" /></button>
+      <button @click="togglePlay" class="w-9 h-9 rounded-full bg-amber-400 text-white flex items-center justify-center hover:bg-amber-500 transition-colors">
+        <span v-if="music.isPlaying" class="flex items-center" style="gap:3px"><span class="block bg-white rounded-sm" style="width:3px;height:13px"></span><span class="block bg-white rounded-sm" style="width:3px;height:13px"></span></span>
+        <AppIcon v-else name="play" :size="15" :filled="true" />
+      </button>
+      <button @click="doNext" class="w-7 h-7 rounded-full text-gray-400 hover:text-white flex items-center justify-center transition-colors"><AppIcon name="chevron-right" :size="16" /></button>
       <div class="flex-1 h-1 bg-gray-700 rounded-full mx-1 cursor-pointer" @click="seekTo">
-        <div class="h-full bg-indigo-500 rounded-full transition-all" :style="{ width: music.progress + '%' }"></div>
+        <div class="h-full bg-amber-400 rounded-full transition-all" :style="{ width: music.progress + '%' }"></div>
       </div>
-      <span class="text-gray-500 text-[10px]">🔊</span>
-      <input type="range" min="0" max="100" v-model="volume" @input="setVolume" class="w-12 h-1 accent-indigo-500" style="appearance:auto;" />
+      <span class="text-gray-500"><AppIcon name="megaphone" :size="12" /></span>
+      <input type="range" min="0" max="100" v-model="volume" @input="setVolume" class="w-12 h-1 accent-amber-500" style="appearance:auto;" />
     </div>
 
     <!-- 플레이리스트 -->
     <div class="border-t border-white/10 flex-shrink-0">
-      <button @click="showPL = !showPL" class="w-full px-3 py-1.5 text-[10px] text-gray-400 hover:text-gray-200 flex items-center justify-between">
+      <button @click="showPL = !showPL" class="w-full px-3 py-1.5 text-[11px] text-gray-400 hover:text-gray-200 flex items-center justify-between transition-colors">
         <span>다음 곡 ({{ music.playlist.length }}곡)</span>
-        <span>{{ showPL ? '▲' : '▼' }}</span>
+        <AppIcon :name="showPL ? 'chevron-up' : 'chevron-down'" :size="12" />
       </button>
     </div>
     <div v-if="showPL && music.playlist.length" class="overflow-y-auto max-h-[400px] px-1 pb-1 music-scroll">
       <div v-for="(track, idx) in music.playlist" :key="track.id || idx" @click="playFromList(track)"
         class="flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition text-[11px]"
-        :class="music.currentIndex === idx ? 'bg-indigo-900/50 text-indigo-300 font-semibold' : 'text-gray-400 hover:bg-white/5'">
+        :class="music.currentIndex === idx ? 'bg-amber-500/15 text-amber-300 font-semibold' : 'text-gray-400 hover:bg-white/5'">
         <span class="w-4 text-right text-gray-600">{{ idx + 1 }}</span>
         <span class="truncate flex-1">{{ track.title }}</span>
-        <span v-if="music.currentIndex === idx && music.isPlaying" class="text-indigo-400">♪</span>
+        <span v-if="music.currentIndex === idx && music.isPlaying" class="text-amber-400"><AppIcon name="music" :size="11" /></span>
       </div>
     </div>
     <div v-else-if="showPL && !music.playlist.length" class="px-3 py-3 text-center text-gray-600 text-[11px]">
@@ -75,6 +78,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMusicStore } from '../stores/music'
+import AppIcon from './AppIcon.vue'
 
 const music = useMusicStore()
 const route = useRoute()
@@ -244,9 +248,9 @@ onUnmounted(() => { if (progressTimer) clearInterval(progressTimer); if (positio
 </script>
 
 <style scoped>
-@keyframes pulse-slow { 0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.4)} 50%{box-shadow:0 0 0 8px rgba(99,102,241,0)} }
+@keyframes pulse-slow { 0%,100%{box-shadow:0 0 0 0 rgba(255,107,44,.4)} 50%{box-shadow:0 0 0 8px rgba(255,107,44,0)} }
 .animate-pulse-slow { animation: pulse-slow 2s infinite; }
 input[type="range"] { height: 4px; }
 .music-scroll::-webkit-scrollbar { width: 4px; }
-.music-scroll::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 2px; }
+.music-scroll::-webkit-scrollbar-thumb { background: #FF6B2C; border-radius: 2px; }
 </style>

@@ -1,42 +1,44 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-4xl mx-auto px-4 py-5">
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
+    <div v-if="loading" class="text-center py-12 text-ink-faint">로딩중...</div>
     <div v-else-if="user">
       <!-- 프로필 헤더 -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
-        <div class="bg-gradient-to-r from-amber-400 to-orange-400 h-24"></div>
+      <div class="card overflow-hidden mb-4">
+        <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] h-24"></div>
         <div class="px-5 pb-4 -mt-10">
           <div class="w-20 h-20 rounded-full bg-amber-500 text-white flex items-center justify-center text-3xl font-black border-4 border-white shadow">
             {{ (user.name || '?')[0] }}
           </div>
-          <h1 class="text-lg font-bold text-gray-900 mt-2">{{ user.name }}</h1>
-          <div v-if="user.nickname" class="text-sm text-gray-500">@{{ user.nickname }}</div>
-          <div v-if="user.bio" class="text-sm text-gray-600 mt-1">{{ user.bio }}</div>
-          <div class="flex items-center gap-4 mt-3 text-xs text-gray-400">
-            <span v-if="user.city">📍 {{ user.city }}, {{ user.state }}</span>
-            <span>⭐ {{ user.points || 0 }}P</span>
-            <span>📅 {{ formatDate(user.created_at) }} 가입</span>
+          <h1 class="text-lg font-bold text-ink mt-2">{{ user.name }}</h1>
+          <div v-if="user.nickname" class="text-sm text-ink-muted">@{{ user.nickname }}</div>
+          <div v-if="user.bio" class="text-sm text-ink-light mt-1">{{ user.bio }}</div>
+          <div class="flex items-center gap-4 mt-3 text-xs text-ink-muted">
+            <span v-if="user.city" class="inline-flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> {{ user.city }}, {{ user.state }}</span>
+            <span class="inline-flex items-center gap-1"><AppIcon name="coins" :size="12" class="text-amber-500" /> {{ user.points || 0 }}P</span>
+            <span class="inline-flex items-center gap-1"><AppIcon name="calendar" :size="12" /> {{ formatDate(user.created_at) }} 가입</span>
           </div>
           <!-- 친구추가 / 쪽지 (본인이 아닐 때) -->
           <div v-if="auth.isLoggedIn && auth.user?.id !== user.id" class="flex gap-2 mt-3">
-            <button @click="doAddFriend" :disabled="friendLoading" class="text-xs bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">👫 친구 추가</button>
-            <button @click="msgModal = true" class="text-xs bg-white border text-gray-600 px-3 py-1.5 rounded-lg hover:bg-amber-50">✉️ 쪽지</button>
-            <button @click="reportShow = true" class="text-xs text-gray-400 hover:text-red-500 px-2">🚨</button>
+            <button @click="doAddFriend" :disabled="friendLoading" class="btn-primary text-xs px-3 py-1.5"><AppIcon name="user-plus" :size="13" /> 친구 추가</button>
+            <button @click="msgModal = true" class="btn-secondary text-xs px-3 py-1.5"><AppIcon name="mail" :size="13" /> 쪽지</button>
+            <button @click="reportShow = true" class="text-xs text-ink-faint hover:text-red-500 px-2 transition-colors"><AppIcon name="flag" :size="14" /></button>
           </div>
         </div>
       </div>
 
       <!-- 게시글 -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-5 py-3 border-b font-bold text-sm text-amber-900">📝 작성한 글</div>
+      <div class="card overflow-hidden divide-y divide-gray-50">
+        <div class="px-5 py-3 font-bold text-sm text-ink flex items-center gap-2">
+          <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="14" /></span>작성한 글
+        </div>
         <div v-for="post in posts" :key="post.id">
-          <RouterLink :to="`/community/${post.board?.slug || 'free'}/${post.id}`" class="block px-5 py-3 border-b hover:bg-amber-50/50 transition">
-            <div class="text-sm font-medium text-gray-800">{{ post.title }}</div>
-            <div class="text-xs text-gray-400 mt-0.5">{{ post.view_count }}회 · {{ post.like_count }}좋아요</div>
+          <RouterLink :to="`/community/${post.board?.slug || 'free'}/${post.id}`" class="block px-5 py-3 hover:bg-amber-50/50 transition-colors">
+            <div class="text-sm font-medium text-ink">{{ post.title }}</div>
+            <div class="text-xs text-ink-faint mt-0.5">{{ post.view_count }}회 · {{ post.like_count }}좋아요</div>
           </RouterLink>
         </div>
-        <div v-if="!posts.length" class="px-5 py-6 text-center text-sm text-gray-400">작성한 글이 없습니다</div>
+        <div v-if="!posts.length" class="px-5 py-6 text-center text-sm text-ink-faint">작성한 글이 없습니다</div>
       </div>
     </div>
   </div>
@@ -56,6 +58,7 @@ import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import ReportModal from '../../components/ReportModal.vue'
 import MessageModal from '../../components/MessageModal.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import { useFriendAction } from '../../composables/useSocialActions'
 import axios from 'axios'
 const route = useRoute()

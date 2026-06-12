@@ -2,106 +2,115 @@
 <div class="space-y-3">
   <!-- ══ 상세 모드: 같은 카테고리 글 목록 ══ -->
   <template v-if="mode === 'detail'">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="card overflow-hidden">
       <!-- 카테고리 헤더 -->
-      <div v-if="displayCategoryLabel" class="px-3 py-2.5 border-b bg-amber-50">
-        <span class="text-xs font-bold text-amber-800">📁 {{ displayCategoryLabel }}</span>
-        <span v-if="detailTotal" class="text-[10px] text-amber-600 ml-1">{{ detailTotal }}건</span>
+      <div v-if="displayCategoryLabel" class="px-3 py-2.5 border-b border-gray-50 bg-amber-50/60 flex items-center gap-1.5">
+        <AppIcon name="tag" :size="13" class="text-amber-600" />
+        <span class="text-xs font-bold text-amber-700">{{ displayCategoryLabel }}</span>
+        <span v-if="detailTotal" class="text-[11px] text-amber-600">{{ detailTotal }}건</span>
       </div>
       <div class="py-1">
         <component v-for="(item, i) in detailItems" :key="item.id"
           :is="inline ? 'button' : 'RouterLink'" :to="inline ? undefined : detailPath + item.id"
           @click="inline && emit('select', item)"
-          class="flex items-start gap-2 px-3 py-2 transition w-full text-left"
-          :class="item.id == currentId ? 'bg-amber-50 border-l-2 border-amber-400' : 'hover:bg-amber-50/50'">
+          class="flex items-start gap-2 px-3 py-2 transition-colors w-full text-left"
+          :class="item.id == currentId ? 'bg-amber-50 border-l-2 border-amber-400' : 'hover:bg-amber-50/40'">
           <span class="text-xs font-bold flex-shrink-0 w-5 text-center"
-            :class="item.id == currentId ? 'text-amber-600' : 'text-gray-400'">{{ (detailPage - 1) * 10 + i + 1 }}</span>
+            :class="item.id == currentId ? 'text-amber-600' : 'text-ink-faint'">{{ (detailPage - 1) * 10 + i + 1 }}</span>
           <div class="min-w-0 flex-1">
             <span class="text-xs leading-snug line-clamp-2"
-              :class="item.id == currentId ? 'text-amber-700 font-bold' : 'text-gray-700'">{{ item.title || item.name }}</span>
-            <div v-if="item.city || item.user?.name" class="text-[10px] text-gray-400 mt-0.5 truncate">{{ item.city || item.user?.name || '' }}</div>
+              :class="item.id == currentId ? 'text-amber-700 font-bold' : 'text-ink-light'">{{ item.title || item.name }}</span>
+            <div v-if="item.city || item.user?.name" class="text-[11px] text-ink-muted mt-0.5 truncate">{{ item.city || item.user?.name || '' }}</div>
           </div>
         </component>
-        <div v-if="tabLoading" class="py-4 text-center text-xs text-gray-400">로딩중...</div>
-        <div v-else-if="!detailItems.length" class="py-4 text-center text-xs text-gray-400">데이터가 없습니다</div>
+        <div v-if="tabLoading" class="py-4 text-center text-xs text-ink-muted">로딩중...</div>
+        <div v-else-if="!detailItems.length" class="py-4 text-center text-xs text-ink-muted">데이터가 없습니다</div>
       </div>
       <!-- 페이지네이션 -->
-      <div v-if="detailLastPage > 1" class="px-3 py-2 border-t flex justify-center items-center gap-1">
-        <button @click="loadDetail(1)" :disabled="detailPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">«</button>
-        <button @click="loadDetail(detailPage-1)" :disabled="detailPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">‹</button>
+      <div v-if="detailLastPage > 1" class="px-3 py-2 border-t border-gray-50 flex justify-center items-center gap-1">
+        <button @click="loadDetail(1)" :disabled="detailPage<=1" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">«</button>
+        <button @click="loadDetail(detailPage-1)" :disabled="detailPage<=1" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">‹</button>
         <button v-for="pg in detailVisiblePages" :key="pg" @click="loadDetail(pg)"
-          class="w-6 h-6 rounded text-[10px] font-bold" :class="pg===detailPage?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
-        <button @click="loadDetail(detailPage+1)" :disabled="detailPage>=detailLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">›</button>
-        <button @click="loadDetail(detailLastPage)" :disabled="detailPage>=detailLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">»</button>
+          class="w-6 h-6 rounded-lg text-[11px] font-bold transition-colors" :class="pg===detailPage?'bg-amber-400 text-white':'text-ink-muted hover:bg-gray-100'">{{ pg }}</button>
+        <button @click="loadDetail(detailPage+1)" :disabled="detailPage>=detailLastPage" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">›</button>
+        <button @click="loadDetail(detailLastPage)" :disabled="detailPage>=detailLastPage" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">»</button>
       </div>
     </div>
   </template>
 
   <!-- ══ 리스트 모드 (기존 + 카테고리 지원) ══ -->
   <template v-else>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="flex border-b">
+    <div class="card overflow-hidden">
+      <div class="flex border-b border-gray-50">
         <button @click="popTab='views'; loadTab('views')" class="flex-1 py-2.5 text-xs font-bold transition"
-          :class="popTab==='views' ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50' : 'text-gray-400'">많이 본 {{ label }}</button>
+          :class="popTab==='views' ? 'text-amber-600 border-b-2 border-amber-400 bg-amber-50/60' : 'text-ink-muted'">많이 본 {{ label }}</button>
         <button @click="popTab='second'; loadTab('second')" class="flex-1 py-2.5 text-xs font-bold transition"
-          :class="popTab==='second' ? 'text-amber-700 border-b-2 border-amber-500 bg-amber-50' : 'text-gray-400'">{{ secondTab?.label || '최신 ' + label }}</button>
+          :class="popTab==='second' ? 'text-amber-600 border-b-2 border-amber-400 bg-amber-50/60' : 'text-ink-muted'">{{ secondTab?.label || '최신 ' + label }}</button>
       </div>
       <div class="py-1">
         <component v-for="(item, i) in currentItems" :key="item.id"
           :is="inline ? 'button' : 'RouterLink'" :to="inline ? undefined : detailPath + item.id"
           @click="inline && emit('select', item)"
-          class="flex items-start gap-2 px-3 py-2 hover:bg-amber-50/50 transition w-full text-left">
-          <span class="text-xs font-bold flex-shrink-0 w-5 text-center" :class="(currentPage - 1) * 10 + i < 3 ? 'text-amber-600' : 'text-gray-400'">{{ (currentPage - 1) * 10 + i + 1 }}</span>
-          <span class="text-xs text-gray-700 leading-snug line-clamp-2">{{ item.title || item.name }}</span>
+          class="flex items-start gap-2 px-3 py-2 hover:bg-amber-50/40 transition-colors w-full text-left">
+          <span class="text-xs font-bold flex-shrink-0 w-5 text-center" :class="(currentPage - 1) * 10 + i < 3 ? 'text-amber-600' : 'text-ink-faint'">{{ (currentPage - 1) * 10 + i + 1 }}</span>
+          <span class="text-xs text-ink-light leading-snug line-clamp-2">{{ item.title || item.name }}</span>
         </component>
-        <div v-if="tabLoading" class="py-4 text-center text-xs text-gray-400">로딩중...</div>
-        <div v-else-if="!currentItems.length" class="py-4 text-center text-xs text-gray-400">데이터가 없습니다</div>
+        <div v-if="tabLoading" class="py-4 text-center text-xs text-ink-muted">로딩중...</div>
+        <div v-else-if="!currentItems.length" class="py-4 text-center text-xs text-ink-muted">데이터가 없습니다</div>
       </div>
-      <div v-if="currentLastPage > 1" class="px-3 py-2 border-t flex justify-center items-center gap-1">
-        <button @click="goPage(1)" :disabled="currentPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">«</button>
-        <button @click="goPage(currentPage-1)" :disabled="currentPage<=1" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">‹</button>
+      <div v-if="currentLastPage > 1" class="px-3 py-2 border-t border-gray-50 flex justify-center items-center gap-1">
+        <button @click="goPage(1)" :disabled="currentPage<=1" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">«</button>
+        <button @click="goPage(currentPage-1)" :disabled="currentPage<=1" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">‹</button>
         <button v-for="pg in visiblePages" :key="pg" @click="goPage(pg)"
-          class="w-6 h-6 rounded text-[10px] font-bold" :class="pg===currentPage?'bg-amber-400 text-amber-900':'text-gray-400 hover:bg-amber-50'">{{ pg }}</button>
-        <button @click="goPage(currentPage+1)" :disabled="currentPage>=currentLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">›</button>
-        <button @click="goPage(currentLastPage)" :disabled="currentPage>=currentLastPage" class="text-[10px] text-gray-400 hover:text-amber-700 disabled:opacity-30 px-1">»</button>
+          class="w-6 h-6 rounded-lg text-[11px] font-bold transition-colors" :class="pg===currentPage?'bg-amber-400 text-white':'text-ink-muted hover:bg-gray-100'">{{ pg }}</button>
+        <button @click="goPage(currentPage+1)" :disabled="currentPage>=currentLastPage" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">›</button>
+        <button @click="goPage(currentLastPage)" :disabled="currentPage>=currentLastPage" class="text-[11px] text-ink-muted hover:text-amber-600 disabled:opacity-30 px-1 transition-colors">»</button>
       </div>
     </div>
 
     <!-- 추천 글 -->
-    <div v-if="recommendLabel && recommendItems.length" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-3 py-2.5 border-b font-bold text-xs text-gray-800">👍 {{ recommendLabel }}</div>
+    <div v-if="recommendLabel && recommendItems.length" class="card overflow-hidden">
+      <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5">
+        <span class="icon-chip w-6 h-6 bg-amber-50 text-amber-600"><AppIcon name="thumbs-up" :size="12" /></span>{{ recommendLabel }}
+      </div>
       <div class="py-1">
         <component v-for="item in recommendItems" :key="item.id"
           :is="inline ? 'button' : 'RouterLink'" :to="inline ? undefined : detailPath + item.id"
           @click="inline && emit('select', item)"
-          class="block px-3 py-2 hover:bg-amber-50/50 transition w-full text-left">
-          <div class="text-xs text-gray-700 line-clamp-2 leading-snug">{{ item.title || item.name }}</div>
-          <div class="text-[10px] text-gray-400 mt-0.5">{{ item.user?.name || item.company || item.source || '' }}</div>
+          class="block px-3 py-2 hover:bg-amber-50/40 transition-colors w-full text-left">
+          <div class="text-xs text-ink-light line-clamp-2 leading-snug">{{ item.title || item.name }}</div>
+          <div class="text-[11px] text-ink-muted mt-0.5">{{ item.user?.name || item.company || item.source || '' }}</div>
         </component>
       </div>
     </div>
 
     <!-- 실시간/바로가기 -->
-    <div v-if="quickLabel && quickItems.length" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      <div class="px-3 py-2.5 border-b font-bold text-xs text-gray-800">⚡ {{ quickLabel }}</div>
+    <div v-if="quickLabel && quickItems.length" class="card overflow-hidden">
+      <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5">
+        <span class="icon-chip w-6 h-6 bg-red-50 text-red-500"><AppIcon name="flame" :size="12" /></span>{{ quickLabel }}
+      </div>
       <div class="py-1">
         <component v-for="item in quickItems" :key="item.id"
           :is="inline ? 'button' : 'RouterLink'" :to="inline ? undefined : detailPath + item.id"
           @click="inline && emit('select', item)"
-          class="flex items-center gap-2 px-3 py-1.5 hover:bg-amber-50/50 transition w-full text-left">
-          <span class="text-[10px] text-amber-500">●</span>
-          <span class="text-xs text-gray-600 truncate">{{ item.title || item.name }}</span>
+          class="flex items-center gap-2 px-3 py-1.5 hover:bg-amber-50/40 transition-colors w-full text-left">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+          <span class="text-xs text-ink-light truncate">{{ item.title || item.name }}</span>
         </component>
       </div>
     </div>
   </template>
 
   <!-- 빠른 링크 (공통) -->
-  <div v-if="links.length" class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-    <div class="font-bold text-xs text-gray-800 mb-2">📋 바로가기</div>
+  <div v-if="links.length" class="card p-3">
+    <div class="font-bold text-xs text-ink mb-2 flex items-center gap-1.5">
+      <span class="icon-chip w-6 h-6 bg-blue-50 text-blue-500"><AppIcon name="list" :size="12" /></span>바로가기
+    </div>
     <RouterLink v-for="link in links" :key="link.to" :to="link.to"
-      class="block text-xs text-gray-600 hover:text-amber-700 py-1 transition">
-      {{ link.icon }} {{ link.label }}
+      class="flex items-center gap-1.5 text-xs text-ink-light hover:text-amber-600 py-1 transition-colors">
+      <AppIcon v-if="link.key" :name="menuIcon(link.key)" :size="13" class="text-ink-muted" />
+      <span v-else-if="link.icon">{{ link.icon }}</span>
+      <span>{{ link.label }}</span>
     </RouterLink>
   </div>
 </div>
@@ -110,6 +119,8 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import axios from 'axios'
+import AppIcon from './AppIcon.vue'
+import { menuIcon } from '../utils/menuIcons'
 
 const _cache = new Map()
 const CACHE_TTL = 300000

@@ -1,93 +1,101 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">🎵 음악듣기</h1>
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="music" :size="20" /></span>
+      음악듣기
+    </h1>
 
-    <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
+    <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else class="grid grid-cols-12 gap-4">
 
       <!-- 카테고리 + 내 플레이리스트 -->
       <div class="col-span-12 lg:col-span-3 space-y-3">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 border-b font-bold text-sm text-amber-900">🎵 카테고리</div>
+        <div class="card overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center gap-2">
+            <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="music" :size="14" /></span>카테고리
+          </div>
           <button v-for="cat in categories" :key="cat.id" @click="selectCategory(cat)"
-            class="w-full text-left px-4 py-2.5 text-sm transition"
-            :class="activeCat?.id === cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+            class="w-full text-left px-4 py-2.5 text-sm transition-colors"
+            :class="activeCat?.id === cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
             {{ cat.name }}
           </button>
         </div>
 
         <!-- 내 하트 -->
-        <div v-if="auth.isLoggedIn" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div v-if="auth.isLoggedIn" class="card overflow-hidden">
           <button @click="loadFavorites"
-            class="w-full text-left px-4 py-3 border-b font-bold text-sm transition"
-            :class="showFavorites ? 'bg-red-50 text-red-700' : 'text-amber-900'">
-            ❤️ 내 하트 {{ favoriteTracks.length }}곡
+            class="w-full text-left px-4 py-3 font-bold text-sm transition-colors flex items-center gap-2"
+            :class="showFavorites ? 'bg-red-50 text-red-700' : 'text-ink hover:bg-red-50/50'">
+            <span class="icon-chip w-7 h-7 bg-red-50 text-red-500"><AppIcon name="heart" :size="14" /></span>내 하트 {{ favoriteTracks.length }}곡
           </button>
         </div>
 
         <!-- 내 플레이리스트 -->
-        <div v-if="auth.isLoggedIn" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
-            📋 내 플레이리스트
-            <button @click="showCreatePL = true" class="text-amber-600 text-xs hover:text-amber-800">+ 새로 만들기</button>
+        <div v-if="auth.isLoggedIn" class="card overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center justify-between">
+            <span class="flex items-center gap-2"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="list" :size="14" /></span>내 플레이리스트</span>
+            <button @click="showCreatePL = true" class="text-amber-600 text-xs font-semibold hover:text-amber-700 transition-colors flex items-center gap-0.5"><AppIcon name="plus" :size="12" />새로 만들기</button>
           </div>
-          <div v-if="!playlists.length" class="px-4 py-3 text-xs text-gray-400">플레이리스트가 없습니다</div>
+          <div v-if="!playlists.length" class="px-4 py-3 text-xs text-ink-muted">플레이리스트가 없습니다</div>
           <div v-for="pl in playlists" :key="pl.id" class="flex items-center group">
             <button @click="selectPlaylist(pl)"
-              class="flex-1 text-left px-4 py-2.5 text-sm transition flex items-center justify-between"
-              :class="activePL?.id === pl.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-600 hover:bg-blue-50/50'">
+              class="flex-1 text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between"
+              :class="activePL?.id === pl.id ? 'bg-blue-50 text-blue-700 font-bold' : 'text-ink-light hover:bg-blue-50/50'">
               <span class="truncate">{{ pl.name }}</span>
-              <span class="text-[10px] text-gray-400">{{ pl.tracks_count || 0 }}곡</span>
+              <span class="text-xs text-ink-faint">{{ pl.tracks_count || 0 }}곡</span>
             </button>
-            <button @click.stop="deletePlaylist(pl.id)" class="text-red-400 text-xs px-2 opacity-0 group-hover:opacity-100 hover:text-red-600">✕</button>
+            <button @click.stop="deletePlaylist(pl.id)" class="text-red-400 px-2 opacity-0 group-hover:opacity-100 hover:text-red-600 transition-colors"><AppIcon name="x" :size="13" /></button>
           </div>
         </div>
 
         <!-- YouTube 링크로 추가 -->
-        <div v-if="auth.isLoggedIn" class="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-          <div class="font-bold text-xs text-gray-800 mb-2">🔗 YouTube 링크로 추가</div>
-          <textarea v-model="youtubeUrl" rows="2" placeholder="YouTube 곡 또는 플레이리스트 URL 붙여넣기" class="w-full border rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea>
+        <div v-if="auth.isLoggedIn" class="card p-3">
+          <div class="font-bold text-xs text-ink mb-2 flex items-center gap-1.5"><AppIcon name="external-link" :size="13" class="text-amber-600" />YouTube 링크로 추가</div>
+          <textarea v-model="youtubeUrl" rows="2" placeholder="YouTube 곡 또는 플레이리스트 URL 붙여넣기" class="input-soft text-xs px-2 py-1.5"></textarea>
           <div class="flex gap-1 mt-1">
-            <select v-model="importTargetPL" class="flex-1 border rounded-lg px-2 py-1 text-xs outline-none">
+            <select v-model="importTargetPL" class="input-soft flex-1 text-xs px-2 py-1">
               <option value="">플레이리스트 선택</option>
               <option v-for="pl in playlists" :key="pl.id" :value="pl.id">{{ pl.name }}</option>
             </select>
-            <button @click="importYoutube" :disabled="importing || !youtubeUrl.trim() || !importTargetPL" class="bg-red-500 text-white font-bold px-3 py-1 rounded-lg text-xs hover:bg-red-600 disabled:opacity-50 flex-shrink-0">
-              {{ importing ? '가져오는중...' : '▶ 가져오기' }}
+            <button @click="importYoutube" :disabled="importing || !youtubeUrl.trim() || !importTargetPL" class="btn-primary text-xs px-3 py-1 flex-shrink-0">
+              {{ importing ? '가져오는중...' : '가져오기' }}
             </button>
           </div>
-          <div v-if="importMsg" class="text-[10px] mt-1" :class="importMsg.includes('실패')?'text-red-500':'text-green-600'">{{ importMsg }}</div>
-          <div class="text-[10px] text-gray-400 mt-1">곡: youtube.com/watch?v=xxx<br/>리스트: youtube.com/playlist?list=xxx</div>
+          <div v-if="importMsg" class="text-xs mt-1" :class="importMsg.includes('실패')?'text-red-500':'text-green-600'">{{ importMsg }}</div>
+          <div class="text-xs text-ink-faint mt-1">곡: youtube.com/watch?v=xxx<br/>리스트: youtube.com/playlist?list=xxx</div>
         </div>
       </div>
 
       <!-- 트랙 목록 (오른쪽에 플로팅 플레이어 공간 확보) -->
       <div class="col-span-12 lg:col-span-6">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="px-4 py-3 border-b font-bold text-sm text-amber-900 flex items-center justify-between">
-            <span>🎶 {{ showFavorites ? '❤️ 내 하트' : (activePL ? activePL.name : (activeCat?.name || '트랙')) }}</span>
+        <div class="card overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <span class="icon-chip w-7 h-7" :class="showFavorites ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-600'"><AppIcon :name="showFavorites ? 'heart' : 'music'" :size="14" /></span>
+              {{ showFavorites ? '내 하트' : (activePL ? activePL.name : (activeCat?.name || '트랙')) }}
+            </span>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-400">{{ totalCount }}곡</span>
-              <button v-if="displayTracks.length" @click="playAll" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold hover:bg-amber-200">▶ 전체</button>
-              <button v-if="displayTracks.length" @click="shufflePlay" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold hover:bg-blue-200">🔀 랜덤</button>
+              <span class="text-xs text-ink-muted">{{ totalCount }}곡</span>
+              <button v-if="displayTracks.length" @click="playAll" class="text-xs bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full font-bold hover:bg-amber-100 transition-colors inline-flex items-center gap-1"><AppIcon name="play" :size="11" />전체</button>
+              <button v-if="displayTracks.length" @click="shufflePlay" class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold hover:bg-blue-100 transition-colors inline-flex items-center gap-1"><AppIcon name="refresh" :size="11" />랜덤</button>
             </div>
           </div>
-          <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-gray-400">{{ showFavorites ? '하트한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
+          <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-ink-muted">{{ showFavorites ? '하트한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
           <div v-for="(track, i) in displayTracks" :key="track.id"
-            class="flex items-center gap-3 px-4 py-2.5 border-b last:border-0 hover:bg-amber-50/50 transition cursor-pointer group"
+            class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-50 last:border-0 hover:bg-amber-50/40 transition-colors cursor-pointer group"
             :class="playing?.id === track.id ? 'bg-amber-50' : ''">
-            <span class="text-xs text-gray-400 w-5 text-center">{{ i + 1 + (trackPage - 1) * 12 }}</span>
+            <span class="text-xs text-ink-faint w-5 text-center">{{ i + 1 + (trackPage - 1) * 12 }}</span>
             <div class="flex-1 min-w-0" @click="playTrack(track)">
-              <div class="text-sm font-medium text-gray-800 truncate">{{ playing?.id === track.id ? '🔊 ' : '' }}{{ track.title }}</div>
-              <div class="text-[10px] text-gray-400">{{ track.artist }} {{ track.duration ? '· ' + formatDuration(track.duration) : '' }}</div>
+              <div class="text-sm font-medium text-ink truncate flex items-center gap-1"><AppIcon v-if="playing?.id === track.id" name="play" :size="12" :filled="true" class="text-amber-500" /><span class="truncate">{{ track.title }}</span></div>
+              <div class="text-xs text-ink-muted">{{ track.artist }} {{ track.duration ? '· ' + formatDuration(track.duration) : '' }}</div>
             </div>
             <!-- 즐겨찾기 버튼 -->
-            <button v-if="auth.isLoggedIn" @click.stop="toggleFav(track)" class="text-sm transition" :class="isFav(track.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'">{{ isFav(track.id) ? '❤️' : '🤍' }}</button>
+            <button v-if="auth.isLoggedIn" @click.stop="toggleFav(track)" class="transition-colors" :class="isFav(track.id) ? 'text-red-500' : 'text-gray-300 hover:text-red-400'"><AppIcon name="heart" :size="16" :filled="isFav(track.id)" /></button>
             <!-- 플레이리스트 추가 -->
-            <button v-if="auth.isLoggedIn && !activePL" @click.stop="playlists.length ? showAddToPL(track) : (addTrackTarget = track, showCreatePL = true)" class="text-sm transition" :class="isInPlaylist(track.id) ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'" title="플레이리스트에 추가">{{ isInPlaylist(track.id) ? '⭐' : '➕' }}</button>
+            <button v-if="auth.isLoggedIn && !activePL" @click.stop="playlists.length ? showAddToPL(track) : (addTrackTarget = track, showCreatePL = true)" class="transition-colors" :class="isInPlaylist(track.id) ? 'text-amber-500' : 'text-gray-300 hover:text-amber-500'" title="플레이리스트에 추가"><AppIcon :name="isInPlaylist(track.id) ? 'star' : 'plus'" :size="16" :filled="isInPlaylist(track.id)" /></button>
             <!-- 플레이리스트에서 제거 -->
-            <button v-if="auth.isLoggedIn && activePL" @click.stop="removeFromPL(track)" class="text-red-400 text-xs hover:text-red-600 opacity-0 group-hover:opacity-100">✕</button>
+            <button v-if="auth.isLoggedIn && activePL" @click.stop="removeFromPL(track)" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-colors"><AppIcon name="x" :size="13" /></button>
           </div>
         </div>
 
@@ -99,26 +107,26 @@
 
     <!-- 플레이리스트 생성 모달 -->
     <div v-if="showCreatePL" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showCreatePL=false">
-      <div class="bg-white rounded-xl p-5 w-full max-w-sm shadow-xl">
-        <h3 class="font-bold text-gray-800 mb-3">새 플레이리스트</h3>
-        <input v-model="newPLName" type="text" placeholder="플레이리스트 이름" class="w-full border rounded-lg px-3 py-2 text-sm mb-3 focus:ring-2 focus:ring-amber-400 outline-none" />
+      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-lift">
+        <h3 class="font-bold text-ink mb-3">새 플레이리스트</h3>
+        <input v-model="newPLName" type="text" placeholder="플레이리스트 이름" class="input-soft mb-3" />
         <div class="flex gap-2">
-          <button @click="createPlaylist" class="bg-amber-400 text-amber-900 font-bold px-4 py-2 rounded-lg text-sm flex-1 hover:bg-amber-500">만들기</button>
-          <button @click="showCreatePL=false" class="text-gray-500 px-4 py-2">취소</button>
+          <button @click="createPlaylist" class="btn-primary flex-1">만들기</button>
+          <button @click="showCreatePL=false" class="btn-ghost">취소</button>
         </div>
       </div>
     </div>
 
     <!-- 플레이리스트에 추가 모달 -->
     <div v-if="addTrackTarget" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="addTrackTarget=null">
-      <div class="bg-white rounded-xl p-5 w-full max-w-sm shadow-xl">
-        <h3 class="font-bold text-gray-800 mb-3">플레이리스트에 추가</h3>
-        <div class="text-sm text-gray-600 mb-3">{{ addTrackTarget.title }}</div>
+      <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-lift">
+        <h3 class="font-bold text-ink mb-3">플레이리스트에 추가</h3>
+        <div class="text-sm text-ink-light mb-3">{{ addTrackTarget.title }}</div>
         <div class="space-y-1">
           <button v-for="pl in playlists" :key="pl.id" @click="addToPL(pl.id)"
-            class="w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-amber-50 transition">📋 {{ pl.name }}</button>
+            class="w-full text-left px-3 py-2 rounded-lg text-sm text-ink-light hover:bg-amber-50 transition-colors flex items-center gap-2"><AppIcon name="list" :size="14" class="text-ink-muted" />{{ pl.name }}</button>
         </div>
-        <button @click="addTrackTarget=null" class="mt-3 text-gray-500 text-sm">취소</button>
+        <button @click="addTrackTarget=null" class="btn-ghost mt-3">취소</button>
       </div>
     </div>
   </div>
@@ -136,6 +144,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useMusicStore } from '../../stores/music'
+import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()

@@ -1,21 +1,24 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="text-lg font-black text-gray-800">🍳 레시피</h1>
+        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+          <span class="icon-chip w-8 h-8 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="17" /></span>
+          레시피
+        </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg">🔍 필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/recipes/write" class="bg-amber-400 text-amber-900 text-xs font-bold px-3 py-2 rounded-lg">✏️ 등록</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="filter" :size="13" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/recipes/write" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
-        <span v-if="search" class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+        <span v-if="search" class="badge-gray">
           "{{ search }}"
         </span>
-        <span class="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-          {{ {random:'🎲 랜덤',rating:'⭐ 별점순',popular:'👁 인기순',latest:'🕐 최신순'}[sort] }}
+        <span class="badge-gray">
+          {{ {random:'랜덤',rating:'별점순',popular:'인기순',latest:'최신순'}[sort] }}
         </span>
       </div>
     </div>
@@ -23,49 +26,52 @@
     <!-- 모바일 필터 바텀시트 -->
     <MobileFilter v-model="showFilter" @apply="loadPage()" @reset="activeCat = ''; search = ''; sort = 'random'; loadPage()">
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">검색어</label>
+        <label class="input-label">검색어</label>
         <input v-model="search" type="text" placeholder="검색어 입력..."
-          class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
+          class="input-soft" />
       </div>
       <div class="mb-4">
-        <label class="text-xs font-bold text-gray-600 mb-2 block">카테고리</label>
+        <label class="input-label">카테고리</label>
         <div class="grid grid-cols-3 gap-1.5">
           <button @click="activeCat = ''"
-            class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="activeCat === '' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+            class="text-xs py-2 rounded-lg font-semibold border transition-colors"
+            :class="activeCat === '' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
             전체
           </button>
           <button v-for="c in categories" :key="c.category" @click="activeCat = c.category"
-            class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="activeCat === c.category ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">
+            class="text-xs py-2 rounded-lg font-semibold border transition-colors"
+            :class="activeCat === c.category ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
             {{ c.category }}
           </button>
         </div>
       </div>
       <div>
-        <label class="text-xs font-bold text-gray-600 mb-2 block">정렬</label>
+        <label class="input-label">정렬</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button @click="sort = 'random'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sort === 'random' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">🎲 랜덤</button>
-          <button @click="sort = 'rating'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sort === 'rating' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">⭐ 별점순</button>
-          <button @click="sort = 'popular'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sort === 'popular' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">👁 인기순</button>
-          <button @click="sort = 'latest'" class="text-xs py-2 rounded-lg font-semibold border transition"
-            :class="sort === 'latest' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-gray-600 hover:bg-gray-50'">🕐 최신순</button>
+          <button @click="sort = 'random'" class="text-xs py-2 rounded-lg font-semibold border transition-colors inline-flex items-center justify-center gap-1"
+            :class="sort === 'random' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="refresh" :size="12" />랜덤</button>
+          <button @click="sort = 'rating'" class="text-xs py-2 rounded-lg font-semibold border transition-colors inline-flex items-center justify-center gap-1"
+            :class="sort === 'rating' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="star" :size="12" />별점순</button>
+          <button @click="sort = 'popular'" class="text-xs py-2 rounded-lg font-semibold border transition-colors inline-flex items-center justify-center gap-1"
+            :class="sort === 'popular' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="eye" :size="12" />인기순</button>
+          <button @click="sort = 'latest'" class="text-xs py-2 rounded-lg font-semibold border transition-colors inline-flex items-center justify-center gap-1"
+            :class="sort === 'latest' ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'"><AppIcon name="clock" :size="12" />최신순</button>
         </div>
       </div>
     </MobileFilter>
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="text-xl font-black text-gray-800">🍳 레시피</h1>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <span class="icon-chip w-9 h-9 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="20" /></span>
+        레시피
+      </h1>
       <div class="flex items-center gap-2 flex-wrap">
         <form @submit.prevent="onSearch" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="border rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 outline-none w-40" />
-          <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 py-1.5 text-sm" />
+          <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/recipes/write" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-amber-500">✏️ 내 레시피 등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/recipes/write" class="btn-primary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="13" />내 레시피 등록</RouterLink>
       </div>
     </div>
 
@@ -73,22 +79,22 @@
       <!-- 왼쪽: 카테고리 + 광고 (함께 sticky, 뷰포트 초과시 스크롤) -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
-          <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-3 py-2.5 border-b font-bold text-xs text-amber-900">📋 분류</div>
+          <div class="card overflow-hidden">
+            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-orange-600" />분류</div>
             <button @click="selectCategory('', false)"
-              class="w-full text-left px-3 py-2 text-xs transition"
-              :class="!showFavorites && activeCat === '' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
+              class="w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="!showFavorites && activeCat === '' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
               전체
             </button>
             <button v-for="c in categories" :key="c.category" @click="selectCategory(c.category, false)"
-              class="w-full text-left px-3 py-2 text-xs transition"
-              :class="!showFavorites && activeCat === c.category ? 'bg-amber-50 text-amber-700 font-bold' : 'text-gray-600 hover:bg-amber-50/50'">
-              {{ c.category }} <span class="text-[9px] text-gray-400">({{ c.count }})</span>
+              class="w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="!showFavorites && activeCat === c.category ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
+              {{ c.category }} <span class="text-[11px] text-ink-faint">({{ c.count }})</span>
             </button>
             <button v-if="auth.isLoggedIn" @click="selectFavorites"
-              class="w-full text-left px-3 py-2 text-xs transition border-t"
-              :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-gray-600 hover:bg-red-50/50'">
-              ❤️ 내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
+              class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 flex items-center gap-1"
+              :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
+              <AppIcon name="heart" :size="12" />내 하트<span v-if="favCount > 0" class="ml-0.5">({{ favCount }})</span>
             </button>
           </div>
           <AdSlot page="recipes" position="left" :maxSlots="2" />
@@ -99,16 +105,16 @@
       <div class="col-span-12 lg:col-span-7">
         <div class="mb-2 flex items-center justify-between">
           <div>
-            <span v-if="showFavorites" class="font-bold text-red-600 text-sm">❤️ 내 하트</span>
+            <span v-if="showFavorites" class="font-bold text-red-600 text-sm inline-flex items-center gap-1"><AppIcon name="heart" :size="14" />내 하트</span>
             <template v-else>
               <span class="font-bold text-amber-700 text-sm">{{ activeCat || '전체' }}</span>
-              <span v-if="sort === 'random'" class="text-xs text-gray-400 ml-2">랜덤 순서</span>
+              <span v-if="sort === 'random'" class="text-xs text-ink-muted ml-2">랜덤 순서</span>
             </template>
           </div>
           <!-- 정렬 (찜 탭 아닐 때만) -->
           <div v-if="!showFavorites" class="flex gap-1 items-center">
-            <button v-if="sort === 'random'" @click="reshuffle" class="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-bold hover:bg-amber-200" title="새로 섞기">🔀 섞기</button>
-            <select v-model="sort" @change="onSortChange" class="border rounded-lg px-2 py-1 text-xs outline-none">
+            <button v-if="sort === 'random'" @click="reshuffle" class="btn-soft px-2.5 py-1 text-xs rounded-full font-bold" title="새로 섞기"><AppIcon name="refresh" :size="12" />섞기</button>
+            <select v-model="sort" @change="onSortChange" class="input-soft w-auto pl-2.5 pr-8 py-1 text-xs">
               <option value="random">🎲 랜덤 (기본)</option>
               <option value="rating">⭐ 별점 높은 순</option>
               <option value="popular">👁 많이 본 순</option>
@@ -117,43 +123,43 @@
           </div>
         </div>
 
-        <div v-if="loading" class="text-center py-12 text-gray-400">로딩중...</div>
-        <div v-else-if="!items.length" class="text-center py-12">
-          <div class="text-4xl mb-3">{{ showFavorites ? '💖' : '🍳' }}</div>
-          <div class="text-gray-500 font-semibold">{{ showFavorites ? '하트한 레시피가 없습니다' : '검색 결과가 없습니다' }}</div>
+        <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
+        <div v-else-if="!items.length" class="py-16 text-center">
+          <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon :name="showFavorites ? 'heart' : 'utensils'" :size="28" :stroke-width="1.5" /></div>
+          <p class="text-sm text-ink-muted">{{ showFavorites ? '하트한 레시피가 없습니다' : '검색 결과가 없습니다' }}</p>
         </div>
 
         <!-- 카드 그리드 -->
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <template v-for="(item, i) in items" :key="item.id">
           <RouterLink :to="'/recipes/' + item.id"
-            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all flex h-32 relative">
+            class="card card-hover overflow-hidden flex h-32 relative">
             <!-- 왼쪽: 사진 (썸네일 프록시) -->
             <div class="w-28 flex-shrink-0 bg-gray-100 relative">
               <img v-if="item.thumbnail_url || item.thumbnail" :src="item.thumbnail_url || thumb(item.thumbnail, 240)" loading="lazy" decoding="async" class="w-full h-full object-cover"
-                @error="e => e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-3xl bg-amber-50\'>🍲</div>'" />
-              <div v-else class="w-full h-full flex items-center justify-center text-3xl bg-amber-50">🍲</div>
+                @error="e => e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gray-100 text-gray-300\'><svg width=\'28\' height=\'28\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg></div>'" />
+              <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300"><AppIcon name="utensils" :size="28" :stroke-width="1.5" /></div>
             </div>
             <!-- 오른쪽: 정보 -->
             <div class="flex-1 p-3 min-w-0">
-              <div class="text-sm font-bold text-gray-800 truncate">{{ item.title }}</div>
+              <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
               <!-- 별점 -->
               <div class="flex items-center gap-1 mt-0.5">
                 <span class="text-amber-400 text-[11px]">{{ '★'.repeat(Math.round(Number(item.rating_avg) || 0)) }}{{ '☆'.repeat(5 - Math.round(Number(item.rating_avg) || 0)) }}</span>
-                <span class="text-[10px] text-gray-500">{{ Number(item.rating_avg || 0).toFixed(1) }}</span>
-                <span class="text-[9px] text-gray-400">({{ item.rating_count || 0 }})</span>
+                <span class="text-[11px] text-ink-muted">{{ Number(item.rating_avg || 0).toFixed(1) }}</span>
+                <span class="text-[11px] text-ink-faint">({{ item.rating_count || 0 }})</span>
               </div>
-              <div class="text-[10px] text-gray-400 mt-0.5">
-                <span v-if="!activeCat && item.category" class="inline-block bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold mr-1">{{ item.category }}</span>
+              <div class="text-[11px] text-ink-muted mt-0.5">
+                <span v-if="!activeCat && item.category" class="badge-primary !px-1.5 mr-1">{{ item.category }}</span>
                 <span v-if="item.cook_method">{{ item.cook_method }}</span>
               </div>
-              <div class="text-[10px] text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
+              <div class="text-[11px] text-ink-muted mt-1 flex items-center gap-2 flex-wrap">
                 <span v-if="item.calories">🔥 {{ item.calories }}kcal</span>
                 <span v-if="item.protein">🥩 {{ item.protein }}g</span>
               </div>
-              <div class="text-[10px] text-gray-400 mt-0.5 flex items-center gap-2">
-                <span>👁 {{ item.view_count || 0 }}</span>
-                <span v-if="item.favorite_count">💖 {{ item.favorite_count }}</span>
+              <div class="text-[11px] text-ink-faint mt-0.5 flex items-center gap-2">
+                <span class="inline-flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count || 0 }}</span>
+                <span v-if="item.favorite_count" class="inline-flex items-center gap-0.5 text-red-400"><AppIcon name="heart" :size="11" />{{ item.favorite_count }}</span>
                 <BookmarkToggle v-if="auth.isLoggedIn" :active="recipeFavorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
               </div>
             </div>
@@ -188,6 +194,7 @@ import { thumb } from '../../utils/thumb'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()

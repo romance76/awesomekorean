@@ -1,9 +1,9 @@
 <template>
-  <nav class="bg-white border-b border-gray-200 sticky top-0 z-50" style="padding-top: env(safe-area-inset-top, 0px)">
+  <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: env(safe-area-inset-top, 0px)">
     <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth -->
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
       <!-- 햄버거 메뉴 (모바일) -->
-      <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2.5 -ml-1 text-gray-500 hover:text-amber-600 flex-shrink-0">
+      <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2.5 -ml-1 text-ink-light hover:text-amber-500 transition-colors flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path v-if="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
           <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -17,12 +17,12 @@
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
       <div class="flex-1 mx-2 min-w-0 hidden md:block">
-        <form @submit.prevent="goSearch" class="flex border border-amber-400 rounded-lg overflow-hidden max-w-lg mx-auto">
-          <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
-            class="flex-1 px-3 py-1.5 text-sm outline-none min-w-0" />
-          <button type="submit" class="bg-amber-400 px-3 text-amber-900 hover:bg-amber-500 transition flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <form @submit.prevent="goSearch" class="relative max-w-lg mx-auto">
+          <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-amber-500 transition-colors">
+            <AppIcon name="search" :size="16" />
           </button>
+          <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
+            class="w-full bg-gray-100 rounded-full pl-10 pr-4 py-2 text-sm text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:ring-2 focus:ring-amber-400/50" />
         </form>
       </div>
       <!-- 모바일: 로고 옆 빈 공간 채우기 -->
@@ -32,28 +32,31 @@
       <div class="flex items-center gap-1.5 flex-shrink-0">
         <template v-if="auth.isLoggedIn">
           <div class="relative notif-bell">
-            <button @click="toggleNotifs" class="relative p-2 text-gray-500 hover:text-amber-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-              <span v-if="unreadCount>0" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+            <button @click="toggleNotifs" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors">
+              <AppIcon name="bell" :size="20" />
+              <span v-if="unreadCount>0" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
             </button>
             <!-- 알림 드롭다운 -->
-            <div v-if="showNotifs" class="absolute right-0 top-10 bg-white border border-gray-200 rounded-xl shadow-xl z-50 overflow-hidden" style="width: min(320px, calc(100vw - 2rem));">
-              <div class="px-4 py-2.5 border-b flex items-center justify-between bg-amber-50">
-                <span class="text-sm font-bold text-amber-900">🔔 알림</span>
-                <button v-if="notifList.some(n=>!n.read_at)" @click="markAllRead" class="text-[10px] text-amber-600 hover:text-amber-800 font-bold">전체 읽음</button>
+            <div v-if="showNotifs" class="absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden" style="width: min(320px, calc(100vw - 2rem));">
+              <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50">
+                <span class="text-sm font-bold text-ink">알림</span>
+                <button v-if="notifList.some(n=>!n.read_at)" @click="markAllRead" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors">전체 읽음</button>
               </div>
               <div class="max-h-80 overflow-y-auto">
-                <div v-if="!notifList.length" class="px-4 py-8 text-center text-gray-400 text-sm">알림이 없습니다</div>
+                <div v-if="!notifList.length" class="px-4 py-10 text-center">
+                  <div class="icon-chip w-11 h-11 bg-gray-100 text-gray-300 mx-auto mb-2"><AppIcon name="bell" :size="22" :stroke-width="1.5" /></div>
+                  <p class="text-sm text-ink-muted">알림이 없습니다</p>
+                </div>
                 <div v-for="n in notifList" :key="n.id" @click="clickNotif(n)"
-                  class="px-4 py-2.5 border-b last:border-0 cursor-pointer hover:bg-amber-50/50 transition"
-                  :class="n.read_at ? '' : 'bg-amber-50'">
+                  class="px-4 py-2.5 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-amber-50/40 transition-colors"
+                  :class="n.read_at ? '' : 'bg-amber-50/60'">
                   <div class="flex items-start gap-2">
-                    <span v-if="!n.read_at" class="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0 mt-1.5"></span>
+                    <span v-if="!n.read_at" class="w-2 h-2 bg-amber-400 rounded-full flex-shrink-0 mt-1.5"></span>
                     <span v-else class="w-2 h-2 flex-shrink-0"></span>
                     <div class="min-w-0 flex-1">
-                      <div class="text-xs font-bold text-gray-800 truncate">{{ n.title }}</div>
-                      <div class="text-[11px] text-gray-500 truncate">{{ n.content }}</div>
-                      <div class="text-[10px] text-gray-400 mt-0.5">{{ formatNotifDate(n.created_at) }}</div>
+                      <div class="text-xs font-semibold text-ink truncate">{{ n.title }}</div>
+                      <div class="text-xs text-ink-muted truncate">{{ n.content }}</div>
+                      <div class="text-[11px] text-ink-faint mt-0.5">{{ formatNotifDate(n.created_at) }}</div>
                     </div>
                   </div>
                 </div>
@@ -61,44 +64,44 @@
             </div>
           </div>
           <div class="relative">
-            <button @click="showDropdown=!showDropdown" class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold overflow-hidden relative">
+            <button @click="showDropdown=!showDropdown" class="w-8 h-8 rounded-full bg-amber-400 text-white flex items-center justify-center text-xs font-bold overflow-hidden relative ring-2 ring-amber-100 hover:ring-amber-200 transition-all">
               <img v-if="auth.user?.avatar" :src="auth.user.avatar" alt="avatar" class="absolute inset-0 w-full h-full object-cover" @error="(e)=>{ e.target.style.display='none' }" />
               <span v-else>{{ (auth.user?.name || '?')[0] }}</span>
             </button>
-            <div v-if="showDropdown" class="absolute right-0 top-9 bg-white border border-gray-200 rounded-xl shadow-lg py-2 w-48 z-50" @click="showDropdown=false">
-              <div class="px-4 py-2 border-b">
-                <div class="text-sm font-bold text-gray-800 truncate">{{ auth.user?.name }}</div>
-                <div class="text-[10px] text-gray-400 truncate">{{ auth.user?.email }}</div>
-                <div class="text-[10px] text-amber-600 font-semibold mt-0.5">{{ auth.user?.points || 0 }}P</div>
+            <div v-if="showDropdown" class="absolute right-0 top-10 bg-white rounded-2xl shadow-lift py-2 w-52 z-50" @click="showDropdown=false">
+              <div class="px-4 py-2.5 border-b border-gray-50">
+                <div class="text-sm font-bold text-ink truncate">{{ auth.user?.name }}</div>
+                <div class="text-xs text-ink-faint truncate">{{ auth.user?.email }}</div>
+                <div class="text-xs text-amber-600 font-bold mt-1 flex items-center gap-1"><AppIcon name="coins" :size="13" />{{ auth.user?.points || 0 }}P</div>
               </div>
-              <RouterLink to="/dashboard" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">👤 마이페이지</RouterLink>
-              <RouterLink to="/dashboard?tab=messages" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">✉️ 쪽지</RouterLink>
-              <RouterLink to="/friends" class="block px-4 py-2 text-sm text-gray-600 hover:bg-amber-50">👫 친구</RouterLink>
+              <RouterLink to="/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors"><AppIcon name="user" :size="16" class="text-ink-muted" />마이페이지</RouterLink>
+              <RouterLink to="/dashboard?tab=messages" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors"><AppIcon name="mail" :size="16" class="text-ink-muted" />쪽지</RouterLink>
+              <RouterLink to="/friends" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors"><AppIcon name="heart-handshake" :size="16" class="text-ink-muted" />친구</RouterLink>
               <div v-if="auth.isAdmin">
-                <div class="border-t my-1"></div>
-                <RouterLink to="/admin" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">🔧 관리자</RouterLink>
+                <div class="border-t border-gray-50 my-1"></div>
+                <RouterLink to="/admin" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"><AppIcon name="shield" :size="16" />관리자</RouterLink>
               </div>
-              <div class="border-t my-1"></div>
-              <button @click="handleLogout" class="w-full text-left px-4 py-2 text-sm text-gray-500 hover:bg-gray-50">🚪 로그아웃</button>
+              <div class="border-t border-gray-50 my-1"></div>
+              <button @click="handleLogout" class="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm text-ink-muted hover:bg-gray-50 transition-colors"><AppIcon name="log-out" :size="16" />로그아웃</button>
             </div>
           </div>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="text-xs font-bold text-amber-700 hover:text-amber-900 border border-amber-300 bg-white hover:bg-amber-50 px-2.5 py-1 rounded-lg">로그인</RouterLink>
-          <RouterLink to="/register" class="text-xs bg-amber-400 text-amber-900 font-bold px-2.5 py-1 rounded-lg hover:bg-amber-500">가입</RouterLink>
+          <RouterLink to="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors">로그인</RouterLink>
+          <RouterLink to="/register" class="text-[13px] bg-amber-400 text-white font-semibold px-3.5 py-1.5 rounded-full hover:bg-amber-500 transition-all shadow-btn hover:-translate-y-px">가입</RouterLink>
         </template>
-        <button @click="togglePageLang()" translate="no" class="notranslate text-[11px] font-bold px-2 py-1 rounded border border-gray-200" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
+        <button @click="togglePageLang()" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-gray-100 hover:bg-gray-200 transition-colors" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
           <span translate="no" class="notranslate">{{ isTranslatedEn ? '한' : 'EN' }}</span>
         </button>
       </div>
     </div>
 
     <!-- Row 2: 데스크톱 메뉴 -->
-    <div class="border-t border-gray-100 hidden md:block">
+    <div class="border-t border-gray-50 hidden md:block">
       <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-10 overflow-x-auto scrollbar-hide">
         <RouterLink v-for="item in visibleMenus" :key="item.path" :to="item.path"
-          class="text-xs font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition"
-          :class="isActive(item.path) ? 'border-amber-500 text-amber-700' : 'border-transparent text-gray-500 hover:text-amber-600 hover:border-amber-300'">
+          class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150"
+          :class="isActive(item.path) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink'">
           {{ item.label }}
         </RouterLink>
       </div>
@@ -113,44 +116,44 @@
         <div v-if="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[85vw] max-w-sm bg-white z-[1000] shadow-2xl overflow-y-auto"
              style="padding-top: var(--sat); padding-bottom: var(--sab)">
           <!-- 헤더 -->
-          <div class="flex items-center justify-between px-4 py-3 border-b">
-            <span class="text-sm font-bold text-amber-700">전체 메뉴</span>
-            <button @click="mobileMenu=false" class="p-1 text-gray-400 hover:text-gray-600">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+            <span class="text-sm font-bold text-ink">전체 메뉴</span>
+            <button @click="mobileMenu=false" class="p-1 text-ink-faint hover:text-ink transition-colors">
+              <AppIcon name="x" :size="20" />
             </button>
           </div>
           <!-- 검색 -->
-          <div class="px-3 py-2 border-b">
-            <form @submit.prevent="goSearch(); mobileMenu=false" class="flex border border-amber-400 rounded-lg overflow-hidden">
-              <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
-                class="flex-1 px-3 py-2 text-sm outline-none" />
-              <button type="submit" class="bg-amber-400 px-3 text-amber-900">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <div class="px-3 py-2.5 border-b border-gray-50">
+            <form @submit.prevent="goSearch(); mobileMenu=false" class="relative">
+              <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
+                <AppIcon name="search" :size="16" />
               </button>
+              <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
+                class="w-full bg-gray-100 rounded-full pl-10 pr-4 py-2.5 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:ring-2 focus:ring-amber-400/50 transition-all" />
             </form>
           </div>
           <!-- 메뉴 목록 -->
           <div class="py-2">
             <div v-for="item in visibleMenus" :key="item.path"
-              class="flex items-center transition"
-              :class="isActive(item.path) ? 'bg-amber-50' : 'hover:bg-gray-50'">
+              class="flex items-center transition-colors"
+              :class="isActive(item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
               <RouterLink :to="item.path" @click="mobileMenu=false"
-                class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2.5 text-sm"
-                :class="isActive(item.path) ? 'text-amber-700 font-bold' : 'text-gray-600'">
-                <span class="text-base">{{ item.icon || '📄' }}</span>
+                class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2 text-sm"
+                :class="isActive(item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
+                <span class="icon-chip w-8 h-8" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="16" /></span>
                 <span>{{ item.label }}</span>
               </RouterLink>
               <button @click.stop="navFavStore.toggleFavorite(item.key)"
-                class="px-3 py-2.5 text-sm flex-shrink-0 transition"
-                :class="navFavStore.isFavorite(item.key) ? 'text-amber-400' : 'text-gray-300 hover:text-amber-300'"
+                class="px-3 py-2.5 flex-shrink-0 transition-colors"
+                :class="navFavStore.isFavorite(item.key) ? 'text-amber-400' : 'text-gray-200 hover:text-amber-300'"
                 :title="navFavStore.isFavorite(item.key) ? '하단바에서 제거' : '하단바에 추가'">
-                {{ navFavStore.isFavorite(item.key) ? '⭐' : '☆' }}
+                <AppIcon name="star" :size="18" :filled="navFavStore.isFavorite(item.key)" />
               </button>
             </div>
           </div>
           <!-- 즐겨찾기 안내 -->
-          <div class="px-4 py-2 border-t text-[10px] text-gray-400">
-            ⭐ 눌러서 하단 메뉴에 추가/제거 (최대 {{ navFavStore.MAX_FAVORITES }}개)
+          <div class="px-4 py-2.5 border-t border-gray-50 text-[11px] text-ink-faint flex items-center gap-1">
+            <AppIcon name="star" :size="12" /> 눌러서 하단 메뉴에 추가/제거 (최대 {{ navFavStore.MAX_FAVORITES }}개)
           </div>
         </div>
       </Transition>
@@ -164,6 +167,8 @@ import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLangStore } from '../stores/lang'
+import AppIcon from './AppIcon.vue'
+import { menuIcon, menuChipColor } from '../utils/menuIcons'
 
 const auth = useAuthStore()
 const langStore = useLangStore()

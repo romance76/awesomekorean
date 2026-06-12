@@ -5,22 +5,22 @@
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal">
         <!-- 헤더 -->
-        <div class="bg-gradient-to-r from-amber-400 to-orange-400 px-5 py-3">
-          <div class="text-sm font-black text-amber-900">{{ title || defaultTitle }}</div>
+        <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] px-5 py-3">
+          <div class="text-sm font-black text-white">{{ title || defaultTitle }}</div>
         </div>
         <!-- 본문 -->
         <div class="px-5 py-4">
-          <p class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{{ message }}</p>
+          <p class="text-sm text-ink-light whitespace-pre-line leading-relaxed">{{ message }}</p>
           <input v-if="type === 'prompt'" v-model="inputValue" :placeholder="inputPlaceholder"
-            class="w-full border-2 border-amber-200 rounded-lg px-3 py-2 text-sm mt-3 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none"
+            class="input-soft mt-3"
             @keyup.enter="onOk" ref="promptInput" />
         </div>
         <!-- 버튼 -->
         <div class="px-5 pb-4 flex gap-2 justify-end">
           <button v-if="type !== 'alert'" @click="onCancel"
-            class="px-5 py-2 rounded-lg text-sm font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition">취소</button>
+            class="btn-secondary">취소</button>
           <button @click="onOk"
-            class="px-5 py-2 rounded-lg text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition shadow-sm">확인</button>
+            class="btn-primary">확인</button>
         </div>
       </div>
     </div>

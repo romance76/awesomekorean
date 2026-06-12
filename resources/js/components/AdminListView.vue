@@ -1,16 +1,19 @@
 <template>
 <div>
   <!-- 타이틀 -->
-  <h1 v-if="title" class="text-xl font-black text-gray-800 mb-4">{{ icon }} {{ title }}</h1>
+  <h1 v-if="title" class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 text-lg">{{ icon }}</span>
+    {{ title }}
+  </h1>
 
   <!-- 검색 + 필터 -->
-  <div class="bg-white rounded-xl shadow-sm border p-3 mb-4">
+  <div class="card p-3 mb-4">
     <div class="flex flex-wrap gap-2 items-center">
       <!-- 카테고리 드롭다운 (categories 전달되면 표시) -->
       <select v-if="categories.length"
         :value="categoryFilter || ''"
         @change="onCategorySelect($event.target.value)"
-        class="border rounded-lg px-3 py-1.5 text-sm bg-white">
+        class="input-soft w-auto px-3 py-1.5">
         <option value="">📂 전체 카테고리</option>
         <option v-for="c in categories" :key="c.id || c.slug || c.name"
           :value="usesTable ? c.id : (c.slug || c.name)">
@@ -18,180 +21,180 @@
         </option>
       </select>
       <div v-if="categoryFilter" class="flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-full px-3 py-1 text-xs">
-        📂 <strong>{{ categoryFilterLabel || categoryFilter }}</strong>
-        <button @click="$emit('clearFilter')" class="ml-1 text-blue-500 hover:text-blue-700">✕</button>
+        <strong>{{ categoryFilterLabel || categoryFilter }}</strong>
+        <button @click="$emit('clearFilter')" class="ml-1 text-blue-500 hover:text-blue-700 transition-colors"><AppIcon name="x" :size="12" /></button>
       </div>
       <slot name="filters"></slot>
-      <form @submit.prevent="load()" class="flex-1 flex gap-1 min-w-[150px]">
-        <input v-model="search" type="text" placeholder="제목/작성자 검색..." class="flex-1 border rounded-lg px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-amber-400" />
-        <button type="submit" class="bg-amber-400 text-amber-900 font-bold px-3 py-1.5 rounded-lg text-xs">검색</button>
+      <form @submit.prevent="load()" class="flex-1 flex gap-1.5 min-w-[150px]">
+        <input v-model="search" type="text" placeholder="제목/작성자 검색..." class="flex-1 input-soft px-3 py-1.5" />
+        <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
       </form>
     </div>
     <div class="flex items-center justify-between mt-1">
-      <div class="text-[10px] text-gray-400">
+      <div class="text-[11px] text-ink-faint">
         전체 {{ total }}건
         <span v-if="categoryFilter" class="text-blue-600">· "{{ categoryFilterLabel || categoryFilter }}" 필터링됨</span>
         <span v-if="selectedIds.size" class="text-red-600 ml-2">· 선택됨 {{ selectedIds.size }}건</span>
       </div>
       <button v-if="selectedIds.size > 0" @click="deleteSelected"
-        class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs">
-        🗑 선택 {{ selectedIds.size }}건 삭제
+        class="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-colors">
+        <AppIcon name="trash" :size="13" />선택 {{ selectedIds.size }}건 삭제
       </button>
     </div>
   </div>
 
-  <div v-if="loading" class="text-center py-8 text-gray-400">로딩중...</div>
+  <div v-if="loading" class="text-center py-8 text-ink-muted">로딩중...</div>
   <div v-else class="flex gap-4">
     <!-- 왼쪽: 목록 -->
     <div :class="activeItem ? 'w-1/2' : 'w-full'">
-      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+      <div class="card overflow-hidden">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50 border-b"><tr>
+          <thead class="bg-gray-50 border-b border-gray-100"><tr>
             <th class="px-2 py-2 w-8 text-center">
               <input type="checkbox" :checked="allSelected" @change="toggleAll" @click.stop />
             </th>
-            <th @click="clickSort('id')" class="px-3 py-2 text-left text-xs text-gray-500 w-8 cursor-pointer hover:bg-gray-100 select-none">
+            <th @click="clickSort('id')" class="px-3 py-2 text-left text-xs text-ink-muted w-8 cursor-pointer hover:bg-gray-100 select-none">
               # <span v-if="sortBy==='id'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
             </th>
-            <th @click="clickSort('title')" class="px-3 py-2 text-left text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+            <th @click="clickSort('title')" class="px-3 py-2 text-left text-xs text-ink-muted cursor-pointer hover:bg-gray-100 select-none">
               {{ titleCol }} <span v-if="sortBy==='title'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
             </th>
             <th v-for="col in extraCols" :key="col.key" v-show="!activeItem"
               @click="clickSort(col.key)"
-              class="px-3 py-2 text-left text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+              class="px-3 py-2 text-left text-xs text-ink-muted cursor-pointer hover:bg-gray-100 select-none">
               {{ col.label }} <span v-if="sortBy===col.key" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
             </th>
-            <th @click="clickSort('user_id')" class="px-3 py-2 text-left text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+            <th @click="clickSort('user_id')" class="px-3 py-2 text-left text-xs text-ink-muted cursor-pointer hover:bg-gray-100 select-none">
               작성자 <span v-if="sortBy==='user_id'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
             </th>
-            <th class="px-3 py-2 text-xs text-gray-500">상태</th>
-            <th @click="clickSort('view_count')" class="px-3 py-2 text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
-              👁 <span v-if="sortBy==='view_count'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
+            <th class="px-3 py-2 text-xs text-ink-muted">상태</th>
+            <th @click="clickSort('view_count')" class="px-3 py-2 text-xs text-ink-muted cursor-pointer hover:bg-gray-100 select-none">
+              <span class="inline-flex items-center gap-0.5"><AppIcon name="eye" :size="13" /> <span v-if="sortBy==='view_count'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span></span>
             </th>
-            <th @click="clickSort('created_at')" class="px-3 py-2 text-xs text-gray-500 cursor-pointer hover:bg-gray-100 select-none">
+            <th @click="clickSort('created_at')" class="px-3 py-2 text-xs text-ink-muted cursor-pointer hover:bg-gray-100 select-none">
               날짜 <span v-if="sortBy==='created_at'" class="text-amber-500">{{ sortDir==='asc'?'▲':'▼' }}</span>
             </th>
           </tr></thead>
           <tbody>
             <tr v-for="item in items" :key="item.id"
-              class="border-b last:border-0 hover:bg-amber-50/30 cursor-pointer transition"
+              class="border-b border-gray-50 last:border-0 hover:bg-amber-50/40 cursor-pointer transition-colors"
               :class="activeItem?.id===item.id ? 'bg-amber-50 border-l-2 border-l-amber-500' : (selectedIds.has(item.id) ? 'bg-red-50' : '')"
               @click="openItem(item)">
               <td class="px-2 py-2 text-center" @click.stop>
                 <input type="checkbox" :checked="selectedIds.has(item.id)" @change="toggleOne(item.id)" />
               </td>
-              <td class="px-3 py-2 text-xs text-gray-400">{{ item.id }}</td>
+              <td class="px-3 py-2 text-xs text-ink-faint">{{ item.id }}</td>
               <td class="px-3 py-2.5 max-w-[250px]">
                 <div class="flex items-center gap-1">
-                  <span v-if="item.is_pinned" title="고정" class="text-red-500 text-xs">📌</span>
-                  <span v-if="item.is_hidden" title="숨김" class="text-gray-400 text-xs">🙈</span>
-                  <span v-if="item.is_locked" title="잠김" class="text-orange-500 text-xs">🔒</span>
-                  <span v-if="isPromoted(item)" :title="promoTooltip(item)" class="text-[9px] font-bold text-white bg-purple-500 px-1 py-px rounded">🚀 {{ promoBadgeLabel(item) }}</span>
-                  <div class="truncate text-sm font-medium text-gray-800">{{ item.title || item.name }}</div>
+                  <span v-if="item.is_pinned" title="고정" class="text-red-500"><AppIcon name="bookmark" :size="12" :filled="true" /></span>
+                  <span v-if="item.is_hidden" title="숨김" class="text-gray-400"><AppIcon name="x" :size="12" /></span>
+                  <span v-if="item.is_locked" title="잠김" class="text-orange-500"><AppIcon name="lock" :size="12" /></span>
+                  <span v-if="isPromoted(item)" :title="promoTooltip(item)" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-white bg-purple-500 px-1 py-px rounded"><AppIcon name="sparkles" :size="10" />{{ promoBadgeLabel(item) }}</span>
+                  <div class="truncate text-sm font-medium text-ink">{{ item.title || item.name }}</div>
                 </div>
-                <div class="text-[10px] text-gray-400 truncate mt-0.5">{{ (item.content || item.description || '').slice(0, 60) }}{{ (item.content || item.description || '').length > 60 ? '...' : '' }}</div>
+                <div class="text-[11px] text-ink-faint truncate mt-0.5">{{ (item.content || item.description || '').slice(0, 60) }}{{ (item.content || item.description || '').length > 60 ? '...' : '' }}</div>
               </td>
               <td v-for="col in extraCols" :key="col.key" v-show="!activeItem" class="px-3 py-2.5">
                 <button v-if="isCategoryCol(col.key)"
                   @click.stop="clickCategoryCell(item, col)"
-                  class="text-[10px] bg-amber-100 text-amber-700 hover:bg-amber-200 px-1.5 py-0.5 rounded-full font-semibold transition cursor-pointer">
+                  class="text-[11px] bg-amber-100 text-amber-700 hover:bg-amber-200 px-1.5 py-0.5 rounded-full font-semibold transition-colors cursor-pointer">
                   {{ getNestedVal(item, col.key) }}
                 </button>
-                <span v-else class="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">{{ getNestedVal(item, col.key) }}</span>
+                <span v-else class="text-[11px] bg-gray-100 text-ink-light px-1.5 py-0.5 rounded-full">{{ getNestedVal(item, col.key) }}</span>
               </td>
               <td class="px-3 py-2.5">
                 <button @click.stop="$emit('openUser', item.user || {id: item.user_id})" class="text-xs text-blue-600 hover:underline">{{ item.user?.name || '-' }}</button>
               </td>
               <td class="px-3 py-2.5 text-center">
-                <span v-if="item.status" class="text-[10px] px-1.5 py-0.5 rounded" :class="statusClass(item.status)">{{ item.status }}</span>
-                <span v-else-if="item.is_hidden" class="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">숨김</span>
-                <span v-else-if="item.is_active === false" class="text-[10px] bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded">비활성</span>
-                <span v-else class="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">정상</span>
+                <span v-if="item.status" class="text-[11px] px-1.5 py-0.5 rounded-full font-semibold" :class="statusClass(item.status)">{{ item.status }}</span>
+                <span v-else-if="item.is_hidden" class="text-[11px] bg-gray-200 text-ink-light px-1.5 py-0.5 rounded-full font-semibold">숨김</span>
+                <span v-else-if="item.is_active === false" class="text-[11px] bg-gray-200 text-ink-light px-1.5 py-0.5 rounded-full font-semibold">비활성</span>
+                <span v-else class="text-[11px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">정상</span>
               </td>
-              <td class="px-3 py-2.5 text-center text-xs text-gray-400">{{ item.view_count || 0 }}</td>
-              <td class="px-3 py-2.5 text-[10px] text-gray-400">{{ (item.created_at || item.published_at || '')?.slice(0,10) }}</td>
+              <td class="px-3 py-2.5 text-center text-xs text-ink-faint">{{ item.view_count || 0 }}</td>
+              <td class="px-3 py-2.5 text-[11px] text-ink-faint">{{ (item.created_at || item.published_at || '')?.slice(0,10) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div v-if="lastPage > 1" class="flex justify-center gap-1.5 mt-4">
         <button v-for="pg in Math.min(lastPage, 10)" :key="pg" @click="load(pg)"
-          class="px-3 py-1 rounded text-sm" :class="pg===page?'bg-amber-400 text-amber-900 font-bold':'bg-white border text-gray-600'">{{ pg }}</button>
+          class="w-8 h-8 rounded-lg text-sm transition-colors" :class="pg===page?'bg-amber-400 text-white font-bold':'text-ink-muted hover:bg-gray-100'">{{ pg }}</button>
       </div>
     </div>
 
     <!-- 오른쪽: 인라인 상세 + 관리 -->
     <div v-if="activeItem" class="w-1/2">
-      <div class="bg-white rounded-xl shadow-sm border overflow-hidden sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
-        <div class="px-4 py-3 border-b flex items-center justify-between bg-amber-50 sticky top-0 z-10">
-          <span class="font-bold text-sm text-amber-900">📝 게시글 관리</span>
+      <div class="card overflow-hidden sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-amber-50 sticky top-0 z-10">
+          <span class="flex items-center gap-1.5 font-bold text-sm text-amber-700"><AppIcon name="edit" :size="14" />게시글 관리</span>
           <div class="flex gap-1">
-            <button @click="editMode = !editMode" class="text-xs bg-white border px-2 py-1 rounded hover:bg-gray-50">
-              {{ editMode ? '✓ 완료' : '✏️ 편집' }}
+            <button @click="editMode = !editMode" class="inline-flex items-center gap-1 text-xs bg-white border border-gray-200 px-2 py-1 rounded-lg hover:bg-gray-50 transition-colors text-ink-light">
+              <AppIcon :name="editMode ? 'check' : 'edit'" :size="12" />{{ editMode ? '완료' : '편집' }}
             </button>
-            <button @click="activeItem=null; editMode=false" class="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+            <button @click="activeItem=null; editMode=false" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
           </div>
         </div>
 
         <!-- 관리 액션 바 -->
-        <div v-if="detailData" class="px-4 py-2 bg-gray-50 border-b flex flex-wrap gap-1">
+        <div v-if="detailData" class="px-4 py-2 bg-gray-50 border-b border-gray-100 flex flex-wrap gap-1">
           <button v-if="actions.pin" @click="toggleField('is_pinned')"
-            :class="activeItem.is_pinned ? 'bg-red-100 text-red-700' : 'bg-white border text-gray-600'"
-            class="text-[10px] px-2 py-1 rounded hover:bg-red-50">
-            📌 {{ activeItem.is_pinned ? '고정해제' : '고정' }}
+            :class="activeItem.is_pinned ? 'bg-red-100 text-red-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
+            <AppIcon name="bookmark" :size="11" :filled="activeItem.is_pinned" />{{ activeItem.is_pinned ? '고정해제' : '고정' }}
           </button>
           <button v-if="actions.hide" @click="toggleField('is_hidden')"
-            :class="activeItem.is_hidden ? 'bg-gray-200 text-gray-700' : 'bg-white border text-gray-600'"
-            class="text-[10px] px-2 py-1 rounded hover:bg-gray-100">
-            🙈 {{ activeItem.is_hidden ? '공개' : '숨김' }}
+            :class="activeItem.is_hidden ? 'bg-gray-200 text-ink-light' : 'bg-white border border-gray-200 text-ink-light'"
+            class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+            <AppIcon name="eye" :size="11" />{{ activeItem.is_hidden ? '공개' : '숨김' }}
           </button>
           <button v-if="actions.active" @click="toggleField('is_active')"
-            :class="activeItem.is_active === false ? 'bg-orange-100 text-orange-700' : 'bg-white border text-gray-600'"
-            class="text-[10px] px-2 py-1 rounded hover:bg-orange-50">
-            {{ activeItem.is_active === false ? '🔴 비활성' : '🟢 활성' }}
+            :class="activeItem.is_active === false ? 'bg-orange-100 text-orange-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="text-[11px] px-2 py-1 rounded-lg hover:bg-orange-50 transition-colors">
+            {{ activeItem.is_active === false ? '비활성' : '활성' }}
           </button>
           <button v-if="actions.lock_comments" @click="toggleField('is_locked')"
-            :class="activeItem.is_locked ? 'bg-orange-100 text-orange-700' : 'bg-white border text-gray-600'"
-            class="text-[10px] px-2 py-1 rounded hover:bg-orange-50">
-            🔒 {{ activeItem.is_locked ? '잠금해제' : '댓글잠금' }}
+            :class="activeItem.is_locked ? 'bg-orange-100 text-orange-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg hover:bg-orange-50 transition-colors">
+            <AppIcon name="lock" :size="11" />{{ activeItem.is_locked ? '잠금해제' : '댓글잠금' }}
           </button>
           <button v-if="actions.approved" @click="toggleField('is_approved')"
             :class="activeItem.is_approved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'"
-            class="text-[10px] px-2 py-1 rounded">
-            {{ activeItem.is_approved ? '✅ 승인됨' : '⏳ 대기' }}
+            class="text-[11px] px-2 py-1 rounded-lg transition-colors">
+            {{ activeItem.is_approved ? '승인됨' : '대기' }}
           </button>
           <button v-if="actions.verified" @click="toggleField('is_verified')"
-            :class="activeItem.is_verified ? 'bg-blue-100 text-blue-700' : 'bg-white border text-gray-600'"
-            class="text-[10px] px-2 py-1 rounded">
+            :class="activeItem.is_verified ? 'bg-blue-100 text-blue-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="text-[11px] px-2 py-1 rounded-lg transition-colors">
             {{ activeItem.is_verified ? '✓ 인증됨' : '인증하기' }}
           </button>
           <button v-if="actions.resolved" @click="toggleField('is_resolved')"
-            :class="activeItem.is_resolved ? 'bg-green-100 text-green-700' : 'bg-white border text-gray-600'"
-            class="text-[10px] px-2 py-1 rounded">
-            {{ activeItem.is_resolved ? '✅ 해결됨' : '미해결' }}
+            :class="activeItem.is_resolved ? 'bg-green-100 text-green-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="text-[11px] px-2 py-1 rounded-lg transition-colors">
+            {{ activeItem.is_resolved ? '해결됨' : '미해결' }}
           </button>
-          <button @click="openPointModal" class="text-[10px] px-2 py-1 rounded bg-purple-100 text-purple-700 hover:bg-purple-200">
-            💰 포인트 조정
+          <button @click="openPointModal" class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors">
+            <AppIcon name="coins" :size="11" />포인트 조정
           </button>
-          <button @click="openMoveModal" class="text-[10px] px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200">
-            📂 카테고리 변경
+          <button @click="openMoveModal" class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors">
+            <AppIcon name="tag" :size="11" />카테고리 변경
           </button>
           <button v-if="isPromoted(activeItem)" @click="clearPromotion(activeItem)"
-            class="text-[10px] px-2 py-1 rounded bg-purple-100 text-purple-700 hover:bg-purple-200"
+            class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
             :title="promoTooltip(activeItem)">
-            🚀 상위노출 해제
+            <AppIcon name="sparkles" :size="11" />상위노출 해제
           </button>
-          <button @click="deleteItem(activeItem)" class="text-[10px] px-2 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 ml-auto">🗑 삭제</button>
+          <button @click="deleteItem(activeItem)" class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition-colors ml-auto"><AppIcon name="trash" :size="11" />삭제</button>
         </div>
 
         <!-- 상위노출 상태 배너 (활성 중이면 표시) -->
         <div v-if="detailData && isPromoted(activeItem)" class="px-4 py-2 bg-purple-50 border-b border-purple-200 flex items-center justify-between">
           <div class="text-xs">
-            <span class="font-bold text-purple-800">🚀 상위노출 중</span>
+            <span class="inline-flex items-center gap-1 font-bold text-purple-800"><AppIcon name="sparkles" :size="12" />상위노출 중</span>
             <span class="text-purple-600 ml-2">{{ promoBadgeLabel(activeItem) }}</span>
-            <span class="text-gray-500 ml-2">만료: {{ promoExpiresDisplay(activeItem) }}</span>
+            <span class="text-ink-muted ml-2">만료: {{ promoExpiresDisplay(activeItem) }}</span>
           </div>
-          <button @click="clearPromotion(activeItem)" class="text-[10px] text-purple-700 hover:text-purple-900 underline">
+          <button @click="clearPromotion(activeItem)" class="text-[11px] text-purple-700 hover:text-purple-900 underline transition-colors">
             강제 해제
           </button>
         </div>
@@ -199,40 +202,40 @@
         <!-- 제목/내용 (편집 모드) -->
         <div v-if="editMode" class="px-4 py-3 space-y-2">
           <div>
-            <label class="text-[10px] text-gray-500">제목</label>
-            <input v-model="activeItem.title" class="w-full border rounded px-2 py-1 text-sm" />
+            <label class="input-label !text-xs !mb-0.5">제목</label>
+            <input v-model="activeItem.title" class="input-soft px-3 py-1.5" />
           </div>
           <div v-if="activeItem.content !== undefined">
-            <label class="text-[10px] text-gray-500">내용</label>
-            <textarea v-model="activeItem.content" rows="8" class="w-full border rounded px-2 py-1 text-sm font-mono"></textarea>
+            <label class="input-label !text-xs !mb-0.5">내용</label>
+            <textarea v-model="activeItem.content" rows="8" class="input-soft px-3 py-1.5 font-mono"></textarea>
           </div>
           <div v-if="activeItem.description !== undefined">
-            <label class="text-[10px] text-gray-500">설명</label>
-            <textarea v-model="activeItem.description" rows="4" class="w-full border rounded px-2 py-1 text-sm"></textarea>
+            <label class="input-label !text-xs !mb-0.5">설명</label>
+            <textarea v-model="activeItem.description" rows="4" class="input-soft px-3 py-1.5"></textarea>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div v-if="activeItem.price !== undefined && activeItem.price !== null">
-              <label class="text-[10px] text-gray-500">가격</label>
-              <input v-model.number="activeItem.price" type="number" class="w-full border rounded px-2 py-1 text-sm" />
+              <label class="input-label !text-xs !mb-0.5">가격</label>
+              <input v-model.number="activeItem.price" type="number" class="input-soft px-3 py-1.5" />
             </div>
             <div v-if="activeItem.city !== undefined">
-              <label class="text-[10px] text-gray-500">도시</label>
-              <input v-model="activeItem.city" class="w-full border rounded px-2 py-1 text-sm" />
+              <label class="input-label !text-xs !mb-0.5">도시</label>
+              <input v-model="activeItem.city" class="input-soft px-3 py-1.5" />
             </div>
           </div>
-          <button @click="savePost" class="bg-amber-400 text-amber-900 font-bold px-4 py-1.5 rounded text-sm">💾 저장</button>
+          <button @click="savePost" class="btn-primary px-4 py-1.5">저장</button>
         </div>
 
         <!-- 보기 모드 -->
         <div v-else class="px-4 py-3">
-          <h2 class="text-lg font-bold text-gray-900">{{ activeItem.title || activeItem.name }}</h2>
-          <div class="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
+          <h2 class="text-lg font-bold text-ink">{{ activeItem.title || activeItem.name }}</h2>
+          <div class="flex flex-wrap items-center gap-3 mt-2 text-xs text-ink-muted">
             <button @click="$emit('openUser', activeItem.user || {id: activeItem.user_id})" class="text-blue-600 hover:underline font-semibold">{{ activeItem.user?.name || '-' }}</button>
-            <span v-if="activeItem.company">🏢 {{ activeItem.company }}</span>
-            <span v-if="activeItem.city">📍 {{ activeItem.city }}, {{ activeItem.state }}</span>
-            <span v-if="activeItem.category">📋 {{ typeof activeItem.category === 'object' ? activeItem.category.name : activeItem.category }}</span>
-            <span v-if="activeItem.price !== undefined && activeItem.price !== null">💵 ${{ Number(activeItem.price).toLocaleString() }}</span>
-            <span>👁 {{ activeItem.view_count || 0 }}</span>
+            <span v-if="activeItem.company" class="inline-flex items-center gap-1"><AppIcon name="building" :size="12" />{{ activeItem.company }}</span>
+            <span v-if="activeItem.city" class="inline-flex items-center gap-1"><AppIcon name="map-pin" :size="12" />{{ activeItem.city }}, {{ activeItem.state }}</span>
+            <span v-if="activeItem.category" class="inline-flex items-center gap-1"><AppIcon name="tag" :size="12" />{{ typeof activeItem.category === 'object' ? activeItem.category.name : activeItem.category }}</span>
+            <span v-if="activeItem.price !== undefined && activeItem.price !== null" class="inline-flex items-center gap-1"><AppIcon name="dollar" :size="12" />${{ Number(activeItem.price).toLocaleString() }}</span>
+            <span class="inline-flex items-center gap-1"><AppIcon name="eye" :size="12" />{{ activeItem.view_count || 0 }}</span>
             <span>{{ (activeItem.created_at || activeItem.published_at || '')?.slice(0,10) }}</span>
           </div>
         </div>
@@ -243,28 +246,28 @@
         </div>
 
         <!-- 본문 -->
-        <div v-if="!editMode" class="px-4 py-3 border-t text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto">{{ activeItem.content || activeItem.description || '(내용 없음)' }}</div>
+        <div v-if="!editMode" class="px-4 py-3 border-t border-gray-100 text-sm text-ink-light leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto">{{ activeItem.content || activeItem.description || '(내용 없음)' }}</div>
 
         <!-- 댓글 + 답글 -->
-        <div v-if="detailData?.comments" class="px-4 py-3 border-t">
-          <div class="text-xs font-bold text-gray-700 mb-2">💬 댓글 {{ commentTotalCount }}개</div>
-          <div v-if="!detailData.comments.length" class="text-[10px] text-gray-400 py-2">댓글이 없습니다</div>
+        <div v-if="detailData?.comments" class="px-4 py-3 border-t border-gray-100">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-ink mb-2"><AppIcon name="message-circle" :size="13" />댓글 {{ commentTotalCount }}개</div>
+          <div v-if="!detailData.comments.length" class="text-[11px] text-ink-faint py-2">댓글이 없습니다</div>
           <div v-else class="space-y-2 max-h-[300px] overflow-y-auto">
-            <div v-for="c in detailData.comments" :key="c.id" class="border rounded p-2 bg-gray-50">
+            <div v-for="c in detailData.comments" :key="c.id" class="border border-gray-100 rounded-lg p-2 bg-gray-50">
               <div class="flex items-start justify-between gap-2">
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1 text-[10px] mb-1">
+                  <div class="flex items-center gap-1 text-[11px] mb-1">
                     <button @click="$emit('openUser', c.user)" class="text-blue-600 hover:underline font-semibold">{{ c.user?.name || '?' }}</button>
-                    <span class="text-gray-400">·</span>
-                    <span class="text-gray-500">{{ c.created_at?.slice(0,16).replace('T',' ') }}</span>
+                    <span class="text-ink-faint">·</span>
+                    <span class="text-ink-muted">{{ c.created_at?.slice(0,16).replace('T',' ') }}</span>
                     <span v-if="c.like_count" class="text-red-500">♥ {{ c.like_count }}</span>
-                    <span v-if="c.is_hidden" class="bg-gray-300 text-gray-700 px-1 rounded">숨김</span>
+                    <span v-if="c.is_hidden" class="bg-gray-300 text-ink-light px-1 rounded">숨김</span>
                   </div>
-                  <div class="text-xs text-gray-700 whitespace-pre-wrap" :class="c.is_hidden ? 'line-through text-gray-400' : ''">{{ c.content }}</div>
+                  <div class="text-xs text-ink-light whitespace-pre-wrap" :class="c.is_hidden ? 'line-through text-ink-faint' : ''">{{ c.content }}</div>
                 </div>
                 <div class="flex gap-1 shrink-0">
-                  <button @click="toggleCommentHide(c)" class="text-[10px] text-orange-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
-                  <button @click="deleteComment(c)" class="text-[10px] text-red-500 hover:underline">삭제</button>
+                  <button @click="toggleCommentHide(c)" class="text-[11px] text-orange-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
+                  <button @click="deleteComment(c)" class="text-[11px] text-red-500 hover:underline">삭제</button>
                 </div>
               </div>
               <!-- 답글 -->
@@ -273,13 +276,13 @@
                   <div class="flex items-start justify-between gap-2">
                     <div class="flex-1">
                       <span class="text-blue-600 font-semibold">↳ {{ r.user?.name || '?' }}</span>
-                      <span class="text-gray-400 ml-1">{{ r.created_at?.slice(5,16).replace('T',' ') }}</span>
-                      <span v-if="r.is_hidden" class="bg-gray-300 text-gray-700 px-1 rounded ml-1">숨김</span>
-                      <div class="text-gray-700 mt-0.5" :class="r.is_hidden ? 'line-through text-gray-400' : ''">{{ r.content }}</div>
+                      <span class="text-ink-faint ml-1">{{ r.created_at?.slice(5,16).replace('T',' ') }}</span>
+                      <span v-if="r.is_hidden" class="bg-gray-300 text-ink-light px-1 rounded ml-1">숨김</span>
+                      <div class="text-ink-light mt-0.5" :class="r.is_hidden ? 'line-through text-ink-faint' : ''">{{ r.content }}</div>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                      <button @click="toggleCommentHide(r)" class="text-[10px] text-orange-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
-                      <button @click="deleteComment(r)" class="text-[10px] text-red-500">삭제</button>
+                      <button @click="toggleCommentHide(r)" class="text-[11px] text-orange-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
+                      <button @click="deleteComment(r)" class="text-[11px] text-red-500">삭제</button>
                     </div>
                   </div>
                 </div>
@@ -289,24 +292,24 @@
         </div>
 
         <!-- 포인트 내역 -->
-        <div v-if="detailData?.point_logs?.length" class="px-4 py-3 border-t">
-          <div class="text-xs font-bold text-gray-700 mb-2">💰 이 게시글 관련 포인트 ({{ detailData.point_logs.length }})</div>
+        <div v-if="detailData?.point_logs?.length" class="px-4 py-3 border-t border-gray-100">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-ink mb-2"><AppIcon name="coins" :size="13" />이 게시글 관련 포인트 ({{ detailData.point_logs.length }})</div>
           <div class="space-y-1 max-h-[120px] overflow-y-auto">
-            <div v-for="pl in detailData.point_logs" :key="pl.id" class="flex justify-between text-[10px] py-0.5">
-              <span class="text-gray-500">{{ pl.created_at?.slice(0,10) }}</span>
-              <span class="text-gray-700 truncate flex-1 mx-2">{{ pl.reason }}</span>
+            <div v-for="pl in detailData.point_logs" :key="pl.id" class="flex justify-between text-[11px] py-0.5">
+              <span class="text-ink-muted">{{ pl.created_at?.slice(0,10) }}</span>
+              <span class="text-ink-light truncate flex-1 mx-2">{{ pl.reason }}</span>
               <span :class="pl.amount>0?'text-green-600':'text-red-600'" class="font-bold">{{ pl.amount>0?'+':'' }}{{ pl.amount }}P</span>
             </div>
           </div>
         </div>
 
         <!-- 신고 -->
-        <div v-if="detailData?.reports?.length" class="px-4 py-3 border-t bg-red-50">
-          <div class="text-xs font-bold text-red-700 mb-2">🚨 신고 {{ detailData.reports.length }}건</div>
+        <div v-if="detailData?.reports?.length" class="px-4 py-3 border-t border-gray-100 bg-red-50">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-red-700 mb-2"><AppIcon name="alert-circle" :size="13" />신고 {{ detailData.reports.length }}건</div>
           <div class="space-y-1 max-h-[100px] overflow-y-auto">
-            <div v-for="r in detailData.reports" :key="r.id" class="text-[10px] text-red-700">
+            <div v-for="r in detailData.reports" :key="r.id" class="text-[11px] text-red-700">
               <span class="font-medium">{{ r.reporter?.name || '?' }}</span>: {{ r.reason }}
-              <span class="text-gray-500 ml-1">({{ r.status }})</span>
+              <span class="text-ink-muted ml-1">({{ r.status }})</span>
             </div>
           </div>
         </div>
@@ -316,37 +319,37 @@
 
   <!-- 포인트 조정 모달 -->
   <div v-if="showPointModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showPointModal=false">
-    <div class="bg-white rounded-xl p-5 w-full max-w-md">
-      <h3 class="font-black text-gray-800 mb-3">💰 작성자 포인트 조정</h3>
-      <div class="text-xs text-gray-600 mb-3">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-md">
+      <h3 class="flex items-center gap-2 font-bold text-ink mb-3"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="15" /></span>작성자 포인트 조정</h3>
+      <div class="text-xs text-ink-light mb-3">
         게시글: <strong>{{ activeItem?.title || activeItem?.name }}</strong><br>
         작성자: <strong>{{ activeItem?.user?.name }}</strong>
       </div>
       <div class="space-y-3">
         <div>
-          <label class="text-xs text-gray-600">증감 (음수로 차감)</label>
-          <input v-model.number="pointAmount" type="number" placeholder="예: 50 또는 -20" class="w-full border rounded px-2 py-1 text-sm" />
+          <label class="input-label !text-xs">증감 (음수로 차감)</label>
+          <input v-model.number="pointAmount" type="number" placeholder="예: 50 또는 -20" class="input-soft px-3 py-1.5" />
         </div>
         <div>
-          <label class="text-xs text-gray-600">사유</label>
-          <input v-model="pointReason" placeholder="예: 우수 콘텐츠 보상" class="w-full border rounded px-2 py-1 text-sm" />
+          <label class="input-label !text-xs">사유</label>
+          <input v-model="pointReason" placeholder="예: 우수 콘텐츠 보상" class="input-soft px-3 py-1.5" />
         </div>
       </div>
       <div class="flex justify-end gap-2 mt-4">
-        <button @click="showPointModal=false" class="text-gray-500 px-3 py-1 text-sm">취소</button>
-        <button @click="applyPointAdjust" class="bg-amber-400 text-amber-900 font-bold px-4 py-1 rounded text-sm">적용</button>
+        <button @click="showPointModal=false" class="btn-ghost px-3 py-1 text-sm">취소</button>
+        <button @click="applyPointAdjust" class="btn-primary px-4 py-1.5">적용</button>
       </div>
     </div>
   </div>
 
   <!-- 카테고리 변경 모달 -->
   <div v-if="showMoveModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showMoveModal=false">
-    <div class="bg-white rounded-xl p-5 w-full max-w-sm">
-      <h3 class="font-black text-gray-800 mb-3">📂 카테고리 변경</h3>
-      <input v-model="newCategory" placeholder="카테고리 이름 또는 ID" class="w-full border rounded px-2 py-1 text-sm" />
+    <div class="bg-white rounded-2xl p-5 w-full max-w-sm">
+      <h3 class="flex items-center gap-2 font-bold text-ink mb-3"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="tag" :size="15" /></span>카테고리 변경</h3>
+      <input v-model="newCategory" placeholder="카테고리 이름 또는 ID" class="input-soft px-3 py-1.5" />
       <div class="flex justify-end gap-2 mt-4">
-        <button @click="showMoveModal=false" class="text-gray-500 px-3 py-1 text-sm">취소</button>
-        <button @click="applyCategoryChange" class="bg-amber-400 text-amber-900 font-bold px-4 py-1 rounded text-sm">변경</button>
+        <button @click="showMoveModal=false" class="btn-ghost px-3 py-1 text-sm">취소</button>
+        <button @click="applyCategoryChange" class="btn-primary px-4 py-1.5">변경</button>
       </div>
     </div>
   </div>
@@ -356,6 +359,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import axios from 'axios'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   icon: { type: String, default: '📋' },

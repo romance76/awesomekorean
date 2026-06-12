@@ -72,24 +72,24 @@ defineExpose({ reload: load })
 </script>
 
 <style scoped>
-.leaderboard-card { background: rgba(255,255,255,0.95); border-radius: 16px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin: 16px auto; max-width: 420px; width: 100%; }
-.lb-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px; }
-.lb-title { font-weight: 800; font-size: 14px; color: #1f2937; }
-.lb-refresh { background: transparent; border: none; cursor: pointer; font-size: 14px; color: #6b7280; }
-.lb-empty { text-align: center; color: #9ca3af; font-size: 13px; padding: 24px 0; }
+.leaderboard-card { background: #fff; border-radius: 16px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(25,31,40,0.05); margin: 16px auto; max-width: 420px; width: 100%; }
+.lb-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px solid #F2F4F6; padding-bottom: 8px; }
+.lb-title { font-weight: 800; font-size: 14px; color: #191F28; }
+.lb-refresh { background: transparent; border: none; cursor: pointer; font-size: 14px; color: #8B95A1; }
+.lb-empty { text-align: center; color: #8B95A1; font-size: 13px; padding: 24px 0; }
 .lb-list { display: flex; flex-direction: column; gap: 4px; }
 .lb-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; font-size: 13px; transition: background 0.2s; }
-.lb-row:hover { background: #fef3c7; }
-.lb-row.mine { background: #fef3c7; border: 1px solid #f59e0b; }
-.lb-rank { width: 28px; text-align: center; font-weight: 800; font-size: 13px; color: #6b7280; flex-shrink: 0; }
+.lb-row:hover { background: #FFF4EC; }
+.lb-row.mine { background: #FFF4EC; border: 1px solid #FF6B2C; }
+.lb-rank { width: 28px; text-align: center; font-weight: 800; font-size: 13px; color: #8B95A1; flex-shrink: 0; }
 .lb-rank.gold { font-size: 18px; }
 .lb-rank.silver { font-size: 17px; }
 .lb-rank.bronze { font-size: 16px; }
-.lb-rank.mine { color: #f59e0b; }
+.lb-rank.mine { color: #F2570F; }
 .lb-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-.lb-avatar-fb { width: 24px; height: 24px; border-radius: 50%; background: #fde68a; color: #92400e; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; flex-shrink: 0; }
-.lb-name { flex: 1; font-weight: 600; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lb-name.mine { color: #b45309; font-weight: 800; }
-.lb-time { font-weight: 700; color: #1d4ed8; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-.lb-my-row { display: flex; align-items: center; gap: 8px; padding: 8px; margin-top: 8px; border-top: 1px dashed #e5e7eb; background: #fffbeb; border-radius: 8px; font-size: 13px; }
+.lb-avatar-fb { width: 24px; height: 24px; border-radius: 50%; background: #FFE3CF; color: #E04E00; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; flex-shrink: 0; }
+.lb-name { flex: 1; font-weight: 600; color: #4E5968; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-name.mine { color: #E04E00; font-weight: 800; }
+.lb-time { font-weight: 700; color: #F2570F; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.lb-my-row { display: flex; align-items: center; gap: 8px; padding: 8px; margin-top: 8px; border-top: 1px dashed #E5E8EB; background: #FFF8F2; border-radius: 8px; font-size: 13px; }
 </style>

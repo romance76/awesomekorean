@@ -1,10 +1,10 @@
 <template>
-  <button @click="share" class="text-gray-500 hover:text-amber-600 transition flex items-center gap-1 text-sm"
+  <button @click="share" class="text-ink-muted hover:text-amber-600 transition-colors flex items-center gap-1 text-sm"
     :title="'링크 공유'" :aria-label="'공유'">
-    <span class="text-base">🔗</span>
+    <AppIcon name="share" :size="16" />
     <span v-if="label" class="hidden sm:inline">{{ label }}</span>
   </button>
-  <div v-if="copied" class="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-3 py-2 rounded-lg shadow-xl z-[100]">
+  <div v-if="copied" class="fixed top-20 left-1/2 -translate-x-1/2 bg-ink text-white text-xs px-3 py-2 rounded-xl shadow-xl z-[100]">
     {{ copiedMsg }}
   </div>
 </template>
@@ -12,6 +12,7 @@
 <script setup>
 // P2B-11: 공용 공유 버튼 — Web Share API 우선, 없으면 클립보드 복사 폴백
 import { ref } from 'vue'
+import AppIcon from './AppIcon.vue'
 
 const props = defineProps({
   title: { type: String, default: '' },

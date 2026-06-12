@@ -1,17 +1,20 @@
 <template>
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-6 space-y-5">
     <!-- Header -->
     <div class="flex items-center gap-3">
-      <button @click="$router.back()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-sm border border-gray-200 text-gray-500 hover:bg-gray-50">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      <button @click="$router.back()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-card text-ink-muted hover:bg-gray-50 transition-colors">
+        <AppIcon name="chevron-left" :size="20" />
       </button>
-      <h1 class="text-xl font-black text-gray-800">{{ isEdit ? '공고 수정' : '공고 등록' }}</h1>
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="20" /></span>
+        {{ isEdit ? '공고 수정' : '공고 등록' }}
+      </h1>
     </div>
 
 
     <!-- Section 1: 글 유형 -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">공고 유형</h2>
       </div>
@@ -19,13 +22,13 @@
         <div class="flex gap-3">
           <button type="button" @click="form.post_type='hiring'"
             class="flex-1 py-3 rounded-xl font-bold text-sm transition-all border-2 flex items-center justify-center gap-2"
-            :class="isHiring ? 'bg-amber-400 border-amber-400 text-amber-900 shadow-md shadow-amber-200' : 'bg-white border-gray-200 text-gray-400 hover:border-amber-300'">
+            :class="isHiring ? 'bg-amber-400 border-amber-400 text-white shadow-btn' : 'bg-white border-gray-200 text-ink-muted hover:border-amber-300'">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
             구인 (채용합니다)
           </button>
           <button type="button" @click="form.post_type='seeking'"
             class="flex-1 py-3 rounded-xl font-bold text-sm transition-all border-2 flex items-center justify-center gap-2"
-            :class="!isHiring ? 'bg-blue-500 border-blue-500 text-white shadow-md shadow-blue-200' : 'bg-white border-gray-200 text-gray-400 hover:border-blue-300'">
+            :class="!isHiring ? 'bg-blue-500 border-blue-500 text-white shadow-md shadow-blue-200' : 'bg-white border-gray-200 text-ink-muted hover:border-blue-300'">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             구직 (일자리 찾습니다)
           </button>
@@ -34,64 +37,64 @@
     </section>
 
     <!-- Section 2: 기본 정보 -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">기본 정보</h2>
       </div>
       <div class="p-5 space-y-4">
         <!-- 로고 업로드 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-2">로고 이미지 (선택)</label>
+          <label class="input-label mb-2">로고 이미지 (선택)</label>
           <div class="flex items-center gap-4">
-            <div class="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div class="w-20 h-20 rounded-xl bg-[#F4F6F8] text-ink-muted flex flex-col items-center justify-center overflow-hidden flex-shrink-0">
               <img v-if="logoPreview" :src="logoPreview" class="w-full h-full object-cover" />
-              <svg v-else class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <AppIcon v-else name="camera" :size="26" :stroke-width="1.5" />
             </div>
             <div class="flex-1">
               <input ref="logoInputRef" type="file" accept="image/*" @change="onLogoSelect" class="hidden" />
               <button type="button" @click="logoInputRef?.click()"
-                class="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+                class="btn-soft text-xs">
                 {{ logoFile || logoPreview ? '로고 변경' : '로고 선택' }}
               </button>
               <button v-if="logoFile || logoPreview" type="button" @click="clearLogo"
-                class="ml-2 px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition">
+                class="ml-2 px-3 py-2 rounded-xl text-xs font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
                 제거
               </button>
-              <p class="text-xs text-gray-400 mt-1">최대 5MB, JPG/PNG</p>
+              <p class="text-xs text-ink-muted mt-1">최대 5MB, JPG/PNG</p>
             </div>
           </div>
         </div>
 
         <!-- 제목 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-1">
+          <label class="input-label">
             제목 <span class="text-red-400">*</span>
           </label>
           <input v-model="form.title" type="text"
             :placeholder="isHiring ? '예: 한식당 주방보조 구합니다' : '예: 경력 3년 웹개발자 구직합니다'"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition outline-none"
+            class="input-soft"
             :class="focusRing" />
         </div>
 
         <!-- 회사명/이름 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-1">
+          <label class="input-label">
             {{ isHiring ? '회사명' : '이름 / 경력 (선택)' }}
             <span v-if="isHiring" class="text-red-400">*</span>
           </label>
           <input v-model="form.company" type="text"
             :placeholder="isHiring ? '예: OO 레스토랑' : '예: 홍길동 / 요식업 3년'"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition outline-none"
+            class="input-soft"
             :class="focusRing" />
         </div>
 
         <!-- 카테고리 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-1">
+          <label class="input-label">
             카테고리 <span class="text-red-400">*</span>
           </label>
           <select v-model="form.category"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition outline-none appearance-none bg-white"
+            class="input-soft"
             :class="focusRing">
             <option value="" disabled>카테고리를 선택하세요</option>
             <option v-for="c in categories" :key="c.value" :value="c.value">{{ c.label }}</option>
@@ -100,30 +103,30 @@
 
         <!-- 직종 태그 (multi-select) -->
         <div v-if="isHiring">
-          <label class="text-sm font-semibold text-gray-700 block mb-2">직종 태그 (여러 개 선택 가능)</label>
+          <label class="input-label mb-2">직종 태그 (여러 개 선택 가능)</label>
           <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
             <button v-for="t in jobTagOptions" :key="t.value" type="button"
               @click="toggleJobTag(t.value)"
               class="py-2 px-2 rounded-lg text-xs font-semibold transition border-2"
               :class="selectedJobTags.includes(t.value)
                 ? 'border-amber-400 bg-amber-50 text-amber-800'
-                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+                : 'border-gray-200 bg-white text-ink-muted hover:border-gray-300'">
               {{ t.label }}
             </button>
           </div>
-          <p class="text-xs text-gray-400 mt-1.5">선택됨: {{ selectedJobTags.length }}개</p>
+          <p class="text-xs text-ink-muted mt-1.5">선택됨: {{ selectedJobTags.length }}개</p>
         </div>
 
         <!-- 고용형태 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-2">고용형태</label>
+          <label class="input-label mb-2">고용형태</label>
           <div class="flex gap-2">
             <button v-for="t in typeOptions" :key="t.value" type="button"
               @click="form.type = t.value"
-              class="flex-1 py-2.5 rounded-lg text-sm font-semibold transition border-2"
+              class="flex-1 py-2.5 rounded-xl text-sm font-semibold transition border-2"
               :class="form.type === t.value
                 ? (isHiring ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-blue-400 bg-blue-50 text-blue-800')
-                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+                : 'border-gray-200 bg-white text-ink-muted hover:border-gray-300'">
               {{ t.label }}
             </button>
           </div>
@@ -132,38 +135,38 @@
     </section>
 
     <!-- Section 3: 급여 & 위치 -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">급여 & 위치</h2>
       </div>
       <div class="p-5 space-y-4">
         <!-- 급여 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-2">급여</label>
+          <label class="input-label mb-2">급여</label>
           <!-- 급여 단위 버튼 -->
           <div class="flex gap-2 mb-3">
             <button v-for="s in salaryTypes" :key="s.value" type="button"
               @click="form.salary_type = s.value"
-              class="px-4 py-2 rounded-lg text-xs font-semibold transition border-2"
+              class="px-4 py-2 rounded-xl text-xs font-semibold transition border-2"
               :class="form.salary_type === s.value
                 ? (isHiring ? 'border-amber-400 bg-amber-50 text-amber-800' : 'border-blue-400 bg-blue-50 text-blue-800')
-                : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+                : 'border-gray-200 bg-white text-ink-muted hover:border-gray-300'">
               {{ s.label }}
             </button>
           </div>
           <!-- 급여 범위 -->
           <div class="flex items-center gap-3">
             <div class="flex-1 relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted text-sm">$</span>
               <input v-model.number="form.salary_min" type="number" placeholder="최소"
-                class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2.5 text-sm transition outline-none"
+                class="input-soft pl-7 pr-3"
                 :class="focusRing" />
             </div>
-            <span class="text-gray-400 font-bold">~</span>
+            <span class="text-ink-muted font-bold">~</span>
             <div class="flex-1 relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted text-sm">$</span>
               <input v-model.number="form.salary_max" type="number" placeholder="최대"
-                class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2.5 text-sm transition outline-none"
+                class="input-soft pl-7 pr-3"
                 :class="focusRing" />
             </div>
           </div>
@@ -171,25 +174,25 @@
 
         <!-- 위치 -->
         <div>
-          <label class="text-sm font-semibold text-gray-700 block mb-2">근무 위치</label>
+          <label class="input-label mb-2">근무 위치</label>
           <div class="grid grid-cols-3 gap-3">
             <div>
-              <label class="text-xs text-gray-500 block mb-1">City</label>
+              <label class="text-xs text-ink-muted block mb-1">City</label>
               <input v-model="form.city" type="text" placeholder="예: Los Angeles"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm transition outline-none"
+                class="input-soft px-3"
                 :class="focusRing" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">State</label>
+              <label class="text-xs text-ink-muted block mb-1">State</label>
               <input v-model="form.state" type="text" placeholder="예: CA"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm transition outline-none"
+                class="input-soft px-3"
                 :class="focusRing" />
             </div>
             <div>
-              <label class="text-xs text-gray-500 block mb-1">Zip Code</label>
+              <label class="text-xs text-ink-muted block mb-1">Zip Code</label>
               <input v-model="form.zipcode" type="text" placeholder="예: 90001" maxlength="5"
                 @input="onJobZipChange"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm transition outline-none font-mono"
+                class="input-soft px-3 font-mono"
                 :class="focusRing" />
             </div>
           </div>
@@ -204,19 +207,19 @@
       category-label="카테고리" />
 
     <!-- Section 4: 복리후생 (Benefits) - only for hiring -->
-    <section v-if="isHiring" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section v-if="isHiring" class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100 bg-amber-50">
         <h2 class="text-sm font-bold text-amber-800">복리후생 (Benefits)</h2>
       </div>
       <div class="p-5 space-y-3">
-        <p class="text-xs text-gray-500">제공하는 복리후생을 모두 선택하세요.</p>
+        <p class="text-xs text-ink-muted">제공하는 복리후생을 모두 선택하세요.</p>
         <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
           <button v-for="b in benefitOptions" :key="b.value" type="button"
             @click="toggleBenefit(b.value)"
             class="py-2 px-2 rounded-lg text-xs font-semibold transition border-2 flex items-center justify-center gap-1"
             :class="selectedBenefits.includes(b.value)
               ? 'border-amber-400 bg-amber-50 text-amber-800'
-              : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+              : 'border-gray-200 bg-white text-ink-muted hover:border-gray-300'">
             <span v-if="selectedBenefits.includes(b.value)">&#10003;</span>
             {{ b.label }}
           </button>
@@ -225,96 +228,96 @@
     </section>
 
     <!-- Section 5: 상세 설명 (rich text) -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">상세 설명</h2>
       </div>
       <div class="p-5">
-        <label class="text-xs text-gray-500 block mb-2">
+        <label class="text-xs text-ink-muted block mb-2">
           {{ isHiring ? '근무 조건, 자격 요건, 우대사항 등을 자세히 작성해주세요' : '본인 소개, 경력, 희망 근무조건 등을 작성해주세요' }}
         </label>
 
         <!-- Toolbar -->
-        <div class="flex flex-wrap items-center gap-1 mb-2 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+        <div class="flex flex-wrap items-center gap-1 mb-2 p-2 bg-[#F4F6F8] rounded-xl">
           <button type="button" @click="execCmd('bold')" title="굵게"
-            class="w-8 h-8 rounded hover:bg-gray-200 font-bold text-gray-700">B</button>
+            class="w-8 h-8 rounded-lg hover:bg-gray-200 font-bold text-ink-light transition-colors">B</button>
           <button type="button" @click="execCmd('italic')" title="기울임"
-            class="w-8 h-8 rounded hover:bg-gray-200 italic text-gray-700">I</button>
+            class="w-8 h-8 rounded-lg hover:bg-gray-200 italic text-ink-light transition-colors">I</button>
           <button type="button" @click="execCmd('underline')" title="밑줄"
-            class="w-8 h-8 rounded hover:bg-gray-200 underline text-gray-700">U</button>
+            class="w-8 h-8 rounded-lg hover:bg-gray-200 underline text-ink-light transition-colors">U</button>
           <span class="w-px h-5 bg-gray-300 mx-1"></span>
           <button type="button" @click="execCmd('formatBlock', 'H2')" title="제목 H2"
-            class="px-2 h-8 rounded hover:bg-gray-200 text-xs font-bold text-gray-700">H2</button>
+            class="px-2 h-8 rounded-lg hover:bg-gray-200 text-xs font-bold text-ink-light transition-colors">H2</button>
           <button type="button" @click="execCmd('formatBlock', 'H3')" title="제목 H3"
-            class="px-2 h-8 rounded hover:bg-gray-200 text-xs font-bold text-gray-700">H3</button>
+            class="px-2 h-8 rounded-lg hover:bg-gray-200 text-xs font-bold text-ink-light transition-colors">H3</button>
           <button type="button" @click="execCmd('formatBlock', 'P')" title="단락"
-            class="px-2 h-8 rounded hover:bg-gray-200 text-xs text-gray-700">P</button>
+            class="px-2 h-8 rounded-lg hover:bg-gray-200 text-xs text-ink-light transition-colors">P</button>
           <span class="w-px h-5 bg-gray-300 mx-1"></span>
           <button type="button" @click="execCmd('insertUnorderedList')" title="글머리 기호"
-            class="w-8 h-8 rounded hover:bg-gray-200 text-gray-700">•</button>
+            class="w-8 h-8 rounded-lg hover:bg-gray-200 text-ink-light transition-colors">•</button>
           <button type="button" @click="execCmd('insertOrderedList')" title="번호 목록"
-            class="w-8 h-8 rounded hover:bg-gray-200 text-xs text-gray-700">1.</button>
+            class="w-8 h-8 rounded-lg hover:bg-gray-200 text-xs text-ink-light transition-colors">1.</button>
           <span class="w-px h-5 bg-gray-300 mx-1"></span>
           <button type="button" @click="contentImageInputRef?.click()" title="이미지 삽입"
-            class="w-8 h-8 rounded hover:bg-gray-200 text-gray-700">
-            <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            class="w-8 h-8 rounded-lg hover:bg-gray-200 text-ink-light transition-colors inline-flex items-center justify-center">
+            <AppIcon name="image" :size="16" />
           </button>
           <input ref="contentImageInputRef" type="file" accept="image/*" @change="onInsertImage" class="hidden" />
           <button type="button" @click="execCmd('removeFormat')" title="서식 지우기"
-            class="ml-auto px-2 h-8 rounded hover:bg-gray-200 text-xs text-gray-500">지우기</button>
+            class="ml-auto px-2 h-8 rounded-lg hover:bg-gray-200 text-xs text-ink-muted transition-colors">지우기</button>
         </div>
 
         <div ref="editorRef" contenteditable="true"
           @input="onEditorInput"
-          class="w-full min-h-[240px] border border-gray-300 rounded-lg px-4 py-3 text-sm transition outline-none leading-relaxed prose prose-sm max-w-none"
+          class="input-soft min-h-[240px] py-3 leading-relaxed prose prose-sm max-w-none"
           :class="focusRing"
           :data-placeholder="isHiring
             ? '근무시간, 자격요건, 우대사항, 지원방법 등을 작성해주세요'
             : '경력, 가능업무, 희망지역 등을 작성해주세요'"></div>
-        <p class="text-xs text-gray-400 mt-1 text-right">{{ contentTextLength }} 자</p>
+        <p class="text-xs text-ink-muted mt-1 text-right">{{ contentTextLength }} 자</p>
 
         <!-- 회사 소개 PDF -->
         <div class="mt-5 pt-5 border-t border-gray-100">
-          <label class="text-sm font-semibold text-gray-700 block mb-2">회사 소개 PDF (선택)</label>
+          <label class="input-label mb-2">회사 소개 PDF (선택)</label>
           <div class="flex items-center gap-3">
             <input ref="pdfInputRef" type="file" accept="application/pdf" @change="onPdfSelect" class="hidden" />
             <button type="button" @click="pdfInputRef?.click()"
-              class="px-4 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+              class="btn-soft text-xs">
               {{ pdfName ? 'PDF 변경' : 'PDF 선택' }}
             </button>
             <div v-if="pdfName" class="flex items-center gap-2 flex-1 min-w-0">
               <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
-              <span class="text-xs text-gray-700 truncate">{{ pdfName }}</span>
+              <span class="text-xs text-ink-light truncate">{{ pdfName }}</span>
               <button type="button" @click="clearPdf" class="text-xs text-red-600 hover:underline flex-shrink-0">제거</button>
             </div>
-            <span v-else class="text-xs text-gray-400">최대 10MB</span>
+            <span v-else class="text-xs text-ink-muted">최대 10MB</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Section 6: 연락처 -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">연락처</h2>
       </div>
       <div class="p-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="text-sm font-semibold text-gray-700 block mb-1">전화번호</label>
+            <label class="input-label">전화번호</label>
             <div class="relative">
-              <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted"><AppIcon name="phone" :size="16" /></span>
               <input v-model="form.contact_phone" type="text" placeholder="213-000-0000"
-                class="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm transition outline-none"
+                class="input-soft pl-9 pr-3"
                 :class="focusRing" />
             </div>
           </div>
           <div>
-            <label class="text-sm font-semibold text-gray-700 block mb-1">이메일</label>
+            <label class="input-label">이메일</label>
             <div class="relative">
-              <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted"><AppIcon name="mail" :size="16" /></span>
               <input v-model="form.contact_email" type="email" placeholder="email@example.com"
-                class="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm transition outline-none"
+                class="input-soft pl-9 pr-3"
                 :class="focusRing" />
             </div>
           </div>
@@ -323,14 +326,14 @@
     </section>
 
     <!-- Section 7: 만료일 -->
-    <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <section class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-100" :class="isHiring ? 'bg-amber-50' : 'bg-blue-50'">
         <h2 class="text-sm font-bold" :class="isHiring ? 'text-amber-800' : 'text-blue-800'">만료일 (선택)</h2>
       </div>
       <div class="p-5">
-        <label class="text-xs text-gray-500 block mb-2">설정하지 않으면 무기한 게시됩니다</label>
+        <label class="text-xs text-ink-muted block mb-2">설정하지 않으면 무기한 게시됩니다</label>
         <input v-model="form.expires_at" type="date"
-          class="w-full sm:w-auto border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition outline-none"
+          class="input-soft sm:w-auto"
           :class="focusRing" />
       </div>
     </section>
@@ -343,14 +346,14 @@
     <!-- Actions -->
     <div class="flex gap-3 pb-10">
       <button @click="submit" :disabled="submitting"
-        class="flex-1 sm:flex-none font-bold px-8 py-3 rounded-xl shadow-md transition disabled:opacity-50 text-sm"
+        class="flex-1 sm:flex-none font-bold px-8 py-3 rounded-xl transition disabled:opacity-50 text-sm"
         :class="isHiring
-          ? 'bg-amber-400 text-amber-900 hover:bg-amber-500 shadow-amber-200'
-          : 'bg-blue-500 text-white hover:bg-blue-600 shadow-blue-200'">
+          ? 'bg-amber-400 text-white hover:bg-amber-500 shadow-btn'
+          : 'bg-blue-500 text-white hover:bg-blue-600 shadow-md shadow-blue-200'">
         {{ submitting ? '저장 중...' : (isEdit ? '수정하기' : '등록하기') }}
       </button>
       <button @click="$router.back()"
-        class="px-6 py-3 rounded-xl text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 text-sm font-medium transition">
+        class="btn-secondary px-6 py-3">
         취소
       </button>
     </div>
@@ -363,6 +366,7 @@ import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import PromotionSection from '../../components/PromotionSection.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 // 공통 컴포넌트로 프로모션 관리 (jobPromotion 으로 v-model)
 const jobPromotion = reactive({ tier: 'none', days: 7 })

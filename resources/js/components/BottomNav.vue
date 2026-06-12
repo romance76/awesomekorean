@@ -1,15 +1,15 @@
 <template>
-  <div v-if="!hideOnChatRoom" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden"
+  <div v-if="!hideOnChatRoom" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-50 md:hidden"
        style="padding-bottom: var(--sab)">
     <!-- 스와이프 가능한 탭 영역 -->
     <div ref="scrollEl" class="flex items-center h-13 overflow-x-auto scrollbar-hide scroll-smooth"
          @touchstart="onTouchStart" @touchend="onTouchEnd">
       <RouterLink v-for="item in favMenus" :key="item.path" :to="item.path"
-        class="flex flex-col items-center justify-center gap-0.5 flex-shrink-0 transition-colors"
+        class="flex flex-col items-center justify-center gap-1 flex-shrink-0 transition-colors"
         :style="tabStyle"
-        :class="isActive(item.path) ? 'text-amber-600' : 'text-gray-400'">
-        <span class="text-lg leading-none">{{ item.icon }}</span>
-        <span class="text-[10px] font-medium leading-none">{{ item.label }}</span>
+        :class="isActive(item.path) ? 'text-amber-500' : 'text-ink-faint'">
+        <AppIcon :name="menuIcon(item.key)" :size="20" :stroke-width="isActive(item.path) ? 2.2 : 1.8" />
+        <span class="text-[10px] leading-none" :class="isActive(item.path) ? 'font-bold' : 'font-medium'">{{ item.label }}</span>
       </RouterLink>
     </div>
     <!-- 스와이프 인디케이터 (6개 이상일 때) -->
@@ -25,6 +25,8 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useNavFavoritesStore } from '../stores/navFavorites'
+import AppIcon from './AppIcon.vue'
+import { menuIcon } from '../utils/menuIcons'
 
 const route = useRoute()
 const navStore = useNavFavoritesStore()

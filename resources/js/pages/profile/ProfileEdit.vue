@@ -1,8 +1,11 @@
 <template>
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen">
   <div class="max-w-3xl mx-auto px-4 py-5">
-    <h1 class="text-xl font-black text-gray-800 mb-4">✏️ 프로필 수정</h1>
-    <div v-if="auth.user" class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="20" /></span>
+      프로필 수정
+    </h1>
+    <div v-if="auth.user" class="card p-5 space-y-4">
       <!-- 프로필 사진 -->
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full bg-amber-500 text-white flex items-center justify-center text-2xl font-black overflow-hidden">
@@ -10,59 +13,62 @@
           <span v-else>{{ (auth.user.name || '?')[0] }}</span>
         </div>
         <div>
-          <label class="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-amber-200 font-semibold">
-            📷 사진 변경
+          <label class="btn-soft text-xs px-3 py-1.5 cursor-pointer">
+            <AppIcon name="camera" :size="13" /> 사진 변경
             <input type="file" accept="image/*" @change="uploadAvatar" class="hidden" />
           </label>
-          <div v-if="avatarMsg" class="text-xs mt-1" :class="avatarMsg.includes('성공')?'text-green-600':'text-red-500'">{{ avatarMsg }}</div>
+          <div v-if="avatarMsg" class="text-xs mt-1" :class="avatarMsg.includes('성공')?'text-emerald-600':'text-red-500'">{{ avatarMsg }}</div>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <div><label class="text-sm font-semibold text-gray-700">이름</label><input v-model="form.name" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">닉네임</label><input v-model="form.nickname" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+        <div><label class="input-label">이름</label><input v-model="form.name" type="text" class="input-soft" /></div>
+        <div><label class="input-label">닉네임</label><input v-model="form.nickname" type="text" class="input-soft" /></div>
       </div>
-      <div><label class="text-sm font-semibold text-gray-700">소개</label><textarea v-model="form.bio" rows="3" placeholder="자기소개를 적어주세요" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none resize-none"></textarea></div>
-      <div><label class="text-sm font-semibold text-gray-700">전화번호</label><input v-model="form.phone" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+      <div><label class="input-label">소개</label><textarea v-model="form.bio" rows="3" placeholder="자기소개를 적어주세요" class="input-soft"></textarea></div>
+      <div><label class="input-label">전화번호</label><input v-model="form.phone" type="text" class="input-soft" /></div>
       <div class="grid grid-cols-3 gap-3">
-        <div><label class="text-sm font-semibold text-gray-700">도시</label><input v-model="form.city" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">주</label><input v-model="form.state" type="text" maxlength="2" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-        <div><label class="text-sm font-semibold text-gray-700">우편번호</label><input v-model="form.zipcode" type="text" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
+        <div><label class="input-label">도시</label><input v-model="form.city" type="text" class="input-soft" /></div>
+        <div><label class="input-label">주</label><input v-model="form.state" type="text" maxlength="2" class="input-soft" /></div>
+        <div><label class="input-label">우편번호</label><input v-model="form.zipcode" type="text" class="input-soft" /></div>
       </div>
       <div>
-        <label class="text-sm font-semibold text-gray-700">📍 기본 검색 반경</label>
-        <select v-model="form.default_radius" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+        <label class="input-label flex items-center gap-1"><AppIcon name="map-pin" :size="13" /> 기본 검색 반경</label>
+        <select v-model="form.default_radius" class="input-soft">
           <option :value="10">10마일 이내</option>
           <option :value="30">30마일 이내</option>
           <option :value="50">50마일 이내</option>
           <option :value="100">100마일 이내</option>
         </select>
-        <p class="text-xs text-gray-400 mt-1">구인구직, 중고장터, 부동산 등 위치 기반 게시판의 기본 검색 범위입니다</p>
+        <p class="text-xs text-ink-faint mt-1">구인구직, 중고장터, 부동산 등 위치 기반 게시판의 기본 검색 범위입니다</p>
       </div>
       <div>
-        <label class="text-sm font-semibold text-gray-700">친구 요청 허용</label>
+        <label class="input-label">친구 요청 허용</label>
         <div class="flex gap-4 mt-1">
-          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" v-model="form.allow_friend_request" :value="true" class="text-amber-500" /><span class="text-sm text-gray-600">수락</span></label>
-          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" v-model="form.allow_friend_request" :value="false" class="text-amber-500" /><span class="text-sm text-gray-600">거절</span></label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" v-model="form.allow_friend_request" :value="true" class="text-amber-500" /><span class="text-sm text-ink-light">수락</span></label>
+          <label class="flex items-center gap-1.5 cursor-pointer"><input type="radio" v-model="form.allow_friend_request" :value="false" class="text-amber-500" /><span class="text-sm text-ink-light">거절</span></label>
         </div>
       </div>
       <div>
-        <label class="text-sm font-semibold text-gray-700">언어</label>
-        <select v-model="form.language" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none">
+        <label class="input-label">언어</label>
+        <select v-model="form.language" class="input-soft">
           <option value="ko">한국어</option><option value="en">English</option>
         </select>
       </div>
-      <div v-if="msg" class="text-sm" :class="msgType==='success'?'text-green-600':'text-red-500'">{{ msg }}</div>
-      <button @click="save" :disabled="saving" class="bg-amber-400 text-amber-900 font-bold px-6 py-2.5 rounded-lg hover:bg-amber-500 disabled:opacity-50">{{ saving ? '저장 중...' : '저장하기' }}</button>
+      <div v-if="msg" class="text-sm" :class="msgType==='success'?'text-emerald-600':'text-red-500'">{{ msg }}</div>
+      <button @click="save" :disabled="saving" class="btn-primary px-6">{{ saving ? '저장 중...' : '저장하기' }}</button>
     </div>
 
     <!-- 비밀번호 변경 -->
-    <h2 class="text-lg font-bold text-gray-800 mt-6 mb-3">🔒 비밀번호 변경</h2>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 space-y-4">
-      <div><label class="text-sm font-semibold text-gray-700">현재 비밀번호</label><input v-model="pwForm.current_password" type="password" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-      <div><label class="text-sm font-semibold text-gray-700">새 비밀번호</label><input v-model="pwForm.password" type="password" minlength="6" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-      <div><label class="text-sm font-semibold text-gray-700">새 비밀번호 확인</label><input v-model="pwForm.password_confirmation" type="password" class="w-full border rounded-lg px-3 py-2 mt-1 text-sm focus:ring-2 focus:ring-amber-400 outline-none" /></div>
-      <div v-if="pwMsg" class="text-sm" :class="pwMsgType==='success'?'text-green-600':'text-red-500'">{{ pwMsg }}</div>
-      <button @click="changePw" :disabled="pwSaving" class="bg-gray-800 text-white font-bold px-6 py-2.5 rounded-lg hover:bg-gray-900 disabled:opacity-50">{{ pwSaving ? '변경 중...' : '비밀번호 변경' }}</button>
+    <h2 class="flex items-center gap-2.5 text-lg font-bold text-ink mt-6 mb-3">
+      <span class="icon-chip w-8 h-8 bg-blue-50 text-blue-600"><AppIcon name="lock" :size="17" /></span>
+      비밀번호 변경
+    </h2>
+    <div class="card p-5 space-y-4">
+      <div><label class="input-label">현재 비밀번호</label><input v-model="pwForm.current_password" type="password" class="input-soft" /></div>
+      <div><label class="input-label">새 비밀번호</label><input v-model="pwForm.password" type="password" minlength="6" class="input-soft" /></div>
+      <div><label class="input-label">새 비밀번호 확인</label><input v-model="pwForm.password_confirmation" type="password" class="input-soft" /></div>
+      <div v-if="pwMsg" class="text-sm" :class="pwMsgType==='success'?'text-emerald-600':'text-red-500'">{{ pwMsg }}</div>
+      <button @click="changePw" :disabled="pwSaving" class="btn-primary px-6">{{ pwSaving ? '변경 중...' : '비밀번호 변경' }}</button>
     </div>
   </div>
 </div>
@@ -71,6 +77,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
 const auth = useAuthStore()
 const form = reactive({ name:'',nickname:'',bio:'',phone:'',city:'',state:'',zipcode:'',default_radius:30,language:'ko',allow_friend_request:true })
 const msg = ref('')

@@ -2,8 +2,8 @@
 <div>
   <div class="flex justify-end mb-3">
     <button @click="fetchNews" :disabled="fetching"
-      class="bg-blue-500 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-blue-600 disabled:opacity-50">
-      {{ fetching ? '수집 중...' : '🔄 뉴스 수집 (RSS)' }}
+      class="inline-flex items-center gap-1.5 bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50">
+      <AppIcon name="refresh" :size="14" />{{ fetching ? '수집 중...' : '뉴스 수집 (RSS)' }}
     </button>
   </div>
 
@@ -27,6 +27,7 @@ import { ref } from 'vue'
 import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
+import AppIcon from '../../components/AppIcon.vue'
 
 const showUser = ref(false)
 const selectedUserId = ref(null)
