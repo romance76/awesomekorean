@@ -21,8 +21,8 @@
           <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-amber-500 transition-colors">
             <AppIcon name="search" :size="16" />
           </button>
-          <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
-            class="w-full bg-gray-100 rounded-full pl-10 pr-4 py-2 text-sm text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:ring-2 focus:ring-amber-400/50" />
+          <input v-model="searchQ" type="text" placeholder="궁금한 것을 검색해 보세요 — 영주권, 맛집, 중고차…"
+            class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 text-sm text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10" />
         </form>
       </div>
       <!-- 모바일: 로고 옆 빈 공간 채우기 -->
@@ -87,10 +87,10 @@
           </div>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors">로그인</RouterLink>
-          <RouterLink to="/register" class="text-[13px] bg-amber-400 text-white font-semibold px-3.5 py-1.5 rounded-full hover:bg-amber-500 transition-all shadow-btn hover:-translate-y-px">가입</RouterLink>
+          <RouterLink to="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-surface px-3 py-1.5 rounded-full transition-colors">로그인</RouterLink>
+          <RouterLink to="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn hover:-translate-y-px" style="background-image:linear-gradient(135deg,#FF7A30,#FF4D12)">시작하기</RouterLink>
         </template>
-        <button @click="togglePageLang()" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-gray-100 hover:bg-gray-200 transition-colors" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
+        <button @click="togglePageLang()" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-surface hover:bg-line transition-colors" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
           <span translate="no" class="notranslate">{{ isTranslatedEn ? '한' : 'EN' }}</span>
         </button>
       </div>
@@ -128,8 +128,8 @@
               <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
                 <AppIcon name="search" :size="16" />
               </button>
-              <input v-model="searchQ" type="text" placeholder="검색어를 입력하세요"
-                class="w-full bg-gray-100 rounded-full pl-10 pr-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:ring-2 focus:ring-amber-400/50 transition-all" />
+              <input v-model="searchQ" type="text" placeholder="궁금한 것을 검색해 보세요"
+                class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 transition-all" />
             </form>
           </div>
           <!-- 메뉴 목록 -->

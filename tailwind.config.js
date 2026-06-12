@@ -9,46 +9,49 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Warm Modern 리뉴얼 (2026-06): 기존 amber-* 클래스가 그대로
-                // 새 오렌지 스케일로 렌더링되도록 amber 팔레트를 오버라이드한다.
+                // Warm Modern v2 (2026-06, Kay 샘플 기반): 기존 amber-* 클래스가 그대로
+                // 새 브랜드 오렌지(#FF5A1F) 스케일로 렌더링되도록 amber 팔레트를 오버라이드한다.
                 amber: {
-                    50: '#FFF4EF',
-                    100: '#FFE6D9',
-                    200: '#FFC9AD',
-                    300: '#FFA478',
-                    400: '#FF6B2C',
-                    500: '#F2570F',
-                    600: '#D9480A',
-                    700: '#B23A08',
-                    800: '#8C2D07',
-                    900: '#6E2305',
+                    50: '#FFF1EA',
+                    100: '#FFE3D5',
+                    200: '#FFC5A8',
+                    300: '#FF9A6B',
+                    400: '#FF5A1F',
+                    500: '#F24A0E',
+                    600: '#D63E08',
+                    700: '#B23306',
+                    800: '#8C2805',
+                    900: '#6E2004',
                 },
                 primary: {
-                    DEFAULT: '#FF6B2C',
+                    DEFAULT: '#FF5A1F',
                     soft: '#FFF1EA',
-                    dark: '#F2570F',
+                    dark: '#F24A0E',
                 },
                 surface: {
-                    DEFAULT: '#F7F8FA',
+                    DEFAULT: '#F8F6F3',
                     card: '#FFFFFF',
                 },
+                // 웜 블랙 텍스트 스케일 (샘플 v1.0 기준)
                 ink: {
-                    DEFAULT: '#191F28',
-                    light: '#4E5968',
-                    muted: '#8B95A1',
-                    faint: '#B0B8C1',
+                    DEFAULT: '#1B1613',
+                    light: '#5C544D',
+                    muted: '#9B9189',
+                    faint: '#B8AFA7',
                 },
+                line: '#EDE8E2',
+                night: '#211B16',
             },
             fontFamily: {
                 sans: ['Pretendard Variable', 'Pretendard', 'Noto Sans KR', 'sans-serif'],
             },
             boxShadow: {
-                card: '0 1px 4px rgba(25, 31, 40, 0.06)',
-                lift: '0 8px 20px rgba(25, 31, 40, 0.10)',
-                btn: '0 2px 8px rgba(255, 107, 44, 0.25)',
+                card: '0 1px 2px rgba(27, 22, 19, 0.04), 0 8px 24px -12px rgba(27, 22, 19, 0.10)',
+                lift: '0 2px 4px rgba(27, 22, 19, 0.05), 0 16px 40px -16px rgba(255, 90, 31, 0.18)',
+                btn: '0 4px 14px -4px rgba(255, 90, 31, 0.45)',
             },
             borderRadius: {
-                card: '16px',
+                card: '18px',
             },
         },
     },
