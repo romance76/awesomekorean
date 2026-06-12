@@ -26,7 +26,10 @@
               <span class="badge-primary">{{ news.category?.name || '뉴스' }}</span>
               <span class="text-xs text-ink-muted">{{ news.source }}</span>
             </div>
-            <h1 class="text-lg font-bold text-ink leading-snug">{{ news.title }}</h1>
+            <div class="flex items-start justify-between gap-2">
+              <h1 class="text-lg font-bold text-ink leading-snug">{{ news.title }}</h1>
+              <BookmarkToggle v-if="auth.isLoggedIn" :active="isFavorited" @toggle="toggleFav" size="lg" class="flex-shrink-0 mt-1" />
+            </div>
             <div class="flex items-center gap-3 mt-2 text-xs text-ink-muted">
               <span>{{ formatDate(news.published_at) }}</span>
               <span class="flex items-center gap-1"><AppIcon name="eye" :size="13" />{{ news.view_count }}회</span>
@@ -62,20 +65,45 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
 
+const BM_TYPE = 'App\\Models\\News'
 const route = useRoute()
+const auth = useAuthStore()
 const news = ref(null)
 const prev = ref(null)
 const next = ref(null)
 const categories = ref([])
 const loading = ref(true)
+const isFavorited = ref(false)
 
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') : '' }
+
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !news.value) return
+  try {
+    const { data } = await axios.get('/api/bookmarks/check', {
+      params: { type: BM_TYPE, ids: news.value.id },
+    })
+    isFavorited.value = (data.data || []).includes(news.value.id)
+  } catch {}
+}
+async function toggleFav() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', {
+      bookmarkable_type: BM_TYPE,
+      bookmarkable_id: news.value.id,
+    })
+    isFavorited.value = data.bookmarked
+  } catch {}
+}
 
 onMounted(async () => {
   try {
@@ -89,6 +117,7 @@ onMounted(async () => {
       next.value = nRes.value.data?.next || null
     }
     if (cRes.status === 'fulfilled') categories.value = cRes.value.data?.data || []
+    await loadFavorited()
   } catch {}
   loading.value = false
 })

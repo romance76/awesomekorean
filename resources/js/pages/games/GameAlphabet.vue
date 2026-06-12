@@ -29,6 +29,9 @@
           <div class="mode-desc">그림을 보고 첫 글자를 찾아요!</div>
         </div>
       </div>
+      <div v-if="rec.maxCompletedLevel.value > 0" class="progress-info">
+        🎯 최고 클리어: Lv.{{ rec.maxCompletedLevel.value }}
+      </div>
     </div>
 
     <!-- Game Playing Screen -->
@@ -177,6 +180,7 @@ onMounted(async () => {
     const res = await axios.get('/api/user/stars')
     totalStars.value = res.data.stars || 0
   } catch (e) {}
+  await rec.loadProgress()
 })
 
 function goBack() {
@@ -424,6 +428,7 @@ function playSound(type) {
   border-color: #a29bfe;
   box-shadow: 0 15px 35px rgba(162,155,254,0.4);
 }
+.progress-info { display:inline-block; margin-top:18px; background:rgba(162,155,254,0.2); color:#5b4ad1; padding:10px 20px; border-radius:14px; font-size:14px; font-weight:700; }
 
 .mode-icon {
   font-size: 52px;

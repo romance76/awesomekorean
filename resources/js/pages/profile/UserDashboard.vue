@@ -15,7 +15,7 @@
     <!-- 탭 -->
     <div class="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1 overflow-x-auto scrollbar-hide">
       <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
-        class="flex-shrink-0 flex items-center gap-1.5 text-xs py-2 px-3 rounded-lg transition whitespace-nowrap"
+        class="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 rounded-lg transition whitespace-nowrap min-h-[40px]"
         :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
     </div>
 

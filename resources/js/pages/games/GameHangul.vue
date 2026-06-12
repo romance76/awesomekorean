@@ -432,7 +432,12 @@ function confettiStyle(i) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await rec.loadProgress()
+  if (rec.maxUnlockedLevel.value > level.value) {
+    level.value = rec.maxUnlockedLevel.value
+    localStorage.setItem('hangul_level', String(level.value))
+  }
   startGame()
 })
 

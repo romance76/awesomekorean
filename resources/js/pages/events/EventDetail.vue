@@ -35,7 +35,10 @@
               <span v-if="isPast" class="badge-gray">종료됨</span>
               <span v-else class="badge-green">진행 예정</span>
             </div>
-            <h1 class="text-xl lg:text-2xl font-bold text-ink">{{ event.title }}</h1>
+            <div class="flex items-center justify-between gap-2">
+              <h1 class="text-xl lg:text-2xl font-bold text-ink">{{ event.title }}</h1>
+              <BookmarkToggle v-if="auth.isLoggedIn" :active="isFavorited" @toggle="toggleFav" size="lg" class="flex-shrink-0" />
+            </div>
             <div v-if="event.organizer" class="text-sm text-amber-700 font-semibold mt-1">{{ event.organizer }}</div>
           </div>
 
@@ -152,13 +155,16 @@ import CommentSection from '../../components/CommentSection.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
 
+const BM_TYPE = 'App\\Models\\Event'
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const event = ref(null)
 const loading = ref(true)
+const isFavorited = ref(false)
 const myStatus = ref(null)
 const prev = ref(null)
 const next = ref(null)
@@ -209,6 +215,26 @@ async function deleteEvent() {
   } catch {}
 }
 
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !event.value) return
+  try {
+    const { data } = await axios.get('/api/bookmarks/check', {
+      params: { type: BM_TYPE, ids: event.value.id },
+    })
+    isFavorited.value = (data.data || []).includes(event.value.id)
+  } catch {}
+}
+async function toggleFav() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', {
+      bookmarkable_type: BM_TYPE,
+      bookmarkable_id: event.value.id,
+    })
+    isFavorited.value = data.bookmarked
+  } catch {}
+}
+
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/events/${route.params.id}`)
@@ -216,6 +242,7 @@ onMounted(async () => {
     prev.value = data.prev
     next.value = data.next
     myStatus.value = data.data.my_status || null
+    await loadFavorited()
   } catch (err) {
     if (err.response?.status === 404) router.replace('/404')
   }

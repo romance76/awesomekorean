@@ -24,7 +24,10 @@
             <span v-if="qa.bounty_points > 0" class="badge bg-amber-400 text-white font-bold"><AppIcon name="trophy" :size="11" />{{ qa.bounty_points }}P 현상금</span>
             <span v-if="qa.is_resolved" class="badge-green font-bold"><AppIcon name="check" :size="11" />해결됨</span>
           </div>
-          <h1 class="text-lg font-bold text-ink">{{ qa.title }}</h1>
+          <div class="flex items-start justify-between gap-2">
+            <h1 class="text-lg font-bold text-ink">{{ qa.title }}</h1>
+            <BookmarkToggle v-if="auth.isLoggedIn" :active="isFavorited" @toggle="toggleFav" size="lg" class="flex-shrink-0 mt-1" />
+          </div>
           <div class="text-xs text-ink-muted mt-2"><UserName :userId="qa.user?.id" :name="qa.user?.name" className="text-xs text-ink-muted inline" /> · {{ qa.view_count }}회 · 답변 {{ qa.answer_count }}개</div>
         </div>
         <div class="px-5 py-4 border-t border-gray-50 text-sm text-ink-light whitespace-pre-wrap">{{ qa.content }}</div>
@@ -77,7 +80,9 @@ import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
+const BM_TYPE = 'App\\Models\\QaPost'
 const route = useRoute()
 const auth = useAuthStore()
 const qa = ref(null)
@@ -87,6 +92,7 @@ const answers = ref([])
 const categories = ref([])
 const loading = ref(true)
 const newAnswer = ref('')
+const isFavorited = ref(false)
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') : '' }
 async function submitAnswer() {
   if (!newAnswer.value.trim()) return
@@ -97,6 +103,26 @@ async function submitAnswer() {
     qa.value.answer_count++
   } catch {}
 }
+async function loadFavorited() {
+  if (!auth.isLoggedIn || !qa.value) return
+  try {
+    const { data } = await axios.get('/api/bookmarks/check', {
+      params: { type: BM_TYPE, ids: qa.value.id },
+    })
+    isFavorited.value = (data.data || []).includes(qa.value.id)
+  } catch {}
+}
+async function toggleFav() {
+  if (!auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', {
+      bookmarkable_type: BM_TYPE,
+      bookmarkable_id: qa.value.id,
+    })
+    isFavorited.value = data.bookmarked
+  } catch {}
+}
+
 onMounted(async () => {
   try {
     const [qRes, cRes] = await Promise.allSettled([
@@ -110,6 +136,7 @@ onMounted(async () => {
       next.value = qRes.value.data?.next || null
     }
     if (cRes.status === 'fulfilled') categories.value = cRes.value.data?.data || []
+    await loadFavorited()
   } catch {}
   loading.value = false
 })
