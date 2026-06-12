@@ -151,7 +151,7 @@
         <li v-for="j in jobs.slice(0, 5)" :key="j.id">
           <RouterLink :to="`/jobs/${j.id}`" class="flex items-center gap-2.5 px-3 py-[9px] rounded-xl transition-colors hover:bg-surface">
             <span class="w-[42px] h-[42px] rounded-[10px] bg-surface border border-line grid place-items-center shrink-0 text-ink-muted overflow-hidden">
-              <img v-if="j.logo_url || j.logo" :src="j.logo_url || j.logo" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+              <img v-if="j.logo_url || j.logo" :src="imgUrl(j.logo_url || j.logo)" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
               <AppIcon v-else name="briefcase" :size="18" :stroke-width="1.8" />
             </span>
             <span class="flex-1 text-[14.5px] font-medium text-ink truncate">{{ j.title }}</span>
@@ -172,7 +172,7 @@
         <li v-for="m in market.slice(0, 5)" :key="m.id">
           <RouterLink :to="`/market/${m.id}`" class="flex items-center gap-2.5 px-3 py-[9px] rounded-xl transition-colors hover:bg-surface">
             <span class="w-[42px] h-[42px] rounded-[10px] bg-surface border border-line grid place-items-center shrink-0 text-ink-muted overflow-hidden">
-              <img v-if="m.images?.[0] || m.image" :src="m.images?.[0] || m.image" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+              <img v-if="m.images?.[0] || m.image" :src="imgUrl(m.images?.[0] || m.image)" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
               <AppIcon v-else name="image" :size="18" :stroke-width="1.8" />
             </span>
             <span class="flex-1 text-[14.5px] font-medium text-ink truncate">{{ m.title }}</span>
@@ -352,6 +352,13 @@ const eventsMock = [
 
 const liveUsers = computed(() => 230 + (posts.value.length * 5))
 
+// 업로드 이미지 경로 정규화 (DB에 상대 경로로 저장된 경우 /storage/ prefix)
+function imgUrl(path) {
+  if (!path) return ''
+  const s = String(path)
+  return s.startsWith('http') || s.startsWith('/') ? s : '/storage/' + s
+}
+
 // 라이브 티커: 실제 최신 데이터로 구성 (없으면 기본 문구)
 const tickerItems = computed(() => {
   const items = []
@@ -369,7 +376,7 @@ const tickerLoop = computed(() => [...tickerItems.value, ...tickerItems.value])
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
 const realestateCards = computed(() => realestate.value.slice(0, 4).map(r => ({
   id: r.id, to: `/realestate/${r.id}`,
-  image: r.images?.[0] || r.image || null,
+  image: imgUrl(r.images?.[0] || r.image) || null,
   title: r.title,
   price: r.price,
   type: r.type || 'sale',
