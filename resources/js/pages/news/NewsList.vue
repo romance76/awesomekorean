@@ -49,9 +49,9 @@
         <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="20" /></span>
         뉴스
       </h1>
-      <form @submit.prevent="loadNews()" class="flex gap-1.5">
-        <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="input-soft !w-40" />
-        <button type="submit" class="btn-primary !px-4">검색</button>
+      <form @submit.prevent="loadNews()" class="flex gap-1">
+        <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
+        <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
       </form>
     </div>
 
