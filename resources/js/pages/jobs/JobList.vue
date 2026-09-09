@@ -1,28 +1,28 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 | 우 컨트롤 — grid 3컬럼) -->
-    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap justify-self-start">
+    <!-- 헤더: 데스크탑 (다른 서브페이지와 동일한 flex-wrap 구조로 통일 — 검색창 폭 고정) -->
+    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="20" /></span>
         구인구직
       </h1>
 
-      <!-- 구인/구직 세그먼트 (정 중앙) -->
-      <div class="flex bg-gray-100 rounded-xl p-1">
-        <button @click="postType = 'hiring'; loadPage()"
-          :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
-            postType === 'hiring' ? 'bg-white text-amber-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
-          <AppIcon name="briefcase" :size="13" />구인
-        </button>
-        <button @click="postType = 'seeking'; loadPage()"
-          :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
-            postType === 'seeking' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
-          <AppIcon name="user" :size="13" />구직
-        </button>
-      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- 구인/구직 세그먼트 -->
+        <div class="flex bg-gray-100 rounded-xl p-1">
+          <button @click="postType = 'hiring'; loadPage()"
+            :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+              postType === 'hiring' ? 'bg-white text-amber-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+            <AppIcon name="briefcase" :size="13" />구인
+          </button>
+          <button @click="postType = 'seeking'; loadPage()"
+            :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+              postType === 'seeking' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
+            <AppIcon name="user" :size="13" />구직
+          </button>
+        </div>
 
-      <div class="flex items-center gap-2 flex-nowrap justify-self-end">
         <select v-model="selectedCityIdx" @change="onCityChange"
           class="input-soft w-auto px-2.5 py-1.5 pr-8 text-xs font-semibold">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
