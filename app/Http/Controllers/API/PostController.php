@@ -97,8 +97,14 @@ class PostController extends Controller
         ]);
 
         // 글 작성 포인트 (P2B-2: DB 동적, Issue #12: 대상 post 연결)
-        $amount = \App\Support\PointRules::get('post_write', 5);
-        if ($amount > 0) {
+        // 작성 자체는 무제한이지만, 게시글+댓글 합산 하루 N회까지만 포인트 지급
+        $amount = \App\Support\PointRules::get('post_write', 3);
+        $dailyCap = \App\Support\PointRules::get('content_earn_daily_max', 3);
+        $todayEarnedActions = \App\Models\PointLog::where('user_id', auth()->id())
+            ->whereDate('created_at', today())
+            ->whereIn('related_type', [\App\Models\Post::class, \App\Models\Comment::class])
+            ->count();
+        if ($amount > 0 && $todayEarnedActions < $dailyCap) {
             auth()->user()->addPoints($amount, '게시글 작성', 'earn', ['type' => \App\Models\Post::class, 'id' => $post->id]);
         }
 

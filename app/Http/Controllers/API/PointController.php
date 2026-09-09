@@ -18,14 +18,42 @@ class PointController extends Controller
         return response()->json(['success' => true, 'data' => ['points' => $u->points, 'game_points' => $u->game_points], 'daily_spin_done' => $spunToday]);
     }
 
+    // 일일 룰렛 기본 가중치 테이블 (DB `daily_spin_table` 미설정 시 폴백, 합계 100)
+    private const DEFAULT_SPIN_TABLE = [
+        ['value' => 0, 'weight' => 60],
+        ['value' => 1, 'weight' => 20],
+        ['value' => 2, 'weight' => 10],
+        ['value' => 5, 'weight' => 6],
+        ['value' => 10, 'weight' => 3],
+        ['value' => 30, 'weight' => 1],
+    ];
+
+    /** 누적 가중치(cumulative weight) 방식으로 가중 랜덤 값을 뽑는다 */
+    private function weightedSpinPick(array $table): int
+    {
+        $totalWeight = array_sum(array_map(fn($row) => (float) ($row['weight'] ?? 0), $table));
+        if ($totalWeight <= 0) return 0;
+
+        $rand = mt_rand() / mt_getrandmax() * $totalWeight;
+        $cumulative = 0;
+        foreach ($table as $row) {
+            $cumulative += (float) ($row['weight'] ?? 0);
+            if ($rand <= $cumulative) {
+                return (int) ($row['value'] ?? 0);
+            }
+        }
+        // 부동소수 오차 대비 폴백: 마지막 항목
+        return (int) (end($table)['value'] ?? 0);
+    }
+
     public function dailySpin() {
         $today = now()->toDateString();
         $userId = auth()->id();
-        // P2B-2: 룰렛 보상 배열 DB 동적 (`daily_spin_rewards` CSV 또는 JSON)
-        $rewardsRaw = \App\Support\PointRules::raw('daily_spin_rewards', '0,0,10,10,20,30,50,100,200,300');
-        $rewards = array_map('intval', array_filter(explode(',', $rewardsRaw), fn($v) => is_numeric(trim($v))));
-        if (empty($rewards)) $rewards = [0,0,10,10,20,30,50,100,200,300];
-        $won = $rewards[array_rand($rewards)];
+        // P2B-2: 룰렛 보상 가중치 테이블 DB 동적 (`daily_spin_table` JSON: [{"value":..,"weight":..}, ...])
+        $tableRaw = \App\Support\PointRules::raw('daily_spin_table', json_encode(self::DEFAULT_SPIN_TABLE));
+        $table = json_decode($tableRaw, true);
+        if (!is_array($table) || empty($table)) $table = self::DEFAULT_SPIN_TABLE;
+        $won = $this->weightedSpinPick($table);
 
         // Issue #14: DB UNIQUE(user_id, spun_date) + 트랜잭션으로 race 완전 방어
         try {
