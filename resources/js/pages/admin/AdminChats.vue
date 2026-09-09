@@ -43,7 +43,7 @@
               <div class="font-semibold text-ink text-sm truncate">{{ r.name || '(이름 없음)' }}</div>
               <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-2">
                 <span class="badge-gray">{{ r.type }}</span>
-                <span v-if="r.locked_at" class="badge-gray">🔒 잠김</span>
+                <span v-if="r.is_locked" class="badge-gray">🔒 잠김</span>
                 <span class="inline-flex items-center gap-0.5"><AppIcon name="users" :size="11" /> {{ r.users_count || 0 }}</span>
               </div>
               <div v-if="r.messages?.[0]" class="text-[11px] text-ink-muted mt-1 truncate">
