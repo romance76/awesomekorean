@@ -168,28 +168,36 @@
           </div>
         </div>
         <div class="text-3xl font-black text-amber-600 mb-4">{{ (auth.user?.points || ptBalance).toLocaleString() }}P</div>
-        <!-- 포인트 구매 -->
+        <!-- 포인트 구매 (커스텀 금액: $10 이상, $5 단위) -->
         <div class="border-t border-gray-100 pt-4 mt-4 mb-4">
           <div class="flex items-center justify-between mb-3">
             <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm"><AppIcon name="shopping-cart" :size="14" class="text-amber-600" />포인트 구매</h3>
-            <span v-if="packagePromotion" class="badge-red">
-              🎉 {{ packagePromotion.title }} -{{ packagePromotion.discount_pct }}%
-            </span>
+            <span v-if="purchaseDiscountPct > 0" class="badge-red">🎉 결제금액 -{{ purchaseDiscountPct }}%</span>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            <button v-for="pkg in packages" :key="pkg.key" @click="buyPackage(pkg)"
-              class="border-2 rounded-xl p-3 text-center hover:border-amber-400 hover:bg-amber-50 transition relative"
-              :class="selectedPkg===pkg.key ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
-              <span v-if="pkg.discount_pct > 0" class="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full shadow">-{{ pkg.discount_pct }}%</span>
-              <div class="text-lg font-black text-amber-600">{{ (pkg.points + pkg.bonus).toLocaleString() }}P</div>
-              <div v-if="pkg.bonus" class="text-xs text-emerald-600 font-bold">+{{ pkg.bonus.toLocaleString() }}P 보너스</div>
-              <div class="mt-1">
-                <span v-if="pkg.discount_pct > 0" class="text-xs text-ink-faint line-through block leading-none">${{ pkg.original_price }}</span>
-                <span class="text-sm font-bold text-ink">${{ pkg.price }}</span>
-              </div>
-              <div class="text-[11px] text-ink-faint mt-0.5">{{ pkg.name }}</div>
+          <div class="grid grid-cols-4 gap-2 mb-3">
+            <button v-for="amt in quickAmounts" :key="amt" @click="selectAmount(amt)"
+              class="border-2 rounded-xl py-2 text-center font-bold text-sm transition"
+              :class="purchaseAmount===amt ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-gray-200 text-ink hover:border-amber-300'">
+              ${{ amt }}
             </button>
           </div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-ink-faint text-sm">$</span>
+            <input v-model.number="customAmountInput" type="number" min="10" step="5" placeholder="직접 입력 (10 이상, 5 단위)"
+              class="input-soft flex-1" @input="onCustomAmountInput" />
+          </div>
+          <div v-if="purchaseAmountError" class="text-xs text-red-500 mb-3">{{ purchaseAmountError }}</div>
+          <div class="bg-amber-50 rounded-xl p-3 mb-3 flex items-center justify-between">
+            <div class="text-xs text-ink-muted">
+              총 지급 포인트
+              <span v-if="purchaseBonusPct > 0" class="text-emerald-600 font-bold">(+{{ purchaseBonusPct }}% 보너스)</span>
+            </div>
+            <div class="text-lg font-black text-amber-600">{{ previewPoints.toLocaleString() }}P</div>
+          </div>
+          <button @click="buyCustomAmount" :disabled="!!purchaseAmountError || !purchaseAmount"
+            class="btn-primary w-full disabled:opacity-50">
+            ${{ purchaseAmount || 0 }} 결제하고 {{ previewPoints.toLocaleString() }}P 받기
+          </button>
         </div>
         <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-amber-600" />적립/사용 내역</h3>
         <div v-if="!ptHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
@@ -920,8 +928,8 @@
         </div>
         <div class="p-5">
           <div class="text-center mb-4">
-            <div class="text-2xl font-black text-amber-600">{{ payPkg?.label }}</div>
-            <div class="text-lg font-bold text-ink">{{ ((payPkg?.points||0)+(payPkg?.bonus||0)).toLocaleString() }}P — ${{ payPkg?.price }}</div>
+            <div class="text-2xl font-black text-amber-600">{{ payPointsPreview.toLocaleString() }}P</div>
+            <div class="text-lg font-bold text-ink">${{ payChargeAmount }}{{ payChargeAmount !== payListedAmount ? ` (정가 $${payListedAmount})` : '' }}</div>
           </div>
           <div id="card-element" class="border-2 border-gray-200 rounded-lg p-3 mb-3 min-h-[40px]"></div>
           <div v-if="payError" class="text-sm text-red-500 mb-2">{{ payError }}</div>
@@ -1142,52 +1150,76 @@ async function changePw() {
 // ─── 포인트 ───
 const ptBalance = ref(0); const ptHistory = ref([]); const spun = ref(false); const spinResult = ref(null)
 const spinning = ref(false); const showRoulette = ref(false); const rouletteAngle = ref(0)
+// Task 1: 가중치 테이블(0/1/2/5/10/30P)과 동일한 값으로 구성 — 당첨값이 항상 실제 칸에 표시되도록
 const rouletteSegments = [
+  { points: 0, color: 'text-gray-400', bg: '#f3f4f6' },
   { points: 1, color: 'text-gray-600', bg: '#fef3c7' },
-  { points: 5, color: 'text-amber-700', bg: '#fde68a' },
-  { points: 3, color: 'text-gray-600', bg: '#fef9c3' },
-  { points: 10, color: 'text-red-600', bg: '#fed7aa' },
-  { points: 2, color: 'text-gray-600', bg: '#fef3c7' },
-  { points: 7, color: 'text-amber-700', bg: '#fde68a' },
-  { points: 1, color: 'text-gray-600', bg: '#fef9c3' },
-  { points: 50, color: 'text-red-600', bg: '#fca5a5' },
+  { points: 2, color: 'text-gray-600', bg: '#fde68a' },
+  { points: 0, color: 'text-gray-400', bg: '#f3f4f6' },
+  { points: 5, color: 'text-amber-700', bg: '#fed7aa' },
+  { points: 1, color: 'text-gray-600', bg: '#fef3c7' },
+  { points: 10, color: 'text-red-600', bg: '#fca5a5' },
+  { points: 30, color: 'text-red-600 font-black', bg: '#f87171' },
 ]
-const packages = ref([]); const selectedPkg = ref('')
-const packagePromotion = ref(null)
-const payModal = ref(false); const payPkg = ref(null); const payError = ref(''); const paying = ref(false)
+// 포인트 구매 (커스텀 금액: $10 이상, $5 단위)
+const quickAmounts = [10, 15, 20, 25, 50, 100, 200]
+const purchaseAmount = ref(10); const customAmountInput = ref(10); const purchaseAmountError = ref('')
+const bonusBrackets = ref([]); const purchaseDiscountPct = ref(0)
+const DEFAULT_BONUS_BRACKETS = [
+  { min: 10, max: 14, bonus_pct: 0 }, { min: 15, max: 19, bonus_pct: 3 }, { min: 20, max: 24, bonus_pct: 5 },
+  { min: 25, max: 49, bonus_pct: 8 }, { min: 50, max: 99, bonus_pct: 15 }, { min: 100, max: 199, bonus_pct: 30 },
+  { min: 200, max: 999999, bonus_pct: 40 },
+]
+function bonusPctFor(amount) {
+  if (!amount || amount < 10) return 0
+  const table = bonusBrackets.value.length ? bonusBrackets.value : DEFAULT_BONUS_BRACKETS
+  const b = table.find(b => amount >= b.min && amount <= b.max)
+  return b ? b.bonus_pct : 0
+}
+const purchaseBonusPct = computed(() => bonusPctFor(purchaseAmount.value))
+const previewPoints = computed(() => Math.round((purchaseAmount.value || 0) * 100 * (1 + purchaseBonusPct.value / 100)))
+function selectAmount(amt) {
+  purchaseAmount.value = amt; customAmountInput.value = amt; purchaseAmountError.value = ''
+}
+function onCustomAmountInput() {
+  const v = customAmountInput.value
+  if (v === null || v === '' || isNaN(v)) { purchaseAmount.value = 0; purchaseAmountError.value = ''; return }
+  const n = Number(v)
+  if (n < 10) { purchaseAmountError.value = '최소 $10 이상 입력해주세요'; purchaseAmount.value = 0; return }
+  if (n % 5 !== 0) { purchaseAmountError.value = '$5 단위로 입력해주세요 (예: $10, $15, $20...)'; purchaseAmount.value = 0; return }
+  purchaseAmountError.value = ''; purchaseAmount.value = n
+}
+
+const payModal = ref(false); const payError = ref(''); const paying = ref(false)
+const payListedAmount = ref(0); const payChargeAmount = ref(0); const payPointsPreview = ref(0)
 let stripe = null; let cardElement = null; let clientSecret = null
 async function loadPoints() {
   try { const { data } = await axios.get('/api/points/balance'); ptBalance.value = data.data?.points || data.points || auth.user?.points || 0; spun.value = data.daily_spin_done || false } catch { ptBalance.value = auth.user?.points || 0 }
   try { const { data } = await axios.get('/api/points/history'); ptHistory.value = data.data?.data || data.data || [] } catch {}
-  // 패키지 로드 (할인 이벤트 반영된 가격)
+  // 구매 보너스 구간 테이블 로드 (실시간 미리보기 + 현재 할인 이벤트 반영)
   try {
-    const { data } = await axios.get('/api/payments/packages')
-    packages.value = (data.data || []).map(pkg => ({
-      ...pkg,
-      label: { pkg_starter:'스타터', pkg_basic:'베이직', pkg_standard:'스탠다드', pkg_pro:'프로', pkg_business:'비즈니스' }[pkg.key] || pkg.name,
-    }))
-  } catch {}
-  // 현재 활성 할인 이벤트 (표시용)
-  try {
-    const { data } = await axios.get('/api/pricing-promotions/active')
-    packagePromotion.value = data.data?.package || null
+    const { data } = await axios.get('/api/payments/bonus-brackets')
+    bonusBrackets.value = data.data?.brackets || []
+    purchaseDiscountPct.value = data.data?.discount_pct || 0
   } catch {}
 }
-async function buyPackage(pkg) {
-  const ok = await showConfirm(`${pkg.label} (${(pkg.points+pkg.bonus).toLocaleString()}P) — $${pkg.price}\n구매하시겠습니까?`, '포인트 구매')
+async function buyCustomAmount() {
+  if (purchaseAmountError.value || !purchaseAmount.value) return
+  const ok = await showConfirm(`$${purchaseAmount.value} 결제 시 ${previewPoints.value.toLocaleString()}P가 지급됩니다.\n구매하시겠습니까?`, '포인트 구매')
   if (!ok) return
-  payPkg.value = pkg; payError.value = ''
+  payListedAmount.value = purchaseAmount.value; payError.value = ''
   try {
-    const { data } = await axios.post('/api/payments/create-intent', { package_key: pkg.key })
+    const { data } = await axios.post('/api/payments/create-intent', { amount: purchaseAmount.value })
     clientSecret = data.data?.client_secret
     if (!clientSecret) { await showAlert('결제 생성 실패', '오류'); return }
+    payPointsPreview.value = data.data?.points_purchased || previewPoints.value
+    payChargeAmount.value = data.data?.charge_amount ?? purchaseAmount.value
     // Stripe.js 로드
     if (!stripe) {
       if (!window.Stripe) {
         const s = document.createElement('script'); s.src = 'https://js.stripe.com/v3/'; document.head.appendChild(s)
         await new Promise(r => s.onload = r)
       }
-      const { data: sd } = await axios.get('/api/settings/points')
       const stripeKey = document.querySelector('meta[name="stripe-key"]')?.content
       if (!stripeKey) { await showAlert('Stripe 설정이 없습니다. 관리자에게 문의하세요.', '오류'); return }
       stripe = window.Stripe(stripeKey)

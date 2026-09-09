@@ -57,9 +57,19 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middle
 // ─── Public Read ───
 // 포인트 규칙 (Issue #10): 관리자 설정값을 공개 페이지에 노출
 Route::get('/point-rules', function () {
-    $publicCategories = ['earn', 'spend', 'game', 'market', 'image', 'auction'];
+    $publicCategories = ['earn', 'spend', 'game', 'market', 'image', 'auction', 'promotion'];
+    // 아래 키들은 일반 "적립/사용 X P" 행 형식으로 표시하면 오해를 주므로 공개 목록에서 제외.
+    // (daily_spin_table/content_earn_daily_max 는 PointRules.vue 상단에 안내 문구로 별도 설명,
+    //  post_write_daily_max/comment_write_daily_max 는 더 이상 실제 정책이 아님,
+    //  promo_max_slots_* 는 P 가격이 아니라 슬롯 개수라 P 단위 포맷과 맞지 않음)
+    $hiddenKeys = [
+        'daily_spin_table', 'content_earn_daily_max',
+        'post_write_daily_max', 'comment_write_daily_max',
+        'promo_max_slots_national', 'promo_max_slots_state_plus',
+    ];
     $rows = \DB::table('point_settings')
         ->whereIn('category', $publicCategories)
+        ->whereNotIn('key', $hiddenKeys)
         ->orderBy('category')->orderBy('id')
         ->get(['key','value','label','description','category']);
     return response()->json(['success' => true, 'data' => $rows->groupBy('category')]);
@@ -370,6 +380,7 @@ Route::middleware('auth:api')->group(function () {
 
     // Payments (Stripe)
     Route::get('/payments/packages', [PaymentController::class, 'packages']);
+    Route::get('/payments/bonus-brackets', [PaymentController::class, 'bonusBrackets']);
     Route::post('/payments/create-intent', [PaymentController::class, 'createIntent']);
     Route::post('/payments/confirm', [PaymentController::class, 'confirm']);
     Route::get('/payments/history', [PaymentController::class, 'history']);

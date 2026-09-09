@@ -143,31 +143,6 @@
           </div>
 
           <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">포인트 설정</h3>
-            <div class="space-y-4">
-              <ToggleRow v-model="site.enable_points" label="포인트 시스템 활성화" desc="포인트 적립/사용 기능을 활성화합니다" />
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-                <div>
-                  <label class="input-label !text-xs">출석체크 포인트</label>
-                  <input v-model.number="site.point_attendance" type="number" min="0" class="input-field" />
-                </div>
-                <div>
-                  <label class="input-label !text-xs">가입 포인트</label>
-                  <input v-model.number="site.point_signup" type="number" min="0" class="input-field" />
-                </div>
-                <div>
-                  <label class="input-label !text-xs">게시글 포인트</label>
-                  <input v-model.number="site.point_post" type="number" min="0" class="input-field" />
-                </div>
-                <div>
-                  <label class="input-label !text-xs">댓글 포인트</label>
-                  <input v-model.number="site.point_comment" type="number" min="0" class="input-field" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="border-t border-gray-100 pt-6 mb-6">
             <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">파일 업로드 설정</h3>
             <div class="flex flex-col gap-4">
               <div class="flex items-center gap-4">
@@ -1127,11 +1102,6 @@ const site = reactive({
   auto_approve: false,
   allow_withdrawal: true,
   min_password_length: 8,
-  enable_points: true,
-  point_attendance: 10,
-  point_signup: 100,
-  point_post: 5,
-  point_comment: 2,
   max_upload_mb: 10,
   allowed_file_types: 'jpg,png,gif,pdf,doc',
   maintenance_mode: false,

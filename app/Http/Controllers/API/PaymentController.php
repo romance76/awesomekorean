@@ -8,7 +8,57 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    // 포인트 패키지 목록 (point_settings에서 로드, 현재 유효한 할인 이벤트 반영)
+    // Task 5 — 커스텀 금액 구매: 최소 $10, $5 단위. DB `purchase_bonus_brackets` 미설정 시 폴백.
+    private const DEFAULT_BONUS_BRACKETS = [
+        ['min' => 10,  'max' => 14,     'bonus_pct' => 0],
+        ['min' => 15,  'max' => 19,     'bonus_pct' => 3],
+        ['min' => 20,  'max' => 24,     'bonus_pct' => 5],
+        ['min' => 25,  'max' => 49,     'bonus_pct' => 8],
+        ['min' => 50,  'max' => 99,     'bonus_pct' => 15],
+        ['min' => 100, 'max' => 199,    'bonus_pct' => 30],
+        ['min' => 200, 'max' => 999999, 'bonus_pct' => 40],
+    ];
+
+    private function bonusBracketTable(): array
+    {
+        $raw = \App\Support\PointRules::raw('purchase_bonus_brackets', json_encode(self::DEFAULT_BONUS_BRACKETS));
+        $brackets = json_decode($raw, true);
+        return is_array($brackets) && !empty($brackets) ? $brackets : self::DEFAULT_BONUS_BRACKETS;
+    }
+
+    private function bonusPctForAmount(float $amount): int
+    {
+        foreach ($this->bonusBracketTable() as $b) {
+            if ($amount >= ($b['min'] ?? 0) && $amount <= ($b['max'] ?? 0)) {
+                return (int) ($b['bonus_pct'] ?? 0);
+            }
+        }
+        return 0;
+    }
+
+    /** 금액 → 지급 포인트 (amount * 100 * (1 + bonus%/100), 반올림) */
+    private function pointsForAmount(float $amount): int
+    {
+        $bonusPct = $this->bonusPctForAmount($amount);
+        return (int) round($amount * 100 * (1 + $bonusPct / 100));
+    }
+
+    /** 커스텀 금액 구매용 보너스 구간 테이블 (프론트 실시간 미리보기용) */
+    public function bonusBrackets()
+    {
+        $discount = \App\Models\PricingPromotion::currentDiscount('package'); // 0~95, 결제 금액에만 적용
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'brackets' => $this->bonusBracketTable(),
+                'min_amount' => 10,
+                'increment' => 5,
+                'discount_pct' => $discount,
+            ],
+        ]);
+    }
+
+    // 포인트 패키지 목록 (레거시, 더 이상 프론트에서 사용하지 않음 — point_settings pkg_* 행이 남아있는 동안만 동작)
     public function packages()
     {
         $discount = \App\Models\PricingPromotion::currentDiscount('package'); // 0~95
@@ -33,26 +83,26 @@ class PaymentController extends Controller
         return response()->json(['success' => true, 'data' => $pkgs]);
     }
 
-    // Stripe PaymentIntent 생성
+    // Stripe PaymentIntent 생성 — Task 5: 고정 패키지 대신 커스텀 금액 ($10 이상, $5 단위)
     public function createIntent(Request $request)
     {
-        $request->validate(['package_key' => 'required|string']);
+        $request->validate(['amount' => 'required|numeric|min:10']);
 
-        // point_settings에서 패키지 정보 로드
-        $setting = \DB::table('point_settings')->where('key', $request->package_key)->first();
-        if (!$setting) return response()->json(['success' => false, 'message' => '잘못된 패키지'], 400);
+        $amount = round((float) $request->amount, 2);
+        $amountCents = (int) round($amount * 100);
+        // $10 이상 & $5 단위 검증 (센트 단위로 비교해 부동소수 오차 방지)
+        if ($amountCents < 1000 || $amountCents % 500 !== 0) {
+            return response()->json(['success' => false, 'message' => '금액은 $10 이상, $5 단위로 입력해주세요 (예: $10, $15, $20...)'], 422);
+        }
 
-        $parts = explode('|', $setting->value); // 가격|포인트|보너스
-        $original = (float) ($parts[0] ?? 0);
-        $points = (int) ($parts[1] ?? 0);
-        $bonus = (int) ($parts[2] ?? 0);
-        $totalPoints = $points + $bonus;
+        // 지급 포인트는 "정가" 금액 기준으로 계산 (할인이 지급 포인트를 부풀리지 않도록)
+        $totalPoints = $this->pointsForAmount($amount);
+        $bonusPct = $this->bonusPctForAmount($amount);
 
-        // 현재 유효한 할인 이벤트 반영
+        // 현재 유효한 할인 이벤트는 실제 결제(청구) 금액에만 적용
         $discount = \App\Models\PricingPromotion::currentDiscount('package');
-        $price = $discount > 0 ? round($original * (100 - $discount) / 100, 2) : $original;
-
-        $pkg = ['points' => $totalPoints, 'price' => (int) round($price * 100)]; // cents
+        $chargeAmount = $discount > 0 ? round($amount * (100 - $discount) / 100, 2) : $amount;
+        $chargeCents = (int) round($chargeAmount * 100);
 
         $stripeSecret = config('services.stripe.secret');
         if (!$stripeSecret) {
@@ -63,12 +113,13 @@ class PaymentController extends Controller
             \Stripe\Stripe::setApiKey($stripeSecret);
 
             $intent = \Stripe\PaymentIntent::create([
-                'amount' => $pkg['price'],
+                'amount' => $chargeCents,
                 'currency' => 'usd',
                 'metadata' => [
                     'user_id' => auth()->id(),
-                    'points' => $pkg['points'],
-                    'package_key' => $request->package_key,
+                    'points' => $totalPoints,
+                    'amount' => $amount,
+                    'bonus_pct' => $bonusPct,
                 ],
             ]);
 
@@ -76,8 +127,8 @@ class PaymentController extends Controller
             Payment::create([
                 'user_id' => auth()->id(),
                 'stripe_payment_id' => $intent->id,
-                'amount' => $pkg['price'] / 100,
-                'points_purchased' => $pkg['points'],
+                'amount' => $chargeCents / 100,
+                'points_purchased' => $totalPoints,
                 'status' => 'pending',
             ]);
 
@@ -86,6 +137,9 @@ class PaymentController extends Controller
                 'data' => [
                     'client_secret' => $intent->client_secret,
                     'payment_intent_id' => $intent->id,
+                    'points_purchased' => $totalPoints,
+                    'bonus_pct' => $bonusPct,
+                    'charge_amount' => $chargeAmount,
                 ],
             ]);
         } catch (\Exception $e) {

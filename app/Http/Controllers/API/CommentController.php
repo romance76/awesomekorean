@@ -64,10 +64,14 @@ class CommentController extends Controller
         ]);
 
         // 댓글 작성 포인트 (point_settings에서 값 로드)
-        $commentPoints = (int) (\DB::table('point_settings')->where('key', 'comment_write')->value('value') ?? 3);
-        $commentMaxDaily = (int) (\DB::table('point_settings')->where('key', 'comment_write_daily_max')->value('value') ?? 20);
-        $todayComments = Comment::where('user_id', auth()->id())->whereDate('created_at', today())->count();
-        if ($todayComments <= $commentMaxDaily && $commentPoints > 0) {
+        // 작성 자체는 무제한이지만, 게시글+댓글 합산 하루 N회까지만 포인트 지급
+        $commentPoints = \App\Support\PointRules::get('comment_write', 3);
+        $dailyCap = \App\Support\PointRules::get('content_earn_daily_max', 3);
+        $todayEarnedActions = \App\Models\PointLog::where('user_id', auth()->id())
+            ->whereDate('created_at', today())
+            ->whereIn('related_type', [\App\Models\Post::class, \App\Models\Comment::class])
+            ->count();
+        if ($commentPoints > 0 && $todayEarnedActions < $dailyCap) {
             auth()->user()->addPoints($commentPoints, '댓글 작성', 'earn', ['type' => \App\Models\Comment::class, 'id' => $comment->id]);
         }
 

@@ -49,7 +49,7 @@ class ProfileController extends Controller
         // 프로필 완성 보너스 +30P (최초 1회)
         $user = $user->fresh();
         if (!$user->profile_bonus_given && $user->phone && $user->address1 && $user->city && $user->state && $user->zipcode) {
-            $bonus = (int) (\DB::table('point_settings')->where('key', 'profile_complete')->value('value') ?? 30);
+            $bonus = (int) (\DB::table('point_settings')->where('key', 'profile_complete_bonus')->value('value') ?? 30);
             $user->addPoints($bonus, '프로필 완성 보너스', 'earn');
             $user->update(['profile_bonus_given' => true]);
         }

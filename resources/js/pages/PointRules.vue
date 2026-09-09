@@ -10,6 +10,28 @@
 
     <div v-if="loading" class="text-center text-ink-faint py-12">로딩 중...</div>
     <div v-else class="space-y-4">
+      <!-- 일일 룰렛 / 글·댓글 적립 규칙: 표 형태로 표현하기 어려운 항목은 안내 문구로 별도 설명 -->
+      <section class="card overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm flex items-center gap-2 bg-amber-50 text-amber-800">
+          <AppIcon name="sparkles" :size="15" /> 특별 규칙 안내
+        </div>
+        <div class="divide-y divide-gray-50 text-sm">
+          <div class="px-4 py-3">
+            <div class="text-ink font-semibold mb-1">🎰 일일 룰렛 (출석 체크)</div>
+            <div class="text-ink-muted text-xs leading-relaxed">
+              꽝 60% · 1P 20% · 2P 10% · 5P 6% · 10P 3% · 30P(잭팟) 1% — 하루 1회
+            </div>
+          </div>
+          <div class="px-4 py-3">
+            <div class="text-ink font-semibold mb-1">✍️ 게시글 · 댓글 작성</div>
+            <div class="text-ink-muted text-xs leading-relaxed">
+              게시글/댓글 작성 횟수 제한은 없습니다. 단, 하루 3회(게시글+댓글 합산)까지만 포인트가 지급됩니다.
+              게시글 3P · 댓글 3P
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section v-for="section in visibleSections" :key="section.key"
         class="card overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm flex items-center gap-2" :class="section.headerClass">
@@ -57,10 +79,11 @@ const SECTION_META = {
   market:   { title: '중고장터 규칙',   icon: 'shopping-bag',  headerClass: 'bg-indigo-50 text-indigo-800', valueClass: 'text-indigo-600', prefix: ''  },
   image:    { title: '이미지 업로드',   icon: 'image',         headerClass: 'bg-sky-50 text-sky-800',       valueClass: 'text-sky-600',    prefix: ''  },
   auction:  { title: '옥션',            icon: 'tag',           headerClass: 'bg-rose-50 text-rose-800',     valueClass: 'text-rose-600',   prefix: ''  },
+  promotion:{ title: '상위노출 · 광고 (P/일)', icon: 'megaphone', headerClass: 'bg-violet-50 text-violet-800', valueClass: 'text-violet-600', prefix: '-' },
 }
 
 const visibleSections = computed(() => {
-  const order = ['earn', 'spend', 'game', 'market', 'image', 'auction']
+  const order = ['earn', 'spend', 'game', 'market', 'image', 'auction', 'promotion']
   return order
     .filter(k => (grouped.value[k] || []).length)
     .map(k => ({
