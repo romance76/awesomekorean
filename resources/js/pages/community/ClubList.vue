@@ -86,7 +86,7 @@
           </select>
         </template>
         <form @submit.prevent="loadClubs()" class="flex gap-1.5">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft !w-40 !py-1.5" />
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary !px-3 !py-1.5 !text-xs">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="btn-primary !px-3 !py-1.5 !text-xs"><AppIcon name="plus" :size="14" />동호회 만들기</RouterLink>

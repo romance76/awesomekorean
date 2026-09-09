@@ -72,7 +72,7 @@
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 py-1.5 text-sm" />
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/events/create" class="btn-primary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>

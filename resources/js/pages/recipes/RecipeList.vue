@@ -68,7 +68,7 @@
       </h1>
       <div class="flex items-center gap-2 flex-wrap">
         <form @submit.prevent="onSearch" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 py-1.5 text-sm" />
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/recipes/write" class="btn-primary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="13" />내 레시피 등록</RouterLink>
