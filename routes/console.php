@@ -22,6 +22,9 @@ Schedule::command('elder:check')->everyMinute();
 Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
 
+// 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
+Schedule::command('chat:expire-rooms')->hourly();
+
 // 포커 토너먼트 자동 생성 (매일 00:10 — 내일 스케줄 생성)
 Schedule::command('poker:generate-tournaments')->dailyAt('00:10');
 // 포커 토너먼트 자동 시작 (매분 — 시간 된 토너먼트 시작)

@@ -90,6 +90,14 @@ class ChatController extends Controller
         return response()->json(['success'=>true,'data'=>$room]);
     }
 
+    // 채팅 잠금/삭제 기준일 설정 조회 (프론트에서 잠금 안내/삭제 카운트다운 표시용)
+    public function settings() {
+        return response()->json(['success'=>true,'data'=>[
+            'inactive_lock_days' => \App\Support\ChatRules::get('inactive_lock_days', 7),
+            'lock_delete_days' => \App\Support\ChatRules::get('lock_delete_days', 3),
+        ]]);
+    }
+
     // 채팅방 읽음 표시 (last_read_at = now)
     public function markRead($id) {
         $userId = auth()->id();
@@ -288,9 +296,18 @@ class ChatController extends Controller
         $banned = DB::table('chat_room_bans')->where('chat_room_id', $id)->where('user_id', auth()->id())->exists();
         if ($banned) return response()->json(['success'=>false,'message'=>'이 채팅방에서 차단되었습니다.'], 403);
 
-        // 공개 방이면 자동 참가 (최초 1회)
         $room = ChatRoom::find($id);
-        if ($room && $room->type === 'public') {
+        if (!$room) {
+            return response()->json(['success'=>false,'message'=>'채팅방을 찾을 수 없습니다'], 404);
+        }
+
+        // 비활성으로 잠긴 방은 더 이상 메시지 전송 불가 (공개방 제외)
+        if ($room->type !== 'public' && $room->locked_at) {
+            return response()->json(['success'=>false,'message'=>'비활성 채팅방입니다. 더 이상 메시지를 보낼 수 없습니다.'], 423);
+        }
+
+        // 공개 방이면 자동 참가 (최초 1회)
+        if ($room->type === 'public') {
             ChatRoomUser::firstOrCreate(
                 ['chat_room_id' => $id, 'user_id' => auth()->id()],
                 ['last_read_at' => now()]
@@ -376,6 +393,9 @@ class ChatController extends Controller
         foreach ($created as $m) {
             try { event(new \App\Events\MessageSent($m->load('user:id,name,nickname,avatar,role'))); } catch (\Exception $e) {}
         }
+
+        // 마지막 메시지 시각 갱신 (자동 잠금 판단 기준)
+        $room->update(['last_message_at' => now()]);
 
         // 마지막 메시지를 대표로 반환 (기존 호환) + 전체 배열도 제공
         $last = end($created);
