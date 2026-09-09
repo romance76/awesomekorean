@@ -25,3 +25,6 @@ qa/.env.testing
 .DS_Store
 .playwright-mcp/
 *.png
+
+# Claude Code 세션별 임시 락 파일 (세션마다 PID/sessionId 바뀌어 커밋 시 매번 diff 발생)
+.claude/scheduled_tasks.lock
