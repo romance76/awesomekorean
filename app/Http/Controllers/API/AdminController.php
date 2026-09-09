@@ -520,6 +520,25 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'message'=>'방이 삭제되었습니다']);
     }
 
+    // ─── 채팅 자동 잠금/삭제 설정 ───
+    public function chatGetSettings() {
+        $settings = DB::table('chat_settings')->orderBy('category')->orderBy('id')->get();
+        return response()->json(['success' => true, 'data' => $settings->groupBy('category')]);
+    }
+
+    public function chatSaveSettings(Request $request) {
+        $items = $request->input('settings', []);
+        foreach ($items as $item) {
+            if (!isset($item['key'], $item['value'])) continue;
+            DB::table('chat_settings')->where('key', $item['key'])->update([
+                'value' => $item['value'],
+                'updated_at' => now(),
+            ]);
+        }
+        \App\Support\ChatRules::flush();
+        return response()->json(['success' => true, 'message' => '채팅 설정이 저장되었습니다.']);
+    }
+
     public function chatRoomDetail($id) {
         $room = ChatRoom::withCount('users')->findOrFail($id);
 

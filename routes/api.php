@@ -321,6 +321,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/bookmarks', [BookmarkController::class, 'index']);
     Route::get('/bookmarks/check', [BookmarkController::class, 'check']);
 
+    Route::get('/chat/settings', [ChatController::class, 'settings']);
     Route::get('/chat/rooms', [ChatController::class, 'rooms']);
     Route::post('/chat/rooms', [ChatController::class, 'createRoom']);
     Route::get('/chat/rooms/{id}', [ChatController::class, 'showRoom']);
@@ -747,6 +748,8 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/chat/rooms/{id}/reports/{reportId}/resolve', [AdminController::class, 'chatResolveReport']);
     Route::post('/chat/users/{userId}/permaban', [AdminController::class, 'chatPermaBan']);
     Route::get('/chat/permaban-list', [AdminController::class, 'chatPermaBanList']);
+    Route::get('/chat/settings', [AdminController::class, 'chatGetSettings']);
+    Route::post('/chat/settings', [AdminController::class, 'chatSaveSettings']);
 
     // Admin 공동구매
     Route::post('/groupbuys/{id}/approve', [GroupBuyController::class, 'adminApprove']);

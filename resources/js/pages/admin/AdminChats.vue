@@ -5,6 +5,19 @@
     채팅 관리
   </h1>
 
+  <div class="card p-4 mb-4 flex items-center gap-4 flex-wrap">
+    <div class="flex items-center gap-1.5 text-sm font-semibold text-ink"><AppIcon name="lock" :size="15" class="text-amber-600" />개인/그룹 채팅방 자동 정리</div>
+    <label class="text-xs text-ink-muted flex items-center gap-1.5">비활성
+      <input v-model.number="chatSettings.inactive_lock_days" type="number" min="1" class="input-soft !w-16 !px-2 !py-1 !text-xs text-center" />일 후 잠금
+    </label>
+    <label class="text-xs text-ink-muted flex items-center gap-1.5">잠금 후
+      <input v-model.number="chatSettings.lock_delete_days" type="number" min="1" class="input-soft !w-16 !px-2 !py-1 !text-xs text-center" />일 후 삭제
+    </label>
+    <button @click="saveChatSettings" :disabled="savingChatSettings" class="btn-primary !px-3 !py-1.5 !text-xs">{{ savingChatSettings ? '저장중...' : '저장' }}</button>
+    <span v-if="chatSettingsMsg" class="text-xs" :class="chatSettingsMsgOk ? 'text-green-600' : 'text-red-500'">{{ chatSettingsMsg }}</span>
+    <span class="text-[11px] text-ink-faint w-full">공개 채팅방은 대상에서 제외됩니다. 매시간 자동 실행됩니다.</span>
+  </div>
+
   <div class="flex gap-4 items-start">
     <!-- ─── 왼쪽: 방 목록 ─── -->
     <div class="w-2/5 flex-shrink-0">
@@ -30,6 +43,7 @@
               <div class="font-semibold text-ink text-sm truncate">{{ r.name || '(이름 없음)' }}</div>
               <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-2">
                 <span class="badge-gray">{{ r.type }}</span>
+                <span v-if="r.locked_at" class="badge-gray">🔒 잠김</span>
                 <span class="inline-flex items-center gap-0.5"><AppIcon name="users" :size="11" /> {{ r.users_count || 0 }}</span>
               </div>
               <div v-if="r.messages?.[0]" class="text-[11px] text-ink-muted mt-1 truncate">
@@ -328,6 +342,35 @@ const rooms = ref([])
 const roomsLoading = ref(true)
 const search = ref('')
 
+const chatSettings = ref({ inactive_lock_days: 7, lock_delete_days: 3 })
+const savingChatSettings = ref(false)
+const chatSettingsMsg = ref('')
+const chatSettingsMsgOk = ref(false)
+
+async function loadChatSettings() {
+  try {
+    const { data } = await axios.get('/api/admin/chat/settings')
+    const flat = {}
+    Object.values(data.data || {}).flat().forEach(row => { flat[row.key] = row.value })
+    if (flat.inactive_lock_days !== undefined) chatSettings.value.inactive_lock_days = Number(flat.inactive_lock_days)
+    if (flat.lock_delete_days !== undefined) chatSettings.value.lock_delete_days = Number(flat.lock_delete_days)
+  } catch {}
+}
+async function saveChatSettings() {
+  savingChatSettings.value = true
+  try {
+    await axios.post('/api/admin/chat/settings', { settings: [
+      { key: 'inactive_lock_days', value: String(chatSettings.value.inactive_lock_days) },
+      { key: 'lock_delete_days', value: String(chatSettings.value.lock_delete_days) },
+    ] })
+    chatSettingsMsg.value = '저장되었습니다'; chatSettingsMsgOk.value = true
+  } catch (e) {
+    chatSettingsMsg.value = e.response?.data?.message || '저장 실패'; chatSettingsMsgOk.value = false
+  }
+  savingChatSettings.value = false
+  setTimeout(() => chatSettingsMsg.value = '', 3000)
+}
+
 const activeRoom = ref(null)
 const roomDetail = ref(null)
 const detailLoading = ref(false)
@@ -533,5 +576,5 @@ async function permaBanUser() {
   } catch (e) { alert(e.response?.data?.message || '실패') }
 }
 
-onMounted(() => loadRooms())
+onMounted(() => { loadRooms(); loadChatSettings() })
 </script>
