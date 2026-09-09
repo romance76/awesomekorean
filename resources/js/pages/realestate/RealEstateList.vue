@@ -64,24 +64,24 @@
       </div>
     </MobileFilter>
 
-    <!-- 헤더: 데스크탑 (좌 타이틀 | 중앙 토글 | 우 컨트롤 — grid 3컬럼) -->
-    <div class="hidden lg:grid items-center mb-4 gap-3" style="grid-template-columns: 1fr auto 1fr;">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap justify-self-start">
+    <!-- 헤더: 데스크탑 (다른 서브페이지와 동일한 flex-wrap 구조로 통일 — 검색창 폭 고정) -->
+    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
+      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap">
         <span class="icon-chip w-9 h-9 bg-violet-50 text-violet-600"><AppIcon name="building" :size="20" /></span>
         부동산
       </h1>
 
-      <!-- 렌트/매매/룸메이트 세그먼트 (정 중앙) -->
-      <div class="flex bg-gray-100 rounded-xl p-1">
-        <button v-for="t in reTypeTabs" :key="t.value"
-          @click="changeReType(t.value)"
-          :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
-            reType===t.value ? `${t.activeBg} bg-white shadow-sm` : 'text-ink-muted hover:text-ink']">
-          <AppIcon :name="t.icon" :size="13" /> {{ t.label }}
-        </button>
-      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- 렌트/매매/룸메이트 세그먼트 -->
+        <div class="flex bg-gray-100 rounded-xl p-1">
+          <button v-for="t in reTypeTabs" :key="t.value"
+            @click="changeReType(t.value)"
+            :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
+              reType===t.value ? `${t.activeBg} bg-white shadow-sm` : 'text-ink-muted hover:text-ink']">
+            <AppIcon :name="t.icon" :size="13" /> {{ t.label }}
+          </button>
+        </div>
 
-      <div class="flex items-center gap-2 flex-nowrap justify-self-end">
         <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto px-2 py-1.5 pr-8 text-xs font-semibold bg-amber-50">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
