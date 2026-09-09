@@ -27,9 +27,9 @@
           <div v-if="loading" class="py-4 text-center text-xs text-ink-muted">로딩중...</div>
           <button v-for="room in filteredRooms" :key="room.id" @click="selectRoom(room)"
             class="w-full text-left px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs"
-            :class="[activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50', room.locked_at ? 'opacity-50 grayscale' : '']">
+            :class="[activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50', room.is_locked ? 'opacity-50 grayscale' : '']">
             <div class="flex items-center justify-between gap-1">
-              <span class="flex-shrink-0 text-[11px]">{{ room.locked_at ? '🔒' : roomTypeIcon(room.type) }}</span>
+              <span class="flex-shrink-0 text-[11px]">{{ room.is_locked ? '🔒' : roomTypeIcon(room.type) }}</span>
               <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
               <!-- 한번도 안들어간 방: NEW -->
               <span v-if="room.is_new" class="text-[11px] bg-red-500 text-white font-bold px-1 py-0.5 rounded flex-shrink-0">NEW</span>
@@ -65,7 +65,7 @@
             </div>
             <div class="flex items-center gap-2">
               <button @click="openMsgSearch" class="text-ink-muted hover:text-amber-600 transition-colors" title="메시지 검색"><AppIcon name="search" :size="18" /></button>
-              <span v-if="activeRoom.locked_at" class="badge-gray">🔒 잠김</span>
+              <span v-if="activeRoom.is_locked" class="badge-gray">🔒 잠김</span>
               <span v-else-if="activeRoom.type === 'public'" class="badge-green">공개</span>
             </div>
           </div>
@@ -211,7 +211,7 @@
           </div>
 
           <!-- 잠긴 방: 메시지 입력 대신 안내 문구 -->
-          <div v-if="activeRoom.locked_at" class="border-t border-gray-100 bg-gray-50 px-4 py-3 flex-shrink-0 text-center">
+          <div v-if="activeRoom.is_locked" class="border-t border-gray-100 bg-gray-50 px-4 py-3 flex-shrink-0 text-center">
             <div class="text-xs font-semibold text-ink-muted">🔒 오랫동안 활동이 없어 더 이상 메시지를 보낼 수 없습니다</div>
             <div class="text-[11px] text-ink-faint mt-0.5">{{ daysUntilChatDelete(activeRoom) }}일 후 채팅방이 완전히 삭제됩니다</div>
           </div>
@@ -507,7 +507,6 @@ const windowWidth = ref(window.innerWidth)
 const isMobile = computed(() => windowWidth.value < 1024)
 const rooms = ref([])
 const activeRoom = ref(null)
-const chatLockSettings = ref({ inactive_lock_days: 7, lock_delete_days: 3 })
 const activeMessages = ref([])
 const pinnedAnnouncements = ref([])
 const loading = ref(true)
@@ -1067,12 +1066,9 @@ function roomTypeIcon(type) {
   return '🌐'
 }
 
-// 잠긴 방이 삭제까지 남은 일수 계산
+// 잠긴 방이 삭제까지 남은 일수 (서버에서 마지막 활동 시각 기준으로 그때그때 계산해서 내려줌)
 function daysUntilChatDelete(room) {
-  if (!room?.locked_at) return 0
-  const lockedAt = new Date(room.locked_at)
-  const deleteAt = new Date(lockedAt.getTime() + chatLockSettings.value.lock_delete_days * 86400000)
-  return Math.max(0, Math.ceil((deleteAt - new Date()) / 86400000))
+  return room?.delete_in_days ?? 0
 }
 
 // DM 방은 상대방 이름으로 라벨 표시 (Issue #22)
@@ -1250,7 +1246,6 @@ onMounted(async () => {
     rooms.value = data.data || []
     await restoreFromRoute()
   } catch {}
-  try { const { data } = await axios.get('/api/chat/settings'); chatLockSettings.value = data.data } catch {}
   loading.value = false
 })
 

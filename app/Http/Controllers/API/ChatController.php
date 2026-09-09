@@ -12,6 +12,8 @@ class ChatController extends Controller
     use CompressesUploads;
 
     public function rooms() {
+        $this->sweepExpiredRooms();
+
         $userId = auth()->id();
 
         // 본인이 멤버인 방
@@ -60,10 +62,37 @@ class ChatController extends Controller
                 $r->unread_count = $cnt > 300 ? 301 : $cnt; // 300+ 처리
                 $r->is_new = false;
             }
+            // 잠금/삭제 여부는 저장된 locked_at이 아니라 마지막 활동 시각으로 그때그때 계산
+            // (스케줄러가 안 돌아도 항상 정확하도록)
+            $r->is_locked = \App\Support\ChatLockHelper::isLocked($r);
+            $r->delete_in_days = \App\Support\ChatLockHelper::daysUntilDelete($r);
             return $r;
         });
 
         return response()->json(['success'=>true,'data'=>$rooms]);
+    }
+
+    // 오래 방치된 개인/그룹 방을 실제로 삭제 (크론 없이도 트래픽 발생 시 자동 정리, 5분에 한 번만 실행)
+    private function sweepExpiredRooms(): void {
+        if (!\Illuminate\Support\Facades\Cache::add('chat_expire_sweep_lock', 1, 300)) return;
+
+        $lockDays = \App\Support\ChatRules::get('inactive_lock_days', 7);
+        $deleteDays = \App\Support\ChatRules::get('lock_delete_days', 3);
+        $cutoff = now()->subDays($lockDays + $deleteDays);
+
+        $toDelete = ChatRoom::whereIn('type', ['dm', 'group'])
+            ->where(function ($q) use ($cutoff) {
+                $q->where('last_message_at', '<', $cutoff)
+                  ->orWhere(function ($q2) use ($cutoff) {
+                      $q2->whereNull('last_message_at')->where('created_at', '<', $cutoff);
+                  });
+            })
+            ->get();
+
+        foreach ($toDelete as $room) {
+            DB::table('chat_room_bans')->where('chat_room_id', $room->id)->delete();
+            $room->delete(); // chat_room_users/chat_messages 는 FK cascadeOnDelete
+        }
     }
 
     // 단일 방 조회 (URL /chat/:id 직접 진입·새로고침 복원용)
@@ -86,6 +115,9 @@ class ChatController extends Controller
         $banned = DB::table('chat_room_bans')
             ->where('chat_room_id', $id)->where('user_id', $userId)->exists();
         if ($banned) return response()->json(['success'=>false,'message'=>'차단된 방입니다'], 403);
+
+        $room->is_locked = \App\Support\ChatLockHelper::isLocked($room);
+        $room->delete_in_days = \App\Support\ChatLockHelper::daysUntilDelete($room);
 
         return response()->json(['success'=>true,'data'=>$room]);
     }
@@ -302,7 +334,8 @@ class ChatController extends Controller
         }
 
         // 비활성으로 잠긴 방은 더 이상 메시지 전송 불가 (공개방 제외)
-        if ($room->type !== 'public' && $room->locked_at) {
+        // 저장된 locked_at이 아니라 마지막 활동 시각으로 그때그때 계산 (스케줄러 여부와 무관하게 항상 정확)
+        if (\App\Support\ChatLockHelper::isLocked($room)) {
             return response()->json(['success'=>false,'message'=>'비활성 채팅방입니다. 더 이상 메시지를 보낼 수 없습니다.'], 423);
         }
 

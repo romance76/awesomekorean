@@ -500,6 +500,10 @@ class AdminController extends Controller
             ->when($request->search, fn($q, $v) => $q->where('name', 'like', "%{$v}%"));
 
         $rooms = $query->orderByDesc('updated_at')->paginate(20);
+        $rooms->getCollection()->transform(function ($r) {
+            $r->is_locked = \App\Support\ChatLockHelper::isLocked($r);
+            return $r;
+        });
         return response()->json(['success'=>true,'data'=>$rooms]);
     }
 
