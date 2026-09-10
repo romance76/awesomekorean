@@ -277,7 +277,16 @@ class FillMarketDemoImages extends Command
                 ]);
             if (!$resp->ok()) return [];
             $results = $resp->json('results') ?? [];
-            return collect($results)->pluck('url')->filter()->take($count * 3)->values()->all();
+            return collect($results)
+                ->pluck('url')
+                ->filter()
+                // Flickr(live.staticflickr.com)는 이 서버 IP를 계속 403으로 막고
+                // 있는 것으로 반복 확인됨 — 후보에서 아예 제외해서 연속 실패
+                // 안전장치가 애먼 아이템에서 조기에 소진되는 것을 방지
+                ->reject(fn($url) => str_contains($url, 'staticflickr.com'))
+                ->take($count * 3)
+                ->values()
+                ->all();
         } catch (\Throwable $e) {
             return [];
         }
