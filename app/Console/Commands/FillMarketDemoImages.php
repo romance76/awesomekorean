@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * 중고장터 더미 아이템에 실물과 매칭되는 이미지를 채워 넣는다.
- * 저작권 문제를 피하기 위해 브랜드 매장/구글 이미지 대신
- * Openverse(오픈 라이선스 이미지 검색, commercial 라이선스만) API를 사용하고,
- * 브랜드 공식 스튜디오컷보다는 실제 판매글처럼 보이도록 개인이 올린 스냅샷이
- * 대부분인 Flickr 소스로 한정한다.
+ * 저작권 문제를 피하기 위해 브랜드 매장/구글 이미지 검색 결과를 그대로
+ * 긁어오는 대신 Openverse(오픈 라이선스 이미지 검색, commercial 라이선스만)
+ * API를 사용한다. 특정 소스 하나(예: Flickr)로 한정하면 그 호스트가
+ * 일시적으로 요청을 막았을 때 전부 실패하는 문제가 있어 여러 소스를
+ * 섞어서 검색 — 그래도 Openverse 인덱스 자체가 대부분 개인/아마추어가
+ * 올린 사진 위주라 브랜드 공식 스튜디오컷과는 결이 다름.
  * 제목이 한글 브랜드 표기(예: "허먼밀러 에어론" = Herman Miller Aeron)인 경우가
  * 많아 단순 한글 제거로는 검색어가 안 나와서, 실제 108개 타이틀을 직접
  * 확인해 영어 검색어로 매핑한 사전을 사용한다.
@@ -264,9 +266,9 @@ class FillMarketDemoImages extends Command
                 ->timeout(6)->get('https://api.openverse.org/v1/images/', [
                     'q' => $query,
                     'license_type' => 'commercial',
-                    // 브랜드 공식 스튜디오컷 대신 실제 개인이 올린 스냅샷 느낌이 나도록
-                    // 아마추어 사진이 대부분인 Flickr 소스로 한정
-                    'source' => 'flickr',
+                    // 특정 소스(Flickr 등) 하나에 의존하면 그 호스트가 일시적으로
+                    // 요청을 막았을 때 전부 실패하므로, 여러 소스를 섞어서 검색해
+                    // 한쪽이 막혀도 다른 소스 URL로 대체될 수 있게 함
                     'page_size' => $count * 4,
                 ]);
             if (!$resp->ok()) return [];
