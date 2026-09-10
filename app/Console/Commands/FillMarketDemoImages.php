@@ -191,6 +191,9 @@ class FillMarketDemoImages extends Command
                 if (count($stored) >= $perItem) break;
                 $path = $this->downloadAndStore($url);
                 if ($path) $stored[] = $path;
+                // Flickr 쪽 순간 요청 폭주로 인한 일시적 차단(403/429)을 피하기 위해
+                // 이미지 한 장씩 받을 때마다 약간의 텀을 둠
+                usleep(300000);
             }
 
             if (!empty($stored)) {
@@ -249,6 +252,11 @@ class FillMarketDemoImages extends Command
     {
         try {
             $resp = Http::withHeaders(['User-Agent' => self::USER_AGENT])->timeout(8)->get($url);
+            if (($resp->status() === 403 || $resp->status() === 429)) {
+                // 일시적 요청 제한일 수 있으니 잠깐 쉬었다가 한 번만 재시도
+                usleep(1500000);
+                $resp = Http::withHeaders(['User-Agent' => self::USER_AGENT])->timeout(8)->get($url);
+            }
             if (!$resp->ok() || strlen($resp->body()) < 2000) return null;
 
             $img = \Intervention\Image\Laravel\Facades\Image::read($resp->body());
