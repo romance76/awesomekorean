@@ -290,8 +290,11 @@ class FillMarketDemoImages extends Command
                     'license_type' => 'commercial',
                     // 특정 소스(Flickr 등) 하나에 의존하면 그 호스트가 일시적으로
                     // 요청을 막았을 때 전부 실패하므로, 여러 소스를 섞어서 검색해
-                    // 한쪽이 막혀도 다른 소스 URL로 대체될 수 있게 함
-                    'page_size' => $count * 4,
+                    // 한쪽이 막혀도 다른 소스 URL로 대체될 수 있게 함.
+                    // Openverse 결과 대부분이 Flickr라 그걸 거르고 나면 후보가
+                    // 몇 개 안 남는 경우가 많아(실제 진단: 대부분 1장에서 멈춤),
+                    // 넉넉하게 더 많이 가져옴 (Openverse page_size 상한 근처).
+                    'page_size' => min(40, $count * 12),
                 ]);
             if (!$resp->ok()) return [];
             $results = $resp->json('results') ?? [];
@@ -302,7 +305,7 @@ class FillMarketDemoImages extends Command
                 // 있는 것으로 반복 확인됨 — 후보에서 아예 제외해서 연속 실패
                 // 안전장치가 애먼 아이템에서 조기에 소진되는 것을 방지
                 ->reject(fn($url) => str_contains($url, 'staticflickr.com'))
-                ->take($count * 3)
+                ->take($count * 6)
                 ->values()
                 ->all();
         } catch (\Throwable $e) {
