@@ -38,7 +38,7 @@
           <RouterLink v-for="room in chatRooms" :key="room.id" :to="`/chat/${room.id}`"
             class="block px-4 py-2.5 text-sm hover:bg-amber-50 transition-colors border-b border-gray-50 last:border-0">
             <div class="font-medium text-ink truncate">{{ room.name }}</div>
-            <div class="text-[11px] text-ink-muted truncate">{{ room.last_message || '메시지 없음' }}</div>
+            <div class="text-[11px] text-ink-muted truncate">{{ room.messages?.[0]?.content || '메시지 없음' }}</div>
           </RouterLink>
         </div>
       </div>
@@ -279,7 +279,10 @@ async function loadFriends() {
 }
 
 async function loadChatRooms() {
-  try { const { data } = await axios.get('/api/friends/chat-rooms'); chatRooms.value = data.data || [] } catch {}
+  try {
+    const { data } = await axios.get('/api/chat/rooms')
+    chatRooms.value = (data.data || []).filter(r => r.type === 'group')
+  } catch {}
 }
 
 async function acceptRequest(id) {
@@ -306,8 +309,8 @@ async function openChat(friendId) {
   } else {
     // 기존 채팅 폴백
     try {
-      const { data } = await axios.post('/api/friends/private-chat', { friend_id: friendId })
-      router.push(`/chat/${data.data.room_id}`)
+      const { data } = await axios.post('/api/chat/rooms', { type: 'dm', user_id: friendId })
+      router.push(`/chat/${data.data.id}`)
     } catch {}
   }
 }
@@ -345,7 +348,7 @@ async function doSendMsg() {
 async function createGroupChat() {
   if (!groupName.value.trim() || !selectedFriends.value.length) return
   try {
-    const { data } = await axios.post('/api/friends/group-chat', { name: groupName.value, friend_ids: selectedFriends.value })
+    const { data } = await axios.post('/api/chat/rooms', { type: 'group', name: groupName.value, user_ids: selectedFriends.value })
     showGroupModal.value = false; groupName.value = ''; selectedFriends.value = []
     await loadChatRooms()
     router.push(`/chat/${data.data.id}`)

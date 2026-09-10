@@ -127,6 +127,17 @@
         </div>
       </div>
 
+      <!-- 9-1. 참가비 결제 방식 -->
+      <div>
+        <label class="input-label mb-2">참가비 결제 방식</label>
+        <select v-model="form.payment_method" class="input-soft px-3">
+          <option value="none">참가비 없음 (무료 참여)</option>
+          <option value="point">포인트로 결제</option>
+          <option value="stripe">카드(Stripe)로 결제</option>
+          <option value="both">포인트 또는 카드 중 선택</option>
+        </select>
+      </div>
+
       <!-- 10. 할인 티어 -->
       <div>
         <label class="input-label mb-2">할인 티어 (선택)</label>
@@ -242,6 +253,7 @@ const form = reactive({
   max_participants: 50,
   deadline: '',
   end_type: 'target_met',
+  payment_method: 'none',
   discount_tiers: [],
   city: '',
   state: '',
@@ -316,6 +328,7 @@ async function submit() {
     fd.append('max_participants', form.max_participants)
     if (form.deadline) fd.append('deadline', form.deadline)
     fd.append('end_type', form.end_type)
+    fd.append('payment_method', form.payment_method)
     if (form.city) fd.append('city', form.city)
     if (form.state) fd.append('state', form.state)
 
