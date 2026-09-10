@@ -308,14 +308,23 @@ class FillMarketDemoImages extends Command
             // 죽어버릴 수 있음 — 디코딩 전에 원본 용량으로 미리 걸러냄
             if (strlen($resp->body()) > 4_000_000) return null;
 
-            $img = \Intervention\Image\Laravel\Facades\Image::read($resp->body());
+            // Facade(Intervention\Image\Laravel\Facades\Image)는 서비스 프로바이더
+            // 등록 여부에 의존해 환경에 따라 바인딩 실패로 예외가 날 수 있음 —
+            // 이 코드베이스에서 실제로 검증된(CompressesUploads 트레이트와 동일한)
+            // ImageManager 직접 생성 방식을 사용
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->read($resp->body());
             $img->scaleDown(800, 800);
-            $bytes = $img->toJpeg(78)->toString();
+            $bytes = (string) $img->toJpeg(78);
 
             $filename = 'market/' . md5($url . microtime()) . '.jpg';
             Storage::disk('public')->put($filename, $bytes);
             return $filename;
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[market:fill-demo-images] download/decode failed', [
+                'url' => $url,
+                'error' => get_class($e) . ': ' . $e->getMessage(),
+            ]);
             return null;
         }
     }
