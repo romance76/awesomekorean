@@ -226,7 +226,7 @@
       <!-- 오른쪽: 위젯 -->
       <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
         <SidebarWidgets mode="detail" :currentCategory="item?.category || ''" :categoryLabel="categoryLabel"
-          :inline="true" api-url="/api/market" detail-path="/market/" :current-id="item.id" label="물품"
+          api-url="/api/market" detail-path="/market/" :current-id="item.id" label="물품"
           :filter-params="item.lat && item.lng ? { lat: item.lat, lng: item.lng, radius: 50 } : {}" />
         <AdSlot page="market" position="right" :maxSlots="2" />
       </div>
