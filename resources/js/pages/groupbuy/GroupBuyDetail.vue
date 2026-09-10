@@ -86,7 +86,7 @@
               <div v-if="currentDiscount > 0" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">-{{ currentDiscount }}%</div>
             </div>
             <div v-if="currentTier" class="text-xs text-amber-700 mt-1.5 font-semibold">
-              현재 {{ gb.participant_count || 0 }}명 참여 → {{ currentTier.discount_pct }}% 할인
+              현재 {{ gb.current_participants || 0 }}명 참여 → {{ currentTier.discount_pct }}% 할인
             </div>
 
             <!-- Tier progress visualization -->
@@ -98,7 +98,7 @@
               <div class="flex justify-between mt-1">
                 <div v-for="(tier, idx) in sortedTiers" :key="idx"
                   class="text-[11px] font-semibold"
-                  :class="(gb.participant_count || 0) >= tier.min_people ? 'text-amber-600' : 'text-ink-faint'">
+                  :class="(gb.current_participants || 0) >= tier.min_people ? 'text-amber-600' : 'text-ink-faint'">
                   {{ tier.min_people }}명 ({{ tier.discount_pct }}%)
                 </div>
               </div>
@@ -110,7 +110,7 @@
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-bold text-blue-800">참여 현황</span>
               <span class="text-sm font-bold text-blue-600">
-                {{ gb.participant_count || 0 }}명 / {{ gb.max_participants || gb.min_participants }}명
+                {{ gb.current_participants || 0 }}명 / {{ gb.max_participants || gb.min_participants }}명
                 <span class="text-xs text-blue-400 font-normal">({{ progressPct }}% 달성)</span>
               </span>
             </div>
@@ -257,7 +257,7 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-ink-muted">현재 참여</span>
-                <span class="text-amber-600 font-bold">{{ gb.participant_count || 0 }}명</span>
+                <span class="text-amber-600 font-bold">{{ gb.current_participants || 0 }}명</span>
               </div>
             </div>
           </div>
@@ -469,7 +469,7 @@ const progressPct = computed(() => {
   if (!gb.value) return 0
   const target = gb.value.max_participants || gb.value.min_participants
   if (!target) return 0
-  return Math.round(((gb.value.participant_count || 0) / target) * 100)
+  return Math.round(((gb.value.current_participants || 0) / target) * 100)
 })
 
 const sortedTiers = computed(() => {
@@ -479,7 +479,7 @@ const sortedTiers = computed(() => {
 
 const currentTier = computed(() => {
   if (!sortedTiers.value.length || !gb.value) return null
-  const count = gb.value.participant_count || 0
+  const count = gb.value.current_participants || 0
   let active = null
   for (const tier of sortedTiers.value) {
     if (count >= tier.min_people) active = tier
@@ -504,7 +504,7 @@ const currentPrice = computed(() => {
 const tierProgressPct = computed(() => {
   if (!sortedTiers.value.length || !gb.value) return 0
   const maxTier = sortedTiers.value[sortedTiers.value.length - 1]
-  const count = gb.value.participant_count || 0
+  const count = gb.value.current_participants || 0
   return Math.min(100, Math.round((count / maxTier.min_people) * 100))
 })
 

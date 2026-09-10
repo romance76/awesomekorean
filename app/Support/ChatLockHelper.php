@@ -29,13 +29,15 @@ class ChatLockHelper
 
     public static function isLocked(ChatRoom $room): bool
     {
-        if ($room->type === 'public') return false;
+        // 공개방/동호회방은 특정 회원끼리의 사적 대화가 아니라 커뮤니티 공간이므로 비활성 잠금 대상에서 제외
+        if (in_array($room->type, ['public', 'club'])) return false;
         return now()->greaterThan(static::lockAt($room));
     }
 
     public static function shouldDelete(ChatRoom $room): bool
     {
-        if ($room->type === 'public') return false;
+        // 공개방/동호회방은 특정 회원끼리의 사적 대화가 아니라 커뮤니티 공간이므로 비활성 잠금 대상에서 제외
+        if (in_array($room->type, ['public', 'club'])) return false;
         return now()->greaterThan(static::deleteAt($room));
     }
 

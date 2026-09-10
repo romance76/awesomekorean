@@ -336,7 +336,7 @@ class GroupBuyController extends Controller
 
             $gb->increment('current_participants');
 
-            if ($gb->end_type === 'target_met' && $gb->max_participants && ($gb->current_participants + 1) >= $gb->max_participants) {
+            if ($gb->end_type === 'target_met' && $gb->max_participants && $gb->current_participants >= $gb->max_participants) {
                 $gb->update(['status' => 'confirmed']);
             }
 
