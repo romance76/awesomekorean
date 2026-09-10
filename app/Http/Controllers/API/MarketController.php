@@ -77,6 +77,35 @@ class MarketController extends Controller
         $activeHold = $item->reservations->first();
         $item->active_hold = $activeHold;
 
+        // 거래 후기 (완료된 거래에 대해 서로 남긴 후기)
+        $item->reviews = \App\Models\MarketReview::where('market_item_id', $id)
+            ->with(['reviewer:id,name,nickname,avatar', 'reviewee:id,name,nickname'])
+            ->latest()->get();
+
+        // 판매자 평균 평점 (이 유저가 판매자였던 모든 거래 기준)
+        $sellerReviewAgg = \App\Models\MarketReview::where('reviewee_id', $item->user_id)
+            ->selectRaw('COUNT(*) as cnt, AVG(rating) as avg_rating')->first();
+        $item->seller_rating = [
+            'count' => (int) ($sellerReviewAgg->cnt ?? 0),
+            'average' => $sellerReviewAgg->avg_rating ? round((float) $sellerReviewAgg->avg_rating, 1) : null,
+        ];
+
+        // 로그인 유저 기준: 리뷰를 남길 수 있는 완료된 거래가 있는지 + 이미 남겼는지
+        if (auth()->check()) {
+            $meId = auth()->id();
+            $myReservation = MarketReservation::where('market_item_id', $id)
+                ->where('status', 'completed')
+                ->where(function ($q) use ($meId) {
+                    $q->where('buyer_id', $meId)->orWhere('seller_id', $meId);
+                })
+                ->latest('completed_at')->first();
+            $item->my_completed_reservation = $myReservation;
+            $item->can_review = $myReservation
+                ? !\App\Models\MarketReview::where('market_reservation_id', $myReservation->id)
+                    ->where('reviewer_id', $meId)->exists()
+                : false;
+        }
+
         // Kay 요청: 이전글/다음글 (같은 카테고리 내)
         $adj = $this->adjacentPair(MarketItem::class, $id, 'title', ['category' => $item->category]);
 
@@ -376,6 +405,97 @@ class MarketController extends Controller
         // 홀드 포인트는 환불 안 함 (서비스 이용료 개념)
 
         return response()->json(['success' => true, 'message' => '홀드가 취소되었습니다']);
+    }
+
+    /**
+     * 거래 약속 시간/장소 지정 (구매자·판매자 누구든 설정 가능)
+     * POST /api/market/{id}/hold/meetup { meetup_at, meetup_place }
+     */
+    public function scheduleMeetup(Request $request, $id)
+    {
+        $request->validate([
+            'meetup_at' => 'nullable|date',
+            'meetup_place' => 'nullable|string|max:200',
+        ]);
+
+        $user = auth()->user();
+        $reservation = MarketReservation::where('market_item_id', $id)
+            ->where('status', 'pending')
+            ->where(function ($q) use ($user) {
+                $q->where('buyer_id', $user->id)->orWhere('seller_id', $user->id);
+            })
+            ->first();
+
+        if (!$reservation) {
+            return response()->json(['success' => false, 'message' => '활성 홀드가 없습니다'], 404);
+        }
+
+        $reservation->update([
+            'meetup_at' => $request->meetup_at,
+            'meetup_place' => $request->meetup_place,
+        ]);
+
+        return response()->json(['success' => true, 'message' => '거래 약속이 저장되었습니다', 'data' => $reservation]);
+    }
+
+    /**
+     * 판매자가 실제 거래 완료를 확정 (물품 sold 처리 + 후기 작성 가능해짐)
+     * POST /api/market/{id}/hold/complete
+     */
+    public function completeHold($id)
+    {
+        $reservation = MarketReservation::where('market_item_id', $id)
+            ->where('seller_id', auth()->id())
+            ->where('status', 'pending')
+            ->firstOrFail();
+
+        $reservation->update(['status' => 'completed', 'completed_at' => now()]);
+        MarketItem::where('id', $id)->update(['status' => 'sold']);
+
+        return response()->json(['success' => true, 'message' => '거래가 완료 처리되었습니다. 이제 서로 거래 후기를 남길 수 있습니다.']);
+    }
+
+    /**
+     * 거래 후기 작성 (완료된 거래의 구매자·판매자가 서로에게 남김)
+     * POST /api/market/{id}/review { rating, comment }
+     */
+    public function submitReview(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $meId = auth()->id();
+        $reservation = MarketReservation::where('market_item_id', $id)
+            ->where('status', 'completed')
+            ->where(function ($q) use ($meId) {
+                $q->where('buyer_id', $meId)->orWhere('seller_id', $meId);
+            })
+            ->latest('completed_at')->first();
+
+        if (!$reservation) {
+            return response()->json(['success' => false, 'message' => '완료된 거래가 없어 후기를 남길 수 없습니다'], 422);
+        }
+
+        $revieweeId = $reservation->buyer_id === $meId ? $reservation->seller_id : $reservation->buyer_id;
+
+        $exists = \App\Models\MarketReview::where('market_reservation_id', $reservation->id)
+            ->where('reviewer_id', $meId)->exists();
+        if ($exists) {
+            return response()->json(['success' => false, 'message' => '이미 후기를 남겼습니다'], 422);
+        }
+
+        $review = \App\Models\MarketReview::create([
+            'market_item_id' => $id,
+            'market_reservation_id' => $reservation->id,
+            'reviewer_id' => $meId,
+            'reviewee_id' => $revieweeId,
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+        ]);
+
+        return response()->json(['success' => true, 'message' => '후기가 등록되었습니다', 'data' => $review], 201);
     }
 
     // ─────────────────────── 상위노출(부스트) ───────────────────────
