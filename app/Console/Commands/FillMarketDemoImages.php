@@ -248,6 +248,24 @@ class FillMarketDemoImages extends Command
         }
 
         $this->info("완료: {$filled}건 채움, {$skipped}건 실패/스킵");
+
+        // SSH/로그 접근 없이도 실행 결과를 확인할 수 있도록, 실행 요약을
+        // 진단용으로 재사용 중인 market_items id=323의 content에 기록
+        // (이 아이템은 이미 테스트/더미 데이터로 여러 진단에 재사용돼 옴).
+        \App\Models\MarketItem::where('id', 323)->update([
+            'content' => json_encode([
+                'ran_at' => now()->toDateTimeString(),
+                'target_count' => $items->count(),
+                'filled' => $filled,
+                'skipped' => $skipped,
+                'stopped_early' => $consecutiveFailures >= self::MAX_CONSECUTIVE_FAILURES
+                    ? 'consecutive_failures'
+                    : ((microtime(true) - $startedAt > self::MAX_RUNTIME_SECONDS) ? 'runtime_cap' : null),
+                'consecutive_failures_at_end' => $consecutiveFailures,
+                'elapsed_seconds' => round(microtime(true) - $startedAt, 1),
+            ], JSON_PRETTY_PRINT),
+        ]);
+
         return 0;
     }
 
