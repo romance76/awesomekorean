@@ -22,6 +22,11 @@ class FillMarketDemoImages extends Command
     protected $signature = 'market:fill-demo-images {--limit=200 : 최대 처리 건수} {--per-item=3 : 아이템당 목표 이미지 수} {--force : 이미지가 이미 있어도 다시 채움}';
     protected $description = '이미지 없는 중고장터 아이템에 오픈 라이선스 이미지를 채움';
 
+    /** 연속 다운로드 실패 허용 횟수 — 넘으면 이미지 소스가 막힌 것으로 보고 조기 중단 */
+    private const MAX_CONSECUTIVE_FAILURES = 6;
+    /** 배포 SSH 타임아웃(20분)에 걸리지 않도록 두는 실행 시간 상한(초) */
+    private const MAX_RUNTIME_SECONDS = 420;
+
     /** 제목에 포함된 키워드 → 영어 검색어 (구체적인 것부터 순서대로 매칭) */
     private array $keywordMap = [
         // auto
@@ -169,7 +174,25 @@ class FillMarketDemoImages extends Command
         $filled = 0;
         $skipped = 0;
 
+        // 안전장치 1: 연속 다운로드 실패가 계속되면(=Flickr 쪽에서 지속적으로
+        // 차단/제한 중) 똑같은 실패를 계속 반복하며 시간만 낭비하지 않도록
+        // 조기 중단 — 배포 SSH 20분 타임아웃으로 통째로 죽는 것을 방지.
+        $consecutiveFailures = 0;
+        // 안전장치 2: 순수 시간 기준으로도 상한을 둬서 위 카운터가 어떤
+        // 이유로든 못 걸러내는 경우까지 대비 (배포 파이프라인 다른 단계
+        // 몫으로 여유를 남겨둠).
+        $startedAt = microtime(true);
+
         foreach ($items as $item) {
+            if ($consecutiveFailures >= self::MAX_CONSECUTIVE_FAILURES) {
+                $this->warn("연속 {$consecutiveFailures}회 다운로드 실패 — 이미지 소스가 일시적으로 막힌 것으로 보여 중단합니다. (처리됨: {$filled}건)");
+                break;
+            }
+            if (microtime(true) - $startedAt > self::MAX_RUNTIME_SECONDS) {
+                $this->warn('실행 시간 상한(' . self::MAX_RUNTIME_SECONDS . "초) 도달 — 중단합니다. (처리됨: {$filled}건)");
+                break;
+            }
+
             $query = $this->buildQuery($item);
             $urls = $this->searchImages($query, $perItem);
 
@@ -189,8 +212,14 @@ class FillMarketDemoImages extends Command
             $stored = [];
             foreach ($urls as $url) {
                 if (count($stored) >= $perItem) break;
+                if ($consecutiveFailures >= self::MAX_CONSECUTIVE_FAILURES) break;
                 $path = $this->downloadAndStore($url);
-                if ($path) $stored[] = $path;
+                if ($path) {
+                    $stored[] = $path;
+                    $consecutiveFailures = 0;
+                } else {
+                    $consecutiveFailures++;
+                }
                 // Flickr 쪽 순간 요청 폭주로 인한 일시적 차단(403/429)을 피하기 위해
                 // 이미지 한 장씩 받을 때마다 약간의 텀을 둠
                 usleep(300000);
