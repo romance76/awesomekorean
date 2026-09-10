@@ -28,6 +28,8 @@ class FillMarketDemoImages extends Command
     private const MAX_CONSECUTIVE_FAILURES = 6;
     /** 배포 SSH 타임아웃(20분)에 걸리지 않도록 두는 실행 시간 상한(초) */
     private const MAX_RUNTIME_SECONDS = 420;
+    /** Openverse 검색 실패를 실행당 한 번만 로그로 남기기 위한 플래그 */
+    private static bool $searchFailureLogged = false;
 
     /** 제목에 포함된 키워드 → 영어 검색어 (구체적인 것부터 순서대로 매칭) */
     private array $keywordMap = [
@@ -263,6 +265,7 @@ class FillMarketDemoImages extends Command
                     : ((microtime(true) - $startedAt > self::MAX_RUNTIME_SECONDS) ? 'runtime_cap' : null),
                 'consecutive_failures_at_end' => $consecutiveFailures,
                 'elapsed_seconds' => round(microtime(true) - $startedAt, 1),
+                'search_api_failed' => self::$searchFailureLogged,
             ], JSON_PRETTY_PRINT),
         ]);
 
@@ -293,10 +296,23 @@ class FillMarketDemoImages extends Command
                     // 한쪽이 막혀도 다른 소스 URL로 대체될 수 있게 함.
                     // Openverse 결과 대부분이 Flickr라 그걸 거르고 나면 후보가
                     // 몇 개 안 남는 경우가 많아(실제 진단: 대부분 1장에서 멈춤),
-                    // 넉넉하게 더 많이 가져옴 (Openverse page_size 상한 근처).
-                    'page_size' => min(40, $count * 12),
+                    // 넉넉하게 더 많이 가져옴 — 단, 익명 요청은 page_size가 20을
+                    // 넘으면 401로 거부됨(실측 확인)이므로 20을 넘기지 않음.
+                    'page_size' => min(20, $count * 6),
                 ]);
-            if (!$resp->ok()) return [];
+            if (!$resp->ok()) {
+                // 매 아이템마다 로그를 남기면 스팸이 되므로 실행당 한 번만 기록
+                // (예: page_size가 API 상한을 넘어 401이 나는 등 설정 문제를
+                // 조용히 넘어가지 않고 눈에 띄게 남김)
+                if (!self::$searchFailureLogged) {
+                    self::$searchFailureLogged = true;
+                    \Illuminate\Support\Facades\Log::warning('[market:fill-demo-images] Openverse search non-ok response', [
+                        'status' => $resp->status(),
+                        'body' => substr($resp->body(), 0, 300),
+                    ]);
+                }
+                return [];
+            }
             $results = $resp->json('results') ?? [];
             return collect($results)
                 ->pluck('url')
