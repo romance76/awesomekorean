@@ -18,6 +18,18 @@
     <span class="text-[11px] text-ink-faint w-full">공개 채팅방은 대상에서 제외됩니다. 매시간 자동 실행됩니다.</span>
   </div>
 
+  <div class="card p-4 mb-4 flex items-center gap-4 flex-wrap">
+    <div class="flex items-center gap-1.5 text-sm font-semibold text-ink"><AppIcon name="gift" :size="15" class="text-amber-600" />오픈 채팅방 참여 포인트 (이벤트 #127 기간에만 지급)</div>
+    <label class="text-xs text-ink-muted flex items-center gap-1.5">첫 참여
+      <input v-model.number="chatSettings.chat_first_join_bonus" type="number" min="0" class="input-soft !w-16 !px-2 !py-1 !text-xs text-center" />P
+    </label>
+    <label class="text-xs text-ink-muted flex items-center gap-1.5">매일 첫 참여
+      <input v-model.number="chatSettings.chat_daily_bonus" type="number" min="0" class="input-soft !w-16 !px-2 !py-1 !text-xs text-center" />P
+    </label>
+    <button @click="saveChatSettings" :disabled="savingChatSettings" class="btn-primary !px-3 !py-1.5 !text-xs">{{ savingChatSettings ? '저장중...' : '저장' }}</button>
+    <span class="text-[11px] text-ink-faint w-full">공개 채팅방 메시지 전송 시 지급. 이벤트 종료일(2026-11-30) 이후에는 자동으로 지급 중단됩니다.</span>
+  </div>
+
   <div class="flex gap-4 items-start">
     <!-- ─── 왼쪽: 방 목록 ─── -->
     <div class="w-2/5 flex-shrink-0">
@@ -342,7 +354,7 @@ const rooms = ref([])
 const roomsLoading = ref(true)
 const search = ref('')
 
-const chatSettings = ref({ inactive_lock_days: 7, lock_delete_days: 3 })
+const chatSettings = ref({ inactive_lock_days: 7, lock_delete_days: 3, chat_first_join_bonus: 20, chat_daily_bonus: 5 })
 const savingChatSettings = ref(false)
 const chatSettingsMsg = ref('')
 const chatSettingsMsgOk = ref(false)
@@ -352,8 +364,9 @@ async function loadChatSettings() {
     const { data } = await axios.get('/api/admin/chat/settings')
     const flat = {}
     Object.values(data.data || {}).flat().forEach(row => { flat[row.key] = row.value })
-    if (flat.inactive_lock_days !== undefined) chatSettings.value.inactive_lock_days = Number(flat.inactive_lock_days)
-    if (flat.lock_delete_days !== undefined) chatSettings.value.lock_delete_days = Number(flat.lock_delete_days)
+    ;['inactive_lock_days', 'lock_delete_days', 'chat_first_join_bonus', 'chat_daily_bonus'].forEach(k => {
+      if (flat[k] !== undefined) chatSettings.value[k] = Number(flat[k])
+    })
   } catch {}
 }
 async function saveChatSettings() {
@@ -362,6 +375,8 @@ async function saveChatSettings() {
     await axios.post('/api/admin/chat/settings', { settings: [
       { key: 'inactive_lock_days', value: String(chatSettings.value.inactive_lock_days) },
       { key: 'lock_delete_days', value: String(chatSettings.value.lock_delete_days) },
+      { key: 'chat_first_join_bonus', value: String(chatSettings.value.chat_first_join_bonus) },
+      { key: 'chat_daily_bonus', value: String(chatSettings.value.chat_daily_bonus) },
     ] })
     chatSettingsMsg.value = '저장되었습니다'; chatSettingsMsgOk.value = true
   } catch (e) {

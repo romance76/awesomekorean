@@ -132,6 +132,22 @@ class RealEstateController extends Controller
             ]
         ));
 
+        // 이벤트 #125 (부동산 리스팅 2배 포인트) 기간에만 자동 지급, 하루 상한까지만
+        $eventActive = \App\Models\Event::where('id', 125)
+            ->where('start_date', '<=', now())->where('end_date', '>=', now())
+            ->exists();
+        if ($eventActive) {
+            $base = $getSetting('realestate_listing_base', 20);
+            $dailyMax = $getSetting('realestate_listing_daily_max', 2);
+            $todayCount = \App\Models\PointLog::where('user_id', $user->id)
+                ->whereDate('created_at', today())
+                ->where('related_type', RealEstateListing::class)
+                ->count();
+            if ($todayCount < $dailyMax) {
+                $user->addPoints($base * 2, '부동산 리스팅 2배 포인트 이벤트', 'earn', ['type' => RealEstateListing::class, 'id' => $listing->id]);
+            }
+        }
+
         return response()->json(['success' => true, 'data' => $listing], 201);
     }
 
