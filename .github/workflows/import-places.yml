@@ -1,0 +1,39 @@
+name: Import Google Places (업소록)
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: '최대 신규 임포트 수 (0=무제한, 기본 0)'
+        required: false
+        default: '0'
+      city:
+        description: '특정 도시만 (예: Atlanta, 비워두면 전체 도시)'
+        required: false
+        default: ''
+
+jobs:
+  import:
+    name: Run places:import on server
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Run places:import via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 170m
+          script: |
+            set -e
+            cd /var/www/awesomekorean
+            LIMIT="${{ github.event.inputs.limit }}"
+            CITY="${{ github.event.inputs.city }}"
+            CMD="php8.2 artisan places:import --limit=${LIMIT:-0}"
+            if [ -n "$CITY" ]; then
+              CMD="$CMD --city=\"$CITY\""
+            fi
+            eval "$CMD"
