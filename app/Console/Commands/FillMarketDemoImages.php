@@ -10,14 +10,16 @@ use Illuminate\Support\Facades\Storage;
 /**
  * 중고장터 더미 아이템에 실물과 매칭되는 이미지를 채워 넣는다.
  * 저작권 문제를 피하기 위해 브랜드 매장/구글 이미지 대신
- * Openverse(오픈 라이선스 이미지 검색, commercial 라이선스만) API를 사용.
+ * Openverse(오픈 라이선스 이미지 검색, commercial 라이선스만) API를 사용하고,
+ * 브랜드 공식 스튜디오컷보다는 실제 판매글처럼 보이도록 개인이 올린 스냅샷이
+ * 대부분인 Flickr 소스로 한정한다.
  * 제목이 한글 브랜드 표기(예: "허먼밀러 에어론" = Herman Miller Aeron)인 경우가
  * 많아 단순 한글 제거로는 검색어가 안 나와서, 실제 108개 타이틀을 직접
  * 확인해 영어 검색어로 매핑한 사전을 사용한다.
  */
 class FillMarketDemoImages extends Command
 {
-    protected $signature = 'market:fill-demo-images {--limit=200 : 최대 처리 건수} {--per-item=3 : 아이템당 목표 이미지 수}';
+    protected $signature = 'market:fill-demo-images {--limit=200 : 최대 처리 건수} {--per-item=3 : 아이템당 목표 이미지 수} {--force : 이미지가 이미 있어도 다시 채움}';
     protected $description = '이미지 없는 중고장터 아이템에 오픈 라이선스 이미지를 채움';
 
     /** 제목에 포함된 키워드 → 영어 검색어 (구체적인 것부터 순서대로 매칭) */
@@ -152,14 +154,16 @@ class FillMarketDemoImages extends Command
     {
         $limit = (int) $this->option('limit');
         $perItem = max(1, (int) $this->option('per-item'));
+        $force = (bool) $this->option('force');
 
-        $items = MarketItem::where(function ($q) use ($perItem) {
+        $query = MarketItem::query();
+        if (!$force) {
+            $query->where(function ($q) use ($perItem) {
                 $q->whereNull('images')
                   ->orWhereRaw('JSON_LENGTH(images) < ?', [$perItem]);
-            })
-            ->orderBy('id')
-            ->limit($limit)
-            ->get();
+            });
+        }
+        $items = $query->orderBy('id')->limit($limit)->get();
 
         $this->info("대상: {$items->count()}건");
         $filled = 0;
@@ -190,6 +194,11 @@ class FillMarketDemoImages extends Command
             }
 
             if (!empty($stored)) {
+                if ($force && !empty($item->images)) {
+                    foreach ($item->images as $old) {
+                        Storage::disk('public')->delete($old);
+                    }
+                }
                 $item->update(['images' => $stored, 'thumbnail_index' => 0]);
                 $filled++;
                 $this->line("✓ [{$item->id}] {$item->title} ({$query}) — " . count($stored) . '장');
@@ -223,6 +232,9 @@ class FillMarketDemoImages extends Command
                 ->timeout(6)->get('https://api.openverse.org/v1/images/', [
                     'q' => $query,
                     'license_type' => 'commercial',
+                    // 브랜드 공식 스튜디오컷 대신 실제 개인이 올린 스냅샷 느낌이 나도록
+                    // 아마추어 사진이 대부분인 Flickr 소스로 한정
+                    'source' => 'flickr',
                     'page_size' => $count * 4,
                 ]);
             if (!$resp->ok()) return [];
