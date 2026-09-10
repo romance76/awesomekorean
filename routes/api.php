@@ -30,7 +30,6 @@ use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\FriendController;
 use App\Http\Controllers\API\MessageController;
 use App\Http\Controllers\API\ElderController;
-use App\Http\Controllers\API\MarketReservationController;
 use App\Http\Controllers\API\GameScoreController;
 use App\Http\Controllers\API\PaymentController;
 use App\Http\Controllers\API\AdminController;
@@ -229,11 +228,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/market/{id}', [MarketController::class, 'update']);
     Route::delete('/market/{id}', [MarketController::class, 'destroy']);
 
-    // Market Reservations (에스크로)
-    Route::post('/market/{id}/reserve', [MarketReservationController::class, 'reserve']);
-    Route::post('/market/reservations/{id}/complete', [MarketReservationController::class, 'complete']);
-    Route::post('/market/reservations/{id}/cancel', [MarketReservationController::class, 'cancel']);
-
     // 배너 광고 신청
     Route::get('/banners/my', [\App\Http\Controllers\API\BannerController::class, 'myBanners']);
     Route::post('/banners/apply', [\App\Http\Controllers\API\BannerController::class, 'store']);
@@ -241,6 +235,9 @@ Route::middleware('auth:api')->group(function () {
     // 홀드 (구매자가 포인트로 물건 예약)
     Route::post('/market/{id}/hold', [MarketController::class, 'hold']);
     Route::post('/market/{id}/hold/cancel', [MarketController::class, 'cancelHold']);
+    Route::post('/market/{id}/hold/meetup', [MarketController::class, 'scheduleMeetup']);
+    Route::post('/market/{id}/hold/complete', [MarketController::class, 'completeHold']);
+    Route::post('/market/{id}/review', [MarketController::class, 'submitReview']);
     // 상위노출 (판매자가 포인트로 부스트)
     Route::post('/market/{id}/boost', [MarketController::class, 'boost']);
     Route::post('/market/{id}/bump', [MarketController::class, 'bump']);

@@ -7,6 +7,7 @@ class MarketItem extends Model
     protected $casts = ['images'=>'array','price'=>'decimal:2','is_negotiable'=>'boolean','hold_enabled'=>'boolean','lat'=>'decimal:7','lng'=>'decimal:7','boosted_until'=>'datetime','last_bumped_at'=>'datetime','bumped_at'=>'datetime','promotion_expires_at'=>'datetime','promotion_states'=>'array'];
     public function user() { return $this->belongsTo(User::class); }
     public function reservations() { return $this->hasMany(MarketReservation::class); }
+    public function reviews() { return $this->hasMany(MarketReview::class); }
     public function comments() { return $this->morphMany(Comment::class, 'commentable'); }
     public function scopeNearby($q,$lat,$lng,$r=50) { return $q->selectRaw("*, (3959*acos(cos(radians(?))*cos(radians(lat))*cos(radians(lng)-radians(?))+sin(radians(?))*sin(radians(lat)))) AS distance",[$lat,$lng,$lat])->having('distance','<',$r); }
 }

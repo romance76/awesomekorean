@@ -100,11 +100,19 @@
                     <div class="text-[11px] text-amber-600 font-semibold">거래 {{ sellerTradeCount }}회</div>
                   </div>
                 </div>
-                <!-- 친구/쪽지 -->
+                <!-- 평점 -->
+                <div v-if="item.seller_rating?.count" class="flex items-center gap-1 text-[11px] text-amber-600 font-semibold">
+                  <AppIcon name="star" :size="12" />{{ item.seller_rating.average }} ({{ item.seller_rating.count }}건)
+                </div>
+                <!-- 친구/쪽지/채팅 -->
                 <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-1.5 pt-2 border-t border-gray-50">
                   <button @click="addFriend" class="flex-1 inline-flex items-center justify-center gap-1 text-[11px] bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100 transition-colors"><AppIcon name="user-plus" :size="12" />친구</button>
                   <button @click="sendMessage" class="flex-1 inline-flex items-center justify-center gap-1 text-[11px] bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100 transition-colors"><AppIcon name="mail" :size="12" />쪽지</button>
                 </div>
+                <button v-if="auth.isLoggedIn && !isOwner" @click="startChat" :disabled="chatStarting"
+                  class="w-full inline-flex items-center justify-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 font-bold py-1.5 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50">
+                  <AppIcon name="message-circle" :size="12" />실시간 채팅으로 문의
+                </button>
                 <!-- 전화 (있으면) -->
                 <a v-if="item.user?.phone" :href="'tel:'+item.user.phone"
                   class="btn-primary w-full py-1.5 text-[11px]">
@@ -121,6 +129,34 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- 거래 진행 상황: 홀드 중일 때 약속 잡기 + (판매자) 거래완료 -->
+        <div v-if="item.active_hold && (isOwner || isActiveBuyer)" class="card p-4 space-y-3">
+          <h2 class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="lock" :size="14" class="text-blue-500" />거래 진행 중</h2>
+          <div class="text-xs text-ink-muted">
+            {{ item.active_hold.buyer?.nickname || item.active_hold.buyer?.name }}님과 홀드 중 · 만료: {{ formatDateTime(item.active_hold.hold_until) }}
+          </div>
+          <div v-if="item.active_hold.meetup_at || item.active_hold.meetup_place" class="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 text-xs text-ink">
+            <div class="font-bold text-blue-700 flex items-center gap-1"><AppIcon name="calendar" :size="12" />거래 약속</div>
+            <div v-if="item.active_hold.meetup_at">{{ formatDateTime(item.active_hold.meetup_at) }}</div>
+            <div v-if="item.active_hold.meetup_place">{{ item.active_hold.meetup_place }}</div>
+          </div>
+          <button v-if="!showMeetupForm" @click="openMeetupForm" class="text-xs text-blue-600 font-semibold hover:underline">
+            {{ item.active_hold.meetup_at || item.active_hold.meetup_place ? '약속 수정' : '거래 약속 잡기' }}
+          </button>
+          <div v-if="showMeetupForm" class="space-y-2 bg-gray-50 rounded-lg p-3">
+            <input type="datetime-local" v-model="meetupForm.at" class="input-soft text-xs" />
+            <input type="text" v-model="meetupForm.place" placeholder="만날 장소 (예: OO마트 주차장)" maxlength="200" class="input-soft text-xs" />
+            <div class="flex gap-2">
+              <button @click="showMeetupForm=false" class="btn-secondary flex-1 py-1.5 text-xs">취소</button>
+              <button @click="submitMeetup" :disabled="meetupSaving" class="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-xs font-bold disabled:opacity-50">저장</button>
+            </div>
+          </div>
+          <button v-if="isOwner" @click="submitCompleteHold" :disabled="completingHold"
+            class="w-full inline-flex items-center justify-center gap-1 py-2 bg-emerald-500 text-white rounded-lg text-xs font-bold hover:bg-emerald-600 disabled:opacity-50">
+            <AppIcon name="check" :size="12" />거래완료 처리
+          </button>
         </div>
 
         <!-- 홀드 상태 + 수정/삭제 (모바일에서도 보이게) -->
@@ -161,6 +197,22 @@
         <!-- 수정/삭제 -->
         <div class="flex items-center gap-3 justify-end">
           <button @click="$router.back()" class="btn-ghost text-sm"><AppIcon name="arrow-left" :size="14" />목록</button>
+        </div>
+
+        <!-- 거래 후기 -->
+        <div v-if="item.reviews?.length || item.can_review" class="card p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="star" :size="14" class="text-amber-500" />거래 후기</h2>
+            <button v-if="item.can_review" @click="showReviewModal = true" class="text-xs text-blue-600 font-semibold hover:underline">후기 남기기</button>
+          </div>
+          <div v-if="!item.reviews?.length" class="text-xs text-ink-faint">아직 등록된 후기가 없습니다.</div>
+          <div v-for="r in item.reviews" :key="r.id" class="border-t border-gray-50 pt-2 first:border-0 first:pt-0">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-ink">
+              {{ r.reviewer?.nickname || r.reviewer?.name }}
+              <span class="text-amber-500 inline-flex items-center gap-0.5"><AppIcon name="star" :size="11" />{{ r.rating }}</span>
+            </div>
+            <div v-if="r.comment" class="text-xs text-ink-muted mt-0.5">{{ r.comment }}</div>
+          </div>
         </div>
 
         <CommentSection v-if="item.id" :type="'market'" :typeId="item.id" />
@@ -209,6 +261,21 @@
     </div>
   </div>
 
+
+  <!-- 거래 후기 모달 -->
+  <div v-if="showReviewModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showReviewModal=false">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-sm">
+      <h3 class="font-bold text-lg text-ink mb-3 flex items-center gap-1.5"><AppIcon name="star" :size="18" class="text-amber-500" />거래 후기 남기기</h3>
+      <div class="flex gap-1 mb-3 justify-center">
+        <button v-for="s in 5" :key="s" @click="reviewForm.rating = s" type="button" class="text-2xl leading-none" :class="s <= reviewForm.rating ? 'text-amber-400' : 'text-gray-200'">★</button>
+      </div>
+      <textarea v-model="reviewForm.comment" rows="3" maxlength="1000" placeholder="거래 경험을 남겨주세요 (선택)" class="input-soft text-sm mb-3"></textarea>
+      <div class="flex gap-2">
+        <button @click="showReviewModal=false" class="btn-secondary flex-1 py-2 text-sm">취소</button>
+        <button @click="submitReview" :disabled="reviewSaving" class="flex-1 py-2 bg-amber-500 text-white rounded-lg text-sm font-bold disabled:opacity-50">등록</button>
+      </div>
+    </div>
+  </div>
 
   <!-- 신고 모달 -->
   <ReportModal :show="showReport" reportableType="App\Models\MarketItem" :reportableId="item?.id"
@@ -263,6 +330,7 @@ const categories = [
 ]
 
 const isOwner = computed(() => item.value && String(item.value.user_id) === String(auth.user?.id))
+const isActiveBuyer = computed(() => item.value?.active_hold && String(item.value.active_hold.buyer_id) === String(auth.user?.id))
 const conditionLabel = computed(() => ({new:'새상품',like_new:'거의 새것',good:'양호',fair:'보통'})[item.value?.condition] || '')
 const categoryLabel = computed(() => categories.find(c => c.value === item.value?.category)?.label || '전체')
 const mainImage = computed(() => {
@@ -316,6 +384,69 @@ async function submitHold() {
   holdingInProgress.value = false
 }
 
+
+// 실시간 채팅 (판매자와 DM 채팅방 생성/재사용 후 이동)
+const chatStarting = ref(false)
+async function startChat() {
+  if (!item.value?.user_id) return
+  chatStarting.value = true
+  try {
+    const { data } = await axios.post('/api/chat/rooms', { type: 'dm', user_id: item.value.user_id })
+    router.push(`/chat/${data.data.id}`)
+  } catch (e) { siteStore.toast(e.response?.data?.message || '채팅방을 열 수 없습니다', 'error') }
+  chatStarting.value = false
+}
+
+// 거래 약속 시간/장소
+const showMeetupForm = ref(false)
+const meetupForm = ref({ at: '', place: '' })
+const meetupSaving = ref(false)
+function openMeetupForm() {
+  const h = item.value?.active_hold
+  meetupForm.value = {
+    at: h?.meetup_at ? new Date(h.meetup_at).toISOString().slice(0, 16) : '',
+    place: h?.meetup_place || '',
+  }
+  showMeetupForm.value = true
+}
+async function submitMeetup() {
+  meetupSaving.value = true
+  try {
+    const { data } = await axios.post(`/api/market/${item.value.id}/hold/meetup`, {
+      meetup_at: meetupForm.value.at || null,
+      meetup_place: meetupForm.value.place || null,
+    })
+    siteStore.toast(data.message, 'success'); showMeetupForm.value = false; loadItem()
+  } catch (e) { siteStore.toast(e.response?.data?.message || '저장 실패', 'error') }
+  meetupSaving.value = false
+}
+
+// 거래완료 (판매자)
+const completingHold = ref(false)
+async function submitCompleteHold() {
+  if (!confirm('거래를 완료 처리하시겠습니까? 완료 후에는 물품이 판매완료로 전환되고 서로 후기를 남길 수 있습니다.')) return
+  completingHold.value = true
+  try {
+    const { data } = await axios.post(`/api/market/${item.value.id}/hold/complete`)
+    siteStore.toast(data.message, 'success'); loadItem()
+  } catch (e) { siteStore.toast(e.response?.data?.message || '처리 실패', 'error') }
+  completingHold.value = false
+}
+
+// 거래 후기
+const showReviewModal = ref(false)
+const reviewForm = ref({ rating: 5, comment: '' })
+const reviewSaving = ref(false)
+async function submitReview() {
+  reviewSaving.value = true
+  try {
+    const { data } = await axios.post(`/api/market/${item.value.id}/review`, reviewForm.value)
+    siteStore.toast(data.message, 'success'); showReviewModal.value = false
+    reviewForm.value = { rating: 5, comment: '' }
+    loadItem()
+  } catch (e) { siteStore.toast(e.response?.data?.message || '등록 실패', 'error') }
+  reviewSaving.value = false
+}
 
 // 좋아요 (Bookmark API — bStore 동기화)
 const { liked, check: checkLike, toggle: doToggleLike } = useBookmarkLike(BM_TYPE)
