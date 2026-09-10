@@ -30,6 +30,8 @@ class FillMarketDemoImages extends Command
     private const MAX_RUNTIME_SECONDS = 420;
     /** Openverse 검색 실패를 실행당 한 번만 로그로 남기기 위한 플래그 */
     private static bool $searchFailureLogged = false;
+    private static ?int $searchFailureStatus = null;
+    private static ?string $searchFailureBody = null;
 
     /** 제목에 포함된 키워드 → 영어 검색어 (구체적인 것부터 순서대로 매칭) */
     private array $keywordMap = [
@@ -266,6 +268,8 @@ class FillMarketDemoImages extends Command
                 'consecutive_failures_at_end' => $consecutiveFailures,
                 'elapsed_seconds' => round(microtime(true) - $startedAt, 1),
                 'search_api_failed' => self::$searchFailureLogged,
+                'search_api_failure_status' => self::$searchFailureStatus,
+                'search_api_failure_body' => self::$searchFailureBody,
             ], JSON_PRETTY_PRINT),
         ]);
 
@@ -306,6 +310,8 @@ class FillMarketDemoImages extends Command
                 // 조용히 넘어가지 않고 눈에 띄게 남김)
                 if (!self::$searchFailureLogged) {
                     self::$searchFailureLogged = true;
+                    self::$searchFailureStatus = $resp->status();
+                    self::$searchFailureBody = substr($resp->body(), 0, 300);
                     \Illuminate\Support\Facades\Log::warning('[market:fill-demo-images] Openverse search non-ok response', [
                         'status' => $resp->status(),
                         'body' => substr($resp->body(), 0, 300),
