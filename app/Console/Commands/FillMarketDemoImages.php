@@ -159,6 +159,10 @@ class FillMarketDemoImages extends Command
 
     public function handle(): int
     {
+        // 고해상도 원본 이미지 디코딩 시 메모리를 넉넉히 확보 (CLI 프로세스 한정,
+        // 웹 요청에는 영향 없음)
+        @ini_set('memory_limit', '512M');
+
         $limit = (int) $this->option('limit');
         $perItem = max(1, (int) $this->option('per-item'));
         $force = (bool) $this->option('force');
@@ -289,6 +293,11 @@ class FillMarketDemoImages extends Command
                 $resp = Http::withHeaders(['User-Agent' => self::USER_AGENT])->timeout(8)->get($url);
             }
             if (!$resp->ok() || strlen($resp->body()) < 2000) return null;
+            // Wikimedia 등 원본이 수 MB짜리 고해상도 사진인 경우가 많아, 디코딩 시
+            // 압축 크기의 수십 배에 달하는 메모리를 써서 PHP 메모리 한도를 넘기면
+            // (Allowed memory size exhausted) 예외로 잡히지 않고 프로세스 자체가
+            // 죽어버릴 수 있음 — 디코딩 전에 원본 용량으로 미리 걸러냄
+            if (strlen($resp->body()) > 4_000_000) return null;
 
             $img = \Intervention\Image\Laravel\Facades\Image::read($resp->body());
             $img->scaleDown(800, 800);
