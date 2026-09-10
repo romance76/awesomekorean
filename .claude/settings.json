@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s *)",
+      "Bash(php -l *)",
+      "Bash(git fetch *)"
+    ]
+  }
+}
