@@ -204,12 +204,16 @@ class FillMarketDemoImages extends Command
             }
 
             $query = $this->buildQuery($item);
-            $urls = $this->searchImages($query, $perItem);
+            $urls = $this->searchImages($query, $perItem, $this->relevanceTerms($query));
 
             if (count($urls) < $perItem) {
                 $fallbackQuery = $this->categoryFallback[$item->category] ?? 'product';
                 if ($fallbackQuery !== $query) {
-                    $more = $this->searchImages($fallbackQuery, $perItem - count($urls));
+                    // 폴백(카테고리 일반 검색어)은 특정 상품명 검색보다 훨씬
+                    // 느슨해서 무관한 사진이 섞이기 쉬움(예: "가구" 검색에
+                    // 상품과 무관한 사진) — 폴백 검색어 자체를 기준으로도
+                    // 관련성 검사를 적용해 완전히 무관한 결과는 거름
+                    $more = $this->searchImages($fallbackQuery, $perItem - count($urls), $this->relevanceTerms($fallbackQuery));
                     $urls = array_merge($urls, $more);
                 }
             }
@@ -286,9 +290,40 @@ class FillMarketDemoImages extends Command
         return $this->categoryFallback[$item->category] ?? 'product';
     }
 
+    /** 검색어를 관련성 검사용 단어 목록으로 분해 (너무 짧거나 흔한 단어는 제외) */
+    private const STOPWORDS = ['and', 'for', 'with', 'the', 'set'];
+
+    private function relevanceTerms(string $query): array
+    {
+        return collect(preg_split('/\s+/', strtolower($query)))
+            ->filter(fn($w) => mb_strlen($w) >= 4 && !in_array($w, self::STOPWORDS, true))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * 검색 결과가 실제로 검색어와 관련 있는지 제목/태그로 최소한의 검사.
+     * Openverse 인덱스에 태그가 부정확한 사진이 섞여 있어(예: "자전거" 검색에
+     * 축구장 사진, "히트텍" 검색에 달력 사진), 완전히 무관한 결과를 걸러냄.
+     */
+    private function isRelevant(array $result, array $terms): bool
+    {
+        if (empty($terms)) return true;
+        $haystack = strtolower($result['title'] ?? '');
+        foreach (($result['tags'] ?? []) as $tag) {
+            // Openverse 태그는 보통 {"name": "..."} 객체지만 혹시 문자열로
+            // 오더라도 깨지지 않게 방어
+            $haystack .= ' ' . strtolower(is_array($tag) ? ($tag['name'] ?? '') : (string) $tag);
+        }
+        foreach ($terms as $term) {
+            if (str_contains($haystack, $term)) return true;
+        }
+        return false;
+    }
+
     private const USER_AGENT = 'AwesomeKoreanBot/1.0 (https://awesomekorean.com; demo listing images)';
 
-    private function searchImages(string $query, int $count): array
+    private function searchImages(string $query, int $count, array $relevanceTerms = []): array
     {
         try {
             $resp = Http::withHeaders(['User-Agent' => self::USER_AGENT])
@@ -321,6 +356,10 @@ class FillMarketDemoImages extends Command
             }
             $results = $resp->json('results') ?? [];
             return collect($results)
+                // 검색어와 무관한(제목/태그에 검색어가 전혀 안 나오는) 결과를
+                // 먼저 걸러낸 뒤에 URL을 뽑음 — 완전히 엉뚱한 사진(예: 자전거
+                // 검색에 축구장 사진)이 섞여 들어가는 것을 방지
+                ->filter(fn($r) => $this->isRelevant($r, $relevanceTerms))
                 ->pluck('url')
                 ->filter()
                 // Flickr(live.staticflickr.com)는 이 서버 IP를 계속 403으로 막고
