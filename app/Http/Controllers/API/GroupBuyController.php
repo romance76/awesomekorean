@@ -262,6 +262,26 @@ class GroupBuyController extends Controller
         return response()->json(['success' => true, 'message' => '공동구매가 삭제되었습니다.']);
     }
 
+    /**
+     * Stripe 결제 검증 — 이전엔 클라이언트가 보낸 payment_id가 존재하기만 하면
+     * 실제 Stripe 결제 여부·금액을 전혀 확인하지 않고 바로 'paid' 처리했음
+     * (PaymentController::confirm()에서 실측 확인된 것과 동일한 패턴의 취약점).
+     * PaymentIntent를 직접 조회해 상태·금액을 검증한 뒤에만 결제완료로 인정.
+     */
+    private function verifyStripePayment(?string $paymentId, int $expectedAmountCents): bool
+    {
+        if (!$paymentId) return false;
+        $stripeSecret = config('services.stripe.secret');
+        if (!$stripeSecret) return false;
+        try {
+            \Stripe\Stripe::setApiKey($stripeSecret);
+            $intent = \Stripe\PaymentIntent::retrieve($paymentId);
+        } catch (\Exception $e) {
+            return false;
+        }
+        return $intent->status === 'succeeded' && (int) $intent->amount === $expectedAmountCents;
+    }
+
     public function join(Request $request, $id)
     {
         $gb = GroupBuy::findOrFail($id);
@@ -317,7 +337,7 @@ class GroupBuyController extends Controller
                 case 'stripe':
                     $paymentType = 'stripe';
                     $paymentId = $request->input('payment_id');
-                    $status = $paymentId ? 'paid' : 'pending';
+                    $status = $this->verifyStripePayment($paymentId, (int) round($amount)) ? 'paid' : 'pending';
                     break;
 
                 case 'both':
@@ -330,7 +350,7 @@ class GroupBuyController extends Controller
                         $status = 'paid';
                     } else {
                         $paymentId = $request->input('payment_id');
-                        $status = $paymentId ? 'paid' : 'pending';
+                        $status = $this->verifyStripePayment($paymentId, (int) round($amount)) ? 'paid' : 'pending';
                     }
                     break;
             }
