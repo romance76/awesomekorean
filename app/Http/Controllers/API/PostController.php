@@ -42,6 +42,19 @@ class PostController extends Controller
     public function show($id)
     {
         $post = Post::with('user:id,name,nickname,avatar', 'board:id,name,slug')->findOrFail($id);
+
+        // index()는 visible() 스코프로 숨김글을 걸러내지만 show()는 그렇지 않아,
+        // 숨김(관리자 숨김 또는 작성자 본인 삭제) 처리된 글도 직접 URL로는 그대로
+        // 전체 공개되던 취약점(실측 확인). 작성자 본인/관리자만 예외적으로 조회 가능.
+        if ($post->is_hidden) {
+            $user = auth('api')->user();
+            $isOwner = $user && $user->id === $post->user_id;
+            $isAdmin = $user && in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
+            if (!$isOwner && !$isAdmin) {
+                abort(404);
+            }
+        }
+
         $post->increment('view_count');
 
         // 좋아요/북마크 상태

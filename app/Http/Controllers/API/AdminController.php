@@ -151,7 +151,9 @@ class AdminController extends Controller
         return response()->json(['success' => true, 'data' => [
             'total' => \App\Models\Call::count(),
             'answered' => \App\Models\Call::where('status', 'answered')->orWhere('status', 'ended')->count(),
-            'missed' => \App\Models\Call::where('status', 'initiated')->count(),
+            // 실제 부재중 상태값은 'missed' (ElderScheduledCallCommand 등에서 설정) — 'initiated'는
+            // 통화가 시작된 직후의 일시적 상태일 뿐이라 항상 0에 가까운 값만 집계되던 오류(실측 확인).
+            'missed' => \App\Models\Call::where('status', 'missed')->count(),
             'today' => \App\Models\Call::whereDate('created_at', today())->count(),
             'avg_duration' => (int) \App\Models\Call::where('duration', '>', 0)->avg('duration'),
         ]]);
