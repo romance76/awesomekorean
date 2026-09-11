@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
-use App\Models\{User, Post, JobPost, MarketItem, Business, BusinessClaim, Event, News, Report, Board, Banner, IpBan, Payment, ChatRoom, ChatRoomUser, ChatMessage, ElderCheckinLog, ElderSosLog, QaPost, RealEstateListing, GroupBuy, Club};
+use App\Models\{User, Post, JobPost, MarketItem, Business, BusinessClaim, Event, News, Report, Board, Banner, IpBan, Payment, ChatRoom, ChatRoomUser, ChatMessage, ElderCheckinLog, ElderSosLog, QaPost, RealEstateListing, GroupBuy, Club, Friend};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -86,6 +86,21 @@ class AdminController extends Controller
     public function createBoard(Request $request) { return response()->json(['success'=>true,'data'=>Board::create($request->only('name','slug','description','sort_order'))]); }
     public function updateBoard(Request $request, $id) { Board::findOrFail($id)->update($request->only('name','slug','description','sort_order','is_active')); return response()->json(['success'=>true]); }
     public function deleteBoard($id) { Board::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
+
+    // 관리자: 전체 회원 친구관계 목록 — 이전엔 관리자 화면이 일반 사용자용
+    // /api/friends(항상 auth()->id() 본인 것만 반환)를 그대로 호출해, 관리자가
+    // 자기 자신의 친구목록만 보게 되던 문제 수정(실측 확인). 전체 관계를 조회.
+    public function friends(Request $request) {
+        $q = Friend::with('user:id,name,nickname,avatar', 'friend:id,name,nickname,avatar')
+            ->orderByDesc('created_at');
+        if ($request->status) $q->where('status', $request->status);
+        $paginated = $q->paginate(20);
+        $paginated->getCollection()->transform(function ($f) {
+            $f->name = ($f->user->nickname ?? $f->user->name ?? '?') . ' → ' . ($f->friend->nickname ?? $f->friend->name ?? '?');
+            return $f;
+        });
+        return response()->json(['success'=>true,'data'=>$paginated]);
+    }
 
     public function reports(Request $request) {
         $q = Report::with('reporter:id,name,nickname')->orderByDesc('created_at');
