@@ -2,11 +2,22 @@
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Friend;
+use App\Models\Notification;
 use App\Models\User;
+use App\Events\NewNotification;
 use Illuminate\Http\Request;
 
 class FriendController extends Controller
 {
+    // 친구 요청/수락 알림이 전혀 없어 신청자·수신자 모두 페이지를 직접 열어봐야만
+    // 알 수 있던 문제 수정 — MessageController::store()와 동일한 패턴.
+    private function notify(int $userId, string $type, string $title, string $content, array $data = []): void
+    {
+        Notification::create(['user_id' => $userId, 'type' => $type, 'title' => $title, 'content' => $content, 'data' => $data]);
+        $unread = Notification::where('user_id', $userId)->whereNull('read_at')->count();
+        try { broadcast(new NewNotification($userId, $unread, $title))->toOthers(); } catch (\Exception $e) {}
+    }
+
     // 전체 친구 목록 (모든 상태 + 온라인 정보)
     public function index(Request $request) {
         $userId = auth()->id();
@@ -96,6 +107,7 @@ class FriendController extends Controller
                 ['user_id' => auth()->id(), 'friend_id' => $userId],
                 ['status' => 'accepted', 'source' => $request->source ?? 'community']
             );
+            $this->notify($userId, 'friend_accepted', '친구 요청이 수락되었습니다', auth()->user()->name . '님과 서로 친구가 되었습니다.');
             return response()->json(['success' => true, 'message' => '서로 친구가 되었습니다!', 'auto_accepted' => true]);
         }
 
@@ -110,6 +122,7 @@ class FriendController extends Controller
             'source' => $request->source ?? 'community',
             'expires_at' => now()->addDays(7),
         ]);
+        $this->notify($userId, 'friend_request', '새 친구 요청이 도착했습니다', auth()->user()->name . '님이 친구 요청을 보냈습니다.', ['friend_id' => $friend->id]);
         return response()->json(['success' => true, 'message' => '친구 요청을 보냈습니다', 'data' => $friend]);
     }
 
@@ -136,6 +149,7 @@ class FriendController extends Controller
             ['user_id' => auth()->id(), 'friend_id' => $req->user_id],
             ['status' => 'accepted', 'source' => $req->source]
         );
+        $this->notify($req->user_id, 'friend_accepted', '친구 요청이 수락되었습니다', auth()->user()->name . '님과 서로 친구가 되었습니다.');
         return response()->json(['success' => true, 'message' => '친구 요청을 수락했습니다']);
     }
 

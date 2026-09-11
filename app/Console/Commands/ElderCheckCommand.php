@@ -109,7 +109,10 @@ class ElderCheckCommand extends Command
                 'user_id' => $setting->guardian_user_id,
                 'type'    => 'elder_checkin_missed',
                 'title'   => "노인안심 {$alertType}",
-                'body'    => "{$userName}님이 체크인에 응답하지 않았습니다. 확인이 필요합니다.",
+                // Notification::$fillable엔 'content'만 있고 'body'는 없어(실제
+                // 컬럼명도 content) 이 필드가 조용히 저장 안 되고 알림 본문이
+                // 항상 비어 있던 문제 수정 — 프론트(Notifications.vue)도 n.content를 읽음.
+                'content' => "{$userName}님이 체크인에 응답하지 않았습니다. 확인이 필요합니다.",
                 'data'    => json_encode([
                     'elder_user_id' => $setting->user_id,
                     'alert_type'    => $alertType,
@@ -150,7 +153,7 @@ class ElderCheckCommand extends Command
             'user_id' => $setting->user_id,
             'type'    => 'elder_checkin_missed',
             'title'   => '체크인 알림',
-            'body'    => '오늘 체크인을 아직 하지 않으셨습니다. 체크인을 해주세요.',
+            'content' => '오늘 체크인을 아직 하지 않으셨습니다. 체크인을 해주세요.',
             'data'    => json_encode([]),
             'url'     => '/elder',
         ]);
