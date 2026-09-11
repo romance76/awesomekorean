@@ -220,8 +220,24 @@ class AdminController extends Controller
 
     // 회원 정보 수정 (관리자)
     public function updateUser(Request $request, $id) {
+        $admin = auth()->user();
         $user = User::findOrFail($id);
-        $user->update($request->only('name','nickname','email','role','points','game_points','city','state','phone','bio','is_banned','ban_reason'));
+        $user->update($request->only('name','nickname','email','city','state','phone','bio'));
+
+        // role/points/game_points/is_banned/ban_reason은 User::$fillable에서 의도적으로
+        // 제외돼 있어(mass-assignment 방지 주석 참고) 위 update()로는 저장되지 않고 조용히
+        // 무시됨 — forceFill로 명시적으로 반영. role 변경은 권한 상승 위험이 있어 super_admin만 허용.
+        $sensitive = $request->only('points', 'game_points', 'is_banned', 'ban_reason');
+        if ($request->has('role')) {
+            if ($admin->role !== 'super_admin') {
+                return response()->json(['success' => false, 'message' => '등급 변경은 슈퍼관리자만 가능합니다'], 403);
+            }
+            $sensitive['role'] = $request->role;
+        }
+        if ($sensitive) {
+            $user->forceFill($sensitive)->save();
+        }
+
         return response()->json(['success'=>true,'data'=>$user->fresh(),'message'=>'회원 정보가 수정되었습니다']);
     }
 
@@ -279,11 +295,14 @@ class AdminController extends Controller
             return response()->json(['success'=>false,'message'=>'다른 슈퍼관리자 계정은 삭제할 수 없습니다'], 422);
         }
         $user->update([
-            'is_banned' => true,
-            'ban_reason' => '관리자에 의한 계정 삭제',
             'email' => 'deleted_' . $user->id . '_' . $user->email,
             'password' => \Hash::make(\Str::random(32)),
         ]);
+        // is_banned/ban_reason은 $fillable에서 제외돼 있어 update()로는 저장 안 됨 — forceFill 사용
+        $user->forceFill([
+            'is_banned' => true,
+            'ban_reason' => '관리자에 의한 계정 삭제',
+        ])->save();
         \Log::warning('Admin deleted account', ['admin_id'=>$admin->id,'target_id'=>$user->id]);
         return response()->json(['success'=>true,'message'=>'계정이 삭제되었습니다 (복구 가능)']);
     }
@@ -755,10 +774,11 @@ class AdminController extends Controller
         if ($user->role === 'admin' || $user->role === 'super_admin') {
             return response()->json(['success'=>false,'message'=>'관리자는 영구제명할 수 없습니다'], 403);
         }
-        $user->update([
+        // is_banned/ban_reason은 $fillable에서 제외돼 있어 update()로는 저장 안 됨 — forceFill 사용
+        $user->forceFill([
             'is_banned' => true,
             'ban_reason' => $request->reason ?: '채팅 관리자 영구제명',
-        ]);
+        ])->save();
         // 모든 채팅방에서 즉시 제거
         ChatRoomUser::where('user_id', $userId)->delete();
         return response()->json(['success'=>true,'message'=>'영구제명되었습니다']);

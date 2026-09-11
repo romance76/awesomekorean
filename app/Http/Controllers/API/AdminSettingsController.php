@@ -22,6 +22,14 @@ class AdminSettingsController extends Controller
                 $settings[$key] = $decoded;
             }
         }
+
+        // API 키 목록은 이 엔드포인트로 중복 노출할 필요가 없음 — getApiKeys()
+        // 전용 엔드포인트(마스킹 처리됨)로만 노출. (Stripe 키 등 나머지 값은 설정
+        // 편집 화면이 현재값을 불러와 그대로 재저장하는 구조라 여기서 마스킹하면
+        // 저장 시 마스킹된 값으로 덮어써지므로 건드리지 않음 — 접근 자체를
+        // super_admin으로 제한하는 것으로 대응)
+        unset($settings['api_keys']);
+
         return response()->json(['success'=>true,'data'=>$settings]);
     }
 
@@ -144,10 +152,12 @@ class AdminSettingsController extends Controller
     public function getApiKeys() {
         $setting = SiteSetting::where('key', 'api_keys')->first();
         $keys = $setting ? json_decode($setting->value, true) : [];
-        // 키 마스킹
+        // 목록 응답에는 마스킹된 값만 내려줌 — 원본 api_key는 여기 포함하면 안 됨
+        // (reveal() 전용 엔드포인트에서만, super_admin 한정으로 노출)
         foreach ($keys as &$k) {
             $k['masked_key'] = substr($k['api_key'] ?? '', 0, 8) . '••••••••';
             $k['showFull'] = false;
+            unset($k['api_key']);
         }
         return response()->json(['success'=>true,'data'=>$keys]);
     }

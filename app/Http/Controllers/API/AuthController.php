@@ -58,7 +58,9 @@ class AuthController extends Controller
 
         $user = auth()->user();
         if ($user->is_banned) {
-            JWTAuth::invalidate($token);
+            // JWTAuth::attempt()가 반환하는 $token은 문자열이라 invalidate()에 그대로
+            // 넘기면 타입 오류로 500이 남 — logout()과 동일하게 getToken()으로 넘김
+            try { JWTAuth::invalidate(JWTAuth::getToken()); } catch (\Exception $e) {}
             return response()->json(['success' => false, 'message' => '정지된 계정입니다: ' . $user->ban_reason], 403);
         }
 
