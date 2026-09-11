@@ -141,7 +141,9 @@ Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
-Route::get('/events/{id}/attendees', [EventController::class, 'attendees']);
+// 참석자 명단(이름·아바타 포함)이 비로그인 상태로도 누구나 조회 가능했던
+// 경미한 프라이버시 문제 수정 — 로그인한 회원만 조회 가능하도록 제한.
+Route::get('/events/{id}/attendees', [EventController::class, 'attendees'])->middleware('auth:api');
 Route::get('/qa', [QaController::class, 'index']);
 Route::get('/qa/categories', [QaController::class, 'categories']);
 Route::get('/qa/{id}', [QaController::class, 'show']);
@@ -550,6 +552,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/boards/{id}', [AdminController::class, 'deleteBoard']);
     Route::get('/reports', [AdminController::class, 'reports']);
     Route::put('/reports/{id}', [AdminController::class, 'updateReport']);
+    Route::get('/friends', [AdminController::class, 'friends']);
     Route::get('/banners', [AdminController::class, 'bannerList']);
     Route::get('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettings']);
     Route::post('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveAdPageSettings']);

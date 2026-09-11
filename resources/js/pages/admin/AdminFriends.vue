@@ -1,6 +1,6 @@
 <template>
 <div>
-  <AdminListView icon="👫" title="친구 관리" api-url="/api/friends"
+  <AdminListView icon="👫" title="친구 관리" api-url="/api/admin/friends"
     :extra-cols='[]'
     @open-user="u => { selectedUserId = u?.id; showUser = true }" />
   <AdminUserModal :show="showUser" :user-id="selectedUserId" @close="showUser=false" />
