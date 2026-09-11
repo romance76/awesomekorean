@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\GroupBuy;
 use App\Models\GroupBuyParticipant;
+use App\Models\Notification;
+use App\Events\NewNotification;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
@@ -14,6 +16,15 @@ use Illuminate\Support\Facades\Storage;
 class GroupBuyController extends Controller
 {
     use AdminAuthorizes, CompressesUploads, HasAdjacent;
+
+    // 공동구매 승인/거절/완료 결과를 주최자가 통지받지 못하던 문제 수정 —
+    // MessageController와 동일한 패턴.
+    private function notify(int $userId, string $type, string $title, string $content, array $data = []): void
+    {
+        Notification::create(['user_id' => $userId, 'type' => $type, 'title' => $title, 'content' => $content, 'data' => $data]);
+        $unread = Notification::where('user_id', $userId)->whereNull('read_at')->count();
+        try { broadcast(new NewNotification($userId, $unread, $title))->toOthers(); } catch (\Exception $e) {}
+    }
 
     public function index(Request $request)
     {
@@ -411,6 +422,8 @@ class GroupBuyController extends Controller
             'rejection_reason' => null,
         ]);
 
+        $this->notify($gb->user_id, 'groupbuy_approved', '공동구매가 승인되었습니다', "'{$gb->title}' 공동구매가 승인되었습니다.", ['groupbuy_id' => $id]);
+
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);
     }
 
@@ -440,6 +453,8 @@ class GroupBuyController extends Controller
             ]);
         });
 
+        $this->notify($gb->user_id, 'groupbuy_rejected', '공동구매가 반려되었습니다', "'{$gb->title}' 공동구매가 반려되었습니다. 사유: {$request->rejection_reason}", ['groupbuy_id' => $id]);
+
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);
     }
 
@@ -454,6 +469,11 @@ class GroupBuyController extends Controller
         }
 
         $gb->update(['status' => 'completed']);
+
+        $this->notify($gb->user_id, 'groupbuy_completed', '공동구매가 완료 처리되었습니다', "'{$gb->title}' 공동구매가 완료 처리되었습니다.", ['groupbuy_id' => $id]);
+        foreach ($gb->participants()->where('status', 'paid')->pluck('user_id') as $participantId) {
+            $this->notify($participantId, 'groupbuy_completed', '참여한 공동구매가 완료되었습니다', "'{$gb->title}' 공동구매가 완료 처리되었습니다.", ['groupbuy_id' => $id]);
+        }
 
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);
     }

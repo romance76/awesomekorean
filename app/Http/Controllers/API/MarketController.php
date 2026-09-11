@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\MarketItem;
 use App\Models\MarketReservation;
+use App\Models\Notification;
 use App\Models\User;
+use App\Events\NewNotification;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
@@ -16,6 +18,15 @@ use Carbon\Carbon;
 class MarketController extends Controller
 {
     use AdminAuthorizes, CompressesUploads, HasAdjacent, HasPromotions;
+
+    // 홀드/거래완료/후기 전 과정에 알림이 전혀 없어 판매자·구매자 모두 페이지를
+    // 직접 열어봐야만 알 수 있던 문제 수정 — MessageController와 동일한 패턴.
+    private function notify(int $userId, string $type, string $title, string $content, array $data = []): void
+    {
+        Notification::create(['user_id' => $userId, 'type' => $type, 'title' => $title, 'content' => $content, 'data' => $data]);
+        $unread = Notification::where('user_id', $userId)->whereNull('read_at')->count();
+        try { broadcast(new NewNotification($userId, $unread, $title))->toOthers(); } catch (\Exception $e) {}
+    }
 
     protected string $promoResource = 'market';
     protected string $promoModel = MarketItem::class;
@@ -372,6 +383,8 @@ class MarketController extends Controller
         // 아이템 상태 변경
         $item->update(['status' => 'reserved']);
 
+        $this->notify($item->user_id, 'market_hold', '내 물건에 홀드가 걸렸습니다', "'{$item->title}' 물건이 {$hours}시간 홀드되었습니다. {$sellerReceived}P가 지급되었습니다.", ['item_id' => $id]);
+
         return response()->json([
             'success' => true,
             'message' => "{$hours}시간 홀드 완료! {$totalCost}P 차감됨 (판매자 {$sellerReceived}P, 수수료 {$commission}P)",
@@ -403,6 +416,9 @@ class MarketController extends Controller
         $item->update(['status' => 'active']);
 
         // 홀드 포인트는 환불 안 함 (서비스 이용료 개념)
+
+        $otherId = $user->id === $reservation->buyer_id ? $reservation->seller_id : $reservation->buyer_id;
+        $this->notify($otherId, 'market_hold_cancelled', '홀드가 취소되었습니다', "'{$item->title}' 거래의 홀드가 상대방에 의해 취소되었습니다.", ['item_id' => $id]);
 
         return response()->json(['success' => true, 'message' => '홀드가 취소되었습니다']);
     }
@@ -450,7 +466,10 @@ class MarketController extends Controller
             ->firstOrFail();
 
         $reservation->update(['status' => 'completed', 'completed_at' => now()]);
-        MarketItem::where('id', $id)->update(['status' => 'sold']);
+        $item = MarketItem::where('id', $id)->first();
+        $item?->update(['status' => 'sold']);
+
+        $this->notify($reservation->buyer_id, 'market_trade_completed', '거래가 완료 처리되었습니다', "'" . ($item->title ?? '') . "' 거래가 판매자에 의해 완료 처리되었습니다. 후기를 남겨보세요.", ['item_id' => $id]);
 
         return response()->json(['success' => true, 'message' => '거래가 완료 처리되었습니다. 이제 서로 거래 후기를 남길 수 있습니다.']);
     }
@@ -494,6 +513,8 @@ class MarketController extends Controller
             'rating' => $request->rating,
             'comment' => $request->comment,
         ]);
+
+        $this->notify($revieweeId, 'market_review', '새 거래 후기가 등록되었습니다', auth()->user()->name . "님이 거래 후기를 남겼습니다 (평점 {$request->rating}점).", ['item_id' => $id, 'review_id' => $review->id]);
 
         return response()->json(['success' => true, 'message' => '후기가 등록되었습니다', 'data' => $review], 201);
     }
