@@ -387,11 +387,21 @@ class GroupBuyController extends Controller
 
     // --- Admin Methods ---
 
-    public function adminApprove(Request $request, $id)
+    // AdminMiddleware가 admin/super_admin/moderator 전부를 /admin/* 통과시키는데
+    // 여기는 정확히 'admin' 문자열만 확인해 super_admin/moderator가 전부 403을
+    // 받고 있었음(실측 확인 — role='admin' 계정이 시스템에 1개뿐이라 사실상
+    // 아무도 못 쓰는 상태였음) — 미들웨어와 동일한 허용 목록으로 통일
+    private function assertGroupBuyAdmin(): ?\Illuminate\Http\JsonResponse
     {
-        if (auth()->user()->role !== 'admin') {
+        if (!in_array(auth()->user()->role, ['admin', 'super_admin', 'moderator'], true)) {
             return response()->json(['success' => false, 'message' => '권한이 없습니다.'], 403);
         }
+        return null;
+    }
+
+    public function adminApprove(Request $request, $id)
+    {
+        if ($res = $this->assertGroupBuyAdmin()) return $res;
 
         $gb = GroupBuy::findOrFail($id);
         $gb->update([
@@ -406,26 +416,36 @@ class GroupBuyController extends Controller
 
     public function adminReject(Request $request, $id)
     {
-        if (auth()->user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => '권한이 없습니다.'], 403);
-        }
+        if ($res = $this->assertGroupBuyAdmin()) return $res;
 
         $request->validate(['rejection_reason' => 'required|string|max:500']);
 
         $gb = GroupBuy::findOrFail($id);
-        $gb->update([
-            'is_approved' => false,
-            'rejection_reason' => $request->rejection_reason,
-        ]);
+
+        // 승인됐다가 반려되는 경우 이미 결제 참여한 사람들의 포인트를
+        // destroy()와 동일한 방식으로 환불 — 실측 확인된 자금 유실 버그
+        // (반려해도 참여자 포인트가 그대로 사라지고 있었음)
+        DB::transaction(function () use ($gb, $request) {
+            $paidParticipants = $gb->participants()->where('status', 'paid')->get();
+            foreach ($paidParticipants as $p) {
+                if ($p->payment_type === 'point' && $p->paid_amount > 0) {
+                    $p->user->addPoints($p->paid_amount, "공동구매 반려 환불: {$gb->title}", 'groupbuy_refund', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
+                }
+                $p->update(['status' => 'refunded']);
+            }
+
+            $gb->update([
+                'is_approved' => false,
+                'rejection_reason' => $request->rejection_reason,
+            ]);
+        });
 
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);
     }
 
     public function adminComplete($id)
     {
-        if (auth()->user()->role !== 'admin') {
-            return response()->json(['success' => false, 'message' => '권한이 없습니다.'], 403);
-        }
+        if ($res = $this->assertGroupBuyAdmin()) return $res;
 
         $gb = GroupBuy::findOrFail($id);
 
