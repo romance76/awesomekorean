@@ -43,6 +43,25 @@ class AdminBoardController extends Controller
     }
 
     /**
+     * 관리자 대시보드의 "총 개수"가 실제 공개 목록과 어긋나던 문제 수정
+     * (실측: 구인구직 102(관리자 총계) vs 101(실제 공개 목록) 등) — 비활성/거절/
+     * 숨김 처리된 글까지 그냥 다 세고 있었음. 각 모델의 공개 여부 필드를 반영해 집계.
+     */
+    protected function visibleCount(string $model): int
+    {
+        $fillable = (new $model)->getFillable();
+        $query = $model::query();
+        if (in_array('is_active', $fillable, true)) {
+            $query->where('is_active', true);
+        } elseif (in_array('is_approved', $fillable, true)) {
+            $query->where('is_approved', true);
+        } elseif (in_array('is_hidden', $fillable, true)) {
+            $query->where('is_hidden', false);
+        }
+        return $query->count();
+    }
+
+    /**
      * 지원 게시판 전체 목록 (메타)
      */
     public function list()
@@ -54,7 +73,7 @@ class AdminBoardController extends Controller
                 'slug' => $slug,
                 'label' => $cfg['label'],
                 'icon' => $cfg['icon'],
-                'total' => $model::count(),
+                'total' => $this->visibleCount($model),
                 'today' => $model::whereDate('created_at', today())->count(),
             ];
         }
@@ -604,7 +623,7 @@ class AdminBoardController extends Controller
                 'slug' => $slug,
                 'label' => $cfg['label'],
                 'icon' => $cfg['icon'],
-                'total' => $model::count(),
+                'total' => $this->visibleCount($model),
                 'today' => $model::whereDate('created_at', today())->count(),
                 'week' => $model::where('created_at', '>=', now()->subWeek())->count(),
                 'reports' => Report::where('reportable_type', $model)->where('status', 'pending')->count(),

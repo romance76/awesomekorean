@@ -157,6 +157,18 @@ class JobController extends Controller
     public function show($id)
     {
         $job = JobPost::with('user:id,name,nickname,avatar')->findOrFail($id);
+
+        // index()는 active() 스코프로 비활성(삭제된) 글을 걸러내지만 show()는 그렇지
+        // 않아, 삭제된 글도 직접 URL로는 계속 전체 공개되던 문제(Post::show()와 동일 패턴).
+        if (!$job->is_active) {
+            $user = auth('api')->user();
+            $isOwner = $user && $user->id === $job->user_id;
+            $isAdmin = $user && in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
+            if (!$isOwner && !$isAdmin) {
+                abort(404);
+            }
+        }
+
         $job->increment('view_count');
         // Kay 요청: 같은 카테고리·post_type 내 이전/다음
         $adj = $this->adjacentPair(JobPost::class, $id, 'title', [

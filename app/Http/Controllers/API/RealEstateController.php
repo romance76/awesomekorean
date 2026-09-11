@@ -36,8 +36,16 @@ class RealEstateController extends Controller
 
         $query = RealEstateListing::with('user:id,name,nickname');
         // user_id 필터: 본인 것은 비활성 포함, 남의 것은 active 만
+        // 이전엔 user_id가 실제 로그인한 본인인지 확인하지 않아, 누구나 남의
+        // user_id를 넣으면 그 사람의 삭제된(비활성) 매물까지 조회 가능했음(IDOR, 실측 확인).
         if ($request->user_id) {
             $query->where('user_id', $request->user_id);
+            $viewer = auth('api')->user();
+            $isSelf = $viewer && (int) $viewer->id === (int) $request->user_id;
+            $isAdmin = $viewer && in_array($viewer->role, ['admin', 'super_admin', 'moderator'], true);
+            if (!$isSelf && !$isAdmin) {
+                $query->active();
+            }
         } else {
             $query->active();
         }
@@ -63,6 +71,18 @@ class RealEstateController extends Controller
     public function show($id)
     {
         $listing = RealEstateListing::with('user:id,name,nickname,avatar')->findOrFail($id);
+
+        // index()는 active() 스코프로 비활성(삭제된) 매물을 걸러내지만 show()는
+        // 그렇지 않아, 삭제된 매물도 직접 URL로는 계속 전체 공개되던 문제(Post::show()와 동일 패턴).
+        if (!$listing->is_active) {
+            $user = auth('api')->user();
+            $isOwner = $user && $user->id === $listing->user_id;
+            $isAdmin = $user && in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
+            if (!$isOwner && !$isAdmin) {
+                abort(404);
+            }
+        }
+
         $listing->increment('view_count');
         // Kay 요청: 같은 type(rent/sale/roommate) 내에서 이전/다음
         $adj = $this->adjacentPair(RealEstateListing::class, $id, 'title', ['type' => $listing->type]);

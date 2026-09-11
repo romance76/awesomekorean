@@ -23,8 +23,10 @@ class GameScoreController extends Controller
         $score = $request->score;
 
         // 점수 저장
+        // game_room_id는 game_rooms를 참조하는 FK라 존재하지 않는 0을 넣으면
+        // 제약 위반으로 500 에러가 발생했음(실측 확인) — 솔로 플레이는 NULL로 저장.
         $player = GamePlayer::create([
-            'game_room_id' => 0, // solo play
+            'game_room_id' => null, // solo play
             'user_id' => $user->id,
             'score' => $score,
             'is_winner' => false,
@@ -106,7 +108,7 @@ class GameScoreController extends Controller
             // 솔로 게임 플레이의 최고 누적 점수 기준
             $rows = DB::table('game_players')
                 ->select('user_id', DB::raw('SUM(score) as total_score'))
-                ->where('game_room_id', 0)
+                ->whereNull('game_room_id')
                 ->groupBy('user_id')
                 ->orderByDesc('total_score')
                 ->limit($limit)
@@ -137,7 +139,7 @@ class GameScoreController extends Controller
         $period = $request->period ?? 'all'; // all, monthly, weekly
 
         $query = GamePlayer::select('user_id', DB::raw('MAX(score) as best_score'), DB::raw('COUNT(*) as play_count'))
-            ->where('game_room_id', 0) // solo plays only
+            ->whereNull('game_room_id') // solo plays only
             ->groupBy('user_id')
             ->orderByDesc('best_score')
             ->limit(50);
@@ -164,7 +166,7 @@ class GameScoreController extends Controller
     public function myScores(Request $request)
     {
         $scores = GamePlayer::where('user_id', auth()->id())
-            ->where('game_room_id', 0)
+            ->whereNull('game_room_id')
             ->orderByDesc('created_at')
             ->limit(50)
             ->get();

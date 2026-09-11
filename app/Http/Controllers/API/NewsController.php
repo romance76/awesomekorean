@@ -16,6 +16,7 @@ class NewsController extends Controller
     {
         $query = News::select('id', 'title', 'source', 'image_url', 'local_image', 'source_url', 'category_id', 'view_count', 'published_at', 'created_at')
             ->with('category:id,name,slug')
+            ->where('is_active', true)
             ->when($request->category_id, fn($q, $v) => $q->where('category_id', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"));
 
@@ -44,6 +45,17 @@ class NewsController extends Controller
     public function show($id)
     {
         $news = News::with('category:id,name,slug')->findOrFail($id);
+
+        // 관리자 숨김 처리된 뉴스는 관리자만 직접 URL로 조회 가능
+        // (index()의 is_active 필터와 동일하게 맞춤 — 이전엔 필터 자체가 없었음)
+        if (!$news->is_active) {
+            $user = auth('api')->user();
+            $isAdmin = $user && in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
+            if (!$isAdmin) {
+                abort(404);
+            }
+        }
+
         $news->increment('view_count');
         $adj = $this->adjacentPair(News::class, $id, 'title', $news->category_id ? ['category_id' => $news->category_id] : [], 'published_at', 'desc');
         return response()->json(['success' => true, 'data' => $news, 'prev' => $adj['prev'], 'next' => $adj['next']]);

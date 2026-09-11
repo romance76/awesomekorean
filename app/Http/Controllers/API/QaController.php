@@ -15,6 +15,7 @@ class QaController extends Controller
     public function index(Request $request)
     {
         $query = QaPost::with('user:id,name,nickname,avatar', 'category:id,name')
+            ->where('is_hidden', false)
             ->when($request->category_id, fn($q, $v) => $q->where('category_id', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
             ->when($request->resolved !== null, fn($q) => $q->where('is_resolved', $request->boolean('resolved')));
@@ -31,6 +32,18 @@ class QaController extends Controller
     {
         $post = QaPost::with('user:id,name,nickname,avatar', 'category:id,name', 'answers.user:id,name,nickname,avatar')
             ->findOrFail($id);
+
+        // 관리자 숨김 처리된 글은 작성자 본인/관리자만 직접 URL로 조회 가능
+        // (index()의 is_hidden 필터와 동일하게 맞춤 — 이전엔 필터 자체가 없었음)
+        if ($post->is_hidden) {
+            $user = auth('api')->user();
+            $isOwner = $user && $user->id === $post->user_id;
+            $isAdmin = $user && in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
+            if (!$isOwner && !$isAdmin) {
+                abort(404);
+            }
+        }
+
         $post->increment('view_count');
 
         // 로그인 시 각 답변의 내 투표 상태

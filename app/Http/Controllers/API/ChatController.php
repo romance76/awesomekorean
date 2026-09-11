@@ -345,6 +345,14 @@ class ChatController extends Controller
                 ['chat_room_id' => $id, 'user_id' => auth()->id()],
                 ['last_read_at' => now()]
             );
+        } else {
+            // 그룹/DM 방은 멤버가 아니면 전송 불가 — 이전에는 멤버십을 전혀
+            // 확인하지 않아 강퇴(chatKickMember)당한 유저가 chat_room_users에서
+            // 삭제된 뒤에도 계속 메시지를 보낼 수 있었음(실측 확인, 강퇴 무력화).
+            $isMember = ChatRoomUser::where('chat_room_id', $id)->where('user_id', auth()->id())->exists();
+            if (!$isMember) {
+                return response()->json(['success'=>false,'message'=>'이 채팅방의 멤버가 아닙니다.'], 403);
+            }
         }
 
         $created = [];
