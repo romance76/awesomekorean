@@ -464,6 +464,17 @@ class BannerController extends Controller
         // 포인트 차감
         $user->addPoints(-$bidAmount, "광고 입찰: {$request->title} ({$auctionMonth})", 'banner');
 
+        // 신규 신청 시 관리자에게 통지가 전혀 없어 대시보드를 수동으로 열어야만
+        // 확인 가능하던 문제 수정 (ReportController::store()와 동일한 패턴)
+        try {
+            $adminIds = \App\Models\User::whereIn('role', ['admin', 'super_admin', 'moderator'])->pluck('id');
+            foreach ($adminIds as $adminId) {
+                \App\Models\Notification::create(['user_id'=>$adminId,'type'=>'banner_submitted','title'=>'새 광고 신청이 도착했습니다','content'=>"{$user->name}님이 '{$request->title}' 광고를 신청했습니다 ({$bidAmount}P).",'data'=>['banner_id'=>$banner->id]]);
+                $unread = \App\Models\Notification::where('user_id',$adminId)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($adminId, $unread, '새 광고 신청이 도착했습니다'))->toOthers();
+            }
+        } catch (\Exception $e) {}
+
         return response()->json([
             'success' => true,
             'message' => "입찰 완료! {$bidAmount}P 차감. {$auctionMonth} 경매 결과에 따라 배정됩니다.",

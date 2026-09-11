@@ -146,6 +146,14 @@ class AdminController extends Controller
     public function approveBanner($id) {
         $b = \App\Models\BannerAd::findOrFail($id);
         $b->update(['status' => 'active']);
+        // 승인/거절 시 광고주에게 통지가 전혀 없어 수동 확인만 가능하던 문제 수정
+        if ($b->user_id) {
+            try {
+                \App\Models\Notification::create(['user_id'=>$b->user_id,'type'=>'banner_approved','title'=>'광고가 승인되었습니다','content'=>"'{$b->title}' 광고가 승인되어 게재를 시작합니다.",'data'=>['banner_id'=>$id]]);
+                $unread = \App\Models\Notification::where('user_id',$b->user_id)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($b->user_id, $unread, '광고가 승인되었습니다'))->toOthers();
+            } catch (\Exception $e) {}
+        }
         return response()->json(['success'=>true,'message'=>'광고 승인됨']);
     }
     public function rejectBanner(Request $request, $id) {
@@ -153,6 +161,13 @@ class AdminController extends Controller
         $b->update(['status' => 'rejected', 'reject_reason' => $request->reason]);
         // 포인트 환불
         $b->user?->addPoints($b->total_cost, "광고 거절 환불: {$b->title}", 'banner_refund');
+        if ($b->user_id) {
+            try {
+                \App\Models\Notification::create(['user_id'=>$b->user_id,'type'=>'banner_rejected','title'=>'광고가 거절되었습니다','content'=>"'{$b->title}' 광고가 거절되었습니다. 사유: " . ($request->reason ?: '없음') . " ({$b->total_cost}P 환불됨)",'data'=>['banner_id'=>$id]]);
+                $unread = \App\Models\Notification::where('user_id',$b->user_id)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($b->user_id, $unread, '광고가 거절되었습니다'))->toOthers();
+            } catch (\Exception $e) {}
+        }
         return response()->json(['success'=>true,'message'=>"거절됨. {$b->total_cost}P 환불"]);
     }
     public function pauseBanner($id) {
@@ -214,6 +229,16 @@ class AdminController extends Controller
             $user->addPoints(-$payment->points_purchased, "환불: 주문 #{$payment->id}", 'refund');
         }
         $payment->update(['status' => 'refunded']);
+
+        // 유저에게 환불 사실을 알리는 통지가 전혀 없던 문제 수정
+        if ($user) {
+            try {
+                \App\Models\Notification::create(['user_id'=>$user->id,'type'=>'payment_refunded','title'=>'결제가 환불되었습니다','content'=>"주문 #{$id} 결제가 환불되어 {$payment->points_purchased}P가 회수되었습니다.",'data'=>['payment_id'=>$id]]);
+                $unread = \App\Models\Notification::where('user_id',$user->id)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($user->id, $unread, '결제가 환불되었습니다'))->toOthers();
+            } catch (\Exception $e) {}
+        }
+
         return response()->json(['success'=>true,'message'=>"주문 #{$id} 환불 완료. {$payment->points_purchased}P 회수됨"]);
     }
 
