@@ -161,6 +161,30 @@ class PaymentController extends Controller
             return response()->json(['success' => false, 'message' => '결제 정보를 찾을 수 없습니다'], 404);
         }
 
+        // 이전에는 로컬 Payment 행이 pending 상태로 존재하기만 하면 Stripe에
+        // 실제로 결제가 완료됐는지 전혀 확인하지 않고 바로 포인트를 지급했음
+        // (웹훅도 없었음) — 클라이언트가 이 엔드포인트만 호출하면 실제 결제
+        // 없이 포인트를 받을 수 있던 치명적 취약점(실측 확인). Stripe에서
+        // PaymentIntent를 직접 조회해 결제가 실제로 완료됐는지 검증한 뒤에만
+        // 지급하도록 수정.
+        $stripeSecret = config('services.stripe.secret');
+        if (!$stripeSecret) {
+            return response()->json(['success' => false, 'message' => 'Stripe 설정이 필요합니다'], 500);
+        }
+        try {
+            \Stripe\Stripe::setApiKey($stripeSecret);
+            $intent = \Stripe\PaymentIntent::retrieve($payment->stripe_payment_id);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Stripe 결제 확인 실패: ' . $e->getMessage()], 502);
+        }
+        if ($intent->status !== 'succeeded') {
+            return response()->json(['success' => false, 'message' => '결제가 아직 완료되지 않았습니다 (상태: ' . $intent->status . ')'], 422);
+        }
+        // 결제 금액도 우리가 발급했던 금액과 일치하는지 확인(위변조 방지)
+        if ((int) $intent->amount !== (int) round($payment->amount * 100)) {
+            return response()->json(['success' => false, 'message' => '결제 금액이 일치하지 않습니다'], 422);
+        }
+
         // 포인트 지급
         $user = auth()->user();
         $user->addPoints($payment->points_purchased, "포인트 구매 ({$payment->points_purchased}P)");
