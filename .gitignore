@@ -6,6 +6,7 @@ generate_content.py
 generate_recipes_only.py
 *.env
 node_modules/
+vendor/
 
 # Build output — 서버에서만 빌드 (로컬 빌드 커밋 금지)
 public/build/
