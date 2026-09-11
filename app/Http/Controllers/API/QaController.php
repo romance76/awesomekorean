@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\QaPost;
 use App\Models\QaAnswer;
 use App\Models\QaCategory;
+use App\Models\Notification;
+use App\Events\NewNotification;
 use Illuminate\Http\Request;
 
 class QaController extends Controller
@@ -127,6 +129,19 @@ class QaController extends Controller
         if ($acceptBonus > 0) {
             $answer->user->addPoints($acceptBonus, "Q&A 채택 보너스: {$post->title}", 'earn');
         }
+
+        // 채택돼도 답변자에게 알림이 없어 자기 답변이 채택된 걸 모를 수 있던 문제 수정
+        try {
+            Notification::create([
+                'user_id' => $answer->user_id,
+                'type' => 'qa_answer_accepted',
+                'title' => '답변이 채택되었습니다',
+                'content' => "'{$post->title}' 질문에 남긴 답변이 채택되었습니다.",
+                'data' => ['qa_post_id' => $id, 'qa_answer_id' => $answerId],
+            ]);
+            $unread = Notification::where('user_id', $answer->user_id)->whereNull('read_at')->count();
+            broadcast(new NewNotification($answer->user_id, $unread, '답변이 채택되었습니다'))->toOthers();
+        } catch (\Exception $e) {}
 
         return response()->json(['success' => true, 'message' => '채택되었습니다']);
     }
