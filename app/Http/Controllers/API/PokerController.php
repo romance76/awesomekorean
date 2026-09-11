@@ -149,27 +149,13 @@ class PokerController extends Controller
             }
         }
 
-        // Award prize chips
-        $prizeWon = $request->prize_won ?? 0;
-        $bountyAmount = $request->bounty_amount ?? 0;
-        $totalWinnings = $prizeWon + $bountyAmount;
-
-        if ($totalWinnings > 0) {
-            $wallet = PokerWallet::firstOrCreate(
-                ['user_id' => $user->id],
-                ['chips_balance' => 0, 'total_deposited' => 0, 'total_withdrawn' => 0]
-            );
-            $wallet->increment('chips_balance', $totalWinnings);
-            PokerTransaction::create([
-                'user_id' => $user->id,
-                'type' => 'prize',
-                'amount' => $totalWinnings,
-                'balance_after' => $wallet->fresh()->chips_balance,
-                'reference_type' => 'poker_game',
-                'reference_id' => $game->id,
-                'description' => "토너먼트 상금 {$prizeWon} + 바운티 {$bountyAmount}",
-            ]);
-        }
+        // 이 엔드포인트는 서버가 진행을 검증하지 않는 솔로(1인 대 AI) 게임만
+        // 생성하며(type='solo' 고정), 입장료도 서버에서 걷지 않음 — 클라이언트가
+        // 보고하는 final_place/prize_won/bounty_amount를 그대로 실제 인출 가능한
+        // 칩으로 지급하면 가짜 결과로 무한정 칩을 만들어 포인트로 출금할 수 있음
+        // (실측 확인된 취약점). 통계(순위/핸드 수 등 아래 로직)는 그대로 두되,
+        // 실제 화폐가치가 있는 칩 지급만 차단.
+        $totalWinnings = 0;
 
         // Update stats
         $stat = PokerStat::firstOrCreate(
