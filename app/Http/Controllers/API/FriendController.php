@@ -145,7 +145,13 @@ class FriendController extends Controller
     }
 
     public function remove($id) {
-        $f = Friend::findOrFail($id);
+        // 소유권 검증 없이 ID만으로 조회하면 임의 사용자가 남의 친구관계를
+        // 지울 수 있음(IDOR) — 실측으로 확인된 버그, 본인이 당사자인
+        // 친구관계만 지울 수 있도록 제한
+        $userId = auth()->id();
+        $f = Friend::where(function ($q) use ($userId) {
+            $q->where('user_id', $userId)->orWhere('friend_id', $userId);
+        })->findOrFail($id);
         // 양방향 삭제
         Friend::where('user_id', $f->user_id)->where('friend_id', $f->friend_id)->delete();
         Friend::where('user_id', $f->friend_id)->where('friend_id', $f->user_id)->delete();

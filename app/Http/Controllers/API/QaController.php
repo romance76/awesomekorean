@@ -90,6 +90,17 @@ class QaController extends Controller
         $post = QaPost::where('user_id', auth()->id())->findOrFail($id);
         $answer = QaAnswer::where('qa_post_id', $id)->findOrFail($answerId);
 
+        // 자문자답 방지: 본인 질문에 본인이 단 답변은 채택할 수 없음
+        // (실측 확인: 자기 질문에 자기가 답하고 채택해 현상금+채택보너스를
+        // 무제한 반복 획득할 수 있던 버그)
+        if ($answer->user_id === $post->user_id) {
+            return response()->json(['success' => false, 'message' => '본인이 작성한 답변은 채택할 수 없습니다'], 422);
+        }
+        // 이미 채택된 질문은 다시 채택할 수 없음(중복 지급 방지)
+        if ($post->is_resolved) {
+            return response()->json(['success' => false, 'message' => '이미 채택이 완료된 질문입니다'], 422);
+        }
+
         $post->update(['is_resolved' => true, 'best_answer_id' => $answerId]);
         $answer->update(['is_best' => true]);
 

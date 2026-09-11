@@ -51,7 +51,9 @@ class ProfileController extends Controller
         if (!$user->profile_bonus_given && $user->phone && $user->address1 && $user->city && $user->state && $user->zipcode) {
             $bonus = (int) (\DB::table('point_settings')->where('key', 'profile_complete_bonus')->value('value') ?? 30);
             $user->addPoints($bonus, '프로필 완성 보너스', 'earn');
-            $user->update(['profile_bonus_given' => true]);
+            // profile_bonus_given은 $fillable에서 제외돼 있어 update()로는 저장 안 됨
+            // (실측 확인: 같은 요청을 반복할 때마다 +30P가 무한 지급되는 버그였음) — forceFill 사용
+            $user->forceFill(['profile_bonus_given' => true])->save();
         }
 
         return response()->json(['success' => true, 'data' => $user->fresh()]);
