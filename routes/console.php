@@ -21,6 +21,7 @@ Schedule::command('music:fetch --daily=500 --korean-ratio=70')->dailyAt('02:00')
 Schedule::command('elder:check')->everyMinute();
 Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
+Schedule::command('promotions:expire')->everyMinute();
 
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();

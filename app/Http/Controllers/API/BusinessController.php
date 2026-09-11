@@ -380,7 +380,34 @@ class BusinessController extends Controller
             'status' => 'pending',
         ]);
 
+        // ClaimVerificationMail이 코드는 있었지만 실제로 호출되는 곳이 없어 인증
+        // 메일이 한 번도 발송되지 않던 문제 수정 — 업소에 등록된 이메일로 소유권
+        // 인증 메일 발송 (업소 이메일이 없으면 문서/전화번호 심사만으로 진행).
+        if ($biz->email) {
+            try {
+                $verifyUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                    'claims.verify-email',
+                    now()->addDays(7),
+                    ['claim' => $claim->id]
+                );
+                \Illuminate\Support\Facades\Mail::to($biz->email)->send(
+                    new \App\Mail\ClaimVerificationMail($biz->name, $verifyUrl, auth()->user()->name)
+                );
+            } catch (\Exception $e) {}
+        }
+
         return response()->json(['success' => true, 'data' => $claim], 201);
+    }
+
+    // 업소 소유권 클레임 이메일 인증 (이메일 링크 클릭 시 접속, 서명된 URL로 보호)
+    public function verifyClaimEmail(BusinessClaim $claim)
+    {
+        if (!$claim->email_verified_at) {
+            $claim->forceFill(['email_verified_at' => now()])->save();
+        }
+        return response('<!doctype html><meta charset="utf-8"><body style="font-family:sans-serif;text-align:center;padding:60px 20px;">'
+            . '<h2>이메일 인증이 완료되었습니다</h2><p>관리자 심사 후 소유권 승인 결과를 안내드립니다.</p></body>', 200)
+            ->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
     // ─── 내 업소 목록 ───

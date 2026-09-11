@@ -324,9 +324,20 @@ class AdminController extends Controller
     }
 
     public function approveClaim($id) {
-        $claim = BusinessClaim::findOrFail($id);
+        $claim = BusinessClaim::with('business', 'user')->findOrFail($id);
         $claim->update(['status' => 'approved']);
         $claim->business->update(['is_claimed' => true, 'owner_id' => $claim->user_id]);
+
+        // ClaimApprovedMail이 코드는 있었지만 실제로 호출되는 곳이 없어 승인
+        // 알림 메일이 한 번도 발송되지 않던 문제 수정.
+        if ($claim->user?->email) {
+            try {
+                \Illuminate\Support\Facades\Mail::to($claim->user->email)->send(
+                    new \App\Mail\ClaimApprovedMail($claim->business->name, $claim->user->name)
+                );
+            } catch (\Exception $e) {}
+        }
+
         return response()->json(['success'=>true,'message'=>'클레임이 승인되었습니다']);
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\BannerAd;
+use App\Models\SiteSetting;
 use App\Traits\CompressesUploads;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -404,6 +405,23 @@ class BannerController extends Controller
 
         $bidAmount = (int) $request->bid_amount;
         $targetPages = json_decode($request->target_pages, true) ?: [$request->page];
+
+        // 관리자가 AdminAdCenter(슬롯맵)에서 설정한 슬롯별 최저가가 실제로는
+        // 강제되지 않고 하드코딩된 min:50만 통과하면 되던 문제 수정
+        // (AdminAdCenterController::slotMap()과 동일한 설정/기본값 사용).
+        $pricesSetting = SiteSetting::where('key', 'ad_slot_min_prices')->first();
+        $minPrices = $pricesSetting ? json_decode($pricesSetting->value, true) : [
+            'left_premium' => 8000, 'left_standard' => 7000, 'left_economy' => 4000,
+            'right_premium' => 10000, 'right_economy' => 6000,
+        ];
+        $priceKey = "{$request->position}_{$request->tier}";
+        $minPrice = (int) ($minPrices[$priceKey] ?? 50);
+        if ($bidAmount < $minPrice) {
+            return response()->json([
+                'success' => false,
+                'message' => "이 슬롯의 최소 입찰가는 {$minPrice}P 입니다 (입력: {$bidAmount}P)",
+            ], 422);
+        }
 
         // 포인트 확인
         $user = auth()->user();

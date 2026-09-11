@@ -98,6 +98,8 @@ Route::get('/businesses/promotion-slots', [BusinessController::class, 'promotion
 Route::get('/businesses/{id}', [BusinessController::class, 'show']);
 Route::get('/businesses/{id}/reviews', [BusinessController::class, 'reviews']);
 Route::get('/businesses/{id}/menus', [BusinessController::class, 'menus']);
+Route::get('/businesses/claims/{claim}/verify-email', [BusinessController::class, 'verifyClaimEmail'])
+    ->middleware('signed')->name('claims.verify-email');
 Route::get('/realestate', [RealEstateController::class, 'index']);
 Route::get('/realestate/promotion-slots', [RealEstateController::class, 'promotionSlots']);
 Route::get('/realestate/{id}', [RealEstateController::class, 'show']);
@@ -117,7 +119,9 @@ Route::get('/banners/active', [\App\Http\Controllers\API\BannerController::class
 Route::get('/banners/mobile', [\App\Http\Controllers\API\BannerController::class, 'mobileAd']);
 Route::get('/banners/mobile-slot', [\App\Http\Controllers\API\BannerController::class, 'mobileSlot']);
 Route::get('/banners/text-inline', [\App\Http\Controllers\API\BannerController::class, 'textInline']);
-Route::middleware('auth:sanctum')->post('/banners/text-apply', [\App\Http\Controllers\API\BannerController::class, 'textApply']);
+// auth:sanctum이 실수로 쓰여 있어(이 앱은 JWT 기반 auth:api만 사용) 로그인한 어떤
+// 유저도 이 신청 경로를 쓸 수 없었음(실측 확인) — auth:api로 수정.
+Route::middleware('auth:api')->post('/banners/text-apply', [\App\Http\Controllers\API\BannerController::class, 'textApply']);
 Route::get('/banners/all', [\App\Http\Controllers\API\BannerController::class, 'all']);
 Route::get('/hero-banners', function () {
     return response()->json(['success' => true, 'data' => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()]);
