@@ -109,7 +109,25 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>$q->paginate(20)]);
     }
     public function updateReport(Request $request, $id) {
-        Report::findOrFail($id)->update($request->only('status','admin_note'));
+        $report = Report::findOrFail($id);
+        $report->update($request->only('status','admin_note'));
+
+        // 신고자에게 처리 결과 통지가 전혀 없어 자기 신고가 어떻게 됐는지 알
+        // 방법이 없던 문제 수정 — 상태가 바뀌면 신고자에게 알림.
+        if ($request->has('status') && $report->reporter_id) {
+            try {
+                \App\Models\Notification::create([
+                    'user_id' => $report->reporter_id,
+                    'type' => 'report_resolved',
+                    'title' => '신고 처리 결과 안내',
+                    'content' => "신고하신 건이 처리되었습니다 (상태: {$report->status})" . ($report->admin_note ? " — {$report->admin_note}" : ''),
+                    'data' => ['report_id' => $report->id],
+                ]);
+                $unread = \App\Models\Notification::where('user_id', $report->reporter_id)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($report->reporter_id, $unread, '신고 처리 결과 안내'))->toOthers();
+            } catch (\Exception $e) {}
+        }
+
         return response()->json(['success'=>true]);
     }
 
