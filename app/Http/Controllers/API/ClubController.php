@@ -7,6 +7,8 @@ use App\Models\ClubBoard;
 use App\Models\ClubPost;
 use App\Models\ChatRoom;
 use App\Models\ChatRoomUser;
+use App\Models\Notification;
+use App\Events\NewNotification;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
 use App\Traits\HasPromotions;
@@ -40,6 +42,15 @@ class ClubController extends Controller
     private function getMemberGrade($clubId, $userId)
     {
         return ClubMember::where('club_id', $clubId)->where('user_id', $userId)->where('status', 'approved')->value('grade');
+    }
+
+    // 가입 신청/승인/거절 전 과정에 알림이 전혀 없어 신청자·운영자 모두
+    // 페이지를 직접 열어봐야만 알 수 있던 문제 수정 — MessageController와 동일한 패턴.
+    private function notify(int $userId, string $type, string $title, string $content, array $data = []): void
+    {
+        Notification::create(['user_id' => $userId, 'type' => $type, 'title' => $title, 'content' => $content, 'data' => $data]);
+        $unread = Notification::where('user_id', $userId)->whereNull('read_at')->count();
+        try { broadcast(new NewNotification($userId, $unread, $title))->toOthers(); } catch (\Exception $e) {}
     }
 
     /**
@@ -250,6 +261,12 @@ class ClubController extends Controller
             'joined_at' => now(),
         ]);
 
+        $managerIds = ClubMember::where('club_id', $id)->where('status', 'approved')
+            ->whereIn('grade', ['owner', 'admin'])->pluck('user_id');
+        foreach ($managerIds as $managerId) {
+            $this->notify($managerId, 'club_join_request', '새 가입 신청이 도착했습니다', auth()->user()->name . "님이 '{$club->name}' 가입을 신청했습니다.", ['club_id' => $id]);
+        }
+
         return response()->json(['success' => true, 'message' => '가입 신청이 완료되었습니다. 운영자 승인을 기다려주세요.', 'status' => 'pending']);
     }
 
@@ -260,7 +277,9 @@ class ClubController extends Controller
 
         $member = ClubMember::where('club_id', $id)->where('user_id', $userId)->firstOrFail();
         $member->update(['status' => 'approved']);
-        Club::find($id)->increment('member_count');
+        $club = Club::find($id);
+        $club->increment('member_count');
+        $this->notify($userId, 'club_join_approved', '동호회 가입이 승인되었습니다', "'{$club->name}' 가입이 승인되었습니다.", ['club_id' => $id]);
 
         return response()->json(['success' => true, 'message' => '승인되었습니다']);
     }
@@ -272,6 +291,8 @@ class ClubController extends Controller
 
         $member = ClubMember::where('club_id', $id)->where('user_id', $userId)->firstOrFail();
         $member->update(['status' => 'rejected']);
+        $club = Club::find($id);
+        $this->notify($userId, 'club_join_rejected', '동호회 가입이 거절되었습니다', "'{$club->name}' 가입 신청이 거절되었습니다.", ['club_id' => $id]);
 
         return response()->json(['success' => true, 'message' => '거절되었습니다']);
     }
