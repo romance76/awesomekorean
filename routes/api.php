@@ -48,6 +48,7 @@ Broadcast::routes(['middleware' => ['auth:api']]);
 
 // ─── Public Auth ───
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,10'); // 10분당 10회
+Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:20,10');       // 10분당 20회
 // Issue #8: 비밀번호 찾기/재설정 Rate Limit
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,10'); // 10분당 3회

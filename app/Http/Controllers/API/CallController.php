@@ -4,8 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Events\CallInitiated;
 use App\Events\CommWebRtcSignal;
+use App\Events\NewNotification;
 use App\Http\Controllers\Controller;
 use App\Models\Call;
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserBlock;
 use App\Services\PushNotificationService;
@@ -83,6 +85,7 @@ class CallController extends Controller
             in_array($request->user()->id, [$call->caller_id, $call->callee_id]),
             403
         );
+        $wasMissed = !$call->answered_at;
         $call->end();
         $otherId = $call->caller_id === $request->user()->id
             ? $call->callee_id
@@ -92,6 +95,25 @@ class CallController extends Controller
         } catch (\Throwable $e) {
             \Log::warning('[CALL] broadcast end failed: ' . $e->getMessage());
         }
+
+        // 부재중 후속알림이 전혀 없어 FCM 토큰이 없으면 놓친 전화를 전혀 알
+        // 수 없던 문제 수정 — 응답 없이 종료되면 받는 사람에게 인앱 알림 발송.
+        // (status 컬럼 값 자체는 폴링 로직이 'ended'를 종료 신호로 쓰고 있어 그대로 둠)
+        if ($wasMissed) {
+            try {
+                $caller = User::find($call->caller_id);
+                Notification::create([
+                    'user_id' => $call->callee_id,
+                    'type' => 'call_missed',
+                    'title' => '부재중 전화',
+                    'content' => ($caller->nickname ?? $caller->name ?? '상대방') . '님에게서 전화가 왔었습니다.',
+                    'data' => ['call_id' => $call->id, 'caller_id' => $call->caller_id],
+                ]);
+                $unread = Notification::where('user_id', $call->callee_id)->whereNull('read_at')->count();
+                broadcast(new NewNotification($call->callee_id, $unread, '부재중 전화'))->toOthers();
+            } catch (\Exception $e) {}
+        }
+
         return response()->json(['status' => 'ended', 'duration' => $call->duration_formatted ?? '00:00']);
     }
 
