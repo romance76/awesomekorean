@@ -78,7 +78,9 @@ class ExpireReservations extends Command
                     'user_id' => $reservation->buyer_id,
                     'type' => 'market_reservation_expired',
                     'title' => '찜 만료',
-                    'body' => '찜 유효시간이 지나 만료되었습니다.' . ($reservation->points_held > 0 ? " 보증금 {$reservation->points_held}P가 판매자에게 이전되었습니다." : ''),
+                    // Notification::$fillable엔 'content'만 있어(실제 컬럼명도 content)
+                    // 'body' 키는 조용히 저장 안 되고 알림 본문이 항상 비어 있던 문제 수정.
+                    'content' => '찜 유효시간이 지나 만료되었습니다.' . ($reservation->points_held > 0 ? " 보증금 {$reservation->points_held}P가 판매자에게 이전되었습니다." : ''),
                     'data' => json_encode(['item_id' => $reservation->market_item_id]),
                     'url' => '/market/' . $reservation->market_item_id,
                 ]);
@@ -88,7 +90,7 @@ class ExpireReservations extends Command
                     'user_id' => $reservation->seller_id,
                     'type' => 'market_reservation_expired',
                     'title' => '찜 만료',
-                    'body' => '구매자가 연락하지 않아 찜이 만료되었습니다.' . ($reservation->points_held > 0 ? " 보증금 {$reservation->points_held}P가 지급되었습니다." : ''),
+                    'content' => '구매자가 연락하지 않아 찜이 만료되었습니다.' . ($reservation->points_held > 0 ? " 보증금 {$reservation->points_held}P가 지급되었습니다." : ''),
                     'data' => json_encode(['item_id' => $reservation->market_item_id]),
                     'url' => '/market/' . $reservation->market_item_id,
                 ]);
