@@ -395,14 +395,33 @@ class AdminController extends Controller
                 );
             } catch (\Exception $e) {}
         }
+        // 이메일만 연결되고 인앱 알림은 없어 사이트 접속 중에는 승인 사실을
+        // 알 방법이 없던 문제 수정.
+        if ($claim->user_id) {
+            try {
+                \App\Models\Notification::create(['user_id'=>$claim->user_id,'type'=>'claim_approved','title'=>'업소 소유권 클레임이 승인되었습니다','content'=>"'{$claim->business->name}' 업소의 소유권이 승인되었습니다.",'data'=>['claim_id'=>$id]]);
+                $unread = \App\Models\Notification::where('user_id',$claim->user_id)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($claim->user_id, $unread, '업소 소유권 클레임이 승인되었습니다'))->toOthers();
+            } catch (\Exception $e) {}
+        }
 
         return response()->json(['success'=>true,'message'=>'클레임이 승인되었습니다']);
     }
 
     public function rejectClaim(Request $request, $id) {
-        $claim = BusinessClaim::findOrFail($id);
+        $claim = BusinessClaim::with('business')->findOrFail($id);
         $claim->update(['status' => 'rejected', 'notes' => $request->notes]);
         $claim->business->update(['is_claimed' => false, 'owner_id' => null]);
+
+        // 거절 시에도 신청자에게 통지가 전혀 없던 문제 수정.
+        if ($claim->user_id) {
+            try {
+                \App\Models\Notification::create(['user_id'=>$claim->user_id,'type'=>'claim_rejected','title'=>'업소 소유권 클레임이 거절되었습니다','content'=>"'{$claim->business->name}' 업소 소유권 신청이 거절되었습니다." . ($request->notes ? " 사유: {$request->notes}" : ''),'data'=>['claim_id'=>$id]]);
+                $unread = \App\Models\Notification::where('user_id',$claim->user_id)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($claim->user_id, $unread, '업소 소유권 클레임이 거절되었습니다'))->toOthers();
+            } catch (\Exception $e) {}
+        }
+
         return response()->json(['success'=>true,'message'=>'클레임이 거절/취소되었습니다']);
     }
 

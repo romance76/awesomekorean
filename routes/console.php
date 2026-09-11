@@ -22,6 +22,7 @@ Schedule::command('elder:check')->everyMinute();
 Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
 Schedule::command('promotions:expire')->everyMinute();
+Schedule::command('events:remind')->everyThirtyMinutes();
 
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();
