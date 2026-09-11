@@ -34,8 +34,13 @@ class GameScoreController extends Controller
         ]);
 
         // 포인트 보상 계산 (점수 기반)
+        // 관리자 게임별 설정 화면(GameController::saveSettings)은 game_type을 각
+        // 게임의 slug로 저장하는데, 여기선 항상 game_type='global'만 읽어 게임별로
+        // 설정한 point_per_game 값이 전부 무시되고 있었음(실측 확인) — 게임별 설정을
+        // 우선 조회하고, 없으면 전역 기본값(game_type='global')으로 폴백.
         $pointReward = 0;
-        $pointPerGame = (int) (GameSetting::where('game_type', 'global')->where('key', 'point_per_game')->first()?->value ?? 5);
+        $perGame = GameSetting::where('game_type', $gameType)->where('key', 'point_per_game')->first()?->value;
+        $pointPerGame = (int) ($perGame ?? GameSetting::where('game_type', 'global')->where('key', 'point_per_game')->first()?->value ?? 5);
 
         if ($score > 0) {
             $pointReward = min($score, $pointPerGame); // 최대 point_per_game

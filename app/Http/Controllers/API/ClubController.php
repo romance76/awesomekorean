@@ -42,6 +42,20 @@ class ClubController extends Controller
         return ClubMember::where('club_id', $clubId)->where('user_id', $userId)->where('status', 'approved')->value('grade');
     }
 
+    /**
+     * 동호회 운영진(owner/admin) 또는 사이트 관리자인지.
+     * 이전엔 super_admin이라도 그 동호회의 멤버가 아니면 무조건 403이라, 전체
+     * 동호회 가입신청·멤버 관리를 조회/처리할 방법이 구조적으로 없었음(실측 확인).
+     */
+    private function isClubManager($clubId, $userId): bool
+    {
+        if (in_array($this->getMemberGrade($clubId, $userId), ['owner', 'admin'], true)) {
+            return true;
+        }
+        $role = \App\Models\User::find($userId)?->role;
+        return in_array($role, ['admin', 'super_admin', 'moderator'], true);
+    }
+
     public function myClubs()
     {
         $clubIds = ClubMember::where('user_id', auth()->id())->where('status', 'approved')->pluck('club_id');
@@ -242,8 +256,7 @@ class ClubController extends Controller
     // 운영자: 가입 승인
     public function approveMember($id, $userId)
     {
-        $myGrade = $this->getMemberGrade($id, auth()->id());
-        if (!in_array($myGrade, ['owner', 'admin'])) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+        if (!$this->isClubManager($id, auth()->id())) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
 
         $member = ClubMember::where('club_id', $id)->where('user_id', $userId)->firstOrFail();
         $member->update(['status' => 'approved']);
@@ -255,8 +268,7 @@ class ClubController extends Controller
     // 운영자: 가입 거절
     public function rejectMember($id, $userId)
     {
-        $myGrade = $this->getMemberGrade($id, auth()->id());
-        if (!in_array($myGrade, ['owner', 'admin'])) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+        if (!$this->isClubManager($id, auth()->id())) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
 
         $member = ClubMember::where('club_id', $id)->where('user_id', $userId)->firstOrFail();
         $member->update(['status' => 'rejected']);
@@ -267,8 +279,7 @@ class ClubController extends Controller
     // 가입 대기 목록
     public function pendingMembers($id)
     {
-        $myGrade = $this->getMemberGrade($id, auth()->id());
-        if (!in_array($myGrade, ['owner', 'admin'])) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+        if (!$this->isClubManager($id, auth()->id())) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
 
         $pending = ClubMember::with('user:id,name,nickname,avatar')
             ->where('club_id', $id)->where('status', 'pending')->get();

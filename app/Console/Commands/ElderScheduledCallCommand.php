@@ -167,9 +167,11 @@ class ElderScheduledCallCommand extends Command
         ]);
 
         // 스케줄 전화 포인트 차감 (관리자 설정에서 로드)
+        // 정의되지 않은 변수($guardianUser)를 참조해 항상 false로 평가되면서
+        // 과금 로직이 매번 스킵되던 문제 수정 — 실제 매개변수는 $guardian.
         $callCost = (int) (DB::table('point_settings')->where('key', 'elder_scheduled_call')->value('value') ?? 50);
-        if ($callCost > 0 && $guardianUser && $guardianUser->points >= $callCost) {
-            $guardianUser->addPoints(-$callCost, "안심서비스 전화: {$ward->name}", 'elder');
+        if ($callCost > 0 && $guardian && $guardian->points >= $callCost) {
+            $guardian->addPoints(-$callCost, "안심서비스 전화: {$ward->name}", 'elder');
         }
 
         $this->line("  📞 Elder call to {$ward->name} (ID:{$ward->id}), call_id={$call->id}, cost={$callCost}P");
