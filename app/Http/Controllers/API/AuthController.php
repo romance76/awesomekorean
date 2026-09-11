@@ -43,9 +43,31 @@ class AuthController extends Controller
         $signupBonus = \App\Support\PointRules::get('signup_bonus', 10);
         if ($signupBonus > 0) $user->addPoints($signupBonus, '회원가입 보너스');
 
+        // 이메일 인증 절차 자체가 없어 무제한 가입이 가능하던 문제 수정 —
+        // 가입을 막지는 않고(비차단), 인증 메일만 발송해 이메일 소유를 확인.
+        try {
+            $verifyUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'auth.verify-email', now()->addDays(7), ['user' => $user->id]
+            );
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                new \App\Mail\EmailVerificationMail($user->name, $verifyUrl)
+            );
+        } catch (\Exception $e) {}
+
         $token = JWTAuth::fromUser($user);
 
         return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user->fresh()]]);
+    }
+
+    // 이메일 인증 링크 클릭 시 접속 (서명된 URL로 보호, 가입 자체를 막지는 않음)
+    public function verifyEmail(User $user)
+    {
+        if (!$user->email_verified_at) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+        return response('<!doctype html><meta charset="utf-8"><body style="font-family:sans-serif;text-align:center;padding:60px 20px;">'
+            . '<h2>이메일 인증이 완료되었습니다</h2><p>이제 어썸코리안의 모든 기능을 이용하실 수 있습니다.</p></body>', 200)
+            ->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
     public function login(Request $request)

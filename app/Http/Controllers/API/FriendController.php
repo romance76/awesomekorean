@@ -155,6 +155,10 @@ class FriendController extends Controller
 
     public function block($userId) {
         Friend::updateOrCreate(['user_id' => auth()->id(), 'friend_id' => $userId], ['status' => 'blocked']);
+        // Friend.status='blocked'는 어디서도 확인되지 않는 죽은 상태값이라
+        // 저장만 되고 실제로는 아무것도 차단하지 못했음(3갈래로 흩어진 차단
+        // 기능 중 하나, 실측 확인) — 실제로 통화·대화를 막는 UserBlock에도 반영.
+        \App\Models\UserBlock::firstOrCreate(['blocker_id' => auth()->id(), 'blocked_id' => $userId]);
         return response()->json(['success' => true]);
     }
 

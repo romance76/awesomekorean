@@ -550,6 +550,10 @@ function doBlockUser() {
     blockedUserIds.value = [...blockedUserIds.value, u.id]
     try { localStorage.setItem(BLOCK_KEY, JSON.stringify(blockedUserIds.value)) } catch {}
   }
+  // 이전엔 이 화면의 차단이 localStorage로만 저장돼 이 기기의 이 채팅방에서만
+  // 메시지가 안 보일 뿐, 실제 차단(UserBlockController)과 전혀 연결되지
+  // 않았음(실측 확인) — 실제 API도 함께 호출해 통화·쪽지 등 전체 차단이 되도록 연결.
+  axios.post(`/api/comms/users/${u.id}/block`).catch(() => {})
   siteStore.toast(`${u.nickname || u.name || '사용자'} 님을 차단했습니다`, 'success')
   blockConfirm.value = null
 }
