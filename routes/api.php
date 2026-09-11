@@ -604,25 +604,29 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim']);
     Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim']);
     Route::get('/settings', [AdminSettingsController::class, 'index']);
-    Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
     Route::put('/settings', [AdminSettingsController::class, 'update']);
     Route::post('/settings/company', [AdminSettingsController::class, 'saveCompany']);
     Route::post('/settings/site', [AdminSettingsController::class, 'saveSite']);
     Route::post('/settings/footer', [AdminSettingsController::class, 'saveFooter']);
     Route::post('/settings/terms/{type}', [AdminSettingsController::class, 'saveTerms']);
     Route::post('/settings/notifications', [AdminSettingsController::class, 'saveNotifications']);
-    Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe']);
-    Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway']);
     Route::post('/settings/seo', [AdminSettingsController::class, 'saveSeo']);
     Route::post('/settings/generate-vapid', [AdminSettingsController::class, 'generateVapid']);
     Route::get('/settings/menus', [AdminSettingsController::class, 'getMenus']);
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
-    Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
-    Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey']);
-    Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey']);
-    Route::delete('/api-keys/{id}', [AdminSettingsController::class, 'deleteApiKey']);
-    Route::get('/api-keys/{id}/reveal', [AdminSettingsController::class, 'revealApiKey']);
+
+    // 시크릿/결제 자격증명이 포함되는 엔드포인트는 super_admin만 접근 가능
+    Route::middleware('role:super_admin')->group(function () {
+        Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
+        Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe']);
+        Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway']);
+        Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
+        Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey']);
+        Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey']);
+        Route::delete('/api-keys/{id}', [AdminSettingsController::class, 'deleteApiKey']);
+        Route::get('/api-keys/{id}/reveal', [AdminSettingsController::class, 'revealApiKey']);
+    });
 
     // Firebase 설정
     Route::get('/firebase', [AdminSettingsController::class, 'getFirebase']);
