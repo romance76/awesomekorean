@@ -11,8 +11,25 @@ class ProfileController extends Controller
 
     public function show($id)
     {
-        $user = User::select('id','name','nickname','avatar','bio','city','state','points','allow_friend_request','last_active_at','created_at')->findOrFail($id);
-        return response()->json(['success' => true, 'data' => $user]);
+        $user = User::select('id','name','nickname','avatar','bio','city','state','points','lifetime_points','allow_friend_request','last_active_at','created_at')->findOrFail($id);
+
+        // 가입 기념일 뱃지는 별도 배치job 없이 프로필 조회 시점에 판정
+        \App\Services\BadgeService::checkAnniversary($user);
+
+        $earned = \App\Models\UserBadge::where('user_id', $id)->pluck('earned_at', 'badge_key');
+        $badges = collect(\App\Services\BadgeService::DEFS)->map(function ($def, $key) use ($earned) {
+            return array_merge($def, [
+                'key' => $key,
+                'earned' => $earned->has($key),
+                'earned_at' => $earned->get($key),
+            ]);
+        })->values();
+
+        $data = $user->toArray();
+        $data['grade'] = \App\Support\MemberGrade::forPoints((int) $user->lifetime_points);
+        $data['badges'] = $badges;
+
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function update(Request $request)

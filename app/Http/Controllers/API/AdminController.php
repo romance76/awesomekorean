@@ -417,6 +417,10 @@ class AdminController extends Controller
         $claim->update(['status' => 'approved']);
         $claim->business->update(['is_claimed' => true, 'owner_id' => $claim->user_id]);
 
+        if ($claim->user) {
+            \App\Services\BadgeService::award($claim->user, 'verified_business');
+        }
+
         // ClaimApprovedMail이 코드는 있었지만 실제로 호출되는 곳이 없어 승인
         // 알림 메일이 한 번도 발송되지 않던 문제 수정.
         if ($claim->user?->email) {

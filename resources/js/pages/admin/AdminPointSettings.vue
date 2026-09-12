@@ -53,6 +53,7 @@ const catStyles = {
   auction: { icon: 'store', label: '업소록 옥션', bg: 'bg-purple-50 text-purple-800' },
   package: { icon: 'wallet', label: '구매 패키지 (가격|포인트|보너스)', bg: 'bg-amber-50 text-amber-800' },
   promotion: { icon: 'flame', label: '상위노출 슬롯/가격', bg: 'bg-indigo-50 text-indigo-800' },
+  grade: { icon: 'trophy', label: '회원 등급 기준점 (누적 포인트)', bg: 'bg-teal-50 text-teal-800' },
 }
 
 async function load() {

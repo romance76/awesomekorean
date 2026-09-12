@@ -33,16 +33,17 @@ class WritePoints
     public static function award(User $user, string $modelClass, int $modelId, string $reason): void
     {
         $amount = PointRules::get('post_write', 3);
-        if ($amount <= 0) return;
-
         $dailyCap = PointRules::get('content_earn_daily_max', 3);
         $todayCount = PointLog::where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->whereIn('related_type', static::COUNTED_TYPES)
             ->count();
 
-        if ($todayCount < $dailyCap) {
+        if ($amount > 0 && $todayCount < $dailyCap) {
             $user->addPoints($amount, $reason, 'earn', ['type' => $modelClass, 'id' => $modelId]);
         }
+
+        // 활동 뱃지는 하루 지급 한도와 무관하게 실제 작성 건수 기준으로 판정
+        \App\Services\BadgeService::checkWriteBadges($user);
     }
 }

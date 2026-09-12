@@ -112,6 +112,11 @@ class User extends Authenticatable implements JWTSubject
     public function addPoints(int $amount, string $reason, string $type = 'earn', ?array $related = null)
     {
         $this->increment('points', $amount);
+        // 회원 등급은 지갑(points)과 무관하게 누적 획득량(lifetime_points)만으로
+        // 산정 — 상위노출 등으로 포인트를 쓰다가 강등되는 문제 방지.
+        if ($amount > 0) {
+            $this->increment('lifetime_points', $amount);
+        }
         $payload = [
             'amount' => $amount,
             'type' => $type,

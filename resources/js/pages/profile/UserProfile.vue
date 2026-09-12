@@ -10,13 +10,42 @@
           <div class="w-20 h-20 rounded-full bg-amber-500 text-white flex items-center justify-center text-3xl font-black border-4 border-white shadow">
             {{ (user.name || '?')[0] }}
           </div>
-          <h1 class="text-lg font-bold text-ink mt-2">{{ user.name }}</h1>
+          <h1 class="text-lg font-bold text-ink mt-2 flex items-center gap-2">
+            {{ user.name }}
+            <span v-if="user.grade" class="text-xs bg-amber-100 text-amber-700 rounded-full px-2 py-0.5 font-bold whitespace-nowrap">{{ user.grade.icon }} Lv.{{ user.grade.level }} {{ user.grade.label }}</span>
+          </h1>
           <div v-if="user.nickname" class="text-sm text-ink-muted">@{{ user.nickname }}</div>
           <div v-if="user.bio" class="text-sm text-ink-light mt-1">{{ user.bio }}</div>
           <div class="flex items-center gap-4 mt-3 text-xs text-ink-muted">
             <span v-if="user.city" class="inline-flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> {{ user.city }}, {{ user.state }}</span>
             <span class="inline-flex items-center gap-1"><AppIcon name="coins" :size="12" class="text-amber-500" /> {{ user.points || 0 }}P</span>
             <span class="inline-flex items-center gap-1"><AppIcon name="calendar" :size="12" /> {{ formatDate(user.created_at) }} 가입</span>
+          </div>
+
+          <!-- 등급 진행도 -->
+          <div v-if="user.grade" class="mt-3 bg-gray-50 rounded-xl p-3">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="font-bold text-ink">{{ user.grade.icon }} {{ user.grade.label }}</span>
+              <span v-if="user.grade.next_label" class="text-ink-faint">다음: {{ user.grade.next_label }} ({{ user.grade.lifetime_points }} / {{ user.grade.next_min }}P)</span>
+              <span v-else class="text-ink-faint">최고 등급 달성</span>
+            </div>
+            <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all" :style="{ width: user.grade.progress + '%' }"></div>
+            </div>
+          </div>
+
+          <!-- 뱃지 -->
+          <div v-if="user.badges?.length" class="mt-3">
+            <div class="text-xs font-bold text-ink-muted mb-1.5">획득 뱃지 {{ user.badges.filter(b => b.earned).length }}/{{ user.badges.length }}</div>
+            <div class="flex flex-wrap gap-2">
+              <div v-for="b in user.badges" :key="b.key"
+                class="flex flex-col items-center justify-center w-14 h-14 rounded-xl border text-center"
+                :class="b.earned ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100 opacity-40 grayscale'"
+                :title="`${b.label} — ${b.desc}${b.earned_at ? ' (' + formatDate(b.earned_at) + ')' : ''}`">
+                <span class="text-lg leading-none">{{ b.icon }}</span>
+                <span class="text-[9px] text-ink-muted mt-0.5 leading-none px-0.5 truncate w-full">{{ b.label }}</span>
+              </div>
+            </div>
           </div>
           <!-- 친구추가 / 쪽지 (본인이 아닐 때) -->
           <div v-if="auth.isLoggedIn && auth.user?.id !== user.id" class="flex gap-2 mt-3">
