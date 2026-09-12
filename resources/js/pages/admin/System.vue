@@ -15,7 +15,7 @@
     <div class="card p-4 space-y-2">
       <div class="font-bold text-sm text-ink mb-2">캐시 관리</div>
       <div class="text-sm text-ink-muted">캐시를 초기화하면 사이트가 일시적으로 느려질 수 있습니다.</div>
-      <button @click="clearCache" class="btn-primary px-4 py-2">캐시 초기화</button>
+      <button @click="clearCache" :disabled="clearing" class="btn-primary px-4 py-2 disabled:opacity-50">{{ clearing ? '초기화중...' : '캐시 초기화' }}</button>
       <div v-if="msg" class="text-green-600 text-sm">{{ msg }}</div>
     </div>
   </div>
@@ -23,7 +23,19 @@
 </template>
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 const msg = ref('')
-function clearCache() { msg.value = '캐시가 초기화되었습니다!'; setTimeout(()=>msg.value='', 3000) }
+const clearing = ref(false)
+async function clearCache() {
+  clearing.value = true
+  try {
+    const { data } = await axios.post('/api/admin/system/clear-cache')
+    msg.value = data.message || '캐시가 초기화되었습니다!'
+  } catch (e) {
+    msg.value = e.response?.data?.message || '캐시 초기화 실패'
+  }
+  clearing.value = false
+  setTimeout(() => msg.value = '', 3000)
+}
 </script>
