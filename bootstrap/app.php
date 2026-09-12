@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'detect.bot'   => \App\Http\Middleware\DetectBot::class,
             'auth'         => \App\Http\Middleware\Authenticate::class,
             'cache.api'    => \App\Http\Middleware\CacheApiResponse::class,
+            'verified.email' => \App\Http\Middleware\EnsureEmailVerified::class,
         ]);
 
         // IP 차단 + 봇 감지 + 온라인 상태 미들웨어를 API 전체에 적용
