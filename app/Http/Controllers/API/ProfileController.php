@@ -28,6 +28,9 @@ class ProfileController extends Controller
         $data = $user->toArray();
         $data['grade'] = \App\Support\MemberGrade::forPoints((int) $user->lifetime_points);
         $data['badges'] = $badges;
+        $data['is_blocked_by_me'] = auth()->id() && (int) auth()->id() !== (int) $id
+            ? \App\Models\UserBlock::isBlocked(auth()->id(), $id)
+            : false;
 
         return response()->json(['success' => true, 'data' => $data]);
     }
@@ -101,10 +104,43 @@ class ProfileController extends Controller
     public function deleteAccount()
     {
         $user = auth()->user();
-        // 관련 데이터 소프트 삭제 (실제로는 is_active = false 처리)
+
+        // 기존엔 이메일만 스크램블하고 이름·닉네임·전화·주소·프로필사진 등
+        // 개인정보가 전부 그대로 남아있어(탈퇴해도 본인이 쓴 모든 글에 실명·
+        // 연락처가 계속 노출) 실질적 탈퇴가 아니었던 문제 수정. 계정 자체와
+        // 작성한 글/댓글 등은 그대로 유지하되(사용자 결정 — 다른 이용자에게도
+        // 유용한 정보라 삭제하지 않음) User 레코드의 개인정보만 익명화.
         // Issue #6: is_banned/ban_reason 은 forceFill 로 명시 설정
         $user->forceFill(['is_banned' => true, 'ban_reason' => '회원 자발적 탈퇴'])->save();
-        $user->update(['email' => 'deleted_' . $user->id . '@deleted.com']);
+
+        if ($user->avatar && !str_starts_with($user->avatar, 'http')) {
+            try { \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar); } catch (\Exception $e) {}
+        }
+
+        $user->update([
+            'name' => '탈퇴한 회원',
+            'nickname' => '탈퇴한 회원',
+            'email' => 'deleted_' . $user->id . '@deleted.com',
+            'avatar' => null,
+            'bio' => null,
+            'phone' => null,
+            'address' => null,
+            'address1' => null,
+            'address2' => null,
+            'city' => null,
+            'state' => null,
+            'zipcode' => null,
+            'latitude' => null,
+            'longitude' => null,
+            'provider' => null,
+            'provider_id' => null,
+            'fcm_token' => null,
+            'push_platform' => null,
+            'allow_friend_request' => false,
+            'allow_messages' => false,
+            'allow_elder_service' => false,
+        ]);
+
         try { \Tymon\JWTAuth\Facades\JWTAuth::invalidate(\Tymon\JWTAuth\Facades\JWTAuth::getToken()); } catch (\Exception $e) {}
         return response()->json(['success' => true, 'message' => '회원 탈퇴가 완료되었습니다']);
     }

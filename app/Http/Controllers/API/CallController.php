@@ -24,7 +24,9 @@ class CallController extends Controller
         $calleeId = $request->callee_id;
         $callerId = $request->user()->id;
 
-        if (UserBlock::isBlocked($calleeId, $callerId)) {
+        // 상대가 나를 차단한 경우만 확인하고 내가 상대를 차단한 경우는 걸러지지
+        // 않던 문제 수정 — 쪽지/대화(Conversation)와 동일하게 양방향으로 확인.
+        if (UserBlock::isBlocked($calleeId, $callerId) || UserBlock::isBlocked($callerId, $calleeId)) {
             return response()->json(['error' => '통화할 수 없는 사용자입니다.'], 403);
         }
 

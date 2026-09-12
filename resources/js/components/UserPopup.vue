@@ -41,6 +41,11 @@
       <template v-if="isFriend">
         <RouterLink :to="`/profile/${user.id}`" @click="$emit('close')" class="flex items-center justify-center gap-1 text-center text-ink-light text-xs font-semibold py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"><AppIcon name="user" :size="12" /> 프로필</RouterLink>
       </template>
+      <button v-if="!isMe" @click="toggleBlock" :disabled="blocking"
+        class="flex items-center justify-center gap-1 text-center text-xs font-semibold py-1.5 rounded-lg transition-colors disabled:opacity-50"
+        :class="user.is_blocked_by_me ? 'text-ink-faint bg-gray-50 hover:bg-gray-100' : 'text-red-400 hover:text-red-500 hover:bg-red-50'">
+        <AppIcon name="shield" :size="12" /> {{ user.is_blocked_by_me ? '차단 해제' : '차단하기' }}
+      </button>
     </div>
 
     <!-- 친구요청 확인 뷰 -->
@@ -193,6 +198,22 @@ watch(() => [props.userId, props.show], async ([id, s]) => {
     } catch {}
   }
 }, { immediate: true })
+
+const blocking = ref(false)
+async function toggleBlock() {
+  if (!user.value) return
+  const willBlock = !user.value.is_blocked_by_me
+  if (!confirm(willBlock ? '이 사용자를 차단하시겠습니까? 서로 메시지·통화가 차단됩니다.' : '차단을 해제하시겠습니까?')) return
+  blocking.value = true
+  try {
+    if (willBlock) await axios.post(`/api/comms/users/${user.value.id}/block`)
+    else await axios.delete(`/api/comms/users/${user.value.id}/block`)
+    user.value.is_blocked_by_me = willBlock
+  } catch (e) {
+    alert(e.response?.data?.message || '처리 실패')
+  }
+  blocking.value = false
+}
 
 async function addFriend() {
   adding.value = true

@@ -82,6 +82,11 @@ class FriendController extends Controller
         if (!$target) return response()->json(['success' => false, 'message' => '사용자를 찾을 수 없습니다'], 404);
         if (!$target->allow_friend_request) return response()->json(['success' => false, 'message' => '이 사용자는 친구 요청을 받지 않습니다'], 403);
 
+        // 차단 관계에서는 친구 요청도 막아야 하는데 빠져있던 문제 수정.
+        if (\App\Models\UserBlock::isBlocked($userId, auth()->id()) || \App\Models\UserBlock::isBlocked(auth()->id(), $userId)) {
+            return response()->json(['success' => false, 'message' => '친구 요청을 보낼 수 없는 사용자입니다'], 403);
+        }
+
         // 만료된 요청 자동 삭제 (양방향)
         Friend::where('status', 'pending')->whereNotNull('expires_at')->where('expires_at', '<', now())
             ->where(function($q) use ($userId) {

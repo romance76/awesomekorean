@@ -172,6 +172,11 @@ class ChatController extends Controller
             if (!$otherId || $otherId == $meId) {
                 return response()->json(['success'=>false,'message'=>'상대를 선택하세요'], 422);
             }
+            // 새 대화(Conversation)/쪽지/통화는 차단을 확인하는데 구 채팅방
+            // 생성 경로만 빠져있어 차단해도 1:1 채팅방은 새로 만들 수 있던 문제 수정.
+            if (\App\Models\UserBlock::isBlocked($otherId, $meId) || \App\Models\UserBlock::isBlocked($meId, $otherId)) {
+                return response()->json(['success'=>false,'message'=>'채팅방을 만들 수 없는 사용자입니다'], 403);
+            }
             // 기존 DM 방 재사용 (두 유저가 모두 멤버인 dm 방)
             $existingId = ChatRoom::where('type','dm')
                 ->whereHas('users', fn($q)=>$q->where('chat_room_users.user_id',$meId))

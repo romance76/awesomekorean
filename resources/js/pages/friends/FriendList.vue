@@ -47,8 +47,8 @@
       <div class="col-span-12 lg:col-span-9">
         <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
 
-        <!-- 소개 페이지 (친구가 하나도 없을 때) -->
-        <div v-else-if="!allFriends.length" class="space-y-6">
+        <!-- 소개 페이지 (친구가 하나도 없을 때, 차단 탭 조회 중이 아닐 때만) -->
+        <div v-else-if="!allFriends.length && statusFilter!=='blocked'" class="space-y-6">
           <div class="card p-8 text-center">
             <div class="icon-chip w-16 h-16 bg-amber-50 text-amber-600 mx-auto mb-4"><AppIcon name="heart-handshake" :size="32" :stroke-width="1.5" /></div>
             <h2 class="text-2xl font-bold text-ink mb-2">AwesomeKorean 친구</h2>
@@ -98,6 +98,26 @@
           </div>
         </div>
 
+        <!-- 차단 목록 (친구 여부와 무관한 실제 UserBlock 기준 목록) -->
+        <template v-else-if="statusFilter==='blocked'">
+          <div v-if="!blockedUsers.length" class="py-16 text-center">
+            <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="shield" :size="28" :stroke-width="1.5" /></div>
+            <p class="text-sm text-ink-muted">차단한 사용자가 없습니다</p>
+          </div>
+          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div v-for="u in blockedUsers" :key="u.id" class="card card-hover p-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-lg font-bold text-ink-faint">{{ (u.nickname||u.name||'?')[0] }}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-ink truncate">{{ u.nickname || u.name }}</div>
+                  <div class="text-[11px] text-ink-faint">차단됨 — 메시지·통화가 서로 차단됩니다</div>
+                </div>
+              </div>
+              <button @click="unblockUser(u.id)" class="w-full text-xs bg-gray-100 text-ink-light py-1.5 rounded-lg font-bold hover:bg-gray-200 transition-colors">차단 해제</button>
+            </div>
+          </div>
+        </template>
+
         <!-- 필터 결과 없음 -->
         <div v-else-if="!filteredFriends.length" class="py-16 text-center">
           <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="users" :size="28" :stroke-width="1.5" /></div>
@@ -140,9 +160,6 @@
               <template v-else-if="f.status==='pending' && f.is_sender">
                 <span class="flex-1 text-xs text-ink-muted py-1.5 text-center">요청 대기중...</span>
                 <button @click="removeFriend(f.id)" class="text-xs text-red-400 px-2 py-1.5 hover:text-red-600 transition-colors">취소</button>
-              </template>
-              <template v-else-if="f.status==='blocked'">
-                <button @click="removeFriend(f.id)" class="flex-1 text-xs bg-gray-100 text-ink-light py-1.5 rounded-lg font-bold hover:bg-gray-200 transition-colors">차단 해제</button>
               </template>
             </div>
           </div>
@@ -218,6 +235,7 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const router = useRouter()
 const allFriends = ref([])
+const blockedUsers = ref([])
 const chatRooms = ref([])
 const loading = ref(true)
 const statusFilter = ref('')
@@ -258,12 +276,14 @@ function sourceLabel(key) {
 
 function getCounts(status) {
   if (!status) return allFriends.value.length
+  if (status === 'blocked') return blockedUsers.value.length
   return allFriends.value.filter(f => f.status === status).length
 }
 
+// 차단은 친구 여부와 무관한 별개 목록(실제 UserBlock 기준)이라 friends 배열에서 제외
 const filteredFriends = computed(() => {
-  let list = allFriends.value
-  if (statusFilter.value) list = list.filter(f => f.status === statusFilter.value)
+  let list = allFriends.value.filter(f => f.status !== 'blocked')
+  if (statusFilter.value && statusFilter.value !== 'blocked') list = list.filter(f => f.status === statusFilter.value)
   if (sourceFilter.value) list = list.filter(f => f.source === sourceFilter.value)
   return list
 })
@@ -276,6 +296,21 @@ async function loadFriends() {
     const { data } = await axios.get('/api/friends', { params })
     allFriends.value = data.data || []
   } catch {}
+}
+
+async function loadBlockedUsers() {
+  try {
+    const { data } = await axios.get('/api/comms/blocked-users')
+    blockedUsers.value = data.data || []
+  } catch {}
+}
+
+async function unblockUser(userId) {
+  if (!confirm('차단을 해제하시겠습니까?')) return
+  try {
+    await axios.delete(`/api/comms/users/${userId}/block`)
+    blockedUsers.value = blockedUsers.value.filter(u => u.id !== userId)
+  } catch (e) { alert(e.response?.data?.message || '처리 실패') }
 }
 
 async function loadChatRooms() {
@@ -356,7 +391,7 @@ async function createGroupChat() {
 }
 
 onMounted(async () => {
-  await Promise.all([loadFriends(), loadChatRooms()])
+  await Promise.all([loadFriends(), loadChatRooms(), loadBlockedUsers()])
   loading.value = false
 })
 </script>

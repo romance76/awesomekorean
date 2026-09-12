@@ -423,6 +423,7 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/calls/client-log', [CallController::class, 'clientLog']);
 
         // 차단
+        Route::get('/blocked-users', [UserBlockController::class, 'index']);
         Route::post('/users/{user}/block', [UserBlockController::class, 'block']);
         Route::delete('/users/{user}/block', [UserBlockController::class, 'unblock']);
 

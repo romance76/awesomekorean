@@ -3,6 +3,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Notification;
+use App\Models\UserBlock;
 use App\Events\NewNotification;
 use Illuminate\Http\Request;
 
@@ -32,6 +33,12 @@ class MessageController extends Controller
         $receiver = \App\Models\User::find($request->receiver_id);
         if ($receiver && !$receiver->allow_messages) {
             return response()->json(['success' => false, 'message' => '상대방이 쪽지 수신을 거부했습니다.'], 403);
+        }
+
+        // 신규 대화(ConversationController)/통화는 이미 차단을 확인하는데 구 쪽지만
+        // 빠져있어 차단해도 구 쪽지로는 계속 연락 가능했던 문제 수정.
+        if (UserBlock::isBlocked($request->receiver_id, auth()->id()) || UserBlock::isBlocked(auth()->id(), $request->receiver_id)) {
+            return response()->json(['success' => false, 'message' => '쪽지를 보낼 수 없는 사용자입니다.'], 403);
         }
 
         $msg = Message::create([
