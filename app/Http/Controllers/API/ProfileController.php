@@ -17,6 +17,20 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
+        // 서버측 검증이 전혀 없어 글자수 제한 없는 값이 그대로 저장되던 문제 수정
+        $request->validate([
+            'name' => 'nullable|string|max:50',
+            'nickname' => 'nullable|string|max:50',
+            'bio' => 'nullable|string|max:500',
+            'phone' => 'nullable|string|max:20',
+            'address1' => 'nullable|string|max:200',
+            'address2' => 'nullable|string|max:200',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:50',
+            'zipcode' => 'nullable|string|max:10',
+            'default_radius' => 'nullable|integer|min:1|max:500',
+        ]);
+
         $user = auth()->user();
         $user->update($request->only('name','nickname','bio','phone','address1','address2','city','state','zipcode','default_radius','language','allow_friend_request','allow_messages','allow_elder_service'));
 

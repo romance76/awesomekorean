@@ -81,7 +81,14 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required|max:200', 'content' => 'required', 'board_id' => 'required|exists:boards,id']);
+        // 글자수·이미지 개수·업로드 검증이 전혀 없어 도배/용량 공격에 취약하던 문제 수정
+        $request->validate([
+            'title' => 'required|max:200',
+            'content' => 'required|max:20000',
+            'board_id' => 'required|exists:boards,id',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'image|max:10240',
+        ]);
 
         $bad = BadWordFilter::firstMatch($request->title . ' ' . $request->content);
         if ($bad !== null) {

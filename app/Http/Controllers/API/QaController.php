@@ -85,6 +85,34 @@ class QaController extends Controller
         return response()->json(['success' => true, 'data' => $post], 201);
     }
 
+    // 질문 수정 — 질문 수정·삭제 기능 자체가 없던 문제 수정(답변 삭제만 가능했음).
+    // 답변이 채택된 뒤에는 내용을 바꿔 채택 근거를 흔들 수 없도록 제한.
+    public function update(Request $request, $id)
+    {
+        $post = QaPost::where('user_id', auth()->id())->findOrFail($id);
+        if ($post->is_resolved) {
+            return response()->json(['success' => false, 'message' => '이미 채택이 완료된 질문은 수정할 수 없습니다'], 422);
+        }
+        $request->validate(['title' => 'required|max:200', 'content' => 'required']);
+        $post->update($request->only('title', 'content', 'category_id'));
+        return response()->json(['success' => true, 'data' => $post->fresh()]);
+    }
+
+    // 질문 삭제 — 답변이 이미 달린 질문은 삭제할 수 없고(답변자 보호),
+    // 답변이 없을 때만 삭제 가능하며 걸어둔 현상금은 환불.
+    public function destroy($id)
+    {
+        $post = QaPost::where('user_id', auth()->id())->findOrFail($id);
+        if ($post->answer_count > 0) {
+            return response()->json(['success' => false, 'message' => '답변이 달린 질문은 삭제할 수 없습니다'], 422);
+        }
+        if ($post->bounty_points > 0) {
+            auth()->user()->addPoints($post->bounty_points, "Q&A 질문 삭제 현상금 환불: {$post->title}", 'refund');
+        }
+        $post->delete();
+        return response()->json(['success' => true]);
+    }
+
     public function answer(Request $request, $id)
     {
         $request->validate(['content' => 'required']);

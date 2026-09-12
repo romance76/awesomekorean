@@ -307,6 +307,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/events/{id}/attend', [EventController::class, 'toggleAttend']);
 
     Route::post('/qa', [QaController::class, 'store']);
+    Route::put('/qa/{id}', [QaController::class, 'update']);
+    Route::delete('/qa/{id}', [QaController::class, 'destroy']);
     Route::post('/qa/{id}/answer', [QaController::class, 'answer']);
     Route::post('/qa/{id}/accept/{answerId}', [QaController::class, 'acceptAnswer']);
     Route::delete('/qa/{id}/answer/{answerId}', [QaController::class, 'deleteAnswer']);

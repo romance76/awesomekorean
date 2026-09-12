@@ -112,6 +112,22 @@ class AdminController extends Controller
         $report = Report::findOrFail($id);
         $report->update($request->only('status','admin_note'));
 
+        // 신고를 "해결" 처리해도 대상 게시물에 아무 반영이 없던 문제 수정 —
+        // 관리자가 명시적으로 hide_content=true를 보낸 경우에만 실제로 숨김
+        // 처리(모델별 공개여부 필드는 AdminBoardController::visibleCount()와
+        // 동일한 방식으로 판별). 신고를 기각/보류하는 일반적인 경우까지
+        // 자동으로 콘텐츠를 숨기면 안 되므로 옵트인으로만 동작.
+        if ($request->boolean('hide_content') && class_exists($report->reportable_type)) {
+            try {
+                $model = $report->reportable_type::find($report->reportable_id);
+                if ($model) {
+                    $fillable = $model->getFillable();
+                    if (in_array('is_hidden', $fillable, true)) $model->forceFill(['is_hidden' => true])->save();
+                    elseif (in_array('is_active', $fillable, true)) $model->forceFill(['is_active' => false])->save();
+                }
+            } catch (\Exception $e) {}
+        }
+
         // 신고자에게 처리 결과 통지가 전혀 없어 자기 신고가 어떻게 됐는지 알
         // 방법이 없던 문제 수정 — 상태가 바뀌면 신고자에게 알림.
         if ($request->has('status') && $report->reporter_id) {
@@ -334,6 +350,21 @@ class AdminController extends Controller
         $newPassword = $request->input('password') ?: \Str::random(12);
         $user->update(['password' => \Hash::make($newPassword)]);
         \Log::info('Admin reset password', ['admin_id'=>$admin->id,'target_id'=>$user->id]);
+
+        // 대상 회원에게 통지가 전혀 없어 계정 탈취(관리자가 속아서 비번을
+        // 재설정) 탐지가 어렵던 문제 수정 — 임시 비번 값은 알리지 않고
+        // 변경 사실만 이메일/인앱으로 통지.
+        try {
+            if ($user->email) {
+                \Mail::raw('관리자에 의해 비밀번호가 재설정되었습니다. 본인이 요청하지 않았다면 즉시 고객센터에 문의해주세요.', function ($msg) use ($user) {
+                    $msg->to($user->email)->subject('[AwesomeKorean] 비밀번호가 변경되었습니다');
+                });
+            }
+            \App\Models\Notification::create(['user_id'=>$user->id,'type'=>'password_reset_by_admin','title'=>'비밀번호가 변경되었습니다','content'=>'관리자에 의해 비밀번호가 재설정되었습니다. 본인이 요청하지 않았다면 고객센터에 문의해주세요.']);
+            $unread = \App\Models\Notification::where('user_id',$user->id)->whereNull('read_at')->count();
+            broadcast(new \App\Events\NewNotification($user->id, $unread, '비밀번호가 변경되었습니다'))->toOthers();
+        } catch (\Exception $e) {}
+
         return response()->json([
             'success'=>true,
             'message'=>'비밀번호가 변경되었습니다',
@@ -813,6 +844,20 @@ class AdminController extends Controller
                 'content' => '🚫 ' . ($user->nickname ?? $user->name ?? "유저#{$userId}") . ' 님이 차단되었습니다.',
                 'type' => 'system',
             ]);
+        } catch (\Exception $e) {}
+
+        // 차단당한 본인에게 알림이 전혀 없어 방에 왜 못 들어가는지 알 방법이
+        // 없던 문제 수정 — 강퇴와 달리 차단은 영구적이라 통지 필요성이 더 큼.
+        try {
+            \App\Models\Notification::create([
+                'user_id' => $userId,
+                'type' => 'chat_banned',
+                'title' => '채팅방에서 차단되었습니다',
+                'content' => '채팅방에서 차단되어 더 이상 접근할 수 없습니다.' . ($request->reason ? " 사유: {$request->reason}" : ''),
+                'data' => ['chat_room_id' => $id],
+            ]);
+            $unread = \App\Models\Notification::where('user_id', $userId)->whereNull('read_at')->count();
+            broadcast(new \App\Events\NewNotification($userId, $unread, '채팅방에서 차단되었습니다'))->toOthers();
         } catch (\Exception $e) {}
 
         return response()->json(['success'=>true,'message'=>'차단되었습니다']);
