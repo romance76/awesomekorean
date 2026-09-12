@@ -368,6 +368,7 @@ async function loadCategories() {
       slug: c.slug || '',
       icon: c.icon || '',
       is_active: c.is_active !== false,
+      auto_fetch: c.auto_fetch !== false,
       post_count: c.post_count || 0,
       auto_detected: !!c.auto_detected,
     }))
