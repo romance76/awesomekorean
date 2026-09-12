@@ -34,6 +34,7 @@ const routes = [
   { path: '/jobs', name: 'jobs', component: p('jobs/JobList') },
   { path: '/jobs/write', name: 'job-write', component: p('jobs/JobWrite'), meta: { auth: true } },
   { path: '/jobs/:id', name: 'job-detail', component: p('jobs/JobDetail') },
+  { path: '/jobs/:id/applicants', name: 'job-applicants', component: p('jobs/JobApplicants'), meta: { auth: true } },
 
   // Market
   { path: '/market', name: 'market', component: p('market/MarketList') },

@@ -379,6 +379,10 @@
               </div>
             </div>
             <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
+              <RouterLink v-if="j.post_type === 'hiring'" :to="'/jobs/'+j.id+'/applicants'"
+                class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
+                <AppIcon name="users" :size="12" /> 지원자 {{ j.applications_count ? `(${j.applications_count})` : '' }}
+              </RouterLink>
               <RouterLink :to="'/jobs/write?edit='+j.id"
                 class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
                 <AppIcon name="edit" :size="12" /> 수정
@@ -421,7 +425,8 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <span :class="r.is_active ? 'badge-green' : 'badge-gray'">{{ r.is_active ? '게시중' : '종료' }}</span>
+                  <span v-if="r.completed_at" class="badge-blue">🏠 계약완료</span>
+                  <span v-else :class="r.is_active ? 'badge-green' : 'badge-gray'">{{ r.is_active ? '게시중' : '종료' }}</span>
                   <span class="badge-primary">{{ {rent:'렌트',sale:'매매',roommate:'룸메이트'}[r.type] }}</span>
                   <span v-if="r.promotion_tier === 'national' && r.promotion_expires_at && new Date(r.promotion_expires_at) > new Date()" class="badge-red">🌐 전국구</span>
                   <span v-else-if="r.promotion_tier === 'state_plus' && r.promotion_expires_at && new Date(r.promotion_expires_at) > new Date()" class="badge-blue">⭐ 주+</span>
@@ -438,7 +443,9 @@
             </div>
             <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100">
               <RouterLink :to="'/realestate/write?edit='+r.id" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"><AppIcon name="edit" :size="12" /> 수정</RouterLink>
-              <button @click="openRePromote(r)" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors"><AppIcon name="sparkles" :size="12" /> 상위노출</button>
+              <button v-if="!r.completed_at" @click="openRePromote(r)" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 transition-colors"><AppIcon name="sparkles" :size="12" /> 상위노출</button>
+              <button v-if="!r.completed_at" @click="completeRealEstateItem(r)" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors"><AppIcon name="check" :size="12" /> 완료 처리</button>
+              <button v-else @click="undoCompleteRealEstateItem(r)" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-gray-100 text-ink-light hover:bg-gray-200 transition-colors"><AppIcon name="refresh" :size="12" /> 완료 취소</button>
               <RouterLink :to="'/realestate/'+r.id" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"><AppIcon name="eye" :size="12" /> 미리보기</RouterLink>
               <button @click="deleteRealEstateItem(r)" class="flex items-center justify-center text-xs font-bold py-1.5 px-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"><AppIcon name="trash" :size="12" /></button>
             </div>
@@ -1416,6 +1423,22 @@ async function deleteRealEstateItem(r) {
   if (!ok) return
   try { await axios.delete(`/api/realestate/${r.id}`); myRealEstate.value = myRealEstate.value.filter(x => x.id !== r.id) }
   catch (e) { showAlert(e.response?.data?.message || '삭제 실패', '오류') }
+}
+async function completeRealEstateItem(r) {
+  const ok = await showConfirm(`"${r.title}" 임대/매매가 완료되었나요? 완료 처리하면 목록에서 내려갑니다.`, '완료 처리')
+  if (!ok) return
+  try {
+    const { data } = await axios.post(`/api/realestate/${r.id}/complete`)
+    Object.assign(r, data.data)
+  } catch (e) { showAlert(e.response?.data?.message || '처리 실패', '오류') }
+}
+async function undoCompleteRealEstateItem(r) {
+  const ok = await showConfirm(`"${r.title}" 완료 처리를 취소하시겠습니까?`, '완료 취소')
+  if (!ok) return
+  try {
+    const { data } = await axios.post(`/api/realestate/${r.id}/complete/undo`)
+    Object.assign(r, data.data)
+  } catch (e) { showAlert(e.response?.data?.message || '처리 실패', '오류') }
 }
 
 // ─── 내 구인구직 ───

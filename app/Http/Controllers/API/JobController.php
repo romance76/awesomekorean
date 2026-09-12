@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\JobPost;
 use App\Models\JobApplication;
 use App\Models\JobPromotion;
+use App\Models\Notification;
+use App\Events\NewNotification;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
@@ -348,6 +350,7 @@ class JobController extends Controller
     public function myPosts()
     {
         $posts = JobPost::where('user_id', auth()->id())
+            ->withCount('applications')
             ->orderByDesc('created_at')
             ->get(['id', 'post_type', 'title', 'company', 'category', 'type', 'logo', 'city', 'state', 'is_active', 'view_count', 'promotion_tier', 'promotion_expires_at', 'expires_at', 'created_at']);
 
@@ -376,6 +379,40 @@ class JobController extends Controller
             ->get();
 
         return response()->json(['success' => true, 'data' => $apps]);
+    }
+
+    /**
+     * 지원자 상태 변경(채용확정/불합격/열람) — 채용확정 처리 기능 자체가
+     * 없어 구인자가 지원자에게 응답할 방법이 전혀 없던 문제 수정.
+     * 채용확정은 공고 하나로 여러 명을 뽑을 수 있어 공고 자체는 계속 열어둔다.
+     */
+    public function updateApplicantStatus(Request $request, $jobId, $applicationId)
+    {
+        $request->validate(['status' => 'required|in:viewed,accepted,rejected']);
+
+        $job = JobPost::where('user_id', auth()->id())->findOrFail($jobId);
+        $application = JobApplication::where('job_post_id', $jobId)->findOrFail($applicationId);
+
+        $wasAccepted = $application->status === 'accepted';
+        $application->update(['status' => $request->status]);
+
+        if ($request->status === 'accepted' && !$wasAccepted) {
+            \App\Support\MilestonePoints::award(auth()->user(), 'job_hire_complete', JobPost::class, $job->id, "채용확정: {$job->title}", 'job_hire_complete_daily_max');
+
+            try {
+                Notification::create(['user_id' => $application->user_id, 'type' => 'job_hire_accepted', 'title' => '채용이 확정되었습니다', 'content' => "'{$job->title}' 공고에 채용이 확정되었습니다. 축하합니다!", 'data' => ['job_post_id' => $jobId]]);
+                $unread = Notification::where('user_id', $application->user_id)->whereNull('read_at')->count();
+                broadcast(new NewNotification($application->user_id, $unread, '채용이 확정되었습니다'))->toOthers();
+            } catch (\Exception $e) {}
+        } elseif ($request->status === 'rejected') {
+            try {
+                Notification::create(['user_id' => $application->user_id, 'type' => 'job_hire_rejected', 'title' => '지원 결과 안내', 'content' => "'{$job->title}' 공고 지원 결과, 이번엔 함께하지 못하게 되었습니다.", 'data' => ['job_post_id' => $jobId]]);
+                $unread = Notification::where('user_id', $application->user_id)->whereNull('read_at')->count();
+                broadcast(new NewNotification($application->user_id, $unread, '지원 결과 안내'))->toOthers();
+            } catch (\Exception $e) {}
+        }
+
+        return response()->json(['success' => true, 'data' => $application->fresh()]);
     }
 
     /**

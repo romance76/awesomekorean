@@ -223,6 +223,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/my-jobs', [JobController::class, 'myPosts']);
     Route::get('/my-applications', [JobController::class, 'myApplications']);
     Route::get('/jobs/{id}/applicants', [JobController::class, 'applicants']);
+    Route::post('/jobs/{jobId}/applicants/{applicationId}/status', [JobController::class, 'updateApplicantStatus']);
     Route::post('/jobs/{id}/promote', [JobController::class, 'promote']);
 
     // 이력서
@@ -265,6 +266,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/realestate', [RealEstateController::class, 'store']);
     Route::put('/realestate/{id}', [RealEstateController::class, 'update']);
     Route::delete('/realestate/{id}', [RealEstateController::class, 'destroy']);
+    Route::post('/realestate/{id}/complete', [RealEstateController::class, 'complete']);
+    Route::post('/realestate/{id}/complete/undo', [RealEstateController::class, 'undoComplete']);
 
     Route::get('/my-clubs', [ClubController::class, 'myClubs']);
     Route::post('/clubs', [ClubController::class, 'store']);
