@@ -667,7 +667,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/fetch-music', function () {
         try {
             $before = \App\Models\MusicTrack::count();
-            \Artisan::call('music:fetch', ['--daily' => 100, '--korean-ratio' => 75]);
+            \Artisan::call('music:fetch', ['--daily' => 100]);
             $output = \Artisan::output();
             $after = \App\Models\MusicTrack::count();
             $added = $after - $before;

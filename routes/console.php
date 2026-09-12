@@ -16,7 +16,7 @@ Schedule::command('shorts:fetch --limit=500 --korean-ratio=70')->dailyAt('03:00'
 Schedule::command('news:fetch')->cron('0 */2 * * *')->withoutOverlapping();
 
 // 음악 트랙 자동 수집 (매일 02:00, 500곡, 한국70%+팝30%, 7일 롤링)
-Schedule::command('music:fetch --daily=500 --korean-ratio=70')->dailyAt('02:00');
+Schedule::command('music:fetch --daily=500')->dailyAt('02:00');
 
 Schedule::command('elder:check')->everyMinute();
 Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
