@@ -399,4 +399,11 @@ class AdminSettingsController extends Controller
         \App\Support\PointRules::flush();
         return response()->json(['success' => true, 'message' => '포인트 설정이 저장되었습니다.']);
     }
+
+    // 관리자 "시스템" 페이지 캐시 초기화 — 버튼만 있고 실제로는 아무 동작도
+    // 하지 않던 장식용 UI였던 것을 라이브 재감사로 발견해 실제 동작하도록 연결.
+    public function clearCache() {
+        \Artisan::call('optimize:clear');
+        return response()->json(['success' => true, 'message' => '캐시가 초기화되었습니다.']);
+    }
 }

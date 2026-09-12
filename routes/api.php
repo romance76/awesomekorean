@@ -632,6 +632,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim']);
     Route::get('/settings', [AdminSettingsController::class, 'index']);
     Route::put('/settings', [AdminSettingsController::class, 'update']);
+    Route::post('/system/clear-cache', [AdminSettingsController::class, 'clearCache']);
     Route::post('/settings/company', [AdminSettingsController::class, 'saveCompany']);
     Route::post('/settings/site', [AdminSettingsController::class, 'saveSite']);
     Route::post('/settings/footer', [AdminSettingsController::class, 'saveFooter']);
