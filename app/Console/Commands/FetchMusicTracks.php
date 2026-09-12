@@ -196,12 +196,14 @@ class FetchMusicTracks extends Command
                 if (preg_match('/[\x{4E00}-\x{9FFF}]/u', $text) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $text)) continue;
                 // 힌디/데바나가리/아랍/태국/벵골
                 if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $text)) continue;
+                // 러시아어 등 키릴 문자
+                if (preg_match('/[\x{0400}-\x{04FF}]/u', $text)) continue;
                 // 베트남어 (확장 라틴 diacritics)
                 if (preg_match('/[ăâđêôơưừứửữựắằẳẵặẻẽẹểễệốồổỗộớờởỡợýỷỹỵ]/u', $text)) continue;
                 // 스페인어 diacritics/punctuation
                 if (preg_match('/[áéíóúñ¿¡]/u', $text)) continue;
                 // 언어/문화권 키워드
-                if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|ภาษาไทย|Tiếng Việt|Myanmar|Lao|Cambodian|Filipino|Bahasa/i', $text)) continue;
+                if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|ภาษาไทย|Tiếng Việt|Myanmar|Lao|Cambodian|Filipino|Bahasa|Russian|Русский|по-русски/i', $text)) continue;
                 // 인도 지역어 및 해시태그
                 if (preg_match('/Haryanvi|Haryana|Bhojpuri|Marathi|Gujarati|Bengali|Kannada|Malayalam|Urdu|Sindhi|Nepali|Sinhala|Desi|#haryanvi|#bhojpuri|#desi|#bollywood|#hindi/i', $text)) continue;
                 // 인도 로마자 흔한 단어
@@ -273,9 +275,10 @@ class FetchMusicTracks extends Command
                             if (preg_match('/[\x{3040}-\x{309F}]|[\x{30A0}-\x{30FF}]/u', $fbText)) continue;
                             if (preg_match('/[\x{4E00}-\x{9FFF}]/u', $fbText) && !preg_match('/[\x{AC00}-\x{D7AF}]/u', $fbText)) continue;
                             if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]/u', $fbText)) continue;
+                            if (preg_match('/[\x{0400}-\x{04FF}]/u', $fbText)) continue;
                             if (preg_match('/[ăâđêôơưừứửữựắằẳẵặẻẽẹểễệốồổỗộớờởỡợýỷỹỵ]/u', $fbText)) continue;
                             if (preg_match('/[áéíóúñ¿¡]/u', $fbText)) continue;
-                            if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|Myanmar|Lao|Cambodian|Filipino|Bahasa|español|castellano|México|Argentina|España|Latino|Reggaeton|Bachata/i', $fbText)) continue;
+                            if (preg_match('/Bollywood|Hindi|Tamil|Telugu|Punjabi|Arabic|Thai|Türk|Indo|Tagalog|Malay|Khmer|Chinese|Japanese|Mandarin|Cantonese|Vietnamese|Việt|中文|日本語|Myanmar|Lao|Cambodian|Filipino|Bahasa|español|castellano|México|Argentina|España|Latino|Reggaeton|Bachata|Russian|Русский/i', $fbText)) continue;
 
                             MusicTrack::create([
                                 'category_id' => $categoryId,
