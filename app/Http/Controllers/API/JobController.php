@@ -248,6 +248,9 @@ class JobController extends Controller
             }
 
             $job = JobPost::create($data);
+
+            \App\Support\WritePoints::award(auth()->user(), JobPost::class, $job->id, $postType === 'hiring' ? '구인글 작성' : '구직글 작성');
+
             return response()->json(['success' => true, 'data' => $job], 201);
         } catch (\Throwable $e) {
             \Log::error('JobPost create failed', ['err' => $e->getMessage(), 'user' => auth()->id()]);

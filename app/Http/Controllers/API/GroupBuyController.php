@@ -442,6 +442,12 @@ class GroupBuyController extends Controller
             'rejection_reason' => null,
         ]);
 
+        // 공구 등록 포인트는 스팸 방지를 위해 관리자 승인 시점에 지급
+        $organizer = \App\Models\User::find($gb->user_id);
+        if ($organizer) {
+            \App\Support\WritePoints::award($organizer, \App\Models\GroupBuy::class, $gb->id, '공동구매 등록 승인');
+        }
+
         $this->notify($gb->user_id, 'groupbuy_approved', '공동구매가 승인되었습니다', "'{$gb->title}' 공동구매가 승인되었습니다.", ['groupbuy_id' => $id]);
 
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);

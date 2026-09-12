@@ -154,6 +154,8 @@ class RecipeController extends Controller
             'is_active' => true,
         ]);
 
+        \App\Support\WritePoints::award(auth()->user(), RecipePost::class, $recipe->id, '레시피 등록');
+
         return response()->json(['success' => true, 'data' => $recipe], 201);
     }
 

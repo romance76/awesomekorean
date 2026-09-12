@@ -220,6 +220,8 @@ class MarketController extends Controller
             ]
         ));
 
+        \App\Support\WritePoints::award($user, MarketItem::class, $item->id, '장터 글 작성');
+
         return response()->json(['success' => true, 'data' => $item], 201);
     }
 

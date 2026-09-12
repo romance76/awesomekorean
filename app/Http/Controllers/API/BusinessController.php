@@ -315,6 +315,8 @@ class BusinessController extends Controller
             ['user_id' => auth()->id(), 'images' => $images ?: null, 'logo' => $logo]
         ));
 
+        \App\Support\WritePoints::award(auth()->user(), Business::class, $biz->id, '업소 등록');
+
         return response()->json(['success' => true, 'data' => $biz], 201);
     }
 
@@ -348,6 +350,8 @@ class BusinessController extends Controller
         $avg = BusinessReview::where('business_id', $id)->avg('rating');
         $count = BusinessReview::where('business_id', $id)->count();
         $biz->update(['rating' => round($avg, 2), 'review_count' => $count]);
+
+        \App\Support\WritePoints::award(auth()->user(), BusinessReview::class, $review->id, '업소 리뷰 작성');
 
         return response()->json(['success' => true, 'data' => $review], 201);
     }

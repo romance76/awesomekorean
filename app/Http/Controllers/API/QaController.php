@@ -82,6 +82,8 @@ class QaController extends Controller
             auth()->user()->decrement('points', $bounty);
         }
 
+        \App\Support\WritePoints::award(auth()->user(), QaPost::class, $post->id, 'Q&A 질문 작성');
+
         return response()->json(['success' => true, 'data' => $post], 201);
     }
 
@@ -125,6 +127,9 @@ class QaController extends Controller
         ]);
 
         $post->increment('answer_count');
+
+        \App\Support\WritePoints::award(auth()->user(), QaAnswer::class, $answer->id, 'Q&A 답변 작성');
+
         return response()->json(['success' => true, 'data' => $answer->load('user:id,name,nickname,avatar')], 201);
     }
 
@@ -211,6 +216,9 @@ class QaController extends Controller
                 \DB::table('qa_answer_likes')->where('id', $existing->id)->update(['type' => $type, 'created_at' => now()]);
                 $answer->decrement($oldType === 'like' ? 'like_count' : 'dislike_count');
                 $answer->increment($type === 'like' ? 'like_count' : 'dislike_count');
+                if ($type === 'like') {
+                    \App\Support\LikeRewards::award($userId, \App\Models\User::find($answer->user_id), QaAnswer::class, $answer->id);
+                }
             }
         } else {
             \DB::table('qa_answer_likes')->insert([
@@ -220,6 +228,9 @@ class QaController extends Controller
                 'created_at' => now(),
             ]);
             $answer->increment($type === 'like' ? 'like_count' : 'dislike_count');
+            if ($type === 'like') {
+                \App\Support\LikeRewards::award($userId, \App\Models\User::find($answer->user_id), QaAnswer::class, $answer->id);
+            }
         }
 
         $fresh = $answer->fresh();

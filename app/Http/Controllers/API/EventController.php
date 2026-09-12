@@ -96,6 +96,8 @@ class EventController extends Controller
 
         $event = Event::create($fields);
 
+        \App\Support\WritePoints::award(auth()->user(), Event::class, $event->id, '이벤트 등록');
+
         return response()->json(['success' => true, 'data' => $event], 201);
     }
 

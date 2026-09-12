@@ -116,17 +116,8 @@ class PostController extends Controller
             'zipcode' => $request->zipcode,
         ]);
 
-        // 글 작성 포인트 (P2B-2: DB 동적, Issue #12: 대상 post 연결)
-        // 작성 자체는 무제한이지만, 게시글+댓글 합산 하루 N회까지만 포인트 지급
-        $amount = \App\Support\PointRules::get('post_write', 3);
-        $dailyCap = \App\Support\PointRules::get('content_earn_daily_max', 3);
-        $todayEarnedActions = \App\Models\PointLog::where('user_id', auth()->id())
-            ->whereDate('created_at', today())
-            ->whereIn('related_type', [\App\Models\Post::class, \App\Models\Comment::class])
-            ->count();
-        if ($amount > 0 && $todayEarnedActions < $dailyCap) {
-            auth()->user()->addPoints($amount, '게시글 작성', 'earn', ['type' => \App\Models\Post::class, 'id' => $post->id]);
-        }
+        // 글 작성 포인트 — 게시판 종류 무관 사이트 전체 통합 한도/금액 (WritePoints)
+        \App\Support\WritePoints::award(auth()->user(), \App\Models\Post::class, $post->id, '게시글 작성');
 
         return response()->json(['success' => true, 'data' => $post], 201);
     }
@@ -158,6 +149,10 @@ class PostController extends Controller
 
         PostLike::create(['user_id' => auth()->id(), 'post_id' => $id]);
         $post->increment('like_count');
+
+        // 좋아요 보상 — 누른 사람 하루 5개까지만 글쓴이에게 1P 지급
+        \App\Support\LikeRewards::award(auth()->id(), \App\Models\User::find($post->user_id), Post::class, $post->id);
+
         return response()->json(['success' => true, 'liked' => true]);
     }
 }
