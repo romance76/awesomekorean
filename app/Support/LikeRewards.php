@@ -28,13 +28,14 @@ class LikeRewards
         if (!$author || $author->id === $likerId) return; // 본인 글에 본인이 좋아요 눌러도 지급 안 함
 
         $amount = PointRules::get('like_reward_amount', 1);
-        if ($amount <= 0) return;
-
         $dailyMax = PointRules::get('like_reward_daily_max', 5);
         // 방금 생성된 좋아요까지 포함한 "오늘 누른 좋아요 개수"이므로,
         // 이 값이 한도 이하일 때(=이번이 오늘의 N번째 이하 좋아요일 때)만 지급.
-        if (static::likesGivenToday($likerId) > $dailyMax) return;
+        if ($amount > 0 && static::likesGivenToday($likerId) <= $dailyMax) {
+            $author->addPoints($amount, '좋아요 받음', 'like_reward', $relatedType ? ['type' => $relatedType, 'id' => $relatedId] : null);
+        }
 
-        $author->addPoints($amount, '좋아요 받음', 'like_reward', $relatedType ? ['type' => $relatedType, 'id' => $relatedId] : null);
+        // 인기 뱃지는 하루 지급 한도와 무관하게 실제 받은 좋아요 총합 기준으로 판정
+        \App\Services\BadgeService::checkLikeBadges($author);
     }
 }

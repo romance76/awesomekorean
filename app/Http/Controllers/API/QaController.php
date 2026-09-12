@@ -163,6 +163,8 @@ class QaController extends Controller
             $answer->user->addPoints($acceptBonus, "Q&A 채택 보너스: {$post->title}", 'earn');
         }
 
+        \App\Services\BadgeService::checkQaBadges($answer->user);
+
         // 채택돼도 답변자에게 알림이 없어 자기 답변이 채택된 걸 모를 수 있던 문제 수정
         try {
             Notification::create([
