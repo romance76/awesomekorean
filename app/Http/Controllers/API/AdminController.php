@@ -372,6 +372,31 @@ class AdminController extends Controller
         ]);
     }
 
+    // 이메일 인증 강제 처리 — admin/super_admin. 인증메일이 스팸함에 들어가거나
+    // 발송 실패한 회원을 관리자가 대신 구제할 방법이 API에 전혀 없던 문제(라이브
+    // 재감사로 발견) 수정 — 글쓰기 게이트(verified.email)가 이메일 인증에 의존하게
+    // 된 이상 이 구제 경로가 없으면 CS로 이어질 수밖에 없음.
+    public function forceVerifyEmail($id) {
+        $admin = auth()->user();
+        if (!in_array($admin->role, ['admin','super_admin'])) {
+            return response()->json(['success'=>false,'message'=>'권한 없음'], 403);
+        }
+        $user = User::findOrFail($id);
+        if ($user->email_verified_at) {
+            return response()->json(['success'=>false,'message'=>'이미 인증된 이메일입니다.'], 422);
+        }
+        $user->forceFill(['email_verified_at' => now()])->save();
+        \Log::info('Admin force-verified email', ['admin_id'=>$admin->id,'target_id'=>$user->id]);
+
+        try {
+            \App\Models\Notification::create(['user_id'=>$user->id,'type'=>'email_verified_by_admin','title'=>'이메일 인증이 완료되었습니다','content'=>'관리자에 의해 이메일 인증이 처리되어 이제 글쓰기가 가능합니다.']);
+            $unread = \App\Models\Notification::where('user_id',$user->id)->whereNull('read_at')->count();
+            broadcast(new \App\Events\NewNotification($user->id, $unread, '이메일 인증이 완료되었습니다'))->toOthers();
+        } catch (\Exception $e) {}
+
+        return response()->json(['success'=>true,'data'=>$user->fresh(),'message'=>'이메일 인증이 처리되었습니다']);
+    }
+
     // 계정 삭제 — super_admin 만, 소프트 삭제 (is_banned=true, email=deleted_{id}_{orig})
     public function deleteUserAccount($id) {
         $admin = auth()->user();

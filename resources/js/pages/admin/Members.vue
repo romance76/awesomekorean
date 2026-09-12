@@ -415,6 +415,13 @@
               </div>
             </div>
 
+            <!-- 이메일 인증 강제 처리 -->
+            <div v-if="!userData.user.email_verified_at" class="border-t border-gray-100 pt-4">
+              <h3 class="flex items-center gap-1.5 text-sm font-bold text-ink mb-2"><AppIcon name="check" :size="14" />이메일 인증 강제 처리</h3>
+              <p class="text-[11px] text-ink-muted mb-2">이메일 미인증 상태 — 인증메일이 스팸함에 들어갔거나 발송에 실패한 경우 여기서 대신 인증 처리할 수 있습니다(글쓰기 게이트 해제).</p>
+              <button @click="forceVerifyEmail" class="inline-flex items-center gap-1.5 bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-amber-600 transition-colors"><AppIcon name="check" :size="14" />이메일 인증 처리</button>
+            </div>
+
             <!-- Super Admin 전용: Impersonate -->
             <div v-if="auth.user?.role === 'super_admin' && auth.user?.id !== userData.user.id" class="border-t border-gray-100 pt-4">
               <h3 class="flex items-center gap-1.5 text-sm font-bold text-ink mb-2"><AppIcon name="log-in" :size="14" />이 회원으로 로그인 (Impersonate)</h3>
@@ -542,6 +549,18 @@ async function resetPassword() {
       newPassword.value = ''
     }
   } catch (e) { alert(e.response?.data?.message || '비밀번호 초기화 실패') }
+}
+
+async function forceVerifyEmail() {
+  if (!userData.value?.user) return
+  if (!confirm('이 회원의 이메일 인증을 관리자 권한으로 강제 처리합니다. 계속?')) return
+  try {
+    const { data } = await axios.post(`/api/admin/users/${userData.value.user.id}/verify-email`)
+    if (data.success) {
+      userData.value.user.email_verified_at = data.data.email_verified_at
+      alert(data.message)
+    }
+  } catch (e) { alert(e.response?.data?.message || '이메일 인증 처리 실패') }
 }
 
 function copyPassword() {

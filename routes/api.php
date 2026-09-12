@@ -559,6 +559,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
     Route::post('/users/{id}/impersonate', [AdminController::class, 'impersonate']);
     Route::post('/users/{id}/reset-password', [AdminController::class, 'resetUserPassword']);
+    Route::post('/users/{id}/verify-email', [AdminController::class, 'forceVerifyEmail']);
     Route::delete('/users/{id}', [AdminController::class, 'deleteUserAccount']);
     Route::get('/posts/{id}/detail', [AdminController::class, 'postDetail']);
     Route::get('/posts', [AdminController::class, 'posts']);

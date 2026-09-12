@@ -44,6 +44,16 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, Request $request) {
+            // Accept 헤더가 없는 클라이언트(SPA 외 연동)는 expectsJson()이 false가 되어
+            // 422 JSON 대신 홈으로 302 리다이렉트를 받던 문제 — api/* 요청은 항상 JSON으로 응답.
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                    'errors'  => $e->errors(),
+                ], $e->status);
+            }
+        });
         $exceptions->render(function (\Illuminate\Http\Exceptions\ThrottleRequestsException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => '요청이 너무 많습니다. 잠시 후 다시 시도하세요.'], 429);
