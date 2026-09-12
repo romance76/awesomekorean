@@ -152,6 +152,8 @@ class RealEstateController extends Controller
             ]
         ));
 
+        \App\Support\WritePoints::award($user, RealEstateListing::class, $listing->id, '부동산 매물 등록');
+
         // 이벤트 #125 (부동산 리스팅 2배 포인트) 기간에만 자동 지급, 하루 상한까지만
         $eventActive = \App\Models\Event::where('id', 125)
             ->where('start_date', '<=', now())->where('end_date', '>=', now())

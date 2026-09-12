@@ -58,6 +58,9 @@ class ShortController extends Controller
             'user_id' => auth()->id(), 'title' => $request->title, 'video_url' => $request->video_url,
             'youtube_id' => $ytId, 'thumbnail_url' => $ytId ? "https://img.youtube.com/vi/{$ytId}/hqdefault.jpg" : null,
         ]);
+
+        \App\Support\WritePoints::award(auth()->user(), Short::class, $short->id, '숏츠 업로드');
+
         return response()->json(['success' => true, 'data' => $short], 201);
     }
 
@@ -68,6 +71,10 @@ class ShortController extends Controller
         if ($like) { $like->delete(); $short->decrement('like_count'); return response()->json(['success' => true, 'liked' => false]); }
         \App\Models\ShortLike::create(['short_id' => $id, 'user_id' => auth()->id()]);
         $short->increment('like_count');
+
+        // 좋아요 보상 — 누른 사람 하루 5개까지만 글쓴이에게 1P 지급
+        \App\Support\LikeRewards::award(auth()->id(), \App\Models\User::find($short->user_id), Short::class, $short->id);
+
         return response()->json(['success' => true, 'liked' => true]);
     }
 }

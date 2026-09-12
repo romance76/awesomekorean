@@ -179,6 +179,8 @@ class ClubController extends Controller
             'is_active' => true,
         ]);
 
+        \App\Support\WritePoints::award(auth()->user(), Club::class, $club->id, '동호회 개설');
+
         return response()->json(['success' => true, 'data' => $club], 201);
     }
 
