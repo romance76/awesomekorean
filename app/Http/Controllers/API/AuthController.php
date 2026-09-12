@@ -70,6 +70,39 @@ class AuthController extends Controller
             ->header('Content-Type', 'text/html; charset=UTF-8');
     }
 
+    /**
+     * 인증 메일 재발송 — 글쓰기를 이메일 인증 여부로 막기 시작하면서, 가입
+     * 시 1회만 발송되던 기존 메일을 놓쳤거나(7일 후 서명 링크 만료 포함)
+     * 기존 회원(이 기능 도입 전 가입)은 재발송받을 방법이 전혀 없어 영구히
+     * 글쓰기가 막히는 문제를 방지하기 위해 신규 추가.
+     */
+    public function resendVerification(Request $request)
+    {
+        $user = $request->user();
+        if ($user->email_verified_at) {
+            return response()->json(['success' => false, 'message' => '이미 인증된 이메일입니다.'], 422);
+        }
+
+        $cacheKey = "resend_verify_email_{$user->id}";
+        if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            return response()->json(['success' => false, 'message' => '잠시 후 다시 시도해주세요.'], 429);
+        }
+        \Illuminate\Support\Facades\Cache::put($cacheKey, true, 60);
+
+        try {
+            $verifyUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                'auth.verify-email', now()->addDays(7), ['user' => $user->id]
+            );
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(
+                new \App\Mail\EmailVerificationMail($user->name, $verifyUrl)
+            );
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => '메일 발송에 실패했습니다.'], 500);
+        }
+
+        return response()->json(['success' => true, 'message' => '인증 메일을 다시 보냈습니다.']);
+    }
+
     public function login(Request $request)
     {
         $request->validate(['email' => 'required|email', 'password' => 'required']);

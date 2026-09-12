@@ -211,12 +211,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/user/delete', [ProfileController::class, 'deleteAccount']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
-    Route::post('/posts', [PostController::class, 'store']);
+    Route::post('/posts', [PostController::class, 'store'])->middleware('verified.email');
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     Route::post('/posts/{id}/like', [PostController::class, 'toggleLike']);
 
-    Route::post('/jobs', [JobController::class, 'store']);
+    Route::post('/jobs', [JobController::class, 'store'])->middleware('verified.email');
     Route::put('/jobs/{id}', [JobController::class, 'update']);
     Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
     Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
@@ -232,7 +232,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'update']);
     Route::delete('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'destroy']);
 
-    Route::post('/market', [MarketController::class, 'store']);
+    Route::post('/market', [MarketController::class, 'store'])->middleware('verified.email');
     Route::put('/market/{id}', [MarketController::class, 'update']);
     Route::delete('/market/{id}', [MarketController::class, 'destroy']);
 
@@ -253,8 +253,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/realestate/{id}/promote', [RealEstateController::class, 'promote']);
     Route::post('/businesses/{id}/promote', [BusinessController::class, 'promote']);
 
-    Route::post('/businesses', [BusinessController::class, 'store']);
-    Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview']);
+    Route::post('/businesses', [BusinessController::class, 'store'])->middleware('verified.email');
+    Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview'])->middleware('verified.email');
     Route::post('/businesses/{id}/claim', [BusinessController::class, 'claim']);
     Route::get('/my-businesses', [BusinessController::class, 'myBusinesses']);
     Route::put('/my-businesses/{id}', [BusinessController::class, 'updateMyBusiness']);
@@ -263,14 +263,14 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/my-businesses/{bizId}/menus/{menuId}', [BusinessController::class, 'updateMenu']);
     Route::delete('/my-businesses/{bizId}/menus/{menuId}', [BusinessController::class, 'deleteMenu']);
 
-    Route::post('/realestate', [RealEstateController::class, 'store']);
+    Route::post('/realestate', [RealEstateController::class, 'store'])->middleware('verified.email');
     Route::put('/realestate/{id}', [RealEstateController::class, 'update']);
     Route::delete('/realestate/{id}', [RealEstateController::class, 'destroy']);
     Route::post('/realestate/{id}/complete', [RealEstateController::class, 'complete']);
     Route::post('/realestate/{id}/complete/undo', [RealEstateController::class, 'undoComplete']);
 
     Route::get('/my-clubs', [ClubController::class, 'myClubs']);
-    Route::post('/clubs', [ClubController::class, 'store']);
+    Route::post('/clubs', [ClubController::class, 'store'])->middleware('verified.email');
     Route::put('/clubs/{id}', [ClubController::class, 'update']);
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);
     Route::post('/clubs/{id}/promote', [ClubController::class, 'promote']);
@@ -291,37 +291,37 @@ Route::middleware('auth:api')->group(function () {
 
     // Recipes (유저 작성/평점/찜)
     Route::get('/recipes/my/favorites', [RecipeController::class, 'myFavorites']);
-    Route::post('/recipes', [RecipeController::class, 'store']);
+    Route::post('/recipes', [RecipeController::class, 'store'])->middleware('verified.email');
     Route::put('/recipes/{id}', [RecipeController::class, 'update']);
     Route::delete('/recipes/{id}', [RecipeController::class, 'destroy']);
     Route::post('/recipes/{id}/rate', [RecipeController::class, 'rate']);
     Route::delete('/recipes/{id}/comments/{commentId}', [RecipeController::class, 'deleteComment']);
     Route::post('/recipes/{id}/favorite', [RecipeController::class, 'toggleFavorite']);
 
-    Route::post('/groupbuys', [GroupBuyController::class, 'store']);
+    Route::post('/groupbuys', [GroupBuyController::class, 'store'])->middleware('verified.email');
     Route::put('/groupbuys/{id}', [GroupBuyController::class, 'update']);
     Route::delete('/groupbuys/{id}', [GroupBuyController::class, 'destroy']);
     Route::post('/groupbuys/{id}/join', [GroupBuyController::class, 'join']);
     Route::post('/groupbuys/{id}/cancel', [GroupBuyController::class, 'cancelParticipation']);
 
-    Route::post('/events', [EventController::class, 'store']);
+    Route::post('/events', [EventController::class, 'store'])->middleware('verified.email');
     Route::put('/events/{id}', [EventController::class, 'update']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
     Route::post('/events/{id}/attend', [EventController::class, 'toggleAttend']);
 
-    Route::post('/qa', [QaController::class, 'store']);
+    Route::post('/qa', [QaController::class, 'store'])->middleware('verified.email');
     Route::put('/qa/{id}', [QaController::class, 'update']);
     Route::delete('/qa/{id}', [QaController::class, 'destroy']);
-    Route::post('/qa/{id}/answer', [QaController::class, 'answer']);
+    Route::post('/qa/{id}/answer', [QaController::class, 'answer'])->middleware('verified.email');
     Route::post('/qa/{id}/accept/{answerId}', [QaController::class, 'acceptAnswer']);
     Route::delete('/qa/{id}/answer/{answerId}', [QaController::class, 'deleteAnswer']);
     Route::post('/qa/{id}/answer/{answerId}/like', [QaController::class, 'likeAnswer']);
 
-    Route::post('/shorts', [ShortController::class, 'store']);
+    Route::post('/shorts', [ShortController::class, 'store'])->middleware('verified.email');
     Route::post('/shorts/{id}/like', [ShortController::class, 'toggleLike']);
     Route::post('/shorts/{id}/viewed', [ShortController::class, 'markViewed']);
 
-    Route::post('/comments', [CommentController::class, 'store']);
+    Route::post('/comments', [CommentController::class, 'store'])->middleware('verified.email');
     Route::put('/comments/{id}', [CommentController::class, 'update']);
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
     Route::post('/comments/{id}/vote', [CommentController::class, 'vote']);
@@ -403,6 +403,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/elder/checkin-history', [ElderController::class, 'checkinHistory']);
     Route::get('/elder/guardian/wards', [ElderController::class, 'guardianWards']);
 
+    Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
     Route::get('/users/{id}', [ProfileController::class, 'show']);
     Route::get('/users/{id}/posts', [ProfileController::class, 'posts']);
 
