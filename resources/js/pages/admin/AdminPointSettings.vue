@@ -11,11 +11,15 @@
     <div v-for="(items, cat) in grouped" :key="cat" class="card overflow-hidden">
       <div class="px-5 py-3 border-b border-gray-50 font-bold text-sm flex items-center gap-1.5" :class="catStyles[cat]?.bg || 'bg-gray-50 text-ink'">
         <AppIcon :name="catStyles[cat]?.icon || 'list'" :size="14" /> {{ catStyles[cat]?.label || cat }}
+        <NewFeatureBadge v-if="NEW_CATEGORIES.has(cat)" :desc="catStyles[cat]?.label + ' — 회원 등급 산정에 쓰이는 누적 포인트 기준값을 여기서 조정할 수 있습니다.'" />
       </div>
       <div class="divide-y divide-gray-50">
         <div v-for="item in items" :key="item.key" class="px-5 py-3 flex items-center gap-4">
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-semibold text-ink">{{ item.label }}</div>
+            <div class="text-sm font-semibold text-ink flex items-center gap-1.5">
+              {{ item.label }}
+              <NewFeatureBadge v-if="NEW_KEYS.has(item.key)" :desc="item.description || item.label" />
+            </div>
             <div class="text-[11px] text-ink-faint">{{ item.key }} {{ item.description ? '— ' + item.description : '' }}</div>
           </div>
           <input v-model="item.value" class="input-soft !w-40 !px-3 !py-1.5 text-sm text-right font-mono" />
@@ -37,6 +41,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 
 const loading = ref(true)
 const saving = ref(false)
@@ -44,6 +49,25 @@ const msg = ref('')
 const msgOk = ref(false)
 const grouped = ref({})
 const allItems = ref([])
+
+// 2026-09-12 배치(게시판별 포인트 재설계 1~3단계 + 회원등급/뱃지)에서
+// 새로 추가된 설정 — NewFeatureBadge가 올해까지는 "NEW"+설명을,
+// 내년부터는 설명 풍선말만 보여준다(사용자 결정).
+const NEW_CATEGORIES = new Set(['grade'])
+const NEW_KEYS = new Set([
+  'content_earn_daily_max', 'like_reward_amount', 'like_reward_daily_max',
+  'market_sale_complete', 'market_sale_complete_daily_max',
+  'club_member_join', 'club_member_join_daily_max',
+  'event_join', 'event_join_daily_max',
+  'groupbuy_join_bonus', 'groupbuy_join_bonus_daily_max', 'groupbuy_complete',
+  'business_claim_approved',
+  'job_hire_complete', 'job_hire_complete_daily_max',
+  'realestate_rent_complete', 'realestate_rent_complete_daily_max',
+  // grade_N_min 항목들은 'grade' 카테고리 헤더에 이미 뱃지가 붙어있어(전부
+  // 새 항목이라 카테고리 단위로 표시) 행마다 중복 표시하지 않음.
+  'promo_max_clubs_national', 'promo_max_clubs_state_plus', 'promo_max_clubs_sponsored',
+  'promo_price_clubs_national', 'promo_price_clubs_state_plus', 'promo_price_clubs_sponsored',
+])
 
 const catStyles = {
   earn: { icon: 'gift', label: '포인트 적립', bg: 'bg-green-50 text-green-800' },
