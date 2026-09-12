@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Events\CommMessageSent;
+use App\Events\NewNotification;
 use App\Http\Controllers\Controller;
 use App\Models\CommMessage;
 use App\Models\Conversation;
+use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserBlock;
 use App\Services\PushNotificationService;
@@ -99,6 +101,21 @@ class ConversationController extends Controller
                 conversationId: $conversation->id,
             );
         }
+
+        // 구 쪽지(MessageController)는 인앱 알림, 신규 대화는 푸시만 발송해
+        // 알림 방식이 이원화돼 있던 문제 수정 — 푸시 유무와 무관하게 여기도
+        // 인앱 알림을 남겨 알림센터에서 동일하게 확인 가능하도록 함.
+        try {
+            Notification::create([
+                'user_id' => $partnerId,
+                'type' => 'new_message',
+                'title' => '새 메시지가 도착했습니다',
+                'content' => $request->user()->name . '님: ' . mb_substr($request->body, 0, 80),
+                'data' => ['conversation_id' => $conversation->id, 'sender_id' => $myId],
+            ]);
+            $unread = Notification::where('user_id', $partnerId)->whereNull('read_at')->count();
+            broadcast(new NewNotification($partnerId, $unread, '새 메시지가 도착했습니다'))->toOthers();
+        } catch (\Exception $e) {}
 
         return response()->json([
             'id'         => $message->id,

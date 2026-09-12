@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\ElderCheckinLog;
 use App\Models\ElderSetting;
 use App\Models\Notification;
+use App\Models\User;
+use App\Services\PushNotificationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -120,6 +122,18 @@ class ElderCheckCommand extends Command
                 ]),
                 'url'     => '/elder/guardian/' . $setting->user_id,
             ]);
+
+            // 인앱(DB) 알림만 생성되고 푸시는 발송되지 않던 문제 수정 —
+            // ElderScheduledCallCommand의 부재중 처리와 동일한 패턴으로 연결.
+            $guardian = User::find($setting->guardian_user_id);
+            if ($guardian?->fcm_token) {
+                app(PushNotificationService::class)->sendToToken(
+                    $guardian->fcm_token,
+                    "노인안심 {$alertType}",
+                    "{$userName}님이 체크인에 응답하지 않았습니다. 확인이 필요합니다.",
+                    ['type' => 'elder_checkin_missed', 'elder_user_id' => (string) $setting->user_id]
+                );
+            }
         }
 
         // Notify 2nd guardian if exists

@@ -53,6 +53,17 @@ class MessageController extends Controller
         $unread = Notification::where('user_id', $request->receiver_id)->whereNull('read_at')->count();
         broadcast(new NewNotification($request->receiver_id, $unread, '새 쪽지가 도착했습니다'))->toOthers();
 
+        // 구 쪽지는 인앱 알림만 있고 푸시가 없어 신규 대화(ConversationController)와
+        // 알림 방식이 다르던 문제 수정 — 동일하게 푸시도 발송.
+        if ($receiver?->fcm_token) {
+            app(\App\Services\PushNotificationService::class)->sendToToken(
+                $receiver->fcm_token,
+                '새 쪽지가 도착했습니다',
+                auth()->user()->name . '님이 쪽지를 보냈습니다.',
+                ['type' => 'message', 'message_id' => (string) $msg->id]
+            );
+        }
+
         return response()->json(['success' => true, 'data' => $msg], 201);
     }
 
