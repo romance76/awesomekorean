@@ -184,6 +184,7 @@ const routes = [
       { path: 'shorts', component: p('admin/AdminShorts') },
       { path: 'directory', component: p('admin/Business') },
       { path: 'claims', component: p('admin/AdminClaims') },
+      { path: 'rewards', component: p('admin/AdminRewardRequests') },
       { path: 'games', component: p('admin/AdminGames') },
       { path: 'games/settings/:slug', component: p('admin/AdminGameSettings') },
       { path: 'games/questions/:slug', component: p('admin/AdminQuizQuestions') },

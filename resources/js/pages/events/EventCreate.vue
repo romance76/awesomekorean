@@ -72,6 +72,12 @@
         </div>
       </div>
 
+      <div>
+        <label class="input-label">완료 인증 보상 포인트 (선택)</label>
+        <input v-model.number="form.reward_points" type="number" min="0" placeholder="0 = 보상 없음" class="input-soft px-3" />
+        <p class="text-[11px] text-ink-faint mt-1">0보다 크면 참가자가 완료 인증 파일을 제출할 수 있고, 관리자 확인 후 이 포인트가 지급됩니다.</p>
+      </div>
+
       <!-- 이미지 -->
       <div>
         <label class="input-label">이벤트 이미지</label>
@@ -133,7 +139,7 @@ const categories = [
 const form = reactive({
   title: '', category: 'culture', organizer: '', start_date: '', end_date: '',
   venue: '', address: '', city: '', state: '', price: 0, content: '',
-  max_attendees: 0, url: '',
+  max_attendees: 0, url: '', reward_points: 0,
 })
 const imageFile = ref(null)
 const previewImg = ref(null)
@@ -182,6 +188,7 @@ onMounted(async () => {
         end_date: e.end_date ? e.end_date.slice(0, 16) : '',
         venue: e.venue || '', address: e.address || '', city: e.city || '', state: e.state || '',
         price: e.price || 0, content: e.content || '', max_attendees: e.max_attendees || 0, url: e.url || '',
+        reward_points: e.reward_points || 0,
       })
       if (e.image_url) previewImg.value = e.image_url
     } catch {}

@@ -308,6 +308,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/events/{id}', [EventController::class, 'update']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
     Route::post('/events/{id}/attend', [EventController::class, 'toggleAttend']);
+    Route::post('/events/{id}/proof', [EventController::class, 'submitProof']);
 
     Route::post('/qa', [QaController::class, 'store'])->middleware('verified.email');
     Route::put('/qa/{id}', [QaController::class, 'update']);
@@ -504,6 +505,16 @@ Route::middleware('auth:api')->prefix('poker7')->group(function () {
 
 Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);
+
+    // ─── 보상 승인 (이벤트 완료인증 / 레시피 인기보상) ───
+    Route::prefix('rewards')->group(function () {
+        $r = \App\Http\Controllers\API\AdminRewardController::class;
+        Route::get('/event-proofs', [$r, 'eventProofs']);
+        Route::post('/event-proofs/{id}/approve', [$r, 'approveEventProof']);
+        Route::post('/event-proofs/{id}/reject', [$r, 'rejectEventProof']);
+        Route::get('/recipe-candidates', [$r, 'recipeRewardCandidates']);
+        Route::post('/recipes/{id}/pay', [$r, 'payRecipeReward']);
+    });
 
     // ─── 광고 센터 (통합 관리) ───
     Route::prefix('ad-center')->group(function () {

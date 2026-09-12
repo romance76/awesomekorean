@@ -61,6 +61,7 @@
         :class="$route.path === tab.to ? 'border-amber-500 text-amber-700' : 'border-transparent text-ink-muted hover:text-ink-light'">
         <AppIcon :name="tab.icon" :size="14" />
         <span>{{ tab.label }}</span>
+        <NewFeatureBadge v-if="tab.isNew" :desc="tab.newDesc || tab.label" />
       </RouterLink>
     </div>
     <div class="p-4 lg:p-6">
@@ -74,6 +75,7 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AppIcon from '../../components/AppIcon.vue'
+import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -114,6 +116,7 @@ const subTabs = {
     { to: '/admin/elder', icon: 'heart', label: '안심' },
     { to: '/admin/communication', icon: 'phone', label: '채팅·통화' },
     { to: '/admin/claims', icon: 'flag', label: '클레임' },
+    { to: '/admin/rewards', icon: 'gift', label: '보상 승인', isNew: true, newDesc: '이벤트 완료인증 · 레시피 인기보상을 관리자가 확인 후 지급하는 화면입니다.' },
   ],
   ad: [
     { to: '/admin/ad-center', icon: 'sparkles', label: '광고 센터' },

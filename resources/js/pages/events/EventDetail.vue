@@ -91,6 +91,24 @@
             </div>
           </div>
 
+          <!-- 완료 인증 제출 (보상 포인트가 걸려있는 이벤트, 참가자만) -->
+          <div v-if="event.reward_points > 0 && myStatus === 'going'" class="px-4 lg:px-5 py-3 border-b border-gray-100 bg-amber-50/50">
+            <div class="text-xs font-bold text-amber-700 mb-1.5 flex items-center gap-1"><AppIcon name="gift" :size="13" /> 완료 인증 시 {{ event.reward_points }}P 지급</div>
+            <template v-if="myProofStatus === 'pending'">
+              <span class="text-xs text-ink-muted">제출 완료 — 관리자 확인 중입니다.</span>
+            </template>
+            <template v-else-if="myProofStatus === 'approved'">
+              <span class="text-xs text-emerald-600 font-bold">✓ 승인되어 포인트가 지급되었습니다.</span>
+            </template>
+            <template v-else>
+              <span v-if="myProofStatus === 'rejected'" class="text-xs text-red-500 block mb-1.5">반려되었습니다. 다시 제출해주세요.</span>
+              <label class="inline-flex items-center gap-1.5 text-xs font-bold bg-amber-400 text-white px-3 py-1.5 rounded-lg hover:bg-amber-500 cursor-pointer transition-colors">
+                <AppIcon name="upload" :size="12" /> {{ proofUploading ? '업로드중...' : '인증 파일 제출' }}
+                <input type="file" class="hidden" :disabled="proofUploading" @change="submitProof" />
+              </label>
+            </template>
+          </div>
+
           <!-- 본문 -->
           <div class="px-4 lg:px-5 py-4 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ event.content || event.description }}</div>
 
@@ -166,6 +184,8 @@ const event = ref(null)
 const loading = ref(true)
 const isFavorited = ref(false)
 const myStatus = ref(null)
+const myProofStatus = ref(null)
+const proofUploading = ref(false)
 const prev = ref(null)
 const next = ref(null)
 
@@ -204,7 +224,25 @@ async function toggleAttend(status) {
     const { data: fresh } = await axios.get(`/api/events/${event.value.id}`)
     event.value = fresh.data
     myStatus.value = fresh.data.my_status || null
+    myProofStatus.value = fresh.data.my_proof_status || null
   } catch {}
+}
+
+async function submitProof(ev) {
+  const file = ev.target.files?.[0]
+  ev.target.value = ''
+  if (!file) return
+  proofUploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    await axios.post(`/api/events/${event.value.id}/proof`, fd)
+    myProofStatus.value = 'pending'
+    alert('제출되었습니다. 관리자 확인 후 보상이 지급됩니다.')
+  } catch (e) {
+    alert(e.response?.data?.message || '제출 실패')
+  }
+  proofUploading.value = false
 }
 
 async function deleteEvent() {
@@ -242,6 +280,7 @@ onMounted(async () => {
     prev.value = data.prev
     next.value = data.next
     myStatus.value = data.data.my_status || null
+    myProofStatus.value = data.data.my_proof_status || null
     await loadFavorited()
   } catch (err) {
     if (err.response?.status === 404) router.replace('/404')

@@ -64,6 +64,7 @@ class EventController extends Controller
         if (auth()->check()) {
             $attendee = EventAttendee::where('event_id', $id)->where('user_id', auth()->id())->first();
             $data['my_status'] = $attendee?->status;
+            $data['my_proof_status'] = $attendee?->proof_status;
         }
 
         $adj = $this->adjacentPair(Event::class, $id, 'title', ['category' => $event->category]);
@@ -79,12 +80,13 @@ class EventController extends Controller
             'image'      => 'nullable|image|max:5120',
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
+            'reward_points' => 'nullable|integer|min:0',
         ]);
 
         $fields = $request->only(
             'title', 'description', 'content', 'category', 'organizer',
             'venue', 'address', 'city', 'state', 'zipcode', 'lat', 'lng',
-            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees'
+            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees', 'reward_points'
         );
         $fields['user_id'] = auth()->id();
         $fields['is_free'] = $request->boolean('is_free');
@@ -116,12 +118,13 @@ class EventController extends Controller
             'image'      => 'nullable|image|max:5120',
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
+            'reward_points' => 'nullable|integer|min:0',
         ]);
 
         $fields = $request->only(
             'title', 'description', 'content', 'category', 'organizer',
             'venue', 'address', 'city', 'state', 'zipcode', 'lat', 'lng',
-            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees'
+            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees', 'reward_points'
         );
 
         if ($request->has('is_free')) {
@@ -175,6 +178,32 @@ class EventController extends Controller
         \App\Support\MilestonePoints::award(auth()->user(), 'event_join', Event::class, $event->id, "이벤트 참가: {$event->title}", 'event_join_daily_max');
 
         return response()->json(['success' => true, 'attending' => true, 'status' => $request->status ?? 'going', 'attendee_count' => $event->fresh()->attendee_count]);
+    }
+
+    /**
+     * 완료 인증 파일 제출 — 이벤트에 보상 포인트(reward_points)가 걸려있을
+     * 때만 제출 가능. 자동 지급이 아니라 관리자 확인 후 지급(사용자 결정).
+     */
+    public function submitProof(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+        if (!$event->reward_points || $event->reward_points <= 0) {
+            return response()->json(['success' => false, 'message' => '이 이벤트는 완료 인증 보상이 없습니다'], 422);
+        }
+
+        $attendee = EventAttendee::where('event_id', $id)->where('user_id', auth()->id())->first();
+        if (!$attendee) {
+            return response()->json(['success' => false, 'message' => '참가 등록 후 제출할 수 있습니다'], 422);
+        }
+        if ($attendee->proof_status === 'pending' || $attendee->proof_status === 'approved') {
+            return response()->json(['success' => false, 'message' => '이미 제출했습니다'], 422);
+        }
+
+        $request->validate(['file' => 'required|file|max:10240']);
+        $path = $this->storeDocument($request->file('file'), 'event_proofs');
+        $attendee->update(['proof_file' => $path, 'proof_status' => 'pending', 'reviewed_at' => null]);
+
+        return response()->json(['success' => true, 'message' => '제출되었습니다. 관리자 확인 후 보상이 지급됩니다.', 'data' => $attendee->fresh()]);
     }
 
     public function attendees($id)
