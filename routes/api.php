@@ -245,8 +245,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/market/{id}/hold/meetup', [MarketController::class, 'scheduleMeetup']);
     Route::post('/market/{id}/hold/complete', [MarketController::class, 'completeHold']);
     Route::post('/market/{id}/review', [MarketController::class, 'submitReview']);
-    // 상위노출 (판매자가 포인트로 부스트)
-    Route::post('/market/{id}/boost', [MarketController::class, 'boost']);
+    // 상위노출: 구 API(boost, 하드코딩 100P/일)는 프론트에서 호출하지 않는
+    // 죽은 코드이자 관리자 가격 설정 우회 구멍이라 제거 — promote()만 사용.
     Route::post('/market/{id}/bump', [MarketController::class, 'bump']);
     Route::post('/market/{id}/promote', [MarketController::class, 'promote']);
     Route::post('/realestate/{id}/promote', [RealEstateController::class, 'promote']);

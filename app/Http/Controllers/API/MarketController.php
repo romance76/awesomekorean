@@ -527,57 +527,8 @@ class MarketController extends Controller
 
     // ─────────────────────── 상위노출(부스트) ───────────────────────
 
-    /**
-     * 판매자가 자기 물건을 상위 노출 (부스트)
-     * POST /api/market/{id}/boost
-     * { days: 1|3|7 }
-     */
-    public function boost(Request $request, $id)
-    {
-        $request->validate(['days' => 'required|integer|in:1,3,7']);
-        $days = (int) $request->days;
-
-        $item = MarketItem::where('user_id', auth()->id())->findOrFail($id);
-        $user = auth()->user();
-
-        if ($item->status !== 'active') {
-            return response()->json(['success' => false, 'message' => '활성 상태의 물건만 부스트 가능합니다'], 422);
-        }
-
-        // 중복 결제 방지: 이미 상위노출 활성 중이면 차단 (만료 대기 후 재신청)
-        if ($item->boosted_until && $item->boosted_until->isFuture()) {
-            return response()->json([
-                'success' => false,
-                'message' => '이미 상위노출 중입니다. ' . $item->boosted_until->format('Y-m-d H:i') . ' 이후 다시 신청할 수 있습니다.',
-                'data' => [
-                    'already_active' => true,
-                    'boosted_until' => $item->boosted_until,
-                ],
-            ], 422);
-        }
-
-        $costPerDay = 100; // 하루 100포인트
-        $totalCost = $days * $costPerDay;
-
-        if ($user->points < $totalCost) {
-            return response()->json([
-                'success' => false,
-                'message' => "포인트가 부족합니다. 필요: {$totalCost}P, 보유: {$user->points}P"
-            ], 422);
-        }
-
-        // 포인트 차감 (point_logs 에 기록)
-        $user->addPoints(-$totalCost, "상위노출: {$item->title} ({$days}일)", 'boost');
-
-        $item->update([
-            'boosted_until' => now()->addDays($days),
-            'updated_at' => now(), // 최신 게시물처럼 날짜도 갱신
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => "{$days}일 상위노출 완료! {$totalCost}P 차감됨",
-            'data' => ['boosted_until' => $item->boosted_until],
-        ]);
-    }
+    // 구 상위노출 API(boost, 하드코딩 100P/일)는 프론트 어디서도 호출하지
+    // 않는 죽은 코드였고, 관리자 가격 설정을 완전히 우회해 고정가로 구매할
+    // 수 있는 구멍이라 제거함. boosted_until 필드/정렬 로직은 과거 구매
+    // 기록 호환을 위해 그대로 유지 — 실제 구매는 이제 promote()만 가능.
 }
