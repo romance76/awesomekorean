@@ -46,7 +46,10 @@
       <div class="flex-shrink-0 w-8 text-center text-xs text-ink-faint font-mono">{{ idx + 1 }}</div>
       <div class="flex-shrink-0 w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center text-2xl">{{ g.icon }}</div>
       <div class="flex-1 min-w-0">
-        <div class="text-sm font-bold text-ink truncate">{{ g.name }}</div>
+        <div class="text-sm font-bold text-ink truncate flex items-center gap-1.5">
+          {{ g.name }}
+          <NewFeatureBadge v-if="g.slug === 'global'" desc="개별 게임에 설정이 없을 때 쓰이는 전역 기본값(게임당 지급 포인트 등)을 여기서 편집할 수 있습니다." />
+        </div>
         <div class="text-[11px] text-ink-muted truncate">{{ g.description || g.slug }} · {{ g.path }}</div>
       </div>
       <span class="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0" :class="catBadge(g.category)">{{ catLabel(g.category) }}</span>
@@ -80,6 +83,7 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 
 const games = ref([])
 const loading = ref(true)
