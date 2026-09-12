@@ -283,6 +283,12 @@ class ClubController extends Controller
         $club->increment('member_count');
         $this->notify($userId, 'club_join_approved', '동호회 가입이 승인되었습니다', "'{$club->name}' 가입이 승인되었습니다.", ['club_id' => $id]);
 
+        // 신규 회원 가입 보상은 개설자에게 지급
+        $owner = \App\Models\User::find($club->user_id);
+        if ($owner) {
+            \App\Support\MilestonePoints::award($owner, 'club_member_join', Club::class, $club->id, "동호회 신규가입: {$club->name}", 'club_member_join_daily_max');
+        }
+
         return response()->json(['success' => true, 'message' => '승인되었습니다']);
     }
 

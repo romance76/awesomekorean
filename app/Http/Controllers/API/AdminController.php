@@ -419,6 +419,7 @@ class AdminController extends Controller
 
         if ($claim->user) {
             \App\Services\BadgeService::award($claim->user, 'verified_business');
+            \App\Support\MilestonePoints::award($claim->user, 'business_claim_approved', \App\Models\Business::class, $claim->business->id, "업소 소유권 클레임 승인: {$claim->business->name}");
         }
 
         // ClaimApprovedMail이 코드는 있었지만 실제로 호출되는 곳이 없어 승인

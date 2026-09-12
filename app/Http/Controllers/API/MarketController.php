@@ -471,6 +471,10 @@ class MarketController extends Controller
         $item = MarketItem::where('id', $id)->first();
         $item?->update(['status' => 'sold']);
 
+        if ($item) {
+            \App\Support\MilestonePoints::award(auth()->user(), 'market_sale_complete', MarketItem::class, $item->id, "장터 판매완료: {$item->title}", 'market_sale_complete_daily_max');
+        }
+
         $this->notify($reservation->buyer_id, 'market_trade_completed', '거래가 완료 처리되었습니다', "'" . ($item->title ?? '') . "' 거래가 판매자에 의해 완료 처리되었습니다. 후기를 남겨보세요.", ['item_id' => $id]);
 
         return response()->json(['success' => true, 'message' => '거래가 완료 처리되었습니다. 이제 서로 거래 후기를 남길 수 있습니다.']);
