@@ -371,6 +371,10 @@ class GroupBuyController extends Controller
                 $gb->update(['status' => 'confirmed']);
             }
 
+            if ($status === 'paid') {
+                \App\Support\MilestonePoints::award($user, 'groupbuy_join_bonus', \App\Models\GroupBuy::class, $gb->id, "공동구매 참여 보너스: {$gb->title}", 'groupbuy_join_bonus_daily_max');
+            }
+
             return response()->json(['success' => true, 'data' => $participant->load('user:id,name,nickname')], 201);
         });
     }
@@ -495,6 +499,11 @@ class GroupBuyController extends Controller
         }
 
         $gb->update(['status' => 'completed']);
+
+        $organizer = \App\Models\User::find($gb->user_id);
+        if ($organizer) {
+            \App\Support\MilestonePoints::award($organizer, 'groupbuy_complete', GroupBuy::class, $gb->id, "공동구매 완료: {$gb->title}");
+        }
 
         $this->notify($gb->user_id, 'groupbuy_completed', '공동구매가 완료 처리되었습니다', "'{$gb->title}' 공동구매가 완료 처리되었습니다.", ['groupbuy_id' => $id]);
         foreach ($gb->participants()->where('status', 'paid')->pluck('user_id') as $participantId) {

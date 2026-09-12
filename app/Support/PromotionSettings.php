@@ -15,7 +15,11 @@ use Illuminate\Support\Facades\DB;
 class PromotionSettings
 {
     private const CACHE_KEY = 'promotion_settings_v2';
-    public const RESOURCES = ['jobs', 'market', 'realestate', 'business'];
+    // ClubController가 promoResource='clubs'로 이 클래스를 쓰고 있었는데
+    // 이 목록에 'clubs'가 빠져있어 캐시 배열에 아예 안 쌓이고 항상 하드코딩
+    // 기본값(defaultPrice/5슬롯)만 반환되던 문제 — 관리자가 동호회 상위노출
+    // 가격/슬롯을 설정해도 실제로는 절대 반영 안 되고 있었음.
+    public const RESOURCES = ['jobs', 'market', 'realestate', 'business', 'clubs'];
     public const TIERS = ['national', 'state_plus', 'sponsored'];
 
     public static function all(): array

@@ -172,6 +172,8 @@ class EventController extends Controller
         ]);
         $event->increment('attendee_count');
 
+        \App\Support\MilestonePoints::award(auth()->user(), 'event_join', Event::class, $event->id, "이벤트 참가: {$event->title}", 'event_join_daily_max');
+
         return response()->json(['success' => true, 'attending' => true, 'status' => $request->status ?? 'going', 'attendee_count' => $event->fresh()->attendee_count]);
     }
 
