@@ -132,7 +132,11 @@ class FetchMusicTracks extends Command
                 'q' => $query . ' music',
                 'type' => 'video',
                 'videoCategoryId' => '10',
-                'videoDuration' => 'medium', // YouTube 기준 < 4분 (5분 미만 보장에 더 적합)
+                // YouTube의 'medium'은 4~20분(포함)만 반환해 실제 목표 구간(2분30초~5분)의
+                // 대부분(2:30~4:00, 대다수 K-pop/발라드 표준 곡 길이)이 API 단계에서부터
+                // 걸러지고 있었음 — API 단에서는 필터링하지 않고 아래 contentDetails 기반
+                // 로컬 duration 체크(150~300초)에만 맡기도록 수정.
+                'videoDuration' => 'any',
                 'part' => 'snippet',
                 'maxResults' => $perPage,
                 'order' => 'relevance',
