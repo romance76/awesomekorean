@@ -87,7 +87,6 @@ class AuthController extends Controller
         if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
             return response()->json(['success' => false, 'message' => '잠시 후 다시 시도해주세요.'], 429);
         }
-        \Illuminate\Support\Facades\Cache::put($cacheKey, true, 60);
 
         try {
             $verifyUrl = \Illuminate\Support\Facades\URL::temporarySignedRoute(
@@ -97,8 +96,11 @@ class AuthController extends Controller
                 new \App\Mail\EmailVerificationMail($user->name, $verifyUrl)
             );
         } catch (\Exception $e) {
+            // 발송 실패 시엔 쿨다운을 소모하지 않음 — 그래야 일시적 메일 장애 때 60초를 헛되이 날리지 않음.
             return response()->json(['success' => false, 'message' => '메일 발송에 실패했습니다.'], 500);
         }
+
+        \Illuminate\Support\Facades\Cache::put($cacheKey, true, 60);
 
         return response()->json(['success' => true, 'message' => '인증 메일을 다시 보냈습니다.']);
     }
