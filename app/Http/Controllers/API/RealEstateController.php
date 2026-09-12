@@ -225,4 +225,35 @@ class RealEstateController extends Controller
         $this->findOwnedOrAdmin(RealEstateListing::class, $id)->update(['is_active' => false]);
         return response()->json(['success' => true, 'message' => '삭제되었습니다']);
     }
+
+    /**
+     * 임대/매매 완료 처리 — 단순 비활성화(destroy/update is_active=false)와
+     * 구분되는 전용 액션이라 이 경로로만 완료 보상이 지급됨.
+     */
+    public function complete($id)
+    {
+        $listing = RealEstateListing::where('user_id', auth()->id())->findOrFail($id);
+        if ($listing->completed_at) {
+            return response()->json(['success' => false, 'message' => '이미 완료 처리된 매물입니다'], 422);
+        }
+
+        $listing->update(['completed_at' => now(), 'is_active' => false]);
+
+        \App\Support\MilestonePoints::award(auth()->user(), 'realestate_rent_complete', RealEstateListing::class, $listing->id, "부동산 거래완료: {$listing->title}", 'realestate_rent_complete_daily_max');
+
+        return response()->json(['success' => true, 'data' => $listing->fresh(), 'message' => '완료 처리되었습니다']);
+    }
+
+    /** 완료 처리 되돌리기 — 잘못 눌렀을 때 복구용. 지급된 포인트는 회수하지 않음(하루 한도로 악용 방지). */
+    public function undoComplete($id)
+    {
+        $listing = RealEstateListing::where('user_id', auth()->id())->findOrFail($id);
+        if (!$listing->completed_at) {
+            return response()->json(['success' => false, 'message' => '완료 처리된 매물이 아닙니다'], 422);
+        }
+
+        $listing->update(['completed_at' => null, 'is_active' => true]);
+
+        return response()->json(['success' => true, 'data' => $listing->fresh(), 'message' => '완료 처리가 취소되었습니다']);
+    }
 }

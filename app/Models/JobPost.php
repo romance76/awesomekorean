@@ -10,6 +10,7 @@ class JobPost extends Model
         'job_tags'=>'array','benefits'=>'array','promotion_states'=>'array',
     ];
     public function user() { return $this->belongsTo(User::class); }
+    public function applications() { return $this->hasMany(JobApplication::class); }
     public function scopeActive($q) { return $q->where('is_active', true); }
     public function scopeHiring($q) { return $q->where('post_type', 'hiring'); }
     public function scopeSeeking($q) { return $q->where('post_type', 'seeking'); }
