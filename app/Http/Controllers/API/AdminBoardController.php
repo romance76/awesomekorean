@@ -197,6 +197,12 @@ class AdminBoardController extends Controller
         }
         $item = $query->findOrFail($id);
 
+        // 자체 별점 리뷰(BusinessReview 등)가 있는 모델은 함께 로드 — 실제 페이지에
+        // 표시되는 리뷰가 관리자 화면에는 하나도 안 보이던 문제(업소록 등) 수정.
+        if (method_exists($item, 'reviews')) {
+            $item->load('reviews.user:id,name,nickname,avatar');
+        }
+
         // 카테고리 이름도 함께 로드 (FK 기반)
         if ($cfg['category_model']) {
             $catField = $cfg['category_field'] ?? 'category';
