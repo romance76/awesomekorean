@@ -23,8 +23,8 @@
         <div class="grid grid-cols-3 gap-2">
           <button v-for="t in themes" :key="t.id"
             @click="selectedTheme = t.id"
-            class="py-3 rounded-xl text-center transition"
-            :class="selectedTheme === t.id ? 'bg-white text-indigo-700 font-bold' : 'bg-white/10 text-white hover:bg-white/20'">
+            class="py-3 rounded-xl text-center transition backdrop-blur-md border"
+            :class="selectedTheme === t.id ? 'bg-gradient-to-br from-white to-indigo-50 text-indigo-700 font-bold border-white/60 shadow-[0_8px_20px_-6px_rgba(255,255,255,0.4)]' : 'bg-white/10 text-white hover:bg-white/20 border-white/10'">
             <div class="text-2xl">{{ t.icon }}</div>
             <div class="text-xs mt-1">{{ t.name }}</div>
           </button>
@@ -35,7 +35,7 @@
         <div class="text-white/70 text-sm font-semibold">난이도 선택</div>
         <button v-for="d in difficulties" :key="d.level"
           @click="startGame(d)"
-          class="w-full bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 rounded-2xl p-4 flex items-center gap-4 transition text-left">
+          class="w-full bg-white/10 backdrop-blur-md hover:bg-white/20 active:scale-95 border border-white/20 rounded-2xl p-4 flex items-center gap-4 transition text-left shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
           <div class="text-4xl">{{ d.emoji }}</div>
           <div>
             <div class="text-white font-bold">{{ d.label }}</div>
@@ -65,34 +65,34 @@
           class="aspect-square rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-center text-3xl shadow-lg"
           :class="[
             card.flipped || card.matched
-              ? 'bg-white scale-105'
-              : 'bg-indigo-700 hover:bg-indigo-600 active:scale-95',
+              ? 'bg-gradient-to-br from-white to-indigo-50 scale-105 shadow-[0_10px_24px_-6px_rgba(0,0,0,0.2)]'
+              : 'bg-gradient-to-br from-indigo-500 to-purple-700 hover:brightness-110 active:scale-95 shadow-[0_8px_20px_-6px_rgba(99,102,241,0.5)]',
             card.matched ? 'opacity-60 cursor-default ring-2 ring-green-400' : '',
             card.shake ? 'animate-shake' : '',
             card.highlight ? 'ring-4 ring-yellow-400' : '',
           ]">
           <span v-if="card.flipped || card.matched">{{ card.symbol }}</span>
-          <span v-else class="text-indigo-400 text-2xl">?</span>
+          <span v-else class="text-indigo-200 text-2xl">?</span>
         </div>
       </div>
 
       <!-- 완료 -->
       <div v-if="phase === 'done'" class="mt-6 mx-auto max-w-sm">
-        <div class="bg-white rounded-3xl p-6 text-center shadow-2xl">
+        <div class="bg-white/80 backdrop-blur-xl border border-white/60 rounded-3xl p-6 text-center shadow-[0_20px_50px_rgba(31,38,80,0.25)]">
           <div class="text-6xl mb-3">🎉</div>
           <h2 class="text-2xl font-black text-gray-800 mb-1">완성!</h2>
           <p class="text-gray-500 text-sm mb-4">모든 카드를 맞추었습니다</p>
 
           <div class="grid grid-cols-3 gap-3 mb-5">
-            <div class="bg-indigo-50 rounded-xl p-3">
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-3 shadow-sm">
               <div class="text-xl font-black text-indigo-600">{{ timerDisplay }}</div>
               <div class="text-xs text-gray-500">기록</div>
             </div>
-            <div class="bg-pink-50 rounded-xl p-3">
+            <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-3 shadow-sm">
               <div class="text-xl font-black text-pink-600">{{ moves }}</div>
               <div class="text-xs text-gray-500">시도</div>
             </div>
-            <div class="bg-yellow-50 rounded-xl p-3">
+            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-3 shadow-sm">
               <div class="text-xl font-black text-yellow-600">{{ score }}</div>
               <div class="text-xs text-gray-500">점수</div>
             </div>
@@ -101,10 +101,10 @@
           <GameResultExtras :rec="rec" slug="memory" />
 
           <div class="flex gap-2">
-            <button @click="phase = 'select'" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl">
+            <button @click="phase = 'select'" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
               메뉴
             </button>
-            <button @click="startGame(currentDifficulty)" class="flex-1 bg-indigo-600 text-white font-bold py-3 rounded-xl">
+            <button @click="startGame(currentDifficulty)" class="flex-1 bg-gradient-to-br from-indigo-500 to-indigo-700 hover:brightness-110 text-white font-bold py-3 rounded-xl shadow-[0_10px_24px_-6px_rgba(99,102,241,0.55)] transition">
               다시하기
             </button>
           </div>
@@ -331,7 +331,7 @@ function flipCard(idx) {
 </script>
 
 <style scoped>
-.stat-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; background: rgba(0,0,0,0.3); white-space: nowrap; }
+.stat-badge { font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.14); white-space: nowrap; }
 .stat-yellow { color: #fde047; }
 .stat-cyan { color: #67e8f9; }
 .stat-pink { color: #f9a8d4; }

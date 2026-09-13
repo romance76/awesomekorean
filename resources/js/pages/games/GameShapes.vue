@@ -185,32 +185,34 @@ async function endGame() {
 <style scoped>
 .shapes-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box,.end-box { text-align:center; padding:40px 20px; }
-.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
+.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .subtitle { color:rgba(255,255,255,.8); font-size:16px; }
-.start-btn { background:#a855f7; color:#fff; border:none; padding:14px 40px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; }
+.start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#c084fc,#a855f7); color:#fff; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; box-shadow:0 12px 28px -8px rgba(168,85,247,0.6), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease, box-shadow .15s ease; }
+.start-btn:hover { transform:translateY(-2px); box-shadow:0 16px 32px -8px rgba(168,85,247,0.65), inset 0 1px 0 rgba(255,255,255,.4); }
+.start-btn:active { transform:translateY(0) scale(.97); }
 .play-box { max-width:480px; margin:0 auto; }
-.progress-bar { height:8px; background:rgba(255,255,255,.2); border-radius:4px; margin-bottom:8px; }
-.progress-fill { height:100%; background:#a855f7; border-radius:4px; transition:width .3s; }
-.q-count { color:rgba(255,255,255,.7); font-size:13px; text-align:right; margin-bottom:16px; }
-.shape-display { background:rgba(255,255,255,.1); border-radius:20px; padding:20px; margin-bottom:20px; }
-.shape-svg { width:180px; height:180px; display:block; margin:0 auto; }
+.progress-bar { height:9px; background:rgba(255,255,255,.15); border-radius:999px; margin-bottom:8px; overflow:hidden; }
+.progress-fill { height:100%; background-image:linear-gradient(90deg,#c084fc,#f472b6); border-radius:999px; transition:width .3s; }
+.q-count { color:rgba(255,255,255,.7); font-size:13px; text-align:right; margin-bottom:16px; font-weight:700; }
+.shape-display { background:rgba(255,255,255,.08); backdrop-filter:blur(16px) saturate(160%); border:1px solid rgba(255,255,255,.14); border-radius:22px; padding:22px; margin-bottom:20px; box-shadow:0 12px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
+.shape-svg { width:180px; height:180px; display:block; margin:0 auto; filter:drop-shadow(0 8px 16px rgba(0,0,0,.3)); }
 .question-text { color:#fff; font-size:18px; font-weight:700; text-align:center; margin-bottom:16px; }
-.choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.choice-btn { background:rgba(255,255,255,.9); color:#1e1b4b; border:none; padding:16px; border-radius:14px; font-size:17px; font-weight:700; cursor:pointer; transition:all .15s; }
-.choice-btn:hover:not(:disabled) { background:#fff; transform:scale(1.03); }
+.choices { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.choice-btn { background:rgba(255,255,255,.92); backdrop-filter:blur(10px); color:#1e1b4b; border:1px solid rgba(255,255,255,0.5); padding:17px; border-radius:16px; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.1); transition:transform .15s ease, box-shadow .15s ease; }
+.choice-btn:hover:not(:disabled) { background:#fff; transform:translateY(-2px) scale(1.02); box-shadow:0 10px 22px rgba(0,0,0,0.16); }
 .choice-btn:disabled { cursor:default; opacity:.8; }
-.end-title { font-size:32px; color:#fff; font-weight:900; }
+.end-title { font-size:32px; color:#fff; font-weight:900; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .end-score { color:rgba(255,255,255,.8); font-size:18px; }
-.levelup-badge { background:#a855f7; color:#fff; padding:10px 24px; border-radius:20px; font-weight:800; font-size:16px; display:inline-block; margin:14px 0; }
-.feedback-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px); }
-.fb-correct { background:rgba(16,185,129,.85); }
-.fb-wrong { background:rgba(239,68,68,.85); }
-.fb-content { text-align:center; color:#fff; padding:32px 48px; }
+.levelup-badge { background-image:linear-gradient(135deg,#c084fc,#a855f7); color:#fff; padding:10px 24px; border-radius:999px; font-weight:800; font-size:16px; display:inline-block; margin:14px 0; box-shadow:0 10px 24px -6px rgba(168,85,247,0.55), inset 0 1px 0 rgba(255,255,255,.35); }
+.feedback-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(8px); }
+.fb-correct { background:rgba(16,185,129,.75); }
+.fb-wrong { background:rgba(239,68,68,.75); }
+.fb-content { text-align:center; color:#fff; padding:32px 48px; background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,0.3); }
 .fb-emoji { font-size:72px; margin-bottom:8px; }
 .fb-title { font-size:32px; font-weight:900; margin-bottom:8px; }
 .fb-answer { font-size:18px; margin-bottom:16px; }
-.fb-bar-wrap { width:200px; height:6px; background:rgba(255,255,255,.3); border-radius:4px; margin:0 auto; }
-.fb-bar { height:100%; background:#fff; border-radius:4px; transition:width .05s linear; }
+.fb-bar-wrap { width:200px; height:6px; background:rgba(255,255,255,.3); border-radius:999px; margin:0 auto; }
+.fb-bar { height:100%; background:#fff; border-radius:999px; transition:width .05s linear; }
 .fb-enter-active,.fb-leave-active { transition:opacity .25s; }
 .fb-enter-from,.fb-leave-to { opacity:0; }
 </style>
