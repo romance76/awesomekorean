@@ -240,9 +240,9 @@
           </div>
         </div>
 
-        <!-- 이미지 -->
-        <div v-if="!editMode && activeItem.image_url" class="px-4 pb-2">
-          <img :src="activeItem.image_url" class="w-full max-h-48 object-cover rounded-lg" @error="e=>e.target.style.display='none'" />
+        <!-- 이미지 (레시피는 image_url이 아니라 thumbnail 필드 사용) -->
+        <div v-if="!editMode && (activeItem.image_url || activeItem.thumbnail)" class="px-4 pb-2">
+          <img :src="activeItem.image_url || activeItem.thumbnail" class="w-full max-h-48 object-cover rounded-lg" @error="e=>e.target.style.display='none'" />
         </div>
 
         <!-- 본문 -->
