@@ -29,6 +29,12 @@
             :fill="cur.color" stroke="white" stroke-width="4" rx="6"/>
           <polygon v-if="cur.shape==='diamond'" points="100,15 185,100 100,185 15,100"
             :fill="cur.color" stroke="white" stroke-width="4"/>
+          <polygon v-if="cur.shape==='hexagon'" points="100,15 170,55 170,145 100,185 30,145 30,55"
+            :fill="cur.color" stroke="white" stroke-width="4"/>
+          <polygon v-if="cur.shape==='trapezoid'" points="60,40 140,40 180,160 20,160"
+            :fill="cur.color" stroke="white" stroke-width="4"/>
+          <polygon v-if="cur.shape==='parallelogram'" points="60,40 180,40 140,160 20,160"
+            :fill="cur.color" stroke="white" stroke-width="4"/>
         </svg>
       </div>
       <p class="question-text">이 도형의 이름은 무엇인가요?</p>
@@ -84,19 +90,27 @@ const fbProgress = ref(100)
 let fbTimer = null
 const totalQ = 10
 
+// 예전엔 답 선택지가 도형마다 고정된 4개뿐이라 레벨이 올라도 난이도가 전혀
+// 안 바뀌었음 — 도형 종류를 늘리고, 레벨이 오를수록 선택지 개수 자체가
+//늘어나(헷갈릴 만한 오답이 더 많이 섞여) 실제로 더 어려워지도록 수정.
 const allShapes = [
-  {shape:'circle',    korName:'원',        opts:['원','삼각형','사각형','별']},
-  {shape:'triangle',  korName:'삼각형',    opts:['삼각형','원','마름모','오각형']},
-  {shape:'square',    korName:'사각형',    opts:['사각형','직사각형','원','삼각형']},
-  {shape:'rectangle', korName:'직사각형',  opts:['직사각형','사각형','타원','별']},
-  {shape:'oval',      korName:'타원',      opts:['타원','원','사각형','삼각형']},
-  {shape:'pentagon',  korName:'오각형',    opts:['오각형','육각형','사각형','삼각형']},
-  {shape:'star',      korName:'별',        opts:['별','오각형','삼각형','원']},
-  {shape:'diamond',   korName:'마름모',    opts:['마름모','사각형','별','삼각형']},
+  {shape:'circle',        korName:'원'},
+  {shape:'triangle',      korName:'삼각형'},
+  {shape:'square',        korName:'사각형'},
+  {shape:'rectangle',     korName:'직사각형'},
+  {shape:'oval',          korName:'타원'},
+  {shape:'pentagon',      korName:'오각형'},
+  {shape:'star',          korName:'별'},
+  {shape:'diamond',       korName:'마름모'},
+  {shape:'hexagon',       korName:'육각형'},
+  {shape:'trapezoid',     korName:'사다리꼴'},
+  {shape:'parallelogram', korName:'평행사변형'},
 ]
 const colors = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899']
 const questions = ref([])
 const cur = computed(() => questions.value[qIdx.value])
+
+function optionCountFor(lv) { return lv<=2?3:lv<=4?4:6 }
 
 function speak(text) {
   if (!window.speechSynthesis) return
@@ -111,9 +125,11 @@ function shuffle(arr) { return [...arr].sort(()=>Math.random()-.5) }
 function buildQuestions() {
   const qs = []
   const pool = shuffle(allShapes)
+  const n = optionCountFor(level.value)
   for (let i=0; i<totalQ; i++) {
     const s = pool[i % pool.length]
-    qs.push({ ...s, color: colors[Math.floor(Math.random()*colors.length)], opts: shuffle(s.opts) })
+    const decoys = shuffle(allShapes.filter(x=>x.korName!==s.korName)).slice(0, n-1).map(x=>x.korName)
+    qs.push({ ...s, color: colors[Math.floor(Math.random()*colors.length)], opts: shuffle([s.korName, ...decoys]) })
   }
   return qs
 }

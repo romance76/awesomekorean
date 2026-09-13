@@ -68,7 +68,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
@@ -82,49 +81,43 @@ const chain = ref([]); const opts = ref([]); const correctAns = ref('')
 let fbTimer = null
 const totalQ = 8
 
-// 끝말잇기 단어 체인 데이터
-const chainData = [
-  { word:'사과', next:['과자','과일','과학'] },
-  { word:'과자', next:['자동차','자전거','자연'] },
-  { word:'자동차', next:['차도','차표','차가'] },
-  { word:'기차', next:['차도','차장','차표'] },
-  { word:'도서관', next:['관광','관심','관계'] },
-  { word:'나무', next:['무지개','무서움','무릎'] },
-  { word:'학교', next:['교실','교과서','교사'] },
-  { word:'나라', next:['라면','라디오','라켓'] },
-  { word:'바람', next:['람쥐','람사'] },
-  { word:'구름', next:['름직하다'] },
-  { word:'수박', next:['박수','박물관','박사'] },
-  { word:'고양이', next:['이름','이사','이야기'] },
-  { word:'하늘', next:['늘봄','늘다'] },
-  { word:'바나나', next:['나라','나무','나비'] },
-  { word:'어린이', next:['이름','이야기','이사'] },
-  { word:'사랑', next:['랑데부'] },
-  { word:'우리', next:['리본','리듬','리조트'] },
-  { word:'모자', next:['자전거','자동차','자연'] },
-  { word:'눈사람', next:['람쥐'] },
-  { word:'책상', next:['상자','상어','상점'] },
-  { word:'아이스크림', next:['림프','림프절'] },
-  { word:'지구', next:['구름','구경','구청'] },
-  { word:'별빛', next:['빛나다'] },
-  { word:'봄바람', next:['람사'] },
+// 끝말잇기 퀴즈 세트 — 예전엔 실제 쓰이지 않는 죽은 데이터(chainData, 24개)가
+// 방치돼 있었고, 레벨이 표시만 될 뿐 난이도(문제 구성)에 전혀 영향을 못 줬음.
+// level 태그를 추가해 레벨이 오를수록 더 어려운(오답이 주제상 비슷해 헷갈리는)
+// 문제가 섞이도록 수정.
+const quizSets = [
+  { level:1, start:'기차', correct:'차도', wrong:['바람','나무','학교'] },
+  { level:1, start:'도서관', correct:'관광', wrong:['나무','자동차','학교'] },
+  { level:1, start:'나무', correct:'무지개', wrong:['학교','구름','도서관'] },
+  { level:1, start:'학교', correct:'교실', wrong:['나무','바다','도서관'] },
+  { level:1, start:'수박', correct:'박물관', wrong:['나무','학교','구름'] },
+  { level:1, start:'고양이', correct:'이름', wrong:['나무','학교','박물관'] },
+  { level:1, start:'바나나', correct:'나라', wrong:['학교','구름','도서관'] },
+  { level:1, start:'어린이', correct:'이야기', wrong:['나무','학교','박물관'] },
+  { level:1, start:'책상', correct:'상자', wrong:['나무','이야기','교실'] },
+  { level:1, start:'지구', correct:'구름', wrong:['이름','나라','상자'] },
+  { level:1, start:'모자', correct:'자전거', wrong:['이름','나라','교실'] },
+  { level:1, start:'하늘', correct:'늘푸른나무', wrong:['이름','자전거','구름'] },
+  { level:2, start:'컴퓨터', correct:'터널', wrong:['자동차','나무','학교'] },
+  { level:2, start:'냉장고', correct:'고구마', wrong:['바나나','도서관','상자'] },
+  { level:2, start:'양말', correct:'말투', wrong:['구름','상자','자전거'] },
+  { level:2, start:'거북이', correct:'이불', wrong:['나무','교실','상자'] },
+  { level:2, start:'토마토', correct:'토끼', wrong:['구름','학교','자전거'] },
+  { level:2, start:'딸기', correct:'기린', wrong:['나무','상자','구름'] },
+  { level:2, start:'무지개', correct:'개구리', wrong:['교실','자전거','이불'] },
+  { level:2, start:'호랑이', correct:'이슬비', wrong:['구름','자전거','토끼'] },
+  { level:3, start:'경찰서', correct:'서점', wrong:['도서관','우체국','병원'] },
+  { level:3, start:'미술관', correct:'관악기', wrong:['박물관','음악실','전시회'] },
+  { level:3, start:'환경보호', correct:'호수', wrong:['보호소','환경청','자연'] },
+  { level:3, start:'국립공원', correct:'원숭이', wrong:['공원지기','산림청','동물원'] },
+  { level:3, start:'졸업식', correct:'식당', wrong:['졸업장','시험장','학예회'] },
+  { level:3, start:'환영회', correct:'회의실', wrong:['동창회','축하연','모임터'] },
 ]
 
-// 더 체계적인 끝말잇기 퀴즈 세트
-const quizSets = [
-  { start:'기차', correct:'차도', wrong:['바람','나무','학교'] },
-  { start:'도서관', correct:'관광', wrong:['나무','자동차','학교'] },
-  { start:'나무', correct:'무지개', wrong:['학교','구름','도서관'] },
-  { start:'학교', correct:'교실', wrong:['나무','바다','도서관'] },
-  { start:'수박', correct:'박물관', wrong:['나무','학교','구름'] },
-  { start:'고양이', correct:'이름', wrong:['나무','학교','박물관'] },
-  { start:'바나나', correct:'나라', wrong:['학교','구름','도서관'] },
-  { start:'어린이', correct:'이야기', wrong:['나무','학교','박물관'] },
-  { start:'책상', correct:'상자', wrong:['나무','이야기','교실'] },
-  { start:'지구', correct:'구름', wrong:['이름','나라','상자'] },
-  { start:'모자', correct:'자전거', wrong:['이름','나라','교실'] },
-  { start:'하늘', correct:'늘푸른나무', wrong:['이름','자전거','구름'] },
-]
+function getPool() {
+  const maxLv = level.value<=2?1:level.value<=4?2:3
+  return quizSets.filter(q=>q.level<=maxLv)
+}
 
 const lastChar = computed(() => chain.value.length > 0 ? chain.value[chain.value.length-1].slice(-1) : '')
 const questions = ref([])
@@ -142,7 +135,7 @@ function startGame() {
   score.value=0; qIdx.value=0; correct.value=0; leveled.value=false
   answered.value=false; showFeedback.value=false; phase.value='play'
   rec.start(level.value)
-  questions.value = shuffle(quizSets).slice(0, totalQ)
+  questions.value = shuffle(getPool()).slice(0, totalQ)
   chain.value = [questions.value[0].start]
   loadQuestion()
   speak('끝말잇기를 시작해요!')
@@ -193,14 +186,6 @@ async function endGame() {
     speak('끝말잇기 달인! 레벨업!')
   } else speak('잘 했어요! 다시 도전해봐요!')
   await rec.end({ won: passed, leveledUp: leveled.value, score: score.value })
-  const token = localStorage.getItem('token')
-  if (token) {
-    try {
-      await axios.post('/api/games/10/score',
-        { score: score.value, level: level.value, result: passed?'win':'lose', duration: totalQ*8 },
-        { headers: { Authorization: `Bearer ${token}` } })
-    } catch(e) {}
-  }
 }
 </script>
 

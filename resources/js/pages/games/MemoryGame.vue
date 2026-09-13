@@ -98,6 +98,8 @@
             </div>
           </div>
 
+          <GameResultExtras :rec="rec" slug="memory" />
+
           <div class="flex gap-2">
             <button @click="phase = 'select'" class="flex-1 bg-gray-100 text-gray-700 font-bold py-3 rounded-xl">
               메뉴
@@ -116,6 +118,12 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import GameShell from '../../components/GameShell.vue'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
+
+// 예전엔 서버 점수 저장이 전혀 없어 새로고침하면 최고기록이 사라졌음 — 다른
+// 게임들과 동일한 공용 기록/포인트 시스템에 연결.
+const rec = useGameRecord('memory')
 
 // ── 테마 ──────────────────────────────────────────────────────────────────────
 const themes = [
@@ -246,6 +254,7 @@ function startGame(difficulty) {
   flipped2         = null
   canFlip          = true
   phase.value      = 'playing'
+  rec.start(difficulty.level)
   startTimer()
 }
 
@@ -296,6 +305,7 @@ function flipCard(idx) {
           stopTimer()
           phase.value = 'done'
           playWin()
+          rec.end({ won: true, leveledUp: false, score: score.value })
         }
       }, 400)
     }, 300)
