@@ -2,6 +2,7 @@
   <GameShell title="맞고" icon="🎴" theme="dark" fullscreen
     bg="linear-gradient(160deg,#0e3d5a 0%,#1a6080 60%,#0a2e45 100%)">
     <template #meta>
+      <div class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:rgba(0,0,0,.5);color:#fbbf24;">💰 {{ gameMoney.toLocaleString() }}</div>
       <span v-if="phase==='my_turn'" class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:#27ae60;color:#fff;">내 차례</span>
       <span v-else-if="phase==='bot_turn'" class="px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse" style="background:#e74c3c;color:#fff;">컴 생각중...</span>
       <div class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px]" style="background:rgba(0,0,0,.5)">
@@ -13,8 +14,16 @@
   <div class="flex flex-col select-none"
     style="flex:1;overflow:hidden;font-family:'Malgun Gothic',sans-serif;">
 
+    <!-- ── 판돈 부족 화면 ── -->
+    <div v-if="phase==='insufficient'" class="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
+      <div class="text-5xl">💸</div>
+      <div class="text-red-300 font-black text-lg">게임머니가 부족합니다</div>
+      <div class="text-white/50 text-xs">판돈 {{ bet.toLocaleString() }} 게임머니가 필요해요. 카지노 대기실에서 환전해 주세요.</div>
+      <router-link to="/games/casino" class="mt-2 font-black rounded-xl px-6 py-2.5" style="background:linear-gradient(180deg,#f39c12,#e67e22);color:#fff;">카지노로 돌아가기</router-link>
+    </div>
+
     <!-- ── 딜 화면 ── -->
-    <div v-if="phase==='dealing'" class="flex-1 flex flex-col items-center justify-center gap-5">
+    <div v-else-if="phase==='dealing'" class="flex-1 flex flex-col items-center justify-center gap-5">
       <div class="text-yellow-300 text-xl font-black animate-pulse">패를 나눠드립니다...</div>
       <div class="relative" style="width:50px;height:70px">
         <img v-for="i in 7" :key="i" src="/images/hwatu/back.svg" class="absolute rounded shadow"
@@ -218,7 +227,11 @@
                     <div class="text-white/30" style="font-size:10px">점</div>
                   </div>
                 </div>
-                <button @click="initGame" class="w-full font-black rounded-xl" style="padding:10px;font-size:15px;background:linear-gradient(180deg,#27ae60,#1e8449);color:#fff;border:2px solid #58d68d">
+                <div v-if="settling" class="text-white/40 text-xs mb-3">정산 중...</div>
+                <div v-else-if="lastPayout !== null" class="mb-3 text-xs" :class="lastPayout > 0 ? 'text-yellow-300' : 'text-white/40'">
+                  판돈 {{ bet.toLocaleString() }} → 💰 {{ lastPayout.toLocaleString() }} 획득 (잔액 {{ gameMoney.toLocaleString() }})
+                </div>
+                <button @click="initGame" :disabled="settling" class="w-full font-black rounded-xl disabled:opacity-50" style="padding:10px;font-size:15px;background:linear-gradient(180deg,#27ae60,#1e8449);color:#fff;border:2px solid #58d68d">
                   다시하기
                 </button>
               </div>
@@ -288,7 +301,57 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+
+// ── 게임머니(서버 정산) ────────────────────────────────────────────────────────
+const GOSTOP_BETS = [50, 100, 500, 1000]
+const route = useRoute()
+const qBet = parseInt(route.query.bet)
+const bet = ref(GOSTOP_BETS.includes(qBet) ? qBet : 100)
+const gameMoney = ref(0)
+const roundId = ref(null)
+const settling = ref(false)
+const lastPayout = ref(null)
+
+async function loadBalance() {
+  try {
+    const { data } = await axios.get('/api/wallet/balance')
+    gameMoney.value = data.chip || 0
+  } catch {}
+}
+
+async function placeBet() {
+  try {
+    const { data } = await axios.post('/api/games/gostop/start', { bet: bet.value })
+    roundId.value = data.data.round_id
+    gameMoney.value = data.data.game_points
+    return true
+  } catch {
+    await loadBalance()
+    return false
+  }
+}
+
+async function settleRound() {
+  if (!roundId.value) return
+  settling.value = true
+  try {
+    const { data } = await axios.post('/api/games/gostop/settle', {
+      round_id: roundId.value,
+      my_score: myScore.value,
+      bot_score: botScore.value,
+    })
+    lastPayout.value = data.data.payout
+    gameMoney.value = data.data.game_points
+  } catch {
+    lastPayout.value = null
+    await loadBalance()
+  }
+  settling.value = false
+  roundId.value = null
+}
 
 // ── 사운드 ─────────────────────────────────────────────────────────────────────
 let _ac = null
@@ -531,6 +594,9 @@ const sleep=(ms)=>new Promise(r=>setTimeout(r,ms))
 
 async function initGame() {
   if(clickTimer){clearTimeout(clickTimer);clickTimer=null}
+  lastPayout.value = null
+  const ok = await placeBet()
+  if (!ok) { phase.value = 'insufficient'; return }
   selected.value=null;myCapture.value=[];botCapture.value=[]
   goCount.value=0;myScore.value=0;botScore.value=0;statusMsg.value=''
   prevYaku=[]
@@ -589,6 +655,7 @@ function endGame() {
   if(goCount.value>0) myScore.value=Math.floor(myScore.value*(1+goCount.value*.15))
   phase.value='result'; selected.value=null
   playSound(myScore.value>=botScore.value?'win':'lose')
+  settleRound()
 }
 async function chooseGo() {
   goCount.value++; playSound('go'); statusMsg.value=`${goCount.value}고!`
