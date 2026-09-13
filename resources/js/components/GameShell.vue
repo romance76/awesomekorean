@@ -9,7 +9,7 @@
   props:
     title, icon, level, score, bg(그라디언트), theme('light'|'dark'), back(경로), fullscreen(bool)
 -->
-<div :class="['game-shell', `theme-${theme}`, fullscreen ? 'is-fullscreen' : 'is-card']" :style="bg ? { background: bg } : {}">
+<div :class="['game-shell', `theme-${theme}`, fullscreen ? 'is-fullscreen' : 'is-card']" :style="fullscreen && bg ? { background: bg } : {}">
   <div class="shell-header">
     <button class="shell-back" @click="onBack" aria-label="뒤로">
       <span class="arrow">←</span>
@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <div class="shell-body">
+  <div class="shell-body" :style="!fullscreen && bg ? { background: bg } : {}">
     <slot />
   </div>
 </div>
@@ -57,8 +57,13 @@ function onBack() {
 
 <style scoped>
 .game-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.game-shell.theme-light { background: #F7F8FA; color: #191F28; }
-.game-shell.theme-dark { background: #0b1020; color: #f3f4f6; }
+/* 카드형(is-card)은 사이트 표준 배경 위에 게임 고유 색을 담은 카드가 놓이는
+   구조 — 게임 배경이 브라우저 전체 폭을 그대로 차지해 "완전히 다른 페이지로
+   전환된 것처럼" 보이던 문제 수정. 전체화면(is-fullscreen) 모드는 원래
+   의도대로 그대로 엣지투엣지 유지. */
+.game-shell.is-card { background: #F8F6F3; color: #191F28; }
+.game-shell.is-fullscreen.theme-light { background: #F7F8FA; color: #191F28; }
+.game-shell.is-fullscreen.theme-dark { background: #0b1020; color: #f3f4f6; }
 
 .shell-header {
   position: sticky; top: 0; z-index: 20;
@@ -102,9 +107,15 @@ function onBack() {
 
 .shell-body { flex: 1; display: flex; flex-direction: column; }
 
-/* 카드형: 중앙 컨텐츠 최대폭 제한 */
-.is-card .shell-body { max-width: 900px; margin: 0 auto; width: 100%; padding: 16px; }
-/* 전체창: 여백 없음 */
+/* 카드형: 사이트 배경 위에 게임 고유 색(bg prop)을 담은 둥근 카드로 표시 —
+   게임 화면이 브라우저 전체 폭을 차지해 별도 페이지로 전환된 것처럼 보이던
+   문제 수정. 카드 밖으로는 사이트의 중립 배경이 계속 보임. */
+.is-card .shell-body {
+  max-width: 900px; margin: 16px auto; width: calc(100% - 32px);
+  padding: 16px; border-radius: 20px; overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+/* 전체창: 여백 없음, 엣지투엣지 그대로 유지 */
 .is-fullscreen .shell-body { padding: 0; }
 
 @media (max-width: 640px) {
