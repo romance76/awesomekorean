@@ -1,11 +1,7 @@
 <template>
+  <GameShell title="색깔 스트룹" icon="🎨" theme="dark" :level="level" :score="score"
+    bg="#111827">
   <div class="stroop-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 🎨</div>
-      <div class="score">⭐ {{ score }}</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">🎨</div>
       <h1 class="title">색깔 스트룹</h1>
@@ -51,11 +47,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -149,10 +147,7 @@ onUnmounted(()=>clearInterval(timer))
 </script>
 
 <style scoped>
-.stroop-game { min-height:100vh; background:#111827; padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.back-btn { background:rgba(255,255,255,0.12); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.score { background:rgba(255,255,255,0.12); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; }
+.stroop-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box { text-align:center; padding:30px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,0.7); font-size:15px; }

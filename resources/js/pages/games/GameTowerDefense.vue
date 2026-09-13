@@ -1,10 +1,7 @@
 <template>
+  <GameShell title="타워 디펜스" icon="🏰" theme="dark" :level="level" :score="score"
+    bg="linear-gradient(135deg,#052e16,#14532d,#166534)">
   <div class="tower-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 🏰</div>
-      <div class="score">⭐ {{ score }}</div>
-    </div>
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">🏰</div>
       <h1 class="title">타워 디펜스</h1>
@@ -52,11 +49,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 const router = useRouter()
 
 const level = ref(parseInt(localStorage.getItem('tower_level') || '1'))
@@ -166,10 +165,7 @@ onUnmounted(() => { clearInterval(gameLoop); clearInterval(spawnTimer) })
 </script>
 
 <style scoped>
-.tower-game { min-height:100vh; background:linear-gradient(135deg,#052e16,#14532d,#166534); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-.back-btn { background:rgba(255,255,255,0.15); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.score { background:rgba(255,255,255,0.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; }
+.tower-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box { text-align:center; padding:40px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,0.8); font-size:16px; }

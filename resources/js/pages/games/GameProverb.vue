@@ -1,11 +1,7 @@
 <template>
+  <GameShell title="속담 퀴즈" icon="📜" theme="dark" :level="level" :score="score"
+    bg="linear-gradient(135deg,#14532d,#166534,#15803d)">
   <div class="proverb-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 📜</div>
-      <div class="score">⭐ {{ score }}</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">📜</div>
       <h1 class="title">속담 퀴즈</h1>
@@ -51,12 +47,14 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 import GameLeaderboard from '../../components/GameLeaderboard.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
@@ -196,10 +194,7 @@ onUnmounted(()=>clearInterval(timer))
 </script>
 
 <style scoped>
-.proverb-game { min-height:100vh; background:linear-gradient(135deg,#14532d,#166534,#15803d); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.back-btn { background:rgba(255,255,255,0.15); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.score { background:rgba(255,255,255,0.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; }
+.proverb-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box { text-align:center; padding:40px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,0.85); font-size:16px; }

@@ -1,23 +1,15 @@
 <template>
-  <div class="select-none" style="position:fixed;inset:0;overflow-y:auto;background:radial-gradient(ellipse at center,#1a5c2e 0%,#0e3d1a 55%,#071a0b 100%);font-family:'Malgun Gothic',sans-serif;">
-
-    <!-- ══ TOP BAR ══ -->
-    <div class="flex items-center px-3 py-2 gap-2 flex-shrink-0 sticky top-0 z-20"
-      style="background:rgba(0,0,0,.75);border-bottom:1px solid rgba(255,255,255,.08);">
-      <button @click="$router.push('/games/casino')" class="text-white/50 hover:text-white text-base w-8 flex-shrink-0" title="카지노 로비">◀</button>
-      <span class="text-yellow-300 font-black tracking-wider text-sm">Texas Hold'em</span>
-      <span class="text-white/30 text-xs">솔로</span>
-
-      <!-- Pot -->
-      <div class="mx-auto flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold"
+  <GameShell title="Texas Hold'em" icon="♠️" theme="dark" fullscreen back="/games/casino"
+    bg="radial-gradient(ellipse at center,#1a5c2e 0%,#0e3d1a 55%,#071a0b 100%)">
+    <template #meta>
+      <div class="flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-bold"
         style="background:rgba(0,0,0,.5);border:1px solid rgba(255,215,0,.3);">
         <span class="text-yellow-400">팟</span>
         <span class="text-white">{{ pot.toLocaleString() }}</span>
       </div>
-
-      <!-- Phase badge -->
       <span class="text-xs px-2 py-0.5 rounded-full font-bold" :style="phaseBadgeStyle">{{ phaseLabel }}</span>
-    </div>
+    </template>
+  <div class="select-none" style="flex:1;overflow-y:auto;font-family:'Malgun Gothic',sans-serif;">
 
     <!-- ══ GAME AREA ══ -->
     <div class="flex flex-col items-center px-3 py-3 gap-3" style="min-height:calc(100dvh - 48px);">
@@ -204,11 +196,13 @@
 
     </div><!-- /game area -->
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, watch, onMounted, defineComponent, h } from 'vue'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 
 // ══════════════════════════════════════════
 //  CARD TILE COMPONENT (inline)

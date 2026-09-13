@@ -1,14 +1,12 @@
 <template>
+  <GameShell title="한국어 타이핑" icon="⌨" theme="dark"
+    bg="linear-gradient(135deg,#0a0a2e,#1a1a5e,#0f3460)">
+    <template #meta>
+      <span class="level-badge">레벨 {{ level }}</span>
+      <span class="timer-badge" :class="{warning: timeLeft<=5}" v-if="phase==='play'">⏱ {{ timeLeft }}초</span>
+      <span class="score-badge">{{ score }}점</span>
+    </template>
   <div class="typing-game">
-    <div class="game-header">
-      <button class="back-btn" @click="$router.push('/games')">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} ⌨</div>
-      <div class="info-row">
-        <span class="timer-badge" :class="{warning: timeLeft<=5}">⏱ {{ timeLeft }}초</span>
-        <span class="score-badge">{{ score }}점</span>
-      </div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:90px">⌨️</div>
       <h1 class="title">한국어 타이핑</h1>
@@ -76,12 +74,14 @@
       <button class="home-btn" @click="$router.push('/games')">홈으로 🏠</button>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -190,12 +190,9 @@ async function endGame() {
 </script>
 
 <style scoped>
-.typing-game { min-height:100vh; background:linear-gradient(135deg,#0a0a2e,#1a1a5e,#0f3460); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
-.back-btn { background:rgba(255,255,255,.15); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge { background:rgba(255,255,255,.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; font-size:14px; }
-.info-row { display:flex; gap:8px; }
-.timer-badge,.score-badge { background:rgba(255,255,255,.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; font-size:14px; }
+.typing-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
+.level-badge { background:rgba(255,255,255,.15); color:#fff; padding:4px 10px; border-radius:14px; font-weight:800; font-size:11px; white-space:nowrap; }
+.timer-badge,.score-badge { background:rgba(255,255,255,.15); color:#fff; padding:4px 10px; border-radius:14px; font-weight:800; font-size:11px; white-space:nowrap; }
 .timer-badge.warning { background:rgba(239,68,68,.5); animation:pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
 .center-box,.end-box { text-align:center; padding:40px 20px; }

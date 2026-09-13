@@ -1,11 +1,7 @@
 <template>
+  <GameShell title="한국어 맞춤법" icon="✍️" theme="dark" :level="level" :score="score"
+    bg="linear-gradient(135deg,#7c2d12,#9a3412,#c2410c)">
   <div class="spelling-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} ✍️</div>
-      <div class="score">⭐ {{ score }}</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">✍️</div>
       <h1 class="title">한국어 맞춤법</h1>
@@ -56,11 +52,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -172,10 +170,7 @@ onUnmounted(()=>clearInterval(timer))
 </script>
 
 <style scoped>
-.spelling-game { min-height:100vh; background:linear-gradient(135deg,#7c2d12,#9a3412,#c2410c); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.back-btn { background:rgba(255,255,255,0.15); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.score { background:rgba(255,255,255,0.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; }
+.spelling-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box { text-align:center; padding:30px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,0.85); font-size:16px; }

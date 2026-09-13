@@ -1,12 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-purple-600 to-indigo-700 pb-20">
-    <div class="px-4 py-5 text-white">
-      <RouterLink to="/games" class="inline-block bg-white/20 hover:bg-white/30 text-white text-sm font-bold px-3 py-2 rounded-lg mb-4">← 목록</RouterLink>
-      <h1 class="text-2xl font-bold">🧠 일일 퀴즈</h1>
-      <p class="text-purple-200 text-sm mt-1">매일 새로운 퀴즈로 포인트를 획득하세요!</p>
-    </div>
+  <GameShell title="일일 퀴즈" icon="🧠" theme="dark"
+    bg="linear-gradient(to bottom,#9333ea,#4338ca)">
+  <div class="pb-20">
+    <p class="text-purple-200 text-sm px-4 pt-4 -mb-2">매일 새로운 퀴즈로 포인트를 획득하세요!</p>
 
-    <div class="px-4">
+    <div class="px-4 pt-4">
       <div class="bg-white rounded-2xl p-8 text-center shadow-xl">
         <div class="text-6xl mb-3">🚧</div>
         <h2 class="text-xl font-bold text-gray-800 mb-2">일일 퀴즈 준비중</h2>
@@ -31,8 +29,10 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 </script>

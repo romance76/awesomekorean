@@ -1,26 +1,19 @@
 <template>
-  <div class="min-h-screen bg-[#faf8ef] select-none pb-20">
-    <!-- 헤더 -->
-    <div class="bg-[#bbada0] px-4 py-3 flex items-center gap-3">
-      <button @click="$router.back()" class="text-white/70 hover:text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-      <h1 class="text-white font-black text-xl">2048</h1>
-      <div class="ml-auto flex items-center gap-2">
-        <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center">
-          <div class="text-[#776e65] text-xs">점수</div>
-          <div class="text-[#776e65] font-black text-lg">{{ score }}</div>
-        </div>
-        <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center">
-          <div class="text-[#776e65] text-xs">최고</div>
-          <div class="text-[#776e65] font-black text-lg">{{ bestScore }}</div>
-        </div>
-        <button @click="newGame" class="bg-[#8f7a66] text-white font-bold px-3 py-2 rounded-lg text-sm hover:bg-[#7a6959]">
-          새게임
-        </button>
+  <GameShell title="2048" icon="🔢" theme="light" bg="#faf8ef">
+  <div class="select-none pb-20">
+    <!-- 2048 고유 점수판 (오리지널 게임 스킨) -->
+    <div class="bg-[#bbada0] mx-4 mt-4 rounded-xl px-4 py-3 flex items-center gap-3">
+      <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center">
+        <div class="text-[#776e65] text-xs">점수</div>
+        <div class="text-[#776e65] font-black text-lg">{{ score }}</div>
       </div>
+      <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center">
+        <div class="text-[#776e65] text-xs">최고</div>
+        <div class="text-[#776e65] font-black text-lg">{{ bestScore }}</div>
+      </div>
+      <button @click="newGame" class="ml-auto bg-[#8f7a66] text-white font-bold px-3 py-2 rounded-lg text-sm hover:bg-[#7a6959]">
+        새게임
+      </button>
     </div>
 
     <div class="max-w-sm mx-auto px-4 pt-4">
@@ -75,10 +68,12 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, defineComponent, h } from 'vue'
+import GameShell from '../../components/GameShell.vue'
 
 // ── 타일 색상 ──────────────────────────────────────────────────────────────
 const TILE_COLORS = {

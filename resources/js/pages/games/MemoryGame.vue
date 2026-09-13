@@ -1,38 +1,21 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-indigo-900 to-purple-900 pb-24 select-none">
-    <!-- 헤더 -->
-    <div class="bg-black/30 px-4 py-3 flex items-center gap-3">
-      <button @click="$router.back()" class="text-white/70 hover:text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-      <div>
-        <h1 class="text-white font-bold">🧠 기억력 카드 게임</h1>
-        <p class="text-white/50 text-xs">치매예방 · 두뇌훈련</p>
-      </div>
-      <div class="ml-auto flex items-center gap-3">
-        <div class="text-center">
-          <div class="text-yellow-300 font-bold text-lg">{{ matched }}/{{ totalPairs }}</div>
-          <div class="text-white/50 text-xs">맞춘 쌍</div>
-        </div>
-        <div class="text-center">
-          <div class="text-cyan-300 font-bold text-lg">{{ timerDisplay }}</div>
-          <div class="text-white/50 text-xs">시간</div>
-        </div>
-        <div class="text-center">
-          <div class="text-pink-300 font-bold text-lg">{{ moves }}</div>
-          <div class="text-white/50 text-xs">시도</div>
-        </div>
-      </div>
-    </div>
-
+  <GameShell title="기억력 카드 게임" icon="🧠" theme="dark"
+    bg="linear-gradient(to bottom, #312e81, #581c87)">
+    <template #meta>
+      <template v-if="phase !== 'select'">
+        <span class="stat-badge stat-yellow">{{ matched }}/{{ totalPairs }}</span>
+        <span class="stat-badge stat-cyan">{{ timerDisplay }}</span>
+        <span class="stat-badge stat-pink">{{ moves }}</span>
+      </template>
+    </template>
+  <div class="mg-body pb-24 select-none">
     <!-- 난이도 선택 -->
     <div v-if="phase === 'select'" class="px-4 py-8 max-w-sm mx-auto">
       <div class="text-center text-white mb-8">
         <div class="text-5xl mb-3">🧠</div>
         <h2 class="text-2xl font-black">기억력 훈련</h2>
         <p class="text-white/60 text-sm mt-2">카드를 뒤집어 같은 그림을 찾으세요</p>
+        <p class="text-white/40 text-xs mt-1">치매예방 · 두뇌훈련</p>
       </div>
 
       <div class="space-y-3 mb-6">
@@ -127,10 +110,12 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
+import GameShell from '../../components/GameShell.vue'
 
 // ── 테마 ──────────────────────────────────────────────────────────────────────
 const themes = [
@@ -336,6 +321,11 @@ function flipCard(idx) {
 </script>
 
 <style scoped>
+.stat-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; background: rgba(0,0,0,0.3); white-space: nowrap; }
+.stat-yellow { color: #fde047; }
+.stat-cyan { color: #67e8f9; }
+.stat-pink { color: #f9a8d4; }
+
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   20%      { transform: translateX(-6px); }

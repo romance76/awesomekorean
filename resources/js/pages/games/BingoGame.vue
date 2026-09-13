@@ -1,16 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-blue-950 text-white p-4">
+  <GameShell title="빙고 게임" icon="🎯" theme="dark" fullscreen
+    bg="linear-gradient(to bottom right, #1e1b4b, #3b0764, #172554)">
+  <div class="text-white p-4">
     <div class="max-w-6xl mx-auto">
 
-      <!-- Header -->
-      <div class="flex items-center gap-3 mb-6">
-        <RouterLink to="/games" class="text-white bg-white/15 hover:bg-white/25 text-sm font-bold px-3 py-2 rounded-lg transition flex-shrink-0">← 목록</RouterLink>
-        <div class="flex-1 text-center">
-          <h1 class="text-3xl lg:text-4xl font-bold tracking-widest text-yellow-300 drop-shadow-lg">🎯 빙고 게임</h1>
-          <p class="text-purple-300 mt-1 text-xs">한인 커뮤니티 빙고 · 혼자서 컴퓨터와 대결!</p>
-        </div>
-        <div class="w-[68px] flex-shrink-0"></div>
-      </div>
+      <p class="text-center text-purple-300 mb-6 text-xs">한인 커뮤니티 빙고 · 혼자서 컴퓨터와 대결!</p>
 
       <!-- Status Bar -->
       <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
@@ -186,10 +180,12 @@
       </div>
     </Transition>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
+import GameShell from '../../components/GameShell.vue'
 
 // ────────────────────────────────────────────────────────────────────────────
 // Constants

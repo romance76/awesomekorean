@@ -1,11 +1,11 @@
 <template>
+  <GameShell title="주식 시뮬레이션" icon="📈" theme="dark"
+    bg="linear-gradient(135deg,#0f172a,#1e293b)">
+    <template #meta>
+      <span class="level-badge">레벨 {{ level }}</span>
+      <span class="cash-badge">💰 {{ cash.toLocaleString() }}원</span>
+    </template>
   <div class="stock-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 📈</div>
-      <div class="cash-badge">💰 {{ cash.toLocaleString() }}원</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">📈</div>
       <h1 class="title">주식 시뮬레이션</h1>
@@ -68,11 +68,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -203,10 +205,8 @@ function goBack() { router.push('/games') }
 </script>
 
 <style scoped>
-.stock-game { min-height:100vh; background:linear-gradient(135deg,#0f172a,#1e293b); padding:16px; font-family:'Noto Sans KR',sans-serif; color:#fff; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-.back-btn { background:rgba(255,255,255,0.1); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.cash-badge { background:rgba(255,255,255,0.1); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px; }
+.stock-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; color:#fff; }
+.level-badge,.cash-badge { background:rgba(255,255,255,0.15); color:#fff; padding:4px 10px; border-radius:14px; font-weight:800; font-size:11px; white-space:nowrap; }
 .center-box { text-align:center; padding:40px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,0.7); font-size:16px; }

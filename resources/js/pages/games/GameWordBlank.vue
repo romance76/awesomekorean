@@ -1,11 +1,7 @@
 <template>
+  <GameShell title="빈칸 채우기" icon="📝" theme="dark" :level="level" :score="score"
+    bg="linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)">
   <div class="wordblank-game">
-    <div class="game-header">
-      <button class="back-btn" @click="$router.push('/games')">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 📝</div>
-      <div class="score-badge">{{ score }}점</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:90px">📝</div>
       <h1 class="title">빈칸 채우기</h1>
@@ -49,12 +45,14 @@
       </div>
     </Transition>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -149,10 +147,7 @@ async function endGame() {
 </script>
 
 <style scoped>
-.wordblank-game { min-height:100vh; background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
-.back-btn { background:rgba(255,255,255,.15); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.score-badge { background:rgba(255,255,255,.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; font-size:14px; }
+.wordblank-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box,.end-box { text-align:center; padding:40px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,.8); font-size:16px; }

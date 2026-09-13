@@ -1,11 +1,7 @@
 <template>
+  <GameShell title="색깔 맞추기" icon="🎨" theme="light" :level="level" :score="score"
+    bg="linear-gradient(160deg,#fff7ed,#ffedd5,#fed7aa)">
   <div class="colors-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 🎨</div>
-      <div class="score-badge">⭐ {{ score }}점</div>
-    </div>
-
     <div v-if="phase==='start'" class="start-screen">
       <div style="font-size:80px">🎨</div>
       <h1 class="game-title">색깔 맞추기</h1>
@@ -64,11 +60,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -182,10 +180,7 @@ function goBack() { clearInterval(fbTimer); router.push('/games') }
 </script>
 
 <style scoped>
-.colors-game { min-height:100vh; background:linear-gradient(160deg,#fff7ed,#ffedd5,#fed7aa); font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:rgba(255,255,255,0.7); backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.5); }
-.back-btn { background:#f97316; color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; font-weight:600; }
-.level-badge,.score-badge { background:#f97316; color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; }
+.colors-game { flex:1; display:flex; flex-direction:column; font-family:'Noto Sans KR',sans-serif; }
 .start-screen { display:flex; flex-direction:column; align-items:center; padding:40px 20px; text-align:center; }
 .game-title { font-size:32px; font-weight:900; color:#9a3412; margin:10px 0; }
 .game-desc { color:#c2410c; font-size:16px; margin-bottom:20px; }
