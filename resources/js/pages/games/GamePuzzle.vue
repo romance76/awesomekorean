@@ -40,6 +40,17 @@
       <h2 class="solved-title">완성!</h2>
       <div class="solved-stats">{{ moves }}수 · {{ elapsedTime }}초</div>
       <div v-if="leveled" class="levelup">🎉 레벨업! 레벨 {{ level }}!</div>
+      <GameResultExtras :rec="rec" slug="puzzle" />
+      <div class="res-btns">
+        <button class="rbtn" @click="startGame">다시 🔄</button>
+        <button class="rbtn home" @click="goBack">홈 🏠</button>
+      </div>
+    </div>
+
+    <div v-if="phase==='timeout'" class="solved-box">
+      <div style="font-size:80px">⏰</div>
+      <h2 class="solved-title">시간 초과!</h2>
+      <div class="solved-stats">{{ moves }}수 시도 — 제한시간 안에 못 맞췄어요</div>
       <div class="res-btns">
         <button class="rbtn" @click="startGame">다시 🔄</button>
         <button class="rbtn home" @click="goBack">홈 🏠</button>
@@ -53,7 +64,10 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
+const rec = useGameRecord('puzzle')
 
 const level = ref(parseInt(localStorage.getItem('puzzle_level') || '1'))
 const moves = ref(0)
@@ -119,10 +133,18 @@ function startGame() {
   startTime = Date.now()
   timeLeft.value = level.value <= 2 ? 300 : level.value <= 4 ? 240 : 180
   phase.value = 'play'
+  rec.start(level.value)
   clearInterval(timer)
   timer = setInterval(() => {
     timeLeft.value--
-    if (timeLeft.value <= 0) { clearInterval(timer); speak('시간 초과!') }
+    // 예전엔 시간이 다 돼도 음성 안내만 하고 게임은 계속 진행돼(제한시간이 사실상
+    // 장식) 계속 풀 수 있었음 — 실제로 라운드를 종료하도록 수정.
+    if (timeLeft.value <= 0) {
+      clearInterval(timer)
+      speak('시간 초과!')
+      phase.value = 'timeout'
+      rec.end({ won: false })
+    }
   }, 1000)
   speak(gridSize.value + '곱하기 ' + gridSize.value + ' 퍼즐 시작!')
 }
@@ -148,6 +170,8 @@ function clickTile(idx) {
     }
     phase.value = 'solved'
     speak(leveled.value ? '완성! 레벨업!' : '완성!')
+    const score = Math.max(0, 1000 - moves.value * 5 - elapsedTime.value * 2)
+    rec.end({ won: true, leveledUp: leveled.value, score })
   }
 }
 

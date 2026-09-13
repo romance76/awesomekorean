@@ -80,24 +80,25 @@
 <script setup>
 import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
 const rec = useGameRecord('typing')
 const level = ref(parseInt(localStorage.getItem('typing_level')||'1'))
-const score = ref(0); const typed = ref(0); const mistakes = ref(0)
+const score = ref(0); const typed = ref(0); const mistakes = ref(0); const skipped = ref(0)
 const leveled = ref(false); const phase = ref('start')
 const userInput = ref(''); const currentWord = ref(''); const wordHint = ref('')
 const inputStatus = ref(''); const inputRef = ref(null)
 const timeLeft = ref(60); const totalTime = 60
 const wordQueue = ref([])
 let timer = null
+let hadMistake = false // 예전엔 오타를 아무리 내도 정확도에 전혀 반영이 안 됐음(건너뛰기도 입력창이 비어있을 때만 카운트) — 단어별로 오타 여부를 추적
 
+// 정확도 = (완료+건너뛴 단어 중 오타/건너뛰기 없이 끝낸 비율)
 const accuracy = computed(() => {
-  const total = typed.value + mistakes.value
-  return total === 0 ? 100 : Math.round(typed.value / total * 100)
+  const totalAttempts = typed.value + skipped.value
+  return totalAttempts === 0 ? 100 : Math.round((totalAttempts - mistakes.value) / totalAttempts * 100)
 })
 
 const wordPools = {
@@ -121,7 +122,7 @@ function getPool() {
 }
 
 function startGame() {
-  score.value=0; typed.value=0; mistakes.value=0; leveled.value=false
+  score.value=0; typed.value=0; mistakes.value=0; skipped.value=0; leveled.value=false
   phase.value='play'; timeLeft.value=totalTime; userInput.value=''; inputStatus.value=''
   rec.start(level.value)
   wordQueue.value = shuffle([...getPool(), ...getPool()]).slice(0, 20)
@@ -136,6 +137,7 @@ function loadNextWord() {
   currentWord.value = wordQueue.value.shift()
   wordHint.value = ''
   inputStatus.value = ''
+  hadMistake = false
 }
 
 function startTimer() {
@@ -153,20 +155,25 @@ function checkInput() {
     inputStatus.value = 'correct'
     score.value += Math.ceil(10 * (level.value * 0.5 + 0.5))
     typed.value++
+    if (hadMistake) mistakes.value++
     userInput.value = ''
     loadNextWord()
   } else if (target.startsWith(val)) {
     inputStatus.value = 'typing'
   } else {
     inputStatus.value = 'wrong'
+    hadMistake = true
   }
 }
 
 function skipWord() {
-  if (!userInput.value) {
-    mistakes.value++
-    loadNextWord()
-  }
+  // 예전엔 입력창이 비어있을 때만 건너뛰기가 동작해서, 오타를 낸 채로 건너뛰려 하면
+  // 아무 반응이 없었음(정확도에도 반영 안 됨) — 항상 건너뛸 수 있고 건너뛰기는 항상
+  // 정확도에 반영되도록 수정.
+  mistakes.value++
+  skipped.value++
+  userInput.value = ''
+  loadNextWord()
 }
 
 async function endGame() {
@@ -178,14 +185,6 @@ async function endGame() {
     speak('훌륭해요! 레벨업!')
   } else speak('잘 했어요! 더 빠르게 연습해봐요!')
   await rec.end({ won: passed, leveledUp: leveled.value, score: score.value })
-  const token = localStorage.getItem('token')
-  if (token) {
-    try {
-      await axios.post('/api/games/11/score',
-        { score: score.value, level: level.value, result: passed?'win':'lose', duration: totalTime },
-        { headers: { Authorization: `Bearer ${token}` } })
-    } catch(e) {}
-  }
 }
 </script>
 
