@@ -1,18 +1,18 @@
 <template>
-  <div class="hangul-game" :class="{ 'celebrate': gameOver && !showLevelUp }">
-    <!-- Header Bar -->
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 나가기</button>
-      <div class="progress-bar">
-        <div class="progress-label">{{ currentQ + 1 }} / {{ totalQ }}</div>
-        <div class="progress-track">
-          <div class="progress-fill" :style="{ width: progressPct + '%' }"></div>
+  <GameShell
+    title="한글 배우기" icon="🔤" theme="light"
+    bg="linear-gradient(135deg, #FFF9C4 0%, #FFF3E0 50%, #F3E5F5 100%)">
+    <template #meta>
+      <div class="meta-progress">
+        <div class="meta-progress-label">{{ currentQ + 1 }} / {{ totalQ }}</div>
+        <div class="meta-progress-track">
+          <div class="meta-progress-fill" :style="{ width: progressPct + '%' }"></div>
         </div>
       </div>
-      <div class="level-badge">레벨 {{ level }} ⭐</div>
-      <div class="score-badge">⭐ {{ score }}</div>
-    </div>
-
+      <span class="meta-badge level-badge">레벨 {{ level }} ⭐</span>
+      <span class="meta-badge score-badge">⭐ {{ score }}</span>
+    </template>
+  <div class="hangul-game" :class="{ 'celebrate': gameOver && !showLevelUp }">
     <!-- Timer (level 4+) -->
     <div v-if="!gameOver && !showLevelUp && timerLimit > 0" class="timer-wrap">
       <svg class="timer-svg" viewBox="0 0 44 44">
@@ -112,12 +112,14 @@
       <div v-for="i in 20" :key="i" class="confetti-piece" :style="confettiStyle(i)"></div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 
@@ -449,93 +451,29 @@ onUnmounted(() => {
 
 <style scoped>
 .hangul-game {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #FFF9C4 0%, #FFF3E0 50%, #F3E5F5 100%);
   display: flex;
   flex-direction: column;
+  flex: 1;
   font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   position: relative;
   overflow: hidden;
   user-select: none;
 }
 
-/* Header */
-.game-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 20px;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(10px);
-  border-bottom: 3px solid rgba(255,180,60,0.3);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
+/* Header meta badges */
+.meta-progress { display: flex; flex-direction: column; gap: 2px; width: 74px; }
+.meta-progress-label { font-size: 10px; font-weight: 700; color: #7C3AED; text-align: center; }
+.meta-progress-track { height: 6px; background: #E9D5FF; border-radius: 6px; overflow: hidden; }
+.meta-progress-fill { height: 100%; background: linear-gradient(90deg, #A855F7, #EC4899); border-radius: 6px; transition: width 0.4s ease; }
 
-.back-btn {
-  background: #FF6B6B;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: transform 0.1s;
-}
-.back-btn:hover { transform: scale(1.05); }
-
-.progress-bar {
-  flex: 1;
-}
-.progress-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: #7C3AED;
-  margin-bottom: 4px;
-  text-align: center;
-}
-.progress-track {
-  height: 10px;
-  background: #E9D5FF;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #A855F7, #EC4899);
-  border-radius: 10px;
-  transition: width 0.4s ease;
-}
-
-.level-badge {
-  font-size: 15px;
-  font-weight: 800;
-  color: #7C3AED;
-  background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
-  border: 2px solid #A855F7;
-  border-radius: 20px;
-  padding: 4px 10px;
-  white-space: nowrap;
-}
-
-.score-badge {
-  font-size: 20px;
-  font-weight: 800;
-  color: #F59E0B;
-  background: #FFFBEB;
-  border: 2px solid #FDE68A;
-  border-radius: 20px;
-  padding: 4px 12px;
-  white-space: nowrap;
-}
+.meta-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; white-space: nowrap; }
+.level-badge { color: #7C3AED; background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 1px solid #A855F7; }
+.score-badge { color: #F59E0B; background: #FFFBEB; border: 1px solid #FDE68A; }
 
 /* Timer */
 .timer-wrap {
   position: fixed;
-  top: 80px;
+  top: 64px;
   right: 20px;
   z-index: 20;
   width: 54px;

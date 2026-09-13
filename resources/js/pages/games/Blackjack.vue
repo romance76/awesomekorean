@@ -1,16 +1,10 @@
 <template>
-  <div class="min-h-screen bg-emerald-900 pb-24 select-none">
-    <!-- Header -->
-    <div class="bg-black/40 px-4 py-3 flex items-center gap-3">
-      <button @click="$router.push('/games/casino')" class="text-white/70 hover:text-white">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-      <h1 class="text-white font-bold">블랙잭 (vs 딜러)</h1>
-      <div class="ml-auto text-sm text-yellow-300 font-bold">🎰 {{ chips.toLocaleString() }}</div>
-    </div>
-
+  <GameShell title="블랙잭 (vs 딜러)" icon="🂡" theme="dark" back="/games/casino"
+    bg="#064e3b">
+    <template #meta>
+      <span class="chip-badge">🎰 {{ chips.toLocaleString() }}</span>
+    </template>
+  <div class="pb-24 select-none">
     <!-- 게임 결과 배너 -->
     <div v-if="result" class="mx-4 mt-4 rounded-2xl p-5 text-center shadow-xl"
       :class="{
@@ -127,12 +121,14 @@
       </button>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 const route = useRoute()
 
 // ── 사운드 ───────────────────────────────────────────────────────────────────
@@ -366,3 +362,7 @@ onMounted(() => {
   if (qbet && betOptions.includes(qbet)) bet.value = qbet
 })
 </script>
+
+<style scoped>
+.chip-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; background: rgba(251,191,36,0.15); color: #fcd34d; white-space: nowrap; }
+</style>

@@ -1,12 +1,12 @@
 <template>
+  <GameShell
+    title="숫자 세기" icon="🔢" theme="dark"
+    bg="linear-gradient(135deg, #FFE066 0%, #FF9F43 50%, #FF6B6B 100%)">
+    <template #meta>
+      <span class="level-badge">레벨 {{ level }} 🔢</span>
+      <span class="score-display">⭐ {{ totalStars }}</span>
+    </template>
   <div class="counting-game" :class="{ shake: shaking, flash: flashing }">
-    <!-- Header -->
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 🔢</div>
-      <div class="score-display">⭐ {{ totalStars }}</div>
-    </div>
-
     <!-- Progress bar -->
     <div class="progress-bar" v-if="gameState === 'playing'">
       <div class="progress-fill" :style="{ width: (questionIndex / 10 * 100) + '%' }"></div>
@@ -91,11 +91,13 @@
       <span v-for="i in 8" :key="i" class="sparkle" :style="sparkleStyle(i)">⭐</span>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const rec = useGameRecord('counting')
@@ -266,11 +268,11 @@ onUnmounted(() => {
 
 <style scoped>
 .counting-game {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #FFE066 0%, #FF9F43 50%, #FF6B6B 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1;
+  width: 100%;
   padding: 0;
   font-family: 'Nanum Gothic', sans-serif;
   position: relative;
@@ -296,44 +298,25 @@ onUnmounted(() => {
   90% { transform: translateX(5px); }
 }
 
-/* Header */
-.game-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(4px);
-}
-
-.back-btn {
-  background: rgba(255,255,255,0.6);
-  border: none;
-  border-radius: 20px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #333;
-}
-
+/* Header meta badges */
 .level-badge {
   background: rgba(255,255,255,0.8);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
   color: #FF6B6B;
+  white-space: nowrap;
 }
 
 .score-display {
   background: rgba(255,255,255,0.6);
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 16px;
-  font-weight: bold;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
   color: #FF9F43;
+  white-space: nowrap;
 }
 
 /* Progress */

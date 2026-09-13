@@ -1,11 +1,11 @@
 <template>
+  <GameShell title="퍼즐 맞추기" icon="🧩" theme="dark"
+    bg="linear-gradient(135deg,#4c1d95,#5b21b6,#7c3aed)">
+    <template #meta>
+      <span class="meta-badge">Lv.{{ level }}</span>
+      <span class="meta-badge">⭐ {{ moves }}수</span>
+    </template>
   <div class="puzzle-game">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 🧩</div>
-      <div class="score">⭐ {{ moves }}수</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">🧩</div>
       <h1 class="title">퍼즐 맞추기</h1>
@@ -46,11 +46,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 const router = useRouter()
 
 const level = ref(parseInt(localStorage.getItem('puzzle_level') || '1'))
@@ -159,10 +161,8 @@ onUnmounted(() => clearInterval(timer))
 </script>
 
 <style scoped>
-.puzzle-game { min-height:100vh; background:linear-gradient(135deg,#4c1d95,#5b21b6,#7c3aed); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.back-btn { background:rgba(255,255,255,0.15); color:#fff; border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-size:14px; }
-.level-badge,.score { background:rgba(255,255,255,0.15); color:#fff; padding:6px 14px; border-radius:20px; font-weight:700; }
+.puzzle-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
+.meta-badge { font-size:11px; font-weight:800; padding:4px 10px; border-radius:14px; background:rgba(255,255,255,0.15); color:#fff; white-space:nowrap; }
 .center-box { text-align:center; padding:30px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
 .subtitle { color:rgba(255,255,255,0.8); font-size:16px; }

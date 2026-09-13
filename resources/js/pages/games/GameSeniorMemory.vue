@@ -1,11 +1,7 @@
 <template>
+  <GameShell title="기억력 카드" icon="🌸" theme="light" :level="level" :score="score"
+    bg="linear-gradient(135deg,#fdf4ff,#fce7f3,#ffe4e6)">
   <div class="senior-memory">
-    <div class="game-header">
-      <button class="back-btn" @click="goBack">← 뒤로</button>
-      <div class="level-badge">레벨 {{ level }} 🌸</div>
-      <div class="score">⭐ {{ score }}</div>
-    </div>
-
     <div v-if="phase==='start'" class="center-box">
       <div style="font-size:80px">🌸</div>
       <h1 class="title">기억력 카드</h1>
@@ -46,11 +42,13 @@
       </div>
     </div>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
@@ -132,10 +130,7 @@ onUnmounted(() => clearInterval(timerInterval))
 </script>
 
 <style scoped>
-.senior-memory { min-height:100vh; background:linear-gradient(135deg,#fdf4ff,#fce7f3,#ffe4e6); padding:16px; font-family:'Noto Sans KR',sans-serif; }
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.back-btn { background:rgba(0,0,0,0.08); color:#831843; border:none; padding:10px 16px; border-radius:20px; cursor:pointer; font-size:15px; font-weight:600; }
-.level-badge,.score { background:rgba(0,0,0,0.08); color:#831843; padding:8px 16px; border-radius:20px; font-weight:700; font-size:15px; }
+.senior-memory { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box { text-align:center; padding:30px 20px; }
 .title { font-size:40px; color:#831843; font-weight:900; margin:10px 0; }
 .subtitle { color:#9d174d; font-size:18px; }

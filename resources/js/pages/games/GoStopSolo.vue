@@ -1,23 +1,17 @@
 <template>
-  <div class="flex flex-col select-none"
-    style="height:100dvh;overflow:hidden;background:linear-gradient(160deg,#0e3d5a 0%,#1a6080 60%,#0a2e45 100%);font-family:'Malgun Gothic',sans-serif;">
-
-    <!-- ── 상단 헤더 ── -->
-    <div class="flex items-center px-3 py-1.5 flex-shrink-0 gap-2"
-      style="background:rgba(0,0,0,.6);border-bottom:1px solid rgba(255,255,255,.1);">
-      <button @click="$router.back()" class="text-white/50 hover:text-white text-sm w-7">◀</button>
-      <span class="text-yellow-300 font-black tracking-wider text-sm">맞고</span>
-      <span class="text-white/30 text-xs">vs 컴퓨터</span>
-      <span v-if="phase==='my_turn'" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:#27ae60;color:#fff;">내 차례</span>
-      <span v-else-if="phase==='bot_turn'" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse" style="background:#e74c3c;color:#fff;">컴 생각중...</span>
-      <div class="ml-auto flex items-center gap-2">
-        <div class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px]" style="background:rgba(0,0,0,.5)">
-          <img src="/images/hwatu/back.svg" style="width:9px;height:13px;border-radius:2px;display:inline-block;" />
-          <span class="text-white font-bold">패더미 {{ deckLeft }}장</span>
-        </div>
-        <button @click="initGame" class="text-[11px] font-bold px-2.5 py-1 rounded" style="background:linear-gradient(180deg,#f39c12,#e67e22);color:#fff;">새게임</button>
+  <GameShell title="맞고" icon="🎴" theme="dark" fullscreen
+    bg="linear-gradient(160deg,#0e3d5a 0%,#1a6080 60%,#0a2e45 100%)">
+    <template #meta>
+      <span v-if="phase==='my_turn'" class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:#27ae60;color:#fff;">내 차례</span>
+      <span v-else-if="phase==='bot_turn'" class="px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse" style="background:#e74c3c;color:#fff;">컴 생각중...</span>
+      <div class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px]" style="background:rgba(0,0,0,.5)">
+        <img src="/images/hwatu/back.svg" style="width:9px;height:13px;border-radius:2px;display:inline-block;" />
+        <span class="text-white font-bold">패더미 {{ deckLeft }}장</span>
       </div>
-    </div>
+      <button @click="initGame" class="text-[11px] font-bold px-2.5 py-1 rounded" style="background:linear-gradient(180deg,#f39c12,#e67e22);color:#fff;">새게임</button>
+    </template>
+  <div class="flex flex-col select-none"
+    style="flex:1;overflow:hidden;font-family:'Malgun Gothic',sans-serif;">
 
     <!-- ── 딜 화면 ── -->
     <div v-if="phase==='dealing'" class="flex-1 flex flex-col items-center justify-center gap-5">
@@ -289,10 +283,12 @@
       </div>
     </template>
   </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import GameShell from '../../components/GameShell.vue'
 
 // ── 사운드 ─────────────────────────────────────────────────────────────────────
 let _ac = null
