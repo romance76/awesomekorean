@@ -2,13 +2,15 @@
 <div class="casino-lobby">
   <!-- 헤더 -->
   <header class="cl-header">
-    <button class="cl-back" @click="$router.push('/games')"><AppIcon name="arrow-left" :size="14" /> 게임 홈</button>
-    <h1 class="cl-title">🎰 AwesomeKorean 카지노</h1>
-    <div class="cl-wallet" v-if="auth.isLoggedIn">
-      <span class="wallet-item" title="포인트">🪙 {{ pointsFmt }}</span>
-      <span class="wallet-item wallet-chip" title="게임머니">💰 {{ chipsFmt }}</span>
+    <div class="cl-header-inner">
+      <button class="cl-back" @click="$router.push('/games')"><AppIcon name="arrow-left" :size="14" /> 게임 홈</button>
+      <h1 class="cl-title">🎰 AwesomeKorean 카지노</h1>
+      <div class="cl-wallet" v-if="auth.isLoggedIn">
+        <span class="wallet-item" title="포인트">🪙 {{ pointsFmt }}</span>
+        <span class="wallet-item wallet-chip" title="게임머니">💰 {{ gameMoneyFmt }}</span>
+      </div>
+      <RouterLink v-else to="/login" class="cl-login">로그인</RouterLink>
     </div>
-    <RouterLink v-else to="/login" class="cl-login">로그인</RouterLink>
   </header>
 
   <!-- 안내 배너 -->
@@ -18,7 +20,7 @@
       <div class="intro-sub">포커 · 홀덤 · 고스톱 · 블랙잭 — 원하는 베팅 금액을 선택하고 입장하세요</div>
     </div>
     <div class="intro-right">
-      <button class="exchange-btn" @click="showExchange = true"><AppIcon name="coins" :size="14" /> 포인트 환전</button>
+      <button class="exchange-btn" @click="showExchange = true"><AppIcon name="coins" :size="14" /> 게임머니 환전</button>
     </div>
   </section>
 
@@ -46,16 +48,18 @@
         </div>
       </div>
 
-      <!-- 요구 칩 + 입장 -->
+      <!-- 요구 게임머니(또는 포커칩) + 입장 -->
       <div class="enter-row">
         <div class="require-info">
           <span class="req-label">필요</span>
-          <span class="req-value" :class="{ insufficient: selectedBet[g.key] > chips }">💰 {{ fmt(selectedBet[g.key]) }}</span>
+          <span class="req-value" :class="{ insufficient: selectedBet[g.key] > balanceFor(g) }">
+            {{ g.currency === 'chips' ? '🃏' : '💰' }} {{ fmt(selectedBet[g.key]) }}
+          </span>
         </div>
         <button class="enter-btn"
-          :disabled="!auth.isLoggedIn || selectedBet[g.key] > chips"
+          :disabled="!auth.isLoggedIn || selectedBet[g.key] > balanceFor(g)"
           @click="enter(g)">
-          {{ !auth.isLoggedIn ? '로그인 필요' : selectedBet[g.key] > chips ? '칩 부족' : '입장하기 →' }}
+          {{ !auth.isLoggedIn ? '로그인 필요' : selectedBet[g.key] > balanceFor(g) ? (g.currency === 'chips' ? '포커칩 부족' : '게임머니 부족') : '입장하기 →' }}
         </button>
       </div>
     </div>
@@ -87,7 +91,7 @@
   </section>
 
   <!-- 환전 모달 -->
-  <GameMoneyExchange v-if="showExchange" @close="onExchangeClose" />
+  <GameMoneyExchange :show="showExchange" @close="onExchangeClose" />
 </div>
 </template>
 
@@ -101,7 +105,8 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
-const chips = ref(0)
+const gameMoney = ref(0)   // users.game_points — 텍사스 홀덤·고스톱·블랙잭·슬롯머신이 쓰는 게임머니(환전 대상)
+const pokerChips = ref(0)  // poker_wallets.chips_balance — 토너먼트 포커 전용 별도 지갑
 const showExchange = ref(false)
 
 const games = [
@@ -113,6 +118,7 @@ const games = [
     typeLabel: 'PvP',
     bets: [100, 500, 1000, 5000],
     path: '/games/poker',
+    currency: 'chips', // 포커 전용 지갑(칩 지갑) — 게임머니와 별도
   },
   {
     key: 'holdem',
@@ -155,13 +161,18 @@ const games = [
 const selectedBet = reactive(Object.fromEntries(games.map(g => [g.key, g.bets[0]])))
 const fmt = (n) => Number(n || 0).toLocaleString()
 const pointsFmt = computed(() => fmt(auth.user?.points || 0))
-const chipsFmt = computed(() => fmt(chips.value))
+const gameMoneyFmt = computed(() => fmt(gameMoney.value))
+const balanceFor = (g) => g.currency === 'chips' ? pokerChips.value : gameMoney.value
 
 async function loadWallet() {
   if (!auth.isLoggedIn) return
   try {
+    const { data } = await axios.get('/api/game-money')
+    gameMoney.value = data.data?.game_points ?? 0
+  } catch {}
+  try {
     const { data } = await axios.get('/api/poker/wallet')
-    chips.value = data.data?.chips ?? data.chips ?? 0
+    pokerChips.value = data.data?.chips_balance ?? 0
   } catch {}
 }
 
@@ -182,11 +193,18 @@ onMounted(loadWallet)
 .casino-lobby { min-height: 100vh; color: #191F28; padding-bottom: 40px; }
 
 .cl-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 20px; background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   border-bottom: 1px solid #F2F4F6;
   backdrop-filter: blur(10px);
   position: sticky; top: 0; z-index: 10;
+}
+/* 헤더 바가 브라우저 전체 폭으로 넓게 퍼져 아래 콘텐츠(max-width:1100px)와
+   폭이 어긋나 보이던 문제 — 내부 콘텐츠를 페이지 본문과 같은 폭으로 제한.
+   배경(블러)만 계속 엣지투엣지로 유지. */
+.cl-header-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
 }
 .cl-back { display: inline-flex; align-items: center; gap: 4px; background: #FFF4EC; border: none; color: #F2570F; padding: 6px 12px; border-radius: 18px; cursor: pointer; font-size: 13px; font-weight: 700; transition: background 0.15s; }
 .cl-back:hover { background: #FFE8DA; }
@@ -260,7 +278,7 @@ onMounted(loadWallet)
 
 @media (max-width: 640px) {
   .cl-title { font-size: 16px; }
-  .cl-header { padding: 10px 12px; }
+  .cl-header-inner { padding: 10px 12px; }
   .cl-intro { margin: 18px auto; }
   .intro-title { font-size: 18px; }
 }
