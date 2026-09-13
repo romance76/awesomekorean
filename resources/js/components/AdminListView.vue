@@ -255,8 +255,9 @@
           </div>
           <div v-if="activeItem.steps?.length">
             <div class="font-bold text-xs text-ink mb-1">조리 순서</div>
-            <div v-for="step in activeItem.steps" :key="step.order" class="mb-1.5">
+            <div v-for="step in activeItem.steps" :key="step.order" class="mb-2">
               <span class="font-semibold">{{ step.order }}.</span> <span class="whitespace-pre-wrap">{{ step.text }}</span>
+              <img v-if="step.image_url" :src="step.image_url" class="mt-1.5 max-h-40 rounded-lg border border-gray-100" @error="e=>e.target.style.display='none'" />
             </div>
           </div>
         </div>
