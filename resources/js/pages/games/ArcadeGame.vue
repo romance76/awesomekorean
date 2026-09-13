@@ -115,26 +115,30 @@ onUnmounted(() => {
 .arcade-header {
   display: flex;
   align-items: center;
-  padding: 8px 14px;
-  background: rgba(0,0,0,0.85);
+  padding: 10px 16px;
+  background: rgba(15,15,25,0.75);
+  backdrop-filter: blur(20px) saturate(160%);
   border-bottom: 1px solid rgba(255,255,255,0.1);
-  min-height: 48px;
+  min-height: 52px;
   z-index: 10;
   flex-shrink: 0;
 }
 .back-btn {
-  background: none;
-  border: none;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  transition: background .15s ease;
 }
+.back-btn:hover { background: rgba(255,255,255,0.18); }
 .game-title {
   color: white;
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 800;
   margin-left: 10px;
   flex: 1;
 }
@@ -145,18 +149,22 @@ onUnmounted(() => {
 }
 .score-badge {
   background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(251,191,36,0.3);
   color: #fbbf24;
-  font-size: 13px;
-  padding: 3px 10px;
-  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
 }
 .points-badge {
-  background: #22c55e;
-  color: #000;
-  font-size: 13px;
-  font-weight: bold;
-  padding: 3px 10px;
-  border-radius: 12px;
+  background-image: linear-gradient(135deg,#4ade80,#16a34a);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px -3px rgba(34,197,94,0.55);
 }
 .game-frame-container {
   flex: 1;
@@ -174,12 +182,15 @@ onUnmounted(() => {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.85);
+  background: rgba(20,20,35,0.75);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(251,191,36,0.3);
   color: #fbbf24;
   font-size: 16px;
   font-weight: bold;
-  padding: 10px 24px;
-  border-radius: 20px;
+  padding: 11px 26px;
+  border-radius: 999px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4);
   z-index: 1000;
   pointer-events: none;
   white-space: nowrap;
