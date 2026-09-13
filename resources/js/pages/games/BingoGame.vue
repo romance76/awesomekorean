@@ -8,20 +8,20 @@
 
       <!-- Status Bar -->
       <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-        <div class="bg-purple-900/60 border border-purple-500 rounded-xl px-5 py-2 text-center">
+        <div class="bg-purple-900/50 backdrop-blur-md border border-purple-500/60 rounded-xl px-5 py-2 text-center shadow-[0_8px_20px_rgba(88,28,135,0.25)]">
           <div class="text-xs text-purple-300">호출된 번호</div>
           <div class="text-2xl font-bold text-yellow-300">{{ calledNumbers.length }} / 75</div>
         </div>
-        <div class="bg-blue-900/60 border border-blue-500 rounded-xl px-5 py-2 text-center">
+        <div class="bg-blue-900/50 backdrop-blur-md border border-blue-500/60 rounded-xl px-5 py-2 text-center shadow-[0_8px_20px_rgba(30,58,138,0.25)]">
           <div class="text-xs text-blue-300">내 빙고</div>
           <div class="text-2xl font-bold text-green-400">{{ playerBingos }}</div>
         </div>
-        <div class="bg-red-900/60 border border-red-500 rounded-xl px-5 py-2 text-center">
+        <div class="bg-red-900/50 backdrop-blur-md border border-red-500/60 rounded-xl px-5 py-2 text-center shadow-[0_8px_20px_rgba(127,29,29,0.25)]">
           <div class="text-xs text-red-300">컴퓨터 빙고</div>
           <div class="text-2xl font-bold text-red-400">{{ computerBingos }}</div>
         </div>
         <div v-if="lastCalledNumber !== null"
-          class="bg-yellow-500/20 border border-yellow-400 rounded-xl px-5 py-2 text-center"
+          class="bg-yellow-500/15 backdrop-blur-md border border-yellow-400/60 rounded-xl px-5 py-2 text-center shadow-[0_8px_20px_rgba(202,138,4,0.25)]"
           :class="{ 'animate-bounce': justCalled }">
           <div class="text-xs text-yellow-300">최근 호출</div>
           <div class="text-3xl font-bold text-yellow-300">{{ lastCalledNumber }}</div>
@@ -70,7 +70,7 @@
             <span class="bg-blue-700 text-white font-bold px-4 py-1 rounded-full text-sm shadow">👤 나의 카드</span>
             <span v-if="playerBingos > 0" class="ml-2 text-green-400 text-sm font-bold">✨ {{ playerBingos }}빙고!</span>
           </div>
-          <div class="bg-blue-950/60 border-2 border-blue-600 rounded-2xl p-3 shadow-2xl">
+          <div class="bg-blue-950/50 backdrop-blur-md border-2 border-blue-600/70 rounded-2xl p-3 shadow-2xl">
             <!-- Column Headers -->
             <div class="grid grid-cols-5 mb-1">
               <div v-for="col in COLS" :key="col"
@@ -103,7 +103,7 @@
             <span class="bg-red-700 text-white font-bold px-4 py-1 rounded-full text-sm shadow">🤖 컴퓨터 카드</span>
             <span v-if="computerBingos > 0" class="ml-2 text-red-400 text-sm font-bold">✨ {{ computerBingos }}빙고!</span>
           </div>
-          <div class="bg-red-950/60 border-2 border-red-700 rounded-2xl p-3 shadow-2xl">
+          <div class="bg-red-950/50 backdrop-blur-md border-2 border-red-700/70 rounded-2xl p-3 shadow-2xl">
             <!-- Column Headers -->
             <div class="grid grid-cols-5 mb-1">
               <div v-for="col in COLS" :key="col"
@@ -131,7 +131,7 @@
         <h3 class="text-center text-purple-300 text-sm mb-3 font-semibold">
           📋 호출된 번호 목록 ({{ calledNumbers.length }}/75)
         </h3>
-        <div class="bg-purple-900/40 border border-purple-700 rounded-xl p-4">
+        <div class="bg-purple-900/30 backdrop-blur-md border border-purple-700/60 rounded-xl p-4 shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
           <div class="grid grid-cols-5 gap-2">
             <div v-for="(colNums, colName) in calledByColumn" :key="colName">
               <div class="text-center font-black text-yellow-300 text-sm mb-1">{{ colName }}</div>
@@ -152,8 +152,8 @@
     <Transition name="modal">
       <div v-if="gameOver" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4"
         @click.self="() => {}">
-        <div class="bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900
-                    border-2 border-yellow-400 rounded-2xl p-8 text-center max-w-sm w-full shadow-2xl">
+        <div class="bg-gradient-to-br from-purple-900/90 via-indigo-900/90 to-blue-900/90 backdrop-blur-xl
+                    border-2 border-yellow-400/80 rounded-2xl p-8 text-center max-w-sm w-full shadow-2xl">
           <div class="text-7xl mb-4">{{ winner === 'player' ? '🏆' : '😢' }}</div>
           <h2 class="text-3xl font-black mb-3"
             :class="winner === 'player' ? 'text-yellow-300' : 'text-red-400'">
