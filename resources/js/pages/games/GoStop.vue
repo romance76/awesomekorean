@@ -20,7 +20,7 @@
 
       <div class="space-y-4">
         <!-- 컴퓨터 대전 -->
-        <router-link to="/games/gostop/solo"
+        <router-link :to="{ path: '/games/gostop/solo', query: $route.query }"
           class="block w-full bg-green-700 hover:bg-green-600 rounded-2xl p-5 transition-all transform hover:scale-[1.02]">
           <div class="flex items-center gap-4">
             <div class="text-4xl">🤖</div>

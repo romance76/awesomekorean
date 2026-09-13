@@ -20,7 +20,7 @@
 
       <!-- 상태 메시지 -->
       <div class="status-row">
-        <div v-if="lastWin > 0" class="win-banner">🎉 +{{ lastWin.toLocaleString() }} 코인!</div>
+        <div v-if="lastWin > 0" class="win-banner">🎉 +{{ lastWin.toLocaleString() }} 게임머니!</div>
         <div v-else-if="spinning.some(s => s)" class="spin-banner">돌리는 중...</div>
         <div v-else-if="lastResult === 'loss'" class="loss-banner">아쉬워요 😢</div>
         <div v-else class="idle-banner">스핀 버튼을 누르세요 ↓</div>
@@ -60,24 +60,28 @@
 
       <!-- 잔액 부족 안내 -->
       <div v-if="coin < bet" class="low-coin">
-        코인이 부족합니다. 일일 룰렛으로 무료 코인을 받으세요!
+        게임머니가 부족합니다. 카지노 대기실에서 환전해 주세요!
       </div>
+      <div v-if="errorMsg" class="low-coin">{{ errorMsg }}</div>
     </div>
   </div>
 </GameShell>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, onMounted } from 'vue'
+import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 
+// 실제 당첨 판정은 서버(/api/games/slots/spin)가 수행 — 여기 심볼 목록은
+// 릴이 도는 동안 보여줄 애니메이션용일 뿐, 결과 결정에는 쓰이지 않음.
 const SYMBOLS = ['💎','7️⃣','⭐','🔔','🍒','🍋','🍉']
-const PAYOUTS = { '💎':100, '7️⃣':50, '⭐':20, '🔔':15, '🍒':10, '🍋':8, '🍉':6 }
 
 const bets = [10, 50, 100, 500]
 const bet = ref(10)
-const coin = ref(parseInt(localStorage.getItem('slots_coin') || '1000'))
+const coin = ref(0)
 const coinStr = computed(() => coin.value.toLocaleString())
+const errorMsg = ref('')
 
 const reels = ref(['🍒','🍋','🍉'])
 const spinning = reactive([false, false, false])
@@ -88,6 +92,13 @@ const lastResult = ref(null)
 const anySpinning = computed(() => spinning.some(s => s))
 
 function randSymbol() { return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)] }
+
+async function loadBalance() {
+  try {
+    const { data } = await axios.get('/api/wallet/balance')
+    coin.value = data.chip || 0
+  } catch {}
+}
 
 function playSound(type) {
   try {
@@ -120,23 +131,24 @@ function playSound(type) {
   } catch {}
 }
 
-function calcWin(a, b, c) {
-  if (a === b && b === c) return (PAYOUTS[a] || 1) * bet.value
-  if (a === b || b === c || a === c) return 2 * bet.value
-  return 0
-}
-
-function spin() {
+async function spin() {
   if (anySpinning.value || coin.value < bet.value) return
-
-  coin.value -= bet.value
+  errorMsg.value = ''
   lastWin.value = 0
   lastResult.value = null
 
-  // 결과 미리 뽑기
-  const targets = [randSymbol(), randSymbol(), randSymbol()]
+  // 실제 당첨 여부는 서버가 베팅액을 차감하고 심볼을 뽑아 정산까지 마친 뒤 알려줌
+  let result
+  try {
+    const { data } = await axios.post('/api/games/slots/spin', { bet: bet.value })
+    result = data.data
+  } catch (e) {
+    errorMsg.value = e.response?.data?.message || '스핀 처리 중 오류가 발생했습니다'
+    return
+  }
+  const targets = result.symbols
 
-  // 각 릴 애니메이션
+  // 릴 애니메이션 — 서버가 이미 정한 결과를 보여주기만 함
   spinning[0] = spinning[1] = spinning[2] = true
   const durations = [800, 1100, 1400]
   for (let i = 0; i < 3; i++) {
@@ -148,25 +160,25 @@ function spin() {
         clearInterval(iv)
         reels.value[i] = targets[i]
         spinning[i] = false
-        if (i === 2) settle(targets)
+        if (i === 2) settle(result)
       }
     }, 80)
   }
 }
 
-function settle(targets) {
-  const win = calcWin(...targets)
-  if (win > 0) {
-    coin.value += win
-    lastWin.value = win
+function settle(result) {
+  coin.value = result.game_points
+  if (result.win > 0) {
+    lastWin.value = result.win
     lastResult.value = 'win'
     playSound('win')
   } else {
     lastResult.value = 'loss'
     playSound('loss')
   }
-  localStorage.setItem('slots_coin', coin.value)
 }
+
+onMounted(loadBalance)
 </script>
 
 <style scoped>

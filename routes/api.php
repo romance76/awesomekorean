@@ -40,6 +40,7 @@ use App\Http\Controllers\API\ConversationController;
 use App\Http\Controllers\API\CallController;
 use App\Http\Controllers\API\UserBlockController;
 use App\Http\Controllers\API\PlacesController;
+use App\Http\Controllers\API\CasinoGameController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Cache;
 
@@ -369,6 +370,11 @@ Route::middleware('auth:api')->group(function () {
         return response()->json(['coin' => $u->points, 'chip' => $u->game_points, 'gem' => 0, 'star' => 0]);
     });
     Route::post('/wallet/daily-bonus', [PointController::class, 'dailySpin']);
+
+    // 슬롯머신 · 맞고 — 게임머니(game_points) 서버 정산
+    Route::post('/games/slots/spin', [CasinoGameController::class, 'slotsSpin'])->middleware('throttle:30,1');
+    Route::post('/games/gostop/start', [CasinoGameController::class, 'gostopStart'])->middleware('throttle:20,1');
+    Route::post('/games/gostop/settle', [CasinoGameController::class, 'gostopSettle'])->middleware('throttle:20,1');
 
     // Games
     Route::post('/games/scores', [GameScoreController::class, 'store']);
