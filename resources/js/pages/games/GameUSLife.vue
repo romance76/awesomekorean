@@ -108,6 +108,7 @@ function shuffle(a){const r=[...a];for(let i=r.length-1;i>0;i--){const j=Math.fl
 function startGame() {
   score.value=0; correct.value=0; leveled.value=false; qIdx.value=0
   queue=shuffle(getPool()).slice(0,totalQ.value)
+  totalQ.value = queue.length // 낮은 레벨은 문제은행이 10개보다 적을 수 있어 실제 큐 길이로 맞춤 — 안 맞추면 배열 끝을 넘어가 크래시남
   rec.start(level.value)
   phase.value='play'; nextQuestion()
 }
