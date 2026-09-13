@@ -240,6 +240,38 @@
           </div>
         </div>
 
+        <!-- 별점 (업소록 등) -->
+        <div v-if="!editMode && activeItem.rating !== undefined && activeItem.rating !== null" class="px-4 pb-2 flex items-center gap-1 text-sm">
+          <span class="text-amber-400">{{ '★'.repeat(Math.round(activeItem.rating)) }}{{ '☆'.repeat(5 - Math.round(activeItem.rating)) }}</span>
+          <span class="font-semibold text-ink">{{ activeItem.rating }}</span>
+          <span class="text-xs text-ink-muted">({{ activeItem.review_count || 0 }}개 리뷰)</span>
+        </div>
+
+        <!-- 연락처 정보 (업소록·구인구직·부동산 등) -->
+        <div v-if="!editMode && (activeItem.phone || activeItem.address || activeItem.website || activeItem.email || activeItem.contact_phone || activeItem.contact_email)"
+          class="px-4 pb-2 text-xs text-ink-light space-y-1">
+          <div v-if="activeItem.phone || activeItem.contact_phone" class="flex items-center gap-1.5"><AppIcon name="phone" :size="12" class="text-ink-muted" />{{ activeItem.phone || activeItem.contact_phone }}</div>
+          <div v-if="activeItem.address" class="flex items-center gap-1.5"><AppIcon name="map-pin" :size="12" class="text-ink-muted" />{{ activeItem.address }}</div>
+          <div v-if="activeItem.website" class="flex items-center gap-1.5 truncate"><AppIcon name="globe" :size="12" class="text-ink-muted" /><a :href="activeItem.website" target="_blank" class="text-blue-600 hover:underline truncate">{{ activeItem.website }}</a></div>
+          <div v-if="activeItem.email || activeItem.contact_email" class="flex items-center gap-1.5"><AppIcon name="mail" :size="12" class="text-ink-muted" />{{ activeItem.email || activeItem.contact_email }}</div>
+        </div>
+
+        <!-- 영업시간 (업소록) -->
+        <div v-if="!editMode && activeItem.hours && Object.keys(activeItem.hours).length" class="px-4 pb-2">
+          <div class="text-xs font-bold text-ink mb-1 flex items-center gap-1"><AppIcon name="clock" :size="12" class="text-ink-muted" />영업시간</div>
+          <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-ink-muted">
+            <div v-for="(time, day) in activeItem.hours" :key="day" class="flex justify-between">
+              <span>{{ day }}</span><span>{{ time }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 원문 출처 (뉴스) -->
+        <div v-if="!editMode && activeItem.source" class="px-4 pb-2 text-xs text-ink-muted flex items-center gap-1.5">
+          <AppIcon name="external-link" :size="12" />출처: {{ activeItem.source }}
+          <a v-if="activeItem.source_url" :href="activeItem.source_url" target="_blank" class="text-blue-600 hover:underline">원문 보기</a>
+        </div>
+
         <!-- 이미지 (게시판마다 필드명이 다름 — displayImages가 전부 흡수) -->
         <div v-if="!editMode && displayImages.length === 1" class="px-4 pb-2">
           <img :src="displayImages[0]" class="w-full max-h-48 object-cover rounded-lg" @error="e=>e.target.style.display='none'" />
@@ -265,6 +297,20 @@
           </div>
         </div>
         <div v-else-if="!editMode" class="px-4 py-3 border-t border-gray-100 text-sm text-ink-faint">(내용 없음)</div>
+
+        <!-- 리뷰 (업소록 — 사이트 자체 리뷰 + 구글 리뷰) -->
+        <div v-if="siteAndGoogleReviews.length" class="px-4 py-3 border-t border-gray-100">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-ink mb-2"><AppIcon name="star" :size="13" class="text-amber-400" />리뷰 {{ siteAndGoogleReviews.length }}개</div>
+          <div class="space-y-2 max-h-[250px] overflow-y-auto">
+            <div v-for="(r, i) in siteAndGoogleReviews" :key="i" class="border border-gray-100 rounded-lg p-2 bg-gray-50">
+              <div class="flex items-center gap-1.5 text-[11px] mb-0.5">
+                <span class="font-semibold text-ink">{{ r.user?.name || r.author || '익명' }}</span>
+                <span class="text-amber-400">{{ '★'.repeat(r.rating || 0) }}</span>
+              </div>
+              <div class="text-xs text-ink-light">{{ r.content || r.text }}</div>
+            </div>
+          </div>
+        </div>
 
         <!-- 댓글 + 답글 -->
         <div v-if="detailData?.comments" class="px-4 py-3 border-t border-gray-100">
@@ -472,6 +518,13 @@ const displayImages = computed(() => {
   const single = item.image_url || item.thumbnail || item.thumbnail_url || item.cover_image || item.image || item.logo
   const resolved = resolveImgSrc(single)
   return resolved ? [resolved] : []
+})
+
+// 업소록의 자체 별점 리뷰(reviews)와 구글 리뷰(google_reviews)를 하나로 합쳐 표시
+const siteAndGoogleReviews = computed(() => {
+  const site = activeItem.value?.reviews || []
+  const google = activeItem.value?.google_reviews || []
+  return [...site, ...google]
 })
 
 const commentTotalCount = computed(() => {
