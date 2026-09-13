@@ -10,26 +10,28 @@
     title, icon, level, score, bg(그라디언트), theme('light'|'dark'), back(경로), fullscreen(bool)
 -->
 <div :class="['game-shell', `theme-${theme}`, fullscreen ? 'is-fullscreen' : 'is-card']" :style="fullscreen && bg ? { background: bg } : {}">
-  <div class="shell-header">
-    <button class="shell-back" @click="onBack" aria-label="뒤로">
-      <span class="arrow">←</span>
-      <span class="label">뒤로</span>
-    </button>
-    <div class="shell-title">
-      <span v-if="icon" class="shell-icon">{{ icon }}</span>
-      <span>{{ title }}</span>
+  <div class="shell-inner">
+    <div class="shell-header">
+      <button class="shell-back" @click="onBack" aria-label="뒤로">
+        <span class="arrow">←</span>
+        <span class="label">뒤로</span>
+      </button>
+      <div class="shell-title">
+        <span v-if="icon" class="shell-icon">{{ icon }}</span>
+        <span>{{ title }}</span>
+      </div>
+      <div class="shell-meta">
+        <slot name="meta">
+          <span v-if="level !== null && level !== undefined" class="shell-badge badge-lv">Lv.{{ level }}</span>
+          <span v-if="score !== null && score !== undefined" class="shell-badge badge-score">⭐ {{ score }}</span>
+          <span v-if="points !== null && points !== undefined" class="shell-badge badge-pts">🪙 {{ points }}</span>
+        </slot>
+      </div>
     </div>
-    <div class="shell-meta">
-      <slot name="meta">
-        <span v-if="level !== null && level !== undefined" class="shell-badge badge-lv">Lv.{{ level }}</span>
-        <span v-if="score !== null && score !== undefined" class="shell-badge badge-score">⭐ {{ score }}</span>
-        <span v-if="points !== null && points !== undefined" class="shell-badge badge-pts">🪙 {{ points }}</span>
-      </slot>
-    </div>
-  </div>
 
-  <div class="shell-body" :style="!fullscreen && bg ? { background: bg } : {}">
-    <slot />
+    <div class="shell-body" :style="!fullscreen && bg ? { background: bg } : {}">
+      <slot />
+    </div>
   </div>
 </div>
 </template>
@@ -66,13 +68,16 @@ function onBack() {
 .game-shell.is-fullscreen.theme-dark { background: #0b1020; color: #f3f4f6; }
 
 .shell-header {
-  position: sticky; top: 0; z-index: 20;
+  position: relative; z-index: 20;
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 14px; backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.75);
   border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 .theme-dark .shell-header { background: rgba(11, 16, 32, 0.85); border-color: rgba(255,255,255,0.08); }
+/* 전체창(fullscreen) 모드에서만 상단 고정 내비바로 동작 — 카드형은
+   shell-inner 카드 안에 얹혀 있으므로 sticky를 주지 않음 */
+.is-fullscreen .shell-header { position: sticky; top: 0; }
 
 .shell-back {
   display: inline-flex; align-items: center; gap: 4px;
@@ -105,16 +110,19 @@ function onBack() {
 .theme-dark .badge-score { background: rgba(251,191,36,0.2); color: #fcd34d; }
 .theme-dark .badge-pts { background: rgba(251,191,36,0.2); color: #fcd34d; }
 
+.shell-inner { flex: 1; display: flex; flex-direction: column; }
 .shell-body { flex: 1; display: flex; flex-direction: column; }
 
 /* 카드형: 사이트 배경 위에 게임 고유 색(bg prop)을 담은 둥근 카드로 표시 —
-   게임 화면이 브라우저 전체 폭을 차지해 별도 페이지로 전환된 것처럼 보이던
-   문제 수정. 카드 밖으로는 사이트의 중립 배경이 계속 보임. */
-.is-card .shell-body {
+   헤더와 바디를 shell-inner 하나로 묶어 같은 폭/모서리/그림자를 공유하게
+   해서 "두 개의 서로 다른 폭의 띠"로 보이던 문제 수정. 카드 밖으로는
+   사이트의 중립 배경이 계속 보임. */
+.is-card .shell-inner {
   max-width: 900px; margin: 16px auto; width: calc(100% - 32px);
-  padding: 16px; border-radius: 20px; overflow: hidden;
+  border-radius: 20px; overflow: hidden;
   box-shadow: 0 4px 24px rgba(0,0,0,0.10);
 }
+.is-card .shell-body { padding: 16px; }
 /* 전체창: 여백 없음, 엣지투엣지 그대로 유지 */
 .is-fullscreen .shell-body { padding: 0; }
 
