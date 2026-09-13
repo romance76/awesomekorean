@@ -65,16 +65,17 @@ function showToast(msg, duration = 3000) {
 async function saveScore(score) {
   lastScore.value = Math.max(lastScore.value, score)
   try {
-    const points = Math.max(1, Math.floor(score * props.pointsPerScore / 100))
-    if (props.gameId) {
-      await axios.post(`/api/games/${props.gameId}/score`, { score, points })
-      pointsEarned.value += points
-      showToast(`점수 저장! +${points}P`)
-    } else {
-      showToast(`점수: ${score}`)
-    }
+    // 예전엔 존재하지 않는 /api/games/{id}/score 로 보내 매번 조용히 실패했고(포인트가
+    // 실제로 지급된 적 없음), 클라이언트가 직접 계산한 포인트를 서버가 그대로 믿는
+    // 구조였음 — 다른 모든 게임이 이미 쓰고 있는 공용 채점 API(관리자 게임별 포인트
+    // 설정을 서버에서 직접 계산)로 통일.
+    const { data } = await axios.post('/api/games/scores', { game_type: props.gameSlug, score })
+    const points = data.data?.points_earned ?? 0
+    pointsEarned.value += points
+    showToast(points > 0 ? `점수 저장! +${points}P` : `점수 저장! ${score}점`)
   } catch (e) {
     console.error('score save error', e)
+    showToast(`점수: ${score}`)
   }
 }
 
