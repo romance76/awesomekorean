@@ -466,9 +466,9 @@ onUnmounted(() => {
 .meta-progress-track { height: 6px; background: #E9D5FF; border-radius: 6px; overflow: hidden; }
 .meta-progress-fill { height: 100%; background: linear-gradient(90deg, #A855F7, #EC4899); border-radius: 6px; transition: width 0.4s ease; }
 
-.meta-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; white-space: nowrap; }
+.meta-badge { font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 999px; white-space: nowrap; box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
 .level-badge { color: #7C3AED; background: linear-gradient(135deg, #EDE9FE, #DDD6FE); border: 1px solid #A855F7; }
-.score-badge { color: #F59E0B; background: #FFFBEB; border: 1px solid #FDE68A; }
+.score-badge { color: #F59E0B; background: linear-gradient(135deg, #FFFBEB, #FEF3C7); border: 1px solid #FDE68A; }
 
 /* Timer */
 .timer-wrap {
@@ -566,11 +566,13 @@ onUnmounted(() => {
 .letter-type-badge {
   font-size: 16px;
   font-weight: 700;
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(10px);
   color: #6D28D9;
-  padding: 5px 16px;
-  border-radius: 20px;
-  border: 2px solid #DDD6FE;
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(221,214,254,0.8);
+  box-shadow: 0 6px 16px rgba(124,58,237,0.1);
 }
 
 .tap-hint {
@@ -658,12 +660,13 @@ onUnmounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(18px) saturate(160%);
   border-radius: 30px;
   padding: 30px 50px;
   text-align: center;
   z-index: 50;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.22);
   pointer-events: none;
 }
 
