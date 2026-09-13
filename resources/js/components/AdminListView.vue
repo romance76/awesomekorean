@@ -246,7 +246,21 @@
         </div>
 
         <!-- 본문 -->
-        <div v-if="!editMode" class="px-4 py-3 border-t border-gray-100 text-sm text-ink-light leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto">{{ activeItem.content || activeItem.description || '(내용 없음)' }}</div>
+        <div v-if="!editMode && (activeItem.content || activeItem.description)" class="px-4 py-3 border-t border-gray-100 text-sm text-ink-light leading-relaxed whitespace-pre-wrap max-h-[300px] overflow-y-auto">{{ activeItem.content || activeItem.description }}</div>
+        <!-- 레시피는 content/description이 아니라 ingredients/steps에 실제 내용이 있음 -->
+        <div v-else-if="!editMode && (activeItem.ingredients || activeItem.steps?.length)" class="px-4 py-3 border-t border-gray-100 text-sm text-ink-light max-h-[300px] overflow-y-auto space-y-3">
+          <div v-if="activeItem.ingredients">
+            <div class="font-bold text-xs text-ink mb-1">재료{{ activeItem.servings ? ` (${activeItem.servings})` : '' }}</div>
+            <div class="whitespace-pre-wrap leading-relaxed">{{ activeItem.ingredients }}</div>
+          </div>
+          <div v-if="activeItem.steps?.length">
+            <div class="font-bold text-xs text-ink mb-1">조리 순서</div>
+            <div v-for="step in activeItem.steps" :key="step.order" class="mb-1.5">
+              <span class="font-semibold">{{ step.order }}.</span> <span class="whitespace-pre-wrap">{{ step.text }}</span>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="!editMode" class="px-4 py-3 border-t border-gray-100 text-sm text-ink-faint">(내용 없음)</div>
 
         <!-- 댓글 + 답글 -->
         <div v-if="detailData?.comments" class="px-4 py-3 border-t border-gray-100">
