@@ -240,9 +240,12 @@
           </div>
         </div>
 
-        <!-- 이미지 (레시피는 image_url이 아니라 thumbnail 필드 사용) -->
-        <div v-if="!editMode && (activeItem.image_url || activeItem.thumbnail)" class="px-4 pb-2">
-          <img :src="activeItem.image_url || activeItem.thumbnail" class="w-full max-h-48 object-cover rounded-lg" @error="e=>e.target.style.display='none'" />
+        <!-- 이미지 (게시판마다 필드명이 다름 — displayImages가 전부 흡수) -->
+        <div v-if="!editMode && displayImages.length === 1" class="px-4 pb-2">
+          <img :src="displayImages[0]" class="w-full max-h-48 object-cover rounded-lg" @error="e=>e.target.style.display='none'" />
+        </div>
+        <div v-else-if="!editMode && displayImages.length > 1" class="px-4 pb-2 flex gap-1.5 overflow-x-auto">
+          <img v-for="(img, i) in displayImages" :key="i" :src="img" class="h-40 rounded-lg object-cover flex-shrink-0" @error="e=>e.target.style.display='none'" />
         </div>
 
         <!-- 본문 -->
@@ -447,6 +450,30 @@ const showMoveModal = ref(false)
 const newCategory = ref('')
 
 const actions = computed(() => detailData.value?.actions || {})
+
+// 게시판마다 이미지 필드명이 제각각(image_url/thumbnail/thumbnail_url/
+// cover_image/logo/images 배열) — 실제 사용자 페이지들이 쓰는 필드를 전부
+// 폴백으로 모아 어떤 게시판이든 상세보기에서 이미지가 보이도록 함.
+function resolveImgSrc(p) {
+  if (!p) return null
+  const s = String(p)
+  // 단일 필드(image_url/thumbnail 등)는 저장 시 이미 '/storage/...' 또는 완전한
+  // URL로 저장되지만, images 배열 필드는 '/storage/' 없이 상대경로만 저장됨
+  // (storeCompressedImageRaw) — 이미 절대경로/외부URL인 건 그대로 두고 상대경로만 보정.
+  if (s.startsWith('http') || s.startsWith('/')) return s
+  return `/storage/${s}`
+}
+const displayImages = computed(() => {
+  const item = activeItem.value
+  if (!item) return []
+  if (Array.isArray(item.images) && item.images.length) {
+    return item.images.map(resolveImgSrc).filter(Boolean)
+  }
+  const single = item.image_url || item.thumbnail || item.thumbnail_url || item.cover_image || item.image || item.logo
+  const resolved = resolveImgSrc(single)
+  return resolved ? [resolved] : []
+})
+
 const commentTotalCount = computed(() => {
   const cs = detailData.value?.comments || []
   return cs.reduce((sum, c) => sum + 1 + (c.replies?.length || 0), 0)
