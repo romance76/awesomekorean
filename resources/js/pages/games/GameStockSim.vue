@@ -206,21 +206,22 @@ function goBack() { router.push('/games') }
 
 <style scoped>
 .stock-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; color:#fff; }
-.level-badge,.cash-badge { background:rgba(255,255,255,0.15); color:#fff; padding:4px 10px; border-radius:14px; font-weight:800; font-size:11px; white-space:nowrap; }
+.level-badge,.cash-badge { background:rgba(255,255,255,0.1); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.14); color:#fff; padding:5px 12px; border-radius:999px; font-weight:800; font-size:11px; white-space:nowrap; }
 .center-box { text-align:center; padding:40px 20px; }
-.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
+.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .subtitle { color:rgba(255,255,255,0.7); font-size:16px; }
 .level-info { color:#60a5fa; margin:12px 0; font-size:15px; }
-.start-btn { background:#10b981; color:#fff; border:none; padding:14px 40px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; }
+.start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; box-shadow:0 12px 28px -8px rgba(16,185,129,0.55), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease; }
+.start-btn:hover { transform:translateY(-2px); }
 .play-area { max-width:480px; margin:0 auto; }
-.day-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:10px 14px; background:rgba(255,255,255,0.07); border-radius:12px; }
+.day-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding:11px 16px; background:rgba(255,255,255,0.06); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.1); border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,0.15); }
 .day-label { font-size:14px; color:rgba(255,255,255,0.7); }
 .portfolio-value { font-size:14px; }
 .portfolio-value strong { font-size:16px; }
 .profit { color:#10b981; }
 .loss { color:#ef4444; }
-.stocks-list { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
-.stock-card { background:rgba(255,255,255,0.08); border-radius:14px; padding:14px; }
+.stocks-list { display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+.stock-card { background:rgba(255,255,255,0.06); backdrop-filter:blur(14px) saturate(160%); border:1px solid rgba(255,255,255,0.1); border-radius:18px; padding:14px; box-shadow:0 10px 26px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06); }
 .stock-top { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
 .stock-icon { font-size:28px; }
 .stock-info { flex:1; }
@@ -231,18 +232,21 @@ function goBack() { router.push('/games') }
 .change-badge { font-size:12px; font-weight:600; }
 .stock-holding { font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:8px; }
 .stock-actions { display:flex; gap:8px; }
-.buy-btn,.sell-btn { flex:1; padding:8px; border:none; border-radius:8px; font-size:14px; font-weight:700; cursor:pointer; }
-.buy-btn { background:#10b981; color:#fff; }
-.buy-btn:disabled { background:#374151; color:#6b7280; cursor:not-allowed; }
-.sell-btn { background:#ef4444; color:#fff; }
-.sell-btn:disabled { background:#374151; color:#6b7280; cursor:not-allowed; }
-.next-day-btn { width:100%; padding:14px; background:#3b82f6; color:#fff; border:none; border-radius:12px; font-size:17px; font-weight:700; cursor:pointer; }
+.buy-btn,.sell-btn { flex:1; padding:9px; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; transition:transform .15s ease; }
+.buy-btn:hover:not(:disabled),.sell-btn:hover:not(:disabled) { transform:translateY(-1px); }
+.buy-btn { background-image:linear-gradient(135deg,#34d399,#059669); color:#fff; box-shadow:0 6px 14px -4px rgba(16,185,129,0.5); }
+.buy-btn:disabled { background:rgba(255,255,255,0.08); color:#6b7280; cursor:not-allowed; box-shadow:none; }
+.sell-btn { background-image:linear-gradient(135deg,#f87171,#dc2626); color:#fff; box-shadow:0 6px 14px -4px rgba(239,68,68,0.5); }
+.sell-btn:disabled { background:rgba(255,255,255,0.08); color:#6b7280; cursor:not-allowed; box-shadow:none; }
+.next-day-btn { width:100%; padding:14px; background-image:linear-gradient(135deg,#60a5fa,#2563eb); color:#fff; border:none; border-radius:14px; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 10px 24px -8px rgba(37,99,235,0.5); transition:transform .15s ease; }
+.next-day-btn:hover { transform:translateY(-2px); }
 .result-box { text-align:center; padding:40px 20px; }
 .res-title { font-size:22px; font-weight:700; margin:10px 0; }
 .res-amount { font-size:48px; font-weight:900; }
 .res-rate { font-size:22px; font-weight:700; margin:8px 0; }
-.levelup { background:#10b981; color:#fff; padding:10px 20px; border-radius:20px; font-weight:800; font-size:18px; margin:14px auto; display:inline-block; }
-.res-btns { display:flex; gap:12px; justify-content:center; margin-top:20px; }
-.rbtn { background:rgba(255,255,255,0.9); color:#0f172a; border:none; padding:12px 28px; border-radius:20px; font-size:16px; font-weight:700; cursor:pointer; }
-.rbtn.home { background:#3b82f6; color:#fff; }
+.levelup { background-image:linear-gradient(135deg,#34d399,#059669); color:#fff; padding:10px 24px; border-radius:999px; font-weight:800; font-size:17px; margin:14px auto; display:inline-block; box-shadow:0 10px 24px -6px rgba(16,185,129,0.5); }
+.res-btns { display:flex; gap:12px; justify-content:center; margin-top:24px; }
+.rbtn { background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); color:#0f172a; border:none; padding:13px 30px; border-radius:999px; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.15); transition:transform .15s ease; }
+.rbtn:hover { transform:translateY(-2px); }
+.rbtn.home { background-image:linear-gradient(135deg,#60a5fa,#2563eb); color:#fff; }
 </style>

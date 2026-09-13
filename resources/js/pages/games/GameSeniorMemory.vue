@@ -134,16 +134,17 @@ onUnmounted(() => clearInterval(timerInterval))
 .center-box { text-align:center; padding:30px 20px; }
 .title { font-size:40px; color:#831843; font-weight:900; margin:10px 0; }
 .subtitle { color:#9d174d; font-size:18px; }
-.level-info { background:rgba(255,255,255,0.7); border-radius:12px; padding:16px 20px; color:#831843; line-height:2; margin:16px auto; max-width:240px; }
-.start-btn { background:#ec4899; color:#fff; border:none; padding:18px 48px; border-radius:30px; font-size:22px; font-weight:800; cursor:pointer; margin-top:20px; }
+.level-info { background:rgba(255,255,255,0.85); backdrop-filter:blur(10px); border-radius:16px; padding:16px 20px; color:#831843; line-height:2; margin:16px auto; max-width:240px; box-shadow:0 8px 24px rgba(236,72,153,0.12); }
+.start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#f472b6,#ec4899); color:#fff; border:none; padding:18px 48px; border-radius:999px; font-size:22px; font-weight:800; cursor:pointer; margin-top:20px; box-shadow:0 12px 28px -8px rgba(236,72,153,0.55), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease; }
+.start-btn:hover { transform:translateY(-2px); }
 .play-area { display:flex; flex-direction:column; align-items:center; }
 .game-top { display:flex; gap:12px; margin-bottom:16px; }
-.moves-info,.matched-info,.timer-info { background:rgba(255,255,255,0.8); color:#831843; padding:8px 14px; border-radius:12px; font-size:16px; font-weight:700; }
+.moves-info,.matched-info,.timer-info { background:rgba(255,255,255,0.85); backdrop-filter:blur(8px); color:#831843; padding:9px 16px; border-radius:999px; font-size:16px; font-weight:700; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
 .card-grid { display:grid; gap:10px; }
 .big-card { width:76px; height:76px; cursor:pointer; perspective:600px; position:relative; }
-.big-face { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:14px; font-size:36px; backface-visibility:hidden; transition:transform 0.5s; }
-.front { background:rgba(255,255,255,0.8); border:3px solid #f9a8d4; color:#9d174d; font-size:32px; font-weight:900; transform:rotateY(0deg); }
-.back { background:rgba(255,255,255,0.95); border:3px solid #ec4899; transform:rotateY(180deg); }
+.big-face { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:16px; font-size:36px; backface-visibility:hidden; transition:transform 0.5s; }
+.front { background:rgba(255,255,255,0.9); border:3px solid #f9a8d4; color:#9d174d; font-size:32px; font-weight:900; transform:rotateY(0deg); box-shadow:0 6px 16px rgba(236,72,153,0.15); }
+.back { background:#fff; border:3px solid #ec4899; transform:rotateY(180deg); box-shadow:0 6px 16px rgba(236,72,153,0.2); }
 .big-card.flipped .front { transform:rotateY(180deg); }
 .big-card.flipped .back { transform:rotateY(0deg); }
 .big-card.matched .front { transform:rotateY(180deg); }
@@ -151,8 +152,9 @@ onUnmounted(() => clearInterval(timerInterval))
 .result-box { text-align:center; padding:40px 20px; }
 .res-title { font-size:40px; color:#831843; font-weight:900; margin:10px 0; }
 .res-stats { color:#9d174d; font-size:20px; margin:8px 0; }
-.levelup { background:#ec4899; color:#fff; padding:12px 24px; border-radius:20px; font-weight:800; font-size:20px; margin:14px auto; display:inline-block; }
+.levelup { background-image:linear-gradient(135deg,#f472b6,#ec4899); color:#fff; padding:12px 24px; border-radius:999px; font-weight:800; font-size:20px; margin:14px auto; display:inline-block; box-shadow:0 10px 24px -6px rgba(236,72,153,0.5); }
 .res-btns { display:flex; gap:12px; justify-content:center; margin-top:20px; }
-.rbtn { background:rgba(255,255,255,0.9); color:#831843; border:2px solid #f9a8d4; padding:14px 30px; border-radius:20px; font-size:18px; font-weight:700; cursor:pointer; }
-.rbtn.home { background:#ec4899; color:#fff; border:none; }
+.rbtn { background:rgba(255,255,255,0.9); color:#831843; border:2px solid #f9a8d4; padding:14px 30px; border-radius:999px; font-size:18px; font-weight:700; cursor:pointer; transition:transform .15s ease; }
+.rbtn:hover { transform:translateY(-2px); }
+.rbtn.home { background-image:linear-gradient(135deg,#f472b6,#ec4899); color:#fff; border:none; }
 </style>
