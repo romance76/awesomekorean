@@ -75,6 +75,12 @@
         </div>
       </div>
 
+      <!-- 실제 입력창 — 탭하면 휴대폰 한글 키보드가 뜸. 아래 화면 키보드는 보조 입력 수단 -->
+      <input v-if="gameState === 'playing'"
+        ref="nativeInputEl" v-model="nativeText" @input="onNativeInput" @keyup.enter="submitGuess"
+        type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false"
+        maxlength="4" class="native-input" placeholder="탭해서 한글로 입력하세요" />
+
       <!-- 범례 -->
       <div class="legend">
         <span><span class="dot correct"></span>정확한 위치</span>
@@ -103,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import GameShell from '../../components/GameShell.vue'
 
 const showHelp = ref(false)
@@ -120,11 +126,13 @@ const WORD_LEN = 4
 const MAX_ROWS = 6
 
 // 4글자 한국어 단어 80+ (음식, 일상어, 관용표현, 명사구)
+// 예전엔 5글자 단어를 4칸에 맞춰 그냥 잘라 넣은 항목이 여럿 있어(순두부찌개→순두부찌 등)
+// 실제로 존재하지 않는 글자 조합이 정답으로 나오는 문제가 있었음 — 전부 완전한 4글자 단어/구로 교체.
 const WORDS = [
   // 한국 음식 (30)
-  '김치찌개','된장찌개','순두부찌','부대찌개','미역국밥',
+  '김치찌개','된장찌개','두부김치','부대찌개','미역국밥',
   '불고기밥','삼겹살집','비빔냉면','떡볶이집','잡채볶음',
-  '제육볶음','오징어볶','닭갈비볶','감자탕집','해물파전',
+  '제육볶음','오징어탕','닭갈비집','감자탕집','해물파전',
   '빈대떡집','순대국밥','설렁탕집','곰탕국밥','삼계탕집',
   '돼지국밥','족발보쌈','냉면가게','막국수집','칼국수집',
   '잔치국수','콩나물국','갈비탕집','매운탕집','갈비찜집',
@@ -133,7 +141,7 @@ const WORDS = [
   '돼지가족','토끼친구','원숭이들','펭귄친구','여우친구',
   // 일상어/명사구 (20)
   '아침식사','점심시간','저녁노을','밤하늘에','새벽공기',
-  '봄바람이','여름휴가','가을단풍','겨울눈길','봄여름가',
+  '봄바람이','여름휴가','가을단풍','겨울눈길','고향생각',
   '학교친구','가족사랑','친구사이','선생님들','동네식당',
   '우리이웃','우리엄마','우리아빠','할머니댁','할아버지',
   // 장소/자연 (15)
@@ -141,8 +149,8 @@ const WORDS = [
   '인사동길','동대문앞','청계천길','홍대입구','이태원로',
   '바닷가에','산꼭대기','강변공원','시골마을','도시야경',
   // 감정/행동 (10)
-  '사랑하는','행복하게','즐거운일','신나게놀','반가워요',
-  '고마워요','미안하다','응원합니','기쁜마음','따뜻한말',
+  '사랑하는','행복하게','즐거운일','기쁜하루','반가워요',
+  '고마워요','미안하다','응원해요','기쁜마음','따뜻한말',
 ]
 
 const keyboard = [
@@ -155,13 +163,111 @@ const answer = ref(WORDS[Math.floor(Math.random() * WORDS.length)])
 const board = ref(Array(MAX_ROWS).fill(null).map(() => Array(WORD_LEN).fill('')))
 const results = ref(Array(MAX_ROWS).fill(null).map(() => Array(WORD_LEN).fill('')))
 const currentRow = ref(0)
-const currentInput = ref('')
 const gameState = ref('playing')
 const usedKeys = reactive({})
 const coin = ref(parseInt(localStorage.getItem('wordle_coin') || '0'))
 const coinStr = computed(() => coin.value.toLocaleString())
 
+// ── 실제 입력창(모바일 OS 키보드/IME용) ──────────────────────────────────────
+// 예전엔 window 전체에 keydown 리스너만 걸어놔서, 포커스를 받을 수 있는 <input>이
+// 전혀 없어 모바일에서는 한글 키보드 자체가 뜨지 않아 플레이가 불가능했음.
+const nativeText = ref('')
+const nativeInputEl = ref(null)
+
+function sanitizeNative(v) {
+  return [...v].filter(ch => {
+    const c = ch.charCodeAt(0)
+    return c >= 0xAC00 && c <= 0xD7A3
+  }).slice(0, WORD_LEN).join('')
+}
+function onNativeInput() { nativeText.value = sanitizeNative(nativeText.value) }
+function focusNativeInput() { nextTick(() => nativeInputEl.value?.focus()) }
+
+// ── 화면 속 자모 키보드 조합(2벌식) ───────────────────────────────────────────
+// 예전엔 typeKey()가 빈 함수라 화면 속 키보드를 눌러도 아무 반응이 없었음.
+// 자음/모음 개별 키 입력을 실제 한글 음절로 조합해서 nativeText 에 이어붙임.
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
+const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ']
+const JONG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
+// 받침 뒤에 모음이 오면(재음절화) 받침이 다음 글자 초성으로 넘어가는데, 겹받침은 뒷부분만 넘어감
+const JONG_COMBO = {'ㄱㅅ':'ㄳ','ㄴㅈ':'ㄵ','ㄴㅎ':'ㄶ','ㄹㄱ':'ㄺ','ㄹㅁ':'ㄻ','ㄹㅂ':'ㄼ','ㄹㅅ':'ㄽ','ㄹㅌ':'ㄾ','ㄹㅍ':'ㄿ','ㄹㅎ':'ㅀ','ㅂㅅ':'ㅄ'}
+const JONG_SPLIT = {'ㄳ':['ㄱ','ㅅ'],'ㄵ':['ㄴ','ㅈ'],'ㄶ':['ㄴ','ㅎ'],'ㄺ':['ㄹ','ㄱ'],'ㄻ':['ㄹ','ㅁ'],'ㄼ':['ㄹ','ㅂ'],'ㄽ':['ㄹ','ㅅ'],'ㄾ':['ㄹ','ㅌ'],'ㄿ':['ㄹ','ㅍ'],'ㅀ':['ㄹ','ㅎ'],'ㅄ':['ㅂ','ㅅ']}
+
+const composing = reactive({ cho: null, jung: null, jong: null })
+
+function composeSyllable(cho, jung, jong) {
+  if (cho == null || jung == null) return ''
+  const ci = CHO.indexOf(cho), vi = JUNG.indexOf(jung), ji = jong ? JONG.indexOf(jong) : 0
+  if (ci < 0 || vi < 0 || ji < 0) return ''
+  return String.fromCharCode(0xAC00 + (ci * 21 + vi) * 28 + ji)
+}
+function decompose(ch) {
+  const code = ch.charCodeAt(0) - 0xAC00
+  if (code < 0 || code > 11171) return null
+  return { cho: CHO[Math.floor(code / 588)], jung: JUNG[Math.floor((code % 588) / 28)], jong: JONG[code % 28] || null }
+}
+function clearComposing() { composing.cho = null; composing.jung = null; composing.jong = null }
+function canStartNewSyllable() { return nativeText.value.length < WORD_LEN }
+// 지금 조합 중이던 글자를 확정 짓고 그 다음 글자를 새로 시작해도 되는지 — 확정 후 자리가
+// 하나도 안 남으면(이번이 마지막 칸) 다음 글자는 시작하면 안 됨
+function canCommitAndStartNew() { return nativeText.value.length + 1 < WORD_LEN }
+function commitComposing() {
+  const ch = composeSyllable(composing.cho, composing.jung, composing.jong)
+  if (ch) nativeText.value += ch
+  clearComposing()
+}
+
+function typeKey(k) {
+  if (gameState.value !== 'playing') return
+  const isVowel = JUNG.includes(k)
+  const isCons = CHO.includes(k)
+  if (!isVowel && !isCons) return
+
+  if (isCons) {
+    if (composing.cho === null) {
+      if (!canStartNewSyllable()) return
+      composing.cho = k
+    } else if (composing.jung === null) {
+      if (!canStartNewSyllable()) return
+      commitComposing(); composing.cho = k // 모음 없이 자음만 있던 상태(commitComposing은 실제로 아무 글자도 안 만듦) — 그냥 버리고 새로 시작
+    } else if (composing.jong === null) {
+      composing.jong = k
+    } else {
+      const combo = JONG_COMBO[composing.jong + k]
+      if (combo) { composing.jong = combo }
+      else { if (!canCommitAndStartNew()) return; commitComposing(); composing.cho = k }
+    }
+  } else {
+    if (composing.cho === null) {
+      if (!canStartNewSyllable()) return
+      composing.cho = 'ㅇ'; composing.jung = k
+    } else if (composing.jung === null) {
+      composing.jung = k
+    } else if (composing.jong === null) {
+      if (!canCommitAndStartNew()) return
+      commitComposing(); composing.cho = 'ㅇ'; composing.jung = k
+    } else {
+      const split = JONG_SPLIT[composing.jong] || [null, composing.jong]
+      if (!canCommitAndStartNew()) return
+      composing.jong = split[0]
+      commitComposing()
+      composing.cho = split[1]; composing.jung = k
+    }
+  }
+}
+
+// 미리보기(입력창 + 화면 키보드로 조합 중인 글자)를 합쳐서 그리드에 실시간으로 보여줌
+const currentInput = computed(() => nativeText.value + composeSyllable(composing.cho, composing.jung, composing.jong))
+
+function deleteLast() {
+  if (composing.jong !== null) { composing.jong = null; return }
+  if (composing.jung !== null) { composing.jung = null; return }
+  if (composing.cho !== null) { composing.cho = null; return }
+  nativeText.value = nativeText.value.slice(0, -1)
+}
+
 function submitGuess() {
+  if (composing.cho !== null && composing.jung !== null) commitComposing()
   const g = currentInput.value
   if (g.length !== WORD_LEN || currentRow.value >= MAX_ROWS || gameState.value !== 'playing') return
   const row = currentRow.value
@@ -177,12 +283,16 @@ function submitGuess() {
   })
   board.value[row] = gArr
   results.value[row] = res
-  // 키보드 색상: 자모로 분해해서 색칠 (한글 음절 → 자모 매핑은 복잡하니, 음절 자체로 매핑)
+  // 화면 키보드는 음절이 아니라 자모 단위라, 맞힌 글자를 자모로 분해해서 그 자모 키들을 색칠
   gArr.forEach((ch, i) => {
-    const cur = usedKeys[ch]
-    if (res[i] === 'correct') usedKeys[ch] = 'correct'
-    else if (res[i] === 'present' && cur !== 'correct') usedKeys[ch] = 'present'
-    else if (!cur) usedKeys[ch] = 'absent'
+    const d = decompose(ch)
+    if (!d) return
+    ;[d.cho, d.jung, d.jong].filter(Boolean).forEach(jamo => {
+      const cur = usedKeys[jamo]
+      if (res[i] === 'correct') usedKeys[jamo] = 'correct'
+      else if (res[i] === 'present' && cur !== 'correct') usedKeys[jamo] = 'present'
+      else if (!cur) usedKeys[jamo] = 'absent'
+    })
   })
   if (g === ans) {
     gameState.value = 'won'
@@ -191,31 +301,9 @@ function submitGuess() {
   }
   else if (row === MAX_ROWS - 1) { gameState.value = 'lost' }
   currentRow.value++
-  currentInput.value = ''
+  nativeText.value = ''
+  focusNativeInput()
 }
-
-// 자모 입력 → 한글 음절 조합 (간단 버전: 한 글자씩 직접 입력 아닌 자모 조합 필요)
-// 현 구현: 자모 키를 눌렀을 때 그냥 자모 char 를 추가. 사용자가 한글 음절 입력해야 함.
-// 대안: 전체 한글 자판 (완성형) 키보드로 전환 필요하나 복잡. 현재는 키보드 선택 자유.
-function typeKey(k) {
-  // 4 cells 니까 자모 4개가 아닌 음절 4개. 자모 키 UI 는 참고용.
-  // 유저는 실제로는 한글 IME 로 입력하는 게 정상 - 이 키보드는 자주 사용된 자모 색상 확인용.
-}
-
-function deleteLast() { currentInput.value = currentInput.value.slice(0, -1) }
-
-// 외부에서 키 입력 받기 (IME)
-function handleKeyPress(e) {
-  if (gameState.value !== 'playing') return
-  const ch = e.key
-  if (e.key === 'Backspace' || e.key === 'Delete') { deleteLast(); return }
-  if (e.key === 'Enter') { submitGuess(); return }
-  // 한글 음절(AC00-D7A3)만 받음
-  if (ch && ch.length === 1 && ch.charCodeAt(0) >= 0xAC00 && ch.charCodeAt(0) <= 0xD7A3) {
-    if (currentInput.value.length < WORD_LEN) currentInput.value += ch
-  }
-}
-window.addEventListener('keydown', handleKeyPress)
 
 function getCellClass(ri, ci) {
   const r = results.value[ri][ci]
@@ -239,12 +327,13 @@ function newGame() {
   answer.value = WORDS[Math.floor(Math.random() * WORDS.length)]
   board.value = Array(MAX_ROWS).fill(null).map(() => Array(WORD_LEN).fill(''))
   results.value = Array(MAX_ROWS).fill(null).map(() => Array(WORD_LEN).fill(''))
-  currentRow.value = 0; currentInput.value = ''; gameState.value = 'playing'
+  currentRow.value = 0; nativeText.value = ''; gameState.value = 'playing'
+  clearComposing()
   Object.keys(usedKeys).forEach(k => delete usedKeys[k])
+  focusNativeInput()
 }
 
-import { onUnmounted } from 'vue'
-onUnmounted(() => { window.removeEventListener('keydown', handleKeyPress) })
+onMounted(focusNativeInput)
 </script>
 
 <style scoped>
@@ -283,6 +372,9 @@ onUnmounted(() => { window.removeEventListener('keydown', handleKeyPress) })
 .current-row .grid-cell { border-color: #c7d2fe; }
 .current-row .grid-cell.filled { background: #eef2ff; color: #4338ca; border-color: #6366f1; }
 
+.native-input { display: block; width: 100%; max-width: 260px; margin: 0 auto 12px; padding: 10px 14px; font-size: 16px; text-align: center; border: 2px solid #c7d2fe; border-radius: 12px; color: #1f2937; background: #fff; }
+.native-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+
 .result-box { text-align: center; padding: 20px 16px; border-radius: 16px; margin-bottom: 14px; }
 .result-box.won { background: #ecfdf5; border: 1px solid #a7f3d0; }
 .result-box.lost { background: #fef2f2; border: 1px solid #fecaca; }
@@ -302,7 +394,8 @@ onUnmounted(() => { window.removeEventListener('keydown', handleKeyPress) })
 
 .keyboard-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); padding: 10px; }
 .keyboard-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 6px; }
-.key { min-width: 30px; padding: 10px 6px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: default; background: #f3f4f6; color: #374151; }
+.key { min-width: 30px; padding: 10px 6px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; background: #f3f4f6; color: #374151; }
+.key:hover { background: #e5e7eb; }
 .key-correct { background: #10b981; color: #fff; }
 .key-present { background: #f59e0b; color: #fff; }
 .key-absent { background: #e5e7eb; color: #9ca3af; }
