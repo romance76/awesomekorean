@@ -86,7 +86,6 @@ const routes = [
   { path: '/games', name: 'games', component: p('games/GameLobby') },
   { path: '/games/casino', component: p('games/CasinoLobby') },
   { path: '/games/animals', component: p('games/GameAnimals') },
-  { path: '/games/quiz', component: p('games/QuizGame') },
   { path: '/games/memory', component: p('games/MemoryGame') },
   { path: '/games/bingo', component: p('games/BingoGame') },
   { path: '/games/2048', component: p('games/Game2048') },
