@@ -63,9 +63,14 @@ function onBack() {
    구조 — 게임 배경이 브라우저 전체 폭을 그대로 차지해 "완전히 다른 페이지로
    전환된 것처럼" 보이던 문제 수정. 전체화면(is-fullscreen) 모드는 원래
    의도대로 그대로 엣지투엣지 유지. */
-.game-shell.is-card { background: #F8F6F3; color: #191F28; }
-.game-shell.is-fullscreen.theme-light { background: #F7F8FA; color: #191F28; }
-.game-shell.is-fullscreen.theme-dark { background: #0b1020; color: #f3f4f6; }
+/* 글자색은 카드형/전체화면 여부와 무관하게 항상 게임의 테마(theme)를 따름 —
+   이전엔 카드형(is-card)일 때 테마와 무관하게 어두운 잉크색으로 고정돼,
+   다크테마 게임의 어두운 헤더 배경과 겹쳐 글자가 안 보이던 문제 수정. */
+.game-shell.theme-light { color: #191F28; }
+.game-shell.theme-dark { color: #f3f4f6; }
+.game-shell.is-card { background: #F8F6F3; }
+.game-shell.is-fullscreen.theme-light { background: #F7F8FA; }
+.game-shell.is-fullscreen.theme-dark { background: #0b1020; }
 
 .shell-header {
   position: relative; z-index: 20;
