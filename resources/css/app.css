@@ -136,4 +136,106 @@
     .section-title {
         @apply flex items-center gap-2 text-[15px] font-bold text-ink;
     }
+
+    /* ══════════════════════════════════════════════════════════════
+       게임 디자인 시스템 — 모던 그라디언트 + 글래스모피즘 (2026-09)
+       28개 미니게임 전체가 공유하는 토큰/유틸 클래스. 접두사 gx- 로
+       사이트 전역 클래스(.card, .btn-primary 등)와 충돌 방지.
+       ══════════════════════════════════════════════════════════════ */
+    :root {
+        --gx-glass-bg: rgba(255,255,255,0.6);
+        --gx-glass-bg-dark: rgba(15,17,32,0.5);
+        --gx-glass-border: rgba(255,255,255,0.55);
+        --gx-glass-border-dark: rgba(255,255,255,0.14);
+        --gx-glass-shadow: 0 8px 32px rgba(31,38,80,0.14), inset 0 1px 0 rgba(255,255,255,0.5);
+        --gx-glass-shadow-dark: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
+        --gx-grad-primary: linear-gradient(135deg,#8b5cf6,#ec4899);
+        --gx-grad-success: linear-gradient(135deg,#10b981,#34d399);
+        --gx-grad-danger: linear-gradient(135deg,#f43f5e,#fb7185);
+        --gx-grad-gold: linear-gradient(135deg,#fbbf24,#f59e0b);
+    }
+
+    /* 유리질감 표면 — 카드/패널/오버레이 등 어디든 붙여 쓰는 베이스 */
+    .gx-glass {
+        background: var(--gx-glass-bg);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        border: 1px solid var(--gx-glass-border);
+        box-shadow: var(--gx-glass-shadow);
+    }
+    .theme-dark .gx-glass {
+        background: var(--gx-glass-bg-dark);
+        border-color: var(--gx-glass-border-dark);
+        box-shadow: var(--gx-glass-shadow-dark);
+    }
+
+    /* 그라디언트 알약 버튼 — 대각선 샤인 스윕 + 호버 리프트 */
+    .gx-btn {
+        position: relative; overflow: hidden;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 15px 38px; border-radius: 999px; border: none; cursor: pointer;
+        font-weight: 800; font-size: 17px; color: #fff; line-height: 1;
+        background-image: var(--gx-grad-primary);
+        box-shadow: 0 10px 24px -8px rgba(139,92,246,0.6), inset 0 1px 0 rgba(255,255,255,0.35);
+        transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .gx-btn::after {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,.4) 50%, transparent 65%);
+        transform: translateX(-130%);
+        transition: transform .6s ease;
+    }
+    .gx-btn:hover::after { transform: translateX(130%); }
+    .gx-btn:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 14px 28px -8px rgba(139,92,246,0.65), inset 0 1px 0 rgba(255,255,255,.4); }
+    .gx-btn:active { transform: translateY(0) scale(.97); }
+    .gx-btn:disabled { opacity: .5; cursor: default; filter: none; transform: none; box-shadow: none; }
+    .gx-btn.gx-success { background-image: var(--gx-grad-success); box-shadow: 0 10px 24px -8px rgba(16,185,129,.55), inset 0 1px 0 rgba(255,255,255,.35); }
+    .gx-btn.gx-danger  { background-image: var(--gx-grad-danger); box-shadow: 0 10px 24px -8px rgba(244,63,94,.5), inset 0 1px 0 rgba(255,255,255,.35); }
+    .gx-btn.gx-ghost {
+        background-image: none; color: inherit;
+        background: var(--gx-glass-bg); box-shadow: var(--gx-glass-shadow);
+        border: 1px solid var(--gx-glass-border);
+    }
+    .theme-dark .gx-btn.gx-ghost { background: var(--gx-glass-bg-dark); border-color: var(--gx-glass-border-dark); box-shadow: var(--gx-glass-shadow-dark); }
+
+    /* 4지선다/선택형 버튼 그리드 — 유리 카드, 정답/오답 상태 포함 */
+    .gx-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .gx-choice-btn {
+        background: var(--gx-glass-bg);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        border: 1px solid var(--gx-glass-border);
+        box-shadow: var(--gx-glass-shadow);
+        padding: 18px 14px; border-radius: 18px; font-size: 17px; font-weight: 700;
+        color: inherit; cursor: pointer; text-align: center;
+        transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    .theme-dark .gx-choice-btn {
+        background: var(--gx-glass-bg-dark);
+        border-color: var(--gx-glass-border-dark);
+        box-shadow: var(--gx-glass-shadow-dark);
+    }
+    .gx-choice-btn:hover:not(:disabled) { transform: translateY(-3px) scale(1.02); box-shadow: 0 14px 28px -10px rgba(139,92,246,.35), inset 0 1px 0 rgba(255,255,255,.5); }
+    .gx-choice-btn:disabled { cursor: default; }
+    .gx-choice-btn.is-correct { background-image: var(--gx-grad-success); color: #fff; border-color: transparent; box-shadow: 0 10px 26px -8px rgba(16,185,129,.6); }
+    .gx-choice-btn.is-wrong   { background-image: var(--gx-grad-danger);  color: #fff; border-color: transparent; box-shadow: 0 10px 26px -8px rgba(244,63,94,.55); }
+
+    /* 배지/뱃지형 칩 — 레벨업, 신기록 등 */
+    .gx-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 20px; border-radius: 999px; font-weight: 800; font-size: 15px; color: #fff;
+        background-image: var(--gx-grad-gold);
+        box-shadow: 0 8px 20px -6px rgba(245,158,11,.55), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
+    /* 진행도 바 — 그라디언트 채움 */
+    .gx-progress-track { height: 8px; border-radius: 999px; background: rgba(120,120,150,.18); overflow: hidden; }
+    .theme-dark .gx-progress-track { background: rgba(255,255,255,.12); }
+    .gx-progress-fill { height: 100%; border-radius: 999px; background-image: var(--gx-grad-primary); transition: width .3s ease; }
+
+    /* 배경 블러 블롭 — 게임 카드 뒤 은은한 그라디언트 무드 (fixed, 클릭 통과) */
+    .gx-blob-field { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .gx-blob-field span {
+        position: absolute; border-radius: 50%; filter: blur(60px); opacity: .35;
+    }
 }

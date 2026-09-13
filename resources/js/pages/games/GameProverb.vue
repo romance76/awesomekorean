@@ -197,32 +197,35 @@ onUnmounted(()=>clearInterval(timer))
 <style scoped>
 .proverb-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box { text-align:center; padding:40px 20px; }
-.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
+.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .subtitle { color:rgba(255,255,255,0.85); font-size:16px; }
-.level-info { color:#bbf7d0; margin:10px 0; font-size:15px; }
-.start-btn { background:#fbbf24; color:#14532d; border:none; padding:14px 40px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; }
+.level-info { color:#bbf7d0; margin:10px 0; font-size:15px; font-weight:700; }
+.start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#fbbf24,#d97706); color:#14532d; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; box-shadow:0 12px 28px -8px rgba(217,119,6,0.55), inset 0 1px 0 rgba(255,255,255,.4); transition:transform .15s ease, box-shadow .15s ease; }
+.start-btn:hover { transform:translateY(-2px); box-shadow:0 16px 32px -8px rgba(217,119,6,0.6), inset 0 1px 0 rgba(255,255,255,.45); }
+.start-btn:active { transform:translateY(0) scale(.97); }
 .play-area { max-width:500px; margin:0 auto; }
-.progress-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; color:rgba(255,255,255,0.7); font-size:14px; }
-.prog-bar { flex:1; height:8px; background:rgba(255,255,255,0.2); border-radius:4px; overflow:hidden; }
-.prog-fill { height:100%; background:#fbbf24; border-radius:4px; transition:width 0.3s; }
-.proverb-card { background:rgba(0,0,0,0.25); border-radius:18px; padding:28px 20px; text-align:center; margin-bottom:14px; border:1px solid rgba(251,191,36,0.3); }
+.progress-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; color:rgba(255,255,255,0.7); font-size:14px; font-weight:700; }
+.prog-bar { flex:1; height:9px; background:rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+.prog-fill { height:100%; background-image:linear-gradient(90deg,#fbbf24,#4ade80); border-radius:999px; transition:width 0.3s; }
+.proverb-card { background:rgba(255,255,255,0.08); backdrop-filter:blur(16px) saturate(160%); border-radius:22px; padding:30px 20px; text-align:center; margin-bottom:16px; border:1px solid rgba(251,191,36,0.35); box-shadow:0 12px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
 .proverb-text { color:#fde68a; font-size:20px; font-weight:700; line-height:1.6; }
 .q-ask { color:rgba(255,255,255,0.7); font-size:14px; text-align:center; margin-bottom:12px; }
-.choices-col { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
-.choice-btn { background:rgba(255,255,255,0.9); color:#14532d; border:none; padding:14px 16px; border-radius:12px; font-size:15px; font-weight:600; cursor:pointer; text-align:left; transition:all 0.2s; }
-.choice-btn:hover:not(.disabled) { background:#fff; transform:translateX(4px); }
-.choice-btn.correct { background:#10b981; color:#fff; }
-.choice-btn.wrong { background:#ef4444; color:#fff; }
+.choices-col { display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+.choice-btn { background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); color:#14532d; border:1px solid rgba(255,255,255,0.5); padding:15px 18px; border-radius:14px; font-size:15px; font-weight:600; cursor:pointer; text-align:left; box-shadow:0 6px 16px rgba(0,0,0,0.1); transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.choice-btn:hover:not(.disabled) { background:#fff; transform:translateY(-2px) translateX(2px); box-shadow:0 10px 22px rgba(0,0,0,0.16); }
+.choice-btn.correct { background-image:linear-gradient(135deg,#10b981,#059669); color:#fff; box-shadow:0 10px 24px -6px rgba(16,185,129,0.55); }
+.choice-btn.wrong { background-image:linear-gradient(135deg,#f43f5e,#e11d48); color:#fff; box-shadow:0 10px 24px -6px rgba(244,63,94,0.5); }
 .choice-btn.disabled { cursor:not-allowed; }
-.feedback { padding:14px 16px; border-radius:12px; }
-.feedback.right { background:rgba(16,185,129,0.2); color:#a7f3d0; }
-.feedback.wrong { background:rgba(239,68,68,0.2); color:#fca5a5; }
+.feedback { padding:16px 18px; border-radius:16px; backdrop-filter:blur(10px); }
+.feedback.right { background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.35); color:#a7f3d0; }
+.feedback.wrong { background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; }
 .explain { font-size:14px; font-weight:400; margin-top:6px; }
 .result-box { text-align:center; padding:40px 20px; }
-.res-score { font-size:52px; font-weight:900; color:#fde68a; }
+.res-score { font-size:54px; font-weight:900; color:#fde68a; text-shadow:0 2px 16px rgba(0,0,0,0.3); }
 .res-detail { color:rgba(255,255,255,0.8); font-size:16px; margin:8px 0; }
-.levelup { background:#fbbf24; color:#14532d; padding:10px 20px; border-radius:20px; font-weight:800; font-size:18px; margin:14px auto; display:inline-block; }
-.res-btns { display:flex; gap:12px; justify-content:center; margin-top:20px; }
-.rbtn { background:rgba(255,255,255,0.9); color:#14532d; border:none; padding:12px 28px; border-radius:20px; font-size:16px; font-weight:700; cursor:pointer; }
-.rbtn.home { background:#15803d; color:#fff; }
+.levelup { background-image:linear-gradient(135deg,#fbbf24,#d97706); color:#14532d; padding:10px 24px; border-radius:999px; font-weight:800; font-size:17px; margin:14px auto; display:inline-block; box-shadow:0 10px 24px -6px rgba(217,119,6,0.5), inset 0 1px 0 rgba(255,255,255,.4); }
+.res-btns { display:flex; gap:12px; justify-content:center; margin-top:24px; }
+.rbtn { background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); color:#14532d; border:none; padding:13px 30px; border-radius:999px; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.12); transition:transform .15s ease; }
+.rbtn:hover { transform:translateY(-2px); }
+.rbtn.home { background-image:linear-gradient(135deg,#22c55e,#15803d); color:#fff; }
 </style>

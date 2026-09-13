@@ -162,35 +162,38 @@ async function endGame() {
 <style scoped>
 .wordblank-game { flex:1; padding:16px; font-family:'Noto Sans KR',sans-serif; }
 .center-box,.end-box { text-align:center; padding:40px 20px; }
-.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; }
+.title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .subtitle { color:rgba(255,255,255,.8); font-size:16px; }
-.start-btn { background:#e94560; color:#fff; border:none; padding:14px 40px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; margin:10px 6px; }
-.home-btn { background:rgba(255,255,255,.2); color:#fff; border:none; padding:12px 28px; border-radius:30px; font-size:16px; font-weight:600; cursor:pointer; margin:10px 6px; }
+.start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#fb7185,#e94560); color:#fff; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin:10px 6px; box-shadow:0 12px 28px -8px rgba(233,69,96,0.6), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease, box-shadow .15s ease; }
+.start-btn:hover { transform:translateY(-2px); box-shadow:0 16px 32px -8px rgba(233,69,96,0.65), inset 0 1px 0 rgba(255,255,255,.4); }
+.start-btn:active { transform:translateY(0) scale(.97); }
+.home-btn { background:rgba(255,255,255,.12); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,.2); color:#fff; padding:13px 30px; border-radius:999px; font-size:16px; font-weight:700; cursor:pointer; margin:10px 6px; transition:background .15s ease; }
+.home-btn:hover { background:rgba(255,255,255,.2); }
 .play-box { max-width:480px; margin:0 auto; }
 .progress-row { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
-.progress-bar { flex:1; height:10px; background:rgba(255,255,255,.2); border-radius:5px; }
-.progress-fill { height:100%; background:#e94560; border-radius:5px; transition:width .3s; }
-.q-count { color:rgba(255,255,255,.8); font-size:13px; }
-.sentence-box { background:rgba(255,255,255,.1); border-radius:20px; padding:28px 20px; margin-bottom:20px; text-align:center; }
+.progress-bar { flex:1; height:9px; background:rgba(255,255,255,.15); border-radius:999px; overflow:hidden; }
+.progress-fill { height:100%; background-image:linear-gradient(90deg,#fb7185,#e94560); border-radius:999px; transition:width .3s; }
+.q-count { color:rgba(255,255,255,.8); font-size:13px; font-weight:700; }
+.sentence-box { background:rgba(255,255,255,.08); backdrop-filter:blur(16px) saturate(160%); border:1px solid rgba(255,255,255,.15); border-radius:22px; padding:30px 20px; margin-bottom:20px; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08); }
 .sentence-text { font-size:22px; color:#fff; font-weight:700; line-height:1.8; margin:0 0 10px; }
 .sentence-hint { color:rgba(255,255,255,.6); font-size:14px; margin:0; }
-:deep(.blank) { display:inline-block; border-bottom:3px solid #e94560; min-width:80px; color:transparent; }
+:deep(.blank) { display:inline-block; border-bottom:3px solid #fb7185; min-width:80px; color:transparent; }
 .choices-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.choice-btn { background:rgba(255,255,255,.92); color:#1a1a2e; border:none; padding:18px 12px; border-radius:16px; font-size:17px; font-weight:700; cursor:pointer; transition:all .15s; }
-.choice-btn:hover:not(:disabled) { background:#fff; transform:scale(1.03); }
+.choice-btn { background:rgba(255,255,255,.92); backdrop-filter:blur(10px); color:#1a1a2e; border:1px solid rgba(255,255,255,0.5); padding:18px 12px; border-radius:16px; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.1); transition:transform .15s ease, box-shadow .15s ease; }
+.choice-btn:hover:not(:disabled) { background:#fff; transform:translateY(-2px) scale(1.02); box-shadow:0 10px 22px rgba(0,0,0,0.16); }
 .choice-btn:disabled { cursor:default; }
-.end-title { font-size:32px; color:#fff; font-weight:900; }
+.end-title { font-size:32px; color:#fff; font-weight:900; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .end-score { color:rgba(255,255,255,.8); font-size:18px; }
-.levelup-badge { background:#e94560; color:#fff; padding:10px 24px; border-radius:20px; font-weight:800; font-size:16px; display:inline-block; margin:14px 0; }
-.feedback-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(4px); }
-.fb-correct { background:rgba(16,185,129,.88); }
-.fb-wrong { background:rgba(239,68,68,.88); }
-.fb-content { text-align:center; color:#fff; padding:32px 48px; }
+.levelup-badge { background-image:linear-gradient(135deg,#fb7185,#e94560); color:#fff; padding:10px 24px; border-radius:999px; font-weight:800; font-size:17px; display:inline-block; margin:14px 0; box-shadow:0 10px 24px -6px rgba(233,69,96,0.55), inset 0 1px 0 rgba(255,255,255,.35); }
+.feedback-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:999; backdrop-filter:blur(8px); }
+.fb-correct { background:rgba(16,185,129,.75); }
+.fb-wrong { background:rgba(239,68,68,.75); }
+.fb-content { text-align:center; color:#fff; padding:32px 48px; background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,0.3); }
 .fb-emoji { font-size:80px; margin-bottom:8px; }
 .fb-title { font-size:34px; font-weight:900; margin-bottom:8px; }
 .fb-answer { font-size:18px; margin-bottom:16px; }
-.fb-bar-wrap { width:200px; height:7px; background:rgba(255,255,255,.3); border-radius:4px; margin:0 auto; }
-.fb-bar { height:100%; background:#fff; border-radius:4px; transition:width .05s linear; }
+.fb-bar-wrap { width:200px; height:7px; background:rgba(255,255,255,.3); border-radius:999px; margin:0 auto; }
+.fb-bar { height:100%; background:#fff; border-radius:999px; transition:width .05s linear; }
 .fb-enter-active,.fb-leave-active { transition:opacity .25s; }
 .fb-enter-from,.fb-leave-to { opacity:0; }
 </style>

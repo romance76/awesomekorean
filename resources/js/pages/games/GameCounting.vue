@@ -300,23 +300,27 @@ onUnmounted(() => {
 
 /* Header meta badges */
 .level-badge {
-  background: rgba(255,255,255,0.8);
-  border-radius: 14px;
-  padding: 4px 10px;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  padding: 5px 12px;
   font-size: 11px;
   font-weight: 800;
   color: #FF6B6B;
   white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 .score-display {
-  background: rgba(255,255,255,0.6);
-  border-radius: 14px;
-  padding: 4px 10px;
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  padding: 5px 12px;
   font-size: 11px;
   font-weight: 800;
   color: #FF9F43;
   white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 /* Progress */
@@ -426,8 +430,10 @@ onUnmounted(() => {
 
 /* Emoji Display */
 .emoji-display {
-  background: rgba(255,255,255,0.35);
-  border-radius: 24px;
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 26px;
   padding: 20px;
   display: flex;
   flex-wrap: wrap;
@@ -437,7 +443,7 @@ onUnmounted(() => {
   min-height: 180px;
   width: 90%;
   max-width: 480px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 .emoji-item {

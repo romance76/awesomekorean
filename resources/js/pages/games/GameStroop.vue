@@ -153,16 +153,17 @@ onUnmounted(()=>clearInterval(timer))
 .subtitle { color:rgba(255,255,255,0.7); font-size:15px; }
 .example-row { margin:16px 0; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px; }
 .level-info { color:#9ca3af; font-size:15px; margin:10px 0; }
-.start-btn { background:#8b5cf6; color:#fff; border:none; padding:14px 40px; border-radius:30px; font-size:20px; font-weight:800; cursor:pointer; margin-top:16px; }
+.start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin-top:16px; box-shadow:0 12px 28px -8px rgba(139,92,246,0.6), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease; }
+.start-btn:hover { transform:translateY(-2px); }
 .play-area { max-width:400px; margin:0 auto; display:flex; flex-direction:column; align-items:center; }
 .top-row { display:flex; gap:12px; margin-bottom:20px; width:100%; justify-content:space-between; align-items:center; }
-.timer-box,.combo-box,.count-box { font-size:18px; font-weight:700; padding:6px 14px; background:rgba(255,255,255,0.1); border-radius:12px; }
+.timer-box,.combo-box,.count-box { font-size:16px; font-weight:700; padding:7px 15px; background:rgba(255,255,255,0.08); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.12); border-radius:999px; }
 .timer-box { color:#fff; }
 .combo-box { color:#fbbf24; }
 .count-box { color:rgba(255,255,255,0.6); }
-.stroop-word { font-size:72px; font-weight:900; text-align:center; margin-bottom:32px; transition:color 0.1s; }
-.color-choices { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%; margin-bottom:16px; }
-.color-btn { padding:18px 8px; border:none; border-radius:14px; font-size:18px; font-weight:800; color:#fff; cursor:pointer; transition:all 0.15s; text-shadow:0 1px 3px rgba(0,0,0,0.5); }
+.stroop-word { font-size:72px; font-weight:900; text-align:center; margin-bottom:32px; transition:color 0.1s; text-shadow:0 4px 20px rgba(0,0,0,0.3); }
+.color-choices { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; margin-bottom:16px; }
+.color-btn { padding:18px 8px; border:none; border-radius:16px; font-size:18px; font-weight:800; color:#fff; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; text-shadow:0 1px 3px rgba(0,0,0,0.5); box-shadow:0 8px 20px -6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.25); }
 .color-btn:hover:not(.disabled) { transform:scale(1.05); }
 .color-btn.correct { outline:4px solid #fff; transform:scale(1.05); }
 .color-btn.wrong { opacity:0.5; }
@@ -171,10 +172,11 @@ onUnmounted(()=>clearInterval(timer))
 .feedback.right { color:#10b981; }
 .feedback.wrong { color:#ef4444; }
 .result-box { text-align:center; padding:40px 20px; }
-.res-score { font-size:56px; font-weight:900; color:#8b5cf6; }
+.res-score { font-size:56px; font-weight:900; color:#a78bfa; text-shadow:0 4px 20px rgba(139,92,246,0.3); }
 .res-detail { color:rgba(255,255,255,0.7); font-size:16px; margin:8px 0; }
-.levelup { background:#8b5cf6; color:#fff; padding:10px 20px; border-radius:20px; font-weight:800; font-size:18px; margin:14px auto; display:inline-block; }
-.res-btns { display:flex; gap:12px; justify-content:center; margin-top:20px; }
-.rbtn { background:rgba(255,255,255,0.9); color:#111827; border:none; padding:12px 28px; border-radius:20px; font-size:16px; font-weight:700; cursor:pointer; }
-.rbtn.home { background:#8b5cf6; color:#fff; }
+.levelup { background-image:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; padding:10px 24px; border-radius:999px; font-weight:800; font-size:17px; margin:14px auto; display:inline-block; box-shadow:0 10px 24px -6px rgba(139,92,246,0.55); }
+.res-btns { display:flex; gap:12px; justify-content:center; margin-top:24px; }
+.rbtn { background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); color:#111827; border:none; padding:13px 30px; border-radius:999px; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,0.15); transition:transform .15s ease; }
+.rbtn:hover { transform:translateY(-2px); }
+.rbtn.home { background-image:linear-gradient(135deg,#a78bfa,#8b5cf6); color:#fff; }
 </style>

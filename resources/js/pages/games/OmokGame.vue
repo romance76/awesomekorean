@@ -76,7 +76,7 @@
 
     <!-- Move History -->
     <div v-if="moveHistory.length > 0" class="mt-3 max-w-sm w-full">
-      <div class="bg-black/30 border border-amber-800/50 rounded-xl p-3">
+      <div class="bg-black/25 backdrop-blur-md border border-amber-800/40 rounded-xl p-3 shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
         <div class="text-xs text-amber-400 mb-2 font-semibold">📜 기보 (최근 {{ Math.min(moveHistory.length, 12) }}수)</div>
         <div class="flex flex-wrap gap-1">
           <span v-for="(mv, idx) in moveHistory.slice(-12)" :key="idx"
@@ -338,24 +338,23 @@ function colLabel(c) { return String.fromCharCode(65+c) }
 
 <style scoped>
 .omok-body { display: flex; flex-direction: column; align-items: center; padding: 12px; color: #fff; }
-.shell-badge-custom { background: rgba(251,191,36,0.2); color: #fcd34d; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 14px; }
+.shell-badge-custom { background: rgba(251,191,36,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(251,191,36,0.3); color: #fcd34d; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 999px; }
 
 .info-row { display: flex; gap: 12px; margin-bottom: 10px; }
-.turn-card { background: rgba(0,0,0,0.4); border: 1px solid; border-radius: 14px; padding: 8px 18px; text-align: center; min-width: 180px; }
-.turn-card.black-turn { border-color: #d1d5db; }
-.turn-card.white-turn { border-color: #f59e0b; }
+.turn-card { background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); border: 1px solid; border-radius: 16px; padding: 9px 20px; text-align: center; min-width: 180px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+.turn-card.black-turn { border-color: rgba(209,213,219,0.6); }
+.turn-card.white-turn { border-color: rgba(245,158,11,0.6); }
 .turn-label { font-size: 12px; margin-bottom: 2px; }
 .black-turn .turn-label { color: #d1d5db; }
 .white-turn .turn-label { color: #fcd34d; }
 .turn-status { font-size: 14px; font-weight: 800; color: #fff; }
 
 .btn-row { display: flex; gap: 10px; margin-bottom: 12px; }
-.omok-btn { padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; color: #fff; border: none; cursor: pointer; transition: all 0.15s; }
+.omok-btn { padding: 9px 18px; border-radius: 999px; font-weight: 800; font-size: 13px; color: #fff; border: none; cursor: pointer; transition: transform .15s ease, background .15s ease; }
+.omok-btn:hover:not(:disabled) { transform: translateY(-2px); }
 .omok-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-undo { background: #1e40af; }
-.btn-undo:hover:not(:disabled) { background: #1d4ed8; }
-.btn-restart { background: #b45309; }
-.btn-restart:hover { background: #d97706; }
+.btn-undo { background-image: linear-gradient(135deg,#3b82f6,#1e40af); box-shadow: 0 8px 20px -6px rgba(30,64,175,0.5); }
+.btn-restart { background-image: linear-gradient(135deg,#f59e0b,#b45309); box-shadow: 0 8px 20px -6px rgba(180,83,9,0.5); }
 
 .modal-enter-active,.modal-leave-active{transition:opacity 0.3s}
 .modal-enter-from,.modal-leave-to{opacity:0}

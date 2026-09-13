@@ -2,16 +2,16 @@
   <GameShell title="2048" icon="🔢" theme="light" bg="#faf8ef">
   <div class="select-none pb-20">
     <!-- 2048 고유 점수판 (오리지널 게임 스킨) -->
-    <div class="bg-[#bbada0] mx-4 mt-4 rounded-xl px-4 py-3 flex items-center gap-3">
-      <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center">
+    <div class="bg-[#bbada0] mx-4 mt-4 rounded-xl px-4 py-3 flex items-center gap-3 shadow-[0_10px_26px_rgba(119,110,101,0.25)]">
+      <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center shadow-inner">
         <div class="text-[#776e65] text-xs">점수</div>
         <div class="text-[#776e65] font-black text-lg">{{ score }}</div>
       </div>
-      <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center">
+      <div class="bg-[#eee4da] rounded-lg px-3 py-1 text-center shadow-inner">
         <div class="text-[#776e65] text-xs">최고</div>
         <div class="text-[#776e65] font-black text-lg">{{ bestScore }}</div>
       </div>
-      <button @click="newGame" class="ml-auto bg-[#8f7a66] text-white font-bold px-3 py-2 rounded-lg text-sm hover:bg-[#7a6959]">
+      <button @click="newGame" class="ml-auto bg-[#8f7a66] text-white font-bold px-3 py-2 rounded-lg text-sm hover:bg-[#7a6959] transition-transform hover:-translate-y-0.5 shadow-[0_6px_14px_rgba(143,122,102,0.4)]">
         새게임
       </button>
     </div>
@@ -60,11 +60,11 @@
       <!-- 방향 버튼 (모바일 편의) -->
       <div class="mt-4 grid grid-cols-3 gap-2 max-w-[160px] mx-auto">
         <div></div>
-        <button @click="move('up')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95">↑</button>
+        <button @click="move('up')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95 shadow-[0_6px_14px_rgba(119,110,101,0.35)]">↑</button>
         <div></div>
-        <button @click="move('left')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95">←</button>
-        <button @click="move('down')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95">↓</button>
-        <button @click="move('right')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95">→</button>
+        <button @click="move('left')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95 shadow-[0_6px_14px_rgba(119,110,101,0.35)]">←</button>
+        <button @click="move('down')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95 shadow-[0_6px_14px_rgba(119,110,101,0.35)]">↓</button>
+        <button @click="move('right')" class="bg-[#bbada0] text-white font-black py-3 rounded-xl text-xl hover:bg-[#a09186] active:scale-95 shadow-[0_6px_14px_rgba(119,110,101,0.35)]">→</button>
       </div>
     </div>
   </div>
