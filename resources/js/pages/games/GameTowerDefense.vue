@@ -70,6 +70,7 @@ const answered = ref(false)
 const picked = ref(null)
 const leveled = ref(false)
 const phase = ref('start')
+const waveEnemiesRemaining = ref(0) // 이번 웨이브에서 아직 안 나온 적 수 — 0이 되고 화면에도 적이 없으면 웨이브 클리어
 let gameLoop = null
 let spawnTimer = null
 let enemyId = 0
@@ -99,33 +100,49 @@ function genQuestion() {
 function startGame() {
   hp.value=20; gold.value=50; wave.value=1; score.value=0; leveled.value=false
   enemies.value=[]; towers.value=Array.from({length:5},()=>({placed:false}))
-  currentQ.value=null; answered.value=false; phase.value='play'
+  currentQ.value=genQuestion(); answered.value=false; phase.value='play'
   speak('타워 디펜스 시작!')
+  gameLoop = setInterval(tick, 100)
   spawnWave()
 }
 
 function spawnWave() {
+  if (spawnTimer) clearInterval(spawnTimer)
   const waveSize = wave.value + 2
   const speed = Math.max(0.3, 1.5 - wave.value * 0.1)
-  let spawned = 0
+  waveEnemiesRemaining.value = waveSize
   spawnTimer = setInterval(() => {
-    if (spawned >= waveSize) { clearInterval(spawnTimer); return }
+    if (waveEnemiesRemaining.value <= 0) { clearInterval(spawnTimer); return }
     const hp_val = wave.value + rand(1,3)
     enemies.value.push({ id: enemyId++, x: 0, hp: hp_val, maxHp: hp_val, icon: wave.value<=2?'🧟':'🐉', speed })
-    spawned++
+    waveEnemiesRemaining.value--
   }, 1500)
-  gameLoop = setInterval(tick, 100)
-  if (!currentQ.value) currentQ.value = genQuestion()
 }
 
 function tick() {
   if (phase.value !== 'play') return
-  enemies.value = enemies.value.map(e => {
-    const dmg = towers.value.filter(t=>t.placed).length * 0.5
+  // 설치된 타워가 매 틱마다 선두 적에게 지속 데미지 — 예전엔 계산만 하고 반영을 안 해서 타워를 사도 아무 효과가 없었음
+  const towerDmg = towers.value.filter(t=>t.placed).length * 0.5
+  if (towerDmg > 0 && enemies.value[0]) enemies.value[0].hp -= towerDmg
+
+  const survivors = []
+  for (const e of enemies.value) {
+    if (e.hp <= 0) { gold.value += 10; continue }
     const newX = e.x + e.speed
-    if (newX >= 100) { hp.value -= 1; if(hp.value<=0){endGame('gameover')}; return null }
-    return {...e, x: newX}
-  }).filter(Boolean)
+    if (newX >= 100) {
+      hp.value -= 1
+      if (hp.value <= 0) { endGame('gameover'); return }
+      continue
+    }
+    survivors.push({ ...e, x: newX })
+  }
+  enemies.value = survivors
+
+  // 이번 웨이브 소환이 끝났고 화면에 남은 적도 없으면 다음 웨이브로 — 예전엔 웨이브가 처음 한 번만 소환되고 다시 오지 않아 첫 웨이브 이후 게임이 멈췄었음
+  if (enemies.value.length === 0 && waveEnemiesRemaining.value <= 0) {
+    if (wave.value >= 5) { endGame('victory') }
+    else { wave.value++; spawnWave() }
+  }
 }
 
 function placeTower(i) {
@@ -141,11 +158,7 @@ function answer(opt) {
   answered.value = true; picked.value = opt
   if (opt === currentQ.value.ans) {
     score.value += 10
-    const target = enemies.value[0]
-    if (target) {
-      target.hp -= 3
-      if (target.hp <= 0) { enemies.value.shift(); gold.value += 10; wave.value++; if(wave.value>5)endGame('victory') }
-    }
+    if (enemies.value[0]) enemies.value[0].hp -= 3
     speak('정답!')
   } else speak('오답!')
   setTimeout(() => { answered.value=false; picked.value=null; currentQ.value=genQuestion() }, 1200)
