@@ -1,6 +1,5 @@
 <template>
-<div class="min-h-screen lobby-page">
-  <div class="lobby-blobs" aria-hidden="true"><span class="lb1"></span><span class="lb2"></span><span class="lb3"></span></div>
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5 relative z-[1]">
     <!-- 헤더 -->
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -194,13 +193,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.lobby-page { position: relative; background: linear-gradient(160deg,#f1eefc 0%,#fdf1f7 45%,#eef6fb 100%); }
-.lobby-blobs { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.lobby-blobs span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .3; }
-.lobby-blobs .lb1 { width: 360px; height: 360px; top: -100px; left: -80px; background: #8b5cf6; }
-.lobby-blobs .lb2 { width: 320px; height: 320px; bottom: -80px; right: -60px; background: #f97316; }
-.lobby-blobs .lb3 { width: 260px; height: 260px; top: 45%; right: 15%; background: #38bdf8; opacity: .2; }
-
 .lobby-icon-chip {
   display: inline-flex; align-items: center; justify-content: center; border-radius: 12px;
   background-image: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(249,115,22,0.2));
@@ -209,10 +201,10 @@ onMounted(async () => {
 
 .lobby-btn-ghost {
   display: inline-flex; align-items: center; gap: 4px;
-  background: rgba(255,255,255,0.55); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.6); color: #57534e;
+  background: #fff; border: 1px solid #EDE8E2; color: #57534e;
   padding: 7px 14px; border-radius: 999px; font-weight: 700;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: transform .15s ease;
+  box-shadow: 0 1px 2px rgba(27,22,19,.04), 0 8px 24px -12px rgba(27,22,19,.10);
+  transition: transform .15s ease;
 }
 .lobby-btn-ghost:hover { transform: translateY(-1px); }
 
@@ -233,9 +225,8 @@ onMounted(async () => {
 .lobby-spin-btn.is-done { background-image: none; background: rgba(0,0,0,0.06); color: #a8a29e; box-shadow: none; cursor: not-allowed; }
 
 .lobby-glass-panel {
-  background: rgba(255,255,255,0.55); backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.6); border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(31,38,80,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+  background: #fff; border: 1px solid #EDE8E2; border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(27,22,19,.04), 0 8px 24px -12px rgba(27,22,19,.10);
 }
 
 .lobby-cat-row {
@@ -243,7 +234,7 @@ onMounted(async () => {
   color: #57534e; background: transparent; border: none; cursor: pointer;
   transition: background .15s ease, color .15s ease;
 }
-.lobby-cat-row:hover { background: rgba(255,255,255,0.5); }
+.lobby-cat-row:hover { background: #F8F6F3; }
 .lobby-cat-row.is-active {
   background-image: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(249,115,22,0.15));
   color: #b45309; font-weight: 800;
@@ -252,8 +243,7 @@ onMounted(async () => {
 .lobby-cat-pill {
   padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 800;
   white-space: nowrap; flex-shrink: 0; cursor: pointer;
-  background: rgba(255,255,255,0.6); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.5); color: #78716c;
+  background: #fff; border: 1px solid #EDE8E2; color: #78716c;
   transition: transform .15s ease, background .15s ease;
 }
 .lobby-cat-pill.is-active {
@@ -263,12 +253,11 @@ onMounted(async () => {
 
 .lobby-game-card {
   display: block; padding: 18px 14px; border-radius: 20px; overflow: hidden;
-  background: rgba(255,255,255,0.6); backdrop-filter: blur(16px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.6);
-  box-shadow: 0 10px 26px rgba(31,38,80,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+  background: #fff; border: 1px solid #EDE8E2;
+  box-shadow: 0 1px 2px rgba(27,22,19,.04), 0 8px 24px -12px rgba(27,22,19,.10);
   transition: transform .15s ease, box-shadow .15s ease;
 }
-.lobby-game-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(31,38,80,0.16), inset 0 1px 0 rgba(255,255,255,0.5); }
+.lobby-game-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(27,22,19,.05), 0 16px 40px -16px rgba(255,90,31,.18); }
 
 .lobby-thumb-card { padding: 0; display: flex; flex-direction: column; }
 .lobby-thumb-wrap {
