@@ -1,5 +1,5 @@
 <template>
-  <GameShell title="빙고 게임" icon="🎯" theme="dark" fullscreen
+  <GameShell title="빙고 게임" icon="🎯" theme="dark"
     bg="linear-gradient(to bottom right, #1e1b4b, #3b0764, #172554)">
   <div class="text-white p-4">
     <div class="max-w-6xl mx-auto">
