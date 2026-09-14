@@ -58,6 +58,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -67,10 +68,14 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameLeaderboard from '../../components/GameLeaderboard.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
 const auth = useAuthStore()
+const sound = useGameSound()
+const confettiRef = ref(null)
 const siteStore = useSiteStore()
 
 const wordBank = [
@@ -200,8 +205,10 @@ function selectAnswer(opt) {
     correct.value++
     score.value += 10 + timeLeft.value
     speak('정답!')
+    sound.correct()
   } else {
     speak('정답은 ' + curQ.value.kor)
+    sound.wrong()
   }
   setTimeout(nextQuestion, 2500)
 }
@@ -217,6 +224,9 @@ async function endGame() {
     localStorage.setItem('sat_level', level.value)
     leveled.value = true
     speak('레벨업!')
+    sound.levelUp(); confettiRef.value?.burst()
+  } else {
+    sound.gameOver()
   }
   if (auth.isLoggedIn && won) {
     try {

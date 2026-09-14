@@ -52,6 +52,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -60,9 +61,13 @@ import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
 const rec = useGameRecord('spelling')
+const sound = useGameSound()
+const confettiRef = ref(null)
 
 const quizDB = [
   {level:1,context:'밥을 <u>먹었어요</u> / <u>먹었어요</u>',options:[{text:'먹었어요',correct:true},{text:'먹었서요',correct:false}],explain:'"먹었어요"가 올바른 표현이에요.'},
@@ -154,15 +159,18 @@ function selectAnswer(opt) {
   clearInterval(timer)
   answered.value=true; picked.value=opt.text
   wasRight.value=opt.correct
-  if(wasRight.value){ correct.value++; score.value+=10+timeLeft.value; speak('정답!') }
-  else { speak('오답! ' + curQ.value.explain) }
+  if(wasRight.value){ correct.value++; score.value+=10+timeLeft.value; speak('정답!'); sound.correct() }
+  else { speak('오답! ' + curQ.value.explain); sound.wrong() }
   setTimeout(nextQuestion,2800)
 }
 
 async function endGame() {
   clearInterval(timer); phase.value='result'
   const won = correct.value >= 8
-  if(won){ level.value++; localStorage.setItem('spelling_level',level.value); leveled.value=true; speak('레벨업!') }
+  if(won){
+    level.value++; localStorage.setItem('spelling_level',level.value); leveled.value=true; speak('레벨업!')
+    sound.levelUp(); confettiRef.value?.burst()
+  } else { sound.gameOver() }
   await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
