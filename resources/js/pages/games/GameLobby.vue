@@ -45,17 +45,6 @@
         <div class="lobby-casino-enter">입장 <AppIcon name="arrow-right" :size="14" /></div>
       </RouterLink>
 
-      <!-- 인기 게임 (피처드, 큰 카드) -->
-      <section class="mb-8">
-        <h2 class="lobby-section-title"><AppIcon name="flame" :size="18" class="text-red-500" /> 인기 게임</h2>
-        <div class="lobby-featured-grid">
-          <RouterLink v-for="game in featuredGames" :key="game.path" :to="game.path"
-            class="lobby-card lobby-game-tile lobby-tile-lg group">
-            <GameCard :slug="game.slug" :title="game.name" :subtitle="game.description" />
-          </RouterLink>
-        </div>
-      </section>
-
       <!-- 카테고리별 섹션 -->
       <section v-for="cat in gameCategories" :key="cat.key" :id="`cat-${cat.key}`" class="mb-8 scroll-mt-20">
         <h2 class="lobby-section-title">{{ cat.icon }} {{ cat.label }}</h2>
@@ -120,7 +109,6 @@ const categories = [
 
 const casinoGame = computed(() => allGames.value.find(g => g.slug === 'casino'))
 const nonCasinoGames = computed(() => allGames.value.filter(g => g.slug !== 'casino'))
-const featuredGames = computed(() => nonCasinoGames.value.slice(0, 2))
 const gameCategories = computed(() => categories.filter(c => gamesByCategory.value[c.key]?.length))
 const gamesByCategory = computed(() => {
   const map = {}
@@ -220,9 +208,5 @@ onMounted(async () => {
 @media (min-width: 640px) { .lobby-tile-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (min-width: 1024px) { .lobby-tile-grid { grid-template-columns: repeat(4, 1fr); } }
 
-.lobby-featured-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-@media (min-width: 640px) { .lobby-featured-grid { grid-template-columns: repeat(2, 1fr); } }
-
 .lobby-game-tile { position: relative; aspect-ratio: 4 / 3; }
-.lobby-tile-lg { aspect-ratio: 16 / 9; }
 </style>

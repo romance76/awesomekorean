@@ -75,7 +75,7 @@ const titleStyle = computed(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Poppins:wght@600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gothic+A1:wght@800;900&family=Poppins:wght@600;700;800;900&display=swap');
 
 .gc { display: block; width: 100%; height: 100%; }
 
@@ -94,7 +94,7 @@ const titleStyle = computed(() => {
 
 .gc-title {
   height: 100%; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;
-  font-family: 'Black Han Sans', sans-serif; line-height: 1.12; text-align: right;
+  font-family: 'Gothic A1', sans-serif; font-weight: 800; line-height: 1.12; text-align: right;
   padding-right: 16px; word-break: keep-all;
 }
 .gc-title span { display: block; }
