@@ -39,8 +39,8 @@
       <RouterLink v-if="casinoGame" :to="casinoGame.path" class="lobby-card lobby-casino-card group flex items-center gap-4 mb-8">
         <div class="lobby-casino-icon">{{ casinoGame.icon }}</div>
         <div class="flex-1 min-w-0">
-          <div class="text-base font-black text-white">{{ casinoGame.name }}</div>
-          <div class="text-xs text-white/80 mt-0.5">{{ casinoGame.description }}</div>
+          <div class="text-base font-black text-white">{{ displayName(casinoGame) }}</div>
+          <div class="text-xs text-white/80 mt-0.5">{{ displayDescription(casinoGame) }}</div>
         </div>
         <div class="lobby-casino-enter">입장 <AppIcon name="arrow-right" :size="14" /></div>
       </RouterLink>
@@ -51,7 +51,7 @@
         <div class="lobby-tile-grid">
           <RouterLink v-for="game in gamesByCategory[cat.key]" :key="game.path" :to="game.path"
             class="lobby-card lobby-game-tile group">
-            <GameCard :slug="game.slug" :title="game.name" :subtitle="game.description" />
+            <GameCard :slug="game.slug" :title="displayName(game)" :subtitle="displayDescription(game)" />
           </RouterLink>
         </div>
       </section>
@@ -64,6 +64,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
+import { useLangStore } from '../../stores/lang'
 import DailySpinModal from '../../components/DailySpinModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import GameCard from '../../components/GameCard.vue'
@@ -71,6 +72,14 @@ import axios from 'axios'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
+const langStore = useLangStore()
+
+function displayName(game) {
+  return langStore.locale === 'en' && game.name_en ? game.name_en : game.name
+}
+function displayDescription(game) {
+  return langStore.locale === 'en' && game.description_en ? game.description_en : game.description
+}
 const allGames = ref([])
 const loading = ref(true)
 const showSpin = ref(false)
@@ -128,7 +137,9 @@ onMounted(async () => {
       path: g.path,
       icon: g.icon,
       name: g.name,
+      name_en: g.name_en,
       description: g.description,
+      description_en: g.description_en,
       category: g.category,
     }))
   } catch {}

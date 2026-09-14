@@ -31,13 +31,11 @@
       </div>
     </foreignObject>
 
-    <foreignObject x="0" y="6" width="386" height="150">
-      <div xmlns="http://www.w3.org/1999/xhtml" class="gc-title" :style="titleStyle">
-        <span v-for="(line, i) in titleLines" :key="i">{{ line }}</span>
-      </div>
+    <foreignObject x="0" y="16" width="380" height="140">
+      <div xmlns="http://www.w3.org/1999/xhtml" class="gc-title" :style="titleStyle">{{ title }}</div>
     </foreignObject>
 
-    <foreignObject x="0" y="254" width="400" height="36">
+    <foreignObject x="0" y="248" width="400" height="40">
       <div xmlns="http://www.w3.org/1999/xhtml" class="gc-subtitle">{{ subtitle }}</div>
     </foreignObject>
   </svg>
@@ -54,21 +52,11 @@ const props = defineProps({
 })
 
 const art = computed(() => CARD_ART[props.slug] || DEFAULT_ART)
-const titleLines = computed(() => (props.title || '').split(' '))
-
-const titleFontSize = computed(() => {
-  const len = (props.title || '').replace(/\s/g, '').length
-  if (len <= 2) return 58
-  if (len <= 4) return 40
-  if (len <= 6) return 30
-  return 24
-})
 
 const titleStyle = computed(() => {
   const [s1, s2, s3] = art.value.shadow
   return {
     color: art.value.text,
-    fontSize: `${titleFontSize.value}px`,
     textShadow: `2px 3px 0 ${s1}, 4px 6px 0 ${s2}, 6px 9px 0 ${s3}, 6px 14px 16px rgba(0,0,0,0.5)`,
   }
 })
@@ -93,13 +81,14 @@ const titleStyle = computed(() => {
 }
 
 .gc-title {
-  height: 100%; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-start;
-  font-family: 'Gothic A1', sans-serif; font-weight: 800; line-height: 1.12; text-align: right;
-  padding-right: 16px; word-break: keep-all;
+  height: 100%; display: flex; align-items: flex-start; justify-content: flex-end;
+  font-family: 'Gothic A1', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.2;
+  text-align: right; padding: 2px 20px 0 12px; word-break: keep-all; overflow-wrap: break-word;
 }
-.gc-title span { display: block; }
 
 .gc-subtitle {
+  height: 100%; display: flex; align-items: center; justify-content: center;
+  padding: 0 16px 6px;
   font-family: 'Poppins', -apple-system, sans-serif; font-size: 12px; font-weight: 800;
   color: rgba(255,255,255,0.9); text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
