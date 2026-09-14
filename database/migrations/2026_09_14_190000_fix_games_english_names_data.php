@@ -1,26 +1,15 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
+// 이전 마이그레이션(add_english_names_to_games)이 '2048' 같은 연관배열 키의
+// PHP 자동 int 캐스팅 버그로 memory 하나만 채우고 중단됐을 가능성에 대비해,
+// 동일한 데이터를 안전한 튜플 방식으로 다시 채워 넣는 안전망 마이그레이션.
+// 이미 값이 채워져 있어도 같은 값으로 덮어쓸 뿐이라 재실행해도 안전함.
 return new class extends Migration {
     public function up(): void
     {
-        Schema::table('games', function (Blueprint $table) {
-            if (!Schema::hasColumn('games', 'name_en')) {
-                $table->string('name_en', 100)->nullable()->after('name');
-            }
-            if (!Schema::hasColumn('games', 'description_en')) {
-                $table->string('description_en', 200)->nullable()->after('description');
-            }
-        });
-
-        // 주의: 연관배열 키로 쓰면 PHP가 숫자 형태 문자열('2048')을 자동으로
-        // int로 캐스팅해버려 DB::table()->where('slug', $slug) 비교 시 MySQL이
-        // 다른 행들의 slug(문자열)를 숫자로 강제 변환하려다 에러를 낼 수 있음.
-        // 그래서 연관배열이 아닌 [slug, name_en, description_en] 튜플 목록으로 작성.
         $translations = [
             ['memory', 'Memory', 'Card Matching'],
             ['2048', '2048', 'Number Puzzle'],
@@ -63,8 +52,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('games', function (Blueprint $table) {
-            $table->dropColumn(['name_en', 'description_en']);
-        });
+        // 데이터 채우기 전용이라 되돌릴 필요 없음
     }
 };
