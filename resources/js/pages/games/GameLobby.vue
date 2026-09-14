@@ -1,115 +1,78 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-7xl mx-auto px-4 py-5 relative z-[1]">
+  <div class="max-w-6xl mx-auto px-4 py-6 relative z-[1]">
     <!-- 헤더 -->
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="lobby-icon-chip w-9 h-9"><AppIcon name="gamepad" :size="20" /></span>
-        게임
-      </h1>
-      <div class="flex items-center gap-2 text-sm flex-wrap">
-        <!-- 리더보드 (로그인 불필요) -->
-        <RouterLink to="/games/leaderboard"
-          class="lobby-btn-ghost text-xs flex items-center gap-1">
+    <div class="flex items-start justify-between mb-1 flex-wrap gap-3">
+      <div>
+        <h1 class="lobby-hero-title">게임</h1>
+        <p class="lobby-hero-sub">포인트 받으며 즐기는 미니게임 모음</p>
+      </div>
+      <div class="flex items-center gap-2 text-sm flex-wrap mt-1">
+        <RouterLink to="/games/leaderboard" class="lobby-btn-ghost text-xs flex items-center gap-1">
           <AppIcon name="trophy" :size="14" /> 리더보드
         </RouterLink>
         <template v-if="auth.isLoggedIn">
-          <!-- 강조된 포인트 표시 -->
           <div class="lobby-points-badge">
             <AppIcon name="coins" :size="16" />
             <span class="text-base tracking-tight">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-xs">P</span></span>
           </div>
-          <!-- 일일 룰렛 (팝업) -->
-          <button @click="onSpinClick"
-            :class="['lobby-spin-btn', spunToday ? 'is-done' : '']">
+          <button @click="onSpinClick" :class="['lobby-spin-btn', spunToday ? 'is-done' : '']">
             <AppIcon name="sparkles" :size="14" /> {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
           </button>
         </template>
       </div>
     </div>
 
-    <!-- 일일 룰렛 모달 -->
+    <!-- 카테고리 빠른 이동 -->
+    <div class="flex gap-1.5 my-4 overflow-x-auto pb-1 scrollbar-hide">
+      <a v-for="cat in categories" :key="cat.key" :href="`#cat-${cat.key}`" class="lobby-cat-pill">
+        {{ cat.icon }} {{ cat.label }}
+      </a>
+    </div>
+
     <DailySpinModal :show="showSpin" @close="showSpin=false" @earned="onSpinEarned" />
 
-    <div class="grid grid-cols-12 gap-4">
-      <!-- 왼쪽: 카테고리 -->
-      <div class="col-span-12 lg:col-span-2 hidden lg:block">
-        <div class="lobby-glass-panel overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b border-white/40 font-bold text-xs text-ink flex items-center gap-1.5">
-            <AppIcon name="list" :size="13" class="text-amber-500" /> 카테고리
-          </div>
-          <button v-for="cat in categories" :key="cat.key" @click="activeCat=cat.key"
-            class="lobby-cat-row"
-            :class="activeCat===cat.key ? 'is-active' : ''">
-            {{ cat.icon }} {{ cat.label }}
-          </button>
-        </div>
-      </div>
+    <div v-if="loading" class="text-center py-16 text-sm text-ink-muted">로딩중...</div>
 
-      <!-- 메인: 게임 카드 -->
-      <div class="col-span-12 lg:col-span-7">
-        <!-- 모바일 카테고리 -->
-        <div class="lg:hidden flex gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
-          <button v-for="cat in categories" :key="cat.key" @click="activeCat=cat.key"
-            class="lobby-cat-pill"
-            :class="activeCat===cat.key ? 'is-active' : ''">
-            {{ cat.icon }} {{ cat.label }}
-          </button>
+    <template v-else>
+      <!-- 카지노 배너 -->
+      <RouterLink v-if="casinoGame" :to="casinoGame.path" class="lobby-card lobby-casino-card group flex items-center gap-4 mb-8">
+        <div class="lobby-casino-icon">{{ casinoGame.icon }}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-base font-black text-white">{{ casinoGame.name }}</div>
+          <div class="text-xs text-white/80 mt-0.5">{{ casinoGame.description }}</div>
         </div>
+        <div class="lobby-casino-enter">입장 <AppIcon name="arrow-right" :size="14" /></div>
+      </RouterLink>
 
-        <div v-if="loading" class="text-center py-16 text-sm text-ink-muted">로딩중...</div>
-        <div v-else-if="!filteredGames.length" class="py-16 text-center">
-          <div class="lobby-icon-chip w-14 h-14 mx-auto mb-3 opacity-50"><AppIcon name="gamepad" :size="28" :stroke-width="1.5" /></div>
-          <p class="text-sm text-ink-muted">게임이 없습니다</p>
-        </div>
-        <div v-else class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <RouterLink v-for="game in filteredGames" :key="game.path" :to="game.path"
-            class="lobby-game-card group"
-            :class="game.slug === 'casino'
-              ? 'lobby-casino-card col-span-2 sm:col-span-3 flex items-center gap-4 text-left'
-              : 'flex items-start gap-3 text-left'">
-            <template v-if="game.slug === 'casino'">
-              <div class="lobby-casino-icon">{{ game.icon }}</div>
-              <div class="flex-1 min-w-0">
-                <div class="text-base font-black text-white">{{ game.name }}</div>
-                <div class="text-xs text-white/80 mt-0.5">{{ game.description }}</div>
-              </div>
-              <div class="lobby-casino-enter">입장 <AppIcon name="arrow-right" :size="14" /></div>
-            </template>
-            <template v-else>
-              <div class="lobby-game-icon">{{ game.icon }}</div>
-              <div class="min-w-0">
-                <div class="lobby-game-name group-hover:text-amber-600">{{ game.name }}</div>
-                <div class="lobby-game-desc">{{ game.description }}</div>
-              </div>
-            </template>
+      <!-- 인기 게임 (피처드, 큰 카드) -->
+      <section class="mb-8">
+        <h2 class="lobby-section-title"><AppIcon name="flame" :size="18" class="text-red-500" /> 인기 게임</h2>
+        <div class="lobby-featured-grid">
+          <RouterLink v-for="game in featuredGames" :key="game.path" :to="game.path"
+            class="lobby-card lobby-game-tile lobby-tile-lg group" :style="tileStyle(game.slug)">
+            <span class="lobby-tile-brand">AK</span>
+            <span class="lobby-tile-icon">{{ game.icon }}</span>
+            <div class="lobby-tile-title lobby-tile-title-lg">{{ game.name }}</div>
+            <div class="lobby-tile-desc">{{ game.description }}</div>
           </RouterLink>
         </div>
-      </div>
+      </section>
 
-      <!-- 오른쪽: 위젯 -->
-      <div class="col-span-12 lg:col-span-3 hidden lg:block space-y-3">
-        <div class="lobby-glass-panel overflow-hidden">
-          <div class="px-3 py-2.5 border-b border-white/40 font-bold text-xs text-ink flex items-center gap-1.5">
-            <AppIcon name="flame" :size="13" class="text-red-500" /> 인기 게임
-          </div>
-          <RouterLink v-for="g in popularGames" :key="g.path" :to="g.path"
-            class="block px-3 py-2 hover:bg-white/50 transition-colors text-xs text-ink-light hover:text-amber-700">
-            {{ g.icon }} {{ g.name }}
+      <!-- 카테고리별 섹션 -->
+      <section v-for="cat in gameCategories" :key="cat.key" :id="`cat-${cat.key}`" class="mb-8 scroll-mt-20">
+        <h2 class="lobby-section-title">{{ cat.icon }} {{ cat.label }}</h2>
+        <div class="lobby-tile-grid">
+          <RouterLink v-for="game in gamesByCategory[cat.key]" :key="game.path" :to="game.path"
+            class="lobby-card lobby-game-tile group" :style="tileStyle(game.slug)">
+            <span class="lobby-tile-brand">AK</span>
+            <span class="lobby-tile-icon">{{ game.icon }}</span>
+            <div class="lobby-tile-title">{{ game.name }}</div>
+            <div class="lobby-tile-desc">{{ game.description }}</div>
           </RouterLink>
         </div>
-        <div class="lobby-glass-panel p-3">
-          <div class="font-bold text-xs text-ink mb-2 flex items-center gap-1.5">
-            <AppIcon name="megaphone" :size="13" class="text-amber-500" /> 게임 안내
-          </div>
-          <div class="text-xs text-ink-muted space-y-1">
-            <div>• 게임 플레이 시 포인트 획득</div>
-            <div>• 일일 룰렛으로 무료 포인트</div>
-            <div>• 리더보드에 도전하세요</div>
-          </div>
-        </div>
-      </div>
-    </div>
+      </section>
+    </template>
   </div>
 </div>
 </template>
@@ -124,7 +87,6 @@ import axios from 'axios'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
-const activeCat = ref('all')
 const allGames = ref([])
 const loading = ref(true)
 const showSpin = ref(false)
@@ -154,7 +116,6 @@ async function checkSpinStatus() {
 }
 
 const categories = [
-  { key: 'all', icon: '🎮', label: '전체' },
   { key: 'card', icon: '🃏', label: '카드' },
   { key: 'brain', icon: '🧠', label: '두뇌' },
   { key: 'arcade', icon: '👾', label: '아케이드' },
@@ -162,12 +123,32 @@ const categories = [
   { key: 'education', icon: '📚', label: '교육' },
 ]
 
-const filteredGames = computed(() => {
-  if (activeCat.value === 'all') return allGames.value
-  return allGames.value.filter(g => g.category === activeCat.value)
+const casinoGame = computed(() => allGames.value.find(g => g.slug === 'casino'))
+const nonCasinoGames = computed(() => allGames.value.filter(g => g.slug !== 'casino'))
+const featuredGames = computed(() => nonCasinoGames.value.slice(0, 2))
+const gameCategories = computed(() => categories.filter(c => gamesByCategory.value[c.key]?.length))
+const gamesByCategory = computed(() => {
+  const map = {}
+  for (const g of nonCasinoGames.value) {
+    if (!map[g.category]) map[g.category] = []
+    map[g.category].push(g)
+  }
+  return map
 })
 
-const popularGames = computed(() => allGames.value.slice(0, 8))
+// 게임마다 고유한 배경색 (야후 게임즈 스타일 — 카드 하나하나가 또렷하게 구분되는 단색 브랜드 카드)
+const GAME_COLORS = {
+  memory: '#e11d48', '2048': '#1d4ed8', omok: '#334155', puzzle: '#0e7490', bingo: '#a21caf',
+  speedcalc: '#0369a1', seniormemory: '#be185d', stroop: '#4338ca',
+  snake: '#15803d', towerdefense: '#334155', slots: '#c2410c', stocksim: '#059669',
+  wordle: '#4d7c0f', wordchain: '#7e22ce', wordblank: '#0f766e', spelling: '#b91c1c',
+  typing: '#3730a3', wordcard: '#b45309', hangul: '#92400e', counting: '#0e7490',
+  colors: '#a21caf', shapes: '#0d9488', satwords: '#9a3412', proverb: '#78350f',
+  flag: '#1e40af', uslife: '#166534', animals: '#9a3412', idiom: '#6b21a8',
+}
+function tileStyle(slug) {
+  return { background: GAME_COLORS[slug] || '#57534e' }
+}
 
 onMounted(async () => {
   checkSpinStatus()
@@ -187,11 +168,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.lobby-icon-chip {
-  display: inline-flex; align-items: center; justify-content: center; border-radius: 12px;
-  background-image: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(249,115,22,0.2));
-  color: #b45309; flex-shrink: 0;
-}
+.lobby-hero-title { font-size: 34px; font-weight: 900; letter-spacing: -0.02em; color: #1c1917; line-height: 1.1; }
+.lobby-hero-sub { font-size: 13px; color: #78716c; margin-top: 4px; }
 
 .lobby-btn-ghost {
   display: inline-flex; align-items: center; gap: 4px;
@@ -218,48 +196,29 @@ onMounted(async () => {
 .lobby-spin-btn:hover { transform: translateY(-1px); }
 .lobby-spin-btn.is-done { background-image: none; background: rgba(0,0,0,0.06); color: #a8a29e; box-shadow: none; cursor: not-allowed; }
 
-.lobby-glass-panel {
-  background: #fff; border: 1px solid #EDE8E2; border-radius: 20px;
-  box-shadow: 0 1px 2px rgba(27,22,19,.04), 0 8px 24px -12px rgba(27,22,19,.10);
-}
-
-.lobby-cat-row {
-  display: block; width: 100%; text-align: left; padding: 9px 14px; font-size: 13px;
-  color: #57534e; background: transparent; border: none; cursor: pointer;
-  transition: background .15s ease, color .15s ease;
-}
-.lobby-cat-row:hover { background: #F8F6F3; }
-.lobby-cat-row.is-active {
-  background-image: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(249,115,22,0.15));
-  color: #b45309; font-weight: 800;
-}
-
 .lobby-cat-pill {
   padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 800;
-  white-space: nowrap; flex-shrink: 0; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0; cursor: pointer; text-decoration: none;
   background: #fff; border: 1px solid #EDE8E2; color: #78716c;
   transition: transform .15s ease, background .15s ease;
 }
-.lobby-cat-pill.is-active {
-  background-image: linear-gradient(135deg,#fbbf24,#f59e0b); color: #fff;
-  border-color: transparent; box-shadow: 0 6px 16px -4px rgba(245,158,11,0.5);
+.lobby-cat-pill:hover { color: #b45309; border-color: #FFC7A6; }
+
+.lobby-section-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 18px; font-weight: 900; color: #1c1917; margin-bottom: 12px;
 }
 
-.lobby-game-card {
-  display: block; padding: 16px; border-radius: 16px;
-  background: #fff; border: 1px solid #EDE8E2;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  transition: all .2s ease;
+.lobby-card {
+  display: block; border-radius: 18px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  transition: all .2s ease; text-decoration: none;
 }
-.lobby-game-card:hover { transform: translateY(-3px); border-color: #FFC7A6; box-shadow: 0 12px 28px rgba(25,31,40,0.08); }
-
-.lobby-game-icon { font-size: 30px; line-height: 1; flex-shrink: 0; }
-.lobby-game-name { font-size: 14px; font-weight: 800; color: #1c1917; }
-.lobby-game-desc { font-size: 11px; color: #8B95A1; margin-top: 2px; }
+.lobby-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.14); }
 
 .lobby-casino-card {
   background-image: linear-gradient(135deg,#FF8A53,#F2570F);
-  border-color: transparent; padding: 16px 20px;
+  padding: 16px 20px;
   box-shadow: 0 10px 24px -8px rgba(242,87,15,0.35);
 }
 .lobby-casino-icon {
@@ -273,5 +232,40 @@ onMounted(async () => {
   font-weight: 800; padding: 8px 16px; border-radius: 999px; font-size: 13px;
   transition: transform .15s ease;
 }
-.lobby-game-card:hover .lobby-casino-enter { transform: translateX(3px); }
+.lobby-card:hover .lobby-casino-enter { transform: translateX(3px); }
+
+/* 야후 게임즈 스타일 브랜드 타일 카드 */
+.lobby-tile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (min-width: 640px) { .lobby-tile-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .lobby-tile-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.lobby-featured-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 640px) { .lobby-featured-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.lobby-game-tile {
+  position: relative; aspect-ratio: 4 / 3; padding: 14px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.lobby-tile-lg { aspect-ratio: 16 / 9; padding: 20px; }
+
+.lobby-tile-brand {
+  position: absolute; top: 10px; left: 10px;
+  font-size: 10px; font-weight: 900; letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.18);
+  padding: 2px 7px; border-radius: 6px;
+}
+.lobby-tile-icon {
+  position: absolute; top: 8px; right: 8px; font-size: 22px;
+  background: rgba(255,255,255,0.22); border-radius: 999px;
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+}
+.lobby-tile-lg .lobby-tile-icon { font-size: 30px; width: 44px; height: 44px; }
+
+.lobby-tile-title {
+  font-size: 16px; font-weight: 900; color: #fff; line-height: 1.15;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.lobby-tile-title-lg { font-size: 24px; }
+.lobby-tile-desc { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+.lobby-tile-lg .lobby-tile-desc { font-size: 13px; }
 </style>
