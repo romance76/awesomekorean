@@ -67,7 +67,7 @@
             class="lobby-game-card group"
             :class="game.slug === 'casino'
               ? 'lobby-casino-card col-span-2 sm:col-span-3 flex items-center gap-4 text-left'
-              : 'lobby-thumb-card'">
+              : 'flex items-start gap-3 text-left'">
             <template v-if="game.slug === 'casino'">
               <div class="text-5xl flex-shrink-0">{{ game.icon }}</div>
               <div class="flex-1 min-w-0">
@@ -80,12 +80,10 @@
               <div class="lobby-casino-enter">입장 →</div>
             </template>
             <template v-else>
-              <div class="lobby-thumb-wrap">
-                <GameThumb :slug="game.slug" class="lobby-thumb-img" />
-              </div>
-              <div class="lobby-thumb-body">
-                <div class="text-sm font-bold text-ink group-hover:text-amber-700">{{ game.name }}</div>
-                <div class="text-xs text-ink-muted mt-0.5">{{ game.description }}</div>
+              <div class="lobby-game-icon">{{ game.icon }}</div>
+              <div class="min-w-0">
+                <div class="lobby-game-name group-hover:text-amber-600">{{ game.name }}</div>
+                <div class="lobby-game-desc">{{ game.description }}</div>
               </div>
             </template>
           </RouterLink>
@@ -125,7 +123,6 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import DailySpinModal from '../../components/DailySpinModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
-import GameThumb from '../../components/GameThumb.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
@@ -252,22 +249,16 @@ onMounted(async () => {
 }
 
 .lobby-game-card {
-  display: block; padding: 18px 14px; border-radius: 20px; overflow: hidden;
+  display: block; padding: 16px; border-radius: 16px;
   background: #fff; border: 1px solid #EDE8E2;
-  box-shadow: 0 1px 2px rgba(27,22,19,.04), 0 8px 24px -12px rgba(27,22,19,.10);
-  transition: transform .15s ease, box-shadow .15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  transition: all .2s ease;
 }
-.lobby-game-card:hover { transform: translateY(-3px); box-shadow: 0 2px 4px rgba(27,22,19,.05), 0 16px 40px -16px rgba(255,90,31,.18); }
+.lobby-game-card:hover { transform: translateY(-3px); border-color: #FFC7A6; box-shadow: 0 12px 28px rgba(25,31,40,0.08); }
 
-.lobby-thumb-card { padding: 0; display: flex; flex-direction: column; }
-.lobby-thumb-wrap {
-  position: relative; aspect-ratio: 4 / 3; width: 100%;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg,#f1f5f9,#e2e8f0); overflow: hidden;
-}
-.lobby-thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
-.lobby-thumb-card:hover .lobby-thumb-img { transform: scale(1.05); }
-.lobby-thumb-body { padding: 10px 12px 12px; text-align: center; }
+.lobby-game-icon { font-size: 30px; line-height: 1; flex-shrink: 0; }
+.lobby-game-name { font-size: 14px; font-weight: 800; color: #1c1917; }
+.lobby-game-desc { font-size: 11px; color: #8B95A1; margin-top: 2px; }
 
 .lobby-casino-card {
   background-image: linear-gradient(135deg,#fb923c,#ea580c);
