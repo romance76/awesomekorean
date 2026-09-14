@@ -50,11 +50,8 @@
         <h2 class="lobby-section-title"><AppIcon name="flame" :size="18" class="text-red-500" /> 인기 게임</h2>
         <div class="lobby-featured-grid">
           <RouterLink v-for="game in featuredGames" :key="game.path" :to="game.path"
-            class="lobby-card lobby-game-tile lobby-tile-lg group" :style="tileStyle(game.slug)">
-            <span class="lobby-tile-brand">AK</span>
-            <span class="lobby-tile-icon">{{ game.icon }}</span>
-            <div class="lobby-tile-title lobby-tile-title-lg">{{ game.name }}</div>
-            <div class="lobby-tile-desc">{{ game.description }}</div>
+            class="lobby-card lobby-game-tile lobby-tile-lg group">
+            <GameCard :slug="game.slug" :title="game.name" :subtitle="game.description" />
           </RouterLink>
         </div>
       </section>
@@ -64,11 +61,8 @@
         <h2 class="lobby-section-title">{{ cat.icon }} {{ cat.label }}</h2>
         <div class="lobby-tile-grid">
           <RouterLink v-for="game in gamesByCategory[cat.key]" :key="game.path" :to="game.path"
-            class="lobby-card lobby-game-tile group" :style="tileStyle(game.slug)">
-            <span class="lobby-tile-brand">AK</span>
-            <span class="lobby-tile-icon">{{ game.icon }}</span>
-            <div class="lobby-tile-title">{{ game.name }}</div>
-            <div class="lobby-tile-desc">{{ game.description }}</div>
+            class="lobby-card lobby-game-tile group">
+            <GameCard :slug="game.slug" :title="game.name" :subtitle="game.description" />
           </RouterLink>
         </div>
       </section>
@@ -83,6 +77,7 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import DailySpinModal from '../../components/DailySpinModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GameCard from '../../components/GameCard.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
@@ -135,20 +130,6 @@ const gamesByCategory = computed(() => {
   }
   return map
 })
-
-// 게임마다 고유한 배경색 (야후 게임즈 스타일 — 카드 하나하나가 또렷하게 구분되는 단색 브랜드 카드)
-const GAME_COLORS = {
-  memory: '#e11d48', '2048': '#1d4ed8', omok: '#334155', puzzle: '#0e7490', bingo: '#a21caf',
-  speedcalc: '#0369a1', seniormemory: '#be185d', stroop: '#4338ca',
-  snake: '#15803d', towerdefense: '#334155', slots: '#c2410c', stocksim: '#059669',
-  wordle: '#4d7c0f', wordchain: '#7e22ce', wordblank: '#0f766e', spelling: '#b91c1c',
-  typing: '#3730a3', wordcard: '#b45309', hangul: '#92400e', counting: '#0e7490',
-  colors: '#a21caf', shapes: '#0d9488', satwords: '#9a3412', proverb: '#78350f',
-  flag: '#1e40af', uslife: '#166534', animals: '#9a3412', idiom: '#6b21a8',
-}
-function tileStyle(slug) {
-  return { background: GAME_COLORS[slug] || '#57534e' }
-}
 
 onMounted(async () => {
   checkSpinStatus()
@@ -242,30 +223,6 @@ onMounted(async () => {
 .lobby-featured-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
 @media (min-width: 640px) { .lobby-featured-grid { grid-template-columns: repeat(2, 1fr); } }
 
-.lobby-game-tile {
-  position: relative; aspect-ratio: 4 / 3; padding: 14px;
-  display: flex; flex-direction: column; justify-content: flex-end;
-}
-.lobby-tile-lg { aspect-ratio: 16 / 9; padding: 20px; }
-
-.lobby-tile-brand {
-  position: absolute; top: 10px; left: 10px;
-  font-size: 10px; font-weight: 900; letter-spacing: 0.05em;
-  color: rgba(255,255,255,0.85); background: rgba(0,0,0,0.18);
-  padding: 2px 7px; border-radius: 6px;
-}
-.lobby-tile-icon {
-  position: absolute; top: 8px; right: 8px; font-size: 22px;
-  background: rgba(255,255,255,0.22); border-radius: 999px;
-  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
-}
-.lobby-tile-lg .lobby-tile-icon { font-size: 30px; width: 44px; height: 44px; }
-
-.lobby-tile-title {
-  font-size: 16px; font-weight: 900; color: #fff; line-height: 1.15;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-.lobby-tile-title-lg { font-size: 24px; }
-.lobby-tile-desc { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 3px; }
-.lobby-tile-lg .lobby-tile-desc { font-size: 13px; }
+.lobby-game-tile { position: relative; aspect-ratio: 4 / 3; }
+.lobby-tile-lg { aspect-ratio: 16 / 9; }
 </style>
