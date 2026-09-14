@@ -66,6 +66,7 @@
       </div>
     </Transition>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -74,9 +75,13 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
 const rec = useGameRecord('shapes')
+const sound = useGameSound()
+const confettiRef = ref(null)
 const level = ref(parseInt(localStorage.getItem('shapes_level')||'1'))
 const score = ref(0)
 const qIdx = ref(0)
@@ -164,7 +169,7 @@ function answer(opt) {
   if (answered.value) return
   answered.value = true
   const isCorrect = opt === cur.value.korName
-  if (isCorrect) { score.value += 10; correct.value++ }
+  if (isCorrect) { score.value += 10; correct.value++; sound.correct() } else { sound.wrong() }
   speak(isCorrect ? '정답이에요!' : `정답은 ${cur.value.korName}이에요`)
   triggerFeedback(isCorrect)
 }
@@ -177,7 +182,8 @@ async function endGame() {
     level.value++; localStorage.setItem('shapes_level', level.value)
     leveled.value = true
     speak('훌륭해요! 레벨업!')
-  } else { speak('잘 했어요! 다시 도전해봐요!') }
+    sound.levelUp(); confettiRef.value?.burst()
+  } else { speak('잘 했어요! 다시 도전해봐요!'); sound.gameOver() }
   await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 </script>

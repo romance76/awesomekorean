@@ -74,6 +74,7 @@
       <button class="home-btn" @click="$router.push('/games')">홈으로 🏠</button>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -82,9 +83,13 @@ import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
 const rec = useGameRecord('typing')
+const sound = useGameSound()
+const confettiRef = ref(null)
 const level = ref(parseInt(localStorage.getItem('typing_level')||'1'))
 const score = ref(0); const typed = ref(0); const mistakes = ref(0); const skipped = ref(0)
 const leveled = ref(false); const phase = ref('start')
@@ -157,10 +162,12 @@ function checkInput() {
     typed.value++
     if (hadMistake) mistakes.value++
     userInput.value = ''
+    sound.correct()
     loadNextWord()
   } else if (target.startsWith(val)) {
     inputStatus.value = 'typing'
   } else {
+    if (inputStatus.value !== 'wrong') sound.wrong()
     inputStatus.value = 'wrong'
     hadMistake = true
   }
@@ -182,8 +189,8 @@ async function endGame() {
   const passed = typed.value >= 5 && accuracy.value >= 70
   if (passed) {
     level.value++; localStorage.setItem('typing_level', level.value); leveled.value = true
-    speak('훌륭해요! 레벨업!')
-  } else speak('잘 했어요! 더 빠르게 연습해봐요!')
+    speak('훌륭해요! 레벨업!'); sound.levelUp(); confettiRef.value?.burst()
+  } else { speak('잘 했어요! 더 빠르게 연습해봐요!'); sound.gameOver() }
   await rec.end({ won: passed, leveledUp: leveled.value, score: score.value })
 }
 </script>

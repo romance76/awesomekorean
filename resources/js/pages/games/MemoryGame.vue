@@ -112,6 +112,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -119,7 +120,9 @@
 import { ref, computed, onUnmounted } from 'vue'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
+const confettiRef = ref(null)
 
 // 예전엔 서버 점수 저장이 전혀 없어 새로고침하면 최고기록이 사라졌음 — 다른
 // 게임들과 동일한 공용 기록/포인트 시스템에 연결.
@@ -305,6 +308,7 @@ function flipCard(idx) {
           stopTimer()
           phase.value = 'done'
           playWin()
+          confettiRef.value?.burst()
           rec.end({ won: true, leveledUp: false, score: score.value })
         }
       }, 400)

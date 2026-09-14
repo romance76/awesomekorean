@@ -57,6 +57,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -65,9 +66,13 @@ import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
 const rec = useGameRecord('puzzle')
+const sound = useGameSound()
+const confettiRef = ref(null)
 
 const level = ref(parseInt(localStorage.getItem('puzzle_level') || '1'))
 const moves = ref(0)
@@ -142,6 +147,7 @@ function startGame() {
     if (timeLeft.value <= 0) {
       clearInterval(timer)
       speak('시간 초과!')
+      sound.gameOver()
       phase.value = 'timeout'
       rec.end({ won: false })
     }
@@ -170,6 +176,7 @@ function clickTile(idx) {
     }
     phase.value = 'solved'
     speak(leveled.value ? '완성! 레벨업!' : '완성!')
+    if (leveled.value) { sound.levelUp(); confettiRef.value?.burst() } else { sound.correct(); confettiRef.value?.burst() }
     const score = Math.max(0, 1000 - moves.value * 5 - elapsedTime.value * 2)
     rec.end({ won: true, leveledUp: leveled.value, score })
   }
