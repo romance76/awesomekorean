@@ -68,27 +68,27 @@
             class="lobby-game-card group"
             :class="game.slug === 'casino'
               ? 'lobby-casino-card col-span-2 sm:col-span-3 flex items-center gap-4 text-left'
-              : 'text-center'">
-            <div v-if="game.slug === 'casino'" class="text-5xl flex-shrink-0">{{ game.icon }}</div>
-            <div v-else class="flex justify-center mb-2">
-              <span class="lobby-game-icon" :class="'cat-' + game.category">{{ game.icon }}</span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <div :class="game.slug === 'casino'
-                ? 'text-lg font-black text-white'
-                : 'text-sm font-bold text-ink group-hover:text-amber-700'">
-                {{ game.name }}
+              : 'lobby-thumb-card'">
+            <template v-if="game.slug === 'casino'">
+              <div class="text-5xl flex-shrink-0">{{ game.icon }}</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-lg font-black text-white">{{ game.name }}</div>
+                <div class="text-xs text-white/85 mt-0.5">{{ game.description }}</div>
+                <div class="flex gap-1 mt-2 text-lg">
+                  <span>♠️</span><span>♦️</span><span>🎴</span><span>🂡</span>
+                </div>
               </div>
-              <div :class="game.slug === 'casino' ? 'text-xs text-white/85 mt-0.5' : 'text-xs text-ink-muted mt-0.5'">
-                {{ game.description }}
+              <div class="lobby-casino-enter">입장 →</div>
+            </template>
+            <template v-else>
+              <div class="lobby-thumb-wrap">
+                <GameThumb :slug="game.slug" class="lobby-thumb-img" />
               </div>
-              <div v-if="game.slug === 'casino'" class="flex gap-1 mt-2 text-lg">
-                <span>♠️</span><span>♦️</span><span>🎴</span><span>🂡</span>
+              <div class="lobby-thumb-body">
+                <div class="text-sm font-bold text-ink group-hover:text-amber-700">{{ game.name }}</div>
+                <div class="text-xs text-ink-muted mt-0.5">{{ game.description }}</div>
               </div>
-            </div>
-            <div v-if="game.slug === 'casino'" class="lobby-casino-enter">
-              입장 →
-            </div>
+            </template>
           </RouterLink>
         </div>
       </div>
@@ -126,6 +126,7 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import DailySpinModal from '../../components/DailySpinModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GameThumb from '../../components/GameThumb.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
@@ -261,7 +262,7 @@ onMounted(async () => {
 }
 
 .lobby-game-card {
-  display: block; padding: 18px 14px; border-radius: 20px;
+  display: block; padding: 18px 14px; border-radius: 20px; overflow: hidden;
   background: rgba(255,255,255,0.6); backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid rgba(255,255,255,0.6);
   box-shadow: 0 10px 26px rgba(31,38,80,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
@@ -269,19 +270,15 @@ onMounted(async () => {
 }
 .lobby-game-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(31,38,80,0.16), inset 0 1px 0 rgba(255,255,255,0.5); }
 
-.lobby-game-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 56px; height: 56px; border-radius: 18px; font-size: 28px;
-  background-image: linear-gradient(135deg,#94a3b8,#64748b);
-  box-shadow: 0 8px 18px -6px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.35);
-  transition: transform .15s ease;
+.lobby-thumb-card { padding: 0; display: flex; flex-direction: column; }
+.lobby-thumb-wrap {
+  position: relative; aspect-ratio: 4 / 3; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg,#f1f5f9,#e2e8f0); overflow: hidden;
 }
-.lobby-game-card:hover .lobby-game-icon { transform: scale(1.06) rotate(-2deg); }
-.lobby-game-icon.cat-card { background-image: linear-gradient(135deg,#fb7185,#e11d48); }
-.lobby-game-icon.cat-brain { background-image: linear-gradient(135deg,#a78bfa,#7c3aed); }
-.lobby-game-icon.cat-arcade { background-image: linear-gradient(135deg,#60a5fa,#2563eb); }
-.lobby-game-icon.cat-word { background-image: linear-gradient(135deg,#34d399,#059669); }
-.lobby-game-icon.cat-education { background-image: linear-gradient(135deg,#fbbf24,#d97706); }
+.lobby-thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
+.lobby-thumb-card:hover .lobby-thumb-img { transform: scale(1.05); }
+.lobby-thumb-body { padding: 10px 12px 12px; text-align: center; }
 
 .lobby-casino-card {
   background-image: linear-gradient(135deg,#fb923c,#ea580c);
