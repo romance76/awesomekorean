@@ -6,6 +6,12 @@
       <div style="font-size:80px">🏰</div>
       <h1 class="title">타워 디펜스</h1>
       <p class="subtitle">수학 문제를 풀어 적을 막아요!</p>
+      <div class="rules-box">
+        <div class="rule-row">💰 <b>골드 50</b>으로 시작, 타워 1개는 <b>20골드</b></div>
+        <div class="rule-row">🗼 세운 타워는 매 순간 적에게 자동으로 데미지</div>
+        <div class="rule-row">✏️ 수학 문제를 맞히면 선두 적에게 <b>추가 데미지</b> + 점수</div>
+        <div class="rule-row">🏰 적을 막지 못해 HP가 0이 되면 게임 오버</div>
+      </div>
       <button class="start-btn" @click="startGame">시작! ⚔️</button>
     </div>
     <div v-if="phase==='play'" class="play-area">
@@ -187,6 +193,13 @@ onUnmounted(() => { clearInterval(gameLoop); clearInterval(spawnTimer) })
 .center-box { text-align:center; padding:40px 20px; }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .subtitle { color:rgba(255,255,255,0.8); font-size:16px; }
+.rules-box {
+  margin: 18px auto 0; max-width: 320px; text-align: left;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px; padding: 14px 16px;
+}
+.rule-row { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.7; }
+.rule-row b { color: #4ade80; }
 .start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#4ade80,#16a34a); color:#fff; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; box-shadow:0 12px 28px -8px rgba(22,163,74,0.6), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease, box-shadow .15s ease; }
 .start-btn:hover { transform:translateY(-2px); box-shadow:0 16px 32px -8px rgba(22,163,74,0.65), inset 0 1px 0 rgba(255,255,255,.4); }
 .start-btn:active { transform:translateY(0) scale(.97); }

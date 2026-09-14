@@ -11,6 +11,11 @@
       <h1 class="title">주식 시뮬레이션</h1>
       <p class="subtitle">가상 주식을 사고 팔아서 돈을 불려봐요!</p>
       <div class="level-info">시작 자금: {{ startCash.toLocaleString() }}원 · {{ totalDays }}일 게임</div>
+      <div class="rules-box">
+        <div class="rule-row">📅 하루에 여러 번 사고팔 수 있어요</div>
+        <div class="rule-row">🎯 목표 수익률 <b>{{ winPct }}%</b>를 넘기면 레벨업</div>
+        <div class="rule-row">📦 게임이 끝나면 남은 주식은 자동으로 현금화돼요</div>
+      </div>
       <button class="start-btn" @click="startGame">투자 시작! 📊</button>
     </div>
 
@@ -92,6 +97,7 @@ const stockTemplates = [
 
 const startCash = computed(() => level.value <= 2 ? 1000000 : level.value <= 4 ? 2000000 : 5000000)
 const totalDays = computed(() => level.value <= 2 ? 10 : level.value <= 4 ? 15 : 20)
+const winPct = computed(() => level.value <= 2 ? 5 : level.value <= 4 ? 10 : 15)
 
 const phase = ref('start')
 const cash = ref(1000000)
@@ -211,6 +217,13 @@ function goBack() { router.push('/games') }
 .title { font-size:36px; color:#fff; font-weight:900; margin:10px 0; text-shadow:0 2px 12px rgba(0,0,0,.25); }
 .subtitle { color:rgba(255,255,255,0.7); font-size:16px; }
 .level-info { color:#60a5fa; margin:12px 0; font-size:15px; }
+.rules-box {
+  margin: 4px auto 0; max-width: 320px; text-align: left;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; padding: 14px 16px;
+}
+.rule-row { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.7; }
+.rule-row b { color: #60a5fa; }
 .start-btn { position:relative; overflow:hidden; background-image:linear-gradient(135deg,#34d399,#059669); color:#fff; border:none; padding:16px 44px; border-radius:999px; font-size:20px; font-weight:800; cursor:pointer; margin-top:20px; box-shadow:0 12px 28px -8px rgba(16,185,129,0.55), inset 0 1px 0 rgba(255,255,255,.35); transition:transform .15s ease; }
 .start-btn:hover { transform:translateY(-2px); }
 .play-area { max-width:480px; margin:0 auto; }
