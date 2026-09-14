@@ -1,18 +1,9 @@
 <template>
-  <div class="arcade-wrapper">
-    <!-- Header -->
-    <div class="arcade-header">
-      <button class="back-btn" @click="goBack">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-        </svg>
-      </button>
-      <span class="game-title">{{ title }}</span>
-      <div class="header-right">
-        <span v-if="lastScore > 0" class="score-badge">최고: {{ lastScore }}</span>
-        <span v-if="pointsEarned > 0" class="points-badge">+{{ pointsEarned }} P</span>
-      </div>
-    </div>
+  <GameShell :title="title" theme="dark" bg="#000" fullscreen>
+    <template #meta>
+      <span v-if="lastScore > 0" class="score-badge">최고: {{ lastScore }}</span>
+      <span v-if="pointsEarned > 0" class="points-badge">+{{ pointsEarned }} P</span>
+    </template>
 
     <!-- Game iframe -->
     <div class="game-frame-container">
@@ -30,13 +21,14 @@
     <transition name="fade">
       <div v-if="toastMsg" class="score-toast">{{ toastMsg }}</div>
     </transition>
-  </div>
+  </GameShell>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import GameShell from '../../components/GameShell.vue'
 
 const props = defineProps({
   gameSlug: { type: String, required: true },
@@ -104,49 +96,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.arcade-wrapper {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.arcade-header {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  background: rgba(15,15,25,0.75);
-  backdrop-filter: blur(20px) saturate(160%);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  min-height: 52px;
-  z-index: 10;
-  flex-shrink: 0;
-}
-.back-btn {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 999px;
-  cursor: pointer;
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  transition: background .15s ease;
-}
-.back-btn:hover { background: rgba(255,255,255,0.18); }
-.game-title {
-  color: white;
-  font-size: 17px;
-  font-weight: 800;
-  margin-left: 10px;
-  flex: 1;
-}
-.header-right {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
 .score-badge {
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(8px);
@@ -156,6 +105,7 @@ onUnmounted(() => {
   font-weight: 700;
   padding: 4px 12px;
   border-radius: 999px;
+  white-space: nowrap;
 }
 .points-badge {
   background-image: linear-gradient(135deg,#4ade80,#16a34a);
@@ -165,6 +115,7 @@ onUnmounted(() => {
   padding: 4px 12px;
   border-radius: 999px;
   box-shadow: 0 4px 12px -3px rgba(34,197,94,0.55);
+  white-space: nowrap;
 }
 .game-frame-container {
   flex: 1;
