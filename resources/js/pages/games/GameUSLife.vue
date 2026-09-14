@@ -49,6 +49,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -57,9 +58,13 @@ import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
 const rec = useGameRecord('us_life')
+const sound = useGameSound()
+const confettiRef = ref(null)
 
 // 예전엔 총 10문제뿐이라(레벨1-2 전용 문제는 5개뿐) 감사에서 "컨셉은 제일 좋은데
 // 콘텐츠가 제일 적다"고 지적됨 — 운전·세금·생활·의료·금융·이민·법률 각 분야를
@@ -163,15 +168,18 @@ function selectAnswer(opt) {
   if(answered.value) return
   clearInterval(timer); answered.value=true; picked.value=opt
   wasRight.value=opt===curQ.value.answer
-  if(wasRight.value){ correct.value++; score.value+=10+timeLeft.value; speak('정답!') }
-  else speak('오답!')
+  if(wasRight.value){ correct.value++; score.value+=10+timeLeft.value; speak('정답!'); sound.correct() }
+  else { speak('오답!'); sound.wrong() }
   setTimeout(nextQuestion,3000)
 }
 
 async function endGame() {
   clearInterval(timer); phase.value='result'
   const won = correct.value >= 7
-  if(won){ level.value++; localStorage.setItem('uslife_level',level.value); leveled.value=true; speak('레벨업!') }
+  if(won){
+    level.value++; localStorage.setItem('uslife_level',level.value); leveled.value=true; speak('레벨업!')
+    sound.levelUp(); confettiRef.value?.burst()
+  } else { sound.gameOver() }
   await rec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 

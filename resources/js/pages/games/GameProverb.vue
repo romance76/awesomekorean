@@ -47,6 +47,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -56,8 +57,12 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameLeaderboard from '../../components/GameLeaderboard.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
+import { useGameSound } from '../../composables/useGameSound'
+const sound = useGameSound()
+const confettiRef = ref(null)
 const router = useRouter()
 const auth = useAuthStore()
 const siteStore = useSiteStore()
@@ -160,8 +165,8 @@ function selectAnswer(opt) {
   if(answered.value) return
   clearInterval(timer); answered.value=true; picked.value=opt
   wasRight.value=opt===curQ.value.meaning
-  if(wasRight.value){ correct.value++; score.value+=10+timeLeft.value; speak('정답!') }
-  else speak('오답!')
+  if(wasRight.value){ correct.value++; score.value+=10+timeLeft.value; speak('정답!'); sound.correct() }
+  else { speak('오답!'); sound.wrong() }
   setTimeout(nextQuestion,2800)
 }
 
@@ -170,7 +175,8 @@ async function endGame() {
   elapsedMs.value = Date.now() - startAt.value
   const won = correct.value >= 8
   const clearedLevel = recordLevel.value
-  if(won){ level.value++; localStorage.setItem('proverb_level',level.value); leveled.value=true; speak('레벨업!') }
+  if(won){ level.value++; localStorage.setItem('proverb_level',level.value); leveled.value=true; speak('레벨업!'); sound.levelUp(); confettiRef.value?.burst() }
+  else { sound.gameOver() }
   if (auth.isLoggedIn && won) {
     try {
       const { data } = await axios.post('/api/games/result', {
