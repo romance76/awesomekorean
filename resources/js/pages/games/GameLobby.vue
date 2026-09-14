@@ -82,9 +82,7 @@
             </template>
             <template v-else>
               <div class="lobby-thumb-wrap">
-                <img v-if="!thumbErrors.has(game.slug)" :src="`/images/game-thumbs/${game.slug}.jpg`" :alt="game.name"
-                  class="lobby-thumb-img" loading="lazy" @error="thumbErrors.add(game.slug)" />
-                <span v-else class="lobby-game-icon" :class="'cat-' + game.category">{{ game.icon }}</span>
+                <GameThumb :slug="game.slug" class="lobby-thumb-img" />
               </div>
               <div class="lobby-thumb-body">
                 <div class="text-sm font-bold text-ink group-hover:text-amber-700">{{ game.name }}</div>
@@ -123,11 +121,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import DailySpinModal from '../../components/DailySpinModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GameThumb from '../../components/GameThumb.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
@@ -135,7 +134,6 @@ const siteStore = useSiteStore()
 const activeCat = ref('all')
 const allGames = ref([])
 const loading = ref(true)
-const thumbErrors = reactive(new Set())
 const showSpin = ref(false)
 const spunToday = ref(false)
 
@@ -281,20 +279,6 @@ onMounted(async () => {
 .lobby-thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s ease; }
 .lobby-thumb-card:hover .lobby-thumb-img { transform: scale(1.05); }
 .lobby-thumb-body { padding: 10px 12px 12px; text-align: center; }
-
-.lobby-game-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 56px; height: 56px; border-radius: 18px; font-size: 28px;
-  background-image: linear-gradient(135deg,#94a3b8,#64748b);
-  box-shadow: 0 8px 18px -6px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.35);
-  transition: transform .15s ease;
-}
-.lobby-game-card:hover .lobby-game-icon { transform: scale(1.06) rotate(-2deg); }
-.lobby-game-icon.cat-card { background-image: linear-gradient(135deg,#fb7185,#e11d48); }
-.lobby-game-icon.cat-brain { background-image: linear-gradient(135deg,#a78bfa,#7c3aed); }
-.lobby-game-icon.cat-arcade { background-image: linear-gradient(135deg,#60a5fa,#2563eb); }
-.lobby-game-icon.cat-word { background-image: linear-gradient(135deg,#34d399,#059669); }
-.lobby-game-icon.cat-education { background-image: linear-gradient(135deg,#fbbf24,#d97706); }
 
 .lobby-casino-card {
   background-image: linear-gradient(135deg,#fb923c,#ea580c);
