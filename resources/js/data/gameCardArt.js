@@ -30,11 +30,11 @@ export const CARD_ART = {
     illustration: `
       <g transform="translate(24,56) rotate(-8)">
         <rect x="0" y="56" width="80" height="80" rx="12" fill="#3b82f6" stroke="#1d4ed8" stroke-width="2"/>
-        <text x="40" y="106" text-anchor="middle" font-family="Black Han Sans" font-size="36" fill="#fff">2</text>
+        <text x="40" y="106" text-anchor="middle" font-family="Gothic A1" font-weight="800" font-size="36" fill="#fff">2</text>
         <rect x="66" y="20" width="88" height="88" rx="12" fill="#f0f9ff" stroke="#93c5fd" stroke-width="2"/>
-        <text x="110" y="76" text-anchor="middle" font-family="Black Han Sans" font-size="38" fill="#1d4ed8">4</text>
+        <text x="110" y="76" text-anchor="middle" font-family="Gothic A1" font-weight="800" font-size="38" fill="#1d4ed8">4</text>
         <rect x="110" y="78" width="84" height="84" rx="12" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
-        <text x="152" y="132" text-anchor="middle" font-family="Black Han Sans" font-size="24" fill="#78350f">2048</text>
+        <text x="152" y="132" text-anchor="middle" font-family="Gothic A1" font-weight="800" font-size="24" fill="#78350f">2048</text>
       </g>`,
   },
   omok: {
@@ -111,7 +111,7 @@ export const CARD_ART = {
     stops: ['#818cf8', '#4338ca', '#312e81'], pattern: '#ffffff', text: '#ffffff',
     shadow: ['#4338ca', '#3730a3', '#312e81'],
     illustration: `
-      <g font-family="Black Han Sans" font-size="28">
+      <g font-family="Gothic A1" font-weight="800" font-size="28">
         <g transform="translate(24,60) rotate(-8)"><rect width="110" height="46" rx="10" fill="#fff"/><text x="55" y="32" text-anchor="middle" fill="#2563eb">빨강</text></g>
         <g transform="translate(60,110) rotate(5)"><rect width="110" height="46" rx="10" fill="#fff"/><text x="55" y="32" text-anchor="middle" fill="#ea580c">파랑</text></g>
         <g transform="translate(20,158) rotate(-3)"><rect width="110" height="46" rx="10" fill="#fff"/><text x="55" y="32" text-anchor="middle" fill="#7c3aed">노랑</text></g>
@@ -159,7 +159,7 @@ export const CARD_ART = {
         <rect x="63" y="16" width="44" height="78" rx="8" fill="#fff"/>
         <rect x="112" y="16" width="44" height="78" rx="8" fill="#fff"/>
         <text x="36" y="68" text-anchor="middle" font-size="40">&#127820;</text>
-        <text x="85" y="68" text-anchor="middle" font-size="36" font-family="Black Han Sans" fill="#dc2626">7</text>
+        <text x="85" y="68" text-anchor="middle" font-size="36" font-family="Gothic A1" font-weight="800" fill="#dc2626">7</text>
         <text x="134" y="68" text-anchor="middle" font-size="38">&#127826;</text>
         <circle cx="190" cy="30" r="10" fill="#fbbf24"/>
         <rect x="185" y="28" width="10" height="50" rx="5" fill="#fbbf24"/>
@@ -182,7 +182,7 @@ export const CARD_ART = {
     stops: ['#84cc16', '#4d7c0f', '#365314'], pattern: '#ffffff', text: '#ffffff',
     shadow: ['#4d7c0f', '#3f6212', '#365314'],
     illustration: `
-      <g transform="translate(18,90) rotate(-4)" font-family="Black Han Sans" font-size="26">
+      <g transform="translate(18,90) rotate(-4)" font-family="Gothic A1" font-weight="800" font-size="26">
         <rect x="0" y="0" width="40" height="40" rx="6" fill="#22c55e"/><text x="20" y="28" text-anchor="middle" fill="#fff">K</text>
         <rect x="46" y="0" width="40" height="40" rx="6" fill="#eab308"/><text x="66" y="28" text-anchor="middle" fill="#fff">O</text>
         <rect x="92" y="0" width="40" height="40" rx="6" fill="#57534e"/><text x="112" y="28" text-anchor="middle" fill="#fff">R</text>
@@ -194,7 +194,7 @@ export const CARD_ART = {
     stops: ['#c084fc', '#7e22ce', '#4c1d95'], pattern: '#ffffff', text: '#ffffff',
     shadow: ['#7e22ce', '#6b21a8', '#4c1d95'],
     illustration: `
-      <g font-family="Black Han Sans" font-size="24">
+      <g font-family="Gothic A1" font-weight="800" font-size="24">
         <g transform="translate(14,60) rotate(-6)"><path d="M0 20 a20 20 0 1 1 0 1 M0 21 l-10 16 12 -8 Z" fill="#fff"/><rect x="0" y="0" width="90" height="42" rx="18" fill="#fff"/><text x="45" y="28" text-anchor="middle" fill="#7e22ce">사과</text></g>
         <g transform="translate(96,116) rotate(4)"><rect x="0" y="0" width="90" height="42" rx="18" fill="#fff"/><text x="45" y="28" text-anchor="middle" fill="#7e22ce">과일</text></g>
         <circle cx="90" cy="95" r="9" fill="none" stroke="#fde68a" stroke-width="5"/>
@@ -246,14 +246,14 @@ export const CARD_ART = {
         <rect x="30" y="110" width="90" height="60" rx="8" fill="#fff" opacity="0.6" transform="rotate(10 30 110)"/>
         <rect x="24" y="90" width="90" height="60" rx="8" fill="#fff" opacity="0.85" transform="rotate(-4 24 90)"/>
         <rect x="24" y="66" width="94" height="66" rx="8" fill="#fff"/>
-        <text x="71" y="112" text-anchor="middle" font-family="Black Han Sans" font-size="34" fill="#b45309">A</text>
+        <text x="71" y="112" text-anchor="middle" font-family="Gothic A1" font-weight="800" font-size="34" fill="#b45309">A</text>
       </g>`,
   },
   hangul: {
     stops: ['#f59e0b', '#b91c1c', '#450a0a'], pattern: '#fde68a', text: '#fef3c7',
     shadow: ['#b91c1c', '#7f1d1d', '#450a0a'],
     illustration: `
-      <g transform="translate(22,66) rotate(-6)" font-family="Black Han Sans" font-size="34">
+      <g transform="translate(22,66) rotate(-6)" font-family="Gothic A1" font-weight="800" font-size="34">
         <rect x="0" y="30" width="70" height="70" rx="12" fill="#fff"/><text x="35" y="80" text-anchor="middle" fill="#b91c1c">&#44032;</text>
         <rect x="60" y="0" width="76" height="76" rx="12" fill="#fef3c7"/><text x="98" y="52" text-anchor="middle" fill="#b91c1c">&#45208;</text>
         <rect x="106" y="46" width="70" height="70" rx="12" fill="#fff"/><text x="141" y="96" text-anchor="middle" fill="#b91c1c">&#45796;</text>
