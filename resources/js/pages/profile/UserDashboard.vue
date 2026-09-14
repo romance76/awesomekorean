@@ -13,10 +13,22 @@
     </div>
 
     <!-- 탭 -->
-    <div class="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1 overflow-x-auto scrollbar-hide">
-      <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
-        class="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 rounded-lg transition whitespace-nowrap min-h-[40px]"
-        :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
+    <div class="relative mb-4">
+      <div ref="tabScrollEl" @scroll="updateTabFade"
+        class="flex gap-1 bg-gray-100 rounded-xl p-1 overflow-x-auto scrollbar-hide">
+        <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
+          class="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 rounded-lg transition whitespace-nowrap min-h-[40px]"
+          :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
+      </div>
+      <!-- 더 많은 탭이 있음을 알리는 좌우 스크롤 힌트(페이드+화살표) -->
+      <button v-if="showTabFadeRight" @click="scrollTabs(1)"
+        class="absolute right-0 top-0 bottom-0 w-8 flex items-center justify-end bg-gradient-to-l from-white to-transparent rounded-r-xl">
+        <AppIcon name="chevron-right" :size="16" class="text-ink-muted mr-0.5" />
+      </button>
+      <button v-if="showTabFadeLeft" @click="scrollTabs(-1)"
+        class="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-start bg-gradient-to-r from-white to-transparent rounded-l-xl">
+        <AppIcon name="chevron-left" :size="16" class="text-ink-muted ml-0.5" />
+      </button>
     </div>
 
     <!-- ═══ 프로필 탭 ═══ -->
@@ -152,21 +164,12 @@
             <!-- 회전 원판 -->
             <div class="w-48 h-48 rounded-full border-4 border-amber-400 overflow-hidden relative transition-transform"
               :style="{ transform: `rotate(${rouletteAngle}deg)`, transitionDuration: spinning ? '4s' : '0s', transitionTimingFunction: 'cubic-bezier(0.17,0.67,0.12,0.99)' }">
-              <div v-for="(seg, i) in rouletteSegments" :key="i"
-                class="absolute w-full h-full flex items-start justify-center"
-                :style="{ transform: `rotate(${i * (360/rouletteSegments.length) + (180/rouletteSegments.length)}deg)` }">
-                <span class="text-[11px] font-black mt-2" :class="seg.color">{{ seg.points }}P</span>
-              </div>
-              <!-- 중심 원 -->
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-14 h-14 bg-white rounded-full border-2 border-amber-300 flex items-center justify-center text-lg">🎰</div>
-              </div>
-              <!-- 색상 구획 배경 -->
-              <svg class="absolute inset-0 w-full h-full -z-10" viewBox="0 0 100 100">
-                <circle v-for="(seg, i) in rouletteSegments" :key="'bg'+i" cx="50" cy="50" r="48"
-                  fill="none" :stroke="seg.bg" stroke-width="48"
-                  :stroke-dasharray="`${(100*Math.PI/rouletteSegments.length)} ${100*Math.PI}`"
-                  :stroke-dashoffset="`${-(100*Math.PI/rouletteSegments.length)*i}`" />
+              <svg viewBox="0 0 200 200" class="w-full h-full">
+                <path v-for="(seg, i) in rouletteSegments" :key="i" :d="rouletteSectorPath(i)" :fill="seg.bg" stroke="#fff" stroke-width="1"/>
+                <text v-for="(seg, i) in rouletteSegments" :key="'t'+i" :transform="rouletteTextTransform(i)"
+                  text-anchor="middle" dominant-baseline="central" class="text-[15px] font-black" :fill="seg.textFill">{{ seg.points }}P</text>
+                <circle cx="100" cy="100" r="26" fill="#fff" stroke="#fbbf24" stroke-width="2"/>
+                <text x="100" y="100" text-anchor="middle" dominant-baseline="central" class="text-lg">🎰</text>
               </svg>
             </div>
           </div>
@@ -968,7 +971,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
@@ -1019,6 +1022,20 @@ const tabs = computed(() => {
 })
 
 const loaded = reactive({})
+
+// 탭 목록이 좁은 화면에서 다 안 보이고 가로 스크롤되는 것을 알리는 좌우 힌트
+const tabScrollEl = ref(null)
+const showTabFadeLeft = ref(false)
+const showTabFadeRight = ref(false)
+function updateTabFade() {
+  const el = tabScrollEl.value
+  if (!el) return
+  showTabFadeLeft.value = el.scrollLeft > 4
+  showTabFadeRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+}
+function scrollTabs(dir) {
+  tabScrollEl.value?.scrollBy({ left: dir * 160, behavior: 'smooth' })
+}
 
 function switchTab(key) {
   // 광고 신청은 독립 페이지로 이동
@@ -1166,15 +1183,35 @@ const ptBalance = ref(0); const ptHistory = ref([]); const spun = ref(false); co
 const spinning = ref(false); const showRoulette = ref(false); const rouletteAngle = ref(0)
 // Task 1: 가중치 테이블(0/1/2/5/10/30P)과 동일한 값으로 구성 — 당첨값이 항상 실제 칸에 표시되도록
 const rouletteSegments = [
-  { points: 0, color: 'text-gray-400', bg: '#f3f4f6' },
-  { points: 1, color: 'text-gray-600', bg: '#fef3c7' },
-  { points: 2, color: 'text-gray-600', bg: '#fde68a' },
-  { points: 0, color: 'text-gray-400', bg: '#f3f4f6' },
-  { points: 5, color: 'text-amber-700', bg: '#fed7aa' },
-  { points: 1, color: 'text-gray-600', bg: '#fef3c7' },
-  { points: 10, color: 'text-red-600', bg: '#fca5a5' },
-  { points: 30, color: 'text-red-600 font-black', bg: '#f87171' },
+  { points: 0, textFill: '#9ca3af', bg: '#f3f4f6' },
+  { points: 1, textFill: '#4b5563', bg: '#fef3c7' },
+  { points: 2, textFill: '#4b5563', bg: '#fde68a' },
+  { points: 0, textFill: '#9ca3af', bg: '#f3f4f6' },
+  { points: 5, textFill: '#b45309', bg: '#fed7aa' },
+  { points: 1, textFill: '#4b5563', bg: '#fef3c7' },
+  { points: 10, textFill: '#dc2626', bg: '#fca5a5' },
+  { points: 30, textFill: '#dc2626', bg: '#f87171' },
 ]
+const rouletteSectorAngle = 360 / rouletteSegments.length
+function rouletteSectorPath(index) {
+  const cx = 100, cy = 100, r = 98
+  const startAngle = (index * rouletteSectorAngle - 90) * Math.PI / 180
+  const endAngle = ((index + 1) * rouletteSectorAngle - 90) * Math.PI / 180
+  const x1 = cx + r * Math.cos(startAngle)
+  const y1 = cy + r * Math.sin(startAngle)
+  const x2 = cx + r * Math.cos(endAngle)
+  const y2 = cy + r * Math.sin(endAngle)
+  const largeArc = rouletteSectorAngle > 180 ? 1 : 0
+  return `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`
+}
+function rouletteTextTransform(index) {
+  const cx = 100, cy = 100, r = 65
+  const angle = ((index + 0.5) * rouletteSectorAngle - 90) * Math.PI / 180
+  const x = cx + r * Math.cos(angle)
+  const y = cy + r * Math.sin(angle)
+  const rotDeg = (index + 0.5) * rouletteSectorAngle
+  return `translate(${x},${y}) rotate(${rotDeg})`
+}
 // 포인트 구매 (커스텀 금액: $10 이상, $5 단위)
 const quickAmounts = [10, 15, 20, 25, 50, 100, 200]
 const purchaseAmount = ref(10); const customAmountInput = ref(10); const purchaseAmountError = ref('')
@@ -1734,6 +1771,12 @@ onMounted(() => {
   if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
   msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 60000)
+  nextTick(updateTabFade)
+  window.addEventListener('resize', updateTabFade)
 })
-onUnmounted(() => { if (msgPoll) clearInterval(msgPoll) })
+onUnmounted(() => {
+  if (msgPoll) clearInterval(msgPoll)
+  window.removeEventListener('resize', updateTabFade)
+})
+watch(tabs, () => nextTick(updateTabFade))
 </script>
