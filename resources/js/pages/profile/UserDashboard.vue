@@ -12,23 +12,11 @@
       <div class="text-3xl font-black">{{ (auth.user?.points || 0).toLocaleString() }}P</div>
     </div>
 
-    <!-- 탭 -->
-    <div class="relative mb-4">
-      <div ref="tabScrollEl" @scroll="updateTabFade"
-        class="flex gap-1 bg-gray-100 rounded-xl p-1 overflow-x-auto scrollbar-hide">
-        <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
-          class="flex-shrink-0 flex items-center gap-1.5 text-xs sm:text-sm py-2.5 sm:py-2 px-3 sm:px-4 rounded-lg transition whitespace-nowrap min-h-[40px]"
-          :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
-      </div>
-      <!-- 더 많은 탭이 있음을 알리는 좌우 스크롤 힌트(페이드+화살표) -->
-      <button v-if="showTabFadeRight" @click="scrollTabs(1)"
-        class="absolute right-0 top-0 bottom-0 w-8 flex items-center justify-end bg-gradient-to-l from-white to-transparent rounded-r-xl">
-        <AppIcon name="chevron-right" :size="16" class="text-ink-muted mr-0.5" />
-      </button>
-      <button v-if="showTabFadeLeft" @click="scrollTabs(-1)"
-        class="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-start bg-gradient-to-r from-white to-transparent rounded-l-xl">
-        <AppIcon name="chevron-left" :size="16" class="text-ink-muted ml-0.5" />
-      </button>
+    <!-- 탭: 스크롤 없이 1~2줄로 전부 노출 -->
+    <div class="flex flex-wrap gap-1 mb-4 bg-gray-100 rounded-xl p-1">
+      <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
+        class="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-2.5 sm:px-3.5 rounded-lg transition whitespace-nowrap"
+        :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
     </div>
 
     <!-- ═══ 프로필 탭 ═══ -->
@@ -971,7 +959,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
@@ -1022,20 +1010,6 @@ const tabs = computed(() => {
 })
 
 const loaded = reactive({})
-
-// 탭 목록이 좁은 화면에서 다 안 보이고 가로 스크롤되는 것을 알리는 좌우 힌트
-const tabScrollEl = ref(null)
-const showTabFadeLeft = ref(false)
-const showTabFadeRight = ref(false)
-function updateTabFade() {
-  const el = tabScrollEl.value
-  if (!el) return
-  showTabFadeLeft.value = el.scrollLeft > 4
-  showTabFadeRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4
-}
-function scrollTabs(dir) {
-  tabScrollEl.value?.scrollBy({ left: dir * 160, behavior: 'smooth' })
-}
 
 function switchTab(key) {
   // 광고 신청은 독립 페이지로 이동
@@ -1771,12 +1745,6 @@ onMounted(() => {
   if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
   msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 60000)
-  nextTick(updateTabFade)
-  window.addEventListener('resize', updateTabFade)
 })
-onUnmounted(() => {
-  if (msgPoll) clearInterval(msgPoll)
-  window.removeEventListener('resize', updateTabFade)
-})
-watch(tabs, () => nextTick(updateTabFade))
+onUnmounted(() => { if (msgPoll) clearInterval(msgPoll) })
 </script>
