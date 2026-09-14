@@ -69,7 +69,10 @@
             :class="game.slug === 'casino'
               ? 'lobby-casino-card col-span-2 sm:col-span-3 flex items-center gap-4 text-left'
               : 'text-center'">
-            <div :class="game.slug === 'casino' ? 'text-5xl flex-shrink-0' : 'text-3xl mb-2'">{{ game.icon }}</div>
+            <div v-if="game.slug === 'casino'" class="text-5xl flex-shrink-0">{{ game.icon }}</div>
+            <div v-else class="flex justify-center mb-2">
+              <span class="lobby-game-icon" :class="'cat-' + game.category">{{ game.icon }}</span>
+            </div>
             <div class="flex-1 min-w-0">
               <div :class="game.slug === 'casino'
                 ? 'text-lg font-black text-white'
@@ -265,6 +268,20 @@ onMounted(async () => {
   transition: transform .15s ease, box-shadow .15s ease;
 }
 .lobby-game-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(31,38,80,0.16), inset 0 1px 0 rgba(255,255,255,0.5); }
+
+.lobby-game-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 18px; font-size: 28px;
+  background-image: linear-gradient(135deg,#94a3b8,#64748b);
+  box-shadow: 0 8px 18px -6px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.35);
+  transition: transform .15s ease;
+}
+.lobby-game-card:hover .lobby-game-icon { transform: scale(1.06) rotate(-2deg); }
+.lobby-game-icon.cat-card { background-image: linear-gradient(135deg,#fb7185,#e11d48); }
+.lobby-game-icon.cat-brain { background-image: linear-gradient(135deg,#a78bfa,#7c3aed); }
+.lobby-game-icon.cat-arcade { background-image: linear-gradient(135deg,#60a5fa,#2563eb); }
+.lobby-game-icon.cat-word { background-image: linear-gradient(135deg,#34d399,#059669); }
+.lobby-game-icon.cat-education { background-image: linear-gradient(135deg,#fbbf24,#d97706); }
 
 .lobby-casino-card {
   background-image: linear-gradient(135deg,#fb923c,#ea580c);
