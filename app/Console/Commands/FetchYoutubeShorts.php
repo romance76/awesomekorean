@@ -53,6 +53,10 @@ class FetchYoutubeShorts extends Command
         $deleted = Short::whereNull('user_id')->where('created_at', '<', now()->subDays(30))->delete();
         $this->info("🗑 30일 지난 숏츠 {$deleted}개 삭제");
 
+        // 1.5단계: 기존 숏츠 중 재생 불가(삭제됨/비공개/임베드 차단)된 것 비활성화
+        $deactivated = $this->revalidateExisting($apiKey);
+        $this->info("🚫 재생 불가 숏츠 {$deactivated}개 비활성화");
+
         // 2단계: 한국 숏츠 수집
         $this->info("\n🇰🇷 한국 숏츠 수집 ({$koreanCount}개)...");
         $krAdded = $this->fetchShorts($apiKey, $this->koreanQueries, $koreanCount, 'ko');
@@ -64,6 +68,45 @@ class FetchYoutubeShorts extends Command
         $total = Short::count();
         $this->info("\n=== 완료: 한국 {$krAdded} + 북미 {$usAdded} = " . ($krAdded + $usAdded) . "개 추가, 전체 {$total}개 ===");
         return 0;
+    }
+
+    // 기존에 저장된 시스템 숏츠(user_id=null)를 다시 조회해, 삭제/비공개 전환되었거나
+    // 채널 소유자가 임베드를 막아둔 영상(재생 시 "Video unavailable")은 노출에서 제외한다.
+    private function revalidateExisting($apiKey)
+    {
+        $deactivated = 0;
+        Short::whereNull('user_id')
+            ->where('is_active', true)
+            ->select('id', 'youtube_id')
+            ->chunk(50, function ($shorts) use ($apiKey, &$deactivated) {
+                $ids = $shorts->pluck('youtube_id')->filter()->implode(',');
+                if (!$ids) return;
+
+                try {
+                    $res = Http::timeout(10)->get('https://www.googleapis.com/youtube/v3/videos', [
+                        'key' => $apiKey,
+                        'id' => $ids,
+                        'part' => 'status',
+                    ]);
+                    if (!$res->ok()) return;
+
+                    $found = collect($res->json('items', []))->keyBy('id');
+                    foreach ($shorts as $short) {
+                        $item = $found->get($short->youtube_id);
+                        // 응답에 아예 없으면 삭제된 영상, 있어도 비공개거나 임베드가 막혀있으면 재생 불가
+                        $playable = $item
+                            && ($item['status']['privacyStatus'] ?? 'public') === 'public'
+                            && ($item['status']['embeddable'] ?? true) !== false;
+                        if (!$playable) {
+                            $short->update(['is_active' => false]);
+                            $deactivated++;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // 이번 배치만 건너뛰고 계속 진행
+                }
+            });
+        return $deactivated;
     }
 
     private function fetchShorts($apiKey, $queries, $limit, $lang)
@@ -99,7 +142,7 @@ class FetchYoutubeShorts extends Command
                 $detailRes = Http::timeout(10)->get('https://www.googleapis.com/youtube/v3/videos', [
                     'key' => $apiKey,
                     'id' => $videoIds,
-                    'part' => 'snippet,contentDetails',
+                    'part' => 'snippet,contentDetails,status',
                 ]);
 
                 if (!$detailRes->ok()) continue;
@@ -115,6 +158,11 @@ class FetchYoutubeShorts extends Command
 
                     // 중복 체크
                     if (Short::where('youtube_id', $videoId)->exists()) continue;
+
+                    // 비공개거나 채널 소유자가 임베드를 막아둔 영상은 재생 시 "Video unavailable"이
+                    // 뜨므로 애초에 저장하지 않는다.
+                    if (($v['status']['privacyStatus'] ?? 'public') !== 'public') continue;
+                    if (($v['status']['embeddable'] ?? true) === false) continue;
 
                     // 길이 체크 (60초 이하만)
                     preg_match('/PT(?:(\d+)M)?(?:(\d+)S)?/', $dur, $dm);
