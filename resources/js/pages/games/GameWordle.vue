@@ -105,13 +105,18 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
 </GameShell>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import GameShell from '../../components/GameShell.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
+import { useGameSound } from '../../composables/useGameSound'
 
+const sound = useGameSound()
+const confettiRef = ref(null)
 const showHelp = ref(false)
 
 onMounted(() => {
@@ -298,8 +303,10 @@ function submitGuess() {
     gameState.value = 'won'
     coin.value += 30
     localStorage.setItem('wordle_coin', coin.value)
+    sound.levelUp(); confettiRef.value?.burst()
   }
-  else if (row === MAX_ROWS - 1) { gameState.value = 'lost' }
+  else if (row === MAX_ROWS - 1) { gameState.value = 'lost'; sound.gameOver() }
+  else { sound.wrong() }
   currentRow.value++
   nativeText.value = ''
   focusNativeInput()

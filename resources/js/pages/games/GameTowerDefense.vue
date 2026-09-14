@@ -49,6 +49,7 @@
       </div>
     </div>
   </div>
+  <ConfettiBurst ref="confettiRef" />
   </GameShell>
 </template>
 
@@ -56,7 +57,11 @@
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import ConfettiBurst from '../../components/ConfettiBurst.vue'
+import { useGameSound } from '../../composables/useGameSound'
 const router = useRouter()
+const sound = useGameSound()
+const confettiRef = ref(null)
 
 const level = ref(parseInt(localStorage.getItem('tower_level') || '1'))
 const score = ref(0)
@@ -159,8 +164,8 @@ function answer(opt) {
   if (opt === currentQ.value.ans) {
     score.value += 10
     if (enemies.value[0]) enemies.value[0].hp -= 3
-    speak('정답!')
-  } else speak('오답!')
+    speak('정답!'); sound.correct()
+  } else { speak('오답!'); sound.wrong() }
   setTimeout(() => { answered.value=false; picked.value=null; currentQ.value=genQuestion() }, 1200)
 }
 
@@ -169,8 +174,8 @@ function endGame(result) {
   phase.value = result
   if (result === 'victory') {
     level.value++; localStorage.setItem('tower_level', level.value); leveled.value=true
-    speak('승리! 레벨업!')
-  } else speak('게임 오버!')
+    speak('승리! 레벨업!'); sound.levelUp(); confettiRef.value?.burst()
+  } else { speak('게임 오버!'); sound.gameOver() }
 }
 
 function goBack() { clearInterval(gameLoop); clearInterval(spawnTimer); router.push('/games') }
