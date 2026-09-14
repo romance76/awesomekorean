@@ -69,15 +69,12 @@
               ? 'lobby-casino-card col-span-2 sm:col-span-3 flex items-center gap-4 text-left'
               : 'flex items-start gap-3 text-left'">
             <template v-if="game.slug === 'casino'">
-              <div class="text-5xl flex-shrink-0">{{ game.icon }}</div>
+              <div class="lobby-casino-icon">{{ game.icon }}</div>
               <div class="flex-1 min-w-0">
-                <div class="text-lg font-black text-white">{{ game.name }}</div>
-                <div class="text-xs text-white/85 mt-0.5">{{ game.description }}</div>
-                <div class="flex gap-1 mt-2 text-lg">
-                  <span>♠️</span><span>♦️</span><span>🎴</span><span>🂡</span>
-                </div>
+                <div class="text-base font-black text-white">{{ game.name }}</div>
+                <div class="text-xs text-white/80 mt-0.5">{{ game.description }}</div>
               </div>
-              <div class="lobby-casino-enter">입장 →</div>
+              <div class="lobby-casino-enter">입장 <AppIcon name="arrow-right" :size="14" /></div>
             </template>
             <template v-else>
               <div class="lobby-game-icon">{{ game.icon }}</div>
@@ -261,13 +258,19 @@ onMounted(async () => {
 .lobby-game-desc { font-size: 11px; color: #8B95A1; margin-top: 2px; }
 
 .lobby-casino-card {
-  background-image: linear-gradient(135deg,#fb923c,#ea580c);
-  border-color: transparent; padding: 20px;
-  box-shadow: 0 16px 36px -10px rgba(234,88,12,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+  background-image: linear-gradient(135deg,#FF8A53,#F2570F);
+  border-color: transparent; padding: 16px 20px;
+  box-shadow: 0 10px 24px -8px rgba(242,87,15,0.35);
+}
+.lobby-casino-icon {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
 }
 .lobby-casino-enter {
-  flex-shrink: 0; background: rgba(255,255,255,0.9); color: #c2410c;
-  font-weight: 800; padding: 10px 20px; border-radius: 999px; font-size: 14px;
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.95); color: #F2570F;
+  font-weight: 800; padding: 8px 16px; border-radius: 999px; font-size: 13px;
   transition: transform .15s ease;
 }
 .lobby-game-card:hover .lobby-casino-enter { transform: translateX(3px); }
