@@ -11,6 +11,11 @@
         <div style="font-size:16px">레벨 2: 6쌍 (3×4)</div>
         <div style="font-size:16px">레벨 3+: 8쌍 (4×4)</div>
       </div>
+      <HowToPlay :lines="[
+        '카드를 두 장씩 뒤집어 같은 그림이 나오면 짝이 맞아요.',
+        '짝이 틀리면 다시 뒤집히니 그림의 위치를 잘 기억해두세요.',
+        '모든 짝을 다 찾으면 클리어! 천천히 여유롭게 즐겨보세요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작해요! 🃏</button>
     </div>
 
@@ -49,6 +54,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()

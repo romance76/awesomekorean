@@ -26,6 +26,11 @@
     <div class="progress-info" v-if="maxCompletedLevel > 0">
       🎯 최고 클리어: Lv.{{ maxCompletedLevel }} · 다음 도전: Lv.{{ maxUnlockedLevel }}
     </div>
+    <HowToPlay :lines="[
+      '국기 사진이 나오면, 알맞은 나라 이름을 보기 중에서 고르세요.',
+      '레벨 4부터는 제한시간이 있으니 서둘러 답을 골라야 해요.',
+      '연속 정답 시 스트릭 보너스 점수가 붙어요.',
+    ]" />
     <button class="play-btn" @click="startGame" :disabled="loadingPool">
       {{ loadingPool ? '불러오는 중...' : '게임 시작! 🎮' }}
     </button>
@@ -109,6 +114,7 @@ import { ref, onUnmounted, onMounted } from 'vue'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameLeaderboard from '../../components/GameLeaderboard.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import { useGameRecord } from '../../composables/useGameRecord'

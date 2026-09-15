@@ -6,6 +6,10 @@
       <div style="font-size:90px">🔷</div>
       <h1 class="title">도형 맞추기</h1>
       <p class="subtitle">어떤 도형일까요?</p>
+      <HowToPlay :lines="[
+        '화면에 나타나는 도형을 보고, 알맞은 이름을 보기 중에서 고르세요.',
+        '정답을 많이 맞힐수록 점수가 오르고 다음 레벨로 넘어가요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작하기 ▶</button>
     </div>
     <div v-if="phase==='play'" class="play-box">
@@ -74,6 +78,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

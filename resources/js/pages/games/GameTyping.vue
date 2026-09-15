@@ -16,6 +16,12 @@
         <p v-else-if="level<=4">보통 단어 (4~5글자)</p>
         <p v-else>긴 문장 도전!</p>
       </div>
+      <HowToPlay :lines="[
+        '화면에 나오는 단어(또는 문장)를 입력창에 그대로 타이핑하세요.',
+        '제한시간 안에 맞게 입력하면 다음 단어로 넘어가고 점수가 올라가요.',
+        '오타 없이 빠르게 입력할수록 점수가 높아져요.',
+        '레벨이 오를수록 더 길고 어려운 단어·문장이 나와요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작하기 ▶</button>
     </div>
 
@@ -82,6 +88,7 @@
 import { ref, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

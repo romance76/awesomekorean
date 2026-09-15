@@ -12,6 +12,11 @@
         <div>레벨 5+: 곱셈·나눗셈 포함</div>
       </div>
       <div class="best-display">🏆 최고기록: {{ bestScore }}개</div>
+      <HowToPlay :lines="[
+        '화면에 계산식이 나오면 빠르게 암산해서 정답을 고르세요.',
+        '제한시간 60초 동안 최대한 많은 문제를 맞혀보세요.',
+        '레벨이 오를수록 두 자리 연산·곱셈·나눗셈까지 나와요.',
+      ]" />
       <button class="start-btn" @click="startGame">GO! ⚡</button>
     </div>
 
@@ -58,6 +63,7 @@
 import { ref, nextTick, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()

@@ -20,6 +20,12 @@
       <div class="level-info">
         <div class="level-range">레벨 {{ level }}: 1~{{ maxNumber }}까지</div>
       </div>
+      <HowToPlay :lines="[
+        '화면에 나오는 이모지 개수를 세어보세요.',
+        '4개의 숫자 보기 중에서 정확한 개수를 골라 누르세요.',
+        '10문제 중 8개 이상 맞히면 다음 레벨로 올라가요.',
+        '레벨이 올라갈수록 셀 수 있는 숫자 범위가 커져요.',
+      ]" />
       <button class="start-btn" @click="startGame">게임 시작! 🎮</button>
     </div>
 
@@ -99,6 +105,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const rec = useGameRecord('counting')
 

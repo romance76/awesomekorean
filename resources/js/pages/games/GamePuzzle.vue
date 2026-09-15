@@ -16,6 +16,11 @@
         <div>레벨 5+: 5×5 (24칸)</div>
         <div style="margin-top:8px">현재 레벨: {{ level }}</div>
       </div>
+      <HowToPlay :lines="[
+        '빈칸 옆에 있는 조각을 눌러 빈칸으로 밀어 넣으세요.',
+        '숫자가 1부터 순서대로 놓이도록 조각을 옮기며 맞춰나가세요.',
+        '모든 숫자가 순서대로 정렬되면 클리어! 이동 횟수가 적을수록 좋아요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작! 🎮</button>
     </div>
 
@@ -65,6 +70,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

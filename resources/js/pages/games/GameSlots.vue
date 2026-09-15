@@ -3,6 +3,11 @@
   bg="linear-gradient(160deg,#1f2937 0%,#581c87 50%,#831843 100%)">
 
   <div class="slots-body">
+    <HowToPlay :lines="[
+      '베팅 금액을 고르고 \'SPIN!\' 버튼을 눌러 릴을 돌리세요.',
+      '릴 3개가 멈췄을 때 같은 기호가 맞춰지면 배당표에 따라 게임머니를 받아요.',
+      '아래 \'당첨표 보기\'에서 기호별 배당 배수를 확인할 수 있어요.',
+    ]" />
     <!-- 슬롯 머신 케이스 -->
     <div class="machine">
       <div class="marquee">🎰 LUCKY SLOTS 🎰</div>
@@ -72,6 +77,7 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 
 // 실제 당첨 판정은 서버(/api/games/slots/spin)가 수행 — 여기 심볼 목록은
 // 릴이 도는 동안 보여줄 애니메이션용일 뿐, 결과 결정에는 쓰이지 않음.

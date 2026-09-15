@@ -11,6 +11,11 @@
         <div>레벨 3-4: 중급 (의료·금융)</div>
         <div>레벨 5+: 고급 (법률·이민)</div>
       </div>
+      <HowToPlay :lines="[
+        '미국 생활 관련 상식 문제가 나오면, 알맞은 답을 보기 중에서 고르세요.',
+        '운전·세금·의료·이민 등 실생활에 도움되는 내용 위주예요.',
+        '많이 맞힐수록 점수가 오르고 레벨이 올라가요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작! 📋</button>
     </div>
 
@@ -57,6 +62,7 @@
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

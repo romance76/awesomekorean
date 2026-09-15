@@ -12,6 +12,11 @@
         <span style="color:#fff;font-size:20px">빨강</span>
       </div>
       <div class="level-info">현재 레벨: {{ level }}</div>
+      <HowToPlay :lines="[
+        '화면에 색깔 이름을 나타내는 글자가 나타나요.',
+        '글자의 \'뜻\'이 아니라 글자가 실제로 칠해진 \'색깔\'을 고르세요.',
+        '뇌가 헷갈려 하는 게 정상! 집중력을 훈련하는 게임이에요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작! 🎯</button>
     </div>
 
@@ -54,6 +59,7 @@
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()

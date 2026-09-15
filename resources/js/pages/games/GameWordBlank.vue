@@ -6,6 +6,11 @@
       <div style="font-size:90px">📝</div>
       <h1 class="title">빈칸 채우기</h1>
       <p class="subtitle">알맞은 단어로 빈칸을 채워요!</p>
+      <HowToPlay :lines="[
+        '문장 중간에 빈칸이 뚫려 있어요.',
+        '문맥에 맞는 단어를 보기 중에서 골라 빈칸을 채우세요.',
+        '많이 맞힐수록 점수가 오르고 다음 레벨로 넘어가요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작하기 ▶</button>
     </div>
 
@@ -53,6 +58,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

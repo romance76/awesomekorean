@@ -6,6 +6,11 @@
       <div style="font-size:80px">🎨</div>
       <h1 class="game-title">색깔 맞추기</h1>
       <p class="game-desc">화면에 나타나는 색깔 이름을 맞춰요!</p>
+      <HowToPlay :lines="[
+        '화면에 색깔이 보이면, 그 색깔의 이름을 보기 중에서 고르세요.',
+        '연속으로 맞히면 스트릭(연속 정답) 보너스가 붙어요.',
+        '문제를 다 풀면 정답 개수에 따라 점수와 레벨이 올라가요.',
+      ]" />
       <button class="play-btn" @click="startGame">시작하기! 🚀</button>
     </div>
 
@@ -67,6 +72,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const router = useRouter()
