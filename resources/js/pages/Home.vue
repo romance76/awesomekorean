@@ -90,18 +90,20 @@
         <div v-if="heroBanners[heroIdx]" :key="heroIdx" @click="clickHeroBanner(heroBanners[heroIdx])"
           class="absolute inset-0 cursor-pointer"
           :style="{ background: heroBanners[heroIdx].bg_color || '#1B1613' }">
-          <img v-if="heroBanners[heroIdx].image_url" :src="heroBanners[heroIdx].image_url" alt=""
+          <img v-if="heroBannerImage(heroBanners[heroIdx])" :src="heroBannerImage(heroBanners[heroIdx])" alt=""
             class="absolute inset-0 w-full h-full object-cover" />
-          <div class="absolute inset-0 banner-scrim"></div>
-          <div class="relative h-full flex flex-col justify-center px-6 md:px-11 max-w-[62%]">
-            <span v-if="heroBanners[heroIdx].subtitle" class="self-start text-[10.5px] md:text-[11px] font-bold tracking-[0.1em] text-amber-200">
-              {{ heroBanners[heroIdx].subtitle }}
-            </span>
-            <div class="text-[22px] md:text-[36px] font-extrabold tracking-[-0.04em] text-white mt-2 md:mt-3">
-              {{ heroBanners[heroIdx].title }}
+          <template v-if="!heroBanners[heroIdx].image_only">
+            <div class="absolute inset-0 banner-scrim"></div>
+            <div class="relative h-full flex flex-col justify-center px-6 md:px-11 max-w-[62%]">
+              <span v-if="heroBanners[heroIdx].subtitle" class="self-start text-[10.5px] md:text-[11px] font-bold tracking-[0.1em] text-amber-200">
+                {{ heroBanners[heroIdx].subtitle }}
+              </span>
+              <div class="text-[22px] md:text-[36px] font-extrabold tracking-[-0.04em] text-white mt-2 md:mt-3">
+                {{ heroBanners[heroIdx].title }}
+              </div>
+              <span class="self-start mt-4 md:mt-5 bg-white text-ink font-bold text-[13px] md:text-sm px-5 py-2.5 rounded-full">참여하기</span>
             </div>
-            <span class="self-start mt-4 md:mt-5 bg-white text-ink font-bold text-[13px] md:text-sm px-5 py-2.5 rounded-full">참여하기</span>
-          </div>
+          </template>
         </div>
       </Transition>
       <div v-if="heroBanners.length > 1" class="absolute bottom-4 right-5 flex gap-1.5">
@@ -270,6 +272,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useLangStore } from '../stores/lang'
 import AdSlot from '../components/AdSlot.vue'
 import MobileBanner from '../components/MobileBanner.vue'
 import AppIcon from '../components/AppIcon.vue'
@@ -278,6 +281,7 @@ import axios from 'axios'
 
 const router = useRouter()
 const auth = useAuthStore()
+const lang = useLangStore()
 const posts = ref([])
 const jobs = ref([])
 const market = ref([])
@@ -298,6 +302,13 @@ function startHeroSlide() {
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && heroBanners.value.length > 1) startHeroSlide() }
 onUnmounted(() => { if (heroInterval) clearInterval(heroInterval) })
+
+// 영어 모드면 image_url_en 우선 사용, 없으면 기본(한글) 이미지로 폴백
+function heroBannerImage(b) {
+  if (!b) return ''
+  if (lang.locale === 'en' && b.image_url_en) return b.image_url_en
+  return b.image_url || ''
+}
 
 const popularBoards = [
   { slug: 'free',        name: '자유게시판', visitors: '2.4k', badge: 'HOT' },
@@ -349,7 +360,7 @@ function postImage(p) {
 // 히어로 배경 사진: 관리자 히어로 배너 중 이미지가 있는 첫 장을 사용
 const heroImage = computed(() => {
   const withImg = heroBanners.value.find(b => b.image_url)
-  return withImg ? withImg.image_url : ''
+  return withImg ? heroBannerImage(withImg) : ''
 })
 
 // 에디토리얼 섹션: 대표 글 1 + 사이드 글 3
