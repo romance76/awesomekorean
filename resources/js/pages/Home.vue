@@ -357,9 +357,11 @@ function postImage(p) {
   return imgUrl(p.images?.[0] || p.image || p.thumbnail || '')
 }
 
-// 히어로 배경 사진: 관리자 히어로 배너 중 이미지가 있는 첫 장을 사용
+// 히어로 배경 사진: 관리자 히어로 배너 중 이미지가 있는 첫 장을 사용.
+// image_only 배너는 자체 문구가 이미 그려진 완성형 디자인이라, 이 섹션의
+// 사이트 태그라인 오버레이와 겹쳐 보이므로 제외.
 const heroImage = computed(() => {
-  const withImg = heroBanners.value.find(b => b.image_url)
+  const withImg = heroBanners.value.find(b => b.image_url && !b.image_only)
   return withImg ? heroBannerImage(withImg) : ''
 })
 
