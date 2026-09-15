@@ -7,6 +7,11 @@
       <h1 class="title">속담 퀴즈</h1>
       <p class="subtitle">우리나라 속담을 맞춰보세요!</p>
       <div class="level-info">현재 레벨: {{ level }}</div>
+      <HowToPlay :lines="[
+        '속담의 앞부분이나 뜻이 나오면, 알맞은 속담(또는 뒷부분)을 보기 중에서 고르세요.',
+        '제한시간 안에 답을 골라야 하니 너무 오래 고민하지 마세요.',
+        '많이 맞힐수록 점수가 오르고 레벨이 올라가요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작! 🎯</button>
     </div>
 
@@ -57,6 +62,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameLeaderboard from '../../components/GameLeaderboard.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'

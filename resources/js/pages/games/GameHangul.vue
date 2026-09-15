@@ -13,6 +13,12 @@
       <span class="meta-badge score-badge">⭐ {{ score }}</span>
     </template>
   <div class="hangul-game" :class="{ 'celebrate': gameOver && !showLevelUp }">
+    <HowToPlay :lines="[
+      '화면에 나온 한글 글자를 보고, 알맞은 이름·발음을 보기 중에서 고르세요.',
+      '정답을 맞히면 점수가 올라가고, 레벨이 오를수록 더 어려운 글자가 나와요.',
+      '레벨 4부터는 제한시간이 생기니 서두르세요!',
+      '10문제를 다 풀면 결과와 함께 다음 레벨로 넘어가요.',
+    ]" />
     <!-- Timer (level 4+) -->
     <div v-if="!gameOver && !showLevelUp && timerLimit > 0" class="timer-wrap">
       <svg class="timer-svg" viewBox="0 0 44 44">
@@ -120,6 +126,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 

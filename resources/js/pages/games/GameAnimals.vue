@@ -23,6 +23,10 @@
     <div class="progress-info" v-if="rec.maxCompletedLevel.value > 0">
       🎯 최고 클리어: Lv.{{ rec.maxCompletedLevel.value }} · 다음 도전: Lv.{{ rec.maxUnlockedLevel.value }}
     </div>
+    <HowToPlay :lines="[
+      '동물 사진이 나오면, 알맞은 동물 이름을 보기 중에서 고르세요.',
+      '레벨을 골라 도전하고, 클리어하면 다음 레벨이 열려요.',
+    ]" />
     <button class="play-btn" @click="startGame" :disabled="loadingPool">
       {{ loadingPool ? '불러오는 중...' : '게임 시작! 🎮' }}
     </button>
@@ -105,6 +109,7 @@
 import { ref, onUnmounted, onMounted } from 'vue'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 const rec = useGameRecord('animals')

@@ -18,6 +18,13 @@
         <p class="text-white/40 text-xs mt-1">치매예방 · 두뇌훈련</p>
       </div>
 
+      <HowToPlay :lines="[
+        '카드를 두 장씩 뒤집어 같은 그림이 나오면 짝이 맞춰져요.',
+        '짝이 안 맞으면 다시 뒤집히니 위치를 잘 기억해두세요.',
+        '모든 카드의 짝을 다 맞추면 클리어! 이동 횟수와 시간이 적을수록 좋아요.',
+        '테마와 난이도를 골라서 시작하고, 클리어하면 다음 난이도가 열려요.',
+      ]" />
+
       <div class="space-y-3 mb-6">
         <div class="text-white/70 text-sm font-semibold mb-2">테마 선택</div>
         <div class="grid grid-cols-3 gap-2">
@@ -119,6 +126,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

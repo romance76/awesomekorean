@@ -11,6 +11,11 @@
         <div>레벨 3-4: 띄어쓰기·외래어</div>
         <div>레벨 5+: 고급 문법</div>
       </div>
+      <HowToPlay :lines="[
+        '문장이나 단어가 나오면, 여러 보기 중 맞춤법이 올바른 것을 고르세요.',
+        '헷갈리기 쉬운 맞춤법·띄어쓰기·외래어 표기 위주로 출제돼요.',
+        '정답을 많이 맞힐수록 점수가 오르고 레벨이 올라가요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작! ✏️</button>
     </div>
 
@@ -60,6 +65,7 @@
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'

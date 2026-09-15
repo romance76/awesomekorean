@@ -21,6 +21,11 @@
     <div class="progress-info" v-if="maxCompletedLevel > 0">
       🎯 최고 클리어: Lv.{{ maxCompletedLevel }} · 다음 도전: Lv.{{ maxUnlockedLevel }}
     </div>
+    <HowToPlay :lines="[
+      '그림(또는 이모지)이 나오면, 알맞은 한국어 단어를 보기 중에서 고르세요.',
+      '힌트가 있으면 화면에 함께 보여줘요.',
+      '70% 이상 맞히면 다음 레벨로 올라가요.',
+    ]" />
     <button class="start-btn" @click="startGame" :disabled="loadingPool">
       {{ loadingPool ? '불러오는 중...' : '시작하기 ▶' }}
     </button>
@@ -60,6 +65,7 @@
     <h2 class="end-title">잘 했어요!</h2>
     <p class="end-score">{{ score }}점 · {{ correct }}/{{ totalQ }} 정답</p>
     <div v-if="leveled" class="levelup-badge">🎉 레벨업! 레벨 {{ level }}!</div>
+    <GameResultExtras :rec="progressRec" slug="wordcard" />
     <div class="end-btns">
       <button class="start-btn" @click="startGame">다시 하기 🔄</button>
       <button class="home-btn" @click="$router.push('/games')">목록으로 🏠</button>
@@ -84,6 +90,8 @@
 import { ref, computed, onUnmounted, onMounted } from 'vue'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import GameResultExtras from '../../components/GameResultExtras.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
 
 const progressRec = useGameRecord('wordcard')
@@ -171,6 +179,7 @@ async function startGame() {
   answered.value=false; showFeedback.value=false
   queue.value = shuffle(pool.value).slice(0, Math.min(totalQ.value, pool.value.length))
   totalQ.value = queue.value.length
+  progressRec.start(level.value)
   phase.value = 'play'
   loadChoices()
   speak('단어 카드를 시작해요!')
@@ -217,13 +226,15 @@ function answer(opt) {
 
 function endGame() {
   phase.value = 'end'
-  if (correct.value >= Math.ceil(totalQ.value * 0.7) && level.value < 5) {
+  const won = correct.value >= Math.ceil(totalQ.value * 0.7)
+  if (won && level.value < 5) {
     level.value++
     localStorage.setItem('wordcard_level', level.value)
     leveled.value = true
     loadPool()
     speak('레벨업! 잘 했어요!')
   } else speak('다시 한번 도전해봐요!')
+  progressRec.end({ won, leveledUp: leveled.value, score: score.value })
 }
 
 onMounted(async () => {

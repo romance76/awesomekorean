@@ -6,6 +6,13 @@
 
       <p class="text-center text-purple-300 mb-6 text-xs">한인 커뮤니티 빙고 · 혼자서 컴퓨터와 대결!</p>
 
+      <HowToPlay :lines="[
+        '\'번호 뽑기\'를 누르면 번호가 하나씩 무작위로 호출돼요.',
+        '내 빙고판에서 호출된 번호를 찾아 표시하세요 (자동으로 표시됩니다).',
+        '가로·세로·대각선 중 한 줄을 먼저 완성하면 빙고!',
+        '컴퓨터도 동시에 번호를 채우니, 먼저 줄을 완성하는 쪽이 승리해요.',
+      ]" />
+
       <!-- Status Bar -->
       <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
         <div class="bg-purple-900/50 backdrop-blur-md border border-purple-500/60 rounded-xl px-5 py-2 text-center shadow-[0_8px_20px_rgba(88,28,135,0.25)]">
@@ -186,6 +193,7 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 
 // ────────────────────────────────────────────────────────────────────────────
 // Constants

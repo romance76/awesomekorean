@@ -5,6 +5,8 @@
       <span v-if="pointsEarned > 0" class="points-badge">+{{ pointsEarned }} P</span>
     </template>
 
+    <HowToPlay v-if="lines.length" class="arcade-htp" :lines="lines" />
+
     <!-- Game iframe -->
     <div class="game-frame-container">
       <iframe
@@ -29,12 +31,14 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 
 const props = defineProps({
   gameSlug: { type: String, required: true },
   gameId: { type: String, default: null },
   title: { type: String, default: '게임' },
   pointsPerScore: { type: Number, default: 1 },
+  lines: { type: Array, default: () => [] },
 })
 
 const router = useRouter()
@@ -117,6 +121,7 @@ onUnmounted(() => {
   box-shadow: 0 4px 12px -3px rgba(34,197,94,0.55);
   white-space: nowrap;
 }
+.arcade-htp { margin: 8px 12px 0; flex-shrink: 0; }
 .game-frame-container {
   flex: 1;
   position: relative;

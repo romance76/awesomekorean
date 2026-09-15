@@ -21,6 +21,12 @@
         같은 숫자 타일을 합쳐 <strong>2048</strong>을 만드세요!
       </p>
 
+      <HowToPlay :lines="[
+        '화살표 키(또는 화면 스와이프)로 타일을 한 방향으로 밀어요.',
+        '같은 숫자 타일 두 개가 부딪히면 합쳐져서 두 배가 돼요.',
+        '2048 타일을 만들면 승리! 더 이상 움직일 칸이 없으면 게임 오버예요.',
+      ]" />
+
       <!-- 게임 오버 / 승리 오버레이 -->
       <div v-if="gameOver || won"
         class="relative rounded-2xl overflow-hidden"
@@ -74,6 +80,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, defineComponent, h } from 'vue'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 
 // ── 타일 색상 ──────────────────────────────────────────────────────────────
 const TILE_COLORS = {

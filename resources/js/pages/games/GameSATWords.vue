@@ -11,6 +11,11 @@
         <div>레벨 3-4: 중급 수준</div>
         <div>레벨 5+: SAT 고급</div>
       </div>
+      <HowToPlay :lines="[
+        '영단어와 발음이 나오면, 알맞은 한글 뜻을 보기 중에서 고르세요.',
+        '예문도 함께 보여주니 문맥으로 유추해도 좋아요.',
+        '레벨이 오를수록 더 어려운 SAT 수준 단어가 나와요.',
+      ]" />
       <button class="start-btn" @click="startGame">시작! 📖</button>
     </div>
 
@@ -68,6 +73,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 import GameShell from '../../components/GameShell.vue'
 import GameLeaderboard from '../../components/GameLeaderboard.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'

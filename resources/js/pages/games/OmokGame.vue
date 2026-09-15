@@ -6,6 +6,11 @@
     </template>
 
   <div class="omok-body">
+    <HowToPlay :lines="[
+      '흑돌(나)과 백돌(AI)이 번갈아 바둑판에 돌을 놓아요.',
+      '가로·세로·대각선 중 어느 방향으로든 같은 색 돌 5개를 먼저 연속으로 이으면 승리!',
+      '실수했다면 \'무르기\'로 마지막 수를 되돌릴 수 있어요.',
+    ]" />
     <!-- Info / Turn -->
     <div class="info-row">
       <div class="turn-card" :class="currentTurn === 'black' ? 'black-turn' : 'white-turn'">
@@ -116,6 +121,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 
 const BOARD_SIZE = 15
 

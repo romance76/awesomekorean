@@ -9,6 +9,12 @@
       <div class="rule-box">
         <p>예: <strong>사과</strong> → <strong>과자</strong> → <strong>자동차</strong></p>
       </div>
+      <HowToPlay :lines="[
+        '제시된 단어의 마지막 글자로 시작하는 단어를 보기 중에서 고르세요.',
+        '두음법칙(예: 녀→여) 등은 문제에서 미리 알려줘요.',
+        '이미 나온 단어는 다시 쓸 수 없어요.',
+        '제한된 문제를 모두 이어가면 클리어!',
+      ]" />
       <button class="start-btn" @click="startGame">시작하기 ▶</button>
     </div>
 
@@ -70,6 +76,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'
+import HowToPlay from '../../components/HowToPlay.vue'
 import GameResultExtras from '../../components/GameResultExtras.vue'
 import ConfettiBurst from '../../components/ConfettiBurst.vue'
 import { useGameRecord } from '../../composables/useGameRecord'
