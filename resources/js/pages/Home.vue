@@ -84,7 +84,7 @@
 
   <!-- ═════ 2. 이벤트 배너 (관리자 히어로 배너 슬라이드 — 사진 + 좌측 스크림) ═════ -->
   <div v-if="heroBanners.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
-    <section class="relative overflow-hidden rounded-card shadow-card h-[180px] md:h-[280px]"
+    <section class="relative overflow-hidden rounded-card shadow-card aspect-[1232/222]"
       @mouseenter="pauseHero" @mouseleave="resumeHero">
       <Transition name="hero">
         <div v-if="heroBanners[heroIdx]" :key="heroIdx" @click="clickHeroBanner(heroBanners[heroIdx])"
