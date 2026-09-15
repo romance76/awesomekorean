@@ -26,6 +26,9 @@ class HeroBannerController extends Controller
         if ($request->hasFile('image')) {
             $data['image_url'] = $this->storeCompressedImage($request->file('image'), 'hero-banners', 1600, 85);
         }
+        if ($request->hasFile('image_en')) {
+            $data['image_url_en'] = $this->storeCompressedImage($request->file('image_en'), 'hero-banners', 1600, 85);
+        }
         $banner = HeroBanner::create($data);
         $this->clearPublicCache();
         return response()->json(['success' => true, 'data' => $banner]);
@@ -37,6 +40,9 @@ class HeroBannerController extends Controller
         $data = $this->payload($request);
         if ($request->hasFile('image')) {
             $data['image_url'] = $this->storeCompressedImage($request->file('image'), 'hero-banners', 1600, 85);
+        }
+        if ($request->hasFile('image_en')) {
+            $data['image_url_en'] = $this->storeCompressedImage($request->file('image_en'), 'hero-banners', 1600, 85);
         }
         $banner->update($data);
         $this->clearPublicCache();
@@ -53,8 +59,8 @@ class HeroBannerController extends Controller
     private function payload(Request $request): array
     {
         // multipart 로 오면 문자열 'true'/'false'/'1'/'0' 등을 적절히 캐스팅
-        $data = $request->except(['image', '_method']);
-        foreach (['is_active'] as $boolField) {
+        $data = $request->except(['image', 'image_en', '_method']);
+        foreach (['is_active', 'image_only'] as $boolField) {
             if (array_key_exists($boolField, $data)) {
                 $data[$boolField] = filter_var($data[$boolField], FILTER_VALIDATE_BOOLEAN);
             }

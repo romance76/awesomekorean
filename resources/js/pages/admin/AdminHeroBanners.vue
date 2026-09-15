@@ -24,13 +24,30 @@
       </div>
 
       <!-- 이미지 업로드 -->
-      <div>
-        <label class="input-label">배경 이미지 (선택, 이미지가 있으면 텍스트 대신 이미지 전체가 표시됨)</label>
-        <input type="file" accept="image/*" @change="onFile" class="text-xs" />
-        <div v-if="pickedFile" class="text-[11px] text-green-600 mt-1">선택됨: {{ pickedFile.name }}</div>
-        <div v-else-if="form.image_url" class="mt-1">
-          <img :src="form.image_url" class="max-h-20 rounded-lg border border-gray-200" />
-          <button type="button" @click="clearImage" class="ml-2 text-[11px] text-red-500 hover:text-red-600 transition-colors">이미지 제거</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div>
+          <label class="input-label">배경 이미지 (한글 / 기본)</label>
+          <input type="file" accept="image/*" @change="onFile" class="text-xs" />
+          <div v-if="pickedFile" class="text-[11px] text-green-600 mt-1">선택됨: {{ pickedFile.name }}</div>
+          <div v-else-if="form.image_url" class="mt-1">
+            <img :src="form.image_url" class="max-h-20 rounded-lg border border-gray-200" />
+            <button type="button" @click="clearImage" class="ml-2 text-[11px] text-red-500 hover:text-red-600 transition-colors">이미지 제거</button>
+          </div>
+        </div>
+        <div>
+          <label class="input-label">배경 이미지 (영어, 선택 — 사이트 언어가 영어일 때 대신 표시)</label>
+          <input type="file" accept="image/*" @change="onFileEn" class="text-xs" />
+          <div v-if="pickedFileEn" class="text-[11px] text-green-600 mt-1">선택됨: {{ pickedFileEn.name }}</div>
+          <div v-else-if="form.image_url_en" class="mt-1">
+            <img :src="form.image_url_en" class="max-h-20 rounded-lg border border-gray-200" />
+            <button type="button" @click="clearImageEn" class="ml-2 text-[11px] text-red-500 hover:text-red-600 transition-colors">이미지 제거</button>
+          </div>
+        </div>
+        <div class="flex items-end">
+          <label class="flex items-center gap-2 text-sm text-ink-light">
+            <input v-model="form.image_only" type="checkbox" class="accent-amber-500 w-4 h-4" />
+            이미지 전용 (텍스트/CTA 오버레이 끄기 — 이미지 자체에 문구가 이미 있을 때)
+          </label>
         </div>
       </div>
 
@@ -98,6 +115,8 @@
         <div class="text-sm font-bold text-ink truncate">{{ b.title }}</div>
         <div class="text-[11px] text-ink-muted truncate">
           <span class="inline-flex items-center gap-0.5"><AppIcon :name="b.image_url ? 'image' : 'edit'" :size="10" />{{ b.image_url ? '이미지' : '텍스트' }}</span>
+          <span v-if="b.image_url_en"> · EN 이미지 있음</span>
+          <span v-if="b.image_only"> · 이미지 전용</span>
           <span v-if="b.subtitle"> · {{ b.subtitle }}</span>
           <span v-if="b.link_type && b.link_type !== 'none'"> · {{ b.link_type }}{{ b.event_id ? ' #' + b.event_id : '' }}{{ b.link_page || '' }}</span>
         </div>
@@ -126,10 +145,11 @@ const showForm = ref(false)
 const editId = ref(null)
 const saving = ref(false)
 const pickedFile = ref(null)
+const pickedFileEn = ref(null)
 
 const DEFAULT_FORM = {
   title: '', subtitle: '',
-  image_url: '',
+  image_url: '', image_url_en: '', image_only: false,
   bg_color: '#F5A623', text_color: '#FFFFFF',
   link_type: 'none', event_id: null, link_page: '', link_url: '',
   sort_order: 0, is_active: true,
@@ -155,6 +175,15 @@ function clearImage() {
   pickedFile.value = null
 }
 
+function onFileEn(e) {
+  pickedFileEn.value = e.target.files?.[0] || null
+}
+
+function clearImageEn() {
+  form.value.image_url_en = ''
+  pickedFileEn.value = null
+}
+
 async function saveForm() {
   if (!form.value.title) { alert('제목을 입력하세요'); return }
   saving.value = true
@@ -166,6 +195,7 @@ async function saveForm() {
       else fd.append(k, v)
     })
     if (pickedFile.value) fd.append('image', pickedFile.value)
+    if (pickedFileEn.value) fd.append('image_en', pickedFileEn.value)
     const url = editId.value ? `/api/admin/hero-banners/${editId.value}` : '/api/admin/hero-banners'
     await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
     resetForm()
@@ -181,6 +211,7 @@ function editBanner(b) {
   editId.value = b.id
   form.value = { ...DEFAULT_FORM, ...b }
   pickedFile.value = null
+  pickedFileEn.value = null
   showForm.value = true
 }
 
@@ -188,6 +219,7 @@ function resetForm() {
   editId.value = null
   form.value = { ...DEFAULT_FORM }
   pickedFile.value = null
+  pickedFileEn.value = null
   showForm.value = false
 }
 
