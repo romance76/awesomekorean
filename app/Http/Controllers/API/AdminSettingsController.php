@@ -428,6 +428,14 @@ class AdminSettingsController extends Controller
             \Artisan::call('news:fetch');
             return ['message' => '완료'];
         });
+        $run('언론사 헤드라인', function () {
+            \Artisan::call('headlines:fetch');
+            return ['message' => '완료'];
+        });
+        $run('주식 시세', function () {
+            \Artisan::call('market:fetch');
+            return ['message' => '완료'];
+        });
         $run('쇼츠', function () {
             \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]);
             $output = \Artisan::output();
