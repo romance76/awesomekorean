@@ -22,6 +22,9 @@ Schedule::command('news:fetch')->cron('0 */2 * * *')->withoutOverlapping()->appe
 // 홈 화면 언론사별 헤드라인 위젯: 여러 언론사 RSS에서 제목+썸네일+링크만 30분마다 수집
 Schedule::command('headlines:fetch')->everyThirtyMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
 
+// 홈 화면 인기 주식 위젯 + 증권 페이지 시세: 15분마다 갱신
+Schedule::command('market:fetch')->everyFifteenMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
+
 // 음악 트랙 자동 수집 (매일 02:00, 500곡, 한국70%+팝30%, 7일 롤링)
 // 주의: shorts:fetch 와 같은 YouTube Data API 키/쿼터를 공유함 — 하루 쿼터를
 // 다 쓰면 이후 실행되는 작업(예: 03:00 shorts:fetch)이 조용히 실패할 수 있음.

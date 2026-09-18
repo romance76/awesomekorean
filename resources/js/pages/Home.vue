@@ -40,9 +40,8 @@
       </div>
     </div>
 
-    <!-- 위젯 벤토: 날씨 / 환율(그래프) / 접속자(나이트) -->
-    <div class="grid grid-rows-[auto_auto] gap-3.5 lg:gap-4">
-      <div class="grid grid-cols-2 gap-3.5 lg:gap-4">
+    <!-- 위젯 벤토: 날씨 / 환율 / 인기 주식 / 접속자 (2x2) -->
+    <div class="grid grid-cols-2 gap-3.5 lg:gap-4">
         <!-- 날씨: 실시간(open-meteo) 아이콘형 -->
         <div class="bg-amber-400 rounded-card p-4 lg:p-5 flex flex-col justify-between text-white">
           <div class="flex items-start justify-between gap-2">
@@ -86,24 +85,54 @@
             <path :d="fx.path" fill="none" :stroke="fx.change >= 0 ? '#E8442E' : '#3B82F6'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
           </svg>
         </div>
-      </div>
 
-      <!-- 접속자 -->
-      <div class="bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <span class="live-pulse shrink-0"></span>
-          <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">지금 접속 중</span>
+        <!-- 인기 주식: 지수(나스닥/다우/S&P/코스피) 로테이션 + 관심종목 -->
+        <RouterLink to="/stocks" class="bg-surface rounded-card p-4 lg:p-5 flex flex-col group hover:brightness-95 transition-all">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10.5px] font-bold tracking-wider text-ink-muted">인기 주식</span>
+            <AppIcon name="chevron-right" :size="12" class="text-ink-faint group-hover:text-amber-500 transition-colors" />
+          </div>
+          <div class="flex gap-3 mt-2.5 flex-1">
+            <div v-if="currentIndex" class="flex-1 min-w-0">
+              <div class="text-[11px] font-semibold text-ink-muted truncate">{{ currentIndex.name }}</div>
+              <div class="text-[17px] lg:text-[19px] font-extrabold tracking-[-0.03em] text-ink tabular-nums mt-0.5">
+                {{ Number(currentIndex.price).toLocaleString(undefined, {maximumFractionDigits: 0}) }}
+              </div>
+              <div class="text-[10.5px] font-bold mt-0.5" :class="Number(currentIndex.change_pct) >= 0 ? 'text-[#E8442E]' : 'text-blue-500'">
+                {{ Number(currentIndex.change_pct) >= 0 ? '▲' : '▼' }} {{ Math.abs(Number(currentIndex.change_pct)).toFixed(2) }}%
+              </div>
+              <svg v-if="currentIndex.sparkline?.length > 1" viewBox="0 0 100 20" class="w-full h-5 mt-1.5" preserveAspectRatio="none">
+                <path :d="sparkPath(currentIndex.sparkline)" fill="none"
+                  :stroke="Number(currentIndex.change_pct) >= 0 ? '#E8442E' : '#3B82F6'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
+              </svg>
+            </div>
+            <div v-if="watchlist.length" class="w-[86px] shrink-0 flex flex-col justify-center gap-1 border-l border-line pl-2.5">
+              <div v-for="w in watchlist.slice(0, 3)" :key="w.symbol" class="text-[10px]">
+                <div class="text-ink-muted truncate">{{ w.name }}</div>
+                <div class="font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#E8442E]' : 'text-blue-500'">
+                  {{ Number(w.change_pct) >= 0 ? '▲' : '▼' }}{{ Math.abs(Number(w.change_pct)).toFixed(1) }}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </RouterLink>
+
+        <!-- 접속자 -->
+        <div class="bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="live-pulse shrink-0"></span>
+            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">지금 접속 중</span>
+          </div>
+          <div>
+            <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveUsers }}명</div>
+            <div class="text-[12px] text-white/65 mt-1.5">오픈 채팅방에서 대화가 진행 중이에요</div>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button v-for="t in trendingTags.slice(0, 5)" :key="t"
+              @click="router.push({path:'/search',query:{q:t}})"
+              class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
+          </div>
         </div>
-        <div>
-          <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveUsers }}명</div>
-          <div class="text-[12px] text-white/65 mt-1.5">오픈 채팅방에서 대화가 진행 중이에요</div>
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-          <button v-for="t in trendingTags.slice(0, 5)" :key="t"
-            @click="router.push({path:'/search',query:{q:t}})"
-            class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -348,6 +377,10 @@ const headlines = ref([])
 const headlinePage = ref(0)
 const weather = ref(null)
 const fx = ref(null)
+const indices = ref([])
+const watchlist = ref([])
+const indexIdx = ref(0)
+let indexInterval = null
 const heroBanners = ref([])
 const heroIdx = ref(0)
 let heroInterval = null
@@ -363,7 +396,7 @@ function startHeroSlide() {
 }
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && heroBanners.value.length > 1) startHeroSlide() }
-onUnmounted(() => { if (heroInterval) clearInterval(heroInterval) })
+onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInterval) clearInterval(indexInterval) })
 
 // 영어 모드면 image_url_en 우선 사용, 없으면 기본(한글) 이미지로 폴백
 function heroBannerImage(b) {
@@ -543,13 +576,30 @@ function aqiLabel(aqi) {
   return '나쁨'
 }
 
-// 환율 미니 차트: 최근 N일 종가를 0~100 뷰박스에 맞춘 SVG path 로 변환
-function fxSparkPath(points) {
+// 환율/지수 미니 차트 공용: 최근 N일 값을 0~h 뷰박스에 맞춘 SVG path 로 변환
+function sparkPathH(points, h) {
   if (!points || points.length < 2) return ''
   const min = Math.min(...points), max = Math.max(...points)
   const range = (max - min) || 1
   const stepX = 100 / (points.length - 1)
-  return points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i * stepX).toFixed(2)} ${(28 - ((v - min) / range) * 26).toFixed(2)}`).join(' ')
+  return points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i * stepX).toFixed(2)} ${(h - ((v - min) / range) * (h - 2)).toFixed(2)}`).join(' ')
+}
+function fxSparkPath(points) { return sparkPathH(points, 28) }
+function sparkPath(points) { return sparkPathH(points, 20) }
+
+// 인기 주식 위젯: 지수 4개(나스닥/다우/S&P/코스피)를 4초마다 로테이션
+const currentIndex = computed(() => indices.value[indexIdx.value] || null)
+function startIndexRotation() {
+  if (indices.value.length <= 1) return
+  indexInterval = setInterval(() => { indexIdx.value = (indexIdx.value + 1) % indices.value.length }, 4000)
+}
+async function loadMarketQuotes() {
+  try {
+    const { data } = await axios.get('/api/market-quotes')
+    indices.value = data.data?.indices || []
+    watchlist.value = data.data?.watchlist || []
+    startIndexRotation()
+  } catch {}
 }
 
 // 외부 공개 API(무인증) 직접 호출 — 사이트 axios 인스턴스는 Authorization 헤더가
@@ -638,6 +688,7 @@ const dealCards = computed(() => {
 onMounted(async () => {
   loadWeather()
   loadFx()
+  loadMarketQuotes()
   try {
     const { data } = await axios.get('/api/hero-banners')
     heroBanners.value = data.data || []
