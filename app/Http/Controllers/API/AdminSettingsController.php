@@ -408,61 +408,42 @@ class AdminSettingsController extends Controller
     }
 
     /**
-     * 뉴스/쇼츠/음악/레시피/업소록 5개 자동 수집을 버튼 하나로 순서대로 실행.
-     * 하나가 실패해도(쿼터 초과 등) 나머지는 계속 진행하고, 소스별 결과를
-     * 요약해 반환 — 관리자가 뭐가 실패했는지 바로 확인 가능.
+     * 뉴스/헤드라인/주식/쇼츠/음악/레시피/업소록 7개 자동 수집을 버튼 하나로
+     * 실행. 7개를 한 HTTP 요청 안에서 순서대로 다 기다리게 했더니 nginx
+     * 타임아웃에 걸려 "수집 실패"로 끊기는 문제가 실측 확인돼, content:sync-all
+     * 커맨드를 백그라운드 프로세스로 띄우고 즉시 응답만 반환하도록 변경.
+     * 진행 결과는 syncAllContentStatus() 로 로그 파일을 읽어 확인.
      */
     public function syncAllContent() {
-        @set_time_limit(240);
-        $results = [];
+        $logPath = storage_path('logs/manual-sync-all.log');
+        file_put_contents($logPath, "=== 시작: " . now() . " ===\n");
 
-        $run = function (string $label, callable $fn) use (&$results) {
-            try {
-                $results[] = array_merge(['source' => $label, 'success' => true], $fn());
-            } catch (\Throwable $e) {
-                $results[] = ['source' => $label, 'success' => false, 'message' => $e->getMessage()];
-            }
-        };
+        // exec()가 서버에서 막혀 있을 수 있어(공유 호스팅 등), 쉘 실행 대신
+        // PHP-FPM의 fastcgi_finish_request()로 응답만 먼저 클라이언트에
+        // 보내고 같은 프로세스에서 계속 실행하는 방식 사용 (exec 권한 불필요).
+        $respond = response()->json(['success' => true, 'message' => '백그라운드에서 시작됐습니다. 1~2분 후 결과를 확인해주세요.']);
+        if (function_exists('fastcgi_finish_request')) {
+            $respond->send();
+            fastcgi_finish_request();
+        }
 
-        $run('뉴스', function () {
-            \Artisan::call('news:fetch');
-            return ['message' => '완료'];
-        });
-        $run('언론사 헤드라인', function () {
-            \Artisan::call('headlines:fetch');
-            return ['message' => '완료'];
-        });
-        $run('주식 시세', function () {
-            \Artisan::call('market:fetch');
-            return ['message' => '완료'];
-        });
-        $run('쇼츠', function () {
-            \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]);
-            $output = \Artisan::output();
-            if (str_contains($output, '할당량') || str_contains($output, '403')) {
-                return ['success' => false, 'message' => 'YouTube API 할당량 초과'];
-            }
-            return ['message' => '완료'];
-        });
-        $run('음악', function () {
-            \Artisan::call('music:fetch', ['--daily' => 100]);
-            $output = \Artisan::output();
-            if (str_contains($output, '할당량') || str_contains($output, '403')) {
-                return ['success' => false, 'message' => 'YouTube API 할당량 초과'];
-            }
-            return ['message' => '완료'];
-        });
-        $run('레시피', function () {
-            // 버튼 한 번에 여러 소스를 순서대로 실행하므로 요청 시간 초과를
-            // 피하기 위해 300건까지만; 전체 1000건은 새벽 스케줄러가 처리
-            \Artisan::call('recipes:sync-all', ['--end' => 300]);
-            return ['message' => \Artisan::output()];
-        });
-        $run('업소록', function () {
-            \Artisan::call('places:import', ['--limit' => 50]);
-            return ['message' => \Artisan::output()];
-        });
+        \Artisan::call('content:sync-all');
+        file_put_contents($logPath, \Artisan::output(), FILE_APPEND);
 
-        return response()->json(['success' => true, 'results' => $results]);
+        return $respond;
+    }
+
+    /** 위 syncAllContent() 가 백그라운드로 남긴 로그를 그대로 보여줌 */
+    public function syncAllContentStatus() {
+        $logPath = storage_path('logs/manual-sync-all.log');
+        if (!file_exists($logPath)) {
+            return response()->json(['success' => true, 'log' => '', 'done' => false]);
+        }
+        $log = file_get_contents($logPath);
+        return response()->json([
+            'success' => true,
+            'log' => $log,
+            'done' => str_contains($log, '=== 전체 완료 ==='),
+        ]);
     }
 }
