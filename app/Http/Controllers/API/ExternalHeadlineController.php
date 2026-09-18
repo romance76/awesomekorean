@@ -14,6 +14,8 @@ class ExternalHeadlineController extends Controller
         return response()->json([
             'success' => true,
             'data' => ExternalHeadline::whereNotNull('image_url')
+                ->whereNotNull('summary')
+                ->where('summary', '!=', '')
                 ->orderByDesc('published_at')
                 ->limit($perPage)
                 ->get(),
