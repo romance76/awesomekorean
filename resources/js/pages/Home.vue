@@ -17,66 +17,91 @@
   <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[1.28fr_1fr] gap-4 lg:gap-5">
 
     <!-- 히어로: 관리자 히어로 배너 첫 장을 배경 사진으로 사용, 없으면 웜 그라데이션 -->
-    <div class="relative rounded-card overflow-hidden min-h-[320px] lg:min-h-[430px] shadow-card">
+    <div class="relative rounded-card overflow-hidden min-h-[240px] lg:min-h-[340px] shadow-card">
       <img v-if="heroImage" :src="heroImage" alt=""
         class="absolute inset-0 w-full h-full object-cover"
         @error="e => e.target.style.display='none'" />
       <div v-else class="absolute inset-0" style="background:linear-gradient(140deg,#2A2017,#1B1613)"></div>
       <div class="absolute inset-0 hero-scrim"></div>
-      <div class="relative h-full flex flex-col justify-end p-7 lg:p-10">
-        <span class="self-start text-[11.5px] font-bold tracking-wide text-white bg-amber-400 px-3.5 py-1.5 rounded-full">미국 한인 NO.1 커뮤니티</span>
-        <h1 class="mt-4 lg:mt-5 text-[30px] lg:text-[46px] font-extrabold leading-[1.16] tracking-[-0.045em] text-white">
+      <div class="relative h-full flex flex-col justify-end p-5 lg:p-7">
+        <span class="self-start text-[10.5px] font-bold tracking-wide text-white bg-amber-400 px-3 py-1 rounded-full">미국 한인 NO.1 커뮤니티</span>
+        <h1 class="mt-3 lg:mt-3.5 text-[22px] lg:text-[32px] font-extrabold leading-[1.16] tracking-[-0.045em] text-white">
           미국에서의 하루,<br>어코와 함께 시작하세요
         </h1>
-        <p class="mt-3.5 text-[14.5px] lg:text-base leading-relaxed text-white/80 max-w-[42ch]">
+        <p class="mt-2.5 text-[13px] lg:text-[14.5px] leading-relaxed text-white/80 max-w-[42ch]">
           이민 생활 꿀팁부터 동네 맛집, 구인구직, 중고 거래까지 — 한인들의 일상이 모이는 올인원 플랫폼.
         </p>
-        <div class="flex flex-wrap gap-2.5 mt-6">
+        <div class="flex flex-wrap gap-2 mt-4">
           <RouterLink v-if="!auth.isLoggedIn" to="/register"
-            class="bg-white text-ink font-bold text-[15px] px-6 py-3 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
+            class="bg-white text-ink font-bold text-[13.5px] px-5 py-2.5 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
           <RouterLink to="/community"
-            class="text-white font-semibold text-[15px] px-5 py-3 rounded-full border-[1.5px] border-white/40 transition-colors hover:bg-white/10">둘러보기</RouterLink>
+            class="text-white font-semibold text-[13.5px] px-4 py-2.5 rounded-full border-[1.5px] border-white/40 transition-colors hover:bg-white/10">둘러보기</RouterLink>
         </div>
       </div>
     </div>
 
-    <!-- 위젯 벤토: 날씨(오렌지) / 환율(웜 그레이) / 접속자(나이트) -->
-    <div class="grid grid-rows-[auto_1fr] gap-4 lg:gap-5">
-      <div class="grid grid-cols-2 gap-4 lg:gap-5">
-        <div class="bg-amber-400 rounded-card p-5 lg:p-6 flex flex-col justify-between text-white">
+    <!-- 위젯 벤토: 날씨 / 환율(그래프) / 접속자(나이트) -->
+    <div class="grid grid-rows-[auto_auto] gap-3.5 lg:gap-4">
+      <div class="grid grid-cols-2 gap-3.5 lg:gap-4">
+        <!-- 날씨: 실시간(open-meteo) 아이콘형 -->
+        <div class="bg-amber-400 rounded-card p-4 lg:p-5 flex flex-col justify-between text-white">
           <div class="flex items-start justify-between gap-2">
-            <span class="text-[11.5px] font-bold tracking-wider text-white/85">애틀랜타 · 오늘</span>
-            <AppIcon name="sun" :size="22" :stroke-width="1.8" class="text-white/90" />
+            <span class="text-[10.5px] font-bold tracking-wider text-white/85">수와니 · 오늘</span>
+            <AppIcon v-if="weather" :name="weatherIcon(weather.code)" :size="18" :stroke-width="1.8" class="text-white/90" />
           </div>
-          <div class="mt-6">
-            <div class="text-[34px] lg:text-[40px] font-extrabold tracking-[-0.04em] leading-none">72°F</div>
-            <div class="text-[12.5px] text-white/90 mt-2">맑음 · 내일 68° / 모레 75°</div>
+          <div class="mt-3">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-[26px] lg:text-[30px] font-extrabold tracking-[-0.04em] leading-none">{{ weather ? weather.temp + '°F' : '--' }}</span>
+            </div>
+            <div class="text-[11px] text-white/90 mt-1.5">
+              {{ weather ? weatherLabel(weather.code) : '불러오는 중' }}
+              <span v-if="weather">· {{ weather.minT }}° / {{ weather.maxT }}°</span>
+            </div>
+            <div v-if="weather" class="text-[10px] text-white/75 mt-0.5">대기질 {{ aqiLabel(weather.aqi) }}</div>
           </div>
-        </div>
-        <div class="bg-surface rounded-card p-5 lg:p-6 flex flex-col justify-between">
-          <span class="text-[11.5px] font-bold tracking-wider text-ink-muted">USD → KRW</span>
-          <div class="mt-6">
-            <div class="text-[28px] lg:text-[32px] font-extrabold tracking-[-0.04em] leading-none text-ink tabular-nums">1,386<span class="text-[16px] text-ink-muted">원</span></div>
-            <div class="flex gap-2.5 items-baseline mt-2">
-              <span class="text-[12.5px] font-bold text-[#E8442E]">▲ 2.4</span>
-              <span class="text-xs text-ink-faint">15분 전</span>
+          <div v-if="weather?.hourly?.length" class="flex justify-between mt-3 pt-2.5 border-t border-white/20">
+            <div v-for="h in weather.hourly" :key="h.hour" class="flex flex-col items-center gap-1">
+              <span class="text-[9.5px] text-white/75">{{ h.hour }}시</span>
+              <AppIcon :name="weatherIcon(h.code)" :size="13" :stroke-width="2" class="text-white/90" />
+              <span class="text-[10px] font-bold tabular-nums">{{ h.temp }}°</span>
             </div>
           </div>
         </div>
+
+        <!-- 환율: 실시간(frankfurter) 미니 그래프 -->
+        <div class="bg-surface rounded-card p-4 lg:p-5 flex flex-col justify-between">
+          <span class="text-[10.5px] font-bold tracking-wider text-ink-muted">USD → KRW</span>
+          <div class="mt-3">
+            <div class="text-[22px] lg:text-[26px] font-extrabold tracking-[-0.04em] leading-none text-ink tabular-nums">
+              {{ fx ? Math.round(fx.rate).toLocaleString() : '--' }}<span class="text-[13px] text-ink-muted">원</span>
+            </div>
+            <div v-if="fx" class="flex gap-2 items-baseline mt-1.5">
+              <span class="text-[11px] font-bold" :class="fx.change >= 0 ? 'text-[#E8442E]' : 'text-blue-500'">
+                {{ fx.change >= 0 ? '▲' : '▼' }} {{ Math.abs(fx.change).toFixed(1) }}
+              </span>
+              <span class="text-[10.5px] text-ink-faint">{{ fx.date }}</span>
+            </div>
+          </div>
+          <svg v-if="fx?.path" viewBox="0 0 100 28" class="w-full h-7 mt-2.5" preserveAspectRatio="none">
+            <path :d="fx.path" fill="none" :stroke="fx.change >= 0 ? '#E8442E' : '#3B82F6'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
+          </svg>
+        </div>
       </div>
-      <div class="bg-night rounded-card p-6 lg:p-7 flex flex-col justify-between gap-5">
-        <div class="flex items-center gap-2.5">
+
+      <!-- 접속자 -->
+      <div class="bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
+        <div class="flex items-center gap-2">
           <span class="live-pulse shrink-0"></span>
-          <span class="text-[11.5px] font-bold tracking-wider text-[#9C9088]">지금 접속 중</span>
+          <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">지금 접속 중</span>
         </div>
         <div>
-          <div class="text-[36px] lg:text-[44px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveUsers }}명</div>
-          <div class="text-[13px] text-white/65 mt-2.5">오픈 채팅방에서 대화가 진행 중이에요</div>
+          <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveUsers }}명</div>
+          <div class="text-[12px] text-white/65 mt-1.5">오픈 채팅방에서 대화가 진행 중이에요</div>
         </div>
         <div class="flex flex-wrap gap-1.5">
           <button v-for="t in trendingTags.slice(0, 5)" :key="t"
             @click="router.push({path:'/search',query:{q:t}})"
-            class="text-[12.5px] font-semibold text-white/85 bg-white/10 px-3 py-1.5 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
+            class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
         </div>
       </div>
     </div>
@@ -321,6 +346,8 @@ const clubs = ref([])
 const businesses = ref([])
 const headlines = ref([])
 const headlinePage = ref(0)
+const weather = ref(null)
+const fx = ref(null)
 const heroBanners = ref([])
 const heroIdx = ref(0)
 let heroInterval = null
@@ -496,6 +523,83 @@ function headlineTime(h) {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
+// 날씨 위젯: WMO weather_code → 아이콘/한글 설명 (open-meteo 기준)
+const WEATHER_CODE_MAP = {
+  0: ['sun', '맑음'], 1: ['cloud-sun', '대체로 맑음'], 2: ['cloud-sun', '구름 조금'], 3: ['cloud', '흐림'],
+  45: ['cloud-fog', '안개'], 48: ['cloud-fog', '안개'],
+  51: ['cloud-rain', '이슬비'], 53: ['cloud-rain', '이슬비'], 55: ['cloud-rain', '이슬비'],
+  61: ['cloud-rain', '비'], 63: ['cloud-rain', '비'], 65: ['cloud-rain', '강한 비'],
+  71: ['cloud-snow', '눈'], 73: ['cloud-snow', '눈'], 75: ['cloud-snow', '폭설'],
+  80: ['cloud-rain', '소나기'], 81: ['cloud-rain', '소나기'], 82: ['cloud-rain', '강한 소나기'],
+  95: ['cloud-lightning', '뇌우'], 96: ['cloud-lightning', '뇌우'], 99: ['cloud-lightning', '뇌우'],
+}
+function weatherIcon(code) { return (WEATHER_CODE_MAP[code] || ['cloud', ''])[0] }
+function weatherLabel(code) { return (WEATHER_CODE_MAP[code] || ['cloud', '-'])[1] }
+function aqiLabel(aqi) {
+  if (aqi == null) return ''
+  if (aqi <= 50) return '좋음'
+  if (aqi <= 100) return '보통'
+  if (aqi <= 150) return '민감군 주의'
+  return '나쁨'
+}
+
+// 환율 미니 차트: 최근 N일 종가를 0~100 뷰박스에 맞춘 SVG path 로 변환
+function fxSparkPath(points) {
+  if (!points || points.length < 2) return ''
+  const min = Math.min(...points), max = Math.max(...points)
+  const range = (max - min) || 1
+  const stepX = 100 / (points.length - 1)
+  return points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i * stepX).toFixed(2)} ${(28 - ((v - min) / range) * 26).toFixed(2)}`).join(' ')
+}
+
+// 외부 공개 API(무인증) 직접 호출 — 사이트 axios 인스턴스는 Authorization 헤더가
+// 기본 적용돼 있어 제3자 API에 토큰이 새지 않도록 순수 fetch 사용
+async function loadWeather() {
+  try {
+    const lat = 34.0904, lon = -84.0733 // Suwanee, GA
+    const [wRes, aRes] = await Promise.all([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=America%2FNew_York&temperature_unit=fahrenheit&forecast_days=2`),
+      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi&timezone=America%2FNew_York`),
+    ])
+    const w = await wRes.json()
+    const a = await aRes.json()
+    const nowIdx = w.hourly.time.findIndex(t => t === w.current.time.slice(0, 13) + ':00')
+    const startIdx = nowIdx >= 0 ? nowIdx : 0
+    weather.value = {
+      temp: Math.round(w.current.temperature_2m),
+      code: w.current.weather_code,
+      maxT: Math.round(w.daily.temperature_2m_max[0]),
+      minT: Math.round(w.daily.temperature_2m_min[0]),
+      aqi: a?.current?.us_aqi ?? null,
+      hourly: w.hourly.time.slice(startIdx + 1, startIdx + 5).map((t, i) => ({
+        hour: new Date(t).getHours(),
+        temp: Math.round(w.hourly.temperature_2m[startIdx + 1 + i]),
+        code: w.hourly.weather_code[startIdx + 1 + i],
+      })),
+    }
+  } catch {}
+}
+async function loadFx() {
+  try {
+    const end = new Date()
+    const start = new Date(end.getTime() - 9 * 86400000)
+    const fmt = d => d.toISOString().slice(0, 10)
+    const res = await fetch(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=USD&symbols=KRW`)
+    const data = await res.json()
+    const dates = Object.keys(data.rates).sort()
+    const points = dates.map(d => data.rates[d].KRW)
+    const latest = points[points.length - 1]
+    const prev = points[points.length - 2] ?? latest
+    fx.value = {
+      rate: latest,
+      change: latest - prev,
+      changePct: prev ? ((latest - prev) / prev * 100) : 0,
+      path: fxSparkPath(points),
+      date: dates[dates.length - 1],
+    }
+  } catch {}
+}
+
 // 지금 거래 중: 중고장터 2 + 구인 1 + 부동산 1 을 사진 카드로 혼합
 const dealCards = computed(() => {
   const cards = []
@@ -532,6 +636,8 @@ const dealCards = computed(() => {
 })
 
 onMounted(async () => {
+  loadWeather()
+  loadFx()
   try {
     const { data } = await axios.get('/api/hero-banners')
     heroBanners.value = data.data || []
