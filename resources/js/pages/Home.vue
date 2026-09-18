@@ -114,6 +114,36 @@
     </section>
   </div>
 
+  <!-- ═════ 2-N. 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) ═════ -->
+  <div v-if="currentHeadlines.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
+    <div class="card p-4 lg:p-5">
+      <div class="flex items-center gap-2.5 mb-3.5">
+        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
+        <span class="flex-1"></span>
+        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-left" :size="14" />
+        </button>
+        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
+        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-right" :size="14" />
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+        <a v-for="h in currentHeadlines" :key="h.id" :href="h.source_url" target="_blank" rel="noopener noreferrer"
+          class="flex gap-3 items-start group">
+          <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
+            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />
+          </div>
+          <div class="min-w-0">
+            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
+            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-2 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
+            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- ═════ 2-M. 모바일 전용: 카테고리 카드 그리드 + 배너 ═════ -->
   <div class="lg:hidden max-w-7xl mx-auto px-4 pt-4">
     <div class="grid grid-cols-3 gap-2 mb-3">
@@ -140,21 +170,19 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <!-- 대표 글 -->
-        <RouterLink v-if="featurePost" :to="`/community/${featurePost.board?.slug || 'free'}/${featurePost.id}`" class="group block">
+        <!-- 대표 글 (사진 없는 커뮤니티 글 대신, 사진 있는 다른 섹션 콘텐츠로 대체될 수 있음) -->
+        <RouterLink v-if="featureCard" :to="featureCard.to" class="group block">
           <div class="aspect-[16/10] rounded-2xl overflow-hidden bg-surface border border-line">
-            <img v-if="postImage(featurePost)" :src="postImage(featurePost)" alt=""
+            <img v-if="featureCard.image" :src="featureCard.image" alt=""
               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               @error="e => e.target.style.display='none'" />
             <div v-else class="w-full h-full flex items-center justify-center text-ink-faint">
               <AppIcon name="image" :size="28" :stroke-width="1.5" />
             </div>
           </div>
-          <div class="mt-3 text-xs font-bold tracking-wide text-amber-500">{{ featurePost.board?.name || '커뮤니티' }}</div>
-          <h3 class="mt-1.5 text-[16.5px] font-bold tracking-[-0.02em] text-ink leading-snug">{{ featurePost.title }}</h3>
-          <div class="mt-2 text-[12.5px] text-ink-muted">
-            {{ featurePost.user?.name || '회원' }} · 댓글 {{ featurePost.comments_count || featurePost.comment_count || 0 }}
-          </div>
+          <div class="mt-3 text-xs font-bold tracking-wide text-amber-500">{{ featureCard.label }}</div>
+          <h3 class="mt-1.5 text-[16.5px] font-bold tracking-[-0.02em] text-ink leading-snug">{{ featureCard.title }}</h3>
+          <div class="mt-2 text-[12.5px] text-ink-muted">{{ featureCard.meta }}</div>
         </RouterLink>
 
         <!-- 그 외 최신글 -->
@@ -286,6 +314,13 @@ const posts = ref([])
 const jobs = ref([])
 const market = ref([])
 const realestate = ref([])
+const events = ref([])
+const groupbuys = ref([])
+const recipes = ref([])
+const clubs = ref([])
+const businesses = ref([])
+const headlines = ref([])
+const headlinePage = ref(0)
 const heroBanners = ref([])
 const heroIdx = ref(0)
 let heroInterval = null
@@ -369,6 +404,67 @@ const heroImage = computed(() => {
 const featurePost = computed(() => posts.value[0] || null)
 const sidePosts = computed(() => posts.value.slice(1, 4))
 
+// 대표 글에 사진이 없으면 텅 빈 박스로 보이는 대신, 사진이 있는 다른 섹션의
+// 글(구인구직/중고장터/부동산/이벤트/공동구매/레시피/동호회/업소록 중 하나)을
+// 랜덤으로 보여줌 — 뉴스/채팅/게임/쇼츠/친구/음악듣기는 이 자리와 안 어울려서 제외.
+const spotlightPool = computed(() => {
+  const pool = []
+  jobs.value.forEach(j => imgUrl(j.logo_url || j.logo) && pool.push({
+    type: 'job', to: `/jobs/${j.id}`, image: imgUrl(j.logo_url || j.logo),
+    label: '구인구직', title: j.title, meta: [j.location, j.city].filter(Boolean).join(' · '),
+  }))
+  market.value.forEach(m => imgUrl(m.images?.[0] || m.image) && pool.push({
+    type: 'market', to: `/market/${m.id}`, image: imgUrl(m.images?.[0] || m.image),
+    label: '중고장터', title: m.title, meta: '$' + Number(m.price || 0).toLocaleString(),
+  }))
+  realestate.value.forEach(r => imgUrl(r.images?.[0] || r.image) && pool.push({
+    type: 'realestate', to: `/realestate/${r.id}`, image: imgUrl(r.images?.[0] || r.image),
+    label: typeLabels[r.type] || '부동산', title: r.title, meta: [r.location, r.city].filter(Boolean).join(' · '),
+  }))
+  events.value.forEach(e => imgUrl(e.image_url || e.banner_image) && pool.push({
+    type: 'event', to: `/events/${e.id}`, image: imgUrl(e.image_url || e.banner_image),
+    label: '이벤트', title: e.title, meta: e.organizer || '',
+  }))
+  groupbuys.value.forEach(g => imgUrl(g.images?.[0]) && pool.push({
+    type: 'groupbuy', to: `/groupbuy/${g.id}`, image: imgUrl(g.images?.[0]),
+    label: '공동구매', title: g.title, meta: `참여 ${g.current_participants || 0}명`,
+  }))
+  recipes.value.forEach(rc => imgUrl(rc.thumbnail_url || rc.thumbnail) && pool.push({
+    type: 'recipe', to: `/recipes/${rc.id}`, image: imgUrl(rc.thumbnail_url || rc.thumbnail),
+    label: '레시피', title: rc.title, meta: '',
+  }))
+  clubs.value.forEach(c => imgUrl(c.cover_image || c.image) && pool.push({
+    type: 'club', to: `/clubs/${c.id}`, image: imgUrl(c.cover_image || c.image),
+    label: '동호회', title: c.name, meta: `멤버 ${c.member_count || 0}명`,
+  }))
+  businesses.value.forEach(b => imgUrl(b.images?.[0] || b.logo) && pool.push({
+    type: 'business', to: `/directory/${b.id}`, image: imgUrl(b.images?.[0] || b.logo),
+    label: '업소록', title: b.name, meta: [b.category, b.city].filter(Boolean).join(' · '),
+  }))
+  return pool
+})
+
+const featureCard = computed(() => {
+  if (featurePost.value && postImage(featurePost.value)) {
+    return {
+      type: 'post', to: `/community/${featurePost.value.board?.slug || 'free'}/${featurePost.value.id}`,
+      image: postImage(featurePost.value), label: featurePost.value.board?.name || '커뮤니티',
+      title: featurePost.value.title,
+      meta: `${featurePost.value.user?.name || '회원'} · 댓글 ${featurePost.value.comments_count || featurePost.value.comment_count || 0}`,
+    }
+  }
+  const pool = spotlightPool.value
+  if (pool.length) return pool[Math.floor(Math.random() * pool.length)]
+  if (featurePost.value) {
+    return {
+      type: 'post', to: `/community/${featurePost.value.board?.slug || 'free'}/${featurePost.value.id}`,
+      image: '', label: featurePost.value.board?.name || '커뮤니티', title: featurePost.value.title,
+      meta: `${featurePost.value.user?.name || '회원'} · 댓글 ${featurePost.value.comments_count || featurePost.value.comment_count || 0}`,
+    }
+  }
+  return null
+})
+
 // 라이브 티커: 실제 최신 데이터로 구성 (없으면 기본 문구)
 const tickerItems = computed(() => {
   const items = []
@@ -384,6 +480,21 @@ const tickerItems = computed(() => {
 const tickerLoop = computed(() => [...tickerItems.value, ...tickerItems.value])
 
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
+
+// 언론사별 헤드라인 위젯: 4개씩 묶어서 2x2 그리드 + 이전/다음 페이지
+const headlineGroups = computed(() => {
+  const groups = []
+  for (let i = 0; i < headlines.value.length; i += 4) groups.push(headlines.value.slice(i, i + 4))
+  return groups
+})
+const currentHeadlines = computed(() => headlineGroups.value[headlinePage.value] || [])
+function nextHeadlinePage() { headlinePage.value = (headlinePage.value + 1) % Math.max(headlineGroups.value.length, 1) }
+function prevHeadlinePage() { headlinePage.value = (headlinePage.value - 1 + headlineGroups.value.length) % Math.max(headlineGroups.value.length, 1) }
+function headlineTime(h) {
+  if (!h.published_at) return ''
+  const d = new Date(h.published_at)
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
 
 // 지금 거래 중: 중고장터 2 + 구인 1 + 부동산 1 을 사진 카드로 혼합
 const dealCards = computed(() => {
@@ -426,16 +537,28 @@ onMounted(async () => {
     heroBanners.value = data.data || []
     startHeroSlide()
   } catch {}
-  const [p, j, m, r] = await Promise.allSettled([
+  const [p, j, m, r, ev, gb, rc, cl, bz, hl] = await Promise.allSettled([
     axios.get('/api/posts?per_page=10'),
     axios.get('/api/jobs?per_page=10'),
     axios.get('/api/market?per_page=10'),
     axios.get('/api/realestate?per_page=6'),
+    axios.get('/api/events?per_page=6'),
+    axios.get('/api/groupbuys?per_page=6'),
+    axios.get('/api/recipes?per_page=6'),
+    axios.get('/api/clubs?per_page=6'),
+    axios.get('/api/businesses?per_page=6'),
+    axios.get('/api/external-headlines?per_page=20'),
   ])
   if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
   if (j.status === 'fulfilled') jobs.value = j.value.data?.data?.data || []
   if (m.status === 'fulfilled') market.value = m.value.data?.data?.data || []
   if (r.status === 'fulfilled') realestate.value = r.value.data?.data?.data || r.value.data?.data || []
+  if (ev.status === 'fulfilled') events.value = ev.value.data?.data?.data || []
+  if (gb.status === 'fulfilled') groupbuys.value = gb.value.data?.data?.data || []
+  if (rc.status === 'fulfilled') recipes.value = rc.value.data?.data?.data || []
+  if (cl.status === 'fulfilled') clubs.value = cl.value.data?.data?.data || []
+  if (bz.status === 'fulfilled') businesses.value = bz.value.data?.data?.data || []
+  if (hl.status === 'fulfilled') headlines.value = hl.value.data?.data || []
 })
 </script>
 
