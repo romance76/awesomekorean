@@ -15,6 +15,9 @@ Schedule::command('shorts:fetch --limit=500 --korean-ratio=70')->dailyAt('03:00'
 // 뉴스 수집: 오마이뉴스 11개 카테고리별 RSS, 2시간마다 (하루 12번)
 Schedule::command('news:fetch')->cron('0 */2 * * *')->withoutOverlapping();
 
+// 홈 화면 언론사별 헤드라인 위젯: 여러 언론사 RSS에서 제목+썸네일+링크만 30분마다 수집
+Schedule::command('headlines:fetch')->everyThirtyMinutes()->withoutOverlapping();
+
 // 음악 트랙 자동 수집 (매일 02:00, 500곡, 한국70%+팝30%, 7일 롤링)
 Schedule::command('music:fetch --daily=500')->dailyAt('02:00');
 
