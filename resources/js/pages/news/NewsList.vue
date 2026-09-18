@@ -111,14 +111,18 @@
             </div>
             <!-- 본문 (단락 구분 + 이미지) -->
             <div class="px-5 py-5 border-t border-gray-50 text-sm text-ink-light leading-7">
-              <template v-for="(block, i) in contentBlocks" :key="i">
-                <!-- 이미지: 원본 사이즈 유지 (작은 이미지는 작게, 큰 이미지는 컨테이너 너비로 제한) -->
-                <img v-if="block.type==='img'" :src="block.src"
-                  class="block mx-auto rounded-lg my-4"
-                  style="max-width: 100%; width: auto; height: auto;"
-                  @error="e=>e.target.style.display='none'" />
-                <p v-else class="mb-5 leading-relaxed" style="text-indent: 0.5em;">{{ block.text }}</p>
+              <template v-if="contentBlocks.length">
+                <template v-for="(block, i) in contentBlocks" :key="i">
+                  <!-- 이미지: 원본 사이즈 유지 (작은 이미지는 작게, 큰 이미지는 컨테이너 너비로 제한) -->
+                  <img v-if="block.type==='img'" :src="block.src"
+                    class="block mx-auto rounded-lg my-4"
+                    style="max-width: 100%; width: auto; height: auto;"
+                    @error="e=>e.target.style.display='none'" />
+                  <p v-else class="mb-5 leading-relaxed" style="text-indent: 0.5em;">{{ block.text }}</p>
+                </template>
               </template>
+              <!-- 본문 재배포 권한이 없는 언론사(요약만 제공) -->
+              <p v-else-if="activeItem.summary" class="mb-5 leading-relaxed" style="text-indent: 0.5em;">{{ activeItem.summary }}</p>
               <!-- 짧은 본문일 때 안내 -->
               <div v-if="(activeItem.content || '').length < 600 && activeItem.source_url"
                 class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
