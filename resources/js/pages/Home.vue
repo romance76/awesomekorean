@@ -17,7 +17,7 @@
   <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[1.28fr_1fr] gap-4 lg:gap-5">
 
     <!-- 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) — 기존 마케팅 히어로 자리를 대체 -->
-    <div class="card p-4 lg:p-5 min-h-[240px] lg:min-h-[340px] flex flex-col">
+    <div class="card p-4 lg:p-5 min-h-[340px] lg:min-h-[440px] flex flex-col">
       <div class="flex items-center gap-2.5 mb-3.5">
         <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
         <span class="flex-1"></span>
@@ -508,10 +508,10 @@ const tickerLoop = computed(() => [...tickerItems.value, ...tickerItems.value])
 
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
 
-// 언론사별 헤드라인 위젯: 4개씩 묶어서 2x2 그리드 + 이전/다음 페이지
+// 언론사별 헤드라인 위젯: 6개씩 묶어서 2열 3행 그리드 + 이전/다음 페이지
 const headlineGroups = computed(() => {
   const groups = []
-  for (let i = 0; i < headlines.value.length; i += 4) groups.push(headlines.value.slice(i, i + 4))
+  for (let i = 0; i < headlines.value.length; i += 6) groups.push(headlines.value.slice(i, i + 6))
   return groups
 })
 const currentHeadlines = computed(() => headlineGroups.value[headlinePage.value] || [])
@@ -671,7 +671,7 @@ onMounted(async () => {
     axios.get('/api/recipes?per_page=6'),
     axios.get('/api/clubs?per_page=6'),
     axios.get('/api/businesses?per_page=6'),
-    axios.get('/api/external-headlines?per_page=20'),
+    axios.get('/api/external-headlines?per_page=24'),
   ])
   if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
   if (j.status === 'fulfilled') jobs.value = j.value.data?.data?.data || []

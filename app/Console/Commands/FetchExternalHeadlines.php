@@ -66,6 +66,8 @@ class FetchExternalHeadlines extends Command
                     $image = $this->fetchOgImage($link);
                 }
                 $summary = $this->extractSummary($desc);
+                // 요약이 없으면(설명이 비어있는 피드) 클릭해도 볼 내용이 없으므로 수집하지 않음
+                if (!$summary) continue;
 
                 $pubDate = (string) ($item->pubDate ?? '');
                 try {
