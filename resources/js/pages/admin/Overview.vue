@@ -1,9 +1,22 @@
 <template>
 <div>
-  <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="chart-bar" :size="20" /></span>
-    관리자 대시보드 — 종합 리포트
-  </h1>
+  <div class="flex items-center gap-2.5 mb-4">
+    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="chart-bar" :size="20" /></span>
+      관리자 대시보드 — 종합 리포트
+    </h1>
+    <span class="flex-1"></span>
+    <button @click="syncAllContent" :disabled="syncing" class="btn-primary !px-4 !py-2 text-sm disabled:opacity-50">
+      <AppIcon name="refresh" :size="14" />{{ syncing ? '수집 중...' : '전체 콘텐츠 자동 수집' }}
+    </button>
+  </div>
+  <div v-if="syncResults.length" class="card p-4 mb-4 space-y-1.5">
+    <div v-for="r in syncResults" :key="r.source" class="flex items-center gap-2 text-sm">
+      <span class="w-24 shrink-0 font-semibold text-ink">{{ r.source }}</span>
+      <span :class="r.success ? 'text-green-600' : 'text-red-500'">{{ r.success ? '✅' : '❌' }}</span>
+      <span class="text-ink-muted truncate">{{ r.message }}</span>
+    </div>
+  </div>
 
   <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
   <div v-else-if="report">
@@ -144,6 +157,20 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const report = ref(null)
 const loading = ref(true)
+const syncing = ref(false)
+const syncResults = ref([])
+
+async function syncAllContent() {
+  syncing.value = true
+  syncResults.value = []
+  try {
+    const { data } = await axios.post('/api/admin/system/sync-all-content')
+    syncResults.value = data.results || []
+  } catch (e) {
+    alert(e.response?.data?.message || '수집 실패')
+  }
+  syncing.value = false
+}
 
 const pendingReports = computed(() =>
   report.value?.boards?.reduce((sum, b) => sum + (b.reports || 0), 0) || 0
