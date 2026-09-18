@@ -1,0 +1,37 @@
+name: Run Laravel Scheduler
+
+# 서버에 `php artisan schedule:run`을 매분 실행해주는 system crontab이
+# 등록돼 있지 않아, routes/console.php 에 정의된 자동 수집 작업(뉴스/
+# 헤드라인/주식/쇼츠/음악/레시피/업소록)이 전혀 실행되지 않고 있었음.
+# 서버 crontab을 직접 등록할 SSH 권한이 이 배포 파이프라인에는 없어서,
+# 대신 deploy.yml과 동일한 SSH 시크릿을 재사용해 5분마다 schedule:run을
+# 원격 실행하는 방식으로 우회함.
+#
+# 주의: GitHub Actions 스케줄 트리거는 최소 5분 간격이고 부하 시 지연될
+# 수 있어, dailyAt('03:00')처럼 "정확히 그 1분"에만 실행되는 작업은
+# 드물게 그날 하루를 건너뛸 수 있음. everyFifteenMinutes() 류는 5분마다
+# 여러 번 기회가 있어 사실상 문제없음. 완전히 정확하게 하려면 서버
+# crontab에 `* * * * * cd /var/www/awesomekorean && php8.2 artisan
+# schedule:run >> /dev/null 2>&1` 를 등록하는 게 더 낫지만, 그건 서버
+# SSH 접근 권한이 있는 사람만 할 수 있음.
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run-schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run schedule:run via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 4m
+          script: |
+            cd /var/www/awesomekorean
+            php8.2 artisan schedule:run >> storage/logs/schedule-run.log 2>&1
