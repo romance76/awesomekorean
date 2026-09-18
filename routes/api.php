@@ -640,6 +640,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/settings', [AdminSettingsController::class, 'index']);
     Route::put('/settings', [AdminSettingsController::class, 'update']);
     Route::post('/system/clear-cache', [AdminSettingsController::class, 'clearCache']);
+    Route::post('/system/sync-all-content', [AdminSettingsController::class, 'syncAllContent']);
     Route::post('/settings/company', [AdminSettingsController::class, 'saveCompany']);
     Route::post('/settings/site', [AdminSettingsController::class, 'saveSite']);
     Route::post('/settings/footer', [AdminSettingsController::class, 'saveFooter']);
