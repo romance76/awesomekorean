@@ -65,6 +65,7 @@ class FetchExternalHeadlines extends Command
                 if (!$image && $needsOgImage) {
                     $image = $this->fetchOgImage($link);
                 }
+                $summary = $this->extractSummary($desc);
 
                 $pubDate = (string) ($item->pubDate ?? '');
                 try {
@@ -77,6 +78,7 @@ class FetchExternalHeadlines extends Command
                     'source'       => $name,
                     'source_slug'  => $slug,
                     'title'        => $title,
+                    'summary'      => $summary,
                     'source_url'   => $link,
                     'image_url'    => $image,
                     'published_at' => $publishedAt,
@@ -96,6 +98,18 @@ class FetchExternalHeadlines extends Command
 
         $this->info("완료: 총 신규={$totalCreated}");
         return self::SUCCESS;
+    }
+
+    // RSS description에서 이미지/태그를 걷어낸 짧은 텍스트만 추출 (본문
+    // 전체가 아니라 RSS가 원래 제공하는 짧은 요약 수준만 사용)
+    private function extractSummary(string $desc): ?string
+    {
+        $text = strip_tags($desc);
+        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+        $text = preg_replace('/\s+/u', ' ', $text);
+        $text = trim($text);
+        if (!$text) return null;
+        return mb_substr($text, 0, 200);
     }
 
     private function extractImage(\SimpleXMLElement $item, string $desc): ?string
