@@ -7,15 +7,12 @@
     </h1>
     <span class="flex-1"></span>
     <button @click="syncAllContent" :disabled="syncing" class="btn-primary !px-4 !py-2 text-sm disabled:opacity-50">
-      <AppIcon name="refresh" :size="14" />{{ syncing ? '수집 중...' : '전체 콘텐츠 자동 수집' }}
+      <AppIcon name="refresh" :size="14" />{{ syncing ? '진행 중...' : '전체 콘텐츠 자동 수집' }}
     </button>
   </div>
-  <div v-if="syncResults.length" class="card p-4 mb-4 space-y-1.5">
-    <div v-for="r in syncResults" :key="r.source" class="flex items-center gap-2 text-sm">
-      <span class="w-24 shrink-0 font-semibold text-ink">{{ r.source }}</span>
-      <span :class="r.success ? 'text-green-600' : 'text-red-500'">{{ r.success ? '✅' : '❌' }}</span>
-      <span class="text-ink-muted truncate">{{ r.message }}</span>
-    </div>
+  <div v-if="syncMsg" class="card p-4 mb-4">
+    <div class="text-sm" :class="syncDone ? 'text-green-600' : 'text-ink-muted'">{{ syncMsg }}</div>
+    <pre v-if="syncLog" class="mt-2 text-xs bg-surface rounded-lg p-3 whitespace-pre-wrap max-h-64 overflow-y-auto">{{ syncLog }}</pre>
   </div>
 
   <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
@@ -158,18 +155,35 @@ import AppIcon from '../../components/AppIcon.vue'
 const report = ref(null)
 const loading = ref(true)
 const syncing = ref(false)
-const syncResults = ref([])
+const syncMsg = ref('')
+const syncLog = ref('')
+const syncDone = ref(false)
 
 async function syncAllContent() {
   syncing.value = true
-  syncResults.value = []
+  syncDone.value = false
+  syncLog.value = ''
   try {
     const { data } = await axios.post('/api/admin/system/sync-all-content')
-    syncResults.value = data.results || []
+    syncMsg.value = data.message || '시작됐습니다.'
   } catch (e) {
-    alert(e.response?.data?.message || '수집 실패')
+    alert(e.response?.data?.message || '시작 실패')
+    syncing.value = false
+    return
   }
-  syncing.value = false
+  const poll = setInterval(async () => {
+    try {
+      const { data } = await axios.get('/api/admin/system/sync-all-content/status')
+      syncLog.value = data.log || ''
+      if (data.done) {
+        clearInterval(poll)
+        syncing.value = false
+        syncDone.value = true
+        syncMsg.value = '완료됐습니다.'
+      }
+    } catch {}
+  }, 5000)
+  setTimeout(() => { clearInterval(poll); syncing.value = false }, 5 * 60 * 1000)
 }
 
 const pendingReports = computed(() =>
