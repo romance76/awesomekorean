@@ -406,4 +406,55 @@ class AdminSettingsController extends Controller
         \Artisan::call('optimize:clear');
         return response()->json(['success' => true, 'message' => '캐시가 초기화되었습니다.']);
     }
+
+    /**
+     * 뉴스/쇼츠/음악/레시피/업소록 5개 자동 수집을 버튼 하나로 순서대로 실행.
+     * 하나가 실패해도(쿼터 초과 등) 나머지는 계속 진행하고, 소스별 결과를
+     * 요약해 반환 — 관리자가 뭐가 실패했는지 바로 확인 가능.
+     */
+    public function syncAllContent() {
+        @set_time_limit(240);
+        $results = [];
+
+        $run = function (string $label, callable $fn) use (&$results) {
+            try {
+                $results[] = array_merge(['source' => $label, 'success' => true], $fn());
+            } catch (\Throwable $e) {
+                $results[] = ['source' => $label, 'success' => false, 'message' => $e->getMessage()];
+            }
+        };
+
+        $run('뉴스', function () {
+            \Artisan::call('news:fetch');
+            return ['message' => '완료'];
+        });
+        $run('쇼츠', function () {
+            \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]);
+            $output = \Artisan::output();
+            if (str_contains($output, '할당량') || str_contains($output, '403')) {
+                return ['success' => false, 'message' => 'YouTube API 할당량 초과'];
+            }
+            return ['message' => '완료'];
+        });
+        $run('음악', function () {
+            \Artisan::call('music:fetch', ['--daily' => 100]);
+            $output = \Artisan::output();
+            if (str_contains($output, '할당량') || str_contains($output, '403')) {
+                return ['success' => false, 'message' => 'YouTube API 할당량 초과'];
+            }
+            return ['message' => '완료'];
+        });
+        $run('레시피', function () {
+            // 버튼 한 번에 여러 소스를 순서대로 실행하므로 요청 시간 초과를
+            // 피하기 위해 300건까지만; 전체 1000건은 새벽 스케줄러가 처리
+            \Artisan::call('recipes:sync-all', ['--end' => 300]);
+            return ['message' => \Artisan::output()];
+        });
+        $run('업소록', function () {
+            \Artisan::call('places:import', ['--limit' => 50]);
+            return ['message' => \Artisan::output()];
+        });
+
+        return response()->json(['success' => true, 'results' => $results]);
+    }
 }

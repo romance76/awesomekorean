@@ -18,6 +18,18 @@
       <button @click="clearCache" :disabled="clearing" class="btn-primary px-4 py-2 disabled:opacity-50">{{ clearing ? '초기화중...' : '캐시 초기화' }}</button>
       <div v-if="msg" class="text-green-600 text-sm">{{ msg }}</div>
     </div>
+    <div class="card p-4 space-y-2 lg:col-span-2">
+      <div class="font-bold text-sm text-ink mb-2">콘텐츠 자동 수집</div>
+      <div class="text-sm text-ink-muted">뉴스 · 쇼츠 · 음악 · 레시피 · 업소록을 버튼 하나로 순서대로 실행합니다. 하나가 실패해도 나머지는 계속 진행됩니다.</div>
+      <button @click="syncAllContent" :disabled="syncing" class="btn-primary px-4 py-2 disabled:opacity-50">{{ syncing ? '수집 중... (최대 몇 분 소요)' : '전체 자동 수집 실행' }}</button>
+      <div v-if="syncResults.length" class="mt-2 space-y-1.5">
+        <div v-for="r in syncResults" :key="r.source" class="flex items-center gap-2 text-sm">
+          <span class="w-14 shrink-0 font-semibold text-ink">{{ r.source }}</span>
+          <span :class="r.success ? 'text-green-600' : 'text-red-500'">{{ r.success ? '✅' : '❌' }}</span>
+          <span class="text-ink-muted truncate">{{ r.message }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 </template>
@@ -27,6 +39,8 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 const msg = ref('')
 const clearing = ref(false)
+const syncing = ref(false)
+const syncResults = ref([])
 async function clearCache() {
   clearing.value = true
   try {
@@ -37,5 +51,16 @@ async function clearCache() {
   }
   clearing.value = false
   setTimeout(() => msg.value = '', 3000)
+}
+async function syncAllContent() {
+  syncing.value = true
+  syncResults.value = []
+  try {
+    const { data } = await axios.post('/api/admin/system/sync-all-content')
+    syncResults.value = data.results || []
+  } catch (e) {
+    alert(e.response?.data?.message || '수집 실패')
+  }
+  syncing.value = false
 }
 </script>
