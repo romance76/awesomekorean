@@ -136,6 +136,36 @@
     </div>
   </section>
 
+  <!-- ═════ 2-N. 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) ═════ -->
+  <div v-if="currentHeadlines.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
+    <div class="card p-4 lg:p-5">
+      <div class="flex items-center gap-2.5 mb-3.5">
+        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
+        <span class="flex-1"></span>
+        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-left" :size="14" />
+        </button>
+        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
+        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-right" :size="14" />
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/external/${h.id}`"
+          class="flex gap-3 items-start group">
+          <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
+            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />
+          </div>
+          <div class="min-w-0">
+            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
+            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-2 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
+            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
+          </div>
+        </RouterLink>
+      </div>
+    </div>
+  </div>
+
   <!-- ═════ 2. 이벤트 배너 (관리자 히어로 배너 슬라이드 — 사진 + 좌측 스크림) ═════ -->
   <div v-if="heroBanners.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
     <section class="relative overflow-hidden rounded-card shadow-card aspect-[1232/222]"
@@ -166,36 +196,6 @@
           :class="heroIdx === i - 1 ? 'bg-white w-6' : 'bg-white/45 w-1.5'"></button>
       </div>
     </section>
-  </div>
-
-  <!-- ═════ 2-N. 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) ═════ -->
-  <div v-if="currentHeadlines.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
-    <div class="card p-4 lg:p-5">
-      <div class="flex items-center gap-2.5 mb-3.5">
-        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
-        <span class="flex-1"></span>
-        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
-          <AppIcon name="chevron-left" :size="14" />
-        </button>
-        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
-        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
-          <AppIcon name="chevron-right" :size="14" />
-        </button>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-        <a v-for="h in currentHeadlines" :key="h.id" :href="h.source_url" target="_blank" rel="noopener noreferrer"
-          class="flex gap-3 items-start group">
-          <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
-            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />
-          </div>
-          <div class="min-w-0">
-            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
-            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-2 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
-            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
-          </div>
-        </a>
-      </div>
-    </div>
   </div>
 
   <!-- ═════ 2-M. 모바일 전용: 카테고리 카드 그리드 + 배너 ═════ -->
