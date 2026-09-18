@@ -30,7 +30,7 @@
         </button>
       </div>
       <div v-if="currentHeadlines.length" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 flex-1">
-        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/external/${h.id}`"
+        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/${h.id}`"
           class="flex gap-3 items-start group">
           <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
             <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />

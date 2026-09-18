@@ -39,7 +39,6 @@ const routes = [
   // Market
   { path: '/market', name: 'market', component: p('market/MarketList') },
   { path: '/stocks', name: 'stocks', component: p('Stocks') },
-  { path: '/news/external/:id', name: 'news-external', component: p('NewsExternal') },
   { path: '/market/write', name: 'market-write', component: p('market/MarketWrite'), meta: { auth: true } },
   { path: '/market/:id', name: 'market-detail', component: p('market/MarketDetail') },
 

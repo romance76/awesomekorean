@@ -116,7 +116,6 @@ Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/categories', [NewsController::class, 'categories']);
 Route::get('/news/{id}', [NewsController::class, 'show']);
 Route::get('/external-headlines', [\App\Http\Controllers\API\ExternalHeadlineController::class, 'index']);
-Route::get('/external-headlines/{id}', [\App\Http\Controllers\API\ExternalHeadlineController::class, 'show']);
 Route::get('/market-quotes', [\App\Http\Controllers\API\MarketQuoteController::class, 'index']);
 // 썸네일 프록시/캐시 (모든 리스트 페이지가 공유)
 Route::get('/thumb', [ThumbnailController::class, 'show']);

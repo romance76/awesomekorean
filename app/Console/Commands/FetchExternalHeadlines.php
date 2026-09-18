@@ -2,21 +2,22 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ExternalHeadline;
+use App\Models\News;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 
 /**
- * 여러 언론사 RSS에서 제목/썸네일/링크만 가져와 저장한다 (본문 재호스팅 안 함).
+ * 여러 언론사 RSS에서 제목/썸네일/짧은 요약만 가져와 news 테이블에 저장한다
+ * (is_external=true, 본문 재호스팅 안 함).
  *
  * 대부분의 언론사 RSS는 오마이뉴스처럼 전체 본문 재배포 권한을 주지 않으므로,
- * 네이버 뉴스스탠드처럼 헤드라인 카드만 보여주고 클릭 시 원문 사이트로 이동시키는
- * 방식으로 라이선스 문제를 피한다.
+ * 오마이뉴스와 같은 뉴스 피드/상세페이지 안에서 요약만 보여주고 "원문 보기"
+ * 버튼으로 원문 사이트로 이동시키는 방식으로 라이선스 문제를 피한다.
  */
 class FetchExternalHeadlines extends Command
 {
     protected $signature   = 'headlines:fetch';
-    protected $description = '여러 언론사 RSS에서 헤드라인(제목+썸네일+링크)만 가져오기';
+    protected $description = '여러 언론사 RSS에서 헤드라인(제목+썸네일+짧은 요약)을 news 테이블에 가져오기';
 
     // slug => [name, rss url, RSS에 이미지 태그가 없으면 og:image 를 추가로 가져올지]
     private array $feeds = [
@@ -58,7 +59,7 @@ class FetchExternalHeadlines extends Command
                 $link  = trim((string) ($item->link ?? ''));
                 $title = trim((string) ($item->title ?? ''));
                 if (!$link || !$title) continue;
-                if (ExternalHeadline::where('source_url', $link)->exists()) continue;
+                if (News::where('source_url', $link)->exists()) continue;
 
                 $desc = (string) ($item->description ?? '');
                 $image = $this->extractImage($item, $desc);
@@ -76,12 +77,12 @@ class FetchExternalHeadlines extends Command
                     $publishedAt = now();
                 }
 
-                ExternalHeadline::create([
-                    'source'       => $name,
-                    'source_slug'  => $slug,
+                News::create([
                     'title'        => $title,
                     'summary'      => $summary,
+                    'source'       => $name,
                     'source_url'   => $link,
+                    'is_external'  => true,
                     'image_url'    => $image,
                     'published_at' => $publishedAt,
                 ]);
@@ -92,10 +93,10 @@ class FetchExternalHeadlines extends Command
             $totalCreated += $created;
         }
 
-        // 오래된 헤드라인 정리 (링크아웃 위젯이라 과거 기사는 의미 없음)
-        $ids = ExternalHeadline::orderByDesc('published_at')->pluck('id');
+        // 오래된 헤드라인 정리 (요약만 있는 기사라 과거 기사는 의미 없음, 오마이뉴스 기사는 건드리지 않음)
+        $ids = News::where('is_external', true)->orderByDesc('published_at')->pluck('id');
         if ($ids->count() > self::MAX_KEEP) {
-            ExternalHeadline::whereIn('id', $ids->slice(self::MAX_KEEP)->values())->delete();
+            News::whereIn('id', $ids->slice(self::MAX_KEEP)->values())->delete();
         }
 
         $this->info("완료: 총 신규={$totalCreated}");
