@@ -16,28 +16,33 @@
   <!-- ═════ 1. 사진 히어로 + 위젯 벤토 (데스크톱 2열 / 모바일 1열) ═════ -->
   <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[1.28fr_1fr] gap-4 lg:gap-5">
 
-    <!-- 히어로: 관리자 히어로 배너 첫 장을 배경 사진으로 사용, 없으면 웜 그라데이션 -->
-    <div class="relative rounded-card overflow-hidden min-h-[240px] lg:min-h-[340px] shadow-card">
-      <img v-if="heroImage" :src="heroImage" alt=""
-        class="absolute inset-0 w-full h-full object-cover"
-        @error="e => e.target.style.display='none'" />
-      <div v-else class="absolute inset-0" style="background:linear-gradient(140deg,#2A2017,#1B1613)"></div>
-      <div class="absolute inset-0 hero-scrim"></div>
-      <div class="relative h-full flex flex-col justify-end p-5 lg:p-7">
-        <span class="self-start text-[10.5px] font-bold tracking-wide text-white bg-amber-400 px-3 py-1 rounded-full">미국 한인 NO.1 커뮤니티</span>
-        <h1 class="mt-3 lg:mt-3.5 text-[22px] lg:text-[32px] font-extrabold leading-[1.16] tracking-[-0.045em] text-white">
-          미국에서의 하루,<br>어코와 함께 시작하세요
-        </h1>
-        <p class="mt-2.5 text-[13px] lg:text-[14.5px] leading-relaxed text-white/80 max-w-[42ch]">
-          이민 생활 꿀팁부터 동네 맛집, 구인구직, 중고 거래까지 — 한인들의 일상이 모이는 올인원 플랫폼.
-        </p>
-        <div class="flex flex-wrap gap-2 mt-4">
-          <RouterLink v-if="!auth.isLoggedIn" to="/register"
-            class="bg-white text-ink font-bold text-[13.5px] px-5 py-2.5 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
-          <RouterLink to="/community"
-            class="text-white font-semibold text-[13.5px] px-4 py-2.5 rounded-full border-[1.5px] border-white/40 transition-colors hover:bg-white/10">둘러보기</RouterLink>
-        </div>
+    <!-- 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) — 기존 마케팅 히어로 자리를 대체 -->
+    <div class="card p-4 lg:p-5 min-h-[240px] lg:min-h-[340px] flex flex-col">
+      <div class="flex items-center gap-2.5 mb-3.5">
+        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
+        <span class="flex-1"></span>
+        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-left" :size="14" />
+        </button>
+        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
+        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-right" :size="14" />
+        </button>
       </div>
+      <div v-if="currentHeadlines.length" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 flex-1">
+        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/external/${h.id}`"
+          class="flex gap-3 items-start group">
+          <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
+            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />
+          </div>
+          <div class="min-w-0">
+            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
+            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-2 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
+            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
+          </div>
+        </RouterLink>
+      </div>
+      <div v-else class="flex-1 flex items-center justify-center text-[13px] text-ink-faint">헤드라인을 불러오는 중...</div>
     </div>
 
     <!-- 위젯 벤토: 날씨 / 환율 / 인기 주식 / 접속자 (2x2) -->
@@ -135,36 +140,6 @@
         </div>
     </div>
   </section>
-
-  <!-- ═════ 2-N. 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) ═════ -->
-  <div v-if="currentHeadlines.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
-    <div class="card p-4 lg:p-5">
-      <div class="flex items-center gap-2.5 mb-3.5">
-        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
-        <span class="flex-1"></span>
-        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
-          <AppIcon name="chevron-left" :size="14" />
-        </button>
-        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
-        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
-          <AppIcon name="chevron-right" :size="14" />
-        </button>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/external/${h.id}`"
-          class="flex gap-3 items-start group">
-          <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
-            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />
-          </div>
-          <div class="min-w-0">
-            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
-            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-2 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
-            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
-          </div>
-        </RouterLink>
-      </div>
-    </div>
-  </div>
 
   <!-- ═════ 2. 이벤트 배너 (관리자 히어로 배너 슬라이드 — 사진 + 좌측 스크림) ═════ -->
   <div v-if="heroBanners.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
@@ -452,14 +427,6 @@ function postImage(p) {
   return imgUrl(p.images?.[0] || p.image || p.thumbnail || '')
 }
 
-// 히어로 배경 사진: 관리자 히어로 배너 중 이미지가 있는 첫 장을 사용.
-// image_only 배너는 자체 문구가 이미 그려진 완성형 디자인이라, 이 섹션의
-// 사이트 태그라인 오버레이와 겹쳐 보이므로 제외.
-const heroImage = computed(() => {
-  const withImg = heroBanners.value.find(b => b.image_url && !b.image_only)
-  return withImg ? heroBannerImage(withImg) : ''
-})
-
 // 에디토리얼 섹션: 대표 글 1 + 사이드 글 3
 const featurePost = computed(() => posts.value[0] || null)
 const sidePosts = computed(() => posts.value.slice(1, 4))
@@ -723,11 +690,6 @@ onMounted(async () => {
 .hero-enter-active, .hero-leave-active { transition: opacity 0.6s ease; }
 .hero-enter-from, .hero-leave-to { opacity: 0; }
 
-/* 히어로 사진 위 스크림 — 하단 텍스트 가독성 확보 (4.5:1 이상) */
-.hero-scrim {
-  background: linear-gradient(180deg, rgba(27,22,19,.22) 0%, rgba(27,22,19,.55) 45%, rgba(27,22,19,.9) 100%);
-  pointer-events: none;
-}
 /* 이벤트 배너: 좌측 텍스트 영역만 진하게 */
 .banner-scrim {
   background: linear-gradient(90deg, rgba(27,22,19,.88) 0%, rgba(27,22,19,.55) 45%, rgba(27,22,19,.05) 75%);
