@@ -27,7 +27,8 @@
       "Bash(ssh -o ConnectTimeout=15 root@68.183.60.70 \"cd /var/www/somekorean && git fetch origin main && git reset --hard origin/main && npm run build 2>&1 | tail -3 && systemctl restart php8.2-fpm\")",
       "Bash(ssh -o ConnectTimeout=15 root@68.183.60.70 \"cd /var/www/somekorean && git fetch origin main && git reset --hard origin/main && npm run build 2>&1 | tail -3\")",
       "Bash(php artisan:*)",
-      "Bash(ssh -o ConnectTimeout=15 root@68.183.60.70 'cd /var/www/somekorean && git fetch origin main && git reset --hard origin/main && php artisan poker:simulate 9 --verbose --max-hands=30 2>&1 | head -80')"
+      "Bash(ssh -o ConnectTimeout=15 root@68.183.60.70 'cd /var/www/somekorean && git fetch origin main && git reset --hard origin/main && php artisan poker:simulate 9 --verbose --max-hands=30 2>&1 | head -80')",
+      "mcp__Claude_Code_Remote__read_documentation"
     ]
   }
 }
