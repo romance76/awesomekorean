@@ -39,6 +39,8 @@ onMounted(async () => {
 <style scoped>
 .prose-legal :deep(h2) { font-size: 1.15rem; font-weight: bold; margin: 18px 0 8px; }
 .prose-legal :deep(h2:first-child) { margin-top: 0; }
+.prose-legal :deep(h4) { font-size: 0.95rem; font-weight: bold; color: #b45309; margin: 24px 0 4px; padding-top: 16px; border-top: 1px solid #f3f4f6; }
+.prose-legal :deep(h4:first-of-type) { border-top: none; padding-top: 0; }
 .prose-legal :deep(h3) { font-size: 1rem; font-weight: bold; margin: 16px 0 6px; }
 .prose-legal :deep(p) { margin: 6px 0; }
 .prose-legal :deep(ul), .prose-legal :deep(ol) { padding-left: 20px; margin: 6px 0; }
