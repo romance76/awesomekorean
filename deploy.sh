@@ -10,6 +10,16 @@ fail() { log "❌ FAIL at step: $1 — $2"; exit 1; }
 log "───────────── Deploy Starting ─────────────"
 cd "$APP_DIR" || fail "cd" "APP_DIR not accessible"
 
+# 두 배포가 동시에 git reset/npm build/php-fpm restart를 겹쳐 실행하면
+# 서버가 일관되지 않은 상태로 남을 수 있음 — GitHub Actions concurrency
+# 그룹이 1차 방어선이고, 이건 workflow_dispatch 수동 실행이 겹치는 등의
+# 경우를 막는 2차 방어선.
+exec 9>"$APP_DIR/storage/deploy.lock"
+if ! flock -n 9; then
+    log "⏳ 다른 배포가 이미 진행 중 — 끝날 때까지 대기"
+    flock 9
+fi
+
 COMMIT_BEFORE=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 log "Previous commit: $COMMIT_BEFORE"
 

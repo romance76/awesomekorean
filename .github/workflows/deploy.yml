@@ -5,6 +5,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# 같은 디렉토리에 두 배포가 동시에 SSH로 붙어 git reset/npm build/
+# php-fpm restart를 겹쳐 실행하면 서버가 일관되지 않은 상태로 남을 수
+# 있음(실제로 겹쳐 실행된 사례 발견). 새 푸시가 들어오면 진행 중인 배포
+# 뒤에 줄을 세워 순차 실행되도록 강제.
+concurrency:
+  group: deploy-awesomekorean
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to awesomekorean.com
