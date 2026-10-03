@@ -87,10 +87,17 @@ class EventController extends Controller
                     $winnerName = $sweepstakes->winner?->display_name;
                 }
 
+                $breakdownQuery = SweepstakesEntry::where('sweepstakes_id', $sweepstakes->id);
+                if (auth()->check()) {
+                    $breakdownQuery->where('user_id', '!=', auth()->id());
+                }
+                $otherEntriesBreakdown = $breakdownQuery->orderByDesc('entries_count')->limit(100)->pluck('entries_count');
+
                 $data['sweepstakes'] = array_merge($sweepstakes->toArray(), [
                     'my_entries' => $myEntries,
                     'my_win_probability_pct' => $probability,
                     'winner_display_name' => $winnerName,
+                    'other_entries_breakdown' => $otherEntriesBreakdown,
                 ]);
             }
         }

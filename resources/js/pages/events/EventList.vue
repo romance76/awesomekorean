@@ -167,15 +167,10 @@
           </div>
 
           <template v-else>
-            <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
-              <div class="bg-white rounded-xl p-3 border border-amber-100">
-                <div class="text-xs text-ink-muted">전체 응모 Entry</div>
-                <div class="text-lg font-black text-ink">{{ Number(activeItem.sweepstakes.total_entries || 0).toLocaleString() }}</div>
-              </div>
-              <div class="bg-white rounded-xl p-3 border border-amber-100">
-                <div class="text-xs text-ink-muted">내 당첨 확률</div>
-                <div class="text-lg font-black text-amber-600">{{ activeItem.sweepstakes.my_win_probability_pct || 0 }}%</div>
-              </div>
+            <div class="bg-white rounded-xl p-4 border border-amber-100 mb-3 flex flex-col items-center">
+              <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
+              <SweepstakesWheel :my-entries="activeItem.sweepstakes.my_entries || 0" :other-breakdown="activeItem.sweepstakes.other_entries_breakdown || []" />
+              <div class="text-sm font-black text-amber-600 mt-2">내 당첨 확률 {{ activeItem.sweepstakes.my_win_probability_pct || 0 }}%</div>
             </div>
 
             <div v-if="auth.isLoggedIn" class="mb-2">
@@ -330,7 +325,7 @@
 </template>
 <script setup>
 import { useRoute } from 'vue-router'
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -341,6 +336,7 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -385,6 +381,20 @@ async function openItem(item) {
   if (activeItem.value?.category) activeCat.value = activeItem.value.category
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
+
+let sweepstakesPoll = null
+async function refreshSweepstakesLive() {
+  if (!activeItem.value || document.hidden) return
+  try {
+    const { data } = await axios.get(`/api/events/${activeItem.value.id}`)
+    if (activeItem.value && data.data?.sweepstakes) activeItem.value.sweepstakes = data.data.sweepstakes
+  } catch {}
+}
+watch(activeItem, (item) => {
+  if (sweepstakesPoll) { clearInterval(sweepstakesPoll); sweepstakesPoll = null }
+  if (item?.event_type === 'sweepstakes') sweepstakesPoll = setInterval(refreshSweepstakesLive, 6000)
+})
+onUnmounted(() => { if (sweepstakesPoll) clearInterval(sweepstakesPoll) })
 
 async function enterSweepstakes(amount) {
   if (!amount || amount < 1) { entryMsg.value = '응모할 Entry가 없습니다'; entryMsgType.value = 'error'; return }
