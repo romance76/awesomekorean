@@ -33,7 +33,8 @@
         <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/${h.id}`"
           class="flex gap-3 items-start group">
           <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
-            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="e => e.target.closest('a').style.display='none'" />
+            <img :src="h.image_url" alt="" class="w-full h-full object-cover"
+              @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gray-100 text-gray-300\'><svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg></div>'" />
           </div>
           <div class="min-w-0">
             <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
@@ -508,10 +509,10 @@ const tickerLoop = computed(() => [...tickerItems.value, ...tickerItems.value])
 
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
 
-// 언론사별 헤드라인 위젯: 6개씩 묶어서 2열 3행 그리드 + 이전/다음 페이지
+// 언론사별 헤드라인 위젯: 8개씩 묶어서 2열 4행 그리드 + 이전/다음 페이지 (항상 8개씩, 부족한 마지막 페이지는 버림)
 const headlineGroups = computed(() => {
   const groups = []
-  for (let i = 0; i < headlines.value.length; i += 6) groups.push(headlines.value.slice(i, i + 6))
+  for (let i = 0; i + 8 <= headlines.value.length; i += 8) groups.push(headlines.value.slice(i, i + 8))
   return groups
 })
 const currentHeadlines = computed(() => headlineGroups.value[headlinePage.value] || [])
@@ -671,7 +672,7 @@ onMounted(async () => {
     axios.get('/api/recipes?per_page=6'),
     axios.get('/api/clubs?per_page=6'),
     axios.get('/api/businesses?per_page=6'),
-    axios.get('/api/external-headlines?per_page=24'),
+    axios.get('/api/external-headlines?per_page=32'),
   ])
   if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
   if (j.status === 'fulfilled') jobs.value = j.value.data?.data?.data || []
