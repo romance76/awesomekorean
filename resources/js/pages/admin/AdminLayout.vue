@@ -128,7 +128,7 @@ const subTabs = {
     { to: '/admin/settings', icon: 'settings', label: '설정' },
     { to: '/admin/pricing', icon: 'coins', label: '가격/할인' },
     { to: '/admin/entry-settings', icon: 'ticket', label: 'Entry 설정' },
-    { to: '/admin/sweepstakes', icon: 'gift', label: 'Sweepstakes' },
+    { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리' },
     { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너' },
     { to: '/admin/popup-banners', icon: 'message-square', label: '팝업 배너' },
     { to: '/admin/system', icon: 'monitor', label: '시스템' },

@@ -9,7 +9,7 @@ class Sweepstakes extends Model
     protected $table = 'sweepstakes';
 
     protected $fillable = [
-        'title', 'description', 'prize_name', 'prize_value', 'prize_image',
+        'event_id', 'title', 'description', 'prize_name', 'prize_value', 'prize_image',
         'start_at', 'end_at', 'status',
         'minimum_age', 'eligible_regions', 'official_rules_url',
         'no_purchase_required_text', 'terms_version',
@@ -28,6 +28,11 @@ class Sweepstakes extends Model
     public function entries()
     {
         return $this->hasMany(SweepstakesEntry::class);
+    }
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
     }
 
     public function winner()

@@ -203,12 +203,13 @@
         <!-- 일반 이벤트: 기존 카드 헤더 -->
         <div v-else class="p-4">
           <div class="flex items-center gap-3 mb-3">
-            <div class="icon-chip w-12 h-12 bg-rose-50 text-rose-500"><AppIcon name="calendar" :size="22" /></div>
+            <div class="icon-chip w-12 h-12" :class="item.event_type === 'sweepstakes' ? 'bg-amber-50 text-amber-500' : 'bg-rose-50 text-rose-500'"><AppIcon :name="item.event_type === 'sweepstakes' ? 'gift' : 'calendar'" :size="22" /></div>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
               <div class="text-xs text-ink-faint"><template v-if="!activeCat">{{ item.category || '기타' }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
             </div>
-            <div v-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+            <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">🎁 경품추첨</div>
+            <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
             <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
           </div>
         </div>
@@ -274,7 +275,7 @@
 </div>
 </template>
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -289,6 +290,7 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
 function fmtDate(dt) {
@@ -315,6 +317,7 @@ const activeItem = ref(null)
 const currentIdx = ref(-1)
 
 async function openItem(item) {
+  if (item.event_type === 'sweepstakes') { router.push(`/events/${item.id}`); return }
   currentIdx.value = items.value.findIndex(i => i.id === item.id)
   try { const { data } = await axios.get(`/api/events/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
@@ -342,7 +345,7 @@ function eventStatusLabel(item) {
   return '진행중'
 }
 const eventCategories = [
-  { value: '', label: '전체' },{ value: 'awesomekorean', label: '⭐ 어썸코리안', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
+  { value: '', label: '전체' },{ value: 'awesomekorean', label: '⭐ 어썸코리안', isType: true },{ value: 'sweepstakes', label: '🎁 경품 추첨', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
   { value: 'education', label: '📚 교육' },{ value: 'community', label: '👥 커뮤니티' },
   { value: 'sports', label: '⚽ 스포츠' },{ value: 'food', label: '🍽️ 음식' },
 ]
@@ -464,6 +467,9 @@ async function loadFavoritesPage() {
 
 onMounted(async () => {
   bStore.loadAll()
+  if (route.query.type && eventCategories.some(c => c.value === route.query.type && c.isType)) {
+    activeCat.value = route.query.type
+  }
   await loadConfig(); viewMode.value = getDefaultView('events')
   await initLocation()
   if (city.value) {
