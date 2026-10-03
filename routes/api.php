@@ -146,33 +146,6 @@ Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'particip
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/sweepstakes', [\App\Http\Controllers\API\SweepstakesController::class, 'index']);
-
-// 임시 진단(읽기 전용) — 홈페이지 500 에러 원인 확인용. 확인 후 제거 예정.
-Route::get('/_diag/home-render-4e8a1c', function () {
-    if (request('token') !== 'diag-20261003') {
-        abort(404);
-    }
-    $manifestPath = public_path('build/manifest.json');
-    $viteManifestPath = public_path('build/.vite/manifest.json');
-    $result = [
-        'manifest_exists' => file_exists($manifestPath),
-        'vite_manifest_exists' => file_exists($viteManifestPath),
-        'manifest_mtime' => file_exists($manifestPath) ? date('c', filemtime($manifestPath)) : null,
-    ];
-    try {
-        $html = view('welcome')->render();
-        $result['render_ok'] = true;
-        $result['render_length'] = strlen($html);
-    } catch (\Throwable $e) {
-        $result['render_ok'] = false;
-        $result['error_class'] = get_class($e);
-        $result['error_message'] = $e->getMessage();
-        $result['error_file'] = $e->getFile();
-        $result['error_line'] = $e->getLine();
-        $result['trace'] = collect($e->getTrace())->take(8)->map(fn($t) => ($t['file'] ?? '?') . ':' . ($t['line'] ?? '?') . ' ' . ($t['function'] ?? ''))->values();
-    }
-    return response()->json($result);
-});
 Route::get('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\SweepstakesController::class, 'show']);
 // 참석자 명단(이름·아바타 포함)이 비로그인 상태로도 누구나 조회 가능했던
 // 경미한 프라이버시 문제 수정 — 로그인한 회원만 조회 가능하도록 제한.
