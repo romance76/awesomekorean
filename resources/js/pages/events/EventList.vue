@@ -133,7 +133,8 @@
         <div v-else class="px-5 py-4">
           <div class="flex items-center gap-2 mb-2">
             <span class="badge-primary">{{ activeItem.category }}</span>
-            <span v-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
+            <span v-if="activeItem.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700">🎁 경품 추첨</span>
+            <span v-else-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
             <span v-else class="badge-blue">${{ activeItem.price }}</span>
           </div>
           <div class="flex items-center gap-2">
@@ -150,6 +151,59 @@
             <div class="flex items-center gap-1.5"><AppIcon name="users" :size="14" class="text-ink-faint" />{{ activeItem.attendee_count }}명 참가 · <AppIcon name="eye" :size="14" class="text-ink-faint" />{{ activeItem.view_count }}회</div>
           </div>
         </div>
+        <!-- 경품 추첨(Sweepstakes) 참가 영역 -->
+        <div v-if="activeItem.event_type === 'sweepstakes' && activeItem.sweepstakes" class="px-5 py-4 border-b border-gray-50 bg-amber-50/40">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="text-3xl">🎁</div>
+            <div>
+              <div class="text-xs text-amber-700 font-bold">경품</div>
+              <div class="text-lg font-black text-ink">{{ activeItem.sweepstakes.prize_name }}<span v-if="activeItem.sweepstakes.prize_value"> (${{ Number(activeItem.sweepstakes.prize_value).toLocaleString() }})</span></div>
+            </div>
+          </div>
+
+          <div v-if="activeItem.sweepstakes.status === 'winner_selected'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
+            <div class="text-2xl mb-1">🏆</div>
+            <div class="font-bold text-ink">당첨자: {{ activeItem.sweepstakes.winner_display_name || '비공개' }}</div>
+          </div>
+
+          <template v-else>
+            <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
+              <div class="bg-white rounded-xl p-3 border border-amber-100">
+                <div class="text-xs text-ink-muted">전체 응모 Entry</div>
+                <div class="text-lg font-black text-ink">{{ Number(activeItem.sweepstakes.total_entries || 0).toLocaleString() }}</div>
+              </div>
+              <div class="bg-white rounded-xl p-3 border border-amber-100">
+                <div class="text-xs text-ink-muted">내 당첨 확률</div>
+                <div class="text-lg font-black text-amber-600">{{ activeItem.sweepstakes.my_win_probability_pct || 0 }}%</div>
+              </div>
+            </div>
+
+            <div v-if="auth.isLoggedIn" class="mb-2">
+              <div class="text-xs text-ink-muted mb-1.5">내 Entry 잔액: <span class="font-bold text-amber-600">🎟 {{ auth.user?.entries || 0 }}</span> · 이미 응모: {{ activeItem.sweepstakes.my_entries || 0 }}</div>
+              <div class="flex gap-2">
+                <button @click="enterSweepstakes(1)" :disabled="entering || activeItem.sweepstakes.status !== 'active'" class="flex-1 bg-white border-2 border-amber-300 text-amber-700 font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-50 transition-colors">1 Entry</button>
+                <button @click="enterSweepstakes(5)" :disabled="entering || activeItem.sweepstakes.status !== 'active'" class="flex-1 bg-white border-2 border-amber-300 text-amber-700 font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-50 transition-colors">5 Entries</button>
+                <button @click="enterSweepstakes(auth.user?.entries || 0)" :disabled="entering || activeItem.sweepstakes.status !== 'active' || !(auth.user?.entries > 0)" class="flex-1 bg-amber-400 text-white font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-500 transition-colors">ALL IN</button>
+              </div>
+              <p v-if="entryMsg" class="text-xs mt-2" :class="entryMsgType==='success'?'text-emerald-600':'text-red-500'">{{ entryMsg }}</p>
+              <p v-if="activeItem.sweepstakes.status !== 'active'" class="text-xs text-ink-faint mt-2">현재 응모 기간이 아닙니다.</p>
+            </div>
+            <div v-else class="text-xs text-ink-faint">응모하려면 로그인하세요</div>
+          </template>
+
+          <div class="text-[11px] text-ink-faint mt-3 space-y-0.5">
+            <div v-if="activeItem.sweepstakes.minimum_age">만 {{ activeItem.sweepstakes.minimum_age }}세 이상 참가 가능</div>
+            <div v-if="activeItem.sweepstakes.eligible_regions?.length">참가 가능 지역: {{ activeItem.sweepstakes.eligible_regions.join(', ') }}</div>
+            <div v-if="activeItem.sweepstakes.no_purchase_required_text">{{ activeItem.sweepstakes.no_purchase_required_text }}</div>
+            <div v-if="activeItem.sweepstakes.official_rules_url"><a :href="activeItem.sweepstakes.official_rules_url" target="_blank" class="text-blue-600 hover:underline">공식 규정 보기</a></div>
+          </div>
+
+          <button v-if="canSelectWinner" @click="selectWinner" :disabled="selectingWinner"
+            class="w-full mt-3 bg-violet-600 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-violet-700 disabled:opacity-50 transition-colors">
+            {{ selectingWinner ? '처리중...' : '당첨자 선정 (관리자)' }}
+          </button>
+        </div>
+
         <!-- 참여 버튼 (공식 이벤트) -->
         <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
           <button @click="$router.push(activeItem.event_url)"
@@ -275,7 +329,7 @@
 </div>
 </template>
 <script setup>
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -290,7 +344,6 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
-const router = useRouter()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
 function fmtDate(dt) {
@@ -315,14 +368,56 @@ const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const activeItem = ref(null)
 const currentIdx = ref(-1)
+const entering = ref(false)
+const entryMsg = ref('')
+const entryMsgType = ref('success')
+const selectingWinner = ref(false)
+const canSelectWinner = computed(() => {
+  if (!activeItem.value?.sweepstakes || auth.user?.role !== 'super_admin') return false
+  return activeItem.value.sweepstakes.status !== 'winner_selected'
+})
 
 async function openItem(item) {
-  if (item.event_type === 'sweepstakes') { router.push(`/events/${item.id}`); return }
   currentIdx.value = items.value.findIndex(i => i.id === item.id)
+  entryMsg.value = ''
   try { const { data } = await axios.get(`/api/events/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
   if (activeItem.value?.category) activeCat.value = activeItem.value.category
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+async function enterSweepstakes(amount) {
+  if (!amount || amount < 1) { entryMsg.value = '응모할 Entry가 없습니다'; entryMsgType.value = 'error'; return }
+  entering.value = true; entryMsg.value = ''
+  try {
+    const { data } = await axios.post(`/api/sweepstakes/${activeItem.value.sweepstakes.id}/enter`, {
+      amount,
+      idempotency_key: crypto.randomUUID(),
+    })
+    entryMsg.value = data.message || `${amount} Entry를 사용했습니다`
+    entryMsgType.value = 'success'
+    const { data: fresh } = await axios.get(`/api/events/${activeItem.value.id}`)
+    activeItem.value = fresh.data
+    if (auth.user) auth.user.entries = data.data?.remaining_entries ?? auth.user.entries
+  } catch (e) {
+    entryMsg.value = e.response?.data?.message || '응모 실패'
+    entryMsgType.value = 'error'
+  }
+  entering.value = false
+}
+
+async function selectWinner() {
+  if (!confirm(`"${activeItem.value.title}" 당첨자를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
+  selectingWinner.value = true
+  try {
+    const { data } = await axios.post(`/api/admin/sweepstakes/${activeItem.value.sweepstakes.id}/select-winner`)
+    alert(`당첨자: ${data.data?.winner?.nickname || data.data?.winner?.name || '#' + data.data?.winner_user_id}`)
+    const { data: fresh } = await axios.get(`/api/events/${activeItem.value.id}`)
+    activeItem.value = fresh.data
+  } catch (e) {
+    alert(e.response?.data?.message || '당첨자 선정 실패')
+  }
+  selectingWinner.value = false
 }
 
 function navItem(dir) {
