@@ -5,7 +5,7 @@
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="book-open" :size="20" /></span>
       이용약관
     </h1>
-    <div v-if="content" class="card p-6 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ content }}</div>
+    <div v-if="content" class="card p-6 text-sm text-ink-light leading-relaxed prose-legal" v-html="safeContent"></div>
     <div v-else class="card p-6 text-sm text-ink-light leading-relaxed space-y-3">
       <h2 class="font-bold text-base text-ink">제1조 (목적)</h2>
       <p>이 약관은 AwesomeKorean(이하 "서비스")이 제공하는 인터넷 관련 서비스의 이용조건 및 절차, 이용자와 서비스 간의 권리, 의무 등을 규정함을 목적으로 합니다.</p>
@@ -19,13 +19,32 @@
 </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 const content = ref('')
+// 관리자가 HTML 태그를 직접 입력하는 경우와 줄글만 입력하는 경우를 모두
+// 지원 — HTML 태그가 없으면 줄바꿈만 <br>로 변환해 그대로 표시.
+const safeContent = computed(() => {
+  if (!content.value) return ''
+  if (/<[a-z][\s\S]*>/i.test(content.value)) return content.value
+  return content.value.replace(/\n/g, '<br>')
+})
 onMounted(async () => {
   const site = useSiteStore()
   await site.load()
   content.value = site.getSetting('terms_page', '')
 })
 </script>
+<style scoped>
+.prose-legal :deep(h2) { font-size: 1.15rem; font-weight: bold; margin: 18px 0 8px; }
+.prose-legal :deep(h2:first-child) { margin-top: 0; }
+.prose-legal :deep(h3) { font-size: 1rem; font-weight: bold; margin: 16px 0 6px; }
+.prose-legal :deep(p) { margin: 6px 0; }
+.prose-legal :deep(ul), .prose-legal :deep(ol) { padding-left: 20px; margin: 6px 0; }
+.prose-legal :deep(ul) { list-style: disc; }
+.prose-legal :deep(ol) { list-style: decimal; }
+.prose-legal :deep(li) { margin: 3px 0; }
+.prose-legal :deep(a) { color: #2563eb; text-decoration: underline; }
+.prose-legal :deep(em) { color: #9ca3af; }
+</style>
