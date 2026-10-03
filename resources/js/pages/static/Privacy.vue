@@ -5,7 +5,7 @@
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="shield" :size="20" /></span>
       개인정보처리방침
     </h1>
-    <div v-if="content" class="card p-6 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ content }}</div>
+    <div v-if="content" class="card p-6 text-sm text-ink-light leading-relaxed prose-legal" v-html="safeContent"></div>
     <div v-else class="card p-6 text-sm text-ink-light leading-relaxed space-y-3">
       <h2 class="font-bold text-base text-ink">1. 수집하는 개인정보</h2>
       <p>서비스는 회원가입, 서비스 이용 등을 위해 아래와 같은 개인정보를 수집합니다: 이름, 이메일, 닉네임, 위치정보(선택)</p>
@@ -19,13 +19,32 @@
 </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 const content = ref('')
+// 관리자가 HTML 태그를 직접 입력하는 경우와 줄글만 입력하는 경우를 모두
+// 지원 — HTML 태그가 없으면 줄바꿈만 <br>로 변환해 그대로 표시.
+const safeContent = computed(() => {
+  if (!content.value) return ''
+  if (/<[a-z][\s\S]*>/i.test(content.value)) return content.value
+  return content.value.replace(/\n/g, '<br>')
+})
 onMounted(async () => {
   const site = useSiteStore()
   await site.load()
   content.value = site.getSetting('privacy_page', '')
 })
 </script>
+<style scoped>
+.prose-legal :deep(h2) { font-size: 1.15rem; font-weight: bold; margin: 18px 0 8px; }
+.prose-legal :deep(h2:first-child) { margin-top: 0; }
+.prose-legal :deep(h3) { font-size: 1rem; font-weight: bold; margin: 16px 0 6px; }
+.prose-legal :deep(p) { margin: 6px 0; }
+.prose-legal :deep(ul), .prose-legal :deep(ol) { padding-left: 20px; margin: 6px 0; }
+.prose-legal :deep(ul) { list-style: disc; }
+.prose-legal :deep(ol) { list-style: decimal; }
+.prose-legal :deep(li) { margin: 3px 0; }
+.prose-legal :deep(a) { color: #2563eb; text-decoration: underline; }
+.prose-legal :deep(em) { color: #9ca3af; }
+</style>
