@@ -188,7 +188,7 @@
 
     <!-- ═══ Entry 탭 (Sweepstakes 응모권 — Point와 완전 별도) ═══ -->
     <div v-else-if="tab==='entries'" class="space-y-4">
-      <div class="bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl p-5 text-white shadow-card">
+      <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 text-white shadow-card">
         <div class="text-sm font-semibold opacity-90">내 Entry</div>
         <div class="text-3xl font-black mt-1">🎟 {{ (auth.user?.entries ?? enBalance).toLocaleString() }}</div>
         <RouterLink to="/sweepstakes" class="inline-flex items-center gap-1.5 bg-white/20 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/30 transition-colors mt-3">
@@ -198,29 +198,29 @@
 
       <div class="card p-5">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-violet-50 text-violet-600"><AppIcon name="calendar" :size="15" /></span>출석체크</h2>
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="15" /></span>출석체크</h2>
           <button @click="doEntryCheckin" :disabled="enCheckedToday || enChecking"
             class="font-bold px-4 py-2 rounded-xl text-sm transition"
-            :class="enCheckedToday ? 'bg-gray-100 text-ink-faint cursor-not-allowed' : 'bg-violet-600 text-white hover:bg-violet-700'">
+            :class="enCheckedToday ? 'bg-gray-100 text-ink-faint cursor-not-allowed' : 'bg-amber-400 text-white shadow-btn hover:bg-amber-500'">
             {{ enCheckedToday ? '✅ 오늘 완료' : '출석체크' }}
           </button>
         </div>
         <div class="flex items-center gap-2 mb-2">
-          <span v-for="i in enRequired" :key="i" class="text-2xl leading-none">{{ i <= enProgress ? '●' : '○' }}</span>
+          <span v-for="i in enRequired" :key="i" class="text-2xl leading-none" :class="i <= enProgress ? 'text-amber-500' : 'text-gray-300'">{{ i <= enProgress ? '●' : '○' }}</span>
           <span class="ml-2 text-sm font-bold text-ink-muted">{{ enProgress }} / {{ enRequired }}</span>
         </div>
         <p class="text-xs text-ink-muted">
           <template v-if="enProgress < enRequired">{{ enRequired - enProgress }}번 더 출석하면 Entry 1개를 받습니다.</template>
           <template v-else>오늘 출석을 완료하면 Entry 1개를 받습니다.</template>
         </p>
-        <div v-if="enJustEarned" class="bg-violet-50 border border-violet-200 rounded-xl p-4 mt-4 text-center">
+        <div v-if="enJustEarned" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-4 text-center">
           <div class="text-3xl mb-1">🎉</div>
-          <div class="font-bold text-violet-700">축하합니다!<br>출석 {{ enRequired }}회를 완료하여 🎟 Entry 1개를 받았습니다.</div>
+          <div class="font-bold text-amber-700">축하합니다!<br>출석 {{ enRequired }}회를 완료하여 🎟 Entry 1개를 받았습니다.</div>
         </div>
       </div>
 
       <div class="card p-5">
-        <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-violet-600" />Entry 내역</h3>
+        <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-amber-600" />Entry 내역</h3>
         <div v-if="!enHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
         <div v-else class="max-h-80 overflow-y-auto pr-2 divide-y divide-gray-50">
           <div v-for="h in enHistory" :key="h.id" class="flex items-center justify-between py-1.5">
