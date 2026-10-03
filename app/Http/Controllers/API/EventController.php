@@ -5,6 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventAttendee;
+use App\Models\Sweepstakes;
+use App\Models\SweepstakesEntry;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
 use Illuminate\Http\Request;
@@ -26,7 +28,8 @@ class EventController extends Controller
             }))
             ->when(!$request->boolean('past'), fn($q) => $q->where(function ($q2) {
                 $q2->where('start_date', '>=', now())
-                   ->orWhere('is_pinned', true); // 공식 이벤트는 날짜 무관 표시
+                   ->orWhere('is_pinned', true) // 공식 이벤트는 날짜 무관 표시
+                   ->orWhere('event_type', 'sweepstakes'); // 경품 추첨은 응모 종료일까지 노출(상태로 관리)
             }))
             ->when($request->has('is_active'), fn($q) => $q->where('is_active', $request->boolean('is_active')), fn($q) => $q->where('is_active', true));
 
@@ -37,9 +40,10 @@ class EventController extends Controller
             $lat = (float) $request->lat;
             $lng = (float) $request->lng;
             $radius = (int) ($request->radius ?? 50);
-            // 공식 이벤트(is_pinned)는 위치 필터에서 제외하여 항상 표시
+            // 공식 이벤트(is_pinned)와 경품 추첨은 위치 필터에서 제외하여 항상 표시
             $query->where(function ($q) use ($lat, $lng, $radius) {
                 $q->where('is_pinned', true) // 공식 이벤트는 무조건 포함
+                  ->orWhere('event_type', 'sweepstakes')
                   ->orWhere(function ($q2) use ($lat, $lng, $radius) {
                       $latDelta = $radius / 69.0;
                       $lngDelta = $radius / (69.0 * cos(deg2rad($lat)));
@@ -67,12 +71,41 @@ class EventController extends Controller
             $data['my_proof_status'] = $attendee?->proof_status;
         }
 
+        if ($event->event_type === 'sweepstakes') {
+            $sweepstakes = Sweepstakes::where('event_id', $event->id)->first();
+            if ($sweepstakes) {
+                $myEntries = 0;
+                if (auth()->check()) {
+                    $myEntries = (int) (SweepstakesEntry::where('sweepstakes_id', $sweepstakes->id)
+                        ->where('user_id', auth()->id())
+                        ->value('entries_count') ?? 0);
+                }
+                $total = (int) $sweepstakes->total_entries;
+                $probability = $total > 0 ? round(($myEntries / $total) * 100, 2) : 0.0;
+                $winnerName = null;
+                if ($sweepstakes->status === 'winner_selected' && $sweepstakes->winner_user_id) {
+                    $winnerName = $sweepstakes->winner?->display_name;
+                }
+
+                $data['sweepstakes'] = array_merge($sweepstakes->toArray(), [
+                    'my_entries' => $myEntries,
+                    'my_win_probability_pct' => $probability,
+                    'winner_display_name' => $winnerName,
+                ]);
+            }
+        }
+
         $adj = $this->adjacentPair(Event::class, $id, 'title', ['category' => $event->category]);
         return response()->json(['success' => true, 'data' => $data, 'prev' => $adj['prev'], 'next' => $adj['next']]);
     }
 
     public function store(Request $request)
     {
+        $isSweepstakes = $request->event_type === 'sweepstakes';
+        if ($isSweepstakes && !in_array(auth()->user()->role, ['admin', 'super_admin'])) {
+            return response()->json(['success' => false, 'message' => '경품 추첨 이벤트는 관리자만 등록할 수 있습니다'], 403);
+        }
+
         $request->validate([
             'title'      => 'required|max:200',
             'start_date' => 'required|date',
@@ -81,6 +114,12 @@ class EventController extends Controller
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
             'reward_points' => 'nullable|integer|min:0',
+            'prize_name' => $isSweepstakes ? 'required|string|max:255' : 'nullable|string|max:255',
+            'prize_value' => 'nullable|numeric|min:0',
+            'minimum_age' => 'nullable|integer|min:0|max:120',
+            'eligible_regions' => 'nullable|array',
+            'official_rules_url' => 'nullable|string|max:255',
+            'no_purchase_required_text' => 'nullable|string',
         ]);
 
         $fields = $request->only(
@@ -91,6 +130,7 @@ class EventController extends Controller
         $fields['user_id'] = auth()->id();
         $fields['is_free'] = $request->boolean('is_free');
         $fields['is_active'] = true;
+        $fields['event_type'] = $isSweepstakes ? 'sweepstakes' : 'user';
 
         if ($request->hasFile('image')) {
             $fields['image_url'] = $this->storeCompressedImage($request->file('image'), 'events', 1400, 82);
@@ -98,7 +138,25 @@ class EventController extends Controller
 
         $event = Event::create($fields);
 
-        \App\Support\WritePoints::award(auth()->user(), Event::class, $event->id, '이벤트 등록');
+        if ($isSweepstakes) {
+            Sweepstakes::create([
+                'event_id' => $event->id,
+                'title' => $event->title,
+                'description' => $event->description,
+                'prize_name' => $request->prize_name,
+                'prize_value' => $request->prize_value,
+                'prize_image' => $event->image_url,
+                'start_at' => $event->start_date,
+                'end_at' => $event->end_date ?? $event->start_date,
+                'status' => 'active',
+                'minimum_age' => $request->minimum_age ?? 18,
+                'eligible_regions' => $request->eligible_regions,
+                'official_rules_url' => $request->official_rules_url,
+                'no_purchase_required_text' => $request->no_purchase_required_text,
+            ]);
+        } else {
+            \App\Support\WritePoints::award(auth()->user(), Event::class, $event->id, '이벤트 등록');
+        }
 
         return response()->json(['success' => true, 'data' => $event], 201);
     }
@@ -111,6 +169,11 @@ class EventController extends Controller
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 
+        $sweepstakes = $event->event_type === 'sweepstakes' ? Sweepstakes::where('event_id', $event->id)->first() : null;
+        if ($sweepstakes && $sweepstakes->status === 'winner_selected') {
+            return response()->json(['success' => false, 'message' => '당첨자가 이미 선정된 경품 추첨 이벤트는 수정할 수 없습니다'], 422);
+        }
+
         $request->validate([
             'title'      => 'sometimes|required|max:200',
             'start_date' => 'sometimes|required|date',
@@ -119,6 +182,12 @@ class EventController extends Controller
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
             'reward_points' => 'nullable|integer|min:0',
+            'prize_name' => $sweepstakes ? 'sometimes|required|string|max:255' : 'nullable|string|max:255',
+            'prize_value' => 'nullable|numeric|min:0',
+            'minimum_age' => 'nullable|integer|min:0|max:120',
+            'eligible_regions' => 'nullable|array',
+            'official_rules_url' => 'nullable|string|max:255',
+            'no_purchase_required_text' => 'nullable|string',
         ]);
 
         $fields = $request->only(
@@ -136,6 +205,21 @@ class EventController extends Controller
         }
 
         $event->update($fields);
+
+        if ($sweepstakes) {
+            $sweepstakes->forceFill([
+                'title' => $event->title,
+                'description' => $event->description,
+                'prize_name' => $request->prize_name ?? $sweepstakes->prize_name,
+                'prize_value' => $request->has('prize_value') ? $request->prize_value : $sweepstakes->prize_value,
+                'start_at' => $event->start_date,
+                'end_at' => $event->end_date ?? $event->start_date,
+                'minimum_age' => $request->minimum_age ?? $sweepstakes->minimum_age,
+                'eligible_regions' => $request->has('eligible_regions') ? $request->eligible_regions : $sweepstakes->eligible_regions,
+                'official_rules_url' => $request->official_rules_url ?? $sweepstakes->official_rules_url,
+                'no_purchase_required_text' => $request->no_purchase_required_text ?? $sweepstakes->no_purchase_required_text,
+            ])->save();
+        }
 
         return response()->json(['success' => true, 'data' => $event->fresh()]);
     }

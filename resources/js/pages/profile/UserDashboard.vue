@@ -197,7 +197,7 @@
       <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
           <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="ticket" :size="15" /></span>Entry</h2>
-          <RouterLink to="/sweepstakes" class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-amber-100 transition-colors">
+          <RouterLink to="/events?type=sweepstakes" class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-amber-100 transition-colors">
             <AppIcon name="gift" :size="13" /> Sweepstakes 보기
           </RouterLink>
         </div>
