@@ -13,8 +13,18 @@ use Illuminate\Http\Request;
 
 class AdminSweepstakesController extends Controller
 {
+    // 경품 추첨 생성/수정/삭제/당첨자 선정/참가현황은 사이트 최고관리자만 접근 가능
+    private function requireSuperAdmin()
+    {
+        if (auth()->user()->role !== 'super_admin') {
+            abort(response()->json(['success' => false, 'message' => '경품 추첨 관리는 사이트 최고관리자만 접근할 수 있습니다'], 403));
+        }
+    }
+
     public function index()
     {
+        $this->requireSuperAdmin();
+
         $items = Sweepstakes::withCount('entries as unique_participants')
             ->orderByDesc('created_at')
             ->paginate(20);
@@ -24,6 +34,8 @@ class AdminSweepstakesController extends Controller
 
     public function store(Request $request)
     {
+        $this->requireSuperAdmin();
+
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -48,6 +60,8 @@ class AdminSweepstakesController extends Controller
 
     public function update(Request $request, Sweepstakes $sweepstakes)
     {
+        $this->requireSuperAdmin();
+
         if ($sweepstakes->status === 'winner_selected') {
             return response()->json(['success' => false, 'message' => '당첨자가 이미 선정된 Sweepstakes는 수정할 수 없습니다'], 422);
         }
@@ -75,6 +89,8 @@ class AdminSweepstakesController extends Controller
 
     public function destroy(Sweepstakes $sweepstakes)
     {
+        $this->requireSuperAdmin();
+
         if ($sweepstakes->total_entries > 0) {
             return response()->json(['success' => false, 'message' => '이미 참가 Entry가 있는 Sweepstakes는 삭제할 수 없습니다. 취소(cancelled) 처리를 이용하세요.'], 422);
         }
@@ -85,6 +101,8 @@ class AdminSweepstakesController extends Controller
 
     public function participants(Sweepstakes $sweepstakes)
     {
+        $this->requireSuperAdmin();
+
         $entries = SweepstakesEntry::with('user:id,name,nickname,email')
             ->where('sweepstakes_id', $sweepstakes->id)
             ->orderByDesc('entries_count')
@@ -95,6 +113,8 @@ class AdminSweepstakesController extends Controller
 
     public function selectWinner(Sweepstakes $sweepstakes)
     {
+        $this->requireSuperAdmin();
+
         try {
             $audit = SweepstakesWinnerService::selectWinner($sweepstakes);
         } catch (\RuntimeException $e) {

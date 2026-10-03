@@ -144,7 +144,11 @@ const currentGroup = computed(() => {
   return 'main'
 })
 
-const currentSubTabs = computed(() => subTabs[currentGroup.value] || [])
+const currentSubTabs = computed(() => {
+  const tabs = subTabs[currentGroup.value] || []
+  if (auth.user?.role === 'super_admin') return tabs
+  return tabs.filter(t => t.to !== '/admin/sweepstakes')
+})
 
 function isMainActive(item) {
   if (item.to === '/admin' && item.group === 'main') return route.path === '/admin'

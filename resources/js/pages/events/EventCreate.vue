@@ -6,8 +6,8 @@
       {{ isEdit ? (isSweepstakes ? '경품 추첨 이벤트 수정' : '이벤트 수정') : '이벤트 등록' }}
     </h1>
     <div class="card p-5 space-y-4">
-      <!-- 관리자 전용: 경품 추첨 이벤트로 등록 -->
-      <div v-if="isAdmin && !isEdit" class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+      <!-- 사이트 최고관리자 전용: 경품 추첨 이벤트로 등록 -->
+      <div v-if="isSuperAdmin && !isEdit" class="bg-amber-50 border border-amber-200 rounded-xl p-3">
         <label class="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" v-model="isSweepstakes" class="w-4 h-4 accent-amber-500" />
           <span class="text-sm font-bold text-amber-800 flex items-center gap-1"><AppIcon name="gift" :size="14" />경품 추첨(Sweepstakes) 이벤트로 등록</span>
@@ -169,7 +169,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const editId = computed(() => route.params.id)
 const isEdit = computed(() => !!editId.value)
-const isAdmin = computed(() => ['admin', 'super_admin'].includes(auth.user?.role))
+const isSuperAdmin = computed(() => auth.user?.role === 'super_admin')
 const isSweepstakes = ref(false)
 const sw = reactive({ prize_name: '', prize_value: '', minimum_age: 18, official_rules_url: '', no_purchase_required_text: '' })
 const swRegionsInput = ref('')

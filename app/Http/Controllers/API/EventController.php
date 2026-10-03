@@ -102,8 +102,8 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $isSweepstakes = $request->event_type === 'sweepstakes';
-        if ($isSweepstakes && !in_array(auth()->user()->role, ['admin', 'super_admin'])) {
-            return response()->json(['success' => false, 'message' => '경품 추첨 이벤트는 관리자만 등록할 수 있습니다'], 403);
+        if ($isSweepstakes && auth()->user()->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => '경품 추첨 이벤트는 사이트 최고관리자만 등록할 수 있습니다'], 403);
         }
 
         $request->validate([
@@ -170,6 +170,9 @@ class EventController extends Controller
         }
 
         $sweepstakes = $event->event_type === 'sweepstakes' ? Sweepstakes::where('event_id', $event->id)->first() : null;
+        if ($sweepstakes && auth()->user()->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => '경품 추첨 이벤트는 사이트 최고관리자만 수정할 수 있습니다'], 403);
+        }
         if ($sweepstakes && $sweepstakes->status === 'winner_selected') {
             return response()->json(['success' => false, 'message' => '당첨자가 이미 선정된 경품 추첨 이벤트는 수정할 수 없습니다'], 422);
         }
@@ -228,7 +231,11 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
 
-        if ($event->user_id !== auth()->id() && !in_array(auth()->user()->role, ['admin', 'super_admin'])) {
+        if ($event->event_type === 'sweepstakes') {
+            if (auth()->user()->role !== 'super_admin') {
+                return response()->json(['success' => false, 'message' => '경품 추첨 이벤트는 사이트 최고관리자만 삭제할 수 있습니다'], 403);
+            }
+        } elseif ($event->user_id !== auth()->id() && !in_array(auth()->user()->role, ['admin', 'super_admin'])) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
         }
 

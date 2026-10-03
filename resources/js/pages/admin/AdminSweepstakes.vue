@@ -6,6 +6,8 @@
   </h1>
   <p class="text-sm text-ink-muted mb-6">경품 추첨 이벤트는 "이벤트" 페이지의 등록 화면에서 "경품 추첨(Sweepstakes) 이벤트로 등록"을 체크해 생성합니다. 생성된 이벤트는 사이트의 "이벤트" 목록에 노출되며, 당첨자 선정은 서버에서 암호학적으로 안전한 난수로 1회만 수행되고 결과는 되돌릴 수 없습니다.</p>
 
+  <div v-if="!isSuperAdmin" class="card py-16 text-center text-ink-muted text-sm">경품 추첨 관리는 사이트 최고관리자만 접근할 수 있습니다</div>
+  <template v-else>
   <RouterLink to="/events/create" class="btn-primary !px-5 !py-2.5 mb-5 inline-flex items-center gap-1.5"><AppIcon name="plus" :size="14" />이벤트로 새 경품 추첨 등록</RouterLink>
 
   <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
@@ -54,13 +56,18 @@
       </div>
     </div>
   </div>
+  </template>
 </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import { useAuthStore } from '../../stores/auth'
+
+const auth = useAuthStore()
+const isSuperAdmin = computed(() => auth.user?.role === 'super_admin')
 
 const items = ref([])
 const loading = ref(true)
@@ -127,5 +134,5 @@ async function confirmSelectWinner(item) {
   }
 }
 
-onMounted(load)
+onMounted(() => { if (isSuperAdmin.value) load(); else loading.value = false })
 </script>
