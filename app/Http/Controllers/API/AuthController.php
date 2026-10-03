@@ -43,6 +43,12 @@ class AuthController extends Controller
         $signupBonus = \App\Support\PointRules::get('signup_bonus', 10);
         if ($signupBonus > 0) $user->addPoints($signupBonus, '회원가입 보너스');
 
+        // Entry 가입 보너스 — Point와 완전히 별도 지급(교환/합산 아님).
+        $entrySignupBonus = \App\Support\EntrySettings::get('signup_bonus', 1);
+        if ($entrySignupBonus > 0) {
+            \App\Support\EntryService::award($user, $entrySignupBonus, 'SIGNUP_BONUS', '회원가입 Entry 보너스', 'signup');
+        }
+
         // 이메일 인증 절차 자체가 없어 무제한 가입이 가능하던 문제 수정 —
         // 가입을 막지는 않고(비차단), 인증 메일만 발송해 이메일 소유를 확인.
         try {

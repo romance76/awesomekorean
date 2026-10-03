@@ -27,6 +27,8 @@ class User extends Authenticatable implements JWTSubject
     // 민감 필드 명시적 보호 (가이드 주석)
     // - role, is_banned, ban_reason: 관리자 컨트롤러에서만 직접 update
     // - points, game_points: addPoints()/usePoints() 헬퍼 경유
+    // - entries: Point와 완전히 분리된 별도 자산. App\Support\EntryService 경유만
+    //   허용 — Point와의 교환 경로가 생기지 않도록 이 모델 안에 변환 헬퍼를 두지 않는다.
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -63,6 +65,8 @@ class User extends Authenticatable implements JWTSubject
             'is_banned' => 'boolean',
             'points' => 'integer',
             'game_points' => 'integer',
+            'entries' => 'integer',
+            'entry_checkin_progress' => 'integer',
             'login_count' => 'integer',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
@@ -86,6 +90,7 @@ class User extends Authenticatable implements JWTSubject
     public function marketItems() { return $this->hasMany(MarketItem::class); }
     public function clubs() { return $this->hasMany(Club::class); }
     public function pointLogs() { return $this->hasMany(PointLog::class); }
+    public function entryTransactions() { return $this->hasMany(EntryTransaction::class); }
     public function notifications() { return $this->hasMany(Notification::class); }
     public function friends() { return $this->hasMany(Friend::class); }
     public function elderSetting() { return $this->hasOne(ElderSetting::class); }

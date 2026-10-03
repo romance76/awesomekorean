@@ -145,6 +145,8 @@ Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
+Route::get('/sweepstakes', [\App\Http\Controllers\API\SweepstakesController::class, 'index']);
+Route::get('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\SweepstakesController::class, 'show']);
 // 참석자 명단(이름·아바타 포함)이 비로그인 상태로도 누구나 조회 가능했던
 // 경미한 프라이버시 문제 수정 — 로그인한 회원만 조회 가능하도록 제한.
 Route::get('/events/{id}/attendees', [EventController::class, 'attendees'])->middleware('auth:api');
@@ -363,6 +365,12 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/points/history', [PointController::class, 'history']);
     Route::get('/points/balance', [PointController::class, 'balance']);
     Route::post('/points/daily-spin', [PointController::class, 'dailySpin']);
+
+    // Entry (Sweepstakes 응모권) — Point와 완전히 분리된 시스템
+    Route::get('/entries/balance', [\App\Http\Controllers\API\EntryController::class, 'balance']);
+    Route::get('/entries/history', [\App\Http\Controllers\API\EntryController::class, 'history']);
+    Route::post('/entries/checkin', [\App\Http\Controllers\API\EntryController::class, 'checkin']);
+    Route::post('/sweepstakes/{sweepstakes}/enter', [\App\Http\Controllers\API\SweepstakesController::class, 'enter']);
 
     Route::post('/reports', [ReportController::class, 'store']);
 
@@ -673,6 +681,21 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // 포인트 설정
     Route::get('/point-settings', [AdminSettingsController::class, 'getPointSettings']);
     Route::post('/point-settings', [AdminSettingsController::class, 'savePointSettings']);
+
+    // Entry 설정 (Point와 완전히 분리)
+    Route::get('/entry-settings', [AdminSettingsController::class, 'getEntrySettings']);
+    Route::post('/entry-settings', [AdminSettingsController::class, 'saveEntrySettings']);
+    Route::get('/entry-transactions', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'entryTransactions']);
+    Route::post('/entries/adjust', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'adjustUserEntries']);
+    Route::get('/entries/users/{userId}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'userBalance']);
+
+    // Sweepstakes 관리
+    Route::get('/sweepstakes', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'index']);
+    Route::post('/sweepstakes', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'store']);
+    Route::put('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'update']);
+    Route::delete('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'destroy']);
+    Route::get('/sweepstakes/{sweepstakes}/participants', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'participants']);
+    Route::post('/sweepstakes/{sweepstakes}/select-winner', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'selectWinner']);
 
     // 수동 수집
     Route::post('/fetch-music', function () {
