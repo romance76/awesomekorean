@@ -33,6 +33,7 @@
               <span v-if="event.is_free || !event.price" class="badge-green">무료</span>
               <span v-else class="badge-blue">${{ Number(event.price).toLocaleString() }}</span>
               <span v-if="isPast" class="badge-gray">종료됨</span>
+              <span v-else-if="isOngoing" class="badge-green">진행중</span>
               <span v-else class="badge-green">진행 예정</span>
             </div>
             <div class="flex items-center justify-between gap-2">
@@ -246,7 +247,21 @@ const entryMsg = ref('')
 const entryMsgType = ref('success')
 const selectingWinner = ref(false)
 
-const isPast = computed(() => event.value?.start_date && new Date(event.value.start_date) < new Date())
+const isPast = computed(() => {
+  const e = event.value
+  if (!e?.start_date) return false
+  const now = new Date()
+  if (e.end_date) return new Date(e.end_date) < now
+  return new Date(e.start_date) < now
+})
+const isOngoing = computed(() => {
+  const e = event.value
+  if (!e?.start_date) return false
+  const now = new Date()
+  const start = new Date(e.start_date)
+  if (start > now) return false
+  return !isPast.value
+})
 const isSweepstakesOpen = computed(() => event.value?.sweepstakes?.status === 'active')
 const canSelectWinner = computed(() => {
   if (!event.value?.sweepstakes || auth.user?.role !== 'super_admin') return false
