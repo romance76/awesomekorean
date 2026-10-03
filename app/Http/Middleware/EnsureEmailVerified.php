@@ -18,7 +18,7 @@ class EnsureEmailVerified
     {
         $user = $request->user();
 
-        if ($user && !$user->email_verified_at) {
+        if ($user && !$user->email_verified_at && !in_array($user->role, ['admin', 'super_admin', 'moderator'])) {
             return response()->json([
                 'success' => false,
                 'message' => '이메일 인증 후 글쓰기가 가능합니다. 가입 시 발송된 인증 메일을 확인해주세요.',

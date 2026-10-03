@@ -46,7 +46,7 @@
           <input :value="auth.user?.email" disabled class="input-soft !bg-gray-50 text-ink-muted cursor-not-allowed" />
         </div>
         <!-- 이메일 미인증 안내: 인증 전에는 글쓰기가 제한됨 -->
-        <div v-if="auth.user && !auth.user.email_verified_at" class="mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
+        <div v-if="auth.user && !auth.user.email_verified_at && !['admin','super_admin','moderator'].includes(auth.user.role)" class="mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
           <div class="text-xs text-amber-700 flex items-center gap-1.5"><AppIcon name="alert-circle" :size="14" /> 이메일 인증 전에는 글쓰기가 제한됩니다.</div>
           <button @click="resendVerification" :disabled="resendingVerify" class="text-xs font-bold bg-amber-400 text-white px-3 py-1.5 rounded-lg hover:bg-amber-500 disabled:opacity-50 transition-colors">
             {{ resendingVerify ? '발송중...' : '인증 메일 재발송' }}
