@@ -823,21 +823,21 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
 });
 
-// 임시 진단 엔드포인트 — 약관/개인정보처리방침 마이그레이션이 배포에서
-// 조용히 실패하는 원인 확인용. 확인 후 바로 제거 예정.
-Route::get('/_diag/run-migration-7f3a2b', function () {
+// 임시 진단(읽기 전용) — 배포 후에도 PHP 레벨 코드 변경(라우트 등)이
+// 반영 안 되는 원인 확인용(opcache 재시작 여부 등). 확인 후 제거 예정.
+Route::get('/_diag/opcache-9c71f4', function () {
     if (request('token') !== 'diag-9f41c2e8') {
         abort(404);
     }
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return response()->json(['ok' => true, 'output' => \Illuminate\Support\Facades\Artisan::output()]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'ok' => false,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
-    }
+    $status = function_exists('opcache_get_status') ? opcache_get_status(false) : null;
+    return response()->json([
+        'php_sapi' => PHP_SAPI,
+        'opcache_enabled' => $status['opcache_enabled'] ?? null,
+        'validate_timestamps' => ini_get('opcache.validate_timestamps'),
+        'last_restart_time' => isset($status['restart_time']) ? date('c', $status['restart_time']) : null,
+        'opcache_hit_rate' => $status['opcache_statistics']['opcache_hit_rate'] ?? null,
+        'api_routes_mtime' => date('c', filemtime(base_path('routes/api.php'))),
+        'server_now' => date('c'),
+        'git_head' => trim(@shell_exec('cd ' . base_path() . ' && git rev-parse --short HEAD 2>&1')),
+    ]);
 });
