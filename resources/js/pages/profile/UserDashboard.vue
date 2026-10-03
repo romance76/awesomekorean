@@ -138,32 +138,6 @@
       <div class="card p-5">
         <div class="flex items-center justify-between mb-4">
           <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="15" /></span>포인트</h2>
-          <button @click="startRoulette" :disabled="spun || spinning" class="font-bold px-4 py-2 rounded-xl text-sm transition"
-            :class="spun ? 'bg-gray-100 text-ink-faint cursor-not-allowed' : 'bg-amber-400 text-white shadow-btn hover:bg-amber-500'">
-            {{ spun ? '✅ 오늘 완료' : spinning ? '🎰 돌리는 중...' : '🎰 출석 체크' }}
-          </button>
-        </div>
-
-        <!-- 룰렛 -->
-        <div v-if="showRoulette" class="flex flex-col items-center mb-4">
-          <div class="relative w-48 h-48 mb-3">
-            <!-- 화살표 -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-1 z-10 text-red-500 text-2xl">▼</div>
-            <!-- 회전 원판 -->
-            <div class="w-48 h-48 rounded-full border-4 border-amber-400 overflow-hidden relative transition-transform"
-              :style="{ transform: `rotate(${rouletteAngle}deg)`, transitionDuration: spinning ? '4s' : '0s', transitionTimingFunction: 'cubic-bezier(0.17,0.67,0.12,0.99)' }">
-              <svg viewBox="0 0 200 200" class="w-full h-full">
-                <path v-for="(seg, i) in rouletteSegments" :key="i" :d="rouletteSectorPath(i)" :fill="seg.bg" stroke="#fff" stroke-width="1"/>
-                <text v-for="(seg, i) in rouletteSegments" :key="'t'+i" :transform="rouletteTextTransform(i)"
-                  text-anchor="middle" dominant-baseline="central" class="text-[15px] font-black" :fill="seg.textFill">{{ seg.points }}P</text>
-                <circle cx="100" cy="100" r="26" fill="#fff" stroke="#fbbf24" stroke-width="2"/>
-                <text x="100" y="100" text-anchor="middle" dominant-baseline="central" class="text-lg">🎰</text>
-              </svg>
-            </div>
-          </div>
-          <div v-if="spinResult" class="text-center animate-bounce">
-            <span class="text-xl font-black text-amber-600">🎉 {{ spinResult }}P 당첨!</span>
-          </div>
         </div>
         <div class="text-3xl font-black text-amber-600 mb-4">{{ (auth.user?.points || ptBalance).toLocaleString() }}P</div>
         <!-- 포인트 구매 (커스텀 금액: $10 이상, $5 단위) -->
@@ -207,6 +181,54 @@
               <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(h.created_at) }}</span>
             </div>
             <span :class="h.amount>0?'text-emerald-600':'text-red-500'" class="text-xs font-bold flex-shrink-0 ml-3">{{ h.amount>0?'+':'' }}{{ h.amount }}P</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Entry 탭 (Sweepstakes 응모권 — Point와 완전 별도) ═══ -->
+    <div v-else-if="tab==='entries'" class="space-y-4">
+      <div class="bg-gradient-to-r from-violet-500 to-purple-600 rounded-2xl p-5 text-white shadow-card">
+        <div class="text-sm font-semibold opacity-90">내 Entry</div>
+        <div class="text-3xl font-black mt-1">🎟 {{ (auth.user?.entries ?? enBalance).toLocaleString() }}</div>
+        <RouterLink to="/sweepstakes" class="inline-flex items-center gap-1.5 bg-white/20 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/30 transition-colors mt-3">
+          <AppIcon name="gift" :size="14" /> Sweepstakes 보기
+        </RouterLink>
+      </div>
+
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-violet-50 text-violet-600"><AppIcon name="calendar" :size="15" /></span>출석체크</h2>
+          <button @click="doEntryCheckin" :disabled="enCheckedToday || enChecking"
+            class="font-bold px-4 py-2 rounded-xl text-sm transition"
+            :class="enCheckedToday ? 'bg-gray-100 text-ink-faint cursor-not-allowed' : 'bg-violet-600 text-white hover:bg-violet-700'">
+            {{ enCheckedToday ? '✅ 오늘 완료' : '출석체크' }}
+          </button>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <span v-for="i in enRequired" :key="i" class="text-2xl leading-none">{{ i <= enProgress ? '●' : '○' }}</span>
+          <span class="ml-2 text-sm font-bold text-ink-muted">{{ enProgress }} / {{ enRequired }}</span>
+        </div>
+        <p class="text-xs text-ink-muted">
+          <template v-if="enProgress < enRequired">{{ enRequired - enProgress }}번 더 출석하면 Entry 1개를 받습니다.</template>
+          <template v-else>오늘 출석을 완료하면 Entry 1개를 받습니다.</template>
+        </p>
+        <div v-if="enJustEarned" class="bg-violet-50 border border-violet-200 rounded-xl p-4 mt-4 text-center">
+          <div class="text-3xl mb-1">🎉</div>
+          <div class="font-bold text-violet-700">축하합니다!<br>출석 {{ enRequired }}회를 완료하여 🎟 Entry 1개를 받았습니다.</div>
+        </div>
+      </div>
+
+      <div class="card p-5">
+        <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-violet-600" />Entry 내역</h3>
+        <div v-if="!enHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
+        <div v-else class="max-h-80 overflow-y-auto pr-2 divide-y divide-gray-50">
+          <div v-for="h in enHistory" :key="h.id" class="flex items-center justify-between py-1.5">
+            <div class="flex items-center gap-2 min-w-0 flex-1 sm:flex-row flex-col sm:items-center items-start">
+              <span class="text-xs text-ink truncate">{{ h.description }}</span>
+              <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(h.created_at) }}</span>
+            </div>
+            <span :class="h.amount>0?'text-emerald-600':'text-red-500'" class="text-xs font-bold flex-shrink-0 ml-3">{{ h.amount>0?'+':'' }}{{ h.amount }}E</span>
           </div>
         </div>
       </div>
@@ -981,6 +1003,7 @@ const tab = ref(route.query.tab || 'profile')
 const allTabs = [
   { key: 'profile',    icon: 'user',          label: '프로필' },
   { key: 'points',     icon: 'coins',         label: '포인트' },
+  { key: 'entries',    icon: 'ticket',        label: 'Entry' },
   { key: 'messages',   icon: 'mail',          label: '쪽지함' },
   { key: 'posts',      icon: 'edit',          label: '내 글' },
   { key: 'market',     icon: 'shopping-cart', label: '내 장터',     menuKey: 'market' },
@@ -1153,39 +1176,7 @@ async function changePw() {
 }
 
 // ─── 포인트 ───
-const ptBalance = ref(0); const ptHistory = ref([]); const spun = ref(false); const spinResult = ref(null)
-const spinning = ref(false); const showRoulette = ref(false); const rouletteAngle = ref(0)
-// Task 1: 가중치 테이블(0/1/2/5/10/30P)과 동일한 값으로 구성 — 당첨값이 항상 실제 칸에 표시되도록
-const rouletteSegments = [
-  { points: 0, textFill: '#9ca3af', bg: '#f3f4f6' },
-  { points: 1, textFill: '#4b5563', bg: '#fef3c7' },
-  { points: 2, textFill: '#4b5563', bg: '#fde68a' },
-  { points: 0, textFill: '#9ca3af', bg: '#f3f4f6' },
-  { points: 5, textFill: '#b45309', bg: '#fed7aa' },
-  { points: 1, textFill: '#4b5563', bg: '#fef3c7' },
-  { points: 10, textFill: '#dc2626', bg: '#fca5a5' },
-  { points: 30, textFill: '#dc2626', bg: '#f87171' },
-]
-const rouletteSectorAngle = 360 / rouletteSegments.length
-function rouletteSectorPath(index) {
-  const cx = 100, cy = 100, r = 98
-  const startAngle = (index * rouletteSectorAngle - 90) * Math.PI / 180
-  const endAngle = ((index + 1) * rouletteSectorAngle - 90) * Math.PI / 180
-  const x1 = cx + r * Math.cos(startAngle)
-  const y1 = cy + r * Math.sin(startAngle)
-  const x2 = cx + r * Math.cos(endAngle)
-  const y2 = cy + r * Math.sin(endAngle)
-  const largeArc = rouletteSectorAngle > 180 ? 1 : 0
-  return `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`
-}
-function rouletteTextTransform(index) {
-  const cx = 100, cy = 100, r = 65
-  const angle = ((index + 0.5) * rouletteSectorAngle - 90) * Math.PI / 180
-  const x = cx + r * Math.cos(angle)
-  const y = cy + r * Math.sin(angle)
-  const rotDeg = (index + 0.5) * rouletteSectorAngle
-  return `translate(${x},${y}) rotate(${rotDeg})`
-}
+const ptBalance = ref(0); const ptHistory = ref([])
 // 포인트 구매 (커스텀 금액: $10 이상, $5 단위)
 const quickAmounts = [10, 15, 20, 25, 50, 100, 200]
 const purchaseAmount = ref(10); const customAmountInput = ref(10); const purchaseAmountError = ref('')
@@ -1219,7 +1210,7 @@ const payModal = ref(false); const payError = ref(''); const paying = ref(false)
 const payListedAmount = ref(0); const payChargeAmount = ref(0); const payPointsPreview = ref(0)
 let stripe = null; let cardElement = null; let clientSecret = null
 async function loadPoints() {
-  try { const { data } = await axios.get('/api/points/balance'); ptBalance.value = data.data?.points || data.points || auth.user?.points || 0; spun.value = data.daily_spin_done || false } catch { ptBalance.value = auth.user?.points || 0 }
+  try { const { data } = await axios.get('/api/points/balance'); ptBalance.value = data.data?.points || data.points || auth.user?.points || 0 } catch { ptBalance.value = auth.user?.points || 0 }
   try { const { data } = await axios.get('/api/points/history'); ptHistory.value = data.data?.data || data.data || [] } catch {}
   // 구매 보너스 구간 테이블 로드 (실시간 미리보기 + 현재 할인 이벤트 반영)
   try {
@@ -1279,41 +1270,43 @@ async function confirmPay() {
   }
   paying.value = false
 }
-async function startRoulette() {
-  if (spinning.value || spun.value) return
+// ─── Entry (Sweepstakes 응모권 — Point와 완전 별도) ───
+const enBalance = ref(0); const enProgress = ref(0); const enRequired = ref(5)
+const enCheckedToday = ref(false); const enChecking = ref(false); const enJustEarned = ref(false)
+const enHistory = ref([])
 
-  // 먼저 API 호출 (룰렛 보여주기 전에 성공 여부 확인)
-  let won = 0
+async function loadEntries() {
   try {
-    const { data } = await axios.post('/api/points/daily-spin')
-    won = data.data?.points_won || data.points || data.amount || 1
+    const { data } = await axios.get('/api/entries/balance')
+    enBalance.value = data.data.entries
+    enProgress.value = data.data.checkin_progress
+    enRequired.value = data.data.checkin_required
+    enCheckedToday.value = data.data.checked_in_today
+    if (auth.user) auth.user.entries = data.data.entries
+  } catch {}
+  try {
+    const { data } = await axios.get('/api/entries/history')
+    enHistory.value = data.data?.data || data.data || []
+  } catch {}
+}
+
+async function doEntryCheckin() {
+  enChecking.value = true; enJustEarned.value = false
+  try {
+    const { data } = await axios.post('/api/entries/checkin')
+    enProgress.value = data.data.progress
+    enCheckedToday.value = true
+    if (data.data.entry_awarded) {
+      enJustEarned.value = true
+      siteStore.toast('🎉 출석 완료! Entry 1개를 받았습니다', 'success')
+    } else {
+      siteStore.toast('출석체크 완료', 'success')
+    }
+    await loadEntries()
   } catch (e) {
-    spun.value = true
-    showAlert(e.response?.data?.message || '이미 출석 룰렛을 돌렸습니다', '출석체크')
-    return
+    siteStore.toast(e.response?.data?.message || '출석체크 실패', 'error')
   }
-
-  // API 성공 → 룰렛 애니메이션 시작
-  spinning.value = true
-  showRoulette.value = true
-  spinResult.value = null
-  rouletteAngle.value = 0
-
-  await new Promise(r => setTimeout(r, 50)) // DOM 업데이트 대기
-
-  const segIdx = rouletteSegments.findIndex(s => s.points === won) ?? 0
-  const segAngle = 360 / rouletteSegments.length
-  const targetAngle = 1800 + (360 - segIdx * segAngle - segAngle / 2)
-  rouletteAngle.value = targetAngle
-
-  // 4초 후 결과 표시
-  setTimeout(() => {
-    spinResult.value = won
-    spun.value = true
-    spinning.value = false
-    ptBalance.value += won
-    auth.fetchUser()
-  }, 4200)
+  enChecking.value = false
 }
 
 // ─── 쪽지 ───
@@ -1714,7 +1707,7 @@ async function saveResume() {
 
 // ─── 탭 로딩 ───
 function loadTab(key) {
-  const loaders = { profile: loadProfile, points: loadPoints, messages: loadMessages, posts: loadPosts, market: loadMyMarket, jobs: loadMyJobs, realestate: loadMyRealEstate, ads: loadMyAds, calls: loadCallHistory, bookmarks: loadBookmarks, elder: loadElder, payments: loadPayments, mybiz: loadMyBiz, resume: loadResume }
+  const loaders = { profile: loadProfile, points: loadPoints, entries: loadEntries, messages: loadMessages, posts: loadPosts, market: loadMyMarket, jobs: loadMyJobs, realestate: loadMyRealEstate, ads: loadMyAds, calls: loadCallHistory, bookmarks: loadBookmarks, elder: loadElder, payments: loadPayments, mybiz: loadMyBiz, resume: loadResume }
   if (loaders[key]) loaders[key]()
 }
 

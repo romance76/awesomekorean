@@ -148,7 +148,7 @@ const routes = [
   { path: '/notifications', name: 'notifications', component: p('Notifications'), meta: { auth: true } },
   { path: '/points', name: 'points', component: p('points/PointDashboard'), meta: { auth: true } },
   { path: '/points/rules', component: p('PointRules') },
-  { path: '/entries', name: 'entries', component: p('points/EntryDashboard'), meta: { auth: true } },
+  { path: '/entries', redirect: '/dashboard?tab=entries' },  // 마이페이지 대시보드 탭으로 통합
   { path: '/sweepstakes', name: 'sweepstakes', component: p('sweepstakes/SweepstakesList') },
   { path: '/sweepstakes/:id', name: 'sweepstakes-detail', component: p('sweepstakes/SweepstakesDetail') },
   { path: '/search', name: 'search', component: p('Search') },
