@@ -20,7 +20,8 @@
 
       <div>
         <label class="input-label">제목 *</label>
-        <input v-model="form.title" type="text" placeholder="예: 한인 문화 축제" class="input-soft px-3" />
+        <input v-model="form.title" type="text" placeholder="예: 한인 문화 축제" class="input-soft px-3" :class="errClass('title')" />
+        <p v-if="fieldErrors.title" class="text-xs text-red-500 mt-1">{{ fieldErrors.title }}</p>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
@@ -39,11 +40,13 @@
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="input-label">시작일시 *</label>
-          <input v-model="form.start_date" type="datetime-local" class="input-soft px-3" />
+          <input v-model="form.start_date" type="datetime-local" class="input-soft px-3" :class="errClass('start_date')" />
+          <p v-if="fieldErrors.start_date" class="text-xs text-red-500 mt-1">{{ fieldErrors.start_date }}</p>
         </div>
         <div>
           <label class="input-label">종료일시</label>
-          <input v-model="form.end_date" type="datetime-local" class="input-soft px-3" />
+          <input v-model="form.end_date" type="datetime-local" class="input-soft px-3" :class="errClass('end_date')" />
+          <p v-if="fieldErrors.end_date" class="text-xs text-red-500 mt-1">{{ fieldErrors.end_date }}</p>
         </div>
       </div>
 
@@ -69,24 +72,28 @@
         </div>
         <div>
           <label class="input-label">가격 ($)</label>
-          <input v-model.number="form.price" type="number" min="0" placeholder="0 = 무료" class="input-soft px-3" />
+          <input v-model.number="form.price" type="number" min="0" placeholder="0 = 무료" class="input-soft px-3" :class="errClass('price')" />
+          <p v-if="fieldErrors.price" class="text-xs text-red-500 mt-1">{{ fieldErrors.price }}</p>
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="input-label">최대 참가자 (0=무제한)</label>
-          <input v-model.number="form.max_attendees" type="number" min="0" class="input-soft px-3" />
+          <input v-model.number="form.max_attendees" type="number" min="0" class="input-soft px-3" :class="errClass('max_attendees')" />
+          <p v-if="fieldErrors.max_attendees" class="text-xs text-red-500 mt-1">{{ fieldErrors.max_attendees }}</p>
         </div>
         <div>
           <label class="input-label">관련 URL</label>
-          <input v-model="form.url" type="url" placeholder="https://..." class="input-soft px-3" />
+          <input v-model="form.url" type="url" placeholder="https://..." class="input-soft px-3" :class="errClass('url')" />
+          <p v-if="fieldErrors.url" class="text-xs text-red-500 mt-1">{{ fieldErrors.url }}</p>
         </div>
       </div>
 
       <div v-if="!isSweepstakes">
         <label class="input-label">완료 인증 보상 포인트 (선택)</label>
-        <input v-model.number="form.reward_points" type="number" min="0" placeholder="0 = 보상 없음" class="input-soft px-3" />
+        <input v-model.number="form.reward_points" type="number" min="0" placeholder="0 = 보상 없음" class="input-soft px-3" :class="errClass('reward_points')" />
+        <p v-if="fieldErrors.reward_points" class="text-xs text-red-500 mt-1">{{ fieldErrors.reward_points }}</p>
         <p class="text-[11px] text-ink-faint mt-1">0보다 크면 참가자가 완료 인증 파일을 제출할 수 있고, 관리자 확인 후 이 포인트가 지급됩니다.</p>
       </div>
 
@@ -96,30 +103,36 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="input-label">경품명 *</label>
-            <input v-model="sw.prize_name" type="text" placeholder="예: $100 기프트카드" class="input-soft px-3" />
+            <input v-model="sw.prize_name" type="text" placeholder="예: $100 기프트카드" class="input-soft px-3" :class="errClass('prize_name')" />
+            <p v-if="fieldErrors.prize_name" class="text-xs text-red-500 mt-1">{{ fieldErrors.prize_name }}</p>
           </div>
           <div>
             <label class="input-label">경품 가치 ($)</label>
-            <input v-model.number="sw.prize_value" type="number" min="0" step="0.01" class="input-soft px-3" />
+            <input v-model.number="sw.prize_value" type="number" min="0" step="0.01" class="input-soft px-3" :class="errClass('prize_value')" />
+            <p v-if="fieldErrors.prize_value" class="text-xs text-red-500 mt-1">{{ fieldErrors.prize_value }}</p>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="input-label">최소 연령</label>
-            <input v-model.number="sw.minimum_age" type="number" min="0" class="input-soft px-3" />
+            <input v-model.number="sw.minimum_age" type="number" min="0" class="input-soft px-3" :class="errClass('minimum_age')" />
+            <p v-if="fieldErrors.minimum_age" class="text-xs text-red-500 mt-1">{{ fieldErrors.minimum_age }}</p>
           </div>
           <div>
             <label class="input-label">참가 가능 지역 (State, 쉼표구분, 비우면 전체)</label>
-            <input v-model="swRegionsInput" placeholder="예: GA,FL,NC" class="input-soft px-3" />
+            <input v-model="swRegionsInput" placeholder="예: GA,FL,NC" class="input-soft px-3" :class="errClass('eligible_regions')" />
+            <p v-if="fieldErrors.eligible_regions" class="text-xs text-red-500 mt-1">{{ fieldErrors.eligible_regions }}</p>
           </div>
         </div>
         <div>
           <label class="input-label">공식 규정 URL</label>
-          <input v-model="sw.official_rules_url" type="url" placeholder="https://..." class="input-soft px-3" />
+          <input v-model="sw.official_rules_url" type="url" placeholder="https://..." class="input-soft px-3" :class="errClass('official_rules_url')" />
+          <p v-if="fieldErrors.official_rules_url" class="text-xs text-red-500 mt-1">{{ fieldErrors.official_rules_url }}</p>
         </div>
         <div>
           <label class="input-label">무구매 조건 안내문</label>
-          <textarea v-model="sw.no_purchase_required_text" rows="2" placeholder="예: 구매 없이도 참가할 수 있습니다..." class="input-soft px-3"></textarea>
+          <textarea v-model="sw.no_purchase_required_text" rows="2" placeholder="예: 구매 없이도 참가할 수 있습니다..." class="input-soft px-3" :class="errClass('no_purchase_required_text')"></textarea>
+          <p v-if="fieldErrors.no_purchase_required_text" class="text-xs text-red-500 mt-1">{{ fieldErrors.no_purchase_required_text }}</p>
         </div>
       </div>
 
@@ -127,7 +140,7 @@
       <div>
         <label class="input-label">이벤트 이미지</label>
         <div class="mt-1 flex items-center gap-3">
-          <div v-if="!previewImg" class="w-24 h-24 rounded-xl bg-[#F4F6F8] text-ink-muted flex flex-col items-center justify-center flex-shrink-0">
+          <div v-if="!previewImg" class="w-24 h-24 rounded-xl flex flex-col items-center justify-center flex-shrink-0" :class="fieldErrors.image ? 'bg-red-50 text-red-400 ring-1 ring-red-300' : 'bg-[#F4F6F8] text-ink-muted'">
             <AppIcon name="camera" :size="24" :stroke-width="1.5" />
           </div>
           <img v-if="previewImg" :src="previewImg" class="w-24 h-24 rounded-xl object-cover border border-gray-100" />
@@ -136,6 +149,7 @@
             <input type="file" accept="image/*" @change="onImage" class="hidden" />
           </label>
         </div>
+        <p v-if="fieldErrors.image" class="text-xs text-red-500 mt-1">{{ fieldErrors.image }}</p>
       </div>
 
       <div>
@@ -143,7 +157,10 @@
         <textarea v-model="form.content" rows="8" placeholder="이벤트 상세 내용을 작성해주세요" class="input-soft px-3"></textarea>
       </div>
 
-      <div v-if="error" class="text-red-500 text-sm bg-red-50 rounded-xl px-3 py-2">{{ error }}</div>
+      <div v-if="error" class="text-red-500 text-sm bg-red-50 rounded-xl px-3 py-2">
+        {{ error }}
+        <span v-if="Object.keys(fieldErrors).length">— 빨간색으로 표시된 입력칸을 확인해주세요.</span>
+      </div>
 
       <div class="flex gap-3 pt-2">
         <button @click="submit" :disabled="submitting"
@@ -158,7 +175,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
@@ -196,6 +213,11 @@ const imageFile = ref(null)
 const previewImg = ref(null)
 const error = ref('')
 const submitting = ref(false)
+const fieldErrors = reactive({})
+
+function errClass(field) {
+  return fieldErrors[field] ? '!border-red-400 !ring-1 !ring-red-300' : ''
+}
 
 function onImage(e) {
   const file = e.target.files[0]
@@ -205,12 +227,16 @@ function onImage(e) {
 }
 
 async function submit() {
+  Object.keys(fieldErrors).forEach(k => delete fieldErrors[k])
   if (!form.title || !form.start_date) { error.value = '제목과 시작일을 입력해주세요'; return }
   if (isSweepstakes.value && !sw.prize_name) { error.value = '경품명을 입력해주세요'; return }
   submitting.value = true; error.value = ''
 
   const fd = new FormData()
-  Object.entries(form).forEach(([k, v]) => { if (v !== '' && v !== null) fd.append(k, v) })
+  Object.entries(form).forEach(([k, v]) => {
+    if (k === 'max_attendees' && !v) return // 0/빈값 = 무제한, 보내지 않음
+    if (v !== '' && v !== null) fd.append(k, v)
+  })
   if (form.price == 0) fd.set('is_free', '1')
   if (imageFile.value) fd.append('image', imageFile.value)
 
@@ -236,6 +262,14 @@ async function submit() {
     }
   } catch (e) {
     error.value = e.response?.data?.message || '저장 실패'
+    const errors = e.response?.data?.errors
+    if (errors) {
+      for (const [field, msgs] of Object.entries(errors)) {
+        fieldErrors[field] = Array.isArray(msgs) ? msgs[0] : msgs
+      }
+      await nextTick()
+      document.querySelector('.border-red-400, .ring-red-300')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
   }
   submitting.value = false
 }
