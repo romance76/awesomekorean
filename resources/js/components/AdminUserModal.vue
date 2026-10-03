@@ -41,7 +41,7 @@
       </div>
 
       <!-- 탭 -->
-      <div class="px-5 pt-3 flex gap-1 border-b border-gray-100 overflow-x-auto">
+      <div class="px-5 pt-3 flex flex-wrap gap-1 border-b border-gray-100">
         <button v-for="t in tabs" :key="t.key" @click="tab=t.key"
           class="flex items-center gap-1 px-3 py-2 text-xs font-medium border-b-2 -mb-px whitespace-nowrap transition-colors"
           :class="tab===t.key?'border-amber-500 text-amber-700':'border-transparent text-ink-muted hover:text-ink'">
