@@ -13,10 +13,14 @@
     <div v-if="loading" class="py-12 text-center text-ink-muted">로딩중...</div>
     <div v-else-if="data" class="flex-1 overflow-hidden flex flex-col">
       <!-- 요약 카드 -->
-      <div class="px-5 pt-3 grid grid-cols-5 gap-2">
+      <div class="px-5 pt-3 grid grid-cols-6 gap-2">
         <div class="bg-blue-50 rounded-xl p-2 text-center">
           <div class="text-xs text-ink-muted">포인트</div>
           <div class="font-bold text-blue-700">{{ Number(data.user.points||0).toLocaleString() }}P</div>
+        </div>
+        <div class="bg-amber-50 rounded-xl p-2 text-center">
+          <div class="text-xs text-ink-muted">Entry</div>
+          <div class="font-bold text-amber-700">🎟 {{ Number(data.user.entries||0).toLocaleString() }}</div>
         </div>
         <div class="bg-green-50 rounded-xl p-2 text-center">
           <div class="text-xs text-ink-muted">결제 누적</div>
@@ -109,6 +113,36 @@
           </table>
         </div>
 
+        <!-- Entry (Sweepstakes 응모권 — Point와 완전 별도 시스템) -->
+        <div v-if="tab==='entries'">
+          <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-3 flex flex-wrap items-end gap-3">
+            <div>
+              <label class="text-xs text-ink-muted block mb-1">증감 (음수 가능)</label>
+              <input v-model.number="entryAdjustForm.amount" type="number" class="input-soft !w-28 !py-1.5 text-sm" />
+            </div>
+            <div class="flex-1 min-w-[200px]">
+              <label class="text-xs text-ink-muted block mb-1">사유</label>
+              <input v-model="entryAdjustForm.description" type="text" class="input-soft w-full !py-1.5 text-sm" placeholder="예: 이벤트 보상, 테스트용" />
+            </div>
+            <button @click="adjustEntries" :disabled="entryAdjusting" class="btn-primary !px-5 !py-2 text-sm">{{ entryAdjusting ? '처리중...' : '지급/차감' }}</button>
+          </div>
+          <div v-if="entryAdjustMsg" class="text-sm mb-3" :class="entryAdjustOk?'text-green-600':'text-red-500'">{{ entryAdjustMsg }}</div>
+
+          <div v-if="!data.entries?.length" class="py-6 text-center text-ink-muted text-sm">Entry 내역 없음</div>
+          <table v-else class="w-full text-xs">
+            <thead class="bg-gray-50 text-ink-light"><tr><th class="p-2 text-left">날짜</th><th class="p-2 text-left">사유</th><th class="p-2">타입</th><th class="p-2">증감</th><th class="p-2">잔액</th></tr></thead>
+            <tbody>
+              <tr v-for="et in data.entries" :key="et.id" class="border-t border-gray-50">
+                <td class="p-2 text-ink-muted">{{ et.created_at?.slice(0,16).replace('T',' ') }}</td>
+                <td class="p-2">{{ et.description }}</td>
+                <td class="p-2 text-[11px] text-ink-muted">{{ et.transaction_type }}</td>
+                <td class="p-2 text-right font-bold" :class="et.amount>0?'text-green-600':'text-red-600'">{{ et.amount>0?'+':'' }}{{ et.amount }}</td>
+                <td class="p-2 text-right text-ink-light">🎟 {{ et.balance_after }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <!-- 커뮤니티 -->
         <div v-if="tab==='posts'">
           <PostTable :items="data.posts" icon="💬" empty="커뮤니티 게시글 없음" />
@@ -179,11 +213,16 @@ const props = defineProps({ show: Boolean, userId: [Number, String] })
 defineEmits(['close'])
 
 const data = ref(null); const loading = ref(false); const tab = ref('info')
+const entryAdjustForm = ref({ amount: '', description: '' })
+const entryAdjusting = ref(false)
+const entryAdjustMsg = ref('')
+const entryAdjustOk = ref(false)
 
 const tabs = [
   { key:'info',       icon:'list',           label:'기본정보' },
   { key:'payments',   icon:'wallet',         label:'결제' },
   { key:'points',     icon:'coins',          label:'포인트' },
+  { key:'entries',    icon:'ticket',         label:'Entry' },
   { key:'posts',      icon:'message-circle', label:'커뮤니티' },
   { key:'comments',   icon:'message-square', label:'댓글' },
   { key:'market',     icon:'shopping-cart',  label:'장터' },
@@ -198,7 +237,7 @@ const tabs = [
 
 function count(key) {
   if (!data.value) return 0
-  const map = { payments:'payments', points:'points', posts:'posts', comments:'comments',
+  const map = { payments:'payments', points:'points', entries:'entries', posts:'posts', comments:'comments',
     market:'market', jobs:'jobs', realestate:'realestate', events:'events',
     clubs:'clubs', qa:'qa', banners:'banners', reports:'reports_filed' }
   return data.value[map[key]]?.length || 0
@@ -252,6 +291,26 @@ watch(() => props.userId, async (id) => {
   try { const { data: res } = await axios.get(`/api/admin/users/${id}/detail`); data.value = res.data } catch {}
   loading.value = false
 }, { immediate: true })
+
+async function adjustEntries() {
+  if (!data.value?.user || !entryAdjustForm.value.amount) return
+  entryAdjusting.value = true; entryAdjustMsg.value = ''
+  try {
+    const { data: res } = await axios.post('/api/admin/entries/adjust', {
+      user_id: data.value.user.id,
+      amount: entryAdjustForm.value.amount,
+      description: entryAdjustForm.value.description || '관리자 조정',
+    })
+    data.value.user.entries = res.data?.balance_after ?? data.value.user.entries
+    entryAdjustMsg.value = '처리되었습니다'; entryAdjustOk.value = true
+    entryAdjustForm.value = { amount: '', description: '' }
+    const { data: fresh } = await axios.get(`/api/admin/users/${data.value.user.id}/detail`)
+    if (fresh.data) data.value.entries = fresh.data.entries
+  } catch (e) {
+    entryAdjustMsg.value = e.response?.data?.message || '처리 실패'; entryAdjustOk.value = false
+  }
+  entryAdjusting.value = false
+}
 
 async function saveUser() {
   if (!data.value?.user) return

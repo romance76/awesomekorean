@@ -264,6 +264,7 @@ class AdminController extends Controller
         $posts = Post::where('user_id',$id)->orderByDesc('created_at')->limit(20)->get();
         $payments = Payment::where('user_id',$id)->orderByDesc('created_at')->limit(20)->get();
         $points = \App\Models\PointLog::where('user_id',$id)->orderByDesc('created_at')->limit(30)->get();
+        $entries = \App\Models\EntryTransaction::where('user_id',$id)->orderByDesc('created_at')->limit(30)->get();
         $comments = \App\Models\Comment::where('user_id',$id)->orderByDesc('created_at')->limit(20)->get();
         $jobs = JobPost::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
         $market = MarketItem::where('user_id',$id)->orderByDesc('created_at')->limit(10)->get();
@@ -286,7 +287,7 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>[
             'user'=>$user, 'summary'=>$summary,
             'posts'=>$posts, 'payments'=>$payments,
-            'points'=>$points, 'comments'=>$comments,
+            'points'=>$points, 'entries'=>$entries, 'comments'=>$comments,
             'jobs'=>$jobs, 'market'=>$market,
             'realestate'=>$realestate, 'clubs'=>$clubs,
             'events'=>$events, 'qa'=>$qa,
