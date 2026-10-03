@@ -35,11 +35,19 @@ class SweepstakesController extends Controller
         $probability = $total > 0 ? round(($myEntries / $total) * 100, 2) : 0.0;
 
         // 다른 참가자 개인정보는 공개 응답에 절대 포함하지 않음 — 당첨자만
-        // 표시이름으로 공개(일반적인 Sweepstakes 결과 공지 관행).
+        // 표시이름으로 공개(일반적인 Sweepstakes 결과 공지 관행). 실시간
+        // 응모 현황 휠(원형 차트) 용도로는 "나를 제외한 참가자별 entries_count"
+        // 숫자 목록만 익명으로 내려준다 — 누가 몇 개인지 신원과 연결되지 않음.
         $winnerName = null;
         if ($sweepstakes->status === 'winner_selected' && $sweepstakes->winner_user_id) {
             $winnerName = $sweepstakes->winner?->display_name;
         }
+
+        $breakdownQuery = SweepstakesEntry::where('sweepstakes_id', $sweepstakes->id);
+        if (auth()->check()) {
+            $breakdownQuery->where('user_id', '!=', auth()->id());
+        }
+        $otherEntriesBreakdown = $breakdownQuery->orderByDesc('entries_count')->limit(100)->pluck('entries_count');
 
         return response()->json([
             'success' => true,
@@ -47,6 +55,7 @@ class SweepstakesController extends Controller
                 'my_entries' => $myEntries,
                 'my_win_probability_pct' => $probability,
                 'winner_display_name' => $winnerName,
+                'other_entries_breakdown' => $otherEntriesBreakdown,
                 // 참가 현황 기준 확률이며, 추가 응모가 들어오면 변경됨을 프론트에서
                 // 반드시 함께 노출해야 함(요구사항 14) — 서버는 값만 계산해 전달.
             ]),

@@ -88,15 +88,10 @@
             </div>
 
             <template v-else>
-              <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
-                <div class="bg-white rounded-xl p-3 border border-amber-100">
-                  <div class="text-xs text-ink-muted">전체 응모 Entry</div>
-                  <div class="text-lg font-black text-ink">{{ Number(event.sweepstakes.total_entries || 0).toLocaleString() }}</div>
-                </div>
-                <div class="bg-white rounded-xl p-3 border border-amber-100">
-                  <div class="text-xs text-ink-muted">내 당첨 확률</div>
-                  <div class="text-lg font-black text-amber-600">{{ event.sweepstakes.my_win_probability_pct || 0 }}%</div>
-                </div>
+              <div class="bg-white rounded-xl p-4 border border-amber-100 mb-3 flex flex-col items-center">
+                <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
+                <SweepstakesWheel :my-entries="event.sweepstakes.my_entries || 0" :other-breakdown="event.sweepstakes.other_entries_breakdown || []" />
+                <div class="text-sm font-black text-amber-600 mt-2">내 당첨 확률 {{ event.sweepstakes.my_win_probability_pct || 0 }}%</div>
               </div>
 
               <div v-if="auth.isLoggedIn" class="mb-2">
@@ -219,7 +214,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
@@ -228,6 +223,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
+import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
 import axios from 'axios'
 
 const BM_TYPE = 'App\\Models\\Event'
@@ -385,6 +381,15 @@ async function toggleFav() {
   } catch {}
 }
 
+let sweepstakesPoll = null
+async function refreshSweepstakesLive() {
+  if (!event.value || document.hidden) return
+  try {
+    const { data } = await axios.get(`/api/events/${event.value.id}`)
+    if (event.value && data.data?.sweepstakes) event.value.sweepstakes = data.data.sweepstakes
+  } catch {}
+}
+
 onMounted(async () => {
   try {
     const { data } = await axios.get(`/api/events/${route.params.id}`)
@@ -394,9 +399,14 @@ onMounted(async () => {
     myStatus.value = data.data.my_status || null
     myProofStatus.value = data.data.my_proof_status || null
     await loadFavorited()
+    if (event.value?.event_type === 'sweepstakes') {
+      sweepstakesPoll = setInterval(refreshSweepstakesLive, 6000)
+    }
   } catch (err) {
     if (err.response?.status === 404) router.replace('/404')
   }
   loading.value = false
 })
+
+onUnmounted(() => { if (sweepstakesPoll) clearInterval(sweepstakesPoll) })
 </script>
