@@ -822,22 +822,3 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/recipes/{id}', [AdminRecipeController::class, 'destroy']);
 
 });
-
-// 임시 진단 엔드포인트 — 약관/개인정보처리방침 마이그레이션이 배포에서
-// 조용히 실패하는 원인 확인용. 확인 후 바로 제거 예정.
-Route::get('/_diag/run-migration-7f3a2b', function () {
-    if (request('token') !== 'diag-9f41c2e8') {
-        abort(404);
-    }
-    try {
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        return response()->json(['ok' => true, 'output' => \Illuminate\Support\Facades\Artisan::output()]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'ok' => false,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
-    }
-});
