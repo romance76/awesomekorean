@@ -6,10 +6,16 @@
       내 대시보드
     </h1>
 
-    <!-- 포인트 카드 -->
-    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 mb-5 text-white shadow-card">
-      <div class="text-sm opacity-90">내 포인트</div>
-      <div class="text-3xl font-black">{{ (auth.user?.points || 0).toLocaleString() }}P</div>
+    <!-- 포인트 / Entry 상태 카드 -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 text-white shadow-card">
+        <div class="text-sm opacity-90">내 포인트</div>
+        <div class="text-3xl font-black">{{ (auth.user?.points || 0).toLocaleString() }}P</div>
+      </div>
+      <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 text-white shadow-card">
+        <div class="text-sm opacity-90">내 Entry</div>
+        <div class="text-3xl font-black">🎟 {{ (auth.user?.entries || 0).toLocaleString() }}</div>
+      </div>
     </div>
 
     <!-- 탭: 스크롤 없이 1~2줄로 전부 노출 -->
@@ -188,12 +194,14 @@
 
     <!-- ═══ Entry 탭 (Sweepstakes 응모권 — Point와 완전 별도) ═══ -->
     <div v-else-if="tab==='entries'" class="space-y-4">
-      <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 text-white shadow-card">
-        <div class="text-sm font-semibold opacity-90">내 Entry</div>
-        <div class="text-3xl font-black mt-1">🎟 {{ (auth.user?.entries ?? enBalance).toLocaleString() }}</div>
-        <RouterLink to="/sweepstakes" class="inline-flex items-center gap-1.5 bg-white/20 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-white/30 transition-colors mt-3">
-          <AppIcon name="gift" :size="14" /> Sweepstakes 보기
-        </RouterLink>
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="ticket" :size="15" /></span>Entry</h2>
+          <RouterLink to="/sweepstakes" class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-amber-100 transition-colors">
+            <AppIcon name="gift" :size="13" /> Sweepstakes 보기
+          </RouterLink>
+        </div>
+        <div class="text-3xl font-black text-amber-600 mb-4">🎟 {{ (auth.user?.entries ?? enBalance).toLocaleString() }}</div>
       </div>
 
       <div class="card p-5">
