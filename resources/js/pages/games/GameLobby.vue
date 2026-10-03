@@ -16,9 +16,10 @@
             <AppIcon name="coins" :size="16" />
             <span class="text-base tracking-tight">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-xs">P</span></span>
           </div>
-          <button @click="onSpinClick" :class="['lobby-spin-btn', spunToday ? 'is-done' : '']">
-            <AppIcon name="sparkles" :size="14" /> {{ spunToday ? '오늘 완료' : '일일 룰렛' }}
-          </button>
+          <RouterLink to="/entries" class="lobby-points-badge">
+            <AppIcon name="ticket" :size="16" />
+            <span class="text-base tracking-tight">{{ auth.user?.entries || 0 }}<span class="text-xs">🎟</span></span>
+          </RouterLink>
         </template>
       </div>
     </div>
@@ -29,8 +30,6 @@
         {{ cat.icon }} {{ cat.label }}
       </a>
     </div>
-
-    <DailySpinModal :show="showSpin" @close="showSpin=false" @earned="onSpinEarned" />
 
     <div v-if="loading" class="text-center py-16 text-sm text-ink-muted">로딩중...</div>
 
@@ -63,15 +62,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
-import { useSiteStore } from '../../stores/site'
 import { useLangStore } from '../../stores/lang'
-import DailySpinModal from '../../components/DailySpinModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import GameCard from '../../components/GameCard.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()
-const siteStore = useSiteStore()
 const langStore = useLangStore()
 
 function displayName(game) {
@@ -82,31 +78,6 @@ function displayDescription(game) {
 }
 const allGames = ref([])
 const loading = ref(true)
-const showSpin = ref(false)
-const spunToday = ref(false)
-
-function onSpinClick() {
-  if (!auth.isLoggedIn) return
-  if (spunToday.value) {
-    siteStore.toast('오늘은 이미 룰렛을 돌렸습니다 🌙', 'info')
-    return
-  }
-  showSpin.value = true
-}
-
-function onSpinEarned({ points }) {
-  spunToday.value = true
-  if (points > 0) auth.user.points = (auth.user.points || 0) + points
-}
-
-async function checkSpinStatus() {
-  if (!auth.isLoggedIn) return
-  try {
-    const { data } = await axios.get('/api/points/balance')
-    spunToday.value = !!data.daily_spin_done
-    if (typeof data.data?.points === 'number') auth.user.points = data.data.points
-  } catch {}
-}
 
 const categories = [
   { key: 'card', icon: '🃏', label: '카드' },
@@ -129,7 +100,6 @@ const gamesByCategory = computed(() => {
 })
 
 onMounted(async () => {
-  checkSpinStatus()
   try {
     const { data } = await axios.get('/api/games')
     allGames.value = (data.data || []).map(g => ({

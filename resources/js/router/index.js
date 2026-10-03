@@ -148,6 +148,9 @@ const routes = [
   { path: '/notifications', name: 'notifications', component: p('Notifications'), meta: { auth: true } },
   { path: '/points', name: 'points', component: p('points/PointDashboard'), meta: { auth: true } },
   { path: '/points/rules', component: p('PointRules') },
+  { path: '/entries', name: 'entries', component: p('points/EntryDashboard'), meta: { auth: true } },
+  { path: '/sweepstakes', name: 'sweepstakes', component: p('sweepstakes/SweepstakesList') },
+  { path: '/sweepstakes/:id', name: 'sweepstakes-detail', component: p('sweepstakes/SweepstakesDetail') },
   { path: '/search', name: 'search', component: p('Search') },
   { path: '/about', name: 'about', component: p('static/About') },
   { path: '/terms', name: 'terms', component: p('static/Terms') },
@@ -203,6 +206,8 @@ const routes = [
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'settings', component: p('admin/SiteSettings') },
       { path: 'point-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
+      { path: 'entry-settings', component: p('admin/AdminEntrySettings') },
+      { path: 'sweepstakes', component: p('admin/AdminSweepstakes') },
       { path: 'system', component: p('admin/System') },
     ]
   },

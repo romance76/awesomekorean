@@ -72,7 +72,10 @@
               <div class="px-4 py-2.5 border-b border-gray-50">
                 <div class="text-sm font-bold text-ink truncate">{{ auth.user?.name }}</div>
                 <div class="text-xs text-ink-faint truncate">{{ auth.user?.email }}</div>
-                <div class="text-xs text-amber-600 font-bold mt-1 flex items-center gap-1"><AppIcon name="coins" :size="13" />{{ auth.user?.points || 0 }}P</div>
+                <div class="flex items-center gap-3 mt-1">
+                  <RouterLink to="/points" class="text-xs text-amber-600 font-bold flex items-center gap-1"><AppIcon name="coins" :size="13" />{{ auth.user?.points || 0 }}P</RouterLink>
+                  <RouterLink to="/entries" class="text-xs text-violet-600 font-bold flex items-center gap-1"><AppIcon name="ticket" :size="13" />{{ auth.user?.entries || 0 }}</RouterLink>
+                </div>
               </div>
               <RouterLink to="/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors"><AppIcon name="user" :size="16" class="text-ink-muted" />마이페이지</RouterLink>
               <RouterLink to="/dashboard?tab=messages" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors"><AppIcon name="mail" :size="16" class="text-ink-muted" />쪽지</RouterLink>

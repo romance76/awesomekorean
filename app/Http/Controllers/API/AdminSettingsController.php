@@ -400,6 +400,25 @@ class AdminSettingsController extends Controller
         return response()->json(['success' => true, 'message' => '포인트 설정이 저장되었습니다.']);
     }
 
+    // Entry 설정 — point_settings와 완전히 분리된 entry_settings 테이블
+    public function getEntrySettings() {
+        $settings = \DB::table('entry_settings')->orderBy('id')->get();
+        return response()->json(['success' => true, 'data' => $settings]);
+    }
+
+    public function saveEntrySettings(Request $request) {
+        $items = $request->input('settings', []);
+        foreach ($items as $item) {
+            if (!isset($item['key'], $item['value'])) continue;
+            \DB::table('entry_settings')->where('key', $item['key'])->update([
+                'value' => $item['value'],
+                'updated_at' => now(),
+            ]);
+        }
+        \App\Support\EntrySettings::flush();
+        return response()->json(['success' => true, 'message' => 'Entry 설정이 저장되었습니다.']);
+    }
+
     // 관리자 "시스템" 페이지 캐시 초기화 — 버튼만 있고 실제로는 아무 동작도
     // 하지 않던 장식용 UI였던 것을 라이브 재감사로 발견해 실제 동작하도록 연결.
     public function clearCache() {
