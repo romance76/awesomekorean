@@ -249,7 +249,7 @@ const selectingWinner = ref(false)
 const isPast = computed(() => event.value?.start_date && new Date(event.value.start_date) < new Date())
 const isSweepstakesOpen = computed(() => event.value?.sweepstakes?.status === 'active')
 const canSelectWinner = computed(() => {
-  if (!event.value?.sweepstakes || !['admin', 'super_admin'].includes(auth.user?.role)) return false
+  if (!event.value?.sweepstakes || auth.user?.role !== 'super_admin') return false
   return event.value.sweepstakes.status !== 'winner_selected'
 })
 
@@ -266,6 +266,7 @@ function scrollToComments() {
 }
 const canEdit = computed(() => {
   if (!event.value || !auth.user) return false
+  if (event.value.event_type === 'sweepstakes') return auth.user.role === 'super_admin'
   return event.value.user_id === auth.user.id || ['admin','super_admin'].includes(auth.user.role)
 })
 
