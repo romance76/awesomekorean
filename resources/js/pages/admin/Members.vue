@@ -83,7 +83,7 @@
         </div>
 
         <!-- 서브메뉴 탭 -->
-        <div class="flex border-b border-gray-100 overflow-x-auto">
+        <div class="flex flex-wrap border-b border-gray-100">
           <button v-for="t in userTabs" :key="t.key" @click="userTab=t.key"
             class="flex items-center gap-1 px-3.5 py-2.5 text-xs font-semibold border-b-2 -mb-px transition-colors whitespace-nowrap"
             :class="userTab===t.key?'border-amber-500 text-amber-700':'border-transparent text-ink-muted hover:text-ink-light'">
@@ -218,6 +218,28 @@
               <span class="text-ink-muted">{{ pt.created_at?.slice(0,10) }}</span>
               <span class="text-ink-light">{{ pt.reason }}</span>
               <span :class="pt.amount>0?'text-green-600':'text-red-600'" class="font-bold">{{ pt.amount>0?'+':'' }}{{ pt.amount }}P</span>
+            </div>
+          </div>
+
+          <!-- Entry -->
+          <div v-show="userTab==='entries'" class="p-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="bg-amber-50 rounded-xl px-4 py-2">
+                <div class="text-xl font-black text-amber-600">🎟 {{ Number(userData.user.entries||0).toLocaleString() }}</div>
+                <div class="text-[11px] text-ink-muted">보유 Entry</div>
+              </div>
+              <div class="flex gap-2 ml-auto">
+                <input v-model.number="addEntries" type="number" placeholder="수량" class="input-soft w-20 px-2 py-1.5" />
+                <input v-model="entryDesc" type="text" placeholder="사유" class="input-soft w-32 px-2 py-1.5" />
+                <button @click="giveEntries" :disabled="givingEntries" class="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 transition-colors disabled:opacity-50">지급/차감</button>
+              </div>
+            </div>
+            <div v-if="entryMsg" class="text-xs mb-2" :class="entryOk?'text-green-600':'text-red-500'">{{ entryMsg }}</div>
+            <div v-if="!userData.entries?.length" class="py-4 text-center text-ink-muted text-sm">Entry 내역 없음</div>
+            <div v-for="et in userData.entries" :key="et.id" class="py-2 border-b border-gray-50 flex justify-between text-xs">
+              <span class="text-ink-muted">{{ et.created_at?.slice(0,10) }}</span>
+              <span class="text-ink-light">{{ et.description }}</span>
+              <span :class="et.amount>0?'text-green-600':'text-red-600'" class="font-bold">{{ et.amount>0?'+':'' }}{{ et.amount }} (잔액 {{ et.balance_after }})</span>
             </div>
           </div>
 
@@ -458,6 +480,8 @@ const page = ref(1); const lastPage = ref(1); const totalUsers = ref(0)
 
 const activeUser = ref(null); const userData = ref(null); const userLoading = ref(false)
 const userTab = ref('summary'); const banReason = ref(''); const addPoints = ref(0)
+const addEntries = ref(0); const entryDesc = ref(''); const givingEntries = ref(false)
+const entryMsg = ref(''); const entryOk = ref(false)
 const friendRequestVal = ref('true')
 const newPassword = ref(''); const tempPassword = ref('')
 
@@ -492,6 +516,7 @@ const userTabs = [
   { key: 'summary', icon: 'chart-bar', label: '요약' },
   { key: 'info', icon: 'user', label: '정보' },
   { key: 'points', icon: 'coins', label: '포인트' },
+  { key: 'entries', icon: 'ticket', label: 'Entry' },
   { key: 'payments', icon: 'wallet', label: '결제' },
   { key: 'content', icon: 'edit', label: '콘텐츠' },
   { key: 'ads', icon: 'megaphone', label: '광고' },
@@ -603,6 +628,28 @@ async function givePoints() {
     addPoints.value = 0
     alert('포인트 지급!')
   } catch {}
+}
+
+async function giveEntries() {
+  if (!addEntries.value || !userData.value?.user) return
+  givingEntries.value = true; entryMsg.value = ''
+  try {
+    const { data } = await axios.post('/api/admin/entries/adjust', {
+      user_id: userData.value.user.id,
+      amount: addEntries.value,
+      description: entryDesc.value || '관리자 조정',
+    })
+    userData.value.user.entries = data.data?.balance_after ?? userData.value.user.entries
+    const u = users.value.find(x => x.id === userData.value.user.id)
+    if (u) u.entries = userData.value.user.entries
+    addEntries.value = 0; entryDesc.value = ''
+    entryMsg.value = '처리되었습니다'; entryOk.value = true
+    const { data: fresh } = await axios.get(`/api/admin/users/${userData.value.user.id}/detail`)
+    userData.value = fresh.data
+  } catch (e) {
+    entryMsg.value = e.response?.data?.message || '처리 실패'; entryOk.value = false
+  }
+  givingEntries.value = false
 }
 
 async function banCurrentUser() {
