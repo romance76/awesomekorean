@@ -189,7 +189,7 @@
   </div>
 
   <!-- ═════ 3. 오늘의 커뮤니티 (에디토리얼) + 인기 게시판 ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-9 lg:pt-11 grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6">
     <div>
       <div class="flex items-baseline gap-2.5 mb-4">
         <h2 class="text-[19px] lg:text-xl font-extrabold tracking-[-0.03em] text-ink">오늘의 커뮤니티</h2>
@@ -261,14 +261,14 @@
   </section>
 
   <!-- ═════ 5. 광고 슬롯 (기존 유지) ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-5 lg:pt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="lg:col-span-2"><AdSlot page="home" position="left" :maxSlots="3" /></div>
     <div><AdSlot page="home" position="right" :maxSlots="2" /></div>
     <div class="lg:hidden"><MobileBanner page="home" /></div>
   </section>
 
   <!-- ═════ 6. 가입 CTA (나이트) + 즐겨찾기 퀵링크 ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-9 lg:pt-11 pb-14">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 pb-14">
     <div v-if="!auth.isLoggedIn" class="bg-night rounded-card px-7 py-8 lg:px-12 lg:py-11 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
       <div>
         <h2 class="text-[21px] lg:text-[26px] font-extrabold tracking-[-0.035em] text-white flex items-center gap-2">
