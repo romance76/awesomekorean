@@ -146,7 +146,7 @@ class ScrapeRealEstateListings extends Command
     {
         $externalId = $this->field($item, ['listing_id', 'listingId', 'property_id', 'propertyId', 'id']);
         $price = $this->field($item, ['list_price', 'price', 'listPrice']);
-        $address = $this->field($item, ['address.line', 'address.full', 'address', 'formattedAddress', 'full_address']);
+        $address = $this->field($item, ['address.line', 'address.full', 'formattedAddress', 'full_address']);
         if (!$externalId || !$price || !$address) return null; // 핵심 필드 없으면 신뢰할 수 없는 항목이라 스킵
 
         $beds = (int) ($this->field($item, ['beds', 'bedrooms', 'description.beds']) ?? 0);
@@ -187,7 +187,7 @@ class ScrapeRealEstateListings extends Command
     private function extractPhotos(array $item): array
     {
         foreach (['photos', 'photoUrls', 'images', 'media.photos'] as $key) {
-            $val = $this->field($item, [$key]);
+            $val = data_get($item, $key);
             if (is_array($val) && $val) {
                 $urls = [];
                 foreach ($val as $p) {
@@ -204,12 +204,15 @@ class ScrapeRealEstateListings extends Command
         return $primary ? [$primary] : [];
     }
 
-    // 점(.) 구분 경로 여러 개를 순서대로 시도해 첫 번째로 값이 있는 걸 반환
+    // 점(.) 구분 경로 여러 개를 순서대로 시도해 첫 번째로 "있는 스칼라 값"을 반환.
+    // 후보 중 일부 매물에만 없는 필드가 있어 다음 후보(예: 'address' 통째)로 넘어갔다가
+    // 배열이 그대로 반환되어 문자열 보간 시 깨지는 사고가 있었음(실측 확인) — 배열/객체는
+    // 건너뛴다. 배열 자체가 필요한 곳(사진 목록 등)은 data_get()을 직접 쓸 것.
     private function field(array $item, array $candidates)
     {
         foreach ($candidates as $path) {
             $value = data_get($item, $path);
-            if ($value !== null && $value !== '') return $value;
+            if ($value !== null && $value !== '' && !is_array($value)) return $value;
         }
         return null;
     }
