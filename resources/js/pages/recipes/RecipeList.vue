@@ -129,8 +129,8 @@
           <p class="text-sm text-ink-muted">{{ showFavorites ? '하트한 레시피가 없습니다' : '검색 결과가 없습니다' }}</p>
         </div>
 
-        <!-- 카드 그리드 -->
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- 카드 그리드 (관리자 메뉴 설정의 "기본 보기" = 사진) -->
+        <div v-else-if="viewMode === 'card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <template v-for="(item, i) in items" :key="item.id">
           <RouterLink :to="'/recipes/' + item.id"
             class="card card-hover overflow-hidden flex h-32 relative">
@@ -167,6 +167,27 @@
           <MobileAdInline v-if="i === 4" page="recipes" />
           </template>
         </div>
+        <!-- 리스트형 뷰 (관리자 메뉴 설정의 "기본 보기" = 목록) -->
+        <div v-else class="card overflow-hidden divide-y divide-gray-50">
+          <template v-for="(item, i) in items" :key="item.id">
+          <RouterLink :to="'/recipes/' + item.id" class="flex transition-colors hover:bg-amber-50/40">
+            <div class="w-28 h-24 flex-shrink-0 bg-gray-100">
+              <img v-if="item.thumbnail_url || item.thumbnail" :src="item.thumbnail_url || thumb(item.thumbnail, 200)" loading="lazy" decoding="async" class="w-full h-full object-cover"
+                @error="e => e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gray-100 text-gray-300\'><svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg></div>'" />
+              <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-300"><AppIcon name="utensils" :size="24" :stroke-width="1.5" /></div>
+            </div>
+            <div class="flex-1 min-w-0 px-4 py-3">
+              <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
+              <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+                <span v-if="!activeCat && item.category" class="badge-primary !text-[11px] !px-1.5">{{ item.category }}</span>
+                <span class="text-amber-400">{{ '★'.repeat(Math.round(Number(item.rating_avg) || 0)) }} {{ Number(item.rating_avg || 0).toFixed(1) }}</span>
+                <span class="flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count || 0 }}</span>
+              </div>
+            </div>
+          </RouterLink>
+          <MobileAdInline v-if="i === 4" page="recipes" />
+          </template>
+        </div>
 
         <!-- 페이지네이션 -->
         <Pagination :page="page" :lastPage="lastPage" @page="loadPage" />
@@ -189,6 +210,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
+import { useMenuConfig } from '../../composables/useMenuConfig'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import { thumb } from '../../utils/thumb'
 import axios from 'axios'
@@ -198,9 +220,11 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
+const { loadConfig, menuConfig } = useMenuConfig()
 const BM_TYPE = 'App\\Models\\RecipePost'
 const route = useRoute()
 const showFilter = ref(false)
+const viewMode = ref('card')
 const items = ref([])
 const categories = ref([])
 const activeCat = ref('')
@@ -316,8 +340,14 @@ watch(() => route.query, (q) => {
   loadPage()
 })
 
-onMounted(() => {
+onMounted(async () => {
   bStore.loadAll()
+  await loadConfig()
+  // 다른 탭들과 달리 레시피는 원래부터 카드형 그리드가 기본 모습이었어서,
+  // 관리자가 "기본 보기"를 아직 한 번도 안 건드렸으면(= 'list'로 명시 저장된
+  // 적이 없으면) 기존 화면 그대로 유지 — getDefaultView()의 공용 폴백('list')을
+  // 그대로 쓰면 배포 즉시 아무도 요청한 적 없는 레이아웃 변경이 생겨버림.
+  viewMode.value = menuConfig.value?.find(m => m.key === 'recipes')?.defaultView === 'list' ? 'list' : 'card'
   loadCategories()
   if (route.query.category) activeCat.value = route.query.category
   if (route.query.favorites === '1' && auth.isLoggedIn) showFavorites.value = true
