@@ -63,6 +63,28 @@
                         <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3 text-2xl">📘</div>
                         <p class="text-sm text-ink-muted">아직 등록된 글이 없습니다</p>
                     </div>
+                @elseif ($viewMode === 'card')
+                    {{-- 사진뷰: 관리자 메뉴 설정에서 "정보"의 기본 보기를 카드(⊞)로 설정한 경우 --}}
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        @foreach ($posts as $post)
+                            <a href="{{ route('info.show', $post->slug) }}" class="card card-hover overflow-hidden cursor-pointer block">
+                                <div class="w-full h-36 bg-gray-100 overflow-hidden flex items-center justify-center text-gray-300">
+                                    @if ($post->cover_image_url)
+                                        <img src="{{ $post->cover_image_url }}" alt="{{ $post->title }}" loading="lazy" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-3xl">📘</span>
+                                    @endif
+                                </div>
+                                <div class="p-3">
+                                    <span class="badge-primary !text-[11px] !px-2">{{ $post->category }}</span>
+                                    <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug mt-1">{{ $post->title }}</div>
+                                    <span class="text-xs text-ink-muted mt-1 block">👁 {{ $post->view_count }} · {{ $post->published_at->format('Y.m.d') }}</span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+
+                    <div class="mt-6">{{ $posts->links() }}</div>
                 @else
                     <div class="space-y-2">
                         @foreach ($posts as $post)
