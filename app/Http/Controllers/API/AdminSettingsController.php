@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
+use App\Models\ApiKey;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 
@@ -149,34 +150,38 @@ class AdminSettingsController extends Controller
     }
 
     // API 키 관리
+    //
+    // 예전엔 이 네 메서드가 site_settings 테이블의 'api_keys' JSON 블롭에 썼는데,
+    // market:scrape/places:import 등 실제 소비자들(resolveCredential())은 전부
+    // 진짜 api_keys 테이블(ApiKey 모델)을 조회하고 있어서 — 관리자 페이지에서
+    // 키를 등록해도 어떤 수집기도 그 값을 영영 찾지 못하던 버그. ApiKey 모델로 통일.
     public function getApiKeys() {
-        $setting = SiteSetting::where('key', 'api_keys')->first();
-        $keys = $setting ? json_decode($setting->value, true) : [];
-        // 목록 응답에는 마스킹된 값만 내려줌 — 원본 api_key는 여기 포함하면 안 됨
-        // (reveal() 전용 엔드포인트에서만, super_admin 한정으로 노출)
-        foreach ($keys as &$k) {
-            $k['masked_key'] = substr($k['api_key'] ?? '', 0, 8) . '••••••••';
-            $k['showFull'] = false;
-            unset($k['api_key']);
-        }
+        $keys = ApiKey::orderByDesc('id')->get()->map(function ($k) {
+            return [
+                'id' => $k->id,
+                'name' => $k->name,
+                'service' => $k->service,
+                'description' => $k->description,
+                'is_active' => $k->is_active,
+                'created_at' => $k->created_at,
+                // 목록 응답에는 마스킹된 값만 내려줌 — 원본 api_key는 여기 포함하면 안 됨
+                // (reveal() 전용 엔드포인트에서만, super_admin 한정으로 노출)
+                'masked_key' => substr($k->api_key ?? '', 0, 8) . '••••••••',
+                'showFull' => false,
+            ];
+        });
         return response()->json(['success'=>true,'data'=>$keys]);
     }
 
     public function storeApiKey(Request $request) {
         $request->validate(['name'=>'required','service'=>'required','api_key'=>'required']);
-        $setting = SiteSetting::where('key', 'api_keys')->first();
-        $keys = $setting ? json_decode($setting->value, true) : [];
-        $newKey = [
-            'id' => count($keys) + 1,
+        $newKey = ApiKey::create([
             'name' => $request->name,
             'service' => $request->service,
             'api_key' => $request->api_key,
             'description' => $request->description ?? '',
             'is_active' => true,
-            'created_at' => now()->toDateTimeString(),
-        ];
-        $keys[] = $newKey;
-        SiteSetting::updateOrCreate(['key'=>'api_keys'], ['value'=>json_encode($keys)]);
+        ]);
         // .env에도 반영 (서비스별)
         $envKey = strtoupper($request->service) . '_API_KEY';
         $this->updateEnv($envKey, $request->api_key);
@@ -184,32 +189,22 @@ class AdminSettingsController extends Controller
     }
 
     public function deleteApiKey($id) {
-        $setting = SiteSetting::where('key', 'api_keys')->first();
-        $keys = $setting ? json_decode($setting->value, true) : [];
-        $keys = array_values(array_filter($keys, fn($k) => $k['id'] != $id));
-        SiteSetting::updateOrCreate(['key'=>'api_keys'], ['value'=>json_encode($keys)]);
+        ApiKey::where('id', $id)->delete();
         return response()->json(['success'=>true,'message'=>'삭제되었습니다']);
     }
 
     public function updateApiKey(Request $request, $id) {
-        $setting = SiteSetting::where('key', 'api_keys')->first();
-        $keys = $setting ? json_decode($setting->value, true) : [];
-        foreach ($keys as &$k) {
-            if ($k['id'] == $id) {
-                if ($request->has('is_active')) $k['is_active'] = $request->is_active;
-            }
+        $key = ApiKey::find($id);
+        if ($key && $request->has('is_active')) {
+            $key->update(['is_active' => $request->is_active]);
         }
-        SiteSetting::updateOrCreate(['key'=>'api_keys'], ['value'=>json_encode($keys)]);
         return response()->json(['success'=>true]);
     }
 
     public function revealApiKey($id) {
-        $setting = SiteSetting::where('key', 'api_keys')->first();
-        $keys = $setting ? json_decode($setting->value, true) : [];
-        foreach ($keys as $k) {
-            if ($k['id'] == $id) return response()->json(['success'=>true,'data'=>['key'=>$k['api_key']]]);
-        }
-        return response()->json(['success'=>false,'message'=>'키를 찾을 수 없습니다'],404);
+        $key = ApiKey::find($id);
+        if (!$key) return response()->json(['success'=>false,'message'=>'키를 찾을 수 없습니다'],404);
+        return response()->json(['success'=>true,'data'=>['key'=>$key->api_key]]);
     }
 
     public function uploadLogo(Request $request) {
