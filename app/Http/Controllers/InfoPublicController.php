@@ -14,14 +14,22 @@ class InfoPublicController extends Controller
     {
         $posts = InfoPost::published()
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
+            ->when($request->q, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
             ->orderByDesc('published_at')
             ->paginate(20)
             ->withQueryString();
+
+        // 오른쪽 사이드바 "많이 본/최신 정보" 위젯 — 카테고리/검색 필터와 무관하게 전체 기준
+        $popular = InfoPost::published()->orderByDesc('view_count')->limit(10)->get(['title', 'slug']);
+        $latest = InfoPost::published()->orderByDesc('published_at')->limit(10)->get(['title', 'slug']);
 
         return view('info.index', [
             'posts' => $posts,
             'categories' => InfoPost::CATEGORIES,
             'activeCategory' => $request->category,
+            'search' => $request->q,
+            'popular' => $popular,
+            'latest' => $latest,
         ]);
     }
 
