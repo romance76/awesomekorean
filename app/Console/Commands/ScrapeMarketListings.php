@@ -24,19 +24,29 @@ class ScrapeMarketListings extends Command
     protected $signature = 'market:scrape {--dry-run : DB에 저장하지 않고 결과만 출력}';
     protected $description = 'eBay Browse API에서 중고 매물을 가져와 market_items에 저장 (source=scraped)';
 
-    // 우리 사이트 카테고리 -> eBay 검색 키워드
+    // 우리 사이트 카테고리 -> eBay 검색 키워드 (한국 관련성 높은 키워드 위주 —
+    // 검색 자체를 한국 관련 용어로 좁히고, parseItem()에서 한글/한국어 로마자
+    // 표기 재확인까지 한 번 더 거른다)
     private array $categoryKeywords = [
-        'electronics' => 'laptop electronics',
-        'furniture'   => 'furniture',
-        'clothing'    => 'clothing',
-        'auto'        => 'car parts accessories',
-        'baby'        => 'baby gear',
-        'sports'      => 'sports equipment',
-        'books'       => 'books',
-        'etc'         => 'home goods',
+        'electronics' => ['Samsung Korea version', 'LG Korea electronics'],
+        'furniture'   => ['Korean celadon', 'Korean antique furniture'],
+        'clothing'    => ['hanbok', 'Korean streetwear'],
+        'auto'        => ['Hyundai Kia parts', 'Korean car accessories'],
+        'baby'        => ['Korean baby carrier', 'Korean baby products'],
+        'sports'      => ['taekwondo', 'Korean golf'],
+        'books'       => ['manhwa', 'Korean textbook'],
+        'etc'         => ['kpop photocard', 'Korean kitchenware'],
     ];
 
-    private const RESULT_COUNT = 12; // 카테고리당 가져올 건수
+    // 한글 유니코드가 없어도 "hanbok"처럼 한국어를 영어로 표기한 경우를 잡기 위한 키워드
+    private const KOREAN_KEYWORDS = [
+        'hanbok', 'kimchi', 'kpop', 'k-pop', 'korean', 'korea', 'hyundai', 'kia',
+        'manhwa', 'taekwondo', 'celadon', 'hanji', 'soju', 'bibimbap', 'dongchimi',
+        'kdrama', 'k-drama', 'hangul', 'joseon', 'bulgogi', 'tteok', 'gochujang',
+        'doenjang', 'hanok', 'seoul',
+    ];
+
+    private const RESULT_COUNT = 30; // 검색어당 가져올 건수 (한국 관련성 필터로 많이 걸러지므로 넉넉히)
     private const TOKEN_CACHE_KEY = 'ebay_app_token';
 
     public function handle(): int
@@ -60,7 +70,8 @@ class ScrapeMarketListings extends Command
         $totalUpdated = 0;
         $firstResponseLogged = false;
 
-        foreach ($this->categoryKeywords as $category => $keyword) {
+        foreach ($this->categoryKeywords as $category => $keywords) {
+          foreach ($keywords as $keyword) {
             try {
                 $response = Http::withToken($token)
                     ->withHeaders(['X-EBAY-C-MARKETPLACE-ID' => 'EBAY_US'])
@@ -71,12 +82,12 @@ class ScrapeMarketListings extends Command
                         'filter' => 'conditionIds:{3000|4000|5000|6000|7000}', // 중고/리퍼 위주
                     ]);
             } catch (\Throwable $e) {
-                $this->warn("[{$category}] 요청 실패: {$e->getMessage()}");
+                $this->warn("[{$category}:{$keyword}] 요청 실패: {$e->getMessage()}");
                 continue;
             }
 
             if (!$response->successful()) {
-                $this->warn("[{$category}] HTTP {$response->status()}: " . substr($response->body(), 0, 300));
+                $this->warn("[{$category}:{$keyword}] HTTP {$response->status()}: " . substr($response->body(), 0, 300));
                 continue;
             }
 
@@ -89,13 +100,15 @@ class ScrapeMarketListings extends Command
 
             $items = $this->extractItems($data);
             if (!$items) {
-                $this->warn("[{$category}] 매물 없음 또는 응답 형식을 인식하지 못함");
+                $this->warn("[{$category}:{$keyword}] 매물 없음 또는 응답 형식을 인식하지 못함");
                 continue;
             }
 
+            $matched = 0;
             foreach ($items as $item) {
                 $parsed = $this->parseItem($item, $category);
                 if (!$parsed) continue;
+                $matched++;
 
                 if ($dryRun) {
                     $this->line("DRY-RUN: {$parsed['title']} / \${$parsed['price']} / 사진 " . count($parsed['images']) . "장");
@@ -115,7 +128,8 @@ class ScrapeMarketListings extends Command
                 }
             }
 
-            $this->info("[{$category}] 처리 완료");
+            $this->info("[{$category}:{$keyword}] 처리 완료 (한국 관련 {$matched}건)");
+          }
         }
 
         $this->info("완료: 신규={$totalCreated}, 갱신={$totalUpdated}");
@@ -177,6 +191,9 @@ class ScrapeMarketListings extends Command
         $price = $this->field($item, ['price.value', 'price.amount', 'currentPrice.value']);
         if (!$externalId || !$title || !$price) return null;
 
+        $shortDesc = (string) ($this->field($item, ['shortDescription']) ?? '');
+        if (!$this->isKoreanRelevant((string) $title, $shortDesc)) return null; // 한글/한국어 표기 없으면 스킵
+
         $images = $this->extractImages($item);
         if (!$images) return null; // 사진 필수
 
@@ -213,6 +230,20 @@ class ScrapeMarketListings extends Command
         }
 
         return array_values(array_unique($urls));
+    }
+
+    // 제목/짧은 설명에 한글이 있거나, hanbok/kimchi처럼 한국어를 로마자로 표기한
+    // 단어가 있으면 한국 관련 상품으로 본다 (대소문자 무시)
+    private function isKoreanRelevant(string $title, string $desc = ''): bool
+    {
+        $text = $title . ' ' . $desc;
+        if (preg_match('/\p{Hangul}/u', $text)) return true;
+
+        $lower = mb_strtolower($text);
+        foreach (self::KOREAN_KEYWORDS as $word) {
+            if (str_contains($lower, $word)) return true;
+        }
+        return false;
     }
 
     private function mapCondition(string $raw): string
