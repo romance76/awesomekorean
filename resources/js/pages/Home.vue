@@ -268,7 +268,7 @@
   </section>
 
   <!-- ═════ 6. 가입 CTA (나이트) + 즐겨찾기 퀵링크 ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 pb-14">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-5 lg:pt-6 pb-8 lg:pb-10">
     <div v-if="!auth.isLoggedIn" class="bg-night rounded-card px-7 py-8 lg:px-12 lg:py-11 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
       <div>
         <h2 class="text-[21px] lg:text-[26px] font-extrabold tracking-[-0.035em] text-white flex items-center gap-2">
