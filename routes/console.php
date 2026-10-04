@@ -59,3 +59,10 @@ Schedule::command('places:import')->dailyAt('03:30')->appendOutputTo($contentLog
 Schedule::command('realestate:scrape --type=sale')->dailyAt('05:00')->appendOutputTo($contentLog);
 Schedule::command('realestate:scrape --type=rent')->dailyAt('05:15')->appendOutputTo($contentLog);
 Schedule::command('realestate:expire-scraped')->dailyAt('05:30')->appendOutputTo($contentLog);
+
+// 중고장터 더미 데이터를 실제 매물로 대체 (소프트 운영 기간): eBay Browse API(공식,
+// 무료, 일 5,000회)에서 카테고리별 중고 매물을 매일 가져오고(source=scraped), 30일
+// 지난 건 자동 삭제. 회원이 직접 올린 매물(source=user)은 건드리지 않음.
+// EBAY_CLIENT_ID/SECRET 없으면 조용히 스킵.
+Schedule::command('market:scrape')->dailyAt('05:45')->appendOutputTo($contentLog);
+Schedule::command('market:expire-scraped')->dailyAt('06:00')->appendOutputTo($contentLog);
