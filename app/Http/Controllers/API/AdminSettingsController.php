@@ -255,6 +255,7 @@ class AdminSettingsController extends Controller
             ['key'=>'realestate','label'=>'부동산','icon'=>'🏠','path'=>'/realestate','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'events','label'=>'이벤트','icon'=>'🎉','path'=>'/events','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'news','label'=>'뉴스','icon'=>'📰','path'=>'/news','enabled'=>true,'login_required'=>false,'admin_only'=>false],
+            ['key'=>'info','label'=>'정보','icon'=>'📘','path'=>'/info','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'recipes','label'=>'레시피','icon'=>'🍳','path'=>'/recipes','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'clubs','label'=>'동호회','icon'=>'👥','path'=>'/clubs','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'games','label'=>'게임','icon'=>'🎮','path'=>'/games','enabled'=>true,'login_required'=>false,'admin_only'=>false],
