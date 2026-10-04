@@ -55,4 +55,8 @@ return [
         'url'     => env('FOODSAFETY_API_URL', 'http://openapi.foodsafetykorea.go.kr/api'),
         'service' => env('FOODSAFETY_SERVICE', 'COOKRCP01'),
     ],
+
+    'realtyapi' => [
+        'key' => env('REALTYAPI_KEY'),
+    ],
 ];
