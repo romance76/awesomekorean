@@ -157,23 +157,19 @@
     <div v-else class="card overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="goDetail(item)"
-        class="px-4 py-3 border-b border-gray-50 transition cursor-pointer"
+        class="px-4 py-3.5 border-b border-gray-50 transition cursor-pointer"
         :class="jobBorderClass(item)" :style="jobBorderStyle(item)">
         <div class="flex items-center gap-3">
-          <!-- 로고 -->
-          <img v-if="item.logo" :src="item.logo" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100" @error="$event.target.style.display='none'" />
-          <div v-else class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 flex-shrink-0"><AppIcon name="briefcase" :size="22" :stroke-width="1.5" /></div>
-
           <div class="flex-1 min-w-0">
             <!-- 1행: 프로모션 뱃지 + 직종 태그 (제목 위로) -->
-            <div class="flex items-center gap-1 mb-0.5 flex-wrap">
+            <div class="flex items-center gap-1 mb-1 flex-wrap">
               <span v-if="item.promotion_tier==='national'" class="inline-flex items-center gap-0.5 text-[11px] bg-red-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="globe" :size="10" />전국구</span>
               <span v-else-if="item.promotion_tier==='state_plus'" class="inline-flex items-center gap-0.5 text-[11px] bg-blue-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="star" :size="10" />주+</span>
               <span v-else-if="item.promotion_tier==='sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="megaphone" :size="10" />스폰서</span>
               <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[11px] bg-gray-100 text-ink-light px-1.5 py-px rounded">{{ jobTagLabel(tag) }}</span>
             </div>
-            <!-- 2행: 제목 -->
-            <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
+            <!-- 2행: 제목 (크고 굵게) -->
+            <div class="text-base sm:text-lg font-extrabold text-ink truncate tracking-tight">{{ item.title || item.name }}</div>
             <!-- 3행: 메타 -->
             <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
               <template v-if="postType === 'seeking'">
