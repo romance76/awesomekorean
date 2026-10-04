@@ -169,7 +169,7 @@
               <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[11px] bg-gray-100 text-ink-light px-1.5 py-px rounded">{{ jobTagLabel(tag) }}</span>
             </div>
             <!-- 2행: 제목 (크고 굵게) -->
-            <div class="text-base sm:text-lg font-extrabold text-ink truncate tracking-tight">{{ item.title || item.name }}</div>
+            <div class="text-base sm:text-lg font-extrabold text-ink/80 truncate tracking-tight">{{ item.title || item.name }}</div>
             <!-- 3행: 메타 -->
             <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
               <template v-if="postType === 'seeking'">
