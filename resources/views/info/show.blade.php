@@ -46,35 +46,67 @@
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
 </head>
-<body class="bg-white text-ink">
-    <header class="border-b border-line">
-        <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-            <a href="/" class="font-extrabold text-lg" style="color:#FF5A1F">AWESOME KOREAN</a>
-            <a href="{{ route('info.index') }}" class="text-sm text-ink-light hover:text-ink">← 정보 목록</a>
+<body class="bg-white text-ink min-h-screen">
+    @include('info._header')
+
+    <div class="max-w-7xl mx-auto px-4 py-5">
+        <a href="{{ route('info.index') }}" class="btn-ghost mb-3 !px-2 inline-flex items-center gap-1.5">← 정보 목록</a>
+
+        <div class="grid grid-cols-12 gap-4">
+            {{-- 왼쪽: 카테고리 --}}
+            <div class="col-span-12 lg:col-span-2 hidden lg:block">
+                <div class="card overflow-hidden sticky top-20">
+                    <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5">📋 카테고리</div>
+                    <a href="{{ route('info.index') }}" class="block px-3 py-2 text-xs text-ink-light hover:bg-amber-50/50 transition-colors">전체</a>
+                    @foreach (\App\Models\InfoPost::CATEGORIES as $cat)
+                        <a href="{{ route('info.index', ['category' => $cat]) }}"
+                           class="block px-3 py-2 text-xs transition-colors {{ $post->category === $cat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50' }}">{{ $cat }}</a>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- 메인: 글 본문 --}}
+            <div class="col-span-12 lg:col-span-10">
+                <div class="card overflow-hidden max-w-3xl">
+                    <div class="px-5 py-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="badge-primary">{{ $post->category }}</span>
+                        </div>
+                        <h1 class="text-lg font-bold text-ink leading-snug">{{ $post->title }}</h1>
+                        <div class="flex items-center gap-3 mt-2 text-xs text-ink-muted">
+                            <span>{{ $post->published_at->format('Y년 n월 j일') }}</span>
+                            <span class="flex items-center gap-1">👁 {{ number_format($post->view_count) }}회</span>
+                        </div>
+                    </div>
+                    <div class="info-body px-5 py-5 border-t border-gray-50 text-sm leading-relaxed">
+                        {!! $post->body !!}
+                    </div>
+                </div>
+
+                {{-- 이전글 / 목록 / 다음글 --}}
+                <div class="mt-4 flex items-stretch card text-sm overflow-hidden max-w-3xl">
+                    @if ($prev)
+                        <a href="{{ route('info.show', $prev->slug) }}" class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50 text-left text-ink-light border-r border-gray-50 transition-colors">
+                            <div class="text-ink-muted text-xs">← 이전글</div>
+                            <div class="text-xs text-ink-light truncate mt-0.5">{{ $prev->title }}</div>
+                        </a>
+                    @else
+                        <div class="flex-1 min-w-0 px-4 py-3 text-left text-ink-faint border-r border-gray-50 text-xs">← 이전글 없음</div>
+                    @endif
+
+                    <a href="{{ route('info.index') }}" class="px-5 py-3 hover:bg-amber-50 text-center text-ink font-bold border-r border-gray-50 flex-shrink-0 transition-colors">목록</a>
+
+                    @if ($next)
+                        <a href="{{ route('info.show', $next->slug) }}" class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50 text-right text-ink-light transition-colors">
+                            <div class="text-ink-muted text-xs">다음글 →</div>
+                            <div class="text-xs text-ink-light truncate mt-0.5">{{ $next->title }}</div>
+                        </a>
+                    @else
+                        <div class="flex-1 min-w-0 px-4 py-3 text-right text-ink-faint text-xs">다음글 없음</div>
+                    @endif
+                </div>
+            </div>
         </div>
-    </header>
-
-    <main class="max-w-3xl mx-auto px-4 py-8">
-        <a href="{{ route('info.index', ['category' => $post->category]) }}" class="text-xs font-bold" style="color:#FF5A1F">{{ $post->category }}</a>
-        <h1 class="text-2xl font-extrabold mt-2 mb-3">{{ $post->title }}</h1>
-        <time class="text-xs text-ink-faint">{{ $post->published_at->format('Y년 n월 j일') }} · 조회 {{ number_format($post->view_count) }}</time>
-
-        <article class="info-body mt-6">
-            {!! $post->body !!}
-        </article>
-
-        <nav class="mt-10 border-t border-line pt-6 grid grid-cols-2 gap-4 text-sm">
-            <div>
-                @if ($prev)
-                    <a href="{{ route('info.show', $prev->slug) }}" class="text-ink-light hover:text-ink">← {{ $prev->title }}</a>
-                @endif
-            </div>
-            <div class="text-right">
-                @if ($next)
-                    <a href="{{ route('info.show', $next->slug) }}" class="text-ink-light hover:text-ink">{{ $next->title }} →</a>
-                @endif
-            </div>
-        </nav>
-    </main>
+    </div>
 </body>
 </html>
