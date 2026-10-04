@@ -29,24 +29,9 @@
     </div>
     <div class="border-t border-gray-50 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-10 overflow-x-auto scrollbar-hide">
-            @foreach ([
-                ['label' => '홈', 'path' => '/'],
-                ['label' => '커뮤니티', 'path' => '/community'],
-                ['label' => 'Q&A', 'path' => '/qa'],
-                ['label' => '구인구직', 'path' => '/jobs'],
-                ['label' => '중고장터', 'path' => '/market'],
-                ['label' => '업소록', 'path' => '/directory'],
-                ['label' => '부동산', 'path' => '/realestate'],
-                ['label' => '이벤트', 'path' => '/events'],
-                ['label' => '뉴스', 'path' => '/news'],
-                ['label' => '정보', 'path' => '/info'],
-                ['label' => '레시피', 'path' => '/recipes'],
-                ['label' => '동호회', 'path' => '/clubs'],
-                ['label' => '게임', 'path' => '/games'],
-                ['label' => '숏츠', 'path' => '/shorts'],
-                ['label' => '음악듣기', 'path' => '/music'],
-                ['label' => '공동구매', 'path' => '/groupbuy'],
-            ] as $item)
+            {{-- 관리자 페이지 "메뉴 구성"에서 저장한 순서/활성화 상태(site_settings.menu_config)를
+                 그대로 따름 — 홈(NavBar.vue)과 동일한 소스를 사용해 개수/순서가 어긋나지 않도록 함. --}}
+            @foreach ($menus as $item)
                 <a href="{{ $item['path'] }}"
                    class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150 {{ $item['path'] === '/info' ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink' }}">
                     {{ $item['label'] }}
