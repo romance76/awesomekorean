@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Log;
  * source=scraped로 저장한다. 회원이 올린 매물(source=user)은 절대 건드리지 않고,
  * 30일 지난 scraped 매물 삭제는 market:expire-scraped가 담당.
  *
+ * realestate:scrape와 동일하게, 전국 한인 밀집 지역 ZIP 코드 풀에서 실행마다 일부를
+ * 랜덤으로 뽑아 eBay의 "로컬 픽업(local pickup)" 반경 필터(pickupPostalCode/pickupRadius)로
+ * 검색한다 — 매번 똑같은 전국 검색이 아니라 그 지역 근처에서 실제로 픽업 가능한 매물만.
+ * 단, 로컬 픽업을 지원하는 eBay 매물 자체가 적어서 ZIP+카테고리 조합에 따라 0건일 수 있음.
+ *
  * 인증은 OAuth2 client credentials grant (App 토큰) — 토큰은 Cache에 저장해 재사용.
  * 응답 필드는 eBay 공식 문서 기준(itemSummaries[].title/price/image/condition/
  * itemLocation 등)으로 작성했지만, 혹시 실제 응답이 다를 경우를 대비해 부동산
@@ -46,7 +51,28 @@ class ScrapeMarketListings extends Command
         'doenjang', 'hanok', 'seoul',
     ];
 
+    // realestate:scrape와 동일한 전국 한인 밀집 지역 ZIP 코드 풀 — 매 실행마다
+    // 이 중 일부를 랜덤으로 뽑아 그 지역 로컬 픽업 반경 내 매물만 검색한다
+    private array $zipPool = [
+        '30024' => ['city' => 'Suwanee', 'state' => 'GA'],
+        '30096' => ['city' => 'Duluth', 'state' => 'GA'],
+        '30097' => ['city' => 'Johns Creek', 'state' => 'GA'],
+        '30071' => ['city' => 'Norcross', 'state' => 'GA'],
+        '90006' => ['city' => 'Koreatown', 'state' => 'CA'],
+        '90005' => ['city' => 'Koreatown', 'state' => 'CA'],
+        '92618' => ['city' => 'Irvine', 'state' => 'CA'],
+        '11354' => ['city' => 'Flushing', 'state' => 'NY'],
+        '07024' => ['city' => 'Fort Lee', 'state' => 'NJ'],
+        '75007' => ['city' => 'Carrollton', 'state' => 'TX'],
+        '98003' => ['city' => 'Federal Way', 'state' => 'WA'],
+        '60659' => ['city' => 'Chicago', 'state' => 'IL'],
+        '22003' => ['city' => 'Annandale', 'state' => 'VA'],
+        '77079' => ['city' => 'Houston', 'state' => 'TX'],
+    ];
+
     private const RESULT_COUNT = 30; // 검색어당 가져올 건수 (한국 관련성 필터로 많이 걸러지므로 넉넉히)
+    private const PICK_PER_RUN = 4; // 한 번 실행할 때 전국 풀에서 랜덤으로 뽑을 ZIP 개수 (로컬 픽업 필터로 요청 수가 ZIP x 키워드만큼 늘어나므로 제한)
+    private const PICKUP_RADIUS_MI = 50;
     private const TOKEN_CACHE_KEY = 'ebay_app_token';
 
     private ?string $lastTokenError = null;
@@ -72,7 +98,13 @@ class ScrapeMarketListings extends Command
         $totalUpdated = 0;
         $firstResponseLogged = false;
 
-        foreach ($this->categoryKeywords as $category => $keywords) {
+        // Collection::shuffle()은 연관배열 키(ZIP코드)를 보존하지 않고 재색인하므로
+        // (realestate:scrape와 동일하게 확인됨), 키만 따로 섞은 뒤 풀에서 값을 다시 찾는다.
+        $zipKeys = collect(array_keys($this->zipPool))->shuffle()->take(self::PICK_PER_RUN);
+
+        foreach ($zipKeys as $zip) {
+          $loc = $this->zipPool[$zip];
+          foreach ($this->categoryKeywords as $category => $keywords) {
           foreach ($keywords as $keyword) {
             try {
                 $response = Http::withToken($token)
@@ -81,15 +113,17 @@ class ScrapeMarketListings extends Command
                     ->get('https://api.ebay.com/buy/browse/v1/item_summary/search', [
                         'q' => $keyword,
                         'limit' => self::RESULT_COUNT,
-                        'filter' => 'conditionIds:{3000|4000|5000|6000|7000}', // 중고/리퍼 위주
+                        // 중고/리퍼 위주 + 해당 ZIP 반경 내 로컬 픽업 가능한 매물만
+                        'filter' => 'conditionIds:{3000|4000|5000|6000|7000},deliveryOptions:{SELLER_ARRANGED_LOCAL_PICKUP},'
+                            . "pickupCountry:US,pickupPostalCode:{$zip},pickupRadius:" . self::PICKUP_RADIUS_MI . ',pickupRadiusUnit:mi',
                     ]);
             } catch (\Throwable $e) {
-                $this->warn("[{$category}:{$keyword}] 요청 실패: {$e->getMessage()}");
+                $this->warn("[{$zip}/{$category}:{$keyword}] 요청 실패: {$e->getMessage()}");
                 continue;
             }
 
             if (!$response->successful()) {
-                $this->warn("[{$category}:{$keyword}] HTTP {$response->status()}: " . substr($response->body(), 0, 300));
+                $this->warn("[{$zip}/{$category}:{$keyword}] HTTP {$response->status()}: " . substr($response->body(), 0, 300));
                 continue;
             }
 
@@ -102,13 +136,13 @@ class ScrapeMarketListings extends Command
 
             $items = $this->extractItems($data);
             if (!$items) {
-                $this->warn("[{$category}:{$keyword}] 매물 없음 또는 응답 형식을 인식하지 못함");
+                $this->warn("[{$zip}/{$category}:{$keyword}] 매물 없음 또는 응답 형식을 인식하지 못함");
                 continue;
             }
 
             $matched = 0;
             foreach ($items as $item) {
-                $parsed = $this->parseItem($item, $category);
+                $parsed = $this->parseItem($item, $category, $zip, $loc);
                 if (!$parsed) continue;
                 $matched++;
 
@@ -130,7 +164,8 @@ class ScrapeMarketListings extends Command
                 }
             }
 
-            $this->info("[{$category}:{$keyword}] 처리 완료 (한국 관련 {$matched}건)");
+            $this->info("[{$zip}/{$category}:{$keyword}] 처리 완료 (한국 관련 {$matched}건)");
+          }
           }
         }
 
@@ -190,7 +225,7 @@ class ScrapeMarketListings extends Command
         return [];
     }
 
-    private function parseItem(array $item, string $category): ?array
+    private function parseItem(array $item, string $category, string $zip, array $loc): ?array
     {
         $externalId = $this->field($item, ['itemId', 'legacyItemId', 'id']);
         $title = $this->field($item, ['title']);
@@ -204,8 +239,11 @@ class ScrapeMarketListings extends Command
         if (!$images) return null; // 사진 필수
 
         $condition = (string) ($this->field($item, ['condition']) ?? '');
-        $city = $this->field($item, ['itemLocation.city', 'itemLocation.stateOrProvince']) ?? 'Online';
-        $state = $this->field($item, ['itemLocation.stateOrProvince']) ?? '';
+        // 로컬 픽업 검색 특성상 매물은 항상 검색에 사용한 ZIP 반경 내에 있으므로,
+        // eBay가 itemLocation을 비워서 줄 때는 검색에 쓴 지역 정보로 채운다
+        $city = $this->field($item, ['itemLocation.city']) ?? $loc['city'];
+        $state = $this->field($item, ['itemLocation.stateOrProvince']) ?? $loc['state'];
+        $zipcode = $this->field($item, ['itemLocation.postalCode']) ?? $zip;
 
         return [
             'title' => (string) $title,
@@ -216,6 +254,7 @@ class ScrapeMarketListings extends Command
             'condition' => $this->mapCondition($condition),
             'city' => (string) $city,
             'state' => (string) $state,
+            'zipcode' => (string) $zipcode,
             'external_id' => (string) $externalId,
             'scraped_at' => now(),
         ];
