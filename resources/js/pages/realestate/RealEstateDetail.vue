@@ -267,12 +267,17 @@ let mapInstance = null
 const rentSubcats = [
   { label: '주거용', items: [
     { value: 'studio', label: '스튜디오' },{ value: '1br', label: '1BR' },{ value: '2br', label: '2BR' },
-    { value: '3br_plus', label: '3BR 이상' },{ value: 'roommate', label: '룸메이트' },
-    { value: 'minbak', label: '민박' },{ value: 'etc_home', label: '기타' },
+    { value: '3br_plus', label: '3BR 이상' },{ value: 'etc_home', label: '기타' },
   ]},
   { label: '상업용', items: [
     { value: 'office_rent', label: '오피스' },{ value: 'retail_rent', label: '소매' },
     { value: 'store_rent', label: '상가' },{ value: 'building_rent', label: '건물' },{ value: 'etc_commercial', label: '기타' },
+  ]},
+]
+const roommateSubcats = [
+  { label: '룸메이트', items: [
+    { value: 'shared_room', label: '쉐어 룸' },{ value: 'private_room', label: '개인 룸' },
+    { value: 'master_room', label: '마스터 룸' },{ value: 'minbak', label: '민박' },{ value: 'etc_room', label: '기타' },
   ]},
 ]
 const saleSubcats = [
@@ -286,7 +291,11 @@ const saleSubcats = [
     { value: 'store_sale', label: '상가' },{ value: 'building', label: '건물' },{ value: 'etc_commercial', label: '기타' },
   ]},
 ]
-const sideSubcats = computed(() => listing.value?.type === 'sale' ? saleSubcats : rentSubcats)
+const sideSubcats = computed(() => {
+  if (listing.value?.type === 'sale') return saleSubcats
+  if (listing.value?.type === 'roommate') return roommateSubcats
+  return rentSubcats
+})
 
 // 프로모션 보더
 const promoBorderStyle = computed(() => {

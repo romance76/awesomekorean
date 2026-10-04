@@ -370,8 +370,6 @@ const rentSubcats = [
     { value: '1br', label: '1BR' },
     { value: '2br', label: '2BR' },
     { value: '3br_plus', label: '3BR 이상' },
-    { value: 'roommate', label: '룸메이트' },
-    { value: 'minbak', label: '민박' },
     { value: 'etc_home', label: '기타' },
   ]},
   { label: '상업용', items: [
@@ -406,6 +404,7 @@ const roommateSubcats = [
     { value: 'shared_room', label: '쉐어 룸' },
     { value: 'private_room', label: '개인 룸' },
     { value: 'master_room', label: '마스터 룸' },
+    { value: 'minbak', label: '민박' },
     { value: 'etc_room', label: '기타' },
   ]},
 ]
