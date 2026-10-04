@@ -6,18 +6,25 @@ use App\Models\RealEstateListing;
 use Illuminate\Console\Command;
 
 /**
- * RealEstateSeeder.php가 초창기에 심어둔 더미 매물 35개를 정리한다 (소프트 운영 전환,
- * 1회성 청소 명령). 더미 시드는 실제 회원 user_id를 빌려 썼기 때문에 user_id로는
- * 구분이 안 되고, 아래 3가지 모두 일치하는 경우에만 삭제 대상으로 본다:
+ * 부동산 더미/테스트 매물을 정리한다 (소프트 운영 전환, 1회성 청소 명령).
+ *
+ * 기본 모드: RealEstateSeeder.php가 초창기에 심어둔 더미 매물 35개만 정리.
+ * 더미 시드는 실제 회원 user_id를 빌려 썼기 때문에 user_id로는 구분이 안 되고,
+ * 아래 3가지 모두 일치하는 경우에만 삭제 대상으로 본다:
  *   1) 제목이 시더의 고정 35개 문자열 중 하나와 정확히 일치
  *   2) images가 비어있음 (시더가 사진을 전혀 넣지 않음, 실제 회원 매물은 보통 사진 있음)
  *   3) contact_email이 시더 특유의 realestateN@example.com 패턴
+ *
+ * --all 모드: 사이트가 아직 정식 오픈 전이라 보호할 실제 회원 데이터가 없는
+ * 경우 전용 — source=scraped(RealtyAPI로 긁어온 진짜 매물)만 남기고 그 외
+ * 전부(source=user, 더미/QA계정이 올린 테스트 글 포함) 삭제한다.
+ *
  * 기본은 미리보기만 하고, --force를 줘야 실제로 삭제한다.
  */
 class CleanupDummyRealEstate extends Command
 {
-    protected $signature = 'realestate:cleanup-dummy-seed {--force : 실제로 삭제 실행 (기본은 미리보기만)}';
-    protected $description = 'RealEstateSeeder가 심어둔 더미 매물 35개를 안전하게 정리 (실제 회원 매물은 건드리지 않음)';
+    protected $signature = 'realestate:cleanup-dummy-seed {--force : 실제로 삭제 실행 (기본은 미리보기만)} {--all : 시더 35개만이 아니라 source=user 전부 삭제 (scraped만 보존) — 사이트 오픈 전 전용}';
+    protected $description = 'RealEstateSeeder가 심어둔 더미 매물을 안전하게 정리 (기본: 고정 35개만 / --all: scraped 제외 전부)';
 
     private const DUMMY_TITLES = [
         '아틀란타 스튜디오 렌트', 'Duluth 1BR 아파트 렌트', 'Suwanee 2BR 타운홈 렌트',
@@ -36,20 +43,30 @@ class CleanupDummyRealEstate extends Command
 
     public function handle(): int
     {
-        $query = RealEstateListing::whereIn('title', self::DUMMY_TITLES)
-            ->where(function ($q) {
-                $q->whereNull('images')->orWhereJsonLength('images', 0);
-            })
-            ->where('contact_email', 'like', 'realestate%@example.com');
+        $all = (bool) $this->option('all');
 
-        $matched = $query->get(['id', 'title', 'city', 'contact_email']);
+        if ($all) {
+            $query = RealEstateListing::where(function ($q) {
+                $q->where('source', '!=', 'scraped')->orWhereNull('source');
+            });
+            $matched = $query->get(['id', 'title', 'city', 'contact_email']);
+            $label = 'source=user(모든 더미/테스트) 매물';
+        } else {
+            $query = RealEstateListing::whereIn('title', self::DUMMY_TITLES)
+                ->where(function ($q) {
+                    $q->whereNull('images')->orWhereJsonLength('images', 0);
+                })
+                ->where('contact_email', 'like', 'realestate%@example.com');
+            $matched = $query->get(['id', 'title', 'city', 'contact_email']);
+            $label = '시더 고정 더미 매물';
+        }
 
         if ($matched->isEmpty()) {
-            $this->info('조건에 맞는 더미 매물이 없습니다 (이미 정리되었거나 원래 없음).');
+            $this->info("조건에 맞는 {$label}이 없습니다 (이미 정리되었거나 원래 없음).");
             return self::SUCCESS;
         }
 
-        $this->info("더미 매물 {$matched->count()}건 발견:");
+        $this->info("{$label} {$matched->count()}건 발견:");
         foreach ($matched as $row) {
             $this->line("  #{$row->id} {$row->title} ({$row->city}) - {$row->contact_email}");
         }
