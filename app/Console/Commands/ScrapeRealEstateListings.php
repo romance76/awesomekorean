@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\RealEstateListing;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -36,9 +37,9 @@ class ScrapeRealEstateListings extends Command
 
     public function handle(): int
     {
-        $apiKey = config('services.realtyapi.key');
+        $apiKey = $this->resolveApiKey();
         if (!$apiKey) {
-            $this->warn('REALTYAPI_KEY가 설정되어 있지 않아 건너뜁니다. .env에 키를 추가하세요.');
+            $this->warn('RealtyAPI 키가 설정되어 있지 않아 건너뜁니다. .env의 REALTYAPI_KEY 또는 관리자 페이지 API 키 관리(서비스 코드: realtyapi)에 키를 추가하세요.');
             return self::SUCCESS;
         }
 
@@ -115,10 +116,25 @@ class ScrapeRealEstateListings extends Command
         return self::SUCCESS;
     }
 
+    // PlacesController::getApiKey()와 동일한 패턴: .env 우선, 없으면 관리자 페이지
+    // "API 키 관리"에서 등록한 api_keys 테이블(서비스 코드: realtyapi)을 fallback으로 사용
+    private function resolveApiKey(): ?string
+    {
+        $key = config('services.realtyapi.key');
+        if ($key) return $key;
+
+        try {
+            $row = DB::table('api_keys')->where('service', 'realtyapi')->where('is_active', true)->first();
+            if ($row && $row->api_key) return $row->api_key;
+        } catch (\Exception $e) {}
+
+        return null;
+    }
+
     private function extractItems(?array $data): array
     {
         if (!$data) return [];
-        foreach (['properties', 'results', 'listings', 'data', 'items'] as $key) {
+        foreach (['searchResults', 'properties', 'results', 'listings', 'data', 'items'] as $key) {
             if (isset($data[$key]) && is_array($data[$key])) return $data[$key];
         }
         // 최상위가 바로 배열인 경우
@@ -129,7 +145,7 @@ class ScrapeRealEstateListings extends Command
     private function parseItem(array $item, string $zip, array $loc, string $dealType): ?array
     {
         $externalId = $this->field($item, ['listing_id', 'listingId', 'property_id', 'propertyId', 'id']);
-        $price = $this->field($item, ['price', 'listPrice', 'list_price']);
+        $price = $this->field($item, ['list_price', 'price', 'listPrice']);
         $address = $this->field($item, ['address.line', 'address.full', 'address', 'formattedAddress', 'full_address']);
         if (!$externalId || !$price || !$address) return null; // 핵심 필드 없으면 신뢰할 수 없는 항목이라 스킵
 
@@ -138,8 +154,8 @@ class ScrapeRealEstateListings extends Command
         $sqft = (int) ($this->field($item, ['sqft', 'square_feet', 'squareFootage', 'description.sqft']) ?? 0);
         $propertyTypeRaw = (string) ($this->field($item, ['propertyType', 'property_type', 'description.type']) ?? '');
         $city = $this->field($item, ['address.city', 'city']) ?? $loc['city'];
-        $lat = $this->field($item, ['location.lat', 'lat', 'latitude']);
-        $lng = $this->field($item, ['location.lng', 'lng', 'longitude']);
+        $lat = $this->field($item, ['address.latitude', 'location.lat', 'lat', 'latitude']);
+        $lng = $this->field($item, ['address.longitude', 'location.lng', 'lng', 'longitude']);
 
         $images = $this->extractPhotos($item);
         if (!$images) return null; // 사진 필수 (hasPhotos=true로 요청했지만 한번 더 확인)
