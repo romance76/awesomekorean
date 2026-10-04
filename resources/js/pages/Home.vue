@@ -260,36 +260,8 @@
     </aside>
   </section>
 
-  <!-- ═════ 4. 지금 거래 중 (사진 카드 4장: 중고장터 · 구인구직 · 부동산) ═════ -->
-  <section v-if="dealCards.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-9 lg:pt-11">
-    <div class="flex items-baseline gap-2.5 mb-4">
-      <h2 class="text-[19px] lg:text-xl font-extrabold tracking-[-0.03em] text-ink">지금 거래 중</h2>
-      <span class="hidden sm:inline text-[13.5px] text-ink-muted">중고장터 · 구인구직 · 부동산</span>
-      <span class="flex-1"></span>
-      <RouterLink to="/market" class="text-[13.5px] font-semibold text-ink-muted hover:text-amber-500 transition-colors">더보기 →</RouterLink>
-    </div>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-      <RouterLink v-for="c in dealCards" :key="c.key" :to="c.to" class="card card-hover overflow-hidden group">
-        <div class="aspect-[4/3] bg-surface relative overflow-hidden">
-          <img v-if="c.image" :src="c.image" alt=""
-            class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            @error="e => e.target.style.display='none'" />
-          <div v-else class="absolute inset-0 flex items-center justify-center text-ink-faint">
-            <AppIcon :name="c.icon" :size="28" :stroke-width="1.5" />
-          </div>
-        </div>
-        <div class="p-3.5">
-          <span :class="c.badgeClass">{{ c.badge }}</span>
-          <div class="mt-2 text-[14.5px] font-semibold text-ink truncate">{{ c.title }}</div>
-          <div class="mt-1.5 text-[17px] font-extrabold tracking-[-0.03em] text-ink tabular-nums">{{ c.price }}</div>
-          <div class="mt-1 text-xs text-ink-faint truncate">{{ c.meta }}</div>
-        </div>
-      </RouterLink>
-    </div>
-  </section>
-
   <!-- ═════ 5. 광고 슬롯 (기존 유지) ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-9 lg:pt-11 grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-5 lg:pt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="lg:col-span-2"><AdSlot page="home" position="left" :maxSlots="3" /></div>
     <div><AdSlot page="home" position="right" :maxSlots="2" /></div>
     <div class="lg:hidden"><MobileBanner page="home" /></div>
@@ -384,6 +356,8 @@ const popularBoards = [
   { slug: 'info',        name: '정보공유',   visitors: '421',  badge: '' },
   { slug: 'health',      name: '건강정보',   visitors: '312',  badge: 'NEW' },
   { slug: 'travel',      name: '여행이야기', visitors: '198',  badge: '' },
+  { slug: 'humor',       name: '유머',       visitors: '165',  badge: '' },
+  { slug: 'advice',      name: '고민상담',   visitors: '140',  badge: '' },
 ]
 
 const trendingTags = ['이민','영주권','맛집','구인','중고차','부동산','세금','학교','병원','한의원','김치','미용실']
@@ -560,41 +534,6 @@ async function loadFx() {
     }
   } catch {}
 }
-
-// 지금 거래 중: 중고장터 2 + 구인 1 + 부동산 1 을 사진 카드로 혼합
-const dealCards = computed(() => {
-  const cards = []
-  market.value.slice(0, 2).forEach(m => cards.push({
-    key: 'm' + m.id, to: `/market/${m.id}`,
-    image: imgUrl(m.images?.[0] || m.image) || null,
-    icon: 'shopping-cart',
-    badge: '중고장터', badgeClass: 'badge-green',
-    title: m.title,
-    price: '$' + Number(m.price || 0).toLocaleString(),
-    meta: [m.location, m.city].filter(Boolean).join(' · '),
-  }))
-  const j = jobs.value[0]
-  if (j) cards.push({
-    key: 'j' + j.id, to: `/jobs/${j.id}`,
-    image: imgUrl(j.logo_url || j.logo) || null,
-    icon: 'briefcase',
-    badge: '구인구직', badgeClass: 'badge-blue',
-    title: j.title,
-    price: j.wage || '협의',
-    meta: [j.location, j.city].filter(Boolean).join(' · '),
-  })
-  const r = realestate.value[0]
-  if (r) cards.push({
-    key: 'r' + r.id, to: `/realestate/${r.id}`,
-    image: imgUrl(r.images?.[0] || r.image) || null,
-    icon: 'home',
-    badge: typeLabels[r.type] || '부동산', badgeClass: 'badge-purple',
-    title: r.title,
-    price: '$' + Number(r.price || 0).toLocaleString() + (r.type === 'rent' ? '/월' : ''),
-    meta: [r.location, r.city].filter(Boolean).join(' · '),
-  })
-  return cards.slice(0, 4)
-})
 
 onMounted(async () => {
   loadWeather()
