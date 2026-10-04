@@ -260,15 +260,15 @@
     </aside>
   </section>
 
-  <!-- ═════ 5. 광고 슬롯 (기존 유지) ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <!-- ═════ 5. 광고 슬롯 (광고 없으면 섹션 자체를 렌더링하지 않아 빈 여백이 안 남게 함) ═════ -->
+  <section v-if="hasHomeAds" class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="lg:col-span-2"><AdSlot page="home" position="left" :maxSlots="3" /></div>
     <div><AdSlot page="home" position="right" :maxSlots="2" /></div>
     <div class="lg:hidden"><MobileBanner page="home" /></div>
   </section>
 
   <!-- ═════ 6. 가입 CTA (나이트) + 즐겨찾기 퀵링크 ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-5 lg:pt-6 pb-8 lg:pb-10">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-5 lg:pt-6 pb-6 lg:pb-8">
     <div v-if="!auth.isLoggedIn" class="bg-night rounded-card px-7 py-8 lg:px-12 lg:py-11 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
       <div>
         <h2 class="text-[21px] lg:text-[26px] font-extrabold tracking-[-0.035em] text-white flex items-center gap-2">
@@ -297,6 +297,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLangStore } from '../stores/lang'
+import { useBannerStore } from '../stores/banners'
 import AdSlot from '../components/AdSlot.vue'
 import MobileBanner from '../components/MobileBanner.vue'
 import AppIcon from '../components/AppIcon.vue'
@@ -306,6 +307,8 @@ import axios from 'axios'
 const router = useRouter()
 const auth = useAuthStore()
 const lang = useLangStore()
+const bannerStore = useBannerStore()
+const hasHomeAds = computed(() => bannerStore.getLeft('home').length > 0 || bannerStore.getRight('home').length > 0)
 const posts = ref([])
 const jobs = ref([])
 const market = ref([])
@@ -539,6 +542,7 @@ onMounted(async () => {
   loadWeather()
   loadFx()
   loadMarketQuotes()
+  bannerStore.loadForPage('home')
   try {
     const { data } = await axios.get('/api/hero-banners')
     heroBanners.value = data.data || []
