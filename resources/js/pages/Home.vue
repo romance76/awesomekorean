@@ -198,7 +198,7 @@
         <RouterLink to="/community" class="text-[13.5px] font-semibold text-ink-muted hover:text-amber-500 transition-colors">전체 →</RouterLink>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-[300px_1fr] gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-[330px_1fr] gap-5">
         <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 (이미지 폭 300px 고정) -->
         <div class="grid gap-4 content-start">
           <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group block">
