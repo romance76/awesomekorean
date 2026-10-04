@@ -9,9 +9,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * RealtyAPI(realtor.realtyapi.io)에서 애틀랜타 한인 밀집 지역 매물을 가져와
+ * RealtyAPI(realtor.realtyapi.io)에서 전국 한인 밀집 지역 매물을 가져와
  * real_estate_listings에 source=scraped로 저장한다. 회원이 올린 매물(source=user)은
  * 절대 건드리지 않고, 30일 지난 scraped 매물 삭제는 realestate:expire-scraped가 담당.
+ *
+ * 한 번 실행할 때마다 전국 한인 밀집 지역 ZIP 코드 풀에서 무료 API 크레딧 예산에 맞게
+ * 일부(PICK_PER_RUN개)만 랜덤으로 뽑아 요청한다 — 매번 애틀랜타만 도는 게 아니라
+ * LA/뉴욕/댈러스 등 전국이 고르게 섞이도록.
  *
  * RealtyAPI 응답 스키마가 공식 문서에 명시돼 있지 않아(OpenAPI 스펙에 필드 목록이 없음),
  * 아래 extractField()가 흔히 쓰이는 snake_case/camelCase 후보 키를 순서대로 시도한다.
@@ -21,19 +25,45 @@ use Illuminate\Support\Facades\Log;
 class ScrapeRealEstateListings extends Command
 {
     protected $signature = 'realestate:scrape {--type=sale : sale 또는 rent} {--dry-run : DB에 저장하지 않고 결과만 출력}';
-    protected $description = 'RealtyAPI에서 애틀랜타 한인 밀집 지역 매물을 가져와 real_estate_listings에 저장 (source=scraped)';
+    protected $description = 'RealtyAPI에서 전국 한인 밀집 지역 매물을 랜덤으로 가져와 real_estate_listings에 저장 (source=scraped)';
 
-    // 애틀랜타 한인 밀집 지역(Gwinnett County 중심) ZIP 코드
-    private array $zipCodes = [
+    // 전국 한인 밀집 지역 ZIP 코드 풀 — 매 실행마다 이 중 일부를 랜덤으로 뽑아 사용
+    private array $zipPool = [
+        // 애틀랜타 / Gwinnett County, GA
         '30024' => ['city' => 'Suwanee', 'state' => 'GA'],
         '30096' => ['city' => 'Duluth', 'state' => 'GA'],
         '30097' => ['city' => 'Johns Creek', 'state' => 'GA'],
         '30071' => ['city' => 'Norcross', 'state' => 'GA'],
         '30340' => ['city' => 'Doraville', 'state' => 'GA'],
         '30092' => ['city' => 'Peachtree Corners', 'state' => 'GA'],
+        // LA 한인타운 / 오렌지카운티, CA
+        '90006' => ['city' => 'Koreatown', 'state' => 'CA'],
+        '90005' => ['city' => 'Koreatown', 'state' => 'CA'],
+        '90020' => ['city' => 'Koreatown', 'state' => 'CA'],
+        '92618' => ['city' => 'Irvine', 'state' => 'CA'],
+        '92620' => ['city' => 'Irvine', 'state' => 'CA'],
+        // 뉴욕/뉴저지
+        '11354' => ['city' => 'Flushing', 'state' => 'NY'],
+        '11355' => ['city' => 'Flushing', 'state' => 'NY'],
+        '07024' => ['city' => 'Fort Lee', 'state' => 'NJ'],
+        '07650' => ['city' => 'Palisades Park', 'state' => 'NJ'],
+        // 댈러스, TX
+        '75007' => ['city' => 'Carrollton', 'state' => 'TX'],
+        '75010' => ['city' => 'Carrollton', 'state' => 'TX'],
+        // 시애틀, WA
+        '98003' => ['city' => 'Federal Way', 'state' => 'WA'],
+        '98036' => ['city' => 'Lynnwood', 'state' => 'WA'],
+        // 시카고, IL
+        '60659' => ['city' => 'Chicago', 'state' => 'IL'],
+        '60714' => ['city' => 'Niles', 'state' => 'IL'],
+        // 워싱턴 DC 인근 (버지니아)
+        '22003' => ['city' => 'Annandale', 'state' => 'VA'],
+        // 휴스턴, TX
+        '77079' => ['city' => 'Houston', 'state' => 'TX'],
     ];
 
     private const RESULT_COUNT = 8; // ZIP당 가져올 건수 — 무료 크레딧(월 250) 안에서 매일 돌리기 위해 적게 유지
+    private const PICK_PER_RUN = 4; // 한 번 실행할 때 전국 풀에서 랜덤으로 뽑을 ZIP 개수 (매매+렌트 둘 다 매일 돌리므로 무료 크레딧 예산에 맞춰 줄임)
 
     public function handle(): int
     {
@@ -51,7 +81,12 @@ class ScrapeRealEstateListings extends Command
         $totalUpdated = 0;
         $firstResponseLogged = false;
 
-        foreach ($this->zipCodes as $zip => $loc) {
+        // Collection::shuffle()은 연관배열 키(ZIP코드)를 보존하지 않고 0,1,2...로
+        // 재색인하므로(실측 확인), 키만 따로 섞은 뒤 풀에서 값을 다시 찾는다.
+        $zipKeys = collect(array_keys($this->zipPool))->shuffle()->take(self::PICK_PER_RUN);
+
+        foreach ($zipKeys as $zip) {
+            $loc = $this->zipPool[$zip];
             try {
                 $response = Http::withHeaders(['x-realtyapi-key' => $apiKey])
                     ->timeout(20)

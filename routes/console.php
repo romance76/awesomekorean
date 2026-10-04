@@ -51,8 +51,11 @@ Schedule::command('poker:start-tournaments')->everyMinute()->withoutOverlapping(
 // 매일 새벽 3시 한인 업소 Google Places 업데이트
 Schedule::command('places:import')->dailyAt('03:30')->appendOutputTo($contentLog);
 
-// 부동산 더미 데이터를 실제 매물로 대체 (소프트 운영 기간): 애틀랜타 한인 밀집 지역
-// 매물을 매일 가져오고(source=scraped), 30일 지난 건 자동 삭제. 회원이 직접 올린
-// 매물(source=user)은 건드리지 않음. REALTYAPI_KEY 없으면 조용히 스킵.
-Schedule::command('realestate:scrape')->dailyAt('05:00')->appendOutputTo($contentLog);
+// 부동산 더미 데이터를 실제 매물로 대체 (소프트 운영 기간): 전국 한인 밀집 지역
+// 매물을 매일 랜덤으로 가져오고(source=scraped, 매매+렌트 둘 다), 30일 지난 건
+// 자동 삭제. 회원이 직접 올린 매물(source=user, 룸메이트 포함)은 건드리지 않음 —
+// 룸메이트는 MLS 데이터에 없는 카테고리라 회원 직접 등록만 가능. REALTYAPI_KEY
+// 없으면 조용히 스킵.
+Schedule::command('realestate:scrape --type=sale')->dailyAt('05:00')->appendOutputTo($contentLog);
+Schedule::command('realestate:scrape --type=rent')->dailyAt('05:15')->appendOutputTo($contentLog);
 Schedule::command('realestate:expire-scraped')->dailyAt('05:30')->appendOutputTo($contentLog);
