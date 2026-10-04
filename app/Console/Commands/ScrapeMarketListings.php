@@ -49,6 +49,8 @@ class ScrapeMarketListings extends Command
     private const RESULT_COUNT = 30; // 검색어당 가져올 건수 (한국 관련성 필터로 많이 걸러지므로 넉넉히)
     private const TOKEN_CACHE_KEY = 'ebay_app_token';
 
+    private ?string $lastTokenError = null;
+
     public function handle(): int
     {
         $clientId = $this->resolveCredential('EBAY_CLIENT_ID', 'client_id', 'ebay');
@@ -61,7 +63,7 @@ class ScrapeMarketListings extends Command
 
         $token = $this->getAccessToken($clientId, $clientSecret);
         if (!$token) {
-            $this->warn('eBay OAuth 토큰 발급 실패. Client ID/Secret을 확인하세요.');
+            $this->warn('eBay OAuth 토큰 발급 실패: ' . ($this->lastTokenError ?? '알 수 없는 오류'));
             return self::SUCCESS;
         }
 
@@ -165,10 +167,14 @@ class ScrapeMarketListings extends Command
                         'scope' => 'https://api.ebay.com/oauth/api_scope',
                     ]);
             } catch (\Throwable $e) {
+                $this->lastTokenError = $e->getMessage();
                 return null;
             }
 
-            if (!$response->successful()) return null;
+            if (!$response->successful()) {
+                $this->lastTokenError = "HTTP {$response->status()}: " . substr($response->body(), 0, 300);
+                return null;
+            }
 
             return $response->json('access_token');
         }) ?: null;
