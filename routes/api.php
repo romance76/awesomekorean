@@ -118,6 +118,14 @@ Route::get('/clubs/{id}/posts', [ClubController::class, 'posts']);
 Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/categories', [NewsController::class, 'categories']);
 Route::get('/news/{id}', [NewsController::class, 'show']);
+
+// '정보' 탭 자동 생성 파이프라인 전용 (일반 인증과 무관, ingest.auth 미들웨어로 보호)
+Route::middleware('ingest.auth')->prefix('info-ingest')->group(function () {
+    Route::get('/keywords', [\App\Http\Controllers\API\InfoIngestController::class, 'keywords']);
+    Route::post('/posts', [\App\Http\Controllers\API\InfoIngestController::class, 'store']);
+    Route::get('/generation/status', [\App\Http\Controllers\API\InfoIngestController::class, 'generationStatus']);
+    Route::post('/generation/complete', [\App\Http\Controllers\API\InfoIngestController::class, 'generationComplete']);
+});
 Route::get('/external-headlines', [\App\Http\Controllers\API\ExternalHeadlineController::class, 'index']);
 Route::get('/market-quotes', [\App\Http\Controllers\API\MarketQuoteController::class, 'index']);
 // 썸네일 프록시/캐시 (모든 리스트 페이지가 공유)
@@ -817,6 +825,14 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/groupbuys/{id}/approve', [GroupBuyController::class, 'adminApprove']);
     Route::post('/groupbuys/{id}/reject', [GroupBuyController::class, 'adminReject']);
     Route::post('/groupbuys/{id}/complete', [GroupBuyController::class, 'adminComplete']);
+
+    // Admin '정보' 탭 관리
+    Route::get('/info-posts', [\App\Http\Controllers\API\AdminInfoController::class, 'index']);
+    Route::put('/info-posts/{id}', [\App\Http\Controllers\API\AdminInfoController::class, 'update']);
+    Route::delete('/info-posts/{id}', [\App\Http\Controllers\API\AdminInfoController::class, 'destroy']);
+    Route::patch('/info-posts/{id}/toggle', [\App\Http\Controllers\API\AdminInfoController::class, 'toggle']);
+    Route::get('/info-generation/status', [\App\Http\Controllers\API\AdminInfoController::class, 'generationStatus']);
+    Route::post('/info-generation/trigger', [\App\Http\Controllers\API\AdminInfoController::class, 'triggerGeneration']);
 
     // Admin Shorts
     Route::get('/shorts', [AdminController::class, 'shortsList']);

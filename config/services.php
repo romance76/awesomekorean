@@ -64,4 +64,8 @@ return [
         'client_id' => env('EBAY_CLIENT_ID'),
         'client_secret' => env('EBAY_CLIENT_SECRET'),
     ],
+
+    'info_ingest' => [
+        'token' => env('INFO_INGEST_TOKEN'),
+    ],
 ];

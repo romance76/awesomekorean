@@ -106,6 +106,7 @@ const subTabs = {
     { to: '/admin/clubs', icon: 'users', label: '동호회' },
     { to: '/admin/recipes', icon: 'utensils', label: '레시피' },
     { to: '/admin/news', icon: 'newspaper', label: '뉴스' },
+    { to: '/admin/info', icon: 'book-open', label: '정보' },
     { to: '/admin/directory', icon: 'store', label: '업소록' },
     { to: '/admin/groupbuy', icon: 'shopping-bag', label: '공동구매' },
     { to: '/admin/music', icon: 'music', label: '음악' },

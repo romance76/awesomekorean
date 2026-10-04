@@ -102,11 +102,17 @@
     <!-- Row 2: 데스크톱 메뉴 -->
     <div class="border-t border-gray-50 hidden md:block">
       <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-10 overflow-x-auto scrollbar-hide">
-        <RouterLink v-for="item in visibleMenus" :key="item.path" :to="item.path"
-          class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150"
-          :class="isActive(item.path) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink'">
-          {{ item.label }}
-        </RouterLink>
+        <template v-for="item in visibleMenus" :key="item.path">
+          <a v-if="item.external" :href="item.path"
+            class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150 border-transparent text-ink-light hover:text-ink">
+            {{ item.label }}
+          </a>
+          <RouterLink v-else :to="item.path"
+            class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150"
+            :class="isActive(item.path) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink'">
+            {{ item.label }}
+          </RouterLink>
+        </template>
       </div>
     </div>
 
@@ -140,7 +146,12 @@
             <div v-for="item in visibleMenus" :key="item.path"
               class="flex items-center transition-colors"
               :class="isActive(item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
-              <RouterLink :to="item.path" @click="mobileMenu=false"
+              <a v-if="item.external" :href="item.path"
+                class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2 text-sm text-ink-light">
+                <span class="icon-chip w-8 h-8" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="16" /></span>
+                <span>{{ item.label }}</span>
+              </a>
+              <RouterLink v-else :to="item.path" @click="mobileMenu=false"
                 class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2 text-sm"
                 :class="isActive(item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="16" /></span>
@@ -225,6 +236,9 @@ const defaultMenus = [
   { key: 'realestate', label: '부동산', label_en: 'Real Estate', icon: '🏠', path: '/realestate', enabled: true },
   { key: 'events', label: '이벤트', label_en: 'Events', icon: '🎉', path: '/events', enabled: true },
   { key: 'news', label: '뉴스', label_en: 'News', icon: '📰', path: '/news', enabled: true },
+  // 서버사이드 Blade로 렌더링되는 페이지라(검색엔진용 실제 title/meta 태그 필요)
+  // Vue Router가 아니라 일반 브라우저 네비게이션으로 이동해야 함 — external: true
+  { key: 'info', label: '정보', label_en: 'Info', icon: '📘', path: '/info', enabled: true, external: true },
   { key: 'recipes', label: '레시피', label_en: 'Recipes', icon: '🍳', path: '/recipes', enabled: true },
   { key: 'clubs', label: '동호회', label_en: 'Clubs', icon: '👥', path: '/clubs', enabled: true },
   { key: 'games', label: '게임', label_en: 'Games', icon: '🎮', path: '/games', enabled: true },
