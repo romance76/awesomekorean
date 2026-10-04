@@ -197,7 +197,7 @@
                   :src="item.thumbnail_url || thumb(item.image_url, 200)"
                   loading="lazy" decoding="async"
                   class="w-full h-full object-cover"
-                  @error="e => { e.target.style.display='none'; e.target.parentElement.innerHTML='<span class=\'text-2xl\'>📰</span>' }" />
+                  @error="dropNewsItem(item.id)" />
                 <AppIcon v-else name="newspaper" :size="24" :stroke-width="1.5" />
               </div>
               <div class="flex-1 min-w-0">
@@ -324,6 +324,9 @@ function navItem(dir) {
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
+
+// 썸네일 로드 실패한 뉴스는 목록에서 제거 (깨진 이미지 노출 방지)
+function dropNewsItem(id) { items.value = items.value.filter(n => n.id !== id) }
 
 function formatDate(dt) {
   if (!dt) return ''
