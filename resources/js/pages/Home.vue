@@ -198,27 +198,25 @@
         <RouterLink to="/community" class="text-[13.5px] font-semibold text-ink-muted hover:text-amber-500 transition-colors">전체 →</RouterLink>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 (썸네일은 작게) -->
+      <div class="grid grid-cols-1 sm:grid-cols-[300px_1fr] gap-5">
+        <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 (이미지 폭 300px 고정) -->
         <div class="grid gap-4 content-start">
-          <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group flex gap-3">
-            <div class="w-28 sm:w-32 aspect-[4/3] rounded-xl overflow-hidden bg-surface border border-line shrink-0">
+          <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group block">
+            <div class="aspect-[16/10] rounded-2xl overflow-hidden bg-surface border border-line">
               <img v-if="re.image" :src="re.image" alt=""
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.05]"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 @error="e => e.target.style.display='none'" />
               <div v-else class="w-full h-full flex items-center justify-center text-ink-faint">
-                <AppIcon name="home" :size="22" :stroke-width="1.5" />
+                <AppIcon name="home" :size="24" :stroke-width="1.5" />
               </div>
             </div>
-            <div class="min-w-0 flex flex-col justify-center">
-              <div class="text-xs font-bold tracking-wide text-amber-500">{{ re.label }}</div>
-              <h3 class="mt-1 text-[14.5px] font-bold tracking-[-0.02em] text-ink leading-snug truncate">{{ re.title }}</h3>
-              <div class="mt-1 text-[12.5px] text-ink-muted truncate">{{ re.meta }}</div>
-            </div>
+            <div class="mt-2 text-xs font-bold tracking-wide text-amber-500">{{ re.label }}</div>
+            <h3 class="mt-1 text-[14.5px] font-bold tracking-[-0.02em] text-ink leading-snug truncate">{{ re.title }}</h3>
+            <div class="mt-1 text-[12.5px] text-ink-muted truncate">{{ re.meta }}</div>
           </RouterLink>
         </div>
 
-        <!-- 오른쪽: 여러 게시판 최신글 (썸네일 없이, 2줄로 압축해서 더 많이) -->
+        <!-- 오른쪽: 여러 게시판 최신글 (썸네일 없이, 2줄로 압축) -->
         <div class="grid content-start">
           <RouterLink v-for="p in sidePosts" :key="p.id" :to="`/community/${p.board?.slug || 'free'}/${p.id}`"
             class="group block py-2 border-b border-line last:border-b-0">
@@ -421,7 +419,7 @@ function imgUrl(path) {
 }
 // 에디토리얼 섹션: 왼쪽 렌트/매매 매물 2건 + 오른쪽 여러 게시판 최신글(썸네일 없이,
 // 오른쪽 "인기 게시판" 박스 높이에 맞춰 더 많이) — 룸메이트는 제외
-const sidePosts = computed(() => posts.value.slice(0, 10))
+const sidePosts = computed(() => posts.value.slice(0, 8))
 
 const homeRealEstateCards = computed(() => {
   return realestate.value
