@@ -52,22 +52,25 @@ class ScrapeMarketListings extends Command
     ];
 
     // realestate:scrape와 동일한 전국 한인 밀집 지역 ZIP 코드 풀 — 매 실행마다
-    // 이 중 일부를 랜덤으로 뽑아 그 지역 로컬 픽업 반경 내 매물만 검색한다
+    // 이 중 일부를 랜덤으로 뽑아 그 지역 로컬 픽업 반경 내 매물만 검색한다.
+    // eBay Browse API의 itemLocation에는 위도/경도가 없어서(공식 스키마 확인됨),
+    // 검색에 쓴 ZIP의 대략적인 좌표를 lat/lng로 대신 채운다 — 이게 없으면 사이트의
+    // "내 위치 근처" 검색(MarketItem::scopeNearby)에서 scraped 매물이 전혀 안 걸림.
     private array $zipPool = [
-        '30024' => ['city' => 'Suwanee', 'state' => 'GA'],
-        '30096' => ['city' => 'Duluth', 'state' => 'GA'],
-        '30097' => ['city' => 'Johns Creek', 'state' => 'GA'],
-        '30071' => ['city' => 'Norcross', 'state' => 'GA'],
-        '90006' => ['city' => 'Koreatown', 'state' => 'CA'],
-        '90005' => ['city' => 'Koreatown', 'state' => 'CA'],
-        '92618' => ['city' => 'Irvine', 'state' => 'CA'],
-        '11354' => ['city' => 'Flushing', 'state' => 'NY'],
-        '07024' => ['city' => 'Fort Lee', 'state' => 'NJ'],
-        '75007' => ['city' => 'Carrollton', 'state' => 'TX'],
-        '98003' => ['city' => 'Federal Way', 'state' => 'WA'],
-        '60659' => ['city' => 'Chicago', 'state' => 'IL'],
-        '22003' => ['city' => 'Annandale', 'state' => 'VA'],
-        '77079' => ['city' => 'Houston', 'state' => 'TX'],
+        '30024' => ['city' => 'Suwanee', 'state' => 'GA', 'lat' => 34.0754, 'lng' => -84.0963],
+        '30096' => ['city' => 'Duluth', 'state' => 'GA', 'lat' => 33.9898, 'lng' => -84.1327],
+        '30097' => ['city' => 'Johns Creek', 'state' => 'GA', 'lat' => 34.0289, 'lng' => -84.1986],
+        '30071' => ['city' => 'Norcross', 'state' => 'GA', 'lat' => 33.9412, 'lng' => -84.2135],
+        '90006' => ['city' => 'Koreatown', 'state' => 'CA', 'lat' => 34.0511, 'lng' => -118.2984],
+        '90005' => ['city' => 'Koreatown', 'state' => 'CA', 'lat' => 34.0583, 'lng' => -118.3084],
+        '92618' => ['city' => 'Irvine', 'state' => 'CA', 'lat' => 33.6839, 'lng' => -117.7439],
+        '11354' => ['city' => 'Flushing', 'state' => 'NY', 'lat' => 40.7675, 'lng' => -73.8331],
+        '07024' => ['city' => 'Fort Lee', 'state' => 'NJ', 'lat' => 40.8509, 'lng' => -73.9701],
+        '75007' => ['city' => 'Carrollton', 'state' => 'TX', 'lat' => 32.9890, 'lng' => -96.8903],
+        '98003' => ['city' => 'Federal Way', 'state' => 'WA', 'lat' => 47.3223, 'lng' => -122.3126],
+        '60659' => ['city' => 'Chicago', 'state' => 'IL', 'lat' => 41.9922, 'lng' => -87.6967],
+        '22003' => ['city' => 'Annandale', 'state' => 'VA', 'lat' => 38.8304, 'lng' => -77.1964],
+        '77079' => ['city' => 'Houston', 'state' => 'TX', 'lat' => 29.7752, 'lng' => -95.6353],
     ];
 
     private const RESULT_COUNT = 30; // 검색어당 가져올 건수 (한국 관련성 필터로 많이 걸러지므로 넉넉히)
@@ -255,6 +258,8 @@ class ScrapeMarketListings extends Command
             'city' => (string) $city,
             'state' => (string) $state,
             'zipcode' => (string) $zipcode,
+            'lat' => $loc['lat'],
+            'lng' => $loc['lng'],
             'external_id' => (string) $externalId,
             'scraped_at' => now(),
         ];
