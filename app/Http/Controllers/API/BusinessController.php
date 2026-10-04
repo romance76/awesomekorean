@@ -24,6 +24,15 @@ class BusinessController extends Controller
     protected string $promoModel = Business::class;
     protected string $promoCategoryColumn = 'category';
 
+    // 업소록 목록: 이미지 있는 업소를 먼저, 이미지 없는 업소는 뒤로 보내기 위한 정렬 기준.
+    // (레거시 데이터에 다운로드 전 구글 CDN 원본 URL이 남아있는 경우 transformImages()에서
+    // 걸러지므로, 여기서도 똑같이 maps.googleapis.com/maps.gstatic.com만 있는 경우는
+    // "이미지 없음"으로 취급한다)
+    private const IMAGE_RANK_SQL = "CASE WHEN images IS NOT NULL AND JSON_LENGTH(images) > 0 "
+        . "AND JSON_UNQUOTE(JSON_EXTRACT(images, '$[0]')) NOT LIKE '%maps.googleapis.com%' "
+        . "AND JSON_UNQUOTE(JSON_EXTRACT(images, '$[0]')) NOT LIKE '%maps.gstatic.com%' "
+        . "THEN 0 ELSE 1 END";
+
     public function promote(Request $request, $id)
     {
         // 업소는 소유권 컬럼이 owner_id (claim 승인시 설정됨)
@@ -196,15 +205,19 @@ class BusinessController extends Controller
 
         $cacheBase = "biz_pd_{$category}_{$state}_{$search}_" . ($hasLocation ? 'loc' : 'nat');
 
-        // 메인 목록 (랜덤)
+        // 메인 목록 (랜덤 — 단, 이미지 있는 업소가 먼저 나오도록 1차 정렬)
         $mainQuery = $baseQuery();
         if ($hasLocation) {
             $seed = (int) ($request->rand_seed ?? 0);
-            $mainQuery->orderByRaw($seed > 0 ? "RAND({$seed})" : 'RAND()');
+            $mainQuery->orderByRaw(self::IMAGE_RANK_SQL)
+                ->orderByRaw($seed > 0 ? "RAND({$seed})" : 'RAND()');
         } else {
-            $randCacheKey = "biz_rand_{$category}_{$state}_nat";
+            $randCacheKey = "biz_rand_{$category}_{$state}_nat_v2";
             $randomIds = Cache::remember($randCacheKey, 600, function () use ($mainQuery) {
-                return (clone $mainQuery)->select('id')->inRandomOrder()->limit(500)->pluck('id')->toArray();
+                return (clone $mainQuery)->select('id')
+                    ->orderByRaw(self::IMAGE_RANK_SQL)
+                    ->orderByRaw('RAND()')
+                    ->limit(500)->pluck('id')->toArray();
             });
             if (!empty($randomIds)) {
                 $offset = ($page - 1) * $perPage;
