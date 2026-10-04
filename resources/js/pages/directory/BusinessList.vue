@@ -267,10 +267,9 @@
       <div @click="openItem(item)"
         class="rounded-2xl shadow-card overflow-hidden hover:shadow-lift hover:-translate-y-0.5 transition-all cursor-pointer flex h-32"
         :class="bizPromoClass(item)">
-        <!-- 왼쪽: 사진 -->
-        <div class="w-28 flex-shrink-0 bg-gray-100">
-          <img v-if="item.thumbnail_url || item.images?.length" :src="item.thumbnail_url || thumb(item.images[0], 240)" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center bg-gray-100 text-gray-300\'><svg width=\'28\' height=\'28\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg></div>'" />
-          <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300"><AppIcon name="store" :size="28" :stroke-width="1.5" /></div>
+        <!-- 왼쪽: 사진 (있을 때만 — 없으면 박스 자체를 안 보여줌) -->
+        <div v-if="item.thumbnail_url || item.images?.length" class="w-28 flex-shrink-0 bg-gray-100">
+          <img :src="item.thumbnail_url || thumb(item.images[0], 240)" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.closest('.w-28').style.display='none'" />
         </div>
         <!-- 오른쪽: 정보 -->
         <div class="flex-1 p-3 min-w-0">
