@@ -383,6 +383,7 @@ const popularBoards = [
   { slug: 'education',   name: '자녀교육',   visitors: '654',  badge: 'NEW' },
   { slug: 'info',        name: '정보공유',   visitors: '421',  badge: '' },
   { slug: 'health',      name: '건강정보',   visitors: '312',  badge: 'NEW' },
+  { slug: 'travel',      name: '여행이야기', visitors: '198',  badge: '' },
 ]
 
 const trendingTags = ['이민','영주권','맛집','구인','중고차','부동산','세금','학교','병원','한의원','김치','미용실']
@@ -419,7 +420,7 @@ function imgUrl(path) {
 }
 // 에디토리얼 섹션: 왼쪽 렌트/매매 매물 2건 + 오른쪽 여러 게시판 최신글(썸네일 없이,
 // 오른쪽 "인기 게시판" 박스 높이에 맞춰 더 많이) — 룸메이트는 제외
-const sidePosts = computed(() => posts.value.slice(0, 8))
+const sidePosts = computed(() => posts.value.slice(0, 10))
 
 const homeRealEstateCards = computed(() => {
   return realestate.value
