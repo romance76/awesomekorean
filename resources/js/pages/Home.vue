@@ -199,30 +199,34 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 -->
+        <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 (썸네일은 작게) -->
         <div class="grid gap-4 content-start">
-          <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group block">
-            <div class="aspect-[16/9] rounded-2xl overflow-hidden bg-surface border border-line">
+          <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group flex gap-3">
+            <div class="w-28 sm:w-32 aspect-[4/3] rounded-xl overflow-hidden bg-surface border border-line shrink-0">
               <img v-if="re.image" :src="re.image" alt=""
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.05]"
                 @error="e => e.target.style.display='none'" />
               <div v-else class="w-full h-full flex items-center justify-center text-ink-faint">
-                <AppIcon name="home" :size="26" :stroke-width="1.5" />
+                <AppIcon name="home" :size="22" :stroke-width="1.5" />
               </div>
             </div>
-            <div class="mt-2.5 text-xs font-bold tracking-wide text-amber-500">{{ re.label }}</div>
-            <h3 class="mt-1 text-[15px] font-bold tracking-[-0.02em] text-ink leading-snug truncate">{{ re.title }}</h3>
-            <div class="mt-1.5 text-[12.5px] text-ink-muted">{{ re.meta }}</div>
+            <div class="min-w-0 flex flex-col justify-center">
+              <div class="text-xs font-bold tracking-wide text-amber-500">{{ re.label }}</div>
+              <h3 class="mt-1 text-[14.5px] font-bold tracking-[-0.02em] text-ink leading-snug truncate">{{ re.title }}</h3>
+              <div class="mt-1 text-[12.5px] text-ink-muted truncate">{{ re.meta }}</div>
+            </div>
           </RouterLink>
         </div>
 
-        <!-- 오른쪽: 여러 게시판 최신글 (썸네일 없이, 더 많이) -->
+        <!-- 오른쪽: 여러 게시판 최신글 (썸네일 없이, 2줄로 압축해서 더 많이) -->
         <div class="grid content-start">
           <RouterLink v-for="p in sidePosts" :key="p.id" :to="`/community/${p.board?.slug || 'free'}/${p.id}`"
-            class="group block py-2.5 border-b border-line last:border-b-0">
-            <div class="text-[11.5px] font-bold tracking-wide text-ink-muted">{{ p.board?.name || '커뮤니티' }}</div>
+            class="group block py-2 border-b border-line last:border-b-0">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11.5px] font-bold tracking-wide text-ink-muted truncate">{{ p.board?.name || '커뮤니티' }}</span>
+              <span class="text-[11px] text-ink-faint shrink-0">댓글 {{ p.comments_count || p.comment_count || 0 }}</span>
+            </div>
             <div class="mt-0.5 text-[14px] font-semibold text-ink leading-snug truncate group-hover:text-amber-500 transition-colors">{{ p.title }}</div>
-            <div class="mt-0.5 text-xs text-ink-faint">댓글 {{ p.comments_count || p.comment_count || 0 }}</div>
           </RouterLink>
         </div>
       </div>
@@ -417,7 +421,7 @@ function imgUrl(path) {
 }
 // 에디토리얼 섹션: 왼쪽 렌트/매매 매물 2건 + 오른쪽 여러 게시판 최신글(썸네일 없이,
 // 오른쪽 "인기 게시판" 박스 높이에 맞춰 더 많이) — 룸메이트는 제외
-const sidePosts = computed(() => posts.value.slice(0, 8))
+const sidePosts = computed(() => posts.value.slice(0, 10))
 
 const homeRealEstateCards = computed(() => {
   return realestate.value
