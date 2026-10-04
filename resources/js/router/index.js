@@ -174,6 +174,7 @@ const routes = [
       { path: 'community', component: p('admin/AdminCommunity') },
       { path: 'boards', component: p('admin/BoardManager') },
       { path: 'news', component: p('admin/AdminNews') },
+      { path: 'info', component: p('admin/AdminInfo') },
       { path: 'jobs', component: p('admin/AdminJobs') },
       { path: 'market', component: p('admin/AdminMarket') },
       { path: 'realestate', component: p('admin/AdminRealestate') },
