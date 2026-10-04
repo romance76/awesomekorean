@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InfoPost;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 
 // '정보' 탭 공개 페이지 — Vue SPA(단일 정적 title/description)와 달리, 검색엔진
@@ -30,7 +31,20 @@ class InfoPublicController extends Controller
             'search' => $request->q,
             'popular' => $popular,
             'latest' => $latest,
+            'viewMode' => $this->menuViewMode(),
         ]);
+    }
+
+    // 관리자 페이지 "메뉴 구성"에서 '정보' 항목의 기본 보기(목록/사진)를 바꾸면
+    // 반영되도록 — site_settings.menu_config에 저장된 defaultView를 그대로 사용.
+    private function menuViewMode(): string
+    {
+        $raw = SiteSetting::where('key', 'menu_config')->value('value');
+        $menus = $raw ? json_decode($raw, true) : null;
+        if (!is_array($menus)) return 'list';
+
+        $info = collect($menus)->firstWhere('key', 'info');
+        return ($info['defaultView'] ?? 'list') === 'card' ? 'card' : 'list';
     }
 
     public function show(string $slug)
