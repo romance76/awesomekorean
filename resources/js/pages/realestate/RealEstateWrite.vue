@@ -52,7 +52,6 @@
                 <option value="1br">1BR</option>
                 <option value="2br">2BR</option>
                 <option value="3br_plus">3BR 이상</option>
-                <option value="minbak">민박</option>
                 <option value="etc_home">기타</option>
               </optgroup>
               <optgroup label="상업용">
@@ -69,6 +68,7 @@
                 <option value="shared_room">쉐어 룸</option>
                 <option value="private_room">개인 룸</option>
                 <option value="master_room">마스터 룸</option>
+                <option value="minbak">민박</option>
                 <option value="etc_room">기타</option>
               </optgroup>
             </template>
