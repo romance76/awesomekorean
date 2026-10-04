@@ -970,6 +970,7 @@
               </div>
             </div>
             <div class="flex gap-2">
+              <button @click="openEditApiKey(key)" class="text-xs text-blue-600 hover:underline">수정</button>
               <button @click="toggleApiKeyActive(key)" :class="key.is_active ? 'text-orange-600' : 'text-green-600'" class="text-xs hover:underline">{{ key.is_active ? '비활성화' : '활성화' }}</button>
               <button @click="deleteApiKey(key.id)" class="text-xs text-red-600 hover:underline">삭제</button>
             </div>
@@ -1002,6 +1003,35 @@
             <div class="flex gap-2 pt-2">
               <button @click="showAddApiKey = false" class="btn-secondary flex-1 py-2">취소</button>
               <button @click="saveApiKey" class="btn-primary flex-1 py-2">등록</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API 키 수정 모달 -->
+      <div v-if="showEditApiKey" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showEditApiKey = false">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
+          <h3 class="flex items-center gap-2 font-bold text-lg text-ink mb-4"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 수정</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="input-label !text-xs">서비스 이름</label>
+              <input v-model="editApiKey.name" class="input-field" />
+            </div>
+            <div>
+              <label class="input-label !text-xs">서비스 코드</label>
+              <input v-model="editApiKey.service" class="input-field" />
+            </div>
+            <div>
+              <label class="input-label !text-xs">API 키</label>
+              <input v-model="editApiKey.api_key" placeholder="변경하려면 입력 (비워두면 기존 값 유지)" class="input-field font-mono" />
+            </div>
+            <div>
+              <label class="input-label !text-xs">설명 (선택)</label>
+              <input v-model="editApiKey.description" class="input-field" />
+            </div>
+            <div class="flex gap-2 pt-2">
+              <button @click="showEditApiKey = false" class="btn-secondary flex-1 py-2">취소</button>
+              <button @click="saveEditApiKey" class="btn-primary flex-1 py-2">저장</button>
             </div>
           </div>
         </div>
@@ -1587,6 +1617,8 @@ async function saveFirebase() {
 const apiKeys = ref([])
 const showAddApiKey = ref(false)
 const newApiKey = ref({ name: '', service: '', api_key: '', description: '' })
+const showEditApiKey = ref(false)
+const editApiKey = ref({ id: null, name: '', service: '', api_key: '', description: '' })
 
 async function loadApiKeys() {
   try {
@@ -1603,6 +1635,23 @@ async function saveApiKey() {
     newApiKey.value = { name: '', service: '', api_key: '', description: '' }
     loadApiKeys()
   } catch (e) { alert(e.response?.data?.message || '등록 실패') }
+}
+
+// api_key는 목록에 마스킹된 값만 내려오므로 빈 칸으로 시작 — 비워두고 저장하면
+// 백엔드가 그 필드를 건드리지 않고 기존 값을 그대로 유지함
+function openEditApiKey(key) {
+  editApiKey.value = { id: key.id, name: key.name, service: key.service, api_key: '', description: key.description || '' }
+  showEditApiKey.value = true
+}
+
+async function saveEditApiKey() {
+  try {
+    const payload = { name: editApiKey.value.name, service: editApiKey.value.service, description: editApiKey.value.description }
+    if (editApiKey.value.api_key) payload.api_key = editApiKey.value.api_key
+    await axios.put('/api/admin/api-keys/' + editApiKey.value.id, payload)
+    showEditApiKey.value = false
+    loadApiKeys()
+  } catch (e) { alert(e.response?.data?.message || '수정 실패') }
 }
 
 async function deleteApiKey(id) {

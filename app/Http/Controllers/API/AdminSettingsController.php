@@ -193,12 +193,28 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'message'=>'삭제되었습니다']);
     }
 
+    // is_active 토글뿐 아니라 이름/서비스 코드/키 값/설명도 수정 가능하도록 확장
+    // (예전엔 보기·삭제·활성화 토글만 있고 값 자체를 고칠 방법이 없었음)
     public function updateApiKey(Request $request, $id) {
         $key = ApiKey::find($id);
-        if ($key && $request->has('is_active')) {
-            $key->update(['is_active' => $request->is_active]);
+        if (!$key) return response()->json(['success'=>false,'message'=>'키를 찾을 수 없습니다'],404);
+
+        $request->validate([
+            'name' => 'sometimes|required|string',
+            'service' => 'sometimes|required|string',
+            'api_key' => 'sometimes|required|string',
+            'description' => 'sometimes|nullable|string',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $key->update($request->only(['name', 'service', 'api_key', 'description', 'is_active']));
+
+        if ($request->has('api_key')) {
+            $envKey = strtoupper($key->service) . '_API_KEY';
+            $this->updateEnv($envKey, $request->api_key);
         }
-        return response()->json(['success'=>true]);
+
+        return response()->json(['success'=>true, 'message'=>'수정되었습니다']);
     }
 
     public function revealApiKey($id) {
