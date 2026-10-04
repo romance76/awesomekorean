@@ -24,6 +24,13 @@
                 <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600">📘</span>
                 정보
             </h1>
+            <form action="{{ route('info.index') }}" method="GET" class="flex gap-1">
+                @if ($activeCategory)
+                    <input type="hidden" name="category" value="{{ $activeCategory }}">
+                @endif
+                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft w-40 px-3 py-1.5 text-sm">
+                <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+            </form>
         </div>
 
         <div class="grid grid-cols-12 gap-4">
@@ -41,12 +48,14 @@
             </div>
 
             {{-- 메인: 정보 글 목록 --}}
-            <div class="col-span-12 lg:col-span-10">
+            <div class="col-span-12 lg:col-span-7">
                 <div class="mb-2">
                     <span class="font-bold text-amber-700 text-sm">{{ $activeCategory ?: '전체' }}</span>
-                    @unless ($activeCategory)
+                    @if ($search)
+                        <span class="badge-gray ml-2">"{{ $search }}" 검색결과</span>
+                    @elseif (!$activeCategory)
                         <span class="text-xs text-ink-muted ml-2">모든 정보 글을 볼 수 있습니다</span>
-                    @endunless
+                    @endif
                 </div>
 
                 @if ($posts->isEmpty())
@@ -83,6 +92,49 @@
                     <div class="mt-6">{{ $posts->links() }}</div>
                 @endif
             </div>
+
+            {{-- 오른쪽: 많이 본/최신 정보 (JS 없이 순수 CSS 라디오 탭) --}}
+            <div class="col-span-12 lg:col-span-3 hidden lg:block">
+                <div class="sticky top-20">
+                    <div class="card overflow-hidden info-tabs">
+                        <input type="radio" name="info-tab" id="tab-popular" class="hidden" checked>
+                        <input type="radio" name="info-tab" id="tab-latest" class="hidden">
+                        <div class="flex border-b border-gray-50">
+                            <label for="tab-popular" class="tab-popular-label flex-1 py-2.5 text-xs font-bold text-center cursor-pointer transition text-ink-muted">많이 본 정보</label>
+                            <label for="tab-latest" class="tab-latest-label flex-1 py-2.5 text-xs font-bold text-center cursor-pointer transition text-ink-muted">최신 정보</label>
+                        </div>
+                        <div class="tab-popular-panel py-1">
+                            @forelse ($popular as $i => $p)
+                                <a href="{{ route('info.show', $p->slug) }}" class="flex items-start gap-2 px-3 py-2 hover:bg-amber-50/40 transition-colors">
+                                    <span class="text-xs font-bold flex-shrink-0 w-5 text-center {{ $i < 3 ? 'text-amber-600' : 'text-ink-faint' }}">{{ $i + 1 }}</span>
+                                    <span class="text-xs text-ink-light leading-snug line-clamp-2">{{ $p->title }}</span>
+                                </a>
+                            @empty
+                                <div class="py-4 text-center text-xs text-ink-muted">데이터가 없습니다</div>
+                            @endforelse
+                        </div>
+                        <div class="tab-latest-panel py-1">
+                            @forelse ($latest as $i => $p)
+                                <a href="{{ route('info.show', $p->slug) }}" class="flex items-start gap-2 px-3 py-2 hover:bg-amber-50/40 transition-colors">
+                                    <span class="text-xs font-bold flex-shrink-0 w-5 text-center {{ $i < 3 ? 'text-amber-600' : 'text-ink-faint' }}">{{ $i + 1 }}</span>
+                                    <span class="text-xs text-ink-light leading-snug line-clamp-2">{{ $p->title }}</span>
+                                </a>
+                            @empty
+                                <div class="py-4 text-center text-xs text-ink-muted">데이터가 없습니다</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .info-tabs .tab-latest-panel { display: none; }
+                .info-tabs:has(#tab-latest:checked) .tab-popular-panel { display: none; }
+                .info-tabs:has(#tab-latest:checked) .tab-latest-panel { display: block; }
+                .info-tabs:has(#tab-popular:checked) .tab-popular-label,
+                .info-tabs:has(#tab-latest:checked) .tab-latest-label {
+                    color: #d97706; border-bottom: 2px solid #fbbf24; background: rgba(255,247,237,.6);
+                }
+            </style>
         </div>
     </div>
 </body>
