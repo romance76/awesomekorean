@@ -52,7 +52,10 @@ Route::post('/register', [AuthController::class, 'register'])->middleware('throt
 Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:20,10');       // 10분당 20회
 // Issue #8: 비밀번호 찾기/재설정 Rate Limit
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,10'); // 10분당 3회
+// 기존 3,10은 "다시 보내기" 버튼을 2~3번만 눌러도 바로 잠겨버려 정상 사용자도
+// 429를 맞는 사례가 실제로 발견됨 — 프론트 쿨다운(60초)으로 1차 방어하고,
+// 서버 쪽 한도는 악용 방지 목적만 남기도록 완화.
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:8,10'); // 10분당 8회
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,10');   // 10분당 5회
 
 // ─── Public Read ───
