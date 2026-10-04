@@ -273,6 +273,12 @@ const visibleMenus = computed(() => {
       })
       .filter(m => m.path)
   }
+  // menuConfig가 아직 API에서 로드되기 전 — 이 하드코딩 defaultMenus는 운영
+  // 설정(관리자 페이지에서 끈 메뉴 등)과 다를 수 있으므로, 여기서 바로 보여주면
+  // 로드 완료 후 사라지는 깜빡임이 생긴다(예: /info 같은 외부 페이지를 거쳐
+  // 왔다가 메뉴를 누르면 안심서비스가 잠깐 보였다 사라지는 현상).
+  // 로드가 끝날 때까지는 비워 둬서 틀린 목록이 잠깐 보이는 걸 막는다.
+  if (!siteStore.loaded) return []
   return defaultMenus
     .filter(m => m.enabled !== false)
     .filter(m => !m.login_required || auth.isLoggedIn)
