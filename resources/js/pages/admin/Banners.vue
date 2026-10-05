@@ -174,14 +174,26 @@ const activePage = ref('all')
 const previewImg = ref(null)
 const previewUrl = ref(null)
 
-const pageList = [
-  { key:'home',icon:'home',label:'홈' },{ key:'community',icon:'message-circle',label:'커뮤니티' },
-  { key:'qa',icon:'help-circle',label:'Q&A' },{ key:'jobs',icon:'briefcase',label:'구인구직' },
-  { key:'market',icon:'shopping-cart',label:'장터' },{ key:'realestate',icon:'building',label:'부동산' },
-  { key:'directory',icon:'store',label:'업소록' },{ key:'clubs',icon:'users',label:'동호회' },
-  { key:'news',icon:'newspaper',label:'뉴스' },{ key:'recipes',icon:'utensils',label:'레시피' },
-  { key:'groupbuy',icon:'heart-handshake',label:'공동구매' },{ key:'events',icon:'calendar',label:'이벤트' },
-]
+// 페이지 탭 목록은 이 파일에 따로 하드코딩하지 않고 광고 센터(overview API)의
+// availablePages()를 그대로 공유해서 가져옴 — 둘이 따로 하드코딩돼 있다 보니
+// '정보'·'숏츠'처럼 나중에 추가된 페이지가 여기에만 빠져서 광고 목록 탭 개수가
+// 실제 활성 메뉴 수와 안 맞던 문제가 있었음.
+const pageList = ref([])
+async function loadPages() {
+  try {
+    const { data } = await axios.get('/api/admin/ad-center/overview')
+    pageList.value = Object.entries(data.data?.pages || {}).map(([key, p]) => ({ key, icon: iconFor(key), label: p.label }))
+  } catch {}
+}
+// AppIcon에 없는 lucide 아이콘명 호환 — ad-center 쪽은 이모지만 내려주므로 매핑
+function iconFor(key) {
+  return {
+    home: 'home', community: 'message-circle', qa: 'help-circle', jobs: 'briefcase',
+    market: 'shopping-cart', realestate: 'building', directory: 'store', clubs: 'users',
+    news: 'newspaper', recipes: 'utensils', groupbuy: 'heart-handshake', events: 'calendar',
+    music: 'music', shorts: 'video', info: 'book-open',
+  }[key] || 'file'
+}
 
 const leftSlots = [
   { key:'l1',num:1,icon:'🥇',label:'프리미엄 (고정)',max:1 },
@@ -203,8 +215,8 @@ const geoTypesMap = { all:geoTypes[0], state:geoTypes[1], county:geoTypes[2] }
 const stLbl = { pending:'대기',active:'게시중',rejected:'거절',expired:'만료',paused:'중지' }
 const stCls = { pending:'bg-amber-100 text-amber-700',active:'bg-green-100 text-green-700',rejected:'bg-red-100 text-red-700',expired:'bg-gray-200 text-gray-500',paused:'bg-gray-200 text-gray-500' }
 
-function pageLabel(k){ return pageList.find(p=>p.key===k)?.label||k }
-function pageIcon(k){ return pageList.find(p=>p.key===k)?.icon||'📄' }
+function pageLabel(k){ return pageList.value.find(p=>p.key===k)?.label||k }
+function pageIcon(k){ return pageList.value.find(p=>p.key===k)?.icon||'📄' }
 function pageAdCount(pk){ return items.value.filter(i=> i.page===pk||(i.target_pages&&i.target_pages.includes(pk))).length }
 
 function matchPage(ad, pk) {
@@ -237,5 +249,5 @@ async function reject(item){const r=prompt('거절 사유:');if(!r)return;try{aw
 async function pause(item){try{await axios.post(`/api/admin/banners/${item.id}/pause`);item.status='paused'}catch{}}
 async function remove(item){if(!confirm('삭제?'))return;try{await axios.delete(`/api/admin/banners/${item.id}`);items.value=items.value.filter(i=>i.id!==item.id)}catch{}}
 
-onMounted(load)
+onMounted(() => { load(); loadPages() })
 </script>

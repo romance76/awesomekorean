@@ -166,6 +166,14 @@ class AdminAdCenterController extends Controller
         };
     }
 
+    /**
+     * 광고를 걸 수 있는 페이지 목록 — 사이트 전체 메뉴(site_settings.menu_config,
+     * 17개 활성)와 별개로 여기 직접 하드코딩돼 있다 보니, '정보'·'숏츠'처럼
+     * 나중에 추가된 공개 콘텐츠 페이지가 광고 센터 페이지 선택지/광고 목록
+     * 탭 어디에도 안 뜨는 문제가 있었음(실측: 17개 활성 메뉴 중 13개만 반영돼
+     * 있었음). 채팅/친구처럼 개인 전용 기능 페이지는 광고 지면으로 의미가
+     * 없어 제외하고, 공개 콘텐츠 페이지만 계속 직접 관리.
+     */
     protected function availablePages(): array
     {
         return [
@@ -173,9 +181,11 @@ class AdminAdCenterController extends Controller
             'community' => ['label' => '커뮤니티', 'geo' => false, 'icon' => '💬'],
             'qa' => ['label' => 'Q&A', 'geo' => false, 'icon' => '❓'],
             'news' => ['label' => '뉴스', 'geo' => false, 'icon' => '📰'],
+            'info' => ['label' => '정보', 'geo' => false, 'icon' => '📘'],
             'recipes' => ['label' => '레시피', 'geo' => false, 'icon' => '🍳'],
             'groupbuy' => ['label' => '공동구매', 'geo' => false, 'icon' => '🛍'],
             'music' => ['label' => '음악', 'geo' => false, 'icon' => '🎵'],
+            'shorts' => ['label' => '숏츠', 'geo' => false, 'icon' => '🎬'],
             'market' => ['label' => '중고장터', 'geo' => true, 'icon' => '🛒'],
             'jobs' => ['label' => '구인구직', 'geo' => true, 'icon' => '💼'],
             'realestate' => ['label' => '부동산', 'geo' => true, 'icon' => '🏠'],
