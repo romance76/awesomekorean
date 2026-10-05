@@ -127,9 +127,9 @@
       <div class="font-bold text-sm text-ink mb-1 flex items-center gap-2">
         <span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="list" :size="14" /></span>페이지별 광고 슬롯 수
       </div>
-      <p class="text-xs text-ink-muted mb-3">메뉴 관리에서 광고를 켠(일반 광고) 페이지만 자동으로 나열됩니다. 좌/우 둘 다 0 이면 해당 페이지 광고 자체가 꺼집니다. 애드센스로 지정한 페이지는 광고 센터에서 따로 관리됩니다.</p>
+      <p class="text-xs text-ink-muted mb-3">메뉴 관리에서 광고를 켠 페이지가 전부 나열됩니다. 좌/우 둘 다 0 이면 해당 페이지 광고 자체가 꺼집니다. 애드센스로 지정한 페이지는 슬롯 개념이 없어 광고 센터에서 따로 관리된다는 안내만 표시됩니다.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <div v-for="menu in adEligibleMenus" :key="menu.key" class="bg-gray-50 rounded-xl border border-gray-100 p-3 flex items-center gap-3"
+        <div v-for="menu in bannerEligibleMenus" :key="menu.key" class="bg-gray-50 rounded-xl border border-gray-100 p-3 flex items-center gap-3"
           :class="isPageOff(menu.key) ? 'opacity-60 border-dashed' : ''">
           <div class="w-20 flex-shrink-0">
             <div class="text-xs font-bold text-ink flex items-center gap-1">
@@ -153,6 +153,19 @@
                 <span class="text-xs font-bold text-orange-700 w-4 text-center">{{ slotOf(menu.key).right_slots }}</span>
               </div>
             </div>
+          </div>
+        </div>
+        <!-- 애드센스로 지정된 페이지 — 좌/우 슬롯 수 개념이 없어 슬라이더 대신
+             안내만 표시. 실제 애드센스 영역 설정은 광고 센터 화면에서 관리됨. -->
+        <div v-for="menu in adsenseEligibleMenus" :key="menu.key" class="bg-blue-50/50 rounded-xl border border-blue-100 border-dashed p-3 flex items-center gap-3">
+          <div class="w-20 flex-shrink-0">
+            <div class="text-xs font-bold text-ink flex items-center gap-1">
+              <span>{{ menu.icon }}</span>{{ menu.label }}
+            </div>
+            <div class="text-[11px] text-ink-faint">{{ menu.path }}</div>
+          </div>
+          <div class="flex-1 text-[11px] text-blue-600 flex items-center gap-1.5">
+            <AppIcon name="sparkles" :size="12" /> 애드센스 — 광고 센터에서 관리됩니다
           </div>
         </div>
       </div>
@@ -318,13 +331,16 @@ async function loadAdSettings() {
 }
 
 // 광고 슬롯 설정 대상 메뉴: 활성화된 메뉴 중 "메뉴 관리"에서 광고를 켠(ads_enabled)
-// 메뉴만. 애드센스로 지정된 페이지는 좌/우 슬롯 수 개념 자체가 없는(일반 배너
-// 광고 전용 설정이라) 여기선 제외 — 광고 센터에서 별도 애드센스 영역으로 관리됨.
+// 메뉴 전부. 일반 광고/애드센스 모두 여기 목록엔 나오되, 애드센스는 좌/우 슬롯
+// 수 개념 자체가 없어서(실제 설정은 광고 센터에서 따로 관리) 아래 템플릿에서
+// 슬라이더 대신 안내만 보여주는 쪽으로 따로 분리해서 렌더링함.
 const adEligibleMenus = computed(() => {
   const mc = siteStore.menuConfig
   if (!mc || !Array.isArray(mc)) return []
-  return mc.filter(m => m.enabled !== false && !m.admin_only && m.ads_enabled && (m.ads_type || 'banner') !== 'adsense')
+  return mc.filter(m => m.enabled !== false && !m.admin_only && m.ads_enabled)
 })
+const bannerEligibleMenus = computed(() => adEligibleMenus.value.filter(m => (m.ads_type || 'banner') !== 'adsense'))
+const adsenseEligibleMenus = computed(() => adEligibleMenus.value.filter(m => (m.ads_type || 'banner') === 'adsense'))
 
 // 특정 메뉴의 슬롯 설정 (없으면 0/0 기본값)
 function slotOf(key) {
@@ -358,8 +374,9 @@ async function saveAdPrices() {
 async function savePageConfig() {
   savingPageConfig.value = true; pageConfigMsg.value = ''
   // 활성 메뉴 기준으로 최종 config 구성 (신규 메뉴는 0/0, 사라진 메뉴는 유지하되 덮어쓰기 가능)
+  // 애드센스 페이지는 좌/우 슬롯 개념이 없어 제외.
   const finalConfig = { ...pageConfig.value }
-  adEligibleMenus.value.forEach(menu => {
+  bannerEligibleMenus.value.forEach(menu => {
     if (!finalConfig[menu.key]) {
       finalConfig[menu.key] = { left_slots: 0, right_slots: 0, label: menu.label }
     } else if (!finalConfig[menu.key].label) {
