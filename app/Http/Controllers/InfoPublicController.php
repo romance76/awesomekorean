@@ -106,7 +106,11 @@ class InfoPublicController extends Controller
         $prev = InfoPost::published()->where('published_at', '<', $post->published_at)->orderByDesc('published_at')->first();
         $next = InfoPost::published()->where('published_at', '>', $post->published_at)->orderBy('published_at')->first();
 
+        // 목록 페이지 오른쪽의 검색/많이 본/최신 정보 위젯 — 글 상세 페이지에서도 그대로 유지
+        $popular = InfoPost::published()->orderByDesc('view_count')->limit(10)->get(['title', 'slug']);
+        $latest = InfoPost::published()->orderByDesc('published_at')->limit(10)->get(['title', 'slug']);
+
         $menus = $this->headerMenus();
-        return view('info.show', compact('post', 'prev', 'next', 'menus'));
+        return view('info.show', compact('post', 'prev', 'next', 'menus', 'popular', 'latest'));
     }
 }
