@@ -31,6 +31,26 @@ class AdminSettingsController extends Controller
         // super_admin으로 제한하는 것으로 대응)
         unset($settings['api_keys']);
 
+        // SiteSettings.vue(관리자 설정 화면)는 회사정보/사이트설정/푸터편집/
+        // 약관관리/알림설정 탭을 각각 data.company / data.site / data.footer /
+        // data.terms / data.notifications 처럼 탭별로 묶인 객체로 기대하는데,
+        // 실제 저장은 평평한 site_settings 키-값(회사/사이트)이거나 단일 JSON
+        // blob 키(footer_config/notification_config)라서 모양이 한 번도 서로
+        // 안 맞았음 — 그래서 각 탭을 열 때마다 이미 저장돼 있는 값이 전혀
+        // 안 불러와지고 항상 빈 채로 보였음(약관 관리가 내용이 저장돼 있는데도
+        // 빈 에디터로 보인 것도 이 버그). 프론트가 기대하는 모양대로 묶어서
+        // 같이 내려줌.
+        $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','favicon_url','meta_description','meta_keywords'];
+        $siteKeys = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until','google_analytics_id','kakao_api_key'];
+        $settings['company'] = array_intersect_key($settings, array_flip($companyKeys));
+        $settings['site'] = array_intersect_key($settings, array_flip($siteKeys));
+        $settings['footer'] = $settings['footer_config'] ?? null;
+        $settings['notifications'] = $settings['notification_config'] ?? null;
+        $settings['terms'] = [
+            'terms' => ['content' => $settings['terms_page'] ?? ''],
+            'privacy' => ['content' => $settings['privacy_page'] ?? ''],
+        ];
+
         return response()->json(['success'=>true,'data'=>$settings]);
     }
 
