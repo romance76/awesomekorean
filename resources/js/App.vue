@@ -35,9 +35,9 @@
       </router-view>
     </main>
 
-    <!-- 푸터 (데스크탑) — 본문과 구분되도록 사이트 다크 톤(--color-ink) 배경으로.
+    <!-- 푸터 (데스크탑) — 본문과 구분되도록 어두운 남색(slate) 배경으로.
          기존엔 bg-surface(연한 살구색)라 본문 카드들과 거의 구분이 안 됐음. -->
-    <footer v-if="showNav" class="bg-ink hidden md:block mt-6">
+    <footer v-if="showNav" class="bg-slate-800 hidden md:block mt-6">
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="grid grid-cols-4 gap-4 mb-6">
           <div>
