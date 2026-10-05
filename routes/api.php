@@ -836,6 +836,12 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/info-generation/status', [\App\Http\Controllers\API\AdminInfoController::class, 'generationStatus']);
     Route::post('/info-generation/trigger', [\App\Http\Controllers\API\AdminInfoController::class, 'triggerGeneration']);
 
+    Route::get('/amazon-products/stats', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'stats']);
+    Route::get('/amazon-products', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'index']);
+    Route::post('/amazon-products', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'store']);
+    Route::put('/amazon-products/{id}', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'update']);
+    Route::delete('/amazon-products/{id}', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'destroy']);
+
     // Admin Shorts
     Route::get('/shorts', [AdminController::class, 'shortsList']);
     Route::delete('/shorts/{id}', [AdminController::class, 'shortsDelete']);

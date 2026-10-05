@@ -1,17 +1,56 @@
 <?php
+
 namespace App\Http\Controllers\API;
+
 use App\Http\Controllers\Controller;
-use App\Models\ShoppingDeal;
-use App\Support\ThumbHelper;
+use App\Models\AmazonProduct;
+use App\Models\AmazonProductClick;
+use Illuminate\Http\Request;
 
 class ShoppingController extends Controller
 {
-    public function index() {
-        $deals = ShoppingDeal::with('store:id,name,logo')->where('is_active', true)->orderByDesc('discount_percent')->paginate(20);
-        $deals->getCollection()->transform(function ($d) {
-            $d->thumbnail_url = ThumbHelper::url($d->image_url, 320);
-            return $d;
-        });
-        return response()->json(['success' => true, 'data' => $deals]);
+    // 공개: Amazon 제휴 상품 목록 (카테고리/검색 필터 + 페이지네이션)
+    public function index(Request $request)
+    {
+        $query = AmazonProduct::where('is_active', true);
+
+        if ($request->category) {
+            $query->where('category', $request->category);
+        }
+        if ($request->search) {
+            $query->where('title', 'LIKE', '%' . $request->search . '%');
+        }
+        if ($request->featured) {
+            $query->where('is_featured', true);
+        }
+
+        $products = $query->orderByDesc('is_featured')
+            ->orderBy('display_order')
+            ->orderByDesc('id')
+            ->paginate(20);
+
+        return response()->json(['success' => true, 'data' => $products]);
+    }
+
+    // 공개: 클릭 기록 후 Amazon 제휴 링크로 리다이렉트 (routes/web.php에 등록 — SPA 캐치올보다 먼저)
+    public function go($id)
+    {
+        $product = AmazonProduct::find($id);
+        if (!$product) {
+            abort(404);
+        }
+
+        $product->increment('clicks');
+
+        AmazonProductClick::create([
+            'amazon_product_id' => $product->id,
+            'asin'              => $product->asin,
+            'category'          => $product->category,
+            'user_id'           => auth('api')->id(),
+            'page'              => request()->header('referer'),
+            'clicked_at'        => now(),
+        ]);
+
+        return redirect()->away($product->affiliate_url);
     }
 }

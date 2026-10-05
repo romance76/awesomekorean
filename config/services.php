@@ -68,4 +68,11 @@ return [
     'info_ingest' => [
         'token' => env('INFO_INGEST_TOKEN'),
     ],
+
+    // Amazon Associates 제휴 태그 — 코드 곳곳에 하드코딩하지 않고 여기 한 곳에서만
+    // 참조(App\Support\AmazonLink). 실 서버 .env에 값이 없어도 기본값으로 바로
+    // 동작하도록 fallback을 둠.
+    'amazon' => [
+        'associate_tag' => env('AMAZON_ASSOCIATE_TAG', 'awesomekorean-20'),
+    ],
 ];
