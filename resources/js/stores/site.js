@@ -80,8 +80,18 @@ export const useSiteStore = defineStore('site', () => {
   function isEnabled(key) { return true }
   function getOrder(key) { return 999 }
 
+  // 관리자 '메뉴 관리'에서 저장 직후 호출 — load()는 세션당 한 번만 서버에서
+  // 가져오고 이후론 캐시된 값을 그대로 돌려주기 때문에, SPA 안에서 메뉴를
+  // 저장해도 광고/가격 센터 같은 다른 화면이 구버전 menuConfig를 계속 보고
+  // 있던 문제(새로고침해야만 반영됨)가 있었음 — 저장한 값을 스토어에 바로
+  // 반영해서 같은 세션 내 모든 화면이 즉시 최신 상태를 보도록 함.
+  function updateMenuConfig(menus) {
+    menuConfig.value = menus
+    writeMenuCache(menus)
+  }
+
   return {
     siteName, logoUrl, menus, loaded, darkMode, toasts, settings, menuConfig,
-    toast, removeToast, load, getSetting, isEnabled, getOrder,
+    toast, removeToast, load, getSetting, isEnabled, getOrder, updateMenuConfig,
   }
 })
