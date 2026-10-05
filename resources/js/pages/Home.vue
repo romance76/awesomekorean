@@ -279,7 +279,7 @@
       <RouterLink to="/register" class="shrink-0 bg-white text-ink font-bold text-[15px] px-7 py-3.5 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
     </div>
 
-    <div class="grid grid-cols-3 lg:grid-cols-6 gap-2.5 mt-4">
+    <div class="hidden lg:grid lg:grid-cols-6 gap-2.5 mt-4">
       <RouterLink v-for="svc in favorites" :key="svc.to" :to="svc.to"
         class="card card-hover py-3.5 px-2 grid place-items-center gap-1.5 text-[12.5px] font-semibold text-ink-light hover:!text-amber-500 hover:!border-amber-300">
         <span class="icon-chip w-9 h-9" :class="menuChipColor(svc.key)">
