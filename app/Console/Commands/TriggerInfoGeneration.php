@@ -29,6 +29,18 @@ class TriggerInfoGeneration extends Command
             return self::SUCCESS;
         }
 
+        // "전체 콘텐츠 자동 수집" 버튼을 관리자가 테스트 삼아 여러 번 눌러도
+        // (예: 멈춘 작업 재시작) 오늘 이미 끝낸 10개 발행을 또 중복으로
+        // 요청하지 않도록 — 매일 스케줄/sync-all처럼 자동으로 걸리는
+        // 경로에서만 "오늘 이미 완료됨"이면 건너뜀. (관리자가 '정보 관리'
+        // 탭의 "🚀 지금 자동 생성" 버튼을 직접 누른 수동 요청은 이 커맨드를
+        // 거치지 않으므로 영향 없음 — 거기선 언제든 추가 요청 가능.)
+        $completedAt = $status['completed_at'] ?? null;
+        if (($status['status'] ?? null) === 'done' && $completedAt && \Carbon\Carbon::parse($completedAt)->isToday()) {
+            $this->info('오늘 이미 생성 완료됨 — 요청 건너뜀');
+            return self::SUCCESS;
+        }
+
         SiteSetting::updateOrCreate(['key' => self::SETTING_KEY], [
             'value' => json_encode([
                 'status' => 'running', 'completed' => 0, 'target' => 10,
