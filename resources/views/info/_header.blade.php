@@ -1,8 +1,9 @@
-{{-- 본 사이트 NavBar.vue와 같은 모양(로고/검색/메뉴 행)을 서버사이드 Blade로 재현.
-     이 페이지는 Vue Router 밖(일반 네비게이션)이라 서버는 로그인 상태를 모르지만,
-     로그인 토큰 자체는 (세션 쿠키가 아니라) localStorage/sessionStorage의
-     sk_token/sk_user에 있으므로, 아래 작은 스크립트로 로드 직후 그것만 읽어서
-     로그인 중이면 게스트 버튼 대신 아바타(마이페이지/로그아웃)로 바꿔치기한다. --}}
+{{-- 본 사이트 NavBar.vue와 같은 모양(로고/검색/알림/아바타/EN 번역 토글/메뉴 행)을
+     서버사이드 Blade로 재현. 이 페이지는 Vue Router 밖(일반 네비게이션)이라 서버는
+     로그인 상태를 모르지만, 로그인 토큰 자체는 (세션 쿠키가 아니라) localStorage/
+     sessionStorage의 sk_token/sk_user에 있으므로, 아래 작은 스크립트로 로드 직후
+     그것만 읽어서 로그인 중이면 게스트 버튼 대신 알림벨+아바타(마이페이지/로그아웃)로
+     바꿔치기한다. --}}
 <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
         <a href="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
@@ -15,6 +16,24 @@
             </form>
         </div>
         <div class="flex-1 md:hidden"></div>
+
+        {{-- 알림벨 — 로그인 중일 때만 표시 --}}
+        <div id="info-auth-notif" class="relative flex-shrink-0" style="display:none">
+            <button id="info-notif-bell" type="button" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span id="info-notif-badge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full items-center justify-center font-bold" style="display:none">0</span>
+            </button>
+            <div id="info-notif-dropdown" class="absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden" style="display:none; width:min(320px, calc(100vw - 2rem));">
+                <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50">
+                    <span class="text-sm font-bold text-ink">알림</span>
+                    <button id="info-notif-readall" type="button" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors" style="display:none">전체 읽음</button>
+                </div>
+                <div id="info-notif-list" class="max-h-80 overflow-y-auto">
+                    <div class="px-4 py-10 text-center text-sm text-ink-muted">알림이 없습니다</div>
+                </div>
+            </div>
+        </div>
+
         <div id="info-auth-guest" class="flex items-center gap-1.5 flex-shrink-0">
             <a href="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-surface px-3 py-1.5 rounded-full transition-colors">로그인</a>
             <a href="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn" style="background-image:linear-gradient(135deg,#FF7A30,#FF4D12)">시작하기</a>
@@ -26,6 +45,11 @@
                 <button id="info-auth-logout" type="button" class="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm text-ink-muted hover:bg-gray-50 transition-colors">로그아웃</button>
             </div>
         </div>
+
+        {{-- EN 번역 토글 — 로그인 여부와 무관하게 항상 표시 (NavBar.vue와 동일하게 Google Translate 쿠키 플립 방식) --}}
+        <button id="info-lang-toggle" type="button" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-surface hover:bg-line transition-colors flex-shrink-0" title="Translate to English">
+            <span translate="no" class="notranslate">EN</span>
+        </button>
     </div>
     <div class="border-t border-gray-50 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-10 overflow-x-auto scrollbar-hide">
@@ -40,8 +64,59 @@
         </div>
     </div>
 </nav>
+
+{{-- Google Translate 위젯 — welcome.blade.php(SPA)와 동일한 초기화. 이 페이지는 SPA
+     셸을 전혀 안 쓰므로, EN 토글이 실제로 번역되게 하려면 여기서도 따로 로드해야 함. --}}
+<style>
+.goog-te-banner-frame, .goog-te-banner-frame.skiptranslate, .goog-te-gadget,
+#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover,
+iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, iframe.VIpgJd-ZVi9od-ORHb,
+.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb, .VIpgJd-yQoo3f-LgbsSe { display: none !important; visibility: hidden !important; }
+body { top: 0 !important; position: static !important; }
+html { margin-top: 0 !important; }
+.goog-text-highlight { background: transparent !important; box-shadow: none !important; }
+</style>
+<div id="google_translate_element" style="display:none"></div>
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'ko',
+        includedLanguages: 'en,ko,ja,zh-CN,es,vi',
+        autoDisplay: false,
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+}
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
+
 <script>
 (function () {
+    // EN 번역 토글 — 로그인 여부와 무관하게 항상 동작해야 하므로 별도 try 블록
+    try {
+        var enBtn = document.getElementById('info-lang-toggle');
+        function isTranslated() { return document.cookie.indexOf('googtrans=/ko/en') !== -1; }
+        function syncEnLabel() {
+            var translated = isTranslated();
+            enBtn.querySelector('span').textContent = translated ? '한' : 'EN';
+            enBtn.title = translated ? '한국어로 돌아가기' : 'Translate to English';
+        }
+        syncEnLabel();
+        enBtn.addEventListener('click', function () {
+            var host = location.hostname;
+            var root = host.replace(/^www\./, '');
+            var domains = ['', host, '.' + host, '.' + root];
+            domains.forEach(function (d) {
+                document.cookie = 'googtrans=; path=/; max-age=0' + (d ? '; domain=' + d : '');
+            });
+            if (!isTranslated()) {
+                document.cookie = 'googtrans=/ko/en; path=/';
+                document.cookie = 'googtrans=/ko/en; path=/; domain=.' + root;
+            }
+            location.reload();
+        });
+    } catch (e) {}
+
+    // 로그인 상태 반영 — 알림벨 + 아바타(마이페이지/로그아웃)
     try {
         var raw = sessionStorage.getItem('sk_user') || localStorage.getItem('sk_user');
         var token = sessionStorage.getItem('sk_token') || localStorage.getItem('sk_token');
@@ -76,6 +151,114 @@
             sessionStorage.removeItem('sk_token'); sessionStorage.removeItem('sk_user');
             location.reload();
         });
+
+        // 알림벨 — NavBar.vue와 동일한 /api/notifications 를 토큰 직접 첨부해서 호출
+        function authHeaders() { return { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }; }
+
+        function formatNotifDate(s) {
+            if (!s) return '';
+            var d = new Date(s.replace(' ', 'T'));
+            if (isNaN(d.getTime())) return '';
+            var now = new Date();
+            var mm = String(d.getMinutes()).padStart(2, '0');
+            var hh = String(d.getHours()).padStart(2, '0');
+            var m = d.getMonth() + 1, day = d.getDate();
+            if (d.getFullYear() === now.getFullYear()) return m + '/' + day + ' ' + hh + ':' + mm;
+            return d.getFullYear() + '.' + m + '.' + day + ' ' + hh + ':' + mm;
+        }
+
+        // 알림 타입별 이동 경로 결정 (NavBar.vue의 resolveNotifRoute와 동일한 규칙)
+        function resolveNotifRoute(n) {
+            var d = n.data || {};
+            if (d.url) return d.url;
+            if (n.type === 'message') return '/dashboard?tab=messages';
+            if (n.type === 'friend_request') return '/friends';
+            if (n.type === 'elder_call_missed') return '/elder/guardian';
+            if (n.type === 'elder_checkin_missed') return (d.elder_user_id || d.ward_id) ? '/elder/guardian' : '/elder/checkin';
+            if (n.type && n.type.indexOf('elder_') === 0) return '/elder';
+            if (n.type === 'market_reservation_expired' || n.type === 'reservation_expired') return d.item_id ? ('/market/' + d.item_id) : '/market';
+            if (n.type === 'comment' && d.post_id) return '/community/post/' + d.post_id;
+            if (n.type === 'system') return '/dashboard';
+            return '/dashboard';
+        }
+
+        function clickNotif(n) {
+            if (!n.read_at) {
+                fetch('/api/notifications/' + n.id + '/read', { method: 'POST', headers: authHeaders() }).catch(function () {});
+            }
+            window.location.href = resolveNotifRoute(n);
+        }
+
+        function renderNotifs(list, unread) {
+            var badge = document.getElementById('info-notif-badge');
+            if (unread > 0) {
+                badge.style.display = 'flex';
+                badge.textContent = unread > 9 ? '9+' : String(unread);
+            } else {
+                badge.style.display = 'none';
+            }
+            document.getElementById('info-notif-readall').style.display = list.some(function (n) { return !n.read_at; }) ? 'inline-block' : 'none';
+
+            var container = document.getElementById('info-notif-list');
+            container.innerHTML = '';
+            if (!list.length) {
+                var empty = document.createElement('div');
+                empty.className = 'px-4 py-10 text-center text-sm text-ink-muted';
+                empty.textContent = '알림이 없습니다';
+                container.appendChild(empty);
+                return;
+            }
+            list.forEach(function (n) {
+                var item = document.createElement('div');
+                item.className = 'px-4 py-2.5 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-amber-50/40 transition-colors' + (n.read_at ? '' : ' bg-amber-50/60');
+                var row = document.createElement('div');
+                row.className = 'flex items-start gap-2';
+                var dot = document.createElement('span');
+                dot.className = n.read_at ? 'w-2 h-2 flex-shrink-0' : 'w-2 h-2 bg-amber-400 rounded-full flex-shrink-0 mt-1.5';
+                var textWrap = document.createElement('div');
+                textWrap.className = 'min-w-0 flex-1';
+                var titleEl = document.createElement('div');
+                titleEl.className = 'text-xs font-semibold text-ink truncate';
+                titleEl.textContent = n.title || '';
+                var contentEl = document.createElement('div');
+                contentEl.className = 'text-xs text-ink-muted truncate';
+                contentEl.textContent = n.content || '';
+                var dateEl = document.createElement('div');
+                dateEl.className = 'text-[11px] text-ink-faint mt-0.5';
+                dateEl.textContent = formatNotifDate(n.created_at);
+                textWrap.appendChild(titleEl); textWrap.appendChild(contentEl); textWrap.appendChild(dateEl);
+                row.appendChild(dot); row.appendChild(textWrap);
+                item.appendChild(row);
+                item.addEventListener('click', function () { clickNotif(n); });
+                container.appendChild(item);
+            });
+        }
+
+        function loadNotifs() {
+            fetch('/api/notifications', { headers: authHeaders() })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    var list = (data.data && data.data.data) || data.data || [];
+                    renderNotifs(list, data.unread_count || 0);
+                })
+                .catch(function () {});
+        }
+
+        var notifBox = document.getElementById('info-auth-notif');
+        notifBox.style.display = 'block';
+        var notifDropdown = document.getElementById('info-notif-dropdown');
+        document.getElementById('info-notif-bell').addEventListener('click', function () {
+            var opening = notifDropdown.style.display === 'none';
+            notifDropdown.style.display = opening ? 'block' : 'none';
+            if (opening) loadNotifs();
+        });
+        document.getElementById('info-notif-readall').addEventListener('click', function () {
+            fetch('/api/notifications/read', { method: 'POST', headers: authHeaders() }).then(loadNotifs).catch(function () {});
+        });
+        document.addEventListener('click', function (e) {
+            if (!notifBox.contains(e.target)) notifDropdown.style.display = 'none';
+        });
+        loadNotifs();
     } catch (e) {}
 })();
 </script>
