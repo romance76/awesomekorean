@@ -292,10 +292,12 @@ import AdSlot from '../components/AdSlot.vue'
 import MobileBanner from '../components/MobileBanner.vue'
 import AppIcon from '../components/AppIcon.vue'
 import { menuIcon, menuChipColor } from '../utils/menuIcons'
+import { useLocation } from '../composables/useLocation'
 import axios from 'axios'
 
 const router = useRouter()
 const auth = useAuthStore()
+const { locationQuery, init: initLocation } = useLocation()
 const lang = useLangStore()
 const bannerStore = useBannerStore()
 const hasHomeAds = computed(() => bannerStore.getLeft('home').length > 0 || bannerStore.getRight('home').length > 0)
@@ -525,16 +527,21 @@ onMounted(async () => {
     heroBanners.value = data.data || []
     startHeroSlide()
   } catch {}
+  // 로그인한 회원이 프로필에 위치를 저장해뒀으면(위치 선택 페이지들과 동일한
+  // 로직) 홈 피드의 구인구직/중고장터/부동산/업소록도 그 위치 근처로 보여줌
+  // — 저장된 위치가 없으면(또는 비로그인) 기존처럼 전국 최신순 그대로.
+  initLocation()
+  const loc = locationQuery.value
   const [p, j, m, r, ev, gb, rc, cl, bz, hl] = await Promise.allSettled([
     axios.get('/api/posts?per_page=10'),
-    axios.get('/api/jobs?per_page=10'),
-    axios.get('/api/market?per_page=10'),
-    axios.get('/api/realestate?per_page=6'),
+    axios.get('/api/jobs', { params: { per_page: 10, ...loc } }),
+    axios.get('/api/market', { params: { per_page: 10, ...loc } }),
+    axios.get('/api/realestate', { params: { per_page: 6, ...loc } }),
     axios.get('/api/events?per_page=6'),
     axios.get('/api/groupbuys?per_page=6'),
     axios.get('/api/recipes?per_page=6'),
     axios.get('/api/clubs?per_page=6'),
-    axios.get('/api/businesses?per_page=6'),
+    axios.get('/api/businesses', { params: { per_page: 6, ...loc } }),
     axios.get('/api/external-headlines?per_page=40'),
   ])
   if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
@@ -547,6 +554,19 @@ onMounted(async () => {
   if (cl.status === 'fulfilled') clubs.value = cl.value.data?.data?.data || []
   if (bz.status === 'fulfilled') businesses.value = bz.value.data?.data?.data || []
   if (hl.status === 'fulfilled') headlines.value = hl.value.data?.data || []
+
+  // 부동산/중고장터 등은 한인 밀집 지역을 매일 랜덤으로 돌며 스크랩하는
+  // 특성상 오늘은 내 반경 안에 매물이 아예 없을 수도 있음 — 그 경우 섹션이
+  // 통째로 비어 보이는 것보다는 전국 최신순이라도 보여주는 게 나으니,
+  // 위치 필터를 걸었는데 결과가 0건인 섹션만 필터 없이 다시 조회.
+  if (loc.lat) {
+    const fallbacks = []
+    if (!jobs.value.length) fallbacks.push(axios.get('/api/jobs?per_page=10').then(({ data }) => { jobs.value = data?.data?.data || [] }))
+    if (!market.value.length) fallbacks.push(axios.get('/api/market?per_page=10').then(({ data }) => { market.value = data?.data?.data || [] }))
+    if (!realestate.value.length) fallbacks.push(axios.get('/api/realestate?per_page=6').then(({ data }) => { realestate.value = data?.data?.data || data?.data || [] }))
+    if (!businesses.value.length) fallbacks.push(axios.get('/api/businesses?per_page=6').then(({ data }) => { businesses.value = data?.data?.data || [] }))
+    if (fallbacks.length) await Promise.allSettled(fallbacks)
+  }
 })
 </script>
 
