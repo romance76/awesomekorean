@@ -20,10 +20,8 @@
     </div>
     <div class="card p-4 space-y-2 lg:col-span-2">
       <div class="font-bold text-sm text-ink mb-2">콘텐츠 자동 수집</div>
-      <div class="text-sm text-ink-muted">뉴스 · 헤드라인 · 주식 시세 · 쇼츠 · 음악 · 레시피 · 업소록을 버튼 하나로 순서대로 실행합니다 (백그라운드 실행, 하나가 실패해도 나머지는 계속 진행됩니다).</div>
-      <button @click="syncAllContent" :disabled="syncing" class="btn-primary px-4 py-2 disabled:opacity-50">{{ syncing ? '진행 중...' : '전체 자동 수집 실행' }}</button>
-      <div v-if="syncMsg" class="text-sm" :class="syncDone ? 'text-green-600' : 'text-ink-muted'">{{ syncMsg }}</div>
-      <pre v-if="syncLog" class="mt-2 text-xs bg-surface rounded-lg p-3 whitespace-pre-wrap max-h-64 overflow-y-auto">{{ syncLog }}</pre>
+      <div class="text-sm text-ink-muted">뉴스 · 헤드라인 · 주식 시세 · 쇼츠 · 음악 · 레시피 · 업소록 · 부동산 · 중고장터 · 정보를 버튼 하나로 순서대로 실행합니다 (백그라운드 실행, 하나가 실패해도 나머지는 계속 진행됩니다). 이 항목들은 매일 자동으로도 수집됩니다.</div>
+      <ContentSyncPanel button-label="전체 자동 수집 실행" />
     </div>
   </div>
 </div>
@@ -32,12 +30,9 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import ContentSyncPanel from '../../components/ContentSyncPanel.vue'
 const msg = ref('')
 const clearing = ref(false)
-const syncing = ref(false)
-const syncMsg = ref('')
-const syncLog = ref('')
-const syncDone = ref(false)
 async function clearCache() {
   clearing.value = true
   try {
@@ -48,31 +43,5 @@ async function clearCache() {
   }
   clearing.value = false
   setTimeout(() => msg.value = '', 3000)
-}
-async function syncAllContent() {
-  syncing.value = true
-  syncDone.value = false
-  syncLog.value = ''
-  try {
-    const { data } = await axios.post('/api/admin/system/sync-all-content')
-    syncMsg.value = data.message || '시작됐습니다.'
-  } catch (e) {
-    alert(e.response?.data?.message || '시작 실패')
-    syncing.value = false
-    return
-  }
-  const poll = setInterval(async () => {
-    try {
-      const { data } = await axios.get('/api/admin/system/sync-all-content/status')
-      syncLog.value = data.log || ''
-      if (data.done) {
-        clearInterval(poll)
-        syncing.value = false
-        syncDone.value = true
-        syncMsg.value = '완료됐습니다.'
-      }
-    } catch {}
-  }, 5000)
-  setTimeout(() => { clearInterval(poll); syncing.value = false }, 5 * 60 * 1000)
 }
 </script>
