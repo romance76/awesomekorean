@@ -50,8 +50,11 @@
     @include('info._header')
 
     <div class="max-w-7xl mx-auto px-4 py-5">
-        <div class="hidden lg:flex items-center justify-between mb-3 flex-wrap gap-2">
-            <a href="{{ route('info.index') }}" class="btn-ghost !px-2 inline-flex items-center gap-1.5">← 정보 목록</a>
+        <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
+            <a href="{{ route('info.index') }}" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
+                <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600">📘</span>
+                정보
+            </a>
             <form action="{{ route('info.index') }}" method="GET" class="flex gap-1">
                 <input type="text" name="q" placeholder="정보 검색..." class="input-soft w-40 px-3 py-1.5 text-sm">
                 <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
