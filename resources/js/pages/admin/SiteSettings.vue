@@ -1235,7 +1235,12 @@ async function loadSettings() {
   loading.value = true
   try {
     const { data } = await axios.get('/api/admin/settings/all')
-    applySettings(data)
+    // axios.get()의 data는 응답 바디 전체({success, data})이고, 실제
+    // 설정값은 그 안의 data 한 겹 더 안쪽에 있음 — applySettings가 한
+    // 겹 덜 벗긴 객체를 받아서 data.company/data.terms 등이 전부
+    // undefined였던 게 약관 관리를 포함한 모든 탭이 항상 빈 채로
+    // 보이던 진짜 원인.
+    applySettings(data.data)
     lastLoaded.value = new Date().toLocaleTimeString('ko-KR')
   } catch {
     // Use hardcoded defaults — already set above
