@@ -2,6 +2,24 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
 
+// /info(서버사이드 Blade) ↔ SPA를 오갈 때마다 풀 리로드가 일어나는데, 그때마다
+// /api/settings/public 응답을 기다리는 동안 메뉴가 비어 있다가 채워지면서
+// 깜빡이는 게 보임. localStorage에 직전 메뉴 구성을 캐시해뒀다가 최초 렌더부터
+// 바로 써서, 매번 리로드할 때마다 생기는 깜빡임을 없앤다(최초 1회 방문 시에만
+// 캐시가 없어 비어 있다가 채워짐).
+const MENU_CACHE_KEY = 'ak_menu_config_cache'
+
+function readMenuCache() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(MENU_CACHE_KEY))
+    return Array.isArray(parsed) && parsed.length ? parsed : null
+  } catch { return null }
+}
+
+function writeMenuCache(arr) {
+  try { localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(arr)) } catch {}
+}
+
 export const useSiteStore = defineStore('site', () => {
   const siteName = ref('AwesomeKorean')
   const logoUrl = ref('/images/logo.png')
@@ -10,7 +28,7 @@ export const useSiteStore = defineStore('site', () => {
   const darkMode = ref(false)
   const toasts = ref([])
   const settings = ref(null) // 전체 설정 데이터 캐시
-  const menuConfig = ref(null)
+  const menuConfig = ref(readMenuCache())
   let toastId = 0
   let loadPromise = null
 
@@ -43,7 +61,10 @@ export const useSiteStore = defineStore('site', () => {
         if (data.data.menu_config) {
           const parsed = typeof data.data.menu_config === 'string'
             ? JSON.parse(data.data.menu_config) : data.data.menu_config
-          if (Array.isArray(parsed) && parsed.length) menuConfig.value = parsed
+          if (Array.isArray(parsed) && parsed.length) {
+            menuConfig.value = parsed
+            writeMenuCache(parsed)
+          }
         }
       }
     } catch {}
