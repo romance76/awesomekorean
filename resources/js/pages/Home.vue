@@ -173,18 +173,8 @@
     </section>
   </div>
 
-  <!-- ═════ 2-M. 모바일 전용: 카테고리 카드 그리드 + 배너 ═════ -->
+  <!-- ═════ 2-M. 모바일 전용: 배너 ═════ -->
   <div class="lg:hidden max-w-7xl mx-auto px-4 pt-4">
-    <div class="grid grid-cols-3 gap-2 mb-3">
-      <RouterLink v-for="c in mobileCategories" :key="c.to" :to="c.to"
-        class="card card-hover p-3 flex flex-col items-center justify-center aspect-[5/4]">
-        <span class="icon-chip w-10 h-10" :class="menuChipColor(c.key)">
-          <AppIcon :name="menuIcon(c.key)" :size="20" />
-        </span>
-        <span class="text-xs font-bold text-ink mt-1.5">{{ c.name }}</span>
-        <span class="text-[11px] text-ink-muted mt-0.5">{{ c.desc }}</span>
-      </RouterLink>
-    </div>
     <MobileBanner page="home" class="mb-1" />
   </div>
 
@@ -279,7 +269,7 @@
       <RouterLink to="/register" class="shrink-0 bg-white text-ink font-bold text-[15px] px-7 py-3.5 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
     </div>
 
-    <div class="hidden lg:grid lg:grid-cols-6 gap-2.5 mt-4">
+    <div class="grid grid-cols-3 lg:grid-cols-6 gap-2.5 mt-4">
       <RouterLink v-for="svc in favorites" :key="svc.to" :to="svc.to"
         class="card card-hover py-3.5 px-2 grid place-items-center gap-1.5 text-[12.5px] font-semibold text-ink-light hover:!text-amber-500 hover:!border-amber-300">
         <span class="icon-chip w-9 h-9" :class="menuChipColor(svc.key)">
@@ -364,19 +354,6 @@ const popularBoards = [
 ]
 
 const trendingTags = ['이민','영주권','맛집','구인','중고차','부동산','세금','학교','병원','한의원','김치','미용실']
-
-// 모바일 전용 카테고리 그리드 — 아이콘/색상은 menuIcons.js 공용 매핑 사용
-const mobileCategories = [
-  { to: '/community',  key: 'community',  name: '커뮤니티', desc: '한인 이야기' },
-  { to: '/qa',         key: 'qa',         name: 'Q&A',      desc: '질문/답변' },
-  { to: '/jobs',       key: 'jobs',       name: '구인구직', desc: '일자리' },
-  { to: '/market',     key: 'market',     name: '중고장터', desc: '사고 팔기' },
-  { to: '/realestate', key: 'realestate', name: '부동산',   desc: '렌트/매매' },
-  { to: '/directory',  key: 'directory',  name: '업소록',   desc: '한인 업소' },
-  { to: '/clubs',      key: 'clubs',      name: '동호회',   desc: '모임 찾기' },
-  { to: '/events',     key: 'events',     name: '이벤트',   desc: '포인트 기회' },
-  { to: '/news',       key: 'news',       name: '뉴스',     desc: '오마이뉴스' },
-]
 
 const favorites = [
   { key: 'community',  name: '커뮤니티', to: '/community' },
