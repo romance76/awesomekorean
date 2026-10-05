@@ -744,7 +744,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/fetch-shorts', function () {
         try {
             $before = \App\Models\Short::count();
-            \Artisan::call('shorts:fetch', ['--limit' => 100, '--korean-ratio' => 75]);
+            // 한국 비율은 shorts:fetch 안에서 관리자 설정(board.shorts.korea_ratio)을
+            // 직접 읽으므로 여기서 하드코딩하지 않음.
+            \Artisan::call('shorts:fetch', ['--limit' => 100]);
             $output = \Artisan::output();
             $after = \App\Models\Short::count();
             $added = $after - $before;

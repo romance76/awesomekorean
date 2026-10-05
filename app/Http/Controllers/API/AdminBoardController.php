@@ -6,7 +6,7 @@ use App\Models\{
     MarketItem, JobPost, RealEstateListing, Event, Club, QaPost, RecipePost,
     Post, News, Business, Comment, Report, BannerAd, PointLog,
     QaCategory, MusicCategory, NewsCategory, RecipeCategory, Board,
-    MusicTrack, GroupBuy, Short
+    MusicTrack, GroupBuy, Short, InfoPost
 };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +32,12 @@ class AdminBoardController extends Controller
         'music'      => ['model' => MusicTrack::class,        'label' => '음악',     'icon' => '🎵', 'has_category_field' => true,  'category_model' => MusicCategory::class, 'category_field' => 'category_id'],
         'groupbuy'   => ['model' => GroupBuy::class,          'label' => '공동구매', 'icon' => '🛍', 'has_category_field' => true,  'category_model' => null],
         'shorts'     => ['model' => Short::class,             'label' => '숏츠',     'icon' => '🎬', 'has_category_field' => false, 'category_model' => null, 'category_field' => null],
+        // '정보' 게시글 관리 화면이 다른 게시판과 다른 커스텀 레이아웃으로 따로
+        // 만들어져 있었음 — stat 카드(전체/오늘/주간)만 이 공통 레지스트리를 통해
+        // 가져와 다른 게시판과 동일한 형태로 보이도록 함(게시글 CRUD 자체는
+        // InfoPost 고유 필드(is_published, excerpt, cover_image_url 등)가 공통
+        // allow-list에 없어 기존 /api/admin/info-posts 전용 엔드포인트를 그대로 씀).
+        'info'       => ['model' => InfoPost::class,          'label' => '정보',     'icon' => '📘', 'has_category_field' => true,  'category_model' => null, 'category_field' => 'category'],
     ];
 
     protected function config(string $slug): array

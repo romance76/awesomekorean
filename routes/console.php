@@ -13,8 +13,9 @@ use Illuminate\Support\Facades\Schedule;
 // 문제가 있어, 아래 5개 자동 수집 작업은 전부 이 파일에 출력을 남기도록 함.
 $contentLog = storage_path('logs/content-sync.log');
 
-// 매일 새 YouTube Shorts 수집
-Schedule::command('shorts:fetch --limit=500 --korean-ratio=70')->dailyAt('03:00')->appendOutputTo($contentLog);
+// 매일 새 YouTube Shorts 수집 — 한국 비율은 관리자 페이지(숏츠 관리 → 설정)에
+// 저장된 board.shorts.korea_ratio를 shorts:fetch가 직접 읽으므로 여기서 지정하지 않음.
+Schedule::command('shorts:fetch --limit=500')->dailyAt('03:00')->appendOutputTo($contentLog);
 
 // 뉴스 수집: 오마이뉴스 11개 카테고리별 RSS, 2시간마다 (하루 12번)
 Schedule::command('news:fetch')->cron('0 */2 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
