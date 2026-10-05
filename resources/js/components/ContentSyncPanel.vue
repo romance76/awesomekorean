@@ -69,20 +69,24 @@ const syncLog = ref('')
 const syncDone = ref(false)
 const steps = ref([])
 const now = ref(Date.now())
+const lastUpdatedAt = ref(null)
 let poll = null
 let timeout = null
 let tick = null
-let lastProgressAt = Date.now()
-let lastStepsSnapshot = ''
 
 const doneCount = computed(() => steps.value.filter(s => s.status === 'done' || s.status === 'failed').length)
 const progressPct = computed(() => steps.value.length ? Math.round(doneCount.value / steps.value.length * 100) : 0)
 const failedSteps = computed(() => steps.value.filter(s => s.status === 'failed'))
-// 폴링은 계속 성공하는데(네트워크는 살아있는데) 단계 상태 자체가 한동안
-// 안 바뀌면 — 외부 API 호출이 오래 걸리고 있을 뿐인지, 백그라운드 프로세스가
-// 죽었는지 사용자는 구분할 수 없어 "실시간 같지 않다"고 느끼게 됨. 바뀐 지
-// 60초가 넘으면 안내 문구만 살짝 보여줌(폴링은 계속함 — 재개될 수도 있으므로).
-const stalled = computed(() => syncing.value && steps.value.length > 0 && (now.value - lastProgressAt) > 60000)
+// 서버가 진행 파일에 마지막으로 쓴 시각(updated_at) 기준으로 멈춤 여부를
+// 판단 — 처음엔 클라이언트에서 "steps가 바뀐 지 얼마나 됐나"로 추적했는데,
+// 그러면 페이지를 새로고침할 때마다 추적 시작점이 "지금"으로 리셋돼버려서
+// 실제로 몇 분째 멈춰있어도 새로고침만 하면 다시 안 멈춘 것처럼 보이는 문제가
+// 있었음. 뉴스 수집처럼 정상적으로 몇 분씩 걸리는 단계도 있어 임계값을
+// 넉넉하게 잡음.
+const stalled = computed(() => {
+  if (!syncing.value || !steps.value.length || !lastUpdatedAt.value) return false
+  return (now.value - lastUpdatedAt.value) > 8 * 60 * 1000
+})
 
 function elapsedLabel(step) {
   if (!step.started_at) return '0초'
@@ -97,28 +101,26 @@ function stepBoxClass(status) {
   return 'border-gray-100 text-ink-muted'
 }
 
+async function pollOnce() {
+  const { data } = await axios.get('/api/admin/system/sync-all-content/status')
+  syncLog.value = data.log || ''
+  steps.value = data.steps || []
+  if (data.updated_at) lastUpdatedAt.value = new Date(data.updated_at).getTime()
+  if (data.done) {
+    clearInterval(poll)
+    clearInterval(tick)
+    syncing.value = false
+    syncDone.value = true
+    syncMsg.value = '완료됐습니다.'
+  }
+}
+
 function beginPolling() {
   tick = setInterval(() => { now.value = Date.now() }, 1000)
-  poll = setInterval(async () => {
-    try {
-      const { data } = await axios.get('/api/admin/system/sync-all-content/status')
-      syncLog.value = data.log || ''
-      steps.value = data.steps || []
-      const snapshot = JSON.stringify(steps.value.map(s => [s.key, s.status]))
-      if (snapshot !== lastStepsSnapshot) {
-        lastStepsSnapshot = snapshot
-        lastProgressAt = Date.now()
-      }
-      if (data.done) {
-        clearInterval(poll)
-        clearInterval(tick)
-        syncing.value = false
-        syncDone.value = true
-        syncMsg.value = '완료됐습니다.'
-      }
-    } catch {}
-  }, 2000)
-  timeout = setTimeout(() => { clearInterval(poll); clearInterval(tick); syncing.value = false }, 10 * 60 * 1000)
+  poll = setInterval(() => { pollOnce().catch(() => {}) }, 2000)
+  // 각 단계가 몇 분씩 걸릴 수 있어(뉴스 수집은 10분 넘게 걸리기도 함) 중간에
+  // 포기하지 않도록 넉넉하게 — 멈춘 것 같으면 위의 stalled 안내로 알려줌.
+  timeout = setTimeout(() => { clearInterval(poll); clearInterval(tick); syncing.value = false }, 60 * 60 * 1000)
 }
 
 async function start() {
@@ -126,8 +128,7 @@ async function start() {
   syncDone.value = false
   syncLog.value = ''
   steps.value = []
-  lastProgressAt = Date.now()
-  lastStepsSnapshot = ''
+  lastUpdatedAt.value = null
   try {
     const { data } = await axios.post('/api/admin/system/sync-all-content')
     syncMsg.value = data.message || '시작됐습니다.'
@@ -137,6 +138,7 @@ async function start() {
     return
   }
   beginPolling()
+  pollOnce().catch(() => {})
 }
 
 // 새로고침하면 진행 중이던 체크리스트가 사라지던 문제 — 수집 자체는 서버
@@ -150,8 +152,7 @@ async function checkExisting() {
     if (!data.steps || !data.steps.length) return
     syncLog.value = data.log || ''
     steps.value = data.steps
-    lastStepsSnapshot = JSON.stringify(steps.value.map(s => [s.key, s.status]))
-    lastProgressAt = Date.now()
+    if (data.updated_at) lastUpdatedAt.value = new Date(data.updated_at).getTime()
     if (data.done) {
       syncDone.value = true
       syncMsg.value = '완료됐습니다.'
