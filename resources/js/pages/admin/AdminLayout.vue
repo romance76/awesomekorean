@@ -86,7 +86,7 @@ const mainMenu = [
   { to: '/admin', icon: 'chart-bar', chip: 'bg-amber-50 text-amber-600', label: '대시보드', group: 'main' },
   { to: '/admin/members', icon: 'users', chip: 'bg-blue-50 text-blue-600', label: '회원', group: 'member' },
   { to: '/admin/market', icon: 'list', chip: 'bg-emerald-50 text-emerald-600', label: '게시판', group: 'board' },
-  { to: '/admin/banners', icon: 'megaphone', chip: 'bg-violet-50 text-violet-600', label: '광고관리', group: 'ad' },
+  { to: '/admin/banners', icon: 'megaphone', chip: 'bg-violet-50 text-violet-600', label: '광고/가격관리', group: 'ad' },
   { to: '/admin/settings', icon: 'settings', chip: 'bg-gray-100 text-ink-light', label: '시스템', group: 'system' },
 ]
 
@@ -119,15 +119,18 @@ const subTabs = {
     { to: '/admin/claims', icon: 'flag', label: '클레임' },
     { to: '/admin/rewards', icon: 'gift', label: '보상 승인', isNew: true, newDesc: '이벤트 완료인증 · 레시피 인기보상을 관리자가 확인 후 지급하는 화면입니다.' },
   ],
+  // '가격/할인'(포인트·광고 가격·할인 이벤트)은 원래 시스템 탭 아래 있었는데,
+  // 그중 상당 부분이 광고 가격 설정이라 광고 관리 쪽에서만 따로 찾아야 해서
+  // 불편하다는 피드백으로 광고관리 그룹으로 이동(광고/가격관리로 통합).
   ad: [
     { to: '/admin/ad-center', icon: 'sparkles', label: '광고 센터' },
     { to: '/admin/banners', icon: 'megaphone', label: '광고 목록' },
+    { to: '/admin/pricing', icon: 'coins', label: '가격/할인' },
     { to: '/admin/payments', icon: 'wallet', label: '결제/오더' },
   ],
   system: [
     { to: '/admin/security', icon: 'lock', label: '보안/신고' },
     { to: '/admin/settings', icon: 'settings', label: '설정' },
-    { to: '/admin/pricing', icon: 'coins', label: '가격/할인' },
     { to: '/admin/entry-settings', icon: 'ticket', label: 'Entry 설정' },
     { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리' },
     { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너' },
