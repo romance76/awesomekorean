@@ -1056,6 +1056,7 @@ import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import { menuIcon, menuChipColor } from '../../utils/menuIcons'
+import { useSiteStore } from '../../stores/site'
 
 // ─── Sub-component: Toggle Row ────────────────────────────────────────────────
 const ToggleRow = {
@@ -1080,6 +1081,7 @@ const ToggleRow = {
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
+const siteStore = useSiteStore()
 const loading = ref(true)
 const saving = ref(false)
 const generatingKeys = ref(false)
@@ -1575,6 +1577,9 @@ async function saveMenus() {
       ads_type: item.ads_type || 'banner',
     }))
     await axios.post('/api/admin/settings/menus/batch', { menus })
+    // 같은 세션 내 광고 센터/가격 센터 등 다른 화면도 siteStore.menuConfig를
+    // 읽으므로, 저장 직후 스토어에도 바로 반영 — 새로고침 없이 즉시 동기화.
+    siteStore.updateMenuConfig(menus)
     showToast('메뉴 설정이 저장되었습니다.')
   } catch {
     showToast('저장 실패', 'error')
