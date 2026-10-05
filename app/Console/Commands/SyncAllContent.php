@@ -98,6 +98,11 @@ class SyncAllContent extends Command
             if ($step['key'] === $key) {
                 $step['status'] = $status;
                 $step['message'] = $message;
+                // 화면에서 "지금 몇 초째 돌고 있는지" 보여줄 수 있도록 — 뉴스처럼
+                // 여러 외부 API를 순서대로 호출하는 단계는 몇 분씩 걸릴 수 있는데,
+                // 전체 진행률 바만 보면 멈춘 것처럼 보이던 문제를 보완.
+                if ($status === 'running') $step['started_at'] = now()->toIso8601String();
+                if (in_array($status, ['done', 'failed'], true)) $step['finished_at'] = now()->toIso8601String();
             }
         }
         unset($step);

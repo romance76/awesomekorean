@@ -28,7 +28,8 @@
         </span>
         <span class="truncate">
           {{ s.label }}
-          <template v-if="s.key === 'info' && s.detail?.completed != null">
+          <template v-if="s.status === 'running'">({{ elapsedLabel(s) }})</template>
+          <template v-else-if="s.key === 'info' && s.status !== 'pending' && s.detail?.completed != null">
             ({{ s.detail.completed }}/{{ s.detail.target ?? 10 }})
           </template>
         </span>
@@ -37,6 +38,10 @@
 
     <div v-if="failedSteps.length" class="mt-2 text-xs text-red-600">
       실패: {{ failedSteps.map(s => s.label).join(', ') }} — 사유는 아래 로그 참고
+    </div>
+
+    <div v-if="stalled" class="mt-2 text-xs text-amber-600">
+      진행이 잠시 멈춘 것 같습니다 — 외부 서비스 응답을 기다리는 중일 수 있어요. 계속 지켜보는 중입니다.
     </div>
   </div>
 
@@ -50,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 
@@ -63,12 +68,27 @@ const syncMsg = ref('')
 const syncLog = ref('')
 const syncDone = ref(false)
 const steps = ref([])
+const now = ref(Date.now())
 let poll = null
 let timeout = null
+let tick = null
+let lastProgressAt = Date.now()
+let lastStepsSnapshot = ''
 
 const doneCount = computed(() => steps.value.filter(s => s.status === 'done' || s.status === 'failed').length)
 const progressPct = computed(() => steps.value.length ? Math.round(doneCount.value / steps.value.length * 100) : 0)
 const failedSteps = computed(() => steps.value.filter(s => s.status === 'failed'))
+// 폴링은 계속 성공하는데(네트워크는 살아있는데) 단계 상태 자체가 한동안
+// 안 바뀌면 — 외부 API 호출이 오래 걸리고 있을 뿐인지, 백그라운드 프로세스가
+// 죽었는지 사용자는 구분할 수 없어 "실시간 같지 않다"고 느끼게 됨. 바뀐 지
+// 60초가 넘으면 안내 문구만 살짝 보여줌(폴링은 계속함 — 재개될 수도 있으므로).
+const stalled = computed(() => syncing.value && steps.value.length > 0 && (now.value - lastProgressAt) > 60000)
+
+function elapsedLabel(step) {
+  if (!step.started_at) return '0초'
+  const sec = Math.max(0, Math.floor((now.value - new Date(step.started_at).getTime()) / 1000))
+  return sec < 60 ? `${sec}초` : `${Math.floor(sec / 60)}분 ${sec % 60}초`
+}
 
 function stepBoxClass(status) {
   if (status === 'done') return 'border-green-200 bg-green-50 text-green-700'
@@ -77,11 +97,37 @@ function stepBoxClass(status) {
   return 'border-gray-100 text-ink-muted'
 }
 
+function beginPolling() {
+  tick = setInterval(() => { now.value = Date.now() }, 1000)
+  poll = setInterval(async () => {
+    try {
+      const { data } = await axios.get('/api/admin/system/sync-all-content/status')
+      syncLog.value = data.log || ''
+      steps.value = data.steps || []
+      const snapshot = JSON.stringify(steps.value.map(s => [s.key, s.status]))
+      if (snapshot !== lastStepsSnapshot) {
+        lastStepsSnapshot = snapshot
+        lastProgressAt = Date.now()
+      }
+      if (data.done) {
+        clearInterval(poll)
+        clearInterval(tick)
+        syncing.value = false
+        syncDone.value = true
+        syncMsg.value = '완료됐습니다.'
+      }
+    } catch {}
+  }, 2000)
+  timeout = setTimeout(() => { clearInterval(poll); clearInterval(tick); syncing.value = false }, 10 * 60 * 1000)
+}
+
 async function start() {
   syncing.value = true
   syncDone.value = false
   syncLog.value = ''
   steps.value = []
+  lastProgressAt = Date.now()
+  lastStepsSnapshot = ''
   try {
     const { data } = await axios.post('/api/admin/system/sync-all-content')
     syncMsg.value = data.message || '시작됐습니다.'
@@ -90,24 +136,38 @@ async function start() {
     syncing.value = false
     return
   }
-  poll = setInterval(async () => {
-    try {
-      const { data } = await axios.get('/api/admin/system/sync-all-content/status')
-      syncLog.value = data.log || ''
-      steps.value = data.steps || []
-      if (data.done) {
-        clearInterval(poll)
-        syncing.value = false
-        syncDone.value = true
-        syncMsg.value = '완료됐습니다.'
-      }
-    } catch {}
-  }, 2000)
-  timeout = setTimeout(() => { clearInterval(poll); syncing.value = false }, 10 * 60 * 1000)
+  beginPolling()
 }
+
+// 새로고침하면 진행 중이던 체크리스트가 사라지던 문제 — 수집 자체는 서버
+// 백그라운드에서 계속 돌고 있는데 화면 상태(steps/syncing 등)는 이 컴포넌트의
+// 메모리에만 있어서 페이지를 새로고침하면 초기화돼버렸음. 마운트 시 현재
+// 진행 상황을 한 번 조회해서, 아직 끝나지 않았으면 그대로 이어서 폴링을
+// 재개하고, 이미 끝났으면 마지막 실행 결과를 그대로 보여줌.
+async function checkExisting() {
+  try {
+    const { data } = await axios.get('/api/admin/system/sync-all-content/status')
+    if (!data.steps || !data.steps.length) return
+    syncLog.value = data.log || ''
+    steps.value = data.steps
+    lastStepsSnapshot = JSON.stringify(steps.value.map(s => [s.key, s.status]))
+    lastProgressAt = Date.now()
+    if (data.done) {
+      syncDone.value = true
+      syncMsg.value = '완료됐습니다.'
+    } else {
+      syncing.value = true
+      syncMsg.value = '백그라운드에서 계속 진행 중입니다.'
+      beginPolling()
+    }
+  } catch {}
+}
+
+onMounted(checkExisting)
 
 onUnmounted(() => {
   clearInterval(poll)
+  clearInterval(tick)
   clearTimeout(timeout)
 })
 </script>
