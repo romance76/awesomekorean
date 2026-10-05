@@ -423,7 +423,16 @@
             </button>
           </div>
 
-          <div v-for="st in termsTabs" :key="st.key" v-show="activeTermsTab === st.key">
+          <!-- v-show 대신 v-if 사용 — v-for 안에서 v-show로 탭을 토글하면
+               버튼 쪽 활성 표시(activeTermsTab 비교)는 제대로 바뀌는데도
+               이 div의 실제 표시 여부(el.style.display)는 최초 렌더 상태에
+               그대로 고정돼버려서, 탭을 바꿔도 항상 처음 탭(이용약관)
+               내용만 보이고 거기에 입력한 게 다른 탭에도 그대로 반영되는
+               것처럼 보이던 버그였음(실제로는 두 탭 다 같은 div가 계속
+               보이고 있었을 뿐). template로 감싸고 v-if로 바꿔서 탭 전환마다
+               해당 div를 새로 만들도록 함. -->
+          <template v-for="st in termsTabs" :key="st.key">
+          <div v-if="activeTermsTab === st.key">
             <!-- Toolbar -->
             <div class="flex items-center gap-1 mb-2 p-1 bg-gray-50 border border-gray-100 rounded-xl">
               <button @click="formatText(st.key, 'bold')" class="toolbar-btn font-bold">B</button>
@@ -477,6 +486,7 @@
               <div v-else class="text-sm text-ink-muted py-4 text-center">버전 히스토리가 없습니다.</div>
             </div>
           </div>
+          </template>
         </div>
       </div>
 
