@@ -482,6 +482,13 @@ class AdminSettingsController extends Controller
             fastcgi_finish_request();
         }
 
+        // fastcgi_finish_request()는 연결만 끊을 뿐 PHP의 max_execution_time
+        // 제한은 그대로 적용돼서, RSS 11개+이미지 다운로드 등으로 이어지는
+        // 뉴스 수집 하나만으로도 php.ini 기본값(보통 30~60초)을 넘겨 중간에
+        // 죽어버리는 문제가 있었음(진행 상황이 "뉴스 진행 중"에서 영원히
+        // 멈춘 것처럼 보이던 원인) — 백그라운드 구간은 시간 제한 해제.
+        set_time_limit(0);
+
         \Artisan::call('content:sync-all');
         file_put_contents($logPath, \Artisan::output(), FILE_APPEND);
 
