@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 
@@ -97,21 +97,7 @@ function stepBoxClass(status) {
   return 'border-gray-100 text-ink-muted'
 }
 
-async function start() {
-  syncing.value = true
-  syncDone.value = false
-  syncLog.value = ''
-  steps.value = []
-  lastProgressAt = Date.now()
-  lastStepsSnapshot = ''
-  try {
-    const { data } = await axios.post('/api/admin/system/sync-all-content')
-    syncMsg.value = data.message || '시작됐습니다.'
-  } catch (e) {
-    alert(e.response?.data?.message || '시작 실패')
-    syncing.value = false
-    return
-  }
+function beginPolling() {
   tick = setInterval(() => { now.value = Date.now() }, 1000)
   poll = setInterval(async () => {
     try {
@@ -134,6 +120,50 @@ async function start() {
   }, 2000)
   timeout = setTimeout(() => { clearInterval(poll); clearInterval(tick); syncing.value = false }, 10 * 60 * 1000)
 }
+
+async function start() {
+  syncing.value = true
+  syncDone.value = false
+  syncLog.value = ''
+  steps.value = []
+  lastProgressAt = Date.now()
+  lastStepsSnapshot = ''
+  try {
+    const { data } = await axios.post('/api/admin/system/sync-all-content')
+    syncMsg.value = data.message || '시작됐습니다.'
+  } catch (e) {
+    alert(e.response?.data?.message || '시작 실패')
+    syncing.value = false
+    return
+  }
+  beginPolling()
+}
+
+// 새로고침하면 진행 중이던 체크리스트가 사라지던 문제 — 수집 자체는 서버
+// 백그라운드에서 계속 돌고 있는데 화면 상태(steps/syncing 등)는 이 컴포넌트의
+// 메모리에만 있어서 페이지를 새로고침하면 초기화돼버렸음. 마운트 시 현재
+// 진행 상황을 한 번 조회해서, 아직 끝나지 않았으면 그대로 이어서 폴링을
+// 재개하고, 이미 끝났으면 마지막 실행 결과를 그대로 보여줌.
+async function checkExisting() {
+  try {
+    const { data } = await axios.get('/api/admin/system/sync-all-content/status')
+    if (!data.steps || !data.steps.length) return
+    syncLog.value = data.log || ''
+    steps.value = data.steps
+    lastStepsSnapshot = JSON.stringify(steps.value.map(s => [s.key, s.status]))
+    lastProgressAt = Date.now()
+    if (data.done) {
+      syncDone.value = true
+      syncMsg.value = '완료됐습니다.'
+    } else {
+      syncing.value = true
+      syncMsg.value = '백그라운드에서 계속 진행 중입니다.'
+      beginPolling()
+    }
+  } catch {}
+}
+
+onMounted(checkExisting)
 
 onUnmounted(() => {
   clearInterval(poll)
