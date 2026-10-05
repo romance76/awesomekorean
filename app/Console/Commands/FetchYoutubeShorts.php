@@ -33,7 +33,13 @@ class FetchYoutubeShorts extends Command
     public function handle()
     {
         $dailyLimit = (int) $this->option('limit');
-        $koreanRatio = (int) $this->option('korean-ratio');
+        // 관리자 페이지("숏츠 관리 → 설정 → 한국 콘텐츠 비율")에 저장된 값이
+        // 있으면 그걸 최우선으로 씀 — 전엔 이 커맨드가 그 설정을 전혀 읽지
+        // 않고 호출하는 쪽(스케줄/수동 버튼/전체 수집)마다 제각각 다른 값을
+        // 하드코딩해 넘기고 있어서, 관리자가 설정을 바꿔도 실제로는 하나도
+        // 반영되지 않던 문제가 있었음.
+        $savedRatio = \DB::table('point_settings')->where('key', 'board.shorts.korea_ratio')->value('value');
+        $koreanRatio = is_numeric($savedRatio) ? (int) $savedRatio : (int) $this->option('korean-ratio');
         $koreanCount = (int) ($dailyLimit * $koreanRatio / 100);
         $usCount = $dailyLimit - $koreanCount;
 
