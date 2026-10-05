@@ -468,6 +468,26 @@ class AdminSettingsController extends Controller
     public function syncAllContent() {
         $logPath = storage_path('logs/manual-sync-all.log');
         $progressPath = storage_path('logs/manual-sync-all-progress.json');
+
+        // 버튼이 중복 클릭되거나(네트워크가 느려 응답이 안 왔다고 착각해 다시
+        // 누름), 모바일 네트워크 재시도로 같은 POST가 두 번 들어오면 백그라운드
+        // 프로세스 두 개가 동시에 같은 진행 파일에 번갈아 쓰면서 "완료된 단계가
+        // 갑자기 다시 진행 중으로 보이는" 레이스 컨디션이 생길 수 있어 — 이미
+        // 실행 중(20분 이내에 갱신된, 아직 안 끝난 진행 파일이 있음)이면 새로
+        // 시작하지 않고 기존 진행 상황을 그대로 이어서 보여줌.
+        if (file_exists($progressPath)) {
+            $existing = json_decode(file_get_contents($progressPath), true);
+            $updatedAt = $existing['updated_at'] ?? null;
+            if ($existing && !($existing['done'] ?? true) && $updatedAt
+                && \Carbon\Carbon::parse($updatedAt)->diffInMinutes(now()) < 20) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '이미 실행 중입니다 — 기존 진행 상황을 이어서 보여줍니다.',
+                    'already_running' => true,
+                ]);
+            }
+        }
+
         file_put_contents($logPath, "=== 시작: " . now() . " ===\n");
         // 이전 실행의 진행 파일이 남아있으면 폴링 시작 직후 "완료됨"으로
         // 잘못 보일 수 있어 매 실행 시작 시 제거.
@@ -522,11 +542,19 @@ class AdminSettingsController extends Controller
         }
         unset($step);
 
+        // 폴링 응답이 모바일 브라우저/중간 프록시에 캐시되면 몇 초마다 새로
+        // 불러와도 예전 스냅샷만 계속 보이는 것처럼 보일 수 있어 명시적으로
+        // 캐시를 금지.
         return response()->json([
             'success' => true,
             'log' => $log,
             'steps' => $steps,
+            // 마지막으로 진행 파일에 실제로 쓰여진 시각 — 화면에서 "진행이
+            // 멈췄는지" 판단할 때 브라우저 자체 상태(새로고침하면 리셋됨)가
+            // 아니라 이 서버 시각 기준으로 계산해야 새로고침해도 정확함.
+            'updated_at' => $progress['updated_at'] ?? null,
             'done' => (bool) ($progress['done'] ?? str_contains($log, '=== 전체 완료 ===')),
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+          ->header('Pragma', 'no-cache');
     }
 }
