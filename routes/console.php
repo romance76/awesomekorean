@@ -67,3 +67,9 @@ Schedule::command('realestate:expire-scraped')->dailyAt('05:30')->appendOutputTo
 // EBAY_CLIENT_ID/SECRET 없으면 조용히 스킵.
 Schedule::command('market:scrape')->dailyAt('05:45')->appendOutputTo($contentLog);
 Schedule::command('market:expire-scraped')->dailyAt('06:00')->appendOutputTo($contentLog);
+
+// '정보' 게시판 자동 생성 요청 — 다른 콘텐츠와 달리 매일 스케줄이 없어서
+// 관리자가 "전체 콘텐츠 자동 수집" 버튼을 직접 누르지 않으면 전혀 새 글이
+// 안 쌓이던 문제가 있었음. 요청만 등록하고 실제 생성은 시간당 체크인
+// 루틴(외부 세션)이 수행.
+Schedule::command('info:trigger-generation')->dailyAt('06:15')->appendOutputTo($contentLog);

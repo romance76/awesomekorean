@@ -467,12 +467,16 @@ class AdminSettingsController extends Controller
      */
     public function syncAllContent() {
         $logPath = storage_path('logs/manual-sync-all.log');
+        $progressPath = storage_path('logs/manual-sync-all-progress.json');
         file_put_contents($logPath, "=== 시작: " . now() . " ===\n");
+        // 이전 실행의 진행 파일이 남아있으면 폴링 시작 직후 "완료됨"으로
+        // 잘못 보일 수 있어 매 실행 시작 시 제거.
+        @unlink($progressPath);
 
         // exec()가 서버에서 막혀 있을 수 있어(공유 호스팅 등), 쉘 실행 대신
         // PHP-FPM의 fastcgi_finish_request()로 응답만 먼저 클라이언트에
         // 보내고 같은 프로세스에서 계속 실행하는 방식 사용 (exec 권한 불필요).
-        $respond = response()->json(['success' => true, 'message' => '백그라운드에서 시작됐습니다. 1~2분 후 결과를 확인해주세요.']);
+        $respond = response()->json(['success' => true, 'message' => '백그라운드에서 시작됐습니다. 진행 상황이 실시간으로 표시됩니다.']);
         if (function_exists('fastcgi_finish_request')) {
             $respond->send();
             fastcgi_finish_request();
@@ -484,17 +488,38 @@ class AdminSettingsController extends Controller
         return $respond;
     }
 
-    /** 위 syncAllContent() 가 백그라운드로 남긴 로그를 그대로 보여줌 */
+    /**
+     * 위 syncAllContent() 가 백그라운드로 남긴 단계별 진행 상태(steps)와 원본
+     * 로그(log)를 함께 보여줌. '정보' 단계는 요청만 등록하고 바로 끝나므로
+     * (실제 생성은 시간당 체크인 루틴이 수행), 실시간 생성 진행률(완료/목표)을
+     * info_generation_status에서 가져와 detail로 덧붙인다.
+     */
     public function syncAllContentStatus() {
         $logPath = storage_path('logs/manual-sync-all.log');
-        if (!file_exists($logPath)) {
-            return response()->json(['success' => true, 'log' => '', 'done' => false]);
+        $progressPath = storage_path('logs/manual-sync-all-progress.json');
+
+        $log = file_exists($logPath) ? file_get_contents($logPath) : '';
+        $progress = file_exists($progressPath) ? (json_decode(file_get_contents($progressPath), true) ?: []) : [];
+        $steps = $progress['steps'] ?? [];
+
+        $infoRaw = SiteSetting::where('key', 'info_generation_status')->value('value');
+        $infoStatus = $infoRaw ? json_decode($infoRaw, true) : null;
+        foreach ($steps as &$step) {
+            if (($step['key'] ?? null) === 'info' && $infoStatus) {
+                $step['detail'] = [
+                    'status' => $infoStatus['status'] ?? null,
+                    'completed' => $infoStatus['completed'] ?? null,
+                    'target' => $infoStatus['target'] ?? null,
+                ];
+            }
         }
-        $log = file_get_contents($logPath);
+        unset($step);
+
         return response()->json([
             'success' => true,
             'log' => $log,
-            'done' => str_contains($log, '=== 전체 완료 ==='),
+            'steps' => $steps,
+            'done' => (bool) ($progress['done'] ?? str_contains($log, '=== 전체 완료 ===')),
         ]);
     }
 }
