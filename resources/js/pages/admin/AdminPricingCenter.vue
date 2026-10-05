@@ -127,7 +127,7 @@
       <div class="font-bold text-sm text-ink mb-1 flex items-center gap-2">
         <span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="list" :size="14" /></span>페이지별 광고 슬롯 수
       </div>
-      <p class="text-xs text-ink-muted mb-3">관리자 메뉴에서 활성화된 페이지가 자동으로 나열됩니다. 좌/우 둘 다 0 이면 해당 페이지 광고 자체가 꺼집니다.</p>
+      <p class="text-xs text-ink-muted mb-3">메뉴 관리에서 광고를 켠(일반 광고) 페이지만 자동으로 나열됩니다. 좌/우 둘 다 0 이면 해당 페이지 광고 자체가 꺼집니다. 애드센스로 지정한 페이지는 광고 센터에서 따로 관리됩니다.</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div v-for="menu in adEligibleMenus" :key="menu.key" class="bg-gray-50 rounded-xl border border-gray-100 p-3 flex items-center gap-3"
           :class="isPageOff(menu.key) ? 'opacity-60 border-dashed' : ''">
@@ -317,11 +317,13 @@ async function loadAdSettings() {
   } catch {}
 }
 
-// 광고 슬롯 설정 대상 메뉴: 관리자에서 활성화된 모든 메뉴 (admin_only 는 제외)
+// 광고 슬롯 설정 대상 메뉴: 활성화된 메뉴 중 "메뉴 관리"에서 광고를 켠(ads_enabled)
+// 메뉴만. 애드센스로 지정된 페이지는 좌/우 슬롯 수 개념 자체가 없는(일반 배너
+// 광고 전용 설정이라) 여기선 제외 — 광고 센터에서 별도 애드센스 영역으로 관리됨.
 const adEligibleMenus = computed(() => {
   const mc = siteStore.menuConfig
   if (!mc || !Array.isArray(mc)) return []
-  return mc.filter(m => m.enabled !== false && !m.admin_only)
+  return mc.filter(m => m.enabled !== false && !m.admin_only && m.ads_enabled && (m.ads_type || 'banner') !== 'adsense')
 })
 
 // 특정 메뉴의 슬롯 설정 (없으면 0/0 기본값)

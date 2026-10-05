@@ -167,32 +167,55 @@ class AdminAdCenterController extends Controller
     }
 
     /**
-     * 광고를 걸 수 있는 페이지 목록 — 사이트 전체 메뉴(site_settings.menu_config,
-     * 17개 활성)와 별개로 여기 직접 하드코딩돼 있다 보니, '정보'·'숏츠'처럼
-     * 나중에 추가된 공개 콘텐츠 페이지가 광고 센터 페이지 선택지/광고 목록
-     * 탭 어디에도 안 뜨는 문제가 있었음(실측: 17개 활성 메뉴 중 13개만 반영돼
-     * 있었음). 채팅/친구처럼 개인 전용 기능 페이지는 광고 지면으로 의미가
-     * 없어 제외하고, 공개 콘텐츠 페이지만 계속 직접 관리.
+     * 광고를 걸 수 있는 페이지 목록 — 예전엔 여기 13개짜리 고정 목록을 직접
+     * 하드코딩해둬서, 관리자가 "메뉴 관리"에서 페이지별로 광고 on/off·종류
+     * (일반/애드센스)를 설정해도 광고 센터·광고 목록엔 전혀 반영이 안 됐음.
+     * 이제 site_settings.menu_config를 직접 읽어서, 활성화(enabled)이면서
+     * 광고가 켜져(ads_enabled) 있는 메뉴만 동적으로 뽑아옴 — 관리자가 메뉴
+     * 관리에서 체크/해제한 그대로 광고 센터 페이지 선택지에 반영됨.
      */
     protected function availablePages(): array
     {
-        return [
-            'home' => ['label' => '홈', 'geo' => false, 'icon' => '🏠'],
-            'community' => ['label' => '커뮤니티', 'geo' => false, 'icon' => '💬'],
-            'qa' => ['label' => 'Q&A', 'geo' => false, 'icon' => '❓'],
-            'news' => ['label' => '뉴스', 'geo' => false, 'icon' => '📰'],
-            'info' => ['label' => '정보', 'geo' => false, 'icon' => '📘'],
-            'recipes' => ['label' => '레시피', 'geo' => false, 'icon' => '🍳'],
-            'groupbuy' => ['label' => '공동구매', 'geo' => false, 'icon' => '🛍'],
-            'music' => ['label' => '음악', 'geo' => false, 'icon' => '🎵'],
-            'shorts' => ['label' => '숏츠', 'geo' => false, 'icon' => '🎬'],
-            'market' => ['label' => '중고장터', 'geo' => true, 'icon' => '🛒'],
-            'jobs' => ['label' => '구인구직', 'geo' => true, 'icon' => '💼'],
-            'realestate' => ['label' => '부동산', 'geo' => true, 'icon' => '🏠'],
-            'directory' => ['label' => '업소록', 'geo' => true, 'icon' => '🏪'],
-            'clubs' => ['label' => '동호회', 'geo' => true, 'icon' => '👥'],
-            'events' => ['label' => '이벤트', 'geo' => true, 'icon' => '🎉'],
-        ];
+        $geoKeys = ['market', 'jobs', 'realestate', 'directory', 'clubs', 'events'];
+        $setting = SiteSetting::where('key', 'menu_config')->first();
+        $menus = $setting ? json_decode($setting->value, true) : null;
+
+        if (!is_array($menus) || empty($menus)) {
+            // menu_config가 아직 없는 최초 상태 대비 — 과거 고정 목록을 전부
+            // 일반 광고 대상으로 간주해 폴백 (기존 운영 상태와 동일하게 유지)
+            $menus = collect([
+                ['key' => 'home', 'label' => '홈', 'icon' => '🏠'],
+                ['key' => 'community', 'label' => '커뮤니티', 'icon' => '💬'],
+                ['key' => 'qa', 'label' => 'Q&A', 'icon' => '❓'],
+                ['key' => 'news', 'label' => '뉴스', 'icon' => '📰'],
+                ['key' => 'info', 'label' => '정보', 'icon' => '📘'],
+                ['key' => 'recipes', 'label' => '레시피', 'icon' => '🍳'],
+                ['key' => 'groupbuy', 'label' => '공동구매', 'icon' => '🛍'],
+                ['key' => 'music', 'label' => '음악', 'icon' => '🎵'],
+                ['key' => 'shorts', 'label' => '숏츠', 'icon' => '🎬'],
+                ['key' => 'market', 'label' => '중고장터', 'icon' => '🛒'],
+                ['key' => 'jobs', 'label' => '구인구직', 'icon' => '💼'],
+                ['key' => 'realestate', 'label' => '부동산', 'icon' => '🏠'],
+                ['key' => 'directory', 'label' => '업소록', 'icon' => '🏪'],
+                ['key' => 'clubs', 'label' => '동호회', 'icon' => '👥'],
+                ['key' => 'events', 'label' => '이벤트', 'icon' => '🎉'],
+            ])->map(fn($m) => $m + ['enabled' => true, 'ads_enabled' => true, 'ads_type' => 'banner'])->all();
+        }
+
+        $pages = [];
+        foreach ($menus as $m) {
+            $key = $m['key'] ?? null;
+            if (!$key) continue;
+            if (($m['enabled'] ?? true) === false) continue;
+            if (empty($m['ads_enabled'])) continue;
+            $pages[$key] = [
+                'label' => $m['label'] ?? $key,
+                'geo' => in_array($key, $geoKeys, true),
+                'icon' => $m['icon'] ?? '📄',
+                'ads_type' => $m['ads_type'] ?? 'banner',
+            ];
+        }
+        return $pages;
     }
 
     /**
