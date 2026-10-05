@@ -235,6 +235,7 @@
           <span class="w-16 text-center">로그인</span>
           <span class="w-16 text-center">관리자</span>
           <span class="w-14 text-center">뷰</span>
+          <span class="w-28 text-center">광고</span>
           <span class="w-12 text-center">표시</span>
         </div>
 
@@ -267,6 +268,16 @@
               <option value="list">☰</option>
               <option value="card">⊞</option>
             </select>
+            <!-- 광고 — 이 페이지에 광고를 띄울지, 띄운다면 일반 배너 광고인지 애드센스인지 -->
+            <div class="w-28 flex items-center justify-center gap-1">
+              <label class="flex items-center gap-1 text-xs text-ink-muted cursor-pointer" title="이 페이지에 광고 표시">
+                <input type="checkbox" v-model="item.ads_enabled" class="rounded border-gray-300 text-amber-500 focus:ring-amber-400" />
+              </label>
+              <select v-if="item.ads_enabled" v-model="item.ads_type" class="text-[11px] border border-gray-200 rounded-lg px-1 py-0.5 text-ink-muted" title="광고 종류">
+                <option value="banner">일반 광고</option>
+                <option value="adsense">애드센스</option>
+              </select>
+            </div>
             <!-- Enable toggle -->
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" v-model="item.enabled" class="sr-only peer" />
@@ -1516,19 +1527,19 @@ async function loadMenus() {
       const ordered = []
       saved.forEach(m => {
         const def = allMenuDefs.find(d => d.key === m.key)
-        if (def) ordered.push({ ...def, ...m, enabled: m.enabled !== false, login_required: m.login_required || false, admin_only: m.admin_only || false, defaultView: m.defaultView || 'list', order: m.order ?? 999 })
+        if (def) ordered.push({ ...def, ...m, enabled: m.enabled !== false, login_required: m.login_required || false, admin_only: m.admin_only || false, defaultView: m.defaultView || 'list', ads_enabled: m.ads_enabled || false, ads_type: m.ads_type || 'banner', order: m.order ?? 999 })
       })
       allMenuDefs.forEach(def => {
         if (!ordered.find(m => m.key === def.key)) {
-          ordered.push({ ...def, enabled: true, login_required: false, admin_only: false, defaultView: 'list', order: 999 })
+          ordered.push({ ...def, enabled: true, login_required: false, admin_only: false, defaultView: 'list', ads_enabled: false, ads_type: 'banner', order: 999 })
         }
       })
       menuList.value = ordered.sort((a, b) => a.order - b.order)
     } else {
-      menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, defaultView: 'list', order: i }))
+      menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, defaultView: 'list', ads_enabled: false, ads_type: 'banner', order: i }))
     }
   } catch {
-    menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, defaultView: 'list', order: i }))
+    menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, defaultView: 'list', ads_enabled: false, ads_type: 'banner', order: i }))
   }
 }
 
@@ -1542,7 +1553,7 @@ function moveMenu(idx, dir) {
 }
 
 function resetMenuOrder() {
-  menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, order: i }))
+  menuList.value = allMenuDefs.map((d, i) => ({ ...d, enabled: true, login_required: false, admin_only: false, ads_enabled: false, ads_type: 'banner', order: i }))
 }
 
 async function saveMenus() {
@@ -1560,6 +1571,8 @@ async function saveMenus() {
       admin_only: item.admin_only || false,
       defaultView: item.defaultView || 'list',
       hasCardView: item.hasCardView || false,
+      ads_enabled: item.ads_enabled || false,
+      ads_type: item.ads_type || 'banner',
     }))
     await axios.post('/api/admin/settings/menus/batch', { menus })
     showToast('메뉴 설정이 저장되었습니다.')
