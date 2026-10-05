@@ -57,7 +57,7 @@
       <!-- 페이지 선택 -->
       <div class="flex items-center gap-1.5">
         <span class="text-xs font-bold text-ink-light flex items-center gap-1"><AppIcon name="list" :size="13" /> 페이지:</span>
-        <select v-model="filter.page" @change="loadSlotMap" class="input-soft !w-auto !px-3 !py-1.5 text-sm">
+        <select v-model="filter.page" @change="onPageChange" class="input-soft !w-auto !px-3 !py-1.5 text-sm">
           <option v-for="(p, key) in overview?.pages || {}" :key="key" :value="key">
             {{ p.icon }} {{ p.label }} <template v-if="overview?.page_counts?.[key]">({{ overview.page_counts[key] }})</template>
           </option>
@@ -91,8 +91,24 @@
     </div>
   </div>
 
+  <!-- 애드센스로 지정된 페이지 — 일반 배너 슬롯(프리미엄/스탠다드/이코노미) 개념이
+       없으므로 슬롯 맵 대신 애드센스 전용 안내만 보여줌. 실제 애드센스 스크립트
+       연동은 별도 작업이고, 여기는 그 작업이 들어갈 자리를 표시만 해둠. -->
+  <div v-if="isAdsensePage" class="card overflow-hidden mb-4">
+    <div class="bg-blue-50 px-4 py-3 font-bold text-sm text-ink flex items-center gap-2">
+      <span class="icon-chip w-7 h-7 bg-white text-blue-600"><AppIcon name="sparkles" :size="14" /></span>
+      AwesomeKorean — {{ overview?.pages?.[filter.page]?.label }} (Google 애드센스)
+    </div>
+    <div class="p-6 text-center text-sm text-ink-muted">
+      <AppIcon name="megaphone" :size="28" class="mx-auto mb-2 text-ink-faint" />
+      이 페이지는 메뉴 관리에서 "애드센스"로 지정돼 있습니다.<br>
+      일반 배너 광고 슬롯 대신 Google 애드센스 광고가 노출될 자리입니다.<br>
+      <span class="text-xs text-ink-faint">애드센스 승인·코드 연동 후 이 영역에 실제 광고 단위가 표시되도록 연결할 예정입니다.</span>
+    </div>
+  </div>
+
   <!-- 슬롯 맵 시각화 (유저 신청 화면과 동일 레이아웃) -->
-  <div v-if="slotMap" class="card overflow-hidden mb-4">
+  <div v-else-if="slotMap" class="card overflow-hidden mb-4">
     <div class="bg-amber-50 px-4 py-3 font-bold text-sm text-ink flex items-center gap-2 flex-wrap">
       <span class="icon-chip w-7 h-7 bg-white text-amber-600"><AppIcon name="megaphone" :size="14" /></span>
       AwesomeKorean — {{ slotMap.page_label }}
@@ -286,7 +302,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import BannerPreviewModal from '../../components/BannerPreviewModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
@@ -298,6 +314,15 @@ const adDetail = ref(null)
 const showPreview = ref(false)
 
 const filter = ref({ page: 'community', geo_scope: 'all', geo_value: '' })
+
+// 메뉴 관리에서 이 페이지를 "애드센스"로 지정했는지 — 지정했으면 일반 배너
+// 슬롯 맵(프리미엄/스탠다드/이코노미) 대신 애드센스 전용 안내를 보여줌.
+const isAdsensePage = computed(() => overview.value?.pages?.[filter.value.page]?.ads_type === 'adsense')
+
+function onPageChange() {
+  if (isAdsensePage.value) { slotMap.value = null; return }
+  loadSlotMap()
+}
 
 async function loadOverview() {
   try {
@@ -369,6 +394,6 @@ function statusBadge(s) {
 
 onMounted(async () => {
   await loadOverview()
-  loadSlotMap()
+  onPageChange()
 })
 </script>
