@@ -40,8 +40,9 @@
       실패: {{ failedSteps.map(s => s.label).join(', ') }} — 사유는 아래 로그 참고
     </div>
 
-    <div v-if="stalled" class="mt-2 text-xs text-amber-600">
-      진행이 잠시 멈춘 것 같습니다 — 외부 서비스 응답을 기다리는 중일 수 있어요. 계속 지켜보는 중입니다.
+    <div v-if="stalled" class="mt-2 text-xs text-amber-600 flex items-center gap-2 flex-wrap">
+      <span>진행이 멈춘 것 같습니다 — 배포 등으로 서버가 재시작되면서 기존 작업이 끊겼을 수 있어요.</span>
+      <button @click="start" class="text-amber-700 font-bold underline shrink-0">지금 다시 시작하기</button>
     </div>
   </div>
 
@@ -124,6 +125,11 @@ function beginPolling() {
 }
 
 async function start() {
+  // "지금 다시 시작하기"는 이미 폴링 중인(죽은 작업을 계속 지켜보던) 상태에서도
+  // 눌릴 수 있어 — 기존 interval을 먼저 정리해야 중복으로 쌓이지 않음.
+  clearInterval(poll)
+  clearInterval(tick)
+  clearTimeout(timeout)
   syncing.value = true
   syncDone.value = false
   syncLog.value = ''
