@@ -18,6 +18,7 @@ const routes = [
   { path: '/login', name: 'login', component: p('auth/Login'), meta: { guest: true } },
   { path: '/register', name: 'register', component: p('auth/Register'), meta: { guest: true } },
   { path: '/forgot-password', name: 'forgot-password', component: p('auth/ForgotPassword'), meta: { guest: true } },
+  { path: '/auth/social-callback', name: 'social-callback', component: p('auth/SocialCallback') },
 
   // Community
   { path: '/community', name: 'community', component: p('community/BoardList') },

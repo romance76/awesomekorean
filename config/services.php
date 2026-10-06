@@ -72,7 +72,23 @@ return [
     // Amazon Associates 제휴 태그 — 코드 곳곳에 하드코딩하지 않고 여기 한 곳에서만
     // 참조(App\Support\AmazonLink). 실 서버 .env에 값이 없어도 기본값으로 바로
     // 동작하도록 fallback을 둠.
-    'amazon' => [
+    'amazon_associates' => [
         'associate_tag' => env('AMAZON_ASSOCIATE_TAG', 'awesomekorean-20'),
+    ],
+
+    // Google/Amazon 소셜 로그인 (Laravel Socialite). 키가 비어있으면 해당 공급자의
+    // "~로 로그인" 버튼을 눌러도 Google/Amazon이 "앱이 설정되지 않음" 에러를 보여줌 —
+    // Google Cloud Console / Login with Amazon 콘솔에서 OAuth 앱을 등록하고 발급받은
+    // 값을 .env에 넣어야 동작함(SocialAuthController 참고).
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI', env('APP_URL') . '/auth/google/callback'),
+    ],
+
+    'amazon' => [
+        'client_id'     => env('AMAZON_CLIENT_ID'),
+        'client_secret' => env('AMAZON_CLIENT_SECRET'),
+        'redirect'      => env('AMAZON_REDIRECT_URI', env('APP_URL') . '/auth/amazon/callback'),
     ],
 ];

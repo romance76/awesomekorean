@@ -13,6 +13,13 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 // SPA 캐치올보다 먼저 등록해야 매칭됨.
 Route::get('/go/amazon/{id}', [\App\Http\Controllers\API\ShoppingController::class, 'go']);
 
+// Google/Amazon 소셜 로그인. routes/api.php가 아니라 여기 두는 이유는
+// SocialAuthController 상단 주석 참고(세션 기반 state CSRF 검증을 쓰기 위함).
+Route::get('/auth/{provider}/redirect', [\App\Http\Controllers\SocialAuthController::class, 'redirect'])
+    ->whereIn('provider', ['google', 'amazon']);
+Route::get('/auth/{provider}/callback', [\App\Http\Controllers\SocialAuthController::class, 'callback'])
+    ->whereIn('provider', ['google', 'amazon']);
+
 Route::get('/{any}', function () {
     return view('welcome');
 })->where('any', '.*');
