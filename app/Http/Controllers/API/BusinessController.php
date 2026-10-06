@@ -71,8 +71,11 @@ class BusinessController extends Controller
             $radius = (int) ($request->radius ?? 50);
             $latDelta = $radius / 69.0;
             $lngDelta = $radius / (69.0 * cos(deg2rad($lat)));
-            $query->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
-                  ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta]);
+            // 전국구 상위노출은 반경 밖이어도 보여야 하므로 bounding box 에서 예외
+            $query->where(fn($w) => $w->where(fn($b) => $b
+                    ->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
+                    ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta]))
+                ->orWhere('promotion_tier', 'national'));
             $query->nearby($lat, $lng, $radius);
             $hasLocation = true;
         }
@@ -193,8 +196,10 @@ class BusinessController extends Controller
                 $radius = (int) ($request->radius ?? 50);
                 $latDelta = $radius / 69.0;
                 $lngDelta = $radius / (69.0 * cos(deg2rad($lat)));
-                $q->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
-                  ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta])
+                $q->where(fn($w) => $w->where(fn($b) => $b
+                        ->whereBetween('lat', [$lat - $latDelta, $lat + $latDelta])
+                        ->whereBetween('lng', [$lng - $lngDelta, $lng + $lngDelta]))
+                    ->orWhere('promotion_tier', 'national'))
                   ->nearby($lat, $lng, $radius);
             }
 

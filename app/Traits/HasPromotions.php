@@ -43,8 +43,16 @@ trait HasPromotions
     protected function excludeCrossTierPromotion($query, bool $hasLocation)
     {
         if ($hasLocation) {
-            // 내 위치 모드: national 제외 (전국 탭에서만 보임)
-            return $query->where('promotion_tier', '!=', 'national');
+            // 내 위치 모드: 전국구(national)는 돈 내고 "전 지역 노출"을 산 것이므로
+            // 반경 밖이어도 포함 — 정렬은 applyPromotionOrdering 에서 내 주(state_plus)
+            // 다음 순위. 로컬 상위노출이 없으면 맨 위로 올라옴.
+            // (nearby() 의 HAVING distance < r 에 OR 로 붙임 — HAVING 이 없으면 건드리지 않음.
+            //  ONLY_FULL_GROUP_BY 는 HAVING 에서 일반 컬럼을 거부하므로 distance 처럼 별칭으로 계산)
+            if (!empty($query->getQuery()->havings)) {
+                $query->addSelect(\Illuminate\Support\Facades\DB::raw("(promotion_tier = 'national') AS promo_national"))
+                      ->orHaving('promo_national', '=', 1);
+            }
+            return $query;
         }
         // 전국 모드: state_plus, sponsored 제외
         return $query->whereNotIn('promotion_tier', ['state_plus', 'sponsored']);
@@ -73,7 +81,7 @@ trait HasPromotions
         }
 
         if ($hasLocation && $userState) {
-            $query->orderByRaw("CASE WHEN promotion_tier = 'state_plus' AND {$statePlusCond} THEN 1 ELSE 9 END");
+            $query->orderByRaw("CASE WHEN promotion_tier = 'state_plus' AND {$statePlusCond} THEN 1 WHEN promotion_tier = 'national' THEN 2 ELSE 9 END");
         } else {
             $query->orderByRaw("CASE WHEN promotion_tier = 'national' THEN 1 ELSE 9 END");
         }
