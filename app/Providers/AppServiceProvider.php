@@ -30,8 +30,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureMail();
     }
 
-    // MAIL_MAILER가 .env에 설정돼 있지 않으면 기본값 'log'로 동작해서 이메일이 실제로
-    // 발송되지 않고 로그에만 기록됨(비밀번호 재설정/이메일 인증 메일이 전부 안 가던 원인).
+    // 운영 서버 .env에 MAIL_MAILER=log가 명시적으로 박혀있어서(단순 미설정이 아님)
+    // "값이 없을 때만 전환"하는 이전 로직으로는 Resend 키를 등록해도 계속 log
+    // 드라이버로만 동작해 메일이 전혀 발송되지 않았음(Resend 쪽 발송 로그 자체가
+    // 0건인 것으로 확인) — .env가 명시적으로 resend를 가리키는 경우가 아니라면
+    // 항상 Resend로 강제 전환하도록 수정.
     // RESEND_API_KEY를 .env 우선, 없으면 관리자 페이지 "API 키 관리"의 api_keys 테이블
     // (서비스 코드: resend_api_key)에서 찾아서 Resend 발송으로 전환.
     private function configureMail(): void
@@ -47,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         if (!$key) return;
 
         config(['services.resend.key' => $key]);
-        if (!env('MAIL_MAILER')) config(['mail.default' => 'resend']);
+        if (env('MAIL_MAILER') !== 'resend') config(['mail.default' => 'resend']);
         if (!env('MAIL_FROM_ADDRESS')) {
             config(['mail.from.address' => 'no-reply@awesomekorean.com', 'mail.from.name' => 'Awesome Korean']);
         }
