@@ -32,6 +32,17 @@ class ShoppingController extends Controller
         return response()->json(['success' => true, 'data' => $products]);
     }
 
+    // 공개: 상품 상세 (추천 문구 + Amazon 링크 버튼이 있는 블로그 스타일 페이지용)
+    public function show($id)
+    {
+        $product = AmazonProduct::where('is_active', true)->find($id);
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => '상품을 찾을 수 없습니다'], 404);
+        }
+
+        return response()->json(['success' => true, 'data' => $product]);
+    }
+
     // 공개: 클릭 기록 후 Amazon 제휴 링크로 리다이렉트 (routes/web.php에 등록 — SPA 캐치올보다 먼저)
     public function go($id)
     {

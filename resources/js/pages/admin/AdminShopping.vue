@@ -144,8 +144,11 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs text-ink-light mb-1">상품 이미지 URL (Amazon 이미지 URL을 직접 입력 — 서버에 저장하지 않음)</label>
+          <label class="block text-xs text-ink-light mb-1">상품 이미지 URL (Amazon 상품 이미지에서 우클릭 → "이미지 주소 복사" 후 붙여넣기 — 서버에 저장하지 않음)</label>
           <input v-model="editing.image_url" class="w-full border border-line rounded-lg px-3 py-2" />
+          <div v-if="editing.image_url" class="mt-2 w-20 h-20 border border-line rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+            <img :src="editing.image_url" class="w-full h-full object-cover" @error="e=>e.target.style.opacity=0.2" @load="e=>e.target.style.opacity=1" />
+          </div>
         </div>
         <div>
           <label class="block text-xs text-ink-light mb-1">Awesome Korean 추천/설명 문구</label>
