@@ -128,8 +128,12 @@ const subTabs = {
     { to: '/admin/music', icon: 'music', label: '음악' },
     { to: '/admin/shorts', icon: 'video', label: '숏츠' },
     { to: '/admin/shopping', icon: 'shopping-cart', label: '쇼핑' },
+    { to: '/admin/chats', icon: 'message-square', label: '채팅' },
     { to: '/admin/games', icon: 'gamepad', label: '게임' },
-    { to: '/admin/poker', icon: 'coins', label: '포커' },
+    // 포커는 독립된 공개 메뉴가 아니라 게임(/games) 안의 하위 기능이라 별도
+    // 상단 탭은 불필요 — AdminGames.vue에서 들어가는 하위 화면으로만 유지하고,
+    // 상단 탭 목록(boardTabs)에서는 제외(hideFromTabs). 현재 그룹 판정에는 계속 사용.
+    { to: '/admin/poker', icon: 'coins', label: '포커', hideFromTabs: true },
     { to: '/admin/elder', icon: 'heart', label: '안심' },
     { to: '/admin/communication', icon: 'phone', label: '채팅·통화' },
     { to: '/admin/claims', icon: 'flag', label: '클레임' },
@@ -174,15 +178,18 @@ const boardMenuKeyMap = {
   '/admin/music': 'music',
   '/admin/shorts': 'shorts',
   '/admin/shopping': 'shopping',
+  '/admin/chats': 'chat',
   '/admin/games': 'games',
   '/admin/elder': 'elder',
   '/admin/communication': 'comms',
 }
 
 // 게시판 탭: 시스템 > 메뉴 관리에서 켜둔 메뉴만, 그 설정 순서대로 보여줌
-// (관리자 전용 화면은 매핑이 없으므로 그대로 유지, 뒤에 붙임)
+// (관리자 전용 화면은 매핑이 없으므로 그대로 유지, 뒤에 붙임. hideFromTabs
+// 항목은 상단 탭에선 완전히 제외 — currentGroup 판정에는 계속 쓰이므로
+// subTabs.board 자체에서는 지우지 않음)
 const boardTabs = computed(() => {
-  const base = subTabs.board
+  const base = subTabs.board.filter(tab => !tab.hideFromTabs)
   const mc = siteStore.menuConfig
   if (!mc || !Array.isArray(mc) || !mc.length) return base
   const orderIndex = {}
