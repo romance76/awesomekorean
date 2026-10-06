@@ -236,7 +236,7 @@
               <div class="text-xs text-ink-muted leading-relaxed">입장하면 24시간 동안 블러 없이 자유롭게 열람·참여할 수 있어요.<br />입장료: <span class="font-bold text-amber-600">{{ entryCost }}P</span></div>
               <div v-if="enterError" class="text-xs text-red-500">{{ enterError }}</div>
               <div class="flex gap-2">
-                <button @click="goBackToList" class="btn-secondary flex-1 text-xs py-2">취소</button>
+                <button @click="cancelEntry" class="btn-secondary flex-1 text-xs py-2">취소</button>
                 <button @click="enterRoom(activeRoom)" :disabled="entering" class="btn-primary flex-1 text-xs py-2 disabled:opacity-50">{{ entering ? '입장 중...' : '입장하기' }}</button>
               </div>
             </div>
@@ -644,6 +644,19 @@ const needsEntry = computed(() => {
   if (auth.user?.free_public_room_id && auth.user.free_public_room_id === r.id) return false
   return !r.has_access
 })
+// 입장료를 내지 않고 취소하면, "참가중인 채팅방"에 있던 방이라도 더 이상
+// 실제로 참가중이라 보기 어려우므로 함께 나가기 처리 — 안 그러면 사이드바엔
+// "참가중"으로 뜨는데 정작 들어가면 계속 블러+입장 요구만 받는 모순이 생김.
+async function cancelEntry() {
+  const room = activeRoom.value
+  if (room?.is_participating) {
+    try {
+      await axios.post(`/api/chat/rooms/${room.id}/leave`)
+      room.is_participating = false
+    } catch {}
+  }
+  goBackToList()
+}
 async function enterRoom(room) {
   if (!room) return
   entering.value = true
