@@ -139,6 +139,11 @@
       </div>
     </div>
   </div>
+  <div v-else class="card p-8 text-center text-ink-muted">
+    <AppIcon name="alert-circle" :size="24" class="mx-auto mb-2 text-red-400" />
+    데이터를 불러오지 못했습니다. 세션이 만료되었을 수 있어요.
+    <div class="mt-3"><button @click="reload" class="btn-primary">다시 시도</button></div>
+  </div>
 </div>
 </template>
 
@@ -155,7 +160,8 @@ const pendingReports = computed(() =>
   report.value?.boards?.reduce((sum, b) => sum + (b.reports || 0), 0) || 0
 )
 
-onMounted(async () => {
+async function reload() {
+  loading.value = true
   try {
     const { data } = await axios.get('/api/admin/board-manager/full-report')
     report.value = data.data
@@ -173,5 +179,7 @@ onMounted(async () => {
     } catch {}
   }
   loading.value = false
-})
+}
+
+onMounted(reload)
 </script>

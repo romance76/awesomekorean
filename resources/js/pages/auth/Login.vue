@@ -54,7 +54,7 @@ const submitting = ref(false)
 const remember = ref(localStorage.getItem('sk_auth_persist') !== '0')
 async function handleLogin() {
   submitting.value = true; error.value = ''
-  try { await auth.login(form.email, form.password, remember.value); router.push('/') }
+  try { await auth.login(form.email, form.password, remember.value); router.push(route.query.redirect || '/') }
   catch (e) { error.value = e.response?.data?.message || '로그인 실패' }
   finally { submitting.value = false }
 }
