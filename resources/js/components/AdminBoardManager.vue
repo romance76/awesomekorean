@@ -112,6 +112,8 @@
           <label v-if="hasAutoFetch" class="text-xs flex items-center gap-1 text-ink-light" title="체크하면 매일 YouTube에서 자동으로 영상을 수집합니다. 끄면 사용자가 직접 추가한 트랙만 유지됩니다.">
             <input type="checkbox" v-model="c.auto_fetch"> <AppIcon name="refresh" :size="11" /> 자동수집
           </label>
+          <input v-if="hasAutoFetch && c.auto_fetch" v-model="c.channel_url" placeholder="채널 URL(선택) — 지정 시 이 채널만 수집"
+            class="input-soft px-2 py-1 w-56 bg-white text-xs" title="채널 URL/핸들을 지정하면 자동수집이 일반 키워드 검색 대신 이 채널의 업로드 영상만 가져옵니다" />
           <span v-if="c.post_count" class="text-[11px] bg-gray-200 text-ink-light px-1.5 py-0.5 rounded-full font-semibold">{{ c.post_count }}개</span>
           <span v-if="c.auto_detected" class="badge-blue !text-[11px]">자동감지</span>
           <button @click="viewCategoryPosts(c)" class="btn-primary px-2 py-1 text-[11px]">
@@ -369,6 +371,7 @@ async function loadCategories() {
       icon: c.icon || '',
       is_active: c.is_active !== false,
       auto_fetch: c.auto_fetch !== false,
+      channel_url: c.channel_url || '',
       post_count: c.post_count || 0,
       auto_detected: !!c.auto_detected,
     }))
@@ -378,7 +381,7 @@ async function loadCategories() {
 const hasAutoDetected = computed(() => categories.value.some(c => c.auto_detected))
 // auto_fetch 컬럼이 카테고리에 존재할 때만 체크박스 노출 (현재 music 만)
 const hasAutoFetch = computed(() => props.slug === 'music' && usesTable.value)
-function addCategory() { categories.value.push({ name: '', slug: '', icon: '🏷', is_active: true, auto_fetch: true }) }
+function addCategory() { categories.value.push({ name: '', slug: '', icon: '🏷', is_active: true, auto_fetch: true, channel_url: '' }) }
 function removeCategory(i) { categories.value.splice(i, 1) }
 async function saveCategories() {
   try {

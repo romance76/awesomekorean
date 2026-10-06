@@ -451,6 +451,7 @@ class AdminBoardController extends Controller
             $table = (new $modelClass)->getTable();
             $hasAutoFetch = Schema::hasColumn($table, 'auto_fetch');
             $hasIsActive = Schema::hasColumn($table, 'is_active');
+            $hasChannelUrl = Schema::hasColumn($table, 'channel_url');
 
             $existingIds = collect($categories)->pluck('id')->filter()->all();
             // 삭제된 항목
@@ -484,6 +485,9 @@ class AdminBoardController extends Controller
                 }
                 if ($hasIsActive && array_key_exists('is_active', $cat)) {
                     $data['is_active'] = (bool) $cat['is_active'];
+                }
+                if ($hasChannelUrl && array_key_exists('channel_url', $cat)) {
+                    $data['channel_url'] = trim((string) $cat['channel_url']) ?: null;
                 }
                 if (!empty($cat['id'])) {
                     $modelClass::where('id', $cat['id'])->update($data);

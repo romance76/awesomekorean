@@ -92,6 +92,18 @@ class FetchMusicTracks extends Command
         $perCategory = (int) ceil($dailyLimit / $categories->count());
 
         foreach ($categories as $cat) {
+            // 관리자가 이 카테고리에 YouTube 채널을 직접 지정해둔 경우 — 일반
+            // 키워드 검색 대신 그 채널의 업로드 영상만 가져옴. 사용자가 직접
+            // 만든 카테고리("트로트새바람" 등)에 전혀 관련 없는 영상이 섞여
+            // 들어가던 문제의 원인이 바로 이 구분이 없었던 것이었음.
+            if (!empty($cat->channel_url)) {
+                $this->info("\n📂 {$cat->name} ({$cat->slug}) - 채널 지정: {$cat->channel_url}");
+                $added = $this->fetchFromChannel($apiKey, $cat->id, $cat->channel_url, $perCategory);
+                $this->info("  ✅ 채널: {$added}곡 추가");
+                $totalAdded += $added;
+                continue;
+            }
+
             $ratio = $this->ratios[$cat->slug] ?? 75;
             $koreanPerCat = (int) ceil($perCategory * $ratio / 100);
             $popPerCat = $perCategory - $koreanPerCat;
@@ -297,6 +309,65 @@ class FetchMusicTracks extends Command
             }
         } catch (\Exception $e) {
             $this->warn("  ⚠ 수집 실패: " . $e->getMessage());
+        }
+
+        return $added;
+    }
+
+    // 카테고리에 지정된 YouTube 채널의 최근 업로드만 수집 (키워드 검색 없음) —
+    // 관리자가 "이 채널만" 원하는 카테고리(트로트새바람 등)용.
+    private function fetchFromChannel($apiKey, $categoryId, $channelUrl, $limit)
+    {
+        $added = 0;
+        try {
+            $resolver = app(\App\Services\YoutubeChannelResolver::class);
+            $channelId = $resolver->resolveChannelId($apiKey, $channelUrl);
+            if (!$channelId) {
+                $this->warn("  ⚠ 채널을 찾을 수 없음: {$channelUrl}");
+                return 0;
+            }
+            // 필터링으로 걸러질 것을 감안해 목표치보다 넉넉히 가져옴
+            $videoIds = $resolver->fetchChannelVideos($apiKey, $channelId, max($limit * 4, 50));
+            $videoIds = array_slice($videoIds, 0, 200);
+            if (empty($videoIds)) return 0;
+
+            $durations = [];
+            foreach (array_chunk($videoIds, 50) as $chunk) {
+                $detailRes = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/videos', [
+                    'key' => $apiKey, 'id' => implode(',', $chunk), 'part' => 'snippet,contentDetails',
+                ]);
+                if (!$detailRes->ok()) continue;
+
+                foreach ($detailRes->json('items', []) as $v) {
+                    if ($added >= $limit) break 2;
+
+                    $videoId = $v['id'] ?? null;
+                    if (!$videoId) continue;
+
+                    $title = $v['snippet']['title'] ?? '';
+                    $channel = $v['snippet']['channelTitle'] ?? '';
+                    $seconds = $this->parseDuration($v['contentDetails']['duration'] ?? 'PT0S');
+
+                    if ($seconds < 150 || $seconds > 300) continue;
+                    if (MusicTrack::where('youtube_id', $videoId)->exists()) continue;
+                    if (mb_strlen($title) < 3) continue;
+                    if (preg_match('/live stream|라이브 방송|24\/7|radio|playlist|모음|메들리/i', $title)) continue;
+
+                    MusicTrack::create([
+                        'category_id' => $categoryId,
+                        'title' => mb_substr(html_entity_decode($title, ENT_QUOTES | ENT_HTML5, 'UTF-8'), 0, 200),
+                        'artist' => mb_substr($channel, 0, 100),
+                        'youtube_id' => $videoId,
+                        'youtube_url' => "https://www.youtube.com/watch?v={$videoId}",
+                        'duration' => $seconds,
+                        'sort_order' => 0,
+                        'is_user_submitted' => false,
+                    ]);
+                    $added++;
+                }
+            }
+        } catch (\Exception $e) {
+            $this->warn("  ⚠ 채널 수집 실패: " . $e->getMessage());
         }
 
         return $added;
