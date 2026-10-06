@@ -166,6 +166,7 @@ Route::get('/qa/categories', [QaController::class, 'categories']);
 Route::get('/qa/{id}', [QaController::class, 'show']);
 Route::get('/shorts', [ShortController::class, 'index']);
 Route::get('/shopping', [ShoppingController::class, 'index']);
+Route::get('/shopping/{id}', [ShoppingController::class, 'show']);
 Route::get('/music/categories', [MusicController::class, 'categories']);
 Route::get('/music/tracks/{categoryId}', [MusicController::class, 'tracks']);
 Route::get('/search', [SearchController::class, 'search']);
