@@ -192,7 +192,7 @@
         <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 (이미지 폭 300px 고정) -->
         <div class="grid gap-4 content-start">
           <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group block">
-            <div class="aspect-[16/10] rounded-2xl overflow-hidden bg-surface border border-line isolate transform-gpu">
+            <div class="w-full aspect-[16/10] rounded-2xl overflow-hidden bg-surface border border-line">
               <img v-if="re.image" :src="re.image" alt=""
                 class="w-full h-full object-cover"
                 @error="e => e.target.style.display='none'" />
