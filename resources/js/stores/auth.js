@@ -43,6 +43,15 @@ export const useAuthStore = defineStore('auth', () => {
     return data
   }
 
+  // 소셜 로그인 콜백(SocialCallback.vue)에서 URL로 받은 JWT로 로그인 완료
+  async function loginWithToken(tok, remember = true) {
+    localStorage.setItem(PERSIST_KEY, remember ? '1' : '0')
+    token.value = tok
+    axios.defaults.headers.common['Authorization'] = `Bearer ${tok}`
+    const { data } = await axios.get('/api/user')
+    setAuth(tok, data.data)
+  }
+
   async function register(form) {
     // 회원가입 시엔 기본적으로 remember=true
     localStorage.setItem(PERSIST_KEY, '1')
@@ -109,5 +118,5 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {}
   }
 
-  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
+  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
 })
