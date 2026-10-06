@@ -193,6 +193,26 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'data'=>$keys]);
     }
 
+    // 임시 진단용 — Resend 키를 등록해도 메일이 전혀 안 나가는 문제 원인 파악.
+    // 서버 .env를 직접 못 보는 상황이라, 실제 요청 시점에 Laravel이 무엇을 읽고
+    // 있는지(마스킹된 값)를 여기서 바로 확인. 원인 확정되면 삭제 예정.
+    public function mailDebug() {
+        $envMailer = env('MAIL_MAILER');
+        $envResendKey = env('RESEND_API_KEY');
+        $dbRow = ApiKey::where('service', 'resend_api_key')->first();
+
+        return response()->json(['success' => true, 'data' => [
+            'resolved_mail_default' => config('mail.default'),
+            'resolved_resend_key_masked' => config('services.resend.key') ? substr(config('services.resend.key'), 0, 8) . '...' : null,
+            'env_MAIL_MAILER_raw' => $envMailer === null ? '(미설정)' : $envMailer,
+            'env_RESEND_API_KEY_raw' => $envResendKey ? substr($envResendKey, 0, 8) . '...' : '(미설정)',
+            'db_row_exists' => (bool) $dbRow,
+            'db_row_is_active' => $dbRow?->is_active,
+            'db_row_key_masked' => $dbRow?->api_key ? substr($dbRow->api_key, 0, 8) . '...' : null,
+            'mail_from_address' => config('mail.from.address'),
+        ]]);
+    }
+
     public function storeApiKey(Request $request) {
         $request->validate(['name'=>'required','service'=>'required','api_key'=>'required']);
         $newKey = ApiKey::create([
