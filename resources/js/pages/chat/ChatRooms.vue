@@ -81,7 +81,7 @@
 
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bottom-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
         :style="isMobile ? 'z-index: 60;' : ''">
-        <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: 70vh'">
+        <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: calc(100vh - 6rem)'">
           <!-- 채팅방 헤더 -->
           <div class="px-4 py-3 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-2">
@@ -1161,10 +1161,25 @@ function runRoomSearch() {
     roomSearching.value = false
   }, 300)
 }
-function selectSearchResult(room) {
-  selectRoom(room)
+async function selectSearchResult(room) {
+  const q = roomSearchQ.value.trim()
   roomSearchQ.value = ''
   roomSearchResults.value = []
+  await selectRoom(room)
+  // 매치된 지점으로 이동: 방 안 메시지 검색을 같은 검색어로 돌려서
+  // 기존 메시지 검색 팝업(하이라이트·이전/다음 이동)을 그대로 활용
+  if (q) {
+    msgSearchQ.value = q
+    try {
+      const { data } = await axios.get(`/api/chat/rooms/${room.id}/messages/search`, { params: { q } })
+      msgSearchResults.value = data.data || []
+      msgSearchIdx.value = 0
+      if (msgSearchResults.value.length) {
+        msgSearchOpen.value = true
+        await scrollToSearchResult()
+      }
+    } catch {}
+  }
 }
 
 // 잠긴 방이 삭제까지 남은 일수 (서버에서 마지막 활동 시각 기준으로 그때그때 계산해서 내려줌)
