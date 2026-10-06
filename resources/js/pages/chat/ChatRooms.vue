@@ -123,7 +123,7 @@
           </div>
 
           <!-- 메시지 영역 -->
-          <div ref="msgArea" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50/70" @scroll="onMsgScroll">
+          <div ref="msgArea" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50/70" @scroll="onMsgScroll" @click="clearSearchHighlight">
             <template v-for="(msg, idx) in visibleMessages" :key="msg.id">
               <!-- 날짜 구분선 -->
               <div v-if="showDateDivider(idx)" class="flex items-center justify-center py-2">
@@ -459,6 +459,7 @@
                 createType===t.value ? 'bg-amber-50 text-amber-700 border-amber-400' : 'bg-white text-ink-light border-gray-200 hover:bg-gray-50']">
               <div class="text-base mb-0.5">{{ t.icon }}</div>
               {{ t.label }}
+              <div class="text-[10px] font-normal text-ink-faint mt-0.5">{{ t.cost }}P 소요</div>
             </button>
           </div>
         </div>
@@ -925,6 +926,11 @@ function closeMsgSearch() {
   msgSearchResults.value = []
   msgSearchIdx.value = 0
 }
+// 검색 결과로 들어와 하이라이트된 메시지가 있을 때, 메시지 영역을 클릭하거나
+// 새 메시지를 보내면 그 하이라이트/검색 상태를 치워서 계속 남아있지 않게 함
+function clearSearchHighlight() {
+  if (msgSearchOpen.value || msgSearchResults.value.length) closeMsgSearch()
+}
 function runMsgSearch() {
   clearTimeout(msgSearchTimer)
   msgSearchTimer = setTimeout(async () => {
@@ -1102,6 +1108,7 @@ async function sendMsg() {
     newMsg.value = ''
     clearFiles()
     showEmojiPicker.value = false
+    clearSearchHighlight()
     await nextTick()
     if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
   } catch (e) {
@@ -1213,10 +1220,13 @@ function goBackToList() {
 }
 
 // ─── 새 채팅 모달 (Issue #20) ───
+// 무분별한 채팅방 생성을 막기 위한 포인트 비용 — 기존 DM 재사용(새로 만드는
+// 게 아님)은 차감 없음. 실제 비용은 서버(ChatRules)가 최종 판단하며, 여기
+// 숫자는 모달에 미리 보여주는 안내용(서버 기본값과 동일하게 유지).
 const createTypes = [
-  { value: 'dm',     label: '1:1 채팅',  icon: '💌' },
-  { value: 'group',  label: '그룹',      icon: '👥' },
-  { value: 'public', label: '공개방',    icon: '🌐' },
+  { value: 'dm',     label: '1:1 채팅',  icon: '💌', cost: 50 },
+  { value: 'group',  label: '그룹',      icon: '👥', cost: 200 },
+  { value: 'public', label: '공개방',    icon: '🌐', cost: 500 },
 ]
 const createType = ref('dm')
 const friendList = ref([])
@@ -1293,6 +1303,10 @@ async function createRoom() {
     // 목록에 없으면 상단 추가
     if (!rooms.value.find(r => Number(r.id) === Number(room.id))) {
       rooms.value.unshift(room)
+    }
+    if (data.points_spent) {
+      siteStore.toast(`${data.points_spent}P를 사용해 채팅방을 만들었습니다`, 'info')
+      auth.refreshBalance()
     }
     closeCreate()
     selectRoom(room)
