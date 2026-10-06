@@ -223,20 +223,34 @@ class ScrapeRealEstateListings extends Command
     {
         foreach (['photos', 'photoUrls', 'images', 'media.photos'] as $key) {
             $val = data_get($item, $key);
-            if (is_array($val) && $val) {
-                $urls = [];
-                foreach ($val as $p) {
-                    if (is_string($p)) $urls[] = $p;
-                    elseif (is_array($p)) {
-                        $u = $p['href'] ?? $p['url'] ?? $p['highRes'] ?? $p['midRes'] ?? $p['src'] ?? null;
-                        if ($u) $urls[] = $u;
-                    }
-                }
-                if ($urls) return array_values(array_unique($urls));
+            if (!is_array($val) || !$val) continue;
+
+            $urls = [];
+            foreach ($val as $p) {
+                $u = null;
+                if (is_string($p)) $u = $p;
+                elseif (is_array($p)) $u = $p['href'] ?? $p['url'] ?? $p['highRes'] ?? $p['midRes'] ?? $p['src'] ?? null;
+                // 초소형 썸네일(확인: 실측 120x80px)은 제외하고 다음 후보 필드로 넘어감 —
+                // 같은 매물이 두 갈래 피드로 중복 수집돼 한쪽은 1024px, 한쪽은 이 썸네일만 주는
+                // 경우가 있어서(실측 확인), 이걸 그대로 쓰면 목록/상세 페이지에서 사진이 심하게
+                // 흐릿하게 보임.
+                if ($u && !$this->isLowResPhoto($u)) $urls[] = $u;
             }
+            if ($urls) return array_values(array_unique($urls));
         }
+
         $primary = $this->field($item, ['primary_photo.href', 'primaryPhoto.href', 'primaryListingImageUrl', 'thumbnail']);
-        return $primary ? [$primary] : [];
+        if ($primary && !$this->isLowResPhoto($primary)) return [$primary];
+
+        return [];
+    }
+
+    // Realtor.com의 rdcpix.com CDN URL은 끝에 사이즈 코드가 붙는데(예: ...397s.jpg, ...283od.jpg),
+    // 숫자 바로 뒤에 's'로 끝나는 건 가로 120px 수준의 초소형 썸네일(실측 확인), 'od'로 끝나는 건
+    // 이 API가 주는 가장 큰 사이즈(실측 1024px 안팎)라 정상 사용 가능.
+    private function isLowResPhoto(string $url): bool
+    {
+        return (bool) preg_match('/rdcpix\.com\/.*\d+s\.jpg(\?.*)?$/i', $url);
     }
 
     // 점(.) 구분 경로 여러 개를 순서대로 시도해 첫 번째로 "있는 스칼라 값"을 반환.
