@@ -191,9 +191,7 @@ class AuthController extends Controller
         );
 
         try {
-            \Mail::raw("AwesomeKorean 비밀번호 재설정 코드: {$code}", function ($msg) use ($request) {
-                $msg->to($request->email)->subject('[AwesomeKorean] 비밀번호 재설정 코드');
-            });
+            \Illuminate\Support\Facades\Mail::to($request->email)->send(new \App\Mail\PasswordResetCodeMail($code));
         } catch (\Exception $e) {
             // 메일 전송 실패해도 코드는 생성됨(응답은 그대로 성공처럼 보임) — 원인 추적용 로그만 남김
             \Log::warning("비밀번호 재설정 코드 메일 발송 실패 ({$request->email}): " . $e->getMessage());
