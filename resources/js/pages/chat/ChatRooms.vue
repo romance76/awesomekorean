@@ -1164,7 +1164,11 @@ function matchesFilter(room, filter) {
   if (filter === 'dm') return room.type === 'dm' || room.type === 'private'
   return room.type === filter
 }
-const filteredRooms = computed(() => rooms.value.filter(r => matchesFilter(r, roomFilter.value)))
+// '전체' 탭에서는 "참가중인 채팅방" 섹션에 이미 뜬 방을 아래 전체 목록에
+// 또 보여주지 않음(둘 중 한 곳에만 위치)
+const filteredRooms = computed(() => rooms.value.filter(r =>
+  matchesFilter(r, roomFilter.value) && !(roomFilter.value === 'all' && r.is_participating)
+))
 
 // ─── 참가중인 채팅방(공개방 중 내가 글을 쓴 곳) ───
 const participatingRooms = computed(() => rooms.value.filter(r => r.is_participating))
