@@ -686,6 +686,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::get('/api-keys/{id}/reveal', [AdminSettingsController::class, 'revealApiKey']);
         // 임시 진단용 (AdminSettingsController::mailDebug 참고) — 원인 확정되면 제거
         Route::get('/system/mail-debug', [AdminSettingsController::class, 'mailDebug']);
+        Route::post('/system/mail-test-send', [AdminSettingsController::class, 'mailTestSend']);
     });
 
     // Firebase 설정
