@@ -248,8 +248,9 @@ class AdminSettingsController extends Controller
             'row_exists' => true,
             'created_at' => $row->created_at,
             'server_now' => now()->toDateTimeString(),
-            'diff_in_minutes' => now()->diffInMinutes($row->created_at),
-            'would_skip_cooldown' => now()->diffInMinutes($row->created_at) < 5,
+            'diff_in_minutes_raw' => now()->diffInMinutes($row->created_at),
+            'diff_in_minutes_abs' => abs(now()->diffInMinutes($row->created_at)),
+            'would_skip_cooldown' => abs(now()->diffInMinutes($row->created_at)) < 5,
         ]]);
     }
 

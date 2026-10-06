@@ -132,8 +132,11 @@ class AuthController extends Controller
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);
 
         // 일일 로그인 보너스 (P2B-2: DB 동적)
+        // Carbon 3의 diffInHours() 부호 변경으로 과거 시각과 비교 시 항상 음수가
+        // 나와서 >= 12 비교가 영원히 거짓이 되어(최초 로그인 이후 다시는) 보너스가
+        // 지급되지 않던 버그 — abs()로 절대값 비교하도록 수정.
         $lastLogin = $user->getOriginal('last_login_at');
-        if (!$lastLogin || now()->diffInHours($lastLogin) >= 12) {
+        if (!$lastLogin || abs(now()->diffInHours($lastLogin)) >= 12) {
             $loginBonus = \App\Support\PointRules::get('daily_login_bonus', 2);
             if ($loginBonus > 0) $user->addPoints($loginBonus, '일일 로그인 보너스');
         }
@@ -171,8 +174,12 @@ class AuthController extends Controller
         }
 
         // 5분 쿨다운 — 동일 이메일 연속 요청 차단
+        // Carbon 3부터 diffInMinutes()가 기본적으로 부호 있는 값을 반환함(과거
+        // 시각과 비교하면 음수) — abs() 없이 비교하면 음수는 항상 5보다 작아서
+        // 한 번이라도 요청한 이메일은 영원히 쿨다운에 걸린 것으로 판정되어
+        // 다시는 메일이 발송되지 않던 버그(이번 이메일 미발송 사태의 진짜 원인).
         $existing = \DB::table('password_reset_tokens')->where('email', $request->email)->first();
-        if ($existing && now()->diffInMinutes($existing->created_at) < 5) {
+        if ($existing && abs(now()->diffInMinutes($existing->created_at)) < 5) {
             return $publicResponse; // 응답은 동일하지만 내부적으로 skip
         }
 

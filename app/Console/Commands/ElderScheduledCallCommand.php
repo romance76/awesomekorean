@@ -86,7 +86,10 @@ class ElderScheduledCallCommand extends Command
                     if ($currentTime < $timeStart || $currentTime > $timeEnd) continue;
 
                     // 랜덤 확률: 남은 시간 내에 남은 전화를 고르게 분배
-                    $remainingMinutes = Carbon::parse($timeEnd)->diffInMinutes(Carbon::parse($currentTime));
+                    // Carbon 3 diffInMinutes 부호 변경으로 abs() 없이는 timeEnd가
+                    // currentTime보다 미래라 항상 음수가 나와 max(1, ...)에 걸려
+                    // 분모가 항상 1이 되던 버그(남은 시간과 무관하게 확률 과도하게 높아짐).
+                    $remainingMinutes = abs(Carbon::parse($timeEnd)->diffInMinutes(Carbon::parse($currentTime)));
                     $remainingCalls = $callsPerDay - $todayCalls;
                     $probability = $remainingCalls / max(1, $remainingMinutes);
 

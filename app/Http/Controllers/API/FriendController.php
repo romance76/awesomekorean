@@ -55,7 +55,9 @@ class FriendController extends Controller
             // 온라인 상태
             $status = 'offline';
             if ($other->last_active_at) {
-                $mins = now()->diffInMinutes($other->last_active_at);
+                // Carbon 3 diffInMinutes 부호 변경으로 abs() 없이는 항상 음수가
+                // 나와 모든 친구가 영원히 '온라인'으로 표시되던 버그였음.
+                $mins = abs(now()->diffInMinutes($other->last_active_at));
                 if ($mins <= 5) $status = 'online';
                 elseif ($mins <= 30) $status = 'away';
             }
