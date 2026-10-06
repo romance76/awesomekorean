@@ -22,25 +22,50 @@
           </button>
         </div>
 
+        <!-- 채팅방 검색: 방 이름 또는 최근 메시지 내용으로 검색 -->
+        <div class="relative mb-2">
+          <AppIcon name="search" :size="13" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none" />
+          <input v-model="roomSearchQ" @input="runRoomSearch" type="text" placeholder="채팅방 이름, 메시지 내용으로 검색..."
+            class="input-soft w-full pl-8 pr-7 py-1.5 text-xs" />
+          <button v-if="roomSearchQ" @click="roomSearchQ=''; roomSearchResults=[]"
+            class="absolute right-2 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="13" /></button>
+        </div>
+
         <div class="card overflow-hidden">
-          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">{{ currentFilterTitle }}</div>
-          <div v-if="loading" class="py-4 text-center text-xs text-ink-muted">로딩중...</div>
-          <button v-for="room in filteredRooms" :key="room.id" @click="selectRoom(room)"
-            class="w-full text-left px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs"
-            :class="[activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50', room.is_locked ? 'opacity-50 grayscale' : '']">
-            <div class="flex items-center justify-between gap-1">
-              <span class="flex-shrink-0 text-[11px]">{{ room.is_locked ? '🔒' : roomTypeIcon(room.type) }}</span>
-              <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
-              <!-- 한번도 안들어간 방: NEW -->
-              <span v-if="room.is_new" class="text-[11px] bg-red-500 text-white font-bold px-1 py-0.5 rounded flex-shrink-0">NEW</span>
-              <!-- 미읽음 있음: (N) 또는 300+ -->
-              <span v-else-if="room.unread_count > 0" class="text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded flex-shrink-0">
-                {{ room.unread_count > 300 ? '300+' : room.unread_count }}
-              </span>
-              <span v-else-if="room.messages?.length" class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></span>
-            </div>
-          </button>
-          <div v-if="!filteredRooms.length && !loading" class="px-3 py-4 text-xs text-ink-muted text-center">채팅방 없음</div>
+          <template v-if="roomSearchQ.trim()">
+            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">🔍 검색 결과</div>
+            <div v-if="roomSearching" class="py-4 text-center text-xs text-ink-muted">검색중...</div>
+            <button v-for="room in roomSearchResults" :key="room.id" @click="selectSearchResult(room)"
+              class="w-full text-left px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs text-ink-light hover:bg-amber-50/50"
+              :class="room.is_locked ? 'opacity-50 grayscale' : ''">
+              <div class="flex items-center gap-1">
+                <span class="flex-shrink-0 text-[11px]">{{ room.is_locked ? '🔒' : roomTypeIcon(room.type) }}</span>
+                <span class="truncate flex-1 font-semibold">{{ roomDisplayName(room) }}</span>
+              </div>
+              <div v-if="room.match_snippet" class="mt-0.5 pl-4 text-[11px] text-ink-muted truncate">💬 {{ room.match_snippet }}</div>
+            </button>
+            <div v-if="!roomSearchResults.length && !roomSearching" class="px-3 py-4 text-xs text-ink-muted text-center">검색 결과 없음</div>
+          </template>
+          <template v-else>
+            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">{{ currentFilterTitle }}</div>
+            <div v-if="loading" class="py-4 text-center text-xs text-ink-muted">로딩중...</div>
+            <button v-for="room in filteredRooms" :key="room.id" @click="selectRoom(room)"
+              class="w-full text-left px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs"
+              :class="[activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50', room.is_locked ? 'opacity-50 grayscale' : '']">
+              <div class="flex items-center justify-between gap-1">
+                <span class="flex-shrink-0 text-[11px]">{{ room.is_locked ? '🔒' : roomTypeIcon(room.type) }}</span>
+                <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
+                <!-- 한번도 안들어간 방: NEW -->
+                <span v-if="room.is_new" class="text-[11px] bg-red-500 text-white font-bold px-1 py-0.5 rounded flex-shrink-0">NEW</span>
+                <!-- 미읽음 있음: (N) 또는 300+ -->
+                <span v-else-if="room.unread_count > 0" class="text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded flex-shrink-0">
+                  {{ room.unread_count > 300 ? '300+' : room.unread_count }}
+                </span>
+                <span v-else-if="room.messages?.length" class="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></span>
+              </div>
+            </button>
+            <div v-if="!filteredRooms.length && !loading" class="px-3 py-4 text-xs text-ink-muted text-center">채팅방 없음</div>
+          </template>
         </div>
       </div>
 
@@ -65,6 +90,9 @@
             </div>
             <div class="flex items-center gap-2">
               <button @click="openMsgSearch" class="text-ink-muted hover:text-amber-600 transition-colors" title="메시지 검색"><AppIcon name="search" :size="18" /></button>
+              <!-- 본인이 만든 채팅방만 직접 삭제 가능(다른 멤버가 있어도 무관) -->
+              <button v-if="activeRoom.created_by === auth.user?.id" @click="roomDeleteConfirm = activeRoom"
+                class="text-ink-muted hover:text-red-500 transition-colors" title="채팅방 삭제"><AppIcon name="trash" :size="18" /></button>
               <span v-if="activeRoom.is_locked" class="badge-gray">🔒 잠김</span>
               <span v-else-if="activeRoom.type === 'public'" class="badge-green">공개</span>
             </div>
@@ -358,6 +386,25 @@
       </div>
     </div>
 
+    <!-- 🗑️ 채팅방 삭제 확인 다이얼로그 -->
+    <div v-if="roomDeleteConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style="z-index: 85;" @click.self="roomDeleteConfirm = null">
+      <div class="bg-white rounded-2xl shadow-lift w-full max-w-sm overflow-hidden">
+        <div class="px-5 pt-5 pb-3">
+          <h3 class="font-bold text-ink text-base mb-2">이 채팅방을 삭제하시겠어요?</h3>
+          <div class="text-xs text-ink-light leading-relaxed">
+            "{{ roomDisplayName(roomDeleteConfirm) }}" 방이 모든 참가자에게서 완전히 삭제되며, 메시지도 함께 사라집니다. 되돌릴 수 없습니다.
+          </div>
+        </div>
+        <div v-if="roomDeleteError" class="px-5 text-xs text-red-500 pb-2">{{ roomDeleteError }}</div>
+        <div class="px-5 py-3 flex justify-end gap-2 bg-gray-50 border-t border-gray-100">
+          <button @click="roomDeleteConfirm = null" class="btn-secondary text-sm px-4 py-2">취소</button>
+          <button @click="doDeleteRoom" :disabled="roomDeleting" class="text-white bg-red-500 hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
+            {{ roomDeleting ? '삭제 중...' : '삭제' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 🚫 차단 확인 다이얼로그 -->
     <div v-if="blockConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style="z-index: 85;" @click.self="blockConfirm = null">
       <div class="bg-white rounded-2xl shadow-lift w-full max-w-sm overflow-hidden">
@@ -556,6 +603,32 @@ function doBlockUser() {
   axios.post(`/api/comms/users/${u.id}/block`).catch(() => {})
   siteStore.toast(`${u.nickname || u.name || '사용자'} 님을 차단했습니다`, 'success')
   blockConfirm.value = null
+}
+
+// ─── 채팅방 삭제(본인이 만든 방만) ───
+const roomDeleteConfirm = ref(null) // room
+const roomDeleting = ref(false)
+const roomDeleteError = ref('')
+async function doDeleteRoom() {
+  const room = roomDeleteConfirm.value
+  if (!room) return
+  roomDeleting.value = true
+  roomDeleteError.value = ''
+  try {
+    await axios.delete(`/api/chat/rooms/${room.id}`)
+    rooms.value = rooms.value.filter(r => r.id !== room.id)
+    if (activeRoom.value?.id === room.id) {
+      unsubscribeChannel()
+      activeRoom.value = null
+      activeMessages.value = []
+      router.push('/chat')
+    }
+    siteStore.toast('채팅방을 삭제했습니다', 'success')
+    roomDeleteConfirm.value = null
+  } catch (e) {
+    roomDeleteError.value = e.response?.data?.message || '삭제 실패'
+  }
+  roomDeleting.value = false
 }
 
 // 외부 클릭으로 메뉴 닫기
@@ -1068,6 +1141,30 @@ function roomTypeIcon(type) {
   if (type === 'dm' || type === 'private') return '💌'
   if (type === 'group') return '👥'
   return '🌐'
+}
+
+// ─── 채팅방 검색 (이름 + 최근 메시지 내용) ───
+const roomSearchQ = ref('')
+const roomSearchResults = ref([])
+const roomSearching = ref(false)
+let roomSearchTimer = null
+function runRoomSearch() {
+  clearTimeout(roomSearchTimer)
+  const q = roomSearchQ.value.trim()
+  if (!q) { roomSearchResults.value = []; roomSearching.value = false; return }
+  roomSearching.value = true
+  roomSearchTimer = setTimeout(async () => {
+    try {
+      const { data } = await axios.get('/api/chat/rooms/search', { params: { q } })
+      roomSearchResults.value = data.data || []
+    } catch { roomSearchResults.value = [] }
+    roomSearching.value = false
+  }, 300)
+}
+function selectSearchResult(room) {
+  selectRoom(room)
+  roomSearchQ.value = ''
+  roomSearchResults.value = []
 }
 
 // 잠긴 방이 삭제까지 남은 일수 (서버에서 마지막 활동 시각 기준으로 그때그때 계산해서 내려줌)

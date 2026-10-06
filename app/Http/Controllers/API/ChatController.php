@@ -72,6 +72,67 @@ class ChatController extends Controller
         return response()->json(['success'=>true,'data'=>$rooms]);
     }
 
+    // 채팅방 목록 검색 — 방 이름, DM 상대방 이름, 최근 메시지 내용으로 매치
+    public function searchRooms(Request $request) {
+        $q = trim((string) $request->q);
+        if ($q === '') return response()->json(['success' => true, 'data' => []]);
+
+        $userId = auth()->id();
+
+        // 접근 가능한 방 범위는 rooms()와 동일: 본인이 멤버인 방 + 모든 공개 방, 차단된 방 제외
+        $memberRoomIds = ChatRoomUser::where('user_id', $userId)->pluck('chat_room_id');
+        $publicRoomIds = ChatRoom::where('type', 'public')->pluck('id');
+        $allRoomIds = $memberRoomIds->merge($publicRoomIds)->unique();
+        $bannedRoomIds = DB::table('chat_room_bans')->where('user_id', $userId)->pluck('chat_room_id');
+        $allRoomIds = $allRoomIds->diff($bannedRoomIds);
+
+        // 1) 방 이름(그룹/공개방)으로 매치
+        $nameMatchIds = ChatRoom::whereIn('id', $allRoomIds)
+            ->where('name', 'like', '%' . $q . '%')
+            ->pluck('id');
+
+        // 2) DM 방은 이름이 없으니 상대방의 닉네임/이름으로 매치
+        $dmMatchIds = ChatRoom::whereIn('id', $allRoomIds)
+            ->whereIn('type', ['dm', 'private'])
+            ->whereHas('participants', function ($qq) use ($q, $userId) {
+                $qq->where('users.id', '!=', $userId)
+                   ->where(function ($w) use ($q) {
+                       $w->where('nickname', 'like', '%' . $q . '%')
+                         ->orWhere('name', 'like', '%' . $q . '%');
+                   });
+            })
+            ->pluck('id');
+
+        // 3) 최근 메시지 내용으로 매치 — 방마다 가장 최근에 일치한 메시지 1개를 스니펫으로 사용
+        $msgMatches = ChatMessage::whereIn('chat_room_id', $allRoomIds)
+            ->where('content', 'like', '%' . $q . '%')
+            ->orderByDesc('created_at')
+            ->get(['id', 'chat_room_id', 'content', 'created_at'])
+            ->unique('chat_room_id')
+            ->values();
+
+        $matchedRoomIds = $nameMatchIds->merge($dmMatchIds)->merge($msgMatches->pluck('chat_room_id'))->unique();
+        if ($matchedRoomIds->isEmpty()) return response()->json(['success' => true, 'data' => []]);
+
+        $rooms = ChatRoom::whereIn('id', $matchedRoomIds)
+            ->withCount('users')
+            ->with(['participants:id,name,nickname,avatar,role'])
+            ->orderByDesc('updated_at')
+            ->limit(30)
+            ->get();
+
+        $snippetByRoom = $msgMatches->keyBy('chat_room_id');
+        $rooms = $rooms->map(function ($r) use ($snippetByRoom) {
+            $hit = $snippetByRoom->get($r->id);
+            $r->match_snippet = $hit?->content;
+            $r->match_message_id = $hit?->id;
+            $r->is_locked = \App\Support\ChatLockHelper::isLocked($r);
+            return $r;
+        });
+
+        return response()->json(['success' => true, 'data' => $rooms]);
+    }
+
     // 오래 방치된 개인/그룹 방을 실제로 삭제 (크론 없이도 트래픽 발생 시 자동 정리, 5분에 한 번만 실행)
     private function sweepExpiredRooms(): void {
         if (!\Illuminate\Support\Facades\Cache::add('chat_expire_sweep_lock', 1, 300)) return;
@@ -128,6 +189,18 @@ class ChatController extends Controller
             'inactive_lock_days' => \App\Support\ChatRules::get('inactive_lock_days', 7),
             'lock_delete_days' => \App\Support\ChatRules::get('lock_delete_days', 3),
         ]]);
+    }
+
+    // 채팅방 삭제 — 방을 만든 사람 본인만 가능(다른 멤버가 있어도 무관).
+    // 멤버/메시지는 chat_room_users/chat_messages의 FK cascadeOnDelete로 함께 정리됨.
+    public function deleteRoom($id) {
+        $room = ChatRoom::findOrFail($id);
+        if ($room->created_by !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => '본인이 만든 채팅방만 삭제할 수 있습니다'], 403);
+        }
+        DB::table('chat_room_bans')->where('chat_room_id', $room->id)->delete();
+        $room->delete();
+        return response()->json(['success' => true]);
     }
 
     // 채팅방 읽음 표시 (last_read_at = now)
