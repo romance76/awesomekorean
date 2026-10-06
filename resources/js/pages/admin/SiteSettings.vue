@@ -303,7 +303,8 @@
             class="flex items-center gap-3 card px-4 py-3 hover:shadow-lift transition-all">
             <span class="w-6 text-center text-xs font-bold text-ink-faint">{{ idx + 1 }}</span>
             <span class="icon-chip w-7 h-7 flex-shrink-0" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="15" /></span>
-            <span class="flex-1 text-sm font-semibold text-ink">{{ item.label }}</span>
+            <input v-model="item.label" type="text" maxlength="20" placeholder="메뉴 이름"
+              class="flex-1 min-w-0 text-sm font-semibold text-ink bg-transparent border border-transparent hover:border-gray-200 focus:border-amber-400 focus:bg-white rounded-lg px-2 py-1 outline-none transition-colors" />
             <span class="text-xs text-ink-faint font-mono bg-gray-50 px-2 py-0.5 rounded hidden sm:inline">{{ item.key }}</span>
             <!-- Up/Down -->
             <div class="flex gap-1">

@@ -226,6 +226,21 @@
             </template>
             <div v-if="!activeMessages.length" class="text-center py-8 text-sm text-ink-muted">첫 메시지를 보내보세요! 👋</div>
           </div>
+          <!-- 공개 채팅방 입장료(24시간 이용권) 안내 — 입장 전엔 내용이 블러 처리되고
+               입력창도 가려짐. 입장하면 24시간 동안 블러 없이 자유롭게 이용 가능. -->
+          <div v-if="needsEntry" class="absolute inset-0 z-30 flex items-center justify-center p-4 backdrop-blur-md bg-white/40">
+            <div class="bg-white rounded-2xl shadow-lift p-5 max-w-xs w-full text-center space-y-3">
+              <div class="icon-chip w-12 h-12 bg-amber-50 text-amber-600 mx-auto"><AppIcon name="lock" :size="22" /></div>
+              <div class="text-sm font-bold text-ink">이 공개 채팅방에 입장하시겠습니까?</div>
+              <div class="text-xs text-ink-muted leading-relaxed">입장하면 24시간 동안 블러 없이 자유롭게 열람·참여할 수 있어요.<br />입장료: <span class="font-bold text-amber-600">{{ entryCost }}P</span></div>
+              <div v-if="enterError" class="text-xs text-red-500">{{ enterError }}</div>
+              <div class="flex gap-2">
+                <button @click="goBackToList" class="btn-secondary flex-1 text-xs py-2">취소</button>
+                <button @click="enterRoom(activeRoom)" :disabled="entering" class="btn-primary flex-1 text-xs py-2 disabled:opacity-50">{{ entering ? '입장 중...' : '입장하기' }}</button>
+              </div>
+            </div>
+          </div>
+
           <!-- 자동스크롤 일시정지 알림 -->
           <div v-if="autoScrollPaused && activeMessages.length" class="absolute bottom-20 right-6 z-10">
             <button @click="scrollToBottomForce" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lift hover:bg-amber-600 flex items-center gap-1 transition-colors">
@@ -597,6 +612,39 @@ const msgArea = ref(null)
 const selectedFiles = ref([])   // [{file, preview, type}]
 const sending = ref(false)
 const lightboxSrc = ref(null)
+
+// ─── 공개 채팅방 입장료(24시간 이용권) ───
+const entryCost = ref(10)
+const entering = ref(false)
+const enterError = ref('')
+// 방장 본인 / 마이페이지에서 지정한 무료 채팅방 / 유효한 이용권(has_access)
+// 중 하나라도 있으면 블러 없이 바로 열람 가능. has_access 가 없는(개별 조회
+// 등으로 그 값이 안 내려온) 경우에도 방장 본인/무료방이면 안전하게 접근 허용.
+const needsEntry = computed(() => {
+  const r = activeRoom.value
+  if (!r || r.type !== 'public') return false
+  if (r.created_by === auth.user?.id) return false
+  if (auth.user?.free_public_room_id && auth.user.free_public_room_id === r.id) return false
+  return !r.has_access
+})
+async function enterRoom(room) {
+  if (!room) return
+  entering.value = true
+  enterError.value = ''
+  try {
+    const { data } = await axios.post(`/api/chat/rooms/${room.id}/enter`)
+    room.has_access = true
+    const inList = rooms.value.find(r => r.id === room.id)
+    if (inList) inList.has_access = true
+    if (data.points_spent) {
+      siteStore.toast(`${data.points_spent}P를 사용해 입장했습니다 (24시간 이용권)`, 'info')
+      auth.refreshBalance()
+    }
+  } catch (e) {
+    enterError.value = e.response?.data?.message || '입장 실패'
+  }
+  entering.value = false
+}
 
 // ─── 차단 / 메시지별 메뉴 ───
 const BLOCK_KEY = 'chat_blocked_users'
@@ -1141,6 +1189,10 @@ async function sendMsg() {
     clearFiles()
     showEmojiPicker.value = false
     clearSearchHighlight()
+    if (data.auto_extended) {
+      siteStore.toast(`24시간 이용권이 연장되어 ${data.auto_extend_cost}P가 차감되었습니다`, 'info')
+      auth.refreshBalance()
+    }
     await nextTick()
     if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
   } catch (e) {
@@ -1369,6 +1421,8 @@ async function createRoom() {
     }
     const { data } = await axios.post('/api/chat/rooms', payload)
     const room = data.data
+    // 방장 본인은 입장료 없이 항상 접근 가능 (서버 로직과 동일)
+    room.has_access = true
     // 목록에 없으면 상단 추가
     if (!rooms.value.find(r => Number(r.id) === Number(room.id))) {
       rooms.value.unshift(room)
@@ -1441,6 +1495,10 @@ watch(() => route.params.id, async (newId) => {
 onMounted(async () => {
   window.addEventListener('resize', onResize)
   if (auth.isLoggedIn) loadChatBookmarks()
+  try {
+    const { data: settingsData } = await axios.get('/api/chat/settings')
+    if (settingsData.data?.entry_cost_public !== undefined) entryCost.value = settingsData.data.entry_cost_public
+  } catch {}
   try {
     const { data } = await axios.get('/api/chat/rooms')
     rooms.value = data.data || []

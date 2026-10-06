@@ -12,10 +12,14 @@ class PopupBannerController extends Controller
 {
     use CompressesUploads;
 
+    const PUBLIC_CACHE_KEY = 'popup_banners_public';
+
     /** 공개: 현재 게시 중인 활성 배너 목록 */
     public function publicActive()
     {
-        $items = PopupBanner::activeNow()->orderBy('sort_order')->get();
+        $items = Cache::remember(self::PUBLIC_CACHE_KEY, 600, function () {
+            return PopupBanner::activeNow()->orderBy('sort_order')->get();
+        });
         return response()->json(['success' => true, 'data' => $items]);
     }
 
@@ -75,11 +79,6 @@ class PopupBannerController extends Controller
 
     private function clearPublicCache(): void
     {
-        foreach ([
-            'https://awesomekorean.com/api/popup-banners/active',
-            'http://awesomekorean.com/api/popup-banners/active',
-        ] as $u) {
-            Cache::forget('api_cache_' . md5($u));
-        }
+        Cache::forget(self::PUBLIC_CACHE_KEY);
     }
 }

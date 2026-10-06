@@ -12,6 +12,8 @@ class HeroBannerController extends Controller
 {
     use CompressesUploads;
 
+    const PUBLIC_CACHE_KEY = 'hero_banners_public';
+
     public function index()
     {
         return response()->json([
@@ -77,11 +79,6 @@ class HeroBannerController extends Controller
 
     private function clearPublicCache(): void
     {
-        foreach ([
-            'https://awesomekorean.com/api/hero-banners',
-            'http://awesomekorean.com/api/hero-banners',
-        ] as $u) {
-            Cache::forget('api_cache_' . md5($u));
-        }
+        Cache::forget(self::PUBLIC_CACHE_KEY);
     }
 }
