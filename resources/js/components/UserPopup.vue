@@ -5,7 +5,7 @@
   <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-xl overflow-hidden animate-in transition-all duration-200" :class="view === 'message' ? 'w-80' : 'w-64'">
 
     <!-- 헤더 -->
-    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] px-3 py-2 flex items-center justify-between">
+    <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] px-3 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-sm font-bold text-white">{{ (user.name || '?')[0] }}</div>
         <div>

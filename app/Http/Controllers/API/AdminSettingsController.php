@@ -304,12 +304,23 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'data'=>['key'=>$key->api_key]]);
     }
 
+    // 예전엔 logo_00.jpg로 저장하고 logo_url 설정만 바꿨는데, NavBar.vue와
+    // 이메일 템플릿은 전부 /images/logo.png를 하드코딩해서 쓰고 있어서 업로드를
+    // 해도 실제로는 화면에 아무것도 반영 안 되던 버그 — 업로드한 파일을 PNG로
+    // 변환해 실제로 쓰이는 public/images/logo.png 자체를 덮어쓰도록 수정.
     public function uploadLogo(Request $request) {
-        $request->validate(['logo'=>'required|image']);
-        $path = $request->file('logo')->storeAs('public', 'logo_00.jpg');
-        copy(storage_path('app/' . $path), public_path('images/logo_00.jpg'));
-        SiteSetting::updateOrCreate(['key'=>'logo_url'], ['value'=>'/images/logo_00.jpg']);
-        return response()->json(['success'=>true,'data'=>['url'=>'/images/logo_00.jpg']]);
+        $request->validate(['logo'=>'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
+
+        $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+        $image = $manager->read($request->file('logo')->getRealPath());
+        $image->toPng()->save(public_path('images/logo.png'));
+
+        // 브라우저/이메일 클라이언트가 같은 파일명(logo.png)을 캐시하고 있어서
+        // 업로드 직후에도 옛날 로고가 계속 보이는 문제 방지용 캐시 버스터
+        $version = now()->timestamp;
+        SiteSetting::updateOrCreate(['key'=>'logo_url'], ['value'=>"/images/logo.png?v={$version}"]);
+
+        return response()->json(['success'=>true,'data'=>['url'=>"/images/logo.png?v={$version}"]]);
     }
 
     // .env 파일 업데이트 헬퍼

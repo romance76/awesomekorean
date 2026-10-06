@@ -171,7 +171,7 @@ onMounted(loadData)
 <style scoped>
 .lb-body { padding: 14px; max-width: 900px; margin: 0 auto; width: 100%; }
 
-.hero-banner { text-align: center; padding: 18px 16px; background: linear-gradient(135deg,#FF8A53,#F2570F); color: #fff; border-radius: 16px; margin-bottom: 14px; box-shadow: 0 6px 24px rgba(242,87,15,0.25); }
+.hero-banner { text-align: center; padding: 18px 16px; background: linear-gradient(135deg,#FF8A4D,#F0266B); color: #fff; border-radius: 16px; margin-bottom: 14px; box-shadow: 0 6px 24px rgba(242,87,15,0.25); }
 .hero-emoji { display: flex; justify-content: center; margin-bottom: 6px; }
 .hero-title { font-size: 18px; font-weight: 900; margin: 0; }
 .hero-sub { font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px; }
@@ -221,11 +221,11 @@ onMounted(loadData)
 .lv-oak { background: #fef3c7; color: #92400e; }
 .list-sub { font-size: 11px; color: #8B95A1; }
 .list-value { text-align: right; flex-shrink: 0; white-space: nowrap; display: inline-flex; align-items: baseline; gap: 3px; }
-.value-main { font-weight: 800; color: #F2570F; font-size: 15px; }
+.value-main { font-weight: 800; color: #F0266B; font-size: 15px; }
 .value-unit { font-size: 11px; color: #8B95A1; font-weight: 600; }
 
 .my-rank { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding: 14px 18px; background: #FFF4EC; border: 1px solid #FFC7A6; border-radius: 14px; }
-.my-badge { font-size: 20px; font-weight: 900; color: #F2570F; }
+.my-badge { font-size: 20px; font-weight: 900; color: #F0266B; }
 .my-title { font-weight: 700; color: #191F28; font-size: 14px; }
 .my-sub { font-size: 12px; color: #4E5968; }
 </style>

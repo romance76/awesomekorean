@@ -12,8 +12,10 @@ class EmailVerificationMail extends Mailable
     public function __construct(public string $userName, public string $verifyUrl) {}
     public function envelope(): Envelope { return new Envelope(subject: '[AwesomeKorean] 이메일 인증'); }
     public function content(): Content {
+        $logoPath = \App\Models\SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png';
         return new Content(view: 'emails.email-verification', with: [
             'userName' => $this->userName, 'verifyUrl' => $this->verifyUrl,
+            'logoUrl' => url($logoPath),
         ]);
     }
 }

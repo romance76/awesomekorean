@@ -5,7 +5,7 @@
     <div v-else-if="user">
       <!-- 프로필 헤더 -->
       <div class="card overflow-hidden mb-4">
-        <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] h-24"></div>
+        <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] h-24"></div>
         <div class="px-5 pb-4 -mt-10">
           <div class="w-20 h-20 rounded-full bg-amber-500 text-white flex items-center justify-center text-3xl font-black border-4 border-white shadow">
             {{ (user.name || '?')[0] }}
