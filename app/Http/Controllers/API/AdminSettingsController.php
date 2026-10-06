@@ -311,9 +311,15 @@ class AdminSettingsController extends Controller
     public function uploadLogo(Request $request) {
         $request->validate(['logo'=>'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
 
-        $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-        $image = $manager->read($request->file('logo')->getRealPath());
-        $image->toPng()->save(public_path('images/logo.png'));
+        try {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($request->file('logo')->getRealPath());
+            $image->toPng()->save(public_path('images/logo.png'));
+        } catch (\Throwable $e) {
+            // public/images 쓰기 권한 문제 등을 조용한 500 대신 바로 알 수 있도록
+            \Log::error("로고 업로드 실패: " . $e->getMessage());
+            return response()->json(['success'=>false,'message'=>'로고 저장 실패: '.$e->getMessage()], 500);
+        }
 
         // 브라우저/이메일 클라이언트가 같은 파일명(logo.png)을 캐시하고 있어서
         // 업로드 직후에도 옛날 로고가 계속 보이는 문제 방지용 캐시 버스터
