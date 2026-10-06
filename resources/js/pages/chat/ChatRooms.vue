@@ -1495,8 +1495,14 @@ async function restoreFromRoute() {
     }
     if (room) return selectRoom(room, { skipRoute: true })
   }
-  // :id 없으면: PC 에서만 첫 번째 방 자동 선택
-  if (rooms.value.length && !isMobile.value) selectRoom(rooms.value[0])
+  // :id 없으면: PC 에서만 기본 방 자동 선택 — 내가 참가중인 방이 있으면 그중
+  // 첫 번째(최근 활동 많은 순으로 이미 정렬됨)를 우선 선택. 안 그러면 이제 막
+  // 들어가서 둘러보는 중인데도, 참가 여부와 무관하게 가장 최근 활동이 많았던
+  // 아무 공개방(입장료가 필요할 수도 있는)이 바로 열려버리던 문제가 있었음.
+  if (!isMobile.value) {
+    const defaultRoom = participatingRooms.value[0] || rooms.value[0]
+    if (defaultRoom) selectRoom(defaultRoom)
+  }
 }
 
 // URL /chat/:id 변경 감지 — 브라우저 뒤/앞 또는 외부 push 반영
