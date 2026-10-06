@@ -235,12 +235,24 @@ const router = createRouter({
   },
 })
 
+// 서버가 이메일 인증을 요구하는(verified.email) 새 글 작성 화면들 — 미인증
+// 회원이 폼을 끝까지 채운 뒤 제출 단계에서야 막히지 않도록 진입부터 차단
+const VERIFIED_WRITE_ROUTES = new Set([
+  'post-write', 'qa-write', 'job-write', 'market-write', 'realestate-write',
+  'club-create', 'recipe-create', 'groupbuy-create', 'event-create',
+])
+
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
   await auth.initPromise
   if (to.meta.auth && !auth.isLoggedIn) return next({ name: 'login', query: { redirect: to.fullPath } })
   if (to.meta.admin && !auth.isAdmin) return next('/')
   if (to.meta.guest && auth.isLoggedIn) return next('/')
+  if (VERIFIED_WRITE_ROUTES.has(to.name) && auth.needsVerification) {
+    const { useSiteStore } = await import('../stores/site')
+    useSiteStore().toast('이메일 인증 후 글을 쓸 수 있어요. 마이페이지에서 인증 메일을 다시 받을 수 있습니다.', 'warning', 5000)
+    return next('/dashboard')
+  }
   next()
 })
 

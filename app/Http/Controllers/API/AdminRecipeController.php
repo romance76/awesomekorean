@@ -81,7 +81,9 @@ class AdminRecipeController extends Controller
     public function clearAll()
     {
         $count = RecipePost::count();
-        RecipePost::truncate();
+        // TRUNCATE는 recipe_favorites/recipe_ratings가 외래키로 참조하고 있어 MySQL이
+        // 항상 거부(500)했음 — 일반 DELETE는 두 FK 모두 CASCADE라 함께 정리됨
+        RecipePost::query()->delete();
         return response()->json(['success' => true, 'deleted' => $count]);
     }
 

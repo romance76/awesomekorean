@@ -190,12 +190,14 @@
 
         <!-- 리뷰 작성 -->
         <div v-if="auth.isLoggedIn" class="px-5 py-3 border-b border-gray-50">
+          <VerifyGate message="이메일 인증 후 리뷰를 쓸 수 있어요.">
           <div class="flex items-center gap-1 mb-2">
             <span class="text-xs text-ink-muted mr-1">평점:</span>
             <button v-for="s in 5" :key="s" @click="reviewRating=s" class="text-lg transition" :class="s<=reviewRating?'text-amber-400':'text-gray-300'">★</button>
           </div>
           <textarea v-model="reviewText" rows="2" placeholder="리뷰를 작성하세요..." class="input-soft"></textarea>
           <button @click="submitReview" :disabled="!reviewRating" class="btn-primary mt-2 px-4 py-1.5 rounded-lg text-xs">리뷰 등록</button>
+          </VerifyGate>
         </div>
 
         <!-- 구글 리뷰 + 사이트 리뷰 -->
@@ -386,6 +388,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()

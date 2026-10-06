@@ -91,8 +91,10 @@
     </div>
     <div v-else class="px-4 py-6 text-center text-sm text-ink-muted">아직 댓글이 없습니다</div>
     <div v-if="auth.isLoggedIn" class="px-4 py-3 border-t border-gray-50 flex gap-2 sticky bottom-0 bg-white">
+      <VerifyGate message="이메일 인증 후 댓글을 쓸 수 있어요.">
       <input v-model="newComment" type="text" placeholder="댓글 입력..." class="input-soft flex-1 rounded-full px-3 py-1.5" @keyup.enter="submitComment" />
       <button @click="submitComment" class="btn-primary rounded-full px-4 py-1.5">등록</button>
+      </VerifyGate>
     </div>
   </div>
 </div>
@@ -102,6 +104,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 import axios from 'axios'
 
 const auth = useAuthStore()

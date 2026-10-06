@@ -24,6 +24,7 @@ class HeroBannerController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate(['title' => 'required|string|max:200']);
         $data = $this->payload($request);
         if ($request->hasFile('image')) {
             $data['image_url'] = $this->storeCompressedImage($request->file('image'), 'hero-banners', 1600, 85);

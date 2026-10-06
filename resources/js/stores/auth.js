@@ -18,6 +18,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => ['admin', 'super_admin'].includes(user.value?.role))
+  // 서버 EnsureEmailVerified 미들웨어와 같은 기준 — 이메일 미인증 일반 회원은 글쓰기 불가
+  const needsVerification = computed(() =>
+    !!token.value && !!user.value && !user.value.email_verified_at
+    && !['admin', 'super_admin', 'moderator'].includes(user.value.role)
+  )
 
   // 어느 스토리지에 있든 토큰 읽기 (세션 → 로컬 순)
   function readStoredAuth() {
@@ -125,5 +130,5 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {}
   }
 
-  return { user, token, isLoggedIn, isAdmin, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
+  return { user, token, isLoggedIn, isAdmin, needsVerification, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
 })
