@@ -40,7 +40,7 @@ class AdminSettingsController extends Controller
         // 안 불러와지고 항상 빈 채로 보였음(약관 관리가 내용이 저장돼 있는데도
         // 빈 에디터로 보인 것도 이 버그). 프론트가 기대하는 모양대로 묶어서
         // 같이 내려줌.
-        $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','favicon_url','meta_description','meta_keywords'];
+        $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','app_icon_url','favicon_url','meta_description','meta_keywords'];
         $siteKeys = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until','google_analytics_id','kakao_api_key'];
         $settings['company'] = array_intersect_key($settings, array_flip($companyKeys));
         $settings['site'] = array_intersect_key($settings, array_flip($siteKeys));
@@ -304,19 +304,22 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'data'=>['key'=>$key->api_key]]);
     }
 
-    // 예전엔 logo_00.jpg로 저장하고 logo_url 설정만 바꿨는데, NavBar.vue와
-    // 이메일 템플릿은 전부 /images/logo.png를 하드코딩해서 쓰고 있어서 업로드를
-    // 해도 실제로는 화면에 아무것도 반영 안 되던 버그 — 업로드한 파일을 PNG로
-    // 변환해 실제로 쓰이는 public/images/logo.png 자체를 덮어쓰도록 수정.
+    // public/images/logo.png는 git에 커밋돼있어서 배포 때마다 git reset으로
+    // 파일이 통째로 다시 체크아웃되고, 그러면 소유권도 배포 사용자(www-data가
+    // 아님) 걸로 리셋됨 — deploy.sh에서 매번 chown을 해줘도 배포 사용자가 다른
+    // 계정으로 chown할 권한이 없으면(sudo 없이 배포하는 서버 흔함) 조용히
+    // 실패해서(`|| true`) "Can't write image...not writable" 에러가 반복됨.
+    // 이 앱의 다른 업로드 기능들(채팅 파일, 아바타 등)이 전부 쓰고 있는
+    // Storage::disk('public')(= storage/app/public, git에 안 잡히고 한 번
+    // chown되면 배포가 반복돼도 안 바뀜) 패턴으로 통일해서 근본적으로 해결.
     public function uploadLogo(Request $request) {
         $request->validate(['logo'=>'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
 
         try {
             $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
             $image = $manager->read($request->file('logo')->getRealPath());
-            $image->toPng()->save(public_path('images/logo.png'));
+            \Illuminate\Support\Facades\Storage::disk('public')->put('branding/logo.png', (string) $image->toPng());
         } catch (\Throwable $e) {
-            // public/images 쓰기 권한 문제 등을 조용한 500 대신 바로 알 수 있도록
             \Log::error("로고 업로드 실패: " . $e->getMessage());
             return response()->json(['success'=>false,'message'=>'로고 저장 실패: '.$e->getMessage()], 500);
         }
@@ -324,9 +327,40 @@ class AdminSettingsController extends Controller
         // 브라우저/이메일 클라이언트가 같은 파일명(logo.png)을 캐시하고 있어서
         // 업로드 직후에도 옛날 로고가 계속 보이는 문제 방지용 캐시 버스터
         $version = now()->timestamp;
-        SiteSetting::updateOrCreate(['key'=>'logo_url'], ['value'=>"/images/logo.png?v={$version}"]);
+        SiteSetting::updateOrCreate(['key'=>'logo_url'], ['value'=>"/storage/branding/logo.png?v={$version}"]);
 
-        return response()->json(['success'=>true,'data'=>['url'=>"/images/logo.png?v={$version}"]]);
+        return response()->json(['success'=>true,'data'=>['url'=>"/storage/branding/logo.png?v={$version}"]]);
+    }
+
+    // 핸드폰 홈 화면에 "바로가기(PWA)"로 추가할 때 쓰이는 정사각형 앱 아이콘 —
+    // 로고(가로형 워드마크)와는 별도로 관리. manifest.json이 요구하는 전 사이즈
+    // (72/96/128/192/512) + iOS용 apple-touch-icon(180x180)까지 한 번에 생성.
+    // uploadLogo()와 동일한 이유로 Storage::disk('public')에 저장(public/icons는
+    // git에 커밋돼있어 배포마다 소유권이 리셋되는 동일 문제가 있었음).
+    public function uploadAppIcon(Request $request) {
+        $request->validate(['icon'=>'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
+
+        $sizes = [72, 96, 128, 192, 512];
+        try {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $source = $request->file('icon')->getRealPath();
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+            foreach ($sizes as $size) {
+                $png = (string) $manager->read($source)->cover($size, $size)->toPng();
+                $disk->put("branding/icon-{$size}x{$size}.png", $png);
+            }
+            $touchIcon = (string) $manager->read($source)->cover(180, 180)->toPng();
+            $disk->put('branding/apple-touch-icon.png', $touchIcon);
+        } catch (\Throwable $e) {
+            \Log::error("앱 아이콘 업로드 실패: " . $e->getMessage());
+            return response()->json(['success'=>false,'message'=>'아이콘 저장 실패: '.$e->getMessage()], 500);
+        }
+
+        $version = now()->timestamp;
+        SiteSetting::updateOrCreate(['key'=>'app_icon_url'], ['value'=>"/storage/branding/icon-512x512.png?v={$version}"]);
+
+        return response()->json(['success'=>true,'data'=>['url'=>"/storage/branding/icon-512x512.png?v={$version}"]]);
     }
 
     // .env 파일 업데이트 헬퍼

@@ -21,5 +21,14 @@ Route::get('/auth/{provider}/callback', [\App\Http\Controllers\SocialAuthControl
     ->whereIn('provider', ['google', 'amazon']);
 
 Route::get('/{any}', function () {
-    return view('welcome');
+    // apple-touch-icon은 <link> 태그로 명시해야 안전함(아이콘이
+    // storage/app/public 심볼릭 링크 경로에 있어 iOS의 암묵적
+    // /apple-touch-icon.png 자동탐색 규칙으로는 못 찾음). 업로드 시 함께
+    // 저장된 캐시 버스터(?v=...)를 재사용해서 교체 직후에도 바로 반영되게 함.
+    $appIconSetting = \App\Models\SiteSetting::where('key', 'app_icon_url')->value('value');
+    $version = $appIconSetting && str_contains($appIconSetting, '?v=')
+        ? substr($appIconSetting, strpos($appIconSetting, '?v='))
+        : '';
+    $appIconUrl = '/storage/branding/apple-touch-icon.png' . $version;
+    return view('welcome', ['appIconUrl' => $appIconUrl]);
 })->where('any', '.*');

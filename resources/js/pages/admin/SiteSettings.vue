@@ -113,6 +113,25 @@
             </div>
           </div>
 
+          <!-- 앱 아이콘 업로드 — 핸드폰 홈 화면에 "바로가기"로 추가할 때 쓰이는
+               정사각형 아이콘. 로고(가로형 워드마크)와는 별개로 관리. -->
+          <div class="mt-5">
+            <label class="input-label">앱 아이콘 (홈 화면 바로가기용)</label>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
+                <img v-if="company.app_icon_url" :src="company.app_icon_url" alt="App Icon Preview" class="w-full h-full object-contain" />
+                <span v-else class="text-xs text-ink-faint">미리보기</span>
+              </div>
+              <div class="flex-1">
+                <input ref="appIconFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onAppIconFileSelected" />
+                <button type="button" @click="appIconFileInput.click()" :disabled="uploadingAppIcon" class="btn-secondary px-4 py-2 text-sm">
+                  {{ uploadingAppIcon ? '업로드 중...' : '앱 아이콘 업로드' }}
+                </button>
+                <p class="text-xs text-ink-faint mt-1.5">정사각형 이미지 권장 (PNG/JPG/WEBP, 최대 4MB). iOS/안드로이드 홈 화면 바로가기 아이콘에 반영됩니다.</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Meta Description -->
           <div class="mt-5">
             <label class="input-label">메타 설명 (SEO)</label>
@@ -1156,6 +1175,7 @@ const company = reactive({
   email: 'admin@awesomekorean.com',
   founded_date: '',
   logo_url: '',
+  app_icon_url: '',
   favicon_url: '',
   meta_description: '',
   meta_keywords: '',
@@ -1756,6 +1776,29 @@ async function onLogoFileSelected(e) {
     alert(e.response?.data?.message || '로고 업로드 실패')
   } finally {
     uploadingLogo.value = false
+    e.target.value = ''
+  }
+}
+
+const appIconFileInput = ref(null)
+const uploadingAppIcon = ref(false)
+
+async function onAppIconFileSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  uploadingAppIcon.value = true
+  try {
+    const formData = new FormData()
+    formData.append('icon', file)
+    const { data } = await axios.post('/api/admin/settings/app-icon', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    company.app_icon_url = data.data?.url || company.app_icon_url
+    showToast('앱 아이콘이 업로드되었습니다 — 핸드폰 홈 화면 바로가기에 반영됩니다')
+  } catch (e) {
+    alert(e.response?.data?.message || '앱 아이콘 업로드 실패')
+  } finally {
+    uploadingAppIcon.value = false
     e.target.value = ''
   }
 }

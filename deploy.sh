@@ -53,18 +53,28 @@ log "▶ Step 5/7: manifest copy"
 mkdir -p public/build/.vite
 cp public/build/manifest.json public/build/.vite/manifest.json || fail "manifest-copy" "manifest.json 부재"
 
-log "▶ Step 6/7: migrate + optimize:clear"
+log "▶ Step 6/7: migrate + storage:link + optimize:clear"
 php8.2 artisan migrate --force 2>&1 | tail -5 >> "$LOG" || log "⚠️ migrate returned non-zero"
+php8.2 artisan storage:link 2>&1 | tail -3 >> "$LOG" || true
 php8.2 artisan optimize:clear 2>&1 | tail -3 >> "$LOG"
+
+# 로고/앱 아이콘 업로드(AdminSettingsController::uploadLogo/uploadAppIcon)가
+# storage/app/public/branding/에 저장함 — 최초 배포 때 기본값이 비어있으면
+# manifest.json/이메일 템플릿이 깨진 이미지를 가리키므로, 저장소에 커밋된
+# 디폴트 로고/아이콘을 한 번만 복사해둠(관리자가 업로드하면 이후엔 덮어써짐).
+if [ ! -f "storage/app/public/branding/logo.png" ]; then
+    mkdir -p storage/app/public/branding
+    cp public/images/logo.png storage/app/public/branding/logo.png 2>/dev/null || true
+    for size in 72 96 128 192 512; do
+        cp "public/icons/icon-${size}x${size}.png" "storage/app/public/branding/icon-${size}x${size}.png" 2>/dev/null || true
+    done
+    cp public/icons/icon-192x192.png storage/app/public/branding/apple-touch-icon.png 2>/dev/null || true
+    log "ℹ️ branding 디폴트 파일 시드 완료"
+fi
 
 chown -R www-data:www-data "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
 chown -R www-data:www-data "$APP_DIR/public/build" 2>/dev/null || true
-# public/images는 로고 업로드(AdminSettingsController::uploadLogo)가 런타임에
-# public/images/logo.png를 직접 덮어쓰는데, git reset으로 받은 파일은 www-data
-# 소유가 아니라서 쓰기 권한이 없어 업로드가 500으로 실패하던 문제 — 배포 때마다
-# www-data 소유로 맞춰줌.
-chown -R www-data:www-data "$APP_DIR/public/images" 2>/dev/null || true
-chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache" "$APP_DIR/public/images"
+chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
 
 log "▶ Step 7/7: php-fpm restart"
 systemctl restart php8.2-fpm
