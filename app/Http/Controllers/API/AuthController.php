@@ -73,9 +73,9 @@ class AuthController extends Controller
         if (!$user->email_verified_at) {
             $user->forceFill(['email_verified_at' => now()])->save();
         }
-        return response('<!doctype html><meta charset="utf-8"><body style="font-family:sans-serif;text-align:center;padding:60px 20px;">'
-            . '<h2>이메일 인증이 완료되었습니다</h2><p>이제 어썸코리안의 모든 기능을 이용하실 수 있습니다.</p></body>', 200)
-            ->header('Content-Type', 'text/html; charset=UTF-8');
+        // 빈 안내 페이지 대신 사이트로 복귀 — 프론트(/email-verified)가 완료 토스트를 띄우고
+        // 재발송을 눌렀던 페이지로 다시 보내줌
+        return redirect('/email-verified');
     }
 
     /**

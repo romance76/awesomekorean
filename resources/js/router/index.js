@@ -19,6 +19,8 @@ const routes = [
   { path: '/register', name: 'register', component: p('auth/Register'), meta: { guest: true } },
   { path: '/forgot-password', name: 'forgot-password', component: p('auth/ForgotPassword'), meta: { guest: true } },
   { path: '/auth/social-callback', name: 'social-callback', component: p('auth/SocialCallback') },
+  // 이메일 인증 완료 착지 — beforeEach 가 항상 원래 페이지로 보내므로 컴포넌트는 렌더되지 않음
+  { path: '/email-verified', name: 'email-verified', component: p('Home') },
 
   // Community
   { path: '/community', name: 'community', component: p('community/BoardList') },
@@ -248,7 +250,17 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.auth && !auth.isLoggedIn) return next({ name: 'login', query: { redirect: to.fullPath } })
   if (to.meta.admin && !auth.isAdmin) return next('/')
   if (to.meta.guest && auth.isLoggedIn) return next('/')
+  // 메일의 인증 링크(서버 /api/verify-email)가 여기로 보냄 → 재발송을 눌렀던(또는 막혔던 글쓰기) 페이지로 복귀
+  if (to.path === '/email-verified') {
+    if (!auth.isLoggedIn) {
+      auth.announceVerified('이메일 인증이 완료되었습니다. 로그인해 주세요.')
+      return next({ name: 'login' })
+    }
+    auth.announceVerified()
+    return next(auth.takeVerifyReturn() || '/dashboard')
+  }
   if (VERIFIED_WRITE_ROUTES.has(to.name) && auth.needsVerification) {
+    auth.rememberVerifyReturn(to.fullPath)
     const { useSiteStore } = await import('../stores/site')
     useSiteStore().toast('이메일 인증 후 글을 쓸 수 있어요. 마이페이지에서 인증 메일을 다시 받을 수 있습니다.', 'warning', 5000)
     return next('/dashboard')

@@ -71,11 +71,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUser() {
+    const wasUnverified = needsVerification.value
     try {
       const { data } = await axios.get('/api/user')
       user.value = data.data || data
       const { primary } = storages()
       primary.setItem('sk_user', JSON.stringify(user.value))
+      if (wasUnverified && !needsVerification.value) markVerified(true)
     } catch (e) {
       // 토큰이 실제로 무효(401)할 때만 로그아웃 처리. 새로고침 직후
       // 일시적인 네트워크 오류/서버 500 등으로 이 요청만 실패한 경우까지
@@ -130,5 +132,57 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {}
   }
 
-  return { user, token, isLoggedIn, isAdmin, needsVerification, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
+  // ─── 이메일 인증 완료 실시간 반영 ───
+  // 인증은 메일 링크(다른 탭/기기)에서 끝나므로, 열려 있던 탭도 새로고침 없이 반영:
+  //  · 같은 브라우저 다른 탭에서 인증 → BroadcastChannel 로 즉시 알림
+  //  · 휴대폰 등 다른 기기에서 인증 → 이 탭으로 돌아올 때(focus/visible) 재조회
+  // 미인증 상태일 때만 조회하므로 일반 회원에게는 추가 요청이 없음.
+  const justVerified = ref(false)
+  let _verifiedAnnounced = false
+  let _bc = null
+  try { _bc = new BroadcastChannel('ak-auth') } catch {}
+
+  async function announceVerified(msg = '이메일 인증이 완료되었습니다. 이제 글쓰기가 가능합니다.') {
+    if (_verifiedAnnounced) return
+    _verifiedAnnounced = true
+    try {
+      const { useSiteStore } = await import('./site')
+      useSiteStore().toast(msg, 'success', 5000)
+    } catch {}
+  }
+
+  function markVerified(broadcast) {
+    justVerified.value = true
+    announceVerified()
+    if (broadcast) try { _bc?.postMessage('email-verified') } catch {}
+  }
+
+  let _lastRecheck = 0
+  async function recheckVerification() {
+    if (!needsVerification.value || Date.now() - _lastRecheck < 3000) return
+    _lastRecheck = Date.now()
+    await fetchUser()
+  }
+
+  if (_bc) _bc.onmessage = (e) => { if (e.data === 'email-verified') { _lastRecheck = 0; recheckVerification() } }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('focus', recheckVerification)
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) recheckVerification() })
+  }
+
+  // 인증 메일 재발송 시점의 페이지 — 메일 링크 클릭 후 이 페이지로 돌려보냄 (/email-verified)
+  // keepExisting: 마이페이지 재발송처럼, 앞서 막혔던 글쓰기 페이지가 저장돼 있으면 그쪽을 유지
+  function rememberVerifyReturn(path, keepExisting = false) {
+    try {
+      if (keepExisting && localStorage.getItem('sk_verify_return')) return
+      localStorage.setItem('sk_verify_return', path || (window.location.pathname + window.location.search))
+    } catch {}
+  }
+  function takeVerifyReturn() {
+    let p = null
+    try { p = localStorage.getItem('sk_verify_return'); localStorage.removeItem('sk_verify_return') } catch {}
+    return p && p.startsWith('/') && !p.startsWith('//') ? p : null
+  }
+
+  return { user, token, isLoggedIn, isAdmin, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
 })

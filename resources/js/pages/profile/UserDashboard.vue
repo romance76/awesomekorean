@@ -52,6 +52,10 @@
             {{ resendingVerify ? '발송중...' : '인증 메일 재발송' }}
           </button>
         </div>
+        <!-- 다른 탭/기기에서 인증을 마치면 새로고침 없이 이 표시로 바뀜 -->
+        <div v-else-if="auth.justVerified" class="mb-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-700 font-semibold flex items-center gap-1.5">
+          <AppIcon name="check" :size="14" /> 이메일 인증 완료 — 이제 글쓰기가 가능합니다.
+        </div>
         <!-- 이름/닉네임 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <div><label class="input-label">이름</label><input v-model="pf.name" class="input-soft" /></div>
@@ -140,9 +144,9 @@
       <div class="card p-5">
         <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="lock" :size="15" /></span>비밀번호 변경</h2>
         <div class="space-y-3 max-w-sm">
-          <input v-model="pw.current_password" type="password" placeholder="현재 비밀번호" class="input-soft" />
-          <input v-model="pw.password" type="password" placeholder="새 비밀번호" class="input-soft" />
-          <input v-model="pw.password_confirmation" type="password" placeholder="새 비밀번호 확인" class="input-soft" />
+          <PasswordInput v-model="pw.current_password" placeholder="현재 비밀번호" class="input-soft" />
+          <PasswordInput v-model="pw.password" placeholder="새 비밀번호" class="input-soft" />
+          <PasswordInput v-model="pw.password_confirmation" placeholder="새 비밀번호 확인" class="input-soft" />
         </div>
         <div v-if="pwMsg" class="text-sm mt-2" :class="pwMsgType==='success'?'text-green-600':'text-red-500'">{{ pwMsg }}</div>
         <button @click="changePw" :disabled="pwSaving" class="mt-3 btn-primary px-6">{{ pwSaving ? '변경중...' : '변경하기' }}</button>
@@ -999,6 +1003,7 @@
 </template>
 
 <script setup>
+import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -1742,6 +1747,7 @@ async function handleLogout() { await auth.logout(); router.push('/login') }
 const resendingVerify = ref(false)
 async function resendVerification() {
   resendingVerify.value = true
+  auth.rememberVerifyReturn(null, true)
   try {
     const { data } = await axios.post('/api/auth/resend-verification')
     showAlert(data.message || '인증 메일을 다시 보냈습니다.', '완료')
