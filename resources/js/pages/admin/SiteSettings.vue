@@ -85,10 +85,6 @@
               <input v-model="company.founded_date" type="date" class="input-field" />
             </div>
             <div>
-              <label class="input-label">Favicon URL</label>
-              <input v-model="company.favicon_url" type="text" class="input-field" placeholder="/favicon.ico" />
-            </div>
-            <div>
               <label class="input-label">메타 키워드</label>
               <input v-model="company.meta_keywords" type="text" class="input-field" placeholder="한인, 커뮤니티, 미국, LA" />
             </div>
@@ -128,6 +124,24 @@
                   {{ uploadingAppIcon ? '업로드 중...' : '앱 아이콘 업로드' }}
                 </button>
                 <p class="text-xs text-ink-faint mt-1.5">정사각형 이미지 권장 (PNG/JPG/WEBP, 최대 4MB). iOS/안드로이드 홈 화면 바로가기 아이콘에 반영됩니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 파비콘 업로드 — 브라우저 탭에 표시되는 작은 아이콘 -->
+          <div class="mt-5">
+            <label class="input-label">파비콘 (브라우저 탭 아이콘)</label>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
+                <img v-if="company.favicon_url" :src="company.favicon_url" alt="Favicon Preview" class="w-full h-full object-contain" />
+                <span v-else class="text-xs text-ink-faint">미리보기</span>
+              </div>
+              <div class="flex-1">
+                <input ref="faviconFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onFaviconFileSelected" />
+                <button type="button" @click="faviconFileInput.click()" :disabled="uploadingFavicon" class="btn-secondary px-4 py-2 text-sm">
+                  {{ uploadingFavicon ? '업로드 중...' : '파비콘 업로드' }}
+                </button>
+                <p class="text-xs text-ink-faint mt-1.5">정사각형 이미지 권장 (PNG/JPG/WEBP, 최대 2MB). 브라우저 탭/즐겨찾기에 반영됩니다.</p>
               </div>
             </div>
           </div>
@@ -1799,6 +1813,29 @@ async function onAppIconFileSelected(e) {
     alert(e.response?.data?.message || '앱 아이콘 업로드 실패')
   } finally {
     uploadingAppIcon.value = false
+    e.target.value = ''
+  }
+}
+
+const faviconFileInput = ref(null)
+const uploadingFavicon = ref(false)
+
+async function onFaviconFileSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  uploadingFavicon.value = true
+  try {
+    const formData = new FormData()
+    formData.append('favicon', file)
+    const { data } = await axios.post('/api/admin/settings/favicon', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    company.favicon_url = data.data?.url || company.favicon_url
+    showToast('파비콘이 업로드되었습니다 — 브라우저 탭에 바로 반영됩니다')
+  } catch (e) {
+    alert(e.response?.data?.message || '파비콘 업로드 실패')
+  } finally {
+    uploadingFavicon.value = false
     e.target.value = ''
   }
 }
