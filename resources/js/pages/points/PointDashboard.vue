@@ -7,7 +7,7 @@
     </h1>
 
     <!-- 잔액 카드 -->
-    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] rounded-2xl p-5 text-white mb-4 shadow-card">
+    <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-2xl p-5 text-white mb-4 shadow-card">
       <div class="text-sm font-semibold opacity-90">내 포인트</div>
       <div class="text-3xl font-black mt-1">{{ balance.toLocaleString() }}P</div>
       <div class="flex gap-3 mt-3">

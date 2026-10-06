@@ -118,7 +118,7 @@
 
       <template v-else>
         <div class="border-2 border-gray-200 rounded-xl overflow-hidden bg-gray-50">
-          <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] h-8 flex items-center px-4">
+          <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] h-8 flex items-center px-4">
             <span class="text-xs font-black text-white">AwesomeKorean — {{ selectedPageLabel }}</span>
           </div>
           <div class="grid grid-cols-12 gap-2 p-3 min-h-[320px]">

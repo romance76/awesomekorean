@@ -94,14 +94,21 @@
             </div>
           </div>
 
-          <!-- Logo URL + Preview -->
+          <!-- 로고 업로드 — 올리면 네비게이션 바, 로그인/가입 화면, 이메일 템플릿 등
+               로고가 들어가는 모든 곳에 바로 반영됨 (public/images/logo.png 자체를 교체) -->
           <div class="mt-5">
-            <label class="input-label">로고 URL</label>
+            <label class="input-label">사이트 로고</label>
             <div class="flex items-center gap-3">
-              <input v-model="company.logo_url" type="text" class="input-field flex-1" placeholder="/images/logo.png" />
               <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
                 <img v-if="company.logo_url" :src="company.logo_url" alt="Logo Preview" class="w-full h-full object-contain" @error="logoError = true" />
                 <span v-else class="text-xs text-ink-faint">미리보기</span>
+              </div>
+              <div class="flex-1">
+                <input ref="logoFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onLogoFileSelected" />
+                <button type="button" @click="logoFileInput.click()" :disabled="uploadingLogo" class="btn-secondary px-4 py-2 text-sm">
+                  {{ uploadingLogo ? '업로드 중...' : '로고 이미지 업로드' }}
+                </button>
+                <p class="text-xs text-ink-faint mt-1.5">PNG/JPG/WEBP, 최대 4MB. 업로드하면 즉시 전체 화면에 반영됩니다.</p>
               </div>
             </div>
           </div>
@@ -1728,6 +1735,29 @@ async function runMailTestSend() {
     const { data } = await axios.post('/api/admin/system/mail-test-send')
     alert(data.message)
   } catch (e) { alert('발송 실패 — 실제 에러: ' + (e.response?.data?.message || e.message)) }
+}
+
+const logoFileInput = ref(null)
+const uploadingLogo = ref(false)
+
+async function onLogoFileSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  uploadingLogo.value = true
+  try {
+    const formData = new FormData()
+    formData.append('logo', file)
+    const { data } = await axios.post('/api/admin/settings/logo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    company.logo_url = data.data?.url || company.logo_url
+    showToast('로고가 업로드되었습니다 — 네비게이션 바, 로그인 화면, 이메일 등에 바로 반영됩니다')
+  } catch (e) {
+    alert(e.response?.data?.message || '로고 업로드 실패')
+  } finally {
+    uploadingLogo.value = false
+    e.target.value = ''
+  }
 }
 
 async function runPasswordResetDebug() {

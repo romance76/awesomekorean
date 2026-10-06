@@ -167,7 +167,7 @@ onMounted(async () => {
 .lobby-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0,0,0,0.14); }
 
 .lobby-casino-card {
-  background-image: linear-gradient(135deg,#FF8A53,#F2570F);
+  background-image: linear-gradient(135deg,#FF8A4D,#F0266B);
   padding: 16px 20px;
   box-shadow: 0 10px 24px -8px rgba(242,87,15,0.35);
 }
@@ -178,7 +178,7 @@ onMounted(async () => {
 }
 .lobby-casino-enter {
   flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px;
-  background: rgba(255,255,255,0.95); color: #F2570F;
+  background: rgba(255,255,255,0.95); color: #F0266B;
   font-weight: 800; padding: 8px 16px; border-radius: 999px; font-size: 13px;
   transition: transform .15s ease;
 }

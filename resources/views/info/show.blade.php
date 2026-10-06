@@ -27,7 +27,7 @@
         .info-body p { margin-bottom: 1rem; line-height: 1.75; color: #1B1613; }
         .info-body ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
         .info-body li { margin-bottom: 0.375rem; line-height: 1.6; }
-        .info-body a { color: #FF5A1F; text-decoration: underline; }
+        .info-body a { color: #F23D5C; text-decoration: underline; }
         .info-body img { max-width: 100%; border-radius: 8px; }
         .info-body em { color: #8A8178; font-size: 0.8125rem; }
     </style>

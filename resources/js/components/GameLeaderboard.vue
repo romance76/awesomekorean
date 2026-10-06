@@ -85,11 +85,11 @@ defineExpose({ reload: load })
 .lb-rank.gold { font-size: 18px; }
 .lb-rank.silver { font-size: 17px; }
 .lb-rank.bronze { font-size: 16px; }
-.lb-rank.mine { color: #F2570F; }
+.lb-rank.mine { color: #F0266B; }
 .lb-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 .lb-avatar-fb { width: 24px; height: 24px; border-radius: 50%; background: #FFE3CF; color: #E04E00; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; flex-shrink: 0; }
 .lb-name { flex: 1; font-weight: 600; color: #4E5968; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lb-name.mine { color: #E04E00; font-weight: 800; }
-.lb-time { font-weight: 700; color: #F2570F; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.lb-time { font-weight: 700; color: #F0266B; font-variant-numeric: tabular-nums; flex-shrink: 0; }
 .lb-my-row { display: flex; align-items: center; gap: 8px; padding: 8px; margin-top: 8px; border-top: 1px dashed #E5E8EB; background: #FFF8F2; border-radius: 8px; font-size: 13px; }
 </style>

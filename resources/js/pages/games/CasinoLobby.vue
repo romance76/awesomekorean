@@ -206,13 +206,13 @@ onMounted(loadWallet)
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px;
 }
-.cl-back { display: inline-flex; align-items: center; gap: 4px; background: #FFF4EC; border: none; color: #F2570F; padding: 6px 12px; border-radius: 18px; cursor: pointer; font-size: 13px; font-weight: 700; transition: background 0.15s; }
+.cl-back { display: inline-flex; align-items: center; gap: 4px; background: #FFF4EC; border: none; color: #F0266B; padding: 6px 12px; border-radius: 18px; cursor: pointer; font-size: 13px; font-weight: 700; transition: background 0.15s; }
 .cl-back:hover { background: #FFE8DA; }
 .cl-title { font-size: 20px; font-weight: 900; color: #191F28; letter-spacing: 0.5px; margin: 0; }
 .cl-wallet { display: flex; gap: 8px; }
 .wallet-item { background: #FFF4EC; color: #E04E00; padding: 6px 12px; border-radius: 14px; font-size: 12px; font-weight: 800; border: 1px solid #FFDFC9; }
 .wallet-chip { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
-.cl-login { color: #F2570F; font-size: 13px; font-weight: 700; text-decoration: none; padding: 6px 14px; border-radius: 14px; border: 1px solid #FFC7A6; transition: background 0.15s; }
+.cl-login { color: #F0266B; font-size: 13px; font-weight: 700; text-decoration: none; padding: 6px 14px; border-radius: 14px; border: 1px solid #FFC7A6; transition: background 0.15s; }
 .cl-login:hover { background: #FFF4EC; }
 
 .cl-intro {
@@ -222,7 +222,7 @@ onMounted(loadWallet)
 }
 .intro-title { font-size: 24px; font-weight: 900; color: #191F28; margin-bottom: 4px; }
 .intro-sub { font-size: 13px; color: #4E5968; }
-.exchange-btn { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #FF8A53, #F2570F); color: #fff; border: none; padding: 10px 18px; border-radius: 22px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(255, 107, 44, 0.3); transition: transform 0.15s; }
+.exchange-btn { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #FF8A4D, #F0266B); color: #fff; border: none; padding: 10px 18px; border-radius: 22px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 16px rgba(255, 107, 44, 0.3); transition: transform 0.15s; }
 .exchange-btn:hover { transform: translateY(-1px); }
 
 .cl-games {
@@ -248,8 +248,8 @@ onMounted(loadWallet)
 .bet-label { font-size: 11px; color: #8B95A1; font-weight: 700; margin-bottom: 6px; }
 .bet-chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
 .bet-chip { background: #F7F8FA; border: 1px solid #E5E8EB; color: #4E5968; padding: 6px 4px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer; transition: all 0.15s; }
-.bet-chip:hover { background: #FFF4EC; color: #F2570F; }
-.bet-chip.active { background: #FFF4EC; border-color: #FF6B2C; color: #F2570F; }
+.bet-chip:hover { background: #FFF4EC; color: #F0266B; }
+.bet-chip.active { background: #FFF4EC; border-color: #FF6B2C; color: #F0266B; }
 
 .enter-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
 .require-info { display: flex; flex-direction: column; gap: 1px; }
@@ -258,7 +258,7 @@ onMounted(loadWallet)
 .req-value.insufficient { color: #EF4444; }
 .enter-btn { background: #FF6B2C; color: #fff; border: none; padding: 9px 16px; border-radius: 18px; font-size: 12px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 12px rgba(255,107,44,0.25); transition: all 0.15s; }
 .enter-btn:disabled { background: #F2F4F6; color: #B0B8C1; cursor: not-allowed; box-shadow: none; }
-.enter-btn:not(:disabled):hover { background: #F2570F; transform: translateX(2px); }
+.enter-btn:not(:disabled):hover { background: #F0266B; transform: translateX(2px); }
 
 .cl-stats {
   max-width: 1100px; margin: 32px auto 0; padding: 0 20px;
@@ -272,7 +272,7 @@ onMounted(loadWallet)
   transition: all 0.15s;
 }
 .stats-card:hover { background: #FFFBF7; border-color: #FFC7A6; box-shadow: 0 6px 16px rgba(25,31,40,0.06); }
-.stats-icon { width: 44px; height: 44px; border-radius: 12px; background: #FFF4EC; color: #F2570F; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stats-icon { width: 44px; height: 44px; border-radius: 12px; background: #FFF4EC; color: #F0266B; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .stats-title { font-size: 14px; font-weight: 800; color: #191F28; }
 .stats-sub { font-size: 11px; color: #8B95A1; }
 

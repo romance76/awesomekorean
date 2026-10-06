@@ -2,7 +2,7 @@
 <div class="min-h-screen flex items-center justify-center px-4">
   <div class="card p-8 w-full max-w-md">
     <div class="text-center mb-6">
-      <div class="w-12 h-12 bg-gradient-to-br from-[#FF8A53] to-[#F2570F] rounded-xl mx-auto mb-3 flex items-center justify-center text-xl font-black text-white shadow-btn">AK</div>
+      <AuthLogo />
       <h1 class="text-xl font-bold text-ink">로그인</h1>
     </div>
     <form @submit.prevent="handleLogin" class="space-y-4">
@@ -43,6 +43,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import AuthLogo from '../../components/AuthLogo.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()

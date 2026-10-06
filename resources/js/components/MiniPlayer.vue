@@ -2,7 +2,7 @@
 <Teleport to="body">
   <!-- 음악 최소화 버튼 -->
   <div v-if="showMiniBtn"
-    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A53] to-[#F2570F] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
+    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A4D] to-[#F0266B] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
     @click="expand">
     <span class="text-white"><AppIcon :name="music.isPlaying ? 'music' : 'play'" :size="22" :filled="!music.isPlaying" /></span>
   </div>
@@ -15,7 +15,7 @@
 
     <!-- 헤더 -->
     <div @mousedown="startDrag" @touchstart.passive="startDrag"
-      class="px-3 py-2 flex items-center justify-between cursor-move bg-gradient-to-r from-[#FF8A53] to-[#F2570F] select-none flex-shrink-0">
+      class="px-3 py-2 flex items-center justify-between cursor-move bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] select-none flex-shrink-0">
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-white/90"><AppIcon name="music" :size="14" /></span>
         <p class="text-white text-xs font-bold truncate">{{ music.currentTrack?.title || '재생 대기 중' }}</p>

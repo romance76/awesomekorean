@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen pb-20">
-    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] text-white py-8 px-4 text-center">
+    <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] text-white py-8 px-4 text-center">
       <div class="icon-chip w-12 h-12 bg-white/20 text-white mx-auto mb-2"><AppIcon name="shopping-bag" :size="26" /></div>
       <h1 class="text-xl font-bold">포인트샵</h1>
       <div class="mt-2 bg-white/20 inline-block rounded-full px-4 py-1">

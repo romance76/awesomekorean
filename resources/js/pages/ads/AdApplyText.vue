@@ -88,7 +88,7 @@
 
       <!-- 제출 -->
       <button @click="submit" :disabled="!canSubmit || submitting"
-        class="w-full bg-gradient-to-r from-[#FF8A53] to-[#F2570F] text-white font-bold py-3 rounded-xl disabled:opacity-50 hover:shadow-lg transition">
+        class="w-full bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] text-white font-bold py-3 rounded-xl disabled:opacity-50 hover:shadow-lg transition">
         {{ submitting ? '신청 중...' : `광고 신청 (${(form.bid_amount || 0).toLocaleString()}P)` }}
       </button>
 

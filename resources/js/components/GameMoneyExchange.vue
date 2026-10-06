@@ -1,7 +1,7 @@
 <template>
 <div v-if="show" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="$emit('close')">
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="bg-gradient-to-r from-[#FF8A53] to-[#F2570F] px-5 py-4 text-white flex justify-between items-center">
+    <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] px-5 py-4 text-white flex justify-between items-center">
       <div>
         <div class="font-black text-lg flex items-center gap-1.5"><AppIcon name="coins" :size="18" /> 게임머니 환전</div>
         <div class="text-xs opacity-80">포인트 ↔ 게임머니</div>
