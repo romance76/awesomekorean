@@ -90,6 +90,16 @@
           <p class="text-xs text-ink-faint mt-1">구인구직, 중고장터, 부동산 등 위치 기반 게시판의 기본 검색 범위</p>
         </div>
 
+        <!-- 무료 공개 채팅방 -->
+        <div class="mb-3">
+          <label class="input-label flex items-center gap-1"><AppIcon name="message-circle" :size="13" /> 무료 공개 채팅방</label>
+          <select v-model="pf.free_public_room_id" class="input-soft">
+            <option :value="null">선택 안 함</option>
+            <option v-for="r in publicRooms" :key="r.id" :value="r.id">{{ r.name }}</option>
+          </select>
+          <p class="text-xs text-ink-faint mt-1">지정한 공개 채팅방 1곳은 입장료 없이 항상 무료로 드나들 수 있습니다. 보통 내가 사는 지역의 채팅방을 선택하세요(예: 아틀란타라면 "아틀란타 한인 채팅방").</p>
+        </div>
+
         <!-- 프라이버시 설정 -->
         <div class="border-t border-gray-100 pt-4 mt-4">
           <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="lock" :size="14" class="text-amber-600" />프라이버시 설정</h3>
@@ -1114,16 +1124,24 @@ td:last-child{text-align:right;font-weight:600}
 }
 
 // ─── 프로필 ───
-const pf = reactive({ name: '', nickname: '', bio: '', phone: '', address1: '', address2: '', city: '', state: '', zipcode: '', default_radius: 30, language: 'ko', allow_friend_request: true, allow_messages: true, allow_elder_service: false })
+const pf = reactive({ name: '', nickname: '', bio: '', phone: '', address1: '', address2: '', city: '', state: '', zipcode: '', default_radius: 30, language: 'ko', allow_friend_request: true, allow_messages: true, allow_elder_service: false, free_public_room_id: null })
 const pfMsg = ref(''); const pfMsgType = ref(''); const pfSaving = ref(false); const avatarMsg = ref('')
 const pw = reactive({ current_password: '', password: '', password_confirmation: '' })
 const pwMsg = ref(''); const pwMsgType = ref(''); const pwSaving = ref(false)
+const publicRooms = ref([])
+async function loadPublicRooms() {
+  try {
+    const { data } = await axios.get('/api/chat/rooms')
+    publicRooms.value = (data.data || []).filter(r => r.type === 'public')
+  } catch (e) {}
+}
 
 function loadProfile() {
   const u = auth.user
   if (u) {
-    Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone ? formatPhone(u.phone) : '', address1: u.address1, address2: u.address2, city: u.city, state: u.state, zipcode: u.zipcode, default_radius: u.default_radius || 30, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false, allow_messages: u.allow_messages !== false, allow_elder_service: !!u.allow_elder_service })
+    Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone ? formatPhone(u.phone) : '', address1: u.address1, address2: u.address2, city: u.city, state: u.state, zipcode: u.zipcode, default_radius: u.default_radius || 30, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false, allow_messages: u.allow_messages !== false, allow_elder_service: !!u.allow_elder_service, free_public_room_id: u.free_public_room_id || null })
   }
+  loadPublicRooms()
 }
 // 친구요청 거절 → 쪽지도 자동 차단
 watch(() => pf.allow_friend_request, (v) => { if (!v) pf.allow_messages = false })
