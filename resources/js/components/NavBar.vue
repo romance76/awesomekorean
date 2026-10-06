@@ -12,7 +12,7 @@
 
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="h-8 w-auto" style="max-height:32px" />
+        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="h-11 w-auto" style="max-height:44px" />
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
