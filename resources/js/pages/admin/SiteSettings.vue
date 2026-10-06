@@ -974,6 +974,7 @@
           <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 관리</h3>
           <div class="flex gap-2">
             <button @click="runMailDebug" class="btn-secondary px-4 py-2 text-sm">메일 설정 진단</button>
+            <button @click="runMailTestSend" class="btn-secondary px-4 py-2 text-sm">메일 실제 발송 테스트</button>
             <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
           </div>
         </div>
@@ -1719,6 +1720,13 @@ async function runMailDebug() {
       '키 값: ' + (d.db_row_key_masked || '(없음)')
     )
   } catch (e) { alert(e.response?.data?.message || '진단 실패: ' + e.message) }
+}
+
+async function runMailTestSend() {
+  try {
+    const { data } = await axios.post('/api/admin/system/mail-test-send')
+    alert(data.message)
+  } catch (e) { alert('발송 실패 — 실제 에러: ' + (e.response?.data?.message || e.message)) }
 }
 
 async function toggleReveal(key) {

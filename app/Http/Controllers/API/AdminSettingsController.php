@@ -213,6 +213,25 @@ class AdminSettingsController extends Controller
         ]]);
     }
 
+    // 설정값은 전부 정상인데도 실제 발송이 계속 실패해서, 추측 대신 실제로
+    // 발송을 시도해 Resend 클라이언트가 던지는 진짜 예외 메시지를 그대로
+    // 반환 — 서버 .env/로그에 직접 접근할 방법이 없는 상황의 최후 수단.
+    // 원인 확정되면 mailDebug()와 함께 제거 예정.
+    public function mailTestSend(Request $request) {
+        $to = $request->user()->email;
+        try {
+            \Illuminate\Support\Facades\Mail::raw(
+                '어썸코리안 메일 발송 테스트입니다. 이 메일이 보이면 정상 작동 중입니다.',
+                function ($msg) use ($to) {
+                    $msg->to($to)->subject('[AwesomeKorean] 메일 발송 테스트');
+                }
+            );
+            return response()->json(['success' => true, 'message' => "{$to} 로 테스트 메일 발송 성공 (예외 없음)"]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => get_class($e) . ': ' . $e->getMessage()], 500);
+        }
+    }
+
     public function storeApiKey(Request $request) {
         $request->validate(['name'=>'required','service'=>'required','api_key'=>'required']);
         $newKey = ApiKey::create([
