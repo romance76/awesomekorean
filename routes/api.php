@@ -687,6 +687,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         // 임시 진단용 (AdminSettingsController::mailDebug 참고) — 원인 확정되면 제거
         Route::get('/system/mail-debug', [AdminSettingsController::class, 'mailDebug']);
         Route::post('/system/mail-test-send', [AdminSettingsController::class, 'mailTestSend']);
+        Route::get('/system/password-reset-debug', [AdminSettingsController::class, 'passwordResetDebug']);
     });
 
     // Firebase 설정
