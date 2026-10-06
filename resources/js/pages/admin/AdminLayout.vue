@@ -4,8 +4,11 @@
   <aside class="w-52 bg-white border-r border-gray-100 hidden lg:flex flex-col h-screen sticky top-0">
     <div class="p-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
-        <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="settings" :size="16" /></span>
-        <span class="font-bold text-ink text-sm">AwesomeKorean</span>
+        <img v-if="siteStore.logoUrl && !logoError" :src="siteStore.logoUrl" alt="AwesomeKorean" class="h-7 w-auto max-w-[140px] object-contain" @error="logoError = true" />
+        <template v-else>
+          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="settings" :size="16" /></span>
+          <span class="font-bold text-ink text-sm">AwesomeKorean</span>
+        </template>
       </div>
       <div v-if="auth.user" class="flex items-center gap-2 mt-3">
         <div class="w-8 h-8 bg-amber-400 rounded-full flex items-center justify-center text-white text-xs font-bold">{{ (auth.user.name||'?')[0] }}</div>
@@ -25,6 +28,7 @@
     </nav>
     <div class="p-3 border-t border-gray-100">
       <RouterLink to="/" class="flex items-center gap-1.5 text-xs text-ink-muted hover:text-amber-600 transition-colors py-1"><AppIcon name="home" :size="14" /> 사이트로 돌아가기</RouterLink>
+      <button @click="handleLogout" class="flex items-center gap-1.5 text-xs text-ink-muted hover:text-red-600 transition-colors py-1 w-full"><AppIcon name="log-out" :size="14" /> 로그아웃</button>
     </div>
   </aside>
 
@@ -49,6 +53,9 @@
           <span>{{ item.label }}</span>
         </RouterLink>
       </nav>
+      <div class="p-3 border-t border-gray-100">
+        <button @click="handleLogout" class="flex items-center gap-1.5 text-xs text-ink-muted hover:text-red-600 transition-colors py-1 w-full"><AppIcon name="log-out" :size="14" /> 로그아웃</button>
+      </div>
     </div>
   </div>
 
@@ -72,14 +79,23 @@
 </template>
 <script setup>
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 
 const auth = useAuthStore()
+const siteStore = useSiteStore()
 const route = useRoute()
+const router = useRouter()
 const mobileMenu = ref(false)
+const logoError = ref(false)
+
+async function handleLogout() {
+  await auth.logout()
+  router.push('/login')
+}
 
 // 왼쪽 메인 메뉴 (5개)
 const mainMenu = [
@@ -139,6 +155,51 @@ const subTabs = {
   ],
 }
 
+// 게시판 서브탭 경로 → 시스템 "메뉴 관리"의 메뉴 key 매핑.
+// 매핑이 없는 항목(포커/클레임/보상 승인 등)은 공개 메뉴가 따로 없는
+// 관리자 전용 화면이라 메뉴 설정과 무관하게 항상 노출한다.
+const boardMenuKeyMap = {
+  '/admin/community': 'community',
+  '/admin/market': 'market',
+  '/admin/jobs': 'jobs',
+  '/admin/realestate': 'realestate',
+  '/admin/qa': 'qa',
+  '/admin/events': 'events',
+  '/admin/clubs': 'clubs',
+  '/admin/recipes': 'recipes',
+  '/admin/news': 'news',
+  '/admin/info': 'info',
+  '/admin/directory': 'directory',
+  '/admin/groupbuy': 'groupbuy',
+  '/admin/music': 'music',
+  '/admin/shorts': 'shorts',
+  '/admin/shopping': 'shopping',
+  '/admin/games': 'games',
+  '/admin/elder': 'elder',
+  '/admin/communication': 'comms',
+}
+
+// 게시판 탭: 시스템 > 메뉴 관리에서 켜둔 메뉴만, 그 설정 순서대로 보여줌
+// (관리자 전용 화면은 매핑이 없으므로 그대로 유지, 뒤에 붙임)
+const boardTabs = computed(() => {
+  const base = subTabs.board
+  const mc = siteStore.menuConfig
+  if (!mc || !Array.isArray(mc) || !mc.length) return base
+  const orderIndex = {}
+  mc.forEach((m, i) => { orderIndex[m.key] = i })
+  const enabledKeys = new Set(mc.filter(m => m.enabled !== false).map(m => m.key))
+  const mapped = []
+  const unmapped = []
+  base.forEach(tab => {
+    const key = boardMenuKeyMap[tab.to]
+    if (!key) { unmapped.push(tab); return }
+    if (!enabledKeys.has(key)) return
+    mapped.push({ tab, order: orderIndex[key] })
+  })
+  mapped.sort((a, b) => a.order - b.order)
+  return [...mapped.map(m => m.tab), ...unmapped]
+})
+
 // 현재 페이지가 어떤 그룹에 속하는지
 const currentGroup = computed(() => {
   const path = route.path
@@ -149,7 +210,7 @@ const currentGroup = computed(() => {
 })
 
 const currentSubTabs = computed(() => {
-  const tabs = subTabs[currentGroup.value] || []
+  const tabs = currentGroup.value === 'board' ? boardTabs.value : (subTabs[currentGroup.value] || [])
   if (auth.user?.role === 'super_admin') return tabs
   return tabs.filter(t => t.to !== '/admin/sweepstakes')
 })

@@ -63,9 +63,9 @@ axios.interceptors.response.use(
             localStorage.removeItem('sk_token');
             localStorage.removeItem('sk_user');
             // 로그인이 필요한 페이지에서 401이 났을 때만 리다이렉트
-            const needsAuth = /\/dashboard|\/write|\/create|\/edit|\/ad-apply|\/my-/.test(window.location.pathname);
+            const needsAuth = /\/dashboard|\/write|\/create|\/edit|\/ad-apply|\/my-|^\/admin/.test(window.location.pathname);
             if (hadToken && needsAuth && !window.location.pathname.startsWith('/login')) {
-                window.location.href = '/login';
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
             }
         }
         return Promise.reject(error);
