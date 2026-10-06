@@ -4,9 +4,19 @@ use App\Http\Controllers\Controller;
 use App\Models\ApiKey;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AdminSettingsController extends Controller
 {
+    // /api/settings/public 캐시 키 — 도메인에 의존하지 않는 고정 키.
+    // 예전엔 캐시 미들웨어(cache.api)가 요청 전체 URL(md5)로 키를 만들고,
+    // 저장할 때는 하드코딩된 도메인 문자열 몇 개를 추측해 그 키를 지우려
+    // 했는데, 실제 접속 도메인이 그 목록과 하나라도 다르면(www. 유무 등)
+    // 캐시가 전혀 지워지지 않아 메뉴 순서/회사정보/약관 등을 저장해도
+    // 최대 30분간 예전 값이 계속 보이던 버그가 있었음. 고정 키로 직접
+    // 캐시하고 저장 시 그 키 하나만 지우는 방식으로 교체.
+    const SETTINGS_PUBLIC_CACHE_KEY = 'site_settings_public';
+
     // 전체 설정 로드 (이전 버전 호환)
     public function index() {
         $settings = SiteSetting::all()->pluck('value', 'key');
@@ -55,8 +65,10 @@ class AdminSettingsController extends Controller
     }
 
     public function getPublic() {
-        $keys = ['site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config'];
-        $settings = SiteSetting::whereIn('key', $keys)->pluck('value','key');
+        $settings = Cache::remember(self::SETTINGS_PUBLIC_CACHE_KEY, 1800, function () {
+            $keys = ['site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config'];
+            return SiteSetting::whereIn('key', $keys)->pluck('value','key');
+        });
         return response()->json(['success'=>true,'data'=>$settings]);
     }
 
@@ -66,6 +78,7 @@ class AdminSettingsController extends Controller
             $storeValue = is_array($value) ? json_encode($value) : $value;
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$storeValue]);
         }
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'설정이 저장되었습니다']);
     }
 
@@ -74,6 +87,7 @@ class AdminSettingsController extends Controller
         foreach ($request->all() as $key => $value) {
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value]);
         }
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'회사 정보가 저장되었습니다']);
     }
 
@@ -96,6 +110,7 @@ class AdminSettingsController extends Controller
     public function saveTerms(Request $request, $type) {
         $key = $type === 'privacy' ? 'privacy_page' : 'terms_page';
         SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$request->content]);
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'약관이 저장되었습니다']);
     }
 
@@ -162,10 +177,7 @@ class AdminSettingsController extends Controller
             ->all();
         $merged = array_merge($incoming->all(), $preserved);
         SiteSetting::updateOrCreate(['key'=>'menu_config'], ['value'=>json_encode($merged)]);
-        // /api/settings/public 캐시 즉시 무효화 (md5 로 저장되어 있어 태그 없음 — 알려진 URL 패턴만 제거)
-        foreach (['https://awesomekorean.com/api/settings/public','http://awesomekorean.com/api/settings/public','https://somekorean.com/api/settings/public'] as $u) {
-            \Cache::forget('api_cache_' . md5($u));
-        }
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'메뉴 설정이 저장되었습니다']);
     }
 

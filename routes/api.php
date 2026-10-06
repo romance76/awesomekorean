@@ -138,10 +138,16 @@ Route::get('/banners/text-inline', [\App\Http\Controllers\API\BannerController::
 // 유저도 이 신청 경로를 쓸 수 없었음(실측 확인) — auth:api로 수정.
 Route::middleware('auth:api')->post('/banners/text-apply', [\App\Http\Controllers\API\BannerController::class, 'textApply']);
 Route::get('/banners/all', [\App\Http\Controllers\API\BannerController::class, 'all']);
+// 캐싱은 각 컨트롤러 안에서 고정 키로 직접 처리(저장/삭제 시 정확히 무효화하기 위함) — cache.api 미들웨어 미적용
 Route::get('/hero-banners', function () {
-    return response()->json(['success' => true, 'data' => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()]);
-})->middleware('cache.api:1800');
-Route::get('/popup-banners/active', [\App\Http\Controllers\API\PopupBannerController::class, 'publicActive'])->middleware('cache.api:600');
+    $data = \Illuminate\Support\Facades\Cache::remember(
+        \App\Http\Controllers\API\HeroBannerController::PUBLIC_CACHE_KEY,
+        1800,
+        fn () => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()
+    );
+    return response()->json(['success' => true, 'data' => $data]);
+});
+Route::get('/popup-banners/active', [\App\Http\Controllers\API\PopupBannerController::class, 'publicActive']);
 Route::get('/pricing-promotions/active', [\App\Http\Controllers\API\PricingPromotionController::class, 'publicActive']);
 Route::post('/banners/{id}/click', [\App\Http\Controllers\API\BannerController::class, 'click']);
 Route::get('/ad-settings/public', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettingsPublic']);
@@ -171,7 +177,8 @@ Route::get('/music/categories', [MusicController::class, 'categories']);
 Route::get('/music/tracks/{categoryId}', [MusicController::class, 'tracks']);
 Route::get('/search', [SearchController::class, 'search']);
 Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
-Route::get('/settings/public', [AdminSettingsController::class, 'getPublic'])->middleware('cache.api:1800'); // 30분 캐시
+// 캐싱은 컨트롤러 안에서 고정 키로 직접 처리(저장 시 정확히 무효화하기 위함) — cache.api 미들웨어 미적용
+Route::get('/settings/public', [AdminSettingsController::class, 'getPublic']);
 Route::get('/settings/points', function () {
     $settings = \DB::table('point_settings')->pluck('value', 'key');
     return response()->json(['success' => true, 'data' => $settings]);
