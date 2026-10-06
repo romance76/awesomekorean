@@ -58,7 +58,9 @@ class AuthController extends Controller
             \Illuminate\Support\Facades\Mail::to($user->email)->send(
                 new \App\Mail\EmailVerificationMail($user->name, $verifyUrl)
             );
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            \Log::warning("가입 인증 메일 발송 실패 (user_id={$user->id}): " . $e->getMessage());
+        }
 
         $token = JWTAuth::fromUser($user);
 
@@ -186,7 +188,8 @@ class AuthController extends Controller
                 $msg->to($request->email)->subject('[AwesomeKorean] 비밀번호 재설정 코드');
             });
         } catch (\Exception $e) {
-            // 메일 전송 실패해도 코드는 생성됨
+            // 메일 전송 실패해도 코드는 생성됨(응답은 그대로 성공처럼 보임) — 원인 추적용 로그만 남김
+            \Log::warning("비밀번호 재설정 코드 메일 발송 실패 ({$request->email}): " . $e->getMessage());
         }
 
         // 로컬 환경에서만 코드 노출 (테스트 편의)
