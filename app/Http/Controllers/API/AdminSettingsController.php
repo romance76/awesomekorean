@@ -40,7 +40,7 @@ class AdminSettingsController extends Controller
         // 안 불러와지고 항상 빈 채로 보였음(약관 관리가 내용이 저장돼 있는데도
         // 빈 에디터로 보인 것도 이 버그). 프론트가 기대하는 모양대로 묶어서
         // 같이 내려줌.
-        $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','app_icon_url','favicon_url','meta_description','meta_keywords'];
+        $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','logo_dark_url','app_icon_url','favicon_url','meta_description','meta_keywords'];
         $siteKeys = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until','google_analytics_id','kakao_api_key'];
         $settings['company'] = array_intersect_key($settings, array_flip($companyKeys));
         $settings['site'] = array_intersect_key($settings, array_flip($siteKeys));
@@ -55,7 +55,7 @@ class AdminSettingsController extends Controller
     }
 
     public function getPublic() {
-        $keys = ['site_name','site_subtitle','logo_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config'];
+        $keys = ['site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config'];
         $settings = SiteSetting::whereIn('key', $keys)->pluck('value','key');
         return response()->json(['success'=>true,'data'=>$settings]);
     }
@@ -330,6 +330,27 @@ class AdminSettingsController extends Controller
         SiteSetting::updateOrCreate(['key'=>'logo_url'], ['value'=>"/storage/branding/logo.png?v={$version}"]);
 
         return response()->json(['success'=>true,'data'=>['url'=>"/storage/branding/logo.png?v={$version}"]]);
+    }
+
+    // 다크 배경(푸터 등 bg-slate-800 같은 어두운 섹션)에서 쓰는 흰색/밝은 톤
+    // 로고 — 기본 로고(밝은 배경용)와 별도로 관리. uploadLogo()와 동일한
+    // Storage::disk('public') 패턴.
+    public function uploadLogoDark(Request $request) {
+        $request->validate(['logo'=>'required|image|mimes:jpg,jpeg,png,webp|max:4096']);
+
+        try {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $image = $manager->read($request->file('logo')->getRealPath());
+            \Illuminate\Support\Facades\Storage::disk('public')->put('branding/logo-dark.png', (string) $image->toPng());
+        } catch (\Throwable $e) {
+            \Log::error("다크 배경용 로고 업로드 실패: " . $e->getMessage());
+            return response()->json(['success'=>false,'message'=>'로고 저장 실패: '.$e->getMessage()], 500);
+        }
+
+        $version = now()->timestamp;
+        SiteSetting::updateOrCreate(['key'=>'logo_dark_url'], ['value'=>"/storage/branding/logo-dark.png?v={$version}"]);
+
+        return response()->json(['success'=>true,'data'=>['url'=>"/storage/branding/logo-dark.png?v={$version}"]]);
     }
 
     // 핸드폰 홈 화면에 "바로가기(PWA)"로 추가할 때 쓰이는 정사각형 앱 아이콘 —

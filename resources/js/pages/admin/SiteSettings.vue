@@ -109,6 +109,25 @@
             </div>
           </div>
 
+          <!-- 다크 배경용 로고 업로드 — 푸터처럼 어두운 배경에서 기본 로고가
+               안 보일 때를 대비한 흰색/밝은 톤 버전. 안 올리면 텍스트로 폴백. -->
+          <div class="mt-5">
+            <label class="input-label">로고 (다크 배경용, 흰색 버전)</label>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-slate-800 flex-shrink-0">
+                <img v-if="company.logo_dark_url" :src="company.logo_dark_url" alt="Dark Logo Preview" class="w-full h-full object-contain" />
+                <span v-else class="text-xs text-gray-400">미리보기</span>
+              </div>
+              <div class="flex-1">
+                <input ref="logoDarkFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onLogoDarkFileSelected" />
+                <button type="button" @click="logoDarkFileInput.click()" :disabled="uploadingLogoDark" class="btn-secondary px-4 py-2 text-sm">
+                  {{ uploadingLogoDark ? '업로드 중...' : '다크 배경용 로고 업로드' }}
+                </button>
+                <p class="text-xs text-ink-faint mt-1.5">PNG/JPG/WEBP, 최대 4MB. 푸터 등 어두운 배경 섹션에 반영됩니다 (안 올리면 텍스트로 대체 표시).</p>
+              </div>
+            </div>
+          </div>
+
           <!-- 앱 아이콘 업로드 — 핸드폰 홈 화면에 "바로가기"로 추가할 때 쓰이는
                정사각형 아이콘. 로고(가로형 워드마크)와는 별개로 관리. -->
           <div class="mt-5">
@@ -1189,6 +1208,7 @@ const company = reactive({
   email: 'admin@awesomekorean.com',
   founded_date: '',
   logo_url: '',
+  logo_dark_url: '',
   app_icon_url: '',
   favicon_url: '',
   meta_description: '',
@@ -1790,6 +1810,29 @@ async function onLogoFileSelected(e) {
     alert(e.response?.data?.message || '로고 업로드 실패')
   } finally {
     uploadingLogo.value = false
+    e.target.value = ''
+  }
+}
+
+const logoDarkFileInput = ref(null)
+const uploadingLogoDark = ref(false)
+
+async function onLogoDarkFileSelected(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  uploadingLogoDark.value = true
+  try {
+    const formData = new FormData()
+    formData.append('logo', file)
+    const { data } = await axios.post('/api/admin/settings/logo-dark', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    company.logo_dark_url = data.data?.url || company.logo_dark_url
+    showToast('다크 배경용 로고가 업로드되었습니다 — 푸터 등에 바로 반영됩니다')
+  } catch (e) {
+    alert(e.response?.data?.message || '다크 배경용 로고 업로드 실패')
+  } finally {
+    uploadingLogoDark.value = false
     e.target.value = ''
   }
 }

@@ -673,6 +673,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/settings/menus', [AdminSettingsController::class, 'getMenus']);
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
+    Route::post('/settings/logo-dark', [AdminSettingsController::class, 'uploadLogoDark']);
     Route::post('/settings/app-icon', [AdminSettingsController::class, 'uploadAppIcon']);
     Route::post('/settings/favicon', [AdminSettingsController::class, 'uploadFavicon']);
 

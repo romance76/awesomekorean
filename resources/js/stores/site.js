@@ -23,6 +23,7 @@ function writeMenuCache(arr) {
 export const useSiteStore = defineStore('site', () => {
   const siteName = ref('AwesomeKorean')
   const logoUrl = ref('/images/logo.png')
+  const logoDarkUrl = ref('') // 다크 배경(푸터 등)용 — 미설정 시 컴포넌트가 텍스트로 폴백
   const menus = ref([])
   const loaded = ref(false)
   const darkMode = ref(false)
@@ -57,6 +58,7 @@ export const useSiteStore = defineStore('site', () => {
         settings.value = data.data
         siteName.value = data.data.site_name || 'AwesomeKorean'
         logoUrl.value = data.data.logo_url || '/images/logo.png'
+        logoDarkUrl.value = data.data.logo_dark_url || ''
         // 메뉴 설정도 여기서 파싱
         if (data.data.menu_config) {
           const parsed = typeof data.data.menu_config === 'string'
@@ -91,7 +93,7 @@ export const useSiteStore = defineStore('site', () => {
   }
 
   return {
-    siteName, logoUrl, menus, loaded, darkMode, toasts, settings, menuConfig,
+    siteName, logoUrl, logoDarkUrl, menus, loaded, darkMode, toasts, settings, menuConfig,
     toast, removeToast, load, getSetting, isEnabled, getOrder, updateMenuConfig,
   }
 })

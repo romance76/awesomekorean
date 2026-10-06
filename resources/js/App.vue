@@ -41,7 +41,8 @@
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="grid grid-cols-4 gap-4 mb-6">
           <div>
-            <div class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
+            <img v-if="siteStore.logoDarkUrl" :src="siteStore.logoDarkUrl" alt="AwesomeKorean" class="h-7 w-auto mb-2" />
+            <div v-else class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
             <div class="text-xs text-gray-400">미국 한인 No.1 커뮤니티</div>
           </div>
           <div>
