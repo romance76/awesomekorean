@@ -41,7 +41,7 @@
               <span class="flex-shrink-0 text-[11px]">{{ roomTypeIcon(room.type) }}</span>
               <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
             </button>
-            <button @click="leaveParticipating(room)" class="flex-shrink-0 text-ink-faint hover:text-red-500 transition-colors p-0.5" title="나가기"><AppIcon name="log-out" :size="13" /></button>
+            <button @click="leaveConfirm = room" class="flex-shrink-0 text-ink-faint hover:text-red-500 transition-colors p-0.5" title="나가기"><AppIcon name="log-out" :size="13" /></button>
           </div>
         </div>
 
@@ -109,8 +109,9 @@
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bottom-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
         :style="isMobile ? 'z-index: 60;' : ''">
         <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: calc(100vh - 6rem)'">
-          <!-- 채팅방 헤더 -->
-          <div class="px-4 py-3 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0">
+          <!-- 채팅방 헤더 — relative z-40로 아래 입장료 블러 오버레이(z-30)보다 위에 떠서,
+               입장 전에도 방 이름/뒤로가기가 가려지지 않고 그대로 보임 -->
+          <div class="relative z-40 px-4 py-3 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0">
             <div class="flex items-center gap-2">
               <button @click="goBackToList" class="lg:hidden text-ink-light mr-1 px-2 py-1 -ml-2 hover:text-ink transition-colors" aria-label="뒤로가기"><AppIcon name="arrow-left" :size="20" /></button>
               <div class="font-bold text-sm text-ink truncate">{{ roomDisplayName(activeRoom) }}</div>
@@ -231,7 +232,7 @@
           <div v-if="needsEntry" class="absolute inset-0 z-30 flex items-center justify-center p-4 backdrop-blur-md bg-white/40">
             <div class="bg-white rounded-2xl shadow-lift p-5 max-w-xs w-full text-center space-y-3">
               <div class="icon-chip w-12 h-12 bg-amber-50 text-amber-600 mx-auto"><AppIcon name="lock" :size="22" /></div>
-              <div class="text-sm font-bold text-ink">이 공개 채팅방에 입장하시겠습니까?</div>
+              <div class="text-sm font-bold text-ink">"{{ roomDisplayName(activeRoom) }}" 방에 입장하시겠습니까?</div>
               <div class="text-xs text-ink-muted leading-relaxed">입장하면 24시간 동안 블러 없이 자유롭게 열람·참여할 수 있어요.<br />입장료: <span class="font-bold text-amber-600">{{ entryCost }}P</span></div>
               <div v-if="enterError" class="text-xs text-red-500">{{ enterError }}</div>
               <div class="flex gap-2">
@@ -448,6 +449,22 @@
           <button @click="doDeleteRoom" :disabled="roomDeleting" class="text-white bg-red-500 hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg transition-colors disabled:opacity-50">
             {{ roomDeleting ? '삭제 중...' : '삭제' }}
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🚪 참가중인 채팅방 나가기 확인 다이얼로그 -->
+    <div v-if="leaveConfirm" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4" style="z-index: 85;" @click.self="leaveConfirm = null">
+      <div class="bg-white rounded-2xl shadow-lift w-full max-w-sm overflow-hidden">
+        <div class="px-5 pt-5 pb-3">
+          <h3 class="font-bold text-ink text-base mb-2">"{{ roomDisplayName(leaveConfirm) }}" 방에서 나가시겠어요?</h3>
+          <div class="text-xs text-ink-light leading-relaxed">
+            "참가중인 채팅방" 목록에서 빠지고 "전체 채팅방" 쪽으로 돌아갑니다. 이 방에 다시 글을 쓰면 자동으로 재참가 처리됩니다.
+          </div>
+        </div>
+        <div class="px-5 py-3 flex justify-end gap-2 bg-gray-50 border-t border-gray-100">
+          <button @click="leaveConfirm = null" class="btn-secondary text-sm px-4 py-2">취소</button>
+          <button @click="doLeaveParticipating" class="text-white bg-red-500 hover:bg-red-600 font-bold text-sm px-4 py-2 rounded-lg transition-colors">나가기</button>
         </div>
       </div>
     </div>
@@ -1224,7 +1241,11 @@ const filteredRooms = computed(() => rooms.value.filter(r =>
 
 // ─── 참가중인 채팅방(공개방 중 내가 글을 쓴 곳) ───
 const participatingRooms = computed(() => rooms.value.filter(r => r.is_participating))
-async function leaveParticipating(room) {
+const leaveConfirm = ref(null) // room — 실수로 바로 나가지 않도록 확인 다이얼로그 거침
+async function doLeaveParticipating() {
+  const room = leaveConfirm.value
+  if (!room) return
+  leaveConfirm.value = null
   try {
     await axios.post(`/api/chat/rooms/${room.id}/leave`)
     room.is_participating = false
