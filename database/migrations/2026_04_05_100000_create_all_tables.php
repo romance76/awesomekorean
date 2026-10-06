@@ -30,6 +30,11 @@ return new class extends Migration
             $table->integer('login_count')->default(0);
             $table->string('provider', 30)->nullable();
             $table->string('provider_id')->nullable();
+            // 운영 DB에는 이미 있었지만 이 저장소의 어떤 마이그레이션에도 정의돼
+            // 있지 않아서, add_user_privacy_and_elder_tables의
+            // after('allow_friend_request')가 신규(fresh) DB에서는 존재하지
+            // 않는 컬럼을 가리켜 실패하던 문제가 있었음.
+            $table->boolean('allow_friend_request')->default(true);
             $table->index(['latitude', 'longitude']);
         });
 
@@ -541,6 +546,12 @@ return new class extends Migration
             $table->string('name', 50);
             $table->string('slug', 50)->unique();
             $table->string('image')->nullable();
+            // 자동수집(music:fetch)이 검색어로 쓰는 콤마구분 문자열 — 운영 DB에는
+            // 이미 있었지만 이 저장소의 어떤 마이그레이션에도 정의돼 있지 않아서,
+            // add_auto_fetch_to_music_categories 마이그레이션의 after('pop_queries')가
+            // 신규(fresh) DB에서는 존재하지 않는 컬럼을 가리켜 실패하던 문제가 있었음.
+            $table->text('korean_queries')->nullable();
+            $table->text('pop_queries')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
