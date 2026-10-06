@@ -28,7 +28,7 @@
       <div><label class="input-label">이메일</label><input v-model="form.email" type="email" required class="input-soft" /></div>
       <div>
         <label class="input-label">비밀번호</label>
-        <input v-model="form.password" type="password" required minlength="8"
+        <PasswordInput v-model="form.password" required minlength="8"
           class="input-soft" />
         <div class="flex items-center gap-1 text-[11px] text-ink-muted mt-1.5"><AppIcon name="info" :size="12" />최소 8자, 영문 대소문자 + 숫자 포함</div>
         <div v-if="form.password" class="flex gap-2 mt-1 text-xs">
@@ -38,7 +38,7 @@
           <span :class="pwChecks.num ? 'text-emerald-600 font-semibold' : 'text-ink-faint'">{{ pwChecks.num ? '✓' : '·' }} 숫자</span>
         </div>
       </div>
-      <div><label class="input-label">비밀번호 확인</label><input v-model="form.password_confirmation" type="password" required minlength="8" class="input-soft" /></div>
+      <div><label class="input-label">비밀번호 확인</label><PasswordInput v-model="form.password_confirmation" required minlength="8" class="input-soft" /></div>
       <div class="flex items-start gap-2 mb-2">
         <div class="flex-1">
           <label class="input-label">친구 요청 허용</label>
@@ -64,6 +64,7 @@
 </div>
 </template>
 <script setup>
+import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'

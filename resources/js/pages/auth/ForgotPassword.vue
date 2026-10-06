@@ -20,8 +20,8 @@
       <div class="bg-amber-50 rounded-xl p-3 text-sm text-amber-700">{{ email }} 로 인증 코드가 전송되었습니다. 메일이 안 보이면 스팸함도 확인해주세요.</div>
       <!-- autocomplete="one-time-code" + inputmode="numeric": 브라우저가 저장된 아이디/비번을 이 칸에 잘못 자동입력하던 문제 방지 -->
       <div><label class="input-label">인증 코드 (6자리)</label><input v-model="code" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="6" placeholder="000000" class="input-soft text-center tracking-widest text-lg font-mono" /></div>
-      <div><label class="input-label">새 비밀번호</label><input v-model="password" type="password" required minlength="6" autocomplete="new-password" class="input-soft" /></div>
-      <div><label class="input-label">비밀번호 확인</label><input v-model="password_confirmation" type="password" required autocomplete="new-password" class="input-soft" /></div>
+      <div><label class="input-label">새 비밀번호</label><PasswordInput v-model="password" required minlength="6" autocomplete="new-password" class="input-soft" /></div>
+      <div><label class="input-label">비밀번호 확인</label><PasswordInput v-model="password_confirmation" required autocomplete="new-password" class="input-soft" /></div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <button @click="resetPw" :disabled="submitting" class="btn-primary w-full">{{ submitting ? '변경 중...' : '비밀번호 변경' }}</button>
       <button @click="sendCode" :disabled="submitting || cooldown > 0" class="btn-ghost w-full">{{ cooldown > 0 ? `코드 다시 받기 (${cooldown}초)` : '코드 다시 받기' }}</button>
@@ -41,6 +41,7 @@
 </div>
 </template>
 <script setup>
+import PasswordInput from '../../components/PasswordInput.vue'
 import { ref } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'

@@ -34,6 +34,7 @@ const sent = ref(false)
 
 async function resend() {
   sending.value = true
+  auth.rememberVerifyReturn()
   try {
     const { data } = await axios.post('/api/auth/resend-verification')
     sent.value = true

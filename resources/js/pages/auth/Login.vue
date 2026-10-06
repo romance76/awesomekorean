@@ -7,7 +7,7 @@
     </div>
     <form @submit.prevent="handleLogin" class="space-y-4">
       <div><label class="input-label">이메일</label><input v-model="form.email" type="email" required class="input-soft" /></div>
-      <div><label class="input-label">비밀번호</label><input v-model="form.password" type="password" required class="input-soft" /></div>
+      <div><label class="input-label">비밀번호</label><PasswordInput v-model="form.password" required class="input-soft" /></div>
       <!-- Issue #4: 로그인 유지 토글 -->
       <label class="flex items-center gap-2 text-sm text-ink-light cursor-pointer select-none">
         <input v-model="remember" type="checkbox" class="accent-amber-500 w-4 h-4" />
@@ -40,6 +40,7 @@
 </div>
 </template>
 <script setup>
+import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'

@@ -72,9 +72,9 @@
       비밀번호 변경
     </h2>
     <div class="card p-5 space-y-4">
-      <div><label class="input-label">현재 비밀번호</label><input v-model="pwForm.current_password" type="password" class="input-soft" /></div>
-      <div><label class="input-label">새 비밀번호</label><input v-model="pwForm.password" type="password" minlength="6" class="input-soft" /></div>
-      <div><label class="input-label">새 비밀번호 확인</label><input v-model="pwForm.password_confirmation" type="password" class="input-soft" /></div>
+      <div><label class="input-label">현재 비밀번호</label><PasswordInput v-model="pwForm.current_password" class="input-soft" /></div>
+      <div><label class="input-label">새 비밀번호</label><PasswordInput v-model="pwForm.password" minlength="6" class="input-soft" /></div>
+      <div><label class="input-label">새 비밀번호 확인</label><PasswordInput v-model="pwForm.password_confirmation" class="input-soft" /></div>
       <div v-if="pwMsg" class="text-sm" :class="pwMsgType==='success'?'text-emerald-600':'text-red-500'">{{ pwMsg }}</div>
       <button @click="changePw" :disabled="pwSaving" class="btn-primary px-6">{{ pwSaving ? '변경 중...' : '비밀번호 변경' }}</button>
     </div>
@@ -82,6 +82,7 @@
 </div>
 </template>
 <script setup>
+import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
