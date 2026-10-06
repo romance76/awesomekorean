@@ -238,6 +238,7 @@ class ChatController extends Controller
         ]);
 
         $meId = auth()->id();
+        $user = auth()->user();
 
         // DM: 상대 지정 필수, 기존 1:1 방 있으면 재사용
         if ($data['type'] === 'dm') {
@@ -250,7 +251,8 @@ class ChatController extends Controller
             if (\App\Models\UserBlock::isBlocked($otherId, $meId) || \App\Models\UserBlock::isBlocked($meId, $otherId)) {
                 return response()->json(['success'=>false,'message'=>'채팅방을 만들 수 없는 사용자입니다'], 403);
             }
-            // 기존 DM 방 재사용 (두 유저가 모두 멤버인 dm 방)
+            // 기존 DM 방 재사용 (두 유저가 모두 멤버인 dm 방) — 재사용은 새로 만드는 게
+            // 아니므로 포인트 차감 없음
             $existingId = ChatRoom::where('type','dm')
                 ->whereHas('users', fn($q)=>$q->where('chat_room_users.user_id',$meId))
                 ->whereHas('users', fn($q)=>$q->where('chat_room_users.user_id',$otherId))
@@ -260,6 +262,12 @@ class ChatController extends Controller
                 return response()->json(['success'=>true,'data'=>$room]);
             }
 
+            // 무분별한 채팅방 생성을 막기 위해 새로 만들 때마다 포인트 차감
+            $cost = \App\Support\ChatRules::get('create_cost_dm', 50);
+            if ($cost > 0 && $user->points < $cost) {
+                return response()->json(['success'=>false,'message'=>"포인트가 부족합니다. 1:1 채팅방 개설에 {$cost}P가 필요합니다(보유: {$user->points}P)"], 422);
+            }
+
             $room = ChatRoom::create([
                 'name' => null,       // DM 이름은 프론트에서 상대 이름으로 렌더
                 'type' => 'dm',
@@ -267,13 +275,20 @@ class ChatController extends Controller
             ]);
             ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$meId]);
             ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$otherId]);
-            return response()->json(['success'=>true,'data'=>$room], 201);
+            if ($cost > 0) {
+                $user->addPoints(-$cost, '1:1 채팅방 개설', 'chat_room_create', ['type'=>ChatRoom::class,'id'=>$room->id]);
+            }
+            return response()->json(['success'=>true,'data'=>$room,'points_spent'=>$cost], 201);
         }
 
         // 그룹: 이름 + 초대 멤버
         if ($data['type'] === 'group') {
             if (empty($data['name'])) {
                 return response()->json(['success'=>false,'message'=>'그룹 이름을 입력하세요'], 422);
+            }
+            $cost = \App\Support\ChatRules::get('create_cost_group', 200);
+            if ($cost > 0 && $user->points < $cost) {
+                return response()->json(['success'=>false,'message'=>"포인트가 부족합니다. 그룹 채팅방 개설에 {$cost}P가 필요합니다(보유: {$user->points}P)"], 422);
             }
             $memberIds = collect($data['user_ids'] ?? [])->push($meId)->unique()->values();
             $room = ChatRoom::create([
@@ -284,12 +299,19 @@ class ChatController extends Controller
             foreach ($memberIds as $uid) {
                 ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$uid]);
             }
-            return response()->json(['success'=>true,'data'=>$room], 201);
+            if ($cost > 0) {
+                $user->addPoints(-$cost, '그룹 채팅방 개설', 'chat_room_create', ['type'=>ChatRoom::class,'id'=>$room->id]);
+            }
+            return response()->json(['success'=>true,'data'=>$room,'points_spent'=>$cost], 201);
         }
 
         // 공개방
         if (empty($data['name'])) {
             return response()->json(['success'=>false,'message'=>'방 이름을 입력하세요'], 422);
+        }
+        $cost = \App\Support\ChatRules::get('create_cost_public', 500);
+        if ($cost > 0 && $user->points < $cost) {
+            return response()->json(['success'=>false,'message'=>"포인트가 부족합니다. 공개 채팅방 개설에 {$cost}P가 필요합니다(보유: {$user->points}P)"], 422);
         }
         $room = ChatRoom::create([
             'name' => $data['name'],
@@ -297,7 +319,10 @@ class ChatController extends Controller
             'created_by' => $meId,
         ]);
         ChatRoomUser::create(['chat_room_id'=>$room->id,'user_id'=>$meId]);
-        return response()->json(['success'=>true,'data'=>$room], 201);
+        if ($cost > 0) {
+            $user->addPoints(-$cost, '공개 채팅방 개설', 'chat_room_create', ['type'=>ChatRoom::class,'id'=>$room->id]);
+        }
+        return response()->json(['success'=>true,'data'=>$room,'points_spent'=>$cost], 201);
     }
 
     // 채팅방에 실제로 글을 남긴 유저들 (참가자) + 멤버 등록된 유저 합친 목록
