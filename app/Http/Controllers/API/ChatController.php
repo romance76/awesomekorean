@@ -42,11 +42,21 @@ class ChatController extends Controller
             ->get()
             ->keyBy('chat_room_id');
 
+        // 내가 글을 쓴 적 있는 방 — "참가중인 채팅방" 섹션(공개방 전용) 판정용
+        $postedRoomIds = ChatMessage::where('user_id', $userId)
+            ->whereIn('chat_room_id', $allRoomIds)
+            ->distinct()
+            ->pluck('chat_room_id');
+
         // 각 방 미읽음 수 집계
-        $rooms = $rooms->map(function ($r) use ($reads, $userId) {
+        $rooms = $rooms->map(function ($r) use ($reads, $userId, $postedRoomIds) {
             $cru = $reads->get($r->id);
             $hasEntered = (bool) $cru;
             $lastRead = $cru?->last_read_at;
+            // 공개방 중 내가 글을 쓴 적 있고, "나가기"를 누르지 않은 방
+            $r->is_participating = $r->type === 'public'
+                && $postedRoomIds->contains($r->id)
+                && !($cru?->left_at);
 
             if (!$hasEntered) {
                 // 한번도 들어간 적 없음 = new
@@ -209,6 +219,17 @@ class ChatController extends Controller
         ChatRoomUser::updateOrCreate(
             ['chat_room_id' => $id, 'user_id' => $userId],
             ['last_read_at' => now()]
+        );
+        return response()->json(['success' => true]);
+    }
+
+    // 사이드바 "참가중인 채팅방"(공개방) 목록에서 나가기 — 메시지 기록은
+    // 남고 방도 삭제되지 않음. 이후 이 방에 다시 글을 쓰면 sendMessage()가
+    // 자동으로 재참가 처리해 다시 "참가중"에 노출됨.
+    public function leaveRoom($id) {
+        ChatRoomUser::updateOrCreate(
+            ['chat_room_id' => $id, 'user_id' => auth()->id()],
+            ['left_at' => now()]
         );
         return response()->json(['success' => true]);
     }
@@ -442,12 +463,16 @@ class ChatController extends Controller
             return response()->json(['success'=>false,'message'=>'비활성 채팅방입니다. 더 이상 메시지를 보낼 수 없습니다.'], 423);
         }
 
-        // 공개 방이면 자동 참가 (최초 1회)
+        // 공개 방이면 자동 참가 (최초 1회) — 이전에 "나가기" 했던 방이면
+        // 다시 글을 쓴 것이므로 재참가 처리(사이드바 "참가중"에 다시 노출)
         if ($room->type === 'public') {
-            ChatRoomUser::firstOrCreate(
+            $cru = ChatRoomUser::firstOrCreate(
                 ['chat_room_id' => $id, 'user_id' => auth()->id()],
                 ['last_read_at' => now()]
             );
+            if ($cru->left_at) {
+                $cru->update(['left_at' => null]);
+            }
         } else {
             // 그룹/DM 방은 멤버가 아니면 전송 불가 — 이전에는 멤버십을 전혀
             // 확인하지 않아 강퇴(chatKickMember)당한 유저가 chat_room_users에서
