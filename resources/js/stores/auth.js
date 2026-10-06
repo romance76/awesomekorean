@@ -71,7 +71,14 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = data.data || data
       const { primary } = storages()
       primary.setItem('sk_user', JSON.stringify(user.value))
-    } catch { clearAuth() }
+    } catch (e) {
+      // 토큰이 실제로 무효(401)할 때만 로그아웃 처리. 새로고침 직후
+      // 일시적인 네트워크 오류/서버 500 등으로 이 요청만 실패한 경우까지
+      // 로그아웃시키면, 멀쩡히 로그인된 사용자가 새로고침할 때마다
+      // 세션이 날아가 버리는 문제가 생김 — 이 경우엔 initialize()가
+      // 이미 채워둔 캐시된 user를 그대로 유지한다.
+      if (e.response?.status === 401) clearAuth()
+    }
     finally { _resolveInit() }
   }
 
