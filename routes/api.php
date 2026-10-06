@@ -351,12 +351,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/chat/settings', [ChatController::class, 'settings']);
     Route::get('/chat/rooms', [ChatController::class, 'rooms']);
     Route::post('/chat/rooms', [ChatController::class, 'createRoom']);
+    // {id} 와이일드카드 라우트보다 먼저 와야 "search"가 id로 잘못 매칭되지 않음
+    Route::get('/chat/rooms/search', [ChatController::class, 'searchRooms']);
     Route::get('/chat/rooms/{id}', [ChatController::class, 'showRoom']);
     Route::get('/chat/rooms/{id}/messages', [ChatController::class, 'messages']);
     Route::get('/chat/rooms/{id}/messages/search', [ChatController::class, 'searchMessages']);
     Route::get('/chat/rooms/{id}/participants', [ChatController::class, 'participants']);
     Route::post('/chat/rooms/{id}/messages', [ChatController::class, 'sendMessage']);
     Route::post('/chat/rooms/{id}/read', [ChatController::class, 'markRead']);
+    Route::delete('/chat/rooms/{id}', [ChatController::class, 'deleteRoom']);
 
     Route::get('/friends', [FriendController::class, 'index']);
     Route::post('/friends/request/{userId}', [FriendController::class, 'sendRequest']);
