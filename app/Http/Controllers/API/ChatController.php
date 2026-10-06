@@ -15,6 +15,7 @@ class ChatController extends Controller
         $this->sweepExpiredRooms();
 
         $userId = auth()->id();
+        $freeRoomId = auth()->user()->free_public_room_id;
 
         // 본인이 멤버인 방
         $memberRoomIds = ChatRoomUser::where('user_id', $userId)->pluck('chat_room_id');
@@ -49,7 +50,7 @@ class ChatController extends Controller
             ->pluck('chat_room_id');
 
         // 각 방 미읽음 수 집계
-        $rooms = $rooms->map(function ($r) use ($reads, $userId, $postedRoomIds) {
+        $rooms = $rooms->map(function ($r) use ($reads, $userId, $postedRoomIds, $freeRoomId) {
             $cru = $reads->get($r->id);
             $hasEntered = (bool) $cru;
             $lastRead = $cru?->last_read_at;
@@ -57,6 +58,14 @@ class ChatController extends Controller
             $r->is_participating = $r->type === 'public'
                 && $postedRoomIds->contains($r->id)
                 && !($cru?->left_at);
+
+            // 공개방 입장권(24시간) 보유 여부 — 방장 본인 / 마이페이지에서 지정한
+            // 무료 채팅방 / 유효기간이 남은 입장권 중 하나라도 있으면 블러 없이 열람 가능.
+            // DM/그룹은 입장료 대상이 아니므로 항상 true.
+            $r->has_access = $r->type !== 'public'
+                || $r->created_by === $userId
+                || $r->id === $freeRoomId
+                || ($cru?->access_expires_at && $cru->access_expires_at->isFuture());
 
             if (!$hasEntered) {
                 // 한번도 들어간 적 없음 = new
@@ -198,6 +207,10 @@ class ChatController extends Controller
         return response()->json(['success'=>true,'data'=>[
             'inactive_lock_days' => \App\Support\ChatRules::get('inactive_lock_days', 7),
             'lock_delete_days' => \App\Support\ChatRules::get('lock_delete_days', 3),
+            'create_cost_dm' => \App\Support\ChatRules::get('create_cost_dm', 50),
+            'create_cost_group' => \App\Support\ChatRules::get('create_cost_group', 200),
+            'create_cost_public' => \App\Support\ChatRules::get('create_cost_public', 500),
+            'entry_cost_public' => \App\Support\ChatRules::get('entry_cost_public', 10),
         ]]);
     }
 
@@ -232,6 +245,42 @@ class ChatController extends Controller
             ['left_at' => now()]
         );
         return response()->json(['success' => true]);
+    }
+
+    // 공개 채팅방 입장 — 포인트를 내고 24시간 이용권을 받음. 방장 본인과
+    // 마이페이지에서 지정한 "무료 채팅방"은 차감 없이 항상 입장 가능.
+    // 이미 유효한 이용권이 남아있으면 재차감 없이 그대로 입장.
+    public function enterRoom($id) {
+        $room = ChatRoom::findOrFail($id);
+        $user = auth()->user();
+
+        if ($room->type !== 'public') {
+            return response()->json(['success' => true, 'points_spent' => 0]);
+        }
+        if ($room->created_by === $user->id || $room->id === $user->free_public_room_id) {
+            return response()->json(['success' => true, 'points_spent' => 0]);
+        }
+
+        $cru = ChatRoomUser::where('chat_room_id', $id)->where('user_id', $user->id)->first();
+        if ($cru?->access_expires_at && $cru->access_expires_at->isFuture()) {
+            return response()->json(['success' => true, 'points_spent' => 0, 'access_expires_at' => $cru->access_expires_at]);
+        }
+
+        $cost = \App\Support\ChatRules::get('entry_cost_public', 10);
+        if ($cost > 0 && $user->points < $cost) {
+            return response()->json(['success' => false, 'message' => "포인트가 부족합니다. 공개 채팅방 입장에 {$cost}P가 필요합니다(보유: {$user->points}P)"], 422);
+        }
+
+        $expiresAt = now()->addDay();
+        ChatRoomUser::updateOrCreate(
+            ['chat_room_id' => $id, 'user_id' => $user->id],
+            ['access_expires_at' => $expiresAt, 'left_at' => null]
+        );
+        if ($cost > 0) {
+            $user->addPoints(-$cost, '공개 채팅방 입장(24시간)', 'chat_room_entry', ['type' => ChatRoom::class, 'id' => $room->id]);
+        }
+
+        return response()->json(['success' => true, 'points_spent' => $cost, 'access_expires_at' => $expiresAt]);
     }
 
     // 메시지 검색
@@ -483,6 +532,27 @@ class ChatController extends Controller
             }
         }
 
+        // 공개방 입장권(24시간)이 1시간 이내로 만료되는 상태에서 계속 활동(글쓰기)
+        // 중이면 자동 연장 + 포인트 재차감. 방장 본인 / 무료 채팅방은 차감 대상 아님.
+        // 포인트가 부족하면 전송은 막지 않고 조용히 연장만 건너뜀(만료되면 다음 열람 시 재입장 요구).
+        $autoExtended = false;
+        $autoExtendCost = 0;
+        if ($room->type === 'public') {
+            $isFreeAccess = $room->created_by === auth()->id() || $room->id === auth()->user()->free_public_room_id;
+            if (!$isFreeAccess && $cru->access_expires_at && $cru->access_expires_at->isFuture()
+                && now()->diffInMinutes($cru->access_expires_at) <= 60) {
+                $autoExtendCost = \App\Support\ChatRules::get('entry_cost_public', 10);
+                $me = auth()->user();
+                if ($autoExtendCost <= 0 || $me->points >= $autoExtendCost) {
+                    $cru->update(['access_expires_at' => now()->addDay()]);
+                    if ($autoExtendCost > 0) {
+                        $me->addPoints(-$autoExtendCost, '공개 채팅방 이용권 자동연장(24시간)', 'chat_room_entry', ['type' => ChatRoom::class, 'id' => $room->id]);
+                    }
+                    $autoExtended = true;
+                }
+            }
+        }
+
         $created = [];
 
         // 1) 텍스트 메시지 (단독 content 가 있을 때만 별도 메시지 하나)
@@ -600,6 +670,8 @@ class ChatController extends Controller
             'success' => true,
             'data' => $last->load('user:id,name,nickname,avatar,role'),
             'messages' => collect($created)->map(fn($m) => $m->load('user:id,name,nickname,avatar,role')),
+            'auto_extended' => $autoExtended,
+            'auto_extend_cost' => $autoExtendCost,
         ], 201);
     }
 }

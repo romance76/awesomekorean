@@ -16,6 +16,7 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name', 'nickname', 'email', 'password', 'phone',
         'address', 'city', 'state', 'zipcode', 'latitude', 'longitude', 'default_radius',
+        'free_public_room_id',
         'avatar', 'bio', 'language',
         'address1', 'address2',
         'allow_friend_request', 'allow_messages', 'allow_elder_service',

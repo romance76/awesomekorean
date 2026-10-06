@@ -54,6 +54,14 @@
           <option value="ko">한국어</option><option value="en">English</option>
         </select>
       </div>
+      <div>
+        <label class="input-label flex items-center gap-1"><AppIcon name="message-circle" :size="13" /> 무료 공개 채팅방</label>
+        <select v-model="form.free_public_room_id" class="input-soft">
+          <option :value="null">선택 안 함</option>
+          <option v-for="r in publicRooms" :key="r.id" :value="r.id">{{ r.name }}</option>
+        </select>
+        <p class="text-xs text-ink-faint mt-1">지정한 공개 채팅방 1곳은 입장료 없이 항상 무료로 드나들 수 있습니다. 보통 내가 사는 지역의 채팅방을 선택하세요.</p>
+      </div>
       <div v-if="msg" class="text-sm" :class="msgType==='success'?'text-emerald-600':'text-red-500'">{{ msg }}</div>
       <button @click="save" :disabled="saving" class="btn-primary px-6">{{ saving ? '저장 중...' : '저장하기' }}</button>
     </div>
@@ -79,11 +87,18 @@ import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 const auth = useAuthStore()
-const form = reactive({ name:'',nickname:'',bio:'',phone:'',city:'',state:'',zipcode:'',default_radius:30,language:'ko',allow_friend_request:true })
+const form = reactive({ name:'',nickname:'',bio:'',phone:'',city:'',state:'',zipcode:'',default_radius:30,language:'ko',allow_friend_request:true,free_public_room_id:null })
 const msg = ref('')
 const msgType = ref('')
 const saving = ref(false)
 const avatarMsg = ref('')
+const publicRooms = ref([])
+async function loadPublicRooms() {
+  try {
+    const { data } = await axios.get('/api/chat/rooms')
+    publicRooms.value = (data.data || []).filter(r => r.type === 'public')
+  } catch (e) {}
+}
 async function uploadAvatar(e) {
   const file = e.target.files[0]; if (!file) return
   const fd = new FormData(); fd.append('avatar', file)
@@ -123,5 +138,6 @@ onMounted(() => {
   if (auth.user) {
     Object.keys(form).forEach(k => { if (auth.user[k]) form[k] = auth.user[k] })
   }
+  loadPublicRooms()
 })
 </script>

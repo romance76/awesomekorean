@@ -49,10 +49,19 @@ class ProfileController extends Controller
             'state' => 'nullable|string|max:50',
             'zipcode' => 'nullable|string|max:10',
             'default_radius' => 'nullable|integer|min:1|max:500',
+            'free_public_room_id' => 'nullable|integer|exists:chat_rooms,id',
         ]);
 
+        // 무료 채팅방은 공개방만 지정 가능 (DM/그룹방 ID를 넣는 것을 방지)
+        if ($request->filled('free_public_room_id')) {
+            $isPublic = \App\Models\ChatRoom::where('id', $request->free_public_room_id)->where('type', 'public')->exists();
+            if (!$isPublic) {
+                return response()->json(['success' => false, 'message' => '공개 채팅방만 무료 채팅방으로 지정할 수 있습니다'], 422);
+            }
+        }
+
         $user = auth()->user();
-        $user->update($request->only('name','nickname','bio','phone','address1','address2','city','state','zipcode','default_radius','language','allow_friend_request','allow_messages','allow_elder_service'));
+        $user->update($request->only('name','nickname','bio','phone','address1','address2','city','state','zipcode','default_radius','language','allow_friend_request','allow_messages','allow_elder_service','free_public_room_id'));
 
         // 우편번호로 도시/주/좌표 자동 채우기
         $zipcode = $request->zipcode ?: $user->zipcode;
