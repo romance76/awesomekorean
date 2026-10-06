@@ -674,6 +674,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
     Route::post('/settings/app-icon', [AdminSettingsController::class, 'uploadAppIcon']);
+    Route::post('/settings/favicon', [AdminSettingsController::class, 'uploadFavicon']);
 
     // 시크릿/결제 자격증명이 포함되는 엔드포인트는 super_admin만 접근 가능
     Route::middleware('role:super_admin')->group(function () {

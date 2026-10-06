@@ -11,6 +11,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="{{ $appIconUrl ?? '/storage/branding/apple-touch-icon.png' }}">
+    <link rel="icon" href="{{ $faviconUrl ?? '/favicon.ico' }}">
     <meta name="theme-color" content="#F23D5C">
     <style>
     /* Google Translate 상단 배너 및 UI 완전 숨김 (구/신 위젯 모두 대응) */

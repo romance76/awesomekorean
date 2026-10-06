@@ -363,6 +363,33 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'data'=>['url'=>"/storage/branding/icon-512x512.png?v={$version}"]]);
     }
 
+    // 브라우저 탭에 표시되는 파비콘. Intervention Image엔 .ico 인코더가 없어서
+    // PNG로 저장하고 welcome.blade.php에서 <link rel="icon" type="image/png">로
+    // 명시 — 구형 /favicon.ico 암묵 탐색에 의존하지 않음(최신 브라우저는 전부
+    // PNG favicon 지원). uploadLogo()와 동일한 이유로 Storage::disk('public') 사용.
+    public function uploadFavicon(Request $request) {
+        $request->validate(['favicon'=>'required|image|mimes:jpg,jpeg,png,webp|max:2048']);
+
+        try {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $source = $request->file('favicon')->getRealPath();
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+
+            foreach ([16, 32, 48] as $size) {
+                $png = (string) $manager->read($source)->cover($size, $size)->toPng();
+                $disk->put("branding/favicon-{$size}x{$size}.png", $png);
+            }
+        } catch (\Throwable $e) {
+            \Log::error("파비콘 업로드 실패: " . $e->getMessage());
+            return response()->json(['success'=>false,'message'=>'파비콘 저장 실패: '.$e->getMessage()], 500);
+        }
+
+        $version = now()->timestamp;
+        SiteSetting::updateOrCreate(['key'=>'favicon_url'], ['value'=>"/storage/branding/favicon-32x32.png?v={$version}"]);
+
+        return response()->json(['success'=>true,'data'=>['url'=>"/storage/branding/favicon-32x32.png?v={$version}"]]);
+    }
+
     // .env 파일 업데이트 헬퍼
     private function updateEnv($key, $value) {
         $envPath = base_path('.env');

@@ -30,5 +30,9 @@ Route::get('/{any}', function () {
         ? substr($appIconSetting, strpos($appIconSetting, '?v='))
         : '';
     $appIconUrl = '/storage/branding/apple-touch-icon.png' . $version;
-    return view('welcome', ['appIconUrl' => $appIconUrl]);
+
+    // 커스텀 파비콘을 업로드 안 했으면 기존 정적 /favicon.ico로 폴백
+    $faviconUrl = \App\Models\SiteSetting::where('key', 'favicon_url')->value('value') ?: '/favicon.ico';
+
+    return view('welcome', ['appIconUrl' => $appIconUrl, 'faviconUrl' => $faviconUrl]);
 })->where('any', '.*');
