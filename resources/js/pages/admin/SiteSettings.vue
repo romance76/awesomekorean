@@ -1743,7 +1743,7 @@ async function runPasswordResetDebug() {
     alert(
       '요청 시각(DB): ' + d.created_at + '\n' +
       '서버 현재 시각: ' + d.server_now + '\n' +
-      '경과 시간: ' + d.diff_in_minutes + '분\n' +
+      '경과 시간: ' + d.diff_in_minutes_abs + '분\n' +
       '쿨다운에 걸려 발송 스킵됐는지: ' + (d.would_skip_cooldown ? '예 (스킵됨)' : '아니오 (정상 발송 시도됨)')
     )
   } catch (e) { alert(e.response?.data?.message || '확인 실패: ' + e.message) }

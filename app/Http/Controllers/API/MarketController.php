@@ -278,10 +278,11 @@ class MarketController extends Controller
             return response()->json(['success' => false, 'message' => "최대 {$bumpMaxTimes}회까지만 끌어올리기 가능합니다."], 422);
         }
 
-        // 24시간 쿨다운 확인
+        // 24시간 쿨다운 확인 — Carbon 3 diffInHours 부호 변경으로 abs() 없이는
+        // 항상 음수가 나와 한 번 끌어올린 뒤로는 영원히 재끌올리기가 막히던 버그.
         $lastBump = $item->last_bumped_at;
-        if ($lastBump && now()->diffInHours($lastBump) < $bumpCooldownHours) {
-            $remaining = $bumpCooldownHours - now()->diffInHours($lastBump);
+        if ($lastBump && abs(now()->diffInHours($lastBump)) < $bumpCooldownHours) {
+            $remaining = $bumpCooldownHours - abs(now()->diffInHours($lastBump));
             return response()->json(['success' => false, 'message' => "끌어올리기는 {$bumpCooldownHours}시간 간격으로 가능합니다. {$remaining}시간 후 가능."], 422);
         }
 

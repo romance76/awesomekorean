@@ -94,8 +94,11 @@ class SocialAuthController extends Controller
 
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);
 
+        // abs() 필요한 이유: AuthController::login()의 동일 버그 수정 참고
+        // (Carbon 3 diffInHours 부호 변경으로 과거 시각 비교 시 음수가 나와
+        // >= 12가 영원히 거짓이 되던 문제)
         $lastLogin = $user->getOriginal('last_login_at');
-        if (!$lastLogin || now()->diffInHours($lastLogin) >= 12) {
+        if (!$lastLogin || abs(now()->diffInHours($lastLogin)) >= 12) {
             $loginBonus = PointRules::get('daily_login_bonus', 2);
             if ($loginBonus > 0) $user->addPoints($loginBonus, '일일 로그인 보너스');
         }
