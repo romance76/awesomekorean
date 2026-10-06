@@ -7,7 +7,7 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background:#f6f6f4; margin:0; padding:0; color:#1a1a1a; }
   .wrapper { max-width:560px; margin:0 auto; padding:32px 20px; }
   .card { background:#ffffff; border-radius:16px; overflow:hidden; border:1px solid #eee; }
-  .header { background:linear-gradient(135deg,#FF8A4D,#F0266B); padding:24px 32px; text-align:center; }
+  .header { background:#ffffff; padding:28px 32px 20px; text-align:center; border-bottom:1px solid #f3f3f3; }
   .body { padding:32px; }
   .body p { font-size:14px; line-height:1.7; color:#444; margin:0 0 16px; }
   .code-box { background:#fff1f5; border:1.5px dashed #F0266B; border-radius:12px; text-align:center; padding:22px 16px; margin:24px 0; }
