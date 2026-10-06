@@ -972,7 +972,10 @@
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
           <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 관리</h3>
-          <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
+          <div class="flex gap-2">
+            <button @click="runMailDebug" class="btn-secondary px-4 py-2 text-sm">메일 설정 진단</button>
+            <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
+          </div>
         </div>
 
         <div class="space-y-3">
@@ -1697,6 +1700,25 @@ async function deleteApiKey(id) {
 async function toggleApiKeyActive(key) {
   await axios.put('/api/admin/api-keys/' + key.id, { is_active: !key.is_active })
   loadApiKeys()
+}
+
+async function runMailDebug() {
+  try {
+    const { data } = await axios.get('/api/admin/system/mail-debug')
+    const d = data.data || data
+    alert(
+      '현재 사용 중인 메일 드라이버: ' + d.resolved_mail_default + '\n' +
+      'Resend 키(최종 적용값): ' + (d.resolved_resend_key_masked || '(없음)') + '\n' +
+      '발신 주소: ' + (d.mail_from_address || '(없음)') + '\n\n' +
+      '— .env 원본값 —\n' +
+      'MAIL_MAILER: ' + d.env_MAIL_MAILER_raw + '\n' +
+      'RESEND_API_KEY: ' + d.env_RESEND_API_KEY_raw + '\n\n' +
+      '— DB(관리자 페이지 등록) —\n' +
+      '등록됨: ' + (d.db_row_exists ? '예' : '아니오') + '\n' +
+      '활성 상태: ' + (d.db_row_is_active ? '예' : '아니오') + '\n' +
+      '키 값: ' + (d.db_row_key_masked || '(없음)')
+    )
+  } catch (e) { alert(e.response?.data?.message || '진단 실패: ' + e.message) }
 }
 
 async function toggleReveal(key) {
