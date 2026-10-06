@@ -975,6 +975,7 @@
           <div class="flex gap-2">
             <button @click="runMailDebug" class="btn-secondary px-4 py-2 text-sm">메일 설정 진단</button>
             <button @click="runMailTestSend" class="btn-secondary px-4 py-2 text-sm">메일 실제 발송 테스트</button>
+            <button @click="runPasswordResetDebug" class="btn-secondary px-4 py-2 text-sm">비밀번호 재설정 쿨다운 확인</button>
             <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
           </div>
         </div>
@@ -1727,6 +1728,25 @@ async function runMailTestSend() {
     const { data } = await axios.post('/api/admin/system/mail-test-send')
     alert(data.message)
   } catch (e) { alert('발송 실패 — 실제 에러: ' + (e.response?.data?.message || e.message)) }
+}
+
+async function runPasswordResetDebug() {
+  const email = prompt('확인할 이메일 주소를 입력하세요', 'romance76@gmail.com')
+  if (!email) return
+  try {
+    const { data } = await axios.get('/api/admin/system/password-reset-debug', { params: { email } })
+    const d = data.data || data
+    if (!d.row_exists) {
+      alert(email + ' 로 요청된 기록이 DB에 없습니다 (row_exists: false)')
+      return
+    }
+    alert(
+      '요청 시각(DB): ' + d.created_at + '\n' +
+      '서버 현재 시각: ' + d.server_now + '\n' +
+      '경과 시간: ' + d.diff_in_minutes + '분\n' +
+      '쿨다운에 걸려 발송 스킵됐는지: ' + (d.would_skip_cooldown ? '예 (스킵됨)' : '아니오 (정상 발송 시도됨)')
+    )
+  } catch (e) { alert(e.response?.data?.message || '확인 실패: ' + e.message) }
 }
 
 async function toggleReveal(key) {

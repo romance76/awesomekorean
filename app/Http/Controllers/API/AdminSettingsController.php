@@ -232,6 +232,27 @@ class AdminSettingsController extends Controller
         }
     }
 
+    // 임시 진단용 — "비밀번호 찾기" 요청 시 5분 쿨다운에 걸려 실제로는 발송이
+    // 스킵됐는지 확인 (화면엔 쿨다운 여부와 무관하게 항상 "전송했습니다"로
+    // 뜨게 설계되어 있어 프론트에서는 구분이 안 됨). 원인 확정되면 제거 예정.
+    public function passwordResetDebug(Request $request) {
+        $email = $request->query('email');
+        if (!$email) return response()->json(['success' => false, 'message' => 'email 쿼리 파라미터 필요'], 422);
+
+        $row = \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $email)->first();
+        if (!$row) {
+            return response()->json(['success' => true, 'data' => ['row_exists' => false]]);
+        }
+
+        return response()->json(['success' => true, 'data' => [
+            'row_exists' => true,
+            'created_at' => $row->created_at,
+            'server_now' => now()->toDateTimeString(),
+            'diff_in_minutes' => now()->diffInMinutes($row->created_at),
+            'would_skip_cooldown' => now()->diffInMinutes($row->created_at) < 5,
+        ]]);
+    }
+
     public function storeApiKey(Request $request) {
         $request->validate(['name'=>'required','service'=>'required','api_key'=>'required']);
         $newKey = ApiKey::create([
