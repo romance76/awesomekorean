@@ -59,7 +59,12 @@ php8.2 artisan optimize:clear 2>&1 | tail -3 >> "$LOG"
 
 chown -R www-data:www-data "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
 chown -R www-data:www-data "$APP_DIR/public/build" 2>/dev/null || true
-chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
+# public/images는 로고 업로드(AdminSettingsController::uploadLogo)가 런타임에
+# public/images/logo.png를 직접 덮어쓰는데, git reset으로 받은 파일은 www-data
+# 소유가 아니라서 쓰기 권한이 없어 업로드가 500으로 실패하던 문제 — 배포 때마다
+# www-data 소유로 맞춰줌.
+chown -R www-data:www-data "$APP_DIR/public/images" 2>/dev/null || true
+chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache" "$APP_DIR/public/images"
 
 log "▶ Step 7/7: php-fpm restart"
 systemctl restart php8.2-fpm
