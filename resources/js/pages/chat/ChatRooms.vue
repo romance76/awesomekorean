@@ -31,6 +31,20 @@
             class="absolute right-2 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="13" /></button>
         </div>
 
+        <!-- 참가중인 채팅방: 내가 글을 쓴 공개방. '전체' 탭에서만, 검색 중엔 숨김 -->
+        <div v-if="!roomSearchQ.trim() && roomFilter === 'all' && participatingRooms.length" class="card overflow-hidden mb-2">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">💬 참가중인 채팅방</div>
+          <div v-for="room in participatingRooms" :key="'part-'+room.id"
+            class="w-full flex items-center gap-1 px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs"
+            :class="activeRoom?.id === room.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
+            <button @click="selectRoom(room)" class="flex items-center gap-1 flex-1 min-w-0 text-left">
+              <span class="flex-shrink-0 text-[11px]">{{ roomTypeIcon(room.type) }}</span>
+              <span class="truncate flex-1">{{ roomDisplayName(room) }}</span>
+            </button>
+            <button @click="leaveParticipating(room)" class="flex-shrink-0 text-ink-faint hover:text-red-500 transition-colors p-0.5" title="나가기"><AppIcon name="log-out" :size="13" /></button>
+          </div>
+        </div>
+
         <div class="card overflow-hidden">
           <template v-if="roomSearchQ.trim()">
             <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">🔍 검색 결과</div>
@@ -67,6 +81,19 @@
             <div v-if="!filteredRooms.length && !loading" class="px-3 py-4 text-xs text-ink-muted text-center">채팅방 없음</div>
           </template>
         </div>
+
+        <!-- 북마크: 채팅방 목록 맨 아래 -->
+        <div v-if="!roomSearchQ.trim() && chatBookmarks.length" class="card overflow-hidden mt-2">
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink">⭐ 북마크</div>
+          <button v-for="b in chatBookmarks" :key="'bm-'+b.id" @click="selectRoom(b.bookmarkable)"
+            class="w-full text-left px-3 py-2.5 border-b border-gray-50 last:border-0 transition-colors text-xs"
+            :class="activeRoom?.id === b.bookmarkable?.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
+            <span class="flex items-center gap-1">
+              <span class="flex-shrink-0 text-[11px]">{{ roomTypeIcon(b.bookmarkable?.type) }}</span>
+              <span class="truncate flex-1">{{ roomDisplayName(b.bookmarkable) }}</span>
+            </span>
+          </button>
+        </div>
       </div>
 
       <!-- 메인: 채팅 창 -->
@@ -90,6 +117,11 @@
             </div>
             <div class="flex items-center gap-2">
               <button @click="openMsgSearch" class="text-ink-muted hover:text-amber-600 transition-colors" title="메시지 검색"><AppIcon name="search" :size="18" /></button>
+              <button @click="toggleBookmarkRoom(activeRoom)"
+                :class="isRoomBookmarked(activeRoom.id) ? 'text-amber-500' : 'text-ink-muted hover:text-amber-500'"
+                class="transition-colors" :title="isRoomBookmarked(activeRoom.id) ? '북마크 해제' : '북마크'">
+                <AppIcon name="star" :size="18" />
+              </button>
               <!-- 본인이 만든 채팅방만 직접 삭제 가능(다른 멤버가 있어도 무관) -->
               <button v-if="activeRoom.created_by === auth.user?.id" @click="roomDeleteConfirm = activeRoom"
                 class="text-ink-muted hover:text-red-500 transition-colors" title="채팅방 삭제"><AppIcon name="trash" :size="18" /></button>
@@ -1133,6 +1165,39 @@ function matchesFilter(room, filter) {
   return room.type === filter
 }
 const filteredRooms = computed(() => rooms.value.filter(r => matchesFilter(r, roomFilter.value)))
+
+// ─── 참가중인 채팅방(공개방 중 내가 글을 쓴 곳) ───
+const participatingRooms = computed(() => rooms.value.filter(r => r.is_participating))
+async function leaveParticipating(room) {
+  try {
+    await axios.post(`/api/chat/rooms/${room.id}/leave`)
+    room.is_participating = false
+  } catch {}
+}
+
+// ─── 채팅방 북마크 ───
+const CHAT_BOOKMARK_TYPE = 'App\\Models\\ChatRoom'
+const chatBookmarks = ref([]) // [{ id, bookmarkable }]
+async function loadChatBookmarks() {
+  try {
+    const { data } = await axios.get('/api/bookmarks', { params: { type: CHAT_BOOKMARK_TYPE } })
+    chatBookmarks.value = (data.data?.data || []).filter(b => b.bookmarkable)
+  } catch {}
+}
+function isRoomBookmarked(roomId) {
+  return chatBookmarks.value.some(b => b.bookmarkable?.id === roomId)
+}
+async function toggleBookmarkRoom(room) {
+  if (!room || !auth.isLoggedIn) return
+  try {
+    const { data } = await axios.post('/api/bookmarks', { bookmarkable_type: CHAT_BOOKMARK_TYPE, bookmarkable_id: room.id })
+    if (data.bookmarked) {
+      if (!isRoomBookmarked(room.id)) chatBookmarks.value.push({ id: `tmp-${room.id}`, bookmarkable: room })
+    } else {
+      chatBookmarks.value = chatBookmarks.value.filter(b => b.bookmarkable?.id !== room.id)
+    }
+  } catch {}
+}
 function filterCount(filter) {
   if (filter === 'all') return ''
   const n = rooms.value.filter(r => matchesFilter(r, filter)).length
@@ -1371,6 +1436,7 @@ watch(() => route.params.id, async (newId) => {
 
 onMounted(async () => {
   window.addEventListener('resize', onResize)
+  if (auth.isLoggedIn) loadChatBookmarks()
   try {
     const { data } = await axios.get('/api/chat/rooms')
     rooms.value = data.data || []
