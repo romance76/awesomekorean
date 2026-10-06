@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\EntryService;
 use App\Support\EntrySettings;
 use App\Support\PointRules;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -27,6 +28,8 @@ class SocialAuthController extends Controller
             abort(404);
         }
 
+        $this->applyCredentials($provider);
+
         return Socialite::driver($provider)->redirect();
     }
 
@@ -35,6 +38,8 @@ class SocialAuthController extends Controller
         if (!in_array($provider, self::PROVIDERS, true)) {
             abort(404);
         }
+
+        $this->applyCredentials($provider);
 
         try {
             $socialUser = Socialite::driver($provider)->user();
@@ -99,5 +104,31 @@ class SocialAuthController extends Controller
 
         // SPA가 URL에서 토큰을 읽어 저장하도록 전달 (resources/js/pages/auth/SocialCallback.vue)
         return redirect('/auth/social-callback?token=' . urlencode($token));
+    }
+
+    // Socialite는 Socialite::driver() 호출 시점에 config('services.{provider}')를 읽으므로,
+    // DB fallback 값을 쓰려면 호출 전에 config를 덮어써야 함.
+    private function applyCredentials(string $provider): void
+    {
+        config([
+            "services.{$provider}.client_id" => $this->resolveCredential($provider, 'client_id'),
+            "services.{$provider}.client_secret" => $this->resolveCredential($provider, 'client_secret'),
+        ]);
+    }
+
+    // .env 우선, 없으면 관리자 페이지 "API 키 관리"의 api_keys 테이블 fallback
+    // (ScrapeMarketListings::resolveCredential()의 eBay 패턴과 동일 — 서비스 코드:
+    // google_client_id / google_client_secret / amazon_client_id / amazon_client_secret)
+    private function resolveCredential(string $provider, string $field): ?string
+    {
+        $val = config("services.{$provider}.{$field}");
+        if ($val) return $val;
+
+        try {
+            $row = DB::table('api_keys')->where('service', "{$provider}_{$field}")->where('is_active', true)->first();
+            if ($row && $row->api_key) return $row->api_key;
+        } catch (\Exception $e) {}
+
+        return null;
     }
 }
