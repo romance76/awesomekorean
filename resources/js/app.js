@@ -29,7 +29,12 @@ else authStore.resolveInit()
 const siteStore = useSiteStore()
 siteStore.load()
 
-app.mount('#app')
+// 라우터의 첫 네비게이션(비동기 가드 포함)이 끝나기 전에 마운트하면,
+// route.path가 아직 시작 위치('/')인 상태로 한 프레임 그려졌다가
+// 실제 경로로 갱신되며 다시 그려짐 — 새로고침할 때마다 잠깐 홈
+// 레이아웃(네비바/푸터)이 보였다 사라지는 깜빡임의 원인이었음.
+// isReady()로 첫 네비게이션이 끝난 뒤에 마운트해서 깜빡임을 없앤다.
+router.isReady().then(() => app.mount('#app'))
 
 router.onError((err) => {
   if (err?.message?.includes('Failed to fetch dynamically imported module') || err?.name === 'ChunkLoadError') {
