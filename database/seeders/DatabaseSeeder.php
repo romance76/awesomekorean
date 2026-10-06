@@ -446,15 +446,12 @@ class DatabaseSeeder extends Seeder
             $r = $recipes[$i % count($recipes)];
             RecipePost::create([
                 'user_id'=>$this->rUser(),
-                'title'=>$r['t'].' 만들기','title_ko'=>$r['tk'].' 만드는 법',
-                'content'=>$r['t']." 레시피를 공유합니다!\n\n한국에서 먹던 그 맛을 미국에서도 재현할 수 있어요.",
-                'content_ko'=>$r['tk']." 레시피입니다.\n\n재료만 있으면 누구나 쉽게 만들 수 있어요!",
-                'ingredients'=>json_decode('["재료1","재료2","재료3","양념"]'),
+                'title'=>$r['t'].' 만들기',
+                'category'=>$cats[$r['c']],
+                'ingredients'=>'재료1, 재료2, 재료3, 양념',
                 'steps'=>json_decode('["재료를 준비합니다","양념을 만듭니다","재료를 볶습니다","완성!"]'),
-                'category_id'=>$r['c'] ? $catIds[$r['c']] : $catIds[array_rand($catIds)],
-                'servings'=>rand(2,6),'prep_time'=>$r['pt'],'cook_time'=>$r['ct'],
-                'difficulty'=>$r['d'],
-                'view_count'=>rand(30,500),'like_count'=>rand(0,40),'comment_count'=>rand(0,15),
+                'servings'=>rand(2,6),
+                'view_count'=>rand(30,500),'like_count'=>rand(0,40),
                 'created_at'=>$this->rDate(90),
             ]);
         }

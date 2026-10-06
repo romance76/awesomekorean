@@ -83,7 +83,10 @@ class AdminController extends Controller
     public function deletePost($id) { Post::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
 
     public function boards() { return response()->json(['success'=>true,'data'=>Board::orderBy('sort_order')->get()]); }
-    public function createBoard(Request $request) { return response()->json(['success'=>true,'data'=>Board::create($request->only('name','slug','description','sort_order'))]); }
+    public function createBoard(Request $request) {
+        $request->validate(['name' => 'required|string|max:50', 'slug' => 'required|string|max:50|unique:boards,slug']);
+        return response()->json(['success'=>true,'data'=>Board::create($request->only('name','slug','description','sort_order'))]);
+    }
     public function updateBoard(Request $request, $id) { Board::findOrFail($id)->update($request->only('name','slug','description','sort_order','is_active')); return response()->json(['success'=>true]); }
     public function deleteBoard($id) { Board::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
 
@@ -224,7 +227,7 @@ class AdminController extends Controller
     }
 
     public function ipBans() { return response()->json(['success'=>true,'data'=>IpBan::orderByDesc('created_at')->get()]); }
-    public function createIpBan(Request $request) { IpBan::create(['ip_address'=>$request->ip_address,'reason'=>$request->reason,'banned_by'=>auth()->id()]); return response()->json(['success'=>true]); }
+    public function createIpBan(Request $request) { $request->validate(['ip_address' => 'required|ip']); IpBan::create(['ip_address'=>$request->ip_address,'reason'=>$request->reason,'banned_by'=>auth()->id()]); return response()->json(['success'=>true]); }
     public function deleteIpBan($id) { IpBan::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
 
     public function payments(Request $request) {
@@ -859,6 +862,7 @@ class AdminController extends Controller
     }
 
     public function chatBanMember(Request $request, $id, $userId) {
+        \App\Models\ChatRoom::findOrFail($id);
         ChatRoomUser::where('chat_room_id', $id)->where('user_id', $userId)->delete();
 
         DB::table('chat_room_bans')->updateOrInsert(

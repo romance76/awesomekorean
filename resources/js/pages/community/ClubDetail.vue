@@ -203,6 +203,7 @@
 
             <!-- Write post form (inline) -->
             <div v-if="showWritePost" class="px-5 py-4 bg-amber-50/50 border-b border-gray-50 space-y-3">
+              <VerifyGate message="이메일 인증 후 동호회 글을 쓸 수 있어요.">
               <select v-model="newPost.board_id" class="input-soft">
                 <option value="" disabled>게시판 선택</option>
                 <option v-for="b in boards" :key="b.id" :value="b.id">{{ b.name }}</option>
@@ -236,6 +237,7 @@
                 <button @click="showWritePost = false" class="btn-ghost !px-4 !py-2 !text-xs">취소</button>
               </div>
               <div v-if="postError" class="text-red-500 text-xs">{{ postError }}</div>
+              </VerifyGate>
             </div>
 
             <!-- Posts list (single-line BBS style) -->
@@ -581,6 +583,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 
 const route = useRoute()
 const router = useRouter()

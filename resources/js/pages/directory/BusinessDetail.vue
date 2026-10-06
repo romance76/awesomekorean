@@ -54,6 +54,7 @@
 
         <!-- 리뷰 작성 -->
         <div v-if="auth.isLoggedIn" class="px-5 py-3 border-b border-gray-50">
+          <VerifyGate message="이메일 인증 후 리뷰를 쓸 수 있어요.">
           <div class="flex items-center gap-2 mb-2">
             <span class="text-sm text-ink-light">별점:</span>
             <button v-for="s in 5" :key="s" @click="reviewForm.rating = s" class="text-xl transition" :class="s <= reviewForm.rating ? 'text-amber-400' : 'text-gray-300'">★</button>
@@ -62,6 +63,7 @@
             <input v-model="reviewForm.content" type="text" placeholder="리뷰를 남겨주세요..." class="input-soft flex-1" />
             <button @click="submitReview" class="btn-primary px-4 py-2 rounded-lg text-sm">등록</button>
           </div>
+          </VerifyGate>
         </div>
 
         <div v-for="review in reviews" :key="review.id" class="px-5 py-3 border-b border-gray-50 last:border-0">
@@ -106,6 +108,7 @@ import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import LeafletMap from '../../components/LeafletMap.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
 const BM_TYPE = 'App\\Models\\Business'

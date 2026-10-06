@@ -294,6 +294,7 @@
 
           <!-- 입력 (텔레그램 스타일: 이모티콘·첨부가 입력창 내부) -->
           <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
+            <VerifyGate :active="activeRoom.type === 'public'" message="이메일 인증 후 공개 채팅방에 글을 쓸 수 있어요.">
             <form @submit.prevent="sendMsg" class="flex gap-2 items-center">
               <!-- 통합 입력 박스 -->
               <div class="flex-1 min-w-0 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full pl-1 pr-1 focus-within:ring-2 focus-within:ring-amber-400 transition"
@@ -321,6 +322,7 @@
                 <AppIcon v-else name="send" :size="18" />
               </button>
             </form>
+            </VerifyGate>
           </div>
         </div>
       </div>
@@ -610,6 +612,7 @@ import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -640,6 +643,7 @@ const enterError = ref('')
 const needsEntry = computed(() => {
   const r = activeRoom.value
   if (!r || r.type !== 'public') return false
+  if (['admin', 'super_admin', 'moderator'].includes(auth.user?.role)) return false
   if (r.created_by === auth.user?.id) return false
   if (auth.user?.free_public_room_id && auth.user.free_public_room_id === r.id) return false
   return !r.has_access

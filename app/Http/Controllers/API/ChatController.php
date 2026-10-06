@@ -16,6 +16,7 @@ class ChatController extends Controller
 
         $userId = auth()->id();
         $freeRoomId = auth()->user()->free_public_room_id;
+        $isStaff = in_array(auth()->user()->role, ['admin', 'super_admin', 'moderator']);
 
         // 본인이 멤버인 방
         $memberRoomIds = ChatRoomUser::where('user_id', $userId)->pluck('chat_room_id');
@@ -50,7 +51,7 @@ class ChatController extends Controller
             ->pluck('chat_room_id');
 
         // 각 방 미읽음 수 집계
-        $rooms = $rooms->map(function ($r) use ($reads, $userId, $postedRoomIds, $freeRoomId) {
+        $rooms = $rooms->map(function ($r) use ($reads, $userId, $postedRoomIds, $freeRoomId, $isStaff) {
             $cru = $reads->get($r->id);
             $hasEntered = (bool) $cru;
             $lastRead = $cru?->last_read_at;
@@ -63,6 +64,7 @@ class ChatController extends Controller
             // 무료 채팅방 / 유효기간이 남은 입장권 중 하나라도 있으면 블러 없이 열람 가능.
             // DM/그룹은 입장료 대상이 아니므로 항상 true.
             $r->has_access = $r->type !== 'public'
+                || $isStaff
                 || $r->created_by === $userId
                 || $r->id === $freeRoomId
                 || ($cru?->access_expires_at && $cru->access_expires_at->isFuture());
@@ -228,6 +230,7 @@ class ChatController extends Controller
 
     // 채팅방 읽음 표시 (last_read_at = now)
     public function markRead($id) {
+        ChatRoom::findOrFail($id); // 그 사이 삭제된 방이면 500 대신 404
         $userId = auth()->id();
         ChatRoomUser::updateOrCreate(
             ['chat_room_id' => $id, 'user_id' => $userId],
@@ -240,6 +243,7 @@ class ChatController extends Controller
     // 남고 방도 삭제되지 않음. 이후 이 방에 다시 글을 쓰면 sendMessage()가
     // 자동으로 재참가 처리해 다시 "참가중"에 노출됨.
     public function leaveRoom($id) {
+        ChatRoom::findOrFail($id);
         ChatRoomUser::updateOrCreate(
             ['chat_room_id' => $id, 'user_id' => auth()->id()],
             ['left_at' => now()]
@@ -376,6 +380,9 @@ class ChatController extends Controller
         }
 
         // 공개방
+        if (!$user->email_verified_at && !in_array($user->role, ['admin', 'super_admin', 'moderator'])) {
+            return response()->json(['success'=>false,'message'=>'이메일 인증 후 공개 채팅방을 만들 수 있습니다. 마이페이지에서 인증 메일을 다시 받을 수 있어요.'], 403);
+        }
         if (empty($data['name'])) {
             return response()->json(['success'=>false,'message'=>'방 이름을 입력하세요'], 422);
         }
@@ -510,6 +517,24 @@ class ChatController extends Controller
         // 저장된 locked_at이 아니라 마지막 활동 시각으로 그때그때 계산 (스케줄러 여부와 무관하게 항상 정확)
         if (\App\Support\ChatLockHelper::isLocked($room)) {
             return response()->json(['success'=>false,'message'=>'비활성 채팅방입니다. 더 이상 메시지를 보낼 수 없습니다.'], 423);
+        }
+
+        // 공개방은 누구나 보는 공간이라 게시판 글쓰기와 동일하게 이메일 인증 필요
+        // (1:1/그룹방은 서로 아는 멤버끼리의 대화라 제한하지 않음)
+        $me = auth()->user();
+        $isStaff = in_array($me->role, ['admin', 'super_admin', 'moderator']);
+        if ($room->type === 'public' && !$me->email_verified_at && !$isStaff) {
+            return response()->json(['success'=>false,'message'=>'이메일 인증 후 공개 채팅방에 글을 쓸 수 있습니다. 마이페이지에서 인증 메일을 다시 받을 수 있어요.'], 403);
+        }
+
+        // 공개방 입장권(24시간) 확인 — 화면의 블러/입장 확인창만으로는 API를 직접
+        // 호출하면 입장료 없이 글을 쓸 수 있었음. 방장/무료방/운영진은 예외.
+        if ($room->type === 'public' && !$isStaff
+            && $room->created_by !== $me->id && $room->id !== $me->free_public_room_id) {
+            $pass = ChatRoomUser::where('chat_room_id', $id)->where('user_id', $me->id)->value('access_expires_at');
+            if (!$pass || now()->greaterThanOrEqualTo($pass)) {
+                return response()->json(['success'=>false,'message'=>'채팅방에 입장한 뒤 글을 쓸 수 있습니다.', 'needs_entry'=>true], 403);
+            }
         }
 
         // 공개 방이면 자동 참가 (최초 1회) — 이전에 "나가기" 했던 방이면

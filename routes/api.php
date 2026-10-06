@@ -269,7 +269,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/market/{id}/hold/cancel', [MarketController::class, 'cancelHold']);
     Route::post('/market/{id}/hold/meetup', [MarketController::class, 'scheduleMeetup']);
     Route::post('/market/{id}/hold/complete', [MarketController::class, 'completeHold']);
-    Route::post('/market/{id}/review', [MarketController::class, 'submitReview']);
+    Route::post('/market/{id}/review', [MarketController::class, 'submitReview'])->middleware('verified.email');
     // 상위노출: 구 API(boost, 하드코딩 100P/일)는 프론트에서 호출하지 않는
     // 죽은 코드이자 관리자 가격 설정 우회 구멍이라 제거 — promote()만 사용.
     Route::post('/market/{id}/bump', [MarketController::class, 'bump']);
@@ -305,10 +305,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/clubs/{id}/members/{userId}/reject', [ClubController::class, 'rejectMember']);
     Route::put('/clubs/{id}/members/{userId}', [ClubController::class, 'updateMember']);
     Route::delete('/clubs/{id}/members/{userId}', [ClubController::class, 'removeMember']);
-    Route::post('/clubs/{id}/boards', [ClubController::class, 'createBoard']);
+    Route::post('/clubs/{id}/boards', [ClubController::class, 'createBoard'])->middleware('verified.email');
     Route::put('/clubs/{id}/boards/{boardId}', [ClubController::class, 'updateBoard']);
     Route::delete('/clubs/{id}/boards/{boardId}', [ClubController::class, 'deleteBoard']);
-    Route::post('/clubs/{id}/posts', [ClubController::class, 'createPost']);
+    Route::post('/clubs/{id}/posts', [ClubController::class, 'createPost'])->middleware('verified.email');
     Route::put('/clubs/posts/{postId}', [ClubController::class, 'updatePost']);
     Route::delete('/clubs/posts/{postId}', [ClubController::class, 'deletePost']);
     Route::post('/clubs/{id}/chatroom', [ClubController::class, 'createChatRoom']);

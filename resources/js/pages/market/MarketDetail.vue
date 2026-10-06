@@ -266,6 +266,7 @@
   <div v-if="showReviewModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showReviewModal=false">
     <div class="bg-white rounded-2xl p-5 w-full max-w-sm">
       <h3 class="font-bold text-lg text-ink mb-3 flex items-center gap-1.5"><AppIcon name="star" :size="18" class="text-amber-500" />거래 후기 남기기</h3>
+      <VerifyGate message="이메일 인증 후 후기를 남길 수 있어요.">
       <div class="flex gap-1 mb-3 justify-center">
         <button v-for="s in 5" :key="s" @click="reviewForm.rating = s" type="button" class="text-2xl leading-none" :class="s <= reviewForm.rating ? 'text-amber-400' : 'text-gray-200'">★</button>
       </div>
@@ -274,6 +275,7 @@
         <button @click="showReviewModal=false" class="btn-secondary flex-1 py-2 text-sm">취소</button>
         <button @click="submitReview" :disabled="reviewSaving" class="flex-1 py-2 bg-amber-500 text-white rounded-lg text-sm font-bold disabled:opacity-50">등록</button>
       </div>
+      </VerifyGate>
     </div>
   </div>
 
@@ -304,6 +306,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import axios from 'axios'

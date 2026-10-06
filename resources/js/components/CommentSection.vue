@@ -6,6 +6,7 @@
 
   <!-- 댓글 입력 -->
   <div v-if="auth.isLoggedIn" class="px-5 py-3 border-b border-gray-50">
+    <VerifyGate message="이메일 인증 후 댓글을 쓸 수 있어요.">
     <div class="flex gap-3">
       <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
       <div class="flex-1">
@@ -16,6 +17,7 @@
         </div>
       </div>
     </div>
+    </VerifyGate>
   </div>
 
   <!-- 댓글 목록 -->
@@ -40,6 +42,7 @@
 
       <!-- 답글 입력 -->
       <div v-if="replyTo === c.id" class="ml-11 mt-2">
+        <VerifyGate message="이메일 인증 후 답글을 쓸 수 있어요.">
         <div class="flex gap-2">
           <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
           <div class="flex-1">
@@ -50,6 +53,7 @@
             </div>
           </div>
         </div>
+        </VerifyGate>
       </div>
     </div>
   </div>
@@ -64,6 +68,7 @@ import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 import CommentItem from './CommentItem.vue'
 import AppIcon from './AppIcon.vue'
+import VerifyGate from './VerifyGate.vue'
 
 const props = defineProps({ type: String, typeId: [Number, String] })
 const auth = useAuthStore()

@@ -54,8 +54,10 @@
       <!-- 답변 작성 -->
       <div v-if="auth.isLoggedIn && !qa.is_resolved" class="card mt-4 p-5">
         <h3 class="font-bold text-sm text-ink mb-3 flex items-center gap-1.5"><AppIcon name="edit" :size="14" class="text-amber-500" />답변 작성</h3>
+        <VerifyGate message="이메일 인증 후 답변을 쓸 수 있어요.">
         <textarea v-model="newAnswer" rows="4" placeholder="답변을 입력하세요..." class="input-soft"></textarea>
         <button @click="submitAnswer" :disabled="!newAnswer.trim()" class="mt-2 btn-primary">답변 등록</button>
+        </VerifyGate>
       </div>
 
       <!-- 이전글 / 목록 / 다음글 -->
@@ -80,6 +82,7 @@ import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'
 const BM_TYPE = 'App\\Models\\QaPost'
