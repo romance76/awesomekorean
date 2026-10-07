@@ -45,7 +45,7 @@
       <div v-else class="flex-1 flex items-center justify-center text-[13px] text-ink-faint">헤드라인을 불러오는 중...</div>
     </div>
 
-    <!-- 위젯 벤토: 날씨 / 환율 / 인기 주식 / 접속자 (2x2) -->
+    <!-- 위젯 벤토: 날씨 / NEW 전면광고 / 인기 주식 / 접속자 (2x2) -->
     <div class="grid grid-cols-2 gap-3.5 lg:gap-4">
         <!-- 날씨: 실시간(open-meteo) 아이콘형 -->
         <div class="bg-amber-400 rounded-card p-4 lg:p-5 flex flex-col justify-between text-white">
@@ -72,24 +72,22 @@
           </div>
         </div>
 
-        <!-- 환율: 실시간(frankfurter) 미니 그래프 -->
-        <div class="bg-surface rounded-card p-4 lg:p-5 flex flex-col justify-between">
-          <span class="text-[10.5px] font-bold tracking-wider text-ink-muted">USD → KRW</span>
-          <div class="mt-3">
-            <div class="text-[22px] lg:text-[26px] font-extrabold tracking-[-0.04em] leading-none text-ink tabular-nums">
-              {{ fx ? Math.round(fx.rate).toLocaleString() : '--' }}<span class="text-[13px] text-ink-muted">원</span>
-            </div>
-            <div v-if="fx" class="flex gap-2 items-baseline mt-1.5">
-              <span class="text-[11px] font-bold" :class="fx.change >= 0 ? 'text-[#E8442E]' : 'text-blue-500'">
-                {{ fx.change >= 0 ? '▲' : '▼' }} {{ Math.abs(fx.change).toFixed(1) }}
-              </span>
-              <span class="text-[10.5px] text-ink-faint">{{ fx.date }}</span>
-            </div>
+        <!-- NEW 전면광고 홍보: 신장개업/폐업정리 전단을 시간대별로 구매 → 마이페이지 신청 탭으로 바로 이동 -->
+        <RouterLink to="/dashboard?tab=flyer"
+          class="relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between text-white bg-gradient-to-br from-rose-500 via-rose-500 to-orange-400 group hover:brightness-105 transition-all">
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+            <span class="text-[10.5px] font-black tracking-wider bg-white/20 px-1.5 py-0.5 rounded">NEW 전면광고</span>
           </div>
-          <svg v-if="fx?.path" viewBox="0 0 100 28" class="w-full h-7 mt-2.5" preserveAspectRatio="none">
-            <path :d="fx.path" fill="none" :stroke="fx.change >= 0 ? '#E8442E' : '#3B82F6'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
-          </svg>
-        </div>
+          <div class="mt-3">
+            <div class="text-[18px] lg:text-[21px] font-extrabold tracking-[-0.03em] leading-tight">신장개업 · 폐업정리<br>내 전단을 맨 앞에 🔥</div>
+            <div class="text-[11px] text-white/90 mt-1.5">원하는 시간대만 골라 우리 동네 전체에 알려요</div>
+          </div>
+          <div class="mt-3 flex items-center justify-between gap-2">
+            <span class="text-[11px] font-bold bg-white text-rose-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">지금 신청하기 →</span>
+            <span v-if="flyerFrom" class="text-[10px] text-white/90 text-right leading-tight">시간당 {{ flyerFrom }}P<br>(≈ ${{ (flyerFrom / 100).toFixed(2) }})부터</span>
+          </div>
+        </RouterLink>
 
         <!-- 인기 주식: 지수(나스닥/다우/S&P/코스피) 로테이션 + 관심종목 -->
         <RouterLink to="/stocks" class="bg-surface rounded-card p-4 lg:p-5 flex flex-col group hover:brightness-95 transition-all">
@@ -313,7 +311,7 @@ const businesses = ref([])
 const headlines = ref([])
 const headlinePage = ref(0)
 const weather = ref(null)
-const fx = ref(null)
+const flyerFrom = ref(0)   // NEW 전면광고 최저 시간당 가격(P) — 홍보 타일용
 const indices = ref([])
 const watchlist = ref([])
 const indexIdx = ref(0)
@@ -443,7 +441,7 @@ function aqiLabel(aqi) {
   return '나쁨'
 }
 
-// 환율/지수 미니 차트 공용: 최근 N일 값을 0~h 뷰박스에 맞춘 SVG path 로 변환
+// 지수 미니 차트: 최근 N일 값을 0~h 뷰박스에 맞춘 SVG path 로 변환
 function sparkPathH(points, h) {
   if (!points || points.length < 2) return ''
   const min = Math.min(...points), max = Math.max(...points)
@@ -451,7 +449,6 @@ function sparkPathH(points, h) {
   const stepX = 100 / (points.length - 1)
   return points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i * stepX).toFixed(2)} ${(h - ((v - min) / range) * (h - 2)).toFixed(2)}`).join(' ')
 }
-function fxSparkPath(points) { return sparkPathH(points, 28) }
 function sparkPath(points) { return sparkPathH(points, 20) }
 
 // 인기 주식 위젯: 지수 4개(나스닥/다우/S&P/코스피)를 4초마다 로테이션
@@ -496,30 +493,17 @@ async function loadWeather() {
     }
   } catch {}
 }
-async function loadFx() {
+async function loadFlyerFrom() {
   try {
-    const end = new Date()
-    const start = new Date(end.getTime() - 9 * 86400000)
-    const fmt = d => d.toISOString().slice(0, 10)
-    const res = await fetch(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=USD&symbols=KRW`)
-    const data = await res.json()
-    const dates = Object.keys(data.rates).sort()
-    const points = dates.map(d => data.rates[d].KRW)
-    const latest = points[points.length - 1]
-    const prev = points[points.length - 2] ?? latest
-    fx.value = {
-      rate: latest,
-      change: latest - prev,
-      changePct: prev ? ((latest - prev) / prev * 100) : 0,
-      path: fxSparkPath(points),
-      date: dates[dates.length - 1],
-    }
+    const { data } = await axios.get('/api/flyers/availability', { params: { scope: 'state', state: 'GA', days: 1 } })
+    const prices = Object.values(data.data?.prices || {}).map(Number).filter(n => n > 0)
+    if (prices.length) flyerFrom.value = Math.min(...prices)
   } catch {}
 }
 
 onMounted(async () => {
   loadWeather()
-  loadFx()
+  loadFlyerFrom()
   loadMarketQuotes()
   bannerStore.loadForPage('home')
   try {

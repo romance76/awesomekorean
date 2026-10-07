@@ -57,29 +57,6 @@
           <RouterLink to="/dashboard?tab=flyer" class="inline-block text-[11px] text-ink-faint underline mt-3 hover:text-rose-600">광고 신청: 마이페이지 → NEW 전면광고 신청</RouterLink>
         </div>
       </section>
-
-      <!-- 방송 예정 전단 -->
-      <section>
-        <h2 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="calendar" :size="14" class="text-rose-500" />오늘 · 앞으로 방송 예정</h2>
-        <div v-if="!list.length" class="text-center py-10 text-sm text-ink-faint">예정된 전단이 아직 없어요</div>
-        <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          <RouterLink v-for="f in list" :key="f.id" :to="`/new/${f.id}`" class="card card-hover overflow-hidden block">
-            <div class="relative aspect-[3/4] bg-gray-100">
-              <img :src="f.image_url" :alt="f.title" loading="lazy" class="w-full h-full object-cover" />
-              <span v-if="f.live" class="absolute top-2 left-2 text-[10px] font-black text-white bg-rose-500 px-1.5 py-0.5 rounded-full">LIVE</span>
-              <span v-if="f.scope === 'national'" class="absolute top-2 right-2 text-[10px] font-bold text-white bg-blue-500 px-1.5 py-0.5 rounded-full">전국</span>
-            </div>
-            <div class="p-2.5">
-              <div class="text-[11px] font-bold text-rose-600">{{ kindLabel(f.kind) }}</div>
-              <div class="text-sm font-semibold text-ink truncate">{{ f.title }}</div>
-              <div class="text-[11px] text-ink-muted mt-0.5 truncate">
-                <template v-if="f.today_hours.length">오늘 {{ hourRanges(f.today_hours).join(', ') }}</template>
-                <template v-else>{{ fmtDay(f.next_slot.date) }} {{ fmtHour(f.next_slot.hour) }}~</template>
-              </div>
-            </div>
-          </RouterLink>
-        </div>
-      </section>
     </template>
   </div>
 </div>
@@ -92,7 +69,7 @@ import { RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useLocation } from '../../composables/useLocation'
 import AppIcon from '../../components/AppIcon.vue'
-import { US_STATES, kindLabel, fmtHour, hourRanges, fmtDay, tzLabel } from '../../utils/flyer'
+import { US_STATES, kindLabel, fmtHour, tzLabel } from '../../utils/flyer'
 
 const auth = useAuthStore()
 const { city, init: initLocation } = useLocation()
@@ -101,7 +78,6 @@ const scope = ref('national')
 const state = ref('GA')
 const loading = ref(true)
 const featured = ref(null)
-const list = ref([])
 const tz = ref('')
 let timer = null
 const viewed = new Set()
@@ -112,7 +88,6 @@ async function load() {
   try {
     const { data } = await axios.get('/api/flyers', { params: { scope: scope.value, state: scope.value === 'state' ? state.value : undefined } })
     featured.value = data.data.featured
-    list.value = data.data.list || []
     tz.value = data.data.tz
     // 같은 전단은 한 번 방문당 한 번만 노출 집계
     if (featured.value && !viewed.has(featured.value.id)) {

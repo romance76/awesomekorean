@@ -4,10 +4,18 @@
      sessionStorage의 sk_token/sk_user에 있으므로, 아래 작은 스크립트로 로드 직후
      그것만 읽어서 로그인 중이면 게스트 버튼 대신 알림벨+아바타(마이페이지/로그아웃)로
      바꿔치기한다. --}}
-<nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+@php
+    // 본 사이트(siteStore.logoUrl)와 같은 로고 — 관리자 설정(site_settings.logo_url), 없으면 기본 로고
+    $logoUrl = \App\Models\SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png';
+@endphp
+<nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: env(safe-area-inset-top, 0px)">
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
+        {{-- 햄버거 메뉴 (모바일) — NavBar.vue 와 동일 --}}
+        <button id="info-menu-btn" type="button" class="md:hidden p-2.5 -ml-1 text-ink-light hover:text-amber-500 transition-colors flex-shrink-0" aria-label="전체 메뉴">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
         <a href="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-            <img src="/images/logo.png" alt="AwesomeKorean" class="h-8 w-auto" style="max-height:32px">
+            <img src="{{ $logoUrl }}" alt="AwesomeKorean" class="h-11 w-auto" style="max-height:44px">
         </a>
         <div class="flex-1 mx-2 min-w-0 hidden md:block">
             <form action="/search" method="GET" class="relative max-w-lg mx-auto">
@@ -63,7 +71,34 @@
             @endforeach
         </div>
     </div>
+
 </nav>
+
+    {{-- 모바일 메뉴 (슬라이드) — nav 밖에 둬야 fixed 가 화면 기준으로 동작(NavBar.vue 는 body 로 Teleport). NavBar.vue 와 동일한 구성. 하단바 즐겨찾기(별)는 SPA 전용이라 제외 --}}
+    <div id="info-menu-overlay" class="fixed inset-0 bg-black/40 z-[999]" style="display:none"></div>
+    <div id="info-menu-panel" class="fixed top-0 left-0 bottom-0 w-[85vw] max-w-sm bg-white z-[1000] shadow-2xl overflow-y-auto" style="display:none">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+            <span class="text-sm font-bold text-ink">전체 메뉴</span>
+            <button id="info-menu-close" type="button" class="p-1 text-ink-faint hover:text-ink transition-colors" aria-label="닫기">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="px-3 py-2.5 border-b border-gray-50">
+            <form action="/search" method="GET">
+                <input type="text" name="q" placeholder="궁금한 것을 검색해 보세요"
+                    class="w-full bg-surface border-[1.5px] border-line rounded-full px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint">
+            </form>
+        </div>
+        <div class="py-2">
+            @foreach ($menus as $item)
+                <a href="{{ $item['path'] }}"
+                   class="flex items-center gap-3 px-4 py-2 text-sm {{ $item['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
+                    <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $item['icon'] ?: '•' }}</span>
+                    <span>{{ $item['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
 
 {{-- Google Translate 위젯 — welcome.blade.php(SPA)와 동일한 초기화. 이 페이지는 SPA
      셸을 전혀 안 쓰므로, EN 토글이 실제로 번역되게 하려면 여기서도 따로 로드해야 함. --}}
@@ -91,6 +126,19 @@ function googleTranslateElementInit() {
 
 <script>
 (function () {
+    // 모바일 햄버거 메뉴 열기/닫기
+    try {
+        var panel = document.getElementById('info-menu-panel');
+        var overlay = document.getElementById('info-menu-overlay');
+        function setMenu(open) {
+            panel.style.display = open ? 'block' : 'none';
+            overlay.style.display = open ? 'block' : 'none';
+        }
+        document.getElementById('info-menu-btn').addEventListener('click', function () { setMenu(panel.style.display === 'none'); });
+        document.getElementById('info-menu-close').addEventListener('click', function () { setMenu(false); });
+        overlay.addEventListener('click', function () { setMenu(false); });
+    } catch (e) {}
+
     // EN 번역 토글 — 로그인 여부와 무관하게 항상 동작해야 하므로 별도 try 블록
     try {
         var enBtn = document.getElementById('info-lang-toggle');

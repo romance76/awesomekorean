@@ -57,11 +57,14 @@ class InfoPublicController extends Controller
 
         return collect($menus)
             ->filter(fn($m) => ($m['enabled'] ?? true) !== false)
+            // NavBar.vue 와 동일: 관리자 전용 메뉴는 일반 방문자에게 숨김 (login_required 는 로그인 여부를 서버가 몰라 노출 유지)
+            ->filter(fn($m) => empty($m['admin_only']))
             ->sortBy(fn($m, $i) => $m['order'] ?? $i)
             ->map(fn($m) => [
                 'key' => $m['key'],
                 'label' => $m['label'] ?? $m['key'],
                 'path' => $m['path'] ?? "/{$m['key']}",
+                'icon' => $m['icon'] ?? '',
             ])
             ->values()
             ->all();

@@ -50,7 +50,6 @@ class FlyerController extends Controller
     /**
      * GET /api/flyers?scope=national|state&state=GA
      * featured = 지금 이 시간(그 지역 현지 시각)에 예약된 전단. 내 지역에 없으면 전국 전단으로 대체.
-     * list     = 앞으로 방송될 예정인 전단들 (지금 방송 중인 것 먼저).
      */
     public function index(Request $request)
     {
@@ -74,49 +73,11 @@ class FlyerController extends Controller
             }
         }
 
-        // 가장 늦은 시간대(하와이) 기준으로 하루 전부터 훑고, 광고마다 자기 지역 현지 시각으로 다시 걸러냄
-        $lowerBound = Carbon::now('UTC')->subDay()->toDateString();
-        $slots = FlyerSlot::whereIn('region_key', $keys)
-            ->where('slot_date', '>=', $lowerBound)
-            ->whereHas('flyer', fn($q) => $q->where('status', 'approved'))
-            ->with('flyer')
-            ->orderBy('slot_date')->orderBy('slot_hour')
-            ->get();
-
-        $byAd = [];
-        foreach ($slots as $s) {
-            $now = FlyerSchedule::now($s->region_key);
-            $d = $s->slot_date->toDateString();
-            $ended = $d < $now->toDateString() || ($d === $now->toDateString() && $s->slot_hour < $now->hour);
-            if ($ended) continue;
-
-            $id = $s->flyer_ad_id;
-            if (!isset($byAd[$id])) {
-                $byAd[$id] = $this->present($s->flyer) + [
-                    'today_hours' => [], 'live' => false,
-                    'next_slot' => ['date' => $d, 'hour' => $s->slot_hour],
-                    'last_date' => $d,
-                ];
-            }
-            if ($d === $now->toDateString()) {
-                $byAd[$id]['today_hours'][] = $s->slot_hour;
-                if ($s->slot_hour === $now->hour) $byAd[$id]['live'] = true;
-            }
-            $byAd[$id]['last_date'] = max($byAd[$id]['last_date'], $d);
-        }
-
-        $list = array_values($byAd);
-        usort($list, function ($a, $b) {
-            if ($a['live'] !== $b['live']) return $a['live'] ? -1 : 1;
-            return [$a['next_slot']['date'], $a['next_slot']['hour']] <=> [$b['next_slot']['date'], $b['next_slot']['hour']];
-        });
-
         return response()->json(['success' => true, 'data' => [
             'scope' => $scope,
             'state' => $state,
             'tz' => FlyerSchedule::timezone($region),
             'featured' => $featured,
-            'list' => array_slice($list, 0, 60),
         ]]);
     }
 
