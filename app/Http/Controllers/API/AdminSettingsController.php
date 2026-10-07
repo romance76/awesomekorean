@@ -51,7 +51,7 @@ class AdminSettingsController extends Controller
         // 빈 에디터로 보인 것도 이 버그). 프론트가 기대하는 모양대로 묶어서
         // 같이 내려줌.
         $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','logo_dark_url','app_icon_url','favicon_url','meta_description','meta_keywords'];
-        $siteKeys = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until','google_analytics_id','kakao_api_key'];
+        $siteKeys = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until'];
         $settings['company'] = array_intersect_key($settings, array_flip($companyKeys));
         $settings['site'] = array_intersect_key($settings, array_flip($siteKeys));
         $settings['footer'] = $settings['footer_config'] ?? null;
@@ -268,6 +268,16 @@ class AdminSettingsController extends Controller
 
     public function storeApiKey(Request $request) {
         $request->validate(['name'=>'required','service'=>'required','api_key'=>'required']);
+        if ($request->service === \App\Support\Analytics::SERVICE && !\App\Support\Analytics::isValid($request->api_key)) {
+            return response()->json(['success'=>false,'message'=>'구글 Analytics 측정 ID 형식이 아닙니다 (예: G-ABC123DEF4)'], 422);
+        }
+        // 구글 Analytics 는 사이트에 하나만 쓰므로 이미 있으면 새 행을 만들지 않고 그 값을 교체
+        $existing = $request->service === \App\Support\Analytics::SERVICE ? ApiKey::where('service', $request->service)->first() : null;
+        if ($existing) {
+            $existing->update(['name' => $request->name, 'api_key' => $request->api_key, 'description' => $request->description ?? '', 'is_active' => true]);
+            \App\Support\Analytics::forget();
+            return response()->json(['success'=>true,'data'=>$existing,'message'=>'구글 Analytics 측정 ID가 변경되었습니다']);
+        }
         $newKey = ApiKey::create([
             'name' => $request->name,
             'service' => $request->service,
@@ -278,11 +288,13 @@ class AdminSettingsController extends Controller
         // .env에도 반영 (서비스별)
         $envKey = strtoupper($request->service) . '_API_KEY';
         $this->updateEnv($envKey, $request->api_key);
+        \App\Support\Analytics::forget();
         return response()->json(['success'=>true,'data'=>$newKey,'message'=>'API 키가 등록되었습니다']);
     }
 
     public function deleteApiKey($id) {
         ApiKey::where('id', $id)->delete();
+        \App\Support\Analytics::forget();
         return response()->json(['success'=>true,'message'=>'삭제되었습니다']);
     }
 
@@ -300,7 +312,13 @@ class AdminSettingsController extends Controller
             'is_active' => 'sometimes|boolean',
         ]);
 
+        $newService = $request->input('service', $key->service);
+        if ($newService === \App\Support\Analytics::SERVICE && $request->filled('api_key') && !\App\Support\Analytics::isValid($request->api_key)) {
+            return response()->json(['success'=>false,'message'=>'구글 Analytics 측정 ID 형식이 아닙니다 (예: G-ABC123DEF4)'], 422);
+        }
+
         $key->update($request->only(['name', 'service', 'api_key', 'description', 'is_active']));
+        \App\Support\Analytics::forget();
 
         if ($request->has('api_key')) {
             $envKey = strtoupper($key->service) . '_API_KEY';
