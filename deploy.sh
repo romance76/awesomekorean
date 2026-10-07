@@ -46,12 +46,20 @@ log "▶ Step 3/7: npm install"
 
 log "▶ Step 4/7: vite build (NODE_OPTIONS=--max-old-space-size=1024)"
 export NODE_OPTIONS='--max-old-space-size=1024'
-rm -rf public/build
-npm run build 2>&1 | tail -10 >> "$LOG" || fail "vite-build" "빌드 실패 — OOM 여부 확인 (free -m)"
+# 새 빌드는 임시 폴더(public/build_next)에 만들고 끝나면 한 번에 교체한다.
+# (예전엔 public/build 를 먼저 지우고 1~3분간 빌드해서, 그동안 Vite manifest 가 없어 사이트 전체가 500 이었음)
+rm -rf public/build_next
+VITE_OUT_DIR=public/build_next npm run build 2>&1 | tail -10 >> "$LOG"
+# 빌드가 실패하면 기존 public/build 는 그대로 두고 중단 — 사이트는 이전 버전으로 계속 동작
+[ -f public/build_next/manifest.json ] || fail "vite-build" "빌드 실패(기존 빌드 유지) — OOM 여부 확인 (free -m)"
 
-log "▶ Step 5/7: manifest copy"
-mkdir -p public/build/.vite
-cp public/build/manifest.json public/build/.vite/manifest.json || fail "manifest-copy" "manifest.json 부재"
+log "▶ Step 5/7: manifest copy + 빌드 교체"
+mkdir -p public/build_next/.vite
+cp public/build_next/manifest.json public/build_next/.vite/manifest.json || fail "manifest-copy" "manifest.json 부재"
+rm -rf public/build_prev
+[ -d public/build ] && mv public/build public/build_prev
+mv public/build_next public/build || fail "build-swap" "새 빌드 교체 실패"
+rm -rf public/build_prev
 
 log "▶ Step 6/7: migrate + storage:link + optimize:clear"
 php8.2 artisan migrate --force 2>&1 | tail -5 >> "$LOG" || log "⚠️ migrate returned non-zero"
