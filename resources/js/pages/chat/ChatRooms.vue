@@ -674,6 +674,8 @@ async function enterRoom(room) {
       siteStore.toast(`${data.points_spent}P를 사용해 입장했습니다 (24시간 이용권)`, 'info')
       auth.refreshBalance()
     }
+    // 입장 전에는 서버가 메시지를 내려주지 않으므로, 입장권이 생긴 뒤 다시 불러옴
+    await selectRoom(room, { skipRoute: true })
   } catch (e) {
     enterError.value = e.response?.data?.message || '입장 실패'
   }
@@ -1200,7 +1202,12 @@ async function selectRoom(room, opts = {}) {
       msgArea.value.scrollTop = msgArea.value.scrollHeight
     }
   } catch (e) {
-    if (seq === selectRoomSeq) console.warn('[chat] failed to load messages for room', room.id, e?.message)
+    // 서버가 입장권 없음(403 needs_entry)으로 내용을 안 내려줬으면 입장 확인창을 띄움
+    if (seq === selectRoomSeq && e.response?.status === 403 && e.response?.data?.needs_entry) {
+      if (activeRoom.value?.id === room.id) activeRoom.value.has_access = false
+      const inList = rooms.value.find(r => r.id === room.id)
+      if (inList) inList.has_access = false
+    } else if (seq === selectRoomSeq) console.warn('[chat] failed to load messages for room', room.id, e?.message)
   }
 }
 
