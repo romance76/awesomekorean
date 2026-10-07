@@ -91,7 +91,7 @@
                         </div>
                     </div>
                     <div class="info-body px-5 py-5 border-t border-gray-50 text-sm leading-relaxed">
-                        {!! $post->body !!}
+                        {!! \App\Support\HtmlSanitizer::clean($post->body) !!}
                     </div>
                 </div>
 

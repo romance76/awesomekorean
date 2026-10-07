@@ -626,7 +626,7 @@ class ChatController extends Controller
                 $mime = $file->getMimeType();
                 $ext = strtolower($file->getClientOriginalExtension());
                 $isImage = str_starts_with($mime ?: '', 'image/');
-                $isArchive = in_array($mime, $allowedArchiveMimes) || in_array($ext, $allowedArchiveExts);
+                $isArchive = in_array($mime, $allowedArchiveMimes) && in_array($ext, $allowedArchiveExts);   // 내용과 확장자가 둘 다 압축 파일이어야 함 (이름만 .zip 인 HTML 등 차단)
 
                 if (!$isImage && !$isArchive) {
                     // 문서 등은 거부
@@ -638,7 +638,7 @@ class ChatController extends Controller
                     $path = preg_replace('#^/storage/#', '', $fileUrlForMsg);
                     $type = 'image';
                 } else {
-                    $path = $file->store('chat-files', 'public');
+                    $path = $file->storeAs('chat-files', \Illuminate\Support\Str::random(40) . '.' . $ext, 'public');   // 이름·확장자는 우리가 정한다
                     $type = 'file';
                 }
 

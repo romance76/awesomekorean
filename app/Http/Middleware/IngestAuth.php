@@ -26,7 +26,7 @@ class IngestAuth
             } catch (\Exception $e) {}
         }
 
-        if (!$token || $request->bearerToken() !== $token) {
+        if (!$token || !is_string($request->bearerToken()) || !hash_equals((string) $token, (string) $request->bearerToken())) {   // 시간차 공격 방지(상수 시간 비교)
             return response()->json(['success' => false, 'message' => '인증이 필요합니다.'], 401);
         }
 

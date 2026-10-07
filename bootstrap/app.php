@@ -29,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'ingest.auth'  => \App\Http\Middleware\IngestAuth::class,
         ]);
 
+        // 모든 응답(웹/API)에 보안 헤더
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
         // IP 차단 + 봇 감지 + 온라인 상태 미들웨어를 API 전체에 적용
         $middleware->api(prepend: [
             \App\Http\Middleware\CheckIpBan::class,
@@ -37,11 +40,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             \App\Http\Middleware\UpdateLastActive::class,
         ]);
+        // API 전체 요청 수 제한(아래 'api' 규칙) — 정의만 있고 실제로 적용되지 않던 것을 켠다
+        $middleware->throttleApi();
     })
     ->booted(function () {
         RateLimiter::for('api', function (Request $request) {
-            if ($request->user()) return Limit::none();
-            return Limit::perMinute(60)->by($request->ip());
+            // 로그인한 회원은 계정별로 넉넉히(통화/채팅 폴링 포함), 비회원은 IP별로 제한
+            $uid = null;
+            try { $uid = auth('api')->id(); } catch (\Throwable $e) {}   // 서명이 맞는 토큰만 회원으로 인정 (가짜 토큰으로 제한 우회 방지)
+            if ($uid) return Limit::perMinute(400)->by('u:' . $uid);
+            return Limit::perMinute(300)->by($request->ip());
         });
     })
     ->withExceptions(function (Exceptions $exceptions): void {

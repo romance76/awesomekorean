@@ -123,7 +123,7 @@ function sendVisit() {
   if (document.visibilityState === 'hidden') return
   axios.post('/api/site/ping', { vid: visitorId() }).catch(() => {})
 }
-onMounted(() => { sendVisit(); visitTimer = setInterval(sendVisit, 120000); document.addEventListener('visibilitychange', sendVisit) })
+onMounted(() => { auth.startSessionWatch(); sendVisit(); visitTimer = setInterval(sendVisit, 120000); document.addEventListener('visibilitychange', sendVisit) })
 onUnmounted(() => { clearInterval(visitTimer); document.removeEventListener('visibilitychange', sendVisit) })
 
 // 글로벌: 어디서든 window.openCommChat(partner, convId) / window.startCommCall(partner) 호출 가능

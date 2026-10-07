@@ -20,7 +20,7 @@
         <span class="q-count">{{ qIdx+1 }}/{{ totalQ }}</span>
       </div>
       <div v-if="cur" class="sentence-box">
-        <p class="sentence-text" v-html="cur.display"></p>
+        <p class="sentence-text" v-html="sanitizeHtml(cur.display)"></p>
         <p class="sentence-hint">{{ cur.hint }}</p>
       </div>
       <div class="choices-grid">
@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'

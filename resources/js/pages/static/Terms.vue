@@ -19,6 +19,7 @@
 </div>
 </template>
 <script setup>
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, onMounted } from 'vue'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
@@ -27,7 +28,7 @@ const content = ref('')
 // 지원 — HTML 태그가 없으면 줄바꿈만 <br>로 변환해 그대로 표시.
 const safeContent = computed(() => {
   if (!content.value) return ''
-  if (/<[a-z][\s\S]*>/i.test(content.value)) return content.value
+  if (/<[a-z][\s\S]*>/i.test(content.value)) return sanitizeHtml(content.value)
   return content.value.replace(/\n/g, '<br>')
 })
 onMounted(async () => {

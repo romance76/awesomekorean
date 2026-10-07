@@ -228,7 +228,7 @@ class JobController extends Controller
 
             // 리치에디터 content 안에 삽입된 base64 이미지를 파일로 저장하고 URL 로 치환 + 압축
             if (!empty($data['content'])) {
-                $data['content'] = $this->extractAndCompressBase64Images($data['content'], 'job_content', 1200, 80);
+                $data['content'] = \App\Support\HtmlSanitizer::clean($this->extractAndCompressBase64Images($data['content'], 'job_content', 1200, 80));
             }
 
             // JSON 필드 처리
@@ -287,7 +287,7 @@ class JobController extends Controller
                 }
             }
 
-            if (!empty($data['content'])) $data['content'] = $this->extractAndCompressBase64Images($data['content'], 'job_content', 1200, 80);
+            if (!empty($data['content'])) $data['content'] = \App\Support\HtmlSanitizer::clean($this->extractAndCompressBase64Images($data['content'], 'job_content', 1200, 80));
             if ($request->filled('job_tags')) {
                 $tags = is_string($request->job_tags) ? json_decode($request->job_tags, true) : $request->job_tags;
                 $data['job_tags'] = is_array($tags) ? $tags : null;

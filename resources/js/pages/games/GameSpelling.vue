@@ -28,7 +28,7 @@
       <div class="question-card">
         <div class="q-label">올바른 표현은?</div>
         <div class="q-context" v-if="curQ.context">
-          <span v-html="curQ.context"></span>
+          <span v-html="sanitizeHtml(curQ.context)"></span>
         </div>
       </div>
       <div class="choices-col">
@@ -62,6 +62,7 @@
 </template>
 
 <script setup>
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import GameShell from '../../components/GameShell.vue'

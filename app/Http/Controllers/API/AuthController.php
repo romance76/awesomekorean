@@ -119,9 +119,21 @@ class AuthController extends Controller
     {
         $request->validate(['email' => 'required|email', 'password' => 'required']);
 
+        // 비밀번호 대입 공격 방어: 같은 계정을 여러 곳에서 시도해도(계정별), 한 곳에서 계속 시도해도(계정+IP별) 막는다
+        $email = mb_strtolower(trim($request->email));
+        $keys = ['login-acct:' . sha1($email) => [20, 900], 'login-acct-ip:' . sha1($email . '|' . $request->ip()) => [6, 300]];
+        foreach ($keys as $k => [$max, $decay]) {
+            if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($k, $max)) {
+                $wait = \Illuminate\Support\Facades\RateLimiter::availableIn($k);
+                return response()->json(['success' => false, 'message' => '로그인 시도가 너무 많아요. ' . ceil($wait / 60) . '분 후에 다시 시도해 주세요.'], 429);
+            }
+        }
+
         if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
+            foreach ($keys as $k => [$max, $decay]) \Illuminate\Support\Facades\RateLimiter::hit($k, $decay);
             return response()->json(['success' => false, 'message' => '이메일 또는 비밀번호가 올바르지 않습니다'], 401);
         }
+        \Illuminate\Support\Facades\RateLimiter::clear('login-acct-ip:' . sha1($email . '|' . $request->ip()));
 
         $user = auth()->user();
         if ($user->is_banned) {
@@ -144,6 +156,25 @@ class AuthController extends Controller
         }
 
         return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user]]);
+    }
+
+    /**
+     * 토큰 갱신: 사용 중인 사람의 로그인이 1시간마다 끊기지 않도록, 만료 직전(또는 만료 후 갱신 가능 기간 안)의 토큰으로
+     * 새 토큰을 받는다. 정지된 계정은 갱신하지 않고, 이전 토큰은 즉시 폐기된다.
+     */
+    public function refresh()
+    {
+        try {
+            $new = JWTAuth::parseToken()->refresh();
+            $user = JWTAuth::setToken($new)->toUser();
+            if (!$user || $user->is_banned) {
+                try { JWTAuth::setToken($new)->invalidate(); } catch (\Exception $e) {}
+                return response()->json(['success' => false, 'message' => '정지되었거나 없는 계정입니다.'], 401);
+            }
+            return response()->json(['success' => true, 'data' => ['token' => $new]]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => '세션이 만료되었어요. 다시 로그인해 주세요.'], 401);
+        }
     }
 
     public function logout()
@@ -220,6 +251,16 @@ class AuthController extends Controller
         ]);
         $record = \DB::table('password_reset_tokens')->where('email', $request->email)->first();
         if (!$record || !Hash::check($request->code, $record->token)) {
+            // 6자리 코드를 계속 대입하는 공격 방어: 한 코드당 5번 틀리면 그 코드를 폐기(다시 요청해야 함)
+            if ($record) {
+                $k = 'reset-fail:' . sha1(mb_strtolower($request->email));
+                \Illuminate\Support\Facades\RateLimiter::hit($k, 1800);
+                if (\Illuminate\Support\Facades\RateLimiter::attempts($k) >= 5) {
+                    \DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+                    \Illuminate\Support\Facades\RateLimiter::clear($k);
+                    return response()->json(['success' => false, 'message' => '틀린 횟수가 많아 코드를 폐기했어요. 코드를 다시 요청해 주세요.'], 422);
+                }
+            }
             return response()->json(['success' => false, 'message' => '인증 코드가 올바르지 않습니다'], 422);
         }
         if (now()->diffInMinutes($record->created_at) > 30) {

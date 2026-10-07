@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import { tokenExpiresAtMs } from '../utils/jwt'
 
 // Issue #4: localStorage(영구) vs sessionStorage(세션만)
 // "로그인 유지" 체크 시 localStorage, 해제 시 sessionStorage
@@ -184,5 +185,85 @@ export const useAuthStore = defineStore('auth', () => {
     return p && p.startsWith('/') && !p.startsWith('//') ? p : null
   }
 
-  return { user, token, isLoggedIn, isAdmin, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
+
+  // ─── 세션 만료/비활동 보안 ───────────────────────────────────────
+  // 토큰이 끝났는데도 화면(특히 관리자 화면)이 그대로 남아 있던 문제 방지:
+  //  · 토큰 만료 시각을 직접 확인해 만료되면 즉시 로그아웃 + 로그인 화면으로 이동
+  //  · 서버가 401(토큰 무효)을 돌려주면(다른 기기 로그아웃, 비밀번호 변경, 정지 등) 즉시 로그아웃
+  //  · 관리자는 30분 동안 아무 조작이 없으면 자동 로그아웃
+  //  · 사용 중인 회원은 만료 10분 전부터 조용히 토큰을 갱신해 1시간마다 끊기지 않음
+  const ADMIN_IDLE_MS = 30 * 60 * 1000
+  const ACTIVE_WINDOW_MS = 15 * 60 * 1000
+  let lastActivity = Date.now()
+  let watchTimer = null
+  let refreshing = false
+
+  function expiresAtMs() { return token.value ? tokenExpiresAtMs(token.value) : null }
+
+  function expireSession(message = '로그인 시간이 지나 자동으로 로그아웃됐어요. 다시 로그인해 주세요.') {
+    if (!token.value) return
+    clearAuth()
+    try { window.dispatchEvent(new CustomEvent('ak:session-expired', { detail: { message } })) } catch {}
+  }
+
+  async function refreshToken() {
+    if (refreshing || !token.value) return false
+    refreshing = true
+    try {
+      const { data } = await axios.post('/api/auth/refresh')
+      setAuth(data.data.token, user.value)
+      return true
+    } catch (e) {
+      if (e.response?.status === 401) expireSession()
+      return false
+    } finally { refreshing = false }
+  }
+
+  async function sessionTick() {
+    if (!token.value) return
+    const now = Date.now()
+    const exp = expiresAtMs()
+    const active = now - lastActivity < ACTIVE_WINDOW_MS
+    if (isAdmin.value && now - lastActivity > ADMIN_IDLE_MS) {
+      return expireSession('관리자 보안을 위해 30분 동안 조작이 없어 자동으로 로그아웃됐어요.')
+    }
+    if (exp && exp <= now) {
+      if (active && await refreshToken()) return           // 만료 직후라도 방금까지 쓰던 사람은 갱신
+      return expireSession()
+    }
+    if (exp && exp - now < 10 * 60 * 1000 && active) await refreshToken()
+  }
+
+  function startSessionWatch() {
+    if (watchTimer || typeof window === 'undefined') return
+    let last = 0
+    const touch = () => { const n = Date.now(); if (n - last > 3000) { last = n; lastActivity = n } }
+    ;['click', 'keydown', 'touchstart', 'mousemove', 'scroll'].forEach(ev => window.addEventListener(ev, touch, { passive: true }))
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') sessionTick() })
+    window.addEventListener('ak:auth-401', () => expireSession())   // 서버가 토큰을 거부함
+    window.addEventListener('storage', (e) => {                     // 다른 탭에서 로그아웃하면 이 탭도 로그아웃
+      if (e.key === 'sk_token' && !e.newValue && token.value) { token.value = null; user.value = null; delete axios.defaults.headers.common['Authorization']; window.dispatchEvent(new CustomEvent('ak:session-expired', { detail: { message: '다른 창에서 로그아웃했어요.' } })) }
+    })
+    watchTimer = setInterval(sessionTick, 20000)
+    sessionTick()
+  }
+
+  /** 관리자 화면에 들어갈 때마다 서버에서 지금도 관리자인지 직접 확인 (저장된 정보만 믿지 않음) */
+  async function verifyAdminNow() {
+    if (!token.value) return false
+    const exp = expiresAtMs()
+    if (exp && exp <= Date.now() && !(await refreshToken())) { expireSession(); return false }
+    try {
+      const { data } = await axios.get('/api/user')
+      user.value = data.data || data
+      const { primary } = storages()
+      primary.setItem('sk_user', JSON.stringify(user.value))
+      return ['admin', 'super_admin', 'moderator'].includes(user.value?.role)
+    } catch (e) {
+      if (e.response?.status === 401) expireSession()
+      return false
+    }
+  }
+
+  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
 })

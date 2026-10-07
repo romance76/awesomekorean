@@ -62,7 +62,7 @@ class ConversationController extends Controller
             ->update(['read_at' => now()]);
 
         return response()->json(
-            $conversation->messages()->with('sender')->paginate(40)
+            $conversation->messages()->with('sender:id,name,nickname,avatar')->paginate(40)
         );
     }
 

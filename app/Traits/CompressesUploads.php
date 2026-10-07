@@ -63,7 +63,7 @@ trait CompressesUploads
                 'err' => $e->getMessage(),
                 'file' => $file->getClientOriginalName(),
             ]);
-            return '/storage/' . $file->store($dir, 'public');
+            return '/storage/' . $this->storeSafeFile($file, $dir, ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif']);
         }
     }
 
@@ -102,7 +102,40 @@ trait CompressesUploads
      */
     protected function storeDocument(UploadedFile $file, string $dir): string
     {
-        return '/storage/' . $file->store($dir, 'public');
+        return '/storage/' . $this->storeSafeFile($file, $dir, self::SAFE_DOC_TYPES);
+    }
+
+    /** 문서/첨부로 받을 수 있는 파일 종류 (파일 내용으로 확인한 MIME → 저장할 확장자) */
+    protected const SAFE_DOC_TYPES = [
+        'application/pdf' => 'pdf',
+        'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif',
+        'application/msword' => 'doc',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'application/vnd.ms-excel' => 'xls',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+        'application/zip' => 'zip',
+    ];
+
+    /**
+     * 업로드 파일을 안전하게 저장한다.
+     *  - 파일 "내용"으로 판별한 종류가 허용 목록에 있어야 하고(이름/확장자는 믿지 않음)
+     *  - 저장 이름은 무작위 + 허용 목록의 확장자로 우리가 정한다 (.php/.html 등이 그대로 저장돼 실행/스크립트로 열리는 것 방지)
+     * @return string public 디스크 안의 상대 경로
+     */
+    protected function storeSafeFile(UploadedFile $file, string $dir, array $allowed): string
+    {
+        $mime = (string) $file->getMimeType();
+        $ext = $allowed[$mime] ?? null;
+        // docx/xlsx 는 내용상 zip 으로 잡히는 경우가 많다 → 원래 이름의 확장자가 허용된 오피스 확장자면 그것을 쓴다
+        if ($mime === 'application/zip' && isset($allowed['application/zip'])) {
+            $orig = strtolower($file->getClientOriginalExtension());
+            $ext = in_array($orig, ['docx', 'xlsx'], true) && in_array($orig, $allowed, true) ? $orig : 'zip';
+        }
+        if (!$ext) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['file' => '허용되지 않는 파일 형식이에요. (PDF, 이미지, 문서, 압축 파일만 가능)']);
+        }
+        $name = \Illuminate\Support\Str::random(40) . '.' . $ext;
+        return $file->storeAs($dir, $name, 'public');
     }
 
     /**

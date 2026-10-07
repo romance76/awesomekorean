@@ -9,7 +9,7 @@ window.axios.defaults.baseURL = '/';
 
 // JWT 토큰 자동 첨부
 axios.interceptors.request.use(config => {
-    const token = localStorage.getItem('sk_token');
+    const token = sessionStorage.getItem('sk_token') || localStorage.getItem('sk_token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,7 +32,7 @@ window.Echo = new Echo({
     // 토큰을 동적으로 가져옴 (로그인 후에도 최신 토큰 사용)
     authorizer: (channel) => ({
         authorize: (socketId, callback) => {
-            const token = localStorage.getItem('sk_token')
+            const token = sessionStorage.getItem('sk_token') || localStorage.getItem('sk_token')
             console.log('[Echo] Authorizing channel:', channel.name, 'token:', token ? 'yes' : 'NO TOKEN')
             axios.post('/api/broadcasting/auth', {
                 socket_id: socketId,
@@ -50,23 +50,16 @@ window.Echo = new Echo({
     }),
 });
 
-// 401 처리: 토큰 만료 시 조용히 재시도 (broadcasting/auth 같은 public 엔드포인트는 로그아웃시키지 않음)
-const PUBLIC_401_ENDPOINTS = ['/broadcasting/auth', '/api/banners/active', '/api/banners/mobile', '/api/settings/', '/api/user'];
+// 401 처리: 로그인 정보(토큰)를 보냈는데 서버가 거부하면 세션이 끝난 것 — 화면 상태까지 함께 로그아웃시킨다
+// (예전엔 localStorage 만 지워서 화면은 로그인 상태로 남았고, 세션 저장소 로그인은 처리되지도 않았다)
+const NO_LOGOUT_ON_401 = ['/api/login', '/api/register', '/api/auth/refresh', '/api/forgot-password', '/api/reset-password'];
 axios.interceptors.response.use(
     response => response,
     error => {
         const url = error.config?.url || '';
-        const isPublicOk = PUBLIC_401_ENDPOINTS.some(p => url.includes(p));
-        if (error.response?.status === 401 && !isPublicOk) {
-            // 토큰 있는데 401이면 만료된 토큰 → 제거만 하고 로그인 페이지는 유저가 명시적 액션 시에만
-            const hadToken = !!localStorage.getItem('sk_token');
-            localStorage.removeItem('sk_token');
-            localStorage.removeItem('sk_user');
-            // 로그인이 필요한 페이지에서 401이 났을 때만 리다이렉트
-            const needsAuth = /\/dashboard|\/write|\/create|\/edit|\/ad-apply|\/my-|^\/admin/.test(window.location.pathname);
-            if (hadToken && needsAuth && !window.location.pathname.startsWith('/login')) {
-                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-            }
+        const sentToken = !!(error.config?.headers?.Authorization || error.config?.headers?.get?.('Authorization'));
+        if (error.response?.status === 401 && sentToken && !NO_LOGOUT_ON_401.some(p => url.includes(p))) {
+            window.dispatchEvent(new Event('ak:auth-401'));
         }
         return Promise.reject(error);
     }
