@@ -28,7 +28,7 @@
           <ul class="list-disc pl-4 space-y-0.5">
             <li><b>내 사이트·쇼핑몰·블로그·SNS·유튜브·가게 홍보나 광고는 금지</b>예요. 웹 주소, 이메일, 전화번호, 카톡/인스타 아이디를 넣을 수 없어요.</li>
             <li>직접 구입해서 써본 제품만, 솔직하게 장단점을 써주세요. (협찬·광고 글 금지)</li>
-            <li>직접 찍은 사진을 한 장 이상 올려주세요.</li>
+            <li>직접 찍은 사진을 <b>글 사이사이에 2장 이상</b> 넣어주세요. (Amazon 사진만으로는 안 돼요)</li>
             <li>다른 회원이 신고하면 리뷰가 내려갈 수 있고, 반복되면 작성 권한이 제한돼요.</li>
           </ul>
         </div>
@@ -66,24 +66,20 @@
           </div>
 
           <div>
-            <label class="lbl">리뷰 내용 <span class="text-red-500">*</span></label>
-            <textarea v-model="f.body" rows="8" maxlength="5000" class="input-soft" :placeholder="`얼마나 오래, 어떻게 써봤는지 / 좋은 점 / 아쉬운 점 (최소 ${rules.min_chars}자)`"></textarea>
-            <div class="text-right text-[11px]" :class="f.body.trim().length < rules.min_chars ? 'text-red-500' : 'text-ink-faint'">{{ f.body.trim().length }}/5000 · 최소 {{ rules.min_chars }}자</div>
+            <label class="lbl">Amazon 상품 사진 주소 <span class="text-red-500">*</span> <span class="text-ink-faint font-normal">(1~3개)</span></label>
+            <div v-for="(u, i) in amazonImgs" :key="i" class="flex items-center gap-2 mb-1.5">
+              <img v-if="isAmazonImg(u)" :src="u" referrerpolicy="no-referrer" class="w-12 h-12 object-contain rounded border border-gray-100 bg-white flex-shrink-0" />
+              <input v-model="amazonImgs[i]" type="text" class="input-soft flex-1 text-xs" placeholder="https://m.media-amazon.com/images/I/....jpg" />
+              <button v-if="amazonImgs.length > 1" type="button" @click="amazonImgs.splice(i, 1)" class="text-red-500 text-xs px-1">삭제</button>
+            </div>
+            <button v-if="amazonImgs.length < 3" type="button" @click="amazonImgs.push('')" class="text-xs text-amber-600 hover:underline">+ 사진 주소 추가</button>
+            <p class="hint">Amazon 상품 페이지에서 상품 사진을 <b>마우스 오른쪽 클릭 → "이미지 주소 복사"</b> 해서 붙여넣으세요. 이 사진은 Amazon 서버의 것을 그대로 보여주는 링크라서, 다른 곳의 사진 주소는 쓸 수 없어요. 목록의 대표 사진으로도 쓰여요.</p>
           </div>
 
           <div>
-            <label class="lbl">직접 찍은 사진 <span v-if="!editId" class="text-red-500">*</span> <span class="text-ink-faint font-normal">(최대 5장)</span></label>
-            <div class="flex flex-wrap gap-2">
-              <img v-for="(u, i) in keepPhotos" :key="'k'+i" :src="u" class="w-20 h-20 object-cover rounded-lg border border-gray-100" />
-              <div v-for="(p, i) in newPhotos" :key="'n'+i" class="relative">
-                <img :src="p.preview" class="w-20 h-20 object-cover rounded-lg border border-gray-100" />
-                <button type="button" @click="newPhotos.splice(i, 1)" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-black/70 text-white text-xs leading-5">×</button>
-              </div>
-              <label v-if="keepPhotos.length + newPhotos.length < 5" class="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400 cursor-pointer hover:border-amber-300">
-                <AppIcon name="camera" :size="20" /><input type="file" accept="image/*" multiple class="hidden" @change="pickPhotos" />
-              </label>
-            </div>
-            <p v-if="editId" class="hint">새 사진을 올리면 기존 사진 뒤에 추가돼요.</p>
+            <label class="lbl">리뷰 내용 + 직접 찍은 사진 <span class="text-red-500">*</span></label>
+            <ReviewBlockEditor v-model="blocks" :minPhotos="rules.min_photos" />
+            <div class="text-right text-[11px]" :class="textLen < rules.min_chars ? 'text-red-500' : 'text-ink-faint'">글 {{ textLen }}자 · 최소 {{ rules.min_chars }}자</div>
           </div>
 
           <label class="flex items-start gap-2 text-sm text-ink-light cursor-pointer">
@@ -120,6 +116,7 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
+import ReviewBlockEditor from '../../components/ReviewBlockEditor.vue'
 import { useSiteStore } from '../../stores/site'
 
 const route = useRoute()
@@ -137,10 +134,14 @@ const tagInput = ref('')
 const tagSaving = ref(false)
 const tagMsg = ref('')
 const changeTag = ref(false)
-const rules = reactive({ min_chars: 60, first_approval: true })
-const f = reactive({ input: '', title: '', category: '', rating: 5, body: '', purchased: false, agree: false })
-const keepPhotos = ref([])
-const newPhotos = ref([])
+const rules = reactive({ min_chars: 60, min_photos: 2, first_approval: true })
+const f = reactive({ input: '', title: '', category: '', rating: 5, purchased: false, agree: false })
+const blocks = ref([{ id: 'b0', type: 'text', text: '' }])
+const amazonImgs = ref([''])
+const AMZ = /^https:\/\/[a-z0-9-]+\.(media-amazon\.com|ssl-images-amazon\.com)\/[A-Za-z0-9._%,+\-/~@=]+$/i
+const isAmazonImg = u => AMZ.test((u || '').trim())
+const textLen = computed(() => blocks.value.filter(b => b.type === 'text').reduce((n, b) => n + (b.text || '').trim().length, 0))
+const photoCount = computed(() => blocks.value.filter(b => b.type === 'image').length)
 const editAsin = ref('')
 const busy = ref(false)
 const err = ref('')
@@ -172,39 +173,31 @@ async function saveTag() {
   tagSaving.value = false
 }
 
-function pickPhotos(e) {
-  for (const file of Array.from(e.target.files || [])) {
-    if (keepPhotos.value.length + newPhotos.value.length >= 5) break
-    newPhotos.value.push({ file, preview: URL.createObjectURL(file) })
-  }
-  e.target.value = ''
-}
-
 async function submit() {
   err.value = ''
   const need = []
+  const imgs = amazonImgs.value.map(u => u.trim()).filter(Boolean)
   if (!editId.value && !f.input.trim()) need.push('상품 주소 또는 ASIN')
   if (!f.title.trim()) need.push('제목')
-  if (f.body.trim().length < rules.min_chars) need.push(`리뷰 내용(최소 ${rules.min_chars}자)`)
-  if (!editId.value && !newPhotos.value.length) need.push('사진 1장 이상')
+  if (!imgs.length) need.push('Amazon 상품 사진 주소')
+  else if (imgs.some(u => !isAmazonImg(u))) need.push('Amazon 사진 주소 형식(…media-amazon.com/…)')
+  if (textLen.value < rules.min_chars) need.push(`리뷰 내용(최소 ${rules.min_chars}자)`)
+  if (photoCount.value < rules.min_photos) need.push(`직접 찍은 사진 ${rules.min_photos}장 이상`)
   if (!f.purchased) need.push('직접 구매 체크')
   if (!f.agree) need.push('규칙 동의 체크')
   if (need.length) { err.value = `다음 항목을 확인해주세요: ${need.join(', ')}`; return }
 
-  const fd = new FormData()
-  if (!editId.value) fd.append('input', f.input.trim())
-  fd.append('title', f.title.trim())
-  if (f.category) fd.append('category', f.category)
-  fd.append('rating', f.rating)
-  fd.append('body', f.body.trim())
-  fd.append('purchased', '1'); fd.append('agree_rules', '1')
-  newPhotos.value.forEach(p => fd.append('photos[]', p.file))
-  if (editId.value && newPhotos.value.length) keepPhotos.value.forEach(u => fd.append('keep_photos[]', u))
+  const payload = {
+    title: f.title.trim(), category: f.category || null, rating: f.rating,
+    blocks: blocks.value.map(b => b.type === 'text' ? { type: 'text', text: b.text } : { type: 'image', url: b.url }),
+    amazon_images: imgs, purchased: 1, agree_rules: 1,
+  }
+  if (!editId.value) payload.input = f.input.trim()
 
   busy.value = true
   try {
     const url = editId.value ? `/api/shopping/reviews/${editId.value}` : '/api/shopping/reviews'
-    const { data } = await axios.post(url, fd)
+    const { data } = await axios.post(url, payload)
     site.toast(data.message || '저장했어요', 'success')
     router.replace(data.data?.status === 'published' ? `/shopping/${data.data.id}` : '/dashboard?tab=reviews')
   } catch (e) {
@@ -224,8 +217,12 @@ onMounted(async () => {
     if (editId.value) {
       const p = data.data.items.find(i => i.id === editId.value)
       if (!p) { router.replace('/dashboard?tab=reviews'); return }
-      Object.assign(f, { title: p.title, category: p.category || '', rating: p.rating || 5, body: p.our_description || '', purchased: true, agree: true })
-      keepPhotos.value = p.own_image_urls || []
+      Object.assign(f, { title: p.title, category: p.category || '', rating: p.rating || 5, purchased: true, agree: true })
+      amazonImgs.value = p.amazon_image_urls?.length ? [...p.amazon_image_urls] : ['']
+      // 예전 방식으로 쓴 리뷰(블록 없음)는 글 + 사진을 이어붙여 보여준다
+      const src = p.review_blocks?.length ? p.review_blocks
+        : [{ type: 'text', text: p.our_description || '' }, ...(p.own_image_urls || []).flatMap(u => [{ type: 'image', url: u }, { type: 'text', text: '' }])]
+      blocks.value = src.map((b, i) => ({ id: `e${i}`, ...b }))
       editAsin.value = p.asin
     }
   } catch {}
