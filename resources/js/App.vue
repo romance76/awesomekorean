@@ -40,34 +40,27 @@
          기존엔 bg-surface(연한 살구색)라 본문 카드들과 거의 구분이 안 됐음. -->
     <footer v-if="showNav" class="bg-slate-800 hidden md:block mt-6">
       <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="grid gap-4 mb-6" :style="{ gridTemplateColumns: `repeat(${footerCfg.columns.length + 1}, minmax(0, 1fr))` }">
           <div>
             <img v-if="siteStore.logoDarkUrl" :src="siteStore.logoDarkUrl" alt="AwesomeKorean" class="h-7 w-auto mb-2" />
             <div v-else class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
-            <div class="text-xs text-gray-400">미국 한인 No.1 커뮤니티</div>
+            <div v-if="footerCfg.tagline" class="text-xs text-gray-400">{{ footerCfg.tagline }}</div>
           </div>
-          <div>
-            <div class="text-xs font-bold text-white mb-2.5">서비스</div>
-            <RouterLink to="/community" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">커뮤니티</RouterLink>
-            <RouterLink to="/jobs" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">구인구직</RouterLink>
-            <RouterLink to="/market" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">중고장터</RouterLink>
-            <RouterLink to="/directory" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">업소록</RouterLink>
-          </div>
-          <div>
-            <div class="text-xs font-bold text-white mb-2.5">콘텐츠</div>
-            <RouterLink to="/news" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">뉴스</RouterLink>
-            <RouterLink to="/recipes" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">레시피</RouterLink>
-            <RouterLink to="/games" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">게임</RouterLink>
-            <RouterLink to="/music" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">음악</RouterLink>
-          </div>
-          <div>
-            <div class="text-xs font-bold text-white mb-2.5">안내</div>
-            <RouterLink to="/about" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">소개</RouterLink>
-            <RouterLink to="/terms" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">이용약관</RouterLink>
-            <RouterLink to="/privacy" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">개인정보처리방침</RouterLink>
+          <div v-for="(col, ci) in footerCfg.columns" :key="ci">
+            <div class="text-xs font-bold text-white mb-2.5">{{ col.title }}</div>
+            <template v-for="(link, li) in col.links" :key="li">
+              <RouterLink v-if="link.url && link.url.startsWith('/')" :to="link.url" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">{{ link.label }}</RouterLink>
+              <a v-else-if="link.url" :href="link.url" target="_blank" rel="noopener noreferrer" class="block text-xs text-gray-400 hover:text-amber-400 transition-colors mb-1.5">{{ link.label }}</a>
+            </template>
           </div>
         </div>
-        <div class="border-t border-white/10 pt-4 text-xs text-center text-gray-500">&copy; 2026 AwesomeKorean. All rights reserved.</div>
+        <div class="border-t border-white/10 pt-4 flex items-center justify-between gap-4 text-xs text-gray-500">
+          <span>{{ footerCfg.copyright }}</span>
+          <span v-if="footerSns.length" class="flex items-center gap-3">
+            <a v-for="s in footerSns" :key="s.label" :href="s.url" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition-colors">{{ s.label }}</a>
+          </span>
+        </div>
+        <p v-if="footerCfg.additional_text" class="text-xs text-gray-600 mt-3 whitespace-pre-line">{{ footerCfg.additional_text }}</p>
       </div>
     </footer>
 
@@ -90,6 +83,7 @@ import MiniPlayer from './components/MiniPlayer.vue'
 import GlobalChatPopup from './components/GlobalChatPopup.vue'
 import PopupBanner from './components/PopupBanner.vue'
 import CheckinPrompt from './components/CheckinPrompt.vue'
+import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 
 import { useBookmarkStore } from './stores/bookmarks'
 
@@ -101,6 +95,17 @@ const commHub = ref(null)
 
 // 앱 초기화: settings + 북마크 로드
 siteStore.load()
+
+// 푸터: 관리자 "푸터 편집"에서 저장한 값이 있으면 그걸, 없으면 기본 푸터
+const footerCfg = computed(() => {
+  const saved = readSavedFooter(siteStore.settings?.footer_config)
+  return { ...DEFAULT_FOOTER, ...(saved || {}), columns: (saved?.columns || DEFAULT_FOOTER.columns) }
+})
+const footerSns = computed(() => {
+  const s = footerCfg.value.sns || {}
+  return [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['twitter', 'Twitter/X'], ['youtube', 'YouTube'], ['kakao', 'KakaoTalk']]
+    .filter(([k]) => /^https?:\/\//i.test(s[k] || '')).map(([k, label]) => ({ label, url: s[k] }))
+})
 if (auth.isLoggedIn) bookmarkStore.loadAll()
 
 // 글로벌: 어디서든 window.openCommChat(partner, convId) / window.startCommCall(partner) 호출 가능
