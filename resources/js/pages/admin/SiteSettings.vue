@@ -348,6 +348,12 @@
         <div class="card p-6 mb-4">
           <h2 class="text-base font-semibold text-ink mb-6">푸터 편집</h2>
 
+          <p class="text-xs text-ink-muted mb-4">사이트 맨 아래 푸터와 같은 모양이에요. 첫 칸은 로고 + 소개 문구, 그 옆으로 아래 섹션들이 나란히 표시돼요. 저장하면 바로 사이트에 반영돼요.</p>
+          <div class="mb-5">
+            <label class="input-label">로고 아래 소개 문구</label>
+            <input v-model="footer.tagline" type="text" class="input-field" placeholder="미국 한인 No.1 커뮤니티" />
+          </div>
+
           <!-- Footer columns -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div v-for="(col, ci) in footer.columns" :key="ci" class="border border-gray-100 rounded-xl p-4">
@@ -421,7 +427,11 @@
             <span class="text-gray-300 text-xs ml-2">푸터 미리보기</span>
           </div>
           <footer class="px-8 py-10 text-gray-400 text-sm">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            <div class="grid gap-8 mb-8" :style="{ gridTemplateColumns: `repeat(${footer.columns.length + 1}, minmax(0, 1fr))` }">
+              <div>
+                <div class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
+                <div class="text-xs text-gray-400">{{ footer.tagline }}</div>
+              </div>
               <div v-for="(col, ci) in footer.columns" :key="ci">
                 <h4 class="text-white font-semibold mb-3">{{ col.title || '섹션명' }}</h4>
                 <ul class="space-y-1.5">
@@ -1119,6 +1129,7 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import { menuIcon, menuChipColor } from '../../utils/menuIcons'
 import { useSiteStore } from '../../stores/site'
+import { DEFAULT_FOOTER, FOOTER_VERSION, readSavedFooter } from '../../utils/footerDefaults'
 
 // ─── Sub-component: Toggle Row ────────────────────────────────────────────────
 const ToggleRow = {
@@ -1216,23 +1227,8 @@ const site = reactive({
   maintenance_until: '',
 })
 
-const footer = reactive({
-  columns: [
-    { title: '브랜드 소개', links: [{ label: '회사 소개', url: '/about' }, { label: '팀 소개', url: '/team' }] },
-    { title: '서비스', links: [{ label: '커뮤니티', url: '/community' }, { label: '비즈니스', url: '/business' }] },
-    { title: '커뮤니티', links: [{ label: '자유게시판', url: '/board' }, { label: '정보 공유', url: '/info' }] },
-    { title: '정보', links: [{ label: '이용약관', url: '/terms' }, { label: '개인정보처리방침', url: '/privacy' }] },
-  ],
-  copyright: '© 2024 AwesomeKorean Inc. All rights reserved.',
-  sns: {
-    facebook: '',
-    instagram: '',
-    twitter: '',
-    youtube: '',
-    kakao: '',
-  },
-  additional_text: '',
-})
+// 실제 사이트 푸터와 같은 기본값에서 시작 (저장된 값이 있으면 아래 applySettings 가 덮어씀)
+const footer = reactive(JSON.parse(JSON.stringify(DEFAULT_FOOTER)))
 
 const termsContent = reactive({ terms: '', privacy: '' })
 const termsLastUpdated = reactive({ terms: '', privacy: '' })
@@ -1327,11 +1323,13 @@ async function loadSettings() {
 function applySettings(data) {
   if (data.company) Object.assign(company, data.company)
   if (data.site) Object.assign(site, data.site)
-  if (data.footer) {
-    if (data.footer.columns) footer.columns = data.footer.columns
-    if (data.footer.copyright) footer.copyright = data.footer.copyright
-    if (data.footer.sns) Object.assign(footer.sns, data.footer.sns)
-    if (data.footer.additional_text) footer.additional_text = data.footer.additional_text
+  const savedFooter = readSavedFooter(data.footer)   // 예전 방식으로 저장된 값은 무시하고 실제 푸터(기본값)에서 시작
+  if (savedFooter) {
+    footer.columns = savedFooter.columns
+    footer.tagline = savedFooter.tagline ?? footer.tagline
+    footer.copyright = savedFooter.copyright ?? footer.copyright
+    if (savedFooter.sns) Object.assign(footer.sns, savedFooter.sns)
+    footer.additional_text = savedFooter.additional_text ?? ''
   }
   if (data.terms) {
     termsContent.terms = data.terms.terms?.content || ''
@@ -1384,6 +1382,8 @@ async function saveFooter() {
   saving.value = true
   try {
     await axios.post('/api/admin/settings/footer', {
+      version: FOOTER_VERSION,
+      tagline: footer.tagline,
       columns: footer.columns,
       copyright: footer.copyright,
       sns: { ...footer.sns },
