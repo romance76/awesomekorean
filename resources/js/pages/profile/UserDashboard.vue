@@ -241,6 +241,29 @@
         </div>
       </div>
 
+      <!-- 출석 외 Entry 받는 방법 (관리자 설정이 0이면 해당 항목 숨김) -->
+      <div v-if="enEarn.activity_required || enEarn.email_verify_bonus || enEarn.milestone_bonus" class="card p-5">
+        <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="sparkles" :size="14" class="text-amber-600" />Entry 받는 방법</h3>
+        <div class="space-y-3 text-sm">
+          <div v-if="enEarn.activity_required">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-ink">✍️ 글·댓글·답변을 쓰면 쌓여요</span>
+              <span class="text-xs font-bold text-ink-muted">{{ enEarn.activity_progress }} / {{ enEarn.activity_required }}</span>
+            </div>
+            <div class="h-1.5 bg-gray-100 rounded-full mt-1.5 overflow-hidden"><div class="h-full bg-amber-400 rounded-full transition-all" :style="{ width: Math.min(100, enEarn.activity_progress / enEarn.activity_required * 100) + '%' }"></div></div>
+            <p class="text-[11px] text-ink-faint mt-1">포인트가 지급되는 작성 {{ enEarn.activity_required }}회마다 🎟 1개</p>
+          </div>
+          <div v-if="enEarn.email_verify_bonus" class="flex items-center justify-between gap-2">
+            <span class="text-ink">✉️ 이메일 인증</span>
+            <span class="text-xs font-bold" :class="enEarn.email_verified ? 'text-emerald-600' : 'text-amber-600'">{{ enEarn.email_verified ? '완료' : '인증하면 🎟 ' + enEarn.email_verify_bonus + '개' }}</span>
+          </div>
+          <div v-if="enEarn.milestone_bonus" class="flex items-center justify-between gap-2">
+            <span class="text-ink">🤝 판매완료·거래완료·채용확정</span>
+            <span class="text-xs font-bold text-amber-600">건당 🎟 {{ enEarn.milestone_bonus }}개</span>
+          </div>
+        </div>
+      </div>
+
       <div class="card p-5">
         <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-amber-600" />Entry 내역</h3>
         <div v-if="!enHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
@@ -1305,11 +1328,13 @@ async function confirmPay() {
 const enBalance = ref(0); const enProgress = ref(0); const enRequired = ref(5)
 const enCheckedToday = ref(false); const enChecking = ref(false); const enJustEarned = ref(false)
 const enHistory = ref([])
+const enEarn = ref({ activity_required: 0, activity_progress: 0, email_verify_bonus: 0, email_verified: true, milestone_bonus: 0 })
 
 async function loadEntries() {
   try {
     const { data } = await axios.get('/api/entries/balance')
     enBalance.value = data.data.entries
+    if (data.data.earn) enEarn.value = data.data.earn
     enProgress.value = data.data.checkin_progress
     enRequired.value = data.data.checkin_required
     enCheckedToday.value = data.data.checked_in_today

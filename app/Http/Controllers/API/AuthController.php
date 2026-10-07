@@ -72,6 +72,8 @@ class AuthController extends Controller
     {
         if (!$user->email_verified_at) {
             $user->forceFill(['email_verified_at' => now()])->save();
+            try { \App\Support\EntryService::awardEmailVerified($user); }
+            catch (\Throwable $e) { \Log::warning("이메일 인증 Entry 보너스 실패 (user_id={$user->id}): " . $e->getMessage()); }
         }
         // 빈 안내 페이지 대신 사이트로 복귀 — 프론트(/email-verified)가 완료 토스트를 띄우고
         // 재발송을 눌렀던 페이지로 다시 보내줌

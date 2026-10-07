@@ -68,6 +68,7 @@ class User extends Authenticatable implements JWTSubject
             'game_points' => 'integer',
             'entries' => 'integer',
             'entry_checkin_progress' => 'integer',
+            'entry_activity_progress' => 'integer',
             'login_count' => 'integer',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',

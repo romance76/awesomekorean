@@ -25,6 +25,14 @@ class EntryController extends Controller
                 'checkin_progress' => $u->entry_checkin_progress,
                 'checkin_required' => $required,
                 'checked_in_today' => $checkedInToday,
+                // 출석 외 Entry 획득 방법 (값이 0 이면 화면에서 숨김)
+                'earn' => [
+                    'activity_required' => max(0, EntrySettings::get('activity_required_count', 10)),
+                    'activity_progress' => (int) $u->entry_activity_progress,
+                    'email_verify_bonus' => max(0, EntrySettings::get('email_verify_bonus', 1)),
+                    'email_verified' => (bool) $u->email_verified_at,
+                    'milestone_bonus' => max(0, EntrySettings::get('milestone_bonus', 1)),
+                ],
             ],
         ]);
     }

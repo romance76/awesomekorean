@@ -13,8 +13,20 @@ use App\Models\User;
  */
 class MilestonePoints
 {
+    // Entry 완료 보상 대상 — 직접 거래/채용/완료를 끝낸 경우만. 가입·참여형(클럽 가입,
+    // 이벤트 참가 등)은 가짜 계정으로 쉽게 부풀릴 수 있어 제외.
+    private const ENTRY_MILESTONES = [
+        'market_sale_complete', 'realestate_rent_complete', 'job_hire_complete',
+        'groupbuy_complete', 'business_claim_approved',
+    ];
+
     public static function award(User $user, string $settingKey, string $modelClass, int $modelId, string $reason, ?string $dailyCapKey = null): void
     {
+        if (in_array($settingKey, self::ENTRY_MILESTONES, true)) {
+            try { EntryService::awardMilestone($user, $reason, $modelClass, $modelId); }
+            catch (\Throwable $e) { \Log::warning("Entry 완료 보상 실패 (user_id={$user->id}): " . $e->getMessage()); }
+        }
+
         $amount = PointRules::get($settingKey, 0);
         if ($amount <= 0) return;
 
