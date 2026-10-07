@@ -248,7 +248,7 @@
                 class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white text-center focus:border-amber-400 focus:outline-none"
                 placeholder="금액 입력">
               <div class="flex gap-2">
-                <button @click="handleDeposit" :disabled="walletLoading || !walletAmount"
+                <button v-if="wallet?.points_to_game_enabled" @click="handleDeposit" :disabled="walletLoading || !walletAmount"
                   class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-700 text-white text-xs font-bold py-2 rounded-lg transition">
                   입금
                 </button>

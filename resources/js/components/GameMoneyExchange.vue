@@ -4,7 +4,7 @@
     <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] px-5 py-4 text-white flex justify-between items-center">
       <div>
         <div class="font-black text-lg flex items-center gap-1.5"><AppIcon name="coins" :size="18" /> 게임머니 환전</div>
-        <div class="text-xs opacity-80">포인트 ↔ 게임머니</div>
+        <div class="text-xs opacity-80">{{ settings.points_to_game_enabled ? '포인트 ↔ 게임머니' : '게임머니 → 포인트' }}</div>
       </div>
       <button @click="$emit('close')" class="text-white/80 hover:text-white text-2xl transition-colors">✕</button>
     </div>
@@ -24,13 +24,14 @@
 
       <!-- 환율 안내 -->
       <div class="bg-gray-50 border border-gray-100 rounded-lg p-2.5 text-xs text-ink-light mb-4">
+        <template v-if="!settings.points_to_game_enabled">포인트로 게임머니를 사는 기능은 종료되었어요. 보유한 게임머니는 아래에서 포인트로 되돌릴 수 있어요.<br></template>
         환율: 1P = {{ Number(settings.rate_to_game||10000).toLocaleString() }} GM<br>
         역환전 수수료: {{ settings.withdraw_fee_pct }}%
       </div>
 
       <!-- 탭 -->
       <div class="flex gap-1 mb-3 border-b border-gray-100">
-        <button @click="mode='exchange'" class="px-3 py-2 text-sm font-bold border-b-2 -mb-px transition-colors flex items-center gap-1"
+        <button v-if="settings.points_to_game_enabled" @click="mode='exchange'" class="px-3 py-2 text-sm font-bold border-b-2 -mb-px transition-colors flex items-center gap-1"
           :class="mode==='exchange' ? 'border-amber-500 text-amber-600' : 'border-transparent text-ink-muted'">
           <AppIcon name="refresh" :size="13" /> 환전 (P → GM)
         </button>
@@ -41,7 +42,7 @@
       </div>
 
       <!-- 환전 (P → GM) -->
-      <div v-if="mode==='exchange'" class="space-y-3">
+      <div v-if="mode==='exchange' && settings.points_to_game_enabled" class="space-y-3">
         <div>
           <label class="input-label text-xs">포인트 입력 (최소 {{ settings.min_exchange_p }}P)</label>
           <input v-model.number="exchangeP" type="number" :min="settings.min_exchange_p" :max="data.points"
@@ -101,7 +102,7 @@ const emit = defineEmits(['close', 'updated'])
 
 const mode = ref('exchange')
 const data = ref({ points: 0, game_points: 0 })
-const settings = ref({ rate_to_game: 10000, withdraw_fee_pct: 10, min_exchange_p: 10, min_withdraw_gm: 100000 })
+const settings = ref({ rate_to_game: 10000, withdraw_fee_pct: 10, min_exchange_p: 10, min_withdraw_gm: 100000, points_to_game_enabled: false })
 const exchangeP = ref(null)
 const withdrawGm = ref(null)
 const busy = ref(false)
@@ -113,6 +114,7 @@ async function load() {
     const { data: res } = await axios.get('/api/game-money')
     data.value = res.data
     settings.value = res.data.settings
+    if (!settings.value.points_to_game_enabled) mode.value = 'withdraw'
   } catch {}
 }
 

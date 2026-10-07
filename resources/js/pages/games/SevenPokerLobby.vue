@@ -84,7 +84,7 @@
         </div>
         <div class="bg-gray-50 rounded p-2 text-xs text-gray-600">
           현재 보유: <strong class="text-purple-700">{{ formatGm(wallet.game_points) }}</strong> 게임머니
-          <div v-if="wallet.game_points < newRoom.buy_in" class="text-red-600 mt-1">⚠️ 바이인 부족 — 환전 필요</div>
+          <div v-if="wallet.game_points < newRoom.buy_in" class="text-red-600 mt-1">⚠️ 바이인 부족</div>
         </div>
       </div>
       <div class="flex justify-end gap-2 mt-4">

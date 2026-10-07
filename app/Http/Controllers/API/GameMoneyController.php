@@ -24,6 +24,8 @@ class GameMoneyController extends Controller
             'min_exchange_p'    => (int)($map['game_money.min_exchange_p'] ?? 10),    // 최소 환전 10P
             'min_withdraw_gm'   => (int)($map['game_money.min_withdraw_gm'] ?? 100000), // 최소 역환전 10만 게임머니
             'enabled'           => ($map['game_money.enabled'] ?? '1') == '1',
+            // 포인트 → 게임머니 방향만 별도로 막는 스위치 (역환전은 이 값과 무관)
+            'points_to_game_enabled' => \App\Support\PointRules::get('points_to_game_enabled', 0) === 1,
         ];
     }
 
@@ -51,6 +53,9 @@ class GameMoneyController extends Controller
         $s = $this->settings();
         if (!$s['enabled']) {
             return response()->json(['success' => false, 'message' => '환전 기능이 비활성화되었습니다'], 403);
+        }
+        if (!$s['points_to_game_enabled']) {
+            return response()->json(['success' => false, 'message' => '포인트로는 게임머니를 살 수 없습니다. (보유 중인 게임머니는 포인트로 되돌릴 수 있어요)'], 403);
         }
 
         $amountP = (int)$request->input('amount_p', 0);

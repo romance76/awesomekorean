@@ -29,12 +29,18 @@ class PokerController extends Controller
                 'total_deposited' => $wallet->total_deposited,
                 'total_withdrawn' => $wallet->total_withdrawn,
                 'points' => $request->user()->points,
+                'points_to_game_enabled' => \App\Support\PointRules::get('points_to_game_enabled', 0) === 1,
             ],
         ]);
     }
 
     public function deposit(Request $request)
     {
+        // 포인트는 광고·끌어올리기 등 사이트 서비스에만 쓰도록 — 칩으로의 전환은 기본 차단
+        if (\App\Support\PointRules::get('points_to_game_enabled', 0) !== 1) {
+            return response()->json(['success' => false, 'message' => '포인트로는 칩을 충전할 수 없습니다. (보유 중인 칩은 출금해 포인트로 되돌릴 수 있어요)'], 403);
+        }
+
         $request->validate(['amount' => 'required|integer|min:1000']);
 
         $user = $request->user();

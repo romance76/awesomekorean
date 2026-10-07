@@ -65,7 +65,7 @@
 
       <!-- 잔액 부족 안내 -->
       <div v-if="coin < bet" class="low-coin">
-        게임머니가 부족합니다. 카지노 대기실에서 환전해 주세요!
+        게임머니가 부족합니다.
       </div>
       <div v-if="errorMsg" class="low-coin">{{ errorMsg }}</div>
     </div>
