@@ -734,6 +734,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::post('/security/login-unlock', [\App\Http\Controllers\API\AdminSecurityController::class, 'unlockLogin'])->middleware('throttle:30,1');
         Route::get('/security/server-bans', [\App\Http\Controllers\API\AdminSecurityController::class, 'serverBans']);
         Route::post('/security/server-unban', [\App\Http\Controllers\API\AdminSecurityController::class, 'serverUnban'])->middleware('throttle:30,1');
+        // 방문 분석(구글 애널리틱스) 상태 / 사이트 전체 추적 코드 검사
+        Route::get('/analytics/status', [\App\Http\Controllers\API\AdminAnalyticsController::class, 'status']);
+        Route::post('/analytics/check', [\App\Http\Controllers\API\AdminAnalyticsController::class, 'check'])->middleware('throttle:6,1');
         // 관리자 할 일 목록
         Route::get('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'index']);
         Route::post('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'store']);

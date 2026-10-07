@@ -153,6 +153,7 @@ const subTabs = {
   system: [
     { to: '/admin/security', icon: 'lock', label: '보안/신고' },
     { to: '/admin/todos', icon: 'list', label: '할 일 목록' },
+    { to: '/admin/analytics', icon: 'chart-bar', label: '방문 분석' },
     { to: '/admin/settings', icon: 'settings', label: '설정' },
     { to: '/admin/entry-settings', icon: 'ticket', label: 'Entry 설정' },
     { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리' },
