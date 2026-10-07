@@ -85,7 +85,7 @@
         </div>
 
         <!-- 가격/정보 + 판매자 (나란히) -->
-        <div class="flex gap-3">
+        <div class="flex flex-col lg:flex-row gap-3">
           <!-- 왼쪽: 매물 정보 -->
           <div class="flex-1 min-w-0 card p-4"
             :style="promoBorderStyle">
@@ -125,7 +125,7 @@
           </div>
 
           <!-- 오른쪽: 판매자 정보 (친구추가/쪽지 + 전화/이메일) -->
-          <div class="hidden lg:block flex-shrink-0" style="width:200px;">
+          <div class="w-full lg:w-[200px] flex-shrink-0">
             <div class="card overflow-hidden h-full">
               <div class="px-3 py-2 border-b border-gray-50 bg-amber-50 font-bold text-xs text-amber-700 flex items-center gap-1"><AppIcon name="user" :size="12" /> 판매자 정보</div>
               <div class="p-3 space-y-2">
