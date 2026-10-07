@@ -187,6 +187,7 @@ Route::get('/search', [SearchController::class, 'search']);
 Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
 // 캐싱은 컨트롤러 안에서 고정 키로 직접 처리(저장 시 정확히 무효화하기 위함) — cache.api 미들웨어 미적용
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublic']);
+Route::get('/push/config', [AdminSettingsController::class, 'pushConfig']);
 Route::get('/settings/points', function () {
     $settings = \DB::table('point_settings')->pluck('value', 'key');
     return response()->json(['success' => true, 'data' => $settings]);
@@ -735,6 +736,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // Firebase 설정
     Route::get('/firebase', [AdminSettingsController::class, 'getFirebase']);
     Route::post('/firebase', [AdminSettingsController::class, 'saveFirebase']);
+    Route::post('/firebase/test', [AdminSettingsController::class, 'testPush'])->middleware('throttle:10,1');
 
     // 포인트 설정
     Route::get('/point-settings', [AdminSettingsController::class, 'getPointSettings']);

@@ -497,6 +497,41 @@ class AdminSettingsController extends Controller
         ]);
     }
 
+    /**
+     * GET /push/config (공개) — 브라우저가 푸시 알림을 켜는 데 쓰는 Firebase 웹 설정(원래 공개되는 값).
+     * 사이트를 다시 만들지 않아도 관리자가 입력한 값이 바로 쓰이도록 빌드 변수 대신 여기서 내려준다.
+     * 필수 값(apiKey/projectId/appId/senderId/VAPID)이 다 있어야 enabled.
+     */
+    public function pushConfig()
+    {
+        $s = fn($k) => trim((string) SiteSetting::where('key', $k)->value('value'));
+        $cfg = [
+            'apiKey' => $s('firebase_api_key'), 'authDomain' => $s('firebase_auth_domain'), 'projectId' => $s('firebase_project_id'),
+            'storageBucket' => $s('firebase_storage_bucket'), 'messagingSenderId' => $s('firebase_sender_id'), 'appId' => $s('firebase_app_id'),
+        ];
+        $vapid = $s('firebase_vapid_key');
+        $enabled = $cfg['apiKey'] && $cfg['projectId'] && $cfg['appId'] && $cfg['messagingSenderId'] && $vapid;
+        return response()->json(['enabled' => (bool) $enabled, 'config' => $enabled ? array_filter($cfg) : null, 'vapidKey' => $enabled ? $vapid : null]);
+    }
+
+    /** POST /admin/firebase/test — 내 기기(이 브라우저)로 테스트 알림을 보내 설정이 끝까지 되는지 확인 */
+    public function testPush(Request $request)
+    {
+        $user = $request->user();
+        $credPath = config('services.firebase.credentials');
+        if (!$credPath || !file_exists($credPath)) {
+            return response()->json(['success' => false, 'message' => '서버에 Firebase 서비스 계정 파일이 없어요. (storage/app/firebase-service-account.json)']);
+        }
+        if (!$user->fcm_token) {
+            return response()->json(['success' => false, 'message' => '이 계정으로 등록된 기기가 아직 없어요. 위 설정을 저장한 뒤 사이트를 새로고침하고, 브라우저의 알림 허용을 누른 다음 다시 눌러주세요.']);
+        }
+        $push = app(\App\Services\PushNotificationService::class);
+        $err = $push->sendToToken($user->fcm_token, '테스트 알림', '푸시 알림이 정상으로 설정됐어요!', ['type' => 'test', 'url' => '/']);
+        return response()->json($err === null
+            ? ['success' => true, 'message' => '테스트 알림을 보냈어요. 잠시 뒤 이 기기에 알림이 뜨는지 확인해주세요. (사이트 탭이 열려 있으면 안 보일 수 있어요 — 다른 탭/창으로 바꿔서 확인)']
+            : ['success' => false, 'message' => '보내지 못했어요: ' . $err]);
+    }
+
     public function saveFirebase(Request $request)
     {
         $fields = [

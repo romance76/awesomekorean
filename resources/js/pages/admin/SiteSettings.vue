@@ -1022,6 +1022,11 @@
           <button @click="saveFirebase" :disabled="savingFirebase" class="btn-primary w-full mt-2">
             {{ savingFirebase ? '저장 중...' : 'Firebase 설정 저장' }}
           </button>
+          <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">저장하면 사이트를 다시 만들지 않아도 바로 적용돼요. 회원이 사이트를 열 때 브라우저가 "알림 허용"을 물어보고, 허용하면 새 쪽지·1:1 대화·안심 통화 알림이 휴대폰/PC 알림으로 와요. (한 계정당 가장 최근에 허용한 기기 1대로 보내요)</p>
+          <button @click="testFirebasePush" :disabled="testingPush" class="w-full mt-2 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-ink-light hover:bg-gray-50 disabled:opacity-50">
+            {{ testingPush ? '보내는 중...' : '🔔 내 기기로 테스트 알림 보내기' }}
+          </button>
+          <p v-if="pushTestMsg" class="text-xs mt-2 leading-relaxed" :class="pushTestOk ? 'text-green-600' : 'text-red-500'">{{ pushTestMsg }}</p>
         </div>
       </div>
 
@@ -1678,6 +1683,20 @@ async function loadFirebase() {
     Object.assign(firebase, data)
     firebaseStatus.value = !!(data.apiKey && data.projectId && data.vapidKey && data.credentialsExists)
   } catch (e) { console.warn('loadFirebase:', e) }
+}
+
+const testingPush = ref(false)
+const pushTestMsg = ref('')
+const pushTestOk = ref(false)
+async function testFirebasePush() {
+  testingPush.value = true; pushTestMsg.value = ''
+  try {
+    const { data } = await axios.post('/api/admin/firebase/test')
+    pushTestMsg.value = data.message; pushTestOk.value = !!data.success
+  } catch (e) {
+    pushTestMsg.value = e.response?.data?.message || '테스트 알림을 보내지 못했어요'; pushTestOk.value = false
+  }
+  testingPush.value = false
 }
 
 async function saveFirebase() {

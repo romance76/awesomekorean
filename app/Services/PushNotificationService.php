@@ -121,31 +121,34 @@ class PushNotificationService
      * P2B-4: 범용 push 발송 (title/body/data).
      * Firebase 미설정 시 조용히 skip.
      */
+    /** @return string|null 실패 사유(성공이면 null) — 호출하는 쪽은 무시해도 됨 */
     public function sendToToken(
         string $fcmToken,
         string $title,
         string $body,
         array  $data = []
-    ): void {
+    ): ?string {
         if (!$this->messaging) {
             Log::info('[FCM] sendToToken skipped — Firebase not configured');
-            return;
+            return '서버의 Firebase 서비스 계정 파일을 읽지 못했어요 (파일이 없거나 형식이 잘못됨)';
         }
         try {
+            // data-only 메시지 — notification 필드가 있으면 Firebase SDK 와 sw.js 가 둘 다 알림을 띄워 두 번 보일 수 있어서,
+            // 다른 푸시(전화/대화)처럼 sw.js 가 한 번만 직접 표시하게 한다.
             $message = CloudMessage::withTarget('token', $fcmToken)
-                ->withNotification(Notification::create($title, mb_substr($body, 0, 200)))
-                ->withData(array_map('strval', $data))
+                ->withData(array_map('strval', array_merge($data, [
+                    'title' => $title,
+                    'body'  => mb_substr($body, 0, 200),
+                ])))
                 ->withWebPushConfig(WebPushConfig::fromArray([
-                    'notification' => [
-                        'title'    => $title,
-                        'body'     => mb_substr($body, 0, 200),
-                        'icon'     => '/images/icons/icon-192.png',
-                    ],
+                    'headers' => ['Urgency' => 'high', 'TTL' => '3600'],
                 ]));
             $this->messaging->send($message);
             Log::info('[FCM] sendToToken sent to ' . substr($fcmToken, 0, 10) . '...');
+            return null;
         } catch (\Throwable $e) {
             Log::warning('[FCM] sendToToken failed: ' . $e->getMessage());
+            return mb_substr($e->getMessage(), 0, 200);
         }
     }
 }
