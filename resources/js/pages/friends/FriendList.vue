@@ -149,7 +149,7 @@
             <div class="flex gap-1.5">
               <template v-if="f.status==='accepted'">
                 <button @click="openChat(f.friend?.id)" class="flex-1 text-xs bg-amber-50 text-amber-700 py-1.5 rounded-lg font-bold hover:bg-amber-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="message-circle" :size="12" />채팅</button>
-                <button @click="startCall(f.friend)" class="flex-1 text-xs bg-green-50 text-green-700 py-1.5 rounded-lg font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="phone" :size="12" />전화</button>
+                <button v-if="VOICE_CALL_ENABLED" @click="startCall(f.friend)" class="flex-1 text-xs bg-green-50 text-green-700 py-1.5 rounded-lg font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="phone" :size="12" />전화</button>
                 <button @click="sendMessageTo(f.friend)" class="flex-1 text-xs bg-blue-50 text-blue-700 py-1.5 rounded-lg font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" />쪽지</button>
                 <button @click="removeFriend(f.id)" class="text-ink-faint px-2 py-1.5 hover:text-red-500 transition-colors"><AppIcon name="x" :size="13" /></button>
               </template>
@@ -232,6 +232,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import { VOICE_CALL_ENABLED } from '../../config/features'
 
 const router = useRouter()
 const allFriends = ref([])

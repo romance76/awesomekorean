@@ -60,7 +60,7 @@
             <span class="text-ink-faint">· {{ formatTime(call.created_at) }}</span>
           </div>
         </div>
-        <button @click="callBack(call)" class="bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors"><AppIcon name="phone" :size="14" /></button>
+        <button v-if="VOICE_CALL_ENABLED" @click="callBack(call)" class="bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors"><AppIcon name="phone" :size="14" /></button>
       </div>
     </div>
   </div>
@@ -71,6 +71,7 @@
 import { ref, onMounted } from 'vue'
 import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
+import { VOICE_CALL_ENABLED } from '../../config/features'
 
 const tab = ref('messages')
 const conversations = ref([])
