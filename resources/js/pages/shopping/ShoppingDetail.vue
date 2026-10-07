@@ -48,7 +48,14 @@
             <span class="text-amber-400 text-base">{{ '★'.repeat(product.rating || 0) }}<span class="text-gray-300">{{ '★'.repeat(5 - (product.rating || 0)) }}</span></span>
             <span class="text-xs font-bold text-ink-light">✍️ {{ product.author?.name }}님의 내돈내산 리뷰</span>
           </div>
-          <div class="text-sm text-ink leading-relaxed whitespace-pre-line break-words">{{ product.our_description }}</div>
+          <!-- 글 + 사진 블록 (예전 방식으로 쓴 글은 본문만) -->
+          <template v-if="product.review_blocks?.length">
+            <template v-for="(b, i) in product.review_blocks" :key="i">
+              <p v-if="b.type === 'text'" class="text-sm text-ink leading-relaxed whitespace-pre-line break-words my-2">{{ b.text }}</p>
+              <img v-else :src="b.url" alt="" loading="lazy" class="w-full rounded-lg my-3 border border-gray-100" />
+            </template>
+          </template>
+          <div v-else class="text-sm text-ink leading-relaxed whitespace-pre-line break-words">{{ product.our_description }}</div>
         </div>
         <div v-else-if="product.our_description" class="card p-4">
           <div class="text-xs font-bold text-ink-light mb-1.5">✍️ Awesome Korean의 추천 이유</div>
@@ -138,7 +145,9 @@ const categories = [
 
 const allImages = computed(() => {
   if (!product.value) return []
-  return [...(product.value.amazon_image_urls || []), ...(product.value.own_image_urls || [])].filter(Boolean)
+  // 글 사이에 사진을 넣어 쓴 회원 리뷰는 사진이 본문에 있으므로 위 갤러리엔 Amazon 사진만
+  const own = product.value.review_blocks?.length ? [] : (product.value.own_image_urls || [])
+  return [...(product.value.amazon_image_urls || []), ...own].filter(Boolean)
 })
 const mainImage = computed(() => allImages.value[selectedIdx.value] || allImages.value[0] || product.value?.image_url || '')
 
