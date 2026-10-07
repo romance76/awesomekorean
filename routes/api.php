@@ -736,6 +736,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // Firebase 설정
     Route::get('/firebase', [AdminSettingsController::class, 'getFirebase']);
     Route::post('/firebase', [AdminSettingsController::class, 'saveFirebase']);
+    Route::post('/firebase/credentials', [AdminSettingsController::class, 'uploadFirebaseCredentials'])->middleware(['role:super_admin', 'throttle:10,1']);
     Route::post('/firebase/test', [AdminSettingsController::class, 'testPush'])->middleware('throttle:10,1');
 
     // 포인트 설정

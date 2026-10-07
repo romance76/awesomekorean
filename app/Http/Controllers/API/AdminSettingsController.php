@@ -494,6 +494,8 @@ class AdminSettingsController extends Controller
             'vapidKey'          => $s('firebase_vapid_key') ?: '',
             'credentialsPath'   => $credPath,
             'credentialsExists' => $credPath && file_exists($credPath),
+            // 서비스 계정 파일 속 프로젝트 ID (위 Project ID 와 같아야 푸시가 감) — 비밀 값은 내려주지 않음
+            'credentialsProject' => $credPath && file_exists($credPath) ? (json_decode((string) @file_get_contents($credPath), true)['project_id'] ?? null) : null,
         ]);
     }
 
@@ -512,6 +514,29 @@ class AdminSettingsController extends Controller
         $vapid = $s('firebase_vapid_key');
         $enabled = $cfg['apiKey'] && $cfg['projectId'] && $cfg['appId'] && $cfg['messagingSenderId'] && $vapid;
         return response()->json(['enabled' => (bool) $enabled, 'config' => $enabled ? array_filter($cfg) : null, 'vapidKey' => $enabled ? $vapid : null]);
+    }
+
+    /** POST /admin/firebase/credentials — Firebase 서비스 계정 JSON 업로드 (최고 관리자만, 서버 안쪽 폴더에만 저장) */
+    public function uploadFirebaseCredentials(Request $request)
+    {
+        $request->validate(['file' => 'required|file|max:100']);
+        $raw = (string) file_get_contents($request->file('file')->getRealPath());
+        $j = json_decode($raw, true);
+        $need = ['type', 'project_id', 'private_key', 'client_email'];
+        if (!is_array($j) || ($j['type'] ?? '') !== 'service_account' || array_diff($need, array_keys(array_filter($j)))) {
+            return response()->json(['success' => false, 'message' => 'Firebase 서비스 계정 JSON 파일이 아니에요. (Firebase 콘솔 → 프로젝트 설정 → 서비스 계정 → 새 비공개 키 생성으로 받은 파일)'], 422);
+        }
+        $path = config('services.firebase.credentials');
+        if (!is_dir(dirname($path))) @mkdir(dirname($path), 0755, true);
+        file_put_contents($path, $raw);
+        @chmod($path, 0600);
+
+        $projectSetting = trim((string) SiteSetting::where('key', 'firebase_project_id')->value('value'));
+        $msg = '서비스 계정 파일을 저장했어요. (프로젝트: ' . $j['project_id'] . ')';
+        if ($projectSetting && $projectSetting !== $j['project_id']) {
+            $msg .= ' ⚠️ 위 Project ID(' . $projectSetting . ')와 달라요 — 같은 프로젝트의 파일인지 확인해주세요.';
+        }
+        return response()->json(['success' => true, 'message' => $msg, 'projectId' => $j['project_id']]);
     }
 
     /** POST /admin/firebase/test — 내 기기(이 브라우저)로 테스트 알림을 보내 설정이 끝까지 되는지 확인 */
