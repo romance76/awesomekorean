@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5 pb-28">
-    <RouterLink to="/clubs" class="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink mb-3"><AppIcon name="arrow-left" :size="14" />동호회 목록</RouterLink>
+    <PageHeader title="샘플 동호회" icon="users" chip="bg-teal-50 text-teal-600" to="/clubs" />
 
     <!-- 샘플 안내 -->
     <div class="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 mb-4 text-xs text-amber-800 leading-relaxed">
@@ -105,6 +105,7 @@
 <script setup>
 import { ref } from 'vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const tab = ref('board')
 const tabs = [

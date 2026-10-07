@@ -1,11 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <DetailHeader :title="editId ? '리뷰 수정' : '리뷰 쓰기'" fallback="/shopping" />
-    <h1 class="hidden lg:flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
-      {{ editId ? '내돈내산 리뷰 수정' : '내돈내산 리뷰 쓰기' }}
-    </h1>
+    <PageHeader :title="editId ? '내돈내산 리뷰 수정' : '내돈내산 리뷰 쓰기'" icon="shopping-bag" chip="bg-lime-50 text-lime-600" fallback="/shopping" />
 
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <VerifyGate v-else message="이메일 인증 후 리뷰를 쓸 수 있어요.">
@@ -114,7 +110,7 @@ import { ref, reactive, computed, onMounted, defineComponent, h } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import DetailHeader from '../../components/DetailHeader.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import ReviewBlockEditor from '../../components/ReviewBlockEditor.vue'
 import { useSiteStore } from '../../stores/site'

@@ -1,11 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <RouterLink to="/ad-apply" class="text-xs text-ink-muted hover:text-amber-600 transition-colors mb-2 inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="13" />이미지 광고 신청으로</RouterLink>
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="20" /></span>
-      텍스트 인라인 광고 신청
-    </h1>
+    <PageHeader title="텍스트 인라인 광고 신청" icon="edit" to="/ad-apply" />
     <p class="text-sm text-ink-muted mb-4">상호 + 전화 + 한 줄 설명으로 리스트/상세 중간에 노출 · 이미지 불필요</p>
 
     <!-- 실시간 미리보기 -->
@@ -108,6 +104,7 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
 
 const router = useRouter()

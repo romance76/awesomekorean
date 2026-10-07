@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="edit" :size="20" /></span>
-      {{ isEdit ? '글 수정' : '글쓰기' }}
-    </h1>
+    <PageHeader :title="isEdit ? '글 수정' : '글쓰기'" icon="edit" chip="bg-blue-50 text-blue-600" />
 
     <div class="card p-5 space-y-4">
       <div>
@@ -98,6 +95,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const router = useRouter()
 const route = useRoute()

@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5 space-y-4">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-      <span class="icon-chip w-9 h-9 bg-emerald-50 text-emerald-600"><AppIcon name="shopping-cart" :size="20" /></span>
-      {{ isEdit ? '물품 수정' : '물품 등록' }}
-    </h1>
+    <PageHeader :title="isEdit ? '물품 수정' : '물품 등록'" icon="shopping-cart" chip="bg-emerald-50 text-emerald-600" fallback="/market" />
 
     <div class="card p-5 space-y-4">
 
@@ -137,6 +134,7 @@ import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()

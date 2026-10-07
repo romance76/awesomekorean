@@ -1,11 +1,9 @@
 <template>
 <div :class="embedded ? '' : 'min-h-screen'">
   <div :class="embedded ? '' : 'page-main px-4 py-5'">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
-      <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="megaphone" :size="20" /></span>
-      NEW 전면광고 신청
-      <RouterLink to="/new" class="ml-auto text-xs font-semibold text-ink-muted hover:text-rose-600 transition-colors">NEW 게시판 보기 →</RouterLink>
-    </h1>
+    <PageHeader title="NEW 전면광고 신청" icon="megaphone" chip="bg-rose-50 text-rose-600" :back="!embedded" fallback="/new">
+      <template #actions><RouterLink to="/new" class="text-xs font-semibold text-ink-muted hover:text-rose-600 transition-colors">NEW 게시판 보기 →</RouterLink></template>
+    </PageHeader>
     <p class="text-sm text-ink-muted mb-5">라디오 광고처럼 <b>하루 중 원하는 시간대</b>를 골라 사세요. 고른 시간에 NEW 게시판 맨 위에 전단이 통째로 나가고, 남은 시간은 다른 광고주가 쓸 수 있어요.</p>
 
     <VerifyGate message="이메일 인증 후 전면광고를 신청할 수 있어요.">
@@ -182,6 +180,7 @@ import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import StripeCardForm from '../../components/StripeCardForm.vue'
 import { KINDS, US_STATES, fmtHour, hourRanges, fmtDay, tzLabel, stateName, STATUS_LABEL, usd, adMoney } from '../../utils/flyer'

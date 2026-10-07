@@ -1,16 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-6 space-y-5">
-    <!-- Header -->
-    <div class="flex items-center gap-3">
-      <button @click="$router.back()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-card text-ink-muted hover:bg-gray-50 transition-colors">
-        <AppIcon name="chevron-left" :size="20" />
-      </button>
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="20" /></span>
-        {{ isEdit ? '공고 수정' : '공고 등록' }}
-      </h1>
-    </div>
+    <PageHeader :title="isEdit ? '공고 수정' : '공고 등록'" icon="briefcase" chip="bg-amber-50 text-amber-600" fallback="/jobs" />
 
 
     <!-- Section 1: 글 유형 -->
@@ -367,6 +358,7 @@ import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 // 공통 컴포넌트로 프로모션 관리 (jobPromotion 으로 v-model)
 const jobPromotion = reactive({ tier: 'none', days: 7 })

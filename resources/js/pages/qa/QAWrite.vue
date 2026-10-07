@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="20" /></span>
-      질문 등록
-    </h1>
+    <PageHeader title="질문 등록" icon="help-circle" fallback="/qa" />
     <div class="card p-5 space-y-4">
       <div>
         <label class="input-label">카테고리</label>
@@ -34,6 +31,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 const router = useRouter()
 const form = reactive({ category_id:'',title:'',content:'',bounty_points:0 })
 const categories = ref([])

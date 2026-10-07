@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <router-link to="/groupbuy" class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4 hover:text-amber-600 transition-colors">
-      <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="heart-handshake" :size="20" /></span>
-      공동구매 등록
-    </router-link>
+    <PageHeader title="공동구매 등록" icon="heart-handshake" chip="bg-lime-50 text-lime-600" fallback="/groupbuy" />
 
     <div class="card p-5 space-y-5">
 
@@ -227,6 +224,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

@@ -1,13 +1,9 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="bell" :size="20" /></span>
-        알림
-      </h1>
-      <button @click="markAllRead" class="btn-ghost text-xs">전체 읽음</button>
-    </div>
+    <PageHeader title="알림" icon="bell" :back="false">
+      <template #actions><button @click="markAllRead" class="btn-ghost text-xs">전체 읽음</button></template>
+    </PageHeader>
 
     <!-- 통합검색 -->
     <div class="card p-3 mb-4 space-y-2">
@@ -60,6 +56,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../components/AppIcon.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 const notifs = ref([])
 const loading = ref(true)

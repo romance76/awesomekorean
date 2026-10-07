@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
-      안심 메시지
-    </h1>
+    <PageHeader title="안심 메시지" icon="message-circle" :back="false" />
 
     <!-- 탭: 메시지 / 통화 기록 -->
     <div class="inline-flex gap-1 mb-4 bg-gray-100 rounded-xl p-1">
@@ -70,6 +67,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
 import { VOICE_CALL_ENABLED } from '../../config/features'
 

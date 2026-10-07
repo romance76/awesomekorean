@@ -1,13 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="20" /></span>
-        {{ isEdit ? '내 레시피 수정' : '내 레시피 등록' }}
-      </h1>
-      <button @click="$router.back()" class="btn-ghost text-sm"><AppIcon name="chevron-left" :size="14" /> 뒤로</button>
-    </div>
+    <PageHeader :title="isEdit ? '내 레시피 수정' : '내 레시피 등록'" icon="utensils" chip="bg-orange-50 text-orange-600" fallback="/recipes" />
 
     <div class="card p-5 space-y-4">
       <!-- 썸네일 이미지 업로드 -->
@@ -160,6 +154,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { compressImage } from '../../utils/imageCompress'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const route = useRoute()
 const router = useRouter()

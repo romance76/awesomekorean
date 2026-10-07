@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="20" /></span>
-      포인트
-    </h1>
+    <PageHeader title="포인트" icon="coins" :back="false" />
 
     <!-- 잔액 카드 -->
     <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-2xl p-5 text-white mb-4 shadow-card">
@@ -48,6 +45,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
 const balance = ref(0)
 const logs = ref([])

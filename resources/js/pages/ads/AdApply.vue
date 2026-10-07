@@ -1,10 +1,7 @@
 <template>
 <div :class="embedded ? '' : 'min-h-screen'">
   <div :class="embedded ? '' : 'page-main px-4 py-5'">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-2">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="megaphone" :size="20" /></span>
-      광고 신청 (월간 경매)
-    </h1>
+    <PageHeader title="광고 신청 (월간 경매)" icon="megaphone" :back="!embedded" />
     <p class="text-sm text-ink-muted mb-1">매달 말일 24시간 입찰 접수 → 최고 입찰자 순으로 배정</p>
     <p class="text-xs text-amber-600 font-bold mb-2">다음 경매: {{ nextAuctionDate }}</p>
     <div v-if="adDiscountPct" class="mb-5 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-2">
@@ -406,6 +403,7 @@ import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { menuIcon } from '../../utils/menuIcons'
 import axios from 'axios'
 

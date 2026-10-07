@@ -1,9 +1,6 @@
 <template>
 <div class="page-main px-4 py-6">
-  <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
-    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="trending-up" :size="20" /></span>
-    증권
-  </h1>
+  <PageHeader title="증권" icon="trending-up" :back="false" />
   <p class="text-sm text-ink-muted mb-5">15분마다 갱신되는 주요 지수와 관심종목 시세예요.</p>
 
   <div class="card overflow-hidden mb-6">
@@ -66,6 +63,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../components/AppIcon.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 const indices = ref([])
 const watchlist = ref([])
