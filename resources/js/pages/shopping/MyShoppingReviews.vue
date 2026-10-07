@@ -18,6 +18,7 @@
         <button @click="saveTag" :disabled="tagBusy || !tagInput.trim()" class="btn-primary px-4 text-sm disabled:opacity-50">{{ d.amazon_tag ? '변경' : '등록' }}</button>
       </div>
       <p v-if="tagMsg" class="text-xs mt-1" :class="tagOk ? 'text-green-600' : 'text-red-500'">{{ tagMsg }}</p>
+      <RouterLink to="/shopping/guide" class="inline-block mt-2 text-xs font-bold text-amber-700 underline">📘 Amazon Associates 가입 방법 보기</RouterLink>
       <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">리뷰 속 "Amazon에서 보기" 링크에는 이 태그가 붙고, 수익은 내 Associates 계정으로 들어가요. 태그를 바꾸면 내 리뷰 링크도 모두 새 태그로 바뀌고, 태그를 지우면 내 리뷰는 숨겨져요.</p>
     </div>
 

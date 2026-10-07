@@ -113,6 +113,10 @@
     </div>
 
     <!-- 📂 카테고리 — 고정 분류, 실제 등록 수만 참고용으로 표시 -->
+    <div v-else-if="activeTab === 'guide'">
+      <AdminAssociatesGuide />
+    </div>
+
     <div v-else-if="activeTab === 'member'">
       <AdminShoppingReviews />
     </div>
@@ -238,12 +242,14 @@ import { ref, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import AdminShoppingReviews from './AdminShoppingReviews.vue'
+import AdminAssociatesGuide from './AdminAssociatesGuide.vue'
 
 const activeTab = ref('products')
 const tabs = [
   { key: 'products', icon: 'shopping-bag', label: '상품' },
   { key: 'cat',       icon: 'tag',         label: '카테고리' },
   { key: 'member',    icon: 'users',       label: '회원 리뷰' },
+  { key: 'guide',     icon: 'book-open',   label: '가입 안내' },
 ]
 
 const categories = [

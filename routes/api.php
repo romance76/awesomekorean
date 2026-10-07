@@ -179,6 +179,7 @@ Route::get('/qa/categories', [QaController::class, 'categories']);
 Route::get('/qa/{id}', [QaController::class, 'show']);
 Route::get('/shorts', [ShortController::class, 'index']);
 Route::get('/shopping', [ShoppingController::class, 'index']);
+Route::get('/shopping/associates-guide', [\App\Http\Controllers\API\AssociatesGuideController::class, 'show']);
 Route::get('/shopping/{id}', [ShoppingController::class, 'show'])->whereNumber('id');
 Route::get('/music/categories', [MusicController::class, 'categories']);
 Route::get('/music/tracks/{categoryId}', [MusicController::class, 'tracks']);
@@ -882,6 +883,8 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/info-generation/trigger', [\App\Http\Controllers\API\AdminInfoController::class, 'triggerGeneration']);
 
     // 회원 내돈내산 리뷰 관리 (승인/반려/내리기/복구)
+    Route::put('/associates-guide', [\App\Http\Controllers\API\AssociatesGuideController::class, 'save']);
+    Route::post('/associates-guide/image', [\App\Http\Controllers\API\AssociatesGuideController::class, 'upload']);
     Route::get('/shopping-reviews', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'index']);
     Route::post('/shopping-reviews/{id}/approve', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'approve']);
     Route::post('/shopping-reviews/{id}/reject', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'reject']);

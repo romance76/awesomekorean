@@ -17,6 +17,7 @@
           리뷰의 "Amazon에서 보기" 링크에는 내 태그가 붙고, 그 링크로 생긴 수익은 <b>내 Associates 계정</b>으로 들어갑니다.
           (Awesome Korean은 수익을 가져가지 않아요.)
         </p>
+        <RouterLink to="/shopping/guide" class="block rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 font-bold hover:bg-amber-100">📘 아직 Amazon Associates 계정이 없나요? 가입 방법 따라하기 →</RouterLink>
         <TagForm v-model="tagInput" :saving="tagSaving" :msg="tagMsg" @save="saveTag" />
       </div>
 
@@ -114,7 +115,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, defineComponent, h } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import DetailHeader from '../../components/DetailHeader.vue'

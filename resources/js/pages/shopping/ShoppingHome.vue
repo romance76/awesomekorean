@@ -45,6 +45,7 @@
 
       <!-- 메인: 상품 목록 -->
       <div class="col-span-12 lg:col-span-10">
+        <div class="mb-3 text-xs text-ink-muted">내돈내산 리뷰를 쓰려면 Amazon Associates 계정이 필요해요. <RouterLink to="/shopping/guide" class="font-bold text-amber-700 underline">가입 방법 보기</RouterLink></div>
         <div class="flex gap-1.5 mb-3 flex-wrap">
           <button v-for="c in chips" :key="c.key" @click="chip = c.key; load(1)"
             class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors"
