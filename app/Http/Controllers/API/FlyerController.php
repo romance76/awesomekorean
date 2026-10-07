@@ -159,10 +159,21 @@ class FlyerController extends Controller
             $booked[$s->slot_hour][] = $s->slot_date->toDateString();
         }
 
+        // 블록(몇 시간씩 묶은 칸) — 칸 안의 어느 시간이든 선택한 날짜 중 하루라도 예약돼 있으면 그 칸은 "예약됨"
+        $prices = FlyerSchedule::priceTable($region);
+        $blocks = array_map(fn($b) => [
+            'start' => $b['start'], 'end' => $b['end'], 'hours' => $b['hours'],
+            'price' => array_sum(array_map(fn($h) => $prices[$h], $b['hours'])),   // 하루 기준(센트)
+            'booked' => (bool) array_filter($b['hours'], fn($h) => !empty($booked[$h])),
+        ], FlyerSchedule::blocks());
+
         return response()->json(['success' => true, 'data' => [
             'scope' => $scope,
             'state' => $state,
             'region_key' => $region,
+            'blocks' => $blocks,
+            'peak' => FlyerSchedule::peakRange(),
+            'night_end' => FlyerSchedule::nightEnd(),
             'tz' => FlyerSchedule::timezone($region),
             'now' => ['date' => $now->toDateString(), 'hour' => $now->hour],
             'min_date' => $minStart->toDateString(),
@@ -231,6 +242,9 @@ class FlyerController extends Controller
 
         $hours = array_values(array_unique(array_map('intval', $data['hours'])));
         sort($hours);
+        if (!FlyerSchedule::isWholeBlocks($hours)) {
+            return response()->json(['success' => false, 'message' => '시간은 칸 단위(예: 오전 11시~오후 2시)로 선택해주세요.'], 422);
+        }
 
         $rows = [];
         $total = 0;
