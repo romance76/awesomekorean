@@ -129,6 +129,12 @@
             <div class="card overflow-hidden h-full">
               <div class="px-3 py-2 border-b border-gray-50 bg-amber-50 font-bold text-xs text-amber-700 flex items-center gap-1"><AppIcon name="user" :size="12" /> 판매자 정보</div>
               <div class="p-3 space-y-2">
+                <!-- 외부에서 가져온 임시 매물: 실제 매물 페이지로 바로가기 -->
+                <div v-if="listing.source === 'scraped'" class="rounded-lg bg-blue-50 border border-blue-100 p-2 space-y-1.5">
+                  <div class="text-[11px] text-blue-700 font-semibold leading-snug">외부에서 가져온 매물이에요. 문의는 원본 페이지에서 해 주세요.</div>
+                  <a v-if="listing.external_url" :href="listing.external_url" target="_blank" rel="noopener noreferrer nofollow"
+                    class="btn-primary w-full py-1.5 px-2 text-xs"><AppIcon name="external-link" :size="12" /> 원본 매물 보기</a>
+                </div>
                 <div v-if="listing.user" class="flex items-center gap-2">
                   <img v-if="listing.user.avatar" :src="listing.user.avatar" class="w-10 h-10 rounded-full object-cover border-2 border-amber-200" />
                   <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700">
@@ -140,7 +146,7 @@
                   </div>
                 </div>
                 <!-- 친구추가/쪽지 -->
-                <div v-if="listing.user_id !== auth.user?.id" class="flex gap-1.5 pt-2 border-t border-gray-50">
+                <div v-if="listing.user_id !== auth.user?.id && listing.source !== 'scraped'" class="flex gap-1.5 pt-2 border-t border-gray-50">
                   <button @click="sendFriendRequest" class="flex-1 flex items-center justify-center gap-1 text-xs bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100 transition-colors"><AppIcon name="heart-handshake" :size="12" /> 친구</button>
                   <button @click="sendMessage" class="flex-1 flex items-center justify-center gap-1 text-xs bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100 transition-colors"><AppIcon name="mail" :size="12" /> 쪽지</button>
                 </div>

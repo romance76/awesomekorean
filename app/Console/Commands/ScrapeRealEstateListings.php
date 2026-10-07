@@ -160,7 +160,7 @@ class ScrapeRealEstateListings extends Command
 
         try {
             $row = DB::table('api_keys')->where('service', 'realtyapi')->where('is_active', true)->first();
-            if ($row && $row->api_key) return $row->api_key;
+            if ($row && $row->api_key) return \App\Casts\Secret::reveal($row->api_key);
         } catch (\Exception $e) {}
 
         return null;
@@ -215,8 +215,22 @@ class ScrapeRealEstateListings extends Command
             'bathrooms' => $baths,
             'sqft' => $sqft,
             'external_id' => (string) $externalId,
+            'external_url' => $this->listingUrl($item, (string) $address, (string) $city, (string) $loc['state'], $zip),
             'scraped_at' => now(),
         ];
+    }
+
+    // API 가 원본 매물 주소를 주면 그것을(realtor.com 상대경로면 도메인을 붙여서), 없으면 주소로 Zillow 검색 링크를 만든다
+    private function listingUrl(array $item, string $address, string $city, string $state, string $zip): ?string
+    {
+        $u = $this->field($item, ['href', 'url', 'permalink', 'listing_url', 'property_url', 'detailUrl']);
+        if (is_string($u) && $u !== '') {
+            if (str_starts_with($u, '/')) $u = 'https://www.realtor.com' . $u;
+            if (preg_match('#^https://[^\s]+$#i', $u)) return mb_substr($u, 0, 600);
+        }
+        $q = trim(implode(' ', array_filter([$address, $city, $state, $zip])));
+        if ($q === '') return null;
+        return 'https://www.zillow.com/homes/' . trim(preg_replace('/[^A-Za-z0-9]+/', '-', $q), '-') . '_rb/';
     }
 
     private function extractPhotos(array $item): array

@@ -35,6 +35,38 @@
       </div>
       <div v-if="!bannedUsers.length" class="px-4 py-4 text-sm text-ink-muted text-center">차단된 사용자 없음</div>
     </div>
+
+    <!-- 로그인 잠금 (비밀번호를 계속 틀려서 잠긴 계정) -->
+    <div class="card overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2 font-bold text-sm text-ink">
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="lock" :size="14" /></span>로그인 실패 · 잠금 (최근 24시간)
+      </div>
+      <div v-for="l in loginLocks" :key="l.email + l.ip" class="px-4 py-2.5 border-b border-gray-50 last:border-0 flex justify-between items-center gap-2 text-sm">
+        <div class="min-w-0">
+          <div class="truncate text-ink font-semibold">{{ l.email }}</div>
+          <div class="text-xs text-ink-muted"><span class="font-mono">{{ l.ip }}</span> · 실패 {{ l.fails }}회 · {{ formatDate(l.last_at) }}</div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <span v-if="l.locked" class="text-[11px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded-md">잠김 · {{ l.retry_min }}분 후 자동 해제</span>
+          <button v-if="l.locked" @click="unlockLogin(l)" class="text-blue-500 hover:text-blue-700 text-xs font-bold transition-colors">지금 풀기</button>
+        </div>
+      </div>
+      <div v-if="!loginLocks.length" class="px-4 py-4 text-sm text-ink-muted text-center">최근 로그인 실패 없음</div>
+    </div>
+
+    <!-- 서버(SSH) 자동 차단 IP -->
+    <div class="card overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2 font-bold text-sm text-ink">
+        <span class="icon-chip w-7 h-7 bg-red-50 text-red-500"><AppIcon name="shield" :size="14" /></span>서버 접속 자동 차단 IP (fail2ban)
+      </div>
+      <div class="px-4 pt-2 text-[11px] text-ink-muted">서버(SSH)에 비밀번호를 계속 시도한 IP를 서버가 1일 동안 자동으로 막아 둔 목록이에요. 웹사이트 로그인과는 별개예요.</div>
+      <div v-for="ip in serverBans" :key="ip" class="px-4 py-2 border-b border-gray-50 last:border-0 flex justify-between items-center text-sm">
+        <span class="font-mono text-ink">{{ ip }}</span>
+        <button @click="serverUnban(ip)" class="text-blue-500 hover:text-blue-700 text-xs font-bold transition-colors">차단 풀기</button>
+      </div>
+      <div v-if="serverBansMsg" class="px-4 py-4 text-sm text-ink-muted text-center">{{ serverBansMsg }}</div>
+      <div v-else-if="!serverBans.length" class="px-4 py-4 text-sm text-ink-muted text-center">현재 차단된 IP 없음</div>
+    </div>
   </div>
 
   <!-- 신고 관리 -->
@@ -119,6 +151,9 @@ const ipBans = ref([])
 const reports = ref([])
 const bannedUsers = ref([])
 const newIp = ref('')
+const loginLocks = ref([])
+const serverBans = ref([])
+const serverBansMsg = ref('')
 const reportFilter = ref({ type: '', status: '', page: 1 })
 const reportPagination = ref({ currentPage: 1, lastPage: 1 })
 const editNoteId = ref(null)
@@ -141,6 +176,8 @@ onMounted(async () => {
   loadIpBans()
   loadReports()
   loadBannedUsers()
+  loadLoginLocks()
+  loadServerBans()
 })
 
 async function loadIpBans() {
@@ -163,6 +200,27 @@ async function loadBannedUsers() {
     const { data } = await axios.get('/api/admin/users', { params: { banned: 1, per_page: 50 } })
     bannedUsers.value = (data.data?.data || data.data || []).filter(u => u.is_banned)
   } catch {}
+}
+
+async function loadLoginLocks() {
+  try { const { data } = await axios.get('/api/admin/security/login-locks'); loginLocks.value = data.data || [] } catch {}
+}
+
+async function unlockLogin(l) {
+  try { await axios.post('/api/admin/security/login-unlock', { email: l.email, ip: l.ip }); loadLoginLocks() } catch {}
+}
+
+async function loadServerBans() {
+  try {
+    const { data } = await axios.get('/api/admin/security/server-bans')
+    serverBans.value = data.data || []
+    serverBansMsg.value = data.available === false ? (data.message || '조회할 수 없어요') : ''
+  } catch { serverBansMsg.value = '조회할 수 없어요 (최고 관리자만 볼 수 있어요)' }
+}
+
+async function serverUnban(ip) {
+  if (!confirm(`${ip} 차단을 풀까요?`)) return
+  try { await axios.post('/api/admin/security/server-unban', { ip }); loadServerBans() } catch {}
 }
 
 async function addBan() {

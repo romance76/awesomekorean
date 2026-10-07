@@ -19,7 +19,7 @@ class PlacesController extends Controller
         // 2) DB api_keys 테이블 fallback
         try {
             $row = DB::table('api_keys')->where('service', 'google_maps')->first();
-            if ($row && $row->api_key) return $row->api_key;
+            if ($row && $row->api_key) return \App\Casts\Secret::reveal($row->api_key);
         } catch (\Exception $e) {}
 
         return null;

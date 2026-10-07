@@ -22,7 +22,7 @@ class IngestAuth
         if (!$token) {
             try {
                 $row = DB::table('api_keys')->where('service', 'info_ingest_token')->where('is_active', true)->first();
-                $token = $row->api_key ?? null;
+                $token = $row ? \App\Casts\Secret::reveal($row->api_key) : null;
             } catch (\Exception $e) {}
         }
 

@@ -187,7 +187,7 @@ class ScrapeMarketListings extends Command
 
         try {
             $row = DB::table('api_keys')->where('service', "{$service}_{$field}")->where('is_active', true)->first();
-            if ($row && $row->api_key) return $row->api_key;
+            if ($row && $row->api_key) return \App\Casts\Secret::reveal($row->api_key);
         } catch (\Exception $e) {}
 
         return null;
@@ -228,6 +228,19 @@ class ScrapeMarketListings extends Command
         return [];
     }
 
+    private function safeUrl($u): ?string
+    {
+        return is_string($u) && preg_match('#^https://[^\s]+$#i', $u) ? mb_substr($u, 0, 600) : null;
+    }
+
+    // eBay itemId 는 "v1|123456789012|0" 형태 — 가운데 숫자가 상품 번호
+    private function ebayItemUrl(string $externalId): ?string
+    {
+        $parts = explode('|', $externalId);
+        $num = $parts[1] ?? $parts[0] ?? '';
+        return preg_match('/^\d{9,14}$/', $num) ? 'https://www.ebay.com/itm/' . $num : null;
+    }
+
     private function parseItem(array $item, string $category, string $zip, array $loc): ?array
     {
         $externalId = $this->field($item, ['itemId', 'legacyItemId', 'id']);
@@ -261,6 +274,7 @@ class ScrapeMarketListings extends Command
             'lat' => $loc['lat'],
             'lng' => $loc['lng'],
             'external_id' => (string) $externalId,
+            'external_url' => $this->safeUrl($this->field($item, ['itemWebUrl', 'itemHref'])) ?: $this->ebayItemUrl((string) $externalId),
             'scraped_at' => now(),
         ];
     }

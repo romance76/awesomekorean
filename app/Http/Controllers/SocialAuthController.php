@@ -130,7 +130,7 @@ class SocialAuthController extends Controller
 
         try {
             $row = DB::table('api_keys')->where('service', "{$provider}_{$field}")->where('is_active', true)->first();
-            if ($row && $row->api_key) return $row->api_key;
+            if ($row && $row->api_key) return \App\Casts\Secret::reveal($row->api_key);
         } catch (\Exception $e) {}
 
         return null;

@@ -405,7 +405,6 @@ const activeReviews = ref([])
 const bizPrev = ref(null) // 같은 카테고리 내 이전 (서버 prev)
 const bizNext = ref(null) // 같은 카테고리 내 다음 (서버 next)
 const lightboxImg = ref(null)
-const googleKey = import.meta.env.VITE_GOOGLE_MAPS_KEY || 'AIzaSyAeG46feoDm6HJbre4_FODaxyhz9SBBsAE'
 const reviewRating = ref(0)
 const reviewText = ref('')
 const showClaimModal = ref(false)

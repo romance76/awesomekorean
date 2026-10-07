@@ -89,6 +89,12 @@
             <div class="card overflow-hidden h-full">
               <div class="px-3 py-2 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="user" :size="13" class="text-amber-600" />판매자 정보</div>
               <div class="p-3 space-y-2">
+                <!-- 외부에서 가져온 임시 매물: 실제 매물 페이지로 바로가기 -->
+                <div v-if="item.source === 'scraped'" class="rounded-lg bg-blue-50 border border-blue-100 p-2 space-y-1.5">
+                  <div class="text-[11px] text-blue-700 font-semibold leading-snug">외부(eBay)에서 가져온 매물이에요. 거래·문의는 원본 페이지에서 해 주세요.</div>
+                  <a v-if="item.external_url" :href="item.external_url" target="_blank" rel="noopener noreferrer nofollow"
+                    class="btn-primary w-full py-1.5 text-[11px]"><AppIcon name="external-link" :size="12" />원본 매물 보기</a>
+                </div>
                 <div v-if="item.user" class="flex items-center gap-2">
                   <img v-if="item.user.avatar" :src="'/storage/' + item.user.avatar" class="w-10 h-10 rounded-full object-cover border-2 border-amber-200" @error="e => e.target.style.display='none'" />
                   <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700">
@@ -105,11 +111,11 @@
                   <AppIcon name="star" :size="12" />{{ item.seller_rating.average }} ({{ item.seller_rating.count }}건)
                 </div>
                 <!-- 친구/쪽지/채팅 -->
-                <div v-if="auth.isLoggedIn && !isOwner" class="flex gap-1.5 pt-2 border-t border-gray-50">
+                <div v-if="auth.isLoggedIn && !isOwner && item.source !== 'scraped'" class="flex gap-1.5 pt-2 border-t border-gray-50">
                   <button @click="addFriend" class="flex-1 inline-flex items-center justify-center gap-1 text-[11px] bg-green-50 text-green-700 font-bold py-1.5 rounded-lg hover:bg-green-100 transition-colors"><AppIcon name="user-plus" :size="12" />친구</button>
                   <button @click="sendMessage" class="flex-1 inline-flex items-center justify-center gap-1 text-[11px] bg-blue-50 text-blue-700 font-bold py-1.5 rounded-lg hover:bg-blue-100 transition-colors"><AppIcon name="mail" :size="12" />쪽지</button>
                 </div>
-                <button v-if="auth.isLoggedIn && !isOwner" @click="startChat" :disabled="chatStarting"
+                <button v-if="auth.isLoggedIn && !isOwner && item.source !== 'scraped'" @click="startChat" :disabled="chatStarting"
                   class="w-full inline-flex items-center justify-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 font-bold py-1.5 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50">
                   <AppIcon name="message-circle" :size="12" />실시간 채팅으로 문의
                 </button>

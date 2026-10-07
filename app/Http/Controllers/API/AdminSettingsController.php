@@ -277,6 +277,7 @@ class AdminSettingsController extends Controller
         if ($existing) {
             $existing->update(['name' => $request->name, 'api_key' => $request->api_key, 'description' => $request->description ?? '', 'is_active' => true]);
             \App\Support\Analytics::forget();
+            \App\Support\KeyReport::send("{$existing->name} ({$existing->service}) 수정", auth()->user()->email ?? '관리자');
             return response()->json(['success'=>true,'data'=>$existing,'message'=>'구글 Analytics 측정 ID가 변경되었습니다']);
         }
         $newKey = ApiKey::create([
@@ -290,12 +291,15 @@ class AdminSettingsController extends Controller
         $envKey = strtoupper($request->service) . '_API_KEY';
         $this->updateEnv($envKey, $request->api_key);
         \App\Support\Analytics::forget();
+        \App\Support\KeyReport::send("{$newKey->name} ({$newKey->service}) 등록", auth()->user()->email ?? '관리자');
         return response()->json(['success'=>true,'data'=>$newKey,'message'=>'API 키가 등록되었습니다']);
     }
 
     public function deleteApiKey($id) {
+        $gone = ApiKey::find($id);
         ApiKey::where('id', $id)->delete();
         \App\Support\Analytics::forget();
+        if ($gone) \App\Support\KeyReport::send("{$gone->name} ({$gone->service}) 삭제", auth()->user()->email ?? '관리자');
         return response()->json(['success'=>true,'message'=>'삭제되었습니다']);
     }
 
@@ -325,6 +329,8 @@ class AdminSettingsController extends Controller
             $envKey = strtoupper($key->service) . '_API_KEY';
             $this->updateEnv($envKey, $request->api_key);
         }
+
+        \App\Support\KeyReport::send("{$key->name} ({$key->service}) 수정", auth()->user()->email ?? '관리자');
 
         return response()->json(['success'=>true, 'message'=>'수정되었습니다']);
     }

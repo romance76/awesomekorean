@@ -52,8 +52,9 @@ Schedule::command('poker:generate-tournaments')->dailyAt('00:10');
 // 포커 토너먼트 자동 시작 (매분 — 시간 된 토너먼트 시작)
 Schedule::command('poker:start-tournaments')->everyMinute()->withoutOverlapping();
 
-// 매일 새벽 3시 한인 업소 Google Places 업데이트
-Schedule::command('places:import')->dailyAt('03:30')->appendOutputTo($contentLog);
+// 한인 업소 Google Places 업데이트 — 17개 도시 × 46개 검색어(약 800회 이상 유료 요청)라 매일 돌리면
+// 비용이 크다. 서버 cron 이 매분 정확히 돌게 된 뒤로는 실제로 매일 실행되므로 주 1회(일요일 새벽)로 낮춤.
+Schedule::command('places:import')->weeklyOn(0, '03:30')->withoutOverlapping()->appendOutputTo($contentLog);
 
 // 부동산 더미 데이터를 실제 매물로 대체 (소프트 운영 기간): 전국 한인 밀집 지역
 // 매물을 매일 랜덤으로 가져오고(source=scraped, 매매+렌트 둘 다), 30일 지난 건
@@ -84,3 +85,6 @@ Artisan::command('flyers:cleanup', function () {
     $this->info("결제 미완료 정리 {$stale}건, 보류 만료 취소 {$held}건");
 })->purpose('NEW 전면광고 결제 대기/보류 만료 정리');
 Schedule::command('flyers:cleanup')->everyThirtyMinutes()->withoutOverlapping();
+
+// 로그인 실패 기록은 30일만 보관
+Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('login_failures')->where('created_at', '<', now()->subDays(30))->delete())->dailyAt('04:20');

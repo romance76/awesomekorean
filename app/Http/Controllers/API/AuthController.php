@@ -131,6 +131,7 @@ class AuthController extends Controller
 
         if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
             foreach ($keys as $k => [$max, $decay]) \Illuminate\Support\Facades\RateLimiter::hit($k, $decay);
+            try { \Illuminate\Support\Facades\DB::table('login_failures')->insert(['email' => mb_substr($email, 0, 190), 'ip' => (string) $request->ip(), 'created_at' => now()]); } catch (\Throwable $e) {}
             return response()->json(['success' => false, 'message' => '이메일 또는 비밀번호가 올바르지 않습니다'], 401);
         }
         \Illuminate\Support\Facades\RateLimiter::clear('login-acct-ip:' . sha1($email . '|' . $request->ip()));

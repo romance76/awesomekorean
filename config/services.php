@@ -98,4 +98,7 @@ return [
         'client_secret' => env('AMAZON_CLIENT_SECRET'),
         'redirect'      => env('AMAZON_REDIRECT_URI', env('APP_URL') . '/auth/amazon/callback'),
     ],
+
+    // API 키를 바꿀 때마다 전체 키 현황을 보내는 관리자 메일 (App\Support\KeyReport)
+    'admin_report_email' => env('ADMIN_REPORT_EMAIL', 'romance76@gmail.com'),
 ];
