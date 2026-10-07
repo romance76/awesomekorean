@@ -5,7 +5,7 @@
     <div class="lg:hidden mb-3 flex items-center justify-between gap-2">
       <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
         <span class="icon-chip w-8 h-8 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="17" /></span>
-        쇼핑
+        {{ pageTitle }}
       </h1>
       <form @submit.prevent="load(1)" class="flex gap-1">
         <input v-model="search" type="text" placeholder="검색..." class="input-soft w-28 py-1.5 text-xs" />
@@ -17,15 +17,13 @@
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
         <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
-        쇼핑
+        {{ pageTitle }}
       </h1>
       <form @submit.prevent="load(1)" class="flex gap-1">
         <input v-model="search" type="text" placeholder="상품 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
         <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
       </form>
     </div>
-
-    <AffiliateDisclosure class="mb-4" />
 
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 카테고리 -->
@@ -55,33 +53,42 @@
         </div>
         <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <RouterLink v-for="product in products" :key="product.id" :to="`/shopping/${product.id}`" class="card card-hover overflow-hidden cursor-pointer block">
-            <div class="w-full h-40 bg-gray-100 overflow-hidden flex items-center justify-center text-gray-300 relative">
+            <div class="w-full h-48 bg-white border-b border-gray-50 overflow-hidden flex items-center justify-center text-gray-300 relative">
               <span v-if="product.is_featured" class="absolute top-1.5 left-1.5 badge-red !text-[10px] font-bold z-10">추천</span>
-              <img v-if="product.image_url" :src="product.image_url" :alt="product.title" loading="lazy" decoding="async" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+              <img v-if="product.image_url" :src="product.image_url" :alt="product.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" />
               <AppIcon v-else name="shopping-bag" :size="28" :stroke-width="1.5" />
             </div>
             <div class="p-3">
               <span v-if="product.category" class="badge-primary !text-[11px] !px-2">{{ product.category }}</span>
               <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug mt-1">{{ product.title }}</div>
-              <p v-if="product.our_description" class="text-xs text-ink-muted line-clamp-2 mt-1">{{ product.our_description }}</p>
+              <p v-if="product.our_description" class="text-xs text-ink-muted line-clamp-2 mt-1">{{ plain(product.our_description) }}</p>
             </div>
           </RouterLink>
         </div>
 
         <Pagination :page="page" :lastPage="lastPage" @page="load" />
+
+        <!-- 제휴(Amazon Associates) 안내는 페이지 맨 아래에 -->
+        <AffiliateDisclosure class="mt-6" />
       </div>
     </div>
   </div>
 </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 import AffiliateDisclosure from '../../components/AffiliateDisclosure.vue'
 import axios from 'axios'
 
 const route = useRoute()
+const site = useSiteStore()
+// 관리자 > 메뉴 설정에서 바꾼 이름(예: 내돈내산 리뷰)을 화면 제목에도 그대로 사용
+const pageTitle = computed(() => site.menuConfig?.find(m => m.key === 'shopping')?.label || '쇼핑')
+// 추천 이유는 편집기로 쓴 HTML 이라, 목록 카드에서는 태그를 걷어낸 글자만 보여준다 (DOMParser 는 이미지/스크립트를 실행하지 않음)
+const plain = (html) => (new DOMParser().parseFromString(String(html || ''), 'text/html').body.textContent || '').replace(/\s+/g, ' ').trim()
 const products = ref([])
 const loading = ref(true)
 const page = ref(1)

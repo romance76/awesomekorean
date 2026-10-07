@@ -1,11 +1,11 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <DetailHeader :title="product?.title || '쇼핑'" fallback="/shopping" />
+    <DetailHeader :title="product?.title || pageTitle" fallback="/shopping" />
     <div class="hidden lg:flex items-center justify-between mb-4">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
         <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
-        쇼핑
+        {{ pageTitle }}
       </h1>
     </div>
 
@@ -37,7 +37,7 @@
               class="flex-shrink-0 rounded cursor-pointer border-2 transition overflow-hidden"
               :class="i === selectedIdx ? 'border-amber-400' : 'border-transparent hover:border-gray-300'"
               style="width:56px; height:42px;">
-              <img :src="img" class="w-full h-full object-cover" />
+              <img :src="img" class="w-full h-full object-contain bg-white" />
             </div>
           </div>
         </div>
@@ -78,9 +78,13 @@ import { useRoute } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import AffiliateDisclosure from '../../components/AffiliateDisclosure.vue'
+import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 
 const route = useRoute()
+const site = useSiteStore()
+// 관리자 > 메뉴 설정에서 바꾼 이름(예: 내돈내산 리뷰)을 제목에도 사용
+const pageTitle = computed(() => site.menuConfig?.find(m => m.key === 'shopping')?.label || '쇼핑')
 const product = ref(null)
 const loading = ref(true)
 const selectedIdx = ref(0)
