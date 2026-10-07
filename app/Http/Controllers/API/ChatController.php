@@ -292,6 +292,9 @@ class ChatController extends Controller
         $q = trim((string) $request->q);
         if (strlen($q) < 1) return response()->json(['success' => true, 'data' => []]);
 
+        $room = ChatRoom::findOrFail($id);
+        if (!\App\Support\ChatAccess::hasPublicAccess($room, auth()->user())) return \App\Support\ChatAccess::denied();
+
         $msgs = ChatMessage::with('user:id,name,nickname,avatar')
             ->where('chat_room_id', $id)
             ->where('content', 'like', '%' . $q . '%')
@@ -448,6 +451,10 @@ class ChatController extends Controller
         // 차단된 유저는 메시지 조회 불가
         $banned = DB::table('chat_room_bans')->where('chat_room_id', $id)->where('user_id', $userId)->exists();
         if ($banned) return response()->json(['success'=>false,'message'=>'이 채팅방에서 차단되었습니다.'], 403);
+
+        // 공개방은 24시간 입장권이 있어야 내용을 내려준다(입장료 우회 방지)
+        $room = ChatRoom::findOrFail($id);
+        if (!\App\Support\ChatAccess::hasPublicAccess($room, auth()->user())) return \App\Support\ChatAccess::denied();
 
         $messages = ChatMessage::with('user:id,name,nickname,avatar,role')
             ->where('chat_room_id',$id)
