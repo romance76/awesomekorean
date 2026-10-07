@@ -9,7 +9,6 @@
           NEW <span class="text-sm font-semibold text-ink-muted">신장개업 · 폐업정리 · 우리 동네 새 소식</span>
         </h1>
       </div>
-      <RouterLink to="/new/apply" class="btn-primary px-4 py-2 rounded-lg text-sm"><AppIcon name="megaphone" :size="14" />전단 광고 신청</RouterLink>
     </div>
 
     <!-- 지역 선택 -->
@@ -54,8 +53,8 @@
         <div v-else class="rounded-2xl border-2 border-dashed border-gray-200 bg-white py-12 px-5 text-center">
           <div class="text-3xl mb-2">📣</div>
           <div class="font-bold text-ink">지금 이 시간 광고 자리가 비어 있어요</div>
-          <p class="text-xs text-ink-muted mt-1">새로 문 연 가게, 폐업 정리 세일 — 원하는 시간대만 골라 우리 동네에 전단을 알려보세요.</p>
-          <RouterLink to="/new/apply" class="btn-primary inline-flex px-5 py-2 rounded-lg text-sm mt-4">전단 광고 신청하기</RouterLink>
+          <p class="text-xs text-ink-muted mt-1">새로 문 연 가게, 폐업 정리 세일 소식이 이 자리에 나와요.</p>
+          <RouterLink to="/dashboard?tab=flyer" class="inline-block text-[11px] text-ink-faint underline mt-3 hover:text-rose-600">광고 신청: 마이페이지 → NEW 전면광고 신청</RouterLink>
         </div>
       </section>
 

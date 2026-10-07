@@ -1,13 +1,14 @@
 <template>
-<div class="min-h-screen">
-  <div class="max-w-2xl mx-auto px-4 py-5">
-    <RouterLink to="/new" class="text-xs text-ink-muted hover:text-rose-600 transition-colors mb-2 inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="13" />NEW 게시판으로</RouterLink>
+<div :class="embedded ? '' : 'min-h-screen'">
+  <div :class="embedded ? '' : 'max-w-2xl mx-auto px-4 py-5'">
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
       <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="megaphone" :size="20" /></span>
-      NEW 전단 광고 신청
+      NEW 전면광고 신청
+      <RouterLink to="/new" class="ml-auto text-xs font-semibold text-ink-muted hover:text-rose-600 transition-colors">NEW 게시판 보기 →</RouterLink>
     </h1>
     <p class="text-sm text-ink-muted mb-5">라디오 광고처럼 <b>하루 중 원하는 시간대</b>를 골라 사세요. 고른 시간에 NEW 게시판 맨 위에 전단이 통째로 나가고, 남은 시간은 다른 광고주가 쓸 수 있어요.</p>
 
+    <VerifyGate message="이메일 인증 후 전면광고를 신청할 수 있어요.">
     <form @submit.prevent="submit" class="space-y-4">
       <!-- 1. 전단 내용 -->
       <div class="card p-5 space-y-4">
@@ -128,6 +129,7 @@
         <p class="text-[11px] text-ink-faint mt-2">신청하면 포인트가 먼저 차감되고, 관리자 승인 후 예약한 시간에 방송돼요. 반려되거나 승인 전에 취소하면 전액 환불됩니다.</p>
       </div>
     </form>
+    </VerifyGate>
 
     <!-- 내 신청 내역 -->
     <h2 class="font-bold text-ink text-sm mt-8 mb-2">내 전단 광고</h2>
@@ -161,7 +163,10 @@ import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
+import VerifyGate from '../../components/VerifyGate.vue'
 import { KINDS, US_STATES, fmtHour, hourRanges, fmtDay, tzLabel, stateName, STATUS_LABEL } from '../../utils/flyer'
+
+defineProps({ embedded: { type: Boolean, default: false } })
 
 const auth = useAuthStore()
 const site = useSiteStore()
