@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-2xl mx-auto px-4 py-5">
+  <div class="page-main px-4 py-5">
     <DetailHeader title="Amazon Associates 가입 방법" fallback="/shopping" />
     <h1 class="hidden lg:flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
       <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>

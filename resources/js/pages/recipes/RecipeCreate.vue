@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-3xl mx-auto px-4 py-5">
+  <div class="page-main px-4 py-5">
     <div class="flex items-center justify-between mb-4">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
         <span class="icon-chip w-9 h-9 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="20" /></span>

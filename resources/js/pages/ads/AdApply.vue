@@ -1,6 +1,6 @@
 <template>
 <div :class="embedded ? '' : 'min-h-screen'">
-  <div :class="embedded ? '' : 'max-w-5xl mx-auto px-4 py-5'">
+  <div :class="embedded ? '' : 'page-main px-4 py-5'">
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-2">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="megaphone" :size="20" /></span>
       광고 신청 (월간 경매)

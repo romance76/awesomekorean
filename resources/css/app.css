@@ -72,6 +72,11 @@
     .card {
         @apply bg-white rounded-card border border-line shadow-card;
     }
+    /* ─── 공용 페이지 폭: 글쓰기/가이드/상세/설정 등 목록이 아닌 페이지는 모두 이 폭 하나로 통일.
+           (목록 페이지는 max-w-7xl 3단 레이아웃). 폭을 바꾸려면 여기 한 줄만 고치면 된다. ─── */
+    .page-main {
+        @apply w-full max-w-5xl mx-auto;
+    }
     .card-hover {
         @apply transition-all duration-200 hover:shadow-lift hover:-translate-y-0.5;
     }

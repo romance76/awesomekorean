@@ -1,5 +1,5 @@
 <template>
-<div class="max-w-2xl mx-auto px-4 py-5">
+<div class="page-main px-4 py-5">
   <RouterLink :to="'/jobs/'+jobId" class="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink mb-3">
     <AppIcon name="chevron-left" :size="16" /> 공고로 돌아가기
   </RouterLink>

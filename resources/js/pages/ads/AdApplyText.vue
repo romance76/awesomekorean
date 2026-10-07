@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-2xl mx-auto px-4 py-5">
+  <div class="page-main px-4 py-5">
     <RouterLink to="/ad-apply" class="text-xs text-ink-muted hover:text-amber-600 transition-colors mb-2 inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="13" />이미지 광고 신청으로</RouterLink>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="20" /></span>
