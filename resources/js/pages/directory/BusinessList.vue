@@ -267,7 +267,7 @@
     <div v-else-if="viewMode==='card'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="openItem(item)"
-        class="rounded-2xl shadow-card overflow-hidden hover:shadow-lift hover:-translate-y-0.5 transition-all cursor-pointer flex h-32"
+        class="card card-hover overflow-hidden cursor-pointer flex h-32"
         :class="bizPromoClass(item)">
         <!-- 왼쪽: 사진 (있을 때만 — 없으면 박스 자체를 안 보여줌) -->
         <div v-if="item.thumbnail_url || item.images?.length" class="w-28 flex-shrink-0 bg-gray-100">

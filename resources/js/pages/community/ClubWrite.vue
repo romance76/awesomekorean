@@ -303,6 +303,12 @@ async function submit() {
 }
 
 onMounted(async () => {
+  // 동호회 목록의 안내 페이지에서 넘어온 경우: /clubs/create?category=등산&type=local
+  if (!route.params.id) {
+    const qc = String(route.query.category || '')
+    if (categories.some(c => c.value === qc)) form.category = qc
+    if (['local', 'online'].includes(String(route.query.type || ''))) form.type = String(route.query.type)
+  }
   // Edit mode: /clubs/:id/edit
   if (route.params.id) {
     editId.value = route.params.id

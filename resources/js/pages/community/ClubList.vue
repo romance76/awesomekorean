@@ -121,9 +121,13 @@
     </div>
     <!-- 메인 -->
     <div class="col-span-12 lg:col-span-7">
-    <div v-if="!clubs.length && !loading" class="py-16 text-center">
+    <!-- 이 분류/지역에 동호회가 하나도 없으면, 동호회를 만들어 보라는 안내(홍보) 페이지를 가운데에 보여준다. 하나라도 생기면 목록으로 바뀐다. -->
+    <ClubPromo v-if="!clubs.length && !loading && !showFavorites && !search"
+      :category="catFilter" :category-label="clubCategories.find(c => c.value === catFilter)?.label || ''"
+      :place="promoPlace" :online-only="type === 'online'" :categories="clubCategories.filter(c => c.value)" />
+    <div v-else-if="!clubs.length && !loading" class="py-16 text-center">
       <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="users" :size="28" :stroke-width="1.5" /></div>
-      <p class="text-sm text-ink-muted">동호회가 없습니다</p>
+      <p class="text-sm text-ink-muted">{{ showFavorites ? '북마크한 동호회가 없습니다' : '검색 결과가 없습니다' }}</p>
     </div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <template v-for="(club, i) in clubs" :key="club.id">
@@ -185,6 +189,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import ClubPromo from '../../components/ClubPromo.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -238,6 +243,15 @@ const locationInfo = computed(() => {
     : koreanCities[selectedCityIdx.value]
   if (!c) return '위치를 선택해주세요'
   return (c.label || c.name) + ' 기준 ' + radius.value + 'mi 반경'
+})
+
+// 안내 문구에 쓸 지역 이름 (전국이면 빈 값)
+const promoPlace = computed(() => {
+  if (type.value === 'online') return ''
+  const idx = parseInt(selectedCityIdx.value)
+  if (idx === -1) return ''
+  const c = idx >= 0 ? koreanCities[idx] : myCity.value
+  return c ? (c.label || c.name || '') : ''
 })
 
 function isPromoted(club) {
