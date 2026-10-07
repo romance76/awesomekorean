@@ -46,6 +46,13 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    // 통화 중계 서버(TURN). 직접 연결이 안 되는 네트워크에서만 쓰인다. 값을 바꾸려면 .env 의 TURN_* 를 수정.
+    'turn' => [
+        'host'     => env('TURN_HOST', '68.183.60.70:3478'),
+        'username' => env('TURN_USERNAME', 'awesomekorean'),
+        'password' => env('TURN_PASSWORD', 'Skrtc2026!'),
+    ],
+
     'firebase' => [
         'credentials' => env('FIREBASE_CREDENTIALS', storage_path('app/firebase-service-account.json')),
     ],

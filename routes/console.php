@@ -37,6 +37,7 @@ Schedule::command('recipes:sync-all')->dailyAt('04:00')->withoutOverlapping()->a
 
 Schedule::command('elder:check')->everyMinute();
 Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
+Schedule::command('calls:cleanup')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
 Schedule::command('promotions:expire')->everyMinute();
 Schedule::command('events:remind')->everyThirtyMinutes();
