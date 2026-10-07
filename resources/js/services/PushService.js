@@ -13,16 +13,25 @@ import axios from 'axios'
 
 let messaging = null
 
-const firebaseConfig = {
-  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
-}
+// Firebase 웹 설정은 관리자 > API 키 관리에서 입력한 값을 서버(/api/push/config)에서 받아 쓴다 —
+// 예전처럼 빌드 시점 환경변수에 박아 두면 값을 바꿀 때마다 사이트를 새로 만들어야 했음.
+// (빌드 환경변수가 있으면 그것도 대체 수단으로 사용)
+let firebaseConfig = null
+let VAPID_KEY = null
 
-const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
+async function loadPushConfig() {
+  try {
+    const { data } = await axios.get('/api/push/config')
+    if (data?.enabled && data.config) { firebaseConfig = data.config; VAPID_KEY = data.vapidKey; return true }
+  } catch {}
+  const env = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY, authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID, storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID, appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  }
+  if (env.apiKey && import.meta.env.VITE_FIREBASE_VAPID_KEY) { firebaseConfig = env; VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY; return true }
+  return false
+}
 
 /**
  * Initialize push notification support.
@@ -30,7 +39,7 @@ const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY
 export async function initPushService() {
   try {
     // Firebase 설정이 없으면 스킵
-    if (!firebaseConfig.apiKey || !VAPID_KEY) {
+    if (!(await loadPushConfig())) {
       console.warn('[PushService] Firebase config missing — push disabled')
       return
     }

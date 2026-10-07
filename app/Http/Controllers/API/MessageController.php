@@ -67,7 +67,7 @@ class MessageController extends Controller
                 $receiver->fcm_token,
                 '새 쪽지가 도착했습니다',
                 auth()->user()->name . '님이 쪽지를 보냈습니다.',
-                ['type' => 'message', 'message_id' => (string) $msg->id]
+                ['type' => 'message', 'message_id' => (string) $msg->id, 'url' => '/dashboard?tab=messages']
             );
         }
 
