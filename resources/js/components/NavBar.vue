@@ -159,7 +159,7 @@
               </RouterLink>
               <button @click.stop="navFavStore.toggleFavorite(item.key)"
                 class="px-3 py-2.5 flex-shrink-0 transition-colors"
-                :class="navFavStore.isFavorite(item.key) ? 'text-amber-400' : 'text-gray-200 hover:text-amber-300'"
+                :class="navFavStore.isFavorite(item.key) ? 'text-amber-400' : 'text-gray-200'"
                 :title="navFavStore.isFavorite(item.key) ? '하단바에서 제거' : '하단바에 추가'">
                 <AppIcon name="star" :size="18" :filled="navFavStore.isFavorite(item.key)" />
               </button>

@@ -72,8 +72,8 @@
           </div>
         </div>
 
-        <!-- NEW 전면광고 홍보: 신장개업/폐업정리 전단을 시간대별로 구매 → 마이페이지 신청 탭으로 바로 이동 -->
-        <RouterLink to="/dashboard?tab=flyer"
+        <!-- NEW 전면광고 홍보: 지금 방송 중인 전단을 바로 보러 가는 타일 → NEW 게시판 -->
+        <RouterLink to="/new"
           class="relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between text-white bg-gradient-to-br from-rose-500 via-rose-500 to-orange-400 group hover:brightness-105 transition-all">
           <div class="flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
@@ -84,8 +84,8 @@
             <div class="text-[11px] text-white/90 mt-1.5">원하는 시간대만 골라 우리 동네 전체에 알려요</div>
           </div>
           <div class="mt-3 flex items-center justify-between gap-2">
-            <span class="text-[11px] font-bold bg-white text-rose-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">지금 신청하기 →</span>
-            <span v-if="flyerFrom" class="text-[10px] text-white/90 text-right leading-tight">시간당 {{ flyerFrom }}P<br>(≈ ${{ (flyerFrom / 100).toFixed(2) }})부터</span>
+            <span class="text-[11px] font-bold bg-white text-rose-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">지금 보러가기 →</span>
+            <span class="text-[10px] text-white/90 text-right leading-tight">지금 방송 중인<br>전단 확인</span>
           </div>
         </RouterLink>
 
@@ -311,7 +311,6 @@ const businesses = ref([])
 const headlines = ref([])
 const headlinePage = ref(0)
 const weather = ref(null)
-const flyerFrom = ref(0)   // NEW 전면광고 최저 시간당 가격(P) — 홍보 타일용
 const indices = ref([])
 const watchlist = ref([])
 const indexIdx = ref(0)
@@ -493,17 +492,9 @@ async function loadWeather() {
     }
   } catch {}
 }
-async function loadFlyerFrom() {
-  try {
-    const { data } = await axios.get('/api/flyers/availability', { params: { scope: 'state', state: 'GA', days: 1 } })
-    const prices = Object.values(data.data?.prices || {}).map(Number).filter(n => n > 0)
-    if (prices.length) flyerFrom.value = Math.min(...prices)
-  } catch {}
-}
 
 onMounted(async () => {
   loadWeather()
-  loadFlyerFrom()
   loadMarketQuotes()
   bannerStore.loadForPage('home')
   try {
