@@ -146,39 +146,87 @@ class ShoppingController extends Controller
         return response()->json(['success' => true, 'message' => $tag ? '태그를 저장했어요. 내 리뷰 링크가 새 태그로 바뀌었어요.' : '태그를 삭제했어요.', 'data' => ['amazon_tag' => $tag ?: null]]);
     }
 
-    /** 리뷰 입력 검증 + 정리 (작성/수정 공통). 본문은 글자만(태그 제거) 저장한다. */
+    /** Amazon 이미지 주소만 허용 (Amazon 이 호스팅하는 걸 링크만 함 — 서버에 복사하지 않음) */
+    private const AMAZON_IMG = '#^https://[a-z0-9-]+\.(media-amazon\.com|ssl-images-amazon\.com)/[A-Za-z0-9._%,+\-/~@=]+$#i';
+    private const OWN_IMG = '#^/storage/shopping/[A-Za-z0-9._\-]+$#';
+
+    /**
+     * 리뷰 입력 검증 + 정리 (작성/수정 공통).
+     * 본문은 blocks = [{type:text,text}, {type:image,url}] 로 받고, 글은 태그를 제거한 글자만 저장한다.
+     * 직접 찍은 사진(image 블록)은 최소 2장, Amazon 기본 사진은 1~3장.
+     */
     private function validateReview(Request $request, bool $creating): array
     {
         $min = max(10, \App\Support\PointRules::get('shopping_review_min_chars', 60));
+        $minPhotos = max(1, \App\Support\PointRules::get('shopping_review_min_photos', 2));
         $rules = [
             'title'    => 'required|string|max:200',
             'category' => 'nullable|string|max:50',
             'rating'   => 'required|integer|min:1|max:5',
-            'body'     => "required|string|min:{$min}|max:5000",
-            'photos'   => ($creating ? 'required' : 'nullable') . '|array|max:5',
-            'photos.*' => 'image|max:10240',
+            'blocks'   => 'required|array|min:1|max:60',
+            'blocks.*.type' => 'required|in:text,image',
+            'blocks.*.text' => 'nullable|string|max:5000',
+            'blocks.*.url'  => 'nullable|string|max:300',
+            'amazon_images' => 'required|array|min:1|max:3',
+            'amazon_images.*' => ['required', 'string', 'max:500', 'regex:' . self::AMAZON_IMG],
             'purchased' => 'accepted',
             'agree_rules' => 'accepted',
         ];
         if ($creating) $rules['input'] = 'required|string';
         $data = $request->validate($rules, [
-            'body.min' => "리뷰는 최소 {$min}자 이상 써주세요.",
-            'photos.required' => '직접 찍은 사진을 한 장 이상 올려주세요.',
+            'amazon_images.required' => 'Amazon 상품 사진 주소를 한 개 이상 넣어주세요.',
+            'amazon_images.min' => 'Amazon 상품 사진 주소를 한 개 이상 넣어주세요.',
+            'amazon_images.*.regex' => 'Amazon 사진 주소가 아니에요. Amazon 상품 페이지에서 사진을 우클릭 → "이미지 주소 복사"한 주소(…media-amazon.com/…)를 붙여넣어주세요.',
             'purchased.accepted' => '"직접 구매해서 사용해 봤어요"에 체크해주세요.',
             'agree_rules.accepted' => '리뷰 작성 규칙에 동의해주세요.',
         ]);
 
+        // 블록 정리: 글은 태그 제거, 사진은 우리 서버에 올린 것만, 빈 글 블록 제거
+        $blocks = []; $texts = []; $photos = [];
+        foreach ($data['blocks'] as $b) {
+            if ($b['type'] === 'text') {
+                $t = trim(html_entity_decode(strip_tags((string) ($b['text'] ?? '')), ENT_QUOTES | ENT_HTML5));
+                if ($t === '') continue;
+                $blocks[] = ['type' => 'text', 'text' => $t]; $texts[] = $t;
+            } else {
+                $u = (string) ($b['url'] ?? '');
+                if (!preg_match(self::OWN_IMG, $u)) {
+                    abort(response()->json(['success' => false, 'message' => '올린 사진을 확인하지 못했어요. 사진을 다시 올려주세요.'], 422));
+                }
+                $blocks[] = ['type' => 'image', 'url' => $u]; $photos[] = $u;
+            }
+        }
+        $body = implode("\n\n", $texts);
+        if (mb_strlen($body) < $min) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['blocks' => "리뷰는 최소 {$min}자 이상 써주세요."]);
+        }
+        if (mb_strlen($body) > 8000) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['blocks' => '리뷰가 너무 길어요. (최대 8000자)']);
+        }
+        if (count(array_unique($photos)) < $minPhotos) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['blocks' => "직접 찍은 사진을 글 사이에 {$minPhotos}장 이상 넣어주세요."]);
+        }
+
         $data['title'] = trim(strip_tags($data['title']));
-        $data['body'] = trim(html_entity_decode(strip_tags($data['body']), ENT_QUOTES | ENT_HTML5));
-        foreach (['title', 'body'] as $f) {
-            if ($why = ShoppingReviews::violation($data[$f])) {
+        foreach ([$data['title'], $body] as $text) {
+            if ($why = ShoppingReviews::violation($text)) {
                 abort(response()->json(['success' => false, 'message' => $why], 422));
             }
-            if (BadWordFilter::contains($data[$f])) {
+            if (BadWordFilter::contains($text)) {
                 abort(response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어요.'], 422));
             }
         }
+        $data['blocks'] = $blocks; $data['body'] = $body; $data['photos'] = array_values(array_unique($photos));
+        $data['amazon_images'] = array_values(array_unique($data['amazon_images']));
         return $data;
+    }
+
+    /** POST /shopping/review-image — 리뷰 글 사이에 넣을 사진 한 장 올리기 */
+    public function uploadReviewImage(Request $request)
+    {
+        $request->validate(['image' => 'required|image|max:10240']);
+        $url = $this->storeCompressedImage($request->file('image'), 'shopping', 1200, 82);
+        return response()->json(['success' => true, 'data' => ['url' => $url]]);
     }
 
     /** POST /shopping/reviews — 내돈내산 리뷰 작성 (내 태그가 있어야 함) */
@@ -198,7 +246,6 @@ class ShoppingController extends Controller
             return response()->json(['success' => false, 'message' => '이미 내가 리뷰를 쓴 상품이에요. 기존 리뷰를 수정해주세요.'], 422);
         }
 
-        $photos = $this->storeCompressedImages($request->file('photos'), 'shopping', 1200, 82);
         $needsApproval = ShoppingReviews::needsApproval($user);
 
         $p = AmazonProduct::create([
@@ -210,9 +257,11 @@ class ShoppingController extends Controller
             'title' => $data['title'],
             'category' => $data['category'] ?? null,
             'rating' => $data['rating'],
-            'image_url' => $photos[0] ?? null,
-            'own_image_urls' => $photos ?: null,
+            'image_url' => $data['amazon_images'][0],
+            'amazon_image_urls' => $data['amazon_images'],
+            'own_image_urls' => $data['photos'],
             'our_description' => $data['body'],
+            'review_blocks' => $data['blocks'],
             'is_active' => true,
             'status' => $needsApproval ? 'pending' : 'published',
             'published_at' => $needsApproval ? null : now(),
@@ -238,18 +287,12 @@ class ShoppingController extends Controller
         $p = AmazonProduct::where('user_id', $request->user()->id)->findOrFail($id);
         $data = $this->validateReview($request, false);
 
-        $update = ['title' => $data['title'], 'category' => $data['category'] ?? $p->category, 'rating' => $data['rating'], 'our_description' => $data['body']];
-        if ($request->hasFile('photos')) {
-            $keep = array_values(array_filter((array) $request->input('keep_photos', [])));
-            $new = $this->storeCompressedImages($request->file('photos'), 'shopping', 1200, 82);
-            $update['own_image_urls'] = array_values(array_merge($keep, $new)) ?: null;
-        } elseif ($request->has('keep_photos')) {
-            $keep = array_values(array_filter((array) $request->input('keep_photos')));
-            if (!$keep) return response()->json(['success' => false, 'message' => '직접 찍은 사진이 한 장 이상 있어야 해요.'], 422);
-            $update['own_image_urls'] = $keep;
-        }
-        $imgs = $update['own_image_urls'] ?? $p->own_image_urls;
-        $update['image_url'] = $imgs[0] ?? $p->image_url;
+        $update = [
+            'title' => $data['title'], 'category' => $data['category'] ?? $p->category, 'rating' => $data['rating'],
+            'our_description' => $data['body'], 'review_blocks' => $data['blocks'],
+            'amazon_image_urls' => $data['amazon_images'], 'image_url' => $data['amazon_images'][0],
+            'own_image_urls' => $data['photos'],
+        ];
         // 내려간 리뷰(hidden/rejected)를 고치면 다시 승인 대기로
         if (in_array($p->status, ['hidden', 'rejected'], true)) { $update['status'] = 'pending'; $update['admin_note'] = null; }
         $p->update($update);
@@ -302,7 +345,7 @@ class ShoppingController extends Controller
                 'week_views' => (int) $rows->sum('week_views'),
                 'week_clicks' => (int) $rows->sum('week_clicks'),
             ],
-            'rules' => ['min_chars' => max(10, \App\Support\PointRules::get('shopping_review_min_chars', 60)), 'first_approval' => ShoppingReviews::needsApproval($user)],
+            'rules' => ['min_chars' => max(10, \App\Support\PointRules::get('shopping_review_min_chars', 60)), 'min_photos' => max(1, \App\Support\PointRules::get('shopping_review_min_photos', 2)), 'first_approval' => ShoppingReviews::needsApproval($user)],
         ]]);
     }
 

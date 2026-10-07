@@ -24,6 +24,9 @@
         </div>
         <div class="text-xs text-ink-muted mt-1">{{ r.user?.nickname || r.user?.name }} ({{ r.user?.email }}) · 태그 <b>{{ r.affiliate_tag }}</b> · ASIN {{ r.asin }} · 👁 {{ r.view_count }} · 🛒 {{ r.clicks }} · 💬 {{ r.comment_count }}</div>
         <p class="text-xs text-ink-light mt-1 line-clamp-3 whitespace-pre-line">{{ r.our_description }}</p>
+        <div v-if="r.own_image_urls?.length" class="flex gap-1 mt-1">
+          <a v-for="u in r.own_image_urls" :key="u" :href="u" target="_blank"><img :src="u" class="w-12 h-12 object-cover rounded border border-gray-100" /></a>
+        </div>
         <a :href="r.affiliate_url" target="_blank" rel="noopener noreferrer nofollow" class="text-[11px] text-blue-500 underline break-all">{{ r.affiliate_url }}</a>
         <p v-if="r.admin_note" class="text-[11px] text-red-500 mt-1">메모: {{ r.admin_note }}</p>
         <div class="flex gap-2 mt-2 flex-wrap">
