@@ -15,6 +15,25 @@
     </div>
   </div>
 
+  <!-- 연결 진단: 지금 쓰는 기기/네트워크에서 중계(TURN) 서버가 실제로 쓸 수 있는지 시험 -->
+  <div class="card p-3 mb-3">
+    <div class="flex items-center justify-between gap-2 flex-wrap">
+      <div>
+        <div class="text-sm font-bold text-ink">🔧 통화 연결 진단</div>
+        <div class="text-[11px] text-ink-muted">지금 보고 있는 기기(폰이면 폰, 와이파이/LTE 각각)에서 통화 서버에 닿는지 시험해요. 중계 서버(TURN)가 안 되면 폰↔PC 통화가 "연결중"에서 멈춥니다.</div>
+      </div>
+      <button @click="runDiag" :disabled="diagRunning" class="px-3 py-1.5 rounded-lg bg-ink text-white text-xs font-bold disabled:opacity-50">{{ diagRunning ? '시험 중…(최대 25초)' : '진단 시작' }}</button>
+    </div>
+    <div v-if="diag.length" class="mt-2 space-y-1">
+      <div v-for="d in diag" :key="d.name" class="text-xs flex items-start gap-2">
+        <span>{{ d.ok ? '✅' : '❌' }}</span>
+        <span class="font-semibold text-ink w-40 flex-shrink-0">{{ d.name }}</span>
+        <span class="text-ink-light">{{ d.detail }}</span>
+      </div>
+      <div v-if="diagAdvice" class="mt-2 text-xs rounded-lg px-3 py-2" :class="diagAdviceBad ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'">{{ diagAdvice }}</div>
+    </div>
+  </div>
+
   <!-- 통계 -->
   <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
     <div class="card p-3"><div class="text-xs text-ink-muted">전체 시도</div><div class="text-xl font-black text-ink">{{ stats.total ?? 0 }}</div></div>
@@ -103,7 +122,7 @@
           <td class="px-3 py-2 text-center">
             <span class="text-[11px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap" :class="resultCls(c)">{{ resultLabel(c) }}</span>
             <div v-if="c.ended_by && !(c.answered_at === null && c.end_reason === 'offline')" class="text-[10px] text-ink-faint mt-0.5">{{ { caller: '발신자가 끊음', callee: '수신자가 끊음', system: '자동 정리' }[c.ended_by] }}</div>
-            <div v-if="c.note" class="text-[10px] text-red-500 mt-0.5 max-w-[160px] break-all">{{ noteLabel(c.note) }}</div>
+            <div v-if="c.note" class="text-[10px] text-red-500 mt-0.5 max-w-[220px] break-all">{{ noteLabel(c.note) }}</div>
           </td>
           <td class="px-3 py-2 text-center font-bold" :class="c.duration > 0 ? 'text-green-700' : 'text-ink-faint'">{{ c.duration > 0 ? fmtSec(c.duration) : '-' }}</td>
           <td class="px-3 py-2 text-center text-ink-muted">{{ c.ring_seconds != null ? c.ring_seconds + '초' : '-' }}</td>
@@ -175,8 +194,10 @@ const NOTE = {
 }
 function noteLabel(n) {
   if (!n) return ''
-  const key = String(n).split(':')[0]
-  return NOTE[n] || NOTE[key] || n
+  const [head, ...rest] = String(n).split(' | ')
+  const key = head.split(':')[0]
+  const label = NOTE[head] || NOTE[key] || head
+  return rest.length ? `${label} (${rest.join(' ')})` : label
 }
 
 async function load() {
@@ -200,6 +221,64 @@ async function loadStats() {
   } catch {}
 }
 function reload() { load(); loadStats() }
+
+// ── 연결 진단 ─────────────────────────────────────────────────
+const diag = ref([])
+const diagRunning = ref(false)
+const diagAdvice = ref('')
+const diagAdviceBad = ref(false)
+
+/** 주어진 ICE 서버로 후보를 모아서 어떤 종류(host/srflx/relay)가 나오는지 본다 */
+function gather(iceServers, relayOnly, ms = 7000) {
+  return new Promise(resolve => {
+    const types = {}
+    let pc
+    try { pc = new RTCPeerConnection({ iceServers, iceTransportPolicy: relayOnly ? 'relay' : 'all' }) } catch (e) { return resolve({ error: e.message, types }) }
+    const done = () => { try { pc.close() } catch {} resolve({ types }) }
+    const t = setTimeout(done, ms)
+    pc.onicecandidate = (e) => {
+      if (!e.candidate) { clearTimeout(t); return done() }
+      const ty = e.candidate.type || (/ typ (\w+)/.exec(e.candidate.candidate || '') || [])[1]
+      if (ty) types[ty] = (types[ty] || 0) + 1
+    }
+    pc.createDataChannel('x')
+    pc.createOffer().then(o => pc.setLocalDescription(o)).catch(e => { clearTimeout(t); resolve({ error: e.message, types }) })
+  })
+}
+
+async function runDiag() {
+  diagRunning.value = true; diag.value = []; diagAdvice.value = ''
+  const out = []
+  try {
+    const { data } = await axios.get('/api/comms/ice-servers')
+    const all = data.iceServers || []
+    const stun = all.filter(x => String(x.urls).startsWith('stun'))
+    const turnUdp = all.filter(x => String(x.urls).startsWith('turn') && !String(x.urls).includes('transport=tcp'))
+    const turnTcp = all.filter(x => String(x.urls).includes('transport=tcp'))
+
+    const r1 = await gather(stun, false)
+    out.push({ name: '인터넷 주소 확인(STUN)', ok: !!r1.types.srflx, detail: r1.types.srflx ? '정상' : '응답 없음 — 이 네트워크에서 외부 STUN 이 막혀 있을 수 있어요' })
+    diag.value = [...out]
+
+    const r2 = await gather(turnUdp, true)
+    out.push({ name: '중계 서버 TURN (UDP)', ok: !!r2.types.relay, detail: r2.types.relay ? '정상 — 중계 주소를 받았어요' : '실패 — 서버가 꺼져 있거나 계정/포트(3478)가 막혀 있어요' })
+    diag.value = [...out]
+
+    const r3 = await gather(turnTcp, true)
+    out.push({ name: '중계 서버 TURN (TCP)', ok: !!r3.types.relay, detail: r3.types.relay ? '정상' : '실패 — 서버가 꺼져 있거나 TCP 3478 이 막혀 있어요' })
+    diag.value = [...out]
+
+    const turnOk = r2.types.relay || r3.types.relay
+    diagAdviceBad.value = !turnOk
+    diagAdvice.value = turnOk
+      ? '중계 서버는 정상이에요. 그래도 안 되면 통화내역 맨 오른쪽 메모(내후보/상대후보)를 확인해 주세요.'
+      : '중계(TURN) 서버를 쓸 수 없어요. 서로 다른 네트워크(폰 LTE ↔ PC 와이파이 등)에서는 통화가 연결되지 않을 수 있어요. 서버의 TURN(coturn) 상태를 점검하거나 외부 TURN 서비스로 바꿔야 해요.'
+  } catch (e) {
+    out.push({ name: '진단', ok: false, detail: e.response?.data?.message || e.message })
+    diag.value = out
+  }
+  diagRunning.value = false
+}
 
 onMounted(reload)
 </script>

@@ -56,6 +56,7 @@ export function useCommsWebRTC() {
   let offerStarted = false
   let connectedOnce = false
   let lastOffer = null
+  let candCount = { l: {}, r: {} }     // 내/상대 ICE 후보 종류별 개수 (연결 실패 원인 기록용)
 
   let durationTimer = null, ringTimer = null, callerTimer = null, connectTimer = null
   let monitorTimer = null, offerRetryTimer = null, disconnectTimer = null, idleTimer = null
@@ -162,6 +163,7 @@ export function useCommsWebRTC() {
     pc = null
     localStream?.getTracks().forEach(t => t.stop())
     localStream = null
+    candCount = { l: {}, r: {} }
     pendingIce = []; haveRemoteDesc = false; offerStarted = false; connectedOnce = false; lastOffer = null
     role = null; peerDevice = null
     isMuted.value = false
@@ -193,7 +195,14 @@ export function useCommsWebRTC() {
     remoteUser.value = null
   }
 
+  /** 연결이 안 될 때 원인을 알 수 있게 ICE 상태/후보 종류(host=같은망, srflx=공인주소, relay=TURN 중계)를 요약 */
+  function iceSummary() {
+    const f = (o) => ['host', 'srflx', 'relay'].map(k => `${k[0]}${o[k] || 0}`).join('')
+    return `ice=${pc?.iceConnectionState || '-'} 내후보=${f(candCount.l)} 상대후보=${f(candCount.r)}`
+  }
+
   async function failCall(note, userMessage) {
+    note = `${note} | ${iceSummary()}`.slice(0, 250)
     log('FAIL', note)
     if (currentCallId.value) {
       await axios.post(`/api/comms/calls/${currentCallId.value}/end`, { reason: 'failed', note }).catch(() => {})
@@ -208,7 +217,12 @@ export function useCommsWebRTC() {
     localStream.getTracks().forEach(t => pc.addTrack(t, localStream))
 
     pc.ontrack = (e) => playRemoteStream(e.streams[0] || new MediaStream([e.track]))
-    pc.onicecandidate = (e) => { if (e.candidate) sendSignal('ice-candidate', { candidate: e.candidate.toJSON() }) }
+    pc.onicecandidate = (e) => {
+      if (!e.candidate) return
+      const t = e.candidate.type || (/ typ (\w+)/.exec(e.candidate.candidate || '') || [])[1]
+      if (t) candCount.l[t] = (candCount.l[t] || 0) + 1
+      sendSignal('ice-candidate', { candidate: e.candidate.toJSON() })
+    }
     pc.oniceconnectionstatechange = () => {
       const st = pc?.iceConnectionState
       log('ice state', st)
@@ -328,6 +342,8 @@ export function useCommsWebRTC() {
 
   async function handleIce(payload) {
     if (!payload.candidate) return
+    const rt = (/ typ (\w+)/.exec(payload.candidate.candidate || '') || [])[1]
+    if (rt) candCount.r[rt] = (candCount.r[rt] || 0) + 1
     if (pc && haveRemoteDesc) { try { await pc.addIceCandidate(payload.candidate) } catch (e) { console.warn('[Call] addIce', e.message) } }
     else pendingIce.push(payload.candidate)
   }
