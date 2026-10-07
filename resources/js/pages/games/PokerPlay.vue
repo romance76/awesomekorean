@@ -34,10 +34,10 @@
 
       <!-- 칩 부족 안내 -->
       <div v-if="!inMoney" class="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mt-2">
-        <div class="text-red-400 text-sm font-bold">칩이 부족하신가요?</div>
-        <div class="text-red-300/70 text-xs mt-1">포인트를 칩으로 환전하여 다시 도전하세요!</div>
+        <div class="text-red-400 text-sm font-bold">칩이 부족해요</div>
+        <div class="text-red-300/70 text-xs mt-1">토너먼트 상금 등으로 칩을 모아 다시 도전하세요!</div>
         <router-link to="/games/poker" class="inline-block mt-2 bg-amber-500 text-amber-900 font-bold px-4 py-1.5 rounded-lg text-xs hover:bg-amber-400">
-          💰 칩 충전하러 가기
+          🃏 포커 로비로 가기
         </router-link>
       </div>
 

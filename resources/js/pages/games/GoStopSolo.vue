@@ -18,7 +18,7 @@
     <div v-if="phase==='insufficient'" class="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
       <div class="text-5xl">💸</div>
       <div class="text-red-300 font-black text-lg">게임머니가 부족합니다</div>
-      <div class="text-white/50 text-xs">판돈 {{ bet.toLocaleString() }} 게임머니가 필요해요. 카지노 대기실에서 환전해 주세요.</div>
+      <div class="text-white/50 text-xs">판돈 {{ bet.toLocaleString() }} 게임머니가 필요해요. 게임머니를 모은 뒤 다시 도전해 주세요.</div>
       <router-link to="/games/casino" class="mt-2 font-black rounded-xl px-6 py-2.5" style="background:linear-gradient(180deg,#f39c12,#e67e22);color:#fff;">카지노로 돌아가기</router-link>
     </div>
 

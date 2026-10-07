@@ -78,7 +78,7 @@
       <div class="stats-icon"><AppIcon name="shopping-cart" :size="22" /></div>
       <div>
         <div class="stats-title">포인트 샵</div>
-        <div class="stats-sub">포인트로 칩 구매</div>
+        <div class="stats-sub">포인트로 이용하는 서비스</div>
       </div>
     </RouterLink>
     <RouterLink to="/games/poker/tutorial" class="stats-card">
