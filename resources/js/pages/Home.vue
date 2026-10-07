@@ -2,10 +2,11 @@
 <div class="min-h-screen">
 
   <!-- ═════ 0. 라이브 티커 (다크 marquee) — 실제 최신 활동/숫자/시세를 1분마다 새로 받아 보여준다 ═════ -->
-  <div v-if="tickerLoop.length" class="ticker bg-night text-[#EDE5DD] overflow-hidden" aria-label="실시간 커뮤니티 활동">
-    <div class="ticker-track flex gap-12 py-2 w-max" :style="{ animationDuration: tickerSeconds + 's' }">
-      <component :is="t.link ? 'RouterLink' : 'span'" v-for="(t, i) in tickerLoop" :key="i" :to="t.link || undefined"
-        class="flex items-center gap-2 text-[13px] whitespace-nowrap hover:text-white transition-colors">
+  <div v-if="tickerItems.length" ref="tickerEl" class="ticker bg-night text-[#EDE5DD] overflow-hidden" aria-label="실시간 커뮤니티 활동"
+    @mouseenter="tickerPaused = true" @mouseleave="tickerPaused = false">
+    <div ref="trackEl" class="ticker-track flex py-2 w-max">
+      <component :is="t.link ? 'RouterLink' : 'span'" v-for="t in tickerView" :key="t.k" :to="t.link || undefined"
+        class="flex items-center gap-2 text-[13px] whitespace-nowrap pr-12 hover:text-white transition-colors">
         <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="t.live ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
         <b class="text-white font-semibold">{{ t.label }}</b>
         <span>{{ t.text }}</span>
@@ -341,7 +342,7 @@ function startHeroSlide() {
 }
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && heroBanners.value.length > 1) startHeroSlide() }
-onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInterval) clearInterval(indexInterval); liveTimers.forEach(clearInterval) })
+onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInterval) clearInterval(indexInterval); liveTimers.forEach(clearInterval); cancelAnimationFrame(tickerRaf) })
 
 // 영어 모드면 image_url_en 우선 사용, 없으면 기본(한글) 이미지로 폴백
 function heroBannerImage(b) {
@@ -424,9 +425,40 @@ const tickerItems = computed(() => tickerRaw.value.map(t => ({
   ...t,
   when: t.live ? 'LIVE' : (t.tag || (t.at ? relTime(t.at) : '')),
 })))
-// marquee 무한 루프용 2배 반복 (항목 수에 맞춰 속도 조절)
-const tickerLoop = computed(() => [...tickerItems.value, ...tickerItems.value])
-const tickerSeconds = computed(() => Math.max(40, tickerItems.value.length * 7))
+// marquee: 항목을 통째로 2배로 이어 붙인 긴 띠(수천 px)를 움직이면 폰 브라우저에서 일부가 비거나 끊겨 보일 수 있어,
+// 화면에 보이는 만큼(+여유)만 그리고 맨 앞 항목이 완전히 지나가면 맨 뒤로 돌려 붙이는 방식으로 계속 흘려보낸다.
+// 데이터가 새로 와도 움직임이 처음으로 돌아가지 않고, 이어 붙이는 자리의 어긋남(튐)도 없다.
+const tickerEl = ref(null)
+const trackEl = ref(null)
+const tickerQueue = ref([])               // 지금 그리고 있는 항목들 [{k, i}] — i 는 tickerItems 의 순번(순환)
+const tickerPaused = ref(false)
+const tickerView = computed(() => {
+  const n = tickerItems.value.length
+  return n ? tickerQueue.value.map(q => ({ ...tickerItems.value[q.i % n], k: q.k })) : []
+})
+const TICKER_SPEED = 50                   // 초당 px
+let tickerOffset = 0, tickerNext = 0, tickerKey = 0, tickerLast = 0, tickerRaf = 0
+const reduceMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+function tickerFrame(ts) {
+  tickerRaf = requestAnimationFrame(tickerFrame)
+  const track = trackEl.value, box = tickerEl.value
+  if (!track || !box || !tickerItems.value.length) { tickerLast = 0; return }
+  const dt = tickerLast ? Math.min(0.1, (ts - tickerLast) / 1000) : 0
+  tickerLast = ts
+  if (!tickerPaused.value && !reduceMotion) tickerOffset -= TICKER_SPEED * dt
+
+  const first = track.firstElementChild
+  if (first && tickerQueue.value.length > 1 && -tickerOffset >= first.offsetWidth) {   // 맨 앞 항목이 완전히 지나감
+    tickerOffset += first.offsetWidth
+    tickerQueue.value.shift()
+  }
+  // 오른쪽 끝이 화면보다 짧아지면 다음 항목을 뒤에 이어 붙인다 (한 프레임에 하나씩)
+  if (track.offsetWidth + tickerOffset < box.clientWidth + 300 && tickerQueue.value.length < 60) {
+    tickerQueue.value.push({ k: ++tickerKey, i: tickerNext++ })
+  }
+  track.style.transform = `translate3d(${tickerOffset}px, 0, 0)`
+}
 
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
 
@@ -527,6 +559,7 @@ async function loadWeather() {
 }
 
 onMounted(async () => {
+  tickerRaf = requestAnimationFrame(tickerFrame)
   loadWeather()
   loadMarketQuotes()
   loadLive(); loadTicker()
@@ -599,11 +632,8 @@ onMounted(async () => {
 .live-swap-enter-active, .live-swap-leave-active { transition: opacity .35s ease, transform .35s ease; }
 .live-swap-enter-from { opacity: 0; transform: translateY(6px); }
 .live-swap-leave-to { opacity: 0; transform: translateY(-6px); }
-/* 라이브 티커 marquee */
-.ticker-track { animation: ticker-scroll 40s linear infinite; }
-.ticker:hover .ticker-track { animation-play-state: paused; }
-@keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
+/* 라이브 티커 marquee — 움직임은 스크립트(tickerFrame)가 transform 으로 처리 */
+.ticker-track { will-change: transform; }
 
 /* 실시간 접속 펄스 */
 .live-pulse {
