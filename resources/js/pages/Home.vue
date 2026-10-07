@@ -14,10 +14,10 @@
   </div>
 
   <!-- ═════ 1. 사진 히어로 + 위젯 벤토 (데스크톱 2열 / 모바일 1열) ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[1.28fr_1fr] gap-4 lg:gap-5">
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[1fr_1.28fr] gap-4 lg:gap-5">
 
     <!-- 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) — 기존 마케팅 히어로 자리를 대체 -->
-    <div class="card p-4 lg:p-5 min-h-[340px] lg:min-h-[440px] flex flex-col">
+    <div class="card p-4 lg:p-5 min-h-[340px] lg:min-h-[440px] flex flex-col lg:order-2">
       <div class="flex items-center gap-2.5 mb-3.5">
         <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
         <span class="flex-1"></span>
@@ -46,7 +46,7 @@
     </div>
 
     <!-- 위젯 벤토: 날씨 / NEW 전면광고 / 인기 주식 / 접속자 (2x2) -->
-    <div class="grid grid-cols-2 gap-3.5 lg:gap-4">
+    <div class="grid grid-cols-2 gap-3.5 lg:gap-4 lg:order-1">
         <!-- 날씨: 실시간(open-meteo) 아이콘형 -->
         <div class="bg-amber-400 rounded-card p-4 lg:p-5 flex flex-col justify-between text-white">
           <div class="flex items-start justify-between gap-2">
