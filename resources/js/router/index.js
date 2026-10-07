@@ -62,6 +62,8 @@ const routes = [
 
   // Shopping (Amazon Associates 제휴 상품)
   { path: '/shopping', name: 'shopping', component: p('shopping/ShoppingHome') },
+  { path: '/shopping/guide', name: 'shopping-guide', component: p('shopping/AssociatesGuide') },
+  { path: '/shopping/write', name: 'shopping-write', component: p('shopping/ShoppingWrite'), meta: { auth: true } },
   { path: '/shopping/:id', name: 'shopping-detail', component: p('shopping/ShoppingDetail') },
 
   // Recipes (식품안전나라 API 기반 + 유저 레시피)

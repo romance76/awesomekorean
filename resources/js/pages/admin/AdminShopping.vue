@@ -113,6 +113,14 @@
     </div>
 
     <!-- 📂 카테고리 — 고정 분류, 실제 등록 수만 참고용으로 표시 -->
+    <div v-else-if="activeTab === 'guide'">
+      <AdminAssociatesGuide />
+    </div>
+
+    <div v-else-if="activeTab === 'member'">
+      <AdminShoppingReviews />
+    </div>
+
     <div v-else-if="activeTab === 'cat'">
       <div class="text-sm text-ink-light mb-3">쇼핑 카테고리는 {{ categories.length }}개로 고정돼 있습니다 (상품 등록 시 하나를 배정). 실제 상품 수 기준 집계입니다.</div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -233,11 +241,15 @@
 import { ref, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import AdminShoppingReviews from './AdminShoppingReviews.vue'
+import AdminAssociatesGuide from './AdminAssociatesGuide.vue'
 
 const activeTab = ref('products')
 const tabs = [
   { key: 'products', icon: 'shopping-bag', label: '상품' },
   { key: 'cat',       icon: 'tag',         label: '카테고리' },
+  { key: 'member',    icon: 'users',       label: '회원 리뷰' },
+  { key: 'guide',     icon: 'book-open',   label: '가입 안내' },
 ]
 
 const categories = [

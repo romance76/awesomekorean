@@ -542,6 +542,11 @@
       </div>
     </div>
 
+    <!-- ═══ 내돈내산 리뷰 탭 (태그·조회수·댓글·HOT) ═══ -->
+    <div v-else-if="tab==='reviews'">
+      <MyShoppingReviews />
+    </div>
+
     <!-- ═══ NEW 전면광고 신청 탭 (시간대별 전단 광고) ═══ -->
     <div v-else-if="tab==='flyer'">
       <FlyerApply embedded />
@@ -1040,6 +1045,7 @@ import { useModal } from '../../composables/useModal'
 import axios from 'axios'
 import AdApplyEmbed from '../ads/AdApply.vue'
 import FlyerApply from '../new/FlyerApply.vue'
+import MyShoppingReviews from '../shopping/MyShoppingReviews.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -1062,6 +1068,7 @@ const allTabs = [
   { key: 'jobs',       icon: 'briefcase',     label: '내 구인',     menuKey: 'jobs' },
   { key: 'realestate', icon: 'home',          label: '내 부동산',   menuKey: 'realestate' },
   { key: 'ads',        icon: 'megaphone',     label: '광고 신청' },
+  { key: 'reviews',    icon: 'shopping-bag',  label: '내 리뷰',     menuKey: 'shopping' },
   { key: 'flyer',      icon: 'sparkles',      label: 'NEW 전면광고 신청', menuKey: 'flyers' },
   { key: 'calls',      icon: 'phone',         label: '통화내역',    menuKey: 'comms' },
   { key: 'bookmarks',  icon: 'bookmark',      label: '북마크' },
