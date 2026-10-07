@@ -1,0 +1,54 @@
+name: Server block scrapers
+
+# 글을 통째로 복사해 가는 수집 프로그램(WebSiphon)을 nginx 에서 막는다 (이 파일을 main 에 올릴 때 1회 자동 실행, 여러 번 실행해도 안전).
+# 검사(nginx -t)가 실패하면 원래 설정으로 되돌린다.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-block-scrapers.yml' ]
+
+jobs:
+  block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Block scraper user agents in nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 3m
+          script: |
+            CONF=$(grep -lE 'root\s+/var/www/awesomekorean/public;' /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf 2>/dev/null | head -1)
+            echo "대상 설정 파일: $CONF"
+            if [ -n "$CONF" ] && ! grep -q 'awesomekorean-block-scrapers' "$CONF"; then
+              cp -p "$CONF" "$CONF.bak.$(date +%s)"
+              python3 - "$CONF" <<'PYEOF'
+            import re, sys
+            p = sys.argv[1]
+            s = open(p).read()
+            snippet = '''
+                # awesomekorean-block-scrapers: 글 복사 수집 프로그램 차단
+                if ($http_user_agent ~* "WebSiphon") { return 403; }
+            '''
+            m = None
+            for mm in re.finditer(r'^[ \t]*root\s+/var/www/awesomekorean/public;[ \t]*\n', s, re.M):
+                m = mm; break
+            if not m:
+                print('root 줄을 찾지 못함'); sys.exit(1)
+            s = s[:m.end()] + snippet + s[m.end():]
+            open(p, 'w').write(s)
+            print('삽입 완료')
+            PYEOF
+              if nginx -t 2>&1; then systemctl reload nginx && echo "nginx 적용 완료"; else
+                echo "!! nginx 설정 검사 실패 → 되돌림"; cp -p "$(ls -t $CONF.bak.* | head -1)" "$CONF"; nginx -t 2>&1 | tail -1
+              fi
+            else
+              echo "이미 적용돼 있거나 설정 파일을 찾지 못함"
+            fi
+            echo "== 확인 =="
+            curl -s -o /dev/null -w "WebSiphon  -> %{http_code} (403 이어야 함)\n" -k https://127.0.0.1/info -H 'Host: awesomekorean.com' -A 'WebSiphon/next-0.1'
+            curl -s -o /dev/null -w "일반 브라우저 -> %{http_code} (200 이어야 함)\n" -k https://127.0.0.1/info -H 'Host: awesomekorean.com' -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0 Safari/537.36'

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InfoPost;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 // '정보' 탭 공개 페이지 — Vue SPA(단일 정적 title/description)와 달리, 검색엔진
 // 노출이 목적이므로 일부러 서버사이드 Blade로 렌더링해 글마다 실제 title/meta
@@ -101,10 +102,24 @@ class InfoPublicController extends Controller
         ['key' => 'comms', 'label' => '안심 커뮤', 'path' => '/comms'],
     ];
 
-    public function show(string $slug)
+    // 조회수: 검색엔진/수집 프로그램/점검 도구는 세지 않고, 같은 방문자가 같은 글을 하루(미국 동부 날짜) 여러 번 열어도 1회만 센다
+    private const BOT_UA = '/bot|crawl|spider|slurp|scrap|siphon|curl|wget|python|java\/|go-http|okhttp|axios|httpclient|libwww|headless|lighthouse|pingdom|uptime|preview|facebookexternalhit|embedly|whatsapp|telegram|discord|slack/i';
+
+    private function countView(Request $request, InfoPost $post): void
+    {
+        $ua = (string) $request->userAgent();
+        if (!$request->isMethod('GET') || $ua === '' || preg_match(self::BOT_UA, $ua)) return;
+
+        $key = 'info-view:' . $post->id . ':' . sha1($request->ip() . '|' . $ua) . ':' . now('America/New_York')->toDateString();
+        if (Cache::add($key, 1, now()->addDay())) {
+            $post->increment('view_count');
+        }
+    }
+
+    public function show(Request $request, string $slug)
     {
         $post = InfoPost::published()->where('slug', $slug)->firstOrFail();
-        $post->increment('view_count');
+        $this->countView($request, $post);
 
         $prev = InfoPost::published()->where('published_at', '<', $post->published_at)->orderByDesc('published_at')->first();
         $next = InfoPost::published()->where('published_at', '>', $post->published_at)->orderBy('published_at')->first();
