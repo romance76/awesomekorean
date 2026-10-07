@@ -71,6 +71,7 @@
           <span v-else-if="callStatus === 'connected'">{{ isElderCall ? '안심 확인 중' : '통화 중' }} &middot; {{ durationFormatted }}</span>
           <span v-else-if="callStatus === 'ended'">{{ isElderCall ? '안심 체크인 완료' : '통화 종료' }}</span>
         </p>
+        <p v-if="notice && callStatus === 'ended'" class="text-sm text-amber-300 text-center px-4 -mt-2 mb-3">{{ notice }}</p>
 
         <!-- Remote user avatar + name -->
         <div class="text-center mb-4">
@@ -160,6 +161,7 @@ const props = defineProps({
   isSpeaker:          Boolean,
   durationFormatted:  String,
   remoteAudioBlocked: Boolean,
+  notice:             { type: String, default: '' },
 })
 
 const isElderCall = computed(() => {

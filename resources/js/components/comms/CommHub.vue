@@ -29,6 +29,7 @@
       :is-speaker="isSpeaker"
       :duration-formatted="durationFormatted"
       :remote-audio-blocked="remoteAudioBlocked"
+      :notice="callNotice"
       @answer="answerCall"
       @decline="declineCall"
       @end="endCall"
@@ -64,8 +65,10 @@ const {
   incomingCall,
   durationFormatted,
   remoteAudioBlocked,
+  callNotice,
   unblockRemoteAudio,
   listenForSignals,
+  ringFromPush,
   startCall,
   answerCall,
   declineCall,
@@ -99,16 +102,17 @@ onMounted(async () => {
   // Initialize push notifications (stub - no Firebase yet)
   await initPushService()
 
-  // Presence heartbeat (every 25 seconds)
-  heartbeatInterval = setInterval(() => {
-    fetch('/api/comms/presence/ping', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${auth.token}`,
-        'Content-Type': 'application/json',
-      },
-    }).catch(() => {})
-  }, 25000)
+  // Presence heartbeat — 접속 중이라는 신호 (전화를 거는 쪽이 "상대가 접속 중인지" 알 수 있게). 열자마자 한 번 + 25초마다 + 화면이 다시 보일 때
+  const ping = () => fetch('/api/comms/presence/ping', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+      'Content-Type': 'application/json',
+    },
+  }).catch(() => {})
+  ping()
+  heartbeatInterval = setInterval(ping, 25000)
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') ping() })
 
   // Handle Service Worker notification clicks forwarded to the app
   navigator.serviceWorker?.addEventListener('message', handleSwMessage)
@@ -126,15 +130,7 @@ onUnmounted(() => {
 function handleSwMessage(event) {
   const { type, payload } = event.data || {}
   if (type === 'NOTIFICATION_CLICK' && payload?.type === 'incoming_call') {
-    incomingCall.value = {
-      call_id:       payload.call_id,
-      room_id:       payload.room_id,
-      caller_id:     parseInt(payload.caller_id),
-      caller_name:   payload.caller_name,
-      caller_avatar: payload.caller_avatar,
-    }
-    callStatus.value = 'ringing'
-    startRingtone()
+    ringFromPush(payload)   // 아직 울리는 전화인지 서버에 확인한 뒤 벨 화면을 띄움
   }
 }
 

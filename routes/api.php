@@ -485,6 +485,9 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/calls/{call}/status', [CallController::class, 'status']);
         Route::get('/calls/history', [CallController::class, 'history']);
         Route::post('/calls/client-log', [CallController::class, 'clientLog']);
+        Route::post('/calls/{call}/report', [CallController::class, 'report']);
+        Route::get('/ice-servers', [CallController::class, 'iceServers']);
+        Route::get('/calls/ringing', [CallController::class, 'ringing']);
 
         // 차단
         Route::get('/blocked-users', [UserBlockController::class, 'index']);
@@ -500,18 +503,8 @@ Route::middleware('auth:api')->group(function () {
 
         // 온라인 heartbeat
         Route::post('/presence/ping', function (\Illuminate\Http\Request $request) {
-            Cache::put('user-online-' . $request->user()->id, true, now()->addSeconds(30));
+            Cache::put('user-online-' . $request->user()->id, true, now()->addSeconds(90));   // 백그라운드 탭은 신호가 1분에 한 번만 와서 여유를 둠
             return response()->json(['success' => true]);
-        });
-
-        // PeerJS peer ID 등록/조회
-        Route::post('/presence/peer-id', function (\Illuminate\Http\Request $request) {
-            $request->validate(['peer_id' => 'required|string']);
-            Cache::put('peer-id-' . $request->user()->id, $request->peer_id, now()->addHours(2));
-            return response()->json(['success' => true]);
-        });
-        Route::get('/presence/peer-id/{userId}', function ($userId) {
-            return response()->json(['peer_id' => Cache::get('peer-id-' . $userId)]);
         });
     });
 
@@ -853,8 +846,8 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/elder/sos', [AdminController::class, 'elderSosLogs']);
 
     // ─── Admin 통화 내역 ───
-    Route::get('/calls', [AdminController::class, 'callLogs']);
-    Route::get('/calls/stats', [AdminController::class, 'callStats']);
+    Route::get('/calls', [\App\Http\Controllers\API\AdminCallController::class, 'index']);
+    Route::get('/calls/stats', [\App\Http\Controllers\API\AdminCallController::class, 'stats']);
 
     // ─── Admin 채팅 ───
     Route::get('/chat/rooms', [AdminController::class, 'chatRooms']);
