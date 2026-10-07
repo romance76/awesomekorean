@@ -48,6 +48,7 @@ export function useCommsWebRTC() {
   let pc = null
   let localStream = null
   let remoteAudioEl = null
+  let remoteStream = null
   let role = null                // 'caller' | 'callee'
   let peerDevice = null          // 상대 기기 번호
   let pendingIce = []
@@ -110,22 +111,44 @@ export function useCommsWebRTC() {
     durationTimer = setInterval(() => callDuration.value++, 1000)
   }
 
+  // 상대 목소리는 화면에 붙어 있는 <audio id="sk-remote-audio"> 로 재생한다 (모바일에서 떨어져 있는 Audio() 보다 안정적)
   function playRemoteStream(stream) {
-    if (remoteAudioEl) { try { remoteAudioEl.pause() } catch {} }
-    remoteAudioEl = new Audio()
+    remoteStream = stream
+    const dom = document.getElementById('sk-remote-audio')
+    remoteAudioEl = dom || remoteAudioEl || new Audio()
     remoteAudioEl.srcObject = stream
+    remoteAudioEl.muted = false
+    remoteAudioEl.volume = 1
     remoteAudioEl.autoplay = true
     remoteAudioEl.setAttribute('playsinline', '')
     remoteAudioEl.play().then(() => { remoteAudioBlocked.value = false }).catch(e => {
       console.warn('[Call] audio blocked:', e.name)
       remoteAudioBlocked.value = true
-      const dom = document.getElementById('sk-remote-audio')
-      if (dom) { dom.srcObject = stream; dom.play().catch(() => {}) }
     })
   }
 
   function unblockRemoteAudio() {
-    if (remoteAudioEl) remoteAudioEl.play().then(() => { remoteAudioBlocked.value = false }).catch(() => {})
+    if (!remoteAudioEl) return
+    if (remoteStream && remoteAudioEl.srcObject !== remoteStream) remoteAudioEl.srcObject = remoteStream
+    remoteAudioEl.muted = false
+    remoteAudioEl.play().then(() => { remoteAudioBlocked.value = false }).catch(() => {})
+  }
+
+  /** 연결 3초 뒤: 상대 음성 패킷이 실제로 오고 있는지 / 스피커로 재생 중인지 확인 (안 들릴 때 원인을 통화 로그에 남김) */
+  async function checkRemoteAudio() {
+    if (!pc || !currentCallId.value) return
+    try {
+      const stats = await pc.getStats()
+      let bytes = 0
+      stats.forEach(r => { if (r.type === 'inbound-rtp' && (r.kind === 'audio' || r.mediaType === 'audio')) bytes += r.bytesReceived || 0 })
+      const paused = !remoteAudioEl || remoteAudioEl.paused
+      if (paused) remoteAudioBlocked.value = true
+      if (bytes === 0 || paused) {
+        await axios.post(`/api/comms/calls/${currentCallId.value}/report`, {
+          note: bytes === 0 ? '상대 음성이 도착하지 않음(마이크 차단/무음 가능)' : '재생 차단됨(소리 켜기 필요)',
+        }).catch(() => {})
+      }
+    } catch {}
   }
 
   // ── 종료/정리 ─────────────────────────────────────────────────
@@ -134,7 +157,7 @@ export function useCommsWebRTC() {
     stopRingtone()
     remoteAudioBlocked.value = false
     if (remoteAudioEl) { try { remoteAudioEl.pause(); remoteAudioEl.srcObject = null } catch {} }
-    remoteAudioEl = null
+    remoteAudioEl = null; remoteStream = null
     if (pc) { try { pc.ontrack = pc.onicecandidate = pc.oniceconnectionstatechange = null; pc.close() } catch {} }
     pc = null
     localStream?.getTracks().forEach(t => t.stop())
@@ -213,6 +236,7 @@ export function useCommsWebRTC() {
     callStatus.value = 'connected'
     startDurationTimer()
     if (role === 'caller') setTimeout(reportStats, 2500)
+    setTimeout(checkRemoteAudio, 3500)
   }
 
   /** 직접 연결인지 중계(TURN)인지, 왕복 지연이 얼마인지 측정해서 서버(관리자 통화 로그)에 남긴다 */

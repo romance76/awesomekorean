@@ -117,6 +117,10 @@
               <div class="font-bold text-sm text-ink truncate">{{ roomDisplayName(activeRoom) }}</div>
             </div>
             <div class="flex items-center gap-2">
+              <!-- 모바일: 오른쪽 참가자 칸이 없으므로 헤더에서 참가자 목록(친구 요청/쪽지/신고)을 연다 -->
+              <button v-if="isMobile" @click="openPartSheet" class="flex items-center gap-0.5 text-ink-muted hover:text-amber-600 transition-colors" title="참가자">
+                <AppIcon name="users" :size="18" /><span v-if="participants.length" class="text-[11px] font-semibold">{{ participants.length }}</span>
+              </button>
               <button @click="openMsgSearch" class="text-ink-muted hover:text-amber-600 transition-colors" title="메시지 검색"><AppIcon name="search" :size="18" /></button>
               <button @click="toggleBookmarkRoom(activeRoom)"
                 :class="isRoomBookmarked(activeRoom.id) ? 'text-amber-500' : 'text-ink-muted'"
@@ -177,11 +181,19 @@
               ]">
               <!-- 다른 사람 메시지 옆 ⋮ 메뉴 (신고/차단) -->
               <div v-if="msg.user_id !== auth.user?.id && !isAdminUser(msg.user)" class="relative order-last pt-4">
-                <button @click.stop="toggleMsgMenu(msg.id)"
+                <button @click.stop="toggleMsgMenu(msg.id, $event)"
                   class="text-ink-muted hover:text-ink w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 opacity-60 hover:opacity-100 transition-colors"
                   title="옵션"><AppIcon name="more-vertical" :size="14" /></button>
+                <!-- 메시지 영역(overflow)에 잘리지 않도록 화면 기준(fixed)으로 띄운다 -->
                 <div v-if="msgMenuOpenId === msg.id" @click.stop
-                  class="absolute top-6 right-0 bg-white rounded-lg shadow-lift border border-gray-100 py-1 min-w-[130px]" style="z-index: 40;">
+                  class="fixed bg-white rounded-lg shadow-lift border border-gray-100 py-1 min-w-[130px]"
+                  :style="{ zIndex: 70, top: msgMenuPos.top + 'px', left: msgMenuPos.left + 'px' }">
+                  <button v-if="msg.user?.allow_friend_request !== false" @click="menuPartAction('friend', msg.user)" class="w-full px-3 py-2 text-left text-xs text-emerald-600 hover:bg-green-50 flex items-center gap-2 transition-colors">
+                    <AppIcon name="user-plus" :size="14" /><span>친구 요청</span>
+                  </button>
+                  <button v-if="msg.user?.allow_messages !== false" @click="menuPartAction('message', msg.user)" class="w-full px-3 py-2 text-left text-xs text-blue-600 hover:bg-blue-50 flex items-center gap-2 transition-colors">
+                    <AppIcon name="mail" :size="14" /><span>쪽지</span>
+                  </button>
                   <button @click="reportMsgUser(msg)" class="w-full px-3 py-2 text-left text-xs text-ink-light hover:bg-gray-50 flex items-center gap-2 transition-colors">
                     <AppIcon name="alert-circle" :size="14" /><span>신고</span>
                   </button>
@@ -389,6 +401,39 @@
             <div>• 누구나 참여할 수 있는 공개 채팅방입니다</div>
             <div>• 로그인 후 메시지를 보낼 수 있어요</div>
             <div>• 욕설/광고는 자동 차단됩니다</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 모바일 참가자 목록 (아래에서 올라오는 시트) -->
+    <div v-if="partSheetOpen && activeRoom" class="fixed inset-0 bg-black/40 flex items-end" style="z-index: 80;" @click.self="partSheetOpen=false">
+      <div class="bg-white rounded-t-2xl w-full max-h-[75vh] flex flex-col shadow-lift">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+          <span class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="users" :size="15" class="text-amber-600" />참가자 {{ participants.length ? '(' + participants.length + ')' : '' }}</span>
+          <div class="flex items-center gap-3">
+            <button @click="loadParticipants" class="text-amber-600" title="새로고침"><AppIcon name="refresh" :size="14" /></button>
+            <button @click="partSheetOpen=false" class="text-ink-muted" title="닫기"><AppIcon name="x" :size="18" /></button>
+          </div>
+        </div>
+        <div v-if="participants.length > 3" class="px-3 py-2 border-b border-gray-50 bg-gray-50 flex-shrink-0">
+          <input v-model="partSearch" type="text" placeholder="이름 검색..." class="input-soft w-full px-3 py-1.5 text-sm" />
+        </div>
+        <div v-if="participantsLoading" class="px-3 py-6 text-sm text-ink-muted text-center">로딩중...</div>
+        <div v-else-if="!filteredParticipants.length" class="px-3 py-6 text-sm text-ink-muted text-center">{{ partSearch ? '검색 결과 없음' : '참가자가 없습니다' }}</div>
+        <div v-else class="overflow-y-auto flex-1">
+          <div v-for="u in filteredParticipants" :key="'ps-'+u.id" class="px-4 py-2.5 border-b border-gray-50 flex items-center gap-2.5" :class="u.id === auth.user?.id ? 'bg-amber-50/60' : ''">
+            <img v-if="u.avatar" :src="u.avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0" @error="e=>e.target.style.display='none'" />
+            <div v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-ink-light flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold text-ink truncate">{{ u.nickname || u.name }}<span v-if="u.id === auth.user?.id" class="ml-1 text-[11px] bg-amber-300 text-amber-900 px-1 rounded">나</span></div>
+              <div v-if="u.city" class="text-[11px] text-ink-faint truncate">{{ u.city }}</div>
+            </div>
+            <template v-if="u.id !== auth.user?.id">
+              <button @click="openPartAction('friend', u)" :disabled="!u.allow_friend_request" class="text-emerald-500 p-1.5 rounded hover:bg-green-50 disabled:opacity-30"><AppIcon name="user-plus" :size="18" /></button>
+              <button @click="openPartAction('message', u)" :disabled="!u.allow_messages" class="text-blue-500 p-1.5 rounded hover:bg-blue-50 disabled:opacity-30"><AppIcon name="mail" :size="18" /></button>
+              <button @click="openPartAction('report', u)" class="text-red-500 p-1.5 rounded hover:bg-red-50" :style="u.is_reported ? '' : 'filter: grayscale(100%); opacity: 0.4;'"><AppIcon name="alert-circle" :size="18" /></button>
+            </template>
           </div>
         </div>
       </div>
@@ -693,8 +738,21 @@ const visibleMessages = computed(() =>
   activeMessages.value.filter(m => !blockedUserIds.value.includes(m.user_id))
 )
 
-function toggleMsgMenu(id) {
-  msgMenuOpenId.value = msgMenuOpenId.value === id ? null : id
+const msgMenuPos = ref({ top: 0, left: 0 })
+function toggleMsgMenu(id, ev) {
+  if (msgMenuOpenId.value === id) { msgMenuOpenId.value = null; return }
+  const r = ev?.currentTarget?.getBoundingClientRect?.()
+  if (r) {
+    const W = 140, H = 150     // 메뉴 크기(대략) — 화면 밖으로 나가면 안쪽으로 밀어 넣는다
+    const left = Math.max(8, Math.min(r.right - W, window.innerWidth - W - 8))
+    const top = (r.bottom + 4 + H > window.innerHeight) ? Math.max(8, r.top - H - 4) : r.bottom + 4
+    msgMenuPos.value = { top, left }
+  }
+  msgMenuOpenId.value = id
+}
+function menuPartAction(type, user) {
+  msgMenuOpenId.value = null
+  if (user) openPartAction(type, user)
 }
 function closeMsgMenu() { msgMenuOpenId.value = null }
 
@@ -1107,6 +1165,10 @@ async function loadParticipants() {
   }
   participantsLoading.value = false
 }
+
+// 모바일 참가자 목록 시트
+const partSheetOpen = ref(false)
+function openPartSheet() { partSheetOpen.value = true; partSearch.value = ''; loadParticipants() }
 
 // 친구/쪽지/신고 모달
 const partModal = ref(null) // { type: 'friend'|'message'|'report', user }
