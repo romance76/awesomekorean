@@ -8,7 +8,7 @@ class FlyerAd extends Model
 {
     protected $fillable = [
         'user_id', 'title', 'kind', 'description', 'phone', 'link_url', 'image_url',
-        'scope', 'region_key', 'status', 'reject_reason', 'total_price', 'hours_count',
+        'scope', 'region_key', 'status', 'reject_reason', 'total_price', 'payment_method', 'payment_id', 'hours_count',
         'start_date', 'end_date', 'approved_at',
     ];
 

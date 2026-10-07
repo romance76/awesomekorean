@@ -4,7 +4,7 @@
     <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="megaphone" :size="20" /></span>
     NEW 전단 광고 관리
   </h1>
-  <p class="text-sm text-ink-muted mb-4">광고주가 시간대를 골라 신청한 전단입니다. 승인하면 예약한 시간에 NEW 게시판 상단에 방송되고, 반려하면 포인트가 환불되며 시간 슬롯이 다시 열립니다. (가격·피크/심야 배율은 가격/할인 센터의 flyer_* 항목)</p>
+  <p class="text-sm text-ink-muted mb-4">광고주가 시간대를 골라 신청한 전단입니다. 승인하면 광고주의 카드에 청구되고 예약한 시간에 NEW 게시판 상단에 방송됩니다. 반려하면 청구 없이 카드 보류가 풀리고 시간 슬롯이 다시 열려요. (가격은 센트 단위 — 가격/할인 센터의 flyer_* 항목 · 결제 내역은 매출/결제 현황)</p>
 
   <div class="flex gap-1.5 mb-4 flex-wrap">
     <button v-for="t in tabs" :key="t.key" @click="status = t.key; page = 1; load()"
@@ -26,7 +26,7 @@
           <span class="font-bold text-ink">{{ f.title }}</span>
         </div>
         <div class="text-xs text-ink-muted mt-1">
-          {{ f.user?.nickname || f.user?.name }} ({{ f.user?.email }}) · {{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간 · <b>{{ Number(f.total_price).toLocaleString() }}P</b>
+          {{ f.user?.nickname || f.user?.name }} ({{ f.user?.email }}) · {{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간 · <b>{{ adMoney(f, f.total_price) }}</b> <span class="px-1 py-0.5 rounded text-[10px] font-bold" :class="f.payment_method === 'card' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ f.payment_method === 'card' ? (f.payment_status === 'captured' ? '카드 청구됨' : f.payment_status === 'authorized' ? '카드 보류 중' : '카드') : '포인트 결제' }}</span>
         </div>
         <p v-if="f.description" class="text-xs text-ink-light mt-1 line-clamp-2">{{ f.description }}</p>
         <div class="text-xs text-ink-muted mt-1">
@@ -41,7 +41,7 @@
 
         <div class="flex gap-2 mt-3">
           <button v-if="f.status === 'pending'" @click="approve(f)" class="btn-primary px-4 py-1.5 rounded-lg text-xs">승인</button>
-          <button v-if="f.status === 'pending' || f.status === 'approved'" @click="reject(f)" class="px-4 py-1.5 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">{{ f.status === 'pending' ? '반려(전액 환불)' : '게시 중단(남은 시간 환불)' }}</button>
+          <button v-if="f.status === 'pending' || f.status === 'approved'" @click="reject(f)" class="px-4 py-1.5 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">{{ f.status === 'pending' ? (f.payment_method === 'card' ? '반려(청구 없이 취소)' : '반려(전액 환불)') : '게시 중단(남은 시간 환불)' }}</button>
           <RouterLink v-if="f.status === 'approved'" :to="`/new/${f.id}`" class="px-3 py-1.5 text-xs text-ink-muted hover:text-rose-600">전단 보기</RouterLink>
         </div>
       </div>
@@ -57,7 +57,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import { kindLabel, fmtDay, hourRanges, tzLabel, stateName, STATUS_LABEL } from '../../utils/flyer'
+import { kindLabel, fmtDay, hourRanges, tzLabel, stateName, STATUS_LABEL, adMoney } from '../../utils/flyer'
 
 const tabs = [
   { key: 'pending', label: '승인 대기' }, { key: 'approved', label: '게시 중' },
@@ -94,7 +94,10 @@ async function act(path, f, body = {}) {
   await load()
 }
 
-const approve = (f) => act('approve', f)
+function approve(f) {
+  if (f.payment_method === 'card' && !window.confirm(`승인하면 광고주의 카드에 ${adMoney(f, f.total_price)}가 청구됩니다. (이미 지난 시간이 있으면 그만큼 뺀 금액만 청구) 승인할까요?`)) return
+  act('approve', f)
+}
 function reject(f) {
   const reason = window.prompt(`'${f.title}' 사유를 입력하세요 (광고주에게 전달됩니다)`, '운영 정책에 맞지 않는 내용입니다.')
   if (reason === null) return

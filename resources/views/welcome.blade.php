@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @if(config('services.stripe.key'))<meta name="stripe-key" content="{{ config('services.stripe.key') }}">@endif
     <title>AwesomeKorean — 미국 한인 커뮤니티</title>
     <meta name="description" content="미국 한인 커뮤니티 플랫폼. 커뮤니티, 구인구직, 중고장터, 한인 업소록을 한 곳에서.">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>

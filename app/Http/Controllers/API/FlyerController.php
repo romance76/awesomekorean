@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\FlyerAd;
 use App\Models\FlyerSlot;
-use App\Models\User;
+use App\Models\Payment;
+use App\Support\DirectPayments;
 use App\Support\FlyerSchedule;
 use App\Support\FlyerService;
+use App\Support\StripeGateway;
 use App\Traits\CompressesUploads;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -135,6 +137,7 @@ class FlyerController extends Controller
      */
     public function availability(Request $request)
     {
+        FlyerService::purgeStale();
         [$scope, $state, $region] = $this->resolveRegion($request);
         $now = FlyerSchedule::now($region);
         $days = max(1, min(FlyerSchedule::maxDays(), (int) $request->input('days', 7)));
@@ -169,13 +172,14 @@ class FlyerController extends Controller
             'booked' => (object) $booked,
             'max_days' => FlyerSchedule::maxDays(),
             'window_days' => FlyerSchedule::windowDays(),
+            'min_order_cents' => FlyerSchedule::minOrderCents(),
         ]]);
     }
 
     /** GET /api/flyers/my */
     public function my(Request $request)
     {
-        $ads = FlyerAd::where('user_id', $request->user()->id)->orderByDesc('id')->limit(50)->get();
+        $ads = FlyerAd::where('user_id', $request->user()->id)->where('status', '!=', 'awaiting_payment')->orderByDesc('id')->limit(50)->get();
         return response()->json(['success' => true, 'data' => $ads]);
     }
 
@@ -241,7 +245,18 @@ class FlyerController extends Controller
 
         $user = $request->user();
 
-        // 사전 점검: 이미 예약된 시간 (최종 보루는 DB UNIQUE)
+        // 달러 카드 결제 — 최소 결제 금액 (카드 수수료 때문에 아주 작은 건은 받지 않음)
+        $min = FlyerSchedule::minOrderCents();
+        if ($total < $min) {
+            return response()->json(['success' => false, 'message' => '신청 합계가 최소 결제 금액 $' . number_format($min / 100, 2) . ' 보다 작아요. 시간이나 기간을 늘려주세요.'], 422);
+        }
+        $gateway = app(StripeGateway::class);
+        if (!$gateway->configured()) {
+            return response()->json(['success' => false, 'message' => '카드 결제 설정이 아직 준비되지 않았어요. 관리자에게 문의해주세요.'], 503);
+        }
+
+        // 카드 입력만 하다 떠난 신청이 잡고 있던 시간 정리 → 사전 점검 (최종 보루는 DB UNIQUE)
+        FlyerService::purgeStale();
         $taken = FlyerSlot::where('region_key', $region)
             ->whereIn('slot_date', array_unique(array_column($rows, 'slot_date')))
             ->whereIn('slot_hour', $hours)->get(['slot_date', 'slot_hour']);
@@ -252,22 +267,15 @@ class FlyerController extends Controller
                 'conflicts' => $taken->map(fn($s) => ['date' => $s->slot_date->toDateString(), 'hour' => $s->slot_hour])->values(),
             ], 409);
         }
-        if ((int) $user->points < $total) {
-            return response()->json(['success' => false, 'message' => "포인트가 부족해요. 필요 {$total}P, 보유 " . (int) $user->points . 'P'], 422);
-        }
 
         $imageUrl = $this->storeCompressedImage($request->file('image'), 'flyers', 1600, 85);
+        $cleanupImage = fn() => Storage::disk('public')->delete(ltrim(str_replace('/storage/', '', $imageUrl), '/'));
 
+        // 1) 전단 + 시간 슬롯을 먼저 "결제 대기(awaiting_payment)"로 잡는다 (카드 입력하는 동안 다른 광고주가 못 가져가게)
         try {
-            $ad = DB::transaction(function () use ($user, $data, $scope, $region, $start, $days, $hours, $rows, $total, $imageUrl) {
-                // 동시에 두 번 결제해 잔액이 음수가 되지 않도록 사용자 행 잠금 후 다시 확인
-                $locked = User::whereKey($user->id)->lockForUpdate()->first();
-                if ((int) $locked->points < $total) {
-                    throw new \DomainException('포인트가 부족해요.');
-                }
-
+            $ad = DB::transaction(function () use ($user, $data, $scope, $region, $start, $days, $rows, $total, $imageUrl) {
                 $ad = FlyerAd::create([
-                    'user_id' => $locked->id,
+                    'user_id' => $user->id,
                     'title' => $data['title'],
                     'kind' => $data['kind'],
                     'description' => $data['description'] ?? null,
@@ -276,48 +284,91 @@ class FlyerController extends Controller
                     'image_url' => $imageUrl,
                     'scope' => $scope,
                     'region_key' => $region,
-                    'status' => 'pending',
-                    'total_price' => $total,
+                    'status' => 'awaiting_payment',
+                    'total_price' => $total,            // 카드 결제 건은 센트
+                    'payment_method' => 'card',
                     'hours_count' => count($rows),
                     'start_date' => $start->toDateString(),
                     'end_date' => $start->copy()->addDays($days - 1)->toDateString(),
                 ]);
-
                 $stamp = now();
                 FlyerSlot::insert(array_map(fn($r) => $r + [
                     'flyer_ad_id' => $ad->id, 'created_at' => $stamp, 'updated_at' => $stamp,
                 ], $rows));
-
-                $locked->addPoints(-$total, "NEW 전단 광고 신청: {$ad->title} ({$ad->hours_count}시간)", 'flyer', ['type' => FlyerAd::class, 'id' => $ad->id]);
                 return $ad;
             });
         } catch (\Illuminate\Database\QueryException $e) {
-            Storage::disk('public')->delete(ltrim(str_replace('/storage/', '', $imageUrl), '/'));
+            $cleanupImage();
             if (($e->errorInfo[1] ?? 0) === 1062) {
                 return response()->json(['success' => false, 'message' => '방금 다른 광고가 같은 시간을 예약했어요. 다시 확인해주세요.'], 409);
             }
             throw $e;
-        } catch (\DomainException $e) {
-            Storage::disk('public')->delete(ltrim(str_replace('/storage/', '', $imageUrl), '/'));
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+
+        // 2) 카드 보류용 결제 생성 (실제 청구는 관리자가 승인할 때)
+        try {
+            [$payment, $clientSecret] = app(DirectPayments::class)->begin(
+                $user, Payment::KIND_FLYER, FlyerAd::class, $ad->id, $total,
+                "NEW 전면광고: {$ad->title} ({$ad->hours_count}시간)"
+            );
+            $ad->update(['payment_id' => $payment->id]);
+        } catch (\Throwable $e) {
+            \Log::error('전면광고 결제 생성 실패: ' . $e->getMessage());
+            FlyerSlot::where('flyer_ad_id', $ad->id)->delete();
+            $ad->delete();
+            $cleanupImage();
+            return response()->json(['success' => false, 'message' => '결제를 시작하지 못했어요. 잠시 후 다시 시도해주세요.'], 502);
         }
 
         return response()->json([
             'success' => true,
-            'message' => "신청이 접수됐어요. {$total}P가 차감되었고, 관리자 승인 후 예약한 시간에 방송됩니다.",
-            'data' => $ad,
+            'message' => '카드를 확인해주세요. 지금은 청구되지 않고, 관리자가 승인하면 그때 청구돼요.',
+            'data' => ['flyer_id' => $ad->id, 'client_secret' => $clientSecret, 'total_cents' => $total, 'hours_count' => $ad->hours_count],
         ], 201);
     }
 
-    /** POST /api/flyers/{id}/cancel — 승인 전(pending)에만 전액 환불 취소 */
+    /**
+     * POST /api/flyers/{id}/confirm-payment — 카드 확인(보류)이 끝났음을 알림.
+     * 클라이언트 말만 믿지 않고 Stripe 에서 실제 보류 상태를 조회해 검증한 뒤 승인 대기(pending)로 넘김.
+     */
+    public function confirmPayment(Request $request, $id)
+    {
+        $ad = FlyerAd::where('user_id', $request->user()->id)->findOrFail($id);
+        if ($ad->status === 'pending') {
+            return response()->json(['success' => true, 'message' => '이미 접수된 신청이에요.', 'data' => $ad]);
+        }
+        $payment = FlyerService::payment($ad);
+        if ($ad->status !== 'awaiting_payment' || !$payment) {
+            return response()->json(['success' => false, 'message' => '결제를 진행 중인 신청이 아니에요. 처음부터 다시 신청해주세요.'], 422);
+        }
+        try {
+            app(DirectPayments::class)->markAuthorized($payment);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            \Log::error('전면광고 결제 확인 실패: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '결제 확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.'], 502);
+        }
+        $ad->update(['status' => 'pending']);
+        return response()->json([
+            'success' => true,
+            'message' => '신청이 접수됐어요. 관리자 승인 후 예약한 시간에 방송되고, 그때 카드에 ' . FlyerService::money($ad, (int) $ad->total_price) . '가 청구돼요.',
+            'data' => $ad,
+        ]);
+    }
+
+    /** POST /api/flyers/{id}/cancel — 승인 전(결제 대기/승인 대기)에만. 카드는 청구 없이 보류 해제, 포인트 건은 전액 환불 */
     public function cancel(Request $request, $id)
     {
         $ad = FlyerAd::where('user_id', $request->user()->id)->findOrFail($id);
-        if ($ad->status !== 'pending') {
+        if (!in_array($ad->status, ['pending', 'awaiting_payment'], true)) {
             return response()->json(['success' => false, 'message' => '승인 대기 중인 신청만 취소할 수 있어요.'], 422);
         }
-        $refund = FlyerService::release($ad, false, "NEW 전단 광고 신청 취소: {$ad->title}");
+        $amount = FlyerService::release($ad, false, "NEW 전단 광고 신청 취소: {$ad->title}");
         $ad->update(['status' => 'cancelled']);
-        return response()->json(['success' => true, 'message' => "취소되었어요. {$refund}P가 환불되었습니다."]);
+        $msg = FlyerService::isCard($ad)
+            ? '취소되었어요. 카드에는 청구되지 않았습니다.'
+            : '취소되었어요. ' . FlyerService::money($ad, $amount) . '가 환불되었습니다.';
+        return response()->json(['success' => true, 'message' => $msg]);
     }
 }

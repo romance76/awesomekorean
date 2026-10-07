@@ -55,12 +55,12 @@
           <button type="button" @click="form.scope = 'state'" class="border-2 rounded-xl p-3 text-left transition-colors"
             :class="form.scope === 'state' ? 'bg-rose-50 border-rose-400' : 'bg-white border-gray-200 hover:border-rose-200'">
             <div class="font-bold text-sm text-ink">📍 내 지역 (주 단위)</div>
-            <div class="text-[11px] text-ink-muted mt-0.5">그 주 방문자에게만 · 가격 {{ fmt(basePrice('state')) }}P/시간~</div>
+            <div class="text-[11px] text-ink-muted mt-0.5">그 주 방문자에게만 · 시간당 {{ usd(basePrice('state')) }}~</div>
           </button>
           <button type="button" @click="form.scope = 'national'" class="border-2 rounded-xl p-3 text-left transition-colors"
             :class="form.scope === 'national' ? 'bg-rose-50 border-rose-400' : 'bg-white border-gray-200 hover:border-rose-200'">
             <div class="font-bold text-sm text-ink">🇺🇸 전국</div>
-            <div class="text-[11px] text-ink-muted mt-0.5">전국 어디서 봐도 · 가격 {{ fmt(basePrice('national')) }}P/시간~</div>
+            <div class="text-[11px] text-ink-muted mt-0.5">전국 어디서 봐도 · 시간당 {{ usd(basePrice('national')) }}~</div>
           </button>
         </div>
         <div v-if="form.scope === 'state'">
@@ -106,7 +106,7 @@
               class="rounded-lg border-2 px-1 py-1.5 text-center transition-colors disabled:cursor-not-allowed"
               :class="cellClass(h - 1)">
               <div class="text-xs font-bold leading-tight">{{ fmtHour(h - 1) }}</div>
-              <div class="text-[10px] leading-tight mt-0.5">{{ blocked(h - 1) || (price(h - 1) + 'P') }}</div>
+              <div class="text-[10px] leading-tight mt-0.5">{{ blocked(h - 1) || usd(price(h - 1)) }}</div>
             </button>
           </div>
           <p class="text-[11px] text-ink-faint mt-2">피크(오후 5~11시)는 비싸고 심야(자정~오전 6시)는 저렴해요. “예약됨”은 같은 지역에서 다른 광고주가 이미 쓰는 시간이에요. 아무도 쓰지 않는 시간은 모두 고를 수 있어요.</p>
@@ -118,16 +118,14 @@
         <div class="space-y-1.5 text-sm">
           <div class="flex justify-between"><span class="text-ink-muted">방송 시간</span><span class="font-semibold">{{ form.hours.length }}시간/일 × {{ form.days }}일 = {{ slotCount }}시간</span></div>
           <div v-if="form.hours.length" class="flex justify-between gap-4"><span class="text-ink-muted flex-shrink-0">시간대</span><span class="text-right text-xs">{{ hourRanges(form.hours).join(', ') }}</span></div>
-          <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-rose-600">{{ fmt(total) }}P <span class="text-xs font-semibold text-ink-faint">≈ ${{ (total / 100).toFixed(0) }}</span></span></div>
-          <div class="flex justify-between text-xs"><span class="text-ink-muted">내 포인트</span>
-            <span :class="lacking ? 'text-red-500 font-bold' : 'text-ink-light'">{{ fmt(auth.user?.points || 0) }}P
-              <RouterLink v-if="lacking" to="/dashboard?tab=points" class="underline ml-1">포인트 충전</RouterLink></span></div>
+          <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-rose-600">{{ usd(total) }}</span></div>
+          <div v-if="belowMin" class="text-xs text-red-500">최소 결제 금액은 {{ usd(av.min_order_cents) }} 예요. 시간이나 기간을 조금 더 늘려주세요.</div>
         </div>
         <p v-if="error" class="text-sm text-red-500 mt-3">{{ error }}</p>
         <button type="submit" :disabled="submitting || !canSubmit" class="btn-primary w-full py-3 rounded-xl text-sm mt-4 disabled:opacity-50">
-          {{ submitting ? '신청 중...' : `${fmt(total)}P로 신청하기` }}
+          {{ submitting ? '준비 중...' : `${usd(total)} 카드로 신청하기` }}
         </button>
-        <p class="text-[11px] text-ink-faint mt-2">신청하면 포인트가 먼저 차감되고, 관리자 승인 후 예약한 시간에 방송돼요. 반려되거나 승인 전에 취소하면 전액 환불됩니다.</p>
+        <p class="text-[11px] text-ink-faint mt-2">다음 단계에서 카드를 확인하지만 <b>지금은 청구되지 않아요.</b> 관리자가 승인하면 그때 카드에 청구되고, 반려되거나 승인 전에 취소하면 한 푼도 청구되지 않습니다.</p>
       </div>
     </form>
     </VerifyGate>
@@ -143,17 +141,35 @@
             <span class="text-[11px] font-bold px-1.5 py-0.5 rounded border" :class="STATUS_LABEL[m.status]?.cls">{{ STATUS_LABEL[m.status]?.text }}</span>
             <span class="text-sm font-semibold text-ink truncate">{{ m.title }}</span>
           </div>
-          <div class="text-[11px] text-ink-muted mt-0.5">{{ m.scope === 'national' ? '전국' : stateName(m.region_key) }} · {{ fmtDay(m.start_date) }}~{{ fmtDay(m.end_date) }} · {{ m.hours_count }}시간 · {{ fmt(m.total_price) }}P</div>
+          <div class="text-[11px] text-ink-muted mt-0.5">{{ m.scope === 'national' ? '전국' : stateName(m.region_key) }} · {{ fmtDay(m.start_date) }}~{{ fmtDay(m.end_date) }} · {{ m.hours_count }}시간 · {{ adMoney(m, m.total_price) }}</div>
           <div v-if="m.status === 'approved'" class="text-[11px] text-ink-faint">노출 {{ fmt(m.view_count) }} · 클릭 {{ fmt(m.click_count) }}</div>
           <div v-if="m.reject_reason && m.status !== 'approved'" class="text-[11px] text-red-500">{{ m.reject_reason }}</div>
         </div>
         <div class="flex flex-col gap-1 flex-shrink-0">
           <RouterLink :to="`/new/${m.id}`" class="text-xs text-ink-muted hover:text-rose-600 text-center">보기</RouterLink>
-          <button v-if="m.status === 'pending'" @click="cancel(m)" class="text-xs text-red-400 hover:text-red-600">취소·환불</button>
+          <button v-if="m.status === 'pending'" @click="cancel(m)" class="text-xs text-red-400 hover:text-red-600">{{ m.payment_method === 'card' ? '신청 취소' : '취소·환불' }}</button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- 카드 확인 (승인 후 청구) -->
+  <Teleport to="body">
+    <div v-if="checkout" class="fixed inset-0 z-[80] bg-black/50 flex items-center justify-center p-4" @click.self="closeCheckout">
+      <div class="bg-white rounded-2xl w-full max-w-md p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold text-ink">카드 확인</h3>
+          <button type="button" @click="closeCheckout" class="text-ink-muted hover:text-ink" aria-label="닫기"><AppIcon name="x" :size="18" /></button>
+        </div>
+        <div class="rounded-xl bg-rose-50 p-3 mb-4 text-sm">
+          <div class="flex justify-between"><span class="text-ink-muted">NEW 전면광고 {{ checkout.hours }}시간</span><b class="text-rose-600">{{ usd(checkout.total) }}</b></div>
+          <p class="text-[11px] text-ink-muted mt-1.5">지금은 카드에 청구되지 않아요. 관리자가 승인하면 그때 {{ usd(checkout.total) }}가 청구되고, 반려되면 청구 없이 취소돼요.</p>
+        </div>
+        <StripeCardForm :client-secret="checkout.clientSecret" button-label="카드 확인하고 신청 완료" @authorized="onAuthorized" />
+        <p class="text-[11px] text-ink-faint mt-2 text-center">선택한 시간은 30분 동안만 잡아둬요. 창을 닫으면 풀립니다.</p>
+      </div>
+    </div>
+  </Teleport>
 </div>
 </template>
 
@@ -165,7 +181,8 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
-import { KINDS, US_STATES, fmtHour, hourRanges, fmtDay, tzLabel, stateName, STATUS_LABEL } from '../../utils/flyer'
+import StripeCardForm from '../../components/StripeCardForm.vue'
+import { KINDS, US_STATES, fmtHour, hourRanges, fmtDay, tzLabel, stateName, STATUS_LABEL, usd, adMoney } from '../../utils/flyer'
 
 defineProps({ embedded: { type: Boolean, default: false } })
 
@@ -188,7 +205,7 @@ const fmt = (n) => Number(n || 0).toLocaleString()
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i)
 
 // 전국 / 주 기본 가격 안내용 (피크/심야 배율 적용 전 낮 시간대 가격)
-const basePrices = ref({ national: 60, state: 30 })
+const basePrices = ref({ national: 60, state: 30 })   // 센트
 const basePrice = (s) => basePrices.value[s]
 
 const dayChoices = computed(() => {
@@ -199,8 +216,8 @@ const dayChoices = computed(() => {
 const price = (h) => Number(av.value?.prices?.[h] ?? 0)
 const slotCount = computed(() => form.hours.length * form.days)
 const total = computed(() => form.hours.reduce((s, h) => s + price(h), 0) * form.days)
-const lacking = computed(() => total.value > (auth.user?.points || 0))
-const canSubmit = computed(() => form.title && file.value && form.hours.length && form.start_date && !lacking.value)
+const belowMin = computed(() => !!av.value && total.value > 0 && total.value < (av.value.min_order_cents || 0))
+const canSubmit = computed(() => form.title && file.value && form.hours.length && form.start_date && !belowMin.value)
 
 // 이 시간을 고를 수 없는 이유 (다른 광고주가 이미 예약) — 없으면 빈 문자열
 function blocked(h) {
@@ -247,6 +264,9 @@ async function loadMine() {
   try { mine.value = (await axios.get('/api/flyers/my')).data.data || [] } catch {}
 }
 
+// 카드 확인 단계 — 신청을 먼저 접수(시간 슬롯을 잠깐 잡아둠)한 뒤 카드를 확인한다
+const checkout = ref(null)   // { id, clientSecret, total, hours }
+
 async function submit() {
   error.value = ''
   submitting.value = true
@@ -258,11 +278,7 @@ async function submit() {
     form.hours.forEach(h => fd.append('hours[]', h))
     fd.append('image', file.value)
     const { data } = await axios.post('/api/flyers', fd)
-    site.toast(data.message || '신청이 접수됐어요', 'success', 5000)
-    Object.assign(form, { title: '', description: '', phone: '', link_url: '', hours: [] })
-    file.value = null; preview.value = ''
-    if (fileInput.value) fileInput.value.value = ''
-    await Promise.all([auth.fetchUser(), loadAvailability(), loadMine()])
+    checkout.value = { id: data.data.flyer_id, clientSecret: data.data.client_secret, total: data.data.total_cents, hours: data.data.hours_count }
   } catch (e) {
     const r = e.response
     error.value = r?.data?.message || Object.values(r?.data?.errors || {})[0]?.[0] || '신청에 실패했어요. 잠시 후 다시 시도해주세요.'
@@ -271,8 +287,34 @@ async function submit() {
   submitting.value = false
 }
 
+async function onAuthorized() {
+  const c = checkout.value
+  try {
+    const { data } = await axios.post(`/api/flyers/${c.id}/confirm-payment`)
+    site.toast(data.message || '신청이 접수됐어요', 'success', 6000)
+    checkout.value = null
+    Object.assign(form, { title: '', description: '', phone: '', link_url: '', hours: [] })
+    file.value = null; preview.value = ''
+    if (fileInput.value) fileInput.value.value = ''
+    await Promise.all([loadAvailability(), loadMine()])
+  } catch (e) {
+    error.value = e.response?.data?.message || '결제 확인에 실패했어요. 잠시 후 다시 시도해주세요.'
+    checkout.value = null
+  }
+}
+
+// 카드 확인 창을 닫으면 잡아둔 시간을 풀어준다
+async function closeCheckout() {
+  const c = checkout.value
+  checkout.value = null
+  if (!c) return
+  try { await axios.post(`/api/flyers/${c.id}/cancel`) } catch {}
+  loadAvailability()
+}
+
 async function cancel(m) {
-  if (!confirm(`'${m.title}' 신청을 취소하고 ${fmt(m.total_price)}P를 환불받을까요?`)) return
+  const card = m.payment_method === 'card'
+  if (!confirm(card ? `'${m.title}' 신청을 취소할까요? (카드에는 청구되지 않았어요)` : `'${m.title}' 신청을 취소하고 ${adMoney(m, m.total_price)}를 환불받을까요?`)) return
   try {
     const { data } = await axios.post(`/api/flyers/${m.id}/cancel`)
     site.toast(data.message, 'success')

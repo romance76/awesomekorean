@@ -274,6 +274,7 @@ Route::middleware('auth:api')->group(function () {
     // NEW 전단 광고 신청 (이메일 인증 회원만)
     Route::get('/flyers/my', [\App\Http\Controllers\API\FlyerController::class, 'my']);
     Route::post('/flyers', [\App\Http\Controllers\API\FlyerController::class, 'store'])->middleware('verified.email');
+    Route::post('/flyers/{id}/confirm-payment', [\App\Http\Controllers\API\FlyerController::class, 'confirmPayment'])->whereNumber('id');
     Route::post('/flyers/{id}/cancel', [\App\Http\Controllers\API\FlyerController::class, 'cancel'])->whereNumber('id');
 
     // 홀드 (구매자가 포인트로 물건 예약)
