@@ -119,9 +119,11 @@
           <div class="flex justify-between"><span class="text-ink-muted">방송 시간</span><span class="font-semibold">{{ form.hours.length }}시간/일 × {{ form.days }}일 = {{ slotCount }}시간</span></div>
           <div v-if="form.hours.length" class="flex justify-between gap-4"><span class="text-ink-muted flex-shrink-0">시간대</span><span class="text-right text-xs">{{ hourRanges(form.hours).join(', ') }}</span></div>
           <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-rose-600">{{ usd(total) }}</span></div>
-          <div v-if="belowMin" class="text-xs text-red-500">최소 결제 금액은 {{ usd(av.min_order_cents) }} 예요. 시간이나 기간을 조금 더 늘려주세요.</div>
         </div>
         <p v-if="error" class="text-sm text-red-500 mt-3">{{ error }}</p>
+        <ul v-if="missing.length" class="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 space-y-0.5">
+          <li v-for="m in missing" :key="m">• {{ m }}</li>
+        </ul>
         <button type="submit" :disabled="submitting || !canSubmit" class="btn-primary w-full py-3 rounded-xl text-sm mt-4 disabled:opacity-50">
           {{ submitting ? '준비 중...' : `${usd(total)} 카드로 신청하기` }}
         </button>
@@ -217,7 +219,17 @@ const price = (h) => Number(av.value?.prices?.[h] ?? 0)
 const slotCount = computed(() => form.hours.length * form.days)
 const total = computed(() => form.hours.reduce((s, h) => s + price(h), 0) * form.days)
 const belowMin = computed(() => !!av.value && total.value > 0 && total.value < (av.value.min_order_cents || 0))
-const canSubmit = computed(() => form.title && file.value && form.hours.length && form.start_date && !belowMin.value)
+// 신청 버튼이 눌리지 않는 이유 — 비어 있는 필수 항목을 버튼 위에 알려준다
+const missing = computed(() => {
+  const m = []
+  if (!form.title.trim()) m.push('① 상호/제목을 입력해주세요')
+  if (!file.value) m.push('① 전단 이미지를 올려주세요')
+  if (!form.hours.length) m.push('③ 방송할 시간 칸을 하나 이상 골라주세요')
+  if (!form.start_date) m.push('③ 시작일을 골라주세요')
+  if (belowMin.value) m.push(`최소 결제 금액은 ${usd(av.value.min_order_cents)} 예요`)
+  return m
+})
+const canSubmit = computed(() => missing.value.length === 0)
 
 // 시간 칸(블록): 서버가 내려주는 몇 시간씩 묶은 칸. 선택은 시간(hours) 단위로 저장해 서버에 그대로 보낸다.
 const blocks = computed(() => av.value?.blocks || [])
