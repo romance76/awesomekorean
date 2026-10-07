@@ -4,13 +4,14 @@
 try {
   importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
   importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
-  firebase.initializeApp({
-    apiKey: 'AIzaSyAOfIdUvVXqblgb7NrmPGWViIawuZNpDTA',
-    projectId: 'awesomekorean-c9430',
-    messagingSenderId: '430136797121',
-    appId: '1:430136797121:web:768cffa39c96a35e81f140',
-  });
-  firebase.messaging();
+  // Firebase 웹 설정은 관리자 > API 키 관리에 입력한 값을 서버에서 받아 쓴다 (예전엔 여기에 옛 프로젝트 값이 박혀 있었음).
+  // 알림 표시는 아래 push 이벤트가 직접 처리하므로(data-only 메시지), 설정을 받기 전에 푸시가 와도 문제없다.
+  fetch('/api/push/config').then(r => r.json()).then(c => {
+    if (c && c.enabled && c.config && !firebase.apps.length) {
+      firebase.initializeApp(c.config);
+      firebase.messaging();
+    }
+  }).catch(() => {});
 } catch (e) {
   console.warn('[SW] Firebase init skipped:', e.message);
 }
