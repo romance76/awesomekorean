@@ -429,7 +429,8 @@
           <footer class="px-8 py-10 text-gray-400 text-sm">
             <div class="grid gap-8 mb-8" :style="{ gridTemplateColumns: `repeat(${footer.columns.length + 1}, minmax(0, 1fr))` }">
               <div>
-                <div class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
+                <img v-if="company.logo_dark_url" :src="company.logo_dark_url" alt="AwesomeKorean" class="h-7 w-auto mb-2" />
+                <div v-else class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
                 <div class="text-xs text-gray-400">{{ footer.tagline }}</div>
               </div>
               <div v-for="(col, ci) in footer.columns" :key="ci">
