@@ -76,6 +76,10 @@ const routes = [
   { path: '/groupbuy/:id', name: 'groupbuy-detail', component: p('groupbuy/GroupBuyDetail') },
 
   // Events
+  // NEW 전단 광고 — 지역별 · 시간대별 상단 노출 게시판
+  { path: '/new', name: 'new-board', component: p('new/NewBoard') },
+  { path: '/new/apply', name: 'flyer-apply', component: p('new/FlyerApply'), meta: { auth: true } },
+  { path: '/new/:id(\\d+)', name: 'flyer-detail', component: p('new/FlyerDetail') },
   { path: '/events', name: 'events', component: p('events/EventList') },
   { path: '/events/create', name: 'event-create', component: p('events/EventCreate'), meta: { auth: true } },
   { path: '/events/:id', name: 'event-detail', component: p('events/EventDetail') },
@@ -208,6 +212,7 @@ const routes = [
       { path: 'communication', component: p('admin/AdminCommunication') },
       { path: 'ad-center', component: p('admin/AdminAdCenter') },
       { path: 'banners', component: p('admin/Banners') },
+      { path: 'flyers', component: p('admin/AdminFlyers') },
       { path: 'ad-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'pricing', component: p('admin/AdminPricingCenter') },
       { path: 'payments', component: p('admin/Payments') },
@@ -241,7 +246,7 @@ const router = createRouter({
 // 회원이 폼을 끝까지 채운 뒤 제출 단계에서야 막히지 않도록 진입부터 차단
 const VERIFIED_WRITE_ROUTES = new Set([
   'post-write', 'qa-write', 'job-write', 'market-write', 'realestate-write',
-  'club-create', 'recipe-create', 'groupbuy-create', 'event-create',
+  'club-create', 'recipe-create', 'groupbuy-create', 'event-create', 'flyer-apply',
 ])
 
 router.beforeEach(async (to, from, next) => {

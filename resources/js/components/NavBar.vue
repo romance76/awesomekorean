@@ -235,6 +235,7 @@ const defaultMenus = [
   { key: 'directory', label: '업소록', label_en: 'Directory', icon: '📋', path: '/directory', enabled: true },
   { key: 'realestate', label: '부동산', label_en: 'Real Estate', icon: '🏠', path: '/realestate', enabled: true },
   { key: 'events', label: '이벤트', label_en: 'Events', icon: '🎉', path: '/events', enabled: true },
+  { key: 'flyers', label: 'NEW', label_en: 'NEW', icon: '🆕', path: '/new', enabled: true },
   { key: 'news', label: '뉴스', label_en: 'News', icon: '📰', path: '/news', enabled: true },
   // 서버사이드 Blade로 렌더링되는 페이지라(검색엔진용 실제 title/meta 태그 필요)
   // Vue Router가 아니라 일반 브라우저 네비게이션으로 이동해야 함 — external: true

@@ -13,6 +13,7 @@ const ALL_MENUS = [
   { key: 'directory', label: '업소록', label_en: 'Directory', icon: '📋', path: '/directory' },
   { key: 'realestate', label: '부동산', label_en: 'Real Estate', icon: '🏠', path: '/realestate' },
   { key: 'events', label: '이벤트', label_en: 'Events', icon: '🎉', path: '/events' },
+  { key: 'flyers', label: 'NEW', label_en: 'NEW', icon: '🆕', path: '/new' },
   { key: 'news', label: '뉴스', label_en: 'News', icon: '📰', path: '/news' },
   { key: 'recipes', label: '레시피', label_en: 'Recipes', icon: '🍳', path: '/recipes' },
   { key: 'clubs', label: '동호회', label_en: 'Clubs', icon: '👥', path: '/clubs' },
