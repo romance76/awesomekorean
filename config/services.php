@@ -50,7 +50,7 @@ return [
     'turn' => [
         'host'     => env('TURN_HOST', '68.183.60.70:3478'),
         'username' => env('TURN_USERNAME', 'awesomekorean'),
-        'password' => env('TURN_PASSWORD', 'Skrtc2026!'),
+        'password' => env('TURN_PASSWORD'),
     ],
 
     'firebase' => [

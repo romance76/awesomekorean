@@ -249,7 +249,7 @@ class CallController extends Controller
     {
         $servers = [['urls' => 'stun:stun.l.google.com:19302']];
         $turn = config('services.turn');
-        if (!empty($turn['host'])) {
+        if (!empty($turn['host']) && !empty($turn['password'])) {   // 비밀번호는 서버 .env(TURN_PASSWORD)에만 둔다
             $servers[] = ['urls' => "turn:{$turn['host']}", 'username' => $turn['username'], 'credential' => $turn['password']];
             $servers[] = ['urls' => "turn:{$turn['host']}?transport=tcp", 'username' => $turn['username'], 'credential' => $turn['password']];
         }
