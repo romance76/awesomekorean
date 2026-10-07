@@ -1,15 +1,19 @@
 <template>
 <div class="min-h-screen">
 
-  <!-- ═════ 0. 라이브 티커 (다크 marquee) ═════ -->
-  <div class="ticker bg-night text-[#EDE5DD] overflow-hidden" aria-label="실시간 커뮤니티 활동">
-    <div class="ticker-track flex gap-12 py-2 w-max">
-      <span v-for="(t, i) in tickerLoop" :key="i" class="flex items-center gap-2 text-[13px] whitespace-nowrap">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+  <!-- ═════ 0. 라이브 티커 (다크 marquee) — 실제 최신 활동/숫자/시세를 1분마다 새로 받아 보여준다 ═════ -->
+  <div v-if="tickerLoop.length" class="ticker bg-night text-[#EDE5DD] overflow-hidden" aria-label="실시간 커뮤니티 활동">
+    <div class="ticker-track flex gap-12 py-2 w-max" :style="{ animationDuration: tickerSeconds + 's' }">
+      <component :is="t.link ? 'RouterLink' : 'span'" v-for="(t, i) in tickerLoop" :key="i" :to="t.link || undefined"
+        class="flex items-center gap-2 text-[13px] whitespace-nowrap hover:text-white transition-colors">
+        <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="t.live ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
         <b class="text-white font-semibold">{{ t.label }}</b>
         <span>{{ t.text }}</span>
-        <span class="text-[#8C8178]">{{ t.time }}</span>
-      </span>
+        <span v-if="t.quote !== undefined" class="font-bold tabular-nums" :class="t.quote >= 0 ? 'text-[#4ADE80]' : 'text-[#F87171]'">
+          {{ t.quote >= 0 ? '▲' : '▼' }}{{ Math.abs(t.quote).toFixed(2) }}%
+        </span>
+        <span v-if="t.when" class="text-[#8C8178]">{{ t.when }}</span>
+      </component>
     </div>
   </div>
 
@@ -89,30 +93,31 @@
           </div>
         </RouterLink>
 
-        <!-- 인기 주식: 지수(나스닥/다우/S&P/코스피) 로테이션 + 관심종목 -->
+        <!-- 인기 주식: 미국 주요 지수/지표 8개를 4초마다 로테이션 + 대표 종목 3개 (미국식 색: 상승 초록 / 하락 빨강) -->
         <RouterLink to="/stocks" class="bg-surface rounded-card p-4 lg:p-5 flex flex-col group hover:brightness-95 transition-all">
           <div class="flex items-center gap-1.5">
             <span class="text-[10.5px] font-bold tracking-wider text-ink-muted">인기 주식</span>
             <AppIcon name="chevron-right" :size="12" class="text-ink-faint group-hover:text-amber-500 transition-colors" />
+            <span v-if="quoteTimeET" class="ml-auto text-[9.5px] text-ink-faint">{{ quoteTimeET }}</span>
           </div>
           <div class="flex gap-3 mt-2.5 flex-1">
             <div v-if="currentIndex" class="flex-1 min-w-0">
               <div class="text-[11px] font-semibold text-ink-muted truncate">{{ currentIndex.name }}</div>
               <div class="text-[17px] lg:text-[19px] font-extrabold tracking-[-0.03em] text-ink tabular-nums mt-0.5">
-                {{ Number(currentIndex.price).toLocaleString(undefined, {maximumFractionDigits: 0}) }}
+                {{ fmtPrice(currentIndex.price) }}
               </div>
-              <div class="text-[10.5px] font-bold mt-0.5" :class="Number(currentIndex.change_pct) >= 0 ? 'text-[#E8442E]' : 'text-blue-500'">
+              <div class="text-[10.5px] font-bold mt-0.5" :class="Number(currentIndex.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
                 {{ Number(currentIndex.change_pct) >= 0 ? '▲' : '▼' }} {{ Math.abs(Number(currentIndex.change_pct)).toFixed(2) }}%
               </div>
               <svg v-if="currentIndex.sparkline?.length > 1" viewBox="0 0 100 20" class="w-full h-5 mt-1.5" preserveAspectRatio="none">
                 <path :d="sparkPath(currentIndex.sparkline)" fill="none"
-                  :stroke="Number(currentIndex.change_pct) >= 0 ? '#E8442E' : '#3B82F6'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
+                  :stroke="Number(currentIndex.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
               </svg>
             </div>
             <div v-if="watchlist.length" class="w-[86px] shrink-0 flex flex-col justify-center gap-1 border-l border-line pl-2.5">
               <div v-for="w in watchlist.slice(0, 3)" :key="w.symbol" class="text-[10px]">
-                <div class="text-ink-muted truncate">{{ w.name }}</div>
-                <div class="font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#E8442E]' : 'text-blue-500'">
+                <div class="text-ink-muted truncate font-semibold">{{ w.symbol }}</div>
+                <div class="font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
                   {{ Number(w.change_pct) >= 0 ? '▲' : '▼' }}{{ Math.abs(Number(w.change_pct)).toFixed(1) }}%
                 </div>
               </div>
@@ -120,16 +125,22 @@
           </div>
         </RouterLink>
 
-        <!-- 접속자 -->
+        <!-- 접속자: 오늘 방문자 / 채팅방 사용자를 4초마다 번갈아 보여준다 -->
         <div class="bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
           <div class="flex items-center gap-2">
             <span class="live-pulse shrink-0"></span>
-            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">지금 접속 중</span>
+            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">{{ liveSlide === 0 ? '오늘 사이트 이용자' : '오픈 채팅방' }}</span>
           </div>
-          <div>
-            <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveUsers }}명</div>
-            <div class="text-[12px] text-white/65 mt-1.5">오픈 채팅방에서 대화가 진행 중이에요</div>
-          </div>
+          <Transition name="live-swap" mode="out-in">
+            <div v-if="liveSlide === 0" key="visitors">
+              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.today_visitors.toLocaleString() }}명</div>
+              <div class="text-[12px] text-white/65 mt-1.5">오늘 다녀간 사람 수예요 · 지금 접속 중 {{ liveStats.online_now.toLocaleString() }}명</div>
+            </div>
+            <div v-else key="chat">
+              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.chat_users.toLocaleString() }}명</div>
+              <div class="text-[12px] text-white/65 mt-1.5">{{ liveStats.chat_users > 0 ? '지금 채팅방에서 대화 중이에요' : '채팅방에서 첫 대화를 시작해 보세요' }}</div>
+            </div>
+          </Transition>
           <div class="flex flex-wrap gap-1.5">
             <button v-for="t in trendingTags.slice(0, 5)" :key="t"
               @click="router.push({path:'/search',query:{q:t}})"
@@ -330,7 +341,7 @@ function startHeroSlide() {
 }
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && heroBanners.value.length > 1) startHeroSlide() }
-onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInterval) clearInterval(indexInterval) })
+onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInterval) clearInterval(indexInterval); liveTimers.forEach(clearInterval) })
 
 // 영어 모드면 image_url_en 우선 사용, 없으면 기본(한글) 이미지로 폴백
 function heroBannerImage(b) {
@@ -363,7 +374,28 @@ const favorites = [
   { key: 'directory',  name: '업소록',   to: '/directory' },
 ]
 
-const liveUsers = computed(() => 230 + (posts.value.length * 5))
+// ── 실시간 숫자 / 마퀴 ──────────────────────────────────────
+const liveStats = ref({ today_visitors: 0, online_now: 0, chat_users: 0 })
+const liveSlide = ref(0)                 // 0: 오늘 방문자, 1: 채팅방 사용자
+const tickerRaw = ref([])
+const nowMs = ref(Date.now())
+let liveTimers = []
+
+function relTime(iso) {
+  if (!iso) return ''
+  const m = Math.max(0, Math.round((nowMs.value - new Date(iso).getTime()) / 60000))
+  if (m < 1) return '방금 전'
+  if (m < 60) return `${m}분 전`
+  if (m < 1440) return `${Math.floor(m / 60)}시간 전`
+  return `${Math.floor(m / 1440)}일 전`
+}
+async function loadLive() {
+  try { const { data } = await axios.get('/api/site/live-stats'); liveStats.value = { ...liveStats.value, ...(data.data || {}) } } catch {}
+}
+async function loadTicker() {
+  try { const { data } = await axios.get('/api/site/ticker'); tickerRaw.value = data.data?.items || [] } catch {}
+}
+function fmtPrice(v) { return Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
 
 // 업로드 이미지 경로 정규화 (DB에 상대 경로로 저장된 경우 /storage/ prefix)
 function imgUrl(path) {
@@ -387,19 +419,14 @@ const homeRealEstateCards = computed(() => {
     }))
 })
 
-// 라이브 티커: 실제 최신 데이터로 구성 (없으면 기본 문구)
-const tickerItems = computed(() => {
-  const items = []
-  if (market.value[0]) items.push({ label: '중고장터', text: `"${market.value[0].title}" 새 매물이 올라왔어요`, time: '방금 전' })
-  if (posts.value[0]) items.push({ label: '커뮤니티', text: `"${posts.value[0].title}" 글이 올라왔어요`, time: '2분 전' })
-  if (jobs.value[0]) items.push({ label: '구인구직', text: `"${jobs.value[0].title}" 채용 공고`, time: '5분 전' })
-  items.push({ label: '오픈 채팅방', text: `지금 ${liveUsers.value}명 대화 중`, time: 'LIVE' })
-  items.push({ label: '이벤트', text: '부동산 포인트 2배 진행 중', time: 'D-3' })
-  if (realestate.value[0]) items.push({ label: '부동산', text: `"${realestate.value[0].title}" 새 매물`, time: '10분 전' })
-  return items
-})
-// marquee 무한 루프용 2배 반복
+// 마퀴 항목: 서버가 준 실제 최신 활동/숫자/시세 (시간 표시는 화면에서 계속 새로 계산)
+const tickerItems = computed(() => tickerRaw.value.map(t => ({
+  ...t,
+  when: t.live ? 'LIVE' : (t.tag || (t.at ? relTime(t.at) : '')),
+})))
+// marquee 무한 루프용 2배 반복 (항목 수에 맞춰 속도 조절)
 const tickerLoop = computed(() => [...tickerItems.value, ...tickerItems.value])
+const tickerSeconds = computed(() => Math.max(40, tickerItems.value.length * 7))
 
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
 
@@ -450,8 +477,14 @@ function sparkPathH(points, h) {
 }
 function sparkPath(points) { return sparkPathH(points, 20) }
 
-// 인기 주식 위젯: 지수 4개(나스닥/다우/S&P/코스피)를 4초마다 로테이션
+// 인기 주식 위젯: 미국 지수/지표 8개를 4초마다 로테이션
 const currentIndex = computed(() => indices.value[indexIdx.value] || null)
+// 시세 기준 시각: 미국 동부시간(ET)
+const quoteTimeET = computed(() => {
+  const t = currentIndex.value?.quoted_at || currentIndex.value?.updated_at
+  if (!t) return ''
+  return new Date(t).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET'
+})
 function startIndexRotation() {
   if (indices.value.length <= 1) return
   indexInterval = setInterval(() => { indexIdx.value = (indexIdx.value + 1) % indices.value.length }, 4000)
@@ -461,7 +494,7 @@ async function loadMarketQuotes() {
     const { data } = await axios.get('/api/market-quotes')
     indices.value = data.data?.indices || []
     watchlist.value = data.data?.watchlist || []
-    startIndexRotation()
+    if (!indexInterval) startIndexRotation()
   } catch {}
 }
 
@@ -496,6 +529,13 @@ async function loadWeather() {
 onMounted(async () => {
   loadWeather()
   loadMarketQuotes()
+  loadLive(); loadTicker()
+  liveTimers = [
+    setInterval(() => { liveSlide.value = (liveSlide.value + 1) % 2 }, 4500),
+    setInterval(() => { nowMs.value = Date.now() }, 30000),
+    setInterval(loadLive, 30000),
+    setInterval(() => { loadTicker(); loadMarketQuotes() }, 60000),
+  ]
   bannerStore.loadForPage('home')
   try {
     const { data } = await axios.get('/api/hero-banners')
@@ -555,6 +595,10 @@ onMounted(async () => {
   pointer-events: none;
 }
 
+/* 접속자/채팅 숫자 전환 */
+.live-swap-enter-active, .live-swap-leave-active { transition: opacity .35s ease, transform .35s ease; }
+.live-swap-enter-from { opacity: 0; transform: translateY(6px); }
+.live-swap-leave-to { opacity: 0; transform: translateY(-6px); }
 /* 라이브 티커 marquee */
 .ticker-track { animation: ticker-scroll 40s linear infinite; }
 .ticker:hover .ticker-track { animation-play-state: paused; }

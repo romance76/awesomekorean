@@ -25,6 +25,8 @@ Schedule::command('headlines:fetch')->everyThirtyMinutes()->withoutOverlapping()
 
 // 홈 화면 인기 주식 위젯 + 증권 페이지 시세: 15분마다 갱신
 Schedule::command('market:fetch')->everyFifteenMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::command('earnings:fetch')->everySixHours()->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->where('visit_date', '<', now('America/New_York')->subDays(45)->toDateString())->delete())->dailyAt('04:10');
 
 // 음악 트랙 자동 수집 (매일 02:00, 500곡, 한국70%+팝30%, 7일 롤링)
 // 주의: shorts:fetch 와 같은 YouTube Data API 키/쿼터를 공유함 — 하루 쿼터를

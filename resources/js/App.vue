@@ -70,7 +70,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { useSiteStore } from './stores/site'
 import { useAuthStore } from './stores/auth'
@@ -107,6 +108,23 @@ const footerSns = computed(() => {
     .filter(([k]) => /^https?:\/\//i.test(s[k] || '')).map(([k, label]) => ({ label, url: s[k] }))
 })
 if (auth.isLoggedIn) bookmarkStore.loadAll()
+
+// 방문자 집계: 브라우저마다 임의 ID 하나를 만들어 두고 2분마다 "아직 보고 있어요" 신호를 보낸다.
+// 서버는 오늘(미국 동부 날짜) 같은 ID 를 한 번만 세므로, 사이트를 오가는 사람도 하루 1명으로 집계된다.
+let visitTimer = null
+function visitorId() {
+  try {
+    let v = localStorage.getItem('ak_vid')
+    if (!v) { v = (crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem('ak_vid', v) }
+    return v
+  } catch { return 'anon-' + Math.random().toString(36).slice(2, 12) }
+}
+function sendVisit() {
+  if (document.visibilityState === 'hidden') return
+  axios.post('/api/site/ping', { vid: visitorId() }).catch(() => {})
+}
+onMounted(() => { sendVisit(); visitTimer = setInterval(sendVisit, 120000); document.addEventListener('visibilitychange', sendVisit) })
+onUnmounted(() => { clearInterval(visitTimer); document.removeEventListener('visibilitychange', sendVisit) })
 
 // 글로벌: 어디서든 window.openCommChat(partner, convId) / window.startCommCall(partner) 호출 가능
 if (typeof window !== 'undefined') {
