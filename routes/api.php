@@ -179,7 +179,7 @@ Route::get('/qa/categories', [QaController::class, 'categories']);
 Route::get('/qa/{id}', [QaController::class, 'show']);
 Route::get('/shorts', [ShortController::class, 'index']);
 Route::get('/shopping', [ShoppingController::class, 'index']);
-Route::get('/shopping/{id}', [ShoppingController::class, 'show']);
+Route::get('/shopping/{id}', [ShoppingController::class, 'show'])->whereNumber('id');
 Route::get('/music/categories', [MusicController::class, 'categories']);
 Route::get('/music/tracks/{categoryId}', [MusicController::class, 'tracks']);
 Route::get('/search', [SearchController::class, 'search']);
@@ -274,6 +274,12 @@ Route::middleware('auth:api')->group(function () {
     // NEW 전단 광고 신청 (이메일 인증 회원만)
     Route::get('/flyers/my', [\App\Http\Controllers\API\FlyerController::class, 'my']);
     Route::post('/flyers', [\App\Http\Controllers\API\FlyerController::class, 'store'])->middleware('verified.email');
+    // 내돈내산 리뷰 (회원이 자기 Amazon Associates 태그로 작성)
+    Route::get('/shopping/my', [ShoppingController::class, 'my']);
+    Route::put('/shopping/my-tag', [ShoppingController::class, 'saveTag']);
+    Route::post('/shopping/reviews', [ShoppingController::class, 'storeReview'])->middleware('verified.email');
+    Route::post('/shopping/reviews/{id}', [ShoppingController::class, 'updateReview'])->whereNumber('id');   // 멀티파트 수정은 POST
+    Route::delete('/shopping/reviews/{id}', [ShoppingController::class, 'destroyReview'])->whereNumber('id');
     Route::post('/flyers/{id}/confirm-payment', [\App\Http\Controllers\API\FlyerController::class, 'confirmPayment'])->whereNumber('id');
     Route::post('/flyers/{id}/cancel', [\App\Http\Controllers\API\FlyerController::class, 'cancel'])->whereNumber('id');
 
@@ -875,6 +881,12 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/info-generation/status', [\App\Http\Controllers\API\AdminInfoController::class, 'generationStatus']);
     Route::post('/info-generation/trigger', [\App\Http\Controllers\API\AdminInfoController::class, 'triggerGeneration']);
 
+    // 회원 내돈내산 리뷰 관리 (승인/반려/내리기/복구)
+    Route::get('/shopping-reviews', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'index']);
+    Route::post('/shopping-reviews/{id}/approve', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'approve']);
+    Route::post('/shopping-reviews/{id}/reject', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'reject']);
+    Route::post('/shopping-reviews/{id}/hide', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'hide']);
+    Route::post('/shopping-reviews/{id}/restore', [\App\Http\Controllers\API\AdminShoppingReviewController::class, 'restore']);
     Route::get('/amazon-products/stats', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'stats']);
     Route::get('/amazon-products', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'index']);
     Route::post('/amazon-products', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'store']);

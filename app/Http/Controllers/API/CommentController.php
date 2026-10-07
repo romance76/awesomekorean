@@ -24,6 +24,7 @@ class CommentController extends Controller
             'groupbuy' => 'App\\Models\\GroupBuy',
             'realestate' => 'App\\Models\\RealEstateListing',
             'business' => 'App\\Models\\Business',
+            'shopping' => 'App\\Models\\AmazonProduct',
             default => null,
         };
     }

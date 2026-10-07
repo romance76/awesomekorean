@@ -35,9 +35,16 @@ class AmazonLink
         return "https://www.amazon.com/dp/{$asin}";
     }
 
-    public static function affiliateUrl(string $asin): string
+    /** $tag 가 없으면 사이트 기본 태그, 있으면(회원 리뷰) 그 회원의 태그로 링크를 만든다 */
+    public static function affiliateUrl(string $asin, ?string $tag = null): string
     {
-        $tag = config('services.amazon_associates.associate_tag');
-        return "https://www.amazon.com/dp/{$asin}?tag={$tag}";
+        $tag = $tag ?: config('services.amazon_associates.associate_tag');
+        return "https://www.amazon.com/dp/{$asin}?tag=" . rawurlencode($tag);
+    }
+
+    /** Amazon Associates 스토어 ID 형식 — 영문/숫자/하이픈, 끝이 -숫자2자리 (예: abc-20, myshop-21) */
+    public static function isValidTag(?string $tag): bool
+    {
+        return (bool) preg_match('/^[a-z0-9][a-z0-9\-]{1,30}-\d{2}$/i', trim((string) $tag));
     }
 }

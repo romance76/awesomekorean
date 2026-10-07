@@ -28,6 +28,7 @@ class WritePoints
         \App\Models\BusinessReview::class,
         \App\Models\GroupBuy::class,
         \App\Models\Short::class,
+        \App\Models\AmazonProduct::class,
     ];
 
     public static function award(User $user, string $modelClass, int $modelId, string $reason): void
