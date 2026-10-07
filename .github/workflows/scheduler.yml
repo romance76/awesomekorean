@@ -14,9 +14,10 @@ name: Run Laravel Scheduler
 # crontab에 `* * * * * cd /var/www/awesomekorean && php8.2 artisan
 # schedule:run >> /dev/null 2>&1` 를 등록하는 게 더 낫지만, 그건 서버
 # SSH 접근 권한이 있는 사람만 할 수 있음.
+#
+# [2026-10] 서버에 정식 cron(/etc/cron.d/awesomekorean, 매분, www-data)이 설치되어
+# 이 워크플로우의 5분 주기 실행은 중복이라 껐다. 수동 실행(workflow_dispatch)만 남겨 둠.
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
