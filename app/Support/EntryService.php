@@ -66,6 +66,87 @@ class EntryService
     }
 
     /**
+     * 하루 한도(해당 transaction_type 의 오늘 지급 건수) 안에서만 지급.
+     * 사용자 행을 잠근 뒤 세므로 동시 요청이 한도를 넘기지 못한다.
+     */
+    public static function awardCapped(
+        User $user,
+        int $amount,
+        string $transactionType,
+        string $description,
+        string $source,
+        int $dailyMax,
+        ?array $reference = null
+    ): bool {
+        if ($amount <= 0 || $dailyMax <= 0) return false;
+
+        return DB::transaction(function () use ($user, $amount, $transactionType, $description, $source, $dailyMax, $reference) {
+            User::whereKey($user->id)->lockForUpdate()->first();
+            $today = EntryTransaction::where('user_id', $user->id)
+                ->where('transaction_type', $transactionType)
+                ->where('amount', '>', 0)
+                ->whereDate('created_at', today())
+                ->count();
+            if ($today >= $dailyMax) return false;
+
+            static::award($user, $amount, $transactionType, $description, $source, $reference);
+            return true;
+        });
+    }
+
+    /**
+     * 이메일 인증 완료 보너스 — 계정당 평생 1회(idempotency key 로 중복 방지).
+     */
+    public static function awardEmailVerified(User $user): void
+    {
+        $amount = EntrySettings::get('email_verify_bonus', 1);
+        if ($amount <= 0) return;
+        static::award($user, $amount, 'EMAIL_VERIFY_BONUS', '이메일 인증 완료 보너스', 'email_verify', null, "email_verify:{$user->id}");
+    }
+
+    /**
+     * 활동 보상 — 포인트가 실제로 지급된 작성(글/댓글/답변/리뷰 등) 1건마다 호출.
+     * N건이 쌓이면 Entry 1개. 하루 지급 한도에 걸리면 진행도를 N 에 붙잡아 두었다가
+     * 한도가 풀리는 다음 활동 때 지급한다.
+     */
+    public static function recordActivity(User $user): bool
+    {
+        $required = EntrySettings::get('activity_required_count', 10);
+        if ($required <= 0) return false;
+        $dailyMax = EntrySettings::get('activity_daily_max', 1);
+
+        return DB::transaction(function () use ($user, $required, $dailyMax) {
+            $locked = User::whereKey($user->id)->lockForUpdate()->first();
+            $progress = min((int) $locked->entry_activity_progress + 1, $required);
+
+            if ($progress < $required) {
+                $locked->forceFill(['entry_activity_progress' => $progress])->save();
+                return false;
+            }
+
+            $awarded = static::awardCapped($locked, 1, 'ACTIVITY_REWARD', "활동 {$required}회 보너스", 'activity', $dailyMax);
+            $locked->forceFill(['entry_activity_progress' => $awarded ? 0 : $required])->save();
+            return $awarded;
+        });
+    }
+
+    /**
+     * 완료형 활동(판매완료·거래완료·채용확정 등) 보상. 하루 한도 적용.
+     */
+    public static function awardMilestone(User $user, string $reason, string $modelClass, int $modelId): void
+    {
+        static::awardCapped(
+            $user,
+            EntrySettings::get('milestone_bonus', 1),
+            'MILESTONE_REWARD',
+            $reason,
+            'milestone',
+            EntrySettings::get('milestone_daily_max', 1),
+            ['type' => $modelClass, 'id' => $modelId]
+        );
+    }
+
+    /**
      * 출석체크. 하루 1회만 성공 — entry_checkins(user_id, checkin_date) UNIQUE
      * 제약으로 애플리케이션 레벨 경쟁 상태(동시 더블클릭)까지 방어한다
      * (user_daily_spins와 동일한 패턴).

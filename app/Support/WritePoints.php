@@ -41,6 +41,11 @@ class WritePoints
 
         if ($amount > 0 && $todayCount < $dailyCap) {
             $user->addPoints($amount, $reason, 'earn', ['type' => $modelClass, 'id' => $modelId]);
+
+            // Entry 활동 보상 — 포인트가 실제로 지급된 작성만 집계하므로 하루 포인트 한도가
+            // 그대로 도배 방지 역할을 한다. Entry 쪽 오류가 글 작성을 막으면 안 됨.
+            try { EntryService::recordActivity($user); }
+            catch (\Throwable $e) { \Log::warning("Entry 활동 보상 실패 (user_id={$user->id}): " . $e->getMessage()); }
         }
 
         // 활동 뱃지는 하루 지급 한도와 무관하게 실제 작성 건수 기준으로 판정

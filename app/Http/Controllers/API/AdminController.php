@@ -391,6 +391,8 @@ class AdminController extends Controller
         }
         $user->forceFill(['email_verified_at' => now()])->save();
         \Log::info('Admin force-verified email', ['admin_id'=>$admin->id,'target_id'=>$user->id]);
+        try { \App\Support\EntryService::awardEmailVerified($user); }
+        catch (\Throwable $e) { \Log::warning("이메일 인증 Entry 보너스 실패 (user_id={$user->id}): " . $e->getMessage()); }
 
         try {
             \App\Models\Notification::create(['user_id'=>$user->id,'type'=>'email_verified_by_admin','title'=>'이메일 인증이 완료되었습니다','content'=>'관리자에 의해 이메일 인증이 처리되어 이제 글쓰기가 가능합니다.']);
