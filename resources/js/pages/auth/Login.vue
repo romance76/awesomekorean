@@ -40,6 +40,8 @@
 </div>
 </template>
 <script setup>
+// 로그인 후 이동 주소는 우리 사이트 안의 경로(/로 시작, //·http 제외)만 허용 — 외부 사이트로 보내는 악용 방지
+const safeRedirect = (r) => (typeof r === 'string' && /^\/(?!\/)/.test(r) && !r.includes('\\')) ? r : '/'
 import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -55,7 +57,7 @@ const submitting = ref(false)
 const remember = ref(localStorage.getItem('sk_auth_persist') !== '0')
 async function handleLogin() {
   submitting.value = true; error.value = ''
-  try { await auth.login(form.email, form.password, remember.value); router.push(route.query.redirect || '/') }
+  try { await auth.login(form.email, form.password, remember.value); router.push(safeRedirect(route.query.redirect)) }
   catch (e) { error.value = e.response?.data?.message || '로그인 실패' }
   finally { submitting.value = false }
 }

@@ -86,7 +86,7 @@ class AdminAmazonProductController extends Controller
             'amazon_image_urls' => $amazonImages ?: null,
             'own_image_urls'    => $ownImages ?: null,
             'our_description'   => isset($data['our_description'])
-                ? $this->extractAndCompressBase64Images($data['our_description'], 'shopping')
+                ? \App\Support\HtmlSanitizer::clean($this->extractAndCompressBase64Images($data['our_description'], 'shopping'))
                 : null,
             'display_order'     => $data['display_order'] ?? 0,
             'is_featured'       => $data['is_featured'] ?? false,
@@ -137,7 +137,7 @@ class AdminAmazonProductController extends Controller
         unset($data['keep_own_image_urls'], $data['own_images']);
 
         if (isset($data['our_description'])) {
-            $data['our_description'] = $this->extractAndCompressBase64Images($data['our_description'], 'shopping');
+            $data['our_description'] = \App\Support\HtmlSanitizer::clean($this->extractAndCompressBase64Images($data['our_description'], 'shopping'));
         }
 
         $product->update($data);

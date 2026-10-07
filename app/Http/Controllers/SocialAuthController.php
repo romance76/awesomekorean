@@ -106,7 +106,8 @@ class SocialAuthController extends Controller
         $token = JWTAuth::fromUser($user);
 
         // SPA가 URL에서 토큰을 읽어 저장하도록 전달 (resources/js/pages/auth/SocialCallback.vue)
-        return redirect('/auth/social-callback?token=' . urlencode($token));
+        // 토큰은 주소의 # 뒤(fragment)에 담는다: 서버 접속 기록·Referer 에 남지 않는다 (?token= 이면 로그에 그대로 남음)
+        return redirect('/auth/social-callback#token=' . urlencode($token));
     }
 
     // Socialite는 Socialite::driver() 호출 시점에 config('services.{provider}')를 읽으므로,

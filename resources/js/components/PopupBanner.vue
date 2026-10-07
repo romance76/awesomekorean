@@ -16,7 +16,7 @@
       <div v-else-if="current.type === 'text'" @click="clickBanner"
         :class="current.link_url ? 'cursor-pointer' : ''"
         class="w-full h-full overflow-auto p-6"
-        v-html="current.content"></div>
+        v-html="sanitizeHtml(current.content)"></div>
 
       <!-- 하루 1회 체크박스 (하단) -->
       <div v-if="current.display_mode === 'once_per_day'" class="absolute bottom-0 left-0 right-0 bg-gray-900/80 text-white text-xs px-4 py-2 flex items-center justify-between">
@@ -32,6 +32,7 @@
 </template>
 
 <script setup>
+import { sanitizeHtml } from '../utils/sanitizeHtml'
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'

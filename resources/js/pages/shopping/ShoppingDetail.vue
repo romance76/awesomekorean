@@ -59,7 +59,7 @@
         </div>
         <div v-else-if="product.our_description" class="card p-4">
           <div class="text-xs font-bold text-ink-light mb-1.5">✍️ Awesome Korean의 추천 이유</div>
-          <div class="shopping-review text-sm text-ink leading-relaxed" v-html="product.our_description"></div>
+          <div class="shopping-review text-sm text-ink leading-relaxed" v-html="sanitizeHtml(product.our_description)"></div>
         </div>
 
         <div v-if="product.is_member_review" class="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-[11px] text-amber-800 leading-snug">
@@ -114,6 +114,7 @@
 </div>
 </template>
 <script setup>
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'

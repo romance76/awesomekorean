@@ -145,7 +145,7 @@ class GroupBuyController extends Controller
 
         $businessDoc = null;
         if ($request->hasFile('business_doc')) {
-            $businessDoc = $request->file('business_doc')->store('groupbuys/docs', 'public');
+            $businessDoc = preg_replace('#^/storage/#', '', $this->storeDocument($request->file('business_doc'), 'groupbuys/docs'));
         }
 
         $gb = GroupBuy::create([
@@ -222,7 +222,7 @@ class GroupBuyController extends Controller
             if ($gb->business_doc) {
                 Storage::disk('public')->delete($gb->business_doc);
             }
-            $data['business_doc'] = $request->file('business_doc')->store('groupbuys/docs', 'public');
+            $data['business_doc'] = preg_replace('#^/storage/#', '', $this->storeDocument($request->file('business_doc'), 'groupbuys/docs'));
         }
 
         $gb->update(array_filter($data, fn($v) => $v !== null));

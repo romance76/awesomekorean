@@ -257,7 +257,15 @@ router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
   await auth.initPromise
   if (to.meta.auth && !auth.isLoggedIn) return next({ name: 'login', query: { redirect: to.fullPath } })
-  if (to.meta.admin && !auth.isAdmin) return next('/')
+  if (to.meta.admin) {
+    if (!auth.isAdmin) return next('/')
+    // 관리자 화면은 들어갈 때마다 서버에서 "지금도 로그인돼 있고 관리자인지" 직접 확인한다 (저장된 정보만 믿지 않음)
+    if (!from.path.startsWith('/admin') || Date.now() - (window.__adminVerifiedAt || 0) > 5 * 60 * 1000) {
+      const ok = await auth.verifyAdminNow()
+      if (!ok) return auth.isLoggedIn ? next('/') : next({ name: 'login', query: { redirect: to.fullPath } })
+      window.__adminVerifiedAt = Date.now()
+    }
+  }
   if (to.meta.guest && auth.isLoggedIn) return next('/')
   // 메일의 인증 링크(서버 /api/verify-email)가 여기로 보냄 → 재발송을 눌렀던(또는 막혔던 글쓰기) 페이지로 복귀
   if (to.path === '/email-verified') {
@@ -289,3 +297,18 @@ router.afterEach((to, from) => {
 })
 
 export default router
+
+// 세션이 끝나면(토큰 만료·서버 거부·비활동·다른 창 로그아웃) 안내하고, 로그인이 필요한 화면(특히 관리자)에서는 로그인 화면으로 보낸다
+if (typeof window !== 'undefined') {
+  window.addEventListener('ak:session-expired', async (e) => {
+    window.__adminVerifiedAt = 0
+    const cur = router.currentRoute.value
+    try {
+      const { useSiteStore } = await import('../stores/site')
+      useSiteStore().toast(e.detail?.message || '로그인 시간이 지나 로그아웃됐어요.', 'warning', 6000)
+    } catch {}
+    if (cur.meta?.auth || cur.meta?.admin || cur.path.startsWith('/admin')) {
+      router.replace({ name: 'login', query: { redirect: cur.fullPath } })
+    }
+  })
+}

@@ -1,0 +1,118 @@
+name: Server hardening
+
+# 서버 보안 설정을 한 번 적용한다 (이 파일을 main 에 올릴 때 1회 자동 실행, 여러 번 실행해도 안전).
+#  1) SSH: 비밀번호 로그인 끄고 열쇠(키)로만 접속 허용 + 루트는 열쇠로만 (하루 2천 번 넘는 무차별 대입 공격 차단)
+#  2) fail2ban: 틀린 접속 3번이면 하루 차단
+#  3) .env 파일 권한 640 (다른 계정이 못 읽게), 서비스 계정 키 파일 600, 운영 로그 수준 warning
+#  4) nginx: /storage(회원 업로드) 안에서는 어떤 파일도 실행되지 않게 하고 스크립트 실행을 막는 보안 헤더 적용
+#  5) 방화벽: 쓰지 않는 6001 포트 규칙 삭제
+# 모든 설정 변경은 검사(sshd -t / nginx -t)가 통과해야만 적용하고, 실패하면 원래대로 되돌린다.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-harden.yml' ]
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Apply hardening
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 5m
+          script: |
+            APP=/var/www/awesomekorean
+
+            echo "== 1) SSH =="
+            if [ -s "$HOME/.ssh/authorized_keys" ]; then
+              cat > /etc/ssh/sshd_config.d/00-awesomekorean-hardening.conf <<'SSHEOF'
+            PasswordAuthentication no
+            KbdInteractiveAuthentication no
+            PermitRootLogin prohibit-password
+            MaxAuthTries 3
+            LoginGraceTime 30
+            SSHEOF
+              if sshd -t; then
+                systemctl reload ssh
+                sshd -T | grep -E '^(passwordauthentication|permitrootlogin|pubkeyauthentication|maxauthtries) '
+                if sshd -T | grep -q '^passwordauthentication yes'; then
+                  echo "!! 적용 안 됨 → 되돌림"; rm -f /etc/ssh/sshd_config.d/00-awesomekorean-hardening.conf; systemctl reload ssh
+                fi
+              else
+                echo "!! sshd 설정 검사 실패 → 되돌림"; rm -f /etc/ssh/sshd_config.d/00-awesomekorean-hardening.conf
+              fi
+            else
+              echo "접속 열쇠(authorized_keys)를 확인하지 못해 SSH 설정은 건드리지 않음"
+            fi
+
+            echo "== 2) fail2ban =="
+            mkdir -p /etc/fail2ban/jail.d
+            cat > /etc/fail2ban/jail.d/awesomekorean.local <<'F2BEOF'
+            [sshd]
+            enabled = true
+            maxretry = 3
+            findtime = 10m
+            bantime = 1d
+            F2BEOF
+            fail2ban-client reload 2>&1 | head -2
+            fail2ban-client status sshd 2>&1 | head -8
+
+            echo "== 3) .env / 키 파일 / 로그 수준 =="
+            chown www-data:www-data "$APP/.env"; chmod 640 "$APP/.env"
+            [ -f "$APP/storage/app/firebase-service-account.json" ] && chmod 600 "$APP/storage/app/firebase-service-account.json" && chown www-data:www-data "$APP/storage/app/firebase-service-account.json"
+            if grep -q '^LOG_LEVEL=debug' "$APP/.env"; then sed -i 's/^LOG_LEVEL=debug/LOG_LEVEL=warning/' "$APP/.env"; fi
+            stat -c '%A %U:%G %n' "$APP/.env"; grep -E '^LOG_LEVEL=' "$APP/.env"
+
+            echo "== 4) nginx /storage =="
+            CONF=$(grep -lE 'root\s+/var/www/awesomekorean/public;' /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf 2>/dev/null | head -1)
+            echo "대상 설정 파일: $CONF"
+            if [ -n "$CONF" ] && ! grep -q 'awesomekorean-storage-hardening' "$CONF"; then
+              cp -p "$CONF" "$CONF.bak.$(date +%s)"
+              python3 - "$CONF" <<'PYEOF'
+            import re, sys
+            p = sys.argv[1]
+            s = open(p).read()
+            snippet = '''
+                # awesomekorean-storage-hardening: 회원 업로드 폴더에서는 어떤 파일도 실행/스크립트 실행되지 않게 한다
+                location ^~ /storage/ {
+                    location ~* \\.(php|phtml|phar|pl|py|sh|cgi)$ { return 403; }
+                    location ~* \\.pdf$ {
+                        add_header X-Content-Type-Options "nosniff" always;
+                        add_header Cache-Control "public, max-age=2592000" always;
+                        try_files $uri =404;
+                    }
+                    add_header Content-Security-Policy "sandbox; default-src 'none'; style-src 'unsafe-inline'; img-src * data:" always;
+                    add_header X-Content-Type-Options "nosniff" always;
+                    add_header Cache-Control "public, max-age=2592000" always;
+                    try_files $uri =404;
+                }
+            '''
+            # 443 서버 블록 안, root 줄 바로 뒤에 한 번만 넣는다
+            m = None
+            for mm in re.finditer(r'^[ \t]*root\s+/var/www/awesomekorean/public;[ \t]*\n', s, re.M):
+                m = mm; break
+            if not m:
+                print('root 줄을 찾지 못함'); sys.exit(1)
+            s = s[:m.end()] + snippet + s[m.end():]
+            open(p, 'w').write(s)
+            print('삽입 완료')
+            PYEOF
+              if nginx -t 2>&1; then systemctl reload nginx && echo "nginx 적용 완료"; else
+                echo "!! nginx 설정 검사 실패 → 되돌림"; cp -p "$(ls -t $CONF.bak.* | head -1)" "$CONF"; nginx -t 2>&1 | tail -1
+              fi
+            else
+              echo "이미 적용돼 있거나 설정 파일을 찾지 못함"
+            fi
+
+            echo "== 5) 방화벽 =="
+            yes | ufw delete allow 6001/tcp 2>&1 | head -3
+            ufw status | grep -E '^(22|80|443|3478|5349|6001)' | head -12
+
+            echo "== 확인: 사이트 응답 =="
+            curl -s -o /dev/null -w "https://awesomekorean.com/ -> %{http_code}\n" -k https://127.0.0.1/ -H 'Host: awesomekorean.com'

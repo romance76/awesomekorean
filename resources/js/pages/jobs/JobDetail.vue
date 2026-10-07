@@ -305,6 +305,7 @@
 </template>
 
 <script setup>
+import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -409,8 +410,8 @@ const safeContent = computed(() => {
   if (!job.value?.content) return ''
   const c = job.value.content
   // HTML 태그 있으면 그대로, 없으면 <br> 변환
-  if (/<[a-z][\s\S]*>/i.test(c)) return c
-  return c.replace(/\n/g, '<br>')
+  if (/<[a-z][\s\S]*>/i.test(c)) return sanitizeHtml(c)
+  return sanitizeHtml(c.replace(/\n/g, '<br>'))
 })
 
 function formatDate(dt) {
