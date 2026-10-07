@@ -24,7 +24,8 @@ class KeyReport
             $lines = ["관리자 정보 — API 키 변경 알림", "", "변경 내용: {$action}", "변경한 사람: {$who}", "시각: {$et}", "", "── 현재 등록된 전체 키 ──"];
             foreach (ApiKey::orderBy('service')->get() as $k) {
                 $lines[] = sprintf("[%s] %s  (%s, %s)", $k->service, $k->name, $k->is_active ? '사용중' : '꺼짐', optional($k->updated_at)->setTimezone('America/New_York')->format('m/d H:i'));
-                $lines[] = '    ' . ($k->api_key ?: '(비어 있음)');
+                // 서비스 계정 키 파일은 개인 키가 통째로 들어 있어 메일에 싣지 않는다(암호화 저장된 값은 관리자 화면에서만 관리)
+                $lines[] = '    ' . ($k->service === 'ga_service_account' ? '(서비스 계정 키 파일 — 보안상 메일에는 넣지 않음)' : ($k->api_key ?: '(비어 있음)'));
             }
             $lines[] = "";
             $lines[] = "※ DB 에는 암호화되어 저장됩니다. 이 메일은 키 백업용이니 본인 메일함 밖으로 공유하지 마세요.";
