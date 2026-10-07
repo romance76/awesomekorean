@@ -216,6 +216,7 @@ const routes = [
       { path: 'ad-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'pricing', component: p('admin/AdminPricingCenter') },
       { path: 'payments', component: p('admin/Payments') },
+      { path: 'revenue', component: p('admin/Revenue') },
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'settings', component: p('admin/SiteSettings') },
       { path: 'point-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합

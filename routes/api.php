@@ -681,6 +681,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/ip-bans', [AdminController::class, 'createIpBan']);
     Route::delete('/ip-bans/{id}', [AdminController::class, 'deleteIpBan']);
     Route::get('/payments', [AdminController::class, 'payments']);
+    // 매출/결제 현황 — 포인트 구매 vs 달러 직접 결제 구분 + 전체
+    Route::get('/revenue/summary', [\App\Http\Controllers\API\AdminRevenueController::class, 'summary']);
+    Route::get('/revenue/list', [\App\Http\Controllers\API\AdminRevenueController::class, 'list']);
     Route::post('/payments/{id}/refund', [AdminController::class, 'refundPayment']);
     Route::get('/claims', [AdminController::class, 'claims']);
     Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim']);
