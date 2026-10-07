@@ -3,13 +3,16 @@ name: Server TURN check (read-only)
 # 통화 중계 서버(TURN, coturn) 상태를 점검만 한다. 서버 설정을 바꾸지 않고, 비밀번호는 가려서 출력한다.
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-turn-check.yml' ]   # 이 파일을 고쳐서 올릴 때 한 번 자동 실행
 
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check coturn on server
+      - name: Check coturn on server (v2)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
