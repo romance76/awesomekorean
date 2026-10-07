@@ -178,12 +178,14 @@ class FlyerController extends Controller
         $now = FlyerSchedule::now($region);
         $days = max(1, min(FlyerSchedule::maxDays(), (int) $request->input('days', 7)));
 
+        // 시작일은 내일부터 — 승인/준비 시간이 필요하고, 그래서 첫 신청자는 모든 시간대를 고를 수 있음
+        $minStart = $now->copy()->startOfDay()->addDay();
         try {
-            $start = Carbon::parse($request->input('start_date', $now->toDateString()), $now->timezone)->startOfDay();
+            $start = Carbon::parse($request->input('start_date', $minStart->toDateString()), $now->timezone)->startOfDay();
         } catch (\Throwable $e) {
-            $start = $now->copy()->startOfDay();
+            $start = $minStart->copy();
         }
-        if ($start->lt($now->copy()->startOfDay())) $start = $now->copy()->startOfDay();
+        if ($start->lt($minStart)) $start = $minStart->copy();
 
         $dates = [];
         for ($i = 0; $i < $days; $i++) $dates[] = $start->copy()->addDays($i)->toDateString();
@@ -199,6 +201,8 @@ class FlyerController extends Controller
             'region_key' => $region,
             'tz' => FlyerSchedule::timezone($region),
             'now' => ['date' => $now->toDateString(), 'hour' => $now->hour],
+            'min_date' => $minStart->toDateString(),
+            'max_date' => $now->copy()->startOfDay()->addDays(FlyerSchedule::windowDays())->toDateString(),
             'dates' => $dates,
             'prices' => FlyerSchedule::priceTable($region),
             'booked' => (object) $booked,
@@ -253,11 +257,11 @@ class FlyerController extends Controller
             return response()->json(['success' => false, 'message' => '한 번에 최대 ' . FlyerSchedule::maxDays() . '일까지 신청할 수 있어요.'], 422);
         }
         $start = Carbon::createFromFormat('Y-m-d', $data['start_date'], $now->timezone)->startOfDay();
-        if ($start->lt($today)) {
-            return response()->json(['success' => false, 'message' => '시작일이 이미 지났어요.'], 422);
+        if ($start->lte($today)) {
+            return response()->json(['success' => false, 'message' => '시작일은 내일부터 선택할 수 있어요.'], 422);
         }
-        if ($start->copy()->addDays($days - 1)->gt($today->copy()->addDays(FlyerSchedule::windowDays()))) {
-            return response()->json(['success' => false, 'message' => '오늘부터 ' . FlyerSchedule::windowDays() . '일 이내까지만 예약할 수 있어요.'], 422);
+        if ($start->gt($today->copy()->addDays(FlyerSchedule::windowDays()))) {
+            return response()->json(['success' => false, 'message' => '시작일은 오늘부터 ' . FlyerSchedule::windowDays() . '일 이내로 선택해주세요.'], 422);
         }
 
         $hours = array_values(array_unique(array_map('intval', $data['hours'])));
@@ -268,9 +272,6 @@ class FlyerController extends Controller
         for ($i = 0; $i < $days; $i++) {
             $d = $start->copy()->addDays($i);
             foreach ($hours as $h) {
-                if ($d->isSameDay($now) && $h <= $now->hour) {
-                    return response()->json(['success' => false, 'message' => '오늘은 현지 시각 ' . ($now->hour + 1) . '시 이후 시간만 고를 수 있어요.'], 422);
-                }
                 $price = FlyerSchedule::hourPrice($region, $h);
                 $total += $price;
                 $rows[] = ['region_key' => $region, 'slot_date' => $d->toDateString(), 'slot_hour' => $h, 'price' => $price];
