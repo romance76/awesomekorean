@@ -10,6 +10,8 @@ vendor/
 
 # Build output — 서버에서만 빌드 (로컬 빌드 커밋 금지)
 public/build/
+public/build_next/
+public/build_prev/
 public/hot
 
 # Firebase credentials
