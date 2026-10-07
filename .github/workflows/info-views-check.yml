@@ -1,0 +1,44 @@
+name: Info views check (read-only)
+
+# 정보 글 조회수가 실제 사람인지 확인하는 읽기 전용 점검 (이 파일을 main 에 올릴 때 1회 자동 실행, 서버 설정은 바꾸지 않음)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/info-views-check.yml' ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Analyze nginx access logs for /info/ views
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 3m
+          script: |
+            LOGS=$(ls /var/log/nginx/*access*.log* 2>/dev/null)
+            echo "== 로그 파일 =="; ls -l --time-style=long-iso $LOGS | awk '{print $5, $6, $7, $8}'
+            cat_logs() { for f in $LOGS; do case "$f" in *.gz) zcat "$f" ;; *) cat "$f" ;; esac; done; }
+            cat_logs 2>/dev/null | grep -E '"GET /info/[^ ?"]+' > /tmp/info_hits.txt
+            echo "== /info/글 GET 총 횟수 =="; wc -l < /tmp/info_hits.txt
+            echo "== 날짜별 =="; awk '{print substr($4,2,11)}' /tmp/info_hits.txt | sort | uniq -c | tail -12
+            echo "== 요청 분류 (User-Agent) =="
+            awk -F'"' '{ua=tolower($6);
+              c="사람(브라우저 추정)";
+              if (ua ~ /googlebot|bingbot|duckduckbot|yandex|baiduspider|applebot|petalbot|semrush|ahrefs|mj12bot|dotbot|bytespider|gptbot|claudebot|ccbot|amazonbot|facebookexternalhit|twitterbot|slackbot|linkedinbot|telegrambot|whatsapp|crawler|spider|bot\b/) c="검색/수집 봇";
+              else if (ua ~ /curl|wget|python|go-http|java|okhttp|axios|node-fetch|httpclient|libwww|scrapy|headless/) c="스크립트/도구";
+              else if (ua == "-" || ua == "") c="UA 없음";
+              print c}' /tmp/info_hits.txt | sort | uniq -c | sort -rn
+            echo "== 봇/도구 상세 (상위 12 User-Agent) =="
+            awk -F'"' '{print $6}' /tmp/info_hits.txt | sort | uniq -c | sort -rn | head -12 | cut -c1-150
+            echo "== 요청 IP 상위 10 =="; awk '{print $1}' /tmp/info_hits.txt | sort | uniq -c | sort -rn | head -10
+            echo "== 사람으로 보이는 요청만(봇/도구/UA없음 제외) 글별 상위 =="
+            awk -F'"' '{ua=tolower($6); if (ua !~ /bot|spider|crawler|curl|wget|python|go-http|java|okhttp|axios|headless|facebookexternalhit|slackbot|whatsapp/ && ua != "-") print $2}' /tmp/info_hits.txt | awk '{print $2}' | sort | uniq -c | sort -rn | head -8
+            echo "== 사람으로 보이는 요청의 서로 다른 IP 수 =="
+            awk -F'"' '{ua=tolower($6); if (ua !~ /bot|spider|crawler|curl|wget|python|go-http|java|okhttp|axios|headless|facebookexternalhit|slackbot|whatsapp/ && ua != "-") print $1}' /tmp/info_hits.txt | awk '{print $1}' | sort -u | wc -l
+            rm -f /tmp/info_hits.txt
