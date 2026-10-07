@@ -128,6 +128,10 @@ Route::middleware('ingest.auth')->prefix('info-ingest')->group(function () {
 });
 Route::get('/external-headlines', [\App\Http\Controllers\API\ExternalHeadlineController::class, 'index']);
 Route::get('/market-quotes', [\App\Http\Controllers\API\MarketQuoteController::class, 'index']);
+Route::get('/stocks/earnings', [\App\Http\Controllers\API\StockController::class, 'earnings']);
+Route::get('/site/live-stats', [\App\Http\Controllers\API\SiteLiveController::class, 'stats']);
+Route::get('/site/ticker', [\App\Http\Controllers\API\SiteLiveController::class, 'ticker']);
+Route::post('/site/ping', [\App\Http\Controllers\API\SiteLiveController::class, 'ping'])->middleware('throttle:30,1');
 // 썸네일 프록시/캐시 (모든 리스트 페이지가 공유)
 Route::get('/thumb', [ThumbnailController::class, 'show']);
 Route::get('/banners/active', [\App\Http\Controllers\API\BannerController::class, 'show']);
@@ -316,6 +320,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/realestate/{id}/complete/undo', [RealEstateController::class, 'undoComplete']);
 
     Route::get('/my-clubs', [ClubController::class, 'myClubs']);
+    Route::get('/stocks/watchlist', [\App\Http\Controllers\API\StockController::class, 'watchlist']);
+    Route::post('/stocks/watchlist', [\App\Http\Controllers\API\StockController::class, 'addWatch'])->middleware('throttle:30,1');
+    Route::delete('/stocks/watchlist/{symbol}', [\App\Http\Controllers\API\StockController::class, 'removeWatch']);
+    Route::post('/chat/presence', [\App\Http\Controllers\API\SiteLiveController::class, 'chatPing'])->middleware('throttle:30,1');
     Route::post('/clubs', [ClubController::class, 'store'])->middleware('verified.email');
     Route::put('/clubs/{id}', [ClubController::class, 'update']);
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);

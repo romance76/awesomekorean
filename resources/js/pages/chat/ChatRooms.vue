@@ -1605,8 +1605,17 @@ watch(() => route.params.id, async (newId) => {
   }
 })
 
+// 채팅방을 열어 두고 있는 동안 1분마다 "여기 있어요" 신호 → 메인 화면의 "채팅방 사용 인원"에 반영
+let presenceTimer = null
+function pingChatPresence() {
+  if (!auth.isLoggedIn || !activeRoom.value?.id || document.visibilityState === 'hidden') return
+  axios.post('/api/chat/presence', { room_id: activeRoom.value.id }).catch(() => {})
+}
+watch(() => activeRoom.value?.id, pingChatPresence)
+
 onMounted(async () => {
   window.addEventListener('resize', onResize)
+  presenceTimer = setInterval(pingChatPresence, 60000)
   if (auth.isLoggedIn) loadChatBookmarks()
   try {
     const { data: settingsData } = await axios.get('/api/chat/settings')
@@ -1626,6 +1635,7 @@ onUnmounted(() => {
     try { axios.post(`/api/chat/rooms/${activeRoom.value.id}/read`) } catch {}
   }
   unsubscribeChannel()
+  clearInterval(presenceTimer)
   window.removeEventListener('resize', onResize)
 })
 </script>
