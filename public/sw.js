@@ -41,8 +41,8 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
       self.registration.showNotification(payload.title || '전화 수신', {
         body: payload.body || '안심 서비스 음성 통화 수신 중...',
-        icon: '/images/icons/icon-192.png',
-        badge: '/images/icons/icon-72.png',
+        icon: '/storage/branding/icon-192x192.png',
+        badge: '/storage/branding/icon-72x72.png',
         vibrate: [500, 200, 500, 200, 500],
         tag: 'incoming-call',
         renotify: true,
@@ -61,7 +61,7 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
       self.registration.showNotification(payload.sender_name || '새 메시지', {
         body: payload.body || '',
-        icon: '/images/icons/icon-192.png',
+        icon: '/storage/branding/icon-192x192.png',
         tag: 'message-' + (payload.conversation_id || ''),
         renotify: true,
         data: payload,
@@ -73,7 +73,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title || data.title || 'AwesomeKorean', {
       body: payload.body || data.body || '새 알림이 있습니다',
-      icon: '/images/icons/icon-192.png',
+      icon: '/storage/branding/icon-192x192.png',
       vibrate: [200, 100, 200],
       data: payload,
     })

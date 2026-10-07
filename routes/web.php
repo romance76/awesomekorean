@@ -20,19 +20,16 @@ Route::get('/auth/{provider}/redirect', [\App\Http\Controllers\SocialAuthControl
 Route::get('/auth/{provider}/callback', [\App\Http\Controllers\SocialAuthController::class, 'callback'])
     ->whereIn('provider', ['google', 'amazon']);
 
+// 바로가기/탭/PWA 아이콘 — 관리자 사이트 설정에서 업로드한 아이콘을 사용 (public/ 에 정적 파일을
+// 두면 웹서버가 먼저 가로채 업로드와 무관한 빈 파일/구버전이 나가므로 라우트로 처리)
+Route::get('/manifest.json', fn () => response()->json(\App\Support\BrandIcons::manifest())
+    ->header('Content-Type', 'application/manifest+json')
+    ->header('Cache-Control', 'public, max-age=3600'));
+Route::get('/favicon.ico', fn () => response()->file(\App\Support\BrandIcons::faviconFile(), [
+    'Content-Type' => 'image/png',
+    'Cache-Control' => 'public, max-age=3600',
+]));
+
 Route::get('/{any}', function () {
-    // apple-touch-icon은 <link> 태그로 명시해야 안전함(아이콘이
-    // storage/app/public 심볼릭 링크 경로에 있어 iOS의 암묵적
-    // /apple-touch-icon.png 자동탐색 규칙으로는 못 찾음). 업로드 시 함께
-    // 저장된 캐시 버스터(?v=...)를 재사용해서 교체 직후에도 바로 반영되게 함.
-    $appIconSetting = \App\Models\SiteSetting::where('key', 'app_icon_url')->value('value');
-    $version = $appIconSetting && str_contains($appIconSetting, '?v=')
-        ? substr($appIconSetting, strpos($appIconSetting, '?v='))
-        : '';
-    $appIconUrl = '/storage/branding/apple-touch-icon.png' . $version;
-
-    // 커스텀 파비콘을 업로드 안 했으면 기존 정적 /favicon.ico로 폴백
-    $faviconUrl = \App\Models\SiteSetting::where('key', 'favicon_url')->value('value') ?: '/favicon.ico';
-
-    return view('welcome', ['appIconUrl' => $appIconUrl, 'faviconUrl' => $faviconUrl]);
+    return view('welcome');
 })->where('any', '.*');
