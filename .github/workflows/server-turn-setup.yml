@@ -1,0 +1,58 @@
+name: Server TURN setup
+
+# 통화 중계 서버(coturn)의 로그인 정보를 맞춘다.
+#  - 서버(coturn)에는 예전 사이트 이름(somekorean)용 계정만 있어서, 사이트가 보내는 계정(awesomekorean)은 401(인증 실패)이었다.
+#  - 예전 비밀번호는 공개 저장소 코드에 박혀 있었으므로 쓰지 않고, 새 무작위 비밀번호를 만들어
+#    coturn 설정과 서버 .env(TURN_USERNAME / TURN_PASSWORD)에만 저장한다. (출력/로그에 비밀번호를 찍지 않는다)
+#  - 여러 번 실행해도 같은 비밀번호를 재사용한다. 설정 파일은 백업 후 수정하고, coturn 이 안 뜨면 원복한다.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-turn-setup.yml' ]
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Configure coturn user + app env
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            set -e
+            CONF=/etc/turnserver.conf
+            APP=/var/www/awesomekorean
+            TURN_USER=awesomekorean
+
+            PW=$(grep -E '^TURN_PASSWORD=' "$APP/.env" | tail -1 | cut -d= -f2- || true)
+            [ -n "$PW" ] || PW=$(openssl rand -hex 16)
+
+            cp -p "$CONF" "$CONF.bak.$(date +%s)"
+            sed -i "/^user=${TURN_USER}:/d" "$CONF"
+            echo "user=${TURN_USER}:${PW}" >> "$CONF"
+            # 중계 서버를 통해 서버 내부망(DB 등)으로 접속하지 못하도록 사설 주소 대역 차단
+            for r in 10.0.0.0-10.255.255.255 172.16.0.0-172.31.255.255 192.168.0.0-192.168.255.255 127.0.0.0-127.255.255.255 169.254.0.0-169.254.255.255; do
+              grep -q "^denied-peer-ip=$r" "$CONF" || echo "denied-peer-ip=$r" >> "$CONF"
+            done
+
+            systemctl restart coturn
+            sleep 2
+            if [ "$(systemctl is-active coturn)" != "active" ]; then
+              echo "coturn 이 시작되지 않아 설정을 되돌립니다"
+              cp -p "$(ls -t $CONF.bak.* | head -1)" "$CONF"
+              systemctl restart coturn || true
+              exit 1
+            fi
+            echo "coturn: $(systemctl is-active coturn)"
+
+            sed -i '/^TURN_USERNAME=/d;/^TURN_PASSWORD=/d' "$APP/.env"
+            [ -z "$(tail -c1 "$APP/.env")" ] || echo >> "$APP/.env"
+            printf 'TURN_USERNAME=%s\nTURN_PASSWORD=%s\n' "$TURN_USER" "$PW" >> "$APP/.env"
+            cd "$APP" && php8.2 artisan optimize:clear >/dev/null 2>&1 || true
+            echo ".env updated (TURN_USERNAME/TURN_PASSWORD), config cache cleared"
