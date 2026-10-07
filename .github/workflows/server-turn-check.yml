@@ -1,0 +1,29 @@
+name: Server TURN check (read-only)
+
+# 통화 중계 서버(TURN, coturn) 상태를 점검만 한다. 서버 설정을 바꾸지 않고, 비밀번호는 가려서 출력한다.
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check coturn on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            echo "== public ip =="; curl -s -m5 https://ifconfig.me; echo
+            echo "== coturn installed? =="; command -v turnserver || echo "turnserver not found"
+            echo "== coturn service =="; systemctl is-active coturn 2>&1 || true; systemctl is-enabled coturn 2>&1 || true
+            echo "== listening 3478/5349 =="; ss -lntu 2>/dev/null | grep -E ':(3478|5349)\b' || echo "nothing listening on 3478/5349"
+            echo "== firewall (ufw) =="; (ufw status 2>&1 | head -20) || true
+            echo "== turnserver.conf (secrets masked) =="
+            (grep -E '^(listening-port|tls-listening-port|realm|lt-cred-mech|use-auth-secret|min-port|max-port|external-ip|listening-ip|relay-ip|no-udp|no-tcp|fingerprint|user=|static-auth-secret)' /etc/turnserver.conf 2>/dev/null | sed -E 's/^(user=[^:]*:).*/\1***/; s/^(static-auth-secret=).*/\1***/') || echo "no /etc/turnserver.conf"
+            echo "== .env TURN keys (names only) =="; grep -E '^TURN_' /var/www/awesomekorean/.env | sed -E 's/=.*/=***/' || echo "no TURN_* in .env"
+            echo "== recent coturn log =="; (journalctl -u coturn -n 15 --no-pager 2>&1 | tail -15) || true
