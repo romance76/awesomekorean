@@ -4,6 +4,78 @@
   <PageHeader title="증권" icon="trending-up" :back="false" />
   <p class="text-sm text-ink-muted -mt-2 mb-5">미국 시장 기준이에요. 모든 시간은 미국 동부시간(ET)이고, 시세는 15분마다 갱신돼요. <span class="text-ink-faint">· 지금 {{ nowET }}</span></p>
 
+  <!-- ── 주요 지수 ───────────────────────────────────── -->
+  <div class="font-bold text-sm text-ink mb-2">주요 지수 · 지표</div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-6">
+    <div v-for="x in indices" :key="x.symbol" class="card p-3">
+      <div class="text-xs font-bold text-ink-light truncate">{{ x.name }}</div>
+      <div class="text-lg font-black text-ink tabular-nums mt-0.5">{{ fmt(x.price) }}</div>
+      <div class="text-xs font-bold tabular-nums" :class="clr(x.change_pct)">{{ arrow(x.change_pct) }} {{ fmtSigned(x.change) }} ({{ fmtSigned(x.change_pct) }}%)</div>
+      <svg v-if="x.sparkline?.length > 1" viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
+        <path :d="spark(x.sparkline)" fill="none" :stroke="Number(x.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
+      </svg>
+    </div>
+    <div v-if="!indices.length && !loading" class="col-span-full text-sm text-ink-muted py-4 text-center">시세를 불러오는 중이에요. 잠시 후 다시 확인해 주세요.</div>
+  </div>
+
+  <!-- 관심종목(왼쪽) / 대표 종목(오른쪽) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 items-start">
+  <!-- ── 내 관심종목 ─────────────────────────────────── -->
+  <div class="card overflow-hidden">
+    <div class="px-4 py-3 border-b border-line flex items-center gap-2 flex-wrap">
+      <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="star" :size="15" class="text-amber-500" />내 관심종목</div>
+      <form v-if="auth.isLoggedIn" @submit.prevent="addTicker" class="ml-auto flex items-center gap-1.5">
+        <input v-model="ticker" type="text" maxlength="12" placeholder="티커 입력 (예: AAPL)" class="input-soft !w-44 !py-1.5 !px-3 !text-xs uppercase" />
+        <button type="submit" :disabled="adding || !ticker.trim()" class="btn-primary !px-3 !py-1.5 !text-xs disabled:opacity-50">{{ adding ? '확인 중…' : '추가' }}</button>
+      </form>
+    </div>
+    <div v-if="addError" class="px-4 py-2 text-xs text-red-600 bg-red-50">{{ addError }}</div>
+
+    <div v-if="!auth.isLoggedIn" class="px-4 py-8 text-center text-sm text-ink-muted">
+      로그인하면 보고 싶은 종목을 티커로 담아 두고, 언제든 지울 수 있어요.
+      <div class="mt-3"><RouterLink to="/login" class="btn-primary !px-4 !py-2 !text-xs">로그인</RouterLink></div>
+    </div>
+    <template v-else>
+      <div v-if="!myList.length && !loading" class="px-4 py-8 text-center">
+        <p class="text-sm text-ink-muted">아직 담은 종목이 없어요. 티커를 입력하거나 아래에서 골라 보세요.</p>
+        <div class="flex flex-wrap gap-1.5 justify-center mt-3">
+          <button v-for="t in suggestions" :key="t" @click="ticker = t; addTicker()" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-ink-light hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-colors">+ {{ t }}</button>
+        </div>
+      </div>
+      <table v-else class="w-full text-sm">
+        <thead><tr class="text-xs text-ink-muted border-b border-line">
+          <th class="text-left font-medium px-4 py-2">종목</th><th class="text-right font-medium px-2 py-2">현재가</th>
+          <th class="text-right font-medium px-2 py-2">전일대비</th><th class="w-10"></th>
+        </tr></thead>
+        <tbody>
+          <tr v-for="w in myList" :key="w.symbol" class="border-b border-line last:border-0">
+            <td class="px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate max-w-[160px]">{{ w.name }}</div></td>
+            <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ w.price != null ? fmt(w.price) : '-' }}</td>
+            <td class="px-2 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">
+              <template v-if="w.change_pct != null">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change) }}<div class="text-[11px]">{{ fmtSigned(w.change_pct) }}%</div></template>
+            </td>
+            <td class="px-2 text-center"><button @click="removeTicker(w.symbol)" class="text-ink-faint hover:text-red-500 p-1" title="목록에서 지우기"><AppIcon name="x" :size="14" /></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
+  </div>
+
+  <!-- ── 대표 종목 ───────────────────────────────────── -->
+  <div class="card overflow-hidden">
+    <div class="px-4 py-3 border-b border-line font-bold text-sm text-ink">대표 종목</div>
+    <table class="w-full text-sm">
+      <tbody>
+        <tr v-for="w in watchlist" :key="w.symbol" class="border-b border-line last:border-0">
+          <td class="px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted">{{ w.name }}</div></td>
+          <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ fmt(w.price) }}</td>
+          <td class="px-4 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change_pct) }}%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+
   <!-- ── 실적 발표(어닝) 캘린더 ─────────────────────────── -->
   <div class="card overflow-hidden mb-6">
     <div class="px-4 py-3 border-b border-line flex items-center gap-2 flex-wrap">
@@ -48,79 +120,6 @@
     <p class="px-4 py-2 text-[10.5px] text-ink-faint border-t border-line">시가총액이 큰 회사부터 보여요. 종목에 마우스를 올리면 예상 EPS와 분기 정보가 나와요. 일정은 회사 사정으로 바뀔 수 있어요.</p>
   </div>
 
-  <!-- ── 주요 지수 ───────────────────────────────────── -->
-  <div class="font-bold text-sm text-ink mb-2">주요 지수 · 지표</div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-6">
-    <div v-for="x in indices" :key="x.symbol" class="card p-3">
-      <div class="text-xs font-bold text-ink-light truncate">{{ x.name }}</div>
-      <div class="text-lg font-black text-ink tabular-nums mt-0.5">{{ fmt(x.price) }}</div>
-      <div class="text-xs font-bold tabular-nums" :class="clr(x.change_pct)">{{ arrow(x.change_pct) }} {{ fmtSigned(x.change) }} ({{ fmtSigned(x.change_pct) }}%)</div>
-      <svg v-if="x.sparkline?.length > 1" viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
-        <path :d="spark(x.sparkline)" fill="none" :stroke="Number(x.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
-      </svg>
-    </div>
-    <div v-if="!indices.length && !loading" class="col-span-full text-sm text-ink-muted py-4 text-center">시세를 불러오는 중이에요. 잠시 후 다시 확인해 주세요.</div>
-  </div>
-
-  <!-- ── 내 관심종목 ─────────────────────────────────── -->
-  <div class="card overflow-hidden mb-6">
-    <div class="px-4 py-3 border-b border-line flex items-center gap-2 flex-wrap">
-      <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="star" :size="15" class="text-amber-500" />내 관심종목</div>
-      <form v-if="auth.isLoggedIn" @submit.prevent="addTicker" class="ml-auto flex items-center gap-1.5">
-        <input v-model="ticker" type="text" maxlength="12" placeholder="티커 입력 (예: AAPL)" class="input-soft !w-44 !py-1.5 !px-3 !text-xs uppercase" />
-        <button type="submit" :disabled="adding || !ticker.trim()" class="btn-primary !px-3 !py-1.5 !text-xs disabled:opacity-50">{{ adding ? '확인 중…' : '추가' }}</button>
-      </form>
-    </div>
-    <div v-if="addError" class="px-4 py-2 text-xs text-red-600 bg-red-50">{{ addError }}</div>
-
-    <div v-if="!auth.isLoggedIn" class="px-4 py-8 text-center text-sm text-ink-muted">
-      로그인하면 보고 싶은 종목을 티커로 담아 두고, 언제든 지울 수 있어요.
-      <div class="mt-3"><RouterLink to="/login" class="btn-primary !px-4 !py-2 !text-xs">로그인</RouterLink></div>
-    </div>
-    <template v-else>
-      <div v-if="!myList.length && !loading" class="px-4 py-8 text-center">
-        <p class="text-sm text-ink-muted">아직 담은 종목이 없어요. 티커를 입력하거나 아래에서 골라 보세요.</p>
-        <div class="flex flex-wrap gap-1.5 justify-center mt-3">
-          <button v-for="t in suggestions" :key="t" @click="ticker = t; addTicker()" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-ink-light hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-colors">+ {{ t }}</button>
-        </div>
-      </div>
-      <table v-else class="w-full text-sm">
-        <thead><tr class="text-xs text-ink-muted border-b border-line">
-          <th class="text-left font-medium px-4 py-2">종목</th><th class="text-right font-medium px-2 py-2">현재가</th>
-          <th class="text-right font-medium px-2 py-2">전일대비</th><th class="hidden sm:table-cell w-28 px-2"></th><th class="w-10"></th>
-        </tr></thead>
-        <tbody>
-          <tr v-for="w in myList" :key="w.symbol" class="border-b border-line last:border-0">
-            <td class="px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate max-w-[160px]">{{ w.name }}</div></td>
-            <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ w.price != null ? fmt(w.price) : '-' }}</td>
-            <td class="px-2 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">
-              <template v-if="w.change_pct != null">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change) }}<div class="text-[11px]">{{ fmtSigned(w.change_pct) }}%</div></template>
-            </td>
-            <td class="hidden sm:table-cell px-2">
-              <svg v-if="w.sparkline?.length > 1" viewBox="0 0 100 24" class="w-24 h-6" preserveAspectRatio="none">
-                <path :d="spark(w.sparkline)" fill="none" :stroke="Number(w.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
-              </svg>
-            </td>
-            <td class="px-2 text-center"><button @click="removeTicker(w.symbol)" class="text-ink-faint hover:text-red-500 p-1" title="목록에서 지우기"><AppIcon name="x" :size="14" /></button></td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
-  </div>
-
-  <!-- ── 대표 종목 ───────────────────────────────────── -->
-  <div class="card overflow-hidden">
-    <div class="px-4 py-3 border-b border-line font-bold text-sm text-ink">대표 종목</div>
-    <table class="w-full text-sm">
-      <tbody>
-        <tr v-for="w in watchlist" :key="w.symbol" class="border-b border-line last:border-0">
-          <td class="px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted">{{ w.name }}</div></td>
-          <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ fmt(w.price) }}</td>
-          <td class="px-4 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change_pct) }}%</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
   <p class="text-[10.5px] text-ink-faint mt-3">시세는 지연될 수 있고 투자 판단의 책임은 본인에게 있어요.</p>
 </div>
 </div>
