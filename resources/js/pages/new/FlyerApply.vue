@@ -95,21 +95,21 @@
           <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
             <label class="input-label !mb-0">방송할 시간대 <span class="text-ink-faint font-normal">(매일 같은 시간 · {{ av ? tzLabel(av.tz) : '' }} 현지 시각)</span></label>
             <div class="flex gap-1 text-[11px]">
-              <button type="button" @click="pick(range(17, 22))" class="chip">피크 오후5~11시</button>
-              <button type="button" @click="pick(range(9, 16))" class="chip">낮 9시~5시</button>
-              <button type="button" @click="pick(range(0, 23))" class="chip">24시간</button>
+              <button type="button" @click="pickPeak" class="chip">피크 {{ peakLabel }}</button>
+              <button type="button" @click="pickAll" class="chip">24시간 전체</button>
               <button type="button" @click="form.hours = []" class="chip">초기화</button>
             </div>
           </div>
-          <div class="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
-            <button v-for="h in 24" :key="h" type="button" :disabled="!!blocked(h - 1)" @click="toggle(h - 1)"
-              class="rounded-lg border-2 px-1 py-1.5 text-center transition-colors disabled:cursor-not-allowed"
-              :class="cellClass(h - 1)">
-              <div class="text-xs font-bold leading-tight">{{ fmtHour(h - 1) }}</div>
-              <div class="text-[10px] leading-tight mt-0.5">{{ blocked(h - 1) || usd(price(h - 1)) }}</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button v-for="(b, i) in blocks" :key="i" type="button" :disabled="b.booked" @click="toggleBlock(b)"
+              class="rounded-xl border-2 px-2 py-2.5 text-center transition-colors disabled:cursor-not-allowed"
+              :class="blockClass(b)">
+              <div class="text-[13px] font-bold leading-tight">{{ blockLabel(b) }}</div>
+              <div class="text-[10px] leading-tight mt-0.5 opacity-80">{{ b.end - b.start }}시간 · {{ blockTag(b) }}</div>
+              <div class="text-xs font-bold mt-1">{{ b.booked ? '예약됨' : usd(b.price) + '/일' }}</div>
             </button>
           </div>
-          <p class="text-[11px] text-ink-faint mt-2">피크(오후 5~11시)는 비싸고 심야(자정~오전 6시)는 저렴해요. “예약됨”은 같은 지역에서 다른 광고주가 이미 쓰는 시간이에요. 아무도 쓰지 않는 시간은 모두 고를 수 있어요.</p>
+          <p class="text-[11px] text-ink-faint mt-2">시간은 몇 시간씩 묶인 칸으로 팔아요. 피크({{ peakLabel }})는 이용자가 많아 비싸고 새벽(자정~오전 6시)은 저렴해요. “예약됨”은 같은 지역에서 다른 광고주가 이미 쓰는 시간이 들어 있는 칸이에요.</p>
         </div>
       </div>
 
@@ -219,25 +219,30 @@ const total = computed(() => form.hours.reduce((s, h) => s + price(h), 0) * form
 const belowMin = computed(() => !!av.value && total.value > 0 && total.value < (av.value.min_order_cents || 0))
 const canSubmit = computed(() => form.title && file.value && form.hours.length && form.start_date && !belowMin.value)
 
-// 이 시간을 고를 수 없는 이유 (다른 광고주가 이미 예약) — 없으면 빈 문자열
-function blocked(h) {
-  if (!av.value) return ''
-  return av.value.booked?.[h]?.length ? '예약됨' : ''
+// 시간 칸(블록): 서버가 내려주는 몇 시간씩 묶은 칸. 선택은 시간(hours) 단위로 저장해 서버에 그대로 보낸다.
+const blocks = computed(() => av.value?.blocks || [])
+const peak = computed(() => av.value?.peak || [11, 18])
+const peakLabel = computed(() => `${fmtHour(peak.value[0])}~${fmtHour(peak.value[1])}`)
+const blockLabel = (b) => `${fmtHour(b.start)}~${fmtHour(b.end)}`
+const isPeak = (b) => b.start >= peak.value[0] && b.end <= peak.value[1]
+const isNight = (b) => b.end <= (av.value?.night_end ?? 6)
+const blockTag = (b) => isPeak(b) ? '피크' : isNight(b) ? '새벽' : '일반'
+const blockOn = (b) => b.hours.every(h => form.hours.includes(h))
+function blockClass(b) {
+  if (b.booked) return 'bg-gray-100 border-gray-100 text-gray-400'
+  if (blockOn(b)) return 'bg-rose-500 border-rose-500 text-white'
+  return isPeak(b) ? 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-400' : 'bg-white border-gray-200 text-ink-light hover:border-rose-300'
 }
-function cellClass(h) {
-  if (blocked(h)) return 'bg-gray-100 border-gray-100 text-gray-400'
-  if (form.hours.includes(h)) return 'bg-rose-500 border-rose-500 text-white'
-  const peak = h >= 17 && h <= 22
-  return peak ? 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-400' : 'bg-white border-gray-200 text-ink-light hover:border-rose-300'
+function toggleBlock(b) {
+  if (b.booked) return
+  if (blockOn(b)) form.hours = form.hours.filter(h => !b.hours.includes(h))
+  else form.hours = [...new Set([...form.hours, ...b.hours])].sort((x, y) => x - y)
 }
-function toggle(h) {
-  const i = form.hours.indexOf(h)
-  if (i >= 0) form.hours.splice(i, 1)
-  else { form.hours.push(h); form.hours.sort((a, b) => a - b) }
+function setBlocks(list) {
+  form.hours = [...new Set(list.filter(b => !b.booked).flatMap(b => b.hours))].sort((x, y) => x - y)
 }
-function pick(hs) {
-  form.hours = hs.filter(h => !blocked(h))
-}
+const pickPeak = () => setBlocks(blocks.value.filter(isPeak))
+const pickAll = () => setBlocks(blocks.value)
 
 function onFile(e) {
   const f = e.target.files?.[0]
@@ -255,7 +260,7 @@ async function loadAvailability() {
     if (my !== seq) return
     av.value = data.data
     if (!form.start_date || form.start_date < av.value.min_date) form.start_date = av.value.min_date
-    form.hours = form.hours.filter(h => !blocked(h))   // 막힌 시간은 선택에서 제외
+    form.hours = form.hours.filter(h => !(av.value.blocks || []).some(b => b.booked && b.hours.includes(h)))   // 예약된 칸은 선택에서 제외
   } catch {}
 }
 watch(() => [form.scope, form.state, form.start_date, form.days], loadAvailability)
