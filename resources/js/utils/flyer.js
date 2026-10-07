@@ -29,15 +29,18 @@ export function stateName(code) {
   return US_STATES.find(s => s.code === String(code || '').toUpperCase())?.name || code
 }
 
-/** 0 → 오전 12시, 13 → 오후 1시 */
+/** 0(·24) → 자정, 12 → 정오, 13 → 오후 1시 */
 export function fmtHour(h) {
   const hh = ((Number(h) % 24) + 24) % 24
-  return `${hh < 12 ? '오전' : '오후'} ${hh % 12 || 12}시`
+  if (hh === 0) return '자정'
+  if (hh === 12) return '정오'
+  return `${hh < 12 ? '오전' : '오후'} ${hh % 12}시`
 }
 
 /** [18,19,20,22] → ['오후 6시~오후 9시', '오후 10시~오후 11시'] (연속 구간으로 묶음, 끝은 그 시간이 끝나는 정각) */
 export function hourRanges(hours) {
   const hs = [...new Set((hours || []).map(Number))].sort((a, b) => a - b)
+  if (hs.length === 24) return ['24시간 종일']
   const out = []
   let i = 0
   while (i < hs.length) {

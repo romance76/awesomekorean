@@ -82,7 +82,7 @@ class FlyerSchedule
 
     public static function maxDays(): int
     {
-        return max(1, PointRules::get('flyer_max_days', 14));
+        return max(1, PointRules::get('flyer_max_days', 30));
     }
 
     public static function windowDays(): int

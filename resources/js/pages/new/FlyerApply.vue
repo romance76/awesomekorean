@@ -78,7 +78,8 @@
         <div class="grid sm:grid-cols-2 gap-3">
           <div>
             <label class="input-label">시작일</label>
-            <input v-model="form.start_date" type="date" :min="av?.now?.date" :max="maxDate" required class="input-soft" />
+            <input v-model="form.start_date" type="date" :min="av?.min_date" :max="av?.max_date" required class="input-soft" />
+            <div class="text-[11px] text-ink-faint mt-1">시작일은 내일부터 선택할 수 있어요</div>
           </div>
           <div>
             <label class="input-label">며칠 동안</label>
@@ -108,7 +109,7 @@
               <div class="text-[10px] leading-tight mt-0.5">{{ blocked(h - 1) || (price(h - 1) + 'P') }}</div>
             </button>
           </div>
-          <p class="text-[11px] text-ink-faint mt-2">피크(오후 5~11시)는 비싸고 심야(자정~오전 6시)는 저렴해요. “예약됨”은 같은 지역에서 다른 광고주가 이미 쓰는 시간이에요.</p>
+          <p class="text-[11px] text-ink-faint mt-2">피크(오후 5~11시)는 비싸고 심야(자정~오전 6시)는 저렴해요. “예약됨”은 같은 지역에서 다른 광고주가 이미 쓰는 시간이에요. 아무도 쓰지 않는 시간은 모두 고를 수 있어요.</p>
         </div>
       </div>
 
@@ -191,14 +192,8 @@ const basePrices = ref({ national: 60, state: 30 })
 const basePrice = (s) => basePrices.value[s]
 
 const dayChoices = computed(() => {
-  const max = av.value?.max_days || 14
-  return [1, 3, 7, 14].filter(d => d <= max)
-})
-const maxDate = computed(() => {
-  if (!av.value) return undefined
-  const [y, m, d] = av.value.now.date.split('-').map(Number)
-  const dt = new Date(Date.UTC(y, m - 1, d + av.value.window_days))
-  return dt.toISOString().slice(0, 10)
+  const max = av.value?.max_days || 30
+  return [1, 3, 7, 14, 30].filter(d => d <= max)
 })
 
 const price = (h) => Number(av.value?.prices?.[h] ?? 0)
@@ -207,13 +202,10 @@ const total = computed(() => form.hours.reduce((s, h) => s + price(h), 0) * form
 const lacking = computed(() => total.value > (auth.user?.points || 0))
 const canSubmit = computed(() => form.title && file.value && form.hours.length && form.start_date && !lacking.value)
 
-// 이 시간을 고를 수 없는 이유 (예약됨 / 지남) — 없으면 빈 문자열
+// 이 시간을 고를 수 없는 이유 (다른 광고주가 이미 예약) — 없으면 빈 문자열
 function blocked(h) {
   if (!av.value) return ''
-  const booked = av.value.booked?.[h]
-  if (booked?.length) return '예약됨'
-  if (form.start_date === av.value.now.date && h <= av.value.now.hour) return '지남'
-  return ''
+  return av.value.booked?.[h]?.length ? '예약됨' : ''
 }
 function cellClass(h) {
   if (blocked(h)) return 'bg-gray-100 border-gray-100 text-gray-400'
@@ -245,7 +237,7 @@ async function loadAvailability() {
     })
     if (my !== seq) return
     av.value = data.data
-    if (!form.start_date || form.start_date < av.value.now.date) form.start_date = av.value.now.date
+    if (!form.start_date || form.start_date < av.value.min_date) form.start_date = av.value.min_date
     form.hours = form.hours.filter(h => !blocked(h))   // 막힌 시간은 선택에서 제외
   } catch {}
 }
