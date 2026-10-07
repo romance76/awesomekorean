@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.head-icons')
+    @include('partials.analytics')
     <style>
     /* Google Translate 상단 배너 및 UI 완전 숨김 (구/신 위젯 모두 대응) */
     .goog-te-banner-frame,

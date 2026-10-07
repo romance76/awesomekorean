@@ -232,20 +232,6 @@
             </div>
           </div>
 
-          <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">외부 연동</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="input-label">구글 Analytics ID</label>
-                <input v-model="site.google_analytics_id" type="text" class="input-field" placeholder="G-XXXXXXXXXX" />
-              </div>
-              <div>
-                <label class="input-label">카카오 API 키</label>
-                <input v-model="site.kakao_api_key" type="text" class="input-field" placeholder="카카오 REST API 키" />
-              </div>
-            </div>
-          </div>
-
           <div class="flex justify-end">
             <button @click="saveSite" :disabled="saving" class="btn-primary">
               <span v-if="saving" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
@@ -1036,6 +1022,7 @@
             <button @click="runMailDebug" class="btn-secondary px-4 py-2 text-sm">메일 설정 진단</button>
             <button @click="runMailTestSend" class="btn-secondary px-4 py-2 text-sm">메일 실제 발송 테스트</button>
             <button @click="runPasswordResetDebug" class="btn-secondary px-4 py-2 text-sm">비밀번호 재설정 쿨다운 확인</button>
+            <button @click="openAddAnalytics" class="btn-secondary px-4 py-2 text-sm">+ 구글 Analytics</button>
             <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
           </div>
         </div>
@@ -1227,8 +1214,6 @@ const site = reactive({
   maintenance_mode: false,
   maintenance_reason: '',
   maintenance_until: '',
-  google_analytics_id: '',
-  kakao_api_key: '',
 })
 
 const footer = reactive({
@@ -1728,6 +1713,13 @@ async function loadApiKeys() {
     const list = data.data || data || []
     apiKeys.value = list.map(k => ({ ...k, showFull: false, fullKey: '' }))
   } catch (e) { console.error('loadApiKeys error:', e) }
+}
+
+// 구글 Analytics(GA4) 측정 ID — service 코드가 google_analytics 인 키가 있으면(활성일 때)
+// 모든 공개 페이지에 방문 통계 추적 코드가 자동으로 들어간다. 비활성화/삭제하면 빠짐.
+function openAddAnalytics() {
+  newApiKey.value = { name: '구글 Analytics 측정 ID', service: 'google_analytics', api_key: '', description: '방문 통계(GA4). 측정 ID는 G- 로 시작합니다 (예: G-ABC123DEF4)' }
+  showAddApiKey.value = true
 }
 
 async function saveApiKey() {
