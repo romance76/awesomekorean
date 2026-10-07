@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-3xl mx-auto px-4 py-5">
+  <div class="page-main px-4 py-5">
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
       <span class="icon-chip w-9 h-9 bg-pink-50 text-pink-600"><AppIcon name="store" :size="20" /></span>
       업소 등록

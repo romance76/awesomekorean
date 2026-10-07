@@ -1,5 +1,5 @@
 <template>
-<div class="max-w-4xl mx-auto px-4 py-6">
+<div class="page-main px-4 py-6">
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="trending-up" :size="20" /></span>
     증권

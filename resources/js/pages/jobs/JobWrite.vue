@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-3xl mx-auto px-4 py-6 space-y-5">
+  <div class="page-main px-4 py-6 space-y-5">
     <!-- Header -->
     <div class="flex items-center gap-3">
       <button @click="$router.back()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-card text-ink-muted hover:bg-gray-50 transition-colors">

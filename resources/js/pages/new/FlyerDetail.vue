@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-2xl mx-auto px-4 py-5">
+  <div class="page-main px-4 py-5">
     <RouterLink to="/new" class="text-xs text-ink-muted hover:text-rose-600 transition-colors mb-3 inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="13" />NEW 목록으로</RouterLink>
 
     <div v-if="loading" class="text-center py-16 text-ink-muted">로딩중...</div>

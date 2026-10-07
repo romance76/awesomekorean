@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-4xl mx-auto px-4 py-5">
+  <div class="page-main px-4 py-5">
     <div v-if="loading" class="text-center py-12 text-ink-faint">로딩중...</div>
     <div v-else-if="user">
       <!-- 프로필 헤더 -->

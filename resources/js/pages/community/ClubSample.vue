@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-3xl mx-auto px-4 py-5 pb-28">
+  <div class="page-main px-4 py-5 pb-28">
     <RouterLink to="/clubs" class="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink mb-3"><AppIcon name="arrow-left" :size="14" />동호회 목록</RouterLink>
 
     <!-- 샘플 안내 -->
@@ -94,7 +94,7 @@
 
   <!-- 하단 고정 안내 -->
   <div class="fixed left-0 right-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-line">
-    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div class="page-main px-4 py-3 flex items-center justify-between gap-3">
       <div class="text-xs text-ink-muted leading-snug">마음에 드세요?<br><b class="text-ink">우리 동네 동호회를 직접 만들어 보세요.</b></div>
       <RouterLink to="/clubs/create" class="btn-primary flex-shrink-0"><AppIcon name="plus" :size="15" />동호회 만들기</RouterLink>
     </div>
