@@ -119,9 +119,9 @@
             <div class="flex items-center gap-2">
               <button @click="openMsgSearch" class="text-ink-muted hover:text-amber-600 transition-colors" title="메시지 검색"><AppIcon name="search" :size="18" /></button>
               <button @click="toggleBookmarkRoom(activeRoom)"
-                :class="isRoomBookmarked(activeRoom.id) ? 'text-amber-500' : 'text-ink-muted hover:text-amber-500'"
+                :class="isRoomBookmarked(activeRoom.id) ? 'text-amber-500' : 'text-ink-muted'"
                 class="transition-colors" :title="isRoomBookmarked(activeRoom.id) ? '북마크 해제' : '북마크'">
-                <AppIcon name="star" :size="18" />
+                <AppIcon name="star" :size="18" :filled="isRoomBookmarked(activeRoom.id)" />
               </button>
               <!-- 본인이 만든 채팅방만 직접 삭제 가능(다른 멤버가 있어도 무관) -->
               <button v-if="activeRoom.created_by === auth.user?.id" @click="roomDeleteConfirm = activeRoom"
