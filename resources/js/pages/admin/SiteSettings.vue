@@ -1588,6 +1588,7 @@ const allMenuDefs = [
   { key: 'directory', label: '업소록',   label_en: 'Directory',  icon: '🏪', path: '/directory', hasCardView: true },
   { key: 'realestate',label: '부동산',   label_en: 'Real Estate',icon: '🏠', path: '/realestate', hasCardView: true },
   { key: 'events',    label: '이벤트',   label_en: 'Events',     icon: '🎉', path: '/events', hasCardView: true },
+  { key: 'flyers',    label: 'NEW',      label_en: 'NEW',        icon: '🆕', path: '/new' },
   { key: 'news',      label: '뉴스',     label_en: 'News',       icon: '📰', path: '/news' },
   { key: 'info',      label: '정보',     label_en: 'Info',       icon: '📘', path: '/info' },
   { key: 'recipes',   label: '레시피',   label_en: 'Recipes',    icon: '🍳', path: '/recipes', hasCardView: true },

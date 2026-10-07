@@ -446,6 +446,7 @@ class AdminSettingsController extends Controller
             ['key'=>'directory','label'=>'업소록','icon'=>'🏪','path'=>'/directory','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'realestate','label'=>'부동산','icon'=>'🏠','path'=>'/realestate','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'events','label'=>'이벤트','icon'=>'🎉','path'=>'/events','enabled'=>true,'login_required'=>false,'admin_only'=>false],
+            ['key'=>'flyers','label'=>'NEW','icon'=>'🆕','path'=>'/new','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'news','label'=>'뉴스','icon'=>'📰','path'=>'/news','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'info','label'=>'정보','icon'=>'📘','path'=>'/info','enabled'=>true,'login_required'=>false,'admin_only'=>false],
             ['key'=>'recipes','label'=>'레시피','icon'=>'🍳','path'=>'/recipes','enabled'=>true,'login_required'=>false,'admin_only'=>false],

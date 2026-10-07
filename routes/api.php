@@ -138,6 +138,13 @@ Route::get('/banners/text-inline', [\App\Http\Controllers\API\BannerController::
 // 유저도 이 신청 경로를 쓸 수 없었음(실측 확인) — auth:api로 수정.
 Route::middleware('auth:api')->post('/banners/text-apply', [\App\Http\Controllers\API\BannerController::class, 'textApply']);
 Route::get('/banners/all', [\App\Http\Controllers\API\BannerController::class, 'all']);
+
+// ─── NEW 전단 광고 (지역별 · 시간대별 상단 노출) ───
+Route::get('/flyers', [\App\Http\Controllers\API\FlyerController::class, 'index']);
+Route::get('/flyers/availability', [\App\Http\Controllers\API\FlyerController::class, 'availability']);
+Route::get('/flyers/{id}', [\App\Http\Controllers\API\FlyerController::class, 'show'])->whereNumber('id');
+Route::post('/flyers/{id}/view', [\App\Http\Controllers\API\FlyerController::class, 'view'])->whereNumber('id')->middleware('throttle:60,1');
+Route::post('/flyers/{id}/click', [\App\Http\Controllers\API\FlyerController::class, 'click'])->whereNumber('id')->middleware('throttle:60,1');
 // 캐싱은 각 컨트롤러 안에서 고정 키로 직접 처리(저장/삭제 시 정확히 무효화하기 위함) — cache.api 미들웨어 미적용
 Route::get('/hero-banners', function () {
     $data = \Illuminate\Support\Facades\Cache::remember(
@@ -263,6 +270,11 @@ Route::middleware('auth:api')->group(function () {
     // 배너 광고 신청
     Route::get('/banners/my', [\App\Http\Controllers\API\BannerController::class, 'myBanners']);
     Route::post('/banners/apply', [\App\Http\Controllers\API\BannerController::class, 'store']);
+
+    // NEW 전단 광고 신청 (이메일 인증 회원만)
+    Route::get('/flyers/my', [\App\Http\Controllers\API\FlyerController::class, 'my']);
+    Route::post('/flyers', [\App\Http\Controllers\API\FlyerController::class, 'store'])->middleware('verified.email');
+    Route::post('/flyers/{id}/cancel', [\App\Http\Controllers\API\FlyerController::class, 'cancel'])->whereNumber('id');
 
     // 홀드 (구매자가 포인트로 물건 예약)
     Route::post('/market/{id}/hold', [MarketController::class, 'hold']);
@@ -620,6 +632,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/banners', [AdminController::class, 'createBanner']);
     Route::post('/banners/{id}/approve', [AdminController::class, 'approveBanner']);
     Route::post('/banners/{id}/reject', [AdminController::class, 'rejectBanner']);
+    Route::get('/flyers', [\App\Http\Controllers\API\AdminFlyerController::class, 'index']);
+    Route::post('/flyers/{id}/approve', [\App\Http\Controllers\API\AdminFlyerController::class, 'approve']);
+    Route::post('/flyers/{id}/reject', [\App\Http\Controllers\API\AdminFlyerController::class, 'reject']);
     Route::post('/banners/{id}/pause', [AdminController::class, 'pauseBanner']);
     Route::delete('/banners/{id}', [AdminController::class, 'deleteBanner']);
 

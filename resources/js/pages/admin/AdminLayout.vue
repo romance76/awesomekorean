@@ -145,6 +145,7 @@ const subTabs = {
   ad: [
     { to: '/admin/ad-center', icon: 'sparkles', label: '광고 센터' },
     { to: '/admin/banners', icon: 'megaphone', label: '광고 목록' },
+    { to: '/admin/flyers', icon: 'megaphone', label: 'NEW 전단 광고' },
     { to: '/admin/pricing', icon: 'coins', label: '가격/할인' },
     { to: '/admin/payments', icon: 'wallet', label: '결제/오더' },
   ],
