@@ -78,7 +78,7 @@ const routes = [
   // Events
   // NEW 전단 광고 — 지역별 · 시간대별 상단 노출 게시판
   { path: '/new', name: 'new-board', component: p('new/NewBoard') },
-  { path: '/new/apply', name: 'flyer-apply', component: p('new/FlyerApply'), meta: { auth: true } },
+  { path: '/new/apply', redirect: '/dashboard?tab=flyer' },  // 신청은 마이페이지 탭에서
   { path: '/new/:id(\\d+)', name: 'flyer-detail', component: p('new/FlyerDetail') },
   { path: '/events', name: 'events', component: p('events/EventList') },
   { path: '/events/create', name: 'event-create', component: p('events/EventCreate'), meta: { auth: true } },
@@ -246,7 +246,7 @@ const router = createRouter({
 // 회원이 폼을 끝까지 채운 뒤 제출 단계에서야 막히지 않도록 진입부터 차단
 const VERIFIED_WRITE_ROUTES = new Set([
   'post-write', 'qa-write', 'job-write', 'market-write', 'realestate-write',
-  'club-create', 'recipe-create', 'groupbuy-create', 'event-create', 'flyer-apply',
+  'club-create', 'recipe-create', 'groupbuy-create', 'event-create',
 ])
 
 router.beforeEach(async (to, from, next) => {

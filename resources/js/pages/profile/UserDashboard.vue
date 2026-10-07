@@ -542,6 +542,11 @@
       </div>
     </div>
 
+    <!-- ═══ NEW 전면광고 신청 탭 (시간대별 전단 광고) ═══ -->
+    <div v-else-if="tab==='flyer'">
+      <FlyerApply embedded />
+    </div>
+
     <!-- ═══ 광고 신청 탭 ═══ -->
     <div v-else-if="tab==='ads'" class="space-y-4">
       <!-- 내 광고 목록 -->
@@ -1034,6 +1039,7 @@ import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
 import axios from 'axios'
 import AdApplyEmbed from '../ads/AdApply.vue'
+import FlyerApply from '../new/FlyerApply.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -1056,6 +1062,7 @@ const allTabs = [
   { key: 'jobs',       icon: 'briefcase',     label: '내 구인',     menuKey: 'jobs' },
   { key: 'realestate', icon: 'home',          label: '내 부동산',   menuKey: 'realestate' },
   { key: 'ads',        icon: 'megaphone',     label: '광고 신청' },
+  { key: 'flyer',      icon: 'sparkles',      label: 'NEW 전면광고 신청', menuKey: 'flyers' },
   { key: 'calls',      icon: 'phone',         label: '통화내역',    menuKey: 'comms' },
   { key: 'bookmarks',  icon: 'bookmark',      label: '북마크' },
   { key: 'elder',      icon: 'shield',        label: '안심',        menuKey: 'elder' },
