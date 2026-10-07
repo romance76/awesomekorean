@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-pink-50 text-pink-600"><AppIcon name="store" :size="20" /></span>
-      업소 등록
-    </h1>
+    <PageHeader title="업소 등록" icon="store" chip="bg-pink-50 text-pink-600" fallback="/directory" />
     <div class="card p-5 space-y-4">
       <div><label class="input-label">업소명</label><input v-model="form.name" type="text" placeholder="예: 서울가든 Korean BBQ" class="input-soft" /></div>
       <div class="grid grid-cols-2 gap-3">
@@ -39,6 +36,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
 const router = useRouter()
 const form = reactive({ name:'',category:'restaurant',subcategory:'',phone:'',email:'',website:'',address:'',city:'',state:'',zipcode:'',description:'' })

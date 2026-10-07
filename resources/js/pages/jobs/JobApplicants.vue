@@ -1,13 +1,6 @@
 <template>
 <div class="page-main px-4 py-5">
-  <RouterLink :to="'/jobs/'+jobId" class="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink mb-3">
-    <AppIcon name="chevron-left" :size="16" /> 공고로 돌아가기
-  </RouterLink>
-
-  <h1 class="text-lg font-bold text-ink mb-4 flex items-center gap-2">
-    <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="users" :size="16" /></span>
-    지원자 관리 <span v-if="job" class="text-ink-faint font-normal text-sm">— {{ job.title }}</span>
-  </h1>
+  <PageHeader title="지원자 관리" :subtitle="job?.title || ''" icon="users" :to="'/jobs/'+jobId" />
 
   <div v-if="loading" class="text-center py-12 text-ink-faint">로딩중...</div>
   <div v-else-if="!applicants.length" class="card p-8 text-center text-sm text-ink-faint">아직 지원자가 없습니다</div>
@@ -55,6 +48,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const route = useRoute()
 const jobId = route.params.id

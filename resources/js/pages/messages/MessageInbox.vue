@@ -1,16 +1,14 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <div class="flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="mail" :size="20" /></span>
-        쪽지함
-      </h1>
-      <div class="flex items-center gap-2">
+    <PageHeader title="쪽지함" icon="mail" :back="false">
+      <template #actions>
+        <div class="flex items-center gap-2">
         <span v-if="unreadCount" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ unreadCount }}</span>
         <button @click="showCompose=true" class="btn-primary text-sm px-4 py-2 flex items-center gap-1.5"><AppIcon name="edit" :size="14" />새 쪽지</button>
       </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <!-- 받은/보낸 탭 -->
     <div class="flex gap-1 mb-4 bg-gray-100 rounded-xl p-1">
@@ -102,6 +100,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const messages = ref([])
 const loading = ref(true)

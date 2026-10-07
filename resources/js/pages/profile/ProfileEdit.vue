@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="20" /></span>
-      프로필 수정
-    </h1>
+    <PageHeader title="프로필 수정" icon="edit" fallback="/" />
     <div v-if="auth.user" class="card p-5 space-y-4">
       <!-- 프로필 사진 -->
       <div class="flex items-center gap-4">
@@ -87,6 +84,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 const auth = useAuthStore()
 const form = reactive({ name:'',nickname:'',bio:'',phone:'',city:'',state:'',zipcode:'',default_radius:30,language:'ko',allow_friend_request:true,free_public_room_id:null })
 const msg = ref('')

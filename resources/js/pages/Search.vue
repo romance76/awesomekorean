@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="search" :size="20" /></span>
-      검색
-    </h1>
+    <PageHeader title="검색" icon="search" :back="false" />
     <div class="card p-4 mb-4">
       <form @submit.prevent="search" class="flex gap-2">
         <input v-model="query" type="text" placeholder="검색어를 입력하세요..." autofocus class="input-soft flex-1 w-auto" />
@@ -37,6 +34,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../components/AppIcon.vue'
+import PageHeader from '../components/PageHeader.vue'
 const route = useRoute()
 const query = ref(route.query.q || '')
 const results = ref({})

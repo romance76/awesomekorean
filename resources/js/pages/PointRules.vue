@@ -1,11 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <button @click="$router.back()" class="btn-ghost text-sm -ml-2 mb-3"><AppIcon name="arrow-left" :size="15" /> 돌아가기</button>
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="20" /></span>
-      포인트 적립·사용 규칙
-    </h1>
+    <PageHeader title="포인트 적립·사용 규칙" icon="coins" fallback="/points" />
     <p class="text-xs text-ink-muted mb-4">관리자 설정과 실시간 동기화되는 공식 규칙입니다.</p>
 
     <div v-if="loading" class="text-center text-ink-faint py-12">로딩 중...</div>
@@ -67,6 +63,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../components/AppIcon.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 const loading = ref(true)
 const grouped = ref({})

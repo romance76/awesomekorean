@@ -1,11 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <DetailHeader title="Amazon Associates 가입 방법" fallback="/shopping" />
-    <h1 class="hidden lg:flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
-      Amazon Associates 가입 방법
-    </h1>
+    <PageHeader title="Amazon Associates 가입 방법" icon="shopping-bag" chip="bg-lime-50 text-lime-600" fallback="/shopping" />
 
     <div class="card p-4 mb-4 text-sm text-ink-light leading-relaxed">
       <p><b>Amazon Associates</b>는 Amazon의 무료 제휴 프로그램이에요. 내가 쓴 리뷰의 링크로 누군가 Amazon에서 물건을 사면 Amazon이 <b>내게 수수료</b>를 줍니다.
@@ -43,7 +39,7 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import DetailHeader from '../../components/DetailHeader.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const steps = ref([])
 const loading = ref(true)

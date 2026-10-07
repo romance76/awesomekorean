@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5 space-y-4">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-      <span class="icon-chip w-9 h-9 bg-violet-50 text-violet-600"><AppIcon name="home" :size="20" /></span>
-      매물 등록
-    </h1>
+    <PageHeader title="매물 등록" icon="home" chip="bg-violet-50 text-violet-600" fallback="/realestate" />
 
     <div class="card p-5 space-y-4">
       <!-- 사진 업로드 (최대 20장, 기본 5장 무료) -->
@@ -136,6 +133,7 @@ import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { useAuthStore } from '../../stores/auth'
 const router = useRouter()
 const route = useRoute()

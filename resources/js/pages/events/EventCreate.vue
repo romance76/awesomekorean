@@ -1,10 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="20" /></span>
-      {{ isEdit ? (isSweepstakes ? '경품 추첨 이벤트 수정' : '이벤트 수정') : '이벤트 등록' }}
-    </h1>
+    <PageHeader :title="isEdit ? (isSweepstakes ? '경품 추첨 이벤트 수정' : '이벤트 수정') : '이벤트 등록'" icon="calendar" fallback="/events" />
     <div class="card p-5 space-y-4">
       <!-- 사이트 최고관리자 전용: 경품 추첨 이벤트로 등록 -->
       <div v-if="isSuperAdmin && !isEdit" class="bg-amber-50 border border-amber-200 rounded-xl p-3">
@@ -179,6 +176,7 @@ import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { useAuthStore } from '../../stores/auth'
 
 const route = useRoute()

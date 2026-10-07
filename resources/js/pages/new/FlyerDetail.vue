@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <RouterLink to="/new" class="text-xs text-ink-muted hover:text-rose-600 transition-colors mb-3 inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="13" />NEW 목록으로</RouterLink>
+    <PageHeader title="NEW 전단" icon="megaphone" chip="bg-rose-50 text-rose-600" to="/new" />
 
     <div v-if="loading" class="text-center py-16 text-ink-muted">로딩중...</div>
     <div v-else-if="!ad" class="text-center py-16">
@@ -52,6 +52,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 import { kindLabel, fmtDay, hourRanges, tzLabel, stateName, STATUS_LABEL } from '../../utils/flyer'
 
 const route = useRoute()

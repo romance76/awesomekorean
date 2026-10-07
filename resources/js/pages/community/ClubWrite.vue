@@ -1,16 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-6 space-y-5">
-    <!-- Header -->
-    <div class="flex items-center gap-3">
-      <button @click="$router.back()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white shadow-card text-ink-muted hover:bg-gray-50 transition-colors">
-        <AppIcon name="chevron-left" :size="20" />
-      </button>
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
-        {{ isEdit ? '동호회 수정' : '동호회 만들기' }}
-      </h1>
-    </div>
+    <PageHeader :title="isEdit ? '동호회 수정' : '동호회 만들기'" icon="users" chip="bg-teal-50 text-teal-600" fallback="/clubs" />
 
     <!-- Section 1: 기본 정보 -->
     <section class="card overflow-hidden">
@@ -202,6 +193,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import PageHeader from '../../components/PageHeader.vue'
 
 const router = useRouter()
 const route = useRoute()
