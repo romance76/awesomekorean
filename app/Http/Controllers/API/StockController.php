@@ -17,8 +17,16 @@ class StockController extends Controller
     private const MAX_WATCH = 30;
 
     // ── 내 관심종목 ───────────────────────────────────────────
-    public function watchlist(Request $request)
+    public function watchlist(Request $request, YahooQuotes $yahoo)
     {
+        // 담아 둔 종목 중 시세가 5분 넘게 묵었으면 응답 후에 새로 받는다 (서버 스케줄러가 드물게 도는 환경 대비)
+        $uid = $request->user()->id;
+        $syms = DB::table('user_watchlists')->where('user_id', $uid)->pluck('symbol');
+        $fresh = MarketQuote::whereIn('symbol', $syms)->where('updated_at', '>=', now()->subMinutes(5))->pluck('symbol');
+        $stale = $syms->diff($fresh)->values()->all();
+        if ($stale && Cache::add("user-quote-refresh-{$uid}", 1, 60)) {
+            dispatch(fn() => $yahoo->refreshMany($stale))->afterResponse();
+        }
         return response()->json(['success' => true, 'data' => $this->watchRows($request->user()->id)]);
     }
 
@@ -78,6 +86,12 @@ class StockController extends Controller
         $has = EarningsEvent::whereBetween('report_date', [$monday->toDateString(), $friday->toDateString()])->exists();
         if (!$has && Cache::add("earnings-sync-{$monday->toDateString()}", 1, 600)) {
             app(EarningsCalendar::class)->syncWeek($monday);   // 비어 있으면 처음 한 번 바로 채운다
+        }
+
+        // 일정이 12시간 넘게 묵었으면 응답 후에 새로 받는다 (실적 시간/날짜 변경 반영)
+        $newest = EarningsEvent::whereBetween('report_date', [$monday->toDateString(), $friday->toDateString()])->max('updated_at');
+        if ($has && $newest && Carbon::parse($newest)->lt(now()->subHours(12)) && Cache::add("earnings-refresh-{$monday->toDateString()}", 1, 1800)) {
+            dispatch(fn() => app(EarningsCalendar::class)->syncWeek($monday))->afterResponse();
         }
 
         $events = EarningsEvent::whereBetween('report_date', [$monday->toDateString(), $friday->toDateString()])
