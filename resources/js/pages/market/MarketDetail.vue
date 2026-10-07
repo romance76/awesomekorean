@@ -50,7 +50,7 @@
         <div v-else class="bg-gray-100 rounded-2xl flex items-center justify-center text-gray-300" style="height:200px;"><AppIcon name="image" :size="40" :stroke-width="1.5" /></div>
 
         <!-- 가격/정보 + 판매자 (나란히) — 부동산 스타일 -->
-        <div class="flex gap-3">
+        <div class="flex flex-col lg:flex-row gap-3">
           <!-- 왼쪽: 상품 정보 -->
           <div class="flex-1 min-w-0 card p-4"
             :style="item.promotion_tier && item.promotion_tier !== 'none' ? promoBorderStyle : 'border: 1px solid #e5e7eb; border-radius: 12px;'">
@@ -85,7 +85,7 @@
           </div>
 
           <!-- 오른쪽: 판매자 정보 (부동산 스타일) -->
-          <div class="hidden lg:block flex-shrink-0" style="width:200px;">
+          <div class="w-full lg:w-[200px] flex-shrink-0">
             <div class="card overflow-hidden h-full">
               <div class="px-3 py-2 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="user" :size="13" class="text-amber-600" />판매자 정보</div>
               <div class="p-3 space-y-2">
