@@ -58,7 +58,7 @@ class FlyerSchedule
         return Carbon::now(self::timezone($regionKey));
     }
 
-    /** 시간(0~23)의 가격 (포인트). $regionKey 는 'ALL' 또는 주 코드 */
+    /** 시간(0~23)의 가격 — 센트(¢, 100 = $1). 예전 포인트 신청 건과 숫자 단위만 같다. $regionKey 는 'ALL' 또는 주 코드 */
     public static function hourPrice(string $regionKey, int $hour): int
     {
         $base = $regionKey === self::NATIONAL
@@ -78,6 +78,12 @@ class FlyerSchedule
         $t = [];
         for ($h = 0; $h < 24; $h++) $t[$h] = self::hourPrice($regionKey, $h);
         return $t;
+    }
+
+    /** 신청 합계 최소 금액(센트) — 카드 수수료 때문에 너무 작은 결제는 받지 않음 */
+    public static function minOrderCents(): int
+    {
+        return max(0, PointRules::get('flyer_min_order_cents', 500));
     }
 
     public static function maxDays(): int

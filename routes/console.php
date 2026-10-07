@@ -73,3 +73,11 @@ Schedule::command('market:expire-scraped')->dailyAt('06:00')->appendOutputTo($co
 // 안 쌓이던 문제가 있었음. 요청만 등록하고 실제 생성은 시간당 체크인
 // 루틴(외부 세션)이 수행.
 Schedule::command('info:trigger-generation')->dailyAt('06:15')->appendOutputTo($contentLog);
+
+// NEW 전면광고: 카드 입력만 하고 떠난 신청이 잡은 시간 정리 + 카드 보류(약 7일)가 만료되기 전에 오래 승인 못 한 신청 자동 취소
+Artisan::command('flyers:cleanup', function () {
+    $stale = \App\Support\FlyerService::purgeStale();
+    $held = \App\Support\FlyerService::expireHolds();
+    $this->info("결제 미완료 정리 {$stale}건, 보류 만료 취소 {$held}건");
+})->purpose('NEW 전면광고 결제 대기/보류 만료 정리');
+Schedule::command('flyers:cleanup')->everyThirtyMinutes()->withoutOverlapping();

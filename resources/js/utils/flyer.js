@@ -68,7 +68,18 @@ export function tzLabel(tz) {
   }[tz] || tz
 }
 
+/** 센트 → $12.34 */
+export function usd(cents) {
+  return '$' + (Number(cents || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+/** 신청 건의 금액 표기 — 카드 결제 건은 $ , 예전 포인트 결제 건은 P */
+export function adMoney(ad, amount) {
+  return ad?.payment_method === 'card' ? usd(amount) : Number(amount || 0).toLocaleString() + 'P'
+}
+
 export const STATUS_LABEL = {
+  awaiting_payment: { text: '카드 확인 중', cls: 'bg-gray-100 text-gray-500 border-gray-200' },
   pending: { text: '승인 대기', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
   approved: { text: '게시 중', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
   rejected: { text: '반려', cls: 'bg-red-50 text-red-600 border-red-200' },
