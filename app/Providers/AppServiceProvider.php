@@ -43,7 +43,7 @@ class AppServiceProvider extends ServiceProvider
         if (!$key) {
             try {
                 $row = DB::table('api_keys')->where('service', 'resend_api_key')->where('is_active', true)->first();
-                if ($row && $row->api_key) $key = $row->api_key;
+                if ($row && $row->api_key) $key = \App\Casts\Secret::reveal($row->api_key);
             } catch (\Exception $e) {}
         }
 

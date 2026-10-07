@@ -729,6 +729,16 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey']);
         Route::delete('/api-keys/{id}', [AdminSettingsController::class, 'deleteApiKey']);
         Route::get('/api-keys/{id}/reveal', [AdminSettingsController::class, 'revealApiKey']);
+        // 로그인 잠금 / 서버(SSH) 자동 차단 IP
+        Route::get('/security/login-locks', [\App\Http\Controllers\API\AdminSecurityController::class, 'loginLocks']);
+        Route::post('/security/login-unlock', [\App\Http\Controllers\API\AdminSecurityController::class, 'unlockLogin'])->middleware('throttle:30,1');
+        Route::get('/security/server-bans', [\App\Http\Controllers\API\AdminSecurityController::class, 'serverBans']);
+        Route::post('/security/server-unban', [\App\Http\Controllers\API\AdminSecurityController::class, 'serverUnban'])->middleware('throttle:30,1');
+        // 관리자 할 일 목록
+        Route::get('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'index']);
+        Route::post('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'store']);
+        Route::put('/todos/{id}', [\App\Http\Controllers\API\AdminTodoController::class, 'update']);
+        Route::delete('/todos/{id}', [\App\Http\Controllers\API\AdminTodoController::class, 'destroy']);
         // 임시 진단용 (AdminSettingsController::mailDebug 참고) — 원인 확정되면 제거
         Route::get('/system/mail-debug', [AdminSettingsController::class, 'mailDebug']);
         Route::post('/system/mail-test-send', [AdminSettingsController::class, 'mailTestSend']);

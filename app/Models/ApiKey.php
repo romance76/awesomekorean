@@ -10,6 +10,9 @@ class ApiKey extends Model
 
     protected $hidden = ['api_key']; // JSON 직렬화 시 키 노출 방지
 
+    // DB 에는 암호화된 값이 저장되고, 읽을 때 자동으로 풀린다
+    protected $casts = ['api_key' => \App\Casts\Secret::class];
+
     protected $appends = ['masked_key'];
 
     public function getMaskedKeyAttribute(): string

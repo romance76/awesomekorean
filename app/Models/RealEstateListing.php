@@ -3,7 +3,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 class RealEstateListing extends Model
 {
-    protected $fillable = ['user_id','title','content','type','property_type','price','deposit','images','address','city','state','zipcode','lat','lng','bedrooms','bathrooms','sqft','is_active','completed_at','view_count','contact_phone','contact_email','promotion_tier','promotion_expires_at','promotion_states','source','external_source','external_id','scraped_at'];
+    protected $fillable = ['user_id','title','content','type','property_type','price','deposit','images','address','city','state','zipcode','lat','lng','bedrooms','bathrooms','sqft','is_active','completed_at','view_count','contact_phone','contact_email','promotion_tier','promotion_expires_at','promotion_states','source','external_source','external_id','external_url','scraped_at'];
     protected $casts = ['images'=>'array','price'=>'decimal:2','deposit'=>'decimal:2','is_active'=>'boolean','completed_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','promotion_expires_at'=>'datetime','promotion_states'=>'array','scraped_at'=>'datetime'];
     public function user() { return $this->belongsTo(User::class); }
     public function scopeActive($q) { return $q->where('is_active', true); }

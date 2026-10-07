@@ -1,0 +1,92 @@
+name: Server tools (cron + admin ban tool)
+
+# 서버에 한 번 설치한다 (이 파일을 main 에 올릴 때 1회 자동 실행, 여러 번 실행해도 안전).
+#  1) 매분 `php artisan schedule:run` 을 실행하는 정식 cron (www-data 계정으로 실행 — 로그 파일 소유권 꼬임 방지)
+#  2) 관리자 보안 화면에서 fail2ban 자동 차단 IP 를 보고 풀 수 있게 하는 작은 도구.
+#     www-data 는 이 스크립트 두 가지 명령(list / unban IP)만 sudo 로 실행할 수 있고, 스크립트가 IP 형식을 직접 검사한다.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-tools.yml' ]
+
+jobs:
+  tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Install cron and ban tool
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 6m
+          script: |
+            APP=/var/www/awesomekorean
+
+            echo "== 1) cron =="
+            cat > /etc/cron.d/awesomekorean <<'CRONEOF'
+            SHELL=/bin/bash
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+            * * * * * www-data cd /var/www/awesomekorean && /usr/bin/php8.2 artisan schedule:run >> /dev/null 2>&1
+            CRONEOF
+            # 들여쓰기(YAML) 때문에 앞에 공백이 붙었으면 제거 — cron.d 파일은 줄 맨 앞부터 써야 한다
+            sed -i 's/^[ \t]*//' /etc/cron.d/awesomekorean
+            chown root:root /etc/cron.d/awesomekorean; chmod 644 /etc/cron.d/awesomekorean
+            cat /etc/cron.d/awesomekorean
+            systemctl is-active cron || systemctl enable --now cron
+            ls -l /usr/bin/php8.2
+
+            echo "== 2) fail2ban 도구 =="
+            cat > /usr/local/sbin/ak-fail2ban <<'SHEOF'
+            #!/bin/bash
+            # 관리자 보안 화면 전용: sshd 감옥의 차단 IP 목록 / 해제 (그 외 명령은 거부)
+            set -u
+            case "${1:-}" in
+              list)
+                fail2ban-client status sshd 2>/dev/null | sed -n 's/.*Banned IP list:[[:space:]]*//p'
+                ;;
+              unban)
+                ip="${2:-}"
+                if [ ${#ip} -le 45 ] && [[ "$ip" =~ ^[0-9a-fA-F:.]+$ ]]; then
+                  fail2ban-client set sshd unbanip "$ip"
+                else
+                  echo "invalid ip" >&2; exit 2
+                fi
+                ;;
+              *) echo "usage: ak-fail2ban list | unban IP" >&2; exit 2 ;;
+            esac
+            SHEOF
+            sed -i 's/^[ \t]*//' /usr/local/sbin/ak-fail2ban
+            chown root:root /usr/local/sbin/ak-fail2ban; chmod 755 /usr/local/sbin/ak-fail2ban
+
+            cat > /etc/sudoers.d/ak-fail2ban.tmp <<'SUDOEOF'
+            www-data ALL=(root) NOPASSWD: /usr/local/sbin/ak-fail2ban list, /usr/local/sbin/ak-fail2ban unban *
+            SUDOEOF
+            sed -i 's/^[ \t]*//' /etc/sudoers.d/ak-fail2ban.tmp
+            chmod 440 /etc/sudoers.d/ak-fail2ban.tmp
+            if visudo -cf /etc/sudoers.d/ak-fail2ban.tmp >/dev/null; then
+              mv /etc/sudoers.d/ak-fail2ban.tmp /etc/sudoers.d/ak-fail2ban && echo "sudoers 적용 완료"
+            else
+              echo "!! sudoers 검사 실패 → 적용 안 함"; rm -f /etc/sudoers.d/ak-fail2ban.tmp
+            fi
+
+            echo "-- www-data 로 실행 테스트 (차단 IP 개수) --"
+            sudo -u www-data sudo -n /usr/local/sbin/ak-fail2ban list | wc -w
+            echo "-- 잘못된 IP 거부 테스트 --"
+            sudo -u www-data sudo -n /usr/local/sbin/ak-fail2ban unban 'x;ls' ; echo "exit=$?"
+            echo "-- php-fpm 서비스 제한 --"
+            systemctl show php8.2-fpm -p NoNewPrivileges -p ProtectSystem 2>/dev/null
+
+            echo "== 3) cron 동작 확인 (최대 90초 대기) =="
+            before=$(journalctl -u cron --since "-3min" --no-pager 2>/dev/null | grep -c "awesomekorean\|www-data")
+            for i in $(seq 1 18); do
+              sleep 5
+              n=$(journalctl -u cron --since "-3min" --no-pager 2>/dev/null | grep -c "CMD (cd /var/www/awesomekorean")
+              [ "$n" -gt 0 ] && break
+            done
+            journalctl -u cron --since "-3min" --no-pager 2>/dev/null | grep "CMD (cd /var/www/awesomekorean" | tail -3
+            echo "cron 실행 기록 수: $n"
+            sudo -u www-data bash -c "cd $APP && /usr/bin/php8.2 artisan schedule:list 2>&1 | head -8"
