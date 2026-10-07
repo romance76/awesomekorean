@@ -278,6 +278,7 @@ Route::middleware('auth:api')->group(function () {
     // 내돈내산 리뷰 (회원이 자기 Amazon Associates 태그로 작성)
     Route::get('/shopping/my', [ShoppingController::class, 'my']);
     Route::put('/shopping/my-tag', [ShoppingController::class, 'saveTag']);
+    Route::post('/shopping/review-image', [ShoppingController::class, 'uploadReviewImage'])->middleware(['verified.email', 'throttle:40,1']);
     Route::post('/shopping/reviews', [ShoppingController::class, 'storeReview'])->middleware('verified.email');
     Route::post('/shopping/reviews/{id}', [ShoppingController::class, 'updateReview'])->whereNumber('id');   // 멀티파트 수정은 POST
     Route::delete('/shopping/reviews/{id}', [ShoppingController::class, 'destroyReview'])->whereNumber('id');
