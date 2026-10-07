@@ -76,7 +76,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { useSiteStore } from './stores/site'
 import { useAuthStore } from './stores/auth'
@@ -100,6 +101,24 @@ const commHub = ref(null)
 // 앱 초기화: settings + 북마크 로드
 siteStore.load()
 if (auth.isLoggedIn) bookmarkStore.loadAll()
+
+// 출석체크 자동화: 로그인한 상태로 사이트를 여는 순간 하루 1번 자동 출석 (마이페이지에서 누르지 않아도 됨).
+// 이미 오늘 했으면 서버가 400 을 주므로 조용히 무시. 같은 날 반복 호출을 막으려고 브라우저에 날짜만 기억.
+async function autoCheckin() {
+  if (!auth.isLoggedIn || !auth.user?.id) return
+  const d = new Date()
+  const today = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+  const key = `ak_checkin_${auth.user.id}`
+  try { if (localStorage.getItem(key) === today) return } catch {}
+  try {
+    const { data } = await axios.post('/api/entries/checkin')
+    const r = data?.data
+    if (r?.entry_awarded) siteStore.toast('🎉 출석 완료! Entry 1개를 받았어요', 'success', 4000)
+    else if (r) siteStore.toast(`✅ 오늘 출석 완료 (${r.progress}/${r.required})`, 'success')
+  } catch {}   // 400(이미 출석) · 인증 필요 등은 조용히 넘김
+  try { localStorage.setItem(key, today) } catch {}
+}
+watch(() => auth.user?.id, () => { autoCheckin() }, { immediate: true })
 
 // 글로벌: 어디서든 window.openCommChat(partner, convId) / window.startCommCall(partner) 호출 가능
 if (typeof window !== 'undefined') {
