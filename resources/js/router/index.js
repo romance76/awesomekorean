@@ -52,6 +52,7 @@ const routes = [
 
   // Clubs
   { path: '/clubs', name: 'clubs', component: p('community/ClubList') },
+  { path: '/clubs/sample', name: 'club-sample', component: p('community/ClubSample') },
   { path: '/clubs/create', name: 'club-create', component: p('community/ClubWrite'), meta: { auth: true } },
   { path: '/clubs/:id', name: 'club-detail', component: p('community/ClubDetail') },
   { path: '/clubs/:id/edit', name: 'club-edit', component: p('community/ClubWrite'), meta: { auth: true } },
