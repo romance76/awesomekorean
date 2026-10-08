@@ -307,8 +307,15 @@ function parseContentToBlocks(content) {
 }
 
 // 목록 한 줄 미리보기: 본문 앞부분 (이미지 표시 문구 제거)
+const _decoder = typeof document !== 'undefined' ? document.createElement('textarea') : null
+function decodeEntities(t) {
+  if (!_decoder || !/&[#a-zA-Z0-9]+;/.test(t)) return t
+  _decoder.innerHTML = t
+  return _decoder.value
+}
 function snippet(item) {
-  return String(item.summary || '').replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\s+/g, ' ').trim().slice(0, 140)
+  const t = String(item.summary || '').replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()
+  return decodeEntities(t).slice(0, 140)
 }
 
 const contentBlocks = computed(() => parseContentToBlocks(activeItem.value?.content))

@@ -156,7 +156,7 @@ class FetchNews extends Command
         $html = preg_replace('/<br\s*\/?>/i', "\n", $html);
 
         $text = strip_tags($html);
-        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+        $text = html_entity_decode(html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = preg_replace('/[ \t]+/', ' ', $text);
         $text = preg_replace('/\n[ \t]+/', "\n", $text);
         $text = preg_replace('/\n{3,}/', "\n\n", $text);
