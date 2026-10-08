@@ -89,6 +89,19 @@ class GoogleAnalyticsData
         return $out;
     }
 
+    /** 구글은 데이터가 있는 날만 주므로, 기간 전체를 날짜별로 채워(없는 날은 0) 막대가 같은 폭으로 그려지게 한다 */
+    private static function fillDays(array $rows, int $days): array
+    {
+        $by = [];
+        foreach ($rows as $r) $by[$r['date']] = $r;
+        $out = [];
+        for ($i = $days; $i >= 0; $i--) {
+            $d = now('America/New_York')->subDays($i)->format('Ymd');
+            $out[] = $by[$d] ?? ['date' => $d, 'users' => 0.0, 'views' => 0.0];
+        }
+        return $out;
+    }
+
     /** 화면용 요약. @return array{0:?array,1:?string} */
     public static function dashboard(int $days): array
     {
@@ -114,7 +127,7 @@ class GoogleAnalyticsData
             'days' => $days,
             'totals' => $tot,
             'realtime_users' => (int) ($rt['rows'][0]['metricValues'][0]['value'] ?? 0),
-            'daily' => self::rows($r[1] ?? null, ['date'], ['users', 'views']),
+            'daily' => self::fillDays(self::rows($r[1] ?? null, ['date'], ['users', 'views']), $days),
             'pages' => self::rows($r[2] ?? null, ['path', 'title'], ['views', 'users']),
             'channels' => self::rows($r[3] ?? null, ['channel'], ['sessions']),
             'countries' => self::rows($r[4] ?? null, ['country'], ['users']),

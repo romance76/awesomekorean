@@ -56,8 +56,8 @@
           <div class="text-sm font-bold text-ink">일별 방문자</div>
           <div class="text-xs text-ink-muted h-4">{{ hover ? `${hover.label} · 방문자 ${hover.users}명 · 조회 ${hover.views}회` : '막대 위에 올리면 숫자가 보여요' }}</div>
         </div>
-        <div class="flex items-end gap-[2px] h-32" @mouseleave="hover = null">
-          <div v-for="r in daily" :key="r.date" class="flex-1 min-w-[2px] h-full flex items-end" @mouseenter="hover = r" @touchstart.passive="hover = r">
+        <div class="flex items-end gap-[3px] h-32" @mouseleave="hover = null">
+          <div v-for="r in daily" :key="r.date" class="flex-1 min-w-[2px] max-w-[36px] h-full flex items-end" @mouseenter="hover = r" @touchstart.passive="hover = r">
             <div class="w-full rounded-t-[3px] bg-amber-400 hover:bg-amber-500" :style="{ height: Math.max(r.users ? 3 : 0, (r.users / maxUsers) * 100) + '%' }"></div>
           </div>
         </div>
