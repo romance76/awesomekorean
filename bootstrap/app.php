@@ -29,6 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'ingest.auth'  => \App\Http\Middleware\IngestAuth::class,
         ]);
 
+        // www 주소로 들어온 읽기 요청은 대표 주소(APP_URL)로 301 이동 — 같은 사이트가 두 주소로 보이는 것 방지
+        $middleware->prepend(\App\Http\Middleware\CanonicalHost::class);
+
         // 모든 응답(웹/API)에 보안 헤더
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
