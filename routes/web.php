@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/info', [InfoPublicController::class, 'index'])->name('info.index');
 Route::get('/info/{slug}', [InfoPublicController::class, 'show'])->name('info.show');
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);
+// 같은 내용을 다른 주소로도 제공 — Search Console 이 sitemap.xml 을 'Couldn't fetch' 로 붙잡고 있을 때 새로 제출하기 위함
+Route::get('/sitemap-main.xml', [SitemapController::class, 'index']);
 
 // Amazon 제휴 상품 클릭 리다이렉트 — 클릭 집계 후 실제 Amazon 상품 페이지로 이동.
 // SPA 캐치올보다 먼저 등록해야 매칭됨.
