@@ -188,19 +188,23 @@
           <div v-else class="space-y-2">
             <template v-for="(item, i) in items" :key="item.id">
             <div @click="openItem(item)"
-              class="card card-hover px-4 py-3 cursor-pointer">
-              <div class="flex items-center gap-2 mb-1">
+              class="card card-hover !px-4 sm:!px-5 !py-4 cursor-pointer">
+              <div class="flex items-center gap-1.5 flex-wrap">
                 <span v-if="!activeCat" class="badge-primary !text-[11px] !px-2">{{ item.category?.name || 'Q&A' }}</span>
                 <span v-if="item.bounty_points > 0" class="badge bg-amber-400 text-white font-bold !text-[11px] !px-2"><AppIcon name="trophy" :size="11" />{{ item.bounty_points }}P</span>
                 <span v-if="item.is_resolved" class="badge-green font-bold !text-[11px] !px-2"><AppIcon name="check" :size="11" />해결</span>
                 <span v-else class="badge-red !text-[11px] !px-2">미해결</span>
               </div>
-              <div class="text-sm font-semibold text-ink">{{ item.title }}</div>
-              <div class="flex items-center gap-3 mt-1.5 text-xs text-ink-muted">
-                <UserName :userId="item.user?.id" :name="item.user?.name" className="text-xs text-ink-muted" />
-                <span class="flex items-center gap-1"><AppIcon name="eye" :size="12" />{{ item.view_count }}</span>
-                <span class="flex items-center gap-1"><AppIcon name="message-circle" :size="12" />{{ item.answer_count }}</span>
+              <div class="text-[15px] font-bold text-ink leading-snug mt-1.5 line-clamp-2 break-words">{{ item.title }}</div>
+              <p v-if="excerpt(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ excerpt(item) }}</p>
+              <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-2 text-xs text-ink-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-5 h-5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold grid place-items-center" aria-hidden="true">{{ (item.user?.name || '?').slice(0, 1) }}</span>
+                  <UserName :userId="item.user?.id" :name="item.user?.name" className="text-xs font-medium text-ink" />
+                </span>
                 <span>{{ formatDate(item.created_at) }}</span>
+                <span class="flex items-center gap-0.5 tabular-nums" :class="item.answer_count ? 'text-amber-700 font-semibold' : ''" :aria-label="'답변 ' + (item.answer_count || 0)"><AppIcon name="message-circle" :size="13" />{{ item.answer_count || 0 }}</span>
+                <span class="flex items-center gap-0.5 tabular-nums" :aria-label="'조회 ' + (item.view_count || 0)"><AppIcon name="eye" :size="13" />{{ item.view_count || 0 }}</span>
                 <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
               </div>
             </div>
@@ -272,6 +276,11 @@ const statusFilters = [
   { value: 'false', label: '미해결' },
   { value: 'true', label: '해결됨' },
 ]
+
+// 목록 한 줄 정리용: 본문 미리보기
+function excerpt(item) {
+  return String(item.content || '').replace(/\s+/g, ' ').trim().slice(0, 140)
+}
 
 function formatDate(dt) {
   if (!dt) return ''
