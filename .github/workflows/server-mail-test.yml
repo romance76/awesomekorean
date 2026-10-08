@@ -1,0 +1,27 @@
+name: Server mail test to admin@ (one email)
+
+# 사이트(리센드)가 admin@awesomekorean.com 으로 테스트 메일 "한 통"을 보내 전체 경로를 확인한다:
+#   사이트 서버 -> 리센드 -> (MX) ImprovMX -> romance76@gmail.com
+# 이 파일을 main 에 올릴 때 1회 자동 실행된다. 서버 설정은 바꾸지 않는다.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-mail-test.yml' ]
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Send one test email to admin@awesomekorean.com
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            cd /var/www/awesomekorean
+            sudo -u www-data env HOME=/tmp /usr/bin/php8.2 artisan tinker --execute='try { $t = now("America/New_York")->format("m/d H:i"); \Illuminate\Support\Facades\Mail::raw("AwesomeKorean 사이트가 admin@awesomekorean.com 으로 보낸 테스트 메일입니다. 이 메일이 romance76@gmail.com 에 도착하면 문의 주소 수신이 정상입니다. (보낸 시각 미국 동부 $t)", function ($m) use ($t) { $m->to("admin@awesomekorean.com")->subject("[테스트] 사이트 발송 → admin 수신 확인 $t"); }); echo "발송 요청 완료 (mailer=" . config("mail.default") . ", from=" . config("mail.from.address") . ")" . PHP_EOL; } catch (\Throwable $e) { echo "발송 실패: " . get_class($e) . " — " . $e->getMessage() . PHP_EOL; }' 2>&1 | tail -5
