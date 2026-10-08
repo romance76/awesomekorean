@@ -54,12 +54,12 @@
     <span class="text-[11px] text-ink-faint w-full">공개 채팅방에 처음 입장(또는 24시간 이용권 만료 후 재입장)할 때 차감됩니다. 방장 본인과 회원이 마이페이지에서 지정한 "무료 채팅방" 1개는 차감되지 않습니다.</span>
   </div>
 
-  <div class="flex gap-4 items-start">
-    <!-- ─── 왼쪽: 방 목록 ─── -->
-    <div class="w-2/5 flex-shrink-0">
+  <div class="flex gap-4 items-start" :class="isMobile ? 'flex-col !items-stretch' : ''">
+    <!-- ─── 왼쪽: 방 목록 ─── (휴대폰: 방을 고르면 목록을 숨기고 채팅창만 보여 줌) -->
+    <div v-show="!isMobile || !activeRoom" :class="isMobile ? 'w-full' : 'w-2/5 flex-shrink-0'">
       <div class="card p-3 mb-3 flex gap-2">
         <input v-model="search" @keyup.enter="loadRooms()" placeholder="방 이름 검색..."
-          class="input-soft flex-1 !w-auto !px-3 !py-1.5 !text-sm" />
+          class="input-soft flex-1 min-w-0 !w-auto !px-3 !py-1.5 !text-sm" />
         <button @click="loadRooms()" class="btn-secondary !px-3 !py-1.5 !text-xs flex-shrink-0">검색</button>
         <button @click="showCreate=true" class="btn-primary !px-3 !py-1.5 !text-xs flex-shrink-0"><AppIcon name="plus" :size="13" /> 방 개설</button>
       </div>
@@ -93,15 +93,15 @@
     </div>
 
     <!-- ─── 오른쪽: 채팅창 상세 ─── -->
-    <div class="flex-1 min-w-0">
+    <div v-show="!isMobile || activeRoom" class="flex-1 min-w-0" :class="isMobile ? 'w-full' : ''">
       <!-- 방 선택 전 빈 상태 -->
-      <div v-if="!activeRoom" class="card p-10 text-center">
+      <div v-if="!activeRoom && !isMobile" class="card p-10 text-center">
         <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="message-circle" :size="28" :stroke-width="1.5" /></div>
         <p class="text-sm text-ink-muted">왼쪽에서 채팅방을 선택하세요</p>
       </div>
 
       <!-- 채팅창 -->
-      <div v-else class="card overflow-hidden">
+      <div v-else-if="activeRoom" class="card overflow-hidden">
         <!-- 헤더 -->
         <div class="px-4 py-3 border-b border-gray-50 bg-amber-50 flex items-center justify-between">
           <div>
@@ -110,7 +110,7 @@
               ID: {{ activeRoom.id }} · {{ activeRoom.type }} · 멤버: {{ roomDetail?.members?.length || 0 }}명
             </div>
           </div>
-          <button @click="activeRoom = null; roomDetail = null" class="text-amber-700 hover:text-amber-900 transition-colors"><AppIcon name="x" :size="18" /></button>
+          <button @click="activeRoom = null; roomDetail = null" class="text-amber-700 hover:text-amber-900 transition-colors inline-flex items-center gap-1" :class="isMobile ? 'min-h-[44px] px-3 rounded-xl bg-white text-[14px] font-bold' : ''" aria-label="방 목록으로"><span v-if="isMobile">목록</span><AppIcon name="x" :size="18" /></button>
         </div>
 
         <!-- 탭 바 -->
@@ -370,9 +370,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 관리자 휴대폰 화면이면 방 목록 → 채팅창을 한 화면씩 번갈아 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const rooms = ref([])
 const roomsLoading = ref(true)
