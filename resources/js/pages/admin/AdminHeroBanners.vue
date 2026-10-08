@@ -1,5 +1,57 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <button @click="openForm()" class="w-full min-h-[52px] rounded-2xl bg-amber-500 text-white text-[16px] font-bold">+ 새 배너</button>
+  <div class="space-y-2">
+    <div v-for="b in banners" :key="b.id" class="bg-white border border-gray-100 rounded-2xl p-3 flex items-center gap-3">
+      <button @click="editBanner(b)" class="flex items-center gap-3 min-w-0 flex-1 text-left min-h-[64px]">
+        <span class="shrink-0 w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center" :style="{ backgroundColor: b.bg_color || '#F5A623' }"><img v-if="b.image_url" :src="b.image_url" alt="" loading="lazy" class="w-full h-full object-cover" /><span v-else class="text-white text-[13px] font-bold">{{ b.sort_order }}</span></span>
+        <span class="min-w-0"><span class="block text-[15px] font-bold text-ink truncate">{{ b.title }}</span><span class="block text-[12px] text-ink-muted truncate">{{ b.image_url ? '이미지' : '텍스트' }}<template v-if="b.image_url_en"> · EN 이미지</template><template v-if="b.image_only"> · 이미지 전용</template><template v-if="b.link_type && b.link_type !== 'none'"> · {{ b.link_type }}</template></span></span>
+      </button>
+      <button type="button" role="switch" :aria-checked="!!b.is_active" :aria-label="b.title + ' 활성'" @click="toggleActive(b)" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="b.is_active ? 'bg-emerald-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="b.is_active ? 'left-[26px]' : 'left-[4px]'"></span></button>
+    </div>
+    <div v-if="!banners.length" class="text-center text-ink-muted py-12 text-[15px]">배너가 없어요</div>
+  </div>
+
+  <Teleport to="body">
+    <div v-if="showForm" class="alv-m fixed inset-0 z-[70] bg-black/45 flex items-end" @click.self="resetForm">
+      <div class="w-full bg-white rounded-t-3xl px-4 pt-2 max-h-[92vh] overflow-y-auto" role="dialog" aria-modal="true" :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
+        <div class="text-[17px] font-bold text-ink mb-3">{{ editId ? '히어로 배너 수정' : '새 히어로 배너' }}</div>
+        <div class="space-y-3">
+        <input v-model="form.title" placeholder="제목 (예: 🐛 버그를 잡아라!)" aria-label="제목" class="w-full min-h-[50px] rounded-xl border border-gray-200 px-3" />
+        <input v-model="form.subtitle" placeholder="소제목 (선택)" aria-label="소제목" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">배경 이미지 (한글 / 기본)</div>
+          <input type="file" accept="image/*" @change="onFile" class="block w-full text-[14px]" />
+          <div v-if="pickedFile" class="text-[12px] text-green-600">선택됨: {{ pickedFile.name }}</div>
+          <div v-else-if="form.image_url" class="flex items-center gap-3"><img :src="form.image_url" alt="" class="max-h-20 rounded-lg border border-gray-200" /><button type="button" @click="clearImage" class="min-h-[44px] px-3 text-[13px] font-bold text-red-500">이미지 제거</button></div></div>
+        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">배경 이미지 (영어, 선택)</div>
+          <input type="file" accept="image/*" @change="onFileEn" class="block w-full text-[14px]" />
+          <div v-if="pickedFileEn" class="text-[12px] text-green-600">선택됨: {{ pickedFileEn.name }}</div>
+          <div v-else-if="form.image_url_en" class="flex items-center gap-3"><img :src="form.image_url_en" alt="" class="max-h-20 rounded-lg border border-gray-200" /><button type="button" @click="clearImageEn" class="min-h-[44px] px-3 text-[13px] font-bold text-red-500">이미지 제거</button></div></div>
+        <label class="flex items-center gap-3 min-h-[48px] text-[15px] text-ink"><input v-model="form.image_only" type="checkbox" class="w-6 h-6 accent-amber-500" /><span>이미지 전용 <span class="text-[12px] text-ink-muted">(글자·버튼 끄기)</span></span></label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="block"><span class="block text-[12px] text-ink-muted mb-1">배경색 (이미지 없을 때)</span><input v-model="form.bg_color" placeholder="#F5A623" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
+          <label class="block"><span class="block text-[12px] text-ink-muted mb-1">글자색</span><input v-model="form.text_color" placeholder="#FFFFFF" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
+        </div>
+        <label class="block"><span class="block text-[12px] text-ink-muted mb-1">클릭 링크 타입</span>
+          <select v-model="form.link_type" class="w-full min-h-[48px] rounded-xl border border-gray-200 bg-white px-3"><option value="none">클릭 없음</option><option value="event">이벤트 연결</option><option value="page">페이지 이동</option><option value="url">외부 URL</option></select></label>
+        <input v-if="form.link_type === 'event'" v-model.number="form.event_id" type="number" inputmode="numeric" placeholder="이벤트 ID" aria-label="이벤트 ID" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        <input v-if="form.link_type === 'page'" v-model="form.link_page" placeholder="페이지 경로 (/music, /chat 등)" aria-label="페이지 경로" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        <input v-if="form.link_type === 'url'" v-model="form.link_url" placeholder="https://..." aria-label="외부 URL" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        <label class="block"><span class="block text-[12px] text-ink-muted mb-1">순서</span><input v-model.number="form.sort_order" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
+        <label class="flex items-center gap-3 min-h-[48px] text-[16px] text-ink"><input v-model="form.is_active" type="checkbox" class="w-6 h-6 accent-amber-500" /> 활성화</label>
+          <button @click="saveForm" :disabled="saving" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-50">{{ saving ? '저장 중...' : (editId ? '수정' : '등록') }}</button>
+          <button v-if="editId" @click="mDelete" :disabled="saving" class="w-full min-h-[50px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">삭제</button>
+          <button @click="resetForm" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="image" :size="20" /></span>
     히어로 배너 관리
@@ -136,9 +188,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const banners = ref([])
 const showForm = ref(false)
@@ -156,6 +212,16 @@ const DEFAULT_FORM = {
 }
 
 const form = ref({ ...DEFAULT_FORM })
+
+// 시트가 열려 있는 동안 뒤쪽 화면이 같이 스크롤되지 않게 + 시트 안 삭제
+async function mDelete() {
+  const b = banners.value.find(x => x.id === editId.value)
+  if (!b) return
+  await deleteBanner(b)
+  if (!banners.value.some(x => x.id === b.id)) resetForm()
+}
+watch(() => isMobile.value && showForm.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
+onBeforeUnmount(() => { document.body.style.overflow = '' })
 
 async function load() {
   try { const { data } = await axios.get('/api/admin/hero-banners'); banners.value = data.data || [] } catch {}
@@ -243,3 +309,7 @@ async function deleteBanner(b) {
 
 onMounted(load)
 </script>
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
