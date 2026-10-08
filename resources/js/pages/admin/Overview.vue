@@ -1,5 +1,104 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <div class="bg-white border border-gray-100 rounded-2xl p-3.5"><ContentSyncPanel /></div>
+
+  <div v-if="loading" class="text-center py-12 text-ink-muted text-[15px]">불러오는 중...</div>
+  <template v-else-if="report">
+    <!-- 핵심 숫자 -->
+    <div class="grid grid-cols-2 gap-2">
+      <RouterLink to="/admin/members" class="bg-white border border-gray-100 rounded-2xl p-3.5 active:bg-amber-50">
+        <div class="text-[26px] leading-tight font-black tabular-nums text-amber-600">{{ report.users.total.toLocaleString() }}</div>
+        <div class="text-[13px] text-ink-muted">전체 회원</div>
+        <div class="text-[12px] text-green-600 mt-0.5">오늘 +{{ report.users.new_today }} · 이번주 +{{ report.users.new_week }}</div>
+      </RouterLink>
+      <RouterLink to="/admin/revenue" class="bg-white border border-gray-100 rounded-2xl p-3.5 active:bg-amber-50">
+        <div class="text-[26px] leading-tight font-black tabular-nums text-blue-600">${{ Number(report.payments.total_revenue).toLocaleString() }}</div>
+        <div class="text-[13px] text-ink-muted">누적 매출</div>
+        <div class="text-[12px] text-blue-600 mt-0.5">이달 ${{ Number(report.payments.month_revenue).toLocaleString() }} · 오늘 ${{ Number(report.payments.today_revenue).toLocaleString() }}</div>
+      </RouterLink>
+      <RouterLink to="/admin/banners" class="bg-white border border-gray-100 rounded-2xl p-3.5 active:bg-amber-50">
+        <div class="text-[26px] leading-tight font-black tabular-nums text-purple-600">{{ report.banners.active }}</div>
+        <div class="text-[13px] text-ink-muted">활성 광고</div>
+        <div class="text-[12px] text-orange-600 mt-0.5">대기 {{ report.banners.pending }} · {{ Number(report.banners.total_revenue).toLocaleString() }}P</div>
+      </RouterLink>
+      <RouterLink to="/admin/security" class="bg-white border rounded-2xl p-3.5 active:bg-amber-50" :class="pendingReports > 0 ? 'border-red-200' : 'border-gray-100'">
+        <div class="text-[26px] leading-tight font-black tabular-nums text-red-600">{{ pendingReports }}</div>
+        <div class="text-[13px] text-ink-muted">대기 신고</div>
+        <div class="text-[12px] text-ink-muted mt-0.5">정지 회원 {{ report.users.banned }}</div>
+      </RouterLink>
+    </div>
+
+    <!-- 포인트 이코노미 -->
+    <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="text-[15px] font-bold text-ink mb-2">포인트 이코노미</div>
+      <div class="grid grid-cols-2 gap-2.5">
+        <div class="bg-green-50 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">누적 적립</div><div class="text-[18px] font-bold tabular-nums text-green-600">+{{ Number(report.points.total_issued).toLocaleString() }}</div></div>
+        <div class="bg-red-50 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">누적 소비</div><div class="text-[18px] font-bold tabular-nums text-red-600">-{{ Number(report.points.total_spent).toLocaleString() }}</div></div>
+        <div class="bg-green-50/60 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">오늘 적립</div><div class="text-[18px] font-bold tabular-nums text-green-500">+{{ Number(report.points.today_issued).toLocaleString() }}</div></div>
+        <div class="bg-red-50/60 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">오늘 소비</div><div class="text-[18px] font-bold tabular-nums text-red-500">-{{ Number(report.points.today_spent).toLocaleString() }}</div></div>
+      </div>
+    </div>
+
+    <!-- 게시판별 현황 -->
+    <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="text-[15px] font-bold text-ink mb-2">게시판별 현황 <span class="text-[12px] font-normal text-ink-muted">(눌러서 관리)</span></div>
+      <div class="grid grid-cols-2 gap-2">
+        <RouterLink v-for="b in report.boards" :key="b.slug" :to="`/admin/${b.slug}`" class="border border-gray-100 rounded-xl p-2.5 min-h-[76px] active:bg-amber-50">
+          <div class="flex items-center justify-between"><span class="text-[18px]">{{ b.icon }}</span><span v-if="b.reports > 0" class="bg-red-500 text-white text-[12px] font-bold px-1.5 rounded-full">{{ b.reports }}</span></div>
+          <div class="text-[15px] font-bold text-ink">{{ b.label }}</div>
+          <div class="text-[12px] text-ink-muted">{{ b.total.toLocaleString() }}건 · 오늘 +{{ b.today }}</div>
+        </RouterLink>
+      </div>
+    </div>
+
+    <!-- 최근 결제 -->
+    <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-center justify-between mb-2"><div class="text-[15px] font-bold text-ink">최근 결제/주문</div><RouterLink to="/admin/payments" class="min-h-[44px] inline-flex items-center px-2 text-[14px] font-bold text-amber-600">전체 →</RouterLink></div>
+      <div v-if="!report.recent_payments?.length" class="text-center text-ink-muted text-[14px] py-4">최근 결제 없음</div>
+      <div v-else class="divide-y divide-gray-50">
+        <div v-for="p in report.recent_payments" :key="p.id" class="py-2.5 flex items-center justify-between gap-3">
+          <div class="min-w-0"><div class="text-[14px] font-medium text-ink truncate">#{{ p.id }} · {{ p.user?.name || '-' }}</div><div class="text-[12px] text-ink-faint">{{ p.created_at?.slice(0,16).replace('T',' ') }}</div></div>
+          <div class="shrink-0 text-right"><div class="text-[15px] font-bold text-green-700 tabular-nums">${{ p.amount }}</div><div class="text-[12px] text-ink-muted">+{{ p.points_purchased }}P · {{ p.status }}</div></div>
+        </div>
+      </div>
+      <div class="mt-2 pt-2 border-t border-gray-100 text-[13px] text-ink-muted flex justify-between"><span>완료 {{ report.payments.completed }}</span><span>환불 {{ report.payments.refunded }}</span><span>총 {{ report.payments.total_orders }}건</span></div>
+    </div>
+
+    <!-- 최근 신고 -->
+    <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-center justify-between mb-2"><div class="text-[15px] font-bold text-ink">최근 신고</div><RouterLink to="/admin/security" class="min-h-[44px] inline-flex items-center px-2 text-[14px] font-bold text-amber-600">전체 →</RouterLink></div>
+      <div v-if="!report.recent_reports?.length" class="text-center text-ink-muted text-[14px] py-4">최근 신고 없음</div>
+      <div v-else class="divide-y divide-gray-50">
+        <div v-for="r in report.recent_reports" :key="r.id" class="py-2.5">
+          <div class="flex justify-between gap-2"><span class="text-[14px] font-medium text-ink">{{ r.reporter?.name || '?' }}</span><span class="text-[12px] font-bold px-2 py-0.5 rounded-full" :class="r.status==='pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-ink-light'">{{ r.status }}</span></div>
+          <div class="text-[14px] text-red-600 break-words">{{ r.reason }}</div>
+          <div class="text-[12px] text-ink-faint">{{ r.reportable_type?.split('\\').pop() }} #{{ r.reportable_id }} · {{ r.created_at?.slice(0,10) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOP 작성자 -->
+    <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="text-[15px] font-bold text-ink mb-2">TOP 10 작성자 (커뮤니티)</div>
+      <div v-if="!report.top_posters?.length" class="text-center text-ink-muted text-[14px] py-4">데이터 없음</div>
+      <div v-else class="divide-y divide-gray-50">
+        <div v-for="(u, i) in report.top_posters" :key="u.id" class="py-2 flex items-center gap-3">
+          <span class="w-8 text-[15px] font-black text-amber-600 tabular-nums">#{{ i + 1 }}</span>
+          <div class="min-w-0 flex-1"><div class="text-[14px] font-medium text-ink truncate">{{ u.name }}</div><div class="text-[12px] text-ink-faint truncate">{{ u.email }}</div></div>
+          <span class="shrink-0 text-[13px] font-bold text-blue-600">{{ u.post_count }}개</span>
+        </div>
+      </div>
+    </div>
+  </template>
+  <div v-else class="bg-white border border-gray-100 rounded-2xl p-6 text-center text-ink-muted text-[15px]">
+    데이터를 불러오지 못했어요. 세션이 만료되었을 수 있어요.
+    <button @click="reload" class="mt-3 w-full min-h-[50px] rounded-xl bg-amber-500 text-white text-[16px] font-bold">다시 시도</button>
+  </div>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <div class="flex items-center gap-2.5 mb-4">
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="chart-bar" :size="20" /></span>
@@ -148,10 +247,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import ContentSyncPanel from '../../components/ContentSyncPanel.vue'
+
+// 관리자 휴대폰 화면이면 카드로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const report = ref(null)
 const loading = ref(true)
