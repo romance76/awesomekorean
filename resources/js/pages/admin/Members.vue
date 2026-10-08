@@ -1,5 +1,6 @@
 <template>
-<div>
+<AdminMembersMobile v-if="adminIsMobile" />
+<div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="users" :size="20" /></span>
     회원관리
@@ -465,11 +466,14 @@
 </div>
 </template>
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
+import AdminMembersMobile from './AdminMembersMobile.vue'
+
+const adminIsMobile = inject('adminIsMobile', ref(false))
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -671,5 +675,5 @@ async function unbanCurrentUser() {
   } catch {}
 }
 
-onMounted(() => loadUsers())
+onMounted(() => { if (!adminIsMobile?.value) loadUsers() })
 </script>
