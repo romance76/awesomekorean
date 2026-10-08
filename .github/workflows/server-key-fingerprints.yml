@@ -1,0 +1,32 @@
+name: Server API key fingerprints (read-only)
+
+# 서버가 쓰는 외부 API 키가 구글 콘솔의 어느 키인지 맞춰 보기 위해 "이름 + 끝 4자리 + 길이"만 출력하는 읽기 전용 점검.
+# (키 전체는 출력하지 않음. 이 파일을 main 에 올릴 때 1회 자동 실행, 서버 설정은 바꾸지 않음)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-key-fingerprints.yml' ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Print key fingerprints (last 4 chars only)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            cd /var/www/awesomekorean
+            echo "== .env 의 구글/유튜브 키 (이름: 끝4자리 / 길이) =="
+            grep -E '^(GOOGLE|YOUTUBE|VITE_GOOGLE|VITE_YOUTUBE)[A-Z_]*(KEY|API)[A-Z_]*=' .env | while IFS='=' read -r k v; do
+              v=$(echo "$v" | tr -d '"'"'"' \r'); n=${#v}
+              if [ "$n" -gt 0 ]; then echo "$k: ...${v: -4} / ${n}자"; else echo "$k: (비어 있음)"; fi
+            done
+            echo "== 관리자 'API 키 관리'(DB) 의 키 (서비스: 끝4자리 / 길이 / 활성) =="
+            sudo -u www-data /usr/bin/php8.2 artisan tinker --execute='foreach (\App\Models\ApiKey::orderBy("service")->get() as $r) { $v = (string) $r->api_key; if (strpos($v, "AIza") !== 0) { continue; } echo $r->service . ": ..." . substr($v, -4) . " / " . strlen($v) . "자 / active=" . (int) $r->is_active . PHP_EOL; }' 2>&1 | head -30
