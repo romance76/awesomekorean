@@ -19,6 +19,7 @@ import axios from 'axios'
 import { useAuthStore } from '../stores/auth'
 import { useSiteStore } from '../stores/site'
 import AppIcon from './AppIcon.vue'
+import { checkinVisible } from '../utils/floatPrompts'
 
 const auth = useAuthStore()
 const site = useSiteStore()
@@ -73,6 +74,8 @@ function dismiss() {
 function onVisible() { if (!document.hidden) refresh() }
 onMounted(() => document.addEventListener('visibilitychange', onVisible))
 onBeforeUnmount(() => document.removeEventListener('visibilitychange', onVisible))
+watch(show, v => { checkinVisible.value = v }, { immediate: true })
+onBeforeUnmount(() => { checkinVisible.value = false })
 watch(() => auth.user?.id, refresh, { immediate: true })
 </script>
 <style scoped>
