@@ -315,7 +315,7 @@ const mBack = computed(() => {
 })
 // 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
 // (회원관리·게시판 관리처럼 이미 휴대폰용으로 만든 화면은 확대하지 않음)
-const MOBILE_NATIVE = ['/admin/members', '/admin/community', '/admin/jobs', '/admin/market', '/admin/realestate', '/admin/clubs', '/admin/qa', '/admin/events', '/admin/directory', '/admin/friends', '/admin/todos', '/admin/payments', '/admin/security', '/admin/banners', '/admin/flyers', '/admin/ad-center', '/admin/pricing', '/admin/revenue', '/admin/analytics', '/admin/overview', '/admin/open-event', '/admin/entry-settings', '/admin/system', '/admin/sweepstakes', '/admin/hero-banners', '/admin/popup-banners', '/admin/settings']
+const MOBILE_NATIVE = ['/admin/members', '/admin/community', '/admin/jobs', '/admin/market', '/admin/realestate', '/admin/clubs', '/admin/qa', '/admin/events', '/admin/directory', '/admin/friends', '/admin/todos', '/admin/payments', '/admin/security', '/admin/banners', '/admin/flyers', '/admin/ad-center', '/admin/pricing', '/admin/revenue', '/admin/analytics', '/admin/overview', '/admin/open-event', '/admin/entry-settings', '/admin/system', '/admin/sweepstakes', '/admin/hero-banners', '/admin/popup-banners', '/admin/settings', '/admin/claims', '/admin/rewards', '/admin/info']
 const mLegacy = computed(() => route.path !== '/admin' && !isHub.value && !MOBILE_NATIVE.includes(route.path))
 
 function isMainActive(item) {
@@ -326,4 +326,11 @@ function isMainActive(item) {
 <style>
 /* 휴대폰 화면에서 아직 다시 만들지 않은 관리자 화면: 전체를 살짝 키워서 읽기 쉽게 */
 .admin-legacy-zoom { zoom: 1.12; }
+/* 아직 휴대폰용으로 새로 만들지 않은 화면을 위한 공통 보정: 입력칸 글자 16px(iOS 확대 방지), 표는 옆으로 밀어 보기, 모달은 화면 폭 안에 */
+.admin-legacy-zoom input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=color]),
+.admin-legacy-zoom select,
+.admin-legacy-zoom textarea { font-size: 16px; }
+.admin-legacy-zoom table { display: block; max-width: 100%; overflow-x: auto; }
+.admin-legacy-zoom .fixed.inset-0 > div { max-width: calc(100vw - 24px); }
+.admin-legacy-zoom button:not([class*="w-"]):not([class*="h-"]) { min-height: 36px; }
 </style>
