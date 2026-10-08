@@ -175,6 +175,13 @@ class AuthController extends Controller
                 if ($oldUser && \App\Support\TokenFreshness::isStaleIat($oldUser, (int) $old->get('iat'))) {
                     return response()->json(['success' => false, 'message' => '비밀번호가 변경되어 다시 로그인해 주세요.'], 401);
                 }
+                // 갱신 가능 기간: 운영자는 길게(jwt.staff_refresh_ttl), 일반 회원은 예전처럼 30일(jwt.member_refresh_ttl).
+                // 라이브러리 쪽 한도는 둘 중 긴 쪽이라, 일반 회원 한도는 여기서 직접 확인한다.
+                $isStaff = $oldUser && in_array($oldUser->role, ['admin', 'super_admin', 'moderator'], true);
+                $memberLimit = (int) config('jwt.member_refresh_ttl') * 60;
+                if (!$isStaff && $memberLimit > 0 && time() > (int) $old->get('iat') + $memberLimit) {
+                    return response()->json(['success' => false, 'message' => '세션이 만료되었어요. 다시 로그인해 주세요.'], 401);
+                }
             } catch (\Throwable $e) {}
             $new = JWTAuth::refresh();
             $user = JWTAuth::setToken($new)->toUser();
