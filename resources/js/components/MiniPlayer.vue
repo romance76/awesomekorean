@@ -187,7 +187,7 @@ function minimize() { isExpanded.value = false; updateYTPosition() }
 function shutdown() {
   try { ytPlayer?.stopVideo() } catch {}
   try { ytPlayer?.destroy() } catch {}
-  ytPlayer = null; currentVideoId = null
+  ytPlayer = null; currentVideoId = null; preparing = false; pendingVideo = null
   music.stop(); isExpanded.value = false; isShutdown.value = true
   updateYTPosition()
 }
@@ -261,18 +261,68 @@ async function createPlayer(videoId, startAt = 0) {
     playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, playsinline: 1 },
     events: {
       onReady: (e) => { e.target.setVolume(volume.value); if (startAt > 0) e.target.seekTo(startAt, true); e.target.playVideo(); currentVideoId = videoId; music.isPlaying = true; startProgressTimer(); nextTick(updateYTPosition) },
-      onStateChange: (e) => {
-        if (e.data === window.YT.PlayerState.ENDED) { music.next(); nextTick(() => { if (music.currentTrack?.youtubeId) loadVideo(music.currentTrack.youtubeId) }) }
-        if (e.data === window.YT.PlayerState.PLAYING) music.isPlaying = true
-        if (e.data === window.YT.PlayerState.PAUSED) music.isPlaying = false
-      },
+      onStateChange: onPlayerStateChange,
       onError: () => setTimeout(() => music.next(), 1000)
     }
   })
 }
 
+function onPlayerStateChange(e) {
+  if (e.data === window.YT.PlayerState.ENDED) { music.next(); nextTick(() => { if (music.currentTrack?.youtubeId) loadVideo(music.currentTrack.youtubeId) }) }
+  if (e.data === window.YT.PlayerState.PLAYING) {
+    music.isPlaying = true
+    // 자동재생 차단 대비로 음소거 상태에서 시작했다면 재생이 시작된 뒤 소리 복구
+    if (mutedFallback) { mutedFallback = false; setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(volume.value) } catch {} }, 300) }
+  }
+  if (e.data === window.YT.PlayerState.PAUSED) music.isPlaying = false
+}
+
+// 모바일: 사용자가 곡을 누르는 순간 바로 loadVideoById 를 호출할 수 있도록 빈 플레이어를 미리 만들어 둠
+// (곡 클릭 후에 플레이어를 새로 만들면 모바일 자동재생 정책에 막혀 재생 버튼을 따로 눌러야 했음)
+let mutedFallback = false
+let pendingVideo = null
+let preparing = false
+async function prepareEmptyPlayer() {
+  if (preparing) return
+  preparing = true
+  if (ytPlayer) return
+  await loadYTApi()
+  if (ytPlayer) return
+  const el = document.getElementById('yt-mini-player')
+  if (!el) { setTimeout(prepareEmptyPlayer, 500); return }
+  ytPlayer = new window.YT.Player('yt-mini-player', {
+    width: '100%', height: '100%',
+    playerVars: { controls: 1, modestbranding: 1, rel: 0, playsinline: 1 },
+    events: {
+      onReady: (e) => {
+        try { e.target.setVolume(volume.value) } catch {}
+        startProgressTimer(); nextTick(updateYTPosition)
+        preparing = false
+        if (pendingVideo) { const p = pendingVideo; pendingVideo = null; loadVideo(p.videoId, p.startAt) }
+      },
+      onStateChange: onPlayerStateChange,
+      onError: () => setTimeout(() => music.next(), 1000)
+    }
+  })
+}
+
+// 로드 후 2초 안에 재생이 시작되지 않으면(자동재생 차단) 음소거로 재시도 후 소리 복구
+function ensureStarted() {
+  setTimeout(() => {
+    try {
+      if (userPaused || !music.hasTrack || !ytPlayer?.getPlayerState) return
+      const s = ytPlayer.getPlayerState()
+      if (s === 1 || s === 3) return
+      mutedFallback = true
+      ytPlayer.mute(); ytPlayer.playVideo()
+    } catch {}
+  }, 2000)
+}
+
 function loadVideo(videoId, startAt = 0) {
-  try { if (ytPlayer?.loadVideoById && ytPlayer?.getPlayerState) { ytPlayer.loadVideoById({ videoId, startSeconds: startAt }); currentVideoId = videoId; return } } catch {}
+  try { if (ytPlayer?.loadVideoById && ytPlayer?.getPlayerState) { ytPlayer.loadVideoById({ videoId, startSeconds: startAt }); currentVideoId = videoId; if (isMobile.value) ensureStarted(); return } } catch {}
+  // 미리 만든 플레이어가 아직 준비 중이면 준비 완료 후 재생 (파괴·재생성 금지)
+  if (preparing) { pendingVideo = { videoId, startAt }; return }
   createPlayer(videoId, startAt)
 }
 
@@ -295,6 +345,7 @@ watch(() => music.currentTrack?.youtubeId, (vid) => {
 watch(isMusicPage, (isMp) => {
   if (isMp && !isShutdown.value && !isMobile.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop(); nextTick(updateYTPosition) }
 })
+watch(isMusicPage, (isMp) => { if (isMp && isMobile.value && !ytPlayer && !isShutdown.value) prepareEmptyPlayer() })
 watch(isMusicPage, (isMp, wasMp) => {
   if (!isMp && wasMp) { isExpanded.value = false; updateYTPosition() }
 })
@@ -314,6 +365,7 @@ onMounted(() => {
   if (music.currentTrack?.youtubeId) { if (!isMobile.value) isExpanded.value = true; nextTick(() => createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)) }
   document.addEventListener('visibilitychange', onVisibilityChange)
   setupMediaSessionHandlers()
+  if (isMobile.value && isMusicPage.value && !music.currentTrack?.youtubeId) prepareEmptyPlayer()
 })
 watch(() => music.isPlaying, (p) => { if (p) acquireWakeLock(); else releaseWakeLock() })
 watch(() => music.hasTrack, (h) => { if (!h) releaseWakeLock() })
