@@ -1,5 +1,187 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3">
+  <!-- 대분류 (구인/구직, 렌트/매매 등) -->
+  <div v-if="majorTypes.length" class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="분류">
+    <button @click="setMajorType('')" :aria-pressed="!activeMajorType"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+      :class="!activeMajorType ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">전체 ({{ overview.total || 0 }})</button>
+    <button v-for="mt in majorTypes" :key="mt.key" @click="setMajorType(mt.key)" :aria-pressed="activeMajorType === mt.key"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+      :class="activeMajorType === mt.key ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ mt.label }} ({{ mt.count }})</button>
+  </div>
+
+  <!-- 요약 -->
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+    <div class="shrink-0 min-w-[92px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">전체 글</div><div class="text-[20px] font-black tabular-nums text-ink">{{ (overview.total || 0).toLocaleString() }}</div></div>
+    <div class="shrink-0 min-w-[92px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">오늘</div><div class="text-[20px] font-black tabular-nums text-blue-600">{{ overview.today || 0 }}</div></div>
+    <div class="shrink-0 min-w-[92px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">이번 주</div><div class="text-[20px] font-black tabular-nums text-green-600">{{ overview.week || 0 }}</div></div>
+    <button @click="activeTab = 'rep'" class="shrink-0 min-w-[92px] text-left bg-white border rounded-2xl px-3 py-2.5 active:bg-red-50" :class="(overview.pending_reports || 0) > 0 ? 'border-red-200' : 'border-gray-100'"><div class="text-[12px] text-ink-muted">신고 대기</div><div class="text-[20px] font-black tabular-nums text-red-600">{{ overview.pending_reports || 0 }}</div></button>
+    <button @click="activeTab = 'ban'" class="shrink-0 min-w-[92px] text-left bg-white border border-gray-100 rounded-2xl px-3 py-2.5 active:bg-purple-50"><div class="text-[12px] text-ink-muted">광고 활성</div><div class="text-[20px] font-black tabular-nums text-purple-600">{{ overview.active_banners || 0 }}</div></button>
+  </div>
+
+  <!-- 탭 -->
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="tablist" aria-label="관리 메뉴">
+    <button v-for="t in tabs" :key="t.key" @click="activeTab = t.key" role="tab" :aria-selected="activeTab === t.key"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px] flex items-center gap-1.5"
+      :class="activeTab === t.key ? 'bg-amber-500 text-white border-amber-500 font-bold' : 'bg-white text-ink border-gray-200 font-medium'">
+      {{ t.label }}
+      <span v-if="t.badge" class="min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[12px] font-bold grid place-items-center">{{ t.badge }}</span>
+    </button>
+  </div>
+
+  <!-- 게시글 -->
+  <AdminListView v-if="activeTab === 'posts'" :icon="icon" :title="''" :api-url="apiUrl" :delete-url="deleteUrl || apiUrl"
+    :extra-cols="extraCols" :board-slug="slug"
+    :categories="categories" :uses-table="usesTable"
+    :category-filter="postCategoryFilter" :category-filter-label="postCategoryFilterLabel"
+    :major-type="activeMajorType"
+    @open-user="u => $emit('openUser', u)"
+    @clear-filter="postCategoryFilter = null; postCategoryFilterLabel = ''"
+    @set-category-filter="onSetCategoryFilter" />
+
+  <!-- 카테고리 -->
+  <div v-else-if="activeTab === 'cat'" class="space-y-3">
+    <div class="text-[14px] text-ink-muted">
+      <template v-if="activeMajorType"><strong class="text-amber-700">{{ activeMajorTypeLabel }}</strong> 카테고리</template>
+      <template v-else>{{ label }} 전용 카테고리</template>
+    </div>
+    <div v-if="majorTypes.length && !activeMajorType" class="bg-orange-50 border border-orange-200 rounded-xl p-3 text-[14px] text-orange-800">
+      💡 이 게시판은 대분류별로 카테고리가 나뉘어 있어요. 위에서 {{ majorTypes.map(m => m.label).join(' / ') }} 중 하나를 먼저 고르세요.
+    </div>
+    <div v-if="hasAutoDetected" class="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-3 text-[14px]">
+      💡 기존 글에서 자동으로 찾은 카테고리예요. 이름을 한글로 고치고 <strong>저장</strong>을 누르면 확정돼요.
+    </div>
+    <div v-if="categories.length === 0" class="text-center text-ink-muted py-8 text-[15px]">카테고리가 없어요. 아래 "카테고리 추가"를 눌러 주세요.</div>
+    <div v-for="(c, i) in categories" :key="i" class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-2.5">
+      <div class="flex gap-2">
+        <input v-model="c.icon" placeholder="🏷" aria-label="아이콘" class="w-16 min-h-[48px] rounded-xl border border-gray-200 text-center px-2" />
+        <input v-model="c.name" placeholder="이름" aria-label="이름" class="flex-1 min-w-0 min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      </div>
+      <input v-model="c.slug" placeholder="slug (영문 주소)" aria-label="slug" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <label class="flex items-center gap-2 min-h-[44px] text-[15px] text-ink"><input type="checkbox" v-model="c.is_active" class="w-6 h-6 accent-amber-500" /> 사용</label>
+        <label v-if="hasAutoFetch" class="flex items-center gap-2 min-h-[44px] text-[15px] text-ink"><input type="checkbox" v-model="c.auto_fetch" class="w-6 h-6 accent-amber-500" /> 자동수집</label>
+        <span v-if="c.post_count" class="text-[13px] bg-gray-100 text-ink-light px-2 py-1 rounded-full font-semibold">{{ c.post_count }}개</span>
+        <span v-if="c.auto_detected" class="text-[13px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">자동감지</span>
+      </div>
+      <input v-if="hasAutoFetch && c.auto_fetch" v-model="c.channel_url" placeholder="채널 URL (선택)" aria-label="채널 URL" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      <div class="grid grid-cols-2 gap-2">
+        <button @click="viewCategoryPosts(c)" class="min-h-[48px] rounded-xl bg-amber-50 text-amber-700 text-[15px] font-bold">게시글 보기</button>
+        <button @click="removeCategoryMobile(i)" class="min-h-[48px] rounded-xl bg-red-50 text-red-600 text-[15px] font-bold">목록에서 빼기</button>
+      </div>
+    </div>
+    <button @click="addCategory" class="w-full min-h-[52px] rounded-2xl border-2 border-dashed border-gray-300 text-[16px] font-bold text-ink-light">+ 카테고리 추가</button>
+    <div class="sticky z-10 -mx-3.5 px-3.5 pt-2 pb-2 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent" :style="{ bottom: 'calc(66px + env(safe-area-inset-bottom, 0px))' }">
+      <button @click="saveCategories" class="w-full min-h-[52px] rounded-2xl bg-amber-500 text-white text-[16px] font-bold shadow-lg">카테고리 저장</button>
+    </div>
+  </div>
+
+  <!-- 부모가 넣는 추가 탭 (예: 공동구매 승인) -->
+  <div v-else-if="isCustomTab(activeTab)" class="overflow-x-auto">
+    <slot :name="`tab-${activeTab}`"></slot>
+  </div>
+
+  <!-- 설정 -->
+  <div v-else-if="activeTab === 'set'" class="space-y-2.5">
+    <div class="text-[14px] text-ink-muted">이 게시판만의 기본 설정이에요.</div>
+    <div v-for="(def, key) in settingSchema" :key="key" class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
+      <div class="flex items-center gap-3 min-h-[44px]">
+        <div class="flex-1 min-w-0">
+          <div class="text-[16px] font-bold text-ink leading-snug">{{ def.label }}</div>
+        </div>
+        <button v-if="def.type === 'bool'" type="button" role="switch" :aria-checked="!!settingValues[key]" :aria-label="def.label"
+          @click="settingValues[key] = !settingValues[key]"
+          class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="settingValues[key] ? 'bg-emerald-500' : 'bg-gray-300'">
+          <span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="settingValues[key] ? 'left-[26px]' : 'left-[4px]'"></span>
+        </button>
+      </div>
+      <select v-if="def.type === 'select'" v-model="settingValues[key]" class="mt-2 w-full min-h-[48px] rounded-xl border border-gray-200 px-3 bg-white">
+        <option v-for="o in def.options" :key="o.value" :value="o.value">{{ o.label }}</option>
+      </select>
+      <input v-else-if="def.type === 'number'" type="number" inputmode="numeric" v-model.number="settingValues[key]" class="mt-2 w-full min-h-[48px] rounded-xl border border-gray-200 px-3 tabular-nums" />
+      <input v-else-if="def.type !== 'bool'" type="text" v-model="settingValues[key]" class="mt-2 w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+    </div>
+    <div class="sticky z-10 -mx-3.5 px-3.5 pt-2 pb-2 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent" :style="{ bottom: 'calc(66px + env(safe-area-inset-bottom, 0px))' }">
+      <button @click="saveSettings" class="w-full min-h-[52px] rounded-2xl bg-amber-500 text-white text-[16px] font-bold shadow-lg">설정 저장</button>
+    </div>
+  </div>
+
+  <!-- 포인트 -->
+  <div v-else-if="activeTab === 'point'" class="space-y-2.5">
+    <div class="text-[14px] text-ink-muted">💡 {{ label }} 전용 포인트 규칙이에요. 전체 포인트는 [시스템 › 포인트 설정]에서 바꿔요.</div>
+    <div v-for="(def, key) in pointSchema" :key="key" class="border rounded-2xl p-3.5" :class="def.is_deduction ? 'bg-red-50 border-red-100' : 'bg-white border-gray-100'">
+      <div class="text-[16px] font-bold text-ink">{{ def.label }}</div>
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <label class="block"><span class="block text-[13px] text-ink-muted mb-1">포인트 (P)</span>
+          <input type="number" inputmode="numeric" v-model.number="pointValues[key]" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 bg-white tabular-nums" /></label>
+        <label class="block"><span class="block text-[13px] text-ink-muted mb-1">하루 한도</span>
+          <input type="number" inputmode="numeric" v-model.number="pointValues[key + '_daily_max']" placeholder="-" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 bg-white tabular-nums" /></label>
+      </div>
+    </div>
+    <div class="sticky z-10 -mx-3.5 px-3.5 pt-2 pb-2 bg-gradient-to-t from-[#F3F4F6] via-[#F3F4F6] to-transparent" :style="{ bottom: 'calc(66px + env(safe-area-inset-bottom, 0px))' }">
+      <button @click="savePoints" class="w-full min-h-[52px] rounded-2xl bg-amber-500 text-white text-[16px] font-bold shadow-lg">포인트 규칙 저장</button>
+    </div>
+  </div>
+
+  <!-- 배너/광고 -->
+  <div v-else-if="activeTab === 'ban'" class="space-y-2.5">
+    <div class="flex items-center justify-between gap-2">
+      <div class="text-[14px] text-ink-muted min-w-0">이 게시판({{ slug }})에 나오는 광고</div>
+      <router-link to="/admin/banners" class="shrink-0 min-h-[44px] px-3 inline-flex items-center text-[14px] font-bold text-blue-600">전체 광고 →</router-link>
+    </div>
+    <div v-if="bannerStats" class="flex gap-2 overflow-x-auto scrollbar-hide">
+      <div class="shrink-0 min-w-[78px] bg-white border border-gray-100 rounded-2xl px-3 py-2"><div class="text-[12px] text-ink-muted">전체</div><div class="font-black text-ink tabular-nums">{{ bannerStats.total }}</div></div>
+      <div class="shrink-0 min-w-[78px] bg-white border border-gray-100 rounded-2xl px-3 py-2"><div class="text-[12px] text-ink-muted">활성</div><div class="font-black text-green-700 tabular-nums">{{ bannerStats.active }}</div></div>
+      <div class="shrink-0 min-w-[78px] bg-white border border-gray-100 rounded-2xl px-3 py-2"><div class="text-[12px] text-ink-muted">대기</div><div class="font-black text-yellow-700 tabular-nums">{{ bannerStats.pending }}</div></div>
+      <div class="shrink-0 min-w-[78px] bg-white border border-gray-100 rounded-2xl px-3 py-2"><div class="text-[12px] text-ink-muted">노출</div><div class="font-black text-blue-700 tabular-nums">{{ bannerStats.total_impressions }}</div></div>
+      <div class="shrink-0 min-w-[78px] bg-white border border-gray-100 rounded-2xl px-3 py-2"><div class="text-[12px] text-ink-muted">매출(P)</div><div class="font-black text-purple-700 tabular-nums">{{ bannerStats.total_revenue }}</div></div>
+    </div>
+    <div v-if="banners.length === 0" class="text-center text-ink-muted py-10 text-[15px]">이 게시판에 등록된 광고가 없어요.</div>
+    <div v-for="b in banners" :key="b.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-start gap-2">
+        <div class="flex-1 min-w-0">
+          <div class="text-[16px] font-bold text-ink break-words">{{ b.title }}</div>
+          <button @click="$emit('openUser', b.user)" class="text-[14px] text-blue-600 min-h-[32px]">{{ b.user?.name || '-' }}</button>
+        </div>
+        <span class="shrink-0 text-[12px] px-2 py-1 rounded-full font-bold" :class="statusClass(b.status)">{{ b.status }}</span>
+      </div>
+      <div class="text-[13px] text-ink-muted mt-1 space-y-0.5">
+        <div>위치 {{ b.position }}<template v-if="b.slot_number"> · 슬롯 S{{ b.slot_number }}</template></div>
+        <div>{{ b.start_date }} ~ {{ b.end_date }}</div>
+        <div>노출 {{ b.impressions }} · 클릭 {{ b.clicks }} · 비용 {{ b.total_cost }}P</div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <button v-if="b.status === 'pending'" @click="approveBanner(b)" class="min-h-[48px] rounded-xl bg-emerald-500 text-white text-[15px] font-bold">승인</button>
+        <button v-if="b.status === 'pending'" @click="rejectBanner(b)" class="min-h-[48px] rounded-xl bg-red-50 text-red-600 text-[15px] font-bold">거절</button>
+        <button v-if="b.status === 'active'" @click="pauseBanner(b)" class="min-h-[48px] rounded-xl bg-orange-50 text-orange-700 text-[15px] font-bold">일시정지</button>
+        <button @click="deleteBanner(b)" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 신고 -->
+  <div v-else-if="activeTab === 'rep'" class="space-y-2.5">
+    <div class="text-[14px] text-ink-muted">이 게시판에 들어온 신고 (처리 대기)</div>
+    <div v-if="reports.length === 0" class="text-center text-ink-muted py-10 text-[15px]">신고가 없어요 👍</div>
+    <div v-for="r in reports" :key="r.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-center gap-2 text-[13px] text-ink-muted">
+        <span class="font-bold text-ink">#{{ r.reportable_id }}</span>
+        <span>{{ (r.created_at || '').slice(0, 10) }}</span>
+        <span class="ml-auto bg-gray-100 text-ink-light px-2 py-0.5 rounded-full text-[12px] font-bold">{{ r.status }}</span>
+      </div>
+      <div class="text-[15px] text-red-600 font-bold mt-1 break-words">{{ r.reason }}</div>
+      <button @click="$emit('openUser', r.reporter)" class="text-[14px] text-blue-600 min-h-[36px]">신고자 {{ r.reporter?.name || '-' }}</button>
+      <div class="grid grid-cols-2 gap-2 mt-2">
+        <button @click="updateReport(r, 'resolved')" class="min-h-[48px] rounded-xl bg-emerald-500 text-white text-[15px] font-bold">해결</button>
+        <button @click="updateReport(r, 'rejected')" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">기각</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <!-- 헤더 -->
   <div class="mb-4 flex items-start justify-between">
     <div>
@@ -274,7 +456,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, inject } from 'vue'
 import axios from 'axios'
 import AdminListView from './AdminListView.vue'
 import AppIcon from './AppIcon.vue'
@@ -293,6 +475,10 @@ const props = defineProps({
   customTabs: { type: Array, default: () => [] },
 })
 defineEmits(['openUser'])
+
+// 관리자 휴대폰 화면이면 카드/칩 형태로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const activeTab = ref('posts')
 const tabs = computed(() => {
@@ -383,6 +569,11 @@ const hasAutoDetected = computed(() => categories.value.some(c => c.auto_detecte
 const hasAutoFetch = computed(() => props.slug === 'music' && usesTable.value)
 function addCategory() { categories.value.push({ name: '', slug: '', icon: '🏷', is_active: true, auto_fetch: true, channel_url: '' }) }
 function removeCategory(i) { categories.value.splice(i, 1) }
+function removeCategoryMobile(i) {
+  const c = categories.value[i]
+  if (!confirm(`'${c?.name || '이름 없음'}' 카테고리를 목록에서 뺄까요?\n(아래 '저장'을 눌러야 실제로 반영돼요)`)) return
+  removeCategory(i)
+}
 async function saveCategories() {
   try {
     const payload = { categories: categories.value }

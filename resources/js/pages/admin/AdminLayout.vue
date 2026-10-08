@@ -314,7 +314,9 @@ const mBack = computed(() => {
   return currentGroup.value === 'main' ? '/admin' : `/admin/menu/${currentGroup.value}`
 })
 // 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
-const mLegacy = computed(() => route.path !== '/admin' && !isHub.value && route.path !== '/admin/members')
+// (회원관리·게시판 관리처럼 이미 휴대폰용으로 만든 화면은 확대하지 않음)
+const MOBILE_NATIVE = ['/admin/members', '/admin/community', '/admin/jobs', '/admin/market', '/admin/realestate', '/admin/clubs', '/admin/qa', '/admin/events', '/admin/directory', '/admin/friends']
+const mLegacy = computed(() => route.path !== '/admin' && !isHub.value && !MOBILE_NATIVE.includes(route.path))
 
 function isMainActive(item) {
   if (item.to === '/admin' && item.group === 'main') return route.path === '/admin'
