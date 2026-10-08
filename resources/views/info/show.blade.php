@@ -163,5 +163,6 @@
             </style>
         </div>
     </div>
+    @include('info._footer')
 </body>
 </html>

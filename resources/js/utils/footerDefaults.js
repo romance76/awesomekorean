@@ -15,7 +15,7 @@ export const DEFAULT_FOOTER = {
       { label: '게임', url: '/games' }, { label: '음악', url: '/music' },
     ] },
     { title: '안내', links: [
-      { label: '소개', url: '/about' }, { label: '이용약관', url: '/terms' }, { label: '개인정보처리방침', url: '/privacy' },
+      { label: '소개', url: '/about' }, { label: '문의하기', url: '/contact' }, { label: '이용약관', url: '/terms' }, { label: '개인정보처리방침', url: '/privacy' },
     ] },
   ],
   copyright: '© 2026 AwesomeKorean. All rights reserved.',
