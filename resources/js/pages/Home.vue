@@ -263,7 +263,7 @@
   <!-- ═════ 5. 광고 슬롯 (광고 없으면 섹션 자체를 렌더링하지 않아 빈 여백이 안 남게 함) ═════ -->
   <section v-if="hasHomeAds" class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="lg:col-span-2"><AdSlot page="home" position="left" :maxSlots="3" /></div>
-    <div><AdSlot page="home" position="right" :maxSlots="2" /></div>
+    <div><AdSlot page="home" position="right" :maxSlots="2" :top-gap="false" /></div>
     <div class="lg:hidden"><MobileBanner page="home" /></div>
   </section>
 
