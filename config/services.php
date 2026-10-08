@@ -72,6 +72,10 @@ return [
         'client_secret' => env('EBAY_CLIENT_SECRET'),
     ],
 
+    // 뉴스 AI 해설: 하루 최대 처리 건수(애틀랜타 날짜 기준). 부담되면 .env 의 NEWS_AI_DAILY_CAP 으로 조절
+    'news_ai' => [
+        'daily_cap' => env('NEWS_AI_DAILY_CAP', 120),
+    ],
     'info_ingest' => [
         'token' => env('INFO_INGEST_TOKEN'),
     ],
