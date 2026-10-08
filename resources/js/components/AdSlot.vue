@@ -28,6 +28,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useBannerStore } from '../stores/banners'
 import { useAdGuideStore } from '../stores/adGuide'
 import AdGuideBox from './AdGuideBox.vue'
+import { adSize } from '../utils/adSizes'
 import axios from 'axios'
 
 const props = defineProps({
@@ -42,8 +43,8 @@ const guide = useAdGuideStore()
 const ads = ref([])
 
 const imgStyle = computed(() => {
-  if (props.position === 'left') return { width: '100%', maxWidth: '200px', aspectRatio: '200 / 140', objectFit: 'cover', display: 'block', margin: '0 auto' }
-  if (props.position === 'right') return { width: '100%', maxWidth: '300px', aspectRatio: '300 / 210', objectFit: 'cover', display: 'block', margin: '0 auto' }
+  if (props.position === 'left') return { width: '100%', maxWidth: '200px', aspectRatio: adSize('left').ratio, objectFit: 'cover', display: 'block', margin: '0 auto' }
+  if (props.position === 'right') return { width: '100%', maxWidth: '300px', aspectRatio: adSize('right').ratio, objectFit: 'cover', display: 'block', margin: '0 auto' }
   return { width: '100%', height: '80px', objectFit: 'cover', display: 'block', borderRadius: '8px' }
 })
 
@@ -51,15 +52,15 @@ const imgStyle = computed(() => {
 const guideSlots = computed(() => {
   const left = props.position === 'left'
   const letter = left ? 'A' : 'B'
-  const size = left ? '200×140' : '300×210'
-  const ratio = left ? '200 / 140' : '300 / 210'
+  const sz = adSize(props.position)
+  const ratio = sz.ratio
   const maxWidth = left ? '200px' : '300px'
   const all = [
     { name: `프리미엄 ${letter}`, icon: '🥇', tone: 'premium', price: guide.priceOf(`${props.position}_premium`), used: ads.value.some(a => a.slot_number === 1) },
     { name: `스탠다드 ${letter}`, icon: '🥈', tone: 'standard', price: guide.priceOf(`${props.position}_standard`), used: ads.value.some(a => a.slot_number === 2) },
   ]
   return all.slice(0, Math.max(1, Math.min(props.maxSlots, 2)))
-    .map(s => ({ ...s, sizeLabel: `고정 독점 · ${size}`, ratio, maxWidth }))
+    .map(s => ({ ...s, sizeLabel: `고정 독점 · 이미지 ${sz.w}×${sz.h} 권장`, ratio, maxWidth }))
 })
 
 async function loadAds() {

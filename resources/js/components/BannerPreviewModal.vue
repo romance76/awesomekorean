@@ -43,11 +43,11 @@
             <div class="ad-stack">
               <div class="ad-stack-label">📢 좌측 광고 (위젯 아래, 나란히)</div>
               <div class="slot slot-premium" @click="selectSlot('left-1')" :class="{highlight: highlighted==='left-1'}">
-                <div class="slot-tag">🥇 프리미엄 A · 200×150</div>
+                <div class="slot-tag">🥇 프리미엄 A · 200×140</div>
                 <div class="slot-size">고정 독점 · 8,000P</div>
               </div>
               <div class="slot slot-standard" @click="selectSlot('left-2')" :class="{highlight: highlighted==='left-2'}">
-                <div class="slot-tag">🥈 스탠다드 A · 200×150</div>
+                <div class="slot-tag">🥈 스탠다드 A · 200×140</div>
                 <div class="slot-size">고정 독점 · 5,000P</div>
               </div>
             </div>
@@ -67,11 +67,11 @@
             <div class="ad-stack">
               <div class="ad-stack-label">📢 우측 광고 (위젯 아래, 나란히)</div>
               <div class="slot slot-premium" @click="selectSlot('right-1')" :class="{highlight: highlighted==='right-1'}">
-                <div class="slot-tag">🥇 프리미엄 B · 300×250</div>
+                <div class="slot-tag">🥇 프리미엄 B · 300×210</div>
                 <div class="slot-size">고정 독점 · 10,000P</div>
               </div>
               <div class="slot slot-standard" @click="selectSlot('right-2')" :class="{highlight: highlighted==='right-2'}">
-                <div class="slot-tag">🥈 스탠다드 B · 300×250</div>
+                <div class="slot-tag">🥈 스탠다드 B · 300×210</div>
                 <div class="slot-size">고정 독점 · 7,000P</div>
               </div>
             </div>
@@ -129,11 +129,11 @@
             <div class="ad-stack">
               <div class="ad-stack-label">📢 좌측 광고 (카테고리 아래, 나란히)</div>
               <div class="slot slot-premium" @click="selectSlot('list-left-1')" :class="{highlight: highlighted==='list-left-1'}">
-                <div class="slot-tag">🥇 프리미엄 A · 200×150</div>
+                <div class="slot-tag">🥇 프리미엄 A · 200×140</div>
                 <div class="slot-size">고정 독점 · 8,000P</div>
               </div>
               <div class="slot slot-standard" @click="selectSlot('list-left-2')" :class="{highlight: highlighted==='list-left-2'}">
-                <div class="slot-tag">🥈 스탠다드 A · 200×150</div>
+                <div class="slot-tag">🥈 스탠다드 A · 200×140</div>
                 <div class="slot-size">고정 독점 · 5,000P</div>
               </div>
             </div>
@@ -161,11 +161,11 @@
             <div class="ad-stack">
               <div class="ad-stack-label">📢 우측 광고 (위젯 아래, 나란히)</div>
               <div class="slot slot-premium" @click="selectSlot('list-right-1')" :class="{highlight: highlighted==='list-right-1'}">
-                <div class="slot-tag">🥇 프리미엄 B · 300×250</div>
+                <div class="slot-tag">🥇 프리미엄 B · 300×210</div>
                 <div class="slot-size">고정 독점 · 10,000P</div>
               </div>
               <div class="slot slot-standard" @click="selectSlot('list-right-2')" :class="{highlight: highlighted==='list-right-2'}">
-                <div class="slot-tag">🥈 스탠다드 B · 300×250</div>
+                <div class="slot-tag">🥈 스탠다드 B · 300×210</div>
                 <div class="slot-size">고정 독점 · 7,000P</div>
               </div>
             </div>
@@ -228,11 +228,11 @@
             <div class="ad-stack">
               <div class="ad-stack-label">📢 좌측 광고 (카테고리 아래, 나란히)</div>
               <div class="slot slot-premium" @click="selectSlot('detail-left-1')" :class="{highlight: highlighted==='detail-left-1'}">
-                <div class="slot-tag">🥇 프리미엄 A · 200×150</div>
+                <div class="slot-tag">🥇 프리미엄 A · 200×140</div>
                 <div class="slot-size">고정 독점 · 8,000P</div>
               </div>
               <div class="slot slot-standard" @click="selectSlot('detail-left-2')" :class="{highlight: highlighted==='detail-left-2'}">
-                <div class="slot-tag">🥈 스탠다드 A · 200×150</div>
+                <div class="slot-tag">🥈 스탠다드 A · 200×140</div>
                 <div class="slot-size">고정 독점 · 5,000P</div>
               </div>
             </div>
@@ -260,11 +260,11 @@
             <div class="ad-stack">
               <div class="ad-stack-label">📢 우측 광고 (위젯 아래, 나란히)</div>
               <div class="slot slot-premium" @click="selectSlot('detail-right-1')" :class="{highlight: highlighted==='detail-right-1'}">
-                <div class="slot-tag">🥇 프리미엄 B · 300×250</div>
+                <div class="slot-tag">🥇 프리미엄 B · 300×210</div>
                 <div class="slot-size">고정 독점 · 10,000P</div>
               </div>
               <div class="slot slot-standard" @click="selectSlot('detail-right-2')" :class="{highlight: highlighted==='detail-right-2'}">
-                <div class="slot-tag">🥈 스탠다드 B · 300×250</div>
+                <div class="slot-tag">🥈 스탠다드 B · 300×210</div>
                 <div class="slot-size">고정 독점 · 7,000P</div>
               </div>
             </div>
