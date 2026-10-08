@@ -161,6 +161,7 @@ Route::get('/hero-banners', function () {
 });
 Route::get('/popup-banners/active', [\App\Http\Controllers\API\PopupBannerController::class, 'publicActive']);
 Route::get('/pricing-promotions/active', [\App\Http\Controllers\API\PricingPromotionController::class, 'publicActive']);
+Route::get('/open-event', [\App\Http\Controllers\API\AdminOpenEventController::class, 'publicInfo']);
 Route::post('/banners/{id}/click', [\App\Http\Controllers\API\BannerController::class, 'click']);
 Route::get('/ad-settings/public', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettingsPublic']);
 
@@ -741,6 +742,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::delete('/analytics/credentials', [\App\Http\Controllers\API\AdminAnalyticsController::class, 'deleteCredentials'])->middleware('throttle:10,1');
         Route::get('/analytics/dashboard', [\App\Http\Controllers\API\AdminAnalyticsController::class, 'dashboard'])->middleware('throttle:30,1');
         // 관리자 할 일 목록
+        // 오픈 이벤트(소프트 오픈 프로모션) 일괄 적용
+        Route::get('/open-event', [\App\Http\Controllers\API\AdminOpenEventController::class, 'show']);
+        Route::put('/open-event', [\App\Http\Controllers\API\AdminOpenEventController::class, 'update'])->middleware('throttle:20,1');
         Route::get('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'index']);
         Route::post('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'store']);
         Route::put('/todos/{id}', [\App\Http\Controllers\API\AdminTodoController::class, 'update']);

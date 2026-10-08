@@ -103,7 +103,7 @@ class RealEstateController extends Controller
 
         // 관리자 설정 기반 사진 포인트 (기본 5장 무료, 추가 50P/장)
         $getSetting = fn($key, $default) => (int) (\DB::table('point_settings')->where('key', $key)->value('value') ?? $default);
-        $freePhotos = $getSetting('realestate_free_photos', 5);
+        $freePhotos = \App\Support\OpenEvent::freePhotos($getSetting('realestate_free_photos', 5));   // 오픈 이벤트: 무료 사진 장수 보장
         $extraPhotoPoints = $getSetting('realestate_extra_photo_cost', 50);
 
         $images = [];

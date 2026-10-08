@@ -15,7 +15,8 @@ class PointRules
     public static function get(string $key, int $default = 0): int
     {
         $all = static::all();
-        return (int) ($all[$key] ?? $default);
+        // 오픈 이벤트 기간에는 적립 규칙(category='earn')에 배수가 곱해진다 (원래 값은 DB에 그대로)
+        return OpenEvent::rule($key, (int) ($all[$key] ?? $default));
     }
 
     public static function raw(string $key, string $default = ''): string

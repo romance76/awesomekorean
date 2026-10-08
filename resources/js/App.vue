@@ -17,6 +17,7 @@
       </div>
     </Teleport>
 
+    <OpenEventBanner v-if="showNav" />
     <NavBar v-if="showNav" />
     <!-- 글로벌 미니 프로필 팝업 -->
     <UserPopup :show="showUserPopup" :user-id="popupUserId" @close="showUserPopup=false" />
@@ -77,6 +78,7 @@ import { useRoute } from 'vue-router'
 import { useSiteStore } from './stores/site'
 import { useAuthStore } from './stores/auth'
 import NavBar from './components/NavBar.vue'
+import OpenEventBanner from './components/OpenEventBanner.vue'
 import BottomNav from './components/BottomNav.vue'
 import UserPopup from './components/UserPopup.vue'
 import SiteModal from './components/SiteModal.vue'

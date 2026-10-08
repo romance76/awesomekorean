@@ -135,7 +135,7 @@ class MarketController extends Controller
         $getSetting = fn($key, $default) => (int) (\DB::table('point_settings')->where('key', $key)->value('value') ?? $default);
         $maxPerCategory = $getSetting('market_max_same_category_daily', 1);
         $maxPhotos = $getSetting('market_max_photos', 10);
-        $freePhotos = $getSetting('market_free_photos', 5);
+        $freePhotos = \App\Support\OpenEvent::freePhotos($getSetting('market_free_photos', 5));   // 오픈 이벤트: 무료 사진 장수 보장
         $extraPhotoPoints = $getSetting('market_extra_photo_cost', 50);
 
         $request->validate([
@@ -288,6 +288,7 @@ class MarketController extends Controller
 
         // 비용 계산: 100, 300, 500, 700, 900 (기본100 + 횟수×200)
         $cost = $bumpBaseCost + ($bumpCount * $bumpIncrement);
+        $cost = \App\Support\OpenEvent::apply($cost, 'bump');   // 오픈 이벤트 할인
 
         if ($user->points < $cost) {
             return response()->json(['success' => false, 'message' => "포인트 부족. 필요: {$cost}P ({$bumpCount}+1회차), 보유: {$user->points}P"], 422);

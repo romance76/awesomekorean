@@ -82,7 +82,8 @@ class FlyerSchedule
         if ($hour >= $peakStart && $hour < $peakEnd) $pct = PointRules::get('flyer_peak_pct', 150);
         elseif ($hour < self::nightEnd()) $pct = PointRules::get('flyer_night_pct', 50);
 
-        return (int) round($base * $pct / 100);
+        // 오픈 이벤트 기간에는 달러 결제 할인 (최소 1센트 — 0원 결제가 되지 않게)
+        return OpenEvent::apply((int) round($base * $pct / 100), 'flyer_usd', 1);
     }
 
     /** 24시간 가격표 [hour => price] */
@@ -129,7 +130,9 @@ class FlyerSchedule
     /** 신청 합계 최소 금액(센트) — 카드 수수료 때문에 너무 작은 결제는 받지 않음 */
     public static function minOrderCents(): int
     {
-        return max(0, PointRules::get('flyer_min_order_cents', 500));
+        $min = max(0, PointRules::get('flyer_min_order_cents', 500));
+        // 할인으로 합계가 작아져도 주문이 막히지 않도록, 이벤트 기간에는 카드사 최저 결제액(50센트)까지 허용
+        return OpenEvent::discountPct('flyer_usd') > 0 ? min($min, 50) : $min;
     }
 
     public static function maxDays(): int

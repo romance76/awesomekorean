@@ -15,7 +15,11 @@ class ChatRules
     public static function get(string $key, int $default = 0): int
     {
         $all = static::all();
-        return (int) ($all[$key] ?? $default);
+        $value = (int) ($all[$key] ?? $default);
+        // 오픈 이벤트 기간에는 채팅방 개설/입장 비용에 할인이 적용된다 (원래 값은 DB에 그대로)
+        if (in_array($key, ['create_cost_dm', 'create_cost_group', 'create_cost_public'], true)) return OpenEvent::apply($value, 'chat_create');
+        if ($key === 'entry_cost_public') return OpenEvent::apply($value, 'chat_entry');
+        return $value;
     }
 
     public static function raw(string $key, string $default = ''): string
