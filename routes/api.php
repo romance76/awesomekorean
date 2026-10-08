@@ -853,14 +853,14 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::prefix('poker')->group(function () {
         Route::get('/overview', [PokerController::class, 'adminOverview']);
         Route::get('/wallets', [PokerController::class, 'adminWallets']);
-        Route::put('/wallets/{id}', [PokerController::class, 'adminUpdateWallet']);
+        Route::put('/wallets/{id}', [PokerController::class, 'adminUpdateWallet'])->middleware('role:admin,super_admin');
         Route::get('/settings', [PokerController::class, 'adminSettings']);
         Route::put('/settings', [PokerController::class, 'adminUpdateSettings'])->middleware('role:admin,super_admin');
 
         // 토너먼트 관리
         Route::post('/tournaments', [PokerTournamentController::class, 'adminCreate']);
         Route::get('/tournaments', [PokerTournamentController::class, 'adminList']);
-        Route::delete('/tournaments/{id}', [PokerTournamentController::class, 'adminCancel']);
+        Route::delete('/tournaments/{id}', [PokerTournamentController::class, 'adminCancel'])->middleware('role:admin,super_admin');
     });
 
     // ─── Admin 안심서비스 ───

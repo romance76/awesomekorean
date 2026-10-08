@@ -1,5 +1,91 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <p class="text-[13px] text-ink-muted px-0.5">누가 누구에게 걸었는지, 받았는지, 왜 끊겼는지 보여줘요. 시간은 미국 동부시간(ET) 기준이에요.</p>
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="기간">
+    <button v-for="r in ranges" :key="r.days" @click="days = r.days; page = 1; reload()" :aria-pressed="days === r.days"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]" :class="days === r.days ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ r.label }}</button>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2">
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">전체 시도</div><div class="text-[22px] font-black text-ink tabular-nums">{{ stats.total ?? 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">연결 성공</div><div class="text-[22px] font-black text-green-600 tabular-nums">{{ stats.connected ?? 0 }} <span class="text-[13px]">({{ stats.connect_rate ?? 0 }}%)</span></div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">응답 없음/취소</div><div class="text-[22px] font-black text-amber-600 tabular-nums">{{ stats.unanswered ?? 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">연결 실패</div><div class="text-[22px] font-black text-red-600 tabular-nums">{{ stats.failed ?? 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">평균 통화시간</div><div class="text-[18px] font-black text-purple-600">{{ fmtSec(stats.avg_duration || 0) }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">평균 지연(왕복)</div><div class="text-[18px] font-black" :class="(stats.avg_rtt_ms || 0) > 300 ? 'text-red-600' : 'text-blue-600'">{{ stats.avg_rtt_ms ? stats.avg_rtt_ms + 'ms' : '-' }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3 col-span-2"><div class="text-[12px] text-ink-muted">직접 / 중계 연결</div><div class="text-[18px] font-black text-ink tabular-nums">{{ stats.direct ?? 0 }} / <span :class="(stats.relay || 0) > (stats.direct || 0) ? 'text-red-600' : ''">{{ stats.relay ?? 0 }}</span> <span class="text-[12px] font-normal text-ink-muted">· 거절 {{ stats.declined ?? 0 }} · 오프라인 {{ stats.offline ?? 0 }} · 통화중 {{ stats.busy ?? 0 }}</span></div></div>
+  </div>
+  <p class="text-[12px] text-ink-faint px-0.5">중계 연결이 많으면 직접 연결이 안 되는 네트워크가 많다는 뜻이고, 이때 음성이 늦게 들릴 수 있어요. 지연이 300ms를 넘으면 대화가 답답해져요.</p>
+  <div v-if="stats.fail_notes?.length" class="bg-white border border-gray-100 rounded-2xl p-3.5">
+    <div class="text-[14px] font-bold text-ink mb-1">자주 나온 실패 원인</div>
+    <div v-for="n in stats.fail_notes" :key="n.failure_note" class="flex justify-between gap-3 text-[13px] py-1"><span class="text-ink-light break-all">{{ noteLabel(n.failure_note) }}</span><span class="font-bold text-red-600 shrink-0">{{ n.c }}건</span></div>
+  </div>
+
+  <!-- 연결 진단 -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+    <div class="text-[15px] font-bold text-ink">🔧 통화 연결 진단</div>
+    <p class="text-[13px] text-ink-muted mt-0.5">지금 보고 있는 폰(와이파이/LTE 각각)에서 통화 서버에 닿는지 시험해요. 중계 서버(TURN)가 안 되면 폰↔PC 통화가 “연결중”에서 멈춰요.</p>
+    <button @click="runDiag" :disabled="diagRunning" class="mt-2 w-full min-h-[48px] rounded-xl bg-ink text-white text-[15px] font-bold disabled:opacity-50">{{ diagRunning ? '시험 중… (최대 25초)' : '진단 시작' }}</button>
+    <div v-if="diag.length" class="mt-2 space-y-1.5">
+      <div v-for="d in diag" :key="d.name" class="text-[13px] flex items-start gap-2"><span>{{ d.ok ? '✅' : '❌' }}</span><div class="min-w-0"><div class="font-bold text-ink">{{ d.name }}</div><div class="text-ink-light break-words">{{ d.detail }}</div></div></div>
+      <div v-if="diagAdvice" class="text-[13px] rounded-xl px-3 py-2 break-words" :class="diagAdviceBad ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'">{{ diagAdvice }}</div>
+    </div>
+  </div>
+
+  <!-- 필터 -->
+  <div class="space-y-2">
+    <form @submit.prevent="page = 1; load()" class="flex gap-2">
+      <label class="flex-1 min-w-0 flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 min-h-[48px] text-ink-muted">
+        <AppIcon name="search" :size="18" />
+        <input v-model="search" type="search" placeholder="이름·닉네임·이메일" aria-label="통화 검색" autocomplete="off" class="w-full min-w-0 bg-transparent outline-none text-ink" />
+      </label>
+      <button type="submit" class="shrink-0 min-h-[48px] px-4 rounded-xl bg-amber-500 text-white text-[15px] font-bold">검색</button>
+    </form>
+    <div class="grid grid-cols-3 gap-2">
+      <select v-model="outcome" @change="page = 1; load()" aria-label="결과" class="min-w-0 min-h-[48px] bg-white border border-gray-200 rounded-xl px-2 text-ink">
+        <option value="">전체 결과</option><option value="connected">연결 성공</option><option value="unanswered">응답 없음/취소</option><option value="declined">거절</option><option value="offline">상대 오프라인</option><option value="busy">통화 중</option><option value="failed">연결 실패</option>
+      </select>
+      <select v-model="conn" @change="page = 1; load()" aria-label="연결 방식" class="min-w-0 min-h-[48px] bg-white border border-gray-200 rounded-xl px-2 text-ink">
+        <option value="">연결 전체</option><option value="direct">직접</option><option value="relay">중계</option>
+      </select>
+      <select v-model="type" @change="page = 1; reload()" aria-label="유형" class="min-w-0 min-h-[48px] bg-white border border-gray-200 rounded-xl px-2 text-ink">
+        <option value="">전체 유형</option><option value="friend">친구</option><option value="elder">안심</option>
+      </select>
+    </div>
+  </div>
+
+  <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
+  <div v-else-if="!calls.length" class="text-center py-12 text-ink-muted text-[15px]">해당하는 통화 기록이 없어요.</div>
+  <div v-else class="space-y-2">
+    <div v-for="c in calls" :key="c.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[12px] px-2.5 py-1 rounded-full font-bold" :class="resultCls(c)">{{ resultLabel(c) }}</span>
+        <span class="text-[12px] px-2 py-0.5 rounded-full font-bold" :class="c.call_type === 'elder' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'">{{ c.call_type === 'elder' ? '안심' : '친구' }}</span>
+        <span v-if="c.conn_type" class="text-[12px] px-2 py-0.5 rounded-full font-bold" :class="c.conn_type === 'relay' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'">{{ c.conn_type === 'relay' ? '중계' : '직접' }}</span>
+      </div>
+      <div class="text-[15px] font-bold text-ink mt-1 break-words">{{ c.caller?.name || '-' }} <span class="text-ink-faint font-normal">→</span> {{ c.callee?.name || '-' }}</div>
+      <div class="text-[12px] text-ink-faint break-all">{{ c.caller?.email }} → {{ c.callee?.email }}</div>
+      <div class="flex items-center gap-x-3 gap-y-0.5 flex-wrap text-[13px] mt-1.5">
+        <span class="text-ink-muted">{{ fmtDate(c.created_at) }} · #{{ c.id }}</span>
+        <span :class="c.duration > 0 ? 'text-green-700 font-bold' : 'text-ink-faint'">통화 {{ c.duration > 0 ? fmtSec(c.duration) : '없음' }}</span>
+        <span v-if="c.ring_seconds != null" class="text-ink-muted">벨 {{ c.ring_seconds }}초</span>
+        <span v-if="c.rtt_ms != null" :class="c.rtt_ms > 300 ? 'text-red-500 font-bold' : 'text-ink-muted'">지연 {{ c.rtt_ms }}ms</span>
+      </div>
+      <div v-if="c.ended_by && !(c.answered_at === null && c.end_reason === 'offline')" class="text-[12px] text-ink-faint mt-0.5">{{ { caller: '발신자가 끊음', callee: '수신자가 끊음', system: '자동 정리' }[c.ended_by] }}</div>
+      <div v-if="c.note" class="text-[13px] text-red-500 mt-0.5 break-words">{{ noteLabel(c.note) }}</div>
+      <div v-if="c.caller_device || c.callee_device" class="text-[12px] text-ink-faint mt-0.5 break-words">기기 {{ c.caller_device || '-' }} / {{ c.callee_device || '-' }}</div>
+    </div>
+    <div v-if="lastPage > 1" class="flex items-center justify-between gap-2 pt-1">
+      <button @click="page--; load()" :disabled="page <= 1" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
+      <span class="text-[14px] text-ink-muted tabular-nums">{{ page }} / {{ lastPage }}</span>
+      <button @click="page++; load()" :disabled="page >= lastPage" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">다음</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <div class="flex items-start justify-between flex-wrap gap-2 mb-4">
     <div>
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
@@ -147,9 +233,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, inject, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 관리자 휴대폰 화면이면 카드 + 큰 버튼 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const ranges = [{ days: 1, label: '오늘' }, { days: 7, label: '7일' }, { days: 30, label: '30일' }, { days: 90, label: '90일' }]
 const days = ref(7)
@@ -282,3 +372,8 @@ async function runDiag() {
 
 onMounted(reload)
 </script>
+
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>

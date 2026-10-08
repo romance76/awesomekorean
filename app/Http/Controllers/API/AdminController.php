@@ -717,7 +717,7 @@ class AdminController extends Controller
     }
 
     public function elderSosLogs(Request $request) {
-        $sos = ElderSosLog::with('user:id,name,email')
+        $sos = ElderSosLog::with('user:id,name,email,phone')
             ->orderByDesc('created_at')->paginate(20);
         return response()->json(['success'=>true,'data'=>$sos]);
     }

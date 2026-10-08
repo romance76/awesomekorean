@@ -1,5 +1,43 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <div class="grid grid-cols-3 gap-2">
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">채팅방</div><div class="text-[20px] font-bold text-ink tabular-nums">{{ chatStats.total || 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">오늘 메시지</div><div class="text-[20px] font-bold text-blue-600 tabular-nums">{{ chatStats.today || 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">오늘 통화</div><div class="text-[20px] font-bold text-purple-600 tabular-nums">{{ callStats.today || 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">전체 통화</div><div class="text-[20px] font-bold text-ink tabular-nums">{{ callStats.total || 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">통화 성공</div><div class="text-[20px] font-bold text-green-600 tabular-nums">{{ callStats.answered || 0 }}</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3"><div class="text-[12px] text-ink-muted">부재중</div><div class="text-[20px] font-bold text-red-600 tabular-nums">{{ callStats.missed || 0 }}</div></div>
+  </div>
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="소통 메뉴">
+    <button v-for="t in tabs" :key="t.key" @click="activeTab = t.key" :aria-pressed="activeTab === t.key"
+      class="shrink-0 min-h-[44px] px-5 rounded-full border text-[15px]" :class="activeTab === t.key ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ t.label }}</button>
+  </div>
+  <AdminChats v-if="activeTab === 'chat'" />
+  <AdminCalls v-else-if="activeTab === 'calls'" />
+  <div v-else class="space-y-2">
+    <p class="text-[13px] text-ink-muted px-0.5">채팅/통화 기본 설정이에요.</p>
+    <template v-for="(def, key) in settingSchema" :key="key">
+      <button v-if="def.type === 'bool'" type="button" @click="settings[key] = !settings[key]" role="switch" :aria-checked="!!settings[key]"
+        class="w-full min-h-[56px] rounded-2xl border px-4 flex items-center justify-between gap-3 text-left" :class="settings[key] ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'">
+        <span class="min-w-0"><span class="block text-[15px] font-bold text-ink">{{ def.label }}</span></span>
+        <span class="shrink-0 text-[14px] font-bold" :class="settings[key] ? 'text-green-700' : 'text-ink-muted'">{{ settings[key] ? '켜짐' : '꺼짐' }}</span>
+      </button>
+      <div v-else class="bg-white border border-gray-100 rounded-2xl p-3.5">
+        <label class="block text-[15px] font-bold text-ink mb-1" :for="'cs-' + key">{{ def.label }}</label>
+        <input v-if="def.type === 'number'" :id="'cs-' + key" type="number" inputmode="numeric" v-model.number="settings[key]" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        <input v-else :id="'cs-' + key" type="text" v-model="settings[key]" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      </div>
+    </template>
+    <button @click="saveSettings" :disabled="saving" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ saving ? '저장 중...' : '설정 저장' }}</button>
+  </div>
+  <Teleport to="body">
+    <div v-if="toast && isMobile" class="alv-m fixed left-1/2 -translate-x-1/2 z-[80] max-w-[90vw] px-4 py-3 rounded-xl text-[15px] font-bold text-white shadow-lg" :class="toast.error ? 'bg-red-600' : 'bg-ink'" :style="{ top: 'calc(70px + env(safe-area-inset-top, 0px))' }" role="status">{{ toast.text }}</div>
+  </Teleport>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <div class="mb-4">
     <div class="text-xs text-ink-muted">관리자 › 회원 › 소통 관리</div>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
@@ -88,12 +126,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, inject, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import AdminChats from './AdminChats.vue'
 import AdminCalls from './AdminCalls.vue'
 import AppIcon from '../../components/AppIcon.vue'
 
+// 관리자 휴대폰 화면이면 칩 탭 + 큰 스위치 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const toast = ref(null); let toastTimer = null
+function say(text, error = false) { toast.value = { text, error }; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = null }, 3000) }
+onBeforeUnmount(() => clearTimeout(toastTimer))
+const saving = ref(false)
 const activeTab = ref('chat')
 const tabs = [
   { key: 'chat',  icon: 'message-circle', label: '채팅방' },
@@ -142,11 +187,18 @@ async function loadSettings() {
 async function saveSettings() {
   const payload = {}
   Object.keys(settings.value).forEach(k => { payload[`comm.${k}`] = settings.value[k] })
+  saving.value = true
   try {
     await axios.post('/api/admin/board-manager/community/settings', { settings: payload })
-    alert('저장되었습니다')
-  } catch (e) { alert(e.response?.data?.message || '저장 실패') }
+    if (isMobile.value) say('저장했어요'); else alert('저장되었습니다')
+  } catch (e) { if (isMobile.value) say(e.response?.data?.message || '저장하지 못했어요', true); else alert(e.response?.data?.message || '저장 실패') }
+  saving.value = false
 }
 
 onMounted(() => { loadStats(); loadSettings() })
 </script>
+
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
