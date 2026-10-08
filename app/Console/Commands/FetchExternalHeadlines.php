@@ -108,7 +108,7 @@ class FetchExternalHeadlines extends Command
     private function extractSummary(string $desc): ?string
     {
         $text = strip_tags($desc);
-        $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+        $text = html_entity_decode(html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $text = preg_replace('/\s+/u', ' ', $text);
         $text = trim($text);
         if (!$text) return null;
