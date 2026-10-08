@@ -249,18 +249,21 @@ class PokerController extends Controller
     {
         $request->validate(['chips_balance' => 'required|integer|min:0']);
 
-        $wallet = PokerWallet::findOrFail($id);
-        $oldBalance = $wallet->chips_balance;
-        $wallet->update(['chips_balance' => $request->chips_balance]);
+        // 동시에 게임/입출금이 일어나도 잔고가 꼬이지 않게 지갑을 잠그고 조정
+        \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
+            $wallet = PokerWallet::lockForUpdate()->findOrFail($id);
+            $oldBalance = $wallet->chips_balance;
+            $wallet->update(['chips_balance' => $request->chips_balance]);
 
-        $diff = $request->chips_balance - $oldBalance;
-        PokerTransaction::create([
-            'user_id' => $wallet->user_id,
-            'type' => $diff >= 0 ? 'deposit' : 'withdraw',
-            'amount' => $diff,
-            'balance_after' => $request->chips_balance,
-            'description' => '관리자 수동 조정',
-        ]);
+            $diff = $request->chips_balance - $oldBalance;
+            PokerTransaction::create([
+                'user_id' => $wallet->user_id,
+                'type' => $diff >= 0 ? 'deposit' : 'withdraw',
+                'amount' => $diff,
+                'balance_after' => $request->chips_balance,
+                'description' => '관리자 수동 조정',
+            ]);
+        });
 
         return response()->json(['success' => true, 'message' => '칩 잔고가 수정되었습니다.']);
     }

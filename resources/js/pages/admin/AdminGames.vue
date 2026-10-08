@@ -1,5 +1,51 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <p class="text-[13px] text-ink-muted px-0.5">게임별 노출/숨김과 순서를 바꿔요. ⚙ 를 누르면 게임별 세부 설정으로 가요.</p>
+  <div class="grid grid-cols-2 gap-2">
+    <RouterLink to="/admin/poker" class="min-h-[50px] rounded-xl bg-white border border-gray-200 grid place-items-center text-[15px] font-bold text-ink">🃏 포커 토너먼트</RouterLink>
+    <RouterLink to="/admin/pricing" class="min-h-[50px] rounded-xl bg-white border border-gray-200 grid place-items-center text-[15px] font-bold text-ink">🪙 포인트 설정</RouterLink>
+  </div>
+  <div class="grid grid-cols-3 gap-2">
+    <div class="bg-white border border-gray-100 rounded-2xl p-3 text-center"><div class="text-[22px] font-black text-green-600">{{ activeCount }}</div><div class="text-[12px] text-ink-muted">활성</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3 text-center"><div class="text-[22px] font-black text-ink-muted">{{ inactiveCount }}</div><div class="text-[12px] text-ink-muted">비활성</div></div>
+    <div class="bg-white border border-gray-100 rounded-2xl p-3 text-center"><div class="text-[22px] font-black text-amber-600">{{ games.length }}</div><div class="text-[12px] text-ink-muted">전체</div></div>
+  </div>
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="게임 종류">
+    <button v-for="c in categories" :key="c.key" @click="activeCat = c.key" :aria-pressed="activeCat === c.key"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]" :class="activeCat === c.key ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">
+      {{ c.label }} <span class="text-[13px]" :class="activeCat === c.key ? 'text-white/80' : 'text-ink-muted'">{{ countByCategory(c.key) }}</span></button>
+  </div>
+  <p v-if="activeCat !== 'all'" class="text-[12px] text-ink-faint px-0.5">순서 변경은 “전체” 탭에서만 할 수 있어요.</p>
+  <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
+  <div v-else-if="!filteredGames.length" class="text-center py-12 text-ink-muted text-[15px]">게임이 없어요.</div>
+  <div v-else class="space-y-2">
+    <div v-for="(g, idx) in filteredGames" :key="g.id" class="bg-white border border-gray-100 rounded-2xl p-3 flex items-center gap-2.5" :class="!g.is_active ? 'opacity-60' : ''">
+      <div class="shrink-0 w-11 h-11 bg-gray-50 rounded-xl grid place-items-center text-[26px]" aria-hidden="true">{{ g.icon }}</div>
+      <div class="min-w-0 flex-1">
+        <div class="text-[16px] font-bold text-ink truncate">{{ g.name }}</div>
+        <div class="flex items-center gap-1.5 mt-0.5">
+          <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="catBadge(g.category)">{{ catLabel(g.category) }}</span>
+          <span class="text-[12px] text-ink-muted truncate">{{ g.description || g.slug }}</span>
+        </div>
+      </div>
+      <div v-if="activeCat === 'all'" class="shrink-0 flex flex-col">
+        <button @click="move(g, -1)" :disabled="idx === 0" class="min-h-[28px] min-w-[44px] text-ink-muted disabled:opacity-20 text-[14px]" :aria-label="`${g.name} 위로`">▲</button>
+        <button @click="move(g, 1)" :disabled="idx === filteredGames.length - 1" class="min-h-[28px] min-w-[44px] text-ink-muted disabled:opacity-20 text-[14px]" :aria-label="`${g.name} 아래로`">▼</button>
+      </div>
+      <RouterLink :to="`/admin/games/settings/${g.slug}`" class="shrink-0 min-h-[44px] min-w-[44px] grid place-items-center rounded-xl bg-gray-50 text-ink-light" :aria-label="`${g.name} 세부 설정`"><AppIcon name="settings" :size="20" /></RouterLink>
+      <button @click="toggle(g)" role="switch" :aria-checked="!!g.is_active" :aria-label="`${g.name} 노출`" class="shrink-0 relative w-[52px] h-[32px] rounded-full transition-colors" :class="g.is_active ? 'bg-green-500' : 'bg-gray-300'">
+        <span class="absolute top-[3px] left-[3px] w-[26px] h-[26px] bg-white rounded-full shadow transition-transform" :class="g.is_active ? 'translate-x-5' : ''"></span>
+      </button>
+    </div>
+  </div>
+  <Teleport to="body">
+    <div v-if="toast" class="alv-m fixed left-1/2 -translate-x-1/2 z-[80] max-w-[90vw] px-4 py-3 rounded-xl text-[15px] font-bold text-white shadow-lg" :class="toast.error ? 'bg-red-600' : 'bg-ink'" :style="{ top: 'calc(70px + env(safe-area-inset-top, 0px))' }" role="status">{{ toast.text }}</div>
+  </Teleport>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="gamepad" :size="20" /></span>
     게임 관리
@@ -79,12 +125,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, inject, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 
+// 관리자 휴대폰 화면이면 카드 + 큰 스위치 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const toast = ref(null); let toastTimer = null
+function say(text, error = false) { toast.value = { text, error }; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = null }, 3000) }
+onBeforeUnmount(() => clearTimeout(toastTimer))
 const games = ref([])
 const loading = ref(true)
 const activeCat = ref('all')
@@ -137,7 +189,7 @@ async function toggle(g) {
   const prev = g.is_active
   g.is_active = !g.is_active
   try { await axios.post(`/api/admin/games/${g.id}/toggle`) }
-  catch { g.is_active = prev; alert('토글 실패') }
+  catch { g.is_active = prev; if (isMobile.value) say('바꾸지 못했어요', true); else alert('토글 실패') }
 }
 
 async function move(g, dir) {
@@ -149,8 +201,13 @@ async function move(g, dir) {
   list.splice(newIdx, 0, item)
   games.value = list
   try { await axios.post('/api/admin/games/reorder', { ids: list.map(x => x.id) }) }
-  catch { alert('순서 저장 실패'); load() }
+  catch { if (isMobile.value) say('순서를 저장하지 못했어요', true); else alert('순서 저장 실패'); load() }
 }
 
 onMounted(load)
 </script>
+
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
