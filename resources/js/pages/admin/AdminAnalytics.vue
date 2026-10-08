@@ -56,8 +56,8 @@
           <div class="text-sm font-bold text-ink">일별 방문자</div>
           <div class="text-xs text-ink-muted h-4">{{ hover ? `${hover.label} · 방문자 ${hover.users}명 · 조회 ${hover.views}회` : '막대 위에 올리면 숫자가 보여요' }}</div>
         </div>
-        <div class="flex items-end gap-[2px] h-32" @mouseleave="hover = null">
-          <div v-for="r in daily" :key="r.date" class="flex-1 min-w-[2px] h-full flex items-end" @mouseenter="hover = r" @touchstart.passive="hover = r">
+        <div class="flex items-end gap-[3px] h-32" @mouseleave="hover = null">
+          <div v-for="r in daily" :key="r.date" class="flex-1 min-w-[2px] max-w-[36px] h-full flex items-end" @mouseenter="hover = r" @touchstart.passive="hover = r">
             <div class="w-full rounded-t-[3px] bg-amber-400 hover:bg-amber-500" :style="{ height: Math.max(r.users ? 3 : 0, (r.users / maxUsers) * 100) + '%' }"></div>
           </div>
         </div>
@@ -175,7 +175,9 @@ function onFile(e) {
 async function connect() {
   connecting.value = true; connectMsg.value = ''
   try {
-    await axios.post('/api/admin/analytics/credentials', { service_account_json: jsonText.value, property_id: propertyId.value.trim() })
+    const { data } = await axios.post('/api/admin/analytics/credentials', { service_account_json: jsonText.value, property_id: propertyId.value.trim() })
+    // 상태를 다시 읽어 오기 전에 화면부터 "연결됨"으로 바꾼다
+    status.value = { ...(status.value || {}), connected: true, service_account_email: data.data?.service_account_email, property_id: data.data?.property_id }
     connectOk.value = true; connectMsg.value = '연결되었어요.'
     jsonText.value = ''; fileName.value = ''; propertyId.value = ''
     await loadStatus(); loadDash()
