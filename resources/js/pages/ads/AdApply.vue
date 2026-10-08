@@ -128,7 +128,7 @@
                 :class="isSelected('left',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-yellow-400 bg-yellow-50/50 hover:border-amber-400'">
                 <div class="mb-0.5 flex justify-center" :class="isSelected('left',1) ? 'text-amber-600' : 'text-yellow-600'"><AppIcon :name="isSelected('left',1) ? 'check' : 'trophy'" :size="14" /></div>
                 <div class="text-[11px] font-black text-yellow-700">프리미엄 A</div>
-                <div class="text-[11px] text-ink-muted">고정 독점 · 200×140</div>
+                <div class="text-[11px] text-ink-muted">고정 독점 · 권장 400×280</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('left','premium').toLocaleString() }}</span>{{ slotMinPrice('left','premium').toLocaleString() }}P/월
                 </div>
@@ -139,7 +139,7 @@
                 :class="isSelected('left',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-blue-300 bg-blue-50/50 hover:border-amber-400'">
                 <div class="mb-0.5 flex justify-center" :class="isSelected('left',2) ? 'text-amber-600' : 'text-blue-500'"><AppIcon :name="isSelected('left',2) ? 'check' : 'star'" :size="14" /></div>
                 <div class="text-[11px] font-black text-blue-700">스탠다드 A</div>
-                <div class="text-[11px] text-ink-muted">고정 독점 · 200×140</div>
+                <div class="text-[11px] text-ink-muted">고정 독점 · 권장 400×280</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('left','standard').toLocaleString() }}</span>{{ slotMinPrice('left','standard').toLocaleString() }}P/월
                 </div>
@@ -179,7 +179,7 @@
                 :class="isSelected('right',1) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-yellow-400 bg-yellow-50/50 hover:border-amber-400'">
                 <div class="mb-0.5 flex justify-center" :class="isSelected('right',1) ? 'text-amber-600' : 'text-yellow-600'"><AppIcon :name="isSelected('right',1) ? 'check' : 'trophy'" :size="14" /></div>
                 <div class="text-[11px] font-black text-yellow-700">프리미엄 B</div>
-                <div class="text-[11px] text-ink-muted">고정 독점 · 300×210</div>
+                <div class="text-[11px] text-ink-muted">고정 독점 · 권장 600×420</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('right','premium').toLocaleString() }}</span>{{ slotMinPrice('right','premium').toLocaleString() }}P/월
                 </div>
@@ -190,7 +190,7 @@
                 :class="isSelected('right',2) ? 'border-amber-500 bg-amber-50 shadow-md' : 'border-blue-300 bg-blue-50/50 hover:border-amber-400'">
                 <div class="mb-0.5 flex justify-center" :class="isSelected('right',2) ? 'text-amber-600' : 'text-blue-500'"><AppIcon :name="isSelected('right',2) ? 'check' : 'star'" :size="14" /></div>
                 <div class="text-[11px] font-black text-blue-700">스탠다드 B</div>
-                <div class="text-[11px] text-ink-muted">고정 독점 · 300×210</div>
+                <div class="text-[11px] text-ink-muted">고정 독점 · 권장 600×420</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
                   <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('right','standard').toLocaleString() }}</span>{{ slotMinPrice('right','standard').toLocaleString() }}P/월
                 </div>
@@ -295,9 +295,9 @@
                 <img :src="imagePreview" class="max-h-40 rounded-lg border border-gray-100 mx-auto" />
                 <div class="mt-2 text-center">
                   <div class="text-xs text-ink-light">업로드 이미지: <span class="font-bold">{{ imgWidth }}×{{ imgHeight }}px</span></div>
-                  <div v-if="imgSizeOk" class="text-xs text-green-600 font-bold mt-1 inline-flex items-center gap-1"><AppIcon name="check" :size="13" />권장 사이즈와 일치합니다</div>
-                  <div v-else-if="imgRatioOk" class="text-xs text-amber-600 font-bold mt-1 inline-flex items-center gap-1"><AppIcon name="alert-circle" :size="13" />비율은 맞지만 사이즈가 다릅니다 (자동 조정됨)</div>
-                  <div v-else class="text-xs text-red-600 font-bold mt-1 inline-flex items-center gap-1"><AppIcon name="alert-circle" :size="13" />권장 비율({{ recommendedRatio }})과 다릅니다 — 이미지가 잘릴 수 있습니다</div>
+                  <div v-if="imgSizeOk" class="text-xs text-green-600 font-bold mt-1 inline-flex items-center gap-1"><AppIcon name="check" :size="13" />권장 크기입니다 — 선명하게 보입니다</div>
+                  <div v-else-if="imgRatioOk" class="text-xs text-amber-600 font-bold mt-1 inline-flex items-center gap-1"><AppIcon name="alert-circle" :size="13" />비율은 맞지만 권장 크기보다 작아 흐릿하게 보일 수 있습니다</div>
+                  <div v-else class="text-xs text-red-600 font-bold mt-1 inline-flex items-center gap-1"><AppIcon name="alert-circle" :size="13" />권장 비율({{ recommendedRatio }})과 달라 가장자리가 잘려 보입니다</div>
                   <div class="flex justify-center gap-2 mt-2">
                     <button @click="confirmImage" class="btn-primary text-xs px-4 py-1.5">이대로 사용</button>
                     <button @click="resetImage" class="btn-secondary text-xs px-4 py-1.5">다시 업로드</button>
@@ -405,6 +405,7 @@ import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import { menuIcon } from '../../utils/menuIcons'
+import { adSize, AD_RATIO_TEXT } from '../../utils/adSizes'
 import axios from 'axios'
 
 const siteStore = useSiteStore()
@@ -648,18 +649,20 @@ const imgWidth = ref(0)
 const imgHeight = ref(0)
 const imageConfirmed = ref(false)
 
-const recommendedSize = computed(() => selectedSlot.value?.position === 'left' ? '200×140px' : '300×210px')
-const recommendedW = computed(() => selectedSlot.value?.position === 'left' ? 200 : 300)
-const recommendedH = computed(() => selectedSlot.value?.position === 'left' ? 150 : 250)
-const recommendedRatio = computed(() => `${recommendedW.value}:${recommendedH.value}`)
+const adSizeNow = computed(() => adSize(selectedSlot.value?.position))
+const recommendedSize = computed(() => `${adSizeNow.value.w}×${adSizeNow.value.h}px · 비율 ${AD_RATIO_TEXT} · 최소 ${adSizeNow.value.minW}×${adSizeNow.value.minH}px`)
+const recommendedW = computed(() => adSizeNow.value.w)
+const recommendedH = computed(() => adSizeNow.value.h)
+const recommendedRatio = computed(() => AD_RATIO_TEXT)
 
-const imgSizeOk = computed(() => imgWidth.value === recommendedW.value && imgHeight.value === recommendedH.value)
+// 비율이 10:7 에 가깝고 권장 크기 이상이면 "선명", 비율만 맞고 작으면 "흐릿할 수 있음"
 const imgRatioOk = computed(() => {
   if (!imgWidth.value || !imgHeight.value) return false
   const target = recommendedW.value / recommendedH.value
   const actual = imgWidth.value / imgHeight.value
   return Math.abs(target - actual) < 0.05
 })
+const imgSizeOk = computed(() => imgRatioOk.value && imgWidth.value >= recommendedW.value && imgHeight.value >= recommendedH.value)
 
 function onImageChange(e) {
   const f = e.target.files[0]
