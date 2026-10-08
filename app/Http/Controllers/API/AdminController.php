@@ -51,11 +51,18 @@ class AdminController extends Controller
     }
 
     public function users(Request $request) {
+        $perPage = max(1, min(100, (int) $request->input('per_page', 20)));
         $query = User::query()
-            ->when($request->search, fn($q,$v) => $q->where('name','like',"%{$v}%")->orWhere('email','like',"%{$v}%"))
-            ->when($request->role, fn($q,$v) => $q->where('role', $v))
+            // 검색어는 한 덩어리로 묶어야 역할/정지 필터와 같이 써도 결과가 맞는다 (예전엔 OR 때문에 필터가 무시됐음)
+            ->when($request->search, fn($q,$v) => $q->where(fn($w) => $w
+                ->where('name','like',"%{$v}%")->orWhere('email','like',"%{$v}%")->orWhere('nickname','like',"%{$v}%")))
+            ->when($request->role, fn($q,$v) => $v === 'staff'
+                ? $q->whereIn('role', ['moderator', 'admin', 'super_admin'])   // 운영진(운영자·관리자·슈퍼관리자) 한꺼번에
+                : $q->where('role', $v))
+            ->when($request->boolean('banned') || $request->status === 'banned', fn($q) => $q->where('is_banned', true))
+            ->when($request->status === 'active', fn($q) => $q->where(fn($w) => $w->where('is_banned', false)->orWhereNull('is_banned')))
             ->orderByDesc('created_at');
-        return response()->json(['success'=>true,'data'=>$query->paginate(20)]);
+        return response()->json(['success'=>true,'data'=>$query->paginate($perPage)]);
     }
 
     public function banUser(Request $request, $id) {
@@ -319,6 +326,33 @@ class AdminController extends Controller
         }
 
         return response()->json(['success'=>true,'data'=>$user->fresh(),'message'=>'회원 정보가 수정되었습니다']);
+    }
+
+    // 회원 포인트 증감 — 값을 덮어쓰지 않고 +/- 로만 바꾸고(동시에 다른 곳에서 바뀌어도 안전), 포인트 기록에 사유를 남긴다. 관리자 이상.
+    public function adjustUserPoints(Request $request, $id) {
+        $data = $request->validate([
+            'amount' => 'required|integer|not_in:0|between:-1000000,1000000',
+            'reason' => 'nullable|string|max:100',
+        ]);
+        $admin = auth()->user();
+        $amount = (int) $data['amount'];
+        $reason = '관리자 조정' . (!empty($data['reason']) ? ': ' . $data['reason'] : '');
+
+        try {
+            $balance = \DB::transaction(function () use ($id, $amount, $reason) {
+                $u = User::whereKey($id)->lockForUpdate()->firstOrFail();
+                if ($amount < 0 && ($u->points + $amount) < 0) {
+                    abort(422, '보유 포인트보다 많이 차감할 수 없어요 (보유 ' . number_format((int) $u->points) . 'P)');
+                }
+                $u->addPoints($amount, $reason, 'admin');
+                return (int) $u->fresh()->points;
+            });
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], $e->getStatusCode());
+        }
+
+        \Log::info('Admin adjusted user points', ['admin_id' => $admin->id, 'user_id' => (int) $id, 'amount' => $amount, 'reason' => $data['reason'] ?? null]);
+        return response()->json(['success' => true, 'message' => ($amount > 0 ? '+' : '') . number_format($amount) . 'P 반영했어요', 'data' => ['points' => $balance]]);
     }
 
     // 유저로 로그인 (impersonate) — super_admin 만

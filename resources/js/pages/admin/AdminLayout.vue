@@ -284,6 +284,7 @@ function tabsFor(group) {
   return tabs.filter(t => t.to !== '/admin/sweepstakes' && !SUPER_ONLY.includes(t.to))
 }
 provide('adminTabsFor', tabsFor)
+provide('adminIsMobile', isMobileLayout)
 
 const groupLabels = { member: '회원', board: '게시판', ad: '광고', system: '시스템' }
 const mTabs = computed(() => [
@@ -299,6 +300,7 @@ const mTitle = computed(() => {
   if (path === '/admin') return '관리자'
   if (isHub.value) return groupLabels[route.params.group] || '관리자'
   if (path === '/admin/overview') return '종합 리포트'
+  if (path === '/admin/members' && route.query.user) return '회원 상세'
   let best = null
   for (const tabs of Object.values(subTabs)) for (const t of tabs) {
     if ((path === t.to || path.startsWith(t.to + '/')) && (!best || t.to.length > best.to.length)) best = t
@@ -308,10 +310,11 @@ const mTitle = computed(() => {
 const mBack = computed(() => {
   if (route.path === '/admin') return ''
   if (isHub.value) return '/admin'
+  if (route.path === '/admin/members' && route.query.user) return '/admin/members'
   return currentGroup.value === 'main' ? '/admin' : `/admin/menu/${currentGroup.value}`
 })
 // 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
-const mLegacy = computed(() => route.path !== '/admin' && !isHub.value)
+const mLegacy = computed(() => route.path !== '/admin' && !isHub.value && route.path !== '/admin/members')
 
 function isMainActive(item) {
   if (item.to === '/admin' && item.group === 'main') return route.path === '/admin'
