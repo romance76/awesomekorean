@@ -23,13 +23,15 @@ class NewsIngestTest extends TestCase
         config(['services.info_ingest.token' => 'test-token', 'services.news_ai.daily_cap' => 2]);
     }
 
+    private const LIST_SUMMARY = '요약문입니다. 목록에 보이려면 이미지가 있고 요약이 오십 자 이상이어야 하므로 충분히 길게 적어 둔 요약 문장입니다 정말로요.';
+
     private function auth(): array { return ['Authorization' => 'Bearer test-token']; }
 
     private function news(array $o = []): News
     {
         return News::create(array_merge([
             'title' => '美 영주권 후원 중단', 'content' => '원문 본문 일부입니다. 이 문장은 사이트에 저장된 짧은 본문이며 사십 자가 넘도록 충분히 길게 적어 둔 문장입니다 정말로요.',
-            'summary' => '요약', 'source' => '뉴시스', 'source_url' => 'https://example.com/a/1', 'published_at' => now()->subHour(), 'is_active' => true,
+            'summary' => self::LIST_SUMMARY, 'image_url' => 'https://example.com/a.jpg', 'source' => '뉴시스', 'source_url' => 'https://example.com/a/1', 'published_at' => now()->subHour(), 'is_active' => true,
         ], $o));
     }
 
@@ -60,7 +62,7 @@ class NewsIngestTest extends TestCase
         // 목록 API 는 본문 미리보기용 summary 와 해설 여부(ai_status)를 내려준다
         $row = $this->getJson('/api/news')->assertOk()->json('data.data.0');
         $this->assertSame('done', $row['ai_status']);
-        $this->assertSame('요약', $row['summary']);
+        $this->assertSame(self::LIST_SUMMARY, $row['summary']);
         $this->assertArrayNotHasKey('ai_summary', $row);
         $this->assertSame(self::SUMMARY, $this->getJson("/api/news/{$n->id}")->json('data.ai_summary'));
     }
