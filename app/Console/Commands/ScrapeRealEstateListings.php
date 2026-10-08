@@ -63,7 +63,7 @@ class ScrapeRealEstateListings extends Command
     ];
 
     private const RESULT_COUNT = 8; // ZIP당 가져올 건수 — 무료 크레딧(월 250) 안에서 매일 돌리기 위해 적게 유지
-    private const PICK_PER_RUN = 4; // 한 번 실행할 때 전국 풀에서 랜덤으로 뽑을 ZIP 개수 (매매+렌트 둘 다 매일 돌리므로 무료 크레딧 예산에 맞춰 줄임)
+    private const PICK_PER_RUN = 3; // 한 번 실행할 때 전국 풀에서 랜덤으로 뽑을 ZIP 개수 (매매+렌트 둘 다 매일 돌리므로 무료 크레딧 예산에 맞춰 줄임. 3곳 x 2회 = 하루 6건, 월 약 186건/250건)
 
     public function handle(): int
     {
