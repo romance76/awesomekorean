@@ -1,0 +1,34 @@
+name: Server mail config check (read-only)
+
+# 메일 "보내는 주소/방식" 설정이 awesomekorean.com 으로 맞는지 확인하는 읽기 전용 점검.
+# 주소·방식만 출력하고 비밀번호/키 값은 출력하지 않음. (이 파일을 main 에 올릴 때 1회 자동 실행, 서버 설정은 바꾸지 않음)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-mail-config.yml' ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Print mail settings (no secrets)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            cd /var/www/awesomekorean
+            echo "== .env 메일/주소 설정 (비밀 값 제외) =="
+            grep -E '^(MAIL_MAILER|MAIL_FROM_ADDRESS|MAIL_FROM_NAME|MAIL_HOST|MAIL_PORT|MAIL_ENCRYPTION|APP_URL|APP_NAME|ADMIN_REPORT_EMAIL)=' .env || true
+            echo "== 메일 관련 키 설정 여부 (값은 출력 안 함) =="
+            for k in RESEND_API_KEY MAIL_USERNAME MAIL_PASSWORD; do
+              v=$(grep -E "^$k=" .env | head -1 | cut -d= -f2- | tr -d '"'"'"' \r'); if [ -n "$v" ]; then echo "$k: 설정됨 (${#v}자)"; else echo "$k: 비어 있음/없음"; fi
+            done
+            echo "== 관리자 'API 키 관리'(DB)에 등록된 메일 관련 서비스 =="
+            mysql_cmd=$(grep -E '^DB_DATABASE=' .env | cut -d= -f2-); echo "(DB: $mysql_cmd)"
+            sudo -u www-data env HOME=/tmp /usr/bin/php8.2 artisan tinker --execute='foreach (\App\Models\ApiKey::whereIn("service",["resend_api_key","resend","mail","smtp"])->get() as $r) { echo $r->service . ": active=" . (int) $r->is_active . ", 길이=" . strlen((string) $r->api_key) . PHP_EOL; } foreach (DB::table("site_settings")->whereIn("key",["contact_email","company_name","notifications"])->get() as $s) { echo "site_settings." . $s->key . " = " . mb_substr((string) $s->value, 0, 300) . PHP_EOL; }' 2>&1 | head -20
