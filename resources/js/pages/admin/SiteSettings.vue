@@ -1045,9 +1045,7 @@
         <div class="flex items-center justify-between mb-4">
           <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 관리</h3>
           <div class="flex gap-2">
-            <button @click="runMailDebug" class="btn-secondary px-4 py-2 text-sm">메일 설정 진단</button>
-            <button @click="runMailTestSend" class="btn-secondary px-4 py-2 text-sm">메일 실제 발송 테스트</button>
-            <button @click="runPasswordResetDebug" class="btn-secondary px-4 py-2 text-sm">비밀번호 재설정 쿨다운 확인</button>
+            <button @click="runMailTestSend" class="btn-secondary px-4 py-2 text-sm">테스트 메일 보내기</button>
             <button @click="openAddAnalytics" class="btn-secondary px-4 py-2 text-sm">+ 구글 Analytics</button>
             <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
           </div>
@@ -1808,25 +1806,6 @@ async function toggleApiKeyActive(key) {
   loadApiKeys()
 }
 
-async function runMailDebug() {
-  try {
-    const { data } = await axios.get('/api/admin/system/mail-debug')
-    const d = data.data || data
-    alert(
-      '현재 사용 중인 메일 드라이버: ' + d.resolved_mail_default + '\n' +
-      'Resend 키(최종 적용값): ' + (d.resolved_resend_key_masked || '(없음)') + '\n' +
-      '발신 주소: ' + (d.mail_from_address || '(없음)') + '\n\n' +
-      '— .env 원본값 —\n' +
-      'MAIL_MAILER: ' + d.env_MAIL_MAILER_raw + '\n' +
-      'RESEND_API_KEY: ' + d.env_RESEND_API_KEY_raw + '\n\n' +
-      '— DB(관리자 페이지 등록) —\n' +
-      '등록됨: ' + (d.db_row_exists ? '예' : '아니오') + '\n' +
-      '활성 상태: ' + (d.db_row_is_active ? '예' : '아니오') + '\n' +
-      '키 값: ' + (d.db_row_key_masked || '(없음)')
-    )
-  } catch (e) { alert(e.response?.data?.message || '진단 실패: ' + e.message) }
-}
-
 async function runMailTestSend() {
   try {
     const { data } = await axios.post('/api/admin/system/mail-test-send')
@@ -1924,25 +1903,6 @@ async function onFaviconFileSelected(e) {
     uploadingFavicon.value = false
     e.target.value = ''
   }
-}
-
-async function runPasswordResetDebug() {
-  const email = prompt('확인할 이메일 주소를 입력하세요', 'romance76@gmail.com')
-  if (!email) return
-  try {
-    const { data } = await axios.get('/api/admin/system/password-reset-debug', { params: { email } })
-    const d = data.data || data
-    if (!d.row_exists) {
-      alert(email + ' 로 요청된 기록이 DB에 없습니다 (row_exists: false)')
-      return
-    }
-    alert(
-      '요청 시각(DB): ' + d.created_at + '\n' +
-      '서버 현재 시각: ' + d.server_now + '\n' +
-      '경과 시간: ' + d.diff_in_minutes_abs + '분\n' +
-      '쿨다운에 걸려 발송 스킵됐는지: ' + (d.would_skip_cooldown ? '예 (스킵됨)' : '아니오 (정상 발송 시도됨)')
-    )
-  } catch (e) { alert(e.response?.data?.message || '확인 실패: ' + e.message) }
 }
 
 async function toggleReveal(key) {

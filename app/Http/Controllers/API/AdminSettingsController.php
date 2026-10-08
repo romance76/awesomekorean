@@ -207,29 +207,7 @@ class AdminSettingsController extends Controller
     }
 
     // 임시 진단용 — Resend 키를 등록해도 메일이 전혀 안 나가는 문제 원인 파악.
-    // 서버 .env를 직접 못 보는 상황이라, 실제 요청 시점에 Laravel이 무엇을 읽고
-    // 있는지(마스킹된 값)를 여기서 바로 확인. 원인 확정되면 삭제 예정.
-    public function mailDebug() {
-        $envMailer = env('MAIL_MAILER');
-        $envResendKey = env('RESEND_API_KEY');
-        $dbRow = ApiKey::where('service', 'resend_api_key')->first();
-
-        return response()->json(['success' => true, 'data' => [
-            'resolved_mail_default' => config('mail.default'),
-            'resolved_resend_key_masked' => config('services.resend.key') ? substr(config('services.resend.key'), 0, 8) . '...' : null,
-            'env_MAIL_MAILER_raw' => $envMailer === null ? '(미설정)' : $envMailer,
-            'env_RESEND_API_KEY_raw' => $envResendKey ? substr($envResendKey, 0, 8) . '...' : '(미설정)',
-            'db_row_exists' => (bool) $dbRow,
-            'db_row_is_active' => $dbRow?->is_active,
-            'db_row_key_masked' => $dbRow?->api_key ? substr($dbRow->api_key, 0, 8) . '...' : null,
-            'mail_from_address' => config('mail.from.address'),
-        ]]);
-    }
-
-    // 설정값은 전부 정상인데도 실제 발송이 계속 실패해서, 추측 대신 실제로
-    // 발송을 시도해 Resend 클라이언트가 던지는 진짜 예외 메시지를 그대로
-    // 반환 — 서버 .env/로그에 직접 접근할 방법이 없는 상황의 최후 수단.
-    // 원인 확정되면 mailDebug()와 함께 제거 예정.
+    // 관리자 본인 메일로 실제 테스트 메일을 보내고, 실패하면 Resend 가 던진 예외 메시지를 그대로 돌려준다.
     public function mailTestSend(Request $request) {
         $to = $request->user()->email;
         try {
@@ -243,28 +221,6 @@ class AdminSettingsController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => get_class($e) . ': ' . $e->getMessage()], 500);
         }
-    }
-
-    // 임시 진단용 — "비밀번호 찾기" 요청 시 5분 쿨다운에 걸려 실제로는 발송이
-    // 스킵됐는지 확인 (화면엔 쿨다운 여부와 무관하게 항상 "전송했습니다"로
-    // 뜨게 설계되어 있어 프론트에서는 구분이 안 됨). 원인 확정되면 제거 예정.
-    public function passwordResetDebug(Request $request) {
-        $email = $request->query('email');
-        if (!$email) return response()->json(['success' => false, 'message' => 'email 쿼리 파라미터 필요'], 422);
-
-        $row = \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $email)->first();
-        if (!$row) {
-            return response()->json(['success' => true, 'data' => ['row_exists' => false]]);
-        }
-
-        return response()->json(['success' => true, 'data' => [
-            'row_exists' => true,
-            'created_at' => $row->created_at,
-            'server_now' => now()->toDateTimeString(),
-            'diff_in_minutes_raw' => now()->diffInMinutes($row->created_at),
-            'diff_in_minutes_abs' => abs(now()->diffInMinutes($row->created_at)),
-            'would_skip_cooldown' => abs(now()->diffInMinutes($row->created_at)) < 5,
-        ]]);
     }
 
     public function storeApiKey(Request $request) {
