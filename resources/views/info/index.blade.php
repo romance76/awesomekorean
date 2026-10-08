@@ -13,6 +13,7 @@
     <meta property="og:description" content="미국 한인을 위한 생활정보 가이드.">
     @include('partials.head-icons')
     @include('partials.analytics')
+    @include('partials.adsense')
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     @vite(['resources/css/app.css'])
