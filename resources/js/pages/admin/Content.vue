@@ -1,5 +1,94 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <form @submit.prevent="load()" class="flex gap-2">
+    <label class="flex-1 min-w-0 flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 min-h-[48px] text-ink-muted">
+      <AppIcon name="search" :size="18" />
+      <input v-model="search" type="search" placeholder="제목·작성자 검색" autocomplete="off" aria-label="게시글 검색" class="w-full min-w-0 bg-transparent outline-none text-ink" />
+    </label>
+    <button type="submit" class="shrink-0 min-h-[48px] px-4 rounded-xl bg-amber-500 text-white text-[15px] font-bold">검색</button>
+  </form>
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="게시판 선택">
+    <button @click="pickBoard('')" :aria-pressed="boardFilter === ''" class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]" :class="boardFilter === '' ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">전체</button>
+    <button v-for="b in boards" :key="b.id" @click="pickBoard(b.id)" :aria-pressed="boardFilter === b.id" class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]" :class="boardFilter === b.id ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ b.name }}</button>
+  </div>
+  <div class="text-[14px] text-ink-muted px-0.5">전체 {{ totalPosts.toLocaleString() }}건</div>
+
+  <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
+  <div v-else-if="!posts.length" class="text-center py-12 text-ink-muted text-[15px]">게시글이 없어요.</div>
+  <div v-else class="space-y-2">
+    <button v-for="p in posts" :key="p.id" @click="openPost(p)" class="w-full text-left bg-white border border-gray-100 rounded-2xl p-3.5 min-h-[76px] active:bg-amber-50" :class="p.is_hidden ? 'opacity-60' : ''">
+      <span class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[12px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">{{ p.board?.name || '-' }}</span>
+        <span v-if="p.is_pinned" class="text-[12px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">고정</span>
+        <span v-if="p.is_hidden" class="text-[12px] font-bold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">숨김</span>
+      </span>
+      <span class="block text-[16px] font-bold text-ink leading-snug break-words line-clamp-2 mt-1">{{ p.title }}</span>
+      <span class="flex items-center gap-x-3 gap-y-1 flex-wrap mt-1.5 text-[13px] text-ink-muted">
+        <span>{{ p.user?.name || '-' }}</span><span>{{ p.created_at?.slice(0, 10) }}</span><span>💬 {{ p.comment_count || 0 }}</span><span>👁 {{ p.view_count || 0 }}</span>
+      </span>
+    </button>
+    <div v-if="lastPage > 1" class="flex items-center justify-between gap-2 pt-2">
+      <button @click="load(page - 1)" :disabled="page <= 1" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
+      <span class="text-[14px] text-ink-muted tabular-nums">{{ page }} / {{ lastPage }}</span>
+      <button @click="load(page + 1)" :disabled="page >= lastPage" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">다음</button>
+    </div>
+  </div>
+
+  <Teleport to="body">
+    <!-- 게시글 상세 (전체 화면) -->
+    <div v-if="activePost" class="alv-m fixed inset-0 z-[60] bg-white flex flex-col" role="dialog" aria-modal="true" aria-label="게시글 상세">
+      <div class="shrink-0 flex items-center gap-2 px-2 border-b border-gray-100" :style="{ paddingTop: 'env(safe-area-inset-top, 0px)' }">
+        <button @click="closePost" class="min-h-[52px] min-w-[52px] grid place-items-center text-[22px]" aria-label="목록으로">←</button>
+        <div class="flex-1 min-w-0 text-[16px] font-bold text-ink truncate">게시글 상세</div>
+      </div>
+      <div class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-[12px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">{{ activePost.board?.name || '게시판' }}</span>
+          <span v-if="activePost.is_pinned" class="text-[12px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">고정</span>
+          <span v-if="activePost.is_hidden" class="text-[12px] font-bold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">숨김</span>
+        </div>
+        <h2 class="text-[19px] font-bold text-ink leading-snug break-words">{{ activePost.title }}</h2>
+        <div class="flex items-center gap-x-3 gap-y-1 flex-wrap text-[13px] text-ink-muted">
+          <button v-if="activePost.user?.id" @click="goUser(activePost.user)" class="min-h-[40px] text-blue-600 font-bold text-[14px]">{{ activePost.user?.name }}</button>
+          <span>{{ activePost.created_at?.slice(0, 10) }}</span><span>👁 {{ activePost.view_count || 0 }}</span><span>❤️ {{ activePost.like_count || 0 }}</span>
+        </div>
+        <div class="text-[15px] text-ink-light leading-relaxed whitespace-pre-wrap break-words bg-gray-50 rounded-2xl p-3.5">{{ activePost.content }}</div>
+        <div v-if="activePost.comments?.length">
+          <div class="text-[15px] font-bold text-ink mb-2">💬 댓글 {{ activePost.comments.length }}개</div>
+          <div v-for="c in activePost.comments" :key="c.id" class="border-b border-gray-100 last:border-0 py-2.5">
+            <div class="flex items-center gap-2">
+              <span class="text-[14px] font-bold text-ink">{{ c.user?.name }}</span>
+              <span class="text-[12px] text-ink-faint">{{ c.created_at?.slice(0, 10) }}</span>
+              <button @click="ask({ kind: 'comment', c })" class="ml-auto min-h-[44px] px-3 text-[14px] font-bold text-red-500">삭제</button>
+            </div>
+            <div class="text-[14px] text-ink-light break-words">{{ c.content }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="shrink-0 grid grid-cols-3 gap-2 px-4 pt-3 border-t border-gray-100" :style="{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }">
+        <button @click="pinPost(activePost)" class="min-h-[50px] rounded-xl text-[15px] font-bold" :class="activePost.is_pinned ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-ink'">{{ activePost.is_pinned ? '고정 해제' : '고정' }}</button>
+        <button @click="hidePost(activePost)" class="min-h-[50px] rounded-xl text-[15px] font-bold" :class="activePost.is_hidden ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-ink'">{{ activePost.is_hidden ? '보이기' : '숨기기' }}</button>
+        <button @click="ask({ kind: 'post', p: activePost })" class="min-h-[50px] rounded-xl bg-red-50 text-red-600 text-[15px] font-bold">삭제</button>
+      </div>
+    </div>
+
+    <!-- 삭제 확인 시트 -->
+    <div v-if="sheet" class="alv-m fixed inset-0 z-[70] bg-black/45 flex items-end" @click.self="sheet = null">
+      <div class="w-full bg-white rounded-t-3xl px-4 pt-2" role="dialog" aria-modal="true" :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
+        <div class="text-[17px] font-bold text-ink mb-1">{{ sheet.kind === 'post' ? '게시글을 삭제할까요?' : '댓글을 삭제할까요?' }}</div>
+        <p class="text-[15px] text-ink-light mb-3 break-words">{{ sheet.kind === 'post' ? sheet.p.title : sheet.c.content }}</p>
+        <button @click="doDelete" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-40">{{ busy ? '삭제 중...' : '삭제하기' }}</button>
+        <button @click="sheet = null" :disabled="busy" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
+      </div>
+    </div>
+    <div v-if="toast" class="alv-m fixed left-1/2 -translate-x-1/2 z-[80] max-w-[90vw] px-4 py-3 rounded-xl text-[15px] font-bold text-white shadow-lg" :class="toast.error ? 'bg-red-600' : 'bg-ink'" :style="{ top: 'calc(70px + env(safe-area-inset-top, 0px))' }" role="status">{{ toast.text }}</div>
+  </Teleport>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="edit" :size="20" /></span>
     콘텐츠 관리
@@ -212,13 +301,53 @@
 </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
 const posts = ref([]); const boards = ref([]); const loading = ref(true)
 const page = ref(1); const lastPage = ref(1); const totalPosts = ref(0)
 const search = ref(''); const boardFilter = ref('')
 const activePost = ref(null)
+
+// 관리자 휴대폰 화면이면 카드 목록 + 전체 화면 상세 + 확인 시트로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const router = useRouter()
+const toast = ref(null)
+let toastTimer = null
+function say(text, error = false) { toast.value = { text, error }; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = null }, 3000) }
+const busy = ref(false)
+const sheet = ref(null)   // { kind: 'post', p } | { kind: 'comment', c }
+function ask(s) { sheet.value = s }
+function pickBoard(id) { boardFilter.value = id; load() }
+function goUser(u) { if (u?.id) router.push({ path: '/admin/members', query: { user: String(u.id) } }) }
+// 상세 화면: 뒤로가기 버튼으로 목록에 돌아오도록 history 한 칸 사용
+let pushedDetail = false
+function onPopState() { if (pushedDetail && !history.state?.contentDetail) { pushedDetail = false; activePost.value = null; sheet.value = null } }
+function closePost() { if (pushedDetail) history.back(); else activePost.value = null }
+window.addEventListener('popstate', onPopState)
+async function doDelete() {
+  if (busy.value || !sheet.value) return
+  busy.value = true
+  try {
+    if (sheet.value.kind === 'post') {
+      const p = sheet.value.p
+      await axios.delete(`/api/admin/posts/${p.id}`)
+      posts.value = posts.value.filter(x => x.id !== p.id); totalPosts.value = Math.max(0, totalPosts.value - 1)
+      sheet.value = null; closePost(); say('삭제했어요')
+    } else {
+      const c = sheet.value.c
+      await axios.delete(`/api/comments/${c.id}`)
+      if (activePost.value?.comments) activePost.value.comments = activePost.value.comments.filter(x => x.id !== c.id)
+      sheet.value = null; say('댓글을 삭제했어요')
+    }
+  } catch (e) { say(e.response?.data?.message || '삭제하지 못했어요', true) }
+  finally { busy.value = false }
+}
+watch(() => isMobile.value && (!!activePost.value || !!sheet.value), locked => { document.body.style.overflow = locked ? 'hidden' : '' })
+onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer); window.removeEventListener('popstate', onPopState) })
 
 // 회원 모달
 const userModal = ref(null)
@@ -252,6 +381,7 @@ async function openPost(p) {
     const { data } = await axios.get(`/api/admin/posts/${p.id}/detail`)
     activePost.value = data.data
   } catch { activePost.value = p }
+  if (isMobile.value && !pushedDetail) { history.pushState({ ...(history.state || {}), contentDetail: true }, ''); pushedDetail = true }
 }
 
 async function openUserModal(user) {
@@ -277,8 +407,9 @@ async function deleteComment(id) {
   try { await axios.delete(`/api/comments/${id}`); if (activePost.value?.comments) activePost.value.comments = activePost.value.comments.filter(c=>c.id!==id) } catch {}
 }
 
-async function pinPost(p) { try { await axios.post(`/api/admin/posts/${p.id}/pin`); p.is_pinned=!p.is_pinned } catch {} }
-async function hidePost(p) { try { await axios.post(`/api/admin/posts/${p.id}/hide`); p.is_hidden=!p.is_hidden } catch {} }
+function syncRow(p, k) { const r = posts.value.find(x => x.id === p.id); if (r && r !== p) r[k] = p[k] }
+async function pinPost(p) { try { await axios.post(`/api/admin/posts/${p.id}/pin`); p.is_pinned=!p.is_pinned; syncRow(p, 'is_pinned') } catch (e) { if (isMobile.value) say(e.response?.data?.message || '처리하지 못했어요', true) } }
+async function hidePost(p) { try { await axios.post(`/api/admin/posts/${p.id}/hide`); p.is_hidden=!p.is_hidden; syncRow(p, 'is_hidden') } catch (e) { if (isMobile.value) say(e.response?.data?.message || '처리하지 못했어요', true) } }
 async function deletePost(p) { if(!confirm('삭제?'))return; try { await axios.delete(`/api/admin/posts/${p.id}`); posts.value=posts.value.filter(x=>x.id!==p.id) } catch {} }
 
 onMounted(async () => {
@@ -286,3 +417,8 @@ onMounted(async () => {
   load()
 })
 </script>
+
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>

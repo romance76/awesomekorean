@@ -1,6 +1,10 @@
 <template>
 <div>
-  <div class="flex justify-end gap-2 mb-3">
+  <div v-if="isMobile" class="alv-m grid grid-cols-1 gap-2 mb-3">
+    <button @click="fetchMusic" :disabled="fetching" class="min-h-[50px] rounded-xl bg-blue-500 text-white text-[15px] font-bold disabled:opacity-50">{{ fetching ? '수집 중...' : 'YouTube 자동수집 (100곡)' }}</button>
+    <button @click="showImport = true" class="min-h-[50px] rounded-xl bg-amber-500 text-white text-[15px] font-bold">플레이리스트·채널 가져오기</button>
+  </div>
+  <div v-else class="flex justify-end gap-2 mb-3">
     <button @click="fetchMusic" :disabled="fetching"
       class="inline-flex items-center gap-1.5 bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50">
       <AppIcon name="refresh" :size="14" />{{ fetching ? '수집중...' : 'YouTube 자동수집 (100곡)' }}
@@ -23,8 +27,36 @@
   />
   <AdminUserModal :show="showUser" :user-id="selectedUserId" @close="showUser=false" />
 
+  <!-- 휴대폰: YouTube 가져오기 시트 -->
+  <Teleport to="body">
+    <div v-if="isMobile && showImport" class="alv-m fixed inset-0 z-[70] bg-black/45 flex items-end" @click.self="closeImport">
+      <div class="w-full bg-white rounded-t-3xl px-4 pt-2 max-h-[92vh] overflow-y-auto" role="dialog" aria-modal="true" aria-label="YouTube에서 가져오기" :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
+        <div class="text-[17px] font-bold text-ink mb-3">YouTube에서 가져오기</div>
+        <label class="block text-[14px] font-bold text-ink mb-1" for="mu-cat">카테고리</label>
+        <select id="mu-cat" v-model="importCatId" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 mb-3 bg-white">
+          <option :value="null">카테고리 선택</option>
+          <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+        </select>
+        <div class="grid grid-cols-3 gap-1 mb-3 bg-gray-100 rounded-xl p-1" role="group" aria-label="가져오기 방식">
+          <button v-for="m in [['playlist','플레이리스트'],['channel','채널'],['urls','URL']]" :key="m[0]" @click="importMode = m[0]" :aria-pressed="importMode === m[0]"
+            class="min-h-[44px] rounded-lg text-[14px]" :class="importMode === m[0] ? 'bg-white text-ink font-bold shadow-sm' : 'text-ink-muted font-medium'">{{ m[1] }}</button>
+        </div>
+        <textarea v-if="importMode === 'urls'" v-model="importUrl" rows="5" placeholder="https://youtu.be/xxx&#10;https://youtu.be/yyy" aria-label="YouTube 주소들" class="w-full rounded-xl border border-gray-200 px-3 py-3"></textarea>
+        <input v-else v-model="importUrl" :placeholder="importMode === 'playlist' ? 'https://www.youtube.com/playlist?list=PL...' : 'https://www.youtube.com/@channelname'" inputmode="url" autocapitalize="none" aria-label="YouTube 주소" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        <p class="text-[13px] text-ink-muted mt-1.5">{{ importMode === 'playlist' ? '최대 200개, 5분 이하만' : importMode === 'channel' ? '채널 최근 업로드 최대 200개' : '한 줄에 하나씩' }} · 비한국어·라이브·중복은 자동 제외</p>
+        <div v-if="importResult" class="mt-3 rounded-xl p-3 text-[14px]" :class="importResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
+          <div class="font-bold">{{ importResult.success ? '완료' : '실패' }}</div><div class="break-words">{{ importResult.message }}</div>
+        </div>
+        <button @click="runImport" :disabled="!importUrl.trim() || !importCatId || importing" class="mt-4 w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ importing ? '가져오는 중...' : '가져오기 시작' }}</button>
+        <button @click="closeImport" :disabled="importing" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">닫기</button>
+      </div>
+    </div>
+    <div v-if="toast && isMobile" class="alv-m fixed left-1/2 -translate-x-1/2 z-[80] max-w-[90vw] px-4 py-3 rounded-xl text-[15px] font-bold text-white shadow-lg" :class="toast.error ? 'bg-red-600' : 'bg-ink'" :style="{ top: 'calc(70px + env(safe-area-inset-top, 0px))' }" role="status">{{ toast.text }}</div>
+  </Teleport>
+
   <!-- YouTube 가져오기 모달 (플레이리스트/채널/개별 URL) -->
-  <div v-if="showImport" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="closeImport">
+  <div v-if="showImport && !isMobile" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" @click.self="closeImport">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden">
       <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center">
         <div class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="download" :size="15" /></span>YouTube에서 가져오기</div>
@@ -85,18 +117,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch, inject, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
 
+// 관리자 휴대폰 화면이면 큰 버튼 + 아래에서 올라오는 시트 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const toast = ref(null); let toastTimer = null
+function say(text, error = false) { toast.value = { text, error }; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = null }, 3500) }
+onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
 const showUser = ref(false)
 const selectedUserId = ref(null)
 const fetching = ref(false)
 const categories = ref([])
 
 const showImport = ref(false)
+watch(() => isMobile.value && showImport.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
 const importCatId = ref(null)
 const importMode = ref('playlist')
 const importUrl = ref('')
@@ -112,8 +151,8 @@ async function fetchMusic() {
   fetching.value = true
   try {
     const { data } = await axios.post('/api/admin/fetch-music')
-    alert(data.message || '음악 수집 완료')
-  } catch (e) { alert(e.response?.data?.message || '수집 실패') }
+    if (isMobile.value) say(data.message || '음악 수집 완료'); else alert(data.message || '음악 수집 완료')
+  } catch (e) { if (isMobile.value) say(e.response?.data?.message || '수집 실패', true); else alert(e.response?.data?.message || '수집 실패') }
   fetching.value = false
 }
 
@@ -155,3 +194,8 @@ const pointSchema = {
 
 onMounted(() => loadCategoriesForImport())
 </script>
+
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>

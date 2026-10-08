@@ -1,5 +1,5 @@
 <template>
-<div v-if="show" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="$emit('close')">
+<div v-if="show && !isMobile" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="$emit('close')">
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col">
     <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-amber-50">
       <div class="flex items-center gap-2">
@@ -205,12 +205,21 @@
 </template>
 
 <script setup>
-import { ref, watch, h } from 'vue'
+import { ref, computed, watch, inject, h } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 
 const props = defineProps({ show: Boolean, userId: [Number, String] })
-defineEmits(['close'])
+const emit = defineEmits(['close'])
+
+// 휴대폰 관리자: 이 큰 팝업 대신 '회원관리'의 휴대폰 회원 상세 화면으로 이동
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const router = useRouter()
+watch(() => [props.show, props.userId], ([show, id]) => {
+  if (show && id && isMobile.value) { emit('close'); router.push({ path: '/admin/members', query: { user: String(id) } }) }
+}, { immediate: true })
 
 const data = ref(null); const loading = ref(false); const tab = ref('info')
 const entryAdjustForm = ref({ amount: '', description: '' })
@@ -286,7 +295,7 @@ const PostTable = {
 }
 
 watch(() => props.userId, async (id) => {
-  if (!id) return
+  if (!id || isMobile.value) return
   loading.value = true; data.value = null; tab.value = 'info'
   try { const { data: res } = await axios.get(`/api/admin/users/${id}/detail`); data.value = res.data } catch {}
   loading.value = false

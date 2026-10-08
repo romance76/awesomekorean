@@ -1,8 +1,8 @@
 <template>
 <div>
-  <div class="flex justify-end mb-3">
+  <div class="flex justify-end mb-3 alv-m" :class="isMobile ? '!justify-stretch' : ''">
     <button @click="fetchShorts" :disabled="fetching"
-      class="inline-flex items-center gap-1.5 bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50">
+      class="inline-flex items-center justify-center gap-1.5 bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50" :class="isMobile ? 'w-full min-h-[50px] !text-[15px] !font-bold' : ''">
       <AppIcon name="video" :size="14" />{{ fetching ? '수집 중...' : 'YouTube 숏츠 수집 (100개, 한국 75%)' }}
     </button>
   </div>
@@ -18,16 +18,25 @@
     @open-user="u => { selectedUserId = u?.id; showUser = true }"
   />
   <AdminUserModal :show="showUser" :user-id="selectedUserId" @close="showUser=false" />
+  <Teleport to="body">
+    <div v-if="toast && isMobile" class="alv-m fixed left-1/2 -translate-x-1/2 z-[80] max-w-[90vw] px-4 py-3 rounded-xl text-[15px] font-bold text-white shadow-lg" :class="toast.error ? 'bg-red-600' : 'bg-ink'" :style="{ top: 'calc(70px + env(safe-area-inset-top, 0px))' }" role="status">{{ toast.text }}</div>
+  </Teleport>
 </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, inject, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
 
+// 관리자 휴대폰 화면: 수집 버튼을 크게, 결과는 위쪽 알림으로 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const toast = ref(null); let toastTimer = null
+function say(text, error = false) { toast.value = { text, error }; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = null }, 3500) }
+onBeforeUnmount(() => clearTimeout(toastTimer))
 const showUser = ref(false)
 const selectedUserId = ref(null)
 const fetching = ref(false)
@@ -36,9 +45,9 @@ async function fetchShorts() {
   fetching.value = true
   try {
     const { data } = await axios.post('/api/admin/fetch-shorts')
-    alert(data.message || '숏츠 수집 완료!')
-    location.reload()
-  } catch (e) { alert(e.response?.data?.message || '수집 실패') }
+    if (isMobile.value) { say(data.message || '숏츠 수집 완료!'); setTimeout(() => location.reload(), 1200) }
+    else { alert(data.message || '숏츠 수집 완료!'); location.reload() }
+  } catch (e) { { if (isMobile.value) say(e.response?.data?.message || '수집 실패', true); else alert(e.response?.data?.message || '수집 실패') } }
   fetching.value = false
 }
 
