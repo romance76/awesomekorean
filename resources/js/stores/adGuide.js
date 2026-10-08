@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import axios from 'axios'
+import router from '../router'
 
 /**
  * "광고 위치 확인하기" 안내 모드.
@@ -35,8 +36,12 @@ export const useAdGuideStore = defineStore('adGuide', () => {
     return discountPct.value ? Math.round(base * (100 - discountPct.value) / 100) : base
   }
 
-  function open() { on.value = true; loadPrices() }
-  function close() { on.value = false }
+  function onKey(e) { if (e.key === 'Escape') close() }
+  function open() { on.value = true; loadPrices(); window.addEventListener('keydown', onKey) }
+  function close() { on.value = false; window.removeEventListener('keydown', onKey) }
+
+  // 다른 페이지로 이동하면 안내 모드 해제
+  router.afterEach(() => { if (on.value) close() })
   function toggle() { on.value ? close() : open() }
 
   return { on, prices, discountPct, priceOf, open, close, toggle }

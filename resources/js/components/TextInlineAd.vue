@@ -4,7 +4,7 @@
      - 짧으면 → 좌우 천천히 왕복 (4초)
      - 클릭 시 link_url 이동 -->
 <div v-if="guide.on" class="my-2">
-  <AdGuideBox name="텍스트 인라인" icon="📝" tone="text" size-label="상호+전화+설명 한 줄 · 리스트 안" :price="guide.priceOf('inline-text_text')" :used="!!ad" />
+  <AdGuideBox name="텍스트 인라인" icon="📝" tone="text" size-label="상호+전화+설명 한 줄 · 리스트 안" :price="guide.priceOf('inline-text_text')" :used="!!ad" :apply-to="{ page: props.page, position: 'inline-text', slot: 1, tier: 'text' }" />
 </div>
 <div v-else-if="ad" class="tia-wrap" @click="handleClick">
   <div class="tia-badge">AD</div>
