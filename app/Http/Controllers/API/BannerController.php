@@ -144,11 +144,12 @@ class BannerController extends Controller
         ]);
 
         $user = auth()->user();
-        $cost = (int) $data['bid_amount'];
+        $bid = (int) $data['bid_amount'];
+        $cost = \App\Support\OpenEvent::apply($bid, 'banner');   // 오픈 이벤트: 실제 차감액만 할인(입찰액은 그대로), 환불은 total_cost 기준
         if ($user->points < $cost) {
             return response()->json(['success' => false, 'message' => "포인트 부족. 필요 {$cost}P"], 422);
         }
-        $user->addPoints(-$cost, 'banner_text', "텍스트 인라인 광고 신청 · {$data['days']}일");
+        if ($cost > 0) $user->addPoints(-$cost, 'banner_text', "텍스트 인라인 광고 신청 · {$data['days']}일");
 
         $ad = BannerAd::create([
             'user_id'     => $user->id,
@@ -162,7 +163,7 @@ class BannerController extends Controller
             'position'    => 'inline-text',
             'slot_number' => 1,
             'geo_scope'   => 'all',
-            'bid_amount'  => $cost,
+            'bid_amount'  => $bid,
             'daily_cost'  => (int) ceil($cost / $data['days']),
             'total_cost'  => $cost,
             'start_date'  => now()->toDateString(),
@@ -423,12 +424,13 @@ class BannerController extends Controller
             ], 422);
         }
 
-        // 포인트 확인
+        // 포인트 확인 (오픈 이벤트 기간에는 실제 차감액만 할인 — 입찰액·순위는 그대로, 환불은 total_cost 기준)
         $user = auth()->user();
-        if ($user->points < $bidAmount) {
+        $chargeAmount = \App\Support\OpenEvent::apply($bidAmount, 'banner');
+        if ($user->points < $chargeAmount) {
             return response()->json([
                 'success' => false,
-                'message' => "포인트 부족. 입찰: {$bidAmount}P, 보유: {$user->points}P"
+                'message' => "포인트 부족. 필요: {$chargeAmount}P (입찰 {$bidAmount}P), 보유: {$user->points}P"
             ], 422);
         }
 
@@ -456,13 +458,13 @@ class BannerController extends Controller
             'end_date' => $endDate,
             'auction_month' => $auctionMonth,
             'bid_amount' => $bidAmount,
-            'daily_cost' => $bidAmount,
-            'total_cost' => $bidAmount,
+            'daily_cost' => $chargeAmount,
+            'total_cost' => $chargeAmount,
             'status' => 'pending',
         ]);
 
         // 포인트 차감
-        $user->addPoints(-$bidAmount, "광고 입찰: {$request->title} ({$auctionMonth})", 'banner');
+        if ($chargeAmount > 0) $user->addPoints(-$chargeAmount, "광고 입찰: {$request->title} ({$auctionMonth})", 'banner');
 
         // 신규 신청 시 관리자에게 통지가 전혀 없어 대시보드를 수동으로 열어야만
         // 확인 가능하던 문제 수정 (ReportController::store()와 동일한 패턴)
@@ -477,7 +479,7 @@ class BannerController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "입찰 완료! {$bidAmount}P 차감. {$auctionMonth} 경매 결과에 따라 배정됩니다.",
+            'message' => "입찰 완료! {$chargeAmount}P 차감. {$auctionMonth} 경매 결과에 따라 배정됩니다.",
             'data' => $banner,
         ], 201);
     }

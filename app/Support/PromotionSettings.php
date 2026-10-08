@@ -59,7 +59,8 @@ class PromotionSettings
 
     public static function pricePerDay(string $tier, string $resource = 'jobs'): int
     {
-        return self::all()['price_per_day'][$resource][$tier] ?? self::defaultPrice($tier);
+        // 오픈 이벤트 기간에는 할인된 가격 (캐시된 원래 값 위에 덧씌움)
+        return OpenEvent::apply((int) (self::all()['price_per_day'][$resource][$tier] ?? self::defaultPrice($tier)), 'promotion');
     }
 
     /** 리소스 하나에 대한 전체 가격/슬롯 한번에 반환 (프론트 전송용) */
@@ -68,7 +69,7 @@ class PromotionSettings
         $all = self::all();
         return [
             'max_slots'     => $all['max_slots'][$resource] ?? [],
-            'price_per_day' => $all['price_per_day'][$resource] ?? [],
+            'price_per_day' => array_map(fn ($p) => OpenEvent::apply((int) $p, 'promotion'), $all['price_per_day'][$resource] ?? []),
         ];
     }
 

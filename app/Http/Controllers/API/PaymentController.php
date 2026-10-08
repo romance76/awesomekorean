@@ -23,7 +23,14 @@ class PaymentController extends Controller
     {
         $raw = \App\Support\PointRules::raw('purchase_bonus_brackets', json_encode(self::DEFAULT_BONUS_BRACKETS));
         $brackets = json_decode($raw, true);
-        return is_array($brackets) && !empty($brackets) ? $brackets : self::DEFAULT_BONUS_BRACKETS;
+        $brackets = is_array($brackets) && !empty($brackets) ? $brackets : self::DEFAULT_BONUS_BRACKETS;
+        // 오픈 이벤트 기간에는 모든 구간에 추가 보너스(%) — 화면 미리보기와 실제 지급이 같은 표를 쓰므로 함께 맞춰진다
+        $event = \App\Support\OpenEvent::purchaseBonusPct();
+        if ($event > 0) {
+            foreach ($brackets as &$b) $b['bonus_pct'] = (int) ($b['bonus_pct'] ?? 0) + $event;
+            unset($b);
+        }
+        return $brackets;
     }
 
     private function bonusPctForAmount(float $amount): int
@@ -33,7 +40,7 @@ class PaymentController extends Controller
                 return (int) ($b['bonus_pct'] ?? 0);
             }
         }
-        return 0;
+        return \App\Support\OpenEvent::purchaseBonusPct();   // 어느 구간에도 안 맞으면 이벤트 보너스만
     }
 
     /** 금액 → 지급 포인트 (amount * 100 * (1 + bonus%/100), 반올림) */

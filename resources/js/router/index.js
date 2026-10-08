@@ -224,6 +224,7 @@ const routes = [
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'todos', component: p('admin/AdminTodos') },
       { path: 'analytics', component: p('admin/AdminAnalytics') },
+      { path: 'open-event', component: p('admin/AdminOpenEvent') },
       { path: 'settings', component: p('admin/SiteSettings') },
       { path: 'point-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'entry-settings', component: p('admin/AdminEntrySettings') },
