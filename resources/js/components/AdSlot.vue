@@ -18,12 +18,17 @@
 
     <template v-if="showGuideLink && (position === 'left' || position === 'right')">
       <!-- 안내 모드: 링크 자리에 신청 / 닫기 버튼 -->
-      <div v-if="guide.on" class="mt-2 flex gap-1.5">
+      <template v-if="guide.on">
+      <div class="mt-2 flex gap-1.5">
         <RouterLink :to="{ path: '/ad-apply', query: { page } }"
           class="flex-1 text-center text-[11px] font-bold text-white bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-lg py-1.5">광고 신청</RouterLink>
         <button type="button" @click="guide.close()"
           class="flex-1 text-center text-[11px] font-bold text-ink-light bg-gray-100 hover:bg-gray-200 rounded-lg py-1.5 transition-colors">닫기</button>
       </div>
+      <button type="button" @click="showPhone = true"
+        class="mt-1.5 w-full text-center text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg py-1.5 transition-colors">📱 폰 화면 보기</button>
+      <AdPhonePreview v-model="showPhone" :page="page" :page-label="pageLabel" />
+      </template>
       <button v-else type="button" @click="guide.open()"
         class="mt-2 w-full text-center text-[11px] text-ink-faint hover:text-amber-600 transition-colors py-1">광고 위치 확인하기</button>
     </template>
@@ -35,6 +40,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useBannerStore } from '../stores/banners'
 import { useAdGuideStore } from '../stores/adGuide'
 import AdGuideBox from './AdGuideBox.vue'
+import AdPhonePreview from './AdPhonePreview.vue'
 import { adSize } from '../utils/adSizes'
 import axios from 'axios'
 
@@ -48,6 +54,9 @@ const props = defineProps({
 const bannerStore = useBannerStore()
 const guide = useAdGuideStore()
 const ads = ref([])
+const showPhone = ref(false)
+const PAGE_LABELS = { home: '홈', community: '커뮤니티', qa: 'Q&A', jobs: '구인구직', market: '중고장터', realestate: '부동산', directory: '업소록', clubs: '동호회', news: '뉴스', recipes: '레시피', groupbuy: '공동구매', events: '이벤트' }
+const pageLabel = computed(() => PAGE_LABELS[props.page] || '목록')
 
 const imgStyle = computed(() => {
   if (props.position === 'left') return { width: '100%', maxWidth: '200px', aspectRatio: adSize('left').ratio, objectFit: 'cover', display: 'block', margin: '0 auto' }
