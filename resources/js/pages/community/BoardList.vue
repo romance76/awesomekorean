@@ -166,7 +166,7 @@
         </div>
 
         <!-- 리스트 뷰 -->
-        <div v-else class="card overflow-hidden divide-y divide-gray-50">
+        <div v-else class="card overflow-hidden divide-y divide-[#DDD4CA] dark:divide-white/15">
           <template v-for="(item, i) in items" :key="item.id">
           <div @click="openItem(item)" class="list-row !px-4 sm:!px-5 !py-4 flex gap-3">
             <div class="flex-1 min-w-0">
