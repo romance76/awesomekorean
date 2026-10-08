@@ -168,19 +168,29 @@
         <!-- 리스트 뷰 -->
         <div v-else class="card overflow-hidden divide-y divide-gray-50">
           <template v-for="(item, i) in items" :key="item.id">
-          <div @click="openItem(item)"
-            class="list-row">
-            <div class="flex items-center gap-2">
-              <span v-if="!activeBoard" class="badge-primary flex-shrink-0">{{ item.board?.name || '자유' }}</span>
-              <span class="text-sm font-semibold text-ink truncate flex-1">{{ item.title }}</span>
+          <div @click="openItem(item)" class="list-row !px-4 sm:!px-5 !py-4 flex gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span v-if="!activeBoard" class="badge-primary flex-shrink-0">{{ item.board?.name || '자유' }}</span>
+                <span v-if="item.category" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">#{{ item.category }}</span>
+                <span v-if="isHot(item)" class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">인기</span>
+              </div>
+              <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title }}</div>
+              <p v-if="excerpt(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ excerpt(item) }}</p>
+              <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-2 text-xs text-ink-muted">
+                <button @click.stop="openPopup(item.user?.id)" class="inline-flex items-center gap-1.5 font-medium text-ink hover:text-amber-700 transition-colors">
+                  <span class="w-5 h-5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold grid place-items-center" aria-hidden="true">{{ (item.user?.name || '?').slice(0, 1) }}</span>{{ item.user?.name }}
+                </button>
+                <span>{{ formatDate(item.created_at) }}</span>
+                <span class="flex items-center gap-0.5 tabular-nums" :class="item.like_count ? 'text-amber-700 font-semibold' : ''" :aria-label="'좋아요 ' + (item.like_count || 0)"><AppIcon name="heart" :size="13" />{{ item.like_count || 0 }}</span>
+                <span class="flex items-center gap-0.5 tabular-nums" :class="item.comment_count ? 'text-amber-700 font-semibold' : ''" :aria-label="'댓글 ' + (item.comment_count || 0)"><AppIcon name="message-circle" :size="13" />{{ item.comment_count || 0 }}</span>
+                <span class="flex items-center gap-0.5 tabular-nums" :aria-label="'조회 ' + (item.view_count || 0)"><AppIcon name="eye" :size="13" />{{ item.view_count || 0 }}</span>
+                <BookmarkToggle v-if="auth.isLoggedIn" :active="favoritedList.has(item.id)" @toggle="toggleFavList(item)" size="sm" class="ml-auto" />
+              </div>
             </div>
-            <div class="flex items-center gap-2 mt-1 text-xs text-ink-muted">
-              <button @click.stop="openPopup(item.user?.id)" class="hover:text-amber-700 transition-colors">{{ item.user?.name }}</button>
-              <span class="flex items-center gap-0.5"><AppIcon name="eye" :size="12" />{{ item.view_count }}</span>
-              <span class="flex items-center gap-0.5"><AppIcon name="heart" :size="12" />{{ item.like_count }}</span>
-              <span v-if="item.comment_count" class="flex items-center gap-0.5"><AppIcon name="message-circle" :size="12" />{{ item.comment_count }}</span>
-              <span>{{ formatDate(item.created_at) }}</span>
-              <BookmarkToggle v-if="auth.isLoggedIn" :active="favoritedList.has(item.id)" @toggle="toggleFavList(item)" size="sm" class="ml-auto" />
+            <div v-if="thumbOf(item)" class="relative flex-shrink-0 self-start">
+              <img :src="thumbOf(item)" alt="" loading="lazy" decoding="async" class="w-[72px] h-[72px] sm:w-24 sm:h-24 rounded-xl object-cover bg-gray-100" @error="e => e.target.parentElement.style.display = 'none'" />
+              <span v-if="(item.images || []).length > 1" class="absolute right-1 bottom-1 text-[10px] font-bold text-white bg-black/50 rounded-full px-1.5 tabular-nums">+{{ item.images.length - 1 }}</span>
             </div>
           </div>
           <MobileAdInline v-if="i === 4" page="community" />
@@ -304,6 +314,20 @@ async function toggleBookmark() {
     })
     bookmarked.value = data.bookmarked
   } catch {}
+}
+
+// 목록 한 줄 정리용: 본문 미리보기 / 대표 사진 / 인기 표시
+function excerpt(item) {
+  return String(item.content || '').replace(/\s+/g, ' ').trim().slice(0, 140)
+}
+function thumbOf(item) {
+  const path = (item.images || [])[0]
+  if (!path) return ''
+  const p = String(path)
+  return p.startsWith('http') || p.startsWith('/storage/') ? p : '/storage/' + p
+}
+function isHot(item) {
+  return (item.like_count || 0) >= 10 || (item.comment_count || 0) >= 8
 }
 
 function openPopup(userId) {
