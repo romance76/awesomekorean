@@ -761,11 +761,11 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // 포인트 설정
     Route::get('/point-settings', [AdminSettingsController::class, 'getPointSettings']);
-    Route::post('/point-settings', [AdminSettingsController::class, 'savePointSettings']);
+    Route::post('/point-settings', [AdminSettingsController::class, 'savePointSettings'])->middleware('role:admin,super_admin');
 
     // Entry 설정 (Point와 완전히 분리)
     Route::get('/entry-settings', [AdminSettingsController::class, 'getEntrySettings']);
-    Route::post('/entry-settings', [AdminSettingsController::class, 'saveEntrySettings']);
+    Route::post('/entry-settings', [AdminSettingsController::class, 'saveEntrySettings'])->middleware('role:admin,super_admin');
     Route::get('/entry-transactions', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'entryTransactions']);
     Route::post('/entries/adjust', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'adjustUserEntries']);
     Route::get('/entries/users/{userId}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'userBalance']);
