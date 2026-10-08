@@ -167,6 +167,7 @@ const routes = [
   { path: '/sweepstakes/:id', redirect: '/events?type=sweepstakes' },
   { path: '/search', name: 'search', component: p('Search') },
   { path: '/about', name: 'about', component: p('static/About') },
+  { path: '/contact', name: 'contact', component: p('static/Contact') },
   { path: '/terms', name: 'terms', component: p('static/Terms') },
   { path: '/privacy', name: 'privacy', component: p('static/Privacy') },
   { path: '/profile/edit', component: p('profile/ProfileEdit'), meta: { auth: true } },
