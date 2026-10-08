@@ -40,6 +40,7 @@ class NewsIngestController extends Controller
         $rows = $remaining <= 0 ? collect() : News::with('category:id,name')
             ->where('is_active', true)
             ->whereNull('ai_status')
+            ->whereNotIn('source', (array) config('services.news_ai.exclude_sources', []))
             ->whereNotNull('source_url')
             ->where('published_at', '>=', now()->subHours($hours))
             ->orderByDesc('published_at')
@@ -64,6 +65,9 @@ class NewsIngestController extends Controller
         ]);
 
         $news = News::findOrFail($data['id']);
+        if (in_array($news->source, (array) config('services.news_ai.exclude_sources', []), true)) {
+            return response()->json(['success' => false, 'message' => '이 언론사 기사는 AI 해설 대상이 아니에요.'], 422);
+        }
         if ($news->ai_status) {
             return response()->json(['success' => true, 'message' => '이미 처리된 기사예요.', 'already' => true]);
         }

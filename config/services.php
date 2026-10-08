@@ -75,6 +75,8 @@ return [
     // 뉴스 AI 해설: 하루 최대 처리 건수(애틀랜타 날짜 기준). 부담되면 .env 의 NEWS_AI_DAILY_CAP 으로 조절
     'news_ai' => [
         'daily_cap' => env('NEWS_AI_DAILY_CAP', 120),
+        // 기사 제공처가 "AI 학습 및 활용 금지"를 밝힌 언론사는 AI 해설에서 제외 (연합뉴스 RSS 저작권 문구)
+        'exclude_sources' => array_filter(array_map('trim', explode(',', env('NEWS_AI_EXCLUDE_SOURCES', '연합뉴스')))),
     ],
     'info_ingest' => [
         'token' => env('INFO_INGEST_TOKEN'),
