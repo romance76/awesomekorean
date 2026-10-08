@@ -3,7 +3,22 @@
     "allow": [
       "Bash(curl -s *)",
       "Bash(php -l *)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_network_requests",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_resize",
+      "mcp__Claude_Preview__preview_screenshot",
+      "mcp__Claude_Preview__preview_console_logs",
+      "mcp__Claude_Preview__preview_resize",
+      "mcp__Claude_Preview__preview_stop",
+      "mcp__visualize__show_widget",
+      "mcp__ccd_session__mark_chapter",
+      "Bash(tasklist *)",
+      "Bash(bash qa/scripts/delete_foreign_shorts.sh)"
     ]
   }
 }

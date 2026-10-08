@@ -198,12 +198,6 @@ class FetchYoutubeShorts extends Command
                     if (preg_match('/\b(hola|gracias|por favor|amigo|amiga|hermano|hermana|cómo|como|qué|que|cuando|donde|porque|muy|mucho|poco|bueno|buena|malo|mala|grande|pequeño|dejan|hijo|hija|novio|novia|corazón|corazon|fiesta|gente|vida|amor)\b/i', $text)) continue;
                     if (preg_match('/español|castellano|México|Mexico|Argentina|España|Espana|Latino|Reggaeton|Bachata|Cumbia|Salsa/i', $text)) continue;
 
-                    // 추가 필터(2026-10-08): 터키어/포르투갈어 문자, 힌글리시·인도네시아어·터키어·포르투갈어 단어
-                    if (preg_match('/[ışğİŞĞãõ]/u', $text)) continue;
-                    if (preg_match('/\b(mein|kese|hain|dekh|nahi|aur|bhi|toh|kahani|baat|karte|karo|mera|meri|tera|teri|kya|bhai|pyaar|ishq|zindagi|sidhi|khudai|panga)\b/i', $text)) continue;
-                    if (preg_match('/\b(yang|itu|ini|banget|tiba|malah|saking|dengan|untuk|tidak|bikin|ngiler|emang|yah|pernah|takut|bisa|udah|gak|nggak|lalu|kamu|aku|saya)\b/i', $text)) continue;
-                    if (preg_match('/\b(ke[sş]fet|tutmaz|çok|için|değil|não|nao|pode|você|voce|muito|isso|dedicar)\b|#ke[sş]fet/iu', $text)) continue;
-
                     Short::create([
                         'user_id' => null,
                         'title' => mb_substr($title, 0, 200),
