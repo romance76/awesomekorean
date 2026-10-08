@@ -1,0 +1,29 @@
+name: Server outbound IP check (read-only)
+
+# 서버가 구글 등 외부로 요청할 때 실제로 쓰는 공인 주소(IPv4/IPv6)를 확인하는 읽기 전용 점검.
+# (이 파일을 main 에 올릴 때 1회 자동 실행. 서버 설정은 바꾸지 않음)
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/server-outbound-ip.yml' ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Print outbound IPs
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 2m
+          script: |
+            echo "== 외부로 나가는 IPv4 =="; curl -s4 --max-time 10 https://api.ipify.org; echo
+            echo "== 외부로 나가는 IPv6 (없으면 비어 있음) =="; curl -s6 --max-time 10 https://api6.ipify.org; echo
+            echo "== 구글 지도 서버로 기본 연결되는 방식 =="
+            curl -s -o /dev/null -w "maps.googleapis.com 연결 IP: %{remote_ip}\n" --max-time 10 https://maps.googleapis.com/
+            echo "== 서버 자체 IPv6 주소 =="; ip -6 addr show scope global | grep inet6 || echo "(전역 IPv6 없음)"
