@@ -1,5 +1,95 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-20">
+  <!-- 보기 (해야 할 것 / 완료 / 전체) -->
+  <div class="grid grid-cols-3 gap-1 bg-gray-200/70 rounded-2xl p-1" role="group" aria-label="보기">
+    <button v-for="f in statusFilters" :key="f.v" @click="statusFilter = f.v" :aria-pressed="statusFilter === f.v"
+      class="min-h-[46px] rounded-xl text-[15px] font-bold flex items-center justify-center gap-1.5"
+      :class="statusFilter === f.v ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">
+      {{ f.l }}<span class="text-[13px] tabular-nums" :class="statusFilter === f.v ? 'text-amber-600' : ''">{{ f.v === 'open' ? count('todo') + count('doing') : (f.v === 'done' ? count('done') : todos.length) }}</span>
+    </button>
+  </div>
+
+  <!-- 분류 -->
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="분류">
+    <button @click="catFilter = ''" :aria-pressed="!catFilter"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+      :class="!catFilter ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">전체</button>
+    <button v-for="c in categories" :key="c" @click="catFilter = c" :aria-pressed="catFilter === c"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+      :class="catFilter === c ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ c }}</button>
+  </div>
+
+  <p v-if="error" class="bg-red-50 text-red-600 text-[14px] rounded-xl p-3">{{ error }}</p>
+
+  <!-- 목록 -->
+  <div v-for="t in visible" :key="t.id" class="bg-white border border-gray-100 rounded-2xl flex items-start" :class="t.status === 'done' ? 'opacity-70' : ''">
+    <button @click="setStatus(t, t.status === 'done' ? 'todo' : 'done')" :aria-label="t.status === 'done' ? '다시 할 일로' : '완료 처리'"
+      class="shrink-0 w-14 min-h-[72px] flex justify-center pt-[15px] self-stretch rounded-l-2xl active:bg-amber-50">
+      <span class="w-7 h-7 rounded-lg border-2 grid place-items-center text-white text-[16px] font-bold"
+        :class="t.status === 'done' ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 bg-white'">{{ t.status === 'done' ? '✓' : '' }}</span>
+    </button>
+    <button @click="openEdit(t)" class="min-w-0 flex-1 text-left py-3 pr-3 min-h-[72px] active:bg-amber-50 rounded-r-2xl">
+      <span class="block text-[16px] font-bold text-ink leading-snug break-words" :class="t.status === 'done' ? 'line-through' : ''">{{ t.title }}</span>
+      <span class="flex flex-wrap items-center gap-1.5 mt-1.5">
+        <span class="text-[12px] font-bold px-2 py-0.5 rounded-md" :class="priClass(t.priority)">{{ priLabel(t.priority) }}</span>
+        <span class="text-[12px] font-bold px-2 py-0.5 rounded-md bg-gray-100 text-ink-muted">{{ t.category }}</span>
+        <span v-if="t.status === 'doing'" class="text-[12px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-600">진행 중</span>
+      </span>
+      <span v-if="t.detail" class="text-[14px] text-ink-light mt-1.5 leading-relaxed whitespace-pre-wrap line-clamp-3">{{ t.detail }}</span>
+    </button>
+    <button v-if="t.status === 'todo'" @click="setStatus(t, 'doing')" class="shrink-0 self-center mr-2 min-h-[44px] px-3 rounded-xl bg-blue-50 text-blue-600 text-[14px] font-bold">시작</button>
+  </div>
+  <div v-if="!visible.length" class="text-center text-ink-muted py-12 text-[15px]">{{ loading ? '불러오는 중...' : '해당하는 항목이 없어요' }}</div>
+
+  <!-- 추가 버튼 -->
+  <button @click="openNew" class="fixed right-4 z-30 min-h-[52px] px-5 rounded-full bg-amber-500 text-white text-[16px] font-bold shadow-lg flex items-center gap-1.5"
+    :style="{ bottom: 'calc(78px + env(safe-area-inset-bottom, 0px))' }"><AppIcon name="plus" :size="18" />항목 추가</button>
+
+  <!-- 추가/수정 시트 -->
+  <Teleport to="body">
+    <div v-if="form" class="alv-m fixed inset-0 z-[70] bg-black/45 flex items-end" @click.self="form = null">
+      <div class="w-full bg-white rounded-t-3xl px-4 pt-2 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true"
+        :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
+        <div class="text-[17px] font-bold text-ink mb-3">{{ form.id ? '항목 수정' : '새 항목' }}</div>
+        <div class="space-y-3">
+          <input v-model="form.title" maxlength="200" placeholder="제목" aria-label="제목" class="w-full min-h-[50px] rounded-xl border border-gray-200 px-3" />
+          <textarea v-model="form.detail" rows="5" maxlength="5000" placeholder="설명 / 메모 (선택)" aria-label="설명" class="w-full rounded-xl border border-gray-200 px-3 py-3"></textarea>
+          <div>
+            <div class="text-[13px] font-bold text-ink-muted mb-1.5">분류</div>
+            <div class="flex gap-2 overflow-x-auto scrollbar-hide mb-2">
+              <button v-for="c in categories" :key="c" type="button" @click="form.category = c"
+                class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+                :class="form.category === c ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200'">{{ c }}</button>
+            </div>
+            <input v-model="form.category" maxlength="30" placeholder="직접 입력" aria-label="분류" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+          </div>
+          <div>
+            <div class="text-[13px] font-bold text-ink-muted mb-1.5">우선순위</div>
+            <div class="grid grid-cols-3 gap-1 bg-gray-100 rounded-xl p-1">
+              <button v-for="o in priOptions" :key="o.v" type="button" @click="form.priority = o.v"
+                class="min-h-[44px] rounded-lg text-[15px] font-bold" :class="form.priority === o.v ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">{{ o.l }}</button>
+            </div>
+          </div>
+          <div>
+            <div class="text-[13px] font-bold text-ink-muted mb-1.5">상태</div>
+            <div class="grid grid-cols-3 gap-1 bg-gray-100 rounded-xl p-1">
+              <button v-for="o in statusOptions" :key="o.v" type="button" @click="form.status = o.v"
+                class="min-h-[44px] rounded-lg text-[15px] font-bold" :class="form.status === o.v ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">{{ o.l }}</button>
+            </div>
+          </div>
+          <button @click="save" :disabled="!form.title.trim() || saving" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ saving ? '저장 중...' : '저장' }}</button>
+          <button v-if="form.id" @click="removeFromSheet" class="w-full min-h-[50px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">삭제</button>
+          <button @click="form = null" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <div class="mb-4 flex items-start justify-between flex-wrap gap-2">
     <div>
       <div class="text-xs text-ink-muted">관리자 › 시스템 › 할 일 목록</div>
@@ -54,7 +144,7 @@
   </div>
 
   <!-- 추가/수정 -->
-  <div v-if="form" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" @click.self="form = null">
+  <div v-if="form && !isMobile" class="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" @click.self="form = null">
     <div class="card w-full max-w-lg p-4 space-y-3">
       <div class="font-bold text-ink">{{ form.id ? '항목 수정' : '새 항목' }}</div>
       <input v-model="form.title" maxlength="200" placeholder="제목" class="input-soft w-full" />
@@ -74,7 +164,7 @@
 </div>
 </template>
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -84,8 +174,17 @@ const error = ref('')
 const statusFilter = ref('open')
 const catFilter = ref('')
 const form = ref(null)
+
+// 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+// 시트가 열려 있는 동안 뒤쪽 화면이 같이 스크롤되지 않게
+watch(() => isMobile.value && !!form.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
+onBeforeUnmount(() => { document.body.style.overflow = '' })
 const saving = ref(false)
 
+const priOptions = [{ v: 'high', l: '높음' }, { v: 'medium', l: '보통' }, { v: 'low', l: '낮음' }]
+const statusOptions = [{ v: 'todo', l: '할 일' }, { v: 'doing', l: '진행 중' }, { v: 'done', l: '완료' }]
 const statusFilters = [{ v: 'open', l: '해야 할 것' }, { v: 'done', l: '완료' }, { v: 'all', l: '전체' }]
 const categories = computed(() => [...new Set(['보안', '서버', '기능', '데이터', '콘텐츠', ...todos.value.map(t => t.category)])])
 const count = (s) => todos.value.filter(t => t.status === s).length
@@ -131,5 +230,16 @@ async function remove(t) {
   try { await axios.delete('/api/admin/todos/' + t.id); todos.value = todos.value.filter(x => x.id !== t.id) } catch { error.value = '삭제하지 못했어요.' }
 }
 
+async function removeFromSheet() {
+  const t = form.value
+  if (!t?.id) return
+  await remove(t)
+  if (!todos.value.some(x => x.id === t.id)) form.value = null
+}
+
 onMounted(load)
 </script>
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
