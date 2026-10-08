@@ -1,5 +1,125 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <p class="text-[13px] text-ink-muted leading-relaxed px-0.5">카드로 <b>포인트를 산 금액</b>과 <b>달러로 직접 결제한 금액</b>을 나눠서 보여 줘요. 날짜는 미국 동부시간(ET) 기준이에요.</p>
+
+  <!-- 기간 -->
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="기간">
+    <button v-for="r in ranges" :key="r.key" @click="setRange(r.key)" :aria-pressed="range === r.key"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+      :class="range === r.key ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ r.label }}</button>
+  </div>
+  <div v-if="range === 'custom'" class="grid grid-cols-2 gap-2">
+    <label class="block"><span class="block text-[12px] text-ink-muted mb-1">시작일</span><input type="date" v-model="from" @change="loadAll" class="w-full min-h-[48px] rounded-xl border border-gray-200 bg-white px-3" /></label>
+    <label class="block"><span class="block text-[12px] text-ink-muted mb-1">종료일</span><input type="date" v-model="to" @change="loadAll" class="w-full min-h-[48px] rounded-xl border border-gray-200 bg-white px-3" /></label>
+  </div>
+
+  <div v-if="!sum" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
+  <template v-else>
+    <!-- 전체 결제액 -->
+    <div class="rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 px-4 py-3.5">
+      <div class="text-[13px] text-ink-muted">전체 결제액</div>
+      <div class="text-[32px] leading-tight font-black tabular-nums text-emerald-600">{{ usd(sum.total.net) }}</div>
+      <div class="text-[13px] text-ink-faint">{{ sum.total.count }}건 · 환불 제외</div>
+    </div>
+    <div class="grid grid-cols-2 gap-2">
+      <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
+        <div class="text-[13px] text-ink-muted">포인트 구매</div>
+        <div class="text-[22px] font-black tabular-nums text-blue-600">{{ usd(sum.points.net) }}</div>
+        <div class="text-[12px] text-ink-faint">{{ sum.points.count }}건 · 카드로 충전</div>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
+        <div class="text-[13px] text-ink-muted">달러 직접 결제</div>
+        <div class="text-[22px] font-black tabular-nums text-rose-600">{{ usd(sum.direct.net) }}</div>
+        <div class="text-[12px] text-ink-faint">{{ sum.direct.count }}건</div>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
+        <div class="text-[13px] text-ink-muted">승인 대기 (카드 보류)</div>
+        <div class="text-[22px] font-black tabular-nums text-amber-600">{{ usd(sum.held.amount) }}</div>
+        <div class="text-[12px] text-ink-faint">{{ sum.held.count }}건 · 승인하면 청구</div>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
+        <div class="text-[13px] text-ink-muted">기간 내 환불</div>
+        <div class="text-[22px] font-black tabular-nums text-red-600">{{ usd(sum.refunded) }}</div>
+      </div>
+    </div>
+    <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-2.5 text-[14px] space-y-1">
+      <div class="flex justify-between gap-3"><span class="text-ink-muted">경품 이벤트 의뢰</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.event_request.net) }}</b></div>
+      <div class="flex justify-between gap-3"><span class="text-ink-muted">NEW 전면광고</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.flyer.net) }}</b></div>
+    </div>
+
+    <!-- 일별 결제액 (막대를 누르면 그날 금액이 아래에 나와요) -->
+    <div v-if="sum.series.length" class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-center justify-between gap-2 flex-wrap mb-2">
+        <div class="text-[15px] font-bold text-ink">일별 결제액</div>
+        <div class="flex items-center gap-3 text-[12px] text-ink-muted">
+          <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-blue-400 mr-1"></i>포인트 구매</span>
+          <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-rose-400 mr-1"></i>달러 직접 결제</span>
+        </div>
+      </div>
+      <div class="overflow-x-auto scrollbar-hide">
+        <div class="flex items-end gap-[2px] h-32 min-w-full" role="group" aria-label="일별 결제액 막대 그래프">
+          <button v-for="d in sum.series" :key="d.date" type="button" @click="selDay = d.date" :aria-label="`${d.date} 포인트 ${usd(d.points)} 직접 ${usd(d.direct)}`"
+            class="flex-1 min-w-[8px] h-full flex flex-col justify-end rounded-sm" :class="selDay === d.date ? 'bg-amber-100' : ''">
+            <span class="block bg-rose-400 rounded-t-[2px]" :style="{ height: barHm(d.direct) }"></span>
+            <span class="block bg-blue-400" :style="{ height: barHm(d.points) }"></span>
+          </button>
+        </div>
+      </div>
+      <div class="flex justify-between text-[11px] text-ink-faint mt-1"><span>{{ sum.series[0].date }}</span><span>{{ sum.series[sum.series.length - 1].date }}</span></div>
+      <div class="mt-2 rounded-xl bg-gray-50 px-3 py-2 text-[14px] min-h-[44px] flex items-center">
+        <template v-if="selDayData"><span class="text-ink-muted mr-2 shrink-0">{{ selDayData.date }}</span><span class="text-blue-600 font-bold mr-2">포인트 {{ usd(selDayData.points) }}</span><span class="text-rose-600 font-bold mr-2">직접 {{ usd(selDayData.direct) }}</span><b class="ml-auto tabular-nums">{{ usd(selDayData.points + selDayData.direct) }}</b></template>
+        <span v-else class="text-ink-faint">막대를 누르면 그날 금액이 나와요</span>
+      </div>
+    </div>
+  </template>
+
+  <!-- 결제 내역 -->
+  <div class="text-[15px] font-bold text-ink px-0.5 pt-1">결제 내역</div>
+  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="결제 종류">
+    <button v-for="k in kinds" :key="k.key" @click="kind = k.key; page = 1; loadList()" :aria-pressed="kind === k.key"
+      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]"
+      :class="kind === k.key ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">{{ k.label }}</button>
+  </div>
+  <select v-model="status" @change="page = 1; loadList()" aria-label="결제 상태" class="w-full min-h-[48px] bg-white border border-gray-200 rounded-xl px-3 text-ink">
+    <option value="">전체 상태</option>
+    <option v-for="(v, k) in STATUS" :key="k" :value="k">{{ v.text }}</option>
+  </select>
+  <form @submit.prevent="page = 1; loadList()" class="flex gap-2">
+    <label class="flex-1 min-w-0 flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 min-h-[48px] text-ink-muted">
+      <AppIcon name="search" :size="18" />
+      <input v-model="search" type="search" placeholder="이름·이메일·내용 검색" autocomplete="off" class="w-full min-w-0 bg-transparent outline-none text-ink" />
+    </label>
+    <button type="submit" class="shrink-0 min-h-[48px] px-4 rounded-xl bg-amber-500 text-white text-[15px] font-bold">검색</button>
+  </form>
+
+  <div v-if="loading" class="text-center py-8 text-ink-muted text-[15px]">불러오는 중...</div>
+  <div v-else-if="!items.length" class="text-center py-10 text-ink-muted text-[15px]">해당 조건의 결제 내역이 없어요</div>
+  <div v-else class="space-y-2">
+    <div v-for="p in items" :key="p.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[12px] font-bold px-2 py-0.5 rounded-md border" :class="KIND[p.kind]?.cls">{{ KIND[p.kind]?.text || p.kind }}</span>
+        <span class="text-[12px] font-bold px-2 py-0.5 rounded-md border" :class="STATUS[p.status]?.cls">{{ STATUS[p.status]?.text || p.status }}</span>
+        <span class="ml-auto text-[12px] text-ink-faint">{{ fmt(p.created_at) }}</span>
+      </div>
+      <div class="flex items-end justify-between gap-3 mt-1.5">
+        <div class="min-w-0"><div class="text-[15px] font-bold text-ink truncate">{{ p.user?.nickname || p.user?.name || '-' }}</div><div class="text-[13px] text-ink-muted truncate">{{ p.user?.email }}</div></div>
+        <div class="shrink-0 text-right"><div class="text-[18px] font-black tabular-nums text-ink">{{ usd(p.amount) }}</div>
+          <div class="text-[12px] tabular-nums" :class="p.net > 0 ? 'text-emerald-600 font-bold' : 'text-ink-faint'">매출 {{ usd(p.net) }}</div></div>
+      </div>
+      <div class="text-[13px] text-ink-light mt-1 break-words">{{ p.description || (p.kind === 'points' ? `${(p.points_purchased || 0).toLocaleString()}P 구매` : '-') }}</div>
+      <div v-if="Number(p.refunded_amount) > 0" class="text-[12px] text-red-500 mt-0.5">환불 {{ usd(p.refunded_amount) }}</div>
+    </div>
+  </div>
+  <div v-if="lastPage > 1" class="flex items-center justify-between gap-2 pt-1">
+    <button @click="goPage(page - 1)" :disabled="page <= 1" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
+    <span class="text-[14px] text-ink-muted tabular-nums">{{ page }} / {{ lastPage }}</span>
+    <button @click="goPage(page + 1)" :disabled="page >= lastPage" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">다음</button>
+  </div>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-1">
     <span class="icon-chip w-9 h-9 bg-emerald-50 text-emerald-600"><AppIcon name="wallet" :size="20" /></span>
     매출/결제 현황
@@ -112,7 +232,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import Pagination from '../../components/Pagination.vue'
@@ -139,6 +259,15 @@ const STATUS = {
   refunded: { text: '환불', cls: 'bg-red-50 text-red-600 border-red-200' },
   failed: { text: '실패', cls: 'bg-red-50 text-red-600 border-red-200' },
 }
+
+// 관리자 휴대폰 화면이면 카드 + 눌러 보는 막대그래프로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const selDay = ref('')
+const selDayData = computed(() => (sum.value?.series || []).find(d => d.date === selDay.value) || null)
+// 휴대폰 막대 높이는 퍼센트로 (칸 높이 8rem 안에서 가장 높은 날 기준)
+function barHm(v) { return v > 0 ? Math.max(2, Math.round((v / maxDay.value) * 100)) + '%' : '0' }
+function goPage(n) { if (n >= 1 && n <= lastPage.value) { page.value = n; loadList() } }
 
 const range = ref('30d')
 const from = ref('')
@@ -182,3 +311,7 @@ function setRange(k) {
 }
 onMounted(loadAll)
 </script>
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
