@@ -1,5 +1,8 @@
 <template>
-  <div v-if="ad" class="lg:hidden my-2">
+  <div v-if="guide.on" class="lg:hidden my-2">
+    <AdGuideBox name="모바일 리스트 광고" icon="📱" tone="premium" size-label="리스트 5번째 글 아래 · 프리미엄/스탠다드 랜덤 노출" />
+  </div>
+  <div v-else-if="ad" class="lg:hidden my-2">
     <div class="relative rounded-lg overflow-hidden cursor-pointer" @click="handleClick">
       <img :src="ad.image_url" :alt="'AD'" class="w-full h-[80px] object-cover" @error="$event.target.style.display='none'" />
       <div class="absolute top-1 right-1 bg-black/40 text-white text-[7px] px-1 py-0.5 rounded">AD</div>
@@ -11,6 +14,8 @@
 import { ref, onMounted } from 'vue'
 import { useBannerStore } from '../stores/banners'
 import axios from 'axios'
+import { useAdGuideStore } from '../stores/adGuide'
+import AdGuideBox from './AdGuideBox.vue'
 
 const props = defineProps({
   page: { type: String, required: true }
@@ -18,6 +23,7 @@ const props = defineProps({
 
 const bannerStore = useBannerStore()
 const ad = ref(null)
+const guide = useAdGuideStore()
 
 async function loadAd() {
   await bannerStore.loadForPage(props.page)
