@@ -16,10 +16,17 @@
       </div>
     </div>
 
-    <button v-if="showGuideLink && (position === 'left' || position === 'right')" type="button" @click="guide.toggle()"
-      class="mt-2 w-full text-center text-[11px] text-ink-faint hover:text-amber-600 transition-colors py-1">
-      {{ guide.on ? '광고 위치 안내 끄기' : '광고 위치 확인하기' }}
-    </button>
+    <template v-if="showGuideLink && (position === 'left' || position === 'right')">
+      <!-- 안내 모드: 링크 자리에 신청 / 닫기 버튼 -->
+      <div v-if="guide.on" class="mt-2 flex gap-1.5">
+        <RouterLink :to="{ path: '/ad-apply', query: { page } }"
+          class="flex-1 text-center text-[11px] font-bold text-white bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-lg py-1.5">광고 신청</RouterLink>
+        <button type="button" @click="guide.close()"
+          class="flex-1 text-center text-[11px] font-bold text-ink-light bg-gray-100 hover:bg-gray-200 rounded-lg py-1.5 transition-colors">닫기</button>
+      </div>
+      <button v-else type="button" @click="guide.open()"
+        class="mt-2 w-full text-center text-[11px] text-ink-faint hover:text-amber-600 transition-colors py-1">광고 위치 확인하기</button>
+    </template>
   </div>
 </template>
 
@@ -55,9 +62,10 @@ const guideSlots = computed(() => {
   const sz = adSize(props.position)
   const ratio = sz.ratio
   const maxWidth = left ? '200px' : '300px'
+  const apply = (slot, tier) => ({ page: props.page, position: props.position, slot, tier })
   const all = [
-    { name: `프리미엄 ${letter}`, icon: '🥇', tone: 'premium', price: guide.priceOf(`${props.position}_premium`), used: ads.value.some(a => a.slot_number === 1) },
-    { name: `스탠다드 ${letter}`, icon: '🥈', tone: 'standard', price: guide.priceOf(`${props.position}_standard`), used: ads.value.some(a => a.slot_number === 2) },
+    { name: `프리미엄 ${letter}`, icon: '🥇', tone: 'premium', price: guide.priceOf(`${props.position}_premium`), used: ads.value.some(a => a.slot_number === 1), applyTo: apply(1, 'premium') },
+    { name: `스탠다드 ${letter}`, icon: '🥈', tone: 'standard', price: guide.priceOf(`${props.position}_standard`), used: ads.value.some(a => a.slot_number === 2), applyTo: apply(2, 'standard') },
   ]
   return all.slice(0, Math.max(1, Math.min(props.maxSlots, 2)))
     .map(s => ({ ...s, sizeLabel: `고정 독점 · 이미지 ${sz.w}×${sz.h} 권장`, ratio, maxWidth }))

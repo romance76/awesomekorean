@@ -35,7 +35,7 @@
     </div>
 
     <!-- ═══ Step 2: 지역 선택 (가격에 영향) ═══ -->
-    <div class="card p-5 mb-5">
+    <div id="ad-step-2" class="card p-5 mb-5 scroll-mt-20">
       <h2 class="font-bold text-ink text-sm mb-3 flex items-center gap-2"><span class="icon-chip w-6 h-6 bg-amber-50 text-amber-600 text-xs font-black">2</span>타겟 지역 선택</h2>
       <p class="text-xs text-ink-muted mb-3">페이지 종류에 따라 지역 설정이 다릅니다</p>
 
@@ -396,8 +396,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
@@ -412,6 +412,7 @@ const siteStore = useSiteStore()
 
 const props = defineProps({ embedded: { type: Boolean, default: false } })
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const { showAlert, showConfirm } = useModal()
 
@@ -848,7 +849,18 @@ async function loadPrices() {
   } catch {}
 }
 
-onMounted(() => { siteStore.load(); loadMyAds(); loadPrices(); loadDraft() })
+// "광고 위치 확인하기"에서 넘어온 경우: 페이지·자리를 미리 골라 두고 2단계(타겟 지역 선택)부터 보여준다
+async function applyGuideQuery() {
+  const q = route.query
+  if (!q.page) return
+  selectedSub.value = String(q.page)
+  await nextTick()   // selectedSub 감시자가 슬롯 선택을 비운 뒤에 슬롯을 고른다
+  if (q.position && q.slot && q.tier) selectSlot(String(q.position), Number(q.slot), String(q.tier))
+  await nextTick()
+  setTimeout(() => document.getElementById('ad-step-2')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
+}
+
+onMounted(async () => { siteStore.load(); loadMyAds(); loadPrices(); loadDraft(); await applyGuideQuery() })
 </script>
 <style scoped>
 .slide-enter-active,.slide-leave-active{transition:all .3s ease}
