@@ -166,7 +166,17 @@ class AuthController extends Controller
     public function refresh()
     {
         try {
-            $new = JWTAuth::parseToken()->refresh();
+            // 비밀번호를 바꾸기 전에 발급된 토큰은 갱신해 주지 않는다(갱신하면 새 발급 시각이 붙어 차단을 피해 가므로).
+            // 갱신 가능 기간 안의 만료된 토큰도 읽을 수 있도록 refresh 모드로 해독하며, 읽지 못하면 아래 갱신이 알아서 실패한다.
+            JWTAuth::parseToken();
+            try {
+                $old = JWTAuth::manager()->setRefreshFlow()->decode(JWTAuth::getToken(), false);
+                $oldUser = User::find($old->get('sub'));
+                if ($oldUser && \App\Support\TokenFreshness::isStaleIat($oldUser, (int) $old->get('iat'))) {
+                    return response()->json(['success' => false, 'message' => '비밀번호가 변경되어 다시 로그인해 주세요.'], 401);
+                }
+            } catch (\Throwable $e) {}
+            $new = JWTAuth::refresh();
             $user = JWTAuth::setToken($new)->toUser();
             if (!$user || $user->is_banned) {
                 try { JWTAuth::setToken($new)->invalidate(); } catch (\Exception $e) {}
@@ -285,7 +295,15 @@ class AuthController extends Controller
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json(['success' => false, 'message' => '현재 비밀번호가 올바르지 않습니다'], 422);
         }
+        $oldToken = null;
+        try { $oldToken = JWTAuth::getToken(); } catch (\Throwable $e) {}
         $user->update(['password' => Hash::make($request->password)]);
-        return response()->json(['success' => true, 'message' => '비밀번호가 변경되었습니다']);
+        // 비밀번호를 바꾸면 이전에 발급된 로그인은 모두 무효가 된다 — 지금 바꾸는 이 기기는 새 로그인을 받아 이어서 쓴다.
+        $newToken = null;
+        try {
+            $newToken = JWTAuth::fromUser($user->fresh());
+            if ($oldToken) JWTAuth::invalidate($oldToken);
+        } catch (\Throwable $e) {}
+        return response()->json(['success' => true, 'message' => '비밀번호가 변경되었습니다. 다른 기기의 로그인은 모두 해제되었어요.', 'data' => ['token' => $newToken]]);
     }
 }

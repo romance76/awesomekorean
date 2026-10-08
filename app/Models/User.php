@@ -33,6 +33,17 @@ class User extends Authenticatable implements JWTSubject
 
     protected $hidden = ['password', 'remember_token'];
 
+
+    // 비밀번호가 바뀌면(재설정/변경/관리자 초기화 모두) 시각을 기록 — 이전에 발급된 로그인 토큰을 무효로 만드는 기준.
+    protected static function booted(): void
+    {
+        static::updating(function (self $user) {
+            if ($user->isDirty('password')) {
+                $user->password_changed_at = now();
+            }
+        });
+    }
+
     protected $appends = ['display_name'];
 
     /**
@@ -62,6 +73,7 @@ class User extends Authenticatable implements JWTSubject
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
+            'password_changed_at' => 'datetime',
             'password' => 'hashed',
             'is_banned' => 'boolean',
             'points' => 'integer',

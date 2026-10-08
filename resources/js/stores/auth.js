@@ -103,6 +103,11 @@ export const useAuthStore = defineStore('auth', () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${tok}`
   }
 
+  // 비밀번호를 바꾼 직후 서버가 새로 준 토큰으로 바꿔 끼운다(다른 기기는 끊기고 이 기기는 계속 로그인 상태).
+  function replaceToken(tok) {
+    if (tok && token.value) setAuth(tok, user.value)
+  }
+
   function clearAuth() {
     token.value = null; user.value = null
     localStorage.removeItem('sk_token')
@@ -265,5 +270,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance }
+  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance, replaceToken }
 })

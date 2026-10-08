@@ -1238,7 +1238,7 @@ async function uploadAvatar(e) {
 async function changePw() {
   if (pw.password !== pw.password_confirmation) { pwMsg.value = '비밀번호가 일치하지 않습니다'; pwMsgType.value = 'error'; return }
   pwSaving.value = true; pwMsg.value = ''
-  try { await axios.post('/api/change-password', pw); pwMsg.value = '변경되었습니다!'; pwMsgType.value = 'success'; pw.current_password = ''; pw.password = ''; pw.password_confirmation = '' }
+  try { const { data: pwRes } = await axios.post('/api/change-password', pw); auth.replaceToken(pwRes?.data?.token); pwMsg.value = '변경되었습니다! 다른 기기의 로그인은 모두 해제됐어요.'; pwMsgType.value = 'success'; pw.current_password = ''; pw.password = ''; pw.password_confirmation = '' }
   catch (e) { pwMsg.value = e.response?.data?.message || '변경 실패'; pwMsgType.value = 'error' }
   pwSaving.value = false
 }
