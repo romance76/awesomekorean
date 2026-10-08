@@ -4,8 +4,8 @@
     <PageHeader title="검색" icon="search" :back="false" />
     <div class="card p-4 mb-4">
       <form @submit.prevent="search" class="flex gap-2">
-        <input v-model="query" type="text" placeholder="검색어를 입력하세요..." autofocus class="input-soft flex-1 w-auto" />
-        <button type="submit" class="btn-primary px-6">검색</button>
+        <input v-model="query" type="text" placeholder="검색어를 입력하세요..." autofocus class="input-soft flex-1 w-auto min-w-0" />
+        <button type="submit" class="btn-primary px-6 shrink-0">검색</button>
       </form>
     </div>
 

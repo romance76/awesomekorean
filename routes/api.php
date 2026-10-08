@@ -640,8 +640,8 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/friends', [AdminController::class, 'friends']);
     Route::get('/banners', [AdminController::class, 'bannerList']);
     Route::get('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettings']);
-    Route::post('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveAdPageSettings']);
-    Route::post('/ad-slot-prices', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveSlotMinPrices']);
+    Route::post('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveAdPageSettings'])->middleware('role:admin,super_admin');
+    Route::post('/ad-slot-prices', [\App\Http\Controllers\API\AdminSettingsController::class, 'saveSlotMinPrices'])->middleware('role:admin,super_admin');
     Route::post('/banners', [AdminController::class, 'createBanner']);
     Route::post('/banners/{id}/approve', [AdminController::class, 'approveBanner']);
     Route::post('/banners/{id}/reject', [AdminController::class, 'rejectBanner']);
@@ -686,9 +686,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // 할인 이벤트 관리
     Route::get('/pricing-promotions', [\App\Http\Controllers\API\PricingPromotionController::class, 'index']);
-    Route::post('/pricing-promotions', [\App\Http\Controllers\API\PricingPromotionController::class, 'store']);
-    Route::put('/pricing-promotions/{id}', [\App\Http\Controllers\API\PricingPromotionController::class, 'update']);
-    Route::delete('/pricing-promotions/{id}', [\App\Http\Controllers\API\PricingPromotionController::class, 'destroy']);
+    Route::post('/pricing-promotions', [\App\Http\Controllers\API\PricingPromotionController::class, 'store'])->middleware('role:admin,super_admin');
+    Route::put('/pricing-promotions/{id}', [\App\Http\Controllers\API\PricingPromotionController::class, 'update'])->middleware('role:admin,super_admin');
+    Route::delete('/pricing-promotions/{id}', [\App\Http\Controllers\API\PricingPromotionController::class, 'destroy'])->middleware('role:admin,super_admin');
 
     Route::get('/ip-bans', [AdminController::class, 'ipBans']);
     Route::post('/ip-bans', [AdminController::class, 'createIpBan']);
@@ -697,34 +697,34 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // 매출/결제 현황 — 포인트 구매 vs 달러 직접 결제 구분 + 전체
     Route::get('/revenue/summary', [\App\Http\Controllers\API\AdminRevenueController::class, 'summary']);
     Route::get('/revenue/list', [\App\Http\Controllers\API\AdminRevenueController::class, 'list']);
-    Route::post('/payments/{id}/refund', [AdminController::class, 'refundPayment']);
+    Route::post('/payments/{id}/refund', [AdminController::class, 'refundPayment'])->middleware('role:admin,super_admin');
     Route::get('/claims', [AdminController::class, 'claims']);
     Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim']);
     Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim']);
     Route::get('/settings', [AdminSettingsController::class, 'index']);
-    Route::put('/settings', [AdminSettingsController::class, 'update']);
-    Route::post('/system/clear-cache', [AdminSettingsController::class, 'clearCache']);
-    Route::post('/system/sync-all-content', [AdminSettingsController::class, 'syncAllContent']);
+    Route::put('/settings', [AdminSettingsController::class, 'update'])->middleware('role:admin,super_admin');
+    Route::post('/system/clear-cache', [AdminSettingsController::class, 'clearCache'])->middleware('role:admin,super_admin');
+    Route::post('/system/sync-all-content', [AdminSettingsController::class, 'syncAllContent'])->middleware('role:admin,super_admin');
     Route::get('/system/sync-all-content/status', [AdminSettingsController::class, 'syncAllContentStatus']);
-    Route::post('/settings/company', [AdminSettingsController::class, 'saveCompany']);
-    Route::post('/settings/site', [AdminSettingsController::class, 'saveSite']);
-    Route::post('/settings/footer', [AdminSettingsController::class, 'saveFooter']);
-    Route::post('/settings/terms/{type}', [AdminSettingsController::class, 'saveTerms']);
-    Route::post('/settings/notifications', [AdminSettingsController::class, 'saveNotifications']);
-    Route::post('/settings/seo', [AdminSettingsController::class, 'saveSeo']);
-    Route::post('/settings/generate-vapid', [AdminSettingsController::class, 'generateVapid']);
+    Route::post('/settings/company', [AdminSettingsController::class, 'saveCompany'])->middleware('role:admin,super_admin');
+    Route::post('/settings/site', [AdminSettingsController::class, 'saveSite'])->middleware('role:admin,super_admin');
+    Route::post('/settings/footer', [AdminSettingsController::class, 'saveFooter'])->middleware('role:admin,super_admin');
+    Route::post('/settings/terms/{type}', [AdminSettingsController::class, 'saveTerms'])->middleware('role:admin,super_admin');
+    Route::post('/settings/notifications', [AdminSettingsController::class, 'saveNotifications'])->middleware('role:admin,super_admin');
+    Route::post('/settings/seo', [AdminSettingsController::class, 'saveSeo'])->middleware('role:admin,super_admin');
+    Route::post('/settings/generate-vapid', [AdminSettingsController::class, 'generateVapid'])->middleware('role:admin,super_admin');
     Route::get('/settings/menus', [AdminSettingsController::class, 'getMenus']);
-    Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus']);
-    Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo']);
-    Route::post('/settings/logo-dark', [AdminSettingsController::class, 'uploadLogoDark']);
-    Route::post('/settings/app-icon', [AdminSettingsController::class, 'uploadAppIcon']);
-    Route::post('/settings/favicon', [AdminSettingsController::class, 'uploadFavicon']);
+    Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus'])->middleware('role:admin,super_admin');
+    Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo'])->middleware('role:admin,super_admin');
+    Route::post('/settings/logo-dark', [AdminSettingsController::class, 'uploadLogoDark'])->middleware('role:admin,super_admin');
+    Route::post('/settings/app-icon', [AdminSettingsController::class, 'uploadAppIcon'])->middleware('role:admin,super_admin');
+    Route::post('/settings/favicon', [AdminSettingsController::class, 'uploadFavicon'])->middleware('role:admin,super_admin');
 
     // 시크릿/결제 자격증명이 포함되는 엔드포인트는 super_admin만 접근 가능
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
-        Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe']);
-        Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway']);
+        Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe'])->middleware('role:admin,super_admin');
+        Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway'])->middleware('role:admin,super_admin');
         Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
         Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey']);
         Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey']);
@@ -749,10 +749,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::post('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'store']);
         Route::put('/todos/{id}', [\App\Http\Controllers\API\AdminTodoController::class, 'update']);
         Route::delete('/todos/{id}', [\App\Http\Controllers\API\AdminTodoController::class, 'destroy']);
-        // 임시 진단용 (AdminSettingsController::mailDebug 참고) — 원인 확정되면 제거
-        Route::get('/system/mail-debug', [AdminSettingsController::class, 'mailDebug']);
-        Route::post('/system/mail-test-send', [AdminSettingsController::class, 'mailTestSend']);
-        Route::get('/system/password-reset-debug', [AdminSettingsController::class, 'passwordResetDebug']);
+        Route::post('/system/mail-test-send', [AdminSettingsController::class, 'mailTestSend'])->middleware('throttle:6,1');
     });
 
     // Firebase 설정
@@ -857,7 +854,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         Route::get('/wallets', [PokerController::class, 'adminWallets']);
         Route::put('/wallets/{id}', [PokerController::class, 'adminUpdateWallet']);
         Route::get('/settings', [PokerController::class, 'adminSettings']);
-        Route::put('/settings', [PokerController::class, 'adminUpdateSettings']);
+        Route::put('/settings', [PokerController::class, 'adminUpdateSettings'])->middleware('role:admin,super_admin');
 
         // 토너먼트 관리
         Route::post('/tournaments', [PokerTournamentController::class, 'adminCreate']);
