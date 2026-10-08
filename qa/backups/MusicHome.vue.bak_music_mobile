@@ -1,46 +1,16 @@
 <template>
-<div class="min-h-screen" :class="musicStore.hasTrack ? 'pb-24 lg:pb-0' : ''">
+<div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="music" :size="20" /></span>
       음악듣기
     </h1>
 
-    <!-- 모바일 전용: 탭 + 장르 칩 (lg 이상은 기존 좌측 사이드 사용) -->
-    <div v-if="!loading" class="lg:hidden -mx-4 mb-3">
-      <div class="flex items-center gap-2 px-4 pb-2">
-        <button @click="setMobTab('cat')" class="flex-1 py-2 rounded-xl text-[13px] font-bold border transition-colors"
-          :class="mobTab === 'cat' ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-ink-light border-gray-200'">카테고리</button>
-        <button v-if="auth.isLoggedIn" @click="setMobTab('fav')" class="flex-1 py-2 rounded-xl text-[13px] font-bold border transition-colors"
-          :class="mobTab === 'fav' ? 'bg-red-500 text-white border-red-500' : 'bg-white text-ink-light border-gray-200'">♥ 내 하트 {{ favoriteTracks.length }}</button>
-        <button v-if="auth.isLoggedIn" @click="setMobTab('pl')" class="flex-1 py-2 rounded-xl text-[13px] font-bold border transition-colors"
-          :class="mobTab === 'pl' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-ink-light border-gray-200'">플레이리스트</button>
-        <button v-if="auth.isLoggedIn" @click="showLinkSheet = true" class="flex-shrink-0 py-2 px-3 rounded-xl text-[13px] font-bold border border-amber-200 bg-amber-50 text-amber-700">+ 링크</button>
-      </div>
-
-      <div v-if="mobTab === 'cat'" class="flex gap-2 overflow-x-auto px-4 pb-1" style="scrollbar-width:none">
-        <button v-for="cat in categories" :key="cat.id" @click="selectCategory(cat)"
-          class="flex-shrink-0 px-3.5 py-1.5 rounded-full text-[13px] border transition-colors"
-          :class="activeCat?.id === cat.id ? 'bg-amber-500 text-white border-amber-500 font-bold' : 'bg-white text-ink-light border-gray-200'">{{ cat.name }}</button>
-      </div>
-
-      <div v-if="mobTab === 'pl'" class="flex gap-2 overflow-x-auto px-4 pb-1" style="scrollbar-width:none">
-        <button @click="showCreatePL = true" class="flex-shrink-0 px-3.5 py-1.5 rounded-full text-[13px] border border-dashed border-amber-400 text-amber-700 bg-amber-50 font-bold">+ 새로 만들기</button>
-        <button v-for="pl in playlists" :key="pl.id" @click="selectPlaylist(pl)"
-          class="flex-shrink-0 px-3.5 py-1.5 rounded-full text-[13px] border transition-colors"
-          :class="activePL?.id === pl.id ? 'bg-blue-500 text-white border-blue-500 font-bold' : 'bg-white text-ink-light border-gray-200'">{{ pl.name }} <span class="opacity-70">{{ pl.tracks_count || 0 }}</span></button>
-        <span v-if="!playlists.length" class="text-xs text-ink-muted self-center">플레이리스트가 없습니다</span>
-      </div>
-      <div v-if="mobTab === 'pl' && activePL" class="px-4 pt-1 text-right">
-        <button @click="deletePlaylist(activePL.id)" class="text-xs text-red-400">이 플레이리스트 삭제</button>
-      </div>
-    </div>
-
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else class="grid grid-cols-12 gap-4">
 
-      <!-- 카테고리 + 내 플레이리스트 (데스크톱만) -->
-      <div class="hidden lg:block lg:col-span-3 space-y-3">
+      <!-- 카테고리 + 내 플레이리스트 -->
+      <div class="col-span-12 lg:col-span-3 space-y-3">
         <div class="card overflow-hidden">
           <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center gap-2">
             <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="music" :size="14" /></span>카테고리
@@ -111,7 +81,7 @@
               <button v-if="displayTracks.length" @click="shufflePlay" class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold hover:bg-blue-100 transition-colors inline-flex items-center gap-1"><AppIcon name="refresh" :size="11" />랜덤</button>
             </div>
           </div>
-          <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-ink-muted">{{ showFavorites ? '하트한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : (mobTab === 'pl' ? '플레이리스트를 선택해주세요' : '카테고리를 선택해주세요')) }}</div>
+          <div v-if="!displayTracks.length" class="py-8 text-center text-sm text-ink-muted">{{ showFavorites ? '하트한 곡이 없습니다' : (activePL ? '플레이리스트가 비어있습니다' : '카테고리를 선택해주세요') }}</div>
           <div v-for="(track, i) in displayTracks" :key="track.id"
             class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-50 last:border-0 hover:bg-amber-50/40 transition-colors cursor-pointer group"
             :class="playing?.id === track.id ? 'bg-amber-50' : ''">
@@ -133,24 +103,6 @@
         <Pagination v-if="activeCat && !showFavorites && !activePL" :page="trackPage" :lastPage="trackLastPage" @page="loadCategoryPage" />
       </div>
 
-    </div>
-
-    <!-- 모바일: YouTube 링크 추가 시트 -->
-    <div v-if="showLinkSheet" class="fixed inset-0 bg-black/50 z-50 flex items-end lg:hidden" @click.self="showLinkSheet=false">
-      <div class="bg-white rounded-t-2xl p-5 w-full shadow-lift" style="padding-bottom: calc(20px + env(safe-area-inset-bottom))">
-        <h3 class="font-bold text-ink mb-3">YouTube 링크로 추가</h3>
-        <textarea v-model="youtubeUrl" rows="2" placeholder="YouTube 곡 또는 플레이리스트 URL 붙여넣기" class="input-soft text-sm px-3 py-2"></textarea>
-        <select v-model="importTargetPL" class="input-soft text-sm px-3 py-2 mt-2">
-          <option value="">플레이리스트 선택</option>
-          <option v-for="pl in playlists" :key="pl.id" :value="pl.id">{{ pl.name }}</option>
-        </select>
-        <div v-if="importMsg" class="text-xs mt-2" :class="importMsg.includes('실패')?'text-red-500':'text-green-600'">{{ importMsg }}</div>
-        <div class="text-xs text-ink-faint mt-2">곡: youtube.com/watch?v=xxx · 리스트: youtube.com/playlist?list=xxx</div>
-        <div class="flex gap-2 mt-3">
-          <button @click="importYoutube" :disabled="importing || !youtubeUrl.trim() || !importTargetPL" class="btn-primary flex-1">{{ importing ? '가져오는중...' : '가져오기' }}</button>
-          <button @click="showLinkSheet=false" class="btn-ghost">닫기</button>
-        </div>
-      </div>
     </div>
 
     <!-- 플레이리스트 생성 모달 -->
@@ -222,16 +174,6 @@ const trackTotal = ref(0)
 const playQueue = ref([])
 const isShuffled = ref(false)
 const repeatMode = ref(null) // null, 'all', 'one'
-
-// 모바일 탭 상태
-const mobTab = ref('cat') // 'cat' | 'fav' | 'pl'
-const showLinkSheet = ref(false)
-async function setMobTab(tab) {
-  mobTab.value = tab
-  if (tab === 'cat') { await selectCategory(activeCat.value || categories.value[0]) }
-  else if (tab === 'fav') { await loadFavorites() }
-  else { activeCat.value = null; showFavorites.value = false; activePL.value = null; tracks.value = [] }
-}
 
 const displayTracks = computed(() => {
   if (showFavorites.value) return favoriteTracks.value

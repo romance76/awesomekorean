@@ -1,44 +1,21 @@
 <template>
 <Teleport to="body">
   <!-- 음악 최소화 버튼 -->
-  <div v-if="showMiniBtn && !isMobile"
+  <div v-if="showMiniBtn"
     class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A4D] to-[#F0266B] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
     @click="expand">
     <span class="text-white"><AppIcon :name="music.isPlaying ? 'music' : 'play'" :size="22" :filled="!music.isPlaying" /></span>
   </div>
 
-  <!-- 모바일 미니바 (하단 네비 바로 위) -->
-  <div v-if="showMiniBtn && isMobile"
-    class="fixed left-2 right-2 z-[9998] h-14 rounded-2xl bg-[#1a1a2e] text-white shadow-2xl flex items-center gap-2.5 px-2.5 overflow-hidden cursor-pointer"
-    style="bottom: calc(64px + env(safe-area-inset-bottom))"
-    @click="expand">
-    <div class="w-10 h-10 rounded-lg flex-shrink-0 bg-gradient-to-br from-[#FF8A4D] to-[#F0266B] overflow-hidden flex items-center justify-center">
-      <img v-if="music.currentTrack?.thumbnail" :src="music.currentTrack.thumbnail" class="w-full h-full object-cover" alt="" @error="$event.target.style.display='none'" />
-      <span v-else class="text-white"><AppIcon name="music" :size="18" /></span>
-    </div>
-    <div class="flex-1 min-w-0">
-      <p class="text-[13px] font-bold truncate">{{ music.currentTrack?.title }}</p>
-      <p class="text-[11px] text-gray-400 truncate">{{ music.currentTrack?.artist || '' }}</p>
-    </div>
-    <button @click.stop="doPrev" class="w-9 h-9 rounded-full text-gray-300 flex items-center justify-center"><AppIcon name="chevron-left" :size="18" /></button>
-    <button @click.stop="togglePlay" class="w-10 h-10 rounded-full bg-[#F0266B] text-white flex items-center justify-center">
-      <span v-if="music.isPlaying" class="flex items-center" style="gap:3px"><span class="block bg-white rounded-sm" style="width:3px;height:13px"></span><span class="block bg-white rounded-sm" style="width:3px;height:13px"></span></span>
-      <AppIcon v-else name="play" :size="16" :filled="true" />
-    </button>
-    <button @click.stop="doNext" class="w-9 h-9 rounded-full text-gray-300 flex items-center justify-center"><AppIcon name="chevron-right" :size="18" /></button>
-    <div class="absolute left-0 bottom-0 h-[2px] bg-[#FF8A4D]" :style="{ width: music.progress + '%' }"></div>
-  </div>
-
-  <!-- 플레이어 UI (영상 제외) — 모바일은 전체화면 -->
+  <!-- 플레이어 UI (영상 제외) -->
   <div v-if="showPlayer"
-    class="fixed z-[9998] bg-[#1a1a2e] flex flex-col overflow-hidden"
-    :class="isMobile ? 'inset-0' : ['rounded-2xl shadow-2xl border border-white/10', isMusicPage && window_w >= 1024 ? 'w-[280px]' : 'w-[300px]']"
-    :style="isMobile ? {} : { right: posRight + 'px', top: posTop + 'px', maxHeight: '75vh' }">
+    class="fixed z-[9998] bg-[#1a1a2e] rounded-2xl shadow-2xl border border-white/10 flex flex-col overflow-hidden"
+    :class="isMusicPage && window_w >= 1024 ? 'w-[280px]' : 'w-[300px]'"
+    :style="{ right: posRight + 'px', top: posTop + 'px', maxHeight: '75vh' }">
 
     <!-- 헤더 -->
-    <div @mousedown="!isMobile && startDrag($event)" @touchstart.passive="!isMobile && startDrag($event)"
-      class="px-3 flex items-center justify-between bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] select-none flex-shrink-0"
-      :class="isMobile ? 'py-3' : 'py-2 cursor-move'">
+    <div @mousedown="startDrag" @touchstart.passive="startDrag"
+      class="px-3 py-2 flex items-center justify-between cursor-move bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] select-none flex-shrink-0">
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-white/90"><AppIcon name="music" :size="14" /></span>
         <p class="text-white text-xs font-bold truncate">{{ music.currentTrack?.title || '재생 대기 중' }}</p>
@@ -74,8 +51,7 @@
         <AppIcon :name="showPL ? 'chevron-up' : 'chevron-down'" :size="12" />
       </button>
     </div>
-    <div v-if="showPL && music.playlist.length" class="overflow-y-auto px-1 pb-1 music-scroll"
-      :class="isMobile ? 'flex-1 min-h-0 text-[13px]' : 'max-h-[400px]'">
+    <div v-if="showPL && music.playlist.length" class="overflow-y-auto max-h-[400px] px-1 pb-1 music-scroll">
       <div v-for="(track, idx) in music.playlist" :key="track.id || idx" @click="playFromList(track)"
         class="flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition text-[11px]"
         :class="music.currentIndex === idx ? 'bg-amber-500/15 text-amber-300 font-semibold' : 'text-gray-400 hover:bg-white/5'">
@@ -117,13 +93,10 @@ let progressTimer = null
 let positionTimer = null
 let currentVideoId = null
 
-const isMobile = computed(() => window_w.value < 1024)
-let userPaused = false
-let wakeLock = null
 const isShortsPage = computed(() => route.path.startsWith('/shorts'))
 const isMusicPage = computed(() => route.path.startsWith('/music'))
 const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShutdown.value && !isShortsPage.value)
-const showPlayer = computed(() => (music.hasTrack || (isMusicPage.value && !isMobile.value)) && isExpanded.value && !isShutdown.value)
+const showPlayer = computed(() => (music.hasTrack || isMusicPage.value) && isExpanded.value && !isShutdown.value)
 
 const posRight = ref(16)
 const posTop = ref(170)
@@ -193,48 +166,8 @@ function shutdown() {
 }
 
 function togglePlay() {
-  if (!ytPlayer) { userPaused = false; if (music.currentTrack?.youtubeId) createPlayer(music.currentTrack.youtubeId, music.currentTime || 0); return }
-  try { const s = ytPlayer.getPlayerState(); if (s === 1) { userPaused = true; ytPlayer.pauseVideo() } else { userPaused = false; ytPlayer.playVideo() } } catch { createPlayer(music.currentTrack?.youtubeId, music.currentTime || 0) }
-}
-
-// 재생 중 화면 꺼짐 방지 (Screen Wake Lock) — 지원 안 하는 기기는 조용히 무시
-async function acquireWakeLock() {
-  try {
-    if (!('wakeLock' in navigator) || wakeLock) return
-    wakeLock = await navigator.wakeLock.request('screen')
-    wakeLock.addEventListener('release', () => { wakeLock = null })
-  } catch { wakeLock = null }
-}
-function releaseWakeLock() { try { wakeLock?.release() } catch {}; wakeLock = null }
-
-// 잠금화면/알림창 컨트롤 (Media Session)
-function updateMediaSession() {
-  if (!('mediaSession' in navigator)) return
-  const t = music.currentTrack
-  if (!t) { navigator.mediaSession.metadata = null; return }
-  try {
-    navigator.mediaSession.metadata = new window.MediaMetadata({
-      title: t.title || '', artist: t.artist || '', album: 'Awesome Korean',
-      artwork: t.thumbnail ? [{ src: t.thumbnail, sizes: '480x360', type: 'image/jpeg' }] : []
-    })
-  } catch {}
-}
-function setupMediaSessionHandlers() {
-  if (!('mediaSession' in navigator)) return
-  const set = (a, fn) => { try { navigator.mediaSession.setActionHandler(a, fn) } catch {} }
-  set('play', () => { userPaused = false; try { ytPlayer?.playVideo() } catch {} })
-  set('pause', () => { userPaused = true; try { ytPlayer?.pauseVideo() } catch {} })
-  set('previoustrack', () => doPrev())
-  set('nexttrack', () => doNext())
-}
-
-// 화면 복귀 시: 잠금 재획득 + 브라우저가 멈춘 재생 이어서 재생
-function onVisibilityChange() {
-  if (document.visibilityState !== 'visible') return
-  if (music.hasTrack && !userPaused && !isShutdown.value) {
-    acquireWakeLock()
-    try { if (ytPlayer?.getPlayerState && ytPlayer.getPlayerState() !== 1) ytPlayer.playVideo() } catch {}
-  }
+  if (!ytPlayer) { if (music.currentTrack?.youtubeId) createPlayer(music.currentTrack.youtubeId, music.currentTime || 0); return }
+  try { const s = ytPlayer.getPlayerState(); if (s === 1) ytPlayer.pauseVideo(); else ytPlayer.playVideo() } catch { createPlayer(music.currentTrack?.youtubeId, music.currentTime || 0) }
 }
 function doPrev() { music.prev(); nextTick(() => { if (music.currentTrack?.youtubeId) loadVideo(music.currentTrack.youtubeId) }) }
 function doNext() { music.next(); nextTick(() => { if (music.currentTrack?.youtubeId) loadVideo(music.currentTrack.youtubeId) }) }
@@ -284,16 +217,14 @@ function startProgressTimer() {
 // Watchers
 watch(() => music.currentTrack?.youtubeId, (vid) => {
   if (!vid) return
-  isShutdown.value = false; userPaused = false
-  if (!isMobile.value) isExpanded.value = true   // 모바일은 미니바로 시작
-  updateMediaSession()
+  isShutdown.value = false; isExpanded.value = true
   if (isMusicPage.value) { posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
   else { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
   nextTick(() => { loadVideo(vid, 0); updateYTPosition() })
 })
 
 watch(isMusicPage, (isMp) => {
-  if (isMp && !isShutdown.value && !isMobile.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop(); nextTick(updateYTPosition) }
+  if (isMp && !isShutdown.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop(); nextTick(updateYTPosition) }
 })
 watch(isMusicPage, (isMp, wasMp) => {
   if (!isMp && wasMp) { isExpanded.value = false; updateYTPosition() }
@@ -310,14 +241,10 @@ onMounted(() => {
   window.addEventListener('resize', onResize)
   // 위치 동기화 타이머 (드래그 등에서 정확도 보장)
   positionTimer = setInterval(updateYTPosition, 500)
-  if (isMusicPage.value && !isShutdown.value && !isMobile.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
-  if (music.currentTrack?.youtubeId) { if (!isMobile.value) isExpanded.value = true; nextTick(() => createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)) }
-  document.addEventListener('visibilitychange', onVisibilityChange)
-  setupMediaSessionHandlers()
+  if (isMusicPage.value && !isShutdown.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
+  if (music.currentTrack?.youtubeId) { isExpanded.value = true; nextTick(() => createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)) }
 })
-watch(() => music.isPlaying, (p) => { if (p) acquireWakeLock(); else releaseWakeLock() })
-watch(() => music.hasTrack, (h) => { if (!h) releaseWakeLock() })
-onUnmounted(() => { document.removeEventListener('visibilitychange', onVisibilityChange); releaseWakeLock(); if (progressTimer) clearInterval(progressTimer); if (positionTimer) clearInterval(positionTimer); window.removeEventListener('resize', onResize) })
+onUnmounted(() => { if (progressTimer) clearInterval(progressTimer); if (positionTimer) clearInterval(positionTimer); window.removeEventListener('resize', onResize) })
 </script>
 
 <style scoped>
