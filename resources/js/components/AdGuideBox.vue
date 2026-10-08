@@ -34,7 +34,7 @@ function apply() {
 
 const boxStyle = computed(() => ({
   ...(props.ratio ? { aspectRatio: props.ratio } : {}),
-  ...(props.maxWidth ? { maxWidth: props.maxWidth, margin: '0 auto' } : {}),
+  ...(props.maxWidth ? { maxWidth: props.maxWidth, marginLeft: 'auto', marginRight: 'auto' } : {}),
 }))
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full overflow-hidden">
+  <div class="w-full overflow-hidden" :class="position === 'right' && topGap ? 'mt-3' : ''">
     <!-- 광고 위치 안내 모드: 실제 광고 대신 자리표시 박스 -->
     <div v-if="guide.on" class="space-y-2">
       <AdGuideBox v-for="g in guideSlots" :key="g.name" v-bind="g" />
@@ -48,7 +48,9 @@ const props = defineProps({
   page: { type: String, required: true },
   position: { type: String, required: true },
   maxSlots: { type: Number, default: 3 },
-  showGuideLink: { type: Boolean, default: true }
+  showGuideLink: { type: Boolean, default: true },
+  // 오른쪽 사이드바에서 위 위젯 카드와 광고 사이를 띄운다 (왼쪽 사이드바와 같은 간격)
+  topGap: { type: Boolean, default: true }
 })
 
 const bannerStore = useBannerStore()
