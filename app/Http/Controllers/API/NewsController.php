@@ -14,7 +14,7 @@ class NewsController extends Controller
     use HasAdjacent;
     public function index(Request $request)
     {
-        $query = News::select('id', 'title', 'source', 'image_url', 'local_image', 'source_url', 'category_id', 'view_count', 'published_at', 'created_at')
+        $query = News::select('id', 'title', 'summary', 'source', 'image_url', 'local_image', 'source_url', 'category_id', 'view_count', 'ai_status', 'published_at', 'created_at')
             ->with('category:id,name,slug')
             ->where('is_active', true)
             ->when($request->category_id, fn($q, $v) => $q->where('category_id', $v))

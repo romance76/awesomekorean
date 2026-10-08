@@ -39,6 +39,16 @@
             <img :src="news.image_url" class="w-full max-h-96 object-cover rounded-lg" @error="e=>e.target.style.display='none'" />
           </div>
           <div class="px-5 py-5 border-t border-gray-50 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ news.content }}</div>
+          <div v-if="news.ai_summary" class="px-5 pb-5">
+            <div class="rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">AI 해설</span>
+                <span class="text-[11px] text-ink-muted">원문을 읽고 정리한 글이에요</span>
+              </div>
+              <div class="text-sm text-ink leading-7 whitespace-pre-line break-words">{{ news.ai_summary }}</div>
+              <p class="mt-3 text-[11px] text-ink-muted leading-relaxed">AI가 정리한 해설이라 틀린 내용이 있을 수 있어요. 정확한 내용은 <b>원문 기사</b>를 확인해 주세요.<template v-if="news.source"> (출처: {{ news.source }})</template></p>
+            </div>
+          </div>
           <div v-if="news.source_url" class="px-5 py-3 border-t border-gray-50">
             <a :href="news.source_url" target="_blank" class="inline-flex items-center gap-1.5 text-amber-600 text-sm font-semibold hover:underline"><AppIcon name="external-link" :size="14" />원문 보기</a>
           </div>

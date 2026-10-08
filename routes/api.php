@@ -127,6 +127,11 @@ Route::middleware('ingest.auth')->prefix('info-ingest')->group(function () {
     Route::get('/generation/status', [\App\Http\Controllers\API\InfoIngestController::class, 'generationStatus']);
     Route::post('/generation/complete', [\App\Http\Controllers\API\InfoIngestController::class, 'generationComplete']);
 });
+// 뉴스 "AI 해설" 파이프라인 전용 (같은 ingest.auth 토큰)
+Route::middleware('ingest.auth')->prefix('news-ingest')->group(function () {
+    Route::get('/pending', [\App\Http\Controllers\API\NewsIngestController::class, 'pending']);
+    Route::post('/summary', [\App\Http\Controllers\API\NewsIngestController::class, 'store'])->middleware('throttle:120,1');
+});
 Route::get('/external-headlines', [\App\Http\Controllers\API\ExternalHeadlineController::class, 'index']);
 Route::get('/market-quotes', [\App\Http\Controllers\API\MarketQuoteController::class, 'index']);
 Route::get('/stocks/earnings', [\App\Http\Controllers\API\StockController::class, 'earnings']);

@@ -129,6 +129,16 @@
                 ⓘ 본문 일부만 표시됩니다. 전체 기사는 아래 <b>원문 보기</b> 링크에서 확인하세요.
               </div>
 
+              <!-- AI 해설: 원문을 읽고 자기 말로 정리한 글 (원문 보기 링크는 아래에 그대로) -->
+              <div v-if="activeItem.ai_summary" class="mt-5 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">AI 해설</span>
+                  <span class="text-[11px] text-ink-muted">원문을 읽고 정리한 글이에요</span>
+                </div>
+                <div class="text-sm text-ink leading-7 whitespace-pre-line break-words">{{ activeItem.ai_summary }}</div>
+                <p class="mt-3 text-[11px] text-ink-muted leading-relaxed">AI가 정리한 해설이라 틀린 내용이 있을 수 있어요. 정확한 내용은 <b>원문 기사</b>를 확인해 주세요.<template v-if="activeItem.source"> (출처: {{ activeItem.source }})</template></p>
+              </div>
+
               <!-- English Original (TIME 기사만) -->
               <div v-if="activeItem.content_en" class="mt-6 border-t border-gray-50 pt-4">
                 <div class="flex items-center gap-2 mb-3">
@@ -205,8 +215,10 @@
                   <span v-if="!activeCat" class="badge-primary !text-[11px] !px-2">{{ item.category?.name || '뉴스' }}</span>
                   <span v-if="item.source?.startsWith('TIME')" class="badge-blue !text-[11px] !px-2 font-bold">EN→KO</span>
                   <span class="text-[11px] text-ink-muted">{{ item.source }}</span>
+                  <span v-if="item.ai_status === 'done'" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500 text-white">AI 해설</span>
                 </div>
-                <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug">{{ item.title }}</div>
+                <div class="text-sm font-bold text-ink line-clamp-2 leading-snug">{{ item.title }}</div>
+                <p v-if="snippet(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ snippet(item) }}</p>
                 <div class="flex items-center gap-2 mt-1">
                   <span class="text-xs text-ink-muted flex items-center gap-1"><AppIcon name="eye" :size="12" />{{ item.view_count }} · {{ formatDate(item.published_at) }}</span>
                   <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
@@ -292,6 +304,11 @@ function parseContentToBlocks(content) {
     }
   }
   return blocks
+}
+
+// 목록 한 줄 미리보기: 본문 앞부분 (이미지 표시 문구 제거)
+function snippet(item) {
+  return String(item.summary || '').replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/\s+/g, ' ').trim().slice(0, 140)
 }
 
 const contentBlocks = computed(() => parseContentToBlocks(activeItem.value?.content))
