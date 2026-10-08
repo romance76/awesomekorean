@@ -4,7 +4,7 @@
   <section class="relative overflow-hidden" style="background-image:linear-gradient(135deg,#FFF4EA 0%,#FFE9E0 55%,#FFF8F0 100%)">
     <div class="absolute -right-24 -top-24 w-80 h-80 rounded-full opacity-40" style="background:radial-gradient(circle,#FFB27A 0%,transparent 70%)"></div>
     <div class="absolute -left-16 bottom-0 w-64 h-64 rounded-full opacity-30" style="background:radial-gradient(circle,#FF8FA3 0%,transparent 70%)"></div>
-    <div class="relative max-w-4xl mx-auto px-4 py-14 md:py-20 text-center">
+    <div class="relative page-main px-4 py-14 md:py-20 text-center">
       <div class="inline-block text-[11px] font-black tracking-widest text-orange-600 bg-white/70 border border-orange-100 rounded-full px-3 py-1 mb-4">ABOUT AWESOMEKOREAN</div>
       <h1 class="text-3xl md:text-5xl font-black text-ink leading-tight mb-4">
         미국에서 사는 한인의 하루를,<br class="hidden md:block" /> 한곳에서 더 쉽게.
@@ -20,7 +20,7 @@
     </div>
   </section>
 
-  <div class="max-w-4xl mx-auto px-4 py-10 md:py-14 space-y-12 md:space-y-16">
+  <div class="page-main px-4 py-10 md:py-14 space-y-12 md:space-y-16">
 
     <!-- 우리가 하는 일 -->
     <section>
