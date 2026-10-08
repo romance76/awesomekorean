@@ -121,8 +121,12 @@ return [
     |
     */
 
-    // Issue #5: 기본 30일 (ttl 보다 크게)
-    'refresh_ttl' => env('JWT_REFRESH_TTL', 43200),
+    // 일반 회원: 로그인 후 최대 30일까지 자동 갱신 (AuthController::refresh 가 직접 확인)
+    'member_refresh_ttl' => (int) env('JWT_REFRESH_TTL', 43200),
+    // 운영자(admin/super_admin/moderator): 자주 로그인해야 하는 일이라 180일까지 끊기지 않게 함 (분 단위)
+    'staff_refresh_ttl' => (int) env('JWT_STAFF_REFRESH_TTL', 259200),
+    // 라이브러리가 쓰는 실제 갱신 한도는 둘 중 긴 쪽 (블랙리스트 보관기간도 이 값을 따라가므로 로그아웃한 토큰이 되살아나지 않음)
+    'refresh_ttl' => max((int) env('JWT_REFRESH_TTL', 43200), (int) env('JWT_STAFF_REFRESH_TTL', 259200)),
 
     /*
     |--------------------------------------------------------------------------

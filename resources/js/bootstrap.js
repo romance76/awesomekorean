@@ -55,10 +55,20 @@ window.Echo = new Echo({
 const NO_LOGOUT_ON_401 = ['/api/login', '/api/register', '/api/auth/refresh', '/api/forgot-password', '/api/reset-password'];
 axios.interceptors.response.use(
     response => response,
-    error => {
+    async error => {
         const url = error.config?.url || '';
         const sentToken = !!(error.config?.headers?.Authorization || error.config?.headers?.get?.('Authorization'));
         if (error.response?.status === 401 && sentToken && !NO_LOGOUT_ON_401.some(p => url.includes(p))) {
+            // 운영자는 토큰이 끝나서 401 이 난 경우 바로 로그아웃시키지 않고 한 번 갱신해서 같은 요청을 다시 보낸다
+            // (서버가 갱신을 거부하면 — 비밀번호 변경·정지·기간 경과 — 예전처럼 로그아웃)
+            if (window.__akRecoverSession && error.config && !error.config.__akRetried) {
+                error.config.__akRetried = true;
+                try {
+                    const r = await window.__akRecoverSession();
+                    if (r.retry) return axios(error.config);
+                    if (!r.logout) return Promise.reject(error);
+                } catch { /* 아래에서 로그아웃 처리 */ }
+            }
             window.dispatchEvent(new Event('ak:auth-401'));
         }
         return Promise.reject(error);

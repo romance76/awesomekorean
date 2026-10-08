@@ -19,6 +19,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => ['admin', 'super_admin'].includes(user.value?.role))
+  const isStaff = computed(() => ['admin', 'super_admin', 'moderator'].includes(user.value?.role))
   // 서버 EnsureEmailVerified 미들웨어와 같은 기준 — 이메일 미인증 일반 회원은 글쓰기 불가
   const needsVerification = computed(() =>
     !!token.value && !!user.value && !user.value.email_verified_at
@@ -73,6 +74,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchUser() {
     const wasUnverified = needsVerification.value
+    // 운영자가 오래 쉬었다 돌아와 토큰이 이미 만료됐으면, 먼저 조용히 갱신해서 바로 로그아웃되지 않게 함
+    if (token.value && isStaff.value) {
+      const exp = tokenExpiresAtMs(token.value)
+      if (exp && exp <= Date.now()) await refreshToken()
+      if (!token.value) { _resolveInit(); return }
+    }
     try {
       const { data } = await axios.get('/api/user')
       user.value = data.data || data
@@ -195,9 +202,10 @@ export const useAuthStore = defineStore('auth', () => {
   // 토큰이 끝났는데도 화면(특히 관리자 화면)이 그대로 남아 있던 문제 방지:
   //  · 토큰 만료 시각을 직접 확인해 만료되면 즉시 로그아웃 + 로그인 화면으로 이동
   //  · 서버가 401(토큰 무효)을 돌려주면(다른 기기 로그아웃, 비밀번호 변경, 정지 등) 즉시 로그아웃
-  //  · 관리자는 30분 동안 아무 조작이 없으면 자동 로그아웃
   //  · 사용 중인 회원은 만료 10분 전부터 조용히 토큰을 갱신해 1시간마다 끊기지 않음
-  const ADMIN_IDLE_MS = 30 * 60 * 1000
+  //  · 운영자(admin/super_admin/moderator)는 자주 로그인해야 하므로 조작이 없어도 로그아웃하지 않음:
+  //    토큰이 끝나도(오래 안 써도) 서버가 허락하는 기간(180일) 안이면 조용히 갱신하고,
+  //    로그아웃되는 건 직접 로그아웃 / 비밀번호 변경 / 정지·권한 해제 / 로그인 후 180일 경과뿐
   const ACTIVE_WINDOW_MS = 15 * 60 * 1000
   let lastActivity = Date.now()
   let watchTimer = null
@@ -211,32 +219,48 @@ export const useAuthStore = defineStore('auth', () => {
     try { window.dispatchEvent(new CustomEvent('ak:session-expired', { detail: { message } })) } catch {}
   }
 
-  async function refreshToken() {
-    if (refreshing || !token.value) return false
-    refreshing = true
-    try {
-      const { data } = await axios.post('/api/auth/refresh')
-      setAuth(data.data.token, user.value)
-      return true
-    } catch (e) {
-      if (e.response?.status === 401) expireSession()
-      return false
-    } finally { refreshing = false }
+  // 동시에 여러 곳에서 갱신을 요청해도 서버에는 한 번만 보내고 같은 결과를 나눠 준다
+  let refreshPromise = null
+  function refreshToken() {
+    if (!token.value) return Promise.resolve(false)
+    if (refreshPromise) return refreshPromise
+    refreshPromise = (async () => {
+      try {
+        const { data } = await axios.post('/api/auth/refresh')
+        setAuth(data.data.token, user.value)
+        return true
+      } catch (e) {
+        if (e.response?.status === 401) expireSession()
+        return false
+      }
+    })().finally(() => { refreshPromise = null })
+    return refreshPromise
   }
+
+  // 운영자의 요청이 "토큰 만료"로 401 을 받았을 때(bootstrap.js 의 응답 처리기가 부름): 갱신해 보고 다시 시도할지 알려 준다.
+  //  retry  = 갱신 성공 → 같은 요청을 새 토큰으로 다시 보냄
+  //  logout = 서버가 갱신을 거부(비밀번호 변경·정지·기간 경과 등) → 로그아웃 처리
+  //  (네트워크 오류 등으로 갱신을 못 한 경우는 로그아웃시키지 않고 요청만 실패 처리)
+  async function recoverStaffSession() {
+    if (!token.value || !isStaff.value) return { retry: false, logout: true }
+    if (await refreshToken()) return { retry: true, logout: false }
+    return { retry: false, logout: !token.value }
+  }
+  if (typeof window !== 'undefined') window.__akRecoverSession = recoverStaffSession
 
   async function sessionTick() {
     if (!token.value) return
     const now = Date.now()
     const exp = expiresAtMs()
     const active = now - lastActivity < ACTIVE_WINDOW_MS
-    if (isAdmin.value && now - lastActivity > ADMIN_IDLE_MS) {
-      return expireSession('관리자 보안을 위해 30분 동안 조작이 없어 자동으로 로그아웃됐어요.')
-    }
+    const keepAlive = active || isStaff.value        // 운영자는 쉬고 있어도 계속 이어 줌
     if (exp && exp <= now) {
-      if (active && await refreshToken()) return           // 만료 직후라도 방금까지 쓰던 사람은 갱신
+      if (keepAlive && await refreshToken()) return  // 만료 직후/한참 뒤라도 갱신 가능 기간 안이면 갱신
+      if (!token.value) return                       // 갱신이 거부돼 이미 로그아웃됨
+      if (isStaff.value) return                      // 운영자: 일시적인 네트워크 오류면 다음 점검 때 다시 시도
       return expireSession()
     }
-    if (exp && exp - now < 10 * 60 * 1000 && active) await refreshToken()
+    if (exp && exp - now < 10 * 60 * 1000 && keepAlive) await refreshToken()
   }
 
   function startSessionWatch() {
@@ -270,5 +294,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance, replaceToken }
+  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, isStaff, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance, replaceToken }
 })
