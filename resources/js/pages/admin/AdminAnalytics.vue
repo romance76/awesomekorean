@@ -175,7 +175,9 @@ function onFile(e) {
 async function connect() {
   connecting.value = true; connectMsg.value = ''
   try {
-    await axios.post('/api/admin/analytics/credentials', { service_account_json: jsonText.value, property_id: propertyId.value.trim() })
+    const { data } = await axios.post('/api/admin/analytics/credentials', { service_account_json: jsonText.value, property_id: propertyId.value.trim() })
+    // 상태를 다시 읽어 오기 전에 화면부터 "연결됨"으로 바꾼다
+    status.value = { ...(status.value || {}), connected: true, service_account_email: data.data?.service_account_email, property_id: data.data?.property_id }
     connectOk.value = true; connectMsg.value = '연결되었어요.'
     jsonText.value = ''; fileName.value = ''; propertyId.value = ''
     await loadStatus(); loadDash()
