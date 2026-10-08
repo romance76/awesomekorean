@@ -40,6 +40,7 @@ class NewsIngestController extends Controller
         $rows = $remaining <= 0 ? collect() : News::with('category:id,name')
             ->where('is_active', true)
             ->whereNull('ai_status')
+            ->listable()
             ->whereNotIn('source', (array) config('services.news_ai.exclude_sources', []))
             ->whereNotNull('source_url')
             ->where('published_at', '>=', now()->subHours($hours))

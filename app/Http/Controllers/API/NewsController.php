@@ -17,6 +17,7 @@ class NewsController extends Controller
         $query = News::select('id', 'title', 'summary', 'source', 'image_url', 'local_image', 'source_url', 'category_id', 'view_count', 'ai_status', 'published_at', 'created_at')
             ->with('category:id,name,slug')
             ->where('is_active', true)
+            ->listable()
             ->when($request->category_id, fn($q, $v) => $q->where('category_id', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"));
 
@@ -67,7 +68,7 @@ class NewsController extends Controller
 
         // 오늘(애틀랜타 날짜 기준)에 나온 기사가 있는 분류에 NEW 를 달 수 있도록 분류별 오늘 기사 수를 함께 준다
         $since = \Carbon\Carbon::now('America/New_York')->startOfDay()->setTimezone('UTC');
-        $today = News::where('is_active', true)->where('published_at', '>=', $since)
+        $today = News::where('is_active', true)->listable()->where('published_at', '>=', $since)
             ->selectRaw('category_id, count(*) as c')->groupBy('category_id')->pluck('c', 'category_id');
         $cats->each(fn ($c) => $c->setAttribute('new_today', (int) ($today[$c->id] ?? 0)));
 

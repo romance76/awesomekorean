@@ -78,6 +78,10 @@ return [
         // 기사 제공처가 "AI 학습 및 활용 금지"를 밝힌 언론사는 AI 해설에서 제외 (연합뉴스 RSS 저작권 문구)
         'exclude_sources' => array_filter(array_map('trim', explode(',', env('NEWS_AI_EXCLUDE_SOURCES', '연합뉴스')))),
     ],
+    'news_list' => [
+        // 목록에 보여줄 뉴스 요약의 최소 글자 수 (이보다 짧으면 숨김)
+        'min_summary' => (int) env('NEWS_LIST_MIN_SUMMARY', 50),
+    ],
     'info_ingest' => [
         'token' => env('INFO_INGEST_TOKEN'),
     ],

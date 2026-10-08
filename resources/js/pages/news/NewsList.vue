@@ -32,12 +32,12 @@
           <button @click="activeCat = null"
             class="relative text-xs py-2 rounded-lg font-semibold border transition-colors"
             :class="!activeCat ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
-            전체<span v-if="allNewToday" aria-label="오늘 새 뉴스" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            전체
           </button>
           <button v-for="c in categories" :key="c.id" @click="activeCat = c"
             class="relative text-xs py-2 rounded-lg font-semibold border transition-colors"
             :class="activeCat?.id === c.id ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
-            {{ c.name }}<span v-if="c.new_today" aria-label="오늘 새 뉴스" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500"></span>
+            {{ c.name }}
           </button>
         </div>
       </div>
@@ -62,10 +62,10 @@
           <div class="card overflow-hidden">
             <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-amber-500" />카테고리</div>
             <button @click="showFavorites=false; activeCat=null; activeItem=null; loadNews()" class="w-full text-left px-3 py-2 text-xs transition-colors flex items-center justify-between"
-              :class="!showFavorites && !activeCat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'"><span>전체</span><span v-if="allNewToday" title="오늘 새 뉴스" aria-label="오늘 새 뉴스" class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span></button>
+              :class="!showFavorites && !activeCat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'"><span>전체</span></button>
             <button v-for="cat in categories" :key="cat.id" @click="showFavorites=false; activeCat=cat; activeItem=null; loadNews()"
               class="w-full text-left px-3 py-2 text-xs transition-colors flex items-center justify-between"
-              :class="!showFavorites && activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'"><span>{{ cat.name }}</span><span v-if="cat.new_today" title="오늘 새 뉴스" aria-label="오늘 새 뉴스" class="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span></button>
+              :class="!showFavorites && activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'"><span>{{ cat.name }}</span></button>
             <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
               class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 flex items-center gap-1"
               :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
