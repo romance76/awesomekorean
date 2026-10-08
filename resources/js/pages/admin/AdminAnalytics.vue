@@ -1,5 +1,105 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <p v-if="error" class="bg-red-50 text-red-600 text-[14px] rounded-xl p-3">{{ error }}</p>
+
+  <!-- 통계 연결 -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+    <div class="flex items-center justify-between gap-2">
+      <div class="text-[15px] font-bold text-ink">통계 연결 (구글 애널리틱스)</div>
+      <span v-if="status" class="shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-full" :class="status.connected ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-ink-muted'">{{ status.connected ? '연결됨' : '연결 안 됨' }}</span>
+    </div>
+    <div v-if="status?.connected" class="mt-2 text-[13px] text-ink-muted break-all">속성 {{ status.property_id }} · <span class="font-mono">{{ status.service_account_email }}</span></div>
+    <button v-if="status?.connected" @click="disconnect" class="mt-2 min-h-[44px] w-full rounded-xl bg-red-50 text-red-600 text-[14px] font-bold">연결 해제</button>
+    <div v-if="status && !status.connected" class="mt-3 space-y-2.5">
+      <p class="text-[13px] text-ink-light leading-relaxed">구글 클라우드에서 받은 <b>서비스 계정 JSON 파일</b>과 애널리틱스 <b>속성 ID(숫자)</b>를 넣으면 연결돼요. 먼저 애널리틱스 <b>속성 액세스 관리</b>에 그 서비스 계정 이메일을 <b>뷰어</b>로 추가해 두세요.</p>
+      <input type="file" accept="application/json,.json" @change="onFile" aria-label="서비스 계정 JSON 파일" class="block w-full text-[14px]" />
+      <div v-if="fileName" class="text-[12px] text-ink-muted">선택한 파일: {{ fileName }}</div>
+      <input v-model="propertyId" inputmode="numeric" placeholder="속성 ID (숫자)" aria-label="속성 ID" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      <button @click="connect" :disabled="!jsonText || !propertyId || connecting" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ connecting ? '확인 중...' : '연결' }}</button>
+      <div v-if="connectMsg" class="text-[13px] rounded-xl p-2.5" :class="connectOk ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'">{{ connectMsg }}</div>
+    </div>
+  </div>
+
+  <template v-if="status?.connected">
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide items-center" role="group" aria-label="기간">
+      <button v-for="d in [7, 28, 90]" :key="d" @click="days = d; loadDash()" :aria-pressed="days === d"
+        class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]" :class="days === d ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">최근 {{ d }}일</button>
+      <button @click="loadDash(true)" class="shrink-0 min-h-[44px] px-4 rounded-full border border-gray-200 bg-white text-[15px] font-bold text-blue-600">새로고침</button>
+    </div>
+    <p v-if="dashErr" class="bg-red-50 text-red-600 text-[14px] rounded-xl p-3">{{ dashErr }}</p>
+    <div v-if="dashLoading" class="text-center text-ink-muted py-10 text-[15px]">불러오는 중...</div>
+
+    <template v-if="dash && !dashLoading">
+      <div class="grid grid-cols-2 gap-2">
+        <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3"><div class="text-[13px] text-ink-muted">지금 접속 중</div><div class="text-[26px] font-black tabular-nums text-emerald-600">{{ dash.realtime_users }}</div></div>
+        <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3"><div class="text-[13px] text-ink-muted">방문자</div><div class="text-[26px] font-black tabular-nums text-ink">{{ num(dash.totals.activeUsers) }}</div><div class="text-[12px] text-ink-faint">신규 {{ num(dash.totals.newUsers) }}</div></div>
+        <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3"><div class="text-[13px] text-ink-muted">페이지 조회</div><div class="text-[26px] font-black tabular-nums text-ink">{{ num(dash.totals.pageViews) }}</div><div class="text-[12px] text-ink-faint">세션 {{ num(dash.totals.sessions) }}</div></div>
+        <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3"><div class="text-[13px] text-ink-muted">평균 머문 시간</div><div class="text-[22px] font-black text-ink">{{ dur(dash.totals.avgSessionSec) }}</div><div class="text-[12px] text-ink-faint">참여율 {{ Math.round((dash.totals.engagementRate || 0) * 100) }}%</div></div>
+      </div>
+
+      <!-- 일별 방문자: 막대를 누르면 그날 숫자가 나와요 -->
+      <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+        <div class="text-[15px] font-bold text-ink mb-2">일별 방문자</div>
+        <div class="overflow-x-auto scrollbar-hide">
+          <div class="flex items-end gap-[2px] h-32 min-w-full" role="group" aria-label="일별 방문자 막대 그래프">
+            <button v-for="r in daily" :key="r.date" type="button" @click="hover = r" :aria-label="`${r.label} 방문자 ${r.users}명`"
+              class="flex-1 min-w-[8px] h-full flex items-end rounded-sm" :class="hover?.date === r.date ? 'bg-amber-100' : ''">
+              <span class="block w-full rounded-t-[3px] bg-amber-400" :style="{ height: Math.max(r.users ? 3 : 0, (r.users / maxUsers) * 100) + '%' }"></span>
+            </button>
+          </div>
+        </div>
+        <div class="flex justify-between text-[11px] text-ink-faint mt-1"><span>{{ daily[0]?.label }}</span><span>{{ daily[daily.length - 1]?.label }}</span></div>
+        <div class="mt-2 rounded-xl bg-gray-50 px-3 py-2 text-[14px] min-h-[44px] flex items-center">
+          <template v-if="hover"><span class="text-ink-muted mr-2">{{ hover.label }}</span><b class="text-ink">방문자 {{ hover.users }}명</b><span class="ml-auto text-ink-muted">조회 {{ hover.views }}회</span></template>
+          <span v-else class="text-ink-faint">막대를 누르면 그날 숫자가 나와요</span>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 text-[15px] font-bold text-ink">인기 페이지</div>
+        <div v-for="p in dash.pages" :key="p.path" class="px-4 py-2.5 border-b border-gray-50 last:border-0 flex justify-between gap-3">
+          <div class="min-w-0"><div class="text-[14px] text-ink truncate">{{ p.title || p.path }}</div><div class="text-[12px] text-ink-faint truncate">{{ decode(p.path) }}</div></div>
+          <div class="shrink-0 text-right text-[14px] font-bold text-ink tabular-nums">{{ num(p.views) }}<span class="text-ink-faint font-normal text-[12px]"> 조회</span></div>
+        </div>
+        <div v-if="!dash.pages.length" class="px-4 py-5 text-[14px] text-ink-muted text-center">아직 데이터가 없어요</div>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 text-[15px] font-bold text-ink">어디서 들어왔나 (유입 경로)</div>
+        <div v-for="c in dash.channels" :key="c.channel" class="px-4 py-2.5 border-b border-gray-50 last:border-0 text-[14px] flex justify-between"><span class="text-ink">{{ channelLabel(c.channel) }}</span><b class="tabular-nums">{{ num(c.sessions) }}</b></div>
+        <div v-if="!dash.channels.length" class="px-4 py-5 text-[14px] text-ink-muted text-center">아직 데이터가 없어요</div>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 text-[15px] font-bold text-ink">국가별 방문자</div>
+        <div v-for="c in dash.countries" :key="c.country" class="px-4 py-2.5 border-b border-gray-50 last:border-0 text-[14px] flex justify-between"><span class="text-ink">{{ c.country }}</span><b class="tabular-nums">{{ num(c.users) }}</b></div>
+        <div v-if="!dash.countries.length" class="px-4 py-5 text-[14px] text-ink-muted text-center">아직 데이터가 없어요</div>
+      </div>
+      <p class="text-[12px] text-ink-faint px-0.5">구글 데이터는 몇 시간 늦게 반영되고, 추적 코드를 켠 시점부터 쌓여요. 10분마다 새로 받아와요.</p>
+    </template>
+  </template>
+
+  <!-- 추적 코드 -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
+    <div class="flex items-center justify-between gap-2">
+      <div class="text-[15px] font-bold text-ink">추적 코드 상태</div>
+      <span v-if="status" class="shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-full" :class="status.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'">{{ status.enabled ? '켜짐' : '꺼짐' }}</span>
+    </div>
+    <div v-if="status?.measurement_id" class="font-mono text-[15px] text-ink mt-1">{{ status.measurement_id }}</div>
+    <p v-if="status && !status.enabled" class="text-[13px] text-ink-light mt-2 leading-relaxed">아직 측정 ID가 등록되지 않았어요. <b>설정 › API 키 관리</b>에서 서비스 코드 <span class="font-mono">google_analytics</span> 로 측정 ID(G-로 시작)를 등록하면 켜져요.</p>
+    <p v-else class="text-[13px] text-ink-faint mt-2">주요 화면과 최근 정보 글 40개를 실제로 열어 보고, 각 페이지에 추적 코드가 들어 있는지 확인해요.</p>
+    <button @click="runCheck" :disabled="checking" class="mt-3 w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-50">{{ checking ? '검사 중... (최대 30초)' : '사이트 전체 검사' }}</button>
+    <div v-if="result" class="mt-3 border-t border-gray-100 pt-3">
+      <div class="flex items-center gap-3 flex-wrap"><div class="text-[24px] font-black tabular-nums" :class="result.missing.length ? 'text-amber-600' : 'text-emerald-600'">{{ result.with_tag }} / {{ result.total }}</div><div class="text-[14px] text-ink">{{ result.message }}</div></div>
+      <div v-if="result.missing.length" class="mt-2 space-y-1.5">
+        <div class="text-[13px] font-bold text-ink-muted">추적 코드가 없는 페이지</div>
+        <div v-for="m in result.missing" :key="m.url" class="text-[13px] flex gap-2"><span class="font-mono text-red-500 shrink-0">{{ m.status || '응답없음' }}</span><span class="text-ink-light break-all">{{ decode(m.url) }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <div class="mb-4">
     <div class="text-xs text-ink-muted">관리자 › 시스템 › 방문 분석</div>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
@@ -131,9 +231,13 @@
 </div>
 </template>
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 관리자 휴대폰 화면이면 카드 + 눌러 보는 막대그래프로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const status = ref(null)
 const result = ref(null)
@@ -213,3 +317,7 @@ async function runCheck() {
 
 onMounted(loadStatus)
 </script>
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
