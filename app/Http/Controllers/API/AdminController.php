@@ -171,22 +171,36 @@ class AdminController extends Controller
     }
     public function approveBanner($id) {
         $b = \App\Models\BannerAd::findOrFail($id);
+        // 이미 거절(환불 완료)된 광고가 다시 승인돼 환불받고도 게재되는 일을 막기 위해 대기/중지 상태만 승인 가능
+        if (!in_array($b->status, ['pending', 'paused'], true)) {
+            return response()->json(['success'=>false,'message'=>'대기 중이거나 중지된 광고만 승인할 수 있어요'], 422);
+        }
+        $wasPending = $b->status === 'pending';
         $b->update(['status' => 'active']);
         // 승인/거절 시 광고주에게 통지가 전혀 없어 수동 확인만 가능하던 문제 수정
-        if ($b->user_id) {
+        if ($wasPending && $b->user_id) {
             try {
                 \App\Models\Notification::create(['user_id'=>$b->user_id,'type'=>'banner_approved','title'=>'광고가 승인되었습니다','content'=>"'{$b->title}' 광고가 승인되어 게재를 시작합니다.",'data'=>['banner_id'=>$id]]);
                 $unread = \App\Models\Notification::where('user_id',$b->user_id)->whereNull('read_at')->count();
                 broadcast(new \App\Events\NewNotification($b->user_id, $unread, '광고가 승인되었습니다'))->toOthers();
             } catch (\Exception $e) {}
         }
-        return response()->json(['success'=>true,'message'=>'광고 승인됨']);
+        return response()->json(['success'=>true,'message'=>$wasPending ? '광고 승인됨' : '광고를 다시 게시했어요']);
     }
     public function rejectBanner(Request $request, $id) {
-        $b = \App\Models\BannerAd::findOrFail($id);
-        $b->update(['status' => 'rejected', 'reject_reason' => $request->reason]);
-        // 포인트 환불
-        $b->user?->addPoints($b->total_cost, "광고 거절 환불: {$b->title}", 'banner_refund');
+        // 거절은 포인트를 환불하므로, 같은 광고를 두 번 거절(더블 탭 등)해도 환불이 한 번만 되도록
+        // 잠금 + 상태 확인을 한 트랜잭션에서 처리
+        $b = \Illuminate\Support\Facades\DB::transaction(function () use ($request, $id) {
+            $b = \App\Models\BannerAd::lockForUpdate()->findOrFail($id);
+            if ($b->status !== 'pending') return null;
+            $b->update(['status' => 'rejected', 'reject_reason' => $request->reason]);
+            // 포인트 환불
+            $b->user?->addPoints($b->total_cost, "광고 거절 환불: {$b->title}", 'banner_refund');
+            return $b;
+        });
+        if (!$b) {
+            return response()->json(['success'=>false,'message'=>'대기 중인 광고만 거절할 수 있어요'], 422);
+        }
         if ($b->user_id) {
             try {
                 \App\Models\Notification::create(['user_id'=>$b->user_id,'type'=>'banner_rejected','title'=>'광고가 거절되었습니다','content'=>"'{$b->title}' 광고가 거절되었습니다. 사유: " . ($request->reason ?: '없음') . " ({$b->total_cost}P 환불됨)",'data'=>['banner_id'=>$id]]);
