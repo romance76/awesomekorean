@@ -1,5 +1,166 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <!-- 바로가기 -->
+  <div class="grid grid-cols-3 gap-2">
+    <RouterLink to="/admin/banners" class="min-h-[52px] rounded-xl bg-white border border-gray-100 flex items-center justify-center text-center text-[14px] font-bold text-ink active:bg-amber-50 px-1">전체 광고 목록</RouterLink>
+    <RouterLink to="/admin/ad-settings" class="min-h-[52px] rounded-xl bg-white border border-gray-100 flex items-center justify-center text-center text-[14px] font-bold text-ink active:bg-amber-50 px-1">슬롯·가격 설정</RouterLink>
+    <RouterLink to="/admin/hero-banners" class="min-h-[52px] rounded-xl bg-white border border-gray-100 flex items-center justify-center text-center text-[14px] font-bold text-ink active:bg-amber-50 px-1">히어로 배너</RouterLink>
+  </div>
+
+  <!-- 요약 -->
+  <div v-if="overview" class="flex gap-2 overflow-x-auto scrollbar-hide">
+    <div class="shrink-0 min-w-[92px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">전체 광고</div><div class="text-[20px] font-black tabular-nums text-ink">{{ overview.total }}</div></div>
+    <div class="shrink-0 min-w-[92px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">활성</div><div class="text-[20px] font-black tabular-nums text-green-600">{{ overview.active }}</div></div>
+    <div class="shrink-0 min-w-[92px] bg-white border rounded-2xl px-3 py-2.5" :class="overview.pending > 0 ? 'border-amber-300' : 'border-gray-100'"><div class="text-[12px] text-ink-muted">대기</div><div class="text-[20px] font-black tabular-nums text-yellow-600">{{ overview.pending }}</div></div>
+    <div class="shrink-0 min-w-[110px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">매출 (P)</div><div class="text-[20px] font-black tabular-nums text-purple-600">{{ Number(overview.revenue_p || 0).toLocaleString() }}</div></div>
+    <div class="shrink-0 min-w-[100px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">총 노출</div><div class="text-[20px] font-black tabular-nums text-blue-600">{{ Number(overview.total_impressions || 0).toLocaleString() }}</div></div>
+    <div class="shrink-0 min-w-[92px] bg-white border border-gray-100 rounded-2xl px-3 py-2.5"><div class="text-[12px] text-ink-muted">총 클릭</div><div class="text-[20px] font-black tabular-nums text-red-600">{{ Number(overview.total_clicks || 0).toLocaleString() }}</div></div>
+  </div>
+
+  <!-- 페이지 / 지역 -->
+  <select v-model="filter.page" @change="onPageChange" aria-label="광고 페이지" class="w-full min-h-[48px] bg-white border border-gray-200 rounded-xl px-3 text-ink">
+    <option v-for="(pg, key) in overview?.pages || {}" :key="key" :value="key">{{ pg.icon }} {{ pg.label }}<template v-if="overview?.page_counts?.[key]"> ({{ overview.page_counts[key] }})</template></option>
+  </select>
+  <div v-if="overview?.pages?.[filter.page]?.geo" class="space-y-2">
+    <div class="grid grid-cols-4 gap-1 bg-gray-200/70 rounded-2xl p-1" role="group" aria-label="지역 범위">
+      <button v-for="g in ['all','state','county','city']" :key="g" @click="filter.geo_scope = g; filter.geo_value = ''; loadSlotMap()" :aria-pressed="filter.geo_scope === g"
+        class="min-h-[44px] rounded-xl text-[14px] font-bold" :class="filter.geo_scope === g ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">{{ {all:'전국',state:'주',county:'카운티',city:'시티'}[g] }}</button>
+    </div>
+    <input v-if="filter.geo_scope !== 'all'" v-model="filter.geo_value" @change="loadSlotMap" @keyup.enter="loadSlotMap"
+      :placeholder="filter.geo_scope === 'state' ? '예: CA, NY' : filter.geo_scope === 'county' ? '예: Gwinnett' : '예: Duluth'" aria-label="지역 이름"
+      class="w-full min-h-[48px] rounded-xl border border-gray-200 bg-white px-3" />
+  </div>
+
+  <!-- 애드센스 페이지 -->
+  <div v-if="isAdsensePage" class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-[14px] text-ink-light leading-relaxed">
+    <b class="text-ink">{{ overview?.pages?.[filter.page]?.label }}</b> 페이지는 메뉴 관리에서 "애드센스"로 지정돼 있어요. 일반 배너 슬롯 대신 Google 애드센스 광고가 나올 자리예요.
+  </div>
+
+  <!-- 슬롯 -->
+  <template v-else-if="slotMap">
+    <div class="flex items-center gap-x-3 gap-y-1 flex-wrap text-[13px] px-0.5">
+      <span class="text-ink-light">슬롯 <b class="text-ink">{{ slotMap.summary.total_slots }}</b>개</span>
+      <span class="text-green-600">채워짐 <b>{{ slotMap.summary.filled }}</b></span>
+      <span class="text-yellow-600">대기 <b>{{ slotMap.summary.pending }}</b></span>
+      <span class="text-ink-muted">비어있음 <b>{{ slotMap.summary.empty }}</b></span>
+    </div>
+    <div v-for="side in ['left','right']" :key="side" class="space-y-2">
+      <div class="text-[14px] font-bold text-ink-light px-0.5 pt-1">{{ side === 'left' ? '좌측 · 카테고리 컬럼' : '우측 · 인기글 컬럼' }}</div>
+      <template v-for="tier in slotMap.slots[side]" :key="side + tier.tier">
+        <button v-for="sl in tier.slots" :key="side + tier.tier + sl.index" @click="openSlotMobile(sl)"
+          class="w-full text-left rounded-2xl border-2 p-3 min-h-[76px] flex items-center gap-3 active:opacity-80"
+          :class="tierBox(tier.tier)">
+          <span class="shrink-0 w-[84px] h-[60px] rounded-xl overflow-hidden bg-white/70 grid place-items-center">
+            <img v-if="sl.ad?.image_url" :src="sl.ad.image_url" alt="" loading="lazy" class="w-full h-full object-cover" @error="e => e.target.style.display = 'none'" />
+            <AppIcon v-else-if="!sl.ad" name="plus" :size="22" class="text-ink-faint" />
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[13px] font-bold" :class="tierText(tier.tier)">{{ tierLabel(side, tier.tier) }} #{{ sl.index }}</span>
+              <span v-if="sl.ad" class="text-[12px] px-2 py-0.5 rounded-full font-bold" :class="statusBadge(sl.ad.status)">{{ statusKo(sl.ad.status) }}</span>
+            </span>
+            <template v-if="sl.ad">
+              <span class="block text-[15px] font-bold text-ink truncate">{{ sl.ad.title }}</span>
+              <span class="block text-[13px] text-ink-muted truncate">{{ sl.ad.user?.name }} · 노출 {{ sl.ad.impressions }} · 클릭 {{ sl.ad.clicks }}</span>
+            </template>
+            <template v-else>
+              <span class="block text-[15px] text-ink-muted">비어있음</span>
+              <span class="block text-[13px] text-ink-muted">{{ tier.size }} · <b class="text-amber-600">{{ tier.price.toLocaleString() }}P/월</b></span>
+            </template>
+          </span>
+        </button>
+      </template>
+    </div>
+    <p class="text-[13px] text-ink-faint leading-relaxed px-0.5">🥇 프리미엄·🥈 스탠다드는 한 달 독점(프A/프B, 스A/스B)이에요. 이코노미는 여러 광고가 돌아가며 나와요.</p>
+  </template>
+  <div v-else class="text-center text-ink-muted py-10 text-[15px]">불러오는 중...</div>
+
+  <!-- 광고 상세 / 처리 시트 -->
+  <Teleport to="body">
+    <div v-if="selectedAd" class="alv-m fixed inset-0 z-[70] bg-black/45 flex items-end" @click.self="closeSheet">
+      <div class="w-full bg-white rounded-t-3xl px-4 pt-2 max-h-[92vh] overflow-y-auto" role="dialog" aria-modal="true"
+        :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
+
+        <div v-if="!adDetail" class="text-center text-ink-muted py-10 text-[15px]">불러오는 중...</div>
+
+        <!-- 거절 사유 -->
+        <div v-else-if="mode === 'reject'" class="space-y-3">
+          <div class="text-[17px] font-bold text-ink">광고 거절</div>
+          <div class="text-[14px] text-ink-muted break-words">‘{{ adDetail.ad.title }}’ — 거절하면 광고주에게 <b class="text-ink">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b>가 환불되고 사유가 전달돼요.</div>
+          <div class="flex flex-wrap gap-2">
+            <button v-for="r in rejectPresets" :key="r" type="button" @click="rejectReason = r"
+              class="min-h-[44px] px-3 rounded-full border text-[14px]" :class="rejectReason === r ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200'">{{ r }}</button>
+          </div>
+          <textarea v-model="rejectReason" rows="3" maxlength="200" placeholder="거절 사유" aria-label="거절 사유" class="w-full rounded-xl border border-gray-200 px-3 py-3"></textarea>
+          <button @click="doReject" :disabled="busy || !rejectReason.trim()" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-40">{{ busy ? '처리 중...' : '거절하기' }}</button>
+          <button @click="mode = ''" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">돌아가기</button>
+        </div>
+
+        <!-- 삭제 확인 -->
+        <div v-else-if="mode === 'delete'" class="space-y-3">
+          <div class="text-[17px] font-bold text-ink">광고를 삭제할까요?</div>
+          <p class="text-[15px] text-ink-light leading-relaxed break-words">‘{{ adDetail.ad.title }}’<template v-if="['pending','active','paused'].includes(adDetail.ad.status)"><br />광고주에게 <b class="text-ink">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b>가 환불돼요.</template><template v-else><br />이미 {{ statusKo(adDetail.ad.status) }} 상태라 환불은 없어요.</template></p>
+          <button @click="doDelete" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '삭제하기' }}</button>
+          <button @click="mode = ''" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">돌아가기</button>
+        </div>
+
+        <!-- 상세 -->
+        <div v-else class="space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0"><div class="text-[13px] text-ink-muted">광고 #{{ adDetail.ad.id }}</div><div class="text-[17px] font-bold text-ink break-words">{{ adDetail.ad.title }}</div></div>
+            <span class="shrink-0 text-[12px] px-2.5 py-1 rounded-full font-bold" :class="statusBadge(adDetail.ad.status)">{{ statusKo(adDetail.ad.status) }}</span>
+          </div>
+          <a v-if="adDetail.ad.image_url" :href="adDetail.ad.image_url" target="_blank" rel="noopener noreferrer" class="block rounded-2xl overflow-hidden bg-gray-100 border border-gray-100">
+            <img :src="adDetail.ad.image_url" alt="광고 이미지" class="w-full max-h-[30vh] object-contain" />
+          </a>
+          <div class="bg-gray-50 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+            <div class="min-w-0"><div class="text-[13px] text-ink-muted">광고주</div><b class="block text-[15px] text-ink truncate">{{ adDetail.ad.user?.nickname || adDetail.ad.user?.name }}</b><span class="block text-[13px] text-ink-muted truncate">{{ adDetail.ad.user?.email }}</span><span v-if="adDetail.ad.user?.city" class="block text-[13px] text-ink-muted">{{ adDetail.ad.user?.city }}, {{ adDetail.ad.user?.state }}</span></div>
+            <button v-if="adDetail.ad.user?.id" @click="goMember" class="shrink-0 min-h-[44px] px-3 rounded-xl bg-white border border-gray-200 text-[14px] font-bold text-ink">회원 상세</button>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[14px]">
+            <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">페이지</div><b class="text-ink break-words">{{ adDetail.ad.page }}<template v-if="pagesText(adDetail.ad.target_pages)"> → {{ pagesText(adDetail.ad.target_pages) }}</template></b></div>
+            <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">위치 / 슬롯</div><b class="text-ink">{{ adDetail.ad.position }} / S{{ adDetail.ad.slot_number }}</b></div>
+            <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">지역</div><b class="text-ink">{{ adDetail.ad.geo_scope }}{{ adDetail.ad.geo_value ? ' · ' + adDetail.ad.geo_value : '' }}</b></div>
+            <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">기간</div><b class="text-ink text-[13px]">{{ day(adDetail.ad.start_date) }} ~ {{ day(adDetail.ad.end_date) }}</b></div>
+            <div class="bg-purple-50 border border-purple-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">비용 (총)</div><b class="text-purple-700 tabular-nums">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b></div>
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">입찰가 (월)</div><b class="text-blue-700 tabular-nums">{{ Number(adDetail.ad.bid_amount || 0).toLocaleString() }}P</b></div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-blue-50 rounded-xl p-2.5 text-center"><div class="text-[12px] text-ink-muted">노출</div><b class="text-blue-700 tabular-nums">{{ Number(adDetail.ad.impressions || 0).toLocaleString() }}</b></div>
+            <div class="bg-red-50 rounded-xl p-2.5 text-center"><div class="text-[12px] text-ink-muted">클릭</div><b class="text-red-700 tabular-nums">{{ Number(adDetail.ad.clicks || 0).toLocaleString() }}</b></div>
+            <div class="bg-green-50 rounded-xl p-2.5 text-center"><div class="text-[12px] text-ink-muted">CTR</div><b class="text-green-700 tabular-nums">{{ ctr(adDetail.ad) }}%</b></div>
+          </div>
+          <a v-if="adDetail.ad.link_url" :href="adDetail.ad.link_url" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center gap-2 min-h-[48px] px-3 rounded-xl bg-blue-50 text-blue-700 text-[14px] font-bold break-all">
+            <AppIcon name="external-link" :size="16" /><span class="min-w-0">링크 열어 보기 · {{ adDetail.ad.link_url }}</span>
+          </a>
+          <div class="grid grid-cols-2 gap-2">
+            <button v-if="adDetail.ad.status === 'pending'" @click="doApprove" :disabled="busy" class="min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">승인</button>
+            <button v-if="adDetail.ad.status === 'pending'" @click="rejectReason = ''; mode = 'reject'" :disabled="busy" class="min-h-[52px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">거절</button>
+            <button v-if="adDetail.ad.status === 'active'" @click="doPause" :disabled="busy" class="min-h-[52px] rounded-xl bg-orange-50 text-orange-700 text-[16px] font-bold disabled:opacity-50">일시정지</button>
+            <button v-if="adDetail.ad.status === 'paused'" @click="doApprove" :disabled="busy" class="min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">다시 게시</button>
+            <button @click="mode = 'delete'" :disabled="busy" class="min-h-[52px] rounded-xl bg-gray-100 text-red-600 text-[16px] font-bold">삭제</button>
+          </div>
+          <div v-if="adDetail.other_ads?.length" class="border-t border-gray-100 pt-3">
+            <div class="text-[14px] font-bold text-ink-light mb-2">이 광고주의 다른 광고 ({{ adDetail.other_ads.length }})</div>
+            <div v-for="o in adDetail.other_ads" :key="o.id" class="flex items-center gap-2 text-[13px] border-b border-gray-50 last:border-0 py-2">
+              <span class="min-w-0 flex-1 truncate text-ink-light">{{ o.title }}</span>
+              <span class="shrink-0 px-2 py-0.5 rounded-full font-bold text-[12px]" :class="statusBadge(o.status)">{{ statusKo(o.status) }}</span>
+              <span class="shrink-0 font-bold text-ink tabular-nums">{{ Number(o.total_cost || 0).toLocaleString() }}P</span>
+            </div>
+          </div>
+          <button @click="closeSheet" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">닫기</button>
+        </div>
+      </div>
+    </div>
+    <div v-if="toast" class="alv-m fixed left-1/2 -translate-x-1/2 z-[80] max-w-[90vw] px-4 py-3 rounded-xl text-[15px] font-bold text-white shadow-lg"
+      :class="toast.error ? 'bg-red-600' : 'bg-ink'" :style="{ top: 'calc(70px + env(safe-area-inset-top, 0px))' }" role="status">{{ toast.text }}</div>
+  </Teleport>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <!-- 헤더 -->
   <div class="mb-4 flex items-start justify-between">
     <div>
@@ -302,7 +463,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import BannerPreviewModal from '../../components/BannerPreviewModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
@@ -312,6 +474,52 @@ const slotMap = ref(null)
 const selectedAd = ref(null)
 const adDetail = ref(null)
 const showPreview = ref(false)
+
+// 관리자 휴대폰 화면이면 슬롯 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const router = useRouter()
+const mode = ref('')
+const rejectReason = ref('')
+const rejectPresets = ['이미지가 규격에 맞지 않아요', '운영 정책에 맞지 않는 내용이에요', '링크가 열리지 않아요']
+const busy = ref(false)
+const toast = ref(null)
+let toastTimer = null
+function say(text, error = false) {
+  toast.value = { text, error }
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toast.value = null }, 3000)
+}
+const statusKo = (st) => ({ pending: '대기', active: '게시중', paused: '중지', rejected: '거절', expired: '만료' }[st] || st)
+const day = (d) => String(d || '').slice(0, 10)
+function pagesText(v) {
+  if (!v) return ''
+  if (Array.isArray(v)) return v.join(', ')
+  try { const a = JSON.parse(v); return Array.isArray(a) ? a.join(', ') : String(v) } catch { return String(v) }
+}
+const tierBox = (t) => t === 'premium' ? 'border-amber-300 bg-amber-50/60' : t === 'standard' ? 'border-blue-200 bg-blue-50/60' : 'border-green-200 bg-green-50/60'
+const tierText = (t) => t === 'premium' ? 'text-amber-700' : t === 'standard' ? 'text-blue-700' : 'text-green-700'
+const tierLabel = (side, t) => ({ premium: side === 'left' ? '🥇 프A' : '🥇 프B', standard: side === 'left' ? '🥈 스A' : '🥈 스B', economy: '🥉 이코노미' }[t] || t)
+function openSlotMobile(sl) {
+  if (!sl.ad) { say('비어있는 슬롯이에요. 광고주가 여기에 광고를 올릴 수 있어요.'); return }
+  openSlot(sl)
+}
+function closeSheet() { if (!busy.value) { selectedAd.value = null; adDetail.value = null; mode.value = '' } }
+function goMember() { const id = adDetail.value?.ad?.user?.id; if (id) { closeSheet(); router.push(`/admin/members?user=${id}`) } }
+async function runAction(fn, okText) {
+  if (busy.value || !adDetail.value) return
+  busy.value = true
+  try { await fn(adDetail.value.ad.id); say(okText); selectedAd.value = null; adDetail.value = null; mode.value = ''; loadSlotMap(); loadOverview() }
+  catch (e) { say(e.response?.data?.message || '처리하지 못했어요', true) }
+  finally { busy.value = false }
+}
+const doApprove = () => runAction(id => axios.post(`/api/admin/banners/${id}/approve`), '게시를 시작했어요')
+const doPause = () => runAction(id => axios.post(`/api/admin/banners/${id}/pause`), '일시정지했어요')
+const doReject = () => runAction(id => axios.post(`/api/admin/banners/${id}/reject`, { reason: rejectReason.value.trim() }), '거절하고 환불했어요')
+const doDelete = () => runAction(id => axios.delete(`/api/admin/banners/${id}`), '삭제했어요')
+// 시트가 열려 있는 동안 뒤쪽 화면이 같이 스크롤되지 않게
+watch(() => isMobile.value && !!selectedAd.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
+onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
 
 const filter = ref({ page: 'community', geo_scope: 'all', geo_value: '' })
 
@@ -397,3 +605,7 @@ onMounted(async () => {
   onPageChange()
 })
 </script>
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>
