@@ -183,6 +183,8 @@ const routes = [
     meta: { auth: true, admin: true },
     children: [
       { path: '', name: 'admin', component: p('admin/Overview') },
+      { path: 'overview', component: p('admin/Overview') },
+      { path: 'menu/:group', component: p('admin/AdminMobileMenu') },
       { path: 'members', component: p('admin/Members') },
       { path: 'friends', component: p('admin/AdminFriends') },
       { path: 'content', component: p('admin/Content') },

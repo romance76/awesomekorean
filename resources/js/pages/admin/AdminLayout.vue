@@ -1,5 +1,39 @@
 <template>
-<div class="min-h-screen bg-[#F7F8FA] flex">
+<!-- 휴대폰 화면: 하단 5탭 + 메뉴 카드. 오른쪽 위 버튼으로 이전(PC) 화면과 바꿀 수 있어요 -->
+<div v-if="isMobileLayout" class="min-h-screen bg-[#F3F4F6] flex flex-col">
+  <header class="fixed top-0 inset-x-0 z-40 bg-white border-b border-gray-100 flex items-center gap-1 px-2"
+    :style="{ paddingTop: 'env(safe-area-inset-top, 0px)', height: 'calc(56px + env(safe-area-inset-top, 0px))' }">
+    <button v-if="mBack" @click="router.push(mBack)" class="w-11 h-11 grid place-items-center rounded-xl text-ink active:bg-gray-100" aria-label="뒤로"><AppIcon name="chevron-left" :size="24" /></button>
+    <span v-else class="w-2"></span>
+    <h1 class="flex-1 min-w-0 text-[18px] font-bold text-ink truncate">{{ mTitle }}</h1>
+    <button @click="setView('classic')" class="min-h-[44px] px-3 flex items-center gap-1.5 rounded-xl text-[13px] font-bold text-ink-light active:bg-gray-100" title="이전(PC) 화면으로 보기">
+      <AppIcon name="monitor" :size="18" /><span>PC 화면</span>
+    </button>
+  </header>
+
+  <main class="flex-1" :style="{ paddingTop: 'calc(56px + env(safe-area-inset-top, 0px))', paddingBottom: 'calc(66px + env(safe-area-inset-bottom, 0px))' }">
+    <div class="p-3.5" :class="mLegacy ? 'admin-legacy-zoom' : ''">
+      <AdminMobileHome v-if="route.path === '/admin'" />
+      <router-view v-else />
+    </div>
+  </main>
+
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-100 grid grid-cols-5" :style="{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }" aria-label="관리자 메뉴">
+    <RouterLink v-for="t in mTabs" :key="t.to" :to="t.to"
+      class="flex flex-col items-center justify-center gap-0.5 min-h-[58px] text-[12px]"
+      :class="t.active ? 'text-amber-600 font-bold' : 'text-ink-muted font-medium'" :aria-current="t.active ? 'page' : undefined">
+      <AppIcon :name="t.icon" :size="23" /><span>{{ t.label }}</span>
+    </RouterLink>
+  </nav>
+</div>
+
+<div v-else class="min-h-screen bg-[#F7F8FA] flex">
+  <!-- 좁은 화면(휴대폰/태블릿)에서 이전 화면을 보고 있을 때: 휴대폰 화면으로 돌아가는 버튼 -->
+  <button v-if="winW < 1024" @click="setView('mobile')"
+    class="fixed right-3 z-[60] min-h-[44px] px-4 rounded-full bg-amber-500 text-white text-sm font-bold shadow-lg flex items-center gap-1.5"
+    :style="{ bottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }">
+    <AppIcon name="phone" :size="16" />휴대폰 화면
+  </button>
   <!-- 사이드바 -->
   <aside class="w-52 bg-white border-r border-gray-100 hidden lg:flex flex-col h-screen sticky top-0">
     <div class="p-4 border-b border-gray-100">
@@ -78,12 +112,13 @@
 </div>
 </template>
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, provide, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
+import AdminMobileHome from './AdminMobileHome.vue'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
@@ -215,6 +250,7 @@ const boardTabs = computed(() => {
 // 현재 페이지가 어떤 그룹에 속하는지
 const currentGroup = computed(() => {
   const path = route.path
+  if (path.startsWith('/admin/menu/')) return String(route.params.group || 'main')
   for (const [group, tabs] of Object.entries(subTabs)) {
     if (tabs.some(t => path === t.to || (t.to !== '/admin' && path.startsWith(t.to)))) return group
   }
@@ -227,8 +263,62 @@ const currentSubTabs = computed(() => {
   return tabs.filter(t => t.to !== '/admin/sweepstakes')
 })
 
+
+// ── 휴대폰 화면 / 이전(PC) 화면 전환 ──
+// 'mobile' = 휴대폰 화면, 'classic' = 이전 화면, 비어 있으면 자동(1024px 미만이면 휴대폰 화면)
+const VIEW_KEY = 'ak_admin_view'
+function readView() { try { const v = localStorage.getItem(VIEW_KEY); return v === 'mobile' || v === 'classic' ? v : '' } catch { return '' } }
+const viewMode = ref(readView())
+const winW = ref(typeof window !== 'undefined' ? window.innerWidth : 1280)
+const onResize = () => { winW.value = window.innerWidth }
+onMounted(() => window.addEventListener('resize', onResize))
+onBeforeUnmount(() => window.removeEventListener('resize', onResize))
+const isMobileLayout = computed(() => viewMode.value === 'mobile' || (viewMode.value !== 'classic' && winW.value < 1024))
+function setView(v) { viewMode.value = v; try { localStorage.setItem(VIEW_KEY, v) } catch {} }
+
+// 메뉴 허브(AdminMobileMenu)가 그룹별 메뉴를 가져가는 통로. 최고 관리자 전용 화면은 일반 운영진에게 숨김
+const SUPER_ONLY = ['/admin/todos', '/admin/open-event', '/admin/analytics']
+function tabsFor(group) {
+  const tabs = group === 'board' ? boardTabs.value : (subTabs[group] || [])
+  if (auth.user?.role === 'super_admin') return tabs
+  return tabs.filter(t => t.to !== '/admin/sweepstakes' && !SUPER_ONLY.includes(t.to))
+}
+provide('adminTabsFor', tabsFor)
+
+const groupLabels = { member: '회원', board: '게시판', ad: '광고', system: '시스템' }
+const mTabs = computed(() => [
+  { to: '/admin', icon: 'home', label: '홈', active: currentGroup.value === 'main' },
+  { to: '/admin/menu/member', icon: 'users', label: '회원', active: currentGroup.value === 'member' },
+  { to: '/admin/menu/board', icon: 'list', label: '게시판', active: currentGroup.value === 'board' },
+  { to: '/admin/menu/ad', icon: 'megaphone', label: '광고', active: currentGroup.value === 'ad' },
+  { to: '/admin/menu/system', icon: 'settings', label: '시스템', active: currentGroup.value === 'system' },
+])
+const isHub = computed(() => route.path.startsWith('/admin/menu/'))
+const mTitle = computed(() => {
+  const path = route.path
+  if (path === '/admin') return '관리자'
+  if (isHub.value) return groupLabels[route.params.group] || '관리자'
+  if (path === '/admin/overview') return '종합 리포트'
+  let best = null
+  for (const tabs of Object.values(subTabs)) for (const t of tabs) {
+    if ((path === t.to || path.startsWith(t.to + '/')) && (!best || t.to.length > best.to.length)) best = t
+  }
+  return best ? best.label : '관리자'
+})
+const mBack = computed(() => {
+  if (route.path === '/admin') return ''
+  if (isHub.value) return '/admin'
+  return currentGroup.value === 'main' ? '/admin' : `/admin/menu/${currentGroup.value}`
+})
+// 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
+const mLegacy = computed(() => route.path !== '/admin' && !isHub.value)
+
 function isMainActive(item) {
   if (item.to === '/admin' && item.group === 'main') return route.path === '/admin'
   return currentGroup.value === item.group
 }
 </script>
+<style>
+/* 휴대폰 화면에서 아직 다시 만들지 않은 관리자 화면: 전체를 살짝 키워서 읽기 쉽게 */
+.admin-legacy-zoom { zoom: 1.12; }
+</style>
