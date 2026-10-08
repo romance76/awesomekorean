@@ -6,8 +6,37 @@
     {{ title }}
   </h1>
 
+  <!-- 휴대폰: 검색 + 필터 -->
+  <div v-if="isMobile" class="alv-m space-y-2.5 mb-3">
+    <form @submit.prevent="load()" class="flex gap-2">
+      <label class="flex-1 min-w-0 flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 min-h-[48px] text-ink-muted">
+        <AppIcon name="search" :size="18" />
+        <input v-model="search" type="search" placeholder="제목·작성자 검색" autocomplete="off" class="w-full min-w-0 bg-transparent outline-none text-ink" />
+      </label>
+      <button type="submit" class="shrink-0 min-h-[48px] px-4 rounded-xl bg-amber-500 text-white text-[15px] font-bold">검색</button>
+    </form>
+    <select v-if="categories.length" :value="categoryFilter || ''" @change="onCategorySelect($event.target.value)"
+      class="w-full min-h-[48px] bg-white border border-gray-200 rounded-xl px-3 text-ink">
+      <option value="">📂 전체 카테고리</option>
+      <option v-for="c in categories" :key="c.id || c.slug || c.name" :value="usesTable ? c.id : (c.slug || c.name)">
+        {{ c.icon || '🏷' }} {{ c.name }}<template v-if="c.post_count"> ({{ c.post_count }})</template>
+      </option>
+    </select>
+    <div v-if="categoryFilter" class="flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl px-3 min-h-[44px] text-[14px]">
+      <strong class="flex-1 min-w-0 truncate">{{ categoryFilterLabel || categoryFilter }}</strong>
+      <button @click="$emit('clearFilter')" class="min-w-[44px] min-h-[44px] grid place-items-center" aria-label="필터 해제"><AppIcon name="x" :size="16" /></button>
+    </div>
+    <slot name="filters"></slot>
+    <div class="flex items-center gap-2 min-h-[44px]">
+      <div class="flex-1 min-w-0 text-[14px] text-ink-muted">전체 {{ total.toLocaleString() }}건<span v-if="selectMode && selectedIds.size" class="text-red-600 font-bold"> · {{ selectedIds.size }}건 선택</span></div>
+      <button v-if="selectMode && selectedIds.size" @click="deleteSelected" class="min-h-[44px] px-4 rounded-xl bg-red-500 text-white text-[15px] font-bold">삭제</button>
+      <button @click="toggleSelectMode" class="min-h-[44px] px-4 rounded-xl border text-[15px] font-bold"
+        :class="selectMode ? 'bg-ink text-white border-ink' : 'bg-white text-ink border-gray-200'">{{ selectMode ? '완료' : '선택' }}</button>
+    </div>
+  </div>
+
   <!-- 검색 + 필터 -->
-  <div class="card p-3 mb-4">
+  <div v-else class="card p-3 mb-4">
     <div class="flex flex-wrap gap-2 items-center">
       <!-- 카테고리 드롭다운 (categories 전달되면 표시) -->
       <select v-if="categories.length"
@@ -44,9 +73,45 @@
   </div>
 
   <div v-if="loading" class="text-center py-8 text-ink-muted">로딩중...</div>
-  <div v-else class="flex gap-4">
+  <div v-else :class="isMobile ? '' : 'flex gap-4'">
+    <!-- 휴대폰: 카드 목록 -->
+    <div v-if="isMobile" class="alv-m space-y-2">
+      <div v-if="!items.length" class="text-center text-ink-muted py-12 text-[15px]">게시글이 없어요.</div>
+      <button v-for="item in items" :key="item.id" @click="selectMode ? toggleOne(item.id) : openItem(item)"
+        class="w-full text-left bg-white border rounded-2xl p-3.5 min-h-[76px] flex items-start gap-3 active:bg-amber-50"
+        :class="selectedIds.has(item.id) ? 'border-red-300 bg-red-50' : 'border-gray-100'">
+        <span v-if="selectMode" class="shrink-0 w-6 h-6 mt-0.5 rounded-md border-2 grid place-items-center text-white text-[14px] font-bold"
+          :class="selectedIds.has(item.id) ? 'bg-red-500 border-red-500' : 'border-gray-300 bg-white'">{{ selectedIds.has(item.id) ? '✓' : '' }}</span>
+        <span class="min-w-0 flex-1">
+          <span class="flex items-center gap-1.5 flex-wrap">
+            <span v-if="item.is_pinned" class="text-[12px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">고정</span>
+            <span v-if="item.is_hidden" class="text-[12px] font-bold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">숨김</span>
+            <span v-if="item.is_locked" class="text-[12px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">잠김</span>
+            <span v-if="isPromoted(item)" class="text-[12px] font-bold text-white bg-purple-500 px-1.5 py-0.5 rounded">{{ promoBadgeLabel(item) }}</span>
+          </span>
+          <span class="block text-[16px] font-bold text-ink leading-snug break-words line-clamp-2">{{ item.title || item.name || '(제목 없음)' }}</span>
+          <span v-if="item.content || item.description" class="block text-[14px] text-ink-muted truncate mt-0.5">{{ (item.content || item.description || '').slice(0, 60) }}</span>
+          <span class="flex items-center gap-x-2 gap-y-1 flex-wrap mt-1.5 text-[13px] text-ink-muted">
+            <span>{{ item.user?.name || '-' }}</span>
+            <span>{{ (item.created_at || item.published_at || '')?.slice(0,10) }}</span>
+            <span>👁 {{ item.view_count || 0 }}</span>
+            <span v-for="col in mobileCols(item)" :key="col.key" class="bg-gray-100 text-ink-light px-1.5 py-0.5 rounded-full text-[12px]">{{ col.text }}</span>
+          </span>
+        </span>
+        <span class="shrink-0 text-[12px] px-2 py-1 rounded-full font-bold"
+          :class="item.status ? statusClass(item.status) : (item.is_hidden || item.is_active === false ? 'bg-gray-200 text-ink-light' : 'bg-green-100 text-green-700')">
+          {{ item.status || (item.is_hidden ? '숨김' : (item.is_active === false ? '비활성' : '정상')) }}
+        </span>
+      </button>
+      <div v-if="lastPage > 1" class="flex items-center justify-between gap-2 pt-2">
+        <button @click="load(page - 1)" :disabled="page <= 1" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
+        <span class="text-[14px] text-ink-muted tabular-nums">{{ page }} / {{ lastPage }}</span>
+        <button @click="load(page + 1)" :disabled="page >= lastPage" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">다음</button>
+      </div>
+    </div>
+
     <!-- 왼쪽: 목록 -->
-    <div :class="activeItem ? 'w-1/2' : 'w-full'">
+    <div v-else :class="activeItem ? 'w-1/2' : 'w-full'">
       <div class="card overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b border-gray-100"><tr>
@@ -123,21 +188,24 @@
       </div>
     </div>
 
-    <!-- 오른쪽: 인라인 상세 + 관리 -->
-    <div v-if="activeItem" class="w-1/2">
-      <div class="card overflow-hidden sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
-        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-amber-50 sticky top-0 z-10">
+    <!-- 오른쪽: 인라인 상세 + 관리 (휴대폰에서는 전체 화면) -->
+    <Teleport to="body" :disabled="!isMobile">
+    <div v-if="activeItem" :class="isMobile ? 'alv-m fixed inset-0 z-[60] bg-[#F3F4F6] overflow-y-auto overscroll-contain' : 'w-1/2'">
+      <div class="card overflow-hidden" :class="isMobile ? 'rounded-none min-h-full' : 'sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto'"
+        :style="isMobile ? { paddingBottom: 'env(safe-area-inset-bottom, 0px)' } : null">
+        <div class="alv-head px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-amber-50 sticky top-0 z-10"
+          :style="isMobile ? { paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))' } : null">
           <span class="flex items-center gap-1.5 font-bold text-sm text-amber-700"><AppIcon name="edit" :size="14" />게시글 관리</span>
           <div class="flex gap-1">
             <button @click="editMode = !editMode" class="inline-flex items-center gap-1 text-xs bg-white border border-gray-200 px-2 py-1 rounded-lg hover:bg-gray-50 transition-colors text-ink-light">
               <AppIcon :name="editMode ? 'check' : 'edit'" :size="12" />{{ editMode ? '완료' : '편집' }}
             </button>
-            <button @click="activeItem=null; editMode=false" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
+            <button @click="closeDetail" class="text-ink-muted hover:text-ink transition-colors" aria-label="닫기"><AppIcon name="x" :size="18" /></button>
           </div>
         </div>
 
         <!-- 관리 액션 바 -->
-        <div v-if="detailData" class="px-4 py-2 bg-gray-50 border-b border-gray-100 flex flex-wrap gap-1">
+        <div v-if="detailData" class="alv-actions px-4 py-2 bg-gray-50 border-b border-gray-100 flex flex-wrap gap-1">
           <button v-if="actions.pin" @click="toggleField('is_pinned')"
             :class="activeItem.is_pinned ? 'bg-red-100 text-red-700' : 'bg-white border border-gray-200 text-ink-light'"
             class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
@@ -330,8 +398,8 @@
                   <div class="text-xs text-ink-light whitespace-pre-wrap" :class="c.is_hidden ? 'line-through text-ink-faint' : ''">{{ c.content }}</div>
                 </div>
                 <div class="flex gap-1 shrink-0">
-                  <button @click="toggleCommentHide(c)" class="text-[11px] text-orange-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
-                  <button @click="deleteComment(c)" class="text-[11px] text-red-500 hover:underline">삭제</button>
+                  <button @click="toggleCommentHide(c)" class="alv-cbtn text-[11px] text-orange-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
+                  <button @click="deleteComment(c)" class="alv-cbtn text-[11px] text-red-500 hover:underline">삭제</button>
                 </div>
               </div>
               <!-- 답글 -->
@@ -345,8 +413,8 @@
                       <div class="text-ink-light mt-0.5" :class="r.is_hidden ? 'line-through text-ink-faint' : ''">{{ r.content }}</div>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                      <button @click="toggleCommentHide(r)" class="text-[11px] text-orange-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
-                      <button @click="deleteComment(r)" class="text-[11px] text-red-500">삭제</button>
+                      <button @click="toggleCommentHide(r)" class="alv-cbtn text-[11px] text-orange-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
+                      <button @click="deleteComment(r)" class="alv-cbtn text-[11px] text-red-500">삭제</button>
                     </div>
                   </div>
                 </div>
@@ -379,11 +447,13 @@
         </div>
       </div>
     </div>
+    </Teleport>
   </div>
 
   <!-- 포인트 조정 모달 -->
-  <div v-if="showPointModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showPointModal=false">
-    <div class="bg-white rounded-2xl p-5 w-full max-w-md">
+  <Teleport to="body" :disabled="!isMobile">
+  <div v-if="showPointModal" class="fixed inset-0 bg-black/50 flex justify-center p-4" :class="isMobile ? 'alv-m z-[70] items-end' : 'z-50 items-center'" @click.self="showPointModal=false">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-md" :style="isMobile ? { paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' } : null">
       <h3 class="flex items-center gap-2 font-bold text-ink mb-3"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="15" /></span>작성자 포인트 조정</h3>
       <div class="text-xs text-ink-light mb-3">
         게시글: <strong>{{ activeItem?.title || activeItem?.name }}</strong><br>
@@ -405,10 +475,12 @@
       </div>
     </div>
   </div>
+  </Teleport>
 
   <!-- 카테고리 변경 모달 -->
-  <div v-if="showMoveModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showMoveModal=false">
-    <div class="bg-white rounded-2xl p-5 w-full max-w-sm">
+  <Teleport to="body" :disabled="!isMobile">
+  <div v-if="showMoveModal" class="fixed inset-0 bg-black/50 flex justify-center p-4" :class="isMobile ? 'alv-m z-[70] items-end' : 'z-50 items-center'" @click.self="showMoveModal=false">
+    <div class="bg-white rounded-2xl p-5 w-full max-w-sm" :style="isMobile ? { paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' } : null">
       <h3 class="flex items-center gap-2 font-bold text-ink mb-3"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="tag" :size="15" /></span>카테고리 변경</h3>
       <input v-model="newCategory" placeholder="카테고리 이름 또는 ID" class="input-soft px-3 py-1.5" />
       <div class="flex justify-end gap-2 mt-4">
@@ -417,13 +489,18 @@
       </div>
     </div>
   </div>
+  </Teleport>
 </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
+
+// 관리자 휴대폰 화면이면 카드 목록 + 전체 화면 상세로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const props = defineProps({
   icon: { type: String, default: '📋' },
@@ -487,6 +564,39 @@ async function deleteSelected() {
   load(page.value)
   alert(`삭제 완료: ${success}건 성공${failed ? `, ${failed}건 실패` : ''}`)
 }
+
+// 휴대폰: 선택 삭제는 '선택' 모드에서만 (카드를 눌렀을 때 실수로 체크되지 않게)
+const selectMode = ref(false)
+function toggleSelectMode() { selectMode.value = !selectMode.value; selectedIds.value = new Set() }
+
+// 휴대폰 카드에 보여줄 추가 정보 (카테고리류는 값만, 나머지는 '이름 값')
+function mobileCols(item) {
+  const out = []
+  for (const col of props.extraCols) {
+    const v = getNestedVal(item, col.key)
+    if (v === '-' || v === '' || v == null) continue
+    out.push({ key: col.key, text: isCategoryCol(col.key) ? String(v) : `${col.label} ${v}` })
+    if (out.length >= 4) break
+  }
+  return out
+}
+
+// 휴대폰 상세는 전체 화면이라, 폰의 뒤로 가기(제스처/버튼)로도 닫히게 브라우저 기록을 한 칸 쌓아 둠
+// (주소는 그대로 — 주소를 바꾸면 App.vue 가 페이지 전체를 다시 그려서 검색/페이지 상태가 사라짐)
+let pushedDetail = false
+function closeDetail() {
+  if (isMobile.value && pushedDetail) { history.back(); return }
+  activeItem.value = null; editMode.value = false
+}
+function onPopState() {
+  if (pushedDetail && !history.state?.alvDetail) { pushedDetail = false; activeItem.value = null; editMode.value = false }
+}
+window.addEventListener('popstate', onPopState)
+// 상세가 열려 있는 동안 뒤쪽 화면이 같이 스크롤되지 않게
+watch(() => isMobile.value && !!activeItem.value, locked => {
+  document.body.style.overflow = locked ? 'hidden' : ''
+})
+onBeforeUnmount(() => { document.body.style.overflow = ''; window.removeEventListener('popstate', onPopState) })
 
 const showPointModal = ref(false)
 const pointAmount = ref(0)
@@ -609,6 +719,10 @@ function statusClass(s) {
 }
 
 async function openItem(item) {
+  if (isMobile.value && !pushedDetail) {
+    history.pushState({ ...(history.state || {}), alvDetail: true }, '')
+    pushedDetail = true
+  }
   activeItem.value = item
   editMode.value = false
   detailData.value = null
@@ -725,7 +839,7 @@ async function deleteItem(item) {
     await axios.delete(url)
     items.value = items.value.filter(x => x.id !== item.id)
     total.value--
-    if (activeItem.value?.id === item.id) activeItem.value = null
+    if (activeItem.value?.id === item.id) closeDetail()
   } catch (e) {
     alert(e.response?.data?.message || '삭제 실패')
   }
@@ -788,3 +902,11 @@ function detectResourceFromUrl() {
 
 onMounted(() => load())
 </script>
+
+<style>
+/* 휴대폰 관리자: 작은 버튼/입력창을 손가락으로 누르기 쉽게 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+.alv-m .alv-actions button { min-height: 44px; font-size: 14px; padding: 0 14px; border-radius: 12px; }
+.alv-m .alv-head button { min-height: 44px; min-width: 44px; font-size: 14px; }
+.alv-m .alv-cbtn { min-height: 40px; min-width: 44px; font-size: 14px; }
+</style>
