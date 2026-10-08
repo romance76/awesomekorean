@@ -241,7 +241,15 @@ class AdminController extends Controller
         $query = Payment::with('user:id,name,email')->orderByDesc('created_at');
         if ($request->status) $query->where('status', $request->status);
         if ($request->search) $query->whereHas('user', fn($q) => $q->where('name','like',"%{$request->search}%")->orWhere('email','like',"%{$request->search}%"));
-        return response()->json(['success'=>true,'data'=>$query->paginate(50)]);
+        $perPage = max(1, min(100, (int) $request->input('per_page', 50)));
+        // 상단 요약은 현재 페이지가 아니라 전체 주문 기준 (필터/페이지와 무관)
+        $stats = [
+            'totalRevenue' => round((float) Payment::where('status', 'completed')->sum('amount'), 2),
+            'totalOrders'  => Payment::count(),
+            'totalRefunds' => Payment::where('status', 'refunded')->count(),
+            'monthRevenue' => round((float) Payment::where('status', 'completed')->where('created_at', '>=', now()->startOfMonth())->sum('amount'), 2),
+        ];
+        return response()->json(['success'=>true,'data'=>$query->paginate($perPage),'stats'=>$stats]);
     }
 
     public function refundPayment($id) {
