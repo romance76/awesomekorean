@@ -1,5 +1,35 @@
 <template>
-<div>
+<!-- ───────── 휴대폰 화면 ───────── -->
+<div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <p class="text-[13px] text-ink-muted leading-relaxed px-0.5">경품 추첨 응모권(Entry) 설정이에요. Point와 완전히 분리된 시스템이고, 저장하면 바로 반영돼요.</p>
+  <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
+  <template v-else>
+    <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+      <div class="px-4 py-3 bg-violet-50 text-violet-800 text-[15px] font-bold">기본 설정</div>
+      <div class="divide-y divide-gray-50">
+        <div v-for="item in items" :key="item.key" class="px-4 py-3">
+          <div class="text-[15px] font-bold text-ink break-words">{{ item.label }}</div>
+          <div class="text-[12px] text-ink-faint break-all">{{ item.key }}<span v-if="item.description"> — {{ item.description }}</span></div>
+          <input v-model="item.value" :aria-label="item.label" inputmode="decimal" autocomplete="off" class="mt-2 w-full min-h-[48px] rounded-xl border border-gray-200 px-3 font-mono text-right tabular-nums" />
+        </div>
+      </div>
+    </div>
+    <button @click="save" :disabled="saving" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-50">{{ saving ? '저장 중...' : '전체 저장' }}</button>
+    <p v-if="msg" class="text-[14px] rounded-xl p-3" :class="msgOk ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'">{{ msg }}</p>
+
+    <div class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-2.5">
+      <div class="text-[16px] font-bold text-ink">사용자 Entry 수동 조정</div>
+      <input v-model="adjustForm.user_id" type="number" inputmode="numeric" placeholder="회원 번호 (User ID)" aria-label="회원 번호" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      <input v-model="adjustForm.amount" type="number" inputmode="numeric" placeholder="증감 (음수 가능, 예: 5 또는 -3)" aria-label="증감" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      <input v-model="adjustForm.description" type="text" placeholder="사유 (예: 이벤트 보상, 오지급 정정)" aria-label="사유" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+      <button @click="adjustEntries" :disabled="adjusting || !adjustForm.user_id || !adjustForm.amount" class="w-full min-h-[52px] rounded-xl bg-violet-600 text-white text-[16px] font-bold disabled:opacity-40">{{ adjusting ? '처리 중...' : '지급/차감' }}</button>
+      <p v-if="adjustMsg" class="text-[14px] rounded-xl p-3" :class="adjustOk ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'">{{ adjustMsg }}</p>
+    </div>
+  </template>
+</div>
+
+<!-- ───────── PC 화면 ───────── -->
+<div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-2">
     <span class="icon-chip w-9 h-9 bg-violet-50 text-violet-600"><AppIcon name="ticket" :size="20" /></span>
     Entry 설정
@@ -58,9 +88,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 
 const loading = ref(true)
 const saving = ref(false)
@@ -110,3 +144,7 @@ async function adjustEntries() {
 
 onMounted(load)
 </script>
+<style>
+/* 휴대폰 관리자: 입력창 글자가 16px 보다 작으면 iOS 가 화면을 확대해 버림 */
+.alv-m input, .alv-m textarea, .alv-m select { font-size: 16px; }
+</style>

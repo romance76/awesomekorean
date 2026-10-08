@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="isMobile ? 'ss-m' : ''">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
@@ -255,7 +255,7 @@
         </div>
 
         <!-- 통계 -->
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-3 gap-4 mb-6 ss-keep">
           <div class="bg-blue-50 rounded-xl p-4 text-center">
             <div class="text-2xl font-black text-blue-600">{{ menuList.filter(m => m.enabled).length }}</div>
             <div class="text-xs text-blue-400">활성 메뉴</div>
@@ -270,8 +270,35 @@
           </div>
         </div>
 
+        <!-- 휴대폰: 메뉴 한 개를 카드 한 장으로 (PC 의 가로 표는 폰에서 깨져서) -->
+        <div v-if="isMobile" class="space-y-2.5">
+          <div v-for="(item, idx) in menuList" :key="item.key" class="bg-white border border-gray-100 rounded-2xl p-3">
+            <div class="flex items-center gap-2">
+              <span class="icon-chip w-9 h-9 flex-shrink-0" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="17" /></span>
+              <input v-model="item.label" type="text" maxlength="20" placeholder="메뉴 이름" :aria-label="'메뉴 이름 ' + item.key" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 font-semibold text-ink" />
+              <span class="shrink-0 text-[11px] text-ink-faint font-mono">{{ idx + 1 }}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+              <button @click="moveMenu(idx, -1)" :disabled="idx === 0" class="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center disabled:opacity-25" aria-label="위로"><AppIcon name="chevron-up" :size="18" /></button>
+              <button @click="moveMenu(idx, 1)" :disabled="idx === menuList.length - 1" class="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center disabled:opacity-25" aria-label="아래로"><AppIcon name="chevron-down" :size="18" /></button>
+              <span class="text-[11px] text-ink-faint font-mono truncate">{{ item.key }}</span>
+              <label class="ml-auto flex items-center gap-2 text-[14px] font-bold text-ink min-h-[44px]">표시
+                <button type="button" role="switch" :aria-checked="!!item.enabled" @click="item.enabled = !item.enabled" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="item.enabled ? 'bg-emerald-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="item.enabled ? 'left-[26px]' : 'left-[4px]'"></span></button>
+              </label>
+            </div>
+            <div class="grid grid-cols-2 gap-x-3 gap-y-1 mt-1 ss-keep">
+              <label class="flex items-center gap-2 min-h-[44px] text-[14px] text-ink"><input type="checkbox" v-model="item.login_required" /> 로그인 필요</label>
+              <label class="flex items-center gap-2 min-h-[44px] text-[14px] text-ink"><input type="checkbox" v-model="item.admin_only" /> 관리자만</label>
+              <label class="flex items-center gap-2 text-[14px] text-ink"><span class="shrink-0">기본 보기</span>
+                <select v-model="item.defaultView" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-2 bg-white"><option value="list">☰ 목록</option><option value="card">⊞ 카드</option></select></label>
+              <div class="flex items-center gap-2"><label class="flex items-center gap-2 min-h-[44px] text-[14px] text-ink"><input type="checkbox" v-model="item.ads_enabled" /> 광고</label>
+                <select v-if="item.ads_enabled" v-model="item.ads_type" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-2 bg-white"><option value="banner">일반</option><option value="adsense">애드센스</option></select></div>
+            </div>
+          </div>
+        </div>
+
         <!-- 헤더 행 -->
-        <div class="flex items-center gap-3 px-4 py-2 text-xs text-ink-faint font-medium border-b border-gray-100 mb-2">
+        <div v-if="!isMobile" class="flex items-center gap-3 px-4 py-2 text-xs text-ink-faint font-medium border-b border-gray-100 mb-2">
           <span class="w-6 text-center">#</span>
           <span class="w-7"></span>
           <span class="flex-1">메뉴</span>
@@ -284,7 +311,7 @@
           <span class="w-12 text-center">표시</span>
         </div>
 
-        <div class="space-y-2">
+        <div v-if="!isMobile" class="space-y-2">
           <div v-for="(item, idx) in menuList" :key="item.key"
             class="flex items-center gap-3 card px-4 py-3 hover:shadow-lift transition-all">
             <span class="w-6 text-center text-xs font-bold text-ink-faint">{{ idx + 1 }}</span>
@@ -1138,7 +1165,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch, computed, inject } from 'vue'
+
+// 관리자 휴대폰 화면이면 입력칸/버튼을 손가락에 맞게 키워서 보여 줌 (AdminLayout 이 알려 줌)
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import { menuIcon, menuChipColor } from '../../utils/menuIcons'
@@ -1952,4 +1983,20 @@ watch(() => activeTab.value, (tab) => {
   opacity: 0;
   transform: translateY(-10px) scale(0.95);
 }
+</style>
+
+<style>
+/* 휴대폰 관리자: 사이트 설정은 입력칸이 매우 많아서 화면을 새로 짜지 않고 크기·간격만 손가락에 맞게 조정 */
+.ss-m { padding-bottom: 24px; }
+.ss-m .card { padding: 14px !important; }
+.ss-m input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=color]), .ss-m select, .ss-m textarea { font-size: 16px; min-height: 46px; max-width: 100%; }
+.ss-m input[type=checkbox], .ss-m input[type=radio] { width: 22px; height: 22px; }
+.ss-m button { min-height: 44px; }
+.ss-m button.w-7, .ss-m button.w-8 { min-width: 40px; min-height: 40px; }
+.ss-m .grid:not(.ss-keep)[class*="grid-cols-2"], .ss-m .grid:not(.ss-keep)[class*="grid-cols-3"], .ss-m .grid:not(.ss-keep)[class*="grid-cols-4"] { grid-template-columns: minmax(0, 1fr); }
+.ss-m .ss-keep.grid-cols-3 > div { padding: 10px 4px; }
+.ss-m { overflow-x: hidden; }
+.ss-m table { display: block; max-width: 100%; overflow-x: auto; }
+.ss-m [class*="top-5"][class*="right-5"] { top: calc(70px + env(safe-area-inset-top, 0px)); right: 12px; left: 12px; }
+.ss-m h2 { font-size: 17px; }
 </style>
