@@ -266,28 +266,56 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>$query->paginate($perPage),'stats'=>$stats]);
     }
 
-    public function refundPayment($id) {
-        $payment = Payment::findOrFail($id);
-        if ($payment->status !== 'completed') {
-            return response()->json(['success'=>false,'message'=>'완료된 결제만 환불 가능합니다'], 422);
+    public function refundPayment($id, \App\Support\StripeGateway $stripe) {
+        try {
+            $out = \Illuminate\Support\Facades\DB::transaction(function () use ($id, $stripe) {
+                // 같은 주문을 동시에 두 번 환불하지 못하게 행을 잠그고 상태를 다시 확인
+                $payment = Payment::whereKey($id)->lockForUpdate()->firstOrFail();
+                if ($payment->status !== 'completed') {
+                    throw new \DomainException('완료된 결제만 환불 가능합니다');
+                }
+
+                // 1) 카드 환불 (Stripe). Stripe 가 거절하면 예외 → 아래 어떤 것도 바뀌지 않음.
+                //    결제 번호(stripe_payment_id)가 없는 옛 주문은 카드 환불 없이 포인트/상태만 정리.
+                $card = ['result' => 'none', 'cents' => 0];
+                if ($payment->stripe_payment_id) {
+                    $card = $stripe->refundFull($payment->stripe_payment_id, 'refund-payment-' . $payment->id);
+                }
+
+                // 2) 포인트 회수 + 주문 상태
+                $user = User::find($payment->user_id);
+                if ($user) {
+                    $user->addPoints(-$payment->points_purchased, "환불: 주문 #{$payment->id}", 'refund');
+                }
+                $payment->update(['status' => 'refunded', 'refunded_amount' => $payment->amount]);
+
+                return ['payment' => $payment, 'user' => $user, 'card' => $card];
+            });
+        } catch (\DomainException | \RuntimeException $e) {
+            return response()->json(['success'=>false,'message'=>$e->getMessage()], 422);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            \Log::warning('관리자 환불 Stripe 오류(주문 #' . $id . '): ' . $e->getMessage());
+            return response()->json(['success'=>false,'message'=>'Stripe 카드 환불에 실패했어요. 주문은 그대로 두었어요: ' . $e->getMessage()], 502);
         }
-        // 포인트 회수
-        $user = User::find($payment->user_id);
-        if ($user) {
-            $user->addPoints(-$payment->points_purchased, "환불: 주문 #{$payment->id}", 'refund');
-        }
-        $payment->update(['status' => 'refunded']);
+
+        $payment = $out['payment']; $user = $out['user']; $card = $out['card'];
+        $cardMsg = match ($card['result']) {
+            'refunded' => '카드로 $' . number_format($card['cents'] / 100, 2) . ' 환불됨(Stripe)',
+            'already_refunded' => '카드는 Stripe 에서 이미 환불돼 있어 건너뜀',
+            default => '카드 환불 없음(결제 번호 없는 주문)',
+        };
 
         // 유저에게 환불 사실을 알리는 통지가 전혀 없던 문제 수정
         if ($user) {
             try {
-                \App\Models\Notification::create(['user_id'=>$user->id,'type'=>'payment_refunded','title'=>'결제가 환불되었습니다','content'=>"주문 #{$id} 결제가 환불되어 {$payment->points_purchased}P가 회수되었습니다.",'data'=>['payment_id'=>$id]]);
+                $cardNote = $card['result'] === 'refunded' ? ' 카드 결제 금액은 은행에 따라 영업일 기준 5~10일 안에 돌아옵니다.' : '';
+                \App\Models\Notification::create(['user_id'=>$user->id,'type'=>'payment_refunded','title'=>'결제가 환불되었습니다','content'=>"주문 #{$id} 결제가 환불되어 {$payment->points_purchased}P가 회수되었습니다.{$cardNote}",'data'=>['payment_id'=>$id]]);
                 $unread = \App\Models\Notification::where('user_id',$user->id)->whereNull('read_at')->count();
                 broadcast(new \App\Events\NewNotification($user->id, $unread, '결제가 환불되었습니다'))->toOthers();
             } catch (\Exception $e) {}
         }
 
-        return response()->json(['success'=>true,'message'=>"주문 #{$id} 환불 완료. {$payment->points_purchased}P 회수됨"]);
+        return response()->json(['success'=>true,'message'=>"주문 #{$id} 환불 완료. {$cardMsg}, {$payment->points_purchased}P 회수됨"]);
     }
 
     // 회원 상세 (관리자용 - 전체 정보)
