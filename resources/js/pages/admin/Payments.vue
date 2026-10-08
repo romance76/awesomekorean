@@ -61,11 +61,13 @@
         <div v-if="refunding" class="space-y-3">
           <div class="text-[17px] font-bold text-ink">주문 #{{ detailItem.id }} 환불 처리</div>
           <ul class="text-[15px] text-ink-light space-y-1.5 list-disc pl-5">
+            <li v-if="detailItem.stripe_payment_id">카드로 결제한 <b class="text-ink">${{ Number(detailItem.amount).toFixed(2) }}</b>를 Stripe로 <b class="text-ink">자동 환불</b>해요</li>
+            <li v-else>결제 번호가 없는 옛 주문이라 <b class="text-ink">카드 환불은 하지 않아요</b></li>
             <li>구매자에게서 <b class="text-ink">{{ (detailItem.points_purchased || 0).toLocaleString() }}P</b>를 회수해요</li>
             <li>주문 상태가 <b class="text-ink">'환불됨'</b>으로 바뀌어요</li>
           </ul>
-          <p class="bg-amber-50 border border-amber-200 text-amber-800 text-[14px] rounded-xl p-3 leading-relaxed">
-            카드로 결제한 <b>${{ Number(detailItem.amount).toFixed(2) }}</b>는 이 화면에서 돌려주지 않아요. Stripe 대시보드에서 따로 환불해야 해요.
+          <p class="bg-red-50 border border-red-200 text-red-700 text-[14px] rounded-xl p-3 leading-relaxed">
+            카드 환불은 되돌릴 수 없어요. 이미 Stripe 대시보드에서 환불했다면 그 부분은 건너뛰고 포인트·상태만 정리해요. 카드사에 따라 구매자에게 돌아가기까지 영업일 5~10일 걸려요.
           </p>
           <button @click="doRefund" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '환불 처리하기' }}</button>
           <button @click="refunding = false" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">돌아가기</button>
@@ -357,7 +359,8 @@ async function load(p = 1) {
 function showDetail(item) { detailItem.value = item }
 
 async function refundOrder(item) {
-  if (!confirm(`주문 #${item.id} 환불 처리하시겠습니까?\n${item.points_purchased}P가 회수되고 주문이 '환불됨'으로 바뀝니다.\n(카드 결제 금액 $${item.amount}는 Stripe 대시보드에서 따로 환불해야 합니다.)`)) return
+  const cardLine = item.stripe_payment_id ? `카드 결제 금액 $${item.amount}가 Stripe로 자동 환불됩니다(되돌릴 수 없음).` : '결제 번호가 없는 옛 주문이라 카드 환불은 하지 않습니다.'
+  if (!confirm(`주문 #${item.id} 환불 처리하시겠습니까?\n${cardLine}\n${item.points_purchased}P가 회수되고 주문이 '환불됨'으로 바뀝니다.`)) return
   try {
     const { data } = await axios.post(`/api/admin/payments/${item.id}/refund`)
     alert(data.message || '환불 완료')

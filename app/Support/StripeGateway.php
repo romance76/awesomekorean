@@ -58,6 +58,28 @@ class StripeGateway
         $this->client()->paymentIntents->cancel($id);
     }
 
+    /**
+     * 포인트 구매(일반 PaymentIntent) 카드 전액 환불. 이미 Stripe 대시보드에서 (일부)환불한 건은 남은 금액만 환불하고,
+     * 남은 금액이 없으면 아무것도 하지 않는다. idempotency key 로 재시도해도 이중 환불이 되지 않는다.
+     * @return array{result:string,cents:int} result = 'refunded'(이번에 환불) | 'already_refunded'(이미 전액 환불돼 있음)
+     * @throws \DomainException 결제가 Stripe 에서 완료된 상태가 아닐 때
+     */
+    public function refundFull(string $paymentIntentId, string $idempotencyKey): array
+    {
+        $pi = $this->client()->paymentIntents->retrieve($paymentIntentId, ['expand' => ['latest_charge']]);
+        $charge = $pi->latest_charge ?? null;
+        if ($pi->status !== 'succeeded' || !$charge || is_string($charge)) {
+            throw new \DomainException('Stripe 에서 결제가 완료된 상태가 아니라 카드 환불을 할 수 없어요 (상태: ' . $pi->status . ')');
+        }
+        $refundable = (int) $charge->amount - (int) $charge->amount_refunded;
+        if ($refundable <= 0) return ['result' => 'already_refunded', 'cents' => 0];
+        $this->client()->refunds->create(
+            ['payment_intent' => $paymentIntentId, 'amount' => $refundable],
+            ['idempotency_key' => $idempotencyKey]
+        );
+        return ['result' => 'refunded', 'cents' => $refundable];
+    }
+
     /** 청구된 결제의 일부/전부 환불 */
     public function refund(string $id, int $cents): void
     {
