@@ -101,4 +101,9 @@ return [
 
     // API 키를 바꿀 때마다 전체 키 현황을 보내는 관리자 메일 (App\Support\KeyReport)
     'admin_report_email' => env('ADMIN_REPORT_EMAIL', 'romance76@gmail.com'),
+
+    // 구글 애드센스 게시자 ID(공개 값). 비워 두면(ADSENSE_CLIENT=) 애드센스 코드가 사이트에서 빠진다.
+    'adsense' => [
+        'client' => env('ADSENSE_CLIENT', 'ca-pub-5961739312236096'),
+    ],
 ];

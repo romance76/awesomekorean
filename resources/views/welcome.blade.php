@@ -12,6 +12,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.head-icons')
     @include('partials.analytics')
+    @include('partials.adsense')
     <style>
     /* Google Translate 상단 배너 및 UI 완전 숨김 (구/신 위젯 모두 대응) */
     .goog-te-banner-frame,
