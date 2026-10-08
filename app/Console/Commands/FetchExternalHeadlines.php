@@ -83,6 +83,7 @@ class FetchExternalHeadlines extends Command
                     'source'       => $name,
                     'source_url'   => $link,
                     'is_external'  => true,
+                    'category_id'  => \App\Support\NewsCategorizer::categoryId($title, $summary),
                     'image_url'    => $image,
                     'published_at' => $publishedAt,
                 ]);

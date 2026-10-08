@@ -64,6 +64,13 @@ class NewsController extends Controller
     public function categories()
     {
         $cats = NewsCategory::whereNull('parent_id')->with('children')->orderBy('id')->get();
-        return response()->json(['success' => true, 'data' => $cats]);
+
+        // 오늘(애틀랜타 날짜 기준)에 나온 기사가 있는 분류에 NEW 를 달 수 있도록 분류별 오늘 기사 수를 함께 준다
+        $since = \Carbon\Carbon::now('America/New_York')->startOfDay()->setTimezone('UTC');
+        $today = News::where('is_active', true)->where('published_at', '>=', $since)
+            ->selectRaw('category_id, count(*) as c')->groupBy('category_id')->pluck('c', 'category_id');
+        $cats->each(fn ($c) => $c->setAttribute('new_today', (int) ($today[$c->id] ?? 0)));
+
+        return response()->json(['success' => true, 'data' => $cats, 'meta' => ['all_new_today' => (int) $today->sum()]]);
     }
 }

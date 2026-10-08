@@ -32,12 +32,12 @@
           <button @click="activeCat = null"
             class="text-xs py-2 rounded-lg font-semibold border transition-colors"
             :class="!activeCat ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
-            전체
+            전체<span v-if="allNewToday" class="ml-1 inline-block align-middle text-[9px] font-extrabold leading-none px-1 py-[2px] rounded bg-red-500 text-white">NEW</span>
           </button>
           <button v-for="c in categories" :key="c.id" @click="activeCat = c"
             class="text-xs py-2 rounded-lg font-semibold border transition-colors"
             :class="activeCat?.id === c.id ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">
-            {{ c.name }}
+            {{ c.name }}<span v-if="c.new_today" class="ml-1 inline-block align-middle text-[9px] font-extrabold leading-none px-1 py-[2px] rounded bg-red-500 text-white">NEW</span>
           </button>
         </div>
       </div>
@@ -62,10 +62,10 @@
           <div class="card overflow-hidden">
             <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-amber-500" />카테고리</div>
             <button @click="showFavorites=false; activeCat=null; activeItem=null; loadNews()" class="w-full text-left px-3 py-2 text-xs transition-colors"
-              :class="!showFavorites && !activeCat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">전체</button>
+              :class="!showFavorites && !activeCat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">전체<span v-if="allNewToday" class="ml-1 inline-block align-middle text-[9px] font-extrabold leading-none px-1 py-[2px] rounded bg-red-500 text-white">NEW</span></button>
             <button v-for="cat in categories" :key="cat.id" @click="showFavorites=false; activeCat=cat; activeItem=null; loadNews()"
               class="w-full text-left px-3 py-2 text-xs transition-colors"
-              :class="!showFavorites && activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ cat.name }}</button>
+              :class="!showFavorites && activeCat?.id===cat.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ cat.name }}<span v-if="cat.new_today" class="ml-1 inline-block align-middle text-[9px] font-extrabold leading-none px-1 py-[2px] rounded bg-red-500 text-white">NEW</span></button>
             <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
               class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 flex items-center gap-1"
               :class="showFavorites ? 'bg-red-50 text-red-600 font-bold' : 'text-ink-light hover:bg-red-50/50'">
@@ -267,6 +267,7 @@ const favorited = ref(new Set())
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const items = ref([])
 const categories = ref([])
+const allNewToday = ref(0)
 const activeCat = ref(null)
 const activeItem = ref(null)
 const searchQ = ref('')
@@ -418,7 +419,10 @@ onMounted(async () => {
     axios.get('/api/news?per_page=20'),
     axios.get('/api/news/categories'),
   ])
-  if (cRes.status === 'fulfilled') categories.value = cRes.value.data?.data || []
+  if (cRes.status === 'fulfilled') {
+    categories.value = cRes.value.data?.data || []
+    allNewToday.value = cRes.value.data?.meta?.all_new_today || 0
+  }
 
   // URL 쿼리 파라미터로 카테고리 반영
   const catQuery = route.query.category
