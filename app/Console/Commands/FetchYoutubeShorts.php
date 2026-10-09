@@ -230,6 +230,10 @@ class FetchYoutubeShorts extends Command
                         if ($audio === '' || !(str_starts_with($audio, 'en') || str_starts_with($audio, 'ko'))) continue;
                         // 해시태그 도배(6개 이상) 영상은 조회수 낚시 스팸이 대부분
                         if (preg_match_all('/#\w+/u', $all) >= 6) continue;
+                        // 영어 글자로만 쓴 다른 나라 말(예: 로마자 타밀어·힌디어)은 문자 검사로 안 걸리므로,
+                        // 단어가 4개 이상인데 흔한 영어 단어가 하나도 없으면 영어가 아니라고 본다
+                        $plain = trim(preg_replace('/[#@]\S+/u', ' ', $title));
+                        if (preg_match_all('/\b[A-Za-z]{2,}\b/', $plain) >= 4 && !preg_match('/\b(the|a|an|and|or|to|of|in|on|for|with|my|your|you|is|are|was|this|that|how|why|what|when|i|we|it|at|from|by|be|can|will|do|not|no|get|best|new|day|life|love|me|our|his|her|they|all|just|so|if|up|out|about)\b/i', $plain)) continue;
                     }
 
                     Short::create([

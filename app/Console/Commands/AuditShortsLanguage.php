@@ -71,6 +71,9 @@ class AuditShortsLanguage extends Command
             $audio = strtolower($sn['defaultAudioLanguage'] ?? $sn['defaultLanguage'] ?? '');
             if ($audio === '' || !(str_starts_with($audio, 'en') || str_starts_with($audio, 'ko'))) return $audio === '' ? '언어 표시 없음(한글 없음)' : "다른 언어({$audio})";
             if (preg_match_all('/#\w+/u', $all) >= 6) return '해시태그 도배';
+            // 영어 글자로만 쓴 다른 나라 말(로마자 타밀어·힌디어 등): 단어 4개 이상인데 흔한 영어 단어가 없음
+            $plain = trim(preg_replace('/[#@]\S+/u', ' ', $title));
+            if (preg_match_all('/\b[A-Za-z]{2,}\b/', $plain) >= 4 && !preg_match('/\b(the|a|an|and|or|to|of|in|on|for|with|my|your|you|is|are|was|this|that|how|why|what|when|i|we|it|at|from|by|be|can|will|do|not|no|get|best|new|day|life|love|me|our|his|her|they|all|just|so|if|up|out|about)\b/i', $plain)) return '영어 아님 의심(영어 단어 없음)';
         }
         return null;
     }
