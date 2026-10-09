@@ -978,3 +978,6 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/recipes/{id}', [AdminRecipeController::class, 'destroy']);
 
 });
+
+// 접속자 IP 기반 대략적 위치 (프로필 주소가 없을 때 기본 지역)
+Route::get('/geo/ip', [\App\Http\Controllers\API\GeoController::class, 'ip'])->middleware('throttle:30,1');

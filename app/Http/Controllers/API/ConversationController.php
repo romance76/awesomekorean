@@ -57,12 +57,17 @@ class ConversationController extends Controller
 
         // Mark other user's messages as read
         $conversation->messages()
+            ->reorder()
             ->where('sender_id', '!=', $request->user()->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
         return response()->json(
-            $conversation->messages()->with('sender:id,name,nickname,avatar')->paginate(40)
+            $conversation->messages()
+                ->reorder()
+                ->orderByDesc('id') // 최신 40개부터 (같은 초에 쓴 글도 순서 보장). 화면에서 뒤집어 표시
+                ->with('sender:id,name,nickname,avatar')
+                ->paginate(40)
         );
     }
 
@@ -118,9 +123,13 @@ class ConversationController extends Controller
         } catch (\Exception $e) {}
 
         return response()->json([
-            'id'         => $message->id,
-            'body'       => $message->body,
-            'created_at' => $message->created_at->toISOString(),
+            'id'              => $message->id,
+            'conversation_id' => $conversation->id,
+            'sender_id'       => $myId,
+            'body'            => $message->body,
+            'type'            => $message->type ?? 'text',
+            'read_at'         => null,
+            'created_at'      => $message->created_at->toISOString(),
         ], 201);
     }
 }

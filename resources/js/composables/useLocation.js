@@ -24,23 +24,71 @@ const KOREAN_CITIES = [
   { name: 'Denver', state: 'CO', lat: 39.7392, lng: -104.9903, label: '덴버' },
 ]
 
+// IP 기반 대략적 위치 (프로필 주소가 없는 회원/비회원의 기본 지역).
+// - 도시 단위의 근사값이며, 기본 필터 값으로만 클라이언트에서 사용한다 (IP 는 저장하지 않음).
+const IP_CACHE_KEY = 'sk_ip_geo'
+const IP_CACHE_TTL = 6 * 60 * 60 * 1000
+let ipInflight = null
+
+async function fetchIpLocation() {
+  try {
+    const raw = sessionStorage.getItem(IP_CACHE_KEY)
+    if (raw) {
+      const c = JSON.parse(raw)
+      if (c && Date.now() - c.t < IP_CACHE_TTL) return c.v
+    }
+  } catch {}
+  if (!ipInflight) {
+    ipInflight = (async () => {
+      let v = null
+      let ok = false
+      try {
+        const res = await fetch('/api/geo/ip', { headers: { Accept: 'application/json' } })
+        if (res.ok) {
+          const j = await res.json()
+          ok = true
+          const d = j?.data
+          if (d && d.city && d.lat != null && d.lng != null) {
+            v = { name: d.city, state: d.state || '', lat: parseFloat(d.lat), lng: parseFloat(d.lng), label: d.city }
+          }
+        }
+      } catch {}
+      if (ok) { try { sessionStorage.setItem(IP_CACHE_KEY, JSON.stringify({ t: Date.now(), v })) } catch {} }
+      return v
+    })().finally(() => { ipInflight = null })
+  }
+  return ipInflight
+}
+
 export function useLocation() {
-  // 매 페이지 진입 시 프로필 기본 위치로 리셋 (auth store에서 읽음)
-  function init() {
+  // 매 페이지 진입 시 기본 위치로 리셋: 1순위 프로필 주소, 없으면 IP 위치
+  async function init() {
+    let hasProfile = false
     try {
       const userStr = localStorage.getItem('sk_user')
-      if (!userStr) return
-      const u = JSON.parse(userStr)
-      if (u.default_radius) radius.value = String(u.default_radius)
-      if (u.city && u.state && (u.latitude || u.lat)) {
-        city.value = {
-          name: u.city, state: u.state,
-          lat: parseFloat(u.latitude || u.lat || 0),
-          lng: parseFloat(u.longitude || u.lng || 0),
-          label: u.city,
+      if (userStr) {
+        const u = JSON.parse(userStr)
+        if (u.default_radius) radius.value = String(u.default_radius)
+        if (u.city && u.state && (u.latitude || u.lat)) {
+          hasProfile = true
+          city.value = {
+            name: u.city, state: u.state,
+            lat: parseFloat(u.latitude || u.lat || 0),
+            lng: parseFloat(u.longitude || u.lng || 0),
+            label: u.city,
+          }
+        } else {
+          city.value = null
         }
-      } else {
-        city.value = null
+      }
+    } catch {}
+    if (hasProfile) return
+    try {
+      const ipLoc = await fetchIpLocation()
+      // 기다리는 사이 사용자가 직접 고른 값(다른 도시/전국)이 있으면 덮어쓰지 않는다
+      if (ipLoc && !city.value && radius.value !== '0') {
+        city.value = { ...ipLoc }
+        radius.value = '30'
       }
     } catch {}
   }

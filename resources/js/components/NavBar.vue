@@ -37,12 +37,13 @@
               <span v-if="unreadCount>0" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
             </button>
             <!-- 알림 드롭다운 -->
-            <div v-if="showNotifs" class="absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden" style="width: min(320px, calc(100vw - 2rem));">
-              <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50">
+            <Teleport to="body">
+            <div v-if="showNotifs" class="notif-panel bg-white rounded-2xl shadow-lift overflow-hidden flex flex-col" :style="notifStyle">
+              <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50 flex-shrink-0">
                 <span class="text-sm font-bold text-ink">알림</span>
                 <button v-if="notifList.some(n=>!n.read_at)" @click="markAllRead" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors">전체 읽음</button>
               </div>
-              <div class="max-h-80 overflow-y-auto">
+              <div class="overflow-y-auto flex-1 min-h-0" style="-webkit-overflow-scrolling: touch;">
                 <div v-if="!notifList.length" class="px-4 py-10 text-center">
                   <div class="icon-chip w-11 h-11 bg-gray-100 text-gray-300 mx-auto mb-2"><AppIcon name="bell" :size="22" :stroke-width="1.5" /></div>
                   <p class="text-sm text-ink-muted">알림이 없습니다</p>
@@ -53,15 +54,16 @@
                   <div class="flex items-start gap-2">
                     <span v-if="!n.read_at" class="w-2 h-2 bg-amber-400 rounded-full flex-shrink-0 mt-1.5"></span>
                     <span v-else class="w-2 h-2 flex-shrink-0"></span>
-                    <div class="min-w-0 flex-1">
-                      <div class="text-xs font-semibold text-ink truncate">{{ n.title }}</div>
-                      <div class="text-xs text-ink-muted truncate">{{ n.content }}</div>
+                    <div class="min-w-0 flex-1" style="overflow-wrap:anywhere;">
+                      <div class="text-xs font-semibold text-ink break-words line-clamp-2">{{ n.title }}</div>
+                      <div class="text-xs text-ink-muted break-words line-clamp-2">{{ n.content }}</div>
                       <div class="text-[11px] text-ink-faint mt-0.5">{{ formatNotifDate(n.created_at) }}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            </Teleport>
           </div>
           <div class="relative">
             <button @click="showDropdown=!showDropdown" class="block -my-1 rounded-full transition-transform active:scale-95" aria-label="내 메뉴">
@@ -228,6 +230,18 @@ const showDropdown = ref(false)
 const mobileMenu = ref(false)
 const unreadCount = ref(0)
 const showNotifs = ref(false)
+// 알림 패널은 body 로 Teleport(상단바의 backdrop-blur 가 fixed 기준점을 바꾸므로) 후 벨 위치 기준으로 배치
+const notifStyle = ref({})
+function placeNotifs() {
+  if (typeof window === 'undefined') return
+  const bell = document.querySelector('.notif-bell button')
+  const r = bell ? bell.getBoundingClientRect() : { bottom: 56, right: window.innerWidth - 8 }
+  const top = Math.max(0, Math.round(r.bottom)) + 6
+  const vw = window.innerWidth
+  const base = { position: 'fixed', top: top + 'px', zIndex: 70, maxHeight: `calc(100dvh - ${top}px - 84px - env(safe-area-inset-bottom, 0px))` }
+  if (vw < 1024) notifStyle.value = { ...base, left: '8px', right: '8px' }
+  else notifStyle.value = { ...base, right: Math.max(8, Math.round(vw - r.right)) + 'px', width: '340px' }
+}
 const notifList = ref([])
 import { useSiteStore } from '../stores/site'
 const siteStore = useSiteStore()
@@ -319,7 +333,7 @@ function formatNotifDate(dt) {
 
 async function toggleNotifs() {
   showNotifs.value = !showNotifs.value
-  if (showNotifs.value) await loadUnread()
+  if (showNotifs.value) { placeNotifs(); await loadUnread() }
 }
 
 async function markAllRead() {
@@ -374,8 +388,9 @@ async function handleLogout() {
 if (typeof window !== 'undefined') {
   window.addEventListener('click', (e) => {
     if (showDropdown.value && !e.target.closest('.relative')) showDropdown.value = false
-    if (showNotifs.value && !e.target.closest('.notif-bell')) showNotifs.value = false
+    if (showNotifs.value && !e.target.closest('.notif-bell') && !e.target.closest('.notif-panel')) showNotifs.value = false
   })
+  window.addEventListener('resize', () => { if (showNotifs.value) placeNotifs() })
 }
 
 function isActive(path) {

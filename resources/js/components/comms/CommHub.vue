@@ -11,6 +11,7 @@
     <!-- Chat window overlay -->
     <div v-if="activeChatPartner" class="fixed inset-0 z-[900]">
       <ChatWindow
+        :key="activeChatPartner.id"
         :partner="activeChatPartner"
         :conversation-id="activeConversationId"
         :my-user-id="myUserId"
@@ -41,16 +42,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCommsWebRTC } from '@/composables/useCommsWebRTC'
 import { initPushService } from '@/services/PushService'
 import { startRingtone, preloadRingtone } from '@/services/RingtoneService'
 import ChatWindow from './ChatWindow.vue'
 import CallScreen from './CallScreen.vue'
+import { VOICE_CALL_ENABLED } from '@/config/features'
 
 const auth = useAuthStore()
-const myUserId = auth.user?.id
+const myUserId = computed(() => (auth.user?.id != null ? Number(auth.user.id) : null))
 
 // ── Chat state ────────────────────────────────────────────────────
 const activeChatPartner    = ref(null)
@@ -89,15 +91,15 @@ document.addEventListener('touchstart', onFirstInteraction, { once: true })
 document.addEventListener('click', onFirstInteraction, { once: true })
 
 onMounted(async () => {
-  if (!myUserId) {
+  if (!myUserId.value) {
     console.warn('[CommHub] No user ID, skipping init')
     return
   }
 
   try {
   // Listen for incoming calls and WebRTC signals
-  console.log('[CommHub] Initializing for user:', myUserId)
-  listenForSignals(myUserId)
+  console.log('[CommHub] Initializing for user:', myUserId.value)
+  listenForSignals(myUserId.value)
 
   // Initialize push notifications (stub - no Firebase yet)
   await initPushService()
@@ -152,12 +154,13 @@ function closeChat() {
 }
 
 async function handleStartCall(partner) {
+  if (!VOICE_CALL_ENABLED) return
   closeChat()
   await startCall(partner)
 }
 
 // Expose openChat so parent components can call it via ref
-defineExpose({ openChat, startCall })
+defineExpose({ openChat, startCall: (p) => (VOICE_CALL_ENABLED ? startCall(p) : undefined) })
 </script>
 
 <style>

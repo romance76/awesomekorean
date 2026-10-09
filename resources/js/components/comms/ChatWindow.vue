@@ -25,7 +25,7 @@
         </div>
       </div>
 
-      <button @click="$emit('start-call', partner)"
+      <button v-if="VOICE_CALL_ENABLED" @click="$emit('start-call', partner)"
               class="flex-shrink-0 p-2 rounded-full bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
@@ -35,13 +35,13 @@
 
     <!-- Messages area -->
     <div ref="messagesEl"
-         class="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2 scroll-smooth"
+         class="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2"
          style="-webkit-overflow-scrolling: touch"
          @scroll="onScroll">
 
       <!-- Load more -->
       <div v-if="hasMore" class="text-center mb-2">
-        <button @click="loadMore"
+        <button @click="loadOlder"
                 :disabled="isLoading"
                 class="text-xs text-gray-500 hover:text-gray-300 transition-colors disabled:opacity-50">
           {{ isLoading ? '불러오는 중...' : '이전 메시지 보기' }}
@@ -52,19 +52,19 @@
       <div v-for="msg in messages"
            :key="msg.id"
            class="flex items-end gap-1.5"
-           :class="msg.sender_id === myUserId ? 'flex-row-reverse' : ''">
+           :class="isMine(msg) ? 'flex-row-reverse' : ''">
         <!-- Partner avatar (only for their messages) -->
-        <img v-if="msg.sender_id !== myUserId"
+        <img v-if="!isMine(msg)"
              :src="partner.avatar || '/images/default-avatar.svg'"
              class="w-7 h-7 rounded-full object-cover flex-shrink-0"
              @error="$event.target.src = '/images/default-avatar.svg'">
 
         <div class="flex flex-col max-w-[70%]"
-             :class="msg.sender_id === myUserId ? 'items-end' : 'items-start'">
+             :class="isMine(msg) ? 'items-end' : 'items-start'">
           <!-- Bubble -->
           <div class="px-3.5 py-2.5 text-sm leading-relaxed break-words"
                :class="[
-                 msg.sender_id === myUserId
+                 isMine(msg)
                    ? 'bg-green-600 text-white rounded-2xl rounded-br-sm'
                    : 'bg-gray-800 text-gray-100 rounded-2xl rounded-bl-sm',
                  msg.isPending ? 'opacity-60' : ''
@@ -74,7 +74,7 @@
           <!-- Time + read badge -->
           <span class="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500">
             {{ formatTime(msg.created_at) }}
-            <span v-if="msg.sender_id === myUserId && msg.read_at"
+            <span v-if="isMine(msg) && msg.read_at"
                   class="text-green-500">읽음</span>
           </span>
         </div>
@@ -89,14 +89,14 @@
     </div>
 
     <!-- Input bar -->
-    <div class="flex items-end gap-2 px-4 py-2.5 bg-gray-800 border-t border-gray-700">
+    <div class="flex items-end gap-2 px-4 pt-2.5 bg-gray-800 border-t border-gray-700"
+         :style="{ paddingBottom: 'calc(10px + env(safe-area-inset-bottom))' }">
       <textarea v-model="inputText"
                 ref="inputEl"
                 rows="1"
                 placeholder="메시지 입력..."
-                @keydown.enter.exact.prevent="send"
+                @keydown="onKeydown"
                 @input="autoResize"
-                :disabled="isSending"
                 class="flex-1 bg-gray-700 border border-gray-600 rounded-2xl px-4 py-2.5 text-sm text-white placeholder-gray-400
                        resize-none outline-none leading-snug transition-colors
                        focus:border-green-500 focus:bg-gray-700/80
@@ -118,14 +118,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useAuthStore } from '@/stores/auth'
+import { VOICE_CALL_ENABLED } from '@/config/features'
 
 const props = defineProps({
   partner:        { type: Object, required: true },
-  conversationId: { type: Number, required: true },
-  myUserId:       { type: Number, required: true },
+  conversationId: { type: [Number, String], default: null },
+  myUserId:       { type: [Number, String], default: null },
 })
+
+// 내 id 는 인증 스토어에서 반응형으로 (prop 이 비거나 문자열이어도 안전)
+const auth = useAuthStore()
+const meId = computed(() => Number(auth.user?.id ?? props.myUserId))
+function isMine(msg) {
+  return Number(msg.sender_id) === meId.value
+}
 
 const emit = defineEmits(['close', 'start-call'])
 
@@ -143,24 +152,59 @@ const {
   loadMore,
   subscribe,
   unsubscribe,
-} = useChat(props.conversationId)
+} = useChat(props.conversationId, props.partner?.id)
 
 onMounted(async () => {
-  await loadMessages()
+  try {
+    await loadMessages()
+  } catch (e) {
+    console.error('[ChatWindow] loadMessages failed', e)
+  }
   subscribe()
+  await nextTick()
   scrollToBottom()
+  inputEl.value?.focus?.({ preventScroll: true })
 })
 
 onUnmounted(() => unsubscribe())
 
-watch(messages, () => nextTick(scrollToBottom), { deep: true })
+// 맨 아래(새 메시지)가 바뀔 때만 아래로. 이전 메시지를 위에 붙일 땐 스크롤 위치 유지.
+watch(
+  () => messages.value[messages.value.length - 1]?.id,
+  () => nextTick(scrollToBottom)
+)
 
 async function send() {
   const body = inputText.value.trim()
   if (!body) return
+  if (isSending.value) return
   inputText.value = ''
   resetInputHeight()
-  await sendMessage(props.partner.id, body)
+  try {
+    await sendMessage(props.partner.id, body)
+  } catch (e) {
+    inputText.value = body
+    alert(e?.response?.data?.error || e?.response?.data?.message || '메시지를 보내지 못했습니다.')
+  }
+  await nextTick()
+  scrollToBottom()
+  inputEl.value?.focus?.({ preventScroll: true })
+}
+
+// Enter 전송 / Shift+Enter 줄바꿈 / 한글 조합 중(229)에는 무시
+function onKeydown(e) {
+  if (e.key !== 'Enter' || e.shiftKey) return
+  if (e.isComposing || e.keyCode === 229) return
+  e.preventDefault()
+  send()
+}
+
+async function loadOlder() {
+  const el = messagesEl.value
+  const prevH = el ? el.scrollHeight : 0
+  await loadMore()
+  await nextTick()
+  if (el) el.scrollTop = el.scrollHeight - prevH
 }
 
 function scrollToBottom() {
@@ -170,7 +214,7 @@ function scrollToBottom() {
 }
 
 function onScroll() {
-  if (messagesEl.value?.scrollTop < 60) loadMore()
+  if (messagesEl.value?.scrollTop < 60 && hasMore.value) loadOlder()
 }
 
 function autoResize(e) {
