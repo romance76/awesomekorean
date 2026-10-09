@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Http;
  */
 class AuditShortsLanguage extends Command
 {
-    protected $signature = 'shorts:audit-lang {--apply : 걸린 영상을 비활성화(숨김)} {--show=15 : 점검 결과로 보여줄 예시 개수}';
+    protected $signature = 'shorts:audit-lang {--apply : 걸린 영상을 비활성화(숨김)} {--show=15 : 점검 결과로 보여줄 예시 개수} {--channels : 통과한 영상의 채널명 목록 출력}';
+    private array $channels = [];
     protected $description = '저장된 숏츠 중 한국어·영어권이 아닌 영상을 점검(기본 dry-run)';
 
     public function handle()
@@ -40,6 +41,7 @@ class AuditShortsLanguage extends Command
                     $checked++;
                     $reason = $this->judge($v['snippet'] ?? [], $row->title);
                     if ($reason) $flagged[$row->id] = [$reason, $row->title];
+                    else $this->channels[$v['snippet']['channelTitle'] ?? '?'] = ($this->channels[$v['snippet']['channelTitle'] ?? '?'] ?? 0) + 1;
                 }
             });
 
@@ -47,6 +49,12 @@ class AuditShortsLanguage extends Command
         foreach (collect($flagged)->countBy(fn ($f) => $f[0]) as $reason => $n) $this->line("  - {$reason}: {$n}");
         foreach (array_slice($flagged, 0, (int) $this->option('show'), true) as $id => [$reason, $title]) {
             $this->line("  #{$id} [{$reason}] " . mb_substr($title, 0, 70));
+        }
+
+        if ($this->option('channels')) {
+            // 남은(통과한) 영상의 채널명 목록 — 사람이 직접 보고 차단 이름을 고를 때 사용
+            arsort($this->channels);
+            foreach ($this->channels as $name => $n) $this->line("CH\t{$n}\t{$name}");
         }
 
         if ($this->option('apply') && $flagged) {
@@ -64,6 +72,7 @@ class AuditShortsLanguage extends Command
         $desc = $sn['description'] ?? '';
         $all = $title . ' ' . ($sn['channelTitle'] ?? '') . ' ' . $desc;
         $hasHangul = (bool) preg_match('/[\x{AC00}-\x{D7AF}]/u', $all);
+        if (\App\Support\ShortsChannelFilter::blocked($sn['channelTitle'] ?? '')) return '외국인 이름·대량생산 채널';
 
         if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]|[\x{0B80}-\x{0BFF}]|[\x{0C00}-\x{0C7F}]|[\x{0400}-\x{04FF}]|[\x{3040}-\x{30FF}]/u', $title . ' ' . $desc)) return '비한국 문자';
         if (preg_match('/pubg|bgmi|freefire|free fire|garena|zodiac|astrolog|horoscope|rashifal|cricket|\bipl\b|chhath|diwali|hindu|\bindia(n|ns)?\b|bharat|\bmodi\b|\bpuja\b|sadhu|ganga|punjab|pakistan|bangladesh|nepal|sri ?lanka|mumbai|delhi|kolkata|\bdesi\b|tamil|telugu|kerala|chennai|hyderabad|bengal/i', $all)) return '인도권 키워드';

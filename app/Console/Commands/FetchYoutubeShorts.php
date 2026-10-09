@@ -215,6 +215,9 @@ class FetchYoutubeShorts extends Command
                     if (preg_match('/\b(yang|itu|ini|banget|tiba|malah|saking|dengan|untuk|tidak|bikin|ngiler|emang|yah|pernah|takut|bisa|udah|gak|nggak|lalu|kamu|aku|saya)\b/i', $text)) continue;
                     if (preg_match('/\b(ke[sş]fet|tutmaz|çok|için|değil|não|nao|pode|você|voce|muito|isso|dedicar)\b|#ke[sş]fet/iu', $text)) continue;
 
+                    // 업로더 이름이 인도·방글라데시·중국 등 외국인 이름이거나 번호 붙은 대량생산 채널이면 제외
+                    if (\App\Support\ShortsChannelFilter::blocked($channel)) continue;
+
                     // 추가 필터(2026-10-09): 영어 태그만 달고 올라오는 인도·동남아 등 외국 영상 차단
                     // (제목·채널만 보던 기존 필터에 설명글까지 포함해서 검사)
                     $desc = $v['snippet']['description'] ?? '';
