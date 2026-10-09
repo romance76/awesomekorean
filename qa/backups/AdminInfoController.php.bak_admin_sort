@@ -17,11 +17,8 @@ class AdminInfoController extends Controller
     {
         $query = InfoPost::query()
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
-            ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"));
-        \App\Support\AdminSort::apply($query, $request, [
-            'id' => 'id', 'title' => 'title', 'category' => 'category', 'published_at' => 'published_at',
-            'view_count' => 'view_count', 'is_published' => 'is_published', 'created_at' => 'created_at',
-        ]);
+            ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
+            ->orderByDesc('created_at');
 
         return response()->json(['success' => true, 'data' => $query->paginate($request->per_page ?? 20)]);
     }

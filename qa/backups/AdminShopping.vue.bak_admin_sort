@@ -246,13 +246,13 @@
         <table class="w-full text-sm">
           <thead class="bg-surface text-ink-light text-xs">
             <tr>
-              <SortTh class="text-left px-3 py-2" k="title" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상품</SortTh>
-              <SortTh class="text-left px-3 py-2" k="asin" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">ASIN</SortTh>
-              <SortTh class="text-left px-3 py-2" k="category" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">카테고리</SortTh>
-              <SortTh class="text-left px-3 py-2" k="price" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">가격</SortTh>
-              <SortTh class="text-left px-3 py-2" k="display_order" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">순서</SortTh>
-              <SortTh class="text-left px-3 py-2" k="clicks" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">클릭</SortTh>
-              <SortTh class="text-left px-3 py-2" k="is_active" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상태</SortTh>
+              <th class="text-left px-3 py-2">상품</th>
+              <th class="text-left px-3 py-2">ASIN</th>
+              <th class="text-left px-3 py-2">카테고리</th>
+              <th class="text-left px-3 py-2">가격</th>
+              <th class="text-left px-3 py-2">순서</th>
+              <th class="text-left px-3 py-2">클릭</th>
+              <th class="text-left px-3 py-2">상태</th>
               <th class="text-right px-3 py-2">관리</th>
             </tr>
           </thead>
@@ -421,10 +421,6 @@
 import { ref, computed, watch, inject, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
 import AdminShoppingReviews from './AdminShoppingReviews.vue'
 import AdminAssociatesGuide from './AdminAssociatesGuide.vue'
 
@@ -492,7 +488,7 @@ function buildCategoryStats() {
 
 async function load(p = 1) {
   page.value = p
-  const { data } = await axios.get('/api/admin/amazon-products', { params: { page: p, category: category.value || undefined, search: search.value || undefined, ...sortParams.value } })
+  const { data } = await axios.get('/api/admin/amazon-products', { params: { page: p, category: category.value || undefined, search: search.value || undefined } })
   products.value = data.data.data
   lastPage.value = data.data.last_page
   buildCategoryStats()

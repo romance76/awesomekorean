@@ -206,13 +206,13 @@
   <div v-else class="card overflow-x-auto">
     <table class="w-full text-sm min-w-[720px]">
       <thead class="bg-gray-50 border-b border-gray-100"><tr>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">날짜(ET)</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="kind" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">구분</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="payer" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">결제자</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="description" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">내용</SortTh>
-        <SortTh class="px-3 py-2 text-right text-xs text-ink-muted" k="amount" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">결제액</SortTh>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">날짜(ET)</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">구분</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">결제자</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">내용</th>
+        <th class="px-3 py-2 text-right text-xs text-ink-muted">결제액</th>
         <th class="px-3 py-2 text-right text-xs text-ink-muted">매출 반영</th>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="status" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상태</SortTh>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">상태</th>
       </tr></thead>
       <tbody>
         <tr v-for="p in items" :key="p.id" class="border-b border-gray-50 last:border-0">
@@ -235,10 +235,6 @@
 import { ref, computed, onMounted, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => { page.value = 1; loadList() })
 import Pagination from '../../components/Pagination.vue'
 
 const ranges = [
@@ -301,7 +297,7 @@ async function loadSummary() {
 async function loadList() {
   loading.value = true
   try {
-    const { data } = await axios.get('/api/admin/revenue/list', { params: params({ kind: kind.value || undefined, status: status.value || undefined, search: search.value || undefined, page: page.value, ...sortParams.value }) })
+    const { data } = await axios.get('/api/admin/revenue/list', { params: params({ kind: kind.value || undefined, status: status.value || undefined, search: search.value || undefined, page: page.value }) })
     items.value = data.data.data
     lastPage.value = data.data.last_page
   } catch {}

@@ -145,12 +145,12 @@
   <div v-else class="card overflow-hidden">
     <table class="w-full text-sm">
       <thead class="bg-gray-50 border-b border-gray-100"><tr>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="id" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">주문번호</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="user" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">유저</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="amount" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">금액</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="points" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">포인트</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="status" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상태</SortTh>
-        <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">날짜</SortTh>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">주문번호</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">유저</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">금액</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">포인트</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">상태</th>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">날짜</th>
         <th class="px-3 py-2 text-left text-xs text-ink-muted">관리</th>
       </tr></thead>
       <tbody>
@@ -266,10 +266,6 @@
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
 import { useAuthStore } from '../../stores/auth'
 
 // 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
@@ -330,7 +326,7 @@ async function load(p = 1) {
   loading.value = true
   loadError.value = false
   try {
-    const params = { ...sortParams.value }
+    const params = {}
     if (isMobile.value) { params.page = p; params.per_page = 20 }
     if (filterStatus.value) params.status = filterStatus.value
     if (searchQ.value) params.search = searchQ.value

@@ -129,13 +129,6 @@ class AdminRevenueController extends Controller
                 ->orWhere('stripe_payment_id', 'like', "%$s%")->orWhere('description', 'like', "%$s%"));
         }
 
-        \App\Support\AdminSort::apply($q, $r, [
-            'created_at' => 'payments.created_at', 'kind' => 'payments.kind',
-            'payer' => fn ($q, $d) => $q->orderBy(\App\Models\User::select('name')->whereColumn('users.id', 'payments.user_id'), $d),
-            'description' => 'payments.description', 'amount' => 'payments.amount', 'status' => 'payments.status',
-            'id' => 'payments.id',
-        ], 'payments.id');
-
         $page = $q->paginate(30);
         $page->getCollection()->transform(function (Payment $p) {
             $p->net = match (true) {

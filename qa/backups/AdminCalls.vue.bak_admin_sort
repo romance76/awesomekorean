@@ -185,13 +185,13 @@
     <table class="w-full text-xs min-w-[900px]">
       <thead class="bg-gray-50 border-b border-gray-50">
         <tr>
-          <SortTh class="px-3 py-2 text-left text-ink-muted" k="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">시간(ET)</SortTh>
-          <SortTh class="px-3 py-2 text-center text-ink-muted" k="call_type" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">유형</SortTh>
+          <th class="px-3 py-2 text-left text-ink-muted">시간(ET)</th>
+          <th class="px-3 py-2 text-center text-ink-muted">유형</th>
           <th class="px-3 py-2 text-left text-ink-muted">발신 → 수신</th>
-          <SortTh class="px-3 py-2 text-center text-ink-muted" k="end_reason" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">결과</SortTh>
-          <SortTh class="px-3 py-2 text-center text-ink-muted" k="duration" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">통화시간</SortTh>
+          <th class="px-3 py-2 text-center text-ink-muted">결과</th>
+          <th class="px-3 py-2 text-center text-ink-muted">통화시간</th>
           <th class="px-3 py-2 text-center text-ink-muted">벨 대기</th>
-          <SortTh class="px-3 py-2 text-center text-ink-muted" k="conn_type" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">연결</SortTh>
+          <th class="px-3 py-2 text-center text-ink-muted">연결</th>
           <th class="px-3 py-2 text-left text-ink-muted">기기 (발신 / 수신)</th>
         </tr>
       </thead>
@@ -236,10 +236,6 @@
 import { ref, computed, inject, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => { page.value = 1; load() })
 
 // 관리자 휴대폰 화면이면 카드 + 큰 버튼 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -297,7 +293,7 @@ function noteLabel(n) {
 async function load() {
   loading.value = true
   try {
-    const params = { page: page.value, days: days.value, ...sortParams.value }
+    const params = { page: page.value, days: days.value }
     if (outcome.value) params.outcome = outcome.value
     if (conn.value) params.conn = conn.value
     if (type.value) params.type = type.value

@@ -30,13 +30,13 @@
       <div class="card overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b border-gray-100"><tr>
-            <SortTh class="px-3 py-2 text-left text-xs text-ink-muted w-8" k="id" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">#</SortTh>
-            <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="name" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">이름</SortTh>
-            <SortTh v-if="!activeUser" class="px-3 py-2 text-left text-xs text-ink-muted" k="email" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">이메일</SortTh>
-            <SortTh class="px-3 py-2 text-xs text-ink-muted" k="role" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">역할</SortTh>
-            <SortTh class="px-3 py-2 text-xs text-ink-muted" k="points" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">포인트</SortTh>
-            <SortTh class="px-3 py-2 text-xs text-ink-muted" k="status" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상태</SortTh>
-            <SortTh class="px-3 py-2 text-xs text-ink-muted" k="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">가입</SortTh>
+            <th class="px-3 py-2 text-left text-xs text-ink-muted w-8">#</th>
+            <th class="px-3 py-2 text-left text-xs text-ink-muted">이름</th>
+            <th v-if="!activeUser" class="px-3 py-2 text-left text-xs text-ink-muted">이메일</th>
+            <th class="px-3 py-2 text-xs text-ink-muted">역할</th>
+            <th class="px-3 py-2 text-xs text-ink-muted">포인트</th>
+            <th class="px-3 py-2 text-xs text-ink-muted">상태</th>
+            <th class="px-3 py-2 text-xs text-ink-muted">가입</th>
           </tr></thead>
           <tbody>
             <tr v-for="u in users" :key="u.id"
@@ -471,10 +471,6 @@ import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => loadUsers(1))
 import AdminMembersMobile from './AdminMembersMobile.vue'
 
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -535,7 +531,7 @@ const userTabs = [
 
 async function loadUsers(p = 1) {
   loading.value = true; page.value = p
-  const params = { page: p, ...sortParams.value }
+  const params = { page: p }
   if (search.value) params.search = search.value
   if (roleFilter.value) params.role = roleFilter.value
   try {

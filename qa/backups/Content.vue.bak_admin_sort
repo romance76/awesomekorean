@@ -116,13 +116,13 @@
       <div v-else class="card overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b border-gray-100"><tr>
-            <SortTh class="px-2 py-2 text-left text-xs text-ink-muted w-8" k="id" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">#</SortTh>
-            <SortTh class="px-2 py-2 text-left text-xs text-ink-muted" k="title" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">제목</SortTh>
-            <SortTh v-if="!activePost" class="px-2 py-2 text-left text-xs text-ink-muted" k="board" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">게시판</SortTh>
-            <SortTh class="px-2 py-2 text-left text-xs text-ink-muted" k="author" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">작성자</SortTh>
-            <SortTh class="px-2 py-2 text-xs text-ink-muted" k="comments" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort"><AppIcon name="message-circle" :size="13" class="mx-auto" /></SortTh>
-            <SortTh class="px-2 py-2 text-xs text-ink-muted" k="views" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort"><AppIcon name="eye" :size="13" class="mx-auto" /></SortTh>
-            <SortTh class="px-2 py-2 text-xs text-ink-muted" k="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">날짜</SortTh>
+            <th class="px-2 py-2 text-left text-xs text-ink-muted w-8">#</th>
+            <th class="px-2 py-2 text-left text-xs text-ink-muted">제목</th>
+            <th v-if="!activePost" class="px-2 py-2 text-left text-xs text-ink-muted">게시판</th>
+            <th class="px-2 py-2 text-left text-xs text-ink-muted">작성자</th>
+            <th class="px-2 py-2 text-xs text-ink-muted"><AppIcon name="message-circle" :size="13" class="mx-auto" /></th>
+            <th class="px-2 py-2 text-xs text-ink-muted"><AppIcon name="eye" :size="13" class="mx-auto" /></th>
+            <th class="px-2 py-2 text-xs text-ink-muted">날짜</th>
             <th class="px-2 py-2 text-xs text-ink-muted">관리</th>
           </tr></thead>
           <tbody>
@@ -305,10 +305,6 @@ import { ref, computed, watch, onMounted, onBeforeUnmount, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
 
 const posts = ref([]); const boards = ref([]); const loading = ref(true)
 const page = ref(1); const lastPage = ref(1); const totalPosts = ref(0)
@@ -368,7 +364,7 @@ const userTabs = [
 
 async function load(p=1) {
   loading.value=true; page.value=p
-  const params = { page: p, ...sortParams.value }
+  const params = { page: p }
   if (search.value) params.search = search.value
   if (boardFilter.value) params.board_id = boardFilter.value
   try {

@@ -33,12 +33,7 @@ class AdminAmazonProductController extends Controller
             $query->where('title', 'LIKE', '%' . $request->search . '%');
         }
 
-        // 표 머리글 정렬 (기본: 번호 내림차순. 노출 순서는 '순서' 열을 눌러 확인)
-        \App\Support\AdminSort::apply($query, $request, [
-            'id' => 'id', 'title' => 'title', 'asin' => 'asin', 'category' => 'category', 'price' => 'price',
-            'display_order' => 'display_order', 'clicks' => 'clicks', 'is_active' => 'is_active',
-        ]);
-        $products = $query->paginate(20);
+        $products = $query->orderByDesc('display_order')->orderByDesc('id')->paginate(20);
 
         return response()->json(['success' => true, 'data' => $products]);
     }

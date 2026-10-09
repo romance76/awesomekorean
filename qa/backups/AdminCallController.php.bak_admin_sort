@@ -54,11 +54,6 @@ class AdminCallController extends Controller
             });
         }
 
-        \App\Support\AdminSort::apply($q, $request, [
-            'id' => 'id', 'created_at' => 'created_at', 'call_type' => 'call_type', 'end_reason' => 'end_reason',
-            'duration' => 'duration', 'conn_type' => 'conn_type',
-        ]);
-
         $page = $q->paginate(30);
         $page->getCollection()->transform(function (Call $c) {
             return [

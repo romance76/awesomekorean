@@ -60,12 +60,8 @@ class AdminController extends Controller
                 ? $q->whereIn('role', ['moderator', 'admin', 'super_admin'])   // 운영진(운영자·관리자·슈퍼관리자) 한꺼번에
                 : $q->where('role', $v))
             ->when($request->boolean('banned') || $request->status === 'banned', fn($q) => $q->where('is_banned', true))
-            ->when($request->status === 'active', fn($q) => $q->where(fn($w) => $w->where('is_banned', false)->orWhereNull('is_banned')));
-        // 표 머리글 정렬 (기본: 번호 내림차순 = 가장 마지막 가입자가 위)
-        \App\Support\AdminSort::apply($query, $request, [
-            'id' => 'id', 'name' => 'name', 'email' => 'email', 'role' => 'role', 'points' => 'points',
-            'status' => 'is_banned', 'created_at' => 'created_at',
-        ]);
+            ->when($request->status === 'active', fn($q) => $q->where(fn($w) => $w->where('is_banned', false)->orWhereNull('is_banned')))
+            ->orderByDesc('created_at');
         return response()->json(['success'=>true,'data'=>$query->paginate($perPage)]);
     }
 
@@ -83,15 +79,9 @@ class AdminController extends Controller
     }
 
     public function posts(Request $request) {
-        $query = Post::with('user:id,name','board:id,name')
-            ->when($request->board_id, fn($q,$v) => $q->where('board_id',$v));
-        \App\Support\AdminSort::apply($query, $request, [
-            'id' => 'id', 'title' => 'title',
-            'board' => fn ($q, $d) => $q->orderBy(\App\Models\Board::select('name')->whereColumn('boards.id', 'posts.board_id'), $d),
-            'author' => fn ($q, $d) => $q->orderBy(\App\Models\User::select('name')->whereColumn('users.id', 'posts.user_id'), $d),
-            'comments' => 'comment_count', 'views' => 'view_count', 'created_at' => 'created_at',
-        ]);
-        $posts = $query->paginate(20);
+        $posts = Post::with('user:id,name','board:id,name')
+            ->when($request->board_id, fn($q,$v) => $q->where('board_id',$v))
+            ->orderByDesc('created_at')->paginate(20);
         return response()->json(['success'=>true,'data'=>$posts]);
     }
 
@@ -265,10 +255,6 @@ class AdminController extends Controller
         $query = Payment::with('user:id,name,email')->orderByDesc('created_at');
         if ($request->status) $query->where('status', $request->status);
         if ($request->search) $query->whereHas('user', fn($q) => $q->where('name','like',"%{$request->search}%")->orWhere('email','like',"%{$request->search}%"));
-        \App\Support\AdminSort::apply($query, $request, [
-            'id' => 'id', 'user' => fn ($q, $d) => $q->orderBy(\App\Models\User::select('name')->whereColumn('users.id', 'payments.user_id'), $d),
-            'amount' => 'amount', 'points' => 'points_purchased', 'status' => 'status', 'created_at' => 'created_at',
-        ]);
         $perPage = max(1, min(100, (int) $request->input('per_page', 50)));
         // 상단 요약은 현재 페이지가 아니라 전체 주문 기준 (필터/페이지와 무관)
         $stats = [

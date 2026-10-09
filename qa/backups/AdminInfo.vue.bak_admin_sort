@@ -175,11 +175,11 @@
         <table class="w-full text-sm">
           <thead class="bg-surface text-ink-light text-xs">
             <tr>
-              <SortTh class="text-left px-3 py-2" k="title" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">제목</SortTh>
-              <SortTh class="text-left px-3 py-2" k="category" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">카테고리</SortTh>
-              <SortTh class="text-left px-3 py-2" k="published_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">발행일</SortTh>
-              <SortTh class="text-left px-3 py-2" k="view_count" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">조회</SortTh>
-              <SortTh class="text-left px-3 py-2" k="is_published" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상태</SortTh>
+              <th class="text-left px-3 py-2">제목</th>
+              <th class="text-left px-3 py-2">카테고리</th>
+              <th class="text-left px-3 py-2">발행일</th>
+              <th class="text-left px-3 py-2">조회</th>
+              <th class="text-left px-3 py-2">상태</th>
               <th class="text-right px-3 py-2">관리</th>
             </tr>
           </thead>
@@ -273,10 +273,6 @@
 import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import SortTh from '../../components/SortTh.vue'
-import { useAdminSort } from '../../composables/useAdminSort'
-// 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
-const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
 
 // 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -324,7 +320,7 @@ async function loadCategoryStats() {
 
 async function load(p = 1) {
   page.value = p
-  const { data } = await axios.get('/api/admin/info-posts', { params: { page: p, category: category.value || undefined, search: search.value || undefined, ...sortParams.value } })
+  const { data } = await axios.get('/api/admin/info-posts', { params: { page: p, category: category.value || undefined, search: search.value || undefined } })
   posts.value = data.data.data
   lastPage.value = data.data.last_page
 }
