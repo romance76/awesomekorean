@@ -295,7 +295,7 @@ function scrollToComments() {
 }
 const canEdit = computed(() => {
   if (!event.value || !auth.user) return false
-  if (event.value.event_type === 'sweepstakes') return auth.user.role === 'super_admin'
+  if (event.value.event_type === 'sweepstakes') return auth.user.role === 'super_admin' && !event.value.sweepstakes?.edit_locked
   return event.value.user_id === auth.user.id || ['admin','super_admin'].includes(auth.user.role)
 })
 

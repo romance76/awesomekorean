@@ -101,6 +101,8 @@ class EventController extends Controller
                     'my_reminder' => auth()->check()
                         ? \App\Models\SweepstakesReminder::where('sweepstakes_id', $sweepstakes->id)->where('user_id', auth()->id())->exists()
                         : false,
+                    // 시작된 뒤 참가자가 생겼거나 당첨자가 정해진 추첨은 수정·삭제 불가 (화면에서 버튼 숨김용)
+                    'edit_locked' => $this->sweepstakesLocked($sweepstakes),
                     ...\App\Support\SweepstakesDrawReplay::extra($sweepstakes),
                 ]);
             }
@@ -108,6 +110,14 @@ class EventController extends Controller
 
         $adj = $this->adjacentPair(Event::class, $id, 'title', ['category' => $event->category]);
         return response()->json(['success' => true, 'data' => $data, 'prev' => $adj['prev'], 'next' => $adj['next']]);
+    }
+
+    /** 경품 추첨은 시작된 뒤 참가자(Entry 사용)가 생기면, 또는 당첨자가 정해지면 수정·삭제할 수 없다 */
+    private function sweepstakesLocked(?Sweepstakes $s): bool
+    {
+        if (!$s) return false;
+        if ($s->status === 'winner_selected') return true;
+        return $s->start_at && $s->start_at->lte(now()) && (int) $s->total_entries > 0;
     }
 
     public function store(Request $request)
@@ -188,6 +198,9 @@ class EventController extends Controller
         if ($sweepstakes && $sweepstakes->status === 'winner_selected') {
             return response()->json(['success' => false, 'message' => '당첨자가 이미 선정된 경품 추첨 이벤트는 수정할 수 없습니다'], 422);
         }
+        if ($this->sweepstakesLocked($sweepstakes)) {
+            return response()->json(['success' => false, 'message' => '이미 시작되어 참가자가 있는 경품 추첨 이벤트는 수정할 수 없습니다'], 422);
+        }
 
         $request->validate([
             'title'      => 'sometimes|required|max:200',
@@ -247,6 +260,9 @@ class EventController extends Controller
         if ($event->event_type === 'sweepstakes') {
             if (auth()->user()->role !== 'super_admin') {
                 return response()->json(['success' => false, 'message' => '경품 추첨 이벤트는 사이트 최고관리자만 삭제할 수 있습니다'], 403);
+            }
+            if ($this->sweepstakesLocked(Sweepstakes::where('event_id', $event->id)->first())) {
+                return response()->json(['success' => false, 'message' => '이미 시작되어 참가자가 있는 경품 추첨 이벤트는 삭제할 수 없습니다'], 422);
             }
         } elseif ($event->user_id !== auth()->id() && !in_array(auth()->user()->role, ['admin', 'super_admin'])) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);

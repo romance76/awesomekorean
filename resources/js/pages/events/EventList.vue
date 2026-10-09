@@ -221,7 +221,8 @@
           <ShareButton :title="activeItem.title" :text="(activeItem.content || '').slice(0, 100)" label="공유" />
         </div>
       </div>
-      <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
+      <div v-if="canEditActive" class="flex gap-3 mt-3 justify-end">
+        <RouterLink :to="`/events/${activeItem.id}/edit`" class="text-xs text-amber-600 hover:text-amber-700 inline-flex items-center gap-1 transition-colors"><AppIcon name="edit" :size="12" />수정</RouterLink>
         <button @click="deleteActiveItem('events')" class="text-xs text-red-400 hover:text-red-600 inline-flex items-center gap-1 transition-colors"><AppIcon name="trash" :size="12" />삭제</button>
       </div>
       <CommentSection v-if="activeItem.id" type="event" :typeId="activeItem.id" class="mt-3" />
@@ -406,6 +407,13 @@ const activeCat = ref('')
 const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const activeItem = ref(null)
+// 수정·삭제 권한: 경품 추첨은 최고관리자만(시작 후 참가자가 생기면 잠김), 일반 이벤트는 작성자·관리자
+const canEditActive = computed(() => {
+  const it = activeItem.value
+  if (!it || !auth.user) return false
+  if (it.event_type === 'sweepstakes') return auth.user.role === 'super_admin' && !it.sweepstakes?.edit_locked
+  return it.user_id === auth.user.id || ['admin', 'super_admin'].includes(auth.user.role)
+})
 const currentIdx = ref(-1)
 const entering = ref(false)
 const entryMsg = ref('')

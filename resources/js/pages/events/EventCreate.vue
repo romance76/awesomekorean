@@ -269,10 +269,10 @@ async function submit() {
     if (isEdit.value) {
       fd.append('_method', 'PUT')
       const { data } = await axios.post(`/api/events/${editId.value}`, fd)
-      router.push(`/events/${editId.value}`)
+      router.push(`/events?open=${editId.value}`)
     } else {
       const { data } = await axios.post('/api/events', fd)
-      router.push(`/events/${data.data.id}`)
+      router.push(`/events?open=${data.data.id}`)
     }
   } catch (e) {
     error.value = e.response?.data?.message || '저장 실패'
