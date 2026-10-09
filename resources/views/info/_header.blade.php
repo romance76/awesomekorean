@@ -8,14 +8,14 @@
     // 본 사이트(siteStore.logoUrl)와 같은 로고 — 관리자 설정(site_settings.logo_url), 없으면 기본 로고
     $logoUrl = \App\Models\SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png';
 @endphp
-<nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: env(safe-area-inset-top, 0px)">
+<nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
         {{-- 햄버거 메뉴 (모바일) — NavBar.vue 와 동일 --}}
         <button id="info-menu-btn" type="button" class="md:hidden p-2.5 -ml-1 text-ink-light hover:text-amber-500 transition-colors flex-shrink-0" aria-label="전체 메뉴">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <a href="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-            <img src="{{ $logoUrl }}" alt="AwesomeKorean" class="block" style="height:30px;width:auto;max-width:260px;object-fit:contain;object-position:left center">
+            <img src="{{ $logoUrl }}" alt="AwesomeKorean" class="block" style="width:144px;height:auto;max-height:40px;object-fit:contain;object-position:left center">
         </a>
         <div class="flex-1 mx-2 min-w-0 hidden md:block">
             <form action="/search" method="GET" class="relative max-w-lg mx-auto">
@@ -44,7 +44,7 @@
 
         <div id="info-auth-guest" class="flex items-center gap-1.5 flex-shrink-0">
             <a href="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-surface px-3 py-1.5 rounded-full transition-colors">로그인</a>
-            <a href="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn" style="background-image:linear-gradient(135deg,#FF7A30,#FF4D12)">시작하기</a>
+            <a href="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">시작하기</a>
         </div>
         <div id="info-auth-user" class="relative flex-shrink-0" style="display:none">
             <button id="info-auth-avatar" type="button" class="relative w-8 h-8 rounded-full bg-amber-400 text-white flex items-center justify-center text-xs font-bold overflow-hidden ring-2 ring-amber-100"></button>

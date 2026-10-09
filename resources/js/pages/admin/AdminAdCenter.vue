@@ -138,7 +138,7 @@
           <div class="grid grid-cols-2 gap-2">
             <button v-if="adDetail.ad.status === 'pending'" @click="doApprove" :disabled="busy" class="min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">승인</button>
             <button v-if="adDetail.ad.status === 'pending'" @click="rejectReason = ''; mode = 'reject'" :disabled="busy" class="min-h-[52px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">거절</button>
-            <button v-if="adDetail.ad.status === 'active'" @click="doPause" :disabled="busy" class="min-h-[52px] rounded-xl bg-orange-50 text-orange-700 text-[16px] font-bold disabled:opacity-50">일시정지</button>
+            <button v-if="adDetail.ad.status === 'active'" @click="doPause" :disabled="busy" class="min-h-[52px] rounded-xl bg-amber-50 text-amber-700 text-[16px] font-bold disabled:opacity-50">일시정지</button>
             <button v-if="adDetail.ad.status === 'paused'" @click="doApprove" :disabled="busy" class="min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">다시 게시</button>
             <button @click="mode = 'delete'" :disabled="busy" class="min-h-[52px] rounded-xl bg-gray-100 text-red-600 text-[16px] font-bold">삭제</button>
           </div>
@@ -438,7 +438,7 @@
         <div class="flex gap-2 flex-wrap mb-4">
           <button v-if="adDetail.ad.status === 'pending'" @click="approveAd()" class="inline-flex items-center gap-1.5 bg-green-500 text-white font-semibold px-3 py-2 rounded-xl text-sm transition-colors hover:bg-green-600"><AppIcon name="check" :size="15" /> 승인</button>
           <button v-if="adDetail.ad.status === 'pending'" @click="rejectAd()" class="inline-flex items-center gap-1.5 bg-red-500 text-white font-semibold px-3 py-2 rounded-xl text-sm transition-colors hover:bg-red-600"><AppIcon name="x" :size="15" /> 거절</button>
-          <button v-if="adDetail.ad.status === 'active'" @click="pauseAd()" class="inline-flex items-center gap-1.5 bg-orange-500 text-white font-semibold px-3 py-2 rounded-xl text-sm transition-colors hover:bg-orange-600"><AppIcon name="clock" :size="15" /> 일시정지</button>
+          <button v-if="adDetail.ad.status === 'active'" @click="pauseAd()" class="inline-flex items-center gap-1.5 bg-amber-500 text-white font-semibold px-3 py-2 rounded-xl text-sm transition-colors hover:bg-amber-600"><AppIcon name="clock" :size="15" /> 일시정지</button>
           <button v-if="adDetail.ad.link_url" @click="openLink" class="inline-flex items-center gap-1.5 bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl text-sm transition-colors hover:bg-blue-600"><AppIcon name="external-link" :size="15" /> 링크 열기</button>
           <button @click="deleteAd()" class="btn-secondary !px-3 !py-2 ml-auto text-red-500"><AppIcon name="trash" :size="15" /> 삭제</button>
         </div>
@@ -594,7 +594,7 @@ function statusBadge(s) {
   return {
     active: 'bg-green-100 text-green-700',
     pending: 'bg-yellow-100 text-yellow-700',
-    paused: 'bg-orange-100 text-orange-700',
+    paused: 'bg-amber-100 text-amber-700',
     rejected: 'bg-red-100 text-red-700',
     expired: 'bg-gray-100 text-gray-500',
   }[s] || 'bg-gray-100 text-gray-700'

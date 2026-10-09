@@ -10,15 +10,15 @@
   .header { background:#ffffff; padding:28px 32px 20px; text-align:center; border-bottom:1px solid #f3f3f3; }
   .body { padding:32px; }
   .body p { font-size:14px; line-height:1.7; color:#444; margin:0 0 16px; }
-  .code-box { background:#fff1f5; border:1.5px dashed #F0266B; border-radius:12px; text-align:center; padding:22px 16px; margin:24px 0; }
-  .code { font-size:32px; font-weight:800; letter-spacing:8px; color:#F0266B; font-family:'Courier New',monospace; }
+  .code-box { background:#fff1f5; border:1.5px dashed #FC226B; border-radius:12px; text-align:center; padding:22px 16px; margin:24px 0; }
+  .code { font-size:32px; font-weight:800; letter-spacing:8px; color:#FC226B; font-family:'Courier New',monospace; }
   .code-label { font-size:12px; color:#999; margin-top:6px; }
   .expiry { font-size:13px; color:#b45309; background:#fffbeb; border-radius:8px; padding:10px 14px; margin:20px 0; }
   .divider { border:none; border-top:1px solid #eee; margin:24px 0; }
   .security { font-size:13px; color:#888; line-height:1.7; }
   .security strong { color:#555; }
   .footer { text-align:center; padding:20px 32px 28px; font-size:12px; color:#aaa; }
-  .footer a { color:#F0266B; text-decoration:none; }
+  .footer a { color:#FC226B; text-decoration:none; }
 </style>
 </head>
 <body>

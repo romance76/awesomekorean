@@ -47,7 +47,7 @@
         <!-- Club header / banner -->
         <div class="card overflow-hidden mb-4">
           <!-- Cover image -->
-          <div class="h-36 sm:h-48 bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] relative">
+          <div class="h-36 sm:h-48 bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] relative">
             <img v-if="club.cover_image" :src="coverImageUrl" class="w-full h-full object-cover"
               @error="$event.target.style.display='none'" />
           </div>

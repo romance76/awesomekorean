@@ -8,11 +8,11 @@
 
     <!-- 포인트 / Entry 상태 카드 -->
     <div class="grid grid-cols-2 gap-3 mb-5">
-      <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-2xl p-5 text-white shadow-card">
+      <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-5 text-white shadow-card">
         <div class="text-sm opacity-90">내 포인트</div>
         <div class="text-3xl font-black">{{ (auth.user?.points || 0).toLocaleString() }}P</div>
       </div>
-      <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-2xl p-5 text-white shadow-card">
+      <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-5 text-white shadow-card">
         <div class="text-sm opacity-90">내 Entry</div>
         <div class="text-3xl font-black">🎟 {{ (auth.user?.entries || 0).toLocaleString() }}</div>
       </div>
@@ -745,7 +745,7 @@
     <!-- ═══ 내 업소 탭 ═══ -->
     <div v-else-if="tab==='mybiz'" class="space-y-4">
       <div class="card p-5">
-        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-pink-50 text-pink-600"><AppIcon name="store" :size="15" /></span>내 업소 관리</h2>
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="store" :size="15" /></span>내 업소 관리</h2>
         <div v-if="!myBizList.length" class="text-center py-8">
           <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="store" :size="28" :stroke-width="1.5" /></div>
           <div class="text-sm text-ink-muted">등록된 업소가 없습니다</div>
@@ -1005,7 +1005,7 @@
     <!-- 결제 모달 -->
     <div v-if="payModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="payModal=false">
       <div class="bg-white rounded-2xl shadow-lift w-full max-w-sm mx-4 overflow-hidden">
-        <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] px-5 py-3">
+        <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] px-5 py-3">
           <div class="text-sm font-black text-white flex items-center gap-1.5"><AppIcon name="wallet" :size="15" /> 포인트 구매</div>
         </div>
         <div class="p-5">

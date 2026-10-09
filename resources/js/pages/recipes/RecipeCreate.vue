@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <PageHeader :title="isEdit ? '내 레시피 수정' : '내 레시피 등록'" icon="utensils" chip="bg-orange-50 text-orange-600" fallback="/recipes" />
+    <PageHeader :title="isEdit ? '내 레시피 수정' : '내 레시피 등록'" icon="utensils" chip="bg-amber-50 text-amber-600" fallback="/recipes" />
 
     <div class="card p-5 space-y-4">
       <!-- 썸네일 이미지 업로드 -->

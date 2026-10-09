@@ -2,11 +2,11 @@
   <!-- NEW 전단 광고 바로가기: 하루 한 번, 출석체크 버튼과 동시에 뜨지 않게 잠깐 떠 있다가 사라진다.
        지금 방송 중인 전단(내 지역 → 없으면 전국)이 있을 때만 나온다. -->
   <Transition name="flp">
-    <div v-if="show && ad" class="fixed right-3 bottom-24 md:bottom-6 z-40 flex items-center gap-1 rounded-full bg-white shadow-lg border border-rose-200 pl-1.5 pr-1 py-1 max-w-[calc(100vw-1.5rem)]">
+    <div v-if="show && ad" class="fixed right-3 bottom-24 md:bottom-6 z-40 flex items-center gap-1 rounded-full bg-white shadow-lg border border-amber-200 pl-1.5 pr-1 py-1 max-w-[calc(100vw-1.5rem)]">
       <button @click="open" class="flex items-center gap-2 min-w-0 rounded-full pr-2">
         <img :src="ad.image_url" :alt="ad.title" class="w-9 h-9 rounded-full object-cover bg-gray-100 flex-shrink-0" />
         <span class="min-w-0 text-left">
-          <span class="block text-[10px] font-black text-rose-500 leading-tight">📢 지금 NEW 광고</span>
+          <span class="block text-[10px] font-black text-amber-500 leading-tight">📢 지금 NEW 광고</span>
           <span class="block text-[13px] font-bold text-ink truncate max-w-[200px] leading-tight">{{ ad.title }}</span>
         </span>
       </button>

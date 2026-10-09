@@ -356,7 +356,7 @@ function selectSlot(key) { highlighted.value = highlighted.value === key ? null 
 .desktop-mock { background: linear-gradient(180deg, #fafafa, #f3f4f6); border-radius: 12px; padding: 14px; border: 1px solid #e5e7eb; }
 .mock-nav, .mock-footer { background: #1f2937; color: #fff; font-size: 10px; text-align: center; padding: 7px; border-radius: 5px; margin-bottom: 10px; }
 .mock-footer { margin-top: 10px; margin-bottom: 0; }
-.mock-hero { background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; text-align: center; padding: 26px 12px; border-radius: 8px; margin-bottom: 10px; font-weight: 800; font-size: 13px; }
+.mock-hero { background: linear-gradient(135deg, #f59e0b, #E0145A); color: #fff; text-align: center; padding: 26px 12px; border-radius: 8px; margin-bottom: 10px; font-weight: 800; font-size: 13px; }
 .mock-hero-sm { padding: 18px 12px; font-size: 12px; }
 .hero-meta { font-size: 10px; opacity: 0.85; font-weight: 500; }
 

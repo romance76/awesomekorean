@@ -22,7 +22,7 @@
             </div>
             <div class="text-9xl opacity-15 flex-shrink-0">{{ event.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
           </div>
-          <div v-else class="h-32 bg-gradient-to-r from-amber-100 to-orange-100 flex items-center justify-center text-amber-300"><AppIcon name="calendar" :size="40" :stroke-width="1.5" /></div>
+          <div v-else class="h-32 bg-gradient-to-r from-amber-100 to-amber-100 flex items-center justify-center text-amber-300"><AppIcon name="calendar" :size="40" :stroke-width="1.5" /></div>
 
           <!-- 헤더 -->
           <div class="px-4 lg:px-5 py-4">

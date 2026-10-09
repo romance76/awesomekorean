@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <PageHeader title="NEW 전단" icon="megaphone" chip="bg-rose-50 text-rose-600" to="/new" />
+    <PageHeader title="NEW 전단" icon="megaphone" chip="bg-amber-50 text-amber-600" to="/new" />
 
     <div v-if="loading" class="text-center py-16 text-ink-muted">로딩중...</div>
     <div v-else-if="!ad" class="text-center py-16">
@@ -17,8 +17,8 @@
         <img :src="ad.image_url" :alt="ad.title" class="w-full object-contain bg-gray-50" @click="openLink" />
         <div class="p-4">
           <div class="flex items-center gap-2 mb-1 flex-wrap">
-            <span class="text-xs font-bold text-rose-600">{{ kindLabel(ad.kind) }}</span>
-            <span v-if="ad.live" class="text-[10px] font-black text-white bg-rose-500 px-1.5 py-0.5 rounded-full">지금 방송 중</span>
+            <span class="text-xs font-bold text-amber-600">{{ kindLabel(ad.kind) }}</span>
+            <span v-if="ad.live" class="text-[10px] font-black text-white bg-amber-500 px-1.5 py-0.5 rounded-full">지금 방송 중</span>
             <span class="text-[11px] text-ink-faint">{{ ad.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(ad.region_key) }}</span>
           </div>
           <h1 class="text-lg font-bold text-ink">{{ ad.title }}</h1>
@@ -32,7 +32,7 @@
       </div>
 
       <div v-if="ad.schedule?.length" class="card p-4 mt-4">
-        <h2 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="clock" :size="14" class="text-rose-500" />NEW 상단 방송 일정 <span class="text-[11px] font-normal text-ink-faint">({{ tzLabel(ad.tz) }} 현지 시각)</span></h2>
+        <h2 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="clock" :size="14" class="text-amber-500" />NEW 상단 방송 일정 <span class="text-[11px] font-normal text-ink-faint">({{ tzLabel(ad.tz) }} 현지 시각)</span></h2>
         <div class="space-y-1 text-sm">
           <div v-for="s in ad.schedule" :key="s.date" class="flex gap-3">
             <span class="w-24 text-ink-muted flex-shrink-0">{{ fmtDay(s.date) }}</span>

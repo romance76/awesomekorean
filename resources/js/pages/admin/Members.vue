@@ -128,7 +128,7 @@
               </div>
               <div class="border border-gray-100 rounded-xl p-3">
                 <div class="text-xs text-ink-muted font-bold">누적 사용 포인트</div>
-                <div class="text-lg font-black text-rose-600 mt-1">-{{ (userData.summary?.total_points_spent || 0).toLocaleString() }}P</div>
+                <div class="text-lg font-black text-amber-600 mt-1">-{{ (userData.summary?.total_points_spent || 0).toLocaleString() }}P</div>
               </div>
             </div>
 
@@ -279,8 +279,8 @@
             </div>
             <!-- 장터 -->
             <div v-if="userData.market?.length">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-orange-700 mb-2"><AppIcon name="shopping-cart" :size="13" />중고장터 ({{ userData.market.length }})</div>
-              <div v-for="m in userData.market" :key="m.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-orange-50/30 transition-colors">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="shopping-cart" :size="13" />중고장터 ({{ userData.market.length }})</div>
+              <div v-for="m in userData.market" :key="m.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ m.title }}</div>
                   <div class="text-[11px] text-ink-faint">${{ Number(m.price||0).toLocaleString() }} · {{ m.status }} · {{ m.created_at?.slice(0,10) }}</div>
@@ -312,8 +312,8 @@
             </div>
             <!-- 이벤트 -->
             <div v-if="userData.events?.length">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-pink-700 mb-2"><AppIcon name="calendar" :size="13" />이벤트 ({{ userData.events.length }})</div>
-              <div v-for="ev in userData.events" :key="ev.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-pink-50/30 transition-colors">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="calendar" :size="13" />이벤트 ({{ userData.events.length }})</div>
+              <div v-for="ev in userData.events" :key="ev.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ ev.title }}</div>
                   <div class="text-[11px] text-ink-faint">{{ ev.event_date?.slice(0,10) }} · {{ ev.city }}, {{ ev.state }}</div>

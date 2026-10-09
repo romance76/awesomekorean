@@ -5,7 +5,7 @@
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
         <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
-          <span class="icon-chip w-8 h-8 bg-pink-50 text-pink-600"><AppIcon name="store" :size="18" /></span>
+          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="store" :size="18" /></span>
           업소록
         </h1>
         <div class="flex items-center gap-2">
@@ -59,7 +59,7 @@
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-pink-50 text-pink-600"><AppIcon name="store" :size="20" /></span>
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="store" :size="20" /></span>
         업소록
       </h1>
       <div class="flex items-center gap-2 flex-wrap">
@@ -352,7 +352,7 @@
   <div v-if="showClaimModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" @click.self="showClaimModal=false">
     <div class="card shadow-xl w-full max-w-md p-5">
       <h3 class="font-bold text-ink mb-3 flex items-center gap-2">
-        <span class="icon-chip w-7 h-7 bg-pink-50 text-pink-600"><AppIcon name="store" :size="15" /></span>
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="store" :size="15" /></span>
         업소 소유권 신청
       </h3>
       <p class="text-sm text-ink-light mb-3">{{ activeItem?.name }}의 실제 운영자임을 확인합니다.</p>

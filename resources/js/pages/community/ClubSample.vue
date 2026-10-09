@@ -60,7 +60,7 @@
         <div v-for="m in chat" :key="m.text" class="flex" :class="m.me ? 'justify-end' : 'justify-start'">
           <div class="max-w-[80%]">
             <div v-if="!m.me" class="text-[11px] text-ink-muted mb-0.5">{{ m.by }}</div>
-            <div class="px-3 py-2 rounded-2xl text-sm" :class="m.me ? 'bg-rose-500 text-white' : 'bg-white border border-line text-ink'">{{ m.text }}</div>
+            <div class="px-3 py-2 rounded-2xl text-sm" :class="m.me ? 'bg-amber-500 text-white' : 'bg-white border border-line text-ink'">{{ m.text }}</div>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ const adminTools = [
   { icon: 'user-plus', title: '가입 신청 승인/거절', desc: '가입 신청이 오면 알림을 받고, 한 번에 승인하거나 거절해요.', chip: 'bg-emerald-50 text-emerald-600' },
   { icon: 'list', title: '게시판 만들기', desc: '공지, 후기, 사진처럼 필요한 게시판을 추가하고 정리해요.', chip: 'bg-blue-50 text-blue-600' },
   { icon: 'users', title: '멤버 등급 관리', desc: '믿을 수 있는 회원을 운영진으로 올리고, 필요하면 내보낼 수 있어요.', chip: 'bg-violet-50 text-violet-600' },
-  { icon: 'message-circle', title: '단체 채팅방 열기', desc: '버튼 한 번으로 회원 전용 채팅방을 만들어요.', chip: 'bg-rose-50 text-rose-600' },
+  { icon: 'message-circle', title: '단체 채팅방 열기', desc: '버튼 한 번으로 회원 전용 채팅방을 만들어요.', chip: 'bg-amber-50 text-amber-600' },
   { icon: 'megaphone', title: '상위 노출(홍보)', desc: '더 많은 이웃에게 우리 동호회를 알려요.', chip: 'bg-amber-50 text-amber-600' },
 ]
 </script>

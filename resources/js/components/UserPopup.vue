@@ -5,7 +5,7 @@
   <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-xl overflow-hidden animate-in transition-all duration-200" :class="view === 'message' ? 'w-80' : 'w-64'">
 
     <!-- 헤더 -->
-    <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] px-3 py-2 flex items-center justify-between">
+    <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] px-3 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-sm font-bold text-white">{{ (user.name || '?')[0] }}</div>
         <div>
@@ -32,7 +32,7 @@
         <!-- 대기중 (내가 보낸 요청) -->
         <button v-else-if="isPending && isSender" @click="view = 'pending'" class="flex-1 bg-gray-100 text-ink-muted text-xs font-bold py-1.5 rounded-lg hover:bg-gray-200 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="clock" :size="12" /> 대기중</button>
         <!-- 대기중 (상대가 보낸 요청) -->
-        <button v-else-if="isPending && !isSender" @click="view = 'received'" class="flex-1 bg-orange-100 text-orange-600 text-xs font-bold py-1.5 rounded-lg hover:bg-orange-200 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" /> 요청받음</button>
+        <button v-else-if="isPending && !isSender" @click="view = 'received'" class="flex-1 bg-amber-100 text-amber-600 text-xs font-bold py-1.5 rounded-lg hover:bg-amber-200 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" /> 요청받음</button>
         <!-- 이미 친구 -->
         <div v-else-if="isFriend" class="flex-1 text-center text-xs text-emerald-600 py-1.5 font-bold inline-flex items-center justify-center gap-1"><AppIcon name="check" :size="12" /> 친구</div>
         <!-- 친구요청 차단 -->
@@ -84,7 +84,7 @@
     <!-- 받은 요청 수락/거절 뷰 -->
     <div v-else-if="view === 'received'" class="p-3">
       <p class="text-sm font-bold text-ink text-center mb-2 flex items-center justify-center gap-1"><AppIcon name="mail" :size="14" /> 친구 요청을 받았습니다</p>
-      <div class="bg-orange-50 rounded-xl p-2 mb-3 text-[11px] text-orange-700 leading-relaxed">
+      <div class="bg-amber-50 rounded-xl p-2 mb-3 text-[11px] text-amber-700 leading-relaxed">
         <p><b>{{ user.name }}</b>님이 친구 요청을 보냈습니다.</p>
         <p>수락하면 서로 친구가 됩니다.</p>
       </div>

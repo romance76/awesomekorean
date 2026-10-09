@@ -112,10 +112,10 @@
               </div>
             </div>
             <div>
-              <label class="text-xs font-bold text-orange-600 block mb-1">우측 슬롯</label>
+              <label class="text-xs font-bold text-amber-600 block mb-1">우측 슬롯</label>
               <div class="flex items-center gap-2">
                 <input type="range" v-model.number="cfg.right_slots" min="0" max="5" class="flex-1 accent-amber-400" />
-                <span class="text-sm font-black text-orange-700 w-6 text-center">{{ cfg.right_slots }}</span>
+                <span class="text-sm font-black text-amber-700 w-6 text-center">{{ cfg.right_slots }}</span>
               </div>
             </div>
           </div>

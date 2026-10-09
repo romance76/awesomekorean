@@ -73,7 +73,7 @@ class BrandIcons
             'scope' => '/',
             'display' => 'standalone',
             'background_color' => '#ffffff',
-            'theme_color' => '#F23D5C',
+            'theme_color' => '#FC226B',
             'orientation' => 'portrait-primary',
             // 업로드한 정사각형 이미지를 그대로(잘림 없이) 쓰도록 purpose 는 any
             'icons' => array_map(fn($s) => [

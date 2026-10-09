@@ -94,7 +94,7 @@
           <div class="grid grid-cols-2 gap-2">
             <button v-if="sheetItem.status === 'pending'" @click="doApprove" :disabled="busy" class="min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">승인</button>
             <button v-if="sheetItem.status === 'pending'" @click="rejectReason = ''; mode = 'reject'" :disabled="busy" class="min-h-[52px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">거절</button>
-            <button v-if="sheetItem.status === 'active'" @click="doPause" :disabled="busy" class="min-h-[52px] rounded-xl bg-orange-50 text-orange-700 text-[16px] font-bold disabled:opacity-50">게시 중지</button>
+            <button v-if="sheetItem.status === 'active'" @click="doPause" :disabled="busy" class="min-h-[52px] rounded-xl bg-amber-50 text-amber-700 text-[16px] font-bold disabled:opacity-50">게시 중지</button>
             <button v-if="sheetItem.status === 'paused'" @click="doApprove" :disabled="busy" class="min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">다시 게시</button>
             <button @click="mode = 'delete'" :disabled="busy" class="min-h-[52px] rounded-xl bg-gray-100 text-red-600 text-[16px] font-bold">삭제</button>
           </div>
@@ -143,7 +143,7 @@
     <h2 class="text-sm font-bold text-ink flex items-center gap-1.5"><AppIcon :name="pageIcon(activePage)" :size="15" /> {{ pageLabel(activePage) }} — 슬롯별 입찰 현황</h2>
 
     <div v-for="side in ['left','right']" :key="side" class="card overflow-hidden">
-      <div class="px-4 py-2 border-b border-gray-50 font-bold text-xs flex items-center gap-1" :class="side==='left'?'bg-blue-50 text-blue-800':'bg-orange-50 text-orange-800'">
+      <div class="px-4 py-2 border-b border-gray-50 font-bold text-xs flex items-center gap-1" :class="side==='left'?'bg-blue-50 text-blue-800':'bg-amber-50 text-amber-800'">
         <AppIcon name="map-pin" :size="12" /> {{ side==='left'?'좌측':'우측' }} 사이드바
       </div>
 

@@ -5,7 +5,7 @@
     <div class="absolute -right-24 -top-24 w-80 h-80 rounded-full opacity-40" style="background:radial-gradient(circle,#FFB27A 0%,transparent 70%)"></div>
     <div class="absolute -left-16 bottom-0 w-64 h-64 rounded-full opacity-30" style="background:radial-gradient(circle,#FF8FA3 0%,transparent 70%)"></div>
     <div class="relative page-main px-4 py-14 md:py-20 text-center">
-      <div class="inline-block text-[11px] font-black tracking-widest text-orange-600 bg-white/70 border border-orange-100 rounded-full px-3 py-1 mb-4">ABOUT AWESOMEKOREAN</div>
+      <div class="inline-block text-[11px] font-black tracking-widest text-amber-600 bg-white/70 border border-amber-100 rounded-full px-3 py-1 mb-4">ABOUT AWESOMEKOREAN</div>
       <h1 class="text-3xl md:text-5xl font-black text-ink leading-tight mb-4">
         미국에서 사는 한인의 하루를,<br class="hidden md:block" /> 한곳에서 더 쉽게.
       </h1>
@@ -25,7 +25,7 @@
     <!-- 우리가 하는 일 -->
     <section>
       <div class="text-center mb-6">
-        <div class="text-xs font-black text-orange-500 mb-1">WHAT WE DO</div>
+        <div class="text-xs font-black text-amber-500 mb-1">WHAT WE DO</div>
         <h2 class="text-xl md:text-2xl font-black text-ink">우리가 하는 일</h2>
       </div>
       <div class="card p-6 md:p-8 text-sm md:text-[15px] text-ink-light leading-loose space-y-3">
@@ -37,7 +37,7 @@
     <!-- 서비스 -->
     <section>
       <div class="text-center mb-6">
-        <div class="text-xs font-black text-orange-500 mb-1">SERVICES</div>
+        <div class="text-xs font-black text-amber-500 mb-1">SERVICES</div>
         <h2 class="text-xl md:text-2xl font-black text-ink">이런 서비스를 제공합니다</h2>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -52,12 +52,12 @@
     <!-- 원칙 -->
     <section>
       <div class="text-center mb-6">
-        <div class="text-xs font-black text-orange-500 mb-1">OUR PRINCIPLES</div>
+        <div class="text-xs font-black text-amber-500 mb-1">OUR PRINCIPLES</div>
         <h2 class="text-xl md:text-2xl font-black text-ink">우리가 지키는 세 가지 원칙</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div v-for="(p, i) in principles" :key="p.title" class="card p-6">
-          <div class="text-3xl font-black text-orange-200 mb-2">0{{ i + 1 }}</div>
+          <div class="text-3xl font-black text-amber-200 mb-2">0{{ i + 1 }}</div>
           <div class="font-bold text-ink mb-2">{{ p.title }}</div>
           <div class="text-[13px] text-ink-light leading-relaxed">{{ p.desc }}</div>
         </div>
@@ -67,13 +67,13 @@
     <!-- 정보 글 제작 과정 -->
     <section>
       <div class="text-center mb-6">
-        <div class="text-xs font-black text-orange-500 mb-1">HOW WE PUBLISH</div>
+        <div class="text-xs font-black text-amber-500 mb-1">HOW WE PUBLISH</div>
         <h2 class="text-xl md:text-2xl font-black text-ink">정보 글은 이렇게 만들어집니다</h2>
       </div>
       <div class="card p-6 md:p-8">
         <ol class="space-y-5">
           <li v-for="(st, i) in steps" :key="st.title" class="flex gap-4">
-            <div class="flex-shrink-0 w-9 h-9 rounded-full text-white font-black text-sm grid place-items-center" style="background-image:linear-gradient(135deg,#FF7A30,#FF4D12)">{{ i + 1 }}</div>
+            <div class="flex-shrink-0 w-9 h-9 rounded-full text-white font-black text-sm grid place-items-center" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">{{ i + 1 }}</div>
             <div>
               <div class="font-bold text-ink mb-0.5">{{ st.title }}</div>
               <div class="text-[13px] text-ink-light leading-relaxed">{{ st.desc }}</div>
@@ -89,7 +89,7 @@
     <!-- 광고와 수익 -->
     <section>
       <div class="text-center mb-6">
-        <div class="text-xs font-black text-orange-500 mb-1">TRANSPARENCY</div>
+        <div class="text-xs font-black text-amber-500 mb-1">TRANSPARENCY</div>
         <h2 class="text-xl md:text-2xl font-black text-ink">광고와 운영 방식</h2>
       </div>
       <div class="card p-6 md:p-8 text-sm md:text-[15px] text-ink-light leading-loose space-y-3">
@@ -99,12 +99,12 @@
     </section>
 
     <!-- 문의 -->
-    <section class="rounded-3xl text-center px-6 py-10 md:py-12" style="background-image:linear-gradient(135deg,#FF7A30,#FF4D12)">
+    <section class="rounded-3xl text-center px-6 py-10 md:py-12" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">
       <h2 class="text-xl md:text-2xl font-black text-white mb-2">의견을 들려주세요</h2>
       <p class="text-sm text-white/90 leading-relaxed max-w-xl mx-auto mb-6">
         잘못된 정보, 고쳤으면 하는 점, 함께하고 싶은 제안 모두 환영합니다. 보내 주신 의견은 서비스를 더 믿을 수 있게 만드는 데 쓰입니다.
       </p>
-      <RouterLink to="/contact" class="inline-flex items-center justify-center bg-white text-orange-600 font-bold rounded-full px-6 py-2.5 text-sm shadow-btn hover:bg-orange-50 transition-colors">문의하기</RouterLink>
+      <RouterLink to="/contact" class="inline-flex items-center justify-center bg-white text-amber-600 font-bold rounded-full px-6 py-2.5 text-sm shadow-btn hover:bg-amber-50 transition-colors">문의하기</RouterLink>
     </section>
 
     <!-- 운영 정보 -->

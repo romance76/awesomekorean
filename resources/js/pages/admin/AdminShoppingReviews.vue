@@ -5,7 +5,7 @@
   <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="group" aria-label="리뷰 상태">
     <button v-for="t in tabs" :key="t.key" @click="status = t.key; page = 1; load()" :aria-pressed="status === t.key"
       class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px]" :class="status === t.key ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'">
-      {{ t.label }}<span v-if="counts[t.key]" class="ml-1.5 bg-rose-500 text-white rounded-full px-1.5 text-[12px]">{{ counts[t.key] }}</span></button>
+      {{ t.label }}<span v-if="counts[t.key]" class="ml-1.5 bg-amber-500 text-white rounded-full px-1.5 text-[12px]">{{ counts[t.key] }}</span></button>
   </div>
   <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
   <div v-else-if="!items.length" class="text-center py-12 text-ink-muted text-[15px]">해당하는 리뷰가 없어요.</div>
@@ -70,7 +70,7 @@
     <button v-for="t in tabs" :key="t.key" @click="status = t.key; page = 1; load()"
       class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors"
       :class="status === t.key ? 'bg-ink text-white border-ink' : 'bg-white text-ink-light border-gray-200'">
-      {{ t.label }}<span v-if="counts[t.key]" class="ml-1 bg-rose-500 text-white rounded-full px-1.5">{{ counts[t.key] }}</span>
+      {{ t.label }}<span v-if="counts[t.key]" class="ml-1 bg-amber-500 text-white rounded-full px-1.5">{{ counts[t.key] }}</span>
     </button>
   </div>
 

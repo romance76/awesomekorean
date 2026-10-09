@@ -28,7 +28,7 @@
       <option value="">전체 카테고리</option>
       <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
     </select>
-    <button @click="openCreate" class="w-full min-h-[52px] rounded-xl bg-orange-500 text-white text-[16px] font-bold">➕ 상품 등록</button>
+    <button @click="openCreate" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold">➕ 상품 등록</button>
     <div v-if="!products.length" class="text-center py-12 text-ink-muted text-[15px]">등록된 상품이 없어요.</div>
     <div v-for="product in products" :key="product.id" class="bg-white border border-gray-100 rounded-2xl p-3.5" :class="product.is_active ? '' : 'opacity-70'">
       <div class="flex gap-3">
@@ -160,7 +160,7 @@
       </div>
       <div class="shrink-0 grid grid-cols-3 gap-2 px-4 pt-3 border-t border-gray-100" :style="{ paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))' }">
         <button @click="editing = null" class="min-h-[52px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
-        <button @click="save" :disabled="saving || !editing.title?.trim() || (isNew && !editing.input?.trim())" class="col-span-2 min-h-[52px] rounded-xl bg-orange-500 text-white text-[16px] font-bold disabled:opacity-40">{{ saving ? '저장 중...' : '저장' }}</button>
+        <button @click="save" :disabled="saving || !editing.title?.trim() || (isNew && !editing.input?.trim())" class="col-span-2 min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ saving ? '저장 중...' : '저장' }}</button>
       </div>
     </div>
 
@@ -190,7 +190,7 @@
       </h1>
       <p class="text-xs text-ink-faint mt-0.5">Amazon Associates 제휴 상품을 등록/관리합니다 · 태그: {{ associateTag || 'awesomekorean-20' }}</p>
     </div>
-    <button @click="openCreate" class="inline-flex items-center gap-1.5 bg-orange-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-orange-600 transition-colors">
+    <button @click="openCreate" class="inline-flex items-center gap-1.5 bg-amber-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-amber-600 transition-colors">
       ➕ 상품 등록
     </button>
   </div>
@@ -288,7 +288,7 @@
 
       <div class="flex justify-center gap-2 mt-4" v-if="lastPage > 1">
         <button v-for="p in lastPage" :key="p" @click="load(p)"
-          class="w-8 h-8 rounded-lg text-sm" :class="p === page ? 'bg-orange-500 text-white' : 'bg-surface text-ink-light'">{{ p }}</button>
+          class="w-8 h-8 rounded-lg text-sm" :class="p === page ? 'bg-amber-500 text-white' : 'bg-surface text-ink-light'">{{ p }}</button>
       </div>
     </div>
 
@@ -410,7 +410,7 @@
       </div>
       <div class="flex justify-end gap-2 mt-4">
         <button @click="editing=null" class="px-4 py-2 rounded-lg bg-surface text-sm">취소</button>
-        <button @click="save" :disabled="saving" class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold disabled:opacity-50">{{ saving ? '저장 중...' : '저장' }}</button>
+        <button @click="save" :disabled="saving" class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold disabled:opacity-50">{{ saving ? '저장 중...' : '저장' }}</button>
       </div>
     </div>
   </div>

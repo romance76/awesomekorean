@@ -11,9 +11,9 @@
 
   <template v-else-if="cfg">
     <!-- 전체 켜기 / 기간 -->
-    <div class="bg-white border-2 rounded-2xl p-3.5 space-y-3" :class="cfg.enabled ? 'border-rose-300' : 'border-gray-100'">
+    <div class="bg-white border-2 rounded-2xl p-3.5 space-y-3" :class="cfg.enabled ? 'border-amber-300' : 'border-gray-100'">
       <div class="flex items-center gap-3 min-h-[44px]"><div class="flex-1 min-w-0"><div class="text-[17px] font-bold text-ink">오픈 이벤트 사용</div><div class="text-[13px] text-ink-muted">{{ cfg.enabled ? '켜짐 — 기간 안에 자동 적용돼요' : '꺼짐 — 아무것도 바뀌지 않아요' }}</div></div>
-        <button type="button" role="switch" :aria-checked="!!cfg.enabled" @click="cfg.enabled = !cfg.enabled" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.enabled ? 'bg-rose-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.enabled ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
+        <button type="button" role="switch" :aria-checked="!!cfg.enabled" @click="cfg.enabled = !cfg.enabled" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.enabled ? 'bg-amber-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.enabled ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
       <div class="grid grid-cols-2 gap-2">
         <label class="block"><span class="block text-[12px] text-ink-muted mb-1">시작일 (00:00부터)</span><input type="date" v-model="cfg.starts_on" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
         <label class="block"><span class="block text-[12px] text-ink-muted mb-1">종료일 (23:59까지)</span><input type="date" v-model="cfg.ends_on" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
@@ -23,34 +23,34 @@
 
     <!-- 적용 항목 -->
     <div class="text-[14px] font-bold text-ink-muted px-0.5 pt-1">적용할 항목</div>
-    <div class="bg-white border rounded-2xl p-3.5" :class="cfg.earn.on ? 'border-rose-200' : 'border-gray-100'">
+    <div class="bg-white border rounded-2xl p-3.5" :class="cfg.earn.on ? 'border-amber-200' : 'border-gray-100'">
       <div class="flex items-center gap-3 min-h-[44px]"><div class="flex-1 min-w-0"><div class="text-[16px] font-bold text-ink">포인트 적립 배수</div><div class="text-[12px] text-ink-muted leading-snug">글쓰기·댓글·출석·가입 보너스 등 "받는 포인트"를 곱해요</div></div>
-        <button type="button" role="switch" :aria-checked="!!cfg.earn.on" @click="cfg.earn.on = !cfg.earn.on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.earn.on ? 'bg-rose-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.earn.on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
+        <button type="button" role="switch" :aria-checked="!!cfg.earn.on" @click="cfg.earn.on = !cfg.earn.on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.earn.on ? 'bg-amber-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.earn.on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
       <div v-if="cfg.earn.on" class="flex items-center gap-2 mt-2">
         <button type="button" @click="cfg.earn.multiplier = Math.max(1, (cfg.earn.multiplier || 1) - 1)" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold" aria-label="배수 줄이기">−</button>
-        <span class="flex-1 text-center text-[22px] font-black tabular-nums text-rose-600">{{ cfg.earn.multiplier }}배</span>
+        <span class="flex-1 text-center text-[22px] font-black tabular-nums text-amber-600">{{ cfg.earn.multiplier }}배</span>
         <button type="button" @click="cfg.earn.multiplier = Math.min(10, (cfg.earn.multiplier || 1) + 1)" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold" aria-label="배수 늘리기">+</button>
       </div>
     </div>
 
-    <div v-for="m in meta" :key="m.key" class="bg-white border rounded-2xl p-3.5" :class="cfg.items[m.key].on ? 'border-rose-200' : 'border-gray-100'">
+    <div v-for="m in meta" :key="m.key" class="bg-white border rounded-2xl p-3.5" :class="cfg.items[m.key].on ? 'border-amber-200' : 'border-gray-100'">
       <div class="flex items-center gap-3 min-h-[44px]"><div class="flex-1 min-w-0"><div class="text-[16px] font-bold text-ink">{{ m.label }}</div><div class="text-[12px] text-ink-muted leading-snug">{{ hints[m.key] }}</div></div>
-        <button type="button" role="switch" :aria-checked="!!cfg.items[m.key].on" @click="cfg.items[m.key].on = !cfg.items[m.key].on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.items[m.key].on ? 'bg-rose-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.items[m.key].on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
+        <button type="button" role="switch" :aria-checked="!!cfg.items[m.key].on" @click="cfg.items[m.key].on = !cfg.items[m.key].on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.items[m.key].on ? 'bg-amber-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.items[m.key].on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
       <div v-if="cfg.items[m.key].on" class="mt-2 space-y-2">
-        <div class="flex gap-2"><button v-for="pr in presets(m.key)" :key="pr" type="button" @click="cfg.items[m.key].pct = pr" class="flex-1 min-h-[44px] rounded-xl border text-[15px] font-bold" :class="cfg.items[m.key].pct === pr ? 'bg-rose-500 text-white border-rose-500' : 'bg-white text-ink border-gray-200'">{{ pr === 100 ? '무료' : pr + '%' }}</button></div>
+        <div class="flex gap-2"><button v-for="pr in presets(m.key)" :key="pr" type="button" @click="cfg.items[m.key].pct = pr" class="flex-1 min-h-[44px] rounded-xl border text-[15px] font-bold" :class="cfg.items[m.key].pct === pr ? 'bg-amber-500 text-white border-amber-500' : 'bg-white text-ink border-gray-200'">{{ pr === 100 ? '무료' : pr + '%' }}</button></div>
         <label class="flex items-center gap-2"><input type="number" inputmode="numeric" min="0" :max="m.key === 'flyer_usd' ? 95 : 100" v-model.number="cfg.items[m.key].pct" class="flex-1 min-h-[48px] rounded-xl border border-gray-200 px-3 text-right tabular-nums" aria-label="할인율" /><span class="text-[14px] text-ink-muted">% 할인</span></label>
       </div>
     </div>
 
-    <div class="bg-white border rounded-2xl p-3.5" :class="cfg.photos.on ? 'border-rose-200' : 'border-gray-100'">
+    <div class="bg-white border rounded-2xl p-3.5" :class="cfg.photos.on ? 'border-amber-200' : 'border-gray-100'">
       <div class="flex items-center gap-3 min-h-[44px]"><div class="flex-1 min-w-0"><div class="text-[16px] font-bold text-ink">장터·부동산 무료 사진 장수</div><div class="text-[12px] text-ink-muted leading-snug">기존 무료 장수보다 많을 때만 늘어나요 (등록 자체는 원래 무료)</div></div>
-        <button type="button" role="switch" :aria-checked="!!cfg.photos.on" @click="cfg.photos.on = !cfg.photos.on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.photos.on ? 'bg-rose-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.photos.on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
+        <button type="button" role="switch" :aria-checked="!!cfg.photos.on" @click="cfg.photos.on = !cfg.photos.on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.photos.on ? 'bg-amber-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.photos.on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
       <label v-if="cfg.photos.on" class="flex items-center gap-2 mt-2"><input type="number" inputmode="numeric" min="0" max="30" v-model.number="cfg.photos.count" class="flex-1 min-h-[48px] rounded-xl border border-gray-200 px-3 text-right tabular-nums" aria-label="무료 사진 장수" /><span class="text-[14px] text-ink-muted">장까지 무료</span></label>
     </div>
 
-    <div class="bg-white border rounded-2xl p-3.5" :class="cfg.purchase_bonus.on ? 'border-rose-200' : 'border-gray-100'">
+    <div class="bg-white border rounded-2xl p-3.5" :class="cfg.purchase_bonus.on ? 'border-amber-200' : 'border-gray-100'">
       <div class="flex items-center gap-3 min-h-[44px]"><div class="flex-1 min-w-0"><div class="text-[16px] font-bold text-ink">포인트 구매 추가 보너스</div><div class="text-[12px] text-ink-muted leading-snug">결제 금액 구간별 기존 보너스에 더해서 지급돼요</div></div>
-        <button type="button" role="switch" :aria-checked="!!cfg.purchase_bonus.on" @click="cfg.purchase_bonus.on = !cfg.purchase_bonus.on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.purchase_bonus.on ? 'bg-rose-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.purchase_bonus.on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
+        <button type="button" role="switch" :aria-checked="!!cfg.purchase_bonus.on" @click="cfg.purchase_bonus.on = !cfg.purchase_bonus.on" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="cfg.purchase_bonus.on ? 'bg-amber-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="cfg.purchase_bonus.on ? 'left-[26px]' : 'left-[4px]'"></span></button></div>
       <label v-if="cfg.purchase_bonus.on" class="flex items-center gap-2 mt-2"><span class="text-[14px] text-ink-muted">+</span><input type="number" inputmode="numeric" min="0" max="100" v-model.number="cfg.purchase_bonus.pct" class="flex-1 min-h-[48px] rounded-xl border border-gray-200 px-3 text-right tabular-nums" aria-label="추가 보너스 퍼센트" /><span class="text-[14px] text-ink-muted">%</span></label>
     </div>
     <p class="text-[12px] text-ink-faint px-0.5">달러 결제 할인은 최대 95%예요(0원 결제 방지). 최소 주문 금액은 이벤트 동안 50센트로 낮춰져요.</p>
@@ -60,7 +60,7 @@
       <div class="text-[16px] font-bold text-ink">사이트 상단 안내 문구</div>
       <input v-model="cfg.headline" maxlength="40" placeholder="제목" aria-label="제목" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
       <input v-model="cfg.subline" maxlength="100" placeholder="부제목" aria-label="부제목" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
-      <div v-if="perks.length" class="flex flex-wrap gap-1.5 pt-1"><span v-for="pk in perks" :key="pk" class="text-[12px] font-bold px-2.5 py-1 rounded-full bg-rose-50 text-rose-600">{{ pk }}</span></div>
+      <div v-if="perks.length" class="flex flex-wrap gap-1.5 pt-1"><span v-for="pk in perks" :key="pk" class="text-[12px] font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-600">{{ pk }}</span></div>
     </div>
 
     <!-- 미리보기 -->
@@ -71,14 +71,14 @@
         <div class="text-[13px] font-bold text-ink-muted mb-1">{{ g }}</div>
         <div v-for="r in rows" :key="r.label" class="border-t border-gray-100 py-2 text-[14px]">
           <div class="text-ink">{{ r.label }}</div>
-          <div class="flex items-center gap-2 text-[13px]"><span class="text-ink-muted">{{ r.original }}</span><span class="text-ink-faint">→</span><b :class="r.original !== r.event ? 'text-rose-600' : 'text-ink-muted'">{{ r.event }}</b></div>
+          <div class="flex items-center gap-2 text-[13px]"><span class="text-ink-muted">{{ r.original }}</span><span class="text-ink-faint">→</span><b :class="r.original !== r.event ? 'text-amber-600' : 'text-ink-muted'">{{ r.event }}</b></div>
         </div>
       </div>
     </div>
 
     <!-- 하단 고정 저장 -->
     <div class="fixed inset-x-0 z-30 px-3.5" :style="{ bottom: 'calc(70px + env(safe-area-inset-bottom, 0px))' }">
-      <button @click="askSave" :disabled="saving" class="w-full min-h-[54px] rounded-2xl text-white text-[17px] font-bold shadow-lg disabled:opacity-50" :class="cfg.enabled ? 'bg-rose-500' : 'bg-ink'">{{ saving ? '저장 중...' : (cfg.enabled ? '적용하기' : '저장 (꺼짐 상태)') }}</button>
+      <button @click="askSave" :disabled="saving" class="w-full min-h-[54px] rounded-2xl text-white text-[17px] font-bold shadow-lg disabled:opacity-50" :class="cfg.enabled ? 'bg-amber-500' : 'bg-ink'">{{ saving ? '저장 중...' : (cfg.enabled ? '적용하기' : '저장 (꺼짐 상태)') }}</button>
     </div>
   </template>
 
@@ -93,7 +93,7 @@
           <div v-if="cfg?.earn.on" class="flex justify-between gap-3"><span class="text-ink-muted">포인트 적립</span><b>{{ cfg.earn.multiplier }}배</b></div>
         </div>
         <p class="text-[13px] text-ink-muted mb-3">저장하면 사이트 전체에 1분 안에 반영돼요.</p>
-        <button @click="doSave" :disabled="saving" class="w-full min-h-[52px] rounded-xl bg-rose-500 text-white text-[16px] font-bold disabled:opacity-50">{{ saving ? '저장 중...' : (cfg?.enabled ? '적용하기' : '저장하기') }}</button>
+        <button @click="doSave" :disabled="saving" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-50">{{ saving ? '저장 중...' : (cfg?.enabled ? '적용하기' : '저장하기') }}</button>
         <button @click="confirmSave = false" :disabled="saving" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
       </div>
     </div>
@@ -105,7 +105,7 @@
   <div class="mb-4">
     <div class="text-xs text-ink-muted">관리자 › 광고/가격 › 오픈 이벤트</div>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
-      <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="gift" :size="20" /></span>
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="gift" :size="20" /></span>
       오픈 이벤트
       <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="stateChip.cls">{{ stateChip.text }}</span>
     </h1>
@@ -122,7 +122,7 @@
     <div class="card p-4 mb-3">
       <div class="flex items-center justify-between gap-3 flex-wrap">
         <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" v-model="cfg.enabled" class="w-5 h-5 accent-rose-500" />
+          <input type="checkbox" v-model="cfg.enabled" class="w-5 h-5 accent-amber-500" />
           <span class="font-bold text-ink">오픈 이벤트 사용</span>
         </label>
         <button @click="loadRecommended" class="text-xs font-bold text-blue-600 hover:underline">추천 설정 불러오기 (10/15 ~ 11/30)</button>
@@ -143,7 +143,7 @@
       <div class="font-bold text-ink mb-2">적용할 항목 선택</div>
       <div class="divide-y divide-gray-100">
         <div class="py-2.5 flex items-center gap-3 flex-wrap">
-          <input type="checkbox" v-model="cfg.earn.on" class="w-4 h-4 accent-rose-500" />
+          <input type="checkbox" v-model="cfg.earn.on" class="w-4 h-4 accent-amber-500" />
           <div class="flex-1 min-w-[180px]">
             <div class="text-sm font-bold text-ink">포인트 적립 · 가입 보너스 배수</div>
             <div class="text-[11px] text-ink-muted">글쓰기·댓글·출석·가입 보너스 등 "받는 포인트"를 곱해요. (하루 횟수 한도는 그대로)</div>
@@ -154,21 +154,21 @@
         </div>
 
         <div v-for="m in meta" :key="m.key" class="py-2.5 flex items-center gap-3 flex-wrap">
-          <input type="checkbox" v-model="cfg.items[m.key].on" class="w-4 h-4 accent-rose-500" />
+          <input type="checkbox" v-model="cfg.items[m.key].on" class="w-4 h-4 accent-amber-500" />
           <div class="flex-1 min-w-[180px]">
             <div class="text-sm font-bold text-ink">{{ m.label }}</div>
             <div class="text-[11px] text-ink-muted">{{ hints[m.key] }}</div>
           </div>
           <div class="flex items-center gap-1" :class="!cfg.items[m.key].on ? 'opacity-40' : ''">
             <button v-for="p in presets(m.key)" :key="p" type="button" @click="cfg.items[m.key].pct = p" :disabled="!cfg.items[m.key].on"
-              class="text-[11px] font-bold px-2 py-1 rounded-md" :class="cfg.items[m.key].pct === p ? 'bg-rose-500 text-white' : 'bg-gray-100 text-ink-muted hover:bg-gray-200'">{{ p === 100 ? '무료' : p + '%' }}</button>
+              class="text-[11px] font-bold px-2 py-1 rounded-md" :class="cfg.items[m.key].pct === p ? 'bg-amber-500 text-white' : 'bg-gray-100 text-ink-muted hover:bg-gray-200'">{{ p === 100 ? '무료' : p + '%' }}</button>
             <input type="number" min="0" :max="m.key === 'flyer_usd' ? 95 : 100" v-model.number="cfg.items[m.key].pct" :disabled="!cfg.items[m.key].on" class="input-soft !w-16 !px-2 !py-1 text-sm text-right" />
             <span class="text-xs text-ink-muted">% 할인</span>
           </div>
         </div>
 
         <div class="py-2.5 flex items-center gap-3 flex-wrap">
-          <input type="checkbox" v-model="cfg.photos.on" class="w-4 h-4 accent-rose-500" />
+          <input type="checkbox" v-model="cfg.photos.on" class="w-4 h-4 accent-amber-500" />
           <div class="flex-1 min-w-[180px]">
             <div class="text-sm font-bold text-ink">장터·부동산 무료 사진 장수</div>
             <div class="text-[11px] text-ink-muted">기존 무료 장수보다 많을 때만 늘어나요. (등록 자체는 원래 무료)</div>
@@ -180,7 +180,7 @@
         </div>
 
         <div class="py-2.5 flex items-center gap-3 flex-wrap">
-          <input type="checkbox" v-model="cfg.purchase_bonus.on" class="w-4 h-4 accent-rose-500" />
+          <input type="checkbox" v-model="cfg.purchase_bonus.on" class="w-4 h-4 accent-amber-500" />
           <div class="flex-1 min-w-[180px]">
             <div class="text-sm font-bold text-ink">포인트 구매 추가 보너스</div>
             <div class="text-[11px] text-ink-muted">결제 금액 구간별 기존 보너스에 더해서 지급돼요.</div>
@@ -203,7 +203,7 @@
         <input v-model="cfg.subline" maxlength="100" placeholder="부제목" class="input-soft w-full" />
       </div>
       <div v-if="perks.length" class="flex flex-wrap gap-1.5 mt-3">
-        <span v-for="p in perks" :key="p" class="text-[11px] font-bold px-2 py-1 rounded-full bg-rose-50 text-rose-600">{{ p }}</span>
+        <span v-for="p in perks" :key="p" class="text-[11px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-600">{{ p }}</span>
       </div>
     </div>
 
@@ -226,7 +226,7 @@
                 <td class="py-1.5 pr-2 text-ink">{{ r.label }}</td>
                 <td class="py-1.5 pr-2 text-ink-muted whitespace-nowrap text-right">{{ r.original }}</td>
                 <td class="py-1.5 px-1 text-ink-faint">→</td>
-                <td class="py-1.5 font-bold whitespace-nowrap text-right" :class="r.original !== r.event ? 'text-rose-600' : 'text-ink-muted'">{{ r.event }}</td>
+                <td class="py-1.5 font-bold whitespace-nowrap text-right" :class="r.original !== r.event ? 'text-amber-600' : 'text-ink-muted'">{{ r.event }}</td>
               </tr>
             </tbody>
           </table>

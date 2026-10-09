@@ -4,7 +4,7 @@
     <DetailHeader :title="recipe?.title || '레시피'" fallback="/recipes" />
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="20" /></span>
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="utensils" :size="20" /></span>
         레시피
       </h1>
       <button @click="$router.push('/recipes')" class="text-sm text-ink-muted hover:text-amber-600 transition-colors inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="14" />레시피 목록</button>
@@ -14,7 +14,7 @@
       <!-- 왼쪽: 카테고리 -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="card overflow-hidden sticky top-20">
-          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-orange-600" />분류</div>
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-amber-600" />분류</div>
           <RouterLink to="/recipes"
             class="block w-full text-left px-3 py-2 text-xs text-ink-light hover:bg-amber-50/50 transition-colors">
             전체
@@ -37,7 +37,7 @@
 
         <div v-else-if="recipe" class="card overflow-hidden">
           <!-- 히어로 이미지 -->
-          <div class="relative h-56 sm:h-72 bg-gradient-to-br from-amber-100 to-orange-100 overflow-hidden">
+          <div class="relative h-56 sm:h-72 bg-gradient-to-br from-amber-100 to-amber-100 overflow-hidden">
             <img v-if="recipe.thumbnail" :src="recipe.thumbnail" :alt="recipe.title"
               class="w-full h-full object-cover"
               @error="$event.target.style.display='none'" />
@@ -120,7 +120,7 @@
 
           <!-- 조리 순서 (한영) -->
           <div v-if="recipe.steps && recipe.steps.length" class="px-5 py-4 border-b border-gray-50">
-            <h2 class="text-base font-bold text-ink mb-3 flex items-center gap-1.5"><AppIcon name="utensils" :size="16" class="text-orange-500" />조리 순서</h2>
+            <h2 class="text-base font-bold text-ink mb-3 flex items-center gap-1.5"><AppIcon name="utensils" :size="16" class="text-amber-500" />조리 순서</h2>
             <div class="space-y-4">
               <div v-for="step in recipe.steps" :key="step.order" class="flex gap-3">
                 <div class="flex-shrink-0 w-7 h-7 rounded-full bg-amber-400 text-white font-bold text-xs flex items-center justify-center">

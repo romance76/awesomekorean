@@ -336,8 +336,8 @@
         <button @click="kickFromRoom" class="w-full flex items-center gap-2 px-4 py-2.5 bg-yellow-100 text-yellow-800 font-bold rounded-xl hover:bg-yellow-200 text-sm text-left transition-colors">
           <AppIcon name="log-out" :size="15" /> 이 방에서 강퇴 <span class="text-[11px] font-normal text-yellow-600">(재입장 가능)</span>
         </button>
-        <button @click="banFromRoom" class="w-full flex items-center gap-2 px-4 py-2.5 bg-orange-100 text-orange-800 font-bold rounded-xl hover:bg-orange-200 text-sm text-left transition-colors">
-          <AppIcon name="shield" :size="15" /> 이 방 차단 <span class="text-[11px] font-normal text-orange-600">(재입장 불가)</span>
+        <button @click="banFromRoom" class="w-full flex items-center gap-2 px-4 py-2.5 bg-amber-100 text-amber-800 font-bold rounded-xl hover:bg-amber-200 text-sm text-left transition-colors">
+          <AppIcon name="shield" :size="15" /> 이 방 차단 <span class="text-[11px] font-normal text-amber-600">(재입장 불가)</span>
         </button>
         <button @click="permaBanUser" class="w-full flex items-center gap-2 px-4 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 text-sm text-left transition-colors">
           <AppIcon name="alert-circle" :size="15" /> 영구제명 <span class="text-[11px] font-normal text-red-100">(사이트 전체 차단)</span>

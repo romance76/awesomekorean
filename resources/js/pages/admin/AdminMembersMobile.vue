@@ -76,7 +76,7 @@
         </div>
         <div class="text-[13px] text-ink-muted leading-relaxed">
           가입 {{ fmtDate(d.user.created_at) }} · 최근 로그인 {{ fmtDate(d.user.last_login_at) || '없음' }} · 로그인 {{ d.user.login_count || 0 }}회<br>
-          누적 획득 <span class="text-emerald-600 font-bold">+{{ Number(d.summary?.total_points_earned || 0).toLocaleString() }}P</span> · 누적 사용 <span class="text-rose-600 font-bold">-{{ Number(d.summary?.total_points_spent || 0).toLocaleString() }}P</span> · 활성 광고 {{ d.summary?.ads_active || 0 }}건
+          누적 획득 <span class="text-emerald-600 font-bold">+{{ Number(d.summary?.total_points_earned || 0).toLocaleString() }}P</span> · 누적 사용 <span class="text-amber-600 font-bold">-{{ Number(d.summary?.total_points_spent || 0).toLocaleString() }}P</span> · 활성 광고 {{ d.summary?.ads_active || 0 }}건
         </div>
       </div>
 

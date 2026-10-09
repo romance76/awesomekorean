@@ -379,7 +379,7 @@ function typeClass(t) {
   return {
     full: 'bg-blue-100 text-blue-700',
     part: 'bg-green-100 text-green-700',
-    contract: 'bg-orange-100 text-orange-700',
+    contract: 'bg-amber-100 text-amber-700',
   }[t] || 'bg-gray-100 text-gray-700'
 }
 

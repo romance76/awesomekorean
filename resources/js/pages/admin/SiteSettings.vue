@@ -1001,7 +1001,7 @@
       <!-- Firebase Cloud Messaging 설정 -->
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-orange-50 text-orange-500"><AppIcon name="bell" :size="16" /></span>Firebase Push Notification</h3>
+          <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-500"><AppIcon name="bell" :size="16" /></span>Firebase Push Notification</h3>
           <span :class="firebaseStatus ? 'badge-green' : 'badge-primary'">
             {{ firebaseStatus ? '연결됨' : '미설정' }}
           </span>
@@ -1095,7 +1095,7 @@
             </div>
             <div class="flex gap-2">
               <button @click="openEditApiKey(key)" class="text-xs text-blue-600 hover:underline">수정</button>
-              <button @click="toggleApiKeyActive(key)" :class="key.is_active ? 'text-orange-600' : 'text-green-600'" class="text-xs hover:underline">{{ key.is_active ? '비활성화' : '활성화' }}</button>
+              <button @click="toggleApiKeyActive(key)" :class="key.is_active ? 'text-amber-600' : 'text-green-600'" class="text-xs hover:underline">{{ key.is_active ? '비활성화' : '활성화' }}</button>
               <button @click="deleteApiKey(key.id)" class="text-xs text-red-600 hover:underline">삭제</button>
             </div>
           </div>

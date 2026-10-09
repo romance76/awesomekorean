@@ -5,7 +5,7 @@
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal">
         <!-- 헤더 -->
-        <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] px-5 py-3">
+        <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] px-5 py-3">
           <div class="text-sm font-black text-white">{{ title || defaultTitle }}</div>
         </div>
         <!-- 본문 -->

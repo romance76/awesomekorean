@@ -5,7 +5,7 @@
     <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
       <div>
         <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-          <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600 text-base font-black">N</span>
+          <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 text-base font-black">N</span>
           NEW <span class="text-sm font-semibold text-ink-muted">신장개업 · 폐업정리 · 우리 동네 새 소식</span>
         </h1>
       </div>
@@ -27,18 +27,18 @@
     <template v-else>
       <!-- 지금 방송 중 (상단 전단) -->
       <section class="mb-8">
-        <div v-if="featured" class="card overflow-hidden border-2 border-rose-200">
-          <div class="px-4 py-2.5 bg-rose-50 flex items-center gap-2 flex-wrap">
-            <span class="inline-flex items-center gap-1 text-xs font-black text-white bg-rose-500 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>지금 방송 중</span>
-            <span class="text-xs font-bold text-rose-700">{{ fmtHour(featured.live_hour) }} ~ {{ fmtHour(featured.live_hour + 1) }}</span>
-            <span v-if="featured.source === 'national' && scope === 'state'" class="text-[11px] text-rose-600">· 이 시간 우리 지역 광고가 없어 전국 광고를 보여드려요</span>
+        <div v-if="featured" class="card overflow-hidden border-2 border-amber-200">
+          <div class="px-4 py-2.5 bg-amber-50 flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1 text-xs font-black text-white bg-amber-500 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>지금 방송 중</span>
+            <span class="text-xs font-bold text-amber-700">{{ fmtHour(featured.live_hour) }} ~ {{ fmtHour(featured.live_hour + 1) }}</span>
+            <span v-if="featured.source === 'national' && scope === 'state'" class="text-[11px] text-amber-600">· 이 시간 우리 지역 광고가 없어 전국 광고를 보여드려요</span>
           </div>
           <RouterLink :to="`/new/${featured.id}`" class="block bg-gray-50">
             <img :src="featured.image_url" :alt="featured.title" class="w-full max-h-[78vh] object-contain mx-auto" />
           </RouterLink>
           <div class="px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
             <div class="min-w-0">
-              <div class="text-xs font-bold text-rose-600 mb-0.5">{{ kindLabel(featured.kind) }}</div>
+              <div class="text-xs font-bold text-amber-600 mb-0.5">{{ kindLabel(featured.kind) }}</div>
               <div class="font-bold text-ink truncate">{{ featured.title }}</div>
               <div v-if="featured.description" class="text-xs text-ink-muted mt-0.5 line-clamp-2">{{ featured.description }}</div>
             </div>
@@ -54,7 +54,7 @@
           <div class="text-3xl mb-2">📣</div>
           <div class="font-bold text-ink">지금 이 시간 광고 자리가 비어 있어요</div>
           <p class="text-xs text-ink-muted mt-1">새로 문 연 가게, 폐업 정리 세일 소식이 이 자리에 나와요.</p>
-          <RouterLink to="/dashboard?tab=flyer" class="inline-block text-[11px] text-ink-faint underline mt-3 hover:text-rose-600">광고 신청: 마이페이지 → NEW 전면광고 신청</RouterLink>
+          <RouterLink to="/dashboard?tab=flyer" class="inline-block text-[11px] text-ink-faint underline mt-3 hover:text-amber-600">광고 신청: 마이페이지 → NEW 전면광고 신청</RouterLink>
         </div>
       </section>
     </template>

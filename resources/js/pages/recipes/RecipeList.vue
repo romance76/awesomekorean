@@ -5,7 +5,7 @@
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
         <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
-          <span class="icon-chip w-8 h-8 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="17" /></span>
+          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="utensils" :size="17" /></span>
           레시피
         </h1>
         <div class="flex items-center gap-2">
@@ -63,7 +63,7 @@
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-orange-50 text-orange-600"><AppIcon name="utensils" :size="20" /></span>
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="utensils" :size="20" /></span>
         레시피
       </h1>
       <div class="flex items-center gap-2 flex-wrap">
@@ -80,7 +80,7 @@
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
         <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
           <div class="card overflow-hidden">
-            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-orange-600" />분류</div>
+            <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-amber-600" />분류</div>
             <button @click="selectCategory('', false)"
               class="w-full text-left px-3 py-2 text-xs transition-colors"
               :class="!showFavorites && activeCat === '' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">

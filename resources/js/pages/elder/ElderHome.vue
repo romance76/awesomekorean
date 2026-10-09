@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <!-- 히어로 -->
-  <div class="bg-gradient-to-br from-[#FF8A4D] via-[#FF6B2C] to-[#F0266B] text-white">
+  <div class="bg-gradient-to-br from-[#FF8A4D] via-[#FC226B] to-[#FC226B] text-white">
     <div class="max-w-5xl mx-auto px-4 py-16 text-center">
       <div class="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-bold mb-4"><AppIcon name="shield" :size="16" />AwesomeKorean 안심서비스</div>
       <h1 class="text-3xl md:text-4xl font-black leading-tight">소중한 분의 안전을<br/>전화 한 통으로 확인합니다</h1>
@@ -131,7 +131,7 @@
 
     <!-- CTA -->
     <div class="py-12 border-t border-gray-100 text-center">
-      <div class="bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-2xl p-8 text-white">
+      <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-8 text-white">
         <h2 class="text-2xl font-black">지금 바로 시작하세요</h2>
         <p class="text-white/90 text-sm mt-2">대시보드에서 보호대상 등록과 전화 스케줄을 설정할 수 있습니다</p>
         <RouterLink :to="auth.isLoggedIn ? '/dashboard?tab=elder' : '/login?redirect=/dashboard?tab=elder'"

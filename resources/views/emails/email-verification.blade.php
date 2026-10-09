@@ -10,12 +10,12 @@
   .header { background:#ffffff; padding:28px 32px 20px; text-align:center; border-bottom:1px solid #f3f3f3; }
   .body { padding:32px; }
   .body p { font-size:14px; line-height:1.7; color:#444; margin:0 0 16px; }
-  .btn { display:inline-block; background:linear-gradient(135deg,#FF8A4D,#F0266B); color:#fff !important; padding:13px 28px; border-radius:999px; text-decoration:none; font-weight:700; font-size:14px; margin:8px 0 20px; }
+  .btn { display:inline-block; background:linear-gradient(135deg,#FF8A4D,#FC226B); color:#fff !important; padding:13px 28px; border-radius:999px; text-decoration:none; font-weight:700; font-size:14px; margin:8px 0 20px; }
   .expiry { font-size:13px; color:#b45309; background:#fffbeb; border-radius:8px; padding:10px 14px; margin:20px 0; }
   .divider { border:none; border-top:1px solid #eee; margin:24px 0; }
   .security { font-size:13px; color:#888; line-height:1.7; }
   .footer { text-align:center; padding:20px 32px 28px; font-size:12px; color:#aaa; }
-  .footer a { color:#F0266B; text-decoration:none; }
+  .footer a { color:#FC226B; text-decoration:none; }
 </style>
 </head>
 <body>

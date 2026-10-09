@@ -39,7 +39,7 @@
       <div class="flex-1 min-w-0 text-sm">
         <div class="flex items-center gap-1.5 flex-wrap">
           <span class="text-[11px] font-bold px-1.5 py-0.5 rounded border" :class="ST[r.status]?.cls">{{ ST[r.status]?.text || r.status }}</span>
-          <span v-if="r.is_hot" class="bg-rose-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black">🔥 이번주 HOT</span>
+          <span v-if="r.is_hot" class="bg-amber-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black">🔥 이번주 HOT</span>
         </div>
         <RouterLink :to="`/shopping/${r.id}`" class="block font-semibold text-ink truncate mt-1">{{ r.title }}</RouterLink>
         <div class="text-[11px] text-ink-muted mt-1 flex flex-wrap gap-x-3 gap-y-0.5">

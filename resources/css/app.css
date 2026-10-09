@@ -5,8 +5,8 @@
 @layer base {
     :root {
         /* Warm Modern v2 디자인 토큰 (2026-06, Kay 샘플 v1.0 기반) */
-        --color-primary: #FF5A1F;
-        --color-primary-dark: #F24A0E;
+        --color-primary: #FC226B;
+        --color-primary-dark: #E0145A;
         --color-surface: #F8F6F3;
         --color-ink: #1B1613;
         --color-line: #EDE8E2;
@@ -56,7 +56,7 @@
         border-radius: 3px;
     }
     *::-webkit-scrollbar-thumb:hover {
-        background: #FF5A1F;
+        background: #FC226B;
     }
     /* 숨김 스크롤바 유틸리티 */
     .scrollbar-hide {
@@ -87,7 +87,7 @@
     /* ─── 공용 버튼: 알약형 + 브랜드 그라데이션 ─── */
     .btn-primary {
         @apply inline-flex items-center justify-center gap-1.5 text-white font-bold rounded-full px-5 py-2.5 text-sm shadow-btn transition-all duration-150 hover:-translate-y-px hover:shadow-lift active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
-        background-image: linear-gradient(135deg, #FF7A30, #FF4D12);
+        background-image: linear-gradient(135deg, #FF8A4D, #FC226B);
     }
     .btn-secondary {
         @apply inline-flex items-center justify-center gap-1.5 bg-white text-ink-light font-semibold rounded-full px-5 py-2.5 text-sm border border-line shadow-card transition-all duration-150 hover:bg-surface hover:text-ink active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="info && !closed" class="bg-gradient-to-r from-rose-500 to-amber-500 text-white">
+  <div v-if="info && !closed" class="bg-gradient-to-r from-amber-500 to-amber-500 text-white">
     <div class="max-w-6xl mx-auto px-4 py-2 flex items-center gap-3">
       <div class="min-w-0 flex-1 text-xs sm:text-sm leading-snug">
         <span class="font-bold">🎉 {{ info.headline }}</span>

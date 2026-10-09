@@ -2,7 +2,7 @@
 <Teleport to="body">
   <!-- 음악 최소화 버튼 -->
   <div v-if="showMiniBtn && !isMobile"
-    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A4D] to-[#F0266B] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
+    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A4D] to-[#FC226B] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
     @click="expand">
     <span class="text-white"><AppIcon :name="music.isPlaying ? 'music' : 'play'" :size="22" :filled="!music.isPlaying" /></span>
   </div>
@@ -12,7 +12,7 @@
     class="fixed left-2 right-2 z-[9998] h-14 rounded-2xl bg-[#1a1a2e] text-white shadow-2xl flex items-center gap-2.5 px-2.5 overflow-hidden cursor-pointer"
     style="bottom: calc(64px + env(safe-area-inset-bottom))"
     @click="expand">
-    <div class="w-10 h-10 rounded-lg flex-shrink-0 bg-gradient-to-br from-[#FF8A4D] to-[#F0266B] overflow-hidden flex items-center justify-center">
+    <div class="w-10 h-10 rounded-lg flex-shrink-0 bg-gradient-to-br from-[#FF8A4D] to-[#FC226B] overflow-hidden flex items-center justify-center">
       <img v-if="music.currentTrack?.thumbnail" :src="music.currentTrack.thumbnail" class="w-full h-full object-cover" alt="" @error="$event.target.style.display='none'" />
       <span v-else class="text-white"><AppIcon name="music" :size="18" /></span>
     </div>
@@ -21,7 +21,7 @@
       <p class="text-[11px] text-gray-400 truncate">{{ music.currentTrack?.artist || '' }}</p>
     </div>
     <button @click.stop="doPrev" class="w-9 h-9 rounded-full text-gray-300 flex items-center justify-center"><AppIcon name="chevron-left" :size="18" /></button>
-    <button @click.stop="togglePlay" class="w-10 h-10 rounded-full bg-[#F0266B] text-white flex items-center justify-center">
+    <button @click.stop="togglePlay" class="w-10 h-10 rounded-full bg-[#FC226B] text-white flex items-center justify-center">
       <span v-if="music.isPlaying" class="flex items-center" style="gap:3px"><span class="block bg-white rounded-sm" style="width:3px;height:13px"></span><span class="block bg-white rounded-sm" style="width:3px;height:13px"></span></span>
       <AppIcon v-else name="play" :size="16" :filled="true" />
     </button>
@@ -37,7 +37,7 @@
 
     <!-- 헤더 -->
     <div @mousedown="!isMobile && startDrag($event)" @touchstart.passive="!isMobile && startDrag($event)"
-      class="px-3 flex items-center justify-between bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] select-none flex-shrink-0"
+      class="px-3 flex items-center justify-between bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] select-none flex-shrink-0"
       :class="isMobile ? 'py-3' : 'py-2 cursor-move'">
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-white/90"><AppIcon name="music" :size="14" /></span>
@@ -378,5 +378,5 @@ onUnmounted(() => { document.removeEventListener('visibilitychange', onVisibilit
 .animate-pulse-slow { animation: pulse-slow 2s infinite; }
 input[type="range"] { height: 4px; }
 .music-scroll::-webkit-scrollbar { width: 4px; }
-.music-scroll::-webkit-scrollbar-thumb { background: #FF6B2C; border-radius: 2px; }
+.music-scroll::-webkit-scrollbar-thumb { background: #FC226B; border-radius: 2px; }
 </style>

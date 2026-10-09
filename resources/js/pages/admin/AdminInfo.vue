@@ -6,12 +6,12 @@
     <div class="flex items-center gap-3">
       <div class="min-w-0 flex-1"><div class="text-[16px] font-bold text-ink">정보 글 자동 생성</div><div class="text-[13px] text-ink-muted">글 10개를 자동으로 만들어요 (수 분~1시간)</div></div>
     </div>
-    <div v-if="genStatus && genStatus.status === 'running'" class="bg-orange-50 border border-orange-200 rounded-xl p-3">
-      <div class="flex justify-between text-[13px] font-bold text-orange-700 mb-1.5"><span>진행 중...</span><span class="tabular-nums">{{ genStatus.completed || 0 }} / {{ genStatus.target || 10 }}</span></div>
-      <div class="h-2.5 bg-orange-100 rounded-full overflow-hidden"><div class="h-full bg-orange-500 transition-all" :style="{ width: progressPct + '%' }"></div></div>
+    <div v-if="genStatus && genStatus.status === 'running'" class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+      <div class="flex justify-between text-[13px] font-bold text-amber-700 mb-1.5"><span>진행 중...</span><span class="tabular-nums">{{ genStatus.completed || 0 }} / {{ genStatus.target || 10 }}</span></div>
+      <div class="h-2.5 bg-amber-100 rounded-full overflow-hidden"><div class="h-full bg-amber-500 transition-all" :style="{ width: progressPct + '%' }"></div></div>
     </div>
     <div v-else-if="genStatus && genStatus.status === 'done' && genStatus.message" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[13px] text-emerald-700 leading-relaxed break-words">✅ {{ genStatus.message }}</div>
-    <button @click="mSheet = { mode: 'gen' }" :disabled="generating" class="w-full min-h-[50px] rounded-xl bg-orange-500 text-white text-[16px] font-bold disabled:opacity-50">🚀 {{ generating ? '생성 중...' : '지금 자동 생성' }}</button>
+    <button @click="mSheet = { mode: 'gen' }" :disabled="generating" class="w-full min-h-[50px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-50">🚀 {{ generating ? '생성 중...' : '지금 자동 생성' }}</button>
   </div>
 
   <div class="flex gap-2 overflow-x-auto scrollbar-hide">
@@ -85,7 +85,7 @@
         <template v-else>
           <div class="text-[17px] font-bold text-ink mb-1">글 10개를 자동 생성할까요?</div>
           <p class="text-[15px] text-ink-light mb-3">보통 수 분~1시간 안에 처리돼요. 진행 상황은 이 화면에서 볼 수 있어요.</p>
-          <button @click="mGenerate" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-orange-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '시작 중...' : '시작하기' }}</button>
+          <button @click="mGenerate" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '시작 중...' : '시작하기' }}</button>
         </template>
         <button @click="closeSheet" :disabled="busy" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
       </div>
@@ -107,18 +107,18 @@
       <p class="text-xs text-ink-faint mt-0.5">자동 생성된 생활정보 글을 관리합니다</p>
     </div>
     <button @click="triggerGeneration" :disabled="generating"
-      class="inline-flex items-center gap-1.5 bg-orange-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-orange-600 transition-colors disabled:opacity-50">
+      class="inline-flex items-center gap-1.5 bg-amber-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-amber-600 transition-colors disabled:opacity-50">
       🚀 {{ generating ? '생성 중...' : '지금 자동 생성' }}
     </button>
   </div>
 
-  <div v-if="genStatus && genStatus.status === 'running'" class="mb-4 bg-orange-50 border border-orange-200 rounded-xl p-3">
-    <div class="flex justify-between text-xs font-semibold text-orange-700 mb-1.5">
+  <div v-if="genStatus && genStatus.status === 'running'" class="mb-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
+    <div class="flex justify-between text-xs font-semibold text-amber-700 mb-1.5">
       <span>자동 생성 진행 중...</span>
       <span>{{ genStatus.completed || 0 }} / {{ genStatus.target || 10 }}</span>
     </div>
-    <div class="h-2 bg-orange-100 rounded-full overflow-hidden">
-      <div class="h-full bg-orange-500 transition-all" :style="{ width: progressPct + '%' }"></div>
+    <div class="h-2 bg-amber-100 rounded-full overflow-hidden">
+      <div class="h-full bg-amber-500 transition-all" :style="{ width: progressPct + '%' }"></div>
     </div>
   </div>
   <div v-else-if="genStatus && genStatus.status === 'done' && genStatus.message" class="mb-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-700">
@@ -207,7 +207,7 @@
 
       <div class="flex justify-center gap-2 mt-4" v-if="lastPage > 1">
         <button v-for="p in lastPage" :key="p" @click="load(p)"
-          class="w-8 h-8 rounded-lg text-sm" :class="p === page ? 'bg-orange-500 text-white' : 'bg-surface text-ink-light'">{{ p }}</button>
+          class="w-8 h-8 rounded-lg text-sm" :class="p === page ? 'bg-amber-500 text-white' : 'bg-surface text-ink-light'">{{ p }}</button>
       </div>
     </div>
 
@@ -262,7 +262,7 @@
       </div>
       <div class="flex justify-end gap-2 mt-4">
         <button @click="editing=null" class="px-4 py-2 rounded-lg bg-surface text-sm">취소</button>
-        <button @click="save" class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold">저장</button>
+        <button @click="save" class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold">저장</button>
       </div>
     </div>
   </div>

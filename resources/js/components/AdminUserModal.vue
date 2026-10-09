@@ -258,7 +258,7 @@ function statusClass(s) {
     completed: 'bg-green-100 text-green-700',
     resolved:  'bg-green-100 text-green-700',
     pending:   'bg-yellow-100 text-yellow-700',
-    paused:    'bg-orange-100 text-orange-700',
+    paused:    'bg-amber-100 text-amber-700',
     rejected:  'bg-red-100 text-red-700',
     refunded:  'bg-red-100 text-red-700',
     cancelled: 'bg-gray-100 text-gray-500',

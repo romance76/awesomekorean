@@ -4,7 +4,7 @@
   <Transition name="ckp">
     <div v-if="show" class="fixed right-3 bottom-24 md:bottom-6 z-40 flex items-center gap-1 rounded-full bg-white shadow-lg border border-amber-200 pl-1.5 pr-1 py-1">
       <button @click="doCheckin" :disabled="busy"
-        class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[13px] font-bold px-3.5 py-2 disabled:opacity-60">
+        class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-white text-[13px] font-bold px-3.5 py-2 disabled:opacity-60">
         <AppIcon name="calendar" :size="15" />{{ busy ? '처리 중...' : `출석체크${required ? ` (${progress}/${required})` : ''}` }}
       </button>
       <button @click="dismiss" class="w-7 h-7 grid place-items-center text-ink-faint hover:text-ink rounded-full" title="오늘은 닫기">

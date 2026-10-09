@@ -30,7 +30,7 @@
       </div>
       <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
         <div class="text-[13px] text-ink-muted">달러 직접 결제</div>
-        <div class="text-[22px] font-black tabular-nums text-rose-600">{{ usd(sum.direct.net) }}</div>
+        <div class="text-[22px] font-black tabular-nums text-amber-600">{{ usd(sum.direct.net) }}</div>
         <div class="text-[12px] text-ink-faint">{{ sum.direct.count }}건</div>
       </div>
       <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-3">
@@ -54,21 +54,21 @@
         <div class="text-[15px] font-bold text-ink">일별 결제액</div>
         <div class="flex items-center gap-3 text-[12px] text-ink-muted">
           <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-blue-400 mr-1"></i>포인트 구매</span>
-          <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-rose-400 mr-1"></i>달러 직접 결제</span>
+          <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-amber-400 mr-1"></i>달러 직접 결제</span>
         </div>
       </div>
       <div class="overflow-x-auto scrollbar-hide">
         <div class="flex items-end gap-[2px] h-32 min-w-full" role="group" aria-label="일별 결제액 막대 그래프">
           <button v-for="d in sum.series" :key="d.date" type="button" @click="selDay = d.date" :aria-label="`${d.date} 포인트 ${usd(d.points)} 직접 ${usd(d.direct)}`"
             class="flex-1 min-w-[8px] h-full flex flex-col justify-end rounded-sm" :class="selDay === d.date ? 'bg-amber-100' : ''">
-            <span class="block bg-rose-400 rounded-t-[2px]" :style="{ height: barHm(d.direct) }"></span>
+            <span class="block bg-amber-400 rounded-t-[2px]" :style="{ height: barHm(d.direct) }"></span>
             <span class="block bg-blue-400" :style="{ height: barHm(d.points) }"></span>
           </button>
         </div>
       </div>
       <div class="flex justify-between text-[11px] text-ink-faint mt-1"><span>{{ sum.series[0].date }}</span><span>{{ sum.series[sum.series.length - 1].date }}</span></div>
       <div class="mt-2 rounded-xl bg-gray-50 px-3 py-2 text-[14px] min-h-[44px] flex items-center">
-        <template v-if="selDayData"><span class="text-ink-muted mr-2 shrink-0">{{ selDayData.date }}</span><span class="text-blue-600 font-bold mr-2">포인트 {{ usd(selDayData.points) }}</span><span class="text-rose-600 font-bold mr-2">직접 {{ usd(selDayData.direct) }}</span><b class="ml-auto tabular-nums">{{ usd(selDayData.points + selDayData.direct) }}</b></template>
+        <template v-if="selDayData"><span class="text-ink-muted mr-2 shrink-0">{{ selDayData.date }}</span><span class="text-blue-600 font-bold mr-2">포인트 {{ usd(selDayData.points) }}</span><span class="text-amber-600 font-bold mr-2">직접 {{ usd(selDayData.direct) }}</span><b class="ml-auto tabular-nums">{{ usd(selDayData.points + selDayData.direct) }}</b></template>
         <span v-else class="text-ink-faint">막대를 누르면 그날 금액이 나와요</span>
       </div>
     </div>
@@ -154,7 +154,7 @@
       </div>
       <div class="card p-4">
         <div class="text-xs text-ink-muted">달러 직접 결제</div>
-        <div class="text-2xl font-black text-rose-600 mt-1">{{ usd(sum.direct.net) }}</div>
+        <div class="text-2xl font-black text-amber-600 mt-1">{{ usd(sum.direct.net) }}</div>
         <div class="text-[11px] text-ink-faint mt-0.5">{{ sum.direct.count }}건</div>
         <div class="text-[11px] text-ink-muted mt-1.5 space-y-0.5">
           <div class="flex justify-between"><span>경품 이벤트 의뢰</span><b>{{ usd(sum.direct.by_kind.event_request.net) }}</b></div>
@@ -175,12 +175,12 @@
         <div class="text-sm font-bold text-ink">일별 결제액</div>
         <div class="flex items-center gap-3 text-[11px] text-ink-muted">
           <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-blue-400 mr-1"></i>포인트 구매</span>
-          <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-rose-400 mr-1"></i>달러 직접 결제</span>
+          <span><i class="inline-block w-2.5 h-2.5 rounded-sm bg-amber-400 mr-1"></i>달러 직접 결제</span>
         </div>
       </div>
       <div class="flex items-end gap-px h-28" role="img" aria-label="일별 결제액 막대 그래프">
         <div v-for="d in sum.series" :key="d.date" class="flex-1 flex flex-col justify-end min-w-[3px] group relative" :title="`${d.date}  포인트 ${usd(d.points)} · 직접 ${usd(d.direct)}`">
-          <div class="bg-rose-400" :style="{ height: barH(d.direct) }"></div>
+          <div class="bg-amber-400" :style="{ height: barH(d.direct) }"></div>
           <div class="bg-blue-400" :style="{ height: barH(d.points) }"></div>
         </div>
       </div>
@@ -247,8 +247,8 @@ const kinds = [
 ]
 const KIND = {
   points: { text: '포인트 구매', cls: 'bg-blue-50 text-blue-600 border-blue-200' },
-  event_request: { text: '경품 이벤트 의뢰', cls: 'bg-rose-50 text-rose-600 border-rose-200' },
-  flyer: { text: 'NEW 전면광고', cls: 'bg-orange-50 text-orange-600 border-orange-200' },
+  event_request: { text: '경품 이벤트 의뢰', cls: 'bg-amber-50 text-amber-600 border-amber-200' },
+  flyer: { text: 'NEW 전면광고', cls: 'bg-amber-50 text-amber-600 border-amber-200' },
 }
 const STATUS = {
   completed: { text: '완료', cls: 'bg-green-50 text-green-700 border-green-200' },

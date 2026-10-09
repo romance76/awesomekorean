@@ -84,7 +84,7 @@
         <div class="sticky top-20 card p-4 space-y-3">
           <div class="flex items-center gap-2 flex-wrap">
             <span v-if="product.category" class="badge-primary !text-[11px] !px-2">{{ product.category }}</span>
-            <span v-if="product.is_hot" class="bg-rose-500 text-white rounded-full px-2 py-0.5 text-[11px] font-black">🔥 이번주 HOT</span>
+            <span v-if="product.is_hot" class="bg-amber-500 text-white rounded-full px-2 py-0.5 text-[11px] font-black">🔥 이번주 HOT</span>
             <span v-if="product.is_featured" class="badge-red !text-[11px]">Awesome Korean 추천</span>
             <span v-if="product.is_member_review" class="badge-primary !text-[11px] !px-2">회원 리뷰</span>
           </div>

@@ -79,7 +79,7 @@
 
         <!-- NEW 전면광고 홍보: 지금 방송 중인 전단을 바로 보러 가는 타일 → NEW 게시판 -->
         <RouterLink to="/new"
-          class="relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between text-white bg-gradient-to-br from-rose-500 via-rose-500 to-orange-400 group hover:brightness-105 transition-all">
+          class="relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between text-white bg-gradient-to-br from-amber-500 via-amber-500 to-amber-400 group hover:brightness-105 transition-all">
           <div class="flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
             <span class="text-[10.5px] font-black tracking-wider bg-white/20 px-1.5 py-0.5 rounded">NEW 전면광고</span>
@@ -89,7 +89,7 @@
             <div class="text-[11px] text-white/90 mt-1.5">원하는 시간대만 골라 우리 동네 전체에 알려요</div>
           </div>
           <div class="mt-3 flex items-center justify-between gap-2">
-            <span class="text-[11px] font-bold bg-white text-rose-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">지금 보러가기 →</span>
+            <span class="text-[11px] font-bold bg-white text-amber-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">지금 보러가기 →</span>
             <span class="text-[10px] text-white/90 text-right leading-tight">지금 방송 중인<br>전단 확인</span>
           </div>
         </RouterLink>
@@ -192,7 +192,7 @@
   <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9">
     <div class="card overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_1.5fr]">
       <div class="p-5 lg:p-7 flex flex-col justify-center">
-        <span class="text-xs font-bold" style="color:#F0266B">내돈내산 리뷰</span>
+        <span class="text-xs font-bold" style="color:#FC226B">내돈내산 리뷰</span>
         <h2 class="text-xl lg:text-2xl font-black text-ink leading-snug mt-1" style="letter-spacing:-0.03em">내가 쓴 후기,<br>용돈이 된다면?</h2>
         <p class="text-sm text-ink-light mt-2 leading-relaxed">미국 생활에서 직접 써본 아마존 아이템을 이웃과 나눠 보세요.</p>
         <RouterLink to="/shopping" class="btn-primary self-start mt-4 px-5 py-2.5 text-sm font-bold inline-flex items-center gap-1.5">후기 보러 가기<AppIcon name="arrow-right" :size="14" /></RouterLink>

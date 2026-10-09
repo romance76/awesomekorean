@@ -9,25 +9,25 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Warm Modern v3 (2026-10, 새 로고 기준): 기존 amber-* 클래스가 그대로
-                // 새 로고의 오렌지→핫핑크 그라데이션 계열로 렌더링되도록 amber 팔레트를
+                // Warm Modern v4 (2026-10, 새 로고 #FC226B 기준): 기존 amber-* 클래스가 그대로
+                // 브랜드 핫핑크 계열(#FC226B 중심)로 렌더링되도록 amber 팔레트를
                 // 오버라이드한다. (이전 v2는 순수 오렌지 #FF5A1F 단색 계열이었음)
                 amber: {
-                    50: '#FFF1E8',
-                    100: '#FFE1D0',
-                    200: '#FFC2A8',
-                    300: '#FF9478',
-                    400: '#FF5C6B',
-                    500: '#F23D5C',
-                    600: '#D62E4C',
-                    700: '#B22440',
-                    800: '#8C1C35',
-                    900: '#6E162B',
+                    50: '#FFF0F5',
+                    100: '#FFE0EB',
+                    200: '#FFC2D6',
+                    300: '#FF8FB4',
+                    400: '#FF4F88',
+                    500: '#FC226B',
+                    600: '#E0145A',
+                    700: '#B80F49',
+                    800: '#8F0C3A',
+                    900: '#6B092C',
                 },
                 primary: {
-                    DEFAULT: '#F23D5C',
-                    soft: '#FFF1E8',
-                    dark: '#D62E4C',
+                    DEFAULT: '#FC226B',
+                    soft: '#FFF0F5',
+                    dark: '#E0145A',
                 },
                 surface: {
                     DEFAULT: '#F8F6F3',
@@ -48,8 +48,8 @@ export default {
             },
             boxShadow: {
                 card: '0 1px 2px rgba(27, 22, 19, 0.04), 0 8px 24px -12px rgba(27, 22, 19, 0.10)',
-                lift: '0 2px 4px rgba(27, 22, 19, 0.05), 0 16px 40px -16px rgba(242, 61, 92, 0.18)',
-                btn: '0 4px 14px -4px rgba(242, 61, 92, 0.45)',
+                lift: '0 2px 4px rgba(27, 22, 19, 0.05), 0 16px 40px -16px rgba(252, 34, 107, 0.18)',
+                btn: '0 4px 14px -4px rgba(252, 34, 107, 0.45)',
             },
             borderRadius: {
                 card: '18px',

@@ -47,7 +47,7 @@
               <div class="font-bold text-ink mb-1">이미지는 어떻게 잘리나요?</div>
               <p class="leading-relaxed mb-2">폰에서는 이미지의 <b>가운데 가로 띠만</b> 보입니다. 위아래는 잘립니다. 글자나 로고는 가운데에 넣어 주세요.</p>
               <div class="flex items-start gap-3">
-                <div class="relative w-[140px] shrink-0 rounded-md overflow-hidden border border-gray-300 bg-gradient-to-br from-amber-200 to-pink-300" style="aspect-ratio: 10 / 7">
+                <div class="relative w-[140px] shrink-0 rounded-md overflow-hidden border border-gray-300 bg-gradient-to-br from-amber-200 to-amber-300" style="aspect-ratio: 10 / 7">
                   <div class="absolute inset-x-0 top-0 bg-black/45" :style="{ height: band.edge + '%' }"></div>
                   <div class="absolute inset-x-0 bottom-0 bg-black/45" :style="{ height: band.edge + '%' }"></div>
                   <div class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-slate-800">여기만 보임</div>
@@ -61,7 +61,7 @@
             </div>
             <div class="flex gap-2 pt-1">
               <RouterLink :to="{ path: '/ad-apply', query: { page } }" @click="close"
-                class="flex-1 text-center text-xs font-bold text-white bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-lg py-2">광고 신청하기</RouterLink>
+                class="flex-1 text-center text-xs font-bold text-white bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-lg py-2">광고 신청하기</RouterLink>
               <button type="button" @click="close" class="flex-1 text-center text-xs font-bold text-ink-light bg-gray-100 hover:bg-gray-200 rounded-lg py-2 transition-colors">닫기</button>
             </div>
           </div>

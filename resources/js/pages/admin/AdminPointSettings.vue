@@ -73,7 +73,7 @@ const catStyles = {
   earn: { icon: 'gift', label: '포인트 적립', bg: 'bg-green-50 text-green-800' },
   spend: { icon: 'coins', label: '포인트 사용 (차감)', bg: 'bg-red-50 text-red-800' },
   image: { icon: 'image', label: '이미지 업로드', bg: 'bg-blue-50 text-blue-800' },
-  spam: { icon: 'shield', label: '스팸 방지 (중고장터)', bg: 'bg-orange-50 text-orange-800' },
+  spam: { icon: 'shield', label: '스팸 방지 (중고장터)', bg: 'bg-amber-50 text-amber-800' },
   auction: { icon: 'store', label: '업소록 옥션', bg: 'bg-purple-50 text-purple-800' },
   package: { icon: 'wallet', label: '구매 패키지 (가격|포인트|보너스)', bg: 'bg-amber-50 text-amber-800' },
   promotion: { icon: 'flame', label: '상위노출 슬롯/가격', bg: 'bg-indigo-50 text-indigo-800' },

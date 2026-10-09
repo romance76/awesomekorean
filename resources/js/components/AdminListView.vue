@@ -86,7 +86,7 @@
           <span class="flex items-center gap-1.5 flex-wrap">
             <span v-if="item.is_pinned" class="text-[12px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">고정</span>
             <span v-if="item.is_hidden" class="text-[12px] font-bold text-gray-600 bg-gray-100 px-1.5 py-0.5 rounded">숨김</span>
-            <span v-if="item.is_locked" class="text-[12px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded">잠김</span>
+            <span v-if="item.is_locked" class="text-[12px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">잠김</span>
             <span v-if="isPromoted(item)" class="text-[12px] font-bold text-white bg-purple-500 px-1.5 py-0.5 rounded">{{ promoBadgeLabel(item) }}</span>
           </span>
           <span class="block text-[16px] font-bold text-ink leading-snug break-words line-clamp-2">{{ item.title || item.name || '(제목 없음)' }}</span>
@@ -153,7 +153,7 @@
                 <div class="flex items-center gap-1">
                   <span v-if="item.is_pinned" title="고정" class="text-red-500"><AppIcon name="bookmark" :size="12" :filled="true" /></span>
                   <span v-if="item.is_hidden" title="숨김" class="text-gray-400"><AppIcon name="x" :size="12" /></span>
-                  <span v-if="item.is_locked" title="잠김" class="text-orange-500"><AppIcon name="lock" :size="12" /></span>
+                  <span v-if="item.is_locked" title="잠김" class="text-amber-500"><AppIcon name="lock" :size="12" /></span>
                   <span v-if="isPromoted(item)" :title="promoTooltip(item)" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-white bg-purple-500 px-1 py-px rounded"><AppIcon name="sparkles" :size="10" />{{ promoBadgeLabel(item) }}</span>
                   <div class="truncate text-sm font-medium text-ink">{{ item.title || item.name }}</div>
                 </div>
@@ -217,13 +217,13 @@
             <AppIcon name="eye" :size="11" />{{ activeItem.is_hidden ? '공개' : '숨김' }}
           </button>
           <button v-if="actions.active" @click="toggleField('is_active')"
-            :class="activeItem.is_active === false ? 'bg-orange-100 text-orange-700' : 'bg-white border border-gray-200 text-ink-light'"
-            class="text-[11px] px-2 py-1 rounded-lg hover:bg-orange-50 transition-colors">
+            :class="activeItem.is_active === false ? 'bg-amber-100 text-amber-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="text-[11px] px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors">
             {{ activeItem.is_active === false ? '비활성' : '활성' }}
           </button>
           <button v-if="actions.lock_comments" @click="toggleField('is_locked')"
-            :class="activeItem.is_locked ? 'bg-orange-100 text-orange-700' : 'bg-white border border-gray-200 text-ink-light'"
-            class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg hover:bg-orange-50 transition-colors">
+            :class="activeItem.is_locked ? 'bg-amber-100 text-amber-700' : 'bg-white border border-gray-200 text-ink-light'"
+            class="inline-flex items-center gap-0.5 text-[11px] px-2 py-1 rounded-lg hover:bg-amber-50 transition-colors">
             <AppIcon name="lock" :size="11" />{{ activeItem.is_locked ? '잠금해제' : '댓글잠금' }}
           </button>
           <button v-if="actions.approved" @click="toggleField('is_approved')"
@@ -398,7 +398,7 @@
                   <div class="text-xs text-ink-light whitespace-pre-wrap" :class="c.is_hidden ? 'line-through text-ink-faint' : ''">{{ c.content }}</div>
                 </div>
                 <div class="flex gap-1 shrink-0">
-                  <button @click="toggleCommentHide(c)" class="alv-cbtn text-[11px] text-orange-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
+                  <button @click="toggleCommentHide(c)" class="alv-cbtn text-[11px] text-amber-600 hover:underline">{{ c.is_hidden ? '공개' : '숨김' }}</button>
                   <button @click="deleteComment(c)" class="alv-cbtn text-[11px] text-red-500 hover:underline">삭제</button>
                 </div>
               </div>
@@ -413,7 +413,7 @@
                       <div class="text-ink-light mt-0.5" :class="r.is_hidden ? 'line-through text-ink-faint' : ''">{{ r.content }}</div>
                     </div>
                     <div class="flex gap-1 shrink-0">
-                      <button @click="toggleCommentHide(r)" class="alv-cbtn text-[11px] text-orange-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
+                      <button @click="toggleCommentHide(r)" class="alv-cbtn text-[11px] text-amber-600">{{ r.is_hidden ? '공개' : '숨김' }}</button>
                       <button @click="deleteComment(r)" class="alv-cbtn text-[11px] text-red-500">삭제</button>
                     </div>
                   </div>

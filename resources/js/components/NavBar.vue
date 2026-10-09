@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: env(safe-area-inset-top, 0px)">
+  <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
     <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth -->
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
       <!-- 햄버거 메뉴 (모바일) -->
@@ -12,7 +12,7 @@
 
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block" style="height:30px;width:auto;max-width:260px;object-fit:contain;object-position:left center" />
+        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block" style="width:144px;height:auto;max-height:40px;object-fit:contain;object-position:left center" />
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
@@ -91,7 +91,7 @@
         </template>
         <template v-else>
           <RouterLink to="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-surface px-3 py-1.5 rounded-full transition-colors">로그인</RouterLink>
-          <RouterLink to="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn hover:-translate-y-px" style="background-image:linear-gradient(135deg,#FF7A30,#FF4D12)">시작하기</RouterLink>
+          <RouterLink to="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn hover:-translate-y-px" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">시작하기</RouterLink>
         </template>
         <button @click="togglePageLang()" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-surface hover:bg-line transition-colors" :title="isTranslatedEn ? '한국어로 돌아가기' : 'Translate to English'">
           <span translate="no" class="notranslate">{{ isTranslatedEn ? '한' : 'EN' }}</span>

@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <PageHeader title="업소 등록" icon="store" chip="bg-pink-50 text-pink-600" fallback="/directory" />
+    <PageHeader title="업소 등록" icon="store" chip="bg-amber-50 text-amber-600" fallback="/directory" />
     <div class="card p-5 space-y-4">
       <div><label class="input-label">업소명</label><input v-model="form.name" type="text" placeholder="예: 서울가든 Korean BBQ" class="input-soft" /></div>
       <div class="grid grid-cols-2 gap-3">

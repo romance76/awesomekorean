@@ -46,7 +46,7 @@
       <template v-if="activeMajorType"><strong class="text-amber-700">{{ activeMajorTypeLabel }}</strong> 카테고리</template>
       <template v-else>{{ label }} 전용 카테고리</template>
     </div>
-    <div v-if="majorTypes.length && !activeMajorType" class="bg-orange-50 border border-orange-200 rounded-xl p-3 text-[14px] text-orange-800">
+    <div v-if="majorTypes.length && !activeMajorType" class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[14px] text-amber-800">
       💡 이 게시판은 대분류별로 카테고리가 나뉘어 있어요. 위에서 {{ majorTypes.map(m => m.label).join(' / ') }} 중 하나를 먼저 고르세요.
     </div>
     <div v-if="hasAutoDetected" class="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-3 text-[14px]">
@@ -154,7 +154,7 @@
       <div class="grid grid-cols-2 gap-2 mt-3">
         <button v-if="b.status === 'pending'" @click="approveBanner(b)" class="min-h-[48px] rounded-xl bg-emerald-500 text-white text-[15px] font-bold">승인</button>
         <button v-if="b.status === 'pending'" @click="rejectBanner(b)" class="min-h-[48px] rounded-xl bg-red-50 text-red-600 text-[15px] font-bold">거절</button>
-        <button v-if="b.status === 'active'" @click="pauseBanner(b)" class="min-h-[48px] rounded-xl bg-orange-50 text-orange-700 text-[15px] font-bold">일시정지</button>
+        <button v-if="b.status === 'active'" @click="pauseBanner(b)" class="min-h-[48px] rounded-xl bg-amber-50 text-amber-700 text-[15px] font-bold">일시정지</button>
         <button @click="deleteBanner(b)" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">삭제</button>
       </div>
     </div>
@@ -266,7 +266,7 @@
             <strong class="text-amber-700">{{ activeMajorTypeLabel }}</strong> 카테고리
           </span>
           <span v-else>{{ label }} 전용 카테고리</span>
-          <span v-if="majorTypes.length && !activeMajorType" class="text-[11px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-semibold ml-1">
+          <span v-if="majorTypes.length && !activeMajorType" class="text-[11px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold ml-1">
             ⚠️ 상단에서 대분류 선택 필요
           </span>
           <span v-if="usesTable" class="badge-green !text-[11px] ml-1">DB 테이블</span>
@@ -277,7 +277,7 @@
           <button @click="saveCategories" class="btn-primary px-3 py-1.5">저장</button>
         </div>
       </div>
-      <div v-if="majorTypes.length && !activeMajorType" class="bg-orange-50 border border-orange-200 rounded-xl p-3 text-sm text-orange-800 mb-3">
+      <div v-if="majorTypes.length && !activeMajorType" class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800 mb-3">
         💡 이 게시판은 <strong>대분류별로 카테고리가 분리</strong>되어 있습니다. 위의 {{ majorTypes.map(m=>m.label).join(' / ') }} 중 하나를 먼저 선택하세요.
       </div>
       <div v-if="hasAutoDetected" class="bg-blue-50 border border-blue-200 text-blue-800 rounded-xl p-2 text-xs mb-3">
@@ -413,7 +413,7 @@
             <td class="p-2 text-center">
               <button v-if="b.status==='pending'" @click="approveBanner(b)" class="text-xs text-green-600 mr-1 hover:underline">승인</button>
               <button v-if="b.status==='pending'" @click="rejectBanner(b)" class="text-xs text-red-600 mr-1 hover:underline">거절</button>
-              <button v-if="b.status==='active'" @click="pauseBanner(b)" class="text-xs text-orange-600 mr-1 hover:underline">일시정지</button>
+              <button v-if="b.status==='active'" @click="pauseBanner(b)" class="text-xs text-amber-600 mr-1 hover:underline">일시정지</button>
               <button @click="deleteBanner(b)" class="text-xs text-ink-muted hover:underline">삭제</button>
             </td>
           </tr>
@@ -676,7 +676,7 @@ function statusClass(s) {
   return {
     active:   'bg-green-100 text-green-700',
     pending:  'bg-yellow-100 text-yellow-700',
-    paused:   'bg-orange-100 text-orange-700',
+    paused:   'bg-amber-100 text-amber-700',
     rejected: 'bg-red-100 text-red-700',
     expired:  'bg-gray-100 text-gray-500',
   }[s] || 'bg-gray-100 text-gray-700'

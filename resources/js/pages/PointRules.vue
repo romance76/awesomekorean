@@ -75,7 +75,7 @@ const SECTION_META = {
   game:     { title: '게임 포인트',     icon: 'gamepad',       headerClass: 'bg-amber-50 text-amber-800',   valueClass: 'text-amber-600',  prefix: ''  },
   market:   { title: '중고장터 규칙',   icon: 'shopping-bag',  headerClass: 'bg-indigo-50 text-indigo-800', valueClass: 'text-indigo-600', prefix: ''  },
   image:    { title: '이미지 업로드',   icon: 'image',         headerClass: 'bg-sky-50 text-sky-800',       valueClass: 'text-sky-600',    prefix: ''  },
-  auction:  { title: '옥션',            icon: 'tag',           headerClass: 'bg-rose-50 text-rose-800',     valueClass: 'text-rose-600',   prefix: ''  },
+  auction:  { title: '옥션',            icon: 'tag',           headerClass: 'bg-amber-50 text-amber-800',     valueClass: 'text-amber-600',   prefix: ''  },
   promotion:{ title: '상위노출 · 광고 (P/일)', icon: 'megaphone', headerClass: 'bg-violet-50 text-violet-800', valueClass: 'text-violet-600', prefix: '-' },
 }
 

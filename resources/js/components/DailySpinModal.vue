@@ -45,7 +45,7 @@
         <!-- 스핀 버튼 -->
         <button v-if="!alreadySpun && !spinning && !resultPoints"
           @click="spin"
-          class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-yellow-900 font-black py-3 rounded-xl text-lg hover:from-yellow-300 hover:to-orange-400 transition shadow-lg active:scale-95">
+          class="w-full bg-gradient-to-r from-yellow-400 to-amber-500 text-yellow-900 font-black py-3 rounded-xl text-lg hover:from-yellow-300 hover:to-amber-400 transition shadow-lg active:scale-95">
           돌리기!
         </button>
 

@@ -95,7 +95,7 @@
       <div v-for="menu in bannerEligibleMenus" :key="menu.key" class="border border-gray-100 rounded-xl p-3" :class="isPageOff(menu.key) ? 'bg-gray-50 border-dashed' : ''">
         <div class="flex items-center gap-1.5 text-[15px] font-bold text-ink"><span>{{ menu.icon }}</span>{{ menu.label }}<span v-if="isPageOff(menu.key)" class="text-[12px] text-ink-faint font-normal">(꺼짐)</span></div>
         <div class="grid grid-cols-2 gap-3 mt-2">
-          <div v-for="side in [{ f: 'left_slots', l: '좌', c: 'text-blue-700' }, { f: 'right_slots', l: '우', c: 'text-orange-700' }]" :key="side.f">
+          <div v-for="side in [{ f: 'left_slots', l: '좌', c: 'text-blue-700' }, { f: 'right_slots', l: '우', c: 'text-amber-700' }]" :key="side.f">
             <div class="text-[12px] font-bold mb-1" :class="side.c">{{ side.l }}</div>
             <div class="flex items-center gap-1">
               <button @click="stepSlot(menu, side.f, -1)" :disabled="!canEdit || slotOf(menu.key)[side.f] <= 0" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold disabled:opacity-30" :aria-label="side.l + ' 슬롯 줄이기'">−</button>
@@ -335,10 +335,10 @@
               </div>
             </div>
             <div>
-              <label class="text-xs font-bold text-orange-600 block mb-0.5">우</label>
+              <label class="text-xs font-bold text-amber-600 block mb-0.5">우</label>
               <div class="flex items-center gap-1">
                 <input type="range" :value="slotOf(menu.key).right_slots" @input="setSlot(menu, 'right_slots', $event.target.value)" min="0" max="5" class="flex-1 accent-amber-400" />
-                <span class="text-xs font-bold text-orange-700 w-4 text-center">{{ slotOf(menu.key).right_slots }}</span>
+                <span class="text-xs font-bold text-amber-700 w-4 text-center">{{ slotOf(menu.key).right_slots }}</span>
               </div>
             </div>
           </div>
@@ -480,7 +480,7 @@ const catStyles = {
   earn:    { icon: 'gift',   label: '포인트 적립',       bg: 'bg-green-50 text-green-800' },
   spend:   { icon: 'coins',  label: '포인트 사용(차감)',  bg: 'bg-red-50 text-red-800' },
   image:   { icon: 'image',  label: '이미지 업로드',      bg: 'bg-blue-50 text-blue-800' },
-  spam:    { icon: 'shield', label: '스팸 방지',          bg: 'bg-orange-50 text-orange-800' },
+  spam:    { icon: 'shield', label: '스팸 방지',          bg: 'bg-amber-50 text-amber-800' },
   auction: { icon: 'store',  label: '업소록 옥션',        bg: 'bg-purple-50 text-purple-800' },
   package: { icon: 'wallet', label: '구매 패키지',        bg: 'bg-amber-50 text-amber-800' },
 }

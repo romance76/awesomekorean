@@ -53,7 +53,7 @@
   <div class="mb-4">
     <div class="text-xs text-ink-muted">관리자 › 서비스 › 업소 클레임</div>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
-      <span class="icon-chip w-9 h-9 bg-pink-50 text-pink-600"><AppIcon name="store" :size="20" /></span>
+      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="store" :size="20" /></span>
       업소 클레임 관리
     </h1>
     <p class="text-xs text-ink-muted mt-0.5">업주의 업소록 소유권 클레임을 승인/거절합니다</p>
@@ -109,7 +109,7 @@
             <span class="text-xs text-ink-faint">{{ formatDate(c.created_at) }}</span>
             <span class="text-xs text-ink-faint">#{{ c.id }}</span>
           </div>
-          <div class="flex items-center gap-1 text-sm font-bold text-ink"><AppIcon name="store" :size="14" class="text-pink-500" /> {{ c.business?.name }}</div>
+          <div class="flex items-center gap-1 text-sm font-bold text-ink"><AppIcon name="store" :size="14" class="text-amber-500" /> {{ c.business?.name }}</div>
           <div class="text-xs text-ink-muted">{{ c.business?.category }} · {{ c.business?.city }}</div>
           <div class="flex items-center gap-1 text-xs text-ink-light mt-1"><AppIcon name="user" :size="12" /> <strong>{{ c.user?.name }}</strong> ({{ c.user?.email }}) {{ c.user?.phone ? '· ' + c.user.phone : '' }}</div>
           <div v-if="c.notes" class="flex items-center gap-1 text-xs text-ink-light mt-1"><AppIcon name="message-circle" :size="12" /> {{ c.notes }}</div>

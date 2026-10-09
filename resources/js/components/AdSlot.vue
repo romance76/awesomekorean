@@ -21,7 +21,7 @@
       <template v-if="guide.on">
       <div class="mt-2 flex gap-1.5">
         <RouterLink :to="{ path: '/ad-apply', query: { page } }"
-          class="flex-1 text-center text-[11px] font-bold text-white bg-gradient-to-r from-[#FF8A4D] to-[#F0266B] rounded-lg py-1.5">광고 신청</RouterLink>
+          class="flex-1 text-center text-[11px] font-bold text-white bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-lg py-1.5">광고 신청</RouterLink>
         <button type="button" @click="guide.close()"
           class="flex-1 text-center text-[11px] font-bold text-ink-light bg-gray-100 hover:bg-gray-200 rounded-lg py-1.5 transition-colors">닫기</button>
       </div>

@@ -33,9 +33,9 @@
     <section v-if="showHero" class="card overflow-hidden mb-4">
       <div class="grid lg:grid-cols-2">
         <div class="p-6 lg:p-9 flex flex-col justify-center">
-          <span class="text-xs font-bold tracking-wide" style="color:#F0266B">진짜 후기, 진짜 이야기</span>
+          <span class="text-xs font-bold tracking-wide" style="color:#FC226B">진짜 후기, 진짜 이야기</span>
           <h2 class="text-2xl lg:text-4xl font-black text-ink leading-tight mt-2" style="letter-spacing:-0.03em">
-            내가 산 물건,<br>내가 쓴 후기.<br><span style="color:#F0266B">후기가 용돈이 된다면?</span>
+            내가 산 물건,<br>내가 쓴 후기.<br><span style="color:#FC226B">후기가 용돈이 된다면?</span>
           </h2>
           <p class="text-sm lg:text-base text-ink-light leading-relaxed mt-3">
             미국 생활에서 직접 써본 아마존 아이템을 한국어로 소개해 보세요. 이웃에게는 믿을 만한 쇼핑 정보가, 작성자에게는 새로운 기회가 됩니다.
@@ -98,7 +98,7 @@
           <RouterLink v-for="product in products" :key="product.id" :to="`/shopping/${product.id}`" class="block bg-white overflow-hidden cursor-pointer transition-transform hover:-translate-y-0.5"
             style="border-radius:20px;border:1px solid #f0e7de;box-shadow:0 4px 20px rgba(48,32,16,.06)">
             <div class="relative bg-white overflow-hidden flex items-center justify-center text-gray-300" style="aspect-ratio:1.18">
-              <span v-if="product.is_hot" class="absolute top-2 left-2 bg-rose-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black z-10 shadow inline-flex items-center gap-0.5"><AppIcon name="flame" :size="10" />이번주 HOT</span>
+              <span v-if="product.is_hot" class="absolute top-2 left-2 bg-amber-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black z-10 shadow inline-flex items-center gap-0.5"><AppIcon name="flame" :size="10" />이번주 HOT</span>
               <span v-else-if="product.is_featured" class="absolute top-2 left-2 badge-red !text-[10px] font-bold z-10">추천</span>
               <img v-if="product.image_url" :src="product.image_url" :alt="product.title" loading="lazy" decoding="async" class="w-full h-full object-contain p-3" @error="e=>e.target.style.display='none'" />
               <AppIcon v-else name="shopping-bag" :size="28" :stroke-width="1.5" />

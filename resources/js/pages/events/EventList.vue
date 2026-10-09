@@ -5,7 +5,7 @@
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
         <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
-          <span class="icon-chip w-8 h-8 bg-rose-50 text-rose-600"><AppIcon name="calendar" :size="17" /></span>
+          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="17" /></span>
           이벤트
         </h1>
         <div class="flex items-center gap-2">
@@ -56,7 +56,7 @@
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="calendar" :size="20" /></span>
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="20" /></span>
         이벤트
       </h1>
       <div class="flex items-center gap-2 flex-wrap">
@@ -84,7 +84,7 @@
     <div class="col-span-12 lg:col-span-2 hidden lg:block">
       <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
         <div class="card overflow-hidden">
-          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-rose-600" />카테고리</div>
+          <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-amber-600" />카테고리</div>
           <button v-for="c in eventCategories" :key="c.value" @click="showFavorites=false; activeCat=c.value; activeItem=null; loadPage()"
             class="w-full text-left px-3 py-2 text-xs transition-colors"
             :class="!showFavorites && activeCat===c.value ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ c.label }}</button>
@@ -252,7 +252,7 @@
         <!-- 일반 이벤트: 기존 카드 헤더 -->
         <div v-else class="p-4">
           <div class="flex items-center gap-3 mb-3">
-            <div class="icon-chip w-12 h-12" :class="item.event_type === 'sweepstakes' ? 'bg-amber-50 text-amber-500' : 'bg-rose-50 text-rose-500'"><AppIcon :name="item.event_type === 'sweepstakes' ? 'gift' : 'calendar'" :size="22" /></div>
+            <div class="icon-chip w-12 h-12" :class="item.event_type === 'sweepstakes' ? 'bg-amber-50 text-amber-500' : 'bg-amber-50 text-amber-500'"><AppIcon :name="item.event_type === 'sweepstakes' ? 'gift' : 'calendar'" :size="22" /></div>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
               <div class="text-xs text-ink-faint"><template v-if="!activeCat">{{ item.category || '기타' }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>

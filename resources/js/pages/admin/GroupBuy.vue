@@ -20,7 +20,7 @@
           <button @click="loadPending" class="shrink-0 min-h-[44px] px-4 rounded-xl border border-gray-200 bg-white text-[14px] font-bold text-blue-600">새로고침</button>
         </div>
         <div v-if="pending.length === 0" class="text-center py-12 text-ink-muted text-[15px]">승인 대기 중인 공동구매가 없어요 👍</div>
-        <div v-for="item in pending" :key="item.id" class="bg-white border border-orange-200 rounded-2xl p-3.5">
+        <div v-for="item in pending" :key="item.id" class="bg-white border border-amber-200 rounded-2xl p-3.5">
           <div class="flex gap-3">
             <img v-if="item.images && item.images[0]" :src="item.images[0]" alt="" class="w-20 h-20 object-cover rounded-xl shrink-0" @error="e=>e.target.style.display='none'" />
             <div class="min-w-0 flex-1">
@@ -65,7 +65,7 @@
       </div>
 
       <div v-else-if="!isMobile" class="space-y-2">
-        <div v-for="item in pending" :key="item.id" class="border border-orange-100 rounded-xl p-3 bg-orange-50/50 hover:bg-orange-50 transition-colors">
+        <div v-for="item in pending" :key="item.id" class="border border-amber-100 rounded-xl p-3 bg-amber-50/50 hover:bg-amber-50 transition-colors">
           <div class="flex items-start gap-3">
             <img v-if="item.images && item.images[0]" :src="item.images[0]" class="w-16 h-16 object-cover rounded-lg shrink-0" @error="e=>e.target.style.display='none'" />
             <div class="flex-1 min-w-0">

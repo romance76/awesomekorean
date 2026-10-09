@@ -5,4 +5,4 @@
 <link rel="icon" type="image/png" sizes="192x192" href="{{ \App\Support\BrandIcons::icon(192) }}">
 <link rel="shortcut icon" href="{{ \App\Support\BrandIcons::favicon() }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ \App\Support\BrandIcons::appleTouch() }}">
-<meta name="theme-color" content="#F23D5C">
+<meta name="theme-color" content="#FC226B">

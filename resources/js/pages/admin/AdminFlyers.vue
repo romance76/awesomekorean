@@ -21,7 +21,7 @@
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5 flex-wrap">
           <span class="text-[12px] font-bold px-2 py-0.5 rounded-md border" :class="STATUS_LABEL[f.status]?.cls">{{ STATUS_LABEL[f.status]?.text }}</span>
-          <span class="text-[12px] font-bold text-rose-600">{{ kindLabel(f.kind) }}</span>
+          <span class="text-[12px] font-bold text-amber-600">{{ kindLabel(f.kind) }}</span>
         </div>
         <div class="text-[16px] font-bold text-ink leading-snug break-words mt-1">{{ f.title }}</div>
         <div class="text-[13px] text-ink-muted mt-1 break-words">{{ f.user?.nickname || f.user?.name }} · {{ f.user?.email }}</div>
@@ -93,7 +93,7 @@
 <!-- ───────── PC 화면 ───────── -->
 <div v-else>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-2">
-    <span class="icon-chip w-9 h-9 bg-rose-50 text-rose-600"><AppIcon name="megaphone" :size="20" /></span>
+    <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="megaphone" :size="20" /></span>
     NEW 전단 광고 관리
   </h1>
   <p class="text-sm text-ink-muted mb-4">광고주가 시간대를 골라 신청한 전단입니다. 승인하면 광고주의 카드에 청구되고 예약한 시간에 NEW 게시판 상단에 방송됩니다. 반려하면 청구 없이 카드 보류가 풀리고 시간 슬롯이 다시 열려요. (가격은 센트 단위 — 가격/할인 센터의 flyer_* 항목 · 결제 내역은 매출/결제 현황)</p>
@@ -102,7 +102,7 @@
     <button v-for="t in tabs" :key="t.key" @click="status = t.key; page = 1; load()"
       class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors"
       :class="status === t.key ? 'bg-ink text-white border-ink' : 'bg-white text-ink-light border-gray-200'">
-      {{ t.label }}<span v-if="t.key === 'pending' && pendingCount" class="ml-1 bg-rose-500 text-white rounded-full px-1.5">{{ pendingCount }}</span>
+      {{ t.label }}<span v-if="t.key === 'pending' && pendingCount" class="ml-1 bg-amber-500 text-white rounded-full px-1.5">{{ pendingCount }}</span>
     </button>
   </div>
 
@@ -114,7 +114,7 @@
       <div class="flex-1 min-w-0 text-sm">
         <div class="flex items-center gap-2 flex-wrap">
           <span class="text-[11px] font-bold px-1.5 py-0.5 rounded border" :class="STATUS_LABEL[f.status]?.cls">{{ STATUS_LABEL[f.status]?.text }}</span>
-          <span class="text-xs font-bold text-rose-600">{{ kindLabel(f.kind) }}</span>
+          <span class="text-xs font-bold text-amber-600">{{ kindLabel(f.kind) }}</span>
           <span class="font-bold text-ink">{{ f.title }}</span>
         </div>
         <div class="text-xs text-ink-muted mt-1">
@@ -134,7 +134,7 @@
         <div class="flex gap-2 mt-3">
           <button v-if="f.status === 'pending'" @click="approve(f)" class="btn-primary px-4 py-1.5 rounded-lg text-xs">승인</button>
           <button v-if="f.status === 'pending' || f.status === 'approved'" @click="reject(f)" class="px-4 py-1.5 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">{{ f.status === 'pending' ? (f.payment_method === 'card' ? '반려(청구 없이 취소)' : '반려(전액 환불)') : '게시 중단(남은 시간 환불)' }}</button>
-          <RouterLink v-if="f.status === 'approved'" :to="`/new/${f.id}`" class="px-3 py-1.5 text-xs text-ink-muted hover:text-rose-600">전단 보기</RouterLink>
+          <RouterLink v-if="f.status === 'approved'" :to="`/new/${f.id}`" class="px-3 py-1.5 text-xs text-ink-muted hover:text-amber-600">전단 보기</RouterLink>
         </div>
       </div>
     </div>

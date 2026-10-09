@@ -1,8 +1,8 @@
 <template>
 <div :class="embedded ? '' : 'min-h-screen'">
   <div :class="embedded ? '' : 'page-main px-4 py-5'">
-    <PageHeader title="NEW 전면광고 신청" icon="megaphone" chip="bg-rose-50 text-rose-600" :back="!embedded" fallback="/new">
-      <template #actions><RouterLink to="/new" class="text-xs font-semibold text-ink-muted hover:text-rose-600 transition-colors">NEW 게시판 보기 →</RouterLink></template>
+    <PageHeader title="NEW 전면광고 신청" icon="megaphone" chip="bg-amber-50 text-amber-600" :back="!embedded" fallback="/new">
+      <template #actions><RouterLink to="/new" class="text-xs font-semibold text-ink-muted hover:text-amber-600 transition-colors">NEW 게시판 보기 →</RouterLink></template>
     </PageHeader>
     <p class="text-sm text-ink-muted mb-5">라디오 광고처럼 <b>하루 중 원하는 시간대</b>를 골라 사세요. 고른 시간에 NEW 게시판 맨 위에 전단이 통째로 나가고, 남은 시간은 다른 광고주가 쓸 수 있어요.</p>
 
@@ -10,7 +10,7 @@
     <form @submit.prevent="submit" class="space-y-4">
       <!-- 1. 전단 내용 -->
       <div class="card p-5 space-y-4">
-        <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-rose-500 text-white text-xs flex items-center justify-center">1</span>전단 내용</h2>
+        <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">1</span>전단 내용</h2>
 
         <div>
           <label class="input-label">상호 / 제목 *</label>
@@ -21,12 +21,12 @@
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button v-for="k in KINDS" :key="k.value" type="button" @click="form.kind = k.value"
               class="border-2 rounded-lg px-2 py-2 text-xs font-bold transition-colors"
-              :class="form.kind === k.value ? 'bg-rose-50 border-rose-400 text-rose-700' : 'bg-white border-gray-200 text-ink-light hover:border-rose-200'">{{ k.label }}</button>
+              :class="form.kind === k.value ? 'bg-amber-50 border-amber-400 text-amber-700' : 'bg-white border-gray-200 text-ink-light hover:border-amber-200'">{{ k.label }}</button>
           </div>
         </div>
         <div>
           <label class="input-label">전단 이미지 * <span class="text-ink-faint font-normal">(JPG·PNG·WEBP, 6MB 이하 — 세로로 긴 전단 한 장이 가장 잘 보여요)</span></label>
-          <input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp" @change="onFile" class="block w-full text-sm text-ink-light file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-rose-50 file:text-rose-700 file:font-bold hover:file:bg-rose-100" />
+          <input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp" @change="onFile" class="block w-full text-sm text-ink-light file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-50 file:text-amber-700 file:font-bold hover:file:bg-amber-100" />
           <img v-if="preview" :src="preview" alt="미리보기" class="mt-3 max-h-80 mx-auto rounded-lg border border-gray-100" />
         </div>
         <div>
@@ -48,15 +48,15 @@
 
       <!-- 2. 노출 지역 -->
       <div class="card p-5 space-y-3">
-        <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-rose-500 text-white text-xs flex items-center justify-center">2</span>노출 지역</h2>
+        <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">2</span>노출 지역</h2>
         <div class="grid grid-cols-2 gap-2">
           <button type="button" @click="form.scope = 'state'" class="border-2 rounded-xl p-3 text-left transition-colors"
-            :class="form.scope === 'state' ? 'bg-rose-50 border-rose-400' : 'bg-white border-gray-200 hover:border-rose-200'">
+            :class="form.scope === 'state' ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200 hover:border-amber-200'">
             <div class="font-bold text-sm text-ink">📍 내 지역 (주 단위)</div>
             <div class="text-[11px] text-ink-muted mt-0.5">그 주 방문자에게만 · 시간당 {{ usd(basePrice('state')) }}~</div>
           </button>
           <button type="button" @click="form.scope = 'national'" class="border-2 rounded-xl p-3 text-left transition-colors"
-            :class="form.scope === 'national' ? 'bg-rose-50 border-rose-400' : 'bg-white border-gray-200 hover:border-rose-200'">
+            :class="form.scope === 'national' ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200 hover:border-amber-200'">
             <div class="font-bold text-sm text-ink">🇺🇸 전국</div>
             <div class="text-[11px] text-ink-muted mt-0.5">전국 어디서 봐도 · 시간당 {{ usd(basePrice('national')) }}~</div>
           </button>
@@ -71,7 +71,7 @@
 
       <!-- 3. 기간 + 시간대 -->
       <div class="card p-5 space-y-4">
-        <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-rose-500 text-white text-xs flex items-center justify-center">3</span>언제, 며칠 동안?</h2>
+        <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">3</span>언제, 며칠 동안?</h2>
 
         <div class="grid sm:grid-cols-2 gap-3">
           <div>
@@ -84,7 +84,7 @@
             <div class="flex flex-wrap gap-1.5">
               <button v-for="d in dayChoices" :key="d" type="button" @click="form.days = d"
                 class="px-3 py-2 rounded-lg border-2 text-xs font-bold transition-colors"
-                :class="form.days === d ? 'bg-rose-50 border-rose-400 text-rose-700' : 'bg-white border-gray-200 text-ink-light hover:border-rose-200'">{{ d }}일</button>
+                :class="form.days === d ? 'bg-amber-50 border-amber-400 text-amber-700' : 'bg-white border-gray-200 text-ink-light hover:border-amber-200'">{{ d }}일</button>
             </div>
           </div>
         </div>
@@ -112,11 +112,11 @@
       </div>
 
       <!-- 요약 / 결제 -->
-      <div class="card p-5 border-2 border-rose-100">
+      <div class="card p-5 border-2 border-amber-100">
         <div class="space-y-1.5 text-sm">
           <div class="flex justify-between"><span class="text-ink-muted">방송 시간</span><span class="font-semibold">{{ form.hours.length }}시간/일 × {{ form.days }}일 = {{ slotCount }}시간</span></div>
           <div v-if="form.hours.length" class="flex justify-between gap-4"><span class="text-ink-muted flex-shrink-0">시간대</span><span class="text-right text-xs">{{ hourRanges(form.hours).join(', ') }}</span></div>
-          <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-rose-600">{{ usd(total) }}</span></div>
+          <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-amber-600">{{ usd(total) }}</span></div>
         </div>
         <p v-if="error" class="text-sm text-red-500 mt-3">{{ error }}</p>
         <ul v-if="missing.length" class="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 space-y-0.5">
@@ -146,7 +146,7 @@
           <div v-if="m.reject_reason && m.status !== 'approved'" class="text-[11px] text-red-500">{{ m.reject_reason }}</div>
         </div>
         <div class="flex flex-col gap-1 flex-shrink-0">
-          <RouterLink :to="`/new/${m.id}`" class="text-xs text-ink-muted hover:text-rose-600 text-center">보기</RouterLink>
+          <RouterLink :to="`/new/${m.id}`" class="text-xs text-ink-muted hover:text-amber-600 text-center">보기</RouterLink>
           <button v-if="m.status === 'pending'" @click="cancel(m)" class="text-xs text-red-400 hover:text-red-600">{{ m.payment_method === 'card' ? '신청 취소' : '취소·환불' }}</button>
         </div>
       </div>
@@ -161,8 +161,8 @@
           <h3 class="font-bold text-ink">카드 확인</h3>
           <button type="button" @click="closeCheckout" class="text-ink-muted hover:text-ink" aria-label="닫기"><AppIcon name="x" :size="18" /></button>
         </div>
-        <div class="rounded-xl bg-rose-50 p-3 mb-4 text-sm">
-          <div class="flex justify-between"><span class="text-ink-muted">NEW 전면광고 {{ checkout.hours }}시간</span><b class="text-rose-600">{{ usd(checkout.total) }}</b></div>
+        <div class="rounded-xl bg-amber-50 p-3 mb-4 text-sm">
+          <div class="flex justify-between"><span class="text-ink-muted">NEW 전면광고 {{ checkout.hours }}시간</span><b class="text-amber-600">{{ usd(checkout.total) }}</b></div>
           <p class="text-[11px] text-ink-muted mt-1.5">지금은 카드에 청구되지 않아요. 관리자가 승인하면 그때 {{ usd(checkout.total) }}가 청구되고, 반려되면 청구 없이 취소돼요.</p>
         </div>
         <StripeCardForm :client-secret="checkout.clientSecret" button-label="카드 확인하고 신청 완료" @authorized="onAuthorized" />
@@ -241,8 +241,8 @@ const blockTag = (b) => isPeak(b) ? '피크' : isNight(b) ? '새벽' : '일반'
 const blockOn = (b) => b.hours.every(h => form.hours.includes(h))
 function blockClass(b) {
   if (b.booked) return 'bg-gray-100 border-gray-100 text-gray-400'
-  if (blockOn(b)) return 'bg-rose-500 border-rose-500 text-white'
-  return isPeak(b) ? 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-400' : 'bg-white border-gray-200 text-ink-light hover:border-rose-300'
+  if (blockOn(b)) return 'bg-amber-500 border-amber-500 text-white'
+  return isPeak(b) ? 'bg-amber-50 border-amber-200 text-amber-800 hover:border-amber-400' : 'bg-white border-gray-200 text-ink-light hover:border-amber-300'
 }
 function toggleBlock(b) {
   if (b.booked) return

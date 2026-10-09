@@ -20,7 +20,7 @@
       <RouterLink to="/admin/banners" class="bg-white border border-gray-100 rounded-2xl p-3.5 active:bg-amber-50">
         <div class="text-[26px] leading-tight font-black tabular-nums text-purple-600">{{ report.banners.active }}</div>
         <div class="text-[13px] text-ink-muted">활성 광고</div>
-        <div class="text-[12px] text-orange-600 mt-0.5">대기 {{ report.banners.pending }} · {{ Number(report.banners.total_revenue).toLocaleString() }}P</div>
+        <div class="text-[12px] text-amber-600 mt-0.5">대기 {{ report.banners.pending }} · {{ Number(report.banners.total_revenue).toLocaleString() }}P</div>
       </RouterLink>
       <RouterLink to="/admin/security" class="bg-white border rounded-2xl p-3.5 active:bg-amber-50" :class="pendingReports > 0 ? 'border-red-200' : 'border-gray-100'">
         <div class="text-[26px] leading-tight font-black tabular-nums text-red-600">{{ pendingReports }}</div>
@@ -127,7 +127,7 @@
       <RouterLink to="/admin/banners" class="card card-hover p-4">
         <div class="text-2xl font-black text-purple-600">{{ report.banners.active }}</div>
         <div class="text-xs text-ink-muted mt-1">활성 광고</div>
-        <div class="text-[11px] text-orange-600 mt-1">대기 {{ report.banners.pending }} · {{ Number(report.banners.total_revenue).toLocaleString() }}P</div>
+        <div class="text-[11px] text-amber-600 mt-1">대기 {{ report.banners.pending }} · {{ Number(report.banners.total_revenue).toLocaleString() }}P</div>
       </RouterLink>
       <RouterLink to="/admin/security" class="card card-hover p-4">
         <div class="text-2xl font-black text-red-600">{{ pendingReports }}</div>

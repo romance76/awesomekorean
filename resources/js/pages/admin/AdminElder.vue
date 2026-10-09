@@ -60,7 +60,7 @@
     <div v-for="c in calls" v-else :key="c.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-[12px] px-2.5 py-1 rounded-full font-bold" :class="c.answered ? 'bg-green-100 text-green-700' : c.status==='ringing' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'">{{ c.answered ? '응답' : c.status==='ringing' ? '대기' : '미응답' }}</span>
-        <span v-if="c.guardian_notified" class="text-[12px] px-2 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700">보호자 알림</span>
+        <span v-if="c.guardian_notified" class="text-[12px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">보호자 알림</span>
         <span class="text-[12px] text-ink-faint ml-auto">{{ fmt(c.called_at) }}</span>
       </div>
       <div class="text-[15px] text-ink mt-1 break-words">{{ c.guardian_name || '-' }} → <b>{{ c.ward_name || '-' }}</b></div>
@@ -146,7 +146,7 @@
           <div class="rounded-2xl bg-gray-50 p-3.5">
             <div class="text-[15px] font-bold text-ink mb-2">통화 통계</div>
             <div class="grid grid-cols-3 gap-2">
-              <div v-for="st in [['총 통화', detail.call_stats?.total, 'text-ink'], ['응답', detail.call_stats?.answered, 'text-green-600'], ['미응답', detail.call_stats?.unanswered, 'text-red-500'], ['총 시도', detail.call_stats?.total_attempts, 'text-ink-light'], ['평균 시도', detail.call_stats?.avg_attempts_to_answer, 'text-blue-600'], ['보호자 알림', detail.call_stats?.guardian_notified, 'text-orange-600']]" :key="st[0]" class="bg-white rounded-xl p-2 text-center">
+              <div v-for="st in [['총 통화', detail.call_stats?.total, 'text-ink'], ['응답', detail.call_stats?.answered, 'text-green-600'], ['미응답', detail.call_stats?.unanswered, 'text-red-500'], ['총 시도', detail.call_stats?.total_attempts, 'text-ink-light'], ['평균 시도', detail.call_stats?.avg_attempts_to_answer, 'text-blue-600'], ['보호자 알림', detail.call_stats?.guardian_notified, 'text-amber-600']]" :key="st[0]" class="bg-white rounded-xl p-2 text-center">
                 <div class="text-[12px] text-ink-muted">{{ st[0] }}</div><div class="text-[20px] font-black tabular-nums" :class="st[2]">{{ st[1] || 0 }}</div>
               </div>
             </div>
@@ -160,7 +160,7 @@
                 <div class="flex items-center gap-2 flex-wrap"><span class="text-ink-muted">{{ fmt(log.called_at) }}</span>
                   <span class="text-[12px] px-2 py-0.5 rounded-full font-bold" :class="log.answered ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">{{ log.answered ? '응답' : '미응답' }}</span>
                   <span class="font-bold text-ink">{{ log.attempts }}회 시도</span>
-                  <span v-if="log.guardian_notified" class="text-[12px] px-2 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700">알림</span></div>
+                  <span v-if="log.guardian_notified" class="text-[12px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">알림</span></div>
                 <div v-if="log.notes" class="text-ink-muted break-words">{{ log.notes }}</div>
               </div>
             </div>
@@ -365,7 +365,7 @@
               {{ c.duration > 0 ? Math.floor(c.duration/60) + '분 ' + (c.duration%60) + '초' : '-' }}
             </td>
             <td class="px-3 py-2.5 text-center">
-              <span v-if="c.guardian_notified" class="inline-flex items-center text-[11px] px-1.5 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700"><AppIcon name="megaphone" :size="10" /></span>
+              <span v-if="c.guardian_notified" class="inline-flex items-center text-[11px] px-1.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700"><AppIcon name="megaphone" :size="10" /></span>
               <span v-else class="text-[11px] text-ink-faint">-</span>
             </td>
           </tr>
@@ -563,7 +563,7 @@
             </div>
             <div class="bg-white rounded-lg p-2 text-center">
               <div class="text-[11px] text-ink-muted">보호자 알림</div>
-              <div class="text-lg font-black text-orange-600">{{ detail.call_stats?.guardian_notified || 0 }}</div>
+              <div class="text-lg font-black text-amber-600">{{ detail.call_stats?.guardian_notified || 0 }}</div>
             </div>
           </div>
           <div class="flex gap-4 mt-3 text-[11px] text-ink-muted">
@@ -599,7 +599,7 @@
                   </td>
                   <td class="px-2 py-1.5 text-center font-bold text-ink">{{ log.attempts }}회</td>
                   <td class="px-2 py-1.5 text-center">
-                    <span v-if="log.guardian_notified" class="text-[11px] px-1.5 py-0.5 rounded-full font-bold bg-orange-100 text-orange-700">알림</span>
+                    <span v-if="log.guardian_notified" class="text-[11px] px-1.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-700">알림</span>
                     <span v-else class="text-[11px] text-ink-faint">-</span>
                   </td>
                   <td class="px-2 py-1.5 text-[11px] text-ink-muted">{{ log.notes || '-' }}</td>

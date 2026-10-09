@@ -19,7 +19,7 @@
 
       <form v-else @submit.prevent="submit" class="space-y-4">
         <!-- 규칙 -->
-        <div class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-800 leading-relaxed">
+        <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
           <div class="font-bold mb-1">🚫 리뷰 작성 규칙 — 꼭 읽어주세요</div>
           <ul class="list-disc pl-4 space-y-0.5">
             <li><b>내 사이트·쇼핑몰·블로그·SNS·유튜브·가게 홍보나 광고는 금지</b>예요. 웹 주소, 이메일, 전화번호, 카톡/인스타 아이디를 넣을 수 없어요.</li>

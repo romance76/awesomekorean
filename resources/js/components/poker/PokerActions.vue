@@ -27,7 +27,7 @@
         </button>
 
         <button
-          class="px-4 py-2.5 rounded-lg border-none bg-orange-700 text-white cursor-pointer font-bold text-sm font-sans hover:bg-orange-600 active:bg-orange-800 transition-colors"
+          class="px-4 py-2.5 rounded-lg border-none bg-amber-700 text-white cursor-pointer font-bold text-sm font-sans hover:bg-amber-600 active:bg-amber-800 transition-colors"
           @click="$emit('action', 'allin', 0)"
         >
           올인

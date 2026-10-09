@@ -20,11 +20,11 @@ const showNewLabel = computed(() => new Date() < NEW_LABEL_CUTOFF)
 .nfb-wrap { position: relative; display: inline-flex; align-items: center; cursor: help; vertical-align: middle; }
 .nfb-new {
   font-size: 9px; font-weight: 800; line-height: 1; color: #fff;
-  background: linear-gradient(135deg, #FF8A4D, #F0266B);
+  background: linear-gradient(135deg, #FF8A4D, #FC226B);
   padding: 2px 5px; border-radius: 999px; letter-spacing: 0.3px;
   box-shadow: 0 1px 3px rgba(242, 87, 15, 0.35);
 }
-.nfb-dot { width: 6px; height: 6px; border-radius: 999px; background: #F0266B; opacity: 0.6; }
+.nfb-dot { width: 6px; height: 6px; border-radius: 999px; background: #FC226B; opacity: 0.6; }
 .nfb-tooltip {
   position: absolute; z-index: 40; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
   background: #1f2937; color: #fff; font-size: 11px; font-weight: 500; line-height: 1.4;
