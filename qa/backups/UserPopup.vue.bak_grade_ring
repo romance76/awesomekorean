@@ -7,7 +7,7 @@
     <!-- 헤더 -->
     <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] px-3 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        <UserAvatar :user="user" :level="user.grade?.level" :size="56" class="-my-3 -ml-2" />
+        <div class="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-sm font-bold text-white">{{ (user.name || '?')[0] }}</div>
         <div>
           <div class="text-sm font-bold text-white leading-tight flex items-center gap-1">
             {{ user.name }}
@@ -132,7 +132,6 @@ import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
-import UserAvatar from './UserAvatar.vue'
 
 const props = defineProps({ show: Boolean, userId: [Number, String] })
 const emit = defineEmits(['close'])

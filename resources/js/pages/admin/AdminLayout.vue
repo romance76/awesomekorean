@@ -16,6 +16,12 @@
       <AdminMobileHome v-if="route.path === '/admin'" />
       <router-view v-else />
     </div>
+    <!-- 맨 아래: 일반(사용자) 화면으로 전환 -->
+    <div class="px-3.5 pb-5">
+      <RouterLink to="/" class="w-full min-h-[48px] rounded-xl bg-white border border-gray-200 text-ink font-bold text-[14px] flex items-center justify-center gap-2 active:bg-gray-100">
+        <AppIcon name="home" :size="18" />일반 화면으로 전환
+      </RouterLink>
+    </div>
   </main>
 
   <nav class="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-100 grid grid-cols-5" :style="{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }" aria-label="관리자 메뉴">

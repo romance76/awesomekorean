@@ -2,7 +2,8 @@
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
     <PageHeader title="포인트 적립·사용 규칙" icon="coins" fallback="/points" />
-    <p class="text-xs text-ink-muted mb-4">관리자 설정과 실시간 동기화되는 공식 규칙입니다.</p>
+    <p class="text-xs text-ink-muted mb-2">관리자 설정과 실시간 동기화되는 공식 규칙입니다.</p>
+    <RouterLink to="/grades" class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:text-amber-700 mb-4">포인트를 모으면 등급이 올라가요 · 회원 등급 안내 <AppIcon name="arrow-right" :size="13" /></RouterLink>
 
     <div v-if="loading" class="text-center text-ink-faint py-12">로딩 중...</div>
     <div v-else class="space-y-4">

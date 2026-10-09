@@ -162,6 +162,7 @@ const routes = [
   { path: '/notifications', name: 'notifications', component: p('Notifications'), meta: { auth: true } },
   { path: '/points', name: 'points', component: p('points/PointDashboard'), meta: { auth: true } },
   { path: '/points/rules', component: p('PointRules') },
+  { path: '/grades', name: 'grades', component: p('points/MemberGrades') },  // 회원 등급 15단계 안내
   { path: '/entries', redirect: '/dashboard?tab=entries' },  // 마이페이지 대시보드 탭으로 통합
   { path: '/sweepstakes', redirect: '/events?type=sweepstakes' },  // 이벤트 목록으로 통합
   { path: '/sweepstakes/:id', redirect: '/events?type=sweepstakes' },

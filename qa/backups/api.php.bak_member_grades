@@ -80,9 +80,6 @@ Route::get('/point-rules', function () {
     return response()->json(['success' => true, 'data' => $rows->groupBy('category')]);
 });
 
-// 회원 등급 15단계 안내용: 단계 이름·필요 누적 포인트·링 이미지 (관리자 설정값 반영)
-Route::get('/member-grades', fn () => response()->json(['success' => true, 'data' => \App\Support\MemberGrade::publicList()]));
-
 Route::get('/boards', [BoardController::class, 'index']);
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{id}', [PostController::class, 'show']);
