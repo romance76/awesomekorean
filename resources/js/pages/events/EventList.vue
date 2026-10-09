@@ -354,6 +354,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -488,6 +489,7 @@ const items = ref([])
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
+const locFilter = useLocationFilterStore()
 const search = ref('')
 const radius = ref(String(auth.user?.default_radius || 30))
 const selectedCityIdx = ref('-2') // -2=내위치, -1=전국, 0~=도시
@@ -601,6 +603,7 @@ async function loadFavoritesPage() {
 }
 
 onMounted(async () => {
+  const savedLoc = locFilter.get('events') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
   if (route.query.type && eventCategories.some(c => c.value === route.query.type && c.isType)) {
     activeCat.value = route.query.type
@@ -614,6 +617,8 @@ onMounted(async () => {
     selectedCityIdx.value = '-1'
     radius.value = '0'
   }
+  if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
+  if (route.query.search) search.value = String(route.query.search)
   await loadPage()
 
   // 메인 배너에서 ?open={id} 로 왔을 때 해당 이벤트 자동 열기
@@ -634,4 +639,6 @@ watch(() => route.params.id, (newId, oldId) => {
     activeItem.value = null
   }
 })
+
+watch([selectedCityIdx, radius], ([c, r]) => { locFilter.set('events', { cityIdx: c, radius: r }) })
 </script>

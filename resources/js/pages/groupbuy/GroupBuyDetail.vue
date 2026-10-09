@@ -2,10 +2,13 @@
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="gb?.title || '공동구매'" fallback="/groupbuy" />
-    <router-link to="/groupbuy" class="hidden lg:inline-flex items-center gap-2.5 text-xl font-bold text-ink mb-3 hover:text-amber-600 transition-colors">
+    <div class="hidden lg:flex items-center justify-between mb-3 flex-wrap gap-2">
+    <router-link to="/groupbuy" class="inline-flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
       <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
       공동구매
     </router-link>
+    <DetailHeaderTools section="groupbuy" list-path="/groupbuy" write-path="/groupbuy/create" />
+    </div>
 
     <div v-if="loading" class="text-center py-20 text-ink-muted">로딩중...</div>
 
@@ -423,6 +426,7 @@ import MessageModal from '../../components/MessageModal.vue'
 import { useFriendAction } from '../../composables/useSocialActions'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import axios from 'axios'
 
 const route = useRoute()

@@ -376,6 +376,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -481,6 +482,7 @@ const items = ref([])
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)
+const locFilter = useLocationFilterStore()
 const search = ref('')
 const sidebarPopular = ref(null)
 const sidebarLatest = ref(null)
@@ -607,21 +609,26 @@ async function loadFavoritesPage() {
 }
 
 onMounted(async () => {
+  const savedLoc = locFilter.get('directory') // 상세 화면에서 돌아올 때 위치·반경 유지
+  if (route.query.search) search.value = String(route.query.search)
   // 병렬: 설정 + 위치 + 북마크 동시 로드, 데이터는 전국으로 즉시 시작
   bStore.loadAll()
   const configP = loadConfig().then(() => { viewMode.value = getDefaultView('directory') })
   // 전국 모드로 즉시 로드 (위치 감지 기다리지 않음)
   selectedCityIdx.value = '-1'
   radius.value = '0'
+  if (savedLoc && String(savedLoc.cityIdx) !== '-2') { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
   loadPage()
   // 위치 감지 완료 후 재로드
   await configP
   await initLocation()
   if (city.value) {
     myCity.value = { ...city.value }
-    selectedCityIdx.value = '-2'
-    radius.value = '30'
-    loadPage() // 위치 기반으로 재로드
+    if (!savedLoc || String(savedLoc.cityIdx) === '-2') {
+      selectedCityIdx.value = '-2'
+      radius.value = savedLoc ? String(savedLoc.radius) : '30'
+      loadPage() // 위치 기반으로 재로드
+    }
   }
   // URL /directory/:id 자동 오픈 (Issue #16)
   await ensureActiveBizFromRoute()
@@ -650,4 +657,6 @@ watch(() => route.params.id, (newId, oldId) => {
     ensureActiveBizFromRoute()
   }
 })
+
+watch([selectedCityIdx, radius], ([c, r]) => { locFilter.set('directory', { cityIdx: c, radius: r }) })
 </script>

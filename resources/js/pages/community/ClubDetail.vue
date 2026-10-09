@@ -3,10 +3,13 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="club?.name || '동호회'" fallback="/clubs" />
     <!-- Title link (like ClubList) -->
-    <router-link to="/clubs" class="hidden lg:inline-flex items-center gap-2.5 text-xl font-bold text-ink mb-3 hover:text-amber-600 transition-colors">
+    <div class="hidden lg:flex items-center justify-between mb-3 flex-wrap gap-2">
+    <router-link to="/clubs" class="inline-flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
       <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
       동호회
     </router-link>
+    <DetailHeaderTools section="clubs" list-path="/clubs" write-path="/clubs/create" write-label="동호회 만들기" />
+    </div>
 
     <!-- Loading -->
     <div v-if="loading" class="text-center py-20">
@@ -583,6 +586,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 
 const route = useRoute()

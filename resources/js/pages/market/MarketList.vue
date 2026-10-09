@@ -257,6 +257,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted, watch } from 'vue'
+import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -307,6 +308,7 @@ async function deleteItem(type) {
 }
 const page = ref(1)
 const lastPage = ref(1)
+const locFilter = useLocationFilterStore()
 const search = ref('')
 const radius = ref(String(auth.user?.default_radius || 30))
 const selectedCityIdx = ref('-2') // -2=내위치, -1=전국, 0~=도시
@@ -468,6 +470,7 @@ watch(() => route.query, (q) => {
 })
 
 onMounted(async () => {
+  const savedLoc = locFilter.get('market') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
   await loadConfig()
   viewMode.value = getDefaultView('market')
@@ -481,6 +484,9 @@ onMounted(async () => {
     selectedCityIdx.value = '-1'
     radius.value = '0'
   }
+  if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
   loadPage()
 })
+
+watch([selectedCityIdx, radius], ([c, r]) => { locFilter.set('market', { cityIdx: c, radius: r }) })
 </script>

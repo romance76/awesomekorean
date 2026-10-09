@@ -7,6 +7,7 @@
         <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
         {{ pageTitle }}
       </h1>
+      <DetailHeaderTools section="shopping" list-path="/shopping" write-path="/shopping/write" :location="false" :search="false" write-label="내 리뷰 쓰기" />
     </div>
 
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
@@ -118,6 +119,7 @@ import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import AffiliateDisclosure from '../../components/AffiliateDisclosure.vue'
 import CommentSection from '../../components/CommentSection.vue'

@@ -7,6 +7,7 @@
         <span class="icon-chip w-9 h-9 bg-emerald-50 text-emerald-600"><AppIcon name="shopping-cart" :size="20" /></span>
         중고장터
       </h1>
+      <DetailHeaderTools section="market" list-path="/market" write-path="/market/write" />
     </div>
 
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
@@ -312,6 +313,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import { useBookmarkStore } from '../../stores/bookmarks'

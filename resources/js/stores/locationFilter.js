@@ -27,6 +27,7 @@ export function getSection(path) {
   if (path.startsWith('/realestate')) return 'realestate'
   if (path.startsWith('/directory')) return 'directory'
   if (path.startsWith('/community')) return 'community'
+  if (path.startsWith('/clubs')) return 'clubs'
   if (path.startsWith('/events')) return 'events'
   if (path.startsWith('/groupbuy')) return 'groupbuy'
   if (path.startsWith('/qa')) return 'qa'

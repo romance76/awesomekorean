@@ -7,6 +7,7 @@
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="utensils" :size="20" /></span>
         레시피
       </h1>
+      <DetailHeaderTools section="recipes" list-path="/recipes" write-path="/recipes/write" :location="false" :search="false" write-label="레시피 등록" />
       <button @click="$router.push('/recipes')" class="text-sm text-ink-muted hover:text-amber-600 transition-colors inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="14" />레시피 목록</button>
     </div>
 
@@ -241,6 +242,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 
 const auth = useAuthStore()
 const route = useRoute()

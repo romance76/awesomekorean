@@ -2,7 +2,10 @@
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="event?.title || '이벤트'" fallback="/events" />
-    <router-link to="/events" class="hidden lg:inline-flex items-center gap-1 text-sm text-ink-muted hover:text-amber-600 mb-3 transition-colors"><AppIcon name="arrow-left" :size="14" />이벤트 목록</router-link>
+    <div class="hidden lg:flex items-center justify-between mb-3 flex-wrap gap-2">
+      <router-link to="/events" class="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-amber-600 transition-colors"><AppIcon name="arrow-left" :size="14" />이벤트 목록</router-link>
+      <DetailHeaderTools section="events" list-path="/events" write-path="/events/create" />
+    </div>
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="event" class="grid grid-cols-12 gap-4">
       <div class="col-span-12 lg:col-span-9">
@@ -222,6 +225,7 @@ import CommentSection from '../../components/CommentSection.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
 import axios from 'axios'

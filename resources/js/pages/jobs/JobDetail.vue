@@ -21,7 +21,7 @@
         </router-link>
       </div>
       <div class="justify-self-end">
-        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary px-3 py-1.5 rounded-lg text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
+        <DetailHeaderTools section="jobs" list-path="/jobs" write-path="/jobs/write" />
       </div>
     </div>
 
@@ -318,6 +318,7 @@ import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import axios from 'axios'
 
 const route = useRoute()

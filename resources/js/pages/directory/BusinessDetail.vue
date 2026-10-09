@@ -1,7 +1,10 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <button @click="$router.back()" class="btn-ghost text-sm mb-3"><AppIcon name="arrow-left" :size="14" />업소록</button>
+    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+      <button @click="$router.back()" class="btn-ghost text-sm"><AppIcon name="arrow-left" :size="14" />업소록</button>
+      <div class="hidden lg:block"><DetailHeaderTools section="directory" list-path="/directory" write-path="/directory/register" /></div>
+    </div>
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="biz" class="grid grid-cols-12 gap-4">
       <div class="col-span-12 lg:col-span-9">
@@ -108,6 +111,7 @@ import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import LeafletMap from '../../components/LeafletMap.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import axios from 'axios'

@@ -26,7 +26,7 @@
         </RouterLink>
       </div>
       <div class="justify-self-end">
-        <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary px-3 py-1.5 text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
+        <DetailHeaderTools section="realestate" list-path="/realestate" write-path="/realestate/write" />
       </div>
     </div>
 
@@ -250,6 +250,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 
 const route = useRoute()
 const router = useRouter()

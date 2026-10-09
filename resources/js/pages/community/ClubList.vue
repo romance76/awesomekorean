@@ -178,6 +178,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useRoute } from 'vue-router'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -216,6 +217,7 @@ const clubCategories = [
   { value: '기타', label: '📋 기타' },
 ]
 const type = ref('')
+const locFilter = useLocationFilterStore()
 const search = ref('')
 const radius = ref(String(auth.user?.default_radius || 30))
 const selectedCityIdx = ref('-2')
@@ -334,10 +336,13 @@ async function loadMyClubs() {
 }
 
 onMounted(async () => {
+  const savedLoc = locFilter.get('clubs') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
   await initLocation()
   if (city.value) { myCity.value = { ...city.value }; selectedCityIdx.value = '-2' }
   else { selectedCityIdx.value = '-1'; radius.value = '0' }
+  if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
+  if (route.query.search) search.value = String(route.query.search)
   loadClubs()
   loadMyClubs()
 })
@@ -347,4 +352,6 @@ watch(() => route.params.id, (newId, oldId) => {
     loadClubs()
   }
 })
+
+watch([selectedCityIdx, radius], ([c, r]) => { locFilter.set('clubs', { cityIdx: c, radius: r }) })
 </script>

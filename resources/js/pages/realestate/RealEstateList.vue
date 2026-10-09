@@ -320,6 +320,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -452,6 +453,7 @@ async function deleteActiveItem() {
 }
 const page = ref(1)
 const lastPage = ref(1)
+const locFilter = useLocationFilterStore()
 const search = ref('')
 const radius = ref(String(auth.user?.default_radius || 30))
 const selectedCityIdx = ref('-2') // -2=내위치, -1=전국, 0~=도시
@@ -598,6 +600,7 @@ async function loadPage(p = 1) {
 }
 
 onMounted(async () => {
+  const savedLoc = locFilter.get('realestate') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
   await loadConfig(); viewMode.value = getDefaultView('realestate')
 
@@ -616,6 +619,8 @@ onMounted(async () => {
     selectedCityIdx.value = '-1'
     radius.value = '0'
   }
+  if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
+  if (route.query.search) search.value = String(route.query.search)
 
   if (showFavorites.value) loadFavoritesPage()
   else loadPage()
@@ -627,4 +632,6 @@ watch(() => route.params.id, (newId, oldId) => {
     activeItem.value = null
   }
 })
+
+watch([selectedCityIdx, radius], ([c, r]) => { locFilter.set('realestate', { cityIdx: c, radius: r }) })
 </script>
