@@ -101,15 +101,7 @@
 
     <!-- Row 2: 데스크톱 메뉴 -->
     <div class="border-t border-gray-50 hidden md:block">
-      <div class="relative max-w-7xl mx-auto">
-       <button v-show="navCanLeft" type="button" @click="navScroll(-1)" aria-label="왼쪽 메뉴 보기"
-         class="absolute left-0 top-0 z-10 h-10 w-10 flex items-center justify-start pl-2 text-ink-muted hover:text-ink"
-         style="background:linear-gradient(to right,#fff 55%,rgba(255,255,255,0))"><AppIcon name="chevron-left" :size="16" /></button>
-       <button v-show="navCanRight" type="button" @click="navScroll(1)" aria-label="오른쪽 메뉴 보기"
-         class="absolute right-0 top-0 z-10 h-10 w-10 flex items-center justify-end pr-2 text-ink-muted hover:text-ink"
-         style="background:linear-gradient(to left,#fff 55%,rgba(255,255,255,0))"><AppIcon name="chevron-right" :size="16" /></button>
-       <div ref="menuRow" @scroll.passive="updateNavArrows" @wheel="onNavWheel" class="px-4 overflow-x-auto scrollbar-hide">
-        <div class="flex items-center h-10 w-max mx-auto">
+      <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-10 overflow-x-auto scrollbar-hide">
         <template v-for="item in visibleMenus" :key="item.path">
           <a v-if="item.external" :href="item.path"
             class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150 border-transparent text-ink-light hover:text-ink">
@@ -121,8 +113,6 @@
             {{ item.label }}
           </RouterLink>
         </template>
-        </div>
-       </div>
       </div>
     </div>
 
@@ -186,7 +176,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
@@ -416,36 +406,6 @@ function onVisibility() {
 }
 
 onMounted(() => { document.addEventListener('visibilitychange', onVisibility) })
-
-// 데스크톱 메뉴 줄: 창이 좁아 메뉴가 넘칠 때 양끝 메뉴도 눌러 볼 수 있도록 화살표/휠 스크롤 제공
-const menuRow = ref(null)
-const navCanLeft = ref(false)
-const navCanRight = ref(false)
-function updateNavArrows() {
-  const el = menuRow.value
-  if (!el) return
-  navCanLeft.value = el.scrollLeft > 2
-  navCanRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 2
-}
-function navScroll(dir) { menuRow.value?.scrollBy({ left: dir * 240, behavior: 'smooth' }) }
-function onNavWheel(e) {
-  const el = menuRow.value
-  if (el && el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-    el.scrollLeft += e.deltaY
-    e.preventDefault()
-  }
-}
-// 현재 페이지 메뉴가 화면 밖에 있으면 보이는 위치로 스크롤
-function revealActiveMenu() {
-  const el = menuRow.value
-  const active = el?.querySelector('.border-amber-400')
-  if (!el || !active || el.scrollWidth <= el.clientWidth) return
-  el.scrollLeft = active.offsetLeft - (el.clientWidth - active.offsetWidth) / 2
-}
-onMounted(() => { nextTick(() => { revealActiveMenu(); updateNavArrows() }); window.addEventListener('resize', updateNavArrows) })
-watch(() => route.path, () => nextTick(() => { revealActiveMenu(); updateNavArrows() }))
-onUnmounted(() => window.removeEventListener('resize', updateNavArrows))
-watch(() => visibleMenus.value, () => nextTick(updateNavArrows), { deep: true })
 
 onUnmounted(() => {
   if (pollInterval) clearInterval(pollInterval)
