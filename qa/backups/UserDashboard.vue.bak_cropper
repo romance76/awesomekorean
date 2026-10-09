@@ -30,14 +30,13 @@
       <div class="card p-5">
         <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="edit" :size="15" /></span>프로필 수정</h2>
         <!-- 아바타 -->
-        <AvatarCropper v-if="cropFile" :file="cropFile" @cancel="cropFile = null" @confirm="onCropped" />
         <div class="flex items-center gap-1 mb-5">
           <UserAvatar :user="auth.user" :size="156" class="-ml-4 -my-3" />
           <div class="min-w-0 flex flex-col items-start gap-1.5">
             <div v-if="myTier" class="text-[15px] font-extrabold text-ink leading-tight">Lv.{{ myTier.level }} {{ myTier.label }}</div>
             <RouterLink to="/grades" class="text-xs text-amber-600 font-bold hover:text-amber-700">등급 안내 · 올리는 방법 →</RouterLink>
             <label class="cursor-pointer text-sm text-amber-600 font-bold hover:text-amber-700 inline-flex items-center gap-1 transition-colors">
-              <AppIcon name="camera" :size="15" /> 사진 변경<input type="file" accept="image/*" @change="pickAvatar" class="hidden" />
+              <AppIcon name="camera" :size="15" /> 사진 변경<input type="file" accept="image/*" @change="uploadAvatar" class="hidden" />
             </label>
             <span v-if="avatarMsg" class="text-xs text-green-600">{{ avatarMsg }}</span>
           </div>
@@ -1051,7 +1050,6 @@ import MyShoppingReviews from '../shopping/MyShoppingReviews.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
-import AvatarCropper from '../../components/AvatarCropper.vue'
 import { useMemberGrades } from '../../composables/useMemberGrades'
 
 const { showAlert, showConfirm, showPrompt } = useModal()
@@ -1212,25 +1210,15 @@ async function saveProfile() {
   catch (e) { pfMsg.value = e.response?.data?.message || '저장 실패'; pfMsgType.value = 'error' }
   pfSaving.value = false
 }
-// 사진을 고르면 바로 올리지 않고, 원 안에 맞추는 창(AvatarCropper)을 먼저 띄운다
-const cropFile = ref(null)
-function pickAvatar(e) {
+async function uploadAvatar(e) {
   const file = e.target.files[0]
-  e.target.value = ''   // 같은 파일 재선택 가능하도록 리셋
   if (!file) return
   // 10MB 초과 즉시 차단
   if (file.size > 10 * 1024 * 1024) {
     avatarMsg.value = `파일이 너무 큽니다 (${(file.size/1024/1024).toFixed(1)}MB). 최대 10MB.`
+    e.target.value = ''
     return
   }
-  if (!file.type.startsWith('image/')) { avatarMsg.value = '이미지 파일만 올릴 수 있어요.'; return }
-  cropFile.value = file
-}
-async function onCropped(blob) {
-  cropFile.value = null
-  await sendAvatar(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }))
-}
-async function sendAvatar(file) {
   const fd = new FormData()
   fd.append('avatar', file)
   avatarMsg.value = '업로드 중...'
@@ -1249,6 +1237,8 @@ async function sendAvatar(file) {
       || '업로드 실패'
     avatarMsg.value = '실패: ' + msg
   }
+  // 같은 파일 재선택 가능하도록 리셋
+  e.target.value = ''
 }
 async function changePw() {
   if (pw.password !== pw.password_confirmation) { pwMsg.value = '비밀번호가 일치하지 않습니다'; pwMsgType.value = 'error'; return }
