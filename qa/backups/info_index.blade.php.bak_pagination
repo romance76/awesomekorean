@@ -87,7 +87,7 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-6">{{ $posts->links('partials.pagination') }}</div>
+                    <div class="mt-6">{{ $posts->links() }}</div>
                 @else
                     <div class="space-y-2">
                         @foreach ($posts as $post)
@@ -114,7 +114,7 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-6">{{ $posts->links('partials.pagination') }}</div>
+                    <div class="mt-6">{{ $posts->links() }}</div>
                 @endif
             </div>
 
