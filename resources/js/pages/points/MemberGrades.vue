@@ -64,13 +64,17 @@
     <!-- 속도 -->
     <section class="card p-4 mb-4">
       <h2 class="text-base font-bold text-ink mb-2">올라가는 속도는 이 정도예요</h2>
-      <div class="text-xs text-ink-light space-y-1.5">
-        <div class="flex justify-between gap-3"><span>브론즈 ~ 골드 (Lv.2~4)</span><b class="text-ink">며칠 ~ 몇 주</b></div>
-        <div class="flex justify-between gap-3"><span>로즈 ~ 사파이어 (Lv.5~7)</span><b class="text-ink">한 달 ~ 몇 달</b></div>
-        <div class="flex justify-between gap-3"><span>아쿠아 ~ 스타 사파이어 (Lv.8~10)</span><b class="text-ink">몇 달 ~ 1년 안팎</b></div>
-        <div class="flex justify-between gap-3"><span>바이올렛 ~ 레전드 (Lv.11~15)</span><b class="text-ink">1년 이상</b></div>
+      <div class="text-[11px] text-ink-faint grid grid-cols-[1fr_auto_auto] gap-x-3 mb-1.5">
+        <span></span><span class="text-right">모든 활동을<br>열심히 할 때</span><span class="text-right">매일 꾸준히<br>일일 보상만</span>
       </div>
-      <p class="text-[11px] text-ink-faint mt-2">매일 꾸준히 활동하는 경우의 대략적인 예시예요. 실제 속도는 활동량에 따라 달라요.</p>
+      <div class="text-xs text-ink-light divide-y divide-gray-50">
+        <div class="grid grid-cols-[1fr_auto_auto] gap-x-3 py-1.5"><span>골드 (Lv.4)</span><b class="text-ink text-right">약 1주</b><b class="text-ink-light text-right">약 1개월</b></div>
+        <div class="grid grid-cols-[1fr_auto_auto] gap-x-3 py-1.5"><span>사파이어 (Lv.7)</span><b class="text-ink text-right">약 2개월</b><b class="text-ink-light text-right">약 7개월</b></div>
+        <div class="grid grid-cols-[1fr_auto_auto] gap-x-3 py-1.5"><span>에메랄드 월계 (Lv.9)</span><b class="text-ink text-right">약 6개월</b><b class="text-ink-light text-right">약 1년 반</b></div>
+        <div class="grid grid-cols-[1fr_auto_auto] gap-x-3 py-1.5"><span>마젠타 월계 (Lv.12)</span><b class="text-ink text-right">약 1년 반</b><b class="text-ink-light text-right">4년 이상</b></div>
+        <div class="grid grid-cols-[1fr_auto_auto] gap-x-3 py-1.5"><span>레전드 (Lv.15)</span><b class="text-ink text-right">4~5년</b><b class="text-ink-light text-right">10년 이상</b></div>
+      </div>
+      <p class="text-[11px] text-ink-faint mt-2">대략적인 예시예요. 실제 속도는 활동량과 이웃들의 반응(좋아요·거래 등)에 따라 달라져요.</p>
     </section>
 
     <!-- 예전 등급 -->
@@ -79,10 +83,10 @@
       <p class="text-xs text-ink-light leading-relaxed mb-2">예전 10단계에서 15단계로 새로 나눴어요. 기준이 낮아졌기 때문에 기존 회원의 등급이 내려가는 일은 없어요.</p>
       <div class="text-[11px] text-ink-light grid grid-cols-2 gap-x-4 gap-y-1">
         <span>새싹 → Lv.1~2</span><span>초보 → Lv.3</span>
-        <span>일반회원 → Lv.4</span><span>활동회원 → Lv.5</span>
-        <span>우수회원 → Lv.7</span><span>인기회원 → Lv.9</span>
-        <span>베테랑 → Lv.11</span><span>마스터 → Lv.14</span>
-        <span class="col-span-2">레전드·명예의 전당 → Lv.15</span>
+        <span>일반회원 → Lv.3~4</span><span>활동회원 → Lv.4~5</span>
+        <span>우수회원 → Lv.6</span><span>인기회원 → Lv.8</span>
+        <span>베테랑 → Lv.9~10</span><span>마스터 → Lv.12</span>
+        <span>레전드 → Lv.13~14</span><span>명예의 전당 → Lv.15</span>
       </div>
     </section>
 
