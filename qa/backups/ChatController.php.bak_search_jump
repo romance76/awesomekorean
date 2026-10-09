@@ -457,24 +457,10 @@ class ChatController extends Controller
         $room = ChatRoom::findOrFail($id);
         if (!\App\Support\ChatAccess::hasPublicAccess($room, auth()->user())) return \App\Support\ChatAccess::denied();
 
-        // 검색 결과로 들어온 경우(around=찾은 메시지 id): 그 메시지 앞 25개 + 뒤 25개를 내려준다.
-        // 일반 조회와 같이 "최신 → 오래된" 순서로 내려 화면 쪽 처리(reverse)를 그대로 쓴다.
-        $aroundId = (int) request('around');
-        $center = $aroundId ? ChatMessage::where('chat_room_id', $id)->find($aroundId) : null;
-        if ($center) {
-            $older = ChatMessage::with('user:id,name,nickname,avatar,role')
-                ->where('chat_room_id', $id)->where('id', '<=', $center->id)
-                ->orderByDesc('id')->limit(26)->get();
-            $newer = ChatMessage::with('user:id,name,nickname,avatar,role')
-                ->where('chat_room_id', $id)->where('id', '>', $center->id)
-                ->orderBy('id')->limit(25)->get();
-            $messages = $newer->reverse()->values()->concat($older)->values();
-        } else {
-            $messages = ChatMessage::with('user:id,name,nickname,avatar,role')
-                ->where('chat_room_id',$id)
-                ->orderByDesc('created_at')
-                ->paginate(50);
-        }
+        $messages = ChatMessage::with('user:id,name,nickname,avatar,role')
+            ->where('chat_room_id',$id)
+            ->orderByDesc('created_at')
+            ->paginate(50);
 
         $pinned = ChatMessage::with('user:id,name,nickname,avatar,role')
             ->where('chat_room_id', $id)

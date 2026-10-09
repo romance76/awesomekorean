@@ -255,8 +255,8 @@
           </div>
 
           <!-- 자동스크롤 일시정지 알림 -->
-          <div v-if="(autoScrollPaused || historyMode) && activeMessages.length" class="absolute bottom-20 right-6 z-10">
-            <button @click="goLatest" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lift hover:bg-amber-600 flex items-center gap-1 transition-colors">
+          <div v-if="autoScrollPaused && activeMessages.length" class="absolute bottom-20 right-6 z-10">
+            <button @click="scrollToBottomForce" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lift hover:bg-amber-600 flex items-center gap-1 transition-colors">
               <AppIcon name="chevron-down" :size="13" />최신 메시지로 {{ pausedNewCount ? '('+pausedNewCount+')' : '' }}
             </button>
           </div>
@@ -1021,7 +1021,6 @@ function subscribeToRoom(roomId) {
       if (Number(activeRoom.value?.id) !== Number(roomId)) return
       if (payload.chat_room_id && Number(payload.chat_room_id) !== Number(roomId)) return
       if (activeMessages.value.some(m => m.id === payload.id)) return
-      if (historyMode.value) { pausedNewCount.value++; return }
       activeMessages.value.push(payload)
       if (payload.type === 'system' && payload.pinned_until) {
         pinnedAnnouncements.value = [payload, ...pinnedAnnouncements.value.filter(p => p.id !== payload.id)]
@@ -1079,7 +1078,6 @@ function showUnreadDivider(idx) {
 // ─── 자동스크롤 일시정지 (텔레그램 스타일) ───
 const autoScrollPaused = ref(false)
 const pausedNewCount = ref(0)
-const historyMode = ref(false) // 검색 결과로 들어와 '과거 구간'을 보는 중 (최신 메시지는 따로 불러와야 함)
 function onMsgScroll(e) {
   const el = e.target
   const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 40
@@ -1089,14 +1087,6 @@ function onMsgScroll(e) {
   } else {
     autoScrollPaused.value = true
   }
-}
-async function goLatest() {
-  if (historyMode.value && activeRoom.value) {
-    msgSearchResults.value = []
-    await selectRoom(activeRoom.value, { skipRoute: true })
-    return
-  }
-  scrollToBottomForce()
 }
 function scrollToBottomForce() {
   if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
@@ -1151,8 +1141,11 @@ async function scrollToSearchResult() {
   // 화면에 보이는 메시지면 바로 스크롤, 아니면 해당 위치의 메시지를 로드해야 함
   const exists = activeMessages.value.find(m => m.id === hit.id)
   if (!exists) {
-    await selectRoom(activeRoom.value, { skipRoute: true, aroundId: hit.id, keepSearch: true })
-    return
+    // 간단 버전: 검색 결과를 activeMessages 에 병합 (중복 제거)
+    const merged = [...activeMessages.value, ...msgSearchResults.value]
+      .reduce((acc, m) => { if (!acc.find(x => x.id === m.id)) acc.push(m); return acc }, [])
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    activeMessages.value = merged
   }
   await nextTick()
   const el = document.getElementById('msg-' + hit.id)
@@ -1259,13 +1252,12 @@ async function selectRoom(room, opts = {}) {
   lastReadAt.value = null
   autoScrollPaused.value = false
   pausedNewCount.value = 0
-  if (!opts.keepSearch) closeMsgSearch()
-  historyMode.value = !!opts.aroundId
+  closeMsgSearch()
   clearFiles()
   subscribeToRoom(room.id)
   try {
     const { data } = await axios.get(`/api/chat/rooms/${room.id}/messages`, {
-      params: { _ts: Date.now(), ...(opts.aroundId ? { around: opts.aroundId } : {}) },
+      params: { _ts: Date.now() },
     })
     if (seq !== selectRoomSeq || activeRoom.value?.id !== room.id) return
     const msgs = (data.data?.data || data.data || []).reverse()
@@ -1277,13 +1269,7 @@ async function selectRoom(room, opts = {}) {
 
     await nextTick()
     const markerEl = document.getElementById('unread-marker-' + room.id)
-    const hitEl = opts.aroundId ? document.getElementById('msg-' + opts.aroundId) : null
-    if (hitEl) {
-      // 검색으로 찾은 메시지로 이동 + 표시(링). 위로 올라와 있는 상태이므로 자동 스크롤은 멈춤
-      hitEl.scrollIntoView({ block: 'center' })
-      autoScrollPaused.value = true
-      if (!opts.keepSearch) { msgSearchResults.value = [{ id: Number(opts.aroundId) }]; msgSearchIdx.value = 0 }
-    } else if (markerEl && lastReadAt.value) {
+    if (markerEl && lastReadAt.value) {
       markerEl.scrollIntoView({ block: 'center' })
     } else if (msgArea.value) {
       msgArea.value.scrollTop = msgArea.value.scrollHeight
@@ -1300,7 +1286,6 @@ async function selectRoom(room, opts = {}) {
 
 async function sendMsg() {
   if ((!newMsg.value.trim() && !selectedFiles.value.length) || !auth.isLoggedIn || !activeRoom.value) return
-  if (historyMode.value) await goLatest()
   sending.value = true
   try {
     const fd = new FormData()
@@ -1426,18 +1411,18 @@ async function selectSearchResult(room) {
   const q = roomSearchQ.value.trim()
   roomSearchQ.value = ''
   roomSearchResults.value = []
-  // 서버가 알려 준 '찾은 메시지'(match_message_id)의 앞뒤 대화를 불러와 그 자리로 이동한다
-  await selectRoom(room, room.match_message_id ? { aroundId: room.match_message_id } : {})
-  // 같은 검색어로 방 안 검색 바도 열어서 다른 결과로 이전/다음 이동 가능하게
-  if (q && room.match_message_id) {
+  await selectRoom(room)
+  // 매치된 지점으로 이동: 방 안 메시지 검색을 같은 검색어로 돌려서
+  // 기존 메시지 검색 팝업(하이라이트·이전/다음 이동)을 그대로 활용
+  if (q) {
     msgSearchQ.value = q
     try {
       const { data } = await axios.get(`/api/chat/rooms/${room.id}/messages/search`, { params: { q } })
-      const hits = data.data || []
-      if (hits.length) {
-        msgSearchResults.value = hits
-        msgSearchIdx.value = Math.max(0, hits.findIndex(h => Number(h.id) === Number(room.match_message_id)))
+      msgSearchResults.value = data.data || []
+      msgSearchIdx.value = 0
+      if (msgSearchResults.value.length) {
         msgSearchOpen.value = true
+        await scrollToSearchResult()
       }
     } catch {}
   }
