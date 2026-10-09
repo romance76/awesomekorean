@@ -76,7 +76,7 @@ function isMissing(c, key) {
 }
 
 function confettiStyle(n) {
-  const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#a855f7', '#ec4899']
+  const colors = ['#FC226B', '#ef4444', '#10b981', '#3b82f6', '#a855f7', '#ec4899']
   return {
     left: `${(n * 7.3) % 100}%`,
     background: colors[n % colors.length],

@@ -433,7 +433,7 @@ onBeforeUnmount(() => { clearTimers(); if (clock) clearInterval(clock) })
 /* 버튼 */
 .ls-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
 .ls-btn { flex: 1 1 180px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 18px; border-radius: 14px; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .15s, opacity .15s; }
-.ls-btn.primary { color: #3a2606; border: 0; background: linear-gradient(180deg, #ffe9a8, #f1ba4b 60%, #d9992a); box-shadow: 0 6px 18px rgba(241, 186, 75, .3); }
+.ls-btn.primary { color: #fff; border: 0; background: linear-gradient(180deg, #FF4F88, #FC226B 60%, #E0145A); box-shadow: 0 6px 18px rgba(252, 34, 107, .32); }
 .ls-btn.primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(241, 186, 75, .45); }
 .ls-btn.primary:disabled { opacity: .55; cursor: not-allowed; }
 .ls-btn.skip { flex: 0 1 150px; color: #fff; background: rgba(255, 93, 122, .22); border: 1px solid #ff5d7a; }

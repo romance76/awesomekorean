@@ -538,7 +538,7 @@ onMounted(async () => {
 .sw-sec { border: 1px solid #f1f1f1; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: #fff; }
 .sw-h { font-size: 14px; font-weight: 800; color: #3a2a12; }
 .sw-seg { border: 2px solid #f0f0f0; border-radius: 12px; padding: 10px 12px; font-size: 14px; font-weight: 700; color: #444; background: #fff; transition: all .15s; }
-.sw-seg.on { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+.sw-seg.on { border-color: #FC226B; background: #FFF0F5; color: #B80F49; }
 .sw-seg:disabled { opacity: .6; cursor: not-allowed; }
 .sw-step { width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e5e5e5; background: #fff; font-size: 18px; font-weight: 800; line-height: 1; }
 .sw-step:disabled { opacity: .35; }
