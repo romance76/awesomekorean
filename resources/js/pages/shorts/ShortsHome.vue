@@ -1,38 +1,27 @@
 <template>
-<div class="fixed inset-0 bg-black z-40 flex flex-col">
+<div ref="rootEl" class="fixed inset-0 bg-black flex flex-col select-none" :class="pseudoFs ? 'z-[2000]' : 'z-40'" style="height:100vh;height:100dvh;overscroll-behavior:contain">
   <!-- 상단 바 -->
-  <div class="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3">
-    <RouterLink to="/" class="text-white text-sm font-bold opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="15" />홈</RouterLink>
+  <div class="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3" style="padding-top:max(0.75rem, env(safe-area-inset-top))">
+    <RouterLink v-if="!isFs" to="/" class="text-white text-sm font-bold opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="15" />홈</RouterLink>
+    <span v-else class="w-10"></span>
     <h1 class="text-white font-bold text-sm inline-flex items-center gap-1.5"><AppIcon name="video" :size="15" />숏츠</h1>
-    <RouterLink v-if="auth.isLoggedIn" to="/shorts/upload" class="text-white text-sm opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="plus" :size="14" />업로드</RouterLink>
-    <span v-else></span>
+    <div class="flex items-center gap-3">
+      <button @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="text-white opacity-90 hover:opacity-100 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-base leading-none">{{ isFs ? '✕' : '⛶' }}</button>
+      <RouterLink v-if="auth.isLoggedIn && !isFs" to="/shorts/upload" class="text-white text-sm opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="plus" :size="14" />업로드</RouterLink>
+    </div>
   </div>
 
   <!-- 메인 비디오 영역 -->
   <div v-if="loading" class="flex-1 flex items-center justify-center text-white">로딩중...</div>
   <div v-else-if="!shorts.length" class="flex-1 flex items-center justify-center text-white text-sm">숏츠가 없습니다</div>
   <div v-else class="flex-1 relative overflow-hidden">
-    <!-- 현재 비디오 -->
+    <!-- 현재 비디오: 플레이어 1개만 유지하고 영상만 교체 (iOS 사용자 제스처 유지) -->
     <div class="w-full h-full flex items-center justify-center">
       <div class="w-full max-w-md h-full max-h-[90vh] relative">
-        <iframe
-          :key="current.youtube_id"
-          :src="`https://www.youtube.com/embed/${current.youtube_id}?autoplay=1&loop=1&controls=1&modestbranding=1&playsinline=1`"
-          class="w-full h-full rounded-xl"
-          frameborder="0"
-          allow="autoplay; encrypted-media"
-          allowfullscreen
-        ></iframe>
-
-        <!-- 모바일 스와이프 터치 오버레이 (iframe 위에 양쪽 스와이프 영역) -->
-        <div class="absolute inset-y-0 left-0 w-16 z-10 lg:hidden"
-          @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd"></div>
-        <div class="absolute inset-y-0 right-16 left-16 top-0 bottom-24 z-10 lg:hidden"
-          @touchstart.passive="onTouchStart" @touchend.passive="onTouchEnd"
-          @click="togglePlay"></div>
+        <div ref="playerHost" class="w-full h-full rounded-xl overflow-hidden bg-black" style="pointer-events:none"></div>
 
         <!-- 오른쪽 액션 버튼 -->
-        <div class="absolute right-3 bottom-32 flex flex-col items-center gap-5">
+        <div class="absolute right-3 bottom-32 flex flex-col items-center gap-5 z-20">
           <button @click="toggleLike" class="flex flex-col items-center">
             <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center" :class="liked ? 'text-red-500' : 'text-white'"><AppIcon name="heart" :size="20" :filled="liked" /></div>
             <span class="text-white text-xs mt-1">{{ current.like_count }}</span>
@@ -48,23 +37,37 @@
         </div>
 
         <!-- 하단 정보 -->
-        <div class="absolute bottom-4 left-4 right-16">
+        <div class="absolute bottom-4 left-4 right-16 z-20 pointer-events-none">
           <div class="text-white font-bold text-sm drop-shadow">{{ current.title }}</div>
           <div class="text-white/70 text-xs mt-1">{{ current.user?.name || '익명' }}</div>
         </div>
       </div>
     </div>
 
+    <!-- 제스처 레이어: iframe 이 터치를 먹지 않도록 영상 전체 위를 투명 레이어로 덮음 (탭=재생/일시정지, 위/아래 스와이프=이동) -->
+    <div data-gesture class="absolute inset-0 z-10" style="touch-action:none;-webkit-tap-highlight-color:transparent"
+      @touchstart.passive="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @touchcancel="onTouchCancel"
+      @click="onLayerClick"></div>
+
+    <!-- 상태 표시 (터치를 막지 않음) -->
+    <div class="absolute inset-0 z-[15] flex items-center justify-center pointer-events-none">
+      <div v-if="needTap" data-needtap class="bg-black/60 text-white rounded-full px-5 py-3 text-sm font-bold">▶ 탭하여 재생</div>
+      <div v-else-if="paused" class="bg-black/50 text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl">▶</div>
+      <div v-else-if="starting" class="text-white/70 text-xs">불러오는 중...</div>
+    </div>
+    <div v-if="toast" class="absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-black/70 text-white text-xs rounded-full px-4 py-2 pointer-events-none whitespace-nowrap">{{ toast }}</div>
+    <button v-if="!soundOn && !needTap" @click.stop="enableSound" class="absolute top-16 right-3 z-30 bg-white/90 text-black text-xs font-bold rounded-full px-3 py-1.5 shadow">🔊 소리 켜기</button>
+
     <!-- 위/아래 네비 버튼: PC는 옆, 모바일은 하단 -->
     <!-- PC 버튼 -->
-    <div class="absolute top-1/2 left-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-3" style="margin-left: calc(224px + 16px);">
+    <div class="absolute top-1/2 left-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-3 z-20" style="margin-left: calc(224px + 16px);">
       <button @click="prev" :disabled="idx <= 0"
         class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="20" /></button>
       <button @click="next" :disabled="idx >= shorts.length - 1"
         class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="20" /></button>
     </div>
     <!-- 모바일 버튼 (하단 중앙) -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-6 lg:hidden z-20">
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-6 lg:hidden z-20" style="bottom:max(1.5rem, env(safe-area-inset-bottom))">
       <button @click="prev" :disabled="idx <= 0"
         class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white active:bg-white/50 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="22" /></button>
       <button @click="next" :disabled="idx >= shorts.length - 1"
@@ -72,13 +75,13 @@
     </div>
 
     <!-- 카운터 -->
-    <div class="absolute bottom-4 right-4 text-white/50 text-xs">
+    <div class="absolute bottom-4 right-4 text-white/50 text-xs z-20 pointer-events-none">
       {{ idx + 1 }} / {{ shorts.length }}
     </div>
   </div>
 
   <!-- 댓글 패널 -->
-  <div v-if="showComments" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[50vh] overflow-y-auto shadow-lift">
+  <div v-if="showComments" data-comments class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl z-50 max-h-[50vh] overflow-y-auto shadow-lift" style="overscroll-behavior:contain">
     <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50 sticky top-0 bg-white">
       <span class="font-bold text-sm text-ink inline-flex items-center gap-1.5"><AppIcon name="message-circle" :size="15" class="text-amber-600" />댓글</span>
       <button @click="showComments=false" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="16" /></button>
@@ -101,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import AppIcon from '../../components/AppIcon.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
@@ -116,13 +119,213 @@ const showComments = ref(false)
 const comments = ref([])
 const newComment = ref('')
 
+// 재생 상태
+const rootEl = ref(null)
+const playerHost = ref(null)
+const paused = ref(false)     // 사용자가 일시정지한 상태
+const starting = ref(false)   // 로딩/시작 대기
+const needTap = ref(false)    // 자동재생 실패 → 탭 유도
+const soundOn = ref(false)    // 첫 제스처 이후 true
+const toast = ref('')
+// 전체화면
+const nativeFs = ref(false)
+const pseudoFs = ref(false)
+const isFs = computed(() => nativeFs.value || pseudoFs.value)
+
 const current = computed(() => shorts.value[idx.value] || {})
 
+let player = null
+let playerReady = false
+let destroyed = false
+let retryTimer = null
+let watchdog = null
+let toastTimer = null
+let retryCount = 0
+let wasPlayingBeforeHide = false
+let page = 1
+let lastPage = 1
+let loadingMore = false
+
+function safe(fn) { try { return fn() } catch { return undefined } }
+
+// ─── YouTube IFrame API (MiniPlayer 와 같은 script 태그 공유) ───
+function loadYTApi() {
+  return new Promise((resolve, reject) => {
+    if (window.YT?.Player) return resolve()
+    if (!document.getElementById('yt-api-script')) {
+      const t = document.createElement('script')
+      t.id = 'yt-api-script'; t.src = 'https://www.youtube.com/iframe_api'
+      t.onerror = () => reject(new Error('yt api'))
+      document.head.appendChild(t)
+    }
+    let n = 0
+    const c = setInterval(() => {
+      if (window.YT?.Player) { clearInterval(c); resolve() }
+      else if (++n > 150) { clearInterval(c); reject(new Error('yt timeout')) }
+    }, 100)
+  })
+}
+
+function showToast(msg, ms = 2000) {
+  toast.value = msg
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toast.value = '' }, ms)
+}
+
+function clearTimers() { clearTimeout(retryTimer); clearTimeout(watchdog) }
+
+async function initPlayer() {
+  if (player || !playerHost.value || !current.value.youtube_id) return
+  try { await loadYTApi() } catch { starting.value = false; needTap.value = true; showToast('유튜브 플레이어를 불러오지 못했어요'); return }
+  if (destroyed || player || !playerHost.value) return
+  const el = document.createElement('div')
+  playerHost.value.appendChild(el)
+  starting.value = true
+  player = new window.YT.Player(el, {
+    width: '100%', height: '100%',
+    videoId: current.value.youtube_id,
+    playerVars: {
+      autoplay: 1, mute: 1, playsinline: 1, controls: 0, modestbranding: 1, rel: 0,
+      disablekb: 1, fs: 0, iv_load_policy: 3, enablejsapi: 1, origin: window.location.origin,
+    },
+    events: { onReady, onStateChange, onError },
+  })
+  startWatchdog()
+}
+
+function onReady(e) {
+  playerReady = true
+  if (!soundOn.value) safe(() => e.target.mute())
+  else safe(() => e.target.unMute())
+  safe(() => e.target.playVideo())
+  startWatchdog()
+}
+
+function onStateChange(e) {
+  const S = window.YT.PlayerState
+  switch (e.data) {
+    case S.PLAYING:
+      clearTimers(); retryCount = 0
+      starting.value = false; needTap.value = false; paused.value = false
+      if (soundOn.value && safe(() => player.isMuted())) safe(() => player.unMute())
+      break
+    case S.PAUSED:
+      // 우리가 의도한 일시정지(paused=true)가 아니면 재시작 시도
+      if (!paused.value && !document.hidden) scheduleRetry()
+      break
+    case S.UNSTARTED:
+    case S.CUED:
+      scheduleRetry()
+      break
+    case S.ENDED:
+      // 반복 재생
+      safe(() => { player.seekTo(0, true); player.playVideo() })
+      break
+  }
+}
+
+function onError(e) {
+  // 2: 잘못된 ID, 5: HTML5 오류, 100: 삭제/비공개, 101/150: 임베드 차단
+  clearTimers()
+  starting.value = false
+  if ([2, 5, 100, 101, 150].includes(e.data)) {
+    showToast('재생할 수 없는 영상이라 다음으로 넘어가요')
+    setTimeout(() => {
+      if (destroyed) return
+      if (idx.value < shorts.value.length - 1) next(); else if (idx.value > 0) prev()
+    }, 1200)
+  } else {
+    needTap.value = true
+  }
+}
+
+function scheduleRetry() {
+  clearTimeout(retryTimer)
+  if (retryCount >= 3) return
+  retryCount++
+  retryTimer = setTimeout(() => { if (!paused.value) safe(() => player.playVideo()) }, 500 * retryCount)
+}
+
+function startWatchdog() {
+  clearTimeout(watchdog)
+  watchdog = setTimeout(() => {
+    const st = safe(() => player.getPlayerState())
+    if (st !== window.YT?.PlayerState?.PLAYING && !paused.value) { starting.value = false; needTap.value = true }
+  }, 2500)
+}
+
+function loadCurrent() {
+  const id = current.value.youtube_id
+  if (!id) return
+  paused.value = false; needTap.value = false; starting.value = true; retryCount = 0
+  clearTimers()
+  if (!player || !playerReady) { initPlayer(); return }
+  if (!soundOn.value) safe(() => player.mute())
+  safe(() => player.loadVideoById({ videoId: id, startSeconds: 0 }))
+  startWatchdog()
+}
+
+// 첫 사용자 제스처 → 소리 켜기 (제스처 핸들러 안에서 동기 호출해야 iOS 에서 허용됨)
+function enableSound() {
+  soundOn.value = true
+  if (player && playerReady) {
+    safe(() => player.unMute())
+    safe(() => player.setVolume(100))
+    safe(() => player.playVideo())
+  }
+}
+
+function playNow() {
+  paused.value = false; needTap.value = false
+  retryCount = 0
+  if (player && playerReady) {
+    if (soundOn.value) safe(() => player.unMute())
+    safe(() => player.playVideo())
+    startWatchdog()
+  } else initPlayer()
+}
+
+function togglePlay() {
+  if (!player || !playerReady) { enableSound(); return }
+  const S = window.YT.PlayerState
+  const st = safe(() => player.getPlayerState())
+  // 첫 제스처: 재생 중이면 소리만 켠다 (일시정지 하지 않음)
+  if (!soundOn.value) {
+    enableSound()
+    if (st === S.PLAYING) return
+  }
+  if (needTap.value || st !== S.PLAYING) { playNow(); return }
+  paused.value = true
+  safe(() => player.pauseVideo())
+}
+
+// ─── 이동 ───
 function next() {
-  if (idx.value < shorts.value.length - 1) { idx.value++; liked.value = false; markViewed() }
+  if (idx.value < shorts.value.length - 1) {
+    idx.value++; liked.value = false; markViewed(); loadCurrent(); maybeLoadMore()
+  }
 }
 function prev() {
-  if (idx.value > 0) { idx.value--; liked.value = false }
+  if (idx.value > 0) { idx.value--; liked.value = false; loadCurrent() }
+}
+
+async function fetchPage(p) {
+  const { data } = await axios.get(`/api/shorts?per_page=50&page=${p}`)
+  const d = data.data
+  lastPage = d?.last_page || 1
+  return d?.data || []
+}
+
+async function maybeLoadMore() {
+  if (loadingMore || page >= lastPage || idx.value < shorts.value.length - 5) return
+  loadingMore = true
+  try {
+    const more = await fetchPage(page + 1)
+    page++
+    const have = new Set(shorts.value.map(s => s.id))
+    shorts.value.push(...more.filter(s => !have.has(s.id)))
+  } catch {}
+  loadingMore = false
 }
 
 async function markViewed() {
@@ -141,7 +344,7 @@ async function toggleLike() {
 
 function shareShort() {
   const url = `${window.location.origin}/shorts?v=${current.value.id}`
-  if (navigator.share) { navigator.share({ title: current.value.title, url }) }
+  if (navigator.share) { navigator.share({ title: current.value.title, url }).catch(() => {}) }
   else { navigator.clipboard.writeText(url); alert('링크가 복사되었습니다!') }
 }
 
@@ -149,6 +352,8 @@ async function loadComments() {
   if (!current.value.id) return
   try { const { data } = await axios.get(`/api/comments/short/${current.value.id}`); comments.value = data.data || [] } catch { comments.value = [] }
 }
+
+watch([showComments, idx], ([open]) => { if (open) loadComments() })
 
 async function submitComment() {
   if (!newComment.value.trim() || !current.value.id) return
@@ -159,49 +364,130 @@ async function submitComment() {
   } catch {}
 }
 
+// ─── 전체화면 ───
+function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null }
+function nativeFsSupported() {
+  const el = rootEl.value
+  return !!(el && (el.requestFullscreen || el.webkitRequestFullscreen)) &&
+    document.fullscreenEnabled !== false && document.webkitFullscreenEnabled !== false
+}
+
+async function enterFs() {
+  const el = rootEl.value
+  if (nativeFsSupported()) {
+    try {
+      const r = (el.requestFullscreen || el.webkitRequestFullscreen).call(el)
+      if (r && r.then) await r
+      return
+    } catch { /* 실패 시 의사 전체화면으로 */ }
+  }
+  // iOS Safari 등: 화면 전체를 덮는 의사 전체화면
+  pseudoFs.value = true
+  try { window.scrollTo(0, 0) } catch {}
+}
+function exitFs() {
+  if (fsElement()) safe(() => (document.exitFullscreen || document.webkitExitFullscreen).call(document))
+  pseudoFs.value = false
+}
+function toggleFs() { isFs.value ? exitFs() : enterFs() }
+function onFsChange() { nativeFs.value = !!fsElement() }
+
+// ─── 키보드 / 휠 ───
 function onKeydown(e) {
-  if (e.key === 'ArrowDown' || e.key === 'j') next()
-  if (e.key === 'ArrowUp' || e.key === 'k') prev()
+  const t = e.target
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return
+  if (e.key === 'ArrowDown' || e.key === 'j') { e.preventDefault(); next() }
+  else if (e.key === 'ArrowUp' || e.key === 'k') { e.preventDefault(); prev() }
+  else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); togglePlay() }
+  else if (e.key === 'f' || e.key === 'F') toggleFs()
+  else if (e.key === 'Escape') {
+    if (showComments.value) showComments.value = false
+    else if (pseudoFs.value) exitFs()
+  }
 }
 
 let scrollCooldown = false
 function onWheel(e) {
-  if (scrollCooldown) return
+  if (e.target?.closest?.('[data-comments]')) return
+  if (Math.abs(e.deltaY) < 8 || scrollCooldown) return
   scrollCooldown = true
   if (e.deltaY > 0) next()
   else if (e.deltaY < 0) prev()
   setTimeout(() => { scrollCooldown = false }, 800)
 }
 
-// ─── 모바일 스와이프 ───
-let touchStartY = 0
-let touchStartTime = 0
-function onTouchStart(e) {
-  touchStartY = e.touches[0].clientY
-  touchStartTime = Date.now()
-}
-function onTouchEnd(e) {
-  const deltaY = touchStartY - e.changedTouches[0].clientY
-  const elapsed = Date.now() - touchStartTime
-  // 50px 이상 스와이프 & 1초 이내
-  if (Math.abs(deltaY) > 50 && elapsed < 1000) {
-    if (deltaY > 0) next()   // 위로 스와이프 = 다음
-    else prev()              // 아래로 스와이프 = 이전
+function onVisibility() {
+  if (!player || !playerReady) return
+  if (document.hidden) {
+    wasPlayingBeforeHide = safe(() => player.getPlayerState()) === window.YT.PlayerState.PLAYING
+    safe(() => player.pauseVideo())
+  } else if (wasPlayingBeforeHide && !paused.value) {
+    safe(() => player.playVideo())
+    startWatchdog()
   }
 }
-function togglePlay() {
-  // 영상 중앙 탭 = 아무 동작 없음 (iframe 이 재생 제어)
+
+// ─── 제스처 레이어 (터치 스와이프 / 탭) ───
+let touchActive = false
+let tsX = 0, tsY = 0, tsT = 0, lastTouchEnd = 0
+function onTouchStart(e) {
+  if (e.touches.length !== 1) { touchActive = false; return }
+  touchActive = true
+  tsX = e.touches[0].clientX; tsY = e.touches[0].clientY; tsT = Date.now()
+}
+function onTouchCancel() { touchActive = false }
+function onTouchMove(e) {
+  // 페이지 뒤 스크롤 / 사파리 바운스 방지
+  if (e.cancelable) e.preventDefault()
+}
+function onTouchEnd(e) {
+  if (!touchActive) return
+  touchActive = false
+  const t = e.changedTouches[0]
+  const dx = t.clientX - tsX
+  const dy = tsY - t.clientY      // 양수 = 위로 스와이프
+  const dt = Math.max(1, Date.now() - tsT)
+  const adx = Math.abs(dx), ady = Math.abs(dy)
+  lastTouchEnd = Date.now()
+  if (e.cancelable) e.preventDefault()   // 합성 click 방지
+  if (ady > adx * 1.2 && (ady > 50 || (ady > 28 && ady / dt > 0.5)) && dt < 1200) {
+    dy > 0 ? next() : prev()
+  } else if (adx < 12 && ady < 12 && dt < 600) {
+    togglePlay()
+  }
+}
+function onLayerClick() {
+  // 터치로 이미 처리된 경우 합성 click 무시
+  if (Date.now() - lastTouchEnd < 700) return
+  togglePlay()
 }
 
 onMounted(async () => {
-  try {
-    const { data } = await axios.get('/api/shorts?per_page=50')
-    shorts.value = data.data?.data || []
-  } catch {}
+  try { shorts.value = await fetchPage(1) } catch {}
   loading.value = false
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('wheel', onWheel, { passive: true })
+  document.addEventListener('visibilitychange', onVisibility)
+  document.addEventListener('fullscreenchange', onFsChange)
+  document.addEventListener('webkitfullscreenchange', onFsChange)
+  document.documentElement.style.overscrollBehavior = 'none'
+  document.body.style.overflow = 'hidden'
+  await nextTick()
+  initPlayer()
 })
 
-onUnmounted(() => { window.removeEventListener('keydown', onKeydown); window.removeEventListener('wheel', onWheel) })
+onUnmounted(() => {
+  destroyed = true
+  clearTimers(); clearTimeout(toastTimer)
+  window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('wheel', onWheel)
+  document.removeEventListener('visibilitychange', onVisibility)
+  document.removeEventListener('fullscreenchange', onFsChange)
+  document.removeEventListener('webkitfullscreenchange', onFsChange)
+  if (fsElement()) safe(() => (document.exitFullscreen || document.webkitExitFullscreen).call(document))
+  document.documentElement.style.overscrollBehavior = ''
+  document.body.style.overflow = ''
+  safe(() => player && player.destroy())
+  player = null
+})
 </script>
