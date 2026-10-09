@@ -45,6 +45,8 @@ Schedule::command('calls:cleanup')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
 Schedule::command('promotions:expire')->everyMinute();
 Schedule::command('events:remind')->everyThirtyMinutes();
+// 추첨 시작 5분 전 알림 (응모 후 알림 신청한 회원)
+Schedule::command('sweepstakes:send-reminders')->everyMinute()->withoutOverlapping();
 
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();

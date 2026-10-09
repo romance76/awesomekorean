@@ -439,6 +439,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/entries/history', [\App\Http\Controllers\API\EntryController::class, 'history']);
     Route::post('/entries/checkin', [\App\Http\Controllers\API\EntryController::class, 'checkin']);
     Route::post('/sweepstakes/{sweepstakes}/enter', [\App\Http\Controllers\API\SweepstakesController::class, 'enter']);
+    // 추첨 시작 5분 전 알림 (distinct 경로 — 공개 GET /sweepstakes/{sweepstakes} 와 충돌 방지)
+    Route::post('/sweepstakes/{sweepstakes}/reminder', [\App\Http\Controllers\API\SweepstakesController::class, 'setReminder']);
+    Route::delete('/sweepstakes/{sweepstakes}/reminder', [\App\Http\Controllers\API\SweepstakesController::class, 'removeReminder']);
+    Route::get('/me/sweepstakes-reminders/due', [\App\Http\Controllers\API\SweepstakesController::class, 'dueReminders']);
+    Route::post('/me/sweepstakes-reminders/{id}/dismiss', [\App\Http\Controllers\API\SweepstakesController::class, 'dismissReminder'])->whereNumber('id');
 
     Route::post('/reports', [ReportController::class, 'store']);
 

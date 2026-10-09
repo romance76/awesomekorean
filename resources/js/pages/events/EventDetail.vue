@@ -93,10 +93,12 @@
               <LotteryShowcase :sweepstakes="event.sweepstakes" :recent="recentDraws" />
             </div>
 
-            <div v-if="event.sweepstakes.status === 'winner_selected'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
-              <div class="text-2xl mb-1">🏆</div>
-              <div class="font-bold text-ink">당첨자: {{ event.sweepstakes.winner_display_name || '비공개' }}</div>
-            </div>
+            <template v-if="event.sweepstakes.status === 'winner_selected'">
+              <div v-if="event.sweepstakes.draw_style !== 'lottery3d'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
+                <div class="text-2xl mb-1">🏆</div>
+                <div class="font-bold text-ink">당첨자: {{ event.sweepstakes.winner_display_name || '비공개' }}</div>
+              </div>
+            </template>
 
             <template v-else>
               <div class="bg-white rounded-xl p-4 border border-amber-100 mb-3 flex flex-col items-center">
@@ -109,11 +111,9 @@
 
               <div v-if="auth.isLoggedIn" class="mb-2">
                 <div class="text-xs text-ink-muted mb-1.5">내 Entry 잔액: <span class="font-bold text-amber-600">🎟 {{ auth.user?.entries || 0 }}</span> · 이미 응모: {{ event.sweepstakes.my_entries || 0 }}</div>
-                <div class="flex gap-2">
-                  <button @click="enterSweepstakes(1)" :disabled="entering || !isSweepstakesOpen" class="flex-1 bg-white border-2 border-amber-300 text-amber-700 font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-50 transition-colors">1 Entry</button>
-                  <button @click="enterSweepstakes(5)" :disabled="entering || !isSweepstakesOpen" class="flex-1 bg-white border-2 border-amber-300 text-amber-700 font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-50 transition-colors">5 Entries</button>
-                  <button @click="enterSweepstakes(auth.user?.entries || 0)" :disabled="entering || !isSweepstakesOpen || !(auth.user?.entries > 0)" class="flex-1 bg-amber-400 text-white font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-500 transition-colors">ALL IN</button>
-                </div>
+                <button @click="enterModalOpen = true" :disabled="!isSweepstakesOpen" class="btn-primary w-full disabled:opacity-40">🎟 Entry 사용해서 참가하기</button>
+                <SweepstakesEnterModal :show="enterModalOpen" :sweepstakes="event.sweepstakes" :balance="Number(auth.user?.entries) || 0"
+                  @close="enterModalOpen = false" @entered="onEntered" />
                 <p v-if="entryMsg" class="text-xs mt-2" :class="entryMsgType==='success'?'text-emerald-600':'text-red-500'">{{ entryMsg }}</p>
                 <p v-if="!isSweepstakesOpen" class="text-xs text-ink-faint mt-2">현재 응모 기간이 아닙니다.</p>
               </div>
@@ -238,6 +238,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
+import SweepstakesEnterModal from '../../components/SweepstakesEnterModal.vue'
 // 3D 추첨 무대는 three.js 가 커서 필요할 때만 따로 내려받음 (별도 청크)
 const LotteryShowcase = defineAsyncComponent(() => import('../../components/LotteryShowcase.vue'))
 const recentDraws = ref([])
@@ -319,24 +320,15 @@ async function toggleAttend(status) {
   } catch {}
 }
 
-async function enterSweepstakes(amount) {
-  if (!amount || amount < 1) { entryMsg.value = '응모할 Entry가 없습니다'; entryMsgType.value = 'error'; return }
-  entering.value = true; entryMsg.value = ''
+// 참가 개수 선택 → 확인 → OK 흐름은 SweepstakesEnterModal 이 처리. 참가 직후 데이터만 새로고침.
+const enterModalOpen = ref(false)
+async function onEntered(res) {
+  entryMsg.value = ''
+  if (auth.user && res?.remaining_entries != null) auth.user.entries = res.remaining_entries
   try {
-    const { data } = await axios.post(`/api/sweepstakes/${event.value.sweepstakes.id}/enter`, {
-      amount,
-      idempotency_key: crypto.randomUUID(),
-    })
-    entryMsg.value = data.message || `${amount} Entry를 사용했습니다`
-    entryMsgType.value = 'success'
     const { data: fresh } = await axios.get(`/api/events/${event.value.id}`)
     event.value = fresh.data
-    if (auth.user) auth.user.entries = data.data?.remaining_entries ?? auth.user.entries
-  } catch (e) {
-    entryMsg.value = e.response?.data?.message || '응모 실패'
-    entryMsgType.value = 'error'
-  }
-  entering.value = false
+  } catch {}
 }
 
 async function selectWinner() {

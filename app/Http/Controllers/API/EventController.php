@@ -98,6 +98,9 @@ class EventController extends Controller
                     'my_win_probability_pct' => $probability,
                     'winner_display_name' => $winnerName,
                     'other_entries_breakdown' => $otherEntriesBreakdown,
+                    'my_reminder' => auth()->check()
+                        ? \App\Models\SweepstakesReminder::where('sweepstakes_id', $sweepstakes->id)->where('user_id', auth()->id())->exists()
+                        : false,
                     ...\App\Support\SweepstakesDrawReplay::extra($sweepstakes),
                 ]);
             }

@@ -29,6 +29,7 @@
     <MessageThreadPopup v-if="auth.isLoggedIn" />
     <PopupBanner v-if="showNav" />
     <CheckinPrompt v-if="showNav && auth.isLoggedIn" />
+    <SweepstakesReminderPrompt v-if="showNav && auth.isLoggedIn" />
     <FlyerPrompt v-if="showNav" />
 
     <main>
@@ -89,6 +90,7 @@ import MiniPlayer from './components/MiniPlayer.vue'
 import GlobalChatPopup from './components/GlobalChatPopup.vue'
 import PopupBanner from './components/PopupBanner.vue'
 import CheckinPrompt from './components/CheckinPrompt.vue'
+import SweepstakesReminderPrompt from './components/SweepstakesReminderPrompt.vue'
 import FlyerPrompt from './components/FlyerPrompt.vue'
 import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 

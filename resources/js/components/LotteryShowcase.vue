@@ -2,22 +2,33 @@
   <section class="ls-root" :style="rootVars">
     <div class="ls-frame">
       <!-- 상단 바: 로고 / 타이틀 / 상태 -->
-      <header class="ls-top">
-        <div class="ls-logo">
-          <img v-if="showLogo && !logoFailed" :src="logoUrl" alt="" @error="logoFailed = true" />
-          <span v-else class="ls-logo-text">AWESOME KOREAN</span>
+      <!-- 히어로: 3D 무대 + 유리 패널 오버레이 -->
+      <div class="ls-hero">
+        <div class="ls-stage">
+          <Stage
+            ref="stageRef"
+            :theme="sweepstakes.theme || {}"
+            :prize-name="sweepstakes.prize_name || ''"
+            :prize-image="sweepstakes.prize_image || ''"
+            :ticket-count="totalTickets"
+            :winning-ticket="winningTicket"
+            :winner-name="winnerName"
+            hide-chrome
+            @phase="onPhase"
+            @finished="onFinished"
+          />
+          <div class="ls-logo" v-if="showLogo && !logoFailed">
+            <span class="ls-logo-pill" :class="{ plain: logoIsDark }">
+              <img :src="logoSrc" alt="AwesomeKorean" @error="logoFailed = true" />
+            </span>
+          </div>
+          <div v-else-if="showLogo" class="ls-logo"><span class="ls-logo-text">AWESOME KOREAN</span></div>
+          <div class="ls-live" :class="{ on: playing }">
+            <i></i>{{ playing ? 'LIVE 재생 중' : drawn ? '추첨 완료' : 'STANDBY' }}
+          </div>
+          <div class="ls-status">{{ statusText }}</div>
         </div>
-        <div class="ls-title">
-          <span class="ls-title-line"></span>
-          <span>{{ drawn ? '경품 추첨 결과' : '경품 추첨 대기 중' }}</span>
-          <span class="ls-title-line"></span>
-        </div>
-        <div class="ls-live" :class="{ on: playing }">
-          <i></i>{{ playing ? 'LIVE 재생 중' : drawn ? '추첨 완료' : 'STANDBY' }}
-        </div>
-      </header>
 
-      <div class="ls-main">
         <!-- 좌측: 오늘의 경품 -->
         <aside class="ls-panel ls-prize">
           <div class="ls-panel-title"><span class="ls-dot"></span>오늘의 경품</div>
@@ -34,22 +45,6 @@
             <div class="ls-row"><dt>당첨 인원</dt><dd>1명</dd></div>
           </dl>
         </aside>
-
-        <!-- 가운데: 3D 무대 -->
-        <div class="ls-stage">
-          <Stage
-            ref="stageRef"
-            :theme="sweepstakes.theme || {}"
-            :prize-name="sweepstakes.prize_name || ''"
-            :prize-image="sweepstakes.prize_image || ''"
-            :ticket-count="totalTickets"
-            :winning-ticket="winningTicket"
-            :winner-name="winnerName"
-            hide-chrome
-            @phase="onPhase"
-            @finished="onFinished"
-          />
-        </div>
 
         <!-- 우측: 당첨자 / 대기 -->
         <aside class="ls-panel ls-winner" :class="{ pending: !drawn }">
@@ -96,7 +91,15 @@
       <!-- 진행 단계 -->
       <ol class="ls-steps">
         <li v-for="(s, i) in STEPS" :key="i" :class="{ active: activeStep === i, done: doneStep > i }">
-          <span class="ls-step-no">{{ doneStep > i && activeStep !== i ? '✓' : i + 1 }}</span>
+          <span class="ls-step-art" aria-hidden="true">
+            <svg viewBox="0 0 48 36" width="48" height="36">
+              <template v-if="i === 0"><circle cx="14" cy="22" r="7" fill="#f1ba4b"/><circle cx="26" cy="14" r="7" fill="#ff7a90"/><circle cx="34" cy="25" r="7" fill="#6fb7ff"/><path d="M6 8c8-6 26-6 36 0" stroke="#fff" stroke-opacity=".6" fill="none" stroke-width="2" stroke-linecap="round"/></template>
+              <template v-else-if="i === 1"><circle cx="24" cy="22" r="9" fill="#f1ba4b"/><path d="M24 2v8M16 4l6 8M32 4l-6 8" stroke="#fff" stroke-opacity=".75" stroke-width="2.4" stroke-linecap="round" fill="none"/></template>
+              <template v-else-if="i === 2"><rect x="6" y="3" width="36" height="10" rx="5" fill="#fff" fill-opacity=".18"/><circle cx="24" cy="24" r="8" fill="#f1ba4b"/><path d="M24 12v4" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></template>
+              <template v-else><circle cx="24" cy="18" r="13" fill="#f1ba4b"/><text x="24" y="23" text-anchor="middle" font-size="13" font-weight="900" fill="#3a2606">{{ ticketText }}</text><path d="M5 6l3 3M43 6l-3 3M24 1v4" stroke="#ffe9a8" stroke-width="2" stroke-linecap="round"/></template>
+            </svg>
+            <b class="ls-step-no">{{ doneStep > i && activeStep !== i ? '✓' : i + 1 }}</b>
+          </span>
           <span class="ls-step-text"><b>{{ s.t }}</b><em>{{ s.d }}</em></span>
         </li>
       </ol>
@@ -142,6 +145,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, defineAsyncComponent } from 'vue'
+import { useSiteStore } from '../stores/site'
 
 const Stage = defineAsyncComponent(() => import('./LotteryStage3D.vue'))
 
@@ -171,7 +175,10 @@ const ticketText = computed(() => pad(winningTicket.value))
 const initial = computed(() => (winnerName.value || '?').trim().charAt(0) || '?')
 const theme = computed(() => props.sweepstakes.theme || {})
 const showLogo = computed(() => theme.value.show_logo !== false)
-const logoUrl = computed(() => theme.value.logo_url || '/images/logo.png')
+const siteStore = useSiteStore()
+// 로고: 테마 지정 로고 > 사이트 다크용 로고 > 사이트 로고(어두운 글자이므로 반투명 흰 알약 위에 표시)
+const logoIsDark = computed(() => !theme.value.logo_url && !!siteStore.logoDarkUrl)
+const logoSrc = computed(() => theme.value.logo_url || siteStore.logoDarkUrl || siteStore.logoUrl)
 const logoFailed = ref(false)
 const prizeImg = computed(() => theme.value.prize_image_url || props.sweepstakes.prize_image || '')
 const prizeImgFailed = ref(false)
@@ -232,8 +239,15 @@ const playing = ref(false)
 const showWinner = ref(true)
 const stepIdx = ref(-1) // -1: 재생 전
 let timers = []
-const reduced = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-const T = reduced ? { select: 2.0, eject: 2.8, end: 4.6 } : { select: 4.5, eject: 6.2, end: 9.6 }
+// 단계별 최대 길이(초). 공 선택은 최대 15초. 워치독은 이 합 + 여유(>=45초)
+const PHASE_MAX = { mix: 8, select: 15, eject: 8, reveal: 6 }
+const WATCHDOG = Math.max(45, Object.values(PHASE_MAX).reduce((a, b) => a + b, 0) + 10)
+const STATUS = ['행운의 공을 섞고 있습니다…', '당첨 공을 고르고 있습니다…', '당첨 공이 배출구로 이동합니다…', '당첨 번호를 공개합니다!']
+const statusText = computed(() => {
+  if (!drawn.value) return '추첨 대기 중입니다'
+  if (playing.value) return STATUS[Math.max(0, stepIdx.value)] || STATUS[0]
+  return '추첨이 완료되었습니다'
+})
 
 const activeStep = computed(() => {
   if (!drawn.value) return -1
@@ -253,7 +267,7 @@ function replay() {
   stepIdx.value = 0
   clearTimers()
   // 단계 표시는 무대의 phase 이벤트를 따른다. 무대가 아직 로딩 중이라 재생되지 않은 경우를 대비한 안전장치만 둔다
-  after(T.end + 4, onFinished)
+  after(WATCHDOG, onFinished)
 }
 // 무대가 알려주는 진행 단계 → 아래 1~4 단계 카드 하이라이트
 function onPhase(p) {
@@ -289,21 +303,21 @@ onBeforeUnmount(() => { clearTimers(); if (clock) clearInterval(clock) })
 }
 .ls-frame::before { content: ''; position: absolute; inset: 5px; border-radius: 16px; border: 1px solid rgba(241, 186, 75, .14); pointer-events: none; }
 
-/* 상단 */
-.ls-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; min-height: 34px; }
-.ls-logo img { height: 28px; width: auto; max-width: 150px; object-fit: contain; display: block; }
+/* 오버레이 요소(로고/LIVE/상태) */
+.ls-logo { position: absolute; top: 12px; left: 12px; z-index: 3; pointer-events: none; }
+.ls-logo-pill { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: 999px; background: rgba(255, 255, 255, .92); box-shadow: 0 4px 14px rgba(0, 0, 0, .3); }
+.ls-logo-pill.plain { background: transparent; box-shadow: none; padding: 0; }
+.ls-logo-pill img { height: 24px; width: auto; max-width: 150px; object-fit: contain; display: block; }
 .ls-logo-text { font-weight: 900; letter-spacing: .12em; font-size: 12px; color: var(--gold); }
-.ls-title { display: none; align-items: center; gap: 12px; font-weight: 800; font-size: 15px; letter-spacing: .08em; color: #fff3cf; }
-.ls-title-line { width: 56px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
-.ls-title-line:last-child { transform: scaleX(-1); }
-.ls-live { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .06em; background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .14); color: #c9d6f5; }
+.ls-live { position: absolute; top: 12px; right: 12px; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: .06em; background: rgba(8, 12, 28, .6); border: 1px solid rgba(255, 255, 255, .18); color: #c9d6f5; }
 .ls-live i { width: 7px; height: 7px; border-radius: 50%; background: #7d8bb0; }
-.ls-live.on { color: #fff; border-color: #ff5d7a; background: rgba(255, 93, 122, .16); }
+.ls-live.on { color: #fff; border-color: #ff5d7a; background: rgba(255, 93, 122, .25); }
 .ls-live.on i { background: #ff5d7a; box-shadow: 0 0 8px #ff5d7a; animation: ls-blink 1s infinite; }
+.ls-status { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 3; max-width: calc(100% - 24px); padding: 7px 18px; border-radius: 999px; font-size: 13px; font-weight: 800; color: #fff3cf; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: rgba(8, 12, 28, .62); border: 1px solid var(--gold-soft); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); pointer-events: none; }
 
-/* 메인 그리드 (모바일: 무대 → 당첨자 → 경품) */
-.ls-main { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.ls-stage { order: 1; min-width: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 0 30px rgba(0, 0, 0, .35); }
+/* 히어로 (좁은 컨테이너: 무대 → 패널 2열/1열 스택) */
+.ls-hero { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.ls-stage { position: relative; order: 1; min-width: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .1); box-shadow: 0 0 30px rgba(0, 0, 0, .35); }
 .ls-stage :deep(.lottery-stage) { border: 0; border-radius: 0; box-shadow: none; }
 .ls-winner { order: 2; }
 .ls-prize { order: 3; }
@@ -358,13 +372,16 @@ onBeforeUnmount(() => { clearTimers(); if (clock) clearInterval(clock) })
 /* 단계 */
 .ls-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .ls-steps li { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); color: #8f9dc4; transition: all .3s; min-width: 0; }
-.ls-step-no { flex: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; background: rgba(255, 255, 255, .1); }
+.ls-step-art { position: relative; flex: none; width: 48px; height: 36px; border-radius: 8px; background: rgba(8, 12, 28, .45); display: block; opacity: .75; transition: opacity .3s; }
+.ls-step-art svg { display: block; }
+.ls-step-no { position: absolute; left: -6px; top: -6px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; background: #2a3763; color: #cdd7f2; border: 1px solid rgba(255, 255, 255, .2); }
 .ls-step-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 .ls-step-text b { font-size: 13px; font-weight: 800; }
 .ls-step-text em { font-style: normal; font-size: 11px; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ls-steps li.done { color: #d7e1fb; }
-.ls-steps li.done .ls-step-no { background: rgba(241, 186, 75, .25); color: var(--gold); }
+.ls-steps li.done .ls-step-no { background: rgba(241, 186, 75, .35); color: var(--gold); }
 .ls-steps li.active { color: #fff; border-color: var(--gold); background: linear-gradient(160deg, rgba(241, 186, 75, .22), rgba(241, 186, 75, .06)); box-shadow: 0 0 20px rgba(241, 186, 75, .28); }
+.ls-steps li.active .ls-step-art, .ls-steps li.done .ls-step-art { opacity: 1; }
 .ls-steps li.active .ls-step-no { background: linear-gradient(145deg, #ffe9a8, #e0a030); color: #3a2606; }
 
 /* 버튼 */
@@ -390,26 +407,30 @@ onBeforeUnmount(() => { clearTimers(); if (clock) clearInterval(clock) })
 .ls-recent-name { font-size: 13px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ls-recent-no { font-size: 11px; color: var(--gold); margin-top: 2px; }
 
-/* 넓은 컨테이너: 3열 방송 레이아웃 */
-@container (min-width: 820px) {
-  .ls-frame { padding: 20px 22px; }
-  .ls-logo img { height: 34px; }
-  .ls-title { display: inline-flex; }
-  .ls-main { grid-template-columns: 250px minmax(0, 1fr) 270px; align-items: stretch; gap: 16px; }
-  .ls-prize { order: 1; }
-  .ls-stage { order: 2; }
+/* 중간 컨테이너: 무대 아래 패널 2열 */
+@container (min-width: 560px) {
+  .ls-steps { grid-template-columns: repeat(4, 1fr); }
+  .ls-hero { grid-template-columns: 1fr 1fr; }
+  .ls-stage { grid-column: 1 / -1; }
+  .ls-prize { order: 2; }
   .ls-winner { order: 3; }
-  .ls-steps { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+}
+/* 넓은 컨테이너: 큰 무대 위에 유리 패널을 겹쳐 표시 */
+@container (min-width: 900px) {
+  .ls-frame { padding: 20px 22px; }
+  .ls-hero { display: block; position: relative; }
+  .ls-stage { height: 580px; }
+  .ls-stage :deep(.lottery-stage), .ls-stage :deep(.stage) { height: 100% !important; }
+  .ls-logo { top: 16px; left: 18px; }
+  .ls-logo-pill img { height: 30px; }
+  .ls-live { right: 18px; top: 16px; }
+  .ls-panel { position: absolute; z-index: 4; top: 64px; width: 240px; background: linear-gradient(160deg, rgba(255, 255, 255, .13), rgba(255, 255, 255, .04)), rgba(8, 14, 34, .35); }
+  .ls-prize { left: 16px; }
+  .ls-winner { right: 16px; width: 262px; }
+  .ls-status { bottom: 18px; font-size: 14px; }
   .ls-actions { justify-content: center; }
   .ls-btn { flex: 0 1 260px; }
   .ls-recent-item { width: 132px; }
-}
-@container (min-width: 560px) and (max-width: 819px) {
-  .ls-steps { grid-template-columns: repeat(4, 1fr); }
-  .ls-main { grid-template-columns: 1fr 1fr; }
-  .ls-stage { grid-column: 1 / -1; }
-  .ls-winner { order: 2; }
-  .ls-prize { order: 3; }
 }
 @keyframes ls-blink { 50% { opacity: .3; } }
 @media (prefers-reduced-motion: reduce) { .ls-live.on i { animation: none; } .ls-pop-enter-active { transition: none; } }

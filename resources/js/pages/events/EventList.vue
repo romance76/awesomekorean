@@ -161,25 +161,32 @@
             </div>
           </div>
 
-          <div v-if="activeItem.sweepstakes.status === 'winner_selected'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
-            <div class="text-2xl mb-1">🏆</div>
-            <div class="font-bold text-ink">당첨자: {{ activeItem.sweepstakes.winner_display_name || '비공개' }}</div>
+          <!-- 3D 추첨 연출: 이미 확정된 결과를 재생만 함 (당첨자 결정은 서버) -->
+          <div v-if="activeItem.sweepstakes.draw_style === 'lottery3d'" class="mb-3">
+            <LotteryShowcase :key="activeItem.id" :sweepstakes="activeItem.sweepstakes" :recent="recentDraws" />
           </div>
+
+          <template v-if="activeItem.sweepstakes.status === 'winner_selected'">
+            <div v-if="activeItem.sweepstakes.draw_style !== 'lottery3d'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
+              <div class="text-2xl mb-1">🏆</div>
+              <div class="font-bold text-ink">당첨자: {{ activeItem.sweepstakes.winner_display_name || '비공개' }}</div>
+            </div>
+          </template>
 
           <template v-else>
             <div class="bg-white rounded-xl p-4 border border-amber-100 mb-3 flex flex-col items-center">
+              <template v-if="activeItem.sweepstakes.draw_style !== 'lottery3d'">
               <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
               <SweepstakesWheel :my-entries="activeItem.sweepstakes.my_entries || 0" :other-breakdown="activeItem.sweepstakes.other_entries_breakdown || []" />
+              </template>
               <div class="text-sm font-black text-amber-600 mt-2">내 당첨 확률 {{ activeItem.sweepstakes.my_win_probability_pct || 0 }}%</div>
             </div>
 
             <div v-if="auth.isLoggedIn" class="mb-2">
               <div class="text-xs text-ink-muted mb-1.5">내 Entry 잔액: <span class="font-bold text-amber-600">🎟 {{ auth.user?.entries || 0 }}</span> · 이미 응모: {{ activeItem.sweepstakes.my_entries || 0 }}</div>
-              <div class="flex gap-2">
-                <button @click="enterSweepstakes(1)" :disabled="entering || activeItem.sweepstakes.status !== 'active'" class="flex-1 bg-white border-2 border-amber-300 text-amber-700 font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-50 transition-colors">1 Entry</button>
-                <button @click="enterSweepstakes(5)" :disabled="entering || activeItem.sweepstakes.status !== 'active'" class="flex-1 bg-white border-2 border-amber-300 text-amber-700 font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-50 transition-colors">5 Entries</button>
-                <button @click="enterSweepstakes(auth.user?.entries || 0)" :disabled="entering || activeItem.sweepstakes.status !== 'active' || !(auth.user?.entries > 0)" class="flex-1 bg-amber-400 text-white font-bold py-2 rounded-xl text-sm disabled:opacity-40 hover:bg-amber-500 transition-colors">ALL IN</button>
-              </div>
+              <button @click="enterModalOpen = true" :disabled="activeItem.sweepstakes.status !== 'active'" class="btn-primary w-full disabled:opacity-40">🎟 Entry 사용해서 참가하기</button>
+              <SweepstakesEnterModal :show="enterModalOpen" :sweepstakes="activeItem.sweepstakes" :balance="Number(auth.user?.entries) || 0"
+                @close="enterModalOpen = false" @entered="onEntered" />
               <p v-if="entryMsg" class="text-xs mt-2" :class="entryMsgType==='success'?'text-emerald-600':'text-red-500'">{{ entryMsg }}</p>
               <p v-if="activeItem.sweepstakes.status !== 'active'" class="text-xs text-ink-faint mt-2">현재 응모 기간이 아닙니다.</p>
             </div>
@@ -366,7 +373,12 @@ import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
+import SweepstakesEnterModal from '../../components/SweepstakesEnterModal.vue'
 import ShareButton from '../../components/ShareButton.vue'
+import { defineAsyncComponent } from 'vue'
+const LotteryShowcase = defineAsyncComponent(() => import('../../components/LotteryShowcase.vue'))
+const recentDraws = ref([])
+let recentDrawsLoaded = false
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -424,27 +436,23 @@ async function refreshSweepstakesLive() {
 watch(activeItem, (item) => {
   if (sweepstakesPoll) { clearInterval(sweepstakesPoll); sweepstakesPoll = null }
   if (item?.event_type === 'sweepstakes') sweepstakesPoll = setInterval(refreshSweepstakesLive, 6000)
+  if (item?.sweepstakes?.draw_style === 'lottery3d' && !recentDrawsLoaded) {
+    recentDrawsLoaded = true
+    axios.get('/api/sweepstakes/recent-winners', { params: { limit: 8 } })
+      .then(({ data: r }) => { recentDraws.value = r?.data || [] }).catch(() => { recentDrawsLoaded = false })
+  }
 })
 onUnmounted(() => { if (sweepstakesPoll) clearInterval(sweepstakesPoll) })
 
-async function enterSweepstakes(amount) {
-  if (!amount || amount < 1) { entryMsg.value = '응모할 Entry가 없습니다'; entryMsgType.value = 'error'; return }
-  entering.value = true; entryMsg.value = ''
+// 참가 개수 선택 → 확인 → OK 흐름은 SweepstakesEnterModal 이 처리. 참가 직후 데이터만 새로고침.
+const enterModalOpen = ref(false)
+async function onEntered(res) {
+  entryMsg.value = ''
+  if (auth.user && res?.remaining_entries != null) auth.user.entries = res.remaining_entries
   try {
-    const { data } = await axios.post(`/api/sweepstakes/${activeItem.value.sweepstakes.id}/enter`, {
-      amount,
-      idempotency_key: crypto.randomUUID(),
-    })
-    entryMsg.value = data.message || `${amount} Entry를 사용했습니다`
-    entryMsgType.value = 'success'
     const { data: fresh } = await axios.get(`/api/events/${activeItem.value.id}`)
     activeItem.value = fresh.data
-    if (auth.user) auth.user.entries = data.data?.remaining_entries ?? auth.user.entries
-  } catch (e) {
-    entryMsg.value = e.response?.data?.message || '응모 실패'
-    entryMsgType.value = 'error'
-  }
-  entering.value = false
+  } catch {}
 }
 
 async function selectWinner() {

@@ -152,11 +152,27 @@ const statusLabel = computed(() => {
 })
 
 const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-const DUR = reduced ? { mix: 2.0, select: 0.8, eject: 2.0 } : { mix: 4.8, select: 1.8, eject: 4.0 }
+// 연출 시간(초). select 는 매 play() 마다 10~15초 사이 랜덤 (순수 연출용 — 당첨 결과와 무관)
+const DUR = reduced ? { mix: 1.6, select: 2.0, eject: 2.0 } : { mix: 4.5, select: 12, eject: 3.4 }
+let selDur = DUR.select      // 이번 회차의 select 길이
+let liftDur = reduced ? 1.0 : 2.8  // select 마지막 '당첨 공 상승' 구간 길이
+let liftAt = selDur - liftDur
+let nearMiss = []            // 아쉬운 공 이벤트 [{ start, peak, ball, state }]
+let push = 0, flash = 0, tensionV = 0
+function pickSelectDuration() {
+  selDur = reduced ? DUR.select : 10 + Math.random() * 5
+  liftAt = Math.max(0.3, selDur - liftDur)
+  nearMiss = []
+  const n = reduced ? 0 : (selDur > 12.4 ? 3 : 2)
+  const peaks = n === 3 ? [0.6, 0.8, 0.93] : [0.7, 0.92]
+  const first = 1.4, win = 1.5, last = liftAt - 0.5
+  for (let i = 0; i < n; i++) nearMiss.push({ start: first + (n > 1 ? (i * (last - first - win)) / (n - 1) : 0), peak: peaks[i], ball: null })
+}
 
 // ── 장면 상수 ──
 const GX = -1.3, GY = 0.8, GR = 2.4          // 유리구 중심/반지름
-const CX = 4.05, CZ = 0.3                    // 수집 챔버 위치
+const CX = 4.1, CZ = 0.3                     // 수집 챔버 위치
+const CR = 1.14                              // 챔버 유리 반지름
 const FLOOR_Y = -2.4
 const CH_FLOOR = -2.2                        // 챔버 바닥 윗면
 const SCENE_CX = 0.65, SCENE_CY = 0.55       // 카메라 기준 중심
@@ -170,7 +186,7 @@ let envTex = null
 let useComposer = false, useReflector = false
 let tubePath = null
 let balls = [], carrier = null
-let ballHalo = null, winLight = null, accentLight = null
+let ballHalo = null, winLight = null, accentLight = null, mouthLight = null, spot = null, mouthGlow = null
 let reflector = null
 let bokeh = [], sparkle = null
 let texCache = new Map(), ownTextures = []
@@ -185,8 +201,9 @@ let emitAcc = 0
 let perfEma = 16, perfFrames = 0
 let BR = 0.33
 
-const PIPE_A = { x: -0.15, y: 1.95, z: 0 }
-const FINAL_R = 0.56
+const PIPE_A = { x: -0.1, y: 1.92, z: 0 }
+const PIPE_R = 0.58                          // 파이프 유리 반지름
+const FINAL_R = 0.76
 
 function mulberry32(a) {
   return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296 }
@@ -205,11 +222,11 @@ function shade(hex, f) {
 }
 
 // 구 UV: u=0.25 → +z(정면), u=0.75 → -z. 양면에 흰 원판 + 번호
-function numberTexture(n, color) {
-  const key = `${n}|${color}`
+function numberTexture(n, color, big = false) {
+  const key = `${n}|${color}|${big ? 1 : 0}`
   if (texCache.has(key)) return texCache.get(key)
   const hi = !props.compact
-  const W = hi ? 512 : 256, H = W / 2
+  const W = hi ? 768 : 320, H = W / 2
   const c = document.createElement('canvas')
   c.width = W; c.height = H
   const ctx = c.getContext('2d')
@@ -217,22 +234,22 @@ function numberTexture(n, color) {
   g.addColorStop(0, shade(color, 0.72)); g.addColorStop(0.35, color); g.addColorStop(0.65, color); g.addColorStop(1, shade(color, 0.72))
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H)
   const s = String(n)
-  const dr = H * 0.25
+  const dr = H * (big ? 0.36 : 0.34)
   for (const cx of [W * 0.25, W * 0.75]) {
     const cy = H / 2
-    ctx.beginPath(); ctx.arc(cx, cy, dr + H * 0.018, 0, Math.PI * 2); ctx.fillStyle = shade(color, 0.55); ctx.fill()
+    ctx.beginPath(); ctx.arc(cx, cy, dr + H * 0.022, 0, Math.PI * 2); ctx.fillStyle = shade(color, 0.5); ctx.fill()
     const rg = ctx.createRadialGradient(cx - dr * 0.3, cy - dr * 0.35, dr * 0.1, cx, cy, dr)
     rg.addColorStop(0, '#ffffff'); rg.addColorStop(0.75, '#f6f7fb'); rg.addColorStop(1, '#d9dde8')
     ctx.beginPath(); ctx.arc(cx, cy, dr, 0, Math.PI * 2); ctx.fillStyle = rg; ctx.fill()
-    const size = Math.round(dr * (s.length <= 2 ? 1.12 : s.length === 3 ? 0.88 : s.length === 4 ? 0.7 : 0.56))
-    ctx.fillStyle = '#12172b'
+    const size = Math.round(dr * (s.length <= 2 ? (big ? 1.3 : 1.2) : s.length === 3 ? 0.98 : s.length === 4 ? 0.78 : 0.62))
+    ctx.fillStyle = big ? '#05070f' : '#0c1024'
     ctx.font = `900 ${size}px "Arial Black", Arial, sans-serif`
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
     ctx.fillText(s, cx, cy + size * 0.04)
   }
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
-  tex.anisotropy = Math.min(8, renderer?.capabilities.getMaxAnisotropy?.() || 1)
+  tex.anisotropy = Math.min(16, renderer?.capabilities.getMaxAnisotropy?.() || 1)
   texCache.set(key, tex); ownTextures.push(tex)
   return tex
 }
@@ -295,8 +312,33 @@ function disposeScene() {
   }
   ownTextures.forEach((x) => x.dispose())
   ownTextures = []; texCache = new Map()
-  balls = []; carrier = null; ballHalo = null; winLight = null; accentLight = null; scene = null
+  balls = []; carrier = null; ballHalo = null; winLight = null; accentLight = null; mouthLight = null; spot = null; mouthGlow = null; scene = null
   bokeh = []; sparkle = null; dropState = null
+}
+
+// 유리 가장자리 프레넬 림 라이트 (가산 합성 → 블룸에 걸려 테두리가 반짝임)
+function fresnelMat(color, power = 2.6, strength = 1.2) {
+  return new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color(color) }, uPow: { value: power }, uStr: { value: strength } },
+    vertexShader: 'varying vec3 vN; varying vec3 vV; void main(){ vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position,1.0); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }',
+    fragmentShader: 'uniform vec3 uColor; uniform float uPow; uniform float uStr; varying vec3 vN; varying vec3 vV; void main(){ float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), uPow); gl_FragColor = vec4(uColor * f * uStr, 1.0); }',
+    transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false,
+  })
+}
+
+// 유리 위의 긴 창문 반사(하이라이트 띠)
+function streakTexture() {
+  const c = document.createElement('canvas'); c.width = 128; c.height = 256
+  const ctx = c.getContext('2d')
+  ctx.translate(64, 128)
+  ctx.rotate(-0.28)
+  const g = ctx.createLinearGradient(0, -110, 0, 110)
+  g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.2, 'rgba(255,255,255,.85)'); g.addColorStop(0.75, 'rgba(255,255,255,.35)'); g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.beginPath(); ctx.moveTo(-9, -110); ctx.quadraticCurveTo(-20, 0, -7, 110); ctx.lineTo(6, 110); ctx.quadraticCurveTo(-4, 0, 7, -110); ctx.closePath(); ctx.fill()
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace
+  ownTextures.push(tex)
+  return tex
 }
 
 function buildScene() {
@@ -305,25 +347,34 @@ function buildScene() {
   const accentI = hexToInt(th.accent)
   scene = new THREE.Scene()
   scene.background = makeBgTexture(th)
-  if (envTex) { scene.environment = envTex; scene.environmentIntensity = 1.05 }
-  scene.add(new THREE.HemisphereLight(0xbfd8ff, 0x20163a, envTex ? 0.35 : 2.2))
-  const key = new THREE.DirectionalLight(0xffffff, envTex ? 1.6 : 2.4); key.position.set(-5, 9, 7); scene.add(key)
+  if (envTex) { scene.environment = envTex; scene.environmentIntensity = 0.95 }
+  scene.add(new THREE.HemisphereLight(0xcfe2ff, 0x3a2a60, envTex ? 0.3 : 2.4))
+  const key = new THREE.DirectionalLight(0xffffff, envTex ? 1.5 : 2.8); key.position.set(-5, 9, 8); scene.add(key)
   const pl = (c, p, x, y, z, d = 22) => { const l = new THREE.PointLight(c, p, d, 2); l.position.set(x, y, z); scene.add(l); return l }
-  pl(0x5f8bff, 90, -7, 3, -2); pl(0xffa94d, 80, 8, 2.5, -3)
-  accentLight = pl(accentI, 30, GX, -1.4, 4.5, 14)
-  winLight = pl(accentI, 0, CX, -1, CZ + 2.2, 10)
+  pl(0x6f98ff, 90, -7.5, 3, 0); pl(0xffa94d, 80, 9, 2.5, -1)          // 좌 청색 / 우 금색 림
+  pl(0xffffff, 45, GX, 6.5, 6, 20)                                       // 정면 상단 보조광
+  pl(0xfff1d0, 22, GX + 2, -0.5, 7, 18)                                  // 정면 하단 필
+  accentLight = pl(accentI, 40, GX, -1.4, 4.5, 14)
+  winLight = pl(accentI, 0, CX, -1, CZ + 2.4, 10)
+  mouthLight = pl(0xffe9b0, 0, PIPE_A.x + 0.2, PIPE_A.y - 0.3, 1.6, 9)
+  spot = new THREE.SpotLight(0xfff0cc, 0, 30, 0.42, 1, 1.4)
+  spot.position.set(GX + 1.2, 8.5, 5.5); spot.target.position.set(GX + 0.2, GY, 0)
+  scene.add(spot); scene.add(spot.target)
 
   // 재질
-  const gold = new THREE.MeshPhysicalMaterial({ color: 0xffc24a, metalness: 1, roughness: 0.17, clearcoat: 0.5, clearcoatRoughness: 0.1, envMapIntensity: 1.4, side: THREE.DoubleSide })
-  const black = new THREE.MeshPhysicalMaterial({ color: 0x07090f, metalness: 0.45, roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.1, side: THREE.DoubleSide })
+  const gold = new THREE.MeshPhysicalMaterial({ color: 0xffc94f, metalness: 1, roughness: 0.14, clearcoat: 0.6, clearcoatRoughness: 0.08, envMapIntensity: 1.5, side: THREE.DoubleSide })
+  const black = new THREE.MeshPhysicalMaterial({ color: 0x0a0c14, metalness: 0.5, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.4, side: THREE.DoubleSide })
   const tint = new THREE.Color(th.glass_tint)
   // 유리: 어두운 배경 위에 반사만 가산 (투명 + 흐려지지 않는 반사)
   const glass = new THREE.MeshPhysicalMaterial({
     color: tint.clone().multiplyScalar(0.012), metalness: 0, roughness: 0.02, ior: 1.5, specularIntensity: 1,
-    clearcoat: 0, envMapIntensity: envTex ? 0.32 : 1,
+    clearcoat: 0, envMapIntensity: envTex ? 0.24 : 1,
     transparent: true, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor, blendEquation: THREE.AddEquation,
     side: THREE.DoubleSide, depthWrite: false,
   })
+  // 챔버/파이프용: 반사를 더 약하게 해서 안쪽의 공 번호가 뿌예지지 않게
+  const glassLite = glass.clone(); glassLite.envMapIntensity = envTex ? 0.1 : 0.6; glassLite.specularIntensity = 0.3
+  const rim = fresnelMat(tint.clone().lerp(new THREE.Color(0xffffff), 0.2), 3.4, 0.55)
   const add = (geo, m, x = 0, y = 0, z = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); scene.add(o); return o }
   const lathe = (pts, m, x, y, z, seg = 96) => add(new THREE.LatheGeometry(pts.map((p) => new THREE.Vector2(p[0], p[1])), seg), m, x, y, z)
   const flatTorus = (r, tk, m, x, y, z, seg = 128) => { const o = add(new THREE.TorusGeometry(r, tk, 16, seg), m, x, y, z); o.rotation.x = Math.PI / 2; return o }
@@ -332,28 +383,31 @@ function buildScene() {
   const floorR = 13
   useReflector = useReflector && !!X.Reflector
   if (useReflector) {
-    reflector = new X.Reflector(new THREE.CircleGeometry(floorR * 0.62, 64), { textureWidth: 512, textureHeight: 512, color: 0x4a536b, clipBias: 0.003 })
+    reflector = new X.Reflector(new THREE.CircleGeometry(floorR * 0.62, 64), { textureWidth: 512, textureHeight: 512, color: 0x3c4560, clipBias: 0.003 })
     reflector.rotation.x = -Math.PI / 2; reflector.position.set(SCENE_CX, FLOOR_Y, 0)
     scene.add(reflector)
   }
   const fade = radialTexture([[0, '#fff'], [0.55, '#fff'], [0.9, '#444'], [1, '#000']], 128)
   fade.colorSpace = THREE.NoColorSpace
-  const floorMat = new THREE.MeshPhysicalMaterial({ color: hexToInt(th.floor), metalness: useReflector ? 0.2 : 0.8, roughness: useReflector ? 0.5 : 0.22, clearcoat: 0.3, clearcoatRoughness: 0.2, envMapIntensity: 0.18, transparent: true, opacity: useReflector ? 0.86 : 0.96, alphaMap: fade, depthWrite: !useReflector })
+  const floorMat = new THREE.MeshPhysicalMaterial({ color: hexToInt(th.floor), metalness: useReflector ? 0.2 : 0.8, roughness: useReflector ? 0.5 : 0.22, clearcoat: 0.3, clearcoatRoughness: 0.2, envMapIntensity: 0.12, transparent: true, opacity: useReflector ? 0.9 : 0.96, alphaMap: fade, depthWrite: !useReflector })
   const floor = add(new THREE.CircleGeometry(floorR, 64), floorMat, SCENE_CX, FLOOR_Y + 0.004, 0)
   floor.rotation.x = -Math.PI / 2
 
   // 바닥 동심원 링 (HDR 색 → 블룸)
   const ringMat = (r, g, b) => new THREE.MeshBasicMaterial({ color: new THREE.Color(r, g, b), toneMapped: true })
   const accentC = new THREE.Color(th.accent)
-  flatTorus(3.75, 0.022, ringMat(accentC.r * 2.2, accentC.g * 2.2, accentC.b * 2.2), GX, FLOOR_Y + 0.012, 0)
-  flatTorus(4.9, 0.018, ringMat(0.2, 0.45, 1.7), GX, FLOOR_Y + 0.012, 0)
-  flatTorus(6.3, 0.014, ringMat(accentC.r * 1.1, accentC.g * 1.1, accentC.b * 1.1), GX, FLOOR_Y + 0.012, 0)
-  flatTorus(1.75, 0.02, ringMat(accentC.r * 2.2, accentC.g * 2.2, accentC.b * 2.2), CX, FLOOR_Y + 0.012, CZ)
-  flatTorus(2.4, 0.014, ringMat(0.2, 0.45, 1.7), CX, FLOOR_Y + 0.012, CZ)
+  flatTorus(3.75, 0.03, ringMat(accentC.r * 2.6, accentC.g * 2.6, accentC.b * 2.6), GX, FLOOR_Y + 0.012, 0)
+  flatTorus(4.9, 0.024, ringMat(0.25, 0.55, 2.0), GX, FLOOR_Y + 0.012, 0)
+  flatTorus(6.3, 0.018, ringMat(accentC.r * 1.3, accentC.g * 1.3, accentC.b * 1.3), GX, FLOOR_Y + 0.012, 0)
+  flatTorus(1.95, 0.028, ringMat(accentC.r * 2.6, accentC.g * 2.6, accentC.b * 2.6), CX, FLOOR_Y + 0.012, CZ)
+  flatTorus(2.6, 0.02, ringMat(0.25, 0.55, 2.0), CX, FLOOR_Y + 0.012, CZ)
   // 바닥에 번지는 링 광원
   const glowTex = radialTexture([[0, 'rgba(255,255,255,0)'], [0.5, 'rgba(255,255,255,0)'], [0.63, 'rgba(255,255,255,.85)'], [0.8, 'rgba(255,255,255,.12)'], [1, 'rgba(255,255,255,0)']], 256)
   const glowPlane = add(new THREE.PlaneGeometry(10.5, 10.5), new THREE.MeshBasicMaterial({ map: glowTex, color: accentI, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false }), GX, FLOOR_Y + 0.02, 0)
   glowPlane.rotation.x = -Math.PI / 2
+  // 본체 아래 부드러운 후광 (무대 발광)
+  const baseGlow = add(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: radialTexture([[0, 'rgba(255,255,255,.9)'], [0.4, 'rgba(255,255,255,.35)'], [1, 'rgba(255,255,255,0)']], 256), color: accentI, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending, depthWrite: false }), GX, FLOOR_Y + 0.025, 0)
+  baseGlow.rotation.x = -Math.PI / 2
 
   // ── 본체 받침 (선반 프로파일) ──
   const phiTop = Math.asin((-1.12 - GY) / GR)
@@ -361,56 +415,79 @@ function buildScene() {
   for (let i = 0; i <= 10; i++) { const a = phiTop + ((-Math.PI / 2 - phiTop) * i) / 10; dish.push([Math.max(0.001, (GR - 0.03) * Math.cos(a)), GY + (GR - 0.03) * Math.sin(a)]) }
   const baseProfile = [[0.001, -2.4], [3.0, -2.4], [3.12, -2.36], [3.17, -2.28], [3.1, -2.18], [2.72, -2.05], [2.38, -1.9], [2.12, -1.6], [1.96, -1.2], ...dish]
   lathe(baseProfile, black, GX, 0, 0)
-  flatTorus(3.12, 0.065, gold, GX, -2.22)               // 하단 금 링
-  flatTorus(2.55, 0.05, gold, GX, -1.93)
+  flatTorus(3.12, 0.08, gold, GX, -2.22)               // 하단 금 링
+  flatTorus(2.55, 0.065, gold, GX, -1.93)
+  flatTorus(2.13, 0.05, gold, GX, -1.6)
   // 상단 금 칼라 (유리구를 감싸는 베벨 링)
-  lathe([[1.44, -1.17], [1.84, -1.17], [1.93, -1.1], [1.93, -1.0], [1.84, -0.93], [1.5, -0.93], [1.44, -1.0]], gold, GX, 0, 0)
+  lathe([[1.44, -1.17], [1.86, -1.17], [1.97, -1.1], [1.97, -1.0], [1.86, -0.93], [1.5, -0.93], [1.44, -1.0]], gold, GX, 0, 0)
   // LED 링
-  const led = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: accentI, emissiveIntensity: 3.2, roughness: 0.4 })
-  flatTorus(2.62, 0.045, led, GX, -1.97)
-  flatTorus(3.17, 0.03, led, GX, -2.3)
+  const led = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: accentI, emissiveIntensity: 4.2, roughness: 0.4 })
+  flatTorus(2.62, 0.05, led, GX, -1.97)
+  flatTorus(3.17, 0.034, led, GX, -2.3)
 
   // ── 유리구 ──
   add(new THREE.SphereGeometry(GR, 64, 48), glass, GX, GY, 0).renderOrder = 5
+  add(new THREE.SphereGeometry(GR + 0.01, 64, 48), rim, GX, GY, 0).renderOrder = 6
   // 구 윗부분 금 캡
   lathe([[0.001, GY + GR + 0.05], [0.34, GY + GR + 0.03], [0.46, GY + GR - 0.08], [0.4, GY + GR - 0.2], [0.001, GY + GR - 0.2]], gold, GX, 0, 0, 48)
+  // 유리 반사 하이라이트 띠 (구 앞쪽 좌상단 / 우하단)
+  const streak = streakTexture()
+  const mkStreak = (x, y, w, h, op, rot) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: streak, color: 0xffffff, transparent: true, opacity: op, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, fog: false }))
+    sp.position.set(x, y, GR + 0.35); sp.scale.set(w, h, 1); sp.material.rotation = rot; sp.renderOrder = 9; scene.add(sp)
+  }
+  mkStreak(GX - 0.95, GY + 0.75, 0.7, 1.7, 0.55, 0.12)
+  mkStreak(GX + 1.3, GY - 0.55, 0.35, 0.8, 0.35, 0.2)
 
   // ── 파이프 ──
   tubePath = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(PIPE_A.x, PIPE_A.y, 0), new THREE.Vector3(0.85, 2.5, 0.05), new THREE.Vector3(2.1, 2.95, 0.1),
-    new THREE.Vector3(3.4, 2.65, 0.2), new THREE.Vector3(3.98, 1.75, CZ), new THREE.Vector3(CX, 0.85, CZ), new THREE.Vector3(CX, 0.12, CZ),
+    new THREE.Vector3(PIPE_A.x, PIPE_A.y, 0), new THREE.Vector3(0.75, 2.4, 0.05), new THREE.Vector3(1.9, 2.95, 0.1),
+    new THREE.Vector3(3.3, 2.75, 0.2), new THREE.Vector3(4.0, 1.85, CZ), new THREE.Vector3(CX, 0.9, CZ), new THREE.Vector3(CX, 0.12, CZ),
   ], false, 'centripetal')
-  add(new THREE.TubeGeometry(tubePath, 120, 0.48, 28, false), glass, 0, 0, 0).renderOrder = 5
+  const tubeGeo = new THREE.TubeGeometry(tubePath, 140, PIPE_R, 32, false)
+  add(tubeGeo, glassLite, 0, 0, 0).renderOrder = 5
+  add(tubeGeo, rim, 0, 0, 0).renderOrder = 6
   // 구 표면과 만나는 지점의 금속 칼라
   let tc = 0.1
   for (let u = 0; u <= 1; u += 0.01) { const p = tubePath.getPointAt(u); if (Math.hypot(p.x - GX, p.y - GY, p.z) >= GR + 0.02) { tc = u; break } }
   const cp = tubePath.getPointAt(tc), ct = tubePath.getTangentAt(tc)
-  const collar = lathe([[0.44, -0.2], [0.64, -0.2], [0.72, -0.13], [0.72, 0.13], [0.64, 0.2], [0.44, 0.2]], gold, cp.x, cp.y, cp.z, 48)
+  const collar = lathe([[PIPE_R - 0.04, -0.22], [PIPE_R + 0.2, -0.22], [PIPE_R + 0.3, -0.14], [PIPE_R + 0.3, 0.14], [PIPE_R + 0.2, 0.22], [PIPE_R - 0.04, 0.22]], gold, cp.x, cp.y, cp.z, 48)
   collar.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), ct)
-  const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.05, 12, 48), gold)
-  mouth.position.set(PIPE_A.x, PIPE_A.y, 0); mouth.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tubePath.getTangentAt(0)); scene.add(mouth)
+  // 입구: 나팔 모양 금 깔때기 (공이 들어가는 입구가 또렷이 보이도록)
+  const m0 = tubePath.getTangentAt(0)
+  const funnel = lathe([[PIPE_R + 0.02, 0.0], [PIPE_R + 0.12, -0.08], [PIPE_R + 0.2, -0.2], [PIPE_R + 0.2, -0.25], [PIPE_R + 0.1, -0.12], [PIPE_R - 0.02, -0.02]], gold, PIPE_A.x, PIPE_A.y, 0, 48)
+  funnel.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), m0)
+  // 입구 글로우 (긴장 연출용)
+  mouthGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: radialTexture([[0, 'rgba(255,255,255,1)'], [0.3, 'rgba(255,255,255,.45)'], [1, 'rgba(255,255,255,0)']]), color: 0xffe6a0, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0, fog: false }))
+  mouthGlow.position.set(PIPE_A.x + 0.05, PIPE_A.y + 0.02, 0.5); mouthGlow.scale.set(2.3, 2.3, 1); mouthGlow.renderOrder = 8
+  scene.add(mouthGlow)
 
   // ── 수집 챔버 ──
-  lathe([[0.001, -2.4], [1.2, -2.4], [1.28, -2.35], [1.28, -2.26], [1.12, -2.2], [0.001, -2.2]], black, CX, 0, CZ, 64)
-  flatTorus(1.05, 0.05, gold, CX, -2.2, CZ, 64)
-  add(new THREE.CylinderGeometry(1.0, 1.0, 2.7, 64, 1, true), glass, CX, -0.85, CZ).renderOrder = 5
-  lathe([[0.5, 0.12], [1.0, 0.12], [1.13, 0.22], [1.13, 0.42], [1.0, 0.52], [0.5, 0.52]], gold, CX, 0, CZ, 64)
+  const k = CR / 1.0
+  lathe([[0.001, -2.4], [1.2 * k, -2.4], [1.28 * k, -2.35], [1.28 * k, -2.26], [1.12 * k, -2.2], [0.001, -2.2]], black, CX, 0, CZ, 64)
+  flatTorus(1.05 * k, 0.06, gold, CX, -2.2, CZ, 64)
+  const chGeo = new THREE.CylinderGeometry(CR, CR, 2.7, 64, 1, true)
+  add(chGeo, glassLite, CX, -0.85, CZ).renderOrder = 5
+  add(chGeo, rim, CX, -0.85, CZ).renderOrder = 6
+  lathe([[PIPE_R - 0.02, 0.12], [CR, 0.12], [CR + 0.14, 0.22], [CR + 0.14, 0.42], [CR, 0.52], [PIPE_R - 0.02, 0.52]], gold, CX, 0, CZ, 64)
 
   // ── 공 ──
   const N = ballCount()
-  BR = N > 28 ? 0.33 : 0.36
+  BR = N >= 30 ? 0.43 : N >= 22 ? 0.46 : 0.5
   const total = Math.max(props.ticketCount || 0, N)
   const step = Math.max(1, Math.floor(total / N))
-  const geo = new THREE.SphereGeometry(BR, 40, 28)
+  const geo = new THREE.SphereGeometry(BR, 48, 32)
   const rnd = mulberry32(20240607)
+  const lim0 = GR - BR - 0.04
   for (let i = 0; i < N; i++) {
     let number = Math.min(total, i * step + 1)
     if (hasResult.value && number === Number(props.winningTicket)) number = (number % total) + 1
     const color = th.ball_colors[i % th.ball_colors.length]
-    const m = new THREE.MeshPhysicalMaterial({ map: numberTexture(number, color), color: 0xffffff, roughness: 0.28, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 1.2, emissive: accentI, emissiveIntensity: 0 })
+    const m = new THREE.MeshPhysicalMaterial({ map: numberTexture(number, color), color: 0xffffff, roughness: 0.16, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.025, envMapIntensity: 1.1, specularIntensity: 1, emissive: accentI, emissiveIntensity: 0 })
     const b = new THREE.Mesh(geo, m)
-    const a = i * 2.399963, rad = Math.sqrt((i + 0.5) / N) * (GR - BR - 0.3)
-    b.position.set(GX + Math.cos(a) * rad, GY - 0.5 + (rnd() - 0.5) * 1.6, Math.sin(a) * rad)
+    const y = GY - 1.55 + (i / N) * 2.7 + (rnd() - 0.5) * 0.3
+    const dy = y - GY, rr = Math.sqrt(Math.max(0.01, lim0 * lim0 - dy * dy)) * Math.sqrt(rnd()), a = rnd() * 6.283
+    b.position.set(GX + Math.cos(a) * rr, y, Math.sin(a) * rr)
     b.quaternion.setFromEuler(new THREE.Euler(rnd() * 6, rnd() * 6, rnd() * 6))
     b.userData = { seed: rnd() * 90, v: new THREE.Vector3((rnd() - 0.5) * 2, 0, (rnd() - 0.5) * 2), mode: 'pool', origMap: m.map }
     scene.add(b); balls.push(b)
@@ -524,7 +601,7 @@ function stepBalls(dt, tt, par) {
   }
   // 공끼리 겹침 해소
   const md = BR * 2
-  for (let i = 0; i < n; i++) {
+  for (let it = 0; it < 3; it++) for (let i = 0; i < n; i++) {
     const a = balls[i]; if (a.userData.mode !== 'pool') continue
     for (let j = i + 1; j < n; j++) {
       const b = balls[j]; if (b.userData.mode !== 'pool') continue
@@ -537,6 +614,19 @@ function stepBalls(dt, tt, par) {
       const va = a.userData.v, vb = b.userData.v
       const vn = (vb.x - va.x) * nx + (vb.y - va.y) * ny + (vb.z - va.z) * nz
       if (vn < 0) { const im = -vn * 0.6; va.x -= nx * im; va.y -= ny * im; va.z -= nz * im; vb.x += nx * im; vb.y += ny * im; vb.z += nz * im }
+    }
+  }
+  // 풀 밖(상승/아쉬운 공)에 있는 공은 풀 공을 밀어냄 (겹침 방지)
+  for (let j = 0; j < n; j++) {
+    const sp = balls[j]; const sm = sp.userData.mode
+    if (sm !== 'near' && sm !== 'rise') continue
+    for (let i = 0; i < n; i++) {
+      const a = balls[i]; if (a.userData.mode !== 'pool') continue
+      const dx = a.position.x - sp.position.x, dy = a.position.y - sp.position.y, dz = a.position.z - sp.position.z
+      const d2 = dx * dx + dy * dy + dz * dz
+      if (d2 >= md * md || d2 < 1e-8) continue
+      const d = Math.sqrt(d2), ov = md - d
+      a.position.x += (dx / d) * ov; a.position.y += (dy / d) * ov; a.position.z += (dz / d) * ov
     }
   }
   // 굴러가는 회전
@@ -554,7 +644,7 @@ function stepBalls(dt, tt, par) {
 function prewarm() {
   tq = new THREE.Quaternion(); ta = new THREE.Vector3()
   const par = PAR.idleResult
-  for (let i = 0; i < 90; i++) stepBalls(1 / 60, i / 60, par)
+  for (let i = 0; i < 160; i++) stepBalls(1 / 60, i / 60, par)
 }
 
 const PAR = {
@@ -562,6 +652,7 @@ const PAR = {
   idleResult: { grav: 9, swirl: 3, blow: 17, wob: 0.8, damp: 1.0 },
   mix: { grav: 9, swirl: 12, blow: 42, wob: 2.4, damp: 0.7 },
   select: { grav: 9, swirl: 6, blow: 24, wob: 1.2, damp: 0.9 },
+  tumble: { grav: 9, swirl: 9, blow: 34, wob: 1.8, damp: 0.8 },
   after: { grav: 9, swirl: 2.5, blow: 14, wob: 0.8, damp: 1.0 },
 }
 function lerpPar(a, b, k) {
@@ -572,9 +663,11 @@ function lerpPar(a, b, k) {
 
 function applyWinnerLook(ball) {
   const m = ball.material
-  m.map = numberTexture(playTicket, t.value.accent)
+  m.map = numberTexture(playTicket, t.value.accent, true)
   m.emissive.set(t.value.accent)
   m.emissiveIntensity = 0.04
+  m.clearcoat = 0.35; m.roughness = 0.3
+  m.color.setScalar(0.66)   // 흰 원판이 블룸으로 날아가지 않게 살짝 어둡게
   m.needsUpdate = true
 }
 function restoreCarrier() {
@@ -582,12 +675,33 @@ function restoreCarrier() {
   const u = carrier.userData
   carrier.material.map = u.origMap
   carrier.material.emissiveIntensity = 0
+  carrier.material.color.setScalar(1)
+  carrier.material.clearcoat = 1; carrier.material.roughness = 0.16
   carrier.material.needsUpdate = true
   carrier.scale.setScalar(1)
   u.mode = 'pool'; u.v.set(0, 2, 0)
+  carrier.material.emissiveIntensity = 0
   carrier.position.set(GX + (cosRand() - 0.5), GY - 1.2, (cosRand() - 0.5))
   carrier = null
   if (ballHalo) ballHalo.visible = false
+}
+
+function pickPoolBall(pt) {
+  let best = null, bd = 1e9
+  for (const b of balls) {
+    if (b.userData.mode !== 'pool' || b === carrier) continue
+    const d = Math.hypot(b.position.x - pt.x, b.position.y - pt.y, b.position.z)
+    if (d < bd) { bd = d; best = b }
+  }
+  return best
+}
+// 당첨 공 선정: 위치만 정하는 연출용 선택 — 번호는 항상 winningTicket 으로 교체됨
+function pickCarrier() {
+  carrier = pickPoolBall(PIPE_A) || balls[0]
+  applyWinnerLook(carrier)
+  carrier.userData.mode = 'rise'
+  carrier.userData.from = carrier.position.clone()
+  flash = 1
 }
 
 function setPhase(p) {
@@ -605,9 +719,10 @@ function resize() {
   const aspectChanged = Math.abs(na - aspect) > 0.15
   aspect = na
   camera.aspect = na
-  const margin = props.compact ? 0.04 : 0.1
+  // 장치가 화면을 가득 채우도록 여백 최소화 (좌우 오버레이용 여백은 가로가 넓을 때 자연히 생김)
+  const margin = props.compact ? 0.02 : 0.04
   const tanH = Math.tan((camera.fov * Math.PI) / 360)
-  const halfH = 3.5 * (1 + margin), halfW = 4.6 * (1 + margin)
+  const halfH = 3.2 * (1 + margin), halfW = 4.75 * (1 + margin)
   camDist = Math.max(halfH / tanH, halfW / (tanH * na)) + 1.6
   camera.updateProjectionMatrix()
   if (aspectChanged && scene) { scene.background?.dispose?.(); scene.background = makeBgTexture(t.value) }
@@ -616,9 +731,11 @@ function resize() {
 function updateCamera(tt) {
   const slow = reduced ? 0 : 1
   const ang = Math.sin(tt * 0.13) * 0.09 * slow
-  const dist = camDist * (1 + Math.sin(tt * 0.09) * 0.015 * slow - camBlend * 0.04)
-  const tx = SCENE_CX + camBlend * 0.5, ty = SCENE_CY + camBlend * 0.1
-  camera.position.set(tx + Math.sin(ang) * dist, ty + 1.15 + Math.sin(tt * 0.11) * 0.08 * slow, Math.cos(ang) * dist)
+  const dist = camDist * (1 + Math.sin(tt * 0.09) * 0.015 * slow - camBlend * 0.04 - push * 0.05)
+  // select 막바지: 파이프 입구 쪽으로 천천히 밀고 들어가며 미세하게 흔들림
+  const shake = reduced ? 0 : Math.max(0, push - 0.5) * 0.02
+  const tx = SCENE_CX + camBlend * 0.5 + push * 0.45 + Math.sin(tt * 41) * shake, ty = SCENE_CY + camBlend * 0.1 + push * 0.5 + Math.cos(tt * 37) * shake
+  camera.position.set(tx + Math.sin(ang) * dist, ty + 1.05 + Math.sin(tt * 0.11) * 0.08 * slow, Math.cos(ang) * dist)
   camera.lookAt(tx, ty - 0.1, 0)
 }
 
@@ -630,59 +747,86 @@ function frame(now) {
   lastNow = now
   simClock += dt
   const tt = simClock
-  const elapsed = (now - phStart) / 1000
+  let elapsed = (now - phStart) / 1000
 
   // 단계 전이
   if (ph === 'mix' && elapsed > DUR.mix) {
-    setPhase('select')
-    let best = null, bd = 1e9
-    for (const b of balls) { if (b.userData.mode !== 'pool') continue; const d = Math.hypot(b.position.x - PIPE_A.x, b.position.y - PIPE_A.y, b.position.z); if (d < bd) { bd = d; best = b } }
-    carrier = best
-    applyWinnerLook(carrier)
-    carrier.userData.mode = 'rise'
-    carrier.userData.from = carrier.position.clone()
-  } else if (ph === 'select' && elapsed > DUR.select) {
-    setPhase('eject')
+    setPhase('select'); elapsed = 0
+  } else if (ph === 'select' && elapsed > selDur) {
+    setPhase('eject'); elapsed = 0
+    if (!carrier) pickCarrier()
     carrier.userData.mode = 'pipe'
+  }
+
+  // select: 아쉬운 공 / 당첨 공 상승 이벤트
+  const selT = ph === 'select' ? elapsed / selDur : (ph === 'mix' ? 0 : 1)
+  if (ph === 'select') {
+    for (const nm of nearMiss) {
+      if (!nm.ball && elapsed >= nm.start) {
+        nm.ball = pickPoolBall(PIPE_A)
+        if (nm.ball) { nm.ball.userData.mode = 'near'; nm.ball.userData.from = nm.ball.position.clone(); nm.ball.userData.nmStart = nm.start; nm.ball.userData.peak = nm.peak; nm.ball.userData.seed2 = Math.random() * 6 }
+      }
+    }
+    if (!carrier && elapsed >= liftAt) pickCarrier()
+  }
+  for (const nm of nearMiss) {
+    const b = nm.ball; if (!b || b.userData.mode !== 'near') continue
+    const u = b.userData
+    const k = (elapsed - u.nmStart) / 1.35
+    if (k >= 1 || ph !== 'select') { u.mode = 'pool'; u.v.set(0, -1.5, 0); continue }
+    const up = k < 0.72 ? smooth(k / 0.72) : 1 - smooth((k - 0.72) / 0.28) * 0.04
+    const h = u.peak * up
+    const f = u.from
+    const tx = PIPE_A.x - 0.05, ty = PIPE_A.y - 0.08
+    b.position.set(f.x + (tx - f.x) * h + Math.sin(tt * 11 + u.seed2) * 0.05 * h, f.y + (ty - f.y) * h + Math.sin(k * 18) * 0.03, f.z * (1 - h))
+    b.rotation.y += dt * 5; b.rotation.x += dt * 2.5
   }
 
   // 풀 시뮬레이션 파라미터
   let par
   if (ph === 'mix') par = lerpPar(PAR.select, PAR.mix, smooth(elapsed / 0.8))
-  else if (ph === 'select') par = lerpPar(PAR.mix, PAR.select, smooth(elapsed / DUR.select))
+  else if (ph === 'select') par = lerpPar(PAR.mix, PAR.tumble, smooth(elapsed / 0.8))
   else if (ph === 'eject' || ph === 'reveal') par = PAR.after
   else par = hasResult.value ? PAR.idleResult : PAR.idleWait
   const sub = 2
   for (let i = 0; i < sub; i++) stepBalls(dt / sub, tt + i * 0.001, par)
 
+  // 긴장감: select 동안 서서히 상승 (0~1), 마지막 상승 구간에서 최대
+  const tgtTension = ph === 'select' ? Math.pow(selT, 1.4) : 0
+  tensionV += (tgtTension - tensionV) * Math.min(1, dt * (ph === 'select' ? 6 : 2.5))
+  const pulseRate = 3 + tensionV * 9
+  const pulse = 0.5 + 0.5 * Math.sin(elapsed * pulseRate)
+  push += ((ph === 'select' ? smooth(selT) : 0) - push) * Math.min(1, dt * (ph === 'select' ? 4 : 1.4))
+  flash = Math.max(0, flash - dt * 2.2)
+
   // 당첨 공 연출
   const cu = carrier?.userData
   let haloK = 0
   if (carrier && cu.mode === 'rise') {
-    const k = smooth(elapsed / DUR.select)
+    const k = smooth(clamp01((elapsed - liftAt) / (liftDur * 0.85)))
     const f = cu.from
     carrier.position.set(
-      f.x + (PIPE_A.x - f.x) * k + Math.sin(tt * 9) * (1 - k) * 0.12,
-      f.y + (PIPE_A.y - f.y) * k + Math.sin(k * Math.PI) * 0.35,
+      f.x + (PIPE_A.x - f.x) * k + Math.sin(tt * 9) * (1 - k) * 0.1,
+      f.y + (PIPE_A.y - f.y) * k + Math.sin(k * Math.PI) * 0.3,
       f.z + (PIPE_A.z - f.z) * k)
     carrier.rotation.y += dt * 6; carrier.rotation.x += dt * 3
-    carrier.scale.setScalar(1 + 0.12 * k)
-    carrier.material.emissiveIntensity = 0.06 + 0.12 * Math.abs(Math.sin(elapsed * 7))
-    haloK = 0.5 + 0.5 * k
+    carrier.scale.setScalar(1 + 0.08 * k)
+    carrier.material.emissiveIntensity = 0.08 + 0.14 * Math.abs(Math.sin(elapsed * 8))
+    haloK = 0.6 + 0.4 * k
   } else if (carrier && cu.mode === 'pipe') {
     const pd = DUR.eject * 0.64
     const k = clamp01(elapsed / pd)
     const e = smooth(k) * 0.6 + k * 0.4
     carrier.position.copy(tubePath.getPointAt(e))
     carrier.rotation.x += dt * 4; carrier.rotation.z += dt * 2.5
-    carrier.scale.setScalar(1.12)
+    carrier.scale.setScalar(1.08)
     carrier.material.emissiveIntensity = 0.15
     haloK = 0.7
     if (k >= 1) { cu.mode = 'drop'; dropState = { vy: -0.4, t: 0, bounces: 0 } }
   } else if (carrier && cu.mode === 'drop') {
     const ds = dropState
     ds.t += dt
-    const sc = 1.12 + (FINAL_R / BR - 1.12) * smooth(ds.t / 0.7)
+    const sc = 1.08 + (FINAL_R / BR - 1.08) * smooth((ds.t - 0.2) / 0.7)
     carrier.scale.setScalar(sc)
     ds.vy -= 17 * dt
     carrier.position.y += ds.vy * dt
@@ -705,17 +849,17 @@ function frame(now) {
       cu.mode = 'rest'
       setPhase('reveal'); played.value = true
       revealAt = tt
-      emitSparkles(60, CX, CH_FLOOR + FINAL_R, CZ + 0.4)
+      emitSparkles(60, CX, CH_FLOOR + FINAL_R, CZ + 0.5)
       emit('finished')
     }
   } else if (carrier && cu.mode === 'rest') {
-    carrier.rotation.set(0, Math.sin(tt * 0.8) * 0.28, 0)
+    carrier.rotation.set(0, Math.sin(tt * 0.8) * 0.2, 0)
     haloK = 1
   }
   if (ph === 'reveal' && carrier) {
     const age = tt - revealAt
     emitAcc += dt
-    if (age < 8 && emitAcc > 0.22) { emitAcc = 0; emitSparkles(2, CX, CH_FLOOR + FINAL_R, CZ + 0.4) }
+    if (age < 8 && emitAcc > 0.22) { emitAcc = 0; emitSparkles(2, CX, CH_FLOOR + FINAL_R, CZ + 0.5) }
     carrier.material.emissiveIntensity = 0.02
   }
 
@@ -724,15 +868,20 @@ function frame(now) {
     ballHalo.visible = !!carrier && haloK > 0
     if (ballHalo.visible) {
       ballHalo.position.copy(carrier.position)
+      ballHalo.position.z -= 0.35 + carrier.scale.x * BR * 0.9   // 공 뒤쪽에서 빛나게 (공 표면이 하얗게 날아가지 않도록)
       const rest = cu.mode === 'rest' || cu.mode === 'settle'
-      const s = rest ? 3.0 + 0.25 * Math.sin(tt * 3) : 1.9
+      const s = (rest ? 3.4 + 0.25 * Math.sin(tt * 3) : 2.0) + flash * 1.2
       ballHalo.scale.set(s, s, 1)
-      ballHalo.material.opacity = (rest ? 0.14 : 0.35) * haloK
+      ballHalo.material.opacity = Math.min(0.9, (rest ? 0.16 : 0.35) * haloK + flash * 0.25)
     }
   }
   const revealed = ph === 'reveal'
-  winLight.intensity += ((revealed ? 10 : 0) - winLight.intensity) * Math.min(1, dt * 4)
-  accentLight.intensity = ph === 'select' ? 30 + 30 * Math.abs(Math.sin(elapsed * 6)) : 30
+  winLight.intensity += ((revealed ? 3 : 0) - winLight.intensity) * Math.min(1, dt * 4)
+  accentLight.intensity = 40 + tensionV * 25 * pulse
+  if (mouthLight) mouthLight.intensity = tensionV * (8 + 22 * pulse) + flash * 40
+  if (spot) spot.intensity = tensionV * (25 + 45 * pulse)
+  if (mouthGlow) mouthGlow.material.opacity = Math.min(0.5, tensionV * (0.05 + 0.17 * pulse) + flash * 0.25)
+  if (bloomPass) bloomPass.strength = 0.38 + tensionV * 0.22 * (0.6 + 0.4 * pulse) + (revealed ? 0.08 : 0) + flash * 0.12
   camBlend += ((revealed ? 1 : 0) - camBlend) * Math.min(1, dt * 1.6)
 
   // 보케 + 반짝이
@@ -773,6 +922,9 @@ async function play() {
   if (!canPlay.value) return
   playTicket = Number(props.winningTicket)
   restoreCarrier()
+  for (const b of balls) if (b.userData.mode !== 'pool') { b.userData.mode = 'pool'; b.userData.v.set(0, 0, 0) }
+  pickSelectDuration()   // 이번 회차 select 길이 (10~15초 랜덤, 연출 전용)
+  push = 0; tensionV = 0; flash = 0
   played.value = false
   setPhase('mix')
   schedule()
@@ -827,7 +979,7 @@ async function init() {
   renderer.setClearColor(0x000000, 1)
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.05
+  renderer.toneMappingExposure = 1.0
   camera = new THREE.PerspectiveCamera(30, 1, 0.1, 120)
 
   if (X.RoomEnvironment) {
@@ -849,7 +1001,7 @@ async function init() {
       composer = new X.EffectComposer(renderer, rt)
       composer.setPixelRatio(pr)
       renderPass = new X.RenderPass(scene, camera)
-      bloomPass = new X.UnrealBloomPass(new THREE.Vector2(w0, h0), 0.42, 0.6, 0.92)
+      bloomPass = new X.UnrealBloomPass(new THREE.Vector2(w0, h0), 0.38, 0.55, 0.92)
       composer.addPass(renderPass); composer.addPass(bloomPass); composer.addPass(new X.OutputPass())
     } catch (e) { composer = null; useComposer = false }
   }

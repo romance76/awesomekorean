@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Sweepstakes;
 use App\Models\SweepstakesEntry;
+use App\Models\SweepstakesReminder;
 use App\Models\SweepstakesWinnerAudit;
 use App\Support\EntryService;
 use App\Support\SweepstakesDrawReplay;
@@ -88,6 +89,9 @@ class SweepstakesController extends Controller
                 'my_win_probability_pct' => $probability,
                 'winner_display_name' => $winnerName,
                 'other_entries_breakdown' => $otherEntriesBreakdown,
+                'my_reminder' => auth()->check()
+                    ? SweepstakesReminder::where('sweepstakes_id', $sweepstakes->id)->where('user_id', auth()->id())->exists()
+                    : false,
                 // 추첨 연출 스킨/테마 + (당첨 확정 시) 재생용 draw 객체
                 ...SweepstakesDrawReplay::extra($sweepstakes),
                 // 참가 현황 기준 확률이며, 추가 응모가 들어오면 변경됨을 프론트에서
@@ -144,5 +148,83 @@ class SweepstakesController extends Controller
                 'remaining_entries' => $user->fresh()->entries,
             ],
         ]);
+    }
+
+    /**
+     * 추첨 시작 5분 전 알림 신청 (응모한 회원만).
+     */
+    public function setReminder(Request $request, Sweepstakes $sweepstakes)
+    {
+        $userId = auth()->id();
+
+        $entered = (int) (SweepstakesEntry::where('sweepstakes_id', $sweepstakes->id)
+            ->where('user_id', $userId)
+            ->value('entries_count') ?? 0);
+        if ($entered < 1) {
+            return response()->json(['success' => false, 'message' => '응모한 추첨에만 알림을 신청할 수 있어요'], 422);
+        }
+        if ($sweepstakes->status !== 'active' || !$sweepstakes->end_at || !$sweepstakes->end_at->isFuture()) {
+            return response()->json(['success' => false, 'message' => '이미 마감되었거나 진행 중이 아닌 추첨이에요'], 422);
+        }
+
+        $remindAt = $sweepstakes->end_at->copy()->subMinutes(5);
+        if ($remindAt->isPast()) {
+            $remindAt = now();
+        }
+
+        SweepstakesReminder::updateOrCreate(
+            ['user_id' => $userId, 'sweepstakes_id' => $sweepstakes->id],
+            ['remind_at' => $remindAt, 'notified_at' => null, 'dismissed_at' => null]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => '추첨 시작 5분 전에 알려드릴게요',
+            'data' => ['my_reminder' => true, 'remind_at' => $remindAt->toIso8601String()],
+        ]);
+    }
+
+    public function removeReminder(Request $request, Sweepstakes $sweepstakes)
+    {
+        SweepstakesReminder::where('user_id', auth()->id())
+            ->where('sweepstakes_id', $sweepstakes->id)
+            ->delete();
+
+        return response()->json(['success' => true, 'data' => ['my_reminder' => false]]);
+    }
+
+    /**
+     * 지금 화면 하단에 띄울 알림 목록 (내 알림 중 시간이 됐고, 아직 마감 전이고, 닫지 않은 것).
+     */
+    public function dueReminders(Request $request)
+    {
+        $rows = SweepstakesReminder::with('sweepstakes')
+            ->where('user_id', auth()->id())
+            ->where('remind_at', '<=', now())
+            ->whereNull('dismissed_at')
+            ->get();
+
+        $items = $rows->filter(fn ($r) => $r->sweepstakes
+                && $r->sweepstakes->status === 'active'
+                && $r->sweepstakes->end_at
+                && $r->sweepstakes->end_at->isFuture())
+            ->map(fn ($r) => [
+                'sweepstakes_id' => $r->sweepstakes_id,
+                'event_id' => $r->sweepstakes->event_id,
+                'prize_name' => $r->sweepstakes->prize_name,
+                'end_at' => $r->sweepstakes->end_at->toIso8601String(),
+                'seconds_left' => max(0, (int) floor(now()->diffInSeconds($r->sweepstakes->end_at, false))),
+            ])->sortBy('seconds_left')->values()->all();
+
+        return response()->json(['success' => true, 'data' => $items]);
+    }
+
+    public function dismissReminder(Request $request, $sweepstakesId)
+    {
+        SweepstakesReminder::where('user_id', auth()->id())
+            ->where('sweepstakes_id', (int) $sweepstakesId)
+            ->update(['dismissed_at' => now()]);
+
+        return response()->json(['success' => true]);
     }
 }
