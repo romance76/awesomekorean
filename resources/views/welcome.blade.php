@@ -9,6 +9,14 @@
     <meta name="description" content="미국 한인 커뮤니티 플랫폼. 커뮤니티, 구인구직, 중고장터, 한인 업소록을 한 곳에서.">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    @php
+        try {
+            $bootLogo = \App\Models\SiteSetting::where('key', 'logo_url')->value('value');
+            $bootLogoDark = \App\Models\SiteSetting::where('key', 'logo_dark_url')->value('value');
+        } catch (\Throwable $e) { $bootLogo = null; $bootLogoDark = null; }
+    @endphp
+    <script>window.__BOOT__ = @json(['logo_url' => $bootLogo ?: null, 'logo_dark_url' => $bootLogoDark ?: null]);</script>
+    @if($bootLogo)<link rel="preload" as="image" href="{{ $bootLogo }}">@endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.head-icons')
     @include('partials.analytics')
@@ -60,7 +68,7 @@
                     \App\Models\InfoPost::published()->orderByDesc('published_at')->limit(12)->get(['title', 'slug', 'excerpt']));
             } catch (\Throwable $e) { $seoPosts = collect(); }
         @endphp
-        <main id="seo-fallback" style="max-width:960px;margin:0 auto;padding:24px 16px;font-family:'Pretendard Variable',Pretendard,'Malgun Gothic',sans-serif;line-height:1.7;color:#1b1613">
+        <main id="seo-fallback" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);border:0">
             <h1 style="font-size:24px;margin:0 0 8px">AwesomeKorean — 미국 한인 커뮤니티</h1>
             <p style="margin:0 0 16px">어썸코리안은 미국에 사는 한인을 위한 커뮤니티입니다. 이민·비자, 세금, 보험, 부동산, 운전면허 같은 생활 정보와 Q&amp;A, 구인구직, 중고장터, 한인 업소록, 동호회, 뉴스, 공동구매를 한곳에서 볼 수 있습니다.</p>
             <nav aria-label="주요 메뉴" style="margin:0 0 16px">

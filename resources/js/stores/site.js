@@ -22,8 +22,10 @@ function writeMenuCache(arr) {
 
 export const useSiteStore = defineStore('site', () => {
   const siteName = ref('AwesomeKorean')
-  const logoUrl = ref('/images/logo.png')
-  const logoDarkUrl = ref('') // 다크 배경(푸터 등)용 — 미설정 시 컴포넌트가 텍스트로 폴백
+  // 서버가 첫 응답에 심어 준 현재 로고 주소를 먼저 사용 (설정을 불러오기 전에 옛 기본 로고가 비치는 깜빡임 방지)
+  const boot = (typeof window !== 'undefined' && window.__BOOT__) || {}
+  const logoUrl = ref(boot.logo_url || '/images/logo.png')
+  const logoDarkUrl = ref(boot.logo_dark_url || '') // 다크 배경(푸터 등)용 — 미설정 시 컴포넌트가 텍스트로 폴백
   const menus = ref([])
   const loaded = ref(false)
   const darkMode = ref(false)
