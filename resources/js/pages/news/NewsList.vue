@@ -4,10 +4,10 @@
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+        <RouterLink to="/news" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
           <span class="icon-chip w-8 h-8 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="17" /></span>
           뉴스
-        </h1>
+        </RouterLink>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary !text-xs !px-3 !py-2"><AppIcon name="search" :size="14" />필터</button>
         </div>
@@ -45,10 +45,10 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/news" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="20" /></span>
         뉴스
-      </h1>
+      </RouterLink>
       <form @submit.prevent="loadNews()" class="flex gap-1">
         <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
         <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>

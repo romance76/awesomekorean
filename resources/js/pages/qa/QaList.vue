@@ -4,10 +4,10 @@
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+        <RouterLink to="/qa" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
           <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="17" /></span>
           Q&A
-        </h1>
+        </RouterLink>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary !text-xs !px-3 !py-2"><AppIcon name="search" :size="14" />필터</button>
           <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary !text-xs !px-3 !py-2"><AppIcon name="edit" :size="13" />질문하기</RouterLink>
@@ -52,10 +52,10 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/qa" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="20" /></span>
         Q&A
-      </h1>
+      </RouterLink>
       <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary"><AppIcon name="edit" :size="15" />질문하기</RouterLink>
     </div>
 

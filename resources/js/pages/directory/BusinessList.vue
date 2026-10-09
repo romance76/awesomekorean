@@ -4,10 +4,10 @@
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+        <RouterLink to="/directory" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
           <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="store" :size="18" /></span>
           업소록
-        </h1>
+        </RouterLink>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="filter" :size="13" />필터</button>
           <RouterLink v-if="auth.isLoggedIn" to="/directory/register" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
@@ -58,10 +58,10 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/directory" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="store" :size="20" /></span>
         업소록
-      </h1>
+      </RouterLink>
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-amber-500"><AppIcon name="map-pin" :size="15" /></span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto px-2.5 py-1.5 pr-8 text-xs font-semibold">

@@ -3,7 +3,7 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="job?.title || '구인구직'" fallback="/jobs" />
     <!-- 헤더: 데스크탑 (grid 3컬럼 — 리스트와 동일) -->
-    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: 1fr auto 1fr;">
+    <div class="hidden lg:grid items-center mb-4 gap-2" style="grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);">
       <router-link to="/jobs" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors whitespace-nowrap justify-self-start">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="briefcase" :size="20" /></span>
         구인구직

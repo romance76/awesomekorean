@@ -4,10 +4,10 @@
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+        <RouterLink to="/community" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
           <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="message-circle" :size="20" /></span>
           커뮤니티
-        </h1>
+        </RouterLink>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary text-xs px-3 py-2"><AppIcon name="search" :size="14" />필터</button>
           <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary text-xs px-3 py-2"><AppIcon name="edit" :size="14" />글쓰기</RouterLink>
@@ -54,10 +54,10 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/community" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="message-circle" :size="20" /></span>
         커뮤니티
-      </h1>
+      </RouterLink>
       <div class="flex items-center gap-2">
         <select v-model="sortBy" @change="loadPosts()" class="input-soft w-auto text-xs py-1.5">
           <option value="latest">최신순</option>

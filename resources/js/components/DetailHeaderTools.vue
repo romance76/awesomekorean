@@ -4,7 +4,7 @@
   위치·반경을 바꾸거나 검색하면 해당 목록으로 이동해서 그 조건으로 보여준다.
   선택값은 섹션별 위치 필터 저장소(locationFilter)에 저장되어 목록과 상세 사이에서 유지된다.
 -->
-<div class="flex items-center gap-2 flex-wrap">
+<div class="flex items-center gap-2 flex-nowrap whitespace-nowrap">
   <template v-if="location">
     <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
     <select v-model="idx" @change="onCity" aria-label="지역" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs font-semibold">
