@@ -18,14 +18,68 @@
     </div>
   </div>
 
-  <!-- ═════ 1. 위젯 6개(체커보드 색 배치) + 언론사별 헤드라인(1열 4행) ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[2.15fr_1fr] gap-4 lg:gap-5">
+  <!-- ═════ 1. 사진 히어로 + 위젯 벤토 (데스크톱 2열 / 모바일 1열) ═════ -->
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-7 grid grid-cols-1 lg:grid-cols-[1fr_1.28fr] gap-4 lg:gap-5">
 
-    <!-- 위젯 벤토 3x2 : 신장개업 / 채팅 / 주식 / 동호회 / 내돈내산 / 이용자 -->
-    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3.5 lg:gap-4 order-1">
+    <!-- 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) — 기존 마케팅 히어로 자리를 대체 -->
+    <div class="card p-4 lg:p-5 min-h-[340px] lg:min-h-[440px] flex flex-col order-2">
+      <div class="flex items-center gap-2.5 mb-3.5">
+        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
+        <span class="flex-1"></span>
+        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-left" :size="14" />
+        </button>
+        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
+        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
+          <AppIcon name="chevron-right" :size="14" />
+        </button>
+      </div>
+      <div v-if="currentHeadlines.length" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 flex-1">
+        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/${h.id}`"
+          class="flex gap-3 items-start group">
+          <div class="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-surface border border-line">
+            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="dropHeadline(h.id)" />
+          </div>
+          <div class="min-w-0">
+            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
+            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-2 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
+            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
+          </div>
+        </RouterLink>
+      </div>
+      <div v-else class="flex-1 flex items-center justify-center text-[13px] text-ink-faint">헤드라인을 불러오는 중...</div>
+    </div>
+
+    <!-- 위젯 벤토: 날씨 / NEW 전면광고 / 인기 주식 / 접속자 (2x2) -->
+    <div class="grid grid-cols-2 gap-3.5 lg:gap-4 order-1">
+        <!-- 날씨: 실시간(open-meteo) 아이콘형 -->
+        <div class="bg-amber-400 rounded-card p-4 lg:p-5 flex flex-col justify-between text-white">
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-[10.5px] font-bold tracking-wider text-white/85">수와니 · 오늘</span>
+            <AppIcon v-if="weather" :name="weatherIcon(weather.code)" :size="18" :stroke-width="1.8" class="text-white/90" />
+          </div>
+          <div class="mt-3">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-[26px] lg:text-[30px] font-extrabold tracking-[-0.04em] leading-none">{{ weather ? weather.temp + '°F' : '--' }}</span>
+            </div>
+            <div class="text-[11px] text-white/90 mt-1.5">
+              {{ weather ? weatherLabel(weather.code) : '불러오는 중' }}
+              <span v-if="weather">· {{ weather.minT }}° / {{ weather.maxT }}°</span>
+            </div>
+            <div v-if="weather" class="text-[10px] text-white/75 mt-0.5">대기질 {{ aqiLabel(weather.aqi) }}</div>
+          </div>
+          <div v-if="weather?.hourly?.length" class="flex justify-between mt-3 pt-2.5 border-t border-white/20">
+            <div v-for="h in weather.hourly" :key="h.hour" class="flex flex-col items-center gap-1">
+              <span class="text-[9.5px] text-white/75">{{ h.hour }}시</span>
+              <AppIcon :name="weatherIcon(h.code)" :size="13" :stroke-width="2" class="text-white/90" />
+              <span class="text-[10px] font-bold tabular-nums">{{ h.temp }}°</span>
+            </div>
+          </div>
+        </div>
+
         <!-- NEW 전면광고 홍보: 지금 방송 중인 전단을 바로 보러 가는 타일 → NEW 게시판 -->
         <RouterLink to="/new"
-          class="min-h-[168px] relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between text-white bg-gradient-to-br from-amber-500 via-amber-500 to-amber-400 group hover:brightness-105 transition-all">
+          class="relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between text-white bg-gradient-to-br from-amber-500 via-amber-500 to-amber-400 group hover:brightness-105 transition-all">
           <div class="flex items-center gap-1.5">
             <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
             <span class="text-[10.5px] font-black tracking-wider bg-white/20 px-1.5 py-0.5 rounded">NEW 전면광고</span>
@@ -40,21 +94,8 @@
           </div>
         </RouterLink>
 
-        <!-- 오픈 채팅방 (블랙) -->
-        <RouterLink to="/chat" class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 text-white group hover:brightness-110 transition-all">
-          <div class="flex items-center gap-2">
-            <span class="live-pulse shrink-0"></span>
-            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">오픈 채팅방</span>
-          </div>
-          <div>
-            <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ liveStats.chat_users.toLocaleString() }}명</div>
-            <div class="text-[12px] text-white/65 mt-1.5">{{ liveStats.chat_users > 0 ? '지금 채팅방에서 대화 중이에요' : '채팅방에서 첫 대화를 시작해 보세요' }}</div>
-          </div>
-          <span class="self-start text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">채팅 입장 →</span>
-        </RouterLink>
-
         <!-- 인기 주식: 미국 주요 지수/지표 8개를 4초마다 로테이션 + 대표 종목 3개 (미국식 색: 상승 초록 / 하락 빨강) -->
-        <RouterLink to="/stocks" class="min-h-[168px] bg-surface rounded-card p-4 lg:p-5 flex flex-col group hover:brightness-95 transition-all">
+        <RouterLink to="/stocks" class="bg-surface rounded-card p-4 lg:p-5 flex flex-col group hover:brightness-95 transition-all">
           <div class="flex items-center gap-1.5">
             <span class="text-[10.5px] font-bold tracking-wider text-ink-muted">인기 주식</span>
             <AppIcon name="chevron-right" :size="12" class="text-ink-faint group-hover:text-amber-500 transition-colors" />
@@ -85,92 +126,28 @@
           </div>
         </RouterLink>
 
-        <!-- 동호회 (블러시 핑크) -->
-        <RouterLink to="/clubs" class="min-h-[168px] bg-amber-50 border border-amber-100 rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 group hover:brightness-[0.98] transition-all">
-          <div class="flex items-center gap-1.5">
-            <AppIcon name="users" :size="13" class="text-amber-600" />
-            <span class="text-[10.5px] font-bold tracking-wider text-amber-700">동호회</span>
-          </div>
-          <div v-if="clubs.length">
-            <div class="text-[16px] lg:text-[17px] font-extrabold tracking-[-0.03em] text-ink leading-tight">같은 취미, 우리 동네 모임</div>
-            <ul class="mt-2 space-y-1">
-              <li v-for="c in clubs.slice(0, 3)" :key="c.id" class="flex items-center justify-between gap-2 text-[12px] text-ink-light">
-                <span class="truncate">{{ c.name || c.title }}</span>
-                <span v-if="c.member_count != null" class="shrink-0 text-ink-faint tabular-nums">{{ c.member_count }}명</span>
-              </li>
-            </ul>
-          </div>
-          <div v-else>
-            <div class="text-[18px] lg:text-[21px] font-extrabold tracking-[-0.03em] text-ink leading-tight">같은 취미,<br>우리 동네 모임</div>
-            <div class="text-[11px] text-ink-light mt-1.5">첫 동호회를 만들고 이웃을 모아 보세요</div>
-          </div>
-          <span class="self-start text-[11px] font-bold bg-amber-500 text-white rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">{{ clubs.length ? '동호회 보기' : '동호회 만들기' }} →</span>
-        </RouterLink>
-
-        <!-- 내돈내산 리뷰 (오렌지→핫핑크) -->
-        <RouterLink to="/shopping" class="min-h-[168px] relative overflow-hidden rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 text-white group hover:brightness-105 transition-all"
-          style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">
-          <div class="flex items-center gap-1.5">
-            <AppIcon name="shopping-bag" :size="13" />
-            <span class="text-[10.5px] font-black tracking-wider bg-white/20 px-1.5 py-0.5 rounded">내돈내산 리뷰</span>
-          </div>
-          <div class="flex items-end justify-between gap-2">
-            <div class="min-w-0">
-              <div class="text-[18px] lg:text-[21px] font-extrabold tracking-[-0.03em] leading-tight">내가 쓴 후기,<br>용돈이 된다면?</div>
-              <div class="text-[11px] text-white/90 mt-1.5">아마존 후기를 한국어로 나눠요</div>
-            </div>
-            <div v-if="reviewPicks.length" class="flex -space-x-2 shrink-0">
-              <img v-for="p in reviewPicks.slice(0, 2)" :key="p.id" :src="p.image_url" alt="" class="w-10 h-10 rounded-lg bg-white object-contain border-2 border-white" @error="e=>e.target.style.display='none'" />
-            </div>
-          </div>
-          <span class="self-start text-[11px] font-bold bg-white text-amber-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">후기 보러 가기 →</span>
-        </RouterLink>
-
-        <!-- 오늘 사이트 이용자 (블랙) -->
-        <div class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
+        <!-- 접속자: 오늘 방문자 / 채팅방 사용자를 4초마다 번갈아 보여준다 -->
+        <div class="bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
           <div class="flex items-center gap-2">
             <span class="live-pulse shrink-0"></span>
-            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">오늘 사이트 이용자</span>
+            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">{{ liveSlide === 0 ? '오늘 사이트 이용자' : '오픈 채팅방' }}</span>
           </div>
-          <div>
-            <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.today_visitors.toLocaleString() }}명</div>
-            <div class="text-[12px] text-white/65 mt-1.5">오늘 다녀간 사람 수예요 · 지금 접속 중 {{ liveStats.online_now.toLocaleString() }}명</div>
-          </div>
+          <Transition name="live-swap" mode="out-in">
+            <div v-if="liveSlide === 0" key="visitors">
+              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.today_visitors.toLocaleString() }}명</div>
+              <div class="text-[12px] text-white/65 mt-1.5">오늘 다녀간 사람 수예요 · 지금 접속 중 {{ liveStats.online_now.toLocaleString() }}명</div>
+            </div>
+            <div v-else key="chat">
+              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.chat_users.toLocaleString() }}명</div>
+              <div class="text-[12px] text-white/65 mt-1.5">{{ liveStats.chat_users > 0 ? '지금 채팅방에서 대화 중이에요' : '채팅방에서 첫 대화를 시작해 보세요' }}</div>
+            </div>
+          </Transition>
           <div class="flex flex-wrap gap-1.5">
-            <button v-for="t in trendingTags.slice(0, 4)" :key="t"
+            <button v-for="t in trendingTags.slice(0, 5)" :key="t"
               @click="router.push({path:'/search',query:{q:t}})"
               class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
           </div>
         </div>
-    </div>
-
-    <!-- 언론사별 헤드라인 (네이버 뉴스스탠드 스타일, 원문 링크아웃) — 기존 마케팅 히어로 자리를 대체 -->
-    <div class="card p-4 lg:p-5 min-h-[340px] lg:min-h-[440px] flex flex-col order-2">
-      <div class="flex items-center gap-2.5 mb-3.5">
-        <h2 class="text-[15px] font-extrabold tracking-[-0.02em] text-ink">언론사별 헤드라인</h2>
-        <span class="flex-1"></span>
-        <button v-if="headlineGroups.length > 1" @click="prevHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
-          <AppIcon name="chevron-left" :size="14" />
-        </button>
-        <span v-if="headlineGroups.length > 1" class="text-[12px] text-ink-faint tabular-nums">{{ headlinePage + 1 }}/{{ headlineGroups.length }}</span>
-        <button v-if="headlineGroups.length > 1" @click="nextHeadlinePage" class="icon-chip w-7 h-7 bg-surface text-ink-muted hover:text-amber-500 transition-colors">
-          <AppIcon name="chevron-right" :size="14" />
-        </button>
-      </div>
-      <div v-if="currentHeadlines.length" class="grid grid-cols-1 gap-y-4 flex-1 content-between">
-        <RouterLink v-for="h in currentHeadlines" :key="h.id" :to="`/news/${h.id}`"
-          class="flex gap-3 items-start group">
-          <div class="shrink-0 w-[72px] h-[72px] rounded-xl overflow-hidden bg-surface border border-line">
-            <img :src="h.image_url" alt="" class="w-full h-full object-cover" @error="dropHeadline(h.id)" />
-          </div>
-          <div class="min-w-0">
-            <div class="text-[12px] font-bold text-ink-muted">{{ h.source }}</div>
-            <div class="mt-1 text-[13.5px] font-semibold text-ink leading-snug line-clamp-3 group-hover:text-amber-500 transition-colors">{{ h.title }}</div>
-            <div class="mt-1 text-[11px] text-ink-faint">{{ headlineTime(h) }}</div>
-          </div>
-        </RouterLink>
-      </div>
-      <div v-else class="flex-1 flex items-center justify-center text-[13px] text-ink-faint">헤드라인을 불러오는 중...</div>
     </div>
   </section>
 
@@ -210,6 +187,24 @@
   <div class="lg:hidden max-w-7xl mx-auto px-4 pt-4">
     <MobileBanner page="home" class="mb-1" />
   </div>
+
+  <!-- ═════ 2-R. 내돈내산 리뷰 홍보 (후기가 용돈이 된다면?) ═════ -->
+  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9">
+    <div class="card overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_1.5fr]">
+      <div class="p-5 lg:p-7 flex flex-col justify-center">
+        <span class="text-xs font-bold" style="color:#FC226B">내돈내산 리뷰</span>
+        <h2 class="text-xl lg:text-2xl font-black text-ink leading-snug mt-1" style="letter-spacing:-0.03em">내가 쓴 후기,<br>용돈이 된다면?</h2>
+        <p class="text-sm text-ink-light mt-2 leading-relaxed">미국 생활에서 직접 써본 아마존 아이템을 이웃과 나눠 보세요.</p>
+        <RouterLink to="/shopping" class="btn-primary self-start mt-4 px-5 py-2.5 text-sm font-bold inline-flex items-center gap-1.5">후기 보러 가기<AppIcon name="arrow-right" :size="14" /></RouterLink>
+      </div>
+      <div v-if="reviewPicks.length" class="p-3 lg:p-5 bg-amber-50/60 grid grid-cols-2 sm:grid-cols-4 gap-2.5 content-center">
+        <RouterLink v-for="p in reviewPicks" :key="p.id" :to="`/shopping/${p.id}`" class="rounded-xl overflow-hidden bg-white border border-gray-100 block">
+          <div class="aspect-square bg-white flex items-center justify-center overflow-hidden"><img :src="p.image_url" :alt="p.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" /></div>
+          <div class="px-2 py-1.5 text-[11px] font-semibold text-ink line-clamp-1">{{ p.title }}</div>
+        </RouterLink>
+      </div>
+    </div>
+  </section>
 
   <!-- ═════ 3. 오늘의 커뮤니티 (에디토리얼) + 인기 게시판 ═════ -->
   <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6">
@@ -485,10 +480,10 @@ function tickerFrame(ts) {
 
 const typeLabels = { rent: '렌트', sale: '매매', roommate: '룸메' }
 
-// 언론사별 헤드라인 위젯: 4개씩 묶어서 1열 4행 + 이전/다음 페이지 (항상 4개씩, 부족한 마지막 페이지는 버림)
+// 언론사별 헤드라인 위젯: 8개씩 묶어서 2열 4행 그리드 + 이전/다음 페이지 (항상 8개씩, 부족한 마지막 페이지는 버림)
 const headlineGroups = computed(() => {
   const groups = []
-  for (let i = 0; i + 4 <= headlines.value.length; i += 4) groups.push(headlines.value.slice(i, i + 4))
+  for (let i = 0; i + 8 <= headlines.value.length; i += 8) groups.push(headlines.value.slice(i, i + 8))
   return groups
 })
 const currentHeadlines = computed(() => headlineGroups.value[Math.min(headlinePage.value, Math.max(headlineGroups.value.length - 1, 0))] || [])
