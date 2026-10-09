@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\EntryTransaction;
 use App\Models\Sweepstakes;
 use App\Models\SweepstakesEntry;
+use App\Models\SweepstakesWinner;
 use App\Models\User;
 use App\Support\EntryService;
 use App\Support\SweepstakesDrawReplay;
 use App\Support\SweepstakesWinnerService;
 use App\Traits\CompressesUploads;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class AdminSweepstakesController extends Controller
@@ -31,6 +33,7 @@ class AdminSweepstakesController extends Controller
         $this->requireSuperAdmin();
 
         $items = Sweepstakes::withCount('entries as unique_participants')
+            ->with(['winner:id,name,nickname,email'])
             ->orderByDesc('created_at')
             ->paginate(20);
 
@@ -57,10 +60,18 @@ class AdminSweepstakesController extends Controller
             'terms_version' => 'nullable|string|max:50',
             'draw_style' => ['nullable', Rule::in(SweepstakesDrawReplay::DRAW_STYLES)],
             'theme' => 'nullable|array',
+            'winner_count' => 'nullable|integer|min:1|max:10',
+            'prize_tiers' => 'nullable|array|max:10',
+            'prize_tiers.*.rank' => 'required_with:prize_tiers|integer|min:1|max:10',
+            'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
         $data['status'] = $data['status'] ?? 'draft';
         $data['draw_style'] = $data['draw_style'] ?? 'wheel';
         $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme'] ?? null);
+        [$data['winner_count'], $data['prize_tiers']] = Sweepstakes::sanitizeWinnerConfig(
+            $data['winner_count'] ?? 1,
+            $data['prize_tiers'] ?? null
+        );
 
         $sweepstakes = Sweepstakes::create($data);
 
@@ -91,6 +102,10 @@ class AdminSweepstakesController extends Controller
             'terms_version' => 'nullable|string|max:50',
             'draw_style' => ['nullable', Rule::in(SweepstakesDrawReplay::DRAW_STYLES)],
             'theme' => 'nullable|array',
+            'winner_count' => 'nullable|integer|min:1|max:10',
+            'prize_tiers' => 'nullable|array|max:10',
+            'prize_tiers.*.rank' => 'required_with:prize_tiers|integer|min:1|max:10',
+            'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
 
         if (array_key_exists('draw_style', $data) && $data['draw_style'] === null) {
@@ -98,6 +113,14 @@ class AdminSweepstakesController extends Controller
         }
         if (array_key_exists('theme', $data)) {
             $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme']);
+        }
+        // 등수 설정 — winner_selected 이후에는 위 가드에서 이미 수정 불가
+        if (array_key_exists('winner_count', $data) || array_key_exists('prize_tiers', $data)) {
+            $count = array_key_exists('winner_count', $data) && $data['winner_count'] !== null
+                ? $data['winner_count']
+                : ($sweepstakes->winner_count ?: 1);
+            $tiers = array_key_exists('prize_tiers', $data) ? $data['prize_tiers'] : $sweepstakes->prize_tiers;
+            [$data['winner_count'], $data['prize_tiers']] = Sweepstakes::sanitizeWinnerConfig($count, $tiers);
         }
 
         $sweepstakes->update($data);
@@ -142,7 +165,46 @@ class AdminSweepstakesController extends Controller
             ->orderByDesc('entries_count')
             ->paginate(50);
 
-        return response()->json(['success' => true, 'data' => $entries]);
+        return response()->json([
+            'success' => true,
+            'data' => $entries,
+            'winner_count' => max(1, (int) ($sweepstakes->winner_count ?? 1)),
+            'winners' => $this->winnersPayload($sweepstakes),
+        ]);
+    }
+
+    /** 관리자용 등수별 당첨자 목록 (rank 오름차순). 다중 추첨 행이 없으면 1등 한 건을 합성 */
+    private function winnersPayload(Sweepstakes $sweepstakes): array
+    {
+        $out = [];
+        if (Schema::hasTable('sweepstakes_winners')) {
+            $rows = SweepstakesWinner::with('user:id,name,nickname,email')
+                ->where('sweepstakes_id', $sweepstakes->id)
+                ->orderBy('rank')->get();
+            foreach ($rows as $w) {
+                $out[] = [
+                    'rank' => (int) $w->rank,
+                    'user_id' => $w->user_id,
+                    'user' => $w->user,
+                    'winning_ticket' => (int) $w->winning_index + 1,
+                    'prize_label' => $w->prize_label,
+                    'selected_at' => $w->selected_at ? $w->selected_at->toIso8601String() : null,
+                ];
+            }
+        }
+        if (!$out && $sweepstakes->winner_user_id) {
+            $audit = $sweepstakes->winnerAudit;
+            $out[] = [
+                'rank' => 1,
+                'user_id' => $sweepstakes->winner_user_id,
+                'user' => $sweepstakes->winner()->select('id', 'name', 'nickname', 'email')->first(),
+                'winning_ticket' => $audit && $audit->winning_index !== null ? (int) $audit->winning_index + 1 : null,
+                'prize_label' => $sweepstakes->prizeLabelForRank(1),
+                'selected_at' => $sweepstakes->winner_selected_at ? $sweepstakes->winner_selected_at->toIso8601String() : null,
+            ];
+        }
+
+        return $out;
     }
 
     public function selectWinner(Sweepstakes $sweepstakes)
@@ -150,15 +212,25 @@ class AdminSweepstakesController extends Controller
         $this->requireSuperAdmin();
 
         try {
-            $audit = SweepstakesWinnerService::selectWinner($sweepstakes);
+            if ((int) ($sweepstakes->winner_count ?? 1) > 1) {
+                $result = SweepstakesWinnerService::selectWinners($sweepstakes);
+                $audit = $result['audit'];
+            } else {
+                $audit = SweepstakesWinnerService::selectWinner($sweepstakes);
+            }
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
 
+        $fresh = Sweepstakes::find($sweepstakes->id);
+
         return response()->json([
             'success' => true,
             'message' => '당첨자가 선정되었습니다',
+            // 기존 형태 유지: 1등 감사 레코드(+winner)
             'data' => $audit->load('winner:id,name,nickname,email'),
+            'winner_count' => max(1, (int) ($fresh->winner_count ?? 1)),
+            'winners' => $this->winnersPayload($fresh),
         ]);
     }
 

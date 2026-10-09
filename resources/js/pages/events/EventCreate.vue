@@ -121,6 +121,23 @@
             <p v-if="fieldErrors.eligible_regions" class="text-xs text-red-500 mt-1">{{ fieldErrors.eligible_regions }}</p>
           </div>
         </div>
+        <!-- 당첨 인원 / 등수 -->
+        <div>
+          <label class="input-label">당첨 인원 (1~10명)</label>
+          <input v-model.number="sw.winner_count" type="number" min="1" max="10" step="1" :disabled="swLocked"
+            class="input-soft px-3 w-28 disabled:opacity-60" :class="errClass('winner_count')" />
+          <p v-if="fieldErrors.winner_count" class="text-xs text-red-500 mt-1">{{ fieldErrors.winner_count }}</p>
+          <div v-if="winnerCountNum > 1" class="mt-2 space-y-1.5">
+            <div v-for="t in sw.prize_tiers" :key="t.rank" class="flex items-center gap-2">
+              <span class="w-12 text-xs font-bold text-amber-700 flex-shrink-0">{{ t.rank }}등</span>
+              <input v-model="t.prize_name" type="text" :disabled="swLocked" :placeholder="sw.prize_name || '경품명 (비우면 대표 경품)'" maxlength="100"
+                class="input-soft px-3 disabled:opacity-60" />
+            </div>
+            <p v-if="fieldErrors.prize_tiers" class="text-xs text-red-500">{{ fieldErrors.prize_tiers }}</p>
+          </div>
+          <p class="text-xs text-ink-faint mt-1">등수별로 한 명씩, 낮은 등수부터 10~15초 간격으로 추첨돼요. 한 사람은 한 번만 당첨됩니다.</p>
+          <p v-if="swLocked" class="text-xs text-amber-700 mt-1">추첨이 시작되었거나 참가자가 있어 변경할 수 없어요.</p>
+        </div>
         <div>
           <label class="input-label">추첨 화면(게임)</label>
           <div class="grid grid-cols-2 gap-2">
@@ -182,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
@@ -196,7 +213,14 @@ const editId = computed(() => route.params.id)
 const isEdit = computed(() => !!editId.value)
 const isSuperAdmin = computed(() => auth.user?.role === 'super_admin')
 const isSweepstakes = ref(false)
-const sw = reactive({ draw_style: 'wheel', prize_name: '', prize_value: '', minimum_age: 18, official_rules_url: '', no_purchase_required_text: '' })
+const sw = reactive({ draw_style: 'wheel', prize_name: '', prize_value: '', minimum_age: 18, official_rules_url: '', no_purchase_required_text: '', winner_count: 1, prize_tiers: [] })
+const swLocked = ref(false)   // 수정 불가(추첨 시작 후 참가자 있음 / 당첨자 확정)
+const winnerCountNum = computed(() => Math.min(10, Math.max(1, Math.floor(Number(sw.winner_count)) || 1)))
+// 당첨 인원이 바뀌면 등수 행을 맞춤 (기존에 입력한 경품명은 유지)
+watch(winnerCountNum, (n) => {
+  const old = sw.prize_tiers
+  sw.prize_tiers = n > 1 ? Array.from({ length: n }, (_, i) => ({ rank: i + 1, prize_name: old[i]?.prize_name || '' })) : []
+})
 const swRegionsInput = ref('')
 // 새 추첨 게임은 이 배열에 추가 (AdminSweepstakes.vue 의 DRAW_STYLES 와 같은 value)
 const drawStyles = [
@@ -259,6 +283,10 @@ async function submit() {
     fd.set('draw_style', sw.draw_style || 'wheel')
     if (sw.prize_value !== '' && sw.prize_value !== null) fd.set('prize_value', sw.prize_value)
     fd.set('minimum_age', sw.minimum_age || 18)
+    fd.set('winner_count', winnerCountNum.value)
+    if (winnerCountNum.value > 1) {
+      fd.set('prize_tiers', JSON.stringify(sw.prize_tiers.map(t => ({ rank: t.rank, prize_name: (t.prize_name || '').trim() || sw.prize_name }))))
+    }
     if (sw.official_rules_url) fd.set('official_rules_url', sw.official_rules_url)
     if (sw.no_purchase_required_text) fd.set('no_purchase_required_text', sw.no_purchase_required_text)
     const regions = swRegionsInput.value ? swRegionsInput.value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean) : []
@@ -311,7 +339,19 @@ onMounted(async () => {
           minimum_age: e.sweepstakes.minimum_age || 18,
           official_rules_url: e.sweepstakes.official_rules_url || '',
           no_purchase_required_text: e.sweepstakes.no_purchase_required_text || '',
+          winner_count: Number(e.sweepstakes.winner_count) || 1,
         })
+        swLocked.value = !!e.sweepstakes.edit_locked || e.sweepstakes.status === 'winner_selected'
+        let tiers = e.sweepstakes.prize_tiers
+        if (typeof tiers === 'string') { try { tiers = JSON.parse(tiers) } catch { tiers = [] } }
+        tiers = Array.isArray(tiers) ? tiers : []
+        const n = winnerCountNum.value
+        // 대표 경품명과 같은 값은 비워 두어 placeholder 로 보이게 함
+        sw.prize_tiers = n > 1 ? Array.from({ length: n }, (_, i) => {
+          const hit = tiers.find(t => Number(t?.rank) === i + 1)
+          const nm = hit?.prize_name || ''
+          return { rank: i + 1, prize_name: nm === sw.prize_name ? '' : nm }
+        }) : []
         swRegionsInput.value = (e.sweepstakes.eligible_regions || []).join(',')
       }
     } catch {}

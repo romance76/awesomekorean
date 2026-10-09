@@ -46,6 +46,7 @@ class SweepstakesController extends Controller
                 'event_id' => $a->sweepstakes->event_id ?? null,
                 'title' => $a->sweepstakes->title ?? null,
                 'prize_name' => $a->sweepstakes->prize_name ?? null,
+                'winner_count' => max(1, (int) ($a->sweepstakes->winner_count ?? 1)),
                 'drawn_at' => $a->selected_at ? $a->selected_at->toIso8601String() : null,
                 'winning_ticket' => (int) $a->winning_index + 1,
                 'winner_display_name' => (string) ($a->winner?->display_name ?? ''),

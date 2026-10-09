@@ -96,11 +96,11 @@
         <div class="flex items-center gap-1.5 text-[15px] font-bold text-ink"><span>{{ menu.icon }}</span>{{ menu.label }}<span v-if="isPageOff(menu.key)" class="text-[12px] text-ink-faint font-normal">(꺼짐)</span></div>
         <div class="grid grid-cols-2 gap-3 mt-2">
           <div v-for="side in [{ f: 'left_slots', l: '좌', c: 'text-blue-700' }, { f: 'right_slots', l: '우', c: 'text-amber-700' }]" :key="side.f">
-            <div class="text-[12px] font-bold mb-1" :class="side.c">{{ side.l }}</div>
-            <div class="flex items-center gap-1">
-              <button @click="stepSlot(menu, side.f, -1)" :disabled="!canEdit || slotOf(menu.key)[side.f] <= 0" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold disabled:opacity-30" :aria-label="side.l + ' 슬롯 줄이기'">−</button>
+            <div class="text-[12px] font-bold mb-1" :class="side.c">{{ side.l }}<span v-if="!sideExists(menu.key, side.f)" class="font-normal text-ink-faint"> · 이 페이지엔 자리 없음</span></div>
+            <div class="flex items-center gap-1" :class="sideExists(menu.key, side.f) ? '' : 'opacity-40'">
+              <button @click="stepSlot(menu, side.f, -1)" :disabled="!canEdit || !sideExists(menu.key, side.f) || slotOf(menu.key)[side.f] <= 0" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold disabled:opacity-30" :aria-label="side.l + ' 슬롯 줄이기'">−</button>
               <span class="flex-1 text-center text-[18px] font-black tabular-nums" :class="side.c">{{ slotOf(menu.key)[side.f] }}</span>
-              <button @click="stepSlot(menu, side.f, 1)" :disabled="!canEdit || slotOf(menu.key)[side.f] >= 5" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold disabled:opacity-30" :aria-label="side.l + ' 슬롯 늘리기'">+</button>
+              <button @click="stepSlot(menu, side.f, 1)" :disabled="!canEdit || !sideExists(menu.key, side.f) || slotOf(menu.key)[side.f] >= 5" class="w-12 h-12 rounded-xl bg-gray-100 text-[22px] font-bold disabled:opacity-30" :aria-label="side.l + ' 슬롯 늘리기'">+</button>
             </div>
           </div>
         </div>
@@ -450,6 +450,7 @@ import axios from 'axios'
 import { useSiteStore } from '../../stores/site'
 import { useAuthStore } from '../../stores/auth'
 import AppIcon from '../../components/AppIcon.vue'
+import { adSlotExists } from '../../config/adSlotMap'
 
 const siteStore = useSiteStore()
 const auth = useAuthStore()
@@ -539,6 +540,11 @@ const adEligibleMenus = computed(() => {
 })
 const bannerEligibleMenus = computed(() => adEligibleMenus.value.filter(m => (m.ads_type || 'banner') !== 'adsense'))
 const adsenseEligibleMenus = computed(() => adEligibleMenus.value.filter(m => (m.ads_type || 'banner') === 'adsense'))
+
+// 그 페이지에 실제로 있는 광고 자리인지 (left_slots → 'left')
+function sideExists(key, field) {
+  return adSlotExists(key, field === 'left_slots' ? 'left' : 'right')
+}
 
 // 특정 메뉴의 슬롯 설정 (없으면 0/0 기본값)
 function slotOf(key) {

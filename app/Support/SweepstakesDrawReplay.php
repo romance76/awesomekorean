@@ -4,6 +4,8 @@ namespace App\Support;
 
 use App\Models\Sweepstakes;
 use App\Models\SweepstakesEntry;
+use App\Models\SweepstakesWinner;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * 추첨 연출(휠/3D 로또 머신 등) 재생용 데이터 생성 헬퍼.
@@ -39,6 +41,8 @@ class SweepstakesDrawReplay
         return [
             'draw_style' => $style,
             'theme' => is_array($theme) ? $theme : null,
+            'winner_count' => max(1, (int) ($sweepstakes->getAttribute('winner_count') ?? 1)),
+            'prize_tiers' => is_array($sweepstakes->getAttribute('prize_tiers')) ? $sweepstakes->getAttribute('prize_tiers') : null,
             'draw' => self::build($sweepstakes),
         ];
     }
@@ -80,11 +84,42 @@ class SweepstakesDrawReplay
 
         $drawnAt = $audit?->selected_at ?? $sweepstakes->winner_selected_at;
 
+        $winnerName = (string) ($sweepstakes->winner?->display_name ?? '');
+
+        // 등수별 당첨자 — 다중 추첨은 sweepstakes_winners, 단일(레거시)은 1등 한 건을 합성
+        $winners = [];
+        if (Schema::hasTable('sweepstakes_winners')) {
+            $rows = SweepstakesWinner::with('user')
+                ->where('sweepstakes_id', $sweepstakes->id)
+                ->orderBy('rank')->get();
+            foreach ($rows as $w) {
+                $winners[] = [
+                    'rank' => (int) $w->rank,
+                    'winning_ticket' => max(1, min($total, (int) $w->winning_index + 1)),
+                    'winner_display_name' => (string) ($w->user?->display_name ?? ''),
+                    'prize_label' => $w->prize_label ?: $sweepstakes->prizeLabelForRank((int) $w->rank),
+                ];
+            }
+        }
+        if (!$winners) {
+            $winners[] = [
+                'rank' => 1,
+                'winning_ticket' => $ticket,
+                'winner_display_name' => $winnerName,
+                'prize_label' => $sweepstakes->prizeLabelForRank(1),
+            ];
+        } else {
+            // 하위 호환 키는 1등 값으로
+            $ticket = (int) $winners[0]['winning_ticket'];
+            $winnerName = (string) $winners[0]['winner_display_name'];
+        }
+
         return [
             'winning_ticket' => $ticket,
             'total_tickets' => $total,
             'participants_count' => (int) SweepstakesEntry::where('sweepstakes_id', $sweepstakes->id)->count(),
-            'winner_display_name' => (string) ($sweepstakes->winner?->display_name ?? ''),
+            'winner_display_name' => $winnerName,
+            'winners' => $winners,
             'drawn_at' => $drawnAt ? $drawnAt->toIso8601String() : null,
             'algorithm_version' => $audit?->selection_method ?? SweepstakesWinnerService::SELECTION_METHOD,
         ];

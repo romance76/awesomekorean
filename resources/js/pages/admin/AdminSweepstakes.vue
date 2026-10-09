@@ -8,10 +8,13 @@
     <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
     <div v-else class="space-y-2.5">
       <div v-for="item in items" :key="item.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
-        <div class="flex items-center gap-2 flex-wrap"><span class="text-[12px] font-bold px-2.5 py-1 rounded-full" :class="statusBadge(item.status)">{{ statusLabel(item.status) }}</span></div>
+        <div class="flex items-center gap-2 flex-wrap"><span class="text-[12px] font-bold px-2.5 py-1 rounded-full" :class="statusBadge(item.status)">{{ statusLabel(item.status) }}</span><span v-if="winnerCountOf(item) > 1" class="text-[12px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">당첨 {{ winnerCountOf(item) }}명</span></div>
         <div class="text-[16px] font-bold text-ink mt-1 break-words">{{ item.title }}</div>
         <div class="text-[14px] text-ink-muted">🎁 {{ item.prize_name }} <span v-if="item.prize_value">(${{ item.prize_value }})</span></div>
-        <div class="text-[13px] text-ink-faint mt-1 leading-relaxed">{{ formatDate(item.start_at) }} ~ {{ formatDate(item.end_at) }}<br />전체 Entry {{ item.total_entries }} · 참가자 {{ item.unique_participants ?? '-' }}<span v-if="item.winner_user_id"> · 당첨자 ID {{ item.winner_user_id }}</span></div>
+        <div class="text-[13px] text-ink-faint mt-1 leading-relaxed">{{ formatDate(item.start_at) }} ~ {{ formatDate(item.end_at) }}<br />전체 Entry {{ item.total_entries }} · 참가자 {{ item.unique_participants ?? '-' }}<span v-if="item.winner_user_id && !itemWinners(item).length"> · 당첨자 ID {{ item.winner_user_id }}</span></div>
+        <ol v-if="itemWinners(item).length" class="mt-2 space-y-1">
+          <li v-for="w in itemWinners(item)" :key="w.rank" class="text-[14px] text-ink flex items-center gap-2"><b class="shrink-0 w-9 text-amber-700">{{ w.rank }}등</b><span class="truncate">{{ w.name }}</span><span v-if="w.prize" class="ml-auto shrink-0 text-ink-faint text-[13px] truncate max-w-[40%]">{{ w.prize }}</span></li>
+        </ol>
         <div class="grid grid-cols-2 gap-2 mt-3">
           <button @click="mParticipants(item)" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">참가 현황</button>
           <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="flex items-center justify-center min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">이벤트 보기</RouterLink>
@@ -31,6 +34,10 @@
         <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
         <div v-if="mSheet.mode === 'participants'">
           <div class="text-[17px] font-bold text-ink mb-2 break-words">참가 현황 — {{ mSheet.item.title }}</div>
+          <div v-if="winnerList.length" class="mb-3 bg-amber-50 border border-amber-100 rounded-xl p-3">
+            <div class="text-[13px] font-bold text-amber-800 mb-1">당첨자 {{ winnerList.length }}명</div>
+            <ol class="space-y-1"><li v-for="w in winnerList" :key="w.rank" class="text-[15px] flex items-center gap-2"><b class="w-9 text-amber-700">{{ w.rank }}등</b><span class="font-semibold text-ink truncate">{{ w.name }}</span></li></ol>
+          </div>
           <div class="divide-y divide-gray-50">
             <div v-for="p in participants" :key="p.id" class="py-3 flex items-center justify-between text-[15px]"><span class="min-w-0 truncate">{{ p.user?.nickname || p.user?.name || ('User #' + p.user_id) }}</span><b class="shrink-0 text-amber-600 tabular-nums">{{ p.entries_count }} Entry</b></div>
             <div v-if="!participants.length" class="py-8 text-center text-ink-muted text-[15px]">참가자가 없어요</div>
@@ -74,14 +81,18 @@
         <div>
           <div class="flex items-center gap-2">
             <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="statusBadge(item.status)">{{ statusLabel(item.status) }}</span>
+            <span v-if="winnerCountOf(item) > 1" class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">당첨 {{ winnerCountOf(item) }}명</span>
             <span class="font-bold text-ink">{{ item.title }}</span>
           </div>
           <div class="text-sm text-ink-muted mt-1">🎁 {{ item.prize_name }} <span v-if="item.prize_value">(${{ item.prize_value }})</span></div>
           <div class="text-xs text-ink-faint mt-1">
             {{ formatDate(item.start_at) }} ~ {{ formatDate(item.end_at) }} ·
             Total Entries: {{ item.total_entries }} · 참가자: {{ item.unique_participants ?? '-' }}
-            <span v-if="item.winner_user_id"> · 당첨자 ID: {{ item.winner_user_id }}</span>
+            <span v-if="item.winner_user_id && !itemWinners(item).length"> · 당첨자 ID: {{ item.winner_user_id }}</span>
           </div>
+          <ol v-if="itemWinners(item).length" class="mt-2 space-y-0.5">
+            <li v-for="w in itemWinners(item)" :key="w.rank" class="text-xs text-ink flex items-center gap-2"><b class="w-8 text-amber-700">{{ w.rank }}등</b><span>{{ w.name }}</span><span v-if="w.prize" class="text-ink-faint">· {{ w.prize }}</span></li>
+          </ol>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <button @click="viewParticipants(item)" class="btn-secondary !px-3 !py-1.5 text-xs">참가현황</button>
@@ -105,6 +116,10 @@
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="relative bg-white rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
       <h2 class="font-bold text-lg mb-4">참가 현황 — {{ activeItem?.title }}</h2>
+      <div v-if="winnerList.length" class="mb-4 bg-amber-50 border border-amber-100 rounded-xl p-3">
+        <div class="text-xs font-bold text-amber-800 mb-1.5">당첨자 {{ winnerList.length }}명</div>
+        <ol class="space-y-1"><li v-for="w in winnerList" :key="w.rank" class="text-sm flex items-center gap-2"><b class="w-8 text-amber-700">{{ w.rank }}등</b><span class="font-semibold text-ink">{{ w.name }}</span><span v-if="w.prize" class="text-ink-faint text-xs">· {{ w.prize }}</span></li></ol>
+      </div>
       <div class="divide-y divide-gray-50">
         <div v-for="p in participants" :key="p.id" class="py-2.5 flex items-center justify-between text-sm">
           <span>{{ p.user?.nickname || p.user?.name || ('User #' + p.user_id) }}</span>
@@ -208,7 +223,7 @@ async function doWinner() {
   try {
     const { data } = await axios.post(`/api/admin/sweepstakes/${item.id}/select-winner`)
     mSheet.value = null
-    say(`당첨자: ${data.data?.winner?.nickname || data.data?.winner?.name || '#' + data.data?.winner_user_id}`)
+    say(winnerSummary(data.data).replace(/\n/g, ' · '))
     await load()
   } catch (e) { say(e.response?.data?.message || '당첨자 선정에 실패했어요', true) }
   finally { busy.value = false }
@@ -259,7 +274,27 @@ const loading = ref(true)
 
 const showParticipants = ref(false)
 const participants = ref([])
+const winnerList = ref([])
 const activeItem = ref(null)
+
+// ───── 다중 당첨자 ─────
+function winnerCountOf(item) { return Math.max(1, Number(item?.winner_count) || 1) }
+// 서버가 내려주는 winners 가 없어도(구버전 응답) 깨지지 않게 이름/등수를 정리
+function normWinners(list) {
+  if (!Array.isArray(list)) return []
+  return list.map((w, i) => ({
+    rank: Number(w.rank) || i + 1,
+    prize: w.prize_name || '',
+    name: w.display_name || w.nickname || w.user?.nickname || w.user?.name || w.name || ('User #' + (w.user_id ?? '?')),
+  })).sort((a, b) => a.rank - b.rank)
+}
+function itemWinners(item) { return normWinners(item?.winners) }
+function winnerSummary(d) {
+  const list = normWinners(d?.winners)
+  if (list.length > 1) return '당첨자\n' + list.map(w => w.rank + '등: ' + w.name).join('\n')
+  const one = list[0]?.name || d?.winner?.nickname || d?.winner?.name || ('#' + d?.winner_user_id)
+  return '당첨자: ' + one
+}
 
 function statusLabel(status) {
   return { draft: '준비중', active: '진행중', ended: '마감', winner_selected: '당첨자 발표', cancelled: '취소됨' }[status] || status
@@ -300,9 +335,12 @@ async function remove(item) {
 async function viewParticipants(item) {
   activeItem.value = item
   showParticipants.value = true
+  winnerList.value = itemWinners(item)
   try {
     const { data } = await axios.get(`/api/admin/sweepstakes/${item.id}/participants`)
-    participants.value = data.data?.data || data.data || []
+    participants.value = data.data?.data || data.data?.participants || (Array.isArray(data.data) ? data.data : [])
+    const w = data.winners || data.data?.winners || data.meta?.winners
+    if (Array.isArray(w) && w.length) winnerList.value = normWinners(w)
   } catch {
     participants.value = []
   }
@@ -312,7 +350,7 @@ async function confirmSelectWinner(item) {
   if (!confirm(`"${item.title}" 당첨자를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
   try {
     const { data } = await axios.post(`/api/admin/sweepstakes/${item.id}/select-winner`)
-    alert(`당첨자: ${data.data?.winner?.nickname || data.data?.winner?.name || '#' + data.data?.winner_user_id}`)
+    alert(winnerSummary(data.data))
     await load()
   } catch (e) {
     alert(e.response?.data?.message || '당첨자 선정 실패')

@@ -27,9 +27,9 @@
                 <ellipse v-for="(l, i) in laurel" :key="i" :cx="l.x" :cy="l.y" rx="6.5" ry="2.6" :transform="`rotate(${l.r} ${l.x} ${l.y})`" :fill="t.accent" opacity="0.92" />
               </svg>
               <div>
-                <div class="text-[10px] tracking-[0.3em] opacity-80 font-bold whitespace-nowrap">WINNING TICKET</div>
+                <div class="text-[10px] tracking-[0.3em] opacity-80 font-bold whitespace-nowrap">{{ multi && curWinner ? curWinner.rank + '등 · ' : '' }}WINNING TICKET</div>
                 <div class="win-number text-4xl sm:text-5xl font-black leading-none" :style="{ color: t.accent, textShadow: `0 0 18px ${accentSoft}, 0 2px 0 rgba(0,0,0,.5)` }">{{ winnerNumberText }}</div>
-                <div v-if="winnerName" class="text-sm font-bold mt-1">{{ winnerName }} 님</div>
+                <div v-if="displayWinner && displayWinner.name" class="text-sm font-bold mt-1">{{ displayWinner.name }} 님</div>
               </div>
               <svg class="laurel" style="transform: scaleX(-1)" viewBox="0 0 40 80" aria-hidden="true">
                 <path d="M30 76 C 10 62 6 30 20 4" fill="none" :stroke="t.accent" stroke-width="1.6" stroke-linecap="round" />
@@ -45,7 +45,7 @@
         <div>
           <div class="text-3xl mb-2">🎰</div>
           {{ glError }}
-          <div v-if="winningTicket != null" class="mt-3 font-black text-xl" :style="{ color: t.accent }">당첨 번호 {{ winnerNumberText }}<span v-if="winnerName"> · {{ winnerName }} 님</span></div>
+          <div v-for="w in plan.slice().reverse()" :key="w.rank + '-' + w.ticket" class="mt-3 font-black text-xl" :style="{ color: t.accent }"><span v-if="multi">{{ w.rank }}등 · </span>당첨 번호 {{ String(w.ticket).padStart(3, '0') }}<span v-if="w.name"> · {{ w.name }} 님</span></div>
         </div>
       </div>
       <div v-else-if="loading" class="absolute inset-0 flex items-center justify-center text-xs text-white/70">3D 추첨기를 불러오는 중…</div>
@@ -94,8 +94,10 @@ const props = defineProps({
   compact: { type: Boolean, default: false },
   // true 이면 자체 HTML 오버레이(로고/뱃지/당첨카드/하단 정보바)를 모두 숨기고 3D 캔버스만 표시
   hideChrome: { type: Boolean, default: false },
+  // 다중 당첨: [{ rank, ticket, name, prizeLabel }] (순서 무관 — 무대가 등수 큰 쪽부터 1등을 마지막으로 재생). 비어 있으면 winningTicket/winnerName 단일 경로
+  winners: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['finished', 'phase'])
+const emit = defineEmits(['finished', 'phase', 'rank-start', 'rank-reveal'])
 
 const STEPS = ['mix', 'select', 'eject', 'reveal']
 
@@ -137,16 +139,36 @@ const glError = ref('')
 const stepIndex = computed(() => STEPS.indexOf(phase.value))
 watch(phase, (p) => emit('phase', p))
 
-const hasResult = computed(() => props.winningTicket != null && Number(props.winningTicket) >= 1)
-const canPlay = computed(() => hasResult.value && !loading.value && !glError.value && (phase.value === 'idle' || phase.value === 'reveal'))
-const winnerNumberText = computed(() => (hasResult.value ? String(props.winningTicket).padStart(3, '0') : '---'))
+// 재생 계획: 등수 큰 쪽(N등) -> 1등 순. 결과는 전달된 티켓에서만 결정된다.
+const plan = computed(() => {
+  const src = Array.isArray(props.winners) ? props.winners : []
+  const list = src
+    .map((w, i) => ({ rank: Number(w?.rank) >= 1 ? Number(w.rank) : i + 1, ticket: Number(w?.ticket), name: w?.name || '', prizeLabel: w?.prizeLabel || '' }))
+    .filter((w) => Number.isFinite(w.ticket) && w.ticket >= 1)
+  if (list.length) {
+    list.sort((a, b) => a.rank - b.rank)
+    return list.slice(0, 10).reverse()
+  }
+  if (props.winningTicket != null && Number(props.winningTicket) >= 1) {
+    return [{ rank: 1, ticket: Number(props.winningTicket), name: props.winnerName || '', prizeLabel: '' }]
+  }
+  return []
+})
+const multi = computed(() => plan.value.length > 1)
+const running = ref(false)
+const curWinner = ref(null)
+const displayWinner = computed(() => curWinner.value || plan.value[plan.value.length - 1] || null)
+const hasResult = computed(() => plan.value.length > 0)
+const canPlay = computed(() => hasResult.value && !loading.value && !glError.value && !running.value && (phase.value === 'idle' || phase.value === 'reveal'))
+const winnerNumberText = computed(() => (displayWinner.value ? String(displayWinner.value.ticket).padStart(3, '0') : '---'))
+const rk = () => (multi.value && curWinner.value ? `${curWinner.value.rank}등 · ` : '')
 const statusLabel = computed(() => {
   if (glError.value) return '3D 사용 불가'
   switch (phase.value) {
-    case 'mix': return '공을 섞는 중…'
-    case 'select': return '당첨 공 선택 중…'
-    case 'eject': return '당첨 공이 나오는 중…'
-    case 'reveal': return '🎉 당첨 번호 발표'
+    case 'mix': return rk() + '공을 섞는 중…'
+    case 'select': return rk() + '당첨 공 선택 중…'
+    case 'eject': return rk() + '당첨 공이 나오는 중…'
+    case 'reveal': return multi.value && curWinner.value ? `🎉 ${curWinner.value.rank}등 당첨 번호 발표` : '🎉 당첨 번호 발표'
     default: return hasResult.value ? '추첨 결과 확정' : '추첨 대기 중'
   }
 })
@@ -154,6 +176,7 @@ const statusLabel = computed(() => {
 const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 // 연출 시간(초). select 는 매 play() 마다 10~15초 사이 랜덤 (순수 연출용 — 당첨 결과와 무관)
 const DUR = reduced ? { mix: 1.6, select: 2.0, eject: 2.0 } : { mix: 4.5, select: 12, eject: 3.4 }
+const HOLD = reduced ? 1.0 : 2.2   // 등수 사이 공개 후 대기(초)
 let selDur = DUR.select      // 이번 회차의 select 길이
 let liftDur = reduced ? 1.0 : 2.8  // select 마지막 '당첨 공 상승' 구간 길이
 let liftAt = selDur - liftDur
@@ -193,6 +216,8 @@ let texCache = new Map(), ownTextures = []
 let raf = 0, inView = true, tabVisible = true, unmounted = false
 let ro = null, io = null
 let ph = 'idle', phStart = 0, playTicket = null, buildToken = 0
+let runIdx = 0, placed = [], stow = null, holdUntil = 0, curMix = 4.5, revealedCount = 0
+let IDQ = null
 let lastNow = 0, simClock = 0
 let aspect = 1.6
 let camDist = 14, camBlend = 0
@@ -204,13 +229,15 @@ let BR = 0.33
 const PIPE_A = { x: -0.1, y: 1.92, z: 0 }
 const PIPE_R = 0.58                          // 파이프 유리 반지름
 const FINAL_R = 0.76
+const SLOT_R = 0.21                          // 이미 뽑힌 공(작은 공)의 반지름
+const STOW_DUR = 1.0                         // 큰 공 -> 진열 칸 이동 시간(초)
 
 function mulberry32(a) {
   return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296 }
 }
 const cosRand = mulberry32(777)
 
-function ballCount() { return Math.max(12, Math.min(props.ticketCount || 0, 34)) }
+function ballCount() { return Math.max(12 + Math.max(0, plan.value.length - 1), Math.min(props.ticketCount || 0, 34)) }
 const smooth = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x) }
 const clamp01 = (x) => Math.max(0, Math.min(1, x))
 
@@ -312,7 +339,7 @@ function disposeScene() {
   }
   ownTextures.forEach((x) => x.dispose())
   ownTextures = []; texCache = new Map()
-  balls = []; carrier = null; ballHalo = null; winLight = null; accentLight = null; mouthLight = null; spot = null; mouthGlow = null; scene = null
+  balls = []; carrier = null; placed = []; stow = null; ballHalo = null; winLight = null; accentLight = null; mouthLight = null; spot = null; mouthGlow = null; scene = null
   bokeh = []; sparkle = null; dropState = null
 }
 
@@ -477,11 +504,12 @@ function buildScene() {
   const total = Math.max(props.ticketCount || 0, N)
   const step = Math.max(1, Math.floor(total / N))
   const geo = new THREE.SphereGeometry(BR, 48, 32)
+  const winSet = new Set(plan.value.map((w) => w.ticket))
   const rnd = mulberry32(20240607)
   const lim0 = GR - BR - 0.04
   for (let i = 0; i < N; i++) {
     let number = Math.min(total, i * step + 1)
-    if (hasResult.value && number === Number(props.winningTicket)) number = (number % total) + 1
+    for (let g = 0; g < 12 && winSet.has(number); g++) number = (number % total) + 1
     const color = th.ball_colors[i % th.ball_colors.length]
     const m = new THREE.MeshPhysicalMaterial({ map: numberTexture(number, color), color: 0xffffff, roughness: 0.16, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.025, envMapIntensity: 1.1, specularIntensity: 1, emissive: accentI, emissiveIntensity: 0 })
     const b = new THREE.Mesh(geo, m)
@@ -501,14 +529,13 @@ function buildScene() {
   buildBokeh(th)
 
   // 진행 중이던 결과 화면 복원
-  if (ph === 'reveal' && playTicket != null) {
-    carrier = balls[0]
-    applyWinnerLook(carrier)
-    carrier.userData.mode = 'rest'
-    carrier.scale.setScalar(FINAL_R / BR)
-    carrier.position.set(CX, CH_FLOOR + FINAL_R, CZ)
-    carrier.quaternion.identity()
+  if (ph === 'reveal' && playTicket != null && plan.value[runIdx]) {
+    placed = []; stow = null
+    for (let i = 0; i < runIdx; i++) placeSmall(balls[i], i, plan.value[i])
+    carrier = balls[runIdx]
+    bigRest(carrier, plan.value[runIdx])
     revealAt = performance.now() / 1000
+    holdUntil = simClock + HOLD
   }
   if (renderPass) renderPass.scene = scene
 }
@@ -642,7 +669,7 @@ function stepBalls(dt, tt, par) {
 }
 
 function prewarm() {
-  tq = new THREE.Quaternion(); ta = new THREE.Vector3()
+  tq = new THREE.Quaternion(); ta = new THREE.Vector3(); IDQ = new THREE.Quaternion()
   const par = PAR.idleResult
   for (let i = 0; i < 160; i++) stepBalls(1 / 60, i / 60, par)
 }
@@ -661,29 +688,62 @@ function lerpPar(a, b, k) {
   return o
 }
 
-function applyWinnerLook(ball) {
+function rankColor(rank) {
+  if (!multi.value || rank === 1) return t.value.accent
+  if (rank === 2) return '#cfd6e4'
+  if (rank === 3) return '#d08a4a'
+  return '#6f9bff'
+}
+function applyWinnerLook(ball, w) {
   const m = ball.material
-  m.map = numberTexture(playTicket, t.value.accent, true)
-  m.emissive.set(t.value.accent)
+  const ticket = w ? w.ticket : playTicket
+  const col = rankColor(w ? w.rank : (plan.value[runIdx]?.rank ?? 1))
+  m.map = numberTexture(ticket, col, true)
+  m.emissive.set(col)
   m.emissiveIntensity = 0.04
   m.clearcoat = 0.35; m.roughness = 0.3
   m.color.setScalar(0.66)   // 흰 원판이 블룸으로 날아가지 않게 살짝 어둡게
   m.needsUpdate = true
+  ball.userData.isWinner = true
 }
-function restoreCarrier() {
-  if (!carrier) return
-  const u = carrier.userData
-  carrier.material.map = u.origMap
-  carrier.material.emissiveIntensity = 0
-  carrier.material.color.setScalar(1)
-  carrier.material.clearcoat = 1; carrier.material.roughness = 0.16
-  carrier.material.needsUpdate = true
-  carrier.scale.setScalar(1)
-  u.mode = 'pool'; u.v.set(0, 2, 0)
-  carrier.material.emissiveIntensity = 0
-  carrier.position.set(GX + (cosRand() - 0.5), GY - 1.2, (cosRand() - 0.5))
-  carrier = null
+function restoreBall(b) {
+  const u = b.userData, m = b.material
+  m.map = u.origMap
+  m.emissiveIntensity = 0
+  m.color.setScalar(1)
+  m.clearcoat = 1; m.roughness = 0.16
+  m.needsUpdate = true
+  b.scale.setScalar(1)
+  u.mode = 'pool'; u.isWinner = false; u.v.set(0, 2, 0)
+  const a = cosRand() * 6.283, r = Math.sqrt(cosRand()) * 1.2
+  b.position.set(GX + Math.cos(a) * r, GY - 1.5 + cosRand() * 1.1, Math.sin(a) * r)
+}
+// 이전 재생에서 바뀐 공을 모두 풀로 되돌림 (뽑힌 공이 다시 구 안으로 돌아옴)
+function resetRunBalls() {
+  for (const b of balls) if (b.userData.isWinner || b.userData.mode !== 'pool') restoreBall(b)
+  carrier = null; placed = []; stow = null
   if (ballHalo) ballHalo.visible = false
+}
+// 진열 칸: 챔버 앞 바닥에 2줄(앞 5 / 뒤 4)로 정렬
+function slotPos(i) {
+  const x0 = CX - 0.45
+  if (i < 5) return new THREE.Vector3(x0 + (i - 2) * 0.46, FLOOR_Y + SLOT_R + 0.01, CZ + 2.05)
+  return new THREE.Vector3(x0 + (i - 5 - 1.5) * 0.46, FLOOR_Y + SLOT_R + 0.01, CZ + 1.7)
+}
+function placeSmall(ball, slot, w) {
+  applyWinnerLook(ball, w)
+  ball.userData.mode = 'placed'
+  ball.scale.setScalar(SLOT_R / BR)
+  ball.position.copy(slotPos(slot))
+  ball.quaternion.identity()
+  placed.push(ball)
+}
+function bigRest(ball, w) {
+  applyWinnerLook(ball, w)
+  ball.userData.mode = 'rest'
+  ball.scale.setScalar(FINAL_R / BR)
+  ball.position.set(CX, CH_FLOOR + FINAL_R, CZ)
+  ball.quaternion.identity()
 }
 
 function pickPoolBall(pt) {
@@ -697,8 +757,8 @@ function pickPoolBall(pt) {
 }
 // 당첨 공 선정: 위치만 정하는 연출용 선택 — 번호는 항상 winningTicket 으로 교체됨
 function pickCarrier() {
-  carrier = pickPoolBall(PIPE_A) || balls[0]
-  applyWinnerLook(carrier)
+  carrier = pickPoolBall(PIPE_A) || balls.find((b) => b.userData.mode === 'pool') || balls[0]
+  applyWinnerLook(carrier, plan.value[runIdx])
   carrier.userData.mode = 'rise'
   carrier.userData.from = carrier.position.clone()
   flash = 1
@@ -731,10 +791,11 @@ function resize() {
 function updateCamera(tt) {
   const slow = reduced ? 0 : 1
   const ang = Math.sin(tt * 0.13) * 0.09 * slow
-  const dist = camDist * (1 + Math.sin(tt * 0.09) * 0.015 * slow - camBlend * 0.04 - push * 0.05)
+  const mshift = multi.value ? 1 : 0   // 다중 당첨: 진열된 작은 공이 아래에서 잘리지 않도록 살짝 위로/멀리
+  const dist = camDist * (1 + mshift * 0.05 + Math.sin(tt * 0.09) * 0.015 * slow - camBlend * 0.04 - push * 0.05)
   // select 막바지: 파이프 입구 쪽으로 천천히 밀고 들어가며 미세하게 흔들림
   const shake = reduced ? 0 : Math.max(0, push - 0.5) * 0.02
-  const tx = SCENE_CX + camBlend * 0.5 + push * 0.45 + Math.sin(tt * 41) * shake, ty = SCENE_CY + camBlend * 0.1 + push * 0.5 + Math.cos(tt * 37) * shake
+  const tx = SCENE_CX + camBlend * 0.5 + push * 0.45 + Math.sin(tt * 41) * shake, ty = SCENE_CY - mshift * 0.45 + camBlend * 0.1 + push * 0.5 + Math.cos(tt * 37) * shake
   camera.position.set(tx + Math.sin(ang) * dist, ty + 1.05 + Math.sin(tt * 0.11) * 0.08 * slow, Math.cos(ang) * dist)
   camera.lookAt(tx, ty - 0.1, 0)
 }
@@ -750,7 +811,7 @@ function frame(now) {
   let elapsed = (now - phStart) / 1000
 
   // 단계 전이
-  if (ph === 'mix' && elapsed > DUR.mix) {
+  if (ph === 'mix' && elapsed > curMix) {
     setPhase('select'); elapsed = 0
   } else if (ph === 'select' && elapsed > selDur) {
     setPhase('eject'); elapsed = 0
@@ -841,26 +902,55 @@ function frame(now) {
   } else if (carrier && cu.mode === 'settle') {
     // 정면으로 회전하며 안착
     const k = smooth((tt - restedAt) / 0.7)
-    carrier.quaternion.slerp(new THREE.Quaternion(), 0.12 + 0.2 * k)
+    carrier.quaternion.slerp(IDQ, 0.12 + 0.2 * k)
     carrier.position.y = CH_FLOOR + FINAL_R
     carrier.scale.setScalar(FINAL_R / BR)
     haloK = 1
     if (tt - restedAt > 0.75) {
       cu.mode = 'rest'
-      setPhase('reveal'); played.value = true
+      setPhase('reveal')
       revealAt = tt
-      emitSparkles(60, CX, CH_FLOOR + FINAL_R, CZ + 0.5)
-      emit('finished')
+      const w = plan.value[runIdx]
+      const lastRank = runIdx >= plan.value.length - 1
+      emitSparkles(lastRank ? 90 : 30, CX, CH_FLOOR + FINAL_R, CZ + 0.5)
+      revealedCount = runIdx + 1
+      emit('rank-reveal', { rank: w.rank, ticket: w.ticket, name: w.name, prizeLabel: w.prizeLabel })
+      if (lastRank) {
+        played.value = true; running.value = false
+        emit('finished')
+      } else {
+        holdUntil = tt + HOLD
+      }
     }
   } else if (carrier && cu.mode === 'rest') {
     carrier.rotation.set(0, Math.sin(tt * 0.8) * 0.2, 0)
     haloK = 1
+    // 다중 당첨: 공개 후 잠시 보여준 뒤 작은 공으로 줄여 진열 칸으로 이동 -> 다음 등수
+    if (running.value && runIdx < plan.value.length - 1 && tt >= holdUntil) {
+      cu.mode = 'stow'
+      stow = { t0: tt, from: carrier.position.clone(), to: slotPos(placed.length) }
+    }
+  } else if (carrier && cu.mode === 'stow') {
+    const k = clamp01((tt - stow.t0) / STOW_DUR), e = smooth(k)
+    carrier.position.set(
+      stow.from.x + (stow.to.x - stow.from.x) * e,
+      stow.from.y + (stow.to.y - stow.from.y) * e + Math.sin(k * Math.PI) * 1.1,
+      stow.from.z + (stow.to.z - stow.from.z) * e)
+    carrier.scale.setScalar(FINAL_R / BR + (SLOT_R / BR - FINAL_R / BR) * e)
+    carrier.quaternion.slerp(IDQ, 0.15)
+    haloK = 1 - k
+    if (k >= 1) {
+      cu.mode = 'placed'
+      placed.push(carrier); carrier = null; stow = null
+      if (ballHalo) ballHalo.visible = false
+      startRank(runIdx + 1)
+    }
   }
   if (ph === 'reveal' && carrier) {
     const age = tt - revealAt
     emitAcc += dt
     if (age < 8 && emitAcc > 0.22) { emitAcc = 0; emitSparkles(2, CX, CH_FLOOR + FINAL_R, CZ + 0.5) }
-    carrier.material.emissiveIntensity = 0.02
+    if (carrier.userData.mode !== 'stow') carrier.material.emissiveIntensity = 0.02
   }
 
   // 후광/조명
@@ -870,7 +960,8 @@ function frame(now) {
       ballHalo.position.copy(carrier.position)
       ballHalo.position.z -= 0.35 + carrier.scale.x * BR * 0.9   // 공 뒤쪽에서 빛나게 (공 표면이 하얗게 날아가지 않도록)
       const rest = cu.mode === 'rest' || cu.mode === 'settle'
-      const s = (rest ? 3.4 + 0.25 * Math.sin(tt * 3) : 2.0) + flash * 1.2
+      const bigHalo = !multi.value || runIdx >= plan.value.length - 1
+      const s = (rest ? (bigHalo ? 3.4 : 2.8) + 0.25 * Math.sin(tt * 3) : 2.0) + flash * 1.2
       ballHalo.scale.set(s, s, 1)
       ballHalo.material.opacity = Math.min(0.9, (rest ? 0.16 : 0.35) * haloK + flash * 0.25)
     }
@@ -918,21 +1009,58 @@ function schedule() {
 function updateVisibility() { if (inView && tabVisible) { lastNow = 0; schedule() } }
 function onVisibility() { tabVisible = !document.hidden; updateVisibility() }
 
+function startRank(i) {
+  runIdx = i
+  const w = plan.value[i]
+  playTicket = w.ticket
+  curWinner.value = { ...w }
+  carrier = null
+  pickSelectDuration()   // 이번 등수의 select 길이 (10~15초 랜덤, 연출 전용)
+  curMix = i === 0 ? DUR.mix : (reduced ? 0.5 : 2.5)
+  push = 0; tensionV = 0; flash = 0
+  setPhase('mix')
+  emit('rank-start', { rank: w.rank, index: i, total: plan.value.length })
+}
+
 async function play() {
   if (!canPlay.value) return
-  playTicket = Number(props.winningTicket)
-  restoreCarrier()
-  for (const b of balls) if (b.userData.mode !== 'pool') { b.userData.mode = 'pool'; b.userData.v.set(0, 0, 0) }
-  pickSelectDuration()   // 이번 회차 select 길이 (10~15초 랜덤, 연출 전용)
-  push = 0; tensionV = 0; flash = 0
+  resetRunBalls()
+  revealedCount = 0
   played.value = false
-  setPhase('mix')
+  running.value = true
+  startRank(0)
   schedule()
 }
 
+// 즉시 최종 상태로 점프: 아래 등수는 진열 칸, 1등은 챔버에 크게
+function skip() {
+  if (!renderer || !scene || !hasResult.value || glError.value) return
+  const list = plan.value
+  if (!running.value && ph === 'reveal' && played.value) { emit('finished'); return }
+  resetRunBalls()
+  nearMiss = []
+  const pool = balls.filter((b) => b.userData.mode === 'pool')
+  for (let i = 0; i < list.length - 1; i++) placeSmall(pool[i], i, list[i])
+  runIdx = list.length - 1
+  carrier = pool[runIdx]
+  playTicket = list[runIdx].ticket
+  curWinner.value = { ...list[runIdx] }
+  bigRest(carrier, list[runIdx])
+  push = 0; tensionV = 0; flash = 0
+  setPhase('reveal')
+  revealAt = simClock
+  emitSparkles(90, CX, CH_FLOOR + FINAL_R, CZ + 0.5)
+  for (let i = revealedCount; i < list.length; i++) emit('rank-reveal', { rank: list[i].rank, ticket: list[i].ticket, name: list[i].name, prizeLabel: list[i].prizeLabel })
+  revealedCount = list.length
+  played.value = true; running.value = false
+  schedule()
+  emit('finished')
+}
+
 function reset() {
-  if (ph === 'mix' || ph === 'select' || ph === 'eject') return
-  restoreCarrier()
+  if (running.value || ph === 'mix' || ph === 'select' || ph === 'eject') return
+  resetRunBalls()
+  curWinner.value = null
   played.value = false
   setPhase('idle')
   schedule()
@@ -1030,6 +1158,9 @@ watch([themeKey, () => ballCount(), () => props.ticketCount], () => {
 watch(() => props.winningTicket, (v, old) => {
   if (old == null && v != null && props.autoplay && renderer) play()
 })
+watch(() => plan.value.length, (n, o) => {
+  if (!o && n && props.autoplay && renderer) play()
+})
 
 onBeforeUnmount(() => {
   unmounted = true
@@ -1044,7 +1175,7 @@ onBeforeUnmount(() => {
   if (renderer) { renderer.dispose(); renderer.forceContextLoss?.(); renderer = null }
 })
 
-defineExpose({ play, reset })
+defineExpose({ play, reset, skip })
 </script>
 
 <style scoped>

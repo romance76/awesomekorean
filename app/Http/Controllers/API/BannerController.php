@@ -407,6 +407,17 @@ class BannerController extends Controller
         $bidAmount = (int) $request->bid_amount;
         $targetPages = json_decode($request->target_pages, true) ?: [$request->page];
 
+        // 화면에 실제로 없는 (페이지, 위치) 조합은 신규 신청 불가 — 예: 이벤트 페이지 오른쪽
+        foreach ((array) $targetPages as $tp) {
+            if (!is_string($tp) || in_array($tp, ['all', 'sub'], true)) continue;
+            if (!\App\Support\AdSlotMap::exists($tp, (string) $request->position)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '선택한 페이지에는 해당 광고 자리가 없습니다. 다른 자리를 선택해 주세요.',
+                ], 422);
+            }
+        }
+
         // 관리자가 AdminAdCenter(슬롯맵)에서 설정한 슬롯별 최저가가 실제로는
         // 강제되지 않고 하드코딩된 min:50만 통과하면 되던 문제 수정
         // (AdminAdCenterController::slotMap()과 동일한 설정/기본값 사용).

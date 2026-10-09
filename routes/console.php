@@ -47,6 +47,8 @@ Schedule::command('promotions:expire')->everyMinute();
 Schedule::command('events:remind')->everyThirtyMinutes();
 // 추첨 시작 5분 전 알림 (응모 후 알림 신청한 회원)
 Schedule::command('sweepstakes:send-reminders')->everyMinute()->withoutOverlapping();
+// 당첨자에게 "이메일·전화번호·주소 확인" 안내 알림 + 상품 수령 건(claim) 동기화
+Schedule::command('sweepstakes:notify-winners')->everyMinute()->withoutOverlapping();
 
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();

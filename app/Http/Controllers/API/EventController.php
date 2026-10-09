@@ -141,6 +141,7 @@ class EventController extends Controller
             'eligible_regions' => 'nullable|array',
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
+            'winner_count' => 'nullable|integer|min:1|max:10',
         ]);
 
         $fields = $request->only(
@@ -160,7 +161,12 @@ class EventController extends Controller
         $event = Event::create($fields);
 
         if ($isSweepstakes) {
-            Sweepstakes::create([
+            $winnerData = [];
+            if (\Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'winner_count')) {
+                [$wc, $tiers] = Sweepstakes::sanitizeWinnerConfig($request->input('winner_count', 1), $request->input('prize_tiers'));
+                $winnerData = ['winner_count' => $wc, 'prize_tiers' => $tiers];
+            }
+            Sweepstakes::create(array_merge($winnerData, [
                 'event_id' => $event->id,
                 'title' => $event->title,
                 'description' => $event->description,
@@ -175,7 +181,7 @@ class EventController extends Controller
                 'eligible_regions' => $request->eligible_regions,
                 'official_rules_url' => $request->official_rules_url,
                 'no_purchase_required_text' => $request->no_purchase_required_text,
-            ]);
+            ]));
         } else {
             \App\Support\WritePoints::award(auth()->user(), Event::class, $event->id, '이벤트 등록');
         }
@@ -216,6 +222,7 @@ class EventController extends Controller
             'eligible_regions' => 'nullable|array',
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
+            'winner_count' => 'nullable|integer|min:1|max:10',
         ]);
 
         $fields = $request->only(
@@ -248,6 +255,15 @@ class EventController extends Controller
                 'no_purchase_required_text' => $request->no_purchase_required_text ?? $sweepstakes->no_purchase_required_text,
                 'draw_style' => in_array($request->draw_style, \App\Support\SweepstakesDrawReplay::DRAW_STYLES, true) ? $request->draw_style : ($sweepstakes->draw_style ?: 'wheel'),
             ])->save();
+
+            // 등수 설정 — 위에서 잠금(참가자 발생/당첨 확정) 상태는 이미 거절됨
+            if (($request->has('winner_count') || $request->has('prize_tiers'))
+                && \Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'winner_count')) {
+                $count = $request->filled('winner_count') ? $request->input('winner_count') : ($sweepstakes->winner_count ?: 1);
+                $tiers = $request->has('prize_tiers') ? $request->input('prize_tiers') : $sweepstakes->prize_tiers;
+                [$wc, $tiers] = Sweepstakes::sanitizeWinnerConfig($count, $tiers);
+                $sweepstakes->forceFill(['winner_count' => $wc, 'prize_tiers' => $tiers])->save();
+            }
         }
 
         return response()->json(['success' => true, 'data' => $event->fresh()]);

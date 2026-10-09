@@ -444,6 +444,10 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/sweepstakes/{sweepstakes}/reminder', [\App\Http\Controllers\API\SweepstakesController::class, 'removeReminder']);
     Route::get('/me/sweepstakes-reminders/due', [\App\Http\Controllers\API\SweepstakesController::class, 'dueReminders']);
     Route::post('/me/sweepstakes-reminders/{id}/dismiss', [\App\Http\Controllers\API\SweepstakesController::class, 'dismissReminder'])->whereNumber('id');
+    // 당첨자 상품 수령용 연락처 확인
+    Route::get('/me/prize-claims', [\App\Http\Controllers\API\PrizeClaimController::class, 'index']);
+    Route::post('/me/prize-claims/{id}/dismiss', [\App\Http\Controllers\API\PrizeClaimController::class, 'dismiss'])->whereNumber('id');
+    Route::post('/me/prize-claims/{id}/confirm', [\App\Http\Controllers\API\PrizeClaimController::class, 'confirm'])->whereNumber('id');
 
     Route::post('/reports', [ReportController::class, 'store']);
 
@@ -795,6 +799,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::delete('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'destroy']);
     Route::get('/sweepstakes/{sweepstakes}/participants', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'participants']);
     Route::post('/sweepstakes/{sweepstakes}/select-winner', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'selectWinner']);
+    // 당첨자 연락처 확인/상품 발송 현황 (컨트롤러에서 super_admin 검사)
+    Route::get('/sweepstakes/{sweepstakes}/prize-claims', [\App\Http\Controllers\API\PrizeClaimController::class, 'adminIndex']);
+    Route::post('/prize-claims/{id}/fulfill', [\App\Http\Controllers\API\PrizeClaimController::class, 'fulfill'])->whereNumber('id');
 
     // 수동 수집
     Route::post('/fetch-music', function () {

@@ -97,7 +97,7 @@
         <AdSlot page="events" position="left" :maxSlots="2" />
       </div>
     </div>
-    <div class="col-span-12 lg:col-span-7">
+    <div class="col-span-12 lg:col-span-10 min-w-0">
 
     <div class="mb-2">
       <span v-if="showFavorites" class="font-bold text-red-600 text-sm inline-flex items-center gap-1"><AppIcon name="bookmark" :size="14" />내 북마크</span>
@@ -129,82 +129,31 @@
             <div class="text-8xl opacity-20 flex-shrink-0">{{ activeItem.title.match(/[\u{1F300}-\u{1F9FF}]/u)?.[0] || '⭐' }}</div>
           </div>
         </div>
-        <!-- 일반 이벤트: 기존 헤더 -->
-        <div v-else class="px-5 py-4">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="badge-primary">{{ activeItem.category }}</span>
+        <!-- 일반 이벤트: 헤더 (제목 · 배지) -->
+        <div v-else class="px-5 lg:px-6 pt-5 pb-3">
+          <div class="flex items-center gap-1.5 flex-wrap mb-2">
+            <span v-if="activeItem.category" class="badge-primary">{{ activeItem.category }}</span>
             <span v-if="activeItem.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700">🎁 경품 추첨</span>
             <span v-else-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
             <span v-else class="badge-blue">${{ activeItem.price }}</span>
+            <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">{{ eventStatusLabel(activeItem) }}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-ink flex-1">{{ activeItem.title }}</h2>
+          <div class="flex items-start gap-2">
+            <h2 class="text-xl font-bold text-ink flex-1 leading-snug break-words">{{ activeItem.title }}</h2>
             <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(activeItem.id)" @toggle="toggleFav(activeItem)" size="lg" class="flex-shrink-0" />
           </div>
         </div>
         <!-- 공통 정보 -->
-        <div class="px-5 py-3 bg-gray-50/50 border-t border-b border-gray-50">
-          <div class="grid grid-cols-2 gap-2 text-sm text-ink-light">
-            <div class="flex items-center gap-1.5"><AppIcon name="calendar" :size="14" class="text-ink-faint" />{{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</div>
-            <div class="flex items-center gap-1.5"><AppIcon name="map-pin" :size="14" class="text-ink-faint" />{{ activeItem.venue || activeItem.city }}</div>
-            <div class="flex items-center gap-1.5"><AppIcon name="building" :size="14" class="text-ink-faint" />{{ activeItem.organizer }}</div>
-            <div class="flex items-center gap-1.5"><AppIcon name="users" :size="14" class="text-ink-faint" />{{ activeItem.attendee_count }}명 참가 · <AppIcon name="eye" :size="14" class="text-ink-faint" />{{ activeItem.view_count }}회</div>
+        <div class="px-5 lg:px-6 py-3 bg-gray-50/50 border-t border-b border-gray-50">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-ink-light">
+            <div class="flex items-center gap-1.5"><AppIcon name="calendar" :size="14" class="text-ink-faint flex-shrink-0" />{{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</div>
+            <div v-if="activeItem.venue || activeItem.city" class="flex items-center gap-1.5"><AppIcon name="map-pin" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.venue || activeItem.city }}</div>
+            <div v-if="activeItem.organizer" class="flex items-center gap-1.5"><AppIcon name="building" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.organizer }}</div>
+            <div class="flex items-center gap-1.5 flex-wrap"><AppIcon name="users" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.attendee_count || 0 }}명 참가<span class="text-ink-faint">·</span><AppIcon name="eye" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.view_count || 0 }}회</div>
           </div>
         </div>
-        <!-- 경품 추첨(Sweepstakes) 참가 영역 -->
-        <div v-if="activeItem.event_type === 'sweepstakes' && activeItem.sweepstakes" class="px-5 py-4 border-b border-gray-50 bg-amber-50/40">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="text-3xl">🎁</div>
-            <div>
-              <div class="text-xs text-amber-700 font-bold">경품</div>
-              <div class="text-lg font-black text-ink">{{ activeItem.sweepstakes.prize_name }}<span v-if="activeItem.sweepstakes.prize_value"> (${{ Number(activeItem.sweepstakes.prize_value).toLocaleString() }})</span></div>
-            </div>
-          </div>
-
-          <!-- 3D 추첨 연출: 이미 확정된 결과를 재생만 함 (당첨자 결정은 서버) -->
-          <div v-if="activeItem.sweepstakes.draw_style === 'lottery3d'" class="mb-3">
-            <LotteryShowcase :key="activeItem.id" :sweepstakes="activeItem.sweepstakes" :recent="recentDraws" />
-          </div>
-
-          <template v-if="activeItem.sweepstakes.status === 'winner_selected'">
-            <div v-if="activeItem.sweepstakes.draw_style !== 'lottery3d'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
-              <div class="text-2xl mb-1">🏆</div>
-              <div class="font-bold text-ink">당첨자: {{ activeItem.sweepstakes.winner_display_name || '비공개' }}</div>
-            </div>
-          </template>
-
-          <template v-else>
-            <div class="bg-white rounded-xl p-4 border border-amber-100 mb-3 flex flex-col items-center">
-              <template v-if="activeItem.sweepstakes.draw_style !== 'lottery3d'">
-              <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
-              <SweepstakesWheel :my-entries="activeItem.sweepstakes.my_entries || 0" :other-breakdown="activeItem.sweepstakes.other_entries_breakdown || []" />
-              </template>
-              <div class="text-sm font-black text-amber-600 mt-2">내 당첨 확률 {{ activeItem.sweepstakes.my_win_probability_pct || 0 }}%</div>
-            </div>
-
-            <div v-if="auth.isLoggedIn" class="mb-2">
-              <div class="text-xs text-ink-muted mb-1.5">내 Entry 잔액: <span class="font-bold text-amber-600">🎟 {{ auth.user?.entries || 0 }}</span> · 이미 응모: {{ activeItem.sweepstakes.my_entries || 0 }}</div>
-              <button @click="enterModalOpen = true" :disabled="activeItem.sweepstakes.status !== 'active'" class="btn-primary w-full disabled:opacity-40">🎟 Entry 사용해서 참가하기</button>
-              <SweepstakesEnterModal :show="enterModalOpen" :sweepstakes="activeItem.sweepstakes" :balance="Number(auth.user?.entries) || 0"
-                @close="enterModalOpen = false" @entered="onEntered" />
-              <p v-if="entryMsg" class="text-xs mt-2" :class="entryMsgType==='success'?'text-emerald-600':'text-red-500'">{{ entryMsg }}</p>
-              <p v-if="activeItem.sweepstakes.status !== 'active'" class="text-xs text-ink-faint mt-2">현재 응모 기간이 아닙니다.</p>
-            </div>
-            <div v-else class="text-xs text-ink-faint">응모하려면 로그인하세요</div>
-          </template>
-
-          <div class="text-[11px] text-ink-faint mt-3 space-y-0.5">
-            <div v-if="activeItem.sweepstakes.minimum_age">만 {{ activeItem.sweepstakes.minimum_age }}세 이상 참가 가능</div>
-            <div v-if="activeItem.sweepstakes.eligible_regions?.length">참가 가능 지역: {{ activeItem.sweepstakes.eligible_regions.join(', ') }}</div>
-            <div v-if="activeItem.sweepstakes.no_purchase_required_text">{{ activeItem.sweepstakes.no_purchase_required_text }}</div>
-            <div v-if="activeItem.sweepstakes.official_rules_url"><a :href="activeItem.sweepstakes.official_rules_url" target="_blank" class="text-blue-600 hover:underline">공식 규정 보기</a></div>
-          </div>
-
-          <button v-if="canSelectWinner" @click="selectWinner" :disabled="selectingWinner"
-            class="w-full mt-3 bg-violet-600 text-white font-bold py-2.5 rounded-xl text-sm hover:bg-violet-700 disabled:opacity-50 transition-colors">
-            {{ selectingWinner ? '처리중...' : '당첨자 선정 (관리자)' }}
-          </button>
-        </div>
+        <!-- 경품 추첨(Sweepstakes): 경품 · 추첨 연출 · 참가 -->
+        <SweepstakesPanel v-if="activeItem.event_type === 'sweepstakes' && activeItem.sweepstakes" :event="activeItem" :recent-draws="recentDraws" @updated="d => activeItem = d" />
 
         <!-- 참여 버튼 (공식 이벤트) -->
         <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
@@ -215,8 +164,8 @@
           </button>
         </div>
         <!-- 본문 -->
-        <div class="px-5 py-5 text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
-        <div class="px-5 py-3 border-t border-gray-50 flex gap-4 items-center">
+        <div class="px-5 lg:px-6 py-5 text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
+        <div class="px-5 lg:px-6 py-3 border-t border-gray-50 flex gap-4 items-center">
           <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(activeItem.id)" @toggle="toggleFav(activeItem)" size="lg" />
           <ShareButton :title="activeItem.title" :text="(activeItem.content || '').slice(0, 100)" label="공유" />
         </div>
@@ -350,11 +299,6 @@
     <!-- 페이지네이션 -->
     <Pagination :page="page" :lastPage="lastPage" @page="loadPage" />
     </div>
-    <div class="col-span-12 lg:col-span-3 hidden lg:block">
-      <SidebarWidgets :currentCategory="activeItem ? (activeItem.category || '') : activeCat" :inline="true" @select="openItem" api-url="/api/events" detail-path="/events/" :current-id="activeItem?.id || 0"
-        :mode="activeItem ? 'detail' : 'list'" :categoryLabel="eventCategories.find(c => c.value === (activeItem?.category || activeCat))?.label || activeItem?.category || ''" label="이벤트" :filter-params="locationParams" />
-        <AdSlot page="events" position="right" :maxSlots="2" />
-    </div>
     </div>
   </div>
 </div>
@@ -366,18 +310,14 @@ import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
-import SidebarWidgets from '../../components/SidebarWidgets.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { useMenuConfig } from '../../composables/useMenuConfig'
 import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
-import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
-import SweepstakesEnterModal from '../../components/SweepstakesEnterModal.vue'
+import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
-import { defineAsyncComponent } from 'vue'
-const LotteryShowcase = defineAsyncComponent(() => import('../../components/LotteryShowcase.vue'))
 const recentDraws = ref([])
 let recentDrawsLoaded = false
 
@@ -415,18 +355,8 @@ const canEditActive = computed(() => {
   return it.user_id === auth.user.id || ['admin', 'super_admin'].includes(auth.user.role)
 })
 const currentIdx = ref(-1)
-const entering = ref(false)
-const entryMsg = ref('')
-const entryMsgType = ref('success')
-const selectingWinner = ref(false)
-const canSelectWinner = computed(() => {
-  if (!activeItem.value?.sweepstakes || auth.user?.role !== 'super_admin') return false
-  return activeItem.value.sweepstakes.status !== 'winner_selected'
-})
-
 async function openItem(item) {
   currentIdx.value = items.value.findIndex(i => i.id === item.id)
-  entryMsg.value = ''
   try { const { data } = await axios.get(`/api/events/${item.id}`); activeItem.value = data.data }
   catch { activeItem.value = item }
   if (activeItem.value?.category) activeCat.value = activeItem.value.category
@@ -451,31 +381,6 @@ watch(activeItem, (item) => {
   }
 })
 onUnmounted(() => { if (sweepstakesPoll) clearInterval(sweepstakesPoll) })
-
-// 참가 개수 선택 → 확인 → OK 흐름은 SweepstakesEnterModal 이 처리. 참가 직후 데이터만 새로고침.
-const enterModalOpen = ref(false)
-async function onEntered(res) {
-  entryMsg.value = ''
-  if (auth.user && res?.remaining_entries != null) auth.user.entries = res.remaining_entries
-  try {
-    const { data: fresh } = await axios.get(`/api/events/${activeItem.value.id}`)
-    activeItem.value = fresh.data
-  } catch {}
-}
-
-async function selectWinner() {
-  if (!confirm(`"${activeItem.value.title}" 당첨자를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
-  selectingWinner.value = true
-  try {
-    const { data } = await axios.post(`/api/admin/sweepstakes/${activeItem.value.sweepstakes.id}/select-winner`)
-    alert(`당첨자: ${data.data?.winner?.nickname || data.data?.winner?.name || '#' + data.data?.winner_user_id}`)
-    const { data: fresh } = await axios.get(`/api/events/${activeItem.value.id}`)
-    activeItem.value = fresh.data
-  } catch (e) {
-    alert(e.response?.data?.message || '당첨자 선정 실패')
-  }
-  selectingWinner.value = false
-}
 
 function navItem(dir) {
   const newIdx = currentIdx.value + dir

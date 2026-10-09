@@ -30,6 +30,7 @@
     <PopupBanner v-if="showNav" />
     <CheckinPrompt v-if="showNav && auth.isLoggedIn" />
     <SweepstakesReminderPrompt v-if="showNav && auth.isLoggedIn" />
+    <WinnerPrizePrompt v-if="showNav && auth.isLoggedIn" />
     <FlyerPrompt v-if="showNav" />
 
     <main>
@@ -92,6 +93,7 @@ import PopupBanner from './components/PopupBanner.vue'
 import CheckinPrompt from './components/CheckinPrompt.vue'
 import SweepstakesReminderPrompt from './components/SweepstakesReminderPrompt.vue'
 import FlyerPrompt from './components/FlyerPrompt.vue'
+import WinnerPrizePrompt from './components/WinnerPrizePrompt.vue'
 import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 
 import { useBookmarkStore } from './stores/bookmarks'

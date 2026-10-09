@@ -406,6 +406,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import { menuIcon } from '../../utils/menuIcons'
 import { adSize, AD_RATIO_TEXT } from '../../utils/adSizes'
+import { adSlotExists } from '../../config/adSlotMap'
 import axios from 'axios'
 
 const siteStore = useSiteStore()
@@ -463,6 +464,17 @@ const speedOptions = [
   { value: 'fast',   label: '빠름' },
 ]
 
+// 관리자 슬롯 수 설정 ∩ 실제로 화면에 존재하는 자리(AD_SLOT_MAP) — 없는 자리는 제공하지 않음
+function effectiveSlotConfig(page) {
+  const cfg = pageConfigs.value[page]
+  if (!cfg) return { left_slots: 0, right_slots: 0 } // 관리자가 명시적으로 슬롯 수를 설정해야 노출
+  return {
+    ...cfg,
+    left_slots: adSlotExists(page, 'left') ? (cfg.left_slots || 0) : 0,
+    right_slots: adSlotExists(page, 'right') ? (cfg.right_slots || 0) : 0,
+  }
+}
+
 // 광고 노출 가능 서브 페이지 — 활성 메뉴 중 관리자 광고 슬롯이 > 0 인 것만
 const subPages = computed(() => {
   const mc = siteStore.menuConfig
@@ -470,8 +482,7 @@ const subPages = computed(() => {
   return mc
     .filter(m => m.enabled !== false && !m.admin_only && m.key !== 'home')
     .filter(m => {
-      const cfg = pageConfigs.value[m.key]
-      if (!cfg) return false // 관리자가 명시적으로 슬롯 수를 설정해야 노출
+      const cfg = effectiveSlotConfig(m.key)
       return (cfg.left_slots || 0) > 0 || (cfg.right_slots || 0) > 0
     })
     .map(m => ({ key: m.key, icon: m.icon, label: m.label }))
@@ -502,11 +513,7 @@ const selectedPageLabel = computed(() => {
 })
 
 // 선택된 페이지의 슬롯 설정 — 관리자 설정이 없으면 0/0 으로 취급 (명시적 활성화 필요)
-const pageSlotConfig = computed(() => {
-  const cfg = pageConfigs.value[selectedSub.value]
-  if (cfg) return cfg
-  return { left_slots: 0, right_slots: 0 }
-})
+const pageSlotConfig = computed(() => effectiveSlotConfig(selectedSub.value))
 
 // 메인 콘텐츠 컬럼 span (사이드바 유무에 따라 동적)
 const mainColSpan = computed(() => {
@@ -612,6 +619,8 @@ const canSubmit = computed(() => {
 function isSelected(pos, slot) { return selectedSlot.value?.position === pos && selectedSlot.value?.slot === slot }
 
 function selectSlot(position, slot, tier) {
+  // 화면에 없는 자리(예: 이벤트 우측)는 선택 불가 — 예전 임시저장·링크로 들어와도 차단
+  if ((position === 'left' || position === 'right') && !adSlotExists(selectedSub.value, position)) return
   selectedSlot.value = { position, slot, tier }
   adForm.bid_amount = getBasePrice(position, tier) + computeGeoExtra(tier)
   saveDraft()
@@ -748,6 +757,8 @@ function loadDraft() {
     if (Date.now() - d.ts > 86400000) { localStorage.removeItem(DRAFT_KEY); return }
     selectedSub.value = d.selectedSub || ''
     selectedSlot.value = d.selectedSlot || null
+    const sp = selectedSlot.value?.position
+    if ((sp === 'left' || sp === 'right') && !adSlotExists(selectedSub.value, sp)) selectedSlot.value = null
     if (d.adForm) Object.assign(adForm, d.adForm)
     zipInput.value = d.zipInput || ''
   } catch {}
