@@ -208,35 +208,16 @@
           </button>
         </div>
         <!-- 본문 -->
-        <div class="px-5 py-5 text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
-        <div class="px-5 py-3 border-t border-gray-50 flex gap-4 items-center">
-          <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(activeItem.id)" @toggle="toggleFav(activeItem)" size="lg" />
-          <ShareButton :title="activeItem.title" :text="(activeItem.content || '').slice(0, 100)" label="공유" />
-        </div>
+        <div class="px-5 py-4 text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
       </div>
       <div v-if="auth.user?.id === activeItem.user_id" class="flex gap-2 mt-3 justify-end">
         <button @click="deleteActiveItem('events')" class="text-xs text-red-400 hover:text-red-600 inline-flex items-center gap-1 transition-colors"><AppIcon name="trash" :size="12" />삭제</button>
       </div>
       <CommentSection v-if="activeItem.id" type="event" :typeId="activeItem.id" class="mt-3" />
-      <div class="mt-4 flex items-stretch card text-sm overflow-hidden">
-        <button v-if="currentIdx > 0" @click="navItem(-1)"
-          class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50/60 text-left text-ink-light border-r border-gray-50 transition-colors">
-          <div class="text-ink-muted text-xs flex items-center gap-1"><AppIcon name="chevron-left" :size="12" />이전글</div>
-          <div class="text-xs text-ink-light truncate mt-0.5">{{ items[currentIdx - 1]?.title || '' }}</div>
-        </button>
-        <div v-else class="flex-1 min-w-0 px-4 py-3 text-left text-ink-faint border-r border-gray-50 text-xs flex items-center gap-1"><AppIcon name="chevron-left" :size="12" />이전글 없음</div>
-
-        <button @click="activeItem=null"
-          class="px-5 py-3 hover:bg-amber-50/60 text-center text-ink font-bold border-r border-gray-50 flex-shrink-0 transition-colors">
-          목록
-        </button>
-
-        <button v-if="currentIdx >= 0 && currentIdx < items.length - 1" @click="navItem(1)"
-          class="flex-1 min-w-0 px-4 py-3 hover:bg-amber-50/60 text-right text-ink-light transition-colors">
-          <div class="text-ink-muted text-xs flex items-center justify-end gap-1">다음글<AppIcon name="chevron-right" :size="12" /></div>
-          <div class="text-xs text-ink-light truncate mt-0.5">{{ items[currentIdx + 1]?.title || '' }}</div>
-        </button>
-        <div v-else class="flex-1 min-w-0 px-4 py-3 text-right text-ink-faint text-xs flex items-center justify-end gap-1">다음글 없음<AppIcon name="chevron-right" :size="12" /></div>
+      <div class="flex justify-between mt-2">
+        <button @click="navItem(-1)" :disabled="currentIdx<=0" class="text-xs text-ink-muted hover:text-amber-600 disabled:opacity-30 inline-flex items-center gap-0.5 transition-colors"><AppIcon name="chevron-left" :size="13" />이전글</button>
+        <button @click="activeItem=null" class="text-xs text-ink-muted hover:text-ink transition-colors">목록</button>
+        <button @click="navItem(1)" :disabled="currentIdx>=items.length-1" class="text-xs text-ink-muted hover:text-amber-600 disabled:opacity-30 inline-flex items-center gap-0.5 transition-colors">다음글<AppIcon name="chevron-right" :size="13" /></button>
       </div>
     </div>
 
@@ -302,37 +283,28 @@
       <MobileAdInline v-if="i === 4" page="events" />
       </template>
     </div>
-    <!-- 리스트형 (커뮤니티와 같은 형식: 배지 / 제목 / 요약 / 메타 + 우측 가격) -->
-    <div v-else class="card overflow-hidden divide-y divide-[#DDD4CA] dark:divide-white/15">
+    <!-- 리스트형 -->
+    <div v-else class="card overflow-hidden divide-y divide-gray-50">
       <template v-for="(item, i) in items" :key="item.id">
-      <div @click="openItem(item)" class="list-row !px-4 sm:!px-5 !py-4 flex gap-3">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span v-if="item.event_type === 'awesomekorean'" class="badge bg-amber-400 text-white font-bold flex-shrink-0">공식</span>
-            <span v-if="item.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700 flex-shrink-0">경품 추첨</span>
-            <span v-if="!activeCat && item.category" class="badge-primary flex-shrink-0">{{ item.category }}</span>
-            <span v-if="eventStatusLabel(item)" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">{{ eventStatusLabel(item) }}</span>
+      <div @click="openItem(item)"
+        class="list-row">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
+            <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+              <span v-if="item.user?.name"><UserName :userId="item.user?.id" :name="item.user?.name" /></span>
+              <span v-else-if="item.company || item.organizer">{{ item.company || item.organizer }}</span>
+              <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ item.city }}, {{ item.state }}</span>
+              <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
+              <span v-if="item.created_at" class="flex items-center gap-0.5"><AppIcon name="clock" :size="11" />{{ fmtDate(item.created_at) }}</span>
+              <span v-if="item.view_count" class="flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count }}</span>
+            </div>
           </div>
-          <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title || item.name }}</div>
-          <p v-if="evExcerpt(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ evExcerpt(item) }}</p>
-          <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-2 text-xs text-ink-muted">
-            <span class="inline-flex items-center gap-1.5 font-medium text-ink">
-              <span class="w-5 h-5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-extrabold grid place-items-center" aria-hidden="true">{{ (item.user?.name || item.organizer || item.company || '?').slice(0, 1) }}</span>
-              <UserName v-if="item.user?.name" :userId="item.user?.id" :name="item.user?.name" className="text-xs font-medium text-ink" />
-              <span v-else>{{ item.organizer || item.company || '어썸코리안' }}</span>
-            </span>
-            <span v-if="item.start_date || item.created_at">{{ fmtDate(item.start_date || item.created_at) }}</span>
-            <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="13" />{{ item.city }}<template v-if="item.state">, {{ item.state }}</template></span>
-            <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
-            <span class="flex items-center gap-0.5 tabular-nums" :aria-label="'참가 ' + (item.attendee_count || 0)"><AppIcon name="users" :size="13" />{{ item.attendee_count || 0 }}</span>
-            <span class="flex items-center gap-0.5 tabular-nums" :aria-label="'조회 ' + (item.view_count || 0)"><AppIcon name="eye" :size="13" />{{ item.view_count || 0 }}</span>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
+          <div class="ml-3 flex-shrink-0 text-right">
+            <div v-if="item.price !== undefined && item.price !== null" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+            <div v-if="item.salary_min" class="text-amber-600 font-bold text-xs">${{ item.salary_min }}~${{ item.salary_max }}/{{ item.salary_type }}</div>
+            <div v-if="item.rating" class="text-amber-400 text-xs">{{'★'.repeat(Math.round(item.rating))}} {{ item.rating }}</div>
           </div>
-        </div>
-        <div class="flex-shrink-0 text-right self-start">
-          <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">경품추첨</div>
-          <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
-          <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
         </div>
       </div>
       <MobileAdInline v-if="i === 4" page="events" />
@@ -365,13 +337,11 @@ import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
-import ShareButton from '../../components/ShareButton.vue'
 
 const auth = useAuthStore()
 const route = useRoute()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
-function evExcerpt(item) { return String(item.content || item.description || '').replace(/\s+/g, ' ').trim().slice(0, 140) }
 function fmtDate(dt) {
   if (!dt) return ''
   const d = new Date(dt)
