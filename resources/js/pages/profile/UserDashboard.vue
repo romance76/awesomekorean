@@ -299,7 +299,7 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><template v-for="t in friendThreads" :key="t.partner.id">              <div @click="openThread(t.partner)" class="card card-hover p-3 cursor-pointer" :class="t.unread ? 'ring-1 ring-amber-300' : ''">
                 <div class="flex items-center gap-3">
                   <div class="relative flex-shrink-0">
-                    <div class="w-11 h-11 bg-amber-100 rounded-full flex items-center justify-center text-base font-bold text-amber-700">{{ (t.partner.name || '?')[0] }}</div>
+                    <UserAvatar :user="t.partner" :size="56" />
                     <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white"
                       :class="{'bg-green-500':t.online_status==='online','bg-yellow-400':t.online_status==='away','bg-gray-300':t.online_status==='offline'}"></div>
                   </div>
@@ -339,7 +339,7 @@
               <div @click="openThread(t.partner)" class="card card-hover p-3 cursor-pointer" :class="t.unread ? 'ring-1 ring-amber-300' : ''">
                 <div class="flex items-center gap-3">
                   <div class="relative flex-shrink-0">
-                    <div class="w-11 h-11 bg-amber-100 rounded-full flex items-center justify-center text-base font-bold text-amber-700">{{ (t.partner.name || '?')[0] }}</div>
+                    <UserAvatar :user="t.partner" :size="56" />
                     <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white"
                       :class="{'bg-green-500':t.online_status==='online','bg-yellow-400':t.online_status==='away','bg-gray-300':t.online_status==='offline'}"></div>
                   </div>
@@ -370,7 +370,7 @@
         <template v-else>
           <div class="flex items-center gap-2 mb-3">
             <button @click="closeThread" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-ink-muted" title="목록으로"><AppIcon name="arrow-left" :size="16" /></button>
-            <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700">{{ (msgPartner.name || '?')[0] }}</div>
+            <UserAvatar :user="msgPartnerInfo?.partner || msgPartner" :size="44" />
             <span class="font-bold text-ink">{{ msgPartner.name }}</span>
             <span v-if="msgPartnerInfo?.is_friend" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ msgPartnerInfo.source ? msgSourceLabel(msgPartnerInfo.source) : '친구' }}</span>
             <span v-else class="text-[11px] bg-gray-100 text-ink-muted px-1.5 py-0.5 rounded-full">모르는 사람</span>

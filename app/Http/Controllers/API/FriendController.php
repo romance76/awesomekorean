@@ -49,7 +49,7 @@ class FriendController extends Controller
             if (in_array($otherId, $seenIds)) return null; // 중복 스킵
             $seenIds[] = $otherId;
             $isSender = $f->user_id == $userId; // 내가 보낸 건지
-            $other = User::select('id','name','nickname','avatar','city','state','bio','last_active_at')->find($otherId);
+            $other = User::select('id','name','nickname','avatar','city','state','bio','last_active_at','lifetime_points')->find($otherId);
             if (!$other) return null;
 
             // 온라인 상태

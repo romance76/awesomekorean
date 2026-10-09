@@ -129,7 +129,7 @@
             <!-- 프로필 헤더 -->
             <div class="flex items-center gap-3 mb-3">
               <div class="relative">
-                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-lg font-bold text-amber-700">{{ (f.friend?.name||'?')[0] }}</div>
+                <UserAvatar :user="f.friend" :size="64" />
                 <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white"
                   :class="{'bg-green-500':f.online_status==='online','bg-yellow-400':f.online_status==='away','bg-gray-300':f.online_status==='offline'}"></div>
               </div>
@@ -232,6 +232,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import { VOICE_CALL_ENABLED } from '../../config/features'
 
 const router = useRouter()

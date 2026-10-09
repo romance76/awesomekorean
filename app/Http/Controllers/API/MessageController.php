@@ -41,7 +41,7 @@ class MessageController extends Controller
             ->get();
 
         $lasts = Message::whereIn('id', $rows->pluck('last_id'))->get()->keyBy('id');
-        $users = \App\Models\User::whereIn('id', $rows->pluck('partner_id'))->get(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'last_active_at'])->keyBy('id');
+        $users = \App\Models\User::whereIn('id', $rows->pluck('partner_id'))->get(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'last_active_at', 'lifetime_points'])->keyBy('id');
         // 친구 여부와 어디서 만났는지(source) — 친구가 아닌 사람의 쪽지는 '모르는 사람'으로 따로 묶기 위함
         $friendSource = [];
         $friendRows = \App\Models\Friend::where('status', 'accepted')
@@ -54,7 +54,7 @@ class MessageController extends Controller
             $u = $users[$r->partner_id] ?? null;
             $mins = ($u && $u->last_active_at) ? abs(now()->diffInMinutes($u->last_active_at)) : null;
             return [
-                'partner' => $u ? $u->only(['id', 'name', 'nickname', 'avatar', 'city', 'state']) : ['id' => (int) $r->partner_id, 'name' => '(탈퇴한 회원)'],
+                'partner' => $u ? $u->only(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'grade_level']) : ['id' => (int) $r->partner_id, 'name' => '(탈퇴한 회원)'],
                 'is_friend' => array_key_exists((int) $r->partner_id, $friendSource),
                 'source' => $friendSource[(int) $r->partner_id] ?? '',
                 'online_status' => $mins === null ? 'offline' : ($mins <= 5 ? 'online' : ($mins <= 30 ? 'away' : 'offline')),
@@ -88,7 +88,7 @@ class MessageController extends Controller
 
         Message::where('sender_id', $partnerId)->where('receiver_id', $me)->where('is_read', false)->update(['is_read' => true]);
 
-        $partner = \App\Models\User::select('id', 'name', 'nickname', 'avatar')->find($partnerId);
+        $partner = \App\Models\User::select('id', 'name', 'nickname', 'avatar', 'lifetime_points')->find($partnerId);
         return response()->json([
             'success' => true,
             'data' => $messages,
