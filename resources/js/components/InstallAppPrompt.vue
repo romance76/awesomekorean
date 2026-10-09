@@ -9,13 +9,24 @@
       <div class="flex items-start gap-2.5">
         <div class="text-xl leading-none mt-0.5">📱</div>
         <div class="min-w-0 flex-1">
-          <div class="text-[13px] font-bold text-ink leading-snug">웹앱으로 설치하면 더 크고 빠르게 볼 수 있어요</div>
-          <div class="text-xs text-ink-muted mt-0.5">주소창 없이 앱처럼 열려요. 홈 화면에 바로가기가 만들어져요.</div>
-          <div class="flex flex-wrap items-center gap-1.5 mt-2">
-            <button @click="onInstall" class="rounded-full text-white text-xs font-bold px-3.5 py-1.5" style="background:#FC226B">웹앱으로 보기</button>
-            <button @click="later" class="rounded-full border border-gray-200 text-ink-muted text-xs font-bold px-3 py-1.5">나중에</button>
-            <button @click="never" class="text-[11px] text-ink-faint underline px-1 py-1.5">다시 보지 않기</button>
-          </div>
+          <!-- 이미 설치되어 있다고 감지된 경우: 설치 안내 대신 "앱 아이콘으로 열기" 안내 -->
+          <template v-if="installedDetected">
+            <div class="text-[13px] font-bold text-ink leading-snug">어썸코리안 앱이 이미 설치되어 있어요</div>
+            <div class="text-xs text-ink-muted mt-0.5">브라우저에서는 앱으로 바로 넘어갈 수 없어요. 홈 화면의 <b>어썸코리안 아이콘</b>을 눌러 열면 주소창 없이 크게 보여요.</div>
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <button @click="never" class="rounded-full text-white text-xs font-bold px-3.5 py-1.5" style="background:#FC226B">확인</button>
+            </div>
+          </template>
+          <template v-else>
+            <div class="text-[13px] font-bold text-ink leading-snug">웹앱으로 설치하면 더 크고 빠르게 볼 수 있어요</div>
+            <div class="text-xs text-ink-muted mt-0.5">주소창 없이 앱처럼 열려요. 홈 화면에 바로가기가 만들어져요.</div>
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <button @click="onInstall" class="rounded-full text-white text-xs font-bold px-3.5 py-1.5" style="background:#FC226B">웹앱으로 보기</button>
+              <button @click="openedAlready" class="rounded-full border border-gray-200 text-ink-muted text-xs font-bold px-3 py-1.5">이미 설치했어요</button>
+              <button @click="later" class="rounded-full border border-gray-200 text-ink-muted text-xs font-bold px-3 py-1.5">나중에</button>
+              <button @click="never" class="text-[11px] text-ink-faint underline px-1 py-1.5">다시 보지 않기</button>
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -87,6 +98,7 @@ const timeReady = ref(false)    // 20초 경과 또는 2번째 페이지
 const sheet = ref(false)
 const isIOS = ref(false)
 const inApp = ref(false)
+const installedDetected = ref(false)   // 이미 설치된 앱이 있다고 감지됨(또는 사용자가 "이미 설치했어요" 선택)
 let deferred = null
 const hasDeferred = ref(false)
 let timer = null
@@ -138,6 +150,19 @@ async function onInstall() {
   // 설치 이벤트가 없는 환경(iOS Safari, 앱 안 브라우저 등) → 안내 시트
   sheet.value = true
 }
+// "이미 설치했어요" — 브라우저는 설치된 앱으로 자동 전환할 수 없으므로(웹 표준상 불가), 아이콘으로 여는 방법만 안내하고 90일간 묻지 않음
+function openedAlready() {
+  installedDetected.value = true
+  setSnooze(90)
+}
+// Chrome(안드로이드)은 manifest 의 related_applications 로 "이 사이트의 앱이 설치됐는지" 를 알려줌 (iOS Safari 는 불가)
+async function detectInstalled() {
+  try {
+    if (typeof navigator.getInstalledRelatedApps !== 'function') return
+    const apps = await navigator.getInstalledRelatedApps()
+    if (Array.isArray(apps) && apps.length > 0) installedDetected.value = true
+  } catch {}
+}
 function later() { setSnooze(7); eligible.value = false }
 function never() { setSnooze(90); eligible.value = false }
 
@@ -155,6 +180,7 @@ onMounted(() => {
   if (!detect()) return
   if (Date.now() < readSnooze()) return
   eligible.value = true
+  detectInstalled()
 
   window.addEventListener('beforeinstallprompt', onBeforeInstall)
   window.addEventListener('appinstalled', onInstalled)

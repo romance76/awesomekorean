@@ -72,6 +72,12 @@ class BrandIcons
             'start_url' => '/',
             'scope' => '/',
             'display' => 'standalone',
+            // Chrome 이 "이 사이트의 앱이 이미 설치됐는지" 를 알려주도록 자기 자신을 등록 (설치 안내를 숨기는 데 사용)
+            'related_applications' => [['platform' => 'webapp', 'url' => 'https://awesomekorean.com/manifest.json']],
+            'prefer_related_applications' => false,
+            // 설치된 앱이 있으면 링크를 앱에서 열도록 요청 (지원하는 최신 Chrome 에서만 동작)
+            'handle_links' => 'preferred',
+            'launch_handler' => ['client_mode' => ['navigate-existing', 'auto']],
             'background_color' => '#ffffff',
             'theme_color' => '#FFFFFF',
             'orientation' => 'portrait-primary',
