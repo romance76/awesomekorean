@@ -9,21 +9,32 @@ use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
+    /** 내가 삭제하지 않은 쪽지만 (보낸 쪽지는 sender_deleted, 받은 쪽지는 receiver_deleted 로 각자 따로 삭제) */
+    private function visibleTo($q, int $me) {
+        return $q->where(function ($w) use ($me) {
+            $w->where(fn ($a) => $a->where('sender_id', $me)->where('sender_deleted', false))
+              ->orWhere(fn ($b) => $b->where('receiver_id', $me)->where('receiver_deleted', false));
+        });
+    }
+
+    private function unreadCount(int $me): int {
+        return Message::where('receiver_id', $me)->where('receiver_deleted', false)->where('is_read', false)->count();
+    }
+
     public function index(Request $request) {
         $userId = auth()->id();
         $tab = $request->tab ?? 'received'; // received | sent
 
         $query = Message::query();
         if ($tab === 'sent') {
-            $query->with('receiver:id,name,nickname,avatar')->where('sender_id', $userId);
+            $query->with('receiver:id,name,nickname,avatar')->where('sender_id', $userId)->where('sender_deleted', false);
         } else {
-            $query->with('sender:id,name,nickname,avatar')->where('receiver_id', $userId);
+            $query->with('sender:id,name,nickname,avatar')->where('receiver_id', $userId)->where('receiver_deleted', false);
         }
 
         $messages = $query->orderByDesc('created_at')->paginate(20);
-        $unread = Message::where('receiver_id', $userId)->where('is_read', false)->count();
 
-        return response()->json(['success' => true, 'data' => $messages, 'unread_count' => $unread]);
+        return response()->json(['success' => true, 'data' => $messages, 'unread_count' => $this->unreadCount((int) $userId)]);
     }
 
     /**
@@ -34,7 +45,10 @@ class MessageController extends Controller
         $me = (int) auth()->id();
         $rows = \DB::table('messages')
             ->selectRaw('CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS partner_id, MAX(id) AS last_id, SUM(CASE WHEN receiver_id = ? AND is_read = 0 THEN 1 ELSE 0 END) AS unread, COUNT(*) AS total', [$me, $me])
-            ->where(function ($q) use ($me) { $q->where('sender_id', $me)->orWhere('receiver_id', $me); })
+            ->where(function ($q) use ($me) {
+                $q->where(fn ($a) => $a->where('sender_id', $me)->where('sender_deleted', 0))
+                  ->orWhere(fn ($b) => $b->where('receiver_id', $me)->where('receiver_deleted', 0));
+            })
             ->groupBy('partner_id')
             ->orderByDesc('last_id')
             ->limit(200)
@@ -42,21 +56,29 @@ class MessageController extends Controller
 
         $lasts = Message::whereIn('id', $rows->pluck('last_id'))->get()->keyBy('id');
         $users = \App\Models\User::whereIn('id', $rows->pluck('partner_id'))->get(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'last_active_at', 'lifetime_points'])->keyBy('id');
-        // 친구 여부와 어디서 만났는지(source) — 친구가 아닌 사람의 쪽지는 '모르는 사람'으로 따로 묶기 위함
-        $friendSource = [];
-        $friendRows = \App\Models\Friend::where('status', 'accepted')
-            ->where(function ($q) use ($me) { $q->where('user_id', $me)->orWhere('friend_id', $me); })
-            ->get();
-        foreach ($friendRows as $f) { $friendSource[$f->user_id == $me ? $f->friend_id : $f->user_id] = $f->source ?: ''; }
 
-        $threads = $rows->map(function ($r) use ($lasts, $users, $me, $friendSource) {
+        // 친구 관계(어디서 만났는지 source 포함) — 친구가 아닌 사람의 쪽지는 '모르는 사람'으로 따로 묶기 위함
+        $rel = []; // partnerId => ['status' => accepted|pending|blocked, 'source' => ..., 'mine' => 내가 먼저 요청했는지]
+        $friendRows = \App\Models\Friend::where(function ($q) use ($me) { $q->where('user_id', $me)->orWhere('friend_id', $me); })->get();
+        foreach ($friendRows as $f) {
+            $pid = $f->user_id == $me ? $f->friend_id : $f->user_id;
+            if (!isset($rel[$pid]) || $f->status === 'accepted') $rel[$pid] = ['status' => $f->status, 'source' => $f->source ?: '', 'mine' => $f->user_id == $me];
+        }
+        $blockedIds = \App\Models\UserBlock::where('blocker_id', $me)->pluck('blocked_id')->all();
+
+        $threads = $rows->map(function ($r) use ($lasts, $users, $me, $rel, $blockedIds) {
             $last = $lasts[$r->last_id] ?? null;
             $u = $users[$r->partner_id] ?? null;
+            $pid = (int) $r->partner_id;
             $mins = ($u && $u->last_active_at) ? abs(now()->diffInMinutes($u->last_active_at)) : null;
+            $st = $rel[$pid]['status'] ?? 'none';
             return [
-                'partner' => $u ? $u->only(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'grade_level']) : ['id' => (int) $r->partner_id, 'name' => '(탈퇴한 회원)'],
-                'is_friend' => array_key_exists((int) $r->partner_id, $friendSource),
-                'source' => $friendSource[(int) $r->partner_id] ?? '',
+                'partner' => $u ? $u->only(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'grade_level']) : ['id' => $pid, 'name' => '(탈퇴한 회원)'],
+                'is_friend' => $st === 'accepted',
+                'friend_status' => $st, // none | pending | accepted | blocked
+                'request_mine' => (bool) ($rel[$pid]['mine'] ?? false),
+                'blocked' => in_array($pid, $blockedIds),
+                'source' => $rel[$pid]['source'] ?? '',
                 'online_status' => $mins === null ? 'offline' : ($mins <= 5 ? 'online' : ($mins <= 30 ? 'away' : 'offline')),
                 'last_content' => $last?->content,
                 'last_at' => $last?->created_at,
@@ -66,11 +88,7 @@ class MessageController extends Controller
             ];
         })->values();
 
-        return response()->json([
-            'success' => true,
-            'data' => $threads,
-            'unread_count' => Message::where('receiver_id', $me)->where('is_read', false)->count(),
-        ]);
+        return response()->json(['success' => true, 'data' => $threads, 'unread_count' => $this->unreadCount($me)]);
     }
 
     /** 한 사람과 주고받은 쪽지 전체(오래된 것 → 최신). 상대가 보낸 안 읽은 쪽지는 읽음 처리. */
@@ -80,13 +98,13 @@ class MessageController extends Controller
         $limit = max(1, min(300, (int) $request->input('limit', 200)));
 
         $q = Message::where(function ($w) use ($me, $partnerId) {
-            $w->where(fn ($a) => $a->where('sender_id', $me)->where('receiver_id', $partnerId))
-              ->orWhere(fn ($b) => $b->where('sender_id', $partnerId)->where('receiver_id', $me));
+            $w->where(fn ($a) => $a->where('sender_id', $me)->where('receiver_id', $partnerId)->where('sender_deleted', false))
+              ->orWhere(fn ($b) => $b->where('sender_id', $partnerId)->where('receiver_id', $me)->where('receiver_deleted', false));
         });
         if ($request->before_id) $q->where('id', '<', (int) $request->before_id);
         $messages = $q->orderByDesc('id')->limit($limit)->get()->reverse()->values();
 
-        Message::where('sender_id', $partnerId)->where('receiver_id', $me)->where('is_read', false)->update(['is_read' => true]);
+        Message::where('sender_id', $partnerId)->where('receiver_id', $me)->where('receiver_deleted', false)->where('is_read', false)->update(['is_read' => true]);
 
         $partner = \App\Models\User::select('id', 'name', 'nickname', 'avatar', 'lifetime_points')->find($partnerId);
         return response()->json([
@@ -94,8 +112,23 @@ class MessageController extends Controller
             'data' => $messages,
             'partner' => $partner ?? ['id' => $partnerId, 'name' => '(탈퇴한 회원)'],
             'has_more' => $messages->count() >= $limit,
-            'unread_count' => Message::where('receiver_id', $me)->where('is_read', false)->count(),
+            'unread_count' => $this->unreadCount($me),
         ]);
+    }
+
+    /** 이 사람과의 대화 전체를 내 쪽지함에서 삭제 (상대 쪽지함에는 그대로 남음) */
+    public function destroyThread($partnerId) {
+        $me = (int) auth()->id();
+        $partnerId = (int) $partnerId;
+        Message::where('sender_id', $me)->where('receiver_id', $partnerId)->update(['sender_deleted' => true]);
+        Message::where('sender_id', $partnerId)->where('receiver_id', $me)->update(['receiver_deleted' => true]);
+        // 양쪽 모두 지운 쪽지는 더 보여줄 곳이 없으므로 정리
+        Message::where('sender_deleted', true)->where('receiver_deleted', true)
+            ->where(function ($q) use ($me, $partnerId) {
+                $q->where(fn ($a) => $a->where('sender_id', $me)->where('receiver_id', $partnerId))
+                  ->orWhere(fn ($b) => $b->where('sender_id', $partnerId)->where('receiver_id', $me));
+            })->delete();
+        return response()->json(['success' => true, 'message' => '대화가 삭제되었습니다', 'unread_count' => $this->unreadCount($me)]);
     }
 
     public function store(Request $request) {
@@ -152,11 +185,14 @@ class MessageController extends Controller
     }
 
     public function destroy($id) {
-        // 보낸 사람 또는 받은 사람만 삭제 가능
+        // 보낸 사람 또는 받은 사람만 삭제 가능 — 각자 자기 쪽지함에서만 지워지고, 양쪽 모두 지우면 완전 삭제
+        $me = (int) auth()->id();
         $msg = Message::where('id', $id)
-            ->where(function ($q) { $q->where('sender_id', auth()->id())->orWhere('receiver_id', auth()->id()); })
+            ->where(function ($q) use ($me) { $q->where('sender_id', $me)->orWhere('receiver_id', $me); })
             ->firstOrFail();
-        $msg->delete();
+        if ((int) $msg->sender_id === $me) $msg->sender_deleted = true;
+        if ((int) $msg->receiver_id === $me) $msg->receiver_deleted = true;
+        if ($msg->sender_deleted && $msg->receiver_deleted) $msg->delete(); else $msg->save();
         return response()->json(['success' => true, 'message' => '삭제되었습니다']);
     }
 }

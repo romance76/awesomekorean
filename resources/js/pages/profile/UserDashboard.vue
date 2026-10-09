@@ -318,7 +318,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="mt-2 text-xs text-ink-light bg-gray-50 rounded-lg px-2.5 py-1.5 truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+                <div class="mt-2 flex items-center gap-1.5">
+                  <div class="flex-1 min-w-0 text-xs text-ink-light bg-gray-50 rounded-lg px-2.5 py-1.5 truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+                  <button v-if="!t.is_friend && t.friend_status === 'none' && !t.blocked" @click.stop="addFriendFromMsg(t)" class="text-[11px] bg-amber-50 text-amber-700 font-bold px-2 py-1.5 rounded-lg hover:bg-amber-100 flex-shrink-0 whitespace-nowrap">친구 추가</button>
+                  <span v-else-if="t.friend_status === 'pending'" class="text-[11px] text-ink-faint flex-shrink-0 whitespace-nowrap">요청 대기중</span>
+                  <button @click.stop="deleteThread(t.partner)" class="text-gray-300 hover:text-red-500 p-1.5 flex-shrink-0 transition-colors" title="이 대화 삭제"><AppIcon name="trash" :size="14" /></button>
+                </div>
               </div>
               </template>
               </div>
@@ -358,7 +363,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="mt-2 text-xs text-ink-light bg-gray-50 rounded-lg px-2.5 py-1.5 truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+                <div class="mt-2 flex items-center gap-1.5">
+                  <div class="flex-1 min-w-0 text-xs text-ink-light bg-gray-50 rounded-lg px-2.5 py-1.5 truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+                  <button v-if="!t.is_friend && t.friend_status === 'none' && !t.blocked" @click.stop="addFriendFromMsg(t)" class="text-[11px] bg-amber-50 text-amber-700 font-bold px-2 py-1.5 rounded-lg hover:bg-amber-100 flex-shrink-0 whitespace-nowrap">친구 추가</button>
+                  <span v-else-if="t.friend_status === 'pending'" class="text-[11px] text-ink-faint flex-shrink-0 whitespace-nowrap">요청 대기중</span>
+                  <button @click.stop="deleteThread(t.partner)" class="text-gray-300 hover:text-red-500 p-1.5 flex-shrink-0 transition-colors" title="이 대화 삭제"><AppIcon name="trash" :size="14" /></button>
+                </div>
               </div>
                 </template>
               </div>
@@ -374,7 +384,14 @@
             <span class="font-bold text-ink">{{ msgPartner.name }}</span>
             <span v-if="msgPartnerInfo?.is_friend" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ msgPartnerInfo.source ? msgSourceLabel(msgPartnerInfo.source) : '친구' }}</span>
             <span v-else class="text-[11px] bg-gray-100 text-ink-muted px-1.5 py-0.5 rounded-full">모르는 사람</span>
-            <span class="text-xs text-ink-faint ml-auto">{{ thread.length }}개의 쪽지</span>
+            <span class="text-xs text-ink-faint ml-auto hidden sm:inline">{{ thread.length }}개의 쪽지</span>
+            <template v-if="msgPartnerInfo">
+              <button v-if="!msgPartnerInfo.is_friend && msgPartnerInfo.friend_status === 'none' && !msgPartnerInfo.blocked" @click="addFriendFromMsg(msgPartnerInfo)" class="text-xs bg-amber-50 text-amber-700 font-bold px-2.5 py-1.5 rounded-lg hover:bg-amber-100">친구 추가</button>
+              <span v-else-if="msgPartnerInfo.friend_status === 'pending'" class="text-xs text-ink-faint">친구 요청 대기중</span>
+              <button v-if="!msgPartnerInfo.blocked" @click="blockFromMsg(msgPartnerInfo)" class="text-xs text-ink-muted hover:text-red-500 px-2 py-1.5 rounded-lg hover:bg-gray-100" title="이 사람 차단">차단</button>
+              <span v-else class="text-xs text-red-400">차단됨</span>
+              <button @click="deleteThread(msgPartnerInfo.partner)" class="text-xs text-ink-muted hover:text-red-500 px-2 py-1.5 rounded-lg hover:bg-gray-100 inline-flex items-center gap-1" title="이 대화 전체 삭제"><AppIcon name="trash" :size="13" /> 대화 삭제</button>
+            </template>
           </div>
           <div ref="threadBox" class="h-[28rem] overflow-y-auto bg-gray-50 rounded-xl p-3">
             <div v-if="!thread.length" class="text-center text-sm text-ink-faint py-10">아직 주고받은 쪽지가 없습니다</div>
@@ -1472,8 +1489,7 @@ async function loadMessages() {
   try {
     const { data } = await axios.get('/api/messages/threads')
     threads.value = data.data || []; msgUnread.value = data.unread_count || 0
-    if (strangerUnread.value && !showStrangers.value && !msgPartner.value) showStrangers.value = false
-  } catch {}
+      } catch {}
   if (msgPartner.value) await loadThread(true)
 }
 function scrollThreadBottom() { nextTick(() => { if (threadBox.value) threadBox.value.scrollTop = threadBox.value.scrollHeight }) }
@@ -1506,8 +1522,32 @@ async function sendMsg() {
   } catch (e) { showAlert(e.response?.data?.message || '전송 실패', '오류') }
   msgSending.value = false
 }
+async function deleteThread(partner) {
+  if (!confirm((partner.name || '이 사람') + '님과의 대화를 모두 삭제하시겠습니까?\n내 쪽지함에서만 지워지고, 상대방 쪽지함에는 그대로 남습니다.')) return
+  try {
+    const { data } = await axios.delete('/api/messages/thread/' + partner.id)
+    threads.value = threads.value.filter(t => t.partner.id !== partner.id)
+    if (msgPartner.value && msgPartner.value.id === partner.id) { msgPartner.value = null; thread.value = [] }
+    msgUnread.value = data.unread_count ?? msgUnread.value
+  } catch (e) { showAlert(e.response?.data?.message || '삭제 실패', '오류') }
+}
+async function addFriendFromMsg(t) {
+  try {
+    const { data } = await axios.post('/api/friends/request/' + t.partner.id)
+    showAlert(data.auto_accepted ? '서로 친구가 되었습니다!' : '친구 요청을 보냈습니다', '완료')
+    await loadMessages()
+  } catch (e) { showAlert(e.response?.data?.message || '친구 요청 실패', '오류') }
+}
+async function blockFromMsg(t) {
+  if (!confirm((t.partner.name || '이 사람') + '님을 차단하시겠습니까?\n차단하면 서로 쪽지·채팅·통화를 할 수 없어요.')) return
+  try {
+    await axios.post('/api/friends/block/' + t.partner.id)
+    showAlert('차단했습니다', '완료')
+    await loadMessages()
+  } catch (e) { showAlert(e.response?.data?.message || '차단 실패', '오류') }
+}
 async function deleteMsg(m) {
-  if (!confirm('이 쪽지를 삭제하시겠습니까? (상대방 쪽지함에서도 사라집니다)')) return
+  if (!confirm('이 쪽지를 삭제하시겠습니까? (내 쪽지함에서만 지워지고 상대방에게는 남습니다)')) return
   try { await axios.delete('/api/messages/' + m.id); thread.value = thread.value.filter(x => x.id !== m.id) } catch {}
 }
 const _msgDay = (dt) => { const d = new Date(dt); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() }
