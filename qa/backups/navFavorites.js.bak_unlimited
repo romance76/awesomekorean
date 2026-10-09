@@ -31,7 +31,7 @@ const ALL_MENUS = [
 
 const DEFAULT_KEYS = ['home', 'community', 'games', 'chat', 'dashboard']
 const STORAGE_KEY = 'sk_nav_favorites'
-const MAX_FAVORITES = ALL_MENUS.length // 사실상 제한 없음 (모든 메뉴를 하단바에 추가 가능)
+const MAX_FAVORITES = 8
 
 export const useNavFavoritesStore = defineStore('navFavorites', () => {
   const favoriteKeys = ref(loadFromStorage())

@@ -132,8 +132,8 @@
         <div v-if="mobileMenu" class="fixed inset-0 bg-black/40 z-[999]" @click="mobileMenu=false"></div>
       </Transition>
       <Transition name="menu-slide">
-        <div v-if="mobileMenu" class="fixed top-0 left-0 bottom-0 bg-white z-[1000] shadow-2xl overflow-y-auto"
-             style="width: 50vw; min-width: 176px; max-width: 300px; padding-top: var(--sat); padding-bottom: var(--sab)">
+        <div v-if="mobileMenu" class="fixed top-0 left-0 bottom-0 w-[85vw] max-w-sm bg-white z-[1000] shadow-2xl overflow-y-auto"
+             style="padding-top: var(--sat); padding-bottom: var(--sab)">
           <!-- 헤더 -->
           <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
             <span class="text-sm font-bold text-ink">전체 메뉴</span>
@@ -147,7 +147,7 @@
               <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
                 <AppIcon name="search" :size="16" />
               </button>
-              <input v-model="searchQ" type="text" placeholder="검색"
+              <input v-model="searchQ" type="text" placeholder="궁금한 것을 검색해 보세요"
                 class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 transition-all" />
             </form>
           </div>
@@ -177,7 +177,7 @@
           </div>
           <!-- 즐겨찾기 안내 -->
           <div class="px-4 py-2.5 border-t border-gray-50 text-[11px] text-ink-faint flex items-center gap-1">
-            <AppIcon name="star" :size="12" /> 눌러서 하단 메뉴에 추가/제거
+            <AppIcon name="star" :size="12" /> 눌러서 하단 메뉴에 추가/제거 (최대 {{ navFavStore.MAX_FAVORITES }}개)
           </div>
         </div>
       </Transition>
