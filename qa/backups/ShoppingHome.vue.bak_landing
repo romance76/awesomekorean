@@ -12,7 +12,7 @@
         <button type="submit" class="btn-primary text-xs px-3 py-1.5">검색</button>
       </form>
     </div>
-    <div class="lg:hidden mb-3"><button @click="goWrite" class="w-full btn-primary py-2 text-sm font-bold">내 리뷰 쓰기</button></div>
+    <div class="lg:hidden mb-3"><button @click="goWrite" class="w-full btn-primary py-2 text-sm font-bold">✍️ 내 리뷰 쓰기</button></div>
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -25,41 +25,9 @@
           <input v-model="search" type="text" placeholder="상품 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
-        <button @click="goWrite" class="btn-primary px-3 py-1.5 text-xs font-bold">내 리뷰 쓰기</button>
+        <button @click="goWrite" class="btn-primary px-3 py-1.5 text-xs font-bold">✍️ 내 리뷰 쓰기</button>
       </div>
     </div>
-
-    <!-- 내돈내산 소개 히어로 (검색/필터 중에는 숨김) -->
-    <section v-if="showHero" class="card overflow-hidden mb-4">
-      <div class="grid lg:grid-cols-2">
-        <div class="p-6 lg:p-9 flex flex-col justify-center">
-          <span class="text-xs font-bold tracking-wide" style="color:#F0266B">진짜 후기, 진짜 이야기</span>
-          <h2 class="text-2xl lg:text-4xl font-black text-ink leading-tight mt-2" style="letter-spacing:-0.03em">
-            내가 산 물건,<br>내가 쓴 후기.<br><span style="color:#F0266B">후기가 용돈이 된다면?</span>
-          </h2>
-          <p class="text-sm lg:text-base text-ink-light leading-relaxed mt-3">
-            미국 생활에서 직접 써본 아마존 아이템을 한국어로 소개해 보세요. 이웃에게는 믿을 만한 쇼핑 정보가, 작성자에게는 새로운 기회가 됩니다.
-          </p>
-          <div class="flex flex-wrap gap-2 mt-5">
-            <button @click="goWrite" class="btn-primary px-5 py-2.5 text-sm font-bold inline-flex items-center gap-1.5"><AppIcon name="edit" :size="15" />내 후기 남기기</button>
-            <button @click="scrollToList" class="px-5 py-2.5 rounded-full text-sm font-bold border border-gray-200 bg-white text-ink hover:border-gray-300 inline-flex items-center gap-1.5">인기 후기 구경하기<AppIcon name="arrow-right" :size="14" /></button>
-          </div>
-          <p class="text-[11px] text-ink-faint mt-3">* 제휴 수익은 Amazon Associates 자격 및 적용 약관에 따라 달라집니다.</p>
-        </div>
-        <div class="p-4 lg:p-6 bg-amber-50/60 grid grid-cols-2 gap-3 content-center">
-          <template v-if="heroProducts.length">
-            <RouterLink v-for="p in heroProducts" :key="p.id" :to="`/shopping/${p.id}`" class="rounded-2xl overflow-hidden bg-white border border-gray-100 block">
-              <div class="aspect-square bg-white flex items-center justify-center overflow-hidden"><img :src="p.image_url" :alt="p.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" /></div>
-              <div class="px-2.5 py-2 text-xs font-semibold text-ink line-clamp-1">{{ p.title }}</div>
-            </RouterLink>
-          </template>
-          <div v-else class="col-span-2 rounded-2xl bg-white border border-gray-100 p-8 text-center text-ink-muted">
-            <div class="icon-chip w-12 h-12 bg-amber-50 text-amber-600 mx-auto mb-2"><AppIcon name="shopping-bag" :size="24" /></div>
-            <p class="text-sm font-bold text-ink">첫 번째 후기의 주인공이 되어 보세요</p>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 카테고리 -->
@@ -88,7 +56,6 @@
           <span v-if="!category" class="text-xs text-ink-muted ml-2">Awesome Korean이 고른 Amazon 추천 상품을 볼 수 있습니다</span>
         </div>
 
-        <div id="review-list" class="scroll-mt-24"></div>
         <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
         <div v-else-if="!products.length" class="py-16 text-center">
           <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="shopping-bag" :size="28" :stroke-width="1.5" /></div>
@@ -97,7 +64,7 @@
         <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <RouterLink v-for="product in products" :key="product.id" :to="`/shopping/${product.id}`" class="card card-hover overflow-hidden cursor-pointer block">
             <div class="w-full h-48 bg-white border-b border-gray-50 overflow-hidden flex items-center justify-center text-gray-300 relative">
-              <span v-if="product.is_hot" class="absolute top-1.5 left-1.5 bg-rose-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black z-10 shadow inline-flex items-center gap-0.5"><AppIcon name="flame" :size="10" />이번주 HOT</span>
+              <span v-if="product.is_hot" class="absolute top-1.5 left-1.5 bg-rose-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black z-10 shadow">🔥 이번주 HOT</span>
               <span v-else-if="product.is_featured" class="absolute top-1.5 left-1.5 badge-red !text-[10px] font-bold z-10">추천</span>
               <img v-if="product.image_url" :src="product.image_url" :alt="product.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" />
               <AppIcon v-else name="shopping-bag" :size="28" :stroke-width="1.5" />
@@ -107,23 +74,12 @@
               <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug mt-1">{{ product.title }}</div>
               <div v-if="product.rating" class="text-amber-400 text-xs mt-1">{{ '★'.repeat(product.rating) }}<span class="text-gray-300">{{ '★'.repeat(5 - product.rating) }}</span></div>
               <p v-if="product.our_description" class="text-xs text-ink-muted line-clamp-2 mt-1">{{ plain(product.our_description) }}</p>
-              <div v-if="product.author" class="text-[11px] text-ink-faint mt-1.5 truncate">by {{ product.author.name }} · 조회 {{ product.view_count || 0 }}<span v-if="product.comment_count"> · 댓글 {{ product.comment_count }}</span></div>
+              <div v-if="product.author" class="text-[11px] text-ink-faint mt-1.5 truncate">✍️ {{ product.author.name }} · 👁 {{ product.view_count || 0 }}<span v-if="product.comment_count"> · 💬 {{ product.comment_count }}</span></div>
             </div>
           </RouterLink>
         </div>
 
         <Pagination :page="page" :lastPage="lastPage" @page="load" />
-
-        <!-- 우리끼리 공유해서 더 좋은 이유 -->
-        <section v-if="showHero" class="mt-8">
-          <h3 class="text-lg font-bold text-ink">우리끼리 공유해서 더 좋은 이유</h3>
-          <p class="text-xs text-ink-muted mt-0.5 mb-3">미국에서 생활하는 한국인의 시선으로</p>
-          <div class="grid sm:grid-cols-3 gap-3">
-            <div class="card p-4"><div class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 mb-2"><AppIcon name="heart-handshake" :size="18" /></div><div class="font-bold text-sm text-ink">한국 생활 방식에 맞는 후기</div><p class="text-xs text-ink-light leading-relaxed mt-1">한국 요리에 써봤어요, 아이 키우는 집에 좋아요 등 우리에게 중요한 정보를 모아요.</p></div>
-            <div class="card p-4"><div class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 mb-2"><AppIcon name="coins" :size="18" /></div><div class="font-bold text-sm text-ink">후기가 수익 기회로</div><p class="text-xs text-ink-light leading-relaxed mt-1">자격을 갖춘 작성자는 자신의 제휴 링크를 활용할 수 있어요. 적용 조건과 수익 표시를 명확히 안내합니다.</p></div>
-            <div class="card p-4"><div class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 mb-2"><AppIcon name="gift" :size="18" /></div><div class="font-bold text-sm text-ink">포인트와 커뮤니티 혜택</div><p class="text-xs text-ink-light leading-relaxed mt-1">참여형 이벤트와 배지를 통해 즐겁게 후기를 나누세요. 실제 보상 정책은 운영 기준에 따라 결정됩니다.</p></div>
-          </div>
-        </section>
 
         <!-- 제휴(Amazon Associates) 안내는 페이지 맨 아래에 -->
         <AffiliateDisclosure class="mt-6" />
@@ -155,14 +111,10 @@ const search = ref('')
 const category = ref('')
 const chip = ref('all')
 const chips = [
-  { key: 'all', label: '전체' }, { key: 'hot', label: '이번주 HOT' },
+  { key: 'all', label: '전체' }, { key: 'hot', label: '🔥 이번주 HOT' },
   { key: 'member', label: '회원 리뷰' }, { key: 'official', label: 'Awesome Korean 추천' },
 ]
 function goWrite() { router.push('/shopping/write') }
-// 소개 히어로는 필터/검색 없이 첫 페이지를 볼 때만 표시
-const showHero = computed(() => !search.value && !category.value && chip.value === 'all' && page.value === 1)
-const heroProducts = computed(() => products.value.filter(p => p.image_url).slice(0, 4))
-function scrollToList() { document.getElementById('review-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
 const categories = [
   '인기상품', '오늘의 딜', '주방용품', '한국요리 관련 제품', '식품', '생활용품',
   '가전/전자제품', '육아/교육', 'Beauty/K-Beauty', 'Home', '계절상품', '선물', 'Awesome Korean 추천',

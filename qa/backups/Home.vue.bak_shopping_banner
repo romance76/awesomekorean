@@ -188,24 +188,6 @@
     <MobileBanner page="home" class="mb-1" />
   </div>
 
-  <!-- ═════ 2-R. 내돈내산 리뷰 홍보 (후기가 용돈이 된다면?) ═════ -->
-  <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9">
-    <div class="card overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_1.5fr]">
-      <div class="p-5 lg:p-7 flex flex-col justify-center">
-        <span class="text-xs font-bold" style="color:#F0266B">내돈내산 리뷰</span>
-        <h2 class="text-xl lg:text-2xl font-black text-ink leading-snug mt-1" style="letter-spacing:-0.03em">내가 쓴 후기,<br>용돈이 된다면?</h2>
-        <p class="text-sm text-ink-light mt-2 leading-relaxed">미국 생활에서 직접 써본 아마존 아이템을 이웃과 나눠 보세요.</p>
-        <RouterLink to="/shopping" class="btn-primary self-start mt-4 px-5 py-2.5 text-sm font-bold inline-flex items-center gap-1.5">후기 보러 가기<AppIcon name="arrow-right" :size="14" /></RouterLink>
-      </div>
-      <div v-if="reviewPicks.length" class="p-3 lg:p-5 bg-amber-50/60 grid grid-cols-2 sm:grid-cols-4 gap-2.5 content-center">
-        <RouterLink v-for="p in reviewPicks" :key="p.id" :to="`/shopping/${p.id}`" class="rounded-xl overflow-hidden bg-white border border-gray-100 block">
-          <div class="aspect-square bg-white flex items-center justify-center overflow-hidden"><img :src="p.image_url" :alt="p.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" /></div>
-          <div class="px-2 py-1.5 text-[11px] font-semibold text-ink line-clamp-1">{{ p.title }}</div>
-        </RouterLink>
-      </div>
-    </div>
-  </section>
-
   <!-- ═════ 3. 오늘의 커뮤니티 (에디토리얼) + 인기 게시판 ═════ -->
   <section class="max-w-7xl mx-auto px-4 lg:px-6 pt-7 lg:pt-9 grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-6">
     <div>
@@ -576,24 +558,8 @@ async function loadWeather() {
   } catch {}
 }
 
-// 내돈내산 리뷰 홍보 섹션: 이번 주 인기 후기 4개 (없으면 최신 후기)
-const reviewPicks = ref([])
-async function loadReviewPicks() {
-  try {
-    let { data } = await axios.get('/api/shopping', { params: { sort: 'hot' } })
-    let list = (data?.data?.data || data?.data || []).filter(p => p.image_url)
-    if (list.length < 4) {
-      const r = await axios.get('/api/shopping', { params: { sort: 'latest' } })
-      const more = (r.data?.data?.data || r.data?.data || []).filter(p => p.image_url && !list.some(x => x.id === p.id))
-      list = [...list, ...more]
-    }
-    reviewPicks.value = list.slice(0, 4)
-  } catch {}
-}
-
 onMounted(async () => {
   tickerRaf = requestAnimationFrame(tickerFrame)
-  loadReviewPicks()
   loadWeather()
   loadMarketQuotes()
   loadLive(); loadTicker()
