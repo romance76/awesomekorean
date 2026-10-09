@@ -7,12 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 class FetchYoutubeShorts extends Command
 {
-    protected $signature = 'shorts:fetch {--limit=500} {--korean-ratio=100} {--max-searches=0}';
-
-    // search.list 1회 = 쿼터 100. 실행당 검색 횟수 상한 + 403/429 즉시 중단 (music:fetch 와 쿼터 공유)
-    private $searchBudget = 0;
-    private $searchesUsed = 0;
-    private $quotaHit = false;
+    protected $signature = 'shorts:fetch {--limit=500} {--korean-ratio=100}';
     protected $description = '숏츠 자동 수집 (매일 500개, 한국 100%, 세로형만, 14일 이내 신규, 30일 롤링)';
 
     // 한국 검색어
@@ -38,7 +33,6 @@ class FetchYoutubeShorts extends Command
     public function handle()
     {
         $dailyLimit = (int) $this->option('limit');
-        $this->searchBudget = (int) $this->option('max-searches');
         // 관리자 페이지("숏츠 관리 → 설정 → 한국 콘텐츠 비율")에 저장된 값이
         // 있으면 그걸 최우선으로 씀 — 전엔 이 커맨드가 그 설정을 전혀 읽지
         // 않고 호출하는 쪽(스케줄/수동 버튼/전체 수집)마다 제각각 다른 값을
@@ -128,11 +122,6 @@ class FetchYoutubeShorts extends Command
 
         foreach ($queries as $query) {
             if ($added >= $limit) break;
-            if ($this->quotaHit || ($this->searchBudget > 0 && $this->searchesUsed >= $this->searchBudget)) {
-                $this->info("⏹ 검색 {$this->searchesUsed}회 사용 — 이번 실행 종료");
-                break;
-            }
-            $this->searchesUsed++;
 
             try {
                 $response = Http::timeout(10)->get('https://www.googleapis.com/youtube/v3/search', [
@@ -148,7 +137,7 @@ class FetchYoutubeShorts extends Command
                 ]);
 
                 if (!$response->ok()) {
-                    if (in_array($response->status(), [403, 429])) { $this->quotaHit = true; $this->error('API 할당량 초과! (' . $response->status() . ') — 다음 실행에서 이어서 수집'); break; }
+                    if ($response->status() === 403) { $this->error('API 할당량 초과!'); break; }
                     continue;
                 }
 
