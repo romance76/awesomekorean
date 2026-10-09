@@ -62,7 +62,9 @@
             <!-- 룸메이트 -->
             <template v-else-if="form.type==='roommate'">
               <optgroup label="룸메이트">
+                <option value="shared_room">쉐어 룸</option>
                 <option value="private_room">개인 룸</option>
+                <option value="master_room">마스터 룸</option>
                 <option value="minbak">민박</option>
                 <option value="etc_room">기타</option>
               </optgroup>

@@ -13,13 +13,13 @@ class MusicController extends Controller
 
     public function tracks(Request $request, $categoryId)
     {
-        // 유저에게 노출되는 트랙은 2분 30초(150s) 이상 5분(300s) 이하여야 하며,
-        // duration=0(라이브/믹스)과 150초 미만(숏츠/클립)은 표시 안 함(삭제는 하지 않고 숨김). 유저 업로드는 예외.
+        // 유저에게 노출되는 트랙은 반드시 5분 이하(300s)여야 하며,
+        // duration=0(라이브/믹스)은 표시 안 함. 유저 업로드는 예외.
         $query = MusicTrack::where('category_id', $categoryId)
             ->where(function ($q) {
                 $q->where('is_user_submitted', true)
                   ->orWhere(function ($q2) {
-                      $q2->where('duration', '>=', 150)->where('duration', '<=', 300);
+                      $q2->where('duration', '>', 0)->where('duration', '<=', 300);
                   });
             })
             ->inRandomOrder();
@@ -93,9 +93,8 @@ class MusicController extends Controller
     {
         $q = $request->q;
         if (!$q) return response()->json(['success' => true, 'data' => []]);
-        $tracks = MusicTrack::where(fn ($w) => $w->where('title', 'like', "%{$q}%")->orWhere('artist', 'like', "%{$q}%"))
-            // 목록과 같은 기준: 유저 업로드가 아니면 2분 30초 이상 5분 이하만
-            ->where(fn ($w) => $w->where('is_user_submitted', true)->orWhere(fn ($w2) => $w2->where('duration', '>=', 150)->where('duration', '<=', 300)))
+        $tracks = MusicTrack::where('title', 'like', "%{$q}%")
+            ->orWhere('artist', 'like', "%{$q}%")
             ->limit(50)->get();
         return response()->json(['success' => true, 'data' => $tracks]);
     }
@@ -333,7 +332,7 @@ class MusicController extends Controller
         $added = 0; $skipped = 0; $skipReasons = [];
         foreach (array_chunk($videoIds, 50) as $chunk) {
             $res = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/videos', [
-                'key' => $apiKey, 'id' => implode(',', $chunk), 'part' => 'snippet,contentDetails,status',
+                'key' => $apiKey, 'id' => implode(',', $chunk), 'part' => 'snippet,contentDetails',
             ]);
             if (!$res->ok()) continue;
 
@@ -352,10 +351,8 @@ class MusicController extends Controller
                 if ($seconds <= 0) { $skipped++; $skipReasons[] = '라이브/길이불명'; continue; }
                 // 5분 초과 차단
                 if ($seconds > 300) { $skipped++; $skipReasons[] = '5분초과'; continue; }
-                // 너무 짧음 (2분 30초 미만 = 숏츠/클립)
-                if ($seconds < 150) { $skipped++; $skipReasons[] = '2분30초미만'; continue; }
-                // 다른 사이트에서 재생할 수 없는 영상(임베드 금지)·비공개
-                if (($v['status']['embeddable'] ?? true) === false || ($v['status']['privacyStatus'] ?? 'public') !== 'public') { $skipped++; $skipReasons[] = '재생불가(임베드금지)'; continue; }
+                // 너무 짧음 (10초 미만)
+                if ($seconds < 10) { $skipped++; $skipReasons[] = '10초미만'; continue; }
                 if (mb_strlen($title) < 2) { $skipped++; continue; }
 
                 // 언어 필터

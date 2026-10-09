@@ -191,20 +191,18 @@ class FetchMusicTracks extends Command
             $items = $response->json('items', []);
             $videoIds = collect($items)->pluck('id.videoId')->filter()->implode(',');
 
-            // 영상 길이 + 재생 가능 여부 조회 (contentDetails, status)
+            // 영상 길이 조회 (contentDetails)
             $durations = [];
-            $blocked = []; // 다른 사이트에서 재생 불가(임베드 금지)·비공개 영상 → 저장하지 않음 (재생하면 "Video unavailable")
             if ($videoIds) {
                 $detailRes = Http::get('https://www.googleapis.com/youtube/v3/videos', [
                     'key' => $apiKey,
                     'id' => $videoIds,
-                    'part' => 'contentDetails,status',
+                    'part' => 'contentDetails',
                 ]);
                 if ($detailRes->ok()) {
                     foreach ($detailRes->json('items', []) as $v) {
                         $dur = $v['contentDetails']['duration'] ?? 'PT0S';
                         $durations[$v['id']] = $this->parseDuration($dur);
-                        if (($v['status']['embeddable'] ?? true) === false || ($v['status']['privacyStatus'] ?? 'public') !== 'public') $blocked[$v['id']] = true;
                     }
                 }
             }
@@ -223,7 +221,6 @@ class FetchMusicTracks extends Command
                 if ($seconds <= 0) continue;
                 // 2분30초(150초) 미만 제외 (숏츠/클립)
                 if ($seconds < 150) continue;
-                if (!empty($blocked[$videoId])) continue;
                 // 5분(300초) 초과 제외 (메들리/라이브)
                 if ($seconds > 300) continue;
 
@@ -290,15 +287,13 @@ class FetchMusicTracks extends Command
                         // fallback 블록도 duration 조회 및 언어 필터 적용
                         $fallbackIds = collect($response2->json('items', []))->pluck('id.videoId')->filter()->implode(',');
                         $fbDurations = [];
-                        $fbBlocked = [];
                         if ($fallbackIds) {
                             $fbDetail = Http::get('https://www.googleapis.com/youtube/v3/videos', [
-                                'key' => $apiKey, 'id' => $fallbackIds, 'part' => 'contentDetails,status',
+                                'key' => $apiKey, 'id' => $fallbackIds, 'part' => 'contentDetails',
                             ]);
                             if ($fbDetail->ok()) {
                                 foreach ($fbDetail->json('items', []) as $v) {
                                     $fbDurations[$v['id']] = $this->parseDuration($v['contentDetails']['duration'] ?? 'PT0S');
-                                    if (($v['status']['embeddable'] ?? true) === false || ($v['status']['privacyStatus'] ?? 'public') !== 'public') $fbBlocked[$v['id']] = true;
                                 }
                             }
                         }
@@ -311,9 +306,8 @@ class FetchMusicTracks extends Command
                             $c = $item2['snippet']['channelTitle'] ?? '';
                             $sec2 = $fbDurations[$vid] ?? 0;
 
-                            // duration 필수 + 2분30초(150초) 이상 5분 이하 (예전엔 10초 이상이라 짧은 곡이 들어왔음)
-                            if ($sec2 <= 0 || $sec2 > 300 || $sec2 < 150) continue;
-                            if (!empty($fbBlocked[$vid])) continue;
+                            // duration 필수 + 5분 이하 + 10초 이상
+                            if ($sec2 <= 0 || $sec2 > 300 || $sec2 < 10) continue;
                             if (mb_strlen($t) < 3 || preg_match('/live stream|라이브|24\/7/i', $t)) continue;
 
                             // 언어 필터
@@ -368,7 +362,7 @@ class FetchMusicTracks extends Command
             $durations = [];
             foreach (array_chunk($videoIds, 50) as $chunk) {
                 $detailRes = \Illuminate\Support\Facades\Http::get('https://www.googleapis.com/youtube/v3/videos', [
-                    'key' => $apiKey, 'id' => implode(',', $chunk), 'part' => 'snippet,contentDetails,status',
+                    'key' => $apiKey, 'id' => implode(',', $chunk), 'part' => 'snippet,contentDetails',
                 ]);
                 if (!$detailRes->ok()) continue;
 
@@ -383,7 +377,6 @@ class FetchMusicTracks extends Command
                     $seconds = $this->parseDuration($v['contentDetails']['duration'] ?? 'PT0S');
 
                     if ($seconds < 150 || $seconds > 300) continue;
-                    if (($v['status']['embeddable'] ?? true) === false || ($v['status']['privacyStatus'] ?? 'public') !== 'public') continue;
                     if (MusicTrack::where('youtube_id', $videoId)->exists()) continue;
                     if (mb_strlen($title) < 3) continue;
                     if (preg_match('/live stream|라이브 방송|24\/7|radio|playlist|모음|메들리/i', $title)) continue;
