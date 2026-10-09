@@ -281,61 +281,63 @@
       </div>
     </div>
 
-    <!-- ═══ 쪽지 탭 ═══ -->
+    <!-- ═══ 쪽지 탭: 상대방별 대화(채팅처럼 이어서 보기) ═══ -->
     <div v-else-if="tab==='messages'" class="space-y-4">
       <div class="card p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="mail" :size="15" /></span>쪽지함</h2>
-          <span v-if="msgUnread" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ msgUnread }}</span>
-        </div>
-        <div class="flex gap-1 mb-3 bg-gray-100 rounded-xl p-1">
-          <button @click="msgTab='received'; loadMessages()" class="flex-1 flex items-center justify-center gap-1 text-xs py-1.5 rounded-lg transition" :class="msgTab==='received'?'bg-white text-ink font-semibold shadow-sm':'text-ink-muted'"><AppIcon name="download" :size="12" /> 받은 쪽지</button>
-          <button @click="msgTab='sent'; loadMessages()" class="flex-1 flex items-center justify-center gap-1 text-xs py-1.5 rounded-lg transition" :class="msgTab==='sent'?'bg-white text-ink font-semibold shadow-sm':'text-ink-muted'"><AppIcon name="send" :size="12" /> 보낸 쪽지</button>
-        </div>
-        <div v-if="!msgList.length" class="text-sm text-ink-faint py-6 text-center">{{ msgTab==='received'?'받은 쪽지가 없습니다':'보낸 쪽지가 없습니다' }}</div>
-        <div v-else class="space-y-0 max-h-96 overflow-y-auto divide-y divide-gray-50">
-          <div v-for="m in msgList" :key="m.id" @click="openMsg(m)" class="flex items-center gap-2 px-3 py-2.5 cursor-pointer hover:bg-amber-50/50 transition-colors" :class="msgTab==='received'&&!m.is_read?'bg-amber-50':''">
-            <span v-if="msgTab==='received'&&!m.is_read" class="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></span>
-            <div class="w-7 h-7 bg-amber-100 rounded-full flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0">{{ ((msgTab==='received'?m.sender?.name:m.receiver?.name)||'?')[0] }}</div>
-            <div class="min-w-0 flex-1">
-              <div class="text-xs font-bold text-ink truncate">{{ msgTab==='received'?m.sender?.name:m.receiver?.name }}</div>
-              <div class="text-[11px] text-ink-muted truncate">{{ m.content }}</div>
-            </div>
-            <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(m.created_at) }}</span>
-            <button @click.stop="deleteMsg(m)" class="text-red-400 hover:text-red-600 flex-shrink-0 ml-1 transition-colors"><AppIcon name="x" :size="13" /></button>
+        <!-- 대화 목록 -->
+        <template v-if="!msgPartner">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="mail" :size="15" /></span>쪽지함</h2>
+            <span v-if="msgUnread" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ msgUnread }}</span>
           </div>
-        </div>
-      </div>
-      <div v-if="activeMsg" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="activeMsg=null">
-        <div class="bg-white rounded-2xl shadow-lift w-full max-w-md overflow-hidden">
-          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span class="text-sm font-bold text-ink flex items-center gap-2"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="mail" :size="14" /></span>{{ msgTab==='received'?activeMsg.sender?.name:activeMsg.receiver?.name }}</span>
-            <button @click="activeMsg=null" class="text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
-          </div>
-          <div class="p-5">
-            <div class="text-sm text-ink-light whitespace-pre-wrap leading-relaxed mb-4">{{ activeMsg.content }}</div>
-            <div class="text-xs text-ink-faint mb-3">{{ fmtDate(activeMsg.created_at) }}</div>
-            <div v-if="msgTab==='received'" class="flex gap-2">
-              <button @click="replyMsg(activeMsg)" class="btn-primary flex-1"><AppIcon name="send" :size="14" /> 답장</button>
-              <button @click="activeMsg=null" class="btn-ghost px-4">닫기</button>
+          <p class="text-[11px] text-ink-faint mb-2">주고받은 쪽지가 사람별로 묶여 있어요. 누르면 그 사람과의 대화가 날짜순으로 이어서 보입니다.</p>
+          <div v-if="!threads.length" class="text-sm text-ink-faint py-8 text-center">주고받은 쪽지가 없습니다</div>
+          <div v-else class="max-h-[32rem] overflow-y-auto divide-y divide-gray-50">
+            <div v-for="t in threads" :key="t.partner.id" @click="openThread(t.partner)"
+              class="flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-amber-50/50 transition-colors" :class="t.unread ? 'bg-amber-50' : ''">
+              <div class="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center text-sm font-bold text-amber-700 flex-shrink-0">{{ (t.partner.name || '?')[0] }}</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold text-ink truncate">{{ t.partner.name }}</span>
+                  <span v-if="t.unread" class="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full leading-4">{{ t.unread }}</span>
+                </div>
+                <div class="text-xs text-ink-muted truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+              </div>
+              <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(t.last_at) }}</span>
             </div>
           </div>
-        </div>
-      </div>
-      <div v-if="replyTarget" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="replyTarget=null">
-        <div class="bg-white rounded-2xl shadow-lift w-full max-w-md overflow-hidden">
-          <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span class="text-sm font-bold text-ink flex items-center gap-2"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="send" :size="14" /></span>{{ replyTarget.name }}님에게 답장</span>
-            <button @click="replyTarget=null" class="text-ink-faint hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
+        </template>
+
+        <!-- 한 사람과의 대화 -->
+        <template v-else>
+          <div class="flex items-center gap-2 mb-3">
+            <button @click="closeThread" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-ink-muted" title="목록으로"><AppIcon name="arrow-left" :size="16" /></button>
+            <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700">{{ (msgPartner.name || '?')[0] }}</div>
+            <span class="font-bold text-ink">{{ msgPartner.name }}</span>
+            <span class="text-xs text-ink-faint ml-auto">{{ thread.length }}개의 쪽지</span>
           </div>
-          <div class="p-5">
-            <textarea v-model="replyText" rows="5" maxlength="500" placeholder="내용을 입력하세요..." class="input-soft"></textarea>
-            <div class="flex justify-between items-center mt-3">
-              <span class="text-xs text-ink-faint">{{ replyText.length }}/500</span>
-              <button @click="sendReply" :disabled="replySending||!replyText.trim()" class="btn-primary">{{ replySending?'전송중...':'보내기' }}</button>
-            </div>
+          <div ref="threadBox" class="h-[28rem] overflow-y-auto bg-gray-50 rounded-xl p-3">
+            <div v-if="!thread.length" class="text-center text-sm text-ink-faint py-10">아직 주고받은 쪽지가 없습니다</div>
+            <template v-for="(m, i) in thread" :key="m.id">
+              <div v-if="isNewDay(i)" class="flex justify-center my-3"><span class="text-[11px] text-ink-muted bg-white border border-gray-100 rounded-full px-3 py-0.5">{{ dayLabel(m.created_at) }}</span></div>
+              <div class="flex items-end gap-1.5 mb-1.5 group" :class="m.sender_id === auth.user?.id ? 'justify-end' : 'justify-start'">
+                <template v-if="m.sender_id === auth.user?.id">
+                  <button @click="deleteMsg(m)" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" title="삭제"><AppIcon name="trash" :size="13" /></button>
+                  <span class="text-[10px] text-ink-faint">{{ timeLabel(m.created_at) }}</span>
+                  <div class="max-w-[70%] bg-amber-400 text-white text-sm rounded-2xl rounded-br-sm px-3 py-2 whitespace-pre-wrap break-words">{{ m.content }}</div>
+                </template>
+                <template v-else>
+                  <div class="max-w-[70%] bg-white border border-gray-100 text-ink text-sm rounded-2xl rounded-bl-sm px-3 py-2 whitespace-pre-wrap break-words">{{ m.content }}</div>
+                  <span class="text-[10px] text-ink-faint">{{ timeLabel(m.created_at) }}</span>
+                </template>
+              </div>
+            </template>
           </div>
-        </div>
+          <div class="flex items-end gap-2 mt-3">
+            <textarea v-model="msgInput" rows="2" maxlength="500" placeholder="쪽지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1" @keydown.enter="onMsgEnter"></textarea>
+            <button @click="sendMsg" :disabled="msgSending || !msgInput.trim()" class="btn-primary"><AppIcon name="send" :size="14" /> 보내기</button>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -1039,7 +1041,7 @@
 
 <script setup>
 import PasswordInput from '../../components/PasswordInput.vue'
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
@@ -1394,27 +1396,59 @@ async function doEntryCheckin() {
   enChecking.value = false
 }
 
-// ─── 쪽지 ───
-const msgTab = ref('received'); const msgList = ref([]); const msgUnread = ref(0); const activeMsg = ref(null)
-const replyTarget = ref(null); const replyText = ref(''); const replySending = ref(false)
+// ─── 쪽지 (상대방별 대화) ───
+const threads = ref([]); const msgUnread = ref(0)
+const msgPartner = ref(null); const thread = ref([]); const threadBox = ref(null)
+const msgInput = ref(''); const msgSending = ref(false)
 async function loadMessages() {
-  try { const { data } = await axios.get('/api/messages', { params: { tab: msgTab.value } }); msgList.value = data.data?.data || data.data || []; msgUnread.value = data.unread_count || 0 } catch {}
+  try {
+    const { data } = await axios.get('/api/messages/threads')
+    threads.value = data.data || []; msgUnread.value = data.unread_count || 0
+  } catch {}
+  if (msgPartner.value) await loadThread(true)
 }
-async function openMsg(m) {
-  activeMsg.value = m
-  if (msgTab.value === 'received' && !m.is_read) { m.is_read = true; msgUnread.value = Math.max(0, msgUnread.value - 1); axios.post(`/api/messages/${m.id}/read`).catch(() => {}) }
+function scrollThreadBottom() { nextTick(() => { if (threadBox.value) threadBox.value.scrollTop = threadBox.value.scrollHeight }) }
+async function openThread(partner) {
+  msgPartner.value = partner; thread.value = []; msgInput.value = ''
+  await loadThread(false)
 }
-function replyMsg(m) { activeMsg.value = null; replyTarget.value = { id: m.sender_id || m.sender?.id, name: m.sender?.name }; replyText.value = '' }
-async function sendReply() {
-  if (!replyText.value.trim()) return; replySending.value = true
-  try { await axios.post('/api/messages', { receiver_id: replyTarget.value.id, content: replyText.value.trim() }); replyTarget.value = null; replyText.value = '' }
-  catch (e) { showAlert(e.response?.data?.message || '전송 실패', '오류') }
-  replySending.value = false
+async function loadThread(silent) {
+  if (!msgPartner.value) return
+  try {
+    const { data } = await axios.get('/api/messages/thread/' + msgPartner.value.id)
+    const prev = thread.value.length
+    thread.value = data.data || []
+    if (data.partner) msgPartner.value = { ...msgPartner.value, ...data.partner }
+    msgUnread.value = data.unread_count || 0
+    const t = threads.value.find(x => x.partner.id === msgPartner.value.id); if (t) t.unread = 0
+    if (!silent || thread.value.length > prev) scrollThreadBottom()
+  } catch {}
 }
-
+function closeThread() { msgPartner.value = null; loadMessages() }
+function onMsgEnter(e) { if (e.shiftKey || e.isComposing || e.keyCode === 229) return; e.preventDefault(); sendMsg() }
+async function sendMsg() {
+  const content = msgInput.value.trim()
+  if (!content || msgSending.value || !msgPartner.value) return
+  msgSending.value = true
+  try {
+    const { data } = await axios.post('/api/messages', { receiver_id: msgPartner.value.id, content })
+    thread.value.push(data.data || { id: Date.now(), sender_id: auth.user?.id, receiver_id: msgPartner.value.id, content, created_at: new Date().toISOString() })
+    msgInput.value = ''; scrollThreadBottom()
+  } catch (e) { showAlert(e.response?.data?.message || '전송 실패', '오류') }
+  msgSending.value = false
+}
 async function deleteMsg(m) {
-  try { await axios.delete(`/api/messages/${m.id}`); msgList.value = msgList.value.filter(x => x.id !== m.id) } catch {}
+  if (!confirm('이 쪽지를 삭제하시겠습니까? (상대방 쪽지함에서도 사라집니다)')) return
+  try { await axios.delete('/api/messages/' + m.id); thread.value = thread.value.filter(x => x.id !== m.id) } catch {}
 }
+const _msgDay = (dt) => { const d = new Date(dt); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() }
+function isNewDay(i) { return i === 0 || _msgDay(thread.value[i].created_at) !== _msgDay(thread.value[i - 1].created_at) }
+function dayLabel(dt) {
+  const d = new Date(dt); const w = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()]
+  const now = new Date(); if (_msgDay(dt) === _msgDay(now)) return '오늘'
+  return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + w + ')'
+}
+function timeLabel(dt) { const d = new Date(dt); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }
 
 // ─── 통화 내역 ───
 const callHistory = ref([])
@@ -1823,7 +1857,7 @@ onMounted(() => {
   loadProfile(); loaded.profile = true
   if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
-  msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 60000)
+  msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 15000)
 })
 onUnmounted(() => { if (msgPoll) clearInterval(msgPoll) })
 </script>

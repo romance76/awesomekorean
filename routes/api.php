@@ -418,6 +418,8 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/friends/{id}', [FriendController::class, 'remove']);
 
     Route::get('/messages', [MessageController::class, 'index']);
+    Route::get('/messages/threads', [MessageController::class, 'threads']);
+    Route::get('/messages/thread/{partnerId}', [MessageController::class, 'thread'])->whereNumber('partnerId');
     Route::post('/messages', [MessageController::class, 'store']);
     Route::post('/messages/{id}/read', [MessageController::class, 'markRead']);
     Route::delete('/messages/{id}', [MessageController::class, 'destroy']);

@@ -26,6 +26,67 @@ class MessageController extends Controller
         return response()->json(['success' => true, 'data' => $messages, 'unread_count' => $unread]);
     }
 
+    /**
+     * 상대방별 대화 목록 (채팅처럼 한 사람과 주고받은 쪽지를 묶어서 보여주기 위함).
+     * 받은/보낸 쪽지를 합쳐서 상대별 마지막 쪽지·안 읽은 수를 돌려준다.
+     */
+    public function threads() {
+        $me = (int) auth()->id();
+        $rows = \DB::table('messages')
+            ->selectRaw('CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS partner_id, MAX(id) AS last_id, SUM(CASE WHEN receiver_id = ? AND is_read = 0 THEN 1 ELSE 0 END) AS unread, COUNT(*) AS total', [$me, $me])
+            ->where(function ($q) use ($me) { $q->where('sender_id', $me)->orWhere('receiver_id', $me); })
+            ->groupBy('partner_id')
+            ->orderByDesc('last_id')
+            ->limit(200)
+            ->get();
+
+        $lasts = Message::whereIn('id', $rows->pluck('last_id'))->get()->keyBy('id');
+        $users = \App\Models\User::whereIn('id', $rows->pluck('partner_id'))->get(['id', 'name', 'nickname', 'avatar'])->keyBy('id');
+
+        $threads = $rows->map(function ($r) use ($lasts, $users, $me) {
+            $last = $lasts[$r->last_id] ?? null;
+            return [
+                'partner' => $users[$r->partner_id] ?? ['id' => (int) $r->partner_id, 'name' => '(탈퇴한 회원)'],
+                'last_content' => $last?->content,
+                'last_at' => $last?->created_at,
+                'last_mine' => $last ? ((int) $last->sender_id === $me) : false,
+                'unread' => (int) $r->unread,
+                'total' => (int) $r->total,
+            ];
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $threads,
+            'unread_count' => Message::where('receiver_id', $me)->where('is_read', false)->count(),
+        ]);
+    }
+
+    /** 한 사람과 주고받은 쪽지 전체(오래된 것 → 최신). 상대가 보낸 안 읽은 쪽지는 읽음 처리. */
+    public function thread($partnerId, Request $request) {
+        $me = (int) auth()->id();
+        $partnerId = (int) $partnerId;
+        $limit = max(1, min(300, (int) $request->input('limit', 200)));
+
+        $q = Message::where(function ($w) use ($me, $partnerId) {
+            $w->where(fn ($a) => $a->where('sender_id', $me)->where('receiver_id', $partnerId))
+              ->orWhere(fn ($b) => $b->where('sender_id', $partnerId)->where('receiver_id', $me));
+        });
+        if ($request->before_id) $q->where('id', '<', (int) $request->before_id);
+        $messages = $q->orderByDesc('id')->limit($limit)->get()->reverse()->values();
+
+        Message::where('sender_id', $partnerId)->where('receiver_id', $me)->where('is_read', false)->update(['is_read' => true]);
+
+        $partner = \App\Models\User::select('id', 'name', 'nickname', 'avatar')->find($partnerId);
+        return response()->json([
+            'success' => true,
+            'data' => $messages,
+            'partner' => $partner ?? ['id' => $partnerId, 'name' => '(탈퇴한 회원)'],
+            'has_more' => $messages->count() >= $limit,
+            'unread_count' => Message::where('receiver_id', $me)->where('is_read', false)->count(),
+        ]);
+    }
+
     public function store(Request $request) {
         $request->validate(['receiver_id' => 'required|exists:users,id', 'content' => 'required|max:500']);
 
