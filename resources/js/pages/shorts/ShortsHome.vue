@@ -1,82 +1,76 @@
 <template>
-<div ref="rootEl" class="fixed inset-0 bg-black flex flex-col select-none" :class="pseudoFs ? 'z-[2000]' : 'z-40'" style="height:100vh;height:100dvh;overscroll-behavior:contain">
-  <!-- 상단 바 -->
-  <div class="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3" style="padding-top:max(0.75rem, env(safe-area-inset-top))">
-    <RouterLink v-if="!isFs" to="/" class="text-white text-sm font-bold opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="15" />홈</RouterLink>
-    <span v-else class="w-10"></span>
-    <h1 class="text-white font-bold text-sm inline-flex items-center gap-1.5"><AppIcon name="video" :size="15" />숏츠</h1>
-    <div class="flex items-center gap-3">
-      <button @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="text-white opacity-90 hover:opacity-100 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-base leading-none">{{ isFs ? '✕' : '⛶' }}</button>
-      <RouterLink v-if="auth.isLoggedIn && !isFs" to="/shorts/upload" class="text-white text-sm opacity-80 hover:opacity-100 transition-opacity inline-flex items-center gap-1"><AppIcon name="plus" :size="14" />업로드</RouterLink>
-    </div>
-  </div>
+<div ref="rootEl" class="fixed left-0 right-0 bg-black select-none" :class="isFs ? 'z-[2000]' : 'z-40'" :style="rootStyle">
+  <div v-if="loading" class="absolute inset-0 flex items-center justify-center text-white">로딩중...</div>
+  <div v-else-if="!shorts.length" class="absolute inset-0 flex items-center justify-center text-white text-sm">숏츠가 없습니다</div>
+  <div v-else ref="areaEl" class="absolute inset-0 overflow-hidden flex items-center justify-center" style="overscroll-behavior:contain">
+    <!-- 프레임: 9:16 (또는 꽉 채우기) 로 보이는 영역. 컨트롤은 전부 이 안쪽 -->
+    <div data-frame class="relative overflow-hidden bg-black flex-shrink-0" :style="{ width: fw + 'px', height: fh + 'px', '--pb': isFs ? 'env(safe-area-inset-bottom, 0px)' : '0px', '--pt': isFs ? 'env(safe-area-inset-top, 0px)' : '0px' }">
+      <!-- 스테이지: 항상 정확히 9:16 (플레이어는 100% 로 꽉 채움 → 늘어나지 않음) -->
+      <div data-stage class="absolute bg-black" :style="{ width: sw + 'px', height: sh + 'px', left: ((fw - sw) / 2) + 'px', top: ((fh - sh) / 2) + 'px', pointerEvents: 'none' }">
+        <div ref="playerHost" class="w-full h-full"></div>
+      </div>
 
-  <!-- 메인 비디오 영역 -->
-  <div v-if="loading" class="flex-1 flex items-center justify-center text-white">로딩중...</div>
-  <div v-else-if="!shorts.length" class="flex-1 flex items-center justify-center text-white text-sm">숏츠가 없습니다</div>
-  <div v-else class="flex-1 relative overflow-hidden">
-    <!-- 현재 비디오: 플레이어 1개만 유지하고 영상만 교체 (iOS 사용자 제스처 유지) -->
-    <div class="w-full h-full flex items-center justify-center">
-      <div class="w-full max-w-md h-full max-h-[90vh] relative">
-        <div ref="playerHost" class="w-full h-full rounded-xl overflow-hidden bg-black" style="pointer-events:none"></div>
-
-        <!-- 오른쪽 액션 버튼 -->
-        <div class="absolute right-3 bottom-32 flex flex-col items-center gap-5 z-20">
-          <button @click="toggleLike" class="flex flex-col items-center">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center" :class="liked ? 'text-red-500' : 'text-white'"><AppIcon name="heart" :size="20" :filled="liked" /></div>
-            <span class="text-white text-xs mt-1">{{ current.like_count }}</span>
-          </button>
-          <button @click="showComments=!showComments" class="flex flex-col items-center">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="message-circle" :size="20" /></div>
-            <span class="text-white text-xs mt-1">{{ current.comment_count }}</span>
-          </button>
-          <button @click="shareShort" class="flex flex-col items-center">
-            <div class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="share" :size="20" /></div>
-            <span class="text-white text-xs mt-1">공유</span>
-          </button>
+      <!-- 상단 컨트롤 -->
+      <div class="absolute left-0 right-0 top-0 z-30 flex items-start justify-between px-2 pointer-events-none" style="padding-top:calc(8px + var(--pt))">
+        <div class="pointer-events-auto">
+          <button v-if="isFs" data-close @click="exitFs" class="h-11 px-4 rounded-full bg-black/55 text-white text-sm font-bold inline-flex items-center gap-1.5 backdrop-blur">✕ 닫기</button>
+          <RouterLink v-else-if="auth.isLoggedIn" to="/shorts/upload" class="h-11 px-4 rounded-full bg-black/45 text-white text-sm font-bold inline-flex items-center gap-1 backdrop-blur"><AppIcon name="plus" :size="14" />업로드</RouterLink>
         </div>
-
-        <!-- 하단 정보 -->
-        <div class="absolute bottom-4 left-4 right-16 z-20 pointer-events-none">
-          <div class="text-white font-bold text-sm drop-shadow">{{ current.title }}</div>
-          <div class="text-white/70 text-xs mt-1">{{ current.user?.name || '익명' }}</div>
+        <div class="flex items-center gap-2 pointer-events-auto">
+          <button data-mode @click="toggleFill" :title="fillMode ? '꽉 채우기 (좌우가 잘릴 수 있어요). 누르면 원본 비율' : '원본 비율 (9:16). 누르면 꽉 채우기 (좌우가 잘릴 수 있어요)'" :aria-label="fillMode ? '원본 비율로 보기' : '꽉 채워 보기'" class="w-11 h-11 rounded-full bg-black/55 text-white text-xs font-bold flex items-center justify-center backdrop-blur">{{ fillMode ? '꽉' : '9:16' }}</button>
+          <button data-fs @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="w-11 h-11 rounded-full bg-black/55 text-white text-xl leading-none flex items-center justify-center backdrop-blur">{{ isFs ? '⤡' : '⛶' }}</button>
         </div>
       </div>
+
+      <!-- 오른쪽 액션 버튼 -->
+      <div class="absolute flex flex-col items-center gap-4 z-20" style="right:8px;bottom:calc(76px + var(--pb))">
+        <button @click="toggleLike" class="flex flex-col items-center">
+          <div class="w-11 h-11 bg-black/40 backdrop-blur rounded-full flex items-center justify-center" :class="liked ? 'text-red-500' : 'text-white'"><AppIcon name="heart" :size="20" :filled="liked" /></div>
+          <span class="text-white text-xs mt-0.5 drop-shadow">{{ current.like_count }}</span>
+        </button>
+        <button @click="showComments=!showComments" class="flex flex-col items-center">
+          <div class="w-11 h-11 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="message-circle" :size="20" /></div>
+          <span class="text-white text-xs mt-0.5 drop-shadow">{{ current.comment_count }}</span>
+        </button>
+        <button @click="shareShort" class="flex flex-col items-center">
+          <div class="w-11 h-11 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="share" :size="20" /></div>
+          <span class="text-white text-xs mt-0.5 drop-shadow">공유</span>
+        </button>
+      </div>
+
+      <!-- 제목/채널 -->
+      <div class="absolute z-20 pointer-events-none" style="left:12px;right:68px;bottom:calc(68px + var(--pb))">
+        <div class="text-white font-bold text-sm drop-shadow line-clamp-2">{{ current.title }}</div>
+        <div class="text-white/80 text-xs mt-1 drop-shadow">{{ current.user?.name || '익명' }}</div>
+      </div>
+
+      <!-- 하단 컨트롤 바: 이전 / 번호 / 다음 -->
+      <div v-if="!sideNav" data-bar class="absolute left-1/2 z-30 flex items-center gap-3 bg-black/45 backdrop-blur rounded-full px-2 py-1" style="transform:translateX(-50%);bottom:calc(10px + var(--pb))">
+        <button data-prev @click="prev" :disabled="idx <= 0" aria-label="이전 숏츠" class="w-11 h-11 rounded-full flex items-center justify-center text-white active:bg-white/30 disabled:opacity-30"><AppIcon name="chevron-up" :size="22" /></button>
+        <span class="text-white text-xs min-w-[44px] text-center">{{ idx + 1 }} / {{ shorts.length }}</span>
+        <button data-next @click="next" :disabled="idx >= shorts.length - 1" aria-label="다음 숏츠" class="w-11 h-11 rounded-full flex items-center justify-center text-white active:bg-white/30 disabled:opacity-30"><AppIcon name="chevron-down" :size="22" /></button>
+      </div>
+
+      <!-- 상태 표시 (터치를 막지 않음) -->
+      <div class="absolute inset-0 z-[15] flex items-center justify-center pointer-events-none">
+        <div v-if="needTap" data-needtap class="bg-black/60 text-white rounded-full px-5 py-3 text-sm font-bold">▶ 탭하여 재생</div>
+        <div v-else-if="paused" class="bg-black/50 text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl">▶</div>
+        <div v-else-if="starting" class="text-white/70 text-xs">불러오는 중...</div>
+      </div>
+      <div v-if="toast" class="absolute left-1/2 -translate-x-1/2 z-30 bg-black/70 text-white text-xs rounded-full px-4 py-2 pointer-events-none whitespace-nowrap" style="top:calc(64px + var(--pt))">{{ toast }}</div>
+      <button v-if="!soundOn && !needTap" @click.stop="enableSound" class="absolute z-30 bg-white/90 text-black text-xs font-bold rounded-full px-3 py-2 shadow" style="left:12px;top:calc(64px + var(--pt))">🔊 소리 켜기</button>
     </div>
 
-    <!-- 제스처 레이어: iframe 이 터치를 먹지 않도록 영상 전체 위를 투명 레이어로 덮음 (탭=재생/일시정지, 위/아래 스와이프=이동) -->
+    <!-- 제스처 레이어: iframe 이 터치를 먹지 않도록 영역 전체 위를 투명 레이어로 덮음 (탭=재생/일시정지, 위/아래 스와이프=이동). 버튼들은 z-20 이상이라 위에 있음 -->
     <div data-gesture class="absolute inset-0 z-10" style="touch-action:none;-webkit-tap-highlight-color:transparent"
       @touchstart.passive="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @touchcancel="onTouchCancel"
       @click="onLayerClick"></div>
 
-    <!-- 상태 표시 (터치를 막지 않음) -->
-    <div class="absolute inset-0 z-[15] flex items-center justify-center pointer-events-none">
-      <div v-if="needTap" data-needtap class="bg-black/60 text-white rounded-full px-5 py-3 text-sm font-bold">▶ 탭하여 재생</div>
-      <div v-else-if="paused" class="bg-black/50 text-white rounded-full w-16 h-16 flex items-center justify-center text-3xl">▶</div>
-      <div v-else-if="starting" class="text-white/70 text-xs">불러오는 중...</div>
-    </div>
-    <div v-if="toast" class="absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-black/70 text-white text-xs rounded-full px-4 py-2 pointer-events-none whitespace-nowrap">{{ toast }}</div>
-    <button v-if="!soundOn && !needTap" @click.stop="enableSound" class="absolute top-16 right-3 z-30 bg-white/90 text-black text-xs font-bold rounded-full px-3 py-1.5 shadow">🔊 소리 켜기</button>
-
-    <!-- 위/아래 네비 버튼: PC는 옆, 모바일은 하단 -->
-    <!-- PC 버튼 -->
-    <div class="absolute top-1/2 left-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-3 z-20" style="margin-left: calc(224px + 16px);">
-      <button @click="prev" :disabled="idx <= 0"
-        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="20" /></button>
-      <button @click="next" :disabled="idx >= shorts.length - 1"
-        class="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="20" /></button>
-    </div>
-    <!-- 모바일 버튼 (하단 중앙) -->
-    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-6 lg:hidden z-20" style="bottom:max(1.5rem, env(safe-area-inset-bottom))">
-      <button @click="prev" :disabled="idx <= 0"
-        class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white active:bg-white/50 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="22" /></button>
-      <button @click="next" :disabled="idx >= shorts.length - 1"
-        class="w-12 h-12 bg-white/30 backdrop-blur-md rounded-full flex items-center justify-center text-white active:bg-white/50 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="22" /></button>
-    </div>
-
-    <!-- 카운터 -->
-    <div class="absolute bottom-4 right-4 text-white/50 text-xs z-20 pointer-events-none">
-      {{ idx + 1 }} / {{ shorts.length }}
+    <!-- 데스크탑: 프레임 옆 여백이 충분하면 위/아래 버튼을 옆에 배치 -->
+    <div v-if="sideNav" data-side class="absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-20" :style="{ left: 'calc(50% + ' + (fw / 2 + 16) + 'px)' }">
+      <button data-prev @click="prev" :disabled="idx <= 0" aria-label="이전 숏츠" class="w-11 h-11 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="20" /></button>
+      <span class="text-white/70 text-xs">{{ idx + 1 }} / {{ shorts.length }}</span>
+      <button data-next @click="next" :disabled="idx >= shorts.length - 1" aria-label="다음 숏츠" class="w-11 h-11 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="20" /></button>
     </div>
   </div>
 
@@ -121,6 +115,29 @@ const newComment = ref('')
 
 // 재생 상태
 const rootEl = ref(null)
+const areaEl = ref(null)
+// 보기 모드: fit(원본 9:16 맞춤) / fill(꽉 채우기)
+const fillMode = ref(false)
+try { fillMode.value = localStorage.getItem('shorts_view_mode') === 'fill' } catch {}
+// 레이아웃 계산값
+const topInset = ref(0)
+const bottomInset = ref(0)
+const aw = ref(360)
+const ah = ref(640)
+const R = 9 / 16
+const stage = computed(() => {
+  const W = aw.value, H = ah.value
+  const wide = W / H > R
+  let sw, sh
+  if (!fillMode.value) { if (wide) { sh = H; sw = H * R } else { sw = W; sh = W / R } }
+  else { if (wide) { sw = W; sh = W / R } else { sh = H; sw = H * R } }
+  return { sw, sh }
+})
+const sw = computed(() => stage.value.sw)
+const sh = computed(() => stage.value.sh)
+const fw = computed(() => Math.min(sw.value, aw.value))
+const fh = computed(() => Math.min(sh.value, ah.value))
+const sideNav = computed(() => (aw.value - fw.value) / 2 >= 84)
 const playerHost = ref(null)
 const paused = ref(false)     // 사용자가 일시정지한 상태
 const starting = ref(false)   // 로딩/시작 대기
@@ -131,6 +148,10 @@ const toast = ref('')
 const nativeFs = ref(false)
 const pseudoFs = ref(false)
 const isFs = computed(() => nativeFs.value || pseudoFs.value)
+
+const rootStyle = computed(() => isFs.value
+  ? 'top:0;bottom:0;height:100vh;height:100dvh;overscroll-behavior:contain'
+  : `top:${topInset.value}px;bottom:${bottomInset.value}px;overscroll-behavior:contain`)
 
 const current = computed(() => shorts.value[idx.value] || {})
 
@@ -353,6 +374,7 @@ async function loadComments() {
   try { const { data } = await axios.get(`/api/comments/short/${current.value.id}`); comments.value = data.data || [] } catch { comments.value = [] }
 }
 
+watch(isFs, () => nextTick(() => { measure(); setTimeout(measure, 150) }))
 watch([showComments, idx], ([open]) => { if (open) loadComments() })
 
 async function submitComment() {
@@ -372,6 +394,7 @@ function nativeFsSupported() {
     document.fullscreenEnabled !== false && document.webkitFullscreenEnabled !== false
 }
 
+let fsPushed = false
 async function enterFs() {
   const el = rootEl.value
   if (nativeFsSupported()) {
@@ -381,16 +404,47 @@ async function enterFs() {
       return
     } catch { /* 실패 시 의사 전체화면으로 */ }
   }
-  // iOS Safari 등: 화면 전체를 덮는 의사 전체화면
+  // iOS Safari 등: 헤더·하단 메뉴까지 덮는 의사 전체화면 (뒤로가기로도 복귀)
   pseudoFs.value = true
+  try { history.pushState({ ...(history.state || {}), __shortsFs: 1 }, ''); fsPushed = true } catch { fsPushed = false }
   try { window.scrollTo(0, 0) } catch {}
 }
 function exitFs() {
   if (fsElement()) safe(() => (document.exitFullscreen || document.webkitExitFullscreen).call(document))
-  pseudoFs.value = false
+  if (pseudoFs.value) {
+    if (fsPushed) { fsPushed = false; pseudoFs.value = false; try { history.back() } catch {} }
+    else pseudoFs.value = false
+  }
 }
 function toggleFs() { isFs.value ? exitFs() : enterFs() }
 function onFsChange() { nativeFs.value = !!fsElement() }
+function onPopState() {
+  if (pseudoFs.value) { pseudoFs.value = false; fsPushed = false }
+}
+function toggleFill() {
+  fillMode.value = !fillMode.value
+  try { localStorage.setItem('shorts_view_mode', fillMode.value ? 'fill' : 'fit') } catch {}
+}
+
+// ─── 레이아웃 측정: 사이트 헤더(NavBar)와 하단 메뉴(BottomNav) 사이에만 배치 ───
+function measure() {
+  if (destroyed) return
+  if (!isFs.value) {
+    const nav = document.querySelector('nav.sticky')
+    const tb = nav ? Math.max(0, Math.round(nav.getBoundingClientRect().bottom)) : 0
+    const bn = document.querySelector('.fixed.bottom-0.left-0.right-0.border-t')
+    let bb = 0
+    if (bn && getComputedStyle(bn).display !== 'none') {
+      const r = bn.getBoundingClientRect()
+      if (r.height > 0) bb = Math.max(0, Math.round(window.innerHeight - r.top))
+    }
+    topInset.value = tb; bottomInset.value = bb
+  }
+  const a = areaEl.value
+  if (a) { aw.value = a.clientWidth || aw.value; ah.value = a.clientHeight || ah.value }
+}
+let ro = null
+let measureTimer = null
 
 // ─── 키보드 / 휠 ───
 function onKeydown(e) {
@@ -470,14 +524,27 @@ onMounted(async () => {
   document.addEventListener('visibilitychange', onVisibility)
   document.addEventListener('fullscreenchange', onFsChange)
   document.addEventListener('webkitfullscreenchange', onFsChange)
+  window.addEventListener('popstate', onPopState)
+  window.addEventListener('resize', measure)
+  window.addEventListener('orientationchange', measure)
+  window.visualViewport && window.visualViewport.addEventListener('resize', measure)
+  let n = 0
+  measureTimer = setInterval(() => { measure(); if (++n > 12) { clearInterval(measureTimer); measureTimer = null } }, 400)
   document.documentElement.style.overscrollBehavior = 'none'
   document.body.style.overflow = 'hidden'
   await nextTick()
+  measure()
+  if (window.ResizeObserver && areaEl.value) { ro = new ResizeObserver(measure); ro.observe(areaEl.value) }
   initPlayer()
 })
 
 onUnmounted(() => {
   destroyed = true
+  clearInterval(measureTimer); ro && ro.disconnect()
+  window.removeEventListener('popstate', onPopState)
+  window.removeEventListener('resize', measure)
+  window.removeEventListener('orientationchange', measure)
+  window.visualViewport && window.visualViewport.removeEventListener('resize', measure)
   clearTimers(); clearTimeout(toastTimer)
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('wheel', onWheel)
