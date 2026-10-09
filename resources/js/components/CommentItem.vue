@@ -10,11 +10,19 @@
       <UserName :userId="comment.user?.id" :name="comment.user?.name" :className="isReply ? 'text-xs font-bold text-ink' : 'text-sm font-bold text-ink'" />
       <span class="text-[11px] text-ink-muted">{{ relativeDate }}</span>
       <span class="text-[11px] text-ink-faint">{{ fullDate }}</span>
-      <button v-if="auth.user?.id === comment.user_id" @click="deleteComment" class="ml-auto text-gray-300 hover:text-red-500 transition-colors" title="삭제"><AppIcon name="trash" :size="14" /></button>
+      <button v-if="auth.user?.id === comment.user_id && !editing" @click="startEdit" class="ml-auto text-gray-300 hover:text-amber-600 transition-colors" title="수정"><AppIcon name="edit" :size="14" /></button>
+      <button v-if="auth.user?.id === comment.user_id" @click="deleteComment" class="text-gray-300 hover:text-red-500 transition-colors" :class="editing ? 'ml-auto' : ''" title="삭제"><AppIcon name="trash" :size="14" /></button>
       <button @click="showReportModal=true" class="text-gray-300 hover:text-ink-muted transition-colors" :class="auth.user?.id === comment.user_id ? '' : 'ml-auto'" title="신고"><AppIcon name="flag" :size="14" /></button>
     </div>
     <!-- 내용 -->
-    <div class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed">{{ comment.content }}</div>
+    <div v-if="!editing" class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed">{{ comment.content }}</div>
+    <div v-else class="mt-1">
+      <textarea ref="editBox" v-model="editText" rows="3" maxlength="1000" class="input-soft w-full text-sm" @keydown.enter="onEditEnter" @keydown.esc="editing = false"></textarea>
+      <div class="flex justify-end gap-2 mt-1">
+        <button @click="editing = false" class="text-xs text-ink-muted px-3 py-1 rounded-full hover:bg-gray-100">취소</button>
+        <button @click="saveEdit" :disabled="!editText.trim()" class="text-xs bg-amber-400 text-white font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50">저장</button>
+      </div>
+    </div>
     <!-- 액션: 좋아요 싫어요 답글 -->
     <div class="flex items-center gap-3 mt-1.5">
       <button @click="vote('like')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full transition-colors" :class="myVote==='like' ? 'text-blue-600' : 'text-ink-muted'">
@@ -66,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useModal } from '../composables/useModal'
 import axios from 'axios'
@@ -99,6 +107,21 @@ const fullDate = computed(() => {
   const d = new Date(props.comment.created_at)
   return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 })
+
+const editing = ref(false)
+const editText = ref('')
+const editBox = ref(null)
+function startEdit() { editText.value = props.comment.content; editing.value = true; nextTick(() => editBox.value?.focus()) }
+function onEditEnter(e) { if (e.shiftKey || e.isComposing || e.keyCode === 229) return; e.preventDefault(); saveEdit() }
+async function saveEdit() {
+  const content = editText.value.trim()
+  if (!content) return
+  try {
+    await axios.put(`/api/comments/${props.comment.id}`, { content })
+    props.comment.content = content   // 목록을 다시 불러오지 않고 바로 반영
+    editing.value = false
+  } catch (e) { alert(e.response?.data?.message || '수정에 실패했습니다.') }
+}
 
 async function deleteComment() {
   if (!confirm('댓글을 삭제하시겠습니까?')) return

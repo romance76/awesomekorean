@@ -78,8 +78,12 @@ class CommentController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate(['content' => 'required|max:1000']);
+        if (BadWordFilter::contains((string) $request->content)) {
+            return response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어 댓글을 수정할 수 없습니다.'], 422);
+        }
         $comment = Comment::where('user_id', auth()->id())->findOrFail($id);
-        $comment->update(['content' => $request->content]);
+        $comment->update(['content' => trim($request->content)]);
         return response()->json(['success' => true, 'data' => $comment]);
     }
 

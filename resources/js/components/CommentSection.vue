@@ -10,7 +10,7 @@
     <div class="flex gap-3">
       <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
       <div class="flex-1">
-        <textarea v-model="newComment" rows="1" placeholder="댓글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-sm text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3" @blur="blurComment($event)"></textarea>
+        <textarea v-model="newComment" rows="1" placeholder="댓글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-sm text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3" @blur="blurComment($event)" @keydown.enter="onEnter($event, null)"></textarea>
         <div v-if="newComment.trim()" class="flex justify-end gap-2 mt-2">
           <button @click="newComment=''" class="text-xs text-ink-muted px-3 py-1.5 rounded-full hover:bg-gray-100 transition-colors">취소</button>
           <button @click="submitComment(null)" class="text-xs bg-amber-400 text-white font-bold px-4 py-1.5 rounded-full hover:bg-amber-500 transition-colors">댓글</button>
@@ -46,7 +46,7 @@
         <div class="flex gap-2">
           <div class="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0 mt-0.5">{{ (auth.user?.name||'?')[0] }}</div>
           <div class="flex-1">
-            <textarea v-model="replyText" rows="1" placeholder="답글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-xs text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3"></textarea>
+            <textarea v-model="replyText" rows="1" placeholder="답글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-xs text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3" @keydown.enter="onEnter($event, c.id)"></textarea>
             <div class="flex justify-end gap-2 mt-1">
               <button @click="replyTo=null; replyText=''" class="text-[11px] text-ink-muted px-2 py-1 rounded-full hover:bg-gray-100 transition-colors">취소</button>
               <button @click="submitComment(c.id)" :disabled="!replyText.trim()" class="text-[11px] bg-amber-400 text-white font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50 transition-colors">답글</button>
@@ -77,12 +77,20 @@ const newComment = ref('')
 const replyTo = ref(null)
 const replyName = ref('')
 const replyText = ref('')
+const sending = ref(false)
 
 const totalCount = computed(() => {
   let c = comments.value.length
   comments.value.forEach(cm => { c += cm.replies?.length || 0 })
   return c
 })
+
+// Enter = 바로 등록, Shift+Enter = 줄바꿈 (한글 입력 중 조합 상태의 Enter 는 무시)
+function onEnter(e, parentId) {
+  if (e.shiftKey || e.isComposing || e.keyCode === 229) return
+  e.preventDefault()
+  submitComment(parentId)
+}
 
 function blurComment(e) { if (!newComment.value.trim()) e.target.rows = 1 }
 
@@ -94,7 +102,8 @@ function openReply(commentId, userName) {
 
 async function submitComment(parentId) {
   const content = parentId ? replyText.value.trim() : newComment.value.trim()
-  if (!content) return
+  if (!content || sending.value) return
+  sending.value = true
   try {
     await axios.post('/api/comments', {
       commentable_type: props.type,
@@ -105,7 +114,10 @@ async function submitComment(parentId) {
     if (parentId) { replyTo.value = null; replyText.value = '' }
     else newComment.value = ''
     await loadComments()
-  } catch {}
+  } catch (e) {
+    const m = e.response?.data?.message
+    if (m) alert(m)
+  } finally { sending.value = false }
 }
 
 async function loadComments() {

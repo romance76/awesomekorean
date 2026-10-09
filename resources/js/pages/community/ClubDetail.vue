@@ -21,7 +21,8 @@
     <div v-else-if="club" class="grid grid-cols-12 gap-4">
       <!-- Left sidebar: Category list (like ClubList) -->
       <div class="col-span-12 lg:col-span-2 hidden lg:block">
-        <div class="card overflow-hidden sticky top-20">
+        <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
+        <div class="card overflow-hidden">
           <div class="px-3 py-2.5 border-b border-gray-50 flex items-center gap-1.5 font-bold text-xs text-ink"><AppIcon name="list" :size="13" class="text-teal-600" />카테고리</div>
           <router-link v-for="c in clubCategories" :key="c.value"
             :to="c.value ? `/clubs?category=${c.value}` : '/clubs'"
@@ -41,7 +42,8 @@
               {{ mc.name }}
             </router-link>
           </template>
-          <AdSlot page="clubs" position="left" :maxSlots="1" />
+        </div>
+        <AdSlot page="clubs" position="left" :maxSlots="1" />
         </div>
       </div>
 
