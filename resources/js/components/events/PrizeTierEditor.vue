@@ -7,7 +7,7 @@
       <button v-if="i > 0 && !disabled" type="button" class="ml-auto text-[11px] font-bold text-amber-700 bg-amber-50 rounded-lg px-2 py-1" @click="copyPrev(i)">윗 등수 복사</button>
     </div>
     <div class="flex gap-3">
-      <div class="w-20 flex-shrink-0">
+      <div class="w-24 flex-shrink-0 self-start">
         <ImageUploadBox mode="upload" kind="prize" aspect="1 / 1" compact :preview="t.prize_image" :disabled="disabled"
           :recommend-ratio="1" :max-m-b="5" :soft-m-b="1"
           @uploaded="u => setField(i, 'prize_image', u)" @remove="setField(i, 'prize_image', '')" />

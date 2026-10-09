@@ -147,7 +147,11 @@ class EventController extends Controller
             }
             $fields['price'] = 0;
             $fields['is_free'] = true;
-            $fields['max_attendees'] = null;
+            $fields['max_attendees'] = 0; // 0 = 무제한 (DB 칸이 NULL 을 허용하지 않음)
+        }
+        // NULL 을 허용하지 않는 칸은 비어 있으면 기본값으로
+        foreach (['reward_points' => 0, 'max_attendees' => 0] as $k => $def) {
+            if (array_key_exists($k, $fields) && $fields[$k] === null) $fields[$k] = $def;
         }
         if (\Illuminate\Support\Facades\Schema::hasColumn('events', 'is_online')) {
             $fields['is_online'] = $online;

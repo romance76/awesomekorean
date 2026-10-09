@@ -18,7 +18,9 @@
     </label>
     <button v-if="preview && !disabled && removable" type="button" class="text-xs text-red-500 font-bold px-2 py-1" @click="$emit('remove')">제거</button>
   </div>
-  <p v-if="warn" class="text-[11px] text-amber-700 mt-1">{{ warn }}</p>
+  <p v-if="warn && !compact" class="text-[11px] text-amber-700 mt-1">{{ warn }}</p>
+  <!-- 좁은 칸(등수별 상품)에서는 긴 문장 대신 짧은 표시만 (자세한 내용은 마우스를 올리면) -->
+  <p v-else-if="warn" class="text-[10px] text-amber-700 mt-0.5 leading-tight" :title="warn">⚠ 비율·용량 확인</p>
   <p v-if="localError || error" class="text-xs text-red-500 mt-1">{{ localError || error }}</p>
 </div>
 </template>
@@ -72,7 +74,8 @@ async function onFile(e) {
   const d = await readDims(file)
   if (d && d.w && d.h) {
     const r = d.w / d.h
-    if (Math.abs(r - props.recommendRatio) / props.recommendRatio > 0.2) msgs.push(`이미지 비율이 권장과 많이 달라요(현재 ${d.w}×${d.h}). 일부가 잘려 보일 수 있어요.`)
+    // 정사각 상품 칸(compact)은 object-cover 로 가운데를 보여주므로 비율 허용 폭을 넓게
+    if (Math.abs(r - props.recommendRatio) / props.recommendRatio > (props.compact ? 0.6 : 0.2)) msgs.push(`이미지 비율이 권장과 많이 달라요(현재 ${d.w}×${d.h}). 일부가 잘려 보일 수 있어요.`)
   }
   warn.value = msgs.join(' ')
   if (props.mode === 'pick') { emit('pick', file); return }
