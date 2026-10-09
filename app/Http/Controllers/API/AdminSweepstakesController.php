@@ -58,7 +58,7 @@ class AdminSweepstakesController extends Controller
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
             'terms_version' => 'nullable|string|max:50',
-            'draw_style' => ['nullable', Rule::in(SweepstakesDrawReplay::DRAW_STYLES)],
+            'draw_style' => 'nullable|string|max:20',
             'theme' => 'nullable|array',
             'winner_count' => 'nullable|integer|min:1|max:10',
             'prize_tiers' => 'nullable|array|max:10',
@@ -66,7 +66,7 @@ class AdminSweepstakesController extends Controller
             'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
         $data['status'] = $data['status'] ?? 'draft';
-        $data['draw_style'] = $data['draw_style'] ?? 'wheel';
+        $data['draw_style'] = 'lottery3d'; // 2D 휠 폐지 — 항상 3D 추첨기
         $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme'] ?? null);
         [$data['winner_count'], $data['prize_tiers']] = Sweepstakes::sanitizeWinnerConfig(
             $data['winner_count'] ?? 1,
@@ -100,7 +100,7 @@ class AdminSweepstakesController extends Controller
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
             'terms_version' => 'nullable|string|max:50',
-            'draw_style' => ['nullable', Rule::in(SweepstakesDrawReplay::DRAW_STYLES)],
+            'draw_style' => 'nullable|string|max:20',
             'theme' => 'nullable|array',
             'winner_count' => 'nullable|integer|min:1|max:10',
             'prize_tiers' => 'nullable|array|max:10',
@@ -108,8 +108,8 @@ class AdminSweepstakesController extends Controller
             'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
 
-        if (array_key_exists('draw_style', $data) && $data['draw_style'] === null) {
-            unset($data['draw_style']); // 스킨은 null 로 지울 수 없음(기본 wheel 유지)
+        if (array_key_exists('draw_style', $data)) {
+            $data['draw_style'] = 'lottery3d'; // 2D 휠 폐지 — 요청값과 무관하게 정규화
         }
         if (array_key_exists('theme', $data)) {
             $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme']);

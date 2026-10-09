@@ -2,11 +2,13 @@
 <section v-if="sw" class="sw-panel px-4 lg:px-6 py-5 border-b border-gray-50 bg-gradient-to-b from-amber-50/60 to-white">
   <!-- 경품 -->
   <div class="flex items-start gap-3">
-    <span class="icon-chip w-12 h-12 bg-amber-100 text-amber-600 text-2xl flex-shrink-0">🎁</span>
+    <img v-if="sw.prize_image" :src="sw.prize_image" class="w-14 h-14 rounded-xl object-cover border border-amber-100 flex-shrink-0" alt="" />
+    <span v-else class="icon-chip w-12 h-12 bg-amber-100 text-amber-600 text-2xl flex-shrink-0">🎁</span>
     <div class="min-w-0 flex-1">
       <div class="flex items-center gap-1.5 flex-wrap">
         <span class="text-[11px] font-bold text-amber-700 tracking-wide">경품</span>
         <span v-if="winnerCount > 1" class="badge bg-amber-100 text-amber-800">당첨 {{ winnerCount }}명</span>
+        <span class="badge" :class="isOnline ? 'bg-sky-50 text-sky-700' : 'bg-rose-50 text-rose-700'">{{ isOnline ? '💻 온라인 추첨' : ('📍 현장 이벤트' + (event.venue ? ' · ' + event.venue : '')) }}</span>
         <span v-if="sw.status === 'winner_selected'" class="badge bg-emerald-50 text-emerald-700">추첨 완료</span>
       </div>
       <div class="text-lg lg:text-xl font-black text-ink leading-snug break-words">
@@ -15,48 +17,30 @@
     </div>
   </div>
 
+  <!-- 같은 상품 N명 -->
+  <div v-if="winnerCount > 1 && !isTiered" class="mt-3 text-sm font-bold text-amber-800 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">같은 상품 · {{ winnerCount }}명 당첨</div>
+
   <!-- 등수별 경품 -->
-  <ol v-if="winnerCount > 1" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-    <li v-for="t in tiers" :key="t.rank" class="flex items-center gap-2 bg-white border border-amber-100 rounded-lg px-3 py-1.5 text-sm">
+  <ol v-if="winnerCount > 1 && isTiered" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+    <li v-for="t in tiers" :key="t.rank" class="flex items-center gap-2 bg-white border border-amber-100 rounded-lg px-2.5 py-1.5 text-sm">
       <span class="w-6 h-6 rounded-full bg-amber-400 text-white text-xs font-black grid place-items-center flex-shrink-0">{{ t.rank }}</span>
-      <span class="text-xs text-ink-muted flex-shrink-0">{{ t.rank }}등</span>
-      <span class="font-bold text-ink truncate">{{ t.prize_name || sw.prize_name }}</span>
+      <img v-if="t.prize_image" :src="t.prize_image" class="w-9 h-9 rounded-lg object-cover flex-shrink-0" alt="" />
+      <span v-else class="w-9 h-9 rounded-lg bg-amber-50 grid place-items-center flex-shrink-0">🎁</span>
+      <span class="min-w-0 flex-1">
+        <span class="block font-bold text-ink truncate">{{ t.rank }}등 · {{ t.prize_name || sw.prize_name }}</span>
+        <span v-if="t.prize_value" class="block text-[11px] text-amber-600 font-bold">${{ Number(t.prize_value).toLocaleString() }}</span>
+      </span>
     </li>
   </ol>
 
   <!-- 3D 추첨 연출: 이미 확정된 결과를 재생만 함 (당첨자 결정은 서버) -->
-  <div v-if="sw.draw_style === 'lottery3d'" class="mt-4">
+  <div class="mt-4">
     <LotteryShowcase :key="event.id" :sweepstakes="sw" :recent="recentDraws" />
   </div>
 
-  <!-- 결과 (3D 연출이 아닐 때만 별도 박스) -->
-  <template v-if="sw.status === 'winner_selected'">
-    <div v-if="sw.draw_style !== 'lottery3d'" class="mt-4">
-      <div v-if="winnerCount > 1 && winners.length" class="bg-white border border-amber-200 rounded-xl p-4">
-        <div class="text-center mb-2"><span class="text-2xl">🏆</span><div class="text-sm font-bold text-ink">당첨자 발표</div></div>
-        <ol class="space-y-1.5">
-          <li v-for="w in winners" :key="w.rank" class="flex items-center gap-2 text-sm">
-            <span class="w-7 h-7 rounded-full bg-amber-400 text-white text-xs font-black grid place-items-center flex-shrink-0">{{ w.rank }}</span>
-            <span class="text-xs text-ink-muted flex-shrink-0">{{ w.rank }}등</span>
-            <span class="font-bold text-ink truncate">{{ w.name }}</span>
-            <span v-if="w.prize" class="ml-auto text-xs text-amber-700 truncate max-w-[45%]">{{ w.prize }}</span>
-          </li>
-        </ol>
-      </div>
-      <div v-else class="bg-white border border-amber-200 rounded-xl p-4 text-center">
-        <div class="text-2xl mb-1">🏆</div>
-        <div class="font-bold text-ink">당첨자: {{ sw.winner_display_name || winners[0]?.name || '비공개' }}</div>
-      </div>
-    </div>
-  </template>
-
   <!-- 참가 -->
-  <template v-else>
+  <template v-if="sw.status !== 'winner_selected'">
     <div class="mt-4 bg-white rounded-2xl p-4 border border-amber-100 flex flex-col items-center">
-      <template v-if="sw.draw_style !== 'lottery3d'">
-        <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
-        <SweepstakesWheel :my-entries="sw.my_entries || 0" :other-breakdown="sw.other_entries_breakdown || []" />
-      </template>
       <div class="text-sm font-black text-amber-600 mt-2">내 당첨 확률 {{ sw.my_win_probability_pct || 0 }}%</div>
       <div v-if="winnerCount > 1" class="text-[11px] text-ink-faint mt-1 text-center">등수별로 한 명씩 추첨돼요. 한 사람은 한 번만 당첨됩니다.</div>
     </div>
@@ -89,7 +73,6 @@
 import { ref, computed, defineAsyncComponent } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
-import SweepstakesWheel from '../SweepstakesWheel.vue'
 import SweepstakesEnterModal from '../SweepstakesEnterModal.vue'
 // 3D 추첨 무대는 three.js 가 커서 필요할 때만 따로 내려받음 (별도 청크)
 const LotteryShowcase = defineAsyncComponent(() => import('../LotteryShowcase.vue'))
@@ -105,6 +88,8 @@ const sw = computed(() => props.event?.sweepstakes || null)
 const enterModalOpen = ref(false)
 const selectingWinner = ref(false)
 
+const isOnline = computed(() => props.event?.is_online === undefined || props.event?.is_online === null ? !(props.event?.venue || props.event?.address) : !!Number(props.event.is_online))
+const isTiered = computed(() => sw.value?.prize_mode === 'tiered')
 const winnerCount = computed(() => Math.max(1, Number(sw.value?.winner_count) || 1))
 
 // prize_tiers 는 배열 또는 JSON 문자열로 올 수 있음 — 없으면 등수만 채움
@@ -114,7 +99,7 @@ const tiers = computed(() => {
   const list = Array.isArray(raw) ? raw : []
   return Array.from({ length: winnerCount.value }, (_, i) => {
     const hit = list.find(t => Number(t?.rank) === i + 1)
-    return { rank: i + 1, prize_name: hit?.prize_name || '' }
+    return { rank: i + 1, prize_name: hit?.prize_name || '', prize_value: hit?.prize_value ?? '', prize_image: hit?.prize_image || '' }
   })
 })
 

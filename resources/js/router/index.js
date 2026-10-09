@@ -165,6 +165,7 @@ const routes = [
   { path: '/grades', name: 'grades', component: p('points/MemberGrades') },  // 회원 등급 15단계 안내
   { path: '/entries', redirect: '/dashboard?tab=entries' },  // 마이페이지 대시보드 탭으로 통합
   { path: '/sweepstakes', redirect: '/events?type=sweepstakes' },  // 이벤트 목록으로 통합
+  { path: '/sweepstakes/rules', name: 'sweepstakes-rules', component: p('events/SweepstakesRules') },  // 경품 추첨 공식 규정 (공개)
   { path: '/sweepstakes/:id', redirect: '/events?type=sweepstakes' },
   { path: '/search', name: 'search', component: p('Search') },
   { path: '/about', name: 'about', component: p('static/About') },
@@ -232,6 +233,7 @@ const routes = [
       { path: 'point-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'entry-settings', component: p('admin/AdminEntrySettings') },
       { path: 'sweepstakes', component: p('admin/AdminSweepstakes') },
+      { path: 'sweepstakes-rules', component: p('admin/AdminSweepstakesRules') },
       { path: 'system', component: p('admin/System') },
     ]
   },

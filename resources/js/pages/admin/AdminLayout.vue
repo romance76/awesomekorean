@@ -199,6 +199,7 @@ const subTabs = {
     { to: '/admin/settings', icon: 'settings', label: '설정' },
     { to: '/admin/entry-settings', icon: 'ticket', label: 'Entry 설정' },
     { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리' },
+    { to: '/admin/sweepstakes-rules', icon: 'book-open', label: '경품 추첨 공식 규정' },
     { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너' },
     { to: '/admin/popup-banners', icon: 'message-square', label: '팝업 배너' },
     { to: '/admin/system', icon: 'monitor', label: '시스템' },
@@ -266,7 +267,7 @@ const currentGroup = computed(() => {
 const currentSubTabs = computed(() => {
   const tabs = currentGroup.value === 'board' ? boardTabs.value : (subTabs[currentGroup.value] || [])
   if (auth.user?.role === 'super_admin') return tabs
-  return tabs.filter(t => t.to !== '/admin/sweepstakes')
+  return tabs.filter(t => !['/admin/sweepstakes','/admin/sweepstakes-rules'].includes(t.to))
 })
 
 
@@ -287,7 +288,7 @@ const SUPER_ONLY = ['/admin/todos', '/admin/open-event', '/admin/analytics']
 function tabsFor(group) {
   const tabs = group === 'board' ? boardTabs.value : (subTabs[group] || [])
   if (auth.user?.role === 'super_admin') return tabs
-  return tabs.filter(t => t.to !== '/admin/sweepstakes' && !SUPER_ONLY.includes(t.to))
+  return tabs.filter(t => !['/admin/sweepstakes','/admin/sweepstakes-rules'].includes(t.to) && !SUPER_ONLY.includes(t.to))
 }
 provide('adminTabsFor', tabsFor)
 provide('adminIsMobile', isMobileLayout)

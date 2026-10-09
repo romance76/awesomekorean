@@ -120,6 +120,56 @@ class EventController extends Controller
         return $s->start_at && $s->start_at->lte(now()) && (int) $s->total_entries > 0;
     }
 
+    /** 사이트 상대경로('/' 시작, '//' 제외) 또는 https URL 만 허용 */
+    private function cleanImageUrl($v): ?string
+    {
+        if (!is_string($v)) {
+            return null;
+        }
+        $v = trim($v);
+        if ($v === '' || strlen($v) > 500) {
+            return null;
+        }
+        if ($v[0] === '/' && !str_starts_with($v, '//')) {
+            return $v;
+        }
+        return str_starts_with($v, 'https://') ? $v : null;
+    }
+
+    /** 경품 추첨 이벤트 공통 정규화: 카테고리/주최 고정, 온라인이면 장소·가격·정원 초기화 */
+    private function applySweepstakesEventRules(array $fields, bool $online): array
+    {
+        $fields['category'] = 'awesomekorean';
+        $fields['organizer'] = '어썸코리안';
+        if ($online) {
+            foreach (['venue', 'address', 'city', 'state', 'zipcode', 'lat', 'lng'] as $k) {
+                $fields[$k] = null;
+            }
+            $fields['price'] = 0;
+            $fields['is_free'] = true;
+            $fields['max_attendees'] = null;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('events', 'is_online')) {
+            $fields['is_online'] = $online;
+        }
+        return $fields;
+    }
+
+    /** 현장 이벤트(경품 추첨)는 장소와 주소 필수 */
+    private function requireOnsiteLocation($venue, $address): void
+    {
+        $errors = [];
+        if (trim((string) $venue) === '') {
+            $errors['venue'] = ['현장 이벤트는 장소를 입력해 주세요'];
+        }
+        if (trim((string) $address) === '') {
+            $errors['address'] = ['현장 이벤트는 주소를 입력해 주세요'];
+        }
+        if ($errors) {
+            throw \Illuminate\Validation\ValidationException::withMessages($errors);
+        }
+    }
+
     public function store(Request $request)
     {
         $isSweepstakes = $request->event_type === 'sweepstakes';
@@ -142,6 +192,9 @@ class EventController extends Controller
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
             'winner_count' => 'nullable|integer|min:1|max:10',
+            'prize_mode' => 'nullable|in:same,tiered',
+            'prize_image_url' => 'nullable|string|max:500',
+            'is_online' => 'nullable', // FormData 의 "true"/"false" 문자열도 허용 (boolean() 으로 해석)
         ]);
 
         $fields = $request->only(
@@ -154,6 +207,14 @@ class EventController extends Controller
         $fields['is_active'] = true;
         $fields['event_type'] = $isSweepstakes ? 'sweepstakes' : 'user';
 
+        if ($isSweepstakes) {
+            $online = $request->boolean('is_online');
+            if (!$online) {
+                $this->requireOnsiteLocation($request->input('venue'), $request->input('address'));
+            }
+            $fields = $this->applySweepstakesEventRules($fields, $online);
+        }
+
         if ($request->hasFile('image')) {
             $fields['image_url'] = $this->storeCompressedImage($request->file('image'), 'events', 1400, 82);
         }
@@ -162,24 +223,32 @@ class EventController extends Controller
 
         if ($isSweepstakes) {
             $winnerData = [];
+            $mode = $request->input('prize_mode') === 'tiered' ? 'tiered' : 'same';
             if (\Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'winner_count')) {
-                [$wc, $tiers] = Sweepstakes::sanitizeWinnerConfig($request->input('winner_count', 1), $request->input('prize_tiers'));
+                [$wc, $tiers] = Sweepstakes::sanitizeWinnerConfig($request->input('winner_count', 1), $request->input('prize_tiers'), $mode);
+                if ($wc < 2) {
+                    $mode = 'same'; // 1명이면 등수별 상품 의미 없음
+                }
                 $winnerData = ['winner_count' => $wc, 'prize_tiers' => $tiers];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'prize_mode')) {
+                    $winnerData['prize_mode'] = $mode;
+                }
             }
+            $prizeImage = $this->cleanImageUrl($request->input('prize_image_url')) ?: $event->image_url;
             Sweepstakes::create(array_merge($winnerData, [
                 'event_id' => $event->id,
                 'title' => $event->title,
                 'description' => $event->description,
                 'prize_name' => $request->prize_name,
                 'prize_value' => $request->prize_value,
-                'prize_image' => $event->image_url,
-                'draw_style' => in_array($request->draw_style, \App\Support\SweepstakesDrawReplay::DRAW_STYLES, true) ? $request->draw_style : 'wheel',
+                'prize_image' => $prizeImage,
+                'draw_style' => 'lottery3d', // 2D 휠 폐지 — 요청값 무시
                 'start_at' => $event->start_date,
                 'end_at' => $event->end_date ?? $event->start_date,
                 'status' => 'active',
                 'minimum_age' => $request->minimum_age ?? 18,
                 'eligible_regions' => $request->eligible_regions,
-                'official_rules_url' => $request->official_rules_url,
+                'official_rules_url' => $request->filled('official_rules_url') ? $request->official_rules_url : '/sweepstakes/rules',
                 'no_purchase_required_text' => $request->no_purchase_required_text,
             ]));
         } else {
@@ -223,6 +292,9 @@ class EventController extends Controller
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
             'winner_count' => 'nullable|integer|min:1|max:10',
+            'prize_mode' => 'nullable|in:same,tiered',
+            'prize_image_url' => 'nullable|string|max:500',
+            'is_online' => 'nullable', // FormData 의 "true"/"false" 문자열도 허용 (boolean() 으로 해석)
         ]);
 
         $fields = $request->only(
@@ -233,6 +305,19 @@ class EventController extends Controller
 
         if ($request->has('is_free')) {
             $fields['is_free'] = $request->boolean('is_free');
+        }
+
+        if ($sweepstakes) {
+            $online = $request->has('is_online')
+                ? $request->boolean('is_online')
+                : (bool) ($event->getAttribute('is_online') ?? false);
+            if (!$online) {
+                $this->requireOnsiteLocation(
+                    $request->has('venue') ? $request->input('venue') : $event->venue,
+                    $request->has('address') ? $request->input('address') : $event->address
+                );
+            }
+            $fields = $this->applySweepstakesEventRules($fields, $online);
         }
 
         if ($request->hasFile('image')) {
@@ -253,16 +338,32 @@ class EventController extends Controller
                 'eligible_regions' => $request->has('eligible_regions') ? $request->eligible_regions : $sweepstakes->eligible_regions,
                 'official_rules_url' => $request->official_rules_url ?? $sweepstakes->official_rules_url,
                 'no_purchase_required_text' => $request->no_purchase_required_text ?? $sweepstakes->no_purchase_required_text,
-                'draw_style' => in_array($request->draw_style, \App\Support\SweepstakesDrawReplay::DRAW_STYLES, true) ? $request->draw_style : ($sweepstakes->draw_style ?: 'wheel'),
+                'draw_style' => 'lottery3d', // 2D 휠 폐지 — 요청값 무시
             ])->save();
 
+            if ($request->has('prize_image_url')) {
+                $sweepstakes->forceFill([
+                    'prize_image' => $this->cleanImageUrl($request->input('prize_image_url')) ?: $event->image_url,
+                ])->save();
+            }
+
             // 등수 설정 — 위에서 잠금(참가자 발생/당첨 확정) 상태는 이미 거절됨
-            if (($request->has('winner_count') || $request->has('prize_tiers'))
+            if (($request->has('winner_count') || $request->has('prize_tiers') || $request->has('prize_mode'))
                 && \Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'winner_count')) {
                 $count = $request->filled('winner_count') ? $request->input('winner_count') : ($sweepstakes->winner_count ?: 1);
                 $tiers = $request->has('prize_tiers') ? $request->input('prize_tiers') : $sweepstakes->prize_tiers;
-                [$wc, $tiers] = Sweepstakes::sanitizeWinnerConfig($count, $tiers);
-                $sweepstakes->forceFill(['winner_count' => $wc, 'prize_tiers' => $tiers])->save();
+                $mode = $request->has('prize_mode')
+                    ? ($request->input('prize_mode') === 'tiered' ? 'tiered' : 'same')
+                    : (($sweepstakes->getAttribute('prize_mode') ?? 'same') === 'tiered' ? 'tiered' : 'same');
+                [$wc, $tiers] = Sweepstakes::sanitizeWinnerConfig($count, $tiers, $mode);
+                if ($wc < 2) {
+                    $mode = 'same';
+                }
+                $upd = ['winner_count' => $wc, 'prize_tiers' => $tiers];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'prize_mode')) {
+                    $upd['prize_mode'] = $mode;
+                }
+                $sweepstakes->forceFill($upd)->save();
             }
         }
 

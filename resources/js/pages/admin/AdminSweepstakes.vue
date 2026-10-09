@@ -146,8 +146,8 @@
       </div>
 
       <!-- 추첨 게임 선택 -->
-      <div class="text-xs font-bold text-ink-muted mb-2">추첨 화면(게임)</div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+      <div v-if="DRAW_STYLES.length > 1" class="text-xs font-bold text-ink-muted mb-2">추첨 화면(게임)</div>
+      <div v-if="DRAW_STYLES.length > 1" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
         <label v-for="d in DRAW_STYLES" :key="d.value" class="flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer"
           :class="design.draw_style === d.value ? 'border-amber-500 bg-amber-50' : 'border-gray-100 bg-white'">
           <input type="radio" name="draw_style" :value="d.value" v-model="design.draw_style" class="mt-1 accent-amber-500" />
@@ -175,7 +175,6 @@
           </div>
         </div>
       </div>
-      <p v-else class="text-sm text-ink-muted bg-gray-50 rounded-xl p-3">2D 룰렛 휠은 기본 화면 그대로 사용돼요. 색·배경·로고 꾸미기는 3D 추첨기에서만 가능해요.</p>
 
       <p v-if="design.error" class="text-sm text-red-500 mt-3">{{ design.error }}</p>
       <div class="flex justify-end gap-2 mt-5">
@@ -242,7 +241,6 @@ onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTim
 // ───── 추첨 화면(게임) 선택 + 테마 꾸미기 ─────
 // 새 게임을 추가하려면 이 배열에 한 줄만 추가하면 됩니다 (value 는 백엔드 draw_style 값과 동일해야 함).
 const DRAW_STYLES = [
-  { value: 'wheel', emoji: '🎡', label: '2D 룰렛 휠', desc: '기본 룰렛이 돌아가며 당첨자를 보여 줘요.' },
   { value: 'lottery3d', emoji: '🎱', label: '3D 추첨기(공 뽑기)', desc: '3D 추첨기에서 공이 섞이다 당첨 번호가 나와요. 색·배경·로고를 꾸밀 수 있어요.' },
 ]
 const design = ref(null)   // { item, draw_style, theme, saving, error }
@@ -250,7 +248,7 @@ const stageRef = ref(null)
 const previewKey = ref(0)
 function openDesign(item) {
   const theme = item.theme && typeof item.theme === 'object' && !Array.isArray(item.theme) ? { ...item.theme } : {}
-  design.value = { item, draw_style: item.draw_style || 'wheel', theme, saving: false, error: '' }
+  design.value = { item, draw_style: 'lottery3d', theme, saving: false, error: '' }
 }
 function closeDesign() { if (!design.value?.saving) design.value = null }
 async function saveDesign() {

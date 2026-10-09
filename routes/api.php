@@ -183,6 +183,7 @@ Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
+Route::get('/sweepstakes-rules', [\App\Http\Controllers\API\SweepstakesRulesController::class, 'show']);
 Route::get('/sweepstakes', [\App\Http\Controllers\API\SweepstakesController::class, 'index']);
 Route::get('/sweepstakes/recent-winners', [\App\Http\Controllers\API\SweepstakesController::class, 'recentWinners']);
 Route::get('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\SweepstakesController::class, 'show']);
@@ -792,6 +793,8 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/entries/users/{userId}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'userBalance']);
 
     // Sweepstakes 관리
+    Route::get('/sweepstakes-rules', [\App\Http\Controllers\API\SweepstakesRulesController::class, 'adminShow']);
+    Route::put('/sweepstakes-rules', [\App\Http\Controllers\API\SweepstakesRulesController::class, 'adminUpdate']);
     Route::get('/sweepstakes', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'index']);
     Route::post('/sweepstakes/upload-image', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'uploadImage'])->middleware('throttle:30,1');
     Route::post('/sweepstakes', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'store']);

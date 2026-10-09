@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Schema;
  */
 class SweepstakesDrawReplay
 {
-    public const DRAW_STYLES = ['wheel', 'lottery3d'];
+    public const DRAW_STYLES = ['lottery3d'];
 
     private const COLOR_KEYS = ['bg_top', 'bg_bottom', 'accent', 'floor', 'glass_tint'];
     private const URL_KEYS = ['logo_url', 'prize_image_url', 'background_image_url'];
@@ -34,14 +34,15 @@ class SweepstakesDrawReplay
     /** 공개 응답에 합쳐 내려줄 추가 필드 (draw_style, theme, draw) */
     public static function extra(Sweepstakes $sweepstakes): array
     {
-        $style = $sweepstakes->getAttribute('draw_style');
-        $style = in_array($style, self::DRAW_STYLES, true) ? $style : 'wheel';
+        // 2D 휠은 폐지 — 추첨 화면은 3D 추첨기 하나뿐 (기존 'wheel'/빈 값도 항상 lottery3d)
+        $style = 'lottery3d';
         $theme = $sweepstakes->getAttribute('theme');
 
         return [
             'draw_style' => $style,
             'theme' => is_array($theme) ? $theme : null,
             'winner_count' => max(1, (int) ($sweepstakes->getAttribute('winner_count') ?? 1)),
+            'prize_mode' => $sweepstakes->getAttribute('prize_mode') === 'tiered' ? 'tiered' : 'same',
             'prize_tiers' => is_array($sweepstakes->getAttribute('prize_tiers')) ? $sweepstakes->getAttribute('prize_tiers') : null,
             'draw' => self::build($sweepstakes),
         ];
@@ -98,6 +99,8 @@ class SweepstakesDrawReplay
                     'winning_ticket' => max(1, min($total, (int) $w->winning_index + 1)),
                     'winner_display_name' => (string) ($w->user?->display_name ?? ''),
                     'prize_label' => $w->prize_label ?: $sweepstakes->prizeLabelForRank((int) $w->rank),
+                    'prize_image' => $sweepstakes->prizeImageForRank((int) $w->rank),
+                    'prize_value' => $sweepstakes->prizeValueForRank((int) $w->rank),
                 ];
             }
         }
@@ -107,6 +110,8 @@ class SweepstakesDrawReplay
                 'winning_ticket' => $ticket,
                 'winner_display_name' => $winnerName,
                 'prize_label' => $sweepstakes->prizeLabelForRank(1),
+                'prize_image' => $sweepstakes->prizeImageForRank(1),
+                'prize_value' => $sweepstakes->prizeValueForRank(1),
             ];
         } else {
             // 하위 호환 키는 1등 값으로
