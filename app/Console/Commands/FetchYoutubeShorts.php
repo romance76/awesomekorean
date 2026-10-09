@@ -223,7 +223,7 @@ class FetchYoutubeShorts extends Command
                     // 힌디·아랍·키릴 등 비한국 문자가 설명글에 있으면 제외
                     if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]|[\x{0400}-\x{04FF}]|[\x{3040}-\x{30FF}]/u', $desc)) continue;
                     // 인도·남아시아·게임 스팸 성격의 키워드(제목·채널·설명 어디든)
-                    if (preg_match('/pubg|bgmi|freefire|free fire|garena|zodiac|astrolog|horoscope|rashifal|cricket|\bipl\b|chhath|diwali|hindu|\bindia|bharat|\bmodi\b|\bpuja\b|sadhu|ganga|punjab|pakistan|bangladesh|nepal|sri ?lanka|mumbai|delhi|kolkata|bdesib/i', $all)) continue;
+                    if (preg_match('/pubg|bgmi|freefire|free fire|garena|zodiac|astrolog|horoscope|rashifal|cricket|\bipl\b|chhath|diwali|hindu|\bindia(n|ns)?\b|bharat|\bmodi\b|\bpuja\b|sadhu|ganga|punjab|pakistan|bangladesh|nepal|sri ?lanka|mumbai|delhi|kolkata|\bdesi\b/i', $all)) continue;
                     if (!$hasHangul) {
                         // 한국어가 전혀 없는 영상은 '영어 또는 한국어'로 표시된 영상만 허용 (언어 표시가 없거나 다른 언어면 제외)
                         $audio = strtolower($v['snippet']['defaultAudioLanguage'] ?? $v['snippet']['defaultLanguage'] ?? '');
