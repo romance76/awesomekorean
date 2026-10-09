@@ -399,9 +399,14 @@
               <div v-if="isNewDay(i)" class="flex justify-center my-3"><span class="text-[11px] text-ink-muted bg-white border border-gray-100 rounded-full px-3 py-0.5">{{ dayLabel(m.created_at) }}</span></div>
               <div class="flex items-end gap-1.5 mb-1.5 group" :class="m.sender_id === auth.user?.id ? 'justify-end' : 'justify-start'">
                 <template v-if="m.sender_id === auth.user?.id">
-                  <button @click="deleteMsg(m)" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" title="삭제"><AppIcon name="trash" :size="13" /></button>
-                  <span class="text-[10px] text-ink-faint">{{ timeLabel(m.created_at) }}</span>
-                  <div class="max-w-[70%] bg-amber-400 text-white text-sm rounded-2xl rounded-br-sm px-3 py-2 whitespace-pre-wrap break-words">{{ m.content }}</div>
+                  <button v-if="!m._tmp" @click="deleteMsg(m)" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition" title="삭제"><AppIcon name="trash" :size="13" /></button>
+                  <span v-if="m._failed" class="text-[10px] text-red-500 flex flex-col items-end leading-tight">
+                    <span>전송 실패</span>
+                    <span><button type="button" class="underline" @click="msgRetry(msgPartner.id, m.id)">재전송</button> · <button type="button" class="underline text-ink-faint" @click="msgDiscard(m.id)">삭제</button></span>
+                  </span>
+                  <span v-else-if="m._tmp" class="inline-block w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></span>
+                  <span v-else class="text-[10px] text-ink-faint">{{ timeLabel(m.created_at) }}</span>
+                  <div class="max-w-[70%] bg-amber-400 text-white text-sm rounded-2xl rounded-br-sm px-3 py-2 whitespace-pre-wrap break-words" :class="m._failed ? 'ring-2 ring-red-400' : (m._tmp ? 'opacity-60' : '')">{{ m.content }}</div>
                 </template>
                 <template v-else>
                   <div class="max-w-[70%] bg-white border border-gray-100 text-ink text-sm rounded-2xl rounded-bl-sm px-3 py-2 whitespace-pre-wrap break-words">{{ m.content }}</div>
@@ -411,8 +416,8 @@
             </template>
           </div>
           <div class="flex items-end gap-2 mt-3">
-            <textarea v-model="msgInput" rows="2" maxlength="500" placeholder="쪽지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1" @keydown.enter="onMsgEnter"></textarea>
-            <button @click="sendMsg" :disabled="msgSending || !msgInput.trim()" class="btn-primary"><AppIcon name="send" :size="14" /> 보내기</button>
+            <textarea ref="msgInputEl" v-model="msgInput" rows="2" maxlength="500" placeholder="쪽지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1" @keydown.enter="onMsgEnter"></textarea>
+            <button @click="sendMsg" @mousedown.prevent :disabled="!msgInput.trim()" class="btn-primary"><AppIcon name="send" :size="14" /> 보내기</button>
           </div>
         </template>
       </div>
@@ -1132,6 +1137,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import AvatarCropper from '../../components/AvatarCropper.vue'
 import { useMemberGrades } from '../../composables/useMemberGrades'
+import { useMessageSender } from '../../composables/useMessageSender'
 
 const { showAlert, showConfirm, showPrompt } = useModal()
 
@@ -1476,7 +1482,9 @@ async function doEntryCheckin() {
 // ─── 쪽지 (상대방별 대화) ───
 const threads = ref([]); const msgUnread = ref(0)
 const msgPartner = ref(null); const thread = ref([]); const threadBox = ref(null)
-const msgInput = ref(''); const msgSending = ref(false)
+const msgInput = ref('')
+const msgInputEl = ref(null)
+const { send: msgSendOptimistic, retry: msgRetry, discard: msgDiscard, merge: msgMerge } = useMessageSender(thread, () => auth.user?.id)
 const showStrangers = ref(false)
 const friendThreads = computed(() => threads.value.filter(t => t.is_friend))
 const strangerThreads = computed(() => threads.value.filter(t => !t.is_friend))
@@ -1499,10 +1507,13 @@ async function openThread(partner) {
 }
 async function loadThread(silent) {
   if (!msgPartner.value) return
+  const startedAt = Date.now()
+  const pid = msgPartner.value.id
   try {
-    const { data } = await axios.get('/api/messages/thread/' + msgPartner.value.id)
+    const { data } = await axios.get('/api/messages/thread/' + pid)
+    if (!msgPartner.value || msgPartner.value.id !== pid) return
     const prev = thread.value.length
-    thread.value = data.data || []
+    thread.value = msgMerge(data.data || [], startedAt)
     if (data.partner) msgPartner.value = { ...msgPartner.value, ...data.partner }
     msgUnread.value = data.unread_count || 0
     const t = threads.value.find(x => x.partner.id === msgPartner.value.id); if (t) t.unread = 0
@@ -1511,16 +1522,14 @@ async function loadThread(silent) {
 }
 function closeThread() { msgPartner.value = null; loadMessages() }
 function onMsgEnter(e) { if (e.shiftKey || e.isComposing || e.keyCode === 229) return; e.preventDefault(); sendMsg() }
-async function sendMsg() {
+function sendMsg() {
   const content = msgInput.value.trim()
-  if (!content || msgSending.value || !msgPartner.value) return
-  msgSending.value = true
-  try {
-    const { data } = await axios.post('/api/messages', { receiver_id: msgPartner.value.id, content })
-    thread.value.push(data.data || { id: Date.now(), sender_id: auth.user?.id, receiver_id: msgPartner.value.id, content, created_at: new Date().toISOString() })
-    msgInput.value = ''; scrollThreadBottom()
-  } catch (e) { showAlert(e.response?.data?.message || '전송 실패', '오류') }
-  msgSending.value = false
+  if (!content || !msgPartner.value) return
+  // 즉시 말풍선 표시 + 입력창 비우기 (전송은 뒤에서 순서대로, 입력창은 막지 않음)
+  msgInput.value = ''
+  msgSendOptimistic(msgPartner.value.id, content)
+  scrollThreadBottom()
+  nextTick(() => msgInputEl.value?.focus?.({ preventScroll: true }))
 }
 async function deleteThread(partner) {
   if (!confirm((partner.name || '이 사람') + '님과의 대화를 모두 삭제하시겠습니까?\n내 쪽지함에서만 지워지고, 상대방 쪽지함에는 그대로 남습니다.')) return
@@ -1968,5 +1977,19 @@ onMounted(() => {
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
   msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 15000)
 })
-onUnmounted(() => { if (msgPoll) clearInterval(msgPoll) })
+// 새 쪽지 실시간 알림(.notification.new)이 오면 15초 폴링을 기다리지 않고 바로 새로고침
+const onMsgNotify = () => { if (tab.value === 'messages') loadMessages() }
+let msgEchoUid = null
+onMounted(() => {
+  try {
+    if (window.Echo && auth.user?.id) {
+      msgEchoUid = auth.user.id
+      window.Echo.private(`user.${msgEchoUid}`).listen('.notification.new', onMsgNotify)
+    }
+  } catch {}
+})
+onUnmounted(() => {
+  if (msgPoll) clearInterval(msgPoll)
+  try { if (msgEchoUid && window.Echo) window.Echo.private(`user.${msgEchoUid}`).stopListening('.notification.new', onMsgNotify) } catch {}
+})
 </script>

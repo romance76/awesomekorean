@@ -52,7 +52,7 @@
         <!-- Club header / banner -->
         <div class="card overflow-hidden mb-4">
           <!-- Cover image -->
-          <div class="h-36 sm:h-48 bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] relative">
+          <div class="h-36 sm:h-48 bg-gradient-to-r from-[#FF7AA8] to-[#FC226B] relative">
             <img v-if="club.cover_image" :src="coverImageUrl" class="w-full h-full object-cover"
               @error="$event.target.style.display='none'" />
           </div>
@@ -116,6 +116,12 @@
                   :class="gradeStyle(myGrade)">
                   {{ gradeLabel(myGrade) }}
                 </span>
+                <!-- 동호회 관리 (방장/관리자) — 모바일·데스크톱 모두 노출 -->
+                <button v-if="isMember && isAdmin" @click="openManage"
+                  class="btn-soft !px-4 !py-2 !text-xs relative ml-auto">
+                  <AppIcon name="settings" :size="14" />동호회 관리
+                  <span v-if="pendingMembers.length" class="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
+                </button>
               </template>
               <template v-else>
                 <RouterLink to="/login" class="btn-primary !px-6">
@@ -386,6 +392,33 @@
             </div>
           </div>
 
+          <!-- 방장 전용: 양도 / 삭제 -->
+          <div v-if="isOwner" class="card overflow-hidden">
+            <div class="px-5 py-3 border-b border-gray-50">
+              <h3 class="text-sm font-bold text-ink flex items-center gap-2">
+                <span class="icon-chip w-6 h-6 bg-amber-50 text-amber-600"><AppIcon name="shield" :size="14" /></span>방장 설정
+              </h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <button @click="openTransfer"
+                class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 transition-colors">
+                <AppIcon name="users" :size="18" class="text-amber-600" />
+                <div>
+                  <div class="text-sm font-semibold text-ink">방장 양도</div>
+                  <div class="text-xs text-ink-muted">다른 회원에게 방장 권한을 넘겨요 (나는 관리자로 남아요)</div>
+                </div>
+              </button>
+              <button @click="openDelete"
+                class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-red-200 hover:bg-red-50 transition-colors">
+                <AppIcon name="trash" :size="18" class="text-red-500" />
+                <div>
+                  <div class="text-sm font-semibold text-red-600">동호회 삭제</div>
+                  <div class="text-xs text-ink-muted">목록에서 사라지고 더 이상 접근할 수 없어요</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
           <!-- Board management -->
           <div class="card overflow-hidden">
             <div class="px-5 py-3 border-b border-gray-50 flex items-center justify-between">
@@ -545,9 +578,9 @@
               <span class="text-ink-muted">개설일</span>
               <span class="font-semibold text-ink">{{ formatDate(club.created_at) }}</span>
             </div>
-            <div v-if="club.owner" class="flex items-center justify-between text-xs">
-              <span class="text-ink-muted">운영자</span>
-              <UserName :userId="club.owner?.id || club.user_id" :name="club.owner?.name || '운영자'" class="font-semibold text-ink" />
+            <div v-if="club.owner || club.user" class="flex items-center justify-between text-xs">
+              <span class="text-ink-muted">방장</span>
+              <UserName :userId="club.user_id" :name="(club.owner || club.user)?.nickname || (club.owner || club.user)?.name || '방장'" class="font-semibold text-ink" />
             </div>
           </div>
         </div>
@@ -566,6 +599,100 @@
       <RouterLink to="/clubs" class="text-amber-600 hover:text-amber-700 font-semibold text-sm transition-colors">동호회 목록으로</RouterLink>
     </div>
   </div>
+
+
+  <!-- ===== 동호회 관리 시트 ===== -->
+  <Teleport to="body">
+    <div v-if="showManage && club" class="fixed inset-0 z-[300] flex items-end sm:items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="showManage = false"></div>
+      <div class="relative bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-base font-bold text-ink">동호회 관리</h3>
+          <button @click="showManage = false" class="text-ink-muted p-1" aria-label="닫기"><AppIcon name="x" :size="20" /></button>
+        </div>
+        <div class="space-y-2">
+          <RouterLink :to="`/clubs/${club.id}/edit`" @click="showManage = false"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-amber-50/50">
+            <AppIcon name="edit" :size="18" class="text-amber-600" />
+            <div><div class="text-sm font-semibold text-ink">정보·대문 수정</div><div class="text-xs text-ink-muted">이름, 소개, 규칙, 대표·커버 이미지, 공개 여부</div></div>
+          </RouterLink>
+          <button @click="goSettings('settings')" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-amber-50/50">
+            <AppIcon name="users" :size="18" class="text-amber-600" />
+            <div class="flex-1"><div class="text-sm font-semibold text-ink">가입 신청 · 게시판 관리</div><div class="text-xs text-ink-muted">승인 대기 {{ pendingMembers.length }}명</div></div>
+          </button>
+          <button @click="goSettings('members')" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-amber-50/50">
+            <AppIcon name="user" :size="18" class="text-amber-600" />
+            <div><div class="text-sm font-semibold text-ink">멤버 관리</div><div class="text-xs text-ink-muted">등급 변경, 강퇴</div></div>
+          </button>
+          <template v-if="isOwner">
+            <button @click="openTransfer" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 hover:bg-amber-50/50">
+              <AppIcon name="shield" :size="18" class="text-amber-600" />
+              <div><div class="text-sm font-semibold text-ink">방장 양도</div><div class="text-xs text-ink-muted">다른 회원에게 방장 권한 넘기기</div></div>
+            </button>
+            <button @click="openDelete" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl border border-red-200 hover:bg-red-50">
+              <AppIcon name="trash" :size="18" class="text-red-500" />
+              <div><div class="text-sm font-semibold text-red-600">동호회 삭제</div><div class="text-xs text-ink-muted">목록에서 사라져요</div></div>
+            </button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- ===== 방장 양도 모달 ===== -->
+  <Teleport to="body">
+    <div v-if="showTransfer && club" class="fixed inset-0 z-[310] flex items-end sm:items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="closeTransfer"></div>
+      <div class="relative bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-base font-bold text-ink">방장 양도</h3>
+          <button @click="closeTransfer" class="text-ink-muted p-1" aria-label="닫기"><AppIcon name="x" :size="20" /></button>
+        </div>
+        <template v-if="!transferTarget">
+          <p class="text-xs text-ink-muted mb-2">방장을 넘겨줄 회원을 골라주세요. 승인된 회원만 선택할 수 있어요.</p>
+          <input v-model="transferSearch" type="text" placeholder="이름·닉네임 검색" class="input-soft mb-2" />
+          <div class="overflow-y-auto flex-1 min-h-[120px] divide-y divide-gray-50 border border-gray-100 rounded-xl">
+            <div v-if="transferLoading" class="py-8 text-center text-sm text-ink-muted">불러오는 중...</div>
+            <div v-else-if="!transferCandidates.length" class="py-8 text-center text-sm text-ink-muted">양도할 수 있는 회원이 없어요</div>
+            <button v-for="m in transferCandidates" :key="m.id" @click="transferTarget = m"
+              class="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-amber-50/50">
+              <span class="w-8 h-8 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-xs font-bold text-ink-muted flex-shrink-0">
+                <span>{{ (memberName(m) || '?').slice(0, 1) }}</span>
+              </span>
+              <span class="flex-1 text-sm font-semibold text-ink truncate">{{ memberName(m) }}</span>
+              <span class="text-[11px] px-2 py-0.5 rounded-full" :class="gradeStyle(m.grade)">{{ gradeLabel(m.grade) }}</span>
+            </button>
+          </div>
+        </template>
+        <template v-else>
+          <p class="text-sm text-ink leading-relaxed py-3">
+            <b>{{ memberName(transferTarget) }}</b>님에게 방장을 양도합니다.<br />
+            양도 후에는 되돌릴 수 없어요 — 계속할까요?
+          </p>
+          <p class="text-xs text-ink-muted mb-4">양도 후 나는 관리자로 남아요.</p>
+          <div class="flex gap-2">
+            <button @click="transferTarget = null" :disabled="transferring" class="btn-secondary flex-1 !py-3">뒤로</button>
+            <button @click="doTransfer" :disabled="transferring" class="btn-primary flex-1 !py-3">{{ transferring ? '양도 중...' : '양도하기' }}</button>
+          </div>
+        </template>
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- ===== 동호회 삭제 확인 ===== -->
+  <Teleport to="body">
+    <div v-if="showDelete && club" class="fixed inset-0 z-[310] flex items-end sm:items-center justify-center">
+      <div class="absolute inset-0 bg-black/40" @click="!deleting && (showDelete = false)"></div>
+      <div class="relative bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5 pb-8">
+        <h3 class="text-base font-bold text-ink mb-2">동호회를 삭제할까요?</h3>
+        <p class="text-sm text-ink-light leading-relaxed mb-4">'{{ club.name }}'이(가) 목록에서 사라지고 회원들도 더 이상 들어올 수 없어요. 방장만 삭제할 수 있어요.</p>
+        <div class="flex gap-2">
+          <button @click="showDelete = false" :disabled="deleting" class="btn-secondary flex-1 !py-3">취소</button>
+          <button @click="doDelete" :disabled="deleting" class="flex-1 !py-3 rounded-xl font-bold text-sm bg-red-500 text-white hover:bg-red-600 disabled:opacity-60">{{ deleting ? '삭제 중...' : '삭제하기' }}</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 
   <!-- 동호회 채팅 자동 열기 (글로벌 팝업 사용) -->
 </div>
@@ -1049,6 +1176,85 @@ async function createChatRoom() {
   } catch (e) {
     alert(e.response?.data?.message || '채팅방 생성 실패')
   }
+}
+
+// ===== 동호회 관리 / 방장 양도 / 삭제 =====
+const showManage = ref(false)
+const showTransfer = ref(false)
+const showDelete = ref(false)
+const transferLoading = ref(false)
+const transferring = ref(false)
+const deleting = ref(false)
+const transferSearch = ref('')
+const transferTarget = ref(null)
+const transferMembers = ref([])
+
+function memberName(m) { return m?.user?.nickname || m?.user?.name || '회원' }
+
+const transferCandidates = computed(() => {
+  const q = transferSearch.value.trim().toLowerCase()
+  return transferMembers.value.filter(m => {
+    const uid = m.user?.id || m.user_id
+    if (uid === auth.user?.id || uid === club.value?.user_id) return false
+    if (!q) return true
+    return `${m.user?.name || ''} ${m.user?.nickname || ''}`.toLowerCase().includes(q)
+  })
+})
+
+function openManage() { showManage.value = true; loadPendingMembers() }
+function goSettings(tab) {
+  showManage.value = false
+  activeTab.value = tab
+  if (tab === 'members') loadMembers()
+  else loadPendingMembers()
+  window.scrollTo({ top: 300, behavior: 'smooth' })
+}
+async function openTransfer() {
+  showManage.value = false
+  transferTarget.value = null
+  transferSearch.value = ''
+  showTransfer.value = true
+  transferLoading.value = true
+  try {
+    const { data } = await axios.get(`/api/clubs/${club.value.id}/members`)
+    transferMembers.value = data.data || []
+  } catch {
+    transferMembers.value = []
+    siteStore.toast('회원 목록을 불러오지 못했어요', 'error')
+  }
+  transferLoading.value = false
+}
+function closeTransfer() { if (!transferring.value) showTransfer.value = false }
+async function doTransfer() {
+  if (!transferTarget.value || transferring.value) return
+  transferring.value = true
+  try {
+    const uid = transferTarget.value.user?.id || transferTarget.value.user_id
+    await axios.post(`/api/clubs/${club.value.id}/transfer-owner`, { user_id: uid })
+    siteStore.toast('방장을 양도했어요', 'success')
+    showTransfer.value = false
+    transferTarget.value = null
+    activeTab.value = 'board'
+    await loadClub()
+  } catch (e) {
+    const errs = e.response?.data?.errors ? Object.values(e.response.data.errors).flat().join(', ') : ''
+    siteStore.toast(e.response?.data?.message || errs || '양도에 실패했어요. 잠시 후 다시 시도해주세요', 'error')
+  }
+  transferring.value = false
+}
+function openDelete() { showManage.value = false; showDelete.value = true }
+async function doDelete() {
+  if (deleting.value) return
+  deleting.value = true
+  try {
+    await axios.delete(`/api/clubs/${club.value.id}`)
+    siteStore.toast('동호회가 삭제되었어요', 'success')
+    showDelete.value = false
+    router.replace('/clubs')
+  } catch (e) {
+    siteStore.toast(e.response?.data?.message || '삭제에 실패했어요. 잠시 후 다시 시도해주세요', 'error')
+  }
+  deleting.value = false
 }
 
 // Initialize

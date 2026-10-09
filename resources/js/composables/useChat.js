@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
@@ -14,7 +14,8 @@ export function useChat(initialConversationId, partnerId) {
   const isLoading   = ref(false)
   const hasMore     = ref(false)
   const currentPage = ref(1)
-  const isSending   = ref(false)
+  const pendingCount = ref(0)
+  const isSending   = computed(() => pendingCount.value > 0)
   let   convId      = initialConversationId ? Number(initialConversationId) : null
   let   channel     = null
 
@@ -59,7 +60,7 @@ export function useChat(initialConversationId, partnerId) {
       )
       const rows = [...(data.data || [])].map(normalize).reverse() // 최신순 → 오래된 순
       if (page === 1) {
-        const pending = messages.value.filter(m => m.isPending)
+        const pending = messages.value.filter(m => m.isPending || m.failed)
         messages.value = mergeUnique([...rows, ...pending])
       } else {
         messages.value = mergeUnique([...rows, ...messages.value])
@@ -71,23 +72,17 @@ export function useChat(initialConversationId, partnerId) {
     }
   }
 
-  async function sendMessage(pId, body) {
-    if (!body.trim() || isSending.value) return
-    isSending.value = true
+  // 보내기 대기열 — 연속으로 빨리 보내도 순서대로 전송한다 (입력창은 막지 않음)
+  let sendChain = Promise.resolve()
+  let tempSeq   = 0
 
-    const tempMsg = {
-      id:         'temp-' + Date.now(),
-      body,
-      sender_id:  myId(),
-      created_at: new Date().toISOString(),
-      isPending:  true,
-    }
-    messages.value.push(tempMsg)
-
+  /** 서버에 한 건 전송. 성공하면 임시 말풍선을 서버 메시지로 교체, 실패하면 '실패' 표시(재전송 가능) */
+  async function deliver(pId, tempMsg) {
+    const idx0 = () => messages.value.findIndex(m => m.id === tempMsg.id)
     try {
       const { data } = await axios.post(
         `/api/comms/conversations/${pId}/send`,
-        { body }
+        { body: tempMsg.body }
       )
       const saved = { ...normalize(data), sender_id: myId(), isPending: false }
       // 첫 메시지로 대화가 생긴 경우 → 지금부터 실시간 구독
@@ -95,16 +90,58 @@ export function useChat(initialConversationId, partnerId) {
         convId = Number(data.conversation_id)
         subscribe()
       }
-      // 임시 메시지를 서버 응답으로 교체 (이미 같은 id 가 있으면 중복 제거)
+      // 임시 메시지를 서버 응답으로 교체 (실시간/새로고침으로 이미 같은 id 가 들어와 있으면 중복 제거)
       messages.value = mergeUnique(
         messages.value.map(m => (m.id === tempMsg.id ? saved : m))
       )
     } catch (err) {
-      messages.value = messages.value.filter(m => m.id !== tempMsg.id)
-      throw err
-    } finally {
-      isSending.value = false
+      const i = idx0()
+      if (i !== -1) {
+        messages.value[i] = {
+          ...messages.value[i],
+          isPending: false,
+          failed: true,
+          errorMsg: err?.response?.data?.error || err?.response?.data?.message || '',
+        }
+      }
     }
+  }
+
+  function enqueue(pId, tempMsg) {
+    pendingCount.value++
+    sendChain = sendChain
+      .then(() => deliver(pId, tempMsg))
+      .catch(() => {})
+      .finally(() => { pendingCount.value-- })
+  }
+
+  /** 즉시 말풍선을 보여주고(대기 상태) 뒤에서 전송. 입력창은 호출한 쪽에서 바로 비운다. */
+  function sendMessage(pId, body) {
+    body = (body || '').trim()
+    if (!body) return
+    const tempMsg = {
+      id:         'temp-' + Date.now() + '-' + (++tempSeq),
+      body,
+      sender_id:  myId(),
+      created_at: new Date().toISOString(),
+      isPending:  true,
+    }
+    messages.value.push(tempMsg)
+    enqueue(pId, tempMsg)
+  }
+
+  /** 실패한 메시지 재전송 (맨 뒤로 다시 대기열에 넣음) */
+  function retryMessage(pId, tempId) {
+    const i = messages.value.findIndex(m => m.id === tempId)
+    if (i === -1) return
+    const m = { ...messages.value[i], isPending: true, failed: false, errorMsg: '' }
+    messages.value[i] = m
+    enqueue(pId, m)
+  }
+
+  /** 실패한 메시지 지우기 */
+  function discardMessage(tempId) {
+    messages.value = messages.value.filter(m => m.id !== tempId)
   }
 
   function subscribe() {
@@ -142,6 +179,8 @@ export function useChat(initialConversationId, partnerId) {
     hasMore,
     loadMessages,
     sendMessage,
+    retryMessage,
+    discardMessage,
     loadMore,
     subscribe,
     unsubscribe,

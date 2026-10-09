@@ -32,6 +32,7 @@
     <SweepstakesReminderPrompt v-if="showNav && auth.isLoggedIn" />
     <WinnerPrizePrompt v-if="showNav && auth.isLoggedIn" />
     <FlyerPrompt v-if="showNav" />
+    <InstallAppPrompt v-if="showNav" />
 
     <main>
       <router-view v-slot="{ Component }" :key="route.fullPath">
@@ -93,6 +94,7 @@ import PopupBanner from './components/PopupBanner.vue'
 import CheckinPrompt from './components/CheckinPrompt.vue'
 import SweepstakesReminderPrompt from './components/SweepstakesReminderPrompt.vue'
 import FlyerPrompt from './components/FlyerPrompt.vue'
+import InstallAppPrompt from './components/InstallAppPrompt.vue'
 import WinnerPrizePrompt from './components/WinnerPrizePrompt.vue'
 import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 

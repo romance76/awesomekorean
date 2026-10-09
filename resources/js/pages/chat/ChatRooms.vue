@@ -227,11 +227,16 @@
                 <!-- 일반 텍스트 메시지 -->
                 <div v-else class="px-3 py-2 rounded-2xl text-sm"
                   :class="[
-                    msg.user_id === auth.user?.id ? 'bg-amber-400 text-white rounded-br-md' : (isAdminUser(msg.user) ? 'bg-red-50 text-red-900 border border-red-200 rounded-bl-md' : 'bg-white shadow-card text-ink rounded-bl-md')
+                    msg.user_id === auth.user?.id ? 'bg-amber-400 text-white rounded-br-md' : (isAdminUser(msg.user) ? 'bg-red-50 text-red-900 border border-red-200 rounded-bl-md' : 'bg-white shadow-card text-ink rounded-bl-md'),
+                    msg._failed ? 'ring-2 ring-red-400' : (msg._tmp ? 'opacity-60' : '')
                   ]">
                   {{ msg.content }}
                 </div>
-                <div class="text-[11px] text-ink-faint mt-0.5" :class="msg.user_id === auth.user?.id ? 'text-right' : ''">
+                <div v-if="msg._failed" class="text-[11px] text-red-500 mt-0.5 text-right">
+                  전송 실패 · <button type="button" class="underline" @click="retryChatMsg(msg)">재전송</button> · <button type="button" class="underline text-ink-faint" @click="discardChatMsg(msg)">삭제</button>
+                </div>
+                <div v-else class="text-[11px] text-ink-faint mt-0.5 flex items-center gap-1" :class="msg.user_id === auth.user?.id ? 'justify-end' : ''">
+                  <span v-if="msg._tmp" class="inline-block w-2.5 h-2.5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></span>
                   {{ formatTime(msg.created_at) }}
                 </div>
               </div>
@@ -317,7 +322,7 @@
                   :class="showEmojiPicker ? 'bg-amber-100 text-amber-600' : ''"
                   :disabled="!auth.isLoggedIn" title="이모티콘"><AppIcon name="smile" :size="20" /></button>
                 <!-- 입력 필드 -->
-                <input v-model="newMsg" type="text" :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'" :disabled="!auth.isLoggedIn"
+                <input ref="msgInputEl" v-model="newMsg" type="text" :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'" :disabled="!auth.isLoggedIn"
                   class="flex-1 min-w-0 bg-transparent border-0 px-1 py-2 text-sm outline-none disabled:cursor-not-allowed" />
                 <!-- 파일 첨부 (오른쪽 끝) -->
                 <label class="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-200 hover:text-amber-600 cursor-pointer transition"
@@ -327,7 +332,7 @@
                 </label>
               </div>
               <!-- 전송 버튼 (원형) -->
-              <button type="submit" :disabled="(!newMsg.trim() && !selectedFiles.length) || !auth.isLoggedIn || sending"
+              <button type="submit" @mousedown.prevent :disabled="(!newMsg.trim() && !selectedFiles.length) || !auth.isLoggedIn || sending"
                 class="bg-amber-400 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-btn hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 transition-colors"
                 :title="sending ? '전송 중...' : '전송'">
                 <span v-if="sending" class="text-xs">...</span>
@@ -686,7 +691,8 @@ const newRoomName = ref('')
 const newMsg = ref('')
 const msgArea = ref(null)
 const selectedFiles = ref([])   // [{file, preview, type}]
-const sending = ref(false)
+const sending = ref(false) // 파일 업로드 전송 중일 때만 true (텍스트 전송은 낙관적 UI 라 막지 않음)
+const msgInputEl = ref(null)
 const lightboxSrc = ref(null)
 
 // ─── 공개 채팅방 입장료(24시간 이용권) ───
@@ -1298,9 +1304,100 @@ async function selectRoom(room, opts = {}) {
   }
 }
 
+// ─── 텍스트 전송: 낙관적 UI (즉시 말풍선 → 서버 응답으로 교체, 실패 시 재전송) ───
+let chatSendChain = Promise.resolve()
+let chatTempSeq = 0
+
+function _meForChat() {
+  const u = auth.user || {}
+  return { id: u.id, name: u.name, nickname: u.nickname, avatar: u.avatar, role: u.role }
+}
+
+async function deliverChatMsg(temp) {
+  const rid = temp.chat_room_id
+  const sameRoom = () => Number(activeRoom.value?.id) === Number(rid)
+  try {
+    const fd = new FormData()
+    fd.append('content', temp.content)
+    const { data } = await axios.post(`/api/chat/rooms/${rid}/messages`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    const msgs = data.messages || (data.data ? [data.data] : [])
+    const saved = msgs[0]
+    if (sameRoom()) {
+      const list = activeMessages.value
+      const hasSaved = saved && list.some(x => x.id === saved.id) // 실시간으로 먼저 도착한 경우
+      const ti = list.findIndex(x => x.id === temp.id)
+      if (saved && hasSaved) {
+        if (ti !== -1) list.splice(ti, 1)
+      } else if (saved && ti !== -1) {
+        list.splice(ti, 1, saved)
+      } else if (saved) {
+        list.push(saved)
+      }
+    }
+    if (data.auto_extended) {
+      siteStore.toast(`24시간 이용권이 연장되어 ${data.auto_extend_cost}P가 차감되었습니다`, 'info')
+      auth.refreshBalance()
+    }
+  } catch (e) {
+    const err = e.response?.data
+    const msg = err?.message || err?.errors?.content?.[0] || '전송 실패'
+    if (sameRoom()) {
+      const i = activeMessages.value.findIndex(x => x.id === temp.id)
+      if (i !== -1) activeMessages.value[i] = { ...activeMessages.value[i], _tmp: true, _failed: true, _error: msg }
+    }
+    // 금칙어·입장권 필요 등 서버 사유는 알려준다 (조용히 사라지지 않게)
+    siteStore.toast(msg, 'error')
+  }
+}
+
+function enqueueChatMsg(temp) {
+  chatSendChain = chatSendChain.then(() => deliverChatMsg(temp)).catch(() => {})
+}
+
+function retryChatMsg(msg) {
+  const i = activeMessages.value.findIndex(x => x.id === msg.id)
+  if (i === -1) return
+  const temp = { ...activeMessages.value[i], _tmp: true, _failed: false, _error: '' }
+  activeMessages.value[i] = temp
+  enqueueChatMsg(temp)
+}
+function discardChatMsg(msg) {
+  activeMessages.value = activeMessages.value.filter(x => x.id !== msg.id)
+}
+
 async function sendMsg() {
   if ((!newMsg.value.trim() && !selectedFiles.value.length) || !auth.isLoggedIn || !activeRoom.value) return
+  // 파일이 있으면 기존 방식(업로드 후 표시), 텍스트만이면 즉시 표시
+  if (selectedFiles.value.length) return sendMsgWithFiles()
+  const content = newMsg.value.trim()
   if (historyMode.value) await goLatest()
+  const temp = {
+    id: 'tmp-' + Date.now() + '-' + (++chatTempSeq),
+    chat_room_id: activeRoom.value.id,
+    user_id: auth.user?.id,
+    user: _meForChat(),
+    content,
+    type: 'text',
+    created_at: new Date().toISOString(),
+    _tmp: true,
+    _failed: false,
+  }
+  activeMessages.value.push(temp)
+  newMsg.value = ''
+  showEmojiPicker.value = false
+  clearSearchHighlight()
+  nextTick(() => {
+    if (msgArea.value) msgArea.value.scrollTop = msgArea.value.scrollHeight
+    msgInputEl.value?.focus?.({ preventScroll: true })
+  })
+  enqueueChatMsg(temp)
+}
+
+async function sendMsgWithFiles() {
+  if (historyMode.value) await goLatest()
+  if (sending.value) return
   sending.value = true
   try {
     const fd = new FormData()

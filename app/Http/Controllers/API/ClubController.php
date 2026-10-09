@@ -102,6 +102,13 @@ class ClubController extends Controller
     public function show($id)
     {
         $club = Club::with('user:id,name,nickname')->findOrFail($id);
+        // 삭제(보관)된 동호회는 일반 접근 불가 — 사이트 관리자만 볼 수 있음
+        if (!$club->is_active) {
+            $role = auth()->check() ? auth()->user()->role : null;
+            if (!in_array($role, ['admin', 'super_admin'], true)) {
+                return response()->json(['success' => false, 'message' => '삭제된 동호회예요'], 404);
+            }
+        }
         $membership = auth()->check()
             ? ClubMember::where('club_id', $id)->where('user_id', auth()->id())->first()
             : null;
@@ -187,35 +194,59 @@ class ClubController extends Controller
     public function update(Request $request, $id)
     {
         $club = Club::findOrFail($id);
-        $grade = $this->getMemberGrade($id, auth()->id());
 
-        if (!in_array($grade, ['owner', 'admin'])) {
-            return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+        // 운영진(방장/관리자) 또는 사이트 관리자만 수정 가능
+        if (!$this->isClubManager($id, auth()->id())) {
+            return response()->json(['success' => false, 'message' => '동호회를 수정할 권한이 없어요'], 403);
         }
 
+        // 빈 문자열은 null 로 들어오므로 필수 항목은 sometimes|required 로 막는다
+        // (이전엔 name/category 가 null 로 저장돼 DB 오류(500)가 날 수 있었음)
         $request->validate([
-            'name' => 'sometimes|max:100',
+            'name' => 'sometimes|required|max:100',
             'description' => 'nullable|max:2000',
             'rules' => 'nullable|max:2000',
-            'category' => 'sometimes',
-            'type' => 'sometimes|in:online,local',
-            'zipcode' => 'nullable|max:20',
+            'category' => 'sometimes|required|max:30',
+            'type' => 'sometimes|required|in:online,local',
+            'city' => 'nullable|max:80',
+            'state' => 'nullable|max:10',
+            'zipcode' => 'nullable|max:10',
             'max_members' => 'nullable|integer|min:0',
             'is_public' => 'nullable|boolean',
             'image' => 'nullable|image|max:5120',
             'cover_image' => 'nullable|image|max:5120',
+        ], [
+            'name.required' => '동호회 이름을 입력해주세요',
+            'name.max' => '동호회 이름은 100자 이내로 입력해주세요',
+            'category.required' => '카테고리를 선택해주세요',
+            'description.max' => '소개는 2000자 이내로 입력해주세요',
+            'rules.max' => '규칙은 2000자 이내로 입력해주세요',
+            'zipcode.max' => '우편번호는 10자 이내로 입력해주세요',
+            'image.image' => '대표 이미지는 사진 파일만 올릴 수 있어요',
+            'image.max' => '대표 이미지는 5MB 이하만 올릴 수 있어요',
+            'cover_image.image' => '커버 이미지는 사진 파일만 올릴 수 있어요',
+            'cover_image.max' => '커버 이미지는 5MB 이하만 올릴 수 있어요',
         ]);
 
-        $data = $request->only('name', 'description', 'rules', 'category', 'type', 'zipcode', 'lat', 'lng', 'max_members');
+        $data = $request->only('name', 'description', 'rules', 'category', 'type', 'city', 'state', 'zipcode', 'lat', 'lng');
+        // 요청에 실제로 담긴 항목만 반영 (없는 컬럼은 건드리지 않음)
+        $data = array_intersect_key($data, $request->all());
 
+        if ($request->has('max_members')) {
+            $data['max_members'] = (int) ($request->input('max_members') ?: 0); // NOT NULL 컬럼
+        }
         if ($request->has('is_public')) {
             $data['is_public'] = filter_var($request->input('is_public'), FILTER_VALIDATE_BOOLEAN);
         }
         if ($request->hasFile('image')) {
             $data['image'] = $this->storeCompressedImageRaw($request->file('image'), 'clubs', 800, 80);
+        } elseif (filter_var($request->input('remove_image', false), FILTER_VALIDATE_BOOLEAN)) {
+            $data['image'] = null; // 파일 자체는 지우지 않고 연결만 해제
         }
         if ($request->hasFile('cover_image')) {
             $data['cover_image'] = $this->storeCompressedImageRaw($request->file('cover_image'), 'clubs', 1600, 80);
+        } elseif (filter_var($request->input('remove_cover_image', false), FILTER_VALIDATE_BOOLEAN)) {
+            $data['cover_image'] = null;
         }
 
         $club->update($data);
@@ -223,20 +254,80 @@ class ClubController extends Controller
         return response()->json(['success' => true, 'data' => $club->fresh()]);
     }
 
+    /**
+     * 동호회 삭제 — 방장(또는 사이트 관리자)만. 데이터를 지우지 않고 비활성화(보관)한다.
+     * 목록/내 동호회에서 사라지고 상세 접근도 막히지만 글·멤버 기록은 DB 에 남는다.
+     */
     public function destroy($id)
     {
         $club = Club::findOrFail($id);
 
-        if ($this->getMemberGrade($id, auth()->id()) !== 'owner') {
-            return response()->json(['success' => false, 'message' => '모임장만 삭제할 수 있습니다'], 403);
+        if (!$this->isClubOwner($club, auth()->id())) {
+            return response()->json(['success' => false, 'message' => '방장만 동호회를 삭제할 수 있어요'], 403);
         }
 
-        ClubPost::where('club_id', $id)->delete();
-        ClubBoard::where('club_id', $id)->delete();
-        ClubMember::where('club_id', $id)->delete();
-        $club->delete();
+        $club->update(['is_active' => false]);
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => '동호회가 삭제되었어요']);
+    }
+
+    /** 방장 본인(또는 사이트 관리자)인지 */
+    private function isClubOwner(Club $club, $userId): bool
+    {
+        if ((int) $club->user_id === (int) $userId || $this->getMemberGrade($club->id, $userId) === 'owner') {
+            return true;
+        }
+        return in_array(\App\Models\User::find($userId)?->role, ['admin', 'super_admin'], true);
+    }
+
+    /**
+     * 방장 양도 — POST /clubs/{id}/transfer-owner {user_id}
+     * 현재 방장(또는 사이트 관리자)만 호출 가능, 대상은 승인된 멤버여야 한다.
+     * 기존 방장은 관리자(admin)로 남는다.
+     */
+    public function transferOwner(Request $request, $id)
+    {
+        $club = Club::findOrFail($id);
+        $me = auth()->id();
+
+        if (!$this->isClubOwner($club, $me)) {
+            return response()->json(['success' => false, 'message' => '방장만 방장을 양도할 수 있어요'], 403);
+        }
+
+        $request->validate(['user_id' => 'required|integer'], [
+            'user_id.required' => '방장을 넘겨받을 회원을 선택해주세요',
+            'user_id.integer' => '방장을 넘겨받을 회원을 선택해주세요',
+        ]);
+        $targetId = (int) $request->input('user_id');
+        $oldOwnerId = (int) $club->user_id;
+
+        if ($targetId === $oldOwnerId || $targetId === (int) $me) {
+            return response()->json(['success' => false, 'message' => '본인에게는 양도할 수 없어요'], 422);
+        }
+
+        $target = ClubMember::where('club_id', $id)->where('user_id', $targetId)->where('status', 'approved')->first();
+        if (!$target) {
+            return response()->json(['success' => false, 'message' => '승인된 동호회 멤버에게만 방장을 양도할 수 있어요'], 422);
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($club, $id, $target, $targetId, $oldOwnerId) {
+            $target->update(['grade' => 'owner', 'role' => 'admin']);
+            if ($oldOwnerId !== $targetId) {
+                ClubMember::where('club_id', $id)->where('user_id', $oldOwnerId)->where('status', 'approved')
+                    ->update(['grade' => 'admin', 'role' => 'admin']);
+            }
+            // 혹시 남아있는 다른 'owner' 등급이 있으면 정리 (방장은 항상 1명)
+            ClubMember::where('club_id', $id)->where('grade', 'owner')->where('user_id', '!=', $targetId)
+                ->update(['grade' => 'admin', 'role' => 'admin']);
+            $club->update(['user_id' => $targetId]);
+        });
+
+        $this->notify($targetId, 'club_owner_transfer', '👑 동호회 방장이 되었어요', "{$club->name} 방장 권한이 양도되었습니다", ['club_id' => (int) $id]);
+        if ($oldOwnerId && $oldOwnerId !== (int) $me) {
+            $this->notify($oldOwnerId, 'club_owner_transfer', '동호회 방장이 변경되었어요', "{$club->name} 방장 권한이 다른 회원에게 양도되었습니다. 관리자로 남아요.", ['club_id' => (int) $id]);
+        }
+
+        return response()->json(['success' => true, 'message' => '방장을 양도했어요', 'data' => $club->fresh()->load('user:id,name,nickname')]);
     }
 
     public function join($id)
@@ -325,7 +416,11 @@ class ClubController extends Controller
         }
 
         if ($grade === 'owner') {
-            return response()->json(['success' => false, 'message' => '모임장은 탈퇴할 수 없습니다. 모임장을 위임한 후 탈퇴하세요.'], 400);
+            $others = ClubMember::where('club_id', $id)->where('status', 'approved')->where('user_id', '!=', auth()->id())->count();
+            $msg = $others > 0
+                ? '방장은 먼저 다른 회원에게 방장을 양도해야 나갈 수 있어요'
+                : '혼자 남은 방장은 나갈 수 없어요. 동호회를 삭제해주세요';
+            return response()->json(['success' => false, 'message' => $msg], 422);
         }
 
         ClubMember::where('club_id', $id)->where('user_id', auth()->id())->delete();

@@ -338,6 +338,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/chat/presence', [\App\Http\Controllers\API\SiteLiveController::class, 'chatPing'])->middleware('throttle:30,1');
     Route::post('/clubs', [ClubController::class, 'store'])->middleware('verified.email');
     Route::put('/clubs/{id}', [ClubController::class, 'update']);
+    Route::post('/clubs/{id}/update', [ClubController::class, 'update']);
+    Route::post('/clubs/{id}/transfer-owner', [ClubController::class, 'transferOwner']);
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);
     Route::post('/clubs/{id}/promote', [ClubController::class, 'promote']);
     Route::post('/clubs/{id}/join', [ClubController::class, 'join']);

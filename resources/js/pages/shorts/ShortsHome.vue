@@ -6,8 +6,11 @@
     <!-- 프레임: 9:16 (또는 꽉 채우기) 로 보이는 영역. 컨트롤은 전부 이 안쪽 -->
     <div data-frame class="relative overflow-hidden bg-black flex-shrink-0" :style="{ width: fw + 'px', height: fh + 'px', '--pb': isFs ? 'env(safe-area-inset-bottom, 0px)' : '0px', '--pt': isFs ? 'env(safe-area-inset-top, 0px)' : '0px' }">
       <!-- 스테이지: 항상 정확히 9:16 (플레이어는 100% 로 꽉 채움 → 늘어나지 않음) -->
-      <div data-stage class="absolute bg-black" :style="{ width: sw + 'px', height: sh + 'px', left: ((fw - sw) / 2) + 'px', top: ((fh - sh) / 2) + 'px', pointerEvents: 'none' }">
+      <div ref="stageEl" data-stage class="absolute bg-black" :style="{ width: sw + 'px', height: sh + 'px', left: ((fw - sw) / 2) + 'px', top: ((fh - sh) / 2) + 'px', pointerEvents: 'none', willChange: 'transform, opacity' }">
         <div ref="playerHost" class="w-full h-full"></div>
+        <!-- 포스터: 다음 숏츠의 썸네일을 스와이프 즉시 보여주고, 재생이 시작되면(PLAYING) 부드럽게 사라짐 -->
+        <img v-if="posterUrl" :src="posterUrl" alt="" draggable="false" decoding="async"
+          class="absolute inset-0 w-full h-full object-cover pointer-events-none" :style="{ opacity: posterOn ? 1 : 0, transition: 'opacity .18s ease-out' }" />
       </div>
 
       <!-- 상단 컨트롤 -->
@@ -155,6 +158,41 @@ const rootStyle = computed(() => isFs.value
 
 const current = computed(() => shorts.value[idx.value] || {})
 
+// ─── 넘길 때 빨라 보이게 하는 로딩 전략 ───
+// YouTube 앱은 이웃 영상을 미리 받아 두지만, 웹 IFrame 플레이어는 한 번에 영상 하나만 재생할 수 있고
+// (iOS 는 동시 재생/자동재생 제약, 메모리도 빠듯) loadVideoById 를 부른 뒤에야 다음 영상을 받기 시작한다.
+// 그래서 (1) 스와이프 터치가 끝나는 순간 바로 loadVideoById 를 부르고,
+// (2) 앞 2개·뒤 1개 썸네일을 미리 받아 두었다가 스와이프 즉시 포스터로 보여 주며 (검은 화면/이전 프레임 방지),
+// (3) 재생(PLAYING)이 시작되면 포스터를 페이드아웃, (4) 180ms 짧은 슬라이드로 반응이 즉각적으로 느껴지게 한다.
+const stageEl = ref(null)
+const posterOn = ref(true)
+const posterUrl = computed(() => current.value.youtube_id ? thumbUrl(current.value.youtube_id) : '')
+const preloaded = new Map()   // 참조를 들고 있어야 브라우저가 로딩을 취소하지 않음
+function thumbUrl(id) { return `https://img.youtube.com/vi/${id}/hqdefault.jpg` }
+function preloadThumbs() {
+  const i = idx.value
+  for (const j of [i + 1, i + 2, i - 1]) {
+    const id = shorts.value[j]?.youtube_id
+    if (!id || preloaded.has(id)) continue
+    const im = new Image(); im.decoding = 'async'; im.src = thumbUrl(id)
+    preloaded.set(id, im)
+  }
+  if (preloaded.size > 24) { const k = preloaded.keys().next().value; preloaded.delete(k) }
+}
+// 스테이지를 살짝 아래/위에서 밀어 올리는 180ms 전환 (transform/opacity 만 사용 → 레이아웃 계산 없음)
+function slideStage(dir) {
+  const el = stageEl.value
+  if (!el || !dir) return
+  el.style.transition = 'none'
+  el.style.transform = `translate3d(0, ${dir * 7}%, 0)`
+  el.style.opacity = '.55'
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transition = 'transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s ease-out'
+    el.style.transform = 'translate3d(0,0,0)'
+    el.style.opacity = '1'
+  }))
+}
+
 let player = null
 let playerReady = false
 let destroyed = false
@@ -227,7 +265,7 @@ function onStateChange(e) {
   switch (e.data) {
     case S.PLAYING:
       clearTimers(); retryCount = 0
-      starting.value = false; needTap.value = false; paused.value = false
+      starting.value = false; needTap.value = false; paused.value = false; posterOn.value = false
       if (soundOn.value && safe(() => player.isMuted())) safe(() => player.unMute())
       break
     case S.PAUSED:
@@ -279,6 +317,7 @@ function loadCurrent() {
   const id = current.value.youtube_id
   if (!id) return
   paused.value = false; needTap.value = false; starting.value = true; retryCount = 0
+  posterOn.value = true
   clearTimers()
   if (!player || !playerReady) { initPlayer(); return }
   if (!soundOn.value) safe(() => player.mute())
@@ -323,11 +362,11 @@ function togglePlay() {
 // ─── 이동 ───
 function next() {
   if (idx.value < shorts.value.length - 1) {
-    idx.value++; liked.value = false; markViewed(); loadCurrent(); maybeLoadMore()
+    idx.value++; liked.value = false; loadCurrent(); slideStage(1); preloadThumbs(); markViewed(); maybeLoadMore()
   }
 }
 function prev() {
-  if (idx.value > 0) { idx.value--; liked.value = false; loadCurrent() }
+  if (idx.value > 0) { idx.value--; liked.value = false; loadCurrent(); slideStage(-1); preloadThumbs() }
 }
 
 async function fetchPage(p) {
@@ -519,6 +558,7 @@ function onLayerClick() {
 onMounted(async () => {
   try { shorts.value = await fetchPage(1) } catch {}
   loading.value = false
+  preloadThumbs()
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('wheel', onWheel, { passive: true })
   document.addEventListener('visibilitychange', onVisibility)

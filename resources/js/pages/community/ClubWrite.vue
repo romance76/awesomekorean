@@ -2,6 +2,7 @@
 <div class="min-h-screen">
   <div class="page-main px-4 py-6 space-y-5">
     <PageHeader :title="isEdit ? '동호회 수정' : '동호회 만들기'" icon="users" chip="bg-teal-50 text-teal-600" fallback="/clubs" />
+    <div v-if="loadingClub" class="text-center py-10 text-sm text-ink-muted">불러오는 중...</div>
 
     <!-- Section 1: 기본 정보 -->
     <section class="card overflow-hidden">
@@ -144,6 +145,7 @@
                 사진 선택
                 <input type="file" accept="image/*" @change="onImageSelect" class="hidden" />
               </label>
+              <button v-if="imagePreview" type="button" @click="clearImage" class="ml-2 text-xs text-red-500 font-semibold">삭제</button>
               <p class="text-xs text-ink-muted mt-1">권장: 정사각형 비율 (200x200px 이상)</p>
             </div>
           </div>
@@ -162,6 +164,7 @@
             </div>
           </div>
           <input ref="coverInput" type="file" accept="image/*" @change="onCoverSelect" class="hidden" />
+          <button v-if="coverPreview" type="button" @click="clearCover" class="text-xs text-red-500 font-semibold mt-1">커버 이미지 삭제</button>
           <p class="text-xs text-ink-muted mt-1">권장: 가로 비율 (1200x300px 이상)</p>
         </div>
       </div>
@@ -174,7 +177,7 @@
 
     <!-- Actions -->
     <div class="flex gap-3 pb-10">
-      <button @click="submit" :disabled="submitting"
+      <button @click="submit" :disabled="submitting || loadingClub"
         class="btn-primary flex-1 sm:flex-none px-8 py-3">
         {{ submitting ? '저장 중...' : (isEdit ? '수정하기' : '만들기') }}
       </button>
@@ -194,10 +197,12 @@ import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
+import { useSiteStore } from '../../stores/site'
 
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
+const siteStore = useSiteStore()
 
 const form = reactive({
   name: '',
@@ -229,6 +234,9 @@ const coverPreview = ref(null)
 
 const error = ref('')
 const submitting = ref(false)
+const loadingClub = ref(false)
+const removeImage = ref(false)
+const removeCover = ref(false)
 const isEdit = ref(false)
 const editId = ref(null)
 
@@ -236,6 +244,7 @@ function onImageSelect(e) {
   const file = e.target.files[0]
   if (!file) return
   imageFile.value = file
+  removeImage.value = false
   const reader = new FileReader()
   reader.onload = ev => { imagePreview.value = ev.target.result }
   reader.readAsDataURL(file)
@@ -245,12 +254,25 @@ function onCoverSelect(e) {
   const file = e.target.files[0]
   if (!file) return
   coverFile.value = file
+  removeCover.value = false
   const reader = new FileReader()
   reader.onload = ev => { coverPreview.value = ev.target.result }
   reader.readAsDataURL(file)
 }
 
+function clearImage() {
+  imageFile.value = null
+  imagePreview.value = null
+  removeImage.value = isEdit.value
+}
+function clearCover() {
+  coverFile.value = null
+  coverPreview.value = null
+  removeCover.value = isEdit.value
+}
+
 async function submit() {
+  if (submitting.value) return
   if (!form.name.trim()) { error.value = '동호회 이름을 입력해주세요'; return }
   if (!form.category) { error.value = '카테고리를 선택해주세요'; return }
 
@@ -274,10 +296,13 @@ async function submit() {
     if (coverFile.value) fd.append('cover_image', coverFile.value)
 
     if (isEdit.value) {
-      fd.append('_method', 'PUT')
-      const { data } = await axios.post(`/api/clubs/${editId.value}`, fd, {
+      if (removeImage.value && !imageFile.value) fd.append('remove_image', '1')
+      if (removeCover.value && !coverFile.value) fd.append('remove_cover_image', '1')
+      // 이미지(multipart)를 보내려면 POST 여야 해서 전용 경로를 사용 (PUT 변환 의존 제거)
+      await axios.post(`/api/clubs/${editId.value}/update`, fd, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
+      siteStore.toast('동호회 정보를 저장했어요', 'success')
       router.push(`/clubs/${editId.value}`)
     } else {
       const { data } = await axios.post('/api/clubs', fd, {
@@ -289,7 +314,8 @@ async function submit() {
   } catch (e) {
     const msg = e.response?.data?.message || ''
     const errs = e.response?.data?.errors ? Object.values(e.response.data.errors).flat().join(', ') : ''
-    error.value = msg || errs || '저장에 실패했습니다. 다시 시도해주세요.'
+    error.value = (e.response?.status === 422 ? (errs || msg) : (msg || errs)) || '저장에 실패했어요. 잠시 후 다시 시도해주세요.'
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
   }
   submitting.value = false
 }
@@ -305,6 +331,7 @@ onMounted(async () => {
   if (route.params.id) {
     editId.value = route.params.id
     isEdit.value = true
+    loadingClub.value = true
     try {
       const { data } = await axios.get(`/api/clubs/${editId.value}`)
       const c = data.data
@@ -316,7 +343,10 @@ onMounted(async () => {
       // Existing images
       if (c.image) imagePreview.value = c.image.startsWith('http') ? c.image : `/storage/${c.image}`
       if (c.cover_image) coverPreview.value = c.cover_image.startsWith('http') ? c.cover_image : `/storage/${c.cover_image}`
-    } catch {}
+    } catch (e) {
+      error.value = e.response?.status === 404 ? '동호회를 찾을 수 없어요' : '동호회 정보를 불러오지 못했어요. 새로고침해주세요.'
+    }
+    loadingClub.value = false
   } else {
     // Auto-fill location from user profile
     if (auth.user) {

@@ -67,12 +67,20 @@
                  isMine(msg)
                    ? 'bg-green-600 text-white rounded-2xl rounded-br-sm'
                    : 'bg-gray-800 text-gray-100 rounded-2xl rounded-bl-sm',
-                 msg.isPending ? 'opacity-60' : ''
+                 msg.isPending ? 'opacity-60' : '',
+                 msg.failed ? 'ring-1 ring-red-400' : ''
                ]">
             {{ msg.body }}
           </div>
+          <!-- 전송 실패 → 재전송 / 삭제 -->
+          <span v-if="msg.failed" class="flex items-center gap-2 mt-0.5 text-[11px] text-red-400">
+            전송 실패
+            <button type="button" class="underline" @click="retryMessage(partner.id, msg.id)">재전송</button>
+            <button type="button" class="underline text-gray-500" @click="discardMessage(msg.id)">삭제</button>
+          </span>
           <!-- Time + read badge -->
-          <span class="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500">
+          <span v-else class="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500">
+            <span v-if="msg.isPending" class="inline-block w-2.5 h-2.5 border border-gray-500 border-t-transparent rounded-full animate-spin"></span>
             {{ formatTime(msg.created_at) }}
             <span v-if="isMine(msg) && msg.read_at"
                   class="text-green-500">읽음</span>
@@ -102,15 +110,15 @@
                        focus:border-green-500 focus:bg-gray-700/80
                        disabled:opacity-50"></textarea>
       <button @click="send"
-              :disabled="!inputText.trim() || isSending"
+              :disabled="!inputText.trim()"
+              @mousedown.prevent
               class="flex-shrink-0 w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center
                      transition-colors hover:bg-green-500
                      disabled:bg-gray-600 disabled:cursor-not-allowed">
-        <svg v-if="!isSending" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="22" y1="2" x2="11" y2="13"/>
           <polygon points="22 2 15 22 11 13 2 9 22 2"/>
         </svg>
-        <span v-else class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
       </button>
     </div>
 
@@ -149,6 +157,8 @@ const {
   hasMore,
   loadMessages,
   sendMessage,
+  retryMessage,
+  discardMessage,
   loadMore,
   subscribe,
   unsubscribe,
@@ -174,21 +184,17 @@ watch(
   () => nextTick(scrollToBottom)
 )
 
-async function send() {
+function send() {
   const body = inputText.value.trim()
   if (!body) return
-  if (isSending.value) return
+  // 즉시 말풍선 표시 + 입력창 비우기 (전송은 뒤에서, 입력창은 막지 않음)
   inputText.value = ''
   resetInputHeight()
-  try {
-    await sendMessage(props.partner.id, body)
-  } catch (e) {
-    inputText.value = body
-    alert(e?.response?.data?.error || e?.response?.data?.message || '메시지를 보내지 못했습니다.')
-  }
-  await nextTick()
-  scrollToBottom()
-  inputEl.value?.focus?.({ preventScroll: true })
+  sendMessage(props.partner.id, body)
+  nextTick(() => {
+    scrollToBottom()
+    inputEl.value?.focus?.({ preventScroll: true })
+  })
 }
 
 // Enter 전송 / Shift+Enter 줄바꿈 / 한글 조합 중(229)에는 무시

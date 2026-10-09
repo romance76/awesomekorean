@@ -26,8 +26,13 @@
         <div v-if="isNewDay(i)" class="flex justify-center my-3"><span class="text-[11px] text-ink-muted bg-white border border-gray-100 rounded-full px-3 py-0.5">{{ dayLabel(m.created_at) }}</span></div>
         <div class="flex items-end gap-1.5 mb-1.5" :class="m.sender_id === auth.user?.id ? 'justify-end' : 'justify-start'">
           <template v-if="m.sender_id === auth.user?.id">
-            <span class="text-[10px] text-ink-faint">{{ timeLabel(m.created_at) }}</span>
-            <div class="max-w-[75%] bg-amber-400 text-white text-sm rounded-2xl rounded-br-sm px-3 py-2 whitespace-pre-wrap break-words">{{ m.content }}</div>
+            <span v-if="m._failed" class="text-[10px] text-red-500 flex flex-col items-end leading-tight">
+              <span>전송 실패</span>
+              <span><button type="button" class="underline" @click="retry(partnerId, m.id)">재전송</button> · <button type="button" class="underline text-ink-faint" @click="discard(m.id)">삭제</button></span>
+            </span>
+            <span v-else-if="m._tmp" class="inline-block w-3 h-3 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></span>
+            <span v-else class="text-[10px] text-ink-faint">{{ timeLabel(m.created_at) }}</span>
+            <div class="max-w-[75%] bg-amber-400 text-white text-sm rounded-2xl rounded-br-sm px-3 py-2 whitespace-pre-wrap break-words" :class="m._failed ? 'ring-2 ring-red-400' : (m._tmp ? 'opacity-60' : '')">{{ m.content }}</div>
           </template>
           <template v-else>
             <div class="max-w-[75%] bg-white border border-gray-100 text-ink text-sm rounded-2xl rounded-bl-sm px-3 py-2 whitespace-pre-wrap break-words">{{ m.content }}</div>
@@ -39,8 +44,8 @@
 
     <!-- 입력 -->
     <div class="p-2.5 border-t border-gray-100 flex items-end gap-2 flex-shrink-0 bg-white" :style="isMobile ? 'padding-bottom: calc(10px + env(safe-area-inset-bottom))' : ''">
-      <textarea v-model="input" rows="2" maxlength="500" placeholder="답장 입력 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1 !text-sm" @keydown.enter="onEnter"></textarea>
-      <button @click="send" :disabled="sending || !input.trim()" class="btn-primary !px-3"><AppIcon name="send" :size="14" /></button>
+      <textarea ref="inputEl" v-model="input" rows="2" maxlength="500" placeholder="답장 입력 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1 !text-sm" @keydown.enter="onEnter"></textarea>
+      <button @click="send" @mousedown.prevent :disabled="!input.trim()" class="btn-primary !px-3"><AppIcon name="send" :size="14" /></button>
     </div>
   </div>
 </Teleport>
@@ -53,6 +58,7 @@ import axios from 'axios'
 import { useAuthStore } from '../stores/auth'
 import AppIcon from './AppIcon.vue'
 import UserAvatar from './UserAvatar.vue'
+import { useMessageSender } from '../composables/useMessageSender'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -62,7 +68,8 @@ const partner = ref(null)
 const messages = ref([])
 const loading = ref(false)
 const input = ref('')
-const sending = ref(false)
+const inputEl = ref(null)
+const { send: sendOptimistic, retry, discard, merge } = useMessageSender(messages, () => auth.user?.id)
 const box = ref(null)
 const winW = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)
 const isMobile = computed(() => winW.value < 640)
@@ -74,10 +81,13 @@ const toBottom = () => nextTick(() => { if (box.value) box.value.scrollTop = box
 async function load(silent) {
   if (!partnerId.value) return
   if (!silent) loading.value = true
+  const startedAt = Date.now()
+  const pid = partnerId.value
   try {
-    const { data } = await axios.get('/api/messages/thread/' + partnerId.value)
+    const { data } = await axios.get('/api/messages/thread/' + pid)
+    if (pid !== partnerId.value) return
     const prev = messages.value.length
-    messages.value = data.data || []
+    messages.value = merge(data.data || [], startedAt)
     if (data.partner) partner.value = data.partner
     if (!silent || messages.value.length > prev) toBottom()
   } catch {}
@@ -95,16 +105,14 @@ function close() { show.value = false; partnerId.value = null }
 function goInbox() { close(); router.push('/dashboard?tab=messages') }
 
 function onEnter(e) { if (e.shiftKey || e.isComposing || e.keyCode === 229) return; e.preventDefault(); send() }
-async function send() {
+function send() {
   const content = input.value.trim()
-  if (!content || sending.value || !partnerId.value) return
-  sending.value = true
-  try {
-    const { data } = await axios.post('/api/messages', { receiver_id: partnerId.value, content })
-    messages.value.push(data.data || { id: Date.now(), sender_id: auth.user?.id, receiver_id: partnerId.value, content, created_at: new Date().toISOString() })
-    input.value = ''; toBottom()
-  } catch (e) { alert(e.response?.data?.message || '전송 실패') }
-  sending.value = false
+  if (!content || !partnerId.value) return
+  // 즉시 말풍선 표시 + 입력창 비우기 (전송은 뒤에서 순서대로, 입력창은 막지 않음)
+  input.value = ''
+  sendOptimistic(partnerId.value, content)
+  toBottom()
+  nextTick(() => inputEl.value?.focus?.({ preventScroll: true }))
 }
 
 const dayKey = (dt) => { const d = new Date(dt); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() }
@@ -116,10 +124,28 @@ function dayLabel(dt) {
 }
 const timeLabel = (dt) => { const d = new Date(dt); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') }
 
-// 열려 있는 동안 10초마다 새 쪽지 확인
+// 열려 있는 동안 10초마다 새 쪽지 확인 (실시간 알림이 안 오는 경우를 위한 보조)
+// + 내 개인 채널로 '새 쪽지' 알림이 오면 바로 대화를 새로 불러온다.
+let echoUserId = null
+const onNewNotification = () => { if (show.value) load(true) }
+function unlisten() {
+  if (echoUserId && window.Echo) {
+    try { window.Echo.private(`user.${echoUserId}`).stopListening('.notification.new', onNewNotification) } catch {}
+  }
+  echoUserId = null
+}
 watch(show, (v) => {
   clearInterval(timer)
-  if (v) timer = setInterval(() => { if (document.visibilityState === 'visible') load(true) }, 10000)
+  unlisten()
+  if (v) {
+    timer = setInterval(() => { if (document.visibilityState === 'visible') load(true) }, 10000)
+    if (window.Echo && auth.user?.id) {
+      try {
+        echoUserId = auth.user.id
+        window.Echo.private(`user.${echoUserId}`).listen('.notification.new', onNewNotification)
+      } catch { echoUserId = null }
+    }
+  }
 })
 
 onMounted(() => {
@@ -129,6 +155,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', onResize)
   clearInterval(timer)
+  unlisten()
   if (window.openMessageThread === open) delete window.openMessageThread
 })
 </script>

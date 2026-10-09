@@ -675,48 +675,66 @@ class ChatController extends Controller
             }
         }
 
-        // 실시간 브로드캐스트 (각 메시지마다)
+        // 보낸 사람 정보는 한 번만 불러와 브로드캐스트·응답에 같이 쓴다
         foreach ($created as $m) {
-            try { event(new \App\Events\MessageSent($m->load('user:id,name,nickname,avatar,role'))); } catch (\Exception $e) {}
+            $m->load('user:id,name,nickname,avatar,role');
         }
 
         // 마지막 메시지 시각 갱신 (자동 잠금 판단 기준)
         $room->update(['last_message_at' => now()]);
 
-        // 이벤트 #127 (오픈 채팅방 참여 포인트) 기간에만, 공개방 메시지에 한해 자동 지급
-        if ($room->type === 'public' && !empty($created)) {
-            $eventActive = \App\Models\Event::where('id', 127)
-                ->where('start_date', '<=', now())->where('end_date', '>=', now())
-                ->exists();
-            if ($eventActive) {
-                $firstNewId = $created[0]->id;
-                $hadEarlierPublicMsg = ChatMessage::where('user_id', auth()->id())
-                    ->where('id', '<', $firstNewId)
-                    ->whereHas('room', fn($q) => $q->where('type', 'public'))
-                    ->exists();
-                if (!$hadEarlierPublicMsg) {
-                    $bonus = (int) (DB::table('chat_settings')->where('key', 'chat_first_join_bonus')->value('value') ?? 20);
-                    if ($bonus > 0) auth()->user()->addPoints($bonus, '오픈 채팅방 첫 참여 포인트', 'earn');
-                } else {
-                    $hadTodayPublicMsg = ChatMessage::where('user_id', auth()->id())
-                        ->where('id', '<', $firstNewId)
-                        ->whereDate('created_at', today())
-                        ->whereHas('room', fn($q) => $q->where('type', 'public'))
-                        ->exists();
-                    if (!$hadTodayPublicMsg) {
-                        $daily = (int) (DB::table('chat_settings')->where('key', 'chat_daily_bonus')->value('value') ?? 5);
-                        if ($daily > 0) auth()->user()->addPoints($daily, '오픈 채팅방 오늘 첫 참여 포인트', 'earn');
-                    }
+        // 실시간 브로드캐스트·포인트 지급은 응답을 먼저 보낸 뒤 처리 (전송 반응 속도)
+        $meUser = auth()->user();
+        $meId = auth()->id();
+        $roomType = $room->type;
+        $createdForDefer = $created;
+        defer(function () use ($createdForDefer, $meUser, $meId, $roomType) {
+            // 실시간 브로드캐스트 (각 메시지마다)
+            foreach ($createdForDefer as $m) {
+                try { event(new \App\Events\MessageSent($m)); } catch (\Throwable $e) {
+                    \Log::warning('[채팅] 실시간 전송 실패: ' . $e->getMessage());
                 }
             }
-        }
+
+            // 이벤트 #127 (오픈 채팅방 참여 포인트) 기간에만, 공개방 메시지에 한해 자동 지급
+            try {
+                if ($roomType === 'public' && !empty($createdForDefer)) {
+                    $eventActive = \App\Models\Event::where('id', 127)
+                        ->where('start_date', '<=', now())->where('end_date', '>=', now())
+                        ->exists();
+                    if ($eventActive) {
+                        $firstNewId = $createdForDefer[0]->id;
+                        $hadEarlierPublicMsg = ChatMessage::where('user_id', $meId)
+                            ->where('id', '<', $firstNewId)
+                            ->whereHas('room', fn($q) => $q->where('type', 'public'))
+                            ->exists();
+                        if (!$hadEarlierPublicMsg) {
+                            $bonus = (int) (DB::table('chat_settings')->where('key', 'chat_first_join_bonus')->value('value') ?? 20);
+                            if ($bonus > 0) $meUser->addPoints($bonus, '오픈 채팅방 첫 참여 포인트', 'earn');
+                        } else {
+                            $hadTodayPublicMsg = ChatMessage::where('user_id', $meId)
+                                ->where('id', '<', $firstNewId)
+                                ->whereDate('created_at', today())
+                                ->whereHas('room', fn($q) => $q->where('type', 'public'))
+                                ->exists();
+                            if (!$hadTodayPublicMsg) {
+                                $daily = (int) (DB::table('chat_settings')->where('key', 'chat_daily_bonus')->value('value') ?? 5);
+                                if ($daily > 0) $meUser->addPoints($daily, '오픈 채팅방 오늘 첫 참여 포인트', 'earn');
+                            }
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('[채팅] 참여 포인트 지급 실패: ' . $e->getMessage());
+            }
+        });
 
         // 마지막 메시지를 대표로 반환 (기존 호환) + 전체 배열도 제공
         $last = end($created);
         return response()->json([
             'success' => true,
-            'data' => $last->load('user:id,name,nickname,avatar,role'),
-            'messages' => collect($created)->map(fn($m) => $m->load('user:id,name,nickname,avatar,role')),
+            'data' => $last,
+            'messages' => $created,
             'auto_extended' => $autoExtended,
             'auto_extend_cost' => $autoExtendCost,
         ], 201);

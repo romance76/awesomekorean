@@ -6,3 +6,7 @@
 <link rel="shortcut icon" href="{{ \App\Support\BrandIcons::favicon() }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ \App\Support\BrandIcons::appleTouch() }}">
 <meta name="theme-color" content="#FFFFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="어썸코리안">

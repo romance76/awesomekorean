@@ -93,34 +93,47 @@ class ConversationController extends Controller
         ]);
         $conversation->update(['last_message_at' => now()]);
 
-        // Broadcast to conversation channel
-        broadcast(new CommMessageSent($message))->toOthers();
+        // 응답을 먼저 보내고 실시간 전송·푸시·알림은 응답 이후에 처리한다 (외부 푸시 HTTP 때문에 느려지던 문제).
+        $user = $request->user();
+        $senderName = (string) $user->name;
+        $body = (string) $request->body;
+        $convId = $conversation->id;
+        defer(function () use ($message, $partnerId, $myId, $senderName, $body, $convId) {
+            try {
+                broadcast(new CommMessageSent($message))->toOthers();
+            } catch (\Throwable $e) {
+                \Log::warning('[대화] 실시간 전송 실패: ' . $e->getMessage());
+            }
 
-        // FCM push (stub — logs warning until Firebase is installed)
-        $partner = User::find($partnerId);
-        if ($partner?->fcm_token) {
-            app(PushNotificationService::class)->sendNewMessage(
-                fcmToken:       $partner->fcm_token,
-                senderName:     $request->user()->name,
-                messageBody:    $request->body,
-                conversationId: $conversation->id,
-            );
-        }
+            try {
+                $partner = User::find($partnerId);
+                if ($partner?->fcm_token) {
+                    app(PushNotificationService::class)->sendNewMessage(
+                        fcmToken:       $partner->fcm_token,
+                        senderName:     $senderName,
+                        messageBody:    $body,
+                        conversationId: $convId,
+                    );
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('[대화] 푸시 실패: ' . $e->getMessage());
+            }
 
-        // 구 쪽지(MessageController)는 인앱 알림, 신규 대화는 푸시만 발송해
-        // 알림 방식이 이원화돼 있던 문제 수정 — 푸시 유무와 무관하게 여기도
-        // 인앱 알림을 남겨 알림센터에서 동일하게 확인 가능하도록 함.
-        try {
-            Notification::create([
-                'user_id' => $partnerId,
-                'type' => 'new_message',
-                'title' => '새 메시지가 도착했습니다',
-                'content' => $request->user()->name . '님: ' . mb_substr($request->body, 0, 80),
-                'data' => ['conversation_id' => $conversation->id, 'sender_id' => $myId],
-            ]);
-            $unread = Notification::where('user_id', $partnerId)->whereNull('read_at')->count();
-            broadcast(new NewNotification($partnerId, $unread, '새 메시지가 도착했습니다'))->toOthers();
-        } catch (\Exception $e) {}
+            // 구 쪽지(MessageController)는 인앱 알림, 신규 대화는 푸시만 발송해
+            // 알림 방식이 이원화돼 있던 문제 수정 — 푸시 유무와 무관하게 여기도
+            // 인앱 알림을 남겨 알림센터에서 동일하게 확인 가능하도록 함.
+            try {
+                Notification::create([
+                    'user_id' => $partnerId,
+                    'type' => 'new_message',
+                    'title' => '새 메시지가 도착했습니다',
+                    'content' => $senderName . '님: ' . mb_substr($body, 0, 80),
+                    'data' => ['conversation_id' => $convId, 'sender_id' => $myId],
+                ]);
+                $unread = Notification::where('user_id', $partnerId)->whereNull('read_at')->count();
+                broadcast(new NewNotification($partnerId, $unread, '새 메시지가 도착했습니다'))->toOthers();
+            } catch (\Throwable $e) {}
+        });
 
         return response()->json([
             'id'              => $message->id,

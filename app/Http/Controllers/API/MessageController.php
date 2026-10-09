@@ -146,35 +146,53 @@ class MessageController extends Controller
             return response()->json(['success' => false, 'message' => '쪽지를 보낼 수 없는 사용자입니다.'], 403);
         }
 
+        $me = auth()->user();
         $msg = Message::create([
-            'sender_id' => auth()->id(),
+            'sender_id' => $me->id,
             'receiver_id' => $request->receiver_id,
             'content' => $request->content,
         ]);
 
-        // 알림 생성
-        Notification::create([
-            'user_id' => $request->receiver_id,
-            'type' => 'message',
-            'title' => '새 쪽지가 도착했습니다',
-            'content' => auth()->user()->name . '님이 쪽지를 보냈습니다.',
-            'data' => ['message_id' => $msg->id, 'sender_id' => auth()->id(), 'sender_name' => auth()->user()->name],
-        ]);
+        // 응답을 먼저 보내고(쪽지 저장 직후) 알림·실시간·푸시는 응답 이후에 처리한다.
+        // (푸시는 외부 HTTP 호출이라 수백 ms 걸려 전송 반응이 느려지던 문제)
+        $receiverId = (int) $request->receiver_id;
+        $senderId = (int) $me->id;
+        $senderName = (string) $me->name;
+        $msgId = $msg->id;
+        $fcmToken = $receiver?->fcm_token;
+        defer(function () use ($receiverId, $senderId, $senderName, $msgId, $fcmToken) {
+            try {
+                // 알림 생성
+                Notification::create([
+                    'user_id' => $receiverId,
+                    'type' => 'message',
+                    'title' => '새 쪽지가 도착했습니다',
+                    'content' => $senderName . '님이 쪽지를 보냈습니다.',
+                    'data' => ['message_id' => $msgId, 'sender_id' => $senderId, 'sender_name' => $senderName],
+                ]);
 
-        // WebSocket 실시간 알림
-        $unread = Notification::where('user_id', $request->receiver_id)->whereNull('read_at')->count();
-        broadcast(new NewNotification($request->receiver_id, $unread, '새 쪽지가 도착했습니다'))->toOthers();
+                // WebSocket 실시간 알림
+                $unread = Notification::where('user_id', $receiverId)->whereNull('read_at')->count();
+                broadcast(new NewNotification($receiverId, $unread, '새 쪽지가 도착했습니다'))->toOthers();
+            } catch (\Throwable $e) {
+                \Log::warning('[쪽지] 알림/실시간 처리 실패: ' . $e->getMessage());
+            }
 
-        // 구 쪽지는 인앱 알림만 있고 푸시가 없어 신규 대화(ConversationController)와
-        // 알림 방식이 다르던 문제 수정 — 동일하게 푸시도 발송.
-        if ($receiver?->fcm_token) {
-            app(\App\Services\PushNotificationService::class)->sendToToken(
-                $receiver->fcm_token,
-                '새 쪽지가 도착했습니다',
-                auth()->user()->name . '님이 쪽지를 보냈습니다.',
-                ['type' => 'message', 'message_id' => (string) $msg->id, 'url' => '/dashboard?tab=messages']
-            );
-        }
+            // 구 쪽지는 인앱 알림만 있고 푸시가 없어 신규 대화(ConversationController)와
+            // 알림 방식이 다르던 문제 수정 — 동일하게 푸시도 발송.
+            if ($fcmToken) {
+                try {
+                    app(\App\Services\PushNotificationService::class)->sendToToken(
+                        $fcmToken,
+                        '새 쪽지가 도착했습니다',
+                        $senderName . '님이 쪽지를 보냈습니다.',
+                        ['type' => 'message', 'message_id' => (string) $msgId, 'url' => '/dashboard?tab=messages']
+                    );
+                } catch (\Throwable $e) {
+                    \Log::warning('[쪽지] 푸시 실패: ' . $e->getMessage());
+                }
+            }
+        });
 
         return response()->json(['success' => true, 'data' => $msg], 201);
     }
