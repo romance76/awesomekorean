@@ -108,7 +108,7 @@
 
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bottom-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
         :style="isMobile ? 'z-index: 60;' : ''">
-        <div :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : 'height: calc(100vh - 6rem)'">
+        <div ref="deskChat" :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : `height: ${deskH}px`">
           <!-- 채팅방 헤더 — relative z-40로 아래 입장료 블러 오버레이(z-30)보다 위에 떠서,
                입장 전에도 방 이름/뒤로가기가 가려지지 않고 그대로 보임 -->
           <div class="relative z-40 px-4 py-3 border-b border-gray-100 bg-white flex items-center justify-between flex-shrink-0">
@@ -1572,7 +1572,16 @@ async function createRoom() {
   creating.value = false
 }
 
-const onResize = () => { windowWidth.value = window.innerWidth }
+// 데스크탑 채팅창 높이: 위쪽 헤더·메뉴 높이를 뺀 "창에 남은 높이" 전체 (입력창이 화면 아래로 잘리지 않게)
+const deskChat = ref(null)
+const deskH = ref(560)
+function calcDeskH() {
+  if (isMobile.value || !deskChat.value) return
+  const absTop = deskChat.value.getBoundingClientRect().top + window.scrollY
+  deskH.value = Math.max(420, Math.round(window.innerHeight - absTop - 16))
+}
+const onResize = () => { windowWidth.value = window.innerWidth; nextTick(calcDeskH) }
+watch(() => activeRoom.value?.id, () => nextTick(calcDeskH))
 
 // 라우트의 :id 에 해당하는 방을 열거나, 없으면 기본 선택
 async function restoreFromRoute() {
@@ -1646,6 +1655,7 @@ watch(() => activeRoom.value?.id, (id) => { if (id) pingChatPresence(); else lea
 
 onMounted(async () => {
   window.addEventListener('resize', onResize)
+  setTimeout(calcDeskH, 300); setTimeout(calcDeskH, 1200) // 방 목록이 로드되고 레이아웃이 자리잡은 뒤 한 번 더
   presenceTimer = setInterval(pingChatPresence, 60000)
   participantsTimer = setInterval(() => { if (activeRoom.value && document.visibilityState === 'visible') loadParticipants(true) }, 30000)
   if (auth.isLoggedIn) loadChatBookmarks()
