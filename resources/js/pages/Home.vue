@@ -36,7 +36,7 @@
           </div>
           <div class="mt-3 flex items-center justify-between gap-2">
             <span class="text-[11px] font-bold bg-white text-amber-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">지금 보러가기 →</span>
-            <span class="text-[10px] text-white/90 text-right leading-tight">지금 방송 중인<br>전단 확인</span>
+            <span class="hidden sm:block text-[10px] text-white/90 text-right leading-tight">지금 방송 중인<br>전단 확인</span>
           </div>
         </RouterLink>
 
@@ -74,7 +74,7 @@
                   :stroke="Number(currentIndex.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
               </svg>
             </div>
-            <div v-if="watchlist.length" class="w-[86px] shrink-0 flex flex-col justify-center gap-1 border-l border-line pl-2.5">
+            <div v-if="watchlist.length" class="w-[86px] shrink-0 hidden sm:flex flex-col justify-center gap-1 border-l border-line pl-2.5">
               <div v-for="w in watchlist.slice(0, 3)" :key="w.symbol" class="text-[10px]">
                 <div class="text-ink-muted truncate font-semibold">{{ w.symbol }}</div>
                 <div class="font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
@@ -119,7 +119,7 @@
               <div class="text-[18px] lg:text-[21px] font-extrabold tracking-[-0.03em] leading-tight">내가 쓴 후기,<br>용돈이 된다면?</div>
               <div class="text-[11px] text-white/90 mt-1.5">아마존 후기를 한국어로 나눠요</div>
             </div>
-            <div v-if="reviewPicks.length" class="flex -space-x-2 shrink-0">
+            <div v-if="reviewPicks.length" class="hidden sm:flex -space-x-2 shrink-0">
               <img v-for="p in reviewPicks.slice(0, 2)" :key="p.id" :src="p.image_url" alt="" class="w-10 h-10 rounded-lg bg-white object-contain border-2 border-white" @error="e=>e.target.style.display='none'" />
             </div>
           </div>
