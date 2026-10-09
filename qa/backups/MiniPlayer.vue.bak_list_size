@@ -41,7 +41,7 @@
       :class="isMobile ? 'py-3' : 'py-2 cursor-move'">
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <span class="text-white/90"><AppIcon name="music" :size="14" /></span>
-        <p class="text-white font-bold truncate" :class="isMobile ? 'text-[15px]' : 'text-xs'">{{ music.currentTrack?.title || '재생 대기 중' }}</p>
+        <p class="text-white text-xs font-bold truncate">{{ music.currentTrack?.title || '재생 대기 중' }}</p>
       </div>
       <div class="flex items-center gap-1 flex-shrink-0">
         <button @click.stop="minimize" class="w-6 h-6 rounded hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-colors" title="최소화"><AppIcon name="chevron-down" :size="14" /></button>
@@ -69,7 +69,7 @@
 
     <!-- 플레이리스트 -->
     <div class="border-t border-white/10 flex-shrink-0">
-      <button @click="showPL = !showPL" class="w-full px-3 text-gray-400 hover:text-gray-200 flex items-center justify-between transition-colors" :style="isMobile ? 'padding-top:12px;padding-bottom:12px;font-size:14px' : 'padding-top:6px;padding-bottom:6px;font-size:11px'">
+      <button @click="showPL = !showPL" class="w-full px-3 py-1.5 text-[11px] text-gray-400 hover:text-gray-200 flex items-center justify-between transition-colors">
         <span>다음 곡 ({{ music.playlist.length }}곡)</span>
         <AppIcon :name="showPL ? 'chevron-up' : 'chevron-down'" :size="12" />
       </button>
@@ -77,12 +77,11 @@
     <div v-if="showPL && music.playlist.length" class="overflow-y-auto px-1 pb-1 music-scroll"
       :class="isMobile ? 'flex-1 min-h-0 text-[13px]' : 'max-h-[400px]'">
       <div v-for="(track, idx) in music.playlist" :key="track.id || idx" @click="playFromList(track)"
-        class="flex items-center gap-2 rounded cursor-pointer transition"
-        :style="isMobile ? 'padding:12px 10px;font-size:15px;line-height:1.4' : 'padding:4px 8px;font-size:11px'"
-        :class="music.currentIndex === idx ? 'bg-amber-500/15 text-amber-300 font-semibold' : (isMobile ? 'text-gray-200 hover:bg-white/5' : 'text-gray-400 hover:bg-white/5')">
-        <span class="text-right text-gray-500 flex-shrink-0" :style="isMobile ? 'width:26px;font-size:13px' : 'width:16px'">{{ idx + 1 }}</span>
-        <span class="flex-1 min-w-0" :class="isMobile ? 'line-clamp-2' : 'truncate'">{{ track.title }}</span>
-        <span v-if="music.currentIndex === idx && music.isPlaying" class="text-amber-400 flex-shrink-0"><AppIcon name="music" :size="isMobile ? 16 : 11" /></span>
+        class="flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition text-[11px]"
+        :class="music.currentIndex === idx ? 'bg-amber-500/15 text-amber-300 font-semibold' : 'text-gray-400 hover:bg-white/5'">
+        <span class="w-4 text-right text-gray-600">{{ idx + 1 }}</span>
+        <span class="truncate flex-1">{{ track.title }}</span>
+        <span v-if="music.currentIndex === idx && music.isPlaying" class="text-amber-400"><AppIcon name="music" :size="11" /></span>
       </div>
     </div>
     <div v-else-if="showPL && !music.playlist.length" class="px-3 py-3 text-center text-gray-600 text-[11px]">
