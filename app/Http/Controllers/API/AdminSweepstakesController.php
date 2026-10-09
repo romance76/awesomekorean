@@ -8,11 +8,16 @@ use App\Models\Sweepstakes;
 use App\Models\SweepstakesEntry;
 use App\Models\User;
 use App\Support\EntryService;
+use App\Support\SweepstakesDrawReplay;
 use App\Support\SweepstakesWinnerService;
+use App\Traits\CompressesUploads;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminSweepstakesController extends Controller
 {
+    use CompressesUploads;
+
     // 경품 추첨 생성/수정/삭제/당첨자 선정/참가현황은 사이트 최고관리자만 접근 가능
     private function requireSuperAdmin()
     {
@@ -50,8 +55,12 @@ class AdminSweepstakesController extends Controller
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
             'terms_version' => 'nullable|string|max:50',
+            'draw_style' => ['nullable', Rule::in(SweepstakesDrawReplay::DRAW_STYLES)],
+            'theme' => 'nullable|array',
         ]);
         $data['status'] = $data['status'] ?? 'draft';
+        $data['draw_style'] = $data['draw_style'] ?? 'wheel';
+        $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme'] ?? null);
 
         $sweepstakes = Sweepstakes::create($data);
 
@@ -80,11 +89,36 @@ class AdminSweepstakesController extends Controller
             'official_rules_url' => 'nullable|string|max:255',
             'no_purchase_required_text' => 'nullable|string',
             'terms_version' => 'nullable|string|max:50',
+            'draw_style' => ['nullable', Rule::in(SweepstakesDrawReplay::DRAW_STYLES)],
+            'theme' => 'nullable|array',
         ]);
+
+        if (array_key_exists('draw_style', $data) && $data['draw_style'] === null) {
+            unset($data['draw_style']); // 스킨은 null 로 지울 수 없음(기본 wheel 유지)
+        }
+        if (array_key_exists('theme', $data)) {
+            $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme']);
+        }
 
         $sweepstakes->update($data);
 
         return response()->json(['success' => true, 'data' => $sweepstakes]);
+    }
+
+    // 추첨 연출용 이미지 업로드 (경품/배경/로고) — public/sweepstakes/ 에 압축 저장
+    public function uploadImage(Request $request)
+    {
+        $this->requireSuperAdmin();
+
+        $request->validate([
+            'image' => 'required|file|image|mimes:jpg,jpeg,png,webp,gif|max:8192',
+            'kind' => ['required', Rule::in(['prize', 'background', 'logo'])],
+        ]);
+
+        $maxWidth = $request->kind === 'background' ? 1920 : 1200;
+        $url = $this->storeCompressedImage($request->file('image'), 'sweepstakes', $maxWidth, 85);
+
+        return response()->json(['success' => true, 'url' => $url, 'kind' => $request->kind]);
     }
 
     public function destroy(Sweepstakes $sweepstakes)

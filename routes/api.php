@@ -184,6 +184,7 @@ Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'particip
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/sweepstakes', [\App\Http\Controllers\API\SweepstakesController::class, 'index']);
+Route::get('/sweepstakes/recent-winners', [\App\Http\Controllers\API\SweepstakesController::class, 'recentWinners']);
 Route::get('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\SweepstakesController::class, 'show']);
 // 참석자 명단(이름·아바타 포함)이 비로그인 상태로도 누구나 조회 가능했던
 // 경미한 프라이버시 문제 수정 — 로그인한 회원만 조회 가능하도록 제한.
@@ -783,6 +784,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // Sweepstakes 관리
     Route::get('/sweepstakes', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'index']);
+    Route::post('/sweepstakes/upload-image', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'uploadImage'])->middleware('throttle:30,1');
     Route::post('/sweepstakes', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'store']);
     Route::put('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'update']);
     Route::delete('/sweepstakes/{sweepstakes}', [\App\Http\Controllers\API\AdminSweepstakesController::class, 'destroy']);

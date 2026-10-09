@@ -98,6 +98,7 @@ class EventController extends Controller
                     'my_win_probability_pct' => $probability,
                     'winner_display_name' => $winnerName,
                     'other_entries_breakdown' => $otherEntriesBreakdown,
+                    ...\App\Support\SweepstakesDrawReplay::extra($sweepstakes),
                 ]);
             }
         }
@@ -153,6 +154,7 @@ class EventController extends Controller
                 'prize_name' => $request->prize_name,
                 'prize_value' => $request->prize_value,
                 'prize_image' => $event->image_url,
+                'draw_style' => in_array($request->draw_style, \App\Support\SweepstakesDrawReplay::DRAW_STYLES, true) ? $request->draw_style : 'wheel',
                 'start_at' => $event->start_date,
                 'end_at' => $event->end_date ?? $event->start_date,
                 'status' => 'active',
@@ -228,6 +230,7 @@ class EventController extends Controller
                 'eligible_regions' => $request->has('eligible_regions') ? $request->eligible_regions : $sweepstakes->eligible_regions,
                 'official_rules_url' => $request->official_rules_url ?? $sweepstakes->official_rules_url,
                 'no_purchase_required_text' => $request->no_purchase_required_text ?? $sweepstakes->no_purchase_required_text,
+                'draw_style' => in_array($request->draw_style, \App\Support\SweepstakesDrawReplay::DRAW_STYLES, true) ? $request->draw_style : ($sweepstakes->draw_style ?: 'wheel'),
             ])->save();
         }
 

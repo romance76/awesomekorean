@@ -88,6 +88,11 @@
               </div>
             </div>
 
+            <!-- 3D 추첨 연출: 이미 확정된 결과를 재생만 함 (당첨자 결정은 서버) -->
+            <div v-if="event.sweepstakes.draw_style === 'lottery3d'" class="mb-3">
+              <LotteryShowcase :sweepstakes="event.sweepstakes" :recent="recentDraws" />
+            </div>
+
             <div v-if="event.sweepstakes.status === 'winner_selected'" class="bg-white border border-amber-200 rounded-xl p-4 text-center mb-3">
               <div class="text-2xl mb-1">🏆</div>
               <div class="font-bold text-ink">당첨자: {{ event.sweepstakes.winner_display_name || '비공개' }}</div>
@@ -95,8 +100,10 @@
 
             <template v-else>
               <div class="bg-white rounded-xl p-4 border border-amber-100 mb-3 flex flex-col items-center">
-                <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
-                <SweepstakesWheel :my-entries="event.sweepstakes.my_entries || 0" :other-breakdown="event.sweepstakes.other_entries_breakdown || []" />
+                <template v-if="event.sweepstakes.draw_style !== 'lottery3d'">
+                  <div class="text-[11px] text-ink-faint mb-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>실시간 응모 현황</div>
+                  <SweepstakesWheel :my-entries="event.sweepstakes.my_entries || 0" :other-breakdown="event.sweepstakes.other_entries_breakdown || []" />
+                </template>
                 <div class="text-sm font-black text-amber-600 mt-2">내 당첨 확률 {{ event.sweepstakes.my_win_probability_pct || 0 }}%</div>
               </div>
 
@@ -220,7 +227,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import SidebarWidgets from '../../components/SidebarWidgets.vue'
@@ -231,6 +238,9 @@ import AppIcon from '../../components/AppIcon.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import SweepstakesWheel from '../../components/SweepstakesWheel.vue'
+// 3D 추첨 무대는 three.js 가 커서 필요할 때만 따로 내려받음 (별도 청크)
+const LotteryShowcase = defineAsyncComponent(() => import('../../components/LotteryShowcase.vue'))
+const recentDraws = ref([])
 import axios from 'axios'
 
 const BM_TYPE = 'App\\Models\\Event'
@@ -407,6 +417,8 @@ onMounted(async () => {
     myProofStatus.value = data.data.my_proof_status || null
     await loadFavorited()
     if (event.value?.event_type === 'sweepstakes') {
+      axios.get('/api/sweepstakes/recent-winners', { params: { limit: 8 } })
+        .then(({ data: r }) => { recentDraws.value = r?.data || [] }).catch(() => {})
       sweepstakesPoll = setInterval(refreshSweepstakesLive, 6000)
     }
   } catch (err) {

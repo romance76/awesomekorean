@@ -13,6 +13,7 @@ class Sweepstakes extends Model
         'start_at', 'end_at', 'status',
         'minimum_age', 'eligible_regions', 'official_rules_url',
         'no_purchase_required_text', 'terms_version',
+        'draw_style', 'theme',
     ];
 
     protected $casts = [
@@ -23,6 +24,7 @@ class Sweepstakes extends Model
         'total_entries' => 'integer',
         'minimum_age' => 'integer',
         'eligible_regions' => 'array',
+        'theme' => 'array',
     ];
 
     public function entries()

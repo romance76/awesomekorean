@@ -5,8 +5,11 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Sweepstakes;
 use App\Models\SweepstakesEntry;
+use App\Models\SweepstakesWinnerAudit;
 use App\Support\EntryService;
+use App\Support\SweepstakesDrawReplay;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class SweepstakesController extends Controller
 {
@@ -20,6 +23,35 @@ class SweepstakesController extends Controller
         $items = $query->paginate(20);
 
         return response()->json(['success' => true, 'data' => $items]);
+    }
+
+    /**
+     * 최근 당첨 기록 (공개). 표시이름/티켓번호만 노출한다.
+     */
+    public function recentWinners(Request $request)
+    {
+        $limit = max(1, min(20, (int) $request->query('limit', 8)));
+
+        $data = Cache::remember("sweepstakes:recent-winners:{$limit}", 60, function () use ($limit) {
+            $audits = SweepstakesWinnerAudit::with(['sweepstakes', 'winner'])
+                ->whereNotNull('selected_at')
+                ->whereNotNull('winning_index')
+                ->orderByDesc('selected_at')
+                ->limit($limit)
+                ->get();
+
+            return $audits->filter(fn ($a) => $a->sweepstakes)->map(fn ($a) => [
+                'sweepstakes_id' => $a->sweepstakes_id,
+                'event_id' => $a->sweepstakes->event_id ?? null,
+                'title' => $a->sweepstakes->title ?? null,
+                'prize_name' => $a->sweepstakes->prize_name ?? null,
+                'drawn_at' => $a->selected_at ? $a->selected_at->toIso8601String() : null,
+                'winning_ticket' => (int) $a->winning_index + 1,
+                'winner_display_name' => (string) ($a->winner?->display_name ?? ''),
+            ])->values()->all();
+        });
+
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function show(Request $request, Sweepstakes $sweepstakes)
@@ -56,6 +88,8 @@ class SweepstakesController extends Controller
                 'my_win_probability_pct' => $probability,
                 'winner_display_name' => $winnerName,
                 'other_entries_breakdown' => $otherEntriesBreakdown,
+                // 추첨 연출 스킨/테마 + (당첨 확정 시) 재생용 draw 객체
+                ...SweepstakesDrawReplay::extra($sweepstakes),
                 // 참가 현황 기준 확률이며, 추가 응모가 들어오면 변경됨을 프론트에서
                 // 반드시 함께 노출해야 함(요구사항 14) — 서버는 값만 계산해 전달.
             ]),

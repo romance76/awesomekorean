@@ -122,6 +122,16 @@
           </div>
         </div>
         <div>
+          <label class="input-label">추첨 화면(게임)</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label v-for="d in drawStyles" :key="d.value" class="flex items-center gap-2 p-2.5 rounded-xl border-2 cursor-pointer text-sm font-bold"
+              :class="sw.draw_style === d.value ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-gray-100 text-ink'">
+              <input type="radio" name="draw_style" :value="d.value" v-model="sw.draw_style" class="accent-amber-500" />{{ d.emoji }} {{ d.label }}
+            </label>
+          </div>
+          <p class="text-xs text-ink-faint mt-1">색상·배경·로고는 관리자 &gt; 응모권 추첨에서 꾸밀 수 있어요</p>
+        </div>
+        <div>
           <label class="input-label">공식 규정 URL</label>
           <input v-model="sw.official_rules_url" type="url" placeholder="https://..." class="input-soft px-3" :class="errClass('official_rules_url')" />
           <p v-if="fieldErrors.official_rules_url" class="text-xs text-red-500 mt-1">{{ fieldErrors.official_rules_url }}</p>
@@ -186,8 +196,13 @@ const editId = computed(() => route.params.id)
 const isEdit = computed(() => !!editId.value)
 const isSuperAdmin = computed(() => auth.user?.role === 'super_admin')
 const isSweepstakes = ref(false)
-const sw = reactive({ prize_name: '', prize_value: '', minimum_age: 18, official_rules_url: '', no_purchase_required_text: '' })
+const sw = reactive({ draw_style: 'wheel', prize_name: '', prize_value: '', minimum_age: 18, official_rules_url: '', no_purchase_required_text: '' })
 const swRegionsInput = ref('')
+// 새 추첨 게임은 이 배열에 추가 (AdminSweepstakes.vue 의 DRAW_STYLES 와 같은 value)
+const drawStyles = [
+  { value: 'wheel', emoji: '🎡', label: '2D 룰렛 휠' },
+  { value: 'lottery3d', emoji: '🎱', label: '3D 추첨기' },
+]
 
 const categories = [
   { value: 'culture', label: '🎭 문화' },
@@ -241,6 +256,7 @@ async function submit() {
   if (isSweepstakes.value) {
     fd.set('event_type', 'sweepstakes')
     fd.set('prize_name', sw.prize_name)
+    fd.set('draw_style', sw.draw_style || 'wheel')
     if (sw.prize_value !== '' && sw.prize_value !== null) fd.set('prize_value', sw.prize_value)
     fd.set('minimum_age', sw.minimum_age || 18)
     if (sw.official_rules_url) fd.set('official_rules_url', sw.official_rules_url)
@@ -289,6 +305,7 @@ onMounted(async () => {
       if (e.event_type === 'sweepstakes' && e.sweepstakes) {
         isSweepstakes.value = true
         Object.assign(sw, {
+          draw_style: e.sweepstakes.draw_style || 'wheel',
           prize_name: e.sweepstakes.prize_name || '',
           prize_value: e.sweepstakes.prize_value || '',
           minimum_age: e.sweepstakes.minimum_age || 18,

@@ -16,6 +16,7 @@
           <button @click="mParticipants(item)" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">참가 현황</button>
           <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="flex items-center justify-center min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">이벤트 보기</RouterLink>
           <RouterLink v-if="item.event_id && item.status !== 'winner_selected'" :to="`/events/${item.event_id}/edit`" class="flex items-center justify-center min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">수정</RouterLink>
+          <button v-if="item.status !== 'winner_selected'" @click="openDesign(item)" class="min-h-[48px] rounded-xl bg-amber-50 text-amber-700 text-[15px] font-bold">추첨 화면 꾸미기</button>
           <button v-if="item.status !== 'winner_selected'" @click="askWinner(item)" class="min-h-[48px] rounded-xl bg-violet-600 text-white text-[15px] font-bold">당첨자 선정</button>
           <button @click="askDelete(item)" :disabled="item.total_entries > 0" class="min-h-[48px] rounded-xl bg-red-50 text-red-600 text-[15px] font-bold disabled:opacity-30">삭제</button>
         </div>
@@ -86,6 +87,7 @@
           <button @click="viewParticipants(item)" class="btn-secondary !px-3 !py-1.5 text-xs">참가현황</button>
           <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="btn-secondary !px-3 !py-1.5 text-xs">이벤트 보기</RouterLink>
           <RouterLink v-if="item.event_id && item.status !== 'winner_selected'" :to="`/events/${item.event_id}/edit`" class="btn-secondary !px-3 !py-1.5 text-xs">수정</RouterLink>
+          <button v-if="item.status !== 'winner_selected'" @click="openDesign(item)" class="btn-secondary !px-3 !py-1.5 text-xs">추첨 화면 꾸미기</button>
           <button
             v-if="item.status !== 'winner_selected'"
             @click="confirmSelectWinner(item)"
@@ -114,13 +116,73 @@
   </div>
   </template>
 </div>
+
+<!-- ───────── 추첨 화면 꾸미기 (PC·휴대폰 공용) ───────── -->
+<Teleport to="body">
+  <div v-if="design" class="alv-m fixed inset-0 z-[75] flex items-center justify-center sm:p-4" @click.self="closeDesign">
+    <div class="absolute inset-0 bg-black/45" @click="closeDesign"></div>
+    <div class="relative bg-white w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-5xl sm:rounded-2xl overflow-y-auto p-4 sm:p-6" role="dialog" aria-modal="true">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="min-w-0">
+          <h2 class="font-bold text-lg text-ink">추첨 화면 꾸미기</h2>
+          <p class="text-xs text-ink-muted truncate">{{ design.item.title }} · 🎁 {{ design.item.prize_name }}</p>
+        </div>
+        <button type="button" @click="closeDesign" class="text-ink-muted text-2xl leading-none px-2" aria-label="닫기">×</button>
+      </div>
+
+      <!-- 추첨 게임 선택 -->
+      <div class="text-xs font-bold text-ink-muted mb-2">추첨 화면(게임)</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+        <label v-for="d in DRAW_STYLES" :key="d.value" class="flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer"
+          :class="design.draw_style === d.value ? 'border-amber-500 bg-amber-50' : 'border-gray-100 bg-white'">
+          <input type="radio" name="draw_style" :value="d.value" v-model="design.draw_style" class="mt-1 accent-amber-500" />
+          <span>
+            <span class="block text-sm font-bold text-ink">{{ d.emoji }} {{ d.label }}</span>
+            <span class="block text-xs text-ink-muted mt-0.5">{{ d.desc }}</span>
+          </span>
+        </label>
+      </div>
+
+      <div v-if="design.draw_style === 'lottery3d'" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <SweepstakesThemeEditor v-model="design.theme" />
+        <div>
+          <div class="lg:sticky lg:top-0">
+            <div class="text-xs font-bold text-ink-muted mb-2">미리보기 (응모권 40장 중 17번 당첨 예시)</div>
+            <div class="rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+              <LotteryStage3D :key="previewKey" ref="stageRef" :theme="design.theme" :prize-name="design.item.prize_name"
+                :ticket-count="40" :winning-ticket="17" winner-name="미리보기" :autoplay="false" :compact="true" />
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button type="button" @click="stageRef?.play?.()" class="btn-primary !px-4 !py-2 text-sm">추첨 연출 재생</button>
+              <button type="button" @click="stageRef?.reset?.()" class="btn-secondary !px-4 !py-2 text-sm">처음으로</button>
+            </div>
+            <p class="text-[11px] text-ink-faint mt-2">미리보기는 연출만 보여 줘요. 실제 당첨자는 서버가 정하고, 이 화면은 그 결과를 다시 보여 줄 뿐이에요.</p>
+          </div>
+        </div>
+      </div>
+      <p v-else class="text-sm text-ink-muted bg-gray-50 rounded-xl p-3">2D 룰렛 휠은 기본 화면 그대로 사용돼요. 색·배경·로고 꾸미기는 3D 추첨기에서만 가능해요.</p>
+
+      <p v-if="design.error" class="text-sm text-red-500 mt-3">{{ design.error }}</p>
+      <div class="flex justify-end gap-2 mt-5">
+        <button type="button" @click="closeDesign" class="btn-secondary !px-5 !py-2.5 text-sm">취소</button>
+        <button type="button" @click="saveDesign" :disabled="design.saving" class="btn-primary !px-5 !py-2.5 text-sm disabled:opacity-50">{{ design.saving ? '저장 중...' : '저장' }}</button>
+      </div>
+    </div>
+  </div>
+</Teleport>
+<Teleport to="body">
+  <div v-if="toast && !isMobile" class="fixed left-1/2 -translate-x-1/2 top-6 z-[80] px-4 py-3 rounded-xl text-sm font-bold text-white shadow-lg" :class="toast.error ? 'bg-red-600' : 'bg-ink'" role="status">{{ toast.text }}</div>
+</Teleport>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject, defineAsyncComponent } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import { useAuthStore } from '../../stores/auth'
+import SweepstakesThemeEditor from '../../components/admin/SweepstakesThemeEditor.vue'
+// 3D 추첨기는 무거워서 꾸미기 창을 열 때만 불러옴
+const LotteryStage3D = defineAsyncComponent(() => import('../../components/LotteryStage3D.vue'))
 
 const auth = useAuthStore()
 const isSuperAdmin = computed(() => auth.user?.role === 'super_admin')
@@ -161,6 +223,36 @@ async function doDelete() {
 }
 watch(() => isMobile.value && !!mSheet.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
 onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
+
+// ───── 추첨 화면(게임) 선택 + 테마 꾸미기 ─────
+// 새 게임을 추가하려면 이 배열에 한 줄만 추가하면 됩니다 (value 는 백엔드 draw_style 값과 동일해야 함).
+const DRAW_STYLES = [
+  { value: 'wheel', emoji: '🎡', label: '2D 룰렛 휠', desc: '기본 룰렛이 돌아가며 당첨자를 보여 줘요.' },
+  { value: 'lottery3d', emoji: '🎱', label: '3D 추첨기(공 뽑기)', desc: '3D 추첨기에서 공이 섞이다 당첨 번호가 나와요. 색·배경·로고를 꾸밀 수 있어요.' },
+]
+const design = ref(null)   // { item, draw_style, theme, saving, error }
+const stageRef = ref(null)
+const previewKey = ref(0)
+function openDesign(item) {
+  const theme = item.theme && typeof item.theme === 'object' && !Array.isArray(item.theme) ? { ...item.theme } : {}
+  design.value = { item, draw_style: item.draw_style || 'wheel', theme, saving: false, error: '' }
+}
+function closeDesign() { if (!design.value?.saving) design.value = null }
+async function saveDesign() {
+  const d = design.value
+  if (!d || d.saving) return
+  d.saving = true; d.error = ''
+  try {
+    await axios.put(`/api/admin/sweepstakes/${d.item.id}`, { draw_style: d.draw_style, theme: d.theme })
+    design.value = null
+    say('추첨 화면을 저장했어요')
+    await load()
+  } catch (e) {
+    d.error = e.response?.data?.message || '저장에 실패했어요'
+    d.saving = false
+  }
+}
+watch(() => !!design.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
 
 const items = ref([])
 const loading = ref(true)
