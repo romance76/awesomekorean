@@ -31,3 +31,6 @@ qa/.env.testing
 
 # Claude Code 세션별 임시 락 파일 (세션마다 PID/sessionId 바뀌어 커밋 시 매번 diff 발생)
 .claude/scheduled_tasks.lock
+
+# 회원 등급 링 이미지는 서버에 있어야 하므로 예외
+!public/images/grades/*.png
