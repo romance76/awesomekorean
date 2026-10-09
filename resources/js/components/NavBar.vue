@@ -338,6 +338,8 @@ function clickNotif(n) {
     axios.post(`/api/notifications/${n.id}/read`).catch(() => {})
   }
   showNotifs.value = false
+  // 새 쪽지 알림: 페이지를 옮기지 않고 그 자리에서 쪽지 대화 팝업을 연다
+  if (n.type === 'message' && n.data?.sender_id && window.openMessageThread) { window.openMessageThread(n.data.sender_id); return }
   const dest = resolveNotifRoute(n)
   if (dest) router.push(dest)
 }

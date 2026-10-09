@@ -26,6 +26,7 @@
     <CommHub v-if="auth.isLoggedIn && auth.user" ref="commHub" />
     <MiniPlayer />
     <GlobalChatPopup v-if="auth.isLoggedIn" />
+    <MessageThreadPopup v-if="auth.isLoggedIn" />
     <PopupBanner v-if="showNav" />
     <CheckinPrompt v-if="showNav && auth.isLoggedIn" />
     <FlyerPrompt v-if="showNav" />
@@ -81,6 +82,7 @@ import NavBar from './components/NavBar.vue'
 import OpenEventBanner from './components/OpenEventBanner.vue'
 import BottomNav from './components/BottomNav.vue'
 import UserPopup from './components/UserPopup.vue'
+import MessageThreadPopup from './components/MessageThreadPopup.vue'
 import SiteModal from './components/SiteModal.vue'
 import CommHub from './components/comms/CommHub.vue'
 import MiniPlayer from './components/MiniPlayer.vue'
