@@ -94,20 +94,24 @@
           <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="shopping-bag" :size="28" :stroke-width="1.5" /></div>
           <p class="text-sm text-ink-muted">등록된 상품이 없습니다</p>
         </div>
-        <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <RouterLink v-for="product in products" :key="product.id" :to="`/shopping/${product.id}`" class="card card-hover overflow-hidden cursor-pointer block">
-            <div class="w-full h-48 bg-white border-b border-gray-50 overflow-hidden flex items-center justify-center text-gray-300 relative">
-              <span v-if="product.is_hot" class="absolute top-1.5 left-1.5 bg-rose-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black z-10 shadow inline-flex items-center gap-0.5"><AppIcon name="flame" :size="10" />이번주 HOT</span>
-              <span v-else-if="product.is_featured" class="absolute top-1.5 left-1.5 badge-red !text-[10px] font-bold z-10">추천</span>
-              <img v-if="product.image_url" :src="product.image_url" :alt="product.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" />
+        <div v-else class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <RouterLink v-for="product in products" :key="product.id" :to="`/shopping/${product.id}`" class="block bg-white overflow-hidden cursor-pointer transition-transform hover:-translate-y-0.5"
+            style="border-radius:20px;border:1px solid #f0e7de;box-shadow:0 4px 20px rgba(48,32,16,.06)">
+            <div class="relative bg-white overflow-hidden flex items-center justify-center text-gray-300" style="aspect-ratio:1.18">
+              <span v-if="product.is_hot" class="absolute top-2 left-2 bg-rose-500 text-white rounded-full px-2 py-0.5 text-[10px] font-black z-10 shadow inline-flex items-center gap-0.5"><AppIcon name="flame" :size="10" />이번주 HOT</span>
+              <span v-else-if="product.is_featured" class="absolute top-2 left-2 badge-red !text-[10px] font-bold z-10">추천</span>
+              <img v-if="product.image_url" :src="product.image_url" :alt="product.title" loading="lazy" decoding="async" class="w-full h-full object-contain p-3" @error="e=>e.target.style.display='none'" />
               <AppIcon v-else name="shopping-bag" :size="28" :stroke-width="1.5" />
             </div>
-            <div class="p-3">
-              <span v-if="product.category" class="badge-primary !text-[11px] !px-2">{{ product.category }}</span>
-              <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug mt-1">{{ product.title }}</div>
-              <div v-if="product.rating" class="text-amber-400 text-xs mt-1">{{ '★'.repeat(product.rating) }}<span class="text-gray-300">{{ '★'.repeat(5 - product.rating) }}</span></div>
-              <p v-if="product.our_description" class="text-xs text-ink-muted line-clamp-2 mt-1">{{ plain(product.our_description) }}</p>
-              <div v-if="product.author" class="text-[11px] text-ink-faint mt-1.5 truncate">by {{ product.author.name }} · 조회 {{ product.view_count || 0 }}<span v-if="product.comment_count"> · 댓글 {{ product.comment_count }}</span></div>
+            <div class="p-4">
+              <span v-if="product.category" class="inline-block text-[11px] font-extrabold px-2 py-1" style="color:#BB5C3C;background:#FFF0E7;border-radius:7px">{{ product.category }}</span>
+              <h3 class="text-[16px] font-bold text-ink leading-snug mt-2.5 line-clamp-2">{{ product.title }}</h3>
+              <div v-if="product.rating" class="text-xs mt-1.5" style="color:#E99B22">{{ '★'.repeat(product.rating) }}<span class="text-gray-300">{{ '★'.repeat(5 - product.rating) }}</span></div>
+              <p class="text-[13px] text-ink-light leading-relaxed mt-1.5 line-clamp-2" style="min-height:42px">{{ plain(product.our_description) }}</p>
+              <div class="flex items-center justify-between text-xs text-ink-faint pt-3 mt-3" style="border-top:1px solid #f1e8df">
+                <span class="truncate">by {{ product.author?.name || 'Awesome Korean' }}</span>
+                <span class="inline-flex items-center gap-1 font-bold flex-shrink-0" style="color:#C85F3D"><AppIcon name="eye" :size="13" />{{ product.view_count || 0 }}<template v-if="product.comment_count"><AppIcon name="message-circle" :size="13" class="ml-1" />{{ product.comment_count }}</template></span>
+              </div>
             </div>
           </RouterLink>
         </div>
