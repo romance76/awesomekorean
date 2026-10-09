@@ -50,7 +50,8 @@
     </div>
 
     <!-- 영상 자리 (yt-anchor의 위치 참조용) -->
-    <div ref="ytAnchor" class="aspect-video bg-black flex-shrink-0"></div>
+    <!-- 가로로 넓고 낮은 화면(테슬라 등)에서도 아래 재생 목록이 보이도록 영상 높이를 화면의 38%까지만 -->
+    <div ref="ytAnchor" class="aspect-video bg-black flex-shrink-0" :style="isMobile ? { width: 'min(100%, calc(38vh * 1.7778))', margin: '0 auto' } : {}"></div>
 
     <!-- 컨트롤 -->
     <div class="px-3 py-2 flex items-center gap-2 flex-shrink-0">

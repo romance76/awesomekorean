@@ -215,6 +215,23 @@ class FetchYoutubeShorts extends Command
                     if (preg_match('/\b(yang|itu|ini|banget|tiba|malah|saking|dengan|untuk|tidak|bikin|ngiler|emang|yah|pernah|takut|bisa|udah|gak|nggak|lalu|kamu|aku|saya)\b/i', $text)) continue;
                     if (preg_match('/\b(ke[sş]fet|tutmaz|çok|için|değil|não|nao|pode|você|voce|muito|isso|dedicar)\b|#ke[sş]fet/iu', $text)) continue;
 
+                    // 추가 필터(2026-10-09): 영어 태그만 달고 올라오는 인도·동남아 등 외국 영상 차단
+                    // (제목·채널만 보던 기존 필터에 설명글까지 포함해서 검사)
+                    $desc = $v['snippet']['description'] ?? '';
+                    $all = $text . ' ' . $desc;
+                    $hasHangul = (bool) preg_match('/[\x{AC00}-\x{D7AF}]/u', $all);
+                    // 힌디·아랍·키릴 등 비한국 문자가 설명글에 있으면 제외
+                    if (preg_match('/[\x{0900}-\x{097F}]|[\x{0600}-\x{06FF}]|[\x{0E00}-\x{0E7F}]|[\x{0980}-\x{09FF}]|[\x{0400}-\x{04FF}]|[\x{3040}-\x{30FF}]/u', $desc)) continue;
+                    // 인도·남아시아·게임 스팸 성격의 키워드(제목·채널·설명 어디든)
+                    if (preg_match('/pubg|bgmi|freefire|free fire|garena|zodiac|astrolog|horoscope|rashifal|cricket|\bipl\b|chhath|diwali|hindu|\bindia|bharat|\bmodi\b|\bpuja\b|sadhu|ganga|punjab|pakistan|bangladesh|nepal|sri ?lanka|mumbai|delhi|kolkata|bdesib/i', $all)) continue;
+                    if (!$hasHangul) {
+                        // 한국어가 전혀 없는 영상은 '영어 또는 한국어'로 표시된 영상만 허용 (언어 표시가 없거나 다른 언어면 제외)
+                        $audio = strtolower($v['snippet']['defaultAudioLanguage'] ?? $v['snippet']['defaultLanguage'] ?? '');
+                        if ($audio === '' || !(str_starts_with($audio, 'en') || str_starts_with($audio, 'ko'))) continue;
+                        // 해시태그 도배(6개 이상) 영상은 조회수 낚시 스팸이 대부분
+                        if (preg_match_all('/#\w+/u', $all) >= 6) continue;
+                    }
+
                     Short::create([
                         'user_id' => null,
                         'title' => mb_substr($title, 0, 200),
