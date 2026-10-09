@@ -405,19 +405,18 @@ class ChatController extends Controller
         return response()->json(['success'=>true,'data'=>$room,'points_spent'=>$cost], 201);
     }
 
-    // 지금 이 채팅방에 접속 중인 유저만 (온라인 목록).
-    // 클라이언트가 방을 열어 둔 동안 1분마다 보내는 신호(chat_presence.room_id, last_seen_at)를 기준으로,
-    // 신호가 2분 30초 안에 있었던 사람만 포함한다. 나(요청자)는 방금 들어와 신호가 아직 없어도 항상 포함.
+    // 채팅방에 실제로 글을 남긴 유저들 (참가자) + 멤버 등록된 유저 합친 목록
     public function participants($id) {
         $room = ChatRoom::findOrFail($id);
         $me = auth()->id();
 
-        $onlineIds = \Illuminate\Support\Facades\DB::table('chat_presence')
-            ->where('room_id', (int) $id)
-            ->where('last_seen_at', '>=', now()->subSeconds(150))
-            ->pluck('user_id');
+        $memberIds = ChatRoomUser::where('chat_room_id', $id)->pluck('user_id');
+        $activeUserIds = ChatMessage::where('chat_room_id', $id)
+            ->whereNotNull('user_id')
+            ->orderByDesc('created_at')->limit(100)
+            ->pluck('user_id')->unique();
 
-        $allIds = $onlineIds->push($me)->unique()->filter()->values();
+        $allIds = $memberIds->merge($activeUserIds)->unique()->filter()->values();
         if ($allIds->isEmpty()) return response()->json(['success' => true, 'data' => []]);
 
         $users = \App\Models\User::whereIn('id', $allIds)
