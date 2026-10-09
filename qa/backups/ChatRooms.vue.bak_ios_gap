@@ -305,7 +305,7 @@
           </div>
 
           <!-- 입력 (텔레그램 스타일: 이모티콘·첨부가 입력창 내부) -->
-          <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" :style="inputBarStyle">
+          <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
             <VerifyGate :active="activeRoom.type === 'public'" message="이메일 인증 후 공개 채팅방에 글을 쓸 수 있어요.">
             <form @submit.prevent="sendMsg" class="flex gap-2 items-center">
               <!-- 통합 입력 박스 -->
@@ -665,17 +665,6 @@ const auth = useAuthStore()
 const siteStore = useSiteStore()
 const windowWidth = ref(window.innerWidth)
 const isMobile = computed(() => windowWidth.value < 1024)
-// iOS Safari(앱이 아닌 브라우저)는 하단에 둥둥 뜬 주소창이 입력창 바로 아래에 겹쳐 보여 잘못 누르기 쉬움 →
-// 이 경우에만 입력창 아래에 여백(약 36px)을 더 둔다. (홈 화면에 추가한 앱 모드/안드로이드/PC 는 기존 그대로)
-const isIosBrowser = typeof navigator !== 'undefined'
-  && /iP(hone|ad|od)/.test(navigator.userAgent)
-  && !navigator.standalone
-  && !(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-const inputBarStyle = computed(() => ({
-  paddingBottom: isMobile.value && isIosBrowser
-    ? 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 36px)'
-    : 'max(0.5rem, env(safe-area-inset-bottom))',
-}))
 const rooms = ref([])
 const activeRoom = ref(null)
 const activeMessages = ref([])
