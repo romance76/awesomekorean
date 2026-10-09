@@ -159,7 +159,7 @@
                 .info-tabs:has(#tab-latest:checked) .tab-latest-panel { display: block; }
                 .info-tabs:has(#tab-popular:checked) .tab-popular-label,
                 .info-tabs:has(#tab-latest:checked) .tab-latest-label {
-                    color: #d97706; border-bottom: 2px solid #fbbf24; background: rgba(255,247,237,.6);
+                    color: #E0145A; border-bottom: 2px solid #FC226B; background: rgba(255,240,245,.7);
                 }
             </style>
         </div>

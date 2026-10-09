@@ -165,7 +165,7 @@
           <div v-if="event.event_url || event.event_type === 'awesomekorean'" class="px-4 lg:px-5 py-3 border-t border-gray-50">
             <button v-if="event.event_url" @click="$router.push(event.event_url)"
               class="w-full py-3 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
-              :style="{ backgroundColor: event.banner_color || '#F59E0B' }">
+              :style="{ backgroundColor: event.banner_color || '#FC226B' }">
               {{ eventActionLabel }}
             </button>
             <button v-else @click="scrollToComments"

@@ -203,7 +203,7 @@
         <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
           <button @click="$router.push(activeItem.event_url)"
             class="w-full py-2.5 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
-            :style="{ backgroundColor: activeItem.banner_color || '#F59E0B' }">
+            :style="{ backgroundColor: activeItem.banner_color || '#FC226B' }">
             {{ activeItem.event_url.includes('realestate') ? '🏠 리스팅 등록하러 가기' : activeItem.event_url.includes('music') ? '🎵 음악듣기 바로가기' : activeItem.event_url.includes('chat') ? '💬 채팅방 입장하기' : '🎯 참여하기' }}
           </button>
         </div>
