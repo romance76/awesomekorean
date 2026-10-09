@@ -337,6 +337,7 @@ watch(() => route.query.category, (newCat) => {
 watch(() => route.query, (q) => {
   if (route.path !== '/recipes') return
   if (q.category !== undefined) activeCat.value = q.category || ''
+  if (q.search !== undefined) search.value = String(q.search || '')
   loadPage()
 })
 
@@ -350,6 +351,7 @@ onMounted(async () => {
   viewMode.value = menuConfig.value?.find(m => m.key === 'recipes')?.defaultView === 'list' ? 'list' : 'card'
   loadCategories()
   if (route.query.category) activeCat.value = route.query.category
+  if (route.query.search) search.value = String(route.query.search)
   if (route.query.favorites === '1' && auth.isLoggedIn) showFavorites.value = true
   loadPage()
 })

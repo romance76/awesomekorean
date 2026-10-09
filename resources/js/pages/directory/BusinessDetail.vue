@@ -1,9 +1,13 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-      <button @click="$router.back()" class="btn-ghost text-sm"><AppIcon name="arrow-left" :size="14" />업소록</button>
-      <div class="hidden lg:block"><DetailHeaderTools section="directory" list-path="/directory" write-path="/directory/register" /></div>
+    <button @click="$router.back()" class="btn-ghost text-sm mb-3 lg:hidden"><AppIcon name="arrow-left" :size="14" />업소록</button>
+    <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
+      <RouterLink to="/directory" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="store" :size="20" /></span>
+        업소록
+      </RouterLink>
+      <div><DetailHeaderTools section="directory" list-path="/directory" write-path="/directory/register" /></div>
     </div>
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="biz" class="grid grid-cols-12 gap-4">

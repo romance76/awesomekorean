@@ -190,6 +190,7 @@ async function load(p = 1) {
 
 onMounted(() => {
   if (route.query.category) category.value = route.query.category
+  if (route.query.search) search.value = String(route.query.search)
   load()
 })
 </script>

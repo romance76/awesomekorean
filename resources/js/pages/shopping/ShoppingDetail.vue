@@ -3,11 +3,11 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="product?.title || pageTitle" fallback="/shopping" />
     <div class="hidden lg:flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/shopping" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600"><AppIcon name="shopping-bag" :size="20" /></span>
         {{ pageTitle }}
-      </h1>
-      <DetailHeaderTools section="shopping" list-path="/shopping" write-path="/shopping/write" :location="false" :search="false" write-label="내 리뷰 쓰기" />
+      </RouterLink>
+      <DetailHeaderTools section="shopping" list-path="/shopping" write-path="/shopping/write" :location="false" placeholder="상품 검색..." write-label="내 리뷰 쓰기" />
     </div>
 
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>

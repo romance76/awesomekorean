@@ -3,10 +3,10 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="item?.title || '중고장터'" fallback="/market" />
     <div class="hidden lg:flex items-center justify-between mb-4">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/market" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-emerald-50 text-emerald-600"><AppIcon name="shopping-cart" :size="20" /></span>
         중고장터
-      </h1>
+      </RouterLink>
       <DetailHeaderTools section="market" list-path="/market" write-path="/market/write" />
     </div>
 

@@ -3,12 +3,11 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="recipe?.title || '레시피'" fallback="/recipes" />
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+      <RouterLink to="/recipes" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="utensils" :size="20" /></span>
         레시피
-      </h1>
-      <DetailHeaderTools section="recipes" list-path="/recipes" write-path="/recipes/write" :location="false" :search="false" write-label="레시피 등록" />
-      <button @click="$router.push('/recipes')" class="text-sm text-ink-muted hover:text-amber-600 transition-colors inline-flex items-center gap-1"><AppIcon name="arrow-left" :size="14" />레시피 목록</button>
+      </RouterLink>
+      <DetailHeaderTools section="recipes" list-path="/recipes" write-path="/recipes/write" :location="false" placeholder="검색..." write-label="내 레시피 등록" />
     </div>
 
     <div class="grid grid-cols-12 gap-4">

@@ -3,7 +3,10 @@
   <div class="max-w-7xl mx-auto px-4 py-5">
     <DetailHeader :title="event?.title || '이벤트'" fallback="/events" />
     <div class="hidden lg:flex items-center justify-between mb-3 flex-wrap gap-2">
-      <router-link to="/events" class="inline-flex items-center gap-1 text-sm text-ink-muted hover:text-amber-600 transition-colors"><AppIcon name="arrow-left" :size="14" />이벤트 목록</router-link>
+      <RouterLink to="/events" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
+        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="20" /></span>
+        이벤트
+      </RouterLink>
       <DetailHeaderTools section="events" list-path="/events" write-path="/events/create" />
     </div>
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
