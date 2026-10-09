@@ -54,13 +54,6 @@ VITE_OUT_DIR=public/build_next npm run build 2>&1 | tail -10 >> "$LOG"
 [ -f public/build_next/manifest.json ] || fail "vite-build" "빌드 실패(기존 빌드 유지) — OOM 여부 확인 (free -m)"
 
 log "▶ Step 5/7: manifest copy + 빌드 교체"
-# 직전 빌드의 해시 파일을 14일간 보존: 오래 열어 둔 탭/설치형 앱이 옛 chunk 를 요청해도 404 가 나지 않게 함
-# (배포 직후 옛 버전 화면에서 버튼이 안 눌리던 문제 방지). 새 빌드에 이미 있는 파일은 덮어쓰지 않음(cp -n).
-if [ -d public/build/assets ]; then
-    mkdir -p public/build_next/assets
-    cp -np public/build/assets/* public/build_next/assets/ 2>/dev/null || true
-    find public/build_next/assets -type f -mtime +14 -delete 2>/dev/null || true
-fi
 mkdir -p public/build_next/.vite
 cp public/build_next/manifest.json public/build_next/.vite/manifest.json || fail "manifest-copy" "manifest.json 부재"
 rm -rf public/build_prev
