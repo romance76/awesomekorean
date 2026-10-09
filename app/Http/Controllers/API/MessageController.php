@@ -41,12 +41,23 @@ class MessageController extends Controller
             ->get();
 
         $lasts = Message::whereIn('id', $rows->pluck('last_id'))->get()->keyBy('id');
-        $users = \App\Models\User::whereIn('id', $rows->pluck('partner_id'))->get(['id', 'name', 'nickname', 'avatar'])->keyBy('id');
+        $users = \App\Models\User::whereIn('id', $rows->pluck('partner_id'))->get(['id', 'name', 'nickname', 'avatar', 'city', 'state', 'last_active_at'])->keyBy('id');
+        // 친구 여부와 어디서 만났는지(source) — 친구가 아닌 사람의 쪽지는 '모르는 사람'으로 따로 묶기 위함
+        $friendSource = [];
+        $friendRows = \App\Models\Friend::where('status', 'accepted')
+            ->where(function ($q) use ($me) { $q->where('user_id', $me)->orWhere('friend_id', $me); })
+            ->get();
+        foreach ($friendRows as $f) { $friendSource[$f->user_id == $me ? $f->friend_id : $f->user_id] = $f->source ?: ''; }
 
-        $threads = $rows->map(function ($r) use ($lasts, $users, $me) {
+        $threads = $rows->map(function ($r) use ($lasts, $users, $me, $friendSource) {
             $last = $lasts[$r->last_id] ?? null;
+            $u = $users[$r->partner_id] ?? null;
+            $mins = ($u && $u->last_active_at) ? abs(now()->diffInMinutes($u->last_active_at)) : null;
             return [
-                'partner' => $users[$r->partner_id] ?? ['id' => (int) $r->partner_id, 'name' => '(탈퇴한 회원)'],
+                'partner' => $u ? $u->only(['id', 'name', 'nickname', 'avatar', 'city', 'state']) : ['id' => (int) $r->partner_id, 'name' => '(탈퇴한 회원)'],
+                'is_friend' => array_key_exists((int) $r->partner_id, $friendSource),
+                'source' => $friendSource[(int) $r->partner_id] ?? '',
+                'online_status' => $mins === null ? 'offline' : ($mins <= 5 ? 'online' : ($mins <= 30 ? 'away' : 'offline')),
                 'last_content' => $last?->content,
                 'last_at' => $last?->created_at,
                 'last_mine' => $last ? ((int) $last->sender_id === $me) : false,

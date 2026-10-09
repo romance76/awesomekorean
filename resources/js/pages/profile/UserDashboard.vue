@@ -290,22 +290,80 @@
             <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-blue-50 text-blue-600"><AppIcon name="mail" :size="15" /></span>쪽지함</h2>
             <span v-if="msgUnread" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ msgUnread }}</span>
           </div>
-          <p class="text-[11px] text-ink-faint mb-2">주고받은 쪽지가 사람별로 묶여 있어요. 누르면 그 사람과의 대화가 날짜순으로 이어서 보입니다.</p>
+          <p class="text-[11px] text-ink-faint mb-3">주고받은 쪽지가 사람별로 묶여 있어요. 누르면 그 사람과의 대화가 날짜순으로 이어서 보입니다. 친구가 아닌 사람의 쪽지는 아래 '모르는 사람'에 따로 모여요.</p>
           <div v-if="!threads.length" class="text-sm text-ink-faint py-8 text-center">주고받은 쪽지가 없습니다</div>
-          <div v-else class="max-h-[32rem] overflow-y-auto divide-y divide-gray-50">
-            <div v-for="t in threads" :key="t.partner.id" @click="openThread(t.partner)"
-              class="flex items-center gap-3 px-3 py-3 cursor-pointer hover:bg-amber-50/50 transition-colors" :class="t.unread ? 'bg-amber-50' : ''">
-              <div class="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center text-sm font-bold text-amber-700 flex-shrink-0">{{ (t.partner.name || '?')[0] }}</div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-ink truncate">{{ t.partner.name }}</span>
-                  <span v-if="t.unread" class="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full leading-4">{{ t.unread }}</span>
+          <template v-else>
+            <!-- 친구 -->
+            <div v-if="friendThreads.length" class="mb-4">
+              <div class="text-xs font-bold text-ink-muted mb-2">친구 <span class="text-ink-faint font-normal">{{ friendThreads.length }}명</span></div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><template v-for="t in friendThreads" :key="t.partner.id">              <div @click="openThread(t.partner)" class="card card-hover p-3 cursor-pointer" :class="t.unread ? 'ring-1 ring-amber-300' : ''">
+                <div class="flex items-center gap-3">
+                  <div class="relative flex-shrink-0">
+                    <div class="w-11 h-11 bg-amber-100 rounded-full flex items-center justify-center text-base font-bold text-amber-700">{{ (t.partner.name || '?')[0] }}</div>
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white"
+                      :class="{'bg-green-500':t.online_status==='online','bg-yellow-400':t.online_status==='away','bg-gray-300':t.online_status==='offline'}"></div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-sm font-bold text-ink truncate">{{ t.partner.name }}</span>
+                      <span v-if="t.unread" class="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full leading-4 flex-shrink-0">{{ t.unread }}</span>
+                      <span class="text-[11px] text-ink-faint ml-auto flex-shrink-0">{{ fmtDate(t.last_at) }}</span>
+                    </div>
+                    <div class="text-[11px] text-ink-muted truncate">{{ t.partner.city ? t.partner.city + ', ' + t.partner.state : '' }}</div>
+                    <div class="flex items-center gap-1 mt-0.5">
+                      <span v-if="t.is_friend && t.source" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ msgSourceLabel(t.source) }}</span>
+                      <span v-else-if="t.is_friend" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">친구</span>
+                      <span v-else class="text-[11px] bg-gray-100 text-ink-muted px-1.5 py-0.5 rounded-full">모르는 사람</span>
+                      <span class="text-[11px]" :class="{'text-green-500':t.online_status==='online','text-yellow-500':t.online_status==='away','text-ink-faint':t.online_status==='offline'}">{{ {online:'온라인',away:'자리비움',offline:'오프라인'}[t.online_status] }}</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="text-xs text-ink-muted truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+                <div class="mt-2 text-xs text-ink-light bg-gray-50 rounded-lg px-2.5 py-1.5 truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
               </div>
-              <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(t.last_at) }}</span>
+              </template>
+              </div>
             </div>
-          </div>
+            <!-- 모르는 사람(친구가 아닌 사람) — 하나의 그룹으로 묶어서 접어둠 -->
+            <div v-if="strangerThreads.length">
+              <button @click="showStrangers = !showStrangers" class="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-left">
+                <span class="w-9 h-9 rounded-full bg-gray-200 text-ink-muted flex items-center justify-center"><AppIcon name="users" :size="16" /></span>
+                <span class="flex-1 min-w-0">
+                  <span class="block text-sm font-bold text-ink">모르는 사람</span>
+                  <span class="block text-[11px] text-ink-muted">친구가 아닌 {{ strangerThreads.length }}명 · 쪽지 {{ strangerTotal }}개</span>
+                </span>
+                <span v-if="strangerUnread" class="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full leading-4">{{ strangerUnread }}</span>
+                <AppIcon :name="showStrangers ? 'chevron-up' : 'chevron-down'" :size="14" />
+              </button>
+              <div v-if="showStrangers" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 max-h-[32rem] overflow-y-auto">
+                <template v-for="t in strangerThreads" :key="t.partner.id">
+              <div @click="openThread(t.partner)" class="card card-hover p-3 cursor-pointer" :class="t.unread ? 'ring-1 ring-amber-300' : ''">
+                <div class="flex items-center gap-3">
+                  <div class="relative flex-shrink-0">
+                    <div class="w-11 h-11 bg-amber-100 rounded-full flex items-center justify-center text-base font-bold text-amber-700">{{ (t.partner.name || '?')[0] }}</div>
+                    <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white"
+                      :class="{'bg-green-500':t.online_status==='online','bg-yellow-400':t.online_status==='away','bg-gray-300':t.online_status==='offline'}"></div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-sm font-bold text-ink truncate">{{ t.partner.name }}</span>
+                      <span v-if="t.unread" class="bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full leading-4 flex-shrink-0">{{ t.unread }}</span>
+                      <span class="text-[11px] text-ink-faint ml-auto flex-shrink-0">{{ fmtDate(t.last_at) }}</span>
+                    </div>
+                    <div class="text-[11px] text-ink-muted truncate">{{ t.partner.city ? t.partner.city + ', ' + t.partner.state : '' }}</div>
+                    <div class="flex items-center gap-1 mt-0.5">
+                      <span v-if="t.is_friend && t.source" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ msgSourceLabel(t.source) }}</span>
+                      <span v-else-if="t.is_friend" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">친구</span>
+                      <span v-else class="text-[11px] bg-gray-100 text-ink-muted px-1.5 py-0.5 rounded-full">모르는 사람</span>
+                      <span class="text-[11px]" :class="{'text-green-500':t.online_status==='online','text-yellow-500':t.online_status==='away','text-ink-faint':t.online_status==='offline'}">{{ {online:'온라인',away:'자리비움',offline:'오프라인'}[t.online_status] }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-2 text-xs text-ink-light bg-gray-50 rounded-lg px-2.5 py-1.5 truncate"><span v-if="t.last_mine" class="text-ink-faint">나: </span>{{ t.last_content }}</div>
+              </div>
+                </template>
+              </div>
+            </div>
+          </template>
         </template>
 
         <!-- 한 사람과의 대화 -->
@@ -314,6 +372,8 @@
             <button @click="closeThread" class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-ink-muted" title="목록으로"><AppIcon name="arrow-left" :size="16" /></button>
             <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-xs font-bold text-amber-700">{{ (msgPartner.name || '?')[0] }}</div>
             <span class="font-bold text-ink">{{ msgPartner.name }}</span>
+            <span v-if="msgPartnerInfo?.is_friend" class="text-[11px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full">{{ msgPartnerInfo.source ? msgSourceLabel(msgPartnerInfo.source) : '친구' }}</span>
+            <span v-else class="text-[11px] bg-gray-100 text-ink-muted px-1.5 py-0.5 rounded-full">모르는 사람</span>
             <span class="text-xs text-ink-faint ml-auto">{{ thread.length }}개의 쪽지</span>
           </div>
           <div ref="threadBox" class="h-[28rem] overflow-y-auto bg-gray-50 rounded-xl p-3">
@@ -1400,10 +1460,19 @@ async function doEntryCheckin() {
 const threads = ref([]); const msgUnread = ref(0)
 const msgPartner = ref(null); const thread = ref([]); const threadBox = ref(null)
 const msgInput = ref(''); const msgSending = ref(false)
+const showStrangers = ref(false)
+const friendThreads = computed(() => threads.value.filter(t => t.is_friend))
+const strangerThreads = computed(() => threads.value.filter(t => !t.is_friend))
+const strangerUnread = computed(() => strangerThreads.value.reduce((n, t) => n + (t.unread || 0), 0))
+const strangerTotal = computed(() => strangerThreads.value.reduce((n, t) => n + (t.total || 0), 0))
+const msgPartnerInfo = computed(() => msgPartner.value ? threads.value.find(t => t.partner.id === msgPartner.value.id) : null)
+const MSG_SOURCES = { community: '커뮤니티', jobs: '구인구직', market: '중고장터', realestate: '부동산', directory: '업소록', clubs: '동호회', events: '이벤트', qa: 'Q&A' }
+const msgSourceLabel = (k) => MSG_SOURCES[k] || k
 async function loadMessages() {
   try {
     const { data } = await axios.get('/api/messages/threads')
     threads.value = data.data || []; msgUnread.value = data.unread_count || 0
+    if (strangerUnread.value && !showStrangers.value && !msgPartner.value) showStrangers.value = false
   } catch {}
   if (msgPartner.value) await loadThread(true)
 }
