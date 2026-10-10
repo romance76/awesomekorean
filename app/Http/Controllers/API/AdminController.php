@@ -189,6 +189,19 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>\App\Models\BannerAd::with('user:id,name,email')->orderByDesc('created_at')->get()]);
     }
     public function createBanner(Request $request) {
+        $request->validate([
+            'user_id' => 'nullable|integer|exists:users,id',
+            'title' => 'required|string|max:200',
+            'image_url' => 'nullable|string|max:500',
+            'target_url' => ['nullable', 'string', 'max:500', function ($a, $v, $fail) { if (!\App\Support\SafeUrl::ok($v)) $fail('링크는 / 로 시작하는 경로나 http(s):// 주소만 쓸 수 있어요'); }],
+            'page' => 'nullable|string|max:50',
+            'position' => 'nullable|string|max:50',
+            'status' => 'nullable|in:pending,active,paused',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'priority' => 'nullable|integer|min:0|max:100000',
+            'bid_amount' => 'nullable|numeric|min:0|max:1000000',
+        ]);
         $data = $request->only([
             'user_id','title','image_url','target_url','page','position',
             'status','start_date','end_date','priority','bid_amount',
@@ -238,15 +251,25 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'message'=>"거절됨. {$b->total_cost}P 환불"]);
     }
     public function pauseBanner($id) {
-        \App\Models\BannerAd::findOrFail($id)->update(['status' => 'paused']);
+        // 게재 중인 광고만 일시정지 — 거절(환불 완료)된 광고가 정지→재승인으로 되살아나 이중 환불되는 길을 막는다
+        $ok = \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            $b = \App\Models\BannerAd::lockForUpdate()->findOrFail($id);
+            if ($b->status !== 'active') return false;
+            $b->update(['status' => 'paused']);
+            return true;
+        });
+        if (!$ok) return response()->json(['success'=>false,'message'=>'게재 중인 광고만 일시정지할 수 있어요'], 422);
         return response()->json(['success'=>true]);
     }
     public function deleteBanner($id) {
-        $b = \App\Models\BannerAd::findOrFail($id);
-        if (in_array($b->status, ['pending', 'active', 'paused'])) {
-            $b->user?->addPoints($b->total_cost, "광고 삭제 환불: {$b->title}", 'banner_refund');
-        }
-        $b->delete();
+        // 환불은 한 번만: 잠금 + 상태 확인을 한 거래에서 하고, 환불 후 바로 삭제 (거절·만료 등 이미 환불된 광고는 환불하지 않음)
+        \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            $b = \App\Models\BannerAd::lockForUpdate()->findOrFail($id);
+            if (in_array($b->status, ['pending', 'active', 'paused'])) {
+                $b->user?->addPoints($b->total_cost, "광고 삭제 환불: {$b->title}", 'banner_refund');
+            }
+            $b->delete();
+        });
         return response()->json(['success'=>true]);
     }
 
@@ -304,6 +327,12 @@ class AdminController extends Controller
                 $payment = Payment::whereKey($id)->lockForUpdate()->firstOrFail();
                 if ($payment->status !== 'completed') {
                     throw new \DomainException('완료된 결제만 환불 가능합니다');
+                }
+
+                // 0) 회원이 이미 포인트를 써서 회수할 포인트가 모자라면 카드만 돌려주고 포인트가 마이너스가 되므로, 카드 환불 전에 막는다
+                $buyer = User::find($payment->user_id);
+                if ($buyer && (int) $buyer->points < (int) $payment->points_purchased) {
+                    throw new \DomainException('회원이 이미 포인트를 사용해서 전액 환불할 수 없어요. (구매 ' . number_format((int) $payment->points_purchased) . 'P 중 현재 보유 ' . number_format((int) $buyer->points) . 'P) 카드 환불은 결제 업체에서 직접 처리한 뒤 포인트를 조정해 주세요.');
                 }
 
                 // 1) 카드 환불 (Stripe). Stripe 가 거절하면 예외 → 아래 어떤 것도 바뀌지 않음.

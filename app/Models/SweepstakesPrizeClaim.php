@@ -20,6 +20,9 @@ class SweepstakesPrizeClaim extends Model
         'popup_dismissed_at' => 'datetime',
         'contact_confirmed_at' => 'datetime',
         'fulfilled_at' => 'datetime',
+        'sent_at' => 'datetime',
+        'delivery_confirmed_at' => 'datetime',
+        'cost_usd' => 'decimal:2',
         'contact_snapshot' => 'array',
     ];
 

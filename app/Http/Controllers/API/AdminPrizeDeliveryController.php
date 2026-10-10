@@ -82,8 +82,14 @@ class AdminPrizeDeliveryController extends Controller
             'delivery_link' => 'nullable|string|max:2000',
             'message' => 'nullable|string|max:1500',
             'cost_usd' => 'nullable|numeric|min:0|max:100000',
+            'resend' => 'nullable|boolean',
         ]);
         $claim = SweepstakesPrizeClaim::with(['user', 'sweepstakes'])->findOrFail($id);
+        // 휴대폰에서 버튼을 두 번 눌러 쪽지·알림이 중복으로 나가고 링크가 덮어써지는 일 방지 — 다시 보내려면 resend 를 명시
+        $already = in_array($claim->delivery_status, ['sent', 'confirmed'], true);
+        if ($already && empty($d['resend'])) {
+            return response()->json(['success' => false, 'code' => 'already_sent', 'message' => '이미 보낸 당첨자예요. 정말 다시 보내시려면 "다시 보내기"를 눌러 주세요.'], 409);
+        }
         if (!$claim->user) {
             return response()->json(['success' => false, 'message' => '당첨자 계정을 찾을 수 없어요'], 422);
         }
@@ -110,7 +116,7 @@ class AdminPrizeDeliveryController extends Controller
             $notifTitle = '📦 당첨 상품 안내가 도착했어요';
         }
 
-        DB::transaction(function () use ($claim, $d, $content, $action, $extra) {
+        DB::transaction(function () use ($claim, $d, $content, $action, $extra, $already) {
             $msg = Message::create(['sender_id' => auth()->id(), 'receiver_id' => $claim->user_id, 'content' => $content]);
             $claim->forceFill([
                 'prize_type' => $d['prize_type'],
@@ -120,7 +126,7 @@ class AdminPrizeDeliveryController extends Controller
                 'fulfilled_at' => $claim->fulfilled_at ?: now(),
                 'cost_usd' => (array_key_exists('cost_usd', $d) && $d['cost_usd'] !== null) ? $d['cost_usd'] : $claim->cost_usd,
             ])->save();
-            $this->log($claim, $action, $extra !== '' ? $extra : null, ['message_id' => $msg->id, 'prize_type' => $d['prize_type']]);
+            $this->log($claim, $already ? 'resent' : $action, $extra !== '' ? $extra : null, ['message_id' => $msg->id, 'prize_type' => $d['prize_type']]);
         });
 
         try {

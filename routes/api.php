@@ -601,6 +601,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     // 위험한 동작 전 비밀번호 재확인(10분 유효)
     Route::post('/reauth', [\App\Http\Controllers\API\AdminReauthController::class, 'confirm'])->middleware('throttle:5,1');
     Route::get('/reauth/status', [\App\Http\Controllers\API\AdminReauthController::class, 'status']);
+    // 휴대폰 홈 "오늘 할 일" 건수 — 한 번 호출로 신고·광고·전단·소유권·보상·안 보낸 경품·실패 작업
+    Route::get('/todo-counts', [\App\Http\Controllers\API\AdminTodoCountsController::class, 'index']);
 
     // ─── 보상 승인 (이벤트 완료인증 / 레시피 인기보상) ───
     Route::prefix('rewards')->group(function () {

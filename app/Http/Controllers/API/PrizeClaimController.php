@@ -156,10 +156,14 @@ class PrizeClaimController extends Controller
         $this->requireSuperAdmin();
         $request->validate(['note' => 'nullable|string|max:255']);
         $claim = SweepstakesPrizeClaim::findOrFail($id);
-        $claim->forceFill([
-            'fulfilled_at' => now(),
-            'fulfilled_note' => $request->input('note'),
-        ])->save();
+        $fill = ['fulfilled_at' => now(), 'fulfilled_note' => $request->input('note')];
+        // 새 지급 상태(안 보냄/보냄)도 함께 맞춘다 — 옛 화면에서 처리해도 "안 보낸 상품" 건수가 줄어들게
+        if (Schema::hasColumn('sweepstakes_prize_claims', 'delivery_status') && (($claim->delivery_status ?? 'pending') === 'pending')) {
+            $fill['delivery_status'] = 'sent';
+            $fill['sent_at'] = now();
+            $fill['sent_by'] = auth()->id();
+        }
+        $claim->forceFill($fill)->save();
         return response()->json(['success' => true]);
     }
 }

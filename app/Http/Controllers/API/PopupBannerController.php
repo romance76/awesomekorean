@@ -67,7 +67,7 @@ class PopupBannerController extends Controller
             'content'      => 'nullable|string',
             'width'        => 'nullable|integer|min:200|max:1200',
             'height'       => 'nullable|integer|min:150|max:900',
-            'link_url'     => 'nullable|string|max:500',
+            'link_url'     => ['nullable', 'string', 'max:500', function ($attr, $value, $fail) { if (!\App\Support\SafeUrl::ok($value)) $fail('링크는 / 로 시작하는 사이트 안 경로나 http(s):// 주소만 쓸 수 있어요'); }],
             'display_mode' => 'required|in:once_per_day,every_visit',
             'is_active'    => 'nullable|boolean',
             'start_at'     => 'nullable|date',

@@ -63,6 +63,10 @@ class HeroBannerController extends Controller
     {
         // multipart 로 오면 문자열 'true'/'false'/'1'/'0' 등을 적절히 캐스팅
         $data = $request->except(['image', 'image_en', '_method']);
+        // javascript: 같은 위험한 주소가 링크로 저장되지 않게 (사이트 안 경로 또는 http(s) 만 허용)
+        if (array_key_exists('link_url', $data) && !\App\Support\SafeUrl::ok($data['link_url'])) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['link_url' => ['링크는 / 로 시작하는 사이트 안 경로나 http(s):// 주소만 쓸 수 있어요']]);
+        }
         foreach (['is_active', 'image_only'] as $boolField) {
             if (array_key_exists($boolField, $data)) {
                 $data[$boolField] = filter_var($data[$boolField], FILTER_VALIDATE_BOOLEAN);

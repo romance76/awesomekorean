@@ -1,20 +1,17 @@
 <template>
 <div class="space-y-3">
-  <div class="text-[13px] font-bold text-ink-muted px-0.5">지금 확인할 것</div>
-
-  <RouterLink to="/admin/security" class="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5 min-h-[64px] active:bg-amber-50">
-    <span class="text-2xl font-black min-w-[44px] text-center tabular-nums" :class="reports > 0 ? 'text-red-600' : 'text-ink-faint'">{{ loaded ? reports : '–' }}</span>
-    <span class="min-w-0"><span class="block text-[15px] font-bold text-ink">처리 안 된 신고</span><span class="block text-[13px] text-ink-muted">보안/신고에서 확인</span></span>
+  <div class="flex items-center justify-between px-0.5">
+    <span class="text-[13px] font-bold text-ink-muted">오늘 할 일<span v-if="loaded && counts && counts.total" class="ml-1.5 text-red-600">총 {{ counts.total }}건</span></span>
+    <button @click="load" class="min-h-[36px] px-2 text-[13px] font-bold text-ink-light underline" aria-label="새로고침">새로고침</button>
+  </div>
+  <div v-if="loadError" class="bg-white border border-red-100 rounded-2xl p-3.5 text-[14px] text-red-600">건수를 불러오지 못했어요. <button @click="load" class="font-bold underline">다시 시도</button></div>
+  <RouterLink v-for="c in cards" :key="c.key" :to="c.to" class="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5 min-h-[64px] active:bg-amber-50">
+    <span class="text-2xl font-black min-w-[44px] text-center tabular-nums" :class="c.n > 0 ? c.tone : 'text-ink-faint'">{{ loaded ? c.n : '–' }}</span>
+    <span class="min-w-0"><span class="block text-[15px] font-bold text-ink">{{ c.label }}</span><span class="block text-[13px] text-ink-muted">{{ c.sub }}</span></span>
   </RouterLink>
-
   <RouterLink v-if="todoCount !== null" to="/admin/todos" class="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5 min-h-[64px] active:bg-amber-50">
     <span class="text-2xl font-black min-w-[44px] text-center tabular-nums text-amber-600">{{ todoCount }}</span>
     <span class="min-w-0"><span class="block text-[15px] font-bold text-ink">남은 할 일</span><span class="block text-[13px] text-ink-muted">할 일 목록 열기</span></span>
-  </RouterLink>
-
-  <RouterLink to="/admin/banners" class="flex items-center gap-3 bg-white border border-gray-100 rounded-2xl p-3.5 min-h-[64px] active:bg-amber-50">
-    <span class="text-2xl font-black min-w-[44px] text-center tabular-nums" :class="pendingAds > 0 ? 'text-amber-600' : 'text-ink-faint'">{{ loaded ? pendingAds : '–' }}</span>
-    <span class="min-w-0"><span class="block text-[15px] font-bold text-ink">승인 대기 광고</span><span class="block text-[13px] text-ink-muted">광고 목록에서 승인</span></span>
   </RouterLink>
 
   <div class="text-[13px] font-bold text-ink-muted px-0.5 pt-1">자주 쓰는 메뉴</div>
@@ -43,9 +40,41 @@ const auth = useAuthStore()
 const isSuper = computed(() => auth.user?.role === 'super_admin')
 
 const loaded = ref(false)
-const reports = ref(0)
-const pendingAds = ref(0)
+const loadError = ref(false)
+const counts = ref(null)
 const todoCount = ref(null)   // 최고 관리자만 볼 수 있어서 못 불러오면 카드를 숨김
+
+// 건수가 null 인 항목은 이 등급에게 보이지 않는 항목이라 카드를 만들지 않는다
+const cards = computed(() => {
+  const c = counts.value || {}
+  const defs = [
+    { key: 'reports', n: c.reports_pending, label: '처리 안 된 신고', sub: '보안/신고에서 확인', to: '/admin/security', tone: 'text-red-600' },
+    { key: 'banners', n: c.banners_pending, label: '승인 대기 광고', sub: '광고 목록에서 승인', to: '/admin/banners', tone: 'text-amber-600' },
+    { key: 'flyers', n: c.flyers_pending, label: '승인 대기 NEW 전단', sub: 'NEW 전단 광고에서 승인', to: '/admin/flyers', tone: 'text-amber-600' },
+    { key: 'ownership', n: c.ownership_pending, label: '업소 소유권 승인 대기', sub: '클레임에서 확인', to: '/admin/claims', tone: 'text-amber-600' },
+    { key: 'proofs', n: c.event_proofs_pending, label: '보상 승인 대기', sub: '보상 승인에서 확인', to: '/admin/rewards', tone: 'text-amber-600' },
+    { key: 'prizes', n: c.prizes_unsent, label: '아직 안 보낸 경품', sub: '경품 추첨 관리에서 보내기', to: '/admin/sweepstakes', tone: 'text-red-600' },
+    { key: 'queue', n: c.queue_failed, label: '실패한 백그라운드 작업', sub: '시스템에서 확인', to: '/admin/system', tone: 'text-red-600' },
+  ]
+  return defs.filter(d => d.n !== null && d.n !== undefined)
+})
+
+async function load() {
+  loadError.value = false
+  try {
+    const { data } = await axios.get('/api/admin/todo-counts')
+    counts.value = data.data || {}
+  } catch {
+    loadError.value = true
+  }
+  loaded.value = true
+  if (isSuper.value) {
+    try {
+      const { data } = await axios.get('/api/admin/todos')
+      todoCount.value = (data.data || []).filter(t => t.status !== 'done').length
+    } catch {}
+  }
+}
 
 const quick = computed(() => [
   { to: '/admin/members', icon: 'users', label: '회원관리' },
@@ -59,24 +88,5 @@ const quick = computed(() => [
   ] : []),
 ])
 
-onMounted(async () => {
-  try {
-    const { data } = await axios.get('/api/admin/board-manager/full-report')
-    const r = data.data || {}
-    reports.value = (r.boards || []).reduce((s, b) => s + (b.reports || 0), 0)
-    pendingAds.value = r.banners?.pending || 0
-  } catch {
-    try {
-      const { data } = await axios.get('/api/admin/overview')
-      reports.value = data.data?.pending_reports || 0
-    } catch {}
-  }
-  loaded.value = true
-  if (isSuper.value) {
-    try {
-      const { data } = await axios.get('/api/admin/todos')
-      todoCount.value = (data.data || []).filter(t => t.status !== 'done').length
-    } catch {}
-  }
-})
+onMounted(load)
 </script>

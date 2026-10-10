@@ -61,10 +61,14 @@ class AdminSweepstakesController extends Controller
             'draw_style' => 'nullable|string|max:20',
             'theme' => 'nullable|array',
             'winner_count' => 'nullable|integer|min:1|max:10',
+            'prize_mode' => 'nullable|in:same,tiered',
             'prize_tiers' => 'nullable|array|max:10',
             'prize_tiers.*.rank' => 'required_with:prize_tiers|integer|min:1|max:10',
             'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
+        if (!empty($data['prize_tiers']) && empty($data['prize_mode']) && (int) ($data['winner_count'] ?? 1) > 1) {
+            $data['prize_mode'] = 'tiered';   // 등수별 상품을 넣었으면 등수별 지급으로
+        }
         $data['status'] = $data['status'] ?? 'draft';
         $data['draw_style'] = 'lottery3d'; // 2D 휠 폐지 — 항상 3D 추첨기
         $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme'] ?? null);
@@ -86,6 +90,20 @@ class AdminSweepstakesController extends Controller
             return response()->json(['success' => false, 'message' => '당첨자가 이미 선정된 Sweepstakes는 수정할 수 없습니다'], 422);
         }
 
+        // 이미 시작했고 응모자가 있으면 상품·기간·당첨 인원을 바꿀 수 없다(응모한 사람들에게 불공정). 취소와 추첨 화면 꾸미기만 가능.
+        $started = $sweepstakes->start_at && $sweepstakes->start_at->lte(now());
+        $locked = (int) $sweepstakes->total_entries > 0 && $started;
+        if ($locked) {
+            $allowed = ['status', 'draw_style', 'theme'];
+            $extra = array_diff(array_keys($request->all()), $allowed);
+            if ($extra) {
+                return response()->json(['success' => false, 'code' => 'sweepstakes_locked', 'message' => '응모자가 있는 경품은 상품·기간·당첨 인원을 바꿀 수 없어요. (취소와 추첨 화면 꾸미기만 가능)'], 422);
+            }
+            if ($request->filled('status') && $request->status !== 'cancelled' && $request->status !== $sweepstakes->status) {
+                return response()->json(['success' => false, 'code' => 'sweepstakes_locked', 'message' => '응모자가 있는 경품은 상태를 취소로만 바꿀 수 있어요.'], 422);
+            }
+        }
+
         $data = $request->validate([
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
@@ -103,10 +121,15 @@ class AdminSweepstakesController extends Controller
             'draw_style' => 'nullable|string|max:20',
             'theme' => 'nullable|array',
             'winner_count' => 'nullable|integer|min:1|max:10',
+            'prize_mode' => 'nullable|in:same,tiered',
             'prize_tiers' => 'nullable|array|max:10',
             'prize_tiers.*.rank' => 'required_with:prize_tiers|integer|min:1|max:10',
             'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
+        // 등수별 상품을 넣었는데 방식이 없으면 자동으로 "등수별"로 (EventController 와 같은 동작)
+        if (!empty($data['prize_tiers']) && empty($data['prize_mode']) && (int) ($data['winner_count'] ?? $sweepstakes->winner_count ?? 1) > 1) {
+            $data['prize_mode'] = 'tiered';
+        }
 
         if (array_key_exists('draw_style', $data)) {
             $data['draw_style'] = 'lottery3d'; // 2D 휠 폐지 — 요청값과 무관하게 정규화

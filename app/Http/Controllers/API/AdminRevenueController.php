@@ -38,8 +38,16 @@ class AdminRevenueController extends Controller
             case 'year':  $from = $now->copy()->startOfYear(); $to = $from->copy()->addYear(); break;
             case 'all':   return [null, null];
             case 'custom':
-                $from = Carbon::parse($r->input('from', $now->toDateString()), self::TZ)->startOfDay();
-                $to = Carbon::parse($r->input('to', $now->toDateString()), self::TZ)->startOfDay()->addDay();
+                // 잘못된 날짜(abc 등)는 500 대신 안내 메시지, 시작일이 끝일보다 늦으면 자동으로 바꿔 준다
+                try {
+                    $a = Carbon::parse($r->input('from', $now->toDateString()), self::TZ)->startOfDay();
+                    $b = Carbon::parse($r->input('to', $now->toDateString()), self::TZ)->startOfDay();
+                } catch (\Throwable $e) {
+                    abort(response()->json(['success' => false, 'message' => '날짜 형식이 올바르지 않아요 (예: 2026-10-01)'], 422));
+                }
+                if ($a->gt($b)) { [$a, $b] = [$b, $a]; }
+                $from = $a;
+                $to = $b->copy()->addDay();
                 break;
             default:      $from = $now->copy()->subDays(29)->startOfDay(); $to = $now->copy()->startOfDay()->addDay();
         }

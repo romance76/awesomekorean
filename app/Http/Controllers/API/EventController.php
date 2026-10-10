@@ -390,6 +390,10 @@ class EventController extends Controller
         }
 
         $event->update(['is_active' => false]);
+        // 이벤트를 지워도 연결된 경품 추첨이 active 로 남아 응모가 계속되던 문제 — 추첨도 함께 취소 (당첨자 발표가 끝난 건은 기록 보존)
+        if ($event->event_type === 'sweepstakes') {
+            Sweepstakes::where('event_id', $event->id)->where('status', '!=', 'winner_selected')->update(['status' => 'cancelled']);
+        }
 
         return response()->json(['success' => true, 'message' => 'Event deactivated']);
     }

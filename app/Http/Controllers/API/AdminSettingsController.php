@@ -18,8 +18,41 @@ class AdminSettingsController extends Controller
     const SETTINGS_PUBLIC_CACHE_KEY = 'site_settings_public';
 
     // 전체 설정 로드 (이전 버전 호환)
+    // 화면에 내려보낼 때 비밀값은 끝 4자리만 남기고 가린다 (원본은 서버에만 있고, "키 보기"는 재확인을 거친 별도 경로로만 가능)
+    private function maskSecretValue($v): string {
+        $v = (string) $v;
+        if ($v === '') return '';
+        return str_repeat('•', 8) . mb_substr($v, -4);
+    }
+
+    private function isSecretKey(string $key): bool {
+        return (bool) preg_match('/(secret|private|token|password|webhook|credential)/i', $key) || in_array($key, ['stripe_secret_key'], true);
+    }
+
+    // 값 안의 JSON(결제 설정 등)까지 포함해 비밀 칸을 가린다
+    private function maskSettingsArray(array $settings): array {
+        foreach ($settings as $key => $val) {
+            if (!is_string($key)) continue;
+            if ($key === 'api_keys') { unset($settings[$key]); continue; }   // 예전에 평문으로 복사해 둔 키 목록 — 내려보내지 않는다
+            if ($this->isSecretKey($key) && !is_array($val)) { $settings[$key] = $this->maskSecretValue($val); continue; }
+            if (is_array($val)) {
+                foreach ($val as $k2 => $v2) {
+                    if (is_string($k2) && is_scalar($v2) && $this->isSecretKey($k2)) { $val[$k2] = $this->maskSecretValue($v2); }
+                }
+                $settings[$key] = $val;
+            } elseif (is_string($val) && strlen($val) > 1 && $val[0] === '{') {
+                $d = json_decode($val, true);
+                if (is_array($d)) {
+                    foreach ($d as $k2 => $v2) { if (is_string($k2) && is_scalar($v2) && $this->isSecretKey($k2)) $d[$k2] = $this->maskSecretValue($v2); }
+                    $settings[$key] = json_encode($d);
+                }
+            }
+        }
+        return $settings;
+    }
+
     public function index() {
-        $settings = SiteSetting::all()->pluck('value', 'key');
+        $settings = $this->maskSettingsArray(SiteSetting::all()->pluck('value', 'key')->toArray());
         return response()->json(['success'=>true,'data'=>$settings]);
     }
 
@@ -40,6 +73,7 @@ class AdminSettingsController extends Controller
         // 저장 시 마스킹된 값으로 덮어써지므로 건드리지 않음 — 접근 자체를
         // super_admin으로 제한하는 것으로 대응)
         unset($settings['api_keys']);
+        $settings = $this->maskSettingsArray($settings);   // 비밀값(Stripe 비밀키·웹훅 비밀 등)은 끝 4자리만 보이게
 
         // SiteSettings.vue(관리자 설정 화면)는 회사정보/사이트설정/푸터편집/
         // 약관관리/알림설정 탭을 각각 data.company / data.site / data.footer /
@@ -151,14 +185,21 @@ class AdminSettingsController extends Controller
 
     // Stripe 키 저장
     public function saveStripe(Request $request) {
+        $request->validate([
+            'stripe_publishable_key' => ['nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-•]*$/'],
+            'stripe_secret_key' => ['nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-•]*$/'],
+            'stripe_webhook_secret' => ['nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-•]*$/'],
+        ]);
         foreach (['stripe_publishable_key','stripe_secret_key','stripe_webhook_secret','stripe_test_mode'] as $k) {
             if ($request->has($k)) {
+                if (is_string($request->$k) && str_contains($request->$k, '•')) continue;   // 화면에서 가려 보여준 값을 그대로 보낸 것 — 바꾸지 않음
                 SiteSetting::updateOrCreate(['key'=>$k], ['value'=>$request->$k]);
             }
         }
-        // .env 파일에도 반영
-        $this->updateEnv('STRIPE_KEY', $request->stripe_publishable_key);
-        $this->updateEnv('STRIPE_SECRET', $request->stripe_secret_key);
+        // .env 파일에도 반영 (가려진 값·빈 값은 건드리지 않음)
+        foreach ([['STRIPE_KEY', $request->stripe_publishable_key], ['STRIPE_SECRET', $request->stripe_secret_key]] as [$ek, $ev]) {
+            if (is_string($ev) && $ev !== '' && !str_contains($ev, '•')) $this->updateEnv($ek, $ev);
+        }
         return response()->json(['success'=>true,'message'=>'Stripe 키가 저장되었습니다']);
     }
 
@@ -190,6 +231,10 @@ class AdminSettingsController extends Controller
 
     // VAPID 키 생성
     public function generateVapid() {
+        // 이미 푸시 키가 있으면 새로 만들지 않는다 — 덮어쓰면 기존 구독자 전원의 푸시가 끊기고, 이 함수는 진짜 VAPID 키도 아니다(임시)
+        if (SiteSetting::where('key', 'vapid_public')->whereNotNull('value')->where('value', '!=', '')->exists()) {
+            return response()->json(['success' => false, 'message' => '푸시 키가 이미 있어요. 덮어쓰면 기존 푸시 구독이 모두 끊겨서 막아 두었어요.'], 422);
+        }
         // 간단한 더미 키 생성 (실제로는 web-push 라이브러리 사용)
         $public = base64_encode(random_bytes(65));
         $private = base64_encode(random_bytes(32));
@@ -207,6 +252,14 @@ class AdminSettingsController extends Controller
 
     // 메뉴 일괄 저장
     public function saveMenus(Request $request) {
+        // 메뉴 항목 검증: 키·이름 필수, 링크는 안전한 주소만 (javascript: 같은 경로가 메뉴로 저장되지 않게)
+        $menusIn = $request->menus ?? [];
+        if (!is_array($menusIn) || count($menusIn) > 100) return response()->json(['success' => false, 'message' => '메뉴 목록 형식이 올바르지 않아요'], 422);
+        foreach ($menusIn as $i => $m) {
+            if (!is_array($m) || !isset($m['key']) || !is_string($m['key']) || !preg_match('/^[A-Za-z0-9_\-]{1,40}$/', $m['key'])) return response()->json(['success' => false, 'message' => '메뉴 ' . ($i + 1) . '번: 키가 올바르지 않아요'], 422);
+            if (!isset($m['label']) || !is_string($m['label']) || trim($m['label']) === '' || mb_strlen($m['label']) > 30 || preg_match('/[<>]/', $m['label'])) return response()->json(['success' => false, 'message' => '메뉴 ' . ($i + 1) . '번: 이름은 1~30자, < > 없이 입력해 주세요'], 422);
+            if (isset($m['path']) && !\App\Support\SafeUrl::ok($m['path'])) return response()->json(['success' => false, 'message' => '메뉴 ' . ($i + 1) . '번: 링크가 올바르지 않아요'], 422);
+        }
         // 기존 DB 에만 있는 key 는 보존 (프론트 allMenuDefs 에 없는 항목 실수 삭제 방지)
         $incoming = collect($request->menus ?? []);
         $incomingKeys = $incoming->pluck('key')->filter()->all();
@@ -264,7 +317,7 @@ class AdminSettingsController extends Controller
     }
 
     public function storeApiKey(Request $request) {
-        $request->validate(['name'=>'required','service'=>'required','api_key'=>'required']);
+        $request->validate(['name'=>'required|string|max:100','service'=>['required','string','regex:/^[A-Za-z0-9_]{1,40}$/'],'api_key'=>'required|string|max:10000']);
         if ($request->service === \App\Support\Analytics::SERVICE && !\App\Support\Analytics::isValid($request->api_key)) {
             return response()->json(['success'=>false,'message'=>'구글 Analytics 측정 ID 형식이 아닙니다 (예: G-ABC123DEF4)'], 422);
         }
@@ -450,14 +503,21 @@ class AdminSettingsController extends Controller
     }
 
     // .env 파일 업데이트 헬퍼
+    // .env 는 사이트 전체 설정 파일이라 한 줄짜리 안전한 값만 쓴다 (줄바꿈이 들어가면 다른 설정이 만들어질 수 있고,
+    // $1 같은 문자는 치환 때 깨진다). 원본 값은 DB 에 그대로 있으므로 .env 에 못 쓰는 값은 건너뛴다.
     private function updateEnv($key, $value) {
+        if (!is_string($key) || !preg_match('/^[A-Z][A-Z0-9_]{0,60}$/', $key)) return;
+        $value = (string) $value;
+        if ($value === '' || strlen($value) > 2000 || preg_match('/[\r\n\0]/', $value)) return;
         $envPath = base_path('.env');
         if (!file_exists($envPath)) return;
+        if (preg_match('/[\s#"\'\\\\$]/', $value)) $value = '"' . addcslashes($value, '"\\$') . '"';
         $content = file_get_contents($envPath);
-        if (strpos($content, $key.'=') !== false) {
-            $content = preg_replace("/^{$key}=.*/m", "{$key}={$value}", $content);
+        $line = $key . '=' . $value;
+        if (preg_match('/^' . preg_quote($key, '/') . '=/m', $content)) {
+            $content = preg_replace_callback('/^' . preg_quote($key, '/') . '=.*/m', fn () => $line, $content);
         } else {
-            $content .= "\n{$key}={$value}";
+            $content .= "\n" . $line;
         }
         file_put_contents($envPath, $content);
     }
@@ -619,7 +679,14 @@ class AdminSettingsController extends Controller
     }
 
     public function saveAdPageSettings(Request $request) {
-        SiteSetting::updateOrCreate(['key' => 'ad_page_config'], ['value' => json_encode($request->config)]);
+        if ($err = \App\Support\SettingsValidator::adConfig($request->config)) {
+            return response()->json(['success' => false, 'message' => $err], 422);
+        }
+        // 보내지 않은 페이지가 사라지지 않도록 기존 설정 위에 합쳐 저장
+        $cur = SiteSetting::where('key', 'ad_page_config')->value('value');
+        $merged = array_replace(is_string($cur) ? (json_decode($cur, true) ?: $this->defaultAdPageConfig()) : $this->defaultAdPageConfig(), $request->config);
+        SiteSetting::updateOrCreate(['key' => 'ad_page_config'], ['value' => json_encode($merged)]);
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success' => true, 'message' => '광고 페이지 설정이 저장되었습니다']);
     }
 
@@ -638,7 +705,11 @@ class AdminSettingsController extends Controller
     }
 
     public function saveSlotMinPrices(Request $request) {
+        if ($err = \App\Support\SettingsValidator::adPrices($request->prices, $request->geo_markup)) {
+            return response()->json(['success' => false, 'message' => $err], 422);
+        }
         SiteSetting::updateOrCreate(['key' => 'ad_slot_min_prices'], ['value' => json_encode($request->prices)]);
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         if ($request->geo_markup) {
             SiteSetting::updateOrCreate(['key' => 'ad_geo_markup'], ['value' => json_encode($request->geo_markup)]);
         }
@@ -680,12 +751,24 @@ class AdminSettingsController extends Controller
 
     public function savePointSettings(Request $request) {
         $items = $request->input('settings', []);
+        if (!is_array($items) || count($items) > 600) return response()->json(['success' => false, 'message' => '설정 목록 형식이 올바르지 않아요'], 422);
+        $current = \DB::table('point_settings')->pluck('value', 'key')->all();
+        $errors = []; $changes = [];
         foreach ($items as $item) {
-            if (!isset($item['key'], $item['value'])) continue;
-            \DB::table('point_settings')->where('key', $item['key'])->update([
-                'value' => $item['value'],
-                'updated_at' => now(),
-            ]);
+            if (!is_array($item) || !isset($item['key']) || !array_key_exists('value', $item)) continue;
+            $k = (string) $item['key'];
+            if (!array_key_exists($k, $current)) { $errors[$k] = '알 수 없는 설정이에요'; continue; }
+            $newVal = is_scalar($item['value']) || $item['value'] === null ? trim((string) $item['value']) : null;
+            if ($newVal !== null && $newVal === trim((string) $current[$k])) continue;   // 바뀌지 않은 칸은 검사하지 않음
+            if ($err = \App\Support\SettingsValidator::point($k, $item['value'])) { $errors[$k] = $err; continue; }
+            $changes[$k] = $newVal;
+        }
+        if (!$errors && $changes && ($g = \App\Support\SettingsValidator::gradeOrder($current, $changes))) { $errors['grade'] = $g; }
+        if ($errors) {
+            return response()->json(['success' => false, 'message' => '값이 올바르지 않은 칸이 있어요: ' . collect($errors)->map(fn ($m, $k) => "{$k} — {$m}")->take(3)->implode(' / '), 'errors' => $errors], 422);
+        }
+        foreach ($changes as $k => $val) {
+            \DB::table('point_settings')->where('key', $k)->update(['value' => $val, 'updated_at' => now()]);
         }
         // 상위노출 설정 캐시 즉시 무효화
         \App\Support\PromotionSettings::flush();
@@ -702,12 +785,23 @@ class AdminSettingsController extends Controller
 
     public function saveEntrySettings(Request $request) {
         $items = $request->input('settings', []);
+        if (!is_array($items) || count($items) > 100) return response()->json(['success' => false, 'message' => '설정 목록 형식이 올바르지 않아요'], 422);
+        $current = \DB::table('entry_settings')->pluck('value', 'key')->all();
+        $errors = []; $changes = [];
         foreach ($items as $item) {
-            if (!isset($item['key'], $item['value'])) continue;
-            \DB::table('entry_settings')->where('key', $item['key'])->update([
-                'value' => $item['value'],
-                'updated_at' => now(),
-            ]);
+            if (!is_array($item) || !isset($item['key']) || !array_key_exists('value', $item)) continue;
+            $k = (string) $item['key'];
+            if (!array_key_exists($k, $current)) { $errors[$k] = '알 수 없는 설정이에요'; continue; }
+            $newVal = is_scalar($item['value']) || $item['value'] === null ? trim((string) $item['value']) : null;
+            if ($newVal !== null && $newVal === trim((string) $current[$k])) continue;   // 바뀌지 않은 칸은 검사하지 않음
+            if ($err = \App\Support\SettingsValidator::entry($k, $item['value'])) { $errors[$k] = $err; continue; }
+            $changes[$k] = $newVal;
+        }
+        if ($errors) {
+            return response()->json(['success' => false, 'message' => '값이 올바르지 않은 칸이 있어요: ' . collect($errors)->map(fn ($m, $k) => "{$k} — {$m}")->take(3)->implode(' / '), 'errors' => $errors], 422);
+        }
+        foreach ($changes as $k => $val) {
+            \DB::table('entry_settings')->where('key', $k)->update(['value' => $val, 'updated_at' => now()]);
         }
         \App\Support\EntrySettings::flush();
         return response()->json(['success' => true, 'message' => 'Entry 설정이 저장되었습니다.']);

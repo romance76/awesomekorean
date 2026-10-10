@@ -248,7 +248,8 @@ class ChatController extends Controller
 
     // 채팅방 읽음 표시 (last_read_at = now)
     public function markRead($id) {
-        ChatRoom::findOrFail($id); // 그 사이 삭제된 방이면 500 대신 404
+        $room = ChatRoom::findOrFail($id); // 그 사이 삭제된 방이면 500 대신 404
+        if (!\App\Support\ChatAccess::isMember($room, auth()->user())) return \App\Support\ChatAccess::notMember();   // 멤버가 아닌 사람이 방에 끼어들지 못하게
         $userId = auth()->id();
         ChatRoomUser::updateOrCreate(
             ['chat_room_id' => $id, 'user_id' => $userId],
@@ -311,6 +312,8 @@ class ChatController extends Controller
         if (strlen($q) < 1) return response()->json(['success' => true, 'data' => []]);
 
         $room = ChatRoom::findOrFail($id);
+        if (!\App\Support\ChatAccess::isMember($room, auth()->user())) return \App\Support\ChatAccess::notMember();
+        if ($room->type === 'club' && !$this->clubRoomAllowed($room, auth()->user())) return \App\Support\ChatAccess::notMember();
         if (!\App\Support\ChatAccess::hasPublicAccess($room, auth()->user())) return \App\Support\ChatAccess::denied();
 
         $msgs = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points')
@@ -429,6 +432,8 @@ class ChatController extends Controller
     public function participants($id) {
         $room = ChatRoom::findOrFail($id);
         $me = auth()->id();
+        if (!\App\Support\ChatAccess::isMember($room, auth()->user())) return \App\Support\ChatAccess::notMember();
+        if ($room->type === 'club' && !$this->clubRoomAllowed($room, auth()->user())) return \App\Support\ChatAccess::notMember();
 
         $onlineIds = \Illuminate\Support\Facades\DB::table('chat_presence')
             ->where('room_id', (int) $id)
@@ -466,6 +471,9 @@ class ChatController extends Controller
 
     public function messages($id) {
         $userId = auth()->id();
+        $roomForAccess = ChatRoom::findOrFail($id);
+        if (!\App\Support\ChatAccess::isMember($roomForAccess, auth()->user())) return \App\Support\ChatAccess::notMember();
+        if ($roomForAccess->type === 'club' && !$this->clubRoomAllowed($roomForAccess, auth()->user())) return \App\Support\ChatAccess::notMember();
 
         // 차단된 유저는 메시지 조회 불가
         $banned = DB::table('chat_room_bans')->where('chat_room_id', $id)->where('user_id', $userId)->exists();
@@ -541,6 +549,7 @@ class ChatController extends Controller
     public function pins($id) {
         $room = ChatRoom::findOrFail($id);
         $user = auth()->user();
+        if (!\App\Support\ChatAccess::isMember($room, $user)) return \App\Support\ChatAccess::notMember();
         if ($room->type === 'club' && !$this->clubRoomAllowed($room, $user)) {
             return response()->json(['success' => false, 'message' => '동호회 멤버만 볼 수 있습니다.'], 403);
         }

@@ -399,7 +399,7 @@ async function doSend() {
   if (busy.value) return
   busy.value = true; err.value = ''
   try {
-    const body = { prize_type: form.value.prize_type, delivery_link: form.value.link.trim() || null, message: form.value.message.trim() || null }
+    const body = { prize_type: form.value.prize_type, delivery_link: form.value.link.trim() || null, message: form.value.message.trim() || null, resend: panel.value.c.delivery_status !== 'pending' }
     if (form.value.cost !== '') body.cost_usd = Number(form.value.cost)
     const { data } = await axios.post(`/api/admin/prize-claims/${panel.value.c.id}/deliver`, body)
     applyClaim(data.data); confirmSend.value = false; form.value.link = ''

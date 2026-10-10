@@ -292,11 +292,26 @@ class AdminBoardController extends Controller
     /**
      * 불린 필드 토글 (is_pinned, is_hidden, is_active, is_locked 등)
      */
+    // 외부에서 수집한 데이터인지(수정·삭제 금지 대상): 뉴스·음악·숏츠·업소록, 그리고 식품안전나라에서 가져온 레시피(ext_id 있음)
+    private function isCollected(string $slug, $item): bool
+    {
+        return in_array($slug, ['news', 'music', 'shorts', 'business'], true) || ($slug === 'recipes' && !empty($item->ext_id));
+    }
+
     public function toggleField(string $slug, $id, Request $request)
     {
         $cfg = $this->config($slug);
         $model = $cfg['model'];
         $field = $request->input('field');
+
+        // 운영자는 숨김·고정만, 인증·승인·활성 같은 칸은 관리자 이상, 업소 소유(is_claimed)는 최고관리자만 (소유권 승인은 전용 화면으로)
+        $role = auth()->user()->role;
+        if ($role === 'moderator' && !in_array($field, ['is_hidden', 'is_pinned'], true)) {
+            return response()->json(['success' => false, 'message' => '운영자는 숨김·고정만 바꿀 수 있어요.'], 403);
+        }
+        if ($field === 'is_claimed' && $role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => '업소 소유 상태는 소유권 승인 화면에서 바꿔 주세요.'], 403);
+        }
 
         $allowed = ['is_pinned','is_hidden','is_active','is_resolved','is_approved','is_verified','is_claimed','is_locked','is_pinned'];
         if (!in_array($field, $allowed)) {
@@ -328,6 +343,9 @@ class AdminBoardController extends Controller
         $data = $request->only($editable);
 
         $item = $model::findOrFail($id);
+        if ($this->isCollected($slug, $item)) {
+            return response()->json(['success' => false, 'code' => 'collected_data', 'message' => '수집된 데이터는 수정할 수 없어요. 숨김·고정만 사용해 주세요.'], 422);
+        }
         $item->update($data);
 
         return response()->json(['success'=>true,'data'=>$item->fresh()]);
@@ -342,7 +360,7 @@ class AdminBoardController extends Controller
         $model = $cfg['model'];
         $item = $model::findOrFail($id);
         // 뉴스·음악·숏츠·업소록·수집 레시피는 재수집이 어렵거나 불가능해서 삭제하지 않는다 (숨김으로 처리)
-        if (in_array($slug, ['news', 'music', 'shorts', 'business'], true) || ($slug === 'recipes' && !empty($item->ext_id))) {
+        if ($this->isCollected($slug, $item)) {
             return response()->json(['success' => false, 'code' => 'collected_data', 'message' => '수집된 데이터는 삭제할 수 없어요. 숨김을 사용해 주세요.'], 422);
         }
         $item->delete();
@@ -361,8 +379,15 @@ class AdminBoardController extends Controller
         if (!$user) return response()->json(['success'=>false,'message'=>'작성자 없음'], 404);
 
         $amount = (int)$request->input('amount', 0);
-        $reason = $request->input('reason', '관리자 수동 조정');
+        $reason = trim((string) $request->input('reason', ''));
         if ($amount === 0) return response()->json(['success'=>false,'message'=>'금액 입력 필요'], 422);
+        // 포인트는 돈과 이어지므로 한도와 사유가 필요 (관리자 ±1만, 최고관리자 ±100만)
+        $limit = auth()->user()->role === 'super_admin' ? 1000000 : 10000;
+        if (abs($amount) > $limit) {
+            return response()->json(['success'=>false,'message'=>'한 번에 조정할 수 있는 포인트는 ±' . number_format($limit) . 'P 까지예요.'], 422);
+        }
+        if (mb_strlen($reason) < 2) return response()->json(['success'=>false,'message'=>'사유를 2글자 이상 적어 주세요.'], 422);
+        $reason = mb_substr($reason, 0, 100) . ' (관리자 ' . auth()->id() . ')';
 
         $user->addPoints($amount, $reason, 'admin_adjust', [
             'type' => $model,
@@ -382,6 +407,9 @@ class AdminBoardController extends Controller
         $catField = $cfg['category_field'] ?? 'category';
 
         $item = $model::findOrFail($id);
+        if ($this->isCollected($slug, $item)) {
+            return response()->json(['success' => false, 'code' => 'collected_data', 'message' => '수집된 데이터는 분류를 바꿀 수 없어요.'], 422);
+        }
         $item->update([$catField => $request->input('category')]);
         return response()->json(['success'=>true,'data'=>$item->fresh()]);
     }
@@ -459,9 +487,24 @@ class AdminBoardController extends Controller
             $hasChannelUrl = Schema::hasColumn($table, 'channel_url');
             $hasAnyLength = Schema::hasColumn($table, 'allow_any_length');
 
+            // 목록이 비어 있으면 카테고리 전체가 지워지고 글의 분류까지 사라지므로 거부한다
+            $named = collect($categories)->filter(fn ($c) => is_array($c) && trim((string) ($c['name'] ?? '')) !== '');
+            if ($named->isEmpty()) {
+                return response()->json(['success' => false, 'message' => '카테고리가 하나도 없어요. 한 개 이상 남겨 주세요.'], 422);
+            }
             $existingIds = collect($categories)->pluck('id')->filter()->all();
-            // 삭제된 항목
-            $modelClass::whereNotIn('id', $existingIds ?: [0])->delete();
+            // 삭제될 항목: 글이 연결된 카테고리는 지우지 못하게 한다
+            $toDelete = $modelClass::whereNotIn('id', $existingIds ?: [0])->pluck('id');
+            if ($toDelete->isNotEmpty()) {
+                $postTable = (new $cfg['model'])->getTable();
+                if (Schema::hasColumn($postTable, 'category_id')) {
+                    $inUse = $cfg['model']::whereIn('category_id', $toDelete)->count();
+                    if ($inUse > 0) {
+                        return response()->json(['success' => false, 'message' => "글이 {$inUse}개 연결된 카테고리는 지울 수 없어요. 먼저 글의 분류를 바꿔 주세요."], 422);
+                    }
+                }
+                $modelClass::whereIn('id', $toDelete)->delete();
+            }
             // upsert
             foreach ($categories as $idx => $cat) {
                 $name = trim($cat['name'] ?? '');
