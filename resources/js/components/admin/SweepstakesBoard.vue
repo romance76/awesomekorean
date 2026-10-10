@@ -2,21 +2,21 @@
 <div class="space-y-4">
   <!-- 장부: 상품에 쓴 돈 -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-    <div class="rounded-2xl bg-white border border-gray-100 p-3.5">
-      <div class="text-[13px] text-ink-muted">이번 달 쓴 금액</div>
-      <div class="text-[22px] font-extrabold text-ink mt-0.5">{{ usd(sum.month_usd) }}</div>
+    <div class="rounded-2xl bg-white border border-gray-100 p-3.5 md:p-3">
+      <div class="text-[13px] md:text-xs text-ink-muted">이번 달 쓴 금액</div>
+      <div class="text-[22px] md:text-[18px] font-extrabold text-ink mt-0.5">{{ usd(sum.month_usd) }}</div>
     </div>
-    <div class="rounded-2xl bg-white border border-gray-100 p-3.5">
-      <div class="text-[13px] text-ink-muted">지금까지 쓴 금액</div>
-      <div class="text-[22px] font-extrabold text-ink mt-0.5">{{ usd(sum.total_usd) }}</div>
+    <div class="rounded-2xl bg-white border border-gray-100 p-3.5 md:p-3">
+      <div class="text-[13px] md:text-xs text-ink-muted">지금까지 쓴 금액</div>
+      <div class="text-[22px] md:text-[18px] font-extrabold text-ink mt-0.5">{{ usd(sum.total_usd) }}</div>
     </div>
-    <div class="rounded-2xl bg-white border border-gray-100 p-3.5">
-      <div class="text-[13px] text-ink-muted">보낸 상품</div>
-      <div class="text-[22px] font-extrabold text-ink mt-0.5">{{ sum.sent_count || 0 }}건</div>
+    <div class="rounded-2xl bg-white border border-gray-100 p-3.5 md:p-3">
+      <div class="text-[13px] md:text-xs text-ink-muted">보낸 상품</div>
+      <div class="text-[22px] md:text-[18px] font-extrabold text-ink mt-0.5">{{ sum.sent_count || 0 }}건</div>
     </div>
     <div class="rounded-2xl p-3.5 border" :class="sum.pending_count ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'">
       <div class="text-[13px]" :class="sum.pending_count ? 'text-amber-800' : 'text-ink-muted'">아직 안 보낸 상품</div>
-      <div class="text-[22px] font-extrabold mt-0.5" :class="sum.pending_count ? 'text-amber-700' : 'text-ink'">{{ sum.pending_count || 0 }}건 <span class="text-[13px] font-bold">({{ usd(sum.pending_usd) }})</span></div>
+      <div class="text-[22px] md:text-[18px] font-extrabold mt-0.5" :class="sum.pending_count ? 'text-amber-700' : 'text-ink'">{{ sum.pending_count || 0 }}건 <span class="text-[13px] font-bold">({{ usd(sum.pending_usd) }})</span></div>
     </div>
   </div>
   <div class="flex items-center justify-between gap-2 flex-wrap -mt-1">
@@ -42,8 +42,85 @@
   <!-- 추첨 목록 (한 줄씩 쌓임) -->
   <div v-if="tab !== 'log' && tab !== 'auto'">
     <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
+    <div v-else-if="!isMobile" class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs min-w-[860px]">
+          <thead class="bg-gray-50 text-ink-muted">
+            <tr class="text-left">
+              <th class="px-3 py-2 font-semibold w-[84px]">상태</th>
+              <th class="px-3 py-2 font-semibold">이벤트</th>
+              <th class="px-3 py-2 font-semibold">상품</th>
+              <th class="px-3 py-2 font-semibold">기간 (애틀랜타)</th>
+              <th class="px-3 py-2 font-semibold">참가</th>
+              <th class="px-3 py-2 font-semibold">상품 지급</th>
+              <th class="px-3 py-2 font-semibold text-right">처리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="item in visible" :key="item.id">
+              <tr class="border-t border-gray-50 hover:bg-amber-50/30" :class="isDone(item) ? 'cursor-pointer' : ''" @click="isDone(item) && toggle(item)">
+                <td class="px-3 py-2"><span class="text-[11px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap" :class="badge(item.status)">{{ label(item.status) }}</span></td>
+                <td class="px-3 py-2 max-w-[260px]"><div class="font-semibold text-ink truncate" :title="item.title">{{ item.title }}</div></td>
+                <td class="px-3 py-2 max-w-[220px]"><div class="text-ink-light truncate" :title="item.prize_name">🎁 {{ item.prize_name }}<span v-if="item.prize_value"> (${{ item.prize_value }})</span><span v-if="(item.winner_count || 1) > 1"> · {{ item.winner_count }}명</span></div></td>
+                <td class="px-3 py-2 whitespace-nowrap tabular-nums text-ink-light">{{ short(item.start_at) }} ~ {{ short(item.end_at) }}</td>
+                <td class="px-3 py-2 whitespace-nowrap text-ink-light">{{ item.unique_participants ?? 0 }}명 · {{ item.total_entries }}</td>
+                <td class="px-3 py-2 whitespace-nowrap">
+                  <template v-if="isDone(item)">
+                    <span v-if="progress[item.id]" class="text-[11px] px-2 py-0.5 rounded-full font-bold" :class="progress[item.id].pending ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700'">{{ progress[item.id].sent }}/{{ progress[item.id].total }}<span v-if="progress[item.id].pending"> · 안 보냄 {{ progress[item.id].pending }}</span></span>
+                    <span v-else class="text-ink-faint">—</span>
+                  </template>
+                  <span v-else class="text-ink-faint">—</span>
+                </td>
+                <td class="px-3 py-2 text-right whitespace-nowrap" @click.stop>
+                  <template v-if="!isDone(item)">
+                    <button @click="$emit('participants', item)" class="bg-gray-100 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-200">참가현황</button>
+                    <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="ml-1 bg-gray-100 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-200 inline-block">보기</RouterLink>
+                    <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}/edit`" class="ml-1 bg-gray-100 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-200 inline-block">수정</RouterLink>
+                    <button @click="$emit('design', item)" class="ml-1 bg-amber-50 text-amber-700 text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-amber-100">화면 꾸미기</button>
+                    <button @click="$emit('winner', item)" class="ml-1 bg-violet-600 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-violet-700">당첨자 선정</button>
+                    <button @click="$emit('delete', item)" :disabled="item.total_entries > 0" class="ml-1 text-red-500 text-[11px] font-bold px-1.5 py-1 disabled:opacity-30">삭제</button>
+                  </template>
+                  <template v-else>
+                    <button @click="toggle(item)" class="bg-white border border-gray-200 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-50">{{ openId === item.id ? '당첨자 접기' : '당첨자·지급' }}</button>
+                  </template>
+                </td>
+              </tr>
+              <tr v-if="isDone(item) && openId === item.id" class="border-t border-gray-50">
+                <td colspan="7" class="bg-gray-50/70 px-4 py-3">
+                  <div v-if="claimsLoading" class="text-xs text-ink-muted">당첨자 불러오는 중...</div>
+                  <template v-else>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                      <button v-for="c in (claims[item.id] || [])" :key="c.id" @click="openPanel(c, item)" class="text-left rounded-lg bg-white border border-gray-200 px-3 py-2 flex items-center gap-3 hover:bg-amber-50">
+                        <b class="shrink-0 w-8 text-amber-700 text-xs">{{ c.rank }}등</b>
+                        <span class="min-w-0 flex-1">
+                          <span class="block text-[13px] font-bold text-ink truncate">{{ c.nickname || c.name || ('회원 #' + c.user_id) }}</span>
+                          <span class="block text-[11px] text-ink-muted truncate">{{ c.prize_label || item.prize_name }} · {{ c.prize_type === 'physical' ? '실물' : '디지털' }}<span v-if="costOf(c, item) != null"> · {{ usd(costOf(c, item)) }}</span></span>
+                        </span>
+                        <span class="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full" :class="stChip(c.delivery_status)">{{ stLabel(c.delivery_status) }}</span>
+                      </button>
+                    </div>
+                    <div v-if="!(claims[item.id] || []).length" class="text-xs text-ink-muted">당첨자가 없어요</div>
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                      <button @click="$emit('participants', item)" class="bg-white border border-gray-200 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-50">참가현황</button>
+                      <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="bg-white border border-gray-200 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-50 inline-block">이벤트 보기</RouterLink>
+                      <button @click="loadLogsFor(item)" class="bg-white border border-gray-200 text-ink text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-50">이 추첨 이력</button>
+                    </div>
+                    <div v-if="itemLogs && itemLogs.id === item.id" class="mt-2 rounded-lg bg-white border border-gray-200 p-2.5 space-y-1">
+                      <div v-for="l in itemLogs.rows" :key="l.id" class="text-[11px]"><span class="text-ink-faint tabular-nums">{{ tAtl(l.created_at) }}</span> · <b>{{ actionLabel(l.action) }}</b> · {{ l.winner_name || '' }}<span v-if="l.actor_name" class="text-ink-muted"> (처리 {{ l.actor_name }})</span></div>
+                      <div v-if="!itemLogs.rows.length" class="text-[11px] text-ink-muted">아직 이력이 없어요</div>
+                    </div>
+                  </template>
+                </td>
+              </tr>
+            </template>
+            <tr v-if="!shown.length"><td colspan="7" class="py-12 text-center text-ink-muted text-sm">{{ tab === 'active' ? '진행 중인 추첨이 없어요' : '표시할 추첨이 없어요' }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="shown.length > visible.length" class="border-t border-gray-50 px-4 py-2.5 text-center"><button @click="limit += 30" class="text-xs font-bold text-ink-light underline">더 보기 ({{ shown.length - visible.length }}개 남음)</button></div>
+    </div>
     <div v-else class="rounded-2xl bg-white border border-gray-100 overflow-hidden divide-y divide-gray-100">
-      <div v-for="item in shown" :key="item.id">
+      <div v-for="item in visible" :key="item.id">
         <div class="px-3.5 py-3 flex items-start gap-3" :class="isDone(item) ? 'cursor-pointer active:bg-gray-50' : ''" @click="isDone(item) && toggle(item)">
           <span class="mt-0.5 shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-full" :class="badge(item.status)">{{ label(item.status) }}</span>
           <div class="min-w-0 flex-1">
@@ -94,6 +171,7 @@
         </div>
       </div>
       <div v-if="!shown.length" class="py-12 text-center text-ink-muted text-[15px]">{{ tab === 'active' ? '진행 중인 추첨이 없어요' : '표시할 추첨이 없어요' }}</div>
+      <button v-if="shown.length > visible.length" @click="limit += 30" class="w-full min-h-[48px] text-[14px] font-bold text-ink-light underline">더 보기 ({{ shown.length - visible.length }}개 남음)</button>
     </div>
   </div>
 
@@ -194,13 +272,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, inject } from 'vue'
 import axios from 'axios'
 import SweepstakesAutomation from './SweepstakesAutomation.vue'
 
 const props = defineProps({ items: { type: Array, default: () => [] }, loading: Boolean })
 defineEmits(['participants', 'design', 'winner', 'delete', 'reload'])
 
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const limit = ref(30)
 const tab = ref('active')
 const openId = ref(null)
 const claims = ref({})          // { sweepstakesId: [claim...] }
@@ -237,6 +318,7 @@ const shown = computed(() => {
   return list.sort((a, b) => new Date(b.start_at) - new Date(a.start_at))
 })
 
+const visible = computed(() => shown.value.slice(0, limit.value))
 const usd = (n) => '$' + (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const costOf = (c, item) => c.cost_usd != null ? c.cost_usd : (c.default_cost != null ? c.default_cost : (item.prize_value != null ? Number(item.prize_value) : null))
 function label(s) { return { draft: '준비중', active: '진행중', ended: '마감', winner_selected: '종료·당첨', cancelled: '취소됨' }[s] || s }
@@ -256,7 +338,7 @@ async function loadLogs() {
   try { const { data } = await axios.get('/api/admin/sweepstakes-delivery/logs?limit=150'); logs.value = data.data || [] } catch { logs.value = [] }
   logsLoading.value = false
 }
-function setTab(k) { tab.value = k; openId.value = null; if (k === 'log') loadLogs() }
+function setTab(k) { tab.value = k; limit.value = 30; openId.value = null; if (k === 'log') loadLogs() }
 
 async function fetchClaims(item) {
   try {
@@ -337,5 +419,10 @@ async function saveCostOnly() {
 }
 
 watch(() => props.items, () => { loadSummary() })
+// 종료된 추첨은 목록에서 바로 "지급 n/m" 이 보이도록, 화면에 보이는 것들의 지급 현황을 미리 불러온다
+watch(visible, async (list) => {
+  const todo = list.filter(it => isDone(it) && !progress.value[it.id]).slice(0, 30)
+  for (let i = 0; i < todo.length; i += 6) await Promise.all(todo.slice(i, i + 6).map(fetchClaims))
+}, { immediate: true })
 onMounted(loadSummary)
 </script>

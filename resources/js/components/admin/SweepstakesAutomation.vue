@@ -7,10 +7,10 @@
         <h2 class="text-[17px] font-extrabold text-ink">반복 일정</h2>
         <p class="text-[13px] text-ink-muted leading-relaxed">같은 상품·같은 기간의 이벤트를 매일/매주/매월 자동으로 만들어요. 시간은 애틀랜타 기준이에요.</p>
       </div>
-      <button @click="openSchedule(null)" class="shrink-0 min-h-[44px] px-4 rounded-xl bg-amber-500 text-white text-[14px] font-bold">+ 새 일정</button>
+      <button @click="openSchedule(null)" class="shrink-0 min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-amber-500 text-white text-[14px] font-bold">+ 새 일정</button>
     </div>
     <div v-if="loading" class="text-center py-6 text-ink-muted text-[15px]">불러오는 중...</div>
-    <div v-for="s in schedules" :key="s.id" class="rounded-2xl bg-white border border-gray-100 p-3.5">
+    <div v-for="s in schedules" :key="s.id" class="rounded-2xl md:rounded-xl bg-white border border-gray-100 p-3.5 md:px-3.5 md:py-2.5">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-[12px] font-bold px-2.5 py-1 rounded-full" :class="chip(s.status)">{{ statusLabel(s.status) }}</span>
         <span class="text-[16px] font-bold text-ink break-words">{{ s.name }}</span>
@@ -20,12 +20,12 @@
       <div class="text-[13px] text-ink-faint mt-0.5">회차 {{ s.runs_done }}{{ s.total_runs ? ' / ' + s.total_runs : ' (계속)' }}</div>
       <div v-if="s.next_run_at && s.status === 'active'" class="text-[13px] font-bold text-emerald-700 mt-1">다음 생성: {{ tAtl(s.next_run_at) }} (애틀랜타) · {{ tUtc(s.next_run_at) }} (UTC)</div>
       <div v-else-if="s.next_run_at && s.status === 'paused'" class="text-[13px] text-amber-700 mt-1">일시정지 중 · 켜면 {{ tAtl(s.next_run_at) }} 부터 (애틀랜타)</div>
-      <div class="flex flex-wrap gap-2 mt-3">
-        <button v-if="s.status !== 'active' && s.status !== 'completed' && s.status !== 'stopped'" @click="act('sch', s, 'start')" class="min-h-[44px] px-4 rounded-xl bg-emerald-500 text-white text-[14px] font-bold">시작</button>
-        <button v-if="s.status === 'active'" @click="act('sch', s, 'pause')" class="min-h-[44px] px-4 rounded-xl bg-gray-100 text-ink text-[14px] font-bold">일시정지</button>
-        <button v-if="s.status === 'active' || s.status === 'paused'" @click="act('sch', s, 'run_now')" class="min-h-[44px] px-4 rounded-xl bg-amber-50 text-amber-800 text-[14px] font-bold">지금 한 번 만들기</button>
-        <button @click="openSchedule(s)" class="min-h-[44px] px-4 rounded-xl bg-gray-100 text-ink text-[14px] font-bold">수정</button>
-        <button v-if="s.status !== 'stopped' && s.status !== 'completed'" @click="ask('sch', s, 'stop', '이 일정을 중지할까요? 이미 만들어진 이벤트는 그대로 남아요.')" class="min-h-[44px] px-3 rounded-xl text-red-500 text-[14px] font-bold">중지</button>
+      <div class="flex flex-wrap gap-2 mt-3 md:mt-2">
+        <button v-if="s.status !== 'active' && s.status !== 'completed' && s.status !== 'stopped'" @click="act('sch', s, 'start')" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-emerald-500 text-white text-[14px] font-bold">시작</button>
+        <button v-if="s.status === 'active'" @click="act('sch', s, 'pause')" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-gray-100 text-ink text-[14px] font-bold">일시정지</button>
+        <button v-if="s.status === 'active' || s.status === 'paused'" @click="act('sch', s, 'run_now')" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-amber-50 text-amber-800 text-[14px] font-bold">지금 한 번 만들기</button>
+        <button @click="openSchedule(s)" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-gray-100 text-ink text-[14px] font-bold">수정</button>
+        <button v-if="s.status !== 'stopped' && s.status !== 'completed'" @click="ask('sch', s, 'stop', '이 일정을 중지할까요? 이미 만들어진 이벤트는 그대로 남아요.')" class="min-h-[44px] md:min-h-[32px] px-3 md:px-2 rounded-xl md:rounded-lg md:text-[12px] text-red-500 text-[14px] font-bold">중지</button>
       </div>
     </div>
     <div v-if="!loading && !schedules.length" class="rounded-2xl bg-white border border-gray-100 py-8 text-center text-[14px] text-ink-muted">만든 반복 일정이 없어요</div>
@@ -38,20 +38,20 @@
         <h2 class="text-[17px] font-extrabold text-ink">가입 보너스</h2>
         <p class="text-[13px] text-ink-muted leading-relaxed">"매 100번째로 가입한 회원에게 5달러 상품권"처럼 가입 순번에 맞는 회원에게 상품을 줘요. 현재 전체 회원 {{ memberCount }}명. <b>켠 뒤에 가입하는 사람부터</b> 세요.</p>
       </div>
-      <button @click="openMilestone(null)" class="shrink-0 min-h-[44px] px-4 rounded-xl bg-amber-500 text-white text-[14px] font-bold">+ 새 보너스</button>
+      <button @click="openMilestone(null)" class="shrink-0 min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-amber-500 text-white text-[14px] font-bold">+ 새 보너스</button>
     </div>
-    <div v-for="m in milestones" :key="m.id" class="rounded-2xl bg-white border border-gray-100 p-3.5">
+    <div v-for="m in milestones" :key="m.id" class="rounded-2xl md:rounded-xl bg-white border border-gray-100 p-3.5 md:px-3.5 md:py-2.5">
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-[12px] font-bold px-2.5 py-1 rounded-full" :class="chip(m.status)">{{ statusLabel(m.status) }}</span>
         <span class="text-[16px] font-bold text-ink break-words">{{ m.name }}</span>
       </div>
       <div class="text-[14px] text-ink-muted mt-1">매 <b>{{ m.every_n }}번째</b> 가입 · 🎁 {{ m.prize_name }}<span v-if="m.prize_value"> (${{ m.prize_value }})</span> · {{ m.prize_type === 'physical' ? '실물' : '디지털' }}</div>
       <div class="text-[13px] text-ink-faint mt-0.5">지급된 당첨자 {{ m.awards_done }}명{{ m.max_awards ? ' / 최대 ' + m.max_awards + '명' : '' }}</div>
-      <div class="flex flex-wrap gap-2 mt-3">
-        <button v-if="m.status !== 'active' && m.status !== 'stopped'" @click="act('ms', m, 'start')" class="min-h-[44px] px-4 rounded-xl bg-emerald-500 text-white text-[14px] font-bold">시작</button>
-        <button v-if="m.status === 'active'" @click="act('ms', m, 'pause')" class="min-h-[44px] px-4 rounded-xl bg-gray-100 text-ink text-[14px] font-bold">일시정지</button>
-        <button @click="openMilestone(m)" class="min-h-[44px] px-4 rounded-xl bg-gray-100 text-ink text-[14px] font-bold">수정</button>
-        <button v-if="m.status !== 'stopped'" @click="ask('ms', m, 'stop', '이 가입 보너스를 중지할까요? 이미 당첨된 분의 기록은 남아요.')" class="min-h-[44px] px-3 rounded-xl text-red-500 text-[14px] font-bold">중지</button>
+      <div class="flex flex-wrap gap-2 mt-3 md:mt-2">
+        <button v-if="m.status !== 'active' && m.status !== 'stopped'" @click="act('ms', m, 'start')" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-emerald-500 text-white text-[14px] font-bold">시작</button>
+        <button v-if="m.status === 'active'" @click="act('ms', m, 'pause')" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-gray-100 text-ink text-[14px] font-bold">일시정지</button>
+        <button @click="openMilestone(m)" class="min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-gray-100 text-ink text-[14px] font-bold">수정</button>
+        <button v-if="m.status !== 'stopped'" @click="ask('ms', m, 'stop', '이 가입 보너스를 중지할까요? 이미 당첨된 분의 기록은 남아요.')" class="min-h-[44px] md:min-h-[32px] px-3 md:px-2 rounded-xl md:rounded-lg md:text-[12px] text-red-500 text-[14px] font-bold">중지</button>
       </div>
       <p v-if="m.awards_done" class="text-[12px] text-ink-faint mt-2">당첨자는 위쪽 "종료·당첨" 탭의 "🎯 가입 보너스 · {{ m.name }}"에서 상품을 보낼 수 있어요.</p>
     </div>
