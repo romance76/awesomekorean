@@ -5,7 +5,7 @@
   <div v-if="!isSuperAdmin" class="bg-white border border-gray-100 rounded-2xl py-12 text-center text-ink-muted text-[15px] px-4">경품 추첨 관리는 사이트 최고관리자만 접근할 수 있어요</div>
   <template v-else>
     <RouterLink to="/events/create" class="flex items-center justify-center min-h-[52px] rounded-2xl bg-amber-500 text-white text-[16px] font-bold">+ 이벤트로 새 경품 추첨 등록</RouterLink>
-    <SweepstakesBoard :items="items" :loading="loading" @participants="mParticipants" @design="openDesign" @winner="askWinner" @delete="askDelete" />
+    <SweepstakesBoard :items="items" :loading="loading" @participants="mParticipants" @design="openDesign" @winner="askWinner" @delete="askDelete" @reload="load" />
   </template>
 
   <Teleport to="body">
@@ -54,7 +54,7 @@
   <template v-else>
   <RouterLink to="/events/create" class="btn-primary !px-5 !py-2.5 mb-5 inline-flex items-center gap-1.5"><AppIcon name="plus" :size="14" />이벤트로 새 경품 추첨 등록</RouterLink>
 
-  <SweepstakesBoard :items="items" :loading="loading" @participants="viewParticipants" @design="openDesign" @winner="confirmSelectWinner" @delete="remove" />
+  <SweepstakesBoard :items="items" :loading="loading" @participants="viewParticipants" @design="openDesign" @winner="confirmSelectWinner" @delete="remove" @reload="load" />
 
   <!-- 참가현황 모달 -->
   <div v-if="showParticipants" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showParticipants=false">

@@ -820,6 +820,15 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/sweepstakes/{sweepstakes}/claims', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'claims']);
     Route::post('/prize-claims/{id}/deliver', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'deliver'])->whereNumber('id')->middleware('throttle:60,1');
     Route::put('/prize-claims/{id}', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'updateClaim'])->whereNumber('id');
+    // 경품 자동화: 반복 일정 + 가입 보너스(매 N번째 가입)
+    Route::get('/sweepstakes-schedules', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'schedules']);
+    Route::post('/sweepstakes-schedules', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'storeSchedule'])->middleware('throttle:30,1');
+    Route::put('/sweepstakes-schedules/{id}', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'updateSchedule'])->whereNumber('id');
+    Route::post('/sweepstakes-schedules/{id}/action', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'scheduleAction'])->whereNumber('id')->middleware('throttle:30,1');
+    Route::get('/sweepstakes-milestones', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'milestones']);
+    Route::post('/sweepstakes-milestones', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'storeMilestone'])->middleware('throttle:30,1');
+    Route::put('/sweepstakes-milestones/{id}', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'updateMilestone'])->whereNumber('id');
+    Route::post('/sweepstakes-milestones/{id}/action', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'milestoneAction'])->whereNumber('id')->middleware('throttle:30,1');
 
     // 수동 수집
     Route::post('/fetch-music', function () {

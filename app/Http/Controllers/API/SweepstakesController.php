@@ -18,6 +18,10 @@ class SweepstakesController extends Controller
     {
         $status = $request->query('status', 'active');
         $query = Sweepstakes::query()->orderByDesc('start_at');
+        // 가입 보너스 당첨자 모음(kind=milestone)은 관리자 지급 관리용이라 공개 목록에는 나오지 않게 한다
+        if (\Illuminate\Support\Facades\Schema::hasColumn('sweepstakes', 'kind')) {
+            $query->where(function ($q) { $q->whereNull('kind')->orWhere('kind', '!=', 'milestone'); });
+        }
         if ($status !== 'all') {
             $query->where('status', $status);
         }

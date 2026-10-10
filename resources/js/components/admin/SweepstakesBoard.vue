@@ -40,7 +40,7 @@
   </div>
 
   <!-- 추첨 목록 (한 줄씩 쌓임) -->
-  <div v-if="tab !== 'log'">
+  <div v-if="tab !== 'log' && tab !== 'auto'">
     <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
     <div v-else class="rounded-2xl bg-white border border-gray-100 overflow-hidden divide-y divide-gray-100">
       <div v-for="item in shown" :key="item.id">
@@ -98,7 +98,7 @@
   </div>
 
   <!-- 전체 지급 이력 -->
-  <div v-else class="rounded-2xl bg-white border border-gray-100 overflow-hidden">
+  <div v-else-if="tab === 'log'" class="rounded-2xl bg-white border border-gray-100 overflow-hidden">
     <div v-if="logsLoading" class="py-10 text-center text-ink-muted text-[15px]">불러오는 중...</div>
     <div v-for="l in logs" :key="l.id" class="px-3.5 py-3 border-b border-gray-50 last:border-0">
       <div class="flex items-center gap-2 flex-wrap">
@@ -111,6 +111,8 @@
     </div>
     <div v-if="!logsLoading && !logs.length" class="py-12 text-center text-ink-muted text-[15px]">아직 지급 이력이 없어요</div>
   </div>
+
+  <SweepstakesAutomation v-if="tab === 'auto'" @changed="$emit('reload')" />
 
   <!-- 당첨자 지급 패널 -->
   <Teleport to="body">
@@ -194,9 +196,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
+import SweepstakesAutomation from './SweepstakesAutomation.vue'
 
 const props = defineProps({ items: { type: Array, default: () => [] }, loading: Boolean })
-defineEmits(['participants', 'design', 'winner', 'delete'])
+defineEmits(['participants', 'design', 'winner', 'delete', 'reload'])
 
 const tab = ref('active')
 const openId = ref(null)
@@ -225,6 +228,7 @@ const tabs = computed(() => [
   { k: 'done', l: '종료·당첨', n: props.items.filter(isDone).length },
   { k: 'all', l: '전체', n: props.items.length },
   { k: 'log', l: '지급 이력', n: null },
+  { k: 'auto', l: '반복·자동', n: null },
 ])
 const shown = computed(() => {
   const list = [...props.items]

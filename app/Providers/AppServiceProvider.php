@@ -28,6 +28,15 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(SocialiteWasCalled::class, [AmazonExtendSocialite::class, 'handle']);
 
         $this->configureMail();
+
+        // 가입 보너스("매 N번째 가입"): 새 회원이 만들어진 직후 확인한다. 실패해도 가입 자체에는 영향을 주지 않는다.
+        \App\Models\User::created(function ($user) {
+            try {
+                \App\Support\SweepstakesAutomation::onSignup((int) $user->id);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        });
     }
 
     // 운영 서버 .env에 MAIL_MAILER=log가 명시적으로 박혀있어서(단순 미설정이 아님)

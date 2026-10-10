@@ -53,6 +53,8 @@ Schedule::command('events:remind')->everyThirtyMinutes();
 Schedule::command('sweepstakes:send-reminders')->everyMinute()->withoutOverlapping();
 // 당첨자에게 "이메일·전화번호·주소 확인" 안내 알림 + 상품 수령 건(claim) 동기화
 Schedule::command('sweepstakes:notify-winners')->everyMinute()->withoutOverlapping();
+// 반복 일정에서 경품 추첨 이벤트 자동 생성 + 자동 추첨 일정의 종료된 이벤트 당첨자 선정
+Schedule::command('sweepstakes:run-schedules')->everyMinute()->withoutOverlapping();
 
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();
