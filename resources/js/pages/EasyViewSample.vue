@@ -48,6 +48,41 @@
         <div class="ev-write"><input class="ev-input" placeholder="댓글을 입력해 주세요" /><button class="ev-btn">등록</button></div>
       </article>
     </section>
+
+    <!-- 샘플 3: 채팅방 목록 -->
+    <section class="ev-phone">
+      <header class="ev-head"><span class="ev-h-title">채팅</span></header>
+      <ul class="ev-list">
+        <li v-for="r in rooms" :key="r.n" class="ev-room">
+          <div class="ev-av">{{ r.n[0] }}</div>
+          <div class="ev-room-body">
+            <div class="ev-room-top"><span class="ev-p-title">{{ r.n }}</span><span class="ev-p-meta ev-when">{{ r.t }}</span></div>
+            <div class="ev-room-last">{{ r.last }}</div>
+          </div>
+          <span v-if="r.u" class="ev-badge">{{ r.u }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 샘플 4: 채팅방 안 (글쓰기) -->
+    <section class="ev-phone ev-chat">
+      <header class="ev-head"><span class="ev-back">‹</span><span class="ev-h-title">애틀랜타 한인 모임</span></header>
+      <div class="ev-msgs">
+        <div class="ev-m"><div class="ev-m-name">이민5년차15</div><div class="ev-bubble">좋은 한인 교회 추천 부탁드려요</div><div class="ev-m-time">오전 9:41</div></div>
+        <div class="ev-m"><div class="ev-m-name">부산아줌마97</div><div class="ev-bubble">방금 이사 왔는데 한인 마트 어디 있나요?</div><div class="ev-m-time">오전 10:28</div></div>
+        <div class="ev-m me"><div class="ev-bubble mine">둘루스에 큰 마트 두 곳 있어요. 주차도 편해요.</div><div class="ev-m-time">오전 10:30</div></div>
+      </div>
+      <div class="ev-compose">
+        <div class="ev-compose-box">
+          <div class="ev-compose-ph">메시지 입력...</div>
+          <div class="ev-compose-row">
+            <span class="ev-ic"><AppIcon name="smile" :size="24" /></span>
+            <span class="ev-ic"><AppIcon name="paperclip" :size="24" /></span>
+            <span class="ev-send"><AppIcon name="send" :size="22" /></span>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 </template>
@@ -64,6 +99,12 @@ const posts = [
   { id: 2, title: '좋은 한인 교회 추천 부탁드려요', c: 12, who: '이민5년차15', when: '09:41', v: 342 },
   { id: 3, title: '둘루스 근처 소아과 괜찮은 곳 아시나요?', c: 7, who: '두아이맘', when: '어제', v: 210 },
   { id: 4, title: '운전면허 갱신 온라인으로 하는 방법', c: 5, who: '조지아사랑', when: '어제', v: 489 },
+]
+const rooms = [
+  { n: '애틀랜타 한인 모임', t: '10:30', last: '둘루스에 큰 마트 두 곳 있어요. 주차도 편해요.', u: 3 },
+  { n: '조지아 맛집 탐방', t: '09:12', last: '이번 주말에 삼겹살집 가실 분 계신가요?', u: 12 },
+  { n: '신앙생활 나눔방', t: '어제', last: '주일 예배 후에 점심 함께해요', u: 0 },
+  { n: '초보 이민자 도움방', t: '어제', last: '운전면허 필기시험 한국어도 되나요?', u: 5 },
 ]
 const navs = [
   { l: '홈', i: 'home', on: true }, { l: '커뮤니티', i: 'message-circle' }, { l: '장터', i: 'shopping-bag' },
@@ -136,4 +177,26 @@ const navs = [
 .ev-c span { font-size: var(--fs-body); line-height: var(--lh); color: var(--c-ink); }
 .ev-write { display: flex; gap: calc(8px * var(--s)); margin-top: var(--gap); }
 .ev-input { flex: 1; min-width: 0; min-height: var(--btn-h); padding: 0 calc(14px * var(--s)); border-radius: 99px; border: 1.5px solid var(--c-line); background: var(--c-bg); font-size: var(--fs-body); color: var(--c-ink); }
+
+.ev-room { display: flex; align-items: center; gap: calc(12px * var(--s)); }
+.ev-av { flex: none; width: calc(48px * var(--s)); height: calc(48px * var(--s)); border-radius: 50%; background: #fff1f5; color: var(--brand); display: grid; place-items: center; font-weight: 800; font-size: var(--fs-title); }
+.ev-room-body { flex: 1; min-width: 0; }
+.ev-room-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ev-when { margin: 0; flex: none; }
+.ev-room-last { font-size: var(--fs-body); color: var(--c-sub); line-height: var(--lh); margin-top: calc(2px * var(--s)); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ev-badge { flex: none; min-width: calc(24px * var(--s)); height: calc(24px * var(--s)); padding: 0 calc(7px * var(--s)); border-radius: 99px; background: var(--brand); color: #fff; font-size: var(--fs-meta); font-weight: 800; display: grid; place-items: center; }
+.ev-chat { display: flex; flex-direction: column; }
+.ev-msgs { padding: calc(14px * var(--s)); background: var(--c-bg); display: flex; flex-direction: column; gap: calc(14px * var(--s)); }
+.ev-m { display: flex; flex-direction: column; align-items: flex-start; gap: calc(3px * var(--s)); }
+.ev-m.me { align-items: flex-end; }
+.ev-m-name { font-size: var(--fs-meta); color: var(--c-sub); font-weight: 700; }
+.ev-bubble { max-width: 85%; background: #fff; border-radius: calc(16px * var(--s)); padding: calc(10px * var(--s)) calc(14px * var(--s)); font-size: var(--fs-body); line-height: var(--lh); color: var(--c-ink); box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+.ev-bubble.mine { background: var(--brand); color: #fff; }
+.ev-m-time { font-size: calc(11px * var(--s)); color: var(--c-sub); }
+.ev-compose { padding: calc(10px * var(--s)); background: #fff; border-top: 1px solid var(--c-line); }
+.ev-compose-box { border: 1.5px solid #f4a0bc; border-radius: calc(22px * var(--s)); padding: calc(12px * var(--s)) calc(14px * var(--s)); }
+.ev-compose-ph { font-size: var(--fs-body); color: var(--c-sub); min-height: calc(28px * var(--s)); }
+.ev-compose-row { display: flex; align-items: center; gap: calc(10px * var(--s)); margin-top: calc(6px * var(--s)); }
+.ev-ic { width: calc(44px * var(--s)); height: calc(44px * var(--s)); display: grid; place-items: center; color: var(--c-sub); }
+.ev-send { margin-left: auto; width: calc(52px * var(--s)); height: calc(52px * var(--s)); border-radius: 50%; background: var(--brand); color: #fff; display: grid; place-items: center; }
 </style>
