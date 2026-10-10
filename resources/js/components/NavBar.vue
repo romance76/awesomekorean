@@ -1,5 +1,5 @@
 <template>
-  <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
+  <nav class="ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
     <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth -->
     <div class="max-w-7xl mx-auto px-3 flex items-center h-14 gap-2">
       <!-- 햄버거 메뉴 (모바일) -->
