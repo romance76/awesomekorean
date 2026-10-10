@@ -62,6 +62,7 @@
       <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
         <label class="flex items-center gap-2 min-h-[44px] text-[15px] text-ink"><input type="checkbox" v-model="c.is_active" class="w-6 h-6 accent-amber-500" /> 사용</label>
         <label v-if="hasAutoFetch" class="flex items-center gap-2 min-h-[44px] text-[15px] text-ink"><input type="checkbox" v-model="c.auto_fetch" class="w-6 h-6 accent-amber-500" /> 자동수집</label>
+        <label v-if="hasAutoFetch" class="flex items-center gap-2 min-h-[44px] text-[15px] text-ink"><input type="checkbox" v-model="c.allow_any_length" class="w-6 h-6 accent-amber-500" /> 길이 제한 없음(경음악)</label>
         <span v-if="c.post_count" class="text-[13px] bg-gray-100 text-ink-light px-2 py-1 rounded-full font-semibold">{{ c.post_count }}개</span>
         <span v-if="c.auto_detected" class="text-[13px] bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">자동감지</span>
       </div>
@@ -293,6 +294,9 @@
           <label class="text-xs flex items-center gap-1 text-ink-light"><input type="checkbox" v-model="c.is_active"> 활성</label>
           <label v-if="hasAutoFetch" class="text-xs flex items-center gap-1 text-ink-light" title="체크하면 매일 YouTube에서 자동으로 영상을 수집합니다. 끄면 사용자가 직접 추가한 트랙만 유지됩니다.">
             <input type="checkbox" v-model="c.auto_fetch"> <AppIcon name="refresh" :size="11" /> 자동수집
+          </label>
+          <label v-if="hasAutoFetch" class="text-xs flex items-center gap-1 text-ink-light" title="체크하면 이 카테고리는 곡 길이 제한(2분30초~5분)을 풀고 1분~30분 영상까지 보여주고 수집합니다. 클래식·재즈 같은 경음악용입니다.">
+            <input type="checkbox" v-model="c.allow_any_length"> 길이제한없음
           </label>
           <input v-if="hasAutoFetch && c.auto_fetch" v-model="c.channel_url" placeholder="채널 URL(선택) — 지정 시 이 채널만 수집"
             class="input-soft px-2 py-1 w-56 bg-white text-xs" title="채널 URL/핸들을 지정하면 자동수집이 일반 키워드 검색 대신 이 채널의 업로드 영상만 가져옵니다" />
@@ -557,6 +561,7 @@ async function loadCategories() {
       icon: c.icon || '',
       is_active: c.is_active !== false,
       auto_fetch: c.auto_fetch !== false,
+      allow_any_length: !!c.allow_any_length,
       channel_url: c.channel_url || '',
       post_count: c.post_count || 0,
       auto_detected: !!c.auto_detected,

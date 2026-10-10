@@ -15,11 +15,14 @@ class MusicController extends Controller
     {
         // 유저에게 노출되는 트랙은 2분 30초(150s) 이상 5분(300s) 이하여야 하며,
         // duration=0(라이브/믹스)과 150초 미만(숏츠/클립)은 표시 안 함(삭제는 하지 않고 숨김). 유저 업로드는 예외.
+        // 경음악 카테고리(클래식·재즈 등, allow_any_length)는 길이 제한을 풀어 1분~30분까지 보여준다.
+        $anyLen = (bool) MusicCategory::where('id', $categoryId)->value('allow_any_length');
+        [$minSec, $maxSec] = $anyLen ? [60, 1800] : [150, 300];
         $query = MusicTrack::where('category_id', $categoryId)
-            ->where(function ($q) {
+            ->where(function ($q) use ($minSec, $maxSec) {
                 $q->where('is_user_submitted', true)
-                  ->orWhere(function ($q2) {
-                      $q2->where('duration', '>=', 150)->where('duration', '<=', 300);
+                  ->orWhere(function ($q2) use ($minSec, $maxSec) {
+                      $q2->where('duration', '>=', $minSec)->where('duration', '<=', $maxSec);
                   });
             })
             ->inRandomOrder();
@@ -95,7 +98,12 @@ class MusicController extends Controller
         if (!$q) return response()->json(['success' => true, 'data' => []]);
         $tracks = MusicTrack::where(fn ($w) => $w->where('title', 'like', "%{$q}%")->orWhere('artist', 'like', "%{$q}%"))
             // 목록과 같은 기준: 유저 업로드가 아니면 2분 30초 이상 5분 이하만
-            ->where(fn ($w) => $w->where('is_user_submitted', true)->orWhere(fn ($w2) => $w2->where('duration', '>=', 150)->where('duration', '<=', 300)))
+            ->where(function ($w) {
+                $anyIds = MusicCategory::where('allow_any_length', true)->pluck('id')->all();
+                $w->where('is_user_submitted', true)
+                   ->orWhere(fn ($w2) => $w2->where('duration', '>=', 150)->where('duration', '<=', 300))
+                   ->orWhere(fn ($w3) => $w3->whereIn('category_id', $anyIds ?: [0])->where('duration', '>=', 60)->where('duration', '<=', 1800));
+            })
             ->limit(50)->get();
         return response()->json(['success' => true, 'data' => $tracks]);
     }
@@ -450,9 +458,10 @@ class MusicController extends Controller
             }
         }
 
-        // 5분 초과 차단 (관리자도 불가)
-        if ($duration > 300) {
-            return response()->json(['success' => false, 'message' => '5분 초과 영상은 추가할 수 없습니다 ('.floor($duration/60).'분 '.($duration%60).'초)'], 422);
+        // 5분 초과 차단 (관리자도 불가) — 단, 길이 제한을 푼 경음악 카테고리는 30분까지
+        $maxAllowed = MusicCategory::where('id', $request->category_id)->value('allow_any_length') ? 1800 : 300;
+        if ($duration > $maxAllowed) {
+            return response()->json(['success' => false, 'message' => ($maxAllowed / 60).'분 초과 영상은 추가할 수 없습니다 ('.floor($duration/60).'분 '.($duration%60).'초)'], 422);
         }
         if ($duration <= 0) {
             return response()->json(['success' => false, 'message' => 'YouTube에서 영상 길이를 확인할 수 없습니다. 라이브/믹스는 허용되지 않습니다.'], 422);

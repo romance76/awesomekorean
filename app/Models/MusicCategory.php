@@ -3,7 +3,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 class MusicCategory extends Model
 {
-    protected $fillable = ['name','slug','image','sort_order','korean_queries','pop_queries','channel_url','auto_fetch','is_active'];
-    protected $casts = ['auto_fetch' => 'boolean', 'is_active' => 'boolean'];
+    protected $fillable = ['name','slug','image','sort_order','korean_queries','pop_queries','channel_url','auto_fetch','allow_any_length','is_active'];
+    protected $casts = ['auto_fetch' => 'boolean', 'allow_any_length' => 'boolean', 'is_active' => 'boolean'];
 
 }

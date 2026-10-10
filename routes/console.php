@@ -31,9 +31,11 @@ Schedule::command('earnings:fetch')->everySixHours()->withoutOverlapping()->appe
 Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->where('visit_date', '<', now('America/New_York')->subDays(45)->toDateString())->delete())->dailyAt('04:10');
 
 // 음악 트랙 자동 수집 (하루 4번 분할, 한국 100%, 30일 보관)
+// 2026-10-10: 실행당 검색 14회(하루 56회 ≈ 쿼터 5,700) — shorts 하루 36회(≈3,600)와 합쳐 일 10,000 쿼터의 약 93% 이하로 유지.
+// 한국 100% 카테고리에서 '팝송 0곡' 검색으로 검색 횟수를 낭비하던 문제를 고쳐 같은 쿼터로 실제 수집량이 크게 늘어난다. 경음악 카테고리는 길이 제한 해제, 한국 가수·아이돌은 공식 채널 우선.
 // shorts:fetch 와 같은 YouTube Data API 키/쿼터를 공유 — 쿼터 초기화(07~08시 UTC) 직후인 09시부터
 // 실행당 12검색 상한으로 나눠 수집하고, 403/429 가 나면 그 실행만 중단(다음 실행에서 이어서).
-Schedule::command('music:fetch --daily=125 --max-searches=12')->cron('10 9,13,17,21 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::command('music:fetch --daily=300 --max-searches=14')->cron('10 9,13,17,21 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
 
 // 레시피 자동 수집 (식품안전나라 API, 매일 04:00) — 기존엔 스케줄에 아예
 // 등록돼 있지 않아 관리자가 수동으로 누르지 않는 한 절대 갱신되지 않았음.
