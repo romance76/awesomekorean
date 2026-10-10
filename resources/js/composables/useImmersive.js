@@ -19,3 +19,21 @@ export function useImmersive(isActive) {
   watch(() => !!isActive(), sync, { immediate: true })
   onUnmounted(() => { if (on) { count.value--; on = false } })
 }
+
+/**
+ * PC 화면 오른쪽 아래에 떠 있는 창(채팅·쪽지 팝업)이 차지하는 폭(px, 화면 오른쪽 끝 기준).
+ * 음악 둥근 버튼이 이 창들과 같은 자리에 겹쳐 뜨지 않도록, 열려 있는 창의 왼쪽으로 비켜 서게 한다.
+ */
+const docks = ref([])
+export const dockExtent = computed(() => (docks.value.length ? Math.max(...docks.value) : 0))
+
+export function useDesktopDock(isActive, extentPx) {
+  let on = false
+  function sync() {
+    const a = !!isActive()
+    if (a && !on) { docks.value = [...docks.value, extentPx]; on = true }
+    else if (!a && on) { const i = docks.value.indexOf(extentPx); if (i > -1) { const c = [...docks.value]; c.splice(i, 1); docks.value = c } on = false }
+  }
+  watch(() => !!isActive(), sync, { immediate: true })
+  onUnmounted(() => { if (on) { const i = docks.value.indexOf(extentPx); if (i > -1) { const c = [...docks.value]; c.splice(i, 1); docks.value = c } on = false } })
+}

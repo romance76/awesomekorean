@@ -11,6 +11,14 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
  * @param active  () => boolean — 이 화면이 모바일 전체화면으로 열려 있을 때 true
  * @returns { style: 컨테이너에 붙일 인라인 style 문자열(키보드 열림 때만 값 있음), keyboardOpen }
  */
+// 어느 전체화면 창이든 키보드가 열려 있으면 true — 음악 띠가 키보드와 입력창 사이에 끼어 보이지 않도록 숨기는 데 쓴다
+export const keyboardOpenGlobal = ref(false)
+
+function textInputFocused() {
+  const a = typeof document !== 'undefined' ? document.activeElement : null
+  return !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'submit', 'file'].includes(a.type)) || a.isContentEditable)
+}
+
 export function useKeyboardViewport(active) {
   const style = ref('')
   const keyboardOpen = ref(false)
@@ -29,8 +37,10 @@ export function useKeyboardViewport(active) {
 
   function sync() {
     const v = typeof window !== 'undefined' ? window.visualViewport : null
-    if (!v || !active()) { style.value = ''; keyboardOpen.value = false; wasOpen = false; return }
-    const open = window.innerHeight - v.height > 120   // 키보드(+입력 보조 막대)가 올라온 상태
+    if (!v || !active()) { style.value = ''; keyboardOpen.value = false; if (wasOpen) keyboardOpenGlobal.value = false; wasOpen = false; return }
+    // 키보드(+입력 보조 막대)가 올라온 상태 — 보이는 영역이 줄었거나, 입력칸을 누르고 있는 중(일부 iOS 는 창 높이 자체를 줄여 알려준다)
+    const open = window.innerHeight - v.height > 120 || (textInputFocused() && window.innerHeight < (window.screen?.height || 9999) * 0.75)
+    keyboardOpenGlobal.value = open
     keyboardOpen.value = open
     if (wasOpen && !open) resetScroll()
     wasOpen = open
@@ -68,6 +78,7 @@ export function useKeyboardViewport(active) {
     window.removeEventListener('focusin', onFocus)
     window.removeEventListener('focusout', onBlur)
     lock(false)
+    keyboardOpenGlobal.value = false
   })
   // 입력칸 밖을 눌러 키보드가 내려갈 때도 한 번 더 맨 위로
   function onBlur() { setTimeout(() => { sync(); resetScroll() }, 100) }

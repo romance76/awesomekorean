@@ -59,7 +59,7 @@ import AppIcon from './AppIcon.vue'
 import UserAvatar from './UserAvatar.vue'
 import { useMessageSender } from '../composables/useMessageSender'
 import ChatComposer from './ChatComposer.vue'
-import { useImmersive } from '../composables/useImmersive'
+import { useImmersive, useDesktopDock } from '../composables/useImmersive'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -76,6 +76,7 @@ const winW = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)
 const isMobile = computed(() => winW.value < 640)
 // 모바일 전체화면으로 열려 있는 동안 음악 미니 플레이어를 얇은 띠로 줄인다
 useImmersive(() => show.value && isMobile.value)
+useDesktopDock(() => show.value && !isMobile.value, 400)   // 오른쪽 여백 20 + 폭 380
 let timer = null
 
 const onResize = () => { winW.value = window.innerWidth }

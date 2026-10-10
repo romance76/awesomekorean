@@ -2,13 +2,13 @@
 <Teleport to="body">
   <!-- 음악 최소화 버튼 -->
   <div v-if="showMiniBtn && !isMobile"
-    class="fixed bottom-20 right-4 z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A4D] to-[#FC226B] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
-    @click="expand">
+    class="fixed z-[9998] w-14 h-14 rounded-full bg-gradient-to-br from-[#FF8A4D] to-[#FC226B] shadow-xl flex items-center justify-center cursor-pointer hover:scale-110 transition-all animate-pulse-slow"
+    :style="pcBtnStyle" @click="expand">
     <span class="text-white"><AppIcon :name="music.isPlaying ? 'music' : 'play'" :size="22" :filled="!music.isPlaying" /></span>
   </div>
 
   <!-- 모바일: 음악은 항상 아주 얇은 띠로 — 채팅·쪽지 같은 전체화면 창에서는 맨 아래, 그 밖의 화면에서는 하단 메뉴 바로 위 -->
-  <div v-if="showStrip"
+  <div v-if="showStrip && !(immersiveActive && keyboardOpenGlobal)"
     class="fixed left-0 right-0 z-[9998] bg-[#1a1a2e] text-white flex items-center gap-2 px-3 cursor-pointer select-none overflow-hidden"
     :class="immersiveActive ? '' : 'rounded-t-lg'"
     :style="immersiveActive
@@ -101,10 +101,18 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMusicStore } from '../stores/music'
-import { immersiveActive } from '../composables/useImmersive'
+import { immersiveActive, dockExtent } from '../composables/useImmersive'
+import { useChatStore } from '../stores/chat'
+import { keyboardOpenGlobal } from '../composables/useKeyboardViewport'
 import AppIcon from './AppIcon.vue'
 
 const music = useMusicStore()
+const chatStore = useChatStore()
+// PC: 채팅 둥근 버튼(오른쪽 아래)과 같은 자리에 겹치지 않게 — 채팅 버튼이 있으면 그 위, 채팅·쪽지 창이 열려 있으면 그 창 왼쪽
+const pcBtnStyle = computed(() => {
+  if (dockExtent.value) return { bottom: '5rem', right: (dockExtent.value + 12) + 'px' }
+  return { bottom: chatStore.hasRooms ? 'calc(5rem + 68px)' : '5rem', right: '1rem' }
+})
 const route = useRoute()
 const volume = ref(80)
 const showPL = ref(true)

@@ -144,7 +144,7 @@ import AppIcon from './AppIcon.vue'
 import ChatComposer from './ChatComposer.vue'
 import { useModal } from '../composables/useModal'
 import { useKeyboardViewport } from '../composables/useKeyboardViewport'
-import { useImmersive } from '../composables/useImmersive'
+import { useImmersive, useDesktopDock } from '../composables/useImmersive'
 
 const auth = useAuthStore()
 const chatStore = useChatStore()
@@ -154,6 +154,8 @@ const isMobileView = ref(typeof window !== 'undefined' && window.innerWidth < 64
 function onWinResize() { isMobileView.value = window.innerWidth < 640 }
 // 모바일 전체화면으로 열려 있는 동안 음악 미니 플레이어를 얇은 띠로 줄인다
 useImmersive(() => chatStore.hasRooms && chatStore.isOpen && isMobileView.value)
+// PC: 오른쪽 아래 창(오른쪽 여백 16 + 폭 360)이 열려 있는 동안 음악 버튼이 그 왼쪽으로 비켜 선다
+useDesktopDock(() => chatStore.hasRooms && chatStore.isOpen && !isMobileView.value, 376)
 const { style: kbStyle, keyboardOpen } = useKeyboardViewport(() => chatStore.hasRooms && chatStore.isOpen && isMobileView.value)
 const userId = computed(() => auth.user?.id)
 
