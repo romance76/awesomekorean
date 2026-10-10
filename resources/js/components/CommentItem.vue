@@ -1,8 +1,7 @@
 <template>
 <div class="flex gap-3">
-  <div class="flex-shrink-0 mt-0.5" :class="isReply ? 'w-6 h-6' : 'w-8 h-8'">
-    <div class="w-full h-full bg-amber-100 rounded-full flex items-center justify-center font-bold text-amber-700"
-      :class="isReply ? 'text-[11px]' : 'text-xs'">{{ (comment.user?.name||'?')[0] }}</div>
+  <div class="flex-shrink-0 -mt-1.5 -ml-1.5">
+    <UserAvatar :user="comment.user" :size="isReply ? 40 : 52" />
   </div>
   <div class="flex-1 min-w-0">
     <!-- 헤더: 이름 + 날짜 + 신고 -->
@@ -23,7 +22,7 @@
       <button type="button" @click="$emit('discard', comment)" class="ml-1 text-ink-faint underline">삭제</button>
     </div>
     <div v-else class="mt-1">
-      <textarea ref="editBox" v-model="editText" rows="3" maxlength="1000" class="input-soft w-full text-sm" @keydown.enter="onEditEnter" @keydown.esc="editing = false"></textarea>
+      <textarea ref="editBox" v-model="editText" rows="3" maxlength="1000" class="input-soft w-full text-sm" @keydown="onEditEnter" @compositionend="onEditCompEnd" @keydown.esc="editing = false"></textarea>
       <div class="flex justify-end gap-2 mt-1">
         <button @click="editing = false" class="text-xs text-ink-muted px-3 py-1 rounded-full hover:bg-gray-100">취소</button>
         <button @click="saveEdit" :disabled="!editText.trim()" class="text-xs bg-amber-400 text-white font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50">저장</button>
@@ -83,8 +82,10 @@
 import { ref, computed, nextTick } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useModal } from '../composables/useModal'
+import { useEnterSend } from '../composables/useEnterSend'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
+import UserAvatar from './UserAvatar.vue'
 
 const props = defineProps({ comment: Object, type: String, typeId: [Number, String], isReply: Boolean })
 const emit = defineEmits(['reply', 'refresh', 'deleted', 'resend', 'discard'])
@@ -118,7 +119,9 @@ const editing = ref(false)
 const editText = ref('')
 const editBox = ref(null)
 function startEdit() { editText.value = props.comment.content; editing.value = true; nextTick(() => editBox.value?.focus()) }
-function onEditEnter(e) { if (e.shiftKey || e.isComposing || e.keyCode === 229) return; e.preventDefault(); saveEdit() }
+const editEnter = useEnterSend(() => saveEdit())   // 한글 조합 중 Enter 도 조합이 끝나면 저장
+function onEditEnter(e) { editEnter.onKeydown(e) }
+const onEditCompEnd = () => editEnter.onCompositionend()
 async function saveEdit() {
   const content = editText.value.trim()
   if (!content) return

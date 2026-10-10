@@ -104,6 +104,7 @@
                 rows="1"
                 placeholder="메시지 입력..."
                 @keydown="onKeydown"
+                @compositionend="onCompEnd"
                 @input="autoResize"
                 class="flex-1 bg-gray-700 border border-gray-600 rounded-2xl px-4 py-2.5 text-sm text-white placeholder-gray-400
                        resize-none outline-none leading-snug transition-colors
@@ -128,6 +129,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useEnterSend } from '@/composables/useEnterSend'
 import { useAuthStore } from '@/stores/auth'
 import { VOICE_CALL_ENABLED } from '@/config/features'
 
@@ -198,12 +200,10 @@ function send() {
 }
 
 // Enter 전송 / Shift+Enter 줄바꿈 / 한글 조합 중(229)에는 무시
-function onKeydown(e) {
-  if (e.key !== 'Enter' || e.shiftKey) return
-  if (e.isComposing || e.keyCode === 229) return
-  e.preventDefault()
-  send()
-}
+// (한글 조합 중 Enter 도 조합이 끝나면 전송 — useEnterSend)
+const enterSend = useEnterSend(() => send())
+function onKeydown(e) { enterSend.onKeydown(e) }
+const onCompEnd = () => enterSend.onCompositionend()
 
 async function loadOlder() {
   const el = messagesEl.value

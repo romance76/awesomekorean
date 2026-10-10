@@ -323,6 +323,7 @@
                   :disabled="!auth.isLoggedIn" title="이모티콘"><AppIcon name="smile" :size="20" /></button>
                 <!-- 입력 필드 -->
                 <input ref="msgInputEl" v-model="newMsg" type="text" :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'" :disabled="!auth.isLoggedIn"
+                  @keydown="chatEnter.onKeydown" @compositionend="chatEnter.onCompositionend"
                   class="flex-1 min-w-0 bg-transparent border-0 px-1 py-2 text-sm outline-none disabled:cursor-not-allowed" />
                 <!-- 파일 첨부 (오른쪽 끝) -->
                 <label class="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-200 hover:text-amber-600 cursor-pointer transition"
@@ -428,8 +429,7 @@
         <div v-else-if="!filteredParticipants.length" class="px-3 py-6 text-sm text-ink-muted text-center">{{ partSearch ? '검색 결과 없음' : '지금 접속 중인 사람이 없습니다' }}</div>
         <div v-else class="overflow-y-auto flex-1">
           <div v-for="u in filteredParticipants" :key="'ps-'+u.id" class="px-4 py-2.5 border-b border-gray-50 flex items-center gap-2.5" :class="u.id === auth.user?.id ? 'bg-amber-50/60' : ''">
-            <img v-if="u.avatar" :src="u.avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0" @error="e=>e.target.style.display='none'" />
-            <div v-else class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-ink-light flex-shrink-0">{{ (u.nickname || u.name || '?')[0] }}</div>
+            <UserAvatar :user="u" :size="52" />
             <div class="flex-1 min-w-0">
               <div class="text-sm font-semibold text-ink truncate">{{ u.nickname || u.name }}<span v-if="u.id === auth.user?.id" class="ml-1 text-[11px] bg-amber-300 text-amber-900 px-1 rounded">나</span></div>
               <div v-if="u.city" class="text-[11px] text-ink-faint truncate">{{ u.city }}</div>
@@ -448,8 +448,7 @@
     <div v-if="partModal" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4" style="z-index: 85;" @click.self="partModal=null">
       <div class="bg-white rounded-2xl w-full max-w-sm shadow-lift p-4 space-y-3">
         <div class="flex items-center gap-2">
-          <img v-if="partModal.user.avatar" :src="partModal.user.avatar" class="w-10 h-10 rounded-full object-cover" />
-          <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center font-bold text-amber-700">{{ (partModal.user.nickname || partModal.user.name || '?')[0] }}</div>
+          <UserAvatar :user="partModal.user" :size="60" />
           <div>
             <div class="font-bold text-ink text-sm">{{ partModal.user.nickname || partModal.user.name }}</div>
             <div class="text-[11px] text-ink-muted">{{ partModal.user.city || '' }}{{ partModal.user.state ? ', '+partModal.user.state : '' }}</div>
@@ -659,6 +658,8 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
+import { useEnterSend } from '../../composables/useEnterSend'
+import UserAvatar from '../../components/UserAvatar.vue'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
 import AppIcon from '../../components/AppIcon.vue'
@@ -1310,7 +1311,7 @@ let chatTempSeq = 0
 
 function _meForChat() {
   const u = auth.user || {}
-  return { id: u.id, name: u.name, nickname: u.nickname, avatar: u.avatar, role: u.role }
+  return { id: u.id, name: u.name, nickname: u.nickname, avatar: u.avatar, role: u.role, grade_level: u.grade_level }
 }
 
 async function deliverChatMsg(temp) {
@@ -1366,6 +1367,9 @@ function retryChatMsg(msg) {
 function discardChatMsg(msg) {
   activeMessages.value = activeMessages.value.filter(x => x.id !== msg.id)
 }
+
+// 한글 조합 중 Enter 도 조합이 끝나면 전송 (엔터를 두 번 쳐야 하던 문제) — useEnterSend 참고
+const chatEnter = useEnterSend(() => sendMsg())
 
 async function sendMsg() {
   if ((!newMsg.value.trim() && !selectedFiles.value.length) || !auth.isLoggedIn || !activeRoom.value) return

@@ -44,7 +44,7 @@
 
     <!-- 입력 -->
     <div class="p-2.5 border-t border-gray-100 flex items-end gap-2 flex-shrink-0 bg-white" :style="isMobile ? 'padding-bottom: calc(10px + env(safe-area-inset-bottom))' : ''">
-      <textarea ref="inputEl" v-model="input" rows="2" maxlength="500" placeholder="답장 입력 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1 !text-sm" @keydown.enter="onEnter"></textarea>
+      <textarea ref="inputEl" v-model="input" rows="2" maxlength="500" placeholder="답장 입력 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1 !text-sm" @keydown="onEnter" @compositionend="onCompEnd"></textarea>
       <button @click="send" @mousedown.prevent :disabled="!input.trim()" class="btn-primary !px-3"><AppIcon name="send" :size="14" /></button>
     </div>
   </div>
@@ -59,6 +59,7 @@ import { useAuthStore } from '../stores/auth'
 import AppIcon from './AppIcon.vue'
 import UserAvatar from './UserAvatar.vue'
 import { useMessageSender } from '../composables/useMessageSender'
+import { useEnterSend } from '../composables/useEnterSend'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -104,7 +105,9 @@ function open(id) {
 function close() { show.value = false; partnerId.value = null }
 function goInbox() { close(); router.push('/dashboard?tab=messages') }
 
-function onEnter(e) { if (e.shiftKey || e.isComposing || e.keyCode === 229) return; e.preventDefault(); send() }
+const enterSend = useEnterSend(() => send())   // 한글 조합 중 Enter 도 조합이 끝나면 전송
+function onEnter(e) { enterSend.onKeydown(e) }
+const onCompEnd = () => enterSend.onCompositionend()
 function send() {
   const content = input.value.trim()
   if (!content || !partnerId.value) return
