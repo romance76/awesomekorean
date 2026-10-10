@@ -159,7 +159,23 @@
             </div>
           </div>
 
-          <!-- 메시지 영역 -->
+          <!-- 📌 방장 고정 글(공지, 최대 3개): 같은 자리에서 돌아가며 보여주고, 누르면 전체 글을 본다 -->
+          <div v-if="roomPins.length" class="border-b border-gray-100 bg-white px-3 py-2 flex items-center gap-2.5 flex-shrink-0 cursor-pointer select-none" @click="openPin(currentPin)">
+            <span class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0"><AppIcon name="pin" :size="15" /></span>
+            <div class="flex-1 min-w-0">
+              <div class="text-[11px] font-bold text-amber-600 flex items-center gap-1.5">공지<span v-if="roomPins.length > 1" class="text-ink-faint font-semibold">{{ (pinIdx % roomPins.length) + 1 }}/{{ roomPins.length }}</span></div>
+              <Transition name="pinfade" mode="out-in">
+                <div :key="currentPin?.id" class="text-sm text-ink truncate">{{ pinPreview(currentPin) }}</div>
+              </Transition>
+            </div>
+            <div v-if="roomPins.length > 1" class="flex flex-col gap-1 flex-shrink-0">
+              <span v-for="(p, i) in roomPins" :key="'dot'+p.id" class="w-1.5 h-1.5 rounded-full transition-colors" :class="i === (pinIdx % roomPins.length) ? 'bg-amber-500' : 'bg-gray-200'"></span>
+            </div>
+            <AppIcon name="chevron-right" :size="16" class="text-ink-faint flex-shrink-0" />
+          </div>
+
+          <!-- 메시지 영역 (이 칸 안쪽 아래에 '최신 메시지로' 버튼을 띄운다 — 입력창과 겹치지 않게) -->
+          <div class="relative flex-1 min-h-0 flex flex-col">
           <div ref="msgArea" class="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50/70" @scroll="onMsgScroll" @click="clearSearchHighlight">
             <template v-for="(msg, idx) in visibleMessages" :key="msg.id">
               <!-- 날짜 구분선 -->
@@ -237,12 +253,27 @@
                 </div>
                 <div v-else class="text-[11px] text-ink-faint mt-0.5 flex items-center gap-1" :class="msg.user_id === auth.user?.id ? 'justify-end' : ''">
                   <span v-if="msg._tmp" class="inline-block w-2.5 h-2.5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></span>
+                  <span v-if="msg.pinned_at" class="text-amber-500 inline-flex items-center" title="공지로 고정됨"><AppIcon name="pin" :size="11" /></span>
                   {{ formatTime(msg.created_at) }}
+                  <!-- 방장 전용: 내가 쓴 글을 공지로 고정 / 해제 (최대 3개) -->
+                  <button v-if="isRoomOwner && msg.user_id === auth.user?.id && !msg._tmp && typeof msg.id === 'number' && msg.type !== 'system'"
+                    type="button" @click.stop="togglePin(msg)"
+                    class="ml-1 px-1.5 py-0.5 rounded-full font-semibold border transition-colors"
+                    :class="msg.pinned_at ? 'text-amber-600 border-amber-200 bg-amber-50' : 'text-ink-muted border-gray-200 hover:text-amber-600 hover:border-amber-200'">
+                    {{ msg.pinned_at ? '고정 해제' : '공지 고정' }}
+                  </button>
                 </div>
               </div>
             </div>
             </template>
             <div v-if="!activeMessages.length" class="text-center py-8 text-sm text-ink-muted">첫 메시지를 보내보세요! 👋</div>
+          </div>
+          <!-- 자동스크롤 일시정지 알림: 메시지 영역 안쪽 아래 오른쪽 -->
+          <div v-if="(autoScrollPaused || historyMode) && activeMessages.length" class="absolute bottom-3 right-4 z-10">
+            <button @click="goLatest" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lift hover:bg-amber-600 flex items-center gap-1 transition-colors">
+              <AppIcon name="chevron-down" :size="13" />최신 메시지로 {{ pausedNewCount ? '('+pausedNewCount+')' : '' }}
+            </button>
+          </div>
           </div>
           <!-- 공개 채팅방 입장료(24시간 이용권) 안내 — 입장 전엔 내용이 블러 처리되고
                입력창도 가려짐. 입장하면 24시간 동안 블러 없이 자유롭게 이용 가능. -->
@@ -257,13 +288,6 @@
                 <button @click="enterRoom(activeRoom)" :disabled="entering" class="btn-primary flex-1 text-xs py-2 disabled:opacity-50">{{ entering ? '입장 중...' : '입장하기' }}</button>
               </div>
             </div>
-          </div>
-
-          <!-- 자동스크롤 일시정지 알림 -->
-          <div v-if="(autoScrollPaused || historyMode) && activeMessages.length" class="absolute bottom-20 right-6 z-10">
-            <button @click="goLatest" class="bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lift hover:bg-amber-600 flex items-center gap-1 transition-colors">
-              <AppIcon name="chevron-down" :size="13" />최신 메시지로 {{ pausedNewCount ? '('+pausedNewCount+')' : '' }}
-            </button>
           </div>
 
           <!-- 선택된 파일 미리보기 (다중) -->
@@ -526,6 +550,26 @@
     </div>
 
     <!-- 🖼️ 이미지 라이트박스 — 어디든 탭하면 닫힘, 하단 툴바 액션 -->
+    <!-- 📌 고정된 글(공지) 전체 보기 -->
+    <div v-if="pinModal" class="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center sm:p-4" style="z-index: 85;" @click.self="pinModal=null">
+      <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl shadow-lift p-5" style="padding-bottom: calc(20px + env(safe-area-inset-bottom))">
+        <div class="flex items-center gap-2.5 mb-3">
+          <span class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0"><AppIcon name="pin" :size="17" /></span>
+          <div class="min-w-0">
+            <div class="text-sm font-bold text-ink truncate">공지 · {{ pinModal.user?.nickname || pinModal.user?.name || '방장' }}</div>
+            <div class="text-[11px] text-ink-faint">{{ formatTime(pinModal.created_at) }}</div>
+          </div>
+        </div>
+        <img v-if="pinModal.type === 'image' && pinModal.file_url" :src="pinModal.file_url" class="w-full max-h-60 object-contain rounded-xl mb-3 bg-gray-50" @click="lightboxSrc = pinModal.file_url" />
+        <a v-else-if="pinModal.type === 'file' && pinModal.file_url" :href="pinModal.file_url" target="_blank" download class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-blue-50 border border-blue-200 mb-3 no-underline text-ink"><AppIcon name="paperclip" :size="16" />{{ pinModal.content || '파일 다운로드' }}</a>
+        <div v-if="pinModal.content && pinModal.type !== 'file'" class="text-sm text-ink whitespace-pre-wrap break-words max-h-[45vh] overflow-y-auto leading-relaxed">{{ pinModal.content }}</div>
+        <div class="flex gap-2 mt-4">
+          <button @click="goToPinned(pinModal)" class="btn-secondary flex-1 text-sm">대화에서 보기</button>
+          <button v-if="isRoomOwner" @click="unpinFromModal" class="btn-ghost text-sm text-red-500">고정 해제</button>
+          <button @click="pinModal=null" class="btn-primary flex-1 text-sm">닫기</button>
+        </div>
+      </div>
+    </div>
     <div v-if="lightboxSrc" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4" style="z-index: 80;" @click="lightboxSrc = null">
       <img :src="lightboxSrc" class="max-w-full max-h-full object-contain" />
       <!-- 닫기 버튼 -->
@@ -647,6 +691,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import ChatComposer from '../../components/ChatComposer.vue'
+import { useModal } from '../../composables/useModal'
 import { useKeyboardViewport } from '../../composables/useKeyboardViewport'
 import UserAvatar from '../../components/UserAvatar.vue'
 import axios from 'axios'
@@ -675,8 +720,61 @@ const inputBarStyle = computed(() => ({
 const rooms = ref([])
 const activeRoom = ref(null)
 // 모바일 전체화면 채팅: 키보드가 올라오면 보이는 영역(visualViewport)에 맞춰 입력창이 키보드 바로 위에 붙게 함
+const { showAlert } = useModal()
 const { style: kbStyle, keyboardOpen } = useKeyboardViewport(() => isMobile.value && !!activeRoom.value)
 const activeMessages = ref([])
+// ─── 방장 고정 글(공지) ───
+const roomPins = ref([])          // 고정된 글 (최대 3개, 오래된 고정 순)
+const isRoomOwner = ref(false)    // 내가 이 방의 방장인지 (서버가 알려줌)
+const pinIdx = ref(0)             // 배너에서 지금 보여주는 순번 (4초마다 돌아감)
+const pinModal = ref(null)        // 눌러서 전체를 보는 고정 글
+const currentPin = computed(() => roomPins.value.length ? roomPins.value[pinIdx.value % roomPins.value.length] : null)
+function pinPreview(p) {
+  if (!p) return ''
+  if (p.type === 'image') return '📷 ' + (p.content || '사진')
+  if (p.type === 'file') return '📎 ' + (p.content || '파일')
+  return (p.content || '').replace(/\s+/g, ' ')
+}
+function applyPins(data) {
+  roomPins.value = data.pins || []
+  if (data.is_owner !== undefined) isRoomOwner.value = !!data.is_owner
+  const ids = new Set(roomPins.value.map(p => p.id))
+  activeMessages.value.forEach(m => { if (typeof m.id === 'number') m.pinned_at = ids.has(m.id) ? (m.pinned_at || new Date().toISOString()) : null })
+}
+async function loadPins() {
+  const rid = activeRoom.value?.id
+  if (!rid) return
+  try {
+    const { data } = await axios.get(`/api/chat/rooms/${rid}/pins`)
+    if (activeRoom.value?.id === rid) applyPins(data)
+  } catch {}
+}
+function openPin(p) { if (p) pinModal.value = p }
+async function togglePin(msg) {
+  const rid = activeRoom.value?.id
+  if (!rid) return
+  try {
+    const url = `/api/chat/rooms/${rid}/messages/${msg.id}/pin`
+    const { data } = msg.pinned_at ? await axios.delete(url) : await axios.post(url)
+    applyPins(data)
+  } catch (e) {
+    showAlert(e.response?.data?.message || '처리하지 못했어요. 잠시 후 다시 시도해 주세요.')
+  }
+}
+async function unpinFromModal() {
+  const m = pinModal.value
+  if (!m) return
+  pinModal.value = null
+  await togglePin({ id: m.id, pinned_at: true })
+}
+function goToPinned(p) {
+  pinModal.value = null
+  nextTick(async () => {
+    const el = document.getElementById('msg-' + p.id)
+    if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); autoScrollPaused.value = true }
+    else if (activeRoom.value) await selectRoom(activeRoom.value, { aroundId: p.id, skipRoute: true, keepSearch: true })
+  })
+}
 const pinnedAnnouncements = ref([])
 const loading = ref(true)
 const showCreate = ref(false)
@@ -1255,6 +1353,7 @@ async function selectRoom(room, opts = {}) {
   activeRoom.value = room
   activeMessages.value = []
   pinnedAnnouncements.value = []
+  roomPins.value = []; isRoomOwner.value = false; pinIdx.value = 0; pinModal.value = null
   lastReadAt.value = null
   autoScrollPaused.value = false
   pausedNewCount.value = 0
@@ -1271,6 +1370,7 @@ async function selectRoom(room, opts = {}) {
     const rid = Number(room.id)
     activeMessages.value = msgs.filter(m => !m.chat_room_id || Number(m.chat_room_id) === rid)
     pinnedAnnouncements.value = data.pinned || []
+    applyPins({ pins: data.pins, is_owner: data.is_owner })
     lastReadAt.value = data.last_read_at || null
     loadParticipants()
 
@@ -1733,6 +1833,9 @@ watch(() => route.params.id, async (newId) => {
 // 채팅방을 열어 두고 있는 동안 1분마다 "여기 있어요" 신호 → 메인 화면의 "채팅방 사용 인원"에 반영
 let presenceTimer = null
 let participantsTimer = null
+// 고정 글 갱신(15초) · 배너 순환(4초)
+let pinsTimer = null
+let pinRotateTimer = null
 function pingChatPresence() {
   if (!auth.isLoggedIn || !activeRoom.value?.id || document.visibilityState === 'hidden') return
   axios.post('/api/chat/presence', { room_id: activeRoom.value.id }).catch(() => {})
@@ -1748,6 +1851,8 @@ onMounted(async () => {
   setTimeout(calcDeskH, 300); setTimeout(calcDeskH, 1200) // 방 목록이 로드되고 레이아웃이 자리잡은 뒤 한 번 더
   presenceTimer = setInterval(pingChatPresence, 60000)
   participantsTimer = setInterval(() => { if (activeRoom.value && document.visibilityState === 'visible') loadParticipants(true) }, 30000)
+  pinsTimer = setInterval(() => { if (activeRoom.value && document.visibilityState === 'visible') loadPins() }, 15000)
+  pinRotateTimer = setInterval(() => { if (roomPins.value.length > 1) pinIdx.value++ }, 4000)
   if (auth.isLoggedIn) loadChatBookmarks()
   try {
     const { data: settingsData } = await axios.get('/api/chat/settings')
@@ -1769,6 +1874,8 @@ onUnmounted(() => {
   unsubscribeChannel()
   clearInterval(presenceTimer)
   clearInterval(participantsTimer)
+  clearInterval(pinsTimer)
+  clearInterval(pinRotateTimer)
   leaveChatPresence()
   window.removeEventListener('resize', onResize)
 })

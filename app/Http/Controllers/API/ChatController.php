@@ -511,8 +511,73 @@ class ChatController extends Controller
             'success' => true,
             'data' => $messages,
             'pinned' => $pinned,
+            'pins' => $this->roomPins($id),
+            'is_owner' => $this->isRoomOwner($room, auth()->user()),
             'last_read_at' => $lastReadAt,
         ]);
+    }
+
+    // ─── 방장 글 고정(공지) — 방당 최대 3개, 방장만, 방장 본인이 쓴 글만 ───
+    private const MAX_PINS = 3;
+
+    // 방장 판정: 동호회 채팅방은 "현재 동호회 방장"(방장 양도 반영), 그 외 방은 방을 만든 사람
+    private function isRoomOwner(ChatRoom $room, $user): bool {
+        if (!$user) return false;
+        if ($room->type === 'club') {
+            $club = \App\Models\Club::where('chat_room_id', $room->id)->first();
+            return $club && \App\Models\ClubMember::where('club_id', $club->id)
+                ->where('user_id', $user->id)->where('status', 'approved')->where('grade', 'owner')->exists();
+        }
+        return (int) $room->created_by === (int) $user->id;
+    }
+
+    private function roomPins($roomId) {
+        return ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')
+            ->where('chat_room_id', $roomId)->whereNotNull('pinned_at')
+            ->orderBy('pinned_at')->limit(self::MAX_PINS)->get();
+    }
+
+    // 현재 고정된 글 + 내가 방장인지 (채팅방 열려 있는 동안 주기적으로 갱신)
+    public function pins($id) {
+        $room = ChatRoom::findOrFail($id);
+        $user = auth()->user();
+        if ($room->type === 'club' && !$this->clubRoomAllowed($room, $user)) {
+            return response()->json(['success' => false, 'message' => '동호회 멤버만 볼 수 있습니다.'], 403);
+        }
+        if (!\App\Support\ChatAccess::hasPublicAccess($room, $user)) return \App\Support\ChatAccess::denied();
+        return response()->json(['success' => true, 'pins' => $this->roomPins($id), 'is_owner' => $this->isRoomOwner($room, $user)]);
+    }
+
+    public function pinMessage($id, $messageId) {
+        $room = ChatRoom::findOrFail($id);
+        $me = auth()->user();
+        if (!$this->isRoomOwner($room, $me)) {
+            return response()->json(['success' => false, 'message' => '방장만 글을 고정할 수 있어요.'], 403);
+        }
+        $msg = ChatMessage::where('chat_room_id', $id)->findOrFail($messageId);
+        if ((int) $msg->user_id !== (int) $me->id) {
+            return response()->json(['success' => false, 'message' => '내가 쓴 글만 고정할 수 있어요.'], 403);
+        }
+        if ($msg->type === 'system') {
+            return response()->json(['success' => false, 'message' => '이 글은 고정할 수 없어요.'], 422);
+        }
+        if (!$msg->pinned_at) {
+            $count = ChatMessage::where('chat_room_id', $id)->whereNotNull('pinned_at')->count();
+            if ($count >= self::MAX_PINS) {
+                return response()->json(['success' => false, 'message' => '고정은 최대 ' . self::MAX_PINS . '개까지예요. 기존 글의 고정을 먼저 해제해 주세요.'], 422);
+            }
+            $msg->update(['pinned_at' => now()]);
+        }
+        return response()->json(['success' => true, 'pins' => $this->roomPins($id)]);
+    }
+
+    public function unpinMessage($id, $messageId) {
+        $room = ChatRoom::findOrFail($id);
+        if (!$this->isRoomOwner($room, auth()->user())) {
+            return response()->json(['success' => false, 'message' => '방장만 고정을 해제할 수 있어요.'], 403);
+        }
+        ChatMessage::where('chat_room_id', $id)->where('id', $messageId)->update(['pinned_at' => null]);
+        return response()->json(['success' => true, 'pins' => $this->roomPins($id)]);
     }
 
     public function sendMessage(Request $request, $id) {

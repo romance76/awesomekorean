@@ -409,6 +409,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/chat/rooms/{id}/messages/search', [ChatController::class, 'searchMessages']);
     Route::get('/chat/rooms/{id}/participants', [ChatController::class, 'participants']);
     Route::post('/chat/rooms/{id}/messages', [ChatController::class, 'sendMessage']);
+    Route::get('/chat/rooms/{id}/pins', [ChatController::class, 'pins']);
+    Route::post('/chat/rooms/{id}/messages/{messageId}/pin', [ChatController::class, 'pinMessage']);
+    Route::delete('/chat/rooms/{id}/messages/{messageId}/pin', [ChatController::class, 'unpinMessage']);
     Route::post('/chat/rooms/{id}/read', [ChatController::class, 'markRead']);
     Route::post('/chat/rooms/{id}/leave', [ChatController::class, 'leaveRoom']);
     Route::post('/chat/rooms/{id}/enter', [ChatController::class, 'enterRoom']);
