@@ -31,11 +31,12 @@
   </div>
 
   <!-- 탭 -->
-  <div class="flex gap-2 overflow-x-auto scrollbar-hide" role="tablist">
+  <div class="flex gap-1.5 md:gap-1.5 overflow-x-auto scrollbar-hide" role="tablist">
     <button v-for="t in tabs" :key="t.k" @click="setTab(t.k)" role="tab" :aria-selected="tab === t.k"
-      class="shrink-0 min-h-[44px] px-4 rounded-full border text-[15px] flex items-center gap-1.5"
-      :class="tab === t.k ? 'bg-amber-500 text-white border-amber-500 font-bold' : 'bg-white text-ink border-gray-200 font-medium'">
-      {{ t.l }}<span v-if="t.n != null" class="text-[12px] opacity-80">{{ t.n }}</span>
+      class="shrink-0 rounded-full border flex items-center gap-1.5 transition-colors"
+      :class="[isMobile ? 'min-h-[44px] px-4 text-[15px]' : 'px-3 py-1.5 text-xs font-bold',
+        tab === t.k ? (isMobile ? 'bg-amber-500 text-white border-amber-500 font-bold' : 'bg-ink text-white border-ink') : (isMobile ? 'bg-white text-ink border-gray-200 font-medium' : 'bg-white text-ink-light border-gray-200 hover:border-gray-300')]">
+      {{ t.l }}<span v-if="t.n != null" class="opacity-80" :class="isMobile ? 'text-[12px]' : 'text-[11px]'">{{ t.n }}</span>
     </button>
   </div>
 
