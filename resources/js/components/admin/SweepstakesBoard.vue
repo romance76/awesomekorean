@@ -14,8 +14,8 @@
       <div class="text-[13px] text-ink-muted">보낸 상품</div>
       <div class="text-[22px] md:text-[26px] font-extrabold text-ink mt-0.5">{{ sum.sent_count || 0 }}건</div>
     </div>
-    <div class="rounded-2xl p-3.5 border" :class="sum.pending_count ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'">
-      <div class="text-[13px]" :class="sum.pending_count ? 'text-amber-800' : 'text-ink-muted'">아직 안 보낸 상품</div>
+    <div class="rounded-2xl p-3.5 border cursor-pointer" :class="sum.pending_count ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'" role="button" tabindex="0" @click="setTab('pending')" @keydown.enter="setTab('pending')" title="눌러서 모아 보기">
+      <div class="text-[13px]" :class="sum.pending_count ? 'text-amber-800' : 'text-ink-muted'">아직 안 보낸 상품 ›</div>
       <div class="text-[22px] md:text-[26px] font-extrabold mt-0.5" :class="sum.pending_count ? 'text-amber-700' : 'text-ink'">{{ sum.pending_count || 0 }}건 <span class="text-[13px] font-bold">({{ usd(sum.pending_usd) }})</span></div>
     </div>
   </div>
@@ -41,7 +41,7 @@
   </div>
 
   <!-- 추첨 목록 (한 줄씩 쌓임) -->
-  <div v-if="tab !== 'log' && tab !== 'auto'">
+  <div v-if="tab !== 'log' && tab !== 'auto' && tab !== 'pending'">
     <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
     <div v-else-if="!isMobile" class="card overflow-hidden">
       <div class="overflow-x-auto">
@@ -186,6 +186,21 @@
     </div>
   </div>
 
+  <!-- 안 보낸 상품: 여러 추첨의 안 보낸 건·수령 확인 전 건을 오래 기다린 순서로 -->
+  <div v-else-if="tab === 'pending'" class="rounded-2xl bg-white border border-gray-100 overflow-hidden">
+    <div v-if="pendingLoading" class="py-10 text-center text-ink-muted text-[15px]">불러오는 중...</div>
+    <button v-for="r in pendingRows" :key="r.id" @click="openPending(r)" class="w-full text-left px-3.5 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 min-h-[56px]">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="text-[12px] font-bold px-2 py-0.5 rounded-full" :class="stChip(r.delivery_status)">{{ r.delivery_status === 'sent' ? '보냄 · 수령 확인 전' : '안 보냄' }}</span>
+        <span class="text-[15px] font-bold text-ink">{{ r.winner_name || '-' }}</span>
+        <span class="text-[13px] text-ink-muted">{{ r.rank }}등 · {{ r.prize }}</span>
+        <span v-if="r.days != null" class="ml-auto text-[13px] font-bold tabular-nums" :class="r.delivery_status !== 'sent' && r.days >= 3 ? 'text-red-600' : 'text-ink-muted'">{{ r.days }}일째</span>
+      </div>
+      <div class="text-[13px] text-ink-faint mt-0.5 truncate">{{ r.sweepstakes_title }}<span v-if="r.delivery_status !== 'sent' && !r.contact_confirmed"> · 연락처 확인 전</span></div>
+    </button>
+    <div v-if="!pendingLoading && !pendingRows.length" class="py-12 text-center text-ink-muted text-[15px]">안 보낸 상품이 없어요 👍</div>
+  </div>
+
   <!-- 전체 지급 이력 -->
   <div v-else-if="tab === 'log'" class="rounded-2xl bg-white border border-gray-100 overflow-hidden">
     <div v-if="logsLoading" class="py-10 text-center text-ink-muted text-[15px]">불러오는 중...</div>
@@ -285,6 +300,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, inject } from 'vue'
 import axios from 'axios'
+import { useRoute } from 'vue-router'
 import SweepstakesAutomation from './SweepstakesAutomation.vue'
 
 const props = defineProps({ items: { type: Array, default: () => [] }, loading: Boolean })
@@ -319,6 +335,7 @@ const tabs = computed(() => [
   { k: 'active', l: '진행·예정', n: props.items.filter(isOpen).length },
   { k: 'done', l: '종료·당첨', n: props.items.filter(isDone).length },
   { k: 'all', l: '전체', n: props.items.length },
+  { k: 'pending', l: '안 보낸 상품', n: sum.value.pending_count || null },
   { k: 'log', l: '지급 이력', n: null },
   { k: 'auto', l: '반복·자동', n: null },
 ])
@@ -336,9 +353,9 @@ function label(s) { return { draft: '준비중', active: '진행중', ended: '�
 function badge(s) { return { draft: 'bg-gray-100 text-gray-600', active: 'bg-green-100 text-green-700', ended: 'bg-amber-100 text-amber-700', winner_selected: 'bg-violet-100 text-violet-700', cancelled: 'bg-red-100 text-red-700' }[s] || 'bg-gray-100 text-gray-600' }
 const stLabel = (s) => ({ pending: '안 보냄', sent: '보냄', confirmed: '수령 확인' }[s] || '안 보냄')
 const stChip = (s) => ({ sent: 'bg-blue-100 text-blue-700', confirmed: 'bg-emerald-100 text-emerald-700' }[s] || 'bg-amber-100 text-amber-800')
-const ACTIONS = { digital_sent: '디지털 상품 보냄', physical_notice_sent: '실물 안내 보냄', status_changed: '상태 변경', cost_set: '금액 입력', note: '메모' }
+const ACTIONS = { digital_sent: '디지털 상품 보냄', physical_notice_sent: '실물 안내 보냄', resent: '다시 보냄', received_by_winner: '당첨자 수령 확인', status_changed: '상태 변경', cost_set: '금액 입력', note: '메모' }
 const actionLabel = (a) => ACTIONS[a] || a
-const actionChip = (a) => ({ digital_sent: 'bg-blue-100 text-blue-700', physical_notice_sent: 'bg-violet-100 text-violet-700', cost_set: 'bg-gray-100 text-ink-light' }[a] || 'bg-amber-100 text-amber-800')
+const actionChip = (a) => ({ received_by_winner: 'bg-emerald-100 text-emerald-700', digital_sent: 'bg-blue-100 text-blue-700', physical_notice_sent: 'bg-violet-100 text-violet-700', cost_set: 'bg-gray-100 text-ink-light' }[a] || 'bg-amber-100 text-amber-800')
 const short = (dt) => dt ? new Date(dt).toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : ''
 const tAtl = (iso) => iso ? new Date(iso).toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : ''
 const tUtc = (iso) => iso ? new Date(iso).toLocaleString('ko-KR', { timeZone: 'UTC', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : ''
@@ -349,7 +366,23 @@ async function loadLogs() {
   try { const { data } = await axios.get('/api/admin/sweepstakes-delivery/logs?limit=150'); logs.value = data.data || [] } catch { logs.value = [] }
   logsLoading.value = false
 }
-function setTab(k) { tab.value = k; limit.value = 30; openId.value = null; if (k === 'log') loadLogs() }
+const pendingRows = ref([])
+const pendingLoading = ref(false)
+async function loadPending() {
+  pendingLoading.value = true
+  try { const { data } = await axios.get('/api/admin/sweepstakes-delivery/pending'); pendingRows.value = data.data || [] } catch { pendingRows.value = [] }
+  pendingLoading.value = false
+}
+function setTab(k) { tab.value = k; limit.value = 30; openId.value = null; if (k === 'log') loadLogs(); if (k === 'pending') loadPending() }
+// 안 보낸 상품 줄을 누르면 그 추첨의 당첨자 목록을 연다
+function openPending(r) {
+  const item = props.items.find(i => i.id === r.sweepstakes_id)
+  if (!item) return
+  setTab('done')
+  const idx = shown.value.findIndex(i => i.id === item.id)
+  if (idx >= limit.value) limit.value = idx + 1
+  toggle(item)
+}
 
 async function fetchClaims(item) {
   try {
@@ -435,5 +468,7 @@ watch(visible, async (list) => {
   const todo = list.filter(it => isDone(it) && !progress.value[it.id]).slice(0, 30)
   for (let i = 0; i < todo.length; i += 6) await Promise.all(todo.slice(i, i + 6).map(fetchClaims))
 }, { immediate: true })
-onMounted(loadSummary)
+const route = useRoute()
+// 알림의 "안 보낸 상품" 링크(?tab=pending)로 들어오면 그 탭을 바로 연다
+onMounted(() => { loadSummary(); if (route.query.tab === 'pending') setTab('pending') })
 </script>

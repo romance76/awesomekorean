@@ -216,6 +216,37 @@ class AdminPrizeDeliveryController extends Controller
     }
 
     /** 장부: 상품에 쓴 돈(총계·이번 달·월별) + 지급 현황 건수. 금액을 입력하지 않은 건은 상품 가치(prize_value)로 계산 */
+    /**
+     * 여러 추첨의 "아직 안 보낸" 건과 "보냈지만 수령 확인 전" 건을 한 화면에 — 오래 기다린 순서로.
+     * 기다린 날수: 안 보낸 건은 당첨일부터, 보낸 건은 보낸 날부터.
+     */
+    public function pending()
+    {
+        $this->requireSuperAdmin();
+        $rows = DB::table('sweepstakes_prize_claims as c')
+            ->join('sweepstakes as s', 's.id', '=', 'c.sweepstakes_id')
+            ->leftJoin('users as u', 'u.id', '=', 'c.user_id')
+            ->where('s.status', 'winner_selected')
+            ->where(fn ($q) => $q->whereNull('c.delivery_status')->orWhereIn('c.delivery_status', ['pending', 'sent']))
+            ->select('c.id', 'c.sweepstakes_id', 'c.rank', 'c.prize_label', 'c.delivery_status', 'c.sent_at', 'c.contact_confirmed_at',
+                's.title as sweepstakes_title', 's.prize_name', 's.winner_selected_at', 'u.name as winner_name', 'u.nickname as winner_nickname')
+            ->orderByRaw("CASE WHEN COALESCE(c.delivery_status,'pending') = 'pending' THEN 0 ELSE 1 END")
+            ->orderByRaw('COALESCE(c.sent_at, s.winner_selected_at)')
+            ->limit(300)->get()
+            ->map(function ($r) {
+                $st = $r->delivery_status ?: 'pending';
+                $since = $st === 'sent' ? $r->sent_at : $r->winner_selected_at;
+                return [
+                    'id' => $r->id, 'sweepstakes_id' => $r->sweepstakes_id, 'sweepstakes_title' => $r->sweepstakes_title,
+                    'rank' => $r->rank, 'prize' => $r->prize_label ?: $r->prize_name,
+                    'winner_name' => $r->winner_nickname ?: $r->winner_name,
+                    'delivery_status' => $st, 'contact_confirmed' => (bool) $r->contact_confirmed_at,
+                    'since' => $since, 'days' => $since ? (int) \Illuminate\Support\Carbon::parse($since)->diffInDays(now()) : null,
+                ];
+            })->values();
+        return response()->json(['success' => true, 'data' => $rows]);
+    }
+
     public function summary()
     {
         $this->requireSuperAdmin();

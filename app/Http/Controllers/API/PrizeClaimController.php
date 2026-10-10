@@ -75,7 +75,41 @@ class PrizeClaimController extends Controller
                 ];
             })->values();
 
-        return response()->json(['success' => true, 'data' => $data]);
+        // 상품을 보냈는데 아직 "받았어요"를 안 누른 건 — 작은 카드로 수령 확인을 묻는다(12시간 안에 '아직이요' 누른 건은 빼고)
+        $sent = SweepstakesPrizeClaim::where('user_id', $user->id)
+            ->where('delivery_status', 'sent')->whereNull('delivery_confirmed_at')
+            ->where(fn ($q) => $q->whereNull('popup_dismissed_at')->orWhere('popup_dismissed_at', '<', now()->subHours(12)))
+            ->with(['sweepstakes.event:id,title'])->orderBy('sent_at')->limit(5)->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'event_title' => $c->sweepstakes->event->title ?? ($c->sweepstakes->title ?? '경품 추첨'),
+                'prize_name' => $c->prize_label ?: ($c->sweepstakes->prize_name ?? '경품'),
+                'prize_type' => $c->prize_type ?: 'digital',
+                'sent_at' => $c->sent_at,
+            ])->values();
+
+        return response()->json(['success' => true, 'data' => $data, 'sent' => $sent]);
+    }
+
+    /** 당첨자가 "상품 받았어요"를 누름 — 보낸 상태에서만, 한 번만 기록 */
+    public function received($id)
+    {
+        $claim = SweepstakesPrizeClaim::where('user_id', auth()->id())->findOrFail($id);
+        if ($claim->delivery_status === 'confirmed') {
+            return response()->json(['success' => true, 'message' => '이미 받으신 걸로 기록돼 있어요.']);
+        }
+        if ($claim->delivery_status !== 'sent') {
+            return response()->json(['success' => false, 'message' => '아직 상품을 보내지 않았어요. 보내 드리면 알려 드릴게요.'], 422);
+        }
+        DB::transaction(function () use ($claim) {
+            $claim->forceFill(['delivery_status' => 'confirmed', 'delivery_confirmed_at' => now()])->save();
+            DB::table('sweepstakes_delivery_logs')->insert([
+                'claim_id' => $claim->id, 'sweepstakes_id' => $claim->sweepstakes_id, 'user_id' => $claim->user_id,
+                'actor_id' => auth()->id(), 'action' => 'received_by_winner', 'note' => '당첨자가 "받았어요"를 눌렀어요',
+                'meta' => null, 'created_at' => now(),
+            ]);
+        });
+        return response()->json(['success' => true, 'message' => '확인해 주셔서 고마워요! 다시 한 번 당첨을 축하드려요 🎉']);
     }
 
     public function dismiss($id)

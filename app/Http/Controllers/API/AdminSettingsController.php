@@ -84,10 +84,8 @@ class AdminSettingsController extends Controller
         // 안 불러와지고 항상 빈 채로 보였음(약관 관리가 내용이 저장돼 있는데도
         // 빈 에디터로 보인 것도 이 버그). 프론트가 기대하는 모양대로 묶어서
         // 같이 내려줌.
-        $companyKeys = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','logo_dark_url','app_icon_url','favicon_url','meta_description','meta_keywords'];
-        $siteKeys = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until'];
-        $settings['company'] = array_intersect_key($settings, array_flip($companyKeys));
-        $settings['site'] = array_intersect_key($settings, array_flip($siteKeys));
+        $settings['company'] = array_intersect_key($settings, array_flip(self::COMPANY_KEYS));
+        $settings['site'] = array_intersect_key($settings, array_flip(self::SITE_KEYS));
         $settings['footer'] = $settings['footer_config'] ?? null;
         $settings['notifications'] = $settings['notification_config'] ?? null;
         $settings['terms'] = [
@@ -138,10 +136,73 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'message'=>'설정이 저장되었습니다']);
     }
 
+    // 회사 정보·사이트 설정 탭이 쓰는 칸 (이 두 저장 경로는 이 칸만 받는다 — 다른 설정을 덮어쓰지 않게)
+    private const COMPANY_KEYS = ['site_name','site_subtitle','company_name','ceo_name','business_number','address','phone','email','founded_date','logo_url','logo_dark_url','app_icon_url','favicon_url','meta_description','meta_keywords'];
+    private const SITE_KEYS = ['allow_signup','require_email_verify','auto_approve','allow_withdrawal','min_password_length','max_upload_mb','allowed_file_types','maintenance_mode','maintenance_reason','maintenance_until'];
+
+    // 이미지 주소 칸: 사이트 안 경로(/...)나 http(s) 주소만
+    private static function urlRule(): \Closure {
+        return function ($attr, $v, $fail) { if (!\App\Support\SafeUrl::ok($v)) $fail('주소는 / 로 시작하는 경로나 http(s):// 주소만 쓸 수 있어요.'); };
+    }
+
+    // 표시용 짧은 글 칸: < > 금지(화면에 그대로 찍히는 칸)
+    private static function plainRule(): \Closure {
+        return function ($attr, $v, $fail) { if (is_string($v) && preg_match('/[<>]/', $v)) $fail('< > 기호는 쓸 수 없어요.'); };
+    }
+
+    private static function settingMessages(): array {
+        return [
+            '*.max' => ':attribute 이(가) 너무 길어요 (:max자 이하).',
+            '*.email' => '이메일 형식이 올바르지 않아요.',
+            '*.date' => '날짜 형식이 올바르지 않아요.',
+            '*.boolean' => '켜기/끄기 값만 넣을 수 있어요.',
+            '*.integer' => '숫자로 입력해 주세요.',
+            '*.between' => ':attribute 은(는) :min~:max 사이여야 해요.',
+            '*.required' => ':attribute 을(를) 입력해 주세요.',
+            '*.string' => '글자로 입력해 주세요.',
+        ];
+    }
+
+    // 바뀐 칸만 검사·저장한다 (옛 데이터에 이미 형식이 다른 값이 있어도 탭 전체 저장이 막히지 않게 — SettingsValidator 와 같은 규칙)
+    private function changedOnly(Request $request, array $rules, string $prefix = ''): array {
+        $current = SiteSetting::whereIn('key', array_map(fn($k) => $prefix . $k, array_keys($rules)))->pluck('value', 'key');
+        $out = [];
+        foreach ($rules as $key => $rule) {
+            if (!$request->has($key)) continue;
+            $v = $request->input($key);
+            $norm = is_bool($v) ? ($v ? '1' : '0') : (is_scalar($v) || $v === null ? (string) $v : null);
+            if ($norm !== null && $current->has($prefix . $key) && (string) $current[$prefix . $key] === $norm) continue;
+            $out[$key] = $rule;
+        }
+        return $out;
+    }
+
     // 회사 정보 저장
     public function saveCompany(Request $request) {
-        foreach ($this->filteredSettings($request) as $key => $value) {
-            SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value]);
+        $plain = self::plainRule(); $url = self::urlRule();
+        $data = $request->validate($this->changedOnly($request, [
+            'site_name' => ['sometimes', 'required', 'string', 'max:50', $plain],
+            'site_subtitle' => ['sometimes', 'nullable', 'string', 'max:100', $plain],
+            'company_name' => ['sometimes', 'nullable', 'string', 'max:100', $plain],
+            'ceo_name' => ['sometimes', 'nullable', 'string', 'max:50', $plain],
+            'business_number' => ['sometimes', 'nullable', 'string', 'max:50', $plain],
+            'address' => ['sometimes', 'nullable', 'string', 'max:200', $plain],
+            'phone' => ['sometimes', 'nullable', 'string', 'max:30', 'regex:/^[0-9+()\-.\s]*$/'],
+            'email' => ['sometimes', 'nullable', 'email:rfc', 'max:100'],
+            'founded_date' => ['sometimes', 'nullable', 'string', 'max:30', $plain],
+            'logo_url' => ['sometimes', 'nullable', 'string', 'max:1000', $url],
+            'logo_dark_url' => ['sometimes', 'nullable', 'string', 'max:1000', $url],
+            'app_icon_url' => ['sometimes', 'nullable', 'string', 'max:1000', $url],
+            'favicon_url' => ['sometimes', 'nullable', 'string', 'max:1000', $url],
+            'meta_description' => ['sometimes', 'nullable', 'string', 'max:500', $plain],
+            'meta_keywords' => ['sometimes', 'nullable', 'string', 'max:500', $plain],
+        ]), self::settingMessages() + ['phone.regex' => '전화번호는 숫자와 + ( ) - 만 쓸 수 있어요.'], [
+            'site_name' => '사이트 이름', 'site_subtitle' => '부제목', 'company_name' => '회사 이름', 'ceo_name' => '대표자',
+            'business_number' => '사업자 번호', 'address' => '주소', 'phone' => '전화번호', 'founded_date' => '설립일',
+            'meta_description' => '설명', 'meta_keywords' => '키워드',
+        ]);
+        foreach ($data as $key => $value) {
+            SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value === null ? '' : trim((string) $value)]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'회사 정보가 저장되었습니다']);
@@ -149,11 +210,24 @@ class AdminSettingsController extends Controller
 
     // 사이트 설정 저장
     public function saveSite(Request $request) {
-        foreach ($request->all() as $key => $value) {
-            if (!$this->safeSettingKey($key)) { \Log::warning('[설정저장] 허용되지 않는 칸을 건너뜀: ' . (is_string($key) ? mb_substr($key, 0, 60) : '(비문자)') . ' by ' . (auth()->id() ?? '?')); continue; }
-            $storeValue = is_bool($value) ? ($value ? '1' : '0') : (is_array($value) ? json_encode($value) : $value);
-            if (is_string($storeValue) && strlen($storeValue) > 30000) continue;
-            SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$storeValue]);
+        $data = $request->validate($this->changedOnly($request, [
+            'allow_signup' => 'sometimes|boolean',
+            'require_email_verify' => 'sometimes|boolean',
+            'auto_approve' => 'sometimes|boolean',
+            'allow_withdrawal' => 'sometimes|boolean',
+            'maintenance_mode' => 'sometimes|boolean',
+            'min_password_length' => 'sometimes|integer|between:8,64',
+            'max_upload_mb' => 'sometimes|integer|between:1,100',
+            'allowed_file_types' => ['sometimes', 'nullable', 'string', 'max:300', 'regex:/^\s*[A-Za-z0-9]{1,10}(\s*,\s*[A-Za-z0-9]{1,10}){0,40}\s*$/'],
+            'maintenance_reason' => ['sometimes', 'nullable', 'string', 'max:500', self::plainRule()],
+            'maintenance_until' => 'sometimes|nullable|date',
+        ]), self::settingMessages() + ['allowed_file_types.regex' => '파일 형식은 쉼표로 구분한 확장자로 적어 주세요 (예: jpg,png,pdf).'], [
+            'min_password_length' => '최소 비밀번호 길이', 'max_upload_mb' => '최대 업로드 크기(MB)', 'maintenance_reason' => '점검 안내',
+        ]);
+        foreach ($data as $key => $value) {
+            if (in_array($key, ['allow_signup', 'require_email_verify', 'auto_approve', 'allow_withdrawal', 'maintenance_mode'], true)) $value = filter_var($value, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+            elseif ($key === 'allowed_file_types') $value = strtolower(preg_replace('/\s+/', '', (string) $value));
+            SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value === null ? '' : (string) $value]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);   // 저장했는데 회원 화면에 안 바뀌던 문제(최대 30분) 방지
         return response()->json(['success'=>true,'message'=>'사이트 설정이 저장되었습니다']);
@@ -167,10 +241,20 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'message'=>'푸터가 저장되었습니다']);
     }
 
-    // 약관 저장
+    // 약관 저장 — 이용약관(terms)·개인정보처리방침(privacy) 두 가지만. 빈 내용 거부, DB 칸(TEXT 64KB) 넘는 크기는 500 대신 안내.
     public function saveTerms(Request $request, $type) {
+        if (!in_array($type, ['terms', 'privacy'], true)) {
+            return response()->json(['success'=>false,'message'=>'약관 종류는 이용약관(terms)·개인정보처리방침(privacy)만 있어요'], 404);
+        }
+        $content = $request->input('content');
+        if (!is_string($content) || trim(strip_tags($content)) === '' || trim(html_entity_decode(strip_tags($content))) === '') {
+            return response()->json(['success'=>false,'message'=>'약관 내용을 입력해 주세요'], 422);
+        }
+        if (strlen($content) > 60000) {
+            return response()->json(['success'=>false,'message'=>'약관이 너무 길어요 (약 60KB 이하, 지금 ' . number_format(intdiv(strlen($content), 1024)) . 'KB)'], 422);
+        }
         $key = $type === 'privacy' ? 'privacy_page' : 'terms_page';
-        SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$request->content]);
+        SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$content]);
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'약관이 저장되었습니다']);
     }
@@ -220,10 +304,18 @@ class AdminSettingsController extends Controller
 
     // SEO 설정 저장
     public function saveSeo(Request $request) {
-        foreach ($request->all() as $key => $value) {
-            if (!is_string($key) || !preg_match('/^[A-Za-z0-9_]{1,60}$/', $key) || is_array($value)) continue;
-            if (is_string($value) && strlen($value) > 5000) continue;
-            SiteSetting::updateOrCreate(['key'=>'seo_'.$key], ['value'=>$value]);
+        $data = $request->validate($this->changedOnly($request, [
+            'meta_title' => ['sometimes', 'nullable', 'string', 'max:120', self::plainRule()],
+            'meta_description' => ['sometimes', 'nullable', 'string', 'max:500', self::plainRule()],
+            'og_image' => ['sometimes', 'nullable', 'string', 'max:1000', self::urlRule()],
+            'google_verification' => ['sometimes', 'nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-=.:]*$/'],
+            'naver_verification' => ['sometimes', 'nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-=.:]*$/'],
+            'robots_txt' => 'sometimes|nullable|string|max:5000',
+        ], 'seo_'), self::settingMessages() + ['*.regex' => '인증 코드는 영문·숫자·- _ = . : 만 쓸 수 있어요.'], [
+            'meta_title' => '제목', 'meta_description' => '설명', 'robots_txt' => 'robots.txt',
+        ]);
+        foreach ($data as $key => $value) {
+            SiteSetting::updateOrCreate(['key'=>'seo_'.$key], ['value'=>$value === null ? '' : (string) $value]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'SEO 설정이 저장되었습니다']);

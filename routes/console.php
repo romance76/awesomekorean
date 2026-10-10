@@ -55,6 +55,8 @@ Schedule::command('sweepstakes:send-reminders')->everyMinute()->withoutOverlappi
 Schedule::command('sweepstakes:notify-winners')->everyMinute()->withoutOverlapping();
 // 반복 일정에서 경품 추첨 이벤트 자동 생성 + 자동 추첨 일정의 종료된 이벤트 당첨자 선정
 Schedule::command('sweepstakes:run-schedules')->everyMinute()->withoutOverlapping();
+// 당첨 후 3일 넘게 안 보낸 경품 — 최고관리자에게 하루 한 번 (애틀랜타 오전 10시)
+Schedule::command('sweepstakes:remind-overdue-deliveries')->dailyAt('10:00')->timezone('America/New_York');
 
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();

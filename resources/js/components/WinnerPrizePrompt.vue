@@ -45,6 +45,16 @@
         </div>
       </div>
     </Transition>
+    <!-- 상품을 보낸 뒤: 받았는지 작게 묻기 (연락처 확인 창이 떠 있을 땐 숨김) -->
+    <div v-if="!visibleClaims.length && visibleSent.length" class="wpp-received" role="status">
+      <div class="text-[14px] font-bold text-ink">🎁 {{ visibleSent[0].event_title }} 상품 받으셨나요?</div>
+      <div class="text-[13px] text-ink-muted mt-0.5 break-words">{{ visibleSent[0].prize_name }}{{ visibleSent[0].prize_type === 'physical' ? ' (실물 · 배송)' : ' (쪽지함의 링크/코드)' }}</div>
+      <p v-if="errors['r' + visibleSent[0].id]" class="text-xs text-red-500 font-semibold mt-1">{{ errors['r' + visibleSent[0].id] }}</p>
+      <div class="flex gap-2 mt-2">
+        <button @click="received(visibleSent[0])" :disabled="busy['r' + visibleSent[0].id]" class="flex-1 min-h-[44px] rounded-full bg-amber-500 text-white text-sm font-bold disabled:opacity-50">{{ busy['r' + visibleSent[0].id] ? '기록 중…' : '받았어요' }}</button>
+        <button @click="notYet(visibleSent[0])" class="min-h-[44px] rounded-full border border-line text-ink-muted text-sm font-bold px-4">아직이요</button>
+      </div>
+    </div>
   </Teleport>
 </template>
 <script setup>
@@ -56,6 +66,7 @@ import { useAuthStore } from '../stores/auth'
 const auth = useAuthStore()
 const router = useRouter()
 const claims = ref([])
+const sent = ref([])            // 보냈지만 아직 "받았어요" 안 누른 건
 const hiddenIds = ref(new Set()) // 이번 화면에서 "나중에" 누른 건
 const errors = reactive({})
 const busy = reactive({})
@@ -70,6 +81,7 @@ const fields = [
 const visibleClaims = computed(() =>
   claims.value.filter(c => !c.dismissed_recently && !hiddenIds.value.has(c.id))
 )
+const visibleSent = computed(() => sent.value.filter(c => !hiddenIds.value.has('r' + c.id)))
 
 function isMissing(c, key) {
   return (c.contact_status?.missing || []).includes(key)
@@ -90,6 +102,7 @@ async function refresh() {
   try {
     const { data } = await axios.get('/api/me/prize-claims')
     claims.value = data?.data || []
+    sent.value = data?.sent || []
   } catch { /* 조용히 무시 */ }
 }
 
@@ -106,6 +119,23 @@ async function confirm(c) {
   } finally {
     busy[c.id] = false
   }
+}
+
+async function received(c) {
+  const k = 'r' + c.id
+  busy[k] = true; errors[k] = ''
+  try {
+    await axios.post(`/api/me/prize-claims/${c.id}/received`)
+    sent.value = sent.value.filter(x => x.id !== c.id)
+  } catch (e) {
+    errors[k] = e?.response?.data?.message || '기록하지 못했어요. 잠시 후 다시 눌러 주세요.'
+  } finally { busy[k] = false }
+}
+
+// "아직이요" — 12시간 동안 다시 묻지 않음 (서버의 dismiss 기록 사용)
+async function notYet(c) {
+  hiddenIds.value.add('r' + c.id); hiddenIds.value = new Set(hiddenIds.value)
+  try { await axios.post(`/api/me/prize-claims/${c.id}/dismiss`) } catch {}
 }
 
 function goProfile() {
@@ -134,7 +164,7 @@ onBeforeUnmount(() => {
   document.removeEventListener('visibilitychange', onVisible)
   if (timer) clearInterval(timer)
 })
-watch(() => auth.user?.id, (id) => { if (id) refresh(); else claims.value = [] }, { immediate: true })
+watch(() => auth.user?.id, (id) => { if (id) refresh(); else { claims.value = []; sent.value = [] } }, { immediate: true })
 </script>
 <style scoped>
 .wpp-backdrop { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -145,6 +175,7 @@ watch(() => auth.user?.id, (id) => { if (id) refresh(); else claims.value = [] }
   0% { transform: translateY(0) rotate(0deg); }
   100% { transform: translateY(560px) rotate(540deg); }
 }
+.wpp-received { position: fixed; z-index: 85; left: 16px; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); max-width: 380px; margin: 0 auto; background: #fff; border: 1px solid #fde68a; border-radius: 18px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
 .wpp-enter-active, .wpp-leave-active { transition: opacity .25s; }
 .wpp-enter-from, .wpp-leave-to { opacity: 0; }
 </style>
