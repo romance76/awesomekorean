@@ -42,7 +42,8 @@ Schedule::command('recipes:sync-all')->dailyAt('04:00')->withoutOverlapping()->a
 // 안심서비스 보류(2026-10-10): 서버 부하 절감을 위해 매분 작업 중지. 재개하려면 주석 해제.
 // Schedule::command('elder:check')->everyMinute();
 // Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
-Schedule::command('calls:cleanup')->everyFiveMinutes()->withoutOverlapping();
+// 통화 정리 중지(2026-10-10): 음성통화 기능 비활성(VOICE_CALL_ENABLED=false) + 서버 부하 절감. 재개하려면 주석 해제.
+// Schedule::command('calls:cleanup')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
 Schedule::command('promotions:expire')->everyMinute();
 Schedule::command('events:remind')->everyThirtyMinutes();
