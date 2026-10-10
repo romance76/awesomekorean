@@ -7,10 +7,11 @@
     <div data-frame class="relative overflow-hidden bg-black flex-shrink-0" :style="{ width: fw + 'px', height: fh + 'px', '--pb': isFs ? 'env(safe-area-inset-bottom, 0px)' : '0px', '--pt': isFs ? 'env(safe-area-inset-top, 0px)' : '0px', '--pr': isFs ? 'env(safe-area-inset-right, 0px)' : '0px', '--pl': isFs ? 'env(safe-area-inset-left, 0px)' : '0px' }">
       <!-- 스테이지: 항상 정확히 9:16 (플레이어는 100% 로 꽉 채움 → 늘어나지 않음) -->
       <div ref="stageEl" data-stage class="absolute bg-black" :style="{ width: sw + 'px', height: sh + 'px', left: ((fw - sw) / 2) + 'px', top: ((fh - sh) / 2) + 'px', pointerEvents: 'none', willChange: 'transform, opacity' }">
-        <div ref="playerHost" class="w-full h-full"></div>
+        <div ref="playerHost" class="absolute inset-0" :style="{ zIndex: activeIsA ? 2 : 1, opacity: activeIsA ? 1 : 0 }"></div>
+        <div ref="standbyHost" class="absolute inset-0" :style="{ zIndex: activeIsA ? 1 : 2, opacity: activeIsA ? 0 : 1 }"></div>
         <!-- 포스터: 다음 숏츠의 썸네일을 스와이프 즉시 보여주고, 재생이 시작되면(PLAYING) 부드럽게 사라짐 -->
         <img v-if="posterUrl" :src="posterUrl" alt="" draggable="false" decoding="async"
-          class="absolute inset-0 w-full h-full object-cover pointer-events-none" :style="{ opacity: posterOn ? 1 : 0, transition: 'opacity .18s ease-out' }" />
+          class="absolute inset-0 w-full h-full object-cover pointer-events-none" :style="{ opacity: posterOn ? 1 : 0, transition: 'opacity .18s ease-out', zIndex: 3 }" />
       </div>
 
       <!-- 좌상단: 전체화면 닫기 (전체화면일 때만) -->
@@ -126,6 +127,8 @@ const sh = computed(() => stage.value.sh)
 const fw = computed(() => Math.min(sw.value, aw.value))
 const fh = computed(() => Math.min(sh.value, ah.value))
 const playerHost = ref(null)
+const standbyHost = ref(null)
+const activeIsA = ref(true)   // 지금 화면에 보이는 플레이어가 A 칸(playerHost)인지
 const paused = ref(false)     // 사용자가 일시정지한 상태
 const starting = ref(false)   // 로딩/시작 대기
 const needTap = ref(false)    // 자동재생 실패 → 탭 유도
@@ -178,6 +181,13 @@ function slideStage(dir) {
 }
 
 let player = null
+let standby = null          // 다음 영상을 미리 받아 두는 두 번째 플레이어 (화면에는 안 보임)
+let standbyReady = false    // standby 가 standbyVideoId 를 이미 받아서 첫 화면에서 멈춰 있는 상태
+let standbyVideoId = null
+let prepareTimer = null
+// 두 번째 플레이어로 다음 영상을 미리 받아 두는 기능 — localStorage shorts_dual = '0' 이면 끈다 (문제가 생겼을 때 비상용)
+// 주소 끝에 ?dual=0 을 붙여 열면 끄고(기억함), ?dual=1 이면 다시 켠다
+const DUAL = (() => { try { const q = new URLSearchParams(location.search).get('dual'); if (q === '0' || q === '1') localStorage.setItem('shorts_dual', q); return localStorage.getItem('shorts_dual') !== '0' } catch { return true } })()
 let playerReady = false
 let destroyed = false
 let retryTimer = null
@@ -237,6 +247,7 @@ async function initPlayer() {
 }
 
 function onReady(e) {
+  if (e.target !== player) { safe(() => e.target.mute()); return }   // 대기 플레이어는 소리 끄고 자동 재생된 채로 둔다 (곧 PLAYING 에서 멈춘다)
   playerReady = true
   if (!soundOn.value) safe(() => e.target.mute())
   else safe(() => e.target.unMute())
@@ -246,8 +257,10 @@ function onReady(e) {
 
 function onStateChange(e) {
   const S = window.YT.PlayerState
+  if (e.target !== player) { onStandbyState(e); return }
   switch (e.data) {
     case S.PLAYING:
+      schedulePrepare()
       clearTimers(); retryCount = 0
       starting.value = false; needTap.value = false; paused.value = false; posterOn.value = false
       if (soundOn.value && safe(() => player.isMuted())) safe(() => player.unMute())
@@ -268,6 +281,7 @@ function onStateChange(e) {
 }
 
 function onError(e) {
+  if (e.target !== player) { standbyReady = false; standbyVideoId = null; return }   // 대기 플레이어 오류는 조용히 무시 (넘길 때 일반 방식으로 불러온다)
   // 2: 잘못된 ID, 5: HTML5 오류, 100: 삭제/비공개, 101/150: 임베드 차단
   clearTimers()
   starting.value = false
@@ -295,6 +309,65 @@ function startWatchdog() {
     const st = safe(() => player.getPlayerState())
     if (st !== window.YT?.PlayerState?.PLAYING && !paused.value) { starting.value = false; needTap.value = true }
   }, 2500)
+}
+
+// ─── 다음 영상 미리 받기 (YouTube 앱처럼 넘기는 순간 바로 재생) ───
+function onStandbyState(e) {
+  const S = window.YT.PlayerState
+  // 소리 끈 채 자동 재생이 시작되는 순간 멈춰 둔다 → 영상 앞부분이 미리 받아진 상태로 대기
+  if (e.data === S.PLAYING && standbyVideoId && !standbyReady) {
+    safe(() => e.target.pauseVideo())
+    safe(() => e.target.seekTo(0, true))
+    standbyReady = true
+  }
+}
+
+function schedulePrepare() {
+  if (!DUAL) return
+  clearTimeout(prepareTimer)
+  prepareTimer = setTimeout(prepareStandby, 700)   // 지금 영상이 잘 재생되기 시작한 뒤에 다음 영상을 받는다
+}
+
+function prepareStandby() {
+  if (!DUAL || destroyed || !playerReady || !window.YT?.Player) return
+  const nextId = shorts.value[idx.value + 1]?.youtube_id
+  if (!nextId || standbyVideoId === nextId) return
+  standbyReady = false
+  standbyVideoId = nextId
+  if (!standby) {
+    if (!standbyHost.value) return
+    const el = document.createElement('div')
+    standbyHost.value.appendChild(el)
+    standby = new window.YT.Player(el, {
+      width: '100%', height: '100%', videoId: nextId,
+      playerVars: { autoplay: 1, mute: 1, playsinline: 1, controls: 0, modestbranding: 1, rel: 0, disablekb: 1, fs: 0, iv_load_policy: 3, enablejsapi: 1, origin: window.location.origin },
+      events: { onReady, onStateChange, onError },
+    })
+  } else {
+    safe(() => standby.mute())
+    safe(() => standby.loadVideoById({ videoId: nextId, startSeconds: 0 }))
+  }
+}
+
+// 넘긴 영상이 이미 받아져 있으면 두 플레이어를 맞바꿔서 바로 재생. 못 하면 false (기존 방식으로 불러온다)
+function trySwapToStandby(id) {
+  if (!DUAL || !standby || !standbyReady || !id || standbyVideoId !== id) return false
+  const old = player
+  player = standby
+  standby = old
+  standbyReady = false
+  standbyVideoId = null
+  activeIsA.value = !activeIsA.value
+  clearTimers()
+  paused.value = false; needTap.value = false; retryCount = 0
+  if (soundOn.value) { safe(() => player.unMute()); safe(() => player.setVolume(100)) } else safe(() => player.mute())
+  safe(() => player.seekTo(0, true))
+  safe(() => player.playVideo())
+  safe(() => standby.pauseVideo())
+  posterOn.value = false
+  starting.value = false
+  startWatchdog()
+  return true
 }
 
 function loadCurrent() {
@@ -346,11 +419,17 @@ function togglePlay() {
 // ─── 이동 ───
 function next() {
   if (idx.value < shorts.value.length - 1) {
-    idx.value++; liked.value = false; loadCurrent(); slideStage(1); preloadThumbs(); markViewed(); maybeLoadMore()
+    idx.value++; liked.value = false
+    if (!trySwapToStandby(current.value.youtube_id)) loadCurrent()
+    slideStage(1); preloadThumbs(); markViewed(); maybeLoadMore()
   }
 }
 function prev() {
-  if (idx.value > 0) { idx.value--; liked.value = false; loadCurrent(); slideStage(-1); preloadThumbs() }
+  if (idx.value > 0) {
+    idx.value--; liked.value = false
+    standbyReady = false; standbyVideoId = null; safe(() => standby && standby.pauseVideo())   // 미리 받아 둔 건 '다음' 영상이라 버린다
+    loadCurrent(); slideStage(-1); preloadThumbs()
+  }
 }
 
 async function fetchPage(p) {
@@ -498,6 +577,7 @@ function onVisibility() {
   if (document.hidden) {
     wasPlayingBeforeHide = safe(() => player.getPlayerState()) === window.YT.PlayerState.PLAYING
     safe(() => player.pauseVideo())
+    safe(() => standby && standby.pauseVideo())
   } else if (wasPlayingBeforeHide && !paused.value) {
     safe(() => player.playVideo())
     startWatchdog()
@@ -578,7 +658,9 @@ onUnmounted(() => {
   if (fsElement()) safe(() => (document.exitFullscreen || document.webkitExitFullscreen).call(document))
   document.documentElement.style.overscrollBehavior = ''
   document.body.style.overflow = ''
+  clearTimeout(prepareTimer)
   safe(() => player && player.destroy())
-  player = null
+  safe(() => standby && standby.destroy())
+  player = null; standby = null
 })
 </script>
