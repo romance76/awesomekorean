@@ -7,9 +7,12 @@
       <RouterLink v-for="item in favMenus" :key="item.path" :to="item.path"
         class="flex flex-col items-center justify-center gap-1 flex-shrink-0 transition-colors"
         :style="tabStyle"
-        :class="isActive(item.path) ? 'text-amber-500' : 'text-ink-faint'">
-        <AppIcon :name="menuIcon(item.key)" :size="20" :stroke-width="isActive(item.path) ? 2.2 : 1.8" />
-        <span class="text-[10px] leading-none" :class="isActive(item.path) ? 'font-bold' : 'font-medium'">{{ item.label }}</span>
+        :class="isActive(item.path) ? 'text-ink' : 'text-ink-light'">
+        <!-- 메뉴별 색 칩 (사이드 메뉴와 같은 색) — 활성은 진하게 + 테두리 -->
+        <span class="icon-chip w-8 h-7 transition-shadow" :class="[menuChipColor(item.key), isActive(item.path) ? 'ring-2 ring-black/15' : '']">
+          <AppIcon :name="menuIcon(item.key)" :size="18" :stroke-width="isActive(item.path) ? 2.4 : 2" />
+        </span>
+        <span class="text-[10px] leading-none" :class="isActive(item.path) ? 'font-bold' : 'font-semibold'">{{ item.label }}</span>
       </RouterLink>
     </div>
     <!-- 스와이프 인디케이터 (6개 이상일 때) -->
@@ -26,7 +29,7 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useNavFavoritesStore } from '../stores/navFavorites'
 import AppIcon from './AppIcon.vue'
-import { menuIcon } from '../utils/menuIcons'
+import { menuIcon, menuChipColor } from '../utils/menuIcons'
 
 const route = useRoute()
 const navStore = useNavFavoritesStore()
