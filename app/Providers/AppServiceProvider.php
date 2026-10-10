@@ -30,12 +30,22 @@ class AppServiceProvider extends ServiceProvider
         $this->configureMail();
 
         // 가입 보너스("매 N번째 가입"): 새 회원이 만들어진 직후 확인한다. 실패해도 가입 자체에는 영향을 주지 않는다.
-        \App\Models\User::created(function ($user) {
+        // 이메일 인증을 마친 회원만 센다: 구글·아마존 가입은 인증된 채로 만들어지고(created), 이메일 가입은 인증 완료 때(updated) 센다.
+        // 가져오기·시드(콘솔 실행)와 관리자가 강제 인증한 경우는 세지 않는다. 가입 자체에는 영향을 주지 않는다.
+        $countBonus = function ($user) {
             try {
+                if (app()->runningInConsole()) return;
+                if (request() && str_starts_with(request()->path(), 'api/admin')) return;
                 \App\Support\SweepstakesAutomation::onSignup((int) $user->id);
             } catch (\Throwable $e) {
                 report($e);
             }
+        };
+        \App\Models\User::created(function ($user) use ($countBonus) {
+            if ($user->email_verified_at) $countBonus($user);
+        });
+        \App\Models\User::updated(function ($user) use ($countBonus) {
+            if ($user->wasChanged('email_verified_at') && $user->email_verified_at && !$user->getOriginal('email_verified_at')) $countBonus($user);
         });
     }
 

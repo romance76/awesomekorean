@@ -340,7 +340,12 @@ class AdminBoardController extends Controller
     {
         $cfg = $this->config($slug);
         $model = $cfg['model'];
-        $model::findOrFail($id)->delete();
+        $item = $model::findOrFail($id);
+        // 뉴스·음악·숏츠·업소록·수집 레시피는 재수집이 어렵거나 불가능해서 삭제하지 않는다 (숨김으로 처리)
+        if (in_array($slug, ['news', 'music', 'shorts', 'business'], true) || ($slug === 'recipes' && !empty($item->ext_id))) {
+            return response()->json(['success' => false, 'code' => 'collected_data', 'message' => '수집된 데이터는 삭제할 수 없어요. 숨김을 사용해 주세요.'], 422);
+        }
+        $item->delete();
         return response()->json(['success'=>true]);
     }
 

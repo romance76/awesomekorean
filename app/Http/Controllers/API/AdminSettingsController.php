@@ -72,10 +72,32 @@ class AdminSettingsController extends Controller
         return response()->json(['success'=>true,'data'=>$settings]);
     }
 
+    // 이 경로로 바꿀 수 없는 칸: 비밀번호·키·결제·푸시 비밀값 (전용 저장 경로만 허용) / 키 이름은 영문·숫자·_ . - 만
+    private function safeSettingKey($key): bool {
+        if (!is_string($key) || !preg_match('/^[A-Za-z0-9_.\-]{1,100}$/', $key)) return false;
+        return !preg_match('/(stripe|secret|payment_config|vapid_private|firebase|api[_-]?key|password|token|private|credential)/i', $key);
+    }
+
+    // 일괄 저장용으로 걸러낸 값 (안전하지 않은 칸은 건너뛰고 기록)
+    private function filteredSettings(Request $request): array {
+        $out = [];
+        foreach ($request->all() as $key => $value) {
+            if (!$this->safeSettingKey($key)) { \Log::warning('[설정저장] 허용되지 않는 칸을 건너뜀: ' . (is_string($key) ? mb_substr($key, 0, 60) : '(비문자)') . ' by ' . (auth()->id() ?? '?')); continue; }
+            if (is_array($value)) { $value = json_encode($value); }
+            if (is_string($value) && strlen($value) > 30000) { continue; }
+            $out[$key] = $value;
+        }
+        return $out;
+    }
+
+    // 본문 크기 제한 (JSON 설정 한 덩어리)
+    private function payloadTooBig(Request $request, int $max = 60000): bool {
+        return strlen(json_encode($request->all())) > $max;
+    }
+
     // 일괄 업데이트
     public function update(Request $request) {
-        foreach ($request->all() as $key => $value) {
-            $storeValue = is_array($value) ? json_encode($value) : $value;
+        foreach ($this->filteredSettings($request) as $key => $storeValue) {
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$storeValue]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
@@ -84,7 +106,7 @@ class AdminSettingsController extends Controller
 
     // 회사 정보 저장
     public function saveCompany(Request $request) {
-        foreach ($request->all() as $key => $value) {
+        foreach ($this->filteredSettings($request) as $key => $value) {
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
@@ -94,14 +116,18 @@ class AdminSettingsController extends Controller
     // 사이트 설정 저장
     public function saveSite(Request $request) {
         foreach ($request->all() as $key => $value) {
+            if (!$this->safeSettingKey($key)) { \Log::warning('[설정저장] 허용되지 않는 칸을 건너뜀: ' . (is_string($key) ? mb_substr($key, 0, 60) : '(비문자)') . ' by ' . (auth()->id() ?? '?')); continue; }
             $storeValue = is_bool($value) ? ($value ? '1' : '0') : (is_array($value) ? json_encode($value) : $value);
+            if (is_string($storeValue) && strlen($storeValue) > 30000) continue;
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$storeValue]);
         }
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);   // 저장했는데 회원 화면에 안 바뀌던 문제(최대 30분) 방지
         return response()->json(['success'=>true,'message'=>'사이트 설정이 저장되었습니다']);
     }
 
     // 푸터 저장
     public function saveFooter(Request $request) {
+        if ($this->payloadTooBig($request)) return response()->json(['success'=>false,'message'=>'내용이 너무 커요'], 422);
         SiteSetting::updateOrCreate(['key'=>'footer_config'], ['value'=>json_encode($request->all())]);
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);   // 공개 설정 캐시를 비워야 실제 사이트 푸터에 바로 반영됨
         return response()->json(['success'=>true,'message'=>'푸터가 저장되었습니다']);
@@ -117,7 +143,9 @@ class AdminSettingsController extends Controller
 
     // 알림 설정 저장
     public function saveNotifications(Request $request) {
+        if ($this->payloadTooBig($request, 20000)) return response()->json(['success'=>false,'message'=>'내용이 너무 커요'], 422);
         SiteSetting::updateOrCreate(['key'=>'notification_config'], ['value'=>json_encode($request->all())]);
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'알림 설정이 저장되었습니다']);
     }
 
@@ -136,15 +164,27 @@ class AdminSettingsController extends Controller
 
     // 결제 게이트웨이 설정
     public function savePaymentGateway(Request $request) {
-        SiteSetting::updateOrCreate(['key'=>'payment_config'], ['value'=>json_encode($request->all())]);
+        if ($this->payloadTooBig($request, 20000)) return response()->json(['success'=>false,'message'=>'내용이 너무 커요'], 422);
+        $incoming = [];
+        foreach ($request->all() as $k => $v) {
+            if (!is_string($k) || !preg_match('/^[A-Za-z0-9_.\-]{1,60}$/', $k)) continue;   // 이상한 칸 이름은 버린다
+            $incoming[$k] = $v;
+        }
+        $cur = SiteSetting::where('key', 'payment_config')->value('value');
+        $merged = array_merge(is_string($cur) ? (json_decode($cur, true) ?: []) : [], $incoming);   // 보내지 않은 기존 칸은 그대로 둔다
+        SiteSetting::updateOrCreate(['key'=>'payment_config'], ['value'=>json_encode($merged)]);
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'결제 설정이 저장되었습니다']);
     }
 
     // SEO 설정 저장
     public function saveSeo(Request $request) {
         foreach ($request->all() as $key => $value) {
+            if (!is_string($key) || !preg_match('/^[A-Za-z0-9_]{1,60}$/', $key) || is_array($value)) continue;
+            if (is_string($value) && strlen($value) > 5000) continue;
             SiteSetting::updateOrCreate(['key'=>'seo_'.$key], ['value'=>$value]);
         }
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'SEO 설정이 저장되었습니다']);
     }
 
@@ -294,6 +334,11 @@ class AdminSettingsController extends Controller
     public function revealApiKey($id) {
         $key = ApiKey::find($id);
         if (!$key) return response()->json(['success'=>false,'message'=>'키를 찾을 수 없습니다'],404);
+        // 누가 언제 열어 봤는지 기록 (값은 기록하지 않음)
+        try {
+            \DB::table('admin_audit_log')->insert(['admin_id' => auth()->id(), 'action' => 'REVEAL api-key', 'target_type' => 'api_keys', 'target_id' => (int) $id,
+                'after_value' => json_encode(['service' => $key->service]), 'note' => auth()->user()->role, 'ip' => request()->ip(), 'created_at' => now()]);
+        } catch (\Throwable $e) { report($e); }
         return response()->json(['success'=>true,'data'=>['key'=>$key->api_key]]);
     }
 
@@ -521,6 +566,9 @@ class AdminSettingsController extends Controller
 
     public function saveFirebase(Request $request)
     {
+        // .env 에도 쓰는 값이라 줄바꿈·따옴표·공백이 들어가면 설정 파일이 깨진다 → 안전한 문자만 허용
+        $safe = ['nullable', 'string', 'max:300', 'regex:/^[A-Za-z0-9_\-\.:@\/]*$/'];
+        $request->validate(['apiKey' => $safe, 'authDomain' => $safe, 'projectId' => $safe, 'storageBucket' => $safe, 'messagingSenderId' => $safe, 'appId' => $safe, 'vapidKey' => $safe]);
         $fields = [
             'firebase_api_key'      => $request->apiKey,
             'firebase_auth_domain'  => $request->authDomain,

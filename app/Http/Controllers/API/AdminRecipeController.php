@@ -80,6 +80,8 @@ class AdminRecipeController extends Controller
     // POST /api/admin/recipes/clear-all — 기존 전체 삭제
     public function clearAll()
     {
+        // 전체 삭제는 막는다: 식품안전나라 수집 레시피는 평점·즐겨찾기까지 함께 지워져 복구가 어렵다
+        return response()->json(['success' => false, 'code' => 'collected_data', 'message' => '레시피 전체 삭제는 지원하지 않아요. 필요하면 개별로 숨김 처리해 주세요.'], 422);
         $count = RecipePost::count();
         // TRUNCATE는 recipe_favorites/recipe_ratings가 외래키로 참조하고 있어 MySQL이
         // 항상 거부(500)했음 — 일반 DELETE는 두 FK 모두 CASCADE라 함께 정리됨
@@ -110,15 +112,20 @@ class AdminRecipeController extends Controller
     // DELETE /api/admin/recipes/{id}
     public function destroy($id)
     {
-        RecipePost::findOrFail($id)->delete();
+        $r = RecipePost::findOrFail($id);
+        if (!empty($r->ext_id)) {
+            return response()->json(['success' => false, 'code' => 'collected_data', 'message' => '수집된 레시피는 삭제할 수 없어요. 숨김을 사용해 주세요.'], 422);
+        }
+        $r->delete();
         return response()->json(['success' => true]);
     }
 
     // DELETE /api/admin/recipes/bulk-delete
     public function bulkDelete(Request $request)
     {
-        $ids = (array) $request->ids;
-        $count = RecipePost::whereIn('id', $ids)->delete();
+        $ids = array_slice(array_filter((array) $request->ids, 'is_numeric'), 0, 200);
+        // 직접 쓴 레시피만 지운다 (수집분 ext_id 가 있는 것은 제외)
+        $count = RecipePost::whereIn('id', $ids)->whereNull('ext_id')->delete();
         return response()->json(['success' => true, 'deleted' => $count]);
     }
 }

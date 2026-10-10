@@ -596,8 +596,11 @@ Route::middleware('auth:api')->prefix('poker7')->group(function () {
     Route::post('/rooms/{id}/start',  [$c, 'startGame']);
 });
 
-Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(function () {
     Route::get('/overview', [AdminController::class, 'overview']);
+    // 위험한 동작 전 비밀번호 재확인(10분 유효)
+    Route::post('/reauth', [\App\Http\Controllers\API\AdminReauthController::class, 'confirm'])->middleware('throttle:5,1');
+    Route::get('/reauth/status', [\App\Http\Controllers\API\AdminReauthController::class, 'status']);
 
     // ─── 보상 승인 (이벤트 완료인증 / 레시피 인기보상) ───
     Route::prefix('rewards')->group(function () {
@@ -650,11 +653,11 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::post('/users/{id}/unban', [AdminController::class, 'unbanUser']);
     Route::get('/users/{id}/detail', [AdminController::class, 'userDetail']);
     Route::put('/users/{id}', [AdminController::class, 'updateUser']);
-    Route::post('/users/{id}/impersonate', [AdminController::class, 'impersonate']);
-    Route::post('/users/{id}/reset-password', [AdminController::class, 'resetUserPassword']);
+    Route::post('/users/{id}/impersonate', [AdminController::class, 'impersonate'])->middleware('reauth');
+    Route::post('/users/{id}/reset-password', [AdminController::class, 'resetUserPassword'])->middleware('reauth');
     Route::post('/users/{id}/points', [AdminController::class, 'adjustUserPoints'])->middleware(['role:admin,super_admin', 'throttle:60,1']);
     Route::post('/users/{id}/verify-email', [AdminController::class, 'forceVerifyEmail']);
-    Route::delete('/users/{id}', [AdminController::class, 'deleteUserAccount']);
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUserAccount'])->middleware('reauth');
     Route::get('/posts/{id}/detail', [AdminController::class, 'postDetail']);
     Route::get('/posts', [AdminController::class, 'posts']);
     Route::post('/posts/{id}/hide', [AdminController::class, 'hidePost']);
@@ -752,13 +755,13 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // 시크릿/결제 자격증명이 포함되는 엔드포인트는 super_admin만 접근 가능
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
-        Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe'])->middleware('role:admin,super_admin');
-        Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway'])->middleware('role:admin,super_admin');
+        Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe'])->middleware(['role:admin,super_admin', 'reauth']);
+        Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway'])->middleware(['role:admin,super_admin', 'reauth']);
         Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
-        Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey']);
-        Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey']);
-        Route::delete('/api-keys/{id}', [AdminSettingsController::class, 'deleteApiKey']);
-        Route::get('/api-keys/{id}/reveal', [AdminSettingsController::class, 'revealApiKey']);
+        Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey'])->middleware('reauth');
+        Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey'])->middleware('reauth');
+        Route::delete('/api-keys/{id}', [AdminSettingsController::class, 'deleteApiKey'])->middleware('reauth');
+        Route::get('/api-keys/{id}/reveal', [AdminSettingsController::class, 'revealApiKey'])->middleware(['reauth', 'throttle:5,1']);
         // 로그인 잠금 / 서버(SSH) 자동 차단 IP
         Route::get('/security/login-locks', [\App\Http\Controllers\API\AdminSecurityController::class, 'loginLocks']);
         Route::post('/security/login-unlock', [\App\Http\Controllers\API\AdminSecurityController::class, 'unlockLogin'])->middleware('throttle:30,1');
@@ -786,7 +789,7 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
 
     // Firebase 설정
     Route::get('/firebase', [AdminSettingsController::class, 'getFirebase']);
-    Route::post('/firebase', [AdminSettingsController::class, 'saveFirebase']);
+    Route::post('/firebase', [AdminSettingsController::class, 'saveFirebase'])->middleware('reauth');
     Route::post('/firebase/credentials', [AdminSettingsController::class, 'uploadFirebaseCredentials'])->middleware(['role:super_admin', 'throttle:10,1']);
     Route::post('/firebase/test', [AdminSettingsController::class, 'testPush'])->middleware('throttle:10,1');
 

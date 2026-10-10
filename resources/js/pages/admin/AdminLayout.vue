@@ -116,6 +116,8 @@
     </div>
   </main>
 </div>
+<!-- 위험한 동작 앞 비밀번호 재확인 창 (PC·휴대폰 공용) -->
+<ReauthSheet />
 </template>
 <script setup>
 import { ref, computed, provide, onMounted, onBeforeUnmount } from 'vue'
@@ -125,6 +127,8 @@ import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
 import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 import AdminMobileHome from './AdminMobileHome.vue'
+import ReauthSheet from '../../components/admin/ReauthSheet.vue'
+import { installReauthInterceptor } from '../../composables/useReauth'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
@@ -279,8 +283,10 @@ function readView() { try { const v = localStorage.getItem(VIEW_KEY); return v =
 const viewMode = ref(readView())
 const winW = ref(typeof window !== 'undefined' ? window.innerWidth : 1280)
 const onResize = () => { winW.value = window.innerWidth }
-onMounted(() => window.addEventListener('resize', onResize))
-onBeforeUnmount(() => window.removeEventListener('resize', onResize))
+// 위험한 동작(키·결제 설정·회원 삭제 등)이 비밀번호 재확인(428)을 요구하면 비밀번호 창을 띄우고 같은 요청을 다시 보낸다
+let ejectReauth = null
+onMounted(() => { window.addEventListener('resize', onResize); ejectReauth = installReauthInterceptor() })
+onBeforeUnmount(() => { window.removeEventListener('resize', onResize); ejectReauth && ejectReauth() })
 const isMobileLayout = computed(() => viewMode.value === 'mobile' || (viewMode.value !== 'classic' && winW.value < 1024))
 function setView(v) { viewMode.value = v; try { localStorage.setItem(VIEW_KEY, v) } catch {} }
 

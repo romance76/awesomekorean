@@ -34,3 +34,20 @@ qa/.env.testing
 
 # 회원 등급 링 이미지는 서버에 있어야 하므로 예외
 !public/images/grades/*.png
+
+# 백업·덤프·비밀값은 저장소에 올리지 않는다 (2026-10-10 감사 S0)
+qa/backups/*.sql
+qa/backups/*.sql.gz
+qa/backups/*.gz
+qa/backups/*.tgz
+qa/backups/*.tar
+qa/backups/*.tar.gz
+qa/backups/*.zip
+qa/backups/*.dump
+qa/backups/*.snapshot
+qa/backups/*.env*
+qa/backups/**/*.sql
+qa/backups/**/*.gz
+qa/backups/**/*.tar.gz
+naver_scraper.db
+*.sqlite

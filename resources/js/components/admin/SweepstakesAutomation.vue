@@ -36,7 +36,7 @@
     <div class="flex items-center justify-between gap-2">
       <div>
         <h2 class="text-[17px] font-extrabold text-ink">가입 보너스</h2>
-        <p class="text-[13px] text-ink-muted leading-relaxed">"매 100번째로 가입한 회원에게 5달러 상품권"처럼 가입 순번에 맞는 회원에게 상품을 줘요. 현재 전체 회원 {{ memberCount }}명. <b>켠 뒤에 가입하는 사람부터</b> 세요.</p>
+        <p class="text-[13px] text-ink-muted leading-relaxed">"매 100번째로 가입한 회원에게 5달러 상품권"처럼 가입 순번에 맞는 회원에게 상품을 줘요. 현재 전체 회원 {{ memberCount }}명. <b>켠 뒤에 이메일 인증을 마친 회원부터</b> 세요(구글·아마존 가입은 가입 즉시).</p>
       </div>
       <button @click="openMilestone(null)" class="shrink-0 min-h-[44px] md:min-h-[32px] px-4 md:px-3 rounded-xl md:rounded-lg md:text-[12px] bg-amber-500 text-white text-[14px] font-bold">+ 새 보너스</button>
     </div>
@@ -127,7 +127,7 @@
         </div>
         <p v-if="mfErr" class="mt-3 text-[14px] text-red-600">{{ mfErr }}</p>
         <button @click="saveMilestone" :disabled="busy" class="mt-4 w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-extrabold disabled:opacity-50">{{ busy ? '저장 중...' : '저장' }}</button>
-        <p v-if="!mf.id" class="text-[12px] text-ink-faint text-center mt-2">저장하면 "일시정지" 상태예요. "시작"을 누른 뒤에 가입하는 사람부터 세요.</p>
+        <p v-if="!mf.id" class="text-[12px] text-ink-faint text-center mt-2">저장하면 "일시정지" 상태예요. "시작"을 누른 뒤 이메일 인증을 마친 회원부터 세요.</p>
       </div>
     </div>
     <!-- 확인 -->

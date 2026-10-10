@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin'        => \App\Http\Middleware\AdminMiddleware::class,
             'role'         => \App\Http\Middleware\EnsureRole::class, // P2B-5
+            'admin.tier'   => \App\Http\Middleware\AdminTier::class,   // 관리자 API 등급표 + 변경 기록
+            'reauth'       => \App\Http\Middleware\RequireReauth::class,  // 위험 동작 전 비밀번호 재확인(10분)
             'check.ip.ban' => \App\Http\Middleware\CheckIpBan::class,
             'detect.bot'   => \App\Http\Middleware\DetectBot::class,
             'auth'         => \App\Http\Middleware\Authenticate::class,

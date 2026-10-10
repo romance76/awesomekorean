@@ -142,22 +142,26 @@ class SweepstakesAutomation
 
     // ───────────────────────── 가입 보너스 ─────────────────────────
 
-    /** 새 회원이 가입한 직후 호출. 가입 자체는 절대 막지 않도록 호출하는 쪽에서 try/catch 한다. */
+    /**
+     * 회원이 "이메일 인증을 마친 순간" 호출한다 (이메일 가입은 인증 완료 시, 구글·아마존 가입은 가입과 동시에 인증된 상태로 만들어지므로 그때).
+     * 켠 뒤로 인증을 마친 회원 수를 전용 카운터로 세어 N번째마다 당첨 — 전체 회원 수·더미·가져오기 계정과 무관하다.
+     * 가입 자체는 절대 막지 않도록 호출하는 쪽에서 try/catch 한다.
+     */
     public static function onSignup(int $userId): void
     {
-        if (!Schema::hasTable('sweepstakes_milestones')) return;
-        $ms = DB::table('sweepstakes_milestones')->where('status', 'active')->where('trigger_type', 'nth_signup')->get();
-        if ($ms->isEmpty()) return;
-        $count = (int) DB::table('users')->count();
-        foreach ($ms as $m) {
-            $n = max(1, (int) $m->every_n);
-            $seq = $count - (int) $m->base_count;      // 켠 뒤로 몇 번째 가입인지
-            if ($seq < $n || $seq % $n !== 0) continue;
-            $no = intdiv($seq, $n);
+        if (!Schema::hasTable('sweepstakes_milestones') || !Schema::hasColumn('sweepstakes_milestones', 'signup_counter')) return;
+        $ids = DB::table('sweepstakes_milestones')->where('status', 'active')->where('trigger_type', 'nth_signup')->pluck('id');
+        if ($ids->isEmpty()) return;
+        foreach ($ids as $mid) {
             try {
-                DB::transaction(function () use ($m, $no, $userId, $count, $seq) {
-                    $row = DB::table('sweepstakes_milestones')->where('id', $m->id)->lockForUpdate()->first();
+                DB::transaction(function () use ($mid, $userId) {
+                    $row = DB::table('sweepstakes_milestones')->where('id', $mid)->lockForUpdate()->first();
                     if (!$row || $row->status !== 'active') return;
+                    $n = max(1, (int) $row->every_n);
+                    $seq = (int) $row->signup_counter + 1;                       // 켠 뒤 몇 번째 인증 완료 회원인지
+                    DB::table('sweepstakes_milestones')->where('id', $row->id)->update(['signup_counter' => $seq]);
+                    if ($seq < $n || $seq % $n !== 0) return;
+                    $no = intdiv($seq, $n);
                     if ($row->max_awards !== null && $row->awards_done >= $row->max_awards) {
                         DB::table('sweepstakes_milestones')->where('id', $row->id)->update(['status' => 'stopped', 'updated_at' => now()]);
                         return;

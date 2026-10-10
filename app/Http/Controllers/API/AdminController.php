@@ -69,8 +69,19 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>$query->paginate($perPage)]);
     }
 
+    // 운영진(운영자·관리자·최고관리자) 계정은 최고관리자만 건드릴 수 있다 (본인 제외)
+    private function guardStaffTarget(User $target): ?\Illuminate\Http\JsonResponse {
+        $actor = auth()->user();
+        if (in_array($target->role, ['moderator', 'admin', 'super_admin'], true) && $actor->role !== 'super_admin' && $actor->id !== $target->id) {
+            return response()->json(['success' => false, 'message' => '운영진 계정은 최고관리자만 바꿀 수 있어요.'], 403);
+        }
+        return null;
+    }
+
     public function banUser(Request $request, $id) {
         $u = User::findOrFail($id);
+        if ($deny = $this->guardStaffTarget($u)) return $deny;
+        if ($u->id === auth()->id()) return response()->json(['success' => false, 'message' => '본인 계정은 정지할 수 없어요.'], 422);
         // Issue #6: 민감 필드는 forceFill 로 명시 설정
         $u->forceFill(['is_banned'=>true,'ban_reason'=>$request->reason])->save();
         return response()->json(['success'=>true]);
@@ -78,6 +89,7 @@ class AdminController extends Controller
 
     public function unbanUser($id) {
         $u = User::findOrFail($id);
+        if ($deny = $this->guardStaffTarget($u)) return $deny;
         $u->forceFill(['is_banned'=>false,'ban_reason'=>null])->save();
         return response()->json(['success'=>true]);
     }
@@ -378,12 +390,22 @@ class AdminController extends Controller
     public function updateUser(Request $request, $id) {
         $admin = auth()->user();
         $user = User::findOrFail($id);
+        if ($deny = $this->guardStaffTarget($user)) return $deny;
+        $request->validate(['role' => 'sometimes|in:user,business,moderator,admin,super_admin']);
         $user->update($request->only('name','nickname','email','city','state','phone','bio'));
 
         // role/points/game_points/is_banned/ban_reason은 User::$fillable에서 의도적으로
         // 제외돼 있어(mass-assignment 방지 주석 참고) 위 update()로는 저장되지 않고 조용히
         // 무시됨 — forceFill로 명시적으로 반영. role 변경은 권한 상승 위험이 있어 super_admin만 허용.
-        $sensitive = $request->only('points', 'game_points', 'is_banned', 'ban_reason');
+        // 포인트를 값으로 덮어쓰지 않는다(동시에 바뀐 값을 지우고 기록도 안 남음) — 차이만 계산해 기록과 함께 증감하고, 최고관리자만 가능.
+        if ($request->has('points') && is_numeric($request->points) && (int) $request->points !== (int) $user->points) {
+            if ($admin->role !== 'super_admin') {
+                return response()->json(['success' => false, 'message' => '포인트 조정은 최고관리자만 할 수 있어요. (회원 상세의 "포인트 지급/차감"을 이용하세요)'], 403);
+            }
+            $delta = (int) $request->points - (int) $user->points;
+            $user->addPoints($delta, '관리자 직접 수정 (' . $admin->id . ')', 'admin_adjust');
+        }
+        $sensitive = $request->only('is_banned', 'ban_reason');   // game_points 는 여기서 바꾸지 않는다
         if ($request->has('role')) {
             if ($admin->role !== 'super_admin') {
                 return response()->json(['success' => false, 'message' => '등급 변경은 슈퍼관리자만 가능합니다'], 403);
@@ -548,6 +570,14 @@ class AdminController extends Controller
 
     public function approveClaim($id) {
         $claim = BusinessClaim::with('business', 'user')->findOrFail($id);
+        // 이미 처리된 신청을 다시 승인하면 포인트·배지가 두 번 지급되므로 대기 중일 때만 승인한다
+        if ($claim->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => '이미 처리된 신청이에요 (' . $claim->status . ')'], 422);
+        }
+        // 다른 사람이 이미 소유자로 등록된 업소는 덮어쓰지 않는다 (먼저 그 소유자의 신청을 취소해야 함)
+        if ($claim->business->owner_id && (int) $claim->business->owner_id !== (int) $claim->user_id) {
+            return response()->json(['success' => false, 'message' => '이미 다른 소유자가 등록된 업소예요. 기존 소유자의 신청을 먼저 취소해 주세요.'], 422);
+        }
         $claim->update(['status' => 'approved']);
         $claim->business->update(['is_claimed' => true, 'owner_id' => $claim->user_id]);
 
@@ -581,7 +611,10 @@ class AdminController extends Controller
     public function rejectClaim(Request $request, $id) {
         $claim = BusinessClaim::with('business')->findOrFail($id);
         $claim->update(['status' => 'rejected', 'notes' => $request->notes]);
-        $claim->business->update(['is_claimed' => false, 'owner_id' => null]);
+        // 이 신청자가 지금 소유자일 때만 업소의 소유자 칸을 비운다 (다른 정상 소유자의 정보를 지우지 않도록)
+        if ($claim->business && (int) $claim->business->owner_id === (int) $claim->user_id) {
+            $claim->business->update(['is_claimed' => false, 'owner_id' => null]);
+        }
 
         // 거절 시에도 신청자에게 통지가 전혀 없던 문제 수정.
         if ($claim->user_id) {
