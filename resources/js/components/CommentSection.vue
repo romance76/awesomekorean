@@ -8,7 +8,7 @@
   <div v-if="auth.isLoggedIn" class="px-5 py-3 border-b border-gray-50">
     <VerifyGate message="이메일 인증 후 댓글을 쓸 수 있어요.">
     <div class="flex gap-3">
-      <div class="flex-shrink-0 -mt-1.5 -ml-1.5"><UserAvatar :user="auth.user" :size="52" /></div>
+      <div class="flex-shrink-0"><UserAvatar :user="auth.user" :size="46" /></div>
       <div class="flex-1">
         <textarea v-model="newComment" rows="1" placeholder="댓글 추가..." class="w-full border-0 border-b-2 border-gray-200 text-sm text-ink placeholder:text-ink-faint resize-none outline-none focus:border-amber-400 transition" style="padding:0;line-height:1.2;height:25px;margin:0" @focus="$event.target.rows=3" @blur="blurComment($event)" @keydown="onEnter($event, null)" @compositionend="onCompEnd"></textarea>
         <div v-if="newComment.trim()" class="flex justify-end gap-2 mt-2">

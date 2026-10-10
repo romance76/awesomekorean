@@ -1,34 +1,39 @@
 <template>
-<div class="flex gap-3">
-  <div class="flex-shrink-0 -mt-1.5 -ml-1.5">
-    <UserAvatar :user="comment.user" :size="isReply ? 40 : 52" />
+<div class="flex gap-2.5">
+  <!-- 작성자 사진(등급 링) — 이름·시간이 들어갈 폭을 너무 줄이지 않게 적당한 크기 -->
+  <div class="flex-shrink-0">
+    <UserAvatar :user="comment.user" :size="isReply ? 38 : 46" />
   </div>
   <div class="flex-1 min-w-0">
-    <!-- 헤더: 이름 + 날짜 + 신고 -->
-    <div class="flex items-center gap-2">
-      <UserName :userId="comment.user?.id" :name="comment.user?.name" :className="isReply ? 'text-xs font-bold text-ink' : 'text-sm font-bold text-ink'" />
-      <span class="text-[11px] text-ink-muted">{{ relativeDate }}</span>
-      <span class="text-[11px] text-ink-faint">{{ fullDate }}</span>
-      <button v-if="auth.user?.id === comment.user_id && !editing && !comment._local" @click="startEdit" class="ml-auto text-gray-300 hover:text-amber-600 transition-colors" title="수정"><AppIcon name="edit" :size="14" /></button>
-      <button v-if="auth.user?.id === comment.user_id && !comment._local" @click="deleteComment" class="text-gray-300 hover:text-red-500 transition-colors" :class="editing ? 'ml-auto' : ''" title="삭제"><AppIcon name="trash" :size="14" /></button>
-      <button v-if="!comment._local" @click="showReportModal=true" class="text-gray-300 hover:text-ink-muted transition-colors" :class="auth.user?.id === comment.user_id ? '' : 'ml-auto'" title="신고"><AppIcon name="flag" :size="14" /></button>
+    <!-- 헤더: 이름 + 시간(줄바꿈 없이) + 수정/삭제/신고 -->
+    <div class="flex items-center gap-1.5 min-w-0">
+      <UserName :userId="comment.user?.id" :name="comment.user?.name" :className="(isReply ? 'text-xs' : 'text-[13px]') + ' font-bold text-ink whitespace-nowrap truncate max-w-[9rem]'" />
+      <span class="text-[11px] text-ink-muted whitespace-nowrap flex-shrink-0">{{ relativeDate }}</span>
+      <span class="text-[11px] text-ink-faint whitespace-nowrap hidden sm:inline">{{ fullDate }}</span>
+      <span class="ml-auto flex items-center gap-2 flex-shrink-0">
+        <button v-if="auth.user?.id === comment.user_id && !editing && !comment._local" @click="startEdit" class="text-gray-300 hover:text-amber-600 transition-colors" title="수정"><AppIcon name="edit" :size="14" /></button>
+        <button v-if="auth.user?.id === comment.user_id && !comment._local" @click="deleteComment" class="text-gray-300 hover:text-red-500 transition-colors" title="삭제"><AppIcon name="trash" :size="14" /></button>
+        <button v-if="!comment._local" @click="showReportModal=true" class="text-gray-300 hover:text-ink-muted transition-colors" title="신고"><AppIcon name="flag" :size="14" /></button>
+      </span>
     </div>
     <!-- 내용 -->
-    <div v-if="!editing" class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed" :class="comment._pending ? 'opacity-60' : ''">{{ comment.content }}</div>
-    <div v-if="comment._pending" class="text-[11px] text-ink-faint mt-0.5">등록 중...</div>
-    <div v-else-if="comment._failed" class="text-[11px] text-red-500 mt-0.5">
-      {{ comment._error || '등록 실패' }}
-      <button type="button" @click="$emit('resend', comment)" class="ml-1 font-bold underline">재전송</button>
-      <button type="button" @click="$emit('discard', comment)" class="ml-1 text-ink-faint underline">삭제</button>
-    </div>
-    <div v-else class="mt-1">
+    <div v-if="!editing" class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed break-words" :class="comment._pending ? 'opacity-60' : ''">{{ comment.content }}</div>
+    <template v-if="!editing">
+      <div v-if="comment._pending" class="text-[11px] text-ink-faint mt-0.5">등록 중...</div>
+      <div v-else-if="comment._failed" class="text-[11px] text-red-500 mt-0.5">
+        {{ comment._error || '등록 실패' }}
+        <button type="button" @click="$emit('resend', comment)" class="ml-1 font-bold underline">재전송</button>
+        <button type="button" @click="$emit('discard', comment)" class="ml-1 text-ink-faint underline">삭제</button>
+      </div>
+    </template>
+    <!-- 수정 입력 상자 — 수정 버튼을 눌렀을 때만 나타난다 (예전엔 v-else 연결이 잘못돼 항상 떠 있었음) -->
+    <div v-if="editing" class="mt-1">
       <textarea ref="editBox" v-model="editText" rows="3" maxlength="1000" class="input-soft w-full text-sm" @keydown="onEditEnter" @compositionend="onEditCompEnd" @keydown.esc="editing = false"></textarea>
       <div class="flex justify-end gap-2 mt-1">
         <button @click="editing = false" class="text-xs text-ink-muted px-3 py-1 rounded-full hover:bg-gray-100">취소</button>
         <button @click="saveEdit" :disabled="!editText.trim()" class="text-xs bg-amber-400 text-white font-bold px-3 py-1 rounded-full hover:bg-amber-500 disabled:opacity-50">저장</button>
       </div>
-    </div>
-    <!-- 액션: 좋아요 싫어요 답글 -->
+    </div>    <!-- 액션: 좋아요 싫어요 답글 -->
     <div v-if="!comment._local" class="flex items-center gap-3 mt-1.5">
       <button @click="vote('like')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full transition-colors" :class="myVote==='like' ? 'text-blue-600' : 'text-ink-muted'">
         <AppIcon name="thumbs-up" :size="13" /> <span v-if="localLikes">{{ localLikes }}</span>
