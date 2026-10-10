@@ -39,8 +39,9 @@ Schedule::command('music:fetch --daily=125 --max-searches=12')->cron('10 9,13,17
 // 등록돼 있지 않아 관리자가 수동으로 누르지 않는 한 절대 갱신되지 않았음.
 Schedule::command('recipes:sync-all')->dailyAt('04:00')->withoutOverlapping()->appendOutputTo($contentLog);
 
-Schedule::command('elder:check')->everyMinute();
-Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
+// 안심서비스 보류(2026-10-10): 서버 부하 절감을 위해 매분 작업 중지. 재개하려면 주석 해제.
+// Schedule::command('elder:check')->everyMinute();
+// Schedule::command('elder:call')->everyMinute()->withoutOverlapping();
 Schedule::command('calls:cleanup')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('reservations:expire')->everyMinute();
 Schedule::command('promotions:expire')->everyMinute();
@@ -53,10 +54,11 @@ Schedule::command('sweepstakes:notify-winners')->everyMinute()->withoutOverlappi
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();
 
+// 게임(포커) 보류(2026-10-10): 서버 부하 절감을 위해 자동 생성/시작 중지. 재개하려면 주석 해제.
 // 포커 토너먼트 자동 생성 (매일 00:10 — 내일 스케줄 생성)
-Schedule::command('poker:generate-tournaments')->dailyAt('00:10');
+// Schedule::command('poker:generate-tournaments')->dailyAt('00:10');
 // 포커 토너먼트 자동 시작 (매분 — 시간 된 토너먼트 시작)
-Schedule::command('poker:start-tournaments')->everyMinute()->withoutOverlapping();
+// Schedule::command('poker:start-tournaments')->everyMinute()->withoutOverlapping();
 
 // 한인 업소 Google Places 업데이트 — 17개 도시 × 46개 검색어(약 800회 이상 유료 요청)라 매일 돌리면
 // 비용이 크다. 서버 cron 이 매분 정확히 돌게 된 뒤로는 실제로 매일 실행되므로 주 1회(일요일 새벽)로 낮춤.
