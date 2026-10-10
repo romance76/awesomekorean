@@ -72,12 +72,13 @@
 
     <BottomNav v-if="showNav" />
     <!-- 하단 메뉴 높이만큼 비워 두는 칸 — 앱(홈 화면 추가) 모드는 하단 메뉴가 홈 표시줄 영역(safe-area)만큼 더 높아서 그 값도 더한다 -->
-    <div v-if="showNav" class="md:hidden" style="height: calc(4.25rem + var(--sab, 0px) + var(--mini-strip-page, 0px))"></div>
+    <div v-if="showNav" class="md:hidden" style="height: calc(4.25rem * var(--ui, 1) + var(--sab, 0px) + var(--mini-strip-page, 0px))"></div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { syncEasyViewFromUser } from './composables/useEasyView'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
 import { useSiteStore } from './stores/site'
@@ -136,6 +137,8 @@ function sendVisit() {
   if (document.visibilityState === 'hidden') return
   axios.post('/api/site/ping', { vid: visitorId() }).catch(() => {})
 }
+// 로그인한 회원의 '큰 글씨' 설정을 서버 값과 맞춘다 (더 최근에 바꾼 쪽이 이김)
+watch(() => auth.user?.id, (id) => { if (id) syncEasyViewFromUser(auth.user) }, { immediate: true })
 onMounted(() => { auth.startSessionWatch(); sendVisit(); visitTimer = setInterval(sendVisit, 120000); document.addEventListener('visibilitychange', sendVisit) })
 onUnmounted(() => { clearInterval(visitTimer); document.removeEventListener('visibilitychange', sendVisit) })
 

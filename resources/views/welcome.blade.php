@@ -15,6 +15,7 @@
             $bootLogoDark = \App\Models\SiteSetting::where('key', 'logo_dark_url')->value('value');
         } catch (\Throwable $e) { $bootLogo = null; $bootLogoDark = null; }
     @endphp
+    <script>try{var e=JSON.parse(localStorage.getItem('ak_easy_view')||'null');if(e&&e.level&&e.level!=='md'||e&&e.hc){var r=document.documentElement,l={lg:[1.25,1.2],xl:[1.5,1.4],md:[1,1]}[e.level]||[1,1];r.classList.add('easy-view');if(e.hc)r.classList.add('ev-hc');r.style.setProperty('--fs',l[0]);r.style.setProperty('--ui',l[1]);if(/^\/(admin|games|poker)(\/|$)/.test(location.pathname))r.classList.add('ev-pause')}}catch(_){}</script>
     <script>window.__BOOT__ = @json(['logo_url' => $bootLogo ?: null, 'logo_dark_url' => $bootLogoDark ?: null]);</script>
     @if($bootLogo)<link rel="preload" as="image" href="{{ $bootLogo }}">@endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])

@@ -56,6 +56,20 @@ class ProfileController extends Controller
         return response()->json(['success' => true, 'data' => $data]);
     }
 
+    // "큰 글씨로 보기" 설정 저장 (크기|진하게|바꾼 시각) — 다른 기기에서도 같은 크기로 열리게
+    public function saveEasyView(Request $request)
+    {
+        $d = $request->validate([
+            'level' => 'required|in:md,lg,xl',
+            'hc' => 'required|boolean',
+            'ts' => 'required|integer|min:0',
+        ]);
+        \Illuminate\Support\Facades\DB::table('users')->where('id', $request->user()->id)->update([
+            'easy_view_prefs' => $d['level'] . '|' . ($d['hc'] ? 1 : 0) . '|' . $d['ts'],
+        ]);
+        return response()->json(['success' => true]);
+    }
+
     public function update(Request $request)
     {
         // 서버측 검증이 전혀 없어 글자수 제한 없는 값이 그대로 저장되던 문제 수정

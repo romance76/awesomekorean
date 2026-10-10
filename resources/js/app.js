@@ -6,6 +6,7 @@ import router from './router'
 import { useAuthStore } from './stores/auth'
 import { useSiteStore } from './stores/site'
 import { useModal } from './composables/useModal'
+import { apply as applyEasyView, setEasyViewEnabled } from './composables/useEasyView'
 
 const pinia = createPinia()
 import UserName from './components/UserName.vue'
@@ -33,7 +34,16 @@ window.nativeAlert = window.alert.bind(window)
 window.alert = (msg) => { useModal().showAlert(String(msg ?? '')) }
 
 const siteStore = useSiteStore()
-siteStore.load()
+// 큰 글씨로 보기: 이 폰에 저장된 설정을 바로 적용하고, 사이트 설정에서 기능을 꺼 두었으면 원래 화면으로 돌린다
+applyEasyView()
+siteStore.load().then(() => {
+  const v = siteStore.settings?.easy_view_enabled
+  setEasyViewEnabled(!(v === '0' || v === 0 || v === false))
+})
+// 관리자·게임 화면은 큰 글씨 적용에서 제외 (html.ev-pause)
+router.afterEach((to) => {
+  document.documentElement.classList.toggle('ev-pause', /^\/(admin|games|poker)(\/|$)/.test(to.path))
+})
 
 // 라우터의 첫 네비게이션(비동기 가드 포함)이 끝나기 전에 마운트하면,
 // route.path가 아직 시작 위치('/')인 상태로 한 프레임 그려졌다가

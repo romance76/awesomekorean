@@ -15,6 +15,12 @@
     <p v-if="msg" class="text-[14px] rounded-xl p-3 bg-emerald-50 text-emerald-700">{{ msg }}</p>
   </div>
   <div class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-2">
+    <div class="text-[16px] font-bold text-ink">큰 글씨로 보기 기능</div>
+    <p class="text-[13px] text-ink-muted leading-relaxed">회원이 헤더의 "가가" 아이콘으로 글씨 크기를 키우는 기능이에요. 끄면 아이콘이 사라지고 모든 화면이 원래 크기로 돌아가요(회원이 저장한 설정은 지워지지 않아요).</p>
+    <button @click="toggleEasyView" :disabled="evBusy" class="w-full min-h-[52px] rounded-xl text-[16px] font-bold disabled:opacity-50" :class="evOn ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-ink'">{{ evOn ? '켜짐 — 누르면 끕니다' : '꺼짐 — 누르면 켭니다' }}</button>
+    <p v-if="evMsg" class="text-[14px] text-emerald-700">{{ evMsg }}</p>
+  </div>
+  <div class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-2">
     <div class="text-[16px] font-bold text-ink">콘텐츠 자동 수집</div>
     <p class="text-[13px] text-ink-muted leading-relaxed">뉴스·헤드라인·주식 시세·쇼츠·음악·레시피·업소록·부동산·중고장터·정보를 버튼 하나로 순서대로 실행해요 (하나가 실패해도 나머지는 계속돼요). 매일 자동으로도 수집돼요.</p>
     <ContentSyncPanel button-label="전체 자동 수집 실행" />
@@ -41,6 +47,12 @@
       <button @click="clearCache" :disabled="clearing" class="btn-primary px-4 py-2 disabled:opacity-50">{{ clearing ? '초기화중...' : '캐시 초기화' }}</button>
       <div v-if="msg" class="text-green-600 text-sm">{{ msg }}</div>
     </div>
+    <div class="card p-4 space-y-2">
+      <div class="font-bold text-sm text-ink mb-2">큰 글씨로 보기 기능</div>
+      <div class="text-sm text-ink-muted">회원이 헤더의 "가가" 아이콘으로 글씨 크기를 키우는 기능입니다. 끄면 아이콘이 사라지고 모든 화면이 원래 크기로 돌아갑니다(회원이 저장한 설정은 지워지지 않습니다).</div>
+      <button @click="toggleEasyView" :disabled="evBusy" class="px-4 py-2 rounded-xl font-bold text-sm disabled:opacity-50" :class="evOn ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-ink'">{{ evOn ? '켜짐 — 클릭하면 끕니다' : '꺼짐 — 클릭하면 켭니다' }}</button>
+      <div v-if="evMsg" class="text-green-600 text-sm">{{ evMsg }}</div>
+    </div>
     <div class="card p-4 space-y-2 lg:col-span-2">
       <div class="font-bold text-sm text-ink mb-2">콘텐츠 자동 수집</div>
       <div class="text-sm text-ink-muted">뉴스 · 헤드라인 · 주식 시세 · 쇼츠 · 음악 · 레시피 · 업소록 · 부동산 · 중고장터 · 정보를 버튼 하나로 순서대로 실행합니다 (백그라운드 실행, 하나가 실패해도 나머지는 계속 진행됩니다). 이 항목들은 매일 자동으로도 수집됩니다.</div>
@@ -50,7 +62,7 @@
 </div>
 </template>
 <script setup>
-import { ref, computed, inject } from 'vue'
+import { ref, computed, inject, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import ContentSyncPanel from '../../components/ContentSyncPanel.vue'
@@ -59,6 +71,22 @@ const adminIsMobile = inject('adminIsMobile', ref(false))
 const isMobile = computed(() => !!adminIsMobile.value)
 
 const msg = ref('')
+// 큰 글씨로 보기 기능 켜기/끄기 (사이트 설정 easy_view_enabled)
+const evOn = ref(true), evBusy = ref(false), evMsg = ref('')
+onMounted(async () => {
+  try { const { data } = await axios.get('/api/settings/public'); evOn.value = !['0', 0, false].includes(data.data?.easy_view_enabled) } catch {}
+})
+async function toggleEasyView() {
+  evBusy.value = true
+  const next = !evOn.value
+  try {
+    await axios.put('/api/admin/settings', { easy_view_enabled: next ? '1' : '0' })
+    evOn.value = next
+    evMsg.value = next ? '켰어요. 회원 화면에는 곧(최대 30분 안에) 반영돼요.' : '껐어요. 회원 화면에서 아이콘이 사라지고 원래 크기로 돌아가요.'
+  } catch (e) { evMsg.value = e.response?.data?.message || '저장하지 못했어요.' }
+  evBusy.value = false
+  setTimeout(() => evMsg.value = '', 6000)
+}
 const clearing = ref(false)
 async function clearCache() {
   clearing.value = true

@@ -31,10 +31,7 @@
       <!-- Auth -->
       <div class="flex items-center gap-1.5 flex-shrink-0">
         <template v-if="auth.isLoggedIn">
-          <!-- 큰 글씨로 보기 (테스트 중 — 관리자에게만 보임) -->
-          <RouterLink v-if="auth.isAdmin" to="/easy-test" aria-label="큰 글씨로 보기" title="큰 글씨로 보기" class="p-2 text-ink-light hover:text-amber-500 transition-colors flex items-center justify-center" style="min-width:36px">
-            <span class="font-black leading-none" style="font-size:17px">가<span style="font-size:11px">가</span></span>
-          </RouterLink>
+          <EasyViewButton />
           <div class="relative notif-bell">
             <button @click="toggleNotifs" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors">
               <AppIcon name="bell" :size="20" />
@@ -197,6 +194,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLangStore } from '../stores/lang'
 import AppIcon from './AppIcon.vue'
+import EasyViewButton from './EasyViewButton.vue'
 import UserAvatar from './UserAvatar.vue'
 import { menuIcon, menuChipColor } from '../utils/menuIcons'
 

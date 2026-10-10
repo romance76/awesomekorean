@@ -66,7 +66,7 @@ class AdminSettingsController extends Controller
 
     public function getPublic() {
         $settings = Cache::remember(self::SETTINGS_PUBLIC_CACHE_KEY, 1800, function () {
-            $keys = ['site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config','footer_config'];
+            $keys = ['easy_view_enabled','site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config','footer_config'];
             return SiteSetting::whereIn('key', $keys)->pluck('value','key');
         });
         return response()->json(['success'=>true,'data'=>$settings]);

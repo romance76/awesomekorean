@@ -256,6 +256,7 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/user/profile', [ProfileController::class, 'update']);
+    Route::put('/user/easy-view', [ProfileController::class, 'saveEasyView'])->middleware('throttle:60,1');
     Route::post('/user/avatar', [ProfileController::class, 'uploadAvatar']);
     Route::delete('/user/delete', [ProfileController::class, 'deleteAccount']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
