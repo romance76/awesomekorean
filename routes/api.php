@@ -761,6 +761,9 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
         // 로그인 잠금 / 서버(SSH) 자동 차단 IP
         Route::get('/security/login-locks', [\App\Http\Controllers\API\AdminSecurityController::class, 'loginLocks']);
         Route::post('/security/login-unlock', [\App\Http\Controllers\API\AdminSecurityController::class, 'unlockLogin'])->middleware('throttle:30,1');
+        // 계정·이메일 현황 (이메일 주소·용도 — 키/비밀번호 값은 포함하지 않음) + 직접 적어 두는 계정 메모
+        Route::get('/accounts-overview', [\App\Http\Controllers\API\AdminAccountsController::class, 'index']);
+        Route::post('/accounts-overview/memos', [\App\Http\Controllers\API\AdminAccountsController::class, 'saveMemos'])->middleware('throttle:20,1');
         Route::get('/security/server-bans', [\App\Http\Controllers\API\AdminSecurityController::class, 'serverBans']);
         Route::post('/security/server-unban', [\App\Http\Controllers\API\AdminSecurityController::class, 'serverUnban'])->middleware('throttle:30,1');
         // 방문 분석(구글 애널리틱스) 상태 / 사이트 전체 추적 코드 검사

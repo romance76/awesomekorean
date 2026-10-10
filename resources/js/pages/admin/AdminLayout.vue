@@ -194,6 +194,7 @@ const subTabs = {
   ],
   system: [
     { to: '/admin/security', icon: 'lock', label: '보안/신고' },
+    { to: '/admin/accounts', icon: 'mail', label: '계정·이메일 현황' },
     { to: '/admin/todos', icon: 'list', label: '할 일 목록' },
     { to: '/admin/analytics', icon: 'chart-bar', label: '방문 분석' },
     { to: '/admin/settings', icon: 'settings', label: '설정' },
@@ -326,7 +327,7 @@ const mBack = computed(() => {
 })
 // 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
 // (회원관리·게시판 관리처럼 이미 휴대폰용으로 만든 화면은 확대하지 않음)
-const MOBILE_NATIVE = ['/admin/members', '/admin/community', '/admin/jobs', '/admin/market', '/admin/realestate', '/admin/clubs', '/admin/qa', '/admin/events', '/admin/directory', '/admin/friends', '/admin/todos', '/admin/payments', '/admin/security', '/admin/banners', '/admin/flyers', '/admin/ad-center', '/admin/pricing', '/admin/revenue', '/admin/analytics', '/admin/overview', '/admin/open-event', '/admin/entry-settings', '/admin/system', '/admin/sweepstakes', '/admin/hero-banners', '/admin/popup-banners', '/admin/settings', '/admin/claims', '/admin/rewards', '/admin/info', '/admin/content', '/admin/boards', '/admin/news', '/admin/shorts', '/admin/recipes', '/admin/groupbuy', '/admin/music', '/admin/shopping', '/admin/games', '/admin/poker', '/admin/elder', '/admin/chats', '/admin/calls', '/admin/communication']
+const MOBILE_NATIVE = ['/admin/members', '/admin/community', '/admin/jobs', '/admin/market', '/admin/realestate', '/admin/clubs', '/admin/qa', '/admin/events', '/admin/directory', '/admin/friends', '/admin/todos', '/admin/payments', '/admin/security', '/admin/accounts', '/admin/banners', '/admin/flyers', '/admin/ad-center', '/admin/pricing', '/admin/revenue', '/admin/analytics', '/admin/overview', '/admin/open-event', '/admin/entry-settings', '/admin/system', '/admin/sweepstakes', '/admin/hero-banners', '/admin/popup-banners', '/admin/settings', '/admin/claims', '/admin/rewards', '/admin/info', '/admin/content', '/admin/boards', '/admin/news', '/admin/shorts', '/admin/recipes', '/admin/groupbuy', '/admin/music', '/admin/shopping', '/admin/games', '/admin/poker', '/admin/elder', '/admin/chats', '/admin/calls', '/admin/communication']
 const mLegacy = computed(() => route.path !== '/admin' && !isHub.value && !MOBILE_NATIVE.some(n => route.path === n || (n === '/admin/games' && route.path.startsWith(n + '/'))))
 
 function isMainActive(item) {

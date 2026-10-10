@@ -226,6 +226,7 @@ const routes = [
       { path: 'payments', component: p('admin/Payments') },
       { path: 'revenue', component: p('admin/Revenue') },
       { path: 'security', component: p('admin/AdminSecurity') },
+      { path: 'accounts', component: p('admin/AdminAccounts') },
       { path: 'todos', component: p('admin/AdminTodos') },
       { path: 'analytics', component: p('admin/AdminAnalytics') },
       { path: 'open-event', component: p('admin/AdminOpenEvent') },

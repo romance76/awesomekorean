@@ -51,6 +51,7 @@ const quick = computed(() => [
   { to: '/admin/members', icon: 'users', label: '회원관리' },
   { to: '/admin/payments', icon: 'wallet', label: '결제/오더' },
   { to: '/admin/security', icon: 'lock', label: '보안/신고' },
+  { to: '/admin/accounts', icon: 'mail', label: '계정·이메일 현황' },
   ...(isSuper.value ? [
     { to: '/admin/todos', icon: 'list', label: '할 일 목록' },
     { to: '/admin/open-event', icon: 'gift', label: '오픈 이벤트', isNew: true },
