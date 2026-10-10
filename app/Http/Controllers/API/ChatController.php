@@ -31,9 +31,9 @@ class ChatController extends Controller
         $rooms = ChatRoom::whereIn('id', $allRoomIds)
             ->withCount('users')
             ->with([
-                'messages' => fn($q) => $q->latest()->limit(1)->with('user:id,name,nickname,avatar,role'),
+                'messages' => fn($q) => $q->latest()->limit(1)->with('user:id,name,nickname,avatar,lifetime_points,role'),
                 // DM 방 이름 매핑(Issue #22)용 — 실제 User 엔티티 로드
-                'participants:id,name,nickname,avatar,role',
+                'participants:id,name,nickname,avatar,lifetime_points,role',
             ])
             ->orderByDesc('updated_at')
             ->get();
@@ -137,7 +137,7 @@ class ChatController extends Controller
 
         $rooms = ChatRoom::whereIn('id', $matchedRoomIds)
             ->withCount('users')
-            ->with(['participants:id,name,nickname,avatar,role'])
+            ->with(['participants:id,name,nickname,avatar,lifetime_points,role'])
             ->orderByDesc('updated_at')
             ->limit(30)
             ->get();
@@ -197,7 +197,7 @@ class ChatController extends Controller
     // 단일 방 조회 (URL /chat/:id 직접 진입·새로고침 복원용)
     public function showRoom($id) {
         $userId = auth()->id();
-        $room = ChatRoom::with(['participants:id,name,nickname,avatar,role'])
+        $room = ChatRoom::with(['participants:id,name,nickname,avatar,lifetime_points,role'])
             ->withCount('users')
             ->findOrFail($id);
 
@@ -313,7 +313,7 @@ class ChatController extends Controller
         $room = ChatRoom::findOrFail($id);
         if (!\App\Support\ChatAccess::hasPublicAccess($room, auth()->user())) return \App\Support\ChatAccess::denied();
 
-        $msgs = ChatMessage::with('user:id,name,nickname,avatar')
+        $msgs = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('chat_room_id', $id)
             ->where('content', 'like', '%' . $q . '%')
             ->orderByDesc('created_at')
@@ -440,7 +440,7 @@ class ChatController extends Controller
 
         $users = \App\Models\User::whereIn('id', $allIds)
             ->where('is_banned', false)
-            ->select('id','name','nickname','avatar','role','city','state','bio','allow_friend_request','allow_messages','last_active_at')
+            ->select('id','name','nickname','avatar','lifetime_points','role','city','state','bio','allow_friend_request','allow_messages','last_active_at')
             ->orderByDesc('last_active_at')
             ->get();
 
@@ -483,21 +483,21 @@ class ChatController extends Controller
         $aroundId = (int) request('around');
         $center = $aroundId ? ChatMessage::where('chat_room_id', $id)->find($aroundId) : null;
         if ($center) {
-            $older = ChatMessage::with('user:id,name,nickname,avatar,role')
+            $older = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')
                 ->where('chat_room_id', $id)->where('id', '<=', $center->id)
                 ->orderByDesc('id')->limit(26)->get();
-            $newer = ChatMessage::with('user:id,name,nickname,avatar,role')
+            $newer = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')
                 ->where('chat_room_id', $id)->where('id', '>', $center->id)
                 ->orderBy('id')->limit(25)->get();
             $messages = $newer->reverse()->values()->concat($older)->values();
         } else {
-            $messages = ChatMessage::with('user:id,name,nickname,avatar,role')
+            $messages = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')
                 ->where('chat_room_id',$id)
                 ->orderByDesc('created_at')
                 ->paginate(50);
         }
 
-        $pinned = ChatMessage::with('user:id,name,nickname,avatar,role')
+        $pinned = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')
             ->where('chat_room_id', $id)
             ->where('type', 'system')
             ->where('pinned_until', '>', now())
@@ -700,7 +700,7 @@ class ChatController extends Controller
 
         // 보낸 사람 정보는 한 번만 불러와 브로드캐스트·응답에 같이 쓴다
         foreach ($created as $m) {
-            $m->load('user:id,name,nickname,avatar,role');
+            $m->load('user:id,name,nickname,avatar,lifetime_points,role');
         }
 
         // 마지막 메시지 시각 갱신 (자동 잠금 판단 기준)

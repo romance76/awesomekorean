@@ -34,7 +34,7 @@ class CommentController extends Controller
         $modelType = $this->resolveType($type);
         if (!$modelType) return response()->json(['success' => false, 'message' => 'Invalid type'], 400);
 
-        $comments = Comment::with('user:id,name,nickname,avatar', 'replies.user:id,name,nickname,avatar')
+        $comments = Comment::with('user:id,name,nickname,avatar,lifetime_points', 'replies.user:id,name,nickname,avatar,lifetime_points')
             ->where('commentable_type', $modelType)
             ->where('commentable_id', $id)
             ->whereNull('parent_id')
@@ -68,7 +68,7 @@ class CommentController extends Controller
         try { $modelType::whereKey($request->commentable_id)->increment('comment_count'); } catch (\Throwable $e) {}
 
         $me = auth()->user();
-        $comment->load('user:id,name,nickname,avatar');
+        $comment->load('user:id,name,nickname,avatar,lifetime_points');
 
         // 댓글 작성 포인트(+활동 뱃지·Entry 보상) — 게시판 종류 무관 사이트 전체 통합 한도/금액 (WritePoints).
         // 포인트 계산 쿼리가 여러 번 나가 응답이 느려지므로 응답을 먼저 보낸 뒤 처리한다.

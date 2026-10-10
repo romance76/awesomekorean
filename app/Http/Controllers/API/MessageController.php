@@ -27,9 +27,9 @@ class MessageController extends Controller
 
         $query = Message::query();
         if ($tab === 'sent') {
-            $query->with('receiver:id,name,nickname,avatar')->where('sender_id', $userId)->where('sender_deleted', false);
+            $query->with('receiver:id,name,nickname,avatar,lifetime_points')->where('sender_id', $userId)->where('sender_deleted', false);
         } else {
-            $query->with('sender:id,name,nickname,avatar')->where('receiver_id', $userId)->where('receiver_deleted', false);
+            $query->with('sender:id,name,nickname,avatar,lifetime_points')->where('receiver_id', $userId)->where('receiver_deleted', false);
         }
 
         $messages = $query->orderByDesc('created_at')->paginate(20);

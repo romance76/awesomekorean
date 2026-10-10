@@ -17,7 +17,7 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
-        $query = Post::with('user:id,name,nickname,avatar', 'board:id,name,slug')
+        $query = Post::with('user:id,name,nickname,avatar,lifetime_points', 'board:id,name,slug')
             ->visible()
             ->when($request->board_id, fn($q, $v) => $q->where('board_id', $v))
             ->when($request->board_slug, fn($q, $v) => $q->whereHas('board', fn($b) => $b->where('slug', $v)))
@@ -41,7 +41,7 @@ class PostController extends Controller
 
     public function show($id)
     {
-        $post = Post::with('user:id,name,nickname,avatar', 'board:id,name,slug')->findOrFail($id);
+        $post = Post::with('user:id,name,nickname,avatar,lifetime_points', 'board:id,name,slug')->findOrFail($id);
 
         // index()는 visible() 스코프로 숨김글을 걸러내지만 show()는 그렇지 않아,
         // 숨김(관리자 숨김 또는 작성자 본인 삭제) 처리된 글도 직접 URL로는 그대로
@@ -117,7 +117,7 @@ class PostController extends Controller
         ]);
 
         // 글 작성 포인트 — 게시판 종류 무관 사이트 전체 통합 한도/금액 (WritePoints)
-        \App\Support\WritePoints::award(auth()->user(), \App\Models\Post::class, $post->id, '게시글 작성');
+        \App\Support\WritePoints::awardLater(auth()->user(), \App\Models\Post::class, $post->id, '게시글 작성');
 
         return response()->json(['success' => true, 'data' => $post], 201);
     }

@@ -158,7 +158,7 @@ class JobController extends Controller
 
     public function show($id)
     {
-        $job = JobPost::with('user:id,name,nickname,avatar')->findOrFail($id);
+        $job = JobPost::with('user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
 
         // index()는 active() 스코프로 비활성(삭제된) 글을 걸러내지만 show()는 그렇지
         // 않아, 삭제된 글도 직접 URL로는 계속 전체 공개되던 문제(Post::show()와 동일 패턴).
@@ -251,7 +251,7 @@ class JobController extends Controller
 
             $job = JobPost::create($data);
 
-            \App\Support\WritePoints::award(auth()->user(), JobPost::class, $job->id, $postType === 'hiring' ? '구인글 작성' : '구직글 작성');
+            \App\Support\WritePoints::awardLater(auth()->user(), JobPost::class, $job->id, $postType === 'hiring' ? '구인글 작성' : '구직글 작성');
 
             return response()->json(['success' => true, 'data' => $job], 201);
         } catch (\Throwable $e) {
@@ -373,7 +373,7 @@ class JobController extends Controller
     {
         $job = JobPost::where('user_id', auth()->id())->findOrFail($id);
 
-        $apps = JobApplication::with(['user:id,name,nickname,avatar', 'resume'])
+        $apps = JobApplication::with(['user:id,name,nickname,avatar,lifetime_points', 'resume'])
             ->where('job_post_id', $id)
             ->orderByDesc('created_at')
             ->get();

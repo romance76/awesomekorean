@@ -66,7 +66,7 @@ class ConversationController extends Controller
             $conversation->messages()
                 ->reorder()
                 ->orderByDesc('id') // 최신 40개부터 (같은 초에 쓴 글도 순서 보장). 화면에서 뒤집어 표시
-                ->with('sender:id,name,nickname,avatar')
+                ->with('sender:id,name,nickname,avatar,lifetime_points')
                 ->paginate(40)
         );
     }

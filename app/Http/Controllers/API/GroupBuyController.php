@@ -28,7 +28,7 @@ class GroupBuyController extends Controller
 
     public function index(Request $request)
     {
-        $query = GroupBuy::with('user:id,name,nickname,avatar')
+        $query = GroupBuy::with('user:id,name,nickname,avatar,lifetime_points')
             ->approved()
             ->when($request->status, fn($q, $v) => $q->where('status', $v))
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
@@ -67,8 +67,8 @@ class GroupBuyController extends Controller
 
     public function show($id)
     {
-        $gb = GroupBuy::with(['user:id,name,nickname,avatar', 'participants' => function($q) {
-            $q->where('status', '!=', 'cancelled')->with('user:id,name,nickname,avatar');
+        $gb = GroupBuy::with(['user:id,name,nickname,avatar,lifetime_points', 'participants' => function($q) {
+            $q->where('status', '!=', 'cancelled')->with('user:id,name,nickname,avatar,lifetime_points');
         }])->findOrFail($id);
 
         $gb->append(['current_discount', 'current_price']);
@@ -412,7 +412,7 @@ class GroupBuyController extends Controller
         $gb = GroupBuy::findOrFail($id);
 
         $participants = $gb->participants()
-            ->with('user:id,name,nickname,avatar')
+            ->with('user:id,name,nickname,avatar,lifetime_points')
             ->where('status', '!=', 'cancelled')
             ->orderByDesc('created_at')
             ->get();

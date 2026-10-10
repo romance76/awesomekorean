@@ -69,7 +69,7 @@ class RecipeController extends Controller
     // GET /api/recipes/{id}
     public function show($id)
     {
-        $recipe = RecipePost::with('user:id,name,nickname,avatar')
+        $recipe = RecipePost::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('is_active', true)
             ->findOrFail($id);
         $recipe->increment('view_count');
@@ -154,7 +154,7 @@ class RecipeController extends Controller
             'is_active' => true,
         ]);
 
-        \App\Support\WritePoints::award(auth()->user(), RecipePost::class, $recipe->id, '레시피 등록');
+        \App\Support\WritePoints::awardLater(auth()->user(), RecipePost::class, $recipe->id, '레시피 등록');
 
         return response()->json(['success' => true, 'data' => $recipe], 201);
     }
@@ -237,7 +237,7 @@ class RecipeController extends Controller
     // GET /api/recipes/{id}/comments — 댓글(평점+리뷰) 리스트
     public function comments($id)
     {
-        $comments = RecipeRating::with('user:id,name,nickname,avatar')
+        $comments = RecipeRating::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('recipe_id', $id)
             ->orderByDesc('created_at')
             ->paginate(20);

@@ -61,7 +61,7 @@ class EventController extends Controller
 
     public function show($id)
     {
-        $event = Event::with('user:id,name,nickname,avatar')->findOrFail($id);
+        $event = Event::with('user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
         $event->increment('view_count');
 
         $data = $event->toArray();
@@ -256,7 +256,7 @@ class EventController extends Controller
                 'no_purchase_required_text' => $request->no_purchase_required_text,
             ]));
         } else {
-            \App\Support\WritePoints::award(auth()->user(), Event::class, $event->id, '이벤트 등록');
+            \App\Support\WritePoints::awardLater(auth()->user(), Event::class, $event->id, '이벤트 등록');
         }
 
         return response()->json(['success' => true, 'data' => $event], 201);
@@ -451,7 +451,7 @@ class EventController extends Controller
     {
         $event = Event::findOrFail($id);
         $attendees = EventAttendee::where('event_id', $id)
-            ->with('user:id,name,nickname,avatar')
+            ->with('user:id,name,nickname,avatar,lifetime_points')
             ->orderByDesc('created_at')
             ->get()
             ->map(fn($a) => [

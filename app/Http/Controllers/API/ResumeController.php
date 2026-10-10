@@ -11,7 +11,7 @@ class ResumeController extends Controller
     // 공개 이력서 목록
     public function index(Request $request)
     {
-        $query = Resume::with('user:id,name,nickname,avatar')
+        $query = Resume::with('user:id,name,nickname,avatar,lifetime_points')
             ->active()
             ->public()
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
@@ -23,7 +23,7 @@ class ResumeController extends Controller
     // 이력서 상세
     public function show($id)
     {
-        $resume = Resume::with('user:id,name,nickname,avatar')->findOrFail($id);
+        $resume = Resume::with('user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
         $resume->increment('view_count');
         return response()->json(['success' => true, 'data' => $resume]);
     }

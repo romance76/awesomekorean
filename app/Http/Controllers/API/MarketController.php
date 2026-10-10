@@ -79,7 +79,7 @@ class MarketController extends Controller
 
     public function show($id)
     {
-        $item = MarketItem::with(['user:id,name,nickname,avatar', 'reservations' => function($q) {
+        $item = MarketItem::with(['user:id,name,nickname,avatar,lifetime_points', 'reservations' => function($q) {
             $q->where('status', 'pending')->where('hold_until', '>', now())->with('buyer:id,name,nickname');
         }])->findOrFail($id);
         $item->increment('view_count');
@@ -90,7 +90,7 @@ class MarketController extends Controller
 
         // 거래 후기 (완료된 거래에 대해 서로 남긴 후기)
         $item->reviews = \App\Models\MarketReview::where('market_item_id', $id)
-            ->with(['reviewer:id,name,nickname,avatar', 'reviewee:id,name,nickname'])
+            ->with(['reviewer:id,name,nickname,avatar,lifetime_points', 'reviewee:id,name,nickname'])
             ->latest()->get();
 
         // 판매자 평균 평점 (이 유저가 판매자였던 모든 거래 기준)
@@ -220,7 +220,7 @@ class MarketController extends Controller
             ]
         ));
 
-        \App\Support\WritePoints::award($user, MarketItem::class, $item->id, '장터 글 작성');
+        \App\Support\WritePoints::awardLater($user, MarketItem::class, $item->id, '장터 글 작성');
 
         return response()->json(['success' => true, 'data' => $item], 201);
     }

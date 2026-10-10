@@ -16,7 +16,7 @@ class QaController extends Controller
 
     public function index(Request $request)
     {
-        $query = QaPost::with('user:id,name,nickname,avatar', 'category:id,name')
+        $query = QaPost::with('user:id,name,nickname,avatar,lifetime_points', 'category:id,name')
             ->where('is_hidden', false)
             ->when($request->category_id, fn($q, $v) => $q->where('category_id', $v))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
@@ -32,7 +32,7 @@ class QaController extends Controller
 
     public function show($id)
     {
-        $post = QaPost::with('user:id,name,nickname,avatar', 'category:id,name', 'answers.user:id,name,nickname,avatar')
+        $post = QaPost::with('user:id,name,nickname,avatar,lifetime_points', 'category:id,name', 'answers.user:id,name,nickname,avatar,lifetime_points')
             ->findOrFail($id);
 
         // 관리자 숨김 처리된 글은 작성자 본인/관리자만 직접 URL로 조회 가능
@@ -82,7 +82,7 @@ class QaController extends Controller
             auth()->user()->decrement('points', $bounty);
         }
 
-        \App\Support\WritePoints::award(auth()->user(), QaPost::class, $post->id, 'Q&A 질문 작성');
+        \App\Support\WritePoints::awardLater(auth()->user(), QaPost::class, $post->id, 'Q&A 질문 작성');
 
         return response()->json(['success' => true, 'data' => $post], 201);
     }
@@ -128,9 +128,9 @@ class QaController extends Controller
 
         $post->increment('answer_count');
 
-        \App\Support\WritePoints::award(auth()->user(), QaAnswer::class, $answer->id, 'Q&A 답변 작성');
+        \App\Support\WritePoints::awardLater(auth()->user(), QaAnswer::class, $answer->id, 'Q&A 답변 작성');
 
-        return response()->json(['success' => true, 'data' => $answer->load('user:id,name,nickname,avatar')], 201);
+        return response()->json(['success' => true, 'data' => $answer->load('user:id,name,nickname,avatar,lifetime_points')], 201);
     }
 
     public function acceptAnswer($id, $answerId)

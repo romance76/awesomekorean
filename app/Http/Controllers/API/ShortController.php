@@ -59,7 +59,7 @@ class ShortController extends Controller
             'youtube_id' => $ytId, 'thumbnail_url' => $ytId ? "https://img.youtube.com/vi/{$ytId}/hqdefault.jpg" : null,
         ]);
 
-        \App\Support\WritePoints::award(auth()->user(), Short::class, $short->id, '숏츠 업로드');
+        \App\Support\WritePoints::awardLater(auth()->user(), Short::class, $short->id, '숏츠 업로드');
 
         return response()->json(['success' => true, 'data' => $short], 201);
     }

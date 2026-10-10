@@ -70,7 +70,7 @@ class RealEstateController extends Controller
 
     public function show($id)
     {
-        $listing = RealEstateListing::with('user:id,name,nickname,avatar')->findOrFail($id);
+        $listing = RealEstateListing::with('user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
 
         // index()는 active() 스코프로 비활성(삭제된) 매물을 걸러내지만 show()는
         // 그렇지 않아, 삭제된 매물도 직접 URL로는 계속 전체 공개되던 문제(Post::show()와 동일 패턴).
@@ -152,7 +152,7 @@ class RealEstateController extends Controller
             ]
         ));
 
-        \App\Support\WritePoints::award($user, RealEstateListing::class, $listing->id, '부동산 매물 등록');
+        \App\Support\WritePoints::awardLater($user, RealEstateListing::class, $listing->id, '부동산 매물 등록');
 
         // 이벤트 #125 (부동산 리스팅 2배 포인트) 기간에만 자동 지급, 하루 상한까지만
         $eventActive = \App\Models\Event::where('id', 125)

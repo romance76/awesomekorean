@@ -307,7 +307,7 @@ class BusinessController extends Controller
 
     public function show($id)
     {
-        $biz = Business::with('reviews.user:id,name,nickname,avatar')->findOrFail($id);
+        $biz = Business::with('reviews.user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
         $biz->increment('view_count');
         $adj = $this->adjacentPair(Business::class, $id, 'name', ['category' => $biz->category]);
         return response()->json(['success' => true, 'data' => $biz, 'prev' => $adj['prev'], 'next' => $adj['next']]);
@@ -333,14 +333,14 @@ class BusinessController extends Controller
             ['user_id' => auth()->id(), 'images' => $images ?: null, 'logo' => $logo]
         ));
 
-        \App\Support\WritePoints::award(auth()->user(), Business::class, $biz->id, '업소 등록');
+        \App\Support\WritePoints::awardLater(auth()->user(), Business::class, $biz->id, '업소 등록');
 
         return response()->json(['success' => true, 'data' => $biz], 201);
     }
 
     public function reviews($id)
     {
-        $reviews = BusinessReview::with('user:id,name,nickname,avatar')
+        $reviews = BusinessReview::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('business_id', $id)
             ->orderByDesc('created_at')
             ->paginate(20);
@@ -369,7 +369,7 @@ class BusinessController extends Controller
         $count = BusinessReview::where('business_id', $id)->count();
         $biz->update(['rating' => round($avg, 2), 'review_count' => $count]);
 
-        \App\Support\WritePoints::award(auth()->user(), BusinessReview::class, $review->id, '업소 리뷰 작성');
+        \App\Support\WritePoints::awardLater(auth()->user(), BusinessReview::class, $review->id, '업소 리뷰 작성');
 
         return response()->json(['success' => true, 'data' => $review], 201);
     }

@@ -187,7 +187,7 @@ class ClubController extends Controller
             'is_active' => true,
         ]);
 
-        \App\Support\WritePoints::award(auth()->user(), Club::class, $club->id, '동호회 개설');
+        \App\Support\WritePoints::awardLater(auth()->user(), Club::class, $club->id, '동호회 개설');
 
         return response()->json(['success' => true, 'data' => $club], 201);
     }
@@ -402,7 +402,7 @@ class ClubController extends Controller
     {
         if (!$this->isClubManager($id, auth()->id())) return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
 
-        $pending = ClubMember::with('user:id,name,nickname,avatar')
+        $pending = ClubMember::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('club_id', $id)->where('status', 'pending')->get();
 
         return response()->json(['success' => true, 'data' => $pending]);
@@ -432,7 +432,7 @@ class ClubController extends Controller
 
     public function members($id)
     {
-        $members = ClubMember::with('user:id,name,nickname,avatar')
+        $members = ClubMember::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('club_id', $id)
             ->where('status', 'approved')
             ->orderByRaw("FIELD(grade, 'owner', 'admin', 'member', 'restricted')")
@@ -572,7 +572,7 @@ class ClubController extends Controller
 
     public function posts($id)
     {
-        $posts = ClubPost::with('user:id,name,nickname,avatar')
+        $posts = ClubPost::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('club_id', $id)
             ->orderByDesc('is_pinned')
             ->orderByDesc('created_at')
@@ -585,7 +585,7 @@ class ClubController extends Controller
     {
         ClubBoard::where('club_id', $id)->where('id', $boardId)->firstOrFail();
 
-        $posts = ClubPost::with('user:id,name,nickname,avatar')
+        $posts = ClubPost::with('user:id,name,nickname,avatar,lifetime_points')
             ->where('club_id', $id)
             ->where('board_id', $boardId)
             ->orderByDesc('is_pinned')
@@ -635,7 +635,7 @@ class ClubController extends Controller
 
         // 목록에 바로 끼워 넣을 수 있게 board_name 포함 (프론트가 목록을 다시 불러오지 않아도 됨)
         $post->setAttribute('board_name', $board->name);
-        return response()->json(['success' => true, 'data' => $post->load('user:id,name,nickname,avatar')], 201);
+        return response()->json(['success' => true, 'data' => $post->load('user:id,name,nickname,avatar,lifetime_points')], 201);
     }
 
     public function updatePost(Request $request, $postId)

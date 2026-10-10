@@ -31,6 +31,23 @@ class WritePoints
         \App\Models\AmazonProduct::class,
     ];
 
+    /**
+     * 응답을 먼저 보낸 뒤(defer) 포인트를 지급한다 — 글/답변 저장 직후 "등록" 반응이 느려지지 않게.
+     * 포인트 집계·Entry 보상·뱃지 판정 쿼리가 여러 번 나가므로 사용자가 기다릴 필요가 없다.
+     * 실패해도 글 작성에는 영향이 없고 로그만 남긴다.
+     */
+    public static function awardLater(?User $user, string $modelClass, int $modelId, string $reason): void
+    {
+        if (!$user) return;
+        defer(function () use ($user, $modelClass, $modelId, $reason) {
+            try {
+                static::award($user, $modelClass, $modelId, $reason);
+            } catch (\Throwable $e) {
+                \Log::warning("[포인트] {$reason} 지급 실패 (user_id={$user->id}): " . $e->getMessage());
+            }
+        });
+    }
+
     public static function award(User $user, string $modelClass, int $modelId, string $reason): void
     {
         $amount = PointRules::get('post_write', 3);

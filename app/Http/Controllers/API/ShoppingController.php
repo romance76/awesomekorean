@@ -45,7 +45,7 @@ class ShoppingController extends Controller
     // 공개: 목록 (카테고리/검색/종류 필터 + 정렬 + 페이지네이션)
     public function index(Request $request)
     {
-        $query = $this->visible()->with('user:id,name,nickname,avatar');
+        $query = $this->visible()->with('user:id,name,nickname,avatar,lifetime_points');
 
         if ($request->category) $query->where('category', $request->category);
         if ($request->search) $query->where('title', 'LIKE', '%' . $request->search . '%');
@@ -80,7 +80,7 @@ class ShoppingController extends Controller
     // 공개: 상세. 비공개(승인 대기/내려감) 리뷰는 작성자·관리자만.
     public function show($id)
     {
-        $product = AmazonProduct::with('user:id,name,nickname,avatar')->find($id);
+        $product = AmazonProduct::with('user:id,name,nickname,avatar,lifetime_points')->find($id);
         $viewer = auth('api')->user();
         $isAdmin = $viewer && in_array($viewer->role, ['admin', 'super_admin', 'moderator'], true);
         $isOwner = $viewer && $product && $product->user_id && $product->user_id === $viewer->id;
@@ -93,7 +93,7 @@ class ShoppingController extends Controller
         // 작성자 본인/관리자가 보는 건 조회수에 넣지 않는다
         if ($public && !$isOwner && !$isAdmin) {
             ShoppingReviews::recordView($product, $viewer?->id, request()->ip());
-            $product->refresh()->load('user:id,name,nickname,avatar');
+            $product->refresh()->load('user:id,name,nickname,avatar,lifetime_points');
         }
 
         $out = $this->present($product, ShoppingReviews::hotIds(), true);

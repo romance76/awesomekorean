@@ -17,7 +17,7 @@ class UserBlockController extends Controller
     public function index(Request $request)
     {
         $blocked = UserBlock::where('blocker_id', $request->user()->id)
-            ->with('blocked:id,name,nickname,avatar')
+            ->with('blocked:id,name,nickname,avatar,lifetime_points')
             ->orderByDesc('created_at')
             ->get()
             ->pluck('blocked')
