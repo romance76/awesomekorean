@@ -59,6 +59,7 @@ const ICONS = {
     'image': '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
     'plus': '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
     'x': '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+    'minus': '<line x1="5" y1="12" x2="19" y2="12"/>',
     'check': '<polyline points="20 6 9 17 4 12"/>',
     'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
     'chevron-up': '<polyline points="18 15 12 9 6 15"/>',

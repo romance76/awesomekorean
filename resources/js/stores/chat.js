@@ -35,5 +35,12 @@ export const useChatStore = defineStore('chat', () => {
     isOpen.value = false
   }
 
-  return { openRooms, activeRoomId, activeRoom, hasRooms, isOpen, openRoom, closeRoom, toggleOpen, minimize }
+  // 떠 있는 채팅 아이콘/팝업을 한 번에 닫는다 (열어 둔 방 목록을 모두 비움)
+  function closeAll() {
+    openRooms.value = []
+    activeRoomId.value = null
+    isOpen.value = false
+  }
+
+  return { openRooms, activeRoomId, activeRoom, hasRooms, isOpen, openRoom, closeRoom, closeAll, toggleOpen, minimize }
 })

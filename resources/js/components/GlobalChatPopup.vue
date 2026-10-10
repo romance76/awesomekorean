@@ -1,13 +1,21 @@
 <template>
 <!-- 채팅 버튼 (접힌 상태) -->
 <Teleport to="body">
-  <button v-if="chatStore.hasRooms && !chatStore.isOpen" @click="chatStore.toggleOpen()"
-    class="fixed bottom-20 right-4 z-[90] w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lift flex items-center justify-center transition-all hover:scale-110">
-    <AppIcon name="message-circle" :size="26" />
-    <span v-if="totalUnread" class="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+  <div v-if="chatStore.hasRooms && !chatStore.isOpen" class="fixed bottom-20 right-4 z-[90] w-14 h-14">
+    <button @click="chatStore.toggleOpen()" aria-label="채팅 열기"
+      class="w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lift flex items-center justify-center transition-all hover:scale-110">
+      <AppIcon name="message-circle" :size="26" />
+    </button>
+    <!-- 안 읽은 수 (왼쪽 위) -->
+    <span v-if="totalUnread" class="absolute -top-1 -left-1 bg-red-500 text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center pointer-events-none">
       {{ totalUnread > 9 ? '9+' : totalUnread }}
     </span>
-  </button>
+    <!-- 닫기 (오른쪽 위 작은 X): 떠 있는 채팅 아이콘을 없앤다 -->
+    <button @click.stop="chatStore.closeAll()" aria-label="채팅 닫기" title="채팅 닫기"
+      class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-gray-700 text-white border-2 border-white shadow flex items-center justify-center hover:bg-gray-900 active:scale-95 transition">
+      <AppIcon name="x" :size="12" />
+    </button>
+  </div>
 
   <!-- 채팅 팝업 -->
   <div v-if="chatStore.hasRooms && chatStore.isOpen"
@@ -28,7 +36,8 @@
             <button @click.stop="chatStore.closeRoom(room.id)" class="ml-0.5 text-white/50 hover:text-white"><AppIcon name="x" :size="10" /></button>
           </button>
         </div>
-        <button @click="chatStore.minimize()" class="w-7 h-7 rounded-full hover:bg-amber-600 flex items-center justify-center text-white transition ml-1 flex-shrink-0">−</button>
+        <button @click="chatStore.minimize()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/35 flex items-center justify-center text-white transition ml-1 flex-shrink-0" title="작게 접기" aria-label="작게 접기"><AppIcon name="minus" :size="16" /></button>
+        <button @click="chatStore.closeAll()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/35 flex items-center justify-center text-white transition ml-1 flex-shrink-0" title="채팅 닫기" aria-label="채팅 닫기"><AppIcon name="x" :size="16" /></button>
       </div>
     </div>
 
@@ -75,15 +84,7 @@
 
       <!-- 입력 -->
       <div class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0 safe-bottom">
-        <form @submit.prevent="sendMessage" class="flex items-center gap-2">
-          <input v-model="newMessage" type="text" placeholder="메시지 입력..."
-            class="input-soft flex-1 rounded-full px-3 py-2 text-sm"
-            maxlength="2000" enterkeyhint="send" autocomplete="off" />
-          <button type="submit" :disabled="!newMessage.trim()"
-            class="w-9 h-9 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-btn flex items-center justify-center transition disabled:opacity-40 flex-shrink-0">
-            <AppIcon name="send" :size="16" />
-          </button>
-        </form>
+        <ChatComposer v-model="newMessage" placeholder="메시지 입력..." @send="sendMessage" />
       </div>
     </template>
   </div>
@@ -96,6 +97,7 @@ import { useAuthStore } from '../stores/auth'
 import { useChatStore } from '../stores/chat'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
+import ChatComposer from './ChatComposer.vue'
 
 const auth = useAuthStore()
 const chatStore = useChatStore()

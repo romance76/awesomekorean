@@ -97,30 +97,9 @@
     </div>
 
     <!-- Input bar -->
-    <div class="flex items-end gap-2 px-4 pt-2.5 bg-gray-800 border-t border-gray-700"
+    <div class="px-3 pt-2.5 bg-gray-800 border-t border-gray-700"
          :style="{ paddingBottom: 'calc(10px + env(safe-area-inset-bottom))' }">
-      <textarea v-model="inputText"
-                ref="inputEl"
-                rows="1"
-                placeholder="메시지 입력..."
-                @keydown="onKeydown"
-                @compositionend="onCompEnd"
-                @input="autoResize"
-                class="flex-1 bg-gray-700 border border-gray-600 rounded-2xl px-4 py-2.5 text-sm text-white placeholder-gray-400
-                       resize-none outline-none leading-snug transition-colors
-                       focus:border-green-500 focus:bg-gray-700/80
-                       disabled:opacity-50"></textarea>
-      <button @click="send"
-              :disabled="!inputText.trim()"
-              @mousedown.prevent
-              class="flex-shrink-0 w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center
-                     transition-colors hover:bg-green-500
-                     disabled:bg-gray-600 disabled:cursor-not-allowed">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="22" y1="2" x2="11" y2="13"/>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-        </svg>
-      </button>
+      <ChatComposer ref="inputEl" v-model="inputText" dark placeholder="메시지 입력..." @send="send" />
     </div>
 
   </div>
@@ -129,7 +108,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useChat } from '@/composables/useChat'
-import { useEnterSend } from '@/composables/useEnterSend'
+import ChatComposer from '@/components/ChatComposer.vue'
 import { useAuthStore } from '@/stores/auth'
 import { VOICE_CALL_ENABLED } from '@/config/features'
 
@@ -199,11 +178,6 @@ function send() {
   })
 }
 
-// Enter 전송 / Shift+Enter 줄바꿈 / 한글 조합 중(229)에는 무시
-// (한글 조합 중 Enter 도 조합이 끝나면 전송 — useEnterSend)
-const enterSend = useEnterSend(() => send())
-function onKeydown(e) { enterSend.onKeydown(e) }
-const onCompEnd = () => enterSend.onCompositionend()
 
 async function loadOlder() {
   const el = messagesEl.value
@@ -223,15 +197,8 @@ function onScroll() {
   if (messagesEl.value?.scrollTop < 60 && hasMore.value) loadOlder()
 }
 
-function autoResize(e) {
-  const el = e.target
-  el.style.height = 'auto'
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px'
-}
-
-function resetInputHeight() {
-  if (inputEl.value) inputEl.value.style.height = 'auto'
-}
+// 입력창 높이는 ChatComposer 가 글 길이에 맞춰 스스로 조절한다 (내용을 비우면 자동으로 1줄로 돌아감)
+function resetInputHeight() {}
 
 function formatTime(iso) {
   if (!iso) return ''

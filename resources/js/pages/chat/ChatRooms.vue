@@ -310,36 +310,25 @@
           </div>
 
           <!-- 입력 (텔레그램 스타일: 이모티콘·첨부가 입력창 내부) -->
-          <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" :style="inputBarStyle">
+          <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" :style="inputBarStyle"
+            @focusin="inputFocused = true" @focusout="inputFocused = false">
             <VerifyGate :active="activeRoom.type === 'public'" message="이메일 인증 후 공개 채팅방에 글을 쓸 수 있어요.">
-            <form @submit.prevent="sendMsg" class="flex gap-2 items-center">
-              <!-- 통합 입력 박스 -->
-              <div class="flex-1 min-w-0 flex items-center gap-1 bg-gray-50 border border-gray-200 rounded-full pl-1 pr-1 focus-within:ring-2 focus-within:ring-amber-400 transition"
-                :class="!auth.isLoggedIn ? 'opacity-60' : ''">
-                <!-- 이모티콘 (왼쪽 끝) -->
+            <!-- 공용 입력창: 둥근 큰 상자(글이 길어지면 위로 늘어남) · 왼쪽 아래 이모티콘/첨부 · 오른쪽 아래 전송 -->
+            <ChatComposer ref="msgInputEl" v-model="newMsg" @send="sendMsg"
+              :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'"
+              :disabled="!auth.isLoggedIn" :sending="sending" :can-send="!!(newMsg.trim() || selectedFiles.length)">
+              <template #left>
                 <button type="button" @click="toggleEmojiPicker"
-                  class="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-200 hover:text-amber-600 transition"
+                  class="w-9 h-9 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-100 hover:text-amber-600 transition"
                   :class="showEmojiPicker ? 'bg-amber-100 text-amber-600' : ''"
-                  :disabled="!auth.isLoggedIn" title="이모티콘"><AppIcon name="smile" :size="20" /></button>
-                <!-- 입력 필드 -->
-                <input ref="msgInputEl" v-model="newMsg" type="text" :placeholder="auth.isLoggedIn ? '메시지 입력...' : '로그인 후 참여 가능'" :disabled="!auth.isLoggedIn"
-                  @keydown="chatEnter.onKeydown" @compositionend="chatEnter.onCompositionend"
-                  class="flex-1 min-w-0 bg-transparent border-0 px-1 py-2 text-sm outline-none disabled:cursor-not-allowed" />
-                <!-- 파일 첨부 (오른쪽 끝) -->
-                <label class="w-8 h-8 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-200 hover:text-amber-600 cursor-pointer transition"
-                  :class="!auth.isLoggedIn ? 'cursor-not-allowed' : ''" title="이미지·압축파일 첨부">
-                  <AppIcon name="paperclip" :size="18" />
+                  :disabled="!auth.isLoggedIn" title="이모티콘" aria-label="이모티콘"><AppIcon name="smile" :size="21" /></button>
+                <label class="w-9 h-9 flex items-center justify-center flex-shrink-0 rounded-full text-ink-muted hover:bg-gray-100 hover:text-amber-600 cursor-pointer transition"
+                  :class="!auth.isLoggedIn ? 'cursor-not-allowed' : ''" title="이미지·압축파일 첨부" aria-label="파일 첨부">
+                  <AppIcon name="paperclip" :size="20" />
                   <input type="file" accept="image/*,.zip,.rar,.7z,.tar,.gz,.tgz,application/zip,application/x-rar-compressed,application/x-7z-compressed,application/gzip" multiple @change="onSelectFiles" class="hidden" :disabled="!auth.isLoggedIn" />
                 </label>
-              </div>
-              <!-- 전송 버튼 (원형) -->
-              <button type="submit" @mousedown.prevent :disabled="(!newMsg.trim() && !selectedFiles.length) || !auth.isLoggedIn || sending"
-                class="bg-amber-400 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-btn hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0 transition-colors"
-                :title="sending ? '전송 중...' : '전송'">
-                <span v-if="sending" class="text-xs">...</span>
-                <AppIcon v-else name="send" :size="18" />
-              </button>
-            </form>
+              </template>
+            </ChatComposer>
             </VerifyGate>
           </div>
         </div>
@@ -658,7 +647,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
-import { useEnterSend } from '../../composables/useEnterSend'
+import ChatComposer from '../../components/ChatComposer.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
@@ -677,8 +666,10 @@ const isIosBrowser = typeof navigator !== 'undefined'
   && /iP(hone|ad|od)/.test(navigator.userAgent)
   && !navigator.standalone
   && !(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+// 입력창을 누르면(키보드가 올라오면) 주소창이 숨으므로 그 여백은 뺀다 — 키보드와 입력창 사이가 벌어져 보이던 문제
+const inputFocused = ref(false)
 const inputBarStyle = computed(() => ({
-  paddingBottom: isMobile.value && isIosBrowser
+  paddingBottom: isMobile.value && isIosBrowser && !inputFocused.value
     ? 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 36px)'
     : 'max(0.5rem, env(safe-area-inset-bottom))',
 }))
@@ -1367,9 +1358,6 @@ function retryChatMsg(msg) {
 function discardChatMsg(msg) {
   activeMessages.value = activeMessages.value.filter(x => x.id !== msg.id)
 }
-
-// 한글 조합 중 Enter 도 조합이 끝나면 전송 (엔터를 두 번 쳐야 하던 문제) — useEnterSend 참고
-const chatEnter = useEnterSend(() => sendMsg())
 
 async function sendMsg() {
   if ((!newMsg.value.trim() && !selectedFiles.value.length) || !auth.isLoggedIn || !activeRoom.value) return

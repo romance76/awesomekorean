@@ -415,9 +415,8 @@
               </div>
             </template>
           </div>
-          <div class="flex items-end gap-2 mt-3">
-            <textarea ref="msgInputEl" v-model="msgInput" rows="2" maxlength="500" placeholder="쪽지를 입력하세요 (Enter 전송, Shift+Enter 줄바꿈)" class="input-soft flex-1" @keydown="onMsgEnter" @compositionend="onMsgCompEnd"></textarea>
-            <button @click="sendMsg" @mousedown.prevent :disabled="!msgInput.trim()" class="btn-primary"><AppIcon name="send" :size="14" /> 보내기</button>
+          <div class="mt-3">
+            <ChatComposer ref="msgInputEl" v-model="msgInput" :maxlength="500" placeholder="쪽지를 입력하세요..." @send="sendMsg" />
           </div>
         </template>
       </div>
@@ -1123,7 +1122,7 @@
 
 <script setup>
 import PasswordInput from '../../components/PasswordInput.vue'
-import { useEnterSend } from '../../composables/useEnterSend'
+import ChatComposer from '../../components/ChatComposer.vue'
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -1522,9 +1521,6 @@ async function loadThread(silent) {
   } catch {}
 }
 function closeThread() { msgPartner.value = null; loadMessages() }
-const msgEnter = useEnterSend(() => sendMsg())   // 한글 조합 중 Enter 도 조합이 끝나면 전송
-function onMsgEnter(e) { msgEnter.onKeydown(e) }
-const onMsgCompEnd = () => msgEnter.onCompositionend()
 function sendMsg() {
   const content = msgInput.value.trim()
   if (!content || !msgPartner.value) return
