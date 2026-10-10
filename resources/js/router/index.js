@@ -168,6 +168,7 @@ const routes = [
   { path: '/sweepstakes/rules', name: 'sweepstakes-rules', component: p('events/SweepstakesRules') },  // 경품 추첨 공식 규정 (공개)
   { path: '/sweepstakes/:id', redirect: '/events?type=sweepstakes' },
   { path: '/search', name: 'search', component: p('Search') },
+  { path: '/easy-test', name: 'easy-test', component: p('EasyViewSample') },   // 큰 글씨 보기 샘플(테스트 중)
   { path: '/about', name: 'about', component: p('static/About') },
   { path: '/contact', name: 'contact', component: p('static/Contact') },
   { path: '/terms', name: 'terms', component: p('static/Terms') },
