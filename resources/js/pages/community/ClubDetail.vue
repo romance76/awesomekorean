@@ -161,7 +161,7 @@
             설정
             <span v-if="pendingMembers.length" class="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{{ pendingMembers.length }}</span>
           </button>
-          <button v-if="chatRoomId" @click="chatStore.openRoom({ id: chatRoomId, name: club.name + ' 채팅', type: 'club' })"
+          <button v-if="isMember" @click="createChatRoom" :disabled="chatOpening"
             class="ml-auto btn-soft !px-4 !py-2 !text-xs whitespace-nowrap">
             <AppIcon name="message-circle" :size="14" />채팅
           </button>
@@ -512,7 +512,7 @@
               </h3>
             </div>
             <div class="p-5 space-y-2">
-              <button v-if="chatRoomId" @click="chatStore.openRoom({ id: chatRoomId, name: club.name + ' 채팅', type: 'club' })"
+              <button v-if="chatRoomId" @click="createChatRoom" :disabled="chatOpening"
                 class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 transition-colors">
                 <span class="icon-chip w-9 h-9 bg-amber-100 text-amber-600"><AppIcon name="message-circle" :size="18" /></span>
                 <div class="text-left">
@@ -1011,16 +1011,24 @@ async function submitPost() {
     formData.append('content', newPost.value.content)
     postImages.value.forEach(file => formData.append('images[]', file))
 
-    await axios.post(`/api/clubs/${club.value.id}/posts`, formData, {
+    const { data: res } = await axios.post(`/api/clubs/${club.value.id}/posts`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     siteStore.toast('게시글이 등록되었습니다', 'success')
+    const created = res?.data
+    const wasFirstPage = postsPage.value === 1
     newPost.value = { board_id: '', title: '', content: '' }
     postImages.value = []
     postImagePreviews.value = []
     showWritePost.value = false
-    postsPage.value = 1
-    await loadPosts()
+    // 목록 전체를 다시 불러오지 않고 응답으로 받은 새 글을 바로 맨 위(고정글 아래)에 끼워 넣는다
+    if (created && wasFirstPage && (!selectedBoard.value || selectedBoard.value.id === created.board_id)) {
+      const firstNormal = posts.value.findIndex(p => !p.is_pinned)
+      posts.value.splice(firstNormal === -1 ? posts.value.length : firstNormal, 0, created)
+    } else {
+      postsPage.value = 1
+      loadPosts()
+    }
   } catch (e) {
     postError.value = e.response?.data?.message || '등록에 실패했습니다'
   }
@@ -1164,8 +1172,11 @@ async function rejectMember(pm) {
   }
 }
 
-// Chat room
+// Chat room — 서버에서 채팅방을 보장(없거나 삭제돼 끊겼으면 자동 재생성)한 뒤 연다.
+const chatOpening = ref(false)
 async function createChatRoom() {
+  if (chatOpening.value || !club.value) return
+  chatOpening.value = true
   try {
     const { data } = await axios.post(`/api/clubs/${club.value.id}/chatroom`)
     const roomId = data.data?.id || data.id
@@ -1174,7 +1185,9 @@ async function createChatRoom() {
       chatStore.openRoom({ id: roomId, name: club.value.name + ' 채팅', type: 'club' })
     }
   } catch (e) {
-    alert(e.response?.data?.message || '채팅방 생성 실패')
+    siteStore.toast(e.response?.data?.message || '채팅방을 여는 데 실패했습니다. 잠시 후 다시 시도해주세요.', 'error')
+  } finally {
+    chatOpening.value = false
   }
 }
 

@@ -67,6 +67,7 @@
 
     <!-- 입력 영역 -->
     <div class="border-t border-gray-50 bg-white px-3 py-2 flex-shrink-0">
+      <div v-if="sendError" class="text-[11px] text-red-500 mb-1">{{ sendError }}</div>
       <form @submit.prevent="sendMessage" class="flex items-center gap-2">
         <input v-model="newMessage" type="text" placeholder="메시지 입력..."
           class="input-soft flex-1 !rounded-full !py-2"
@@ -103,6 +104,7 @@ const newMessage = ref('')
 const loading = ref(false)
 const loadingMore = ref(false)
 const sending = ref(false)
+const sendError = ref('')
 const unreadCount = ref(0)
 const msgContainer = ref(null)
 const currentPage = ref(1)
@@ -161,7 +163,10 @@ async function sendMessage() {
     newMessage.value = ''
     await nextTick()
     scrollToBottom()
-  } catch {}
+    sendError.value = ''
+  } catch (e) {
+    sendError.value = e.response?.data?.message || '메시지를 보내지 못했습니다. 입력한 내용은 그대로 두었어요. 다시 눌러주세요.'
+  }
   sending.value = false
 }
 

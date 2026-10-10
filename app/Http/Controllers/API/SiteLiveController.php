@@ -40,7 +40,13 @@ class SiteLiveController extends Controller
     public function chatPing(Request $request)
     {
         $uid = $request->user()->id;
-        DB::table('chat_presence')->updateOrInsert(['user_id' => $uid], ['room_id' => (int) $request->input('room_id') ?: null, 'last_seen_at' => now()]);
+        $vals = ['room_id' => (int) $request->input('room_id') ?: null, 'last_seen_at' => now()];
+        try {
+            DB::table('chat_presence')->updateOrInsert(['user_id' => $uid], $vals);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 같은 사용자의 요청이 동시에 두 번 들어와 insert 가 겹친 경우(중복 키) → 업데이트로 마무리
+            DB::table('chat_presence')->where('user_id', $uid)->update($vals);
+        }
         return response()->json(['ok' => true]);
     }
 

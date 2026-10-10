@@ -64,16 +64,24 @@ class CommentController extends Controller
             'content' => $request->content,
         ]);
 
-        // 댓글 작성 포인트 — 게시판 종류 무관 사이트 전체 통합 한도/금액 (WritePoints)
-        \App\Support\WritePoints::award(auth()->user(), \App\Models\Comment::class, $comment->id, '댓글 작성');
+        // 댓글 수 증가 — 부모를 먼저 읽지 않고 UPDATE 한 번으로 (comment_count 컬럼이 없는 모델은 조용히 무시)
+        try { $modelType::whereKey($request->commentable_id)->increment('comment_count'); } catch (\Throwable $e) {}
 
-        // Increment comment count on parent model
-        $parent = $modelType::find($request->commentable_id);
-        if ($parent && method_exists($parent, 'increment')) {
-            try { $parent->increment('comment_count'); } catch (\Exception $e) {}
-        }
+        $me = auth()->user();
+        $comment->load('user:id,name,nickname,avatar');
 
-        return response()->json(['success' => true, 'data' => $comment->load('user:id,name,nickname,avatar')], 201);
+        // 댓글 작성 포인트(+활동 뱃지·Entry 보상) — 게시판 종류 무관 사이트 전체 통합 한도/금액 (WritePoints).
+        // 포인트 계산 쿼리가 여러 번 나가 응답이 느려지므로 응답을 먼저 보낸 뒤 처리한다.
+        $commentId = $comment->id;
+        defer(function () use ($me, $commentId) {
+            try {
+                if ($me) \App\Support\WritePoints::award($me, \App\Models\Comment::class, $commentId, '댓글 작성');
+            } catch (\Throwable $e) {
+                \Log::warning('[댓글] 포인트 지급 실패: ' . $e->getMessage());
+            }
+        });
+
+        return response()->json(['success' => true, 'data' => $comment], 201);
     }
 
     public function update(Request $request, $id)

@@ -10,12 +10,18 @@
       <UserName :userId="comment.user?.id" :name="comment.user?.name" :className="isReply ? 'text-xs font-bold text-ink' : 'text-sm font-bold text-ink'" />
       <span class="text-[11px] text-ink-muted">{{ relativeDate }}</span>
       <span class="text-[11px] text-ink-faint">{{ fullDate }}</span>
-      <button v-if="auth.user?.id === comment.user_id && !editing" @click="startEdit" class="ml-auto text-gray-300 hover:text-amber-600 transition-colors" title="수정"><AppIcon name="edit" :size="14" /></button>
-      <button v-if="auth.user?.id === comment.user_id" @click="deleteComment" class="text-gray-300 hover:text-red-500 transition-colors" :class="editing ? 'ml-auto' : ''" title="삭제"><AppIcon name="trash" :size="14" /></button>
-      <button @click="showReportModal=true" class="text-gray-300 hover:text-ink-muted transition-colors" :class="auth.user?.id === comment.user_id ? '' : 'ml-auto'" title="신고"><AppIcon name="flag" :size="14" /></button>
+      <button v-if="auth.user?.id === comment.user_id && !editing && !comment._local" @click="startEdit" class="ml-auto text-gray-300 hover:text-amber-600 transition-colors" title="수정"><AppIcon name="edit" :size="14" /></button>
+      <button v-if="auth.user?.id === comment.user_id && !comment._local" @click="deleteComment" class="text-gray-300 hover:text-red-500 transition-colors" :class="editing ? 'ml-auto' : ''" title="삭제"><AppIcon name="trash" :size="14" /></button>
+      <button v-if="!comment._local" @click="showReportModal=true" class="text-gray-300 hover:text-ink-muted transition-colors" :class="auth.user?.id === comment.user_id ? '' : 'ml-auto'" title="신고"><AppIcon name="flag" :size="14" /></button>
     </div>
     <!-- 내용 -->
-    <div v-if="!editing" class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed">{{ comment.content }}</div>
+    <div v-if="!editing" class="text-sm text-ink-light mt-0.5 whitespace-pre-wrap leading-relaxed" :class="comment._pending ? 'opacity-60' : ''">{{ comment.content }}</div>
+    <div v-if="comment._pending" class="text-[11px] text-ink-faint mt-0.5">등록 중...</div>
+    <div v-else-if="comment._failed" class="text-[11px] text-red-500 mt-0.5">
+      {{ comment._error || '등록 실패' }}
+      <button type="button" @click="$emit('resend', comment)" class="ml-1 font-bold underline">재전송</button>
+      <button type="button" @click="$emit('discard', comment)" class="ml-1 text-ink-faint underline">삭제</button>
+    </div>
     <div v-else class="mt-1">
       <textarea ref="editBox" v-model="editText" rows="3" maxlength="1000" class="input-soft w-full text-sm" @keydown.enter="onEditEnter" @keydown.esc="editing = false"></textarea>
       <div class="flex justify-end gap-2 mt-1">
@@ -24,7 +30,7 @@
       </div>
     </div>
     <!-- 액션: 좋아요 싫어요 답글 -->
-    <div class="flex items-center gap-3 mt-1.5">
+    <div v-if="!comment._local" class="flex items-center gap-3 mt-1.5">
       <button @click="vote('like')" class="flex items-center gap-1 text-xs hover:bg-gray-100 px-1.5 py-0.5 rounded-full transition-colors" :class="myVote==='like' ? 'text-blue-600' : 'text-ink-muted'">
         <AppIcon name="thumbs-up" :size="13" /> <span v-if="localLikes">{{ localLikes }}</span>
       </button>
@@ -81,7 +87,7 @@ import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 
 const props = defineProps({ comment: Object, type: String, typeId: [Number, String], isReply: Boolean })
-const emit = defineEmits(['reply', 'refresh', 'deleted'])
+const emit = defineEmits(['reply', 'refresh', 'deleted', 'resend', 'discard'])
 const auth = useAuthStore()
 const { showAlert, showConfirm } = useModal()
 

@@ -127,7 +127,8 @@ class ClubController extends Controller
             'boards' => $boards,
             'member_count' => $memberCount,
             'pending_count' => $pendingCount,
-            'chat_room_id' => $club->chat_room_id,
+            // 삭제돼 끊긴 채팅방 id 는 내려주지 않음 (프론트가 채팅 열 때 자동으로 다시 만든다)
+            'chat_room_id' => ($club->chat_room_id && ChatRoom::whereKey($club->chat_room_id)->exists()) ? $club->chat_room_id : null,
             'prev' => $adj['prev'],
             'next' => $adj['next'],
         ]);
@@ -632,7 +633,9 @@ class ClubController extends Controller
             'images' => $imagesPaths ?: null,
         ]);
 
-        return response()->json(['success' => true, 'data' => $post->load('user:id,name,nickname')], 201);
+        // 목록에 바로 끼워 넣을 수 있게 board_name 포함 (프론트가 목록을 다시 불러오지 않아도 됨)
+        $post->setAttribute('board_name', $board->name);
+        return response()->json(['success' => true, 'data' => $post->load('user:id,name,nickname,avatar')], 201);
     }
 
     public function updatePost(Request $request, $postId)
@@ -687,37 +690,46 @@ class ClubController extends Controller
 
     public function createChatRoom(Request $request, $id)
     {
+        // 승인된 멤버(방장 포함) 또는 사이트 운영진이면 누구나 — 채팅방이 없거나(삭제됨 등) 끊겨 있으면
+        // 여기서 자동으로 다시 만들고, 이미 있으면 그대로 돌려준다(멱등).
         $grade = $this->getMemberGrade($id, auth()->id());
-
-        if (!in_array($grade, ['owner', 'admin'])) {
-            return response()->json(['success' => false, 'message' => '권한이 없습니다'], 403);
+        $role = auth()->user()?->role;
+        if (!$grade && !in_array($role, ['admin', 'super_admin', 'moderator'], true)) {
+            return response()->json(['success' => false, 'message' => '동호회 멤버만 채팅에 참여할 수 있어요'], 403);
         }
 
         $club = Club::findOrFail($id);
-
-        // 이미 채팅방이 있으면 반환
-        if ($club->chat_room_id) {
-            $existing = ChatRoom::find($club->chat_room_id);
-            if ($existing) return response()->json(['success' => true, 'data' => $existing]);
+        if (!$club->is_active) {
+            return response()->json(['success' => false, 'message' => '삭제된 동호회예요'], 404);
         }
 
-        $request->validate(['name' => 'nullable|max:100']);
+        $room = $this->ensureChatRoom($club, (int) auth()->id());
 
-        $room = ChatRoom::create([
-            'name' => $request->input('name', $club->name . ' 채팅방'),
-            'type' => 'club',
-            'created_by' => auth()->id(),
-        ]);
-
-        // club에 chat_room_id 저장
-        $club->update(['chat_room_id' => $room->id]);
-
-        // 승인된 멤버 전원 추가
-        $memberIds = ClubMember::where('club_id', $id)->where('status', 'approved')->pluck('user_id');
-        foreach ($memberIds as $uid) {
-            ChatRoomUser::firstOrCreate(['chat_room_id' => $room->id, 'user_id' => $uid]);
+        // 승인된 멤버 전원이 방 멤버로 등록되어 있는지 보정 (없는 사람만 추가)
+        $have = ChatRoomUser::where('chat_room_id', $room->id)->pluck('user_id');
+        $need = ClubMember::where('club_id', $id)->where('status', 'approved')->pluck('user_id')->diff($have);
+        foreach ($need as $uid) {
+            try { ChatRoomUser::firstOrCreate(['chat_room_id' => $room->id, 'user_id' => $uid]); } catch (\Throwable $e) {}
         }
 
-        return response()->json(['success' => true, 'data' => $room], 201);
+        return response()->json(['success' => true, 'data' => $room]);
+    }
+
+    /** 동호회 채팅방 보장 — 없으면(또는 chat_room_id 가 삭제된 방을 가리키면) 한 번만 만들고 연결한다. */
+    private function ensureChatRoom(Club $club, int $creatorId): ChatRoom
+    {
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($club, $creatorId) {
+            $locked = Club::whereKey($club->id)->lockForUpdate()->first() ?? $club;
+            $room = $locked->chat_room_id ? ChatRoom::find($locked->chat_room_id) : null;
+            if (!$room) {
+                $room = ChatRoom::create([
+                    'name' => $locked->name . ' 채팅방',
+                    'type' => 'club',
+                    'created_by' => $locked->user_id ?: $creatorId,
+                ]);
+                $locked->update(['chat_room_id' => $room->id]);
+            }
+            return $room;
+        });
     }
 }

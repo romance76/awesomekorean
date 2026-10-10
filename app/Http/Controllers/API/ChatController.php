@@ -177,6 +177,23 @@ class ChatController extends Controller
         }
     }
 
+    // 동호회 채팅방(type=club) 접근 권한 — 해당 동호회의 승인된 멤버(방장 포함) 또는 사이트 운영진.
+    // chat_room_users 에 아직 없는 멤버(채팅방이 만들어진 뒤 가입한 사람 등)는 여기서 자동 등록한다.
+    // 이전에는 가입 시점에 chat_room_users 에 추가하는 코드가 없어 나중에 가입한 멤버는 메시지를 보낼 수 없었음.
+    private function clubRoomAllowed(ChatRoom $room, $user): bool {
+        if ($room->type !== 'club') return true;
+        if (!$user) return false;
+        $isStaff = in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
+        $club = \App\Models\Club::where('chat_room_id', $room->id)->first();
+        $isMember = $club && \App\Models\ClubMember::where('club_id', $club->id)
+            ->where('user_id', $user->id)->where('status', 'approved')->exists();
+        if (!$isMember && !$isStaff) return false;
+        if ($isMember) {
+            try { ChatRoomUser::firstOrCreate(['chat_room_id' => $room->id, 'user_id' => $user->id]); } catch (\Throwable $e) {}
+        }
+        return true;
+    }
+
     // 단일 방 조회 (URL /chat/:id 직접 진입·새로고침 복원용)
     public function showRoom($id) {
         $userId = auth()->id();
@@ -186,8 +203,9 @@ class ChatController extends Controller
 
         // 공개방은 모두 허용, 그 외에는 멤버만
         if ($room->type !== 'public') {
-            $isMember = ChatRoomUser::where('chat_room_id', $id)
-                ->where('user_id', $userId)->exists();
+            $isMember = $room->type === 'club'
+                ? $this->clubRoomAllowed($room, auth()->user())
+                : ChatRoomUser::where('chat_room_id', $id)->where('user_id', $userId)->exists();
             if (!$isMember) {
                 return response()->json(['success'=>false,'message'=>'접근 권한이 없습니다'], 403);
             }
@@ -456,6 +474,9 @@ class ChatController extends Controller
         // 공개방은 24시간 입장권이 있어야 내용을 내려준다(입장료 우회 방지)
         $room = ChatRoom::findOrFail($id);
         if (!\App\Support\ChatAccess::hasPublicAccess($room, auth()->user())) return \App\Support\ChatAccess::denied();
+        if ($room->type === 'club' && !$this->clubRoomAllowed($room, auth()->user())) {
+            return response()->json(['success'=>false,'message'=>'동호회 멤버만 채팅을 볼 수 있습니다.'], 403);
+        }
 
         // 검색 결과로 들어온 경우(around=찾은 메시지 id): 그 메시지 앞 25개 + 뒤 25개를 내려준다.
         // 일반 조회와 같이 "최신 → 오래된" 순서로 내려 화면 쪽 처리(reverse)를 그대로 쓴다.
@@ -573,9 +594,11 @@ class ChatController extends Controller
             // 그룹/DM 방은 멤버가 아니면 전송 불가 — 이전에는 멤버십을 전혀
             // 확인하지 않아 강퇴(chatKickMember)당한 유저가 chat_room_users에서
             // 삭제된 뒤에도 계속 메시지를 보낼 수 있었음(실측 확인, 강퇴 무력화).
-            $isMember = ChatRoomUser::where('chat_room_id', $id)->where('user_id', auth()->id())->exists();
+            $isMember = $room->type === 'club'
+                ? $this->clubRoomAllowed($room, auth()->user())
+                : ChatRoomUser::where('chat_room_id', $id)->where('user_id', auth()->id())->exists();
             if (!$isMember) {
-                return response()->json(['success'=>false,'message'=>'이 채팅방의 멤버가 아닙니다.'], 403);
+                return response()->json(['success'=>false,'message'=> $room->type === 'club' ? '동호회 멤버만 채팅에 참여할 수 있습니다.' : '이 채팅방의 멤버가 아닙니다.'], 403);
             }
         }
 

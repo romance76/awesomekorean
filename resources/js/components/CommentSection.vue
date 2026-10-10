@@ -23,7 +23,7 @@
   <!-- 댓글 목록 -->
   <div class="divide-y divide-gray-50">
     <div v-for="c in comments" :key="c.id" class="px-5 py-3">
-      <CommentItem :comment="c" :type="type" :typeId="typeId" @reply="openReply" @refresh="loadComments" @deleted="loadComments" />
+      <CommentItem :comment="c" :type="type" :typeId="typeId" @reply="openReply" @refresh="loadComments" @deleted="onDeleted" @resend="resendComment" @discard="discardComment" />
 
       <!-- 대댓글 -->
       <div v-if="c.replies?.length" class="ml-11 mt-1">
@@ -35,7 +35,7 @@
             ▲ 답글 숨기기
           </button>
           <div v-for="r in c.replies" :key="r.id" class="py-2">
-            <CommentItem :comment="r" :type="type" :typeId="typeId" :isReply="true" @reply="openReply" @refresh="loadComments" @deleted="loadComments" />
+            <CommentItem :comment="r" :type="type" :typeId="typeId" :isReply="true" @reply="openReply" @refresh="loadComments" @deleted="onDeleted" @resend="resendComment" @discard="discardComment" />
           </div>
         </template>
       </div>
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 import CommentItem from './CommentItem.vue'
@@ -77,7 +77,6 @@ const newComment = ref('')
 const replyTo = ref(null)
 const replyName = ref('')
 const replyText = ref('')
-const sending = ref(false)
 
 const totalCount = computed(() => {
   let c = comments.value.length
@@ -100,24 +99,91 @@ function openReply(commentId, userName) {
   replyText.value = ''
 }
 
-async function submitComment(parentId) {
+// 낙관적 등록: 입력창을 바로 비우고 댓글을 즉시 목록에 올린 뒤(보내는 중), 서버 응답으로 확정한다.
+// 연속으로 여러 개 보내도 막지 않으며, 실패한 댓글은 "재전송"/"삭제"를 고를 수 있다.
+let tmpSeq = 0
+function submitComment(parentId) {
   const content = parentId ? replyText.value.trim() : newComment.value.trim()
-  if (!content || sending.value) return
-  sending.value = true
+  if (!content) return
+  if (parentId) { replyTo.value = null; replyText.value = '' }
+  else newComment.value = ''
+
+  const tmp = reactive({
+    id: 'tmp-' + (++tmpSeq), _local: true, _pending: true, _failed: false,
+    _parentId: parentId || null,
+    user_id: auth.user?.id, user: auth.user,
+    content, parent_id: parentId || null,
+    created_at: new Date().toISOString(),
+    likes: 0, dislikes: 0, replies: [], _showReplies: false,
+  })
+  if (parentId) {
+    const parent = comments.value.find(c => c.id === parentId)
+    if (parent) {
+      parent.replies = [...(parent.replies || []), tmp]
+      parent._showReplies = true
+    }
+  } else {
+    comments.value.unshift(tmp)
+  }
+  postComment(tmp)
+}
+
+function findTmp(tmp) {
+  if (tmp._parentId) {
+    const parent = comments.value.find(c => c.id === tmp._parentId)
+    return { list: parent?.replies, parent }
+  }
+  return { list: comments.value, parent: null }
+}
+
+async function postComment(tmp) {
+  tmp._pending = true
+  tmp._failed = false
+  tmp._error = ''
+  const typeAtSend = props.type, idAtSend = props.typeId
   try {
-    await axios.post('/api/comments', {
+    const { data } = await axios.post('/api/comments', {
       commentable_type: props.type,
       commentable_id: props.typeId,
-      content,
-      parent_id: parentId,
+      content: tmp.content,
+      parent_id: tmp._parentId,
     })
-    if (parentId) { replyTo.value = null; replyText.value = '' }
-    else newComment.value = ''
-    await loadComments()
+    if (typeAtSend !== props.type || idAtSend !== props.typeId) return   // 그 사이 다른 글로 이동
+    const real = { ...data.data, replies: [], _showReplies: false }
+    const { list, parent } = findTmp(tmp)
+    if (!list) return
+    const idx = list.findIndex(x => x.id === tmp.id)
+    if (idx === -1) return
+    if (parent) parent.replies = list.map(x => x.id === tmp.id ? real : x)
+    else comments.value[idx] = real
   } catch (e) {
-    const m = e.response?.data?.message
-    if (m) alert(m)
-  } finally { sending.value = false }
+    tmp._pending = false
+    tmp._failed = true
+    tmp._error = e.response?.data?.message || (e.response ? '댓글을 등록하지 못했습니다.' : '네트워크 연결을 확인해주세요.')
+  }
+}
+
+function resendComment(c) {
+  const { list } = findTmp(c)
+  const tmp = list?.find(x => x.id === c.id)
+  if (tmp && !tmp._pending) postComment(tmp)
+}
+
+function discardComment(c) {
+  const { list, parent } = findTmp(c)
+  if (!list) return
+  const rest = list.filter(x => x.id !== c.id)
+  if (parent) parent.replies = rest
+  else comments.value = rest
+}
+
+// 삭제는 목록 전체를 다시 불러오지 않고 해당 댓글만 화면에서 제거
+function onDeleted(id) {
+  const top = comments.value.findIndex(c => c.id === id)
+  if (top !== -1) { comments.value.splice(top, 1); return }
+  comments.value.forEach(c => {
+    if (c.replies?.some(r => r.id === id)) c.replies = c.replies.filter(r => r.id !== id)
+  })
 }
 
 async function loadComments() {
