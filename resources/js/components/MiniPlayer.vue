@@ -7,8 +7,24 @@
     <span class="text-white"><AppIcon :name="music.isPlaying ? 'music' : 'play'" :size="22" :filled="!music.isPlaying" /></span>
   </div>
 
+  <!-- 모바일: 채팅·쪽지처럼 화면 전체를 쓰는 창이 열려 있으면 입력창을 가리지 않게 아주 얇은 띠로 맨 아래에 붙는다 -->
+  <div v-if="showStrip"
+    class="fixed left-0 right-0 bottom-0 z-[9998] bg-[#1a1a2e] text-white flex items-center gap-2 px-3 cursor-pointer select-none overflow-hidden"
+    style="height: calc(24px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px)"
+    @click="expand">
+    <span class="text-[#FF8A4D] flex-shrink-0"><AppIcon name="music" :size="12" /></span>
+    <span class="flex-1 min-w-0 text-[11px] truncate text-gray-200">{{ music.currentTrack?.title }}<span v-if="music.currentTrack?.artist" class="text-gray-500"> · {{ music.currentTrack.artist }}</span></span>
+    <button @click.stop="doPrev" class="w-7 h-6 text-gray-400 flex items-center justify-center" aria-label="이전 곡"><AppIcon name="chevron-left" :size="14" /></button>
+    <button @click.stop="togglePlay" class="w-7 h-6 text-white flex items-center justify-center" :aria-label="music.isPlaying ? '일시정지' : '재생'">
+      <span v-if="music.isPlaying" class="flex items-center" style="gap:2px"><span class="block bg-white rounded-sm" style="width:2.5px;height:10px"></span><span class="block bg-white rounded-sm" style="width:2.5px;height:10px"></span></span>
+      <AppIcon v-else name="play" :size="12" :filled="true" />
+    </button>
+    <button @click.stop="doNext" class="w-7 h-6 text-gray-400 flex items-center justify-center" aria-label="다음 곡"><AppIcon name="chevron-right" :size="14" /></button>
+    <div class="absolute left-0 top-0 h-[1.5px] bg-[#FF8A4D]" :style="{ width: music.progress + '%' }"></div>
+  </div>
+
   <!-- 모바일 미니바 (하단 네비 바로 위) -->
-  <div v-if="showMiniBtn && isMobile"
+  <div v-if="showMiniBtn && isMobile && !immersiveActive"
     class="fixed left-2 right-2 z-[9998] h-14 rounded-2xl bg-[#1a1a2e] text-white shadow-2xl flex items-center gap-2.5 px-2.5 overflow-hidden cursor-pointer"
     style="bottom: calc(64px + env(safe-area-inset-bottom))"
     @click="expand">
@@ -104,6 +120,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useMusicStore } from '../stores/music'
+import { immersiveActive } from '../composables/useImmersive'
 import AppIcon from './AppIcon.vue'
 
 const music = useMusicStore()
@@ -125,6 +142,10 @@ let wakeLock = null
 const isShortsPage = computed(() => route.path.startsWith('/shorts'))
 const isMusicPage = computed(() => route.path.startsWith('/music'))
 const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShutdown.value && !isShortsPage.value)
+// 전체화면 창(채팅·쪽지)이 열려 있으면 얇은 띠 모드 — 그 창들이 띠 높이만큼 아래를 비우도록 CSS 변수(--mini-strip)로 알려준다
+const showStrip = computed(() => showMiniBtn.value && isMobile.value && immersiveActive.value)
+watch(showStrip, (v) => { document.documentElement.style.setProperty('--mini-strip', v ? 'calc(24px + env(safe-area-inset-bottom, 0px))' : '0px') }, { immediate: true })
+onUnmounted(() => document.documentElement.style.setProperty('--mini-strip', '0px'))
 const showPlayer = computed(() => (music.hasTrack || (isMusicPage.value && !isMobile.value)) && isExpanded.value && !isShutdown.value)
 
 const posRight = ref(16)

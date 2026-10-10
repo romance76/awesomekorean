@@ -21,7 +21,7 @@
   <div v-if="chatStore.hasRooms && chatStore.isOpen"
     class="fixed z-[91] bg-white flex flex-col overflow-hidden
            inset-0 sm:inset-auto sm:bottom-20 sm:right-4 sm:w-[360px] sm:h-[500px] sm:rounded-2xl sm:shadow-lift sm:border sm:border-gray-100"
-    :style="'max-height: 100vh;' + kbStyle">
+    :style="'max-height: 100vh;' + (isMobileView ? 'bottom: var(--mini-strip, 0px);' : '') + kbStyle">
 
     <!-- 탭 헤더 -->
     <div class="bg-amber-500 flex-shrink-0 safe-top">
@@ -144,6 +144,7 @@ import AppIcon from './AppIcon.vue'
 import ChatComposer from './ChatComposer.vue'
 import { useModal } from '../composables/useModal'
 import { useKeyboardViewport } from '../composables/useKeyboardViewport'
+import { useImmersive } from '../composables/useImmersive'
 
 const auth = useAuthStore()
 const chatStore = useChatStore()
@@ -151,6 +152,8 @@ const chatStore = useChatStore()
 // 모바일(전체화면)에서 키보드가 올라오면 입력창이 키보드 바로 위에 붙도록 보이는 영역에 맞춘다
 const isMobileView = ref(typeof window !== 'undefined' && window.innerWidth < 640)
 function onWinResize() { isMobileView.value = window.innerWidth < 640 }
+// 모바일 전체화면으로 열려 있는 동안 음악 미니 플레이어를 얇은 띠로 줄인다
+useImmersive(() => chatStore.hasRooms && chatStore.isOpen && isMobileView.value)
 const { style: kbStyle, keyboardOpen } = useKeyboardViewport(() => chatStore.hasRooms && chatStore.isOpen && isMobileView.value)
 const userId = computed(() => auth.user?.id)
 

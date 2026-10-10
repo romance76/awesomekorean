@@ -107,7 +107,7 @@
       </div>
 
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bottom-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
-        :style="isMobile ? 'z-index: 60;' + kbStyle : ''">
+        :style="isMobile ? 'z-index: 60; bottom: var(--mini-strip, 0px);' + kbStyle : ''">
         <div ref="deskChat" :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : `height: ${deskH}px`">
           <!-- 채팅방 헤더 — relative z-40로 아래 입장료 블러 오버레이(z-30)보다 위에 떠서,
                입장 전에도 방 이름/뒤로가기가 가려지지 않고 그대로 보임 -->
@@ -691,6 +691,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import ChatComposer from '../../components/ChatComposer.vue'
+import { useImmersive } from '../../composables/useImmersive'
 import { useModal } from '../../composables/useModal'
 import { useKeyboardViewport } from '../../composables/useKeyboardViewport'
 import UserAvatar from '../../components/UserAvatar.vue'
@@ -721,6 +722,8 @@ const rooms = ref([])
 const activeRoom = ref(null)
 // 모바일 전체화면 채팅: 키보드가 올라오면 보이는 영역(visualViewport)에 맞춰 입력창이 키보드 바로 위에 붙게 함
 const { showAlert } = useModal()
+// 모바일 전체화면 채팅방이 열려 있는 동안 음악 미니 플레이어를 얇은 띠로 줄인다
+useImmersive(() => isMobile.value && !!activeRoom.value)
 const { style: kbStyle, keyboardOpen } = useKeyboardViewport(() => isMobile.value && !!activeRoom.value)
 const activeMessages = ref([])
 // ─── 방장 고정 글(공지) ───

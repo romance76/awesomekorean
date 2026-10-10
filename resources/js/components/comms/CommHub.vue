@@ -9,7 +9,7 @@
            style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0" />
 
     <!-- Chat window overlay -->
-    <div v-if="activeChatPartner" class="fixed inset-0 z-[900]">
+    <div v-if="activeChatPartner" class="fixed inset-0 z-[900]" style="bottom: var(--mini-strip, 0px)">
       <ChatWindow
         :key="activeChatPartner.id"
         :partner="activeChatPartner"
@@ -48,6 +48,7 @@ import { useCommsWebRTC } from '@/composables/useCommsWebRTC'
 import { initPushService } from '@/services/PushService'
 import { startRingtone, preloadRingtone } from '@/services/RingtoneService'
 import ChatWindow from './ChatWindow.vue'
+import { useImmersive } from '../../composables/useImmersive'
 import CallScreen from './CallScreen.vue'
 import { VOICE_CALL_ENABLED } from '@/config/features'
 
@@ -56,6 +57,8 @@ const myUserId = computed(() => (auth.user?.id != null ? Number(auth.user.id) : 
 
 // ── Chat state ────────────────────────────────────────────────────
 const activeChatPartner    = ref(null)
+// 1:1 채팅 창이 열려 있는 동안 음악 미니 플레이어를 얇은 띠로 줄인다 (전체화면으로 뜨는 모바일만)
+useImmersive(() => !!activeChatPartner.value && window.innerWidth < 1024)
 const activeConversationId = ref(null)
 
 // ── WebRTC call state ─────────────────────────────────────────────

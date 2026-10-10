@@ -6,7 +6,7 @@
 <Teleport to="body">
   <div v-if="show" class="fixed z-[9990] bg-white shadow-2xl flex flex-col overflow-hidden"
     :class="isMobile ? 'inset-0' : 'right-5 bottom-5 w-[380px] rounded-2xl border border-gray-100'"
-    :style="isMobile ? '' : 'height: min(560px, calc(100vh - 7rem))'">
+    :style="isMobile ? 'bottom: var(--mini-strip, 0px)' : 'height: min(560px, calc(100vh - 7rem))'">
     <!-- 헤더 -->
     <div class="px-3 py-2.5 flex items-center gap-2 border-b border-gray-100 bg-blue-50 flex-shrink-0">
       <UserAvatar :user="partner" :size="44" />
@@ -59,6 +59,7 @@ import AppIcon from './AppIcon.vue'
 import UserAvatar from './UserAvatar.vue'
 import { useMessageSender } from '../composables/useMessageSender'
 import ChatComposer from './ChatComposer.vue'
+import { useImmersive } from '../composables/useImmersive'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -73,6 +74,8 @@ const { send: sendOptimistic, retry, discard, merge } = useMessageSender(message
 const box = ref(null)
 const winW = ref(typeof window !== 'undefined' ? window.innerWidth : 1200)
 const isMobile = computed(() => winW.value < 640)
+// 모바일 전체화면으로 열려 있는 동안 음악 미니 플레이어를 얇은 띠로 줄인다
+useImmersive(() => show.value && isMobile.value)
 let timer = null
 
 const onResize = () => { winW.value = window.innerWidth }
