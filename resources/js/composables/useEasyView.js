@@ -42,7 +42,7 @@ export function apply() {
   const on = enabled.value && (lv.v !== 'md' || prefs.value.hc)
   root.classList.toggle('easy-view', on)
   root.classList.toggle('ev-hc', on && prefs.value.hc)
-  if (on) { root.style.setProperty('--fs', String(lv.fs)); root.style.setProperty('--ui', String(lv.ui)); root.style.setProperty('--fs-h', String(+(1 + (lv.fs - 1) * 0.35).toFixed(3))) }
+  if (on) { root.style.setProperty('--fs', String(lv.fs)); root.style.setProperty('--ui', String(lv.ui)); root.style.setProperty('--fs-h', String(+(1 + (lv.fs - 1) * 0.15).toFixed(3))) }
   else { root.style.removeProperty('--fs'); root.style.removeProperty('--ui'); root.style.removeProperty('--fs-h') }
 }
 
