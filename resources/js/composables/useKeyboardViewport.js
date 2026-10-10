@@ -16,12 +16,24 @@ export function useKeyboardViewport(active) {
   const keyboardOpen = ref(false)
   let locked = false
   let prevBodyOverflow = ''
+  let wasOpen = false
+
+  // 키보드가 닫힌 뒤에도 iOS 가 페이지/보이는 영역을 위로 민 채로 두는 경우가 있어
+  // (채팅 제목이 화면 위로 밀려 안 보이고, 입력칸을 다시 건드려야 돌아오는 현상) 맨 위로 되돌린다.
+  function resetScroll() {
+    ;[0, 80, 250, 500].forEach(t => setTimeout(() => {
+      if (!active()) return
+      if (window.scrollY !== 0 || (window.visualViewport && window.visualViewport.offsetTop !== 0)) window.scrollTo(0, 0)
+    }, t))
+  }
 
   function sync() {
     const v = typeof window !== 'undefined' ? window.visualViewport : null
-    if (!v || !active()) { style.value = ''; keyboardOpen.value = false; return }
+    if (!v || !active()) { style.value = ''; keyboardOpen.value = false; wasOpen = false; return }
     const open = window.innerHeight - v.height > 120   // 키보드(+입력 보조 막대)가 올라온 상태
     keyboardOpen.value = open
+    if (wasOpen && !open) resetScroll()
+    wasOpen = open
     if (open) {
       style.value = `top:${Math.round(v.offsetTop)}px;height:${Math.round(v.height)}px;bottom:auto;`
       // 페이지 자체가 위로 밀려 있으면 되돌린다
@@ -46,14 +58,18 @@ export function useKeyboardViewport(active) {
     v.addEventListener('resize', sync)
     v.addEventListener('scroll', sync)
     window.addEventListener('focusin', onFocus)
+    window.addEventListener('focusout', onBlur)
     sync()
   })
   onUnmounted(() => {
     const v = window.visualViewport
     if (v) { v.removeEventListener('resize', sync); v.removeEventListener('scroll', sync) }
     window.removeEventListener('focusin', onFocus)
+    window.removeEventListener('focusout', onBlur)
     lock(false)
   })
+  // 입력칸 밖을 눌러 키보드가 내려갈 때도 한 번 더 맨 위로
+  function onBlur() { setTimeout(() => { sync(); resetScroll() }, 100) }
   // 입력칸을 누른 직후에는 키보드 애니메이션이 끝난 뒤 한 번 더 맞춘다
   function onFocus() { setTimeout(sync, 50); setTimeout(sync, 300) }
 
