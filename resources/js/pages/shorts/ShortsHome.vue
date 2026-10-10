@@ -20,7 +20,6 @@
 
       <!-- 오른쪽 위쪽(조금 내려서): 보기 모드(9:16/꽉) / 전체화면 세로 배치 -->
       <div data-top-right class="absolute flex flex-col items-center gap-3 z-30" style="top:calc(20% + var(--pt));right:calc(8px + var(--pr))">
-        <button data-mode @click="toggleFill" :title="fillMode ? '꽉 채우기 (좌우가 잘릴 수 있어요). 누르면 원본 비율' : '원본 비율 (9:16). 누르면 꽉 채우기 (좌우가 잘릴 수 있어요)'" :aria-label="fillMode ? '원본 비율로 보기' : '꽉 채워 보기'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xs font-bold flex items-center justify-center backdrop-blur">{{ fillMode ? '꽉' : '9:16' }}</button>
         <button data-fs @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xl leading-none flex items-center justify-center backdrop-blur">{{ isFs ? '⤡' : '⛶' }}</button>
       </div>
 
@@ -108,7 +107,6 @@ const rootEl = ref(null)
 const areaEl = ref(null)
 // 보기 모드: fit(원본 9:16 맞춤) / fill(꽉 채우기)
 const fillMode = ref(false)
-try { fillMode.value = localStorage.getItem('shorts_view_mode') === 'fill' } catch {}
 // 레이아웃 계산값
 const topInset = ref(0)
 const bottomInset = ref(0)
