@@ -11,9 +11,8 @@
         <div>
           <div class="text-sm font-bold text-white leading-tight flex items-center gap-1">
             {{ user.name }}
-            <span v-if="user.grade" class="text-[10px] bg-white/25 rounded-full px-1.5 py-0.5 font-semibold whitespace-nowrap" :title="`Lv.${user.grade.level} ${user.grade.label} (누적 ${user.grade.lifetime_points}P)`">{{ user.grade.icon }} {{ user.grade.label }}</span>
+            <span v-if="user.grade" class="text-[10px] bg-white/25 rounded-full px-1.5 py-0.5 font-semibold whitespace-nowrap">{{ user.grade.icon }} Lv.{{ user.grade.level }} {{ user.grade.label }}</span>
           </div>
-          <div class="text-[11px] text-white/80">{{ user.city ? user.city + ', ' + user.state : '' }}</div>
         </div>
       </div>
       <button @click="closeAll" class="text-white/70 hover:text-white transition-colors"><AppIcon name="x" :size="16" /></button>
@@ -21,10 +20,6 @@
 
     <!-- 메인 뷰: 기본 버튼들 -->
     <div v-if="view === 'main'" class="p-2 flex flex-col gap-1.5">
-      <div v-if="earnedBadges.length" class="flex items-center gap-1 px-1 flex-wrap">
-        <span v-for="b in earnedBadges.slice(0, 6)" :key="b.key" class="text-base" :title="`${b.icon} ${b.label} — ${b.desc}`">{{ b.icon }}</span>
-        <span v-if="earnedBadges.length > 6" class="text-[10px] text-ink-faint">+{{ earnedBadges.length - 6 }}</span>
-      </div>
       <div v-if="!isMe" class="flex gap-1.5">
         <button @click="view = 'message'" class="flex-1 bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" /> 쪽지</button>
         <!-- 친구 아닌 경우 -->

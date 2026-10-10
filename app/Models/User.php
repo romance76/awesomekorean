@@ -70,11 +70,22 @@ class User extends Authenticatable implements JWTSubject
      * API 응답에서 name → display_name으로 자동 교체
      * 실명은 real_name 필드로 별도 접근 가능 (부동산 등)
      */
+    /** 로그인/가입 응답처럼 "본인에게 돌려주는" 직렬화에서만 true 로 켠다 (toArray 의 lifetime_points 제거 예외) */
+    public bool $exposeLifetimePoints = false;
+
     public function toArray()
     {
         $array = parent::toArray();
         $array['real_name'] = $this->attributes['name'] ?? '';
         $array['name'] = $this->display_name; // name 필드를 display_name으로 대체
+
+        // 누적 포인트는 등급 링(grade_level) 계산에만 쓰고, 본인/관리자 외에는 API 응답에 내보내지 않는다.
+        if (!$this->exposeLifetimePoints && array_key_exists('lifetime_points', $array)) {
+            $viewer = auth()->user();
+            $isSelf = $viewer && (int) $viewer->id === (int) ($this->attributes['id'] ?? 0);
+            $isAdmin = $viewer && in_array($viewer->role, ['admin', 'super_admin'], true);
+            if (!$isSelf && !$isAdmin) unset($array['lifetime_points']);
+        }
         return $array;
     }
 

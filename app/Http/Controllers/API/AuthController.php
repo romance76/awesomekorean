@@ -64,7 +64,9 @@ class AuthController extends Controller
 
         $token = JWTAuth::fromUser($user);
 
-        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user->fresh()]]);
+        $fresh = $user->fresh();
+        $fresh->exposeLifetimePoints = true;   // 본인 응답 — 내 등급 화면용
+        return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $fresh]]);
     }
 
     // 이메일 인증 링크 클릭 시 접속 (서명된 URL로 보호, 가입 자체를 막지는 않음)
@@ -156,6 +158,7 @@ class AuthController extends Controller
             if ($loginBonus > 0) $user->addPoints($loginBonus, '일일 로그인 보너스');
         }
 
+        $user->exposeLifetimePoints = true;   // 본인 응답 — 내 등급 화면용
         return response()->json(['success' => true, 'data' => ['token' => $token, 'user' => $user]]);
     }
 

@@ -25,12 +25,33 @@ class ProfileController extends Controller
             ]);
         })->values();
 
-        $data = $user->toArray();
-        $data['grade'] = \App\Support\MemberGrade::forPoints((int) $user->lifetime_points);
-        $data['badges'] = $badges;
-        $data['is_blocked_by_me'] = auth()->id() && (int) auth()->id() !== (int) $id
+        $isBlockedByMe = auth()->id() && (int) auth()->id() !== (int) $id
             ? \App\Models\UserBlock::isBlocked(auth()->id(), $id)
             : false;
+
+        // 다른 회원에게는 "등급(레벨)"만 공개한다 — 포인트·거주지·가입일·소개·뱃지·등급 진행도는 본인/관리자만.
+        $viewer = auth()->user();
+        $isSelf = $viewer && (int) $viewer->id === (int) $id;
+        $isAdmin = $viewer && in_array($viewer->role, ['admin', 'super_admin'], true);
+        $grade = \App\Support\MemberGrade::forPoints((int) $user->lifetime_points);
+
+        if (!$isSelf && !$isAdmin) {
+            return response()->json(['success' => true, 'data' => [
+                'id' => $user->id,
+                'name' => $user->display_name,
+                'nickname' => $user->nickname,
+                'avatar' => $user->avatar,
+                'grade_level' => $grade['level'],
+                'grade' => ['level' => $grade['level'], 'label' => $grade['label'], 'icon' => $grade['icon']],
+                'allow_friend_request' => (bool) $user->allow_friend_request,
+                'is_blocked_by_me' => $isBlockedByMe,
+            ]]);
+        }
+
+        $data = $user->toArray();
+        $data['grade'] = $grade;
+        $data['badges'] = $badges;
+        $data['is_blocked_by_me'] = $isBlockedByMe;
 
         return response()->json(['success' => true, 'data' => $data]);
     }
@@ -156,6 +177,12 @@ class ProfileController extends Controller
 
     public function posts($id)
     {
+        // 다른 회원이 쓴 글 목록은 모아서 보여주지 않는다(본인/관리자만) — 글은 각 게시판에서 그대로 볼 수 있음
+        $viewer = auth()->user();
+        $allowed = $viewer && ((int) $viewer->id === (int) $id || in_array($viewer->role, ['admin', 'super_admin'], true));
+        if (!$allowed) {
+            return response()->json(['success' => true, 'data' => []]);
+        }
         $posts = \App\Models\Post::with('board:id,slug,name')
             ->where('user_id', $id)->visible()->orderByDesc('created_at')->paginate(20);
         return response()->json(['success' => true, 'data' => $posts]);
