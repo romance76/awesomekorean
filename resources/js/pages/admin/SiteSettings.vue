@@ -425,8 +425,8 @@
                 <input v-model="footer.sns.youtube" type="text" class="input-field text-sm flex-1" placeholder="https://youtube.com/..." />
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-sm text-ink-muted w-24 flex-shrink-0">KakaoTalk</span>
-                <input v-model="footer.sns.kakao" type="text" class="input-field text-sm flex-1" placeholder="카카오 채널 URL" />
+                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Threads</span>
+                <input v-model="footer.sns.threads" type="text" class="input-field text-sm flex-1" placeholder="https://www.threads.com/@..." />
               </div>
             </div>
           </div>
@@ -477,7 +477,7 @@
                 <span v-if="footer.sns.instagram" class="text-xs hover:text-white cursor-pointer">Instagram</span>
                 <span v-if="footer.sns.twitter" class="text-xs hover:text-white cursor-pointer">Twitter</span>
                 <span v-if="footer.sns.youtube" class="text-xs hover:text-white cursor-pointer">YouTube</span>
-                <span v-if="footer.sns.kakao" class="text-xs hover:text-white cursor-pointer">KakaoTalk</span>
+                <span v-if="footer.sns.threads" class="text-xs hover:text-white cursor-pointer">Threads</span>
               </div>
             </div>
             <p v-if="footer.additional_text" class="text-xs text-gray-600 mt-4">{{ footer.additional_text }}</p>

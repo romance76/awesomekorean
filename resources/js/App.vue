@@ -118,7 +118,7 @@ const footerCfg = computed(() => {
 })
 const footerSns = computed(() => {
   const s = footerCfg.value.sns || {}
-  return [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['twitter', 'Twitter/X'], ['youtube', 'YouTube'], ['kakao', 'KakaoTalk']]
+  return [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['twitter', 'Twitter/X'], ['youtube', 'YouTube'], ['threads', 'Threads']]
     .filter(([k]) => /^https?:\/\//i.test(s[k] || '')).map(([k, label]) => ({ label, url: s[k] }))
 })
 if (auth.isLoggedIn) bookmarkStore.loadAll()

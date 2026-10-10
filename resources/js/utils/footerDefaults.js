@@ -19,7 +19,7 @@ export const DEFAULT_FOOTER = {
     ] },
   ],
   copyright: '© 2026 AwesomeKorean. All rights reserved.',
-  sns: { facebook: '', instagram: '', twitter: '', youtube: '', kakao: '' },
+  sns: { facebook: '', instagram: '', twitter: '', youtube: '', threads: '' },
   additional_text: '',
 }
 
