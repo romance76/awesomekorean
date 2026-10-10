@@ -11,11 +11,11 @@
       <!-- 숫자가 길어도 카드 밖으로 잘리지 않게 자릿수에 따라 글자 크기를 줄인다 -->
       <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-4 sm:p-5 text-white shadow-card min-w-0 overflow-hidden">
         <div class="text-sm opacity-90">내 포인트</div>
-        <div class="font-black tabular-nums leading-tight break-all" :class="statNumSize(auth.user?.points)">{{ (auth.user?.points || 0).toLocaleString() }}P</div>
+        <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.user?.points)">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-sm font-bold ml-0.5 opacity-90">P</span></div>
       </div>
       <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-4 sm:p-5 text-white shadow-card min-w-0 overflow-hidden">
         <div class="text-sm opacity-90 flex items-center gap-1"><AppIcon name="ticket" :size="14" />내 Entry</div>
-        <div class="font-black tabular-nums leading-tight break-all" :class="statNumSize(auth.user?.entries)">{{ (auth.user?.entries || 0).toLocaleString() }}</div>
+        <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.user?.entries)">{{ (auth.user?.entries || 0).toLocaleString() }}</div>
       </div>
     </div>
 
@@ -1127,8 +1127,9 @@ import ChatComposer from '../../components/ChatComposer.vue'
 
 // 포인트/Entry 카드 숫자 크기: 자릿수(쉼표 포함)가 많을수록 작게
 function statNumSize(n) {
-  const len = (Number(n || 0)).toLocaleString().length + 1
-  return len >= 13 ? 'text-lg' : len >= 11 ? 'text-xl' : len >= 9 ? 'text-2xl' : 'text-3xl'
+  // 쉼표 포함 글자 수 기준 (카드 안쪽 폭이 폰에서 약 130px 이라 한 줄에 들어오도록 보수적으로)
+  const len = (Number(n || 0)).toLocaleString().length
+  return len >= 11 ? 'text-lg' : len >= 9 ? 'text-xl' : len >= 7 ? 'text-2xl' : 'text-3xl'
 }
 import { ref, reactive, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'

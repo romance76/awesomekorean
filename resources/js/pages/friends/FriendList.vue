@@ -9,8 +9,17 @@
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 필터 -->
       <div class="col-span-12 lg:col-span-3 space-y-3">
-        <!-- 상태 탭 -->
-        <div class="card overflow-hidden">
+        <!-- 상태 칩 (폰): 결과가 아래로 밀려 안 보이던 문제 — 한 줄 가로 칩으로 맨 위에 둔다 -->
+        <div class="lg:hidden flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-hide">
+          <button v-for="t in statusTabs" :key="t.key" @click="statusFilter=t.key; loadFriends()"
+            class="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-semibold border transition-colors"
+            :class="statusFilter===t.key ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-white text-ink-light border-gray-200'">
+            {{ t.label }}
+            <span class="text-[11px] min-w-[18px] text-center rounded-full px-1" :class="statusFilter===t.key ? 'bg-white/25 text-white' : 'bg-gray-100 text-ink-faint'">{{ getCounts(t.key) }}</span>
+          </button>
+        </div>
+        <!-- 상태 탭 (PC) -->
+        <div class="card overflow-hidden hidden lg:block">
           <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="list" :size="14" class="text-amber-600" />상태</div>
           <button v-for="t in statusTabs" :key="t.key" @click="statusFilter=t.key; loadFriends()"
             class="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between"
@@ -19,8 +28,8 @@
             <span class="text-[11px] text-ink-faint">{{ getCounts(t.key) }}</span>
           </button>
         </div>
-        <!-- 섹션 필터 -->
-        <div class="card overflow-hidden">
+        <!-- 섹션 필터 (PC 전용 — 폰에서는 각 친구 카드에 만난 곳이 이미 표시됨) -->
+        <div class="card overflow-hidden hidden lg:block">
           <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="tag" :size="14" class="text-amber-600" />만난 곳</div>
           <button @click="sourceFilter=''; loadFriends()" class="w-full text-left px-4 py-2 text-xs transition-colors"
             :class="!sourceFilter?'bg-amber-50 text-amber-700 font-bold':'text-ink-light hover:bg-amber-50/50'">전체</button>
@@ -28,8 +37,8 @@
             class="w-full text-left px-4 py-2 text-xs transition-colors"
             :class="sourceFilter===s.key?'bg-amber-50 text-amber-700 font-bold':'text-ink-light hover:bg-amber-50/50'">{{ s.icon }} {{ s.label }}</button>
         </div>
-        <!-- 그룹 채팅방 -->
-        <div class="card overflow-hidden">
+        <!-- 그룹 채팅방 (PC: 왼쪽 열) -->
+        <div class="card overflow-hidden hidden lg:block">
           <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center justify-between">
             <span class="flex items-center gap-1.5"><AppIcon name="message-circle" :size="14" class="text-amber-600" />채팅방</span>
             <button @click="showGroupModal=true" class="text-amber-600 text-xs font-semibold hover:text-amber-800 transition-colors flex items-center gap-0.5"><AppIcon name="plus" :size="12" />만들기</button>
@@ -151,7 +160,8 @@
                 <button @click="openChat(f.friend?.id)" class="flex-1 text-xs bg-amber-50 text-amber-700 py-1.5 rounded-lg font-bold hover:bg-amber-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="message-circle" :size="12" />채팅</button>
                 <button v-if="VOICE_CALL_ENABLED" @click="startCall(f.friend)" class="flex-1 text-xs bg-green-50 text-green-700 py-1.5 rounded-lg font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="phone" :size="12" />전화</button>
                 <button @click="sendMessageTo(f.friend)" class="flex-1 text-xs bg-blue-50 text-blue-700 py-1.5 rounded-lg font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="mail" :size="12" />쪽지</button>
-                <button @click="removeFriend(f.id)" class="text-ink-faint px-2 py-1.5 hover:text-red-500 transition-colors"><AppIcon name="x" :size="13" /></button>
+                <button @click="removeFriend(f.id)" title="친구 삭제" aria-label="친구 삭제"
+                  class="w-9 flex-shrink-0 rounded-lg bg-gray-50 text-ink-faint hover:bg-red-50 hover:text-red-500 active:bg-red-100 transition-colors flex items-center justify-center"><AppIcon name="trash" :size="15" /></button>
               </template>
               <template v-else-if="f.status==='pending' && !f.is_sender">
                 <button @click="acceptRequest(f.id)" class="flex-1 text-xs bg-green-50 text-green-700 py-1.5 rounded-lg font-bold hover:bg-green-100 transition-colors flex items-center justify-center gap-1"><AppIcon name="check" :size="12" />수락</button>
@@ -164,6 +174,20 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- 그룹 채팅방 (폰: 친구 목록 아래) -->
+      <div class="col-span-12 lg:hidden card overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50 font-bold text-sm text-ink flex items-center justify-between">
+          <span class="flex items-center gap-1.5"><AppIcon name="message-circle" :size="14" class="text-amber-600" />채팅방</span>
+          <button @click="showGroupModal=true" class="text-amber-600 text-xs font-semibold flex items-center gap-0.5"><AppIcon name="plus" :size="12" />만들기</button>
+        </div>
+        <div v-if="!chatRooms.length" class="px-4 py-3 text-xs text-ink-muted">채팅방이 없습니다</div>
+        <RouterLink v-for="room in chatRooms" :key="'m'+room.id" :to="`/chat/${room.id}`"
+          class="block px-4 py-2.5 text-sm hover:bg-amber-50 transition-colors border-b border-gray-50 last:border-0">
+          <div class="font-medium text-ink truncate">{{ room.name }}</div>
+          <div class="text-[11px] text-ink-muted truncate">{{ room.messages?.[0]?.content || '메시지 없음' }}</div>
+        </RouterLink>
       </div>
     </div>
 
@@ -234,6 +258,9 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import { VOICE_CALL_ENABLED } from '../../config/features'
+import { useModal } from '../../composables/useModal'
+
+const { showConfirm, showAlert } = useModal()
 
 const router = useRouter()
 const allFriends = ref([])
@@ -308,11 +335,11 @@ async function loadBlockedUsers() {
 }
 
 async function unblockUser(userId) {
-  if (!confirm('차단을 해제하시겠습니까?')) return
+  if (!(await showConfirm('이 사용자의 차단을 해제할까요?\n해제하면 다시 쪽지와 채팅을 주고받을 수 있어요.', '차단 해제'))) return
   try {
     await axios.delete(`/api/comms/users/${userId}/block`)
     blockedUsers.value = blockedUsers.value.filter(u => u.id !== userId)
-  } catch (e) { alert(e.response?.data?.message || '처리 실패') }
+  } catch (e) { showAlert(e.response?.data?.message || '처리하지 못했어요. 잠시 후 다시 시도해 주세요.') }
 }
 
 async function loadChatRooms() {
@@ -327,7 +354,7 @@ async function acceptRequest(id) {
 }
 
 async function removeFriend(id) {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!(await showConfirm('이 친구를 목록에서 삭제할까요?\n삭제하면 서로의 친구 목록에서 사라져요.', '친구 삭제'))) return
   try { await axios.delete(`/api/friends/${id}`); allFriends.value = allFriends.value.filter(f => f.id !== id) } catch {}
 }
 
@@ -377,7 +404,7 @@ async function doSendMsg() {
     msgDone.value = true
     msgText.value = ''
   } catch (e) {
-    alert(e.response?.data?.message || '전송 실패')
+    showAlert(e.response?.data?.message || '쪽지를 보내지 못했어요. 잠시 후 다시 시도해 주세요.')
   }
   msgSending.value = false
 }
@@ -389,7 +416,7 @@ async function createGroupChat() {
     showGroupModal.value = false; groupName.value = ''; selectedFriends.value = []
     await loadChatRooms()
     router.push(`/chat/${data.data.id}`)
-  } catch (e) { alert(e.response?.data?.message || '생성 실패') }
+  } catch (e) { showAlert(e.response?.data?.message || '채팅방을 만들지 못했어요. 잠시 후 다시 시도해 주세요.') }
 }
 
 onMounted(async () => {
