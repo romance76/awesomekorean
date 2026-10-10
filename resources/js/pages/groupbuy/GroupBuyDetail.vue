@@ -406,6 +406,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -423,6 +424,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import axios from 'axios'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const router = useRouter()
@@ -642,7 +644,7 @@ async function submitJoin() {
 
 async function cancelParticipation() {
   if (!gb.value) return
-  if (!confirm('참여를 취소하시겠습니까?')) return
+  if (!await showConfirm('참여를 취소하시겠습니까?')) return
 
   try {
     await axios.post(`/api/groupbuys/${gb.value.id}/cancel`)
@@ -654,7 +656,7 @@ async function cancelParticipation() {
 }
 
 async function deleteGb() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/groupbuys/${gb.value.id}`)
     router.push('/groupbuy')

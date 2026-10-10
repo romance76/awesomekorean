@@ -115,6 +115,7 @@
 </div>
 </template>
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
@@ -126,6 +127,7 @@ import CommentSection from '../../components/CommentSection.vue'
 import ReportModal from '../../components/ReportModal.vue'
 import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const router = useRouter()
@@ -138,7 +140,7 @@ const selectedIdx = ref(0)
 const reportOpen = ref(false)
 const statusText = { pending: '승인 대기 중', hidden: '내려간 리뷰', rejected: '반려됨' }
 async function removeMine() {
-  if (!window.confirm('이 리뷰를 삭제할까요?')) return
+  if (!await showConfirm('이 리뷰를 삭제할까요?')) return
   try { await axios.delete(`/api/shopping/reviews/${product.value.id}`); router.replace('/dashboard?tab=reviews') } catch {}
 }
 const categories = [

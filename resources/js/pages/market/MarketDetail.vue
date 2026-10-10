@@ -294,6 +294,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -316,6 +317,7 @@ import VerifyGate from '../../components/VerifyGate.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'
 import { useBookmarkStore } from '../../stores/bookmarks'
 import axios from 'axios'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const router = useRouter()
@@ -384,7 +386,7 @@ const holdOptions = computed(() => [6, 12, 24, 48, 72, 168].filter(h => h <= (it
 const holdCost = computed(() => Math.ceil(holdHours.value / 6) * (item.value?.hold_price_per_6h || 0))
 
 async function submitHold() {
-  if (!confirm(`${holdHours.value}시간 홀드에 ${holdCost.value}P 차감됩니다.`)) return
+  if (!await showConfirm(`${holdHours.value}시간 홀드에 ${holdCost.value}P 차감됩니다.`)) return
   holdingInProgress.value = true
   try {
     const { data } = await axios.post(`/api/market/${item.value.id}/hold`, { hours: holdHours.value })
@@ -433,7 +435,7 @@ async function submitMeetup() {
 // 거래완료 (판매자)
 const completingHold = ref(false)
 async function submitCompleteHold() {
-  if (!confirm('거래를 완료 처리하시겠습니까? 완료 후에는 물품이 판매완료로 전환되고 서로 후기를 남길 수 있습니다.')) return
+  if (!await showConfirm('거래를 완료 처리하시겠습니까? 완료 후에는 물품이 판매완료로 전환되고 서로 후기를 남길 수 있습니다.')) return
   completingHold.value = true
   try {
     const { data } = await axios.post(`/api/market/${item.value.id}/hold/complete`)
@@ -475,7 +477,7 @@ function sendMessage() { msgModal.value = true }
 // 신고
 const showReport = ref(false)
 async function deleteItem() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try { await axios.delete(`/api/market/${item.value.id}`); router.push('/market') } catch {}
 }
 

@@ -304,6 +304,7 @@
 </div>
 </template>
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useLocationFilterStore } from '../../stores/locationFilter'
@@ -318,6 +319,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
+const { showConfirm } = useModal()
 const recentDraws = ref([])
 let recentDrawsLoaded = false
 
@@ -388,7 +390,7 @@ function navItem(dir) {
 }
 
 async function deleteActiveItem(type) {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try { await axios.delete(`/api/${type}/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 

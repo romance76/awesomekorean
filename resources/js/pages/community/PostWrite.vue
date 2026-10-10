@@ -91,11 +91,13 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
+const { showConfirm } = useModal()
 
 const router = useRouter()
 const route = useRoute()
@@ -219,8 +221,8 @@ watch(() => [form.value.title, form.value.content, form.value.board_id], () => {
   }, 800)
 })
 
-function clearDraft() {
-  if (!confirm('임시저장과 본문을 모두 초기화할까요?')) return
+async function clearDraft() {
+  if (!await showConfirm('임시저장과 본문을 모두 초기화할까요?')) return
   form.value.content = ''
   form.value.title = ''
   draftSavedAt.value = ''
@@ -276,7 +278,7 @@ onMounted(async () => {
     if (raw) {
       const d = JSON.parse(raw)
       if (d.title || d.content) {
-        if (confirm('임시저장된 글이 있습니다. 복원할까요?')) {
+        if (await showConfirm('임시저장된 글이 있습니다. 복원할까요?')) {
           form.value.title = d.title || form.value.title
           form.value.content = d.content || ''
           if (d.board_id) form.value.board_id = d.board_id

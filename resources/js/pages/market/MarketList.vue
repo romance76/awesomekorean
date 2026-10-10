@@ -255,6 +255,7 @@
 </div>
 </template>
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useLocationFilterStore } from '../../stores/locationFilter'
@@ -270,6 +271,7 @@ import TextInlineAd from '../../components/TextInlineAd.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+const { showConfirm } = useModal()
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -303,7 +305,7 @@ function navItem(dir) {
 }
 
 async function deleteItem(type) {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try { await axios.delete(`/api/${type}/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 const page = ref(1)

@@ -45,6 +45,7 @@
 </div>
 </template>
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
@@ -52,6 +53,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const jobId = route.params.id
@@ -76,7 +78,7 @@ function statusStyle(s) {
 
 async function setStatus(a, status) {
   const label = status === 'accepted' ? '채용확정' : '불합격 처리'
-  if (!confirm(`${a.user?.nickname || a.user?.name}님을 ${label} 처리하시겠습니까?`)) return
+  if (!await showConfirm(`${a.user?.nickname || a.user?.name}님을 ${label} 처리하시겠습니까?`)) return
   busyId.value = a.id
   try {
     const { data } = await axios.post(`/api/jobs/${jobId}/applicants/${a.id}/status`, { status })

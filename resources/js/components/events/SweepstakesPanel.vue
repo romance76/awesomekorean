@@ -70,10 +70,12 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, defineAsyncComponent } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import SweepstakesEnterModal from '../SweepstakesEnterModal.vue'
+const { showConfirm } = useModal()
 // 3D 추첨 무대는 three.js 가 커서 필요할 때만 따로 내려받음 (별도 청크)
 const LotteryShowcase = defineAsyncComponent(() => import('../LotteryShowcase.vue'))
 
@@ -136,7 +138,7 @@ async function onEntered(res) {
 
 async function selectWinner() {
   const multi = winnerCount.value > 1
-  if (!confirm(`"${props.event.title}" 당첨자${multi ? ` ${winnerCount.value}명` : ''}를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
+  if (!await showConfirm(`"${props.event.title}" 당첨자${multi ? ` ${winnerCount.value}명` : ''}를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
   selectingWinner.value = true
   try {
     const { data } = await axios.post(`/api/admin/sweepstakes/${sw.value.id}/select-winner`)

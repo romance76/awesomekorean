@@ -229,6 +229,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -249,6 +250,7 @@ import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const router = useRouter()
@@ -358,7 +360,7 @@ function fmtDate(dt) {
   return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`
 }
 async function deleteListing() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try { await axios.delete(`/api/realestate/${listing.value.id}`); router.push('/realestate') } catch {}
 }
 

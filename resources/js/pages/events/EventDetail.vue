@@ -168,6 +168,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -180,6 +181,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 const recentDraws = ref([])
 import axios from 'axios'
+const { showConfirm } = useModal()
 
 const BM_TYPE = 'App\\Models\\Event'
 const route = useRoute()
@@ -265,7 +267,7 @@ async function submitProof(ev) {
 }
 
 async function deleteEvent() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/events/${event.value.id}`)
     router.push('/events')

@@ -236,6 +236,7 @@
 </div>
 </template>
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
@@ -248,6 +249,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import ShareButton from '../../components/ShareButton.vue'
+const { showConfirm } = useModal()
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -349,7 +351,7 @@ async function voteAnswer(ans, type) {
 }
 
 async function deleteAnswer(ans) {
-  if (!confirm('답변을 삭제하시겠습니까?')) return
+  if (!await showConfirm('답변을 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/qa/${activeItem.value.id}/answer/${ans.id}`)
     answers.value = answers.value.filter(a => a.id !== ans.id)

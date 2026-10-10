@@ -318,6 +318,7 @@
 </div>
 </template>
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useLocationFilterStore } from '../../stores/locationFilter'
@@ -333,6 +334,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+const { showConfirm } = useModal()
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -448,7 +450,7 @@ function navItem(dir) {
   if (newIdx >= 0 && newIdx < items.value.length) openItem(items.value[newIdx])
 }
 async function deleteActiveItem() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try { await axios.delete(`/api/realestate/${activeItem.value.id}`); activeItem.value = null; loadPage() } catch {}
 }
 const page = ref(1)

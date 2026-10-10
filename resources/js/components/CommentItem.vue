@@ -138,7 +138,7 @@ async function saveEdit() {
 }
 
 async function deleteComment() {
-  if (!confirm('댓글을 삭제하시겠습니까?')) return
+  if (!await showConfirm('댓글을 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/comments/${props.comment.id}`)
     emit('deleted', props.comment.id)

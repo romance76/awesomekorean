@@ -690,6 +690,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -709,6 +710,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const router = useRouter()
@@ -971,7 +973,7 @@ async function joinClub() {
 }
 
 async function leaveClub() {
-  if (!confirm('정말 탈퇴하시겠습니까?')) return
+  if (!await showConfirm('정말 탈퇴하시겠습니까?')) return
   try {
     await axios.post(`/api/clubs/${club.value.id}/leave`)
     isMember.value = false
@@ -1040,7 +1042,7 @@ async function changeGrade(member, newGrade) {
 
 async function kickMember(member) {
   const name = member.user?.name || '이 회원'
-  if (!confirm(`${name}님을 강퇴하시겠습니까?`)) return
+  if (!await showConfirm(`${name}님을 강퇴하시겠습니까?`)) return
   try {
     await axios.delete(`/api/clubs/${club.value.id}/members/${member.user?.id || member.user_id}`)
     members.value = members.value.filter(m => m.id !== member.id)
@@ -1079,7 +1081,7 @@ async function updateBoard() {
 }
 
 async function deleteBoard(board) {
-  if (!confirm(`"${board.name}" 게시판을 삭제하시겠습니까? 게시글도 함께 삭제됩니다.`)) return
+  if (!await showConfirm(`"${board.name}" 게시판을 삭제하시겠습니까? 게시글도 함께 삭제됩니다.`)) return
   try {
     await axios.delete(`/api/clubs/${club.value.id}/boards/${board.id}`)
     boards.value = boards.value.filter(b => b.id !== board.id)
@@ -1119,7 +1121,7 @@ function canDeletePost(post) {
 }
 
 async function deletePost(post) {
-  if (!confirm('이 게시글을 삭제하시겠습니까?')) return
+  if (!await showConfirm('이 게시글을 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/clubs/posts/${post.id}`)
     posts.value = posts.value.filter(p => p.id !== post.id)
@@ -1154,7 +1156,7 @@ async function approveMember(pm) {
 }
 
 async function rejectMember(pm) {
-  if (!confirm(`${pm.user?.name || '이 회원'}의 가입 신청을 거절하시겠습니까?`)) return
+  if (!await showConfirm(`${pm.user?.name || '이 회원'}의 가입 신청을 거절하시겠습니까?`)) return
   try {
     await axios.post(`/api/clubs/${club.value.id}/members/${pm.user_id || pm.user?.id}/reject`)
     pendingMembers.value = pendingMembers.value.filter(p => p.id !== pm.id)

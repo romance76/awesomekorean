@@ -174,6 +174,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
@@ -184,6 +185,7 @@ import PageHeader from '../../components/PageHeader.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import StripeCardForm from '../../components/StripeCardForm.vue'
 import { KINDS, US_STATES, fmtHour, hourRanges, fmtDay, tzLabel, stateName, STATUS_LABEL, usd, adMoney } from '../../utils/flyer'
+const { showConfirm } = useModal()
 
 defineProps({ embedded: { type: Boolean, default: false } })
 
@@ -330,7 +332,7 @@ async function closeCheckout() {
 
 async function cancel(m) {
   const card = m.payment_method === 'card'
-  if (!confirm(card ? `'${m.title}' 신청을 취소할까요? (카드에는 청구되지 않았어요)` : `'${m.title}' 신청을 취소하고 ${adMoney(m, m.total_price)}를 환불받을까요?`)) return
+  if (!await showConfirm(card ? `'${m.title}' 신청을 취소할까요? (카드에는 청구되지 않았어요)` : `'${m.title}' 신청을 취소하고 ${adMoney(m, m.total_price)}를 환불받을까요?`)) return
   try {
     const { data } = await axios.post(`/api/flyers/${m.id}/cancel`)
     site.toast(data.message, 'success')

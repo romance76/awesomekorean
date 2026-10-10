@@ -61,10 +61,12 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+const { showConfirm } = useModal()
 
 const loading = ref(true)
 const d = ref({ amazon_tag: null, items: [], totals: {} })
@@ -105,7 +107,7 @@ async function saveTag() {
   tagBusy.value = false
 }
 async function remove(r) {
-  if (!window.confirm(`'${r.title}' 리뷰를 삭제할까요?`)) return
+  if (!await showConfirm(`'${r.title}' 리뷰를 삭제할까요?`)) return
   try { await axios.delete(`/api/shopping/reviews/${r.id}`); await load() } catch {}
 }
 onMounted(load)

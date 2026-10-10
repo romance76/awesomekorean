@@ -106,6 +106,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -118,6 +119,7 @@ import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -191,7 +193,7 @@ function sharePost() {
 }
 
 async function deletePost() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try { await axios.delete(`/api/posts/${post.value.id}`); router.push('/community') } catch {}
 }
 
@@ -207,7 +209,7 @@ async function saveEditComment(id) {
 }
 
 async function deleteComment(id) {
-  if (!confirm('댓글을 삭제하시겠습니까?')) return
+  if (!await showConfirm('댓글을 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/comments/${id}`)
     comments.value = comments.value.filter(c => c.id !== id)

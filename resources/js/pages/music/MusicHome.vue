@@ -189,11 +189,13 @@
 </style>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useMusicStore } from '../../stores/music'
 import AppIcon from '../../components/AppIcon.vue'
 import axios from 'axios'
+const { showConfirm } = useModal()
 
 const auth = useAuthStore()
 const musicStore = useMusicStore()
@@ -420,7 +422,7 @@ async function createPlaylist() {
 }
 
 async function deletePlaylist(plId) {
-  if (!confirm('삭제하시겠습니까?')) return
+  if (!await showConfirm('삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/music/playlists/${plId}`)
     if (activePL.value?.id === plId) { activePL.value = null; plTracks.value = [] }

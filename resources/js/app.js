@@ -5,6 +5,7 @@ import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
 import { useSiteStore } from './stores/site'
+import { useModal } from './composables/useModal'
 
 const pinia = createPinia()
 import UserName from './components/UserName.vue'
@@ -25,6 +26,11 @@ const authStore = useAuthStore()
 authStore.initialize()
 if (authStore.isLoggedIn) authStore.fetchUser()
 else authStore.resolveInit()
+
+// 브라우저 기본 alert 창 대신 사이트 팝업으로 보여준다 (alert 는 반환값이 없어서 그대로 바꿔 끼워도 안전).
+// 일부 앱 내 브라우저가 기본 팝업을 막는 문제와 디자인 불일치를 함께 해결. 원래 함수는 window.nativeAlert 로 보관.
+window.nativeAlert = window.alert.bind(window)
+window.alert = (msg) => { useModal().showAlert(String(msg ?? '')) }
 
 const siteStore = useSiteStore()
 siteStore.load()

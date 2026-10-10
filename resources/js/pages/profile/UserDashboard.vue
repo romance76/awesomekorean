@@ -1539,7 +1539,7 @@ function sendMsg() {
   nextTick(() => msgInputEl.value?.focus?.({ preventScroll: true }))
 }
 async function deleteThread(partner) {
-  if (!confirm((partner.name || '이 사람') + '님과의 대화를 모두 삭제하시겠습니까?\n내 쪽지함에서만 지워지고, 상대방 쪽지함에는 그대로 남습니다.')) return
+  if (!await showConfirm((partner.name || '이 사람') + '님과의 대화를 모두 삭제하시겠습니까?\n내 쪽지함에서만 지워지고, 상대방 쪽지함에는 그대로 남습니다.')) return
   try {
     const { data } = await axios.delete('/api/messages/thread/' + partner.id)
     threads.value = threads.value.filter(t => t.partner.id !== partner.id)
@@ -1555,7 +1555,7 @@ async function addFriendFromMsg(t) {
   } catch (e) { showAlert(e.response?.data?.message || '친구 요청 실패', '오류') }
 }
 async function blockFromMsg(t) {
-  if (!confirm((t.partner.name || '이 사람') + '님을 차단하시겠습니까?\n차단하면 서로 쪽지·채팅·통화를 할 수 없어요.')) return
+  if (!await showConfirm((t.partner.name || '이 사람') + '님을 차단하시겠습니까?\n차단하면 서로 쪽지·채팅·통화를 할 수 없어요.')) return
   try {
     await axios.post('/api/friends/block/' + t.partner.id)
     showAlert('차단했습니다', '완료')
@@ -1563,7 +1563,7 @@ async function blockFromMsg(t) {
   } catch (e) { showAlert(e.response?.data?.message || '차단 실패', '오류') }
 }
 async function deleteMsg(m) {
-  if (!confirm('이 쪽지를 삭제하시겠습니까? (내 쪽지함에서만 지워지고 상대방에게는 남습니다)')) return
+  if (!await showConfirm('이 쪽지를 삭제하시겠습니까? (내 쪽지함에서만 지워지고 상대방에게는 남습니다)')) return
   try { await axios.delete('/api/messages/' + m.id); thread.value = thread.value.filter(x => x.id !== m.id) } catch {}
 }
 const _msgDay = (dt) => { const d = new Date(dt); return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() }

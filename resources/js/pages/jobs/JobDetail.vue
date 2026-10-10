@@ -305,6 +305,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -320,6 +321,7 @@ import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import axios from 'axios'
+const { showConfirm } = useModal()
 
 const route = useRoute()
 const router = useRouter()
@@ -534,7 +536,7 @@ async function toggleJobFav() {
 
 // ── Delete ──
 async function deleteJob() {
-  if (!confirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/jobs/${job.value.id}`)
     router.push('/jobs')

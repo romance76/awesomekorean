@@ -46,7 +46,7 @@ async function fetchShorts() {
   try {
     const { data } = await axios.post('/api/admin/fetch-shorts')
     if (isMobile.value) { say(data.message || '숏츠 수집 완료!'); setTimeout(() => location.reload(), 1200) }
-    else { alert(data.message || '숏츠 수집 완료!'); location.reload() }
+    else { (window.nativeAlert || alert)(data.message || '숏츠 수집 완료!'); location.reload() }
   } catch (e) { { if (isMobile.value) say(e.response?.data?.message || '수집 실패', true); else alert(e.response?.data?.message || '수집 실패') } }
   fetching.value = false
 }

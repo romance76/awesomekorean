@@ -230,6 +230,7 @@
 </template>
 
 <script setup>
+import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
@@ -241,6 +242,7 @@ import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
+const { showConfirm } = useModal()
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -347,7 +349,7 @@ async function loadComments() {
 }
 
 async function deleteComment(commentId) {
-  if (!confirm('이 리뷰를 삭제할까요?')) return
+  if (!await showConfirm('이 리뷰를 삭제할까요?')) return
   try {
     await axios.delete(`/api/recipes/${recipe.value.id}/comments/${commentId}`)
     await loadComments()
@@ -371,7 +373,7 @@ function fmtDate(dt) {
 }
 
 async function deleteRecipe() {
-  if (!confirm('이 레시피를 삭제하시겠습니까?')) return
+  if (!await showConfirm('이 레시피를 삭제하시겠습니까?')) return
   try {
     await axios.delete(`/api/recipes/${recipe.value.id}`)
     router.push('/recipes')

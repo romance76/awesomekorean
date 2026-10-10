@@ -123,11 +123,13 @@
 </template>
 
 <script setup>
+import { useModal } from '../composables/useModal'
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 import UserAvatar from './UserAvatar.vue'
+const { showConfirm } = useModal()
 
 const props = defineProps({ show: Boolean, userId: [Number, String] })
 const emit = defineEmits(['close'])
@@ -199,7 +201,7 @@ const blocking = ref(false)
 async function toggleBlock() {
   if (!user.value) return
   const willBlock = !user.value.is_blocked_by_me
-  if (!confirm(willBlock ? '이 사용자를 차단하시겠습니까? 서로 메시지·통화가 차단됩니다.' : '차단을 해제하시겠습니까?')) return
+  if (!await showConfirm(willBlock ? '이 사용자를 차단하시겠습니까? 서로 메시지·통화가 차단됩니다.' : '차단을 해제하시겠습니까?')) return
   blocking.value = true
   try {
     if (willBlock) await axios.post(`/api/comms/users/${user.value.id}/block`)
