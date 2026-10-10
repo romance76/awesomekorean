@@ -97,10 +97,7 @@
                     class="btn-primary w-full py-1.5 text-[11px]"><AppIcon name="external-link" :size="12" />원본 매물 보기</a>
                 </div>
                 <div v-if="item.user" class="flex items-center gap-2">
-                  <img v-if="item.user.avatar" :src="'/storage/' + item.user.avatar" class="w-10 h-10 rounded-full object-cover border-2 border-amber-200" @error="e => e.target.style.display='none'" />
-                  <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700">
-                    {{ (item.user.nickname || item.user.name || '?')[0] }}
-                  </div>
+                  <UserAvatar :user="item.user" :size="64" />
                   <div class="min-w-0">
                     <div class="text-xs font-bold text-ink truncate">{{ item.user?.nickname || item.user?.name }}</div>
                     <div class="text-[11px] text-ink-muted">가입: {{ formatFullDate(item.user?.created_at) }}</div>
@@ -313,6 +310,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import { useFriendAction, useBookmarkLike } from '../../composables/useSocialActions'

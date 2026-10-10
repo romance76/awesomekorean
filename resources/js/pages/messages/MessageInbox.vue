@@ -29,14 +29,12 @@
         :class="tab==='received' && !msg.is_read ? 'bg-amber-50' : ''">
         <div class="flex items-center gap-2 mb-1">
           <span v-if="tab==='received' && !msg.is_read" class="w-2 h-2 bg-amber-500 rounded-full flex-shrink-0"></span>
-          <div class="w-7 h-7 bg-amber-100 rounded-full flex items-center justify-center text-[11px] font-bold text-amber-700 flex-shrink-0">
-            {{ (tab==='received' ? msg.sender?.name : msg.receiver?.name || '?')[0] }}
-          </div>
+          <UserAvatar :user="tab==='received' ? msg.sender : msg.receiver" :size="44" />
           <span class="text-sm font-semibold text-ink">{{ tab==='received' ? msg.sender?.name : msg.receiver?.name || '알 수 없음' }}</span>
           <span v-if="tab==='sent'" class="text-[11px] text-blue-400">보냄</span>
           <span class="text-[11px] text-ink-muted ml-auto">{{ formatDate(msg.created_at) }}</span>
         </div>
-        <div class="text-sm text-ink-light truncate pl-9">{{ msg.content }}</div>
+        <div class="text-sm text-ink-light truncate pl-[52px]">{{ msg.content }}</div>
       </div>
     </div>
 
@@ -46,10 +44,7 @@
         <div class="px-5 py-3 flex items-center justify-between border-b border-gray-100"
           :class="tab==='received' ? '' : ''">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-              :class="tab==='received' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'">
-              {{ (tab==='received' ? activeMsg.sender?.name : activeMsg.receiver?.name || '?')[0] }}
-            </div>
+            <UserAvatar :user="tab==='received' ? activeMsg.sender : activeMsg.receiver" :size="52" />
             <div>
               <div class="text-sm font-bold" :class="tab==='received' ? 'text-ink' : 'text-ink'">
                 {{ tab==='received' ? activeMsg.sender?.name : activeMsg.receiver?.name }}
@@ -100,6 +95,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import PageHeader from '../../components/PageHeader.vue'
 
 const messages = ref([])

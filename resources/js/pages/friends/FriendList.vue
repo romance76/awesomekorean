@@ -107,7 +107,7 @@
           <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div v-for="u in blockedUsers" :key="u.id" class="card card-hover p-4">
               <div class="flex items-center gap-3 mb-3">
-                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-lg font-bold text-ink-faint">{{ (u.nickname||u.name||'?')[0] }}</div>
+                <UserAvatar :user="u" :size="64" />
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-bold text-ink truncate">{{ u.nickname || u.name }}</div>
                   <div class="text-[11px] text-ink-faint">차단됨 — 메시지·통화가 서로 차단됩니다</div>

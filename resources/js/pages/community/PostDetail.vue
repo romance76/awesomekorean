@@ -77,7 +77,7 @@
             <span class="text-[13px] font-bold text-ink">작성자 정보</span>
           </div>
           <RouterLink :to="`/profile/${post.user?.id}`" class="flex items-center gap-2 hover:bg-amber-50/60 -mx-2 px-2 py-1 rounded-lg transition-colors">
-            <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-sm font-bold text-amber-700">{{ (post.user?.name || '?')[0] }}</div>
+            <UserAvatar :user="post.user" :size="52" />
             <div>
               <UserName :userId="post.user?.id" :name="post.user?.name" className="text-sm text-ink-light font-semibold" />
               <div v-if="post.user?.bio" class="text-xs text-ink-muted truncate max-w-[120px]">{{ post.user.bio }}</div>
@@ -117,6 +117,7 @@ import { useSiteStore } from '../../stores/site'
 import axios from 'axios'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 
 const route = useRoute()
 const auth = useAuthStore()

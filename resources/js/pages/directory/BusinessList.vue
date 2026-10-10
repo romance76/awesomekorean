@@ -389,6 +389,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 
 const auth = useAuthStore()

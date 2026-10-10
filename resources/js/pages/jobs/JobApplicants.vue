@@ -8,7 +8,7 @@
     <div v-for="a in applicants" :key="a.id" class="card p-4">
       <div class="flex items-start justify-between gap-3">
         <div class="flex items-center gap-2 min-w-0">
-          <div class="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold flex-shrink-0">{{ (a.user?.nickname || a.user?.name || '?')[0] }}</div>
+          <UserAvatar :user="a.user" :size="60" />
           <div class="min-w-0">
             <div class="text-sm font-semibold text-ink truncate">{{ a.user?.nickname || a.user?.name }}</div>
             <div class="text-[11px] text-ink-faint">{{ fmtDate(a.created_at) }} 지원</div>
@@ -48,6 +48,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import PageHeader from '../../components/PageHeader.vue'
 
 const route = useRoute()

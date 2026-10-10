@@ -334,11 +334,7 @@
               <div v-for="member in members" :key="member.id"
                 class="px-5 py-3 flex items-center gap-3 hover:bg-amber-50/40 transition-colors">
                 <!-- Avatar -->
-                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm flex-shrink-0 overflow-hidden">
-                  <img v-if="member.user?.profile_photo" :src="member.user.profile_photo" class="w-full h-full object-cover"
-                    @error="$event.target.style.display='none'" />
-                  <span v-else>{{ (member.user?.name || '?').charAt(0) }}</span>
-                </div>
+                <UserAvatar :user="member.user" :size="56" />
                 <!-- Info -->
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
@@ -479,10 +475,7 @@
             </div>
             <div v-else-if="pendingMembers.length" class="divide-y divide-gray-50">
               <div v-for="pm in pendingMembers" :key="pm.id" class="px-5 py-3 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm flex-shrink-0 overflow-hidden">
-                  <img v-if="pm.user?.profile_photo" :src="pm.user.profile_photo" class="w-full h-full object-cover" @error="$event.target.style.display='none'" />
-                  <span v-else>{{ (pm.user?.name || '?').charAt(0) }}</span>
-                </div>
+                <UserAvatar :user="pm.user" :size="52" />
                 <div class="flex-1 min-w-0">
                   <UserName :userId="pm.user?.id" :name="pm.user?.name" class="text-sm font-semibold text-ink" />
                   <div class="text-xs text-ink-muted">{{ formatDate(pm.created_at) }}</div>
@@ -656,9 +649,7 @@
             <div v-else-if="!transferCandidates.length" class="py-8 text-center text-sm text-ink-muted">양도할 수 있는 회원이 없어요</div>
             <button v-for="m in transferCandidates" :key="m.id" @click="transferTarget = m"
               class="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-amber-50/50">
-              <span class="w-8 h-8 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center text-xs font-bold text-ink-muted flex-shrink-0">
-                <span>{{ (memberName(m) || '?').slice(0, 1) }}</span>
-              </span>
+              <UserAvatar :user="m.user" :size="48" />
               <span class="flex-1 text-sm font-semibold text-ink truncate">{{ memberName(m) }}</span>
               <span class="text-[11px] px-2 py-0.5 rounded-full" :class="gradeStyle(m.grade)">{{ gradeLabel(m.grade) }}</span>
             </button>
@@ -715,6 +706,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 

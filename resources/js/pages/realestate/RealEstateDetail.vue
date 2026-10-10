@@ -136,10 +136,7 @@
                     class="btn-primary w-full py-1.5 px-2 text-xs"><AppIcon name="external-link" :size="12" /> 원본 매물 보기</a>
                 </div>
                 <div v-if="listing.user" class="flex items-center gap-2">
-                  <img v-if="listing.user.avatar" :src="listing.user.avatar" class="w-10 h-10 rounded-full object-cover border-2 border-amber-200" />
-                  <div v-else class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-sm font-bold text-amber-700">
-                    {{ (listing.user.nickname || listing.user.name || '?')[0] }}
-                  </div>
+                  <UserAvatar :user="listing.user" :size="64" />
                   <div class="min-w-0">
                     <UserName :userId="listing.user.id" :name="listing.user.real_name || listing.user.name" className="text-xs font-bold text-ink truncate block" />
                     <div class="text-[11px] text-ink-faint">가입: {{ fmtDate(listing.user.created_at) }}</div>
@@ -250,6 +247,7 @@ import DetailHeader from '../../components/DetailHeader.vue'
 import BoostButton from '../../components/BoostButton.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 
 const route = useRoute()

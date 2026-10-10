@@ -175,9 +175,7 @@
               <div v-for="c in comments" :key="c.id" class="card p-3">
                 <div class="flex items-start justify-between gap-2">
                   <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-full bg-amber-200 flex items-center justify-center text-sm font-bold text-amber-800 flex-shrink-0">
-                      {{ (c.user?.nickname || c.user?.name || '?')[0] }}
-                    </div>
+                    <UserAvatar :user="c.user" :size="52" />
                     <div>
                       <div class="text-xs font-bold text-ink">{{ c.user?.nickname || c.user?.name || '익명' }}</div>
                       <div class="flex items-center gap-1">
@@ -241,6 +239,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import PostNavigator from '../../components/PostNavigator.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 
 const auth = useAuthStore()

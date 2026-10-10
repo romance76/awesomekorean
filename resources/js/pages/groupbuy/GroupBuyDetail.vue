@@ -206,10 +206,7 @@
             <h3 class="text-sm font-bold text-ink mb-3">참여자 ({{ participants.length }}명)</h3>
             <div class="flex flex-wrap gap-3">
               <div v-for="p in participants" :key="p.id" class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700 overflow-hidden flex-shrink-0">
-                  <img v-if="p.user?.avatar" :src="'/storage/' + p.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
-                  <span v-else>{{ (p.user?.nickname || p.user?.name || '?')[0] }}</span>
-                </div>
+                <UserAvatar :user="p.user" :size="52" />
                 <span class="text-xs text-ink-light font-medium">{{ p.user?.nickname || p.user?.name }}</span>
               </div>
             </div>
@@ -222,10 +219,7 @@
           <div class="card p-4">
             <div class="text-xs font-bold text-ink-muted mb-3">주최자 정보</div>
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-lg font-bold text-amber-700 overflow-hidden flex-shrink-0">
-                <img v-if="gb.user?.avatar" :src="'/storage/' + gb.user.avatar" class="w-full h-full object-cover" @error="e => e.target.style.display='none'" />
-                <span v-else>{{ (gb.user?.name || '?')[0] }}</span>
-              </div>
+              <UserAvatar :user="gb.user" :size="76" />
               <div class="flex-1">
                 <div class="font-bold text-ink text-sm">{{ gb.user?.nickname || gb.user?.name }}</div>
                 <div class="text-xs text-ink-faint mt-0.5">가입: {{ formatDate(gb.user?.created_at) }}</div>
@@ -426,6 +420,7 @@ import MessageModal from '../../components/MessageModal.vue'
 import { useFriendAction } from '../../composables/useSocialActions'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import UserAvatar from '../../components/UserAvatar.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import axios from 'axios'
 
