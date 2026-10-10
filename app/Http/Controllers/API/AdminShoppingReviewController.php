@@ -92,7 +92,9 @@ class AdminShoppingReviewController extends Controller
     {
         $p = AmazonProduct::whereNotNull('user_id')->findOrFail($id);
         $p->update(['status' => 'published', 'published_at' => $p->published_at ?? now(), 'admin_note' => null]);
-        Report::where('reportable_type', AmazonProduct::class)->where('reportable_id', $p->id)->where('status', 'pending')->update(['status' => 'resolved']);
+        // 접수된 신고를 해결 처리 — 이력(누가·언제)도 같이 남긴다
+        Report::where('reportable_type', AmazonProduct::class)->where('reportable_id', $p->id)->where('status', 'pending')->get()
+            ->each(fn (Report $rp) => $rp->applyUpdate('resolved', '리뷰 복구로 자동 해결', auth()->user()));
         ShoppingReviews::forget();
         $this->notify($p, '내돈내산 리뷰가 다시 공개됐어요', "'{$p->title}' 리뷰를 확인했고 문제가 없어 다시 공개했어요.");
         return response()->json(['success' => true, 'message' => '복구했어요.']);

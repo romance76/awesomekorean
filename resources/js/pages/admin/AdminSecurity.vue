@@ -31,15 +31,25 @@
       </div>
       <div class="text-[16px] font-bold text-ink mt-1.5 break-words">{{ r.reason }}</div>
       <div v-if="r.content" class="text-[14px] text-ink-muted mt-0.5 break-words line-clamp-3">{{ r.content }}</div>
-      <div class="text-[13px] text-ink-faint mt-1.5">
-        <span v-if="r.reporter">신고자 <b class="text-ink-light">{{ r.reporter.nickname || r.reporter.name }}</b> · </span>{{ formatDate(r.created_at) }}
+      <div class="text-[13px] text-ink-faint mt-1.5 space-y-0.5">
+        <div><span v-if="r.reporter">신고자 <b class="text-ink-light">{{ r.reporter.nickname || r.reporter.name }}</b> · </span>신고 {{ fullTime(r.created_at) }}</div>
+        <div v-if="r.status !== 'pending'">{{ reportStatusLabel(r.status) }} {{ fullTime(r.handled_at) }}<span v-if="handledEstimated(r)" class="text-amber-600"> (추정)</span> · {{ handlerName(r) }}</div>
       </div>
       <div v-if="r.admin_note" class="mt-2 text-[14px] text-amber-800 bg-amber-50 rounded-xl px-3 py-2 break-words">📝 {{ r.admin_note }}</div>
+      <button @click="openLogId = openLogId === r.id ? null : r.id" class="mt-2 min-h-[40px] text-[14px] font-bold text-ink-light underline">{{ openLogId === r.id ? '이력 접기' : '처리 이력 보기' }}</button>
+      <ol v-if="openLogId === r.id" class="mt-1 space-y-2 border-l-2 border-gray-100 pl-3">
+        <li v-for="l in (r.logs || [])" :key="l.id" class="text-[13px]">
+          <div class="text-ink-faint tabular-nums">{{ fullTime(l.created_at) }}<span v-if="l.estimated" class="text-amber-600"> (추정)</span></div>
+          <div><span class="text-[12px] px-2 py-0.5 rounded-full font-bold" :class="logClass(l.action)">{{ logLabel(l.action) }}</span> <span class="text-ink-light">{{ l.actor_name || (l.action === 'created' ? '' : '기록 없음') }}</span></div>
+          <div v-if="l.note" class="text-ink-muted break-words">{{ l.note }}</div>
+        </li>
+      </ol>
       <div v-if="r.status === 'pending'" class="grid grid-cols-2 gap-2 mt-3">
         <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" class="min-h-[48px] rounded-xl bg-emerald-500 text-white text-[15px] font-bold disabled:opacity-50">해결</button>
         <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold disabled:opacity-50">기각</button>
       </div>
-      <button v-if="r.status === 'pending'" @click="openNote(r)" class="mt-2 min-h-[44px] w-full rounded-xl border border-gray-200 text-[14px] font-bold text-ink-light">{{ r.admin_note ? '메모 고치기' : '메모 추가' }}</button>
+      <button v-if="r.status !== 'pending'" @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="mt-3 min-h-[48px] w-full rounded-xl border border-gray-200 text-[15px] font-bold text-ink-light disabled:opacity-50">다시 대기로 돌리기</button>
+      <button @click="openNote(r)" class="mt-2 min-h-[44px] w-full rounded-xl border border-gray-200 text-[14px] font-bold text-ink-light">{{ r.admin_note ? '메모 고치기' : '메모 추가' }}</button>
     </div>
     <div v-if="reportPagination.lastPage > 1" class="flex items-center justify-between gap-2 pt-1">
       <button @click="goReportPage(reportFilter.page - 1)" :disabled="reportFilter.page <= 1" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
@@ -91,9 +101,19 @@
     <p class="text-[14px] text-ink-muted leading-relaxed">서버(SSH)에 비밀번호를 계속 시도한 IP를 서버가 1일 동안 자동으로 막아 둔 목록이에요. 웹사이트 로그인과는 별개예요.</p>
     <div v-if="serverBansMsg" class="text-center text-ink-muted py-8 text-[15px]">{{ serverBansMsg }}</div>
     <div v-else-if="!serverBans.length" class="text-center text-ink-muted py-8 text-[15px]">현재 차단된 IP가 없어요</div>
-    <div v-for="ip in serverBans" :key="ip" class="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center gap-3">
-      <span class="min-w-0 flex-1 font-mono text-[16px] font-bold text-ink break-all">{{ ip }}</span>
-      <button @click="serverUnban(ip)" class="shrink-0 min-h-[44px] px-4 rounded-xl bg-blue-50 text-blue-600 text-[14px] font-bold">차단 풀기</button>
+    <div v-if="!serverBansMsg && serverBans.length" class="flex items-center gap-2">
+      <span class="shrink-0 text-[14px] font-bold text-red-600 bg-red-50 px-3 py-2 rounded-xl">차단 중 {{ serverBans.length }}개</span>
+      <input v-model="banSearch" inputmode="decimal" autocomplete="off" placeholder="IP 검색" aria-label="IP 검색" class="flex-1 min-w-0 min-h-[44px] rounded-xl border border-gray-200 px-3 font-mono" />
+    </div>
+    <div v-for="ip in pagedBans" :key="ip" class="bg-white border border-gray-100 rounded-2xl px-3.5 py-2.5 flex items-center gap-3">
+      <span class="min-w-0 flex-1 font-mono text-[15px] font-bold text-ink break-all">{{ ip }}</span>
+      <button @click="serverUnban(ip)" class="shrink-0 min-h-[40px] px-4 rounded-xl bg-blue-50 text-blue-600 text-[14px] font-bold">풀기</button>
+    </div>
+    <div v-if="serverBans.length && !pagedBans.length" class="text-center text-ink-muted py-6 text-[15px]">검색 결과가 없어요</div>
+    <div v-if="banLastPage > 1" class="flex items-center justify-between gap-2 pt-1">
+      <button @click="banPage = Math.max(1, banPage - 1)" :disabled="banPage <= 1" class="min-h-[46px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
+      <span class="text-[14px] text-ink-muted tabular-nums">{{ banPage }} / {{ banLastPage }}</span>
+      <button @click="banPage = Math.min(banLastPage, banPage + 1)" :disabled="banPage >= banLastPage" class="min-h-[46px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">다음</button>
     </div>
   </div>
 
@@ -177,33 +197,41 @@
         <span class="icon-chip w-7 h-7 bg-red-50 text-red-500"><AppIcon name="shield" :size="14" /></span>서버 접속 자동 차단 IP (fail2ban)
       </div>
       <div class="px-4 pt-2 text-[11px] text-ink-muted">서버(SSH)에 비밀번호를 계속 시도한 IP를 서버가 1일 동안 자동으로 막아 둔 목록이에요. 웹사이트 로그인과는 별개예요.</div>
-      <div v-for="ip in serverBans" :key="ip" class="px-4 py-2 border-b border-gray-50 last:border-0 flex justify-between items-center text-sm">
-        <span class="font-mono text-ink">{{ ip }}</span>
-        <button @click="serverUnban(ip)" class="text-blue-500 hover:text-blue-700 text-xs font-bold transition-colors">차단 풀기</button>
+      <div v-if="!serverBansMsg && serverBans.length" class="px-4 pt-2 pb-2 flex items-center gap-2 border-b border-gray-50">
+        <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full whitespace-nowrap">차단 중 {{ serverBans.length }}개</span>
+        <input v-model="banSearch" placeholder="IP 검색 (예: 195.211)" aria-label="IP 검색" class="input-soft flex-1 !w-auto !px-2 !py-1 !text-xs font-mono" />
+      </div>
+      <div v-if="pagedBans.length" class="grid grid-cols-1 sm:grid-cols-2">
+        <div v-for="ip in pagedBans" :key="ip" class="px-4 py-1.5 border-b border-gray-50 flex justify-between items-center text-sm">
+          <span class="font-mono text-ink text-[13px]">{{ ip }}</span>
+          <button @click="serverUnban(ip)" class="text-blue-500 hover:text-blue-700 text-xs font-bold transition-colors">풀기</button>
+        </div>
+      </div>
+      <div v-if="serverBans.length && !pagedBans.length" class="px-4 py-4 text-sm text-ink-muted text-center">검색 결과가 없어요</div>
+      <div v-if="banLastPage > 1" class="px-4 py-2 flex items-center justify-center gap-3 text-xs">
+        <button @click="banPage = Math.max(1, banPage - 1)" :disabled="banPage <= 1" class="px-2 py-1 rounded-lg font-bold text-ink-muted hover:bg-gray-100 disabled:opacity-40">이전</button>
+        <span class="tabular-nums text-ink-muted">{{ banPage }} / {{ banLastPage }}</span>
+        <button @click="banPage = Math.min(banLastPage, banPage + 1)" :disabled="banPage >= banLastPage" class="px-2 py-1 rounded-lg font-bold text-ink-muted hover:bg-gray-100 disabled:opacity-40">다음</button>
       </div>
       <div v-if="serverBansMsg" class="px-4 py-4 text-sm text-ink-muted text-center">{{ serverBansMsg }}</div>
       <div v-else-if="!serverBans.length" class="px-4 py-4 text-sm text-ink-muted text-center">현재 차단된 IP 없음</div>
     </div>
   </div>
 
-  <!-- 신고 관리 -->
+  <!-- 신고 관리 — 한 줄에 한 건(표 목록). 줄을 누르면 그 신고의 처리 이력(누가·언제)이 펼쳐진다 -->
   <div class="mt-6 card overflow-hidden">
-    <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between">
+    <div class="px-4 py-3 border-b border-gray-50 flex items-center justify-between flex-wrap gap-2">
       <div class="flex items-center gap-2 font-bold text-sm text-ink">
         <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="alert-circle" :size="14" /></span>신고 관리
+        <span class="text-xs font-semibold text-ink-faint">총 {{ reportPagination.total }}건 · 대기 {{ pendingCount }}건</span>
       </div>
-      <div class="flex gap-2">
-        <select v-model="reportFilter.type" @change="loadReports" class="input-soft !w-auto !px-2 !py-1 !text-xs">
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-ink-faint hidden xl:inline">시각은 애틀랜타(ET) 기준 · 마우스를 올리면 UTC</span>
+        <select v-model="reportFilter.type" @change="reportFilter.page=1; loadReports()" class="input-soft !w-auto !px-2 !py-1 !text-xs">
           <option value="">전체 유형</option>
-          <option value="User">사용자</option>
-          <option value="Post">게시글</option>
-          <option value="MarketItem">중고장터</option>
-          <option value="RealEstateListing">부동산</option>
-          <option value="Comment">댓글</option>
-          <option value="ChatMessage">채팅</option>
-          <option value="GroupBuy">공동구매</option>
+          <option v-for="o in reportTypes" :key="o.v" :value="o.v">{{ o.l }}</option>
         </select>
-        <select v-model="reportFilter.status" @change="loadReports" class="input-soft !w-auto !px-2 !py-1 !text-xs">
+        <select v-model="reportFilter.status" @change="reportFilter.page=1; loadReports()" class="input-soft !w-auto !px-2 !py-1 !text-xs">
           <option value="">전체 상태</option>
           <option value="pending">대기중</option>
           <option value="resolved">해결됨</option>
@@ -212,49 +240,81 @@
       </div>
     </div>
 
-    <div v-for="r in reports" :key="r.id" class="px-4 py-3 border-b border-gray-50 last:border-0">
-      <div class="flex items-start justify-between">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs px-2 py-0.5 rounded-full font-bold"
-              :class="{'bg-yellow-100 text-yellow-700': r.status==='pending', 'bg-green-100 text-green-700': r.status==='resolved', 'bg-gray-100 text-ink-light': r.status==='dismissed'}">
-              {{ {pending:'대기중',resolved:'해결됨',dismissed:'기각'}[r.status] || r.status }}
-            </span>
-            <span class="badge-blue">{{ formatType(r.reportable_type) }}</span>
-            <span class="text-[11px] text-ink-faint">#{{ r.reportable_id }}</span>
-          </div>
-          <div class="text-sm text-ink font-semibold mt-1">{{ r.reason }}</div>
-          <div v-if="r.content" class="text-xs text-ink-muted mt-0.5 truncate">{{ r.content }}</div>
-          <div class="flex items-center gap-3 mt-1.5 text-[11px] text-ink-faint">
-            <span v-if="r.reporter">신고자: <b class="text-ink-light">{{ r.reporter.nickname || r.reporter.name }}</b></span>
-            <span>{{ formatDate(r.created_at) }}</span>
-          </div>
-          <!-- 관리자 메모 -->
-          <div v-if="r.admin_note" class="mt-1 inline-flex items-center gap-1 text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-lg"><AppIcon name="edit" :size="11" /> {{ r.admin_note }}</div>
-        </div>
-        <div v-if="r.status === 'pending'" class="flex gap-1.5 ml-3 flex-shrink-0">
-          <button @click="resolveReport(r, 'resolved')" class="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-lg hover:bg-green-600 transition-colors">해결</button>
-          <button @click="resolveReport(r, 'dismissed')" class="bg-gray-300 text-ink-light text-xs font-bold px-2 py-1 rounded-lg hover:bg-gray-400 transition-colors">기각</button>
-        </div>
-      </div>
-      <!-- 메모 입력 (대기중일 때) -->
-      <div v-if="r.status === 'pending' && editNoteId === r.id" class="mt-2 flex gap-2">
-        <input v-model="editNote" placeholder="관리자 메모..." class="input-soft flex-1 !w-auto !px-2 !py-1 !text-xs" />
-        <button @click="saveNote(r)" class="btn-primary !px-2 !py-1 !text-xs">저장</button>
-        <button @click="editNoteId=null" class="btn-ghost !px-2 !py-1 !text-xs">취소</button>
-      </div>
-      <button v-else-if="r.status === 'pending'" @click="editNoteId=r.id; editNote=r.admin_note||''" class="inline-flex items-center gap-1 text-xs text-ink-faint hover:text-amber-600 mt-1 transition-colors"><AppIcon name="edit" :size="11" /> 메모 추가</button>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs min-w-[900px]">
+        <thead class="bg-gray-50 text-ink-muted">
+          <tr class="text-left">
+            <th class="px-3 py-2 font-semibold w-[68px]">상태</th>
+            <th class="px-3 py-2 font-semibold">유형 · 대상</th>
+            <th class="px-3 py-2 font-semibold">사유 / 내용</th>
+            <th class="px-3 py-2 font-semibold">신고자</th>
+            <th class="px-3 py-2 font-semibold">신고 시각</th>
+            <th class="px-3 py-2 font-semibold">처리 시각</th>
+            <th class="px-3 py-2 font-semibold">처리자</th>
+            <th class="px-3 py-2 font-semibold text-right">처리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="r in reports" :key="r.id">
+            <tr class="border-t border-gray-50 hover:bg-amber-50/30 align-top cursor-pointer" @click="toggleLog(r)">
+              <td class="px-3 py-2.5">
+                <span class="text-[11px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap"
+                  :class="{'bg-yellow-100 text-yellow-700': r.status==='pending', 'bg-green-100 text-green-700': r.status==='resolved', 'bg-gray-100 text-ink-light': r.status==='dismissed'}">{{ reportStatusLabel(r.status) }}</span>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap"><span class="badge-blue">{{ formatType(r.reportable_type) }}</span> <span class="text-ink-faint">#{{ r.reportable_id }}</span></td>
+              <td class="px-3 py-2.5 max-w-[280px]">
+                <div class="font-semibold text-ink truncate" :title="r.reason">{{ r.reason }}</div>
+                <div v-if="r.content" class="text-ink-muted truncate" :title="r.content">{{ r.content }}</div>
+                <div v-if="r.admin_note" class="mt-0.5 text-amber-700 truncate" :title="r.admin_note">📝 {{ r.admin_note }}</div>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap text-ink-light">{{ r.reporter ? (r.reporter.nickname || r.reporter.name) : '—' }}</td>
+              <td class="px-3 py-2.5 whitespace-nowrap tabular-nums text-ink-light" :title="utcTime(r.created_at)">{{ fullTime(r.created_at) }}</td>
+              <td class="px-3 py-2.5 whitespace-nowrap tabular-nums" :class="r.status==='pending' ? 'text-ink-faint' : 'text-ink-light'" :title="r.handled_at ? utcTime(r.handled_at) : ''">
+                {{ r.status === 'pending' ? '—' : fullTime(r.handled_at) }}<span v-if="r.status !== 'pending' && handledEstimated(r)" class="ml-1 text-[10px] text-amber-600" title="옛 기록이라 정확한 처리 시각이 남아 있지 않아 마지막 수정 시각으로 표시한 값이에요">(추정)</span>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap text-ink-light">{{ r.status === 'pending' ? '—' : handlerName(r) }}</td>
+              <td class="px-3 py-2.5 text-right whitespace-nowrap" @click.stop>
+                <template v-if="r.status === 'pending'">
+                  <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" class="bg-green-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors">해결</button>
+                  <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" class="ml-1 bg-gray-300 text-ink-light text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-400 disabled:opacity-50 transition-colors">기각</button>
+                </template>
+                <button v-else @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 disabled:opacity-50 transition-colors">다시 대기로</button>
+                <button @click="toggleLog(r)" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 transition-colors">{{ openLogId === r.id ? '접기' : '이력' }}</button>
+              </td>
+            </tr>
+            <!-- 처리 이력(타임라인) + 메모 -->
+            <tr v-if="openLogId === r.id" class="bg-gray-50/70">
+              <td colspan="8" class="px-4 py-3">
+                <div class="text-[11px] font-bold text-ink-muted mb-2">처리 이력 (신고 #{{ r.id }})</div>
+                <ol class="space-y-1.5">
+                  <li v-for="l in (r.logs || [])" :key="l.id" class="flex items-start gap-3">
+                    <span class="w-[150px] shrink-0 tabular-nums text-ink-light" :title="utcTime(l.created_at)">{{ fullTime(l.created_at) }}</span>
+                    <span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full font-bold" :class="logClass(l.action)">{{ logLabel(l.action) }}</span>
+                    <span class="shrink-0 w-[90px] truncate text-ink-light">{{ l.actor_name || (l.action === 'created' ? '—' : '기록 없음') }}</span>
+                    <span class="min-w-0 flex-1 text-ink-muted break-words">{{ l.note || '' }}<span v-if="l.estimated" class="ml-1 text-[10px] text-amber-600">(시각 추정)</span></span>
+                  </li>
+                  <li v-if="!(r.logs || []).length" class="text-ink-faint">이력이 없어요</li>
+                </ol>
+                <div class="mt-3 flex gap-2">
+                  <input v-model="noteDraft" placeholder="관리자 메모 (저장하면 이력에 남아요)" maxlength="500" class="input-soft flex-1 !w-auto !px-2 !py-1 !text-xs" @keyup.enter="saveNoteLog(r)" />
+                  <button @click="saveNoteLog(r)" :disabled="busyId === r.id || noteDraft === (r.admin_note || '')" class="btn-primary !px-3 !py-1 !text-xs disabled:opacity-50">메모 저장</button>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
 
-    <div v-if="!reports.length" class="px-4 py-8 text-sm text-ink-muted text-center">신고 없음</div>
+    <div v-if="!reports.length" class="px-4 py-8 text-sm text-ink-muted text-center">{{ reportsLoading ? '불러오는 중...' : '신고 없음' }}</div>
 
-    <!-- 페이지네이션 -->
+    <!-- 페이지 나눔 -->
     <div v-if="reportPagination.lastPage > 1" class="px-4 py-3 border-t border-gray-50 flex items-center justify-center gap-2">
-      <button v-for="p in reportPagination.lastPage" :key="p" @click="reportFilter.page=p; loadReports()"
+      <button @click="goReportPage(reportFilter.page - 1)" :disabled="reportFilter.page <= 1" class="px-3 h-8 rounded-lg text-xs font-bold text-ink-muted hover:bg-gray-100 disabled:opacity-40">이전</button>
+      <button v-for="p in reportPageNumbers" :key="p" @click="goReportPage(p)"
         class="w-8 h-8 rounded-lg text-xs font-bold transition-colors"
-        :class="p === reportPagination.currentPage ? 'bg-amber-400 text-white' : 'text-ink-muted hover:bg-gray-100'">
-        {{ p }}
-      </button>
+        :class="p === reportPagination.currentPage ? 'bg-amber-400 text-white' : 'text-ink-muted hover:bg-gray-100'">{{ p }}</button>
+      <button @click="goReportPage(reportFilter.page + 1)" :disabled="reportFilter.page >= reportPagination.lastPage" class="px-3 h-8 rounded-lg text-xs font-bold text-ink-muted hover:bg-gray-100 disabled:opacity-40">다음</button>
     </div>
   </div>
 </div>
@@ -276,9 +336,74 @@ const loginLocks = ref([])
 const serverBans = ref([])
 const serverBansMsg = ref('')
 const reportFilter = ref({ type: '', status: '', page: 1 })
-const reportPagination = ref({ currentPage: 1, lastPage: 1 })
+const reportPagination = ref({ currentPage: 1, lastPage: 1, total: 0 })
 const editNoteId = ref(null)
 const editNote = ref('')
+
+// ── 신고 목록(표)·처리 이력 ──
+const openLogId = ref(null)     // 이력을 펼친 신고 id
+const noteDraft = ref('')       // 이력 칸의 메모 입력값
+function toggleLog(r) {
+  if (openLogId.value === r.id) { openLogId.value = null; return }
+  openLogId.value = r.id
+  noteDraft.value = r.admin_note || ''
+}
+// 시각은 애틀랜타(ET) 기준 초 단위로 정확히 — 마우스를 올리면 UTC 가 보인다 (DB 는 UTC 저장)
+const ET_ZONE = 'America/New_York'
+function fullTime(dt) {
+  if (!dt) return '—'
+  const d = new Date(dt)
+  if (isNaN(d)) return '—'
+  const p = new Intl.DateTimeFormat('en-CA', { timeZone: ET_ZONE, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+    .formatToParts(d).reduce((a, x) => { a[x.type] = x.value; return a }, {})
+  return `${p.year}-${p.month}-${p.day} ${p.hour === '24' ? '00' : p.hour}:${p.minute}:${p.second}`
+}
+function utcTime(dt) {
+  const d = new Date(dt)
+  return isNaN(d) ? '' : d.toISOString().replace('T', ' ').slice(0, 19) + ' UTC'
+}
+function lastHandledLog(r) {
+  const hs = (r.logs || []).filter(l => ['resolved', 'dismissed'].includes(l.action))
+  return hs.length ? hs[hs.length - 1] : null
+}
+// 옛 기록은 정확한 처리 시각이 저장된 적이 없어 마지막 수정 시각으로 채웠다 → (추정) 표시
+function handledEstimated(r) { const l = lastHandledLog(r); return !!(l && l.estimated) }
+function handlerName(r) {
+  if (r.handler) return r.handler.nickname || r.handler.name
+  return lastHandledLog(r)?.actor_name || '기록 없음'
+}
+const logLabel = (a) => ({ created: '신고 접수', resolved: '해결', dismissed: '기각', reopened: '다시 대기', note: '메모', hide_content: '콘텐츠 숨김', status: '상태 변경' }[a] || a)
+const logClass = (a) => ({
+  created: 'bg-blue-50 text-blue-700', resolved: 'bg-green-100 text-green-700', dismissed: 'bg-gray-200 text-ink-light',
+  reopened: 'bg-yellow-100 text-yellow-700', note: 'bg-amber-50 text-amber-700', hide_content: 'bg-red-50 text-red-600',
+}[a] || 'bg-gray-100 text-ink-light')
+const reportPageNumbers = computed(() => {
+  const last = reportPagination.value.lastPage, cur = reportPagination.value.currentPage
+  const from = Math.max(1, cur - 2), to = Math.min(last, cur + 2)
+  return Array.from({ length: to - from + 1 }, (_, i) => from + i)
+})
+async function saveNoteLog(r) {
+  try {
+    busyId.value = r.id
+    const { data } = await axios.put('/api/admin/reports/' + r.id, { admin_note: noteDraft.value })
+    if (data?.data) Object.assign(r, data.data); else r.admin_note = noteDraft.value
+    noteDraft.value = r.admin_note || ''
+  } catch {}
+  finally { busyId.value = null }
+}
+
+// ── 서버(fail2ban) 자동 차단 IP — 개수·검색·페이지 ──
+const banSearch = ref('')
+const banPage = ref(1)
+const filteredBans = computed(() => {
+  const q = banSearch.value.trim()
+  return q ? serverBans.value.filter(ip => ip.includes(q)) : serverBans.value
+})
+const banPerPage = computed(() => (isMobile.value ? 10 : 20))
+const banLastPage = computed(() => Math.max(1, Math.ceil(filteredBans.value.length / banPerPage.value)))
+const pagedBans = computed(() => filteredBans.value.slice((banPage.value - 1) * banPerPage.value, banPage.value * banPerPage.value))
+watch(banSearch, () => { banPage.value = 1 })
+watch(banLastPage, (n) => { if (banPage.value > n) banPage.value = n })
 
 // ── 휴대폰 화면 전용 상태 ──
 const mTab = ref('reports')
@@ -352,7 +477,8 @@ function formatDate(dt) {
 }
 
 onMounted(async () => {
-  if (isMobile.value) { reportFilter.value.status = 'pending'; loadPendingCount() }
+  if (isMobile.value) reportFilter.value.status = 'pending'
+  loadPendingCount()
   loadIpBans()
   loadReports()
   loadBannedUsers()
@@ -372,7 +498,7 @@ async function loadReports() {
     })
     const d = data.data
     reports.value = d?.data || d || []
-    reportPagination.value = { currentPage: d?.current_page || 1, lastPage: d?.last_page || 1 }
+    reportPagination.value = { currentPage: d?.current_page || 1, lastPage: d?.last_page || 1, total: d?.total ?? reports.value.length }
   } catch {}
   reportsLoading.value = false
 }
@@ -423,14 +549,13 @@ async function removeBan(b) {
 async function resolveReport(r, status) {
   try {
     busyId.value = r.id
-    await axios.put('/api/admin/reports/' + r.id, { status, admin_note: r.admin_note || '' })
-    r.status = status
-    if (isMobile.value) {
-      say(status === 'resolved' ? '해결 처리했어요' : '기각했어요')
-      // 대기중 보기에서는 처리한 신고를 목록에서 바로 뺌
-      if (reportFilter.value.status === 'pending') reports.value = reports.value.filter(x => x.id !== r.id)
-      loadPendingCount()
-    }
+    // 서버가 처리 이력(누가·언제)까지 기록해 돌려준다 — 그 값으로 이 줄을 갱신
+    const { data } = await axios.put('/api/admin/reports/' + r.id, { status, admin_note: r.admin_note || '' })
+    if (data?.data) Object.assign(r, data.data); else r.status = status
+    if (isMobile.value) say(status === 'resolved' ? '해결 처리했어요' : (status === 'dismissed' ? '기각했어요' : '다시 대기로 돌렸어요'))
+    // 상태 필터가 걸린 목록에서는 상태가 바뀐 신고를 목록에서 바로 뺌
+    if (reportFilter.value.status && reportFilter.value.status !== status) reports.value = reports.value.filter(x => x.id !== r.id)
+    loadPendingCount()
   } catch { if (isMobile.value) say('처리하지 못했어요', true) }
   finally { busyId.value = null }
 }

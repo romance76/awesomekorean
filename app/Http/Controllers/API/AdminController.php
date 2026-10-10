@@ -123,14 +123,19 @@ class AdminController extends Controller
     }
 
     public function reports(Request $request) {
-        $q = Report::with('reporter:id,name,nickname')->orderByDesc('created_at');
+        $q = Report::with(['reporter:id,name,nickname', 'handler:id,name,nickname', 'logs'])->orderByDesc('created_at')->orderByDesc('id');
         if ($request->type) $q->where('reportable_type', 'like', '%' . $request->type . '%');
         if ($request->status) $q->where('status', $request->status);
         return response()->json(['success'=>true,'data'=>$q->paginate(20)]);
     }
     public function updateReport(Request $request, $id) {
         $report = Report::findOrFail($id);
-        $report->update($request->only('status','admin_note'));
+        if ($request->has('status') && !in_array($request->status, ['pending', 'resolved', 'dismissed'], true)) {
+            return response()->json(['success'=>false,'message'=>'알 수 없는 상태입니다'], 422);
+        }
+        // 상태/메모 변경과 처리 이력(누가·언제)을 한 번에 기록
+        $statusBefore = $report->status;
+        $report->applyUpdate($request->has('status') ? $request->status : null, $request->has('admin_note') ? (string) $request->admin_note : null, auth()->user());
 
         // 신고를 "해결" 처리해도 대상 게시물에 아무 반영이 없던 문제 수정 —
         // 관리자가 명시적으로 hide_content=true를 보낸 경우에만 실제로 숨김
@@ -142,15 +147,15 @@ class AdminController extends Controller
                 $model = $report->reportable_type::find($report->reportable_id);
                 if ($model) {
                     $fillable = $model->getFillable();
-                    if (in_array('is_hidden', $fillable, true)) $model->forceFill(['is_hidden' => true])->save();
-                    elseif (in_array('is_active', $fillable, true)) $model->forceFill(['is_active' => false])->save();
+                    if (in_array('is_hidden', $fillable, true)) { $model->forceFill(['is_hidden' => true])->save(); $report->addLog('hide_content', $report->status, $report->status, auth()->user(), '대상 콘텐츠를 숨김 처리'); }
+                    elseif (in_array('is_active', $fillable, true)) { $model->forceFill(['is_active' => false])->save(); $report->addLog('hide_content', $report->status, $report->status, auth()->user(), '대상 콘텐츠를 비공개 처리'); }
                 }
             } catch (\Exception $e) {}
         }
 
         // 신고자에게 처리 결과 통지가 전혀 없어 자기 신고가 어떻게 됐는지 알
         // 방법이 없던 문제 수정 — 상태가 바뀌면 신고자에게 알림.
-        if ($request->has('status') && $report->reporter_id) {
+        if ($request->has('status') && $report->status !== $statusBefore && $report->reporter_id) {
             try {
                 \App\Models\Notification::create([
                     'user_id' => $report->reporter_id,
@@ -164,7 +169,7 @@ class AdminController extends Controller
             } catch (\Exception $e) {}
         }
 
-        return response()->json(['success'=>true]);
+        return response()->json(['success'=>true, 'data' => $report->fresh(['reporter:id,name,nickname', 'handler:id,name,nickname', 'logs'])]);
     }
 
     public function banners() { return response()->json(['success'=>true,'data'=>Banner::orderBy('sort_order')->get()]); }
@@ -1034,7 +1039,7 @@ class AdminController extends Controller
 
     // ─── 신고 해결 ───
     public function chatResolveReport($id, $reportId) {
-        Report::findOrFail($reportId)->update(['status' => 'resolved', 'admin_note' => '채팅 관리에서 해결 처리']);
+        Report::findOrFail($reportId)->applyUpdate('resolved', '채팅 관리에서 해결 처리', auth()->user());
         return response()->json(['success'=>true,'message'=>'신고가 해결 처리되었습니다']);
     }
 

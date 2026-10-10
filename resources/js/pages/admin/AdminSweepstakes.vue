@@ -115,7 +115,10 @@
   <div v-if="showParticipants" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showParticipants=false">
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="relative bg-white rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
-      <h2 class="font-bold text-lg mb-4">참가 현황 — {{ activeItem?.title }}</h2>
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <h2 class="font-bold text-lg min-w-0 break-words">참가 현황 — {{ activeItem?.title }}</h2>
+        <button @click="showParticipants=false" aria-label="닫기" title="닫기" class="w-8 h-8 -mt-1 -mr-2 rounded-full flex items-center justify-center text-ink-muted hover:bg-gray-100 hover:text-ink flex-shrink-0 transition-colors"><AppIcon name="x" :size="18" /></button>
+      </div>
       <div v-if="winnerList.length" class="mb-4 bg-amber-50 border border-amber-100 rounded-xl p-3">
         <div class="text-xs font-bold text-amber-800 mb-1.5">당첨자 {{ winnerList.length }}명</div>
         <ol class="space-y-1"><li v-for="w in winnerList" :key="w.rank" class="text-sm flex items-center gap-2"><b class="w-8 text-amber-700">{{ w.rank }}등</b><span class="font-semibold text-ink">{{ w.name }}</span><span v-if="w.prize" class="text-ink-faint text-xs">· {{ w.prize }}</span></li></ol>
@@ -127,6 +130,7 @@
         </div>
         <div v-if="!participants.length" class="py-8 text-center text-ink-muted text-sm">참가자가 없습니다</div>
       </div>
+      <button @click="showParticipants=false" class="mt-4 w-full py-2.5 rounded-xl bg-gray-100 text-ink text-sm font-bold hover:bg-gray-200 transition-colors">닫기</button>
     </div>
   </div>
   </template>

@@ -18,6 +18,8 @@ class ReportController extends Controller
             'reason'=>$request->reason,
             'content'=>$request->content,
         ]);
+        // 처리 이력의 첫 줄 — 신고 접수 (누가 언제 접수했는지)
+        $report->addLog('created', null, 'pending', null, $request->reason, optional(auth()->user())->nickname ?: optional(auth()->user())->name);
 
         // 관리자에게 실시간 통지가 전혀 없어 대시보드를 수동으로 열어야만
         // 신고 접수를 알 수 있던 문제 수정 — admin/super_admin/moderator 전원에게 알림.
