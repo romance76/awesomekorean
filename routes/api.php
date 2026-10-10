@@ -814,6 +814,12 @@ Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     // 당첨자 연락처 확인/상품 발송 현황 (컨트롤러에서 super_admin 검사)
     Route::get('/sweepstakes/{sweepstakes}/prize-claims', [\App\Http\Controllers\API\PrizeClaimController::class, 'adminIndex']);
     Route::post('/prize-claims/{id}/fulfill', [\App\Http\Controllers\API\PrizeClaimController::class, 'fulfill'])->whereNumber('id');
+    // 경품 지급 관리(상품 보내기·상태·비용 장부·처리 이력) — 컨트롤러에서 super_admin 검사
+    Route::get('/sweepstakes-delivery/summary', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'summary']);
+    Route::get('/sweepstakes-delivery/logs', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'logs']);
+    Route::get('/sweepstakes/{sweepstakes}/claims', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'claims']);
+    Route::post('/prize-claims/{id}/deliver', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'deliver'])->whereNumber('id')->middleware('throttle:60,1');
+    Route::put('/prize-claims/{id}', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'updateClaim'])->whereNumber('id');
 
     // 수동 수집
     Route::post('/fetch-music', function () {

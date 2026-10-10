@@ -5,27 +5,7 @@
   <div v-if="!isSuperAdmin" class="bg-white border border-gray-100 rounded-2xl py-12 text-center text-ink-muted text-[15px] px-4">경품 추첨 관리는 사이트 최고관리자만 접근할 수 있어요</div>
   <template v-else>
     <RouterLink to="/events/create" class="flex items-center justify-center min-h-[52px] rounded-2xl bg-amber-500 text-white text-[16px] font-bold">+ 이벤트로 새 경품 추첨 등록</RouterLink>
-    <div v-if="loading" class="text-center py-10 text-ink-muted text-[15px]">불러오는 중...</div>
-    <div v-else class="space-y-2.5">
-      <div v-for="item in items" :key="item.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
-        <div class="flex items-center gap-2 flex-wrap"><span class="text-[12px] font-bold px-2.5 py-1 rounded-full" :class="statusBadge(item.status)">{{ statusLabel(item.status) }}</span><span v-if="winnerCountOf(item) > 1" class="text-[12px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">당첨 {{ winnerCountOf(item) }}명</span></div>
-        <div class="text-[16px] font-bold text-ink mt-1 break-words">{{ item.title }}</div>
-        <div class="text-[14px] text-ink-muted">🎁 {{ item.prize_name }} <span v-if="item.prize_value">(${{ item.prize_value }})</span></div>
-        <div class="text-[13px] text-ink-faint mt-1 leading-relaxed">{{ formatDate(item.start_at) }} ~ {{ formatDate(item.end_at) }}<br />전체 Entry {{ item.total_entries }} · 참가자 {{ item.unique_participants ?? '-' }}<span v-if="item.winner_user_id && !itemWinners(item).length"> · 당첨자 ID {{ item.winner_user_id }}</span></div>
-        <ol v-if="itemWinners(item).length" class="mt-2 space-y-1">
-          <li v-for="w in itemWinners(item)" :key="w.rank" class="text-[14px] text-ink flex items-center gap-2"><b class="shrink-0 w-9 text-amber-700">{{ w.rank }}등</b><span class="truncate">{{ w.name }}</span><span v-if="w.prize" class="ml-auto shrink-0 text-ink-faint text-[13px] truncate max-w-[40%]">{{ w.prize }}</span></li>
-        </ol>
-        <div class="grid grid-cols-2 gap-2 mt-3">
-          <button @click="mParticipants(item)" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">참가 현황</button>
-          <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="flex items-center justify-center min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">이벤트 보기</RouterLink>
-          <RouterLink v-if="item.event_id && item.status !== 'winner_selected'" :to="`/events/${item.event_id}/edit`" class="flex items-center justify-center min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold">수정</RouterLink>
-          <button v-if="item.status !== 'winner_selected'" @click="openDesign(item)" class="min-h-[48px] rounded-xl bg-amber-50 text-amber-700 text-[15px] font-bold">추첨 화면 꾸미기</button>
-          <button v-if="item.status !== 'winner_selected'" @click="askWinner(item)" class="min-h-[48px] rounded-xl bg-violet-600 text-white text-[15px] font-bold">당첨자 선정</button>
-          <button @click="askDelete(item)" :disabled="item.total_entries > 0" class="min-h-[48px] rounded-xl bg-red-50 text-red-600 text-[15px] font-bold disabled:opacity-30">삭제</button>
-        </div>
-      </div>
-      <div v-if="!items.length" class="bg-white border border-gray-100 rounded-2xl py-12 text-center text-ink-muted text-[15px]">등록된 경품 추첨 이벤트가 없어요</div>
-    </div>
+    <SweepstakesBoard :items="items" :loading="loading" @participants="mParticipants" @design="openDesign" @winner="askWinner" @delete="askDelete" />
   </template>
 
   <Teleport to="body">
@@ -74,42 +54,7 @@
   <template v-else>
   <RouterLink to="/events/create" class="btn-primary !px-5 !py-2.5 mb-5 inline-flex items-center gap-1.5"><AppIcon name="plus" :size="14" />이벤트로 새 경품 추첨 등록</RouterLink>
 
-  <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
-  <div v-else class="space-y-3">
-    <div v-for="item in items" :key="item.id" class="card p-4">
-      <div class="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-bold px-2 py-0.5 rounded-full" :class="statusBadge(item.status)">{{ statusLabel(item.status) }}</span>
-            <span v-if="winnerCountOf(item) > 1" class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">당첨 {{ winnerCountOf(item) }}명</span>
-            <span class="font-bold text-ink">{{ item.title }}</span>
-          </div>
-          <div class="text-sm text-ink-muted mt-1">🎁 {{ item.prize_name }} <span v-if="item.prize_value">(${{ item.prize_value }})</span></div>
-          <div class="text-xs text-ink-faint mt-1">
-            {{ formatDate(item.start_at) }} ~ {{ formatDate(item.end_at) }} ·
-            Total Entries: {{ item.total_entries }} · 참가자: {{ item.unique_participants ?? '-' }}
-            <span v-if="item.winner_user_id && !itemWinners(item).length"> · 당첨자 ID: {{ item.winner_user_id }}</span>
-          </div>
-          <ol v-if="itemWinners(item).length" class="mt-2 space-y-0.5">
-            <li v-for="w in itemWinners(item)" :key="w.rank" class="text-xs text-ink flex items-center gap-2"><b class="w-8 text-amber-700">{{ w.rank }}등</b><span>{{ w.name }}</span><span v-if="w.prize" class="text-ink-faint">· {{ w.prize }}</span></li>
-          </ol>
-        </div>
-        <div class="flex items-center gap-2 flex-wrap">
-          <button @click="viewParticipants(item)" class="btn-secondary !px-3 !py-1.5 text-xs">참가현황</button>
-          <RouterLink v-if="item.event_id" :to="`/events/${item.event_id}`" class="btn-secondary !px-3 !py-1.5 text-xs">이벤트 보기</RouterLink>
-          <RouterLink v-if="item.event_id && item.status !== 'winner_selected'" :to="`/events/${item.event_id}/edit`" class="btn-secondary !px-3 !py-1.5 text-xs">수정</RouterLink>
-          <button v-if="item.status !== 'winner_selected'" @click="openDesign(item)" class="btn-secondary !px-3 !py-1.5 text-xs">추첨 화면 꾸미기</button>
-          <button
-            v-if="item.status !== 'winner_selected'"
-            @click="confirmSelectWinner(item)"
-            class="btn-primary !px-3 !py-1.5 text-xs !bg-violet-600 hover:!bg-violet-700"
-          >당첨자 선정</button>
-          <button @click="remove(item)" :disabled="item.total_entries > 0" class="text-xs text-red-500 disabled:opacity-30 disabled:cursor-not-allowed">삭제</button>
-        </div>
-      </div>
-    </div>
-    <div v-if="!items.length" class="card py-16 text-center text-ink-muted text-sm">등록된 경품 추첨 이벤트가 없습니다</div>
-  </div>
+  <SweepstakesBoard :items="items" :loading="loading" @participants="viewParticipants" @design="openDesign" @winner="confirmSelectWinner" @delete="remove" />
 
   <!-- 참가현황 모달 -->
   <div v-if="showParticipants" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showParticipants=false">
@@ -199,6 +144,7 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import { useAuthStore } from '../../stores/auth'
 import SweepstakesThemeEditor from '../../components/admin/SweepstakesThemeEditor.vue'
+import SweepstakesBoard from '../../components/admin/SweepstakesBoard.vue'
 // 3D 추첨기는 무거워서 꾸미기 창을 열 때만 불러옴
 const LotteryStage3D = defineAsyncComponent(() => import('../../components/LotteryStage3D.vue'))
 
