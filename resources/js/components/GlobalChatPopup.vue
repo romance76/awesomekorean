@@ -43,6 +43,21 @@
 
     <!-- 활성 채팅방 -->
     <template v-if="chatStore.activeRoom">
+      <!-- 📌 방장 고정 글(공지, 최대 3개): 같은 자리에서 돌아가며 보여주고, 누르면 전체 글을 본다 -->
+      <div v-if="roomPins.length" class="border-b border-gray-100 bg-white px-3 py-2 flex items-center gap-2.5 flex-shrink-0 cursor-pointer select-none" @click="pinModal = currentPin">
+        <span class="w-8 h-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0"><AppIcon name="pin" :size="15" /></span>
+        <div class="flex-1 min-w-0">
+          <div class="text-[11px] font-bold text-amber-600 flex items-center gap-1.5">공지<span v-if="roomPins.length > 1" class="text-ink-faint font-semibold">{{ (pinIdx % roomPins.length) + 1 }}/{{ roomPins.length }}</span></div>
+          <Transition name="pinfade" mode="out-in">
+            <div :key="currentPin?.id" class="text-sm text-ink truncate">{{ pinPreview(currentPin) }}</div>
+          </Transition>
+        </div>
+        <div v-if="roomPins.length > 1" class="flex flex-col gap-1 flex-shrink-0">
+          <span v-for="(p, i) in roomPins" :key="'dot'+p.id" class="w-1.5 h-1.5 rounded-full transition-colors" :class="i === (pinIdx % roomPins.length) ? 'bg-amber-500' : 'bg-gray-200'"></span>
+        </div>
+        <AppIcon name="chevron-right" :size="16" class="text-ink-faint flex-shrink-0" />
+      </div>
+
       <!-- 메시지 영역 -->
       <div ref="msgContainer" class="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50">
         <div v-if="loadError" class="text-center py-3 px-3 text-xs text-red-500 bg-red-50 rounded-xl">
@@ -55,7 +70,7 @@
         <div v-else-if="!messages.length" class="text-center py-8 text-ink-muted text-xs">
           아직 메시지가 없습니다.<br>첫 메시지를 보내보세요!
         </div>
-        <div v-for="msg in sortedMessages" :key="msg.id"
+        <div v-for="msg in sortedMessages" :key="msg.id" :id="'gcp-msg-' + msg.id"
           :class="msg.user_id === userId ? 'flex justify-end' : 'flex justify-start'">
           <div class="max-w-[75%]">
             <div v-if="msg.user_id !== userId" class="text-[11px] text-ink-muted mb-0.5 ml-1">
@@ -74,9 +89,17 @@
               <button type="button" @click="resend(msg)" class="ml-1 font-bold underline">재전송</button>
               <button type="button" @click="discard(msg)" class="ml-1 text-ink-faint underline">삭제</button>
             </div>
-            <div v-else class="text-[11px] mt-0.5 px-1"
-              :class="msg.user_id === userId ? 'text-right text-ink-faint' : 'text-ink-faint'">
+            <div v-else class="text-[11px] mt-0.5 px-1 flex items-center gap-1 text-ink-faint"
+              :class="msg.user_id === userId ? 'justify-end' : ''">
+              <span v-if="msg.pinned_at" class="text-amber-500 inline-flex items-center" title="공지로 고정됨"><AppIcon name="pin" :size="11" /></span>
               {{ msg._pending ? '보내는 중...' : formatTime(msg.created_at) }}
+              <!-- 방장 전용: 내가 쓴 글을 공지로 고정 / 해제 (최대 3개) -->
+              <button v-if="isOwner && msg.user_id === userId && !msg._local && typeof msg.id === 'number' && msg.type !== 'system'"
+                type="button" @click.stop="togglePin(msg)"
+                class="ml-1 px-1.5 py-0.5 rounded-full font-semibold border transition-colors"
+                :class="msg.pinned_at ? 'text-amber-600 border-amber-200 bg-amber-50' : 'text-ink-muted border-gray-200 hover:text-amber-600 hover:border-amber-200'">
+                {{ msg.pinned_at ? '고정 해제' : '공지 고정' }}
+              </button>
             </div>
           </div>
         </div>
@@ -87,6 +110,27 @@
         <ChatComposer v-model="newMessage" placeholder="메시지 입력..." @send="sendMessage" />
       </div>
     </template>
+
+    <!-- 📌 고정된 글(공지) 전체 보기 -->
+    <div v-if="pinModal" class="absolute inset-0 z-20 bg-black/50 flex items-end sm:items-center justify-center sm:p-4" @click.self="pinModal = null">
+      <div class="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl shadow-lift p-5" style="padding-bottom: calc(20px + env(safe-area-inset-bottom))">
+        <div class="flex items-center gap-2.5 mb-3">
+          <span class="w-9 h-9 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0"><AppIcon name="pin" :size="17" /></span>
+          <div class="min-w-0">
+            <div class="text-sm font-bold text-ink truncate">공지 · {{ pinModal.user?.nickname || pinModal.user?.name || '방장' }}</div>
+            <div class="text-[11px] text-ink-faint">{{ formatTime(pinModal.created_at) }}</div>
+          </div>
+        </div>
+        <img v-if="pinModal.type === 'image' && pinModal.file_url" :src="pinModal.file_url" class="w-full max-h-60 object-contain rounded-xl mb-3 bg-gray-50" />
+        <a v-else-if="pinModal.type === 'file' && pinModal.file_url" :href="pinModal.file_url" target="_blank" download class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm bg-blue-50 border border-blue-200 mb-3 no-underline text-ink"><AppIcon name="paperclip" :size="16" />{{ pinModal.content || '파일 다운로드' }}</a>
+        <div v-if="pinModal.content && pinModal.type !== 'file'" class="text-sm text-ink whitespace-pre-wrap break-words max-h-[45vh] overflow-y-auto leading-relaxed">{{ pinModal.content }}</div>
+        <div class="flex gap-2 mt-4">
+          <button @click="goToPinned(pinModal)" class="btn-secondary flex-1 text-sm">대화에서 보기</button>
+          <button v-if="isOwner" @click="unpinFromModal" class="btn-ghost text-sm text-red-500">고정 해제</button>
+          <button @click="pinModal = null" class="btn-primary flex-1 text-sm">닫기</button>
+        </div>
+      </div>
+    </div>
   </div>
 </Teleport>
 </template>
@@ -98,6 +142,7 @@ import { useChatStore } from '../stores/chat'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 import ChatComposer from './ChatComposer.vue'
+import { useModal } from '../composables/useModal'
 import { useKeyboardViewport } from '../composables/useKeyboardViewport'
 
 const auth = useAuthStore()
@@ -119,6 +164,51 @@ const totalUnread = ref(0)
 let pollTimer = null
 let echoChannels = {}
 let tmpSeq = 0
+
+// ─── 방장 고정 글(공지) — 채팅방 화면(ChatRooms)과 같은 방식 ───
+const { showAlert } = useModal()
+const roomPins = ref([])          // 고정된 글 (최대 3개)
+const isOwner = ref(false)        // 내가 이 방(동호회)의 방장인지 (서버가 알려줌)
+const pinIdx = ref(0)             // 배너에서 지금 보여주는 순번 (4초마다 돌아감)
+const pinModal = ref(null)
+const currentPin = computed(() => roomPins.value.length ? roomPins.value[pinIdx.value % roomPins.value.length] : null)
+function pinPreview(p) {
+  if (!p) return ''
+  if (p.type === 'image') return '📷 ' + (p.content || '사진')
+  if (p.type === 'file') return '📎 ' + (p.content || '파일')
+  return (p.content || '').replace(/\s+/g, ' ')
+}
+function applyPins(data) {
+  roomPins.value = data.pins || []
+  if (data.is_owner !== undefined) isOwner.value = !!data.is_owner
+  const ids = new Set(roomPins.value.map(p => p.id))
+  messages.value.forEach(m => { if (typeof m.id === 'number') m.pinned_at = ids.has(m.id) ? (m.pinned_at || new Date().toISOString()) : null })
+}
+async function togglePin(msg) {
+  const rid = chatStore.activeRoomId
+  if (!rid) return
+  try {
+    const url = `/api/chat/rooms/${rid}/messages/${msg.id}/pin`
+    const { data } = msg.pinned_at ? await axios.delete(url) : await axios.post(url)
+    applyPins(data)
+  } catch (e) {
+    showAlert(e.response?.data?.message || '처리하지 못했어요. 잠시 후 다시 시도해 주세요.')
+  }
+}
+async function unpinFromModal() {
+  const m = pinModal.value
+  if (!m) return
+  pinModal.value = null
+  await togglePin({ id: m.id, pinned_at: true })
+}
+function goToPinned(p) {
+  pinModal.value = null
+  nextTick(() => {
+    const el = document.getElementById('gcp-msg-' + p.id)
+    if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  })
+}
+let pinRotateTimer = null
 
 // 서버에서 받은 메시지는 시간순, 보내는 중/실패 메시지는 항상 맨 아래
 const sortedMessages = computed(() => {
@@ -172,6 +262,7 @@ async function loadMessages(roomId) {
     const list = data.data?.data || data.data || []
     const locals = messages.value.filter(m => m._local && m._roomId === roomId)
     messages.value = [...list, ...locals]
+    applyPins(data)
     scrollToBottom()
   } catch (e) {
     if (roomId === chatStore.activeRoomId) loadError.value = errMessage(e)
@@ -242,6 +333,7 @@ function cleanupEcho(roomId) {
 
 // 방 변경 시 메시지 로드
 watch(() => chatStore.activeRoomId, (roomId) => {
+  roomPins.value = []; isOwner.value = false; pinIdx.value = 0; pinModal.value = null
   if (roomId) {
     messages.value = messages.value.filter(m => m._local && m._roomId === roomId)
     loadMessages(roomId)
@@ -276,13 +368,18 @@ function startPolling() {
       loadError.value = ''
       const msgs = data.data?.data || data.data || []
       if (mergeServer(msgs)) scrollToBottom()
+      applyPins(data)
     } catch {}
   }, 5000)
 }
 
-onMounted(() => { startPolling(); window.addEventListener('resize', onWinResize) })
+onMounted(() => {
+  startPolling(); window.addEventListener('resize', onWinResize)
+  pinRotateTimer = setInterval(() => { if (roomPins.value.length > 1) pinIdx.value++ }, 4000)
+})
 onUnmounted(() => {
   window.removeEventListener('resize', onWinResize)
+  if (pinRotateTimer) clearInterval(pinRotateTimer)
   if (pollTimer) clearInterval(pollTimer)
   Object.keys(echoChannels).forEach(cleanupEcho)
 })
@@ -292,5 +389,8 @@ onUnmounted(() => {
 .safe-top { padding-top: env(safe-area-inset-top, 0px); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.pinfade-enter-active, .pinfade-leave-active { transition: opacity .25s ease, transform .25s ease; }
+.pinfade-enter-from { opacity: 0; transform: translateY(6px); }
+.pinfade-leave-to { opacity: 0; transform: translateY(-6px); }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 </style>
