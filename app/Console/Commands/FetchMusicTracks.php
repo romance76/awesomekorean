@@ -39,7 +39,7 @@ class FetchMusicTracks extends Command
         }
         return $res;
     }
-    protected $description = '음악 트랙 자동 수집 (전 카테고리 한국 100%, 2분30초~5분, 30일 보관)';
+    protected $description = '음악 트랙 자동 수집 (전 카테고리 한국 100%, 2분30초~5분, 1년 보관)';
 
     // 카테고리별 한국:미국 비율 (한국 %) — 전부 한국 100%
     private $ratios = [
@@ -116,11 +116,11 @@ class FetchMusicTracks extends Command
         $this->info("=== 음악 트랙 자동 수집 시작 ===");
         $this->info("목표: {$dailyLimit}곡 (카테고리별 한국/미국 비율 차등)");
 
-        // 1단계: 30일 이상 된 트랙 삭제 (유저 업로드 제외)
-        $deleted = MusicTrack::where('created_at', '<', now()->subDays(30))
+        // 1단계: 1년(365일) 이상 된 시스템 트랙 삭제 (유저 업로드 제외) — 2026-10-10 보관 기간을 30일에서 1년으로 늘림
+        $deleted = MusicTrack::where('created_at', '<', now()->subDays(365))
             ->where('is_user_submitted', false)
             ->delete();
-        $this->info("🗑 30일 이상 된 시스템 트랙 {$deleted}곡 삭제");
+        $this->info("🗑 1년 이상 된 시스템 트랙 {$deleted}곡 삭제");
 
         $totalAdded = 0;
         $perCategory = (int) ceil($dailyLimit / $categories->count());
