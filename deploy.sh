@@ -41,6 +41,11 @@ fi
 log "▶ Step 2/7: composer install"
 composer install --no-dev --optimize-autoloader --no-interaction -q 2>&1 | tail -10 >> "$LOG" || fail "composer" "check composer.lock drift"
 
+# git reset 으로 새 PHP 코드는 이미 올라간 상태 — 빌드(수 분)가 끝난 뒤에 마이그레이션하면 그동안 새 코드가 옛 표 구조로 돌아
+# 오류가 날 수 있으므로, 새 칸/표가 필요한 마이그레이션은 빌드 전에 바로 실행한다 (칸·표 추가만 하는 마이그레이션이라 옛 화면에도 안전)
+log "▶ Step 2b/7: migrate (빌드 전)"
+php8.2 artisan migrate --force 2>&1 | tail -5 >> "$LOG" || log "⚠️ migrate returned non-zero"
+
 log "▶ Step 3/7: npm install"
 (npm ci --silent 2>/dev/null || npm install --silent) 2>&1 | tail -5 >> "$LOG" || fail "npm-install" "dependency resolution"
 
@@ -72,6 +77,8 @@ log "▶ Step 6/7: migrate + storage:link + optimize:clear"
 php8.2 artisan migrate --force 2>&1 | tail -5 >> "$LOG" || log "⚠️ migrate returned non-zero"
 php8.2 artisan storage:link 2>&1 | tail -3 >> "$LOG" || true
 php8.2 artisan optimize:clear 2>&1 | tail -3 >> "$LOG"
+# 큐 워커는 켜진 채로 옛 코드를 기억하므로, 배포 후 안전하게 재시작시킨다(진행 중인 작업이 끝난 뒤 supervisor 가 다시 띄움)
+php8.2 artisan queue:restart 2>&1 | tail -2 >> "$LOG" || log "⚠️ queue:restart 실패"
 
 # 로고/앱 아이콘 업로드(AdminSettingsController::uploadLogo/uploadAppIcon)가
 # storage/app/public/branding/에 저장함 — 최초 배포 때 기본값이 비어있으면
