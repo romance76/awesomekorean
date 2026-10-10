@@ -136,7 +136,7 @@
     </div>
 
     <!-- 모바일: YouTube 링크 추가 시트 -->
-    <div v-if="showLinkSheet" class="fixed inset-0 bg-black/50 z-50 flex items-end lg:hidden" @click.self="showLinkSheet=false">
+    <div v-if="showLinkSheet" class="fixed inset-0 bg-black/50 z-[10000] flex items-end lg:hidden" @click.self="showLinkSheet=false">
       <div class="bg-white rounded-t-2xl p-5 w-full shadow-lift" style="padding-bottom: calc(20px + env(safe-area-inset-bottom))">
         <h3 class="font-bold text-ink mb-3">YouTube 링크로 추가</h3>
         <textarea v-model="youtubeUrl" rows="2" placeholder="YouTube 곡 또는 플레이리스트 URL 붙여넣기" class="input-soft text-sm px-3 py-2"></textarea>
@@ -154,7 +154,7 @@
     </div>
 
     <!-- 플레이리스트 생성 모달 -->
-    <div v-if="showCreatePL" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showCreatePL=false">
+    <div v-if="showCreatePL" class="fixed inset-0 bg-black/50 z-[10000] flex items-center justify-center" @click.self="showCreatePL=false">
       <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-lift">
         <h3 class="font-bold text-ink mb-3">새 플레이리스트</h3>
         <input v-model="newPLName" type="text" placeholder="플레이리스트 이름" class="input-soft mb-3" />
@@ -166,7 +166,7 @@
     </div>
 
     <!-- 플레이리스트에 추가 모달 -->
-    <div v-if="addTrackTarget" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="addTrackTarget=null">
+    <div v-if="addTrackTarget" class="fixed inset-0 bg-black/50 z-[10000] flex items-center justify-center" @click.self="addTrackTarget=null">
       <div class="bg-white rounded-2xl p-5 w-full max-w-sm shadow-lift">
         <h3 class="font-bold text-ink mb-3">플레이리스트에 추가</h3>
         <div class="text-sm text-ink-light mb-3">{{ addTrackTarget.title }}</div>

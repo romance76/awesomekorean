@@ -2,7 +2,7 @@
 <Teleport to="body">
   <!-- 오버레이 -->
   <Transition name="fade">
-    <div v-if="modelValue" class="fixed inset-0 bg-black/40 z-[100]" @click="$emit('update:modelValue', false)"></div>
+    <div v-if="modelValue" class="fixed inset-0 bg-black/40 z-[10000]" @click="$emit('update:modelValue', false)"></div>
   </Transition>
   <!-- 패널 (위에서 아래로) -->
   <Transition name="slide-down">
