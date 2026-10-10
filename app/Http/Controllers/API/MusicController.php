@@ -25,7 +25,9 @@ class MusicController extends Controller
                       $q2->where('duration', '>=', $minSec)->where('duration', '<=', $maxSec);
                   });
             })
-            ->inRandomOrder();
+            // 같은 seed 로 요청하면 항상 같은 순서(페이지를 넘겨도, 전체 재생용으로 다시 받아도 화면과 같은 순서).
+            // seed 가 없으면 예전처럼 요청마다 섞는다.
+            ->inRandomOrder($request->filled('seed') ? (int) $request->seed : '');
         $perPage = $request->per_page ?? 20;
         return response()->json(['success' => true, 'data' => $query->paginate($perPage)]);
     }

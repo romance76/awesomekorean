@@ -278,12 +278,15 @@ function prevTrack() {
   if (idx > 0) playing.value = list[idx - 1]
 }
 
+// 카테고리 목록의 순서를 고정하기 위한 값 — 같은 seed 로 서버에 요청하면 같은 순서로 온다 (화면 목록 = 전체 재생 순서)
+const trackSeed = ref(Math.floor(Math.random() * 1000000000))
+
 async function playAll() {
   // 전체 곡을 API에서 가져옴 (최대 200곡)
   let list = [...displayTracks.value]
   if (activeCat.value && totalCount.value > list.length) {
     try {
-      const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { per_page: 200 } })
+      const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { per_page: 200, seed: trackSeed.value } })
       list = data.data?.data || data.data || list
     } catch {}
   }
@@ -298,7 +301,7 @@ async function shufflePlay() {
   let list = [...displayTracks.value]
   if (activeCat.value && totalCount.value > list.length) {
     try {
-      const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { per_page: 200 } })
+      const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { per_page: 200, seed: trackSeed.value } })
       list = data.data?.data || data.data || list
     } catch {}
   }
@@ -335,6 +338,7 @@ function playAllFavorites() {
 
 async function selectCategory(cat) {
   activeCat.value = cat; activePL.value = null; showFavorites.value = false
+  trackSeed.value = Math.floor(Math.random() * 1000000000)   // 카테고리를 새로 고르면 새 순서
   trackPage.value = 1
   await loadCategoryPage(1)
 }
@@ -342,7 +346,7 @@ async function selectCategory(cat) {
 async function loadCategoryPage(p = 1) {
   trackPage.value = p
   try {
-    const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { page: p, per_page: 12 } })
+    const { data } = await axios.get(`/api/music/tracks/${activeCat.value.id}`, { params: { page: p, per_page: 12, seed: trackSeed.value } })
     tracks.value = data.data?.data || data.data || []
     trackLastPage.value = data.data?.last_page || 1
     trackTotal.value = data.data?.total || tracks.value.length
