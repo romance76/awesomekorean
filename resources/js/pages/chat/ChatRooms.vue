@@ -107,7 +107,7 @@
       </div>
 
       <div v-if="activeRoom" :class="isMobile ? 'fixed left-0 right-0 top-0 bottom-0 bg-white flex flex-col' : 'col-span-12 lg:col-span-6'"
-        :style="isMobile ? 'z-index: 60;' : ''">
+        :style="isMobile ? 'z-index: 60;' + kbStyle : ''">
         <div ref="deskChat" :class="isMobile ? 'flex flex-col h-full overflow-hidden relative' : 'card overflow-hidden flex flex-col relative'" :style="isMobile ? '' : `height: ${deskH}px`">
           <!-- 채팅방 헤더 — relative z-40로 아래 입장료 블러 오버레이(z-30)보다 위에 떠서,
                입장 전에도 방 이름/뒤로가기가 가려지지 않고 그대로 보임 -->
@@ -310,8 +310,7 @@
           </div>
 
           <!-- 입력 (텔레그램 스타일: 이모티콘·첨부가 입력창 내부) -->
-          <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" :style="inputBarStyle"
-            @focusin="inputFocused = true" @focusout="inputFocused = false">
+          <div v-else class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" :style="inputBarStyle">
             <VerifyGate :active="activeRoom.type === 'public'" message="이메일 인증 후 공개 채팅방에 글을 쓸 수 있어요.">
             <!-- 공용 입력창: 둥근 큰 상자(글이 길어지면 위로 늘어남) · 왼쪽 아래 이모티콘/첨부 · 오른쪽 아래 전송 -->
             <ChatComposer ref="msgInputEl" v-model="newMsg" @send="sendMsg"
@@ -648,6 +647,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import ChatComposer from '../../components/ChatComposer.vue'
+import { useKeyboardViewport } from '../../composables/useKeyboardViewport'
 import UserAvatar from '../../components/UserAvatar.vue'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
@@ -667,14 +667,15 @@ const isIosBrowser = typeof navigator !== 'undefined'
   && !navigator.standalone
   && !(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
 // 입력창을 누르면(키보드가 올라오면) 주소창이 숨으므로 그 여백은 뺀다 — 키보드와 입력창 사이가 벌어져 보이던 문제
-const inputFocused = ref(false)
 const inputBarStyle = computed(() => ({
-  paddingBottom: isMobile.value && isIosBrowser && !inputFocused.value
+  paddingBottom: isMobile.value && isIosBrowser && !keyboardOpen.value
     ? 'calc(max(0.5rem, env(safe-area-inset-bottom)) + 36px)'
     : 'max(0.5rem, env(safe-area-inset-bottom))',
 }))
 const rooms = ref([])
 const activeRoom = ref(null)
+// 모바일 전체화면 채팅: 키보드가 올라오면 보이는 영역(visualViewport)에 맞춰 입력창이 키보드 바로 위에 붙게 함
+const { style: kbStyle, keyboardOpen } = useKeyboardViewport(() => isMobile.value && !!activeRoom.value)
 const activeMessages = ref([])
 const pinnedAnnouncements = ref([])
 const loading = ref(true)

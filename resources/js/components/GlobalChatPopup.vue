@@ -21,7 +21,7 @@
   <div v-if="chatStore.hasRooms && chatStore.isOpen"
     class="fixed z-[91] bg-white flex flex-col overflow-hidden
            inset-0 sm:inset-auto sm:bottom-20 sm:right-4 sm:w-[360px] sm:h-[500px] sm:rounded-2xl sm:shadow-lift sm:border sm:border-gray-100"
-    style="max-height: 100vh;">
+    :style="'max-height: 100vh;' + kbStyle">
 
     <!-- 탭 헤더 -->
     <div class="bg-amber-500 flex-shrink-0 safe-top">
@@ -83,7 +83,7 @@
       </div>
 
       <!-- 입력 -->
-      <div class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0 safe-bottom">
+      <div class="border-t border-gray-100 bg-white px-3 py-2 flex-shrink-0" :class="keyboardOpen ? '' : 'safe-bottom'">
         <ChatComposer v-model="newMessage" placeholder="메시지 입력..." @send="sendMessage" />
       </div>
     </template>
@@ -98,9 +98,15 @@ import { useChatStore } from '../stores/chat'
 import axios from 'axios'
 import AppIcon from './AppIcon.vue'
 import ChatComposer from './ChatComposer.vue'
+import { useKeyboardViewport } from '../composables/useKeyboardViewport'
 
 const auth = useAuthStore()
 const chatStore = useChatStore()
+
+// 모바일(전체화면)에서 키보드가 올라오면 입력창이 키보드 바로 위에 붙도록 보이는 영역에 맞춘다
+const isMobileView = ref(typeof window !== 'undefined' && window.innerWidth < 640)
+function onWinResize() { isMobileView.value = window.innerWidth < 640 }
+const { style: kbStyle, keyboardOpen } = useKeyboardViewport(() => chatStore.hasRooms && chatStore.isOpen && isMobileView.value)
 const userId = computed(() => auth.user?.id)
 
 const messages = ref([])
@@ -243,6 +249,9 @@ watch(() => chatStore.activeRoomId, (roomId) => {
   }
 })
 
+// 키보드가 열리고 닫혀 메시지 영역 높이가 바뀌면 맨 아래(최신 메시지)로
+watch(keyboardOpen, () => scrollToBottom())
+
 // 팝업 열릴 때
 watch(() => chatStore.isOpen, (open) => {
   if (open) {
@@ -271,8 +280,9 @@ function startPolling() {
   }, 5000)
 }
 
-onMounted(() => startPolling())
+onMounted(() => { startPolling(); window.addEventListener('resize', onWinResize) })
 onUnmounted(() => {
+  window.removeEventListener('resize', onWinResize)
   if (pollTimer) clearInterval(pollTimer)
   Object.keys(echoChannels).forEach(cleanupEcho)
 })
