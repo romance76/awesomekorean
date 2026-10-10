@@ -13,13 +13,18 @@
           class="absolute inset-0 w-full h-full object-cover pointer-events-none" :style="{ opacity: posterOn ? 1 : 0, transition: 'opacity .18s ease-out' }" />
       </div>
 
-      <!-- 좌상단: 전체화면 닫기 / (PC 전용) 업로드. 모바일 일반 모드에는 상단 바 없음 -->
-      <div v-if="isFs || auth.isLoggedIn" class="absolute left-0 top-0 z-30 px-2 pointer-events-none" :class="isFs ? '' : 'hidden lg:block'" style="padding-top:calc(8px + var(--pt));padding-left:calc(8px + var(--pl))">
-        <button v-if="isFs" data-close @click="exitFs" class="pointer-events-auto h-11 px-4 rounded-full bg-black/55 text-white text-sm font-bold inline-flex items-center gap-1.5 backdrop-blur">✕ 닫기</button>
-        <RouterLink v-else-if="auth.isLoggedIn" data-upload to="/shorts/upload" class="pointer-events-auto h-11 px-4 rounded-full bg-black/45 text-white text-sm font-bold inline-flex items-center gap-1 backdrop-blur"><AppIcon name="plus" :size="14" />업로드</RouterLink>
+      <!-- 좌상단: 전체화면 닫기 (전체화면일 때만) -->
+      <div v-if="isFs" class="absolute left-0 top-0 z-30 px-2 pointer-events-none" style="padding-top:calc(8px + var(--pt));padding-left:calc(8px + var(--pl))">
+        <button data-close @click="exitFs" class="pointer-events-auto h-11 px-4 rounded-full bg-black/55 text-white text-sm font-bold inline-flex items-center gap-1.5 backdrop-blur">✕ 닫기</button>
       </div>
 
-      <!-- 오른쪽 세로 버튼 열: 좋아요 / 댓글 / 공유 / 보기 모드 / 전체화면 -->
+      <!-- 우상단: 보기 모드(9:16/꽉) / 전체화면 -->
+      <div data-top-right class="absolute flex items-center gap-2 z-30" style="top:calc(8px + var(--pt));right:calc(8px + var(--pr))">
+        <button data-mode @click="toggleFill" :title="fillMode ? '꽉 채우기 (좌우가 잘릴 수 있어요). 누르면 원본 비율' : '원본 비율 (9:16). 누르면 꽉 채우기 (좌우가 잘릴 수 있어요)'" :aria-label="fillMode ? '원본 비율로 보기' : '꽉 채워 보기'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xs font-bold flex items-center justify-center backdrop-blur">{{ fillMode ? '꽉' : '9:16' }}</button>
+        <button data-fs @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xl leading-none flex items-center justify-center backdrop-blur">{{ isFs ? '⤡' : '⛶' }}</button>
+      </div>
+
+      <!-- 오른쪽 세로 버튼 열: 좋아요 / 댓글 / 공유 -->
       <div data-col class="absolute flex flex-col items-center gap-3 z-20" style="right:calc(8px + var(--pr));bottom:calc(20px + var(--pb))">
         <button data-like @click="toggleLike" class="flex flex-col items-center">
           <div class="w-11 h-11 bg-black/40 backdrop-blur rounded-full flex items-center justify-center" :class="liked ? 'text-[#FC226B]' : 'text-white'"><AppIcon name="heart" :size="20" :filled="liked" /></div>
@@ -33,8 +38,6 @@
           <div class="w-11 h-11 bg-black/40 backdrop-blur rounded-full flex items-center justify-center text-white"><AppIcon name="share" :size="20" /></div>
           <span class="text-white text-xs mt-0.5 drop-shadow leading-none">공유</span>
         </button>
-        <button data-mode @click="toggleFill" :title="fillMode ? '꽉 채우기 (좌우가 잘릴 수 있어요). 누르면 원본 비율' : '원본 비율 (9:16). 누르면 꽉 채우기 (좌우가 잘릴 수 있어요)'" :aria-label="fillMode ? '원본 비율로 보기' : '꽉 채워 보기'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xs font-bold flex items-center justify-center backdrop-blur">{{ fillMode ? '꽉' : '9:16' }}</button>
-        <button data-fs @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xl leading-none flex items-center justify-center backdrop-blur">{{ isFs ? '⤡' : '⛶' }}</button>
       </div>
 
       <!-- 왼쪽 아래: 소리 켜기 + 제목/채널 (오른쪽 열 너비만큼 여백) -->
@@ -44,13 +47,6 @@
           <div class="text-white font-bold text-sm drop-shadow line-clamp-2">{{ current.title }}</div>
           <div class="text-white/80 text-xs mt-1 drop-shadow">{{ current.user?.name || '익명' }}</div>
         </div>
-      </div>
-
-      <!-- 데스크탑 전용 하단 바 (모바일에서는 스와이프/탭만 사용) -->
-      <div v-if="!sideNav" data-bar class="absolute left-1/2 z-30 hidden lg:flex items-center gap-3 bg-black/45 backdrop-blur rounded-full px-2 py-1" style="transform:translateX(-50%);bottom:calc(10px + var(--pb))">
-        <button data-prev @click="prev" :disabled="idx <= 0" aria-label="이전 숏츠" class="w-11 h-11 rounded-full flex items-center justify-center text-white active:bg-white/30 disabled:opacity-30"><AppIcon name="chevron-up" :size="22" /></button>
-        <span class="text-white text-xs min-w-[44px] text-center">{{ idx + 1 }} / {{ shorts.length }}</span>
-        <button data-next @click="next" :disabled="idx >= shorts.length - 1" aria-label="다음 숏츠" class="w-11 h-11 rounded-full flex items-center justify-center text-white active:bg-white/30 disabled:opacity-30"><AppIcon name="chevron-down" :size="22" /></button>
       </div>
 
       <!-- 상태 표시 (터치를 막지 않음) -->
@@ -66,13 +62,6 @@
     <div data-gesture class="absolute inset-0 z-10" style="touch-action:none;-webkit-tap-highlight-color:transparent"
       @touchstart.passive="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd" @touchcancel="onTouchCancel"
       @click="onLayerClick"></div>
-
-    <!-- 데스크탑: 프레임 옆 여백이 충분하면 위/아래 버튼을 옆에 배치 -->
-    <div v-if="sideNav" data-side class="absolute top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-20" :style="{ left: 'calc(50% + ' + (fw / 2 + 16) + 'px)' }">
-      <button data-prev @click="prev" :disabled="idx <= 0" aria-label="이전 숏츠" class="w-11 h-11 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-up" :size="20" /></button>
-      <span class="text-white/70 text-xs">{{ idx + 1 }} / {{ shorts.length }}</span>
-      <button data-next @click="next" :disabled="idx >= shorts.length - 1" aria-label="다음 숏츠" class="w-11 h-11 bg-white/20 backdrop-blur rounded-full flex items-center justify-center text-white hover:bg-white/40 disabled:opacity-20 transition"><AppIcon name="chevron-down" :size="20" /></button>
-    </div>
   </div>
 
   <!-- 댓글 패널 -->
@@ -138,7 +127,6 @@ const sw = computed(() => stage.value.sw)
 const sh = computed(() => stage.value.sh)
 const fw = computed(() => Math.min(sw.value, aw.value))
 const fh = computed(() => Math.min(sh.value, ah.value))
-const sideNav = computed(() => window.innerWidth >= 1024 && (aw.value - fw.value) / 2 >= 84)
 const playerHost = ref(null)
 const paused = ref(false)     // 사용자가 일시정지한 상태
 const starting = ref(false)   // 로딩/시작 대기
