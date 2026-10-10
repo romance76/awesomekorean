@@ -1,6 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
+    <DetailHeader :title="user?.display_name || user?.name || '프로필'" fallback="/" />
     <div v-if="loading" class="text-center py-12 text-ink-faint">로딩중...</div>
     <div v-else-if="user">
       <!-- 프로필 헤더 -->
@@ -88,6 +89,7 @@ import ReportModal from '../../components/ReportModal.vue'
 import MessageModal from '../../components/MessageModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
 import { useFriendAction } from '../../composables/useSocialActions'
 import axios from 'axios'
 const route = useRoute()

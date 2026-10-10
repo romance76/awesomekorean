@@ -1,8 +1,10 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
+    <!-- 상세를 열었을 때(모바일): 다른 상세 화면과 같은 뒤로가기 줄 — 상세만 닫고 목록으로 -->
+    <DetailHeader v-if="activeItem" :title="activeItem.title" custom-back @back="closeDetail" />
     <!-- 헤더: 모바일 -->
-    <div class="lg:hidden mb-3">
+    <div v-if="!activeItem" class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
         <RouterLink to="/community" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
           <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="message-circle" :size="20" /></span>
@@ -225,6 +227,7 @@ import CommentSection from '../../components/CommentSection.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import ShareButton from '../../components/ShareButton.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
 import axios from 'axios'
 
 const route = useRoute()
@@ -264,6 +267,15 @@ const adjNext = ref(null) // 같은 게시판 내 다음글 (서버 next)
 const liked = ref(false)
 const bookmarked = ref(false)
 const commentSection = ref(null)
+
+// 모바일 뒤로가기: 상세만 닫고 목록으로 (주소에 글 번호가 있으면 목록 주소로 이동)
+function closeDetail() {
+  activeItem.value = null
+  adjPrev.value = null
+  adjNext.value = null
+  if (route.params.id) router.replace(route.params.board ? `/community/${route.params.board}` : '/community')
+  window.scrollTo({ top: 0 })
+}
 
 function navItem(dir) {
   const target = dir < 0 ? adjPrev.value : adjNext.value

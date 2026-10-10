@@ -1,7 +1,8 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
-    <PageHeader title="NEW 전단" icon="megaphone" chip="bg-amber-50 text-amber-600" to="/new" />
+    <DetailHeader :title="ad?.title || 'NEW 전단'" fallback="/new" />
+    <div class="hidden lg:block"><PageHeader title="NEW 전단" icon="megaphone" chip="bg-amber-50 text-amber-600" to="/new" /></div>
 
     <div v-if="loading" class="text-center py-16 text-ink-muted">로딩중...</div>
     <div v-else-if="!ad" class="text-center py-16">
@@ -53,6 +54,7 @@ import { useRoute, RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
 import { kindLabel, fmtDay, hourRanges, tzLabel, stateName, STATUS_LABEL } from '../../utils/flyer'
 
 const route = useRoute()

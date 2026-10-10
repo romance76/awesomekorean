@@ -63,7 +63,16 @@
                 <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
             </form>
         </div>
-        <a href="{{ route('info.index') }}" class="btn-ghost mb-3 !px-2 inline-flex items-center gap-1.5 lg:hidden">← 정보 목록</a>
+        {{-- 모바일 상세 상단 줄 — 다른 상세 화면(DetailHeader.vue)과 같은 모양: 둥근 뒤로가기 버튼 + 제목.
+             목록(검색·카테고리)에서 왔으면 브라우저 뒤로(조건 유지), 아니면 정보 목록으로 이동. --}}
+        <div class="lg:hidden bg-white/95 border-b border-gray-100 flex items-center gap-2.5 px-3 py-2 -mx-4 mb-3" style="position:sticky;top:56px;z-index:30;backdrop-filter:blur(6px)">
+            <a href="{{ route('info.index') }}" aria-label="뒤로가기" title="뒤로가기"
+               onclick="try{if(document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1){history.back();return false}}catch(e){}"
+               class="w-9 h-9 rounded-full bg-gray-100 text-ink hover:bg-gray-200 active:bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            </a>
+            <div class="flex-1 min-w-0 text-[15px] font-bold text-ink truncate">{{ $post->title }}</div>
+        </div>
 
         <div class="grid grid-cols-12 gap-4">
             {{-- 왼쪽: 카테고리 --}}

@@ -1,6 +1,7 @@
 <template>
 <div class="page-main px-4 py-5">
-  <PageHeader title="지원자 관리" :subtitle="job?.title || ''" icon="users" :to="'/jobs/'+jobId" />
+  <DetailHeader title="지원자 관리" :fallback="'/jobs/'+jobId" />
+  <div class="hidden lg:block"><PageHeader title="지원자 관리" :subtitle="job?.title || ''" icon="users" :to="'/jobs/'+jobId" /></div>
 
   <div v-if="loading" class="text-center py-12 text-ink-faint">로딩중...</div>
   <div v-else-if="!applicants.length" class="card p-8 text-center text-sm text-ink-faint">아직 지원자가 없습니다</div>
@@ -50,6 +51,7 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import PageHeader from '../../components/PageHeader.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
 
 const route = useRoute()
 const jobId = route.params.id

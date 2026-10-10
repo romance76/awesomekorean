@@ -1,8 +1,10 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
+    <!-- 상세를 열었을 때(모바일): 다른 상세 화면과 같은 뒤로가기 줄 — 상세만 닫고 목록으로 -->
+    <DetailHeader v-if="activeItem" :title="activeItem.name" custom-back @back="closeDetail" />
     <!-- 헤더: 모바일 -->
-    <div class="lg:hidden mb-3">
+    <div v-if="!activeItem" class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
         <RouterLink to="/directory" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
           <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="store" :size="18" /></span>
@@ -389,6 +391,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import DetailHeader from '../../components/DetailHeader.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 
@@ -406,6 +409,15 @@ const activeItem = ref(null)
 const activeReviews = ref([])
 const bizPrev = ref(null) // 같은 카테고리 내 이전 (서버 prev)
 const bizNext = ref(null) // 같은 카테고리 내 다음 (서버 next)
+
+// 모바일 뒤로가기: 상세만 닫고 목록으로 (주소에 글 번호가 있으면 목록 주소로 이동)
+function closeDetail() {
+  activeItem.value = null
+  bizPrev.value = null
+  bizNext.value = null
+  if (route.params.id) router.replace('/directory')
+  window.scrollTo({ top: 0 })
+}
 const lightboxImg = ref(null)
 const reviewRating = ref(0)
 const reviewText = ref('')
