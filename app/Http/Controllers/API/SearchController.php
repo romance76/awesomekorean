@@ -12,7 +12,7 @@ class SearchController extends Controller
         if (!$q) return response()->json(['success' => true, 'data' => []]);
 
         $results = [];
-        $results['posts'] = Post::visible()->where('title', 'like', "%{$q}%")->select('id','title','view_count','created_at')->limit(5)->get();
+        $results['posts'] = Post::visible()->inActiveBoard()->where('title', 'like', "%{$q}%")->select('id','title','view_count','created_at')->limit(5)->get();
         $results['jobs'] = JobPost::active()->where('title', 'like', "%{$q}%")->select('id','title','company','city','state')->limit(5)->get();
         $results['market'] = MarketItem::where('status','active')->where('title', 'like', "%{$q}%")->select('id','title','price')->limit(5)->get();
         $results['businesses'] = Business::where('name', 'like', "%{$q}%")->select('id','name','category','city')->limit(5)->get();

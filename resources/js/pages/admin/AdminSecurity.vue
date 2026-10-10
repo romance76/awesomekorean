@@ -372,10 +372,10 @@ function handlerName(r) {
   if (r.handler) return r.handler.nickname || r.handler.name
   return lastHandledLog(r)?.actor_name || '기록 없음'
 }
-const logLabel = (a) => ({ created: '신고 접수', resolved: '해결', dismissed: '기각', reopened: '다시 대기', note: '메모', hide_content: '콘텐츠 숨김', status: '상태 변경' }[a] || a)
+const logLabel = (a) => ({ created: '신고 접수', resolved: '해결', dismissed: '기각', reopened: '다시 대기', note: '메모', hide_content: '콘텐츠 숨김', restore_content: '콘텐츠 복구', status: '상태 변경' }[a] || a)
 const logClass = (a) => ({
   created: 'bg-blue-50 text-blue-700', resolved: 'bg-green-100 text-green-700', dismissed: 'bg-gray-200 text-ink-light',
-  reopened: 'bg-yellow-100 text-yellow-700', note: 'bg-amber-50 text-amber-700', hide_content: 'bg-red-50 text-red-600',
+  reopened: 'bg-yellow-100 text-yellow-700', note: 'bg-amber-50 text-amber-700', hide_content: 'bg-red-50 text-red-600', restore_content: 'bg-green-50 text-green-700',
 }[a] || 'bg-gray-100 text-ink-light')
 const reportPageNumbers = computed(() => {
   const last = reportPagination.value.lastPage, cur = reportPagination.value.currentPage
@@ -466,7 +466,7 @@ onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTim
 function formatType(t) {
   if (!t) return '?'
   const name = t.replace(/^App\\Models\\/, '')
-  const map = { User: '사용자', Post: '게시글', MarketItem: '중고장터', RealEstateListing: '부동산', Comment: '댓글', ChatMessage: '채팅', GroupBuy: '공동구매' }
+  const map = { User: '사용자', Post: '게시글', MarketItem: '중고장터', RealEstateListing: '부동산', Comment: '댓글', ChatMessage: '채팅', GroupBuy: '공동구매', AmazonProduct: '내돈내산', user: '사용자', post: '게시글', comment: '댓글', chat_message: '채팅' }
   return map[name] || name
 }
 

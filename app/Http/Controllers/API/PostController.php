@@ -19,6 +19,7 @@ class PostController extends Controller
     {
         $query = Post::with('user:id,name,nickname,avatar,lifetime_points', 'board:id,name,slug')
             ->visible()
+            ->inActiveBoard()
             ->when($request->board_id, fn($q, $v) => $q->where('board_id', $v))
             ->when($request->board_slug, fn($q, $v) => $q->whereHas('board', fn($b) => $b->where('slug', $v)))
             ->when($request->search, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
@@ -41,12 +42,13 @@ class PostController extends Controller
 
     public function show($id)
     {
-        $post = Post::with('user:id,name,nickname,avatar,lifetime_points', 'board:id,name,slug')->findOrFail($id);
+        $post = Post::with('user:id,name,nickname,avatar,lifetime_points', 'board:id,name,slug,is_active')->findOrFail($id);
 
         // index()는 visible() 스코프로 숨김글을 걸러내지만 show()는 그렇지 않아,
         // 숨김(관리자 숨김 또는 작성자 본인 삭제) 처리된 글도 직접 URL로는 그대로
         // 전체 공개되던 취약점(실측 확인). 작성자 본인/관리자만 예외적으로 조회 가능.
-        if ($post->is_hidden) {
+        // 꺼진 게시판의 글도 숨김글처럼 작성자·운영진만 볼 수 있다
+        if ($post->is_hidden || ($post->board && !$post->board->is_active)) {
             $user = auth('api')->user();
             $isOwner = $user && $user->id === $post->user_id;
             $isAdmin = $user && in_array($user->role, ['admin', 'super_admin', 'moderator'], true);
@@ -85,10 +87,10 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|max:200',
             'content' => 'required|max:20000',
-            'board_id' => 'required|exists:boards,id',
+            'board_id' => ['required', \Illuminate\Validation\Rule::exists('boards', 'id')->where('is_active', true)],
             'images' => 'nullable|array|max:10',
             'images.*' => 'image|max:10240',
-        ]);
+        ], ['board_id.exists' => '지금은 이 게시판에 글을 쓸 수 없어요.']);
 
         $bad = BadWordFilter::firstMatch($request->title . ' ' . $request->content);
         if ($bad !== null) {

@@ -11,7 +11,7 @@
       <div class="text-[16px] font-bold text-ink break-words">{{ b.name }}</div>
       <div class="text-[13px] text-ink-muted break-all">/{{ b.slug }}</div>
     </div>
-    <span class="shrink-0 text-[12px] px-2.5 py-1 rounded-full font-bold" :class="b.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">{{ b.is_active ? '활성' : '비활성' }}</span>
+    <button @click="toggleActive(b)" :disabled="busy" class="shrink-0 min-h-[44px] px-3 rounded-xl text-[14px] font-bold disabled:opacity-40" :class="b.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" :aria-label="b.is_active ? '켜짐 — 눌러서 끄기' : '꺼짐 — 눌러서 켜기'">{{ b.is_active ? '켜짐' : '꺼짐' }}</button>
     <button @click="del = b" class="shrink-0 min-h-[44px] px-3 rounded-xl bg-red-50 text-red-600 text-[14px] font-bold">삭제</button>
   </div>
 
@@ -54,7 +54,7 @@
     <div v-for="b in boards" :key="b.id" class="list-row flex items-center justify-between">
       <div><span class="font-semibold text-ink">{{ b.name }}</span> <span class="text-xs text-ink-faint ml-2">/{{ b.slug }}</span></div>
       <div class="flex gap-2">
-        <span class="text-xs" :class="b.is_active?'text-green-500':'text-red-500'">{{ b.is_active ? '활성' : '비활성' }}</span>
+        <button @click="toggleActive(b)" :disabled="busy" class="text-xs font-bold px-2 py-0.5 rounded-lg disabled:opacity-40" :class="b.is_active?'bg-green-50 text-green-600':'bg-red-50 text-red-600'" :title="b.is_active ? '눌러서 끄기 (회원 화면에서 숨김)' : '눌러서 켜기'">{{ b.is_active ? '켜짐' : '꺼짐' }}</button>
         <button @click="deleteBoard(b)" class="text-xs text-red-400 hover:text-red-600 transition-colors">삭제</button>
       </div>
     </div>
@@ -97,6 +97,18 @@ async function createBoard() {
   busy.value = true
   try { await axios.post('/api/admin/boards',newBoard); showCreate.value=false; newBoard.name=''; newBoard.slug=''; if (isMobile.value) say('추가했어요'); load() }
   catch (e) { if (isMobile.value) say(e.response?.data?.message || '추가하지 못했어요', true) }
+  finally { busy.value = false }
+}
+// 게시판 켜기/끄기 — 끄면 회원 화면의 게시판 탭·전체 목록·글쓰기에서 빠진다(글은 지우지 않음)
+async function toggleActive(b) {
+  if (busy.value) return
+  if (b.is_active && !confirm(`'${b.name}' 게시판을 끌까요? 회원 화면에서 이 게시판과 글이 보이지 않게 돼요.`)) return
+  busy.value = true
+  try {
+    await axios.put('/api/admin/boards/' + b.id, { is_active: !b.is_active })
+    b.is_active = !b.is_active
+    say(b.is_active ? '게시판을 켰어요' : '게시판을 껐어요')
+  } catch (e) { const m = e.response?.data?.message || '바꾸지 못했어요'; isMobile.value ? say(m, true) : alert(m) }
   finally { busy.value = false }
 }
 async function deleteBoard(b) { if(!confirm('삭제?'))return; try { await axios.delete('/api/admin/boards/'+b.id); load() }catch{} }

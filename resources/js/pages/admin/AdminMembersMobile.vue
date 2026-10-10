@@ -241,7 +241,7 @@
             <template v-if="!tempPassword">
               <div class="text-[17px] font-bold text-ink">{{ d.user.name }}님의 비밀번호를 재설정할까요?</div>
               <p class="text-[13px] text-ink-muted">비워 두면 12자 임시 비밀번호가 자동으로 만들어져요. 재설정하면 이 회원의 기존 로그인이 풀립니다.</p>
-              <input v-model="newPassword" type="text" autocomplete="off" placeholder="새 비밀번호 (선택, 8자 이상)" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 text-[16px] font-mono" />
+              <input v-model="newPassword" type="text" autocomplete="off" placeholder="새 비밀번호 (선택 · 8자 이상, 대·소문자·숫자)" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 text-[16px] font-mono" />
               <button @click="doReset" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-blue-500 text-white text-[16px] font-bold disabled:opacity-50">재설정하기</button>
             </template>
             <template v-else>

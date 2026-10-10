@@ -82,6 +82,7 @@ class AdminController extends Controller
         $u = User::findOrFail($id);
         if ($deny = $this->guardStaffTarget($u)) return $deny;
         if ($u->id === auth()->id()) return response()->json(['success' => false, 'message' => '본인 계정은 정지할 수 없어요.'], 422);
+        $request->validate(['reason' => 'nullable|string|max:200'], ['reason.max' => '정지 사유는 200자까지 쓸 수 있어요.']);
         // Issue #6: 민감 필드는 forceFill 로 명시 설정
         $u->forceFill(['is_banned'=>true,'ban_reason'=>$request->reason])->save();
         return response()->json(['success'=>true]);
@@ -107,7 +108,14 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>$posts]);
     }
 
-    public function hidePost($id) { Post::findOrFail($id)->update(['is_hidden'=>!Post::find($id)->is_hidden]); return response()->json(['success'=>true]); }
+    public function hidePost($id) {
+        $post = Post::findOrFail($id);
+        if (!$post->is_hidden && ($deny = \App\Support\ReportTargets::moderatorHideDenied($post, auth()->user()))) {
+            return response()->json(['success' => false, 'message' => $deny], 403);
+        }
+        $post->update(['is_hidden' => !$post->is_hidden]);
+        return response()->json(['success'=>true]);
+    }
     public function pinPost($id) { Post::findOrFail($id)->update(['is_pinned'=>!Post::find($id)->is_pinned]); return response()->json(['success'=>true]); }
     public function deletePost($id) { Post::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
 
@@ -116,7 +124,21 @@ class AdminController extends Controller
         $request->validate(['name' => 'required|string|max:50', 'slug' => 'required|string|max:50|unique:boards,slug']);
         return response()->json(['success'=>true,'data'=>Board::create($request->only('name','slug','description','sort_order'))]);
     }
-    public function updateBoard(Request $request, $id) { Board::findOrFail($id)->update($request->only('name','slug','description','sort_order','is_active')); return response()->json(['success'=>true]); }
+    public function updateBoard(Request $request, $id) {
+        $board = Board::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'sometimes|required|string|max:50',
+            'slug' => ['sometimes', 'required', 'string', 'max:50', 'regex:/^[a-z0-9_-]+$/', \Illuminate\Validation\Rule::unique('boards', 'slug')->ignore($board->id)],
+            'description' => 'sometimes|nullable|string|max:500',
+            'sort_order' => 'sometimes|integer|min:0|max:100000',
+            'is_active' => 'sometimes|boolean',
+        ], [
+            'slug.regex' => '주소는 영문 소문자·숫자·-·_ 만 쓸 수 있어요.',
+            'slug.unique' => '이미 쓰고 있는 주소예요.',
+        ]);
+        $board->update($data);
+        return response()->json(['success'=>true, 'data' => $board->fresh()]);
+    }
     public function deleteBoard($id) { Board::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
 
     // 관리자: 전체 회원 친구관계 목록 — 이전엔 관리자 화면이 일반 사용자용
@@ -142,27 +164,44 @@ class AdminController extends Controller
     }
     public function updateReport(Request $request, $id) {
         $report = Report::findOrFail($id);
+        $request->validate(['admin_note' => 'nullable|string|max:1000'], ['admin_note.max' => '메모는 1000자까지 쓸 수 있어요.']);
         if ($request->has('status') && !in_array($request->status, ['pending', 'resolved', 'dismissed'], true)) {
             return response()->json(['success'=>false,'message'=>'알 수 없는 상태입니다'], 422);
         }
+        $actor = auth()->user();
+        $target = class_exists($report->reportable_type) ? $report->reportable_type::find($report->reportable_id) : null;
+        if ($request->boolean('hide_content') && ($deny = \App\Support\ReportTargets::moderatorHideDenied($target, $actor))) {
+            return response()->json(['success' => false, 'message' => $deny], 403);
+        }
         // 상태/메모 변경과 처리 이력(누가·언제)을 한 번에 기록
         $statusBefore = $report->status;
-        $report->applyUpdate($request->has('status') ? $request->status : null, $request->has('admin_note') ? (string) $request->admin_note : null, auth()->user());
+        $report->applyUpdate($request->has('status') ? $request->status : null, $request->has('admin_note') ? (string) $request->admin_note : null, $actor);
 
         // 신고를 "해결" 처리해도 대상 게시물에 아무 반영이 없던 문제 수정 —
         // 관리자가 명시적으로 hide_content=true를 보낸 경우에만 실제로 숨김
         // 처리(모델별 공개여부 필드는 AdminBoardController::visibleCount()와
         // 동일한 방식으로 판별). 신고를 기각/보류하는 일반적인 경우까지
         // 자동으로 콘텐츠를 숨기면 안 되므로 옵트인으로만 동작.
-        if ($request->boolean('hide_content') && class_exists($report->reportable_type)) {
+        if ($request->boolean('hide_content') && $target) {
             try {
-                $model = $report->reportable_type::find($report->reportable_id);
-                if ($model) {
-                    $fillable = $model->getFillable();
-                    if (in_array('is_hidden', $fillable, true)) { $model->forceFill(['is_hidden' => true])->save(); $report->addLog('hide_content', $report->status, $report->status, auth()->user(), '대상 콘텐츠를 숨김 처리'); }
-                    elseif (in_array('is_active', $fillable, true)) { $model->forceFill(['is_active' => false])->save(); $report->addLog('hide_content', $report->status, $report->status, auth()->user(), '대상 콘텐츠를 비공개 처리'); }
-                }
+                $fillable = $target->getFillable();
+                if (in_array('is_hidden', $fillable, true)) { $target->forceFill(['is_hidden' => true])->save(); $report->addLog('hide_content', $report->status, $report->status, $actor, '대상 콘텐츠를 숨김 처리'); }
+                elseif (in_array('is_active', $fillable, true)) { $target->forceFill(['is_active' => false])->save(); $report->addLog('hide_content', $report->status, $report->status, $actor, '대상 콘텐츠를 비공개 처리'); }
             } catch (\Exception $e) {}
+        }
+
+        // 신고로 숨긴 콘텐츠는 신고를 '다시 대기'로 돌리면 원래대로 보이게 한다(숨김 이후 복구 기록이 없을 때만).
+        if ($request->status === 'pending' && $statusBefore !== 'pending' && $target) {
+            $lastHide = $report->logs()->where('action', 'hide_content')->max('id');
+            $lastRestore = $report->logs()->where('action', 'restore_content')->max('id');
+            if ($lastHide && (!$lastRestore || $lastRestore < $lastHide)) {
+                try {
+                    $fillable = $target->getFillable();
+                    if (in_array('is_hidden', $fillable, true)) $target->forceFill(['is_hidden' => false])->save();
+                    elseif (in_array('is_active', $fillable, true)) $target->forceFill(['is_active' => true])->save();
+                    $report->addLog('restore_content', 'pending', 'pending', $actor, '신고를 다시 대기로 돌려 숨긴 콘텐츠를 복구');
+                } catch (\Exception $e) {}
+            }
         }
 
         // 신고자에게 처리 결과 통지가 전혀 없어 자기 신고가 어떻게 됐는지 알
@@ -416,33 +455,67 @@ class AdminController extends Controller
     }
 
     // 회원 정보 수정 (관리자)
+    // 화면은 회원 객체를 통째로 보내므로 "바뀐 칸"만 권한 검사를 한다(안 바뀐 등급·포인트·정지 값이 함께 와도 막지 않음).
     public function updateUser(Request $request, $id) {
         $admin = auth()->user();
         $user = User::findOrFail($id);
         if ($deny = $this->guardStaffTarget($user)) return $deny;
-        $request->validate(['role' => 'sometimes|in:user,business,moderator,admin,super_admin']);
-        $user->update($request->only('name','nickname','email','city','state','phone','bio'));
 
-        // role/points/game_points/is_banned/ban_reason은 User::$fillable에서 의도적으로
-        // 제외돼 있어(mass-assignment 방지 주석 참고) 위 update()로는 저장되지 않고 조용히
-        // 무시됨 — forceFill로 명시적으로 반영. role 변경은 권한 상승 위험이 있어 super_admin만 허용.
+        $request->validate([
+            'name' => 'sometimes|required|string|max:50',
+            'nickname' => 'sometimes|nullable|string|max:50',
+            'email' => ['sometimes', 'required', 'email:rfc', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($user->id)],
+            'city' => 'sometimes|nullable|string|max:100',
+            'state' => 'sometimes|nullable|string|max:50',
+            'phone' => 'sometimes|nullable|string|max:30',
+            'bio' => 'sometimes|nullable|string|max:1000',
+            'allow_friend_request' => 'sometimes|boolean',
+            'role' => 'sometimes|in:user,business,moderator,admin,super_admin',
+            'points' => 'sometimes|nullable|integer|between:0,100000000',
+        ], [
+            'name.required' => '이름을 입력해 주세요.',
+            'name.max' => '이름은 50자까지 쓸 수 있어요.',
+            'nickname.max' => '별명은 50자까지 쓸 수 있어요.',
+            'email.required' => '이메일을 입력해 주세요.',
+            'email.email' => '이메일 형식이 올바르지 않아요.',
+            'email.unique' => '이미 다른 회원이 쓰고 있는 이메일이에요.',
+            'phone.max' => '전화번호는 30자까지 쓸 수 있어요.',
+            'bio.max' => '소개는 1000자까지 쓸 수 있어요.',
+            'role.in' => '알 수 없는 등급이에요.',
+            'points.integer' => '포인트는 숫자로 입력해 주세요.',
+            'points.between' => '포인트 값이 범위를 벗어났어요.',
+        ]);
+
+        // 정지는 정지/해제 버튼(POST /ban, /unban)으로만 — 이 경로로 정지 칸을 바꾸려 하면 거절한다.
+        if ($request->has('is_banned') && (bool) $request->boolean('is_banned') !== (bool) $user->is_banned) {
+            return response()->json(['success' => false, 'message' => '정지·해제는 "정지" 버튼으로 해 주세요. (사유가 함께 기록됩니다)'], 422);
+        }
+        $roleChanged = $request->filled('role') && $request->role !== $user->role;
+        if ($roleChanged) {
+            if ($admin->role !== 'super_admin') {
+                return response()->json(['success' => false, 'message' => '등급 변경은 최고관리자만 할 수 있어요.'], 403);
+            }
+            if ($user->id === $admin->id) {
+                return response()->json(['success' => false, 'message' => '본인 등급은 바꿀 수 없어요.'], 422);
+            }
+        }
         // 포인트를 값으로 덮어쓰지 않는다(동시에 바뀐 값을 지우고 기록도 안 남음) — 차이만 계산해 기록과 함께 증감하고, 최고관리자만 가능.
-        if ($request->has('points') && is_numeric($request->points) && (int) $request->points !== (int) $user->points) {
-            if ($admin->role !== 'super_admin') {
-                return response()->json(['success' => false, 'message' => '포인트 조정은 최고관리자만 할 수 있어요. (회원 상세의 "포인트 지급/차감"을 이용하세요)'], 403);
-            }
-            $delta = (int) $request->points - (int) $user->points;
-            $user->addPoints($delta, '관리자 직접 수정 (' . $admin->id . ')', 'admin_adjust');
+        $pointsChanged = $request->filled('points') && (int) $request->points !== (int) $user->points;
+        if ($pointsChanged && $admin->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => '포인트 조정은 최고관리자만 할 수 있어요. (회원 상세의 "포인트 지급/차감"을 이용하세요)'], 403);
         }
-        $sensitive = $request->only('is_banned', 'ban_reason');   // game_points 는 여기서 바꾸지 않는다
-        if ($request->has('role')) {
-            if ($admin->role !== 'super_admin') {
-                return response()->json(['success' => false, 'message' => '등급 변경은 슈퍼관리자만 가능합니다'], 403);
-            }
-            $sensitive['role'] = $request->role;
+
+        $fields = $request->only('name', 'nickname', 'email', 'city', 'state', 'phone', 'bio', 'allow_friend_request');
+        if (array_key_exists('email', $fields) && $fields['email'] !== $user->email) {
+            $fields['email'] = mb_strtolower(trim($fields['email']));
         }
-        if ($sensitive) {
-            $user->forceFill($sensitive)->save();
+        $user->update($fields);
+        if ($pointsChanged) {
+            $user->addPoints((int) $request->points - (int) $user->points, '관리자 직접 수정 (' . $admin->id . ')', 'admin_adjust');
+        }
+        // role 은 User::$fillable 에서 의도적으로 빠져 있어(권한 상승 방지) forceFill 로 명시 반영
+        if ($roleChanged) {
+            $user->forceFill(['role' => $request->role])->save();
         }
 
         return response()->json(['success'=>true,'data'=>$user->fresh(),'message'=>'회원 정보가 수정되었습니다']);
@@ -494,18 +567,26 @@ class AdminController extends Controller
         ]);
     }
 
-    // 비밀번호 초기화 — admin/super_admin
+    // 비밀번호 초기화 — 최고관리자 전용(AdminTier 등급표) + 비밀번호 재확인(reauth)
+    // 직접 입력한 비밀번호는 가입과 같은 규칙(8자 이상, 대·소문자, 숫자). 비워 두면 같은 규칙을 지키는 임시 비밀번호를 만든다.
     public function resetUserPassword(Request $request, $id) {
         $admin = auth()->user();
-        if (!in_array($admin->role, ['admin','super_admin'])) {
-            return response()->json(['success'=>false,'message'=>'권한 없음'], 403);
+        if ($admin->role !== 'super_admin') {
+            return response()->json(['success'=>false,'message'=>'비밀번호 초기화는 최고관리자만 할 수 있어요.'], 403);
         }
         $user = User::findOrFail($id);
-        // 슈퍼관리자는 다른 슈퍼관리자 비번도 바꿀 수 있지만, admin 은 super_admin 비번 못 바꿈
-        if ($user->role === 'super_admin' && $admin->role !== 'super_admin') {
-            return response()->json(['success'=>false,'message'=>'슈퍼관리자 비밀번호는 변경 불가'], 403);
+        if ($user->id === $admin->id) {
+            return response()->json(['success'=>false,'message'=>'본인 비밀번호는 내 정보에서 바꿔 주세요.'], 422);
         }
-        $newPassword = $request->input('password') ?: \Str::random(12);
+        $request->validate([
+            'password' => ['nullable', 'string', 'max:100', \Illuminate\Validation\Rules\Password::min(8)->mixedCase()->numbers()],
+        ], [
+            'password.min' => '비밀번호는 8자 이상이어야 해요.',
+            'password.max' => '비밀번호는 100자까지 쓸 수 있어요.',
+            'password.mixed' => '비밀번호에 영문 대문자와 소문자를 모두 넣어 주세요.',
+            'password.numbers' => '비밀번호에 숫자를 하나 이상 넣어 주세요.',
+        ]);
+        $newPassword = $request->input('password') ?: $this->makeTemporaryPassword();
         $user->update(['password' => \Hash::make($newPassword)]);
         \Log::info('Admin reset password', ['admin_id'=>$admin->id,'target_id'=>$user->id]);
 
@@ -528,6 +609,17 @@ class AdminController extends Controller
             'message'=>'비밀번호가 변경되었습니다',
             'data'=>['temporary_password'=>$newPassword],
         ]);
+    }
+
+    // 가입 규칙(대·소문자·숫자 포함 8자 이상)을 항상 지키는 12자 임시 비밀번호. 헷갈리는 글자(0/O, 1/l/I)는 뺀다.
+    private function makeTemporaryPassword(): string {
+        $sets = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnopqrstuvwxyz', '23456789'];
+        $chars = [];
+        foreach ($sets as $set) $chars[] = $set[random_int(0, strlen($set) - 1)];
+        $all = implode('', $sets);
+        while (count($chars) < 12) $chars[] = $all[random_int(0, strlen($all) - 1)];
+        for ($i = count($chars) - 1; $i > 0; $i--) { $j = random_int(0, $i); [$chars[$i], $chars[$j]] = [$chars[$j], $chars[$i]]; }
+        return implode('', $chars);
     }
 
     // 이메일 인증 강제 처리 — admin/super_admin. 인증메일이 스팸함에 들어가거나

@@ -63,13 +63,14 @@
             <div><label class="input-label !text-xs !mb-0.5">주</label><input v-model="data.user.state" class="input-soft px-3 py-1.5" /></div>
             <div><label class="input-label !text-xs !mb-0.5">역할</label>
               <select v-model="data.user.role" class="input-soft px-3 py-1.5">
-                <option value="user">일반</option><option value="admin">관리자</option><option value="super_admin">슈퍼</option>
+                <option value="user">일반</option><option value="business">기업</option><option value="moderator">운영자</option><option value="admin">관리자</option><option value="super_admin">슈퍼</option>
               </select>
             </div>
             <div><label class="input-label !text-xs !mb-0.5">상태</label>
-              <select v-model="data.user.is_banned" class="input-soft px-3 py-1.5">
-                <option :value="false">정상</option><option :value="true">정지</option>
-              </select>
+              <div class="flex items-center gap-2 px-1 py-1">
+                <span class="text-sm font-bold" :class="data.user.is_banned ? 'text-red-600' : 'text-green-700'">{{ data.user.is_banned ? '정지' : '정상' }}</span>
+                <button type="button" @click="toggleBan" class="text-xs font-bold px-2 py-1 rounded-lg border" :class="data.user.is_banned ? 'border-gray-300 text-gray-700' : 'border-red-300 text-red-600'">{{ data.user.is_banned ? '정지 해제' : '정지' }}</button>
+              </div>
             </div>
             <div><label class="input-label !text-xs !mb-0.5">포인트</label><input v-model.number="data.user.points" type="number" class="input-soft px-3 py-1.5" /></div>
             <div><label class="input-label !text-xs !mb-0.5">게임 포인트</label><input v-model.number="data.user.game_points" type="number" class="input-soft px-3 py-1.5" /></div>
@@ -319,6 +320,24 @@ async function adjustEntries() {
     entryAdjustMsg.value = e.response?.data?.message || '처리 실패'; entryAdjustOk.value = false
   }
   entryAdjusting.value = false
+}
+
+// 정지·해제는 전용 API 로만 (회원 수정 저장으로는 정지 칸이 바뀌지 않음) — 사유를 함께 남긴다
+async function toggleBan() {
+  const u = data.value?.user
+  if (!u) return
+  try {
+    if (u.is_banned) {
+      if (!confirm(`${u.name}님의 정지를 해제할까요?`)) return
+      await axios.post(`/api/admin/users/${u.id}/unban`)
+      u.is_banned = false; u.ban_reason = null
+    } else {
+      const reason = prompt('정지 사유를 입력하세요', '관리자 정지')
+      if (reason === null) return
+      await axios.post(`/api/admin/users/${u.id}/ban`, { reason: reason.trim() || '관리자 정지' })
+      u.is_banned = true; u.ban_reason = reason.trim() || '관리자 정지'
+    }
+  } catch (e) { alert(e.response?.data?.message || '처리하지 못했어요') }
 }
 
 async function saveUser() {
