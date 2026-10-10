@@ -72,7 +72,7 @@
 
     <BottomNav v-if="showNav" />
     <!-- 하단 메뉴 높이만큼 비워 두는 칸 — 앱(홈 화면 추가) 모드는 하단 메뉴가 홈 표시줄 영역(safe-area)만큼 더 높아서 그 값도 더한다 -->
-    <div v-if="showNav" class="md:hidden" style="height: calc(4.25rem + var(--sab, 0px))"></div>
+    <div v-if="showNav" class="md:hidden" style="height: calc(4.25rem + var(--sab, 0px) + var(--mini-strip-page, 0px))"></div>
   </div>
 </template>
 

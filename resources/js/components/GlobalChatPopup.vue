@@ -1,7 +1,7 @@
 <template>
 <!-- 채팅 버튼 (접힌 상태) -->
 <Teleport to="body">
-  <div v-if="chatStore.hasRooms && !chatStore.isOpen" class="fixed bottom-20 right-4 z-[90] w-14 h-14">
+  <div v-if="chatStore.hasRooms && !chatStore.isOpen" class="fixed right-4 z-[90] w-14 h-14" style="bottom: calc(5rem + var(--mini-strip-page, 0px))">
     <button @click="chatStore.toggleOpen()" aria-label="채팅 열기"
       class="w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lift flex items-center justify-center transition-all hover:scale-110">
       <AppIcon name="message-circle" :size="26" />
