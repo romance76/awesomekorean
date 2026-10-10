@@ -18,8 +18,8 @@
         <button data-close @click="exitFs" class="pointer-events-auto h-11 px-4 rounded-full bg-black/55 text-white text-sm font-bold inline-flex items-center gap-1.5 backdrop-blur">✕ 닫기</button>
       </div>
 
-      <!-- 우상단: 보기 모드(9:16/꽉) / 전체화면 -->
-      <div data-top-right class="absolute flex items-center gap-2 z-30" style="top:calc(8px + var(--pt));right:calc(8px + var(--pr))">
+      <!-- 오른쪽 위쪽(조금 내려서): 보기 모드(9:16/꽉) / 전체화면 세로 배치 -->
+      <div data-top-right class="absolute flex flex-col items-center gap-3 z-30" style="top:calc(20% + var(--pt));right:calc(8px + var(--pr))">
         <button data-mode @click="toggleFill" :title="fillMode ? '꽉 채우기 (좌우가 잘릴 수 있어요). 누르면 원본 비율' : '원본 비율 (9:16). 누르면 꽉 채우기 (좌우가 잘릴 수 있어요)'" :aria-label="fillMode ? '원본 비율로 보기' : '꽉 채워 보기'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xs font-bold flex items-center justify-center backdrop-blur">{{ fillMode ? '꽉' : '9:16' }}</button>
         <button data-fs @click="toggleFs" :title="isFs ? '전체화면 종료' : '전체화면'" :aria-label="isFs ? '전체화면 종료' : '전체화면'" class="w-11 h-11 rounded-full bg-black/40 text-white text-xl leading-none flex items-center justify-center backdrop-blur">{{ isFs ? '⤡' : '⛶' }}</button>
       </div>
