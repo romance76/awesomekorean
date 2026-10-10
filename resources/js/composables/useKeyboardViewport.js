@@ -35,7 +35,8 @@ export function useKeyboardViewport(active) {
     if (wasOpen && !open) resetScroll()
     wasOpen = open
     if (open) {
-      style.value = `top:${Math.round(v.offsetTop)}px;height:${Math.round(v.height)}px;bottom:auto;`
+      // box-shadow: 컨테이너 아래(키보드 보조 막대·주소창 알약이 떠 있는 자리)로 뒤쪽 페이지가 비쳐 보이지 않게 흰색으로 채운다
+      style.value = `top:${Math.round(v.offsetTop)}px;height:${Math.round(v.height)}px;bottom:auto;box-shadow:0 400px 0 0 #fff;`
       // 페이지 자체가 위로 밀려 있으면 되돌린다
       if (window.scrollY !== 0) window.scrollTo(0, 0)
     } else {
