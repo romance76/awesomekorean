@@ -455,6 +455,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/me/prize-claims', [\App\Http\Controllers\API\PrizeClaimController::class, 'index']);
     Route::post('/me/prize-claims/{id}/dismiss', [\App\Http\Controllers\API\PrizeClaimController::class, 'dismiss'])->whereNumber('id');
     Route::post('/me/prize-claims/{id}/confirm', [\App\Http\Controllers\API\PrizeClaimController::class, 'confirm'])->whereNumber('id');
+    Route::post('/me/prize-claims/{id}/received', [\App\Http\Controllers\API\PrizeClaimController::class, 'received'])->whereNumber('id');
 
     Route::post('/reports', [ReportController::class, 'store']);
 
@@ -822,6 +823,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     // 경품 지급 관리(상품 보내기·상태·비용 장부·처리 이력) — 컨트롤러에서 super_admin 검사
     Route::get('/sweepstakes-delivery/summary', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'summary']);
     Route::get('/sweepstakes-delivery/logs', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'logs']);
+    Route::get('/sweepstakes-delivery/pending', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'pending']);
     Route::get('/sweepstakes/{sweepstakes}/claims', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'claims']);
     Route::post('/prize-claims/{id}/deliver', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'deliver'])->whereNumber('id')->middleware('throttle:60,1');
     Route::put('/prize-claims/{id}', [\App\Http\Controllers\API\AdminPrizeDeliveryController::class, 'updateClaim'])->whereNumber('id');
