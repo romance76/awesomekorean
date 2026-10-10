@@ -275,6 +275,9 @@ class AdminBoardController extends Controller
         $comment = Comment::findOrFail($commentId);
         $field = $request->input('field', 'is_hidden');
         if ($field === 'is_hidden') {
+            if (!$comment->is_hidden && ($deny = \App\Support\ReportTargets::moderatorHideDenied($comment, auth()->user()))) {
+                return response()->json(['success' => false, 'message' => $deny], 403);
+            }
             $comment->update(['is_hidden' => !$comment->is_hidden]);
             return response()->json(['success'=>true,'data'=>['is_hidden'=>$comment->is_hidden]]);
         }
@@ -322,6 +325,9 @@ class AdminBoardController extends Controller
         }
 
         $item = $model::findOrFail($id);
+        if ($field === 'is_hidden' && !$item->is_hidden && ($deny = \App\Support\ReportTargets::moderatorHideDenied($item, auth()->user()))) {
+            return response()->json(['success' => false, 'message' => $deny], 403);
+        }
         $item->update([$field => !$item->$field]);
         return response()->json(['success'=>true,'data'=>[$field => $item->$field]]);
     }

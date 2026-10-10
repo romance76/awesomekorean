@@ -185,7 +185,7 @@
                   <option value="super_admin">슈퍼관리자</option>
                 </select></div>
               <div><label class="input-label !text-xs !mb-0.5">상태</label>
-                <select v-model="userData.user.is_banned" class="input-soft px-3 py-1.5"><option :value="false">활동</option><option :value="true">정지</option></select></div>
+                <div class="px-3 py-1.5 text-sm font-bold" :class="userData.user.is_banned ? 'text-red-600' : 'text-green-700'" title="정지·해제는 아래 정지 버튼으로">{{ userData.user.is_banned ? '정지 (아래 버튼으로 변경)' : '활동' }}</div></div>
               <div><label class="input-label !text-xs !mb-0.5">친구요청</label>
                 <select v-model="friendRequestVal" @change="userData.user.allow_friend_request = friendRequestVal === 'true'" class="input-soft px-3 py-1.5"><option value="true">수락</option><option value="false">거절</option></select></div>
             </div>
@@ -428,7 +428,7 @@
               <h3 class="flex items-center gap-1.5 text-sm font-bold text-ink mb-2"><AppIcon name="lock" :size="14" />비밀번호 초기화</h3>
               <div class="flex gap-2 items-end">
                 <div class="flex-1">
-                  <label class="input-label !text-xs !mb-0.5">새 비밀번호 (비우면 자동 생성)</label>
+                  <label class="input-label !text-xs !mb-0.5">새 비밀번호 (비우면 자동 생성 · 8자 이상, 대·소문자와 숫자 포함)</label>
                   <input v-model="newPassword" type="text" placeholder="랜덤 12자 자동 생성" class="input-soft px-3 py-1.5 font-mono" />
                 </div>
                 <button @click="resetPassword" class="bg-blue-500 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-600 transition-colors flex-shrink-0">초기화</button>

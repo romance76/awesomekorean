@@ -12,4 +12,6 @@ class Post extends Model
     public function likes() { return $this->hasMany(PostLike::class); }
     public function scopeNearby($q,$lat,$lng,$r=50) { return $q->selectRaw("*, (3959*acos(cos(radians(?))*cos(radians(lat))*cos(radians(lng)-radians(?))+sin(radians(?))*sin(radians(lat)))) AS distance",[$lat,$lng,$lat])->having('distance','<',$r); }
     public function scopeVisible($q) { return $q->where('is_hidden', false); }
+    // 관리자가 끈 게시판의 글은 회원 화면(목록·검색)에서 뺀다 (게시판 없는 글은 그대로)
+    public function scopeInActiveBoard($q) { return $q->where(fn($w) => $w->whereNull('posts.board_id')->orWhereIn('posts.board_id', Board::where('is_active', true)->select('id'))); }
 }

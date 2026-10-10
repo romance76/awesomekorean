@@ -10,11 +10,41 @@ use Illuminate\Http\Request;
 class ReportController extends Controller
 {
     public function store(Request $request) {
-        $request->validate(['reportable_type'=>'required','reportable_id'=>'required','reason'=>'required']);
+        $request->validate([
+            'reportable_type' => 'required|string|max:100',
+            'reportable_id' => 'required|integer|min:1',
+            'reason' => 'required|string|max:200',
+            'content' => 'nullable|string|max:2000',
+        ], [
+            'reportable_type.required' => '신고할 대상을 알 수 없어요.',
+            'reportable_id.required' => '신고할 대상을 알 수 없어요.',
+            'reportable_id.integer' => '신고할 대상을 알 수 없어요.',
+            'reason.required' => '신고 사유를 골라 주세요.',
+            'reason.max' => '신고 사유는 200자까지 쓸 수 있어요.',
+            'content.max' => '자세한 내용은 2000자까지 쓸 수 있어요.',
+        ]);
+        $class = \App\Support\ReportTargets::resolve($request->reportable_type);
+        if (!$class) {
+            return response()->json(['success' => false, 'message' => '신고할 수 없는 종류예요.'], 422);
+        }
+        $target = $class::find((int) $request->reportable_id);
+        if (!$target) {
+            return response()->json(['success' => false, 'message' => '이미 삭제되었거나 없는 대상이에요.'], 404);
+        }
+        if (\App\Support\ReportTargets::ownerId($target) === (int) auth()->id()) {
+            return response()->json(['success' => false, 'message' => '본인 글이나 본인 계정은 신고할 수 없어요.'], 422);
+        }
+        // 같은 대상을 처리 전에 또 신고하면 한 건으로 (알림·자동 숨김이 반복되지 않게)
+        $dup = Report::where('reporter_id', auth()->id())->where('reportable_type', $class)
+            ->where('reportable_id', $target->getKey())->where('status', 'pending')->exists();
+        if ($dup) {
+            return response()->json(['success' => false, 'message' => '이미 신고하셨어요. 관리자가 확인 중이에요.'], 409);
+        }
+
         $report = Report::create([
             'reporter_id'=>auth()->id(),
-            'reportable_type'=>$request->reportable_type,
-            'reportable_id'=>$request->reportable_id,
+            'reportable_type'=>$class,
+            'reportable_id'=>$target->getKey(),
             'reason'=>$request->reason,
             'content'=>$request->content,
         ]);
@@ -30,7 +60,7 @@ class ReportController extends Controller
                     'user_id' => $adminId,
                     'type' => 'report_submitted',
                     'title' => '새 신고가 접수되었습니다',
-                    'content' => "사유: {$request->reason}",
+                    'content' => '사유: ' . mb_substr($request->reason, 0, 100),
                     'data' => ['report_id' => $report->id],
                 ]);
                 $unread = Notification::where('user_id', $adminId)->whereNull('read_at')->count();
