@@ -650,12 +650,16 @@ class AdminBoardController extends Controller
             ];
         }
 
+        // 누적 통계 시작일 — 소프트 운영 전 테스트 기록(4월 테스트 결제, 9월 게임 테스트 포인트 등)이 숫자에 섞이지 않게
+        // 이 날짜 이후 기록만 합산한다. 관리자 설정(site_settings: stats_since)으로 바꿀 수 있고, 기본은 2026-10-01.
+        $since = \App\Models\SiteSetting::where('key', 'stats_since')->value('value') ?: '2026-10-01';
+
         // 결제/주문
         $paymentStats = [
-            'total_revenue' => \App\Models\Payment::where('status', 'completed')->sum('amount'),
-            'total_orders' => \App\Models\Payment::count(),
-            'completed' => \App\Models\Payment::where('status', 'completed')->count(),
-            'refunded' => \App\Models\Payment::where('status', 'refunded')->count(),
+            'total_revenue' => \App\Models\Payment::where('status', 'completed')->where('created_at', '>=', $since)->sum('amount'),
+            'total_orders' => \App\Models\Payment::where('created_at', '>=', $since)->count(),
+            'completed' => \App\Models\Payment::where('status', 'completed')->where('created_at', '>=', $since)->count(),
+            'refunded' => \App\Models\Payment::where('status', 'refunded')->where('created_at', '>=', $since)->count(),
             'month_revenue' => \App\Models\Payment::where('status', 'completed')
                 ->where('created_at', '>=', now()->startOfMonth())->sum('amount'),
             'today_revenue' => \App\Models\Payment::where('status', 'completed')
@@ -664,8 +668,8 @@ class AdminBoardController extends Controller
 
         // 포인트
         $pointStats = [
-            'total_issued' => PointLog::where('amount', '>', 0)->sum('amount'),
-            'total_spent' => abs(PointLog::where('amount', '<', 0)->sum('amount')),
+            'total_issued' => PointLog::where('amount', '>', 0)->where('created_at', '>=', $since)->sum('amount'),
+            'total_spent' => abs(PointLog::where('amount', '<', 0)->where('created_at', '>=', $since)->sum('amount')),
             'today_issued' => PointLog::where('amount', '>', 0)->whereDate('created_at', today())->sum('amount'),
             'today_spent' => abs(PointLog::where('amount', '<', 0)->whereDate('created_at', today())->sum('amount')),
         ];
