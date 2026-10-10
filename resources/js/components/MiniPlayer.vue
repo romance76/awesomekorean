@@ -254,6 +254,7 @@ function setupMediaSessionHandlers() {
 // 화면 복귀 시: 잠금 재획득 + 브라우저가 멈춘 재생 이어서 재생
 function onVisibilityChange() {
   if (document.visibilityState !== 'visible') return
+  syncCurrentFromPlayer()   // 앱을 나가 있는 동안 플레이어가 넘어간 곡이 있으면 표시를 맞춘다
   if (music.hasTrack && !userPaused && !isShutdown.value) {
     acquireWakeLock()
     try { if (ytPlayer?.getPlayerState && ytPlayer.getPlayerState() !== 1) ytPlayer.playVideo() } catch {}
@@ -283,16 +284,41 @@ async function createPlayer(videoId, startAt = 0) {
     width: '100%', height: '100%', videoId,
     playerVars: { autoplay: 1, controls: 1, modestbranding: 1, rel: 0, playsinline: 1 },
     events: {
-      onReady: (e) => { e.target.setVolume(volume.value); if (startAt > 0) e.target.seekTo(startAt, true); e.target.playVideo(); currentVideoId = videoId; music.isPlaying = true; startProgressTimer(); nextTick(updateYTPosition) },
+      onReady: (e) => {
+        e.target.setVolume(volume.value)
+        const ids = queueFrom(videoId)
+        if (ids.length > 1 && e.target.loadPlaylist) e.target.loadPlaylist({ playlist: ids, index: 0, startSeconds: startAt })
+        else { if (startAt > 0) e.target.seekTo(startAt, true); e.target.playVideo() }
+        currentVideoId = videoId; music.isPlaying = true; startProgressTimer(); nextTick(updateYTPosition)
+      },
       onStateChange: onPlayerStateChange,
-      onError: () => setTimeout(() => music.next(), 1000)
+      onError: () => onPlayerError()
     }
   })
 }
 
+// 재생 실패(삭제·임베드 금지 등): 플레이어가 스스로 다음 곡으로 넘어갔으면 화면만 맞추고, 아니면 우리가 다음 곡으로
+function onPlayerError() {
+  const failed = currentVideoId
+  setTimeout(() => {
+    const live = liveVideoId()
+    if (live && live !== failed) syncCurrentFromPlayer()
+    else music.next()
+  }, 1500)
+}
+
 function onPlayerStateChange(e) {
-  if (e.data === window.YT.PlayerState.ENDED) { music.next(); nextTick(() => { if (music.currentTrack?.youtubeId) loadVideo(music.currentTrack.youtubeId) }) }
+  if (e.data === window.YT.PlayerState.ENDED) {
+    // 목록 재생 중이면 플레이어가 곧 스스로 다음 곡을 시작한다 — 그렇지 않을 때(마지막 곡 등)만 우리가 다음 곡을 연다
+    const endedVid = currentVideoId
+    setTimeout(() => {
+      const live = liveVideoId()
+      if (live && live !== endedVid) syncCurrentFromPlayer()
+      else { music.next(); nextTick(() => { if (music.currentTrack?.youtubeId) loadVideo(music.currentTrack.youtubeId) }) }
+    }, 800)
+  }
   if (e.data === window.YT.PlayerState.PLAYING) {
+    syncCurrentFromPlayer()
     music.isPlaying = true
     // 자동재생 차단 대비로 음소거 상태에서 시작했다면 재생이 시작된 뒤 소리 복구
     if (mutedFallback) { mutedFallback = false; setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(volume.value) } catch {} }, 300) }
@@ -324,7 +350,7 @@ async function prepareEmptyPlayer() {
         if (pendingVideo) { const p = pendingVideo; pendingVideo = null; loadVideo(p.videoId, p.startAt) }
       },
       onStateChange: onPlayerStateChange,
-      onError: () => setTimeout(() => music.next(), 1000)
+      onError: () => onPlayerError()
     }
   })
 }
@@ -342,8 +368,30 @@ function ensureStarted() {
   }, 2000)
 }
 
+// 현재 곡부터 시작하는 재생목록(최대 200곡)의 YouTube 영상 id 배열.
+// 플레이어에게 목록 전체를 넘겨 두면 작은 창(PiP)·백그라운드처럼 우리 코드가 멈춘 상태에서도 플레이어가 스스로 다음 곡으로 넘어간다.
+// 끝까지 가면(마지막 곡) 우리 쪽 ENDED 처리가 처음으로 되돌려 이어서 재생한다.
+function queueFrom(videoId) {
+  const list = music.playlist.filter(t => t.youtubeId)
+  const idx = list.findIndex(t => t.youtubeId === videoId)
+  if (idx < 0) return [videoId]
+  return [...list.slice(idx), ...list.slice(0, idx)].map(t => t.youtubeId).slice(0, 200)
+}
+function liveVideoId() { try { return ytPlayer?.getVideoData?.().video_id || null } catch { return null } }
+// 플레이어가 스스로 다음 곡으로 넘어간 경우 화면(현재 곡 표시·잠금화면 정보)을 그 곡에 맞춘다
+function syncCurrentFromPlayer() {
+  const vid = liveVideoId()
+  if (!vid || vid === music.currentTrack?.youtubeId) return
+  const t = music.playlist.find(x => x.youtubeId === vid)
+  if (t) { currentVideoId = vid; music.play(t) }
+}
+
 function loadVideo(videoId, startAt = 0) {
-  try { if (ytPlayer?.loadVideoById && ytPlayer?.getPlayerState) { ytPlayer.loadVideoById({ videoId, startSeconds: startAt }); currentVideoId = videoId; if (isMobile.value) ensureStarted(); return } } catch {}
+  try { if (ytPlayer?.loadVideoById && ytPlayer?.getPlayerState) {
+    const ids = queueFrom(videoId)
+    if (ids.length > 1 && ytPlayer.loadPlaylist) ytPlayer.loadPlaylist({ playlist: ids, index: 0, startSeconds: startAt })
+    else ytPlayer.loadVideoById({ videoId, startSeconds: startAt })
+    currentVideoId = videoId; if (isMobile.value) ensureStarted(); return } } catch {}
   // 미리 만든 플레이어가 아직 준비 중이면 준비 완료 후 재생 (파괴·재생성 금지)
   if (preparing) { pendingVideo = { videoId, startAt }; return }
   createPlayer(videoId, startAt)
@@ -362,6 +410,7 @@ watch(() => music.currentTrack?.youtubeId, (vid) => {
   updateMediaSession()
   if (isMusicPage.value) { posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
   else { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
+  if (liveVideoId() === vid) { updateYTPosition(); return }   // 플레이어가 스스로 넘어간 곡 — 다시 불러오지 않음
   nextTick(() => { loadVideo(vid, 0); updateYTPosition() })
 })
 
