@@ -1,6 +1,6 @@
 <template>
 <!-- 휴대폰 화면: 하단 5탭 + 메뉴 카드. 오른쪽 위 버튼으로 이전(PC) 화면과 바꿀 수 있어요 -->
-<div v-if="isMobileLayout" class="min-h-screen bg-[#F3F4F6] flex flex-col">
+<div v-if="isMobileLayout" class="admin-shell min-h-screen bg-[#F3F4F6] flex flex-col">
   <header class="fixed top-0 inset-x-0 z-40 bg-white border-b border-gray-100 flex items-center gap-1 px-2"
     :style="{ paddingTop: 'env(safe-area-inset-top, 0px)', height: 'calc(56px + env(safe-area-inset-top, 0px))' }">
     <button v-if="mBack" @click="router.push(mBack)" class="w-11 h-11 grid place-items-center rounded-xl text-ink active:bg-gray-100" aria-label="뒤로"><AppIcon name="chevron-left" :size="24" /></button>
@@ -44,7 +44,7 @@
   </nav>
 </div>
 
-<div v-else class="min-h-screen bg-[#F7F8FA] flex">
+<div v-else class="admin-shell min-h-screen bg-[#F7F8FA] flex">
   <!-- 좁은 화면(휴대폰/태블릿)에서 이전 화면을 보고 있을 때: 휴대폰 화면으로 돌아가는 버튼 -->
   <button v-if="winW < 1024" @click="setView('mobile')"
     class="fixed right-3 z-[60] min-h-[44px] px-4 rounded-full bg-amber-500 text-white text-sm font-bold shadow-lg flex items-center gap-1.5"

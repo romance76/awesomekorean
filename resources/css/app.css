@@ -324,3 +324,17 @@ html.easy-view:not(.ev-pause) .ev-header .gap-1\.5{gap:2px}
 @media (min-width: 768px) and (max-width: 1023px) {
   .lg\:hidden.sticky.top-14 { top: var(--hdr-h, 106px); }
 }
+
+/* ── PC(768px 이상) 글씨 한 단계 크게 (Kay 2026-10-12) — 상단 메뉴·관리자 화면 제외, "큰 글씨로 보기"를 켠 경우엔 그 설정이 우선 ── */
+@media (min-width: 768px) {
+  :is(html:not(.easy-view), html.ev-pause) .text-\[10px\]:not(nav.ev-header *):not(.admin-shell *) { font-size: 12px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-\[11px\]:not(nav.ev-header *):not(.admin-shell *) { font-size: 13px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-xs:not(nav.ev-header *):not(.admin-shell *) { font-size: 13.5px; line-height: 1.5; }
+  :is(html:not(.easy-view), html.ev-pause) .text-\[12px\]:not(nav.ev-header *):not(.admin-shell *) { font-size: 13.5px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-\[13px\]:not(nav.ev-header *):not(.admin-shell *) { font-size: 14.5px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-sm:not(nav.ev-header *):not(.admin-shell *) { font-size: 15px; line-height: 1.6; }
+  :is(html:not(.easy-view), html.ev-pause) .text-\[15px\]:not(nav.ev-header *):not(.admin-shell *) { font-size: 16px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-base:not(nav.ev-header *):not(.admin-shell *) { font-size: 17.5px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-lg:not(nav.ev-header *):not(.admin-shell *) { font-size: 19px; }
+  :is(html:not(.easy-view), html.ev-pause) .text-xl:not(nav.ev-header *):not(.admin-shell *) { font-size: 21.5px; }
+}
