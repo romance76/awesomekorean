@@ -24,6 +24,8 @@ class DirectPayments
     /** @return array{0:Payment,1:string} [payment, client_secret] */
     public function begin(User $user, string $kind, ?string $refType, ?int $refId, int $cents, string $description): array
     {
+        // 카드 결제 최소 금액(관리자 결제 설정의 "최소 결제금액", 기본 $5) 미만은 받지 않는다
+        CardLimits::assert($cents);
         $hold = $this->stripe->createHold($cents, $description, [
             'user_id' => $user->id, 'kind' => $kind, 'ref_type' => (string) $refType, 'ref_id' => (string) $refId,
         ]);

@@ -332,6 +332,14 @@ class AdminSettingsController extends Controller
             if (!is_string($k) || !preg_match('/^[A-Za-z0-9_.\-]{1,60}$/', $k)) continue;   // 이상한 칸 이름은 버린다
             $incoming[$k] = $v;
         }
+        // 카드 결제 최소 금액은 $0.50(Stripe 최소) ~ $1,000 사이의 숫자만 (CardLimits 가 이 값을 읽는다)
+        if (array_key_exists('min_amount', $incoming)) {
+            $m = $incoming['min_amount'];
+            if (!is_numeric($m) || (float) $m < 0.5 || (float) $m > 1000) {
+                return response()->json(['success'=>false,'message'=>'최소 결제금액은 0.50 ~ 1,000 사이 숫자로 적어 주세요.','errors'=>['min_amount'=>['최소 결제금액은 0.50 ~ 1,000 사이 숫자로 적어 주세요.']]], 422);
+            }
+            $incoming['min_amount'] = round((float) $m, 2);
+        }
         $cur = SiteSetting::where('key', 'payment_config')->value('value');
         $merged = array_merge(is_string($cur) ? (json_decode($cur, true) ?: []) : [], $incoming);   // 보내지 않은 기존 칸은 그대로 둔다
         SiteSetting::updateOrCreate(['key'=>'payment_config'], ['value'=>json_encode($merged)]);

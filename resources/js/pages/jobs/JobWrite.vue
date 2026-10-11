@@ -595,6 +595,8 @@ async function submit() {
   if (!form.company && isHiring.value) { error.value = '회사명을 입력해주세요'; return }
   if (!form.category) { error.value = '카테고리를 선택해주세요'; return }
   if (!plainText) { error.value = '상세 설명을 입력해주세요'; return }
+  // 카드 결제인데 총액이 카드 최소 금액 미만 → 등록 전에 안내하고 막기
+  if (jobPromoRef.value?.cardBelowMin) { error.value = jobPromoRef.value.cardMinMessage; return }
   // 프로모션 선택했지만 슬롯 만석 → 등록 차단
   if (['state_plus','national'].includes(jobPromotion.tier) && jobPromoRef.value?.isSlotFull) {
     const t = jobPromoRef.value?.nextSlotTimeFmt

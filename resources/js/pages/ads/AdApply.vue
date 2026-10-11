@@ -352,7 +352,8 @@
                 class="flex-1 border-2 border-amber-400 rounded-xl px-4 py-3 text-lg font-black text-amber-800 text-center outline-none focus:ring-4 focus:ring-amber-400/10" />
             </div>
             <MyBalanceStrip pay="card" class="mt-2" />
-            <p class="mt-2 text-xs text-ink-muted leading-relaxed">광고는 <b>카드 결제</b>로만 신청할 수 있어요(포인트 사용 불가). 신청할 때는 카드 확인(보류)만 하고, <b>관리자가 승인하면 그때 청구</b>돼요. 거절되면 청구되지 않아요.</p>
+            <p class="mt-2 text-xs text-ink-muted leading-relaxed">카드 결제는 <b>최소 {{ cardMinText }} 이상</b>부터 가능해요.<span v-if="adForm.bid_amount < cardMin" class="text-red-600 font-bold"> 지금 {{ usd(adForm.bid_amount) }} 라서 {{ cardMinText }} 이상으로 올려 주세요.</span></p>
+            <p class="mt-1 text-xs text-ink-muted leading-relaxed">광고는 <b>카드 결제</b>로만 신청할 수 있어요(포인트 사용 불가). 신청할 때는 카드 확인(보류)만 하고, <b>관리자가 승인하면 그때 청구</b>돼요. 거절되면 청구되지 않아요.</p>
           </div>
 
           <button @click="submitAd" :disabled="submitting || !canSubmit"
@@ -421,6 +422,8 @@ import { adSlotExists } from '../../config/adSlotMap'
 import axios from 'axios'
 import StripeCardForm from '../../components/StripeCardForm.vue'
 import MyBalanceStrip from '../../components/MyBalanceStrip.vue'
+import { useCardLimits } from '../../composables/useCardLimits'
+const { minCents: cardMin, minText: cardMinText } = useCardLimits()
 
 const siteStore = useSiteStore()
 
@@ -647,6 +650,7 @@ const canSubmit = computed(() => {
     if (!adImage.value || !imageConfirmed.value) return false
   }
   if (adForm.bid_amount < totalMinBid.value) return false
+  if (adForm.bid_amount < cardMin.value) return false   // 카드 최소 결제 금액(관리자 결제 설정) 미만
   if (!isNationalPage.value && adForm.geo_scope !== 'all' && !adForm.geo_value) return false
   return true
 })

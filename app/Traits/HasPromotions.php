@@ -127,6 +127,17 @@ trait HasPromotions
         // ── 카드 결제: 보류만 만들고 화면에서 카드를 확인하게 한다 (청구·적용은 confirm 에서) ──
         if ($request->input('pay_with') === 'card') {
             $cents = \App\Support\AdPayments::cents($totalCost);   // 가격 숫자 = 센트 (100 = $1.00), Stripe 최소 $0.50
+            // 카드 결제 최소 금액(관리자 결제 설정, 기본 $5) — 모자라면 청구하지 않고 쉬운 안내 + 몇 일부터 가능한지 알려 준다
+            $minCents = \App\Support\CardLimits::minCents();
+            if ($cents < $minCents) {
+                $needDays = $dailyCost > 0 ? (int) ceil($minCents / $dailyCost) : null;
+                return response()->json([
+                    'success' => false,
+                    'message' => '카드 결제는 최소 ' . \App\Support\CardLimits::money() . ' 이상부터 가능해요 (지금 ' . \App\Support\CardLimits::money($cents) . ').'
+                        . ($needDays && $needDays <= 90 ? " 노출 기간을 {$needDays}일 이상으로 하거나" : '') . ' 포인트로 결제해 주세요.',
+                    'data' => ['below_min' => true, 'min_cents' => $minCents, 'need_days' => $needDays],
+                ], 422);
+            }
             try {
                 [$payment, $secret] = app(\App\Support\DirectPayments::class)->begin(
                     $user, \App\Models\Payment::KIND_PROMOTION, get_class($item), (int) $item->getKey(), $cents,

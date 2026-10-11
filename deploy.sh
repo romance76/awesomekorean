@@ -98,8 +98,9 @@ chown -R www-data:www-data "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
 chown -R www-data:www-data "$APP_DIR/public/build" 2>/dev/null || true
 chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
 
-log "▶ Step 7/7: php-fpm restart"
-systemctl restart php8.2-fpm
+log "▶ Step 7/7: php-fpm reload (graceful)"
+# restart 는 진행 중인 요청(글 등록·결제 등)을 끊어 502 가 나서, 새 코드를 읽게 하되 하던 요청은 끝까지 처리하는 reload 를 쓴다. 실패하면 restart 로 대체.
+systemctl reload php8.2-fpm || systemctl restart php8.2-fpm
 
 rm -rf /tmp/awesomekorean_build_backup
 

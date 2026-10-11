@@ -113,7 +113,8 @@
           <button type="button" @click="payWith = 'points'" class="min-h-[40px] rounded-lg text-sm font-bold" :class="payWith === 'points' ? 'bg-white text-violet-700 shadow-sm' : 'text-ink-muted'">포인트</button>
           <button type="button" @click="payWith = 'card'" class="min-h-[40px] rounded-lg text-sm font-bold" :class="payWith === 'card' ? 'bg-white text-violet-700 shadow-sm' : 'text-ink-muted'">카드 결제</button>
         </div>
-        <p v-if="payWith === 'card'" class="text-[11px] text-ink-muted mt-1.5 leading-relaxed">등록을 누르면 카드 결제 창이 떠요. 카드를 확인하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 환불되지 않아요.</b></p>
+        <p v-if="payWith === 'card'" class="text-[11px] text-ink-muted mt-1.5 leading-relaxed">등록을 누르면 카드 결제 창이 떠요. 카드를 확인하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 최소 {{ cardMinText }} 이상부터 가능하고, 환불되지 않아요.</b></p>
+        <p v-if="cardBelowMin" class="text-[12px] text-red-600 font-bold mt-1.5 leading-relaxed">지금 {{ priceText(totalCost, true) }} 라서 카드로 결제할 수 없어요. <template v-if="needDaysForCard && needDaysForCard <= 30">노출 기간을 <b>{{ needDaysForCard }}일 이상</b>으로 하거나 </template>포인트로 결제해 주세요.</p>
       </div>
 
       <div>
@@ -137,6 +138,7 @@ import axios from 'axios'
 import { neighborsOf } from '../utils/stateNeighbors'
 import AppIcon from './AppIcon.vue'
 import MyBalanceStrip from './MyBalanceStrip.vue'
+import { useCardLimits } from '../composables/useCardLimits'
 
 const props = defineProps({
   resource: { type: String, required: true },
@@ -182,6 +184,7 @@ const payWith = computed({
 // 가격 숫자 = 포인트이자 센트(100 = $1.00). 카드는 Stripe 최소 $0.50
 const priceText = (p, isTotal = false) => payWith.value === 'card' ? ('$' + ((isTotal ? Math.max(50, Number(p || 0)) : Number(p || 0)) / 100).toFixed(2)) : (Number(p || 0).toLocaleString() + 'P')
 
+const { minCents: cardMin, minText: cardMinText } = useCardLimits()
 const prices = reactive({ national: 100, state_plus: 50, sponsored: 20 })
 const maxSlots = reactive({ national: 5, state_plus: 5 })
 
@@ -291,5 +294,9 @@ onMounted(async () => {
   await refreshSlotInfo()
 })
 
-defineExpose({ isSlotFull, slotInfoByTier, nextSlotTimeFmt })
+// 카드로 결제하려는데 총액이 카드 최소 금액(관리자 결제 설정)보다 작으면 true — 글쓰기 화면이 등록 전에 막는다
+const cardBelowMin = computed(() => tier.value !== 'none' && payWith.value === 'card' && totalCost.value < cardMin.value)
+const needDaysForCard = computed(() => { const u = prices[tier.value] || 0; return u > 0 ? Math.ceil(cardMin.value / u) : 0 })
+const cardMinMessage = computed(() => `카드 결제는 최소 ${cardMinText.value} 이상부터 가능해요 (지금 ${priceText(totalCost.value, true)}). ${needDaysForCard.value && needDaysForCard.value <= 30 ? '노출 기간을 ' + needDaysForCard.value + '일 이상으로 하거나 ' : ''}포인트로 결제해 주세요.`)
+defineExpose({ isSlotFull, slotInfoByTier, nextSlotTimeFmt, cardBelowMin, cardMinMessage })
 </script>

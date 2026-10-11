@@ -1155,6 +1155,8 @@ import FlyerApply from '../new/FlyerApply.vue'
 import MyShoppingReviews from '../shopping/MyShoppingReviews.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
 import { usePromoCheckout, promoEndpoint } from '../../composables/usePromoCheckout'
+import { useLangStore } from '../../stores/lang'
+const langStore = useLangStore()   // 인보이스는 보는 사람의 사이트 언어(KO/EN)로 연다
 const { payPromotionByCard } = usePromoCheckout()
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
@@ -1259,7 +1261,7 @@ async function openInvoice(p) {
   if (!w) { showAlert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', '오류'); return }
   try {
     const url = p.invoice_no ? `/api/invoices/${encodeURIComponent(p.invoice_no)}` : `/api/payments/${p.id}/invoice`
-    const { data } = await axios.get(url, { responseType: 'text', transformResponse: [(d) => d] })
+    const { data } = await axios.get(url, { params: { lang: langStore.locale }, responseType: 'text', transformResponse: [(d) => d] })
     w.document.open(); w.document.write(data); w.document.close()
   } catch {
     w.close()

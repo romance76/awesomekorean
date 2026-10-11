@@ -310,6 +310,8 @@ import Revenue from './Revenue.vue'
 import { INVOICE_STATUS, mailChip } from '../../composables/useInvoiceUi'
 import { useAdminSort } from '../../composables/useAdminSort'
 import { useAdminConfirm } from '../../composables/useAdminConfirm'
+import { useLangStore } from '../../stores/lang'
+const langStore = useLangStore()   // 인보이스는 보는 사람의 사이트 언어(KO/EN)로 연다
 // 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
 const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
 import { useAuthStore } from '../../stores/auth'
@@ -446,7 +448,7 @@ async function openLetter(item) {
   const w = window.open('', '_blank')
   if (!w) { say('팝업이 막혀 있어요. 팝업을 허용한 뒤 다시 눌러 주세요.', true); return }
   try {
-    const { data } = await axios.get(`/api/admin/payments/${item.id}/invoice`, { responseType: 'text', transformResponse: [(d) => d] })
+    const { data } = await axios.get(`/api/admin/payments/${item.id}/invoice`, { params: { lang: langStore.locale }, responseType: 'text', transformResponse: [(d) => d] })
     w.document.open(); w.document.write(data); w.document.close()
   } catch { w.close(); say('인보이스를 열지 못했어요', true) }
 }

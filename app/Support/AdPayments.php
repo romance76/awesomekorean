@@ -24,9 +24,17 @@ class AdPayments
         return ($b->payment_method ?? 'points') === 'card';
     }
 
+    /** 청구액 — 오픈 이벤트 할인 등으로 줄어도 카드 결제 최소 금액(관리자 결제 설정, 기본 $5) 밑으로는 내려가지 않는다 */
     public static function cents(int $amount): int
     {
-        return max(self::MIN_CENTS, $amount);
+        return max(self::MIN_CENTS, CardLimits::minCents(), $amount);
+    }
+
+    /** 입찰·신청 금액 자체가 카드 최소 금액보다 작으면 안내 문구, 아니면 null */
+    public static function bidError(int $bid): ?string
+    {
+        $min = CardLimits::minCents();
+        return $bid < $min ? ('카드 결제는 최소 ' . CardLimits::money() . ' 이상부터 가능해요. 금액을 ' . CardLimits::money() . ' 이상으로 해 주세요.') : null;
     }
 
     public static function money(int $cents): string

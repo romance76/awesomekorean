@@ -190,6 +190,7 @@ const editId = ref(null)
 
 async function submit() {
   if (!form.title || !form.content || !form.price) { error.value = '필수 항목을 입력해주세요'; return }
+  if (promoRef.value?.cardBelowMin) { error.value = promoRef.value.cardMinMessage; return }   // 카드 최소 금액 미만
   if (['state_plus','national'].includes(promotion.tier) && promoRef.value?.isSlotFull) {
     const t = promoRef.value?.nextSlotTimeFmt
     error.value = t ? `상위노출 슬롯 만석. ${t} 이후 가능합니다.` : '상위노출 슬롯 만석.'

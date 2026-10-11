@@ -39,7 +39,7 @@ class InvoiceController extends Controller
             ]]);
         }
 
-        return response(Invoicing::renderHtml($invoice, true), 200, [
+        return response(Invoicing::renderHtml($invoice, true, $request->query('lang') === 'en' ? 'en' : 'ko'), 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
             'Cache-Control' => 'private, no-store',
             'X-Robots-Tag' => 'noindex, nofollow',

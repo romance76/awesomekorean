@@ -196,7 +196,7 @@ class AdminInvoiceController extends Controller
     {
         if (!Invoicing::ready()) return $this->notReady();
         $inv = Invoice::findOrFail($id);
-        return response(Invoicing::renderHtml($inv, true), 200, [
+        return response(Invoicing::renderHtml($inv, true, request('lang') === 'en' ? 'en' : 'ko'), 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
             'Cache-Control' => 'private, no-store',
             'X-Robots-Tag' => 'noindex, nofollow',

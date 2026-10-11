@@ -51,11 +51,12 @@
             <span class="total-label">총 결제</span>
             <span class="total-value">{{ priceText(selected?.price || 0) }}</span>
           </div>
-          <p v-if="payWith === 'card'" class="card-note">카드로 결제하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 환불되지 않아요.</b> 인보이스는 결제 내역에서 볼 수 있어요.</p>
+          <p v-if="payWith === 'card'" class="card-note">카드로 결제하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 최소 {{ cardMinText }} 이상부터 가능하고, 환불되지 않아요.</b> 인보이스는 결제 내역에서 볼 수 있어요.</p>
+          <p v-if="payWith === 'card' && cardBelow" class="err-msg" style="margin:-4px 0 10px;">이 기간은 {{ priceText(selected?.price || 0) }} 라서 카드로 결제할 수 없어요. 더 긴 기간을 고르거나 포인트로 결제해 주세요.</p>
 
           <div class="modal-actions">
             <button @click="showModal = false" class="btn-cancel" :disabled="paying">취소</button>
-            <button @click="pay" class="btn-pay" :disabled="paying || !selected">
+            <button @click="pay" class="btn-pay" :disabled="paying || !selected || (payWith === 'card' && cardBelow)">
               {{ paying ? '처리 중...' : (payWith === 'card' ? '카드로 결제하기' : '포인트로 결제하기') }}
             </button>
           </div>
@@ -85,6 +86,7 @@ import { useSiteStore } from '../stores/site'
 import AppIcon from './AppIcon.vue'
 import StripeCardForm from './StripeCardForm.vue'
 import MyBalanceStrip from './MyBalanceStrip.vue'
+import { useCardLimits } from '../composables/useCardLimits'
 
 const props = defineProps({
   resource: { type: String, required: true },
@@ -98,11 +100,13 @@ const showModal = ref(false)
 const paying = ref(false)
 const errorMsg = ref('')
 // 하루 가격은 서버 설정(관리자 › 가격 센터)을 읽는다. 숫자는 포인트이자 센트(100 = $1.00)
+const { minCents: cardMin, minText: cardMinText } = useCardLimits()
 const TIER = 'state_plus'
 const pricePerDay = ref(100)
 const options = computed(() => [1, 3, 7].map(days => ({ days, price: pricePerDay.value * days })))
 const selected = ref(null)
 const payWith = ref('points')
+const cardBelow = computed(() => Math.max(50, Number(selected.value?.price || 0)) < cardMin.value)
 const cardSecret = ref('')
 const cardPaymentId = ref(null)
 const cardCents = ref(0)

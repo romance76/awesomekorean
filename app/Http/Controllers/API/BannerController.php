@@ -146,6 +146,7 @@ class BannerController extends Controller
         $user = auth()->user();
         $bid = (int) $data['bid_amount'];   // 입찰액(센트 단위 — 예전 포인트 숫자 그대로, 100 = $1.00)
         // Kay 결정(2026-10-11): 광고는 카드 결제만. 오픈 이벤트 할인은 청구액에만(입찰 순위는 그대로), Stripe 최소 $0.50
+        if ($why = \App\Support\AdPayments::bidError($bid)) return response()->json(['success' => false, 'message' => $why], 422);
         $cost = \App\Support\AdPayments::cents(\App\Support\OpenEvent::apply($bid, 'banner'));
 
         $ad = BannerAd::create([
@@ -504,6 +505,7 @@ class BannerController extends Controller
         // Kay 결정(2026-10-11): 광고는 카드 결제만. 입찰액은 센트 단위(예전 포인트 숫자 그대로, 100 = $1.00).
         // 오픈 이벤트 할인은 청구액에만(입찰 순위는 그대로), Stripe 최소 $0.50.
         $user = auth()->user();
+        if ($why = \App\Support\AdPayments::bidError($bidAmount)) return response()->json(['success' => false, 'message' => $why], 422);
         $chargeAmount = \App\Support\AdPayments::cents(\App\Support\OpenEvent::apply($bidAmount, 'banner'));
 
         // 배너 이미지는 광고용이라 원본 비율 유지하되 가로 1200px 로 압축

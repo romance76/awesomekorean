@@ -147,6 +147,18 @@ class Invoicing
         return $state === '23000' || $state === '40001' || in_array($driver, [1062, 1213, 19], true);
     }
 
+    /** "배너 광고: 제목 (2026-11)" 같은 한국어 설명에서 콜론 뒤 내용만 가져와 영어 이름 뒤에 붙이고, 기간·구역 단어를 영어로 바꾼다 (회원이 쓴 제목은 그대로) */
+    public static function enDetail(string $enBase, string $desc): string
+    {
+        $detail = str_contains($desc, ':') ? trim(substr($desc, strpos($desc, ':') + 1)) : trim($desc);
+        if ($detail === '') return $enBase;
+        $map = ['시간' => ' hours', '일)' => ' days)', '일 ' => ' days ', '전국' => 'National', '주(State)' => 'State', '스폰서' => 'Sponsored',
+            '구인구직' => 'Jobs', '중고장터' => 'Market', '부동산' => 'Real estate', '업소록' => 'Business directory', '동호회' => 'Clubs', '상위노출' => 'Featured listing', ' · ' => ' · '];
+        $detail = str_replace(array_keys($map), array_values($map), $detail);
+        $detail = preg_replace('/([0-9]+)일$/u', '$1 days', $detail);
+        return mb_substr($enBase . ': ' . $detail, 0, 200);
+    }
+
     /** 영수증에 찍을 상품 줄 — 결제 종류별로 쉬운 이름. [{name,name_en,qty,unit_cents,amount_cents}] */
     public static function lineItemsFor(Payment $payment, int $cents): array
     {
@@ -158,19 +170,19 @@ class Invoicing
             $en = $pts > 0 ? 'Point top-up (' . number_format($pts) . ' P)' : 'Point top-up';
         } elseif ($kind === Payment::KIND_FLYER) {
             $name = $desc !== '' ? $desc : 'NEW 전면광고(전단) 광고';
-            $en = 'Flyer advertising';
+            $en = self::enDetail('Flyer advertising', $desc);
         } elseif ($kind === Payment::KIND_EVENT_REQUEST) {
             $name = $desc !== '' ? $desc : '경품 이벤트 의뢰';
             $en = 'Sweepstakes event request';
         } elseif ($kind === Payment::KIND_BANNER) {
             $name = $desc !== '' ? $desc : '배너 광고';
-            $en = 'Banner advertising';
+            $en = self::enDetail('Banner advertising', $desc);
         } elseif ($kind === Payment::KIND_TEXT_AD) {
             $name = $desc !== '' ? $desc : '텍스트 광고';
-            $en = 'Text advertising';
+            $en = self::enDetail('Text advertising', $desc);
         } elseif ($kind === Payment::KIND_PROMOTION) {
             $name = $desc !== '' ? $desc : '상위노출';
-            $en = 'Featured listing (promotion)';
+            $en = self::enDetail('Featured listing (promotion)', $desc);
         } else {
             $name = $desc !== '' ? $desc : '결제';
             $en = 'Payment';
@@ -319,7 +331,7 @@ class Invoicing
     }
 
     /** 메일·웹 보기·텍스트 메일이 같이 쓰는 화면 데이터 */
-    public static function viewData(Invoice $invoice, bool $forWeb = false): array
+    public static function viewData(Invoice $invoice, bool $forWeb = false, string $lang = 'ko'): array
     {
         $issued = $invoice->issued_at ?: $invoice->created_at;
         $kindLabels = [
@@ -339,6 +351,7 @@ class Invoicing
             'kindLabel' => $kindLabels[$invoice->kind ?: Payment::KIND_POINTS] ?? ['결제', 'Payment'],
             'cur' => $invoice->currency ?: 'USD',
             'forWeb' => $forWeb,
+            'lang' => $lang === 'en' ? 'en' : 'ko',
             'bill' => self::billTo($invoice),
             'payInfo' => self::paymentInfo($invoice),
         ];
@@ -451,9 +464,9 @@ class Invoicing
     }
 
     /** 메일은 기존 간단한 양식, 웹 보기·인쇄는 레터 사이즈(8.5×11in) 정식 인보이스 */
-    public static function renderHtml(Invoice $invoice, bool $forWeb = false): string
+    public static function renderHtml(Invoice $invoice, bool $forWeb = false, string $lang = 'ko'): string
     {
-        return view($forWeb ? 'invoices.letter' : 'emails.invoice', self::viewData($invoice, $forWeb))->render();
+        return view($forWeb ? 'invoices.letter' : 'emails.invoice', self::viewData($invoice, $forWeb, $lang))->render();
     }
 
     /** 회원 결제 내역 목록에 invoice_no 를 붙인다 (표가 아직 없으면 조용히 건너뜀) */

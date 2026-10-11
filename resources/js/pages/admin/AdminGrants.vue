@@ -18,15 +18,28 @@
   <!-- ───────── 직접 지급 ───────── -->
   <div v-if="section === 'give'" class="space-y-3">
     <div class="card p-3.5 space-y-2">
-      <label class="block text-[13px] font-bold text-ink-muted">회원 찾기 (이름·이메일·번호·전화)</label>
-      <input v-model="q" @input="searchSoon" type="search" placeholder="예: 홍길동 / 2905 / kim@gmail.com" autocomplete="off" class="input-soft w-full px-3 min-h-[46px]" />
-      <div v-if="results.length && !picked" class="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
-        <button v-for="u in results" :key="u.id" @click="pick(u)" class="w-full text-left px-3 py-2.5 min-h-[48px] hover:bg-amber-50 active:bg-amber-50 flex items-center justify-between gap-2">
-          <span class="min-w-0"><b class="text-ink">{{ u.nickname || u.name }}</b> <span class="text-[12px] text-ink-muted">#{{ u.id }}</span><span class="block text-[12px] text-ink-faint truncate">{{ u.email }}</span></span>
-          <span class="text-[12px] text-amber-700 font-bold shrink-0">{{ (u.points || 0).toLocaleString() }}P</span>
+      <label class="block text-[13px] font-bold text-ink-muted">회원 찾기 (이름·이메일·번호·전화) <span class="font-normal text-ink-faint">— 글자를 치면 바로 찾아요</span></label>
+      <div class="relative">
+        <input v-model="q" @input="searchSoon" @keydown.enter.prevent="searchNow" type="search" placeholder="예: 홍길동 / 2905 / kim@gmail.com" autocomplete="off" class="input-soft w-full px-3 min-h-[46px]" />
+        <span v-if="searching" class="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-ink-muted">찾는 중...</span>
+      </div>
+      <p v-if="searchError" class="text-[13px] text-red-600">{{ searchError }}</p>
+      <template v-else-if="!picked">
+        <p v-if="q.trim() && q.trim().length < minLen" class="text-[12px] text-ink-faint">{{ minLen }}글자 이상 입력하면 찾기 시작해요.</p>
+        <p v-else-if="searched && !searching && !results.length" class="text-[13px] text-ink-muted">‘{{ lastQuery }}’ 에 맞는 회원이 없어요.</p>
+        <p v-else-if="results.length" class="text-[12px] text-ink-muted">{{ results.length }}명 찾았어요 — 한 명을 눌러 선택하세요.</p>
+      </template>
+      <div v-if="results.length && !picked" class="border border-gray-200 rounded-xl overflow-hidden">
+        <div class="hidden sm:grid grid-cols-[48px_1.2fr_1.6fr_90px_70px_70px] gap-2 px-3 py-1.5 bg-gray-50 text-[11px] font-bold text-ink-faint"><span>번호</span><span>이름</span><span>이메일</span><span class="text-right">포인트</span><span class="text-right">Entry</span><span>권한</span></div>
+        <button v-for="u in results" :key="u.id" @click="pick(u)" class="w-full text-left px-3 py-2 min-h-[44px] border-t border-gray-100 first:border-t-0 hover:bg-amber-50 active:bg-amber-50 grid grid-cols-[1fr_auto] sm:grid-cols-[48px_1.2fr_1.6fr_90px_70px_70px] gap-x-2 items-center text-[13px]">
+          <span class="hidden sm:block text-ink-faint tabular-nums">{{ u.id }}</span>
+          <span class="min-w-0 truncate font-bold text-ink">{{ u.nickname || u.name }}<span class="sm:hidden text-[11px] font-normal text-ink-faint"> #{{ u.id }}</span><span class="sm:hidden block text-[11px] font-normal text-ink-faint truncate">{{ u.email }}</span></span>
+          <span class="hidden sm:block min-w-0 truncate text-ink-muted">{{ u.email }}</span>
+          <span class="text-right tabular-nums text-amber-700 font-bold">{{ (u.points || 0).toLocaleString() }}<span class="sm:hidden">P</span></span>
+          <span class="hidden sm:block text-right tabular-nums text-violet-700">{{ (u.entries || 0).toLocaleString() }}</span>
+          <span class="hidden sm:block text-[11px] text-ink-muted">{{ roleName(u.role) }}</span>
         </button>
       </div>
-      <p v-else-if="q.trim().length >= 2 && searched && !results.length && !picked" class="text-[13px] text-ink-muted">찾는 회원이 없어요.</p>
     </div>
 
     <template v-if="picked">
@@ -97,18 +110,45 @@
   <!-- ───────── 보상 승인 (예전 '신고·문의 › 보상 승인' 화면을 여기로 합침) ───────── -->
   <div v-else-if="section === 'rewards'"><AdminRewardRequests /></div>
 
-  <!-- ───────── 지급 기록 ───────── -->
+  <!-- ───────── 지급 기록 (한 줄씩 쭉, 누르면 자세히) ───────── -->
   <div v-else class="space-y-2">
     <p v-if="logError" class="bg-red-50 text-red-600 text-sm rounded-xl p-3">{{ logError }}</p>
-    <div v-for="r in log" :key="r.kind + r.id" class="bg-white border border-gray-100 rounded-2xl px-3.5 py-2.5">
-      <div class="flex items-center justify-between gap-2">
-        <span class="text-[14px] font-bold text-ink truncate">{{ r.user_name }} <span v-if="r.email" class="text-[12px] font-normal text-ink-faint">{{ r.email }}</span></span>
-        <b class="shrink-0 tabular-nums" :class="Number(r.amount) < 0 ? 'text-red-600' : 'text-emerald-600'">{{ fmtAmt(r) }}</b>
-      </div>
-      <div class="text-[12px] text-ink-muted break-words mt-0.5"><span class="inline-block px-1.5 py-0.5 rounded bg-gray-100 mr-1.5">{{ { points: '포인트', entries: 'Entry', payment: '구매 금액' }[r.kind] }}</span>{{ r.label }}</div>
-      <div class="text-[11px] text-ink-faint mt-0.5 flex items-center gap-3">{{ fmtAt(r.at) }}<button v-if="r.kind === 'payment'" @click="openInvoice(r.id)" class="underline font-bold text-amber-700">인보이스</button></div>
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <button v-for="c in logChips" :key="c.k" @click="logFilter = c.k" class="min-h-[36px] px-3 rounded-full border text-[13px]" :class="logFilter === c.k ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200'">{{ c.l }} <span class="tabular-nums opacity-70">{{ c.n }}</span></button>
+      <button @click="loadLog" class="ml-auto min-h-[36px] px-3 text-[13px] font-bold text-ink-light underline">새로고침</button>
     </div>
-    <p v-if="!log.length" class="text-center text-ink-muted py-10 text-[14px]">{{ logLoading ? '불러오는 중...' : '지급 기록이 없어요' }}</p>
+    <div class="card overflow-hidden">
+      <div class="hidden sm:grid grid-cols-[120px_80px_1fr_1.6fr_110px] gap-2 px-3 py-2 bg-gray-50 border-b border-gray-100 text-[11px] font-bold text-ink-faint"><span>시각(애틀랜타)</span><span>구분</span><span>회원</span><span>내용</span><span class="text-right">금액</span></div>
+      <button v-for="r in logShown" :key="r.kind + r.id" @click="openLog(r)" class="w-full text-left px-3 py-2 min-h-[44px] border-b border-gray-50 last:border-0 hover:bg-amber-50/50 active:bg-amber-50 grid grid-cols-[1fr_auto] sm:grid-cols-[120px_80px_1fr_1.6fr_110px] gap-x-2 gap-y-0.5 items-center text-[13px]">
+        <span class="hidden sm:block text-[12px] text-ink-muted tabular-nums">{{ fmtAtShort(r.at) }}</span>
+        <span class="hidden sm:block"><span class="inline-block px-1.5 py-0.5 rounded text-[11px] font-bold" :class="kindChip(r.kind)">{{ kindLabel(r.kind) }}</span></span>
+        <span class="min-w-0 truncate font-bold text-ink">{{ r.user_name }}<span class="sm:hidden text-[11px] font-normal text-ink-faint"> · {{ kindLabel(r.kind) }} · {{ fmtAtShort(r.at) }}</span></span>
+        <span class="hidden sm:block min-w-0 truncate text-ink-muted">{{ r.label }}</span>
+        <b class="text-right tabular-nums" :class="Number(r.amount) < 0 ? 'text-red-600' : 'text-emerald-600'">{{ fmtAmt(r) }}</b>
+      </button>
+      <p v-if="!logShown.length" class="text-center text-ink-muted py-10 text-[14px]">{{ logLoading ? '불러오는 중...' : '지급 기록이 없어요' }}</p>
+    </div>
+
+    <!-- 눌렀을 때 자세히 -->
+    <DetailPanel v-model="logOpen" :title="logSel ? (kindLabel(logSel.kind) + ' · ' + logSel.user_name) : ''">
+      <div v-if="logSel" class="space-y-3 text-[14px]">
+        <div class="grid grid-cols-[88px_1fr] gap-y-2 gap-x-3">
+          <span class="text-ink-muted">구분</span><span><span class="inline-block px-1.5 py-0.5 rounded text-[12px] font-bold" :class="kindChip(logSel.kind)">{{ kindLabel(logSel.kind) }}</span></span>
+          <span class="text-ink-muted">금액</span><b class="tabular-nums" :class="Number(logSel.amount) < 0 ? 'text-red-600' : 'text-emerald-600'">{{ fmtAmt(logSel) }}</b>
+          <span class="text-ink-muted">회원</span><span>{{ logSel.user_name }} <span class="text-ink-faint">#{{ logSel.user_id }}</span></span>
+          <template v-if="logSel.email"><span class="text-ink-muted">이메일</span><span class="break-all">{{ logSel.email }}</span></template>
+          <span class="text-ink-muted">내용</span><span class="break-words">{{ logSel.label || '—' }}</span>
+          <template v-if="logSel.pay_kind"><span class="text-ink-muted">결제 종류</span><span>{{ kinds.find(k => k.v === logSel.pay_kind)?.l || logSel.pay_kind }}</span></template>
+          <span class="text-ink-muted">시각</span><span>{{ fmtAt(logSel.at) }}</span>
+        </div>
+      </div>
+      <template #footer>
+        <div v-if="logSel" class="flex flex-wrap gap-2">
+          <button v-if="logSel.kind === 'payment'" @click="openInvoice(logSel.id)" class="min-h-[46px] px-4 rounded-xl bg-amber-50 text-amber-700 font-bold text-[14px]">정식 인보이스 열기</button>
+          <button @click="goMember(logSel.user_id)" class="min-h-[46px] px-4 rounded-xl bg-gray-100 text-ink-light font-bold text-[14px]">이 회원으로 지급하기</button>
+        </div>
+      </template>
+    </DetailPanel>
   </div>
 </div>
 </template>
@@ -119,8 +159,11 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import AdminRewardRequests from './AdminRewardRequests.vue'
+import DetailPanel from '../../components/admin/DetailPanel.vue'
 import { useAuthStore } from '../../stores/auth'
 import { useAdminConfirm } from '../../composables/useAdminConfirm'
+import { useLangStore } from '../../stores/lang'
+const langStore = useLangStore()   // 인보이스는 보는 사람의 사이트 언어(KO/EN)로 연다
 
 const route = useRoute(); const router = useRouter(); const auth = useAuthStore()
 const { confirmAction } = useAdminConfirm()
@@ -140,17 +183,33 @@ function apiMsg(e, d) { const errs = e.response?.data?.errors; return (errs ? Ob
 
 // ── 회원 찾기 ──
 const q = ref(''); const results = ref([]); const searched = ref(false); const picked = ref(null)
+const searching = ref(false); const searchError = ref(''); const lastQuery = ref('')
 const bal = reactive({ points: 0, entries: 0, spent: 0 })
-let st = null
-function searchSoon() {
+const roleName = (r) => ({ super_admin: '최고관리자', admin: '관리자', moderator: '운영자', business: '기업', user: '일반' }[r] || r)
+// 숫자만 치면(회원 번호) 1글자부터, 글자는 2글자부터 찾는다
+const minLen = computed(() => (/^[0-9]+$/.test(q.value.trim()) ? 1 : 2))
+let st = null; let seq = 0
+function searchSoon() { clearTimeout(st); st = setTimeout(searchNow, 250) }
+async function searchNow() {
   clearTimeout(st)
-  if (q.value.trim().length < 2) { results.value = []; searched.value = false; return }
-  st = setTimeout(async () => {
-    try { const { data } = await axios.get('/api/admin/users', { params: { search: q.value.trim(), per_page: 8 } }); results.value = data.data?.data || []; searched.value = true } catch { results.value = [] }
-  }, 300)
+  const term = q.value.trim()
+  searchError.value = ''
+  if (term.length < minLen.value) { results.value = []; searched.value = false; searching.value = false; return }
+  const my = ++seq
+  searching.value = true
+  try {
+    const { data } = await axios.get('/api/admin/users', { params: { search: term, per_page: 10 } })
+    if (my !== seq) return   // 더 새로운 검색이 있으면 이 결과는 버림
+    results.value = data.data?.data || []; searched.value = true; lastQuery.value = term
+  } catch (e) {
+    if (my !== seq) return
+    results.value = []; searched.value = false
+    searchError.value = apiMsg(e, '회원을 찾지 못했어요. 잠시 뒤 다시 시도해 주세요.')
+  }
+  if (my === seq) searching.value = false
 }
-async function pick(u) { picked.value = u; results.value = []; await refreshBal() }
-function clearPick() { picked.value = null; q.value = ''; results.value = []; searched.value = false }
+async function pick(u) { picked.value = u; results.value = []; q.value = (u.nickname || u.name) + ' (#' + u.id + ')'; await refreshBal() }
+function clearPick() { picked.value = null; q.value = ''; results.value = []; searched.value = false; searchError.value = '' }
 async function refreshBal() {
   if (!picked.value) return
   try {
@@ -201,7 +260,7 @@ async function recordPayment() {
 }
 async function openInvoice(paymentId) {
   const w = window.open('', '_blank'); if (!w) { say('팝업을 허용해 주세요', true); return }
-  try { const { data } = await axios.get(`/api/admin/payments/${paymentId}/invoice`, { responseType: 'text', transformResponse: [(d) => d] }); w.document.open(); w.document.write(data); w.document.close() }
+  try { const { data } = await axios.get(`/api/admin/payments/${paymentId}/invoice`, { params: { lang: langStore.locale }, responseType: 'text', transformResponse: [(d) => d] }); w.document.open(); w.document.write(data); w.document.close() }
   catch { w.close(); say('인보이스를 열지 못했어요', true) }
 }
 
@@ -212,6 +271,17 @@ async function loadLog() {
   try { const { data } = await axios.get('/api/admin/grants/recent'); log.value = data.data || [] } catch (e) { logError.value = apiMsg(e, '기록을 불러오지 못했어요') }
   logLoading.value = false
 }
+const logFilter = ref('all'); const logOpen = ref(false); const logSel = ref(null)
+const kindLabel = (k) => ({ points: '포인트', entries: 'Entry', payment: '구매 금액' }[k] || k)
+const kindChip = (k) => ({ points: 'bg-amber-50 text-amber-700', entries: 'bg-violet-50 text-violet-700', payment: 'bg-emerald-50 text-emerald-700' }[k] || 'bg-gray-100 text-ink-muted')
+const logChips = computed(() => [{ k: 'all', l: '전체', n: log.value.length }, ...['points', 'entries', 'payment'].map(k => ({ k, l: kindLabel(k), n: log.value.filter(r => r.kind === k).length }))])
+const logShown = computed(() => logFilter.value === 'all' ? log.value : log.value.filter(r => r.kind === logFilter.value))
+function openLog(r) { logSel.value = r; logOpen.value = true }
+async function goMember(uid) {
+  logOpen.value = false; setSection('give')
+  try { const { data } = await axios.get('/api/admin/users', { params: { search: String(uid), per_page: 5 } }); const u = (data.data?.data || []).find(x => x.id === uid); if (u) await pick(u) } catch {}
+}
+function fmtAtShort(s) { if (!s) return ''; const d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('en-US', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) }
 const fmtAmt = (r) => r.kind === 'payment' ? '$' + money(r.amount) : ((Number(r.amount) > 0 ? '+' : '') + Number(r.amount).toLocaleString() + (r.kind === 'points' ? 'P' : ''))
 function fmtAt(s) { if (!s) return ''; const d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ' (애틀랜타)' }
 

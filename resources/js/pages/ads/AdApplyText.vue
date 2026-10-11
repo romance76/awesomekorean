@@ -83,6 +83,7 @@
       </div>
 
       <MyBalanceStrip pay="card" />
+      <p class="text-xs text-ink-muted leading-relaxed">카드 결제는 <b>최소 {{ cardMinText }} 이상</b>부터 가능해요.<span v-if="form.bid_amount < cardMin" class="text-red-600 font-bold"> 지금 {{ usd(form.bid_amount) }} 라서 {{ cardMinText }} 이상으로 올려 주세요.</span></p>
 
       <!-- 제출 -->
       <button @click="submit" :disabled="!canSubmit || submitting"
@@ -119,6 +120,8 @@ import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
 import StripeCardForm from '../../components/StripeCardForm.vue'
 import MyBalanceStrip from '../../components/MyBalanceStrip.vue'
+import { useCardLimits } from '../../composables/useCardLimits'
+const { minCents: cardMin, minText: cardMinText } = useCardLimits()
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -175,6 +178,7 @@ const canSubmit = computed(() =>
   && form.description.trim()
   && form.page
   && form.bid_amount >= selectedPrice.value
+  && form.bid_amount >= cardMin.value
 )
 
 // 광고는 카드 결제만 (Kay 결정 2026-10-11). 가격 숫자는 센트(100 = $1.00)

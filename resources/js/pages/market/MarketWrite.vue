@@ -219,6 +219,8 @@ const editId = ref(null)
 
 async function submit() {
   if (!form.title || !form.content) { error.value = '제목과 설명을 입력해주세요'; return }
+  // 카드 결제인데 총액이 카드 최소 금액 미만 → 등록 전에 안내하고 막기
+  if (promoRef.value?.cardBelowMin) { error.value = promoRef.value.cardMinMessage; return }
   // 프로모션 슬롯 만석 차단
   if (['state_plus','national'].includes(promotion.tier) && promoRef.value?.isSlotFull) {
     const t = promoRef.value?.nextSlotTimeFmt

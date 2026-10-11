@@ -104,6 +104,8 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import { useModal } from '../../composables/useModal'
+import { useLangStore } from '../../stores/lang'
+const langStore = useLangStore()   // 인보이스는 보는 사람의 사이트 언어(KO/EN)로 연다
 import { usdCents, fmtET, INVOICE_STATUS, MAIL_STATUS, KIND_TEXT } from '../../composables/useInvoiceUi'
 
 const props = defineProps({
@@ -155,7 +157,7 @@ async function viewHtml() {
   const w = window.open('', '_blank')
   if (!w) { showAlert('팝업이 막혀 있어요. 팝업을 허용한 뒤 다시 눌러 주세요.', '알림'); return }
   try {
-    const { data } = await axios.get(`/api/admin/invoices/${props.invoiceId}/html`, { responseType: 'text', transformResponse: [(d) => d] })
+    const { data } = await axios.get(`/api/admin/invoices/${props.invoiceId}/html`, { params: { lang: langStore.locale }, responseType: 'text', transformResponse: [(d) => d] })
     w.document.open(); w.document.write(data); w.document.close()
   } catch (e) {
     w.close()

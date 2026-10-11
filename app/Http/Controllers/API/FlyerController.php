@@ -331,6 +331,8 @@ class FlyerController extends Controller
             FlyerSlot::where('flyer_ad_id', $ad->id)->delete();
             $ad->delete();
             $cleanupImage();
+            // 카드 최소 결제 금액 미만이면 쉬운 안내 문구(422), 그 밖의 오류는 기존 안내(502)
+            if ($e instanceof \DomainException) return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
             return response()->json(['success' => false, 'message' => '결제를 시작하지 못했어요. 잠시 후 다시 시도해주세요.'], 502);
         }
 

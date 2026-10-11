@@ -88,9 +88,9 @@
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-base font-semibold text-ink">결제 시스템 연결</h2>
       <span :class="[
-        payment.stripe_connected ? 'badge-green' : 'badge-red'
+        stripeConnected ? 'badge-green' : 'badge-red'
       ]">
-        {{ payment.stripe_connected ? '연결됨' : '미연결' }}
+        {{ stripeConnected ? '연결됨' : '미연결' }}
       </span>
     </div>
 
@@ -107,7 +107,7 @@
           </div>
         </div>
         <a href="/admin/payments" class="inline-flex items-center gap-1 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium rounded-lg transition-colors">
-          {{ payment.stripe_connected ? 'Stripe 설정 변경' : 'Stripe 연동하기' }}
+          {{ stripeConnected ? '결제/오더 보기' : 'Stripe 키 입력하기' }}
           <span class="text-xs">&rarr;</span>
         </a>
       </div>
@@ -116,9 +116,9 @@
       <div class="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
         <span class="text-sm text-ink-light">결제 모드:</span>
         <span :class="[
-          payment.mode === 'live' ? 'badge-green' : 'badge-primary'
+          !payment.stripe_test_mode ? 'badge-green' : 'badge-primary'
         ]">
-          {{ payment.mode === 'live' ? '라이브 (실결제)' : '테스트 모드' }}
+          {{ !payment.stripe_test_mode ? '라이브 (실결제)' : '테스트 모드' }}
         </span>
       </div>
     </div>
@@ -165,6 +165,7 @@
           <input v-model.number="payment.min_amount" type="number" min="0" step="0.01" class="input-field w-32" />
           <span class="text-sm text-ink-muted">{{ payment.currency }}</span>
         </div>
+        <p class="text-xs text-ink-muted mt-1.5 leading-relaxed"><b>카드 결제의 최소 금액</b>이에요(0.50 이상, 기본 5). 이 금액보다 적은 카드 결제는 받지 않고, 결제 화면에도 "카드 결제는 최소 $N 이상부터"라고 안내돼요. 포인트 결제는 해당 없어요.</p>
       </div>
       <div>
         <label class="input-label">기본 통화</label>
@@ -177,22 +178,17 @@
       </div>
     </div>
 
-    <!-- 이번달 결제 요약 -->
+    <!-- 이번달 결제 요약 (실제 결제 기준 — 결제/오더 › 매출 현황과 같은 숫자) -->
     <div class="bg-gray-50 rounded-xl p-4">
-      <h3 class="text-sm font-semibold text-ink-muted mb-3">이번달 결제 요약</h3>
+      <h3 class="text-sm font-semibold text-ink-muted mb-3">이번 달 결제 요약 <span class="font-normal text-ink-faint">(실제 결제, 환불 제외)</span></h3>
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white rounded-xl p-3 border border-gray-100">
           <p class="text-xs text-ink-muted mb-1">총 결제 금액</p>
-          <p class="text-lg font-bold text-ink">
-            {{ payment.currency === 'USD' ? '$' : '' }}{{ payment.this_month_total.toLocaleString() }}
-            <span v-if="payment.currency !== 'USD'" class="text-sm font-normal text-ink-muted">{{ payment.currency }}</span>
-          </p>
+          <p class="text-lg font-bold text-ink">${{ monthNet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
         </div>
         <div class="bg-white rounded-xl p-3 border border-gray-100">
-          <p class="text-xs text-ink-muted mb-1">결제 성공률</p>
-          <p class="text-lg font-bold" :class="payment.this_month_success_rate >= 90 ? 'text-green-600' : payment.this_month_success_rate >= 70 ? 'text-yellow-600' : 'text-red-600'">
-            {{ payment.this_month_success_rate }}%
-          </p>
+          <p class="text-xs text-ink-muted mb-1">결제 건수</p>
+          <p class="text-lg font-bold text-ink">{{ monthCount }}건</p>
         </div>
       </div>
     </div>
@@ -208,7 +204,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
 
 // 결제 탭(Stripe 키 + 결제 설정) — 값(payment)과 저장 API 호출은 SiteSettings.vue 가 맡고, 여기서는 화면만 그린다.
 const props = defineProps({
@@ -218,6 +215,12 @@ const props = defineProps({
 })
 const emit = defineEmits(['save-stripe', 'save-payment'])
 const payment = props.payment
+// 키가 저장돼 있으면 연결됨 (비밀키는 끝 일부만 보이는 값으로 내려옴)
+const stripeConnected = computed(() => !!(payment.stripe_publishable_key && payment.stripe_secret_key))
+const monthNet = ref(0); const monthCount = ref(0)
+onMounted(async () => {
+  try { const { data } = await axios.get('/api/admin/revenue/summary', { params: { range: 'month' } }); monthNet.value = Number(data.data?.total?.net || 0); monthCount.value = Number(data.data?.total?.count || 0) } catch {}
+})
 const showStripeSecret = ref(false)
 const saveStripeKeys = () => emit('save-stripe')
 const savePayment = () => emit('save-payment')

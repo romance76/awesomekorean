@@ -89,6 +89,8 @@ Route::get('/posts/{id}', [PostController::class, 'show']);
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/jobs/featured', [JobController::class, 'featured']);
 Route::get('/jobs/promotion-slots', [JobController::class, 'promotionSlots']);
+// 카드 결제 최소 금액(관리자 결제 설정 기준) — 결제 화면 안내와 사전 확인용 (공개, 값 하나)
+Route::get('/payments/card-limits', fn () => response()->json(['success' => true, 'data' => ['min_cents' => \App\Support\CardLimits::minCents()]]));
 Route::get('/promotion/settings', function (\Illuminate\Http\Request $r) {
     if ($r->resource && in_array($r->resource, \App\Support\PromotionSettings::RESOURCES)) {
         return response()->json(['success' => true, 'data' => \App\Support\PromotionSettings::forResource($r->resource)]);
