@@ -1,6 +1,6 @@
 # ⭐ 최신 인수인계 (다른 계정/세션에서 이어 받을 때 가장 먼저 읽기)
 
-작성: 2026-10-11 UTC 16:00 (애틀랜타 낮 12:00) · 마지막 배포 코드 `0059cd46` (Deploy·PHP Syntax Check 모두 success) · 최신 변경은 맨 아래 9번
+작성: 2026-10-11 UTC 16:00 (애틀랜타 낮 12:00) · 마지막 배포 코드 `e3c741d9` (Deploy·PHP Syntax Check 모두 success) · 최신 변경은 맨 아래 9번
 **한 방 실행: 새 Claude 계정에서 `/continue` 한 줄** (안 되면 `qa/CONTINUE_PROMPT.md` 의 글을 붙여넣기). 할 일은 `qa/TASKS_QUEUE.md`(위에서부터 ready 인 것), 배포·검증은 `scripts/ship.sh` 가 한 번에 처리합니다.
 
 읽는 순서: **이 파일 → `qa/points_entry_ads_structure_report.md`(돈/포인트/Entry 설계·Kay 결정) → `qa/WORK_ORDER_2026-10-11.md`(오늘 작업 전체 기록·서버 작업) → `qa/HANDOFF_2026-10-11.md`(옛 기록) → `CLAUDE.md`**
@@ -141,7 +141,8 @@ T0 항상 · T1 공동구매 = needs_kay(계획서 `qa/groupbuy_plan.md` 작성 
 2. **관리자 광고 목록 페이지 넘기기** (`Banners.vue` + `AdminController::bannerList`) — `23b3a88e`. 휴대폰·PC 모두 50건씩 "더 보기", 90일 이전 끝난 광고는 "90일 이전 지난 광고 보기"(`GET /api/admin/banners?older=1&page=N`). 기본 응답(최근 90일+진행 중, 1000건)은 그대로라 슬롯 화면은 영향 없음.
 3. **경품 매분 작업 3개 → `sweepstakes:tick` 하나** (`routes/console.php`, `app/Console/Commands/SweepstakesTick.php`) — `5612c1a9`. 서버 매분 프로세스 3개가 1개로. 겹침 방지 잠금 10분. 옛 3개 명령은 그대로 남음. 서버 `schedule:list` 확인, 배포 후 오류 없음.
 4. **회원 일괄 등급 변경** (`AdminController::bulkUsers` `action=role`, `Members.vue`) — `0059cd46`. 최고관리자 전용, 일반↔기업만(운영진 승급은 한 명씩), 본인·운영진·이미 같은 등급은 건너뜀, 바뀐 회원마다 감사 로그. 서버에서 롤백되는 트랜잭션으로 6가지 시나리오 확인.
-- 백업: `qa/backups/t5_20261011/` (AdminMembersMobile.vue · Banners.vue · Members.vue · AdminController.php · AdminController_before_bulkrole.php · console.php).
+5. **(Kay 지적) 휴대폰 인보이스 화면** — `e3c741d9`. 위쪽 "인쇄 / PDF 저장" 버튼이 상태바에 가려 잘리고 닫기 버튼이 없던 문제 → `resources/views/invoices/letter.blade.php` 의 위쪽 막대를 **화면 위에 고정**(sticky, `viewport-fit=cover` + 상태바 안전 영역 반영), 왼쪽에 **"← 닫기"**(새 탭이면 탭 닫기, 안 닫히면 뒤로, 그래도 없으면 홈) 추가, 휴대폰에서 맨 아래 여백 확보(하단 주소 막대에 안 가림). 인쇄 때는 막대 숨김, 메일용 양식은 그대로. PC·휴대폰 크기로 확인, 서버에서 한국어/영어 양식 생성 확인(회원 마이페이지·관리자 결제/지급 센터가 모두 이 양식 사용).
+- 백업: `qa/backups/t5_20261011/` (AdminMembersMobile.vue · Banners.vue · Members.vue · AdminController.php · AdminController_before_bulkrole.php · console.php), `qa/backups/invoice_mobile_20261011/letter.blade.php`.
 
 ### 9-2. Kay 가 눈으로 확인할 것
 - 휴대폰: 관리자 › 회원 › 한 명 열기 → "지급·보상 센터로 이동 ›" 가 보이고 눌러서 그 회원으로 열리는지.
