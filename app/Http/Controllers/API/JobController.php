@@ -131,10 +131,25 @@ class JobController extends Controller
     {
         $job = $this->findOwnedOrAdmin(JobPost::class, $id);
         $response = $this->handlePromote($job, $request);
+        return $this->recordJobPromotion($response, $request, $id);
+    }
 
+    // 상위노출 카드 결제 ② (카드 확인 후 청구·적용)
+    public function promoteConfirm(Request $request, $id)
+    {
+        $job = $this->findOwnedOrAdmin(JobPost::class, $id);
+        $response = $this->handlePromoteCardConfirm($job, $request);
+        return $this->recordJobPromotion($response, $request, $id);
+    }
+
+    // 실제로 적용됐을 때만 JobPromotion 감사 레코드를 남긴다 (카드 결제 ①단계 = 카드 확인 대기는 제외)
+    private function recordJobPromotion($response, Request $request, $id)
+    {
         // 실패(422)면 그대로 반환
         $payload = $response->getData(true);
         if (empty($payload['success'])) return $response;
+        if (!empty($payload['data']['needs_card'])) return $response;
+        if (empty($payload['data']['paid_with'])) return $response;   // '이미 적용됨' 응답 등
 
         // 성공 시 JobPromotion 감사 레코드 생성 (구인구직만 별도 테이블 유지)
         $tier = $request->tier;

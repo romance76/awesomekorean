@@ -144,12 +144,9 @@ class BannerController extends Controller
         ]);
 
         $user = auth()->user();
-        $bid = (int) $data['bid_amount'];
-        $cost = \App\Support\OpenEvent::apply($bid, 'banner');   // 오픈 이벤트: 실제 차감액만 할인(입찰액은 그대로), 환불은 total_cost 기준
-        if ($user->points < $cost) {
-            return response()->json(['success' => false, 'message' => "포인트 부족. 필요 {$cost}P"], 422);
-        }
-        if ($cost > 0) $user->addPoints(-$cost, "텍스트 인라인 광고 신청 · {$data['days']}일", 'banner_text');   // (사유, 종류) 순서 — 예전엔 뒤바뀌어 저장됐음
+        $bid = (int) $data['bid_amount'];   // 입찰액(센트 단위 — 예전 포인트 숫자 그대로, 100 = $1.00)
+        // Kay 결정(2026-10-11): 광고는 카드 결제만. 오픈 이벤트 할인은 청구액에만(입찰 순위는 그대로), Stripe 최소 $0.50
+        $cost = \App\Support\AdPayments::cents(\App\Support\OpenEvent::apply($bid, 'banner'));
 
         $ad = BannerAd::create([
             'user_id'     => $user->id,
@@ -168,17 +165,86 @@ class BannerController extends Controller
             'total_cost'  => $cost,
             'start_date'  => now()->toDateString(),
             'end_date'    => now()->addDays($data['days'])->toDateString(),
-            'status'      => 'pending', // 관리자 승인 후 active
+            'status'      => 'awaiting_payment', // 카드 확인 → pending(승인 대기) → 관리자 승인 → active
+            'payment_method' => 'card',
         ]);
 
-        \Cache::forget("banner_text_inline_{$data['page']}");
-        \Cache::forget("banner_text_inline_all");
+        try {
+            $secret = \App\Support\AdPayments::begin($user, $ad, \App\Models\Payment::KIND_TEXT_AD, $cost,
+                "텍스트 광고: {$ad->title} ({$data['days']}일)");
+        } catch (\Throwable $e) {
+            \Log::error('텍스트 광고 결제 생성 실패: ' . $e->getMessage());
+            $ad->delete();
+            return response()->json(['success' => false, 'message' => '카드 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.'], 502);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => "광고 신청 완료! {$cost}P 차감. 관리자 승인 후 활성화됩니다.",
-            'data'    => $ad,
+            'message' => '카드를 확인해 주세요. 지금은 청구되지 않고, 관리자가 승인하면 그때 청구돼요.',
+            'data'    => ['banner_id' => $ad->id, 'client_secret' => $secret, 'total_cents' => $cost],
+        ], 201);
+    }
+
+    /**
+     * POST /api/banners/{id}/confirm-payment — 카드 확인(보류)이 끝났음을 알림. Stripe 에서 직접 확인한 뒤 승인 대기로.
+     */
+    public function confirmPayment(Request $request, $id)
+    {
+        $ad = BannerAd::where('user_id', $request->user()->id)->findOrFail($id);
+        if ($ad->status === 'pending') {
+            return response()->json(['success' => true, 'message' => '이미 접수된 신청이에요.', 'data' => $ad]);
+        }
+        if ($ad->status !== 'awaiting_payment' || !\App\Support\AdPayments::isCard($ad)) {
+            return response()->json(['success' => false, 'message' => '결제를 진행 중인 신청이 아니에요. 처음부터 다시 신청해 주세요.'], 422);
+        }
+        try {
+            \App\Support\AdPayments::confirm($ad);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            \Log::error('광고 결제 확인 실패: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '결제 확인 중 오류가 났어요. 잠시 후 다시 시도해 주세요.'], 502);
+        }
+        $ad->update(['status' => 'pending']);
+        \Cache::forget("banner_text_inline_{$ad->page}");
+        \Cache::forget("banner_text_inline_all");
+        $this->notifyAdminsNewAd($request->user(), $ad->title);
+
+        $money = \App\Support\AdPayments::money((int) $ad->total_cost);
+        return response()->json([
+            'success' => true,
+            'message' => "신청이 접수됐어요. 관리자 승인 후 게재되고, 그때 카드에 {$money}가 청구돼요.",
+            'data' => $ad,
         ]);
+    }
+
+    /** POST /api/banners/{id}/cancel — 승인 전(결제 대기·승인 대기)에만 취소. 카드는 청구 없이 보류 해제 */
+    public function cancel(Request $request, $id)
+    {
+        $ad = BannerAd::where('user_id', $request->user()->id)->findOrFail($id);
+        if (!in_array($ad->status, ['awaiting_payment', 'pending'], true)) {
+            return response()->json(['success' => false, 'message' => '승인 전인 신청만 취소할 수 있어요.'], 422);
+        }
+        if (!\App\Support\AdPayments::isCard($ad)) {
+            return response()->json(['success' => false, 'message' => '예전에 포인트로 신청한 광고는 관리자에게 취소를 요청해 주세요.'], 422);
+        }
+        \App\Support\AdPayments::release($ad);
+        $ad->update(['status' => 'cancelled']);
+        return response()->json(['success' => true, 'message' => '취소했어요. 카드에는 청구되지 않았어요.']);
+    }
+
+    // 새 광고 신청을 관리자(광고 목록을 볼 수 있는 관리자 이상)에게 알림 — 누르면 승인 대기 광고 목록이 열린다
+    private function notifyAdminsNewAd($user, string $title): void
+    {
+        try {
+            $adminIds = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->pluck('id');
+            foreach ($adminIds as $adminId) {
+                \App\Models\Notification::create(['user_id' => $adminId, 'type' => 'banner_submitted', 'title' => '새 광고 신청이 도착했습니다',
+                    'content' => "{$user->name}님이 '{$title}' 광고를 신청했어요 (카드 보류 완료).", 'data' => ['url' => '/admin/banners?status=pending']]);
+                $unread = \App\Models\Notification::where('user_id', $adminId)->whereNull('read_at')->count();
+                broadcast(new \App\Events\NewNotification($adminId, $unread, '새 광고 신청이 도착했습니다'))->toOthers();
+            }
+        } catch (\Exception $e) {}
     }
 
     /**
@@ -431,19 +497,14 @@ class BannerController extends Controller
         if ($bidAmount < $minPrice) {
             return response()->json([
                 'success' => false,
-                'message' => "이 슬롯의 최소 입찰가는 {$minPrice}P 입니다 (입력: {$bidAmount}P)",
+                'message' => '이 자리의 최소 입찰가는 ' . \App\Support\AdPayments::money($minPrice) . ' 이에요 (입력: ' . \App\Support\AdPayments::money($bidAmount) . ')',
             ], 422);
         }
 
-        // 포인트 확인 (오픈 이벤트 기간에는 실제 차감액만 할인 — 입찰액·순위는 그대로, 환불은 total_cost 기준)
+        // Kay 결정(2026-10-11): 광고는 카드 결제만. 입찰액은 센트 단위(예전 포인트 숫자 그대로, 100 = $1.00).
+        // 오픈 이벤트 할인은 청구액에만(입찰 순위는 그대로), Stripe 최소 $0.50.
         $user = auth()->user();
-        $chargeAmount = \App\Support\OpenEvent::apply($bidAmount, 'banner');
-        if ($user->points < $chargeAmount) {
-            return response()->json([
-                'success' => false,
-                'message' => "포인트 부족. 필요: {$chargeAmount}P (입찰 {$bidAmount}P), 보유: {$user->points}P"
-            ], 422);
-        }
+        $chargeAmount = \App\Support\AdPayments::cents(\App\Support\OpenEvent::apply($bidAmount, 'banner'));
 
         // 배너 이미지는 광고용이라 원본 비율 유지하되 가로 1200px 로 압축
         $imagePath = $this->storeCompressedImageRaw($request->file('image'), 'banners', 1200, 85);
@@ -471,28 +532,24 @@ class BannerController extends Controller
             'bid_amount' => $bidAmount,
             'daily_cost' => $chargeAmount,
             'total_cost' => $chargeAmount,
-            'status' => 'pending',
+            'status' => 'awaiting_payment',   // 카드 확인 → pending(승인 대기) → 관리자 승인 시 청구·게재
+            'payment_method' => 'card',
         ]);
 
-        // 포인트 차감
-        if ($chargeAmount > 0) $user->addPoints(-$chargeAmount, "광고 입찰: {$request->title} ({$auctionMonth})", 'banner');
-
-        // 신규 신청 시 관리자에게 통지가 전혀 없어 대시보드를 수동으로 열어야만
-        // 확인 가능하던 문제 수정 (ReportController::store()와 동일한 패턴)
         try {
-            // 광고 목록 화면은 관리자 이상만 열 수 있어서 운영자(moderator)에게는 보내지 않는다. 누르면 "승인 대기" 광고 목록이 열린다
-            $adminIds = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->pluck('id');
-            foreach ($adminIds as $adminId) {
-                \App\Models\Notification::create(['user_id'=>$adminId,'type'=>'banner_submitted','title'=>'새 광고 신청이 도착했습니다','content'=>"{$user->name}님이 '{$request->title}' 광고를 신청했습니다 ({$bidAmount}P).",'data'=>['banner_id'=>$banner->id,'url'=>'/admin/banners?status=pending']]);
-                $unread = \App\Models\Notification::where('user_id',$adminId)->whereNull('read_at')->count();
-                broadcast(new \App\Events\NewNotification($adminId, $unread, '새 광고 신청이 도착했습니다'))->toOthers();
-            }
-        } catch (\Exception $e) {}
+            $secret = \App\Support\AdPayments::begin($user, $banner, \App\Models\Payment::KIND_BANNER, $chargeAmount,
+                "배너 광고: {$request->title} ({$auctionMonth})");
+        } catch (\Throwable $e) {
+            \Log::error('배너 광고 결제 생성 실패: ' . $e->getMessage());
+            $banner->delete();
+            return response()->json(['success' => false, 'message' => '카드 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.'], 502);
+        }
+        // 관리자 알림은 카드 확인이 끝난 뒤(confirmPayment)에 보낸다
 
         return response()->json([
             'success' => true,
-            'message' => "입찰 완료! {$chargeAmount}P 차감. {$auctionMonth} 경매 결과에 따라 배정됩니다.",
-            'data' => $banner,
+            'message' => '카드를 확인해 주세요. 지금은 청구되지 않고, 관리자가 승인하면 그때 청구돼요.',
+            'data' => ['banner_id' => $banner->id, 'client_secret' => $secret, 'total_cents' => $chargeAmount, 'auction_month' => $auctionMonth],
         ], 201);
     }
 }

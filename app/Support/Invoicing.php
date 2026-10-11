@@ -68,6 +68,12 @@ class Invoicing
 
     // ───────────────────────── 발행 ─────────────────────────
 
+    private static ?bool $billingCol = null;
+    private static function hasBillingDetails(): bool
+    {
+        return self::$billingCol ??= \Illuminate\Support\Facades\Schema::hasColumn('invoices', 'billing_details');
+    }
+
     /** 결제 한 건의 인보이스를 발행한다. 이미 있으면 그걸 돌려준다(중복 발행 없음). */
     public static function issueForPayment(Payment $payment, ?Carbon $issuedAt = null): Invoice
     {
@@ -91,6 +97,21 @@ class Invoicing
             'billing_email' => $user ? mb_substr((string) $user->email, 0, 190) : null,
             'issued_at' => $issuedAt,
         ];
+        // 정식 인보이스용: 발행 시점의 받는 사람 정보(전화·주소)와 결제 수단(카드 종류·끝 4자리)을 스냅샷으로 남긴다
+        if (self::hasBillingDetails()) {
+            $a = $user ? $user->getAttributes() : [];
+            $data['billing_details'] = array_filter([
+                'real_name' => isset($a['real_name']) ? mb_substr((string) $a['real_name'], 0, 100) : null,
+                'phone' => isset($a['phone']) ? mb_substr((string) $a['phone'], 0, 30) : null,
+                'address' => isset($a['address']) ? mb_substr((string) $a['address'], 0, 200) : null,
+                'city' => isset($a['city']) ? mb_substr((string) $a['city'], 0, 100) : null,
+                'state' => isset($a['state']) ? mb_substr((string) $a['state'], 0, 20) : null,
+                'zipcode' => isset($a['zipcode']) ? mb_substr((string) $a['zipcode'], 0, 10) : null,
+                'card_brand' => $payment->card_brand ?? null,
+                'card_last4' => $payment->card_last4 ?? null,
+                'method' => in_array($payment->kind, Payment::DIRECT_KINDS, true) || $payment->stripe_payment_id ? 'card' : null,
+            ], fn ($v) => $v !== null && $v !== '');
+        }
 
         // 번호가 겹치면(동시에 두 건이 같은 번호를 잡음) 새 번호로 다시 시도. 같은 결제가 먼저 발행됐다면 그걸 돌려준다.
         for ($try = 0; $try < 8; $try++) {
@@ -141,6 +162,15 @@ class Invoicing
         } elseif ($kind === Payment::KIND_EVENT_REQUEST) {
             $name = $desc !== '' ? $desc : '경품 이벤트 의뢰';
             $en = 'Sweepstakes event request';
+        } elseif ($kind === Payment::KIND_BANNER) {
+            $name = $desc !== '' ? $desc : '배너 광고';
+            $en = 'Banner advertising';
+        } elseif ($kind === Payment::KIND_TEXT_AD) {
+            $name = $desc !== '' ? $desc : '텍스트 광고';
+            $en = 'Text advertising';
+        } elseif ($kind === Payment::KIND_PROMOTION) {
+            $name = $desc !== '' ? $desc : '상위노출';
+            $en = 'Featured listing (promotion)';
         } else {
             $name = $desc !== '' ? $desc : '결제';
             $en = 'Payment';
@@ -296,6 +326,9 @@ class Invoicing
             Payment::KIND_POINTS => ['포인트 구매', 'Point purchase'],
             Payment::KIND_FLYER => ['NEW 전면광고', 'Flyer advertising'],
             Payment::KIND_EVENT_REQUEST => ['경품 이벤트 의뢰', 'Sweepstakes event request'],
+            Payment::KIND_BANNER => ['배너 광고', 'Banner advertising'],
+            Payment::KIND_TEXT_AD => ['텍스트 광고', 'Text advertising'],
+            Payment::KIND_PROMOTION => ['상위노출', 'Featured listing'],
         ];
         return [
             'inv' => $invoice,
@@ -306,13 +339,55 @@ class Invoicing
             'kindLabel' => $kindLabels[$invoice->kind ?: Payment::KIND_POINTS] ?? ['결제', 'Payment'],
             'cur' => $invoice->currency ?: 'USD',
             'forWeb' => $forWeb,
+            'bill' => self::billTo($invoice),
+            'payInfo' => self::paymentInfo($invoice),
         ];
     }
 
-    /** 메일·웹 보기 공용 HTML (인라인 CSS) */
+    /** 받는 분 정보 — 발행 시점 스냅샷(billing_details)을 우선, 없으면(옛 인보이스) 지금 회원 정보로 채운다 */
+    public static function billTo(Invoice $invoice): array
+    {
+        $d = is_array($invoice->billing_details ?? null) ? $invoice->billing_details : [];
+        if (!$d && $invoice->user_id) {
+            $u = User::find($invoice->user_id);
+            $a = $u ? $u->getAttributes() : [];
+            $d = array_filter(['real_name' => $a['real_name'] ?? null, 'phone' => $a['phone'] ?? null, 'address' => $a['address'] ?? null,
+                'city' => $a['city'] ?? null, 'state' => $a['state'] ?? null, 'zipcode' => $a['zipcode'] ?? null]);
+        }
+        $cityLine = trim(implode(', ', array_filter([$d['city'] ?? null, trim(($d['state'] ?? '') . ' ' . ($d['zipcode'] ?? ''))])), ', ');
+        return [
+            'name' => ($d['real_name'] ?? '') ?: ($invoice->billing_name ?: '-'),
+            'nickname' => (($d['real_name'] ?? '') && $invoice->billing_name && $invoice->billing_name !== ($d['real_name'] ?? '')) ? $invoice->billing_name : '',
+            'email' => (string) $invoice->billing_email,
+            'phone' => (string) ($d['phone'] ?? ''),
+            'address' => (string) ($d['address'] ?? ''),
+            'city_line' => $cityLine,
+            'member_no' => $invoice->user_id ? 'Member #' . $invoice->user_id : '',
+        ];
+    }
+
+    /** 결제 수단·결제 시각·결제 참조 번호(일부만) */
+    public static function paymentInfo(Invoice $invoice): array
+    {
+        $d = is_array($invoice->billing_details ?? null) ? $invoice->billing_details : [];
+        $p = $invoice->payment_id ? Payment::find($invoice->payment_id) : null;
+        $brand = $d['card_brand'] ?? ($p->card_brand ?? null);
+        $last4 = $d['card_last4'] ?? ($p->card_last4 ?? null);
+        $method = $last4 ? (strtoupper((string) ($brand ?: 'CARD')) . ' •••• ' . $last4) : 'Credit / Debit card';
+        $paidAt = $p ? ($p->captured_at ?: $p->updated_at) : null;
+        $ref = $p && $p->stripe_payment_id ? '…' . substr((string) $p->stripe_payment_id, -8) : '';
+        return [
+            'method' => $method,
+            'paid_at' => $paidAt ? $paidAt->copy()->setTimezone(self::TZ)->format('M j, Y g:i A') . ' ET' : '',
+            'ref' => $ref,
+            'order_no' => $p ? '#' . $p->id : '',
+        ];
+    }
+
+    /** 메일은 기존 간단한 양식, 웹 보기·인쇄는 레터 사이즈(8.5×11in) 정식 인보이스 */
     public static function renderHtml(Invoice $invoice, bool $forWeb = false): string
     {
-        return view('emails.invoice', self::viewData($invoice, $forWeb))->render();
+        return view($forWeb ? 'invoices.letter' : 'emails.invoice', self::viewData($invoice, $forWeb))->render();
     }
 
     /** 회원 결제 내역 목록에 invoice_no 를 붙인다 (표가 아직 없으면 조용히 건너뜀) */

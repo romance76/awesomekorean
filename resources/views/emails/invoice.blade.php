@@ -56,6 +56,8 @@
             <div style="font-size:12px;color:#6b7280;">받는 분 / Billed to</div>
             <div style="font-size:15px;font-weight:700;color:#111827;">{{ $inv->billing_name ?: '-' }}</div>
             <div style="font-size:13px;color:#4b5563;word-break:break-all;">{{ $inv->billing_email }}</div>
+            @if(!empty($bill['phone']))<div style="font-size:13px;color:#4b5563;">{{ $bill['phone'] }}</div>@endif
+            @if(!empty($bill['address']) || !empty($bill['city_line']))<div style="font-size:13px;color:#4b5563;">{{ trim(($bill['address'] ?? '') . ' ' . ($bill['city_line'] ?? '')) }}</div>@endif
           </td>
           <td class="stack" align="right" style="vertical-align:top;padding-bottom:6px;">
             <div style="font-size:12px;color:#6b7280;">구분 / Type</div>
@@ -104,7 +106,7 @@
           <td align="right" style="padding:8px 10px;width:96px;white-space:nowrap;font-size:18px;font-weight:800;color:#d97706;border-top:2px solid #f59e0b;">{{ \App\Support\Invoicing::money((int) $inv->total_cents, $cur) }}</td>
         </tr>
       </table>
-      <div style="font-size:12px;color:#6b7280;padding:2px 10px 0 10px;text-align:right;">{{ $cur }} · 카드 결제 완료 / Paid by card</div>
+      <div style="font-size:12px;color:#6b7280;padding:2px 10px 0 10px;text-align:right;">{{ $cur }} · 결제 완료 / Paid — {{ $payInfo['method'] ?? 'Card' }}@if(!empty($payInfo['paid_at'])) · {{ $payInfo['paid_at'] }}@endif</div>
     </td></tr>
 
     {{-- 회사 정보 --}}

@@ -53,8 +53,17 @@ class DirectPayments
         if ($payment->status !== 'authorized') {
             throw new \DomainException('승인 대기(카드 보류) 상태가 아니에요.');
         }
-        $received = $this->stripe->capture($payment->stripe_payment_id, $cents);
-        $payment->update(['status' => 'captured', 'amount' => $received / 100, 'captured_at' => now()]);
+        $r = $this->stripe->captureDetailed($payment->stripe_payment_id, $cents);
+        $received = $r['received'];
+        // 카드 종류·끝 4자리도 같은 저장에 넣어, 이 저장으로 자동 발행되는 인보이스에 바로 찍히게 한다
+        // (카드 칸이 아직 없는 DB 에서도 청구 기록이 실패하지 않게 칸이 있을 때만 넣는다 — 이미 청구된 뒤라 저장 실패는 절대 안 됨)
+        static $hasCardCols = null;
+        $hasCardCols ??= \Illuminate\Support\Facades\Schema::hasColumn('payments', 'card_last4');
+        $payment->update(array_filter([
+            'status' => 'captured', 'amount' => $received / 100, 'captured_at' => now(),
+            'card_brand' => ($hasCardCols && $r['brand']) ? mb_substr((string) $r['brand'], 0, 20) : null,
+            'card_last4' => ($hasCardCols && $r['last4']) ? mb_substr((string) $r['last4'], 0, 4) : null,
+        ], fn ($v) => $v !== null));
         return $received;
     }
 

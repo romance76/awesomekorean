@@ -52,6 +52,24 @@ class StripeGateway
         return (int) $i->amount_received;
     }
 
+    /**
+     * 청구 + 청구된 카드의 종류·끝 4자리(인보이스 "결제 수단" 표시용, 전체 번호는 받지 않음).
+     * @return array{received:int,brand:?string,last4:?string}
+     */
+    public function captureDetailed(string $id, ?int $cents = null): array
+    {
+        $params = ['expand' => ['latest_charge']];
+        if ($cents !== null) $params['amount_to_capture'] = $cents;
+        $i = $this->client()->paymentIntents->capture($id, $params);
+        $card = null;
+        try { $card = $i->latest_charge->payment_method_details->card ?? null; } catch (\Throwable $e) {}
+        return [
+            'received' => (int) $i->amount_received,
+            'brand' => $card->brand ?? null,
+            'last4' => $card->last4 ?? null,
+        ];
+    }
+
     /** 보류 해제 (청구 전 취소) */
     public function cancel(string $id): void
     {

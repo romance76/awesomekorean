@@ -275,6 +275,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/jobs/{id}/applicants', [JobController::class, 'applicants']);
     Route::post('/jobs/{jobId}/applicants/{applicationId}/status', [JobController::class, 'updateApplicantStatus']);
     Route::post('/jobs/{id}/promote', [JobController::class, 'promote']);
+    Route::post('/jobs/{id}/promote/confirm', [JobController::class, 'promoteConfirm'])->middleware('throttle:20,1');
 
     // 이력서
     Route::get('/my-resume', [\App\Http\Controllers\API\ResumeController::class, 'myResume']);
@@ -289,6 +290,9 @@ Route::middleware('auth:api')->group(function () {
     // 배너 광고 신청
     Route::get('/banners/my', [\App\Http\Controllers\API\BannerController::class, 'myBanners']);
     Route::post('/banners/apply', [\App\Http\Controllers\API\BannerController::class, 'store']);
+    // 광고 카드 결제(보류) 확인·승인 전 취소 — 배너·텍스트 광고 공용
+    Route::post('/banners/{id}/confirm-payment', [\App\Http\Controllers\API\BannerController::class, 'confirmPayment'])->whereNumber('id')->middleware('throttle:20,1');
+    Route::post('/banners/{id}/cancel', [\App\Http\Controllers\API\BannerController::class, 'cancel'])->whereNumber('id')->middleware('throttle:20,1');
 
     // NEW 전단 광고 신청 (이메일 인증 회원만)
     Route::get('/flyers/my', [\App\Http\Controllers\API\FlyerController::class, 'my']);
@@ -313,8 +317,11 @@ Route::middleware('auth:api')->group(function () {
     // 죽은 코드이자 관리자 가격 설정 우회 구멍이라 제거 — promote()만 사용.
     Route::post('/market/{id}/bump', [MarketController::class, 'bump']);
     Route::post('/market/{id}/promote', [MarketController::class, 'promote']);
+    Route::post('/market/{id}/promote/confirm', [MarketController::class, 'promoteConfirm'])->middleware('throttle:20,1');
     Route::post('/realestate/{id}/promote', [RealEstateController::class, 'promote']);
+    Route::post('/realestate/{id}/promote/confirm', [RealEstateController::class, 'promoteConfirm'])->middleware('throttle:20,1');
     Route::post('/businesses/{id}/promote', [BusinessController::class, 'promote']);
+    Route::post('/businesses/{id}/promote/confirm', [BusinessController::class, 'promoteConfirm'])->middleware('throttle:20,1');
 
     Route::post('/businesses', [BusinessController::class, 'store'])->middleware('verified.email');
     Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview'])->middleware('verified.email');
@@ -343,6 +350,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/clubs/{id}/transfer-owner', [ClubController::class, 'transferOwner']);
     Route::delete('/clubs/{id}', [ClubController::class, 'destroy']);
     Route::post('/clubs/{id}/promote', [ClubController::class, 'promote']);
+    Route::post('/clubs/{id}/promote/confirm', [ClubController::class, 'promoteConfirm'])->middleware('throttle:20,1');
     Route::post('/clubs/{id}/join', [ClubController::class, 'join']);
     Route::post('/clubs/{id}/leave', [ClubController::class, 'leave']);
     Route::get('/clubs/{id}/pending-members', [ClubController::class, 'pendingMembers']);

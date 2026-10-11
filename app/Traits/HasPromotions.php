@@ -100,15 +100,119 @@ trait HasPromotions
     /**
      * 공통 promote 로직.
      * $item 은 소유권 확인이 끝난 모델 인스턴스.
+     * 결제 방법(Kay 결정 2026-10-11): pay_with = points(기본, 바로 적용) | card(카드 확인 후 바로 청구 → 적용, 환불 없음)
+     *   card 는 2단계: ① 이 함수가 카드 보류를 만들고 client_secret 을 돌려줌(needs_card) → ② handlePromoteCardConfirm 이 청구·적용
      */
     protected function handlePromote(\Illuminate\Database\Eloquent\Model $item, Request $request)
     {
         $request->validate([
             'tier' => 'required|in:national,state_plus,sponsored',
             'days' => 'required|integer|min:1|max:90',
+            'pay_with' => 'nullable|in:points,card',
         ]);
 
-        // 중복 결제 방지: 이미 활성 중이면 차단 (만료 후 재신청)
+        if ($deny = $this->promotionActiveError($item)) return $deny;
+
+        $resource = $this->promoResourceName();
+        $tier = $request->tier;
+        $days = (int) $request->days;
+        $dailyCost = PromotionSettings::pricePerDay($tier, $resource);
+        $totalCost = $dailyCost * $days;
+
+        [$deny, $autoStates] = $this->promotionSlotCheck($item, $tier, $resource);
+        if ($deny) return $deny;
+
+        $user = auth()->user();
+
+        // ── 카드 결제: 보류만 만들고 화면에서 카드를 확인하게 한다 (청구·적용은 confirm 에서) ──
+        if ($request->input('pay_with') === 'card') {
+            $cents = \App\Support\AdPayments::cents($totalCost);   // 가격 숫자 = 센트 (100 = $1.00), Stripe 최소 $0.50
+            try {
+                [$payment, $secret] = app(\App\Support\DirectPayments::class)->begin(
+                    $user, \App\Models\Payment::KIND_PROMOTION, get_class($item), (int) $item->getKey(), $cents,
+                    $this->promotionLabel($resource, $tier, $days)
+                );
+            } catch (\Throwable $e) {
+                \Log::error('상위노출 카드 결제 생성 실패: ' . $e->getMessage());
+                return response()->json(['success' => false, 'message' => '카드 결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요.'], 502);
+            }
+            return response()->json([
+                'success' => true,
+                'message' => '카드를 확인하면 바로 청구되고 상위노출이 적용돼요. 카드 결제는 환불되지 않아요.',
+                'data' => ['needs_card' => true, 'payment_id' => $payment->id, 'client_secret' => $secret, 'total_cents' => $cents, 'tier' => $tier, 'days' => $days],
+            ]);
+        }
+
+        // ── 포인트 결제 (기존 그대로) ──
+        if ($user->points < $totalCost) {
+            return response()->json(['success' => false, 'message' => "포인트 부족. 필요: {$totalCost}P, 보유: {$user->points}P"], 422);
+        }
+        $user->addPoints(-$totalCost, "{$resource} 상위노출 ({$tier}, {$days}일)", "{$resource}_promotion");   // (사유, 종류) 순서
+
+        return $this->activatePromotion($item, $tier, $days, $autoStates, 'points');
+    }
+
+    /**
+     * 카드 결제 상위노출 ② — 카드 확인(보류)이 끝난 뒤 호출. 슬롯을 다시 확인하고 바로 청구한 다음 적용한다.
+     * 요청: payment_id, tier, days (금액이 지금 가격과 정확히 같아야 함 — 싸게 결제하고 비싼 노출을 받는 것 방지)
+     */
+    protected function handlePromoteCardConfirm(\Illuminate\Database\Eloquent\Model $item, Request $request)
+    {
+        $request->validate([
+            'payment_id' => 'required|integer',
+            'tier' => 'required|in:national,state_plus,sponsored',
+            'days' => 'required|integer|min:1|max:90',
+        ]);
+        $user = auth()->user();
+        $payment = \App\Models\Payment::where('id', (int) $request->payment_id)->where('user_id', $user->id)
+            ->where('kind', \App\Models\Payment::KIND_PROMOTION)->where('ref_type', get_class($item))->where('ref_id', $item->getKey())->first();
+        if (!$payment) return response()->json(['success' => false, 'message' => '결제 기록을 찾지 못했어요. 처음부터 다시 신청해 주세요.'], 404);
+        if ($payment->status === 'captured') {
+            return response()->json(['success' => true, 'message' => '이미 결제되고 적용된 상위노출이에요.', 'data' => ['tier' => $item->promotion_tier, 'expires_at' => $item->promotion_expires_at]]);
+        }
+
+        $resource = $this->promoResourceName();
+        $tier = $request->tier;
+        $days = (int) $request->days;
+        $expected = \App\Support\AdPayments::cents(PromotionSettings::pricePerDay($tier, $resource) * $days);
+        $dp = app(\App\Support\DirectPayments::class);
+
+        if ((int) round($payment->amount * 100) !== $expected) {
+            $dp->release($payment);
+            return response()->json(['success' => false, 'message' => '가격이 바뀌어 결제를 취소했어요(청구 없음). 다시 신청해 주세요.'], 409);
+        }
+        try {
+            if ($payment->status === 'pending') $dp->markAuthorized($payment);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+
+        // 카드 확인하는 사이에 다른 사람이 자리를 가져갔으면 청구하지 않고 보류만 푼다
+        if ($deny = $this->promotionActiveError($item)) { $dp->release($payment); return $deny; }
+        [$deny, $autoStates] = $this->promotionSlotCheck($item, $tier, $resource);
+        if ($deny) { $dp->release($payment); return $deny; }
+
+        try {
+            $dp->capture($payment);
+        } catch (\Throwable $e) {
+            \Log::warning('상위노출 카드 청구 실패: ' . $e->getMessage());
+            $dp->release($payment);
+            return response()->json(['success' => false, 'message' => '카드 청구에 실패했어요. 카드에는 청구되지 않았어요. 다시 시도해 주세요.'], 422);
+        }
+
+        return $this->activatePromotion($item, $tier, $days, $autoStates, 'card');
+    }
+
+    private function promotionLabel(string $resource, string $tier, int $days): string
+    {
+        $names = ['jobs' => '구인구직', 'market' => '중고장터', 'realestate' => '부동산', 'business' => '업소록', 'businesses' => '업소록', 'clubs' => '동호회'];
+        $tiers = ['national' => '전국', 'state_plus' => '주(State)', 'sponsored' => '스폰서'];
+        return ($names[$resource] ?? $resource) . ' 상위노출 · ' . ($tiers[$tier] ?? $tier) . ' · ' . $days . '일';
+    }
+
+    // 이미 활성 중이면 차단 (만료 후 재신청)
+    private function promotionActiveError(\Illuminate\Database\Eloquent\Model $item)
+    {
         if ($item->promotion_tier && $item->promotion_tier !== 'none'
             && $item->promotion_expires_at && $item->promotion_expires_at->isFuture()) {
             return response()->json([
@@ -122,12 +226,12 @@ trait HasPromotions
                 ],
             ], 422);
         }
+        return null;
+    }
 
-        $resource = $this->promoResourceName();
-        $tier = $request->tier;
-        $days = (int) $request->days;
-        $dailyCost = PromotionSettings::pricePerDay($tier, $resource);
-        $totalCost = $dailyCost * $days;
+    /** 슬롯·주 정보 확인. 반환 [오류 응답|null, state_plus 자동 확장 주 목록|null] */
+    private function promotionSlotCheck(\Illuminate\Database\Eloquent\Model $item, string $tier, string $resource): array
+    {
         $catCol = $this->promoCategoryColumn();
         $model = $this->promoModelClass();
 
@@ -135,10 +239,10 @@ trait HasPromotions
         $autoStates = null;
         if ($tier === 'state_plus') {
             if (!$item->state) {
-                return response()->json([
+                return [response()->json([
                     'success' => false,
                     'message' => '주(State) 정보가 없어 state_plus 상위노출을 적용할 수 없습니다. 근무/매물/업소 위치의 State 를 먼저 입력해주세요.'
-                ], 422);
+                ], 422), null];
             }
             $autoStates = StateNeighbors::neighbors($item->state);
         }
@@ -146,7 +250,7 @@ trait HasPromotions
         // 슬롯 체크 (카테고리별)
         if ($tier !== 'sponsored') {
             if (!$item->{$catCol}) {
-                return response()->json(['success' => false, 'message' => '카테고리/유형 정보가 필요합니다'], 422);
+                return [response()->json(['success' => false, 'message' => '카테고리/유형 정보가 필요합니다'], 422), null];
             }
             $slotQuery = $model::where('promotion_tier', $tier)
                 ->where($catCol, $item->{$catCol})
@@ -169,7 +273,7 @@ trait HasPromotions
                 $nextSlot = $slotQuery->orderBy('promotion_expires_at')->first();
                 $when = $nextSlot?->promotion_expires_at?->format('Y-m-d H:i');
                 $tierLabel = $tier === 'national' ? '전국 상위노출' : '주(State) 상위노출';
-                return response()->json([
+                return [response()->json([
                     'success' => false,
                     'message' => "{$tierLabel} - '{$item->{$catCol}}' 카테고리 슬롯이 모두 사용 중입니다."
                         . ($when ? " {$when} 이후 가능합니다." : ''),
@@ -179,17 +283,14 @@ trait HasPromotions
                         'used' => $used,
                         'max_slots' => $max,
                     ],
-                ], 422);
+                ], 422), null];
             }
         }
+        return [null, $autoStates];
+    }
 
-        // 포인트 차감
-        $user = auth()->user();
-        if ($user->points < $totalCost) {
-            return response()->json(['success' => false, 'message' => "포인트 부족. 필요: {$totalCost}P, 보유: {$user->points}P"], 422);
-        }
-        $user->addPoints(-$totalCost, "{$resource} 상위노출 ({$tier}, {$days}일)", "{$resource}_promotion");   // (사유, 종류) 순서 — 예전엔 뒤바뀌어 저장됐음
-
+    private function activatePromotion(\Illuminate\Database\Eloquent\Model $item, string $tier, int $days, ?array $autoStates, string $paidWith)
+    {
         $expiresAt = now()->addDays($days);
         $item->update([
             'promotion_tier' => $tier,
@@ -200,8 +301,9 @@ trait HasPromotions
         return response()->json([
             'success' => true,
             'message' => '상위노출이 적용되었습니다'
-                . ($autoStates ? ' (노출 주: ' . implode(', ', $autoStates) . ')' : ''),
-            'data' => ['tier' => $tier, 'states' => $autoStates, 'expires_at' => $expiresAt],
+                . ($autoStates ? ' (노출 주: ' . implode(', ', $autoStates) . ')' : '')
+                . ($paidWith === 'card' ? ' · 카드 결제 완료(환불 불가), 인보이스는 결제 내역에서 볼 수 있어요' : ''),
+            'data' => ['tier' => $tier, 'states' => $autoStates, 'expires_at' => $expiresAt, 'paid_with' => $paidWith],
         ]);
     }
 

@@ -33,6 +33,16 @@ class ClubController extends Controller
         return $this->handlePromote($club, $request);
     }
 
+    // 상위노출 카드 결제 ② (카드 확인 후 청구·적용)
+    public function promoteConfirm(Request $request, $id)
+    {
+        $club = Club::findOrFail($id);
+        if ($club->user_id !== auth()->id()) {
+            return response()->json(['success' => false, 'message' => '동호회 소유자만 상위노출할 수 있습니다'], 403);
+        }
+        return $this->handlePromoteCardConfirm($club, $request);
+    }
+
     /** 슬롯 현황 */
     public function promotionSlots(Request $request)
     {

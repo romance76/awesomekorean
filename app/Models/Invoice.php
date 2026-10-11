@@ -16,11 +16,12 @@ class Invoice extends Model
     protected $fillable = [
         'invoice_no', 'payment_id', 'user_id', 'status', 'kind', 'currency',
         'subtotal_cents', 'discount_cents', 'total_cents', 'line_items',
-        'billing_name', 'billing_email', 'issued_at', 'voided_at', 'void_reason',
+        'billing_name', 'billing_email', 'billing_details', 'issued_at', 'voided_at', 'void_reason',
     ];
 
     protected $casts = [
         'line_items' => 'array',
+        'billing_details' => 'array',
         'subtotal_cents' => 'integer',
         'discount_cents' => 'integer',
         'total_cents' => 'integer',

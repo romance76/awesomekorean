@@ -283,6 +283,16 @@ class AdminController extends Controller
             return response()->json(['success'=>false,'message'=>'대기 중이거나 중지된 광고만 승인할 수 있어요'], 422);
         }
         $wasPending = $b->status === 'pending';
+        // 카드 결제 광고: 승인하는 순간 보류해 둔 카드를 청구한다. 청구가 안 되면 승인하지 않는다(무료 게재 방지)
+        $chargedNote = '';
+        if ($wasPending && \App\Support\AdPayments::isCard($b)) {
+            try {
+                $cents = \App\Support\AdPayments::capture($b);
+                $chargedNote = ' · 카드 ' . \App\Support\AdPayments::money($cents) . ' 청구됨';
+            } catch (\DomainException $e) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
+        }
         $b->update(['status' => 'active']);
         // 승인/거절 시 광고주에게 통지가 전혀 없어 수동 확인만 가능하던 문제 수정
         if ($wasPending && $b->user_id) {
@@ -292,7 +302,7 @@ class AdminController extends Controller
                 broadcast(new \App\Events\NewNotification($b->user_id, $unread, '광고가 승인되었습니다'))->toOthers();
             } catch (\Exception $e) {}
         }
-        return response()->json(['success'=>true,'message'=>$wasPending ? '광고 승인됨' : '광고를 다시 게시했어요']);
+        return response()->json(['success'=>true,'message'=>$wasPending ? '광고 승인됨' . $chargedNote : '광고를 다시 게시했어요']);
     }
     public function rejectBanner(Request $request, $id) {
         // 거절은 포인트를 환불하므로, 같은 광고를 두 번 거절(더블 탭 등)해도 환불이 한 번만 되도록
@@ -301,8 +311,13 @@ class AdminController extends Controller
             $b = \App\Models\BannerAd::lockForUpdate()->findOrFail($id);
             if ($b->status !== 'pending') return null;
             $b->update(['status' => 'rejected', 'reject_reason' => $request->reason]);
-            // 포인트 환불
-            $b->user?->addPoints($b->total_cost, "광고 거절 환불: {$b->title}", 'banner_refund');
+            if (\App\Support\AdPayments::isCard($b)) {
+                // 카드 결제 광고: 승인 전이라 청구된 적이 없음 → 보류만 해제 (환불할 돈 없음)
+                \App\Support\AdPayments::release($b);
+            } else {
+                // 예전 포인트 신청: 포인트 환불
+                $b->user?->addPoints($b->total_cost, "광고 거절 환불: {$b->title}", 'banner_refund');
+            }
             return $b;
         });
         if (!$b) {
@@ -315,7 +330,7 @@ class AdminController extends Controller
                 broadcast(new \App\Events\NewNotification($b->user_id, $unread, '광고가 거절되었습니다'))->toOthers();
             } catch (\Exception $e) {}
         }
-        return response()->json(['success'=>true,'message'=>"거절됨. {$b->total_cost}P 환불"]);
+        return response()->json(['success'=>true,'message'=> \App\Support\AdPayments::isCard($b) ? '거절됨. 카드는 청구 없이 보류를 풀었어요' : "거절됨. {$b->total_cost}P 환불"]);
     }
     public function pauseBanner($id) {
         // 게재 중인 광고만 일시정지 — 거절(환불 완료)된 광고가 정지→재승인으로 되살아나 이중 환불되는 길을 막는다
@@ -332,7 +347,10 @@ class AdminController extends Controller
         // 환불은 한 번만: 잠금 + 상태 확인을 한 거래에서 하고, 환불 후 바로 삭제 (거절·만료 등 이미 환불된 광고는 환불하지 않음)
         \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
             $b = \App\Models\BannerAd::lockForUpdate()->findOrFail($id);
-            if (in_array($b->status, ['pending', 'active', 'paused'])) {
+            if (\App\Support\AdPayments::isCard($b)) {
+                // 카드 결제 광고: 승인 전(보류만 된 상태)이면 보류 해제. 이미 청구된 광고는 자동 환불하지 않는다(환불 정책 보류 — Kay 결정)
+                if (in_array($b->status, ['awaiting_payment', 'pending'], true)) \App\Support\AdPayments::release($b);
+            } elseif (in_array($b->status, ['pending', 'active', 'paused'])) {
                 $b->user?->addPoints($b->total_cost, "광고 삭제 환불: {$b->title}", 'banner_refund');
             }
             $b->delete();

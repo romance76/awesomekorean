@@ -70,12 +70,11 @@ class AdminRevenueController extends Controller
 
         $row = fn ($k) => ['net' => round((float) ($byKind[$k]->net ?? 0), 2), 'count' => (int) ($byKind[$k]->paid_count ?? 0)];
         $points = $row(Payment::KIND_POINTS);
-        $kinds = [
-            Payment::KIND_EVENT_REQUEST => $row(Payment::KIND_EVENT_REQUEST),
-            Payment::KIND_FLYER => $row(Payment::KIND_FLYER),
-        ];
-        $directNet = round($kinds['event_request']['net'] + $kinds['flyer']['net'], 2);
-        $directCount = $kinds['event_request']['count'] + $kinds['flyer']['count'];
+        // 달러 직접 결제 종류 전부 (2026-10-11 부터 배너·텍스트 광고·상위노출 카드 결제 포함)
+        $kinds = [];
+        foreach (Payment::DIRECT_KINDS as $k) $kinds[$k] = $row($k);
+        $directNet = round(array_sum(array_column($kinds, 'net')), 2);
+        $directCount = (int) array_sum(array_column($kinds, 'count'));
 
         // 보류 중(승인 대기)인 카드 금액 — 기간과 무관하게 지금 걸려 있는 전체
         $held = Payment::where('status', 'authorized')->selectRaw('COUNT(*) c, COALESCE(SUM(amount),0) s')->first();

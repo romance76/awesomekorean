@@ -38,6 +38,13 @@ class MarketController extends Controller
         return $this->handlePromote($item, $request);
     }
 
+    // 상위노출 카드 결제 ② (카드 확인 후 청구·적용)
+    public function promoteConfirm(Request $request, $id)
+    {
+        $item = $this->findOwnedOrAdmin(MarketItem::class, $id);
+        return $this->handlePromoteCardConfirm($item, $request);
+    }
+
     public function promotionSlots(Request $request)
     {
         return $this->handlePromotionSlots($request);

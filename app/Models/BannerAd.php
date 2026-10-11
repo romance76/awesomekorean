@@ -14,6 +14,7 @@ class BannerAd extends Model
         'start_date', 'end_date', 'auction_month', 'auction_rank',
         'daily_cost', 'total_cost', 'bid_amount',
         'impressions', 'clicks', 'status', 'reject_reason',
+        'payment_method', 'payment_id',   // 'points'(예전 신청) | 'card'(2026-10-11 부터 광고는 카드 결제만)
     ];
 
     protected $casts = [
