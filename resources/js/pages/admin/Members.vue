@@ -19,7 +19,7 @@
         <option value="">전체 상태</option><option value="active">활동</option><option value="banned">정지</option>
       </select>
       <form @submit.prevent="loadUsers()" class="flex-1 flex gap-1.5 min-w-[150px]">
-        <input v-model="search" type="text" placeholder="이름/이메일/닉네임/번호/전화/IP 검색..." class="flex-1 input-soft px-3 py-1.5" />
+        <input v-model="search" type="text" placeholder="이름/이메일/닉네임/번호/전화 검색..." class="flex-1 input-soft px-3 py-1.5" />
         <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
       </form>
     </div>

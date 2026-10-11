@@ -57,7 +57,7 @@ class AdminController extends Controller
             // 이름·이메일·닉네임에 더해 회원 번호(숫자만 입력했을 때)·전화번호·가입 IP 로도 찾는다
             ->when($request->search, fn($q,$v) => $q->where(fn($w) => $w
                 ->where('name','like',"%{$v}%")->orWhere('email','like',"%{$v}%")->orWhere('nickname','like',"%{$v}%")
-                ->orWhere('phone','like',"%{$v}%")->orWhere('ip_address','like',"%{$v}%")
+                ->orWhere('phone','like',"%{$v}%")
                 ->when(ctype_digit((string) $v), fn($x) => $x->orWhere('id', (int) $v))))
             ->when($request->role, fn($q,$v) => $v === 'staff'
                 ? $q->whereIn('role', ['moderator', 'admin', 'super_admin'])   // 운영진(운영자·관리자·슈퍼관리자) 한꺼번에
