@@ -4,10 +4,12 @@
     <!-- 모바일 헤더 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="flex items-center gap-2.5 text-lg font-bold text-ink">
-          <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
-          동호회
-        </h1>
+        <GroupTitle menu-key="clubs" stack>
+          <h1 class="flex items-center gap-2.5 text-lg font-bold text-ink">
+            <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
+            동호회
+          </h1>
+        </GroupTitle>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary !px-3 !py-2 !text-xs"><AppIcon name="search" :size="14" />필터</button>
           <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="btn-primary !px-3 !py-2 !text-xs"><AppIcon name="plus" :size="14" />만들기</RouterLink>
@@ -62,10 +64,12 @@
 
     <!-- 데스크탑 헤더 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
-        동호회
-      </h1>
+      <GroupTitle menu-key="clubs">
+        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+          <span class="icon-chip w-9 h-9 bg-teal-50 text-teal-600"><AppIcon name="users" :size="20" /></span>
+          동호회
+        </h1>
+      </GroupTitle>
       <div class="flex items-center gap-2 flex-wrap">
         <div class="flex items-center bg-gray-100 rounded-xl p-1">
           <button v-for="t in types" :key="t.value" @click="type=t.value; loadClubs()"
@@ -190,6 +194,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import ClubPromo from '../../components/ClubPromo.vue'
 
 const auth = useAuthStore()

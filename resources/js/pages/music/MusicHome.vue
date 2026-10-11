@@ -1,10 +1,14 @@
 <template>
 <div class="min-h-screen" :class="musicStore.hasTrack ? 'pb-24 lg:pb-0' : ''">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="music" :size="20" /></span>
-      음악듣기
-    </h1>
+    <div class="mb-4">
+      <GroupTitle menu-key="music">
+        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+          <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="music" :size="20" /></span>
+          음악듣기
+        </h1>
+      </GroupTitle>
+    </div>
 
     <!-- 모바일 전용: 탭 + 장르 칩 (lg 이상은 기존 좌측 사이드 사용) -->
     <div v-if="!loading" class="lg:hidden -mx-4 mb-3">
@@ -194,6 +198,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useMusicStore } from '../../stores/music'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import axios from 'axios'
 const { showConfirm } = useModal()
 

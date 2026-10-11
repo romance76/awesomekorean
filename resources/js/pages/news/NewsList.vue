@@ -6,10 +6,12 @@
     <!-- 헤더: 모바일 -->
     <div v-if="!activeItem" class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <RouterLink to="/news" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
-          <span class="icon-chip w-8 h-8 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="17" /></span>
-          뉴스
-        </RouterLink>
+        <GroupTitle menu-key="news" stack>
+          <RouterLink to="/news" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
+            <span class="icon-chip w-8 h-8 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="17" /></span>
+            뉴스
+          </RouterLink>
+        </GroupTitle>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary !text-xs !px-3 !py-2"><AppIcon name="search" :size="14" />필터</button>
         </div>
@@ -47,10 +49,12 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <RouterLink to="/news" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
-        <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="20" /></span>
-        뉴스
-      </RouterLink>
+      <GroupTitle menu-key="news">
+        <RouterLink to="/news" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
+          <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600"><AppIcon name="newspaper" :size="20" /></span>
+          뉴스
+        </RouterLink>
+      </GroupTitle>
       <form @submit.prevent="loadNews()" class="flex gap-1">
         <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
         <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
@@ -258,6 +262,7 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 
 const auth = useAuthStore()

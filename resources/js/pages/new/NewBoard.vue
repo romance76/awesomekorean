@@ -4,10 +4,12 @@
     <!-- 헤더 -->
     <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
       <div>
-        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-          <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 text-base font-black">N</span>
-          NEW <span class="text-sm font-semibold text-ink-muted">신장개업 · 폐업정리 · 우리 동네 새 소식</span>
-        </h1>
+        <GroupTitle menu-key="flyers">
+          <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+            <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 text-base font-black">N</span>
+            NEW <span class="text-sm font-semibold text-ink-muted">신장개업 · 폐업정리 · 우리 동네 새 소식</span>
+          </h1>
+        </GroupTitle>
       </div>
     </div>
 
@@ -69,6 +71,7 @@ import { RouterLink } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { useLocation } from '../../composables/useLocation'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import { US_STATES, kindLabel, fmtHour, tzLabel } from '../../utils/flyer'
 
 const auth = useAuthStore()

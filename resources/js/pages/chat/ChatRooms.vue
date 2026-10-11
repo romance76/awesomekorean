@@ -6,10 +6,12 @@
       <!-- 왼쪽: 지역 채팅방 목록 (모바일: 채팅방 선택 전에만 표시) -->
       <div class="col-span-12 lg:col-span-3" :class="{ 'hidden': activeRoom && isMobile }">
         <div class="flex items-center justify-between mb-4">
-          <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-            <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
-            채팅
-          </h1>
+          <GroupTitle menu-key="chat" stack>
+            <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+              <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
+              채팅
+            </h1>
+          </GroupTitle>
           <button @click="showCreate = true" class="btn-primary text-sm px-4 py-2 flex items-center gap-1"><AppIcon name="plus" :size="15" />새 채팅</button>
         </div>
         <!-- 타입 필터 탭 (Issue #21) -->
@@ -698,6 +700,7 @@ import UserAvatar from '../../components/UserAvatar.vue'
 import axios from 'axios'
 import { compressImage, isImage, isArchive } from '../../utils/imageCompress'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 
 const router = useRouter()

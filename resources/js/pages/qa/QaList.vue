@@ -6,10 +6,12 @@
     <!-- 헤더: 모바일 -->
     <div v-if="!activeItem" class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <RouterLink to="/qa" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
-          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="17" /></span>
-          Q&A
-        </RouterLink>
+        <GroupTitle menu-key="qa" stack>
+          <RouterLink to="/qa" class="flex items-center gap-2 text-lg font-bold text-ink hover:text-amber-600 transition-colors">
+            <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="17" /></span>
+            Q&A
+          </RouterLink>
+        </GroupTitle>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary !text-xs !px-3 !py-2"><AppIcon name="search" :size="14" />필터</button>
           <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary !text-xs !px-3 !py-2"><AppIcon name="edit" :size="13" />질문하기</RouterLink>
@@ -54,10 +56,12 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4">
-      <RouterLink to="/qa" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
-        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="20" /></span>
-        Q&A
-      </RouterLink>
+      <GroupTitle menu-key="qa">
+        <RouterLink to="/qa" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
+          <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="help-circle" :size="20" /></span>
+          Q&A
+        </RouterLink>
+      </GroupTitle>
       <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary"><AppIcon name="edit" :size="15" />질문하기</RouterLink>
     </div>
 
@@ -246,6 +250,7 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
 import VerifyGate from '../../components/VerifyGate.vue'
 import ShareButton from '../../components/ShareButton.vue'

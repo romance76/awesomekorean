@@ -4,10 +4,12 @@
     <!-- 헤더: 모바일 -->
     <div class="lg:hidden mb-3">
       <div class="flex items-center justify-between mb-2">
-        <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
-          <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="17" /></span>
-          이벤트
-        </h1>
+        <GroupTitle menu-key="events" stack>
+          <h1 class="flex items-center gap-2 text-lg font-bold text-ink">
+            <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="17" /></span>
+            이벤트
+          </h1>
+        </GroupTitle>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="filter" :size="13" />필터</button>
           <RouterLink v-if="auth.isLoggedIn" to="/events/create" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
@@ -55,10 +57,12 @@
 
     <!-- 헤더: 데스크탑 -->
     <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-      <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-        <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="20" /></span>
-        이벤트
-      </h1>
+      <GroupTitle menu-key="events">
+        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+          <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="calendar" :size="20" /></span>
+          이벤트
+        </h1>
+      </GroupTitle>
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
         <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs font-semibold">
@@ -317,6 +321,7 @@ import axios from 'axios'
 import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import GroupTitle from '../../components/GroupTitle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
 const { showConfirm } = useModal()
