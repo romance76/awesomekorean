@@ -46,6 +46,8 @@ class AdminTier
             // 시스템 상태 카드·비상 스위치(가입 보너스/경품 반복 일정/자동 수집 일시중지) — 최고관리자 전용
             ['ANY', '#^(system-status|emergency-switches)(/|$)#', 3],
             ['POST', '#^payments/\d+/refund$#', 3],
+            // 지급·보상 센터: 직접 받은 구매 금액 기록은 최고관리자 전용(+비밀번호 재확인), 최근 지급 기록 조회는 관리자 이상(기본)
+            ['POST', '#^grants/manual-payment$#', 3],
             // 인보이스: 목록·상세·미리보기는 관리자(2, 기본값), 재발송·무효·자동발송 설정은 최고관리자 전용
             ['POST', '#^invoices/(auto-mail|\d+/(resend|void))$#', 3],
             ['GET', '#^invoices(/|$)#', 2],

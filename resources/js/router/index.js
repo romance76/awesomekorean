@@ -211,7 +211,9 @@ const routes = [
       { path: 'shorts', component: p('admin/AdminShorts') },
       { path: 'directory', component: p('admin/Business') },
       { path: 'claims', component: p('admin/AdminClaims') },
-      { path: 'rewards', component: p('admin/AdminRewardRequests') },
+      // 보상 승인은 지급·보상 센터의 한 탭으로 합침 — 알림·"오늘 할 일"의 옛 주소(?tab=events|recipes)는 그대로 이동
+      { path: 'rewards', redirect: to => ({ path: '/admin/grants', query: { ...to.query, section: 'rewards' } }) },
+      { path: 'grants', component: p('admin/AdminGrants') },
       { path: 'games', component: p('admin/AdminGames') },
       { path: 'games/settings/:slug', component: p('admin/AdminGameSettings') },
       { path: 'games/questions/:slug', component: p('admin/AdminQuizQuestions') },

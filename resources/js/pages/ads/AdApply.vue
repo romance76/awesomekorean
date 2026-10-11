@@ -351,6 +351,7 @@
               <input type="number" v-model.number="bidDollars" :min="totalMinBid / 100" step="1" @input="saveDraft"
                 class="flex-1 border-2 border-amber-400 rounded-xl px-4 py-3 text-lg font-black text-amber-800 text-center outline-none focus:ring-4 focus:ring-amber-400/10" />
             </div>
+            <MyBalanceStrip pay="card" class="mt-2" />
             <p class="mt-2 text-xs text-ink-muted leading-relaxed">광고는 <b>카드 결제</b>로만 신청할 수 있어요(포인트 사용 불가). 신청할 때는 카드 확인(보류)만 하고, <b>관리자가 승인하면 그때 청구</b>돼요. 거절되면 청구되지 않아요.</p>
           </div>
 
@@ -419,6 +420,7 @@ import { adSize, AD_RATIO_TEXT } from '../../utils/adSizes'
 import { adSlotExists } from '../../config/adSlotMap'
 import axios from 'axios'
 import StripeCardForm from '../../components/StripeCardForm.vue'
+import MyBalanceStrip from '../../components/MyBalanceStrip.vue'
 
 const siteStore = useSiteStore()
 

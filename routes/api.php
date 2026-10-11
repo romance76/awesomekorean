@@ -762,6 +762,9 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::post('/invoices/{id}/void', [\App\Http\Controllers\API\AdminInvoiceController::class, 'void'])->whereNumber('id')->middleware(['reauth', 'throttle:20,1']);
     // 결제 한 건의 정식 인보이스(US Letter) — 어떤 결제든(옛 결제·결제 대기 포함). 관리자 이상
     Route::get('/payments/{id}/invoice', [\App\Http\Controllers\API\PaymentInvoiceController::class, 'admin'])->whereNumber('id')->middleware('throttle:60,1');
+    // 지급·보상 센터 — 직접 받은 구매 금액 기록(최고관리자·재확인), 최근 지급 기록
+    Route::post('/grants/manual-payment', [\App\Http\Controllers\API\AdminGrantController::class, 'manualPayment'])->middleware(['reauth', 'throttle:20,1']);
+    Route::get('/grants/recent', [\App\Http\Controllers\API\AdminGrantController::class, 'recent'])->middleware('throttle:60,1');
     Route::get('/claims', [AdminController::class, 'claims']);
     Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim']);
     Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim']);

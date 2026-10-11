@@ -92,7 +92,10 @@
               <div class="text-[11px] text-ink-muted">{{ userData?.user?.email }} · ID: {{ userData?.user?.id }}</div>
             </div>
           </div>
-          <button @click="activeUser=null" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
+          <div class="flex items-center gap-3">
+            <RouterLink :to="`/admin/grants?user=${userData?.user?.id || activeUser?.id}`" class="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 whitespace-nowrap" title="포인트·Entry 지급, 실제 구매 금액 기록">지급·보상 센터 ›</RouterLink>
+            <button @click="activeUser=null" class="text-ink-muted hover:text-ink transition-colors"><AppIcon name="x" :size="18" /></button>
+          </div>
         </div>
 
         <!-- 서브메뉴 탭 -->

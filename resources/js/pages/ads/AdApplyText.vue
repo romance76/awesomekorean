@@ -82,6 +82,8 @@
         </div>
       </div>
 
+      <MyBalanceStrip pay="card" />
+
       <!-- 제출 -->
       <button @click="submit" :disabled="!canSubmit || submitting"
         class="w-full bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] text-white font-bold py-3 rounded-xl disabled:opacity-50 hover:shadow-lg transition">
@@ -116,6 +118,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
 import StripeCardForm from '../../components/StripeCardForm.vue'
+import MyBalanceStrip from '../../components/MyBalanceStrip.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

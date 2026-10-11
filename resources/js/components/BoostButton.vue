@@ -30,6 +30,7 @@
         </div>
 
         <!-- 결제 방법: 포인트 또는 카드 (Kay 결정 2026-10-11 — 카드는 바로 청구, 환불 없음) -->
+        <MyBalanceStrip v-if="!cardSecret" :need="payWith === 'points' ? (selected?.price || 0) : 0" :pay="payWith" style="margin-bottom:10px;" />
         <div v-if="!cardSecret" class="pay-tabs" role="group" aria-label="결제 방법">
           <button type="button" :class="{ on: payWith === 'points' }" @click="payWith = 'points'">포인트</button>
           <button type="button" :class="{ on: payWith === 'card' }" @click="payWith = 'card'">카드 결제</button>
@@ -83,6 +84,7 @@ import axios from 'axios'
 import { useSiteStore } from '../stores/site'
 import AppIcon from './AppIcon.vue'
 import StripeCardForm from './StripeCardForm.vue'
+import MyBalanceStrip from './MyBalanceStrip.vue'
 
 const props = defineProps({
   resource: { type: String, required: true },

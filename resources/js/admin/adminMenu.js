@@ -67,6 +67,9 @@ export const ADMIN_ITEMS = [
   { to: '/admin/pricing', icon: 'coins', label: '가격/할인', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   // 매출/결제 현황은 할 일 #90 에서 결제/오더 화면의 탭으로 통합됨 — 메뉴 항목은 하나로 합침(주소는 /admin/revenue → 리다이렉트로 유지)
   { to: '/admin/payments', icon: 'wallet', label: '결제/오더 · 매출 · 인보이스', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
+  // 돈과 연결된 지급을 한 곳에: 포인트·Entry 직접 지급 · 실제 받은 구매 금액 기록 · 보상 승인(예전 '신고·문의 › 보상 승인') · 지급 기록
+  { to: '/admin/grants', icon: 'gift', label: '지급·보상 센터', pcGroup: 'money', legacyGroup: 'ad', mobile: true,
+    isNew: true, newDesc: '회원을 찾아 포인트·Entry 지급, 실제로 받은 구매 금액 기록(인보이스 자동 발행), 보상 승인을 한 곳에서 합니다.' },
 
   // ── 홍보·이벤트 ──
   { to: '/admin/open-event', icon: 'gift', label: '오픈 이벤트', pcGroup: 'promo', legacyGroup: 'ad', mobile: true, minTier: 3,
@@ -79,7 +82,8 @@ export const ADMIN_ITEMS = [
   // ── 신고·문의 ──
   { to: '/admin/security', icon: 'lock', label: '보안/신고', pcGroup: 'support', legacyGroup: 'system', mobile: true },
   { to: '/admin/claims', icon: 'flag', label: '클레임', pcGroup: 'support', legacyGroup: 'board', mobile: true },
-  { to: '/admin/rewards', icon: 'gift', label: '보상 승인', pcGroup: 'support', legacyGroup: 'board', mobile: true,
+  // (보상 승인은 '지급·보상 센터'로 합침 — 이 주소는 그쪽 탭으로 자동 이동, 메뉴에서는 숨김)
+  { to: '/admin/rewards', icon: 'gift', label: '보상 승인', pcGroup: 'support', legacyGroup: 'board', mobile: true, hideFromTabs: true,
     isNew: true, newDesc: '이벤트 완료인증 · 레시피 인기보상을 관리자가 확인 후 지급하는 화면입니다.' },
 
   // ── 시스템 ──

@@ -1,0 +1,233 @@
+<template>
+<!-- 지급·보상 센터 — 돈과 연결된 지급을 한 곳에서: ① 회원 찾아 포인트·Entry 지급/차감 + 실제 받은 구매 금액 기록 ② 보상 승인(이벤트 완료 인증·레시피 보상) ③ 지급 기록 -->
+<div class="space-y-3 pb-20" :class="isMobile ? 'ag-m' : ''">
+  <div v-if="toastMsg" class="fixed top-16 left-1/2 -translate-x-1/2 z-[95] max-w-[92vw] px-4 py-3 rounded-xl text-[14px] font-bold text-white shadow-lg" :class="toastErr ? 'bg-red-600' : 'bg-ink'" role="status">{{ toastMsg }}</div>
+  <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+    <span class="icon-chip w-9 h-9 bg-emerald-50 text-emerald-600"><AppIcon name="gift" :size="20" /></span>
+    지급·보상 센터
+  </h1>
+  <p class="text-[13px] text-ink-muted leading-relaxed">포인트·Entry 지급, 실제로 받은 구매 금액 기록, 보상 승인을 한 곳에서 해요. 모든 지급은 <b>감사 로그</b>에 남아요. (포인트 = 커뮤니티 점수, Entry = 성과 보상, 구매 금액 = 진짜 돈 — 서로 바꿀 수 없어요)</p>
+
+  <div class="grid grid-cols-3 gap-1 bg-gray-200/70 rounded-2xl p-1" role="tablist">
+    <button v-for="t in tabs" :key="t.k" @click="setSection(t.k)" role="tab" :aria-selected="section === t.k"
+      class="min-h-[46px] rounded-xl text-[14px] font-bold flex items-center justify-center gap-1" :class="section === t.k ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">
+      {{ t.l }}<span v-if="t.k === 'rewards' && pendingRewards" class="min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px] grid place-items-center">{{ pendingRewards }}</span>
+    </button>
+  </div>
+
+  <!-- ───────── 직접 지급 ───────── -->
+  <div v-if="section === 'give'" class="space-y-3">
+    <div class="card p-3.5 space-y-2">
+      <label class="block text-[13px] font-bold text-ink-muted">회원 찾기 (이름·이메일·번호·전화)</label>
+      <input v-model="q" @input="searchSoon" type="search" placeholder="예: 홍길동 / 2905 / kim@gmail.com" autocomplete="off" class="input-soft w-full px-3 min-h-[46px]" />
+      <div v-if="results.length && !picked" class="divide-y divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+        <button v-for="u in results" :key="u.id" @click="pick(u)" class="w-full text-left px-3 py-2.5 min-h-[48px] hover:bg-amber-50 active:bg-amber-50 flex items-center justify-between gap-2">
+          <span class="min-w-0"><b class="text-ink">{{ u.nickname || u.name }}</b> <span class="text-[12px] text-ink-muted">#{{ u.id }}</span><span class="block text-[12px] text-ink-faint truncate">{{ u.email }}</span></span>
+          <span class="text-[12px] text-amber-700 font-bold shrink-0">{{ (u.points || 0).toLocaleString() }}P</span>
+        </button>
+      </div>
+      <p v-else-if="q.trim().length >= 2 && searched && !results.length && !picked" class="text-[13px] text-ink-muted">찾는 회원이 없어요.</p>
+    </div>
+
+    <template v-if="picked">
+      <!-- 선택한 회원 + 지금 잔액 -->
+      <div class="card p-3.5">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0"><div class="text-[16px] font-bold text-ink truncate">{{ picked.nickname || picked.name }} <span class="text-[12px] text-ink-muted font-normal">#{{ picked.id }}</span></div><div class="text-[12px] text-ink-faint truncate">{{ picked.email }}</div></div>
+          <button @click="clearPick" class="shrink-0 min-h-[40px] px-3 rounded-lg bg-gray-100 text-[13px] font-bold text-ink-light">다른 회원</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-3">
+          <div class="bg-amber-50 rounded-xl p-2.5"><div class="text-[11px] text-ink-muted">보유 포인트</div><div class="text-[18px] font-black text-amber-600 tabular-nums">{{ (bal.points ?? 0).toLocaleString() }}P</div></div>
+          <div class="bg-violet-50 rounded-xl p-2.5"><div class="text-[11px] text-ink-muted">보유 Entry</div><div class="text-[18px] font-black text-violet-600 tabular-nums">{{ (bal.entries ?? 0).toLocaleString() }}</div></div>
+          <div class="bg-emerald-50 rounded-xl p-2.5"><div class="text-[11px] text-ink-muted">누적 구매(카드·직접)</div><div class="text-[18px] font-black text-emerald-600 tabular-nums">${{ money(bal.spent) }}</div></div>
+        </div>
+      </div>
+
+      <!-- 포인트 -->
+      <div class="card p-3.5 space-y-2">
+        <h2 class="text-[15px] font-bold text-ink">포인트 지급 / 차감</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-1 bg-gray-100 rounded-xl p-1"><button type="button" @click="pt.sign = 1" class="min-h-[40px] rounded-lg font-bold text-[14px]" :class="pt.sign === 1 ? 'bg-white text-emerald-700 shadow-sm' : 'text-ink-muted'">+ 지급</button><button type="button" @click="pt.sign = -1" class="min-h-[40px] rounded-lg font-bold text-[14px]" :class="pt.sign === -1 ? 'bg-white text-red-600 shadow-sm' : 'text-ink-muted'">− 차감</button></div>
+          <input v-model.number="pt.amount" type="number" inputmode="numeric" min="1" max="1000000" placeholder="포인트" class="input-soft px-3 min-h-[46px]" />
+        </div>
+        <input v-model="pt.reason" type="text" maxlength="90" placeholder="사유 (선택, 포인트 내역에 '관리자 조정: …'으로 남아요)" class="input-soft w-full px-3 min-h-[46px]" />
+        <button @click="givePoints" :disabled="busy || !pt.amount" class="w-full min-h-[48px] rounded-xl bg-emerald-500 text-white font-bold disabled:opacity-40">포인트 반영</button>
+      </div>
+
+      <!-- Entry -->
+      <div class="card p-3.5 space-y-2">
+        <h2 class="text-[15px] font-bold text-ink">Entry 지급 / 차감 <span v-if="!isSuper" class="text-[12px] font-normal text-ink-faint">· 최고관리자만</span></h2>
+        <template v-if="isSuper">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-2 gap-1 bg-gray-100 rounded-xl p-1"><button type="button" @click="en.sign = 1" class="min-h-[40px] rounded-lg font-bold text-[14px]" :class="en.sign === 1 ? 'bg-white text-emerald-700 shadow-sm' : 'text-ink-muted'">+ 지급</button><button type="button" @click="en.sign = -1" class="min-h-[40px] rounded-lg font-bold text-[14px]" :class="en.sign === -1 ? 'bg-white text-red-600 shadow-sm' : 'text-ink-muted'">− 차감</button></div>
+            <input v-model.number="en.amount" type="number" inputmode="numeric" min="1" placeholder="Entry 개수" class="input-soft px-3 min-h-[46px]" />
+          </div>
+          <input v-model="en.desc" type="text" maxlength="120" placeholder="사유 (꼭 입력 — 예: 리뷰 보상 수동 지급)" class="input-soft w-full px-3 min-h-[46px]" />
+          <button @click="giveEntries" :disabled="busy || !en.amount || en.desc.trim().length < 2" class="w-full min-h-[48px] rounded-xl bg-violet-500 text-white font-bold disabled:opacity-40">Entry 반영</button>
+        </template>
+      </div>
+
+      <!-- 실제 구매 금액 -->
+      <div class="card p-3.5 space-y-2">
+        <h2 class="text-[15px] font-bold text-ink">실제 받은 구매 금액 기록 <span v-if="!isSuper" class="text-[12px] font-normal text-ink-faint">· 최고관리자만</span></h2>
+        <p class="text-[12px] text-ink-muted leading-relaxed">카드가 아닌 방법(Zelle·현금·수표)으로 <b>이미 받은 돈</b>을 기록해요. 매출에 잡히고 <b>인보이스가 자동 발행</b>돼요. 새 광고·상위노출을 대신 열어 주지는 않아요(그건 해당 관리 화면에서). 비밀번호 재확인이 필요해요.</p>
+        <template v-if="isSuper">
+          <div class="grid grid-cols-2 gap-2">
+            <select v-model="mp.kind" class="input-soft px-3 min-h-[46px]"><option v-for="k in kinds" :key="k.v" :value="k.v">{{ k.l }}</option></select>
+            <div class="flex items-center gap-1"><span class="text-ink-muted font-bold">$</span><input v-model.number="mp.amount" type="number" inputmode="decimal" min="0.5" step="0.01" placeholder="받은 금액" class="input-soft w-full px-3 min-h-[46px]" /></div>
+          </div>
+          <input v-model="mp.description" type="text" maxlength="150" placeholder="무엇을 구매했나요? (예: 배너 광고 30일 — 홈 왼쪽 프리미엄)" class="input-soft w-full px-3 min-h-[46px]" />
+          <div class="grid grid-cols-2 gap-2">
+            <select v-model="mp.method" class="input-soft px-3 min-h-[46px]"><option value="zelle">Zelle</option><option value="cash">현금</option><option value="check">수표</option><option value="other">기타</option></select>
+            <input v-model="mp.memo" type="text" maxlength="120" placeholder="메모 (선택, 예: 확인번호)" class="input-soft px-3 min-h-[46px]" />
+          </div>
+          <button @click="recordPayment" :disabled="busy || !mp.amount || mp.description.trim().length < 2" class="w-full min-h-[48px] rounded-xl bg-amber-500 text-white font-bold disabled:opacity-40">구매 금액 기록 + 인보이스 발행</button>
+          <p v-if="lastInvoice" class="text-[13px] text-emerald-700">기록했어요. <button @click="openInvoice(lastInvoice.payment_id)" class="underline font-bold">정식 인보이스 열기 {{ lastInvoice.invoice_no || '' }}</button></p>
+        </template>
+      </div>
+    </template>
+
+    <div class="flex flex-wrap gap-2 text-[13px]">
+      <RouterLink to="/admin/payments?tab=revenue" class="px-3 min-h-[40px] rounded-lg bg-white border border-gray-200 font-bold text-ink-light flex items-center">광고·결제 매출 보기 ›</RouterLink>
+      <RouterLink to="/admin/sweepstakes?tab=pending" class="px-3 min-h-[40px] rounded-lg bg-white border border-gray-200 font-bold text-ink-light flex items-center">경품 발송 관리 ›</RouterLink>
+      <RouterLink to="/admin/audit-log" class="px-3 min-h-[40px] rounded-lg bg-white border border-gray-200 font-bold text-ink-light flex items-center">감사 로그 ›</RouterLink>
+    </div>
+  </div>
+
+  <!-- ───────── 보상 승인 (예전 '신고·문의 › 보상 승인' 화면을 여기로 합침) ───────── -->
+  <div v-else-if="section === 'rewards'"><AdminRewardRequests /></div>
+
+  <!-- ───────── 지급 기록 ───────── -->
+  <div v-else class="space-y-2">
+    <p v-if="logError" class="bg-red-50 text-red-600 text-sm rounded-xl p-3">{{ logError }}</p>
+    <div v-for="r in log" :key="r.kind + r.id" class="bg-white border border-gray-100 rounded-2xl px-3.5 py-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-[14px] font-bold text-ink truncate">{{ r.user_name }} <span v-if="r.email" class="text-[12px] font-normal text-ink-faint">{{ r.email }}</span></span>
+        <b class="shrink-0 tabular-nums" :class="Number(r.amount) < 0 ? 'text-red-600' : 'text-emerald-600'">{{ fmtAmt(r) }}</b>
+      </div>
+      <div class="text-[12px] text-ink-muted break-words mt-0.5"><span class="inline-block px-1.5 py-0.5 rounded bg-gray-100 mr-1.5">{{ { points: '포인트', entries: 'Entry', payment: '구매 금액' }[r.kind] }}</span>{{ r.label }}</div>
+      <div class="text-[11px] text-ink-faint mt-0.5 flex items-center gap-3">{{ fmtAt(r.at) }}<button v-if="r.kind === 'payment'" @click="openInvoice(r.id)" class="underline font-bold text-amber-700">인보이스</button></div>
+    </div>
+    <p v-if="!log.length" class="text-center text-ink-muted py-10 text-[14px]">{{ logLoading ? '불러오는 중...' : '지급 기록이 없어요' }}</p>
+  </div>
+</div>
+</template>
+
+<script setup>
+import { ref, reactive, computed, inject, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
+import AppIcon from '../../components/AppIcon.vue'
+import AdminRewardRequests from './AdminRewardRequests.vue'
+import { useAuthStore } from '../../stores/auth'
+import { useAdminConfirm } from '../../composables/useAdminConfirm'
+
+const route = useRoute(); const router = useRouter(); const auth = useAuthStore()
+const { confirmAction } = useAdminConfirm()
+const adminIsMobile = inject('adminIsMobile', ref(false))
+const isMobile = computed(() => !!adminIsMobile.value)
+const isSuper = computed(() => auth.user?.role === 'super_admin')
+
+const tabs = [{ k: 'give', l: '직접 지급' }, { k: 'rewards', l: '보상 승인' }, { k: 'log', l: '지급 기록' }]
+const section = ref(['give', 'rewards', 'log'].includes(String(route.query.section)) ? String(route.query.section) : 'give')
+function setSection(k) { section.value = k; router.replace({ query: { ...route.query, section: k } }); if (k === 'log') loadLog() }
+
+const money = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const busy = ref(false)
+const toastMsg = ref(''); const toastErr = ref(false); let tt = null
+function say(msg, err = false) { toastMsg.value = msg; toastErr.value = err; clearTimeout(tt); tt = setTimeout(() => { toastMsg.value = '' }, 4200) }
+function apiMsg(e, d) { const errs = e.response?.data?.errors; return (errs ? Object.values(errs).flat().join(' ') : e.response?.data?.message) || d }
+
+// ── 회원 찾기 ──
+const q = ref(''); const results = ref([]); const searched = ref(false); const picked = ref(null)
+const bal = reactive({ points: 0, entries: 0, spent: 0 })
+let st = null
+function searchSoon() {
+  clearTimeout(st)
+  if (q.value.trim().length < 2) { results.value = []; searched.value = false; return }
+  st = setTimeout(async () => {
+    try { const { data } = await axios.get('/api/admin/users', { params: { search: q.value.trim(), per_page: 8 } }); results.value = data.data?.data || []; searched.value = true } catch { results.value = [] }
+  }, 300)
+}
+async function pick(u) { picked.value = u; results.value = []; await refreshBal() }
+function clearPick() { picked.value = null; q.value = ''; results.value = []; searched.value = false }
+async function refreshBal() {
+  if (!picked.value) return
+  try {
+    const { data } = await axios.get(`/api/admin/users/${picked.value.id}/detail`)
+    const d = data.data || {}
+    bal.points = d.user?.points ?? 0; bal.entries = d.user?.entries ?? 0; bal.spent = d.summary?.total_spent_usd ?? 0
+  } catch {}
+}
+
+// ── 포인트 ──
+const pt = reactive({ sign: 1, amount: null, reason: '' })
+async function givePoints() {
+  const amount = pt.sign * Math.trunc(Number(pt.amount || 0)); if (!amount) return
+  const u = picked.value
+  if (!await confirmAction({ title: amount > 0 ? '포인트 지급' : '포인트 차감', message: `'${u.nickname || u.name}' 회원에게 ${Math.abs(amount).toLocaleString()}P 를 ${amount > 0 ? '지급' : '차감'}합니다.`, kind: 'money', confirmLabel: amount > 0 ? '지급' : '차감' })) return
+  busy.value = true
+  try { const { data } = await axios.post(`/api/admin/users/${u.id}/points`, { amount, reason: pt.reason.trim() || undefined }); say(data.message || '반영했어요'); pt.amount = null; pt.reason = ''; await refreshBal() }
+  catch (e) { say(apiMsg(e, '포인트를 반영하지 못했어요'), true) }
+  busy.value = false
+}
+
+// ── Entry ──
+const en = reactive({ sign: 1, amount: null, desc: '' })
+async function giveEntries() {
+  const amount = en.sign * Math.trunc(Number(en.amount || 0)); if (!amount) return
+  const u = picked.value
+  if (!await confirmAction({ title: amount > 0 ? 'Entry 지급' : 'Entry 차감', message: `'${u.nickname || u.name}' 회원에게 Entry ${Math.abs(amount).toLocaleString()}개를 ${amount > 0 ? '지급' : '차감'}합니다.\n사유: ${en.desc.trim()}`, kind: 'money', confirmLabel: amount > 0 ? '지급' : '차감' })) return
+  busy.value = true
+  try { await axios.post('/api/admin/entries/adjust', { user_id: u.id, amount, description: en.desc.trim() }); say('Entry 를 반영했어요'); en.amount = null; en.desc = ''; await refreshBal() }
+  catch (e) { say(apiMsg(e, 'Entry 를 반영하지 못했어요'), true) }
+  busy.value = false
+}
+
+// ── 실제 구매 금액 ──
+const kinds = [{ v: 'banner', l: '배너 광고' }, { v: 'text_ad', l: '텍스트 광고' }, { v: 'promotion', l: '상위노출' }, { v: 'flyer', l: 'NEW 전면광고' }, { v: 'event_request', l: '경품 이벤트 의뢰' }]
+const mp = reactive({ kind: 'banner', amount: null, description: '', method: 'zelle', memo: '' })
+const lastInvoice = ref(null)
+async function recordPayment() {
+  const u = picked.value
+  if (!await confirmAction({ title: '구매 금액 기록', message: `'${u.nickname || u.name}' 회원이 ${kinds.find(k => k.v === mp.kind).l}(으)로 $${money(mp.amount)} 를 ${mp.method === 'zelle' ? 'Zelle' : mp.method === 'cash' ? '현금' : mp.method === 'check' ? '수표' : '기타 방법'}로 냈다고 기록합니다. 매출에 잡히고 인보이스가 발행돼요.`, kind: 'danger', confirmLabel: '기록하기' })) return
+  busy.value = true
+  try {
+    const { data } = await axios.post('/api/admin/grants/manual-payment', { user_id: u.id, kind: mp.kind, amount: mp.amount, description: mp.description.trim(), method: mp.method, memo: mp.memo.trim() || undefined })
+    say(data.message || '기록했어요'); lastInvoice.value = data.data || null
+    mp.amount = null; mp.description = ''; mp.memo = ''; await refreshBal()
+  } catch (e) { say(apiMsg(e, '기록하지 못했어요'), true) }
+  busy.value = false
+}
+async function openInvoice(paymentId) {
+  const w = window.open('', '_blank'); if (!w) { say('팝업을 허용해 주세요', true); return }
+  try { const { data } = await axios.get(`/api/admin/payments/${paymentId}/invoice`, { responseType: 'text', transformResponse: [(d) => d] }); w.document.open(); w.document.write(data); w.document.close() }
+  catch { w.close(); say('인보이스를 열지 못했어요', true) }
+}
+
+// ── 지급 기록 ──
+const log = ref([]); const logLoading = ref(false); const logError = ref('')
+async function loadLog() {
+  logLoading.value = true; logError.value = ''
+  try { const { data } = await axios.get('/api/admin/grants/recent'); log.value = data.data || [] } catch (e) { logError.value = apiMsg(e, '기록을 불러오지 못했어요') }
+  logLoading.value = false
+}
+const fmtAmt = (r) => r.kind === 'payment' ? '$' + money(r.amount) : ((Number(r.amount) > 0 ? '+' : '') + Number(r.amount).toLocaleString() + (r.kind === 'points' ? 'P' : ''))
+function fmtAt(s) { if (!s) return ''; const d = new Date(s); return isNaN(d) ? String(s) : d.toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) + ' (애틀랜타)' }
+
+// ── 보상 승인 대기 건수 (탭 배지) ──
+const pendingRewards = ref(0)
+async function loadPending() { try { const { data } = await axios.get('/api/admin/todo-counts'); pendingRewards.value = data.data?.event_proofs_pending || 0 } catch {} }
+
+onMounted(async () => {
+  loadPending()
+  if (section.value === 'log') loadLog()
+  const uid = Number(route.query.user)
+  if (uid) { try { const { data } = await axios.get('/api/admin/users', { params: { search: String(uid), per_page: 5 } }); const u = (data.data?.data || []).find(x => x.id === uid); if (u) await pick(u) } catch {} }
+})
+watch(() => route.query.section, (v) => { if (['give', 'rewards', 'log'].includes(String(v)) && v !== section.value) section.value = String(v) })
+</script>
+
+<style>
+.ag-m input:not([type=checkbox]), .ag-m select { font-size: 16px; }
+</style>

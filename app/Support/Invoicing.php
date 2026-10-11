@@ -400,15 +400,18 @@ class Invoicing
     {
         $d = is_array($invoice->billing_details ?? null) ? $invoice->billing_details : [];
         $p = $invoice->payment_id ? Payment::find($invoice->payment_id) : null;
-        if (empty($d['card_last4']) && $p) { self::ensureCardDetails($p); $p = $p->fresh() ?: $p; }
+        if (empty($d['card_last4']) && $p && (string) ($p->pay_method ?? '') !== 'manual') { self::ensureCardDetails($p); $p = $p->fresh() ?: $p; }
         $brand = $d['card_brand'] ?? ($p->card_brand ?? null);
         $last4 = $d['card_last4'] ?? ($p->card_last4 ?? null);
-        $method = $last4 ? (self::brandName($brand) . ' •••• ' . $last4) : 'Credit / Debit card';
+        $manual = $p && (string) ($p->pay_method ?? '') === 'manual';
+        $method = $manual ? ('Manual payment 직접 기록 — ' . ($p->pay_note ?: '')) : ($last4 ? (self::brandName($brand) . ' •••• ' . $last4) : 'Credit / Debit card');
         $paid = $p && in_array($p->status, self::PAID, true);
         $paidAt = $paid ? ($p->captured_at ?: $p->updated_at) : null;
         $ref = $p && $p->stripe_payment_id ? '…' . substr((string) $p->stripe_payment_id, -8) : '';
         return [
             'method' => $method,
+            'is_manual' => $manual,
+            'manual_note' => $manual ? (string) ($p->pay_note ?? '') : '',
             'card_brand' => $last4 ? self::brandName($brand) : '',
             'card_last4' => (string) $last4,
             'paid_at' => $paidAt ? $paidAt->copy()->setTimezone(self::TZ)->format('M j, Y g:i A') . ' ET' : '',

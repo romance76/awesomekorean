@@ -12,7 +12,7 @@ class Payment extends Model
     /** 달러 직접 결제 종류 (포인트 구매가 아닌 것) */
     public const DIRECT_KINDS = [self::KIND_EVENT_REQUEST, self::KIND_FLYER, self::KIND_BANNER, self::KIND_TEXT_AD, self::KIND_PROMOTION];
 
-    protected $fillable = ['user_id','kind','ref_type','ref_id','stripe_payment_id','amount','refunded_amount','currency','description','points_purchased','status','captured_at','card_brand','card_last4'];
+    protected $fillable = ['user_id','kind','ref_type','ref_id','stripe_payment_id','amount','refunded_amount','currency','description','points_purchased','status','captured_at','card_brand','card_last4','pay_method','pay_note'];
     protected $casts = ['amount'=>'decimal:2','refunded_amount'=>'decimal:2','captured_at'=>'datetime'];
     public function user() { return $this->belongsTo(User::class); }
     public function invoice() { return $this->hasOne(Invoice::class); }

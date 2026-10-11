@@ -104,6 +104,8 @@
         </div>
       </div>
 
+      <MyBalanceStrip :need="payWith === 'points' ? totalCost : 0" :pay="payWith" />
+
       <!-- 결제 방법 (Kay 결정 2026-10-11): 포인트 또는 카드. 카드는 등록 직후 카드 창이 뜨고 바로 청구, 환불 없음 -->
       <div>
         <label class="input-label">결제 방법</label>
@@ -134,6 +136,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { neighborsOf } from '../utils/stateNeighbors'
 import AppIcon from './AppIcon.vue'
+import MyBalanceStrip from './MyBalanceStrip.vue'
 
 const props = defineProps({
   resource: { type: String, required: true },

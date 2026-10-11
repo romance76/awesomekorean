@@ -166,8 +166,10 @@
     <div>
       <div class="label">Payment · 결제 정보</div>
       <table>
-        <tr><td class="k">Method 결제 수단</td><td>{{ $isPending ? 'Card 카드 (결제 전)' : 'Card 카드' }}</td></tr>
-        @if(!$isPending)
+        <tr><td class="k">Method 결제 수단</td><td>@if($payInfo['is_manual'])Manual payment 직접 입력(오프라인)@else{{ $isPending ? 'Card 카드 (결제 전)' : 'Card 카드' }}@endif</td></tr>
+        @if($payInfo['is_manual'])
+        <tr><td class="k">Details 결제 방법</td><td>{{ $payInfo['manual_note'] ?: '—' }}</td></tr>
+        @elseif(!$isPending)
         <tr><td class="k">Card brand 카드 종류</td><td>{{ $payInfo['card_brand'] ?: '—' }}</td></tr>
         <tr><td class="k">Card number 카드 번호</td><td>@if($payInfo['card_last4'])<span class="cardline">•••• •••• •••• {{ $payInfo['card_last4'] }}</span> <span style="color:#6b7280;">(끝 4자리)</span>@else — @endif</td></tr>
         @endif

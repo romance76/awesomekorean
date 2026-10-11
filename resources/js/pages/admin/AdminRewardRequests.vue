@@ -140,7 +140,7 @@ const tab = ref('events')
 const route = useRoute()
 function applyDeepLink() { const t = route.query.tab; if (t === 'events' || t === 'recipes') tab.value = t }
 applyDeepLink()
-watch(() => route.fullPath, () => { if (route.path === '/admin/rewards') applyDeepLink() })
+watch(() => route.fullPath, () => { if (route.path === '/admin/rewards' || route.path === '/admin/grants') applyDeepLink() })
 const loading = ref(true)
 const eventProofs = ref([])
 const recipeCandidates = ref([])
