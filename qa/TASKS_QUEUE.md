@@ -16,7 +16,7 @@ status 값: `ready`(바로 시작) · `needs_kay`(결정/확인 받기 전엔 �
 
 ---
 
-## T1. 공동구매 구조 변경 (3단계) — status: ready  (Kay 승인: 2026-10-11 "넘어가")
+## T1. 공동구매 구조 변경 (3단계) — status: needs_kay  (계획서 `qa/groupbuy_plan.md` 작성 완료 — Kay 가 7가지 결정에 답하면 ready 로 바꾸고 구현 시작)
 **Kay 결정**: 이벤트(공동구매)를 **요청하는 사람(주최자)** 에게만 어코가 **오픈 수수료**를 받는다. **참가자는 결제 없음**. 이벤트가 끝나면 **참가자 명단과 정보를 주최자에게 제공**한다.
 **현재 코드**: `app/Http/Controllers/API/GroupBuyController.php` — 참가자가 `join()`(285줄~)에서 **포인트로 참여금 결제**(332·349줄 `addPoints(-$amount…,'groupbuy_join')`), 취소·반려 시 `groupbuy_refund` 로 포인트 환불(245·399·475줄), `adminComplete()`(491줄)에서 주최자에게 마일스톤 Entry. 모델 `GroupBuy`, `GroupBuyParticipant`(paid_amount). 화면 `resources/js/pages/groupbuy/GroupBuyCreate.vue`·`GroupBuyDetail.vue`·`GroupBuyHome.vue`. 라우트 `routes/api.php` 182~185·380~384·936~938.
 **할 일 (순서대로, 작게 나눠 각각 `ship.sh`)**
