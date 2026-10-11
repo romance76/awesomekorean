@@ -35,6 +35,10 @@
         <span class="text-sm font-bold text-ink">{{ selectedIds.length }}명 선택</span>
         <button @click="bulkAction('ban')" :disabled="bulkBusy" class="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold disabled:opacity-50">일괄 정지</button>
         <button @click="bulkAction('unban')" :disabled="bulkBusy" class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-bold disabled:opacity-50">일괄 정지 해제</button>
+        <template v-if="auth.user?.role === 'super_admin'">
+          <button @click="bulkAction('role', 'user')" :disabled="bulkBusy" class="px-3 py-1.5 rounded-lg bg-white border border-gray-300 text-ink text-xs font-bold disabled:opacity-50" title="최고관리자 전용 · 감사 로그에 남아요">일반회원으로</button>
+          <button @click="bulkAction('role', 'business')" :disabled="bulkBusy" class="px-3 py-1.5 rounded-lg bg-white border border-gray-300 text-ink text-xs font-bold disabled:opacity-50" title="최고관리자 전용 · 감사 로그에 남아요">기업회원으로</button>
+        </template>
         <button @click="selectedIds = []" class="ml-auto text-xs text-ink-muted underline">선택 해제</button>
       </div>
       <div class="card overflow-hidden">
@@ -516,15 +520,19 @@ const selectedIds = ref([]); const bulkBusy = ref(false)
 const allOnPageSelected = computed(() => users.value.length > 0 && users.value.every(u => selectedIds.value.includes(u.id)))
 function toggleSel(id) { selectedIds.value = selectedIds.value.includes(id) ? selectedIds.value.filter(x => x !== id) : [...selectedIds.value, id] }
 function toggleAll() { selectedIds.value = allOnPageSelected.value ? [] : users.value.map(u => u.id) }
-async function bulkAction(action) {
+async function bulkAction(action, role) {
   const n = selectedIds.value.length
   if (!n || bulkBusy.value) return
   const ban = action === 'ban'
-  const ok = await confirmAction({ title: ban ? '일괄 정지' : '일괄 정지 해제', message: `선택한 ${n}명을 ${ban ? '정지' : '정지 해제'}합니다. 본인과 운영진 계정은 건너뛰어요.`, kind: ban ? 'danger' : 'normal', confirmLabel: ban ? '정지' : '해제', inputLabel: ban ? '정지 사유 (선택)' : '' })
+  const isRole = action === 'role'
+  const roleName = { user: '일반회원', business: '기업회원' }[role]
+  const ok = await confirmAction(isRole
+    ? { title: `일괄 ${roleName} 변경`, message: `선택한 ${n}명의 등급을 ${roleName}으로 바꿉니다. 본인·운영진 계정과 이미 같은 등급인 회원은 건너뛰고, 바뀐 회원은 감사 로그에 남아요.`, kind: 'normal', confirmLabel: '등급 변경' }
+    : { title: ban ? '일괄 정지' : '일괄 정지 해제', message: `선택한 ${n}명을 ${ban ? '정지' : '정지 해제'}합니다. 본인과 운영진 계정은 건너뛰어요.`, kind: ban ? 'danger' : 'normal', confirmLabel: ban ? '정지' : '해제', inputLabel: ban ? '정지 사유 (선택)' : '' })
   if (!ok) return
   bulkBusy.value = true
   try {
-    const { data } = await axios.post('/api/admin/users/bulk', { ids: selectedIds.value, action, reason: ban ? String(banInput.value || '').trim() : undefined })
+    const { data } = await axios.post('/api/admin/users/bulk', { ids: selectedIds.value, action, role: isRole ? role : undefined, reason: ban ? String(banInput.value || '').trim() : undefined })
     say(data.message || '처리했어요')
     selectedIds.value = []
     loadUsers(page.value)

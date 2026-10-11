@@ -91,25 +91,62 @@ class AdminController extends Controller
         return response()->json(['success'=>true]);
     }
 
-    // 여러 명 한꺼번에 정지/해제 (최대 50명). 운영진 계정과 본인은 건너뛰고 몇 명이 처리됐는지 알려 준다. (할 일: 회원 일괄 작업)
+    // 여러 명 한꺼번에 정지/해제/등급 변경 (최대 50명). 운영진 계정과 본인은 건너뛰고 몇 명이 처리됐는지 알려 준다. (할 일: 회원 일괄 작업)
+    // 등급 변경(role)은 최고관리자만, 일반회원·기업회원으로만 가능(운영진 승급은 회원 상세에서 한 명씩), 바뀐 회원마다 감사 로그에 남긴다.
     public function bulkUsers(Request $request) {
         $data = $request->validate([
             'ids' => 'required|array|min:1|max:50',
             'ids.*' => 'integer|min:1',
-            'action' => 'required|in:ban,unban',
+            'action' => 'required|in:ban,unban,role',
             'reason' => 'nullable|string|max:200',
-        ], ['ids.max' => '한 번에 50명까지만 처리할 수 있어요.', 'ids.required' => '처리할 회원을 골라 주세요.', 'ids.min' => '처리할 회원을 골라 주세요.']);
-        $ban = $data['action'] === 'ban';
+            'role' => 'required_if:action,role|in:user,business',
+        ], [
+            'ids.max' => '한 번에 50명까지만 처리할 수 있어요.', 'ids.required' => '처리할 회원을 골라 주세요.', 'ids.min' => '처리할 회원을 골라 주세요.',
+            'role.required_if' => '바꿀 등급을 골라 주세요.', 'role.in' => '한꺼번에는 일반회원·기업회원으로만 바꿀 수 있어요. (운영진 등급은 회원 상세에서 한 명씩)',
+        ]);
+        $action = $data['action'];
+        if ($action === 'role' && auth()->user()->role !== 'super_admin') {
+            return response()->json(['success' => false, 'message' => '등급 변경은 최고관리자만 할 수 있어요.'], 403);
+        }
         $reason = trim((string) ($data['reason'] ?? '')) ?: '관리자 정지';
+        $roleLabels = ['user' => '일반회원', 'business' => '기업회원'];
         $done = 0; $skipped = [];
         foreach (User::whereIn('id', array_unique($data['ids']))->get() as $u) {
             if ($u->id === auth()->id()) { $skipped[] = ['id' => $u->id, 'why' => '본인 계정']; continue; }
             if (in_array($u->role, ['moderator', 'admin', 'super_admin'], true)) { $skipped[] = ['id' => $u->id, 'why' => '운영진 계정']; continue; }
-            $u->forceFill($ban ? ['is_banned' => true, 'ban_reason' => $reason] : ['is_banned' => false, 'ban_reason' => null])->save();
+            if ($action === 'role') {
+                if ($u->role === $data['role']) { $skipped[] = ['id' => $u->id, 'why' => '이미 같은 등급']; continue; }
+                $from = $u->role;
+                $u->forceFill(['role' => $data['role']])->save();   // role 은 fillable 에서 빠져 있어 forceFill
+                $this->auditRoleChange($u->id, ($roleLabels[$from] ?? $from) . ' → ' . $roleLabels[$data['role']] . ' (일괄 등급 변경)');
+            } else {
+                $u->forceFill($action === 'ban' ? ['is_banned' => true, 'ban_reason' => $reason] : ['is_banned' => false, 'ban_reason' => null])->save();
+            }
             $done++;
         }
-        $msg = $done . '명을 ' . ($ban ? '정지' : '정지 해제') . '했어요.' . ($skipped ? ' (' . count($skipped) . '명은 본인·운영진 계정이라 건너뛰었어요.)' : '');
+        $verb = $action === 'ban' ? '정지' : ($action === 'unban' ? '정지 해제' : $roleLabels[$data['role']] . '으로 등급 변경');
+        $why = implode('·', array_unique(array_column($skipped, 'why')));
+        $msg = $done . '명을 ' . $verb . '했어요.' . ($skipped ? ' (' . count($skipped) . '명은 ' . $why . '이라 건너뛰었어요.)' : '');
         return response()->json(['success' => true, 'message' => $msg, 'data' => ['done' => $done, 'skipped' => $skipped]]);
+    }
+
+    // 등급 변경을 감사 로그에 한 줄씩 남긴다(누가·누구를·무엇에서 무엇으로). 기록 실패가 작업을 막지 않게 한다.
+    private function auditRoleChange(int $targetId, string $reason): void {
+        try {
+            \Illuminate\Support\Facades\DB::table('admin_audit_log')->insert([
+                'admin_id' => auth()->id(),
+                'action' => 'POST users/bulk role',
+                'target_type' => 'users',
+                'target_id' => $targetId,
+                'before_value' => null,
+                'after_value' => json_encode(['http_status' => 200, 'fields' => ['role'], 'reason' => $reason], JSON_UNESCAPED_UNICODE),
+                'note' => auth()->user()->role,
+                'ip' => request()->ip(),
+                'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function unbanUser($id) {
