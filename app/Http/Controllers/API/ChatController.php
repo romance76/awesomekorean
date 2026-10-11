@@ -499,10 +499,12 @@ class ChatController extends Controller
                 ->orderBy('id')->limit(25)->get();
             $messages = $newer->reverse()->values()->concat($older)->values();
         } else {
+            // simplePaginate: 방의 전체 메시지 수를 세는 COUNT(*) 를 하지 않는다(큰 방일수록 입장이 느렸음).
+            // 화면은 data 배열과 page 번호만 쓴다. 정렬은 (chat_room_id, created_at) 색인을 탄다.
             $messages = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')
                 ->where('chat_room_id',$id)
-                ->orderByDesc('created_at')
-                ->paginate(50);
+                ->orderByDesc('created_at')->orderByDesc('id')
+                ->simplePaginate(50);
         }
 
         $pinned = ChatMessage::with('user:id,name,nickname,avatar,lifetime_points,role')

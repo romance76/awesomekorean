@@ -1364,6 +1364,7 @@ async function selectRoom(room, opts = {}) {
   historyMode.value = !!opts.aroundId
   clearFiles()
   subscribeToRoom(room.id)
+  loadParticipants()   // 메시지와 동시에 불러온다 (예전엔 메시지가 다 온 뒤에 따로 불러서 입장이 더 느렸음)
   try {
     const { data } = await axios.get(`/api/chat/rooms/${room.id}/messages`, {
       params: { _ts: Date.now(), ...(opts.aroundId ? { around: opts.aroundId } : {}) },
@@ -1375,7 +1376,6 @@ async function selectRoom(room, opts = {}) {
     pinnedAnnouncements.value = data.pinned || []
     applyPins({ pins: data.pins, is_owner: data.is_owner })
     lastReadAt.value = data.last_read_at || null
-    loadParticipants()
 
     await nextTick()
     const markerEl = document.getElementById('unread-marker-' + room.id)
