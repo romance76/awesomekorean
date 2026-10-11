@@ -63,7 +63,7 @@
             </div>
             <div class="flex items-start gap-3">
               <!-- 로고 -->
-              <img v-if="job.logo" :src="job.logo" class="w-16 h-16 rounded-lg object-cover border border-gray-100 flex-shrink-0" @error="$event.target.style.display='none'" />
+              <img v-if="job.logo" :src="job.logo" class="w-[88px] h-[88px] sm:w-[120px] sm:h-[120px] rounded-xl object-cover border border-gray-100 bg-white flex-shrink-0" @error="$event.target.style.display='none'" />
               <div class="flex-1 min-w-0">
                 <h1 class="text-xl lg:text-2xl font-bold text-ink leading-snug">{{ job.title }}</h1>
                 <div v-if="job.company" class="text-sm lg:text-base text-amber-700 font-semibold mt-1">{{ job.company }}</div>
