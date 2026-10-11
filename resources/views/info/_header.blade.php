@@ -7,6 +7,9 @@
 @php
     // 본 사이트(siteStore.logoUrl)와 같은 로고 — 관리자 설정(site_settings.logo_url), 없으면 기본 로고
     $logoUrl = \App\Models\SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png';
+    // 상단 메뉴 묶음 (관리자 › 메뉴 묶음이 켜져 있을 때만) — NavBar.vue 와 같은 모양
+    $navGroups = \App\Support\MenuGroups::publicGroups($menus ?? []);
+    $isInfoGroup = fn ($g) => ($g['type'] === 'hub' && str_starts_with($g['path'], '/info')) || collect($g['items'])->contains(fn ($m) => str_starts_with($m['path'], '/info'));
 @endphp
 <nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
     <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
@@ -59,6 +62,27 @@
             <span translate="no" class="notranslate">EN</span>
         </button>
     </div>
+    @if ($navGroups)
+    <div class="border-t border-gray-50 hidden md:block">
+        <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-12">
+            @foreach ($navGroups as $g)
+                <div class="relative group/nav">
+                    <a href="{{ $g['path'] }}" class="flex items-center gap-1 h-12 px-3.5 text-[14px] font-semibold border-b-2 whitespace-nowrap transition-colors duration-150 {{ $isInfoGroup($g) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink' }}">
+                        {{ $g['label'] }}@if ($g['type'] !== 'single' && count($g['items']))<span class="text-[9px] opacity-50">▼</span>@endif
+                    </a>
+                    @if ($g['type'] !== 'single' && count($g['items']))
+                        <div class="hidden group-hover/nav:block absolute left-1/2 -translate-x-1/2 top-full z-50 min-w-[160px] bg-white border border-gray-100 rounded-2xl shadow-lift p-1.5">
+                            @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold text-ink-light hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap">{{ $g['icon'] }} {{ $g['label'] }} 홈</a>@endif
+                            @foreach ($g['items'] as $m)
+                                <a href="{{ $m['path'] }}" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold whitespace-nowrap hover:bg-amber-50 hover:text-amber-700 {{ str_starts_with($m['path'], '/info') ? 'text-amber-700' : 'text-ink-light' }}">{{ $m['label'] }}</a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @else
     <div class="border-t border-gray-50 hidden md:block">
         <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-10 overflow-x-auto scrollbar-hide">
             {{-- 관리자 페이지 "메뉴 구성"에서 저장한 순서/활성화 상태(site_settings.menu_config)를
@@ -71,6 +95,7 @@
             @endforeach
         </div>
     </div>
+    @endif
 
 </nav>
 
@@ -90,6 +115,23 @@
             </form>
         </div>
         <div class="py-2">
+            @if ($navGroups)
+                @foreach ($navGroups as $g)
+                    @if ($g['type'] === 'single')
+                        @php $m = $g['items'][0]; @endphp
+                        <a href="{{ $m['path'] }}" class="flex items-center gap-3 px-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
+                            <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $g['icon'] ?: '•' }}</span><span>{{ $g['label'] }}</span>
+                        </a>
+                    @else
+                        <div class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted">{{ $g['icon'] }} @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="text-ink">{{ $g['label'] }} 홈 ›</a>@else{{ $g['label'] }}@endif</div>
+                        @foreach ($g['items'] as $m)
+                            <a href="{{ $m['path'] }}" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
+                                <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $m['icon'] ?: '•' }}</span><span>{{ $m['label'] }}</span>
+                            </a>
+                        @endforeach
+                    @endif
+                @endforeach
+            @else
             @foreach ($menus as $item)
                 <a href="{{ $item['path'] }}"
                    class="flex items-center gap-3 px-4 py-2 text-sm {{ $item['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
@@ -97,6 +139,7 @@
                     <span>{{ $item['label'] }}</span>
                 </a>
             @endforeach
+            @endif
         </div>
     </div>
 

@@ -31,6 +31,34 @@ class MenuGroups
     }
 
     /**
+     * 서버가 그리는 페이지(/info)용 — 묶음 메뉴가 켜져 있으면 보이는 묶음 목록, 꺼져 있으면 null.
+     * $menus: 이미 걸러진 메뉴 목록 [{key,label,path,icon}] (켜진 것·관리자 전용 제외)
+     * @return ?array [{key,label,icon,type,path,items:[{key,label,path}]}]
+     */
+    public static function publicGroups(array $menus): ?array
+    {
+        $rows = \App\Models\SiteSetting::whereIn('key', ['menu_groups', 'menu_groups_enabled'])->pluck('value', 'key');
+        if (($rows['menu_groups_enabled'] ?? '0') !== '1') return null;
+        $groups = json_decode($rows['menu_groups'] ?? '', true);
+        if (!is_array($groups)) return null;
+        $byKey = [];
+        foreach ($menus as $m) $byKey[$m['key']] = $m;
+        $out = [];
+        foreach ($groups as $g) {
+            if (!empty($g['hidden'])) continue;
+            $items = [];
+            foreach (($g['items'] ?? []) as $k) if (isset($byKey[$k])) $items[] = $byKey[$k];
+            $type = $g['type'] ?? 'group';
+            if ($type === 'hub' ? empty($g['path']) : !$items) continue;
+            $out[] = [
+                'key' => $g['key'], 'label' => $g['label'], 'icon' => $g['icon'] ?? '', 'type' => $type, 'items' => $items,
+                'path' => $type === 'hub' ? $g['path'] : $items[0]['path'],
+            ];
+        }
+        return $out ?: null;
+    }
+
+    /**
      * 관리자 화면에서 보낸 묶음 목록을 검사·정리한다. 문제가 있으면 [null, '쉬운 안내 문구'].
      * @return array{0: ?array, 1: ?string}
      */

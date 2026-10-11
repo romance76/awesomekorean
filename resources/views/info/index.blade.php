@@ -22,11 +22,37 @@
     @include('info._header')
 
     <div class="max-w-7xl mx-auto px-4 py-5">
+        @php
+            // 상단 메뉴 묶음이 켜져 있고 '정보'가 2개 이상짜리 묶음에 있으면 [묶음 이름 + 하위 탭] (Vue 의 GroupTitle 과 같은 모양)
+            $infoGrp = collect(\App\Support\MenuGroups::publicGroups($menus ?? []) ?? [])
+                ->first(fn ($g) => $g['type'] === 'group' && count($g['items']) > 1 && collect($g['items'])->contains('key', 'info'));
+        @endphp
+        @if ($infoGrp)
+        <div class="lg:hidden mb-3 flex flex-col gap-2">
+            <a href="{{ $infoGrp['items'][0]['path'] }}" class="flex items-center gap-2.5 text-xl font-bold text-ink"><span class="icon-chip w-9 h-9 bg-amber-50 text-[18px] leading-none">{{ $infoGrp['icon'] ?: '📁' }}</span>{{ $infoGrp['label'] }}</a>
+            <div class="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                @foreach ($infoGrp['items'] as $m)
+                    <a href="{{ $m['path'] }}" class="shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-bold whitespace-nowrap {{ $m['key'] === 'info' ? 'bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6]' : 'bg-surface text-ink-light border-line' }}">{{ $m['label'] }}</a>
+                @endforeach
+            </div>
+        </div>
+        @endif
         <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
+            @if ($infoGrp)
+            <div class="flex items-center gap-3 min-w-0">
+                <a href="{{ $infoGrp['items'][0]['path'] }}" class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap"><span class="icon-chip w-9 h-9 bg-amber-50 text-[18px] leading-none">{{ $infoGrp['icon'] ?: '📁' }}</span>{{ $infoGrp['label'] }}</a>
+                <div class="flex gap-1.5">
+                    @foreach ($infoGrp['items'] as $m)
+                        <a href="{{ $m['path'] }}" class="shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-bold whitespace-nowrap {{ $m['key'] === 'info' ? 'bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6]' : 'bg-surface text-ink-light border-line hover:border-gray-300' }}">{{ $m['label'] }}</a>
+                    @endforeach
+                </div>
+            </div>
+            @else
             <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
                 <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600">📘</span>
                 정보
             </h1>
+            @endif
             <form action="{{ route('info.index') }}" method="GET" class="flex gap-1">
                 @if ($activeCategory)
                     <input type="hidden" name="category" value="{{ $activeCategory }}">
