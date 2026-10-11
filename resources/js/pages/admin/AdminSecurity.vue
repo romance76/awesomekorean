@@ -76,12 +76,16 @@
   <div v-else-if="mTab === 'ips'" class="space-y-2.5">
     <form @submit.prevent="addBan" class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-2">
       <div class="text-[15px] font-bold text-ink">IP 주소 차단하기</div>
-      <input v-model="newIp" inputmode="decimal" autocomplete="off" placeholder="예: 203.0.113.5" aria-label="IP 주소" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 font-mono" />
+      <input v-model="newIp" inputmode="decimal" autocomplete="off" placeholder="예: 203.0.113.5 또는 203.0.113.0/24" aria-label="IP 주소 또는 대역" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 font-mono" />
+      <select v-model="banDays" aria-label="차단 기간" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 bg-white">
+        <option v-for="o in banDayOptions" :key="o.v" :value="o.v">{{ o.l }}</option>
+      </select>
+      <p class="text-[12px] text-ink-faint leading-relaxed">/24 같은 대역을 쓰면 그 범위 전체가 차단돼요. 기간이 지나면 자동으로 풀려요. 지금 접속 중인 내 IP 가 들어 있으면 막혀요.</p>
       <button type="submit" :disabled="!newIp.trim()" class="w-full min-h-[50px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-40">차단</button>
     </form>
     <div v-if="!ipBans.length" class="text-center text-ink-muted py-8 text-[15px]">차단된 IP가 없어요</div>
     <div v-for="ban in ipBans" :key="ban.id" class="bg-white border border-gray-100 rounded-2xl p-3.5 flex items-center gap-3">
-      <div class="min-w-0 flex-1"><div class="font-mono text-[16px] font-bold text-ink break-all">{{ ban.ip_address }}</div><div v-if="ban.reason" class="text-[13px] text-ink-muted break-words">{{ ban.reason }}</div></div>
+      <div class="min-w-0 flex-1"><div class="font-mono text-[16px] font-bold text-ink break-all">{{ ban.ip_address }}</div><div class="text-[12px] text-ink-faint">{{ banUntil(ban) }}</div><div v-if="ban.reason" class="text-[13px] text-ink-muted break-words">{{ ban.reason }}</div></div>
       <button @click="removeBanMobile(ban)" class="shrink-0 min-h-[44px] px-4 rounded-xl bg-gray-100 text-red-600 text-[14px] font-bold">차단 풀기</button>
     </div>
   </div>
@@ -137,6 +141,7 @@
 
 <!-- ───────── PC 화면 ───────── -->
 <div v-else>
+  <div v-if="toast" class="fixed top-5 right-5 z-[95] max-w-[90vw] px-5 py-3 rounded-xl text-sm font-medium text-white shadow-lg" :class="toast.error ? 'bg-red-500' : 'bg-green-500'" role="status">{{ toast.text }}</div>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="shield" :size="20" /></span>
     보안
@@ -148,12 +153,13 @@
         <span class="icon-chip w-7 h-7 bg-red-50 text-red-500"><AppIcon name="shield" :size="14" /></span>IP 차단 목록
       </div>
       <div v-for="ban in ipBans" :key="ban.id" class="px-4 py-2.5 border-b border-gray-50 last:border-0 flex justify-between text-sm">
-        <div><span class="font-mono text-ink">{{ ban.ip_address }}</span> <span class="text-xs text-ink-muted ml-2">{{ ban.reason }}</span></div>
+        <div><span class="font-mono text-ink">{{ ban.ip_address }}</span> <span class="text-xs text-ink-muted ml-2">{{ ban.reason }}</span> <span class="text-[11px] text-ink-faint ml-2">{{ banUntil(ban) }}</span></div>
         <button @click="removeBan(ban)" class="text-red-400 hover:text-red-600 text-xs transition-colors">삭제</button>
       </div>
       <div v-if="!ipBans.length" class="px-4 py-4 text-sm text-ink-muted text-center">차단된 IP 없음</div>
       <div class="px-4 py-3 border-t border-gray-50 flex gap-2">
-        <input v-model="newIp" placeholder="IP 주소" class="input-soft flex-1 !w-auto !px-2 !py-1 !text-sm" />
+        <input v-model="newIp" placeholder="IP 또는 대역 (1.2.3.0/24)" class="input-soft flex-1 !w-auto !px-2 !py-1 !text-sm" />
+        <select v-model="banDays" aria-label="차단 기간" class="input-soft !w-auto !px-2 !py-1 !text-xs"><option v-for="o in banDayOptions" :key="o.v" :value="o.v">{{ o.l }}</option></select>
         <button @click="addBan" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold transition-colors">차단</button>
       </div>
     </div>
@@ -339,6 +345,14 @@ const ipBans = ref([])
 const reports = ref([])
 const bannedUsers = ref([])
 const newIp = ref('')
+const banDays = ref('')
+const banDayOptions = [{ v: '', l: '영구 차단' }, { v: 1, l: '1일' }, { v: 7, l: '7일' }, { v: 30, l: '30일' }, { v: 90, l: '90일' }]
+// 만료 시각은 UTC 로 저장돼 있어 애틀랜타 날짜로 보여 준다
+function banUntil(b) {
+  if (!b.expires_at) return '영구 차단'
+  const d = new Date(b.expires_at); if (isNaN(d)) return ''
+  return d.toLocaleDateString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric' }) + ' 까지 (애틀랜타)'
+}
 const loginLocks = ref([])
 const serverBans = ref([])
 const serverBansMsg = ref('')
@@ -554,11 +568,11 @@ async function serverUnban(ip) {
 async function addBan() {
   if (!newIp.value) return
   try {
-    await axios.post('/api/admin/ip-bans', { ip_address: newIp.value.trim(), reason: '관리자 차단' })
+    await axios.post('/api/admin/ip-bans', { ip_address: newIp.value.trim(), reason: '관리자 차단', days: banDays.value || undefined })
     newIp.value = ''; loadIpBans()
-    if (isMobile.value) say('차단했어요')
+    say('차단했어요')
   } catch (e) {
-    if (isMobile.value) say(e.response?.data?.errors?.ip_address?.[0] ? 'IP 주소 형식이 올바르지 않아요' : '차단하지 못했어요', true)
+    say(e.response?.data?.errors?.ip_address?.[0] || e.response?.data?.message || '차단하지 못했어요', true)
   }
 }
 

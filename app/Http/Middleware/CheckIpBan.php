@@ -25,26 +25,27 @@ class CheckIpBan
         try {
             // 캐시에서 차단 상태 확인 (5분 TTL)
             $banStatus = Cache::remember($cacheKey, 300, function () use ($ip) {
-                $ban = DB::table('ip_bans')
+                // 이 IP 하나로 등록된 차단 + 대역(CIDR, "/" 가 들어간 것) 차단을 함께 확인
+                $bans = DB::table('ip_bans')
                     ->where('ip_address', $ip)
-                    ->first();
+                    ->orWhere('ip_address', 'like', '%/%')
+                    ->get();
 
-                if (!$ban) {
-                    return ['banned' => false];
+                foreach ($bans as $ban) {
+                    // 만료 확인 — 만료된 차단 레코드는 지우고 건너뜀
+                    if ($ban->expires_at && now()->greaterThan($ban->expires_at)) {
+                        DB::table('ip_bans')->where('id', $ban->id)->delete();
+                        continue;
+                    }
+                    if (\App\Models\IpBan::matches((string) $ban->ip_address, $ip)) {
+                        return [
+                            'banned' => true,
+                            'reason' => $ban->reason ?? '접근이 차단되었습니다.',
+                            'expires_at' => $ban->expires_at,
+                        ];
+                    }
                 }
-
-                // 만료 확인
-                if ($ban->expires_at && now()->greaterThan($ban->expires_at)) {
-                    // 만료된 차단 레코드 삭제
-                    DB::table('ip_bans')->where('id', $ban->id)->delete();
-                    return ['banned' => false];
-                }
-
-                return [
-                    'banned' => true,
-                    'reason' => $ban->reason ?? '접근이 차단되었습니다.',
-                    'expires_at' => $ban->expires_at,
-                ];
+                return ['banned' => false];
             });
 
             if ($banStatus['banned']) {

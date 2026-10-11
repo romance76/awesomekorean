@@ -361,7 +361,22 @@ class AdminController extends Controller
     }
 
     public function ipBans() { return response()->json(['success'=>true,'data'=>IpBan::orderByDesc('created_at')->get()]); }
-    public function createIpBan(Request $request) { $request->validate(['ip_address' => 'required|ip']); IpBan::create(['ip_address'=>$request->ip_address,'reason'=>$request->reason,'banned_by'=>auth()->id()]); return response()->json(['success'=>true]); }
+    public function createIpBan(Request $request) {
+        // IP 하나("1.2.3.4") 또는 대역("1.2.3.0/24")을 영구 또는 N일 동안 차단 (days 를 비우면 영구)
+        $data = $request->validate([
+            'ip_address' => ['required', 'string', 'max:45', fn ($attr, $v, $fail) => IpBan::isValidTarget(trim((string) $v)) ?: $fail('IP 주소 또는 대역(예: 1.2.3.0/24) 형식이 올바르지 않아요.')],
+            'reason' => 'nullable|string|max:200',
+            'days' => 'nullable|integer|min:1|max:3650',
+        ]);
+        $target = trim($data['ip_address']);
+        // 본인이 쓰는 IP 를 실수로 차단해 관리자 화면에서 쫓겨나는 것 방지
+        if (IpBan::matches($target, (string) $request->ip())) {
+            return response()->json(['success' => false, 'message' => '지금 접속 중인 내 IP 가 포함돼 있어서 차단할 수 없어요.'], 422);
+        }
+        IpBan::create(['ip_address' => $target, 'reason' => $data['reason'] ?? null, 'banned_by' => auth()->id(), 'expires_at' => !empty($data['days']) ? now()->addDays((int) $data['days']) : null]);
+        \Illuminate\Support\Facades\Cache::forget('ip_ban:' . $target);
+        return response()->json(['success'=>true]);
+    }
     public function deleteIpBan($id) { IpBan::findOrFail($id)->delete(); return response()->json(['success'=>true]); }
 
     public function payments(Request $request) {
