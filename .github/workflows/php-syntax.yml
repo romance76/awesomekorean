@@ -55,3 +55,45 @@ jobs:
             exit 1
           fi
           echo "✅ routes/ and config/ passed syntax check"
+
+      - name: PHP Syntax Check (database/, bootstrap/)
+        run: |
+          ERRORS=0
+          for dir in database bootstrap; do
+            while IFS= read -r file; do
+              if ! php -l "$file" > /dev/null 2>&1; then
+                echo "❌ Syntax error in: $file"
+                php -l "$file"
+                ERRORS=$((ERRORS + 1))
+              fi
+            done < <(find "$dir" -type f -name "*.php" 2>/dev/null)
+          done
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "::error::Found $ERRORS PHP syntax error(s) in database/ or bootstrap/"
+            exit 1
+          fi
+          echo "✅ database/ and bootstrap/ passed syntax check"
+
+  # 프런트 빌드가 깨지는 변경(문법·import 오류)을 배포 전에 잡는다. 배포 서버는 건드리지 않고 러너에서 컴파일만 확인한다.
+  frontend-build:
+    runs-on: ubuntu-latest
+    name: Frontend build check (vite)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Vite build (check only)
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+          VITE_OUT_DIR: ${{ runner.temp }}/vite-check
+        run: npm run build
