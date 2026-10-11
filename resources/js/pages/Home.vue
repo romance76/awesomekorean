@@ -615,9 +615,11 @@ onMounted(async () => {
     startHeroSlide()
   } catch {}
   // 로그인한 회원이 프로필에 위치를 저장해뒀으면(위치 선택 페이지들과 동일한
-  // 로직) 홈 피드의 구인구직/중고장터/부동산/업소록도 그 위치 근처로 보여줌
-  // — 저장된 위치가 없으면(또는 비로그인) 기존처럼 전국 최신순 그대로.
-  initLocation()
+  // 로직) 홈 피드의 구인구직/중고장터/부동산/업소록도 그 위치 근처로 보여줌.
+  // 비로그인·프로필 주소 없음 → 접속 IP 기반 대략 위치(반경 30마일)로 대체.
+  // (예전엔 await 이 빠져 있어서 IP 조회가 끝나기 전에 아래 줄이 실행돼 버려
+  //  사실상 늘 "전국"으로만 동작 — 아틀란타에서 봐도 플러싱·댈러스 매물이 섞여 보이던 원인)
+  await initLocation()
   const loc = locationQuery.value
   const [p, j, m, r, ev, gb, rc, cl, bz, hl] = await Promise.allSettled([
     axios.get('/api/posts?per_page=10'),
