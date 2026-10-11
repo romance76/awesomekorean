@@ -162,7 +162,7 @@
         <!-- 로고가 있는 줄: 로고 왼쪽 · 오른쪽 위에 제목 · 그 아래 급여 · 뱃지 · 메타 순서 / 로고 없는 줄: 예전 배치 그대로 (급여는 오른쪽) -->
         <div class="flex gap-3" :class="item.logo ? 'items-start' : 'items-center'">
           <!-- 회사 로고(올린 경우) -->
-          <img v-if="item.logo" :src="item.logo" alt="" loading="lazy" class="w-14 h-14 rounded-xl object-cover border border-gray-100 bg-white flex-shrink-0" @error="$event.target.style.display='none'" />
+          <img v-if="item.logo" :src="item.logo" alt="" loading="lazy" class="w-[72px] h-[72px] sm:w-20 sm:h-20 rounded-xl object-cover border border-gray-100 bg-white flex-shrink-0" @error="$event.target.style.display='none'" />
           <div class="flex-1 min-w-0 flex flex-col">
             <!-- 뱃지: 프로모션 + 직종 태그 (로고 없는 줄은 제목 위, 로고 있는 줄은 급여 아래) -->
             <div class="flex items-center gap-1 flex-wrap" :class="item.logo ? 'order-3 mt-1.5' : 'order-1 mb-1'">
