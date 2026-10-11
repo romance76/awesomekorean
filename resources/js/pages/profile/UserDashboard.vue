@@ -707,9 +707,9 @@
         <div v-if="!bookmarks.length" class="text-sm text-ink-faint py-6 text-center">저장한 북마크가 없습니다</div>
         <div v-else class="space-y-2">
           <div v-for="b in bookmarks" :key="b.id" class="border border-gray-100 rounded-xl p-3 flex items-center gap-3 hover:bg-amber-50/30 transition-colors">
-            <div class="flex-1 min-w-0 cursor-pointer hover:text-amber-700 transition-colors" @click="goBookmark(b)">
-              <div class="text-sm font-semibold text-ink truncate">{{ b.bookmarkable?.title || b.bookmarkable_type + ' #' + b.bookmarkable_id }}</div>
-              <div class="text-xs text-ink-faint mt-0.5">{{ fmtDate(b.created_at) }}</div>
+            <div class="flex-1 min-w-0 transition-colors" :class="b.url ? 'cursor-pointer hover:text-amber-700' : 'opacity-60'" @click="goBookmark(b)">
+              <div class="text-sm font-semibold text-ink truncate">{{ b.display_title || b.bookmarkable?.title || b.bookmarkable?.name || '저장한 항목' }}</div>
+              <div class="text-xs text-ink-faint mt-0.5"><span v-if="b.kind_label" class="inline-block px-1.5 py-0.5 rounded bg-gray-100 text-ink-muted mr-1.5">{{ b.kind_label }}</span>{{ fmtDate(b.created_at) }}<span v-if="b.missing" class="ml-1.5 text-red-400">· 지워진 항목이에요. 삭제해 주세요</span></div>
             </div>
             <button @click="deleteBookmark(b)" class="text-xs text-red-400 hover:text-red-600 flex-shrink-0 transition-colors">삭제</button>
           </div>
@@ -1749,6 +1749,8 @@ async function deleteBookmark(b) {
   try { await axios.post('/api/bookmarks', { bookmarkable_type: b.bookmarkable_type, bookmarkable_id: b.bookmarkable_id }); bookmarks.value = bookmarks.value.filter(x => x.id !== b.id) } catch {}
 }
 function goBookmark(b) {
+  if (b.url) { router.push(b.url); return }   // 서버가 알려 준 이동 주소가 있으면 그대로 (채팅방·동호회 등 종류별로 정확)
+  if (b.missing) return   // 지워진 항목은 이동하지 않음
   const typeMap = { 'App\\Models\\Post': '/community/free/', 'App\\Models\\MarketItem': '/market/', 'App\\Models\\JobPost': '/jobs/', 'App\\Models\\Business': '/directory/', 'App\\Models\\RecipePost': '/recipes/', 'App\\Models\\QaPost': '/qa/', 'App\\Models\\News': '/news/', 'App\\Models\\Event': '/events/' }
   const base = typeMap[b.bookmarkable_type] || '/community/free/'
   router.push(base + b.bookmarkable_id)
