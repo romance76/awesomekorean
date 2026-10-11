@@ -1,4 +1,12 @@
 <template>
+<div>
+<!-- 주문 / 인보이스 전환 -->
+<div class="flex gap-2 mb-3" :class="isMobile ? 'alv-m' : ''" role="group" aria-label="결제/오더 보기">
+  <button v-for="t in viewTabs" :key="t.v" @click="setTab(t.v)" :aria-pressed="tab === t.v"
+    :class="[isMobile ? 'min-h-[44px] px-5 text-[15px]' : 'px-4 py-1.5 text-sm', 'rounded-full border font-bold', tab === t.v ? 'bg-ink text-white border-ink' : 'bg-white text-ink-light border-gray-200']">{{ t.l }}</button>
+</div>
+<InvoiceTab v-if="tab === 'invoices'" :mobile="isMobile" />
+<template v-else>
 <!-- ───────── 휴대폰 화면 ───────── -->
 <div v-if="isMobile" class="alv-m space-y-3 pb-4">
   <!-- 요약 -->
@@ -39,6 +47,10 @@
       <span class="block text-[15px] text-ink truncate mt-0.5">{{ item.user?.name || '-' }}</span>
       <span class="block text-[13px] text-ink-muted truncate">{{ item.user?.email }}</span>
       <span class="block text-[13px] text-ink-faint mt-0.5">#{{ item.id }} · {{ formatDate(item.created_at) }}</span>
+      <span v-if="invMap[item.id]" class="flex items-center gap-1.5 flex-wrap mt-1.5">
+        <span class="text-[12px] font-mono text-ink-light">{{ invMap[item.id].invoice_no }}</span>
+        <span class="text-[11px] font-bold px-1.5 py-0.5 rounded-md border" :class="invChip(invMap[item.id]).cls">{{ invChip(invMap[item.id]).text }}</span>
+      </span>
     </span>
     <span class="shrink-0 text-[12px] px-2.5 py-1 rounded-full font-bold" :class="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
   </button>
@@ -87,6 +99,7 @@
             <div class="flex justify-between gap-3"><span class="text-ink-muted shrink-0">금액</span><b class="text-amber-600 tabular-nums text-[17px]">${{ Number(detailItem.amount).toFixed(2) }}</b></div>
           </div>
           <div v-if="detailItem.stripe_payment_id" class="text-[13px] text-ink-faint break-all">Stripe ID: {{ detailItem.stripe_payment_id }}</div>
+          <button v-if="invMap[detailItem.id]" @click="invoiceOpenId = invMap[detailItem.id].id" class="w-full min-h-[52px] rounded-xl bg-amber-50 text-amber-700 text-[16px] font-bold">인보이스 보기 · {{ invMap[detailItem.id].invoice_no }}</button>
           <button v-if="detailItem.status === 'completed' && canRefund" @click="refunding = true" class="w-full min-h-[52px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">환불하기</button>
           <p v-if="detailItem.kind && detailItem.kind !== 'points' && ['captured','authorized'].includes(detailItem.status)" class="text-[14px] text-ink-light bg-gray-50 rounded-xl px-3 py-2.5 leading-relaxed">{{ detailItem.kind === 'flyer' ? '전단 카드 결제는 "전단 관리"에서 그 전단을 중지·반려하면 남은 시간만큼 자동으로 환불돼요.' : '직접 결제는 Stripe 대시보드에서 환불한 뒤 의뢰를 취소해 주세요.' }}</p>
           <button @click="closeSheet" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">닫기</button>
@@ -151,6 +164,7 @@
         <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="amount" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">금액</SortTh>
         <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="points" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">포인트</SortTh>
         <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="status" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">상태</SortTh>
+        <th class="px-3 py-2 text-left text-xs text-ink-muted">인보이스</th>
         <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="created_at" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">날짜</SortTh>
         <th class="px-3 py-2 text-left text-xs text-ink-muted">관리</th>
       </tr></thead>
@@ -170,6 +184,13 @@
               'bg-red-100 text-red-700': item.status==='refunded',
               'bg-gray-200 text-gray-500': item.status==='cancelled'
             }">{{ statusLabel(item.status) }}</span>
+          </td>
+          <td class="px-3 py-2.5">
+            <button v-if="invMap[item.id]" @click="invoiceOpenId = invMap[item.id].id" class="text-left hover:underline" :title="invMap[item.id].delivery?.error || ''">
+              <div class="font-mono text-[11px] text-ink-light whitespace-nowrap">{{ invMap[item.id].invoice_no }}</div>
+              <span class="text-[11px] font-bold px-1.5 py-0.5 rounded border" :class="invChip(invMap[item.id]).cls">{{ invChip(invMap[item.id]).text }}</span>
+            </button>
+            <span v-else class="text-[11px] text-ink-faint">-</span>
           </td>
           <td class="px-3 py-2.5 text-xs text-ink-faint">{{ formatDate(item.created_at) }}</td>
           <td class="px-3 py-2.5">
@@ -254,6 +275,7 @@
 
       <!-- 액션 -->
       <div class="px-6 py-3 border-t border-gray-100 flex gap-2 justify-end">
+        <button v-if="invMap[detailItem.id]" @click="invoiceOpenId = invMap[detailItem.id].id" class="btn-secondary !px-4 !py-2 text-xs">인보이스 {{ invMap[detailItem.id].invoice_no }}</button>
         <button @click="printInvoice" class="btn-secondary !px-4 !py-2 text-xs"><AppIcon name="download" :size="13" /> 인쇄</button>
         <button v-if="detailItem.status==='completed'" @click="refundOrder(detailItem)" class="inline-flex items-center gap-1.5 text-xs bg-red-500 text-white font-bold px-4 py-2 rounded-xl transition-colors hover:bg-red-600"><AppIcon name="coins" :size="13" /> 환불</button>
         <span v-if="detailItem.kind && detailItem.kind !== 'points' && ['captured','authorized'].includes(detailItem.status)" class="text-xs text-ink-muted">{{ detailItem.kind === 'flyer' ? '환불: 전단 관리에서 중지·반려 → 남은 시간만큼 자동 환불' : '환불: Stripe 대시보드에서 환불 후 의뢰 취소' }}</span>
@@ -263,12 +285,19 @@
   </div>
 </div>
 </template>
+<!-- 주문에서 바로 여는 인보이스 상세 -->
+<InvoiceDetail v-if="invoiceOpenId" :invoice-id="invoiceOpenId" :mobile="isMobile" @close="invoiceOpenId = 0" @changed="loadInvoiceChips" />
+</div>
+</template>
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import SortTh from '../../components/SortTh.vue'
+import InvoiceTab from '../../components/admin/InvoiceTab.vue'
+import InvoiceDetail from '../../components/admin/InvoiceDetail.vue'
+import { INVOICE_STATUS, mailChip } from '../../composables/useInvoiceUi'
 import { useAdminSort } from '../../composables/useAdminSort'
 // 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
 const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
@@ -280,6 +309,25 @@ const isMobile = computed(() => !!adminIsMobile.value)
 const auth = useAuthStore()
 // 환불은 서버에서 admin/super_admin 만 허용 — 일반 운영진에게는 버튼을 숨김
 const canRefund = computed(() => ['admin', 'super_admin'].includes(auth.user?.role))
+
+// 위쪽 전환: 주문(기존 화면) / 인보이스 목록
+const viewTabs = [{ v: 'orders', l: '주문' }, { v: 'invoices', l: '인보이스' }]
+const tab = ref('orders')
+function setTab(v) { tab.value = v }
+// 주문마다 붙는 인보이스 칩 (주문 번호 → 인보이스). 못 불러와도 주문 화면은 그대로 쓸 수 있다.
+const invMap = ref({})
+const invoiceOpenId = ref(0)
+function invChip(inv) { return inv.status === 'void' ? INVOICE_STATUS.void : mailChip(inv.delivery) }
+async function loadInvoiceChips() {
+  const ids = items.value.map(i => i.id)
+  if (!ids.length) { invMap.value = {}; return }
+  try {
+    const { data } = await axios.get('/api/admin/invoices', { params: { payment_ids: ids.join(',') } })
+    const m = {}
+    for (const inv of (data.data?.data || [])) m[inv.payment_id] = inv
+    invMap.value = m
+  } catch { /* 칩만 안 보일 뿐 */ }
+}
 
 const items = ref([])
 const loading = ref(true)
@@ -341,6 +389,7 @@ async function load(p = 1) {
     page.value = data.data?.current_page || 1
     lastPage.value = data.data?.last_page || 1
     total.value = data.data?.total ?? items.value.length
+    loadInvoiceChips()
 
     // 통계: 서버가 전체 주문 기준으로 계산해 주면 그대로 사용 (예전에는 불러온 목록만 합산해서 50건이 넘으면 틀렸음)
     if (data.stats) {

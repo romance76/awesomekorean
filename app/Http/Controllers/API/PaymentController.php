@@ -215,6 +215,9 @@ class PaymentController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
+        // 내 인보이스 번호를 결제 행에 붙여 "인보이스 보기" 링크를 만들 수 있게 (인보이스 표가 없으면 건너뜀)
+        \App\Support\Invoicing::attachInvoiceNos($payments->getCollection());
+
         return response()->json(['success' => true, 'data' => $payments]);
     }
 }
