@@ -123,6 +123,8 @@
 </div>
 <!-- 위험한 동작 앞 비밀번호 재확인 창 (PC·휴대폰 공용) -->
 <ReauthSheet />
+<!-- 관리자 공용 확인 시트 (할 일 #83) — useAdminConfirm().confirmAction() 으로 어디서든 호출 -->
+<ConfirmSheet />
 </template>
 <script setup>
 import { ref, computed, provide, watch, onMounted, onBeforeUnmount } from 'vue'
@@ -134,6 +136,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 import AdminMobileHome from './AdminMobileHome.vue'
 import ReauthSheet from '../../components/admin/ReauthSheet.vue'
+import ConfirmSheet from '../../components/admin/ConfirmSheet.vue'
 import { installReauthInterceptor } from '../../composables/useReauth'
 import { PC_GROUPS, ADMIN_ITEMS, itemsByPcGroup, itemsByLegacyGroup } from '../../admin/adminMenu'
 

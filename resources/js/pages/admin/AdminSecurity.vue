@@ -324,9 +324,12 @@ import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import { useAdminConfirm } from '../../composables/useAdminConfirm'
 
 // 알림·"오늘 할 일" 카드의 바로가기 주소(?tab=reports&status=pending)를 반영하기 위해 사용
 const route = useRoute()
+// 관리자 공용 확인 시트(할 일 #83 첫 적용 화면) — 차단 해제 같은 되돌리기 어려운 동작 전 확인
+const { confirmAction } = useAdminConfirm()
 
 // 관리자 휴대폰 화면이면 구역 칩 + 카드로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -448,12 +451,12 @@ async function saveNoteMobile() {
   } catch { say('메모를 저장하지 못했어요', true) }
 }
 async function removeBanMobile(b) {
-  if (!confirm(`${b.ip_address} 차단을 풀까요?`)) return
+  if (!await confirmAction({ title: 'IP 차단 풀기', message: `${b.ip_address} 차단을 풀까요?`, kind: 'danger', confirmLabel: '풀기' })) return
   try { await axios.delete('/api/admin/ip-bans/' + b.id); ipBans.value = ipBans.value.filter(x => x.id !== b.id); say('차단을 풀었어요') }
   catch { say('풀지 못했어요', true) }
 }
 async function unbanUserMobile(u) {
-  if (!confirm(`${u.nickname || u.name} 님의 차단을 풀까요?`)) return
+  if (!await confirmAction({ title: '회원 차단 풀기', message: `${u.nickname || u.name} 님의 차단을 풀까요?`, kind: 'danger', confirmLabel: '풀기' })) return
   try { await axios.post(`/api/admin/chat/users/${u.id}/permaban`, { unban: true }); bannedUsers.value = bannedUsers.value.filter(x => x.id !== u.id); say('차단을 풀었어요') }
   catch { say('풀지 못했어요', true) }
 }
@@ -544,7 +547,7 @@ async function loadServerBans() {
 }
 
 async function serverUnban(ip) {
-  if (!confirm(`${ip} 차단을 풀까요?`)) return
+  if (!await confirmAction({ title: '서버 차단 풀기', message: `${ip} 차단을 풀까요?`, kind: 'danger', confirmLabel: '풀기' })) return
   try { await axios.post('/api/admin/security/server-unban', { ip }); loadServerBans(); if (isMobile.value) say('차단을 풀었어요') } catch { if (isMobile.value) say('풀지 못했어요', true) }
 }
 
@@ -560,6 +563,8 @@ async function addBan() {
 }
 
 async function removeBan(b) {
+  // PC 표에는 원래 확인창이 없어 실수로 누르면 바로 풀렸음 — 공용 확인 시트로 통일
+  if (!await confirmAction({ title: 'IP 차단 풀기', message: `${b.ip_address} 차단을 풀까요?`, kind: 'danger', confirmLabel: '풀기' })) return
   try { await axios.delete('/api/admin/ip-bans/' + b.id); ipBans.value = ipBans.value.filter(x => x.id !== b.id) } catch {}
 }
 
