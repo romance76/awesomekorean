@@ -160,6 +160,8 @@
         class="px-4 py-3.5 border-b border-gray-50 transition cursor-pointer"
         :class="jobBorderClass(item)" :style="jobBorderStyle(item)">
         <div class="flex items-center gap-3">
+          <!-- 회사 로고(올린 경우) -->
+          <img v-if="item.logo" :src="item.logo" alt="" loading="lazy" class="w-12 h-12 rounded-lg object-cover border border-gray-100 bg-white flex-shrink-0" @error="$event.target.style.display='none'" />
           <div class="flex-1 min-w-0">
             <!-- 1행: 프로모션 뱃지 + 직종 태그 (제목 위로) -->
             <div class="flex items-center gap-1 mb-1 flex-wrap">
@@ -287,13 +289,14 @@ function promotionClass(item) {
 }
 
 function jobBorderClass(item) {
-  if (['national','state_plus','sponsored'].includes(item.promotion_tier)) return 'rounded-lg my-1 hover:bg-gray-50'
+  // 상위노출 줄은 카드(둥근 모서리 18px) 안쪽으로 8px 띄워 같은 중심의 둥근 모서리(10px)로 — 테두리 모서리가 카드에 잘리지 않게
+  if (['national','state_plus','sponsored'].includes(item.promotion_tier)) return 'm-2 hover:bg-gray-50'
   return 'hover:bg-gray-50'
 }
 function jobBorderStyle(item) {
-  if (item.promotion_tier === 'national') return 'border: 2px solid #fca5a5; border-radius: 8px; background: #fef2f2;'
-  if (item.promotion_tier === 'state_plus') return 'border: 2px solid #bfdbfe; border-radius: 8px; background: #f0f7ff;'
-  if (item.promotion_tier === 'sponsored') return 'border: 2px solid #FFC9AD; border-radius: 8px; background: #FFF8F4;'
+  if (item.promotion_tier === 'national') return 'border: 2px solid #fca5a5; border-radius: 10px; background: #fef2f2;'
+  if (item.promotion_tier === 'state_plus') return 'border: 2px solid #bfdbfe; border-radius: 10px; background: #f0f7ff;'
+  if (item.promotion_tier === 'sponsored') return 'border: 2px solid #FFC9AD; border-radius: 10px; background: #FFF8F4;'
   return ''
 }
 

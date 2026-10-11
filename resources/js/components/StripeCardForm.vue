@@ -46,7 +46,8 @@ onMounted(async () => {
     if (!key) { loadError.value = '카드 결제 설정이 아직 준비되지 않았어요. 관리자에게 문의해주세요.'; return }
     await loadStripeJs()
     stripe = window.Stripe(key)
-    card = stripe.elements().create('card', { style: { base: { fontSize: '15px', color: '#1f2937' } } })
+    // 글자 크기 16px 미만이면 아이폰이 입력 때 화면을 확대·이동시켜 결제 창이 좌우로 잘려 보임 → 16px
+    card = stripe.elements().create('card', { style: { base: { fontSize: '16px', color: '#1f2937' } } })
     card.mount(cardEl.value)
     ready.value = true
   } catch (e) {

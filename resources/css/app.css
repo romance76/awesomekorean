@@ -38,6 +38,30 @@
         }
     }
 
+    /* iOS Safari: 날짜·시간 입력칸이 부모보다 넓어져 오른쪽이 잘리는 문제 (휴대폰 폭에서만) */
+    @media (max-width: 767px) {
+        :where(input[type="date"], input[type="time"], input[type="datetime-local"], input[type="month"]) {
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        input.input-soft[type="date"],
+        input.input-soft[type="time"],
+        input.input-soft[type="datetime-local"],
+        input.input-soft[type="month"] {
+            display: block;
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+        }
+        input.input-soft[type="date"]::-webkit-date-and-time-value,
+        input.input-soft[type="time"]::-webkit-date-and-time-value,
+        input.input-soft[type="datetime-local"]::-webkit-date-and-time-value,
+        input.input-soft[type="month"]::-webkit-date-and-time-value {
+            text-align: left;
+        }
+    }
+
     /* ─── AwesomeKorean 커스텀 스크롤바 ─── */
     * {
         scrollbar-width: thin;

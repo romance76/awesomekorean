@@ -12,7 +12,7 @@
 
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block" style="width:144px;height:auto;max-height:52px;object-fit:contain;object-position:left center" />
+        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block" style="width:clamp(92px,26vw,144px);height:auto;max-height:52px;object-fit:contain;object-position:left center" />
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
@@ -68,7 +68,7 @@
           </div>
           <div class="relative">
             <button @click="showDropdown=!showDropdown" class="block -my-1 rounded-full transition-transform active:scale-95" aria-label="내 메뉴">
-              <UserAvatar :user="auth.user" :size="58" />
+              <UserAvatar :user="auth.user" :size="avatarSize" />
             </button>
             <div v-if="showDropdown" class="absolute right-0 top-14 bg-white rounded-2xl shadow-lift py-2 w-52 z-50" @click="showDropdown=false">
               <div class="px-4 py-2.5 border-b border-gray-50">
@@ -446,6 +446,13 @@ onMounted(() => { nextTick(() => { revealActiveMenu(); updateNavArrows() }); win
 watch(() => route.path, () => nextTick(() => { revealActiveMenu(); updateNavArrows() }))
 onUnmounted(() => window.removeEventListener('resize', updateNavArrows))
 watch(() => visibleMenus.value, () => nextTick(updateNavArrows), { deep: true })
+
+// 좁은 폰(≤ 430px)에서는 프로필 사진을 줄여 헤더가 화면보다 넓어지지 않게 (넓어지면 페이지가 옆으로 밀려 결제 창 등이 잘림)
+const avatarSize = ref(58)
+const fitHeader = () => { avatarSize.value = window.innerWidth <= 430 ? 46 : 58 }
+fitHeader()
+onMounted(() => window.addEventListener('resize', fitHeader))
+onUnmounted(() => window.removeEventListener('resize', fitHeader))
 
 onUnmounted(() => {
   if (pollInterval) clearInterval(pollInterval)
