@@ -233,6 +233,7 @@ const routes = [
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'accounts', component: p('admin/AdminAccounts') },
       { path: 'todos', component: p('admin/AdminTodos') },
+      { path: 'audit-log', component: p('admin/AdminAuditLog') },
       { path: 'analytics', component: p('admin/AdminAnalytics') },
       { path: 'open-event', component: p('admin/AdminOpenEvent') },
       { path: 'settings', component: p('admin/SiteSettings') },

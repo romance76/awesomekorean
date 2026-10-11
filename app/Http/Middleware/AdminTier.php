@@ -40,7 +40,7 @@ class AdminTier
             ['GET', '#^system/sync-all-content/status$#', 2],
             ['GET', '#^collect-status$#', 2],   // 지금 수집(음악·뉴스·숏츠·레시피) 진행 상태 조회 — 시작(POST)은 아래 최고관리자 전용 규칙
             ['ANY', '#^settings(/|$)#', 3],
-            ['ANY', '#^(api-keys|firebase|security|accounts-overview|analytics|open-event|todos)(/|$)#', 3],
+            ['ANY', '#^(api-keys|firebase|security|accounts-overview|analytics|open-event|todos|audit-log)(/|$)#', 3],
             ['ANY', '#^system(/|$)#', 3],
             // 시스템 상태 카드·비상 스위치(가입 보너스/경품 반복 일정/자동 수집 일시중지) — 최고관리자 전용
             ['ANY', '#^(system-status|emergency-switches)(/|$)#', 3],

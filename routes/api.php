@@ -796,6 +796,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
         // 오픈 이벤트(소프트 오픈 프로모션) 일괄 적용
         Route::get('/open-event', [\App\Http\Controllers\API\AdminOpenEventController::class, 'show']);
         Route::put('/open-event', [\App\Http\Controllers\API\AdminOpenEventController::class, 'update'])->middleware('throttle:20,1');
+        // 감사 로그 조회(읽기 전용, 최고관리자 전용)
+        Route::get('/audit-log', [\App\Http\Controllers\API\AdminAuditLogController::class, 'index'])->middleware('throttle:60,1');
         Route::get('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'index']);
         Route::post('/todos', [\App\Http\Controllers\API\AdminTodoController::class, 'store']);
         Route::put('/todos/{id}', [\App\Http\Controllers\API\AdminTodoController::class, 'update']);
