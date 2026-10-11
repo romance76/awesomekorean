@@ -17,6 +17,12 @@
   </header>
 
   <main class="flex-1" :style="{ paddingTop: 'calc(56px + env(safe-area-inset-top, 0px))', paddingBottom: 'calc(66px + env(safe-area-inset-bottom, 0px))' }">
+    <!-- 같은 그룹의 다른 화면으로 바로 이동하는 칩 줄 (PC 의 상단 서브탭과 같은 목록) — 허브·홈에서는 숨김 -->
+    <nav v-if="mGroupChips.length > 1" class="sticky z-30 bg-[#F3F4F6] border-b border-gray-200/70 flex gap-2 overflow-x-auto scrollbar-hide px-3.5 py-2" :style="{ top: 'calc(56px + env(safe-area-inset-top, 0px))' }" aria-label="같은 메뉴 안의 화면">
+      <RouterLink v-for="c in mGroupChips" :key="c.to" :to="c.to"
+        class="shrink-0 min-h-[40px] px-3.5 rounded-full border text-[14px] flex items-center whitespace-nowrap"
+        :class="c.active ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200 font-medium'" :aria-current="c.active ? 'page' : undefined">{{ c.label }}</RouterLink>
+    </nav>
     <div class="p-3.5" :class="mLegacy ? 'admin-legacy-zoom' : ''">
       <AdminMobileHome v-if="route.path === '/admin'" />
       <router-view v-else />
@@ -220,6 +226,13 @@ const currentSubTabs = computed(() => {
   let tabs = itemsByPcGroup(group).filter(t => !t.hideFromTabs)
   if (group === 'content') tabs = applyMenuConfig(tabs)
   return visibleFor(tabs)
+})
+
+// 휴대폰: 같은 그룹 안의 화면 칩 (허브·홈에서는 비움). 현재 화면이 어느 항목에 속하는지는 가장 긴 주소 일치로 판단.
+const mGroupChips = computed(() => {
+  const path = route.path
+  if (path === '/admin' || path.startsWith('/admin/menu/')) return []
+  return currentSubTabs.value.map(t => ({ to: t.to, label: t.label, active: path === t.to || path.startsWith(t.to + '/') }))
 })
 
 // 휴대폰 허브(/admin/menu/:group)·하단 탭용: 할 일 #84 부터는 PC 와 같은 7그룹(pcGroup)을 그대로 씀.
