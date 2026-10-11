@@ -59,7 +59,7 @@
           </div>
 
           <div class="modal-actions">
-            <button @click="showModal = false" class="btn-cancel" :disabled="paying">취소</button>
+            <button @click="showModal = false" class="btn-cancel">취소</button>
             <button @click="pay" class="btn-pay" :disabled="paying || !selected || (payWith === 'card' && cardBelow)">
               {{ paying ? '처리 중...' : (payWith === 'card' ? '카드로 결제하기' : '포인트로 결제하기') }}
             </button>
@@ -127,7 +127,7 @@ const money = (c) => '$' + (Number(c || 0) / 100).toFixed(2)
 const priceText = (p) => payWith.value === 'card' ? money(Math.max(50, p)) : Number(p || 0).toLocaleString() + 'P'
 
 watch(showModal, async (open) => {
-  if (!open) { cardSecret.value = ''; cardPaymentId.value = null; customDays.value = 0; return }
+  if (!open) { cardSecret.value = ''; cardPaymentId.value = null; customDays.value = 0; paying.value = false; return }
   errorMsg.value = ''
   try {
     const key = props.resource === 'businesses' ? 'business' : props.resource
@@ -173,13 +173,15 @@ async function pay() {
     // 서버 HasPromotions 가 price_per_day 에 따라 차감 (point_settings)
     // 단순 UX를 위해 tier=state_plus 고정 (위치 기반 우선)
     const endpoint = endpointFor(props.resource)
+    // 카드 결제 시작(보류 만들기)은 30초 안에 끝나야 함 — 연결이 끊겨 "처리 중..."에서 멈추지 않게 (청구는 이 단계에서 일어나지 않음)
     const { data } = await axios.post(`${endpoint}/${props.item.id}/promote`, {
       tier: TIER,
       days: selected.value.days,
       pay_with: payWith.value,
-    })
+    }, { timeout: payWith.value === 'card' ? 30000 : 0 })   // 포인트는 서버가 바로 차감하므로 중간에 끊지 않음
     // 카드: 서버가 카드 보류를 만들고 돌려준 값으로 카드 확인 단계로 넘어감
     if (data?.data?.needs_card) {
+      if (!showModal.value) { paying.value = false; return }   // 기다리는 동안 창을 닫았으면 이어가지 않음(청구 없음)
       cardSecret.value = data.data.client_secret
       cardPaymentId.value = data.data.payment_id
       cardCents.value = data.data.total_cents
@@ -190,7 +192,8 @@ async function pay() {
     showModal.value = false
     emit('updated')
   } catch (e) {
-    const msg = e.response?.data?.message || '처리 실패'
+    const msg = e.response?.data?.message
+      || (e.code === 'ECONNABORTED' ? '연결이 느려서 처리하지 못했어요. 카드에는 청구되지 않았어요. 잠시 후 다시 시도해 주세요.' : '처리 실패')
     errorMsg.value = msg
     // 이미 활성 중이면 부모에게 알림 (아이템 리로드 유도)
     if (e.response?.data?.data?.already_active) {
