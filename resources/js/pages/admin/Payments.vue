@@ -82,7 +82,11 @@
           <p class="bg-red-50 border border-red-200 text-red-700 text-[14px] rounded-xl p-3 leading-relaxed">
             카드 환불은 되돌릴 수 없어요. 이미 Stripe 대시보드에서 환불했다면 그 부분은 건너뛰고 포인트·상태만 정리해요. 카드사에 따라 구매자에게 돌아가기까지 영업일 5~10일 걸려요.
           </p>
-          <button @click="doRefund" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '환불 처리하기' }}</button>
+          <label class="block">
+            <span class="block text-[13px] font-bold text-ink-muted mb-1">환불 사유 <span class="text-red-500">(꼭 입력, 기록에 남아요)</span></span>
+            <input v-model="refundReason" type="text" maxlength="200" placeholder="예: 구매자 요청, 중복 결제" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3 text-[16px]" />
+          </label>
+          <button @click="doRefund" :disabled="busy || refundReason.trim().length < 2" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '환불 처리하기' }}</button>
           <button @click="refunding = false" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">돌아가기</button>
         </div>
 
@@ -114,6 +118,7 @@
 
 <!-- ───────── PC 화면 ───────── -->
 <div v-else>
+  <div v-if="toast" class="fixed top-5 right-5 z-[95] max-w-[90vw] px-5 py-3 rounded-xl text-sm font-medium text-white shadow-lg" :class="toast.error ? 'bg-red-500' : 'bg-green-500'" role="status">{{ toast.text }}</div>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="wallet" :size="20" /></span>
     오더/결제 관리
@@ -303,6 +308,7 @@ import InvoiceDetail from '../../components/admin/InvoiceDetail.vue'
 import Revenue from './Revenue.vue'
 import { INVOICE_STATUS, mailChip } from '../../composables/useInvoiceUi'
 import { useAdminSort } from '../../composables/useAdminSort'
+import { useAdminConfirm } from '../../composables/useAdminConfirm'
 // 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
 const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => load(1))
 import { useAuthStore } from '../../stores/auth'
@@ -343,7 +349,9 @@ const page = ref(1)
 const lastPage = ref(1)
 const total = ref(0)
 const loadError = ref(false)
+const { confirmAction, inputValue: refundInput } = useAdminConfirm()
 const refunding = ref(false)
+const refundReason = ref('')
 const busy = ref(false)
 const toast = ref(null)
 let toastTimer = null
@@ -359,14 +367,14 @@ function statusClass(s) {
 function setStatus(v) { filterStatus.value = v; load(1) }
 function search() { load(1) }
 function goPage(n) { if (n >= 1 && n <= lastPage.value) load(n) }
-function openSheet(item) { detailItem.value = item; refunding.value = false }
+function openSheet(item) { detailItem.value = item; refunding.value = false; refundReason.value = '' }
 function closeSheet() { if (!busy.value) { detailItem.value = null; refunding.value = false } }
 async function doRefund() {
   const item = detailItem.value
   if (!item || busy.value) return
   busy.value = true
   try {
-    const { data } = await axios.post(`/api/admin/payments/${item.id}/refund`)
+    const { data } = await axios.post(`/api/admin/payments/${item.id}/refund`, { reason: refundReason.value.trim() })
     say(data.message || '환불 처리했어요')
     detailItem.value = null; refunding.value = false
     load(page.value)
@@ -420,14 +428,16 @@ function showDetail(item) { detailItem.value = item }
 
 async function refundOrder(item) {
   const cardLine = item.stripe_payment_id ? `카드 결제 금액 $${item.amount}가 Stripe로 자동 환불됩니다(되돌릴 수 없음).` : '결제 번호가 없는 옛 주문이라 카드 환불은 하지 않습니다.'
-  if (!confirm(`주문 #${item.id} 환불 처리하시겠습니까?\n${cardLine}\n${item.points_purchased}P가 회수되고 주문이 '환불됨'으로 바뀝니다.`)) return
+  const ok = await confirmAction({ title: `주문 #${item.id} 환불`, message: `${cardLine}\n${item.points_purchased}P가 회수되고 주문이 '환불됨'으로 바뀝니다.`, kind: 'danger', confirmLabel: '환불 처리', inputLabel: '환불 사유', inputRequired: true })
+  if (!ok) return
+  const reason = String(refundInput.value || '').trim()
   try {
-    const { data } = await axios.post(`/api/admin/payments/${item.id}/refund`)
-    alert(data.message || '환불 완료')
+    const { data } = await axios.post(`/api/admin/payments/${item.id}/refund`, { reason })
+    say(data.message || '환불 완료')
     item.status = 'refunded'
     detailItem.value = null
     load()
-  } catch (e) { alert(e.response?.data?.message || '환불 실패') }
+  } catch (e) { say(e.response?.data?.message || '환불 실패', true) }
 }
 
 function printInvoice() { window.print() }

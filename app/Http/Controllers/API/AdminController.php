@@ -361,9 +361,12 @@ class AdminController extends Controller
         return response()->json(['success'=>true,'data'=>$query->paginate($perPage),'stats'=>$stats]);
     }
 
-    public function refundPayment($id, \App\Support\StripeGateway $stripe) {
+    public function refundPayment(Request $request, $id, \App\Support\StripeGateway $stripe) {
+        // 환불 사유(선택, 200자) — 화면은 꼭 받도록 하지만, 옛 화면에서 호출해도 환불이 막히지 않게 서버는 비워도 받는다 (할 일 #104)
+        $data = $request->validate(['reason' => 'nullable|string|max:200']);
+        $reason = trim((string) ($data['reason'] ?? '')) ?: '사유 미입력';
         try {
-            $out = \Illuminate\Support\Facades\DB::transaction(function () use ($id, $stripe) {
+            $out = \Illuminate\Support\Facades\DB::transaction(function () use ($id, $stripe, $reason) {
                 // 같은 주문을 동시에 두 번 환불하지 못하게 행을 잠그고 상태를 다시 확인
                 $payment = Payment::whereKey($id)->lockForUpdate()->firstOrFail();
                 // 직접 결제(전단·경품 의뢰)는 포인트가 없고 상품(전단 시간대 등)과 묶여 있어 여기서 돌려주면 상품이 그대로 남음 — 해당 화면으로 안내
@@ -393,7 +396,7 @@ class AdminController extends Controller
                 // 2) 포인트 회수 + 주문 상태
                 $user = User::find($payment->user_id);
                 if ($user) {
-                    $user->addPoints(-$payment->points_purchased, "환불: 주문 #{$payment->id}", 'refund');
+                    $user->addPoints(-$payment->points_purchased, "환불: 주문 #{$payment->id} (" . mb_substr($reason, 0, 40) . ')', 'refund');
                 }
                 $payment->update(['status' => 'refunded', 'refunded_amount' => $payment->amount]);
 
@@ -407,6 +410,25 @@ class AdminController extends Controller
         }
 
         $payment = $out['payment']; $user = $out['user']; $card = $out['card'];
+
+        // 누가·언제·왜·얼마를 환불했는지 감사 로그에 따로 남긴다 (일반 변경 기록은 "보낸 칸 이름"만 있어서 사유가 안 남음)
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admin_audit_log')) {
+                \Illuminate\Support\Facades\DB::table('admin_audit_log')->insert([
+                    'admin_id' => auth()->id(),
+                    'action' => 'REFUND payments/' . (int) $id,
+                    'target_type' => 'payments',
+                    'target_id' => (int) $id,
+                    'before_value' => null,
+                    'after_value' => json_encode(['http_status' => 200, 'fields' => ['reason'], 'reason' => $reason, 'amount_usd' => (float) $payment->amount, 'points_reclaimed' => (int) $payment->points_purchased, 'card' => $card['result']], JSON_UNESCAPED_UNICODE),
+                    'note' => auth()->user()?->role,
+                    'ip' => $request->ip(),
+                    'created_at' => now(),
+                ]);
+            }
+        } catch (\Throwable $e) { report($e); }
+        \Log::info('Admin refunded payment', ['admin_id' => auth()->id(), 'payment_id' => (int) $id, 'reason' => $reason, 'card' => $card['result']]);
+
         $cardMsg = match ($card['result']) {
             'refunded' => '카드로 $' . number_format($card['cents'] / 100, 2) . ' 환불됨(Stripe)',
             'already_refunded' => '카드는 Stripe 에서 이미 환불돼 있어 건너뜀',

@@ -14,10 +14,14 @@
         </div>
         <div class="px-5 py-4">
           <p class="text-[14px] text-ink-light whitespace-pre-line leading-relaxed">{{ message }}</p>
+          <label v-if="inputLabel" class="block mt-3">
+            <span class="block text-[12px] font-bold text-ink-muted mb-1">{{ inputLabel }}<span v-if="inputRequired" class="text-red-500"> (꼭 입력)</span></span>
+            <input v-model="inputValue" type="text" maxlength="200" autocomplete="off" class="w-full min-h-[46px] rounded-xl border border-gray-200 px-3 text-[15px]" @keydown.enter.prevent="onOk" />
+          </label>
         </div>
         <div class="px-5 pb-5 flex gap-2 justify-end">
           <button @click="onCancel" class="min-h-[44px] px-5 rounded-full bg-white border border-gray-200 text-ink-light font-semibold text-[14px]">{{ cancelLabel }}</button>
-          <button @click="onOk" class="min-h-[44px] px-5 rounded-full text-white font-bold text-[14px]" :class="okClass">{{ confirmLabel }}</button>
+          <button @click="onOk" :disabled="!!inputLabel && inputRequired && !inputValue.trim()" class="min-h-[44px] px-5 rounded-full text-white font-bold text-[14px] disabled:opacity-40" :class="okClass">{{ confirmLabel }}</button>
         </div>
       </div>
     </div>
@@ -29,7 +33,7 @@ import { computed } from 'vue'
 import AppIcon from '../AppIcon.vue'
 import { useAdminConfirm } from '../../composables/useAdminConfirm'
 
-const { visible, title, message, kind, confirmLabel, cancelLabel, onOk, onCancel } = useAdminConfirm()
+const { visible, title, message, kind, confirmLabel, cancelLabel, inputLabel, inputValue, inputRequired, onOk, onCancel } = useAdminConfirm()
 
 const defaultTitle = computed(() => ({ normal: '확인', money: '확인', danger: '정말 하시겠어요?' }[kind.value] || '확인'))
 const headerClass = computed(() => ({

@@ -45,6 +45,7 @@
       <span v-if="r.ip">IP {{ r.ip }}</span>
       <span v-if="r.target_type">대상 {{ r.target_type }}<template v-if="r.target_id"> #{{ r.target_id }}</template></span>
     </div>
+    <div v-if="r.reason" class="text-[13px] text-ink mt-1.5 break-words"><b>사유</b> {{ r.reason }}</div>
     <div v-if="r.fields?.length" class="text-[12px] text-ink-muted mt-1.5 break-words">보낸 칸: {{ r.fields.join(', ') }}</div>
   </div>
   <div v-if="!rows.length" class="text-center text-ink-muted py-12 text-[15px]">{{ loading ? '불러오는 중...' : '기록이 없어요' }}</div>

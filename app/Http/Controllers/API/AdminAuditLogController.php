@@ -45,6 +45,7 @@ class AdminAuditLogController extends Controller
             $extra = json_decode((string) $r->after_value, true);
             $r->http_status = is_array($extra) ? ($extra['http_status'] ?? null) : null;
             $r->fields = is_array($extra) ? ($extra['fields'] ?? []) : [];
+            $r->reason = is_array($extra) ? ($extra['reason'] ?? null) : null;   // 환불 같은 일부 동작은 사유를 함께 기록
             unset($r->after_value);
             return $r;
         });
