@@ -229,15 +229,15 @@ class AdminController extends Controller
     }
     public function createBanner(Request $request) {
         $request->validate([
-            'user_id' => 'nullable|integer|exists:users,id',
+            'user_id' => 'required|integer|exists:users,id',   // 광고주 (표에서 필수 칸)
             'title' => 'required|string|max:200',
             'image_url' => 'nullable|string|max:500',
             'target_url' => ['nullable', 'string', 'max:500', function ($a, $v, $fail) { if (!\App\Support\SafeUrl::ok($v)) $fail('링크는 / 로 시작하는 경로나 http(s):// 주소만 쓸 수 있어요'); }],
-            'page' => 'nullable|string|max:50',
-            'position' => 'nullable|string|max:50',
+            'page' => 'required|string|max:50',
+            'position' => 'required|string|max:50',
             'status' => 'nullable|in:pending,active,paused',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'priority' => 'nullable|integer|min:0|max:100000',
             'bid_amount' => 'nullable|numeric|min:0|max:1000000',
         ]);
