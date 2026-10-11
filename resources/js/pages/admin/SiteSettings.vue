@@ -72,198 +72,12 @@
 
       <!-- ========================= TAB 2: 사이트 설정 ========================= -->
       <div v-show="activeTab === 'site'">
-        <div class="card p-6">
-          <h2 class="text-base font-semibold text-ink mb-6">사이트 설정</h2>
-
-          <!-- 회원 설정 -->
-          <div class="mb-6">
-            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">회원 설정</h3>
-            <div class="space-y-4">
-              <ToggleRow v-model="site.allow_signup" label="회원가입 허용" desc="끄고 저장하면 이메일·구글·아마존으로 새로 가입할 수 없어요. 이미 가입한 분의 로그인은 그대로예요." />
-              <ToggleRow v-model="site.require_email_verify" label="이메일 인증 필수" desc="끄고 저장하면 이메일 인증을 안 한 회원도 글쓰기·공개 채팅을 할 수 있어요. 인증 메일은 계속 보내고, 인증 보너스와 'N번째 가입' 집계는 인증을 마친 분만 세요." />
-              <ToggleRow v-model="site.auto_approve" label="자동 승인" desc="지금은 가입 승인 절차가 없어서 이 스위치와 상관없이 가입 즉시 사용할 수 있어요." :pending="true" />
-              <ToggleRow v-model="site.allow_withdrawal" label="회원 탈퇴 허용" desc="지금은 이 스위치와 상관없이 회원이 스스로 탈퇴할 수 있어요. (개인정보 삭제 요청을 막을 수 없어서 연결하지 않았어요.)" :pending="true" />
-              <div>
-                <div class="flex items-center gap-4 flex-wrap">
-                  <label class="text-sm text-ink-light w-48" for="ss-minpw">최소 비밀번호 길이</label>
-                  <input id="ss-minpw" v-model.number="site.min_password_length" type="number" min="8" max="64" class="input-field w-24" />
-                  <span class="text-sm text-ink-faint">자 (8~64)</span>
-                </div>
-                <p class="text-xs text-ink-faint mt-1.5 leading-relaxed">새로 가입하거나 비밀번호를 바꿀 때부터 적용돼요. 이미 쓰는 비밀번호는 그대로예요. 영문 대문자·소문자·숫자를 모두 넣어야 하는 규칙은 항상 적용되고, 8자 아래로는 줄일 수 없어요.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-2 flex items-center gap-2 flex-wrap">파일 업로드 설정 <span class="normal-case tracking-normal text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">아직 연결 안 됨</span></h3>
-            <p class="text-xs text-ink-faint mb-4 leading-relaxed">이 칸들은 아직 사이트에 연결되지 않았어요. 값을 바꿔도 실제 업로드 제한에는 영향이 없고, 각 기능이 정한 제한을 그대로 써요.</p>
-            <div class="flex flex-col gap-4 opacity-60">
-              <div class="flex items-center gap-4">
-                <label class="text-sm text-ink-light w-48">최대 업로드 파일 크기</label>
-                <input v-model.number="site.max_upload_mb" type="number" min="1" max="100" class="input-field w-24" disabled />
-                <span class="text-sm text-ink-faint">MB</span>
-              </div>
-              <div>
-                <label class="input-label">허용 파일 형식</label>
-                <input v-model="site.allowed_file_types" type="text" class="input-field" placeholder="jpg,png,gif,pdf,doc" disabled />
-                <p class="text-xs text-ink-faint mt-1">쉼표로 구분하여 입력하세요</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="border-t border-gray-100 pt-6 mb-6">
-            <h3 class="text-sm font-semibold text-ink-muted uppercase tracking-wide mb-4">점검 모드</h3>
-            <ToggleRow v-model="site.maintenance_mode" label="점검 모드" desc="켜고 저장하면 관리자·운영자 외에는 사이트를 쓸 수 없고 점검 안내만 보여요. 관리자 화면·로그인은 계속 열려 있어서, 잘못 켜도 여기서 바로 끌 수 있어요." />
-            <div v-if="site.maintenance_mode" class="mt-4 space-y-3">
-              <div>
-                <label class="input-label">점검 안내 문구</label>
-                <textarea v-model="site.maintenance_reason" rows="2" maxlength="500" class="input-field resize-none" placeholder="지금은 사이트를 점검하고 있어요. 잠시 후 다시 이용해 주세요."></textarea>
-                <p class="text-xs text-ink-faint mt-1">비워 두면 위 기본 문구가 나가요. (최대 500자)</p>
-              </div>
-              <div>
-                <label class="input-label">점검 종료 예정시각 (애틀랜타 시각으로 적어 주세요)</label>
-                <input v-model="site.maintenance_until" type="datetime-local" class="input-field" />
-                <p class="text-xs text-ink-faint mt-1">회원에게 보여 주는 안내용이에요. 이 시각이 지나도 점검이 자동으로 풀리지는 않아요 — 끝나면 직접 꺼 주세요.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
-            <button @click="saveSite" :disabled="saving" class="btn-primary">
-              <span v-if="saving" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-              저장하기
-            </button>
-          </div>
-        </div>
+        <SiteBasicTab :site="site" :saving="saving" @save="saveSite" />
       </div>
 
       <!-- ========================= TAB: 메뉴 관리 ========================= -->
       <div v-if="activeTab === 'menus'">
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <h2 class="text-base font-semibold text-ink">네비게이션 메뉴 관리</h2>
-            <p class="text-xs text-ink-faint mt-0.5">순서, 표시여부, 로그인/관리자 권한을 한 곳에서 설정하세요</p>
-          </div>
-          <button @click="saveMenus" :disabled="menuSaving"
-            class="btn-primary">
-            {{ menuSaving ? '저장 중...' : '저장' }}
-          </button>
-        </div>
-
-        <!-- 통계 -->
-        <div class="grid grid-cols-3 gap-4 mb-6 ss-keep">
-          <div class="bg-blue-50 rounded-xl p-4 text-center">
-            <div class="text-2xl font-black text-blue-600">{{ menuList.filter(m => m.enabled).length }}</div>
-            <div class="text-xs text-blue-400">활성 메뉴</div>
-          </div>
-          <div class="bg-gray-50 rounded-xl p-4 text-center">
-            <div class="text-2xl font-black text-ink-muted">{{ menuList.filter(m => !m.enabled).length }}</div>
-            <div class="text-xs text-ink-faint">비활성 메뉴</div>
-          </div>
-          <div class="bg-red-50 rounded-xl p-4 text-center">
-            <div class="text-2xl font-black text-red-500">{{ menuList.filter(m => m.login_required).length }}</div>
-            <div class="text-xs text-red-400">로그인 필요</div>
-          </div>
-        </div>
-
-        <!-- 휴대폰: 메뉴 한 개를 카드 한 장으로 (PC 의 가로 표는 폰에서 깨져서) -->
-        <div v-if="isMobile" class="space-y-2.5">
-          <div v-for="(item, idx) in menuList" :key="item.key" class="bg-white border border-gray-100 rounded-2xl p-3">
-            <div class="flex items-center gap-2">
-              <span class="icon-chip w-9 h-9 flex-shrink-0" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="17" /></span>
-              <input v-model="item.label" type="text" maxlength="20" placeholder="메뉴 이름" :aria-label="'메뉴 이름 ' + item.key" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-3 font-semibold text-ink" />
-              <span class="shrink-0 text-[11px] text-ink-faint font-mono">{{ idx + 1 }}</span>
-            </div>
-            <div class="flex items-center gap-2 mt-2">
-              <button @click="moveMenu(idx, -1)" :disabled="idx === 0" class="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center disabled:opacity-25" aria-label="위로"><AppIcon name="chevron-up" :size="18" /></button>
-              <button @click="moveMenu(idx, 1)" :disabled="idx === menuList.length - 1" class="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center disabled:opacity-25" aria-label="아래로"><AppIcon name="chevron-down" :size="18" /></button>
-              <span class="text-[11px] text-ink-faint font-mono truncate">{{ item.key }}</span>
-              <label class="ml-auto flex items-center gap-2 text-[14px] font-bold text-ink min-h-[44px]">표시
-                <button type="button" role="switch" :aria-checked="!!item.enabled" @click="item.enabled = !item.enabled" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="item.enabled ? 'bg-emerald-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="item.enabled ? 'left-[26px]' : 'left-[4px]'"></span></button>
-              </label>
-            </div>
-            <div class="grid grid-cols-2 gap-x-3 gap-y-1 mt-1 ss-keep">
-              <label class="flex items-center gap-2 min-h-[44px] text-[14px] text-ink"><input type="checkbox" v-model="item.login_required" /> 로그인 필요</label>
-              <label class="flex items-center gap-2 min-h-[44px] text-[14px] text-ink"><input type="checkbox" v-model="item.admin_only" /> 관리자만</label>
-              <label class="flex items-center gap-2 text-[14px] text-ink"><span class="shrink-0">기본 보기</span>
-                <select v-model="item.defaultView" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-2 bg-white"><option value="list">☰ 목록</option><option value="card">⊞ 카드</option></select></label>
-              <div class="flex items-center gap-2"><label class="flex items-center gap-2 min-h-[44px] text-[14px] text-ink"><input type="checkbox" v-model="item.ads_enabled" /> 광고</label>
-                <select v-if="item.ads_enabled" v-model="item.ads_type" class="flex-1 min-w-0 rounded-xl border border-gray-200 px-2 bg-white"><option value="banner">일반</option><option value="adsense">애드센스</option></select></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 헤더 행 -->
-        <div v-if="!isMobile" class="flex items-center gap-3 px-4 py-2 text-xs text-ink-faint font-medium border-b border-gray-100 mb-2">
-          <span class="w-6 text-center">#</span>
-          <span class="w-7"></span>
-          <span class="flex-1">메뉴</span>
-          <span class="w-14 hidden sm:inline"></span>
-          <span class="w-16 text-center">순서</span>
-          <span class="w-16 text-center">로그인</span>
-          <span class="w-16 text-center">관리자</span>
-          <span class="w-14 text-center">뷰</span>
-          <span class="w-28 text-center">광고</span>
-          <span class="w-12 text-center">표시</span>
-        </div>
-
-        <div v-if="!isMobile" class="space-y-2">
-          <div v-for="(item, idx) in menuList" :key="item.key"
-            class="flex items-center gap-3 card px-4 py-3 hover:shadow-lift transition-all">
-            <span class="w-6 text-center text-xs font-bold text-ink-faint">{{ idx + 1 }}</span>
-            <span class="icon-chip w-7 h-7 flex-shrink-0" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="15" /></span>
-            <input v-model="item.label" type="text" maxlength="20" placeholder="메뉴 이름"
-              class="flex-1 min-w-0 text-sm font-semibold text-ink bg-transparent border border-transparent hover:border-gray-200 focus:border-amber-400 focus:bg-white rounded-lg px-2 py-1 outline-none transition-colors" />
-            <span class="text-xs text-ink-faint font-mono bg-gray-50 px-2 py-0.5 rounded hidden sm:inline">{{ item.key }}</span>
-            <!-- Up/Down -->
-            <div class="flex gap-1">
-              <button @click="moveMenu(idx, -1)" :disabled="idx === 0"
-                class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-ink-muted hover:bg-amber-50 hover:text-amber-600 disabled:opacity-20 transition-colors"><AppIcon name="chevron-up" :size="14" /></button>
-              <button @click="moveMenu(idx, 1)" :disabled="idx === menuList.length - 1"
-                class="w-7 h-7 rounded-lg border border-gray-200 flex items-center justify-center text-ink-muted hover:bg-amber-50 hover:text-amber-600 disabled:opacity-20 transition-colors"><AppIcon name="chevron-down" :size="14" /></button>
-            </div>
-            <!-- Login required -->
-            <label class="flex items-center gap-1 text-xs text-ink-muted cursor-pointer" title="로그인 필요">
-              <input type="checkbox" v-model="item.login_required" class="rounded border-gray-300 text-amber-500 focus:ring-amber-400" />
-              <span class="hidden lg:inline">로그인</span>
-            </label>
-            <!-- Admin only -->
-            <label class="flex items-center gap-1 text-xs text-ink-muted cursor-pointer" title="관리자만">
-              <input type="checkbox" v-model="item.admin_only" class="rounded border-gray-300 text-red-600 focus:ring-red-500" />
-              <span class="hidden lg:inline">관리자</span>
-            </label>
-            <!-- 기본 뷰 -->
-            <select v-model="item.defaultView" class="text-[11px] border border-gray-200 rounded-lg px-1 py-0.5 text-ink-muted w-14" title="기본 보기">
-              <option value="list">☰</option>
-              <option value="card">⊞</option>
-            </select>
-            <!-- 광고 — 이 페이지에 광고를 띄울지, 띄운다면 일반 배너 광고인지 애드센스인지 -->
-            <div class="w-28 flex items-center justify-center gap-1">
-              <label class="flex items-center gap-1 text-xs text-ink-muted cursor-pointer" title="이 페이지에 광고 표시">
-                <input type="checkbox" v-model="item.ads_enabled" class="rounded border-gray-300 text-amber-500 focus:ring-amber-400" />
-              </label>
-              <select v-if="item.ads_enabled" v-model="item.ads_type" class="text-[11px] border border-gray-200 rounded-lg px-1 py-0.5 text-ink-muted" title="광고 종류">
-                <option value="banner">일반 광고</option>
-                <option value="adsense">애드센스</option>
-              </select>
-            </div>
-            <!-- Enable toggle -->
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" v-model="item.enabled" class="sr-only peer" />
-              <div class="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-400"></div>
-            </label>
-          </div>
-        </div>
-
-        <div class="mt-4 flex justify-between items-center">
-          <button @click="resetMenuOrder"
-            class="btn-secondary text-xs">
-            <AppIcon name="refresh" :size="13" />기본 순서로 리셋
-          </button>
-          <button @click="saveMenus" :disabled="menuSaving" class="btn-primary">
-            {{ menuSaving ? '저장 중...' : '메뉴 설정 저장' }}
-          </button>
-        </div>
+        <SiteMenusTab :menu-list="menuList" :menu-saving="menuSaving" :is-mobile="isMobile" @move="moveMenu" @reset="resetMenuOrder" @save="saveMenus" />
       </div>
 
       <!-- ========================= TAB 3: 푸터 편집 ========================= -->
@@ -877,40 +691,13 @@ import AppIcon from '../../components/AppIcon.vue'
 import SiteCompanyTab from '../../components/admin/siteSettings/SiteCompanyTab.vue'
 import SiteFooterTab from '../../components/admin/siteSettings/SiteFooterTab.vue'
 import SiteTermsTab from '../../components/admin/siteSettings/SiteTermsTab.vue'
+import SiteBasicTab from '../../components/admin/siteSettings/SiteBasicTab.vue'
+import SiteMenusTab from '../../components/admin/siteSettings/SiteMenusTab.vue'
+import ToggleRow from '../../components/admin/siteSettings/ToggleRow.js'
 import { menuIcon, menuChipColor } from '../../utils/menuIcons'
 import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
 import { DEFAULT_FOOTER, FOOTER_VERSION, readSavedFooter } from '../../utils/footerDefaults'
-
-// ─── Sub-component: Toggle Row ────────────────────────────────────────────────
-const ToggleRow = {
-  // pending: 아직 사이트에 연결되지 않은 스위치 — 눌러도 아무 일도 없으니 잠그고 "아직 연결 안 됨" 표시
-  props: ['modelValue', 'label', 'desc', 'pending'],
-  emits: ['update:modelValue'],
-  template: `
-    <div class="flex items-center justify-between gap-3" :class="pending ? 'opacity-60' : ''">
-      <div class="min-w-0">
-        <p class="text-sm font-medium text-gray-700">{{ label }}
-          <span v-if="pending" class="ml-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 align-middle">아직 연결 안 됨</span>
-        </p>
-        <p v-if="desc" class="text-xs text-gray-400 leading-relaxed">{{ desc }}</p>
-      </div>
-      <button
-        type="button"
-        :disabled="!!pending"
-        :aria-pressed="!!modelValue"
-        :aria-label="label"
-        @click="$emit('update:modelValue', !modelValue)"
-        :class="['relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0',
-          pending ? 'cursor-not-allowed' : '',
-          modelValue ? 'bg-blue-500' : 'bg-gray-200']"
-      >
-        <span :class="['inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform',
-          modelValue ? 'translate-x-6' : 'translate-x-1']"></span>
-      </button>
-    </div>
-  `
-}
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const siteStore = useSiteStore()
