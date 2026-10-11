@@ -1,7 +1,7 @@
 <template>
-  <nav class="ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
-    <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth -->
-    <div class="max-w-7xl mx-auto px-3 flex items-center h-14 gap-2">
+  <nav ref="navEl" class="ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50 md:!pt-[14px]" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
+    <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth (PC 는 여유 있게: 높이 76px) -->
+    <div class="max-w-7xl mx-auto px-3 flex items-center h-14 gap-2 md:h-[76px] md:px-4 md:gap-3">
       <!-- 햄버거 메뉴 (모바일) -->
       <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2.5 -ml-1 text-ink-light hover:text-amber-500 transition-colors flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -12,17 +12,17 @@
 
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block" style="width:clamp(92px,26vw,144px);height:auto;max-height:52px;object-fit:contain;object-position:left center" />
+        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block md:!w-[172px] md:!max-h-[60px]" style="width:clamp(92px,26vw,144px);height:auto;max-height:52px;object-fit:contain;object-position:left center" />
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
       <div class="flex-1 mx-2 min-w-0 hidden md:block">
-        <form @submit.prevent="goSearch" class="relative max-w-lg mx-auto">
+        <form @submit.prevent="goSearch" class="relative max-w-lg md:max-w-xl mx-auto">
           <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-amber-500 transition-colors">
             <AppIcon name="search" :size="16" />
           </button>
           <input v-model="searchQ" type="text" placeholder="궁금한 것을 검색해 보세요 — 영주권, 맛집, 중고차…"
-            class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 text-sm text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10" />
+            class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 md:py-3 text-sm md:text-[15px] text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10" />
         </form>
       </div>
       <!-- 모바일: 로고 옆 빈 공간 채우기 -->
@@ -105,20 +105,20 @@
     <div class="border-t border-gray-50 hidden md:block">
       <div class="relative max-w-7xl mx-auto">
        <button v-show="navCanLeft" type="button" @click="navScroll(-1)" aria-label="왼쪽 메뉴 보기"
-         class="absolute left-0 top-0 z-10 h-10 w-10 flex items-center justify-start pl-2 text-ink-muted hover:text-ink"
+         class="absolute left-0 top-0 z-10 h-10 md:h-12 w-10 flex items-center justify-start pl-2 text-ink-muted hover:text-ink"
          style="background:linear-gradient(to right,#fff 55%,rgba(255,255,255,0))"><AppIcon name="chevron-left" :size="16" /></button>
        <button v-show="navCanRight" type="button" @click="navScroll(1)" aria-label="오른쪽 메뉴 보기"
-         class="absolute right-0 top-0 z-10 h-10 w-10 flex items-center justify-end pr-2 text-ink-muted hover:text-ink"
+         class="absolute right-0 top-0 z-10 h-10 md:h-12 w-10 flex items-center justify-end pr-2 text-ink-muted hover:text-ink"
          style="background:linear-gradient(to left,#fff 55%,rgba(255,255,255,0))"><AppIcon name="chevron-right" :size="16" /></button>
        <div ref="menuRow" @scroll.passive="updateNavArrows" @wheel="onNavWheel" class="px-4 overflow-x-auto scrollbar-hide">
-        <div class="flex items-center h-10 w-max mx-auto">
+        <div class="flex items-center h-10 md:h-12 w-max mx-auto">
         <template v-for="item in visibleMenus" :key="item.path">
           <a v-if="item.external" :href="item.path"
-            class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150 border-transparent text-ink-light hover:text-ink">
+            class="text-[13px] md:text-[14px] font-semibold px-3 md:px-3.5 py-2.5 md:py-3 border-b-2 whitespace-nowrap transition-colors duration-150 border-transparent text-ink-light hover:text-ink">
             {{ item.label }}
           </a>
           <RouterLink v-else :to="item.path"
-            class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150"
+            class="text-[13px] md:text-[14px] font-semibold px-3 md:px-3.5 py-2.5 md:py-3 border-b-2 whitespace-nowrap transition-colors duration-150"
             :class="isActive(item.path) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink'">
             {{ item.label }}
           </RouterLink>
@@ -446,6 +446,22 @@ onMounted(() => { nextTick(() => { revealActiveMenu(); updateNavArrows() }); win
 watch(() => route.path, () => nextTick(() => { revealActiveMenu(); updateNavArrows() }))
 onUnmounted(() => window.removeEventListener('resize', updateNavArrows))
 watch(() => visibleMenus.value, () => nextTick(updateNavArrows), { deep: true })
+
+// 헤더의 실제 높이를 CSS 변수(--hdr-h)로 공유 — 스크롤해도 따라오는 사이드바·머리글이 헤더 밑에 가려지지 않게 (app.css)
+const navEl = ref(null)
+let navObserver = null
+function syncHeaderHeight() {
+  const h = navEl.value?.offsetHeight
+  if (h) document.documentElement.style.setProperty('--hdr-h', h + 'px')
+}
+onMounted(() => {
+  syncHeaderHeight()
+  if (typeof ResizeObserver !== 'undefined' && navEl.value) {
+    navObserver = new ResizeObserver(syncHeaderHeight)
+    navObserver.observe(navEl.value)
+  }
+})
+onUnmounted(() => navObserver?.disconnect())
 
 // 좁은 폰(≤ 430px)에서는 프로필 사진을 줄여 헤더가 화면보다 넓어지지 않게 (넓어지면 페이지가 옆으로 밀려 결제 창 등이 잘림)
 const avatarSize = ref(58)

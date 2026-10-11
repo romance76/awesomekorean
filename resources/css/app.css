@@ -315,3 +315,12 @@ html.easy-view.ev-hc:not(.ev-pause) .border-gray-100,html.easy-view.ev-hc:not(.e
 html.easy-view:not(.ev-pause) .ev-header{--fs:var(--fs-h,1)}
 html.easy-view:not(.ev-pause) .ev-header button.notranslate{padding-left:7px;padding-right:7px}
 html.easy-view:not(.ev-pause) .ev-header .gap-1\.5{gap:2px}
+
+/* ── PC: 헤더가 높아져도 스크롤을 따라오는 사이드바·머리글이 헤더 밑에 가려지지 않게 (NavBar 가 --hdr-h 를 실제 높이로 갱신) ── */
+@media (min-width: 768px) {
+  [class*="sticky"].top-20 { top: calc(var(--hdr-h, 106px) + 12px); }
+  [class*="sticky"][class*="100vh-6rem"] { max-height: calc(100vh - var(--hdr-h, 106px) - 24px); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lg\:hidden.sticky.top-14 { top: var(--hdr-h, 106px); }
+}
