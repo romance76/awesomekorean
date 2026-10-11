@@ -100,175 +100,14 @@
 
     <!-- API 키 관리 -->
     <div v-if="activeTab === 'api'" class="space-y-6">
-
-      <!-- Firebase Cloud Messaging 설정 -->
-      <div class="card p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-500"><AppIcon name="bell" :size="16" /></span>Firebase Push Notification</h3>
-          <span :class="firebaseStatus ? 'badge-green' : 'badge-primary'">
-            {{ firebaseStatus ? '연결됨' : '미설정' }}
-          </span>
-        </div>
-        <p class="text-xs text-ink-faint mb-4">안심통화 수신 알림, 백그라운드 푸시, 벨소리에 사용됩니다.</p>
-
-        <div class="space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label class="input-label !text-xs">API Key</label>
-              <input v-model="firebase.apiKey" type="text" class="input-field font-mono" placeholder="AIzaSy..." />
-            </div>
-            <div>
-              <label class="input-label !text-xs">Project ID</label>
-              <input v-model="firebase.projectId" type="text" class="input-field font-mono" placeholder="awesomekorean-xxxxx" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">Messaging Sender ID</label>
-              <input v-model="firebase.messagingSenderId" type="text" class="input-field font-mono" placeholder="123456789" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">App ID</label>
-              <input v-model="firebase.appId" type="text" class="input-field font-mono" placeholder="1:123:web:abc..." />
-            </div>
-            <div>
-              <label class="input-label !text-xs">Auth Domain</label>
-              <input v-model="firebase.authDomain" type="text" class="input-field font-mono" placeholder="xxx.firebaseapp.com" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">Storage Bucket</label>
-              <input v-model="firebase.storageBucket" type="text" class="input-field font-mono" placeholder="xxx.appspot.com" />
-            </div>
-          </div>
-          <div>
-            <label class="input-label !text-xs">VAPID Key (웹 푸시 인증서)</label>
-            <input v-model="firebase.vapidKey" type="text" class="input-field font-mono" placeholder="BA93MT..." />
-          </div>
-          <div>
-            <label class="input-label !text-xs">서비스 계정 JSON (백엔드용 — 서버에 직접 업로드)</label>
-            <div class="flex items-center gap-2">
-              <code class="text-xs bg-gray-100 px-3 py-2 rounded-lg flex-1 font-mono text-ink-light">{{ firebase.credentialsPath || '/storage/app/firebase-service-account.json' }}</code>
-              <span :class="firebase.credentialsExists ? 'text-green-600' : 'text-red-500'" class="text-xs font-medium">{{ firebase.credentialsExists ? '파일 존재' : '파일 없음' }}</span>
-            </div>
-            <div class="flex items-center gap-2 mt-2 flex-wrap">
-              <input ref="credFileInput" type="file" accept=".json,application/json" class="hidden" @change="uploadFirebaseCredentials" />
-              <button type="button" @click="credFileInput.click()" :disabled="uploadingCred" class="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-ink-light hover:bg-gray-50 disabled:opacity-50">
-                {{ uploadingCred ? '올리는 중...' : '📤 서비스 계정 JSON 업로드' }}
-              </button>
-              <span v-if="firebase.credentialsExists && firebase.credentialsProject" class="text-[11px] text-ink-muted">파일의 프로젝트: <b>{{ firebase.credentialsProject }}</b></span>
-              <span v-if="firebase.credentialsProject && firebase.projectId && firebase.credentialsProject !== firebase.projectId" class="text-[11px] text-red-500 font-bold">⚠️ 위 Project ID({{ firebase.projectId }})와 달라요</span>
-            </div>
-            <p v-if="credMsg" class="text-[11px] mt-1" :class="credOk ? 'text-green-600' : 'text-red-500'">{{ credMsg }}</p>
-            <p class="text-[11px] text-ink-faint mt-1">Firebase 콘솔 → 프로젝트 설정 → 서비스 계정 → "새 비공개 키 생성"으로 받은 파일이에요. 비공개 키라서 서버 안쪽 폴더에만 저장되고 화면에는 표시되지 않아요. (최고 관리자만 업로드 가능)</p>
-          </div>
-          <button @click="saveFirebase" :disabled="savingFirebase" class="btn-primary w-full mt-2">
-            {{ savingFirebase ? '저장 중...' : 'Firebase 설정 저장' }}
-          </button>
-          <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">저장하면 사이트를 다시 만들지 않아도 바로 적용돼요. 회원이 사이트를 열 때 브라우저가 "알림 허용"을 물어보고, 허용하면 새 쪽지·1:1 대화·안심 통화 알림이 휴대폰/PC 알림으로 와요. (한 계정당 가장 최근에 허용한 기기 1대로 보내요)</p>
-          <button @click="testFirebasePush" :disabled="testingPush" class="w-full mt-2 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-ink-light hover:bg-gray-50 disabled:opacity-50">
-            {{ testingPush ? '보내는 중...' : '🔔 내 기기로 테스트 알림 보내기' }}
-          </button>
-          <p v-if="pushTestMsg" class="text-xs mt-2 leading-relaxed" :class="pushTestOk ? 'text-green-600' : 'text-red-500'">{{ pushTestMsg }}</p>
-        </div>
-      </div>
-
-      <!-- 기존 API 키 관리 -->
-      <div class="card p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="flex items-center gap-2 text-lg font-bold text-ink"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 관리</h3>
-          <div class="flex gap-2">
-            <button @click="runMailTestSend" class="btn-secondary px-4 py-2 text-sm">테스트 메일 보내기</button>
-            <button @click="openAddAnalytics" class="btn-secondary px-4 py-2 text-sm">+ 구글 Analytics</button>
-            <button @click="showAddApiKey = true" class="btn-primary px-4 py-2">+ 새 API 키</button>
-          </div>
-        </div>
-
-        <div class="space-y-3">
-          <div v-for="key in apiKeys" :key="key.id" class="border border-gray-100 rounded-xl p-4 flex items-center justify-between">
-            <div class="flex-1">
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-bold text-ink">{{ key.name }}</span>
-                <span class="badge-blue !text-[11px]">{{ key.service }}</span>
-                <span :class="key.is_active ? 'badge-green' : 'badge-red'" class="!text-[11px]">{{ key.is_active ? '활성' : '비활성' }}</span>
-              </div>
-              <p v-if="key.description" class="text-xs text-ink-muted mt-1">{{ key.description }}</p>
-              <div class="flex items-center gap-2 mt-2">
-                <code class="text-xs bg-gray-100 px-2 py-1 rounded-lg font-mono text-ink-light">{{ key.showFull ? key.fullKey : key.masked_key }}</code>
-                <button @click="toggleReveal(key)" class="text-xs text-amber-600 hover:underline transition-colors">{{ key.showFull ? '숨기기' : '보기' }}</button>
-                <button @click="copyKey(key)" class="text-xs text-ink-muted hover:underline transition-colors">복사</button>
-              </div>
-            </div>
-            <div class="flex gap-2">
-              <button @click="openEditApiKey(key)" class="text-xs text-blue-600 hover:underline">수정</button>
-              <button @click="toggleApiKeyActive(key)" :class="key.is_active ? 'text-amber-600' : 'text-green-600'" class="text-xs hover:underline">{{ key.is_active ? '비활성화' : '활성화' }}</button>
-              <button @click="deleteApiKey(key.id)" class="text-xs text-red-600 hover:underline">삭제</button>
-            </div>
-          </div>
-          <div v-if="!apiKeys.length" class="text-center py-8 text-ink-muted text-sm">등록된 API 키가 없습니다</div>
-        </div>
-      </div>
-
-      <!-- 새 API 키 추가 모달 -->
-      <div v-if="showAddApiKey" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showAddApiKey = false">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
-          <h3 class="flex items-center gap-2 font-bold text-lg text-ink mb-4"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>새 API 키 등록</h3>
-          <div class="space-y-3">
-            <div>
-              <label class="input-label !text-xs">서비스 이름</label>
-              <input v-model="newApiKey.name" placeholder="예: YouTube Data API v3" class="input-field" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">서비스 코드</label>
-              <input v-model="newApiKey.service" placeholder="예: youtube, stripe, openai" class="input-field" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">API 키</label>
-              <input v-model="newApiKey.api_key" placeholder="키 입력..." class="input-field font-mono" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">설명 (선택)</label>
-              <input v-model="newApiKey.description" placeholder="용도 설명" class="input-field" />
-            </div>
-            <div class="flex gap-2 pt-2">
-              <button @click="showAddApiKey = false" class="btn-secondary flex-1 py-2">취소</button>
-              <button @click="saveApiKey" class="btn-primary flex-1 py-2">등록</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- API 키 수정 모달 -->
-      <div v-if="showEditApiKey" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" @click.self="showEditApiKey = false">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-md">
-          <h3 class="flex items-center gap-2 font-bold text-lg text-ink mb-4"><span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600"><AppIcon name="key" :size="16" /></span>API 키 수정</h3>
-          <div class="space-y-3">
-            <div>
-              <label class="input-label !text-xs">서비스 이름</label>
-              <input v-model="editApiKey.name" class="input-field" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">서비스 코드</label>
-              <input v-model="editApiKey.service" class="input-field" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">API 키</label>
-              <input v-model="editApiKey.api_key" placeholder="변경하려면 입력 (비워두면 기존 값 유지)" class="input-field font-mono" />
-            </div>
-            <div>
-              <label class="input-label !text-xs">설명 (선택)</label>
-              <input v-model="editApiKey.description" class="input-field" />
-            </div>
-            <div class="flex gap-2 pt-2">
-              <button @click="showEditApiKey = false" class="btn-secondary flex-1 py-2">취소</button>
-              <button @click="saveEditApiKey" class="btn-primary flex-1 py-2">저장</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SiteFirebasePanel :firebase="firebase" :firebase-status="firebaseStatus" :saving-firebase="savingFirebase" @save="saveFirebase" @reload="loadFirebase" />
+      <SiteApiKeysPanel />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed, inject } from 'vue'
+import { ref, reactive, onMounted, computed, inject } from 'vue'
 
 // 관리자 휴대폰 화면이면 입력칸/버튼을 손가락에 맞게 키워서 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -282,7 +121,8 @@ import SiteBasicTab from '../../components/admin/siteSettings/SiteBasicTab.vue'
 import SiteMenusTab from '../../components/admin/siteSettings/SiteMenusTab.vue'
 import SitePaymentTab from '../../components/admin/siteSettings/SitePaymentTab.vue'
 import SiteNotifyTab from '../../components/admin/siteSettings/SiteNotifyTab.vue'
-import { menuIcon, menuChipColor } from '../../utils/menuIcons'
+import SiteFirebasePanel from '../../components/admin/siteSettings/SiteFirebasePanel.vue'
+import SiteApiKeysPanel from '../../components/admin/siteSettings/SiteApiKeysPanel.vue'
 import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
 import { DEFAULT_FOOTER, FOOTER_VERSION, readSavedFooter } from '../../utils/footerDefaults'
@@ -753,39 +593,6 @@ async function loadFirebase() {
   } catch (e) { console.warn('loadFirebase:', e) }
 }
 
-const credFileInput = ref(null)
-const uploadingCred = ref(false)
-const credMsg = ref('')
-const credOk = ref(false)
-async function uploadFirebaseCredentials(e) {
-  const file = e.target.files?.[0]; e.target.value = ''
-  if (!file) return
-  uploadingCred.value = true; credMsg.value = ''
-  try {
-    const fd = new FormData(); fd.append('file', file)
-    const { data } = await axios.post('/api/admin/firebase/credentials', fd)
-    credMsg.value = data.message; credOk.value = true
-    await loadFirebase()
-  } catch (er) {
-    credMsg.value = er.response?.data?.message || (er.response?.status === 403 ? '최고 관리자만 업로드할 수 있어요' : '업로드하지 못했어요'); credOk.value = false
-  }
-  uploadingCred.value = false
-}
-
-const testingPush = ref(false)
-const pushTestMsg = ref('')
-const pushTestOk = ref(false)
-async function testFirebasePush() {
-  testingPush.value = true; pushTestMsg.value = ''
-  try {
-    const { data } = await axios.post('/api/admin/firebase/test')
-    pushTestMsg.value = data.message; pushTestOk.value = !!data.success
-  } catch (e) {
-    pushTestMsg.value = e.response?.data?.message || '테스트 알림을 보내지 못했어요'; pushTestOk.value = false
-  }
-  testingPush.value = false
-}
-
 async function saveFirebase() {
   savingFirebase.value = true
   try {
@@ -807,94 +614,9 @@ async function saveFirebase() {
   }
 }
 
-// ─── API 키 관리 ──────────────────────────────────────────────────────────────
-const apiKeys = ref([])
-const showAddApiKey = ref(false)
-const newApiKey = ref({ name: '', service: '', api_key: '', description: '' })
-const showEditApiKey = ref(false)
-const editApiKey = ref({ id: null, name: '', service: '', api_key: '', description: '' })
-
-async function loadApiKeys() {
-  try {
-    const { data } = await axios.get('/api/admin/api-keys')
-    const list = data.data || data || []
-    apiKeys.value = list.map(k => ({ ...k, showFull: false, fullKey: '' }))
-  } catch (e) { console.error('loadApiKeys error:', e) }
-}
-
-// 구글 Analytics(GA4) 측정 ID — service 코드가 google_analytics 인 키가 있으면(활성일 때)
-// 모든 공개 페이지에 방문 통계 추적 코드가 자동으로 들어간다. 비활성화/삭제하면 빠짐.
-function openAddAnalytics() {
-  newApiKey.value = { name: '구글 Analytics 측정 ID', service: 'google_analytics', api_key: '', description: '방문 통계(GA4). 측정 ID는 G- 로 시작합니다 (예: G-ABC123DEF4)' }
-  showAddApiKey.value = true
-}
-
-async function saveApiKey() {
-  try {
-    await axios.post('/api/admin/api-keys', newApiKey.value)
-    showAddApiKey.value = false
-    newApiKey.value = { name: '', service: '', api_key: '', description: '' }
-    loadApiKeys()
-  } catch (e) { alert(e.response?.data?.message || '등록 실패') }
-}
-
-// api_key는 목록에 마스킹된 값만 내려오므로 빈 칸으로 시작 — 비워두고 저장하면
-// 백엔드가 그 필드를 건드리지 않고 기존 값을 그대로 유지함
-function openEditApiKey(key) {
-  editApiKey.value = { id: key.id, name: key.name, service: key.service, api_key: '', description: key.description || '' }
-  showEditApiKey.value = true
-}
-
-async function saveEditApiKey() {
-  try {
-    const payload = { name: editApiKey.value.name, service: editApiKey.value.service, description: editApiKey.value.description }
-    if (editApiKey.value.api_key) payload.api_key = editApiKey.value.api_key
-    await axios.put('/api/admin/api-keys/' + editApiKey.value.id, payload)
-    showEditApiKey.value = false
-    loadApiKeys()
-  } catch (e) { alert(e.response?.data?.message || '수정 실패') }
-}
-
-async function deleteApiKey(id) {
-  if (!confirm('정말 삭제하시겠습니까?')) return
-  await axios.delete('/api/admin/api-keys/' + id)
-  loadApiKeys()
-}
-
-async function toggleApiKeyActive(key) {
-  await axios.put('/api/admin/api-keys/' + key.id, { is_active: !key.is_active })
-  loadApiKeys()
-}
-
-async function runMailTestSend() {
-  try {
-    const { data } = await axios.post('/api/admin/system/mail-test-send')
-    alert(data.message)
-  } catch (e) { alert('발송 실패 — 실제 에러: ' + (e.response?.data?.message || e.message)) }
-}
-
-async function toggleReveal(key) {
-  if (!key.showFull) {
-    const { data } = await axios.get('/api/admin/api-keys/' + key.id + '/reveal')
-    key.fullKey = data.data?.key || data.key || key.api_key || ''
-  }
-  key.showFull = !key.showFull
-}
-
-function copyKey(key) {
-  const text = key.showFull ? key.fullKey : key.masked_key
-  navigator.clipboard.writeText(key.fullKey || text)
-  alert('복사되었습니다!')
-}
-
 onMounted(loadSettings)
 onMounted(loadMenus)
-onMounted(loadApiKeys)
 onMounted(loadFirebase)
-
-watch(() => activeTab.value, (tab) => {
-  if (tab === 'api') loadApiKeys()
-})
 
 </script>
 
