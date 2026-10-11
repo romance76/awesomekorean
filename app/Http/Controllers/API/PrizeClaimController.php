@@ -155,7 +155,10 @@ class PrizeClaimController extends Controller
         if (!$this->ready()) {
             return response()->json(['success' => true, 'data' => []]);
         }
-        SweepstakesPrizeClaimService::syncFor($sweepstakes);
+        // 조회가 데이터를 만들지 않게: 당첨 기록은 매분 도는 notify-winners 가 만든다. 아직 한 건도 없을 때(방금 끝난 추첨)만 한 번 만들어 둔다. (할 일 #133)
+        if (!SweepstakesPrizeClaim::where('sweepstakes_id', $sweepstakes->id)->exists()) {
+            SweepstakesPrizeClaimService::syncFor($sweepstakes);
+        }
 
         $claims = SweepstakesPrizeClaim::where('sweepstakes_id', $sweepstakes->id)
             ->with('user')

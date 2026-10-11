@@ -57,6 +57,20 @@ class CommentController extends Controller
         $modelType = $this->resolveType($request->commentable_type);
         if (!$modelType) return response()->json(['success' => false, 'message' => 'Invalid type'], 400);
 
+        // 없는 글·지워진 글에는 댓글을 달 수 없다 (조회 자체가 실패하는 예외 상황이면 이 검사만 건너뜀)
+        try {
+            if (!$modelType::whereKey((int) $request->commentable_id)->exists()) {
+                return response()->json(['success' => false, 'message' => '댓글을 달 글을 찾을 수 없어요. 이미 지워졌을 수 있어요.'], 404);
+            }
+        } catch (\Throwable $e) { report($e); }
+        // 답글이면 부모 댓글이 같은 글의 댓글이어야 한다
+        if ($request->filled('parent_id')) {
+            $parent = Comment::where('id', (int) $request->parent_id)->first();
+            if (!$parent || $parent->commentable_type !== $modelType || (int) $parent->commentable_id !== (int) $request->commentable_id) {
+                return response()->json(['success' => false, 'message' => '답글을 달 댓글을 찾을 수 없어요.'], 422);
+            }
+        }
+
         // HTML 태그는 저장하지 않는다 (글자만) — 태그만 쓴 댓글은 빈 댓글이 되므로 거절
         $cleanContent = PlainText::clean((string) $request->content);
         if (trim((string) $cleanContent) === '') return response()->json(['success' => false, 'message' => '댓글 내용을 입력해 주세요.'], 422);
