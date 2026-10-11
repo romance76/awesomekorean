@@ -19,7 +19,7 @@
         <option value="">전체 상태</option><option value="active">활동</option><option value="banned">정지</option>
       </select>
       <form @submit.prevent="loadUsers()" class="flex-1 flex gap-1.5 min-w-[150px]">
-        <input v-model="search" type="text" placeholder="이름/이메일/닉네임 검색..." class="flex-1 input-soft px-3 py-1.5" />
+        <input v-model="search" type="text" placeholder="이름/이메일/닉네임/번호/전화/IP 검색..." class="flex-1 input-soft px-3 py-1.5" />
         <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
       </form>
     </div>
@@ -30,9 +30,17 @@
   <div v-else class="flex gap-4">
     <!-- 왼쪽: 회원 목록 -->
     <div :class="activeUser ? 'w-2/5' : 'w-full'">
+      <!-- 여러 명 선택 시: 한꺼번에 정지/해제 (운영진·본인 계정은 서버가 건너뜀) -->
+      <div v-if="selectedIds.length" class="card px-3 py-2 mb-2 flex flex-wrap items-center gap-2 bg-amber-50 border border-amber-200">
+        <span class="text-sm font-bold text-ink">{{ selectedIds.length }}명 선택</span>
+        <button @click="bulkAction('ban')" :disabled="bulkBusy" class="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold disabled:opacity-50">일괄 정지</button>
+        <button @click="bulkAction('unban')" :disabled="bulkBusy" class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-xs font-bold disabled:opacity-50">일괄 정지 해제</button>
+        <button @click="selectedIds = []" class="ml-auto text-xs text-ink-muted underline">선택 해제</button>
+      </div>
       <div class="card overflow-hidden">
         <table class="w-full text-sm">
           <thead class="bg-gray-50 border-b border-gray-100"><tr>
+            <th class="px-3 py-2 w-8"><input type="checkbox" :checked="allOnPageSelected" @change="toggleAll" aria-label="이 페이지 전체 선택" /></th>
             <SortTh class="px-3 py-2 text-left text-xs text-ink-muted w-8" k="id" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">#</SortTh>
             <SortTh class="px-3 py-2 text-left text-xs text-ink-muted" k="name" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">이름</SortTh>
             <SortTh v-if="!activeUser" class="px-3 py-2 text-left text-xs text-ink-muted" k="email" :sort-key="sortKey" :sort-dir="sortDir" @sort="toggleSort">이메일</SortTh>
@@ -46,6 +54,7 @@
               class="border-b border-gray-50 last:border-0 hover:bg-amber-50/40 cursor-pointer transition-colors"
               :class="activeUser?.id===u.id ? 'bg-amber-50 border-l-2 border-l-amber-500' : ''"
               @click="openUser(u)">
+              <td class="px-3 py-2" @click.stop><input type="checkbox" :checked="selectedIds.includes(u.id)" @change="toggleSel(u.id)" :aria-label="'선택 ' + u.name" /></td>
               <td class="px-3 py-2 text-xs text-ink-faint">{{ u.id }}</td>
               <td class="px-3 py-2.5">
                 <div class="flex items-center gap-2">
@@ -482,7 +491,7 @@ const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => loadUser
 import AdminMembersMobile from './AdminMembersMobile.vue'
 
 const adminIsMobile = inject('adminIsMobile', ref(false))
-const { confirmAction } = useAdminConfirm()
+const { confirmAction, inputValue: banInput } = useAdminConfirm()
 
 // 화면 위쪽에 잠깐 뜨는 알림 (옛 alert 대체)
 const toastMsg = ref(''); const toastType = ref('success'); let toastTimer = null
@@ -500,6 +509,25 @@ const auth = useAuthStore()
 const router = useRouter()
 
 const users = ref([]); const loading = ref(true)
+const selectedIds = ref([]); const bulkBusy = ref(false)
+const allOnPageSelected = computed(() => users.value.length > 0 && users.value.every(u => selectedIds.value.includes(u.id)))
+function toggleSel(id) { selectedIds.value = selectedIds.value.includes(id) ? selectedIds.value.filter(x => x !== id) : [...selectedIds.value, id] }
+function toggleAll() { selectedIds.value = allOnPageSelected.value ? [] : users.value.map(u => u.id) }
+async function bulkAction(action) {
+  const n = selectedIds.value.length
+  if (!n || bulkBusy.value) return
+  const ban = action === 'ban'
+  const ok = await confirmAction({ title: ban ? '일괄 정지' : '일괄 정지 해제', message: `선택한 ${n}명을 ${ban ? '정지' : '정지 해제'}합니다. 본인과 운영진 계정은 건너뛰어요.`, kind: ban ? 'danger' : 'normal', confirmLabel: ban ? '정지' : '해제', inputLabel: ban ? '정지 사유 (선택)' : '' })
+  if (!ok) return
+  bulkBusy.value = true
+  try {
+    const { data } = await axios.post('/api/admin/users/bulk', { ids: selectedIds.value, action, reason: ban ? String(banInput.value || '').trim() : undefined })
+    say(data.message || '처리했어요')
+    selectedIds.value = []
+    loadUsers(page.value)
+  } catch (e) { say(apiMsg(e, '일괄 처리에 실패했어요'), 'error') }
+  bulkBusy.value = false
+}
 const search = ref(''); const roleFilter = ref(''); const statusFilter = ref('')
 const page = ref(1); const lastPage = ref(1); const totalUsers = ref(0)
 
@@ -553,7 +581,7 @@ const userTabs = [
 ]
 
 async function loadUsers(p = 1) {
-  loading.value = true; page.value = p
+  loading.value = true; page.value = p; selectedIds.value = []
   const params = { page: p, ...sortParams.value }
   if (search.value) params.search = search.value
   if (roleFilter.value) params.role = roleFilter.value

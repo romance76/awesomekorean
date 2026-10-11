@@ -661,6 +661,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     });
 
     Route::get('/users', [AdminController::class, 'users']);
+    Route::post('/users/bulk', [AdminController::class, 'bulkUsers'])->middleware('throttle:20,1');
     Route::post('/users/{id}/ban', [AdminController::class, 'banUser']);
     Route::post('/users/{id}/unban', [AdminController::class, 'unbanUser']);
     Route::get('/users/{id}/detail', [AdminController::class, 'userDetail']);

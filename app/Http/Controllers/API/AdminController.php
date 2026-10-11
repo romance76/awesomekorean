@@ -54,8 +54,11 @@ class AdminController extends Controller
         $perPage = max(1, min(100, (int) $request->input('per_page', 20)));
         $query = User::query()
             // 검색어는 한 덩어리로 묶어야 역할/정지 필터와 같이 써도 결과가 맞는다 (예전엔 OR 때문에 필터가 무시됐음)
+            // 이름·이메일·닉네임에 더해 회원 번호(숫자만 입력했을 때)·전화번호·가입 IP 로도 찾는다
             ->when($request->search, fn($q,$v) => $q->where(fn($w) => $w
-                ->where('name','like',"%{$v}%")->orWhere('email','like',"%{$v}%")->orWhere('nickname','like',"%{$v}%")))
+                ->where('name','like',"%{$v}%")->orWhere('email','like',"%{$v}%")->orWhere('nickname','like',"%{$v}%")
+                ->orWhere('phone','like',"%{$v}%")->orWhere('ip_address','like',"%{$v}%")
+                ->when(ctype_digit((string) $v), fn($x) => $x->orWhere('id', (int) $v))))
             ->when($request->role, fn($q,$v) => $v === 'staff'
                 ? $q->whereIn('role', ['moderator', 'admin', 'super_admin'])   // 운영진(운영자·관리자·슈퍼관리자) 한꺼번에
                 : $q->where('role', $v))
@@ -86,6 +89,27 @@ class AdminController extends Controller
         // Issue #6: 민감 필드는 forceFill 로 명시 설정
         $u->forceFill(['is_banned'=>true,'ban_reason'=>$request->reason])->save();
         return response()->json(['success'=>true]);
+    }
+
+    // 여러 명 한꺼번에 정지/해제 (최대 50명). 운영진 계정과 본인은 건너뛰고 몇 명이 처리됐는지 알려 준다. (할 일: 회원 일괄 작업)
+    public function bulkUsers(Request $request) {
+        $data = $request->validate([
+            'ids' => 'required|array|min:1|max:50',
+            'ids.*' => 'integer|min:1',
+            'action' => 'required|in:ban,unban',
+            'reason' => 'nullable|string|max:200',
+        ], ['ids.max' => '한 번에 50명까지만 처리할 수 있어요.', 'ids.required' => '처리할 회원을 골라 주세요.', 'ids.min' => '처리할 회원을 골라 주세요.']);
+        $ban = $data['action'] === 'ban';
+        $reason = trim((string) ($data['reason'] ?? '')) ?: '관리자 정지';
+        $done = 0; $skipped = [];
+        foreach (User::whereIn('id', array_unique($data['ids']))->get() as $u) {
+            if ($u->id === auth()->id()) { $skipped[] = ['id' => $u->id, 'why' => '본인 계정']; continue; }
+            if (in_array($u->role, ['moderator', 'admin', 'super_admin'], true)) { $skipped[] = ['id' => $u->id, 'why' => '운영진 계정']; continue; }
+            $u->forceFill($ban ? ['is_banned' => true, 'ban_reason' => $reason] : ['is_banned' => false, 'ban_reason' => null])->save();
+            $done++;
+        }
+        $msg = $done . '명을 ' . ($ban ? '정지' : '정지 해제') . '했어요.' . ($skipped ? ' (' . count($skipped) . '명은 본인·운영진 계정이라 건너뛰었어요.)' : '');
+        return response()->json(['success' => true, 'message' => $msg, 'data' => ['done' => $done, 'skipped' => $skipped]]);
     }
 
     public function unbanUser($id) {
