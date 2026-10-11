@@ -708,16 +708,17 @@ class AdminBoardController extends Controller
         // 이 날짜 이후 기록만 합산한다. 관리자 설정(site_settings: stats_since)으로 바꿀 수 있고, 기본은 2026-10-01.
         $since = \App\Models\SiteSetting::where('key', 'stats_since')->value('value') ?: '2026-10-01';
 
-        // 결제/주문
+        // 결제/주문 — 매출 기준은 "매출/결제 현황"·"결제/오더"와 같은 규칙(App\Support\Revenue), 이달·오늘은 애틀랜타 기준
+        $net = fn ($q) => round((float) $q->selectRaw('COALESCE(SUM(' . \App\Support\Revenue::NET_SQL . '),0) AS s')->value('s'), 2);
+        $todayStart = \Illuminate\Support\Carbon::now(\App\Support\Revenue::TZ)->startOfDay()->utc();
+        $monthStart = \App\Support\Revenue::monthStartUtc();
         $paymentStats = [
-            'total_revenue' => \App\Models\Payment::where('status', 'completed')->where('created_at', '>=', $since)->sum('amount'),
+            'total_revenue' => $net(\App\Models\Payment::where('created_at', '>=', $since)),
             'total_orders' => \App\Models\Payment::where('created_at', '>=', $since)->count(),
-            'completed' => \App\Models\Payment::where('status', 'completed')->where('created_at', '>=', $since)->count(),
-            'refunded' => \App\Models\Payment::where('status', 'refunded')->where('created_at', '>=', $since)->count(),
-            'month_revenue' => \App\Models\Payment::where('status', 'completed')
-                ->where('created_at', '>=', now()->startOfMonth())->sum('amount'),
-            'today_revenue' => \App\Models\Payment::where('status', 'completed')
-                ->whereDate('created_at', today())->sum('amount'),
+            'completed' => \App\Models\Payment::whereIn('status', ['completed', 'captured'])->where('created_at', '>=', $since)->count(),
+            'refunded' => \App\Models\Payment::where(fn ($q) => $q->where('status', 'refunded')->orWhere('refunded_amount', '>', 0))->where('created_at', '>=', $since)->count(),
+            'month_revenue' => $net(\App\Models\Payment::where('created_at', '>=', max($monthStart, \Illuminate\Support\Carbon::parse($since)))),
+            'today_revenue' => $net(\App\Models\Payment::where('created_at', '>=', $todayStart)),
         ];
 
         // 포인트

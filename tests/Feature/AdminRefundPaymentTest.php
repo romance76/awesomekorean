@@ -39,7 +39,8 @@ class AdminRefundPaymentTest extends TestCase
 
     private function makeOrder(?string $intent = 'pi_test_1'): array
     {
-        $admin = User::factory()->create(['role' => 'admin']);
+        // 환불은 최고관리자 전용 (AdminTier 등급표)
+        $admin = User::factory()->create(['role' => 'super_admin']);
         $buyer = User::factory()->create(['points' => 3000]);
         $payment = Payment::create(['user_id' => $buyer->id, 'stripe_payment_id' => $intent, 'amount' => 25, 'points_purchased' => 2500, 'status' => 'completed']);
         return [$admin, $buyer, $payment];
@@ -100,6 +101,8 @@ class AdminRefundPaymentTest extends TestCase
         $fake = $this->fakeGateway('ok');
         $mod = User::factory()->create(['role' => 'moderator']);
         $this->actingAs($mod, 'api')->postJson("/api/admin/payments/{$payment->id}/refund")->assertStatus(403);
+        $plainAdmin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($plainAdmin, 'api')->postJson("/api/admin/payments/{$payment->id}/refund")->assertStatus(403);
         $this->actingAs($admin, 'api')->postJson("/api/admin/payments/{$payment->id}/refund")->assertOk();
         $this->actingAs($admin, 'api')->postJson("/api/admin/payments/{$payment->id}/refund")->assertStatus(422);
         $this->assertCount(1, $fake->calls);

@@ -350,11 +350,13 @@ class AdminController extends Controller
         ]);
         $perPage = max(1, min(100, (int) $request->input('per_page', 50)));
         // 상단 요약은 현재 페이지가 아니라 전체 주문 기준 (필터/페이지와 무관)
+        // 매출 기준은 "매출/결제 현황"과 같다(포인트 구매 완료 + 직접 결제 청구액-환불액, 이번 달은 애틀랜타 기준) — 전엔 직접 결제가 빠지고 달 경계가 UTC 라 두 화면 숫자가 달랐음
+        $netSum = fn ($q) => round((float) $q->selectRaw('COALESCE(SUM(' . \App\Support\Revenue::NET_SQL . '),0) AS s')->value('s'), 2);
         $stats = [
-            'totalRevenue' => round((float) Payment::where('status', 'completed')->sum('amount'), 2),
+            'totalRevenue' => $netSum(Payment::query()),
             'totalOrders'  => Payment::count(),
-            'totalRefunds' => Payment::where('status', 'refunded')->count(),
-            'monthRevenue' => round((float) Payment::where('status', 'completed')->where('created_at', '>=', now()->startOfMonth())->sum('amount'), 2),
+            'totalRefunds' => Payment::where(fn ($q) => $q->where('status', 'refunded')->orWhere('refunded_amount', '>', 0))->count(),
+            'monthRevenue' => $netSum(Payment::where('created_at', '>=', \App\Support\Revenue::monthStartUtc())),
         ];
         return response()->json(['success'=>true,'data'=>$query->paginate($perPage),'stats'=>$stats]);
     }
@@ -364,6 +366,13 @@ class AdminController extends Controller
             $out = \Illuminate\Support\Facades\DB::transaction(function () use ($id, $stripe) {
                 // 같은 주문을 동시에 두 번 환불하지 못하게 행을 잠그고 상태를 다시 확인
                 $payment = Payment::whereKey($id)->lockForUpdate()->firstOrFail();
+                // 직접 결제(전단·경품 의뢰)는 포인트가 없고 상품(전단 시간대 등)과 묶여 있어 여기서 돌려주면 상품이 그대로 남음 — 해당 화면으로 안내
+                if (($payment->kind ?? 'points') === \App\Models\Payment::KIND_FLYER) {
+                    throw new \DomainException('전단 광고 카드 결제는 "전단 관리"에서 그 전단을 중지·반려하면 남은 시간만큼 자동으로 카드 환불돼요. (전단 #' . ($payment->ref_id ?? '?') . ')');
+                }
+                if (($payment->kind ?? 'points') !== \App\Models\Payment::KIND_POINTS) {
+                    throw new \DomainException('직접 결제는 이 화면에서 환불할 수 없어요. Stripe 대시보드에서 환불한 뒤 해당 의뢰를 취소해 주세요.');
+                }
                 if ($payment->status !== 'completed') {
                     throw new \DomainException('완료된 결제만 환불 가능합니다');
                 }

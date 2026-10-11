@@ -22,10 +22,7 @@ class AdminRevenueController extends Controller
 {
     private const TZ = 'America/New_York';
 
-    private const NET_SQL = "CASE
-        WHEN kind = 'points' AND status = 'completed' THEN amount
-        WHEN kind <> 'points' AND status IN ('captured','refunded') THEN amount - refunded_amount
-        ELSE 0 END";
+    private const NET_SQL = \App\Support\Revenue::NET_SQL;   // 결제/오더 화면과 같은 기준
 
     /** @return array{0:Carbon|null,1:Carbon|null} UTC 시작/끝(끝은 미포함) */
     private function range(Request $r): array
