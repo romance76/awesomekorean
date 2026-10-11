@@ -423,7 +423,8 @@ const navGroups = computed(() => {
   const out = []
   for (const g of gs) {
     if (g.hidden) continue
-    const items = (g.items || []).map(k => byKey[k]).filter(Boolean)
+    // item_labels: 묶음 안에서만 쓰는 이름 (예: 커뮤니티 묶음 안의 '게시판')
+    const items = (g.items || []).map(k => byKey[k] && (g.item_labels?.[k] && ko ? { ...byKey[k], label: g.item_labels[k] } : byKey[k])).filter(Boolean)
     if (g.type === 'hub' ? !g.path : !items.length) continue
     const first = items[0]
     out.push({

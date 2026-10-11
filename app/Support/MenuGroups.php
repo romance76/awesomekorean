@@ -17,7 +17,8 @@ class MenuGroups
     {
         return [
             ['key' => 'home', 'label' => '홈', 'label_en' => 'Home', 'icon' => '🏠', 'type' => 'single', 'items' => ['home']],
-            ['key' => 'community', 'label' => '커뮤니티', 'label_en' => 'Community', 'icon' => '💬', 'type' => 'group', 'items' => ['community', 'qa', 'chat', 'clubs']],
+            // item_labels: 묶음 안에서만 쓰는 메뉴 이름 (예: 메뉴 '커뮤니티'를 커뮤니티 묶음 안에서는 '게시판'으로)
+            ['key' => 'community', 'label' => '커뮤니티', 'label_en' => 'Community', 'icon' => '💬', 'type' => 'group', 'items' => ['community', 'qa', 'chat', 'clubs'], 'item_labels' => ['community' => '게시판']],
             ['key' => 'jobs', 'label' => '구인구직', 'label_en' => 'Jobs', 'icon' => '💼', 'type' => 'single', 'items' => ['jobs']],
             ['key' => 'realestate', 'label' => '부동산', 'label_en' => 'Real Estate', 'icon' => '🏢', 'type' => 'single', 'items' => ['realestate']],
             ['key' => 'buysell', 'label' => '사고팔기', 'label_en' => 'Buy & Sell', 'icon' => '🛒', 'type' => 'group', 'items' => ['market', 'groupbuy']],
@@ -47,7 +48,12 @@ class MenuGroups
         foreach ($groups as $g) {
             if (!empty($g['hidden'])) continue;
             $items = [];
-            foreach (($g['items'] ?? []) as $k) if (isset($byKey[$k])) $items[] = $byKey[$k];
+            foreach (($g['items'] ?? []) as $k) {
+                if (!isset($byKey[$k])) continue;
+                $it = $byKey[$k];
+                if (!empty($g['item_labels'][$k])) $it['label'] = $g['item_labels'][$k];
+                $items[] = $it;
+            }
             $type = $g['type'] ?? 'group';
             if ($type === 'hub' ? empty($g['path']) : !$items) continue;
             $out[] = [
@@ -103,6 +109,15 @@ class MenuGroups
             if ($type === 'hub' && !$path) return [null, "'{$label}' 허브에는 첫 화면 주소가 필요해요."];
 
             $row = ['key' => $key, 'label' => $label, 'label_en' => $labelEn, 'icon' => $icon, 'type' => $type, 'items' => $cleanItems];
+            $itemLabels = [];
+            foreach ((is_array($g['item_labels'] ?? null) ? $g['item_labels'] : []) as $ik => $il) {
+                if (!in_array($ik, $cleanItems, true) || !is_string($il)) continue;
+                $il = trim($il);
+                if ($il === '') continue;
+                if (mb_strlen($il) > 30 || preg_match('/[<>]/', $il)) return [null, "'{$label}' 묶음 안 메뉴 이름은 1~30자, < > 없이 적어 주세요."];
+                $itemLabels[$ik] = $il;
+            }
+            if ($itemLabels) $row['item_labels'] = $itemLabels;
             if ($path) $row['path'] = $path;
             if (!empty($g['hidden'])) $row['hidden'] = true;
             $out[] = $row;

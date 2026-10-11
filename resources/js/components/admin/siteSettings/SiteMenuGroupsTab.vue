@@ -57,6 +57,8 @@
             <span v-if="!isMobile" class="cursor-grab text-ink-faint select-none">⠿</span>
             <span class="font-semibold text-ink">{{ menuLabel(k) }}</span>
             <span class="text-[11px] text-ink-faint font-mono">{{ k }}</span>
+            <input v-if="g.type !== 'single'" :value="g.item_labels?.[k] || ''" @input="setItemLabel(g, k, $event.target.value)" maxlength="30"
+              placeholder="묶음 안 이름(선택)" class="w-32 rounded-lg border border-gray-200 px-2 py-1 text-xs" :aria-label="menuLabel(k) + ' 묶음 안 이름'" />
             <span v-if="menuOff(k)" class="text-[11px] font-bold text-amber-700 bg-amber-50 rounded-full px-2">메뉴 관리에서 꺼짐</span>
             <span class="flex-1"></span>
             <button @click="moveItem(gi, ii, -1)" :disabled="ii === 0" class="w-7 h-7 rounded-lg border border-gray-200 disabled:opacity-25" aria-label="위로">▲</button>
@@ -95,7 +97,7 @@
       <div class="text-sm font-bold text-ink mb-2">미리보기 — 상단 메뉴</div>
       <div v-for="g in groups.filter(x => !x.hidden)" :key="g._id" class="py-2 border-b border-gray-50 last:border-0">
         <div class="text-sm font-bold text-ink">{{ g.icon }} {{ g.label }} <span class="text-[11px] font-normal text-ink-faint">{{ typeLabel(g.type) }}</span></div>
-        <div v-if="g.type !== 'single' && g.items.length" class="text-xs text-ink-muted mt-0.5">└ {{ g.items.map(menuLabel).join(' · ') }}</div>
+        <div v-if="g.type !== 'single' && g.items.length" class="text-xs text-ink-muted mt-0.5">└ {{ g.items.map(k => g.item_labels?.[k] || menuLabel(k)).join(' · ') }}</div>
       </div>
       <div v-if="groups.some(x => x.hidden)" class="text-xs text-ink-faint mt-2">숨김: {{ groups.filter(x => x.hidden).map(x => x.label).join(', ') }}</div>
     </div>
@@ -149,6 +151,11 @@ function warn(g) {
   return ''
 }
 
+function setItemLabel(g, k, v) {
+  const labels = { ...(g.item_labels || {}) }
+  if (v.trim()) labels[k] = v; else delete labels[k]
+  g.item_labels = labels
+}
 function moveGroup(i, d) { const a = groups.value; const j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]] }
 function moveItem(gi, ii, d) { const a = groups.value[gi].items; const j = ii + d; if (j < 0 || j >= a.length) return; [a[ii], a[j]] = [a[j], a[ii]] }
 function moveTo(gi, ii, target) {
