@@ -27,6 +27,7 @@
   </div>
 
   <AdminBoardManager
+    :key="listKey"
     slug="recipes"
     label="레시피"
     icon="🍳"
@@ -53,6 +54,8 @@
         </div>
         <button @click="syncRange" :disabled="syncing" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ syncing ? '동기화 중...' : '범위 동기화' }}</button>
         <button @click="mConfirm = 'all'" :disabled="syncing" class="mt-2 w-full min-h-[50px] rounded-xl bg-green-500 text-white text-[15px] font-bold disabled:opacity-40">전체 동기화 (1~1000)</button>
+        <div v-if="syncing" class="mt-3 rounded-xl p-3 text-[14px] bg-amber-50 text-amber-800" role="status" aria-live="polite">{{ syncRunningText }} 화면을 닫아도 계속돼요.</div>
+        <div v-else-if="!syncResult && syncLastText" class="mt-3 text-[13px] text-ink-muted">{{ syncLastText }}</div>
         <div v-if="syncResult" class="mt-3 rounded-xl p-3 text-[14px]" :class="syncResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'">
           <div class="font-bold">{{ syncResult.success ? '완료' : '오류' }}</div>
           <div v-if="syncResult.success">저장 <b>{{ syncResult.saved || syncResult.total_saved || 0 }}</b>개<span v-if="syncResult.skipped !== undefined"> · 중복 {{ syncResult.skipped }}개 건너뜀</span></div>
@@ -67,7 +70,7 @@
       <div class="w-full bg-white rounded-t-3xl px-4 pt-2" role="alertdialog" aria-modal="true" :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
         <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
         <div class="text-[17px] font-bold text-ink mb-1">{{ mConfirm === 'clear' ? '모든 레시피를 삭제할까요?' : '전체 동기화를 시작할까요?' }}</div>
-        <p class="text-[15px] text-ink-light mb-3">{{ mConfirm === 'clear' ? 'DB의 모든 레시피가 지워지고 되돌릴 수 없어요.' : '1~1000번을 모두 가져와서 시간이 걸려요. 끝날 때까지 화면을 닫지 마세요.' }}</p>
+        <p class="text-[15px] text-ink-light mb-3">{{ mConfirm === 'clear' ? 'DB의 모든 레시피가 지워지고 되돌릴 수 없어요.' : '1~1000번을 모두 가져와요. 서버에서 백그라운드로 진행돼서 몇 분 걸릴 수 있고, 화면을 닫아도 계속돼요.' }}</p>
         <button @click="runConfirm" class="w-full min-h-[52px] rounded-xl text-white text-[16px] font-bold" :class="mConfirm === 'clear' ? 'bg-red-500' : 'bg-green-500'">{{ mConfirm === 'clear' ? '전부 삭제하기' : '동기화 시작' }}</button>
         <button @click="mConfirm = null" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
       </div>
@@ -100,6 +103,8 @@
           <AppIcon name="sparkles" :size="13" />전체 (1~1000)
         </button>
       </div>
+      <div v-if="syncing" class="mt-3 rounded-lg p-3 text-xs bg-amber-50 border border-amber-200 text-amber-800" role="status" aria-live="polite">{{ syncRunningText }} 창을 닫아도 계속돼요.</div>
+      <div v-else-if="!syncResult && syncLastText" class="mt-3 text-xs text-ink-muted">{{ syncLastText }}</div>
       <div v-if="syncResult" class="mt-3 rounded-lg p-3 text-xs"
         :class="syncResult.success ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'">
         <div class="flex items-center gap-1 font-bold"><AppIcon :name="syncResult.success ? 'check' : 'alert-circle'" :size="13" />{{ syncResult.success ? '완료' : '오류' }}</div>
@@ -123,6 +128,8 @@ import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import { useModal } from '../../composables/useModal'
+import { useCollectJob } from '../../composables/useCollectJob'
 
 // 관리자 휴대폰 화면이면 큰 버튼 + 아래에서 올라오는 시트 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -130,24 +137,47 @@ const isMobile = computed(() => !!adminIsMobile.value)
 const toast = ref(null); let toastTimer = null
 function say(text, error = false) { toast.value = { text, error }; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = null }, 3500) }
 const mConfirm = ref(null)   // 'all' | 'clear'
-function closeSync() { if (!syncing.value) showSync.value = false }
+function closeSync() { showSync.value = false }   // 동기화는 서버 백그라운드에서 돌아서 창을 닫아도 괜찮음
 async function runConfirm() {
   const k = mConfirm.value; mConfirm.value = null
   if (k === 'all') await syncAll(true)
   else if (k === 'clear') await clearAll(true)
 }
-watch(() => isMobile.value && (showSync.value || !!mConfirm.value), locked => { document.body.style.overflow = locked ? 'hidden' : '' })
 onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
 const showUser = ref(false)
 const selectedUserId = ref(null)
 const showSync = ref(false)
+// (showSync 선언보다 위에 있으면 휴대폰에서 아직 만들어지지 않은 값을 읽어 오류가 나서, 선언 아래로 옮김)
+watch(() => isMobile.value && (showSync.value || !!mConfirm.value), locked => { document.body.style.overflow = locked ? 'hidden' : '' })
 
+const { showAlert, showConfirm } = useModal()
 const apiStatus = ref({})
 const testing = ref(false)
-const syncing = ref(false)
 const syncStart = ref(1)
 const syncEnd = ref(100)
 const syncResult = ref(null)
+
+// 동기화는 서버 큐에서 백그라운드로 돈다 — 시작하면 바로 "시작했어요" 로 답하고, 7초마다 상태를 확인해 끝나면 결과를 보여 줌.
+// 이미 돌고 있으면(연타·다른 관리자) 새로 시작하지 않고 진행 상황만 따라간다.
+const recipeJob = useCollectJob({
+  kind: 'recipes',
+  endpoint: '/api/admin/recipes/sync',
+  onNotify(text, isError, phase) {
+    if (isMobile.value) say(text, isError)
+    else if (phase === 'error') syncResult.value = { success: false, error: text }        // 시작 못 함(이미 수집 중·범위 오류 등)
+    else if (phase === 'done' && !showSync.value) showAlert(text)                          // 창을 닫아 둔 채 끝난 경우
+  },
+  onDone(last) {
+    syncResult.value = last
+      ? { success: !!last.ok, saved: last.data?.saved ?? 0, skipped: last.data?.skipped, error: last.error || last.summary }
+      : null
+    listKey.value++   // 새로 담긴 레시피가 목록에 보이게 다시 불러오기
+  },
+})
+const syncing = recipeJob.running
+const syncRunningText = recipeJob.runningText
+const syncLastText = recipeJob.lastText
+const listKey = ref(0)
 
 async function testConnection() {
   testing.value = true
@@ -156,30 +186,25 @@ async function testConnection() {
   testing.value = false
 }
 
+// 범위 동기화 시작 — 서버가 바로 "시작했어요" 로 답하고 백그라운드에서 돈다 (끝나면 onDone 이 결과 표시)
 async function syncRange() {
-  syncing.value = true; syncResult.value = null
-  try {
-    const { data } = await axios.post('/api/admin/recipes/sync', { start: syncStart.value, end: syncEnd.value })
-    syncResult.value = data
-  } catch (e) { syncResult.value = { success: false, error: e.response?.data?.message || e.message } }
-  syncing.value = false
+  syncResult.value = null
+  await recipeJob.start({ start: syncStart.value, end: syncEnd.value }, '/api/admin/recipes/sync')
 }
 
 async function syncAll(confirmed = false) {
-  if (confirmed !== true && !confirm('전체 동기화(1~1000)는 시간이 걸립니다. 진행할까요?')) return
-  syncing.value = true; syncResult.value = null
-  try { const { data } = await axios.post('/api/admin/recipes/sync-all'); syncResult.value = data }
-  catch (e) { syncResult.value = { success: false, error: e.response?.data?.message || e.message } }
-  syncing.value = false
+  if (confirmed !== true && !(await showConfirm('전체 동기화(1~1000)를 시작할까요? 서버에서 백그라운드로 진행돼서 몇 분 걸릴 수 있고, 창을 닫아도 계속돼요.'))) return
+  syncResult.value = null
+  await recipeJob.start({}, '/api/admin/recipes/sync-all')
 }
 
 async function clearAll(confirmed = false) {
   if (confirmed !== true) {
-    if (!confirm('DB의 모든 레시피를 삭제합니다. 계속할까요?')) return
-    if (!confirm('정말로 모든 레시피를 삭제하시겠습니까? 되돌릴 수 없습니다.')) return
+    if (!(await showConfirm('DB의 모든 레시피를 삭제합니다. 계속할까요?'))) return
+    if (!(await showConfirm('정말로 모든 레시피를 삭제하시겠습니까? 되돌릴 수 없습니다.'))) return
   }
-  try { const { data } = await axios.post('/api/admin/recipes/clear-all'); if (isMobile.value) say(`${data.deleted}개 삭제됨`); else alert(`${data.deleted}개 삭제됨`); showSync.value = false }
-  catch (e) { if (isMobile.value) say(e.response?.data?.message || '실패', true); else alert(e.response?.data?.message || '실패') }
+  try { const { data } = await axios.post('/api/admin/recipes/clear-all'); if (isMobile.value) say(`${data.deleted}개 삭제됨`); else showAlert(`${data.deleted}개 삭제됨`); showSync.value = false }
+  catch (e) { if (isMobile.value) say(e.response?.data?.message || '실패', true); else showAlert(e.response?.data?.message || '실패') }
 }
 
 const settingSchema = {

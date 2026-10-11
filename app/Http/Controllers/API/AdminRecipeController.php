@@ -3,12 +3,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\RecipePost;
+use App\Services\AdminCollectService;
 use App\Services\RecipeService;
 use Illuminate\Http\Request;
 
 class AdminRecipeController extends Controller
 {
-    public function __construct(private RecipeService $recipeService) {}
+    public function __construct(private RecipeService $recipeService, private AdminCollectService $collect) {}
 
     // GET /api/admin/recipes — 관리자 목록 (전체 상태)
     public function index(Request $request)
@@ -49,32 +50,24 @@ class AdminRecipeController extends Controller
         return response()->json($this->recipeService->testConnection());
     }
 
-    // POST /api/admin/recipes/sync — 범위 동기화
+    // POST /api/admin/recipes/sync — 범위 동기화 (큐 작업으로 넘기고 바로 응답. 결과는 GET /api/admin/collect-status 의 recipes)
     public function sync(Request $request)
     {
-        $start  = (int) ($request->start ?? 1);
-        $end    = (int) ($request->end ?? 100);
-        $result = $this->recipeService->syncFromApi($start, $end);
-        return response()->json($result);
+        $start = (int) ($request->start ?? 1);
+        $end   = (int) ($request->end ?? 100);
+        if ($start < 1 || $end < $start) {
+            return response()->json(['success' => false, 'message' => '번호 범위를 확인해 주세요. 시작은 1 이상, 끝은 시작보다 크거나 같아야 해요.'], 422);
+        }
+        if ($end - $start >= 1000) {
+            return response()->json(['success' => false, 'message' => '한 번에 최대 1000개까지만 가져올 수 있어요. 범위를 줄여 주세요.'], 422);
+        }
+        return $this->collect->begin('recipes', ['start' => $start, 'end' => $end], $request->user()?->id);
     }
 
-    // POST /api/admin/recipes/sync-all — 전체 1~1000
-    public function syncAll()
+    // POST /api/admin/recipes/sync-all — 전체 1~1000 (큐 작업으로 넘기고 바로 응답)
+    public function syncAll(Request $request)
     {
-        $totalSaved = 0;
-        $totalSkipped = 0;
-        for ($i = 1; $i <= 1000; $i += 100) {
-            $r = $this->recipeService->syncFromApi($i, $i + 99);
-            if (!empty($r['success'])) {
-                $totalSaved += (int) ($r['saved'] ?? 0);
-                $totalSkipped += (int) ($r['skipped'] ?? 0);
-            }
-        }
-        return response()->json([
-            'success'     => true,
-            'total_saved' => $totalSaved,
-            'skipped'     => $totalSkipped,
-        ]);
+        return $this->collect->begin('recipes', ['all' => true], $request->user()?->id);
     }
 
     // POST /api/admin/recipes/clear-all — 기존 전체 삭제

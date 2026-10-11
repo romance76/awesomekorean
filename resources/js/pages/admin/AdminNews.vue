@@ -1,13 +1,11 @@
 <template>
 <div>
   <div class="flex justify-end mb-3 alv-m" :class="isMobile ? '!justify-stretch' : ''">
-    <button @click="fetchNews" :disabled="fetching"
-      class="inline-flex items-center justify-center gap-1.5 bg-blue-500 text-white font-semibold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50" :class="isMobile ? 'w-full min-h-[50px] !text-[15px] !font-bold' : ''">
-      <AppIcon name="refresh" :size="14" />{{ fetching ? '수집 중...' : '뉴스 수집 (RSS)' }}
-    </button>
+    <AdminCollectButton kind="news" endpoint="/api/admin/fetch-news" label="뉴스 수집 (RSS)" :mobile="isMobile" @toast="say" @done="refreshKey++" />
   </div>
 
   <AdminBoardManager
+    :key="refreshKey"
     slug="news"
     label="뉴스"
     icon="📰"
@@ -27,10 +25,9 @@
 
 <script setup>
 import { ref, computed, inject, onBeforeUnmount } from 'vue'
-import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
-import AppIcon from '../../components/AppIcon.vue'
+import AdminCollectButton from '../../components/AdminCollectButton.vue'
 
 // 관리자 휴대폰 화면: 수집 버튼을 크게, 결과는 위쪽 알림으로 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -40,16 +37,7 @@ function say(text, error = false) { toast.value = { text, error }; clearTimeout(
 onBeforeUnmount(() => clearTimeout(toastTimer))
 const showUser = ref(false)
 const selectedUserId = ref(null)
-const fetching = ref(false)
-
-async function fetchNews() {
-  fetching.value = true
-  try {
-    const { data } = await axios.post('/api/admin/fetch-news')
-    if (isMobile.value) say(`뉴스 수집 완료! ${data.saved || 0}건 저장됨`); else alert(`뉴스 수집 완료! ${data.saved || 0}건 저장됨`)
-  } catch (e) { { if (isMobile.value) say(e.response?.data?.message || '수집 실패', true); else alert(e.response?.data?.message || '수집 실패') } }
-  fetching.value = false
-}
+const refreshKey = ref(0)   // 수집이 끝나면 목록을 다시 불러오기 위해 올림
 
 const settingSchema = {
   enabled:        { label: '게시판 활성화',           type: 'bool',   default: true },

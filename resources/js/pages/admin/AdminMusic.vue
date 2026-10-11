@@ -1,20 +1,18 @@
 <template>
 <div>
   <div v-if="isMobile" class="alv-m grid grid-cols-1 gap-2 mb-3">
-    <button @click="fetchMusic" :disabled="fetching" class="min-h-[50px] rounded-xl bg-blue-500 text-white text-[15px] font-bold disabled:opacity-50">{{ fetching ? '수집 중...' : 'YouTube 자동수집 (100곡)' }}</button>
+    <AdminCollectButton kind="music" endpoint="/api/admin/fetch-music" label="YouTube 자동수집 (100곡)" :mobile="true" @toast="say" @done="refreshKey++" />
     <button @click="showImport = true" class="min-h-[50px] rounded-xl bg-amber-500 text-white text-[15px] font-bold">플레이리스트·채널 가져오기</button>
   </div>
-  <div v-else class="flex justify-end gap-2 mb-3">
-    <button @click="fetchMusic" :disabled="fetching"
-      class="inline-flex items-center gap-1.5 bg-blue-500 text-white font-semibold px-3 py-2 rounded-xl text-sm hover:bg-blue-600 transition-colors disabled:opacity-50">
-      <AppIcon name="refresh" :size="14" />{{ fetching ? '수집중...' : 'YouTube 자동수집 (100곡)' }}
-    </button>
+  <div v-else class="flex justify-end items-start gap-2 mb-3">
+    <AdminCollectButton kind="music" endpoint="/api/admin/fetch-music" label="YouTube 자동수집 (100곡)" @done="refreshKey++" />
     <button @click="showImport = true" class="btn-primary px-3 py-2 text-sm">
       <AppIcon name="download" :size="14" />플레이리스트/채널 가져오기
     </button>
   </div>
 
   <AdminBoardManager
+    :key="refreshKey"
     slug="music"
     label="음악"
     icon="🎵"
@@ -122,6 +120,7 @@ import axios from 'axios'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import AdminCollectButton from '../../components/AdminCollectButton.vue'
 
 // 관리자 휴대폰 화면이면 큰 버튼 + 아래에서 올라오는 시트 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -131,7 +130,7 @@ function say(text, error = false) { toast.value = { text, error }; clearTimeout(
 onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
 const showUser = ref(false)
 const selectedUserId = ref(null)
-const fetching = ref(false)
+const refreshKey = ref(0)   // 수집이 끝나면 목록을 다시 불러오기 위해 올림
 const categories = ref([])
 
 const showImport = ref(false)
@@ -145,15 +144,6 @@ const importResult = ref(null)
 async function loadCategoriesForImport() {
   try { const { data } = await axios.get('/api/music/categories'); categories.value = data.data || [] }
   catch {}
-}
-
-async function fetchMusic() {
-  fetching.value = true
-  try {
-    const { data } = await axios.post('/api/admin/fetch-music')
-    if (isMobile.value) say(data.message || '음악 수집 완료'); else alert(data.message || '음악 수집 완료')
-  } catch (e) { if (isMobile.value) say(e.response?.data?.message || '수집 실패', true); else alert(e.response?.data?.message || '수집 실패') }
-  fetching.value = false
 }
 
 function closeImport() {
