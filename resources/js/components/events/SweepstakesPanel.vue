@@ -141,7 +141,15 @@ async function selectWinner() {
   if (!await showConfirm(`"${props.event.title}" 당첨자${multi ? ` ${winnerCount.value}명` : ''}를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
   selectingWinner.value = true
   try {
-    const { data } = await axios.post(`/api/admin/sweepstakes/${sw.value.id}/select-winner`)
+    let data
+    try {
+      ({ data } = await axios.post(`/api/admin/sweepstakes/${sw.value.id}/select-winner`))
+    } catch (e) {
+      // 응모 기간 중이면 한 번 더 확인 (서버가 early_draw 로 막음)
+      if (e.response?.status !== 409 || e.response?.data?.code !== 'early_draw') throw e
+      if (!await showConfirm(e.response.data.message + '\n\n그래도 지금 추첨할까요?')) { selectingWinner.value = false; return }
+      ;({ data } = await axios.post(`/api/admin/sweepstakes/${sw.value.id}/select-winner`, { early: true }))
+    }
     const d = data.data || {}
     const list = Array.isArray(d.winners) ? d.winners : []
     if (list.length > 1) {

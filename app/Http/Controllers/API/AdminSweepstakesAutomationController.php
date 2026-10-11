@@ -53,6 +53,19 @@ class AdminSweepstakesAutomationController extends Controller
             'start_time' => ['required', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
             'duration_hours' => 'required|integer|min:1|max:2160',
             'total_runs' => 'nullable|integer|min:1|max:500',
+            'first_start_at' => 'nullable|date|after:now',
+        ];
+    }
+
+    private function scheduleMessages(): array
+    {
+        return [
+            'first_start_at.date' => '첫 시작 시각 형식이 올바르지 않아요.',
+            'first_start_at.after' => '첫 시작 시각은 지금보다 뒤여야 해요.',
+            'start_time.regex' => '시작 시각은 00:00~23:59 형식으로 입력해 주세요.',
+            'repeat_unit.in' => '반복은 매일·매주·매월 중에서 골라 주세요.',
+            'duration_hours.max' => '진행 기간은 최대 2160시간(90일)이에요.',
+            'total_runs.max' => '반복 횟수는 최대 500번이에요.',
         ];
     }
 
@@ -67,7 +80,8 @@ class AdminSweepstakesAutomationController extends Controller
     public function storeSchedule(Request $request)
     {
         $this->requireSuperAdmin();
-        $d = $request->validate($this->scheduleRules());
+        $d = $request->validate($this->scheduleRules(), $this->scheduleMessages());
+        unset($d['first_start_at']);
         $d['winner_count'] = (int) ($d['winner_count'] ?? 1);
         $d['auto_draw'] = (bool) ($d['auto_draw'] ?? false);
         $row = (object) array_merge($d, ['weekday' => $d['weekday'] ?? 1, 'month_day' => $d['month_day'] ?? 1]);
@@ -87,12 +101,28 @@ class AdminSweepstakesAutomationController extends Controller
         $this->requireSuperAdmin();
         $cur = DB::table('sweepstakes_schedules')->where('id', $id)->first();
         abort_unless($cur, 404);
-        $d = $request->validate($this->scheduleRules());
+        if (in_array($cur->status, ['completed', 'stopped'], true)) {
+            return response()->json(['success' => false, 'message' => '중지·완료된 일정은 고칠 수 없어요. 새 일정을 만들어 주세요.'], 422);
+        }
+        $d = $request->validate($this->scheduleRules(), $this->scheduleMessages());
+        unset($d['first_start_at']);
         $d['winner_count'] = (int) ($d['winner_count'] ?? 1);
         $d['auto_draw'] = (bool) ($d['auto_draw'] ?? false);
+        $d['weekday'] = $d['weekday'] ?? $cur->weekday ?? 1;
+        $d['month_day'] = $d['month_day'] ?? $cur->month_day ?? 1;
+        if (!empty($d['total_runs']) && (int) $d['total_runs'] <= (int) $cur->runs_done) {
+            return response()->json(['success' => false, 'message' => '이미 ' . (int) $cur->runs_done . '번 만들었어요. 반복 횟수는 그보다 크게 넣어 주세요.'], 422);
+        }
         $upd = array_merge($d, ['updated_at' => now()]);
         if ($request->filled('first_start_at') && (int) $cur->runs_done === 0) {
             $upd['next_run_at'] = Carbon::parse($request->input('first_start_at'), 'America/New_York')->utc()->toDateTimeString();
+        } else {
+            // 반복 규칙(단위·요일·날짜·시각)을 바꾸면 다음 실행 시각을 새 규칙으로 다시 계산 — 안 하면 옛 규칙 시각에 한 번 더 만들어짐
+            $ruleChanged = $d['repeat_unit'] !== $cur->repeat_unit || (int) $d['weekday'] !== (int) $cur->weekday
+                || (int) $d['month_day'] !== (int) $cur->month_day || substr((string) $d['start_time'], 0, 5) !== substr((string) $cur->start_time, 0, 5);
+            if ($ruleChanged) {
+                $upd['next_run_at'] = SweepstakesAutomation::nextRunAfter((object) array_merge((array) $cur, $d))->toDateTimeString();
+            }
         }
         DB::table('sweepstakes_schedules')->where('id', $id)->update($upd);
         return response()->json(['success' => true, 'data' => $this->scheduleOut(DB::table('sweepstakes_schedules')->find($id))]);

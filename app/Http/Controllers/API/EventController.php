@@ -174,6 +174,13 @@ class EventController extends Controller
         }
     }
 
+    // 이벤트 완료 보상 포인트 상한 — 보상은 사이트가 지급하므로 일반 회원은 설정값(기본 100P)까지만, 운영진은 넉넉히
+    private function rewardPointsMax(): int
+    {
+        $role = auth()->user()->role ?? 'user';
+        return in_array($role, ['admin', 'super_admin'], true) ? 1000000 : max(0, (int) \App\Support\PointRules::get('user_event_reward_max', 100));
+    }
+
     public function store(Request $request)
     {
         $isSweepstakes = $request->event_type === 'sweepstakes';
@@ -188,7 +195,7 @@ class EventController extends Controller
             'image'      => 'nullable|image|max:5120',
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
-            'reward_points' => 'nullable|integer|min:0',
+            'reward_points' => 'nullable|integer|min:0|max:' . $this->rewardPointsMax(),
             'prize_name' => $isSweepstakes ? 'required|string|max:255' : 'nullable|string|max:255',
             'prize_value' => 'nullable|numeric|min:0',
             'minimum_age' => 'nullable|integer|min:0|max:120',
@@ -288,7 +295,7 @@ class EventController extends Controller
             'image'      => 'nullable|image|max:5120',
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
-            'reward_points' => 'nullable|integer|min:0',
+            'reward_points' => 'nullable|integer|min:0|max:' . $this->rewardPointsMax(),
             'prize_name' => $sweepstakes ? 'sometimes|required|string|max:255' : 'nullable|string|max:255',
             'prize_value' => 'nullable|numeric|min:0',
             'minimum_age' => 'nullable|integer|min:0|max:120',

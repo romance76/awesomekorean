@@ -730,6 +730,7 @@ class AdminController extends Controller
     }
 
     public function rejectClaim(Request $request, $id) {
+        $request->validate(['notes' => 'nullable|string|max:1000'], ['notes.max' => '거절 사유는 1000자까지 쓸 수 있어요.']);
         $claim = BusinessClaim::with('business')->findOrFail($id);
         $claim->update(['status' => 'rejected', 'notes' => $request->notes]);
         // 이 신청자가 지금 소유자일 때만 업소의 소유자 칸을 비운다 (다른 정상 소유자의 정보를 지우지 않도록)

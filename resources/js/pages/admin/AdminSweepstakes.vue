@@ -165,16 +165,28 @@ function closeSheet() { if (!busy.value) mSheet.value = null }
 async function mParticipants(item) { await viewParticipants(item); showParticipants.value = false; mSheet.value = { mode: 'participants', item } }
 function askWinner(item) { mSheet.value = { mode: 'winner', item } }
 function askDelete(item) { mSheet.value = { mode: 'delete', item } }
+// 응모 기간 중이면 서버가 early_draw 로 한 번 막는다 — 확인 후 early=true 로 다시 보냄
+async function postSelectWinner(id) {
+  try {
+    return await axios.post(`/api/admin/sweepstakes/${id}/select-winner`)
+  } catch (e) {
+    if (e.response?.status === 409 && e.response?.data?.code === 'early_draw') {
+      if (!confirm(e.response.data.message + '\n\n그래도 지금 추첨할까요?')) { const c = new Error('cancelled'); c.cancelled = true; throw c }
+      return await axios.post(`/api/admin/sweepstakes/${id}/select-winner`, { early: true })
+    }
+    throw e
+  }
+}
 async function doWinner() {
   if (busy.value) return
   busy.value = true
   const item = mSheet.value.item
   try {
-    const { data } = await axios.post(`/api/admin/sweepstakes/${item.id}/select-winner`)
+    const { data } = await postSelectWinner(item.id)
     mSheet.value = null
     say(winnerSummary(data.data).replace(/\n/g, ' · '))
     await load()
-  } catch (e) { say(e.response?.data?.message || '당첨자 선정에 실패했어요', true) }
+  } catch (e) { if (!e.cancelled) say(e.response?.data?.message || '당첨자 선정에 실패했어요', true) }
   finally { busy.value = false }
 }
 async function doDelete() {
@@ -297,11 +309,11 @@ async function viewParticipants(item) {
 async function confirmSelectWinner(item) {
   if (!confirm(`"${item.title}" 당첨자를 지금 선정하시겠습니까?\n\n이 작업은 서버에서 1회만 실행되며 절대 되돌릴 수 없습니다.`)) return
   try {
-    const { data } = await axios.post(`/api/admin/sweepstakes/${item.id}/select-winner`)
+    const { data } = await postSelectWinner(item.id)
     alert(winnerSummary(data.data))
     await load()
   } catch (e) {
-    alert(e.response?.data?.message || '당첨자 선정 실패')
+    if (!e.cancelled) alert(e.response?.data?.message || '당첨자 선정 실패')
   }
 }
 
