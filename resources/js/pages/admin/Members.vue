@@ -1,6 +1,9 @@
 <template>
 <AdminMembersMobile v-if="adminIsMobile" />
 <div v-else>
+  <Transition name="fade">
+    <div v-if="toastMsg" class="fixed top-5 right-5 z-[95] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium" :class="toastType === 'error' ? 'bg-red-500' : 'bg-green-500'" role="status">{{ toastMsg }}</div>
+  </Transition>
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-blue-50 text-blue-600"><AppIcon name="users" :size="20" /></span>
     회원관리
@@ -473,11 +476,25 @@ import { useRouter } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
 import SortTh from '../../components/SortTh.vue'
 import { useAdminSort } from '../../composables/useAdminSort'
+import { useAdminConfirm } from '../../composables/useAdminConfirm'
 // 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
 const { sortKey, sortDir, toggleSort, sortParams } = useAdminSort(() => loadUsers(1))
 import AdminMembersMobile from './AdminMembersMobile.vue'
 
 const adminIsMobile = inject('adminIsMobile', ref(false))
+const { confirmAction } = useAdminConfirm()
+
+// 화면 위쪽에 잠깐 뜨는 알림 (옛 alert 대체)
+const toastMsg = ref(''); const toastType = ref('success'); let toastTimer = null
+function say(msg, type = 'success') {
+  clearTimeout(toastTimer); toastMsg.value = msg; toastType.value = type
+  toastTimer = setTimeout(() => { toastMsg.value = '' }, 3500)
+}
+// 서버가 돌려준 검사 오류(422)는 첫 줄까지 모두 보여 준다
+function apiMsg(e, fallback) {
+  const errs = e.response?.data?.errors
+  return (errs ? Object.values(errs).flat().join(' ') : e.response?.data?.message) || fallback
+}
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -491,6 +508,8 @@ const userTab = ref('summary'); const banReason = ref(''); const addPoints = ref
 const addEntries = ref(0); const entryDesc = ref(''); const givingEntries = ref(false)
 const entryMsg = ref(''); const entryOk = ref(false)
 const friendRequestVal = ref('true')
+let origUser = null   // 상세를 열었을 때의 값 — 저장할 때 바뀐 칸만 보내기 위해 보관
+const EDITABLE = ['name', 'nickname', 'email', 'phone', 'city', 'state', 'role', 'bio', 'allow_friend_request']
 const newPassword = ref(''); const tempPassword = ref('')
 
 const hasAnyContent = computed(() => {
@@ -538,6 +557,7 @@ async function loadUsers(p = 1) {
   const params = { page: p, ...sortParams.value }
   if (search.value) params.search = search.value
   if (roleFilter.value) params.role = roleFilter.value
+  if (statusFilter.value) params.status = statusFilter.value
   try {
     const { data } = await axios.get('/api/admin/users', { params })
     users.value = data.data?.data || []
@@ -550,13 +570,13 @@ async function loadUsers(p = 1) {
 async function openUser(u) {
   activeUser.value = u; userLoading.value = true; userData.value = null
   userTab.value = 'summary'; tempPassword.value = ''; newPassword.value = ''; banReason.value = ''
-  try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data; friendRequestVal.value = userData.value?.user?.allow_friend_request ? 'true' : 'false' } catch {}
+  try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data; friendRequestVal.value = userData.value?.user?.allow_friend_request ? 'true' : 'false'; origUser = JSON.parse(JSON.stringify(userData.value?.user || {})) } catch {}
   userLoading.value = false
 }
 
 async function impersonateUser() {
   if (!userData.value?.user) return
-  if (!confirm(`'${userData.value.user.name}' 로 로그인합니다. 본인 관리자 세션은 종료됩니다. 계속?`)) return
+  if (!await confirmAction({ title: '이 회원으로 로그인', message: `'${userData.value.user.name}' 회원으로 로그인합니다. 지금 관리자 로그인은 종료되고, 활동은 기록에 남아요.`, kind: 'danger', confirmLabel: '로그인' })) return
   try {
     const { data } = await axios.post(`/api/admin/users/${userData.value.user.id}/impersonate`)
     if (data.success) {
@@ -564,16 +584,16 @@ async function impersonateUser() {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + data.data.token
       auth.token = data.data.token
       auth.user = data.data.user
-      alert(data.message)
+      say(data.message || '로그인했어요')
       router.push('/')
       setTimeout(() => window.location.reload(), 100)
     }
-  } catch (e) { alert(e.response?.data?.message || 'Impersonate 실패') }
+  } catch (e) { say(apiMsg(e, '대행 로그인에 실패했어요'), 'error') }
 }
 
 async function resetPassword() {
   if (!userData.value?.user) return
-  if (!confirm('이 회원의 비밀번호를 변경합니다. 계속?')) return
+  if (!await confirmAction({ title: '비밀번호 초기화', message: `'${userData.value.user.name}' 회원의 비밀번호를 바꿉니다. 바꾼 뒤 새 비밀번호가 한 번 화면에 보여요.`, kind: 'danger', confirmLabel: '초기화' })) return
   try {
     const { data } = await axios.post(`/api/admin/users/${userData.value.user.id}/reset-password`,
       newPassword.value ? { password: newPassword.value } : {})
@@ -581,61 +601,77 @@ async function resetPassword() {
       tempPassword.value = data.data.temporary_password
       newPassword.value = ''
     }
-  } catch (e) { alert(e.response?.data?.message || '비밀번호 초기화 실패') }
+  } catch (e) { say(apiMsg(e, '비밀번호를 초기화하지 못했어요'), 'error') }
 }
 
 async function forceVerifyEmail() {
   if (!userData.value?.user) return
-  if (!confirm('이 회원의 이메일 인증을 관리자 권한으로 강제 처리합니다. 계속?')) return
+  if (!await confirmAction({ title: '이메일 인증 처리', message: `'${userData.value.user.name}' 회원의 이메일을 인증 완료로 처리합니다. 글쓰기 제한이 풀려요.`, confirmLabel: '인증 처리' })) return
   try {
     const { data } = await axios.post(`/api/admin/users/${userData.value.user.id}/verify-email`)
     if (data.success) {
       userData.value.user.email_verified_at = data.data.email_verified_at
-      alert(data.message)
+      say(data.message || '인증 처리했어요')
     }
-  } catch (e) { alert(e.response?.data?.message || '이메일 인증 처리 실패') }
+  } catch (e) { say(apiMsg(e, '이메일 인증 처리에 실패했어요'), 'error') }
 }
 
 function copyPassword() {
   navigator.clipboard?.writeText(tempPassword.value)
-  alert('복사됨')
+  say('복사했어요')
 }
 
 async function deleteAccount() {
   if (!userData.value?.user) return
   const name = userData.value.user.name
-  if (!confirm(`⚠️ '${name}' 계정을 삭제합니다. 정지 + 이메일 비활성화됩니다. 계속?`)) return
-  if (!confirm(`정말 삭제합니까? (한 번 더 확인)`)) return
+  if (!await confirmAction({ title: '계정 삭제', message: `'${name}' 계정을 삭제합니다. 정지되고 이메일이 비활성화돼요.`, kind: 'danger', confirmLabel: '삭제' })) return
+  if (!await confirmAction({ title: '정말 삭제할까요?', message: '한 번 더 확인합니다. 삭제하면 이 회원은 로그인할 수 없어요.', kind: 'danger', confirmLabel: '네, 삭제' })) return
   try {
     const { data } = await axios.delete(`/api/admin/users/${userData.value.user.id}`)
     if (data.success) {
-      alert(data.message)
+      say(data.message || '삭제했어요')
       activeUser.value = null; userData.value = null
       loadUsers(page.value)
     }
-  } catch (e) { alert(e.response?.data?.message || '삭제 실패') }
+  } catch (e) { say(apiMsg(e, '삭제하지 못했어요'), 'error') }
 }
 
 async function saveUser() {
   if (!userData.value?.user) return
+  // 바뀐 칸만 보낸다 — 포인트·정지 상태 같은 다른 값을 오래된 값으로 덮어쓰지 않도록
+  const cur = userData.value.user
+  const changed = {}
+  const norm = (k, v) => (k === 'allow_friend_request' ? !!v : (v ?? null))   // 서버는 1/0, 화면은 true/false 로 줄 수 있어서 맞춰 비교
+  for (const k of EDITABLE) if (norm(k, cur[k]) !== norm(k, origUser?.[k])) changed[k] = cur[k]
+  if (!Object.keys(changed).length) { say('바뀐 내용이 없어요'); return }
+  if ('role' in changed && !await confirmAction({ title: '권한 변경', message: `'${cur.name}' 회원의 권한을 ${roleLabel(origUser?.role)} → ${roleLabel(changed.role)} 로 바꿉니다.`, kind: 'danger', confirmLabel: '권한 변경' })) return
   try {
-    await axios.put(`/api/admin/users/${userData.value.user.id}`, userData.value.user)
+    await axios.put(`/api/admin/users/${cur.id}`, changed)
+    origUser = { ...origUser, ...JSON.parse(JSON.stringify(changed)) }
     // 목록도 업데이트
-    const u = users.value.find(x => x.id === userData.value.user.id)
-    if (u) Object.assign(u, userData.value.user)
-    alert('저장되었습니다!')
-  } catch (e) { alert(e.response?.data?.message || '저장 실패') }
+    const u = users.value.find(x => x.id === cur.id)
+    if (u) Object.assign(u, changed)
+    say('저장했어요')
+  } catch (e) { say(apiMsg(e, '저장하지 못했어요'), 'error') }
 }
 
 async function givePoints() {
   if (!addPoints.value || !userData.value?.user) return
+  const amount = Math.trunc(Number(addPoints.value))
+  if (!amount) return
+  const u = userData.value.user
+  if (!await confirmAction({ title: amount > 0 ? '포인트 지급' : '포인트 차감', message: `'${u.name}' 회원에게 ${Math.abs(amount).toLocaleString()}P 를 ${amount > 0 ? '지급' : '차감'}합니다. 포인트 내역에 관리자 조정으로 기록돼요.`, kind: 'money', confirmLabel: amount > 0 ? '지급' : '차감' })) return
   try {
-    // 포인트 직접 수정
-    userData.value.user.points = (userData.value.user.points || 0) + addPoints.value
-    await axios.put(`/api/admin/users/${userData.value.user.id}`, { points: userData.value.user.points })
+    // 서버가 잔액을 잠그고 계산해 내역(관리자 조정)까지 남긴다 — 회원 정보 전체를 덮어쓰지 않는다
+    const { data } = await axios.post(`/api/admin/users/${u.id}/points`, { amount })
+    u.points = data.data?.points ?? ((u.points || 0) + amount)
+    if (origUser) origUser.points = u.points
+    const row = users.value.find(x => x.id === u.id); if (row) row.points = u.points
     addPoints.value = 0
-    alert('포인트 지급!')
-  } catch {}
+    say(data.message || '반영했어요')
+    const { data: fresh } = await axios.get(`/api/admin/users/${u.id}/detail`)
+    userData.value = fresh.data
+  } catch (e) { say(apiMsg(e, '포인트를 반영하지 못했어요'), 'error') }
 }
 
 async function giveEntries() {
@@ -662,21 +698,27 @@ async function giveEntries() {
 
 async function banCurrentUser() {
   const reason = banReason.value || '관리자 정지'
+  if (!await confirmAction({ title: '계정 정지', message: `'${userData.value.user.name}' 회원을 정지합니다. 사유: ${reason}`, kind: 'danger', confirmLabel: '정지' })) return
   try {
     await axios.post(`/api/admin/users/${userData.value.user.id}/ban`, { reason })
     userData.value.user.is_banned = true; userData.value.user.ban_reason = reason
     const u = users.value.find(x => x.id === userData.value.user.id)
     if (u) u.is_banned = true
-  } catch {}
+    if (origUser) origUser.is_banned = true
+    say('정지했어요')
+  } catch (e) { say(apiMsg(e, '정지하지 못했어요'), 'error') }
 }
 
 async function unbanCurrentUser() {
+  if (!await confirmAction({ title: '정지 해제', message: `'${userData.value.user.name}' 회원의 정지를 풉니다.`, confirmLabel: '해제' })) return
   try {
     await axios.post(`/api/admin/users/${userData.value.user.id}/unban`)
     userData.value.user.is_banned = false; userData.value.user.ban_reason = null
     const u = users.value.find(x => x.id === userData.value.user.id)
     if (u) u.is_banned = false
-  } catch {}
+    if (origUser) origUser.is_banned = false
+    say('정지를 풀었어요')
+  } catch (e) { say(apiMsg(e, '정지를 풀지 못했어요'), 'error') }
 }
 
 onMounted(() => { if (!adminIsMobile?.value) loadUsers() })
