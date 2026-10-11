@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Services\BadWordFilter;
+use App\Support\PlainText;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
 use App\Traits\HasAdjacent;
@@ -107,8 +108,8 @@ class PostController extends Controller
         $post = Post::create([
             'board_id' => $request->board_id,
             'user_id' => auth()->id(),
-            'title' => $request->title,
-            'content' => $request->content,
+            'title' => PlainText::clean((string) $request->title),   // HTML 태그는 저장하지 않음 (글자만)
+            'content' => PlainText::clean((string) $request->content),
             'category' => $request->category,
             'images' => $images ?: null,
             'lat' => $request->lat,
@@ -127,7 +128,9 @@ class PostController extends Controller
     public function update(Request $request, $id)
     {
         $post = $this->findOwnedOrAdmin(Post::class, $id);
-        $post->update($request->only('title', 'content', 'category'));
+        $in = $request->only('title', 'content', 'category');
+        foreach (['title', 'content'] as $k) if (isset($in[$k]) && is_string($in[$k])) $in[$k] = PlainText::clean($in[$k]);   // HTML 태그는 저장하지 않음
+        $post->update($in);
         return response()->json(['success' => true, 'data' => $post]);
     }
 

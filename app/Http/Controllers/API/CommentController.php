@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Services\BadWordFilter;
+use App\Support\PlainText;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -56,12 +57,16 @@ class CommentController extends Controller
         $modelType = $this->resolveType($request->commentable_type);
         if (!$modelType) return response()->json(['success' => false, 'message' => 'Invalid type'], 400);
 
+        // HTML 태그는 저장하지 않는다 (글자만) — 태그만 쓴 댓글은 빈 댓글이 되므로 거절
+        $cleanContent = PlainText::clean((string) $request->content);
+        if (trim((string) $cleanContent) === '') return response()->json(['success' => false, 'message' => '댓글 내용을 입력해 주세요.'], 422);
+
         $comment = Comment::create([
             'commentable_type' => $modelType,
             'commentable_id' => $request->commentable_id,
             'user_id' => auth()->id(),
             'parent_id' => $request->parent_id,
-            'content' => $request->content,
+            'content' => $cleanContent,
         ]);
 
         // 댓글 수 증가 — 부모를 먼저 읽지 않고 UPDATE 한 번으로 (comment_count 컬럼이 없는 모델은 조용히 무시)
@@ -90,8 +95,10 @@ class CommentController extends Controller
         if (BadWordFilter::contains((string) $request->content)) {
             return response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어 댓글을 수정할 수 없습니다.'], 422);
         }
+        $cleanContent = trim((string) PlainText::clean((string) $request->content));
+        if ($cleanContent === '') return response()->json(['success' => false, 'message' => '댓글 내용을 입력해 주세요.'], 422);
         $comment = Comment::where('user_id', auth()->id())->findOrFail($id);
-        $comment->update(['content' => trim($request->content)]);
+        $comment->update(['content' => $cleanContent]);
         return response()->json(['success' => true, 'data' => $comment]);
     }
 

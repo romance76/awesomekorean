@@ -4,6 +4,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\UserBlock;
+use App\Services\BadWordFilter;
+use App\Support\PlainText;
 use App\Events\NewNotification;
 use Illuminate\Http\Request;
 
@@ -134,6 +136,13 @@ class MessageController extends Controller
     public function store(Request $request) {
         $request->validate(['receiver_id' => 'required|exists:users,id', 'content' => 'required|max:500']);
 
+        // 욕설·금칙어 필터(댓글과 같은 기준) + HTML 태그는 저장하지 않음
+        if (BadWordFilter::contains((string) $request->content)) {
+            return response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어 쪽지를 보낼 수 없습니다.'], 422);
+        }
+        $cleanContent = PlainText::clean((string) $request->content);
+        if (trim((string) $cleanContent) === '') return response()->json(['success' => false, 'message' => '쪽지 내용을 입력해 주세요.'], 422);
+
         // 쪽지 수신 거부 체크
         $receiver = \App\Models\User::find($request->receiver_id);
         if ($receiver && !$receiver->allow_messages) {
@@ -150,7 +159,7 @@ class MessageController extends Controller
         $msg = Message::create([
             'sender_id' => $me->id,
             'receiver_id' => $request->receiver_id,
-            'content' => $request->content,
+            'content' => $cleanContent,
         ]);
 
         // 응답을 먼저 보내고(쪽지 저장 직후) 알림·실시간·푸시는 응답 이후에 처리한다.
