@@ -67,139 +67,7 @@
     <div v-else>
       <!-- ========================= TAB 1: 회사 정보 ========================= -->
       <div v-show="activeTab === 'company'">
-        <div class="card p-6">
-          <h2 class="text-base font-semibold text-ink mb-6">회사 정보</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label class="input-label">사이트명</label>
-              <input v-model="company.site_name" type="text" class="input-field" placeholder="AwesomeKorean" />
-            </div>
-            <div>
-              <label class="input-label">사이트 부제목</label>
-              <input v-model="company.site_subtitle" type="text" class="input-field" placeholder="미국 한인 커뮤니티" />
-            </div>
-            <div>
-              <label class="input-label">회사명</label>
-              <input v-model="company.company_name" type="text" class="input-field" placeholder="AwesomeKorean Inc." />
-            </div>
-            <div>
-              <label class="input-label">대표자명</label>
-              <input v-model="company.ceo_name" type="text" class="input-field" placeholder="홍길동" />
-            </div>
-            <div>
-              <label class="input-label">사업자등록번호</label>
-              <input v-model="company.business_number" type="text" class="input-field" placeholder="123-45-67890" />
-            </div>
-            <div>
-              <label class="input-label">주소</label>
-              <input v-model="company.address" type="text" class="input-field" placeholder="Los Angeles, CA, USA" />
-            </div>
-            <div>
-              <label class="input-label">전화번호</label>
-              <input v-model="company.phone" type="text" class="input-field" placeholder="+1-213-000-0000" />
-            </div>
-            <div>
-              <label class="input-label">이메일</label>
-              <input v-model="company.email" type="email" class="input-field" placeholder="admin@awesomekorean.com" />
-            </div>
-            <div>
-              <label class="input-label">설립일</label>
-              <input v-model="company.founded_date" type="date" class="input-field" />
-            </div>
-            <div>
-              <label class="input-label">메타 키워드</label>
-              <input v-model="company.meta_keywords" type="text" class="input-field" placeholder="한인, 커뮤니티, 미국, LA" />
-            </div>
-          </div>
-
-          <!-- 로고 업로드 — 올리면 네비게이션 바, 로그인/가입 화면, 이메일 템플릿 등
-               로고가 들어가는 모든 곳에 바로 반영됨 (public/images/logo.png 자체를 교체) -->
-          <div class="mt-5">
-            <label class="input-label">사이트 로고</label>
-            <div class="flex items-center gap-3">
-              <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
-                <img v-if="company.logo_url" :src="company.logo_url" alt="Logo Preview" class="w-full h-full object-contain" @error="logoError = true" />
-                <span v-else class="text-xs text-ink-faint">미리보기</span>
-              </div>
-              <div class="flex-1">
-                <input ref="logoFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onLogoFileSelected" />
-                <button type="button" @click="logoFileInput.click()" :disabled="uploadingLogo" class="btn-secondary px-4 py-2 text-sm">
-                  {{ uploadingLogo ? '업로드 중...' : '로고 이미지 업로드' }}
-                </button>
-                <p class="text-xs text-ink-faint mt-1.5">PNG/JPG/WEBP, 최대 4MB. 업로드하면 즉시 전체 화면에 반영됩니다.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 다크 배경용 로고 업로드 — 푸터처럼 어두운 배경에서 기본 로고가
-               안 보일 때를 대비한 흰색/밝은 톤 버전. 안 올리면 텍스트로 폴백. -->
-          <div class="mt-5">
-            <label class="input-label">로고 (다크 배경용, 흰색 버전)</label>
-            <div class="flex items-center gap-3">
-              <div class="w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center bg-slate-800 flex-shrink-0">
-                <img v-if="company.logo_dark_url" :src="company.logo_dark_url" alt="Dark Logo Preview" class="w-full h-full object-contain" />
-                <span v-else class="text-xs text-gray-400">미리보기</span>
-              </div>
-              <div class="flex-1">
-                <input ref="logoDarkFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onLogoDarkFileSelected" />
-                <button type="button" @click="logoDarkFileInput.click()" :disabled="uploadingLogoDark" class="btn-secondary px-4 py-2 text-sm">
-                  {{ uploadingLogoDark ? '업로드 중...' : '다크 배경용 로고 업로드' }}
-                </button>
-                <p class="text-xs text-ink-faint mt-1.5">PNG/JPG/WEBP, 최대 4MB. 푸터 등 어두운 배경 섹션에 반영됩니다 (안 올리면 텍스트로 대체 표시).</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 앱 아이콘 업로드 — 핸드폰 홈 화면에 "바로가기"로 추가할 때 쓰이는
-               정사각형 아이콘. 로고(가로형 워드마크)와는 별개로 관리. -->
-          <div class="mt-5">
-            <label class="input-label">앱 아이콘 (홈 화면 바로가기용)</label>
-            <div class="flex items-center gap-3">
-              <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
-                <img v-if="company.app_icon_url" :src="company.app_icon_url" alt="App Icon Preview" class="w-full h-full object-contain" />
-                <span v-else class="text-xs text-ink-faint">미리보기</span>
-              </div>
-              <div class="flex-1">
-                <input ref="appIconFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onAppIconFileSelected" />
-                <button type="button" @click="appIconFileInput.click()" :disabled="uploadingAppIcon" class="btn-secondary px-4 py-2 text-sm">
-                  {{ uploadingAppIcon ? '업로드 중...' : '앱 아이콘 업로드' }}
-                </button>
-                <p class="text-xs text-ink-faint mt-1.5">정사각형 이미지 권장 (PNG/JPG/WEBP, 최대 4MB). iOS/안드로이드 홈 화면 바로가기 아이콘에 반영됩니다.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 파비콘 업로드 — 브라우저 탭에 표시되는 작은 아이콘 -->
-          <div class="mt-5">
-            <label class="input-label">파비콘 (브라우저 탭 아이콘)</label>
-            <div class="flex items-center gap-3">
-              <div class="w-16 h-16 border border-gray-100 rounded-xl overflow-hidden flex items-center justify-center bg-gray-50 flex-shrink-0">
-                <img v-if="company.favicon_url" :src="company.favicon_url" alt="Favicon Preview" class="w-full h-full object-contain" />
-                <span v-else class="text-xs text-ink-faint">미리보기</span>
-              </div>
-              <div class="flex-1">
-                <input ref="faviconFileInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="onFaviconFileSelected" />
-                <button type="button" @click="faviconFileInput.click()" :disabled="uploadingFavicon" class="btn-secondary px-4 py-2 text-sm">
-                  {{ uploadingFavicon ? '업로드 중...' : '파비콘 업로드' }}
-                </button>
-                <p class="text-xs text-ink-faint mt-1.5">정사각형 이미지 권장 (PNG/JPG/WEBP, 최대 2MB). 브라우저 탭/즐겨찾기에 반영됩니다.</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Meta Description -->
-          <div class="mt-5">
-            <label class="input-label">메타 설명 (SEO)</label>
-            <textarea v-model="company.meta_description" rows="3" class="input-field resize-none" placeholder="미국 한인 커뮤니티 플랫폼..."></textarea>
-          </div>
-
-          <div class="mt-6 flex justify-end">
-            <button @click="saveCompany" :disabled="saving" class="btn-primary">
-              <span v-if="saving" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-              저장하기
-            </button>
-          </div>
-        </div>
+        <SiteCompanyTab :company="company" :saving="saving" @save="saveCompany" @toast="showToast" />
       </div>
 
       <!-- ========================= TAB 2: 사이트 설정 ========================= -->
@@ -400,206 +268,12 @@
 
       <!-- ========================= TAB 3: 푸터 편집 ========================= -->
       <div v-show="activeTab === 'footer'">
-        <div class="card p-6 mb-4">
-          <h2 class="text-base font-semibold text-ink mb-6">푸터 편집</h2>
-
-          <p class="text-xs text-ink-muted mb-4">사이트 맨 아래 푸터와 같은 모양이에요. 첫 칸은 로고 + 소개 문구, 그 옆으로 아래 섹션들이 나란히 표시돼요. 저장하면 바로 사이트에 반영돼요.</p>
-          <div class="mb-5">
-            <label class="input-label">로고 아래 소개 문구</label>
-            <input v-model="footer.tagline" type="text" class="input-field" placeholder="미국 한인 No.1 커뮤니티" />
-          </div>
-
-          <!-- Footer columns -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div v-for="(col, ci) in footer.columns" :key="ci" class="border border-gray-100 rounded-xl p-4">
-              <div class="flex items-center justify-between mb-3">
-                <input v-model="col.title" type="text" class="input-field text-sm font-medium" placeholder="섹션 제목" />
-              </div>
-              <div class="space-y-2 mb-3">
-                <div v-for="(link, li) in col.links" :key="li" class="flex items-center gap-2">
-                  <input v-model="link.label" type="text" class="input-field text-xs flex-1" placeholder="링크 텍스트" />
-                  <input v-model="link.url" type="text" class="input-field text-xs flex-1" placeholder="URL" />
-                  <button @click="removeFooterLink(ci, li)" class="text-red-400 hover:text-red-600 flex-shrink-0 text-lg leading-none">&times;</button>
-                </div>
-              </div>
-              <button @click="addFooterLink(ci)" class="text-xs text-amber-600 hover:text-amber-700 font-medium transition-colors">+ 링크 추가</button>
-            </div>
-          </div>
-
-          <!-- Copyright -->
-          <div class="mb-5">
-            <label class="input-label">저작권 문구</label>
-            <input v-model="footer.copyright" type="text" class="input-field" placeholder="© 2024 AwesomeKorean Inc. All rights reserved." />
-          </div>
-
-          <!-- SNS Links -->
-          <div class="mb-5">
-            <h3 class="text-sm font-semibold text-ink-muted mb-3">SNS 링크</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Facebook</span>
-                <input v-model="footer.sns.facebook" type="text" class="input-field text-sm flex-1" placeholder="https://facebook.com/..." />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Instagram</span>
-                <input v-model="footer.sns.instagram" type="text" class="input-field text-sm flex-1" placeholder="https://instagram.com/..." />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Twitter/X</span>
-                <input v-model="footer.sns.twitter" type="text" class="input-field text-sm flex-1" placeholder="https://twitter.com/..." />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-ink-muted w-24 flex-shrink-0">YouTube</span>
-                <input v-model="footer.sns.youtube" type="text" class="input-field text-sm flex-1" placeholder="https://youtube.com/..." />
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-ink-muted w-24 flex-shrink-0">Threads</span>
-                <input v-model="footer.sns.threads" type="text" class="input-field text-sm flex-1" placeholder="https://www.threads.com/@..." />
-              </div>
-            </div>
-          </div>
-
-          <!-- Additional Text -->
-          <div class="mb-6">
-            <label class="input-label">하단 추가 텍스트</label>
-            <textarea v-model="footer.additional_text" rows="3" class="input-field resize-none text-sm" placeholder="사업자등록번호, 통신판매업 신고번호 등 법적 고지사항..."></textarea>
-          </div>
-
-          <div class="flex justify-end">
-            <button @click="saveFooter" :disabled="saving" class="btn-primary">
-              <span v-if="saving" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-              저장하기
-            </button>
-          </div>
-        </div>
-
-        <!-- Live Footer Preview -->
-        <div class="bg-gray-800 rounded-xl overflow-hidden">
-          <div class="px-5 py-3 bg-gray-700 flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-red-400"></div>
-            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-            <div class="w-3 h-3 rounded-full bg-green-400"></div>
-            <span class="text-gray-300 text-xs ml-2">푸터 미리보기</span>
-          </div>
-          <footer class="px-8 py-10 text-gray-400 text-sm">
-            <div class="grid gap-8 mb-8" :style="{ gridTemplateColumns: `repeat(${footer.columns.length + 1}, minmax(0, 1fr))` }">
-              <div>
-                <img v-if="company.logo_dark_url" :src="company.logo_dark_url" alt="AwesomeKorean" class="h-7 w-auto mb-2" />
-                <div v-else class="text-amber-400 font-black text-sm mb-2">AwesomeKorean</div>
-                <div class="text-xs text-gray-400">{{ footer.tagline }}</div>
-              </div>
-              <div v-for="(col, ci) in footer.columns" :key="ci">
-                <h4 class="text-white font-semibold mb-3">{{ col.title || '섹션명' }}</h4>
-                <ul class="space-y-1.5">
-                  <li v-for="(link, li) in col.links" :key="li">
-                    <a href="#" class="hover:text-white transition-colors text-xs">{{ link.label || '링크' }}</a>
-                  </li>
-                  <li v-if="col.links.length === 0" class="text-xs text-gray-600">링크를 추가하세요</li>
-                </ul>
-              </div>
-            </div>
-            <div class="border-t border-gray-700 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-              <p class="text-xs">{{ footer.copyright || '© 2024 AwesomeKorean Inc.' }}</p>
-              <div class="flex items-center gap-3">
-                <span v-if="footer.sns.facebook" class="text-xs hover:text-white cursor-pointer">Facebook</span>
-                <span v-if="footer.sns.instagram" class="text-xs hover:text-white cursor-pointer">Instagram</span>
-                <span v-if="footer.sns.twitter" class="text-xs hover:text-white cursor-pointer">Twitter</span>
-                <span v-if="footer.sns.youtube" class="text-xs hover:text-white cursor-pointer">YouTube</span>
-                <span v-if="footer.sns.threads" class="text-xs hover:text-white cursor-pointer">Threads</span>
-              </div>
-            </div>
-            <p v-if="footer.additional_text" class="text-xs text-gray-600 mt-4">{{ footer.additional_text }}</p>
-          </footer>
-        </div>
+        <SiteFooterTab :footer="footer" :company="company" :saving="saving" @save="saveFooter" />
       </div>
 
       <!-- ========================= TAB 4: 약관 관리 ========================= -->
       <div v-show="activeTab === 'terms'">
-        <div class="card p-6">
-          <h2 class="text-base font-semibold text-ink mb-5">약관 관리</h2>
-
-          <!-- Sub tabs -->
-          <div class="flex gap-1 mb-6 border-b border-gray-200">
-            <button
-              v-for="st in termsTabs"
-              :key="st.key"
-              @click="activeTermsTab = st.key"
-              :class="[
-                'px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
-                activeTermsTab === st.key
-                  ? 'border-amber-500 text-amber-700'
-                  : 'border-transparent text-ink-muted hover:text-ink-light'
-              ]"
-            >
-              {{ st.label }}
-            </button>
-          </div>
-
-          <!-- v-show 대신 v-if 사용 — v-for 안에서 v-show로 탭을 토글하면
-               버튼 쪽 활성 표시(activeTermsTab 비교)는 제대로 바뀌는데도
-               이 div의 실제 표시 여부(el.style.display)는 최초 렌더 상태에
-               그대로 고정돼버려서, 탭을 바꿔도 항상 처음 탭(이용약관)
-               내용만 보이고 거기에 입력한 게 다른 탭에도 그대로 반영되는
-               것처럼 보이던 버그였음(실제로는 두 탭 다 같은 div가 계속
-               보이고 있었을 뿐). template로 감싸고 v-if로 바꿔서 탭 전환마다
-               해당 div를 새로 만들도록 함. -->
-          <template v-for="st in termsTabs" :key="st.key">
-          <div v-if="activeTermsTab === st.key">
-            <!-- Toolbar -->
-            <div class="flex items-center gap-1 mb-2 p-1 bg-gray-50 border border-gray-100 rounded-xl">
-              <button @click="formatText(st.key, 'bold')" class="toolbar-btn font-bold">B</button>
-              <button @click="formatText(st.key, 'italic')" class="toolbar-btn italic">I</button>
-              <div class="w-px h-5 bg-gray-300 mx-1"></div>
-              <button @click="formatText(st.key, 'h2')" class="toolbar-btn">H2</button>
-              <button @click="formatText(st.key, 'h3')" class="toolbar-btn">H3</button>
-              <div class="w-px h-5 bg-gray-300 mx-1"></div>
-              <button @click="formatText(st.key, 'list')" class="toolbar-btn">&#8801;</button>
-              <button @click="formatText(st.key, 'link')" class="toolbar-btn">&#128279;</button>
-              <div class="ml-auto text-xs text-ink-faint">{{ termsContent[st.key]?.length || 0 }}자</div>
-            </div>
-
-            <textarea
-              :ref="el => termsRef[st.key] = el"
-              v-model="termsContent[st.key]"
-              rows="16"
-              class="input-field resize-none font-mono text-sm"
-              :placeholder="`${st.label} 내용을 입력하세요...`"
-            ></textarea>
-
-            <div class="flex items-center justify-between mt-3">
-              <span class="text-xs text-ink-faint">
-                마지막 수정: {{ termsLastUpdated[st.key] || '미정' }}
-              </span>
-              <button @click="saveTerms(st.key)" :disabled="saving" class="btn-primary">
-                <span v-if="saving" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></span>
-                저장하기
-              </button>
-            </div>
-
-            <!-- Version History -->
-            <div class="mt-6 border-t border-gray-100 pt-5">
-              <h3 class="text-sm font-semibold text-ink-light mb-3">버전 히스토리</h3>
-              <div v-if="termsHistory[st.key]?.length" class="space-y-2">
-                <div
-                  v-for="(version, vi) in termsHistory[st.key]"
-                  :key="vi"
-                  class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <span class="text-sm text-ink-light font-medium">v{{ version.version }}</span>
-                    <span class="text-xs text-ink-faint ml-2">{{ version.date }}</span>
-                    <span class="text-xs text-ink-muted ml-2">{{ version.summary }}</span>
-                  </div>
-                  <button @click="restoreVersion(st.key, version)" class="btn-soft px-3 py-1 text-xs">
-                    복원
-                  </button>
-                </div>
-              </div>
-              <div v-else class="text-sm text-ink-muted py-4 text-center">버전 히스토리가 없습니다.</div>
-            </div>
-          </div>
-          </template>
-        </div>
+        <SiteTermsTab :terms-content="termsContent" :terms-last-updated="termsLastUpdated" :terms-history="termsHistory" :saving="saving" @save="saveTerms" @toast="showToast" />
       </div>
 
       <!-- ========================= TAB 5: 결제/알림 설정 ========================= -->
@@ -1200,6 +874,9 @@ const adminIsMobile = inject('adminIsMobile', ref(false))
 const isMobile = computed(() => !!adminIsMobile.value)
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import SiteCompanyTab from '../../components/admin/siteSettings/SiteCompanyTab.vue'
+import SiteFooterTab from '../../components/admin/siteSettings/SiteFooterTab.vue'
+import SiteTermsTab from '../../components/admin/siteSettings/SiteTermsTab.vue'
 import { menuIcon, menuChipColor } from '../../utils/menuIcons'
 import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
@@ -1244,8 +921,6 @@ const showVapidPrivate = ref(false)
 const showAnnouncementForm = ref(false)
 const editingAnnouncement = ref(null)
 const activeTab = ref('company')
-const activeTermsTab = ref('terms')
-const logoError = ref(false)
 const lastLoaded = ref('—')
 const showStripeSecret = ref(false)
 const savingStripe = ref(false)
@@ -1258,11 +933,6 @@ const tabs = [
   { key: 'terms', label: '약관 관리' },
   { key: 'notifications', label: '결제/알림 설정' },
   { key: 'api', label: '🔑 API 키 관리' },
-]
-
-const termsTabs = [
-  { key: 'terms', label: '이용약관' },
-  { key: 'privacy', label: '개인정보처리방침' },
 ]
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
@@ -1338,7 +1008,6 @@ const termsHistory = reactive({
   terms: [],
   privacy: [],
 })
-const termsRef = reactive({ terms: null, privacy: null })
 
 const notifications = reactive({
   announcements: [],
@@ -1600,50 +1269,6 @@ async function saveSeo() {
     showToast('저장에 실패했습니다.', 'error')
   } finally {
     saving.value = false
-  }
-}
-
-// ─── Footer helpers ───────────────────────────────────────────────────────────
-function addFooterLink(colIndex) {
-  footer.columns[colIndex].links.push({ label: '', url: '' })
-}
-
-function removeFooterLink(colIndex, linkIndex) {
-  footer.columns[colIndex].links.splice(linkIndex, 1)
-}
-
-// ─── Terms helpers ────────────────────────────────────────────────────────────
-function formatText(type, format) {
-  const el = termsRef[type]
-  if (!el) return
-  const start = el.selectionStart
-  const end = el.selectionEnd
-  const selected = termsContent[type].substring(start, end)
-  let replacement = selected
-
-  switch (format) {
-    case 'bold': replacement = `**${selected}**`; break
-    case 'italic': replacement = `*${selected}*`; break
-    case 'h2': replacement = `\n## ${selected || '제목'}`; break
-    case 'h3': replacement = `\n### ${selected || '소제목'}`; break
-    case 'list': replacement = `\n- ${selected || '항목'}`; break
-    case 'link': {
-      const url = window.prompt('URL을 입력하세요:', 'https://')
-      if (url) replacement = `[${selected || '링크 텍스트'}](${url})`
-      break
-    }
-  }
-
-  termsContent[type] =
-    termsContent[type].substring(0, start) +
-    replacement +
-    termsContent[type].substring(end)
-}
-
-function restoreVersion(type, version) {
-  if (confirm(`v${version.version} (${version.date}) 버전으로 복원하시겠습니까?`)) {
-    // In production, would fetch version content from API
-    showToast(`v${version.version} 버전으로 복원 요청되었습니다.`)
   }
 }
 
@@ -1932,98 +1557,6 @@ async function runMailTestSend() {
   } catch (e) { alert('발송 실패 — 실제 에러: ' + (e.response?.data?.message || e.message)) }
 }
 
-const logoFileInput = ref(null)
-const uploadingLogo = ref(false)
-
-async function onLogoFileSelected(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  uploadingLogo.value = true
-  try {
-    const formData = new FormData()
-    formData.append('logo', file)
-    const { data } = await axios.post('/api/admin/settings/logo', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    company.logo_url = data.data?.url || company.logo_url
-    showToast('로고가 업로드되었습니다 — 네비게이션 바, 로그인 화면, 이메일 등에 바로 반영됩니다')
-  } catch (e) {
-    alert(e.response?.data?.message || '로고 업로드 실패')
-  } finally {
-    uploadingLogo.value = false
-    e.target.value = ''
-  }
-}
-
-const logoDarkFileInput = ref(null)
-const uploadingLogoDark = ref(false)
-
-async function onLogoDarkFileSelected(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  uploadingLogoDark.value = true
-  try {
-    const formData = new FormData()
-    formData.append('logo', file)
-    const { data } = await axios.post('/api/admin/settings/logo-dark', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    company.logo_dark_url = data.data?.url || company.logo_dark_url
-    showToast('다크 배경용 로고가 업로드되었습니다 — 푸터 등에 바로 반영됩니다')
-  } catch (e) {
-    alert(e.response?.data?.message || '다크 배경용 로고 업로드 실패')
-  } finally {
-    uploadingLogoDark.value = false
-    e.target.value = ''
-  }
-}
-
-const appIconFileInput = ref(null)
-const uploadingAppIcon = ref(false)
-
-async function onAppIconFileSelected(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  uploadingAppIcon.value = true
-  try {
-    const formData = new FormData()
-    formData.append('icon', file)
-    const { data } = await axios.post('/api/admin/settings/app-icon', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    company.app_icon_url = data.data?.url || company.app_icon_url
-    showToast('앱 아이콘이 업로드되었습니다 — 핸드폰 홈 화면 바로가기에 반영됩니다')
-  } catch (e) {
-    alert(e.response?.data?.message || '앱 아이콘 업로드 실패')
-  } finally {
-    uploadingAppIcon.value = false
-    e.target.value = ''
-  }
-}
-
-const faviconFileInput = ref(null)
-const uploadingFavicon = ref(false)
-
-async function onFaviconFileSelected(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  uploadingFavicon.value = true
-  try {
-    const formData = new FormData()
-    formData.append('favicon', file)
-    const { data } = await axios.post('/api/admin/settings/favicon', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-    company.favicon_url = data.data?.url || company.favicon_url
-    showToast('파비콘이 업로드되었습니다 — 브라우저 탭에 바로 반영됩니다')
-  } catch (e) {
-    alert(e.response?.data?.message || '파비콘 업로드 실패')
-  } finally {
-    uploadingFavicon.value = false
-    e.target.value = ''
-  }
-}
-
 async function toggleReveal(key) {
   if (!key.showFull) {
     const { data } = await axios.get('/api/admin/api-keys/' + key.id + '/reveal')
@@ -2056,10 +1589,6 @@ watch(() => activeTab.value, (tab) => {
 }
 
 /* btn-primary / btn-secondary 는 app.css 전역 공용 클래스를 사용 (로컬 정의 제거) */
-
-.toolbar-btn {
-  @apply px-2.5 py-1 text-sm text-ink-light hover:bg-gray-200 rounded-lg font-medium transition-colors;
-}
 
 .toast-enter-active,
 .toast-leave-active {
