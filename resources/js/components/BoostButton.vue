@@ -29,26 +29,45 @@
           <AppIcon name="map-pin" :size="13" /> 내 지역({{ item?.state || '?' }} + 인접 주) 사용자에게 우선 노출됩니다
         </div>
 
-        <div class="days-grid">
-          <button v-for="opt in options" :key="opt.days"
-            @click="selected = opt"
-            class="day-btn"
-            :class="{ active: selected?.days === opt.days }">
-            <div class="day-num">{{ opt.days }}일</div>
-            <div class="day-price">{{ opt.price }}P</div>
-          </button>
+        <!-- 결제 방법: 포인트 또는 카드 (Kay 결정 2026-10-11 — 카드는 바로 청구, 환불 없음) -->
+        <div v-if="!cardSecret" class="pay-tabs" role="group" aria-label="결제 방법">
+          <button type="button" :class="{ on: payWith === 'points' }" @click="payWith = 'points'">포인트</button>
+          <button type="button" :class="{ on: payWith === 'card' }" @click="payWith = 'card'">카드 결제</button>
         </div>
 
-        <div class="total-box">
-          <span class="total-label">총 결제</span>
-          <span class="total-value">{{ selected?.price || 0 }}P</span>
-        </div>
+        <template v-if="!cardSecret">
+          <div class="days-grid">
+            <button v-for="opt in options" :key="opt.days"
+              @click="selected = opt"
+              class="day-btn"
+              :class="{ active: selected?.days === opt.days }">
+              <div class="day-num">{{ opt.days }}일</div>
+              <div class="day-price">{{ priceText(opt.price) }}</div>
+            </button>
+          </div>
 
-        <div class="modal-actions">
-          <button @click="showModal = false" class="btn-cancel" :disabled="paying">취소</button>
-          <button @click="pay" class="btn-pay" :disabled="paying || !selected">
-            {{ paying ? '결제 중...' : '결제하기' }}
-          </button>
+          <div class="total-box">
+            <span class="total-label">총 결제</span>
+            <span class="total-value">{{ priceText(selected?.price || 0) }}</span>
+          </div>
+          <p v-if="payWith === 'card'" class="card-note">카드로 결제하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 환불되지 않아요.</b> 인보이스는 결제 내역에서 볼 수 있어요.</p>
+
+          <div class="modal-actions">
+            <button @click="showModal = false" class="btn-cancel" :disabled="paying">취소</button>
+            <button @click="pay" class="btn-pay" :disabled="paying || !selected">
+              {{ paying ? '처리 중...' : (payWith === 'card' ? '카드로 결제하기' : '포인트로 결제하기') }}
+            </button>
+          </div>
+        </template>
+
+        <!-- 카드 확인 단계 -->
+        <div v-else>
+          <div class="total-box">
+            <span class="total-label">{{ selected?.days }}일 · 카드 결제</span>
+            <span class="total-value">{{ money(cardCents) }}</span>
+          </div>
+          <StripeCardForm :client-secret="cardSecret" button-label="카드 확인하고 결제·적용하기" @authorized="confirmCard" />
+          <button @click="cancelCard" class="btn-cancel" style="width:100%;margin-top:8px;" :disabled="paying">뒤로</button>
         </div>
 
         <div v-if="errorMsg" class="err-msg">{{ errorMsg }}</div>
@@ -59,10 +78,11 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import axios from 'axios'
 import { useSiteStore } from '../stores/site'
 import AppIcon from './AppIcon.vue'
+import StripeCardForm from './StripeCardForm.vue'
 
 const props = defineProps({
   resource: { type: String, required: true },
@@ -75,12 +95,29 @@ const site = useSiteStore()
 const showModal = ref(false)
 const paying = ref(false)
 const errorMsg = ref('')
-const options = [
-  { days: 1, price: 100 },
-  { days: 3, price: 300 },
-  { days: 7, price: 700 },
-]
-const selected = ref(options[0])
+// 하루 가격은 서버 설정(관리자 › 가격 센터)을 읽는다. 숫자는 포인트이자 센트(100 = $1.00)
+const TIER = 'state_plus'
+const pricePerDay = ref(100)
+const options = computed(() => [1, 3, 7].map(days => ({ days, price: pricePerDay.value * days })))
+const selected = ref(null)
+const payWith = ref('points')
+const cardSecret = ref('')
+const cardPaymentId = ref(null)
+const cardCents = ref(0)
+const money = (c) => '$' + (Number(c || 0) / 100).toFixed(2)
+const priceText = (p) => payWith.value === 'card' ? money(Math.max(50, p)) : Number(p || 0).toLocaleString() + 'P'
+
+watch(showModal, async (open) => {
+  if (!open) { cardSecret.value = ''; cardPaymentId.value = null; return }
+  errorMsg.value = ''
+  try {
+    const key = props.resource === 'businesses' ? 'business' : props.resource
+    const { data } = await axios.get('/api/promotion/settings', { params: { resource: key } })
+    const p = Number(data?.data?.price_per_day?.[TIER])
+    if (p > 0) pricePerDay.value = p
+  } catch {}
+  selected.value = options.value.find(o => o.days === (selected.value?.days || 1)) || options.value[0]
+})
 
 // 활성 여부 — modern tier (state_plus 등) 또는 legacy boosted_until 둘 다 체크
 const isActive = computed(() => {
@@ -118,9 +155,18 @@ async function pay() {
     // 단순 UX를 위해 tier=state_plus 고정 (위치 기반 우선)
     const endpoint = endpointFor(props.resource)
     const { data } = await axios.post(`${endpoint}/${props.item.id}/promote`, {
-      tier: 'state_plus',
+      tier: TIER,
       days: selected.value.days,
+      pay_with: payWith.value,
     })
+    // 카드: 서버가 카드 보류를 만들고 돌려준 값으로 카드 확인 단계로 넘어감
+    if (data?.data?.needs_card) {
+      cardSecret.value = data.data.client_secret
+      cardPaymentId.value = data.data.payment_id
+      cardCents.value = data.data.total_cents
+      paying.value = false
+      return
+    }
     site.toast?.(data.message || '상위노출이 적용되었습니다', 'success')
     showModal.value = false
     emit('updated')
@@ -136,6 +182,24 @@ async function pay() {
   }
   paying.value = false
 }
+
+async function confirmCard() {
+  paying.value = true
+  errorMsg.value = ''
+  try {
+    const { data } = await axios.post(`${endpointFor(props.resource)}/${props.item.id}/promote/confirm`, {
+      payment_id: cardPaymentId.value, tier: TIER, days: selected.value.days,
+    })
+    site.toast?.(data.message || '상위노출이 적용되었습니다', 'success')
+    showModal.value = false
+    emit('updated')
+  } catch (e) {
+    errorMsg.value = e.response?.data?.message || '카드 결제를 마치지 못했어요'
+    cardSecret.value = ''
+  }
+  paying.value = false
+}
+function cancelCard() { cardSecret.value = ''; cardPaymentId.value = null }
 
 function endpointFor(r) {
   // URL 세그먼트 매핑
@@ -216,6 +280,10 @@ function endpointFor(r) {
 .btn-pay:hover:not(:disabled) { background: #7c3aed; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35); }
 .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.pay-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #f3f4f6; padding: 4px; border-radius: 12px; margin-bottom: 12px; }
+.pay-tabs button { min-height: 40px; border: 0; border-radius: 9px; background: transparent; font-weight: 700; font-size: 14px; color: #4E5968; cursor: pointer; }
+.pay-tabs button.on { background: #fff; color: #7c3aed; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.card-note { font-size: 12px; color: #6b7280; line-height: 1.5; margin: -6px 0 12px; }
 .err-msg {
   margin-top: 10px; padding: 10px; background: #fef2f2; border: 1px solid #fecaca;
   border-radius: 10px; color: #dc2626; font-size: 12px; font-weight: 600; text-align: center;

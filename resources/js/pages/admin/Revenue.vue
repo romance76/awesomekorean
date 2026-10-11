@@ -46,6 +46,9 @@
     <div class="bg-white border border-gray-100 rounded-2xl px-3.5 py-2.5 text-[14px] space-y-1">
       <div class="flex justify-between gap-3"><span class="text-ink-muted">경품 이벤트 의뢰</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.event_request.net) }}</b></div>
       <div class="flex justify-between gap-3"><span class="text-ink-muted">NEW 전면광고</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.flyer.net) }}</b></div>
+      <div class="flex justify-between gap-3"><span class="text-ink-muted">배너 광고</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.banner?.net) }}</b></div>
+      <div class="flex justify-between gap-3"><span class="text-ink-muted">텍스트 광고</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.text_ad?.net) }}</b></div>
+      <div class="flex justify-between gap-3"><span class="text-ink-muted">상위노출(카드)</span><b class="tabular-nums">{{ usd(sum.direct.by_kind.promotion?.net) }}</b></div>
     </div>
 
     <!-- 일별 결제액 (막대를 누르면 그날 금액이 아래에 나와요) -->
@@ -159,6 +162,9 @@
         <div class="text-[11px] text-ink-muted mt-1.5 space-y-0.5">
           <div class="flex justify-between"><span>경품 이벤트 의뢰</span><b>{{ usd(sum.direct.by_kind.event_request.net) }}</b></div>
           <div class="flex justify-between"><span>NEW 전면광고</span><b>{{ usd(sum.direct.by_kind.flyer.net) }}</b></div>
+          <div class="flex justify-between"><span>배너 광고</span><b>{{ usd(sum.direct.by_kind.banner?.net) }}</b></div>
+          <div class="flex justify-between"><span>텍스트 광고</span><b>{{ usd(sum.direct.by_kind.text_ad?.net) }}</b></div>
+          <div class="flex justify-between"><span>상위노출(카드)</span><b>{{ usd(sum.direct.by_kind.promotion?.net) }}</b></div>
         </div>
       </div>
       <div class="card p-4">
@@ -248,11 +254,15 @@ const ranges = [
 const kinds = [
   { key: '', label: '전체' }, { key: 'points', label: '포인트 구매' }, { key: 'direct', label: '달러 직접 결제' },
   { key: 'event_request', label: '경품 이벤트 의뢰' }, { key: 'flyer', label: 'NEW 전면광고' },
+  { key: 'banner', label: '배너 광고' }, { key: 'text_ad', label: '텍스트 광고' }, { key: 'promotion', label: '상위노출(카드)' },
 ]
 const KIND = {
   points: { text: '포인트 구매', cls: 'bg-blue-50 text-blue-600 border-blue-200' },
   event_request: { text: '경품 이벤트 의뢰', cls: 'bg-amber-50 text-amber-600 border-amber-200' },
   flyer: { text: 'NEW 전면광고', cls: 'bg-amber-50 text-amber-600 border-amber-200' },
+  banner: { text: '배너 광고', cls: 'bg-violet-50 text-violet-600 border-violet-200' },
+  text_ad: { text: '텍스트 광고', cls: 'bg-violet-50 text-violet-600 border-violet-200' },
+  promotion: { text: '상위노출(카드)', cls: 'bg-violet-50 text-violet-600 border-violet-200' },
 }
 const STATUS = {
   completed: { text: '완료', cls: 'bg-green-50 text-green-700 border-green-200' },

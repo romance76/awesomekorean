@@ -61,7 +61,7 @@
               :class="adForm.geo_scope==='city' ? 'border-purple-400 bg-purple-50' : 'border-gray-200'">
               <input type="radio" name="geo_scope" value="city" v-model="adForm.geo_scope" class="accent-purple-500" />
               <span :class="adForm.geo_scope==='city' ? 'text-purple-700 font-bold' : 'text-ink-muted'">시티</span>
-              <span class="text-[11px] text-ink-faint">-{{ geoMarkup.cityDiscount.toLocaleString() }}P</span>
+              <span class="text-[11px] text-ink-faint">-{{ usd(geoMarkup.cityDiscount) }}</span>
             </label>
             <label class="flex items-center gap-1 cursor-pointer text-xs px-2 py-1.5 rounded-lg border transition-colors"
               :class="adForm.geo_scope==='county' ? 'border-green-400 bg-green-50' : 'border-gray-200'">
@@ -73,13 +73,13 @@
               :class="adForm.geo_scope==='state' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'">
               <input type="radio" name="geo_scope" value="state" v-model="adForm.geo_scope" class="accent-blue-500" />
               <span :class="adForm.geo_scope==='state' ? 'text-blue-700 font-bold' : 'text-ink-muted'">주</span>
-              <span class="text-[11px] text-ink-faint">+{{ geoMarkup.state.toLocaleString() }}P</span>
+              <span class="text-[11px] text-ink-faint">+{{ usd(geoMarkup.state) }}</span>
             </label>
             <label class="flex items-center gap-1 cursor-pointer text-xs px-2 py-1.5 rounded-lg border transition-colors"
               :class="adForm.geo_scope==='all' ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
               <input type="radio" name="geo_scope" value="all" v-model="adForm.geo_scope" class="accent-amber-500" />
               <span :class="adForm.geo_scope==='all' ? 'text-amber-700 font-bold' : 'text-ink-muted'">전국</span>
-              <span class="text-[11px] text-ink-faint">+{{ (geoMarkup.state + geoMarkup.national).toLocaleString() }}P</span>
+              <span class="text-[11px] text-ink-faint">+{{ usd((geoMarkup.state + geoMarkup.national)) }}</span>
             </label>
           </div>
           <div class="mt-2 text-xs text-ink-faint">
@@ -130,7 +130,7 @@
                 <div class="text-[11px] font-black text-yellow-700">프리미엄 A</div>
                 <div class="text-[11px] text-ink-muted">고정 독점 · 권장 400×280</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
-                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('left','premium').toLocaleString() }}</span>{{ slotMinPrice('left','premium').toLocaleString() }}P/월
+                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ usd(slotOriginalPrice('left','premium')) }}</span>{{ usd(slotMinPrice('left','premium')) }}/월
                 </div>
               </div>
 
@@ -141,7 +141,7 @@
                 <div class="text-[11px] font-black text-blue-700">스탠다드 A</div>
                 <div class="text-[11px] text-ink-muted">고정 독점 · 권장 400×280</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
-                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('left','standard').toLocaleString() }}</span>{{ slotMinPrice('left','standard').toLocaleString() }}P/월
+                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ usd(slotOriginalPrice('left','standard')) }}</span>{{ usd(slotMinPrice('left','standard')) }}/월
                 </div>
               </div>
             </div>
@@ -161,7 +161,7 @@
                   <div class="text-xs font-black text-purple-700">텍스트 인라인</div>
                   <div class="text-[11px] text-ink-muted">상호+전화+설명 · 마퀴 · 리스트 중간</div>
                   <div class="text-[11px] font-bold text-red-600 mt-0.5">
-                    <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('inline-text','text').toLocaleString() }}</span>{{ slotMinPrice('inline-text','text').toLocaleString() }}P/월
+                    <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ usd(slotOriginalPrice('inline-text','text')) }}</span>{{ usd(slotMinPrice('inline-text','text')) }}/월
                   </div>
                 </div>
 
@@ -181,7 +181,7 @@
                 <div class="text-[11px] font-black text-yellow-700">프리미엄 B</div>
                 <div class="text-[11px] text-ink-muted">고정 독점 · 권장 600×420</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
-                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('right','premium').toLocaleString() }}</span>{{ slotMinPrice('right','premium').toLocaleString() }}P/월
+                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ usd(slotOriginalPrice('right','premium')) }}</span>{{ usd(slotMinPrice('right','premium')) }}/월
                 </div>
               </div>
 
@@ -192,7 +192,7 @@
                 <div class="text-[11px] font-black text-blue-700">스탠다드 B</div>
                 <div class="text-[11px] text-ink-muted">고정 독점 · 권장 600×420</div>
                 <div class="text-[11px] font-bold text-red-600 mt-0.5">
-                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ slotOriginalPrice('right','standard').toLocaleString() }}</span>{{ slotMinPrice('right','standard').toLocaleString() }}P/월
+                  <span v-if="adDiscountPct" class="text-ink-faint line-through font-normal mr-1">{{ usd(slotOriginalPrice('right','standard')) }}</span>{{ usd(slotMinPrice('right','standard')) }}/월
                 </div>
               </div>
             </div>
@@ -323,15 +323,15 @@
             <div class="bg-white rounded-lg p-3 mb-3 text-xs space-y-1 border border-gray-100">
               <div class="flex justify-between">
                 <span class="text-ink-muted">슬롯: {{ posLabels[selectedSlot.position] }} {{ tierLabels[selectedSlot.tier] }}</span>
-                <span class="font-bold">{{ basePricePerSlot.toLocaleString() }}P</span>
+                <span class="font-bold">{{ usd(basePricePerSlot) }}</span>
               </div>
               <div v-if="isTextAd" class="flex justify-between text-purple-600 bg-purple-50 -mx-1 px-1 py-0.5 rounded">
                 <span class="font-bold inline-flex items-center gap-1"><AppIcon name="edit" :size="12" />텍스트 인라인 할인 적용 중</span>
-                <span class="text-[11px]">시티 -200 · 카운티 0 · 주 +200 · 전국 +400</span>
+                <span class="text-[11px]">시티 -$2 · 카운티 $0 · 주 +$2 · 전국 +$4</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-ink-muted">지역 {{ geoExtra >= 0 ? '추가금' : '할인' }}</span>
-                <span class="font-bold" :class="geoExtra < 0 ? 'text-red-500' : ''">{{ geoExtra >= 0 ? '+' : '' }}{{ geoExtra.toLocaleString() }}P</span>
+                <span class="font-bold" :class="geoExtra < 0 ? 'text-red-500' : ''">{{ geoExtra >= 0 ? '+' : '-' }}{{ usd(Math.abs(geoExtra)) }}</span>
               </div>
               <div v-if="adDiscountPct" class="flex justify-between text-red-600">
                 <span class="font-bold inline-flex items-center gap-1"><AppIcon name="sparkles" :size="13" />{{ adPromotion?.title }}</span>
@@ -340,34 +340,41 @@
               <div class="flex justify-between border-t border-gray-100 pt-1 mt-1">
                 <span class="font-bold text-amber-800">최소 입찰가</span>
                 <span class="font-black text-amber-800 flex items-baseline gap-2">
-                  <span v-if="adDiscountPct" class="text-ink-faint line-through text-xs font-normal">{{ totalMinBidOriginal.toLocaleString() }}P</span>
-                  {{ totalMinBid.toLocaleString() }}P
+                  <span v-if="adDiscountPct" class="text-ink-faint line-through text-xs font-normal">{{ usd(totalMinBidOriginal) }}</span>
+                  {{ usd(totalMinBid) }}
                 </span>
               </div>
             </div>
 
             <div class="flex items-center gap-3">
-              <input type="number" v-model.number="adForm.bid_amount" :min="totalMinBid" step="100" @input="saveDraft"
+              <span class="text-lg font-black text-amber-700">$</span>
+              <input type="number" v-model.number="bidDollars" :min="totalMinBid / 100" step="1" @input="saveDraft"
                 class="flex-1 border-2 border-amber-400 rounded-xl px-4 py-3 text-lg font-black text-amber-800 text-center outline-none focus:ring-4 focus:ring-amber-400/10" />
-              <span class="text-lg font-black text-amber-700">P</span>
             </div>
-            <div class="mt-2 text-xs">
-              <span v-if="hasEnough" class="text-green-600 inline-flex items-center gap-1">보유: {{ (auth.user?.points||0).toLocaleString() }}P <AppIcon name="check" :size="13" /></span>
-              <span v-else class="text-red-600 inline-flex items-center gap-1">
-                보유: {{ (auth.user?.points||0).toLocaleString() }}P <AppIcon name="alert-circle" :size="13" />
-                <button @click="goPointShop" class="ml-2 inline-flex items-center gap-0.5 bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-600 transition-colors">충전 <AppIcon name="arrow-right" :size="11" /></button>
-              </span>
-            </div>
+            <p class="mt-2 text-xs text-ink-muted leading-relaxed">광고는 <b>카드 결제</b>로만 신청할 수 있어요(포인트 사용 불가). 신청할 때는 카드 확인(보류)만 하고, <b>관리자가 승인하면 그때 청구</b>돼요. 거절되면 청구되지 않아요.</p>
           </div>
 
           <button @click="submitAd" :disabled="submitting || !canSubmit"
             class="w-full py-3 rounded-xl font-bold text-sm transition disabled:opacity-50"
             :class="canSubmit ? 'bg-amber-400 text-white hover:bg-amber-500 shadow-btn' : 'bg-gray-200 text-gray-400'">
-            {{ submitting ? '신청 중...' : `입찰 신청 (${(adForm.bid_amount||0).toLocaleString()}P)` }}
+            {{ submitting ? '신청 중...' : `카드로 입찰 신청 (${usd(adForm.bid_amount||0)})` }}
           </button>
         </div>
       </div>
     </Transition>
+
+    <!-- ═══ 카드 확인 (신청 직후 — 보류만, 승인 시 청구) ═══ -->
+    <Teleport to="body">
+      <div v-if="checkout" class="fixed inset-0 z-[90] bg-black/50 flex items-end sm:items-center justify-center p-0 sm:p-4" @click.self="closeCheckout">
+        <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5" :style="{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }">
+          <div class="text-[17px] font-bold text-ink mb-1">카드 확인</div>
+          <p class="text-[13px] text-ink-muted mb-3 leading-relaxed">지금은 <b>{{ usd(checkout.cents) }}</b> 를 카드에 <b>보류</b>만 해요. 관리자가 승인하면 그때 청구되고, 거절되면 청구되지 않아요. (보류는 약 7일 안에 승인되지 않으면 자동으로 풀려요)</p>
+          <StripeCardForm :client-secret="checkout.secret" button-label="카드 확인하고 신청 완료" @authorized="confirmCheckout" />
+          <p v-if="checkoutError" class="text-xs text-red-500 mt-2">{{ checkoutError }}</p>
+          <button @click="closeCheckout" class="w-full mt-2 py-2.5 rounded-xl bg-gray-100 text-ink text-sm font-bold">나중에 하기</button>
+        </div>
+      </div>
+    </Teleport>
 
     <!-- ═══ 내 광고 ═══ -->
     <div class="card p-5">
@@ -383,10 +390,13 @@
             <div class="flex items-center gap-1.5 flex-wrap">
               <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="statusClasses[ad.status]">{{ statusLabels[ad.status] }}</span>
               <span class="badge-purple">{{ posLabels[ad.position] }}{{ ad.slot_number }}</span>
-              <span class="badge-primary font-bold">{{ (ad.bid_amount||0).toLocaleString() }}P</span>
+              <span class="badge-primary font-bold">{{ usd(ad.bid_amount||0) }}</span>
             </div>
             <div class="text-sm font-bold text-ink truncate mt-0.5">{{ ad.title }}</div>
             <div class="text-xs text-ink-faint">{{ (ad.target_pages||[ad.page]).join(', ') }} · {{ ad.geo_scope!=='all'?ad.geo_value:'전국' }}</div>
+            <div v-if="ad.payment_method === 'card' && ['awaiting_payment','pending'].includes(ad.status)" class="mt-1.5 flex gap-2">
+              <button @click="cancelAd(ad)" class="text-[12px] px-2.5 py-1 rounded-lg bg-gray-100 text-ink-light font-bold">신청 취소</button>
+            </div>
           </div>
         </div>
       </div>
@@ -408,6 +418,7 @@ import { menuIcon } from '../../utils/menuIcons'
 import { adSize, AD_RATIO_TEXT } from '../../utils/adSizes'
 import { adSlotExists } from '../../config/adSlotMap'
 import axios from 'axios'
+import StripeCardForm from '../../components/StripeCardForm.vue'
 
 const siteStore = useSiteStore()
 
@@ -494,8 +505,8 @@ const nationalPages = ['home', 'community', 'qa', 'news', 'recipes', 'shorts', '
 const posLabels = { left: '좌측 A', right: '우측 B', 'inline-text': '리스트 중간' }
 const tierLabels = { premium: '프리미엄', standard: '스탠다드', text: '텍스트 인라인' }
 const isTextAd = computed(() => selectedSlot.value?.tier === 'text')
-const statusLabels = { pending:'입찰대기', active:'게시중', rejected:'거절', expired:'만료', paused:'중지' }
-const statusClasses = { pending:'bg-amber-100 text-amber-700', active:'bg-green-100 text-green-700', rejected:'bg-red-100 text-red-700', expired:'bg-gray-200 text-gray-500', paused:'bg-gray-200 text-gray-500' }
+const statusLabels = { awaiting_payment:'카드 확인 대기', pending:'승인 대기', active:'게시중', rejected:'거절', expired:'만료', paused:'중지', cancelled:'취소됨' }
+const statusClasses = { awaiting_payment:'bg-orange-100 text-orange-700', cancelled:'bg-gray-200 text-gray-500', pending:'bg-amber-100 text-amber-700', active:'bg-green-100 text-green-700', rejected:'bg-red-100 text-red-700', expired:'bg-gray-200 text-gray-500', paused:'bg-gray-200 text-gray-500' }
 
 const nextAuctionDate = computed(() => {
   const now = new Date()
@@ -599,7 +610,30 @@ function slotMinPrice(position, tier) {
   return applyDiscount(getBasePrice(position, tier) + computeGeoExtra(tier))
 }
 
-const hasEnough = computed(() => (auth.user?.points || 0) >= (adForm.bid_amount || 0))
+// 광고는 카드 결제만 (Kay 결정 2026-10-11). 가격 숫자는 센트(예전 포인트 숫자 그대로, 100 = $1.00)
+const usd = (c) => '$' + (Number(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const bidDollars = computed({
+  get: () => Math.round(Number(adForm.bid_amount || 0)) / 100,
+  set: (v) => { adForm.bid_amount = Math.round(Number(v || 0) * 100) },
+})
+const checkout = ref(null)          // { id, secret, cents, isText }
+const checkoutError = ref('')
+function closeCheckout() { checkout.value = null; checkoutError.value = ''; loadMyAds() }
+async function confirmCheckout() {
+  checkoutError.value = ''
+  try {
+    const { data } = await axios.post(`/api/banners/${checkout.value.id}/confirm-payment`)
+    checkout.value = null
+    showAlert(data.message, '광고 신청')
+    await loadMyAds()
+  } catch (e) { checkoutError.value = e.response?.data?.message || '카드 확인을 마치지 못했어요' }
+}
+async function cancelAd(ad) {
+  const ok = await showConfirm('이 광고 신청을 취소할까요? 카드에는 청구되지 않아요.', '신청 취소')
+  if (!ok) return
+  try { const { data } = await axios.post(`/api/banners/${ad.id}/cancel`); showAlert(data.message, '취소'); await loadMyAds() }
+  catch (e) { showAlert(e.response?.data?.message || '취소하지 못했어요', '오류') }
+}
 const canSubmit = computed(() => {
   if (!selectedSub.value) return false
   if (!selectedSlot.value) return false
@@ -611,7 +645,6 @@ const canSubmit = computed(() => {
     if (!adImage.value || !imageConfirmed.value) return false
   }
   if (adForm.bid_amount < totalMinBid.value) return false
-  if (!hasEnough.value) return false
   if (!isNationalPage.value && adForm.geo_scope !== 'all' && !adForm.geo_value) return false
   return true
 })
@@ -771,7 +804,6 @@ function goPointShop() { saveDraft(); router.push('/dashboard?tab=points') }
 
 async function submitAd() {
   if (!canSubmit.value || submitting.value) return
-  if (!hasEnough.value) { const ok = await showConfirm(`포인트 부족 (보유: ${(auth.user?.points || 0).toLocaleString()}P)\n충전?`, '부족'); if (ok) goPointShop(); return }
   submitting.value = true
 
   // 텍스트 인라인은 별도 엔드포인트 (FormData 없이 JSON)
@@ -786,14 +818,14 @@ async function submitAd() {
         days: 30, // AdApply 는 월간 경매 기준
         bid_amount: adForm.bid_amount,
       })
-      showAlert(data.message, '텍스트 광고 신청')
+      checkout.value = { id: data.data.banner_id, secret: data.data.client_secret, cents: data.data.total_cents }
       selectedSlot.value = null
       Object.assign(adForm, { title: '', link_url: '', bid_amount: 1000, geo_scope: 'county', geo_value: '', phone: '', description: '' })
       selectedSub.value = ''; clearDraft()
       await loadMyAds()
     } catch (e) {
       const m = e.response?.data?.message || '실패'
-      if (m.includes('부족')) { const ok = await showConfirm(m + '\n충전?', '부족'); if (ok) goPointShop() } else showAlert(m, '오류')
+      showAlert(m, '오류')
     }
     submitting.value = false
     return
@@ -822,14 +854,14 @@ async function submitAd() {
   if (adImage.value) fd.append('image', adImage.value)
   try {
     const { data } = await axios.post('/api/banners/apply', fd)
-    showAlert(data.message, '입찰 신청')
+    checkout.value = { id: data.data.banner_id, secret: data.data.client_secret, cents: data.data.total_cents }
     selectedSlot.value = null
     Object.assign(adForm, { title: '', link_url: '', bid_amount: 4000, geo_scope: 'county', geo_value: '', phone: '', description: '' })
     adImage.value = null; imagePreview.value = null; selectedSub.value = ''; clearDraft()
     await loadMyAds()
   } catch (e) {
     const m = e.response?.data?.message || '실패'
-    if (m.includes('부족')) { const ok = await showConfirm(m + '\n충전?', '부족'); if (ok) goPointShop() } else showAlert(m, '오류')
+    showAlert(m, '오류')
   }
   submitting.value = false
 }

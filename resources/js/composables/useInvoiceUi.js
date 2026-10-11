@@ -26,4 +26,4 @@ export const MAIL_STATUS = {
 }
 export const mailChip = (delivery) => MAIL_STATUS[delivery?.status] || MAIL_STATUS.none
 
-export const KIND_TEXT = { points: '포인트 구매', flyer: 'NEW 전면광고', event_request: '경품 이벤트 의뢰' }
+export const KIND_TEXT = { points: '포인트 구매', flyer: 'NEW 전면광고', event_request: '경품 이벤트 의뢰', banner: '배너 광고', text_ad: '텍스트 광고', promotion: '상위노출' }

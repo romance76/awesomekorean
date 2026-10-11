@@ -64,7 +64,7 @@
             :class="form.period === p.days ? 'bg-purple-100 border-purple-400 text-purple-800' : 'bg-white border-gray-200 text-ink-light hover:border-purple-200'"
             class="border-2 rounded-lg p-3 text-center transition-colors">
             <div class="text-sm font-black">{{ p.label }}</div>
-            <div class="text-xs font-bold text-purple-600 mt-1">{{ p.price.toLocaleString() }}P</div>
+            <div class="text-xs font-bold text-purple-600 mt-1">{{ usd(p.price) }}</div>
           </button>
         </div>
       </div>
@@ -73,25 +73,34 @@
       <div class="bg-purple-50 border border-purple-200 rounded-xl p-3 flex items-center justify-between">
         <div>
           <div class="text-xs text-purple-700">총 결제 금액</div>
-          <div class="text-xs text-ink-muted">입찰가 (높을수록 노출 확률 ↑) 기본 {{ selectedPrice.toLocaleString() }}P</div>
+          <div class="text-xs text-ink-muted">입찰가 (높을수록 노출 확률 ↑) 기본 {{ usd(selectedPrice) }} · 카드 결제</div>
         </div>
         <div class="text-right">
-          <input v-model.number="form.bid_amount" type="number" :min="selectedPrice" step="100"
+          <span class="text-lg font-black text-purple-800 mr-1">$</span><input v-model.number="bidDollars" type="number" :min="selectedPrice / 100" step="1"
             class="w-32 border-2 border-purple-300 rounded-xl px-2 py-1 text-right text-lg font-black text-purple-800 outline-none focus:ring-4 focus:ring-purple-400/10" />
-          <div class="text-xs text-ink-faint">P (최소 {{ selectedPrice.toLocaleString() }})</div>
+          <div class="text-xs text-ink-faint">최소 {{ usd(selectedPrice) }}</div>
         </div>
       </div>
 
       <!-- 제출 -->
       <button @click="submit" :disabled="!canSubmit || submitting"
         class="w-full bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] text-white font-bold py-3 rounded-xl disabled:opacity-50 hover:shadow-lg transition">
-        {{ submitting ? '신청 중...' : `광고 신청 (${(form.bid_amount || 0).toLocaleString()}P)` }}
+        {{ submitting ? '신청 중...' : `카드로 광고 신청 (${usd(form.bid_amount || 0)})` }}
       </button>
 
       <p v-if="!auth.isLoggedIn" class="text-xs text-center text-red-500">로그인 후 신청 가능합니다</p>
-      <p v-else-if="(auth.user?.points || 0) < form.bid_amount" class="text-xs text-center text-red-500">
-        포인트 부족 · 보유: {{ (auth.user?.points || 0).toLocaleString() }}P
-      </p>
+      <p v-else class="text-xs text-center text-ink-muted leading-relaxed">광고는 카드 결제로만 신청할 수 있어요. 지금은 카드 확인(보류)만 하고, 관리자가 승인하면 그때 청구돼요. 거절되면 청구되지 않아요.</p>
+    </div>
+
+    <!-- 카드 확인 (신청 직후) -->
+    <div v-if="checkout" class="fixed inset-0 z-[90] bg-black/50 flex items-end sm:items-center justify-center" @click.self="checkout = null">
+      <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5" :style="{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="text-[17px] font-bold text-ink mb-1">카드 확인</div>
+        <p class="text-[13px] text-ink-muted mb-3 leading-relaxed">지금은 <b>{{ usd(checkout.cents) }}</b> 를 카드에 보류만 해요. 관리자가 승인하면 그때 청구돼요.</p>
+        <StripeCardForm :client-secret="checkout.secret" button-label="카드 확인하고 신청 완료" @authorized="confirmCheckout" />
+        <p v-if="checkoutError" class="text-xs text-red-500 mt-2">{{ checkoutError }}</p>
+        <button @click="checkout = null" class="w-full mt-2 py-2.5 rounded-xl bg-gray-100 text-ink text-sm font-bold">나중에 하기</button>
+      </div>
     </div>
   </div>
 </div>
@@ -106,6 +115,7 @@ import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import axios from 'axios'
+import StripeCardForm from '../../components/StripeCardForm.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -162,8 +172,25 @@ const canSubmit = computed(() =>
   && form.description.trim()
   && form.page
   && form.bid_amount >= selectedPrice.value
-  && (auth.user?.points || 0) >= form.bid_amount
 )
+
+// 광고는 카드 결제만 (Kay 결정 2026-10-11). 가격 숫자는 센트(100 = $1.00)
+const usd = (c) => '$' + (Number(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const bidDollars = computed({
+  get: () => Math.round(Number(form.bid_amount || 0)) / 100,
+  set: (v) => { form.bid_amount = Math.round(Number(v || 0) * 100) },
+})
+const checkout = ref(null)
+const checkoutError = ref('')
+async function confirmCheckout() {
+  checkoutError.value = ''
+  try {
+    const { data } = await axios.post(`/api/banners/${checkout.value.id}/confirm-payment`)
+    checkout.value = null
+    site.toast?.(data.message || '신청이 접수됐어요', 'success')
+    router.push('/dashboard')
+  } catch (e) { checkoutError.value = e.response?.data?.message || '카드 확인을 마치지 못했어요' }
+}
 
 async function submit() {
   if (!canSubmit.value || submitting.value) return
@@ -178,8 +205,7 @@ async function submit() {
       days: form.period,
       bid_amount: form.bid_amount,
     })
-    site.toast?.(data.message || '광고 신청 완료! 검토 후 활성화됩니다.', 'success')
-    router.push('/dashboard')
+    checkout.value = { id: data.data.banner_id, secret: data.data.client_secret, cents: data.data.total_cents }
   } catch (e) {
     site.toast?.(e.response?.data?.message || '신청 실패', 'error')
   }

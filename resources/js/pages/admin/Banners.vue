@@ -35,7 +35,7 @@
     <span class="min-w-0 flex-1">
       <span class="flex items-center gap-1.5 flex-wrap">
         <span class="text-[12px] px-2 py-0.5 rounded-full font-bold" :class="stCls[item.status]">{{ stLbl[item.status] || item.status }}</span>
-        <span class="text-[12px] font-bold text-amber-700">{{ (item.bid_amount || 0).toLocaleString() }}P</span>
+        <span class="text-[12px] font-bold text-amber-700">{{ amt(item) }}</span>
       </span>
       <span class="block text-[15px] font-bold text-ink truncate mt-0.5">{{ item.title }}</span>
       <span class="block text-[13px] text-ink-muted truncate">{{ item.user?.name }} · {{ pageLabel(item.page) }} · {{ {left:'좌',right:'우'}[item.position] }}{{ item.slot_number }}</span>
@@ -53,7 +53,7 @@
         <!-- 거절 사유 -->
         <div v-if="mode === 'reject'" class="space-y-3">
           <div class="text-[17px] font-bold text-ink">광고 거절</div>
-          <div class="text-[14px] text-ink-muted break-words">‘{{ sheetItem.title }}’ — 거절하면 광고주에게 <b class="text-ink">{{ refundAmount(sheetItem).toLocaleString() }}P</b>가 환불되고 사유가 전달돼요.</div>
+          <div class="text-[14px] text-ink-muted break-words">‘{{ sheetItem.title }}’ — <template v-if="sheetItem.payment_method === 'card'">거절하면 카드는 <b class="text-ink">청구 없이 보류만 풀리고</b> 사유가 전달돼요.</template><template v-else>거절하면 광고주에게 <b class="text-ink">{{ refundAmount(sheetItem).toLocaleString() }}P</b>가 환불되고 사유가 전달돼요.</template></div>
           <div class="flex flex-wrap gap-2">
             <button v-for="r in rejectPresets" :key="r" type="button" @click="rejectReason = r"
               class="min-h-[44px] px-3 rounded-full border text-[14px]" :class="rejectReason === r ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200'">{{ r }}</button>
@@ -66,7 +66,7 @@
         <!-- 삭제 확인 -->
         <div v-else-if="mode === 'delete'" class="space-y-3">
           <div class="text-[17px] font-bold text-ink">광고를 삭제할까요?</div>
-          <p class="text-[15px] text-ink-light leading-relaxed break-words">‘{{ sheetItem.title }}’<template v-if="['pending','active','paused'].includes(sheetItem.status)"><br />광고주에게 <b class="text-ink">{{ refundAmount(sheetItem).toLocaleString() }}P</b>가 환불돼요.</template><template v-else><br />이미 {{ stLbl[sheetItem.status] }} 상태라 환불은 없어요.</template></p>
+          <p class="text-[15px] text-ink-light leading-relaxed break-words">‘{{ sheetItem.title }}’<template v-if="sheetItem.payment_method === 'card'"><br />카드 결제 광고예요. 승인 전이면 보류만 풀리고, 이미 청구된 광고는 자동 환불되지 않아요(환불 정책 보류).</template><template v-else-if="['pending','active','paused'].includes(sheetItem.status)"><br />광고주에게 <b class="text-ink">{{ refundAmount(sheetItem).toLocaleString() }}P</b>가 환불돼요.</template><template v-else><br />이미 {{ stLbl[sheetItem.status] }} 상태라 환불은 없어요.</template></p>
           <button @click="doDelete" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '삭제하기' }}</button>
           <button @click="mode = ''" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">돌아가기</button>
         </div>
@@ -85,7 +85,7 @@
             <div class="flex justify-between gap-3"><span class="text-ink-muted shrink-0">페이지</span><span class="text-ink text-right">{{ (sheetItem.target_pages || []).map(pageLabel).join(', ') || pageLabel(sheetItem.page) }}</span></div>
             <div class="flex justify-between gap-3"><span class="text-ink-muted shrink-0">위치</span><span class="text-ink text-right">{{ {left:'좌측',right:'우측'}[sheetItem.position] || sheetItem.position }} 슬롯 {{ sheetItem.slot_number }}</span></div>
             <div class="flex justify-between gap-3"><span class="text-ink-muted shrink-0">지역</span><span class="text-ink text-right">{{ sheetItem.geo_scope === 'all' ? '전국' : sheetItem.geo_value }}</span></div>
-            <div class="flex justify-between gap-3"><span class="text-ink-muted shrink-0">입찰</span><b class="text-amber-700 tabular-nums">{{ (sheetItem.bid_amount || 0).toLocaleString() }}P</b></div>
+            <div class="flex justify-between gap-3"><span class="text-ink-muted shrink-0">입찰</span><b class="text-amber-700 tabular-nums">{{ amt(sheetItem) }}</b></div>
             <div v-if="sheetItem.reject_reason" class="text-[14px] text-red-600 break-words">거절 사유: {{ sheetItem.reject_reason }}</div>
           </div>
           <a v-if="sheetItem.link_url" :href="sheetItem.link_url" target="_blank" rel="noopener noreferrer nofollow" class="flex items-center gap-2 min-h-[48px] px-3 rounded-xl bg-blue-50 text-blue-700 text-[14px] font-bold break-all">
@@ -182,7 +182,7 @@
                     <span v-if="ad.link_url" @click="previewLink(ad.link_url)" class="ml-1 text-blue-500 underline cursor-pointer hover:text-blue-700 transition-colors inline-flex items-center gap-0.5"><AppIcon name="external-link" :size="10" />링크</span>
                   </div>
                 </div>
-                <div class="font-black text-amber-700">{{ (ad.bid_amount||0).toLocaleString() }}P</div>
+                <div class="font-black text-amber-700">{{ amt(ad) }}</div>
                 <span class="text-[11px] px-1.5 py-0.5 rounded-full font-bold" :class="stCls[ad.status]">{{ stLbl[ad.status] }}</span>
                 <div class="flex gap-0.5 flex-shrink-0">
                   <button v-if="ad.status==='pending'" @click="approve(ad)" class="text-[11px] bg-green-500 text-white px-1.5 py-1 rounded-lg font-bold transition-colors hover:bg-green-600">승인</button>
@@ -217,7 +217,7 @@
             <span class="text-[11px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">{{ pageLabel(item.page) }}</span>
             <span class="text-[11px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">{{ {left:'좌',right:'우'}[item.position] }}{{ item.slot_number }}</span>
             <span class="text-[11px] px-1.5 py-0.5 rounded-full font-bold" :class="geoTypesMap[item.geo_scope]?.cls||'bg-gray-100 text-gray-600'">{{ item.geo_scope==='all'?'전국':item.geo_value }}</span>
-            <span class="text-[11px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">{{ (item.bid_amount||0).toLocaleString() }}P</span>
+            <span class="text-[11px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">{{ amt(item) }}</span>
             <span v-if="item.link_url" @click="previewLink(item.link_url)" class="text-[11px] text-blue-500 cursor-pointer hover:text-blue-700 transition-colors inline-flex"><AppIcon name="external-link" :size="12" /></span>
           </div>
           <div class="text-xs font-bold text-ink truncate mt-0.5">{{ item.title }}</div>
@@ -244,7 +244,7 @@
         <div class="p-4">
           <img :src="previewImg.image_url" class="w-full rounded-lg border border-gray-100" />
           <div class="mt-3 text-sm font-bold text-ink">{{ previewImg.title }}</div>
-          <div class="text-xs text-ink-muted mt-1">{{ previewImg.user?.name }} · {{ (previewImg.bid_amount||0).toLocaleString() }}P · {{ previewImg.geo_scope==='all'?'전국':previewImg.geo_value }}</div>
+          <div class="text-xs text-ink-muted mt-1">{{ previewImg.user?.name }} · {{ amt(previewImg) }} · {{ previewImg.geo_scope==='all'?'전국':previewImg.geo_value }}</div>
           <div v-if="previewImg.link_url" class="mt-2">
             <span class="text-xs text-ink-muted">링크: </span>
             <span @click="previewLink(previewImg.link_url)" class="text-xs text-blue-600 underline cursor-pointer hover:text-blue-700 transition-colors">{{ previewImg.link_url }}</span>
@@ -374,7 +374,9 @@ const geoTypes = [
 ]
 const geoTypesMap = { all:geoTypes[0], state:geoTypes[1], county:geoTypes[2] }
 
-const stLbl = { pending:'대기',active:'게시중',rejected:'거절',expired:'만료',paused:'중지' }
+const stLbl = { awaiting_payment:'카드 확인 대기',pending:'대기',active:'게시중',rejected:'거절',expired:'만료',paused:'중지',cancelled:'취소' }
+// 금액 표시: 카드 결제 광고는 달러(숫자 = 센트), 예전 포인트 신청은 P
+const amt = (i) => (i?.payment_method === 'card') ? ('$' + (Number(i.total_cost ?? i.bid_amount ?? 0) / 100).toFixed(2)) : (Number(i?.bid_amount || 0).toLocaleString() + 'P')
 const stCls = { pending:'bg-amber-100 text-amber-700',active:'bg-green-100 text-green-700',rejected:'bg-red-100 text-red-700',expired:'bg-gray-200 text-gray-500',paused:'bg-gray-200 text-gray-500' }
 
 function pageLabel(k){ return pageList.value.find(p=>p.key===k)?.label||k }
@@ -406,7 +408,7 @@ async function load() {
   loading.value=false
 }
 
-async function approve(item){try{await axios.post(`/api/admin/banners/${item.id}/approve`);item.status='active'}catch(e){alert(e.response?.data?.message||'실패')}}
+async function approve(item){try{const {data}=await axios.post(`/api/admin/banners/${item.id}/approve`);item.status='active';if(data?.message)alert(data.message)}catch(e){alert(e.response?.data?.message||'실패')}}
 async function reject(item){const r=prompt('거절 사유:');if(!r)return;try{await axios.post(`/api/admin/banners/${item.id}/reject`,{reason:r});item.status='rejected'}catch{}}
 async function pause(item){try{await axios.post(`/api/admin/banners/${item.id}/pause`);item.status='paused'}catch{}}
 async function remove(item){if(!confirm('삭제?'))return;try{await axios.delete(`/api/admin/banners/${item.id}`);items.value=items.value.filter(i=>i.id!==item.id)}catch{}}
