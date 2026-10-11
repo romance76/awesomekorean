@@ -32,6 +32,10 @@
         input[type="number"],
         input[type="tel"],
         input[type="url"],
+        input[type="date"],
+        input[type="time"],
+        input[type="datetime-local"],
+        input[type="month"],
         textarea,
         select {
             font-size: max(16px, calc(16px * var(--fs, 1))) !important;
