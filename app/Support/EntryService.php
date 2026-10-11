@@ -133,6 +133,42 @@ class EntryService
     /**
      * 완료형 활동(판매완료·거래완료·채용확정 등) 보상. 하루 한도 적용.
      */
+    /**
+     * 내돈내산 리뷰 보상 (Kay 결정 2026-10-11): 작성 규칙(글자 수·직접 찍은 사진·구매 확인·금칙어)을 통과해
+     * "공개"된 리뷰에 자동으로 Entry 지급. 같은 리뷰는 평생 1회(idempotency), 하루 한도 안에서만.
+     * 설정: entry_settings.review_bonus(기본 1, 0 = 끔), review_daily_max(기본 1).
+     */
+    public static function awardReview(User $user, int $productId, string $title): bool
+    {
+        $amount = EntrySettings::get('review_bonus', 1);
+        $dailyMax = EntrySettings::get('review_daily_max', 1);
+        if ($amount <= 0 || $dailyMax <= 0) return false;
+        $key = "shopping_review:{$productId}";
+
+        return DB::transaction(function () use ($user, $amount, $dailyMax, $key, $productId, $title) {
+            User::whereKey($user->id)->lockForUpdate()->first();
+            if (EntryTransaction::where('user_id', $user->id)->where('idempotency_key', $key)->exists()) return false;
+            $today = EntryTransaction::where('user_id', $user->id)->where('transaction_type', 'REVIEW_REWARD')
+                ->where('amount', '>', 0)->whereDate('created_at', today())->count();
+            if ($today >= $dailyMax) return false;
+            static::award($user, $amount, 'REVIEW_REWARD', '내돈내산 리뷰: ' . mb_substr($title, 0, 80), 'shopping_review',
+                ['type' => \App\Models\AmazonProduct::class, 'id' => $productId], $key);
+            return true;
+        });
+    }
+
+    /**
+     * 이벤트 완료 인증 보상 (Kay 결정 2026-10-11): 관리자가 완료 인증을 승인하면 이벤트에 정해 둔 Entry 개수를 지급
+     * (정하지 않았으면 1개). 같은 참가 기록은 1회만.
+     */
+    public static function awardEventProof(User $user, int $attendeeId, int $eventId, int $amount, string $title): bool
+    {
+        if ($amount <= 0) return false;
+        static::award($user, $amount, 'EVENT_PROOF_REWARD', '이벤트 완료 인증: ' . mb_substr($title, 0, 80), 'event_proof',
+            ['type' => \App\Models\Event::class, 'id' => $eventId], "event_proof:{$attendeeId}");
+        return true;
+    }
+
     public static function awardMilestone(User $user, string $reason, string $modelClass, int $modelId): void
     {
         static::awardCapped(

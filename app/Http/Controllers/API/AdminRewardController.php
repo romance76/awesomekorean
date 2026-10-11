@@ -19,7 +19,7 @@ class AdminRewardController extends Controller
 {
     public function eventProofs()
     {
-        $items = EventAttendee::with(['user:id,name,nickname,avatar', 'event:id,title,reward_points'])
+        $items = EventAttendee::with(['user:id,name,nickname,avatar', 'event:id,title,reward_points,reward_entries,event_type'])
             ->where('proof_status', 'pending')
             ->orderBy('created_at')
             ->get();
@@ -36,13 +36,14 @@ class AdminRewardController extends Controller
 
         $attendee->update(['proof_status' => 'approved', 'reviewed_at' => now()]);
 
-        $amount = (int) ($attendee->event->reward_points ?? 0);
+        // Kay 결정(2026-10-11): 완료 인증은 "일을 해서 받는 성과" → 포인트가 아니라 Entry. 개수는 이벤트에 정한 값(없으면 1개).
+        $amount = (int) ($attendee->event->completion_entries ?? 1);
         $user = User::find($attendee->user_id);
         if ($user && $amount > 0) {
-            $user->addPoints($amount, "이벤트 완료 인증: {$attendee->event->title}", 'event_proof_approved', ['type' => Event::class, 'id' => $attendee->event_id]);
+            \App\Support\EntryService::awardEventProof($user, $attendee->id, (int) $attendee->event_id, $amount, (string) $attendee->event->title);
         }
 
-        $this->notify($attendee->user_id, 'event_proof_approved', '이벤트 완료 인증이 승인되었습니다', "'{$attendee->event->title}' 완료 인증이 승인되어 {$amount}P가 지급되었습니다.", ['event_id' => $attendee->event_id]);
+        $this->notify($attendee->user_id, 'event_proof_approved', '이벤트 완료 인증이 승인되었습니다', "'{$attendee->event->title}' 완료 인증이 승인되어 Entry {$amount}개가 지급되었습니다.", ['event_id' => $attendee->event_id]);
 
         return response()->json(['success' => true, 'data' => $attendee->fresh()]);
     }

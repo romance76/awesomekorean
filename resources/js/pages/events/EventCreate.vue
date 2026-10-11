@@ -259,10 +259,10 @@
       </div>
 
       <div v-if="!isSweepstakes">
-        <label class="input-label">완료 인증 보상 포인트 (선택)</label>
-        <input v-model.number="form.reward_points" type="number" min="0" placeholder="0 = 보상 없음" class="input-soft px-3" :class="errClass('reward_points')" />
-        <p v-if="fieldErrors.reward_points" class="text-xs text-red-500 mt-1">{{ fieldErrors.reward_points }}</p>
-        <p class="text-[11px] text-ink-faint mt-1">0보다 크면 참가자가 완료 인증 파일을 제출할 수 있고, 관리자 확인 후 이 포인트가 지급됩니다.</p>
+        <label class="input-label">완료 인증 보상 Entry 개수 (선택)</label>
+        <input v-model.number="form.reward_entries" type="number" min="0" placeholder="비워 두면 1개" class="input-soft px-3" :class="errClass('reward_entries')" />
+        <p v-if="fieldErrors.reward_entries" class="text-xs text-red-500 mt-1">{{ fieldErrors.reward_entries }}</p>
+        <p class="text-[11px] text-ink-faint mt-1">참가자가 완료 인증 사진·파일을 내면 관리자 확인 후 이 개수만큼 Entry 가 지급돼요. 비워 두면 1개, 0 이면 보상 없음. Entry 는 어썸코리안 경품 추첨에 응모할 때 써요.</p>
       </div>
 
       <!-- 이미지 -->
@@ -372,7 +372,7 @@ const categories = [
 const form = reactive({
   title: '', category: 'culture', organizer: '', start_date: '', end_date: '',
   venue: '', address: '', city: '', state: '', price: 0, content: '',
-  max_attendees: 0, url: '', reward_points: 0,
+  max_attendees: 0, url: '', reward_points: 0, reward_entries: '',
 })
 const imageFile = ref(null)
 const previewImg = ref(null)
@@ -499,6 +499,7 @@ onMounted(async () => {
         venue: e.venue || '', address: e.address || '', city: e.city || '', state: e.state || '',
         price: e.price || 0, content: e.content || '', max_attendees: e.max_attendees || 0, url: e.url || '',
         reward_points: e.reward_points || 0,
+        reward_entries: e.reward_entries ?? '',
       })
       if (e.image_url) previewImg.value = e.image_url
       if (e.event_type === 'sweepstakes' && e.sweepstakes) {

@@ -175,6 +175,13 @@ class EventController extends Controller
     }
 
     // 이벤트 완료 보상 포인트 상한 — 보상은 사이트가 지급하므로 일반 회원은 설정값(기본 100P)까지만, 운영진은 넉넉히
+    // 완료 인증 보상 Entry 최대 개수 — 운영진은 넉넉히, 일반 회원은 설정값(기본 3개)까지
+    private function rewardEntriesMax(): int
+    {
+        $role = auth()->user()->role ?? 'user';
+        return in_array($role, ['admin', 'super_admin'], true) ? 100 : max(0, (int) \App\Support\EntrySettings::get('event_reward_entries_user_max', 3));
+    }
+
     private function rewardPointsMax(): int
     {
         $role = auth()->user()->role ?? 'user';
@@ -196,6 +203,7 @@ class EventController extends Controller
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
             'reward_points' => 'nullable|integer|min:0|max:' . $this->rewardPointsMax(),
+            'reward_entries' => 'nullable|integer|min:0|max:' . $this->rewardEntriesMax(),   // 완료 인증 보상 Entry (비우면 1개)
             'prize_name' => $isSweepstakes ? 'required|string|max:255' : 'nullable|string|max:255',
             'prize_value' => 'nullable|numeric|min:0',
             'minimum_age' => 'nullable|integer|min:0|max:120',
@@ -211,7 +219,7 @@ class EventController extends Controller
         $fields = $request->only(
             'title', 'description', 'content', 'category', 'organizer',
             'venue', 'address', 'city', 'state', 'zipcode', 'lat', 'lng',
-            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees', 'reward_points'
+            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees', 'reward_points', 'reward_entries'
         );
         $fields['user_id'] = auth()->id();
         $fields['is_free'] = $request->boolean('is_free');
@@ -296,6 +304,7 @@ class EventController extends Controller
             'price'      => 'nullable|numeric|min:0',
             'max_attendees' => 'nullable|integer|min:1',
             'reward_points' => 'nullable|integer|min:0|max:' . $this->rewardPointsMax(),
+            'reward_entries' => 'nullable|integer|min:0|max:' . $this->rewardEntriesMax(),   // 완료 인증 보상 Entry (비우면 1개)
             'prize_name' => $sweepstakes ? 'sometimes|required|string|max:255' : 'nullable|string|max:255',
             'prize_value' => 'nullable|numeric|min:0',
             'minimum_age' => 'nullable|integer|min:0|max:120',
@@ -311,7 +320,7 @@ class EventController extends Controller
         $fields = $request->only(
             'title', 'description', 'content', 'category', 'organizer',
             'venue', 'address', 'city', 'state', 'zipcode', 'lat', 'lng',
-            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees', 'reward_points'
+            'start_date', 'end_date', 'price', 'is_free', 'url', 'max_attendees', 'reward_points', 'reward_entries'
         );
 
         if ($request->has('is_free')) {
@@ -439,7 +448,7 @@ class EventController extends Controller
     public function submitProof(Request $request, $id)
     {
         $event = Event::findOrFail($id);
-        if (!$event->reward_points || $event->reward_points <= 0) {
+        if ($event->completion_entries <= 0) {   // 완료 보상 Entry 가 0 인 이벤트(또는 경품 추첨)만 막는다 — 정하지 않았으면 1개
             return response()->json(['success' => false, 'message' => '이 이벤트는 완료 인증 보상이 없습니다'], 422);
         }
 

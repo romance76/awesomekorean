@@ -13,7 +13,7 @@
     <div v-for="a in eventProofs" :key="a.id" class="bg-white border border-gray-100 rounded-2xl p-3.5">
       <div class="text-[16px] font-bold text-ink break-words">{{ a.user?.nickname || a.user?.name }}</div>
       <div class="text-[14px] text-ink-light break-words">{{ a.event?.title }}</div>
-      <div class="text-[14px] mt-1">보상 <b class="text-amber-600 tabular-nums">{{ a.event?.reward_points }}P</b></div>
+      <div class="text-[14px] mt-1">보상 <b class="text-amber-600 tabular-nums">Entry {{ a.event?.completion_entries ?? 1 }}개</b></div>
       <a :href="'/storage/' + a.proof_file" target="_blank" rel="noopener noreferrer" class="mt-2 flex items-center justify-center min-h-[46px] rounded-xl bg-blue-50 text-blue-700 text-[15px] font-bold">제출 파일 보기</a>
       <div class="grid grid-cols-2 gap-2 mt-3">
         <button @click="ask('approve', a)" :disabled="busy" class="min-h-[50px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">승인 + 지급</button>
@@ -40,7 +40,7 @@
         <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
         <template v-if="sheet.kind === 'approve'">
           <div class="text-[17px] font-bold text-ink mb-1">포인트를 지급할까요?</div>
-          <p class="text-[15px] text-ink-light mb-3 break-words"><b>{{ sheet.item.user?.nickname || sheet.item.user?.name }}</b>님에게 <b class="text-amber-600">{{ sheet.item.event?.reward_points }}P</b>를 지급해요.</p>
+          <p class="text-[15px] text-ink-light mb-3 break-words"><b>{{ sheet.item.user?.nickname || sheet.item.user?.name }}</b>님에게 <b class="text-amber-600">Entry {{ sheet.item.event?.completion_entries ?? 1 }}개</b>를 지급해요.</p>
         </template>
         <template v-else-if="sheet.kind === 'pay'">
           <div class="text-[17px] font-bold text-ink mb-1">포인트를 지급할까요?</div>
@@ -81,7 +81,7 @@
     <div v-for="a in eventProofs" :key="a.id" class="px-5 py-4 flex items-center gap-4">
       <div class="flex-1 min-w-0">
         <div class="text-sm font-bold text-ink">{{ a.user?.nickname || a.user?.name }} <span class="text-ink-faint font-normal">— {{ a.event?.title }}</span></div>
-        <div class="text-xs text-ink-muted mt-0.5">보상 {{ a.event?.reward_points }}P · <a :href="'/storage/'+a.proof_file" target="_blank" class="text-blue-600 hover:underline">제출 파일 보기</a></div>
+        <div class="text-xs text-ink-muted mt-0.5">보상 Entry {{ a.event?.completion_entries ?? 1 }}개 · <a :href="'/storage/'+a.proof_file" target="_blank" class="text-blue-600 hover:underline">제출 파일 보기</a></div>
       </div>
       <button @click="approveEvent(a)" :disabled="busyId===a.id" class="text-xs font-bold bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 disabled:opacity-50">승인+지급</button>
       <button @click="rejectEvent(a)" :disabled="busyId===a.id" class="text-xs font-bold bg-gray-100 text-ink-light px-3 py-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-50">반려</button>
@@ -161,7 +161,7 @@ async function load() {
 }
 
 async function approveEvent(a) {
-  if (!confirm(`${a.user?.nickname || a.user?.name}님에게 ${a.event?.reward_points}P를 지급할까요?`)) return
+  if (!confirm(`${a.user?.nickname || a.user?.name}님에게 Entry ${a.event?.completion_entries ?? 1}개를 지급할까요?`)) return
   busyId.value = a.id
   try {
     await axios.post(`/api/admin/rewards/event-proofs/${a.id}/approve`)

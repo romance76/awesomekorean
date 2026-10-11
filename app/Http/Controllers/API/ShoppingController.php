@@ -269,6 +269,8 @@ class ShoppingController extends Controller
 
         if (!$needsApproval) {
             try { WritePoints::award($user, AmazonProduct::class, $p->id, '내돈내산 리뷰 작성'); } catch (\Throwable $e) {}
+            // 작성 규칙(위 validateReview)을 모두 통과해 바로 공개된 리뷰 → Entry 자동 지급 (같은 리뷰 1회·하루 한도)
+            try { \App\Support\EntryService::awardReview($user, $p->id, $p->title); } catch (\Throwable $e) { report($e); }
         } else {
             $this->notifyAdmins('새 내돈내산 리뷰 승인 요청', "'{$p->title}' — 처음 리뷰를 쓴 회원의 글이에요. 확인 후 승인해주세요.", $p->id);
         }

@@ -34,7 +34,7 @@
           <div class="px-4 lg:px-6 pt-5 pb-4">
             <div class="flex items-center gap-2 flex-wrap mb-2">
               <span v-if="event.event_type === 'awesomekorean'" class="inline-flex items-center gap-0.5 text-xs bg-amber-400 text-white px-2 py-0.5 rounded-full font-bold"><AppIcon name="star" :size="11" />어썸코리안 공식</span>
-              <span v-if="event.reward_points" class="badge-green"><AppIcon name="gift" :size="11" />최대 {{ event.reward_points }}P</span>
+              <span v-if="event.completion_entries > 0" class="badge-green"><AppIcon name="gift" :size="11" />완료 인증 Entry {{ event.completion_entries }}개</span>
               <span class="badge-primary">{{ event.category || '이벤트' }}</span>
               <span v-if="event.is_free || !event.price" class="badge-green">무료</span>
               <span v-else class="badge-blue">${{ Number(event.price).toLocaleString() }}</span>
@@ -101,14 +101,14 @@
             </div>
           </div>
 
-          <!-- 완료 인증 제출 (보상 포인트가 걸려있는 이벤트, 참가자만) -->
-          <div v-if="event.event_type !== 'sweepstakes' && event.reward_points > 0 && myStatus === 'going'" class="px-4 lg:px-5 py-3 border-b border-gray-100 bg-amber-50/50">
-            <div class="text-xs font-bold text-amber-700 mb-1.5 flex items-center gap-1"><AppIcon name="gift" :size="13" /> 완료 인증 시 {{ event.reward_points }}P 지급</div>
+          <!-- 완료 인증 제출 (완료 보상 Entry 가 있는 이벤트, 참가자만) -->
+          <div v-if="event.event_type !== 'sweepstakes' && event.completion_entries > 0 && myStatus === 'going'" class="px-4 lg:px-5 py-3 border-b border-gray-100 bg-amber-50/50">
+            <div class="text-xs font-bold text-amber-700 mb-1.5 flex items-center gap-1"><AppIcon name="gift" :size="13" /> 완료 인증 시 Entry {{ event.completion_entries }}개 지급</div>
             <template v-if="myProofStatus === 'pending'">
               <span class="text-xs text-ink-muted">제출 완료 — 관리자 확인 중입니다.</span>
             </template>
             <template v-else-if="myProofStatus === 'approved'">
-              <span class="text-xs text-emerald-600 font-bold">✓ 승인되어 포인트가 지급되었습니다.</span>
+              <span class="text-xs text-emerald-600 font-bold">✓ 승인되어 Entry 가 지급되었습니다.</span>
             </template>
             <template v-else>
               <span v-if="myProofStatus === 'rejected'" class="text-xs text-red-500 block mb-1.5">반려되었습니다. 다시 제출해주세요.</span>
