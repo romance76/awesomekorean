@@ -101,6 +101,10 @@
         </button>
       </div>
 
+      <RouterLink v-if="isAdminUp" :to="`/admin/grants?user=${d.user.id}`" class="w-full min-h-[50px] rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-[15px] font-bold flex items-center justify-center gap-2" title="포인트·Entry 지급, 실제 구매 금액 기록">
+        <AppIcon name="gift" :size="18" /><span>지급·보상 센터로 이동 ›</span>
+      </RouterLink>
+
       <!-- 자세히 보기 -->
       <div class="text-[13px] font-bold text-ink-muted px-0.5 pt-1">자세히 보기</div>
       <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
