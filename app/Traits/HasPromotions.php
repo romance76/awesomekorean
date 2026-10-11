@@ -188,7 +188,7 @@ trait HasPromotions
         if ($user->points < $totalCost) {
             return response()->json(['success' => false, 'message' => "포인트 부족. 필요: {$totalCost}P, 보유: {$user->points}P"], 422);
         }
-        $user->addPoints(-$totalCost, "{$resource}_promotion", "{$resource} 상위노출 ({$tier}, {$days}일)");
+        $user->addPoints(-$totalCost, "{$resource} 상위노출 ({$tier}, {$days}일)", "{$resource}_promotion");   // (사유, 종류) 순서 — 예전엔 뒤바뀌어 저장됐음
 
         $expiresAt = now()->addDays($days);
         $item->update([

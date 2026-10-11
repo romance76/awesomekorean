@@ -93,6 +93,11 @@ class PaymentController extends Controller
     // Stripe PaymentIntent 생성 — Task 5: 고정 패키지 대신 커스텀 금액 ($10 이상, $5 단위)
     public function createIntent(Request $request)
     {
+        // Kay 결정(2026-10-11): 포인트는 활동으로만 모으고 팔지 않는다(기프트카드 교환과 함께 있으면 돈→포인트→카드 환전 통로가 됨).
+        // 다시 열려면 point_settings 의 point_sales_enabled 를 1 로. 기본은 꺼짐.
+        if ((int) \App\Support\PointRules::get('point_sales_enabled', 0) !== 1) {
+            return response()->json(['success' => false, 'message' => '포인트는 판매하지 않아요. 글·댓글 같은 활동으로 모을 수 있어요.'], 410);
+        }
         $request->validate(['amount' => 'required|numeric|min:10']);
 
         $amount = round((float) $request->amount, 2);

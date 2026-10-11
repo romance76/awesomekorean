@@ -163,8 +163,15 @@
           <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="15" /></span>포인트</h2>
         </div>
         <div class="text-3xl font-black text-amber-600 mb-4">{{ (auth.user?.points || ptBalance).toLocaleString() }}P</div>
-        <!-- 포인트 구매 (커스텀 금액: $10 이상, $5 단위) -->
-        <div class="border-t border-gray-100 pt-4 mt-4 mb-4">
+        <!-- 포인트는 팔지 않음 (Kay 결정 2026-10-11) — 활동으로만 모으고, 기프트카드 교환은 준비 중 -->
+        <div v-if="!pointSalesOpen" class="border-t border-gray-100 pt-4 mt-4 mb-4">
+          <div class="bg-amber-50 rounded-xl p-3 text-[13px] text-ink-light leading-relaxed">
+            <b class="text-ink">포인트는 판매하지 않아요.</b> 글·댓글 쓰기, 좋아요 받기, Q&A 답변 채택 같은 활동으로 모을 수 있어요.
+            모은 포인트는 끌어올리기·채팅방·장터 홀드에 쓰고, 나중에 기프트카드로 바꿀 수 있게 준비하고 있어요.
+          </div>
+        </div>
+        <!-- 포인트 구매 (커스텀 금액: $10 이상, $5 단위) — 판매가 다시 열릴 때만 보임 -->
+        <div v-else class="border-t border-gray-100 pt-4 mt-4 mb-4">
           <div class="flex items-center justify-between mb-3">
             <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm"><AppIcon name="shopping-cart" :size="14" class="text-amber-600" />포인트 구매</h3>
             <span v-if="purchaseDiscountPct > 0" class="badge-red">🎉 결제금액 -{{ purchaseDiscountPct }}%</span>
@@ -1368,6 +1375,8 @@ async function changePw() {
 // ─── 포인트 ───
 const ptBalance = ref(0); const ptHistory = ref([])
 // 포인트 구매 (커스텀 금액: $10 이상, $5 단위)
+// 포인트 판매 중단(Kay 결정 2026-10-11) — 서버도 막혀 있음(point_sales_enabled). 다시 열 때만 true 로.
+const pointSalesOpen = false
 const quickAmounts = [10, 15, 20, 25, 50, 100, 200]
 const purchaseAmount = ref(10); const customAmountInput = ref(10); const purchaseAmountError = ref('')
 const bonusBrackets = ref([]); const purchaseDiscountPct = ref(0)

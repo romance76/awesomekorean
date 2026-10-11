@@ -25,6 +25,8 @@ class MilestonePoints
         if (in_array($settingKey, self::ENTRY_MILESTONES, true)) {
             try { EntryService::awardMilestone($user, $reason, $modelClass, $modelId); }
             catch (\Throwable $e) { \Log::warning("Entry 완료 보상 실패 (user_id={$user->id}): " . $e->getMessage()); }
+            // Kay 결정(2026-10-11): 일을 끝낸 "성과"(판매·채용·거래 완료 등)는 Entry 만 준다 — 포인트는 커뮤니티 활동 전용
+            return;
         }
 
         $amount = PointRules::get($settingKey, 0);

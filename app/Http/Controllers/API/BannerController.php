@@ -149,7 +149,7 @@ class BannerController extends Controller
         if ($user->points < $cost) {
             return response()->json(['success' => false, 'message' => "포인트 부족. 필요 {$cost}P"], 422);
         }
-        if ($cost > 0) $user->addPoints(-$cost, 'banner_text', "텍스트 인라인 광고 신청 · {$data['days']}일");
+        if ($cost > 0) $user->addPoints(-$cost, "텍스트 인라인 광고 신청 · {$data['days']}일", 'banner_text');   // (사유, 종류) 순서 — 예전엔 뒤바뀌어 저장됐음
 
         $ad = BannerAd::create([
             'user_id'     => $user->id,
