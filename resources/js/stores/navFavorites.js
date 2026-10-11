@@ -26,6 +26,8 @@ const ALL_MENUS = [
   { key: 'elder', label: '안심서비스', label_en: 'Elder Care', icon: '💙', path: '/elder' },
   { key: 'comms', label: '안심 커뮤', label_en: 'Comms', icon: '📞', path: '/comms' },
   { key: 'shopping', label: '쇼핑', label_en: 'Shopping', icon: '🛍️', path: '/shopping' },
+  // 서버에서 그리는 페이지(검색엔진용) — 라우터가 아니라 일반 이동 (햄버거 메뉴와 동일)
+  { key: 'info', label: '정보', label_en: 'Info', icon: '📘', path: '/info', external: true },
   { key: 'dashboard', label: 'MY', label_en: 'My', icon: '👤', path: '/dashboard' },
 ]
 
@@ -51,33 +53,43 @@ export const useNavFavoritesStore = defineStore('navFavorites', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(favoriteKeys.value))
   }
 
+  // 하단 메뉴 = 왼쪽(햄버거) 메뉴와 같은 기준: 관리자 메뉴 설정의 "순서·이름·경로"를 그대로 따르고
+  // (끈 메뉴·관리자 전용·로그인 필요 메뉴는 같은 규칙으로 숨김), 그 중 별(★)을 누른 것만 보여 준다.
+  // MY 는 메뉴 설정에 없는 고정 메뉴라 맨 끝에 둔다.
   const favoriteMenus = computed(() => {
     const langStore = useLangStore()
     const siteStore = useSiteStore()
     const auth = useAuthStore()
     const ko = langStore.locale === 'ko'
-    const menuMap = {}
-    ALL_MENUS.forEach(m => { menuMap[m.key] = m })
-    // 관리자 메뉴 설정 맵 (enabled=false / admin_only 필터링용)
+    const defMap = Object.fromEntries(ALL_MENUS.map(m => [m.key, m]))
+    const fav = new Set(favoriteKeys.value)
     const mc = siteStore.menuConfig
-    const cfgMap = (mc && Array.isArray(mc)) ? Object.fromEntries(mc.map(m => [m.key, m])) : null
-    return favoriteKeys.value
-      .map(key => menuMap[key])
-      .filter(Boolean)
-      .filter(m => {
-        // dashboard 는 항상 노출 (메뉴 설정과 무관)
-        if (m.key === 'dashboard') return true
-        if (!cfgMap) return true
-        const cfg = cfgMap[m.key]
-        if (!cfg) return true
-        if (cfg.enabled === false) return false
-        if (cfg.admin_only && !auth.isAdmin) return false
-        return true
-      })
-      .map(m => ({
-        ...m,
-        label: ko ? m.label : (m.label_en || m.label),
-      }))
+    let list
+    if (Array.isArray(mc)) {
+      list = mc
+        .filter(m => m.enabled !== false)
+        .filter(m => !m.admin_only || auth.isAdmin)
+        .filter(m => !m.login_required || auth.isLoggedIn)
+        .map(m => {
+          const def = defMap[m.key] || {}
+          return {
+            ...def, ...m,
+            path: m.path || def.path || `/${m.key}`,
+            label: ko ? (m.label || def.label || m.key) : (m.label_en || def.label_en || m.label || def.label || m.key),
+          }
+        })
+        .filter(m => m.path && fav.has(m.key))
+    } else {
+      // 메뉴 설정을 아직 못 읽었을 때만 기본 목록
+      list = ALL_MENUS
+        .filter(m => m.key !== 'dashboard' && fav.has(m.key))
+        .map(m => ({ ...m, label: ko ? m.label : (m.label_en || m.label) }))
+    }
+    if (fav.has('dashboard')) {
+      const d = defMap.dashboard
+      list.push({ ...d, label: ko ? d.label : (d.label_en || d.label) })
+    }
+    return list
   })
 
   // 햄버거 메뉴에서 사용 — 즐겨찾기 여부 체크

@@ -4,7 +4,8 @@
     <!-- 스와이프 가능한 탭 영역 -->
     <div ref="scrollEl" class="flex items-center h-13 overflow-x-auto scrollbar-hide scroll-smooth"
          @touchstart="onTouchStart" @touchend="onTouchEnd">
-      <RouterLink v-for="item in favMenus" :key="item.path" :to="item.path"
+      <component :is="item.external ? 'a' : RouterLink" v-for="item in favMenus" :key="item.path"
+        v-bind="item.external ? { href: item.path } : { to: item.path }"
         class="flex flex-col items-center justify-center gap-1 flex-shrink-0 transition-colors"
         :style="tabStyle"
         :class="isActive(item.path) ? 'text-ink' : 'text-ink-light'">
@@ -12,8 +13,8 @@
         <span class="icon-chip w-8 h-7 transition-shadow" :class="[menuChipColor(item.key), isActive(item.path) ? 'ring-2 ring-black/15' : '']">
           <AppIcon :name="menuIcon(item.key)" :size="18" :stroke-width="isActive(item.path) ? 2.4 : 2" />
         </span>
-        <span class="text-[10px] leading-none" :class="isActive(item.path) ? 'font-bold' : 'font-semibold'">{{ item.label }}</span>
-      </RouterLink>
+        <span class="text-[10px] leading-none whitespace-nowrap" :class="isActive(item.path) ? 'font-bold' : 'font-semibold'">{{ item.label }}</span>
+      </component>
     </div>
     <!-- 스와이프 인디케이터 (6개 이상일 때) -->
     <div v-if="favMenus.length > 5" class="flex justify-center gap-1 pb-0.5">
@@ -26,7 +27,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import { useNavFavoritesStore } from '../stores/navFavorites'
 import AppIcon from './AppIcon.vue'
 import { menuIcon, menuChipColor } from '../utils/menuIcons'
