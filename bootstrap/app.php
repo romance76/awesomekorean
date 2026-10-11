@@ -39,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // IP 차단 + 봇 감지 + 온라인 상태 미들웨어를 API 전체에 적용
         $middleware->api(prepend: [
+            \App\Http\Middleware\SetApiLocale::class,   // 입력 오류 메시지를 한국어로 (lang/ko/validation.php)
             \App\Http\Middleware\CheckIpBan::class,
             \App\Http\Middleware\DetectBot::class,
             \App\Http\Middleware\CheckMaintenance::class,   // 점검 모드(관리자·로그인·/api/admin/* 는 예외) — 관리자 사이트 설정에서 켜고 끔
@@ -76,6 +77,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Illuminate\Http\Exceptions\ThrottleRequestsException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => '요청이 너무 많습니다. 잠시 후 다시 시도하세요.'], 429);
+            }
+        });
+        // 없는 항목(404): 영어 문장·내부 클래스 이름("No query results for model [App\Models\...]")이 화면에 새지 않게 한국어로.
+        // 컨트롤러가 abort(404, '한국어 문구') 로 직접 쓴 문구는 그대로 둔다.
+        $exceptions->render(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => '찾을 수 없는 항목이에요. 이미 지워졌거나 주소가 잘못됐을 수 있어요.'], 404);
+            }
+        });
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                $m = (string) $e->getMessage();
+                $generic = $m === '' || str_contains($m, 'could not be found') || str_contains($m, 'No query results') || str_contains($m, 'Not Found');
+                return response()->json(['success' => false, 'message' => $generic ? '찾을 수 없는 항목이에요. 이미 지워졌거나 주소가 잘못됐을 수 있어요.' : $m], 404);
             }
         });
         $exceptions->render(function (AuthenticationException $e, Request $request) {
