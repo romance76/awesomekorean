@@ -52,7 +52,11 @@
             <span class="total-value">{{ priceText(selected?.price || 0) }}</span>
           </div>
           <p v-if="payWith === 'card'" class="card-note">카드로 결제하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 최소 {{ cardMinText }} 이상부터 가능하고, 환불되지 않아요.</b> 인보이스는 결제 내역에서 볼 수 있어요.</p>
-          <p v-if="payWith === 'card' && cardBelow" class="err-msg" style="margin:-4px 0 10px;">이 기간은 {{ priceText(selected?.price || 0) }} 라서 카드로 결제할 수 없어요. 더 긴 기간을 고르거나 포인트로 결제해 주세요.</p>
+          <div v-if="payWith === 'card' && cardBelow" class="min-box">
+            <p>카드는 최소 {{ cardMinText }} 부터라 지금 {{ priceText(selected?.price || 0) }} 로는 결제할 수 없어요. 아래에서 골라 주세요.</p>
+            <button v-if="needDays && needDays <= 90" type="button" class="min-btn main" @click="useDays(needDays)">{{ needDays }}일로 늘리기 · {{ money(needDays * pricePerDay) }}</button>
+            <button type="button" class="min-btn" @click="payWith = 'points'">포인트로 결제하기 · {{ Number(selected?.price || 0).toLocaleString() }}P</button>
+          </div>
 
           <div class="modal-actions">
             <button @click="showModal = false" class="btn-cancel" :disabled="paying">취소</button>
@@ -103,10 +107,19 @@ const errorMsg = ref('')
 const { minCents: cardMin, minText: cardMinText } = useCardLimits()
 const TIER = 'state_plus'
 const pricePerDay = ref(100)
-const options = computed(() => [1, 3, 7].map(days => ({ days, price: pricePerDay.value * days })))
+// 기본 1·3·7·14·30일 + "N일로 늘리기"로 고른 값(카드 최소 금액을 딱 넘기는 날 수)
+const customDays = ref(0)
+const options = computed(() => {
+  const set = new Set([1, 3, 7, 14, 30])
+  if (customDays.value) set.add(customDays.value)
+  return [...set].sort((a, b) => a - b).map(days => ({ days, price: pricePerDay.value * days }))
+})
 const selected = ref(null)
 const payWith = ref('points')
 const cardBelow = computed(() => Math.max(50, Number(selected.value?.price || 0)) < cardMin.value)
+// 카드 최소 금액을 넘기려면 며칠이어야 하는지
+const needDays = computed(() => pricePerDay.value > 0 ? Math.ceil(cardMin.value / pricePerDay.value) : 0)
+function useDays(n) { customDays.value = n; selected.value = options.value.find(o => o.days === n) || selected.value }
 const cardSecret = ref('')
 const cardPaymentId = ref(null)
 const cardCents = ref(0)
@@ -114,7 +127,7 @@ const money = (c) => '$' + (Number(c || 0) / 100).toFixed(2)
 const priceText = (p) => payWith.value === 'card' ? money(Math.max(50, p)) : Number(p || 0).toLocaleString() + 'P'
 
 watch(showModal, async (open) => {
-  if (!open) { cardSecret.value = ''; cardPaymentId.value = null; return }
+  if (!open) { cardSecret.value = ''; cardPaymentId.value = null; customDays.value = 0; return }
   errorMsg.value = ''
   try {
     const key = props.resource === 'businesses' ? 'business' : props.resource
@@ -290,6 +303,10 @@ function endpointFor(r) {
 .pay-tabs button { min-height: 40px; border: 0; border-radius: 9px; background: transparent; font-weight: 700; font-size: 14px; color: #4E5968; cursor: pointer; }
 .pay-tabs button.on { background: #fff; color: #7c3aed; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
 .card-note { font-size: 12px; color: #6b7280; line-height: 1.5; margin: -6px 0 12px; }
+.min-box { margin: -4px 0 12px; padding: 10px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; }
+.min-box p { margin: 0 0 8px; color: #dc2626; font-size: 12px; font-weight: 700; line-height: 1.5; }
+.min-btn { display: block; width: 100%; min-height: 44px; margin-top: 6px; border-radius: 10px; border: 1.5px solid #c4b5fd; background: #fff; color: #6d28d9; font-size: 14px; font-weight: 700; cursor: pointer; }
+.min-btn.main { background: #8b5cf6; border-color: #8b5cf6; color: #fff; }
 .err-msg {
   margin-top: 10px; padding: 10px; background: #fef2f2; border: 1px solid #fecaca;
   border-radius: 10px; color: #dc2626; font-size: 12px; font-weight: 600; text-align: center;

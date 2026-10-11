@@ -353,6 +353,8 @@
             </div>
             <MyBalanceStrip pay="card" class="mt-2" />
             <p class="mt-2 text-xs text-ink-muted leading-relaxed">카드 결제는 <b>최소 {{ cardMinText }} 이상</b>부터 가능해요.<span v-if="adForm.bid_amount < cardMin" class="text-red-600 font-bold"> 지금 {{ usd(adForm.bid_amount) }} 라서 {{ cardMinText }} 이상으로 올려 주세요.</span></p>
+            <button v-if="adForm.bid_amount < cardMin" type="button" @click="adForm.bid_amount = Math.max(cardMin, totalMinBid); saveDraft()"
+              class="mt-2 w-full min-h-[44px] rounded-xl border-2 border-amber-400 bg-white text-amber-800 text-sm font-bold">{{ usd(Math.max(cardMin, totalMinBid)) }} 으로 올리기</button>
             <p class="mt-1 text-xs text-ink-muted leading-relaxed">광고는 <b>카드 결제</b>로만 신청할 수 있어요(포인트 사용 불가). 신청할 때는 카드 확인(보류)만 하고, <b>관리자가 승인하면 그때 청구</b>돼요. 거절되면 청구되지 않아요.</p>
           </div>
 

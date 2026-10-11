@@ -84,6 +84,8 @@
 
       <MyBalanceStrip pay="card" />
       <p class="text-xs text-ink-muted leading-relaxed">카드 결제는 <b>최소 {{ cardMinText }} 이상</b>부터 가능해요.<span v-if="form.bid_amount < cardMin" class="text-red-600 font-bold"> 지금 {{ usd(form.bid_amount) }} 라서 {{ cardMinText }} 이상으로 올려 주세요.</span></p>
+      <button v-if="form.bid_amount < cardMin" type="button" @click="form.bid_amount = cardMin"
+        class="w-full min-h-[44px] rounded-xl border-2 border-purple-400 bg-white text-purple-800 text-sm font-bold">{{ cardMinText }} 으로 올리기</button>
 
       <!-- 제출 -->
       <button @click="submit" :disabled="!canSubmit || submitting"

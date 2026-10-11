@@ -114,7 +114,15 @@
           <button type="button" @click="payWith = 'card'" class="min-h-[40px] rounded-lg text-sm font-bold" :class="payWith === 'card' ? 'bg-white text-violet-700 shadow-sm' : 'text-ink-muted'">카드 결제</button>
         </div>
         <p v-if="payWith === 'card'" class="text-[11px] text-ink-muted mt-1.5 leading-relaxed">등록을 누르면 카드 결제 창이 떠요. 카드를 확인하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 최소 {{ cardMinText }} 이상부터 가능하고, 환불되지 않아요.</b></p>
-        <p v-if="cardBelowMin" class="text-[12px] text-red-600 font-bold mt-1.5 leading-relaxed">지금 {{ priceText(totalCost, true) }} 라서 카드로 결제할 수 없어요. <template v-if="needDaysForCard && needDaysForCard <= 30">노출 기간을 <b>{{ needDaysForCard }}일 이상</b>으로 하거나 </template>포인트로 결제해 주세요.</p>
+        <div v-if="cardBelowMin" class="mt-2 rounded-xl border border-red-200 bg-red-50 p-3">
+          <p class="text-[12px] text-red-600 font-bold leading-relaxed">지금 {{ priceText(totalCost, true) }} 라서 카드로 결제할 수 없어요. 아래에서 하나를 골라 주세요.</p>
+          <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+            <button v-if="needDaysForCard && needDaysForCard <= 30" type="button" @click="daysLocal = needDaysForCard"
+              class="min-h-[44px] px-3 rounded-xl bg-violet-600 text-white text-sm font-bold">{{ needDaysForCard }}일로 늘리기 · {{ usd((prices[tier] || 0) * needDaysForCard) }}</button>
+            <button type="button" @click="payWith = 'points'"
+              class="min-h-[44px] px-3 rounded-xl border border-violet-300 bg-white text-violet-700 text-sm font-bold">포인트로 결제하기 · {{ Number(totalCost).toLocaleString() }}P</button>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -185,6 +193,7 @@ const payWith = computed({
 const priceText = (p, isTotal = false) => payWith.value === 'card' ? ('$' + ((isTotal ? Math.max(50, Number(p || 0)) : Number(p || 0)) / 100).toFixed(2)) : (Number(p || 0).toLocaleString() + 'P')
 
 const { minCents: cardMin, minText: cardMinText } = useCardLimits()
+const usd = (c) => '$' + (Number(c || 0) / 100).toFixed(2)
 const prices = reactive({ national: 100, state_plus: 50, sponsored: 20 })
 const maxSlots = reactive({ national: 5, state_plus: 5 })
 
