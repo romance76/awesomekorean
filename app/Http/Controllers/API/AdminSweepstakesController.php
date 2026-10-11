@@ -287,6 +287,10 @@ class AdminSweepstakesController extends Controller
             $query->where('user_id', $request->integer('user_id'));
         }
         $items = $query->paginate(50);
+        // 회원 이메일은 최고관리자만 본다 (일반 관리자에게는 이름·닉네임까지만) — 할 일 #133
+        if (auth()->user()?->role !== 'super_admin') {
+            $items->getCollection()->each(fn ($t) => $t->user?->makeHidden('email'));
+        }
 
         return response()->json(['success' => true, 'data' => $items]);
     }

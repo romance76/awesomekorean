@@ -1213,6 +1213,9 @@ class AdminController extends Controller
         if ($user->role === 'admin' || $user->role === 'super_admin') {
             return response()->json(['success'=>false,'message'=>'관리자는 영구제명할 수 없습니다'], 403);
         }
+        // 운영자 계정은 최고관리자만, 본인 계정은 누구도 영구제명할 수 없다 (할 일 #133)
+        if ($deny = $this->guardStaffTarget($user)) return $deny;
+        if ($user->id === auth()->id()) return response()->json(['success' => false, 'message' => '본인 계정은 영구제명할 수 없어요.'], 422);
         // is_banned/ban_reason은 $fillable에서 제외돼 있어 update()로는 저장 안 됨 — forceFill 사용
         $user->forceFill([
             'is_banned' => true,
