@@ -50,13 +50,14 @@ export const ADMIN_ITEMS = [
   { to: '/admin/groupbuy', icon: 'shopping-bag', label: '공동구매', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/music', icon: 'music', label: '음악', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/shorts', icon: 'video', label: '숏츠', pcGroup: 'content', legacyGroup: 'board', mobile: true },
-  { to: '/admin/shopping', icon: 'shopping-cart', label: '쇼핑', pcGroup: 'content', legacyGroup: 'board', mobile: true },
+  // 쇼핑 기능은 도입하지 않기로 확정(공동구매·중고장터로 대체) — 지우지 않고 메뉴에서만 숨김
+  { to: '/admin/shopping', icon: 'shopping-cart', label: '쇼핑', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true, hideFromTabs: true },
   { to: '/admin/chats', icon: 'message-square', label: '채팅', pcGroup: 'content', legacyGroup: 'board', mobile: true },
-  { to: '/admin/games', icon: 'gamepad', label: '게임', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true },
+  { to: '/admin/games', icon: 'gamepad', label: '게임', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true, hideFromTabs: true },
   // 포커는 독립 메뉴가 아니라 게임(/admin/games) 안의 하위 화면 — 상단 탭 목록에서는 제외하지만
   // 현재 그룹(subTabs) 판정에는 계속 쓰여야 하므로 목록 자체에는 남겨 둔다(hideFromTabs).
   { to: '/admin/poker', icon: 'coins', label: '포커', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true, hideFromTabs: true },
-  { to: '/admin/elder', icon: 'heart', label: '안심', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true },
+  { to: '/admin/elder', icon: 'heart', label: '안심', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true, hideFromTabs: true },
   { to: '/admin/communication', icon: 'phone', label: '채팅·통화', pcGroup: 'content', legacyGroup: 'board', mobile: true },
 
   // ── 광고·매출 ──
