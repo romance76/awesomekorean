@@ -70,6 +70,10 @@ class AdminSweepstakesController extends Controller
             $data['prize_mode'] = 'tiered';   // 등수별 상품을 넣었으면 등수별 지급으로
         }
         $data['status'] = $data['status'] ?? 'draft';
+        // 이미 끝난 기간으로 "진행중" 경품을 만들면 바로 마감 처리되거나 응모가 안 되는 이벤트가 생김
+        if ($data['status'] === 'active' && \Illuminate\Support\Carbon::parse($data['end_at'])->lte(now())) {
+            return response()->json(['success' => false, 'message' => '마감 시각이 이미 지났어요. 진행중으로 만들려면 마감을 미래로 정해 주세요.'], 422);
+        }
         $data['draw_style'] = 'lottery3d'; // 2D 휠 폐지 — 항상 3D 추첨기
         $data['theme'] = SweepstakesDrawReplay::sanitizeTheme($data['theme'] ?? null);
         [$data['winner_count'], $data['prize_tiers']] = Sweepstakes::sanitizeWinnerConfig(
@@ -126,6 +130,15 @@ class AdminSweepstakesController extends Controller
             'prize_tiers.*.rank' => 'required_with:prize_tiers|integer|min:1|max:10',
             'prize_tiers.*.prize_name' => 'required_with:prize_tiers|string|max:255',
         ]);
+        // 날짜 앞뒤: 바꾸는 값과 기존 값을 합쳐서 검사 (한쪽만 바꿔도 마감이 시작보다 앞서지 않게)
+        $startAt = isset($data['start_at']) ? \Illuminate\Support\Carbon::parse($data['start_at']) : $sweepstakes->start_at;
+        $endAt = isset($data['end_at']) ? \Illuminate\Support\Carbon::parse($data['end_at']) : $sweepstakes->end_at;
+        if ($startAt && $endAt && $endAt->lte($startAt)) {
+            return response()->json(['success' => false, 'message' => '마감 시각은 시작 시각보다 뒤여야 해요.'], 422);
+        }
+        if (($data['status'] ?? $sweepstakes->status) === 'active' && $endAt && $endAt->lte(now()) && (isset($data['status']) || isset($data['end_at']))) {
+            return response()->json(['success' => false, 'message' => '마감 시각이 이미 지났어요. 진행중으로 두려면 마감을 미래로 정해 주세요.'], 422);
+        }
         // 등수별 상품을 넣었는데 방식이 없으면 자동으로 "등수별"로 (EventController 와 같은 동작)
         if (!empty($data['prize_tiers']) && empty($data['prize_mode']) && (int) ($data['winner_count'] ?? $sweepstakes->winner_count ?? 1) > 1) {
             $data['prize_mode'] = 'tiered';
@@ -230,9 +243,18 @@ class AdminSweepstakesController extends Controller
         return $out;
     }
 
-    public function selectWinner(Sweepstakes $sweepstakes)
+    public function selectWinner(Request $request, Sweepstakes $sweepstakes)
     {
         $this->requireSuperAdmin();
+
+        // 응모 기간 중 추첨은 응모를 바로 끝내 버리므로, 화면에서 한 번 더 확인받은 요청(early=true)만 진행
+        if ($sweepstakes->status === 'active' && $sweepstakes->end_at && $sweepstakes->end_at->isFuture() && !$request->boolean('early')) {
+            return response()->json([
+                'success' => false, 'code' => 'early_draw',
+                'message' => '아직 응모 기간이에요 (마감 ' . $sweepstakes->end_at->copy()->setTimezone('America/New_York')->format('n/j H:i') . ', 애틀랜타). 지금 추첨하면 응모가 바로 끝나요.',
+                'end_at' => $sweepstakes->end_at->toIso8601String(),
+            ], 409);
+        }
 
         try {
             if ((int) ($sweepstakes->winner_count ?? 1) > 1) {
