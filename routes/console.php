@@ -55,12 +55,12 @@ Schedule::command('recipes:sync-all')->dailyAt('04:00')->withoutOverlapping()->a
 Schedule::command('reservations:expire')->everyMinute();
 Schedule::command('promotions:expire')->everyMinute();
 Schedule::command('events:remind')->everyThirtyMinutes();
-// 추첨 시작 5분 전 알림 (응모 후 알림 신청한 회원)
-Schedule::command('sweepstakes:send-reminders')->everyMinute()->withoutOverlapping();
-// 당첨자에게 "이메일·전화번호·주소 확인" 안내 알림 + 상품 수령 건(claim) 동기화
-Schedule::command('sweepstakes:notify-winners')->everyMinute()->withoutOverlapping();
-// 반복 일정에서 경품 추첨 이벤트 자동 생성 + 자동 추첨 일정의 종료된 이벤트 당첨자 선정
-Schedule::command('sweepstakes:run-schedules')->everyMinute()->withoutOverlapping();
+// 경품 추첨 매분 작업 3개를 하나로 (서버가 작아 매분 프로세스를 3번 띄우던 것을 1번으로):
+//   sweepstakes:send-reminders  추첨 시작 5분 전 알림 (응모 후 알림 신청한 회원)
+//   sweepstakes:notify-winners  당첨자에게 "이메일·전화번호·주소 확인" 안내 알림 + 상품 수령 건(claim) 동기화
+//   sweepstakes:run-schedules   반복 일정에서 이벤트 자동 생성 + 자동 추첨 일정의 종료된 이벤트 당첨자 선정
+// (세 명령은 그대로 남아 있어 따로 실행도 가능. 겹침 방지 잠금은 10분 뒤 자동 해제)
+Schedule::command('sweepstakes:tick')->everyMinute()->withoutOverlapping(10);
 // 당첨 후 3일 넘게 안 보낸 경품 — 최고관리자에게 하루 한 번 (애틀랜타 오전 10시)
 Schedule::command('sweepstakes:remind-overdue-deliveries')->dailyAt('10:00')->timezone('America/New_York');
 
