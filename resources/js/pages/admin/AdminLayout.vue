@@ -135,6 +135,7 @@ import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
 import AdminMobileHome from './AdminMobileHome.vue'
 import ReauthSheet from '../../components/admin/ReauthSheet.vue'
 import { installReauthInterceptor } from '../../composables/useReauth'
+import { PC_GROUPS, ADMIN_ITEMS, itemsByPcGroup, itemsByLegacyGroup } from '../../admin/adminMenu'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
@@ -148,76 +149,20 @@ async function handleLogout() {
   router.push('/login')
 }
 
-// 왼쪽 메인 메뉴 (5개)
-const mainMenu = [
-  { to: '/admin', icon: 'chart-bar', chip: 'bg-amber-50 text-amber-600', label: '대시보드', group: 'main' },
-  { to: '/admin/members', icon: 'users', chip: 'bg-blue-50 text-blue-600', label: '회원', group: 'member' },
-  { to: '/admin/market', icon: 'list', chip: 'bg-emerald-50 text-emerald-600', label: '게시판', group: 'board' },
-  { to: '/admin/banners', icon: 'megaphone', chip: 'bg-violet-50 text-violet-600', label: '광고/가격관리', group: 'ad' },
-  { to: '/admin/settings', icon: 'settings', chip: 'bg-gray-100 text-ink-light', label: '시스템', group: 'system' },
-]
-
-// 각 그룹의 서브 탭 (콘텐츠 + 서비스 통합)
-const subTabs = {
-  member: [
-    { to: '/admin/members', icon: 'users', label: '회원관리' },
-    { to: '/admin/friends', icon: 'heart-handshake', label: '친구' },
-  ],
-  board: [
-    { to: '/admin/community', icon: 'message-circle', label: '커뮤니티' },
-    { to: '/admin/market', icon: 'shopping-cart', label: '장터' },
-    { to: '/admin/jobs', icon: 'briefcase', label: '구인구직' },
-    { to: '/admin/realestate', icon: 'building', label: '부동산' },
-    { to: '/admin/qa', icon: 'help-circle', label: 'Q&A' },
-    { to: '/admin/events', icon: 'calendar', label: '이벤트' },
-    { to: '/admin/clubs', icon: 'users', label: '동호회' },
-    { to: '/admin/recipes', icon: 'utensils', label: '레시피' },
-    { to: '/admin/news', icon: 'newspaper', label: '뉴스' },
-    { to: '/admin/info', icon: 'book-open', label: '정보' },
-    { to: '/admin/directory', icon: 'store', label: '업소록' },
-    { to: '/admin/groupbuy', icon: 'shopping-bag', label: '공동구매' },
-    { to: '/admin/music', icon: 'music', label: '음악' },
-    { to: '/admin/shorts', icon: 'video', label: '숏츠' },
-    { to: '/admin/shopping', icon: 'shopping-cart', label: '쇼핑' },
-    { to: '/admin/chats', icon: 'message-square', label: '채팅' },
-    { to: '/admin/games', icon: 'gamepad', label: '게임' },
-    // 포커는 독립된 공개 메뉴가 아니라 게임(/games) 안의 하위 기능이라 별도
-    // 상단 탭은 불필요 — AdminGames.vue에서 들어가는 하위 화면으로만 유지하고,
-    // 상단 탭 목록(boardTabs)에서는 제외(hideFromTabs). 현재 그룹 판정에는 계속 사용.
-    { to: '/admin/poker', icon: 'coins', label: '포커', hideFromTabs: true },
-    { to: '/admin/elder', icon: 'heart', label: '안심' },
-    { to: '/admin/communication', icon: 'phone', label: '채팅·통화' },
-    { to: '/admin/claims', icon: 'flag', label: '클레임' },
-    { to: '/admin/rewards', icon: 'gift', label: '보상 승인', isNew: true, newDesc: '이벤트 완료인증 · 레시피 인기보상을 관리자가 확인 후 지급하는 화면입니다.' },
-  ],
-  // '가격/할인'(포인트·광고 가격·할인 이벤트)은 원래 시스템 탭 아래 있었는데,
-  // 그중 상당 부분이 광고 가격 설정이라 광고 관리 쪽에서만 따로 찾아야 해서
-  // 불편하다는 피드백으로 광고관리 그룹으로 이동(광고/가격관리로 통합).
-  ad: [
-    { to: '/admin/ad-center', icon: 'sparkles', label: '광고 센터' },
-    { to: '/admin/banners', icon: 'megaphone', label: '광고 목록' },
-    { to: '/admin/flyers', icon: 'megaphone', label: 'NEW 전단 광고' },
-    { to: '/admin/pricing', icon: 'coins', label: '가격/할인' },
-    { to: '/admin/open-event', icon: 'gift', label: '오픈 이벤트', isNew: true, newDesc: '소프트 오픈 기간에 포인트 2배 · 채팅방 무료 · 광고 할인 등을 한 번에 켜는 화면입니다.' },
-    { to: '/admin/revenue', icon: 'chart-bar', label: '매출/결제 현황' },
-    { to: '/admin/payments', icon: 'wallet', label: '결제/오더' },
-  ],
-  system: [
-    { to: '/admin/security', icon: 'lock', label: '보안/신고' },
-    { to: '/admin/accounts', icon: 'mail', label: '계정·이메일 현황' },
-    { to: '/admin/todos', icon: 'list', label: '할 일 목록' },
-    { to: '/admin/analytics', icon: 'chart-bar', label: '방문 분석' },
-    { to: '/admin/settings', icon: 'settings', label: '설정' },
-    { to: '/admin/entry-settings', icon: 'ticket', label: 'Entry 설정' },
-    { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리' },
-    { to: '/admin/sweepstakes-rules', icon: 'book-open', label: '경품 추첨 공식 규정' },
-    { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너' },
-    { to: '/admin/popup-banners', icon: 'message-square', label: '팝업 배너' },
-    { to: '/admin/system', icon: 'monitor', label: '시스템' },
-  ],
+// 최고관리자만 볼 수 있는 화면 걸러내기(실제 접근 차단은 서버 AdminTier 가 함, 여기서는 메뉴 노출만)
+function visibleFor(items) {
+  if (auth.user?.role === 'super_admin') return items
+  return items.filter(i => (i.minTier || 2) <= 2)
 }
 
-// 게시판 서브탭 경로 → 시스템 "메뉴 관리"의 메뉴 key 매핑.
+// 왼쪽 메인 메뉴 (PC 사이드바, 7개 그룹 — 메뉴 정의는 admin/adminMenu.js 하나에서 가져옴)
+const mainMenu = PC_GROUPS.map(g => ({ to: g.to, icon: g.icon, chip: g.chip, label: g.label, group: g.key }))
+
+// '가격/할인'(포인트·광고 가격·할인 이벤트)은 원래 시스템 탭 아래 있었는데,
+// 그중 상당 부분이 광고 가격 설정이라 광고 관리 쪽에서만 따로 찾아야 해서
+// 불편하다는 피드백으로 광고관리 그룹으로 이동(광고/가격관리로 통합) — adminMenu.js 의 money 그룹에 반영됨.
+
+// 콘텐츠 탭 경로 → 시스템 "메뉴 관리"의 메뉴 key 매핑.
 // 매핑이 없는 항목(포커/클레임/보상 승인 등)은 공개 메뉴가 따로 없는
 // 관리자 전용 화면이라 메뉴 설정과 무관하게 항상 노출한다.
 const boardMenuKeyMap = {
@@ -242,20 +187,16 @@ const boardMenuKeyMap = {
   '/admin/communication': 'comms',
 }
 
-// 게시판 탭: 시스템 > 메뉴 관리에서 켜둔 메뉴만, 그 설정 순서대로 보여줌
-// (관리자 전용 화면은 매핑이 없으므로 그대로 유지, 뒤에 붙임. hideFromTabs
-// 항목은 상단 탭에선 완전히 제외 — currentGroup 판정에는 계속 쓰이므로
-// subTabs.board 자체에서는 지우지 않음)
-const boardTabs = computed(() => {
-  const base = subTabs.board.filter(tab => !tab.hideFromTabs)
+// 메뉴 설정 순서·켜짐 여부를 적용하는 공통 함수(콘텐츠 탭에만 적용, 관리자 전용 화면은 매핑이 없으므로 그대로 유지)
+function applyMenuConfig(tabs) {
   const mc = siteStore.menuConfig
-  if (!mc || !Array.isArray(mc) || !mc.length) return base
+  if (!mc || !Array.isArray(mc) || !mc.length) return tabs
   const orderIndex = {}
   mc.forEach((m, i) => { orderIndex[m.key] = i })
   const enabledKeys = new Set(mc.filter(m => m.enabled !== false).map(m => m.key))
   const mapped = []
   const unmapped = []
-  base.forEach(tab => {
+  tabs.forEach(tab => {
     const key = boardMenuKeyMap[tab.to]
     if (!key) { unmapped.push(tab); return }
     if (!enabledKeys.has(key)) return
@@ -263,22 +204,27 @@ const boardTabs = computed(() => {
   })
   mapped.sort((a, b) => a.order - b.order)
   return [...mapped.map(m => m.tab), ...unmapped]
+}
+
+// PC 상단 서브탭: 새 7그룹(pcGroup) 기준. 콘텐츠 그룹만 메뉴 설정 순서를 적용.
+const currentPcGroup = computed(() => {
+  const path = route.path
+  const item = ADMIN_ITEMS.find(i => path === i.to || path.startsWith(i.to + '/'))
+  return item ? item.pcGroup : 'home'
+})
+const currentSubTabs = computed(() => {
+  const group = currentPcGroup.value
+  let tabs = itemsByPcGroup(group).filter(t => !t.hideFromTabs)
+  if (group === 'content') tabs = applyMenuConfig(tabs)
+  return visibleFor(tabs)
 })
 
-// 현재 페이지가 어떤 그룹에 속하는지
-const currentGroup = computed(() => {
+// 휴대폰 허브(/admin/menu/:group)·하단 탭용: 기존 4그룹(legacyGroup) 그대로 — 동작 안 바뀜
+const currentLegacyGroup = computed(() => {
   const path = route.path
   if (path.startsWith('/admin/menu/')) return String(route.params.group || 'main')
-  for (const [group, tabs] of Object.entries(subTabs)) {
-    if (tabs.some(t => path === t.to || (t.to !== '/admin' && path.startsWith(t.to)))) return group
-  }
-  return 'main'
-})
-
-const currentSubTabs = computed(() => {
-  const tabs = currentGroup.value === 'board' ? boardTabs.value : (subTabs[currentGroup.value] || [])
-  if (auth.user?.role === 'super_admin') return tabs
-  return tabs.filter(t => !['/admin/sweepstakes','/admin/sweepstakes-rules'].includes(t.to))
+  const item = ADMIN_ITEMS.find(i => path === i.to || path.startsWith(i.to + '/'))
+  return item ? item.legacyGroup : 'main'
 })
 
 
@@ -310,23 +256,23 @@ onBeforeUnmount(() => { window.removeEventListener('resize', onResize); ejectRea
 const isMobileLayout = computed(() => viewMode.value === 'mobile' || (viewMode.value !== 'classic' && winW.value < 1024))
 function setView(v) { viewMode.value = v; try { localStorage.setItem(VIEW_KEY, v) } catch {} }
 
-// 메뉴 허브(AdminMobileMenu)가 그룹별 메뉴를 가져가는 통로. 최고 관리자 전용 화면은 일반 운영진에게 숨김
-const SUPER_ONLY = ['/admin/todos', '/admin/open-event', '/admin/analytics']
+// 메뉴 허브(AdminMobileMenu)가 그룹별 메뉴를 가져가는 통로(기존 4그룹 legacyGroup, 동작 안 바뀜).
+// 콘텐츠(옛 board) 그룹만 메뉴 설정 순서를 적용, 최고관리자 전용 화면은 일반 운영진에게 숨김.
 function tabsFor(group) {
-  const tabs = group === 'board' ? boardTabs.value : (subTabs[group] || [])
-  if (auth.user?.role === 'super_admin') return tabs
-  return tabs.filter(t => !['/admin/sweepstakes','/admin/sweepstakes-rules'].includes(t.to) && !SUPER_ONLY.includes(t.to))
+  let tabs = itemsByLegacyGroup(group).filter(t => !t.hideFromTabs)
+  if (group === 'board') tabs = applyMenuConfig(tabs)
+  return visibleFor(tabs)
 }
 provide('adminTabsFor', tabsFor)
 provide('adminIsMobile', isMobileLayout)
 
 const groupLabels = { member: '회원', board: '게시판', ad: '광고', system: '시스템' }
 const mTabs = computed(() => [
-  { to: '/admin', icon: 'home', label: '홈', active: currentGroup.value === 'main' },
-  { to: '/admin/menu/member', icon: 'users', label: '회원', active: currentGroup.value === 'member' },
-  { to: '/admin/menu/board', icon: 'list', label: '게시판', active: currentGroup.value === 'board' },
-  { to: '/admin/menu/ad', icon: 'megaphone', label: '광고', active: currentGroup.value === 'ad' },
-  { to: '/admin/menu/system', icon: 'settings', label: '시스템', active: currentGroup.value === 'system' },
+  { to: '/admin', icon: 'home', label: '홈', active: currentLegacyGroup.value === 'main' },
+  { to: '/admin/menu/member', icon: 'users', label: '회원', active: currentLegacyGroup.value === 'member' },
+  { to: '/admin/menu/board', icon: 'list', label: '게시판', active: currentLegacyGroup.value === 'board' },
+  { to: '/admin/menu/ad', icon: 'megaphone', label: '광고', active: currentLegacyGroup.value === 'ad' },
+  { to: '/admin/menu/system', icon: 'settings', label: '시스템', active: currentLegacyGroup.value === 'system' },
 ])
 const isHub = computed(() => route.path.startsWith('/admin/menu/'))
 const mTitle = computed(() => {
@@ -337,7 +283,7 @@ const mTitle = computed(() => {
   if (path === '/admin/calls') return '통화 로그'
   if (path === '/admin/members' && route.query.user) return '회원 상세'
   let best = null
-  for (const tabs of Object.values(subTabs)) for (const t of tabs) {
+  for (const t of ADMIN_ITEMS) {
     if ((path === t.to || path.startsWith(t.to + '/')) && (!best || t.to.length > best.to.length)) best = t
   }
   return best ? best.label : '관리자'
@@ -349,7 +295,7 @@ const mBack = computed(() => {
   if (route.path === '/admin/calls') return '/admin/communication'
   if (route.path.startsWith('/admin/games/questions/')) return '/admin/games/settings/' + route.params.slug
   if (route.path.startsWith('/admin/games/')) return '/admin/games'
-  return currentGroup.value === 'main' ? '/admin' : `/admin/menu/${currentGroup.value}`
+  return currentLegacyGroup.value === 'main' ? '/admin' : `/admin/menu/${currentLegacyGroup.value}`
 })
 // 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
 // (회원관리·게시판 관리처럼 이미 휴대폰용으로 만든 화면은 확대하지 않음)
@@ -357,8 +303,8 @@ const MOBILE_NATIVE = ['/admin/members', '/admin/community', '/admin/jobs', '/ad
 const mLegacy = computed(() => route.path !== '/admin' && !isHub.value && !MOBILE_NATIVE.some(n => route.path === n || (n === '/admin/games' && route.path.startsWith(n + '/'))))
 
 function isMainActive(item) {
-  if (item.to === '/admin' && item.group === 'main') return route.path === '/admin'
-  return currentGroup.value === item.group
+  if (item.to === '/admin' && item.group === 'home') return route.path === '/admin'
+  return currentPcGroup.value === item.group
 }
 </script>
 <style>
