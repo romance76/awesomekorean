@@ -248,7 +248,15 @@ class AdminController extends Controller
     }
 
     public function banners() { return response()->json(['success'=>true,'data'=>Banner::orderBy('sort_order')->get()]); }
-    public function bannerList() {
+    public function bannerList(Request $request) {
+        // ?older=1&page=N : 90일 이전에 끝난 광고를 50건씩 (화면의 "지난 광고 더 보기")
+        if ($request->boolean('older')) {
+            $p = \App\Models\BannerAd::with('user:id,name,email')
+                ->whereNotIn('status', ['pending', 'active', 'paused'])
+                ->where('created_at', '<', now()->subDays(90))
+                ->orderByDesc('created_at')->paginate(50);
+            return response()->json(['success' => true, 'data' => $p->items(), 'meta' => ['current_page' => $p->currentPage(), 'last_page' => $p->lastPage(), 'total' => $p->total()]]);
+        }
         // 진행 중인 광고(대기·활성·일시중지)는 모두, 끝난 광고는 최근 90일 것만 — 오래된 광고가 쌓여도 목록이 무거워지지 않게 (화면은 슬롯 계산에 진행 중 광고가 전부 필요) (할 일 #134)
         $rows = \App\Models\BannerAd::with('user:id,name,email')
             ->where(fn ($q) => $q->whereIn('status', ['pending', 'active', 'paused'])->orWhere('created_at', '>=', now()->subDays(90)))

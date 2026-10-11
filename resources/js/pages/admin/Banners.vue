@@ -29,7 +29,7 @@
   <div class="text-[13px] text-ink-muted px-0.5">{{ loading ? '불러오는 중...' : `${mItems.length}건` }}</div>
 
   <!-- 광고 카드 -->
-  <button v-for="item in mItems" :key="item.id" @click="openSheet(item)"
+  <button v-for="item in mVisible" :key="item.id" @click="openSheet(item)"
     class="w-full text-left bg-white border border-gray-100 rounded-2xl p-3 min-h-[88px] flex items-center gap-3 active:bg-amber-50">
     <span class="shrink-0 w-[84px] h-[60px] rounded-xl overflow-hidden bg-gray-100"><img v-if="item.image_url" :src="item.image_url" alt="" loading="lazy" class="w-full h-full object-cover" /></span>
     <span class="min-w-0 flex-1">
@@ -42,6 +42,9 @@
     </span>
   </button>
   <div v-if="!mItems.length && !loading" class="text-center text-ink-muted py-12 text-[15px]">해당하는 광고가 없어요</div>
+  <button v-if="mMore > 0" @click="mShown += PAGE_STEP" class="w-full min-h-[50px] rounded-xl border border-gray-200 bg-white text-[15px] font-bold text-ink">더 보기 (남은 {{ mMore.toLocaleString() }}건)</button>
+  <button v-else-if="!loading && (mStatus === 'ended' || mStatus === 'all') && olderHasMore" @click="loadOlder" :disabled="olderLoading"
+    class="w-full min-h-[50px] rounded-xl border border-gray-200 bg-white text-[15px] font-bold text-ink disabled:opacity-50">{{ olderLabel }}</button>
 
   <!-- 광고 상세 / 처리 시트 -->
   <Teleport to="body">
@@ -201,12 +204,12 @@
   </div>
 
   <!-- ═══ 전체 목록 ═══ -->
-  <div v-else-if="!items.length" class="py-16 text-center">
-    <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="megaphone" :size="28" :stroke-width="1.5" /></div>
-    <p class="text-sm text-ink-muted">광고 신청 없음</p>
-  </div>
   <div v-else class="space-y-2">
-    <div v-for="item in items" :key="item.id" class="card p-3">
+    <div v-if="!allItems.length" class="py-16 text-center">
+      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="megaphone" :size="28" :stroke-width="1.5" /></div>
+      <p class="text-sm text-ink-muted">광고 신청 없음</p>
+    </div>
+    <div v-for="item in pcVisible" :key="item.id" class="card p-3">
       <div class="flex gap-3 items-center">
         <div class="w-20 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 cursor-pointer transition-shadow hover:ring-2 ring-amber-400" @click="previewImage(item)">
           <img :src="item.image_url" class="w-full h-full object-cover" />
@@ -230,6 +233,10 @@
           <button @click="remove(item)" class="text-[11px] text-red-400 transition-colors hover:text-red-600">삭제</button>
         </div>
       </div>
+    </div>
+    <div class="pt-2 text-center">
+      <button v-if="pcMore > 0" @click="pcShown += PAGE_STEP" class="btn-secondary">더 보기 (남은 {{ pcMore.toLocaleString() }}건)</button>
+      <button v-else-if="olderHasMore" @click="loadOlder" :disabled="olderLoading" class="btn-secondary disabled:opacity-50">{{ olderLabel }}</button>
     </div>
   </div>
 
@@ -311,13 +318,23 @@ function say(text, error = false) {
 const countStatus = (st) => items.value.filter(i => i.status === st).length
 const totalIncome = computed(() => items.value.reduce((sum, i) => sum + (i.bid_amount || i.total_cost || 0), 0))
 const totalClicks = computed(() => items.value.reduce((sum, i) => sum + (i.clicks || 0), 0))
-const mItems = computed(() => items.value.filter(i => {
+// 최근 광고(items) + 불러온 지난 광고(olderItems). 지난 광고는 모두 끝난 것이라 '대기'·'게시중' 칩에는 섞이지 않음
+const allItems = computed(() => [...items.value, ...olderItems.value])
+const PAGE_STEP = 50
+const mShown = ref(PAGE_STEP)
+const pcShown = ref(PAGE_STEP)
+const mItems = computed(() => allItems.value.filter(i => {
   const st = mStatus.value
   if (st === 'pending' && i.status !== 'pending') return false
   if (st === 'active' && i.status !== 'active') return false
   if (st === 'ended' && !['paused', 'rejected', 'expired'].includes(i.status)) return false
   return activePage.value === 'all' || matchPage(i, activePage.value)
 }))
+const mVisible = computed(() => mItems.value.slice(0, mShown.value))
+const mMore = computed(() => mItems.value.length - mVisible.value.length)
+const pcVisible = computed(() => allItems.value.slice(0, pcShown.value))
+const pcMore = computed(() => allItems.value.length - pcVisible.value.length)
+watch([mStatus, activePage], () => { mShown.value = PAGE_STEP })
 const refundAmount = (i) => Number(i.total_cost ?? i.bid_amount ?? 0)
 function openSheet(i) { sheetItem.value = i; mode.value = '' }
 function closeSheet() { if (!busy.value) { sheetItem.value = null; mode.value = '' } }
@@ -331,7 +348,7 @@ async function runAction(fn, okText) {
 const doApprove = () => runAction(async () => { await axios.post(`/api/admin/banners/${sheetItem.value.id}/approve`); sheetItem.value.status = 'active' }, '게시를 시작했어요')
 const doPause = () => runAction(async () => { await axios.post(`/api/admin/banners/${sheetItem.value.id}/pause`); sheetItem.value.status = 'paused' }, '게시를 중지했어요')
 const doReject = () => runAction(async () => { await axios.post(`/api/admin/banners/${sheetItem.value.id}/reject`, { reason: rejectReason.value.trim() }); sheetItem.value.status = 'rejected' }, '거절하고 환불했어요')
-const doDelete = () => runAction(async () => { const id = sheetItem.value.id; await axios.delete(`/api/admin/banners/${id}`); items.value = items.value.filter(i => i.id !== id) }, '삭제했어요')
+const doDelete = () => runAction(async () => { const id = sheetItem.value.id; await axios.delete(`/api/admin/banners/${id}`); dropItem(id) }, '삭제했어요')
 // 시트가 열려 있는 동안 뒤쪽 화면이 같이 스크롤되지 않게
 watch(() => isMobile.value && !!sheetItem.value, locked => { document.body.style.overflow = locked ? 'hidden' : '' })
 onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
@@ -400,18 +417,51 @@ function slotTotalCount(pk, pos, slotNum) {
 function previewImage(ad) { previewImg.value = ad }
 function previewLink(url) { previewUrl.value = url }
 
+const normBanner = (i) => ({ ...i, target_pages: typeof i.target_pages === 'string' ? JSON.parse(i.target_pages) : (i.target_pages || []) })
 async function load() {
   try {
     const{data}=await axios.get('/api/admin/banners')
-    items.value=(data.data||[]).map(i=>({...i,target_pages:typeof i.target_pages==='string'?JSON.parse(i.target_pages):(i.target_pages||[])}))
+    items.value=(data.data||[]).map(normBanner)
   }catch{}
   loading.value=false
+}
+
+// ── 지난 광고(90일 이전에 끝난 것) 50건씩 더 불러오기 ──
+const olderItems = ref([])
+const olderPage = ref(0)
+const olderLast = ref(1)
+const olderTotal = ref(0)
+const olderTried = ref(false)
+const olderLoading = ref(false)
+const olderHasMore = computed(() => !olderTried.value || olderPage.value < olderLast.value)
+const olderLabel = computed(() => olderLoading.value ? '불러오는 중...' : olderTried.value ? `지난 광고 더 보기 (남은 ${Math.max(0, olderTotal.value - olderItems.value.length).toLocaleString()}건)` : '90일 이전 지난 광고 보기')
+async function loadOlder() {
+  if (olderLoading.value) return
+  olderLoading.value = true
+  try {
+    const { data } = await axios.get('/api/admin/banners', { params: { older: 1, page: olderPage.value + 1 } })
+    olderItems.value = [...olderItems.value, ...(data.data || []).map(normBanner)]
+    olderPage.value = data.meta?.current_page || olderPage.value + 1
+    olderLast.value = data.meta?.last_page || 1
+    olderTotal.value = data.meta?.total || 0
+    olderTried.value = true
+    // 방금 불러온 광고가 바로 보이도록 화면에 보이는 개수를 늘림
+    mShown.value = Math.max(mShown.value, mItems.value.length)
+    pcShown.value = Math.max(pcShown.value, allItems.value.length)
+  } catch { isMobile.value ? say('지난 광고를 불러오지 못했어요', true) : alert('지난 광고를 불러오지 못했어요') }
+  finally { olderLoading.value = false }
+}
+function dropItem(id) {
+  items.value = items.value.filter(i => i.id !== id)
+  const n = olderItems.value.length
+  olderItems.value = olderItems.value.filter(i => i.id !== id)
+  if (olderItems.value.length < n) olderTotal.value = Math.max(0, olderTotal.value - 1)
 }
 
 async function approve(item){try{const {data}=await axios.post(`/api/admin/banners/${item.id}/approve`);item.status='active';if(data?.message)alert(data.message)}catch(e){alert(e.response?.data?.message||'실패')}}
 async function reject(item){const r=prompt('거절 사유:');if(!r)return;try{await axios.post(`/api/admin/banners/${item.id}/reject`,{reason:r});item.status='rejected'}catch{}}
 async function pause(item){try{await axios.post(`/api/admin/banners/${item.id}/pause`);item.status='paused'}catch{}}
-async function remove(item){if(!confirm('삭제?'))return;try{await axios.delete(`/api/admin/banners/${item.id}`);items.value=items.value.filter(i=>i.id!==item.id)}catch{}}
+async function remove(item){if(!confirm('삭제?'))return;try{await axios.delete(`/api/admin/banners/${item.id}`);dropItem(item.id)}catch{}}
 
 onMounted(() => { load(); loadPages() })
 </script>
