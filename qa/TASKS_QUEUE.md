@@ -51,12 +51,13 @@ Stripe 가 테스트 모드면 테스트 카드(4242 4242 4242 4242, 아무 미�
 
 ---
 
-## T5. 남은 작은 정리 — status: ready  (T1 이 막혀 있을 때 먼저 해도 됨)
-- 일괄 등급 변경(회원 PC 목록 선택 → 권한 변경, 운영진·본인 제외, 확인 시트 + 감사 로그, `AdminController::bulkUsers` 확장)
-- 경품 매분 작업 3개 합치기(`routes/console.php` 의 `sweepstakes:send-reminders`·`notify-winners`·`run-schedules` → 하나의 명령으로, `withoutOverlapping` 유지)
-- 관리자 배너 화면 페이지 넘기기(`Banners.vue`, 지금은 최근 90일·1000건 제한)
-- 휴대폰 회원 화면에도 "지급·보상 센터 ›" 링크(`AdminMembersMobile.vue`)
+## T5. 남은 작은 정리 — status: done  (2026-10-11 UTC 15:55 / 애틀랜타 오전 11:55, 4건 모두 배포·검증)
+- ✅ 일괄 등급 변경 — 커밋 `0059cd46`. PC 회원 목록에서 여러 명 선택 → "일반회원으로 / 기업회원으로"(최고관리자에게만 보임). `AdminController::bulkUsers` 에 `action=role` 추가: 최고관리자 전용(아니면 403), 일반·기업으로만(운영진 승급은 회원 상세에서 한 명씩), 본인·운영진·이미 같은 등급은 건너뜀, 바뀐 회원마다 `admin_audit_log` 한 줄(사유 "일반회원 → 기업회원 (일괄 등급 변경)"). 서버에서 롤백되는 트랜잭션으로 6가지 시나리오 확인(롤백 후 역할·감사 로그 원상태).
+- ✅ 경품 매분 작업 3개 합치기 — 커밋 `5612c1a9`. 새 명령 `sweepstakes:tick`(`app/Console/Commands/SweepstakesTick.php`)이 `send-reminders` → `notify-winners` → `run-schedules` 를 차례로 실행(한 단계가 실패해도 다음 단계 계속), 스케줄은 `everyMinute()->withoutOverlapping(10)`. 옛 3개 명령은 그대로 남아 따로 실행 가능. 서버 `schedule:list` 에 tick 하나만 보이고 배포 후 오류 없음.
+- ✅ 관리자 광고 목록 페이지 넘기기 — 커밋 `23b3a88e`. 휴대폰·PC 목록이 50건씩 "더 보기", 90일 이전에 끝난 광고는 "90일 이전 지난 광고 보기" 로 50건씩 추가 로드(`GET /api/admin/banners?older=1&page=N`, 기본 응답은 그대로). 지금 운영 서버는 광고가 0건이라 빈 화면은 "광고 신청 없음".
+- ✅ 휴대폰 회원 상세 "지급·보상 센터로 이동 ›" — 커밋 `57ccd182`.
 - 환불 정책 2단계는 **Kay 보류** — 건드리지 말 것.
+- (미루어 둔 작은 메모) 지난 광고 페이지를 넘기는 중에 광고를 삭제하면 다음 페이지에서 한 건이 건너뛰어질 수 있음(관리자 전용·드문 경우).
 
 ---
 

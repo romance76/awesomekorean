@@ -1,6 +1,6 @@
 # ⭐ 최신 인수인계 (다른 계정/세션에서 이어 받을 때 가장 먼저 읽기)
 
-작성: 2026-10-11 UTC 11:00 (애틀랜타 새벽 7:00) · 마지막 배포 코드 `02a877a4` (Deploy·PHP Syntax Check 모두 success)
+작성: 2026-10-11 UTC 16:00 (애틀랜타 낮 12:00) · 마지막 배포 코드 `0059cd46` (Deploy·PHP Syntax Check 모두 success) · 최신 변경은 맨 아래 9번
 **한 방 실행: 새 Claude 계정에서 `/continue` 한 줄** (안 되면 `qa/CONTINUE_PROMPT.md` 의 글을 붙여넣기). 할 일은 `qa/TASKS_QUEUE.md`(위에서부터 ready 인 것), 배포·검증은 `scripts/ship.sh` 가 한 번에 처리합니다.
 
 읽는 순서: **이 파일 → `qa/points_entry_ads_structure_report.md`(돈/포인트/Entry 설계·Kay 결정) → `qa/WORK_ORDER_2026-10-11.md`(오늘 작업 전체 기록·서버 작업) → `qa/HANDOFF_2026-10-11.md`(옛 기록) → `CLAUDE.md`**
@@ -124,10 +124,33 @@
 | `qa/CONTINUE_PROMPT.md` | 슬래시 명령이 안 보일 때 붙여넣을 글 + 처음 필요한 도구 |
 
 ### 8-3. 지금 대기열 상태
-T0 항상 · **T1 공동구매 = ready**(계획서 → Kay 확인 → 구현; 오픈 수수료 금액 결정 필요) · T2 리더보드 = needs_kay · T3 기프트카드 = needs_kay · T4 실결제 시험 = needs_kay · T5 작은 정리 = ready.
+T0 항상 · T1 공동구매 = needs_kay(계획서 `qa/groupbuy_plan.md` 작성 완료, 결정 대기) · T2 리더보드 = needs_kay · T3 기프트카드 = needs_kay · T4 실결제 시험 = needs_kay · T5 작은 정리 = **done**(아래 9번).
 
 ### 8-4. Kay 확인 필요 (변동)
 1. Stripe 테스트/실결제 모드와 광고 달러 가격(이전 7-3).
 2. 새 인보이스 영어/한국어 모양 확인(EN 토글 후 결제 탭 › 인보이스).
 3. 지급·보상 센터 검색·지급 기록 목록이 보기 편한지.
 4. **서버는 결제 완료된 카드 결제가 아직 0건** → 카드 종류·끝 4자리 표시는 첫 실제 결제로 확인(T4).
+
+---
+
+## 9. 추가 업데이트 (UTC 16:00 / 애틀랜타 낮 12:00) — 작은 정리(T5) 4건 완료 (코드 `0059cd46` 배포 success)
+
+### 9-1. 한 일
+1. **휴대폰 회원 상세에 "지급·보상 센터로 이동 ›"** (`AdminMembersMobile.vue`, 관리자 이상에게만) — `57ccd182`.
+2. **관리자 광고 목록 페이지 넘기기** (`Banners.vue` + `AdminController::bannerList`) — `23b3a88e`. 휴대폰·PC 모두 50건씩 "더 보기", 90일 이전 끝난 광고는 "90일 이전 지난 광고 보기"(`GET /api/admin/banners?older=1&page=N`). 기본 응답(최근 90일+진행 중, 1000건)은 그대로라 슬롯 화면은 영향 없음.
+3. **경품 매분 작업 3개 → `sweepstakes:tick` 하나** (`routes/console.php`, `app/Console/Commands/SweepstakesTick.php`) — `5612c1a9`. 서버 매분 프로세스 3개가 1개로. 겹침 방지 잠금 10분. 옛 3개 명령은 그대로 남음. 서버 `schedule:list` 확인, 배포 후 오류 없음.
+4. **회원 일괄 등급 변경** (`AdminController::bulkUsers` `action=role`, `Members.vue`) — `0059cd46`. 최고관리자 전용, 일반↔기업만(운영진 승급은 한 명씩), 본인·운영진·이미 같은 등급은 건너뜀, 바뀐 회원마다 감사 로그. 서버에서 롤백되는 트랜잭션으로 6가지 시나리오 확인.
+- 백업: `qa/backups/t5_20261011/` (AdminMembersMobile.vue · Banners.vue · Members.vue · AdminController.php · AdminController_before_bulkrole.php · console.php).
+
+### 9-2. Kay 가 눈으로 확인할 것
+- 휴대폰: 관리자 › 회원 › 한 명 열기 → "지급·보상 센터로 이동 ›" 가 보이고 눌러서 그 회원으로 열리는지.
+- PC: 관리자 › 회원관리에서 두세 명 체크 → 위쪽 줄에 "일반회원으로 / 기업회원으로"(최고관리자 로그인일 때) → 확인창 → 완료 알림. 감사 로그 화면에 "일반회원 → 기업회원 (일괄 등급 변경)" 이 한 줄씩 남는지. (되돌릴 때는 반대 버튼.) 더미 계정 말고 시험용 계정으로 확인하세요.
+- 관리자 › 광고 목록: 지금은 광고가 0건이라 "광고 신청 없음" + "90일 이전 지난 광고 보기" 버튼만 보임(눌러도 없음). 광고가 쌓이면 50건씩 더 보기가 나옴.
+
+### 9-3. 다음 (변동 없음 — 전부 Kay 결정 대기)
+- **T1 공동구매** (`qa/groupbuy_plan.md` 읽고 7가지 결정): ① 오픈 수수료 금액(제안 $10) ② 등록 시 보류→승인 때 청구(제안) vs 등록 즉시 청구 ③ 참가자 명단에 이메일·전화 포함 여부.
+- **T2 리더보드**: ① 카테고리 ② 1~5등 Entry 개수 ③ 최소 글자 수 ④ 더미 제외 OK ⑤ 지급은 관리자 확정 후(제안) vs 자동.
+- **T3 기프트카드 교환**: 연 $500 한도 해석이 맞는지 + 세무사 확인.
+- **T4 실제 카드 결제 시험**: Stripe 테스트/실결제 모드 확인.
+- ready 인 작업은 없음(T5 완료). Kay 의 답이 오면 `qa/TASKS_QUEUE.md` 해당 작업을 `ready` 로 바꾸고 시작.
