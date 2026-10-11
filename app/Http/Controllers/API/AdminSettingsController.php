@@ -101,7 +101,7 @@ class AdminSettingsController extends Controller
 
     public function getPublic() {
         $settings = Cache::remember(self::SETTINGS_PUBLIC_CACHE_KEY, 1800, function () {
-            $keys = ['easy_view_enabled','site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config','footer_config'];
+            $keys = ['easy_view_enabled','site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config','footer_config','menu_groups','menu_groups_enabled'];
             return SiteSetting::whereIn('key', $keys)->pluck('value','key');
         });
         // 점검 모드·가입 허용·이메일 인증·비밀번호 길이는 사이트 동작에 쓰이는 값이라 정리된 현재 값을 항상 새로 얹는다
@@ -410,6 +410,30 @@ class AdminSettingsController extends Controller
         SiteSetting::updateOrCreate(['key'=>'menu_config'], ['value'=>json_encode($merged)]);
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
         return response()->json(['success'=>true,'message'=>'메뉴 설정이 저장되었습니다']);
+    }
+
+    // 상단 메뉴 묶음 (메뉴 트리) — 묶음 목록 + 켜기/끄기 + 묶음에 넣을 수 있는 메뉴 목록(menu_config)
+    public function getMenuGroups() {
+        $raw = SiteSetting::where('key', 'menu_groups')->value('value');
+        $groups = $raw ? json_decode($raw, true) : null;
+        $menuRaw = SiteSetting::where('key', 'menu_config')->value('value');
+        return response()->json(['success' => true, 'data' => [
+            'groups' => is_array($groups) ? $groups : \App\Support\MenuGroups::defaults(),
+            'enabled' => SiteSetting::where('key', 'menu_groups_enabled')->value('value') === '1',
+            'menus' => ($menuRaw ? json_decode($menuRaw, true) : null) ?: $this->defaultMenus(),
+            'defaults' => \App\Support\MenuGroups::defaults(),
+        ]]);
+    }
+
+    public function saveMenuGroups(Request $request) {
+        [$groups, $err] = \App\Support\MenuGroups::sanitize($request->input('groups'));
+        if ($err) return response()->json(['success' => false, 'message' => $err], 422);
+        SiteSetting::updateOrCreate(['key' => 'menu_groups'], ['value' => json_encode($groups, JSON_UNESCAPED_UNICODE)]);
+        if ($request->has('enabled')) {
+            SiteSetting::updateOrCreate(['key' => 'menu_groups_enabled'], ['value' => $request->boolean('enabled') ? '1' : '0']);
+        }
+        Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
+        return response()->json(['success' => true, 'message' => '메뉴 묶음을 저장했어요', 'data' => ['groups' => $groups]]);
     }
 
     // API 키 관리

@@ -784,6 +784,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::post('/settings/generate-vapid', [AdminSettingsController::class, 'generateVapid'])->middleware('role:admin,super_admin');
     Route::get('/settings/menus', [AdminSettingsController::class, 'getMenus']);
     Route::post('/settings/menus/batch', [AdminSettingsController::class, 'saveMenus'])->middleware('role:admin,super_admin');
+    Route::get('/settings/menu-groups', [AdminSettingsController::class, 'getMenuGroups']);
+    Route::post('/settings/menu-groups', [AdminSettingsController::class, 'saveMenuGroups']);
     Route::post('/settings/logo', [AdminSettingsController::class, 'uploadLogo'])->middleware('role:admin,super_admin');
     Route::post('/settings/logo-dark', [AdminSettingsController::class, 'uploadLogoDark'])->middleware('role:admin,super_admin');
     Route::post('/settings/app-icon', [AdminSettingsController::class, 'uploadAppIcon'])->middleware('role:admin,super_admin');
