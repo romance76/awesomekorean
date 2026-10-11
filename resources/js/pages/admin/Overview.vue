@@ -12,7 +12,7 @@
         <div class="text-[13px] text-ink-muted">전체 회원</div>
         <div class="text-[12px] text-green-600 mt-0.5">오늘 +{{ report.users.new_today }} · 이번주 +{{ report.users.new_week }}</div>
       </RouterLink>
-      <RouterLink to="/admin/revenue" class="bg-white border border-gray-100 rounded-2xl p-3.5 active:bg-amber-50">
+      <RouterLink :to="{ path: '/admin/payments', query: { tab: 'revenue' } }" class="bg-white border border-gray-100 rounded-2xl p-3.5 active:bg-amber-50">
         <div class="text-[26px] leading-tight font-black tabular-nums text-blue-600">${{ Number(report.payments.total_revenue).toLocaleString() }}</div>
         <div class="text-[13px] text-ink-muted">누적 매출</div>
         <div class="text-[12px] text-blue-600 mt-0.5">이달 ${{ Number(report.payments.month_revenue).toLocaleString() }} · 오늘 ${{ Number(report.payments.today_revenue).toLocaleString() }}</div>

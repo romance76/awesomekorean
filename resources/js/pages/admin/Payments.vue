@@ -6,6 +6,7 @@
     :class="[isMobile ? 'min-h-[44px] px-5 text-[15px]' : 'px-4 py-1.5 text-sm', 'rounded-full border font-bold', tab === t.v ? 'bg-ink text-white border-ink' : 'bg-white text-ink-light border-gray-200']">{{ t.l }}</button>
 </div>
 <InvoiceTab v-if="tab === 'invoices'" :mobile="isMobile" />
+<Revenue v-else-if="tab === 'revenue'" />
 <template v-else>
 <!-- ───────── 휴대폰 화면 ───────── -->
 <div v-if="isMobile" class="alv-m space-y-3 pb-4">
@@ -292,11 +293,14 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import SortTh from '../../components/SortTh.vue'
 import InvoiceTab from '../../components/admin/InvoiceTab.vue'
 import InvoiceDetail from '../../components/admin/InvoiceDetail.vue'
+// 매출·결제 통합(할 일 #90) — "매출/결제 현황" 을 별도 화면이 아니라 이 화면의 탭 하나로
+import Revenue from './Revenue.vue'
 import { INVOICE_STATUS, mailChip } from '../../composables/useInvoiceUi'
 import { useAdminSort } from '../../composables/useAdminSort'
 // 표 머리글을 눌러 정렬 (기본: 번호 내림차순 = 가장 마지막 번호가 위)
@@ -310,9 +314,10 @@ const auth = useAuthStore()
 // 환불은 서버에서 admin/super_admin 만 허용 — 일반 운영진에게는 버튼을 숨김
 const canRefund = computed(() => ['admin', 'super_admin'].includes(auth.user?.role))
 
-// 위쪽 전환: 주문(기존 화면) / 인보이스 목록
-const viewTabs = [{ v: 'orders', l: '주문' }, { v: 'invoices', l: '인보이스' }]
-const tab = ref('orders')
+// 위쪽 전환: 주문(기존 화면) / 매출 현황(옛 /admin/revenue, 할 일 #90 에서 탭으로 통합) / 인보이스 목록
+const viewTabs = [{ v: 'orders', l: '주문' }, { v: 'revenue', l: '매출 현황' }, { v: 'invoices', l: '인보이스' }]
+const route = useRoute()
+const tab = ref(['orders', 'revenue', 'invoices'].includes(route.query.tab) ? route.query.tab : 'orders')
 function setTab(v) { tab.value = v }
 // 주문마다 붙는 인보이스 칩 (주문 번호 → 인보이스). 못 불러와도 주문 화면은 그대로 쓸 수 있다.
 const invMap = ref({})

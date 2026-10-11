@@ -228,7 +228,8 @@ const routes = [
       { path: 'ad-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'pricing', component: p('admin/AdminPricingCenter') },
       { path: 'payments', component: p('admin/Payments') },
-      { path: 'revenue', component: p('admin/Revenue') },
+      // 매출·결제 통합(할 일 #90) — 독립 화면 대신 결제/오더 화면의 '매출 현황' 탭으로. 옛 주소 북마크 대비 리다이렉트.
+      { path: 'revenue', redirect: to => ({ path: '/admin/payments', query: { ...to.query, tab: 'revenue' } }) },
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'accounts', component: p('admin/AdminAccounts') },
       { path: 'todos', component: p('admin/AdminTodos') },

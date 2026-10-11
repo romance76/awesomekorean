@@ -65,8 +65,8 @@ export const ADMIN_ITEMS = [
   { to: '/admin/banners', icon: 'megaphone', label: '광고 목록', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   { to: '/admin/flyers', icon: 'megaphone', label: 'NEW 전단 광고', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   { to: '/admin/pricing', icon: 'coins', label: '가격/할인', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
-  { to: '/admin/revenue', icon: 'chart-bar', label: '매출/결제 현황', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
-  { to: '/admin/payments', icon: 'wallet', label: '결제/오더 · 인보이스', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
+  // 매출/결제 현황은 할 일 #90 에서 결제/오더 화면의 탭으로 통합됨 — 메뉴 항목은 하나로 합침(주소는 /admin/revenue → 리다이렉트로 유지)
+  { to: '/admin/payments', icon: 'wallet', label: '결제/오더 · 매출 · 인보이스', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
 
   // ── 홍보·이벤트 ──
   { to: '/admin/open-event', icon: 'gift', label: '오픈 이벤트', pcGroup: 'promo', legacyGroup: 'ad', mobile: true, minTier: 3,
