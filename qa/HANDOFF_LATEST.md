@@ -1,6 +1,11 @@
 # ⭐ 최신 인수인계 (다른 계정/세션에서 이어 받을 때 가장 먼저 읽기)
 
-작성: 2026-10-11 UTC 16:00 (애틀랜타 낮 12:00) · 마지막 배포 코드 `a76c84f4` (Deploy·PHP Syntax Check 모두 success) · **Stripe 는 테스트 모드(Kay 확인) — 테스트 카드 4242 4242 4242 4242 로 시험** · 최신 변경은 맨 아래 9번
+작성: 2026-10-11 UTC 23:45 (애틀랜타 저녁 7:45) · 마지막 배포 코드 `80882312` (Deploy·PHP Syntax Check 모두 success) · **Stripe 는 테스트 모드(Kay 확인) — 테스트 카드 4242 4242 4242 4242 로 시험** · 최신 변경은 맨 아래 **11번**
+
+## 0. 지금 바로 알아야 할 것 (2026-10-11 밤 기준)
+1. **메뉴 개편 1단계는 코드 배포 완료, 스위치는 꺼짐.** Kay 가 관리자 › 사이트 설정 › **메뉴 묶음** 탭에서 스위치를 켜고 저장하면 사이트 전체(상단·휴대폰 ☰·하단 탭 순서·목록 페이지 제목 줄·/info)가 묶음 메뉴로 바뀜. 끄고 저장하면 즉시 예전 메뉴. → Kay 가 켠 뒤 화면 확인 결과를 받으면 다음으로.
+2. **다음 할 일 = T6 2단계(MONEY 허브) 계획서 작성** → Kay 확인 → 구현. (`qa/TASKS_QUEUE.md` T6, `qa/menu_restructure_plan.md` 2단계, 샘플 `.claude/mockup/menu_grouping_sample.html`)
+3. 서버 확인은 `bash scripts/server_check.sh`, 운영 DB 시험은 **롤백 트랜잭션**으로만. Playwright MCP 브라우저는 **Kay 의 실제 Chrome** 이라 조작 금지(보기만, 가능하면 앱 내장 브라우저 `mcp__Claude_Browser__*` 사용).
 **한 방 실행: 새 Claude 계정에서 `/continue` 한 줄** (안 되면 `qa/CONTINUE_PROMPT.md` 의 글을 붙여넣기). 할 일은 `qa/TASKS_QUEUE.md`(위에서부터 ready 인 것), 배포·검증은 `scripts/ship.sh` 가 한 번에 처리합니다.
 
 읽는 순서: **이 파일 → `qa/points_entry_ads_structure_report.md`(돈/포인트/Entry 설계·Kay 결정) → `qa/WORK_ORDER_2026-10-11.md`(오늘 작업 전체 기록·서버 작업) → `qa/HANDOFF_2026-10-11.md`(옛 기록) → `CLAUDE.md`**
@@ -160,3 +165,30 @@ T0 항상 · T1 공동구매 = needs_kay(계획서 `qa/groupbuy_plan.md` 작성 
 - **T3 기프트카드 교환**: 연 $500 한도 해석이 맞는지 + 세무사 확인.
 - **T4 실제 카드 결제 시험**: Stripe 테스트/실결제 모드 확인.
 - ready 인 작업은 없음(T5 완료). Kay 의 답이 오면 `qa/TASKS_QUEUE.md` 해당 작업을 `ready` 로 바꾸고 시작.
+
+---
+
+## 11. 추가 업데이트 (2026-10-11 UTC 23:45 / 애틀랜타 저녁 7:45) — PC 상단·글씨, 메뉴 개편 1단계
+
+### 11-1. 화면 다듬기 (모두 배포 success)
+- **PC 상단 높이**(`a76c84f4`): 헤더 106→140px(768px 이상만), 로고 172px, 검색칸·메뉴 줄 키움. 헤더 실제 높이를 CSS 변수 `--hdr-h`(NavBar 가 ResizeObserver 로 갱신)로 공유 → `app.css` 가 `sticky top-20` 사이드바·태블릿 상세 머리글 위치를 보정. 백업 `qa/backups/header_height_20261011/`.
+- **PC 글씨 한 단계 크게**(`097a597f`, Kay 승인): 768px 이상에서 12→13.5, 13→14.5, 14→15, 16→17.5, 18→19, 20→21.5px. 상단 메뉴(`nav.ev-header`)·관리자 화면(`.admin-shell`, `AdminLayout.vue` 루트에 붙임) 제외, "큰 글씨로 보기"를 켠 경우엔 그 설정 우선. `app.css` 맨 끝. 비교 캡처 `qa/design/font_before_community.png`·`font_after_community.png`. 백업 `qa/backups/pc_font_20261012/`.
+- **구인 로고**: 목록 PC 100px(`070902a1`), 상세 PC 120px·휴대폰 88px(`8ac331e8`).
+
+### 11-2. 메뉴 개편 1단계 (계획서 `qa/menu_restructure_plan.md`, 샘플 `.claude/mockup/menu_grouping_sample.html`)
+Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구인구직 · 부동산 · 사고팔기(중고장터·공동구매) · 업소·광고(업소록·NEW) · 생활정보(정보·뉴스·레시피·이벤트) · 즐길거리(숏츠·음악듣기) · 내돈내산 리뷰 · MONEY(허브, **지금은 숨김** — 2단계). 친구는 MY 로.
+| 커밋 | 내용 |
+|---|---|
+| `7b3a9899` | 서버: `app/Support/MenuGroups.php`(기본값·검사 `sanitize`·서버 페이지용 `publicGroups`), 마이그레이션 `2026_10_12_100000_seed_menu_groups`(없을 때만 넣음, 스위치 `menu_groups_enabled=0`), `GET/POST /api/admin/settings/menu-groups`(최고관리자 — AdminTier `settings/*`), 공개 설정에 `menu_groups`·`menu_groups_enabled` 포함 |
+| `06ba542e` | 관리자 › 사이트 설정 › **메뉴 묶음** 탭(`components/admin/siteSettings/SiteMenuGroupsTab.vue`): 끌어서·▲▼로 순서/묶음 이동, 묶음 이름·영어 이름·아이콘·종류(혼자/묶음/허브)·숨김, 묶음에 없는 메뉴 넣기, 미리보기, 켜기 스위치, 기본 묶음으로. `stores/site.js` 에 `menuGroups`(켜졌을 때만 값)·`updateMenuGroups`(localStorage 캐시 `ak_menu_groups_cache`). `NavBar.vue`: 켜지면 PC 상단 묶음 + 마우스 올리면 하위 메뉴, 휴대폰 ☰ 묶음 제목/하위 메뉴 + MY(마이페이지·쪽지·친구). `navFavorites.js`: 하단 탭 순서 = 묶음 순서 |
+| `620f184e` | `components/GroupTitle.vue` — 목록 페이지 제목 자리(PC·휴대폰): 켜져 있고 이 메뉴가 2개 이상 보이는 묶음이면 `[묶음 이름][하위 탭]`, 아니면 원래 제목. 적용: BoardList·QaList·ClubList·ChatRooms·MarketList·GroupBuyHome·BusinessList·NewBoard·NewsList·RecipeList·EventList·MusicHome (숏츠는 전체화면이라 제외) |
+| `a06dcf7c` | `/info`(서버 Blade) 상단·☰·제목 줄도 같은 묶음 (`resources/views/info/_header.blade.php`, `index.blade.php`) |
+| `80882312` | 묶음 안에서만 쓰는 이름 `item_labels`(커뮤니티 묶음 안 '커뮤니티' → '게시판'), 마이그레이션 `2026_10_12_110000`, 편집기에서 수정 가능 |
+- 검증: 서버 롤백 트랜잭션으로 저장·검사 규칙·`/info` 켠 상태 렌더 확인, 앱 내장 브라우저에서 **그 브라우저에만** 켜서 PC 1280·휴대폰 393 확인(가로 넘침 없음). 로그아웃 방문자에겐 관리자 전용/로그인 필요 메뉴가 빠지므로 하위 탭이 1개뿐인 묶음은 탭 없이 원래 제목(정상).
+- 백업: `qa/backups/menu_groups_20261012/`, `qa/backups/group_title_20261012/`.
+- **되돌리기**: 관리자 화면에서 스위치 끄기(즉시). 코드까지 되돌리려면 위 커밋들을 `git revert`(force-push 금지).
+
+### 11-3. 다음 (순서)
+1. Kay: 메뉴 묶음 스위치 켜고 PC·휴대폰 확인 → 고칠 점 받기.
+2. **T6 2단계 MONEY 허브 계획서** 작성 → Kay 확인 → 구현. Kay 설명(확정): MONEY 첫 화면 = ① 분야별 **정보 공유 카페 12개**(돈 벌기·돈 아끼기·돈 불리기·부동산·주택·보험·금융 보호·세금·정부 혜택·신용카드·포인트·주식·자녀·교육비·은퇴·노후·돈 벌었어요 인증 릴레이·돈 이야기) — **가입 없이** 누구나 보고 답글, 글쓰기는 로그인, 나중에 카페 운영자 지정 ② **머니 가이드 = 설명 페이지**(운영자가 쓰는 글) ③ "분야별 카페 둘러보기" → **카페 전체 안내 페이지**(카페마다 대문 설명이 쭉), 각 카페를 누르면 맨 위 **대문**(다루는 것·처음 읽을 가이드·인기 정보·규칙) + 아래 정보/질문/소통 게시판. **머니 게시판은 없음**, 내돈내산 리뷰는 MONEY 와 별개(상단 단독), 동호회는 커뮤니티. 정식 이름 미정(관리자에서 변경).
+3. 그 외 대기열: T1 공동구매·T2 리더보드·T3 기프트카드·T4 카드 시험 — 모두 Kay 결정 대기(`qa/TASKS_QUEUE.md`).
