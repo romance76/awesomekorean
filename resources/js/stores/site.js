@@ -20,6 +20,18 @@ function writeMenuCache(arr) {
   try { localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(arr)) } catch {}
 }
 
+// 상단 메뉴 묶음(관리자 › 사이트 설정 › 메뉴 묶음) — 같은 이유로 직전 값을 캐시해 첫 화면부터 씀
+const GROUPS_CACHE_KEY = 'ak_menu_groups_cache'
+function readGroupsCache() {
+  try {
+    const p = JSON.parse(localStorage.getItem(GROUPS_CACHE_KEY))
+    return p && Array.isArray(p.groups) ? p : { enabled: false, groups: [] }
+  } catch { return { enabled: false, groups: [] } }
+}
+function writeGroupsCache(v) {
+  try { localStorage.setItem(GROUPS_CACHE_KEY, JSON.stringify(v)) } catch {}
+}
+
 export const useSiteStore = defineStore('site', () => {
   const siteName = ref('AwesomeKorean')
   // 서버가 첫 응답에 심어 준 현재 로고 주소를 먼저 사용 (설정을 불러오기 전에 옛 기본 로고가 비치는 깜빡임 방지)
@@ -32,6 +44,9 @@ export const useSiteStore = defineStore('site', () => {
   const toasts = ref([])
   const settings = ref(null) // 전체 설정 데이터 캐시
   const menuConfig = ref(readMenuCache())
+  const menuGroupsState = ref(readGroupsCache())
+  // 켜져 있고 묶음이 있을 때만 사이트가 묶음 메뉴를 쓴다 (끄면 예전 메뉴)
+  const menuGroups = computed(() => (menuGroupsState.value.enabled && menuGroupsState.value.groups.length) ? menuGroupsState.value.groups : null)
   let toastId = 0
   let loadPromise = null
 
@@ -108,6 +123,10 @@ export const useSiteStore = defineStore('site', () => {
             writeMenuCache(parsed)
           }
         }
+        try {
+          const g = typeof data.data.menu_groups === 'string' ? JSON.parse(data.data.menu_groups) : data.data.menu_groups
+          updateMenuGroups(Array.isArray(g) ? g : [], isOn(data.data.menu_groups_enabled))
+        } catch { updateMenuGroups([], false) }
       }
     } catch {}
     finally { loaded.value = true; loadPromise = null }
@@ -131,10 +150,15 @@ export const useSiteStore = defineStore('site', () => {
     menuConfig.value = menus
     writeMenuCache(menus)
   }
+  // 관리자 '메뉴 묶음' 저장 직후에도 호출 — 새로고침 없이 바로 반영
+  function updateMenuGroups(groups, enabled) {
+    menuGroupsState.value = { enabled: !!enabled, groups: Array.isArray(groups) ? groups : [] }
+    writeGroupsCache(menuGroupsState.value)
+  }
 
   return {
-    siteName, logoUrl, logoDarkUrl, menus, loaded, darkMode, toasts, settings, menuConfig,
+    siteName, logoUrl, logoDarkUrl, menus, loaded, darkMode, toasts, settings, menuConfig, menuGroups,
     maintenance, signupOpen, requireEmailVerify, minPasswordLength, refreshFlags,
-    toast, removeToast, load, getSetting, isEnabled, getOrder, updateMenuConfig,
+    toast, removeToast, load, getSetting, isEnabled, getOrder, updateMenuConfig, updateMenuGroups,
   }
 })

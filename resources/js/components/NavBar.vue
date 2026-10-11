@@ -103,7 +103,26 @@
 
     <!-- Row 2: 데스크톱 메뉴 -->
     <div class="border-t border-gray-50 hidden md:block">
-      <div class="relative max-w-7xl mx-auto">
+      <!-- 묶음 메뉴 (관리자 › 메뉴 묶음이 켜져 있을 때) — 묶음에 마우스를 올리면 하위 메뉴가 펼쳐짐 -->
+      <div v-if="navGroups" class="max-w-7xl mx-auto px-4 flex items-center justify-center h-12">
+        <div v-for="g in navGroups" :key="g.key" class="relative group/nav">
+          <component :is="g.external ? 'a' : 'RouterLink'" v-bind="g.external ? { href: g.path } : { to: g.path }"
+            class="flex items-center gap-1 h-12 px-3.5 text-[14px] font-semibold border-b-2 whitespace-nowrap transition-colors duration-150"
+            :class="isGroupActive(g) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink'">
+            {{ g.label }}<span v-if="g.type !== 'single' && g.items.length" class="text-[9px] opacity-50">▼</span>
+          </component>
+          <div v-if="g.type !== 'single' && g.items.length"
+            class="hidden group-hover/nav:block absolute left-1/2 -translate-x-1/2 top-full z-50 min-w-[160px] bg-white border border-gray-100 rounded-2xl shadow-lift p-1.5">
+            <RouterLink v-if="g.type === 'hub'" :to="g.path" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold text-ink-light hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap">{{ g.icon }} {{ g.label }} 홈</RouterLink>
+            <template v-for="m in g.items" :key="m.key">
+              <a v-if="m.external" :href="m.path" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold text-ink-light hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap">{{ m.label }}</a>
+              <RouterLink v-else :to="m.path" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold whitespace-nowrap hover:bg-amber-50 hover:text-amber-700"
+                :class="isActive(m.path) ? 'text-amber-700' : 'text-ink-light'">{{ m.label }}</RouterLink>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div v-else class="relative max-w-7xl mx-auto">
        <button v-show="navCanLeft" type="button" @click="navScroll(-1)" aria-label="왼쪽 메뉴 보기"
          class="absolute left-0 top-0 z-10 h-10 md:h-12 w-10 flex items-center justify-start pl-2 text-ink-muted hover:text-ink"
          style="background:linear-gradient(to right,#fff 55%,rgba(255,255,255,0))"><AppIcon name="chevron-left" :size="16" /></button>
@@ -155,27 +174,41 @@
           </div>
           <!-- 메뉴 목록 -->
           <div class="py-2">
-            <div v-for="item in visibleMenus" :key="item.path"
+            <template v-for="row in drawerRows" :key="row.key">
+            <!-- 묶음 제목 (묶음 메뉴가 켜져 있을 때) -->
+            <div v-if="row.kind === 'head'" class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted flex items-center gap-1.5">
+              <span>{{ row.icon }}</span>
+              <RouterLink v-if="row.hubPath" :to="row.hubPath" @click="mobileMenu=false" class="text-ink">{{ row.label }} 홈 ›</RouterLink>
+              <span v-else>{{ row.label }}</span>
+            </div>
+            <div v-else
               class="flex items-center transition-colors"
-              :class="isActive(item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
-              <a v-if="item.external" :href="item.path"
-                class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2 text-sm text-ink-light">
-                <span class="icon-chip w-8 h-8" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="16" /></span>
-                <span>{{ item.label }}</span>
+              :class="isActive(row.item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
+              <a v-if="row.item.external" :href="row.item.path"
+                class="flex items-center gap-3 flex-1 min-w-0 py-2 text-sm text-ink-light" :class="row.indent ? 'pl-7 pr-4' : 'px-4'">
+                <span class="icon-chip w-8 h-8" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="16" /></span>
+                <span>{{ row.label }}</span>
               </a>
-              <RouterLink v-else :to="item.path" @click="mobileMenu=false"
-                class="flex items-center gap-3 flex-1 min-w-0 px-4 py-2 text-sm"
-                :class="isActive(item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
-                <span class="icon-chip w-8 h-8" :class="menuChipColor(item.key)"><AppIcon :name="menuIcon(item.key)" :size="16" /></span>
-                <span>{{ item.label }}</span>
+              <RouterLink v-else :to="row.item.path" @click="mobileMenu=false"
+                class="flex items-center gap-3 flex-1 min-w-0 py-2 text-sm" :class="[row.indent ? 'pl-7 pr-4' : 'px-4', isActive(row.item.path) ? 'text-amber-700 font-bold' : 'text-ink-light']">
+                <span class="icon-chip w-8 h-8" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="16" /></span>
+                <span>{{ row.label }}</span>
               </RouterLink>
-              <button @click.stop="navFavStore.toggleFavorite(item.key)"
+              <button @click.stop="navFavStore.toggleFavorite(row.item.key)"
                 class="px-3 py-2.5 flex-shrink-0 transition-colors"
-                :class="navFavStore.isFavorite(item.key) ? 'text-amber-400' : 'text-gray-200'"
-                :title="navFavStore.isFavorite(item.key) ? '하단바에서 제거' : '하단바에 추가'">
-                <AppIcon name="star" :size="18" :filled="navFavStore.isFavorite(item.key)" />
+                :class="navFavStore.isFavorite(row.item.key) ? 'text-amber-400' : 'text-gray-200'"
+                :title="navFavStore.isFavorite(row.item.key) ? '하단바에서 제거' : '하단바에 추가'">
+                <AppIcon name="star" :size="18" :filled="navFavStore.isFavorite(row.item.key)" />
               </button>
             </div>
+            </template>
+            <!-- MY (묶음 메뉴일 때: 친구는 상단 메뉴 대신 여기) -->
+            <template v-if="navGroups && auth.isLoggedIn">
+              <div class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted">🙂 MY</div>
+              <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm text-ink-light hover:bg-gray-50"><AppIcon name="user" :size="16" />마이페이지</RouterLink>
+              <RouterLink to="/dashboard?tab=messages" @click="mobileMenu=false" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm text-ink-light hover:bg-gray-50"><AppIcon name="mail" :size="16" />쪽지</RouterLink>
+              <RouterLink to="/friends" @click="mobileMenu=false" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm text-ink-light hover:bg-gray-50"><AppIcon name="heart-handshake" :size="16" />친구</RouterLink>
+            </template>
           </div>
           <!-- 즐겨찾기 안내 -->
           <div class="px-4 py-2.5 border-t border-gray-50 text-[11px] text-ink-faint flex items-center gap-1">
@@ -380,6 +413,40 @@ function isActive(path) {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
 }
+
+// 상단 메뉴 묶음 (관리자 › 사이트 설정 › 메뉴 묶음 — 켜져 있을 때만). 메뉴 하나하나의 이름·경로·숨김 규칙은 visibleMenus 그대로 따름
+const navGroups = computed(() => {
+  const gs = siteStore.menuGroups
+  if (!gs) return null
+  const byKey = Object.fromEntries(visibleMenus.value.map(m => [m.key, m]))
+  const ko = langStore.locale === 'ko'
+  const out = []
+  for (const g of gs) {
+    if (g.hidden) continue
+    const items = (g.items || []).map(k => byKey[k]).filter(Boolean)
+    if (g.type === 'hub' ? !g.path : !items.length) continue
+    const first = items[0]
+    out.push({
+      key: g.key, type: g.type, icon: g.icon, items,
+      label: ko ? g.label : (g.label_en || g.label),
+      path: g.type === 'hub' ? g.path : first.path,
+      external: g.type === 'hub' ? false : !!first.external,
+    })
+  }
+  return out.length ? out : null
+})
+// 휴대폰 ☰ 목록: 묶음 메뉴면 [묶음 제목 → 하위 메뉴], 아니면 예전처럼 메뉴 한 줄씩
+const drawerRows = computed(() => {
+  if (!navGroups.value) return visibleMenus.value.map(m => ({ kind: 'item', key: 'm:' + m.key + m.path, item: m, label: m.label }))
+  const rows = []
+  for (const g of navGroups.value) {
+    if (g.type === 'single') { rows.push({ kind: 'item', key: 'g:' + g.key, item: g.items[0], label: g.label }); continue }
+    rows.push({ kind: 'head', key: 'h:' + g.key, label: g.label, icon: g.icon, hubPath: g.type === 'hub' ? g.path : null })
+    for (const m of g.items) rows.push({ kind: 'item', key: g.key + ':' + m.key, item: m, label: m.label, indent: true })
+  }
+  return rows
+})
+const isGroupActive = (g) => (g.type === 'hub' && isActive(g.path)) || g.items.some(m => !m.external && isActive(m.path))
 
 function goSearch() {
   if (searchQ.value.trim()) {

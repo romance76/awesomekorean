@@ -85,6 +85,13 @@ export const useNavFavoritesStore = defineStore('navFavorites', () => {
         .filter(m => m.key !== 'dashboard' && fav.has(m.key))
         .map(m => ({ ...m, label: ko ? m.label : (m.label_en || m.label) }))
     }
+    // 상단 메뉴 묶음이 켜져 있으면 하단 탭 순서도 묶음 순서를 따른다 (묶음에 없는 메뉴는 뒤로)
+    const groups = siteStore.menuGroups
+    if (groups) {
+      const order = new Map()
+      groups.forEach(g => (g.items || []).forEach(k => { if (!order.has(k)) order.set(k, order.size) }))
+      list = list.map((m, i) => ({ m, i })).sort((a, b) => (order.get(a.m.key) ?? 1000 + a.i) - (order.get(b.m.key) ?? 1000 + b.i)).map(x => x.m)
+    }
     if (fav.has('dashboard')) {
       const d = defMap.dashboard
       list.push({ ...d, label: ko ? d.label : (d.label_en || d.label) })

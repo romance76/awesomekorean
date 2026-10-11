@@ -80,6 +80,11 @@
         <SiteMenusTab :menu-list="menuList" :menu-saving="menuSaving" :is-mobile="isMobile" @move="moveMenu" @reset="resetMenuOrder" @save="saveMenus" />
       </div>
 
+      <!-- ========================= TAB: 메뉴 묶음 (메뉴 트리) ========================= -->
+      <div v-if="activeTab === 'menuGroups'">
+        <SiteMenuGroupsTab :is-mobile="isMobile" />
+      </div>
+
       <!-- ========================= TAB 3: 푸터 편집 ========================= -->
       <div v-show="activeTab === 'footer'">
         <SiteFooterTab :footer="footer" :company="company" :saving="saving" @save="saveFooter" />
@@ -119,6 +124,7 @@ import SiteFooterTab from '../../components/admin/siteSettings/SiteFooterTab.vue
 import SiteTermsTab from '../../components/admin/siteSettings/SiteTermsTab.vue'
 import SiteBasicTab from '../../components/admin/siteSettings/SiteBasicTab.vue'
 import SiteMenusTab from '../../components/admin/siteSettings/SiteMenusTab.vue'
+import SiteMenuGroupsTab from '../../components/admin/siteSettings/SiteMenuGroupsTab.vue'
 import SitePaymentTab from '../../components/admin/siteSettings/SitePaymentTab.vue'
 import SiteNotifyTab from '../../components/admin/siteSettings/SiteNotifyTab.vue'
 import SiteFirebasePanel from '../../components/admin/siteSettings/SiteFirebasePanel.vue'
@@ -139,6 +145,7 @@ const tabs = [
   { key: 'company', label: '회사 정보' },
   { key: 'site', label: '사이트 설정' },
   { key: 'menus', label: '메뉴 관리' },
+  { key: 'menuGroups', label: '메뉴 묶음' },
   { key: 'footer', label: '푸터 편집' },
   { key: 'terms', label: '약관 관리' },
   { key: 'notifications', label: '결제/알림 설정' },
