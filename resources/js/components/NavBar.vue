@@ -197,6 +197,7 @@ import AppIcon from './AppIcon.vue'
 import EasyViewButton from './EasyViewButton.vue'
 import UserAvatar from './UserAvatar.vue'
 import { menuIcon, menuChipColor } from '../utils/menuIcons'
+import { resolveNotifRoute } from '../utils/notifRoute'
 
 const auth = useAuthStore()
 const langStore = useLangStore()
@@ -360,27 +361,7 @@ function clickNotif(n) {
   if (dest) router.push(dest)
 }
 
-// 알림 타입별 이동 경로 결정 (DB 스키마: 알림은 url 컬럼 없음, data JSON 로 추가 정보)
-function resolveNotifRoute(n) {
-  const d = n.data || {}
-  // 명시적 URL (일부 알림은 data.url 로 지정)
-  if (d.url) return d.url
-  // 타입별 매핑
-  if (n.type === 'message') return '/dashboard?tab=messages'
-  if (n.type === 'friend_request') return '/friends'
-  if (n.type === 'elder_call_missed') return '/elder/guardian'
-  if (n.type === 'elder_checkin_missed') {
-    return (d.elder_user_id || d.ward_id) ? '/elder/guardian' : '/elder/checkin'
-  }
-  if (n.type?.startsWith('elder_')) return '/elder'
-  if (n.type === 'market_reservation_expired' || n.type === 'reservation_expired') {
-    return d.item_id ? `/market/${d.item_id}` : '/market'
-  }
-  if (n.type === 'comment' && d.post_id) return `/community/post/${d.post_id}`
-  if (n.type === 'system') return '/dashboard'
-  // 폴백: 대시보드
-  return '/dashboard'
-}
+// 알림 타입별 이동 경로는 utils/notifRoute.js (관리자 알림은 data.url 의 /admin/... 처리 화면으로 바로 이동)
 
 async function handleLogout() {
   await auth.logout()

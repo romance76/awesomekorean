@@ -352,8 +352,9 @@ class ShoppingController extends Controller
     private function notifyAdmins(string $title, string $content, int $id): void
     {
         try {
-            foreach (User::whereIn('role', ['admin', 'super_admin', 'moderator'])->pluck('id') as $adminId) {
-                Notification::create(['user_id' => $adminId, 'type' => 'shopping_review', 'title' => $title, 'content' => $content, 'data' => ['product_id' => $id]]);
+            // 쇼핑 리뷰 관리 화면은 관리자 이상만 열 수 있어서 운영자(moderator)에게는 보내지 않는다. 누르면 "승인 대기" 목록이 열린다
+            foreach (User::whereIn('role', ['admin', 'super_admin'])->pluck('id') as $adminId) {
+                Notification::create(['user_id' => $adminId, 'type' => 'shopping_review', 'title' => $title, 'content' => $content, 'data' => ['product_id' => $id, 'url' => '/admin/shopping?tab=member&status=pending']]);
             }
         } catch (\Throwable $e) {}
     }

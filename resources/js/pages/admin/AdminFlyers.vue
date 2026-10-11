@@ -146,7 +146,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import { kindLabel, fmtDay, hourRanges, tzLabel, stateName, STATUS_LABEL, adMoney } from '../../utils/flyer'
@@ -156,6 +156,11 @@ const tabs = [
   { key: 'rejected', label: '반려' }, { key: 'cancelled', label: '취소' }, { key: 'all', label: '전체' },
 ]
 const status = ref('pending')
+// 알림·"오늘 할 일" 카드의 바로가기 주소(?status=pending)를 반영
+const route = useRoute()
+function applyDeepLink() { const s = route.query.status; if (typeof s === 'string' && tabs.some(t => t.key === s)) status.value = s }
+applyDeepLink()
+watch(() => route.fullPath, () => { if (route.path === '/admin/flyers' && typeof route.query.status === 'string') { applyDeepLink(); page.value = 1; load() } })
 const items = ref([])
 const page = ref(1)
 const lastPage = ref(1)

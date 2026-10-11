@@ -419,6 +419,7 @@
 
 <script setup>
 import { ref, computed, watch, inject, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import SortTh from '../../components/SortTh.vue'
@@ -452,6 +453,11 @@ const tabs = [
   { key: 'member',    icon: 'users',       label: '회원 리뷰' },
   { key: 'guide',     icon: 'book-open',   label: '가입 안내' },
 ]
+// 알림의 바로가기 주소(?tab=member)를 반영 — 회원 리뷰 승인·신고 알림이 바로 "회원 리뷰" 탭을 연다
+const route = useRoute()
+function applyDeepLink() { const t = route.query.tab; if (typeof t === 'string' && tabs.some(x => x.key === t)) activeTab.value = t }
+applyDeepLink()
+watch(() => route.fullPath, () => { if (route.path === '/admin/shopping') applyDeepLink() })
 
 const categories = [
   '인기상품', '오늘의 딜', '주방용품', '한국요리 관련 제품', '식품', '생활용품',

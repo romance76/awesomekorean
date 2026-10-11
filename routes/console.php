@@ -9,6 +9,12 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
+// 스케줄러 "마지막 실행" 기록 — 관리자 시스템 상태 카드가 읽는다 (3분 넘게 기록이 없으면 빨간 경고). 가장 먼저 등록해 매분 제일 먼저 실행되게 함.
+Schedule::call(fn () => \App\Support\SystemStatus::beat())->everyMinute()->name('system-status-heartbeat');
+
+// 비상 스위치 "자동 수집 멈추기"(음악·뉴스·숏츠) — 켜져 있으면 아래 세 자동 수집만 건너뛴다 (관리자가 직접 누르는 수집은 그대로)
+$autoCollectPaused = fn () => \App\Support\EmergencySwitches::on('auto_collect');
+
 // 콘텐츠 자동 수집 로그 — 실패해도 아무 흔적이 안 남아 원인 파악이 안 되던
 // 문제가 있어, 아래 5개 자동 수집 작업은 전부 이 파일에 출력을 남기도록 함.
 $contentLog = storage_path('logs/content-sync.log');
@@ -17,10 +23,10 @@ $contentLog = storage_path('logs/content-sync.log');
 // 저장된 board.shorts.korea_ratio를 shorts:fetch가 직접 읽으므로 여기서 지정하지 않음.
 // YouTube API 쿼터(일 10,000, 매일 07~08시 UTC 초기화) 안에서 꾸준히 쌓도록 하루 3번 분할 실행.
 // search.list 1회=100 → 1회 실행당 12검색(1,200) × 3회 = 3,600 (music 4,800 과 합쳐 약 8,400, 여유 ~1,500)
-Schedule::command('shorts:fetch --limit=170 --max-searches=12')->cron('40 9,15,21 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::command('shorts:fetch --limit=170 --max-searches=12')->cron('40 9,15,21 * * *')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
 
 // 뉴스 수집: 오마이뉴스 11개 카테고리별 RSS, 2시간마다 (하루 12번)
-Schedule::command('news:fetch')->cron('0 */2 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::command('news:fetch')->cron('0 */2 * * *')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
 
 // 홈 화면 언론사별 헤드라인 위젯: 여러 언론사 RSS에서 제목+썸네일+링크만 30분마다 수집
 Schedule::command('headlines:fetch')->everyThirtyMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
@@ -35,7 +41,7 @@ Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->whe
 // 한국 100% 카테고리에서 '팝송 0곡' 검색으로 검색 횟수를 낭비하던 문제를 고쳐 같은 쿼터로 실제 수집량이 크게 늘어난다. 경음악 카테고리는 길이 제한 해제, 한국 가수·아이돌은 공식 채널 우선.
 // shorts:fetch 와 같은 YouTube Data API 키/쿼터를 공유 — 쿼터 초기화(07~08시 UTC) 직후인 09시부터
 // 실행당 12검색 상한으로 나눠 수집하고, 403/429 가 나면 그 실행만 중단(다음 실행에서 이어서).
-Schedule::command('music:fetch --daily=300 --max-searches=14')->cron('10 9,13,17,21 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::command('music:fetch --daily=300 --max-searches=14')->cron('10 9,13,17,21 * * *')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
 
 // 레시피 자동 수집 (식품안전나라 API, 매일 04:00) — 기존엔 스케줄에 아예
 // 등록돼 있지 않아 관리자가 수동으로 누르지 않는 한 절대 갱신되지 않았음.

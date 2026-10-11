@@ -364,6 +364,8 @@ class FlyerController extends Controller
             return response()->json(['success' => false, 'message' => '결제 확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.'], 502);
         }
         $ad->update(['status' => 'pending']);
+        // 관리자에게 승인 요청 알림 — 누르면 관리자 "NEW 전단 광고"의 승인 대기 목록이 열린다 (실패해도 신청은 정상 접수)
+        \App\Support\AdminNotifier::send(2, 'flyer_submitted', '새 NEW 전단 광고 신청이 도착했습니다', "'{$ad->title}' 전단이 승인을 기다리고 있어요.", '/admin/flyers?status=pending', ['flyer_id' => $ad->id]);
         return response()->json([
             'success' => true,
             'message' => '신청이 접수됐어요. 관리자 승인 후 예약한 시간에 방송되고, 그때 카드에 ' . FlyerService::money($ad, (int) $ad->total_price) . '가 청구돼요.',

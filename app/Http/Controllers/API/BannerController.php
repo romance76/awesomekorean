@@ -480,9 +480,10 @@ class BannerController extends Controller
         // 신규 신청 시 관리자에게 통지가 전혀 없어 대시보드를 수동으로 열어야만
         // 확인 가능하던 문제 수정 (ReportController::store()와 동일한 패턴)
         try {
-            $adminIds = \App\Models\User::whereIn('role', ['admin', 'super_admin', 'moderator'])->pluck('id');
+            // 광고 목록 화면은 관리자 이상만 열 수 있어서 운영자(moderator)에게는 보내지 않는다. 누르면 "승인 대기" 광고 목록이 열린다
+            $adminIds = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->pluck('id');
             foreach ($adminIds as $adminId) {
-                \App\Models\Notification::create(['user_id'=>$adminId,'type'=>'banner_submitted','title'=>'새 광고 신청이 도착했습니다','content'=>"{$user->name}님이 '{$request->title}' 광고를 신청했습니다 ({$bidAmount}P).",'data'=>['banner_id'=>$banner->id]]);
+                \App\Models\Notification::create(['user_id'=>$adminId,'type'=>'banner_submitted','title'=>'새 광고 신청이 도착했습니다','content'=>"{$user->name}님이 '{$request->title}' 광고를 신청했습니다 ({$bidAmount}P).",'data'=>['banner_id'=>$banner->id,'url'=>'/admin/banners?status=pending']]);
                 $unread = \App\Models\Notification::where('user_id',$adminId)->whereNull('read_at')->count();
                 broadcast(new \App\Events\NewNotification($adminId, $unread, '새 광고 신청이 도착했습니다'))->toOthers();
             }

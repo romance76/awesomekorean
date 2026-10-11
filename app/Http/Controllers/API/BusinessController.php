@@ -402,6 +402,9 @@ class BusinessController extends Controller
             'status' => 'pending',
         ]);
 
+        // 관리자에게 승인 요청 알림 — 누르면 관리자 "클레임"의 대기 목록이 열린다 (실패해도 신청은 정상 접수)
+        \App\Support\AdminNotifier::send(2, 'claim_submitted', '업소 소유권 신청이 도착했습니다', "'{$biz->name}' 업소의 소유권 확인 신청이 승인을 기다리고 있어요.", '/admin/claims?status=pending', ['claim_id' => $claim->id]);
+
         // ClaimVerificationMail이 코드는 있었지만 실제로 호출되는 곳이 없어 인증
         // 메일이 한 번도 발송되지 않던 문제 수정 — 업소에 등록된 이메일로 소유권
         // 인증 메일 발송 (업소 이메일이 없으면 문서/전화번호 심사만으로 진행).

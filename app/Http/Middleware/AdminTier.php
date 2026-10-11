@@ -38,10 +38,16 @@ class AdminTier
 
             // ── 최고관리자(3) 전용: 돈·키·설정·삭제·경품 ──
             ['GET', '#^system/sync-all-content/status$#', 2],
+            ['GET', '#^collect-status$#', 2],   // 지금 수집(음악·뉴스·숏츠·레시피) 진행 상태 조회 — 시작(POST)은 아래 최고관리자 전용 규칙
             ['ANY', '#^settings(/|$)#', 3],
             ['ANY', '#^(api-keys|firebase|security|accounts-overview|analytics|open-event|todos)(/|$)#', 3],
             ['ANY', '#^system(/|$)#', 3],
+            // 시스템 상태 카드·비상 스위치(가입 보너스/경품 반복 일정/자동 수집 일시중지) — 최고관리자 전용
+            ['ANY', '#^(system-status|emergency-switches)(/|$)#', 3],
             ['POST', '#^payments/\d+/refund$#', 3],
+            // 인보이스: 목록·상세·미리보기는 관리자(2, 기본값), 재발송·무효·자동발송 설정은 최고관리자 전용
+            ['POST', '#^invoices/(auto-mail|\d+/(resend|void))$#', 3],
+            ['GET', '#^invoices(/|$)#', 2],
             ['POST', '#^users/\d+/(impersonate|reset-password)$#', 3],
             ['DELETE', '#^users/\d+$#', 3],
             ['ANY', '#^(point-settings|entry-settings|ad-settings|ad-slot-prices|pricing-promotions)(/|$)#', 3],

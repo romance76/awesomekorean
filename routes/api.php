@@ -493,6 +493,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/payments/create-intent', [PaymentController::class, 'createIntent']);
     Route::post('/payments/confirm', [PaymentController::class, 'confirm']);
     Route::get('/payments/history', [PaymentController::class, 'history']);
+    // 내 인보이스(영수증) 보기 — 내 것만, 남의 번호는 404
+    Route::get('/invoices/{invoiceNo}', [\App\Http\Controllers\API\InvoiceController::class, 'show'])->middleware('throttle:60,1');
 
     Route::get('/elder/settings', [ElderController::class, 'settings']);
     Route::put('/elder/settings', [ElderController::class, 'updateSettings']);
@@ -604,6 +606,10 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/reauth/status', [\App\Http\Controllers\API\AdminReauthController::class, 'status']);
     // 휴대폰 홈 "오늘 할 일" 건수 — 한 번 호출로 신고·광고·전단·소유권·보상·안 보낸 경품·실패 작업
     Route::get('/todo-counts', [\App\Http\Controllers\API\AdminTodoCountsController::class, 'index']);
+    // 시스템 상태 카드(큐·스케줄러·디스크·메모리·배포) + 비상 스위치 — 최고관리자 전용 (AdminTier 규칙표 3등급)
+    Route::get('/system-status', [\App\Http\Controllers\API\AdminSystemStatusController::class, 'index']);
+    Route::get('/emergency-switches', [\App\Http\Controllers\API\AdminEmergencySwitchController::class, 'index']);
+    Route::put('/emergency-switches/{name}', [\App\Http\Controllers\API\AdminEmergencySwitchController::class, 'update'])->middleware('throttle:30,1');
 
     // ─── 보상 승인 (이벤트 완료인증 / 레시피 인기보상) ───
     Route::prefix('rewards')->group(function () {
@@ -733,6 +739,13 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/revenue/summary', [\App\Http\Controllers\API\AdminRevenueController::class, 'summary']);
     Route::get('/revenue/list', [\App\Http\Controllers\API\AdminRevenueController::class, 'list']);
     Route::post('/payments/{id}/refund', [AdminController::class, 'refundPayment'])->middleware('role:admin,super_admin');
+    // 인보이스(결제 영수증): 목록·상세·미리보기는 관리자, 재발송·무효·자동발송 설정은 최고관리자 (AdminTier 표 + 컨트롤러에서 이중 확인)
+    Route::get('/invoices', [\App\Http\Controllers\API\AdminInvoiceController::class, 'index']);
+    Route::post('/invoices/auto-mail', [\App\Http\Controllers\API\AdminInvoiceController::class, 'setAutoMail'])->middleware('throttle:20,1');
+    Route::get('/invoices/{id}', [\App\Http\Controllers\API\AdminInvoiceController::class, 'show'])->whereNumber('id');
+    Route::get('/invoices/{id}/html', [\App\Http\Controllers\API\AdminInvoiceController::class, 'html'])->whereNumber('id');
+    Route::post('/invoices/{id}/resend', [\App\Http\Controllers\API\AdminInvoiceController::class, 'resend'])->whereNumber('id')->middleware('throttle:20,1');
+    Route::post('/invoices/{id}/void', [\App\Http\Controllers\API\AdminInvoiceController::class, 'void'])->whereNumber('id')->middleware(['reauth', 'throttle:20,1']);
     Route::get('/claims', [AdminController::class, 'claims']);
     Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim']);
     Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim']);
@@ -837,68 +850,12 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::put('/sweepstakes-milestones/{id}', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'updateMilestone'])->whereNumber('id');
     Route::post('/sweepstakes-milestones/{id}/action', [\App\Http\Controllers\API\AdminSweepstakesAutomationController::class, 'milestoneAction'])->whereNumber('id')->middleware('throttle:30,1');
 
-    // 수동 수집
-    Route::post('/fetch-music', function () {
-        try {
-            $before = \App\Models\MusicTrack::count();
-            \Artisan::call('music:fetch', ['--daily' => 100]);
-            $output = \Artisan::output();
-            $after = \App\Models\MusicTrack::count();
-            $added = $after - $before;
-
-            // API 할당량 초과 감지
-            if (str_contains($output, 'API 오류: 403')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "YouTube API 할당량 초과! 추가된 곡: {$added}곡. 내일 다시 시도하거나 YouTube 데이터 API 키의 할당량을 확인하세요.",
-                    'added' => $added,
-                    'total' => $after,
-                ], 200);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => $added > 0 ? "음악 {$added}곡 추가 완료 (전체 {$after}곡)" : "추가된 곡 없음 (전체 {$after}곡, 중복/필터로 제외)",
-                'added' => $added,
-                'total' => $after,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    });
-    Route::post('/fetch-news', function () {
-        try { \Artisan::call('news:fetch'); return response()->json(['success' => true, 'message' => '뉴스 수집 완료']); }
-        catch (\Exception $e) { return response()->json(['success' => false, 'message' => $e->getMessage()], 500); }
-    });
-    Route::post('/fetch-shorts', function () {
-        try {
-            $before = \App\Models\Short::count();
-            // 한국 비율은 shorts:fetch 안에서 관리자 설정(board.shorts.korea_ratio)을
-            // 직접 읽으므로 여기서 하드코딩하지 않음.
-            \Artisan::call('shorts:fetch', ['--limit' => 100]);
-            $output = \Artisan::output();
-            $after = \App\Models\Short::count();
-            $added = $after - $before;
-
-            if (str_contains($output, 'API 할당량 초과') || str_contains($output, '403')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "YouTube API 할당량 초과! 추가된 쇼츠: {$added}개. 내일 다시 시도하세요.",
-                    'added' => $added,
-                    'total' => $after,
-                ], 200);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => $added > 0 ? "쇼츠 {$added}개 추가 완료 (전체 {$after}개)" : "추가된 쇼츠 없음 (전체 {$after}개)",
-                'added' => $added,
-                'total' => $after,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    });
+    // 수동 수집 — 요청 안에서 외부 API 를 부르지 않고 큐 작업(App\Jobs\RunAdminCollect)으로 넘긴 뒤 바로 응답
+    // (옛 방식: 요청 안에서 Artisan::call → PHP-FPM 을 몇 분씩 붙잡음). 진행·결과는 GET /collect-status.
+    Route::post('/fetch-music', [\App\Http\Controllers\API\AdminCollectController::class, 'music'])->middleware('throttle:10,1');
+    Route::post('/fetch-news', [\App\Http\Controllers\API\AdminCollectController::class, 'news'])->middleware('throttle:10,1');
+    Route::post('/fetch-shorts', [\App\Http\Controllers\API\AdminCollectController::class, 'shorts'])->middleware('throttle:10,1');
+    Route::get('/collect-status', [\App\Http\Controllers\API\AdminCollectController::class, 'status']);
 
     // Admin Music
     Route::post('/music/categories', [MusicController::class, 'storeCategory']);

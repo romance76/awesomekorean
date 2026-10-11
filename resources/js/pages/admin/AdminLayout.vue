@@ -6,6 +6,11 @@
     <button v-if="mBack" @click="router.push(mBack)" class="w-11 h-11 grid place-items-center rounded-xl text-ink active:bg-gray-100" aria-label="뒤로"><AppIcon name="chevron-left" :size="24" /></button>
     <span v-else class="w-2"></span>
     <h1 class="flex-1 min-w-0 text-[18px] font-bold text-ink truncate">{{ mTitle }}</h1>
+    <!-- 알림: 신고·광고 신청 같은 관리자 알림을 누르면 해당 관리자 처리 화면이 바로 열려요 -->
+    <RouterLink to="/notifications" class="relative w-11 h-11 shrink-0 grid place-items-center rounded-xl text-ink active:bg-gray-100" :aria-label="unreadNotifs > 0 ? `알림 ${unreadNotifs}건 안 읽음` : '알림'">
+      <AppIcon name="bell" :size="22" />
+      <span v-if="unreadNotifs > 0" class="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[11px] font-bold grid place-items-center tabular-nums">{{ unreadNotifs > 9 ? '9+' : unreadNotifs }}</span>
+    </RouterLink>
     <button @click="setView('classic')" class="min-h-[44px] px-3 flex items-center gap-1.5 rounded-xl text-[13px] font-bold text-ink-light active:bg-gray-100" title="이전(PC) 화면으로 보기">
       <AppIcon name="monitor" :size="18" /><span>PC 화면</span>
     </button>
@@ -120,8 +125,9 @@
 <ReauthSheet />
 </template>
 <script setup>
-import { ref, computed, provide, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, provide, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
@@ -285,7 +291,21 @@ const winW = ref(typeof window !== 'undefined' ? window.innerWidth : 1280)
 const onResize = () => { winW.value = window.innerWidth }
 // 위험한 동작(키·결제 설정·회원 삭제 등)이 비밀번호 재확인(428)을 요구하면 비밀번호 창을 띄우고 같은 요청을 다시 보낸다
 let ejectReauth = null
-onMounted(() => { window.addEventListener('resize', onResize); ejectReauth = installReauthInterceptor() })
+
+// 휴대폰 헤더의 알림 종 — 안 읽은 알림 수 (화면을 옮길 때 20초에 한 번만 다시 확인)
+const unreadNotifs = ref(0)
+let unreadAt = 0
+async function loadUnreadNotifs() {
+  if (Date.now() - unreadAt < 20000) return
+  unreadAt = Date.now()
+  try {
+    const { data } = await axios.get('/api/notifications', { params: { unread_only: 1 } })
+    unreadNotifs.value = Number(data.unread_count) || 0
+  } catch {}
+}
+watch(() => route.path, () => { if (isMobileLayout.value) loadUnreadNotifs() })
+
+onMounted(() => { window.addEventListener('resize', onResize); ejectReauth = installReauthInterceptor(); if (isMobileLayout.value) loadUnreadNotifs() })
 onBeforeUnmount(() => { window.removeEventListener('resize', onResize); ejectReauth && ejectReauth() })
 const isMobileLayout = computed(() => viewMode.value === 'mobile' || (viewMode.value !== 'classic' && winW.value < 1024))
 function setView(v) { viewMode.value = v; try { localStorage.setItem(VIEW_KEY, v) } catch {} }

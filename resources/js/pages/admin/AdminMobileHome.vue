@@ -1,5 +1,8 @@
 <template>
 <div class="space-y-3">
+  <!-- 시스템 상태 요약 (최고관리자만): 문제가 있으면 빨간 테두리와 쉬운 설명이 바로 보여요 -->
+  <SystemStatusCard v-if="isSuper" variant="mobile" />
+
   <div class="flex items-center justify-between px-0.5">
     <span class="text-[13px] font-bold text-ink-muted">오늘 할 일<span v-if="loaded && counts && counts.total" class="ml-1.5 text-red-600">총 {{ counts.total }}건</span></span>
     <button @click="load" class="min-h-[36px] px-2 text-[13px] font-bold text-ink-light underline" aria-label="새로고침">새로고침</button>
@@ -13,6 +16,9 @@
     <span class="text-2xl font-black min-w-[44px] text-center tabular-nums text-amber-600">{{ todoCount }}</span>
     <span class="min-w-0"><span class="block text-[15px] font-bold text-ink">남은 할 일</span><span class="block text-[13px] text-ink-muted">할 일 목록 열기</span></span>
   </RouterLink>
+
+  <!-- 비상 스위치 (최고관리자만): 한 번 눌러 멈추고, 확인창을 거친 뒤 기록이 남아요 -->
+  <EmergencySwitches v-if="isSuper" variant="mobile" />
 
   <div class="text-[13px] font-bold text-ink-muted px-0.5 pt-1">자주 쓰는 메뉴</div>
   <div class="grid grid-cols-2 gap-2.5">
@@ -34,6 +40,8 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import SystemStatusCard from '../../components/admin/SystemStatusCard.vue'
+import EmergencySwitches from '../../components/admin/EmergencySwitches.vue'
 import { useAuthStore } from '../../stores/auth'
 
 const auth = useAuthStore()
@@ -48,12 +56,13 @@ const todoCount = ref(null)   // 최고 관리자만 볼 수 있어서 못 불�
 const cards = computed(() => {
   const c = counts.value || {}
   const defs = [
-    { key: 'reports', n: c.reports_pending, label: '처리 안 된 신고', sub: '보안/신고에서 확인', to: '/admin/security', tone: 'text-red-600' },
-    { key: 'banners', n: c.banners_pending, label: '승인 대기 광고', sub: '광고 목록에서 승인', to: '/admin/banners', tone: 'text-amber-600' },
-    { key: 'flyers', n: c.flyers_pending, label: '승인 대기 NEW 전단', sub: 'NEW 전단 광고에서 승인', to: '/admin/flyers', tone: 'text-amber-600' },
-    { key: 'ownership', n: c.ownership_pending, label: '업소 소유권 승인 대기', sub: '클레임에서 확인', to: '/admin/claims', tone: 'text-amber-600' },
-    { key: 'proofs', n: c.event_proofs_pending, label: '보상 승인 대기', sub: '보상 승인에서 확인', to: '/admin/rewards', tone: 'text-amber-600' },
-    { key: 'prizes', n: c.prizes_unsent, label: '아직 안 보낸 경품', sub: '경품 추첨 관리에서 보내기', to: '/admin/sweepstakes', tone: 'text-red-600' },
+    // 카드를 누르면 해당 목록이 필터까지 맞춰져 바로 열려요 (?tab=…&status=… 는 각 화면이 읽어요)
+    { key: 'reports', n: c.reports_pending, label: '처리 안 된 신고', sub: '보안/신고에서 확인', to: '/admin/security?tab=reports&status=pending', tone: 'text-red-600' },
+    { key: 'banners', n: c.banners_pending, label: '승인 대기 광고', sub: '광고 목록에서 승인', to: '/admin/banners?status=pending', tone: 'text-amber-600' },
+    { key: 'flyers', n: c.flyers_pending, label: '승인 대기 NEW 전단', sub: 'NEW 전단 광고에서 승인', to: '/admin/flyers?status=pending', tone: 'text-amber-600' },
+    { key: 'ownership', n: c.ownership_pending, label: '업소 소유권 승인 대기', sub: '클레임에서 확인', to: '/admin/claims?status=pending', tone: 'text-amber-600' },
+    { key: 'proofs', n: c.event_proofs_pending, label: '보상 승인 대기', sub: '보상 승인에서 확인', to: '/admin/rewards?tab=events', tone: 'text-amber-600' },
+    { key: 'prizes', n: c.prizes_unsent, label: '아직 안 보낸 경품', sub: '경품 추첨 관리에서 보내기', to: '/admin/sweepstakes?tab=pending', tone: 'text-red-600' },
     { key: 'queue', n: c.queue_failed, label: '실패한 백그라운드 작업', sub: '시스템에서 확인', to: '/admin/system', tone: 'text-red-600' },
   ]
   return defs.filter(d => d.n !== null && d.n !== undefined)

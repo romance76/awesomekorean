@@ -133,8 +133,12 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 알림·"오늘 할 일" 카드의 바로가기 주소(?status=pending)를 반영하기 위해 사용
+const route = useRoute()
 
 // 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -165,6 +169,9 @@ onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTim
 const claims = ref([])
 const loading = ref(true)
 const filter = ref('pending')
+function applyDeepLink() { const s = route.query.status; if (typeof s === 'string' && ['pending', 'approved', 'rejected', 'all'].includes(s)) filter.value = s }
+applyDeepLink()
+watch(() => route.fullPath, () => { if (route.path === '/admin/claims') applyDeepLink() })
 
 const stats = computed(() => ({
   total: claims.value.length,

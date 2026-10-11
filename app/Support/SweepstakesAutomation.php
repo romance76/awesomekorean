@@ -101,6 +101,8 @@ class SweepstakesAutomation
     public static function runDueSchedules(bool $dry = false): int
     {
         if (!Schema::hasTable('sweepstakes_schedules')) return 0;
+        // 비상 스위치 "경품 반복 일정 전체 멈추기" — 켜져 있으면 새 이벤트를 만들지 않는다 (끄면 밀린 일정은 한 번만 새로 만들어짐)
+        if (EmergencySwitches::on('sweepstakes_schedules')) return 0;
         $created = 0;
         $due = DB::table('sweepstakes_schedules')->where('status', 'active')->whereNotNull('next_run_at')->where('next_run_at', '<=', now())->pluck('id');
         foreach ($due as $id) {
@@ -122,6 +124,8 @@ class SweepstakesAutomation
     public static function autoDraw(): int
     {
         if (!Schema::hasTable('sweepstakes_schedules') || !Schema::hasColumn('sweepstakes', 'schedule_id')) return 0;
+        // 비상 스위치가 켜져 있으면 자동 추첨도 멈춘다 (끄면 이미 끝난 이벤트의 추첨이 곧바로 이어짐)
+        if (EmergencySwitches::on('sweepstakes_schedules')) return 0;
         $n = 0;
         $rows = DB::table('sweepstakes as s')->join('sweepstakes_schedules as c', 'c.id', '=', 's.schedule_id')
             ->where('c.auto_draw', true)->whereIn('s.status', ['active', 'ended'])->where('s.end_at', '<=', now())
@@ -150,7 +154,9 @@ class SweepstakesAutomation
     public static function onSignup(int $userId): void
     {
         if (!Schema::hasTable('sweepstakes_milestones') || !Schema::hasColumn('sweepstakes_milestones', 'signup_counter')) return;
-        $ids = DB::table('sweepstakes_milestones')->where('status', 'active')->where('trigger_type', 'nth_signup')->pluck('id');
+        // 비상 스위치 "가입 보너스 지급 멈추기" — 멈춰 있는 동안 가입한 회원은 순번에도 세지 않고 당첨도 없다
+        if (EmergencySwitches::on('signup_bonus')) return;
+        $ids =DB::table('sweepstakes_milestones')->where('status', 'active')->where('trigger_type', 'nth_signup')->pluck('id');
         if ($ids->isEmpty()) return;
         foreach ($ids as $mid) {
             try {

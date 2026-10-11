@@ -321,8 +321,12 @@
 </template>
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+
+// 알림·"오늘 할 일" 카드의 바로가기 주소(?tab=reports&status=pending)를 반영하기 위해 사용
+const route = useRoute()
 
 // 관리자 휴대폰 화면이면 구역 칩 + 카드로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -476,8 +480,21 @@ function formatDate(dt) {
   return `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 }
 
+// 바로가기 주소 반영: ?tab=reports|locks|ips|users|server (휴대폰 구역), ?status=pending|resolved|dismissed|all (신고 상태)
+function applyDeepLink() {
+  const t = String(route.query.tab || '')
+  const s = route.query.status
+  if (['reports', 'locks', 'ips', 'users', 'server'].includes(t)) mTab.value = t
+  if (typeof s === 'string' && ['pending', 'resolved', 'dismissed', 'all'].includes(s)) reportFilter.value.status = s === 'all' ? '' : s
+}
+watch(() => route.fullPath, () => {
+  if (route.path !== '/admin/security' || (!route.query.tab && !route.query.status)) return
+  applyDeepLink(); reportFilter.value.page = 1; loadReports()
+})
+
 onMounted(async () => {
   if (isMobile.value) reportFilter.value.status = 'pending'
+  applyDeepLink()
   loadPendingCount()
   loadIpBans()
   loadReports()

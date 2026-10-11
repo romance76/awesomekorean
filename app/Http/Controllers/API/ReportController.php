@@ -61,7 +61,8 @@ class ReportController extends Controller
                     'type' => 'report_submitted',
                     'title' => '새 신고가 접수되었습니다',
                     'content' => '사유: ' . mb_substr($request->reason, 0, 100),
-                    'data' => ['report_id' => $report->id],
+                    // url: 알림을 누르면 일반 회원 화면이 아니라 관리자 "보안/신고"의 처리 안 된 신고 목록이 열린다
+                    'data' => ['report_id' => $report->id, 'url' => '/admin/security?tab=reports&status=pending'],
                 ]);
                 $unread = Notification::where('user_id', $adminId)->whereNull('read_at')->count();
                 broadcast(new NewNotification($adminId, $unread, '새 신고가 접수되었습니다'))->toOthers();
@@ -91,8 +92,9 @@ class ReportController extends Controller
         \App\Support\ShoppingReviews::forget();
         try {
             Notification::create(['user_id' => $p->user_id, 'type' => 'shopping_review', 'title' => '내돈내산 리뷰가 내려갔어요', 'content' => "'{$p->title}' 리뷰에 신고가 여러 건 접수되어 임시로 내려갔어요. 관리자가 확인한 뒤 다시 공개할지 결정해요.", 'data' => ['product_id' => $p->id]]);
-            foreach (User::whereIn('role', ['admin', 'super_admin', 'moderator'])->pluck('id') as $adminId) {
-                Notification::create(['user_id' => $adminId, 'type' => 'shopping_review', 'title' => '신고 누적으로 리뷰가 내려갔어요', 'content' => "'{$p->title}' — 신고 {$n}명. 확인 후 복구하거나 삭제해주세요.", 'data' => ['product_id' => $p->id]]);
+            // 쇼핑 리뷰 관리 화면은 관리자 이상만 열 수 있어서 운영자(moderator)에게는 보내지 않는다. 누르면 "내려감(신고)" 목록이 열린다
+            foreach (User::whereIn('role', ['admin', 'super_admin'])->pluck('id') as $adminId) {
+                Notification::create(['user_id' => $adminId, 'type' => 'shopping_review', 'title' => '신고 누적으로 리뷰가 내려갔어요', 'content' => "'{$p->title}' — 신고 {$n}명. 확인 후 복구하거나 삭제해주세요.", 'data' => ['product_id' => $p->id, 'url' => '/admin/shopping?tab=member&status=hidden']]);
             }
         } catch (\Throwable $e) {}
     }

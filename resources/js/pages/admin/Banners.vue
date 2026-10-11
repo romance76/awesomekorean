@@ -274,6 +274,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -290,6 +291,11 @@ const previewUrl = ref(null)
 // ── 휴대폰 화면 전용 ──
 const mStatus = ref('pending')
 const mStatusChips = [{ v: 'pending', l: '승인 대기' }, { v: 'active', l: '게시중' }, { v: 'ended', l: '중지·거절·만료' }, { v: 'all', l: '전체' }]
+// 알림·"오늘 할 일" 카드의 바로가기 주소(?status=pending)를 반영
+const route = useRoute()
+function applyDeepLink() { const s = route.query.status; if (typeof s === 'string' && mStatusChips.some(c => c.v === s)) mStatus.value = s }
+applyDeepLink()
+watch(() => route.fullPath, () => { if (route.path === '/admin/banners') applyDeepLink() })
 const sheetItem = ref(null)
 const mode = ref('')
 const rejectReason = ref('')

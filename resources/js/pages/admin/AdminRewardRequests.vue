@@ -104,6 +104,7 @@
 </template>
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import NewFeatureBadge from '../../components/NewFeatureBadge.vue'
@@ -135,6 +136,11 @@ watch(() => isMobile.value && !!sheet.value, locked => { document.body.style.ove
 onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
 
 const tab = ref('events')
+// 알림·"오늘 할 일" 카드의 바로가기 주소(?tab=events|recipes)를 반영
+const route = useRoute()
+function applyDeepLink() { const t = route.query.tab; if (t === 'events' || t === 'recipes') tab.value = t }
+applyDeepLink()
+watch(() => route.fullPath, () => { if (route.path === '/admin/rewards') applyDeepLink() })
 const loading = ref(true)
 const eventProofs = ref([])
 const recipeCandidates = ref([])

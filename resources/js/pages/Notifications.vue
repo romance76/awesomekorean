@@ -30,8 +30,8 @@
     </div>
     <template v-else>
       <div class="card overflow-hidden divide-y divide-gray-50">
-        <div v-for="n in notifs" :key="n.id"
-          class="px-4 py-3 transition-colors"
+        <div v-for="n in notifs" :key="n.id" role="link" tabindex="0" @click="openNotif(n)" @keydown.enter="openNotif(n)"
+          class="px-4 py-3 transition-colors cursor-pointer hover:bg-amber-50/60"
           :class="n.read_at ? 'bg-white' : 'bg-amber-50'">
           <div class="flex items-start gap-3">
             <span class="icon-chip w-8 h-8 bg-amber-50 text-amber-600 flex-shrink-0"><AppIcon :name="typeIcons[n.type] || 'megaphone'" :size="15" /></span>
@@ -54,9 +54,13 @@
 </template>
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../components/AppIcon.vue'
 import PageHeader from '../components/PageHeader.vue'
+import { resolveNotifRoute } from '../utils/notifRoute'
+
+const router = useRouter()
 
 const notifs = ref([])
 const loading = ref(true)
@@ -76,6 +80,8 @@ const typeLabels = {
   call_missed: '부재중전화', report_resolved: '신고처리', banner_approved: '광고', banner_rejected: '광고',
   password_reset_by_admin: '계정', payment_refunded: '환불', groupbuy_approved: '공동구매',
   groupbuy_rejected: '공동구매', groupbuy_completed: '공동구매', new_notification: '알림',
+  report_submitted: '신고접수', banner_submitted: '광고신청', flyer_submitted: '전단신청', claim_submitted: '소유권신청',
+  event_proof_submitted: '보상인증', prize_delivery_overdue: '미발송경품', shopping_review: '쇼핑리뷰',
 }
 function typeLabel(t) { return typeLabels[t] || t }
 
@@ -125,6 +131,17 @@ async function loadMore() {
 function onSearchInput() {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(reload, 350)
+}
+
+// 알림을 누르면 읽음 처리 후 알림이 가리키는 화면으로 이동 (관리자 알림은 /admin/... 처리 화면)
+function openNotif(n) {
+  if (!n.read_at) {
+    n.read_at = new Date().toISOString()
+    axios.post(`/api/notifications/${n.id}/read`).catch(() => {})
+  }
+  if (n.type === 'message' && n.data?.sender_id && window.openMessageThread) { window.openMessageThread(n.data.sender_id); return }
+  const dest = resolveNotifRoute(n)
+  if (dest) router.push(dest)
 }
 
 async function markAllRead() {

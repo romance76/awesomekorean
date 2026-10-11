@@ -454,6 +454,8 @@ class EventController extends Controller
         $request->validate(['file' => 'required|file|max:10240']);
         $path = $this->storeDocument($request->file('file'), 'event_proofs');
         $attendee->update(['proof_file' => $path, 'proof_status' => 'pending', 'reviewed_at' => null]);
+        // 관리자에게 보상 승인 요청 알림 — 누르면 관리자 "보상 승인"의 이벤트 완료 인증 목록이 열린다 (실패해도 제출은 정상 접수)
+        \App\Support\AdminNotifier::send(2, 'event_proof_submitted', '이벤트 완료 인증이 도착했습니다', "'{$event->title}' 완료 인증이 보상 승인을 기다리고 있어요.", '/admin/rewards?tab=events', ['event_id' => $event->id, 'attendee_id' => $attendee->id]);
 
         return response()->json(['success' => true, 'message' => '제출되었습니다. 관리자 확인 후 보상이 지급됩니다.', 'data' => $attendee->fresh()]);
     }

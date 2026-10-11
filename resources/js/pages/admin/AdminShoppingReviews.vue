@@ -111,6 +111,7 @@
 
 <script setup>
 import { ref, computed, watch, inject, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 
 // 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트 (AdminLayout 이 알려 줌)
@@ -146,6 +147,9 @@ const ST = {
   hidden: 'bg-red-50 text-red-600 border-red-200', rejected: 'bg-gray-100 text-gray-500 border-gray-200',
 }
 const status = ref('pending')
+// 알림의 바로가기 주소(?status=pending|hidden)를 반영
+const route = useRoute()
+{ const s = route.query.status; if (typeof s === 'string' && tabs.some(t => t.key === s)) status.value = s }
 const items = ref([])
 const counts = ref({})
 const page = ref(1)

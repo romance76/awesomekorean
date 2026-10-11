@@ -1,6 +1,9 @@
 <template>
 <!-- ───────── 휴대폰 화면 ───────── -->
 <div v-if="isMobile" class="alv-m space-y-3 pb-4">
+  <!-- 시스템 상태 + 비상 스위치 (최고관리자 전용 — 이 화면은 최고관리자만 열 수 있어요) -->
+  <SystemStatusCard variant="mobile" />
+  <EmergencySwitches variant="mobile" />
   <div class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-1.5">
     <div class="text-[16px] font-bold text-ink mb-1">서버 정보</div>
     <div class="text-[14px] text-ink-light">Laravel: 12.x</div>
@@ -34,6 +37,9 @@
     시스템
   </h1>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- 시스템 상태 + 비상 스위치 (최고관리자 전용 — 이 화면은 최고관리자만 열 수 있어요) -->
+    <div class="lg:col-span-2"><SystemStatusCard variant="desktop" /></div>
+    <div class="lg:col-span-2"><EmergencySwitches variant="desktop" /></div>
     <div class="card p-4 space-y-2">
       <div class="font-bold text-sm text-ink mb-2">서버 정보</div>
       <div class="text-sm text-ink-light">Laravel: 12.x</div>
@@ -66,6 +72,8 @@ import { ref, computed, inject, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import ContentSyncPanel from '../../components/ContentSyncPanel.vue'
+import SystemStatusCard from '../../components/admin/SystemStatusCard.vue'
+import EmergencySwitches from '../../components/admin/EmergencySwitches.vue'
 // 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
 const isMobile = computed(() => !!adminIsMobile.value)
