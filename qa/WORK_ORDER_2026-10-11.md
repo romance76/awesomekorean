@@ -66,3 +66,11 @@
 - 권한 등급표(서버): `app/Http/Middleware/AdminTier.php` (새 관리자 API 는 반드시 규칙표에 등급 지정, 운영자=1·관리자=2·최고관리자=3)
 - 오픈 이벤트: `app/Support/OpenEvent.php`, `AdminOpenEventController.php`, 화면 `AdminOpenEvent.vue`
 - 백업: `qa/backups/sitesettings_split_20261011/`, `qa/backups/members_pc_20261011/`
+
+## 7. 추가 업데이트 (UTC 08:20) — 못 했던 것 재작업 결과 (코드 `9b5ba926` 배포 success)
+- **서버 수집 워커 분리 완료**: SSH 가 허용돼 `deploy/setup_collect_worker.sh` 를 실행함. `awesomekorean-collect-worker` RUNNING, `.env` 에 ADMIN_COLLECT_QUEUE=collect 설정(백업 `.env.bak_collect_*` 있음). 이제 3번 1항은 끝. 되돌리기 명령은 스크립트 마지막 출력 참고.
+- **서버 상태 읽기 확인**: Chloe(2905)=super_admin, 오픈 이벤트 enabled=true(2026-10-15~11-30, 상태 scheduled), admin_favorites 표·chat 색인 있음. 할 일 완료 66 / 남은 66.
+- **#134 완료**(레시피 후보 DB 필터, 배너 목록 90일·1000건 제한), **IP 차단 기간·CIDR**, **댓글 대상 검증**, **경품 조회 정리**.
+- **마이페이지 북마크** 가 `AppModelsChatRoom #33` 처럼 보이던 것 수정(서버가 제목·종류·이동주소를 계산, 채팅방은 /chat/:id, 지워진 항목 안내).
+- **채팅방 입장 속도**: 메시지 목록 COUNT(*) 제거(simplePaginate) + chat_messages(chat_room_id, created_at) 색인 추가 + 참가자 목록 동시 로딩. 체감이 부족하면 다음은 방 목록(/api/chat/rooms) 쿼리와 공개방 입장 흐름을 측정할 것.
+- 아직 남음: 환불 정책 2단계(포인트 부족 시 부분 환불·직접 결제 환불 — **Kay 정책 결정 필요**), 일괄 등급 변경, 경품 매분 작업 3개 합치기, nginx bak 사본 제거, 더미 계정 삭제 결정(#57/#75), 관리자 배너 화면 페이지 넘기기.
