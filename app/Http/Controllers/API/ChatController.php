@@ -404,7 +404,7 @@ class ChatController extends Controller
         }
 
         // 공개방
-        if (!$user->email_verified_at && !in_array($user->role, ['admin', 'super_admin', 'moderator'])) {
+        if (\App\Support\SiteFlags::emailVerifyRequired() && !$user->email_verified_at && !in_array($user->role, ['admin', 'super_admin', 'moderator'])) {
             return response()->json(['success'=>false,'message'=>'이메일 인증 후 공개 채팅방을 만들 수 있습니다. 마이페이지에서 인증 메일을 다시 받을 수 있어요.'], 403);
         }
         if (empty($data['name'])) {
@@ -640,7 +640,7 @@ class ChatController extends Controller
         // (1:1/그룹방은 서로 아는 멤버끼리의 대화라 제한하지 않음)
         $me = auth()->user();
         $isStaff = in_array($me->role, ['admin', 'super_admin', 'moderator']);
-        if ($room->type === 'public' && !$me->email_verified_at && !$isStaff) {
+        if ($room->type === 'public' && \App\Support\SiteFlags::emailVerifyRequired() && !$me->email_verified_at && !$isStaff) {
             return response()->json(['success'=>false,'message'=>'이메일 인증 후 공개 채팅방에 글을 쓸 수 있습니다. 마이페이지에서 인증 메일을 다시 받을 수 있어요.'], 403);
         }
 

@@ -49,7 +49,7 @@
           <input :value="auth.user?.email" disabled class="input-soft !bg-gray-50 text-ink-muted cursor-not-allowed" />
         </div>
         <!-- 이메일 미인증 안내: 인증 전에는 글쓰기가 제한됨 -->
-        <div v-if="auth.user && !auth.user.email_verified_at && !['admin','super_admin','moderator'].includes(auth.user.role)" class="mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
+        <div v-if="auth.needsVerification" class="mb-3 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between gap-3 flex-wrap">
           <div class="text-xs text-amber-700 flex items-center gap-1.5"><AppIcon name="alert-circle" :size="14" /> 이메일 인증 전에는 글쓰기가 제한됩니다.</div>
           <button @click="resendVerification" :disabled="resendingVerify" class="text-xs font-bold bg-amber-400 text-white px-3 py-1.5 rounded-lg hover:bg-amber-500 disabled:opacity-50 transition-colors">
             {{ resendingVerify ? '발송중...' : '인증 메일 재발송' }}
@@ -819,8 +819,8 @@
                 <span class="mx-1">|</span>
                 <span>{{ fmtDateFull(p.created_at) }}</span>
               </div>
-              <button @click="printInvoice(p)" class="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 transition-colors">
-                <AppIcon name="newspaper" :size="12" /> 인보이스
+              <button @click="openInvoice(p)" class="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 transition-colors">
+                <AppIcon name="newspaper" :size="12" /> {{ p.invoice_no ? '인보이스 ' + p.invoice_no : '인보이스' }}
               </button>
             </div>
           </div>
@@ -1236,6 +1236,20 @@ function fmtDateFull(dt) {
 }
 
 function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML }
+
+// 서버가 발행한 인보이스(번호가 있는 결제)는 메일과 같은 영수증을 보여 주고, 예전 결제는 기존 인쇄 화면을 그대로 쓴다
+async function openInvoice(p) {
+  if (!p.invoice_no) return printInvoice(p)
+  const w = window.open('', '_blank')
+  if (!w) { showAlert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', '오류'); return }
+  try {
+    const { data } = await axios.get(`/api/invoices/${encodeURIComponent(p.invoice_no)}`, { responseType: 'text', transformResponse: [(d) => d] })
+    w.document.open(); w.document.write(data); w.document.close()
+  } catch {
+    w.close()
+    showAlert('인보이스를 열지 못했어요. 잠시 후 다시 시도해 주세요.', '오류')
+  }
+}
 
 function printInvoice(p) {
   const w = window.open('', '_blank', 'width=600,height=700')

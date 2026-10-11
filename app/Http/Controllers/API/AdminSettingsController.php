@@ -26,6 +26,9 @@ class AdminSettingsController extends Controller
     }
 
     private function isSecretKey(string $key): bool {
+        // 비밀번호 "최소 길이"는 비밀이 아닌 숫자 설정 — 이름에 password 가 들어 있다는 이유로 가려 내려보내면
+        // 사이트 설정 화면이 가려진 값(••••8)을 그대로 다시 저장하려다 저장이 계속 실패한다
+        if ($key === 'min_password_length') return false;
         return (bool) preg_match('/(secret|private|token|password|webhook|credential)/i', $key) || in_array($key, ['stripe_secret_key'], true);
     }
 
@@ -101,6 +104,18 @@ class AdminSettingsController extends Controller
             $keys = ['easy_view_enabled','site_name','site_subtitle','logo_url','logo_dark_url','primary_color','footer_text','about_page','terms_page','privacy_page','meta_description','meta_keywords','company_name','contact_email','contact_phone','company_address','sns_facebook','sns_instagram','sns_twitter','sns_youtube','sns_kakao','menu_config','footer_config'];
             return SiteSetting::whereIn('key', $keys)->pluck('value','key');
         });
+        // 점검 모드·가입 허용·이메일 인증·비밀번호 길이는 사이트 동작에 쓰이는 값이라 정리된 현재 값을 항상 새로 얹는다
+        // (30분 캐시에 옛 값이 남아도 점검을 끄면 바로 풀리고, 저장 안 한 항목은 기본값으로 내려간다)
+        $f = \App\Support\SiteFlags::all();
+        $m = \App\Support\SiteFlags::maintenance();
+        $settings = collect($settings)->merge([
+            'maintenance_mode' => $f['maintenance_mode'] ? '1' : '0',
+            'maintenance_reason' => $m['message'],
+            'maintenance_until' => $f['maintenance_until'] ?? '',
+            'allow_signup' => $f['allow_signup'] ? '1' : '0',
+            'require_email_verify' => $f['require_email_verify'] ? '1' : '0',
+            'min_password_length' => (string) $f['min_password_length'],
+        ]);
         return response()->json(['success'=>true,'data'=>$settings]);
     }
 
@@ -129,7 +144,15 @@ class AdminSettingsController extends Controller
 
     // 일괄 업데이트
     public function update(Request $request) {
-        foreach ($this->filteredSettings($request) as $key => $storeValue) {
+        $items = $this->filteredSettings($request);
+        // 회원·점검 설정 칸은 "사이트 설정" 저장과 같은 검사를 거친다 — 일괄 저장으로 검사를 피해 이상한 값(비밀번호 길이 1, 점검 모드 아무 글자 등)을 넣지 못하게
+        foreach ($items as $key => $storeValue) {
+            if (in_array($key, self::SITE_KEYS, true) && ($err = \App\Support\SettingsValidator::site($key, $storeValue))) {
+                return response()->json(['success'=>false,'message'=>$err], 422);
+            }
+        }
+        foreach ($items as $key => $storeValue) {
+            if (in_array($key, self::SITE_KEYS, true)) $storeValue = $this->normalizeSiteValue($key, $storeValue);
             SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$storeValue]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);
@@ -216,7 +239,7 @@ class AdminSettingsController extends Controller
             'auto_approve' => 'sometimes|boolean',
             'allow_withdrawal' => 'sometimes|boolean',
             'maintenance_mode' => 'sometimes|boolean',
-            'min_password_length' => 'sometimes|integer|between:8,64',
+            'min_password_length' => 'sometimes|integer|between:' . \App\Support\SiteFlags::PASSWORD_MIN_FLOOR . ',' . \App\Support\SiteFlags::PASSWORD_MAX_LEN,
             'max_upload_mb' => 'sometimes|integer|between:1,100',
             'allowed_file_types' => ['sometimes', 'nullable', 'string', 'max:300', 'regex:/^\s*[A-Za-z0-9]{1,10}(\s*,\s*[A-Za-z0-9]{1,10}){0,40}\s*$/'],
             'maintenance_reason' => ['sometimes', 'nullable', 'string', 'max:500', self::plainRule()],
@@ -225,12 +248,26 @@ class AdminSettingsController extends Controller
             'min_password_length' => '최소 비밀번호 길이', 'max_upload_mb' => '최대 업로드 크기(MB)', 'maintenance_reason' => '점검 안내',
         ]);
         foreach ($data as $key => $value) {
-            if (in_array($key, ['allow_signup', 'require_email_verify', 'auto_approve', 'allow_withdrawal', 'maintenance_mode'], true)) $value = filter_var($value, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
-            elseif ($key === 'allowed_file_types') $value = strtolower(preg_replace('/\s+/', '', (string) $value));
-            SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$value === null ? '' : (string) $value]);
+            SiteSetting::updateOrCreate(['key'=>$key], ['value'=>$this->normalizeSiteValue($key, $value)]);
         }
         Cache::forget(self::SETTINGS_PUBLIC_CACHE_KEY);   // 저장했는데 회원 화면에 안 바뀌던 문제(최대 30분) 방지
-        return response()->json(['success'=>true,'message'=>'사이트 설정이 저장되었습니다']);
+        \App\Support\SiteFlags::forget();                 // 점검 모드·가입 허용 등은 저장 즉시 사이트에 적용 (끄면 바로 풀림)
+
+        // 지금 실제로 적용 중인 상태를 같이 돌려준다 — 화면이 "점검 중" 같은 표시를 정확히 보여 주도록
+        $f = \App\Support\SiteFlags::all();
+        return response()->json(['success'=>true,'message'=>'사이트 설정이 저장되었습니다','data'=>[
+            'maintenance_mode' => $f['maintenance_mode'], 'allow_signup' => $f['allow_signup'],
+            'require_email_verify' => $f['require_email_verify'], 'min_password_length' => $f['min_password_length'],
+        ]]);
+    }
+
+    // 사이트 설정 칸 저장 형태: 켜기/끄기는 '1'/'0', 파일 형식은 소문자·공백 없이, 나머지는 글자 그대로(빈 값은 '')
+    private function normalizeSiteValue(string $key, $value): string {
+        if (in_array($key, ['allow_signup', 'require_email_verify', 'auto_approve', 'allow_withdrawal', 'maintenance_mode'], true)) {
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+        }
+        if ($key === 'allowed_file_types') return strtolower(preg_replace('/\s+/', '', (string) $value));
+        return $value === null ? '' : trim((string) $value);
     }
 
     // 푸터 저장

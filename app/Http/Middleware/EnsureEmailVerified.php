@@ -16,6 +16,11 @@ class EnsureEmailVerified
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // 관리자 사이트 설정 "이메일 인증 필수" 를 끄면 인증 전 회원도 글쓰기 가능 (인증 메일 발송·인증 보너스·"N번째 가입" 집계는 그대로 인증 완료 기준)
+        if (!\App\Support\SiteFlags::emailVerifyRequired()) {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         if ($user && !$user->email_verified_at && !in_array($user->role, ['admin', 'super_admin', 'moderator'])) {

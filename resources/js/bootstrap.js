@@ -71,6 +71,11 @@ axios.interceptors.response.use(
             }
             window.dispatchEvent(new Event('ak:auth-401'));
         }
+        // 점검 모드: 서버가 503 + {maintenance:true,message} 로 답하면 사이트 스토어가 점검 안내 화면을 띄운다
+        // (관리자·운영자는 서버가 막지 않으므로 이 응답을 받지 않는다 — 이미 열려 있는 관리자 화면은 영향 없음)
+        if (error.response?.status === 503 && error.response?.data?.maintenance) {
+            try { window.dispatchEvent(new CustomEvent('ak:maintenance', { detail: error.response.data })); } catch { /* 무시 */ }
+        }
         return Promise.reject(error);
     }
 );

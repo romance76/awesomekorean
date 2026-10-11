@@ -41,6 +41,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \App\Http\Middleware\CheckIpBan::class,
             \App\Http\Middleware\DetectBot::class,
+            \App\Http\Middleware\CheckMaintenance::class,   // 점검 모드(관리자·로그인·/api/admin/* 는 예외) — 관리자 사이트 설정에서 켜고 끔
+        ]);
+        // 서버가 직접 만드는 '정보' 글(/info)에도 같은 점검 안내 (화면(SPA)은 열어 두고 안에서 안내)
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckMaintenance::class,
         ]);
         $middleware->api(append: [
             \App\Http\Middleware\UpdateLastActive::class,

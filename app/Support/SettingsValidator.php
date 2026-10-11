@@ -83,6 +83,39 @@ class SettingsValidator
         return self::inRange($v, 0, 10000000) ? null : '0 이상 10,000,000 이하 정수여야 해요';
     }
 
+    /**
+     * 사이트 설정(회원·점검·업로드) 한 칸 검사. 오류 메시지 또는 null.
+     * "사이트 설정 저장"과 일괄 저장(PUT /api/admin/settings) 둘 다 같은 규칙을 쓴다.
+     * 비밀번호 최소 길이는 가입 규칙(8자)보다 약해지지 않게 8~64 만 허용한다 (1 같은 값은 저장되지 않는다).
+     */
+    public static function site(string $key, $raw): ?string
+    {
+        if (is_bool($raw)) $raw = $raw ? '1' : '0';
+        $v = is_scalar($raw) || $raw === null ? trim((string) $raw) : null;
+        if ($v === null) return '값 형식이 올바르지 않아요';
+
+        switch ($key) {
+            case 'allow_signup':
+            case 'require_email_verify':
+            case 'auto_approve':
+            case 'allow_withdrawal':
+            case 'maintenance_mode':
+                return in_array(strtolower($v), ['0', '1', 'true', 'false'], true) ? null : '켜기/끄기 값만 넣을 수 있어요';
+            case 'min_password_length':
+                return self::inRange($v, SiteFlags::PASSWORD_MIN_FLOOR, SiteFlags::PASSWORD_MAX_LEN)
+                    ? null : '비밀번호 최소 길이는 ' . SiteFlags::PASSWORD_MIN_FLOOR . '~' . SiteFlags::PASSWORD_MAX_LEN . '자 사이여야 해요';
+            case 'max_upload_mb':
+                return self::inRange($v, 1, 100) ? null : '최대 업로드 크기는 1~100MB 사이여야 해요';
+            case 'allowed_file_types':
+                return preg_match('/^\s*[A-Za-z0-9]{1,10}(\s*,\s*[A-Za-z0-9]{1,10}){0,40}\s*$/', $v) ? null : '파일 형식은 쉼표로 구분한 확장자로 적어 주세요 (예: jpg,png,pdf)';
+            case 'maintenance_reason':
+                return (mb_strlen($v) <= 500 && !preg_match('/[<>]/', $v)) ? null : '점검 안내는 500자 이하, < > 기호 없이 적어 주세요';
+            case 'maintenance_until':
+                return ($v === '' || strtotime($v) !== false) ? null : '점검 종료 예정 시각 형식이 올바르지 않아요';
+        }
+        return null;
+    }
+
     /** 등급 기준 점수(grade_N_min)는 반드시 오름차순 — 현재 값에 이번 변경을 합쳐 검사 */
     public static function gradeOrder(array $current, array $changes): ?string
     {

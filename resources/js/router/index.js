@@ -288,10 +288,14 @@ router.beforeEach(async (to, from, next) => {
     return next(auth.takeVerifyReturn() || '/dashboard')
   }
   if (VERIFIED_WRITE_ROUTES.has(to.name) && auth.needsVerification) {
-    auth.rememberVerifyReturn(to.fullPath)
     const { useSiteStore } = await import('../stores/site')
-    useSiteStore().toast('이메일 인증 후 글을 쓸 수 있어요. 마이페이지에서 인증 메일을 다시 받을 수 있습니다.', 'warning', 5000)
-    return next('/dashboard')
+    // 관리자 사이트 설정의 "이메일 인증 필수"가 꺼져 있는지 알려면 공개 설정이 와 있어야 한다 (첫 화면에서 아직 못 불러왔을 수 있음)
+    await useSiteStore().load()
+    if (auth.needsVerification) {
+      auth.rememberVerifyReturn(to.fullPath)
+      useSiteStore().toast('이메일 인증 후 글을 쓸 수 있어요. 마이페이지에서 인증 메일을 다시 받을 수 있습니다.', 'warning', 5000)
+      return next('/dashboard')
+    }
   }
   next()
 })

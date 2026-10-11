@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import axios from 'axios'
 import { tokenExpiresAtMs } from '../utils/jwt'
+import { useSiteStore } from './site'
 
 // Issue #4: localStorage(영구) vs sessionStorage(세션만)
 // "로그인 유지" 체크 시 localStorage, 해제 시 sessionStorage
@@ -21,10 +22,12 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() => ['admin', 'super_admin'].includes(user.value?.role))
   const isStaff = computed(() => ['admin', 'super_admin', 'moderator'].includes(user.value?.role))
   // 서버 EnsureEmailVerified 미들웨어와 같은 기준 — 이메일 미인증 일반 회원은 글쓰기 불가
-  const needsVerification = computed(() =>
+  // (관리자 사이트 설정에서 "이메일 인증 필수"를 끄면 막지 않는다 — 값이 없으면 필수)
+  const unverifiedMember = computed(() =>
     !!token.value && !!user.value && !user.value.email_verified_at
     && !['admin', 'super_admin', 'moderator'].includes(user.value.role)
   )
+  const needsVerification = computed(() => unverifiedMember.value && useSiteStore().requireEmailVerify)
 
   // 어느 스토리지에 있든 토큰 읽기 (세션 → 로컬 순)
   function readStoredAuth() {
@@ -73,7 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUser() {
-    const wasUnverified = needsVerification.value
+    const wasUnverified = unverifiedMember.value   // 설정과 무관하게 "이메일을 아직 인증 안 한 일반 회원"인지로 비교 (인증 완료 안내가 잘못 뜨지 않게)
     // 운영자가 오래 쉬었다 돌아와 토큰이 이미 만료됐으면, 먼저 조용히 갱신해서 바로 로그아웃되지 않게 함
     if (token.value && isStaff.value) {
       const exp = tokenExpiresAtMs(token.value)
@@ -85,7 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = data.data || data
       const { primary } = storages()
       primary.setItem('sk_user', JSON.stringify(user.value))
-      if (wasUnverified && !needsVerification.value) markVerified(true)
+      if (wasUnverified && !unverifiedMember.value) markVerified(true)
     } catch (e) {
       // 토큰이 실제로 무효(401)할 때만 로그아웃 처리. 새로고침 직후
       // 일시적인 네트워크 오류/서버 500 등으로 이 요청만 실패한 경우까지

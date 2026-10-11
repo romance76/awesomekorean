@@ -11,18 +11,23 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    // Issue #3: 비밀번호 공통 정책 — 8자 이상 + 대소문자/숫자 혼합, 일반 취약 비번 차단
+    // Issue #3: 비밀번호 공통 정책 — 최소 길이(관리자 사이트 설정, 기본 8·최소 8~최대 64) + 대소문자/숫자 혼합, 일반 취약 비번 차단
     protected function passwordRules(): array
     {
         return [
             'required',
             'confirmed',
-            Password::min(8)->mixedCase()->numbers(),
+            Password::min(\App\Support\SiteFlags::minPasswordLength())->mixedCase()->numbers(),
         ];
     }
 
     public function register(Request $request)
     {
+        // 관리자 사이트 설정 "회원가입 허용" 이 꺼져 있으면 새 가입을 받지 않는다 (기존 회원 로그인은 영향 없음)
+        if (!\App\Support\SiteFlags::signupAllowed()) {
+            return response()->json(['success' => false, 'code' => 'signup_closed', 'message' => '지금은 가입을 받지 않아요. 나중에 다시 와 주세요.'], 403);
+        }
+
         $request->validate([
             'name' => 'required|string|max:50',
             'email' => 'required|email|unique:users',
@@ -40,11 +45,13 @@ class AuthController extends Controller
         ]);
 
         // 가입 보너스 (P2B-2: DB 동적)
-        $signupBonus = \App\Support\PointRules::get('signup_bonus', 10);
+        // 비상 스위치 "가입 보너스 지급 멈추기"가 켜져 있으면 포인트·Entry 가입 보너스를 주지 않는다 (가입 자체는 그대로)
+        $signupPaused = \App\Support\EmergencySwitches::on('signup_bonus');
+        $signupBonus = $signupPaused ? 0 : \App\Support\PointRules::get('signup_bonus', 10);
         if ($signupBonus > 0) $user->addPoints($signupBonus, '회원가입 보너스');
 
         // Entry 가입 보너스 — Point와 완전히 별도 지급(교환/합산 아님).
-        $entrySignupBonus = \App\Support\EntrySettings::get('signup_bonus', 1);
+        $entrySignupBonus = $signupPaused ? 0 : \App\Support\EntrySettings::get('signup_bonus', 1);
         if ($entrySignupBonus > 0) {
             \App\Support\EntryService::award($user, $entrySignupBonus, 'SIGNUP_BONUS', '회원가입 Entry 보너스', 'signup');
         }
@@ -144,6 +151,12 @@ class AuthController extends Controller
             // 넘기면 타입 오류로 500이 남 — logout()과 동일하게 getToken()으로 넘김
             try { JWTAuth::invalidate(JWTAuth::getToken()); } catch (\Exception $e) {}
             return response()->json(['success' => false, 'message' => '정지된 계정입니다: ' . $user->ban_reason], 403);
+        }
+
+        // 점검 모드 중에는 관리자·운영자만 로그인할 수 있다 (일반 회원은 로그인 기록·보너스 없이 점검 안내만)
+        if (\App\Support\SiteFlags::maintenanceOn() && !\App\Support\SiteFlags::isStaff($user)) {
+            try { JWTAuth::invalidate(JWTAuth::getToken()); } catch (\Exception $e) {}
+            return response()->json(\App\Support\SiteFlags::maintenancePayload(), 503, ['Retry-After' => '300']);
         }
 
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);

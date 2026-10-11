@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\EntryService;
 use App\Support\EntrySettings;
 use App\Support\PointRules;
+use App\Support\SiteFlags;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
@@ -64,6 +65,14 @@ class SocialAuthController extends Controller
             if ($user) {
                 $user->update(['provider' => $provider, 'provider_id' => $socialUser->getId()]);
             } else {
+                // 관리자 사이트 설정 "회원가입 허용" 이 꺼져 있으면 구글·아마존으로도 새로 가입할 수 없다 (이미 가입한 회원의 로그인은 영향 없음)
+                if (!SiteFlags::signupAllowed()) {
+                    return redirect('/login?social_error=signup_closed');
+                }
+                // 점검 중에는 새 가입도 받지 않는다
+                if (SiteFlags::maintenanceOn()) {
+                    return redirect('/login?social_error=maintenance');
+                }
                 $name = $socialUser->getName() ?: $socialUser->getNickname() ?: explode('@', $email)[0];
 
                 $user = User::create([
@@ -78,10 +87,12 @@ class SocialAuthController extends Controller
                     'allow_friend_request' => true,
                 ]);
 
-                $signupBonus = PointRules::get('signup_bonus', 10);
+                // 비상 스위치 "가입 보너스 지급 멈추기"가 켜져 있으면 포인트·Entry 가입 보너스를 주지 않는다 (가입 자체는 그대로)
+                $signupPaused = \App\Support\EmergencySwitches::on('signup_bonus');
+                $signupBonus = $signupPaused ? 0 : PointRules::get('signup_bonus', 10);
                 if ($signupBonus > 0) $user->addPoints($signupBonus, '회원가입 보너스');
 
-                $entrySignupBonus = EntrySettings::get('signup_bonus', 1);
+                $entrySignupBonus = $signupPaused ? 0 : EntrySettings::get('signup_bonus', 1);
                 if ($entrySignupBonus > 0) {
                     EntryService::award($user, $entrySignupBonus, 'SIGNUP_BONUS', '회원가입 Entry 보너스', 'signup');
                 }
@@ -90,6 +101,11 @@ class SocialAuthController extends Controller
 
         if ($user->is_banned) {
             return redirect('/login?social_error=banned');
+        }
+
+        // 점검 모드 중에는 관리자·운영자만 로그인할 수 있다
+        if (SiteFlags::maintenanceOn() && !SiteFlags::isStaff($user)) {
+            return redirect('/login?social_error=maintenance');
         }
 
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);

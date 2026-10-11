@@ -5,6 +5,10 @@
       <AuthLogo />
       <h1 class="text-xl font-bold text-ink">로그인</h1>
     </div>
+    <!-- 점검 모드(관리자 사이트 설정) 중에는 관리자·운영자만 로그인할 수 있다 -->
+    <div v-if="site.maintenance.active" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 leading-relaxed" role="status">
+      지금은 사이트 점검 중이라 관리자·운영자만 로그인할 수 있어요.
+    </div>
     <form @submit.prevent="handleLogin" class="space-y-4">
       <div><label class="input-label">이메일</label><input v-model="form.email" type="email" required class="input-soft" /></div>
       <div><label class="input-label">비밀번호</label><PasswordInput v-model="form.password" required class="input-soft" /></div>
@@ -35,7 +39,7 @@
     </div>
 
     <div class="text-center mt-3"><RouterLink to="/forgot-password" class="text-sm text-ink-muted hover:text-amber-600 transition-colors">비밀번호를 잊으셨나요?</RouterLink></div>
-    <div class="text-center mt-2 text-sm text-ink-light">계정이 없으신가요? <RouterLink to="/register" class="text-amber-600 font-semibold hover:text-amber-700 transition-colors">회원가입</RouterLink></div>
+    <div v-if="site.signupOpen" class="text-center mt-2 text-sm text-ink-light">계정이 없으신가요? <RouterLink to="/register" class="text-amber-600 font-semibold hover:text-amber-700 transition-colors">회원가입</RouterLink></div>
   </div>
 </div>
 </template>
@@ -46,8 +50,10 @@ import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useSiteStore } from '../../stores/site'
 import AuthLogo from '../../components/AuthLogo.vue'
 const auth = useAuthStore()
+const site = useSiteStore()
 const router = useRouter()
 const route = useRoute()
 const form = reactive({ email: '', password: '' })
@@ -64,6 +70,8 @@ async function handleLogin() {
 const socialErrorMessages = {
   no_email: 'Amazon 계정에 이메일 공유를 허용해야 로그인할 수 있습니다.',
   banned: '정지된 계정입니다.',
+  maintenance: '지금은 사이트 점검 중이라 관리자·운영자만 로그인할 수 있어요.',
+  signup_closed: '지금은 새 가입을 받지 않아요. 이미 가입한 계정으로 로그인해 주세요.',
   1: '소셜 로그인에 실패했습니다. 다시 시도해주세요.',
 }
 onMounted(() => {

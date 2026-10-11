@@ -23,10 +23,10 @@
     <UserPopup :show="showUserPopup" :user-id="popupUserId" @close="showUserPopup=false" />
     <SiteModal />
 
-    <CommHub v-if="auth.isLoggedIn && auth.user" ref="commHub" />
+    <CommHub v-if="auth.isLoggedIn && auth.user && !showMaintenance" ref="commHub" />
     <MiniPlayer />
-    <GlobalChatPopup v-if="auth.isLoggedIn" />
-    <MessageThreadPopup v-if="auth.isLoggedIn" />
+    <GlobalChatPopup v-if="auth.isLoggedIn && !showMaintenance" />
+    <MessageThreadPopup v-if="auth.isLoggedIn && !showMaintenance" />
     <PopupBanner v-if="showNav" />
     <CheckinPrompt v-if="showNav && auth.isLoggedIn" />
     <SweepstakesReminderPrompt v-if="showNav && auth.isLoggedIn" />
@@ -34,7 +34,9 @@
     <FlyerPrompt v-if="showNav" />
     <InstallAppPrompt v-if="showNav" />
 
-    <main>
+    <!-- 점검 모드(관리자 사이트 설정): 일반 회원에게는 점검 안내만. 관리자·운영자 화면과 로그인 화면은 그대로 열린다 -->
+    <MaintenanceNotice v-if="showMaintenance" />
+    <main v-else>
       <router-view v-slot="{ Component }" :key="route.fullPath">
         <keep-alive :include="['Home']">
           <component :is="Component" :key="route.fullPath" />
@@ -98,6 +100,7 @@ import SweepstakesReminderPrompt from './components/SweepstakesReminderPrompt.vu
 import FlyerPrompt from './components/FlyerPrompt.vue'
 import InstallAppPrompt from './components/InstallAppPrompt.vue'
 import WinnerPrizePrompt from './components/WinnerPrizePrompt.vue'
+import MaintenanceNotice from './components/MaintenanceNotice.vue'
 import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 
 import { useBookmarkStore } from './stores/bookmarks'
@@ -171,8 +174,15 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// 점검 안내를 보여 줄지: 점검 중이고, 관리자·운영자가 아니고, 로그인/관리자/비밀번호 찾기 화면이 아닐 때
+// (그 화면들은 점검 중에도 열려 있어야 관리자가 스스로 잠기지 않는다)
+const showMaintenance = computed(() =>
+  siteStore.maintenance.active && !auth.isStaff && !/^\/(login|forgot-password|auth\/social-callback|admin)(\/|$)/.test(route.path)
+)
+
 const showNav = computed(() => {
   const p = route.path
+  if (showMaintenance.value) return false
   return p !== '/login' && p !== '/register' && !p.startsWith('/admin') && p !== '/games/poker/play' && !p.startsWith('/games/poker/multi') && !p.startsWith('/games/poker/tournament/')
 })
 </script>
