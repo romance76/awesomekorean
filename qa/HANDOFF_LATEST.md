@@ -1,6 +1,6 @@
 # ⭐ 최신 인수인계 (다른 계정/세션에서 이어 받을 때 가장 먼저 읽기)
 
-작성: 2026-10-11 UTC 16:00 (애틀랜타 낮 12:00) · 마지막 배포 코드 `385d227c` (Deploy·PHP Syntax Check 모두 success) · **Stripe 는 테스트 모드(Kay 확인) — 테스트 카드 4242 4242 4242 4242 로 시험** · 최신 변경은 맨 아래 9번
+작성: 2026-10-11 UTC 16:00 (애틀랜타 낮 12:00) · 마지막 배포 코드 `de77566c` (Deploy·PHP Syntax Check 모두 success) · **Stripe 는 테스트 모드(Kay 확인) — 테스트 카드 4242 4242 4242 4242 로 시험** · 최신 변경은 맨 아래 9번
 **한 방 실행: 새 Claude 계정에서 `/continue` 한 줄** (안 되면 `qa/CONTINUE_PROMPT.md` 의 글을 붙여넣기). 할 일은 `qa/TASKS_QUEUE.md`(위에서부터 ready 인 것), 배포·검증은 `scripts/ship.sh` 가 한 번에 처리합니다.
 
 읽는 순서: **이 파일 → `qa/points_entry_ads_structure_report.md`(돈/포인트/Entry 설계·Kay 결정) → `qa/WORK_ORDER_2026-10-11.md`(오늘 작업 전체 기록·서버 작업) → `qa/HANDOFF_2026-10-11.md`(옛 기록) → `CLAUDE.md`**
@@ -143,7 +143,9 @@ T0 항상 · T1 공동구매 = needs_kay(계획서 `qa/groupbuy_plan.md` 작성 
 4. **회원 일괄 등급 변경** (`AdminController::bulkUsers` `action=role`, `Members.vue`) — `0059cd46`. 최고관리자 전용, 일반↔기업만(운영진 승급은 한 명씩), 본인·운영진·이미 같은 등급은 건너뜀, 바뀐 회원마다 감사 로그. 서버에서 롤백되는 트랜잭션으로 6가지 시나리오 확인.
 5. **(Kay 지적) 휴대폰 인보이스 화면** — `e3c741d9`. 위쪽 "인쇄 / PDF 저장" 버튼이 상태바에 가려 잘리고 닫기 버튼이 없던 문제 → `resources/views/invoices/letter.blade.php` 의 위쪽 막대를 **화면 위에 고정**(sticky, `viewport-fit=cover` + 상태바 안전 영역 반영), 왼쪽에 **"← 닫기"**(새 탭이면 탭 닫기, 안 닫히면 뒤로, 그래도 없으면 홈) 추가, 휴대폰에서 맨 아래 여백 확보(하단 주소 막대에 안 가림). 인쇄 때는 막대 숨김, 메일용 양식은 그대로. PC·휴대폰 크기로 확인, 서버에서 한국어/영어 양식 생성 확인(회원 마이페이지·관리자 결제/지급 센터가 모두 이 양식 사용).
 6. **(Kay 지적) 카드 최소 $5 미만에서 막다른 길** — `385d227c`. 원인: 상세 페이지 상위노출 버튼(`BoostButton.vue`)이 1·3·7일뿐이라 하루 $0.50 기준 7일이 $3.50 → 카드로는 어떤 기간도 $5 를 못 넘겼음(안내 문구만 있고 해결 수단 없음). 고침: 기간에 **14·30일 추가**, 최소 미만이면 빨간 상자에 **"N일로 늘리기 · $5.00"**(카드 최소를 딱 넘기는 날 수, 예 10일)과 **"포인트로 결제하기"** 버튼. 글쓰기 3곳·마이페이지(`PromotionSection.vue`)도 같은 두 버튼, 광고 신청(`AdApply.vue`·`AdApplyText.vue`)에는 **"$5.00 으로 올리기"** 버튼. 서버는 그대로(결제액은 항상 하루 가격 × 일수, 최소 미만이면 거절 — "기간 그대로 $5 청구" 방식은 사용자에게 손해라 넣지 않음. 원하면 말씀하세요).
-- 백업: `qa/backups/cardmin_options_20261011/`, `qa/backups/t5_20261011/` (AdminMembersMobile.vue · Banners.vue · Members.vue · AdminController.php · AdminController_before_bulkrole.php · console.php), `qa/backups/invoice_mobile_20261011/letter.blade.php`.
+7. **(Kay 지적) 상위노출 카드 결제 "처리 중..." 멈춤** — `dc0f203d`. 서버는 정상(요청이 오자마자 200, 서버 오류 없음)이었고 폰이 요청을 붙잡았다가 한꺼번에 보낸 것. 그래도 빠져나갈 길을 만듦: `BoostButton.vue` 카드 결제 시작에 30초 제한(안내 문구 "카드에는 청구되지 않았어요"), 대기 중에도 "취소" 가능, 창을 닫으면 이어가지 않음(포인트 결제는 서버가 바로 차감하므로 제한 없음).
+8. **(Kay 지적) 폰에서 버튼·칸이 잘림 / 상위노출 줄 모서리 / 로고 안 보임** — `306a843a`. 원인과 수정: (a) 로그인 헤더(로고 144px + 큰 글씨 + 알림 + 프로필 58px + EN)가 393px 폰보다 넓어 페이지가 옆으로 밀려 결제 창이 좌우로 잘림 → `NavBar.vue` 로고 `clamp(92px,26vw,144px)`, 프로필 ≤430px 에서 46px(360px 폭에서도 맞음을 실제 화면에서 계산 확인). (b) `StripeCardForm.vue` 카드 입력 글자 15px → 16px(아이폰이 16px 미만 입력에서 화면을 확대·이동). (c) 구인 등록 만료일 칸이 카드 밖으로 넘침 → `app.css` 에 휴대폰 폭 날짜·시간 입력 규칙(`min-width:0; max-width:100%`, `.input-soft` 는 appearance none + 높이 44px)과 날짜 입력 글자 16px. (d) `JobList.vue` 상위노출 줄을 카드(둥근 18px) 안쪽 8px 로 띄우고 모서리 10px 로 같은 중심 곡선 → 테두리가 안 잘림. (e) 구인 목록에 올린 회사 로고 표시(기존엔 상세에만 있었음; 서버 저장은 정상 — `/storage/job_logos/...`) + **Kay 지시로 로고 있는 줄은 재배치**(`de77566c`): 로고(56px) 왼쪽 · 오른쪽 위에 제목(2줄까지) · 그 아래 급여 · 뱃지(전국구·직종) · 메타 순서, 하트는 오른쪽 위. 로고 없는 줄은 예전 배치(급여 오른쪽) 그대로. CSS `order-*` 로 한 템플릿에서 순서만 바꿈(`JobList.vue`). 폰 폭 393px 실제 화면으로 확인. 아이폰 실기기는 확인 불가 → Kay 가 확인. 다른 목록(장터·부동산·업소)에도 같은 방식이 필요하면 말씀하세요.
+- 백업: `qa/backups/mobile_fit_20261011/`(NavBar·JobList·app.css), `qa/backups/cardmin_options_20261011/`, `qa/backups/t5_20261011/` (AdminMembersMobile.vue · Banners.vue · Members.vue · AdminController.php · AdminController_before_bulkrole.php · console.php), `qa/backups/invoice_mobile_20261011/letter.blade.php`.
 
 ### 9-2. Kay 가 눈으로 확인할 것
 - 휴대폰: 관리자 › 회원 › 한 명 열기 → "지급·보상 센터로 이동 ›" 가 보이고 눌러서 그 회원으로 열리는지.
