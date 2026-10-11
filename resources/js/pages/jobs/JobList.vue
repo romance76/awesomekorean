@@ -159,21 +159,29 @@
       <div @click="goDetail(item)"
         class="px-4 py-3.5 border-b border-gray-50 transition cursor-pointer"
         :class="jobBorderClass(item)" :style="jobBorderStyle(item)">
-        <div class="flex items-center gap-3">
+        <!-- 로고가 있는 줄: 로고 왼쪽 · 오른쪽 위에 제목 · 그 아래 급여 · 뱃지 · 메타 순서 / 로고 없는 줄: 예전 배치 그대로 (급여는 오른쪽) -->
+        <div class="flex gap-3" :class="item.logo ? 'items-start' : 'items-center'">
           <!-- 회사 로고(올린 경우) -->
-          <img v-if="item.logo" :src="item.logo" alt="" loading="lazy" class="w-12 h-12 rounded-lg object-cover border border-gray-100 bg-white flex-shrink-0" @error="$event.target.style.display='none'" />
-          <div class="flex-1 min-w-0">
-            <!-- 1행: 프로모션 뱃지 + 직종 태그 (제목 위로) -->
-            <div class="flex items-center gap-1 mb-1 flex-wrap">
+          <img v-if="item.logo" :src="item.logo" alt="" loading="lazy" class="w-14 h-14 rounded-xl object-cover border border-gray-100 bg-white flex-shrink-0" @error="$event.target.style.display='none'" />
+          <div class="flex-1 min-w-0 flex flex-col">
+            <!-- 뱃지: 프로모션 + 직종 태그 (로고 없는 줄은 제목 위, 로고 있는 줄은 급여 아래) -->
+            <div class="flex items-center gap-1 flex-wrap" :class="item.logo ? 'order-3 mt-1.5' : 'order-1 mb-1'">
               <span v-if="item.promotion_tier==='national'" class="inline-flex items-center gap-0.5 text-[11px] bg-red-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="globe" :size="10" />전국구</span>
               <span v-else-if="item.promotion_tier==='state_plus'" class="inline-flex items-center gap-0.5 text-[11px] bg-blue-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="star" :size="10" />주+</span>
               <span v-else-if="item.promotion_tier==='sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="megaphone" :size="10" />스폰서</span>
               <span v-for="tag in (item.job_tags || []).slice(0,4)" :key="tag" class="text-[11px] bg-gray-100 text-ink-light px-1.5 py-px rounded">{{ jobTagLabel(tag) }}</span>
             </div>
-            <!-- 2행: 제목 (크고 굵게) -->
-            <div class="text-base sm:text-lg font-extrabold text-ink/80 truncate tracking-tight">{{ item.title || item.name }}</div>
-            <!-- 3행: 메타 -->
-            <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
+            <!-- 제목 (크고 굵게) — 로고 있는 줄은 2줄까지 -->
+            <div class="text-base sm:text-lg font-extrabold text-ink/80 tracking-tight" :class="item.logo ? 'order-1 line-clamp-2 leading-snug' : 'order-2 truncate'">{{ item.title || item.name }}</div>
+            <!-- 급여 (로고 있는 줄만 여기, 제목 바로 아래) -->
+            <div v-if="item.logo && item.salary_min" class="order-2 mt-0.5 font-black text-base whitespace-nowrap" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+              ${{ item.salary_min }}~${{ item.salary_max }} <span class="text-xs font-bold text-ink-muted">/ {{ {hourly:'hr',monthly:'mo',yearly:'yr'}[item.salary_type] || item.salary_type }}</span>
+            </div>
+            <div v-else-if="item.logo && item.price !== undefined && item.price !== null" class="order-2 mt-0.5 font-black text-base" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
+              ${{ Number(item.price).toLocaleString() }}
+            </div>
+            <!-- 메타 -->
+            <div class="order-4 text-xs text-ink-muted mt-1 flex items-center gap-1.5 flex-wrap">
               <template v-if="postType === 'seeking'">
                 <UserName v-if="item.user?.id" :userId="item.user?.id" :name="item.user?.name" className="text-blue-600 font-semibold" />
                 <span v-else class="text-blue-600 font-semibold">{{ item.user?.name || '익명' }}</span>
@@ -191,17 +199,17 @@
               <span v-if="item.view_count" class="flex items-center gap-0.5"><AppIcon name="eye" :size="11" />{{ item.view_count }}</span>
             </div>
           </div>
-          <!-- 급여 + 하트 -->
-          <div class="ml-3 flex-shrink-0 text-right flex flex-col items-end gap-1">
-            <div v-if="item.salary_min"
+          <!-- 급여(로고 없는 줄) + 하트 -->
+          <div class="flex-shrink-0 text-right flex flex-col items-end gap-1" :class="item.logo ? '' : 'ml-3'">
+            <div v-if="!item.logo && item.salary_min"
               class="font-black text-base whitespace-nowrap" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
               ${{ item.salary_min }}~${{ item.salary_max }} <span class="text-xs font-bold text-ink-muted">/ {{ {hourly:'hr',monthly:'mo',yearly:'yr'}[item.salary_type] || item.salary_type }}</span>
             </div>
-            <div v-else-if="item.price !== undefined && item.price !== null"
+            <div v-else-if="!item.logo && item.price !== undefined && item.price !== null"
               class="font-black text-base" :class="postType === 'hiring' ? 'text-amber-600' : 'text-blue-600'">
               ${{ Number(item.price).toLocaleString() }}
             </div>
-            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="mt-1" />
+            <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" :class="item.logo ? '' : 'mt-1'" />
           </div>
         </div>
       </div>
