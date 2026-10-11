@@ -201,7 +201,17 @@ class PaymentController extends Controller
         $user = auth()->user();
         $user->addPoints($payment->points_purchased, "포인트 구매 ({$payment->points_purchased}P)");
 
-        $payment->update(['status' => 'completed']);
+        // 결제 카드 종류·끝 4자리를 인보이스용으로 저장 (이미 받아 온 intent 에서 — 실패해도 결제는 그대로)
+        $cardAttrs = [];
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasColumn('payments', 'card_last4')) {
+                $intentFull = \Stripe\PaymentIntent::retrieve(['id' => $payment->stripe_payment_id, 'expand' => ['latest_charge']]);
+                $card = $intentFull->latest_charge->payment_method_details->card ?? null;
+                if ($card) $cardAttrs = ['card_brand' => mb_substr((string) ($card->brand ?? ''), 0, 20) ?: null, 'card_last4' => mb_substr((string) ($card->last4 ?? ''), 0, 4) ?: null];
+            }
+        } catch (\Throwable $e) { report($e); }
+
+        $payment->update(['status' => 'completed'] + array_filter($cardAttrs));
 
         return response()->json([
             'success' => true,

@@ -1252,46 +1252,19 @@ function fmtDateFull(dt) {
 
 function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML }
 
-// 서버가 발행한 인보이스(번호가 있는 결제)는 메일과 같은 영수증을 보여 주고, 예전 결제는 기존 인쇄 화면을 그대로 쓴다
+// 결제 내역의 "인보이스" — 언제든 정식 인보이스(US Letter: 회사 정보·내 정보·내역·카드 종류와 끝 4자리)를 열고 인쇄/PDF 저장.
+// 서버가 발행한 인보이스가 있으면 그것을, 예전 결제·결제 대기는 같은 양식으로 만들어 보여 준다.
 async function openInvoice(p) {
-  if (!p.invoice_no) return printInvoice(p)
   const w = window.open('', '_blank')
   if (!w) { showAlert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', '오류'); return }
   try {
-    const { data } = await axios.get(`/api/invoices/${encodeURIComponent(p.invoice_no)}`, { responseType: 'text', transformResponse: [(d) => d] })
+    const url = p.invoice_no ? `/api/invoices/${encodeURIComponent(p.invoice_no)}` : `/api/payments/${p.id}/invoice`
+    const { data } = await axios.get(url, { responseType: 'text', transformResponse: [(d) => d] })
     w.document.open(); w.document.write(data); w.document.close()
   } catch {
     w.close()
     showAlert('인보이스를 열지 못했어요. 잠시 후 다시 시도해 주세요.', '오류')
   }
-}
-
-function printInvoice(p) {
-  const w = window.open('', '_blank', 'width=600,height=700')
-  if (!w) { showAlert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.', '오류'); return }
-  w.document.write(`<!DOCTYPE html><html><head><title>Invoice #${esc(String(p.id))}</title>
-<style>body{font-family:'Noto Sans KR',sans-serif;padding:40px;color:#1f2937}
-.header{text-align:center;border-bottom:3px solid #f59e0b;padding-bottom:20px;margin-bottom:30px}
-.logo{font-size:24px;font-weight:900;color:#92400e}
-h1{font-size:18px;color:#374151;margin:10px 0 0}
-table{width:100%;border-collapse:collapse;margin:20px 0}
-td{padding:8px 0;border-bottom:1px solid #e5e7eb;font-size:14px}
-td:last-child{text-align:right;font-weight:600}
-.total{font-size:18px;font-weight:900;color:#d97706;border-top:2px solid #f59e0b}
-.footer{text-align:center;margin-top:40px;font-size:11px;color:#9ca3af}
-@media print{body{padding:20px}}</style></head><body>
-<div class="header"><div class="logo">AwesomeKorean</div><h1>결제 인보이스</h1></div>
-<table>
-<tr><td>인보이스 번호</td><td>#${esc(String(p.id))}</td></tr>
-<tr><td>결제일</td><td>${esc(fmtDateFull(p.created_at))}</td></tr>
-<tr><td>상태</td><td>${p.status==='completed'?'완료':'대기'}</td></tr>
-<tr><td>구매자</td><td>${esc(auth.user?.name||'')} (${esc(auth.user?.email||'')})</td></tr>
-<tr><td>상품</td><td>포인트 ${esc(String(p.points_purchased?.toLocaleString()||0))}P</td></tr>
-<tr class="total"><td>결제 금액</td><td>$${esc(String(p.amount))} USD</td></tr>
-</table>
-<div class="footer">AwesomeKorean — 미국 한인 커뮤니티<br>이 인보이스는 자동 생성되었습니다.</div>
-<script>setTimeout(()=>window.print(),300)<\/script></body></html>`)
-  w.document.close()
 }
 
 // ─── 프로필 ───

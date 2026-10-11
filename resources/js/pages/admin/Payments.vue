@@ -105,6 +105,7 @@
           </div>
           <div v-if="detailItem.stripe_payment_id" class="text-[13px] text-ink-faint break-all">Stripe ID: {{ detailItem.stripe_payment_id }}</div>
           <button v-if="invMap[detailItem.id]" @click="invoiceOpenId = invMap[detailItem.id].id" class="w-full min-h-[52px] rounded-xl bg-amber-50 text-amber-700 text-[16px] font-bold">인보이스 보기 · {{ invMap[detailItem.id].invoice_no }}</button>
+          <button @click="openLetter(detailItem)" class="w-full min-h-[52px] rounded-xl bg-white border border-gray-200 text-ink text-[16px] font-bold">정식 인보이스 열기 (인쇄·PDF)</button>
           <button v-if="detailItem.status === 'completed' && canRefund" @click="refunding = true" class="w-full min-h-[52px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">환불하기</button>
           <p v-if="detailItem.kind && detailItem.kind !== 'points' && ['captured','authorized'].includes(detailItem.status)" class="text-[14px] text-ink-light bg-gray-50 rounded-xl px-3 py-2.5 leading-relaxed">{{ detailItem.kind === 'flyer' ? '전단 카드 결제는 "전단 관리"에서 그 전단을 중지·반려하면 남은 시간만큼 자동으로 환불돼요.' : '직접 결제는 Stripe 대시보드에서 환불한 뒤 의뢰를 취소해 주세요.' }}</p>
           <button @click="closeSheet" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">닫기</button>
@@ -282,7 +283,7 @@
       <!-- 액션 -->
       <div class="px-6 py-3 border-t border-gray-100 flex gap-2 justify-end">
         <button v-if="invMap[detailItem.id]" @click="invoiceOpenId = invMap[detailItem.id].id" class="btn-secondary !px-4 !py-2 text-xs">인보이스 {{ invMap[detailItem.id].invoice_no }}</button>
-        <button @click="printInvoice" class="btn-secondary !px-4 !py-2 text-xs"><AppIcon name="download" :size="13" /> 인쇄</button>
+        <button @click="openLetter(detailItem)" class="btn-secondary !px-4 !py-2 text-xs"><AppIcon name="download" :size="13" /> 정식 인보이스 (인쇄·PDF)</button>
         <button v-if="detailItem.status==='completed'" @click="refundOrder(detailItem)" class="inline-flex items-center gap-1.5 text-xs bg-red-500 text-white font-bold px-4 py-2 rounded-xl transition-colors hover:bg-red-600"><AppIcon name="coins" :size="13" /> 환불</button>
         <span v-if="detailItem.kind && detailItem.kind !== 'points' && ['captured','authorized'].includes(detailItem.status)" class="text-xs text-ink-muted">{{ detailItem.kind === 'flyer' ? '환불: 전단 관리에서 중지·반려 → 남은 시간만큼 자동 환불' : '환불: Stripe 대시보드에서 환불 후 의뢰 취소' }}</span>
         <button @click="detailItem=null" class="btn-primary !px-4 !py-2 text-xs">닫기</button>
@@ -440,7 +441,15 @@ async function refundOrder(item) {
   } catch (e) { say(e.response?.data?.message || '환불 실패', true) }
 }
 
-function printInvoice() { window.print() }
+// 어떤 결제든 정식 인보이스(US Letter)를 새 창에 — 옛 결제·결제 대기도 같은 양식, 카드 종류·끝 4자리 포함
+async function openLetter(item) {
+  const w = window.open('', '_blank')
+  if (!w) { say('팝업이 막혀 있어요. 팝업을 허용한 뒤 다시 눌러 주세요.', true); return }
+  try {
+    const { data } = await axios.get(`/api/admin/payments/${item.id}/invoice`, { responseType: 'text', transformResponse: [(d) => d] })
+    w.document.open(); w.document.write(data); w.document.close()
+  } catch { w.close(); say('인보이스를 열지 못했어요', true) }
+}
 
 onMounted(load)
 </script>

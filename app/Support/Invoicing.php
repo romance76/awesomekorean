@@ -366,22 +366,85 @@ class Invoicing
         ];
     }
 
+    /** 카드 종류 이름 (Stripe 가 주는 소문자 코드 → 보기 좋은 이름) */
+    public static function brandName(?string $brand): string
+    {
+        $map = ['visa' => 'Visa', 'mastercard' => 'Mastercard', 'amex' => 'American Express', 'discover' => 'Discover',
+            'diners' => 'Diners Club', 'jcb' => 'JCB', 'unionpay' => 'UnionPay', 'cartes_bancaires' => 'Cartes Bancaires'];
+        $b = strtolower(trim((string) $brand));
+        return $map[$b] ?? ($b !== '' ? ucfirst($b) : 'Card');
+    }
+
+    /**
+     * 카드 종류·끝 4자리를 Stripe 에서 읽어 payments 에 채워 둔다 — 카드 정보가 저장되기 전에 결제된 옛 건과, 처음부터 못 받은 건용.
+     * 결제가 끝난 건만, 이미 있으면 건너뜀. Stripe 가 안 되거나 오류여도 절대 예외를 던지지 않는다(인보이스는 카드 정보 없이도 열려야 함).
+     */
+    public static function ensureCardDetails(?Payment $p): void
+    {
+        try {
+            if (!$p || $p->card_last4 || !$p->stripe_payment_id || !in_array($p->status, self::PAID, true)) return;
+            if (!Schema::hasColumn('payments', 'card_last4')) return;
+            $gw = app(StripeGateway::class);
+            if (!$gw->configured()) return;
+            $c = $gw->cardDetails($p->stripe_payment_id);
+            if ($c && ($c['last4'] ?? null)) {
+                $p->forceFill(['card_brand' => mb_substr((string) ($c['brand'] ?? ''), 0, 20) ?: null, 'card_last4' => mb_substr((string) $c['last4'], 0, 4)])->saveQuietly();
+            }
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
     /** 결제 수단·결제 시각·결제 참조 번호(일부만) */
     public static function paymentInfo(Invoice $invoice): array
     {
         $d = is_array($invoice->billing_details ?? null) ? $invoice->billing_details : [];
         $p = $invoice->payment_id ? Payment::find($invoice->payment_id) : null;
+        if (empty($d['card_last4']) && $p) { self::ensureCardDetails($p); $p = $p->fresh() ?: $p; }
         $brand = $d['card_brand'] ?? ($p->card_brand ?? null);
         $last4 = $d['card_last4'] ?? ($p->card_last4 ?? null);
-        $method = $last4 ? (strtoupper((string) ($brand ?: 'CARD')) . ' •••• ' . $last4) : 'Credit / Debit card';
-        $paidAt = $p ? ($p->captured_at ?: $p->updated_at) : null;
+        $method = $last4 ? (self::brandName($brand) . ' •••• ' . $last4) : 'Credit / Debit card';
+        $paid = $p && in_array($p->status, self::PAID, true);
+        $paidAt = $paid ? ($p->captured_at ?: $p->updated_at) : null;
         $ref = $p && $p->stripe_payment_id ? '…' . substr((string) $p->stripe_payment_id, -8) : '';
         return [
             'method' => $method,
+            'card_brand' => $last4 ? self::brandName($brand) : '',
+            'card_last4' => (string) $last4,
             'paid_at' => $paidAt ? $paidAt->copy()->setTimezone(self::TZ)->format('M j, Y g:i A') . ' ET' : '',
             'ref' => $ref,
             'order_no' => $p ? '#' . $p->id : '',
         ];
+    }
+
+    /**
+     * 저장된 인보이스가 없는 결제(옛 결제·결제 대기·실패)도 같은 정식 양식으로 보여 주기 위한 "미리보기" 인보이스 — DB 에 저장하지 않는다.
+     * 결제가 끝난 건은 번호 'PAY-000026' 형태, 아직 안 끝난 건은 status='pending'(결제 대기)로 표시.
+     */
+    public static function previewForPayment(Payment $payment): Invoice
+    {
+        $user = User::find($payment->user_id);
+        $cents = (int) round(((float) $payment->amount) * 100);
+        $paid = in_array($payment->status, self::PAID, true);
+        $a = $user ? $user->getAttributes() : [];
+        $inv = new Invoice([
+            'payment_id' => $payment->id,
+            'user_id' => $payment->user_id,
+            'status' => $paid ? Invoice::STATUS_ISSUED : 'pending',
+            'kind' => $payment->kind ?: Payment::KIND_POINTS,
+            'currency' => strtoupper((string) ($payment->currency ?: 'USD')),
+            'subtotal_cents' => $cents, 'discount_cents' => 0, 'total_cents' => $cents,
+            'line_items' => self::lineItemsFor($payment, $cents),
+            'billing_name' => $user ? mb_substr((string) ($a['name'] ?? '') ?: $user->display_name, 0, 100) : null,
+            'billing_email' => $user ? mb_substr((string) $user->email, 0, 190) : null,
+            'billing_details' => array_filter([
+                'real_name' => $a['real_name'] ?? null, 'phone' => $a['phone'] ?? null, 'address' => $a['address'] ?? null,
+                'city' => $a['city'] ?? null, 'state' => $a['state'] ?? null, 'zipcode' => $a['zipcode'] ?? null,
+            ], fn ($v) => $v !== null && $v !== ''),
+            'issued_at' => $payment->captured_at ?: $payment->created_at,
+        ]);
+        $inv->invoice_no = 'PAY-' . str_pad((string) $payment->id, 6, '0', STR_PAD_LEFT);
+        return $inv;
     }
 
     /** 메일은 기존 간단한 양식, 웹 보기·인쇄는 레터 사이즈(8.5×11in) 정식 인보이스 */

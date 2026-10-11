@@ -70,6 +70,21 @@ class StripeGateway
         ];
     }
 
+    /**
+     * 결제에 쓴 카드의 종류·끝 4자리·종류(신용/체크) — 인보이스에 찍는다. 전체 번호는 Stripe 도 주지 않는다.
+     * 결제가 안 끝났거나 카드 정보가 없으면 null.
+     * @return array{brand:?string,last4:?string,funding:?string}|null
+     */
+    public function cardDetails(string $paymentIntentId): ?array
+    {
+        $i = $this->client()->paymentIntents->retrieve($paymentIntentId, ['expand' => ['latest_charge']]);
+        $c = $i->latest_charge ?? null;
+        if (!$c || is_string($c)) return null;
+        $card = $c->payment_method_details->card ?? null;
+        if (!$card) return null;
+        return ['brand' => $card->brand ?? null, 'last4' => $card->last4 ?? null, 'funding' => $card->funding ?? null];
+    }
+
     /** 보류 해제 (청구 전 취소) */
     public function cancel(string $id): void
     {

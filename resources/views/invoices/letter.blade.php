@@ -29,6 +29,8 @@
   .meta td.v { font-weight: 700; color: #111827; }
   .stamp { position: absolute; top: 2.15in; right: 0.65in; transform: rotate(-12deg); border: 3px solid #059669; color: #059669; font-weight: 800; font-size: 20pt; letter-spacing: 4px; padding: 2px 14px; border-radius: 6px; opacity: .85; }
   .stamp.void { border-color: #dc2626; color: #dc2626; }
+  .stamp.pending { border-color: #d97706; color: #d97706; font-size: 15pt; }
+  .cardline { display: inline-block; padding: 2px 10px; border: 1px solid #d1d5db; border-radius: 6px; background: #f9fafb; font-weight: 700; letter-spacing: .5px; }
   .parties { display: flex; gap: 28px; margin-top: 22px; }
   .party { flex: 1; }
   .label { font-size: 8.5pt; font-weight: 700; letter-spacing: 1.2px; color: #6b7280; text-transform: uppercase; margin-bottom: 4px; }
@@ -93,7 +95,7 @@
       <h1>INVOICE</h1>
       <div class="kr">인보이스 · {{ $kindLabel[1] }}</div>
       <table class="meta">
-        <tr><td class="k">Invoice No. 인보이스 번호</td><td class="v">{{ $inv->invoice_no }}</td></tr>
+        <tr><td class="k">{{ str_starts_with($inv->invoice_no, 'PAY-') ? 'Order ref. 주문 참조' : 'Invoice No. 인보이스 번호' }}</td><td class="v">{{ $inv->invoice_no }}</td></tr>
         <tr><td class="k">Issue date 발행일</td><td class="v">{{ $issuedText }}</td></tr>
         @if($payInfo['order_no'])<tr><td class="k">Order 주문 번호</td><td class="v">{{ $payInfo['order_no'] }}</td></tr>@endif
         <tr><td class="k">Currency 통화</td><td class="v">{{ $cur }}</td></tr>
@@ -101,8 +103,11 @@
     </div>
   </div>
 
+  @php($isPending = $inv->status === 'pending')
   @if($inv->status === 'void')
     <div class="stamp void">VOID</div>
+  @elseif($isPending)
+    <div class="stamp pending">UNPAID · 결제 대기</div>
   @else
     <div class="stamp">PAID</div>
   @endif
@@ -152,8 +157,8 @@
     <tr><td>Sales tax 판매세</td><td class="r">{{ \App\Support\Invoicing::money(0, $cur) }}</td></tr>
     <tr class="total"><td>Total 합계</td><td class="r">{{ \App\Support\Invoicing::money((int) $inv->total_cents, $cur) }}</td></tr>
     @if($inv->status !== 'void')
-    <tr><td>Amount paid 결제 금액</td><td class="r">{{ \App\Support\Invoicing::money((int) $inv->total_cents, $cur) }}</td></tr>
-    <tr class="due"><td>Balance due 남은 금액</td><td class="r">{{ \App\Support\Invoicing::money(0, $cur) }}</td></tr>
+    <tr><td>Amount paid 결제 금액</td><td class="r">{{ \App\Support\Invoicing::money($isPending ? 0 : (int) $inv->total_cents, $cur) }}</td></tr>
+    <tr class="due"><td>Balance due 남은 금액</td><td class="r">{{ \App\Support\Invoicing::money($isPending ? (int) $inv->total_cents : 0, $cur) }}</td></tr>
     @endif
   </table>
 
@@ -161,10 +166,14 @@
     <div>
       <div class="label">Payment · 결제 정보</div>
       <table>
-        <tr><td class="k">Method 결제 수단</td><td>{{ $payInfo['method'] }}</td></tr>
+        <tr><td class="k">Method 결제 수단</td><td>{{ $isPending ? 'Card 카드 (결제 전)' : 'Card 카드' }}</td></tr>
+        @if(!$isPending)
+        <tr><td class="k">Card brand 카드 종류</td><td>{{ $payInfo['card_brand'] ?: '—' }}</td></tr>
+        <tr><td class="k">Card number 카드 번호</td><td>@if($payInfo['card_last4'])<span class="cardline">•••• •••• •••• {{ $payInfo['card_last4'] }}</span> <span style="color:#6b7280;">(끝 4자리)</span>@else — @endif</td></tr>
+        @endif
         @if($payInfo['paid_at'])<tr><td class="k">Paid on 결제일</td><td>{{ $payInfo['paid_at'] }}</td></tr>@endif
         @if($payInfo['ref'])<tr><td class="k">Reference 결제 참조</td><td>{{ $payInfo['ref'] }}</td></tr>@endif
-        <tr><td class="k">Status 상태</td><td>{{ $inv->status === 'void' ? 'Void 무효' : 'Paid in full 결제 완료' }}</td></tr>
+        <tr><td class="k">Status 상태</td><td>{{ $inv->status === 'void' ? 'Void 무효' : ($isPending ? 'Pending — not yet paid 결제 대기(아직 결제되지 않음)' : 'Paid in full 결제 완료') }}</td></tr>
       </table>
     </div>
     <div>

@@ -501,6 +501,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/payments/create-intent', [PaymentController::class, 'createIntent']);
     Route::post('/payments/confirm', [PaymentController::class, 'confirm']);
     Route::get('/payments/history', [PaymentController::class, 'history']);
+    // 결제 한 건의 정식 인보이스(US Letter) — 저장된 인보이스가 없는 옛 결제·결제 대기도 같은 양식. 내 결제만
+    Route::get('/payments/{id}/invoice', [\App\Http\Controllers\API\PaymentInvoiceController::class, 'mine'])->whereNumber('id')->middleware('throttle:30,1');
     // 내 인보이스(영수증) 보기 — 내 것만, 남의 번호는 404
     Route::get('/invoices/{invoiceNo}', [\App\Http\Controllers\API\InvoiceController::class, 'show'])->middleware('throttle:60,1');
 
@@ -758,6 +760,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/invoices/{id}/html', [\App\Http\Controllers\API\AdminInvoiceController::class, 'html'])->whereNumber('id');
     Route::post('/invoices/{id}/resend', [\App\Http\Controllers\API\AdminInvoiceController::class, 'resend'])->whereNumber('id')->middleware('throttle:20,1');
     Route::post('/invoices/{id}/void', [\App\Http\Controllers\API\AdminInvoiceController::class, 'void'])->whereNumber('id')->middleware(['reauth', 'throttle:20,1']);
+    // 결제 한 건의 정식 인보이스(US Letter) — 어떤 결제든(옛 결제·결제 대기 포함). 관리자 이상
+    Route::get('/payments/{id}/invoice', [\App\Http\Controllers\API\PaymentInvoiceController::class, 'admin'])->whereNumber('id')->middleware('throttle:60,1');
     Route::get('/claims', [AdminController::class, 'claims']);
     Route::post('/claims/{id}/approve', [AdminController::class, 'approveClaim']);
     Route::post('/claims/{id}/reject', [AdminController::class, 'rejectClaim']);
