@@ -67,11 +67,12 @@ class AdminRewardController extends Controller
      */
     public function recipeRewardCandidates()
     {
+        // 찜 5개 이상 또는 댓글 5개 이상 — 전체를 읽어 PHP 로 거르지 않고 DB 에서 바로 거른다 (할 일 #134)
         $items = RecipePost::whereNull('reward_paid_at')
+            ->where(fn ($q) => $q->where('favorite_count', '>=', 5)->orHas('comments', '>=', 5))
             ->with('user:id,name,nickname,avatar')
             ->withCount('comments')
             ->get()
-            ->filter(fn ($r) => $r->favorite_count >= 5 || $r->comments_count >= 5)
             ->values();
 
         return response()->json(['success' => true, 'data' => $items]);
