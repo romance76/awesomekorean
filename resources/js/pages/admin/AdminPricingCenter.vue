@@ -1,6 +1,12 @@
 <template>
 <!-- ───────── 휴대폰 화면 ───────── -->
 <div v-if="isMobile" class="alv-m space-y-3" :class="dirtyCount ? 'pb-24' : 'pb-4'">
+  <div class=" bg-violet-50 border border-violet-200 rounded-xl p-3 text-[13px] text-ink-light leading-relaxed">
+    <b class="text-violet-700">결제 구분 (Kay 결정 2026-10-11)</b><br />
+    · <b>광고</b>(배너·텍스트·NEW 전면광고) = <b>카드(달러)만</b>. 광고 가격 숫자는 <b>센트</b>예요 (100 = $1.00, 8000 = $80.00).<br />
+    · <b>상위노출</b> = <b>포인트 또는 카드</b> 중 회원이 선택. 같은 숫자를 포인트(P) 또는 센트로 받아요 (50 = 50P 또는 $0.50). 카드는 환불되지 않아요.<br />
+    · <b>포인트</b>는 활동으로만 모으고 <b>팔지 않아요</b>(포인트 패키지 판매 중단). <b>Entry</b> 는 출석·리뷰·완료 인증 같은 성과 보상 — 셋은 서로 바꿀 수 없어요.
+  </div>
   <p v-if="!canEdit" class="bg-amber-50 border border-amber-200 text-amber-800 text-[14px] rounded-xl p-3">가격·포인트 설정은 관리자(admin) 이상만 바꿀 수 있어요. 지금은 보기만 가능해요.</p>
 
   <!-- 탭 -->
@@ -44,6 +50,7 @@
 
   <!-- 포인트 패키지 -->
   <template v-else-if="activeTab === 'packages'">
+    <p class="bg-red-50 border border-red-200 text-red-700 text-[13px] rounded-xl p-3 leading-relaxed"><b>지금은 포인트를 팔지 않아요</b>(서버 설정 point_sales_enabled = 0). 아래 패키지 값은 판매를 다시 열 때만 쓰여요.</p>
     <p class="text-[14px] text-ink-muted leading-relaxed">가격($), 기본 포인트, 보너스 포인트를 따로 입력해요. 화면 아래에서 <b>저장</b>을 누르면 바뀐 내용을 한 번 더 보여 드려요.</p>
     <div v-for="pkg in grouped.package || []" :key="pkg.key" class="bg-amber-50 border border-amber-200 rounded-2xl p-3.5">
       <div class="flex items-center justify-between gap-2">
@@ -69,22 +76,22 @@
   <!-- 광고 가격 -->
   <template v-else-if="activeTab === 'ads'">
     <div class="bg-white border border-gray-100 rounded-2xl p-3.5 space-y-3">
-      <div class="text-[16px] font-bold text-ink">등급별 최소 월 입찰가 (P)</div>
+      <div class="text-[16px] font-bold text-ink">등급별 최소 월 입찰가 (카드 · 단위 센트, 100 = $1.00)</div>
       <div class="text-[13px] font-bold text-ink-light">좌측 사이드바</div>
       <div class="grid grid-cols-3 gap-2">
-        <label class="block"><span class="block text-[12px] font-bold text-yellow-700 mb-1">🥇 프리미엄</span><input v-model.number="minPrices.left_premium" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-yellow-200 bg-yellow-50 px-2 text-center tabular-nums" /></label>
-        <label class="block"><span class="block text-[12px] font-bold text-blue-700 mb-1">🥈 스탠다드</span><input v-model.number="minPrices.left_standard" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-blue-200 bg-blue-50 px-2 text-center tabular-nums" /></label>
-        <label class="block"><span class="block text-[12px] font-bold text-green-700 mb-1">🥉 이코노미</span><input v-model.number="minPrices.left_economy" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-green-200 bg-green-50 px-2 text-center tabular-nums" /></label>
+        <label class="block"><span class="block text-[12px] font-bold text-yellow-700 mb-1">🥇 프리미엄</span><input v-model.number="minPrices.left_premium" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-yellow-200 bg-yellow-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.left_premium) }}</span></label>
+        <label class="block"><span class="block text-[12px] font-bold text-blue-700 mb-1">🥈 스탠다드</span><input v-model.number="minPrices.left_standard" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-blue-200 bg-blue-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.left_standard) }}</span></label>
+        <label class="block"><span class="block text-[12px] font-bold text-green-700 mb-1">🥉 이코노미</span><input v-model.number="minPrices.left_economy" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-green-200 bg-green-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.left_economy) }}</span></label>
       </div>
       <div class="text-[13px] font-bold text-ink-light">우측 사이드바</div>
       <div class="grid grid-cols-2 gap-2">
-        <label class="block"><span class="block text-[12px] font-bold text-yellow-700 mb-1">🥇 프리미엄</span><input v-model.number="minPrices.right_premium" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-yellow-200 bg-yellow-50 px-2 text-center tabular-nums" /></label>
-        <label class="block"><span class="block text-[12px] font-bold text-green-700 mb-1">🥉 이코노미</span><input v-model.number="minPrices.right_economy" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-green-200 bg-green-50 px-2 text-center tabular-nums" /></label>
+        <label class="block"><span class="block text-[12px] font-bold text-yellow-700 mb-1">🥇 프리미엄</span><input v-model.number="minPrices.right_premium" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-yellow-200 bg-yellow-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.right_premium) }}</span></label>
+        <label class="block"><span class="block text-[12px] font-bold text-green-700 mb-1">🥉 이코노미</span><input v-model.number="minPrices.right_economy" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-green-200 bg-green-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.right_economy) }}</span></label>
       </div>
       <div class="text-[13px] font-bold text-ink-light">지역별 추가금</div>
       <div class="grid grid-cols-2 gap-2">
-        <label class="block"><span class="block text-[12px] font-bold text-blue-700 mb-1">주 (카운티 대비 +)</span><input v-model.number="geoMarkup.state" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-blue-200 bg-blue-50 px-2 text-center tabular-nums" /></label>
-        <label class="block"><span class="block text-[12px] font-bold text-amber-700 mb-1">전국 (주 대비 +)</span><input v-model.number="geoMarkup.national" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-amber-200 bg-amber-50 px-2 text-center tabular-nums" /></label>
+        <label class="block"><span class="block text-[12px] font-bold text-blue-700 mb-1">주 (카운티 대비 +)</span><input v-model.number="geoMarkup.state" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-blue-200 bg-blue-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(geoMarkup.state) }}</span></label>
+        <label class="block"><span class="block text-[12px] font-bold text-amber-700 mb-1">전국 (주 대비 +)</span><input v-model.number="geoMarkup.national" :disabled="!canEdit" type="number" inputmode="numeric" class="w-full min-h-[48px] rounded-xl border border-amber-200 bg-amber-50 px-2 text-center tabular-nums" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(geoMarkup.national) }}</span></label>
       </div>
       <button @click="mSaveAdPrices" :disabled="savingAds || !canEdit" class="w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-bold disabled:opacity-40">{{ savingAds ? '저장 중...' : '가격 저장' }}</button>
     </div>
@@ -192,7 +199,13 @@
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="20" /></span>
     가격/할인 센터
   </h1>
-  <p class="text-xs text-ink-muted mb-4">포인트 설정, 구매 패키지, 광고 슬롯 가격, 할인 이벤트를 한 곳에서 관리</p>
+  <p class="text-xs text-ink-muted mb-3">포인트 설정, 구매 패키지, 광고 슬롯 가격, 할인 이벤트를 한 곳에서 관리</p>
+  <div class="mb-4 bg-violet-50 border border-violet-200 rounded-xl p-3 text-[13px] text-ink-light leading-relaxed">
+    <b class="text-violet-700">결제 구분 (Kay 결정 2026-10-11)</b><br />
+    · <b>광고</b>(배너·텍스트·NEW 전면광고) = <b>카드(달러)만</b>. 광고 가격 숫자는 <b>센트</b>예요 (100 = $1.00, 8000 = $80.00).<br />
+    · <b>상위노출</b> = <b>포인트 또는 카드</b> 중 회원이 선택. 같은 숫자를 포인트(P) 또는 센트로 받아요 (50 = 50P 또는 $0.50). 카드는 환불되지 않아요.<br />
+    · <b>포인트</b>는 활동으로만 모으고 <b>팔지 않아요</b>(포인트 패키지 판매 중단). <b>Entry</b> 는 출석·리뷰·완료 인증 같은 성과 보상 — 셋은 서로 바꿀 수 없어요.
+  </div>
 
   <!-- 탭 네비게이션 -->
   <div class="flex gap-1 mb-5 bg-gray-100 rounded-xl p-1 overflow-x-auto">
@@ -232,6 +245,7 @@
 
   <!-- ═══ 탭 2: 포인트 패키지 ═══ -->
   <div v-else-if="activeTab === 'packages'">
+    <div class="mb-3"><p class="bg-red-50 border border-red-200 text-red-700 text-[13px] rounded-xl p-3 leading-relaxed"><b>지금은 포인트를 팔지 않아요</b>(서버 설정 point_sales_enabled = 0). 아래 패키지 값은 판매를 다시 열 때만 쓰여요.</p></div>
     <div class="card p-4 mb-4">
       <div class="text-xs text-ink-muted mb-3">형식: <code class="bg-gray-100 px-1 rounded">가격($)|포인트|보너스</code> (예: <code class="bg-gray-100 px-1 rounded">4.99|500|0</code>)</div>
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
@@ -259,22 +273,22 @@
     <!-- 등급별 최소 입찰가 -->
     <div class="card p-4">
       <div class="font-bold text-sm text-ink mb-3 flex items-center gap-2">
-        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="14" /></span>등급별 최소 월 입찰가 (P)
+        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="14" /></span>등급별 최소 월 입찰가 (카드 · 단위 센트, 100 = $1.00)
       </div>
       <div class="mb-3">
         <div class="text-xs font-bold text-ink-light mb-1 flex items-center gap-1"><AppIcon name="map-pin" :size="12" /> 좌측 사이드바</div>
         <div class="grid grid-cols-3 gap-2">
           <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-2">
             <label class="text-xs font-bold text-yellow-700 block mb-1">🥇 프리미엄</label>
-            <input type="number" v-model.number="minPrices.left_premium" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="minPrices.left_premium" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.left_premium) }}</span>
           </div>
           <div class="bg-blue-50 border border-blue-200 rounded-xl p-2">
             <label class="text-xs font-bold text-blue-700 block mb-1">🥈 스탠다드</label>
-            <input type="number" v-model.number="minPrices.left_standard" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="minPrices.left_standard" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.left_standard) }}</span>
           </div>
           <div class="bg-green-50 border border-green-200 rounded-xl p-2">
             <label class="text-xs font-bold text-green-700 block mb-1">🥉 이코노미</label>
-            <input type="number" v-model.number="minPrices.left_economy" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="minPrices.left_economy" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.left_economy) }}</span>
           </div>
         </div>
       </div>
@@ -283,11 +297,11 @@
         <div class="grid grid-cols-2 gap-2">
           <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-2">
             <label class="text-xs font-bold text-yellow-700 block mb-1">🥇 프리미엄</label>
-            <input type="number" v-model.number="minPrices.right_premium" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="minPrices.right_premium" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.right_premium) }}</span>
           </div>
           <div class="bg-green-50 border border-green-200 rounded-xl p-2">
             <label class="text-xs font-bold text-green-700 block mb-1">🥉 이코노미</label>
-            <input type="number" v-model.number="minPrices.right_economy" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="minPrices.right_economy" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(minPrices.right_economy) }}</span>
           </div>
         </div>
       </div>
@@ -296,11 +310,11 @@
         <div class="grid grid-cols-2 gap-2">
           <div class="bg-blue-50 border border-blue-200 rounded-xl p-2">
             <label class="text-xs font-bold text-blue-700 block mb-1">주 (카운티 대비 +)</label>
-            <input type="number" v-model.number="geoMarkup.state" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="geoMarkup.state" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(geoMarkup.state) }}</span>
           </div>
           <div class="bg-amber-50 border border-amber-200 rounded-xl p-2">
             <label class="text-xs font-bold text-amber-700 block mb-1">전국 (주 대비 +)</label>
-            <input type="number" v-model.number="geoMarkup.national" class="input-soft !px-1 !py-1 text-xs text-center" />
+            <input type="number" v-model.number="geoMarkup.national" class="input-soft !px-1 !py-1 text-xs text-center" /><span class="block text-[11px] text-ink-muted text-center mt-0.5">= {{ usd(geoMarkup.national) }}</span>
           </div>
         </div>
       </div>
@@ -460,6 +474,8 @@ const adminIsMobile = inject('adminIsMobile', ref(false))
 const isMobile = computed(() => !!adminIsMobile.value)
 // 가격/포인트 저장은 서버에서 admin/super_admin 만 허용
 const canEdit = computed(() => ['admin', 'super_admin'].includes(auth.user?.role))
+// 광고 가격 숫자 = 센트 → 달러 표시
+const usd = (c) => '$' + (Number(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 // ─── 공용 상태 ───────────────────────────────────────────────
 const loading = ref(true)

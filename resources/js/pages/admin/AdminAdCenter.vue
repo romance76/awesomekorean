@@ -66,7 +66,7 @@
             </template>
             <template v-else>
               <span class="block text-[15px] text-ink-muted">비어있음</span>
-              <span class="block text-[13px] text-ink-muted">{{ tier.size }} · <b class="text-amber-600">{{ tier.price.toLocaleString() }}P/월</b></span>
+              <span class="block text-[13px] text-ink-muted">{{ tier.size }} · <b class="text-amber-600">{{ usd(tier.price) }}/월</b></span>
             </template>
           </span>
         </button>
@@ -88,7 +88,7 @@
         <!-- 거절 사유 -->
         <div v-else-if="mode === 'reject'" class="space-y-3">
           <div class="text-[17px] font-bold text-ink">광고 거절</div>
-          <div class="text-[14px] text-ink-muted break-words">‘{{ adDetail.ad.title }}’ — 거절하면 광고주에게 <b class="text-ink">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b>가 환불되고 사유가 전달돼요.</div>
+          <div class="text-[14px] text-ink-muted break-words">‘{{ adDetail.ad.title }}’ — <template v-if="adDetail.ad.payment_method === 'card'">거절하면 카드는 <b class="text-ink">청구 없이 보류만 풀리고</b> 사유가 전달돼요.</template><template v-else>거절하면 광고주에게 <b class="text-ink">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b>가 환불되고 사유가 전달돼요.</template></div>
           <div class="flex flex-wrap gap-2">
             <button v-for="r in rejectPresets" :key="r" type="button" @click="rejectReason = r"
               class="min-h-[44px] px-3 rounded-full border text-[14px]" :class="rejectReason === r ? 'bg-ink text-white border-ink font-bold' : 'bg-white text-ink border-gray-200'">{{ r }}</button>
@@ -101,7 +101,7 @@
         <!-- 삭제 확인 -->
         <div v-else-if="mode === 'delete'" class="space-y-3">
           <div class="text-[17px] font-bold text-ink">광고를 삭제할까요?</div>
-          <p class="text-[15px] text-ink-light leading-relaxed break-words">‘{{ adDetail.ad.title }}’<template v-if="['pending','active','paused'].includes(adDetail.ad.status)"><br />광고주에게 <b class="text-ink">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b>가 환불돼요.</template><template v-else><br />이미 {{ statusKo(adDetail.ad.status) }} 상태라 환불은 없어요.</template></p>
+          <p class="text-[15px] text-ink-light leading-relaxed break-words">‘{{ adDetail.ad.title }}’<template v-if="adDetail.ad.payment_method === 'card'"><br />카드 결제 광고예요. 승인 전이면 보류만 풀리고, 이미 청구된 광고는 자동 환불되지 않아요(환불 정책 보류).</template><template v-else-if="['pending','active','paused'].includes(adDetail.ad.status)"><br />광고주에게 <b class="text-ink">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b>가 환불돼요.</template><template v-else><br />이미 {{ statusKo(adDetail.ad.status) }} 상태라 환불은 없어요.</template></p>
           <button @click="doDelete" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '삭제하기' }}</button>
           <button @click="mode = ''" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">돌아가기</button>
         </div>
@@ -124,8 +124,8 @@
             <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">위치 / 슬롯</div><b class="text-ink">{{ adDetail.ad.position }} / S{{ adDetail.ad.slot_number }}</b></div>
             <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">지역</div><b class="text-ink">{{ adDetail.ad.geo_scope }}{{ adDetail.ad.geo_value ? ' · ' + adDetail.ad.geo_value : '' }}</b></div>
             <div class="border border-gray-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">기간</div><b class="text-ink text-[13px]">{{ day(adDetail.ad.start_date) }} ~ {{ day(adDetail.ad.end_date) }}</b></div>
-            <div class="bg-purple-50 border border-purple-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">비용 (총)</div><b class="text-purple-700 tabular-nums">{{ Number(adDetail.ad.total_cost || 0).toLocaleString() }}P</b></div>
-            <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">입찰가 (월)</div><b class="text-blue-700 tabular-nums">{{ Number(adDetail.ad.bid_amount || 0).toLocaleString() }}P</b></div>
+            <div class="bg-purple-50 border border-purple-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">비용 (총)</div><b class="text-purple-700 tabular-nums">{{ amt(adDetail.ad, 'total') }}</b></div>
+            <div class="bg-blue-50 border border-blue-100 rounded-xl p-2.5"><div class="text-[12px] text-ink-muted">입찰가 (월)</div><b class="text-blue-700 tabular-nums">{{ amt(adDetail.ad, 'bid') }}</b></div>
           </div>
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-blue-50 rounded-xl p-2.5 text-center"><div class="text-[12px] text-ink-muted">노출</div><b class="text-blue-700 tabular-nums">{{ Number(adDetail.ad.impressions || 0).toLocaleString() }}</b></div>
@@ -147,7 +147,7 @@
             <div v-for="o in adDetail.other_ads" :key="o.id" class="flex items-center gap-2 text-[13px] border-b border-gray-50 last:border-0 py-2">
               <span class="min-w-0 flex-1 truncate text-ink-light">{{ o.title }}</span>
               <span class="shrink-0 px-2 py-0.5 rounded-full font-bold text-[12px]" :class="statusBadge(o.status)">{{ statusKo(o.status) }}</span>
-              <span class="shrink-0 font-bold text-ink tabular-nums">{{ Number(o.total_cost || 0).toLocaleString() }}P</span>
+              <span class="shrink-0 font-bold text-ink tabular-nums">{{ amt(o, 'total') }}</span>
             </div>
           </div>
           <button @click="closeSheet" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">닫기</button>
@@ -304,7 +304,7 @@
               <div v-else class="text-ink-faint text-[11px] py-4">
                 <AppIcon name="plus" :size="14" class="mx-auto mb-0.5" /> 비어있음<br>
                 <span class="text-ink-muted">{{ tier.size }}</span><br>
-                <span class="text-amber-600 font-bold">{{ tier.price.toLocaleString() }}P/월</span>
+                <span class="text-amber-600 font-bold">{{ usd(tier.price) }}/월</span>
               </div>
             </div>
           </div>
@@ -343,7 +343,7 @@
               <div v-else class="text-ink-faint text-[11px] py-6">
                 <AppIcon name="plus" :size="14" class="mx-auto mb-0.5" /> 비어있음<br>
                 <span class="text-ink-muted">{{ tier.size }}</span><br>
-                <span class="text-amber-600 font-bold">{{ tier.price.toLocaleString() }}P/월</span>
+                <span class="text-amber-600 font-bold">{{ usd(tier.price) }}/월</span>
               </div>
             </div>
           </div>
@@ -410,11 +410,11 @@
           </div>
           <div class="bg-purple-50 border border-purple-200 rounded-lg p-2">
             <div class="text-ink-muted">비용 (총)</div>
-            <div class="font-black text-purple-700">{{ Number(adDetail.ad.total_cost||0).toLocaleString() }}P</div>
+            <div class="font-black text-purple-700">{{ amt(adDetail.ad, 'total') }}</div>
           </div>
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-2">
             <div class="text-ink-muted">입찰가 (월)</div>
-            <div class="font-black text-blue-700">{{ Number(adDetail.ad.bid_amount||0).toLocaleString() }}P</div>
+            <div class="font-black text-blue-700">{{ amt(adDetail.ad, 'bid') }}</div>
           </div>
         </div>
 
@@ -451,7 +451,7 @@
               <span class="truncate flex-1 text-ink-light">{{ o.title }}</span>
               <span class="text-ink-muted">{{ o.page }}/{{ o.position }}</span>
               <span class="w-20 text-right" :class="statusBadge(o.status).split(' ')[1]">{{ o.status }}</span>
-              <span class="w-24 text-right font-bold text-ink">{{ Number(o.total_cost||0).toLocaleString() }}P</span>
+              <span class="w-24 text-right font-bold text-ink">{{ amt(o, 'total') }}</span>
             </div>
           </div>
         </div>
@@ -463,6 +463,12 @@
 </template>
 
 <script setup>
+// 금액 표시 (Kay 결정 2026-10-11): 광고는 카드(달러) — 숫자는 센트(100 = $1.00). 예전 포인트 신청 광고만 P 로 표시
+const usd = (c) => '$' + (Number(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const amt = (ad, which = 'total') => {
+  const v = Number((which === 'bid' ? ad?.bid_amount : (ad?.total_cost ?? ad?.bid_amount)) || 0)
+  return ad?.payment_method === 'card' ? usd(v) : v.toLocaleString() + 'P'
+}
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
@@ -579,7 +585,7 @@ async function pauseAd() {
   selectedAd.value = null; loadSlotMap(); loadOverview()
 }
 async function deleteAd() {
-  if (!confirm('삭제? (활성 광고는 포인트 환불됨)')) return
+  if (!confirm('삭제할까요? (예전 포인트 광고는 포인트 환불, 카드 광고는 승인 전이면 보류 해제·청구된 건은 환불 없음)')) return
   await axios.delete(`/api/admin/banners/${adDetail.value.ad.id}`)
   selectedAd.value = null; loadSlotMap(); loadOverview()
 }

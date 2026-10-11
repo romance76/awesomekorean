@@ -223,6 +223,15 @@ class PaymentController extends Controller
         // 내 인보이스 번호를 결제 행에 붙여 "인보이스 보기" 링크를 만들 수 있게 (인보이스 표가 없으면 건너뜀)
         \App\Support\Invoicing::attachInvoiceNos($payments->getCollection());
 
-        return response()->json(['success' => true, 'data' => $payments]);
+        // 마이페이지 "내 결제(카드)" 요약 — 매출과 같은 기준(환불 뺀 실제 결제액), 카드 보류 중(승인 대기) 금액은 따로
+        $uid = auth()->id();
+        $net = fn ($q) => (float) $q->selectRaw('COALESCE(SUM(' . \App\Support\Revenue::NET_SQL . '),0) s')->value('s');
+        $summary = [
+            'paid_total' => round($net(Payment::where('user_id', $uid)), 2),
+            'paid_month' => round($net(Payment::where('user_id', $uid)->where('created_at', '>=', \App\Support\Revenue::monthStartUtc())), 2),
+            'held' => round((float) Payment::where('user_id', $uid)->where('status', 'authorized')->sum('amount'), 2),
+        ];
+
+        return response()->json(['success' => true, 'data' => $payments, 'summary' => $summary]);
     }
 }

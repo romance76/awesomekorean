@@ -356,6 +356,8 @@
 import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import { usePromoCheckout } from '../../composables/usePromoCheckout'
+const { payPromotionByCard } = usePromoCheckout()
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
@@ -644,10 +646,16 @@ async function submit() {
 
     if (!isEdit.value && jobPromotion.tier !== 'none' && createdId) {
       try {
-        await axios.post(`/api/jobs/${createdId}/promote`, {
-          tier: jobPromotion.tier,
-          days: jobPromotion.days,
-        })
+        if (jobPromotion.pay_with === 'card') {
+          // 카드: 결제 창이 뜨고 확인하면 바로 청구·적용 (취소하면 글만 등록되고 청구 없음)
+          const r = await payPromotionByCard({ resource: 'jobs', id: createdId, tier: jobPromotion.tier, days: jobPromotion.days })
+          if (!r.ok && r.message) alert(r.message)
+        } else {
+          await axios.post(`/api/jobs/${createdId}/promote`, {
+            tier: jobPromotion.tier,
+            days: jobPromotion.days,
+          })
+        }
       } catch (promoErr) {
         console.warn('Promotion failed', promoErr)
         if (promoErr.response?.data?.message) error.value = promoErr.response.data.message

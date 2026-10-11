@@ -25,7 +25,7 @@
         class="p-3 rounded-xl border-2 text-left transition"
         :class="tier === 'sponsored' ? 'border-violet-400 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'">
         <div class="font-bold text-sm text-ink">스폰서 (Sponsored)</div>
-        <div class="text-xs text-violet-600 font-semibold">하루 {{ prices.sponsored }}P</div>
+        <div class="text-xs text-violet-600 font-semibold">하루 {{ priceText(prices.sponsored) }}</div>
         <div class="text-[11px] text-ink-muted mt-1">색상 강조만 (위치 부스트 없음)</div>
       </button>
 
@@ -42,7 +42,7 @@
           주(State) 상위노출
         </div>
         <div class="text-xs font-semibold" :class="statePlusFull ? 'text-red-600' : 'text-violet-600'">
-          하루 {{ prices.state_plus }}P
+          하루 {{ priceText(prices.state_plus) }}
         </div>
 
         <!-- 슬롯 상태 메시지 (카드 안) -->
@@ -73,7 +73,7 @@
           전국구 (National)
         </div>
         <div class="text-xs font-semibold" :class="nationalFull ? 'text-red-600' : 'text-violet-600'">
-          하루 {{ prices.national }}P
+          하루 {{ priceText(prices.national) }}
         </div>
 
         <div v-if="!category" class="text-[11px] text-amber-700 mt-1.5 bg-amber-50 rounded-lg p-1.5 flex items-center gap-1">
@@ -104,6 +104,16 @@
         </div>
       </div>
 
+      <!-- 결제 방법 (Kay 결정 2026-10-11): 포인트 또는 카드. 카드는 등록 직후 카드 창이 뜨고 바로 청구, 환불 없음 -->
+      <div>
+        <label class="input-label">결제 방법</label>
+        <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl max-w-xs" role="group" aria-label="결제 방법">
+          <button type="button" @click="payWith = 'points'" class="min-h-[40px] rounded-lg text-sm font-bold" :class="payWith === 'points' ? 'bg-white text-violet-700 shadow-sm' : 'text-ink-muted'">포인트</button>
+          <button type="button" @click="payWith = 'card'" class="min-h-[40px] rounded-lg text-sm font-bold" :class="payWith === 'card' ? 'bg-white text-violet-700 shadow-sm' : 'text-ink-muted'">카드 결제</button>
+        </div>
+        <p v-if="payWith === 'card'" class="text-[11px] text-ink-muted mt-1.5 leading-relaxed">등록을 누르면 카드 결제 창이 떠요. 카드를 확인하면 바로 청구되고 상위노출이 적용돼요. <b>카드 결제는 환불되지 않아요.</b></p>
+      </div>
+
       <div>
         <label class="input-label">노출 기간 (일)</label>
         <input v-model.number="daysLocal" type="number" min="1" max="30"
@@ -112,7 +122,7 @@
 
       <div class="bg-violet-50 rounded-xl p-3 flex items-center justify-between">
         <span class="text-sm font-semibold text-violet-700">총 비용</span>
-        <span class="text-lg font-black text-violet-700">{{ totalCost.toLocaleString() }} P</span>
+        <span class="text-lg font-black text-violet-700">{{ priceText(totalCost, true) }}</span>
       </div>
     </div>
   </div>
@@ -158,6 +168,16 @@ const daysLocal = computed({
     try { emit('update:modelValue', { ...(props.modelValue || {}), days: v }) } catch {}
   },
 })
+
+const payWith = computed({
+  get: () => props.modelValue?.pay_with ?? 'points',
+  set: (v) => {
+    if (props.modelValue && typeof props.modelValue === 'object') props.modelValue.pay_with = v
+    try { emit('update:modelValue', { ...(props.modelValue || {}), pay_with: v }) } catch {}
+  },
+})
+// 가격 숫자 = 포인트이자 센트(100 = $1.00). 카드는 Stripe 최소 $0.50
+const priceText = (p, isTotal = false) => payWith.value === 'card' ? ('$' + ((isTotal ? Math.max(50, Number(p || 0)) : Number(p || 0)) / 100).toFixed(2)) : (Number(p || 0).toLocaleString() + 'P')
 
 const prices = reactive({ national: 100, state_plus: 50, sponsored: 20 })
 const maxSlots = reactive({ national: 5, state_plus: 5 })

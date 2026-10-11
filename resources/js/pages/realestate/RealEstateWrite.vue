@@ -129,6 +129,8 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import { usePromoCheckout } from '../../composables/usePromoCheckout'
+const { payPromotionByCard } = usePromoCheckout()
 import PromotionSection from '../../components/PromotionSection.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
@@ -213,7 +215,14 @@ async function submit() {
       const { data } = await axios.post('/api/realestate', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       const createdId = data?.data?.id
       if (createdId && promotion.tier !== 'none') {
-        try { await axios.post(`/api/realestate/${createdId}/promote`, { tier: promotion.tier, days: promotion.days }) } catch {}
+        try {
+          if (promotion.pay_with === 'card') {
+            const r = await payPromotionByCard({ resource: 'realestate', id: createdId, tier: promotion.tier, days: promotion.days })
+            if (!r.ok && r.message) alert(r.message)
+          } else {
+            await axios.post(`/api/realestate/${createdId}/promote`, { tier: promotion.tier, days: promotion.days })
+          }
+        } catch (pe) { alert(pe?.response?.data?.message || '상위노출을 적용하지 못했어요. 글은 등록됐어요.') }
       }
       router.push(`/realestate/${createdId}`)
     } else {

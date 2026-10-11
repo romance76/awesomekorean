@@ -6,8 +6,8 @@
       내 대시보드
     </h1>
 
-    <!-- 포인트 / Entry 상태 카드 -->
-    <div class="grid grid-cols-2 gap-3 mb-5">
+    <!-- 포인트 / Entry / 카드 결제 — 서로 바꿀 수 없는 세 가지 (Kay 결정 2026-10-11) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
       <!-- 숫자가 길어도 카드 밖으로 잘리지 않게 자릿수에 따라 글자 크기를 줄인다 -->
       <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-4 sm:p-5 text-white shadow-card min-w-0 overflow-hidden">
         <div class="text-sm opacity-90">내 포인트</div>
@@ -17,6 +17,12 @@
         <div class="text-sm opacity-90 flex items-center gap-1"><AppIcon name="ticket" :size="14" />내 Entry</div>
         <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.user?.entries)">{{ (auth.user?.entries || 0).toLocaleString() }}</div>
       </div>
+      <!-- 내 카드 결제: 광고·상위노출 등에 카드로 낸 돈 (포인트·Entry 와 별개, 누르면 결제 내역·인보이스) -->
+      <button type="button" @click="switchTab('payments')" class="col-span-2 sm:col-span-1 text-left bg-white border-2 border-[#FC226B]/30 rounded-2xl p-4 sm:p-5 shadow-card min-w-0 overflow-hidden hover:border-[#FC226B]/60 transition-colors">
+        <div class="text-sm text-ink-muted flex items-center gap-1"><AppIcon name="wallet" :size="14" />내 카드 결제</div>
+        <div class="font-black tabular-nums leading-tight whitespace-nowrap text-ink text-2xl">${{ money2(paySummary.paid_month) }}<span class="text-xs font-bold text-ink-muted ml-1">이번 달</span></div>
+        <div class="text-[11px] text-ink-muted mt-0.5">누적 ${{ money2(paySummary.paid_total) }}<template v-if="paySummary.held > 0"> · 승인 대기 ${{ money2(paySummary.held) }}</template> · 인보이스 보기 ›</div>
+      </button>
     </div>
 
     <!-- 탭: 스크롤 없이 1~2줄로 전부 노출 -->
@@ -1148,6 +1154,8 @@ import AdApplyEmbed from '../ads/AdApply.vue'
 import FlyerApply from '../new/FlyerApply.vue'
 import MyShoppingReviews from '../shopping/MyShoppingReviews.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
+import { usePromoCheckout, promoEndpoint } from '../../composables/usePromoCheckout'
+const { payPromotionByCard } = usePromoCheckout()
 import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import AvatarCropper from '../../components/AvatarCropper.vue'
@@ -1667,10 +1675,7 @@ async function submitResourcePromote() {
   resourcePromoSubmitting.value = true
   resourcePromoError.value = ''
   try {
-    const url = resourcePromoType.value === 'realestate'
-      ? `/api/realestate/${resourcePromoTarget.value.id}/promote`
-      : `/api/market/${resourcePromoTarget.value.id}/promote`
-    await axios.post(url, { tier: resourcePromotion.tier, days: resourcePromotion.days })
+    await doPromote(resourcePromoType.value === 'realestate' ? 'realestate' : 'market', resourcePromoTarget.value.id, resourcePromotion)
     if (resourcePromoType.value === 'market') await loadMyMarket()
     else await loadMyRealEstate()
     resourcePromoTarget.value = null
@@ -1811,7 +1816,10 @@ async function saveSchedule(w) {
 
 // ─── 결제 ───
 const payments = ref([])
-async function loadPayments() { try { const { data } = await axios.get('/api/payments/history'); payments.value = data.data?.data || data.data || [] } catch {} }
+async function loadPayments() { try { const { data } = await axios.get('/api/payments/history'); payments.value = data.data?.data || data.data || []; if (data.summary) Object.assign(paySummary, data.summary) } catch {} }
+// 위쪽 "내 카드 결제" 칸 — 처음 열 때 한 번 불러온다 (결제 탭을 안 열어도 보이게)
+const paySummary = reactive({ paid_total: 0, paid_month: 0, held: 0 })
+const money2 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 // ─── 내 업소 ───
 const myBizList = ref([])
@@ -1854,9 +1862,7 @@ async function submitEditBizPromote() {
   editBizPromoSubmitting.value = true
   editBizPromoMsg.value = null
   try {
-    await axios.post(`/api/businesses/${editBiz.value.id}/promote`, {
-      tier: editBizPromotion.tier, days: editBizPromotion.days,
-    })
+    await doPromote('business', editBiz.value.id, editBizPromotion)
     editBizPromoMsg.value = { ok: true, text: '✅ 상위노출이 적용되었습니다' }
     await loadMyBiz()
     // 갱신된 editBiz 다시 로드
@@ -1867,6 +1873,16 @@ async function submitEditBizPromote() {
     editBizPromoMsg.value = { ok: false, text: e.response?.data?.message || '상위노출 적용 실패' }
   }
   editBizPromoSubmitting.value = false
+}
+
+// 상위노출 결제 공통: 포인트(바로 적용) 또는 카드(결제 창 → 바로 청구·적용, 환불 없음)
+async function doPromote(resource, id, promo) {
+  if (promo.pay_with === 'card') {
+    const r = await payPromotionByCard({ resource, id, tier: promo.tier, days: promo.days })
+    if (!r.ok) throw { response: { data: { message: r.message || '카드 결제를 마치지 못했어요' } } }
+    return
+  }
+  await axios.post(`${promoEndpoint(resource)}/${id}/promote`, { tier: promo.tier, days: promo.days })
 }
 
 // 업소 상위노출 모달
@@ -1891,9 +1907,7 @@ async function submitBizPromote() {
   bizPromoSubmitting.value = true
   bizPromoError.value = ''
   try {
-    await axios.post(`/api/businesses/${bizPromoTarget.value.id}/promote`, {
-      tier: bizPromotion.tier, days: bizPromotion.days,
-    })
+    await doPromote('business', bizPromoTarget.value.id, bizPromotion)
     await loadMyBiz()
     bizPromoTarget.value = null
     showAlert('상위노출이 적용되었습니다', '완료')
@@ -2005,6 +2019,7 @@ let msgPoll = null
 onMounted(() => {
   siteStore.load() // 탭 필터링에 메뉴 설정 필요 (NavBar 보다 먼저 마운트될 수 있어 명시)
   loadProfile(); loaded.profile = true
+  loadPayments()   // 위쪽 "내 카드 결제" 요약 칸용 (결제 탭은 다시 열면 새로 불러옴)
   if (tab.value !== 'profile') { loadTab(tab.value); loaded[tab.value] = true }
   // 쪽지 탭 열려있으면 15초마다 자동 갱신
   msgPoll = setInterval(() => { if (tab.value === 'messages') loadMessages() }, 15000)
