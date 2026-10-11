@@ -1,6 +1,7 @@
 <template>
 <div class="space-y-3">
-  <label v-if="group === 'board'" class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 min-h-[46px] text-ink-muted">
+  <!-- '더보기'(길목 타일 3개)는 검색이 필요 없을 만큼 적어서 검색칸은 실제 메뉴 그룹에서만 보여 줌 -->
+  <label v-if="group !== 'more'" class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 min-h-[46px] text-ink-muted">
     <AppIcon name="search" :size="18" />
     <input v-model="q" type="search" placeholder="메뉴 찾기 (예: 부동산)" autocomplete="off"
       class="w-full bg-transparent outline-none text-[15px] text-ink" />
@@ -29,8 +30,8 @@ const tabsFor = inject('adminTabsFor', () => [])
 const q = ref('')
 
 const group = computed(() => String(route.params.group || ''))
-// 지원하는 그룹이 아니면 홈으로
-watch(group, g => { if (!['member', 'board', 'ad', 'system'].includes(g)) router.replace('/admin') }, { immediate: true })
+// 지원하는 그룹이 아니면 홈으로 (7그룹 + '더보기' 길목, 할 일 #84)
+watch(group, g => { if (!['member', 'content', 'money', 'promo', 'support', 'system', 'more'].includes(g)) router.replace('/admin') }, { immediate: true })
 
 const shown = computed(() => {
   const k = q.value.trim().toLowerCase()

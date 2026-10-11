@@ -138,7 +138,7 @@ import AdminMobileHome from './AdminMobileHome.vue'
 import ReauthSheet from '../../components/admin/ReauthSheet.vue'
 import ConfirmSheet from '../../components/admin/ConfirmSheet.vue'
 import { installReauthInterceptor } from '../../composables/useReauth'
-import { PC_GROUPS, ADMIN_ITEMS, itemsByPcGroup, itemsByLegacyGroup } from '../../admin/adminMenu'
+import { PC_GROUPS, ADMIN_ITEMS, itemsByPcGroup } from '../../admin/adminMenu'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
@@ -222,12 +222,12 @@ const currentSubTabs = computed(() => {
   return visibleFor(tabs)
 })
 
-// 휴대폰 허브(/admin/menu/:group)·하단 탭용: 기존 4그룹(legacyGroup) 그대로 — 동작 안 바뀜
-const currentLegacyGroup = computed(() => {
+// 휴대폰 허브(/admin/menu/:group)·하단 탭용: 할 일 #84 부터는 PC 와 같은 7그룹(pcGroup)을 그대로 씀.
+// '/admin' 이면 'home', 허브 화면(/admin/menu/:group)이면 그 그룹, 그 외엔 현재 화면이 속한 그룹.
+const currentMobileGroup = computed(() => {
   const path = route.path
-  if (path.startsWith('/admin/menu/')) return String(route.params.group || 'main')
-  const item = ADMIN_ITEMS.find(i => path === i.to || path.startsWith(i.to + '/'))
-  return item ? item.legacyGroup : 'main'
+  if (path.startsWith('/admin/menu/')) return String(route.params.group || 'home')
+  return currentPcGroup.value
 })
 
 
@@ -259,23 +259,33 @@ onBeforeUnmount(() => { window.removeEventListener('resize', onResize); ejectRea
 const isMobileLayout = computed(() => viewMode.value === 'mobile' || (viewMode.value !== 'classic' && winW.value < 1024))
 function setView(v) { viewMode.value = v; try { localStorage.setItem(VIEW_KEY, v) } catch {} }
 
-// 메뉴 허브(AdminMobileMenu)가 그룹별 메뉴를 가져가는 통로(기존 4그룹 legacyGroup, 동작 안 바뀜).
-// 콘텐츠(옛 board) 그룹만 메뉴 설정 순서를 적용, 최고관리자 전용 화면은 일반 운영진에게 숨김.
+// 휴대폰 하단 탭은 5개뿐이라 7그룹을 다 담을 수 없음 — 자주 쓰는 4개(회원 제외)는 바로,
+// 나머지(회원·홍보·이벤트·시스템)는 '더보기' 한 칸에 모아 그 안에서 고르게 함 (할 일 #84).
+const MORE_GROUPS = ['member', 'promo', 'system']
+
+// 메뉴 허브(AdminMobileMenu)가 그룹별 메뉴를 가져가는 통로. 'more' 는 실제 화면 그룹이 아니라
+// MORE_GROUPS 로 가는 길목(타일) 목록을 보여 주는 가짜 그룹. 콘텐츠 그룹만 메뉴 설정 순서를 적용,
+// 최고관리자 전용 화면은 일반 운영진에게 숨김.
 function tabsFor(group) {
-  let tabs = itemsByLegacyGroup(group).filter(t => !t.hideFromTabs)
-  if (group === 'board') tabs = applyMenuConfig(tabs)
+  if (group === 'more') {
+    return PC_GROUPS.filter(g => MORE_GROUPS.includes(g.key))
+      .map(g => ({ to: `/admin/menu/${g.key}`, icon: g.icon, label: g.label }))
+  }
+  let tabs = itemsByPcGroup(group).filter(t => !t.hideFromTabs)
+  if (group === 'content') tabs = applyMenuConfig(tabs)
   return visibleFor(tabs)
 }
 provide('adminTabsFor', tabsFor)
 provide('adminIsMobile', isMobileLayout)
 
-const groupLabels = { member: '회원', board: '게시판', ad: '광고', system: '시스템' }
+const groupLabels = Object.fromEntries(PC_GROUPS.map(g => [g.key, g.label]))
+groupLabels.more = '더보기'
 const mTabs = computed(() => [
-  { to: '/admin', icon: 'home', label: '홈', active: currentLegacyGroup.value === 'main' },
-  { to: '/admin/menu/member', icon: 'users', label: '회원', active: currentLegacyGroup.value === 'member' },
-  { to: '/admin/menu/board', icon: 'list', label: '게시판', active: currentLegacyGroup.value === 'board' },
-  { to: '/admin/menu/ad', icon: 'megaphone', label: '광고', active: currentLegacyGroup.value === 'ad' },
-  { to: '/admin/menu/system', icon: 'settings', label: '시스템', active: currentLegacyGroup.value === 'system' },
+  { to: '/admin', icon: 'home', label: '홈', active: currentMobileGroup.value === 'home' },
+  { to: '/admin/menu/money', icon: 'wallet', label: '돈', active: currentMobileGroup.value === 'money' },
+  { to: '/admin/menu/support', icon: 'flag', label: '신고·문의', active: currentMobileGroup.value === 'support' },
+  { to: '/admin/menu/content', icon: 'list', label: '콘텐츠', active: currentMobileGroup.value === 'content' },
+  { to: '/admin/menu/more', icon: 'menu', label: '더보기', active: currentMobileGroup.value === 'more' || MORE_GROUPS.includes(currentMobileGroup.value) },
 ])
 const isHub = computed(() => route.path.startsWith('/admin/menu/'))
 const mTitle = computed(() => {
@@ -293,12 +303,14 @@ const mTitle = computed(() => {
 })
 const mBack = computed(() => {
   if (route.path === '/admin') return ''
-  if (isHub.value) return '/admin'
+  if (route.path === '/admin/menu/more') return '/admin'
+  // '더보기' 아래 하위 그룹(회원·홍보이벤트·시스템) 허브는 더보기로, 그 안의 화면은 자기 허브로 되돌아감
+  if (isHub.value) return MORE_GROUPS.includes(String(route.params.group)) ? '/admin/menu/more' : '/admin'
   if (route.path === '/admin/members' && route.query.user) return '/admin/members'
   if (route.path === '/admin/calls') return '/admin/communication'
   if (route.path.startsWith('/admin/games/questions/')) return '/admin/games/settings/' + route.params.slug
   if (route.path.startsWith('/admin/games/')) return '/admin/games'
-  return currentLegacyGroup.value === 'main' ? '/admin' : `/admin/menu/${currentLegacyGroup.value}`
+  return currentMobileGroup.value === 'home' ? '/admin' : `/admin/menu/${currentMobileGroup.value}`
 })
 // 아직 휴대폰용으로 다시 만들지 않은 화면은 글자를 조금 키워서 보여 줌
 // (회원관리·게시판 관리처럼 이미 휴대폰용으로 만든 화면은 확대하지 않음)

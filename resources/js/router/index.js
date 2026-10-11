@@ -187,6 +187,9 @@ const routes = [
     children: [
       { path: '', name: 'admin', component: p('admin/Overview') },
       { path: 'overview', component: p('admin/Overview') },
+      // 할 일 #84 전(옛 4그룹) 주소가 북마크돼 있을 경우를 위한 호환 리다이렉트 — 동적 :group 라우트보다 먼저 와야 매칭됨
+      { path: 'menu/board', redirect: '/admin/menu/content' },
+      { path: 'menu/ad', redirect: '/admin/menu/money' },
       { path: 'menu/:group', component: p('admin/AdminMobileMenu') },
       { path: 'members', component: p('admin/Members') },
       { path: 'friends', component: p('admin/AdminFriends') },

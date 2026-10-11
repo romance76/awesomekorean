@@ -95,7 +95,9 @@ export function itemsByPcGroup(group) {
   return ADMIN_ITEMS.filter(i => i.pcGroup === group)
 }
 
-// 그룹(legacyGroup)별 화면 목록 — 휴대폰 허브·하단 탭에 사용(기존 동작 그대로)
+// 그룹(legacyGroup)별 화면 목록 — #82 당시 휴대폰 허브가 쓰던 옛 4그룹 매핑.
+// #84 부터 휴대폰도 PC 와 같은 7그룹(pcGroup, itemsByPcGroup)을 쓰므로 AdminLayout.vue 에서는
+// 더 쓰지 않지만, 각 항목의 legacyGroup 값 자체는 과거 분류 기록으로 그대로 둔다.
 export function itemsByLegacyGroup(group) {
   return ADMIN_ITEMS.filter(i => i.legacyGroup === group)
 }
