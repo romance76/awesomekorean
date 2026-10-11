@@ -74,3 +74,27 @@
 ## 6. 서버 현황 메모
 - supervisor: `reverb`, `somekorean-worker`, `awesomekorean-collect-worker`(수집 전용, `.env ADMIN_COLLECT_QUEUE=collect`). 되돌리기 명령은 `deploy/setup_collect_worker.sh` 끝 출력 참고.
 - 서버 읽기로 확인된 것: Chloe=super_admin, open_event enabled(scheduled), admin_favorites 표·chat_messages 색인 존재.
+
+---
+
+## 7. 추가 업데이트 (UTC 12:00 / 애틀랜타 오전 8:00) — 인보이스 정식 양식 전면 적용 · 지급·보상 센터 · 잔액 표시 (코드 `498bcafa` 배포 success)
+
+### 7-1. 인보이스 (Kay 지적: "이런 간단한 게 아니고 내역·카드 종류·끝 4자리까지 다 나와야")
+- 원인: 마이페이지 결제 내역의 예전 팝업(`printInvoice`, "Invoice #26 … 포인트 0P")이 인보이스 시스템 이전 결제·결제 대기 건에 계속 쓰이고 있었음. → **제거하고 모든 결제를 정식 인보이스(US Letter)로 열게 함.**
+- 회원: 결제 탭 "인보이스" → 저장된 인보이스가 있으면 `GET /api/invoices/{번호}`, 없으면(옛 결제·결제 대기) `GET /api/payments/{id}/invoice`(내 결제만). 관리자: 결제/오더 상세 "정식 인보이스 (인쇄·PDF)" → `GET /api/admin/payments/{id}/invoice`. 컨트롤러 `PaymentInvoiceController`.
+- 저장 안 된 건은 `Invoicing::previewForPayment()` 로 즉석 생성(저장 안 함, 번호 `PAY-000026` = "주문 참조"). 결제 대기는 "UNPAID · 결제 대기" 도장 + 남은 금액 표시.
+- **카드 종류·끝 4자리**: 청구 시(`DirectPayments::capture` → `StripeGateway::captureDetailed`)와 포인트 구매 확정 시 `payments.card_brand/card_last4` 저장, 옛 결제는 인보이스를 열 때 `Invoicing::ensureCardDetails()` 가 Stripe 에서 읽어 채움(실패해도 인보이스는 열림). 양식에 "Card brand / Card number •••• •••• •••• 1234" 표시.
+- ⚠️ 서버에 **결제 완료된 카드 결제가 아직 한 건도 없음** → 카드 종류·끝 4자리 표시는 첫 실제 결제로 확인 필요(Stripe 테스트 카드 4242… 로 시험 가능). #26 은 결제 대기라 "결제 전"으로 보임(정상).
+
+### 7-2. 지급·보상 센터 `/admin/grants` (돈 그룹 메뉴, 휴대폰 포함)
+- 탭 ① **직접 지급**: 회원 검색 → 보유 포인트·Entry·누적 구매 표시 → 포인트 지급/차감(`POST /admin/users/{id}/points`, 관리자) · Entry 지급/차감(`POST /admin/entries/adjust`, 최고관리자) · **실제 받은 구매 금액 기록**(`POST /admin/grants/manual-payment`, 최고관리자 + 비밀번호 재확인 + 감사 로그: 종류·금액·구매 내용·Zelle/현금/수표/기타·메모 → `payments`(status captured, `pay_method='manual'`) 생성 → 매출 반영 + 인보이스 자동 발행, 인보이스에 "Manual payment" 표시). 카드와 별개로 새 광고·상위노출을 대신 열어 주지는 않음.
+- 탭 ② **보상 승인**: 예전 "신고·문의 › 보상 승인"(`AdminRewardRequests`)을 그대로 끼워 넣음. 옛 주소 `/admin/rewards` 는 `/admin/grants?section=rewards` 로 자동 이동(알림·오늘 할 일 딥링크 유지), 메뉴에서는 숨김.
+- 탭 ③ **지급 기록**: 최근 포인트·Entry·직접 기록 결제 60건(`GET /admin/grants/recent`).
+- 회원관리(PC) 상세 헤더에 "지급·보상 센터 ›" 바로가기(`/admin/grants?user=번호`). 휴대폰 회원 화면에는 아직 링크 없음.
+- 마이그레이션 `2026_10_11_350000_payments_manual_columns` (payments.pay_method, pay_note).
+
+### 7-3. 결제 화면에 내 잔액 (`MyBalanceStrip.vue`)
+- 상위노출(글쓰기·마이페이지·BoostButton)과 광고 신청(배너·텍스트)에서 **내 포인트 · 내 Entry · 카드 결제(이번 달·누적·승인 대기)** 한 줄 표시. 포인트 결제를 고르면 "N P 모자라요"/"결제 후 N P 남아요" 안내. 카드 결제 선택 시엔 카드 쪽을 강조.
+
+### 7-4. 다음 (변동 없음)
+3단계 공동구매 구조 변경 → 4단계 월간 리더보드 → 5단계 포인트→기프트카드. (상세는 위 4번.) 시작 전에 Kay 에게 "넘어가" 확인.
