@@ -11,7 +11,7 @@
 <html lang="{{ $en ? 'en' : 'ko' }}">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
 <meta name="robots" content="noindex, nofollow">
 <title>Invoice {{ $inv->invoice_no }} · {{ $company['name'] }}</title>
@@ -21,9 +21,12 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body { background: #e5e7eb; color: #111827; font-family: 'Helvetica Neue', Helvetica, Arial, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; font-size: 11pt; line-height: 1.45; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .toolbar { max-width: 8.5in; margin: 16px auto 0; padding: 0 12px; display: flex; gap: 8px; justify-content: flex-end; }
-  .toolbar button { min-height: 40px; padding: 0 18px; border: 0; border-radius: 8px; background: #111827; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
-  .toolbar .hint { margin-right: auto; align-self: center; font-size: 12px; color: #4b5563; }
+  /* 위쪽 막대: 스크롤해도 화면 위에 고정(휴대폰 상태바·노치 아래로 내려옴). 닫기 · 안내 · 인쇄 */
+  .toolbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; padding: calc(env(safe-area-inset-top, 0px) + 8px) max(12px, calc((100% - 8.5in) / 2 + 12px)) 8px; background: rgba(229,231,235,.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .toolbar button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 8px; background: #111827; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .toolbar button.close { background: #fff; color: #111827; border: 1px solid #9ca3af; }
+  .toolbar button.print { margin-left: auto; }
+  .toolbar .hint { flex: 1; align-self: center; font-size: 12px; color: #4b5563; }
   .sheet { width: 8.5in; min-height: 11in; margin: 12px auto 32px; background: #fff; padding: 0.6in 0.65in 0.55in; box-shadow: 0 6px 28px rgba(0,0,0,.12); position: relative; display: flex; flex-direction: column; }
   .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 18px; border-bottom: 3px solid #111827; }
   .brand img { height: 46px; max-width: 220px; object-fit: contain; display: block; }
@@ -69,7 +72,7 @@
     .sheet { margin: 0; box-shadow: none; width: 8.5in; min-height: 11in; }
   }
   @media screen and (max-width: 860px) {
-    .sheet { width: auto; min-height: 0; margin: 10px; padding: 22px 18px; }
+    .sheet { width: auto; min-height: 0; margin: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 90px); padding: 22px 18px; }
     .top, .parties, .paybox { flex-direction: column; gap: 14px; }
     .title { text-align: left; } .meta { margin-left: 0; } .meta td { text-align: left; padding: 2px 14px 2px 0; }
     .stamp { position: static; display: inline-block; margin-top: 10px; transform: none; font-size: 14pt; }
@@ -82,9 +85,19 @@
 
 @if($forWeb)
 <div class="toolbar">
+  <button type="button" class="close" onclick="closeInvoice()">&larr; {{ $en ? 'Close' : '닫기' }}</button>
   <span class="hint">{{ $en ? 'Choose "Save as PDF" in the print dialog to download a PDF.' : '인쇄 창에서 "PDF로 저장"을 고르면 PDF 파일로 받을 수 있어요. · Choose "Save as PDF" in the print dialog.' }}</span>
-  <button type="button" onclick="window.print()">{{ $en ? 'Print / Save as PDF' : '인쇄 / PDF 저장' }}</button>
+  <button type="button" class="print" onclick="window.print()">{{ $en ? 'Print / Save as PDF' : '인쇄 / PDF 저장' }}</button>
 </div>
+<script>
+  // 새 탭으로 열린 경우엔 탭을 닫고, 닫히지 않으면 이전 화면으로, 이전 화면이 없으면 사이트 홈으로
+  function closeInvoice() {
+    try { window.close(); } catch (e) {}
+    setTimeout(function () {
+      if (history.length > 1) history.back(); else location.href = '/';
+    }, 200);
+  }
+</script>
 @endif
 
 <div class="sheet">
