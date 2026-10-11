@@ -20,9 +20,9 @@
   <!-- 비상 스위치 (최고관리자만): 한 번 눌러 멈추고, 확인창을 거친 뒤 기록이 남아요 -->
   <EmergencySwitches v-if="isSuper" variant="mobile" />
 
-  <div class="text-[13px] font-bold text-ink-muted px-0.5 pt-1">자주 쓰는 메뉴</div>
+  <div class="text-[13px] font-bold text-ink-muted px-0.5 pt-1">{{ favItems.length ? '즐겨찾기' : '자주 쓰는 메뉴' }}<span v-if="!favItems.length" class="ml-1.5 font-normal text-ink-faint">메뉴 목록에서 ☆ 를 누르면 여기에 모여요</span></div>
   <div class="grid grid-cols-2 gap-2.5">
-    <RouterLink v-for="m in quick" :key="m.to" :to="m.to"
+    <RouterLink v-for="m in (favItems.length ? favItems : quick)" :key="m.to" :to="m.to"
       class="relative flex flex-col justify-between gap-2.5 min-h-[84px] p-3 rounded-2xl bg-white border border-gray-100 active:bg-amber-50">
       <span class="w-9 h-9 rounded-xl grid place-items-center bg-amber-50 text-amber-600"><AppIcon :name="m.icon" :size="20" /></span>
       <span class="text-[15px] font-bold text-ink leading-tight">{{ m.label }}</span>
@@ -43,6 +43,8 @@ import AppIcon from '../../components/AppIcon.vue'
 import SystemStatusCard from '../../components/admin/SystemStatusCard.vue'
 import EmergencySwitches from '../../components/admin/EmergencySwitches.vue'
 import { useAuthStore } from '../../stores/auth'
+import { ADMIN_ITEMS } from '../../admin/adminMenu'
+import { useAdminFavorites } from '../../composables/useAdminFavorites'
 
 const auth = useAuthStore()
 const isSuper = computed(() => auth.user?.role === 'super_admin')
@@ -85,6 +87,12 @@ async function load() {
   }
 }
 
+// 즐겨찾기 — 저장된 주소 중 지금 계정이 볼 수 있는 화면만 (최고관리자 전용 화면은 관리자에게 숨김)
+const { favs, load: loadFavs } = useAdminFavorites()
+const favItems = computed(() => favs.value
+  .map(to => ADMIN_ITEMS.find(i => i.to === to))
+  .filter(i => i && (isSuper.value || (i.minTier || 2) <= 2)))
+
 const quick = computed(() => [
   { to: '/admin/members', icon: 'users', label: '회원관리' },
   { to: '/admin/payments', icon: 'wallet', label: '결제/오더' },
@@ -98,4 +106,5 @@ const quick = computed(() => [
 ])
 
 onMounted(load)
+onMounted(loadFavs)
 </script>

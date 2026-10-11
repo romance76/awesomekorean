@@ -13,6 +13,11 @@
       <span class="w-9 h-9 rounded-xl grid place-items-center bg-amber-50 text-amber-600"><AppIcon :name="tab.icon" :size="20" /></span>
       <span class="text-[15px] font-bold text-ink leading-tight">{{ tab.label }}</span>
       <span v-if="tab.isNew" class="absolute top-2.5 right-2.5 text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">NEW</span>
+      <!-- 즐겨찾기 별 — 누르면 홈 "즐겨찾기"에 모인다(서버에 저장돼 PC 와 휴대폰이 같은 구성) -->
+      <button v-if="group !== 'more'" type="button" @click.prevent.stop="toggle(tab.to)" :aria-pressed="isFav(tab.to)"
+        :aria-label="(isFav(tab.to) ? '즐겨찾기 해제 ' : '즐겨찾기 추가 ') + tab.label"
+        class="absolute bottom-1 right-1 w-11 h-11 grid place-items-center rounded-full text-[22px] leading-none"
+        :class="isFav(tab.to) ? 'text-amber-500' : 'text-gray-300'">{{ isFav(tab.to) ? '★' : '☆' }}</button>
     </RouterLink>
   </div>
   <p v-if="!shown.length" class="text-center text-sm text-ink-muted py-6">"{{ q }}" 에 맞는 메뉴가 없어요.</p>
@@ -23,11 +28,14 @@
 import { ref, computed, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppIcon from '../../components/AppIcon.vue'
+import { useAdminFavorites } from '../../composables/useAdminFavorites'
 
 const route = useRoute()
 const router = useRouter()
 const tabsFor = inject('adminTabsFor', () => [])
 const q = ref('')
+const { isFav, toggle, load: loadFavs } = useAdminFavorites()
+loadFavs()
 
 const group = computed(() => String(route.params.group || ''))
 // 지원하는 그룹이 아니면 홈으로 (7그룹 + '더보기' 길목, 할 일 #84)

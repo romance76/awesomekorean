@@ -29,6 +29,7 @@ class AdminTier
             // ── 운영자(1)도 되는 것: 보기 위주 + 신고 처리 + 글·댓글 숨김 ──
             ['GET', '#^overview$#', 1],
             ['GET', '#^todo-counts$#', 1],
+            ['ANY', '#^favorites$#', 1],   // 본인 즐겨찾기(자주 쓰는 메뉴) — 운영자도
             ['GET', '#^settings/menus$#', 1],
             ['GET', '#^(reports|users|posts|boards)(/|$)#', 1],
             ['GET', '#^board-manager/#', 1],

@@ -606,6 +606,9 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/reauth/status', [\App\Http\Controllers\API\AdminReauthController::class, 'status']);
     // 휴대폰 홈 "오늘 할 일" 건수 — 한 번 호출로 신고·광고·전단·소유권·보상·안 보낸 경품·실패 작업
     Route::get('/todo-counts', [\App\Http\Controllers\API\AdminTodoCountsController::class, 'index']);
+    // 관리자 즐겨찾기(자주 쓰는 메뉴) — 본인 것만, 운영자도 사용 가능
+    Route::get('/favorites', [\App\Http\Controllers\API\AdminFavoritesController::class, 'index']);
+    Route::put('/favorites', [\App\Http\Controllers\API\AdminFavoritesController::class, 'update'])->middleware('throttle:60,1');
     // 시스템 상태 카드(큐·스케줄러·디스크·메모리·배포) + 비상 스위치 — 최고관리자 전용 (AdminTier 규칙표 3등급)
     Route::get('/system-status', [\App\Http\Controllers\API\AdminSystemStatusController::class, 'index']);
     Route::get('/emergency-switches', [\App\Http\Controllers\API\AdminEmergencySwitchController::class, 'index']);
