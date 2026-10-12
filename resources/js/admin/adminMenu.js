@@ -75,6 +75,7 @@ export const ADMIN_ITEMS = [
   // ── 홍보·이벤트 ──
   { to: '/admin/open-event', icon: 'gift', label: '오픈 이벤트', pcGroup: 'promo', legacyGroup: 'ad', mobile: true, minTier: 3,
     isNew: true, newDesc: '소프트 오픈 기간에 포인트 2배 · 채팅방 무료 · 광고 할인 등을 한 번에 켜는 화면입니다.' },
+  { to: '/admin/social', icon: 'megaphone', label: 'SNS 게시 (인스타·스레드)', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes-rules', icon: 'book-open', label: '경품 추첨 공식 규정', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },

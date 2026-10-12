@@ -64,6 +64,11 @@ Schedule::command('sweepstakes:tick')->everyMinute()->withoutOverlapping(10);
 // 당첨 후 3일 넘게 안 보낸 경품 — 최고관리자에게 하루 한 번 (애틀랜타 오전 10시)
 Schedule::command('sweepstakes:remind-overdue-deliveries')->dailyAt('10:00')->timezone('America/New_York');
 
+// SNS 자동 게시(인스타그램·스레드): 새 MONEY 글·이벤트를 대기열에(매시간 7분), 예약 시간대 확인(5분마다), 토큰 연장(매주 월 03:20)
+Schedule::command('social:enqueue')->hourlyAt(7)->withoutOverlapping();
+Schedule::command('social:publish')->everyFiveMinutes()->withoutOverlapping(15);
+Schedule::command('social:enqueue --refresh')->weeklyOn(1, '03:20')->timezone('America/New_York');
+
 // 비활성 개인/그룹 채팅방 자동 잠금 및 삭제 (매시간)
 Schedule::command('chat:expire-rooms')->hourly();
 

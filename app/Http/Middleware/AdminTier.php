@@ -45,6 +45,8 @@ class AdminTier
             ['ANY', '#^system(/|$)#', 3],
             // 시스템 상태 카드·비상 스위치(가입 보너스/경품 반복 일정/자동 수집 일시중지) — 최고관리자 전용
             ['ANY', '#^(system-status|emergency-switches)(/|$)#', 3],
+            // SNS 자동 게시(인스타·스레드) — 사이트 이름으로 바깥에 글이 나가므로 최고관리자 전용
+            ['ANY', '#^social-posts(/|$)#', 3],
             ['POST', '#^payments/\d+/refund$#', 3],
             // 지급·보상 센터: 직접 받은 구매 금액 기록은 최고관리자 전용(+비밀번호 재확인), 최근 지급 기록 조회는 관리자 이상(기본)
             ['POST', '#^grants/manual-payment$#', 3],

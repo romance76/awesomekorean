@@ -49,6 +49,16 @@ class EmergencySwitches
             'confirm_pause' => '자동 수집을 멈출까요?' . "\n\n" . '음악·뉴스·숏츠 자동 수집이 멈춰요. 이미 모은 글은 지워지지 않고, 관리자가 직접 누르는 수집 버튼은 계속 쓸 수 있어요.',
             'confirm_resume' => '자동 수집을 다시 시작할까요?' . "\n\n" . '다음 정해진 시각부터 음악·뉴스·숏츠가 자동으로 수집돼요.',
         ],
+        // SNS 자동 게시(인스타그램·스레드) — app/Console/Commands/SocialPublish.php
+        'social_autopost' => [
+            'setting' => 'emergency_social_autopost_paused',
+            'label' => 'SNS 자동 게시 (인스타·스레드)',
+            'icon' => 'megaphone',
+            'when_paused' => '인스타그램·스레드에 예약된 글이 올라가지 않아요. 대기열과 이미 올린 글은 그대로예요.',
+            'when_running' => '승인된 글이 정해 둔 시간(애틀랜타)에 인스타그램·스레드에 올라가요.',
+            'confirm_pause' => 'SNS 자동 게시를 멈출까요?' . "\n\n" . '예약된 글이 올라가지 않아요. 대기열은 그대로 남아요.',
+            'confirm_resume' => 'SNS 자동 게시를 다시 시작할까요?' . "\n\n" . '다음 예약 시간부터 승인된 글이 올라가요.',
+        ],
     ];
 
     public static function settingKey(string $name): ?string

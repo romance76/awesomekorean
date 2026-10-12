@@ -811,6 +811,17 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
         // 사이트 공식 SNS 계정(인스타그램·스레드) 정보 — 저장은 비밀번호 재확인
         Route::get('/settings/social-accounts', [\App\Http\Controllers\API\AdminSocialAccountController::class, 'index']);
         Route::put('/settings/social-accounts/{platform}', [\App\Http\Controllers\API\AdminSocialAccountController::class, 'update'])->middleware('reauth');
+        // SNS 자동 게시 대기열 (계획서 qa/sns_autopost_plan.md)
+        Route::get('/social-posts', [\App\Http\Controllers\API\AdminSocialPostController::class, 'index']);
+        Route::put('/social-posts/settings', [\App\Http\Controllers\API\AdminSocialPostController::class, 'saveSettings']);
+        Route::post('/social-posts/status', [\App\Http\Controllers\API\AdminSocialPostController::class, 'setStatus']);
+        Route::post('/social-posts/enqueue-money', [\App\Http\Controllers\API\AdminSocialPostController::class, 'enqueueMoney']);
+        Route::get('/social-posts/events', [\App\Http\Controllers\API\AdminSocialPostController::class, 'recentEvents']);
+        Route::post('/social-posts/events/{id}', [\App\Http\Controllers\API\AdminSocialPostController::class, 'enqueueEvent'])->whereNumber('id');
+        Route::post('/social-posts/manual', [\App\Http\Controllers\API\AdminSocialPostController::class, 'storeManual']);
+        Route::put('/social-posts/{id}', [\App\Http\Controllers\API\AdminSocialPostController::class, 'update'])->whereNumber('id');
+        Route::post('/social-posts/{id}/card', [\App\Http\Controllers\API\AdminSocialPostController::class, 'regenerateCard'])->whereNumber('id');
+        Route::post('/social-posts/{id}/publish', [\App\Http\Controllers\API\AdminSocialPostController::class, 'publishNow'])->whereNumber('id')->middleware(['reauth', 'throttle:10,1']);
         Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
         Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey'])->middleware('reauth');
         Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey'])->middleware('reauth');

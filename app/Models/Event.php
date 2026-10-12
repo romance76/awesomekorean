@@ -13,6 +13,18 @@ class Event extends Model
         $v = $this->attributes['reward_entries'] ?? null;
         return $v === null ? 1 : max(0, (int) $v);
     }
+    // 어썸코리안 이벤트·경품 이벤트가 만들어지면 SNS 대기열에 자동으로 (실패해도 이벤트 저장은 그대로)
+    protected static function booted()
+    {
+        static::created(function (Event $ev) {
+            try {
+                if (in_array($ev->event_type, \App\Support\SocialQueue::EVENT_TYPES, true) && \App\Support\SocialQueue::settings()['auto_events']
+                    && \Illuminate\Support\Facades\Schema::hasTable('social_posts')) {
+                    \App\Support\SocialQueue::enqueueEvent($ev, auth()->id());
+                }
+            } catch (\Throwable $e) { report($e); }
+        });
+    }
     public function user() { return $this->belongsTo(User::class); }
     public function attendees() { return $this->hasMany(EventAttendee::class); }
     public function sweepstakes() { return $this->hasOne(Sweepstakes::class); }
