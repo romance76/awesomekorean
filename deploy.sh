@@ -77,6 +77,7 @@ log "▶ Step 6/7: migrate + storage:link + optimize:clear"
 php8.2 artisan migrate --force 2>&1 | tail -5 >> "$LOG" || log "⚠️ migrate returned non-zero"
 php8.2 artisan storage:link 2>&1 | tail -3 >> "$LOG" || true
 php8.2 artisan optimize:clear 2>&1 | tail -3 >> "$LOG"
+php8.2 artisan money:sync-posts 2>&1 | tail -10 >> "$LOG" || log "⚠️ money:sync-posts 실패"
 # 큐 워커는 켜진 채로 옛 코드를 기억하므로, 배포 후 안전하게 재시작시킨다(진행 중인 작업이 끝난 뒤 supervisor 가 다시 띄움)
 php8.2 artisan queue:restart 2>&1 | tail -2 >> "$LOG" || log "⚠️ queue:restart 실패"
 
