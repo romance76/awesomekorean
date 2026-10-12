@@ -11,19 +11,22 @@
     $navGroups = \App\Support\MenuGroups::publicGroups($menus ?? []);
     $isInfoGroup = fn ($g) => ($g['type'] === 'hub' && str_starts_with($g['path'], '/info')) || collect($g['items'])->contains(fn ($m) => str_starts_with($m['path'], '/info'));
 @endphp
-<nav class="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
-    <div class="max-w-7xl mx-auto px-3 flex items-center h-12 gap-2">
+{{-- 크기·간격은 app.css 의 .site-hdr-* 클래스 (NavBar.vue 와 공용) — 여기서 따로 숫자를 쓰지 말 것 --}}
+<nav class="site-hdr ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+    <div class="site-hdr-row">
         {{-- 햄버거 메뉴 (모바일) — NavBar.vue 와 동일 --}}
         <button id="info-menu-btn" type="button" class="md:hidden p-2.5 -ml-1 text-ink-light hover:text-amber-500 transition-colors flex-shrink-0" aria-label="전체 메뉴">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <a href="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-            <img src="{{ $logoUrl }}" alt="AwesomeKorean" class="block" style="width:144px;height:auto;max-height:52px;object-fit:contain;object-position:left center">
+            <img src="{{ $logoUrl }}" alt="AwesomeKorean" class="site-hdr-logo">
         </a>
         <div class="flex-1 mx-2 min-w-0 hidden md:block">
-            <form action="/search" method="GET" class="relative max-w-lg mx-auto">
-                <input type="text" name="q" placeholder="궁금한 것을 검색해 보세요 — 영주권, 맛집, 중고차…"
-                    class="w-full bg-surface border-[1.5px] border-line rounded-full pl-4 pr-4 py-2 text-sm text-ink outline-none placeholder:text-ink-faint">
+            <form action="/search" method="GET" class="site-hdr-search-form">
+                <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-amber-500 transition-colors">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </button>
+                <input type="text" name="q" placeholder="궁금한 것을 검색해 보세요 — 영주권, 맛집, 중고차…" class="site-hdr-search">
             </form>
         </div>
         <div class="flex-1 md:hidden"></div>
@@ -50,9 +53,17 @@
             <a href="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">시작하기</a>
         </div>
         <div id="info-auth-user" class="relative flex-shrink-0" style="display:none">
-            <button id="info-auth-avatar" type="button" class="relative w-8 h-8 rounded-full bg-amber-400 text-white flex items-center justify-center text-xs font-bold overflow-hidden ring-2 ring-amber-100"></button>
-            <div id="info-auth-dropdown" class="absolute right-0 top-10 bg-white rounded-2xl shadow-lift py-2 w-44 z-50" style="display:none">
+            {{-- NavBar.vue 의 UserAvatar 와 같은 크기(휴대폰 46px · 그 외 58px) + 등급 링 — 아래 스크립트가 채움 --}}
+            <button id="info-auth-avatar" type="button" class="block -my-1 rounded-full relative" aria-label="내 메뉴"></button>
+            <div id="info-auth-dropdown" class="absolute right-0 top-14 bg-white rounded-2xl shadow-lift py-2 w-52 z-50" style="display:none">
+                <div class="px-4 py-2.5 border-b border-gray-50">
+                    <div id="info-auth-name" class="text-sm font-bold text-ink truncate"></div>
+                    <div id="info-auth-email" class="text-xs text-ink-faint truncate"></div>
+                </div>
                 <a href="/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">마이페이지</a>
+                <a href="/dashboard?tab=messages" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">쪽지</a>
+                <a href="/friends" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">친구</a>
+                <div class="border-t border-gray-50 my-1"></div>
                 <button id="info-auth-logout" type="button" class="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm text-ink-muted hover:bg-gray-50 transition-colors">로그아웃</button>
             </div>
         </div>
@@ -64,17 +75,17 @@
     </div>
     @if ($navGroups)
     <div class="border-t border-gray-50 hidden md:block">
-        <div class="max-w-7xl mx-auto px-4 flex justify-center items-center h-12">
+        <div class="site-hdr-menu">
             @foreach ($navGroups as $g)
-                <div class="relative group/nav">
-                    <a href="{{ $g['path'] }}" class="flex items-center gap-1 h-12 px-3.5 text-[14px] font-semibold border-b-2 whitespace-nowrap transition-colors duration-150 {{ $isInfoGroup($g) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink' }}">
+                <div class="site-hdr-navitem">
+                    <a href="{{ $g['path'] }}" class="site-hdr-tab {{ $isInfoGroup($g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off' }}">
                         {{ $g['label'] }}@if ($g['type'] !== 'single' && count($g['items']))<span class="text-[9px] opacity-50">▼</span>@endif
                     </a>
                     @if ($g['type'] !== 'single' && count($g['items']))
-                        <div class="hidden group-hover/nav:block absolute left-1/2 -translate-x-1/2 top-full z-50 min-w-[160px] bg-white border border-gray-100 rounded-2xl shadow-lift p-1.5">
-                            @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold text-ink-light hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap">{{ $g['icon'] }} {{ $g['label'] }} 홈</a>@endif
+                        <div class="site-hdr-drop">
+                            @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="site-hdr-drop-item text-ink-light">{{ $g['icon'] }} {{ $g['label'] }} 홈</a>@endif
                             @foreach ($g['items'] as $m)
-                                <a href="{{ $m['path'] }}" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold whitespace-nowrap hover:bg-amber-50 hover:text-amber-700 {{ str_starts_with($m['path'], '/info') ? 'text-amber-700' : 'text-ink-light' }}">{{ $m['label'] }}</a>
+                                <a href="{{ $m['path'] }}" class="site-hdr-drop-item {{ str_starts_with($m['path'], '/info') ? 'text-amber-700' : 'text-ink-light' }}">{{ $m['label'] }}</a>
                             @endforeach
                         </div>
                     @endif
@@ -169,6 +180,13 @@ function googleTranslateElementInit() {
 
 <script>
 (function () {
+    // 헤더 실제 높이를 --hdr-h 로 공유 (NavBar.vue 와 같음) — 왼쪽·오른쪽 따라오는 칸이 헤더 밑에 가려지지 않게
+    try {
+        var hdr = document.querySelector('nav.site-hdr');
+        var setH = function () { var h = hdr.offsetHeight; if (h) document.documentElement.style.setProperty('--hdr-h', h + 'px'); };
+        setH(); window.addEventListener('resize', setH);
+    } catch (e) {}
+
     // 모바일 햄버거 메뉴 열기/닫기
     try {
         var panel = document.getElementById('info-menu-panel');
@@ -218,15 +236,37 @@ function googleTranslateElementInit() {
         var userBox = document.getElementById('info-auth-user');
         userBox.style.display = 'block';
 
+        document.getElementById('info-auth-name').textContent = user.name || '';
+        document.getElementById('info-auth-email').textContent = user.email || '';
+
+        // UserAvatar.vue 와 같은 규칙: 전체 크기 = 휴대폰(430px 이하) 46 / 그 외 58, 등급 링이 있으면 사진 지름 62%, 없으면 74%
         var avatar = document.getElementById('info-auth-avatar');
-        if (user.avatar) {
+        var size = window.innerWidth <= 430 ? 46 : 58;
+        var lvl = parseInt(user.grade_level || (user.grade && user.grade.level), 10);
+        var hasRing = lvl >= 1 && lvl <= 15;
+        var d = Math.round(size * (hasRing ? 0.62 : 0.74));
+        avatar.style.cssText = 'width:' + size + 'px;height:' + size + 'px';
+        var face = document.createElement('span');
+        face.style.cssText = 'position:absolute;border-radius:9999px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;'
+            + 'width:' + d + 'px;height:' + d + 'px;left:' + ((size - d) / 2) + 'px;top:' + ((size - d) / 2) + 'px;background:' + (user.avatar ? '#f3f4f6' : '#fbbf24');
+        var av = user.avatar || '';
+        if (av && !/^(https?:)?\/\//.test(av) && av.charAt(0) !== '/' && av.indexOf('data:') !== 0) av = '/storage/' + av;
+        if (av) {
             var img = document.createElement('img');
-            img.src = user.avatar;
-            img.alt = '';
-            img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
-            avatar.appendChild(img);
+            img.src = av; img.alt = '';
+            img.style.cssText = 'width:100%;height:100%;object-fit:cover';
+            face.appendChild(img);
         } else {
-            avatar.textContent = (user.name || '?').charAt(0);
+            face.style.fontSize = Math.round(d * 0.42) + 'px';
+            face.textContent = ((user.nickname || user.name || '?').trim().charAt(0)) || '?';
+        }
+        avatar.appendChild(face);
+        if (hasRing) {
+            var ring = document.createElement('img');
+            ring.src = '/images/grades/level_' + String(lvl).padStart(2, '0') + '_s.png'; ring.alt = '';
+            ring.setAttribute('aria-hidden', 'true');
+            ring.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none';
+            avatar.appendChild(ring);
         }
 
         var dropdown = document.getElementById('info-auth-dropdown');

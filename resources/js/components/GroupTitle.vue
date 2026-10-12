@@ -1,14 +1,14 @@
 <template>
-  <!-- 목록 페이지 제목 자리 — 상단 메뉴 묶음이 켜져 있고 이 메뉴가 2개 이상짜리 묶음에 들어 있으면 [묶음 이름][하위 탭], 아니면 원래 제목(slot) -->
+  <!-- 목록 페이지 제목 자리 — 상단 메뉴 묶음이 켜져 있고 이 메뉴가 2개 이상짜리 묶음에 들어 있으면 [묶음 이름][하위 탭], 아니면 원래 제목(slot)
+       모양(크기)은 app.css 의 .grp-* 클래스 — /info(Blade) 도 같은 클래스를 써서 항상 같게 보인다 -->
   <div v-if="grp" class="flex min-w-0" :class="stack ? 'flex-col items-start gap-2' : 'items-center gap-3'">
-    <RouterLink :to="grp.items[0].path" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors whitespace-nowrap">
-      <span class="icon-chip w-9 h-9 bg-amber-50 text-[18px] leading-none">{{ grp.icon || '📁' }}</span>{{ grp.label }}
+    <RouterLink :to="grp.items[0].path" class="grp-title">
+      <span class="grp-icon">{{ grp.icon || '📁' }}</span>{{ grp.label }}
     </RouterLink>
-    <div class="flex gap-1.5 overflow-x-auto scrollbar-hide max-w-full" role="tablist" :aria-label="grp.label + ' 메뉴'">
+    <div class="grp-tabs" role="tablist" :aria-label="grp.label + ' 메뉴'">
       <component v-for="m in grp.items" :key="m.key" :is="m.external ? 'a' : 'RouterLink'" v-bind="m.external ? { href: m.path } : { to: m.path }"
         role="tab" :aria-selected="m.key === menuKey"
-        class="shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-bold whitespace-nowrap transition-colors"
-        :class="m.key === menuKey ? 'bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6]' : 'bg-surface text-ink-light border-line hover:border-gray-300'">{{ m.label }}</component>
+        class="grp-chip" :class="m.key === menuKey ? 'grp-chip-on' : 'grp-chip-off'">{{ m.label }}</component>
     </div>
   </div>
   <slot v-else />

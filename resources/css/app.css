@@ -170,6 +170,39 @@
         @apply flex items-center gap-2 text-[15px] font-bold text-ink;
     }
 
+    /* ─── 사이트 머리(헤더) — NavBar.vue 와 /info 의 info/_header.blade.php 가 같이 쓴다.
+           크기·간격을 바꿀 땐 여기만 고치면 두 화면이 함께 바뀐다 (따로 고치지 말 것). ─── */
+    .site-hdr { padding-top: calc(env(safe-area-inset-top, 0px) + 8px); }
+    .site-hdr-row { @apply max-w-7xl mx-auto px-3 flex items-center h-14 gap-2 md:h-[76px] md:px-4 md:gap-3; }
+    .site-hdr-logo { display: block; width: clamp(92px, 26vw, 144px); height: auto; max-height: 52px; object-fit: contain; object-position: left center; }
+    .site-hdr-search-form { @apply relative max-w-lg md:max-w-xl mx-auto; }
+    .site-hdr-search { @apply w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 md:py-3 text-sm md:text-[15px] text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10; }
+    .site-hdr-menu { @apply max-w-7xl mx-auto px-4 flex items-center justify-center h-12; }
+    .site-hdr-tab { @apply flex items-center gap-1 h-12 px-3.5 text-[14px] font-semibold border-b-2 whitespace-nowrap transition-colors duration-150; }
+    .site-hdr-tab-on { @apply border-amber-400 text-amber-600; }
+    .site-hdr-tab-off { @apply border-transparent text-ink-light hover:text-ink; }
+    .site-hdr-drop { @apply absolute left-1/2 -translate-x-1/2 top-full z-50 min-w-[160px] bg-white border border-gray-100 rounded-2xl shadow-lift p-1.5; display: none; }
+    .site-hdr-navitem { position: relative; }
+    .site-hdr-navitem:hover > .site-hdr-drop { display: block; }
+    .site-hdr-drop-item { @apply block px-3.5 py-2 rounded-xl text-[14px] font-semibold whitespace-nowrap hover:bg-amber-50 hover:text-amber-700; }
+
+    /* ─── 목록 페이지 제목 [묶음 이름 + 하위 탭] — GroupTitle.vue 와 info/index.blade.php 공용 ─── */
+    .grp-title { @apply flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap transition-colors hover:text-amber-600; }
+    .grp-icon { @apply inline-flex items-center justify-center rounded-[10px] shrink-0 w-9 h-9 bg-amber-50 text-[18px] leading-none; }
+    .grp-tabs { @apply flex gap-1 overflow-x-auto max-w-full; scrollbar-width: none; }
+    .grp-tabs::-webkit-scrollbar { display: none; }
+    .grp-chip { @apply shrink-0 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-colors; }
+    .grp-chip-on { @apply bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6] font-bold; }
+    .grp-chip-off { @apply bg-surface text-ink-light border-line hover:border-gray-300 hover:text-ink; }
+    @media (min-width: 768px) {
+        .site-hdr { padding-top: 14px; }
+        .site-hdr-logo { width: 172px; max-height: 60px; }
+        .grp-title { font-size: 21.5px; }          /* 다른 목록 제목(text-xl, PC 21.5px)과 같게 */
+        .grp-chip { font-size: 13.5px; padding: 4px 13px; }
+    }
+    html.easy-view:not(.ev-pause) .grp-chip { font-size: calc(13px * var(--fs, 1)); }
+    html.easy-view:not(.ev-pause) .grp-title { font-size: calc(20px * var(--fs, 1)); }
+
     /* ══════════════════════════════════════════════════════════════
        게임 디자인 시스템 — 모던 그라디언트 + 글래스모피즘 (2026-09)
        28개 미니게임 전체가 공유하는 토큰/유틸 클래스. 접두사 gx- 로

@@ -2,18 +2,20 @@
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
 
+    <!-- 제목 줄: 다른 목록 페이지처럼 화면 전체 폭 (예전엔 왼쪽 좁은 칸 안에 있어서 [묶음 제목+탭]과 '새 채팅' 버튼이 끼여 깨졌음) -->
+    <div class="flex items-start sm:items-center justify-between gap-3 mb-4" :class="{ 'hidden': activeRoom && isMobile }">
+      <GroupTitle menu-key="chat" :stack="isMobile">
+        <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
+          <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
+          채팅
+        </h1>
+      </GroupTitle>
+      <button @click="showCreate = true" class="btn-primary text-sm px-4 py-2 flex items-center gap-1 shrink-0"><AppIcon name="plus" :size="15" />새 채팅</button>
+    </div>
+
     <div class="grid grid-cols-12 gap-4">
       <!-- 왼쪽: 지역 채팅방 목록 (모바일: 채팅방 선택 전에만 표시) -->
       <div class="col-span-12 lg:col-span-3" :class="{ 'hidden': activeRoom && isMobile }">
-        <div class="flex items-center justify-between mb-4">
-          <GroupTitle menu-key="chat" stack>
-            <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-              <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
-              채팅
-            </h1>
-          </GroupTitle>
-          <button @click="showCreate = true" class="btn-primary text-sm px-4 py-2 flex items-center gap-1"><AppIcon name="plus" :size="15" />새 채팅</button>
-        </div>
         <!-- 타입 필터 탭 (Issue #21) -->
         <div class="flex gap-1 mb-2 bg-gray-100 rounded-xl p-1 text-[11px]">
           <button v-for="t in roomFilterTabs" :key="t.value"

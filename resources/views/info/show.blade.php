@@ -53,19 +53,17 @@
     @include('info._header')
 
     <div class="max-w-7xl mx-auto px-4 py-5">
-        <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-            <a href="{{ route('info.index') }}" class="flex items-center gap-2.5 text-xl font-bold text-ink hover:text-amber-600 transition-colors">
-                <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600">📘</span>
-                정보
-            </a>
-            <form action="{{ route('info.index') }}" method="GET" class="flex gap-1">
-                <input type="text" name="q" placeholder="정보 검색..." class="input-soft w-40 px-3 py-1.5 text-sm">
-                <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+        {{-- 데스크탑 제목 — 목록(info/index)·다른 게시판과 같은 [묶음 이름 + 하위 탭] --}}
+        <div class="hidden lg:flex items-center justify-between mb-4">
+            @include('info._title', ['stack' => false])
+            <form action="{{ route('info.index') }}" method="GET" class="flex items-center gap-2">
+                <input type="text" name="q" placeholder="정보 검색..." class="input-soft w-48 text-xs py-1.5">
+                <button type="submit" class="btn-primary px-4 py-2">검색</button>
             </form>
         </div>
         {{-- 모바일 상세 상단 줄 — 다른 상세 화면(DetailHeader.vue)과 같은 모양: 둥근 뒤로가기 버튼 + 제목.
              목록(검색·카테고리)에서 왔으면 브라우저 뒤로(조건 유지), 아니면 정보 목록으로 이동. --}}
-        <div class="lg:hidden bg-white/95 border-b border-gray-100 flex items-center gap-2.5 px-3 py-2 -mx-4 mb-3" style="position:sticky;top:56px;z-index:30;backdrop-filter:blur(6px)">
+        <div class="lg:hidden bg-white/95 border-b border-gray-100 flex items-center gap-2.5 px-3 py-2 -mx-4 mb-3" style="position:sticky;top:calc(env(safe-area-inset-top, 0px) + 64px);z-index:30;backdrop-filter:blur(6px)">
             <a href="{{ route('info.index') }}" aria-label="뒤로가기" title="뒤로가기"
                onclick="try{if(document.referrer&&new URL(document.referrer).origin===location.origin&&history.length>1){history.back();return false}}catch(e){}"
                class="w-9 h-9 rounded-full bg-gray-100 text-ink hover:bg-gray-200 active:bg-gray-200 flex items-center justify-center flex-shrink-0">
@@ -78,7 +76,10 @@
             {{-- 왼쪽: 카테고리 --}}
             <div class="col-span-12 lg:col-span-2 hidden lg:block">
                 <div class="card overflow-hidden sticky top-20">
-                    <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5">📋 카테고리</div>
+                    <div class="px-3 py-2.5 border-b border-gray-50 flex items-center gap-2">
+                        <span class="icon-chip w-7 h-7 bg-sky-50 text-sky-600 text-[13px]">📋</span>
+                        <span class="text-xs font-bold text-ink">카테고리</span>
+                    </div>
                     <a href="{{ route('info.index') }}" class="block px-3 py-2 text-xs text-ink-light hover:bg-amber-50/50 transition-colors">전체</a>
                     @foreach (\App\Models\InfoPost::CATEGORIES as $cat)
                         <a href="{{ route('info.index', ['category' => $cat]) }}"

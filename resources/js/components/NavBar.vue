@@ -1,7 +1,7 @@
 <template>
-  <nav ref="navEl" class="ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50 md:!pt-[14px]" style="padding-top: calc(env(safe-area-inset-top, 0px) + 8px)">
-    <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth (PC 는 여유 있게: 높이 76px) -->
-    <div class="max-w-7xl mx-auto px-3 flex items-center h-14 gap-2 md:h-[76px] md:px-4 md:gap-3">
+  <nav ref="navEl" class="site-hdr ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
+    <!-- Row 1: 햄버거(모바일) + Logo + Search + Auth — 크기는 app.css .site-hdr-* (info/_header.blade.php 와 공용) -->
+    <div class="site-hdr-row">
       <!-- 햄버거 메뉴 (모바일) -->
       <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2.5 -ml-1 text-ink-light hover:text-amber-500 transition-colors flex-shrink-0">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -12,17 +12,17 @@
 
       <!-- Logo -->
       <RouterLink to="/" class="flex items-center flex-shrink-0" aria-label="AwesomeKorean">
-        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="block md:!w-[172px] md:!max-h-[60px]" style="width:clamp(92px,26vw,144px);height:auto;max-height:52px;object-fit:contain;object-position:left center" />
+        <img :src="siteStore.logoUrl" alt="AwesomeKorean" class="site-hdr-logo" />
       </RouterLink>
 
       <!-- Search (데스크톱만 — 모바일은 햄버거 메뉴 안에) -->
       <div class="flex-1 mx-2 min-w-0 hidden md:block">
-        <form @submit.prevent="goSearch" class="relative max-w-lg md:max-w-xl mx-auto">
+        <form @submit.prevent="goSearch" class="site-hdr-search-form">
           <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint hover:text-amber-500 transition-colors">
             <AppIcon name="search" :size="16" />
           </button>
           <input v-model="searchQ" type="text" placeholder="궁금한 것을 검색해 보세요 — 영주권, 맛집, 중고차…"
-            class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 md:py-3 text-sm md:text-[15px] text-ink outline-none transition-all duration-150 placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10" />
+            class="site-hdr-search" />
         </form>
       </div>
       <!-- 모바일: 로고 옆 빈 공간 채우기 -->
@@ -104,19 +104,19 @@
     <!-- Row 2: 데스크톱 메뉴 -->
     <div class="border-t border-gray-50 hidden md:block">
       <!-- 묶음 메뉴 (관리자 › 메뉴 묶음이 켜져 있을 때) — 묶음에 마우스를 올리면 하위 메뉴가 펼쳐짐 -->
-      <div v-if="navGroups" class="max-w-7xl mx-auto px-4 flex items-center justify-center h-12">
-        <div v-for="g in navGroups" :key="g.key" class="relative group/nav">
+      <div v-if="navGroups" class="site-hdr-menu">
+        <div v-for="g in navGroups" :key="g.key" class="site-hdr-navitem">
           <component :is="g.external ? 'a' : 'RouterLink'" v-bind="g.external ? { href: g.path } : { to: g.path }"
-            class="flex items-center gap-1 h-12 px-3.5 text-[14px] font-semibold border-b-2 whitespace-nowrap transition-colors duration-150"
-            :class="isGroupActive(g) ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink'">
+            class="site-hdr-tab"
+            :class="isGroupActive(g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off'">
             {{ g.label }}<span v-if="g.type !== 'single' && g.items.length" class="text-[9px] opacity-50">▼</span>
           </component>
           <div v-if="g.type !== 'single' && g.items.length"
-            class="hidden group-hover/nav:block absolute left-1/2 -translate-x-1/2 top-full z-50 min-w-[160px] bg-white border border-gray-100 rounded-2xl shadow-lift p-1.5">
-            <RouterLink v-if="g.type === 'hub'" :to="g.path" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold text-ink-light hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap">{{ g.icon }} {{ g.label }} 홈</RouterLink>
+            class="site-hdr-drop">
+            <RouterLink v-if="g.type === 'hub'" :to="g.path" class="site-hdr-drop-item text-ink-light">{{ g.icon }} {{ g.label }} 홈</RouterLink>
             <template v-for="m in g.items" :key="m.key">
-              <a v-if="m.external" :href="m.path" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold text-ink-light hover:bg-amber-50 hover:text-amber-700 whitespace-nowrap">{{ m.label }}</a>
-              <RouterLink v-else :to="m.path" class="block px-3.5 py-2 rounded-xl text-[14px] font-semibold whitespace-nowrap hover:bg-amber-50 hover:text-amber-700"
+              <a v-if="m.external" :href="m.path" class="site-hdr-drop-item text-ink-light">{{ m.label }}</a>
+              <RouterLink v-else :to="m.path" class="site-hdr-drop-item"
                 :class="isActive(m.path) ? 'text-amber-700' : 'text-ink-light'">{{ m.label }}</RouterLink>
             </template>
           </div>

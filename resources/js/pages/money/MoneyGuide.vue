@@ -1,7 +1,9 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-3xl mx-auto px-4 py-5">
+  <div class="max-w-7xl mx-auto px-4 py-5">
     <MoneyHead :crumbs="[{ label: '머니 가이드' }]" />
+    <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
+    <div class="max-w-4xl mx-auto">
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">가이드를 찾을 수 없어요. <RouterLink to="/money" class="text-emerald-700 font-bold underline">MONEY 홈으로</RouterLink></p>
     <article v-else-if="g">
       <div class="text-[12px] font-extrabold tracking-[2px] text-emerald-700">MONEY GUIDE · 설명 페이지</div>
@@ -11,6 +13,7 @@
       <div class="mt-4 rounded-2xl bg-[#f2fbf6] px-4 py-3 text-sm font-bold text-[#1d5a43]">☕ 더 궁금하면 <RouterLink to="/money/cafes" class="underline">분야별 카페</RouterLink>에서 질문해 보세요.</div>
       <p class="mt-6 text-[12.5px] text-ink-muted">{{ DISCLAIMER }}</p>
     </article>
+    </div>
   </div>
 </div>
 </template>

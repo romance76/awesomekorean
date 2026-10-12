@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-5xl mx-auto px-4 py-5">
+  <div class="max-w-7xl mx-auto px-4 py-5">
     <MoneyHead :crumbs="[{ label: '분야별 카페 안내' }]" />
     <p class="text-[15px] text-ink-light mb-4">카페마다 다루는 이야기를 모았어요. 가입 없이 누구나 들어가 보고 답글을 달 수 있어요.</p>
 

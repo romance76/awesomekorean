@@ -22,52 +22,46 @@
     @include('info._header')
 
     <div class="max-w-7xl mx-auto px-4 py-5">
-        @php
-            // 상단 메뉴 묶음이 켜져 있고 '정보'가 2개 이상짜리 묶음에 있으면 [묶음 이름 + 하위 탭] (Vue 의 GroupTitle 과 같은 모양)
-            $infoGrp = collect(\App\Support\MenuGroups::publicGroups($menus ?? []) ?? [])
-                ->first(fn ($g) => $g['type'] === 'group' && count($g['items']) > 1 && collect($g['items'])->contains('key', 'info'));
-        @endphp
-        @if ($infoGrp)
-        <div class="lg:hidden mb-3 flex flex-col gap-2">
-            <a href="{{ $infoGrp['items'][0]['path'] }}" class="flex items-center gap-2.5 text-xl font-bold text-ink"><span class="icon-chip w-9 h-9 bg-amber-50 text-[18px] leading-none">{{ $infoGrp['icon'] ?: '📁' }}</span>{{ $infoGrp['label'] }}</a>
-            <div class="flex gap-1.5 overflow-x-auto scrollbar-hide">
-                @foreach ($infoGrp['items'] as $m)
-                    <a href="{{ $m['path'] }}" class="shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-bold whitespace-nowrap {{ $m['key'] === 'info' ? 'bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6]' : 'bg-surface text-ink-light border-line' }}">{{ $m['label'] }}</a>
-                @endforeach
-            </div>
-        </div>
-        @endif
-        <div class="hidden lg:flex items-center justify-between mb-4 flex-wrap gap-2">
-            @if ($infoGrp)
-            <div class="flex items-center gap-3 min-w-0">
-                <a href="{{ $infoGrp['items'][0]['path'] }}" class="flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap"><span class="icon-chip w-9 h-9 bg-amber-50 text-[18px] leading-none">{{ $infoGrp['icon'] ?: '📁' }}</span>{{ $infoGrp['label'] }}</a>
-                <div class="flex gap-1.5">
-                    @foreach ($infoGrp['items'] as $m)
-                        <a href="{{ $m['path'] }}" class="shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-bold whitespace-nowrap {{ $m['key'] === 'info' ? 'bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6]' : 'bg-surface text-ink-light border-line hover:border-gray-300' }}">{{ $m['label'] }}</a>
-                    @endforeach
-                </div>
-            </div>
-            @else
-            <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink">
-                <span class="icon-chip w-9 h-9 bg-sky-50 text-sky-600">📘</span>
-                정보
-            </h1>
-            @endif
-            <form action="{{ route('info.index') }}" method="GET" class="flex gap-1">
+        {{-- 헤더: 모바일 (커뮤니티 목록과 같은 자리) — 제목은 info/_title (GroupTitle.vue 와 같은 .grp-* 클래스) --}}
+        <div class="lg:hidden mb-3">
+            <div class="mb-2">@include('info._title', ['stack' => true])</div>
+            <form action="{{ route('info.index') }}" method="GET" class="flex gap-1.5">
                 @if ($activeCategory)
                     <input type="hidden" name="category" value="{{ $activeCategory }}">
                 @endif
-                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft w-40 px-3 py-1.5 text-sm">
-                <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft flex-1 text-xs py-2">
+                <button type="submit" class="btn-primary text-xs px-3 py-2">검색</button>
+            </form>
+            @if ($categories)
+            <div class="flex gap-1.5 overflow-x-auto scrollbar-hide mt-2">
+                <a href="{{ route('info.index') }}" class="badge {{ !$activeCategory ? 'bg-amber-50 text-amber-700' : 'bg-surface text-ink-light' }}">전체</a>
+                @foreach ($categories as $cat)
+                    <a href="{{ route('info.index', ['category' => $cat]) }}" class="badge {{ $activeCategory === $cat ? 'bg-amber-50 text-amber-700' : 'bg-surface text-ink-light' }}">{{ $cat }}</a>
+                @endforeach
+            </div>
+            @endif
+        </div>
+        {{-- 헤더: 데스크탑 --}}
+        <div class="hidden lg:flex items-center justify-between mb-4">
+            @include('info._title', ['stack' => false])
+            <form action="{{ route('info.index') }}" method="GET" class="flex items-center gap-2">
+                @if ($activeCategory)
+                    <input type="hidden" name="category" value="{{ $activeCategory }}">
+                @endif
+                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft w-48 text-xs py-1.5">
+                <button type="submit" class="btn-primary px-4 py-2">검색</button>
             </form>
         </div>
 
         <div class="grid grid-cols-12 gap-4">
             {{-- 왼쪽: 카테고리 --}}
             <div class="col-span-12 lg:col-span-2 hidden lg:block">
-                <div class="sticky top-20 space-y-3">
+                <div class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 pr-0.5">
                     <div class="card overflow-hidden">
-                        <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5">📋 카테고리</div>
+                        <div class="px-3 py-2.5 border-b border-gray-50 flex items-center gap-2">
+                            <span class="icon-chip w-7 h-7 bg-sky-50 text-sky-600 text-[13px]">📋</span>
+                            <span class="text-xs font-bold text-ink">카테고리</span>
+                        </div>
                         <a href="{{ route('info.index') }}" class="block px-3 py-2 text-xs transition-colors {{ !$activeCategory ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50' }}">전체</a>
                         @foreach ($categories as $cat)
                             <a href="{{ route('info.index', ['category' => $cat]) }}" class="block px-3 py-2 text-xs transition-colors {{ $activeCategory === $cat ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50' }}">{{ $cat }}</a>
@@ -115,27 +109,30 @@
 
                     <div class="mt-6">{{ $posts->links('partials.pagination') }}</div>
                 @else
-                    <div class="space-y-2">
+                    {{-- 커뮤니티 목록(BoardList.vue)과 같은 줄 모양: 한 카드 안에 줄, 배지 → 제목 → 요약 → 정보 줄, 사진은 오른쪽 --}}
+                    <div class="card overflow-hidden divide-y divide-[#DDD4CA]">
                         @foreach ($posts as $post)
-                            <a href="{{ route('info.show', $post->slug) }}" class="card card-hover overflow-hidden cursor-pointer block">
-                                <div class="flex gap-3 p-3">
-                                    <div class="w-24 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-gray-300">
-                                        @if ($post->cover_image_url)
-                                            <img src="{{ $post->cover_image_url }}" alt="{{ $post->title }}" loading="lazy" class="w-full h-full object-cover">
-                                        @else
-                                            <span class="text-xl">📘</span>
-                                        @endif
+                            <a href="{{ route('info.show', $post->slug) }}" class="list-row !px-4 sm:!px-5 !py-4 flex gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="badge-primary flex-shrink-0">{{ $post->category }}</span>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-1.5 mb-1">
-                                            <span class="badge-primary !text-[11px] !px-2">{{ $post->category }}</span>
-                                        </div>
-                                        <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug">{{ $post->title }}</div>
-                                        <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-xs text-ink-muted">👁 {{ $post->view_count }} · {{ $post->published_at->format('Y.m.d') }}</span>
-                                        </div>
+                                    <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ $post->title }}</div>
+                                    @if ($post->excerpt)
+                                        <p class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ \Illuminate\Support\Str::limit(strip_tags($post->excerpt), 160) }}</p>
+                                    @endif
+                                    <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-2 text-xs text-ink-muted">
+                                        <span>{{ $post->published_at->format('Y.m.d') }}</span>
+                                        <span class="flex items-center gap-0.5 tabular-nums" aria-label="조회 {{ $post->view_count }}">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>{{ $post->view_count }}
+                                        </span>
                                     </div>
                                 </div>
+                                @if ($post->cover_image_url)
+                                    <div class="relative flex-shrink-0 self-start">
+                                        <img src="{{ $post->cover_image_url }}" alt="" loading="lazy" decoding="async" class="w-[72px] h-[72px] sm:w-24 sm:h-24 rounded-xl object-cover bg-gray-100" onerror="this.parentElement.style.display='none'">
+                                    </div>
+                                @endif
                             </a>
                         @endforeach
                     </div>
@@ -183,7 +180,8 @@
                 .info-tabs:has(#tab-latest:checked) .tab-latest-panel { display: block; }
                 .info-tabs:has(#tab-popular:checked) .tab-popular-label,
                 .info-tabs:has(#tab-latest:checked) .tab-latest-label {
-                    color: #E0145A; border-bottom: 2px solid #FC226B; background: rgba(255,240,245,.7);
+                    /* SidebarWidgets.vue 의 탭과 같은 색 (amber-600 · amber-400 · amber-50/60 = 브랜드 핑크 팔레트) */
+                    color: #E0145A; border-bottom: 2px solid #FF4F88; background: rgba(255,240,245,.6);
                 }
             </style>
         </div>

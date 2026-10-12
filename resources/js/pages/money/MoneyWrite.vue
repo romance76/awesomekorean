@@ -1,7 +1,9 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-3xl mx-auto px-4 py-5">
+  <div class="max-w-7xl mx-auto px-4 py-5">
     <MoneyHead :crumbs="[{ label: editId ? '글 수정' : '새 정보 올리기' }]" />
+    <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
+    <div class="max-w-4xl mx-auto">
 
     <form @submit.prevent="submit" class="card p-5 md:p-6 space-y-4">
       <label class="block">
@@ -33,6 +35,7 @@
         <button type="submit" :disabled="busy" class="btn-primary px-6 py-2.5 disabled:opacity-50">{{ busy ? '저장 중...' : (editId ? '수정하기' : '올리기') }}</button>
       </div>
     </form>
+    </div>
   </div>
 </div>
 </template>

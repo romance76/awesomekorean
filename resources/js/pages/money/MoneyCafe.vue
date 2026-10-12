@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-5xl mx-auto px-4 py-5">
+  <div class="max-w-7xl mx-auto px-4 py-5">
     <MoneyHead :crumbs="[{ label: cafe ? cafe.name + ' 카페' : '카페' }]" />
 
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">카페를 찾을 수 없어요. <RouterLink to="/money/cafes" class="text-emerald-700 font-bold underline">카페 안내로</RouterLink></p>
