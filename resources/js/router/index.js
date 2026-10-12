@@ -66,6 +66,13 @@ const routes = [
   { path: '/shopping/guide', name: 'shopping-guide', component: p('shopping/AssociatesGuide') },
   { path: '/shopping/write', name: 'shopping-write', component: p('shopping/ShoppingWrite'), meta: { auth: true } },
   { path: '/shopping/:id', name: 'shopping-detail', component: p('shopping/ShoppingDetail') },
+  // MONEY 허브 (qa/money_hub_plan.md)
+  { path: '/money', name: 'money', component: p('money/MoneyHome') },
+  { path: '/money/cafes', name: 'money-cafes', component: p('money/MoneyCafes') },
+  { path: '/money/cafe/:slug', name: 'money-cafe', component: p('money/MoneyCafe') },
+  { path: '/money/post/:id', name: 'money-post', component: p('money/MoneyPost') },
+  { path: '/money/write', name: 'money-write', component: p('money/MoneyWrite'), meta: { auth: true } },
+  { path: '/money/guide/:slug', name: 'money-guide', component: p('money/MoneyGuide') },
 
   // Recipes (식품안전나라 API 기반 + 유저 레시피)
   { path: '/recipes', name: 'recipes', component: p('recipes/RecipeList') },

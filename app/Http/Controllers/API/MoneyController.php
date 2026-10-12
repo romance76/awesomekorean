@@ -25,11 +25,12 @@ class MoneyController extends Controller
     {
         $since = now()->subDays(7);
         $cafes = MoneyCafe::where('is_active', true)->orderBy('sort_order')
+            ->select(['id', 'slug', 'name', 'icon', 'summary', 'sort_order'])
             ->withCount([
                 'posts as post_count' => fn ($q) => $q->where('is_hidden', false),
                 'posts as new_count' => fn ($q) => $q->where('is_hidden', false)->where('created_at', '>=', $since),
             ])
-            ->get(['id', 'slug', 'name', 'icon', 'summary', 'sort_order']);
+            ->get();
         $guides = MoneyGuide::where('is_published', true)->orderBy('sort_order')->get(['slug', 'icon', 'title', 'summary']);
         return response()->json(['success' => true, 'data' => ['cafes' => $cafes, 'guides' => $guides]]);
     }

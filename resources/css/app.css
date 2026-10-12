@@ -338,3 +338,14 @@ html.easy-view:not(.ev-pause) .ev-header .gap-1\.5{gap:2px}
   :is(html:not(.easy-view), html.ev-pause) .text-lg:not(nav.ev-header *):not(.admin-shell *) { font-size: 19px; }
   :is(html:not(.easy-view), html.ev-pause) .text-xl:not(nav.ev-header *):not(.admin-shell *) { font-size: 21.5px; }
 }
+
+/* MONEY 카페 대문·가이드·글 본문 (관리자/회원이 쓴 HTML) */
+.money-intro h2 { font-size: 18px; font-weight: 800; color: #1B1613; margin: 18px 0 8px; }
+.money-intro h3 { font-size: 15px; font-weight: 800; color: #1B1613; margin: 14px 0 6px; }
+.money-intro h2:first-child, .money-intro h3:first-child { margin-top: 0; }
+.money-intro ul { list-style: disc; padding-left: 20px; }
+.money-intro ol { list-style: decimal; padding-left: 20px; }
+.money-intro li { margin: 3px 0; }
+.money-intro p { margin: 6px 0; }
+.money-intro a { color: #047857; text-decoration: underline; }
+.money-intro img { max-width: 100%; height: auto; border-radius: 12px; }
