@@ -85,7 +85,22 @@ class MoneyController extends Controller
     {
         $post = MoneyPost::with('user:id,name,nickname,avatar,lifetime_points', 'cafe:id,slug,name,icon,theme', 'category:id,name,icon')->where('is_hidden', false)->findOrFail($id);
         MoneyPost::whereKey($post->id)->increment('view_count');
-        return response()->json(['success' => true, 'data' => $post]);
+
+        // 같은 카페(같은 주제가 있으면 그 주제 안)에서 글 목록과 같은 정렬(최신순)로 이전글·다음글을 찾는다.
+        $base = fn () => MoneyPost::where('cafe_id', $post->cafe_id)->where('is_hidden', false)
+            ->when($post->category_id, fn ($q) => $q->where('category_id', $post->category_id));
+        $cols = ['id', 'title'];
+        $prev = $base()->where(fn ($q) => $q->where('created_at', '>', $post->created_at)
+                ->orWhere(fn ($q2) => $q2->where('created_at', $post->created_at)->where('id', '>', $post->id)))
+            ->orderBy('created_at')->orderBy('id')->first($cols);
+        $next = $base()->where(fn ($q) => $q->where('created_at', '<', $post->created_at)
+                ->orWhere(fn ($q2) => $q2->where('created_at', $post->created_at)->where('id', '<', $post->id)))
+            ->orderByDesc('created_at')->orderByDesc('id')->first($cols);
+
+        $data = $post->toArray();
+        $data['prev_post'] = $prev;
+        $data['next_post'] = $next;
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function store(Request $request)

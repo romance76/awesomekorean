@@ -26,6 +26,20 @@
       <p class="mt-6 pt-4 border-t border-line text-[12.5px] text-ink-muted">{{ DISCLAIMER }}</p>
     </article>
 
+    <nav v-if="post" class="card mt-4 divide-y divide-gray-50 overflow-hidden">
+      <RouterLink v-if="post.next_post" :to="`/money/post/${post.next_post.id}`" class="flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-gray-50">
+        <span class="text-[11px] font-bold text-ink-muted shrink-0 w-14">다음 글</span>
+        <span class="truncate text-[14px] text-ink">{{ post.next_post.title }}</span>
+      </RouterLink>
+      <RouterLink v-if="post.prev_post" :to="`/money/post/${post.prev_post.id}`" class="flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-gray-50">
+        <span class="text-[11px] font-bold text-ink-muted shrink-0 w-14">이전 글</span>
+        <span class="truncate text-[14px] text-ink">{{ post.prev_post.title }}</span>
+      </RouterLink>
+      <RouterLink :to="listLink" class="flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 font-bold text-[14px] text-ink hover:bg-gray-50">
+        <AppIcon name="list" :size="16" />게시판 목록으로
+      </RouterLink>
+    </nav>
+
     <div v-if="post" class="card p-5 mt-4">
       <CommentSection type="money_post" :typeId="post.id" />
     </div>
@@ -42,6 +56,7 @@ import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import GuideBlocks from '../../components/money/GuideBlocks.vue'
 import MoneyHead from '../../components/money/MoneyHead.vue'
+import AppIcon from '../../components/AppIcon.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { KIND_LABEL, KIND_CLASS, DISCLAIMER } from '../../components/money/moneyText'
 
@@ -52,6 +67,7 @@ const fmt = (s) => (s ? String(s).slice(0, 16).replace('T', ' ') : '')
 // 운영팀이 올린 주제 이미지만 허용(정해진 폴더의 svg)
 const topicImage = computed(() => (/^\/images\/money\/topics\/[\w-]+\.svg$/.test(post.value?.image || '') ? post.value.image : ''))
 const canEdit = computed(() => post.value && auth.user && (auth.user.id === post.value.user_id || auth.isAdmin))
+const listLink = computed(() => `/money/cafe/${post.value?.cafe?.slug || ''}${post.value?.category ? `?topic=${post.value.category.id}` : ''}`)
 
 async function load() {
   notFound.value = false; post.value = null
