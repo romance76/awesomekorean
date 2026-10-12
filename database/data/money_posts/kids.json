@@ -3109,5 +3109,3190 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "학자금 대출",
+  "kind": "info",
+  "title": "학자금 대출 종류 한눈에: 연방 대출(Direct)과 민간 대출, Parent PLUS 는 무엇이 다른가요",
+  "content": "학자금 대출은 연방 정부가 주는 대출과 은행 같은 민간이 주는 대출로 나뉘어요. 교육부 안내에는 '연방 학자금 대출이 보통 민간 대출보다 혜택이 많다'고 적혀 있어요. 연방 대출의 종류와 부모가 빌리는 Parent PLUS, 민간 대출은 마지막에 보는 이유를 정리했어요.\n- 대출은 이자와 함께 갚아야 하는 돈이에요\n- 연방 대출이 보통 민간 대출보다 혜택이 많아요(공식 안내)\n- Parent PLUS 는 부모가 자녀 학비를 빌리는 대출이에요",
+  "image": "/images/money/topics/kids-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "갚아야",
+      "label": "대출",
+      "note": "이자와 함께",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "연방",
+      "label": "먼저 보기",
+      "note": "보통 혜택이 더 많음",
+      "icon": "check"
+     },
+     {
+      "value": "민간",
+      "label": "마지막에",
+      "note": "조건은 대출사마다",
+      "icon": "building"
+     },
+     {
+      "value": "PLUS",
+      "label": "부모 대출",
+      "note": "한도와 규정 확인",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "공식 안내 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "StudentAid.gov: Federal Student Loans",
+    "src": "/images/money/shots/kid-loans.jpg",
+    "pins": [
+     {
+      "x": 13.2,
+      "y": 23.8,
+      "text": "**Federal Student Loans** — 미국 교육부의 연방 학자금 대출 안내 페이지예요."
+     },
+     {
+      "x": 45.5,
+      "y": 58.8,
+      "text": "**A loan is money you borrow and must pay back with interest.** — 대출은 빌려서 이자와 함께 갚아야 하는 돈이라는 첫 줄이에요."
+     },
+     {
+      "x": 45.5,
+      "y": 71.7,
+      "text": "**Federal student loans usually have more benefits than private loans** — 연방 대출이 보통 민간 대출보다 혜택이 많다는 안내예요."
+     },
+     {
+      "x": 32.3,
+      "y": 85,
+      "text": "**Types of Federal Student Loans** — 대출 종류와 빌릴 수 있는 사람, 연 한도가 표로 나와요."
+     }
+    ],
+    "caption": "학비 지원 합격 통지서에 '대출'이 들어 있어도 반드시 빌려야 하는 건 아니에요. 필요한 만큼만 받겠다고 할 수 있어요.",
+    "credit": "미국 교육부 Federal Student Aid 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "shot",
+    "title": "StudentAid.gov: 대출 종류 표(일부)",
+    "src": "/images/money/shots/kid-loans2.jpg",
+    "pins": [
+     {
+      "x": 53.6,
+      "y": 18.9,
+      "text": "**Direct Unsubsidized — 대학원생** 연 한도가 이 화면에서는 **$20,500**로 안내돼요."
+     },
+     {
+      "x": 53.6,
+      "y": 28,
+      "text": "**전문대학원(Professional) 학생**은 이 화면 기준 **$50,000**이에요."
+     },
+     {
+      "x": 24.5,
+      "y": 37.1,
+      "text": "**Direct PLUS (대학원·전문대학원생)** — 자격 여부(Qualifies / Doesn't Qualify)에 따라 나뉘어 안내돼요. 규정이 바뀐 부분이라 공식 화면을 꼭 확인하세요."
+     },
+     {
+      "x": 24.5,
+      "y": 58.3,
+      "text": "**Direct PLUS for parents** — 부모가 의존 학부생을 위해 빌리는 대출이에요."
+     },
+     {
+      "x": 63.6,
+      "y": 91.3,
+      "text": "**$20,000 minus other aid** — 일부 경우 학생당 연 한도가 '$20,000에서 다른 지원을 뺀 금액'이라고 적혀 있어요."
+     }
+    ],
+    "caption": "표의 금액과 조건은 학년도마다 바뀌어요. 지금 화면을 직접 확인하세요.",
+    "credit": "미국 교육부 Federal Student Aid 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "연방 vs 민간",
+    "columns": [
+     "구분",
+     "연방 대출",
+     "민간 대출"
+    ],
+    "rows": [
+     [
+      "누가 주나",
+      "미국 교육부",
+      "은행·신용조합·대출 회사"
+     ],
+     [
+      "신청",
+      "FAFSA 후 학교가 제안",
+      "각 회사에 직접 신청, 신용 점수 확인"
+     ],
+     [
+      "이자·조건",
+      "법으로 정해진 조건",
+      "회사마다 다르고 신용에 따라 달라요"
+     ],
+     [
+      "상환 선택지",
+      "소득 기준 상환 등 선택지 있음",
+      "회사 정책에 달려 있어요"
+     ],
+     [
+      "보증(공동 서명자)",
+      "보통 필요 없음",
+      "공동 서명자가 요구되는 경우가 많아요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "CFPB와 교육부는 연방 대출을 먼저 검토하라고 안내해요."
+   },
+   {
+    "type": "steps",
+    "title": "대출을 정하는 순서",
+    "items": [
+     {
+      "title": "먼저 갚지 않는 돈(장학금·보조금)을 다 쓰세요",
+      "body": "대출은 그다음이에요."
+     },
+     {
+      "title": "연방 대출 제안서를 읽어요",
+      "body": "학교가 보내는 재정지원 통지서(award letter)에서 대출 항목을 구분해요."
+     },
+     {
+      "title": "꼭 필요한 만큼만 받겠다고 선택해요",
+      "body": "제안된 전액을 받을 필요는 없어요."
+     },
+     {
+      "title": "민간 대출은 마지막에, 비교해서 결정해요",
+      "body": "이자율 종류(고정/변동), 수수료, 공동 서명자 책임을 읽어요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**대출 종류**(연방/민간)",
+     "**연 한도와 총 한도**",
+     "**이자율**(고정/변동)",
+     "**상환 시작 시기**",
+     "**공동 서명자 책임**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'제안 금액 = 빌려야 하는 금액'이 아니에요",
+    "body": "재정지원 통지서에 대출이 들어 있어도 거절하거나 줄일 수 있어요. 졸업 때의 총 빚을 먼저 계산해 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "교육부 공식: Federal Student Loans",
+      "url": "https://studentaid.gov/understand-aid/types/loans",
+      "kind": "정부(공식, 미국 교육부)"
+     },
+     {
+      "title": "CFPB 공식: Private student loans",
+      "url": "https://www.consumerfinance.gov/consumer-tools/student-loans/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "교육부 공식: FAFSA (Federal Student Aid)",
+      "url": "https://studentaid.gov/h/apply-for-aid/fafsa",
+      "kind": "정부(공식, 미국 교육부)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "학자금 대출",
+  "kind": "info",
+  "title": "대출 갚는 방법: 고정 상환·소득 연동 상환·PSLF, 그리고 2026년 7월 이후 새 대출의 'Tiered Standard Plan'",
+  "content": "연방 학자금 대출은 갚는 방법을 고를 수 있어요. 매달 고정 금액으로 갚거나, 소득에 따라 금액이 달라지는 방법이 있어요. 교육부 화면에는 2026년 7월 1일 이후에 받은 대출에는 새 기본 플랜이 적용된다는 안내가 있어요. 공식 화면을 따라 선택지와 공공 서비스 대출 탕감(PSLF)을 정리했어요.\n- 고정 상환: 정해진 기간 동안 같은 금액\n- 소득 연동(IDR): 소득·가족 수에 따라 금액이 달라져요\n- 2026.7.1 이후 대출은 Tiered Standard Plan 에 자동 배정(화면 안내)",
+  "image": "/images/money/topics/kids-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "고정",
+      "label": "상환 플랜",
+      "note": "Standard·Graduated·Extended",
+      "icon": "calendar"
+     },
+     {
+      "value": "IDR",
+      "label": "소득 연동",
+      "note": "소득이 낮으면 낮게",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "120번",
+      "label": "PSLF",
+      "note": "10년·공공 근무",
+      "icon": "building"
+     },
+     {
+      "value": "2026.7.1",
+      "label": "새 대출 기준",
+      "note": "Tiered Standard",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "교육부 화면 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "StudentAid.gov: Repayment Plans",
+    "src": "/images/money/shots/kid-repay.jpg",
+    "pins": [
+     {
+      "x": 43.6,
+      "y": 46.8,
+      "text": "노란 안내: **OBBBA 법으로 연방 학자금 지원 제도에 큰 변화**가 생겨서 이 페이지가 최신으로 갱신됐다는 문구예요."
+     },
+     {
+      "x": 43.6,
+      "y": 62.2,
+      "text": "플랜은 **소득을 기준**으로 하는 것과 **고정 월 금액**인 것으로 나뉜다는 설명이에요."
+     },
+     {
+      "x": 25.1,
+      "y": 72.6,
+      "text": "**FAST FACTS** — 소득 기준 플랜은 소득이 낮거나 가족이 많을수록 월 금액이 줄어드는 선택이라고 설명해요."
+     },
+     {
+      "x": 6.8,
+      "y": 61.8,
+      "text": "왼쪽 메뉴에 **Fixed Payment Plans**, **Income-Driven Repayment(IDR)**, **Consolidating Your Loans** 가 있어요."
+     }
+    ],
+    "caption": "어떤 플랜이 가능한지는 대출 종류와 받은 시기에 따라 달라요.",
+    "credit": "미국 교육부 Federal Student Aid 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "shot",
+    "title": "StudentAid.gov: Compare Repayment Plans",
+    "src": "/images/money/shots/kid-repay2.jpg",
+    "pins": [
+     {
+      "x": 30.5,
+      "y": 5.5,
+      "text": "**Compare Repayment Plans** — 어떤 플랜이 내게 맞는지 비교하는 부분이에요."
+     },
+     {
+      "x": 43.6,
+      "y": 13.8,
+      "text": "**Repayment Calculator** — 이 계산기가 플랜 비교의 가장 좋은 방법이라고 안내해요."
+     },
+     {
+      "x": 43.6,
+      "y": 40.6,
+      "text": "**PSLF** — 공공 서비스 대출 탕감: **적격 고용주에서 전일 근무하며 소득 연동 플랜으로 120번(10년)** 적격 상환을 하면 남은 대출이 탕감된다는 설명이에요."
+     },
+     {
+      "x": 33.2,
+      "y": 60.4,
+      "text": "**Fixed Payment Repayment Plans** — Tiered Standard, Standard, Graduated, Extended 가 있어요."
+     },
+     {
+      "x": 43.6,
+      "y": 65.6,
+      "text": "**Tiered Standard Plan (2026년 7월 1일 이후 지급된 대출)** — 새 대출에 해당해요."
+     },
+     {
+      "x": 43.6,
+      "y": 85.8,
+      "text": "학교를 떠나면 다른 플랜을 고르지 않는 한 **Tiered Standard Plan 에 자동 등록**된다는 안내예요."
+     }
+    ],
+    "caption": "플랜 이름과 조건은 법 개정으로 계속 바뀔 수 있어요. 대출 서비서(servicer)와 공식 화면에서 최신 내용을 확인하세요.",
+    "credit": "미국 교육부 Federal Student Aid 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "플랜 종류",
+    "columns": [
+     "종류",
+     "월 금액이 정해지는 방식",
+     "특징"
+    ],
+    "rows": [
+     [
+      "고정(Standard 등)",
+      "빌린 금액·이자·기간으로 정해져요",
+      "기간 동안 예측 가능"
+     ],
+     [
+      "Graduated",
+      "처음에 낮고 점점 늘어요",
+      "소득이 오른다고 예상할 때"
+     ],
+     [
+      "Extended",
+      "기간을 길게",
+      "월 부담은 줄지만 총 이자가 늘어요"
+     ],
+     [
+      "소득 연동(IDR)",
+      "소득·가족 수로 정해져요",
+      "소득이 낮으면 월 부담이 낮아요"
+     ],
+     [
+      "Tiered Standard",
+      "2026.7.1 이후 새 대출 기본 플랜",
+      "화면에 따라 자동 배정"
+     ]
+    ],
+    "highlight": 0,
+    "note": "플랜별 총 이자 차이가 커서 계산기로 직접 비교하세요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: $30,000을 6.5% 이자로 갚을 때(10년 고정)",
+    "sub": "월 약 $341, 총 약 $40,900",
+    "items": [
+     {
+      "label": "빌린 금액",
+      "value": 30000,
+      "display": "$30,000"
+     },
+     {
+      "label": "10년 총 상환액",
+      "value": 40877,
+      "display": "약 $40,900",
+      "highlight": true
+     }
+    ],
+    "max": 40877,
+    "source": "※ 가상 예시예요. 실제 이자율·플랜에 따라 달라요. 연방 대출의 현재 이자율은 공식 화면에서 확인하세요."
+   },
+   {
+    "type": "steps",
+    "title": "서비서(servicer)에게 확인하는 법",
+    "items": [
+     {
+      "title": "로그인해서 내 대출을 확인해요",
+      "body": "StudentAid.gov의 My Federal Student Aid에서 대출 종류와 서비서를 확인해요."
+     },
+     {
+      "title": "상환 계산기로 플랜별 월 금액을 비교해요",
+      "body": "가능한 플랜이 자동으로 나와요."
+     },
+     {
+      "title": "PSLF를 노린다면 직장이 적격인지 확인해요",
+      "body": "정부·비영리 직장 등 조건이 있어요."
+     },
+     {
+      "title": "유예·상환 연기 옵션을 알아 둬요",
+      "body": "어려울 때 연락해서 선택지를 물어보세요. 연체는 신용에 영향을 줘요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**대출 종류와 받은 시기**",
+     "**서비서 이름과 연락처**",
+     "**가능한 플랜 비교**",
+     "**PSLF 해당 여부**",
+     "**어려울 때 연락 방법**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "연체하기 전에 먼저 연락하세요",
+    "body": "갚기 어렵다고 연락을 끊으면 연체와 신용 손상으로 이어져요. 서비서에게 상황을 설명하면 플랜 변경 등 선택지가 나와요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "대출 제도는 법 개정으로 자주 바뀌어요. 이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "교육부 공식: Federal Student Loan Repayment Plans",
+      "url": "https://studentaid.gov/manage-loans/repayment/plans",
+      "kind": "정부(공식, 미국 교육부)"
+     },
+     {
+      "title": "교육부 공식: Federal Student Loans",
+      "url": "https://studentaid.gov/understand-aid/types/loans",
+      "kind": "정부(공식, 미국 교육부)"
+     },
+     {
+      "title": "교육부 공식: FAFSA (Federal Student Aid)",
+      "url": "https://studentaid.gov/h/apply-for-aid/fafsa",
+      "kind": "정부(공식, 미국 교육부)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "학자금 대출",
+  "kind": "info",
+  "title": "민간 학자금 대출을 받기 전에: CFPB가 말하는 연방 대출과의 차이와 공동 서명자 위험",
+  "content": "민간 대출은 은행이나 대출 회사가 주는 대출로, 연방 대출과 규정이 달라요. 소비자금융보호국(CFPB)은 민간 학자금 대출을 감독하고, 연방 대출은 교육부 소관이라고 구분해 안내해요. 민간 대출을 받기 전에 확인할 것과 공동 서명자가 지는 책임을 정리했어요.\n- 민간 대출은 마지막 선택으로\n- 이자율·수수료·상환 조건이 회사마다 달라요\n- 공동 서명자(보통 부모)는 같은 책임을 져요",
+  "image": "/images/money/topics/kids-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "CFPB",
+      "label": "민간 대출 안내",
+      "note": "소비자 보호 기관",
+      "icon": "shield"
+     },
+     {
+      "value": "교육부",
+      "label": "연방 대출",
+      "note": "별도 소관",
+      "icon": "building"
+     },
+     {
+      "value": "공동",
+      "label": "서명자 책임",
+      "note": "갚을 의무가 같아요",
+      "icon": "users"
+     },
+     {
+      "value": "마지막",
+      "label": "선택 순서",
+      "note": "연방 다음",
+      "icon": "list"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "CFPB 화면 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "CFPB: Private student loans",
+    "src": "/images/money/shots/kid-cfpb.jpg",
+    "pins": [
+     {
+      "x": 17.5,
+      "y": 35.5,
+      "text": "**Private student loans** — CFPB의 민간 학자금 대출 안내예요."
+     },
+     {
+      "x": 19.5,
+      "y": 72.4,
+      "text": "**Private vs. federal student loans** — 민간과 연방 대출의 차이를 설명하는 상자예요."
+     },
+     {
+      "x": 42.7,
+      "y": 83.3,
+      "text": "**Department of Education** 링크 — 연방 대출은 교육부 소관이라고 안내해요."
+     },
+     {
+      "x": 90,
+      "y": 9.5,
+      "text": "**Submit a Complaint** — 대출 관련 문제가 풀리지 않을 때 CFPB에 민원을 넣을 수 있어요."
+     }
+    ],
+    "caption": "광고가 없는 정부 소비자 보호 자료예요.",
+    "credit": "소비자금융보호국(CFPB) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "민간 대출에서 반드시 비교할 것",
+    "columns": [
+     "항목",
+     "묻는 질문"
+    ],
+    "rows": [
+     [
+      "이자율",
+      "고정인가요, 변동인가요? 변동이면 얼마나 오를 수 있나요?"
+     ],
+     [
+      "수수료",
+      "대출 수수료(origination fee)가 있나요?"
+     ],
+     [
+      "상환 시작",
+      "학교에 다니는 동안 갚아야 하나요, 유예되나요?"
+     ],
+     [
+      "어려울 때",
+      "소득이 줄면 유예나 상환 조정이 가능한가요?"
+     ],
+     [
+      "공동 서명자",
+      "언제 빠질 수 있나요(release 조건)? 사망·장애 시 어떻게 되나요?"
+     ]
+    ],
+    "highlight": 0,
+    "note": "답을 서면(약관)으로 받아 보관하세요."
+   },
+   {
+    "type": "steps",
+    "title": "민간 대출을 받는 순서",
+    "items": [
+     {
+      "title": "연방 대출을 먼저 한도까지 확인해요",
+      "body": "부족한 금액만 민간으로 채워요."
+     },
+     {
+      "title": "여러 회사에서 사전 심사(soft pull)로 조건을 비교해요",
+      "body": "사전 심사는 신용 점수에 영향이 없는 곳이 많아요."
+     },
+     {
+      "title": "약관을 끝까지 읽어요",
+      "body": "변동 이자 상한, 수수료, 유예 조건을 확인해요."
+     },
+     {
+      "title": "공동 서명자와 책임을 함께 이야기해요",
+      "body": "가족이라도 신용·재정에 영향이 가는 일이에요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**연방 대출 먼저**",
+     "**고정/변동 이자**",
+     "**공동 서명자 해제 조건**",
+     "**어려울 때 선택지**",
+     "**서면 약관 보관**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "'합격 전 대출 승인' 광고를 조심하세요",
+    "body": "학교 이름을 내세워 급하게 서명을 요구하거나, 선불 수수료를 받는 업체는 의심하세요. 의심되면 CFPB 민원 창구를 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: Private student loans",
+      "url": "https://www.consumerfinance.gov/consumer-tools/student-loans/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "교육부 공식: Federal Student Loans",
+      "url": "https://studentaid.gov/understand-aid/types/loans",
+      "kind": "정부(공식, 미국 교육부)"
+     },
+     {
+      "title": "교육부 공식: Federal Student Loan Repayment Plans",
+      "url": "https://studentaid.gov/manage-loans/repayment/plans",
+      "kind": "정부(공식, 미국 교육부)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "사립학교",
+  "kind": "info",
+  "title": "K-12 사립학교 비용 구조: 학비 외에 드는 돈 7가지와 학교 비교표 만들기",
+  "content": "사립학교는 학비(tuition)만 보면 안 돼요. 입학 신청비, 등록비, 교복, 점심, 버스, 교재, 활동비까지 합친 총비용을 알아야 해요. 비용 7가지와 학교별 비교표 만드는 법, 재정지원 신청 흐름을 정리했어요.\n- 학비 외에 숨은 비용이 여러 가지예요\n- 많은 학교가 재정지원(financial aid)을 제공해요\n- 같은 조건으로 학교 3곳을 비교해요",
+  "image": "/images/money/topics/kids-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "7가지",
+      "label": "학비 외 비용",
+      "note": "합산해서 비교",
+      "icon": "list"
+     },
+     {
+      "value": "총비용",
+      "label": "비교 기준",
+      "note": "학비만 보지 않기",
+      "icon": "dollar"
+     },
+     {
+      "value": "재정지원",
+      "label": "학교 자체",
+      "note": "신청서 필요",
+      "icon": "gift"
+     },
+     {
+      "value": "마감",
+      "label": "입학·재정지원",
+      "note": "별도 확인",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "비용 7가지"
+   },
+   {
+    "type": "compare",
+    "title": "학비 외에 드는 돈",
+    "columns": [
+     "비용",
+     "설명",
+     "확인"
+    ],
+    "rows": [
+     [
+      "입학 신청비(Application fee)",
+      "지원할 때 한 번",
+      "학교 입학처 페이지"
+     ],
+     [
+      "등록비·보증금",
+      "합격 후 자리를 확보",
+      "환불 규정"
+     ],
+     [
+      "교재·기기",
+      "노트북·교재 비용",
+      "학교 제공 여부"
+     ],
+     [
+      "교복·유니폼",
+      "학교 지정 구매처",
+      "학년마다 새로 사는지"
+     ],
+     [
+      "급식·간식",
+      "점심 포함 여부",
+      "월 비용"
+     ],
+     [
+      "통학(버스)",
+      "학교 버스 또는 자가 운전",
+      "월 비용·거리"
+     ],
+     [
+      "활동비·여행",
+      "방과후·스포츠·수학여행",
+      "연간 합계"
+     ]
+    ],
+    "highlight": 0,
+    "note": "학교 입학 안내서의 '비용(Tuition & Fees)' 페이지에 대부분 나와요."
+   },
+   {
+    "type": "steps",
+    "title": "비교표 만들기",
+    "items": [
+     {
+      "title": "후보 학교 3곳의 연 학비를 적어요",
+      "body": "학년별로 학비가 다른 학교도 있어요."
+     },
+     {
+      "title": "위 7가지를 각각 적어요",
+      "body": "학교에 문의하세요. 숫자가 없으면 직접 물어보세요."
+     },
+     {
+      "title": "재정지원 신청 방법과 마감일을 적어요",
+      "body": "많은 학교가 외부 서비스를 써서 소득 서류를 받아요."
+     },
+     {
+      "title": "연간 총비용과 졸업까지 합계를 계산해요",
+      "body": "학비 인상률도 같이 물어보세요."
+     },
+     {
+      "title": "통학과 생활 변화도 평가해요",
+      "body": "가격만이 아니라 아이가 매일 다니는 환경이에요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**학비 인상률**",
+     "**재정지원 마감일**",
+     "**형제 할인**",
+     "**환불 규정**",
+     "**통학 거리·시간**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "재정지원은 입학과 별도예요",
+    "body": "합격과 재정지원은 따로 결정되는 경우가 많아요. 입학 마감과 재정지원 신청 마감을 함께 달력에 적으세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "교육부 공식: FAFSA (Federal Student Aid)",
+      "url": "https://studentaid.gov/h/apply-for-aid/fafsa",
+      "kind": "정부(공식, 미국 교육부)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "사립학교",
+  "kind": "info",
+  "title": "사립 K-12 학비에 529 쓰기와 조지아 학비 지원 제도: IRS 안내와 확인할 곳",
+  "content": "IRS 안내에는 529 계좌 돈을 초·중·고 사립학교 학비에 쓸 수 있다고 적혀 있어요(해당 화면에는 연 $10,000). 한도는 법 개정으로 바뀔 수 있어서 반드시 최신 안내를 확인해야 해요. 또한 조지아에는 주 단위 학비 지원 제도가 있어서 조지아 교육 당국과 학교에 확인해야 해요.\n- 529로 K-12 학비 가능(IRS 화면: 연 $10,000)\n- 학비에만 해당하고 교복·기숙사 등은 달라요\n- 조지아 주 지원은 공식 사이트에서 자격과 마감 확인",
+  "image": "/images/money/topics/kids-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$10,000",
+      "label": "IRS 화면 한도",
+      "note": "연 K-12 학비",
+      "icon": "dollar"
+     },
+     {
+      "value": "학비만",
+      "label": "적용 범위",
+      "note": "다른 비용 확인",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "주 지원",
+      "label": "조지아",
+      "note": "공식 확인",
+      "icon": "map-pin"
+     },
+     {
+      "value": "최신",
+      "label": "한도 변경",
+      "note": "법 개정 확인",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "IRS 화면 확인"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: 529 Plans — K-12 질문",
+    "src": "/images/money/shots/kid-irs529.jpg",
+    "pins": [
+     {
+      "x": 62.7,
+      "y": 86.4,
+      "text": "**Can I make withdrawals from my 529 plan for tuition at elementary or secondary schools?** — 초·중·고 학비에 쓸 수 있는지 묻는 질문이에요."
+     },
+     {
+      "x": 62.7,
+      "y": 92,
+      "text": "화면 답변: **2018년부터 초·중·고 공립·사립·종교 학교 학비에 연 $10,000까지** 포함된다고 적혀 있어요. 한도는 이후 법 개정이 있을 수 있으니 IRS 최신 안내를 확인하세요."
+     },
+     {
+      "x": 36.4,
+      "y": 49.7,
+      "text": "**529 plan 정의** — 대학 외에 K-12 학비도 포함해서 설명해요."
+     }
+    ],
+    "caption": "주(state) 세금에서는 다르게 취급하는 주도 있어요. 조지아 규정은 Path2College 공식 안내를 확인하세요.",
+    "credit": "IRS 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "529 로 쓸 수 있는 것과 확인할 것",
+    "columns": [
+     "항목",
+     "확인"
+    ],
+    "rows": [
+     [
+      "K-12 학비",
+      "IRS 안내에 포함(한도 확인)"
+     ],
+     [
+      "교복·교재·통학",
+      "학비가 아니라서 해당 안 될 수 있어요. 공식 규정 확인"
+     ],
+     [
+      "주 세금 처리",
+      "주마다 달라요. 조지아는 Path2College 안내 확인"
+     ],
+     [
+      "연 한도",
+      "화면은 $10,000, 최신 법 개정 반영 여부 확인"
+     ]
+    ],
+    "highlight": 0,
+    "note": "세무 전문가나 계좌 운용사에 문의하세요."
+   },
+   {
+    "type": "steps",
+    "title": "확인 순서",
+    "items": [
+     {
+      "title": "학교 학비 청구서를 확인해요",
+      "body": "학비(tuition)와 그 외 항목이 분리돼 있는지 봐요."
+     },
+     {
+      "title": "529 운용사에 K-12 인출 절차를 물어요",
+      "body": "인출 서류, 학교 증빙이 필요할 수 있어요."
+     },
+     {
+      "title": "IRS 최신 안내와 주 규정을 확인해요",
+      "body": "한도가 바뀌었는지 확인해요."
+     },
+     {
+      "title": "조지아 주 지원 제도를 확인해요",
+      "body": "자격·마감일·학교 참여 여부는 공식 사이트와 학교에 문의해요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**IRS 최신 한도**",
+     "**주 세금 영향**",
+     "**학교 증빙**",
+     "**조지아 주 지원 확인**",
+     "**대학 학비용 529와 균형**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "K-12에 쓰면 대학용 돈이 줄어요",
+    "body": "529를 K-12에 쓰면 대학 때 쓸 돈이 줄어요. 가족의 우선순위를 정하고 시작하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "Georgia Path2College 529 Plan 공식 사이트",
+      "url": "https://www.path2college529.com/",
+      "kind": "주정부(공식, 조지아 529)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "사립학교",
+  "kind": "info",
+  "title": "사립학교 재정지원 신청서 준비: 서류·마감·한인 가정이 자주 놓치는 것",
+  "content": "사립학교 재정지원은 보통 소득·자산 서류를 내서 신청해요. FAFSA와는 다르고 학교마다 서식과 마감이 달라요. 준비 서류와 신청 흐름, 자영업 가정에서 놓치기 쉬운 서류를 정리했어요.\n- 학교마다 신청 방식이 달라요(외부 서비스 이용 포함)\n- 세금 신고서와 소득 서류가 기본이에요\n- 입학 마감과 재정지원 마감은 따로 확인해요",
+  "image": "/images/money/topics/kids-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "서류",
+      "label": "소득·자산",
+      "note": "세금 신고서 기본",
+      "icon": "paperclip"
+     },
+     {
+      "value": "별도",
+      "label": "FAFSA와 다름",
+      "note": "학교 양식",
+      "icon": "info"
+     },
+     {
+      "value": "마감",
+      "label": "따로 확인",
+      "note": "입학과 별개",
+      "icon": "calendar"
+     },
+     {
+      "value": "자영업",
+      "label": "추가 서류",
+      "note": "손익 자료",
+      "icon": "briefcase"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "준비물"
+   },
+   {
+    "type": "compare",
+    "title": "재정지원 신청 서류",
+    "columns": [
+     "서류",
+     "설명",
+     "자영업자 추가"
+    ],
+    "rows": [
+     [
+      "세금 신고서(Form 1040)",
+      "최근 1~2년치",
+      "Schedule C 포함"
+     ],
+     [
+      "W-2·1099",
+      "소득 증명",
+      "손익계산서·은행 명세서"
+     ],
+     [
+      "은행·투자 계좌 명세서",
+      "자산 확인",
+      "사업 계좌 구분"
+     ],
+     [
+      "가족 정보",
+      "부양가족 수·형제 재학 여부",
+      "형제 할인 조건"
+     ],
+     [
+      "특별 상황 설명서",
+      "실직·의료비·이혼 등",
+      "증빙 서류"
+     ]
+    ],
+    "highlight": 0,
+    "note": "학교 재정지원 담당자에게 서식을 받아서 확인하세요."
+   },
+   {
+    "type": "steps",
+    "title": "신청 순서",
+    "items": [
+     {
+      "title": "학교 입학처에 재정지원 절차를 물어요",
+      "body": "외부 서비스를 쓰는지, 마감일은 언제인지 확인해요."
+     },
+     {
+      "title": "세금 서류를 먼저 모아요",
+      "body": "세금 신고서와 소득 서류가 기본이에요."
+     },
+     {
+      "title": "서류에 비는 부분을 설명서로 보충해요",
+      "body": "실직·의료비처럼 특별한 사정은 증빙과 함께 설명해요."
+     },
+     {
+      "title": "제출 후 학교와 연락 창구를 정해요",
+      "body": "추가 서류 요청이 올 수 있어요."
+     },
+     {
+      "title": "결과 통지서(award letter)를 비교해요",
+      "body": "학교마다 같은 조건으로 비교해요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**세금 신고서 사본**",
+     "**자영업 손익 자료**",
+     "**마감일**",
+     "**학교 담당자 연락처**",
+     "**제출 확인서 저장**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "어려운 사정은 숨기지 말고 설명하세요",
+    "body": "학교가 집 사정을 알아야 지원을 조정할 수 있어요. 영어가 어려우면 학교에 통역·도움을 요청하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "교육부 공식: FAFSA (Federal Student Aid)",
+      "url": "https://studentaid.gov/h/apply-for-aid/fafsa",
+      "kind": "정부(공식, 미국 교육부)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "방과후 교육",
+  "kind": "info",
+  "title": "방과후 돌봄비 세금 혜택: 아이 돌봄 비용 세액공제(Child and Dependent Care Credit) 기본",
+  "content": "맞벌이 부모가 일하기 위해 낸 방과후·돌봄 비용 일부는 세액공제 대상이 될 수 있어요. IRS Topic 602 화면에는 공제 계산에 쓸 수 있는 비용의 한도(아이 1명 $3,000, 2명 이상 $6,000)가 나와 있어요. 어떤 비용이 해당하는지, 어떤 비용은 안 되는지 정리했어요.\n- 일하기 위해(또는 구직 중) 낸 돌봄 비용이 대상\n- 공제 계산에 쓸 수 있는 비용 한도: 1명 $3,000, 2명 이상 $6,000(IRS 화면)\n- 회사 돌봄 혜택(FSA)을 받았다면 한도에서 빼요",
+  "image": "/images/money/topics/kids-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$3,000",
+      "label": "1명 한도",
+      "note": "계산에 쓸 비용",
+      "icon": "dollar"
+     },
+     {
+      "value": "$6,000",
+      "label": "2명 이상",
+      "note": "계산에 쓸 비용",
+      "icon": "dollar"
+     },
+     {
+      "value": "일하기 위해",
+      "label": "조건",
+      "note": "구직 중 포함",
+      "icon": "briefcase"
+     },
+     {
+      "value": "FSA",
+      "label": "중복 주의",
+      "note": "혜택은 한도에서 차감",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "IRS 화면 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Topic no. 602, Child and Dependent Care Credit",
+    "src": "/images/money/shots/kid-ccdc.jpg",
+    "pins": [
+     {
+      "x": 39.1,
+      "y": 34.2,
+      "text": "**Topic no. 602, Child and Dependent Care Credit** — 아이·부양가족 돌봄 세액공제 안내예요."
+     },
+     {
+      "x": 61.8,
+      "y": 50.5,
+      "text": "**to enable you ... to work or actively look for work** — 일하거나 구직하기 위해 낸 돌봄 비용이어야 해요."
+     },
+     {
+      "x": 31.8,
+      "y": 72.2,
+      "text": "**Dollar limit** — 공제 계산에 쓸 수 있는 비용의 한도 항목이에요."
+     },
+     {
+      "x": 54.5,
+      "y": 76.8,
+      "text": "**$3,000 (한 명) / $6,000 (두 명 이상)** — 계산에 쓰는 비용의 상한이고, 실제 공제액은 이 금액의 일정 비율이에요(소득에 따라 달라요)."
+     }
+    ],
+    "caption": "공제액은 비용의 일정 비율이에요. 정확한 비율과 소득 조건은 IRS Publication 503에서 확인하세요.",
+    "credit": "IRS 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "해당되는 비용 / 안 되는 비용(일반 원칙)",
+    "columns": [
+     "구분",
+     "예",
+     "확인"
+    ],
+    "rows": [
+     [
+      "대상이 될 수 있는 것",
+      "방과후 돌봄 프로그램, 어린이 보육, 방학 데이케어(숙박 아닌)",
+      "일하기 위한 돌봄이 주된 목적"
+     ],
+     [
+      "대상이 아닐 수 있는 것",
+      "순수 교습·학원·스포츠 레슨, 학교 학비, 숙박 캠프",
+      "돌봄이 주된 목적이 아니면 제외"
+     ],
+     [
+      "대상 아이",
+      "보통 만 13세 미만 자녀(Pub 503 확인)",
+      "나이 조건은 공식 확인"
+     ],
+     [
+      "돌봄 제공자",
+      "이름·주소·세금 번호(SSN/EIN) 기록",
+      "세금 신고 때 필요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "정확한 범위는 IRS Publication 503이 기준이에요."
+   },
+   {
+    "type": "steps",
+    "title": "준비 순서",
+    "items": [
+     {
+      "title": "돌봄 제공자 정보를 받아요",
+      "body": "이름, 주소, 세금 번호(SSN 또는 EIN)가 필요해요. 미리 요청하세요."
+     },
+     {
+      "title": "영수증을 보관해요",
+      "body": "연말 합계가 세금 신고에 필요해요."
+     },
+     {
+      "title": "회사 돌봄 혜택(FSA)을 받았는지 확인해요",
+      "body": "받은 금액은 한도에서 빼요(화면에 안내돼요)."
+     },
+     {
+      "title": "세금 소프트웨어에 입력하거나 세무사에게 맡겨요",
+      "body": "Form 2441을 써요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**제공자 SSN/EIN**",
+     "**연간 영수증**",
+     "**FSA 사용 금액**",
+     "**아이 나이 조건**",
+     "**주된 목적이 돌봄인지**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "학원비와 방과후 돌봄은 달라요",
+    "body": "수학·영어·악기 학원은 교육이 주된 목적이라서 이 공제와 맞지 않을 수 있어요. 돌봄 서비스인지 프로그램 성격을 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: Topic 602 Child and Dependent Care Credit",
+      "url": "https://www.irs.gov/taxtopics/tc602",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "방과후 교육",
+  "kind": "info",
+  "title": "학원·방과후·여름 캠프 예산 세우기: 아이 1명 1년 활동비 계산표와 줄이는 순서",
+  "content": "방과후 활동비는 하나하나는 작아 보여도 합치면 큰돈이에요. 연간 활동비를 계산해서 가족의 우선순위를 정하고, 비용을 줄이는 방법을 정리했어요. 가상 예시와 직접 쓰는 표를 같이 넣었어요.\n- 활동을 목록으로 적고 연간 합계를 계산해요\n- 필수·권장·선택으로 나눠 우선순위를 정해요\n- 학교·지역 프로그램은 상대적으로 저렴한 경우가 많아요",
+  "image": "/images/money/topics/kids-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "12개월",
+      "label": "연간 합계",
+      "note": "월×12",
+      "icon": "calendar"
+     },
+     {
+      "value": "3분류",
+      "label": "필수·권장·선택",
+      "note": "우선순위",
+      "icon": "list"
+     },
+     {
+      "value": "지역",
+      "label": "저렴한 선택지",
+      "note": "도서관·공원·학교",
+      "icon": "map-pin"
+     },
+     {
+      "value": "가족",
+      "label": "같이 결정",
+      "note": "아이와 상의",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "연간 활동비 계산"
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 아이 1명의 연간 활동비",
+    "sub": "월 비용×횟수(가상)",
+    "items": [
+     {
+      "label": "수학·영어 학원",
+      "value": 3600,
+      "display": "월 $300 × 12 = $3,600"
+     },
+     {
+      "label": "악기 레슨",
+      "value": 1920,
+      "display": "월 $160 × 12 = $1,920"
+     },
+     {
+      "label": "운동(수영·태권도 등)",
+      "value": 1440,
+      "display": "월 $120 × 12 = $1,440"
+     },
+     {
+      "label": "여름 캠프",
+      "value": 1500,
+      "display": "2주 × $750 = $1,500",
+      "highlight": true
+     }
+    ],
+    "max": 3600,
+    "source": "※ 가상 예시예요. 지역·프로그램마다 가격이 크게 달라요."
+   },
+   {
+    "type": "compare",
+    "title": "내 표(직접 채우기)",
+    "columns": [
+     "활동",
+     "월 비용",
+     "횟수/개월",
+     "연 합계",
+     "분류(필수/권장/선택)"
+    ],
+    "rows": [
+     [
+      "",
+      "",
+      "",
+      "",
+      ""
+     ],
+     [
+      "",
+      "",
+      "",
+      "",
+      ""
+     ],
+     [
+      "",
+      "",
+      "",
+      "",
+      ""
+     ]
+    ],
+    "highlight": 0,
+    "note": "합계가 가계 예산의 몇 %인지 계산해 보세요."
+   },
+   {
+    "type": "steps",
+    "title": "정리하는 순서",
+    "items": [
+     {
+      "title": "모든 활동과 비용을 한 곳에 적어요",
+      "body": "현금·카드·앱 결제를 같이 찾아보세요."
+     },
+     {
+      "title": "분류해요",
+      "body": "필수(학교 따라가기 위해), 권장(아이가 좋아하고 효과가 있음), 선택(없어도 됨)."
+     },
+     {
+      "title": "가격이 낮은 대안을 찾아봐요",
+      "body": "학교 방과후, 도서관, 시 공원 프로그램, 교회·커뮤니티 센터 프로그램이 있어요."
+     },
+     {
+      "title": "1년에 두 번 점검해요",
+      "body": "아이의 흥미가 바뀌었는지 확인해요."
+     },
+     {
+      "title": "세금 혜택이 되는 돌봄 비용은 영수증을 따로 보관해요",
+      "body": "돌봄 세액공제 글을 참고하세요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**연간 합계**",
+     "**가계 대비 비율**",
+     "**대안 프로그램**",
+     "**아이의 의견**",
+     "**영수증 분류**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'많이 시키는 것'이 항상 좋은 건 아니에요",
+    "body": "시간이 너무 꽉 차면 아이도 지쳐요. 여유 시간도 아이에게 필요한 교육이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: Topic 602 Child and Dependent Care Credit",
+      "url": "https://www.irs.gov/taxtopics/tc602",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "CFPB 공식: Youth financial education",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "방과후 교육",
+  "kind": "info",
+  "title": "아이 활동비와 학원비 세금: 어떤 건 공제되고 어떤 건 안 되는지 헷갈리는 항목 정리",
+  "content": "학원비, 방과후비, 캠프, 교재, 컴퓨터 같은 항목은 세금 혜택이 되는 것과 안 되는 것이 섞여 있어요. IRS 안내를 바탕으로 항목별로 어떤 혜택(돌봄 세액공제, 교육 세액공제, 529)과 연결될 수 있는지 한눈에 비교해요.\n- 돌봄 목적: 아이 돌봄 세액공제\n- 대학 학비: 교육 세액공제(AOTC·LLC)\n- 529: 적격 교육비에 한해 비과세 인출",
+  "image": "/images/money/topics/kids-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3갈래",
+      "label": "혜택 종류",
+      "note": "돌봄·교육·529",
+      "icon": "list"
+     },
+     {
+      "value": "목적",
+      "label": "판단 기준",
+      "note": "돌봄인가 교육인가",
+      "icon": "search"
+     },
+     {
+      "value": "중복",
+      "label": "불가",
+      "note": "같은 비용 두 번 안 돼요",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "영수증",
+      "label": "보관",
+      "note": "3년 이상",
+      "icon": "paperclip"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "항목별 정리"
+   },
+   {
+    "type": "compare",
+    "title": "항목별 가능성(일반 원칙)",
+    "columns": [
+     "항목",
+     "돌봄 세액공제",
+     "교육 세액공제(AOTC·LLC)",
+     "529 비과세 인출"
+    ],
+    "rows": [
+     [
+      "방과후 돌봄(일하기 위한)",
+      "가능성 있음",
+      "해당 안 됨",
+      "해당 안 됨"
+     ],
+     [
+      "수학·악기 학원",
+      "보통 해당 안 됨",
+      "해당 안 됨",
+      "해당 안 됨(대학·적격 학교 아님)"
+     ],
+     [
+      "여름 데이캠프(돌봄 목적)",
+      "가능성 있음",
+      "해당 안 됨",
+      "해당 안 됨"
+     ],
+     [
+      "대학 등록금",
+      "해당 안 됨",
+      "가능성 있음",
+      "가능성 있음"
+     ],
+     [
+      "K-12 사립학교 학비",
+      "해당 안 됨",
+      "해당 안 됨",
+      "IRS 화면 기준 가능(연 한도 확인)"
+     ],
+     [
+      "대학생 컴퓨터",
+      "해당 안 됨",
+      "보통 제외",
+      "가능성 있음(IRS 529 Q&A)"
+     ]
+    ],
+    "highlight": 0,
+    "note": "예외가 많아서 최종 판단은 세무사·IRS 공식 자료로 확인하세요."
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Education credits — AOTC and LLC",
+    "src": "/images/money/shots/kid-aotc.jpg",
+    "pins": [
+     {
+      "x": 27.3,
+      "y": 34.2,
+      "text": "**Education credits - AOTC and LLC** — 대학 학비에 쓰는 두 가지 세액공제를 설명해요."
+     },
+     {
+      "x": 43.6,
+      "y": 54.3,
+      "text": "**AOTC** — 일부 환급이 가능한(partially refundable) 공제예요."
+     },
+     {
+      "x": 46.4,
+      "y": 57.5,
+      "text": "**LLC** — 환급은 안 되는(non-refundable) 공제예요."
+     },
+     {
+      "x": 61.8,
+      "y": 62,
+      "text": "**학생 한 명당 한 가지 공제만** 가능하고, 같은 비용으로 이중 혜택은 불가(No double benefit)예요."
+     },
+     {
+      "x": 45.5,
+      "y": 85.9,
+      "text": "**비교표** — 공제별 자격 조건(학생이 누구인지, 학년 조건 등)이 아래에 표로 나와요."
+     }
+    ],
+    "caption": "대학 학비는 이 공제와 529 인출을 같은 비용에 겹쳐 쓸 수 없어요.",
+    "credit": "IRS 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "영수증을 분류하는 법",
+    "items": [
+     {
+      "title": "1년 동안의 지출을 세 갈래로 나눠요",
+      "body": "돌봄 / 대학 학비 / 기타(교육 혜택 없음)로 구분해요."
+     },
+     {
+      "title": "돌봄 비용은 제공자 정보를 같이 보관해요",
+      "body": "SSN/EIN이 필요해요."
+     },
+     {
+      "title": "대학 학비는 Form 1098-T를 받아요",
+      "body": "대학이 매년 보내요."
+     },
+     {
+      "title": "세금 신고 때 가장 유리한 조합을 계산해요",
+      "body": "세무 소프트웨어가 비교해 줘요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**돌봄 목적인지**",
+     "**대학 학비 1098-T**",
+     "**529 인출과 공제 중복 여부**",
+     "**영수증 보관**",
+     "**세무 전문가 상담**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'교육 관련이니 다 공제되겠지'는 오해예요",
+    "body": "세금 혜택은 항목마다 조건이 달라요. 지출 전에 목적을 먼저 구분하면 서류 정리가 쉬워져요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: Topic 602 Child and Dependent Care Credit",
+      "url": "https://www.irs.gov/taxtopics/tc602",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Education credits — AOTC and LLC",
+      "url": "https://www.irs.gov/credits-deductions/individuals/education-credits-aotc-llc",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "교육비 세금",
+  "kind": "info",
+  "title": "대학 학비 세액공제 두 가지: AOTC 와 LLC 차이와 1098-T 읽는 법",
+  "content": "대학 학비는 세액공제로 줄일 수 있어요. IRS는 두 가지 공제를 설명해요. 일부 환급이 되는 American Opportunity Tax Credit(AOTC)과 환급이 안 되는 Lifetime Learning Credit(LLC)이에요. 둘 중 한 학생에게는 한 가지만 쓸 수 있고, 같은 비용으로 이중 혜택은 안 돼요.\n- AOTC: 일부 환급 가능(partially refundable)\n- LLC: 환급 안 됨(non-refundable)\n- 학교가 보내는 Form 1098-T가 기본 서류예요",
+  "image": "/images/money/topics/kids-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "AOTC",
+      "label": "일부 환급",
+      "note": "학부 초기 학년 중심",
+      "icon": "check"
+     },
+     {
+      "value": "LLC",
+      "label": "환급 없음",
+      "note": "대학원·직업 교육도",
+      "icon": "book-open"
+     },
+     {
+      "value": "1개",
+      "label": "학생당 1공제",
+      "note": "동일 학생",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "1098-T",
+      "label": "학교 서류",
+      "note": "학비 내역",
+      "icon": "paperclip"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "IRS 화면으로 구분하기"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Education credits — AOTC and LLC",
+    "src": "/images/money/shots/kid-aotc.jpg",
+    "pins": [
+     {
+      "x": 27.3,
+      "y": 34.2,
+      "text": "**Education credits - AOTC and LLC** — 두 공제를 한곳에서 설명해요."
+     },
+     {
+      "x": 43.6,
+      "y": 54.3,
+      "text": "**American Opportunity Tax Credit (AOTC) – partially refundable** — 세액을 줄이고 일부는 환급받을 수 있어요."
+     },
+     {
+      "x": 46.4,
+      "y": 57.5,
+      "text": "**Lifetime Learning Credit (LLC) – non-refundable** — 낼 세금을 줄이는 데만 쓰여요."
+     },
+     {
+      "x": 61.8,
+      "y": 62,
+      "text": "**You can claim only one of the credits per qualifying student.** — 학생 한 명당 한 가지만이에요. 같은 비용으로는 둘 다 받을 수 없어요(No double benefit)."
+     },
+     {
+      "x": 45.5,
+      "y": 85.9,
+      "text": "**비교표** — 학생 자격, 학년, 한도 같은 조건이 두 공제별로 나란히 나와요."
+     }
+    ],
+    "caption": "금액·소득 한도는 IRS 페이지의 비교표에서 최신 값을 확인하세요.",
+    "credit": "IRS 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "AOTC vs LLC (구조만)",
+    "columns": [
+     "구분",
+     "AOTC",
+     "LLC"
+    ],
+    "rows": [
+     [
+      "환급",
+      "일부 환급 가능",
+      "없음(낼 세금 한도까지)"
+     ],
+     [
+      "대상 학생",
+      "학부 과정 위주(자세한 학년 조건은 IRS 표)",
+      "학부·대학원·직업 교육, 학점 제한 적음"
+     ],
+     [
+      "횟수",
+      "제한된 연수(IRS 표 확인)",
+      "제한 없음"
+     ],
+     [
+      "공통",
+      "한 학생에 하나만, 같은 비용 이중 혜택 불가",
+      "한 학생에 하나만, 같은 비용 이중 혜택 불가"
+     ]
+    ],
+    "highlight": 0,
+    "note": "조건 숫자는 해마다 바뀌어서 이 글에서는 구조만 정리했어요."
+   },
+   {
+    "type": "steps",
+    "title": "신청 순서",
+    "items": [
+     {
+      "title": "1월~2월에 학교에서 Form 1098-T를 받아요",
+      "body": "학비 내역과 장학금이 적혀 있어요."
+     },
+     {
+      "title": "누가 학생을 부양가족으로 신고하는지 확인해요",
+      "body": "부모가 신고하면 공제는 보통 부모가 받아요."
+     },
+     {
+      "title": "학비에서 장학금·보조금·529 인출분을 뺀 금액을 계산해요",
+      "body": "같은 비용을 두 번 쓰면 안 돼요."
+     },
+     {
+      "title": "세무 소프트웨어가 공제를 비교하게 해요",
+      "body": "어느 쪽이 유리한지 계산해 줘요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**1098-T**",
+     "**학비·장학금·529 인출 정리**",
+     "**부양가족 신고자**",
+     "**소득 한도**",
+     "**세무 전문가 상담**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "529 인출과 겹치지 않게",
+    "body": "같은 학비에 529에서 인출하고 AOTC도 받으면 이중 혜택이 돼요. 한 가지 비용에는 한 가지 혜택만 적용돼요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: Education credits — AOTC and LLC",
+      "url": "https://www.irs.gov/credits-deductions/individuals/education-credits-aotc-llc",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "교육비 세금",
+  "kind": "info",
+  "title": "학자금 대출 이자 공제(Student loan interest deduction): 연 $2,500 한도와 1098-E",
+  "content": "학자금 대출 이자를 낸 해에는 세금에서 이자 일부를 공제할 수 있어요. IRS 화면에는 한 해에 낸 이자와 $2,500 중 적은 금액을 공제할 수 있다고 나와요. 소득이 높으면 공제가 줄어요. 조건과 서류를 정리했어요.\n- 공제 한도: 낸 이자와 $2,500 중 작은 금액(IRS 화면)\n- 소득이 높으면 점차 줄어서 사라져요(MAGI 기준)\n- 항목별 공제를 안 해도 받을 수 있는 '소득 조정' 공제예요",
+  "image": "/images/money/topics/kids-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$2,500",
+      "label": "연 한도",
+      "note": "IRS 화면",
+      "icon": "dollar"
+     },
+     {
+      "value": "조정",
+      "label": "소득 조정",
+      "note": "항목별 공제 불필요",
+      "icon": "check"
+     },
+     {
+      "value": "MAGI",
+      "label": "소득 한도",
+      "note": "초과하면 줄어요",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "1098-E",
+      "label": "서류",
+      "note": "$600 이상 이자",
+      "icon": "paperclip"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "IRS 화면 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Topic no. 456, Student loan interest deduction",
+    "src": "/images/money/shots/kid-sli.jpg",
+    "pins": [
+     {
+      "x": 38.2,
+      "y": 34.2,
+      "text": "**Topic no. 456** — 학자금 대출 이자 공제 안내예요."
+     },
+     {
+      "x": 62.7,
+      "y": 56.7,
+      "text": "**the lesser of $2,500 or the amount of interest you actually paid** — 낸 이자와 $2,500 중 **작은 금액**까지 공제해요."
+     },
+     {
+      "x": 51.8,
+      "y": 65.4,
+      "text": "**adjustment to income** — 소득에서 직접 빼는 공제라서 항목별 공제(itemize)를 하지 않아도 받을 수 있어요."
+     },
+     {
+      "x": 41.8,
+      "y": 79.6,
+      "text": "**MAGI is less than a specified amount** — 소득(MAGI)이 연도별로 정해진 금액 미만이어야 해요. 넘으면 줄어들고 결국 없어져요."
+     }
+    ],
+    "caption": "화면 아래에는 '적격 학자금 대출이란 무엇인가'가 나와요. 내 대출이 해당하는지 확인하세요.",
+    "credit": "IRS 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "조건 요약",
+    "columns": [
+     "조건",
+     "설명"
+    ],
+    "rows": [
+     [
+      "적격 학자금 대출",
+      "오직 적격 고등교육 비용을 위해 받은 대출"
+     ],
+     [
+      "법적 의무",
+      "내가 이자를 낼 법적 책임이 있어야 해요"
+     ],
+     [
+      "신고 상태",
+      "부부 따로 신고(married filing separately)는 안 돼요"
+     ],
+     [
+      "부양가족",
+      "다른 사람의 부양가족으로 신고되면 안 돼요"
+     ],
+     [
+      "소득",
+      "MAGI가 정해진 금액 미만(최신 한도 확인)"
+     ]
+    ],
+    "highlight": 0,
+    "note": "부모가 자녀 대출 이자를 낸 경우는 규정이 달라요. IRS Pub 970 확인."
+   },
+   {
+    "type": "steps",
+    "title": "신청 순서",
+    "items": [
+     {
+      "title": "서비서에서 Form 1098-E를 받아요",
+      "body": "$600 이상 이자를 냈다면 보내줘요."
+     },
+     {
+      "title": "그해 낸 이자를 확인해요",
+      "body": "1098-E 금액과 내가 낸 금액이 맞는지 확인해요."
+     },
+     {
+      "title": "소득 한도를 확인해요",
+      "body": "MAGI가 높으면 공제가 줄어요."
+     },
+     {
+      "title": "세금 신고서에 입력해요",
+      "body": "세금 소프트웨어가 계산해요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**1098-E**",
+     "**낸 이자 합계**",
+     "**MAGI 한도**",
+     "**부양가족 신고 상태**",
+     "**누가 이자를 냈는지**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "1098-E가 없어도 공제 가능해요",
+    "body": "$600 미만이면 서류를 안 받을 수 있어요. 서비서 사이트에서 낸 이자를 확인해 신고하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: Topic 456 Student loan interest deduction",
+      "url": "https://www.irs.gov/taxtopics/tc456",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "교육부 공식: Federal Student Loans",
+      "url": "https://studentaid.gov/understand-aid/types/loans",
+      "kind": "정부(공식, 미국 교육부)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "교육비 세금",
+  "kind": "info",
+  "title": "교육 세금 혜택 체크리스트: 부모·학생이 매년 1~4월에 확인할 서류 6가지",
+  "content": "교육비와 관련된 세금 서류는 해마다 1월~2월쯤 도착하고, 4월 세금 신고 때 필요해요. 학교, 대출 서비서, 529 계좌, 돌봄 제공자에게서 받는 서류 6가지와 확인 순서를 정리했어요.\n- 대학: Form 1098-T\n- 대출 이자: Form 1098-E\n- 529 인출: Form 1099-Q",
+  "image": "/images/money/topics/kids-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "6가지",
+      "label": "서류",
+      "note": "연초에 확인",
+      "icon": "paperclip"
+     },
+     {
+      "value": "1~2월",
+      "label": "도착 시기",
+      "note": "보통",
+      "icon": "calendar"
+     },
+     {
+      "value": "4월",
+      "label": "신고",
+      "note": "세금 시즌",
+      "icon": "clock"
+     },
+     {
+      "value": "보관",
+      "label": "3년 이상",
+      "note": "영수증",
+      "icon": "lock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "서류 6가지"
+   },
+   {
+    "type": "compare",
+    "title": "받아야 할 서류",
+    "columns": [
+     "서류",
+     "누가 보내나",
+     "용도"
+    ],
+    "rows": [
+     [
+      "Form 1098-T",
+      "대학",
+      "학비·장학금 → AOTC·LLC 계산"
+     ],
+     [
+      "Form 1098-E",
+      "대출 서비서",
+      "학자금 이자 공제"
+     ],
+     [
+      "Form 1099-Q",
+      "529 운용사",
+      "529 인출 내역(세금 신고 확인)"
+     ],
+     [
+      "돌봄 제공자 정보",
+      "어린이집·방과후 프로그램",
+      "돌봄 세액공제(Form 2441)"
+     ],
+     [
+      "Form 1099-INT/DIV",
+      "은행·증권사(아이 계좌)",
+      "kiddie tax 확인"
+     ],
+     [
+      "학비·기숙사 영수증",
+      "학교",
+      "1098-T와 대조"
+     ]
+    ],
+    "highlight": 0,
+    "note": "서류가 없으면 학교·운용사에 요청하세요."
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Education credits — AOTC and LLC",
+    "src": "/images/money/shots/kid-aotc.jpg",
+    "pins": [
+     {
+      "x": 27.3,
+      "y": 34.2,
+      "text": "**Education credits - AOTC and LLC**"
+     },
+     {
+      "x": 61.8,
+      "y": 62,
+      "text": "한 학생에 한 공제만 가능, 같은 비용 이중 혜택 불가."
+     },
+     {
+      "x": 45.5,
+      "y": 85.9,
+      "text": "조건 비교표에서 내 상황을 확인하세요."
+     }
+    ],
+    "caption": "신고 전에 IRS의 'Interactive Tax Assistant'로 자격을 확인해 볼 수 있어요.",
+    "credit": "IRS 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "연초 점검 순서",
+    "items": [
+     {
+      "title": "받은 서류를 한 폴더에 모아요",
+      "body": "종이와 전자 파일을 한곳에 둬요."
+     },
+     {
+      "title": "없는 서류를 요청해요",
+      "body": "1098-T, 1099-Q 등이 늦으면 학교·운용사에 문의해요."
+     },
+     {
+      "title": "서류 숫자를 서로 대조해요",
+      "body": "학비 영수증과 1098-T, 장학금 합계, 529 인출액을 맞춰 봐요."
+     },
+     {
+      "title": "세무 소프트웨어 또는 세무사에게 넘겨요",
+      "body": "교육 관련 항목은 세무사가 정리해 주면 쉬워요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "연초 체크",
+    "items": [
+     "**1098-T**",
+     "**1098-E**",
+     "**1099-Q**",
+     "**돌봄 제공자 SSN/EIN**",
+     "**아이 계좌 1099**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "서류 정리가 곧 절세예요",
+    "body": "서류가 있어야 공제를 받아요. 폴더에 월별로 영수증만 넣어도 큰 도움이 돼요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: Education credits — AOTC and LLC",
+      "url": "https://www.irs.gov/credits-deductions/individuals/education-credits-aotc-llc",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Topic 456 Student loan interest deduction",
+      "url": "https://www.irs.gov/taxtopics/tc456",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "저축 시뮬레이션",
+  "kind": "info",
+  "title": "월 $200을 18년간 모으면? 수익률 0%·4%·7% 가상 비교와 SEC 계산기 쓰는 법",
+  "content": "학비 저축은 '얼마를, 몇 년 동안, 어떤 수익률로 모으면'이 핵심이에요. 수익률은 아무도 보장할 수 없지만, 가상 숫자로 비교하면 감을 잡을 수 있어요. 월 $200을 18년 모으는 경우를 세 가지 수익률로 계산하고, SEC Investor.gov 무료 계산기 사용법을 알려 드려요.\n- 월 $200 × 18년 = 원금 $43,200\n- 연 4%라면 약 $63,100, 7%라면 약 $86,100(가상 계산)\n- 수익률은 보장되지 않아요. 손실도 가능해요",
+  "image": "/images/money/topics/kids-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$43,200",
+      "label": "원금",
+      "note": "월 $200×18년",
+      "icon": "dollar"
+     },
+     {
+      "value": "4%",
+      "label": "가상 수익률",
+      "note": "약 $63,100",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "7%",
+      "label": "가상 수익률",
+      "note": "약 $86,100",
+      "icon": "trending-up"
+     },
+     {
+      "value": "0%",
+      "label": "수익 없음",
+      "note": "원금만",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "가상 계산 결과"
+   },
+   {
+    "type": "bars",
+    "title": "월 $200을 18년간 모으면(가상 수익률)",
+    "sub": "원금 $43,200 vs 가상 결과",
+    "items": [
+     {
+      "label": "수익률 0%",
+      "value": 43200,
+      "display": "$43,200"
+     },
+     {
+      "label": "수익률 4%",
+      "value": 63118,
+      "display": "약 $63,100"
+     },
+     {
+      "label": "수익률 7%",
+      "value": 86144,
+      "display": "약 $86,100",
+      "highlight": true
+     }
+    ],
+    "max": 86144,
+    "source": "※ 가상 계산이에요. 투자 수익은 보장되지 않고, 수수료·세금·손실에 따라 크게 달라질 수 있어요. 이 숫자를 약속으로 보지 마세요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Compound Interest Calculator",
+    "src": "/images/money/shots/kid-compound.jpg",
+    "pins": [
+     {
+      "x": 54.5,
+      "y": 41,
+      "text": "**Compound Interest Calculator** — 복리로 돈이 얼마나 불어나는지 계산해 주는 SEC의 무료 계산기예요."
+     },
+     {
+      "x": 41.3,
+      "y": 64.3,
+      "text": "**Initial Investment** — 처음에 넣을 돈이에요."
+     },
+     {
+      "x": 42.7,
+      "y": 81.2,
+      "text": "**Monthly Contribution** — 매달 넣을 금액이에요."
+     },
+     {
+      "x": 43.2,
+      "y": 94.9,
+      "text": "**Length of Time in Years** — 몇 년 동안 모을지 넣어요."
+     },
+     {
+      "x": 14.7,
+      "y": 61.8,
+      "text": "왼쪽 메뉴에 **College Savings Calculator** 도 있어요. 대학 비용을 목표로 계산할 때 편해요."
+     }
+    ],
+    "caption": "여러 수익률(0%, 4%, 7%)을 넣어서 '낙관·보통·비관'을 비교해 보세요.",
+    "credit": "SEC Investor.gov 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "내 숫자로 계산하기",
+    "items": [
+     {
+      "title": "아이 나이로 대학까지 남은 연수를 계산해요",
+      "body": "예: 아이가 4살이면 약 14년."
+     },
+     {
+      "title": "월 저축 가능 금액을 정해요",
+      "body": "생활비와 비상금을 먼저 확보한 뒤 남는 돈으로 정해요."
+     },
+     {
+      "title": "세 가지 수익률로 계산해요",
+      "body": "0%, 낮은 수익률(3~4%), 높은 수익률(6~7%)."
+     },
+     {
+      "title": "목표 금액과 비교해요",
+      "body": "대학 4년 총비용 추정에서 장학금·가족 기여를 뺀 금액이 목표예요."
+     },
+     {
+      "title": "1년에 한 번 다시 계산해요",
+      "body": "소득·학비가 바뀌면 조정해요."
+     }
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "저축 기간이 짧아질수록(가상, 월 $200, 연 5%)",
+    "columns": [
+     "시작 시점",
+     "기간",
+     "결과(가상)"
+    ],
+    "rows": [
+     [
+      "지금",
+      "18년",
+      "약 $69,800"
+     ],
+     [
+      "10년 뒤",
+      "8년",
+      "약 $23,500"
+     ],
+     [
+      "3년 지연",
+      "15년",
+      "약 $53,500"
+     ]
+    ],
+    "highlight": 0,
+    "note": "일찍 시작할수록 복리 효과가 커요. 가상 계산이에요."
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**수익률은 보장 안 됨**",
+     "**수수료·세금**",
+     "**비상금 먼저**",
+     "**목표 금액 계산**",
+     "**매년 점검**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'월 $50'도 의미가 있어요",
+    "body": "금액이 작아도 습관이 중요해요. 형편이 나아질 때 조금씩 늘리면 돼요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Compound Interest Calculator",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: Publication 970 Tax Benefits for Education",
+      "url": "https://www.irs.gov/publications/p970",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "저축 시뮬레이션",
+  "kind": "info",
+  "title": "학비 목표 역산하기: 필요한 금액에서 월 저축액 구하는 3단계와 형제가 있을 때",
+  "content": "월 저축액을 정하는 가장 쉬운 방법은 반대로 계산하는 거예요. 목표 금액에서 시작해서 '몇 년 동안 얼마씩'을 구해요. 계산 방법과 형제가 있을 때 나누는 방법을 정리했어요.\n- 목표 금액 ÷ 남은 개월 = 단순 월 저축(수익률 0% 기준)\n- 수익률을 넣으면 월 저축이 줄어들지만 보장은 없어요\n- 형제가 있으면 시기별로 나눠요",
+  "image": "/images/money/topics/kids-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3단계",
+      "label": "역산 계산",
+      "note": "목표→기간→월 금액",
+      "icon": "list"
+     },
+     {
+      "value": "0%",
+      "label": "보수적 계산",
+      "note": "원금만",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "형제",
+      "label": "시기 차",
+      "note": "각각 계산",
+      "icon": "users"
+     },
+     {
+      "value": "연 1회",
+      "label": "재계산",
+      "note": "상황 바뀌면",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "역산 3단계"
+   },
+   {
+    "type": "steps",
+    "title": "계산 방법",
+    "items": [
+     {
+      "title": "목표 금액을 정해요",
+      "body": "예: 4년 총비용 추정에서 장학금·가족 기여를 뺀 금액. 예) 가상 $60,000."
+     },
+     {
+      "title": "남은 개월 수를 구해요",
+      "body": "예: 아이가 6세, 대학까지 12년이면 144개월."
+     },
+     {
+      "title": "월 저축액을 계산해요",
+      "body": "수익률 0%: $60,000 ÷ 144개월 = 약 $417. 수익이 조금이라도 나면 이보다 적게 넣어도 돼요(보장 아님)."
+     }
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 목표 $60,000를 12년에 모으려면",
+    "sub": "수익률별 월 저축(가상, 단순 계산)",
+    "items": [
+     {
+      "label": "수익률 0%",
+      "value": 417,
+      "display": "월 약 $417"
+     },
+     {
+      "label": "수익률 4%(가상)",
+      "value": 325,
+      "display": "월 약 $325"
+     },
+     {
+      "label": "수익률 7%(가상)",
+      "value": 267,
+      "display": "월 약 $267",
+      "highlight": true
+     }
+    ],
+    "max": 417,
+    "source": "※ 가상 계산이에요. 수익률은 보장되지 않으며 낮아지면 월 저축을 늘려야 해요."
+   },
+   {
+    "type": "compare",
+    "title": "형제가 있을 때",
+    "columns": [
+     "방법",
+     "설명",
+     "장단점"
+    ],
+    "rows": [
+     [
+      "아이별 계좌",
+      "각 아이마다 목표·계좌를 따로",
+      "관리가 명확, 입학 시기 맞춤"
+     ],
+     [
+      "한 계좌로 합산",
+      "한 계좌에 모아 필요할 때 사용",
+      "간단하지만 아이별 목표가 흐려져요"
+     ],
+     [
+      "형제 간 수혜자 변경",
+      "529는 가족 안에서 변경 가능(IRS)",
+      "남은 돈 활용에 유리"
+     ]
+    ],
+    "highlight": 0,
+    "note": "큰아이 입학 시기가 먼저라서 큰아이 계좌는 더 안정적인 투자가 필요해요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Compound Interest Calculator",
+    "src": "/images/money/shots/kid-compound.jpg",
+    "pins": [
+     {
+      "x": 14.7,
+      "y": 61.8,
+      "text": "**College Savings Calculator** — 목표 금액과 기간을 넣어 월 저축을 구하는 계산기가 이 메뉴에 있어요."
+     },
+     {
+      "x": 42.7,
+      "y": 81.2,
+      "text": "**Monthly Contribution** — 월 저축액을 바꿔 가며 결과를 비교해요."
+     },
+     {
+      "x": 43.2,
+      "y": 94.9,
+      "text": "**Length of Time** — 기간을 바꿔 보세요."
+     }
+    ],
+    "caption": "계산기에 가상의 목표 금액과 기간을 넣어 결과가 어떻게 달라지는지 확인해 보세요.",
+    "credit": "SEC Investor.gov 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**목표 금액**",
+     "**남은 개월**",
+     "**수익률 가정**",
+     "**형제 계획**",
+     "**비상금 확보**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "목표에 못 미쳐도 괜찮아요",
+    "body": "저축이 부족하면 장학금·보조금·대출·학교 선택으로 채울 수 있어요. 중요한 건 계획을 갖고 조금씩 시작하는 거예요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Compound Interest Calculator",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "교육부 공식: Finding and Applying for Scholarships",
+      "url": "https://studentaid.gov/understand-aid/types/scholarships",
+      "kind": "정부(공식, 미국 교육부)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "저축 시뮬레이션",
+  "kind": "info",
+  "title": "저축이 늘어나지 않을 때 점검할 5가지: 수수료·인출·세금·중단·목표 변경",
+  "content": "꾸준히 넣는데도 잔액이 생각만큼 늘지 않는 경우가 있어요. 수수료, 시장 하락, 중간 인출, 입금 중단, 목표 변경이 원인일 수 있어요. 5가지를 점검하는 방법을 정리했어요.\n- 수수료는 해마다 빠져나가요\n- 시장이 내리면 잔액도 줄어요\n- 중간 인출과 중단은 복리를 끊어요",
+  "image": "/images/money/topics/kids-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "5가지",
+      "label": "점검 항목",
+      "note": "표로 확인",
+      "icon": "list"
+     },
+     {
+      "value": "수수료",
+      "label": "매년 감소",
+      "note": "보수율",
+      "icon": "dollar"
+     },
+     {
+      "value": "시장",
+      "label": "하락 가능",
+      "note": "보장 없음",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "습관",
+      "label": "중단 주의",
+      "note": "자동이체",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "점검표"
+   },
+   {
+    "type": "compare",
+    "title": "5가지 점검",
+    "columns": [
+     "항목",
+     "확인 방법",
+     "해결"
+    ],
+    "rows": [
+     [
+      "① 수수료",
+      "계좌 설명서의 보수율(연 %)",
+      "더 낮은 상품·계획 비교"
+     ],
+     [
+      "② 시장 하락",
+      "투자 옵션별 연 수익률 기록",
+      "나이에 맞는 자동 조정 옵션 확인"
+     ],
+     [
+      "③ 중간 인출",
+      "계좌 거래 내역",
+      "인출 규칙을 가족과 정하기"
+     ],
+     [
+      "④ 입금 중단",
+      "자동이체 설정",
+      "최소 금액이라도 자동이체"
+     ],
+     [
+      "⑤ 목표 변경",
+      "학비 추정이 늘었는지",
+      "목표·월 금액 재계산"
+     ]
+    ],
+    "highlight": 0,
+    "note": "가장 효과가 큰 건 '꾸준한 자동 입금'이에요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Compound Interest Calculator",
+    "src": "/images/money/shots/kid-compound.jpg",
+    "pins": [
+     {
+      "x": 41.3,
+      "y": 64.3,
+      "text": "**Initial Investment** — 지금 잔액을 넣어요."
+     },
+     {
+      "x": 42.7,
+      "y": 81.2,
+      "text": "**Monthly Contribution** — 지금 월 저축액을 넣어요."
+     },
+     {
+      "x": 43.2,
+      "y": 94.9,
+      "text": "**Length of Time** — 남은 기간을 넣어요. 목표와 비교해 보세요."
+     }
+    ],
+    "caption": "지금 잔액으로 다시 계산하면 목표와의 차이가 보여요.",
+    "credit": "SEC Investor.gov 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "매년 점검 순서",
+    "items": [
+     {
+      "title": "계좌 명세서에서 연간 입금·수익·수수료를 봐요",
+      "body": "세 숫자가 어떻게 변했는지 적어요."
+     },
+     {
+      "title": "목표 금액을 다시 계산해요",
+      "body": "학비 추정이 올랐다면 목표도 올려요."
+     },
+     {
+      "title": "월 저축액을 조정해요",
+      "body": "소득이 오르면 입금도 올려요."
+     },
+     {
+      "title": "투자 옵션을 아이 나이에 맞는지 봐요",
+      "body": "대학이 가까워지면 변동이 작은 옵션으로 옮기는 계획이 일반적이에요(조건 확인)."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**수수료**",
+     "**자동이체**",
+     "**목표 금액**",
+     "**투자 옵션**",
+     "**중간 인출 규칙**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "시장이 내렸다고 멈추지 마세요",
+    "body": "긴 기간 동안은 오르내림이 있어요. 중단하면 복리가 끊겨요. 다만 대학이 가까우면 안정적인 옵션을 고려하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Compound Interest Calculator",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: 529 Plans — Questions and answers",
+      "url": "https://www.irs.gov/newsroom/529-plans-questions-and-answers",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "Georgia Path2College 529 Plan 공식 사이트",
+      "url": "https://www.path2college529.com/",
+      "kind": "주정부(공식, 조지아 529)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자녀 금융교육",
+  "kind": "info",
+  "title": "용돈과 3개 저금통(저축·쓰기·나누기): 나이별 금융교육 시작 방법",
+  "content": "돈 교육은 일찍 시작할수록 좋아요. CFPB(소비자금융보호국)는 K-12 금융 교육 자료와 부모용 안내를 무료로 제공해요. 용돈과 3개 저금통(저축·쓰기·나누기)으로 시작하는 방법을 나이별로 정리했어요.\n- 용돈은 '책임을 배우는 연습'이에요\n- 3개 통: 저축 / 쓰기 / 나누기\n- CFPB 무료 자료를 활용해요",
+  "image": "/images/money/topics/kids-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3통",
+      "label": "저축·쓰기·나누기",
+      "note": "비율은 가족이 정해요",
+      "icon": "wallet"
+     },
+     {
+      "value": "무료",
+      "label": "CFPB 자료",
+      "note": "부모용 안내",
+      "icon": "check"
+     },
+     {
+      "value": "습관",
+      "label": "시작이 중요",
+      "note": "금액보다",
+      "icon": "refresh"
+     },
+     {
+      "value": "대화",
+      "label": "돈 이야기",
+      "note": "자주",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "CFPB 부모용 안내"
+   },
+   {
+    "type": "shot",
+    "title": "CFPB: Youth financial education",
+    "src": "/images/money/shots/kid-youthfin.jpg",
+    "pins": [
+     {
+      "x": 20.5,
+      "y": 31.8,
+      "text": "**Youth financial education** — 청소년 금융교육 안내 페이지예요."
+     },
+     {
+      "x": 17.7,
+      "y": 61.2,
+      "text": "**Finding classroom activities** — 나이에 맞는 활동을 찾는 곳이에요."
+     },
+     {
+      "x": 80.9,
+      "y": 71.3,
+      "text": "**The Money As You Grow Bookshelf** — 부모와 보호자가 아이와 돈 이야기를 시작하는 책 목록이에요."
+     },
+     {
+      "x": 80.9,
+      "y": 87.8,
+      "text": "**Meet the Money Monsters** — 아이에게 저축·소비 습관을 이야기로 알려 주는 자료예요."
+     }
+    ],
+    "caption": "오른쪽 'Resources for parents'는 가정에서 바로 쓸 수 있는 무료 자료예요.",
+    "credit": "소비자금융보호국(CFPB) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "나이별 시작",
+    "columns": [
+     "나이대",
+     "할 일",
+     "예"
+    ],
+    "rows": [
+     [
+      "3~6세",
+      "돈의 개념, 세기",
+      "장난감 가게 놀이, 동전 구분"
+     ],
+     [
+      "7~10세",
+      "용돈·3개 저금통",
+      "용돈의 일부를 저금통에 나누기"
+     ],
+     [
+      "11~14세",
+      "목표 저축, 예산",
+      "갖고 싶은 것 가격 조사 → 몇 주 모을지 계산"
+     ],
+     [
+      "15~18세",
+      "은행 계좌, 첫 수입",
+      "체크카드·소액 저축 계좌, 알바 수입 관리"
+     ]
+    ],
+    "highlight": 0,
+    "note": "나이는 참고일 뿐이에요. 아이 속도에 맞추세요."
+   },
+   {
+    "type": "steps",
+    "title": "3개 저금통 시작하기",
+    "items": [
+     {
+      "title": "용돈 금액을 정해요",
+      "body": "금액보다 정기성이 중요해요(매주 같은 요일)."
+     },
+     {
+      "title": "세 통에 나누는 비율을 정해요",
+      "body": "예: 저축 50% / 쓰기 40% / 나누기 10%. 가족 가치관에 맞게 조정하세요."
+     },
+     {
+      "title": "저축 목표를 아이가 정하게 해요",
+      "body": "갖고 싶은 것의 가격을 조사하고 몇 주 걸리는지 계산하게 해요."
+     },
+     {
+      "title": "매달 한 번 결산해요",
+      "body": "각 통에 얼마 있는지 같이 세어 봐요."
+     },
+     {
+      "title": "실수에서 배우게 해요",
+      "body": "용돈을 다 쓴 후 '더 달라'는 요구에는 규칙을 지키세요. 작은 실패가 큰 교훈이 돼요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**정기 용돈**",
+     "**3개 통 비율**",
+     "**아이가 정한 목표**",
+     "**월 결산**",
+     "**CFPB 자료 활용**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "부모의 모습이 가장 큰 교육이에요",
+    "body": "아이는 말보다 부모가 돈을 쓰고 저축하는 모습을 보고 배워요. 장 볼 때 가격을 같이 비교하는 것만으로도 좋은 교육이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "개인 사정에 맞는 금융 조언은 아니에요. 이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: Youth financial education",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자녀 금융교육",
+  "kind": "info",
+  "title": "십대의 첫 은행 계좌와 첫 수입: 체크카드·보호자 계좌·알바 수입 신고 기본",
+  "content": "십대가 되면 첫 은행 계좌와 첫 알바 수입이 생겨요. 은행 계좌를 어떻게 만들지, 체크카드를 어떻게 쓸지, 알바 수입은 어떻게 처리할지 정리했어요. 아이가 은행에 직접 가고 보호자가 함께하는 첫 경험은 좋은 금융 교육이에요.\n- 미성년자 계좌는 보호자와 함께 만드는 경우가 많아요\n- 체크카드는 한도·알림을 설정해서 시작해요\n- 알바 수입은 세금 서류(W-2)를 확인해요",
+  "image": "/images/money/topics/kids-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "보호자",
+      "label": "공동 계좌",
+      "note": "은행마다 규정",
+      "icon": "users"
+     },
+     {
+      "value": "체크카드",
+      "label": "한도·알림",
+      "note": "설정하기",
+      "icon": "wallet"
+     },
+     {
+      "value": "W-2",
+      "label": "알바 서류",
+      "note": "세금 확인",
+      "icon": "paperclip"
+     },
+     {
+      "value": "목표",
+      "label": "저축 통장",
+      "note": "따로 두기",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "계좌 만들기"
+   },
+   {
+    "type": "compare",
+    "title": "계좌 선택 시 비교",
+    "columns": [
+     "항목",
+     "확인"
+    ],
+    "rows": [
+     [
+      "월 수수료",
+      "없는 계좌(학생·청소년 계좌)가 있는지"
+     ],
+     [
+      "최소 잔액",
+      "낮거나 없는지"
+     ],
+     [
+      "체크카드",
+      "한도·분실 신고 방법·알림 설정"
+     ],
+     [
+      "보호자 권한",
+      "잔액·거래를 부모가 볼 수 있는지"
+     ],
+     [
+      "성인 계좌 전환",
+      "18세가 되면 어떻게 바뀌는지"
+     ]
+    ],
+    "highlight": 0,
+    "note": "은행·신용조합마다 청소년 계좌 조건이 달라요. 방문 전에 전화로 문의하세요."
+   },
+   {
+    "type": "shot",
+    "title": "CFPB: Youth financial education",
+    "src": "/images/money/shots/kid-youthfin.jpg",
+    "pins": [
+     {
+      "x": 80.9,
+      "y": 71.3,
+      "text": "**Money As You Grow Bookshelf** — 아이와 돈 이야기를 시작하는 자료예요."
+     },
+     {
+      "x": 17.7,
+      "y": 61.2,
+      "text": "**Classroom activities** — 학교·가정에서 쓸 수 있는 활동 자료예요."
+     }
+    ],
+    "caption": "아이와 함께 은행에 가서 직원에게 질문을 직접 해 보게 하면 좋아요.",
+    "credit": "소비자금융보호국(CFPB) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "첫 수입이 생기면",
+    "items": [
+     {
+      "title": "고용주에게 W-4를 내요",
+      "body": "세금 원천징수를 위한 서식이에요. 학교 상담사나 부모와 함께 작성하세요."
+     },
+     {
+      "title": "월급명세서를 확인하는 법을 가르쳐요",
+      "body": "총급여(gross)와 실수령액(net)의 차이를 설명해요."
+     },
+     {
+      "title": "연초에 W-2를 받아요",
+      "body": "세금 신고에 필요해요. 아이도 신고 대상일 수 있어요."
+     },
+     {
+      "title": "수입의 일부를 먼저 저축하도록 해요",
+      "body": "받자마자 20~30%를 저축통장으로 보내는 습관을 만들어요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**청소년 계좌 수수료**",
+     "**체크카드 한도**",
+     "**W-4·W-2**",
+     "**월급명세서 읽기**",
+     "**저축 비율**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "체크카드 분실·사기 알림을 켜세요",
+    "body": "휴대폰으로 거래 알림을 받으면 도용을 빨리 알 수 있어요. 카드 번호·PIN은 친구에게도 알려 주지 않도록 가르치세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: Youth financial education",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "IRS 공식: Education credits — AOTC and LLC",
+      "url": "https://www.irs.gov/credits-deductions/individuals/education-credits-aotc-llc",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자녀 금융교육",
+  "kind": "info",
+  "title": "신용(Credit)을 아이에게 설명하는 법: 18세 전에 알려 줘야 할 5가지",
+  "content": "미국에서는 신용 점수가 대출, 월세, 취업에까지 영향을 줘요. 아이가 성인이 되기 전에 신용의 기본을 알려 주면 큰 도움이 돼요. 18세 전에 알려 줘야 할 5가지를 정리했어요.\n- 신용 = 갚을 거라는 믿음의 기록\n- 카드 사용 습관이 점수가 돼요\n- 연체 하나가 오래 남아요",
+  "image": "/images/money/topics/kids-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "5가지",
+      "label": "기본 개념",
+      "note": "먼저 알려 주기",
+      "icon": "list"
+     },
+     {
+      "value": "점수",
+      "label": "신용 점수",
+      "note": "성인이 되면 생겨요",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "연체",
+      "label": "오래 남아요",
+      "note": "7년 가량 기록",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "무료",
+      "label": "보고서",
+      "note": "연 1회 이상",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "5가지 기본"
+   },
+   {
+    "type": "compare",
+    "title": "신용 기본 5가지",
+    "columns": [
+     "개념",
+     "설명"
+    ],
+    "rows": [
+     [
+      "신용 기록",
+      "빌리고 갚은 기록이 신용 평가 회사에 쌓여요"
+     ],
+     [
+      "신용 점수",
+      "그 기록을 숫자로 만든 것(대출·카드 조건에 영향)"
+     ],
+     [
+      "연체",
+      "늦게 내면 기록이 남아 점수가 떨어져요"
+     ],
+     [
+      "사용 비율",
+      "카드 한도 중 얼마를 쓰는지(적게 쓰는 게 유리)"
+     ],
+     [
+      "이자",
+      "갚지 않은 금액엔 이자가 붙어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "이 카페의 신용카드·FICO 글에서 더 자세히 배울 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "CFPB: Youth financial education",
+    "src": "/images/money/shots/kid-youthfin.jpg",
+    "pins": [
+     {
+      "x": 20.5,
+      "y": 31.8,
+      "text": "**Youth financial education** — 신용을 포함한 청소년 금융교육 자료를 모아 둔 곳이에요."
+     },
+     {
+      "x": 80.9,
+      "y": 71.3,
+      "text": "**Money As You Grow** — 나이별로 돈 이야기를 시작하는 자료예요."
+     },
+     {
+      "x": 80.9,
+      "y": 87.8,
+      "text": "**Meet the Money Monsters** — 저축과 소비를 이야기로 알려 줘요."
+     }
+    ],
+    "caption": "CFPB 자료를 같이 읽으며 아이와 질문 3개를 만들어 보세요.",
+    "credit": "소비자금융보호국(CFPB) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "나이별로 이야기하는 순서",
+    "items": [
+     {
+      "title": "13~15세: 이자가 붙는 이유를 설명해요",
+      "body": "용돈을 미리 쓰면 갚아야 한다는 규칙을 연습해요."
+     },
+     {
+      "title": "16~17세: 체크카드와 신용카드의 차이를 알려 줘요",
+      "body": "체크카드는 내 돈, 신용카드는 빌린 돈이에요."
+     },
+     {
+      "title": "17세 후반: 신용 점수가 어떻게 생기는지 알려 줘요",
+      "body": "성인이 되면 신용이 시작돼요."
+     },
+     {
+      "title": "18세 이후: 첫 카드는 작게 시작하고 전액 갚기",
+      "body": "한도의 30% 이하로 쓰고 매월 전액 상환을 목표로 하세요."
+     },
+     {
+      "title": "가족 카드 사용자(authorized user) 방법은 신중히",
+      "body": "부모의 기록이 좋으면 도움이 되지만, 연체하면 아이 기록도 나빠질 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**신용 점수 개념**",
+     "**체크카드 vs 신용카드**",
+     "**연체 영향**",
+     "**사용 비율 30% 이하**",
+     "**연 1회 무료 보고서 확인**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'카드 안 써도 신용이 생긴다'는 오해",
+    "body": "아무것도 안 하면 기록이 없어서 오히려 어려울 수 있어요. 작은 카드를 안전하게 쓰고 전액 갚는 습관이 좋은 시작이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융·세금 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 한도·금액·마감일·자격은 해마다 바뀌고 가정 상황마다 달라요(2026년 10월 확인). 계좌를 열거나 신청하기 전에 **공식 사이트와 세무·재무 전문가**에서 최신 내용을 확인하세요. 투자형 계좌는 원금 손실이 있을 수 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "IRS·교육부(Federal Student Aid)·조지아 학자금 위원회(GSFC) 등 공식 자료를 운영팀이 정리했어요(2026년 10월 확인). 금액과 마감일은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: Youth financial education",
+      "url": "https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Credit reports and scores",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
  }
 ]
