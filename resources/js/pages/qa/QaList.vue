@@ -18,6 +18,7 @@
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
+        <button v-if="searchQ" @click="searchQ = ''; loadQa()" class="badge-primary">"{{ searchQ }}" ✕</button>
         <span v-if="statusFilter" :class="statusFilter === 'true' ? 'badge-green' : 'badge-red'">
           {{ statusFilter === 'true' ? '해결됨' : '미해결' }}
         </span>
@@ -25,7 +26,11 @@
     </div>
 
     <!-- 모바일 필터 바텀시트 -->
-    <MobileFilter v-model="showFilter" @apply="loadQa()" @reset="activeCat = null; statusFilter = ''; loadQa()">
+    <MobileFilter v-model="showFilter" @apply="loadQa()" @reset="activeCat = null; statusFilter = ''; searchQ = ''; loadQa()">
+      <div class="mb-4">
+        <label class="input-label">검색어</label>
+        <input v-model="searchQ" type="search" placeholder="질문 제목 검색..." class="input-soft" @keyup.enter="showFilter = false; loadQa()" />
+      </div>
       <div class="mb-4">
         <label class="input-label">카테고리</label>
         <div class="grid grid-cols-3 gap-1.5">
@@ -62,7 +67,13 @@
           Q&A
         </RouterLink>
       </GroupTitle>
-      <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary"><AppIcon name="edit" :size="15" />질문하기</RouterLink>
+      <div class="flex items-center gap-2">
+        <form @submit.prevent="loadQa()" class="flex items-center gap-1.5">
+          <input v-model="searchQ" type="search" placeholder="질문 검색..." class="input-soft w-44 text-xs py-1.5" />
+          <button type="submit" class="btn-secondary px-3 py-1.5 text-xs">검색</button>
+        </form>
+        <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary"><AppIcon name="edit" :size="15" />질문하기</RouterLink>
+      </div>
     </div>
 
     <div class="grid grid-cols-12 gap-4">
@@ -262,6 +273,7 @@ const BM_TYPE = 'App\\Models\\QaPost'
 const route = useRoute()
 const router = useRouter()
 const showFilter = ref(false)
+const searchQ = ref('')   // 제목 검색 (휴대폰은 필터 창 안, PC 는 머리 줄)
 const showFavorites = ref(false)
 const favorited = ref(new Set())
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
@@ -369,6 +381,7 @@ async function loadQa(p = 1) {
   const params = { page: p, per_page: 20 }
   if (activeCat.value) params.category_id = activeCat.value.id
   if (statusFilter.value) params.resolved = statusFilter.value
+  if (searchQ.value.trim()) params.search = searchQ.value.trim()
   try {
     const { data } = await axios.get('/api/qa', { params })
     items.value = data.data?.data || []

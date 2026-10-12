@@ -4,9 +4,9 @@
   <Transition name="fade">
     <div v-if="modelValue" class="fixed inset-0 bg-black/40 z-[10000]" @click="$emit('update:modelValue', false)"></div>
   </Transition>
-  <!-- 패널 (위에서 아래로) -->
+  <!-- 패널 (위에서 아래로) — 반드시 오버레이(z 10000)보다 위. 예전엔 101 이라 회색 막에 덮여 눌리지 않았음 -->
   <Transition name="slide-down">
-    <div v-if="modelValue" class="fixed top-0 left-0 right-0 z-[101] bg-white rounded-b-2xl shadow-2xl max-h-[85vh] overflow-y-auto safe-top">
+    <div v-if="modelValue" class="fixed top-0 left-0 right-0 z-[10001] bg-white rounded-b-2xl shadow-2xl max-h-[85vh] overflow-y-auto safe-top">
       <div class="flex justify-center pb-1 pt-3"><div class="w-10 h-1 bg-gray-300 rounded-full"></div></div>
       <div class="px-5 pb-5">
         <div class="flex items-center justify-between mb-4">

@@ -18,6 +18,7 @@
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
+        <button v-if="searchQ" @click="searchQ = ''; loadPosts()" class="badge-primary">"{{ searchQ }}" ✕</button>
         <span class="badge-gray">
           {{ {latest:'최신순',popular:'인기순',views:'조회순',comments:'댓글순'}[sortBy] }}
         </span>
@@ -25,7 +26,11 @@
     </div>
 
     <!-- 모바일 필터 바텀시트 -->
-    <MobileFilter v-model="showFilter" @apply="loadPosts()" @reset="activeBoard = null; sortBy = 'latest'; loadPosts()">
+    <MobileFilter v-model="showFilter" @apply="loadPosts()" @reset="activeBoard = null; sortBy = 'latest'; searchQ = ''; loadPosts()">
+      <div class="mb-4">
+        <label class="input-label">검색어</label>
+        <input v-model="searchQ" type="search" placeholder="글 제목 검색..." class="input-soft" @keyup.enter="showFilter = false; loadPosts()" />
+      </div>
       <div class="mb-4">
         <label class="input-label mb-2">게시판</label>
         <div class="grid grid-cols-3 gap-1.5">
@@ -65,6 +70,10 @@
         </RouterLink>
       </GroupTitle>
       <div class="flex items-center gap-2">
+        <form @submit.prevent="loadPosts()" class="flex items-center gap-1.5">
+          <input v-model="searchQ" type="search" placeholder="글 검색..." class="input-soft w-44 text-xs py-1.5" />
+          <button type="submit" class="btn-secondary px-3 py-1.5 text-xs">검색</button>
+        </form>
         <select v-model="sortBy" @change="loadPosts()" class="input-soft w-auto text-xs py-1.5">
           <option value="latest">최신순</option>
           <option value="popular">인기순</option>
@@ -242,6 +251,7 @@ const auth = useAuthStore()
 const bStore = useBookmarkStore()
 const BM_TYPE = 'App\\Models\\Post'
 const showFilter = ref(false)
+const searchQ = ref('')   // 제목 검색 (휴대폰은 필터 창 안, PC 는 머리 줄)
 const showFavorites = ref(false)
 const favoritedList = ref(new Set())
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
@@ -378,6 +388,7 @@ async function loadPosts(p = 1) {
   page.value = p
   const params = { page: p, per_page: 20, sort: sortBy.value }
   if (activeBoard.value) params.board_id = activeBoard.value.id
+  if (searchQ.value.trim()) params.search = searchQ.value.trim()
   try {
     const { data } = await axios.get('/api/posts', { params })
     items.value = data.data?.data || []
