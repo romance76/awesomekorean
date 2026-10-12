@@ -203,6 +203,14 @@ Route::get('/music/categories', [MusicController::class, 'categories']);
 Route::get('/music/tracks/{categoryId}', [MusicController::class, 'tracks']);
 Route::get('/search', [SearchController::class, 'search']);
 Route::get('/comments/{type}/{id}', [CommentController::class, 'index']);
+// MONEY 허브 (보기는 누구나)
+Route::get('/money/hub', [\App\Http\Controllers\API\MoneyController::class, 'hub']);
+Route::get('/money/cafes', [\App\Http\Controllers\API\MoneyController::class, 'cafes']);
+Route::get('/money/cafes/{slug}', [\App\Http\Controllers\API\MoneyController::class, 'cafe']);
+Route::get('/money/cafes/{slug}/posts', [\App\Http\Controllers\API\MoneyController::class, 'posts']);
+Route::get('/money/posts/{id}', [\App\Http\Controllers\API\MoneyController::class, 'show'])->whereNumber('id');
+Route::get('/money/guides', [\App\Http\Controllers\API\MoneyController::class, 'guides']);
+Route::get('/money/guides/{slug}', [\App\Http\Controllers\API\MoneyController::class, 'guide']);
 // 캐싱은 컨트롤러 안에서 고정 키로 직접 처리(저장 시 정확히 무효화하기 위함) — cache.api 미들웨어 미적용
 Route::get('/settings/public', [AdminSettingsController::class, 'getPublic']);
 Route::get('/push/config', [AdminSettingsController::class, 'pushConfig']);
@@ -400,6 +408,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/shorts', [ShortController::class, 'store'])->middleware('verified.email');
     Route::post('/shorts/{id}/like', [ShortController::class, 'toggleLike']);
     Route::post('/shorts/{id}/viewed', [ShortController::class, 'markViewed']);
+
+    Route::post('/money/posts', [\App\Http\Controllers\API\MoneyController::class, 'store'])->middleware(['verified.email', 'throttle:20,1']);
+    Route::put('/money/posts/{id}', [\App\Http\Controllers\API\MoneyController::class, 'update'])->whereNumber('id');
+    Route::delete('/money/posts/{id}', [\App\Http\Controllers\API\MoneyController::class, 'destroy'])->whereNumber('id');
 
     Route::post('/comments', [CommentController::class, 'store'])->middleware('verified.email');
     Route::put('/comments/{id}', [CommentController::class, 'update']);

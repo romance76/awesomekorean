@@ -26,6 +26,7 @@ class CommentController extends Controller
             'realestate' => 'App\\Models\\RealEstateListing',
             'business' => 'App\\Models\\Business',
             'shopping' => 'App\\Models\\AmazonProduct',
+            'money_post' => 'App\\Models\\MoneyPost',
             default => null,
         };
     }

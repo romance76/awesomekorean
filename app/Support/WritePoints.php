@@ -29,6 +29,7 @@ class WritePoints
         \App\Models\GroupBuy::class,
         \App\Models\Short::class,
         \App\Models\AmazonProduct::class,
+        \App\Models\MoneyPost::class,
     ];
 
     /**
