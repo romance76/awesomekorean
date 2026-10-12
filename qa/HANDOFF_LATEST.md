@@ -3,8 +3,8 @@
 작성: 2026-10-11 UTC 23:45 (애틀랜타 저녁 7:45) · 마지막 배포 코드 `80882312` (Deploy·PHP Syntax Check 모두 success) · **Stripe 는 테스트 모드(Kay 확인) — 테스트 카드 4242 4242 4242 4242 로 시험** · 최신 변경은 맨 아래 **11번**
 
 ## 0. 지금 바로 알아야 할 것 (2026-10-11 밤 기준)
-1. **메뉴 개편 1단계는 코드 배포 완료, 스위치는 꺼짐.** Kay 가 관리자 › 사이트 설정 › **메뉴 묶음** 탭에서 스위치를 켜고 저장하면 사이트 전체(상단·휴대폰 ☰·하단 탭 순서·목록 페이지 제목 줄·/info)가 묶음 메뉴로 바뀜. 끄고 저장하면 즉시 예전 메뉴. → Kay 가 켠 뒤 화면 확인 결과를 받으면 다음으로.
-2. **다음 할 일 = T6 2단계(MONEY 허브) 계획서 작성** → Kay 확인 → 구현. (`qa/TASKS_QUEUE.md` T6, `qa/menu_restructure_plan.md` 2단계, 샘플 `.claude/mockup/menu_grouping_sample.html`)
+1. **메뉴 개편 1단계 + MONEY 허브 화면은 사이트에 켜져 있음** (Kay 가 2026-10-12 UTC 00:14 스위치 켜고 MONEY 숨김 해제). 끄려면 관리자 › 사이트 설정 › 메뉴 묶음.
+2. **다음 할 일 = 12번의 남은 체크박스(MONEY 관리자 화면)** → 그다음 Kay 확인 사항.
 3. 서버 확인은 `bash scripts/server_check.sh`, 운영 DB 시험은 **롤백 트랜잭션**으로만. Playwright MCP 브라우저는 **Kay 의 실제 Chrome** 이라 조작 금지(보기만, 가능하면 앱 내장 브라우저 `mcp__Claude_Browser__*` 사용).
 **한 방 실행: 새 Claude 계정에서 `/continue` 한 줄** (안 되면 `qa/CONTINUE_PROMPT.md` 의 글을 붙여넣기). 할 일은 `qa/TASKS_QUEUE.md`(위에서부터 ready 인 것), 배포·검증은 `scripts/ship.sh` 가 한 번에 처리합니다.
 
@@ -197,7 +197,7 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 
 ## 12. MONEY 허브 (T6 2단계) 진행 기록 — 계획서 `qa/money_hub_plan.md` (Kay "시작해" 2026-10-12)
 - [x] 1) `aac0dea7` 표 3개(`money_cafes`·`money_posts`·`money_guides`) + 카페 12개·가이드 5개(비공개 초안), 모델, `MoneyController`(공개: `/api/money/hub`·`/cafes`·`/cafes/{slug}`·`/cafes/{slug}/posts`·`/posts/{id}`·`/guides`·`/guides/{slug}` / 로그인: POST·PUT·DELETE `/api/money/posts`), 댓글 종류 `money_post`, 글쓰기 포인트(`WritePoints::COUNTED_TYPES`)
-- [ ] 2) 화면: `/money` 허브 · `/money/cafes` 카페 안내 · `/money/cafe/:slug` 대문+게시판 · `/money/post/:id` · `/money/write` · `/money/guide/:slug` (샘플 `.claude/mockup/menu_grouping_sample.html` 의 MONEY 화면 모양, 초록 계열, 제목 자리 `MONEY › …`)
+- [x] 2) `ad4c2649` 화면: `/money` 허브 · `/money/cafes` 카페 안내 · `/money/cafe/:slug` 대문+게시판 · `/money/post/:id` · `/money/write` · `/money/guide/:slug` (샘플 `.claude/mockup/menu_grouping_sample.html` 의 MONEY 화면 모양, 초록 계열, 제목 자리 `MONEY › …`)
 - [ ] 3) 관리자 MONEY 관리(카페 이름·아이콘·한 줄·대문·순서·켜기 / 가이드 쓰기·공개 / 글 숨김·복구) + `adminMenu.js` + AdminTier
-- [ ] 4) 메뉴 묶음에서 MONEY 숨김 해제 (스위치는 Kay)
-- 알려진 작은 것: `hub()` 가 `withCount` 때문에 intro 까지 내려보냄(→ `select()` 로 줄이기).
+- [x] 4) **Kay 가 직접** 메뉴 묶음 스위치 켜고 MONEY 숨김 해제 (2026-10-12 UTC 00:14) → 지금 모든 방문자에게 묶음 메뉴 + MONEY 노출 중
+- (고침) `hub()` 응답에서 intro 제외. 화면 확인: PC 1280·휴대폰 393 넘침 없음.
