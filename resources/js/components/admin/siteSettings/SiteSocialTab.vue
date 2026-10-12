@@ -29,51 +29,51 @@
 
       <div class="grid sm:grid-cols-2 gap-3">
         <div>
-          <label class="input-label">계정 아이디</label>
-          <input v-model="a.handle" type="text" class="input-field" placeholder="@awesomekorean" />
+          <label class="block text-xs font-bold text-ink-light mb-1">계정 아이디</label>
+          <input v-model="a.handle" type="text" class="input-soft w-full" placeholder="@awesomekorean" />
         </div>
         <div>
-          <label class="input-label">프로필 주소</label>
-          <input v-model="a.profile_url" type="url" class="input-field" :placeholder="meta[a.platform].urlPh" />
+          <label class="block text-xs font-bold text-ink-light mb-1">프로필 주소</label>
+          <input v-model="a.profile_url" type="url" class="input-soft w-full" :placeholder="meta[a.platform].urlPh" />
           <p v-if="a.platform === 'instagram'" class="text-[11px] text-ink-faint mt-1">저장하면 사이트 아래쪽 인스타그램 링크도 이 주소로 바뀌어요.</p>
         </div>
         <div>
-          <label class="input-label">계정 이메일 (참고용)</label>
-          <input v-model="a.login_email" type="email" class="input-field" placeholder="awesomekoreanusa@…" />
+          <label class="block text-xs font-bold text-ink-light mb-1">계정 이메일 (참고용)</label>
+          <input v-model="a.login_email" type="email" class="input-soft w-full" placeholder="awesomekoreanusa@…" />
         </div>
         <div>
-          <label class="input-label">{{ meta[a.platform].idLabel }}</label>
-          <input v-model="a.account_id" type="text" class="input-field font-mono text-sm" placeholder="숫자 ID" />
+          <label class="block text-xs font-bold text-ink-light mb-1">{{ meta[a.platform].idLabel }}</label>
+          <input v-model="a.account_id" type="text" class="input-soft w-full font-mono text-sm" placeholder="숫자 ID" />
         </div>
         <div v-if="a.platform === 'instagram'">
-          <label class="input-label">연결된 페이스북 페이지 ID</label>
-          <input v-model="a.page_id" type="text" class="input-field font-mono text-sm" placeholder="숫자 ID" />
+          <label class="block text-xs font-bold text-ink-light mb-1">연결된 페이스북 페이지 ID</label>
+          <input v-model="a.page_id" type="text" class="input-soft w-full font-mono text-sm" placeholder="숫자 ID" />
         </div>
         <div>
-          <label class="input-label">Meta 앱 ID</label>
-          <input v-model="a.app_id" type="text" class="input-field font-mono text-sm" placeholder="developers.facebook.com 의 앱 ID" />
+          <label class="block text-xs font-bold text-ink-light mb-1">Meta 앱 ID</label>
+          <input v-model="a.app_id" type="text" class="input-soft w-full font-mono text-sm" placeholder="developers.facebook.com 의 앱 ID" />
         </div>
         <div>
-          <label class="input-label">앱 시크릿 <span class="text-ink-faint font-normal">{{ a.app_secret_masked ? '(저장됨 ' + a.app_secret_masked + ')' : '' }}</span></label>
-          <input v-model="a.app_secret" type="password" autocomplete="new-password" class="input-field font-mono text-sm" :placeholder="a.app_secret_masked ? '바꿀 때만 입력' : '앱 시크릿'" />
+          <label class="block text-xs font-bold text-ink-light mb-1">앱 시크릿 <span class="text-ink-faint font-normal">{{ a.app_secret_masked ? '(저장됨 ' + a.app_secret_masked + ')' : '' }}</span></label>
+          <input v-model="a.app_secret" type="password" autocomplete="new-password" class="input-soft w-full font-mono text-sm" :placeholder="a.app_secret_masked ? '바꿀 때만 입력' : '앱 시크릿'" />
           <label v-if="a.app_secret_masked" class="text-[11px] text-ink-faint inline-flex items-center gap-1 mt-1"><input type="checkbox" v-model="a.clear_app_secret" /> 저장된 값 지우기</label>
         </div>
         <div class="sm:col-span-2">
-          <label class="input-label">액세스 토큰 (장기, 약 60일) <span class="text-ink-faint font-normal">{{ a.access_token_masked ? '(저장됨 ' + a.access_token_masked + ')' : '' }}</span></label>
-          <input v-model="a.access_token" type="password" autocomplete="new-password" class="input-field font-mono text-sm" :placeholder="a.access_token_masked ? '바꿀 때만 입력' : '액세스 토큰'" />
+          <label class="block text-xs font-bold text-ink-light mb-1">액세스 토큰 (장기, 약 60일) <span class="text-ink-faint font-normal">{{ a.access_token_masked ? '(저장됨 ' + a.access_token_masked + ')' : '' }}</span></label>
+          <input v-model="a.access_token" type="password" autocomplete="new-password" class="input-soft w-full font-mono text-sm" :placeholder="a.access_token_masked ? '바꿀 때만 입력' : '액세스 토큰'" />
           <label v-if="a.access_token_masked" class="text-[11px] text-ink-faint inline-flex items-center gap-1 mt-1"><input type="checkbox" v-model="a.clear_access_token" /> 저장된 값 지우기</label>
         </div>
         <div>
-          <label class="input-label">토큰 만료일</label>
-          <input v-model="a.token_expires_at" type="date" class="input-field" />
+          <label class="block text-xs font-bold text-ink-light mb-1">토큰 만료일</label>
+          <input v-model="a.token_expires_at" type="date" class="input-soft w-full" />
         </div>
         <div class="flex flex-col justify-end gap-2 text-sm">
           <label class="inline-flex items-center gap-2"><input type="checkbox" v-model="a.is_active" /> 이 계정 사용</label>
           <label class="inline-flex items-center gap-2"><input type="checkbox" v-model="a.autopost_enabled" /> 자동 게시 (기능 완성 후 동작)</label>
         </div>
         <div class="sm:col-span-2">
-          <label class="input-label">메모</label>
-          <textarea v-model="a.notes" rows="2" class="input-field text-sm" placeholder="예) 2단계 인증은 Kay 휴대폰, 페이지 관리자: …"></textarea>
+          <label class="block text-xs font-bold text-ink-light mb-1">메모</label>
+          <textarea v-model="a.notes" rows="2" class="input-soft w-full text-sm" placeholder="예) 2단계 인증은 Kay 휴대폰, 페이지 관리자: …"></textarea>
         </div>
       </div>
 
