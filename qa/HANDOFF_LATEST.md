@@ -260,11 +260,13 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 ### 15-1. MONEY 운영팀 글 (Kay 기준: 노인도 따라 할 수 있게 — 실제 화면 캡처+번호 핀, 단계, 출처 필수, 글당 약 2,300자+, 주제당 3편)
 - 글 위치: `database/data/money_posts/<카페slug>.json` (배열, 항목 `topic`(= money_categories 이름과 정확히 같게)·kind·title·content·image(`/images/money/topics/<slug>-NN.svg`)·blocks). 배포 때마다 `php artisan money:sync-posts`(`app/Console/Commands/SyncMoneyPosts.php`)가 카페+제목 기준으로 새 글 추가·blocks 갱신. 작성자는 운영 계정.
 - 캡처: `public/images/money/shots/*.jpg`(1100×760, *.png 는 gitignore). 헤드리스 Chrome: `chrome --headless=new --window-size=1100,760 --screenshot=...` → PIL 로 jpg. 앱 화면은 App Store 공식 스크린샷(`app-<이름>-N.jpg`, narrow). **404 캡처 주의**(irs-aotc.jpg 는 404라 미사용·미커밋).
-- 진행표: earn 31 · save 30 · grow 30 · home 36 · insurance 36 · **tax 36(완료, `bb209a83`·`e79484be`)** · **남은 카페: cards(신용카드·포인트) → stocks(주식) → kids(자녀·교육비) → retire(은퇴·노후) → relay(인증 릴레이) → talk(돈 이야기)**. 주제 목록은 `database/migrations/2026_10_12_130000_money_cafe_fronts.php`.
-- 다음 계정은 cards 카페부터 같은 방식으로(주제 6개씩 18편 단위 배포, 배포 후 `/api/money/cafes/<slug>/posts?per_page=100` 의 total 로 개수 확인).
+- 진행표: earn 31 · save 30 · grow 30 · home 36 · insurance 36 · **tax 36(완료, `bb209a83`·`e79484be`)** · **cards 36(완료, `435dc1a2`·`7bf8bebd`, 2026-10-12 UTC 18:30)** · **남은 카페: stocks(주식) → kids(자녀·교육비) → retire(은퇴·노후) → relay(인증 릴레이) → talk(돈 이야기)**. 주제 목록은 `database/migrations/2026_10_12_130000_money_cafe_fronts.php`.
+- 다음 계정은 **stocks 카페부터** 같은 방식으로(주제 6개씩 18편 단위 배포, 배포 후 `/api/money/cafes/<slug>/posts?per_page=100` 의 total 로 개수 확인).
 - **tax 후반 18편 Kay/전문가 검수 필요**: CAPS 소득 기준(50% vs 30% SMI), AOTC·LLC SSN 조건 시작 연도, 2026.10.1 이민자 Medicaid·SNAP 자격 변경의 조지아 시행, MSP 소득 비율(약 100/120/135%), Lifeline 고객센터 번호, 조지아 퇴거 절차 세부(HB 404 출처 LegiScan). 숫자는 대부분 "공식 표 확인"으로 씀.
 
 ### 15-2. 내돈내산 (코드 `e374c04e`, `126d9177`, + 썸네일 이름 빼기)
 - 위쪽 "새로 올라온 후기" 사진을 작은 썸네일로(PC 2×2 h-24, 휴대폰 한 줄 4개 h-16), 사진 아래 이름은 Kay 지시로 뺌(마우스 올리면 title).
 - 카테고리를 `resources/js/utils/shoppingCategories.js` 하나로 통일(목록·상세·글쓰기·관리자). 16개 '/' 묶음 + 특별 3개(인기상품·오늘의 딜·Awesome Korean 추천 — 회원 글쓰기엔 안 보임). 기존 상품은 마이그레이션 `2026_10_13_230000_shopping_categories_grouped` 로 새 이름으로 옮김(비타민 → 건강/비타민/영양제, 창고·잔디·차고·발전기 → 정원/공구/DIY). 휴대폰 목록에 카테고리 고르기 칸 추가. 백업 `qa/backups/shopping_cats_20261012/`.
 - **카테고리 이름을 바꿀 땐** JS 목록 + 기존 상품 옮기는 마이그레이션을 같이.
+- **cards 36편 검수 필요(Kay)**: 화면에 보인 금액(Amex Platinum $895·Gold $325, Freedom Flex $250, Double Cash $200), Global Entry $120, 스카이패스 유효기간·가족 합산·아시아나 통합, 미국 카드 포인트→대한항공 직접 전환 경로(메리어트 표에 대한항공 없음 확인 → 스카이패스 글 본문·제목 정정, 제목은 마이그레이션 `2026_10_13_240000` 로 DB 도 바꿈), 호텔 연박 무료 규칙.
+- 글 제목을 바꿀 땐: sync 가 제목 기준이라 JSON 만 바꾸면 새 글이 하나 더 생김 → **DB 제목을 바꾸는 마이그레이션을 같이** (migrate 가 sync 보다 먼저 돎).
