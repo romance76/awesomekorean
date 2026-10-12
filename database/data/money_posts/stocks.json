@@ -1,0 +1,3208 @@
+[
+ {
+  "topic": "미국 주요 종목",
+  "kind": "info",
+  "title": "회사 이름 말고 '티커'로 찾으세요: 티커·거래소·CIK 번호 구분과 SEC EDGAR 무료 회사 검색",
+  "content": "미국 주식은 회사 이름이 비슷한 경우가 많아서 이름만 보고 찾으면 다른 회사를 볼 수 있어요. 종목마다 붙은 짧은 영문 코드(티커)와 거래소, 그리고 SEC가 부여한 CIK 번호가 있어요. 이 세 가지로 정확한 회사를 찾는 법과, 정부 사이트 EDGAR에서 무료로 회사 서류를 찾는 순서를 정리했어요.\n- 티커(Ticker): 거래소에서 쓰는 짧은 코드(예: AAPL은 Apple Inc.)\n- 같은 회사라도 주식 종류가 둘 이상일 수 있어요(Alphabet은 GOOGL·GOOG)\n- EDGAR는 SEC가 운영하는 무료 공시 보관소예요",
+  "image": "/images/money/topics/stocks-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "티커",
+      "label": "종목 코드",
+      "note": "알파벳 1~5글자가 흔해요",
+      "icon": "list"
+     },
+     {
+      "value": "거래소",
+      "label": "NYSE·Nasdaq",
+      "note": "주식이 거래되는 시장",
+      "icon": "building"
+     },
+     {
+      "value": "CIK",
+      "label": "SEC 회사 번호",
+      "note": "숫자 10자리까지",
+      "icon": "search"
+     },
+     {
+      "value": "무료",
+      "label": "EDGAR",
+      "note": "로그인·결제 없이 열람",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "티커가 왜 중요한가요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "미국 상장 회사는 이름이 비슷한 곳이 정말 많아요. 'American'·'First'·'United' 같은 단어가 들어간 회사가 수십 곳이라서 이름만 검색하면 엉뚱한 회사를 볼 수 있어요. 그래서 증권사 앱도 뉴스도 **티커**로 회사를 구분해요.",
+     "티커 옆에는 보통 거래소 이름이 같이 나와요. 예를 들어 SEC 화면에는 \"Apple Inc. AAPL on Nasdaq\" 처럼 **회사 이름 + 티커 + 거래소**가 한 줄로 보여요. 이 세 가지가 모두 맞으면 같은 회사예요. 한 회사가 주식을 두 종류 내는 경우(예: 의결권이 있는 주식과 없는 주식)는 티커가 둘이라서, 내가 보는 티커가 어느 쪽인지도 확인하세요."
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "이름·번호 한눈에 비교",
+    "columns": [
+     "이름",
+     "뜻",
+     "어디서 보나",
+     "주의할 점"
+    ],
+    "rows": [
+     [
+      "티커(Ticker)",
+      "거래소에서 쓰는 종목 코드",
+      "증권사 앱, 거래소, 뉴스",
+      "상장폐지·합병 때 바뀌거나 재사용될 수 있어요"
+     ],
+     [
+      "거래소(Exchange)",
+      "주식이 거래되는 시장(NYSE, Nasdaq 등)",
+      "종목 상세 화면",
+      "같은 티커가 다른 나라 거래소에도 있을 수 있어요"
+     ],
+     [
+      "CIK",
+      "SEC가 회사마다 붙이는 고유 번호",
+      "SEC EDGAR",
+      "회사 이름이 바뀌어도 CIK는 그대로예요"
+     ],
+     [
+      "CUSIP",
+      "주식·채권 종류마다 붙는 9자리 번호",
+      "증권사 확인서·세금 서류",
+      "한인 가족에게 서류 줄 때 필요할 수 있어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "처음에는 '티커 + 거래소' 두 가지만 확인해도 충분해요."
+   },
+   {
+    "type": "h",
+    "title": "EDGAR 검색창에서 회사 찾기"
+   },
+   {
+    "type": "shot",
+    "title": "SEC EDGAR 검색 첫 화면",
+    "src": "/images/money/shots/stk-edgar-search.jpg",
+    "pins": [
+     {
+      "x": 35.9,
+      "y": 37.6,
+      "text": "**검색창** — 키워드·티커·회사 이름·CIK 번호·사람 이름 중 아무거나 넣어도 돼요."
+     },
+     {
+      "x": 69.1,
+      "y": 37.6,
+      "text": "**SEARCH** — 눌러 검색해요. 결과는 광고 없이 SEC 서류로만 나와요."
+     },
+     {
+      "x": 16.6,
+      "y": 41.7,
+      "text": "**+ more search options** — 기간·서류 종류 같은 조건을 좁힐 때 눌러요."
+     },
+     {
+      "x": 50,
+      "y": 25.7,
+      "text": "화면 위 문구에 **2001년부터의 전자 공시 전체 글**을 검색할 수 있다고 적혀 있어요."
+     }
+    ],
+    "caption": "처음에는 티커(예: AAPL)만 넣어 보세요. 회사 이름보다 정확하게 한 회사로 좁혀져요.",
+    "credit": "미국 증권거래위원회(SEC) 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "EDGAR에서 회사 서류 찾는 순서",
+    "items": [
+     {
+      "title": "sec.gov/edgar 를 열어요",
+      "body": "주소창에 직접 입력하세요. 검색 광고 링크로 들어가면 비슷한 가짜 사이트일 수 있어요. 주소가 sec.gov 로 끝나는지 확인하세요."
+     },
+     {
+      "title": "티커를 검색해요",
+      "body": "검색창에 티커를 넣고 SEARCH. 회사 이름·티커·거래소가 한 줄로 나오는 결과를 고르세요."
+     },
+     {
+      "title": "Latest Filings 를 봐요",
+      "body": "최근에 제출된 서류 목록이 날짜순으로 나와요. 어떤 서류가 있는지 이름 앞부분(10-K, 10-Q, 8-K 등)만 먼저 눈에 익히세요."
+     },
+     {
+      "title": "서류 종류를 골라서 열어요",
+      "body": "8-K(속보), 10-Q(분기), 10-K(연간)로 나뉘어 있어요. 자세한 읽는 법은 이 카페의 실적·공시 글에서 다뤄요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "종목을 헷갈리지 않는 습관",
+    "items": [
+     "**티커 + 거래소**를 같이 적어 두기",
+     "같은 회사의 **주식 종류(클래스)** 가 여러 개인지 확인",
+     "**이름이 비슷한 회사**는 EDGAR에서 CIK 로 한 번 더 확인",
+     "메신저·SNS에서 받은 티커는 **반드시 공식 사이트에서 다시** 검색"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'어떤 회사인지'부터",
+    "body": "티커와 가격보다 먼저 이 회사가 **무슨 사업으로 돈을 버는지** 한 줄로 말할 수 있어야 해요. 못 하겠으면 아직 공부가 덜 된 거예요. EDGAR의 연간 보고서(10-K) 첫 부분 'Business'가 가장 정확한 설명이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 도움말(FAQ)",
+      "url": "https://www.sec.gov/edgar/searchedgar/edgarfaq.html",
+      "kind": "정부(공식, SEC)"
+     },
+     {
+      "title": "Investor.gov: 시가총액 용어",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 주요 종목",
+  "kind": "info",
+  "title": "시가총액이 뭐예요? 큰 회사·작은 회사 구분과 '주가가 비싸다'는 말의 함정",
+  "content": "주가 $500짜리 회사가 $50짜리 회사보다 더 큰 회사일까요? 꼭 그렇지 않아요. 회사의 크기는 주가가 아니라 **시가총액(주가 × 발행 주식 수)** 으로 비교해요. 시가총액의 뜻, 대형주·중형주·소형주를 나누는 흔한 기준, 그리고 소형주가 더 위험한 이유를 정리했어요.\n- 시가총액 = 현재 주가 × 발행된 주식 수\n- 주가가 높다고 비싼 회사도, 큰 회사도 아니에요\n- 작은 회사일수록 정보가 적고 가격 변동이 커요",
+  "image": "/images/money/topics/stocks-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "주가×주식수",
+      "label": "시가총액",
+      "note": "회사 전체 시장 가치",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "대형주",
+      "label": "큰 회사",
+      "note": "보통 $10B 이상으로 나눠요",
+      "icon": "building"
+     },
+     {
+      "value": "소형주",
+      "label": "작은 회사",
+      "note": "정보가 적고 변동이 커요",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "1주",
+      "label": "가격 ≠ 크기",
+      "note": "주식 수가 달라서요",
+      "icon": "info"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "주가와 회사 크기는 달라요"
+   },
+   {
+    "type": "text",
+    "body": [
+     "두 회사를 가정해 볼게요. A 회사는 주가가 $500이고 주식이 1천만 주예요. B 회사는 주가가 $50이고 주식이 2억 주예요. A는 50억 달러, B는 100억 달러라서 **주가가 10배 낮은 B가 오히려 두 배 큰 회사**예요. 주가만 보고 \"비싸다\", \"싸다\"를 말하면 안 되는 이유예요.",
+     "그래서 뉴스나 증권사 앱에서는 회사 크기를 말할 때 시가총액(Market Cap)을 써요. SEC 투자자 교육 사이트도 시가총액을 \"회사 주식의 총 시장 가치\"로 설명해요."
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 주가는 10배 차이, 크기는 반대",
+    "sub": "A 회사와 B 회사(시가총액, 단위 억 달러)",
+    "items": [
+     {
+      "label": "A 회사(주가 $500 × 1천만 주)",
+      "value": 50,
+      "display": "약 $50억"
+     },
+     {
+      "label": "B 회사(주가 $50 × 2억 주)",
+      "value": 100,
+      "display": "약 $100억",
+      "highlight": true
+     }
+    ],
+    "max": 100,
+    "source": "※ 숫자는 이해를 돕기 위한 가상 예시예요. 실제 회사의 시가총액은 매일 바뀌어요."
+   },
+   {
+    "type": "h",
+    "title": "크기별로 어떻게 나누나요?"
+   },
+   {
+    "type": "compare",
+    "title": "시가총액 구간(흔히 쓰는 기준)",
+    "columns": [
+     "구분",
+     "시가총액 기준",
+     "특징",
+     "조심할 점"
+    ],
+    "rows": [
+     [
+      "대형주(Large cap)",
+      "보통 약 $10B(100억 달러) 이상",
+      "실적·공시 자료가 많고 거래가 활발해요",
+      "큰 회사도 하루에 크게 움직일 수 있어요"
+     ],
+     [
+      "중형주(Mid cap)",
+      "보통 약 $2B~$10B",
+      "성장 중인 회사가 많아요",
+      "경기 영향을 더 받아요"
+     ],
+     [
+      "소형주(Small cap)",
+      "보통 약 $300M~$2B",
+      "큰 성장 가능성과 큰 위험이 같이 있어요",
+      "정보가 적고 가격이 크게 흔들려요"
+     ],
+     [
+      "초소형주(Micro cap)",
+      "보통 약 $300M 이하",
+      "공개된 정보가 적어요",
+      "SEC가 사기(펌프앤덤프) 주의 대상으로 꼽아요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "기준 금액은 기관마다 조금씩 달라요. '대략의 구분'으로만 쓰세요."
+   },
+   {
+    "type": "steps",
+    "title": "시가총액 확인하는 순서",
+    "items": [
+     {
+      "title": "증권사 앱이나 금융 사이트에서 티커를 검색해요",
+      "body": "종목 상세 화면에 Market Cap 이라는 항목이 있어요. B는 십억(billion), T는 조(trillion) 단위예요."
+     },
+     {
+      "title": "같은 업종 회사 2~3곳을 같이 봐요",
+      "body": "혼자 보면 큰지 작은지 감이 없어요. 비슷한 사업의 회사와 나란히 놓고 비교하세요."
+     },
+     {
+      "title": "발행 주식 수가 최근에 크게 늘었는지 봐요",
+      "body": "새 주식을 많이 찍어내면 기존 주주의 몫이 줄어요(희석). 10-Q의 주식 수 항목에 나와요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "시가총액을 볼 때",
+    "items": [
+     "주가가 아니라 **시가총액으로** 크기를 비교하기",
+     "B(십억)·T(조) 단위를 **헷갈리지 않기**",
+     "같은 회사의 **주식 종류가 둘 이상**이면 합산 기준인지 확인",
+     "소형주는 **하루 거래량**이 적어서 사고팔기 어려울 수 있어요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'싸 보이는 주가'를 조심하세요",
+    "body": "주가가 $2~$3이라고 해서 싼 게 아니에요. 주식 수가 아주 많으면 시가총액이 크고, 회사가 망해 가는 중일 수도 있어요. 싼지 비싼지는 **실적과 비교한 지표(PER 등)** 로 봐야 해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: 시가총액 용어",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     },
+     {
+      "title": "Investor.gov: 펌프앤덤프",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/pump-and-dump-schemes",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 주요 종목",
+  "kind": "info",
+  "title": "처음 보는 회사를 공부하는 첫날 체크리스트: 사업·숫자·위험 3가지만 보세요",
+  "content": "종목을 하나 알아보기로 했는데 어디서부터 봐야 할지 막막하죠. 처음 하루에는 세 가지만 보세요. 이 회사가 무엇으로 돈을 버는지(사업), 돈을 벌고 있는지(숫자), 무엇이 잘못될 수 있는지(위험)예요. 모두 무료 공식 서류에서 확인할 수 있어요.\n- 사업: 연간 보고서(10-K)의 Item 1 Business\n- 숫자: 매출·이익·빚을 최근 몇 년 비교\n- 위험: Item 1A Risk Factors 를 꼭 읽기",
+  "image": "/images/money/topics/stocks-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3가지",
+      "label": "사업·숫자·위험",
+      "note": "첫날은 이것만",
+      "icon": "list"
+     },
+     {
+      "value": "Item 1",
+      "label": "Business",
+      "note": "회사 소개",
+      "icon": "book-open"
+     },
+     {
+      "value": "Item 1A",
+      "label": "Risk Factors",
+      "note": "위험 요소",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "무료",
+      "label": "공식 서류",
+      "note": "EDGAR·회사 IR",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "공부는 공식 서류부터"
+   },
+   {
+    "type": "text",
+    "body": [
+     "유튜브·커뮤니티·뉴스는 편리하지만 누군가의 의견이 섞여 있어요. 회사가 직접, 그리고 법에 따라 내놓는 서류가 가장 정확해요. 상장 회사는 SEC에 연간 보고서(10-K)와 분기 보고서(10-Q)를 내야 해요. 모두 EDGAR에서 무료로 볼 수 있어요.",
+     "처음에는 이 서류가 영어라서 부담스러울 수 있어요. 하지만 **읽는 부분은 정해져 있어요.** 회사 소개 · 위험 요소 · 숫자 요약, 이 세 부분만 읽어도 첫날의 목적은 충분히 이뤄져요."
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "SEC 안내: 10-K 에서 Item 1 과 Item 1A",
+    "src": "/images/money/shots/stk-read10k.jpg",
+    "pins": [
+     {
+      "x": 35,
+      "y": 70.3,
+      "text": "**Item 1 \"Business\"** — 회사의 주요 제품·서비스, 어떤 시장에서 파는지 설명해요. SEC도 \"회사가 어떻게 돌아가는지 이해하기 좋은 시작점\"이라고 적어 놨어요."
+     },
+     {
+      "x": 35,
+      "y": 88.7,
+      "text": "**Item 1A \"Risk Factors\"** — 회사가 가장 중요하게 보는 위험을 중요한 순서대로 적어요."
+     },
+     {
+      "x": 61.8,
+      "y": 52.4,
+      "text": "모든 10-K·10-Q 는 SEC의 **EDGAR 에서 누구나 볼 수 있다**고 안내하고 있어요."
+     },
+     {
+      "x": 61.8,
+      "y": 12.4,
+      "text": "SEC가 서류 내용이 **정확하다고 보증하지는 않는다**는 문장이에요. 회사가 책임지고 낸 자료를 우리가 직접 판단해야 해요."
+     }
+    ],
+    "caption": "처음에는 Item 1 과 Item 1A 만 읽어요. 모르는 단어는 번역기를 써도 괜찮아요.",
+    "credit": "SEC Investor.gov \"How to Read a 10-K/10-Q\" 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "첫날 체크리스트",
+    "items": [
+     {
+      "title": "Item 1 로 사업을 한 줄로 적어요",
+      "body": "\"이 회사는 ○○를 △△에게 팔아서 돈을 번다\" 한 줄이 써지면 성공이에요. 매출을 나누어 보여 주는 표(제품·지역별)가 있으면 어디서 돈이 나오는지 알 수 있어요."
+     },
+     {
+      "title": "숫자 3개만 최근 3년 비교해요",
+      "body": "① 매출 ② 순이익 ③ 빚(Total debt)이에요. 꾸준히 늘고 있는지, 갑자기 꺾인 해가 있는지 보세요."
+     },
+     {
+      "title": "Item 1A 위험 요소를 훑어요",
+      "body": "맨 앞의 위험 3~5개를 내 말로 적어 보세요. \"이게 현실이 되면 이 주식은 크게 떨어질 수 있겠구나\" 하는 것이 있으면 기록해 두세요."
+     },
+     {
+      "title": "내가 이 주식을 사려는 이유를 한 줄로 적어요",
+      "body": "\"요즘 사람들이 말해서\"는 이유가 아니에요. 오르는 이유가 아니라 **내가 이 회사의 어떤 점을 믿는지** 적으세요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "첫날 공부를 마쳤다면",
+    "items": [
+     "**사업을 한 줄**로 설명할 수 있어요",
+     "**최근 3년** 매출·순이익·빚을 봤어요",
+     "**위험 요소 3개**를 내 말로 적었어요",
+     "**내가 사려는 이유**를 한 줄로 적었어요",
+     "오늘 바로 사지 않아도 된다는 걸 **기억**해요(며칠 두고 보기)"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "서두르지 않아도 돼요",
+    "body": "좋은 회사는 내일도 상장돼 있어요. 첫날에 사지 않아도 공부는 이미 끝난 거예요. 사기 전에 이 체크리스트 네 칸을 채울 수 있는지가 기준이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Form 10-K 용어",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "분기 실적",
+  "kind": "info",
+  "title": "실적 발표 날짜는 회사 IR 페이지에서: 'Investor Relations' 찾는 법과 어닝 콜 일정 확인",
+  "content": "상장 회사는 석 달에 한 번 성적표(분기 실적)를 발표하고, 같은 날 전화·웹 중계(어닝 콜)로 설명해요. 이 날짜는 회사 공식 'Investor Relations(IR)' 페이지에 미리 올라와요. 뉴스를 기다리지 않고 직접 일정을 확인하는 법을 정리했어요.\n- IR 페이지는 회사 홈페이지 맨 아래 'Investors'에서 찾아요\n- 날짜는 바뀔 수 있어서 발표 직전에 다시 확인해요\n- 알림 신청(Get Notification)이 있는 회사도 많아요",
+  "image": "/images/money/topics/stocks-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3개월",
+      "label": "분기",
+      "note": "1년에 4번 성적표",
+      "icon": "calendar"
+     },
+     {
+      "value": "IR",
+      "label": "Investor Relations",
+      "note": "투자자용 공식 페이지",
+      "icon": "building"
+     },
+     {
+      "value": "Call",
+      "label": "어닝 콜",
+      "note": "경영진 설명 중계",
+      "icon": "phone"
+     },
+     {
+      "value": "PT·ET",
+      "label": "시간대",
+      "note": "태평양/동부 표기 주의",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "IR 페이지가 뭐예요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "대부분의 상장 회사 웹사이트에는 **Investor Relations(투자자 관계)** 메뉴가 따로 있어요. 회사가 주주와 투자자에게 알려야 할 자료(실적 발표 자료, SEC 제출 서류, 주식 정보, 이벤트 일정)를 모아 두는 곳이에요. 광고가 아니라 회사가 직접 올린 1차 자료예요.",
+     "IR 페이지는 회사 홈페이지 맨 아래 쪽 'Investors', 'Investor Relations' 링크로 들어가거나, 검색창에 \"회사이름 investor relations\" 를 넣어 찾아요. 검색 결과 맨 위에 광고가 붙을 수 있으니 주소가 **회사 공식 도메인**인지 확인하세요."
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "Apple IR 페이지: 실적 일정(News and Results)",
+    "src": "/images/money/shots/stk-applir.jpg",
+    "pins": [
+     {
+      "x": 57.6,
+      "y": 1.4,
+      "text": "**SEC Filings** — 같은 IR 페이지 안에서 SEC 제출 서류(10-K·10-Q·8-K)로 바로 연결돼요."
+     },
+     {
+      "x": 32.7,
+      "y": 25.7,
+      "text": "**News and Results** — 실적 발표와 소식을 모아 둔 곳이에요."
+     },
+     {
+      "x": 23.6,
+      "y": 82.5,
+      "text": "**FY 26 Fourth Quarter Results** — 회계연도 26년 4분기 실적을 말해요. 회사마다 회계연도 시작 달이 달라요."
+     },
+     {
+      "x": 49,
+      "y": 88.8,
+      "text": "어닝 콜 일정이 **날짜·시간(PT / ET)** 로 적혀 있어요. 화면에는 2026년 11월 2일 오후 2시 PT(오후 5시 ET)로 나와 있어요."
+     }
+    ],
+    "caption": "'FY'는 회계연도(Fiscal Year)예요. 달력의 해와 다를 수 있어요.",
+    "credit": "Apple Inc. 공식 Investor Relations 페이지 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "shot",
+    "title": "Microsoft IR 페이지: 다음 실적 예고",
+    "src": "/images/money/shots/stk-msftir.jpg",
+    "pins": [
+     {
+      "x": 40.7,
+      "y": 15.1,
+      "text": "**Earnings & Financials** — 이전 실적 발표 자료와 재무 숫자가 모여 있어요."
+     },
+     {
+      "x": 75.5,
+      "y": 40.1,
+      "text": "**Upcoming Microsoft FY27 Q1 Earnings** — 다음 분기 실적 예고예요. FY27 Q1 은 회계연도 27년 1분기예요."
+     },
+     {
+      "x": 67,
+      "y": 48.3,
+      "text": "날짜는 **October 28, 2026** 로 안내돼 있어요."
+     },
+     {
+      "x": 71.1,
+      "y": 55.7,
+      "text": "**GET NOTIFICATION** — 눌러서 알림을 신청할 수 있는 회사가 많아요."
+     }
+    ],
+    "caption": "같은 '분기'라도 회사마다 시기가 달라서, 나만의 실적 달력을 만들어 두면 편해요.",
+    "credit": "Microsoft 공식 Investor Relations 페이지 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "미국 회사 시간 표기",
+    "columns": [
+     "표기",
+     "뜻",
+     "한국 시간과",
+     "주의할 점"
+    ],
+    "rows": [
+     [
+      "ET",
+      "동부 시간(뉴욕·애틀랜타)",
+      "한국보다 13~14시간 느려요",
+      "서머타임이면 EDT 로 쓰기도 해요"
+     ],
+     [
+      "PT",
+      "태평양 시간(캘리포니아)",
+      "ET 보다 3시간 느려요",
+      "'2:00 PT' = '5:00 ET'"
+     ],
+     [
+      "After market close",
+      "정규장 마감(오후 4시 ET) 뒤",
+      "실적은 장 마감 뒤에 많이 나와요",
+      "다음 날 주가에 반영돼요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "한국에서 보면 날짜가 하루 넘어가요. 앱 알림은 시간대를 꼭 확인하세요."
+   },
+   {
+    "type": "checklist",
+    "title": "실적 달력 만들기",
+    "items": [
+     "내가 가진·관심 있는 **회사 IR 페이지를 즐겨찾기**",
+     "발표일·시간·**시간대(ET/PT)** 를 달력에 같이 적기",
+     "회계연도(FY)가 **달력과 다른지** 확인",
+     "발표 직전에 **날짜가 바뀌지 않았는지** 한 번 더 보기",
+     "발표 당일에는 서둘러 사고팔지 말고 **자료를 먼저 읽기**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "어닝 콜은 꼭 안 들어도 돼요",
+    "body": "콜은 영어로 한 시간쯤 걸려요. 처음에는 같은 날 올라오는 **보도 자료(press release)** 의 맨 위 요약 표만 읽으세요. 매출·순이익·주당순이익(EPS)이 거기에 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "일정은 회사가 정하고 바꿀 수 있어요. 이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Apple 공식: Investor Relations",
+      "url": "https://investor.apple.com/",
+      "kind": "기업 공식 IR"
+     },
+     {
+      "title": "Microsoft 공식: Investor Relations",
+      "url": "https://www.microsoft.com/en-us/investor",
+      "kind": "기업 공식 IR"
+     },
+     {
+      "title": "Investor.gov: 어닝 콜 용어",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/earnings-call",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "분기 실적",
+  "kind": "info",
+  "title": "EPS(주당순이익)와 PER 이해하기: 실적 표의 숫자 두 개로 '지금 싼가 비싼가' 비교하는 법",
+  "content": "실적 발표를 보면 EPS라는 숫자가 제일 먼저 나와요. EPS는 회사 순이익을 주식 수로 나눈 값이고, 주가를 EPS로 나누면 PER이 돼요. 두 숫자의 뜻과 계산, 그리고 같은 업종 회사끼리 비교할 때 조심할 점을 정리했어요.\n- EPS = 순이익 ÷ 발행 주식 수(주당 이익)\n- PER = 주가 ÷ EPS (이익 대비 주가가 몇 배인지)\n- PER 하나만으로 싸다·비싸다를 결론 내면 안 돼요",
+  "image": "/images/money/topics/stocks-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "EPS",
+      "label": "주당순이익",
+      "note": "순이익 ÷ 주식 수",
+      "icon": "dollar"
+     },
+     {
+      "value": "PER",
+      "label": "주가수익비율",
+      "note": "주가 ÷ EPS",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "12개월",
+      "label": "최근 기준",
+      "note": "과거 12개월 이익 사용",
+      "icon": "calendar"
+     },
+     {
+      "value": "비교",
+      "label": "같은 업종끼리",
+      "note": "업종마다 평균이 달라요",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 설명으로 두 단어 익히기"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Earnings Per Share",
+    "src": "/images/money/shots/stk-eps.jpg",
+    "pins": [
+     {
+      "x": 45.5,
+      "y": 42.8,
+      "text": "**Earnings Per Share** — 주당순이익이에요. 영어 약자 EPS로 실적 표에 나와요."
+     },
+     {
+      "x": 58.2,
+      "y": 50.5,
+      "text": "SEC 정의: \"상장 회사의 **순이익을 보통주 주식 수로 나눈 것**\"이에요."
+     },
+     {
+      "x": 11.3,
+      "y": 73.3,
+      "text": "왼쪽 **Glossary(용어집)** 메뉴에서 모르는 투자 용어를 무료로 찾을 수 있어요."
+     }
+    ],
+    "caption": "EPS 는 '회사 전체의 이익'이 아니라 '주식 한 주당 이익'이에요.",
+    "credit": "미국 증권거래위원회(SEC) Investor.gov 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Price-earnings (P/E) Ratio",
+    "src": "/images/money/shots/stk-pe.jpg",
+    "pins": [
+     {
+      "x": 50,
+      "y": 42.8,
+      "text": "**Price-earnings (P/E) Ratio** — 한국어로 주가수익비율(PER)이에요."
+     },
+     {
+      "x": 62.7,
+      "y": 55.3,
+      "text": "SEC 설명: 주가가 **과거나 다른 회사에 비해 높은지 낮은지** 가늠하는 방법이에요."
+     },
+     {
+      "x": 62.7,
+      "y": 63,
+      "text": "계산: **현재 주가 ÷ 주당순이익(EPS)**, EPS 는 **최근 12개월 이익**을 주식 수로 나눈 값이라고 적혀 있어요."
+     }
+    ],
+    "caption": "PER 은 '이 주식을 사면 이익의 몇 년치 값을 내는 셈인지' 보는 숫자예요.",
+    "credit": "미국 증권거래위원회(SEC) Investor.gov 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 같은 주가, 다른 PER",
+    "sub": "주가 $100인 두 회사(EPS가 다르면 PER도 달라요)",
+    "items": [
+     {
+      "label": "A 회사 EPS $10 → PER 10배",
+      "value": 10,
+      "display": "PER 10배"
+     },
+     {
+      "label": "B 회사 EPS $2 → PER 50배",
+      "value": 50,
+      "display": "PER 50배",
+      "highlight": true
+     }
+    ],
+    "max": 50,
+    "source": "※ 가상 예시예요. PER이 높다고 나쁜 회사도, 낮다고 좋은 회사도 아니에요."
+   },
+   {
+    "type": "compare",
+    "title": "PER 이 높을 때·낮을 때 생각해 볼 것",
+    "columns": [
+     "PER",
+     "시장의 기대일 수 있는 것",
+     "의심해 볼 것"
+    ],
+    "rows": [
+     [
+      "높음(예: 40배 이상)",
+      "앞으로 이익이 빠르게 늘 것이라는 기대",
+      "기대가 어긋나면 크게 떨어질 수 있어요"
+     ],
+     [
+      "낮음(예: 10배 이하)",
+      "성장이 느리거나 위험이 크다고 보는 시각",
+      "일시적 이익이라 낮아 보이는 경우도 있어요"
+     ],
+     [
+      "계산 불가(적자)",
+      "이익이 아직 없는 회사",
+      "EPS 가 마이너스면 PER 을 쓰지 않아요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "업종마다 보통의 PER 이 달라서 같은 업종끼리 비교하세요."
+   },
+   {
+    "type": "steps",
+    "title": "실적 표에서 EPS 보는 순서",
+    "items": [
+     {
+      "title": "보도 자료 맨 위 요약 표를 열어요",
+      "body": "회사 IR 페이지의 실적 보도 자료에 매출·순이익·EPS가 있어요."
+     },
+     {
+      "title": "Diluted(희석) EPS 를 먼저 봐요",
+      "body": "주식 옵션 등이 모두 주식이 됐다고 가정한 값이라 더 보수적이에요. 회사 발표와 뉴스에서 흔히 쓰는 EPS 예요."
+     },
+     {
+      "title": "GAAP 과 Adjusted(조정)를 구분해요",
+      "body": "GAAP 은 회계 기준 그대로, Adjusted 는 일부 비용을 빼고 계산한 값이에요. 회사가 보여 주고 싶은 쪽일 수 있어서 둘 다 보세요."
+     },
+     {
+      "title": "작년 같은 분기와 비교해요",
+      "body": "이번 분기만 보지 말고 **작년 같은 분기(YoY)** 와 비교해요. 계절성이 있는 회사는 특히 중요해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'전문가 예상치'는 의견이에요",
+    "body": "뉴스에서 \"예상치를 웃돌았다\"고 할 때의 예상치는 분석가들의 추정이에요. 공식 숫자가 아니라서 주가가 예상치 때문에 크게 움직여도, 회사의 실제 실력과는 다를 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: Earnings per share",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/earnings-share",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Price-earnings ratio",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-pe-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "분기 실적",
+  "kind": "info",
+  "title": "분기 보고서(10-Q)와 연간 보고서(10-K) 읽는 순서: 영어 서류도 이 4군데만 보면 돼요",
+  "content": "SEC에 내는 분기 보고서(10-Q)와 연간 보고서(10-K)는 분량이 많아서 처음엔 막막해요. 하지만 중요한 곳은 정해져 있어요. 사업 소개, 위험 요소, 경영진 설명(MD&A), 재무제표예요. 어디를 어떤 순서로 보면 되는지, 그리고 SEC가 꼭 알려 주는 주의점을 정리했어요.\n- 10-K 는 연 1회, 10-Q 는 1~3분기 후 제출해요\n- 순서: Item 1 → 1A → MD&A(Item 7) → 재무제표\n- 모든 서류는 EDGAR에서 무료로 볼 수 있어요",
+  "image": "/images/money/topics/stocks-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "10-K",
+      "label": "연간 보고서",
+      "note": "한 해를 정리",
+      "icon": "book-open"
+     },
+     {
+      "value": "10-Q",
+      "label": "분기 보고서",
+      "note": "1~3분기 후",
+      "icon": "calendar"
+     },
+     {
+      "value": "40·60일",
+      "label": "제출 기한",
+      "note": "대형 상장사 기준 분기 40일·연간 60일",
+      "icon": "clock"
+     },
+     {
+      "value": "무료",
+      "label": "EDGAR",
+      "note": "누구나 열람",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "두 서류의 차이"
+   },
+   {
+    "type": "compare",
+    "title": "10-K 와 10-Q",
+    "columns": [
+     "서류",
+     "내용",
+     "언제",
+     "특징"
+    ],
+    "rows": [
+     [
+      "10-K(연간)",
+      "회사 소개·위험·경영진 설명·감사받은 재무제표",
+      "회계연도 끝난 뒤(대형사는 보통 60일 안)",
+      "가장 자세하고 **외부 회계법인의 감사**를 받아요"
+     ],
+     [
+      "10-Q(분기)",
+      "최근 3개월(및 누적) 재무제표, 경영진 설명",
+      "분기 끝난 뒤(대형사는 보통 40일 안)",
+      "보통 **감사가 아니라 검토(review)** 수준이에요"
+     ],
+     [
+      "8-K(수시)",
+      "중요한 일이 생겼을 때 공시",
+      "일이 생긴 뒤 보통 4영업일 안",
+      "인수합병·임원 변경·실적 발표 등"
+     ]
+    ],
+    "highlight": 0,
+    "note": "제출 기한은 회사 규모에 따라 달라요. 대형 상장사 기준으로 적었어요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC 안내: 10-K 읽는 법",
+    "src": "/images/money/shots/stk-read10k.jpg",
+    "pins": [
+     {
+      "x": 35,
+      "y": 70.3,
+      "text": "**Item 1 Business** — 어떤 제품·서비스로 어떤 시장에서 파는지, 경쟁 상대는 누구인지 설명해요."
+     },
+     {
+      "x": 35,
+      "y": 88.7,
+      "text": "**Item 1A Risk Factors** — 위험 요소를 중요한 순서로 적어요. 회사의 걱정거리를 직접 말해 주는 곳이에요."
+     },
+     {
+      "x": 61.8,
+      "y": 52.4,
+      "text": "**EDGAR에서 모든 10-K·10-Q를 누구나 볼 수 있다**는 안내예요. 회사 홈페이지(IR)에도 같은 서류가 올라와요."
+     },
+     {
+      "x": 61.8,
+      "y": 12.4,
+      "text": "**CEO와 CFO가 정확성을 확인(certify)** 해야 한다는 설명이에요. 허위 서류는 책임 문제가 돼요."
+     }
+    ],
+    "caption": "서류 전체를 읽으려 하지 말고, 같은 곳만 매번 읽으세요.",
+    "credit": "SEC Investor.gov \"How to Read a 10-K/10-Q\" 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "읽는 순서",
+    "items": [
+     {
+      "title": "Item 1 Business",
+      "body": "회사가 무엇을 하는지 한 줄로 정리해요."
+     },
+     {
+      "title": "Item 1A Risk Factors",
+      "body": "맨 앞 위험 3~5개를 내 말로 적어요. 지난번 서류와 달라졌는지 비교하면 변화가 보여요."
+     },
+     {
+      "title": "Item 7 MD&A(경영진 설명)",
+      "body": "\"Results of Operations\" 안에서 매출이 왜 늘었거나 줄었는지 회사가 직접 설명해요. 숫자 표보다 글을 먼저 읽는 게 쉬워요."
+     },
+     {
+      "title": "재무제표(Item 8)",
+      "body": "① 손익계산서(매출·순이익) ② 재무상태표(자산·부채) ③ 현금흐름표(실제 들어온 현금) 순서로 보세요. 이익이 나도 현금이 줄면 이유를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "서류를 읽을 때 기억할 것",
+    "items": [
+     "**영어가 어려우면 번역기**를 써도 돼요(숫자는 원문 확인)",
+     "**지난해 같은 서류**와 나란히 비교",
+     "**주석(Notes)** 에 중요한 내용이 숨어 있어요",
+     "SEC는 서류 내용이 **정확하다고 보증하지 않아요**",
+     "읽다가 모르는 말은 **Investor.gov 용어집**에서 찾기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "10-K 를 다 읽지 않아도 돼요",
+    "body": "처음에는 한 페이지짜리 'Item 1A' 맨 앞 부분과 MD&A 의 '개요(Overview)' 문단만 읽어도 충분해요. 조금씩 읽는 범위를 넓혀 가면 돼요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Form 10-K",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Form 8-K",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-8-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "ETF 분석",
+  "kind": "info",
+  "title": "ETF 란 무엇인가요? 주식처럼 사고파는 '묶음 펀드'와 뮤추얼펀드의 차이 5가지",
+  "content": "ETF(상장지수펀드)는 여러 주식이나 채권을 한 바구니에 담아 놓고, 그 바구니의 지분을 주식처럼 거래소에서 사고파는 상품이에요. SEC 투자자 교육 자료를 바탕으로 ETF의 구조, 뮤추얼펀드와의 차이 5가지, 처음 볼 때 확인할 것을 정리했어요.\n- 한 주를 사면 바구니 전체의 일부를 갖는 셈이에요\n- 장중 실시간 가격으로 거래돼요(뮤추얼펀드는 하루 한 번 가격)\n- 대부분의 ETF는 보유 종목을 웹사이트에 매일 공개해요",
+  "image": "/images/money/topics/stocks-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1주",
+      "label": "= 바구니 일부",
+      "note": "여러 종목을 한 번에",
+      "icon": "wallet"
+     },
+     {
+      "value": "장중",
+      "label": "실시간 거래",
+      "note": "주식처럼 사고팔기",
+      "icon": "clock"
+     },
+     {
+      "value": "NAV",
+      "label": "순자산가치",
+      "note": "영업일마다 계산",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "매일",
+      "label": "보유 종목 공개",
+      "note": "대부분 ETF",
+      "icon": "list"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "ETF 는 이렇게 생겼어요"
+   },
+   {
+    "type": "text",
+    "body": [
+     "ETF 운용사는 주식·채권 등을 묶어 하나의 **펀드(투자 회사)** 를 만들고, 그 지분을 쪼개 거래소에 올려요. 투자자는 한 주를 살 때마다 그 펀드 포트폴리오의 일부를 가진 것이고, 배당이나 이자 같은 수익도 비율대로 받아요.",
+     "SEC 자료에 따르면 ETF는 SEC에 등록된 투자 회사여야 해요. 그래서 계속해서 정보를 공개하고, 팔기 어려운 자산을 너무 많이 담지 못하게 하는 등 투자자 보호 규칙이 있어요. 또 ETF는 보통 **지수를 따라가는 방식(index)** 이거나 운용사가 종목을 고르는 방식(active)이에요."
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "SEC 안내: ETF의 기본 특징",
+    "src": "/images/money/shots/stk-etfbull.jpg",
+    "pins": [
+     {
+      "x": 58.6,
+      "y": 29.1,
+      "text": "**NAV(순자산가치)** — 펀드가 가진 자산에서 빚을 뺀 값을 주식 수로 나눈 값이에요. ETF는 영업일마다 계산해야 해요."
+     },
+     {
+      "x": 45.5,
+      "y": 38.6,
+      "text": "**Index-based or actively managed** — 지수를 따라가는 ETF와, 운용사가 종목을 고르는 ETF가 있다는 설명이에요."
+     },
+     {
+      "x": 53.6,
+      "y": 60.3,
+      "text": "**How are ETFs different from mutual funds?** — 뮤추얼펀드와 어떻게 다른지 이어서 설명해요."
+     },
+     {
+      "x": 62.7,
+      "y": 78,
+      "text": "**\"traded throughout the day\"** — ETF 주식은 장이 열려 있는 동안 시장 가격으로 계속 거래된다는 뜻이에요."
+     }
+    ],
+    "caption": "뮤추얼펀드는 하루에 한 번 정해지는 가격으로 사지만, ETF는 주식처럼 실시간으로 사고팔아요.",
+    "credit": "SEC 공식 Investor Bulletin(ETF 안내) 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "compare",
+    "title": "ETF 와 뮤추얼펀드",
+    "columns": [
+     "구분",
+     "ETF",
+     "뮤추얼펀드",
+     "알아둘 점"
+    ],
+    "rows": [
+     [
+      "거래 방법",
+      "거래소에서 주식처럼",
+      "운용사·증권사에 직접 신청",
+      "ETF는 증권 계좌만 있으면 돼요"
+     ],
+     [
+      "가격",
+      "장중 시장 가격(실시간)",
+      "하루 한 번 NAV로 결정",
+      "ETF는 순간 가격이 NAV와 조금 다를 수 있어요"
+     ],
+     [
+      "보유 종목 공개",
+      "대부분 매일 웹사이트에",
+      "보통 분기 단위(펀드마다 다름)",
+      "ETF가 더 자주 공개해요"
+     ],
+     [
+      "소액 투자",
+      "1주 가격이면 충분(소수점 주문도 가능)",
+      "최소 투자금이 있는 곳이 많아요",
+      "증권사 정책에 따라 달라요"
+     ],
+     [
+      "운용 방식",
+      "지수형이 많음(액티브형도 있음)",
+      "액티브형이 많음",
+      "'ETF이니 안전하다'는 뜻이 아니에요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "둘 다 장점과 위험이 있어요. 차이를 알고 쓰면 돼요."
+   },
+   {
+    "type": "steps",
+    "title": "처음 ETF 를 볼 때 순서",
+    "items": [
+     {
+      "title": "이름 뒤의 기초 지수를 확인해요",
+      "body": "예를 들어 '미국 대형주 500개 지수' 같은 설명이 있어요. 무엇을 따라가는지 모르면 사지 마세요."
+     },
+     {
+      "title": "운용사 공식 페이지의 Fact Sheet 를 열어요",
+      "body": "보유 종목 상위 10개, 비용(expense ratio), 설정일, 총 자산 규모가 한 장에 나와요."
+     },
+     {
+      "title": "총 보수와 거래량을 봐요",
+      "body": "비용이 낮은지, 하루 거래량이 충분한지(사고팔 때 가격 차이가 작은지) 확인해요."
+     },
+     {
+      "title": "투자 설명서(Prospectus)의 위험 부분을 읽어요",
+      "body": "어떤 상황에서 손실이 나는지 적혀 있어요. 맨 앞 요약(Summary Prospectus)이 짧아요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "한 바구니에 담겼다고 안전한 건 아니에요",
+    "body": "ETF는 여러 종목을 한 번에 사서 **한 종목에 몰리는 위험**은 줄이지만, 시장 전체가 내리면 같이 내려요. 특정 업종 ETF는 종목이 많아도 한 업종에 몰려 있어서 같이 흔들려요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Exchange-Traded Funds (ETFs)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-2",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: Characteristics of Mutual Funds and ETFs",
+      "url": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/characteristics-mutual-funds-exchange-traded-funds",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: 보수율(Expense ratio)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/expense-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "ETF 분석",
+  "kind": "info",
+  "title": "ETF 고르기 전 체크 6가지: 보수율(Expense Ratio)·구성 종목·거래량·추적 방식 비교표 만들기",
+  "content": "비슷해 보이는 ETF 두 개 중 무엇이 나은지 가격만으로는 알 수 없어요. 매년 빠지는 비용(보수율), 실제로 담은 종목, 하루 거래량, 지수를 얼마나 잘 따라가는지를 비교해야 해요. 운용사 공식 페이지에서 6가지를 찾아 표로 정리하는 법을 알려 드려요.\n- 보수율 0.1%p 차이도 수십 년이면 큰 차이가 돼요\n- 이름이 비슷해도 담은 종목이 많이 달라요\n- 거래량이 적으면 사고팔 때 손해를 볼 수 있어요",
+  "image": "/images/money/topics/stocks-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "연 %",
+      "label": "보수율",
+      "note": "매년 자산에서 빠져요",
+      "icon": "dollar"
+     },
+     {
+      "value": "Top 10",
+      "label": "상위 보유",
+      "note": "어디에 몰렸는지",
+      "icon": "list"
+     },
+     {
+      "value": "Spread",
+      "label": "호가 차이",
+      "note": "사고팔 때 숨은 비용",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "6가지",
+      "label": "체크 항목",
+      "note": "표로 비교",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "비교표를 먼저 만드세요"
+   },
+   {
+    "type": "text",
+    "body": [
+     "메모장이나 엑셀에 ETF 이름을 가로로 쓰고, 아래 6가지를 세로로 적어서 칸을 채워 보세요. 운용사 공식 페이지(Fact Sheet, 상품 소개 페이지)에 모두 나와요. 눈으로 비교하면 \"이름이 비슷해서 같은 건 줄 알았는데 달랐네\" 하는 것을 쉽게 발견해요."
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "ETF 6가지 체크",
+    "columns": [
+     "항목",
+     "어디서 보나",
+     "왜 보나",
+     "확인할 것"
+    ],
+    "rows": [
+     [
+      "① 보수율(Expense ratio)",
+      "운용사 Fact Sheet, 투자 설명서",
+      "매년 자산에서 자동으로 빠져나가는 비용",
+      "비슷한 ETF 끼리 비교해 낮은 쪽이 유리한 경우가 많아요"
+     ],
+     [
+      "② 기초 지수(Index)",
+      "상품 소개",
+      "무엇을 따라가는지",
+      "이름만 보지 말고 지수 설명 읽기"
+     ],
+     [
+      "③ 상위 보유 종목",
+      "Fact Sheet, 보유 종목 목록",
+      "실제로 어디에 투자하는지",
+      "상위 10개가 전체의 몇 %인지"
+     ],
+     [
+      "④ 총 자산 규모(AUM)",
+      "운용사·금융 사이트",
+      "너무 작으면 문을 닫을 수 있어요",
+      "수천만 달러 이하는 한 번 더 확인"
+     ],
+     [
+      "⑤ 하루 거래량·호가 차이",
+      "증권사 앱(Bid/Ask)",
+      "사고팔 때 숨은 비용",
+      "차이가 크면 지정가 주문을 쓰세요"
+     ],
+     [
+      "⑥ 배당·분배 방식",
+      "Fact Sheet",
+      "어떻게 수익을 주는지",
+      "분배금과 세금 처리 확인"
+     ]
+    ],
+    "highlight": 0,
+    "note": "한 칸이라도 모르면 사지 말고, 운용사에 문의하거나 증권사 화면에서 다시 확인해요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 보수율 차이",
+    "sub": "$10,000을 보유할 때 1년에 빠지는 비용",
+    "items": [
+     {
+      "label": "보수율 0.05%",
+      "value": 5,
+      "display": "연 $5"
+     },
+     {
+      "label": "보수율 0.75%",
+      "value": 75,
+      "display": "연 $75",
+      "highlight": true
+     }
+    ],
+    "max": 75,
+    "source": "※ 이해를 돕기 위한 가상 예시예요. 보수율은 해마다 쌓이고, 금액이 커질수록 차이도 커져요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC 안내: ETF의 비용과 운용 방식",
+    "src": "/images/money/shots/stk-etfbull.jpg",
+    "pins": [
+     {
+      "x": 45.5,
+      "y": 38.6,
+      "text": "**지수형 vs 액티브형** — 지수를 따라가는 ETF는 보통 비용이 더 낮고, 액티브형은 운용사가 종목을 골라서 비용이 높은 편이에요."
+     },
+     {
+      "x": 62.7,
+      "y": 78,
+      "text": "**장중 거래** — ETF는 시장 가격으로 거래돼서 가격이 NAV 와 조금 다를 수 있어요."
+     },
+     {
+      "x": 62.7,
+      "y": 84.3,
+      "text": "**\"Most ETFs post their portfolio holdings on their websites daily\"** — 대부분 ETF가 웹사이트에 보유 종목을 매일 올려요."
+     }
+    ],
+    "caption": "운용사 웹사이트의 'Holdings'(보유 종목)에서 상위 10개를 꼭 열어 보세요.",
+    "credit": "SEC 공식 Investor Bulletin(ETF 안내) 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "운용사 공식 페이지에서 정보 찾기",
+    "items": [
+     {
+      "title": "티커로 검색해요",
+      "body": "'티커 + fund' 로 검색하되 **운용사 도메인**(예: vanguard.com 등)인지 확인해요. 비교 사이트보다 운용사 페이지가 1차 자료예요."
+     },
+     {
+      "title": "Fact Sheet(요약 한 장) PDF 를 열어요",
+      "body": "보수율, 지수, 설정일, 상위 보유 종목이 한 곳에 있어요."
+     },
+     {
+      "title": "Holdings(보유 종목) 전체 목록을 봐요",
+      "body": "엑셀로 내려받을 수 있는 곳이 많아요. 업종 비중이 몰려 있는지 확인해요."
+     },
+     {
+      "title": "증권사 앱에서 호가(Bid/Ask)를 봐요",
+      "body": "살 때 가격과 팔 때 가격의 차이가 큰 ETF는 피하거나 지정가로 주문해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "'싸다'가 전부는 아니에요",
+    "body": "비용이 낮아도 내가 원하는 곳에 투자하지 않으면 소용없어요. 낮은 비용 + 내 목표와 맞는 구성 + 충분한 거래량이 같이 맞는지 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: 보수율(Expense ratio)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/expense-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: Exchange-Traded Funds (ETFs)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-2",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: Characteristics of Mutual Funds and ETFs",
+      "url": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/characteristics-mutual-funds-exchange-traded-funds",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "ETF 분석",
+  "kind": "info",
+  "title": "레버리지·인버스 ETF 는 왜 위험한가요? SEC가 '오래 들고 있는 투자자'에게 경고하는 이유",
+  "content": "2배·3배 오르내리거나 거꾸로 움직이는 레버리지·인버스 ETF는 이름만 보면 간단해 보여요. 하지만 SEC는 이 상품이 **하루 단위 목표**로 만들어져서, 오래 들고 있으면 기대와 크게 다를 수 있다고 경고해요. 왜 그런지 숫자 예시와 함께 정리했어요.\n- 대부분 '하루 수익률'을 2배·3배 또는 반대로 따라가도록 설계돼요\n- 하루보다 길게 들고 있으면 결과가 크게 달라질 수 있어요\n- 급격한 손실이 날 수 있어서 장기 보유용이 아니에요",
+  "image": "/images/money/topics/stocks-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1일",
+      "label": "목표 기간",
+      "note": "하루 수익률 기준",
+      "icon": "calendar"
+     },
+     {
+      "value": "2배·3배",
+      "label": "레버리지",
+      "note": "오를 때도 내릴 때도",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "-1배",
+      "label": "인버스",
+      "note": "반대 방향",
+      "icon": "refresh"
+     },
+     {
+      "value": "장기",
+      "label": "보유 위험",
+      "note": "결과가 달라질 수 있어요",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 가 공식 경고한 이유"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor Bulletin: 레버리지·인버스 ETF",
+    "src": "/images/money/shots/stk-levetf.jpg",
+    "pins": [
+     {
+      "x": 61.8,
+      "y": 8.4,
+      "text": "**Leveraged and Inverse ETFs** — 2배·3배 또는 반대로 움직이는 ETF를 가리켜요."
+     },
+     {
+      "x": 61.8,
+      "y": 43.7,
+      "text": "설명: 이런 ETF는 보통 **하루 단위(daily basis)** 로 목표 성과를 내도록 설계돼요."
+     },
+     {
+      "x": 61.8,
+      "y": 53.3,
+      "text": "**\"can differ significantly\"** — 하루보다 길게 보유하면 목표와 **크게 달라질 수 있고**, 갑작스러운 큰 손실이 날 수 있다는 경고예요."
+     },
+     {
+      "x": 51.8,
+      "y": 62.5,
+      "text": "이어서 일반 ETF 구조를 먼저 설명해요. 일반 ETF와 같은 이름이지만 **다른 성격의 상품**이에요."
+     }
+    ],
+    "caption": "공식 Bulletin 의 제목이 'Specialized Products with Extra Risks for Buy-and-Hold Investors' — 오래 들고 가는 투자자에게 특별한 위험이 있는 상품이라는 뜻이에요.",
+    "credit": "SEC 공식 Investor Bulletin(Leveraged and Inverse ETFs, 2023년 8월 29일) 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "왜 결과가 달라지나요? 숫자로 보기"
+   },
+   {
+    "type": "text",
+    "body": [
+     "2배 레버리지 ETF가 '하루 수익률의 2배'를 따라간다고 해 볼게요. 어떤 지수가 **첫날 10% 떨어지고 다음날 10% 올랐다**면 지수는 100 → 90 → 99 로 1% 손해예요. 그런데 2배 ETF는 첫날 -20%(100 → 80), 다음날 +20%(80 → 96)로 **4% 손해**예요. 지수의 2배(-2%)보다 더 큰 손해죠.",
+     "이렇게 오르내림이 반복될수록 차이가 벌어지는 것이 '복리 효과'이고, 이 때문에 오래 들고 있으면 \"지수가 제자리인데 내 돈은 줄었다\"가 생길 수 있어요."
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 지수 -10% 후 +10%",
+    "sub": "시작 100을 기준으로 마지막 값",
+    "items": [
+     {
+      "label": "지수",
+      "value": 99,
+      "display": "99 (-1%)"
+     },
+     {
+      "label": "2배 레버리지 ETF",
+      "value": 96,
+      "display": "96 (-4%)",
+      "highlight": true
+     }
+    ],
+    "max": 100,
+    "source": "※ 이해를 돕기 위한 가상 예시예요. 수수료·비용은 계산에서 뺐어요."
+   },
+   {
+    "type": "compare",
+    "title": "일반 ETF 와 비교",
+    "columns": [
+     "구분",
+     "일반 ETF",
+     "레버리지·인버스 ETF"
+    ],
+    "rows": [
+     [
+      "목표",
+      "지수를 따라가기",
+      "하루 수익률의 2배·3배 또는 반대"
+     ],
+     [
+      "보유 기간",
+      "오래 들고 가는 투자도 많아요",
+      "SEC는 하루보다 길게 들면 달라질 수 있다고 경고"
+     ],
+     [
+      "비용",
+      "상대적으로 낮은 경우가 많아요",
+      "보수율이 높은 편이에요(파생상품 비용 포함)"
+     ],
+     [
+      "위험",
+      "시장 위험",
+      "시장 위험 + **급격한 손실** 위험"
+     ]
+    ],
+    "highlight": 0,
+    "note": "어느 쪽이 '나쁘다'가 아니라, 용도가 달라요."
+   },
+   {
+    "type": "checklist",
+    "title": "사기 전에 꼭 물어볼 것",
+    "items": [
+     "**하루 단위 상품**인 걸 알고 있어요",
+     "언제 팔지 **기간을 미리** 정했어요",
+     "**-50%** 가 와도 감당할 수 있는 금액이에요",
+     "증권사가 보내는 **위험 고지**를 읽었어요",
+     "'이름이 비슷한 일반 ETF'와 **헷갈리지** 않아요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "'큰 수익'만 보지 마세요",
+    "body": "레버리지 ETF의 큰 수익 사례는 눈에 잘 띄어요. 하지만 같은 상품이 짧은 기간에 크게 손실을 낼 수도 있어요. 연금·비상금·학비처럼 **잃으면 안 되는 돈**으로는 하지 마세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "레버리지·인버스 상품은 특히 위험이 커요. 이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Exchange-Traded Funds (ETFs)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-2",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: Characteristics of Mutual Funds and ETFs",
+      "url": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/characteristics-mutual-funds-exchange-traded-funds",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "배당주",
+  "kind": "info",
+  "title": "배당금·배당수익률·배당성향 읽는 법: 'Yield 5%'가 좋은 신호가 아닐 수 있는 이유",
+  "content": "배당주를 볼 때 가장 먼저 눈에 띄는 숫자가 배당수익률(Dividend Yield)이에요. 하지만 이 숫자는 '주가가 내려가면 저절로 올라가는' 숫자라서 높다고 무조건 좋은 게 아니에요. 배당금·배당수익률·배당성향의 뜻과 계산, 그리고 함께 봐야 하는 것을 정리했어요.\n- 배당수익률 = 1년 배당금 ÷ 현재 주가\n- 배당성향 = 배당금 총액 ÷ 순이익(번 돈의 몇 %를 나눠 주나)\n- 배당은 이사회가 정하며 줄이거나 없앨 수 있어요",
+  "image": "/images/money/topics/stocks-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1년 ÷ 주가",
+      "label": "배당수익률",
+      "note": "주가가 내리면 올라가요",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "%",
+      "label": "배당성향",
+      "note": "번 돈 중 나눠 주는 비율",
+      "icon": "coins"
+     },
+     {
+      "value": "이사회",
+      "label": "결정 주체",
+      "note": "약속된 금액이 아니에요",
+      "icon": "users"
+     },
+     {
+      "value": "분기",
+      "label": "지급 주기",
+      "note": "미국은 분기 지급이 흔해요",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "용어부터 쉽게"
+   },
+   {
+    "type": "compare",
+    "title": "배당 숫자 세 가지",
+    "columns": [
+     "이름",
+     "계산",
+     "뜻",
+     "조심할 점"
+    ],
+    "rows": [
+     [
+      "배당금(Dividend)",
+      "회사가 주주에게 주는 현금(주당 $)",
+      "1주를 가지면 받는 돈",
+      "이사회가 정하며 **보장되지 않아요**"
+     ],
+     [
+      "배당수익률(Yield)",
+      "1년 배당금 ÷ 현재 주가",
+      "지금 가격으로 사면 배당으로만 몇 %인지",
+      "주가가 폭락해도 숫자가 올라가 보여요"
+     ],
+     [
+      "배당성향(Payout ratio)",
+      "배당금 총액 ÷ 순이익",
+      "번 돈 중 몇 %를 나눠 주는지",
+      "100% 가까우면 줄일 가능성이 커요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "SEC Investor.gov 용어집은 배당을 '회사 이익을 주주에게 나눠 주는 것'으로 설명해요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 주가가 떨어지면 수익률은 올라가요",
+    "sub": "1주당 연 배당금 $2인 회사",
+    "items": [
+     {
+      "label": "주가 $100 → 수익률 2%",
+      "value": 2,
+      "display": "2%"
+     },
+     {
+      "label": "주가 $50 → 수익률 4%",
+      "value": 4,
+      "display": "4%"
+     },
+     {
+      "label": "주가 $20 → 수익률 10%",
+      "value": 10,
+      "display": "10% (위험 신호일 수 있음)",
+      "highlight": true
+     }
+    ],
+    "max": 10,
+    "source": "※ 가상 예시예요. 주가가 반토막 난 뒤 수익률이 '높아 보일' 뿐, 배당이 지켜진다는 보장은 아니에요."
+   },
+   {
+    "type": "text",
+    "body": [
+     "배당수익률이 갑자기 높아졌다면 먼저 \"배당이 늘었나?\" 보다 \"**주가가 왜 떨어졌나?**\"를 물어보세요. 시장은 회사가 배당을 줄이거나 사업이 나빠질 것이라고 미리 알아챘을 수 있어요. 배당성향이 너무 높거나 이익이 줄어드는 회사는 특히 조심하세요."
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "배당 정보를 확인하는 순서",
+    "items": [
+     {
+      "title": "회사 IR 페이지의 Dividend 항목을 열어요",
+      "body": "'Dividend History(배당 내역)'에 날짜별 금액이 있어요. 몇 년째 유지·증가했는지 보세요."
+     },
+     {
+      "title": "연간 보고서(10-K)에서 배당 정책을 읽어요",
+      "body": "회사가 배당을 어떻게 정하는지, 줄일 가능성이 있는지 적혀 있어요."
+     },
+     {
+      "title": "순이익과 현금흐름을 확인해요",
+      "body": "번 돈보다 많이 나눠 주고 있다면 오래 가기 어려워요. 현금흐름표의 영업활동 현금과 비교해요."
+     },
+     {
+      "title": "같은 업종 평균과 비교해요",
+      "body": "업종마다 보통의 배당수익률이 달라요. 통신·유틸리티 업종은 높고, 성장 기업은 거의 안 줘요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "배당주를 볼 때 확인할 것",
+    "items": [
+     "수익률만 보지 말고 **지난 5년 배당 내역**",
+     "**배당성향이 지나치게 높지** 않은지",
+     "**순이익·현금흐름이 꾸준한지**",
+     "최근 **배당 삭감 이력**이 있는지",
+     "배당에도 **세금**이 붙는 점(세금 글 참고)"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "배당은 '약속'이 아니에요",
+    "body": "이사회가 결정하는 금액이라서 경기가 나빠지면 줄이거나 중단할 수 있어요. 채권 이자처럼 정해진 돈이 아니에요. 생활비를 배당에만 기대면 위험해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: 배당(Dividend)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/dividend",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: 배당수익률(Dividend yield)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/dividend-yield",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: Topic 404 Dividends",
+      "url": "https://www.irs.gov/taxtopics/tc404",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "배당주",
+  "kind": "info",
+  "title": "배당락일·기준일·지급일 정리: 배당받으려면 어느 날까지 사야 하나요?",
+  "content": "배당에는 날짜가 네 개 있어요. 발표일, 배당락일, 기준일, 지급일이에요. 헷갈리기 쉬운데, 미국은 2024년 5월부터 거래가 이틀 만에 아닌 하루 만에 결제(T+1)되면서 배당락일과 기준일이 보통 같은 날이 됐어요. 어느 날 전까지 사야 배당을 받는지, 락일에 주가가 왜 내려가는지 알려 드려요.\n- 배당락일(Ex-dividend date) 당일부터 사면 이번 배당은 못 받아요\n- 락일 하루 전까지 가지고 있어야 해요\n- 락일에 주가는 보통 배당금만큼 조정돼요",
+  "image": "/images/money/topics/stocks-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "4개",
+      "label": "배당 날짜",
+      "note": "발표·락일·기준·지급",
+      "icon": "calendar"
+     },
+     {
+      "value": "Ex-date",
+      "label": "배당락일",
+      "note": "이 날 '이전'에 사야 해요",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "T+1",
+      "label": "결제 방식",
+      "note": "락일=기준일이 보통이에요",
+      "icon": "refresh"
+     },
+     {
+      "value": "분기",
+      "label": "지급 주기",
+      "note": "미국 회사 대부분",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "네 날짜 순서"
+   },
+   {
+    "type": "steps",
+    "title": "날짜 순서(미국 보통주 기준)",
+    "items": [
+     {
+      "title": "발표일(Declaration date)",
+      "body": "이사회가 \"이번 배당금은 $0.25, 지급은 ○월 ○일\"이라고 발표해요."
+     },
+     {
+      "title": "배당락일(Ex-dividend date)",
+      "body": "이 날 **전에** 주식을 가지고 있어야 배당을 받아요. 이 날 이후(당일 포함)에 사면 이번 배당은 못 받아요."
+     },
+     {
+      "title": "기준일(Record date)",
+      "body": "회사가 \"주주 명부\"를 확인하는 날이에요. 2024년 5월 28일부터 결제가 T+1이 되어 **보통 배당락일과 같은 날**이에요."
+     },
+     {
+      "title": "지급일(Payment date)",
+      "body": "돈이 내 계좌에 들어오는 날이에요. 락일에서 보통 몇 주 뒤예요."
+     }
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 12월 10일이 배당락일이라면",
+    "sub": "주당 배당 $0.50, 락일 전날 종가 $100",
+    "items": [
+     {
+      "label": "12월 9일(락일 전날) 종가",
+      "value": 100,
+      "display": "$100 → 배당 받음"
+     },
+     {
+      "label": "12월 10일(락일) 시작 가격 약",
+      "value": 99.5,
+      "display": "약 $99.50 (배당만큼 조정)",
+      "highlight": true
+     }
+    ],
+    "max": 100,
+    "source": "※ 가상 예시예요. 실제 가격은 시장 상황에 따라 더 오르거나 내려요."
+   },
+   {
+    "type": "text",
+    "body": [
+     "락일에 주가가 배당금만큼 내려가는 이유는 간단해요. 회사에서 현금이 빠져나가니 회사 가치도 그만큼 줄기 때문이에요. 그래서 \"배당만 받고 팔면 이득\"인 것처럼 보이는 단타는 이익이 아니에요. 주가가 같은 폭으로 내려가면 배당을 받은 만큼 손해와 상쇄돼요.",
+     "SEC Investor.gov 용어집은 배당락일을 \"이 날 이후에 산 사람은 배당을 못 받는 날\"로 설명해요."
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "흔한 오해 4가지",
+    "columns": [
+     "오해",
+     "사실"
+    ],
+    "rows": [
+     [
+      "락일에 사면 이번 배당을 받는다",
+      "**아니에요.** 락일 **전날까지** 보유해야 해요"
+     ],
+     [
+      "배당만 받고 팔면 이득이다",
+      "락일에 주가가 조정돼서 **이익이 아닐 수 있어요**"
+     ],
+     [
+      "지급일에 사도 배당을 받는다",
+      "**아니에요.** 락일이 기준이에요"
+     ],
+     [
+      "배당금은 세금이 없다",
+      "**과세 대상**이에요(세금 글 참고)"
+     ]
+    ],
+    "highlight": 0,
+    "note": ""
+   },
+   {
+    "type": "checklist",
+    "title": "배당 일정 확인법",
+    "items": [
+     "회사 IR 페이지의 **Dividend** 에서 이번 락일 확인",
+     "증권사 앱의 **배당 달력**(Calendar)을 같이 보기",
+     "락일 전날 **장 마감 전에 주문 체결**됐는지 확인",
+     "**시간외 거래·주문 대기**는 당일 체결이 안 될 수 있어요",
+     "IRS **적격 배당 보유 기간**(락일 기준 61일)도 알아 두기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "날짜는 회사마다 달라요",
+    "body": "특별 배당·분할 같은 경우는 락일 규칙이 다르게 적용될 수 있어요. 큰 금액이라면 회사 공시나 증권사에서 락일을 꼭 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: 배당락일(Ex-dividend date)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/ex-dividend-date",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: 배당(Dividend)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/dividend",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: Topic 404 Dividends",
+      "url": "https://www.irs.gov/taxtopics/tc404",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "배당주",
+  "kind": "info",
+  "title": "'배당 함정' 피하기: 높은 배당수익률 뒤에 숨은 위험 5가지와 점검표",
+  "content": "배당수익률이 8%, 10%인 종목은 눈에 띄죠. 하지만 높은 배당은 때로 위험 신호예요. 회사가 배당을 줄이거나 없애면 주가가 크게 내려 배당보다 훨씬 많은 손실이 날 수 있어요. 흔히 '배당 함정(dividend trap)'이라고 부르는 상황을 알아보는 5가지와 점검표를 정리했어요.\n- 주가 하락 때문에 수익률이 높아 보일 수 있어요\n- 순이익보다 많은 배당은 오래 못 가요\n- 배당을 줄이면 주가가 같이 급락하는 일이 흔해요",
+  "image": "/images/money/topics/stocks-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "5가지",
+      "label": "경고 신호",
+      "note": "표로 점검",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "100%+",
+      "label": "배당성향",
+      "note": "번 돈보다 많이 줘요",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "5년",
+      "label": "배당 내역",
+      "note": "최소 이만큼 확인",
+      "icon": "calendar"
+     },
+     {
+      "value": "현금",
+      "label": "현금흐름",
+      "note": "이익보다 더 중요",
+      "icon": "dollar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "높은 수익률의 5가지 경고 신호"
+   },
+   {
+    "type": "compare",
+    "title": "배당 함정 5가지",
+    "columns": [
+     "신호",
+     "왜 위험한가",
+     "어디서 확인하나"
+    ],
+    "rows": [
+     [
+      "① 주가가 최근 크게 하락",
+      "시장이 배당 삭감을 예상하는 중일 수 있어요",
+      "차트·뉴스, 실적 발표"
+     ],
+     [
+      "② 배당성향이 100% 안팎",
+      "번 돈을 거의 다 나눠 주면 불황에 못 버텨요",
+      "10-K 손익계산서 ÷ 배당 총액"
+     ],
+     [
+      "③ 영업 현금흐름이 배당보다 적음",
+      "빚을 내서 배당을 주는 상황일 수 있어요",
+      "현금흐름표(영업활동)"
+     ],
+     [
+      "④ 빚이 늘어나는 중",
+      "이자 부담이 커지면 배당이 먼저 줄어요",
+      "재무상태표의 부채"
+     ],
+     [
+      "⑤ 최근 배당 삭감 이력",
+      "한 번 줄인 회사는 다시 줄이기 쉬워요",
+      "회사 IR 배당 내역"
+     ]
+    ],
+    "highlight": 0,
+    "note": "한 가지만 있다고 나쁜 회사는 아니에요. 여러 개가 겹치면 조심하세요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 배당 삭감의 충격",
+    "sub": "배당 $4(수익률 8%), 주가 $50인 회사가 배당을 반으로 줄였다면",
+    "items": [
+     {
+      "label": "삭감 전 연 배당",
+      "value": 4,
+      "display": "$4"
+     },
+     {
+      "label": "삭감 후 연 배당",
+      "value": 2,
+      "display": "$2"
+     },
+     {
+      "label": "주가가 20% 떨어졌다면 1주 손실",
+      "value": 10,
+      "display": "-$10 (배당 2.5년치)",
+      "highlight": true
+     }
+    ],
+    "max": 10,
+    "source": "※ 가상 예시예요. 배당을 줄이면 주가도 같이 크게 내려가는 일이 많아요."
+   },
+   {
+    "type": "steps",
+    "title": "5분 점검 순서",
+    "items": [
+     {
+      "title": "현재 수익률과 3년 전 수익률을 비교해요",
+      "body": "수익률이 오른 이유가 배당 증가인지 주가 하락인지 구분해요."
+     },
+     {
+      "title": "순이익과 배당 총액을 나눠 봐요",
+      "body": "10-K의 순이익으로 배당성향을 계산해요. 일시적 이익이면 평균을 써요."
+     },
+     {
+      "title": "영업 현금흐름과 비교해요",
+      "body": "배당 총액이 영업 현금흐름보다 크면 한 번 더 확인해요."
+     },
+     {
+      "title": "최근 뉴스·공시(8-K)를 읽어요",
+      "body": "사업 매각, 소송, 임원 변경, 배당 정책 변경 소식이 있는지 봐요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "배당주를 사기 전 점검표",
+    "items": [
+     "수익률이 **같은 업종 평균보다 지나치게 높지** 않은지",
+     "**5년 이상 배당 내역**이 안정적인지",
+     "**배당성향**이 지나치지 않은지",
+     "**빚**이 갑자기 늘지 않았는지",
+     "배당이 줄어도 **내가 버틸 수 있는 금액**인지"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "'배당 받으러 사는 것'은 아니에요",
+    "body": "배당은 수익의 일부일 뿐이에요. 주가가 같이 빠지면 배당을 받아도 손실이 훨씬 클 수 있어요. 생활비를 배당에만 의존하는 계획은 위험해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: 배당수익률(Dividend yield)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/dividend-yield",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Form 8-K",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-8-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: Topic 404 Dividends",
+      "url": "https://www.irs.gov/taxtopics/tc404",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "경제 지표",
+  "kind": "info",
+  "title": "소비자물가지수(CPI) 읽는 법: 숫자 두 개만 보세요(전월 대비 / 1년 전 대비)와 발표일 확인",
+  "content": "뉴스에서 \"물가가 3.4% 올랐다\"는 말을 들어도 어떤 숫자인지 헷갈리죠. 미국 노동통계국(BLS)이 매달 발표하는 CPI에는 '전월 대비'와 '1년 전 대비' 두 가지가 있어요. 공식 화면에서 읽는 방법과 근원 CPI, 다음 발표일 찾는 법을 정리했어요.\n- 전월 대비(m/m)와 1년 전 대비(y/y)는 다른 숫자예요\n- 근원 CPI는 식품·에너지를 뺀 값이에요\n- 발표일은 BLS 달력(Release Calendar)에서 확인해요",
+  "image": "/images/money/topics/stocks-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "CPI",
+      "label": "소비자물가지수",
+      "note": "도시 소비자가 사는 상품 가격",
+      "icon": "dollar"
+     },
+     {
+      "value": "m/m",
+      "label": "전월 대비",
+      "note": "한 달 사이 변화",
+      "icon": "calendar"
+     },
+     {
+      "value": "y/y",
+      "label": "1년 전 대비",
+      "note": "같은 달 비교",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "8:30",
+      "label": "발표 시각",
+      "note": "ET(동부시간) 아침",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "BLS 공식 CPI 페이지 보기"
+   },
+   {
+    "type": "shot",
+    "title": "BLS: Consumer Price Index 첫 화면(2026년 8월 자료)",
+    "src": "/images/money/shots/stk-cpi.jpg",
+    "pins": [
+     {
+      "x": 14.8,
+      "y": 32.4,
+      "text": "**Consumer Price Index** — 미국 노동통계국(BLS)이 만드는 물가 지표 페이지예요."
+     },
+     {
+      "x": 29.1,
+      "y": 73.7,
+      "text": "**차트** — 항목별 12개월 변화율을 보여 줘요. 전체(All items)·식품·**에너지**·근원(식품·에너지 제외)이 있어요."
+     },
+     {
+      "x": 70,
+      "y": 59.7,
+      "text": "**News Releases** — 이번 발표 제목이 \"CPI for all items increases 0.4% in August\"처럼 나와요."
+     },
+     {
+      "x": 72.7,
+      "y": 71,
+      "text": "본문에 **\"rose 0.4 percent (SA)\"**(전월 대비)와 **\"3.4 percent over the last 12 months (NSA)\"**(1년 전 대비)가 나란히 있어요."
+     },
+     {
+      "x": 71.8,
+      "y": 90.4,
+      "text": "**NEXT RELEASE** — 다음 발표 예정일이 적혀 있어요. 이 화면에는 9월 CPI가 2026년 10월 14일 오전 8시 30분(ET)으로 나와요."
+     }
+    ],
+    "caption": "한 화면에서 SA(계절 조정)·NSA(조정 안 함) 두 표기를 구분하면 뉴스가 쉬워져요.",
+    "credit": "미국 노동통계국(BLS) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "CPI 숫자 읽기",
+    "columns": [
+     "표기",
+     "뜻",
+     "언제 쓰나",
+     "주의"
+    ],
+    "rows": [
+     [
+      "All items(전체)",
+      "모든 품목 평균",
+      "뉴스 헤드라인",
+      "에너지·식품이 크게 오르내려요"
+     ],
+     [
+      "Core(근원)",
+      "식품·에너지를 뺀 값",
+      "물가의 큰 흐름을 볼 때",
+      "화면에서 'All items less food and energy'"
+     ],
+     [
+      "m/m (SA)",
+      "전월 대비 계절 조정",
+      "단기 변화",
+      "한 달 숫자는 변동이 커요"
+     ],
+     [
+      "y/y (NSA)",
+      "1년 전 같은 달 대비",
+      "연 물가 상승률",
+      "'인플레이션율'로 흔히 불러요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "이 화면(2026년 8월): 전체 전월 +0.4%, 1년 +3.4% / 근원 전월 +0.3%, 1년 +2.4%로 안내돼 있어요."
+   },
+   {
+    "type": "steps",
+    "title": "발표일에 확인하는 순서",
+    "items": [
+     {
+      "title": "BLS 발표 달력(Release Calendar)을 열어요",
+      "body": "bls.gov/schedule/news_release 에서 월별로 CPI 발표일이 나와요."
+     },
+     {
+      "title": "발표 시각(8:30 ET)에 맞춰 News Release 를 열어요",
+      "body": "첫 문단에 전월·1년 숫자가 있어요. 표로 항목별(주거·식품·에너지) 변화도 있어요."
+     },
+     {
+      "title": "전체와 근원을 같이 봐요",
+      "body": "에너지·식품이 원인인지, 전반적인 상승인지 구분해요."
+     },
+     {
+      "title": "뉴스의 '예상치'와 비교하지 말고 '추세'를 봐요",
+      "body": "한 달 숫자보다 최근 3~6개월 흐름이 더 의미 있어요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "CPI 읽을 때 기억할 것",
+    "items": [
+     "**전월(m/m)과 1년(y/y)** 를 구분",
+     "**전체와 근원**을 같이 확인",
+     "**SA(계절조정)와 NSA** 표기를 구분",
+     "발표일·시각(**8:30 AM ET**)을 달력에 적기",
+     "나의 **생활비 항목(주거·식품 등)** 이 어떻게 변했는지 세부 표 보기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "내 생활 물가와 다를 수 있어요",
+    "body": "CPI는 '평균적인' 도시 소비자의 물가예요. 집값·렌트·식료품 비중이 내 가정과 다르면 체감과 달라요. 숫자는 큰 흐름을 보는 참고로 쓰세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "BLS 공식: Consumer Price Index",
+      "url": "https://www.bls.gov/cpi/",
+      "kind": "정부(공식, BLS)"
+     },
+     {
+      "title": "BLS 공식: Release Calendar",
+      "url": "https://www.bls.gov/schedule/news_release/",
+      "kind": "정부(공식, BLS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "경제 지표",
+  "kind": "info",
+  "title": "월간 고용 보고서(Employment Situation) 읽기: 일자리 증가 수와 실업률을 같이 보는 법",
+  "content": "미국은 매달 첫째 금요일쯤 고용 보고서가 나와요. 비농업 일자리 증가 수와 실업률이 핵심이고, 시장이 크게 반응하는 지표예요. 2026년 9월 보고서 화면을 따라가며 두 숫자의 뜻과 함께 봐야 할 지표를 정리했어요.\n- 비농업 고용(Nonfarm payroll)은 사업체 조사 결과예요\n- 실업률은 가구 조사 결과예요(두 조사가 달라요)\n- 두 숫자는 나중에 수정되기도 해요",
+  "image": "/images/money/topics/stocks-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "+29,000",
+      "label": "9월 비농업 고용",
+      "note": "화면의 2026년 9월 보고서",
+      "icon": "users"
+     },
+     {
+      "value": "4.2%",
+      "label": "실업률",
+      "note": "거의 같은 수준",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "1.9백만",
+      "label": "장기 실업자",
+      "note": "27주 이상 실직",
+      "icon": "clock"
+     },
+     {
+      "value": "8:30",
+      "label": "발표 시각",
+      "note": "ET 금요일 아침",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "BLS 공식 보고서 화면"
+   },
+   {
+    "type": "shot",
+    "title": "BLS: Employment Situation Summary(2026년 9월)",
+    "src": "/images/money/shots/stk-jobs.jpg",
+    "pins": [
+     {
+      "x": 14.5,
+      "y": 13.7,
+      "text": "발표 시각 안내 — **Friday, October 2, 2026 오전 8시 30분(ET)** 이전에는 공개가 금지(embargo)돼 있다는 문구예요."
+     },
+     {
+      "x": 32.1,
+      "y": 35.9,
+      "text": "**THE EMPLOYMENT SITUATION - SEPTEMBER 2026** — 2026년 9월 고용 상황 요약이에요."
+     },
+     {
+      "x": 32.7,
+      "y": 42.8,
+      "text": "핵심 문장 — **비농업 일자리 +29,000**, **실업률 4.2%** 모두 \"changed little(거의 변화 없음)\"이라고 적혀 있어요."
+     },
+     {
+      "x": 7.3,
+      "y": 62.9,
+      "text": "**Household Survey Data** — 가구 조사. 실업률 4.2%, 실업자 710만 명."
+     },
+     {
+      "x": 32.7,
+      "y": 87.5,
+      "text": "**27 weeks or more** — 27주 이상 일자리를 못 구한 장기 실업자는 190만 명(전체 실업자의 27.1%)이에요."
+     }
+    ],
+    "caption": "실업률은 '일자리를 찾고 있는 사람 중 못 구한 사람의 비율'이에요. 일을 포기한 사람은 빠질 수 있어요.",
+    "credit": "미국 노동통계국(BLS) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "두 조사 비교",
+    "columns": [
+     "구분",
+     "사업체 조사(Establishment)",
+     "가구 조사(Household)"
+    ],
+    "rows": [
+     [
+      "조사 대상",
+      "회사·기관의 급여 명부",
+      "표본 가구에 물어봄"
+     ],
+     [
+      "대표 숫자",
+      "비농업 고용 증가(+29,000)",
+      "실업률(4.2%)"
+     ],
+     [
+      "특징",
+      "일자리 **수** 위주",
+      "**사람**(실업·경제활동참가) 위주"
+     ],
+     [
+      "수정",
+      "나중에 수정되는 경우가 많아요",
+      "조사 방식 때문에 변동이 있어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "두 조사가 다른 숫자를 보여 줄 수 있으니 같이 봐요."
+   },
+   {
+    "type": "steps",
+    "title": "고용 보고서 읽는 순서",
+    "items": [
+     {
+      "title": "맨 위 첫 문단을 읽어요",
+      "body": "'비농업 고용'과 '실업률'이 그달 요약이에요. 지난달 대비 변했는지가 중요해요."
+     },
+     {
+      "title": "경제활동참가율(Labor force participation)을 봐요",
+      "body": "일할 의사가 있는 인구 비율이에요. 이 화면은 61.8%예요. 참가율이 떨어지면 실업률이 줄어도 좋은 신호가 아닐 수 있어요."
+     },
+     {
+      "title": "업종별 증감을 봐요",
+      "body": "보건·정부·제조업 중 어디서 늘고 줄었는지 보면 흐름을 알 수 있어요."
+     },
+     {
+      "title": "지난 3개월 평균을 봐요",
+      "body": "한 달 숫자는 변동이 커요. 이전 달 수정치도 같이 보세요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "고용 보고서 볼 때",
+    "items": [
+     "**일자리 수 + 실업률** 둘 다 보기",
+     "**지난 달 수치가 수정**됐는지 보기",
+     "**경제활동참가율**도 같이 보기",
+     "단어 'changed little'은 **큰 변화가 없다**는 뜻",
+     "**3개월 평균**으로 판단"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "금요일 아침 뉴스에 서두르지 마세요",
+    "body": "발표 직후 몇 분은 주가가 크게 움직여요. 숫자의 의미를 이해하기 전에 매수·매도 주문부터 넣는 건 위험해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "BLS 공식: The Employment Situation (Summary)",
+      "url": "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "kind": "정부(공식, BLS)"
+     },
+     {
+      "title": "BLS 공식: Release Calendar",
+      "url": "https://www.bls.gov/schedule/news_release/",
+      "kind": "정부(공식, BLS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "경제 지표",
+  "kind": "info",
+  "title": "GDP 성장률과 연준(FOMC) 회의: '연 환산' 숫자 읽는 법과 금리 결정 일정 확인",
+  "content": "GDP와 연준 금리 결정은 주식시장이 가장 주목하는 두 가지예요. GDP 성장률은 '연율'이라는 특별한 표기를 쓰고, 연준 FOMC 회의는 1년에 8번 열려요. 두 공식 페이지에서 숫자와 일정을 읽는 법을 정리했어요.\n- GDP 숫자는 분기 성장률을 1년으로 환산한 값이에요\n- 같은 분기가 속보·수정·확정 3번 발표돼요\n- FOMC 회의록은 결정 3주 뒤에 공개돼요",
+  "image": "/images/money/topics/stocks-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "연율",
+      "label": "GDP 표기",
+      "note": "분기를 1년으로 환산",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "3번",
+      "label": "같은 분기 발표",
+      "note": "속보·수정·확정",
+      "icon": "refresh"
+     },
+     {
+      "value": "8번",
+      "label": "FOMC 정례 회의",
+      "note": "1년에 8회",
+      "icon": "calendar"
+     },
+     {
+      "value": "3주",
+      "label": "회의록 공개",
+      "note": "결정 3주 뒤",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "GDP 화면 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "BEA: Gross Domestic Product(2026년 2분기)",
+    "src": "/images/money/shots/stk-gdp.jpg",
+    "pins": [
+     {
+      "x": 25.9,
+      "y": 8.2,
+      "text": "**Gross Domestic Product(GDP)** — 미국 상무부 경제분석국(BEA)이 만드는 국내총생산 지표예요."
+     },
+     {
+      "x": 48.6,
+      "y": 30.4,
+      "text": "**Q2 2026 (3rd) +2.2%** — 2026년 2분기 **세 번째 추정치**가 연율 2.2%라는 뜻이에요."
+     },
+     {
+      "x": 48.6,
+      "y": 35,
+      "text": "**Q1 2026 +2.5%** — 1분기 성장률(수정치)이에요."
+     },
+     {
+      "x": 74.1,
+      "y": 46,
+      "text": "막대그래프는 분기별 변화를 연율로 보여 줘요."
+     },
+     {
+      "x": 45.2,
+      "y": 83.4,
+      "text": "**Next release: October 29, 2026** — 다음 발표 날짜예요(바뀔 수 있어요)."
+     }
+    ],
+    "caption": "GDP는 한 번에 확정되지 않아요. 같은 분기가 처음·수정·세 번째로 나오며 숫자가 바뀌어요.",
+    "credit": "미국 경제분석국(BEA) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "text",
+    "body": [
+     "화면 본문에는 \"annual rate of 2.2 percent(연율 2.2%)\"라고 적혀 있어요. 석 달 동안의 변화를 1년으로 환산한 숫자라서, 이 석 달만 보면 약 0.5%쯤 늘었다는 뜻이에요. 그래서 분기 숫자를 연 성장률(1년 전 대비)과 헷갈리면 안 돼요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "연준 FOMC 회의 일정 보기"
+   },
+   {
+    "type": "shot",
+    "title": "연준: FOMC 회의 달력·성명·회의록",
+    "src": "/images/money/shots/stk-fomc.jpg",
+    "pins": [
+     {
+      "x": 25.9,
+      "y": 3.8,
+      "text": "**Federal Open Market Committee** — 미국 중앙은행(연준)의 금리 결정 모임이에요."
+     },
+     {
+      "x": 45.5,
+      "y": 15.8,
+      "text": "**eight regularly scheduled meetings** — 정례 회의는 **1년에 8번**이고, 필요하면 임시 회의도 열어요."
+     },
+     {
+      "x": 45.5,
+      "y": 27.6,
+      "text": "**minutes ... released three weeks after** — 회의록은 결정 날짜로부터 **3주 뒤**에 공개돼요."
+     },
+     {
+      "x": 39.5,
+      "y": 63.2,
+      "text": "**2026 FOMC Meetings** — 올해 회의 날짜 목록이에요."
+     },
+     {
+      "x": 41.8,
+      "y": 70.1,
+      "text": "**January 27-28** — 각 회의마다 성명(Statement), 기자회견(Press Conference), 회의록(Minutes) 링크가 있어요."
+     }
+    ],
+    "caption": "별표(*)가 붙은 회의는 경제 전망 요약(SEP)이 같이 나오는 회의예요. 해마다 달라서 연준 페이지에서 확인하세요.",
+    "credit": "미국 연방준비제도(Federal Reserve) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "두 지표 읽기 요약",
+    "columns": [
+     "지표",
+     "누가 발표",
+     "얼마나 자주",
+     "핵심 질문"
+    ],
+    "rows": [
+     [
+      "GDP",
+      "BEA(상무부)",
+      "분기마다(속보→수정→확정)",
+      "경제가 커지고 있나?"
+     ],
+     [
+      "FOMC 성명",
+      "연준",
+      "1년 8회",
+      "금리를 올릴까, 내릴까, 유지할까?"
+     ],
+     [
+      "FOMC 회의록",
+      "연준",
+      "결정 3주 뒤",
+      "위원들이 무엇을 논의했나?"
+     ]
+    ],
+    "highlight": 0,
+    "note": ""
+   },
+   {
+    "type": "checklist",
+    "title": "두 일정을 내 달력에 넣기",
+    "items": [
+     "**BEA 발표일**(GDP)을 달력에",
+     "**FOMC 결정일 8번**을 달력에",
+     "**회의록 공개일**(결정 3주 뒤)도 표시",
+     "발표 직후 **성명 첫 문단**부터 읽기",
+     "**'연율'** 표기를 기억하기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "금리 결정은 주식에도 영향이 있어요",
+    "body": "금리가 오르면 대출 이자가 올라서 기업 이익과 주식 가치 평가에 부담이 되는 경우가 있어요. 하지만 시장은 결정 전에 이미 예상하고 움직이는 경우가 많아서, 같은 결정에도 반응이 다를 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "BEA 공식: Gross Domestic Product",
+      "url": "https://www.bea.gov/data/gdp/gross-domestic-product",
+      "kind": "정부(공식, BEA)"
+     },
+     {
+      "title": "연준 공식: FOMC Meeting Calendars",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "kind": "정부(공식, 연방준비제도)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "기업 뉴스",
+  "kind": "info",
+  "title": "8-K 는 '공식 속보'예요: 중요한 일이 생기면 4영업일 안에 내는 서류를 EDGAR에서 읽는 법",
+  "content": "인수합병·임원 사임·실적 발표·큰 계약 같은 일이 생기면 상장 회사는 SEC에 8-K라는 서류를 내요. 뉴스보다 먼저, 그리고 가장 정확한 원문이 올라와요. 8-K가 무엇이고 EDGAR에서 어떻게 찾는지, 어떤 항목(Item)이 중요한지 정리했어요.\n- 8-K = 중요한 일이 생겼을 때 내는 수시 보고서(Current report)\n- 보통 일이 생긴 뒤 4영업일 안에 제출해요\n- 앞의 'Item 번호'를 보면 무슨 일인지 바로 알 수 있어요",
+  "image": "/images/money/topics/stocks-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "8-K",
+      "label": "수시 공시",
+      "note": "중요한 일이 생기면",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "4일",
+      "label": "영업일 기한",
+      "note": "일반적인 제출 기한",
+      "icon": "clock"
+     },
+     {
+      "value": "Item",
+      "label": "항목 번호",
+      "note": "무슨 일인지 구분",
+      "icon": "list"
+     },
+     {
+      "value": "무료",
+      "label": "EDGAR",
+      "note": "누구나 열람",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "EDGAR 회사 화면에서 8-K 찾기"
+   },
+   {
+    "type": "shot",
+    "title": "SEC EDGAR 회사 화면: 최근 서류와 8-K",
+    "src": "/images/money/shots/stk-edgar-co.jpg",
+    "pins": [
+     {
+      "x": 18.2,
+      "y": 23,
+      "text": "**Apple Inc. AAPL on Nasdaq** — 회사 이름·티커·거래소가 나와요. 맞는 회사인지 먼저 확인하세요."
+     },
+     {
+      "x": 13.6,
+      "y": 38.2,
+      "text": "**Latest Filings** — 최근 제출된 서류 목록이에요. 맨 위가 가장 최근이에요."
+     },
+     {
+      "x": 27.8,
+      "y": 45.5,
+      "text": "**8-K (current reports)** — 눌러서 펼치면 최근 8-K만 모아 볼 수 있어요."
+     },
+     {
+      "x": 36.4,
+      "y": 52.9,
+      "text": "**10-K(연간)·10-Q(분기)** — 정기 보고서는 따로 모여 있어요."
+     },
+     {
+      "x": 31.4,
+      "y": 74,
+      "text": "**Ownership disclosures** — 주요 주주·임원이 주식을 사고판 서류(내부자 거래 등)가 모여 있어요."
+     },
+     {
+      "x": 7.3,
+      "y": 82.5,
+      "text": "**View filings** — 모든 서류를 종류·날짜로 걸러서 볼 수 있어요."
+     }
+    ],
+    "caption": "목록에 있는 \"8-K/A\"는 앞서 낸 8-K를 고친(amendment) 서류예요. 화면의 5.02 항목은 이사·임원의 퇴임·선임에 관한 내용이에요.",
+    "credit": "미국 증권거래위원회(SEC) 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "compare",
+    "title": "자주 보는 8-K 항목(Item)",
+    "columns": [
+     "Item",
+     "무슨 일",
+     "왜 중요한가"
+    ],
+    "rows": [
+     [
+      "1.01",
+      "중요한 계약 체결",
+      "큰 고객·인수 계약이 생겼어요"
+     ],
+     [
+      "2.02",
+      "실적 발표",
+      "분기 실적 보도 자료가 첨부돼요"
+     ],
+     [
+      "5.02",
+      "이사·임원 선임·퇴임",
+      "경영진 변화는 회사 방향에 영향이 있어요"
+     ],
+     [
+      "7.01·8.01",
+      "그 밖의 공시·기타 사건",
+      "발표 자료·소송 등"
+     ],
+     [
+      "9.01",
+      "재무제표·첨부 자료",
+      "실적 표·계약서 같은 첨부가 있어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "항목 번호는 SEC 양식에 따라 정해져 있어요. 처음엔 2.02, 5.02, 1.01만 익히세요."
+   },
+   {
+    "type": "steps",
+    "title": "8-K 읽는 순서",
+    "items": [
+     {
+      "title": "EDGAR 에서 티커로 회사 화면을 열어요",
+      "body": "8-K 를 눌러 펼치세요."
+     },
+     {
+      "title": "제출 날짜와 Item 번호를 먼저 봐요",
+      "body": "어떤 종류의 일인지 제목에서 알 수 있어요."
+     },
+     {
+      "title": "서류 앞 1~2페이지만 읽어요",
+      "body": "\"무슨 일이 언제 있었다\"가 짧게 적혀 있어요."
+     },
+     {
+      "title": "첨부(Exhibit)를 열어요",
+      "body": "실적 보도 자료, 계약서 같은 상세 자료가 있어요. 처음엔 'Exhibit 99.1'(보도 자료)만 읽어도 돼요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "공시를 볼 때",
+    "items": [
+     "**제출 시간(장중/장 마감 후)** 확인",
+     "**Item 번호**로 종류 파악",
+     "**8-K/A(정정)** 인지 확인",
+     "**뉴스 기사보다 원문**을 먼저",
+     "모르는 용어는 **Investor.gov 용어집**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "원문이 가장 빨라요",
+    "body": "뉴스 기사는 8-K 원문을 요약한 것이라서 해석이나 제목이 과장될 수 있어요. 큰 소식일수록 EDGAR 원문 한 번만 열어 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: Form 8-K",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-8-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     },
+     {
+      "title": "SEC 공식: Form 8-K 안내(Investor.gov)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/form-8-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "기업 뉴스",
+  "kind": "info",
+  "title": "뉴스 제목만 보고 사지 마세요: 회사 보도 자료·언론 기사·SNS 소문을 구분하는 3단계",
+  "content": "같은 소식이라도 어디서 나왔는지에 따라 믿을 수 있는 정도가 달라요. 회사가 직접 낸 공식 자료, 언론이 취재한 기사, SNS·커뮤니티 소문은 신뢰도가 다르고, 제목이 가장 자극적이에요. 소식을 만났을 때 근원을 확인하는 3단계를 정리했어요.\n- 1단계: 회사 IR·EDGAR 에서 원문 확인\n- 2단계: 믿을 만한 언론에서 같은 내용인지 비교\n- 3단계: 출처 불명 소문은 확인 전까지 '없는 것'으로 보기",
+  "image": "/images/money/topics/stocks-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3단계",
+      "label": "근원 확인",
+      "note": "공식→언론→소문",
+      "icon": "list"
+     },
+     {
+      "value": "1차",
+      "label": "회사 공시·IR",
+      "note": "가장 정확",
+      "icon": "check"
+     },
+     {
+      "value": "2차",
+      "label": "언론 기사",
+      "note": "요약·해석 포함",
+      "icon": "book-open"
+     },
+     {
+      "value": "낮음",
+      "label": "SNS 소문",
+      "note": "확인 전엔 믿지 않기",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "소식의 신뢰도 층"
+   },
+   {
+    "type": "compare",
+    "title": "뉴스의 종류",
+    "columns": [
+     "종류",
+     "예",
+     "신뢰도",
+     "주의할 점"
+    ],
+    "rows": [
+     [
+      "1차: 회사·정부 공식 자료",
+      "EDGAR 8-K, 회사 IR 보도 자료",
+      "높음",
+      "회사 입장에서 쓴 글이라 **홍보 톤**일 수 있어요"
+     ],
+     [
+      "2차: 언론 취재 기사",
+      "로이터·AP·주요 경제 매체",
+      "중간~높음",
+      "제목이 과장될 수 있어요. 본문까지 읽기"
+     ],
+     [
+      "3차: 해설·유튜브·블로그",
+      "분석가·개인 의견",
+      "낮음~중간",
+      "**의견**과 **사실**을 구분하기"
+     ],
+     [
+      "SNS·커뮤니티 소문",
+      "'곧 인수 발표' 같은 글",
+      "매우 낮음",
+      "펌프앤덤프에 흔히 쓰여요"
+     ]
+    ],
+    "highlight": 0,
+    "note": ""
+   },
+   {
+    "type": "shot",
+    "title": "Microsoft IR 페이지: 회사가 직접 올린 NEWS",
+    "src": "/images/money/shots/stk-msftir.jpg",
+    "pins": [
+     {
+      "x": 36.4,
+      "y": 86.4,
+      "text": "**NEWS** — 회사가 직접 고른 소식이에요. 공식 정보지만 **회사에 유리한 소식 위주**일 수 있어요."
+     },
+     {
+      "x": 75.5,
+      "y": 40.1,
+      "text": "**Upcoming FY27 Q1 Earnings** — 다음 실적 일정은 이렇게 미리 알려요. 날짜를 정확히 아는 가장 믿을 수 있는 곳이에요."
+     },
+     {
+      "x": 40.7,
+      "y": 15.1,
+      "text": "**Earnings & Financials** — 숫자가 필요하면 이 메뉴에서 보도 자료와 재무 자료를 열어요."
+     }
+    ],
+    "caption": "회사 IR 페이지는 1차 자료지만 홍보 성격도 있어요. 좋은 소식만 크게 보이지 않는지 의식하세요.",
+    "credit": "Microsoft 공식 Investor Relations 페이지 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "소식을 만나면 이 순서로",
+    "items": [
+     {
+      "title": "출처와 날짜를 확인해요",
+      "body": "누가 언제 한 이야기인지 모르면 멈춰요. 오래된 기사가 다시 퍼진 경우도 많아요."
+     },
+     {
+      "title": "회사 IR 페이지·EDGAR 에서 원문을 찾아요",
+      "body": "8-K, 보도 자료에 같은 내용이 있는지 보세요. 없으면 아직 공식이 아니에요."
+     },
+     {
+      "title": "믿을 만한 언론 2곳 이상에서 같은 내용인지 확인해요",
+      "body": "한 곳만 말하는 소식은 신중하게."
+     },
+     {
+      "title": "'제목'과 '본문'이 같은 말인지 확인해요",
+      "body": "제목은 \"급등\"이어도 본문은 \"가능성\"일 수 있어요."
+     },
+     {
+      "title": "하루 이상 기다려요",
+      "body": "큰 소식도 이틀이면 정리돼요. 서두르지 않아도 기회는 지나가지 않아요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "소식을 읽는 습관",
+    "items": [
+     "**날짜**부터 확인",
+     "**원문(공시·보도 자료) 링크**가 있는지",
+     "**의견과 사실**을 구분",
+     "**'~할 전망', '~할 수도'** 같은 말의 뜻을 새겨서 읽기",
+     "**한 번에 크게** 사지 않기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "좋은 소식에도 가격은 이미 반영됐을 수 있어요",
+    "body": "뉴스가 퍼질 때쯤이면 가격이 이미 움직인 경우가 많아요. '아직 반영 안 됐다'는 믿음은 위험할 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Microsoft 공식: Investor Relations",
+      "url": "https://www.microsoft.com/en-us/investor",
+      "kind": "기업 공식 IR"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     },
+     {
+      "title": "Investor.gov: 펌프앤덤프",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/pump-and-dump-schemes",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "기업 뉴스",
+  "kind": "info",
+  "title": "SNS '급등 예고'는 펌프앤덤프일 수 있어요: SEC가 알려 주는 수법과 소문 걸러내기 체크리스트",
+  "content": "\"이 종목, 곧 10배 갑니다\" 같은 글을 SNS나 단체 채팅방에서 본 적 있나요? SEC는 이런 수법을 펌프앤덤프(Pump and Dump)라고 부르며 투자자에게 경고해요. 사기꾼이 허위·과장 정보로 가격을 끌어올린 뒤(pump) 자기 주식을 팔고(dump) 떠나면, 남은 사람이 손해를 봐요. 구조와 피하는 법을 정리했어요.\n- 허위·과장 정보로 매수 열풍을 만든 뒤 자기 주식을 팔아요\n- 소형주(microcap)가 특히 표적이 돼요\n- SNS·메신저·이메일·광고가 흔한 통로예요",
+  "image": "/images/money/topics/stocks-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "Pump",
+      "label": "띄우기",
+      "note": "허위·과장 정보로 가격 올림",
+      "icon": "trending-up"
+     },
+     {
+      "value": "Dump",
+      "label": "던지기",
+      "note": "자기 주식을 비싸게 팔고 떠남",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "소형주",
+      "label": "주요 표적",
+      "note": "정보가 적어서",
+      "icon": "search"
+     },
+     {
+      "value": "SNS",
+      "label": "주요 통로",
+      "note": "소셜 미디어·채팅방",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 설명 보기"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Pump and Dump Schemes",
+    "src": "/images/money/shots/stk-pump.jpg",
+    "pins": [
+     {
+      "x": 50.9,
+      "y": 42.6,
+      "text": "**Pump and Dump Schemes** — SEC가 용어집에서 설명하는 사기 수법이에요."
+     },
+     {
+      "x": 61.8,
+      "y": 53.7,
+      "text": "**\"pump\"** 로 가격을 올린 뒤 **\"dump\"** 로 사기꾼이 자기 주식을 팔고, 그 뒤 가격이 보통 떨어져서 투자자가 손해를 본다는 설명이에요."
+     },
+     {
+      "x": 49.1,
+      "y": 72.1,
+      "text": "**social media, investment research websites, newsletters ...** — 허위 정보는 SNS·투자 사이트·뉴스레터·이메일·광고·채팅방 등으로 퍼진다고 해요."
+     },
+     {
+      "x": 63.6,
+      "y": 78.4,
+      "text": "**Microcap** — 공개 정보가 적은 소형 상장 회사가 특히 표적이 된다고 해요."
+     }
+    ],
+    "caption": "출처가 불분명한 '곧 오른다'는 이야기는 공식 자료로 확인되기 전에는 '소문'일 뿐이에요.",
+    "credit": "SEC Investor.gov 용어집 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "펌프앤덤프 경고 신호",
+    "columns": [
+     "신호",
+     "예",
+     "왜 위험한가"
+    ],
+    "rows": [
+     [
+      "갑작스러운 '급등 예고'",
+      "\"내일 발표, 10배 간다\"",
+      "원문(공시) 근거가 없어요"
+     ],
+     [
+      "시간 압박",
+      "\"오늘 안에 사야 해요\"",
+      "생각할 시간을 안 줘요"
+     ],
+     [
+      "내부 정보 암시",
+      "\"내가 아는 사람이 말해 줬어\"",
+      "내부자 거래이거나 거짓이에요"
+     ],
+     [
+      "작은 회사·낯선 회사",
+      "거래량이 적은 초소형주",
+      "정보가 적어 거짓말이 통해요"
+     ],
+     [
+      "비밀 채팅방·유료 그룹",
+      "'회원만 정보 공유'",
+      "주도자가 이미 가지고 있을 수 있어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "한 가지 신호만 있어도 보류하세요."
+   },
+   {
+    "type": "steps",
+    "title": "소문을 만났을 때 하는 일",
+    "items": [
+     {
+      "title": "바로 사지 않고 티커를 EDGAR 에서 찾아요",
+      "body": "회사가 실제 상장 회사인지, 공시가 최근에 있는지 확인해요."
+     },
+     {
+      "title": "회사 IR·최근 8-K 에 같은 내용이 있는지 봐요",
+      "body": "없으면 아직 확인된 소식이 아니에요."
+     },
+     {
+      "title": "거래량과 시가총액을 봐요",
+      "body": "시가총액이 아주 작고 거래량이 갑자기 늘었다면 위험해요."
+     },
+     {
+      "title": "누가 이 소식을 퍼뜨리는지 봐요",
+      "body": "처음 보는 계정, 오래 안 쓰던 계정, 수익 인증만 올리는 계정은 조심하세요."
+     },
+     {
+      "title": "그래도 궁금하면 내가 잃어도 되는 아주 작은 돈만",
+      "body": "'놓치면 어쩌나' 하는 조급함이 사기에 가장 잘 먹히는 감정이에요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "가족·지인에게도 알려 주세요",
+    "items": [
+     "**\"확실한 수익\"** 은 없다고 말해 주기",
+     "**단체 채팅방 주식 추천**은 일단 의심",
+     "**송금·입금** 요구가 나오면 즉시 중단",
+     "의심되면 **SEC(sec.gov)에 신고**할 수 있다는 것 알려 주기",
+     "**카카오톡 등 한국어 채팅방**에도 같은 수법이 퍼져요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "이미 돈을 보냈다면",
+    "body": "주식 매수가 아니라 송금·암호화폐 전송을 요구했다면 사기일 가능성이 높아요. 은행과 카드사에 바로 연락하고 FTC(reportfraud.ftc.gov)·SEC 신고 창구를 확인하세요. 개인 정보(주민번호·SSN)는 절대 알려 주지 마세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: 펌프앤덤프(Pump and Dump Schemes)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/pump-and-dump-schemes",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     },
+     {
+      "title": "FTC 공식: ReportFraud",
+      "url": "https://reportfraud.ftc.gov/",
+      "kind": "정부(공식, FTC)"
+     }
+    ]
+   }
+  ]
+ }
+]
