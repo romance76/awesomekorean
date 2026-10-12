@@ -67,6 +67,7 @@
           <span class="absolute left-0 top-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-[16px] shadow" :class="T.solid">{{ k + 1 }}</span>
           <div class="font-extrabold text-ink text-[16px]">{{ s.title }}</div>
           <p class="text-[14.5px] text-ink-light leading-relaxed mt-1" v-html="rich(s.body)"></p>
+          <div v-if="s.btn" class="mt-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13.5px] font-black" :class="[T.soft, T.text]"><AppIcon :name="s.btn.icon || 'check'" :size="16" />누를 곳: {{ s.btn.label }}</div>
           <a v-if="safe(s.link?.url)" :href="s.link.url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 mt-2 text-[13px] font-bold underline" :class="T.text">{{ s.link.label }} <AppIcon name="external-link" :size="13" /></a>
         </li>
       </ol>
@@ -269,6 +270,51 @@
       </div>
     </section>
 
+    <!-- 휴대폰 화면 위치 그림: 어디를 누르는지 (실제 앱 화면이 아닌 위치 설명용 그림) -->
+    <section v-else-if="b.type === 'phone'" class="card p-4 md:p-5">
+      <div class="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
+        <div class="shrink-0 relative" style="width:176px">
+          <svg viewBox="0 0 200 380" class="w-full h-auto" role="img" :aria-label="b.label || '누를 곳'">
+            <rect x="6" y="6" width="188" height="368" rx="30" fill="#fff" stroke="#9ca3af" stroke-width="4"/>
+            <rect x="78" y="14" width="44" height="8" rx="4" fill="#d1d5db"/>
+            <rect x="18" y="32" width="164" height="318" rx="14" fill="#f3f4f6"/>
+            <rect x="28" y="44" width="90" height="12" rx="6" fill="#d1d5db"/>
+            <text v-if="b.headline" x="30" y="76" font-size="11" font-weight="800" fill="#4b5563">{{ b.headline }}</text>
+            <rect x="28" y="88" width="144" height="46" rx="10" fill="#e5e7eb"/>
+            <rect x="28" y="144" width="144" height="26" rx="8" fill="#e5e7eb"/>
+            <rect x="28" y="178" width="144" height="26" rx="8" fill="#e5e7eb"/>
+            <rect x="28" y="212" width="144" height="26" rx="8" fill="#e5e7eb"/>
+            <rect x="18" y="304" width="164" height="46" rx="0" fill="#fff"/>
+            <circle cx="46" cy="327" r="9" fill="#d1d5db"/><circle cx="90" cy="327" r="9" fill="#d1d5db"/><circle cx="134" cy="327" r="9" fill="#d1d5db"/><circle cx="170" cy="327" r="9" fill="#d1d5db"/>
+            <g v-if="pt(b).rect"><rect :x="pt(b).x" :y="pt(b).y" :width="pt(b).w" :height="pt(b).h" rx="10" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6 4"/></g>
+            <g v-else>
+              <circle :cx="pt(b).x" :cy="pt(b).y" r="26" fill="rgba(245,158,11,.25)"><animate attributeName="r" values="22;30;22" dur="1.6s" repeatCount="indefinite"/></circle>
+              <circle :cx="pt(b).x" :cy="pt(b).y" r="17" fill="#f59e0b"/>
+              <path :d="'M' + (pt(b).x + 12) + ' ' + (pt(b).y + 30) + ' l8 -6 m-8 6 l2 -10'" stroke="#374151" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </g>
+          </svg>
+        </div>
+        <div class="min-w-0 text-center sm:text-left">
+          <div class="text-[12px] font-extrabold tracking-[1px]" :class="T.text">{{ b.kicker || '이 화면에서' }}</div>
+          <div class="text-[20px] font-black text-ink mt-0.5">{{ b.title }}</div>
+          <div v-if="b.label" class="mt-2 inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[15px] font-black" :class="[T.soft, T.text]"><AppIcon :name="b.icon || 'check'" :size="20" />{{ b.label }}</div>
+          <p class="text-[15px] text-ink-light leading-relaxed mt-2" v-html="rich(b.caption)"></p>
+          <p class="text-[11.5px] text-ink-muted mt-2">※ 그림은 누를 위치를 설명하는 예시예요. 앱이 업데이트되면 실제 화면과 조금 다를 수 있어요.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 참고한 자료 -->
+    <section v-else-if="b.type === 'sources'" class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
+      <div class="font-black text-ink text-[14.5px] flex items-center gap-2"><AppIcon name="book-open" :size="16" :class="T.text" />{{ b.title || '참고한 자료' }}</div>
+      <p class="text-[12.5px] text-ink-muted mt-1" v-html="rich(b.note)"></p>
+      <ul class="mt-2 space-y-1.5">
+        <template v-for="(l, k) in b.items" :key="k">
+          <li v-if="safe(l.url)" class="text-[13px]"><a :href="l.url" target="_blank" rel="noopener noreferrer" class="underline font-bold" :class="T.text">{{ l.title }}</a><span class="text-ink-muted"> · {{ l.kind }}</span></li>
+        </template>
+      </ul>
+    </section>
+
   </template>
 </div>
 </template>
@@ -347,6 +393,17 @@ const feeCalc = computed(() => {
 
 // ── 50/30/20 ──
 const bud = reactive({ income: 5000 })
+
+// 휴대폰 그림에서 누를 위치 (0~200 x 0~380 좌표)
+const POS = {
+  'top-left': { x: 40, y: 50 }, 'top-center': { x: 100, y: 50 }, 'top-right': { x: 160, y: 50 },
+  'center': { x: 100, y: 160 }, 'left-center': { x: 50, y: 160 }, 'right-center': { x: 150, y: 160 },
+  'bottom-center': { x: 100, y: 322 }, 'bottom-left': { x: 46, y: 327 }, 'bottom-right': { x: 170, y: 327 },
+  'bottom-2': { x: 90, y: 327 }, 'bottom-3': { x: 134, y: 327 },
+  'bottom-bar': { rect: true, x: 20, y: 304, w: 160, h: 46 }, 'top-bar': { rect: true, x: 22, y: 36, w: 156, h: 30 },
+  'list-item': { rect: true, x: 26, y: 140, w: 148, h: 32 }, 'big-card': { rect: true, x: 26, y: 86, w: 148, h: 50 },
+}
+const pt = (b) => POS[b.where] || POS['center']
 
 // ── 주택 계산기 ──
 const m = reactive({ price: 450000, down: 10, rate: 6.5, years: 30, pmiRate: 0.8 })
