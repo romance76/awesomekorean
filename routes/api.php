@@ -968,6 +968,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::put('/money/guides/{id}', [\App\Http\Controllers\API\AdminMoneyController::class, 'saveGuide'])->whereNumber('id');
     Route::get('/money/posts', [\App\Http\Controllers\API\AdminMoneyController::class, 'posts']);
     Route::post('/money/posts/{id}/toggle', [\App\Http\Controllers\API\AdminMoneyController::class, 'togglePost'])->whereNumber('id');
+    Route::post('/money/posts/{id}/pin', [\App\Http\Controllers\API\AdminMoneyController::class, 'pinPost'])->whereNumber('id');
+    Route::put('/money/cafes/{id}/categories', [\App\Http\Controllers\API\AdminMoneyController::class, 'saveCategories'])->whereNumber('id');
 
     // 회원 내돈내산 리뷰 관리 (승인/반려/내리기/복구)
     Route::put('/associates-guide', [\App\Http\Controllers\API\AssociatesGuideController::class, 'save']);

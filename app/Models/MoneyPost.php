@@ -9,13 +9,18 @@ class MoneyPost extends Model
 {
     public const KINDS = ['info', 'question', 'talk'];
 
-    protected $fillable = ['cafe_id', 'user_id', 'kind', 'title', 'content'];
+    protected $fillable = ['cafe_id', 'category_id', 'user_id', 'kind', 'title', 'content'];
 
-    protected $casts = ['is_hidden' => 'boolean'];
+    protected $casts = ['is_hidden' => 'boolean', 'is_pinned' => 'boolean'];
 
     public function cafe()
     {
         return $this->belongsTo(MoneyCafe::class, 'cafe_id');
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(MoneyCategory::class, 'category_id');
     }
 
     public function user()

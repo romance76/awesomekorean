@@ -13,6 +13,16 @@
           <option v-for="c in cafes" :key="c.slug" :value="c.slug">{{ c.icon }} {{ c.name }}</option>
         </select>
       </label>
+      <!-- 주제: 카페마다 다름 (대문 주제 카드와 같음). 고르지 않아도 됨 -->
+      <div v-if="topics.length">
+        <span class="input-label">주제 <span class="font-normal text-ink-faint">(고르면 같은 주제 글과 모여요)</span></span>
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" @click="topic = 0" class="rounded-full border px-3 py-1 text-[13px] font-semibold"
+            :class="!topic ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-white text-ink-light border-line'">선택 안 함</button>
+          <button v-for="c in topics" :key="c.id" type="button" @click="topic = c.id" class="rounded-full border px-3 py-1 text-[13px] font-semibold"
+            :class="topic === c.id ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-white text-ink-light border-line'">{{ c.icon }} {{ c.name }}</button>
+        </div>
+      </div>
       <div>
         <span class="input-label">글 종류</span>
         <div class="grid grid-cols-3 gap-1 bg-gray-100 p-1 rounded-xl max-w-sm">
@@ -41,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useSiteStore } from '../../stores/site'
@@ -54,6 +64,8 @@ const kinds = [{ v: 'info', l: '정보' }, { v: 'question', l: '질문' }, { v: 
 const kind = ref('info'); const title = ref(''); const body = ref('')
 const editId = ref(route.query.id ? Number(route.query.id) : null)
 const busy = ref(false); const error = ref('')
+const topic = ref(Number(route.query.topic) || 0)
+const topics = computed(() => cafes.value.find(c => c.slug === cafe.value)?.categories || [])
 
 onMounted(async () => {
   try { const { data } = await axios.get('/api/money/hub'); cafes.value = data.data?.cafes || [] } catch {}
@@ -61,7 +73,7 @@ onMounted(async () => {
     try {
       const { data } = await axios.get(`/api/money/posts/${editId.value}`)
       const p = data.data
-      cafe.value = p.cafe?.slug || ''; kind.value = p.kind; title.value = p.title; body.value = htmlToText(p.content)
+      cafe.value = p.cafe?.slug || ''; kind.value = p.kind; title.value = p.title; body.value = htmlToText(p.content); topic.value = p.category_id || 0
     } catch { error.value = '글을 불러오지 못했어요.' }
   }
 })
@@ -72,7 +84,7 @@ async function submit() {
   if (!title.value.trim() || !body.value.trim()) { error.value = '제목과 내용을 적어 주세요.'; return }
   busy.value = true
   try {
-    const payload = { cafe: cafe.value, kind: kind.value, title: title.value.trim(), content: textToHtml(body.value) }
+    const payload = { cafe: cafe.value, category_id: topic.value || null, kind: kind.value, title: title.value.trim(), content: textToHtml(body.value) }
     const { data } = editId.value
       ? await axios.put(`/api/money/posts/${editId.value}`, payload)
       : await axios.post('/api/money/posts', payload)

@@ -32,8 +32,43 @@
       </div>
       <label v-if="!edit.id"><span class="input-label">주소 (영문 소문자·숫자·-, 예: side-jobs)</span><input v-model="edit.slug" maxlength="60" class="input-soft font-mono" /></label>
       <label class="block"><span class="input-label">한 줄 소개</span><input v-model="edit.summary" maxlength="200" class="input-soft" /></label>
+      <!-- 대문 그림 부분 -->
+      <div class="rounded-xl border border-gray-100 p-3 space-y-3">
+        <div class="text-xs font-bold text-ink-muted">대문 그림 부분 (카페 들어가면 맨 위 큰 그림)</div>
+        <label class="block"><span class="input-label">큰 문구</span><input v-model="edit.headline" maxlength="120" class="input-soft" placeholder="예: 미국에서 나에게 맞는 추가 수입을 찾아보세요" /></label>
+        <div class="grid grid-cols-2 gap-2">
+          <label><span class="input-label">그림 (이모지 3개, 띄어쓰기로)</span><input v-model="edit.art" maxlength="40" class="input-soft" placeholder="💼 💵 📱" /></label>
+          <label><span class="input-label">색</span>
+            <select v-model="edit.theme" class="input-soft"><option v-for="(v, k) in THEMES" :key="k" :value="k">{{ v.label }}</option></select>
+          </label>
+        </div>
+        <label class="block"><span class="input-label">처음 방문했다면 (한 줄에 하나, 3줄 권장)</span><textarea v-model="edit.stepsText" rows="3" class="input-soft text-sm"></textarea></label>
+        <div class="rounded-xl p-3 flex items-center gap-3" :style="{ background: `linear-gradient(125deg, ${themeOf(edit.theme).from}, #fff)` }">
+          <span class="text-4xl">{{ artOf(edit).main }}</span>
+          <span class="min-w-0"><b class="block text-ink">{{ edit.name || '카페 이름' }}</b><span class="block text-sm text-ink-light">{{ edit.headline || edit.summary }}</span></span>
+        </div>
+      </div>
+      <!-- 주제(카테고리): 대문 주제 카드 + 게시판 나누기 -->
+      <div v-if="edit.id" class="rounded-xl border border-gray-100 p-3">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-ink-muted">주제 {{ edit.cats.filter(c => c.is_active).length }}개 (대문 주제 카드 · 게시판 나누기)</span>
+          <button type="button" @click="edit.cats.push({ id: null, icon: '•', name: '', hint: '', is_active: true })" class="text-xs font-bold text-emerald-700">+ 주제 추가</button>
+        </div>
+        <div v-for="(c, i) in edit.cats" :key="i" class="grid grid-cols-[44px_1fr_1.4fr_auto] gap-1.5 items-center mb-1.5" :class="c.is_active ? '' : 'opacity-50'">
+          <input v-model="c.icon" maxlength="8" class="input-soft !px-1 text-center !py-1.5" />
+          <input v-model="c.name" maxlength="40" class="input-soft !py-1.5 text-sm" placeholder="주제 이름" />
+          <input v-model="c.hint" maxlength="120" class="input-soft !py-1.5 text-sm" placeholder="한 줄 설명" />
+          <span class="flex items-center gap-0.5 whitespace-nowrap">
+            <button type="button" @click="moveCat(i, -1)" :disabled="i === 0" class="w-7 h-7 rounded text-ink-muted hover:bg-gray-100 disabled:opacity-30">▲</button>
+            <button type="button" @click="moveCat(i, 1)" :disabled="i === edit.cats.length - 1" class="w-7 h-7 rounded text-ink-muted hover:bg-gray-100 disabled:opacity-30">▼</button>
+            <button type="button" @click="c.is_active = !c.is_active" class="text-[11px] font-bold rounded px-1.5 py-1" :class="c.is_active ? 'text-emerald-700' : 'text-ink-muted'">{{ c.is_active ? '켜짐' : '꺼짐' }}</button>
+          </span>
+        </div>
+        <button type="button" @click="saveCats" :disabled="busy" class="btn-secondary w-full py-2 text-sm mt-1">주제 저장</button>
+        <p class="text-[11px] text-ink-muted mt-1">주제는 지우지 않고 "꺼짐"으로 — 그 주제로 쓴 글은 그대로 남아요.</p>
+      </div>
       <label class="block">
-        <span class="input-label">대문 (카페 맨 위에 보이는 설명)</span>
+        <span class="input-label">카페 소개·이용 규칙 (대문 아래 접힌 칸)</span>
         <textarea v-model="edit.introText" rows="12" class="input-soft font-mono text-sm"></textarea>
         <span class="block text-xs text-ink-muted mt-1">쓰는 법: <code>## 제목</code> · <code>- 목록</code> · 빈 줄 = 새 문단</span>
       </label>
@@ -59,7 +94,7 @@
       </div>
       <button v-for="g in guides" :key="g.id" @click="openGuide(g)" class="w-full text-left flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50" :class="gEdit?.id === g.id ? 'bg-emerald-50/60' : ''">
         <span class="text-xl">{{ g.icon }}</span>
-        <span class="min-w-0 flex-1"><b class="block text-sm text-ink">{{ g.title }}</b><span class="block text-xs text-ink-muted truncate">{{ g.summary }}</span></span>
+        <span class="min-w-0 flex-1"><b class="block text-sm text-ink">{{ g.title }}</b><span class="block text-xs text-ink-muted truncate">{{ cafeName(g.cafe_id) }}{{ g.summary ? ' · ' + g.summary : '' }}</span></span>
         <span class="text-[11px] font-bold rounded-full px-2 py-0.5" :class="g.is_published ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-ink-muted'">{{ g.is_published ? '공개' : '비공개' }}</span>
       </button>
     </div>
@@ -71,6 +106,9 @@
       </div>
       <label v-if="!gEdit.id"><span class="input-label">주소 (영문 소문자·숫자·-)</span><input v-model="gEdit.slug" maxlength="80" class="input-soft font-mono" /></label>
       <label class="block"><span class="input-label">한 줄 소개</span><input v-model="gEdit.summary" maxlength="300" class="input-soft" /></label>
+      <label class="block"><span class="input-label">어느 카페 대문에 보일까요?</span>
+        <select v-model="gEdit.cafe_id" class="input-soft"><option :value="null">MONEY 첫 화면만</option><option v-for="c in cafes" :key="c.id" :value="c.id">{{ c.icon }} {{ c.name }} 카페</option></select>
+      </label>
       <label class="block">
         <span class="input-label">본문</span>
         <textarea v-model="gEdit.contentText" rows="16" class="input-soft font-mono text-sm"></textarea>
@@ -105,6 +143,7 @@
       <span class="w-6 text-center">{{ p.cafe?.icon }}</span>
       <a :href="`/money/post/${p.id}`" target="_blank" class="min-w-0 flex-1 truncate text-ink hover:underline">{{ p.title }}</a>
       <span class="text-xs text-ink-muted whitespace-nowrap">{{ p.user?.nickname || p.user?.name }} · {{ String(p.created_at).slice(0, 10) }} · 조회 {{ p.view_count }}</span>
+      <button @click="pinPost(p)" class="text-xs font-bold rounded-lg border px-2.5 py-1" :class="p.is_pinned ? 'border-amber-300 text-amber-700 bg-amber-50' : 'border-gray-200 text-ink-muted'" title="카페 게시판 맨 위에 고정">{{ p.is_pinned ? '📌 고정됨' : '고정' }}</button>
       <button @click="togglePost(p)" class="text-xs font-bold rounded-lg border px-2.5 py-1" :class="p.is_hidden ? 'border-emerald-300 text-emerald-700' : 'border-red-200 text-red-600'">{{ p.is_hidden ? '복구' : '숨김' }}</button>
     </div>
     <div v-if="pLast > 1" class="flex justify-center gap-1.5 py-3">
@@ -118,6 +157,7 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { useSiteStore } from '../../stores/site'
+import { THEMES, themeOf, artOf } from '../../components/money/moneyThemes'
 
 const site = useSiteStore()
 const say = (m, t = 'success') => site.toast?.(m, t)
@@ -159,13 +199,32 @@ function htmlToSimple(html) {
 const cafes = ref([]); const edit = ref(null)
 async function loadCafes() { try { const { data } = await axios.get('/api/admin/money/cafes'); cafes.value = data.data || [] } catch (e) { say(apiMsg(e, '카페를 불러오지 못했어요'), 'error') } }
 function openCafe(c) {
-  edit.value = c ? { ...c, introText: htmlToSimple(c.intro) } : { id: null, slug: '', name: '', icon: '☕', summary: '', introText: '## 이 카페는요\n\n## 이용 규칙\n- 가입 없이 누구나 보고 답글을 달 수 있어요.\n- 광고·홍보 글은 지워져요.', sort_order: null, is_active: true, manager_user_id: null }
+  edit.value = c
+    ? { ...c, introText: htmlToSimple(c.intro), stepsText: (c.first_steps || []).join('\n'), theme: c.theme || 'emerald',
+        cats: (c.categories || []).map(x => ({ id: x.id, icon: x.icon || '', name: x.name, hint: x.hint || '', is_active: !!x.is_active })) }
+    : { id: null, slug: '', name: '', icon: '☕', summary: '', headline: '', art: '', theme: 'emerald', stepsText: '', cats: [], introText: '## 이 카페는요\n\n## 이용 규칙\n- 가입 없이 누구나 보고 답글을 달 수 있어요.\n- 광고·홍보 글은 지워져요.', sort_order: null, is_active: true, manager_user_id: null }
+}
+const cafeName = (id) => { const c = cafes.value.find(x => x.id === id); return c ? `${c.icon} ${c.name}` : 'MONEY 첫 화면' }
+function moveCat(i, d) { const a = edit.value.cats; const j = i + d; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]] }
+async function saveCats() {
+  const e = edit.value
+  const items = e.cats.filter(c => c.name.trim()).map(c => ({ id: c.id || null, icon: c.icon, name: c.name.trim(), hint: c.hint, is_active: c.is_active }))
+  busy.value = true
+  try {
+    const { data } = await axios.put(`/api/admin/money/cafes/${e.id}/categories`, { items })
+    say(data.message || '저장했어요')
+    e.cats = (data.data || []).map(x => ({ id: x.id, icon: x.icon || '', name: x.name, hint: x.hint || '', is_active: !!x.is_active }))
+    const row = cafes.value.find(c => c.id === e.id); if (row) row.categories = data.data
+  } catch (err) { say(apiMsg(err, '저장하지 못했어요'), 'error') }
+  busy.value = false
 }
 async function saveCafe() {
   const e = edit.value
   busy.value = true
   try {
-    const payload = { name: e.name, icon: e.icon, summary: e.summary, intro: simpleToHtml(e.introText), sort_order: e.sort_order ?? undefined, is_active: !!e.is_active, manager_user_id: e.manager_user_id || null }
+    const payload = { name: e.name, icon: e.icon, summary: e.summary, headline: e.headline || null, art: e.art || null, theme: e.theme || null,
+      first_steps: String(e.stepsText || '').split('\n').map(s => s.trim()).filter(Boolean),
+      intro: simpleToHtml(e.introText), sort_order: e.sort_order ?? undefined, is_active: !!e.is_active, manager_user_id: e.manager_user_id || null }
     if (!e.id) payload.slug = e.slug
     const { data } = e.id ? await axios.put(`/api/admin/money/cafes/${e.id}`, payload) : await axios.post('/api/admin/money/cafes', payload)
     say(data.message || '저장했어요'); await loadCafes()
@@ -178,13 +237,13 @@ async function saveCafe() {
 const guides = ref([]); const gEdit = ref(null)
 async function loadGuides() { try { const { data } = await axios.get('/api/admin/money/guides'); guides.value = data.data || [] } catch (e) { say(apiMsg(e, '가이드를 불러오지 못했어요'), 'error') } }
 function openGuide(g) {
-  gEdit.value = g ? { ...g, contentText: htmlToSimple(g.content) } : { id: null, slug: '', title: '', icon: '📘', summary: '', contentText: '## 1. 이게 뭔가요?\n\n## 2. 시작하는 순서\n- \n\n## 3. 자주 묻는 질문\n', is_published: false, sort_order: null }
+  gEdit.value = g ? { ...g, contentText: htmlToSimple(g.content) } : { id: null, cafe_id: null, slug: '', title: '', icon: '📘', summary: '', contentText: '## 1. 이게 뭔가요?\n\n## 2. 시작하는 순서\n- \n\n## 3. 자주 묻는 질문\n', is_published: false, sort_order: null }
 }
 async function saveGuide() {
   const g = gEdit.value
   busy.value = true
   try {
-    const payload = { title: g.title, icon: g.icon, summary: g.summary, content: simpleToHtml(g.contentText), is_published: !!g.is_published, sort_order: g.sort_order ?? undefined }
+    const payload = { title: g.title, icon: g.icon, summary: g.summary, cafe_id: g.cafe_id || null, content: simpleToHtml(g.contentText), is_published: !!g.is_published, sort_order: g.sort_order ?? undefined }
     if (!g.id) payload.slug = g.slug
     const { data } = g.id ? await axios.put(`/api/admin/money/guides/${g.id}`, payload) : await axios.post('/api/admin/money/guides', payload)
     say(data.message || '저장했어요'); await loadGuides()
@@ -204,6 +263,10 @@ async function loadPosts(n = 1) {
 }
 async function togglePost(p) {
   try { const { data } = await axios.post(`/api/admin/money/posts/${p.id}/toggle`); p.is_hidden = data.data.is_hidden; say(data.message) } catch (e) { say(apiMsg(e, '처리하지 못했어요'), 'error') }
+}
+
+async function pinPost(p) {
+  try { const { data } = await axios.post(`/api/admin/money/posts/${p.id}/pin`); p.is_pinned = data.data.is_pinned; say(data.message) } catch (e) { say(apiMsg(e, '처리하지 못했어요'), 'error') }
 }
 
 watch(tab, (t) => { if (t === 'guides' && !guides.value.length) loadGuides(); if (t === 'posts') loadPosts(1) })

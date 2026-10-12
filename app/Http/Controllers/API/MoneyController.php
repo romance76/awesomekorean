@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\MoneyCafe;
+use App\Models\MoneyCategory;
 use App\Models\MoneyGuide;
 use App\Models\MoneyPost;
 use App\Services\BadWordFilter;
@@ -25,7 +26,8 @@ class MoneyController extends Controller
     {
         $since = now()->subDays(7);
         $cafes = MoneyCafe::where('is_active', true)->orderBy('sort_order')
-            ->select(['id', 'slug', 'name', 'icon', 'summary', 'sort_order'])
+            ->select(['id', 'slug', 'name', 'icon', 'summary', 'headline', 'theme', 'art', 'sort_order'])
+            ->with(['categories' => fn ($q) => $q->where('is_active', true)->select(['id', 'cafe_id', 'name', 'icon', 'sort_order'])])
             ->withCount([
                 'posts as post_count' => fn ($q) => $q->where('is_hidden', false),
                 'posts as new_count' => fn ($q) => $q->where('is_hidden', false)->where('created_at', '>=', $since),
@@ -35,38 +37,53 @@ class MoneyController extends Controller
         return response()->json(['success' => true, 'data' => ['cafes' => $cafes, 'guides' => $guides]]);
     }
 
-    // 카페 전체 안내 페이지: 카페마다 대문까지
+    // 카페 전체 안내 페이지: 카페마다 큰 문구·그림·주제
     public function cafes()
     {
         $cafes = MoneyCafe::where('is_active', true)->orderBy('sort_order')
+            ->select(['id', 'slug', 'name', 'icon', 'summary', 'headline', 'theme', 'art', 'sort_order'])
+            ->with(['categories' => fn ($q) => $q->where('is_active', true)->select(['id', 'cafe_id', 'name', 'icon', 'sort_order'])])
             ->withCount(['posts as post_count' => fn ($q) => $q->where('is_hidden', false)])
-            ->get(['id', 'slug', 'name', 'icon', 'summary', 'intro']);
+            ->get();
         return response()->json(['success' => true, 'data' => $cafes]);
     }
 
-    // 카페 하나: 대문 + 인기 정보(조회 많은 글 5개)
+    // 카페 하나: 대문(큰 문구·그림·처음 방문 3단계·주제 카드·이 카페 가이드) + 인기 정보(조회 많은 글 5개)
     public function cafe($slug)
     {
-        $cafe = MoneyCafe::where('slug', $slug)->where('is_active', true)->firstOrFail(['id', 'slug', 'name', 'icon', 'summary', 'intro', 'manager_user_id']);
+        $cafe = MoneyCafe::where('slug', $slug)->where('is_active', true)
+            ->firstOrFail(['id', 'slug', 'name', 'icon', 'summary', 'headline', 'theme', 'art', 'first_steps', 'intro', 'manager_user_id']);
+        $categories = MoneyCategory::where('cafe_id', $cafe->id)->where('is_active', true)->orderBy('sort_order')->orderBy('id')
+            ->get(['id', 'name', 'icon', 'hint']);
+        $counts = MoneyPost::where('cafe_id', $cafe->id)->where('is_hidden', false)->whereNotNull('category_id')
+            ->selectRaw('category_id, count(*) as n')->groupBy('category_id')->pluck('n', 'category_id');
+        $categories->each(fn ($c) => $c->post_count = (int) ($counts[$c->id] ?? 0));
         $popular = MoneyPost::where('cafe_id', $cafe->id)->where('is_hidden', false)
             ->orderByDesc('view_count')->limit(5)->get(['id', 'title', 'kind', 'view_count', 'comment_count']);
-        return response()->json(['success' => true, 'data' => ['cafe' => $cafe, 'popular' => $popular]]);
+        // 이 카페 가이드: 공개된 것은 링크, 아직 준비 중인 것은 제목만 (무엇이 올라올지 미리 보여 줌)
+        $guides = MoneyGuide::where('cafe_id', $cafe->id)->orderBy('sort_order')->orderBy('id')->limit(6)
+            ->get(['slug', 'icon', 'title', 'summary', 'is_published'])
+            ->map(fn ($g) => ['slug' => $g->is_published ? $g->slug : null, 'icon' => $g->icon, 'title' => $g->title, 'summary' => $g->summary, 'ready' => (bool) $g->is_published]);
+        return response()->json(['success' => true, 'data' => ['cafe' => $cafe, 'categories' => $categories, 'popular' => $popular, 'guides' => $guides]]);
     }
 
+    // 카페 게시판: 주제(category)·글 종류(kind)·검색·정렬(최신/조회/댓글). 고정 글(공지)은 항상 맨 위
     public function posts(Request $request, $slug)
     {
         $cafe = MoneyCafe::where('slug', $slug)->where('is_active', true)->firstOrFail(['id']);
-        $q = MoneyPost::with('user:id,name,nickname,avatar,lifetime_points')
+        $sort = ['views' => 'view_count', 'comments' => 'comment_count'][$request->sort] ?? 'created_at';
+        $q = MoneyPost::with('user:id,name,nickname,avatar,lifetime_points', 'category:id,name,icon')
             ->where('cafe_id', $cafe->id)->where('is_hidden', false)
             ->when(in_array($request->kind, MoneyPost::KINDS, true), fn ($x) => $x->where('kind', $request->kind))
+            ->when((int) $request->category > 0, fn ($x) => $x->where('category_id', (int) $request->category))
             ->when($request->search, fn ($x, $v) => $x->where('title', 'like', '%' . addcslashes($v, '%_\\') . '%'))
-            ->orderByDesc('created_at');
-        return response()->json(['success' => true, 'data' => $q->paginate(20, ['id', 'cafe_id', 'user_id', 'kind', 'title', 'view_count', 'comment_count', 'created_at'])]);
+            ->orderByDesc('is_pinned')->orderByDesc($sort)->orderByDesc('id');
+        return response()->json(['success' => true, 'data' => $q->paginate(20, ['id', 'cafe_id', 'category_id', 'user_id', 'kind', 'title', 'is_pinned', 'view_count', 'comment_count', 'created_at'])]);
     }
 
     public function show($id)
     {
-        $post = MoneyPost::with('user:id,name,nickname,avatar,lifetime_points', 'cafe:id,slug,name,icon')->where('is_hidden', false)->findOrFail($id);
+        $post = MoneyPost::with('user:id,name,nickname,avatar,lifetime_points', 'cafe:id,slug,name,icon,theme', 'category:id,name,icon')->where('is_hidden', false)->findOrFail($id);
         MoneyPost::whereKey($post->id)->increment('view_count');
         return response()->json(['success' => true, 'data' => $post]);
     }
@@ -77,7 +94,8 @@ class MoneyController extends Controller
         if ($err = $this->badWords($data)) return $err;
         $cafe = MoneyCafe::where('slug', $request->cafe)->where('is_active', true)->firstOrFail(['id']);
         $post = MoneyPost::create([
-            'cafe_id' => $cafe->id, 'user_id' => auth()->id(), 'kind' => $data['kind'],
+            'cafe_id' => $cafe->id, 'category_id' => $this->categoryFor($cafe->id, $request->category_id),
+            'user_id' => auth()->id(), 'kind' => $data['kind'],
             'title' => trim($data['title']), 'content' => HtmlSanitizer::clean($data['content']),
         ]);
         WritePoints::awardLater(auth()->user(), MoneyPost::class, $post->id, '머니 카페 글 작성');
@@ -89,7 +107,8 @@ class MoneyController extends Controller
         $post = $this->findOwnedOrAdmin(MoneyPost::class, $id);
         $data = $this->validated($request, false);
         if ($err = $this->badWords($data)) return $err;
-        $post->update(['kind' => $data['kind'], 'title' => trim($data['title']), 'content' => HtmlSanitizer::clean($data['content'])]);
+        $post->update(['kind' => $data['kind'], 'category_id' => $this->categoryFor($post->cafe_id, $request->category_id),
+            'title' => trim($data['title']), 'content' => HtmlSanitizer::clean($data['content'])]);
         return response()->json(['success' => true, 'data' => $post]);
     }
 
@@ -126,6 +145,14 @@ class MoneyController extends Controller
             'content.required' => '내용을 적어 주세요.', 'content.max' => '내용이 너무 길어요.',
             'cafe.required' => '어느 카페에 올릴지 골라 주세요.',
         ]);
+    }
+
+    // 고른 주제가 그 카페의 켜진 주제일 때만 저장 (아니면 '주제 없음')
+    private function categoryFor(int $cafeId, $categoryId): ?int
+    {
+        $id = (int) $categoryId;
+        if ($id <= 0) return null;
+        return MoneyCategory::where('id', $id)->where('cafe_id', $cafeId)->where('is_active', true)->exists() ? $id : null;
     }
 
     private function badWords(array $data)

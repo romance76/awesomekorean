@@ -32,11 +32,12 @@
       <div v-if="loading" class="py-10 text-center text-ink-muted">불러오는 중...</div>
       <div v-else class="mt-4 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
         <RouterLink v-for="c in cafes" :key="c.slug" :to="`/money/cafe/${c.slug}`"
-          class="rounded-2xl border border-line bg-white p-4 hover:border-emerald-300 hover:shadow-card transition-all flex flex-col">
-          <div class="text-2xl">{{ c.icon }}</div>
-          <div class="mt-2 font-bold text-ink flex items-center gap-1.5 flex-wrap">{{ c.name }} <span class="text-[10.5px] font-extrabold rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5">카페</span></div>
-          <div class="text-[13px] text-ink-muted mt-1 leading-snug flex-1">{{ c.summary }}</div>
-          <div class="mt-3 flex justify-between text-[12px] text-ink-muted"><span>글 {{ c.post_count }}</span><span>새 글 <b class="text-emerald-700">{{ c.new_count }}</b></span></div>
+          class="rounded-2xl border bg-white p-4 hover:shadow-card hover:-translate-y-0.5 transition-all flex flex-col"
+          :style="{ borderColor: themeOf(c.theme).line, background: `linear-gradient(160deg, ${themeOf(c.theme).from}, #fff 55%)` }">
+          <div class="text-[34px] leading-none">{{ artOf(c).main }}</div>
+          <div class="mt-2 font-bold text-ink">{{ c.name }}</div>
+          <div class="text-[13px] text-ink-muted mt-1 leading-snug flex-1">{{ c.headline || c.summary }}</div>
+          <div class="mt-3 flex justify-between text-[12px] text-ink-muted"><span>글 {{ c.post_count }}</span><span>새 글 <b :style="{ color: themeOf(c.theme).accent }">{{ c.new_count }}</b></span></div>
         </RouterLink>
       </div>
     </section>
@@ -74,6 +75,7 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import MoneyHead from '../../components/money/MoneyHead.vue'
 import { DISCLAIMER } from '../../components/money/moneyText'
+import { themeOf, artOf } from '../../components/money/moneyThemes'
 
 const cafes = ref([]); const guides = ref([]); const loading = ref(true)
 const quick = computed(() => cafes.value.filter(c => ['earn', 'save', 'grow'].includes(c.slug)))
