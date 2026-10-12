@@ -887,5 +887,1260 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "다운페이먼트",
+  "kind": "info",
+  "title": "조지아 드림(Georgia Dream) 다운페이먼트 지원금: 최대 $10,000~$12,500, 자격과 신청 순서",
+  "content": "조지아 주정부(DCA)가 운영하는 첫 집 구입자 다운페이먼트 지원 프로그램이에요. 2026년 7월 개정된 공식 자료 기준으로 지원 금액, 자격, 신청 순서를 정리했어요.\n- 일반: 집값의 5% 또는 $10,000 중 적은 금액\n- 경찰·소방·교사·간호 등(PEN), 장애 가족(CHOICE): 6% 또는 $12,500\n- 이자 0%, 매달 갚는 돈 없음(집을 팔거나 재융자할 때 상환)",
+  "image": "/images/money/topics/home-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$10,000",
+      "label": "일반 지원 최대",
+      "note": "집값 5%와 비교해 적은 쪽",
+      "icon": "dollar"
+     },
+     {
+      "value": "$12,500",
+      "label": "PEN·CHOICE 최대",
+      "note": "집값 6%와 비교해 적은 쪽",
+      "icon": "heart-handshake"
+     },
+     {
+      "value": "0%",
+      "label": "지원금 이자",
+      "note": "매달 내는 돈 없음",
+      "icon": "coins"
+     },
+     {
+      "value": "640점",
+      "label": "최소 신용점수",
+      "note": "조립식 주택은 660점",
+      "icon": "shield"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "조지아 드림이 뭔가요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "조지아 주 **지역사회부(DCA, Department of Community Affairs)** 가 운영하는 주택 구입 지원 프로그램이에요. 집을 살 때 가장 큰 벽인 **다운페이먼트(선납금)** 를 **이자 0%짜리 두 번째 모기지(second mortgage)** 형태로 빌려줘요.",
+     "\"빌려준다\"고 했지만 **매달 갚는 돈이 없어요.** 집을 팔거나, 재융자하거나, 더 이상 그 집에 살지 않게 될 때 한꺼번에 갚는 구조(deferred repayment)예요. 그래서 공짜 돈(grant)은 아니라는 점을 꼭 기억하세요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "DCA 공식 사이트에서 직접 확인하는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "천천히 따라 하세요",
+    "items": [
+     {
+      "title": "인터넷 앱(크롬·사파리) 주소 줄에 dca.georgia.gov 를 입력하세요",
+      "body": "맨 위에 \"An official website of the State of Georgia\"(조지아 주 공식 사이트) 줄이 보이면 진짜예요."
+     },
+     {
+      "title": "오른쪽 위 MENU(줄 3개) → Affordable Housing → Homeownership 을 차례로 누르세요",
+      "body": "\"Georgia Dream Mortgage Products\" 화면이 나와요. 아래 그림이 그 화면이에요."
+     },
+     {
+      "title": "화면을 내려 \"How Do I Get Started?\" 상자의 View checklist 를 누르세요",
+      "body": "신청 순서 체크리스트가 나와요. 영어가 어려우면 단어를 길게 눌러 번역을 켜 보세요."
+     },
+     {
+      "title": "같은 메뉴의 Participating Lender List 에서 우리 동네 참여 대출기관을 고르세요",
+      "body": "조지아 드림은 DCA에 직접 신청하는 게 아니라 **참여 대출기관(lender)을 통해서만** 신청돼요.",
+      "link": {
+       "label": "Georgia Dream 공식 안내",
+       "url": "https://dca.georgia.gov/affordable-housing/home-ownership/georgia-dream"
+      }
+     },
+     {
+      "title": "대출기관과 상담하면서 \"Georgia Dream으로 진행하고 싶다\"고 말하세요",
+      "body": "대출기관이 DCA 시스템에서 지원금을 예약(reservation)해 줘요. 예약은 최대 75일 유지돼요."
+     },
+     {
+      "title": "주택 구입자 교육(Homebuyer Education)을 마치세요",
+      "body": "DCA 링크로 온라인 과정(eHome America)을 들으면 $50이에요. HUD 승인 상담기관의 대면 수업도 인정돼요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 DCA \"Georgia Dream\" 공식 화면",
+    "src": "/images/money/shots/dca-gadream.jpg",
+    "pins": [
+     {
+      "x": 3,
+      "y": 40,
+      "text": "**Georgia Dream Mortgage Products** — 조지아 드림 프로그램 안내 첫 화면이에요."
+     },
+     {
+      "x": 26.5,
+      "y": 83,
+      "text": "**About Georgia Dream** — 프로그램 소개와 프로그램별(Georgia Dream·Peach Plus·Peach Advantage) 소득·집값 한도가 아래에 나와요."
+     },
+     {
+      "x": 71,
+      "y": 92,
+      "text": "**How Do I Get Started?** — 신청 순서 체크리스트(View checklist)로 가는 상자예요."
+     },
+     {
+      "x": 89.5,
+      "y": 12.5,
+      "text": "**MENU** — 참여 대출기관 목록·교육기관 목록을 찾을 때 여기서 들어가요."
+     }
+    ],
+    "caption": "이 화면을 아래로 내리면 프로그램별 비교표가 나와요. 전화 문의는 DCA (404) 679-4840 이에요.",
+    "credit": "조지아 주 지역사회부(DCA) 공식 사이트 dca.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "지원 금액 (2026년 7월 개정 공식 자료)"
+   },
+   {
+    "type": "compare",
+    "title": "조지아 드림 지원 종류",
+    "columns": [
+     "종류",
+     "대상",
+     "지원 금액"
+    ],
+    "rows": [
+     [
+      "Standard(일반)",
+      "자격 되는 모든 구입자",
+      "집값의 5% 또는 $10,000 중 적은 금액"
+     ],
+     [
+      "PEN",
+      "경찰·소방 등 보호직(Protectors), 교육자(Educators), 간호·의료직(Nurses) 현직자",
+      "집값의 6% 또는 $12,500 중 적은 금액"
+     ],
+     [
+      "CHOICE",
+      "가족 중 장애가 있는 분이 있는 가구",
+      "집값의 6% 또는 $12,500 중 적은 금액"
+     ]
+    ],
+    "highlight": 2,
+    "note": "예: $180,000 집이면 5%는 $9,000 → 일반 지원은 $9,000이에요. $300,000 집이면 5%가 $15,000이지만 상한 $10,000이 적용돼요."
+   },
+   {
+    "type": "h",
+    "title": "누가 받을 수 있나요"
+   },
+   {
+    "type": "checklist",
+    "title": "자격 체크리스트(일반 프로그램 기준)",
+    "items": [
+     "최근 3년 동안 내 집을 소유하고 살았던 적이 없어야 해요(첫 집 구입자). 단 지정된 지역(targeted area)에서 사거나 미군 참전용사면 예외가 있어요",
+     "신용점수 640점 이상(조립식 주택은 660점)",
+     "가구 소득이 지역·가족 수별 한도 이하 — DCA 안내 화면 기준 최대 $137,555(1~2명), $158,188(3명 이상)이며 카운티마다 달라요",
+     "집값 상한 최대 $625,000(지역별 상한이 더 낮을 수 있어요)",
+     "클로징 직후 현금성 자산이 $20,000 또는 집값의 20% 이하(은퇴계좌 IRA·401(k)는 제외)",
+     "본인 돈 최소 $1,000을 직접 넣어야 해요(수표·머니오더·직불카드, 신용카드는 안 돼요)",
+     "단독주택·타운홈·승인된 콘도 등 1가구 주택, 실거주용(2~4가구 건물은 안 돼요)",
+     "최근 3년 치 IRS 세금 기록(transcript)과 W-2 제출"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "소득은 \"같이 사는 가족 전체\" 기준이에요",
+    "body": "대출 서류에 이름이 없어도, 그 집에 함께 살 18세 이상 가족의 소득도 **가구 소득에 합산**돼요. 성인 자녀나 부모님이 함께 사신다면 미리 계산해 보세요."
+   },
+   {
+    "type": "h",
+    "title": "좋은 점과 조심할 점"
+   },
+   {
+    "type": "proscons",
+    "pros": [
+     "다운페이먼트를 **이자 0%** 로 마련할 수 있어요",
+     "**매달 갚는 돈이 없어** 월 부담이 늘지 않아요",
+     "FHA·VA·USDA·일반(Conventional) 대출과 함께 쓸 수 있어요",
+     "다른 지원금과 함께 받는 것도 허용돼요"
+    ],
+    "cons": [
+     "공짜가 아니라 **집을 팔거나 재융자하면 갚아야** 해요",
+     "첫 모기지 금리는 DCA가 정하는 금리라 **시장 최저 금리보다 높을 수** 있어요",
+     "참여 대출기관만 취급해서 선택지가 좁아요",
+     "서류(3년 치 세금 기록 등)가 일반 대출보다 많아요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "대출기관에 꼭 물어볼 질문",
+    "body": "\"조지아 드림을 쓸 때와 안 쓸 때, **금리와 총비용(APR)을 나란히** 보여 주세요.\" 지원금을 받아도 첫 모기지 금리가 높으면 오히려 손해일 수 있어요. 두 견적을 같은 날 받아 비교하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 공식 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 지원금·소득 한도는 해마다 바뀌니 신청 전 공식 사이트와 대출 담당자에게 꼭 확인하세요.",
+    "items": [
+     {
+      "title": "조지아 DCA 공식: Georgia Dream Mortgage Products",
+      "url": "https://dca.georgia.gov/affordable-housing/home-ownership/georgia-dream",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "조지아 DCA 공식: Georgia Dream Standard 조건표(2026-7-8 개정, PDF)",
+      "url": "https://dca.georgia.gov/document/resources/georgia-dream-standard-matrix/download",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "eHome America 주택 구입자 온라인 교육(DCA 전용 링크)",
+      "url": "https://www.ehomeamerica.org/dca",
+      "kind": "교육기관(DCA 지정)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "다운페이먼트",
+  "kind": "info",
+  "title": "다운페이먼트 0%·3%·3.5%로 집 사는 방법: FHA·HomeReady·Home Possible·VA·USDA 비교",
+  "content": "20%를 다 모아야만 집을 살 수 있는 건 아니에요. 정부가 보증하거나 공기업(Fannie Mae·Freddie Mac)이 만든 저(低)다운페이먼트 대출 5가지를 공식 자료 기준으로 비교했어요.\n- VA·USDA: 다운페이먼트 0%\n- HomeReady·Home Possible: 3%\n- FHA: 3.5%(신용점수 580점 이상)",
+  "image": "/images/money/topics/home-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "0%",
+      "label": "VA·USDA",
+      "note": "자격이 맞을 때",
+      "icon": "home"
+     },
+     {
+      "value": "3%",
+      "label": "HomeReady·Home Possible",
+      "note": "일반(Conventional) 대출",
+      "icon": "dollar"
+     },
+     {
+      "value": "3.5%",
+      "label": "FHA",
+      "note": "신용점수 580점 이상",
+      "icon": "shield"
+     },
+     {
+      "value": "10%",
+      "label": "첫 구입자 중간값",
+      "note": "NAR 2025년 조사",
+      "icon": "chart-bar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "먼저, 5가지를 한눈에"
+   },
+   {
+    "type": "compare",
+    "title": "저(低)다운페이먼트 대출 비교",
+    "columns": [
+     "대출",
+     "최소 다운",
+     "누가",
+     "모기지 보험"
+    ],
+    "rows": [
+     [
+      "FHA",
+      "3.5%(580점 이상) / 10%(500~579점)",
+      "신용점수가 낮거나 기록이 짧은 분",
+      "선불 1.75% + 매년 보험료(대부분 0.55%), 10% 미만 다운이면 대출 끝까지"
+     ],
+     [
+      "HomeReady (Fannie Mae)",
+      "3%",
+      "소득이 지역 중간소득(AMI)의 80% 이하",
+      "PMI 있음, 집값 대비 잔액 78%가 되면 자동 해지"
+     ],
+     [
+      "Home Possible (Freddie Mac)",
+      "3%",
+      "소득이 지역 중간소득(AMI)의 80% 이하",
+      "PMI 있음, 해지 가능"
+     ],
+     [
+      "VA",
+      "0%",
+      "참전용사·현역·일부 유가족",
+      "월 보험료 없음, 대신 일회성 펀딩 수수료"
+     ],
+     [
+      "USDA",
+      "0%",
+      "지정된 시골·교외 지역 + 소득 한도 이하",
+      "선불·연간 보증 수수료"
+     ]
+    ],
+    "highlight": 1,
+    "note": "숫자는 2026년 10월 기준 공식 자료와 대출 업계 자료를 종합한 거예요. 실제 조건은 대출기관마다 조금씩 달라요."
+   },
+   {
+    "type": "h",
+    "title": "VA 대출: 참전용사라면 가장 먼저 확인"
+   },
+   {
+    "type": "shot",
+    "title": "VA(보훈부) 주택 대출 공식 화면",
+    "src": "/images/money/shots/va-homeloans.jpg",
+    "pins": [
+     {
+      "x": 29,
+      "y": 75,
+      "text": "**\"nearly 90% of VA-backed loans are made with no down payment\"** — VA 보증 대출의 약 90%가 다운페이먼트 없이 나간다는 공식 설명이에요."
+     },
+     {
+      "x": 17,
+      "y": 64.6,
+      "text": "**Eligibility** — 내가 자격이 되는지(복무 기간 등) 확인하는 메뉴예요."
+     },
+     {
+      "x": 26.5,
+      "y": 69.3,
+      "text": "**How to request a COE** — 자격 증명서(COE)를 받는 방법이에요. 대출기관이 대신 받아 주기도 해요."
+     },
+     {
+      "x": 24.5,
+      "y": 95.3,
+      "text": "**Home loan limits** — 대출 한도 안내예요."
+     }
+    ],
+    "caption": "VA 대출은 은행·모기지 회사가 빌려주고 VA가 보증하는 구조예요. 그래서 신청은 대출기관에 해요.",
+    "credit": "미국 보훈부(VA) 공식 사이트 va.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "USDA 대출: 시골·교외라면 0%"
+   },
+   {
+    "type": "shot",
+    "title": "USDA 농촌개발청 보증 대출 공식 화면",
+    "src": "/images/money/shots/usda-sfh.jpg",
+    "pins": [
+     {
+      "x": 39.5,
+      "y": 50.3,
+      "text": "**Application Window: OPEN** — 1년 내내(10월 1일~9월 30일) 승인된 대출기관을 통해 신청받는다는 표시예요."
+     },
+     {
+      "x": 42.5,
+      "y": 79.6,
+      "text": "**Fact Sheet** — 프로그램 요약 자료(PDF)예요."
+     },
+     {
+      "x": 51.5,
+      "y": 91.8,
+      "text": "**To Apply** — 신청 방법 탭이에요."
+     },
+     {
+      "x": 75.5,
+      "y": 85.5,
+      "text": "**Contact** — 승인된 대출기관과 주 사무소 연락처 탭이에요."
+     }
+    ],
+    "caption": "조지아는 애틀랜타 도심을 벗어난 외곽 카운티 상당수가 USDA 지역에 들어가요. 주소별 자격은 USDA 자격 지도에서 확인해요.",
+    "credit": "미국 농무부 농촌개발청(USDA Rural Development) 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "FHA 대출: 신용이 짧거나 낮을 때"
+   },
+   {
+    "type": "shot",
+    "title": "HUD \"Let FHA Loans Help You\" 공식 화면",
+    "src": "/images/money/shots/hud-loans.jpg",
+    "pins": [
+     {
+      "x": 78.5,
+      "y": 58,
+      "text": "**Let FHA Loans Help You** — FHA 대출 공식 안내 페이지예요."
+     },
+     {
+      "x": 29,
+      "y": 88.5,
+      "text": "**Low down payments** — 다운페이먼트가 적다는 것이 FHA의 첫 번째 장점이에요."
+     },
+     {
+      "x": 25.5,
+      "y": 41.2,
+      "text": "**Loans** — HUD 사이트의 대출 안내 위치예요."
+     }
+    ],
+    "caption": "FHA 대출도 정부가 직접 빌려주는 게 아니라, 은행이 빌려주고 FHA(주택청)가 보증해요.",
+    "credit": "미국 주택도시개발부(HUD) 공식 사이트 hud.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "나한테 맞는 대출 찾는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "이 순서로 좁혀 가세요",
+    "items": [
+     {
+      "title": "군 복무 경력이 있나요? → 있으면 VA부터",
+      "body": "va.gov 에서 Eligibility 를 확인하세요. 배우자가 전사·순직한 유가족도 해당될 수 있어요."
+     },
+     {
+      "title": "사려는 동네가 시골·교외인가요? → USDA 자격 지도 확인",
+      "body": "주소를 넣으면 지역 자격이 바로 나와요. 소득 한도도 함께 확인하세요.",
+      "link": {
+       "label": "USDA 자격 지도",
+       "url": "https://eligibility.sc.egov.usda.gov/eligibility/welcomeAction.do"
+      }
+     },
+     {
+      "title": "소득이 지역 중간소득의 80% 이하인가요? → HomeReady·Home Possible",
+      "body": "Fannie Mae의 AMI 조회 도구(Area Median Income Lookup Tool)에 주소를 넣으면 한도가 나와요.",
+      "link": {
+       "label": "Fannie Mae AMI 조회",
+       "url": "https://ami-lookup-tool.fanniemae.com/amilookuptool/"
+      }
+     },
+     {
+      "title": "신용점수가 620점 아래거나 기록이 짧은가요? → FHA",
+      "body": "580점 이상이면 3.5%, 500~579점은 10% 다운이 필요해요."
+     },
+     {
+      "title": "대출기관 2~3곳에서 같은 날 견적(Loan Estimate)을 받으세요",
+      "body": "같은 집값·같은 다운페이먼트로 FHA 견적과 일반 대출 견적을 둘 다 달라고 하세요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "FHA는 \"보험료가 끝까지\" 붙을 수 있어요",
+    "body": "2013년 6월 이후 FHA 대출은 다운페이먼트가 10% 미만이면 **매년 내는 보험료(MIP)가 대출 기간 내내** 붙어요. 신용점수가 괜찮다면 3% 일반 대출(HomeReady 등)이 장기적으로 더 쌀 수 있으니 꼭 둘 다 비교하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "다운페이먼트 지원금과 같이 쓸 수 있어요",
+    "body": "조지아 드림 같은 주정부 지원금은 FHA·VA·USDA·일반 대출과 함께 쓸 수 있어요. \"저다운 대출 + 지원금\"을 묶으면 실제로 내 주머니에서 나가는 돈이 크게 줄어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 공식 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 지원금·소득 한도는 해마다 바뀌니 신청 전 공식 사이트와 대출 담당자에게 꼭 확인하세요.",
+    "items": [
+     {
+      "title": "VA 공식: VA-backed Veterans home loans",
+      "url": "https://www.va.gov/housing-assistance/home-loans/",
+      "kind": "정부(공식, VA)"
+     },
+     {
+      "title": "USDA 공식: Single Family Housing Guaranteed Loan Program",
+      "url": "https://www.rd.usda.gov/programs-services/single-family-housing-programs/single-family-housing-guaranteed-loan-program",
+      "kind": "정부(공식, USDA)"
+     },
+     {
+      "title": "HUD 공식: Let FHA Loans Help You",
+      "url": "https://www.hud.gov/buying/loans",
+      "kind": "정부(공식, HUD)"
+     },
+     {
+      "title": "Fannie Mae 공식: HomeReady Mortgage",
+      "url": "https://singlefamily.fanniemae.com/originating-underwriting/mortgage-products/homeready-mortgage",
+      "kind": "공기업(공식)"
+     },
+     {
+      "title": "Freddie Mac 공식: Home Possible",
+      "url": "https://sf.freddiemac.com/working-with-us/origination-underwriting/mortgage-products/home-possible",
+      "kind": "공기업(공식)"
+     },
+     {
+      "title": "NAR 2025 주택 구입자 조사 요약(첫 구입자 다운페이먼트 중간값 10%)",
+      "url": "https://www.nar.realtor/news/economists-outlook/top-10-takeaways-from-nars-2025-profile-of-home-buyers-and-sellers",
+      "kind": "업계 협회 자료"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "다운페이먼트",
+  "kind": "info",
+  "title": "다운페이먼트, 꼭 20% 모아야 할까? 5%·10%·20% 월 납입금 비교와 숨은 비용",
+  "content": "\"20%를 못 모으면 집을 못 산다\"는 말은 반만 맞아요. 다운페이먼트를 적게 내면 PMI(모기지 보험)와 이자가 늘어나는 대신 더 빨리 살 수 있어요. 직접 숫자를 바꿔 보는 계산기와 함께 정리했어요.\n- 첫 집 구입자 다운페이먼트 중간값은 10%(NAR 2025)\n- 다운페이먼트 외에 클로징 비용과 비상금도 따로 필요해요\n- 가족에게 받은 돈은 증여 편지(gift letter)가 있어야 인정돼요",
+  "image": "/images/money/topics/home-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "10%",
+      "label": "첫 구입자 다운 중간값",
+      "note": "NAR 2025년 조사",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "23%",
+      "label": "두 번째 이상 구입자",
+      "note": "NAR 2025년 조사",
+      "icon": "home"
+     },
+     {
+      "value": "20%",
+      "label": "PMI가 없어지는 기준",
+      "note": "일반(Conventional) 대출",
+      "icon": "shield"
+     },
+     {
+      "value": "40세",
+      "label": "첫 구입자 중간 나이",
+      "note": "역대 최고",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "직접 숫자를 바꿔 보세요"
+   },
+   {
+    "type": "calc",
+    "kind": "mortgage",
+    "title": "다운페이먼트별 월 납입금 계산기"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "계산기 사용법",
+    "body": "맨 위 **집값**과 두 번째 **선납금(다운페이먼트)** 막대를 손가락으로 밀어 보세요. 다운페이먼트를 20% 아래로 내리면 오른쪽에 **PMI** 가 생기고, 몇 년 뒤에 PMI가 없어지는지도 함께 보여 줘요."
+   },
+   {
+    "type": "h",
+    "title": "같은 $350,000 집, 다운페이먼트별 차이"
+   },
+   {
+    "type": "bars",
+    "title": "다운페이먼트별 대출액",
+    "sub": "집값 $350,000 기준(예시)",
+    "items": [
+     {
+      "label": "5% 다운 ($17,500)",
+      "value": 332500,
+      "display": "대출 $332,500",
+      "note": "PMI 있음"
+     },
+     {
+      "label": "10% 다운 ($35,000)",
+      "value": 315000,
+      "display": "대출 $315,000",
+      "note": "PMI 있음(더 낮은 요율)"
+     },
+     {
+      "label": "20% 다운 ($70,000)",
+      "value": 280000,
+      "display": "대출 $280,000",
+      "note": "PMI 없음",
+      "highlight": true
+     }
+    ],
+    "max": 332500,
+    "source": "※ 예시예요. PMI 요율은 신용점수·다운페이먼트에 따라 달라지고, 대출 금리는 대출기관마다 달라요."
+   },
+   {
+    "type": "h",
+    "title": "CFPB 사이트에서 다운페이먼트 효과 확인하기"
+   },
+   {
+    "type": "steps",
+    "title": "공식 금리 도구로 비교하는 법",
+    "items": [
+     {
+      "title": "주소 줄에 consumerfinance.gov/owning-a-home/explore-rates 입력",
+      "body": "미국 소비자금융보호국(CFPB) 공식 도구예요. 가입이 필요 없어요."
+     },
+     {
+      "title": "화면 위쪽 칸에 우리 주(Georgia), 집값, 다운페이먼트, 신용점수 범위를 넣으세요",
+      "body": "넣는 즉시 아래 그래프가 바뀌어요."
+     },
+     {
+      "title": "아래로 내려가 다운페이먼트 줄의 파란 + 를 누르세요",
+      "body": "다운페이먼트 10%와 25%일 때 금리가 얼마나 다른지 보여 줘요."
+     },
+     {
+      "title": "다운페이먼트를 5%·10%·20%로 바꿔 가며 나온 금리를 적어 두세요",
+      "body": "대출 상담 때 이 숫자를 기준으로 \"왜 내 견적은 더 높냐\"고 물어볼 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "CFPB 금리 탐색 도구(아래쪽)",
+    "src": "/images/money/shots/cfpb-explore-rates.jpg",
+    "pins": [
+     {
+      "x": 62.6,
+      "y": 88.5,
+      "text": "**+ (다운페이먼트)** — 다운페이먼트 10%와 25%일 때 금리 차이를 펼쳐 보여 줘요."
+     },
+     {
+      "x": 62.6,
+      "y": 85.6,
+      "text": "**+ (신용점수)** — 신용점수에 따른 금리 차이예요. 다운페이먼트와 함께 보세요."
+     }
+    ],
+    "caption": "예시는 CFPB가 넣어 둔 기본 조건이에요. 위쪽 입력칸에 내 숫자를 넣으면 바뀌어요.",
+    "credit": "CFPB(미국 소비자금융보호국) 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "다운페이먼트 말고도 이만큼 필요해요"
+   },
+   {
+    "type": "checklist",
+    "title": "클로징 날까지 준비할 돈",
+    "items": [
+     "다운페이먼트(집값의 0~20%)",
+     "클로징 비용: 감정비·타이틀 보험·대출 수수료 등. 금액은 Loan Estimate 2페이지 \"Cash to Close\"에서 확인",
+     "에스크로 선납: 재산세·주택보험료 몇 달 치를 미리 넣어요",
+     "이사 비용과 첫 수리·가구 구입비",
+     "클로징 뒤 남겨 둘 비상금(대출기관이 몇 달 치 \"reserves\"를 요구하기도 해요)"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "가족에게 도움받는다면: 증여 편지(Gift Letter)"
+   },
+   {
+    "type": "text",
+    "body": [
+     "부모님·형제에게 다운페이먼트를 받는 건 흔한 일이에요. 다만 대출기관은 **\"갚을 필요가 없는 돈\"** 이라는 증명을 원해요. 그래서 보통 **증여 편지(gift letter)** 를 써요.",
+     "편지에는 주는 사람 이름·관계·금액·\"갚지 않아도 된다\"는 문장·주소·서명이 들어가요. 대출기관마다 양식이 있으니 먼저 달라고 하세요. 돈을 옮길 때는 **은행 이체 기록이 남게** 하고, 현금으로 주고받지 마세요(출처 증명이 어려워요)."
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "한국에서 송금받는 돈도 출처 서류가 필요해요",
+    "body": "해외 송금은 송금 영수증, 보내는 분의 계좌 내역 등 **돈의 출처를 보여 주는 서류**를 대출기관이 요구할 수 있어요. 클로징 몇 주 전이 아니라 **미리 옮겨 두고** 서류를 챙기세요."
+   },
+   {
+    "type": "h",
+    "title": "20%를 기다릴까, 지금 살까"
+   },
+   {
+    "type": "compare",
+    "title": "판단 기준",
+    "columns": [
+     "상황",
+     "어울리는 선택"
+    ],
+    "rows": [
+     [
+      "모으는 동안 집값·렌트가 빨리 오르는 지역",
+      "적게 내고 일찍 사는 쪽(PMI는 나중에 없앨 수 있어요)"
+     ],
+     [
+      "비상금이 거의 없음",
+      "다운페이먼트를 조금 줄이고 비상금을 남기는 쪽"
+     ],
+     [
+      "곧 이사·이직 가능성이 큼",
+      "서두르지 않는 쪽(사고파는 비용이 커요)"
+     ],
+     [
+      "신용점수가 낮아 금리가 높음",
+      "점수부터 올린 뒤 사는 쪽"
+     ]
+    ],
+    "highlight": 1
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 공식 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 지원금·소득 한도는 해마다 바뀌니 신청 전 공식 사이트와 대출 담당자에게 꼭 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: 금리 탐색 도구(Explore interest rates)",
+      "url": "https://www.consumerfinance.gov/owning-a-home/explore-rates/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: 모기지 보험이란?",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-mortgage-insurance-and-how-does-it-work-en-1953/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "NAR: 2025 주택 구입자·판매자 조사 핵심 10가지",
+      "url": "https://www.nar.realtor/news/economists-outlook/top-10-takeaways-from-nars-2025-profile-of-home-buyers-and-sellers",
+      "kind": "업계 협회 자료"
+     },
+     {
+      "title": "NAR 보도자료: 첫 구입자 비중 21%, 중간 나이 40세",
+      "url": "https://www.nar.realtor/press-releases/first-time-home-buyer-share-falls-to-historic-low-of-21-median-age-rises-to-40",
+      "kind": "업계 협회 자료"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "PMI 제거",
+  "kind": "info",
+  "title": "PMI 없애는 3가지 시점: 80% 요청, 78% 자동, 대출 기간 절반 (CFPB 공식)",
+  "content": "다운페이먼트를 20% 미만으로 낸 일반(Conventional) 대출에는 PMI(민간 모기지 보험)가 붙어요. 연방법(Homeowners Protection Act)에 따라 PMI를 없앨 수 있는 시점이 정해져 있어요. CFPB 공식 설명 기준으로 정리했어요.\n- 잔액이 원래 집값의 80%가 되면 서면으로 해지 요청\n- 78%가 되면 요청 안 해도 자동 해지\n- 대출 기간의 절반이 지나면 무조건 해지(연체 없을 때)",
+  "image": "/images/money/topics/home-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "80%",
+      "label": "해지 요청 가능",
+      "note": "원래 집값 대비 잔액",
+      "icon": "edit"
+     },
+     {
+      "value": "78%",
+      "label": "자동 해지",
+      "note": "예정 상환표 기준",
+      "icon": "check"
+     },
+     {
+      "value": "15년",
+      "label": "30년 대출의 절반",
+      "note": "이때는 무조건 해지",
+      "icon": "calendar"
+     },
+     {
+      "value": "1999.7.29",
+      "label": "이후 대출에 적용",
+      "note": "단독주택 실거주",
+      "icon": "shield"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "PMI가 뭔가요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "PMI(Private Mortgage Insurance)는 **내가 아니라 대출해 준 은행을 보호하는 보험**이에요. 다운페이먼트가 20% 미만이면 은행 입장에서 위험이 커서, 그 위험을 보험으로 메우는 거예요. 보험료는 보통 **매달 모기지와 함께** 내요.",
+     "좋은 소식은, 일반(Conventional) 대출의 PMI는 **영원히 내는 게 아니라는 점**이에요. 연방법이 해지 시점을 정해 두었어요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "CFPB 공식 페이지 찾아보기"
+   },
+   {
+    "type": "steps",
+    "title": "공식 설명 읽는 순서",
+    "items": [
+     {
+      "title": "consumerfinance.gov 에 들어가 오른쪽 위 Search(돋보기)를 누르세요",
+      "body": "미국 소비자금융보호국(CFPB) 공식 사이트예요."
+     },
+     {
+      "title": "검색칸에 remove PMI 라고 입력하고 Enter",
+      "body": "\"When can I remove private mortgage insurance (PMI) from my loan?\" 제목을 누르세요."
+     },
+     {
+      "title": "페이지 위쪽 \"Last reviewed\" 날짜를 확인하세요",
+      "body": "2026년 8월에 다시 검토된 최신 내용이에요."
+     },
+     {
+      "title": "아래로 내리며 \"Can I request cancellation…\" → \"automatic termination\" → \"final termination\" 순서로 읽으세요",
+      "body": "이 글의 3가지 시점과 같은 순서예요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "CFPB \"PMI는 언제 없앨 수 있나요?\" 공식 화면",
+    "src": "/images/money/shots/cfpb-pmi.jpg",
+    "pins": [
+     {
+      "x": 55.5,
+      "y": 42.4,
+      "text": "**When can I remove PMI from my loan?** — PMI 해지 공식 설명 페이지 제목이에요."
+     },
+     {
+      "x": 25,
+      "y": 36.5,
+      "text": "**LAST REVIEWED: AUG 28, 2026** — 최근 검토 날짜예요. 최신 내용인지 이걸로 확인해요."
+     },
+     {
+      "x": 1.4,
+      "y": 84.5,
+      "text": "**FHA·VA는 규칙이 달라요** — 이 페이지 내용은 일반(Conventional) 대출의 PMI에 대한 것이에요."
+     },
+     {
+      "x": 81.5,
+      "y": 9.5,
+      "text": "**Submit a Complaint** — 서비서가 해지를 제때 안 해 주면 여기로 민원을 넣을 수 있어요."
+     }
+    ],
+    "caption": "1999년 7월 29일 이후에 클로징한, 실거주 단독주택 대출에 적용되는 법적 기준이에요.",
+    "credit": "CFPB(미국 소비자금융보호국) 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "시점 ① 80%: 내가 요청해서 해지"
+   },
+   {
+    "type": "checklist",
+    "title": "80% 해지 요청이 받아들여지는 조건(CFPB)",
+    "items": [
+     "**서면으로** 요청해야 해요(전화만으로는 안 돼요)",
+     "연체 없이 성실히 내 왔고, 지금도 밀린 돈이 없어야 해요",
+     "두 번째 모기지·HELOC 같은 **추가 담보 대출이 없다고** 확인해야 해요",
+     "집값이 원래보다 **떨어지지 않았다는 증거**(감정 등)를 요구받을 수 있어요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "추가 상환하면 80%에 더 빨리 도달해요",
+    "body": "예정 상환표대로 가면 80%에 도달하는 날짜가 정해져 있지만(PMI 안내문에 적혀 있어요), **원금을 더 갚으면 그보다 일찍** 요청할 수 있어요."
+   },
+   {
+    "type": "h",
+    "title": "시점 ② 78%: 자동으로 해지"
+   },
+   {
+    "type": "text",
+    "body": [
+     "**요청하지 않아도**, 원래 상환표상 잔액이 원래 집값의 **78%** 가 되는 날 서비서가 PMI를 자동으로 끝내야 해요. 그날 연체 중이면, 연체를 다 갚은 뒤 첫 달에 해지돼요."
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "자동 해지는 \"예정표\" 기준이에요",
+    "body": "자동 해지(78%)는 **처음 정한 상환표의 날짜** 기준이라, 원금을 더 갚아도 자동 해지일이 당겨지지는 않아요. 일찍 없애고 싶다면 80%에서 **직접 서면 요청**을 하세요."
+   },
+   {
+    "type": "h",
+    "title": "시점 ③ 대출 기간의 절반"
+   },
+   {
+    "type": "text",
+    "body": [
+     "잔액이 78%가 안 됐더라도, 상환 기간의 **중간 지점**이 지나면(30년 대출이면 15년) 다음 달에 PMI가 끝나야 해요. 연체가 없어야 해요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "계산기로 내 해지 시점 짐작하기"
+   },
+   {
+    "type": "calc",
+    "kind": "mortgage",
+    "title": "PMI 해지 시점 계산기"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "집값·다운페이먼트·금리를 넣어 보세요",
+    "body": "다운페이먼트를 20% 미만으로 놓으면 아래 노란 상자에 **80% 도달(요청 가능) 시점과 78% 도달(자동 해지) 시점**이 나와요. 내 대출 서류의 날짜와 비교해 보세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 공식 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 내 대출의 정확한 해지 조건은 대출 서류(PMI disclosure)와 서비서(모기지 회사)에게 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: When can I remove PMI from my loan?",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/when-can-i-remove-private-mortgage-insurance-pmi-from-my-loan-en-202/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: What is mortgage insurance and how does it work?",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-mortgage-insurance-and-how-does-it-work-en-1953/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "PMI 제거",
+  "kind": "info",
+  "title": "집값이 올랐다면 PMI를 더 일찍 없앨 수 있어요: 재감정 해지와 요청 편지 쓰는 법",
+  "content": "최근 몇 년 집값이 많이 올랐다면, 원래 집값이 아니라 \"지금 집값\" 기준으로 PMI 해지를 요청할 수 있는 경우가 많아요. Fannie Mae·Freddie Mac 대출 기준과 서비서에 보내는 요청 순서를 정리했어요.\n- 대출 2~5년 차: 지금 집값 대비 잔액 75% 이하\n- 5년 넘음: 지금 집값 대비 잔액 80% 이하\n- 감정(appraisal) 비용은 보통 본인 부담",
+  "image": "/images/money/topics/home-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "75%",
+      "label": "2~5년 차 기준",
+      "note": "지금 집값 대비 잔액",
+      "icon": "trending-up"
+     },
+     {
+      "value": "80%",
+      "label": "5년 넘은 대출 기준",
+      "note": "지금 집값 대비 잔액",
+      "icon": "check"
+     },
+     {
+      "value": "12개월",
+      "label": "30일 연체 없어야",
+      "note": "최근 기록",
+      "icon": "calendar"
+     },
+     {
+      "value": "24개월",
+      "label": "60일 연체 없어야",
+      "note": "최근 기록",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "원래 집값 vs 지금 집값"
+   },
+   {
+    "type": "text",
+    "body": [
+     "앞 글의 80%·78% 규칙은 **원래 집값**(산 가격 또는 그때 감정가 중 낮은 쪽) 기준이에요. 그런데 대출이 Fannie Mae나 Freddie Mac에 팔린 일반 대출이라면, 두 회사의 규정에 따라 **지금 집값**으로 계산해 달라고 요청할 수 있어요.",
+     "예를 들어 3년 전 $300,000에 사서 잔액이 $270,000(90%)인데, 지금 집값이 $380,000이라면 → $270,000 ÷ $380,000 = **약 71%**. 2~5년 차 기준(75% 이하)을 넘어서 해지 요청이 가능해요."
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "예시: 3년 차 대출의 잔액 비율",
+    "sub": "잔액 $270,000 기준",
+    "items": [
+     {
+      "label": "원래 집값 $300,000 기준",
+      "value": 90,
+      "display": "90%",
+      "note": "해지 불가(80% 초과)"
+     },
+     {
+      "label": "지금 집값 $380,000 기준",
+      "value": 71,
+      "display": "약 71%",
+      "note": "75% 이하 → 요청 가능",
+      "highlight": true
+     }
+    ],
+    "max": 100,
+    "source": "※ 가상 예시예요. 실제 집값은 서비서가 지정한 감정으로 정해져요."
+   },
+   {
+    "type": "compare",
+    "title": "Fannie Mae·Freddie Mac 일반 기준(지금 집값 기준 해지)",
+    "columns": [
+     "대출 경과 기간",
+     "필요한 잔액 비율",
+     "비고"
+    ],
+    "rows": [
+     [
+      "2년 미만",
+      "보통 불가",
+      "단, 집을 크게 고쳐 가치가 오른 경우 예외가 있어요"
+     ],
+     [
+      "2~5년",
+      "75% 이하",
+      "지금 집값(감정·BPO) 기준"
+     ],
+     [
+      "5년 초과",
+      "80% 이하",
+      "지금 집값(감정·BPO) 기준"
+     ]
+    ],
+    "highlight": 1,
+    "note": "이 기준은 Fannie Mae·Freddie Mac이 바꿀 수 있고, 대출 투자자마다 달라요. 내 대출 주인이 누구인지 서비서에게 먼저 물어보세요."
+   },
+   {
+    "type": "h",
+    "title": "내 대출이 Fannie Mae·Freddie Mac 대출인지 확인"
+   },
+   {
+    "type": "text",
+    "body": [
+     "Fannie Mae(yourhome.fanniemae.com 의 Loan Lookup)와 Freddie Mac(myhome.freddiemac.com 의 Loan Lookup) 사이트에 **집 주소**를 넣으면 내 대출을 두 회사 중 누가 가지고 있는지 무료로 알려 줘요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "서비서에게 해지 요청하는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "이 순서대로 하세요",
+    "items": [
+     {
+      "title": "모기지 앱이나 매달 오는 명세서(statement)에서 서비서 이름과 고객센터 번호를 찾으세요",
+      "body": "서비서는 매달 돈을 받는 회사예요(대출해 준 은행과 다를 수 있어요)."
+     },
+     {
+      "title": "전화해서 \"PMI cancellation based on current value\" 조건과 절차를 물어보세요",
+      "body": "필요한 잔액 비율, 감정 방식(appraisal·BPO), 비용, 서류를 받아 적으세요."
+     },
+     {
+      "title": "서면 요청서를 보내세요(아래 예시 참고)",
+      "body": "서비서 웹사이트의 메시지 기능, 이메일, 또는 등기우편(certified mail)으로 보내고 사본을 보관하세요."
+     },
+     {
+      "title": "서비서가 지정한 감정을 받으세요",
+      "body": "내가 따로 받은 감정은 인정 안 될 수 있어요. 비용(보통 수백 달러)은 본인 부담인 경우가 많아요."
+     },
+     {
+      "title": "결과 편지를 받고, 다음 달 명세서에서 PMI 줄이 $0인지 확인하세요",
+      "body": "해지 후에도 계속 빠져나가면 다시 연락하고, 해결이 안 되면 CFPB에 민원을 넣으세요."
+     }
+    ]
+   },
+   {
+    "type": "phone",
+    "title": "모기지 앱에서 찾을 곳",
+    "where": "list-item",
+    "label": "Escrow / Mortgage insurance",
+    "caption": "대부분의 모기지 앱은 **Loan details(대출 정보)** 또는 **Escrow** 메뉴 안에 PMI 금액과 해지 안내가 있어요. 못 찾겠으면 **Help·Contact us** 에서 \"PMI removal\"을 검색하세요.",
+    "icon": "search",
+    "headline": "Loan details",
+    "kicker": "모기지 앱에서"
+   },
+   {
+    "type": "h",
+    "title": "요청 편지 예시(영문)"
+   },
+   {
+    "type": "text",
+    "body": [
+     "**Subject: Request to cancel PMI — Loan #(대출번호)**",
+     "I am requesting cancellation of private mortgage insurance on the loan above. I have a good payment history and no subordinate liens on the property. Based on the current value of my home, I believe my loan balance is below the required loan-to-value ratio. Please send me the requirements and order the valuation needed. Thank you. — (이름, 주소, 전화번호, 날짜, 서명)",
+     "편지 뜻: \"위 대출의 PMI 해지를 요청합니다. 연체 기록이 없고 다른 담보 대출도 없습니다. 지금 집값 기준으로 잔액 비율이 기준 아래라고 생각합니다. 필요한 조건을 알려 주시고 감정을 진행해 주세요.\""
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "감정비를 쓰기 전에 대충 계산해 보세요",
+    "body": "감정 결과가 기준에 못 미치면 **감정비만 날릴 수** 있어요. Zillow·Redfin 같은 시세와 최근 이웃 집 거래가로 먼저 대략 계산해 보고, 여유 있게 기준 아래일 때 신청하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 공식 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 내 대출의 정확한 해지 조건은 대출 서류(PMI disclosure)와 서비서(모기지 회사)에게 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: When can I remove PMI from my loan?",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/when-can-i-remove-private-mortgage-insurance-pmi-from-my-loan-en-202/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "Enact(모기지 보험사): 차입자 요청 PMI 해지 설명",
+      "url": "https://blog.enactmi.com/post/borrower-initiated-mi-cancellation-explained-main-points-you-need-to-know",
+      "kind": "업계(모기지 보험사)"
+     },
+     {
+      "title": "Fannie Mae 공식: 내 대출 조회(Loan Lookup)",
+      "url": "https://yourhome.fanniemae.com/calculators-tools/loan-lookup",
+      "kind": "공기업(공식)"
+     },
+     {
+      "title": "Freddie Mac 공식: 내 대출 조회",
+      "url": "https://myhome.freddiemac.com/resources/loanlookup",
+      "kind": "공기업(공식)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "PMI 제거",
+  "kind": "info",
+  "title": "FHA 대출 보험료(MIP)는 PMI와 달라요: 11년 규칙과 없애는 유일한 방법",
+  "content": "FHA 대출의 모기지 보험(MIP)은 일반 대출 PMI와 규칙이 완전히 달라요. 80%·78% 규칙이 적용되지 않고, 다운페이먼트가 10% 미만이면 대출 기간 내내 내야 해요. 언제 대출받았는지에 따라 달라지는 규칙과 재융자로 없애는 방법을 정리했어요.\n- 2013년 6월 3일 이후 FHA 대출: 다운 10% 이상이면 11년, 미만이면 대출 끝까지\n- 없애려면 보통 일반(Conventional) 대출로 재융자\n- 재융자 비용과 금리를 꼭 같이 계산하세요",
+  "image": "/images/money/topics/home-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1.75%",
+      "label": "선불 보험료(UFMIP)",
+      "note": "대출액 대비, 보통 대출에 포함",
+      "icon": "dollar"
+     },
+     {
+      "value": "0.55%",
+      "label": "연 보험료(대부분)",
+      "note": "30년·5% 미만 다운 기준",
+      "icon": "calendar"
+     },
+     {
+      "value": "11년",
+      "label": "다운 10% 이상일 때",
+      "note": "이후 자동 종료",
+      "icon": "check"
+     },
+     {
+      "value": "평생",
+      "label": "다운 10% 미만일 때",
+      "note": "대출이 끝날 때까지",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "왜 FHA는 다를까요"
+   },
+   {
+    "type": "text",
+    "body": [
+     "FHA 대출의 보험(MIP, Mortgage Insurance Premium)은 민간 보험사가 아니라 **미국 주택청(FHA)** 이 받는 보험료예요. 그래서 일반 대출에 적용되는 연방법(Homeowners Protection Act)의 80%·78% 규칙이 **적용되지 않아요.** CFPB도 공식 페이지에서 \"FHA·VA는 규칙이 다르니 서비서에 문의하라\"고 안내해요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "언제 대출받았는지가 중요해요"
+   },
+   {
+    "type": "compare",
+    "title": "FHA MIP 종료 규칙(HUD 기준)",
+    "columns": [
+     "대출 시점(사건번호 기준)",
+     "다운페이먼트",
+     "MIP는 언제 끝나나"
+    ],
+    "rows": [
+     [
+      "2013년 6월 3일 이후",
+      "10% 이상",
+      "11년 뒤 종료"
+     ],
+     [
+      "2013년 6월 3일 이후",
+      "10% 미만",
+      "대출 기간 내내(평생)"
+     ],
+     [
+      "2013년 6월 3일 이전",
+      "—",
+      "잔액이 원래 집값의 78%가 되고, 30년 대출은 최소 5년이 지나면 종료"
+     ]
+    ],
+    "highlight": 2,
+    "note": "정확한 날짜는 클로징 서류의 FHA case number 배정일 기준이에요. 서비서에게 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "HUD 공식 사이트에서 FHA 안내 보기"
+   },
+   {
+    "type": "shot",
+    "title": "HUD FHA 대출 공식 화면",
+    "src": "/images/money/shots/hud-loans.jpg",
+    "pins": [
+     {
+      "x": 78.5,
+      "y": 58,
+      "text": "**Let FHA Loans Help You** — HUD의 FHA 대출 안내 페이지예요."
+     },
+     {
+      "x": 29,
+      "y": 88.5,
+      "text": "**Low down payments** — 낮은 다운페이먼트가 장점이지만, 그 대가로 MIP가 붙어요."
+     }
+    ],
+    "caption": "FHA는 다운페이먼트와 신용 조건이 쉬운 대신, 보험료를 오래 내는 구조예요.",
+    "credit": "미국 주택도시개발부(HUD) 공식 사이트 hud.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "MIP를 없애는 방법: 일반 대출로 재융자"
+   },
+   {
+    "type": "text",
+    "body": [
+     "2013년 이후 다운 10% 미만 FHA 대출이라면, MIP를 없애는 현실적인 방법은 **일반(Conventional) 대출로 재융자(refinance)** 하는 거예요. 집값이 올라 잔액이 지금 집값의 **80% 이하**가 되면, 새 일반 대출에는 PMI도 붙지 않아요."
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "재융자가 이득인지 따지는 순서",
+    "items": [
+     {
+      "title": "최근 모기지 명세서에서 남은 잔액과 매달 MIP 금액을 확인하세요",
+      "body": "명세서의 \"Mortgage insurance\" 또는 \"MIP\" 줄이에요."
+     },
+     {
+      "title": "지금 집값을 대략 알아보세요",
+      "body": "Zillow·Redfin 시세와 이웃 집 최근 거래가를 참고하세요. 잔액 ÷ 집값이 80% 이하인지 계산해요."
+     },
+     {
+      "title": "대출기관 2~3곳에서 일반 대출 재융자 견적(Loan Estimate)을 받으세요",
+      "body": "금리, 클로징 비용, 새 월 납입금을 확인해요."
+     },
+     {
+      "title": "손익분기 계산: 재융자 비용 ÷ (지금 월 납입금 − 새 월 납입금)",
+      "body": "예: 비용 $6,000 ÷ 월 $200 절약 = 30개월. 그보다 오래 살 계획이면 유리해요."
+     },
+     {
+      "title": "지금 금리가 내 FHA 금리보다 많이 높다면 서두르지 마세요",
+      "body": "MIP가 없어져도 금리가 올라가면 오히려 월 납입금이 늘 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금리가 낮을 때 받은 FHA 대출이라면 특히 조심",
+    "body": "2020~2021년처럼 금리가 아주 낮을 때 받은 FHA 대출은, 재융자하면 MIP는 없어져도 **금리가 크게 올라** 손해일 수 있어요. 반드시 \"지금 월 납입금 vs 새 월 납입금\"을 숫자로 비교하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "FHA 대출끼리 바꾸는 \"Streamline\" 재융자는 MIP를 없애지 못해요",
+    "body": "FHA → FHA 재융자(Streamline Refinance)는 서류가 간단하지만, 여전히 FHA 대출이라 **MIP가 계속** 붙어요. MIP를 없애려면 일반 대출로 옮겨야 해요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 공식 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 내 대출의 정확한 해지 조건은 대출 서류(PMI disclosure)와 서비서(모기지 회사)에게 확인하세요.",
+    "items": [
+     {
+      "title": "HUD 공식: Let FHA Loans Help You",
+      "url": "https://www.hud.gov/buying/loans",
+      "kind": "정부(공식, HUD)"
+     },
+     {
+      "title": "CFPB 공식: When can I remove PMI(FHA·VA는 규칙이 다름)",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/when-can-i-remove-private-mortgage-insurance-pmi-from-my-loan-en-202/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "Chase: FHA 대출 MIP 없애는 법",
+      "url": "https://www.chase.com/personal/mortgage/education/owning-a-home/how-to-remove-mip-on-fha-loan",
+      "kind": "금융회사 안내"
+     }
+    ]
+   }
+  ]
  }
 ]
