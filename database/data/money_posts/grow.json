@@ -1980,5 +1980,318 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "SEC 공식 복리 계산기 쓰는 법 (Investor.gov)",
+  "content": "복리 효과를 직접 숫자로 보고 싶다면, 미국 증권거래위원회(SEC)가 운영하는 **무료 공식 계산기**를 쓰면 돼요. 입력 항목을 하나씩 정리했어요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료",
+      "label": "공식 도구",
+      "note": "SEC 운영",
+      "icon": "check"
+     },
+     {
+      "value": "5개 입력칸",
+      "label": "간단한 구조",
+      "note": "",
+      "icon": "list"
+     },
+     {
+      "value": "범위 설정 가능",
+      "label": "이율의 위아래",
+      "note": "시나리오 비교",
+      "icon": "trending-up"
+     },
+     {
+      "value": "광고 없음",
+      "label": "중립적",
+      "note": "",
+      "icon": "shield"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "입력하는 5가지"
+   },
+   {
+    "type": "steps",
+    "title": "계산기 사용 순서",
+    "items": [
+     {
+      "title": "초기 투자금(Initial investment)",
+      "body": "지금 가지고 있는 목돈을 입력해요."
+     },
+     {
+      "title": "매달 추가 납입(Contribute)",
+      "body": "매달 더 넣을 금액을 입력해요. 매달 빼는 거라면 마이너스(-) 숫자로 넣어요."
+     },
+     {
+      "title": "기간(Length of time)",
+      "body": "몇 년 동안 투자·저축할지 입력해요."
+     },
+     {
+      "title": "이율(Interest rate)",
+      "body": "예상 연 수익률을 입력해요. **위아래 범위**도 설정해서 여러 시나리오를 볼 수 있어요."
+     },
+     {
+      "title": "복리 횟수(Compound it)",
+      "body": "1년에 몇 번 이자가 붙는지 입력해요(연 1회, 월 1회 등)."
+     }
+    ]
+   },
+   {
+    "type": "phone",
+    "title": "계산기 열기",
+    "where": "center",
+    "label": "5개 칸 입력 후 결과 보기",
+    "icon": "chart-bar",
+    "caption": "다섯 칸을 채우면 **표와 그래프로** 몇 년 뒤 금액이 얼마가 될지 보여 줘요. 이율을 범위로 넣으면 **최선·최악의 경우**도 같이 비교할 수 있어요.",
+    "headline": "Investor.gov"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "이율은 보수적으로 넣어 보세요",
+    "body": "너무 높은 이율을 가정하면 비현실적인 숫자가 나와요. **여러 이율로 돌려 보면서** 현실적인 범위를 가늠하세요."
+   },
+   {
+    "type": "h",
+    "title": "왜 공식 계산기를 추천할까요"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "광고·상품 판매 목적이 없어요",
+    "body": "증권사·은행 사이트의 계산기는 자사 상품으로 유도하는 경우가 있어요. Investor.gov는 **정부가 운영하는 중립적인 도구**라서 비교 기준으로 쓰기 좋아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 투자는 원금을 잃을 수 있고, 과거 수익이 미래를 보장하지 않아요. 결정은 본인 책임이에요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 투자 수익은 보장되지 않아요. 인용된 연구 결과는 과거 데이터이고 미래를 보장하지 않아요.",
+    "items": [
+     {
+      "title": "SEC 공식 복리 계산기",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "목돈을 한 번에 넣을까, 나눠서 넣을까 (연구 결과 비교)",
+  "content": "목돈이 생겼을 때 \"한 번에 넣기(Lump Sum)\"와 \"나눠서 넣기(Dollar-Cost Averaging)\" 중 뭐가 나을까요? 여러 연구를 비교했어요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "수익률만 보면: 한 번에 넣는 게 더 자주 이겼어요"
+   },
+   {
+    "type": "compare",
+    "title": "연구별 결과",
+    "columns": [
+     "연구",
+     "결과"
+    ],
+    "rows": [
+     [
+      "뱅가드(2023, 요약 인용)",
+      "글로벌 시장에서 1년 뒤 기준 **68%의 경우** 한 번에 넣는 쪽이 더 좋았어요"
+     ],
+     [
+      "노스웨스턴 뮤추얼",
+      "10년 구간 기준 **75%의 경우** 한 번에 넣는 쪽이 더 좋았어요"
+     ],
+     [
+      "모닝스타",
+      "**약 1/3의 경우**에서는 나눠 넣는 쪽이 더 좋았어요(주로 하락장에서)"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ 과거 데이터 기준이에요. 미래 수익을 보장하지 않아요."
+   },
+   {
+    "type": "h",
+    "title": "나눠 넣기가 유리했던 경우"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "하락장에서는 나눠 넣기가 손실을 줄여줬어요",
+    "body": "2000~2002년 기술주 하락기를 예로 든 모닝스타 분석에서는, **나눠서 넣은 경우 손실이 약 1.75%**에 그쳤지만, **한 번에 넣은 경우 손실이 연 약 13.84%**였다고 해요(특정 시기 예시예요)."
+   },
+   {
+    "type": "h",
+    "title": "그래서 뭘 골라야 할까요"
+   },
+   {
+    "type": "steps",
+    "title": "판단 기준",
+    "items": [
+     {
+      "title": "큰 목돈(보너스·상속 등)이 생겼다면",
+      "body": "통계적으로는 **한 번에 넣는 쪽**이 더 자주 유리했어요."
+     },
+     {
+      "title": "하락장이 걱정되고 밤에 잠이 안 올 것 같다면",
+      "body": "**나눠서 넣는 쪽**이 마음은 편할 수 있어요."
+     },
+     {
+      "title": "매달 월급에서 저축한다면",
+      "body": "사실상 **나눠 넣기(DCA)가 기본값**이에요. 특별한 선택이 필요 없어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "차이가 크지 않을 수도 있어요",
+    "body": "한 분석에서는 10년 기준으로 두 방법의 차이가 **약 2.3%p** 정도였다고 해요. \"인생이 바뀔 정도의 차이는 아니다\"라는 평가도 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "가장 중요한 건 \"계속하는 것\"",
+    "body": "나눠 넣기를 선택했다면, **하락장에서도 계속 넣을 수 있는지**가 핵심이에요. 중간에 겁먹고 멈추면 효과가 없어져요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 투자는 원금을 잃을 수 있고, 과거 수익이 미래를 보장하지 않아요. 결정은 본인 책임이에요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 투자 수익은 보장되지 않아요. 인용된 연구 결과는 과거 데이터이고 미래를 보장하지 않아요.",
+    "items": [
+     {
+      "title": "한 번에 vs 나눠 넣기 비교(2026)",
+      "url": "https://robberger.com/lump-sum-investing-vs-dollar-cost-averaging",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "노스웨스턴 뮤추얼 분석",
+      "url": "https://northwesternmutual.com/life-and-money/is-dollar-cost-averaging-better-than-lump-sum-investing",
+      "kind": "금융사(정보)"
+     },
+     {
+      "title": "모닝스타 분석",
+      "url": "https://www.morningstar.com.au/insights/personal-finance/251126/dollar-cost-averaging-vs-lump-sum-investing",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "복리를 키우는 3가지: 시간·꾸준함·비용",
+  "content": "복잡한 공식 없이도, 복리 효과를 키우는 방법은 사실 단순해요. 세 가지로 정리했어요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "1. 일찍 시작하기"
+   },
+   {
+    "type": "bars",
+    "title": "같은 월 $300, 시작 시점만 다를 때 (가상 연 6%)",
+    "sub": "30년 후 기준",
+    "items": [
+     {
+      "label": "10년 일찍 시작",
+      "value": 301000,
+      "display": "약 $301,000"
+     },
+     {
+      "label": "지금부터 20년만",
+      "value": 138000,
+      "display": "약 $138,000",
+      "highlight": true
+     }
+    ],
+    "max": 301000,
+    "source": "※ 가상 예시예요. 실제 수익률은 변동돼요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "같은 금액도 \"언제 시작했는지\"가 가장 크게 좌우해요",
+    "body": "복리는 시간이 길수록 효과가 커져요. 금액을 늘리는 것보다 **일찍 시작하는 게** 더 큰 차이를 만드는 경우가 많아요."
+   },
+   {
+    "type": "h",
+    "title": "2. 꾸준히 넣기"
+   },
+   {
+    "type": "checklist",
+    "title": "꾸준함을 지키는 방법",
+    "items": [
+     "월급날 **자동이체**를 설정하기",
+     "하락장이라고 멈추지 않기(멈추면 DCA 효과가 사라져요)",
+     "금액을 늘릴 수 있을 때 조금씩 늘리기"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "3. 비용 줄이기"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "작은 보수 차이가 장기적으로 크게 벌어져요",
+    "body": "ETF·펀드의 운용 보수가 낮을수록, 오랜 기간 복리로 쌓일 때 차이가 커져요(가이드의 \"ETF\" 글 참고)."
+   },
+   {
+    "type": "h",
+    "title": "가장 흔한 실수"
+   },
+   {
+    "type": "checklist",
+    "title": "조심할 것",
+    "items": [
+     "시장이 떨어질 때 **겁먹고 다 팔기**",
+     "단기 뉴스에 흔들려 계획을 자주 바꾸기",
+     "비현실적으로 높은 수익률을 가정하고 계획 세우기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 투자는 원금을 잃을 수 있고, 과거 수익이 미래를 보장하지 않아요. 결정은 본인 책임이에요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 투자 수익은 보장되지 않아요. 인용된 연구 결과는 과거 데이터이고 미래를 보장하지 않아요.",
+    "items": [
+     {
+      "title": "SEC 공식 복리 계산기",
+      "url": "https://www.investor.gov/financial-tools-calculators/calculators/compound-interest-calculator",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
  }
 ]
