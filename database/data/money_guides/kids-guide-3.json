@@ -1,0 +1,202 @@
+{
+ "slug": "kids-guide-3",
+ "summary": "HOPE·Zell Miller 장학금의 기본 구조와 신청 순서",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "amber",
+   "icon": "trophy",
+   "kicker": "MONEY GUIDE · 자녀·교육",
+   "title": "조지아 HOPE 장학금",
+   "lead": "조지아 거주 학생이 **조지아 대학**에서 받을 수 있는 대표 장학금이에요. **성적(GPA)과 거주 조건**이 핵심이에요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 5분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "쉬움"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**HOPE**와 더 높은 조건의 **Zell Miller** 장학금이 대표적이에요. 성적 기준은 **GPA**로 판단해요.",
+    "신청은 **GAfutures** 사이트(GSFAPP 등)에서 해요. 안내를 정기적으로 확인하세요.",
+    "**거주·체류 조건**이 있어요. 해당 여부는 공식 안내로 확인하세요."
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "주요 장학금 개요 (참고)",
+   "columns": [
+    "",
+    "HOPE Scholarship",
+    "Zell Miller Scholarship",
+    "HOPE Grant"
+   ],
+   "rows": [
+    [
+     "대상",
+     "조지아 대학 4년제 등",
+     "더 높은 성적 조건",
+     "기술대학 과정"
+    ],
+    [
+     "성적 기준(개요)",
+     "고교 GPA 약 3.0 이상",
+     "GPA·시험 점수 등 더 높은 기준",
+     "과정별 조건"
+    ],
+    [
+     "유지 조건",
+     "학기별 GPA 유지",
+     "더 엄격한 GPA 유지",
+     "과정별 조건"
+    ],
+    [
+     "메모",
+     "지원 범위·금액은 매년 달라요",
+     "학교·학점당 지원이 달라요",
+     "프로그램별 확인"
+    ]
+   ],
+   "highlight": 1,
+   "note": "※ 위 내용은 개요예요. 정확한 기준(GPA 계산 방식, 시험 점수, 지원 범위)은 GAfutures의 최신 안내를 확인하세요."
+  },
+  {
+   "type": "steps",
+   "title": "신청 순서",
+   "items": [
+    {
+     "title": "GAfutures 계정 만들기",
+     "body": "학생이 계정을 만들고 고교 성적(GPA)을 확인해요.",
+     "link": {
+      "label": "GAfutures",
+      "url": "https://www.gafutures.org/"
+     }
+    },
+    {
+     "title": "FAFSA / GSFAPP 제출",
+     "body": "재정 보조 신청(FAFSA)과 **조지아 학생 재정 지원 신청(GSFAPP)** 등 필요한 양식을 제출해요."
+    },
+    {
+     "title": "대학 지원·합격",
+     "body": "대학에 합격한 뒤 학교에서 **장학금 적용 여부**를 확인해요."
+    },
+    {
+     "title": "학기별 GPA 유지",
+     "body": "장학금을 유지하려면 학점 기준(보통 일정 시점마다 점검)을 지켜야 해요."
+    }
+   ]
+  },
+  {
+   "type": "stats",
+   "items": [
+    {
+     "value": "3.0",
+     "label": "HOPE 기준 GPA(개요)",
+     "note": "계산 방식 확인"
+    },
+    {
+     "value": "거주",
+     "label": "조건 있음",
+     "note": "체류 신분 확인"
+    },
+    {
+     "value": "매 학기",
+     "label": "유지 조건",
+     "note": "GPA 점검"
+    },
+    {
+     "value": "공식",
+     "label": "GAfutures",
+     "note": "최신 기준"
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "이민 신분·거주 조건",
+   "body": "**시민권·영주권 등** 일정 신분과 **조지아 거주 기간** 조건이 있어요. 해당이 불확실하면 **학교 재정 보조 사무실**이나 공식 안내로 먼저 확인하세요."
+  },
+  {
+   "type": "checklist",
+   "title": "준비 체크리스트",
+   "items": [
+    "고교 GPA를 GAfutures에서 확인했다",
+    "학생 SSN·거주 증명 서류를 준비했다",
+    "FAFSA와 필요한 주 양식을 제출했다",
+    "지원 대학의 장학금 적용 방식을 확인했다",
+    "GPA 유지 기준과 학점 조건을 알고 있다",
+    "마감일 알림을 걸었다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "GAfutures",
+     "desc": "조지아 학생·학부모 포털",
+     "url": "https://www.gafutures.org/",
+     "tag": "주 정부"
+    },
+    {
+     "title": "Federal Student Aid: FAFSA",
+     "desc": "연방 학비 보조",
+     "url": "https://studentaid.gov/h/apply-for-aid/fafsa",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "대학 비용 계산표",
+     "desc": "장학금 반영 후 부족액을 계산해요",
+     "file": "/downloads/money/college-cost-planner.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "사립대에서도 받을 수 있나요?",
+     "a": "대학 유형·프로그램에 따라 **지원 범위가 달라요.** GAfutures의 대학별 안내를 확인하세요."
+    },
+    {
+     "q": "성적이 기준에 못 미치면요?",
+     "a": "다른 장학금·보조금·학교 자체 장학금을 알아보세요. 상담 교사나 대학 재정 보조 사무실이 도와줘요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

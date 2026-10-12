@@ -1,0 +1,223 @@
+{
+ "slug": "retire-guide-2",
+ "summary": "A·B·C·D의 차이와 가입 시기, 놓치면 생기는 일",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "rose",
+   "icon": "stethoscope",
+   "kicker": "MONEY GUIDE · 은퇴",
+   "title": "Medicare A·B·C·D 쉽게 이해하기",
+   "lead": "65세가 되면 시작되는 미국의 **노인 건강보험**이에요. 이름이 알파벳이라 헷갈리지만 **무엇을 보장하는지**로 나누면 쉬워요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 7분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "보통"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**A**: 병원 입원 / **B**: 외래·진료 / **C**: 민영 통합형(Advantage) / **D**: 처방약.",
+    "**65세 전후 약 7개월(생일 3개월 전~3개월 후)** 이 첫 가입 기간이에요. 놓치면 **늦은 가입 벌금**이 생길 수 있어요.",
+    "**이민자는 거주 기간·납부 이력**에 따라 보험료·자격이 달라요."
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "A·B·C·D 한눈에",
+   "columns": [
+    "",
+    "보장",
+    "보험료",
+    "메모"
+   ],
+   "rows": [
+    [
+     "Part A (병원)",
+     "입원·요양시설 등",
+     "대부분 무료 (40분기 이상 근무 시)",
+     "근무 이력이 부족하면 보험료가 있어요"
+    ],
+    [
+     "Part B (의료)",
+     "외래 진료·검사·예방",
+     "월 보험료 있음",
+     "소득이 높으면 보험료가 올라가요"
+    ],
+    [
+     "Part C (Advantage)",
+     "A+B(+보통 D)를 민영 보험사가 통합 제공",
+     "플랜마다 다름",
+     "네트워크 제한이 있을 수 있어요"
+    ],
+    [
+     "Part D (처방약)",
+     "처방약 보장",
+     "플랜마다 다름",
+     "가입 시기를 놓치면 벌금이 생길 수 있어요"
+    ],
+    [
+     "Medigap",
+     "기본 Medicare의 본인 부담을 보완",
+     "플랜마다 다름",
+     "기본 Medicare(A·B)와 함께 사용"
+    ]
+   ],
+   "highlight": 1
+  },
+  {
+   "type": "steps",
+   "title": "65세 전후 순서",
+   "items": [
+    {
+     "title": "3개월 전부터 준비",
+     "body": "생일 약 **3개월 전**부터 가입 가능해요. SSA 연금을 이미 받는 중이면 **자동 가입**될 수 있어요.",
+     "link": {
+      "label": "Medicare 공식 사이트",
+      "url": "https://www.medicare.gov/"
+     }
+    },
+    {
+     "title": "A·B 가입 여부 결정",
+     "body": "현재 **직장 보험**이 있으면 B를 미룰 수 있는 경우도 있어요. 직장 보험이 Medicare보다 나은지 비교하세요."
+    },
+    {
+     "title": "원본 Medicare vs Advantage 선택",
+     "body": "원본(A·B) + Medigap + D로 갈지, **Advantage(C)** 로 갈지 정해요. 병원·의사 네트워크를 확인하세요."
+    },
+    {
+     "title": "매년 가을 플랜 점검",
+     "body": "플랜 내용과 보험료가 **해마다 바뀌어요.** 가입 기간에 맞춰 다시 비교하세요.",
+     "link": {
+      "label": "Medicare 시작 안내",
+      "url": "https://www.medicare.gov/basics/get-started-with-medicare"
+     }
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "늦게 가입하면 평생 더 낼 수 있어요",
+   "body": "B·D를 **정해진 시기 안에** 가입하지 않으면 **늦은 가입 벌금**이 붙어서 보험료가 평생 올라갈 수 있어요. 직장 보험이 있는 경우에도 **증빙 서류**를 확인하세요."
+  },
+  {
+   "type": "stats",
+   "items": [
+    {
+     "value": "65세",
+     "label": "Medicare 시작",
+     "note": "미국 거주 조건 확인"
+    },
+    {
+     "value": "7개월",
+     "label": "첫 가입 기간",
+     "note": "생일 전후"
+    },
+    {
+     "value": "40분기",
+     "label": "A 무료 조건",
+     "note": "약 10년 근무"
+    },
+    {
+     "value": "매년",
+     "label": "플랜 변경 가능",
+     "note": "가을 가입 기간"
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "이민자·영주권자 참고",
+   "body": "**일정 기간(보통 5년) 이상 합법 거주** 같은 요건이 있어요. 근무 이력이 부족하면 **A를 유료로 가입**해야 할 수도 있어요. SSA와 Medicare의 최신 안내를 확인하세요."
+  },
+  {
+   "type": "checklist",
+   "title": "65세 전 체크리스트",
+   "items": [
+    "생일 3개월 전에 가입 기간을 달력에 표시했다",
+    "SSA 연금 수령 여부에 따른 자동 가입 여부를 확인했다",
+    "직장 보험의 보장·보험료를 Medicare와 비교했다",
+    "원본 vs Advantage의 차이를 이해했다",
+    "현재 쓰는 병원·의사가 플랜에 포함되는지 확인했다",
+    "처방약 목록을 정리했다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "Medicare.gov",
+     "desc": "미국 노인 건강보험 공식 사이트",
+     "url": "https://www.medicare.gov/",
+     "tag": "정부"
+    },
+    {
+     "title": "Medicare 시작 가이드",
+     "desc": "가입 시기·방법",
+     "url": "https://www.medicare.gov/basics/get-started-with-medicare",
+     "tag": "정부"
+    },
+    {
+     "title": "HealthCare.gov",
+     "desc": "65세 미만 건강보험 마켓",
+     "url": "https://www.healthcare.gov/",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "은퇴 생활비 표",
+     "desc": "의료비를 포함해 계산해요",
+     "file": "/downloads/money/retirement-expenses.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "Medicare가 모든 비용을 보장하나요?",
+     "a": "아니에요. **본인 부담금**이 있어서 Medigap이나 Advantage 같은 선택이 필요해요."
+    },
+    {
+     "q": "한국어로 상담받을 수 있나요?",
+     "a": "SHIP(주 건강보험 정보 상담) 프로그램·한인 단체 등에서 **무료 상담**을 받을 수 있어요. 지역 기관을 알아보세요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

@@ -1,0 +1,219 @@
+{
+ "slug": "kids-guide-2",
+ "summary": "무엇을 모아야 하고 언제 신청하는지, 흔한 실수까지",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "amber",
+   "icon": "book-open",
+   "kicker": "MONEY GUIDE · 자녀·교육",
+   "title": "FAFSA 준비하기",
+   "lead": "대학 재정 보조의 출발점이에요. **연방 학비 보조·학자금 대출·학교 장학금**의 많은 부분이 FAFSA를 기준으로 심사돼요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 6분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "보통"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**학생과 부모 모두 FSA ID**를 만들어야 해요(각자 이메일·SSN 필요).",
+    "신청 시기는 **보통 가을**에 열려요. **빨리 낼수록** 유리한 제도가 많아요.",
+    "**시민·영주권자 등 \"적격 비시민\"** 이 신청할 수 있어요. 자격이 안 돼도 **학교·주 별도 양식**이 있을 수 있어요."
+   ]
+  },
+  {
+   "type": "steps",
+   "title": "준비 순서",
+   "items": [
+    {
+     "title": "FSA ID 만들기",
+     "body": "학생·부모 각자 계정을 만들어요. **이메일은 각자 따로** 쓰는 게 좋아요.",
+     "link": {
+      "label": "Federal Student Aid",
+      "url": "https://studentaid.gov/h/apply-for-aid/fafsa"
+     }
+    },
+    {
+     "title": "서류 모으기",
+     "body": "SSN, 세금 신고서(IRS 정보 연동), 은행 잔액, 투자 자산 정보 등을 준비해요."
+    },
+    {
+     "title": "학교 목록 추가",
+     "body": "지원하는 학교를 **FAFSA에 추가**해야 해당 학교가 결과를 받아요."
+    },
+    {
+     "title": "제출 후 확인",
+     "body": "학생 보조 요약(Student Aid Report)을 확인하고 오류를 고쳐요."
+    },
+    {
+     "title": "학교 요구사항 챙기기",
+     "body": "학교마다 **추가 서류·마감일**이 있어요."
+    }
+   ]
+  },
+  {
+   "type": "checklist",
+   "title": "FAFSA 준비물 체크리스트",
+   "items": [
+    "학생·부모 FSA ID",
+    "학생·부모 SSN",
+    "지난 세금 신고서 (또는 IRS 연동 동의)",
+    "은행 계좌·투자 계좌 잔액",
+    "사업·부동산 자산 정보(해당 시)",
+    "지원 학교 목록과 학교 코드",
+    "가정 상황(이혼·별거) 정리"
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "흔한 실수",
+   "columns": [
+    "실수",
+    "결과",
+    "예방"
+   ],
+   "rows": [
+    [
+     "마감 직전 제출",
+     "일부 지원금 소진",
+     "가능하면 일찍 제출"
+    ],
+    [
+     "학교 추가를 빼먹음",
+     "학교가 결과를 못 받아요",
+     "지원 학교를 모두 추가"
+    ],
+    [
+     "부모 정보 오류",
+     "심사 지연·환수",
+     "세금 정보와 일치하는지 확인"
+    ],
+    [
+     "이혼 가정 기준 착각",
+     "잘못된 부모 정보 입력",
+     "규정(누구 정보를 쓸지)을 확인"
+    ]
+   ],
+   "highlight": 0
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "자격이 애매한 가정",
+   "body": "**비자·체류 신분**에 따라 연방 보조 자격이 달라요. 학교의 **재정 보조 사무실(Financial Aid office)** 에 먼저 문의하세요. 한국어 가능한 상담 단체도 알아보세요."
+  },
+  {
+   "type": "stats",
+   "items": [
+    {
+     "value": "가을",
+     "label": "신청 시작",
+     "note": "해마다 날짜 확인"
+    },
+    {
+     "value": "빠를수록",
+     "label": "유리",
+     "note": "선착순 지원금"
+    },
+    {
+     "value": "학교별",
+     "label": "서류·마감",
+     "note": "각각 확인"
+    },
+    {
+     "value": "무료",
+     "label": "FAFSA 비용",
+     "note": "유료 대행 주의"
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "tip",
+   "title": "FAFSA는 무료예요",
+   "body": "유료로 대신 작성해 준다는 사이트가 있지만 **공식 FAFSA는 무료**예요. 주소가 **studentaid.gov** 인지 꼭 확인하세요."
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "Federal Student Aid: FAFSA",
+     "desc": "신청·준비물",
+     "url": "https://studentaid.gov/h/apply-for-aid/fafsa",
+     "tag": "정부"
+    },
+    {
+     "title": "GAfutures",
+     "desc": "조지아 대학·장학금 포털",
+     "url": "https://www.gafutures.org/",
+     "tag": "주 정부"
+    },
+    {
+     "title": "IRS: 교육 세액공제",
+     "desc": "학비 세액공제",
+     "url": "https://www.irs.gov/credits-deductions/individuals/education-credits-aotc-llc",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "대학 비용 계산표",
+     "desc": "비용·장학금·부족액을 계산해요",
+     "file": "/downloads/money/college-cost-planner.csv",
+     "kind": "CSV"
+    },
+    {
+     "title": "세금 신고 서류 체크리스트",
+     "desc": "FAFSA 서류 준비에 활용",
+     "file": "/downloads/money/tax-docs-checklist.txt",
+     "kind": "TXT"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "소득이 높으면 신청해도 소용없나요?",
+     "a": "소득이 높아도 **학교 장학금(merit)** 이나 일부 대출은 FAFSA가 필요할 수 있어요. 신청해서 손해는 없어요."
+    },
+    {
+     "q": "한 번만 하면 되나요?",
+     "a": "아니에요. **매년 다시** 신청해야 해요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

@@ -1,0 +1,193 @@
+{
+ "slug": "stocks-guide-3",
+ "summary": "배당을 받으려면 언제까지 사야 하는지, 날짜 4개를 한 번에",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "blue",
+   "icon": "calendar",
+   "kicker": "MONEY GUIDE · 주식",
+   "title": "배당락일 이해하기",
+   "lead": "배당을 받으려면 **배당락일 전**에 주식을 가지고 있어야 해요. 하지만 **배당락일에 주가도 그만큼 내려가는** 게 일반적이에요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 4분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "쉬움"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "날짜 4개: **선언일 → 배당락일(Ex-date) → 기준일(Record) → 지급일**.",
+    "미국은 거래 결제가 **거래 다음 영업일(T+1)** 이라 **배당락일과 기준일이 같은 날**로 정해져요.",
+    "배당락일에 주가는 보통 **배당금만큼 조정**돼서 내려가요. 그래서 \"배당만 받고 파는\" 전략은 공짜가 아니에요."
+   ]
+  },
+  {
+   "type": "steps",
+   "title": "날짜 4개 흐름",
+   "items": [
+    {
+     "title": "선언일(Declaration date)",
+     "body": "회사가 \"이번에 배당을 얼마 주겠다\"고 **발표**하는 날이에요."
+    },
+    {
+     "title": "배당락일(Ex-dividend date)",
+     "body": "이 날 **이전에** 주식을 가지고 있어야 배당을 받아요. 이 날부터 사면 **이번 배당은 못 받아요.**"
+    },
+    {
+     "title": "기준일(Record date)",
+     "body": "회사가 **명부에 있는 주주**를 확인하는 날. 미국 T+1 결제에서는 배당락일과 같은 날이에요."
+    },
+    {
+     "title": "지급일(Payment date)",
+     "body": "배당금이 **계좌에 들어오는** 날이에요.",
+     "link": {
+      "label": "Investor.gov: 배당락일 설명",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/ex-dividend-dates-when-are-you-entitled-stock-and-cash-dividends"
+     }
+    }
+   ]
+  },
+  {
+   "type": "bars",
+   "title": "배당락일 전후 가격 (예시)",
+   "sub": "배당금 $1 · 배당락 전 종가 $100 가정",
+   "items": [
+    {
+     "label": "배당락일 전 종가",
+     "value": 100,
+     "display": "$100"
+    },
+    {
+     "label": "배당락일 시가(보통 배당만큼 조정)",
+     "value": 99,
+     "display": "$99",
+     "note": "실제 가격은 시장 상황에 따라 달라요"
+    },
+    {
+     "label": "내가 받는 배당",
+     "value": 1,
+     "display": "$1",
+     "highlight": true
+    }
+   ],
+   "max": 100,
+   "source": "※ 이해를 돕는 예시예요. 실제 주가는 시장·뉴스에 따라 크게 달라질 수 있어요."
+  },
+  {
+   "type": "compare",
+   "title": "배당 소득 세금 (개요)",
+   "columns": [
+    "종류",
+    "설명",
+    "메모"
+   ],
+   "rows": [
+    [
+     "Ordinary dividend",
+     "일반 소득세율로 과세",
+     "1099-DIV에 표시"
+    ],
+    [
+     "Qualified dividend",
+     "일정 보유 기간을 지키면 **더 낮은 세율** 적용 가능",
+     "보유 기간 규정 있음"
+    ],
+    [
+     "IRA 안의 배당",
+     "계좌 종류에 따라 과세 시점이 달라요",
+     "Roth·Traditional 규정 확인"
+    ]
+   ],
+   "highlight": 0,
+   "note": "※ 세법은 개정될 수 있어요. 해당 연도 IRS 안내와 세무사에게 확인하세요."
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "배당률이 높다고 좋은 게 아니에요",
+   "body": "주가가 크게 떨어져서 **배당 수익률이 올라 보이는** 경우도 있어요. 배당이 **이익에서 나오는지**, 줄어들 위험은 없는지 확인하세요."
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "투자 조언이 아니에요",
+   "body": "이 글은 **교육용 일반 정보**예요. 특정 종목·상품을 추천하지 않고, 투자는 **원금을 잃을 수 있어요.** 결정은 본인 책임이며 필요하면 라이선스를 가진 전문가와 상담하세요."
+  },
+  {
+   "type": "checklist",
+   "title": "배당 투자 전 체크리스트",
+   "items": [
+    "배당락일과 지급일을 확인했다",
+    "최근 배당 이력(늘었는지 줄었는지)을 확인했다",
+    "배당이 이익·현금흐름으로 감당 가능한지 봤다",
+    "세금(Qualified 여부)을 이해했다",
+    "배당만 보고 사지 않는다",
+    "배당 재투자(DRIP) 여부를 정했다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "Investor.gov: 배당락일",
+     "desc": "SEC 투자자 교육",
+     "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/ex-dividend-dates-when-are-you-entitled-stock-and-cash-dividends",
+     "tag": "정부"
+    },
+    {
+     "title": "IRS: 자본이득·배당 세금(Tax Topic 409)",
+     "desc": "주식 거래 세금 개요",
+     "url": "https://www.irs.gov/taxtopics/tc409",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "관심 종목 목록",
+     "desc": "배당락일·배당 여부를 기록해요",
+     "file": "/downloads/money/watchlist.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "배당락일 당일에 사면요?",
+     "a": "**배당락일 당일 매수는 이번 배당을 받지 못해요.** 전날까지 보유해야 해요."
+    },
+    {
+     "q": "배당은 자동으로 들어오나요?",
+     "a": "증권사 계좌에 **현금**으로 들어오거나 **재투자**로 설정할 수 있어요."
+    }
+   ]
+  }
+ ]
+}
