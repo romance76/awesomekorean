@@ -418,6 +418,7 @@
 </template>
 
 <script setup>
+import { SHOPPING_ALL } from '../../utils/shoppingCategories'
 import { ref, computed, watch, inject, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
@@ -459,10 +460,7 @@ function applyDeepLink() { const t = route.query.tab; if (typeof t === 'string' 
 applyDeepLink()
 watch(() => route.fullPath, () => { if (route.path === '/admin/shopping') applyDeepLink() })
 
-const categories = [
-  '인기상품', '오늘의 딜', '주방용품', '한국요리 관련 제품', '식품', '생활용품',
-  '가전/전자제품', '육아/교육', 'Beauty/K-Beauty', 'Home', '계절상품', '선물', 'Awesome Korean 추천',
-]
+const categories = SHOPPING_ALL
 
 const stats = ref({})
 const categoryStats = ref([])

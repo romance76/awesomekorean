@@ -118,6 +118,7 @@
 </template>
 
 <script setup>
+import { SHOPPING_CATEGORIES } from '../../utils/shoppingCategories'
 import { ref, reactive, computed, onMounted, nextTick, defineComponent, h } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import axios from 'axios'
@@ -131,10 +132,7 @@ const route = useRoute()
 const router = useRouter()
 const site = useSiteStore()
 const editId = computed(() => route.query.edit ? Number(route.query.edit) : null)
-const categories = [
-  '인기상품', '오늘의 딜', '주방용품', '한국요리 관련 제품', '식품', '생활용품',
-  '가전/전자제품', '육아/교육', 'Beauty/K-Beauty', 'Home', '계절상품', '선물',
-]
+const categories = SHOPPING_CATEGORIES
 
 const loading = ref(true)
 const tag = ref(null)

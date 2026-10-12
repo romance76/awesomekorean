@@ -31,10 +31,10 @@
 
     <!-- 내돈내산 소개 히어로 (검색/필터 중에는 숨김) -->
     <section v-if="showHero" class="card overflow-hidden mb-4">
-      <div class="grid lg:grid-cols-2">
-        <div class="p-6 lg:p-9 flex flex-col justify-center">
+      <div class="grid lg:grid-cols-[1fr_420px]">
+        <div class="p-5 lg:p-7 flex flex-col justify-center">
           <span class="text-xs font-bold tracking-wide" style="color:#FC226B">진짜 후기, 진짜 이야기</span>
-          <h2 class="text-2xl lg:text-4xl font-black text-ink leading-tight mt-2" style="letter-spacing:-0.03em">
+          <h2 class="text-2xl lg:text-3xl font-black text-ink leading-tight mt-2" style="letter-spacing:-0.03em">
             내가 산 물건,<br>내가 쓴 후기.<br><span style="color:#FC226B">후기가 용돈이 된다면?</span>
           </h2>
           <p class="text-sm lg:text-base text-ink-light leading-relaxed mt-3">
@@ -46,14 +46,16 @@
           </div>
           <p class="text-[11px] text-ink-faint mt-3">* 제휴 수익은 Amazon Associates 자격 및 적용 약관에 따라 달라집니다.</p>
         </div>
-        <div class="p-4 lg:p-6 bg-amber-50/60 grid grid-cols-2 gap-3 content-center">
-          <template v-if="heroProducts.length">
-            <RouterLink v-for="p in heroProducts" :key="p.id" :to="`/shopping/${p.id}`" class="rounded-2xl overflow-hidden bg-white border border-gray-100 block">
-              <div class="aspect-square bg-white flex items-center justify-center overflow-hidden"><img :src="p.image_url" :alt="p.title" loading="lazy" decoding="async" class="w-full h-full object-contain" @error="e=>e.target.style.display='none'" /></div>
-              <div class="px-2.5 py-2 text-xs font-semibold text-ink line-clamp-1">{{ p.title }}</div>
+        <!-- 새로 올라온 후기: 작은 썸네일 4개 (휴대폰은 한 줄, PC는 2×2) -->
+        <div class="p-4 lg:p-5 bg-amber-50/60 flex flex-col justify-center">
+          <div v-if="heroProducts.length" class="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1"><AppIcon name="sparkles" :size="13" />새로 올라온 후기</div>
+          <div v-if="heroProducts.length" class="grid grid-cols-4 lg:grid-cols-2 gap-2">
+            <RouterLink v-for="p in heroProducts" :key="p.id" :to="`/shopping/${p.id}`" class="rounded-xl overflow-hidden bg-white border border-gray-100 block hover:border-amber-200 transition-colors">
+              <div class="h-16 lg:h-24 bg-white flex items-center justify-center overflow-hidden p-1.5"><img :src="p.image_url" :alt="p.title" loading="lazy" decoding="async" class="max-w-full max-h-full object-contain" @error="e=>e.target.style.display='none'" /></div>
+              <div class="hidden lg:block px-2 pb-1.5 text-[11px] font-semibold text-ink line-clamp-1">{{ p.title }}</div>
             </RouterLink>
-          </template>
-          <div v-else class="col-span-2 rounded-2xl bg-white border border-gray-100 p-8 text-center text-ink-muted">
+          </div>
+          <div v-else class="rounded-2xl bg-white border border-gray-100 p-6 text-center text-ink-muted">
             <div class="icon-chip w-12 h-12 bg-amber-50 text-amber-600 mx-auto mb-2"><AppIcon name="shopping-bag" :size="24" /></div>
             <p class="text-sm font-bold text-ink">첫 번째 후기의 주인공이 되어 보세요</p>
           </div>
@@ -69,7 +71,7 @@
             <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-lime-600" />카테고리</div>
             <button @click="category=''; load(1)" class="w-full text-left px-3 py-2 text-xs transition-colors"
               :class="!category ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">전체</button>
-            <button v-for="c in categories" :key="c" @click="category=c; load(1)" class="w-full text-left px-3 py-2 text-xs transition-colors"
+            <button v-for="c in categories" :key="c" :style="c === firstProductCat ? 'border-top:1px solid #f1ebe4;margin-top:4px' : ''" @click="category=c; load(1)" class="w-full text-left px-3 py-2 text-xs transition-colors"
               :class="category===c ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ c }}</button>
           </div>
         </div>
@@ -83,6 +85,11 @@
             class="px-3 py-1.5 rounded-full text-xs font-bold border transition-colors"
             :class="chip === c.key ? 'bg-ink text-white border-ink' : 'bg-white text-ink-light border-gray-200 hover:border-gray-300'">{{ c.label }}</button>
         </div>
+        <!-- 휴대폰: 왼쪽 카테고리 목록 대신 고르기 상자 -->
+        <select v-model="category" @change="load(1)" aria-label="카테고리" class="lg:hidden input-soft w-full mb-3 text-sm">
+          <option value="">전체 카테고리</option>
+          <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+        </select>
         <div class="mb-2">
           <span class="font-bold text-amber-700 text-sm">{{ category || '전체' }}</span>
           <span v-if="!category" class="text-xs text-ink-muted ml-2">Awesome Korean이 고른 Amazon 추천 상품을 볼 수 있습니다</span>
@@ -137,6 +144,7 @@
 </div>
 </template>
 <script setup>
+import { SHOPPING_ALL, SHOPPING_CATEGORIES } from '../../utils/shoppingCategories'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSiteStore } from '../../stores/site'
@@ -167,10 +175,8 @@ function goWrite() { router.push('/shopping/write') }
 const showHero = computed(() => !search.value && !category.value && chip.value === 'all' && page.value === 1)
 const heroProducts = computed(() => products.value.filter(p => p.image_url).slice(0, 4))
 function scrollToList() { document.getElementById('review-list')?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }
-const categories = [
-  '인기상품', '오늘의 딜', '주방용품', '한국요리 관련 제품', '식품', '생활용품',
-  '가전/전자제품', '육아/교육', 'Beauty/K-Beauty', 'Home', '계절상품', '선물', 'Awesome Korean 추천',
-]
+const categories = SHOPPING_ALL
+const firstProductCat = SHOPPING_CATEGORIES[0] // 특별 묶음과 상품 분류 사이 구분선
 
 async function load(p = 1) {
   loading.value = true; page.value = p

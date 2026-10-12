@@ -19,7 +19,7 @@
           <div class="card overflow-hidden">
             <div class="px-3 py-2.5 border-b border-gray-50 font-bold text-xs text-ink flex items-center gap-1.5"><AppIcon name="list" :size="13" class="text-lime-600" />카테고리</div>
             <RouterLink to="/shopping" class="block w-full text-left px-3 py-2 text-xs text-ink-light hover:bg-amber-50/50 transition-colors">전체</RouterLink>
-            <RouterLink v-for="c in categories" :key="c" :to="{ path: '/shopping', query: { category: c } }"
+            <RouterLink v-for="c in categories" :key="c" :style="c === firstProductCat ? 'border-top:1px solid #f1ebe4;margin-top:4px' : ''" :to="{ path: '/shopping', query: { category: c } }"
               class="block w-full text-left px-3 py-2 text-xs transition-colors"
               :class="product.category === c ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">{{ c }}</RouterLink>
           </div>
@@ -119,6 +119,7 @@
 </div>
 </template>
 <script setup>
+import { SHOPPING_ALL, SHOPPING_CATEGORIES } from '../../utils/shoppingCategories'
 import { useModal } from '../../composables/useModal'
 import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, onMounted, watch } from 'vue'
@@ -147,10 +148,8 @@ async function removeMine() {
   if (!await showConfirm('이 리뷰를 삭제할까요?')) return
   try { await axios.delete(`/api/shopping/reviews/${product.value.id}`); router.replace('/dashboard?tab=reviews') } catch {}
 }
-const categories = [
-  '인기상품', '오늘의 딜', '주방용품', '한국요리 관련 제품', '식품', '생활용품',
-  '가전/전자제품', '육아/교육', 'Beauty/K-Beauty', 'Home', '계절상품', '선물', 'Awesome Korean 추천',
-]
+const categories = SHOPPING_ALL
+const firstProductCat = SHOPPING_CATEGORIES[0] // 특별 묶음과 상품 분류 사이 구분선
 
 const allImages = computed(() => {
   if (!product.value) return []
