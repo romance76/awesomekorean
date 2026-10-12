@@ -1,1 +1,3053 @@
-[]
+[
+ {
+  "topic": "자동차보험",
+  "kind": "info",
+  "title": "조지아 자동차보험 의무 보장(25/50/25)과 보장 항목 한눈에 보기",
+  "content": "조지아에서 차를 운전하려면 법으로 정한 최소 배상 책임 보험이 꼭 있어야 해요. 하지만 최소 보장만으로는 큰 사고 때 부족한 경우가 많아요. 보험 증권에 나오는 보장 항목을 하나씩 풀어 정리했어요.\n- 의무: 대인 1인 $25,000 / 사고당 $50,000, 대물 $25,000\n- 무보험 운전자 보장(UM)은 거절하지 않으면 붙는 선택 보장\n- 조지아 UM은 \"추가형(add-on)\"과 \"차감형(reduced by)\"이 있어요",
+  "image": "/images/money/topics/insurance-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$25,000",
+      "label": "대인(1인당)",
+      "note": "의무 최소",
+      "icon": "users"
+     },
+     {
+      "value": "$50,000",
+      "label": "대인(사고당)",
+      "note": "의무 최소",
+      "icon": "users"
+     },
+     {
+      "value": "$25,000",
+      "label": "대물(사고당)",
+      "note": "의무 최소",
+      "icon": "car"
+     },
+     {
+      "value": "10일",
+      "label": "보험 공백 = Lapse",
+      "note": "등록 정지 위험",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "조지아 보험청(OCI) 공식 설명 보기"
+   },
+   {
+    "type": "steps",
+    "title": "공식 화면 찾아가기",
+    "items": [
+     {
+      "title": "주소 줄에 oci.georgia.gov 를 입력하세요",
+      "body": "조지아 보험·소방안전청 공식 사이트예요."
+     },
+     {
+      "title": "MENU → Insurance Resources → Auto 를 누르세요",
+      "body": "아래 그림 \"Auto Insurance\" 화면이 나와요."
+     },
+     {
+      "title": "\"Liability Insurance\" 부분을 읽어 보세요",
+      "body": "조지아 운전자는 최소 한도 이상의 배상 책임 보험이 의무라는 설명이에요."
+     },
+     {
+      "title": "왼쪽 Auto 아래 Auto Claim Tips 도 읽어 두세요",
+      "body": "사고 났을 때 청구 요령이에요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 보험청(OCI) \"Auto Insurance\" 공식 화면",
+    "src": "/images/money/shots/oci-auto.jpg",
+    "pins": [
+     {
+      "x": 60,
+      "y": 36.3,
+      "text": "**Auto Insurance** — 조지아 주 공식 자동차보험 안내 페이지예요."
+     },
+     {
+      "x": 54,
+      "y": 71.6,
+      "text": "**Liability Insurance** — 법으로 정한 최소 배상 책임 보험 설명이에요."
+     },
+     {
+      "x": 28.5,
+      "y": 88.4,
+      "text": "**Auto** — 왼쪽 메뉴에서 자동차보험과 청구 요령(Auto Claim Tips)을 볼 수 있어요."
+     }
+    ],
+    "caption": "보험사와 분쟁이 생기면 같은 사이트의 Report Complaints & Fraud 로 민원을 넣을 수 있어요.",
+    "credit": "조지아 보험·소방안전청(OCI) 공식 사이트 oci.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "보장 항목 풀이"
+   },
+   {
+    "type": "compare",
+    "title": "자동차보험 보장 항목",
+    "columns": [
+     "항목",
+     "무엇을 보상하나",
+     "필수 여부"
+    ],
+    "rows": [
+     [
+      "Bodily Injury Liability(대인)",
+      "내 잘못으로 다친 남의 치료비·손해",
+      "필수(1인 $25,000 / 사고당 $50,000 이상)"
+     ],
+     [
+      "Property Damage Liability(대물)",
+      "내 잘못으로 망가진 남의 차·물건",
+      "필수($25,000 이상)"
+     ],
+     [
+      "Uninsured/Underinsured Motorist(UM)",
+      "보험 없거나 부족한 운전자가 나를 쳤을 때 내 손해",
+      "선택(서면으로 거절하지 않으면 제공)"
+     ],
+     [
+      "Collision(충돌)",
+      "사고로 망가진 내 차 수리",
+      "선택(대출·리스 차는 보통 요구)"
+     ],
+     [
+      "Comprehensive(종합)",
+      "도난, 우박, 나무 쓰러짐, 동물 충돌 등",
+      "선택(대출·리스 차는 보통 요구)"
+     ],
+     [
+      "Medical Payments(의료비)",
+      "나와 동승자 치료비(과실 무관)",
+      "선택"
+     ],
+     [
+      "Rental / Roadside",
+      "수리 중 렌터카, 견인",
+      "선택"
+     ]
+    ],
+    "highlight": 2
+   },
+   {
+    "type": "h",
+    "title": "조지아만의 UM 선택: 추가형 vs 차감형"
+   },
+   {
+    "type": "bars",
+    "title": "상대 운전자 보험 $25,000, 내 UM $50,000, 내 손해 $100,000일 때(예시)",
+    "sub": "받을 수 있는 최대 금액",
+    "items": [
+     {
+      "label": "추가형(Add-on)",
+      "value": 75000,
+      "display": "$75,000",
+      "note": "$25,000 + 내 UM $50,000",
+      "highlight": true
+     },
+     {
+      "label": "차감형(Reduced by)",
+      "value": 50000,
+      "display": "$50,000",
+      "note": "내 UM $50,000에서 상대 보험 $25,000을 뺀 만큼 추가"
+     }
+    ],
+    "max": 100000,
+    "source": "※ 가상 예시예요. 실제 지급은 과실·약관에 따라 달라요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "최소 보장은 정말 \"최소\"예요",
+    "body": "요즘 차 한 대 값이 $25,000을 넘는 경우가 많고, 병원비도 커요. 사고를 크게 내면 한도를 넘는 금액은 **내 재산으로 물어야** 할 수 있어요. 많은 소비자 단체는 대인 100/300, 대물 100 수준을 고려해 보라고 권해요. 보험료 차이를 견적으로 확인해 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 보험청(OCI)·국세청(DOR) 공식 자료와 보험사 공개 안내를 모아 운영팀이 정리했어요(2026년 10월 확인). 실제 보장은 내 보험 증권이 기준이에요.",
+    "items": [
+     {
+      "title": "조지아 OCI 공식: Auto Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/auto",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "Insurify: 2026 조지아 자동차보험 의무 기준",
+      "url": "https://insurify.com/blog/car-insurance/georgia-state-minimum-car-insurance-requirements",
+      "kind": "보험 비교 업체"
+     },
+     {
+      "title": "1-800-Insurance: 조지아 무보험 운전자 보장(추가형·차감형)",
+      "url": "https://www.1800insurance.com/guides/georgia-uninsured-motorist",
+      "kind": "보험 정보"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차보험",
+  "kind": "info",
+  "title": "자동차보험료 줄이는 법: 견적 비교, 공제액, 운전 습관 할인(Snapshot·Drive Safe & Save)",
+  "content": "같은 차·같은 운전자라도 보험사마다 보험료가 크게 달라요. 견적을 비교하는 법, 할인 항목, 그리고 앱으로 운전 습관을 측정해 할인해 주는 프로그램의 장단점을 정리했어요.\n- 6개월~1년마다 2~3곳 견적 비교\n- 공제액 조정, 묶음(Bundle) 할인, 무사고·학생 할인\n- 운전 습관 할인은 회사에 따라 오히려 오를 수도 있어요",
+  "image": "/images/money/topics/insurance-01.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "견적은 같은 조건으로"
+   },
+   {
+    "type": "checklist",
+    "title": "견적 받을 때 맞춰야 할 것",
+    "items": [
+     "대인·대물 한도(예: 100/300/100)",
+     "UM 한도와 추가형/차감형",
+     "Collision·Comprehensive 공제액(예: $500, $1,000)",
+     "렌터카·견인 특약 여부",
+     "운전자 명단(가족 모두)과 주행 거리"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "할인 항목 체크"
+   },
+   {
+    "type": "compare",
+    "title": "흔한 할인",
+    "columns": [
+     "할인",
+     "조건",
+     "확인"
+    ],
+    "rows": [
+     [
+      "묶음(Bundle)",
+      "집·렌트 보험과 같은 회사",
+      "묶은 총액이 정말 싼지 비교"
+     ],
+     [
+      "무사고(Safe driver)",
+      "최근 몇 년 사고·위반 없음",
+      "기록 기간은 회사마다 달라요"
+     ],
+     [
+      "학생 성적(Good student)",
+      "보통 평점 B 이상 학생",
+      "성적표 제출"
+     ],
+     [
+      "자동이체·일시불",
+      "6개월 치 한 번에 내기",
+      "할부 수수료가 없어지는 효과"
+     ],
+     [
+      "차량 안전장치",
+      "도난 방지, 자동 브레이크 등",
+      "차종 정보로 자동 적용되는 경우 많아요"
+     ],
+     [
+      "운전 습관(Telematics)",
+      "앱·기기로 운전 측정",
+      "아래 설명 참고"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "운전 습관 할인 프로그램"
+   },
+   {
+    "type": "compare",
+    "title": "대표 프로그램",
+    "columns": [
+     "",
+     "Progressive Snapshot",
+     "State Farm Drive Safe & Save"
+    ],
+    "rows": [
+     [
+      "측정 방법",
+      "폰 앱 또는 차에 꽂는 기기",
+      "폰 앱(일부는 차량 연결 장치)"
+     ],
+     [
+      "보는 것",
+      "급정거, 휴대폰 사용, 운전 시간대, 주행 거리 등",
+      "급정거·급가속, 휴대폰 사용, 주행 거리 등"
+     ],
+     [
+      "보험료가 오를 수도?",
+      "운전 점수가 나쁘면 오를 수 있어요",
+      "운전 습관으로는 안 올린다고 안내하지만 주행 거리 등으로 바뀔 수 있어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "각 회사의 주(州)별 약관이 기준이에요. 가입 전에 \"점수가 나쁘면 보험료가 오르나요?\"를 꼭 물어보세요."
+   },
+   {
+    "type": "shot",
+    "title": "Progressive 앱 첫 화면",
+    "src": "/images/money/shots/app-progressive-1.jpg",
+    "pins": [
+     {
+      "x": 13,
+      "y": 31,
+      "text": "**ID Cards** — 경찰이 보험 증명을 요구할 때 보여 주는 디지털 보험 카드예요."
+     },
+     {
+      "x": 43,
+      "y": 31,
+      "text": "**Report a Claim** — 사고가 나면 여기서 청구를 시작해요."
+     },
+     {
+      "x": 80,
+      "y": 31,
+      "text": "**Roadside Assistance** — 견인·배터리·타이어 긴급 출동이에요."
+     }
+    ],
+    "caption": "보험사 앱 첫 화면에서 보험 카드(ID Cards), 사고 청구(Report a Claim), 긴급 출동(Roadside Assistance)을 바로 쓸 수 있어요.",
+    "credit": "Progressive 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "steps",
+    "title": "견적 비교하는 순서",
+    "items": [
+     {
+      "title": "지금 보험 증권의 Declarations(요약 페이지)를 준비하세요",
+      "body": "보장 한도·공제액·보험료가 다 적혀 있어요."
+     },
+     {
+      "title": "같은 조건으로 2~3곳 온라인 견적을 받으세요",
+      "body": "대형사(State Farm·GEICO·Progressive·Allstate)와 지역 독립 에이전트를 섞으면 좋아요."
+     },
+     {
+      "title": "할인 항목이 다 적용됐는지 확인하세요",
+      "body": "견적 화면의 Discounts 목록을 보세요."
+     },
+     {
+      "title": "옮기기로 했다면 새 보험 시작일을 먼저 정하고 그다음 기존 보험을 해지하세요",
+      "body": "하루라도 공백이 생기면 조지아에서 등록 정지 위험이 있어요(다음 글)."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험 갈아탈 때 \"공백\"을 만들지 마세요",
+    "body": "새 보험이 시작되는 날과 기존 보험이 끝나는 날이 **같은 날**이어야 해요. 기존 보험부터 해지하면 공백이 생길 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 보험청(OCI)·국세청(DOR) 공식 자료와 보험사 공개 안내를 모아 운영팀이 정리했어요(2026년 10월 확인). 실제 보장은 내 보험 증권이 기준이에요.",
+    "items": [
+     {
+      "title": "Progressive 공식: Snapshot",
+      "url": "https://www.progressive.com/auto/discounts/snapshot/",
+      "kind": "보험사(공식)"
+     },
+     {
+      "title": "State Farm 공식: Drive Safe & Save",
+      "url": "https://www.statefarm.com/insurance/auto/discounts/drive-safe-save",
+      "kind": "보험사(공식)"
+     },
+     {
+      "title": "조지아 OCI 공식: Auto Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/auto",
+      "kind": "정부(공식, 조지아 주)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차보험",
+  "kind": "info",
+  "title": "조지아에서 자동차보험이 끊기면: 등록 정지, $25 벌금·$60 복구비, 차 팔 때 MV-18J",
+  "content": "조지아는 보험사가 주 정부에 보험 가입 상태를 전자로 보고해요. 그래서 보험이 10일 이상 끊기면 자동으로 \"보험 공백(lapse)\"으로 잡히고 차량 등록이 정지될 수 있어요. 조지아 국세청(DOR) 공식 안내 기준으로 정리했어요.\n- 10일 이상 연속 보험 없음 = 공백(lapse)\n- 복구: 벌금 $25 + 복구비 $60(5년 안에 3번째는 $160)\n- 차를 팔거나 안 탈 때는 보험 해지 전에 MV-18J로 등록 취소",
+  "image": "/images/money/topics/insurance-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "10일",
+      "label": "공백 기준",
+      "note": "연속 보험 없음",
+      "icon": "calendar"
+     },
+     {
+      "value": "$25",
+      "label": "공백 벌금",
+      "note": "Lapse fine",
+      "icon": "dollar"
+     },
+     {
+      "value": "$60",
+      "label": "복구비",
+      "note": "5년 내 3번째는 $160",
+      "icon": "dollar"
+     },
+     {
+      "value": "MV-18J",
+      "label": "등록 취소 양식",
+      "note": "차를 안 탈 때",
+      "icon": "edit"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "DOR 공식 화면 보기"
+   },
+   {
+    "type": "shot",
+    "title": "조지아 DOR \"Registration Suspension\" 공식 화면",
+    "src": "/images/money/shots/dor-lapse.jpg",
+    "pins": [
+     {
+      "x": 54.5,
+      "y": 55.3,
+      "text": "**Registration Suspension** — 보험 공백 등으로 등록이 정지되는 경우를 설명하는 공식 페이지예요."
+     },
+     {
+      "x": 25.5,
+      "y": 71.8,
+      "text": "**Online Services** — 벌금 납부 등 온라인 서비스(DRIVES e-Services)로 가는 메뉴예요."
+     },
+     {
+      "x": 25.5,
+      "y": 82.5,
+      "text": "**Cancel Registration** — 차를 안 탈 때 등록을 취소하는 안내예요."
+     }
+    ],
+    "caption": "본문에는 \"등록이 정지된 차를 운전하는 것은 범죄\"라는 경고가 있어요.",
+    "credit": "조지아 주 국세청(Department of Revenue) 공식 사이트 dor.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "정지됐을 때 복구하는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "DOR 안내 기준",
+    "items": [
+     {
+      "title": "보험을 다시 가입하세요(또는 공백 기간이 실수라면 보험사에 확인 요청)",
+      "body": "보험사가 주 정부 시스템에 전자로 보고해요. 반영까지 며칠 걸릴 수 있어요."
+     },
+     {
+      "title": "DOR 우편 통지서를 확인하세요",
+      "body": "공백이 생기면 보험을 복구하라는 통지가 와요."
+     },
+     {
+      "title": "DRIVES e-Services(온라인)에서 벌금 $25와 복구비 $60을 내세요",
+      "body": "5년 안에 세 번째 정지면 복구비가 $160이에요. 밀린 등록비·차량세가 있으면 함께 내요."
+     },
+     {
+      "title": "보험이 시스템에 올라가면 등록이 복구돼요",
+      "body": "카운티 태그 오피스(Tag Office)에 전화해 상태를 확인할 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 DOR \"Registration Reinstatement\" 공식 화면",
+    "src": "/images/money/shots/dor-reinstate.jpg",
+    "pins": [
+     {
+      "x": 63.6,
+      "y": 58,
+      "text": "**Registration Reinstatement After Suspension** — 정지된 등록 복구 방법 공식 안내예요."
+     },
+     {
+      "x": 65.5,
+      "y": 74.5,
+      "text": "**How do I get my registration reinstated?** — 복구 조건(보험 유지, 벌금·복구비 납부)이 이어서 나와요."
+     }
+    ],
+    "caption": "금액과 절차는 이 페이지가 기준이에요. 정확한 내 금액은 카운티 태그 오피스에 확인하세요.",
+    "credit": "조지아 주 국세청(Department of Revenue) 공식 사이트 dor.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "차를 팔거나 안 탈 때: 먼저 등록 취소"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "보험 해지 \"전에\" MV-18J",
+    "body": "차를 팔았거나, 도난·폐차됐거나, 오래 안 탈 예정이라면 **보험을 해지하기 전에(또는 같은 날)** 카운티 태그 오피스에 **MV-18J(등록 취소)** 를 내세요. 그래야 공백 벌금과 복구비가 안 붙어요."
+   },
+   {
+    "type": "checklist",
+    "title": "이럴 때 꼭 확인",
+    "items": [
+     "한국에 몇 달 다녀오느라 차를 세워 둘 때 — 보험 해지 대신 보장 축소(Comprehensive만)도 가능한지 보험사에 문의",
+     "차를 팔았을 때 — 번호판(태그)을 반납하거나 새 차로 옮기기",
+     "보험사를 바꿀 때 — 시작일·종료일 공백 없이",
+     "자동이체 카드가 바뀌었을 때 — 보험료 미납으로 해지되지 않도록"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 보험청(OCI)·국세청(DOR) 공식 자료와 보험사 공개 안내를 모아 운영팀이 정리했어요(2026년 10월 확인). 실제 보장은 내 보험 증권이 기준이에요.",
+    "items": [
+     {
+      "title": "조지아 DOR 공식: Registration Suspension(보험 공백 벌금)",
+      "url": "https://dor.georgia.gov/penalties-and-fines-lapse-insurance-coverage",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "조지아 DOR 공식: Registration Reinstatement After Suspension",
+      "url": "https://dor.georgia.gov/motor-vehicles/insurance/registration-reinstatement-after-suspension",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "ValuePenguin: 조지아 등록 정지 정리",
+      "url": "https://www.valuepenguin.com/auto-insurance/georgia/vehicle-registration-suspensions",
+      "kind": "보험 정보"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "주택보험",
+  "kind": "info",
+  "title": "렌터스 보험(세입자 보험) 기초: 무엇을 보장하고, 왜 싸고, 어떻게 가입하나",
+  "content": "아파트·집을 렌트해 살아도 내 물건과 배상 책임은 집주인 보험이 지켜 주지 않아요. 렌터스 보험(Renters insurance, HO-4)이 무엇을 보장하는지, 고를 때 볼 것과 가입 순서를 정리했어요.\n- 내 물건, 배상 책임, 임시 거처 비용 3가지가 핵심\n- 건물 자체는 집주인 보험 몫\n- 대체 비용(Replacement Cost)으로 고르기",
+  "image": "/images/money/topics/insurance-02.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "렌터스 보험의 3가지 보장"
+   },
+   {
+    "type": "compare",
+    "title": "보험 정보 연구소(III) 설명 기준",
+    "columns": [
+     "보장",
+     "내용",
+     "예"
+    ],
+    "rows": [
+     [
+      "내 물건(Personal property)",
+      "화재·연기·도난·파손·바람 등으로 잃은 물건",
+      "도둑이 노트북을 가져감, 옆집 화재로 가구가 탐"
+     ],
+     [
+      "배상 책임(Liability)",
+      "내가·가족·반려견이 남을 다치게 하거나 물건을 망가뜨렸을 때",
+      "우리 집 욕조가 넘쳐 아래층 천장이 젖음"
+     ],
+     [
+      "추가 생활비(ALE)",
+      "살 수 없게 돼 호텔·임시 거처를 쓸 때 늘어난 비용",
+      "화재 후 수리 기간 동안 호텔비"
+     ]
+    ],
+    "highlight": 0,
+    "note": "집 밖에서 잃은 물건도 일정 한도(예: 물건 보장의 10%)까지 보상되는 경우가 많아요."
+   },
+   {
+    "type": "h",
+    "title": "고를 때 볼 것"
+   },
+   {
+    "type": "checklist",
+    "title": "체크리스트",
+    "items": [
+     "**대체 비용(Replacement Cost)** 인지 — 실제 현금 가치(ACV)보다 약 10% 비싸지만 새것 살 돈을 받아요",
+     "내 물건 보장 금액 — 물건 목록을 대충 더해 보고 정하기(보통 $20,000~$40,000)",
+     "배상 책임 한도 — 보통 $100,000부터, 전문가들은 $300,000 이상 권하기도 해요",
+     "공제액 — $1,000으로 올리면 보험료가 최대 25%까지 내려갈 수 있어요(III)",
+     "보석·카메라 등 고가품 한도 — 따로 등록이 필요할 수 있어요",
+     "룸메이트·동거인은 보통 자동 보장이 아니에요 — 각자 가입하거나 이름을 올려야 해요"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "앱으로 가입하는 순서(예: Lemonade)"
+   },
+   {
+    "type": "steps",
+    "title": "대부분의 보험사 앱이 비슷해요",
+    "items": [
+     {
+      "title": "앱스토어에서 보험사 앱을 설치하세요",
+      "body": "Lemonade, State Farm, Allstate, GEICO 등 대부분 렌터스 보험을 팔아요. 지금 자동차보험 회사부터 확인하면 묶음 할인이 될 수 있어요."
+     },
+     {
+      "title": "Renters(렌터스)를 고르고 주소를 넣으세요",
+      "body": "아파트 이름·호수까지 정확히 넣어요."
+     },
+     {
+      "title": "질문에 답하세요: 물건 보장 금액, 공제액, 반려동물, 화재 경보기 등",
+      "body": "모르면 기본값으로 두고 나중에 바꿀 수 있어요."
+     },
+     {
+      "title": "배상 책임 한도와 대체 비용 옵션을 확인하세요",
+      "body": "화면 아래쪽 Coverage(보장) 메뉴에 있어요."
+     },
+     {
+      "title": "결제하고 증권(Declarations)을 이메일로 받아 집주인에게 보내세요",
+      "body": "많은 아파트가 입주 전에 렌터스 보험 증명을 요구해요. 집주인을 \"Interested party\"로 넣어 달라는 경우도 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "Lemonade 앱 화면",
+    "src": "/images/money/shots/app-lemonade-4.jpg",
+    "pins": [],
+    "caption": "보험사 앱에서는 이렇게 주소를 넣으면 보장 항목(도난, 화재, 물 피해 등)과 월 보험료가 바로 나와요. 화면의 가격은 광고 예시예요.",
+    "credit": "Lemonade 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "h",
+    "title": "기본 렌터스 보험이 안 하는 것"
+   },
+   {
+    "type": "checklist",
+    "title": "따로 확인",
+    "items": [
+     "홍수·지진 — 별도 보험",
+     "내 차 — 자동차보험으로(차 안의 물건은 렌터스 보험이 보상하기도 해요)",
+     "건물 자체(벽·지붕) — 집주인 보험",
+     "벌레·곰팡이·관리 소홀"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "보험 정보 연구소(III)·조지아 보험청 등 공식·공익 자료와 보험사 공개 안내를 모아 운영팀이 정리했어요(2026년 10월 확인).",
+    "items": [
+     {
+      "title": "III(보험 정보 연구소): Renters Insurance",
+      "url": "https://www.iii.org/article/renters-insurance",
+      "kind": "보험 업계 공익 자료"
+     },
+     {
+      "title": "Lemonade 공식: Renters Insurance",
+      "url": "https://www.lemonade.com/renters",
+      "kind": "보험사(공식)"
+     },
+     {
+      "title": "조지아 OCI 공식: Home Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/home",
+      "kind": "정부(공식, 조지아 주)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "주택보험",
+  "kind": "info",
+  "title": "주택보험 종류 HO-3·HO-5·HO-6·HO-4·DP-3, 내 집엔 어떤 게 맞을까",
+  "content": "주택보험 서류에 나오는 \"HO-3\", \"HO-6\" 같은 이름은 보험 양식(form) 종류예요. 단독주택, 콘도, 렌트, 세놓는 집에 따라 맞는 보험이 달라요. 종류별 차이를 표로 정리했어요.\n- 단독주택 실거주: 보통 HO-3\n- 콘도: HO-6, 렌트: HO-4\n- 세놓는 집: 일반 주택보험이 아니라 DP(집주인용) 보험",
+  "image": "/images/money/topics/insurance-02.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "종류별 비교"
+   },
+   {
+    "type": "compare",
+    "title": "주택보험 양식(form) 종류",
+    "columns": [
+     "종류",
+     "누구",
+     "특징"
+    ],
+    "rows": [
+     [
+      "HO-3",
+      "단독주택·타운홈 실거주 집주인",
+      "가장 흔해요. 건물은 제외 항목 빼고 대부분 보장, 물건은 정해진 위험만"
+     ],
+     [
+      "HO-5",
+      "단독주택(더 넓은 보장 원할 때)",
+      "건물·물건 모두 넓게 보장, 보험료 더 비쌈"
+     ],
+     [
+      "HO-6",
+      "콘도 소유자",
+      "내 유닛 안쪽과 물건, 배상 책임. 건물 외부는 HOA 마스터 보험"
+     ],
+     [
+      "HO-4",
+      "세입자",
+      "내 물건·배상 책임·추가 생활비(앞 글)"
+     ],
+     [
+      "DP-3",
+      "집을 세놓는 집주인",
+      "건물·임대료 손실 보장. 세입자 물건은 보장 안 해요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "보험사마다 이름과 세부 조건이 조금씩 달라요. 증권 첫 장의 \"Policy form\"을 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "살던 집을 세놓으면 보험을 바꿔야 해요",
+    "body": "내가 살던 집을 렌트로 돌렸는데 HO-3를 그대로 두면, 사고 때 **\"실거주가 아니다\"** 라는 이유로 보상이 거절될 수 있어요. 세놓기 전에 보험사에 알리고 **집주인용(DP-3 또는 Landlord policy)** 으로 바꾸세요."
+   },
+   {
+    "type": "h",
+    "title": "조지아 보험청에서 기본 개념 확인"
+   },
+   {
+    "type": "steps",
+    "title": "공식 설명 읽기",
+    "items": [
+     {
+      "title": "oci.georgia.gov 에 들어가세요",
+      "body": "조지아 보험·소방안전청 공식 사이트예요."
+     },
+     {
+      "title": "MENU → Insurance Resources → Home 을 누르세요",
+      "body": "주택보험이 무엇을 보장하는지 기본 설명이 나와요."
+     },
+     {
+      "title": "홍수·지진 제외 설명을 확인하세요",
+      "body": "\"대부분의 보험은 홍수·지진을 보장하지 않는다\"는 안내가 있어요."
+     },
+     {
+      "title": "보험사와 분쟁이 생기면 Report Complaints & Fraud 를 이용하세요",
+      "body": "주 보험청에 무료로 민원을 넣을 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 보험청(OCI) \"Home Insurance\" 공식 화면",
+    "src": "/images/money/shots/oci-home.jpg",
+    "pins": [
+     {
+      "x": 62,
+      "y": 36,
+      "text": "**Home Insurance** — 조지아 주 공식 주택보험 안내예요."
+     },
+     {
+      "x": 27.5,
+      "y": 83,
+      "text": "**보장 목록** — 주택보험의 기본 보장 항목이에요."
+     },
+     {
+      "x": 26,
+      "y": 50,
+      "text": "**Report Complaints & Fraud** — 보험 민원·사기 신고 메뉴예요."
+     }
+    ],
+    "caption": "보험 종류(HO-3 등)는 보험사 견적서나 증권 첫 장에 적혀 있어요.",
+    "credit": "조지아 보험·소방안전청(OCI) 공식 사이트 oci.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "보험 갱신 때마다 확인할 것"
+   },
+   {
+    "type": "checklist",
+    "title": "1년에 한 번",
+    "items": [
+     "건물 보장(Coverage A)이 지금 다시 짓는 비용에 맞는지 — 공사비가 오르면 부족해져요",
+     "리모델링·증축을 보험사에 알렸는지",
+     "바람·우박 공제액이 퍼센트로 바뀌지 않았는지",
+     "새로 산 고가품(보석·악기) 등록",
+     "집에서 사업을 시작했다면 홈 비즈니스 특약"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "보험 정보 연구소(III)·조지아 보험청 등 공식·공익 자료와 보험사 공개 안내를 모아 운영팀이 정리했어요(2026년 10월 확인).",
+    "items": [
+     {
+      "title": "조지아 OCI 공식: Home Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/home",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "III(보험 정보 연구소): Renters Insurance",
+      "url": "https://www.iii.org/article/renters-insurance",
+      "kind": "보험 업계 공익 자료"
+     },
+     {
+      "title": "United Policyholders: 조지아 주민용 보험 자료",
+      "url": "https://uphelp.org/recovery/state-by-state-help/georgia/",
+      "kind": "비영리 소비자 단체"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "주택보험",
+  "kind": "info",
+  "title": "보험 청구를 대비한 \"내 물건 목록\" 만드는 법: 폰 영상 10분이면 돼요",
+  "content": "불이 나거나 도둑이 들면 \"무엇을 잃었는지\" 내가 증명해야 해요. 기억만으로는 절반도 못 적는 경우가 많아요. 휴대폰으로 10분 만에 물건 목록(Home inventory)을 만드는 방법을 정리했어요.\n- 방마다 천천히 동영상 촬영 + 말로 설명\n- 고가품은 영수증·일련번호 사진\n- 클라우드에 저장해 집 밖에서도 꺼낼 수 있게",
+  "image": "/images/money/topics/insurance-02.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "왜 필요할까요"
+   },
+   {
+    "type": "text",
+    "body": [
+     "보험사는 청구할 때 **잃어버린 물건의 목록과 가치**를 요구해요. 미리 목록이 있으면 청구가 빨라지고, 보장 금액이 충분한지 판단하는 데도 도움이 돼요. 보험 정보 연구소(III)와 많은 보험사가 집주인·세입자 모두에게 물건 목록 만들기를 권해요."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "폰으로 10분 만에 만드는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "오늘 바로 해 보세요",
+    "items": [
+     {
+      "title": "휴대폰 카메라를 동영상 모드로 켜세요",
+      "body": "가로로 들고 찍으면 더 넓게 보여요."
+     },
+     {
+      "title": "현관부터 시작해 방마다 천천히 한 바퀴 찍으세요",
+      "body": "벽장·서랍도 열어서 비추세요."
+     },
+     {
+      "title": "찍으면서 말로 설명하세요",
+      "body": "\"삼성 65인치 TV, 2024년 코스트코에서 약 $900\" 처럼요."
+     },
+     {
+      "title": "고가품은 따로 사진을 찍으세요",
+      "body": "TV·노트북 뒷면 일련번호(Serial number), 보석, 악기, 자전거."
+     },
+     {
+      "title": "영수증은 사진으로 찍어 한 폴더에 모으세요",
+      "body": "이메일 영수증은 \"영수증\" 라벨을 붙여 보관."
+     },
+     {
+      "title": "영상·사진을 구글 드라이브나 아이클라우드에 올리세요",
+      "body": "집이 불에 타도 폰·클라우드에 남아 있어야 해요."
+     }
+    ]
+   },
+   {
+    "type": "phone",
+    "title": "폰 사진 앱에서",
+    "where": "big-card",
+    "label": "앨범 만들기 → \"우리집 물건 목록\"",
+    "caption": "사진 앱에서 **새 앨범**을 만들어 영상·영수증 사진을 모아 두세요. 구글 포토는 **공유 앨범**으로 가족과 같이 볼 수 있어요.",
+    "icon": "camera",
+    "headline": "Photos",
+    "kicker": "휴대폰에서"
+   },
+   {
+    "type": "h",
+    "title": "목록에 적을 것"
+   },
+   {
+    "type": "compare",
+    "title": "물건 목록 예시",
+    "columns": [
+     "물건",
+     "산 날짜·곳",
+     "대략 가격",
+     "증거"
+    ],
+    "rows": [
+     [
+      "TV(65인치)",
+      "2024 / 코스트코",
+      "$900",
+      "영상 + 일련번호 사진"
+     ],
+     [
+      "노트북",
+      "2025 / Best Buy",
+      "$1,200",
+      "이메일 영수증"
+     ],
+     [
+      "소파",
+      "2023 / IKEA",
+      "$1,100",
+      "영상"
+     ],
+     [
+      "금반지",
+      "선물",
+      "$600(감정서)",
+      "감정서 사진"
+     ]
+    ],
+    "highlight": 0,
+    "note": "엑셀이나 구글 시트로 이렇게 표를 만들어 두면 청구 때 그대로 보낼 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "1년에 한 번 업데이트",
+    "body": "보험 갱신 알림이 오면 그날 새로 산 물건만 추가로 찍어 두세요. 이사했으면 새 집에서 다시 찍으세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "보장 금액 점검에도 써요",
+    "body": "목록을 더해 보니 $40,000인데 렌터스 보험 물건 보장이 $15,000이라면 부족해요. 보장 금액을 올리는 비용은 생각보다 크지 않은 경우가 많아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "보험 정보 연구소(III)·조지아 보험청 등 공식·공익 자료와 보험사 공개 안내를 모아 운영팀이 정리했어요(2026년 10월 확인).",
+    "items": [
+     {
+      "title": "III(보험 정보 연구소): Renters Insurance",
+      "url": "https://www.iii.org/article/renters-insurance",
+      "kind": "보험 업계 공익 자료"
+     },
+     {
+      "title": "United Policyholders: 조지아 주민용 보험·재난 복구 자료",
+      "url": "https://uphelp.org/recovery/state-by-state-help/georgia/",
+      "kind": "비영리 소비자 단체"
+     },
+     {
+      "title": "조지아 OCI 공식: Home Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/home",
+      "kind": "정부(공식, 조지아 주)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "건강보험",
+  "kind": "info",
+  "title": "건강보험 플랜 고르는 기준: HMO·PPO·EPO 차이와 브론즈·실버·골드 읽는 법",
+  "content": "건강보험은 \"보험료가 싼 것\"보다 \"1년 동안 실제로 내는 총액\"으로 골라야 해요. 플랜 종류(HMO·PPO 등)와 등급(브론즈~골드), 공제액·본인부담 상한 같은 용어를 풀어서 정리했어요.\n- 월 보험료 + 공제액 + 본인부담 = 1년 총비용\n- HMO는 싸지만 주치의·네트워크 제한, PPO는 비싸지만 자유로움\n- 다니는 병원·약이 네트워크·약 목록에 있는지 먼저 확인",
+  "image": "/images/money/topics/insurance-03.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "먼저 용어 5개"
+   },
+   {
+    "type": "compare",
+    "title": "건강보험 기본 용어",
+    "columns": [
+     "용어",
+     "뜻",
+     "예"
+    ],
+    "rows": [
+     [
+      "Premium(보험료)",
+      "매달 내는 돈(병원 안 가도 내요)",
+      "월 $450"
+     ],
+     [
+      "Deductible(공제액)",
+      "보험이 본격적으로 내기 전에 내가 먼저 내는 금액",
+      "1년 $3,000"
+     ],
+     [
+      "Copay(정액 본인부담)",
+      "진료 한 번에 정해진 금액",
+      "주치의 $30, 전문의 $60"
+     ],
+     [
+      "Coinsurance(정률 본인부담)",
+      "공제액을 다 채운 뒤 내가 내는 비율",
+      "20%"
+     ],
+     [
+      "Out-of-pocket max(본인부담 상한)",
+      "1년에 내가 낼 최대 금액(보험료 제외)",
+      "이 금액을 넘으면 보험이 100%"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "플랜 종류: HMO·PPO·EPO·POS"
+   },
+   {
+    "type": "compare",
+    "title": "네트워크 방식 비교",
+    "columns": [
+     "종류",
+     "주치의 필요?",
+     "네트워크 밖 병원",
+     "보험료"
+    ],
+    "rows": [
+     [
+      "HMO",
+      "보통 필요, 전문의는 의뢰서",
+      "응급 외에는 보장 안 됨",
+      "낮은 편"
+     ],
+     [
+      "EPO",
+      "보통 불필요",
+      "응급 외에는 보장 안 됨",
+      "중간"
+     ],
+     [
+      "POS",
+      "필요",
+      "일부 보장(비쌈)",
+      "중간"
+     ],
+     [
+      "PPO",
+      "불필요",
+      "일부 보장(비쌈)",
+      "높은 편"
+     ]
+    ],
+    "highlight": 0,
+    "note": "HealthCare.gov 플랜 종류 설명을 바탕으로 정리했어요. 같은 이름이라도 보험사마다 세부 규칙이 달라요."
+   },
+   {
+    "type": "h",
+    "title": "등급: 브론즈·실버·골드·플래티넘"
+   },
+   {
+    "type": "bars",
+    "title": "보험이 평균적으로 내 주는 비율(등급별)",
+    "sub": "나머지는 내가 부담",
+    "items": [
+     {
+      "label": "브론즈",
+      "value": 60,
+      "display": "약 60%",
+      "note": "보험료 낮음, 공제액 높음"
+     },
+     {
+      "label": "실버",
+      "value": 70,
+      "display": "약 70%",
+      "note": "소득이 낮으면 추가 할인(CSR)",
+      "highlight": true
+     },
+     {
+      "label": "골드",
+      "value": 80,
+      "display": "약 80%",
+      "note": "보험료 높음, 병원 자주 가면 유리"
+     },
+     {
+      "label": "플래티넘",
+      "value": 90,
+      "display": "약 90%",
+      "note": "조지아에선 드물어요"
+     }
+    ],
+    "max": 100,
+    "source": "※ 평균적인 비율이에요. 실제 부담은 어떤 진료를 받느냐에 따라 달라요."
+   },
+   {
+    "type": "h",
+    "title": "나한테 맞는 플랜 고르는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "이 순서로 비교하세요",
+    "items": [
+     {
+      "title": "작년에 병원·약에 쓴 돈을 대충 적어 보세요",
+      "body": "주치의 몇 번, 전문의, 정기 약, 큰 수술 예정 여부."
+     },
+     {
+      "title": "다니는 의사·병원이 네트워크에 있는지 확인하세요",
+      "body": "플랜 상세의 \"Find a doctor / Provider directory\"에서 의사 이름으로 검색해요."
+     },
+     {
+      "title": "먹는 약이 약 목록(Formulary)에 있는지 확인하세요",
+      "body": "약 이름과 등급(Tier)을 보면 약값을 짐작할 수 있어요."
+     },
+     {
+      "title": "후보 플랜 2~3개의 1년 총비용을 계산하세요",
+      "body": "보험료 × 12 + 예상 본인부담(공제액·코페이). 최악의 경우는 보험료 × 12 + 본인부담 상한."
+     },
+     {
+      "title": "건강하고 병원을 거의 안 가면 HSA 가능한 고공제 플랜(HDHP)도 보세요",
+      "body": "2027년 HSA 납입 한도는 개인 $4,500, 가족 $9,000(IRS)."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 주 건강보험 거래소 Georgia Access 공식 화면",
+    "src": "/images/money/shots/ga-access.jpg",
+    "pins": [
+     {
+      "x": 11,
+      "y": 31.5,
+      "text": "**Individuals & Families** — 개인·가족용 플랜 안내와 가입 메뉴예요."
+     },
+     {
+      "x": 60,
+      "y": 31.5,
+      "text": "**Help & Support** — 무료 상담(인증 에이전트·도우미) 찾기 메뉴예요."
+     },
+     {
+      "x": 68,
+      "y": 17.2,
+      "text": "**Search** — 사이트 안에서 검색해요."
+     },
+     {
+      "x": 1.6,
+      "y": 56,
+      "text": "**Special Enrollment Period** — 가입 기간이 아니어도 이사·결혼·출산·직장 보험 상실 같은 일이 있으면 가입할 수 있어요."
+     }
+    ],
+    "caption": "조지아는 2024년 11월부터 HealthCare.gov 대신 주 자체 거래소 Georgia Access(georgiaaccess.gov)를 써요.",
+    "credit": "조지아 주 건강보험 거래소 Georgia Access 공식 사이트 화면을 직접 캡처했어요(아래쪽 쿠키 안내 줄은 잘라냈어요)."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "\"보험료 싼 브론즈\"가 손해인 경우",
+    "body": "당뇨·고혈압처럼 매달 약과 진료가 필요한 분은 공제액이 높은 브론즈보다 **실버·골드가 1년 총액으로 더 쌀 수** 있어요. 꼭 1년 총비용으로 비교하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 주 건강보험 거래소(Georgia Access)·IRS·HealthCare.gov 공식 자료와 언론 보도를 모아 운영팀이 정리했어요(2026년 10월 확인). 보험료·보조금은 해마다 바뀌어요.",
+    "items": [
+     {
+      "title": "HealthCare.gov 공식: 건강보험 플랜 종류(HMO·PPO·EPO·POS)",
+      "url": "https://www.healthcare.gov/choose-a-plan/plan-types/",
+      "kind": "정부(공식, CMS)"
+     },
+     {
+      "title": "Georgia Access 공식 사이트",
+      "url": "https://georgiaaccess.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "Lockton: IRS 2027 HSA·HDHP 한도",
+      "url": "https://global.lockton.com/us/en/news-insights/irs-releases-hsa-and-high-deductible-health-plan-limits-for-2027",
+      "kind": "보험 컨설팅사 자료"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "건강보험",
+  "kind": "info",
+  "title": "2027년 건강보험 가입(Georgia Access): 11월 1일 시작, 보조금 변화와 보험료 인상 대비",
+  "content": "회사 보험이 없는 분은 조지아 주 거래소 Georgia Access에서 개인 건강보험에 가입해요. 2027년 플랜 가입은 2026년 11월 1일에 시작해요. 2026년부터 연방 보조금 확대가 끝나 보조금이 줄었고, 2027년 보험료도 많이 오를 것으로 보도됐어요. 준비할 것을 정리했어요.\n- 가입 시작: 2026년 11월 1일(마감일은 georgiaaccess.gov 확인)\n- 2026년부터 소득이 빈곤선 400%를 넘으면 보조금 없음\n- 기존 가입자도 꼭 다시 비교(자동 갱신에 맡기지 말기)",
+  "image": "/images/money/topics/insurance-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "11월 1일",
+      "label": "2027년 플랜 가입 시작",
+      "note": "georgiaaccess.gov",
+      "icon": "calendar"
+     },
+     {
+      "value": "400% FPL",
+      "label": "보조금 소득 상한 부활",
+      "note": "2026년부터",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "$62,600",
+      "label": "1인 가구 400% FPL",
+      "note": "2026년 보장 기준",
+      "icon": "dollar"
+     },
+     {
+      "value": "20%↑",
+      "label": "2027 보험료 인상 전망",
+      "note": "대부분 보험사(보도)",
+      "icon": "trending-up"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "무엇이 바뀌었나"
+   },
+   {
+    "type": "text",
+    "body": [
+     "2021~2025년에는 \"확대된 보험료 보조금(enhanced premium tax credit)\" 덕분에 소득이 높아도 보험료가 소득의 8.5%를 넘지 않게 도움을 받았어요. 이 확대 조치는 **2025년 12월 31일에 끝났어요.** 그래서 2026년부터는 소득이 **연방 빈곤선의 400%** (2026년 보장 기준 1인 $62,600, 4인 $128,600)를 넘으면 보조금을 받을 수 없어요.",
+     "애틀랜타 저널 컨스티튜션(AJC)은 2027년 조지아 거래소 보험료가 대부분 보험사에서 **20% 이상 오를 것**이라는 8월 자료를 보도했어요(최종 확정 전 수치)."
+    ]
+   },
+   {
+    "type": "h",
+    "title": "가입·갱신 순서"
+   },
+   {
+    "type": "steps",
+    "title": "Georgia Access에서",
+    "items": [
+     {
+      "title": "georgiaaccess.gov 에 들어가세요",
+      "body": "조지아 주 공식 거래소예요. 비슷한 이름의 광고 사이트에 개인정보를 넣지 마세요."
+     },
+     {
+      "title": "Individuals & Families 메뉴에서 플랜 보기·가입을 고르세요",
+      "body": "가입은 Georgia Access 포털이나 인증된 에이전트·브로커 사이트를 통해 해요."
+     },
+     {
+      "title": "2027년 예상 소득을 넣으세요",
+      "body": "보조금은 \"올해 실제 소득\"이 아니라 \"내년 예상 소득\"으로 정해지고, 다음 해 세금 신고 때 정산돼요."
+     },
+     {
+      "title": "지금 플랜과 새 플랜을 1년 총비용으로 비교하세요",
+      "body": "보험사가 시장에서 빠지면 다른 플랜을 꼭 골라야 해요."
+     },
+     {
+      "title": "1월 1일부터 보장받으려면 일찍 가입하고 첫 보험료를 내세요",
+      "body": "마감일은 사이트 공지를 확인하세요. 첫 보험료를 안 내면 보장이 시작되지 않아요."
+     },
+     {
+      "title": "무료 도움: Georgia Access 고객센터 888-687-1503(TTY 711)",
+      "body": "평일 오전 8시~오후 10시(동부). Help & Support 에서 동네 인증 도우미도 찾을 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "Georgia Access 공식 화면",
+    "src": "/images/money/shots/ga-access.jpg",
+    "pins": [
+     {
+      "x": 11,
+      "y": 31.5,
+      "text": "**Individuals & Families** — 플랜 보기와 가입 시작 메뉴예요."
+     },
+     {
+      "x": 60,
+      "y": 31.5,
+      "text": "**Help & Support** — 무료로 도와주는 인증 에이전트·도우미 찾기예요."
+     },
+     {
+      "x": 1.6,
+      "y": 56,
+      "text": "**Special Enrollment Period** — 가입 기간 밖이라도 결혼·출산·이사·직장 보험 상실 때 가입할 수 있어요."
+     }
+    ],
+    "caption": "맨 위 초록 상자는 공휴일 고객센터 휴무 안내예요.",
+    "credit": "조지아 주 건강보험 거래소 Georgia Access 공식 사이트 화면을 직접 캡처했어요(아래쪽 쿠키 안내 줄은 잘라냈어요)."
+   },
+   {
+    "type": "h",
+    "title": "보험료 부담 줄이는 방법"
+   },
+   {
+    "type": "checklist",
+    "title": "확인해 볼 것",
+    "items": [
+     "소득이 빈곤선 400% 근처라면 — 은퇴계좌(401k·IRA) 납입으로 소득(MAGI)을 낮추면 보조금 자격이 될 수도 있어요(세무사 확인)",
+     "실버 플랜 + 소득이 낮으면 — 본인부담을 줄여 주는 추가 할인(CSR)",
+     "브론즈 + HSA — 건강하고 병원을 거의 안 가는 경우",
+     "자녀는 PeachCare for Kids 자격도 확인(다음 주제)",
+     "배우자 회사 보험의 가족 보험료와 비교"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"보험 같은 것\"을 조심하세요",
+    "body": "아주 싼 \"health plan\", \"medical discount card\", \"health sharing ministry\"는 ACA 정식 보험이 아닐 수 있어요. 기존 질환을 보장하지 않거나 보장 한도가 낮아요. 가입 전에 **Georgia Access에 등록된 플랜인지** 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 주 건강보험 거래소(Georgia Access)·IRS·HealthCare.gov 공식 자료와 언론 보도를 모아 운영팀이 정리했어요(2026년 10월 확인). 보험료·보조금은 해마다 바뀌어요.",
+    "items": [
+     {
+      "title": "Georgia Access 공식 사이트",
+      "url": "https://georgiaaccess.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "AJC: 조지아 2027년 거래소 보험료 인상 보도",
+      "url": "https://www.ajc.com/news/2026/10/georgia-2027-aca-marketplace-higher-prices/",
+      "kind": "언론 보도"
+     },
+     {
+      "title": "HealthCare.gov 공식: 보험료 낮추기(보조금)",
+      "url": "https://www.healthcare.gov/lower-costs/",
+      "kind": "정부(공식, CMS)"
+     },
+     {
+      "title": "의회조사국(CRS): 확대 보조금 종료 FAQ",
+      "url": "https://www.everycrsreport.com/reports/R48290.html",
+      "kind": "정부(의회조사국)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "건강보험",
+  "kind": "info",
+  "title": "회사 건강보험 연례 가입(Open Enrollment) 체크리스트: HSA·FSA까지 한 번에",
+  "content": "회사를 다니면 보통 가을에 다음 해 보험을 고르는 \"연례 가입 기간\"이 있어요. 이때 고른 것은 1년 동안 바꾸기 어려워요. 회사 보험을 고를 때 볼 것과 HSA·FSA 차이를 2027년 기준으로 정리했어요.\n- 가족 보험료(Employee + Family) 차이가 커요\n- HSA: 고공제 플랜(HDHP)일 때만, 2027년 개인 $4,500·가족 $9,000\n- FSA: 그해 못 쓰면 사라질 수 있어요",
+  "image": "/images/money/topics/insurance-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$4,500",
+      "label": "2027 HSA 개인 한도",
+      "note": "IRS",
+      "icon": "dollar"
+     },
+     {
+      "value": "$9,000",
+      "label": "2027 HSA 가족 한도",
+      "note": "IRS",
+      "icon": "dollar"
+     },
+     {
+      "value": "$1,750",
+      "label": "2027 HDHP 최소 공제액",
+      "note": "개인",
+      "icon": "shield"
+     },
+     {
+      "value": "+$1,000",
+      "label": "55세 이상 HSA 추가",
+      "note": "변동 없음",
+      "icon": "plus"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "연례 가입 때 순서"
+   },
+   {
+    "type": "steps",
+    "title": "회사 복리후생(Benefits) 사이트에서",
+    "items": [
+     {
+      "title": "회사 HR이 보낸 Open Enrollment 안내 메일에서 기간과 사이트를 확인하세요",
+      "body": "보통 10~11월, 2~3주 정도예요. 놓치면 내년까지 못 바꿀 수 있어요."
+     },
+     {
+      "title": "올해 플랜과 내년 플랜의 바뀐 점(보험료·공제액·네트워크)을 비교하세요",
+      "body": "\"Summary of Benefits and Coverage(SBC)\" 문서에 같은 양식으로 정리돼 있어요."
+     },
+     {
+      "title": "가족 구성원별 보험료를 확인하세요",
+      "body": "Employee only / Employee + Spouse / Employee + Child(ren) / Family. 배우자 회사 보험과 나눠 드는 게 쌀 수도 있어요."
+     },
+     {
+      "title": "치과·안과·생명·장애 보험도 같이 확인하세요",
+      "body": "회사 보험은 단체라 싸거나, 회사가 일부를 내 주는 경우가 많아요."
+     },
+     {
+      "title": "HSA 또는 FSA 납입액을 정하세요",
+      "body": "아래 표를 참고하세요."
+     },
+     {
+      "title": "제출 후 확인서(Confirmation)를 저장하세요",
+      "body": "1월 첫 월급 명세서에서 공제액이 맞는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "phone",
+    "title": "회사 복리후생 사이트에서",
+    "where": "list-item",
+    "label": "Benefits → Open Enrollment",
+    "caption": "회사 HR 사이트(Workday, ADP 등)에 로그인해 **Benefits(복리후생)** → **Open Enrollment** 또는 **Change Benefits** 를 누르면 플랜 비교 화면이 나와요.",
+    "icon": "briefcase",
+    "headline": "Benefits",
+    "kicker": "회사 HR 사이트"
+   },
+   {
+    "type": "h",
+    "title": "HSA vs FSA"
+   },
+   {
+    "type": "compare",
+    "title": "세금 혜택 의료비 계좌 비교",
+    "columns": [
+     "",
+     "HSA(건강저축계좌)",
+     "FSA(유연지출계좌)"
+    ],
+    "rows": [
+     [
+      "가입 조건",
+      "고공제 플랜(HDHP)에 가입해야 함",
+      "회사가 제공하면 대부분 가능"
+     ],
+     [
+      "2027년 한도",
+      "개인 $4,500 / 가족 $9,000(55세 이상 +$1,000)",
+      "회사 안내 확인(IRS가 매년 발표)"
+     ],
+     [
+      "남은 돈",
+      "내 돈, 계속 쌓이고 투자도 가능",
+      "그해 못 쓰면 사라질 수 있어요(일부 이월·유예 허용)"
+     ],
+     [
+      "회사 옮기면",
+      "계좌를 가지고 가요",
+      "보통 끝나요"
+     ],
+     [
+      "세금",
+      "넣을 때·불어날 때·의료비로 쓸 때 모두 비과세",
+      "넣을 때 비과세"
+     ]
+    ],
+    "highlight": 1,
+    "note": "HSA 한도는 IRS Rev. Proc. 2026-24 기준. FSA 한도는 회사 안내를 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "HSA는 \"의료비 은퇴 계좌\"로도 써요",
+    "body": "건강하다면 HSA 돈을 바로 쓰지 않고 투자해 두었다가 나중에 의료비로 쓰는 분도 많아요. 영수증만 보관하면 몇 년 뒤에 꺼내 써도 돼요(IRS 규정 확인)."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "FSA는 \"쓸 만큼만\"",
+    "body": "FSA는 연말까지 못 쓰면 사라지는 돈이 생길 수 있어요. 안경·치과·정기 약처럼 **확실히 쓸 금액만** 넣으세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 주 건강보험 거래소(Georgia Access)·IRS·HealthCare.gov 공식 자료와 언론 보도를 모아 운영팀이 정리했어요(2026년 10월 확인). 보험료·보조금은 해마다 바뀌어요.",
+    "items": [
+     {
+      "title": "Lockton: IRS 2027 HSA·HDHP 한도(Rev. Proc. 2026-24)",
+      "url": "https://global.lockton.com/us/en/news-insights/irs-releases-hsa-and-high-deductible-health-plan-limits-for-2027",
+      "kind": "보험 컨설팅사 자료"
+     },
+     {
+      "title": "IRS 공식: Publication 969(HSA·FSA)",
+      "url": "https://www.irs.gov/publications/p969",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "HealthCare.gov 공식: 플랜 종류",
+      "url": "https://www.healthcare.gov/choose-a-plan/plan-types/",
+      "kind": "정부(공식, CMS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "Medicaid·PeachCare",
+  "kind": "info",
+  "title": "PeachCare for Kids: 19세 미만 아이 건강보험, 소득 기준과 월 보험료(조지아)",
+  "content": "PeachCare for Kids는 Medicaid 대상은 아니지만 소득이 많지 않은 가정의 19세 미만 아이를 위한 조지아 주 건강보험이에요. 의사·치과·안과·약까지 보장되고 보험료가 낮아요. 소득 기준표와 보험료, 신청 순서를 공식 자료로 정리했어요.\n- 대상: 19세 생일 전까지, 보험 없는 아이\n- 소득: 연방 빈곤선 247% 이하(4인 가구 월 약 $6,422, DCH 표 기준)\n- 6세 미만은 보험료·코페이 없음",
+  "image": "/images/money/topics/insurance-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "19세 미만",
+      "label": "대상 나이",
+      "note": "19세 생일 전까지",
+      "icon": "baby"
+     },
+     {
+      "value": "247%",
+      "label": "소득 기준",
+      "note": "연방 빈곤선 대비",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "$0",
+      "label": "6세 미만 보험료",
+      "note": "DFCS 정책",
+      "icon": "heart-handshake"
+     },
+     {
+      "value": "$72",
+      "label": "가족 월 보험료 상한",
+      "note": "DFCS 정책 2194",
+      "icon": "dollar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "공식 소득 기준표 보기"
+   },
+   {
+    "type": "shot",
+    "title": "조지아 DCH \"PeachCare for Kids 자격 기준\" 공식 화면",
+    "src": "/images/money/shots/dch-elig.jpg",
+    "pins": [
+     {
+      "x": 65,
+      "y": 36,
+      "text": "**Eligibility Criteria** — PeachCare for Kids 자격 기준 공식 페이지예요."
+     },
+     {
+      "x": 58,
+      "y": 78,
+      "text": "**가족 수별 월 소득 상한** — 예: 4인 가족 $6,422, 3인 $5,315(이 표 기준). 표는 매년 바뀌어요."
+     },
+     {
+      "x": 26,
+      "y": 55.4,
+      "text": "**Applications** — 신청 방법 안내로 가는 메뉴예요."
+     }
+    ],
+    "caption": "소득은 세금 떼기 전(gross) 금액 기준이에요. 표 아래쪽에 시민권·소득 확인 방법도 나와요.",
+    "credit": "조지아 지역사회보건부(DCH) 공식 사이트 dch.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "보험료(DFCS 정책 기준)"
+   },
+   {
+    "type": "compare",
+    "title": "월 보험료",
+    "columns": [
+     "구분",
+     "보험료"
+    ],
+    "rows": [
+     [
+      "6세 미만 아이",
+      "없음(코페이도 없음)"
+     ],
+     [
+      "위탁 아동, 아메리카 원주민·알래스카 원주민",
+      "없음"
+     ],
+     [
+      "6세 이상, 소득 구간별",
+      "아이 1명당 월 $11부터 소득에 따라 올라가요"
+     ],
+     [
+      "가족 전체 상한",
+      "월 $72"
+     ]
+    ],
+    "highlight": 1,
+    "note": "조지아 DFCS Medicaid 정책 매뉴얼 2194(2026년 5월 시행) 기준이에요. 정확한 금액은 승인 통지서로 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "누가 받을 수 있나"
+   },
+   {
+    "type": "checklist",
+    "title": "자격 체크리스트",
+    "items": [
+     "19세 미만(19번째 생일 전까지)",
+     "조지아 거주",
+     "미국 시민권자 또는 자격 있는 이민자(합법 영주권자는 대기 기간 등 조건 확인)",
+     "가구 소득이 연방 빈곤선 247% 이하",
+     "다른 건강보험이 없음(직장 보험 가입 가능 여부 등 조건 확인)",
+     "Medicaid 대상이 아님(소득이 더 낮으면 Medicaid로 연결돼요)"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "신청 순서"
+   },
+   {
+    "type": "steps",
+    "title": "Georgia Gateway에서",
+    "items": [
+     {
+      "title": "gateway.ga.gov 에 들어가 계정을 만드세요",
+      "body": "조지아 주 복지 신청 통합 사이트예요. Medicaid·PeachCare·SNAP을 한 번에 신청할 수 있어요."
+     },
+     {
+      "title": "Apply for Benefits 에서 Medical Assistance(의료 지원)를 고르세요",
+      "body": "아이 정보와 가구원, 소득을 입력해요."
+     },
+     {
+      "title": "서류를 올리세요",
+      "body": "급여 명세서, 아이 출생증명서·SSN, 이민 서류(해당 시)."
+     },
+     {
+      "title": "결과 통지서를 기다리세요",
+      "body": "PeachCare 승인 시 보험료 금액과 건강보험 회사(CMO) 선택 안내가 와요."
+     },
+     {
+      "title": "보험료를 제때 내세요",
+      "body": "밀리면 보장이 끊길 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "이민자 가정도 확인해 보세요",
+    "body": "아이가 미국 시민권자라면 부모의 체류 신분과 상관없이 아이 이름으로 신청할 수 있어요. 아이 혜택 신청 때 부모 SSN이 없어도 되는 경우가 있으니 DFCS나 지역 지원 단체에 문의하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 지역사회보건부(DCH)·가족아동서비스국(DFCS) 공식 자료와 언론 보도를 모아 운영팀이 정리했어요(2026년 10월 확인). 소득 기준은 매년 바뀌니 신청 전 공식 사이트에서 확인하세요.",
+    "items": [
+     {
+      "title": "조지아 DCH 공식: PeachCare for Kids 자격 기준",
+      "url": "https://dch.georgia.gov/peachcare-kids/eligibility-criteria",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "조지아 DFCS 공식: 정책 매뉴얼 2194 PeachCare for Kids",
+      "url": "https://pamms.dhs.ga.gov/dfcs/medicaid/2194/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "Georgia Gateway 공식(신청)",
+      "url": "https://gateway.ga.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "Medicaid·PeachCare",
+  "kind": "info",
+  "title": "조지아 Medicaid 신청하는 법: Georgia Gateway 사용 순서와 누가 받을 수 있나",
+  "content": "조지아는 Medicaid를 \"모든 저소득 성인\"으로 넓히지 않은 주라서, 아이·임신부·65세 이상·장애인 등 정해진 그룹 위주로 받아요. Georgia Gateway에서 신청하는 순서와 그룹별 차이를 정리했어요.\n- 주요 대상: 아이, 임신부, 부모·보호자(소득 매우 낮음), 65세 이상·시각장애·장애인\n- 성인은 Georgia Pathways(다음 글)도 확인\n- 신청은 온라인 Georgia Gateway, 전화, DFCS 사무소",
+  "image": "/images/money/topics/insurance-04.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "조지아 Medicaid 공식 사이트"
+   },
+   {
+    "type": "shot",
+    "title": "조지아 Medicaid 공식 화면",
+    "src": "/images/money/shots/ga-medicaid.jpg",
+    "pins": [
+     {
+      "x": 51,
+      "y": 36,
+      "text": "**Medical Assistance Plans** — 조지아 의료 지원 프로그램 공식 안내예요."
+     },
+     {
+      "x": 14,
+      "y": 84,
+      "text": "**Basic Eligibility** — 기본 자격 안내로 가는 카드예요."
+     },
+     {
+      "x": 32,
+      "y": 84,
+      "text": "**PeachCare for Kids** — 아이 건강보험 안내 카드예요."
+     }
+    ],
+    "caption": "아래쪽 카드들(임신 계획, TEFRA/Katie Beckett 등)을 누르면 그룹별 안내가 나와요.",
+    "credit": "조지아 지역사회보건부(DCH) Georgia Medicaid 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "누가 받을 수 있나(주요 그룹)"
+   },
+   {
+    "type": "compare",
+    "title": "조지아 Medicaid 주요 그룹",
+    "columns": [
+     "그룹",
+     "내용"
+    ],
+    "rows": [
+     [
+      "아이(19세 미만)",
+      "소득 기준 이하면 Medicaid, 조금 넘으면 PeachCare"
+     ],
+     [
+      "임신부",
+      "임신 중과 출산 후 일정 기간 보장(소득 기준이 비교적 높아요)"
+     ],
+     [
+      "부모·보호자",
+      "소득이 매우 낮은 가정의 부모(기준이 낮아요)"
+     ],
+     [
+      "65세 이상·시각장애·장애인(ABD)",
+      "소득·재산 기준. Medicare와 함께 받는 경우도 있어요"
+     ],
+     [
+      "장애 아동(TEFRA/Katie Beckett)",
+      "부모 소득과 상관없이 아이 기준으로 심사"
+     ],
+     [
+      "일반 성인(19~64세)",
+      "전통 Medicaid 대상이 아니면 Georgia Pathways 확인"
+     ]
+    ],
+    "highlight": 0,
+    "note": "조지아 Medicaid 공식 사이트의 프로그램 분류 기준이에요. 그룹별 소득 기준은 사이트에서 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "Georgia Gateway 신청 순서"
+   },
+   {
+    "type": "steps",
+    "title": "천천히 따라 하세요",
+    "items": [
+     {
+      "title": "주소 줄에 gateway.ga.gov 를 입력하세요",
+      "body": "\"Welcome to Georgia Gateway\" 화면이 나오면 맞아요."
+     },
+     {
+      "title": "Create an Account 로 계정을 만드세요",
+      "body": "이메일과 비밀번호, 보안 질문을 설정해요."
+     },
+     {
+      "title": "Apply for Benefits → Medical Assistance 를 고르세요",
+      "body": "SNAP(식료품 지원)도 같이 신청할 수 있어요."
+     },
+     {
+      "title": "가구원, 소득, 재산, 현재 보험 정보를 입력하세요",
+      "body": "모르는 칸은 비워 두지 말고 DFCS에 물어보세요."
+     },
+     {
+      "title": "서류를 사진으로 올리세요(Upload Documents)",
+      "body": "신분증, 소득 증명, 이민 서류(해당 시)."
+     },
+     {
+      "title": "통지서는 우편과 Gateway 계정으로 와요",
+      "body": "추가 서류 요청에 기한 안에 답하지 않으면 거절될 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "Georgia Gateway 첫 화면",
+    "src": "/images/money/shots/ga-gateway.jpg",
+    "pins": [
+     {
+      "x": 93,
+      "y": 58,
+      "text": "**Welcome to Georgia Gateway** — 조지아 복지 신청 통합 사이트 첫 화면이에요."
+     },
+     {
+      "x": 72,
+      "y": 12,
+      "text": "**¿Habla Español? · Print · Help** — 도움말 메뉴예요. 한국어 통역은 전화로 요청할 수 있어요."
+     }
+    ],
+    "caption": "오른쪽 상자의 \"WATCH HOW-TO VIDEOS\"를 누르면 신청 방법 영상이 나와요.",
+    "credit": "조지아 주 Georgia Gateway 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "통역 요청은 무료예요",
+    "body": "DFCS에 전화할 때 \"Korean interpreter, please\"라고 말하면 무료 통역을 받을 수 있어요. 공공기관은 언어 지원을 제공해야 해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "갱신(Renewal)을 놓치지 마세요",
+    "body": "Medicaid는 보통 1년마다 갱신해요. 주소가 바뀌면 Gateway 계정에서 꼭 바꾸세요. 갱신 서류를 못 받아 보장이 끊기는 경우가 많아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 지역사회보건부(DCH)·가족아동서비스국(DFCS) 공식 자료와 언론 보도를 모아 운영팀이 정리했어요(2026년 10월 확인). 소득 기준은 매년 바뀌니 신청 전 공식 사이트에서 확인하세요.",
+    "items": [
+     {
+      "title": "Georgia Medicaid 공식 사이트",
+      "url": "https://medicaid.georgia.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "Georgia Gateway 공식(신청)",
+      "url": "https://gateway.ga.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "조지아 DCH 공식: PeachCare for Kids",
+      "url": "https://dch.georgia.gov/peachcare-kids",
+      "kind": "정부(공식, 조지아 주)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "Medicaid·PeachCare",
+  "kind": "info",
+  "title": "Georgia Pathways(성인 Medicaid): 월 80시간 조건과 2027년 1월 바뀌는 점",
+  "content": "조지아는 일반 성인에게 Medicaid를 넓히는 대신 \"Georgia Pathways to Coverage\"를 운영해요. 소득이 빈곤선 100% 이하이고 한 달 80시간 일·공부·봉사 같은 활동을 하면 받을 수 있어요. 2027년 1월 1일부터 연방법(H.R. 1)에 맞춰 일부 규칙이 바뀌어요.\n- 대상: 19~64세, 소득 빈곤선 100% 이하, 임신 중이 아니고 Medicare 없음\n- 월 80시간 활동(일, 직업 훈련, 학교, 봉사 등)\n- 2027년부터: 신청 전달 활동 증명, 한 달 소급 신청 가능",
+  "image": "/images/money/topics/insurance-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "19~64세",
+      "label": "나이",
+      "note": "성인 대상",
+      "icon": "users"
+     },
+     {
+      "value": "100%",
+      "label": "소득 기준",
+      "note": "연방 빈곤선 이하",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "80시간",
+      "label": "월 활동 조건",
+      "note": "일·학업·봉사 등",
+      "icon": "clock"
+     },
+     {
+      "value": "2027.1.1",
+      "label": "규칙 변경",
+      "note": "연방법 H.R. 1",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "Georgia Pathways 공식 화면",
+    "src": "/images/money/shots/ga-pathways.jpg",
+    "pins": [
+     {
+      "x": 73,
+      "y": 25,
+      "text": "**Pathways eligibility requirements change Jan. 1, 2027** — 2027년 1월 1일 자격 규칙 변경 공지예요. \"View changes here\"를 누르면 설명이 나와요."
+     },
+     {
+      "x": 51,
+      "y": 52,
+      "text": "**Expanding Georgians' Access to Health Care** — 전통 Medicaid 대상이 아닌 성인을 위한 프로그램이라는 설명이에요."
+     },
+     {
+      "x": 80,
+      "y": 84.3,
+      "text": "**ABOUT PATHWAYS** — 자격과 활동 조건 안내로 가는 버튼이에요."
+     }
+    ],
+    "caption": "신청은 이 사이트가 아니라 Georgia Gateway(gateway.ga.gov)에서 해요.",
+    "credit": "조지아 주 Georgia Pathways to Coverage 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "기본 자격(공식 안내)"
+   },
+   {
+    "type": "checklist",
+    "title": "이 조건을 모두 갖춰야 해요",
+    "items": [
+     "19~64세",
+     "가구 소득이 연방 빈곤선 100% 이하",
+     "임신 중이 아님, Medicare(Part A·B) 가입자가 아님",
+     "전통 Medicaid 대상이 아님",
+     "한 달에 최소 80시간 \"인정 활동(qualifying activities)\""
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "인정 활동 예",
+    "columns": [
+     "활동",
+     "예"
+    ],
+    "rows": [
+     [
+      "일",
+      "파트타임·풀타임 근무, 자영업"
+     ],
+     [
+      "교육",
+      "대학·직업학교·성인 교육"
+     ],
+     [
+      "직업 훈련",
+      "직업 훈련 프로그램 참여"
+     ],
+     [
+      "봉사",
+      "비영리 단체 자원봉사"
+     ],
+     [
+      "기타(2025년 10월 추가)",
+      "SNAP 근로 요건 충족, Medicaid 가입 6세 미만 자녀를 돌보는 부모·보호자"
+     ]
+    ],
+    "highlight": 0,
+    "note": "조지아 공식 사이트와 언론 보도 기준이에요. 정확한 인정 범위는 Pathways 사이트의 Qualifying Activities 에서 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "2027년 1월 1일 바뀌는 점"
+   },
+   {
+    "type": "steps",
+    "title": "공식 \"H.R. 1 Changes to Pathways\" 안내 요약",
+    "items": [
+     {
+      "title": "기본 자격(나이·소득·80시간)은 그대로예요",
+      "body": "\"요건 자체는 바뀌지 않는다\"고 안내해요."
+     },
+     {
+      "title": "신청하는 달 \"바로 전 달\"의 활동도 증명해야 해요",
+      "body": "예: 2027년 2월에 신청하면 1월 활동 80시간을 보여 줘야 해요."
+     },
+     {
+      "title": "한 달 전 보장을 소급 요청할 수 있어요",
+      "body": "2월 신청 때 1월 보장을 요청하면, 2026년 12월과 2027년 1월 활동을 모두 증명해야 해요."
+     },
+     {
+      "title": "기존 가입자는 2027년 갱신 때부터 적용돼요",
+      "body": "갱신 통지를 잘 확인하세요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "프로그램 기간도 확인하세요",
+    "body": "Georgia Pathways는 연방 승인으로 **2026년 12월 31일까지** 운영이 연장돼 있고, 2027년 이후 운영 방식은 연방법에 맞춰 조정 중이에요(2026년 8월 언론 보도 기준). 신청 전 pathways.georgia.gov 공지를 꼭 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "조건이 안 맞으면",
+    "body": "소득이 빈곤선 100%를 넘으면 Georgia Access(건강보험 거래소) 보조금 대상일 수 있어요. 동네 무료·저가 진료소(FQHC)도 소득에 따라 진료비를 깎아 줘요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 지역사회보건부(DCH)·가족아동서비스국(DFCS) 공식 자료와 언론 보도를 모아 운영팀이 정리했어요(2026년 10월 확인). 소득 기준은 매년 바뀌니 신청 전 공식 사이트에서 확인하세요.",
+    "items": [
+     {
+      "title": "Georgia Pathways 공식 사이트",
+      "url": "https://pathways.georgia.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "Georgia Pathways 공식: H.R. 1 Changes to Pathways",
+      "url": "https://pathways.georgia.gov/node/1646",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "WABE: Pathways 변경 보도",
+      "url": "https://www.wabe.org/georgia-pathways-to-undergo-changes-under-new-federal-medicaid-work-requirements/",
+      "kind": "언론 보도"
+     },
+     {
+      "title": "Manatt: CMS의 Georgia Pathways 연장 승인 분석",
+      "url": "https://www.manatt.com/insights/insight/cms-approves-temporary-extension-of-georgia-pathways-section-1115-work-requirements-demonstration",
+      "kind": "법률·정책 분석"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "생명보험",
+  "kind": "info",
+  "title": "정기(Term) vs 종신(Whole) 생명보험: 차이, 장단점, 누구에게 맞나",
+  "content": "생명보험은 크게 \"정해진 기간만 보장하는 정기보험(Term)\"과 \"평생 보장하면서 현금 가치가 쌓이는 종신보험(Whole·Universal)\"으로 나뉘어요. 같은 보장 금액이라도 보험료 차이가 크고, 목적도 달라요. 조지아 보험청(OCI) 안내와 함께 정리했어요.\n- 정기보험: 싸고 단순, 기간(10·20·30년)이 끝나면 보장도 끝\n- 종신보험: 비싸지만 평생 보장 + 현금 가치\n- 대부분의 젊은 가장에게는 정기보험이 기본",
+  "image": "/images/money/topics/insurance-05.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "조지아 보험청(OCI) 공식 설명"
+   },
+   {
+    "type": "shot",
+    "title": "조지아 보험청(OCI) \"Life Insurance\" 공식 화면",
+    "src": "/images/money/shots/oci-life.jpg",
+    "pins": [
+     {
+      "x": 58,
+      "y": 36.3,
+      "text": "**Life Insurance** — 조지아 주 공식 생명보험 안내예요."
+     },
+     {
+      "x": 27,
+      "y": 79.5,
+      "text": "**Life** — 왼쪽 메뉴의 Life 아래에 생명보험 FAQ가 있어요."
+     },
+     {
+      "x": 62.7,
+      "y": 91.8,
+      "text": "**learn more about life insurance** — NAIC(전국보험감독관협회) 소비자 안내로 이어지는 링크예요."
+     }
+    ],
+    "caption": "본문에는 \"일부 생명보험은 현금 가치가 쌓여 금융 자산 역할도 한다\"는 설명이 있어요.",
+    "credit": "조지아 보험·소방안전청(OCI) 공식 사이트 oci.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "한눈에 비교"
+   },
+   {
+    "type": "compare",
+    "title": "정기 vs 종신",
+    "columns": [
+     "",
+     "정기보험(Term)",
+     "종신보험(Whole Life)",
+     "유니버설(Universal/IUL)"
+    ],
+    "rows": [
+     [
+      "보장 기간",
+      "10·20·30년 등 정한 기간",
+      "평생",
+      "평생(조건 충족 시)"
+     ],
+     [
+      "보험료",
+      "가장 낮음",
+      "가장 높음, 보통 고정",
+      "조정 가능, 구조 복잡"
+     ],
+     [
+      "현금 가치",
+      "없음",
+      "쌓임(보장 이율)",
+      "쌓임(시장·이자 연동)"
+     ],
+     [
+      "잘 맞는 경우",
+      "아이가 어리고 대출이 있는 가장",
+      "평생 보장이 꼭 필요(상속·특수 목적)",
+      "구조를 충분히 이해한 경우"
+     ],
+     [
+      "조심할 점",
+      "기간 끝나면 다시 들기 비쌈",
+      "초기 해지 시 손해 큼",
+      "수익 가정이 안 맞으면 보험료 추가 필요"
+     ]
+    ],
+    "highlight": 1
+   },
+   {
+    "type": "proscons",
+    "pros": [
+     "정기보험: **같은 돈으로 훨씬 큰 보장**",
+     "정기보험: 구조가 단순해 비교가 쉬워요",
+     "종신보험: 나이 들어도 보장이 끝나지 않아요"
+    ],
+    "cons": [
+     "정기보험: 기간이 끝나면 아무것도 돌려받지 않아요",
+     "종신보험: 보험료가 비싸 **보장 금액이 부족해지기 쉬워요**",
+     "종신·유니버설: 수수료·해지 손실이 커서 \"저축\"으로만 보면 불리할 수 있어요"
+    ],
+    "prosTitle": "좋은 점",
+    "consTitle": "조심할 점"
+   },
+   {
+    "type": "h",
+    "title": "가입 순서"
+   },
+   {
+    "type": "steps",
+    "title": "정기보험 기준",
+    "items": [
+     {
+      "title": "필요한 보장 금액과 기간을 정하세요",
+      "body": "다음 글의 계산법 참고. 기간은 막내가 독립하거나 모기지가 끝날 때까지가 기준이에요."
+     },
+     {
+      "title": "회사 단체 생명보험(Group life)부터 확인하세요",
+      "body": "보통 연봉의 1~2배를 회사가 무료 또는 싸게 제공해요. 다만 회사를 그만두면 끝날 수 있어요."
+     },
+     {
+      "title": "3곳 이상 견적을 받으세요",
+      "body": "보험사 직접, 독립 에이전트, 온라인 비교 사이트. 같은 금액·같은 기간으로 비교해요."
+     },
+     {
+      "title": "건강 질문·검진(Medical exam)에 정직하게 답하세요",
+      "body": "거짓 답변은 나중에 보험금 지급 거절 사유가 될 수 있어요."
+     },
+     {
+      "title": "수익자(Beneficiary)를 정하고 가족에게 알려 두세요",
+      "body": "증권 사본 위치와 보험사 이름을 가족이 알아야 해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"저축도 되고 보험도 되는\" 상품 권유는 천천히",
+    "body": "종신·유니버설(특히 IUL)을 \"은퇴 저축\"으로 권하는 경우가 많아요. 몇 년 안에 해지하면 낸 돈보다 훨씬 적게 돌려받을 수 있어요. 서명 전에 **해지 환급금 표(surrender value)** 와 **수수료**를 서면으로 받아 보세요. 조지아는 새 생명보험에 계약 후 일정 기간 철회(free look) 권리가 있으니 증권을 받은 날짜를 기록하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 보험청(OCI)·NAIC·조지아 국세청 공식 자료와 업계 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 보험 상품 추천이 아니에요.",
+    "items": [
+     {
+      "title": "조지아 OCI 공식: Life Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/life",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "III(보험 정보 연구소): Life Insurance Basics",
+      "url": "https://www.iii.org/article/life-insurance-basics",
+      "kind": "보험 업계 공익 자료"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "생명보험",
+  "kind": "info",
+  "title": "생명보험 얼마나 들어야 할까? DIME 계산법으로 우리 집 필요 금액 구하기",
+  "content": "\"연봉의 10배\"는 간단한 기준일 뿐이에요. 빚, 아이 교육비, 남은 가족의 생활비를 하나씩 더하는 DIME 계산법으로 우리 집에 맞는 금액을 구해 보세요. 계산 예시와 함께 정리했어요.\n- D(빚) + I(소득 대체) + M(모기지) + E(교육비)\n- 이미 있는 저축·단체보험은 빼기\n- 맞벌이면 두 사람 각각 계산",
+  "image": "/images/money/topics/insurance-05.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "DIME 계산법"
+   },
+   {
+    "type": "compare",
+    "title": "DIME 항목",
+    "columns": [
+     "항목",
+     "무엇",
+     "예시"
+    ],
+    "rows": [
+     [
+      "D: Debt(빚)",
+      "카드빚, 자동차 대출, 장례비",
+      "$25,000"
+     ],
+     [
+      "I: Income(소득 대체)",
+      "남은 가족이 필요한 연 소득 × 년수",
+      "$60,000 × 10년 = $600,000"
+     ],
+     [
+      "M: Mortgage(모기지)",
+      "남은 모기지 잔액",
+      "$280,000"
+     ],
+     [
+      "E: Education(교육비)",
+      "아이 대학 등 교육비",
+      "아이 2명 × $60,000 = $120,000"
+     ]
+    ],
+    "highlight": 2,
+    "note": "가상 예시예요. 우리 집 숫자로 바꿔 계산하세요."
+   },
+   {
+    "type": "bars",
+    "title": "예시 가족의 필요 금액",
+    "sub": "DIME 합계에서 이미 있는 것을 빼요",
+    "items": [
+     {
+      "label": "DIME 합계",
+      "value": 1025000,
+      "display": "$1,025,000"
+     },
+     {
+      "label": "− 저축·투자",
+      "value": 75000,
+      "display": "$75,000"
+     },
+     {
+      "label": "− 회사 단체보험",
+      "value": 150000,
+      "display": "$150,000"
+     },
+     {
+      "label": "= 추가로 필요한 보장",
+      "value": 800000,
+      "display": "약 $800,000",
+      "highlight": true
+     }
+    ],
+    "max": 1025000,
+    "source": "※ 가상 예시예요. 소득 대체 기간·교육비는 가족마다 달라요."
+   },
+   {
+    "type": "h",
+    "title": "계산 순서"
+   },
+   {
+    "type": "steps",
+    "title": "종이 한 장이면 돼요",
+    "items": [
+     {
+      "title": "갚아야 할 빚을 모두 적으세요(모기지 제외)",
+      "body": "카드, 자동차, 학자금, 개인 대출 + 장례비(보통 수천~1만 달러대)."
+     },
+     {
+      "title": "남은 가족이 1년에 필요한 생활비와 몇 년 필요한지 정하세요",
+      "body": "막내가 독립할 때까지, 또는 배우자가 은퇴할 때까지."
+     },
+     {
+      "title": "모기지 잔액을 확인하세요",
+      "body": "모기지 명세서의 Principal balance."
+     },
+     {
+      "title": "아이 교육비 목표를 정하세요",
+      "body": "키즈 카페의 529 글 참고."
+     },
+     {
+      "title": "이미 있는 것(저축, 은퇴계좌, 회사 보험)을 빼세요",
+      "body": "은퇴계좌는 세금이 붙을 수 있어 일부만 빼는 것도 방법이에요."
+     },
+     {
+      "title": "남은 금액에 가까운 정기보험 금액을 고르세요",
+      "body": "보험사는 보통 $250,000·$500,000·$1,000,000처럼 단위로 팔아요."
+     }
+    ]
+   },
+   {
+    "type": "phone",
+    "title": "휴대폰 계산기·메모로",
+    "where": "center",
+    "label": "메모 앱 → 표 만들기",
+    "caption": "휴대폰 **메모 앱**에 D·I·M·E 네 줄을 만들고 숫자를 적어 두면, 보험 상담 때 그대로 보여 줄 수 있어요. 상담원이 제시한 금액이 내 계산보다 훨씬 크면 이유를 물어보세요.",
+    "icon": "edit",
+    "headline": "Notes",
+    "kicker": "상담 전에"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "집에서 일하는 배우자도 보험이 필요해요",
+    "body": "수입이 없어도 아이 돌봄·집안일을 맡은 배우자가 없으면 **돌봄 비용**이 생겨요. 그 비용(예: 연 $20,000 × 년수)으로 계산해 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "단체보험만 믿으면 안 되는 이유",
+    "body": "회사 단체보험은 퇴사하면 끝나는 경우가 많고, 금액도 연봉 1~2배 정도라 부족하기 쉬워요. 개인 정기보험은 젊고 건강할 때 들수록 보험료가 낮아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 보험청(OCI)·NAIC·조지아 국세청 공식 자료와 업계 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 보험 상품 추천이 아니에요.",
+    "items": [
+     {
+      "title": "조지아 OCI 공식: Life Insurance",
+      "url": "https://oci.georgia.gov/insurance-resources/life",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "III(보험 정보 연구소): 생명보험 사는 8단계",
+      "url": "https://www.iii.org/article/8-smart-steps-for-buying-life-insurance",
+      "kind": "보험 업계 공익 자료"
+     },
+     {
+      "title": "CFPB 공식: 소비자 도구",
+      "url": "https://www.consumerfinance.gov/consumer-tools/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "생명보험",
+  "kind": "info",
+  "title": "돌아가신 가족의 생명보험 찾기: NAIC 무료 조회와 조지아 미청구 재산 검색",
+  "content": "가족이 생명보험을 들었는지 모르는 경우가 많아요. 전국보험감독관협회(NAIC)의 \"생명보험 증권 찾기(Life Insurance Policy Locator)\"는 무료로 보험사들에 대신 물어봐 줘요. 조지아 주가 보관 중인 미청구 재산(보험금 포함)도 함께 찾는 순서를 정리했어요.\n- NAIC 조회: 무료, 수익자·유언 집행자·법적 대리인만 신청\n- 2026년 7월까지 78만 건 넘게 연결, 약 170억 달러\n- 조지아 미청구 재산 검색도 함께",
+  "image": "/images/money/topics/insurance-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료",
+      "label": "NAIC 조회 비용",
+      "note": "돈을 요구하면 사기",
+      "icon": "check"
+     },
+     {
+      "value": "150만+",
+      "label": "누적 조회 요청",
+      "note": "NAIC 2026.9 발표",
+      "icon": "search"
+     },
+     {
+      "value": "78만+",
+      "label": "연결된 증권",
+      "note": "2026년 7월까지",
+      "icon": "users"
+     },
+     {
+      "value": "$170억",
+      "label": "연결된 금액",
+      "note": "약 $16.99B",
+      "icon": "dollar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "NAIC 생명보험 증권 찾기(Policy Locator)"
+   },
+   {
+    "type": "steps",
+    "title": "신청 순서",
+    "items": [
+     {
+      "title": "주소 줄에 locator.naic.org 를 입력하세요",
+      "body": "NAIC 공식 조회 사이트예요. 비슷한 이름의 유료 사이트에 주의하세요."
+     },
+     {
+      "title": "신청자 정보(나)와 돌아가신 분 정보를 입력하세요",
+      "body": "돌아가신 분의 이름, 생년월일, 사망일, SSN(있으면), 나와의 관계."
+     },
+     {
+      "title": "사망증명서 등 요청 서류를 준비하세요",
+      "body": "사이트 안내에 따라 올려요."
+     },
+     {
+      "title": "확인 이메일을 받아 두세요",
+      "body": "신청이 접수됐다는 증거예요."
+     },
+     {
+      "title": "결과를 기다리세요",
+      "body": "참여 보험사가 기록을 찾아보고, **내가 수익자라면 보험사가 직접 연락**해요. 연결이 안 되면 연락이 없을 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "모든 보험사가 참여하지는 않아요",
+    "body": "조회 결과가 없다고 보험이 없다는 뜻은 아니에요. 돌아가신 분의 **은행 거래 내역(보험료 자동이체), 우편물, 세금 서류(1099-INT 등), 회사 복리후생** 도 함께 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "조지아 미청구 재산(Unclaimed Property) 검색"
+   },
+   {
+    "type": "text",
+    "body": [
+     "보험사가 수익자를 못 찾으면, 일정 기간 뒤 보험금을 **주 정부에 넘겨요.** 조지아 국세청(DOR)의 미청구 재산 프로그램에서 이름으로 무료 검색할 수 있어요. 돌아가신 가족뿐 아니라 **내 이름**으로도 찾아보세요(옛 은행 잔액, 보증금, 환불금 등)."
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 DOR \"Unclaimed Property\" 공식 화면",
+    "src": "/images/money/shots/ga-unclaimed.jpg",
+    "pins": [
+     {
+      "x": 45.5,
+      "y": 49,
+      "text": "**Unclaimed Property** — 조지아 주가 보관 중인 주인 없는 재산 안내예요."
+     },
+     {
+      "x": 48.7,
+      "y": 62,
+      "text": "**Find or Claim Property** — 이름으로 검색하고 청구하는 곳이에요."
+     },
+     {
+      "x": 67,
+      "y": 62,
+      "text": "**Report Property** — 기업·기관이 주에 신고하는 메뉴예요(개인은 왼쪽 카드)."
+     }
+    ],
+    "caption": "검색과 청구는 무료예요. \"수수료를 내면 찾아 주겠다\"는 연락은 조심하세요.",
+    "credit": "조지아 주 국세청(Department of Revenue) 공식 사이트 dor.georgia.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "checklist",
+    "title": "함께 찾아볼 곳",
+    "items": [
+     "돌아가신 분 회사의 인사팀(단체 생명보험, 401(k) 수익자)",
+     "은행·크레딧 유니언(사고·여행 보험이 딸린 계좌·카드)",
+     "신용카드 회사(항공권 결제 시 여행 사고 보험)",
+     "주택 대출(모기지 생명보험) 서류",
+     "MissingMoney.com(여러 주 미청구 재산 동시 검색, 무료)"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "조지아 보험청(OCI)·NAIC·조지아 국세청 공식 자료와 업계 자료를 모아 운영팀이 정리했어요(2026년 10월 확인). 보험 상품 추천이 아니에요.",
+    "items": [
+     {
+      "title": "NAIC 공식: Life Insurance Policy Locator",
+      "url": "https://locator.naic.org/",
+      "kind": "감독기관 협회(공식)"
+     },
+     {
+      "title": "조지아 DOR 공식: Unclaimed Property Program",
+      "url": "https://dor.georgia.gov/unclaimed-property-program",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "조지아 미청구 재산 검색·청구 사이트",
+      "url": "https://gaclaims.unclaimedproperty.com/",
+      "kind": "정부(공식 위탁, 조지아 주)"
+     },
+     {
+      "title": "Hawaii News Now: 미청구 생명보험 찾기 무료 포털(2026.9)",
+      "url": "https://www.hawaiinewsnow.com/2026/09/20/free-online-portal-helps-families-find-unclaimed-life-insurance-benefits/",
+      "kind": "언론 보도"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "치과·시력보험",
+  "kind": "info",
+  "title": "치과보험 구조 이해하기: 100-80-50, 연간 최대 한도, 대기 기간",
+  "content": "치과보험은 건강보험과 구조가 많이 달라요. 1년에 보험이 내 주는 최대 금액이 정해져 있고(보통 $1,000~$2,000), 큰 치료는 가입 후 몇 달~1년을 기다려야 보장되기도 해요. 가입 전에 꼭 알아야 할 구조를 정리했어요.\n- 예방(검진·스케일링) 100%, 기본 치료 80%, 큰 치료 50%가 흔한 구조\n- 연간 최대 한도(Annual maximum)를 넘으면 전부 내 돈\n- DHMO(지정 치과)와 DPPO(선택 자유) 차이",
+  "image": "/images/money/topics/insurance-06.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "흔한 보장 구조: 100-80-50"
+   },
+   {
+    "type": "compare",
+    "title": "치료 종류별 보장(흔한 예)",
+    "columns": [
+     "구분",
+     "예",
+     "보험이 내는 비율",
+     "대기 기간(흔한 예)"
+    ],
+    "rows": [
+     [
+      "예방(Preventive)",
+      "정기 검진, 스케일링, 엑스레이",
+      "100%",
+      "없음"
+     ],
+     [
+      "기본(Basic)",
+      "충치 치료(필링), 간단한 발치",
+      "80%",
+      "없음~6개월"
+     ],
+     [
+      "큰 치료(Major)",
+      "크라운, 신경치료, 브리지, 틀니, 임플란트(일부)",
+      "50%",
+      "6~12개월"
+     ],
+     [
+      "교정(Orthodontics)",
+      "교정기",
+      "보통 아이만, 평생 한도 별도",
+      "12개월 이상"
+     ]
+    ],
+    "highlight": 2,
+    "note": "플랜마다 달라요. 가입 전 \"Summary of Benefits\"에서 꼭 확인하세요."
+   },
+   {
+    "type": "bars",
+    "title": "크라운 $1,500 치료 예시",
+    "sub": "공제액 $50, 50% 보장, 연간 한도 $1,500 플랜",
+    "items": [
+     {
+      "label": "치료비",
+      "value": 1500,
+      "display": "$1,500"
+     },
+     {
+      "label": "보험 지급",
+      "value": 725,
+      "display": "$725",
+      "note": "($1,500 − $50) × 50%",
+      "highlight": true
+     },
+     {
+      "label": "내가 낼 돈",
+      "value": 775,
+      "display": "$775"
+     }
+    ],
+    "max": 1500,
+    "source": "※ 가상 예시예요. 네트워크 할인가가 적용되면 치료비 자체가 낮아질 수 있어요."
+   },
+   {
+    "type": "h",
+    "title": "DHMO vs DPPO"
+   },
+   {
+    "type": "compare",
+    "title": "치과보험 종류",
+    "columns": [
+     "",
+     "DHMO",
+     "DPPO"
+    ],
+    "rows": [
+     [
+      "치과 선택",
+      "지정된 치과만",
+      "네트워크 안이면 자유, 밖도 일부 보장"
+     ],
+     [
+      "보험료",
+      "낮음",
+      "높음"
+     ],
+     [
+      "연간 한도·공제액",
+      "없거나 낮은 경우가 많아요",
+      "보통 있음"
+     ],
+     [
+      "비용 방식",
+      "치료별 정해진 본인부담표",
+      "비율 보장(100-80-50)"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "가입 전 확인 순서"
+   },
+   {
+    "type": "steps",
+    "title": "Delta Dental 앱 기준 예시",
+    "items": [
+     {
+      "title": "내가 다니는(다니고 싶은) 치과가 네트워크인지 확인하세요",
+      "body": "보험사 앱·웹의 \"Find a dentist\"에서 치과 이름이나 주소로 검색해요."
+     },
+     {
+      "title": "연간 최대 한도(Annual maximum)를 확인하세요",
+      "body": "큰 치료가 예정돼 있다면 한도가 큰 플랜이 유리해요."
+     },
+     {
+      "title": "대기 기간(Waiting period)을 확인하세요",
+      "body": "당장 크라운이 필요하면 대기 기간이 없는 플랜(회사 보험 등)을 찾아야 해요."
+     },
+     {
+      "title": "예상 치료비를 치과에 \"Pre-treatment estimate(사전 견적)\"로 요청하세요",
+      "body": "치과가 보험사에 미리 물어봐 내 부담을 알려 줘요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "Delta Dental 앱: 치과 찾기 화면",
+    "src": "/images/money/shots/app-deltadental-3.jpg",
+    "pins": [
+     {
+      "x": 90,
+      "y": 23,
+      "text": "**Choose plan type** — 내 플랜 종류(예: Delta Dental PPO)를 골라요."
+     },
+     {
+      "x": 85,
+      "y": 61.5,
+      "text": "**Search for dentist** — 우리 동네 네트워크 치과를 찾아요."
+     }
+    ],
+    "caption": "\"Find a dentist\"에서 플랜 종류를 고르고 검색하면 네트워크 치과 목록이 나와요. 다른 보험사 앱도 비슷해요.",
+    "credit": "Delta Dental 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "개인 치과보험은 \"본전\" 계산부터",
+    "body": "보험료가 월 $40이면 1년 $480이에요. 검진 2번 + 스케일링 정도만 받는다면, 보험 없이 현금가가 더 쌀 수도 있어요. 반대로 큰 치료가 예정돼 있으면 대기 기간 때문에 도움이 안 될 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "정부·대학·보험사 공식 안내를 모아 운영팀이 정리했어요(2026년 10월 확인). 보장 내용은 플랜마다 다르니 가입 전 플랜 문서를 확인하세요.",
+    "items": [
+     {
+      "title": "Georgia Access 공식(단독 치과 플랜 포함 가입)",
+      "url": "https://georgiaaccess.gov/",
+      "kind": "정부(공식, 조지아 주)"
+     },
+     {
+      "title": "미국치과의사협회(ADA) 보건정책연구소",
+      "url": "https://www.ada.org/resources/research/health-policy-institute",
+      "kind": "전문가 협회"
+     },
+     {
+      "title": "Medicare 공식: 치과 진료 보장 여부",
+      "url": "https://www.medicare.gov/coverage/dental-services",
+      "kind": "정부(공식, CMS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "치과·시력보험",
+  "kind": "info",
+  "title": "치과보험 없이 치과비 줄이기: 치대 클리닉, 지역 보건소(FQHC), 현금가 협상",
+  "content": "치과보험이 없거나 한도를 넘었다면 이런 방법이 있어요. 조지아에는 오거스타 대학교 치과대학(Dental College of Georgia) 학생 클리닉이 있고, 연방 지원 지역 보건소(FQHC)는 소득에 따라 진료비를 깎아 줘요.\n- 치대 학생 클리닉: 싸지만 시간이 오래 걸려요\n- 지역 보건소: 소득별 할인(sliding fee)\n- 개인 치과: 현금가·분할 납부·할인 플랜 문의",
+  "image": "/images/money/topics/insurance-06.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "1. 지역 보건소(FQHC) 찾기"
+   },
+   {
+    "type": "text",
+    "body": [
+     "연방 정부(HRSA)가 지원하는 지역 보건소는 **보험이 없어도, 소득에 따라 진료비를 깎아 주는(sliding fee)** 곳이에요. 많은 곳이 치과 진료도 해요. 영어가 어려우면 통역 서비스를 요청할 수 있어요."
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "HRSA \"Find a Health Center\" 사용법",
+    "items": [
+     {
+      "title": "주소 줄에 findahealthcenter.hrsa.gov 를 입력하세요",
+      "body": "미국 보건자원서비스청(HRSA) 공식 검색이에요."
+     },
+     {
+      "title": "Search Criteria 아래 칸에 우리 집 주소나 우편번호를 넣으세요",
+      "body": "예: Duluth, GA 30096"
+     },
+     {
+      "title": "검색 결과에서 Dental(치과) 서비스가 있는 곳을 고르세요",
+      "body": "각 보건소의 서비스 목록에 Dental 이 있는지 확인해요."
+     },
+     {
+      "title": "전화해 \"sliding fee scale\" 과 신규 환자 대기 기간을 물어보세요",
+      "body": "소득 증명 서류(급여 명세서, 세금 신고서)를 준비하라고 해요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "HRSA \"Find a Health Center\" 공식 화면",
+    "src": "/images/money/shots/hrsa-find.jpg",
+    "pins": [
+     {
+      "x": 47,
+      "y": 40,
+      "text": "**Find a Health Center** — 연방 지원 지역 보건소 검색 공식 화면이에요."
+     },
+     {
+      "x": 31,
+      "y": 87.4,
+      "text": "**Search Criteria** — 이 아래 칸에 주소·우편번호를 넣어요."
+     },
+     {
+      "x": 82,
+      "y": 72,
+      "text": "**How-to Video** — 검색 방법 안내 영상이에요."
+     }
+    ],
+    "caption": "미국 전역 약 1,400개 보건소, 16,200곳 이상의 진료소를 검색할 수 있다고 안내해요.",
+    "credit": "미국 보건자원서비스청(HRSA) 공식 사이트 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "2. 치과대학 학생 클리닉(Dental College of Georgia)"
+   },
+   {
+    "type": "compare",
+    "title": "오거스타 대학교 치과대학 진료 방식(학교 안내 기준)",
+    "columns": [
+     "방식",
+     "비용",
+     "대기",
+     "진료자"
+    ],
+    "rows": [
+     [
+      "학생 클리닉",
+      "가장 낮음",
+      "몇 달",
+      "교수 감독 아래 치대생"
+     ],
+     [
+      "레지던트·대학원 클리닉",
+      "중간",
+      "중간",
+      "전문의 과정 레지던트"
+     ],
+     [
+      "교수 진료(Faculty practice)",
+      "일반 치과 수준",
+      "짧음",
+      "교수(일반의·전문의)"
+     ]
+    ],
+    "highlight": 0,
+    "note": "학생 클리닉은 진료 한 번에 3시간 이상 걸릴 수 있고, 약속을 두 번 어기면 치료가 중단될 수 있다고 안내해요. 신청은 \"Screening Application\"을 우편·이메일·팩스로 내요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "거리가 멀어도 문의해 보세요",
+    "body": "치과대학은 오거스타에 있지만, 크라운·신경치료·틀니처럼 큰 치료가 필요하면 왕복 시간을 감수할 만한 경우도 있어요. 선별 신청 문의: 706-721-2371(학교 안내 기준)."
+   },
+   {
+    "type": "h",
+    "title": "3. 개인 치과에서 비용 줄이기"
+   },
+   {
+    "type": "checklist",
+    "title": "물어볼 것",
+    "items": [
+     "\"보험이 없는데 현금가(cash price)가 있나요?\" — 보험사 청구가 없어 할인해 주는 곳이 있어요",
+     "\"치료 순서를 나눌 수 있나요?\" — 급한 것부터, 나머지는 다음 해 보험 한도로",
+     "\"분할 납부(payment plan)가 되나요?\"",
+     "치과 자체 멤버십 플랜(연회비 내고 검진·할인)",
+     "치료 계획서(Treatment plan)를 받아 다른 치과에 두 번째 의견(second opinion) 받기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "치과 의료 신용카드는 조심",
+    "body": "치과에서 권하는 의료비 카드 중 \"무이자 기간\"이 있는 상품은, 기간 안에 다 못 갚으면 **처음부터 이자가 소급**되는 경우가 있어요(deferred interest). 조건을 꼭 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "정부·대학·보험사 공식 안내를 모아 운영팀이 정리했어요(2026년 10월 확인). 보장 내용은 플랜마다 다르니 가입 전 플랜 문서를 확인하세요.",
+    "items": [
+     {
+      "title": "HRSA 공식: Find a Health Center",
+      "url": "https://findahealthcenter.hrsa.gov/",
+      "kind": "정부(공식, HRSA)"
+     },
+     {
+      "title": "오거스타 대학교 치과대학 공식: New Dental Patients",
+      "url": "https://www.augusta.edu/dentalmedicine/patientservices/newpatients.php",
+      "kind": "대학(공식)"
+     },
+     {
+      "title": "CFPB 공식: 의료비 신용카드·이연 이자 주의",
+      "url": "https://www.consumerfinance.gov/consumer-tools/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "치과·시력보험",
+  "kind": "info",
+  "title": "시력보험(VSP·EyeMed) 필요할까? 안경·렌즈 비용과 앱으로 혜택 확인하기",
+  "content": "시력보험은 큰 사고를 대비하는 보험이라기보다 \"정기 눈 검사와 안경·렌즈 할인 쿠폰\"에 가까워요. 회사에서 싸게 들 수 있다면 대개 이득이지만, 개인으로 비싸게 든다면 계산해 봐야 해요. 대표 회사 VSP·EyeMed와 확인 방법을 정리했어요.\n- 보통: 1년 1회 눈 검사 + 안경테 금액 지원 또는 콘택트렌즈 지원\n- 일반 건강보험·Medicare(기본)는 안경을 보장하지 않아요\n- FSA·HSA로 안경 구입 가능",
+  "image": "/images/money/topics/insurance-06.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "시력보험이 주는 것(흔한 예)"
+   },
+   {
+    "type": "compare",
+    "title": "흔한 시력보험 혜택",
+    "columns": [
+     "항목",
+     "흔한 예"
+    ],
+    "rows": [
+     [
+      "눈 검사(Eye exam)",
+      "1년 1회, 코페이 $10~$20"
+     ],
+     [
+      "안경 렌즈",
+      "1~2년마다, 코페이 $10~$25"
+     ],
+     [
+      "안경테(Frames)",
+      "1~2년마다 $130~$200 정도 지원(초과분 할인)"
+     ],
+     [
+      "콘택트렌즈",
+      "안경 대신 일정 금액 지원"
+     ],
+     [
+      "추가 할인",
+      "두 번째 안경, 라식 할인 등"
+     ]
+    ],
+    "highlight": 1,
+    "note": "금액은 플랜마다 달라요. 내 플랜 문서나 앱의 Benefits 화면이 기준이에요."
+   },
+   {
+    "type": "h",
+    "title": "앱으로 내 혜택 확인하기(VSP 예)"
+   },
+   {
+    "type": "steps",
+    "title": "VSP 앱 기준",
+    "items": [
+     {
+      "title": "앱스토어에서 VSP Vision Care 앱을 설치하고 로그인하세요",
+      "body": "회사 보험이면 Member ID나 SSN 끝자리로 가입해요."
+     },
+     {
+      "title": "My Benefits 를 누르세요",
+      "body": "검사·렌즈·안경테 혜택을 언제 다시 쓸 수 있는지 나와요."
+     },
+     {
+      "title": "Find a Doctor 에 우편번호를 넣고 Search 를 누르세요",
+      "body": "네트워크 안경점·안과를 찾아요. 코스트코·월마트 안경점이 들어 있는 플랜도 있어요(플랜마다 다름)."
+     },
+     {
+      "title": "Member ID 카드를 안경점에 보여 주세요",
+      "body": "앱의 디지털 카드로도 돼요."
+     },
+     {
+      "title": "Claim History 에서 사용 내역을 확인하세요",
+      "body": "네트워크 밖에서 샀다면 영수증으로 환급 청구(out-of-network claim)를 해요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "VSP 앱: 의사 찾기·혜택 화면",
+    "src": "/images/money/shots/app-vsp-2.jpg",
+    "pins": [
+     {
+      "x": 70,
+      "y": 28,
+      "text": "**Find a Doctor Near You!** — 우편번호로 네트워크 안경점·안과를 찾아요."
+     },
+     {
+      "x": 88,
+      "y": 45,
+      "text": "**Search** — 검색 버튼이에요."
+     },
+     {
+      "x": 26,
+      "y": 63,
+      "text": "**My Benefits** — 내 혜택과 다음 사용 가능일이에요."
+     },
+     {
+      "x": 63,
+      "y": 63,
+      "text": "**Claim History** — 혜택 사용·청구 내역이에요."
+     }
+    ],
+    "caption": "VSP 앱 첫 화면에서 우편번호로 네트워크 안경점을 찾고, 아래 Quick Links 에서 혜택과 청구 내역을 볼 수 있어요.",
+    "credit": "VSP 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "h",
+    "title": "들까, 말까 계산하기"
+   },
+   {
+    "type": "bars",
+    "title": "1년 기준 비교(가상 예시)",
+    "sub": "눈 검사 + 안경 1개를 사는 경우",
+    "items": [
+     {
+      "label": "개인 시력보험료(연)",
+      "value": 180,
+      "display": "$180",
+      "note": "월 $15"
+     },
+     {
+      "label": "보험 쓸 때 내 부담",
+      "value": 60,
+      "display": "$60",
+      "note": "검사·렌즈 코페이, 테 지원 안"
+     },
+     {
+      "label": "보험 없이 현금가(창고형 매장 예)",
+      "value": 200,
+      "display": "$200",
+      "note": "검사 + 저가 안경",
+      "highlight": true
+     }
+    ],
+    "max": 250,
+    "source": "※ 가상 예시예요. 보험 총액 = 보험료 $180 + 부담 $60 = $240이라, 이 경우는 현금가가 더 싸요. 비싼 테·다초점 렌즈라면 결과가 달라져요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "FSA·HSA로 안경 사기",
+    "body": "안경, 콘택트렌즈, 렌즈 세척액, 처방 선글라스는 FSA·HSA로 살 수 있어요. 연말에 FSA 잔액이 남았다면 안경을 바꾸는 데 쓰는 것도 방법이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "Medicare는 기본적으로 안경을 안 해 줘요",
+    "body": "기본 Medicare(Part B)는 정기 시력 검사와 안경을 보통 보장하지 않아요(백내장 수술 후 안경 등 예외). 일부 Medicare Advantage 플랜은 시력 혜택이 있어요. 은퇴 카페의 Medicare 글을 참고하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보험·법률 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 실제 보장과 조건은 **보험 증권(policy) 문서**와 보험사·주 보험청 안내가 기준이에요. 필요하면 면허 있는 보험 에이전트나 변호사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "정부·대학·보험사 공식 안내를 모아 운영팀이 정리했어요(2026년 10월 확인). 보장 내용은 플랜마다 다르니 가입 전 플랜 문서를 확인하세요.",
+    "items": [
+     {
+      "title": "VSP 공식 사이트",
+      "url": "https://www.vsp.com/",
+      "kind": "보험사(공식)"
+     },
+     {
+      "title": "EyeMed 공식 사이트",
+      "url": "https://www.eyemed.com/",
+      "kind": "보험사(공식)"
+     },
+     {
+      "title": "Medicare 공식: 정기 눈 검사 보장 여부",
+      "url": "https://www.medicare.gov/coverage/eye-exams-routine",
+      "kind": "정부(공식, CMS)"
+     },
+     {
+      "title": "IRS 공식: Publication 502 의료비 공제 항목",
+      "url": "https://www.irs.gov/publications/p502",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ }
+]
