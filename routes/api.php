@@ -808,6 +808,9 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
         Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
         Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe'])->middleware(['role:admin,super_admin', 'reauth']);
         Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway'])->middleware(['role:admin,super_admin', 'reauth']);
+        // 사이트 공식 SNS 계정(인스타그램·스레드) 정보 — 저장은 비밀번호 재확인
+        Route::get('/settings/social-accounts', [\App\Http\Controllers\API\AdminSocialAccountController::class, 'index']);
+        Route::put('/settings/social-accounts/{platform}', [\App\Http\Controllers\API\AdminSocialAccountController::class, 'update'])->middleware('reauth');
         Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);
         Route::post('/api-keys', [AdminSettingsController::class, 'storeApiKey'])->middleware('reauth');
         Route::put('/api-keys/{id}', [AdminSettingsController::class, 'updateApiKey'])->middleware('reauth');

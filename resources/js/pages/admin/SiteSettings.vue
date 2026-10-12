@@ -103,6 +103,11 @@
       </div>
     </div>
 
+    <!-- 사이트 공식 SNS 계정 (인스타그램·스레드) -->
+    <div v-if="activeTab === 'social'">
+      <SiteSocialTab @toast="showToast" />
+    </div>
+
     <!-- API 키 관리 -->
     <div v-if="activeTab === 'api'" class="space-y-6">
       <SiteFirebasePanel :firebase="firebase" :firebase-status="firebaseStatus" :saving-firebase="savingFirebase" @save="saveFirebase" @reload="loadFirebase" />
@@ -129,6 +134,7 @@ import SitePaymentTab from '../../components/admin/siteSettings/SitePaymentTab.v
 import SiteNotifyTab from '../../components/admin/siteSettings/SiteNotifyTab.vue'
 import SiteFirebasePanel from '../../components/admin/siteSettings/SiteFirebasePanel.vue'
 import SiteApiKeysPanel from '../../components/admin/siteSettings/SiteApiKeysPanel.vue'
+import SiteSocialTab from '../../components/admin/siteSettings/SiteSocialTab.vue'
 import { useSiteStore } from '../../stores/site'
 import { useModal } from '../../composables/useModal'
 import { DEFAULT_FOOTER, FOOTER_VERSION, readSavedFooter } from '../../utils/footerDefaults'
@@ -149,6 +155,7 @@ const tabs = [
   { key: 'footer', label: '푸터 편집' },
   { key: 'terms', label: '약관 관리' },
   { key: 'notifications', label: '결제/알림 설정' },
+  { key: 'social', label: 'SNS 계정' },
   { key: 'api', label: '🔑 API 키 관리' },
 ]
 
