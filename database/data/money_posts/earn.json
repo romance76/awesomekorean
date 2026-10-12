@@ -883,5 +883,467 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "설문조사·앱테크",
+  "kind": "info",
+  "title": "Prolific(프로리픽) 시작하기: 가입부터 첫 설문 참여, PayPal로 돈 받기까지",
+  "content": "Prolific은 대학·연구기관이 올리는 **설문·실험**에 참여하고 돈을 받는 사이트예요. 다른 설문 사이트와 달리 **참여 전에 보수와 걸리는 시간이 미리 적혀 있어서** 시급을 계산하기 쉬워요.\n이 글은 공식 도움말과 여러 후기를 비교해서, 가입부터 첫 돈을 받기까지 순서대로 정리했어요.",
+  "image": "/images/money/topics/earn-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "만 18세 이상",
+      "label": "가입 조건",
+      "note": "거주 국가 제한 있음",
+      "icon": "user"
+     },
+     {
+      "value": "시간당 $8 이상",
+      "label": "최저 기준",
+      "note": "연구자가 지켜야 함",
+      "icon": "dollar"
+     },
+     {
+      "value": "PayPal",
+      "label": "돈 받는 곳",
+      "note": "최소 $6(또는 £6)",
+      "icon": "wallet"
+     },
+     {
+      "value": "화~금",
+      "label": "출금 처리",
+      "note": "요일 확인 필요",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "1단계. 가입하고 \"나에 대한 정보\" 채우기"
+   },
+   {
+    "type": "phone",
+    "title": "가입 후 첫 화면",
+    "where": "center",
+    "label": "\"About You\" 질문에 답하기",
+    "icon": "edit",
+    "caption": "가입하면 나이·직업·관심사 같은 질문이 쭉 나와요. 이걸 **\"About You\"** 라고 불러요.\n**많이 채울수록** 나한테 맞는 설문이 더 많이 떠요. 연구자들이 이 답을 보고 \"이런 사람만 참여해 주세요\"라고 조건을 걸기 때문이에요. 귀찮아도 끝까지 채우는 걸 후기들이 공통으로 권해요.",
+    "headline": "Prolific"
+   },
+   {
+    "type": "steps",
+    "title": "가입 순서",
+    "items": [
+     {
+      "title": "공식 사이트에서 가입",
+      "body": "이메일로 가입해요. 나이(만 18세 이상)와 거주 국가 조건을 확인해요."
+     },
+     {
+      "title": "\"About You\" 질문 채우기",
+      "body": "최대한 많이, 사실대로 답해요. 나중에 새 질문이 추가되면 알려 줘요."
+     },
+     {
+      "title": "대시보드 확인",
+      "body": "내 조건에 맞는 설문이 목록에 떠요. 이미 맞는 사람만 보이는 거라 **떨어질까 봐 걱정할 필요가 적어요.**"
+     },
+     {
+      "title": "이메일 알림 켜 두기",
+      "body": "맞는 설문이 올라오면 이메일로 알려 줘요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "2단계. 설문(연구) 하나 해 보기"
+   },
+   {
+    "type": "checklist",
+    "title": "시작 전에 확인하세요",
+    "items": [
+     "예상 시간과 보수가 적혀 있나요? (둘 다 미리 보여 줘요)",
+     "시급으로 계산하면 괜찮나요? (보수 ÷ 시간)",
+     "동의서(Consent)가 나오면 끝까지 읽었나요?",
+     "중간에 끄지 말고 **끝까지** 할 수 있는 시간인가요?"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "참여 순서",
+    "items": [
+     {
+      "title": "설문 선택",
+      "body": "목록에서 시간·보수를 보고 골라요."
+     },
+     {
+      "title": "동의서 읽고 동의",
+      "body": "연구 설명과 동의서가 나와요. 동의해야 시작돼요."
+     },
+     {
+      "title": "외부 도구에서 진행",
+      "body": "설문은 Qualtrics 같은 **다른 사이트로 넘어가서** 진행되는 경우가 많아요. 끝나면 Prolific으로 돌아와요."
+     },
+     {
+      "title": "완료 코드 입력",
+      "body": "설문 끝에 나오는 **완료 코드**를 Prolific 화면에 그대로 입력해요. 이 코드가 있어야 참여가 인정돼요."
+     },
+     {
+      "title": "연구자 승인 기다리기",
+      "body": "연구자가 확인하고 승인하면 돈이 들어와요. 보통 며칠 걸려요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "성의 없이 답하면 거절될 수 있어요",
+    "body": "빨리 끝내려고 대충 답하면 연구자가 거절(reject)할 수 있어요. 거절이 쌓이면 다음 설문에 초대받기 어려워질 수 있다는 후기가 있어요. 집중할 수 있는 시간에 참여하세요."
+   },
+   {
+    "type": "h",
+    "title": "3단계. 돈 받기"
+   },
+   {
+    "type": "phone",
+    "title": "돈 받는 화면",
+    "where": "bottom-right",
+    "label": "내 잔액에서 \"Withdraw(출금)\"",
+    "icon": "wallet",
+    "caption": "승인된 돈은 내 잔액에 쌓여요. **$6(또는 £6)** 이상이면 출금 버튼이 활성화돼요. 그 전에는 버튼이 회색으로 눌리지 않아요.",
+    "headline": "Prolific"
+   },
+   {
+    "type": "steps",
+    "title": "출금 순서",
+    "items": [
+     {
+      "title": "잔액 확인",
+      "body": "$6(또는 £6) 이상 모였는지 확인해요."
+     },
+     {
+      "title": "PayPal 연결 확인",
+      "body": "내 PayPal이 돈을 받을 준비가 되어 있는지 확인해요(통화 설정 등)."
+     },
+     {
+      "title": "Withdraw 누르기",
+      "body": "출금을 누르면 PayPal로 보내져요."
+     },
+     {
+      "title": "30일 안에 PayPal에서 수락",
+      "body": "PayPal이 통화를 처음 받는 경우 30일 안에 **수락**해야 해요. 안 하면 Prolific 잔액으로 다시 돌아와요(며칠 걸림)."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "현실적으로 기대할 것"
+   },
+   {
+    "type": "compare",
+    "title": "처음 몇 주 vs 익숙해진 뒤",
+    "columns": [
+     "",
+     "처음 2~4주",
+     "익숙해진 뒤"
+    ],
+    "rows": [
+     [
+      "뜨는 설문 수",
+      "적을 수 있어요",
+      "프로필이 쌓이면 더 맞는 설문이 떠요"
+     ],
+     [
+      "시급",
+      "편차가 커요",
+      "시급 좋은 것만 골라 할 수 있어요"
+     ],
+     [
+      "거절 경험",
+      "실수하기 쉬워요",
+      "익숙해지면 줄어요"
+     ]
+    ],
+    "highlight": 1
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 사이트는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Prolific 참여자 도움말: 출금 최소 금액",
+      "url": "https://participant-help.prolific.com/en/article/3bfbb2",
+      "kind": "공식 도움말"
+     },
+     {
+      "title": "Prolific 후기: 시작 가이드",
+      "url": "https://sidehustleschool.com/reviews/prolific/",
+      "kind": "후기·블로그"
+     },
+     {
+      "title": "Prolific 상세 후기",
+      "url": "https://sidehusl.com/prolific/",
+      "kind": "후기·블로그"
+     },
+     {
+      "title": "Prolific 2026 후기",
+      "url": "https://remoteonlineevaluator.com/prolific-honest-pay-rate-review/",
+      "kind": "후기·블로그"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "설문조사·앱테크",
+  "kind": "info",
+  "title": "Swagbucks(스웨그벅스) 시작하기: 검색·설문·쇼핑으로 SB 모아 기프트카드 받기",
+  "content": "Swagbucks는 **검색, 설문, 쇼핑, 영상 보기** 등 여러 방법으로 포인트(SB)를 모아 기프트카드나 PayPal 현금으로 바꾸는 사이트예요. **100 SB = $1** 로 계산돼요.\n한 가지 방법만 쓰면 모이는 속도가 느려서, 여러 방법을 섞어 쓰는 게 후기들의 공통된 조언이에요.",
+  "image": "/images/money/topics/earn-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "100 SB",
+      "label": "= $1",
+      "note": "교환 기준",
+      "icon": "dollar"
+     },
+     {
+      "value": "2년",
+      "label": "포인트 유효기간",
+      "note": "지나면 사라져요",
+      "icon": "calendar"
+     },
+     {
+      "value": "PayPal",
+      "label": "현금 교환",
+      "note": "이메일·이름 일치 필요",
+      "icon": "wallet"
+     },
+     {
+      "value": "1,500개+",
+      "label": "기프트카드 브랜드",
+      "note": "아마존 등",
+      "icon": "gift"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "가입하기"
+   },
+   {
+    "type": "steps",
+    "title": "가입 순서",
+    "items": [
+     {
+      "title": "공식 사이트 방문",
+      "body": "swagbucks.com 에서 가입해요. 구글·애플 계정으로도 가능해요."
+     },
+     {
+      "title": "신용카드 요구는 거절",
+      "body": "가입에 **신용카드 정보가 필요 없어요.** 요구하면 가짜 사이트예요."
+     },
+     {
+      "title": "시작 보너스 확인",
+      "body": "가입하면 보너스 SB를 주는 경우가 있어요. 화면에 뜨는 조건을 확인하세요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SB(포인트) 모으는 방법"
+   },
+   {
+    "type": "compare",
+    "title": "포인트 모으는 방법 비교",
+    "columns": [
+     "방법",
+     "하는 일",
+     "특징"
+    ],
+    "rows": [
+     [
+      "검색",
+      "Swagbucks 검색창으로 검색하기",
+      "검색 10~20번에 소량의 SB. 꾸준히 하면 쌓여요"
+     ],
+     [
+      "설문",
+      "프로필에 맞는 설문 참여",
+      "시간이 꽤 들고 자격이 안 맞으면 중간에 끝날 수 있어요"
+     ],
+     [
+      "쇼핑",
+      "사이트를 거쳐 온라인 쇼핑",
+      "원래 사려던 물건을 살 때만 이득이에요"
+     ],
+     [
+      "영상 시청",
+      "짧은 영상 보기",
+      "SB가 적지만 틈새 시간에 가능해요"
+     ],
+     [
+      "기프트카드 구매",
+      "MyGiftCardsPlus에서 기프트카드 사기",
+      "구매액의 일부를 SB로 돌려받아요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "포인트를 돈으로 바꾸기"
+   },
+   {
+    "type": "phone",
+    "title": "교환하는 곳",
+    "where": "bottom-center",
+    "label": "포인트 센터에서 기프트카드 또는 PayPal 선택",
+    "icon": "gift",
+    "caption": "모은 SB로 아마존 같은 기프트카드를 받거나, **PayPal로 현금**을 받을 수 있어요. PayPal을 받으려면 **Swagbucks 계정 이메일과 PayPal 이메일이 같아야 하고, 이름도 같아야** 해요.",
+    "headline": "Swagbucks"
+   },
+   {
+    "type": "checklist",
+    "title": "PayPal로 받을 때 체크",
+    "items": [
+     "계정 이메일과 PayPal 이메일이 같은가요?",
+     "계정 이름과 PayPal 이름이 같은가요?",
+     "달러로 바꾸는 데 영업일 3일 정도 걸린다는 점을 알고 있나요?"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "포인트가 2년 지나면 사라져요",
+    "body": "오래 쌓아 두지 말고 중간중간 바꿔 쓰는 게 좋아요. 계정이 이유 없이 정지됐다는 후기도 있으니, 규칙(같은 계정 여러 개 만들기 금지 등)을 지키세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 사이트는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Swagbucks 후기",
+      "url": "https://www.savethestudent.org/make-money/swagbucks-review-rewards.html",
+      "kind": "후기·블로그"
+     },
+     {
+      "title": "Swagbucks 포인트 더 모으는 법",
+      "url": "https://simplyfrugal.ca/6-ways-to-earn-more-swagbucks/",
+      "kind": "후기·블로그"
+     },
+     {
+      "title": "Swagbucks 상세 리뷰",
+      "url": "https://therideshareguy.com/swagbucks-review/",
+      "kind": "후기·블로그"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "설문조사·앱테크",
+  "kind": "info",
+  "title": "설문·앱테크 사이트, 사기와 진짜를 구분하는 법 (+ 내 시급 계산하기)",
+  "content": "설문·앱테크는 작은 돈을 버는 정직한 방법이지만, 비슷하게 생긴 **사기**도 많아요. 이 글은 가짜를 거르는 방법과, 내가 버는 돈이 **시급으로 얼마인지 계산하는 법**을 알려 드려요.",
+  "image": "/images/money/topics/earn-02.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "가짜(사기)를 거르는 법"
+   },
+   {
+    "type": "checklist",
+    "title": "이런 곳은 멈추세요",
+    "items": [
+     "시작하기 전에 **가입비·보증금**을 요구한다",
+     "\"하루 몇백 달러 확실히 번다\"처럼 **금액을 보장**한다",
+     "메신저로 개인 연락해서 \"미션\"을 준다",
+     "처음부터 **SSN·계좌 비밀번호**를 요구한다",
+     "회사 이름으로 검색해도 정보가 안 나온다"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "진짜 서비스는 \"일을 하면 돈을 준다\" 구조예요",
+    "body": "Prolific·Swagbucks 같은 정식 서비스는 설문에 참여하거나 영수증을 올려야 포인트가 쌓여요. 먼저 돈을 내라고 하면 100% 사기예요."
+   },
+   {
+    "type": "h",
+    "title": "내 시급 계산하는 법"
+   },
+   {
+    "type": "steps",
+    "title": "이렇게 계산하세요",
+    "items": [
+     {
+      "title": "이번 주 번 돈 적기",
+      "body": "포인트는 달러로 환산해요(예: 100 SB = $1)."
+     },
+     {
+      "title": "쓴 시간 적기",
+      "body": "설문 시간 + 탈락해서 날린 시간까지 포함해요."
+     },
+     {
+      "title": "나누기",
+      "body": "번 돈 ÷ 쓴 시간 = 내 시급."
+     }
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "시급 감 잡기 (예시, 실제와 다를 수 있어요)",
+    "columns": [
+     "활동",
+     "예상 시급"
+    ],
+    "rows": [
+     [
+      "Prolific 설문(보수 공개)",
+      "시간당 최소 $8 보장(연구자 기준)"
+     ],
+     [
+      "Swagbucks 검색",
+      "시급으로 보면 낮은 편"
+     ],
+     [
+      "Swagbucks 설문",
+      "탈락하면 그 시간은 거의 보상이 없어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "※ 실제 금액은 그때그때 달라요. 꼭 직접 계산해 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "이민 신분을 확인하세요",
+    "body": "학생 비자(F-1) 등은 허가 없는 수입 활동이 제한될 수 있어요. 온라인 활동도 해당될 수 있으니 학교 국제학생처나 이민 변호사에게 먼저 확인하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 사이트는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Prolific 참여자 도움말",
+      "url": "https://participant-help.prolific.com/en/article/3bfbb2",
+      "kind": "공식 도움말"
+     },
+     {
+      "title": "Swagbucks 후기(가입 주의사항 포함)",
+      "url": "https://www.savethestudent.org/make-money/swagbucks-review-rewards.html",
+      "kind": "후기·블로그"
+     }
+    ]
+   }
+  ]
  }
 ]
