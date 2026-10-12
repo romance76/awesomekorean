@@ -2782,5 +2782,314 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "Libby 앱으로 도서관 전자책·오디오북 무료로 빌리는 법",
+  "content": "도서관 카드만 있으면 **전자책·오디오북을 무료로** 빌릴 수 있어요. Libby(리비) 앱 사용법을 공식 안내 기준으로 정리했어요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료",
+      "label": "카드만 있으면",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "보통 3주",
+      "label": "대출 기간",
+      "note": "도서관마다 다름",
+      "icon": "calendar"
+     },
+     {
+      "value": "자동 반납",
+      "label": "연체료 없음",
+      "note": "기한 되면 자동으로",
+      "icon": "check"
+     },
+     {
+      "value": "Kindle 전송",
+      "label": "가능(미국만)",
+      "note": "",
+      "icon": "book-open"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "시작하기"
+   },
+   {
+    "type": "steps",
+    "title": "설치·연결 순서",
+    "items": [
+     {
+      "title": "앱 설치",
+      "body": "앱스토어/구글 플레이에서 Libby를 설치해요. 브라우저로도 이용 가능해요."
+     },
+     {
+      "title": "내 도서관 찾기",
+      "body": "앱 안내에 따라 내가 다니는 도서관을 찾아요."
+     },
+     {
+      "title": "카드로 로그인",
+      "body": "도서관 카드 번호와 PIN(또는 이메일·비밀번호)을 입력해요. 방식은 도서관마다 달라요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "빌리고 읽기"
+   },
+   {
+    "type": "phone",
+    "title": "대출 관리하는 곳",
+    "where": "center",
+    "label": "\"Manage Loan\"에서 연장·반납",
+    "icon": "book-open",
+    "caption": "빌린 책은 **Shelf(내 서재)** 에 모여요. Wi-Fi에 연결돼 있으면 자동으로 다운로드돼서 **오프라인에서도** 읽을 수 있어요. 대출 관리는 **Manage Loan** 에서 연장(Renew)하거나 반납(Return)할 수 있어요.",
+    "headline": "Libby"
+   },
+   {
+    "type": "steps",
+    "title": "이용 순서",
+    "items": [
+     {
+      "title": "책 검색·대출",
+      "body": "도서관 소장 목록에서 찾아요."
+     },
+     {
+      "title": "없으면 예약(Hold) 걸기",
+      "body": "순서가 되면 알림이 와요."
+     },
+     {
+      "title": "Open In Libby로 읽기",
+      "body": "앱 안에서 바로 읽거나 들어요."
+     },
+     {
+      "title": "기한 되면 자동 반납",
+      "body": "연체료 걱정 없이 자동으로 반납돼요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "도서관마다 대출 개수·기간이 달라요",
+    "body": "한 도서관은 최대 8권(21일), 다른 도서관은 최대 10권(3주)처럼 **기준이 달라요.** 내 도서관 사이트에서 확인하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 도서관마다 소장 자료·혜택이 다르니 내 지역 도서관 사이트에서 꼭 확인하세요.",
+    "items": [
+     {
+      "title": "Libby 사용법 안내(도서관 공식 가이드)",
+      "url": "https://dyu.libguides.com/overdrive/libby",
+      "kind": "도서관(공식)"
+     },
+     {
+      "title": "Libby 소개 가이드",
+      "url": "https://www.freeportpubliclibrary.org/libby-app-free-ebooks-audiobooks-from-your-library-by-overdrive",
+      "kind": "도서관(공식)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "도서관 카드 하나로 박물관·공원 무료 입장하기 (조지아 귀넷 기준)",
+  "content": "도서관 카드가 책만을 위한 게 아니에요. 지역에 따라 **박물관·주립공원 무료 입장권**도 빌릴 수 있어요. 귀넷 카운티를 예시로 정리했어요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "카드 만들기"
+   },
+   {
+    "type": "steps",
+    "title": "카드 신청 순서",
+    "items": [
+     {
+      "title": "거주 증명 준비",
+      "body": "현재 주소가 적힌 운전면허증·ID, 또는 공과금 고지서·은행 명세서 같은 우편물"
+     },
+     {
+      "title": "온라인 또는 방문 신청",
+      "body": "온라인 신청도 가능하지만 **13세 미만은 온라인 신청이 안 돼요.**"
+     },
+     {
+      "title": "디지털 카드로 시작",
+      "body": "보호자 동의나 만 18세가 되면 **정식 카드로 전환** 가능해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "거주자가 아니어도 유료로 가능해요",
+    "body": "귀넷 카운티 비거주자는 연 **$40** 정도의 유료 카드를 만들 수 있다는 안내가 있어요(지역·금액은 바뀔 수 있어요)."
+   },
+   {
+    "type": "h",
+    "title": "박물관·공원 패스"
+   },
+   {
+    "type": "checklist",
+    "title": "빌릴 수 있는 패스 (귀넷 예시, 참여 기관은 바뀔 수 있어요)",
+    "items": [
+     "조지아 주립공원",
+     "Carlos Museum",
+     "Chattahoochee Nature Center",
+     "Go Fish 센터",
+     "Center for Puppetry Arts"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "이용 방법"
+   },
+   {
+    "type": "steps",
+    "title": "패스 빌리는 법",
+    "items": [
+     {
+      "title": "도서관 사이트에서 \"Park and Museum Passes\" 페이지 확인",
+      "body": "참여 기관 목록을 봐요."
+     },
+     {
+      "title": "온라인 예약 또는 방문 대출",
+      "body": "온라인으로 예약하거나 도서관 데스크에서 빌려요."
+     },
+     {
+      "title": "정해진 기간 안에 이용",
+      "body": "보통 일주일 정도의 대출 기간이 있어요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "그 외 디지털 혜택"
+   },
+   {
+    "type": "checklist",
+    "title": "추가로 챙길 수 있는 것",
+    "items": [
+     "Kanopy(영화·다큐 스트리밍) — TV 기기 앱으로도 가능",
+     "LinkedIn Learning(온라인 강좌 16,000개 이상)",
+     "아이들을 위한 eRead Kids 전자도서관",
+     "카드 번호 + PIN만 있으면 디지털 자료 전부 이용 가능"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 도서관마다 소장 자료·혜택이 다르니 내 지역 도서관 사이트에서 꼭 확인하세요.",
+    "items": [
+     {
+      "title": "귀넷 카운티 도서관 카드 혜택(뉴스 보도)",
+      "url": "https://www.wsbtv.com/news/local/gwinnett-county/gwinnett-county-public-library-celebrates-library-card-sign-up-month-touts-perks/2HKTH73VVJD2JBMJQBTK55VWPI/",
+      "kind": "뉴스 보도"
+     },
+     {
+      "title": "귀넷 카운티 도서관: 카드 만들기",
+      "url": "https://gwinnettpl.org/get-a-library-card",
+      "kind": "도서관(공식)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "내 동네 도서관에 어떤 무료 혜택이 있는지 직접 찾는 법",
+  "content": "도서관마다 제공하는 혜택이 달라요. 귀넷이 아니어도, **내가 사는 지역 도서관**에서 무엇을 주는지 직접 찾는 방법을 알려 드려요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "확인할 것들"
+   },
+   {
+    "type": "checklist",
+    "title": "도서관 사이트에서 찾아볼 메뉴",
+    "items": [
+     "\"Digital Resources\" 또는 \"E-Books & More\" — 전자책·오디오북·영화 서비스",
+     "\"Museum Passes\" 또는 \"Park Passes\" — 무료 입장권",
+     "\"Events\" 또는 \"Programs\" — 무료 강좌·아이 프로그램",
+     "\"Services\" — 세금 신고 도움, 이력서 작성 도움 등도 있는 곳이 있어요"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "전자책·영화 서비스 종류"
+   },
+   {
+    "type": "compare",
+    "title": "도서관이 제공할 수 있는 디지털 서비스",
+    "columns": [
+     "서비스",
+     "내용"
+    ],
+    "rows": [
+     [
+      "Libby/OverDrive",
+      "전자책·오디오북"
+     ],
+     [
+      "Hoopla",
+      "전자책·영화·음악(도서관마다 제공 여부 다름)"
+     ],
+     [
+      "Kanopy",
+      "영화·다큐멘터리"
+     ],
+     [
+      "LinkedIn Learning",
+      "온라인 강좌"
+     ]
+    ],
+    "highlight": 0,
+    "note": "※ 모든 도서관이 전부 제공하는 건 아니에요. 내 도서관 사이트에서 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "카드 만들 때 공통 준비물"
+   },
+   {
+    "type": "checklist",
+    "title": "대부분 필요한 것",
+    "items": [
+     "현재 주소가 있는 신분증",
+     "신분증 주소가 안 맞으면 최근 공과금·은행 명세서",
+     "미성년자는 보호자 동반 또는 별도 절차가 필요할 수 있어요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "한인 커뮤니티에 물어보세요",
+    "body": "어느 도서관이 한국어 자료나 한인 대상 프로그램을 운영하는지는 **같은 동네 사는 분들에게 물어보는 게** 가장 빨라요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 도서관마다 소장 자료·혜택이 다르니 내 지역 도서관 사이트에서 꼭 확인하세요.",
+    "items": [
+     {
+      "title": "도서관 디지털 자료 예시(시애틀 공공도서관)",
+      "url": "https://www.spl.org/books-and-media",
+      "kind": "도서관(공식, 참고용)"
+     }
+    ]
+   }
+  ]
  }
 ]
