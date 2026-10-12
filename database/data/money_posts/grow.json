@@ -11,6 +11,15 @@
     "title": "기본 구조"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Marcus 앱: 저축·CD 계좌 화면",
+    "src": "/images/money/shots/app-marcus-2.jpg",
+    "pins": [],
+    "caption": "온라인 은행 앱에서는 **Online Savings(저축)** 와 **Certificate of Deposit(CD, 정기예금)** 이 따로 보여요. CD를 누르면 만기일과 이율이 나와요.",
+    "credit": "Marcus by Goldman Sachs 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "CD의 흐름",
     "items": [
@@ -175,6 +184,15 @@
     "title": "만드는 순서"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Marcus 앱: 계좌 목록",
+    "src": "/images/money/shots/app-marcus-2.jpg",
+    "pins": [],
+    "caption": "CD를 여러 개 만들면 이 목록에 하나씩 늘어나요. 만기일이 다르게 보이면 사다리가 된 거예요.",
+    "credit": "Marcus by Goldman Sachs 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이렇게 만드세요",
     "items": [
@@ -310,6 +328,15 @@
     "title": "결정하는 순서"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Marcus 앱: 고금리 저축 계좌",
+    "src": "/images/money/shots/app-marcus-3.jpg",
+    "pins": [],
+    "caption": "저축 계좌는 언제든 넣고 뺄 수 있어요(Make a transfer). CD는 만기까지 묶여요.",
+    "credit": "Marcus by Goldman Sachs 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이렇게 판단하세요",
     "items": [
@@ -408,6 +435,24 @@
    {
     "type": "h",
     "title": "가입 순서"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Fidelity 앱 첫 화면",
+    "src": "/images/money/shots/app-fidelity-1.jpg",
+    "pins": [],
+    "caption": "계좌를 열면 이런 화면에서 잔고와 투자 상품을 봐요. 아래 메뉴로 거래·이체를 해요.",
+    "credit": "Fidelity 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Schwab 앱 첫 화면",
+    "src": "/images/money/shots/app-schwab-1.jpg",
+    "pins": [],
+    "caption": "증권사마다 모양은 달라도 잔고·거래·이체 메뉴는 비슷해요.",
+    "credit": "Schwab 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -758,6 +803,15 @@
     "title": "비교하는 순서"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Schwab 앱: 시장·종목 보기",
+    "src": "/images/money/shots/app-schwab-4.jpg",
+    "pins": [],
+    "caption": "종목 이름을 누르면 수수료(Expense ratio)·규모 같은 정보가 나와요.",
+    "credit": "Schwab 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이렇게 비교해 보세요",
     "items": [
@@ -953,6 +1007,15 @@
    {
     "type": "h",
     "title": "정기적으로 점검하기"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Vanguard 앱 화면",
+    "src": "/images/money/shots/app-vanguard-1.jpg",
+    "pins": [],
+    "caption": "계좌 잔고와 보유 종목을 확인하는 화면이에요. 사기 전에 이미 가진 종목과 겹치는지 확인하세요.",
+    "credit": "Vanguard 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -1223,6 +1286,15 @@
     "title": "배당 재투자(DRIP)란"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Fidelity 앱: 자동 투자 예약",
+    "src": "/images/money/shots/app-fidelity-3.jpg",
+    "pins": [],
+    "caption": "\"Recurring investment scheduled\"(정기 투자 예약 완료) 화면이에요. 배당 재투자·정기 매수 설정은 계좌 설정에서 해요.",
+    "credit": "Fidelity 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "callout",
     "tone": "tip",
     "title": "받은 배당으로 자동으로 더 사는 기능",
@@ -1440,6 +1512,15 @@
    {
     "type": "h",
     "title": "그래서 뭘 골라야 할까요"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Fidelity 앱: 정기 투자 설정",
+    "src": "/images/money/shots/app-fidelity-3.jpg",
+    "pins": [],
+    "caption": "나눠 넣기(정기 매수)를 고르면 이렇게 날짜와 금액을 정해 자동으로 사요.",
+    "credit": "Fidelity 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2910,6 +2991,15 @@
     "title": "처음 가입하는 순서"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Vanguard 앱: 계좌 한눈에 보기",
+    "src": "/images/money/shots/app-vanguard-1.jpg",
+    "pins": [],
+    "caption": "401(k)를 운용하는 회사 앱(Vanguard·Fidelity 등)에서 납입 비율과 잔고를 확인해요.",
+    "credit": "Vanguard 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "가입 순서",
     "items": [
@@ -3184,6 +3274,24 @@
     "title": "가입 순서"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Ally 앱: 저축 버킷",
+    "src": "/images/money/shots/app-ally-4.jpg",
+    "pins": [],
+    "caption": "Ally처럼 저축을 목적별 **버킷(Buckets)** 으로 나눠 관리하는 은행도 있어요.",
+    "credit": "Ally 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Marcus 앱: 고금리 저축",
+    "src": "/images/money/shots/app-marcus-3.jpg",
+    "pins": [],
+    "caption": "이율·이체 버튼(Make a transfer)이 한 화면에 보여요.",
+    "credit": "Marcus by Goldman Sachs 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "일반적인 가입 절차",
     "items": [
@@ -3275,6 +3383,15 @@
    {
     "type": "h",
     "title": "목표 금액 정하기"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Ally 앱: 목표별 저축",
+    "src": "/images/money/shots/app-ally-4.jpg",
+    "pins": [],
+    "caption": "비상금을 \"Emergency\" 같은 이름의 버킷으로 따로 모아 두면 헷갈리지 않아요.",
+    "credit": "Ally 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",

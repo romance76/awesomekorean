@@ -202,6 +202,15 @@
     "title": "받는 순서"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Zillow 앱: 내 예산(BuyAbility) 보기",
+    "src": "/images/money/shots/app-zillow-3.jpg",
+    "pins": [],
+    "caption": "사전 승인 전에 대략 얼마짜리 집을 볼 수 있는지 감을 잡는 화면이에요. 실제 승인 금액은 대출사가 정해요.",
+    "credit": "Zillow 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "사전 승인 순서",
     "items": [
@@ -753,6 +762,15 @@
    {
     "type": "h",
     "title": "왜 같은 날이어야 할까요"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Redfin 앱: 집 검색 조건",
+    "src": "/images/money/shots/app-redfin-3.jpg",
+    "pins": [],
+    "caption": "견적을 받기 전, 가격대·방 수 조건으로 집을 먼저 좁혀 두면 대출 금액을 정하기 쉬워요.",
+    "credit": "Redfin 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "callout",

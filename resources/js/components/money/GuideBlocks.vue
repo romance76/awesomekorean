@@ -319,7 +319,7 @@
         </li>
       </ol>
       <p v-if="b.caption" class="text-[14.5px] text-ink-light leading-relaxed mt-2" v-html="rich(b.caption)"></p>
-      <p class="text-[11.5px] text-ink-muted mt-2">※ {{ b.credit || '공식 사이트 화면을 직접 캡처했어요.' }} 사이트가 개편되면 모양이 달라질 수 있어요. 번호는 눌러야 할 곳이에요.</p>
+      <p class="text-[11.5px] text-ink-muted mt-2">※ {{ b.credit || '공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요.' }} <template v-if="b.pins && b.pins.length">빨간 번호는 눌러야 할 곳이에요.</template></p>
     </section>
 
     <!-- 참고한 자료 -->

@@ -751,6 +751,15 @@
     "title": "계정 만들기"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Kroger 앱: 할인(Savings) 화면",
+    "src": "/images/money/shots/app-kroger-2.jpg",
+    "pins": [],
+    "caption": "**save** 화면에서 쿠폰을 눌러 카드에 담아요(Clip). 담은 쿠폰은 계산할 때 자동으로 적용돼요.",
+    "credit": "Kroger 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "가입 순서",
     "items": [
@@ -1774,6 +1783,24 @@
     "title": "새로 가입하기"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Mint Mobile 앱: eSIM 설치 화면",
+    "src": "/images/money/shots/app-mintmobile-3.jpg",
+    "pins": [],
+    "caption": "앱에서 **Install eSIM** 을 누르면 설치가 시작돼요. 와이파이에 연결된 상태에서 하세요.",
+    "credit": "Mint Mobile 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Mint Mobile 앱: 요금제 고르기",
+    "src": "/images/money/shots/app-mintmobile-2.jpg",
+    "pins": [],
+    "caption": "3개월·6개월·12개월 요금제가 있고, 길게 낼수록 월 요금이 싸져요.",
+    "credit": "Mint Mobile 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "신규 가입 순서",
     "items": [
@@ -2319,7 +2346,7 @@
     "pins": [
      {
       "x": 31,
-      "y": 94,
+      "y": 86,
       "text": "**FIND GAS** — 아래 메뉴에서 주유소를 찾는 곳이에요."
      },
      {
