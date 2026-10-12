@@ -3684,5 +3684,315 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "소규모 창업",
+  "kind": "info",
+  "title": "미국 중소기업청(SBA) 공식 10단계로 보는 창업 순서",
+  "content": "미국 중소기업청(SBA) 공식 가이드를 바탕으로, 창업의 큰 흐름 10단계 중 **법적 형태·이름·등록·세금 ID·허가**를 정리했어요. 나머지(시장조사·사업계획·자금)는 가이드의 다른 글을 참고하세요.",
+  "image": "/images/money/topics/earn-09.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "1. 사업 형태 고르기"
+   },
+   {
+    "type": "compare",
+    "title": "주요 사업 형태",
+    "columns": [
+     "형태",
+     "특징"
+    ],
+    "rows": [
+     [
+      "개인사업자(Sole Proprietorship)",
+      "가장 간단. 나와 사업이 법적으로 분리 안 돼요"
+     ],
+     [
+      "LLC",
+      "책임이 분리되고 세금 방식을 선택할 수 있어요"
+     ],
+     [
+      "법인(Corporation)",
+      "절차가 복잡하지만 투자·확장에 유리해요"
+     ],
+     [
+      "협동조합(Cooperative)",
+      "구성원이 함께 소유·운영해요"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ SBA 공식 가이드는 선택한 형태가 \"등록 요건, 세금, 개인 책임\"에 영향을 준다고 안내해요."
+   },
+   {
+    "type": "h",
+    "title": "2. 이름 정하기"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "이미 쓰이는 이름인지 확인하세요",
+    "body": "SBA는 내가 쓰려는 이름이 **이미 다른 사업체가 쓰고 있지 않은지** 꼭 확인하라고 안내해요. 주 정부의 사업체 검색에서 확인할 수 있어요."
+   },
+   {
+    "type": "h",
+    "title": "3. 등록하기"
+   },
+   {
+    "type": "checklist",
+    "title": "등록이 필요한 경우",
+    "items": [
+     "내 이름이 아닌 **다른 이름**으로 사업을 한다면 등록이 필요해요",
+     "연방 정부 등록이 필요할 수 있고, **주 정부 등록**도 필요할 수 있어요",
+     "주 등록은 보통 **주 국무부(Secretary of State)** 사무실에서 해요",
+     "선택한 사업 형태에 따라 **제출할 서류가 달라요**"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "4. 세금 ID(EIN) 받기"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "EIN은 은행 계좌·세금에 필요해요",
+    "body": "SBA는 EIN을 **사업 계좌 개설, 세금 납부** 같은 중요한 일에 쓴다고 안내해요. 일부 주는 별도의 주 세금 ID도 요구해요."
+   },
+   {
+    "type": "h",
+    "title": "5. 허가·면허 받기"
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "업종·주·지역마다 달라요",
+    "body": "필요한 면허·허가는 **업종, 주, 지역**에 따라 달라요. 내 주·지역 정부에 직접 확인하라고 SBA가 안내해요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 공식 자료를 우선했고, 비용·절차는 주마다 다르고 수시로 바뀌니 꼭 공식 사이트로 다시 확인하세요.",
+    "items": [
+     {
+      "title": "SBA 공식: 창업 10단계",
+      "url": "https://www.sba.gov/business-guide/10-steps-start-your-business",
+      "kind": "정부(공식)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "소규모 창업",
+  "kind": "info",
+  "title": "EIN(사업자 세금번호) 무료로 직접 받는 법 (IRS 공식)",
+  "content": "EIN은 **IRS 공식 사이트에서 무료**로 받을 수 있어요. 돈을 받고 대신 신청해 주는 사이트도 있지만, **낼 필요 없는 돈**이에요. 직접 신청하는 순서를 정리했어요.",
+  "image": "/images/money/topics/earn-09.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "무료예요. 돈 받는 사이트는 대행업체예요",
+    "body": "EIN은 IRS만 발급하고 **비용이 없어요.** \"EIN 발급 대행\" 같은 사이트가 돈을 받는다면, 그건 내가 직접 할 수 있는 일을 대신 해 주는 대행 수수료일 뿐이에요."
+   },
+   {
+    "type": "h",
+    "title": "신청 전에 준비할 것"
+   },
+   {
+    "type": "checklist",
+    "title": "준비물",
+    "items": [
+     "사업체의 정식 이름과 **형태**(법인·LLC 등)",
+     "**책임자(Responsible party)**의 이름과 SSN 또는 ITIN",
+     "LLC라면 **주에서 먼저 설립 승인**을 받아야 해요(순서가 중요해요)",
+     "P.O. Box가 아닌 **실제 미국 사업장 주소**(우편 주소는 따로 가능)"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "신청 순서"
+   },
+   {
+    "type": "steps",
+    "title": "신청하는 방법",
+    "items": [
+     {
+      "title": "IRS 공식 사이트 접속",
+      "body": "irs.gov에서 \"EIN online\"으로 찾아요."
+     },
+     {
+      "title": "사업 형태 선택",
+      "body": "LLC라면 구성원 수를 물어봐요."
+     },
+     {
+      "title": "책임자 정보 입력",
+      "body": "이름, SSN/ITIN, 역할을 입력해요."
+     },
+     {
+      "title": "사업장 주소 입력",
+      "body": "실제 주소를 입력해요."
+     },
+     {
+      "title": "사업 내용 설명",
+      "body": "주요 사업과 직원 고용 계획 등을 답해요."
+     },
+     {
+      "title": "제출하고 결과 저장",
+      "body": "그 자리에서 바로 EIN이 나와요. 확인서를 **인쇄하거나 저장**해 두세요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "알아 둘 것"
+   },
+   {
+    "type": "checklist",
+    "title": "신청 시 주의",
+    "items": [
+     "월~금, **동부시간 오전 7시~오후 10시**에만 신청할 수 있어요",
+     "**한 번 들어가서 끝까지** 해야 해요. 15분 동안 아무것도 안 하면 시간 초과돼요",
+     "하루에 **한 개**의 EIN만 받을 수 있어요",
+     "온라인 외에 팩스·우편·전화로도 신청할 수 있어요(Form SS-4)"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 공식 자료를 우선했고, 비용·절차는 주마다 다르고 수시로 바뀌니 꼭 공식 사이트로 다시 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: EIN 온라인 신청",
+      "url": "https://www.irs.gov/businesses/small-businesses-self-employed/apply-for-an-employer-identification-number-ein-online",
+      "kind": "정부(공식)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "소규모 창업",
+  "kind": "info",
+  "title": "조지아에서 LLC 만들기: 순서와 비용 (주 정부 기준)",
+  "content": "조지아에서 LLC(유한책임회사)를 만드는 방법이에요. 비용과 절차는 주 정부 기준을 바탕으로 정리했어요. **정확한 금액은 바뀔 수 있으니 조지아 주 국무부 사이트**에서 최종 확인하세요.",
+  "image": "/images/money/topics/earn-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$105",
+      "label": "온라인 등록 기본 비용",
+      "note": "서류 제출 수수료",
+      "icon": "dollar"
+     },
+     {
+      "value": "등록 대리인",
+      "label": "조지아 주소 필수",
+      "note": "Registered Agent",
+      "icon": "map-pin"
+     },
+     {
+      "value": "연 1회",
+      "label": "연간 등록(Annual Registration)",
+      "note": "1/1~4/1 사이",
+      "icon": "calendar"
+     },
+     {
+      "value": "선택",
+      "label": "운영계약서(Operating Agreement)",
+      "note": "의무는 아니지만 권장",
+      "icon": "paperclip"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "만드는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "LLC 설립 순서",
+    "items": [
+     {
+      "title": "이름 확인·예약",
+      "body": "주 정부 사업체 검색에서 이름이 겹치지 않는지 확인해요. 최대 30일간 예약할 수 있어요."
+     },
+     {
+      "title": "등록 대리인(Registered Agent) 정하기",
+      "body": "조지아 안의 주소가 있고 평일 낮에 서류를 받을 수 있는 사람·업체여야 해요."
+     },
+     {
+      "title": "Articles of Organization 제출",
+      "body": "설립 신청서와 Transmittal Form 231을 함께 제출해요."
+     },
+     {
+      "title": "운영계약서 작성(선택)",
+      "body": "조지아는 의무가 아니지만, 동업자가 있다면 꼭 쓰는 걸 권해요."
+     },
+     {
+      "title": "EIN 받고 계좌 열기",
+      "body": "IRS에서 무료로 EIN을 받고, 설립 서류와 함께 은행에 가서 사업 계좌를 열어요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "비용 정리"
+   },
+   {
+    "type": "bars",
+    "title": "조지아 LLC 설립 비용 (가상 정리, 온라인 기준)",
+    "sub": "※ 최신 금액은 주 정부 사이트에서 확인하세요",
+    "items": [
+     {
+      "label": "설립 신청(온라인)",
+      "value": 105,
+      "display": "$105"
+     },
+     {
+      "label": "이름 예약(선택, 온라인)",
+      "value": 30,
+      "display": "$30"
+     },
+     {
+      "label": "빠른 처리(2일, 선택)",
+      "value": 100,
+      "display": "$100"
+     }
+    ],
+    "max": 105,
+    "source": "※ 당일·1시간 처리는 더 비싸요. 등록 대리인을 대행업체에 맡기면 연 $25~$300 정도 추가될 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "연간 등록을 잊지 마세요",
+    "body": "매년 **1월 1일~4월 1일 사이**에 연간 등록(Annual Registration)을 해야 해요. 늦으면 연체료가 붙어요. 정확한 금액은 조지아 주 국무부 사이트에서 확인하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 공식 자료를 우선했고, 비용·절차는 주마다 다르고 수시로 바뀌니 꼭 공식 사이트로 다시 확인하세요.",
+    "items": [
+     {
+      "title": "조지아 주 국무부(사업 등록 공식 기관)",
+      "url": "https://sos.ga.gov/",
+      "kind": "주 정부(공식)"
+     },
+     {
+      "title": "조지아 LLC 만들기 가이드",
+      "url": "https://www.rho.co/blog/how-to-start-an-llc-in-georgia",
+      "kind": "후기·가이드"
+     },
+     {
+      "title": "조지아 LLC 절차·비용 가이드",
+      "url": "https://stripe.com/resources/more/how-to-open-an-llc-in-georgia",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
  }
 ]
