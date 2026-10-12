@@ -1,1 +1,5561 @@
-[]
+[
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "Costco 소개와 가입 방법 — 대용량·멤버십 기반 창고형 마트",
+  "content": "연회비를 내는 멤버십으로 대용량 상품을 비교적 낮은 단가에 파는 창고형 마트예요. 식료품·생활용품·주유·타이어 등을 한곳에서 해결할 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "멤버십",
+      "label": "필수",
+      "note": "연회비 있음",
+      "icon": "key"
+     },
+     {
+      "value": "대용량",
+      "label": "특징",
+      "note": "보관 공간 필요",
+      "icon": "grid"
+     },
+     {
+      "value": "주유소",
+      "label": "운영",
+      "note": "가격 비교",
+      "icon": "car"
+     },
+     {
+      "value": "반품",
+      "label": "정책 있음",
+      "note": "확인",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "대용량 단가가 낮은 품목이 많아요",
+     "자체 브랜드(Kirkland) 품질 평가가 좋은 편이에요",
+     "식료품·주유·생활용품을 한곳에서 해결해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "연회비를 내야 해요",
+     "대용량이라 다 못 쓰면 손해예요",
+     "충동 구매가 늘기 쉬워요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입 전 계산",
+      "body": "연회비 ÷ 한 달 절약액으로 본전 기간을 계산해요."
+     },
+     {
+      "title": "멤버십 가입",
+      "body": "매장이나 공식 사이트에서 가입해요."
+     },
+     {
+      "title": "쇼핑 목록 만들기",
+      "body": "대용량으로 살 품목(휴지·쌀·냉동식품)만 정해요."
+     },
+     {
+      "title": "소분·보관",
+      "body": "냉동·소분으로 낭비를 줄여요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알아 둘 점",
+    "body": "자주 가지 않거나 가족이 적으면 연회비가 더 클 수 있어요."
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Costco",
+      "desc": "대용량·멤버십 기반 창고형 마트",
+      "url": "https://www.costco.com/",
+      "tag": "마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "Aldi 소개와 가입 방법 — 낮은 가격의 자체 브랜드 중심 마트",
+  "content": "자체 브랜드 상품 중심으로 운영해 가격이 낮은 편인 마트예요. 매장이 작고 상품 종류가 한정돼요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "자체 브랜드",
+      "label": "중심",
+      "note": "가격 낮음",
+      "icon": "tag"
+     },
+     {
+      "value": "작은 매장",
+      "label": "구조",
+      "note": "빠른 쇼핑",
+      "icon": "store"
+     },
+     {
+      "value": "카트 보증금",
+      "label": "있음",
+      "note": "동전 필요",
+      "icon": "coins"
+     },
+     {
+      "value": "상품 수",
+      "label": "한정",
+      "note": "필수품 위주",
+      "icon": "list"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "기본 식료품 가격이 낮은 편이에요",
+     "매장이 작아 쇼핑이 빨라요",
+     "자체 브랜드 품질이 좋다는 평이 많아요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "상품 종류가 적어요",
+     "한식 재료는 별도로 사야 해요",
+     "매장 위치·수가 제한적이에요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "매장 위치 확인",
+      "body": "가까운 매장을 검색해요."
+     },
+     {
+      "title": "주간 전단 보기",
+      "body": "앱·사이트에서 주간 특가를 확인해요."
+     },
+     {
+      "title": "기본 식료품 위주 쇼핑",
+      "body": "우유·계란·채소 등 기본 품목을 사요."
+     },
+     {
+      "title": "한식 재료는 한인마트",
+      "body": "부족한 재료는 한인마트에서 보충해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Aldi",
+      "desc": "낮은 가격의 자체 브랜드 중심 마트",
+      "url": "https://www.aldi.us/",
+      "tag": "마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "Kroger 소개와 가입 방법 — 쿠폰·포인트로 아끼는 대형 슈퍼 체인",
+  "content": "회원 카드(Plus)와 디지털 쿠폰, 주유 포인트로 할인을 받는 대형 슈퍼마켓 체인이에요. 지역에 따라 가맹 브랜드 이름이 다를 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "회원 카드",
+      "label": "필수",
+      "note": "할인가 적용",
+      "icon": "user"
+     },
+     {
+      "value": "디지털 쿠폰",
+      "label": "앱에서",
+      "note": "미리 담기",
+      "icon": "ticket"
+     },
+     {
+      "value": "주유 포인트",
+      "label": "적립",
+      "note": "조건 확인",
+      "icon": "car"
+     },
+     {
+      "value": "지역 브랜드",
+      "label": "다를 수 있음",
+      "note": "",
+      "icon": "map-pin"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "회원 할인가가 눈에 띄는 품목이 많아요",
+     "디지털 쿠폰을 앱에서 관리해요",
+     "주유 혜택을 받을 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "회원가입 없이는 가격이 높을 수 있어요",
+     "쿠폰 조건 확인이 필요해요",
+     "지역·브랜드마다 혜택이 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱 또는 공식 사이트에서 회원 가입해요."
+     },
+     {
+      "title": "회원 번호 등록",
+      "body": "전화번호나 카드로 결제 때 적립돼요."
+     },
+     {
+      "title": "디지털 쿠폰 담기",
+      "body": "장 보기 전에 필요한 품목의 쿠폰만 담아요."
+     },
+     {
+      "title": "주유 포인트 확인",
+      "body": "포인트 사용 조건을 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Kroger",
+      "desc": "쿠폰·포인트로 아끼는 대형 슈퍼 체인",
+      "url": "https://www.kroger.com/",
+      "tag": "마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "Publix 소개와 가입 방법 — 남부 지역 대표 슈퍼마켓 체인",
+  "content": "남부(조지아 등)에 매장이 많은 슈퍼마켓 체인이에요. 주간 세일과 디지털 쿠폰, 매장 앱 기능이 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "주간 세일",
+      "label": "BOGO 등",
+      "note": "전단 확인",
+      "icon": "newspaper"
+     },
+     {
+      "value": "디지털 쿠폰",
+      "label": "앱",
+      "note": "",
+      "icon": "ticket"
+     },
+     {
+      "value": "지역",
+      "label": "남부 중심",
+      "note": "",
+      "icon": "map-pin"
+     },
+     {
+      "value": "서비스",
+      "label": "배달·픽업",
+      "note": "선택",
+      "icon": "send"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "조지아에서 매장 접근성이 좋아요",
+     "주간 세일 품목이 명확해요",
+     "서비스·매장 환경이 좋다는 평이 많아요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "평소 가격은 높은 편일 수 있어요",
+     "세일 때를 노리는 게 효과적이에요",
+     "대용량 단가는 창고형보다 높아요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·계정 만들기",
+      "body": "앱이나 공식 사이트에서 계정을 만들어요."
+     },
+     {
+      "title": "주간 세일 확인",
+      "body": "이번 주 세일을 확인해요."
+     },
+     {
+      "title": "쿠폰 담기",
+      "body": "디지털 쿠폰을 담아요."
+     },
+     {
+      "title": "세일 품목 위주로 구매",
+      "body": "세일 때 자주 쓰는 품목을 사요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Publix",
+      "desc": "남부 지역 대표 슈퍼마켓 체인",
+      "url": "https://www.publix.com/",
+      "tag": "마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "Flipp 소개와 가입 방법 — 여러 마트 전단을 한눈에 보는 앱",
+  "content": "여러 마트의 주간 전단을 모아 보여 주고, 같은 상품의 가격을 비교하게 도와주는 앱이에요. 쿠폰·상품 검색 기능이 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "전단 모음",
+      "label": "핵심",
+      "note": "마트 여러 곳",
+      "icon": "newspaper"
+     },
+     {
+      "value": "가격 검색",
+      "label": "가능",
+      "note": "상품명으로",
+      "icon": "search"
+     },
+     {
+      "value": "장보기 목록",
+      "label": "지원",
+      "note": "",
+      "icon": "list"
+     },
+     {
+      "value": "무료",
+      "label": "이용",
+      "note": "앱·웹",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "여러 마트 전단을 한곳에서 비교해요",
+     "필요한 상품만 검색해서 볼 수 있어요",
+     "무료로 써요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "지역·매장에 따라 정보가 달라요",
+     "광고성 노출이 있어요",
+     "실제 매장 재고와 다를 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치",
+      "body": "앱이나 사이트에서 시작해요."
+     },
+     {
+      "title": "우편번호 입력",
+      "body": "내 지역의 전단이 나와요."
+     },
+     {
+      "title": "상품 검색",
+      "body": "필요한 품목 가격을 비교해요."
+     },
+     {
+      "title": "장보기 목록 만들기",
+      "body": "가장 싼 곳을 정리해 쇼핑해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Flipp",
+      "desc": "여러 마트 전단을 한눈에 보는 앱",
+      "url": "https://flipp.com/",
+      "tag": "앱"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "Walmart 소개와 가입 방법 — 낮은 가격의 대형 종합 마트",
+  "content": "식료품부터 생활용품·전자제품까지 파는 대형 할인 마트예요. 앱으로 픽업·배달 주문과 가격 비교가 가능해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "낮은 가격",
+      "label": "특징",
+      "note": "품목 다양",
+      "icon": "tag"
+     },
+     {
+      "value": "픽업·배달",
+      "label": "지원",
+      "note": "서비스별 비용",
+      "icon": "send"
+     },
+     {
+      "value": "앱",
+      "label": "가격·재고",
+      "note": "매장 선택",
+      "icon": "phone"
+     },
+     {
+      "value": "멤버십",
+      "label": "선택",
+      "note": "혜택 확인",
+      "icon": "key"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "한 곳에서 대부분을 해결해요",
+     "앱으로 가격·재고를 확인해요",
+     "픽업 서비스가 편해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "매장 환경·재고 차이가 있을 수 있어요",
+     "온라인 가격과 매장 가격이 다를 수 있어요",
+     "멤버십 혜택은 조건을 따져야 해요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱을 설치하고 계정을 만들어요."
+     },
+     {
+      "title": "내 매장 선택",
+      "body": "자주 가는 매장을 설정해요."
+     },
+     {
+      "title": "목록·가격 비교",
+      "body": "필요 품목 가격을 확인해요."
+     },
+     {
+      "title": "픽업 또는 방문",
+      "body": "픽업 서비스나 직접 방문해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Walmart",
+      "desc": "낮은 가격의 대형 종합 마트",
+      "url": "https://www.walmart.com/",
+      "tag": "마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "마트·전단 서비스 한눈에 비교",
+  "content": "장 보는 패턴(대용량/소량/전단 비교)에 맞게 조합하세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "마트·전단 서비스 한눈에 비교",
+    "columns": [
+     "서비스",
+     "강점",
+     "비용 구조",
+     "어울리는 사람"
+    ],
+    "rows": [
+     [
+      "Costco",
+      "대용량 단가",
+      "연회비",
+      "가족이 많고 보관 공간이 있는 집"
+     ],
+     [
+      "Aldi",
+      "자체 브랜드 저가",
+      "없음",
+      "기본 식료품을 싸게"
+     ],
+     [
+      "Kroger",
+      "쿠폰·포인트",
+      "회원 가입",
+      "쿠폰을 챙기는 사람"
+     ],
+     [
+      "Publix",
+      "주간 세일",
+      "없음",
+      "남부 지역 거주자"
+     ],
+     [
+      "Walmart",
+      "종합·낮은 가격",
+      "없음(서비스 비용 별도)",
+      "한곳에서 해결하려는 사람"
+     ],
+     [
+      "Flipp",
+      "전단 비교",
+      "무료",
+      "최저가를 찾고 싶은 사람"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ 가격·정책은 지역과 시기마다 달라요."
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "info",
+  "title": "장 볼 때 단위가격으로 비교하는 법",
+  "content": "마트마다 포장 크기가 달라서 가격표만 보면 비교가 어려워요. 단위가격(oz·lb·개당)으로 맞추세요.",
+  "image": "/images/money/topics/save-01.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 비교하세요",
+    "items": [
+     {
+      "title": "가격 ÷ 용량",
+      "body": "1 oz 또는 1 lb 당 가격을 계산해요."
+     },
+     {
+      "title": "같은 단위로 맞추기",
+      "body": "lb와 oz를 섞지 않게 해요."
+     },
+     {
+      "title": "쓸 만큼만",
+      "body": "유통기한 안에 다 쓸 수 있는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "같은 상품, 포장별 단위가격 (가상)",
+    "sub": "큰 포장이 항상 싼 건 아니에요",
+    "items": [
+     {
+      "label": "소포장 1lb",
+      "value": 4.5,
+      "display": "$4.50/lb"
+     },
+     {
+      "label": "중간 3lb",
+      "value": 3.8,
+      "display": "$3.80/lb",
+      "highlight": true
+     },
+     {
+      "label": "대용량 10lb",
+      "value": 4.1,
+      "display": "$4.10/lb"
+     }
+    ],
+    "max": 5,
+    "source": "※ 이해를 돕는 가상 예시예요."
+   }
+  ]
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "question",
+  "title": "장 볼 때 주로 어디 가세요?",
+  "content": "자주 가는 마트 종류와 이유를 나눠 주세요(광고 제외).",
+  "image": "/images/money/topics/save-01.svg"
+ },
+ {
+  "topic": "미국 마트 할인",
+  "kind": "talk",
+  "title": "이번 주 장보기 챌린지",
+  "content": "장 보기 전에 재고부터 확인해 보세요. 확인했다면 한마디만 남겨요.",
+  "image": "/images/money/topics/save-01.svg"
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "H Mart 소개와 가입 방법 — 한인 대형 식료품 체인",
+  "content": "한식 재료·반찬·간편식·생활용품을 파는 대표적인 한인 식료품 체인이에요. 주간 전단과 앱·멤버십 혜택이 있어요(매장마다 다름).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "한식 재료",
+      "label": "풍부",
+      "note": "신선식품·반찬",
+      "icon": "utensils"
+     },
+     {
+      "value": "주간 전단",
+      "label": "있음",
+      "note": "앱·웹",
+      "icon": "newspaper"
+     },
+     {
+      "value": "푸드코트",
+      "label": "일부 매장",
+      "note": "",
+      "icon": "store"
+     },
+     {
+      "value": "온라인",
+      "label": "일부 지원",
+      "note": "지역별",
+      "icon": "globe"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "한식 재료와 반찬 선택이 넓어요",
+     "주간 세일 품목이 다양해요",
+     "매장 수가 많아 접근성이 좋아요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "일반 품목은 다른 마트보다 비쌀 수 있어요",
+     "매장마다 가격·재고가 달라요",
+     "세일 품목이 빨리 소진될 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가까운 매장 확인",
+      "body": "공식 사이트에서 내 지역 매장을 찾아요."
+     },
+     {
+      "title": "앱·멤버십 확인",
+      "body": "앱이나 회원 혜택을 확인해요."
+     },
+     {
+      "title": "주간 전단 보기",
+      "body": "필요한 세일 품목만 체크해요."
+     },
+     {
+      "title": "소분·냉동",
+      "body": "많이 산 신선식품은 소분해서 보관해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "H Mart",
+      "desc": "한인 대형 식료품 체인",
+      "url": "https://www.hmart.com/",
+      "tag": "한인마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "Lotte Plaza Market 소개와 가입 방법 — 한인·아시안 식품 마트 체인",
+  "content": "한식·아시안 식재료와 일반 식료품을 함께 파는 마트 체인이에요. 일부 지역에 매장이 있어요(조지아 포함 여부는 매장 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "한식·아시안",
+      "label": "식재료",
+      "note": "다양",
+      "icon": "utensils"
+     },
+     {
+      "value": "주간 세일",
+      "label": "전단",
+      "note": "확인",
+      "icon": "newspaper"
+     },
+     {
+      "value": "지역",
+      "label": "일부 지역",
+      "note": "매장 찾기",
+      "icon": "map-pin"
+     },
+     {
+      "value": "푸드코트",
+      "label": "일부",
+      "note": "",
+      "icon": "store"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "아시안 식재료 선택이 넓어요",
+     "신선식품·반찬이 다양해요",
+     "주간 세일이 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "매장 지역이 제한적이에요",
+     "세일 품목은 시기마다 달라요",
+     "가격은 매장별로 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "매장 찾기",
+      "body": "공식 사이트에서 가까운 매장을 확인해요."
+     },
+     {
+      "title": "전단 확인",
+      "body": "이번 주 세일을 확인해요."
+     },
+     {
+      "title": "필수 품목 비교",
+      "body": "자주 사는 품목을 다른 마트와 비교해요."
+     },
+     {
+      "title": "소량·대용량 선택",
+      "body": "쓸 만큼만 사요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Lotte Plaza Market",
+      "desc": "한인·아시안 식품 마트 체인",
+      "url": "https://www.lotteplaza.com/",
+      "tag": "한인마트"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "Weee! 소개와 가입 방법 — 아시안 식료품 온라인 배달",
+  "content": "한식을 포함한 아시안 식료품을 온라인으로 주문하는 서비스예요. 배달 지역·최소 주문 금액·배송비 조건이 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "온라인 주문",
+      "label": "배달",
+      "note": "지역별 가능",
+      "icon": "send"
+     },
+     {
+      "value": "아시안 식품",
+      "label": "다양",
+      "note": "한식 포함",
+      "icon": "utensils"
+     },
+     {
+      "value": "최소 주문",
+      "label": "있을 수 있음",
+      "note": "정책 확인",
+      "icon": "dollar"
+     },
+     {
+      "value": "신선식품",
+      "label": "품질 후기",
+      "note": "확인",
+      "icon": "star"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "매장에 가지 않고 주문해요",
+     "아시안 식재료를 한곳에서 비교해요",
+     "배달 날짜를 고를 수 있어요(지역별)"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "배송비·최소 주문 조건이 있어요",
+     "신선식품은 품질 편차가 있을 수 있어요",
+     "지역에 따라 배달이 안 될 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "지역 확인",
+      "body": "내 우편번호가 배달 지역인지 확인해요."
+     },
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 계정을 만들어요."
+     },
+     {
+      "title": "장바구니 구성",
+      "body": "최소 주문·배송비 조건에 맞게 담아요."
+     },
+     {
+      "title": "수령 후 확인",
+      "body": "신선식품 상태를 바로 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Weee!",
+      "desc": "아시안 식료품 온라인 배달",
+      "url": "https://www.sayweee.com/",
+      "tag": "온라인"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "한인마트 주간 전단, 이렇게 보세요",
+  "content": "전단 첫 면은 미끼 상품이 많아요. 자주 사는 품목이 있다면 그 품목만 확인해도 충분해요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "전단 보는 법",
+    "items": [
+     "이번 주 꼭 필요한 5개만 체크",
+     "단위가격으로 비교",
+     "대용량 세일은 보관 공간 확인",
+     "마감 세일 시간대는 매장에 문의",
+     "쿠폰·앱 적용 여부 확인"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "세일은 냉동·소분으로",
+    "body": "고기·해산물·국거리는 소분해 냉동하면 세일 때 사서 오래 쓸 수 있어요. 구매일을 적어 두세요."
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "한식 재료 보관법: 사 두고 못 먹는 걸 줄이려면",
+  "content": "식재료를 오래 쓰려면 보관 방법이 중요해요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 보관하세요",
+    "items": [
+     {
+      "title": "채소",
+      "body": "키친타월로 싸서 비닐에 넣고 냉장해요."
+     },
+     {
+      "title": "고기·해산물",
+      "body": "1회분씩 소분해 냉동해요."
+     },
+     {
+      "title": "양념·국거리",
+      "body": "먹을 양씩 나눠 냉동해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "유통기한을 꼭 확인하세요",
+    "body": "대용량·세일 상품은 유통기한이 짧은 경우가 있어요. 먹을 기간을 계산하세요."
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "한인마트 이용 방식 비교",
+  "content": "내 생활에 맞는 방식을 고르세요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "한인마트 이용 방식 비교",
+    "columns": [
+     "방식",
+     "장점",
+     "단점",
+     "어울리는 사람"
+    ],
+    "rows": [
+     [
+      "매장 방문",
+      "신선식품을 직접 골라요",
+      "시간·이동 필요",
+      "가까운 매장이 있는 사람"
+     ],
+     [
+      "온라인 주문(Weee! 등)",
+      "편리해요",
+      "배송비·품질 편차",
+      "시간이 없는 사람"
+     ],
+     [
+      "대용량+냉동",
+      "단가가 낮아요",
+      "보관 공간 필요",
+      "가족이 많은 집"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "question",
+  "title": "한인마트 세일 정보는 어디서 확인하세요?",
+  "content": "앱·전단·커뮤니티 등 방법을 나눠 주세요(광고 제외).",
+  "image": "/images/money/topics/save-02.svg"
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "talk",
+  "title": "한식 재료 장보기 목록",
+  "content": "이번 주 사고 싶은 한식 재료를 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/save-02.svg"
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "info",
+  "title": "멤버십·포인트·앱, 같이 확인하세요",
+  "content": "한인마트마다 앱·멤버십·포인트 혜택이 달라요. 자주 가는 곳만 가입하고 혜택 조건을 확인하세요.",
+  "image": "/images/money/topics/save-02.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "가입 전 체크",
+    "items": [
+     "포인트 적립률과 소멸 기간",
+     "앱 전용 쿠폰 여부",
+     "주간 전단과 앱 가격 차이",
+     "개인정보 수집 범위"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "한인마트 세일",
+  "kind": "question",
+  "title": "한인마트 세일 때 꼭 사는 품목은?",
+  "content": "세일 때 쟁이는 품목과 보관 팁을 나눠 주세요(광고 제외).",
+  "image": "/images/money/topics/save-02.svg"
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Target Circle 소개와 가입 방법 — 타깃의 무료 회원 혜택·쿠폰",
+  "content": "타깃 앱·사이트에서 쿠폰과 개인 맞춤 오퍼를 받는 무료 회원 프로그램이에요. 제품 구매 시 할인을 받을 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료 가입",
+      "label": "회원 혜택",
+      "note": "앱·웹",
+      "icon": "check"
+     },
+     {
+      "value": "쿠폰·오퍼",
+      "label": "제공",
+      "note": "미리 담기",
+      "icon": "ticket"
+     },
+     {
+      "value": "카드 연동",
+      "label": "선택",
+      "note": "",
+      "icon": "dollar"
+     },
+     {
+      "value": "매장 앱",
+      "label": "필요",
+      "note": "결제 시",
+      "icon": "phone"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "무료로 쿠폰을 받아요",
+     "앱에서 쿠폰을 관리해요",
+     "자주 가는 사람에게 유리해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "오퍼가 많아 관리가 필요해요",
+     "조건·유효기간이 있어요",
+     "충동 구매가 늘 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱에서 계정을 만들고 Circle에 가입해요."
+     },
+     {
+      "title": "쿠폰·오퍼 담기",
+      "body": "필요한 품목의 쿠폰만 담아요."
+     },
+     {
+      "title": "결제 때 적용",
+      "body": "앱·계정으로 결제 시 확인해요."
+     },
+     {
+      "title": "영수증 확인",
+      "body": "할인이 적용됐는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Target Circle",
+      "desc": "타깃의 무료 회원 혜택·쿠폰",
+      "url": "https://www.target.com/circle",
+      "tag": "쿠폰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Kroger 디지털 쿠폰 소개와 가입 방법 — 회원 번호로 자동 적용되는 쿠폰",
+  "content": "앱에서 쿠폰을 담아 두면 결제 때 회원 번호로 자동 적용되는 방식이에요. 지역 가맹 브랜드마다 앱이 다를 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "디지털 쿠폰",
+      "label": "핵심",
+      "note": "앱 클립",
+      "icon": "ticket"
+     },
+     {
+      "value": "자동 적용",
+      "label": "회원 번호",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "개인 맞춤",
+      "label": "쿠폰 추천",
+      "note": "",
+      "icon": "sparkles"
+     },
+     {
+      "value": "지역 브랜드",
+      "label": "다름",
+      "note": "확인",
+      "icon": "map-pin"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "종이 쿠폰이 필요 없어요",
+     "자동 적용이라 편해요",
+     "개인화된 쿠폰을 받을 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "담지 않으면 적용이 안 돼요",
+     "중복 사용 규정을 확인해야 해요",
+     "개인정보 수집이 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱·계정 만들기",
+      "body": "앱에서 계정을 만들고 회원 번호를 등록해요."
+     },
+     {
+      "title": "쿠폰 둘러보기",
+      "body": "이번 주 필요한 품목만 담아요."
+     },
+     {
+      "title": "결제 때 번호 입력",
+      "body": "전화번호나 카드로 적용해요."
+     },
+     {
+      "title": "영수증 확인",
+      "body": "할인 적용 여부를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Kroger 디지털 쿠폰",
+      "desc": "회원 번호로 자동 적용되는 쿠폰",
+      "url": "https://www.kroger.com/",
+      "tag": "쿠폰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "CVS ExtraCare 소개와 가입 방법 — 약국·잡화 포인트·쿠폰 프로그램",
+  "content": "약국과 잡화 구매에서 포인트와 쿠폰을 받는 무료 회원 프로그램이에요. 앱에서 쿠폰과 보상을 확인해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료 회원",
+      "label": "가입",
+      "note": "앱·전화번호",
+      "icon": "check"
+     },
+     {
+      "value": "쿠폰·보상",
+      "label": "제공",
+      "note": "앱에서",
+      "icon": "ticket"
+     },
+     {
+      "value": "약국",
+      "label": "혜택 일부",
+      "note": "조건 확인",
+      "icon": "stethoscope"
+     },
+     {
+      "value": "보상 사용 기한",
+      "label": "있음",
+      "note": "확인",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "약국·잡화 구매에서 할인을 받아요",
+     "자동으로 쿠폰이 생성돼요",
+     "무료로 가입해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "보상 사용 기한이 짧을 수 있어요",
+     "조건이 자주 바뀌어요",
+     "구매 기록이 수집돼요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "앱·사이트에서 회원 가입해요."
+     },
+     {
+      "title": "전화번호 등록",
+      "body": "결제 때 번호로 적립해요."
+     },
+     {
+      "title": "쿠폰 확인",
+      "body": "앱에서 쿠폰·보상을 확인해요."
+     },
+     {
+      "title": "기한 안에 사용",
+      "body": "사용 기한을 달력에 적어요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "CVS ExtraCare",
+      "desc": "약국·잡화 포인트·쿠폰 프로그램",
+      "url": "https://www.cvs.com/extracare/home",
+      "tag": "쿠폰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Walgreens 소개와 가입 방법 — 약국·잡화 회원 혜택",
+  "content": "약국·잡화 구매에서 쿠폰과 포인트(보상)를 받는 회원 프로그램을 운영하는 약국 체인이에요. 앱에서 쿠폰을 담을 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "회원 혜택",
+      "label": "있음",
+      "note": "앱·웹",
+      "icon": "user"
+     },
+     {
+      "value": "쿠폰",
+      "label": "디지털",
+      "note": "미리 담기",
+      "icon": "ticket"
+     },
+     {
+      "value": "약국 서비스",
+      "label": "처방 등",
+      "note": "",
+      "icon": "stethoscope"
+     },
+     {
+      "value": "조건",
+      "label": "변동",
+      "note": "확인",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "약국·잡화 할인을 앱으로 관리해요",
+     "처방약 서비스와 연동돼요",
+     "쿠폰이 자주 나와요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "혜택·조건이 자주 바뀌어요",
+     "쿠폰 사용 규칙을 확인해야 해요",
+     "정가가 높을 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱·계정 만들기",
+      "body": "앱이나 사이트에서 가입해요."
+     },
+     {
+      "title": "회원 번호 등록",
+      "body": "전화번호로 적립해요."
+     },
+     {
+      "title": "쿠폰 담기",
+      "body": "필요한 품목을 담아요."
+     },
+     {
+      "title": "영수증 확인",
+      "body": "적용 여부를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Walgreens",
+      "desc": "약국·잡화 회원 혜택",
+      "url": "https://www.walgreens.com/",
+      "tag": "약국"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Coupons.com 소개와 가입 방법 — 인쇄·디지털 쿠폰 모음 사이트",
+  "content": "브랜드 쿠폰을 모아 보여 주고 인쇄하거나 매장 계정에 연결할 수 있는 사이트예요. 쿠폰 사용 규정은 매장마다 달라요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "브랜드 쿠폰",
+      "label": "모음",
+      "note": "카테고리별",
+      "icon": "tag"
+     },
+     {
+      "value": "인쇄·연동",
+      "label": "선택",
+      "note": "매장별",
+      "icon": "send"
+     },
+     {
+      "value": "규정",
+      "label": "매장마다 다름",
+      "note": "확인",
+      "icon": "list"
+     },
+     {
+      "value": "무료",
+      "label": "이용",
+      "note": "",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "여러 브랜드 쿠폰을 한곳에서 찾아요",
+     "무료로 이용해요",
+     "카테고리별로 둘러볼 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "쿠폰 수가 많아 관리가 어려워요",
+     "일부 쿠폰은 한정돼요",
+     "매장 규정에 맞지 않을 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "사이트 방문",
+      "body": "필요한 품목 카테고리를 찾아요."
+     },
+     {
+      "title": "쿠폰 선택",
+      "body": "내가 살 품목의 쿠폰만 골라요."
+     },
+     {
+      "title": "사용 방법 확인",
+      "body": "인쇄·매장 연동 방법을 확인해요."
+     },
+     {
+      "title": "결제 때 적용",
+      "body": "매장 규정을 확인하고 사용해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Coupons.com",
+      "desc": "인쇄·디지털 쿠폰 모음 사이트",
+      "url": "https://www.coupons.com/",
+      "tag": "쿠폰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Ibotta 소개와 가입 방법 — 오퍼를 담고 현금으로 돌려받기",
+  "content": "장 보기 전에 오퍼를 담고 구매한 뒤 영수증 인증이나 계정 연동으로 현금을 돌려받는 앱이에요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "오퍼 선택",
+      "label": "구매 전",
+      "note": "필수",
+      "icon": "check"
+     },
+     {
+      "value": "현금 환급",
+      "label": "방식",
+      "note": "PayPal 등",
+      "icon": "dollar"
+     },
+     {
+      "value": "매장 연동",
+      "label": "가능",
+      "note": "",
+      "icon": "store"
+     },
+     {
+      "value": "최소 인출",
+      "label": "있음",
+      "note": "확인",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쿠폰과 달리 현금으로 돌려받아요",
+     "식료품·온라인에서 모두 써요",
+     "무료예요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "오퍼를 미리 골라야 해요",
+     "인출 최소 금액이 있어요",
+     "충동 구매에 주의해야 해요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱을 설치하고 가입해요."
+     },
+     {
+      "title": "오퍼 담기",
+      "body": "필요한 품목의 오퍼만 담아요."
+     },
+     {
+      "title": "구매·인증",
+      "body": "영수증 인증 또는 계정 연동으로 확인해요."
+     },
+     {
+      "title": "인출",
+      "body": "최소 금액이 되면 받아요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Ibotta",
+      "desc": "오퍼를 담고 현금으로 돌려받기",
+      "url": "https://ibotta.com/",
+      "tag": "환급"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "디지털 쿠폰 서비스 비교",
+  "content": "자주 가는 매장에 맞게 고르세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "디지털 쿠폰 서비스 비교",
+    "columns": [
+     "서비스",
+     "유형",
+     "특징",
+     "메모"
+    ],
+    "rows": [
+     [
+      "Target Circle",
+      "타깃 회원 쿠폰",
+      "앱에서 미리 담기",
+      "타깃 자주 가는 사람"
+     ],
+     [
+      "Kroger 쿠폰",
+      "디지털 쿠폰",
+      "회원 번호 자동 적용",
+      "크로거 계열 이용자"
+     ],
+     [
+      "CVS ExtraCare",
+      "약국 회원",
+      "보상·쿠폰",
+      "약국·잡화 구매"
+     ],
+     [
+      "Walgreens",
+      "약국 회원",
+      "쿠폰·보상",
+      "약국 이용"
+     ],
+     [
+      "Coupons.com",
+      "쿠폰 모음",
+      "브랜드 쿠폰",
+      "규정 확인 필요"
+     ],
+     [
+      "Ibotta",
+      "현금 환급",
+      "오퍼 담기",
+      "장보기 전 습관 필요"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "쿠폰 쓰는 순서와 주의",
+  "content": "쿠폰은 순서가 중요해요. 목록 → 쿠폰 순서를 지키세요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 쓰세요",
+    "items": [
+     {
+      "title": "목록 먼저",
+      "body": "살 품목을 먼저 정해요."
+     },
+     {
+      "title": "쿠폰 확인",
+      "body": "그 품목의 쿠폰만 담아요."
+     },
+     {
+      "title": "결제 후 확인",
+      "body": "영수증에서 할인이 적용됐는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "쿠폰 때문에 더 쓰지 마세요",
+    "body": "\"조금만 더 사면 할인\"은 필요 없는 지출을 만들어요. 원래 살 것의 할인만 챙기세요."
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "question",
+  "title": "쿠폰 앱, 어떤 걸 쓰세요?",
+  "content": "쓰는 쿠폰 서비스와 편했던 점을 알려 주세요(링크 제외).",
+  "image": "/images/money/topics/save-03.svg"
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "talk",
+  "title": "이번 주 쿠폰 챌린지",
+  "content": "이번 주 장 보기 전 쿠폰 앱을 열어 본 분은 \"열어 봤어요\"만 남겨 주세요.",
+  "image": "/images/money/topics/save-03.svg"
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "Rakuten 소개와 가입 방법 — 온라인 쇼핑 캐시백 포털",
+  "content": "쇼핑 전에 Rakuten을 거쳐 들어가면 구매 금액의 일정 %를 돌려받는 서비스예요. 분기별로 환급금이 지급돼요(방식은 공식 안내 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "포털 경유",
+      "label": "필수",
+      "note": "쇼핑 전에",
+      "icon": "refresh"
+     },
+     {
+      "value": "캐시백 %",
+      "label": "매장별",
+      "note": "변동",
+      "icon": "tag"
+     },
+     {
+      "value": "지급",
+      "label": "정기",
+      "note": "방식 확인",
+      "icon": "calendar"
+     },
+     {
+      "value": "반품",
+      "label": "취소",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쇼핑몰이 다양해요",
+     "쇼핑 전에 한 번 거치면 돼요",
+     "브라우저 확장으로 알림을 받아요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "쿠폰 코드를 따로 쓰면 적립이 안 될 수 있어요",
+     "확정까지 시간이 걸려요",
+     "반품하면 캐시백이 취소돼요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 계정을 만들어요."
+     },
+     {
+      "title": "확장 프로그램 설치(선택)",
+      "body": "브라우저에 설치하면 알림을 받아요."
+     },
+     {
+      "title": "포털에서 쇼핑몰 선택",
+      "body": "캐시백 %를 확인하고 이동해요."
+     },
+     {
+      "title": "구매·확정 확인",
+      "body": "주문 후 적립 여부를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Rakuten",
+      "desc": "온라인 쇼핑 캐시백 포털",
+      "url": "https://www.rakuten.com/",
+      "tag": "캐시백"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "Capital One Shopping 소개와 가입 방법 — 가격 비교+캐시백 확장 프로그램",
+  "content": "온라인 쇼핑 중 더 싼 가격이나 쿠폰, 보상을 알려 주는 브라우저 확장 프로그램이에요. 계정 가입이 필요해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "확장 프로그램",
+      "label": "방식",
+      "note": "쇼핑 중 알림",
+      "icon": "search"
+     },
+     {
+      "value": "가격 비교",
+      "label": "제공",
+      "note": "",
+      "icon": "tag"
+     },
+     {
+      "value": "보상",
+      "label": "있음",
+      "note": "조건 확인",
+      "icon": "gift"
+     },
+     {
+      "value": "개인정보",
+      "label": "수집",
+      "note": "확인",
+      "icon": "lock"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쇼핑 중 가격 비교를 자동으로 받아요",
+     "쿠폰·보상 기능이 있어요",
+     "무료로 써요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "브라우저 활동이 수집될 수 있어요",
+     "보상은 조건·지급 방식을 확인해야 해요",
+     "알림이 번거로울 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 계정을 만들어요."
+     },
+     {
+      "title": "확장 설치",
+      "body": "브라우저에 확장 프로그램을 설치해요."
+     },
+     {
+      "title": "개인정보 설정",
+      "body": "권한·수집 범위를 확인해요."
+     },
+     {
+      "title": "쇼핑하며 확인",
+      "body": "알림이 뜨면 가격을 비교해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Capital One Shopping",
+      "desc": "가격 비교+캐시백 확장 프로그램",
+      "url": "https://www.capitaloneshopping.com/",
+      "tag": "확장"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "PayPal Honey 소개와 가입 방법 — 쿠폰 코드를 자동으로 찾는 확장 프로그램",
+  "content": "결제 전에 쿠폰 코드를 자동으로 시도해 주는 브라우저 확장 프로그램이에요. 일부 매장에서 포인트도 줘요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "쿠폰 자동 적용",
+      "label": "핵심",
+      "note": "결제 단계에서",
+      "icon": "ticket"
+     },
+     {
+      "value": "포인트",
+      "label": "일부",
+      "note": "조건 확인",
+      "icon": "coins"
+     },
+     {
+      "value": "확장 프로그램",
+      "label": "필요",
+      "note": "브라우저",
+      "icon": "monitor"
+     },
+     {
+      "value": "개인정보",
+      "label": "수집",
+      "note": "확인",
+      "icon": "lock"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쿠폰을 직접 찾는 번거로움이 줄어요",
+     "무료로 써요",
+     "한 번 설치하면 계속 동작해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "다른 캐시백 포털 적립과 충돌할 수 있어요",
+     "쇼핑 활동이 수집될 수 있어요",
+     "쿠폰이 없는 경우도 많아요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "확장 설치",
+      "body": "브라우저에서 확장 프로그램을 설치해요."
+     },
+     {
+      "title": "계정 연결",
+      "body": "계정을 만들거나 연결해요."
+     },
+     {
+      "title": "결제 전 실행",
+      "body": "결제 화면에서 쿠폰 적용을 눌러요."
+     },
+     {
+      "title": "적립 충돌 확인",
+      "body": "캐시백 포털과 같이 쓸 때 약관을 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "PayPal Honey",
+      "desc": "쿠폰 코드를 자동으로 찾는 확장 프로그램",
+      "url": "https://www.joinhoney.com/",
+      "tag": "확장"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "TopCashback 소개와 가입 방법 — 쇼핑 캐시백 포털",
+  "content": "쇼핑몰 링크를 거쳐 구매하면 캐시백을 주는 포털이에요. 지급은 현금성 방식(PayPal·수표 등)이 안내돼요(정책 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "포털",
+      "label": "방식",
+      "note": "Rakuten과 유사",
+      "icon": "refresh"
+     },
+     {
+      "value": "캐시백 %",
+      "label": "매장별",
+      "note": "변동",
+      "icon": "tag"
+     },
+     {
+      "value": "지급",
+      "label": "현금성",
+      "note": "정책 확인",
+      "icon": "dollar"
+     },
+     {
+      "value": "반품",
+      "label": "취소",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쇼핑몰이 다양해요",
+     "캐시백 %를 비교해 선택할 수 있어요",
+     "현금성 지급이에요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "추적이 안 되면 문의가 필요해요",
+     "확정까지 시간이 걸려요",
+     "조건이 매장마다 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 가입해요."
+     },
+     {
+      "title": "매장·% 확인",
+      "body": "캐시백 %를 비교해요."
+     },
+     {
+      "title": "링크로 이동·구매",
+      "body": "포털을 거쳐 구매해요."
+     },
+     {
+      "title": "적립 확인",
+      "body": "확정 여부를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "TopCashback",
+      "desc": "쇼핑 캐시백 포털",
+      "url": "https://www.topcashback.com/",
+      "tag": "캐시백"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "캐시백 서비스 비교",
+  "content": "같은 쇼핑이라도 서비스마다 % 와 조건이 달라요. 쇼핑 전에 비교하세요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "캐시백 서비스 비교",
+    "columns": [
+     "서비스",
+     "방식",
+     "강점",
+     "주의"
+    ],
+    "rows": [
+     [
+      "Rakuten",
+      "포털",
+      "쇼핑몰 다양",
+      "쿠폰 코드와 충돌"
+     ],
+     [
+      "TopCashback",
+      "포털",
+      "% 비교 쉬움",
+      "추적 문의 가능성"
+     ],
+     [
+      "Capital One Shopping",
+      "확장",
+      "가격 비교+보상",
+      "개인정보 수집"
+     ],
+     [
+      "PayPal Honey",
+      "확장",
+      "쿠폰 자동 적용",
+      "다른 적립과 충돌"
+     ],
+     [
+      "Ibotta",
+      "앱",
+      "식료품·오프라인",
+      "오퍼 사전 선택"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ 캐시백 %는 날마다 달라요."
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "캐시백이 적립 안 될 때 체크할 것",
+  "content": "적립이 안 되면 대부분 이 중 하나예요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "체크 포인트",
+    "items": [
+     "쿠폰 코드를 따로 사용하지 않았나",
+     "다른 광고를 눌러 이동하지 않았나",
+     "광고 차단 확장이 켜져 있지 않았나",
+     "포털에서 바로 들어갔나",
+     "주문 번호·스크린샷을 남겼나"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "문의할 때는 증거와 함께",
+    "body": "주문 번호, 날짜, 스크린샷을 준비해서 해당 서비스의 문의 메뉴로 접수하세요."
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "캐시백 + 카드 + 쿠폰 겹치기",
+  "content": "캐시백 %에 카드 환급과 쿠폰을 겹치면 효과가 커져요. 단, 서비스 약관상 허용되는지 확인하세요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "$200 주문 예시 (가상)",
+    "sub": "혜택을 겹칠 때",
+    "items": [
+     {
+      "label": "캐시백 5%",
+      "value": 10,
+      "display": "$10"
+     },
+     {
+      "label": "+ 카드 2%",
+      "value": 14,
+      "display": "$14",
+      "highlight": true
+     },
+     {
+      "label": "+ 쿠폰 $20",
+      "value": 34,
+      "display": "$34",
+      "highlight": true
+     }
+    ],
+    "max": 40,
+    "source": "※ 가상 예시예요. 실제 조건은 달라요."
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "question",
+  "title": "캐시백 어떤 서비스 쓰세요?",
+  "content": "쓰는 서비스와 실제 모인 금액 감각을 알려 주세요(링크 제외).",
+  "image": "/images/money/topics/save-04.svg"
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "talk",
+  "title": "온라인 쇼핑 전 캐시백 확인 습관",
+  "content": "쇼핑 전에 확인하는 습관을 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/save-04.svg"
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "question",
+  "title": "캐시백 적립이 안 됐던 경험이 있나요?",
+  "content": "원인과 해결 방법을 나눠 주세요(링크 제외).",
+  "image": "/images/money/topics/save-04.svg"
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "Netflix (광고 포함 요금제) 소개와 가입 방법 — 요금제를 바꿔 구독료 줄이기",
+  "content": "동영상 스트리밍 서비스로 광고가 포함된 저렴한 요금제와 광고 없는 요금제가 있어요. 요금제·가격은 변동되니 공식 사이트에서 확인하세요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "광고 요금제",
+      "label": "있음",
+      "note": "가격 낮음",
+      "icon": "tag"
+     },
+     {
+      "value": "화질·기기 수",
+      "label": "요금제별",
+      "note": "확인",
+      "icon": "monitor"
+     },
+     {
+      "value": "해지",
+      "label": "언제든",
+      "note": "앱·웹",
+      "icon": "check"
+     },
+     {
+      "value": "가격 변동",
+      "label": "있음",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "광고 요금제로 비용을 줄일 수 있어요",
+     "해지가 쉬워요",
+     "콘텐츠가 다양해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "광고 요금제는 일부 콘텐츠·기능이 제한될 수 있어요",
+     "가격이 자주 올라요",
+     "계정 공유 규정이 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 계정을 만들어요."
+     },
+     {
+      "title": "요금제 비교",
+      "body": "광고 포함 / 광고 없음을 비교해요."
+     },
+     {
+      "title": "결제",
+      "body": "월 결제로 시작해요."
+     },
+     {
+      "title": "점검",
+      "body": "한 달에 몇 번 쓰는지 기록해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Netflix (광고 포함 요금제)",
+      "desc": "요금제를 바꿔 구독료 줄이기",
+      "url": "https://www.netflix.com/",
+      "tag": "구독"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "YouTube Premium (가족·학생 요금제) 소개와 가입 방법 — 광고 없는 유튜브·뮤직",
+  "content": "광고 없는 영상 시청과 음악 서비스(YouTube Music) 이용이 가능한 유료 구독이에요. 개인·가족·학생 요금제가 있어요(조건·가격 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "가족 요금제",
+      "label": "있음",
+      "note": "같은 가구",
+      "icon": "users"
+     },
+     {
+      "value": "학생 요금제",
+      "label": "있음",
+      "note": "인증 필요",
+      "icon": "graduation-cap"
+     },
+     {
+      "value": "광고 제거",
+      "label": "핵심",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "뮤직 포함",
+      "label": "일부",
+      "note": "플랜 확인",
+      "icon": "music"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "광고 없이 시청해요",
+     "음악 서비스와 함께 써요",
+     "가족·학생 요금제로 인당 비용을 줄일 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "월 비용이 들어요",
+     "가족 요금제는 같은 가구 조건이 있어요",
+     "쓰지 않으면 낭비예요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "요금제 선택",
+      "body": "개인·가족·학생을 비교해요."
+     },
+     {
+      "title": "구글 계정으로 가입",
+      "body": "결제 수단을 연결해요."
+     },
+     {
+      "title": "가족 초대",
+      "body": "가족 요금제는 조건에 맞게 초대해요."
+     },
+     {
+      "title": "점검",
+      "body": "주 몇 시간 쓰는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "YouTube Premium (가족·학생 요금제)",
+      "desc": "광고 없는 유튜브·뮤직",
+      "url": "https://www.youtube.com/premium",
+      "tag": "구독"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "Disney+ 번들 소개와 가입 방법 — 여러 서비스를 묶어 아끼기",
+  "content": "Disney+와 다른 스트리밍 서비스를 묶은 번들 상품이 있어요. 개별 가입보다 저렴할 수 있지만 포함 서비스·광고 여부를 확인해야 해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "번들",
+      "label": "있음",
+      "note": "조합별 상이",
+      "icon": "grid"
+     },
+     {
+      "value": "광고 여부",
+      "label": "플랜별",
+      "note": "확인",
+      "icon": "tag"
+     },
+     {
+      "value": "가격",
+      "label": "변동",
+      "note": "",
+      "icon": "dollar"
+     },
+     {
+      "value": "해지",
+      "label": "번들 단위",
+      "note": "확인",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "개별 가입보다 저렴할 수 있어요",
+     "한 번에 여러 서비스를 이용해요",
+     "청구가 한곳으로 모여요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "안 보는 서비스가 있으면 낭비예요",
+     "조합·가격이 바뀔 수 있어요",
+     "해지·변경 조건을 확인해야 해요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "번들 구성 확인",
+      "body": "포함 서비스와 가격을 확인해요."
+     },
+     {
+      "title": "개별 합계와 비교",
+      "body": "개별 가입 합계와 비교해요."
+     },
+     {
+      "title": "가입",
+      "body": "필요한 번들만 선택해요."
+     },
+     {
+      "title": "사용 점검",
+      "body": "3개월 후 쓰는 서비스만 남겨요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Disney+ 번들",
+      "desc": "여러 서비스를 묶어 아끼기",
+      "url": "https://www.disneyplus.com/",
+      "tag": "구독"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "Amazon Prime (Prime Video 포함) 소개와 가입 방법 — 배송+영상+음악을 묶은 멤버십",
+  "content": "아마존 쇼핑 배송 혜택에 영상(Prime Video) 등이 함께 포함된 멤버십이에요. 쇼핑을 자주 하면 본전이 나올 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "멤버십",
+      "label": "연·월",
+      "note": "요금제 확인",
+      "icon": "key"
+     },
+     {
+      "value": "배송 혜택",
+      "label": "있음",
+      "note": "조건",
+      "icon": "send"
+     },
+     {
+      "value": "Prime Video",
+      "label": "포함",
+      "note": "",
+      "icon": "play"
+     },
+     {
+      "value": "무료 체험",
+      "label": "있을 수 있음",
+      "note": "종료일 확인",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쇼핑 배송과 영상을 묶어 써요",
+     "별도 영상 구독을 줄일 수 있어요",
+     "학생·저소득 할인 등이 있을 수 있어요(조건 확인)"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "쇼핑을 안 하면 본전이 안 나요",
+     "가격이 변동돼요",
+     "무료 체험 후 자동 결제돼요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "본전 계산",
+      "body": "지난 1년 아마존 구매 횟수를 확인해요."
+     },
+     {
+      "title": "무료 체험(있을 때)",
+      "body": "종료일 알림을 걸어요."
+     },
+     {
+      "title": "가입",
+      "body": "필요하면 가입해요."
+     },
+     {
+      "title": "사용 점검",
+      "body": "배송·영상 이용을 점검해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Amazon Prime (Prime Video 포함)",
+      "desc": "배송+영상+음악을 묶은 멤버십",
+      "url": "https://www.amazon.com/prime",
+      "tag": "구독"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "Spotify (Duo·Family·Student) 소개와 가입 방법 — 음악 구독 요금제 비교",
+  "content": "음악 스트리밍 서비스로 개인·듀오·가족·학생 요금제가 있어요. 같이 쓰는 사람이 있으면 인당 비용을 줄일 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "개인·듀오·가족",
+      "label": "요금제",
+      "note": "조건 확인",
+      "icon": "users"
+     },
+     {
+      "value": "학생",
+      "label": "인증",
+      "note": "할인",
+      "icon": "graduation-cap"
+     },
+     {
+      "value": "무료 버전",
+      "label": "광고 포함",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "가격 변동",
+      "label": "있음",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "함께 쓰면 인당 비용이 줄어요",
+     "무료 버전으로 먼저 써 볼 수 있어요",
+     "플레이리스트가 풍부해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "가족 요금제는 같은 주소 조건이 있어요",
+     "무료 버전은 광고·기능 제한이 있어요",
+     "가격이 오를 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "요금제 확인",
+      "body": "개인/듀오/가족/학생 비교해요."
+     },
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 가입해요."
+     },
+     {
+      "title": "초대·인증",
+      "body": "가족·학생 요금제는 조건 확인 후 초대해요."
+     },
+     {
+      "title": "점검",
+      "body": "쓰지 않으면 무료로 전환해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Spotify (Duo·Family·Student)",
+      "desc": "음악 구독 요금제 비교",
+      "url": "https://www.spotify.com/us/premium/",
+      "tag": "구독"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "Rocket Money 소개와 가입 방법 — 구독을 자동으로 찾아 정리해 주는 앱",
+  "content": "계좌·카드 연결로 반복 결제를 찾아 보여 주고 구독 정리를 돕는 앱이에요. 일부 기능은 유료(구독·협상 수수료)일 수 있어요(정책 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "반복 결제 찾기",
+      "label": "핵심",
+      "note": "계좌 연결",
+      "icon": "search"
+     },
+     {
+      "value": "해지 도움",
+      "label": "일부",
+      "note": "유료 가능",
+      "icon": "refresh"
+     },
+     {
+      "value": "예산 기능",
+      "label": "있음",
+      "note": "",
+      "icon": "wallet"
+     },
+     {
+      "value": "개인정보",
+      "label": "금융 데이터",
+      "note": "권한 확인",
+      "icon": "lock"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "잊고 있던 구독을 찾아줘요",
+     "한곳에서 목록으로 볼 수 있어요",
+     "예산 관리 기능이 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "계좌 연결이 필요해요(금융 데이터 접근)",
+     "일부 기능은 유료예요",
+     "모든 구독을 찾는 건 아니에요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱을 설치하고 계정을 만들어요."
+     },
+     {
+      "title": "계좌 연결",
+      "body": "개인정보·연결 범위를 확인하고 연결해요."
+     },
+     {
+      "title": "구독 목록 확인",
+      "body": "반복 결제를 확인해요."
+     },
+     {
+      "title": "정리",
+      "body": "안 쓰는 구독은 직접 해지해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알아 둘 점",
+    "body": "금융 정보를 연결하는 앱은 보안·개인정보 정책을 꼭 확인하세요. 수동으로 표로 정리하는 방법도 있어요."
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Rocket Money",
+      "desc": "구독을 자동으로 찾아 정리해 주는 앱",
+      "url": "https://www.rocketmoney.com/",
+      "tag": "앱"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "스트리밍 구독료 줄이기 방법 비교",
+  "content": "방법을 섞어 쓰면 효과가 커요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "스트리밍 구독료 줄이기 방법 비교",
+    "columns": [
+     "방법",
+     "내용",
+     "절약 효과",
+     "주의"
+    ],
+    "rows": [
+     [
+      "요금제 변경",
+      "광고 포함·가족·학생",
+      "중간",
+      "기능 제한 확인"
+     ],
+     [
+      "번들",
+      "여러 서비스 묶음",
+      "중간",
+      "안 쓰는 서비스 포함 주의"
+     ],
+     [
+      "로테이션",
+      "보고 싶을 때만 구독",
+      "큼",
+      "해지·재가입 번거로움"
+     ],
+     [
+      "연 결제",
+      "장기 할인",
+      "중간",
+      "환불 제한"
+     ],
+     [
+      "공유",
+      "가족·듀오 요금제",
+      "큼",
+      "같은 가구 조건"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "info",
+  "title": "구독 정리 4단계",
+  "content": "구독은 모아 보면 놀랄 만큼 많아요.",
+  "image": "/images/money/topics/save-05.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 정리하세요",
+    "items": [
+     {
+      "title": "한곳에 모으기",
+      "body": "명세서에서 반복 결제를 찾아요."
+     },
+     {
+      "title": "사용 횟수 적기",
+      "body": "지난 한 달 사용 횟수를 적어요."
+     },
+     {
+      "title": "0~1회는 해지 후보",
+      "body": "쓰지 않은 건 해지해요."
+     },
+     {
+      "title": "요금제 점검",
+      "body": "더 싼 요금제가 있는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "무료 체험 해지를 잊지 마세요",
+    "body": "가입 즉시 종료 전날 알림을 걸어 두세요."
+   }
+  ]
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "question",
+  "title": "구독 몇 개 유지하세요?",
+  "content": "개수와 가장 가치 있는 구독을 알려 주세요.",
+  "image": "/images/money/topics/save-05.svg"
+ },
+ {
+  "topic": "스트리밍 구독료",
+  "kind": "talk",
+  "title": "이번 달 구독 정리 선언",
+  "content": "이번 달 정리할 구독이 있다면 선언해 보세요.",
+  "image": "/images/money/topics/save-05.svg"
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "Mint Mobile 소개와 가입 방법 — 선결제 방식의 저가 통신 서비스",
+  "content": "대형 통신사 망을 빌려 쓰는 알뜰 요금제 사업자예요. 장기 선결제 시 월 환산 요금이 낮아지는 방식이 있어요(정책·가격 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "선결제",
+      "label": "장기 할인",
+      "note": "정책 확인",
+      "icon": "dollar"
+     },
+     {
+      "value": "망",
+      "label": "대형사 망 이용",
+      "note": "품질 지역별",
+      "icon": "phone"
+     },
+     {
+      "value": "온라인 가입",
+      "label": "대부분",
+      "note": "eSIM 가능",
+      "icon": "globe"
+     },
+     {
+      "value": "데이터",
+      "label": "요금제별",
+      "note": "",
+      "icon": "chart-bar"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "월 환산 요금이 낮을 수 있어요",
+     "온라인으로 간단히 가입해요",
+     "약정이 없어요(정책 확인)"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "선결제 금액이 커요",
+     "지원이 온라인 중심이에요",
+     "지역별 통화 품질이 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "커버리지 확인",
+      "body": "내 지역 통화 품질을 확인해요."
+     },
+     {
+      "title": "요금제 선택",
+      "body": "데이터 양과 선결제 기간을 정해요."
+     },
+     {
+      "title": "번호 이동·신규",
+      "body": "기존 번호를 옮기거나 새 번호를 받아요."
+     },
+     {
+      "title": "개통 확인",
+      "body": "eSIM/유심으로 개통해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알아 둘 점",
+    "body": "번호 이동 전에 기존 통신사의 할부·정산 잔액을 확인하세요."
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Mint Mobile",
+      "desc": "선결제 방식의 저가 통신 서비스",
+      "url": "https://www.mintmobile.com/",
+      "tag": "알뜰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "Visible 소개와 가입 방법 — 단순한 무제한 요금제의 알뜰 서비스",
+  "content": "대형 통신사 망을 쓰는 단순 요금제 서비스예요. 앱으로 가입·관리하고 약정이 없어요(정책 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "단순 요금제",
+      "label": "특징",
+      "note": "앱 관리",
+      "icon": "phone"
+     },
+     {
+      "value": "망",
+      "label": "대형사 망",
+      "note": "품질 확인",
+      "icon": "globe"
+     },
+     {
+      "value": "약정",
+      "label": "없음",
+      "note": "정책 확인",
+      "icon": "check"
+     },
+     {
+      "value": "지원",
+      "label": "온라인",
+      "note": "",
+      "icon": "message-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "요금제가 단순해요",
+     "앱으로 간단히 관리해요",
+     "약정 부담이 적어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "속도 제한 조건이 있을 수 있어요",
+     "매장 지원이 없어요",
+     "해외 로밍 조건을 확인해야 해요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "커버리지 확인",
+      "body": "지역 품질을 확인해요."
+     },
+     {
+      "title": "요금제 확인",
+      "body": "데이터·속도 제한을 읽어요."
+     },
+     {
+      "title": "가입·번호 이동",
+      "body": "앱에서 신청해요."
+     },
+     {
+      "title": "개통",
+      "body": "안내에 따라 개통해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Visible",
+      "desc": "단순한 무제한 요금제의 알뜰 서비스",
+      "url": "https://www.visible.com/",
+      "tag": "알뜰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "US Mobile 소개와 가입 방법 — 요금제를 직접 조합하는 통신 서비스",
+  "content": "데이터·통화량을 직접 조합하고 대형 통신사 망 중 선택할 수 있는 서비스예요. 사용량에 맞춰 요금을 줄일 수 있어요(정책 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "요금제 조합",
+      "label": "가능",
+      "note": "사용량 맞춤",
+      "icon": "grid"
+     },
+     {
+      "value": "망 선택",
+      "label": "가능",
+      "note": "지역 품질 기준",
+      "icon": "globe"
+     },
+     {
+      "value": "온라인 가입",
+      "label": "",
+      "note": "eSIM",
+      "icon": "phone"
+     },
+     {
+      "value": "가족 요금",
+      "label": "있음",
+      "note": "확인",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "쓰는 만큼만 내도록 맞출 수 있어요",
+     "망을 선택할 수 있어요",
+     "가족 요금제를 쓸 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "선택지가 많아 처음엔 복잡해요",
+     "지원이 온라인 중심이에요",
+     "요금제 정책이 바뀔 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "사용량 점검",
+      "body": "지난 3개월 데이터·통화 사용량을 확인해요."
+     },
+     {
+      "title": "요금제 조합",
+      "body": "필요한 만큼 조합해요."
+     },
+     {
+      "title": "가입·개통",
+      "body": "온라인으로 신청해요."
+     },
+     {
+      "title": "점검",
+      "body": "한두 달 후 사용량과 요금을 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "US Mobile",
+      "desc": "요금제를 직접 조합하는 통신 서비스",
+      "url": "https://www.usmobile.com/",
+      "tag": "알뜰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "Google Fi Wireless 소개와 가입 방법 — 해외 사용이 편한 통신 서비스",
+  "content": "구글이 제공하는 통신 서비스로 해외 로밍 사용이 편하다는 안내가 있어요. 요금제·조건은 공식 사이트에서 확인하세요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "해외 사용",
+      "label": "편리",
+      "note": "조건 확인",
+      "icon": "globe"
+     },
+     {
+      "value": "요금제",
+      "label": "다양",
+      "note": "확인",
+      "icon": "tag"
+     },
+     {
+      "value": "앱 관리",
+      "label": "쉬움",
+      "note": "",
+      "icon": "phone"
+     },
+     {
+      "value": "기기",
+      "label": "호환 확인",
+      "note": "",
+      "icon": "monitor"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "해외 출장·여행이 잦으면 유리할 수 있어요",
+     "앱으로 관리해요",
+     "요금제 선택이 단순해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "기기 호환을 확인해야 해요",
+     "요금이 다른 알뜰 서비스보다 높을 수 있어요",
+     "조건이 바뀔 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "기기 호환 확인",
+      "body": "내 폰이 지원되는지 확인해요."
+     },
+     {
+      "title": "요금제 선택",
+      "body": "데이터 필요량을 정해요."
+     },
+     {
+      "title": "번호 이동·가입",
+      "body": "온라인으로 신청해요."
+     },
+     {
+      "title": "개통",
+      "body": "안내에 따라 개통해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Google Fi Wireless",
+      "desc": "해외 사용이 편한 통신 서비스",
+      "url": "https://fi.google.com/",
+      "tag": "통신"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "Cricket Wireless 소개와 가입 방법 — 매장 지원이 있는 저가 통신 서비스",
+  "content": "대형 통신사 계열의 저가 요금제 서비스예요. 매장에서 상담을 받을 수 있는 점이 장점이에요(요금제 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "매장 지원",
+      "label": "있음",
+      "note": "오프라인",
+      "icon": "store"
+     },
+     {
+      "value": "요금제",
+      "label": "단순",
+      "note": "확인",
+      "icon": "tag"
+     },
+     {
+      "value": "망",
+      "label": "대형사 계열",
+      "note": "",
+      "icon": "phone"
+     },
+     {
+      "value": "가족 할인",
+      "label": "있음",
+      "note": "확인",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "매장에서 상담받을 수 있어요",
+     "요금제가 단순해요",
+     "가족 혜택이 있을 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "알뜰 서비스보다 비쌀 수 있어요",
+     "프로모션 조건을 확인해야 해요",
+     "속도 제한이 있을 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "요금제 비교",
+      "body": "데이터 필요량을 확인해요."
+     },
+     {
+      "title": "매장 또는 온라인 가입",
+      "body": "가까운 매장을 찾아요."
+     },
+     {
+      "title": "번호 이동",
+      "body": "계정 정보를 준비해요."
+     },
+     {
+      "title": "개통",
+      "body": "안내에 따라 개통해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Cricket Wireless",
+      "desc": "매장 지원이 있는 저가 통신 서비스",
+      "url": "https://www.cricketwireless.com/",
+      "tag": "통신"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "알뜰 통신 서비스 비교",
+  "content": "요금보다 내 지역 통화 품질이 가장 중요해요. 먼저 커버리지를 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "알뜰 통신 서비스 비교",
+    "columns": [
+     "서비스",
+     "특징",
+     "지원 방식",
+     "메모"
+    ],
+    "rows": [
+     [
+      "Mint Mobile",
+      "선결제 할인",
+      "온라인",
+      "장기 선결제 금액 큼"
+     ],
+     [
+      "Visible",
+      "단순 요금제",
+      "온라인·앱",
+      "속도 제한 확인"
+     ],
+     [
+      "US Mobile",
+      "사용량 조합",
+      "온라인",
+      "선택지가 많음"
+     ],
+     [
+      "Google Fi",
+      "해외 사용",
+      "온라인",
+      "기기 호환"
+     ],
+     [
+      "Cricket",
+      "매장 지원",
+      "오프라인+온라인",
+      "프로모션 조건"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ 가격·조건은 수시로 바뀌어요."
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "통신비 줄이는 순서",
+  "content": "무작정 바꾸지 말고 내 사용량부터 확인하세요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이 순서로 가세요",
+    "items": [
+     {
+      "title": "사용량 확인",
+      "body": "지난 3개월 데이터·통화를 확인해요."
+     },
+     {
+      "title": "커버리지 확인",
+      "body": "집·직장에서 통화 품질을 확인해요."
+     },
+     {
+      "title": "약정·할부 확인",
+      "body": "해지 때 잔액을 확인해요."
+     },
+     {
+      "title": "번호 이동",
+      "body": "새 서비스 개통 후 기존 서비스를 해지해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "번호 이동 순서를 지키세요",
+    "body": "새 서비스가 개통되기 전에 기존 서비스를 해지하면 번호를 잃을 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "question",
+  "title": "지금 통신비는 월 얼마예요?",
+  "content": "인원수와 대략의 금액을 알려 주세요.",
+  "image": "/images/money/topics/save-06.svg"
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "talk",
+  "title": "한국 가족과 통화는 어떻게 하세요?",
+  "content": "쓰는 통화 앱과 팁을 나눠 주세요.",
+  "image": "/images/money/topics/save-06.svg"
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "talk",
+  "title": "통신비 점검의 날",
+  "content": "이번 달 청구서를 열어 본 분은 \"확인했어요\"를 남겨 주세요.",
+  "image": "/images/money/topics/save-06.svg"
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "Georgia Power 소개와 가입 방법 — 조지아 전기 요금제·절약 프로그램 확인",
+  "content": "조지아의 전력 회사로, 요금제 정보와 에너지 절약 프로그램·지원 안내를 제공해요. 고지서와 계정에서 사용량을 확인할 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "사용량 확인",
+      "label": "온라인",
+      "note": "계정",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "요금제",
+      "label": "다양",
+      "note": "시간대별 등",
+      "icon": "tag"
+     },
+     {
+      "value": "절약 프로그램",
+      "label": "안내",
+      "note": "조건 확인",
+      "icon": "sparkles"
+     },
+     {
+      "value": "지원",
+      "label": "안내",
+      "note": "소득 기준 등",
+      "icon": "heart-handshake"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "내 사용량을 날짜별로 볼 수 있어요",
+     "요금제 선택 정보를 확인해요",
+     "절약 프로그램을 안내받아요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "지역에 따라 공급 회사가 달라요",
+     "요금제 비교가 복잡할 수 있어요",
+     "프로그램 조건이 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "온라인 계정 만들기",
+      "body": "고지서의 계정 번호로 가입해요."
+     },
+     {
+      "title": "사용량 확인",
+      "body": "시간대별·일별 사용량을 확인해요."
+     },
+     {
+      "title": "요금제·프로그램 확인",
+      "body": "내게 맞는 요금제를 비교해요."
+     },
+     {
+      "title": "절약 목표 정하기",
+      "body": "한 달에 줄일 kWh를 정해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알아 둘 점",
+    "body": "거주 지역에 따라 전력 회사가 달라요. 내 고지서의 회사 사이트를 확인하세요."
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Georgia Power",
+      "desc": "조지아 전기 요금제·절약 프로그램 확인",
+      "url": "https://www.georgiapower.com/",
+      "tag": "전력 회사"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "ENERGY STAR 소개와 가입 방법 — 효율 높은 제품·리베이트 찾기",
+  "content": "미국 정부가 효율 인증을 해 주는 프로그램이에요. 인증 제품을 검색하고 지역 리베이트·인센티브를 찾을 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "효율 인증",
+      "label": "제품 표시",
+      "note": "기준 충족",
+      "icon": "check"
+     },
+     {
+      "value": "제품 검색",
+      "label": "가능",
+      "note": "모델명으로",
+      "icon": "search"
+     },
+     {
+      "value": "리베이트 찾기",
+      "label": "지역별",
+      "note": "확인",
+      "icon": "gift"
+     },
+     {
+      "value": "정부",
+      "label": "운영",
+      "note": "공식",
+      "icon": "shield"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "효율 높은 제품을 쉽게 찾아요",
+     "인증 여부를 모델명으로 확인해요",
+     "리베이트 정보를 찾을 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "인증 제품이 항상 가장 저렴한 건 아니에요",
+     "리베이트는 지역·시기마다 달라요",
+     "정보가 방대해요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "제품 검색",
+      "body": "냉장고·세탁기 등 제품군을 검색해요."
+     },
+     {
+      "title": "모델 비교",
+      "body": "효율·연간 전기료 예상을 확인해요."
+     },
+     {
+      "title": "리베이트 확인",
+      "body": "내 우편번호로 지원을 찾아요."
+     },
+     {
+      "title": "구매 전 확인",
+      "body": "신청 조건을 확인한 뒤 구매해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "ENERGY STAR",
+      "desc": "효율 높은 제품·리베이트 찾기",
+      "url": "https://www.energystar.gov/",
+      "tag": "정부"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "DSIRE 소개와 가입 방법 — 주별 에너지 인센티브 데이터베이스",
+  "content": "에너지 효율·재생에너지 관련 인센티브와 정책을 주·지역별로 검색하는 데이터베이스예요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "인센티브 검색",
+      "label": "주별",
+      "note": "",
+      "icon": "search"
+     },
+     {
+      "value": "정책 정보",
+      "label": "제공",
+      "note": "",
+      "icon": "list"
+     },
+     {
+      "value": "업데이트",
+      "label": "수시",
+      "note": "확인 필요",
+      "icon": "refresh"
+     },
+     {
+      "value": "무료",
+      "label": "열람",
+      "note": "",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "내 주의 인센티브를 한곳에서 찾아요",
+     "전력 회사·주 정부 프로그램이 함께 나와요",
+     "무료로 열람해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "정보가 최신이 아닐 수 있어요",
+     "신청은 해당 기관 사이트에서 해야 해요",
+     "영어 중심이에요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "주 선택",
+      "body": "내 주를 선택해요."
+     },
+     {
+      "title": "분야 선택",
+      "body": "효율 개선·태양광 등을 골라요."
+     },
+     {
+      "title": "프로그램 확인",
+      "body": "자격·기한을 확인해요."
+     },
+     {
+      "title": "공식 사이트에서 신청",
+      "body": "해당 기관 안내를 따라요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "DSIRE",
+      "desc": "주별 에너지 인센티브 데이터베이스",
+      "url": "https://www.dsireusa.org/",
+      "tag": "데이터베이스"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "LIHEAP (저소득 에너지 지원) 소개와 가입 방법 — 난방·냉방 요금 지원 프로그램 안내",
+  "content": "저소득 가구의 난방·냉방비를 돕는 연방 지원 프로그램이에요. 신청은 주·지역 기관을 통해 해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "소득 기준",
+      "label": "있음",
+      "note": "가구 수 기준",
+      "icon": "users"
+     },
+     {
+      "value": "신청",
+      "label": "지역 기관",
+      "note": "",
+      "icon": "map-pin"
+     },
+     {
+      "value": "대상",
+      "label": "난방·냉방",
+      "note": "",
+      "icon": "sun"
+     },
+     {
+      "value": "기간",
+      "label": "계절별",
+      "note": "확인",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "요금 부담을 덜 수 있어요",
+     "긴급 지원이 있는 경우가 있어요",
+     "공식 정부 프로그램이에요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "소득 조건이 있어요",
+     "신청 기간이 한정돼요",
+     "지역마다 절차가 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "대상 확인",
+      "body": "소득·가구 조건을 확인해요."
+     },
+     {
+      "title": "지역 기관 찾기",
+      "body": "내 주의 신청 기관을 찾아요."
+     },
+     {
+      "title": "서류 준비",
+      "body": "고지서·소득 증빙·신분증을 준비해요."
+     },
+     {
+      "title": "신청·결과 확인",
+      "body": "안내에 따라 신청해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "LIHEAP (저소득 에너지 지원)",
+      "desc": "난방·냉방 요금 지원 프로그램 안내",
+      "url": "https://www.acf.hhs.gov/ocs/programs/liheap",
+      "tag": "정부"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "EnergySage 소개와 가입 방법 — 태양광 견적 비교 마켓",
+  "content": "태양광 설치 업체의 견적을 비교할 수 있는 사이트예요. 여러 업체의 견적을 받아 비교할 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "견적 비교",
+      "label": "핵심",
+      "note": "여러 업체",
+      "icon": "list"
+     },
+     {
+      "value": "태양광",
+      "label": "분야",
+      "note": "",
+      "icon": "sun"
+     },
+     {
+      "value": "무료",
+      "label": "비교",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "투자 회수",
+      "label": "계산",
+      "note": "",
+      "icon": "chart-bar"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "여러 견적을 한꺼번에 비교해요",
+     "가격·장비 정보를 비교해요",
+     "초보자 안내가 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "초기 투자 비용이 커요",
+     "인센티브가 바뀔 수 있어요",
+     "영업 연락이 올 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "사이트 방문",
+      "body": "집 주소와 전기 사용량을 입력해요."
+     },
+     {
+      "title": "견적 요청",
+      "body": "여러 업체의 견적을 받아요."
+     },
+     {
+      "title": "비교",
+      "body": "가격·장비·보증을 비교해요."
+     },
+     {
+      "title": "인센티브 확인",
+      "body": "세액공제 등 인센티브의 현재 상태를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알아 둘 점",
+    "body": "인센티브는 종료·변경될 수 있어요. 광고의 환급 문구를 그대로 믿지 말고 확인하세요."
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "EnergySage",
+      "desc": "태양광 견적 비교 마켓",
+      "url": "https://www.energysage.com/",
+      "tag": "비교"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "전기·가스비 줄이는 큰 항목 4가지",
+  "content": "비용 비중이 큰 곳부터 줄이는 게 효과적이에요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "이번 달 점검",
+    "items": [
+     "냉난방 설정 온도 1~2도 조절",
+     "안 쓰는 전자기기 플러그 정리",
+     "온수 설정·세탁 습관",
+     "창문·문틈 점검",
+     "필터 청소"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "요금제도 점검하세요",
+    "body": "시간대별 요금제는 사용 시간이 맞으면 유리할 수 있어요. 전력 회사 계정에서 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "고지서 읽는 법",
+  "content": "고지서에는 사용량(kWh)과 단가가 나와요. 비교하려면 이 두 가지를 보세요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 읽으세요",
+    "items": [
+     {
+      "title": "사용량 확인",
+      "body": "kWh(전기)·therm(가스) 사용량을 봐요."
+     },
+     {
+      "title": "단가·요금 구성",
+      "body": "기본요금·사용요금·세금을 구분해요."
+     },
+     {
+      "title": "지난달·작년 같은 달 비교",
+      "body": "증가 원인을 찾아요."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "에너지 절약 서비스 비교",
+  "content": "목적에 따라 필요한 사이트가 달라요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "에너지 절약 서비스 비교",
+    "columns": [
+     "서비스",
+     "목적",
+     "유형",
+     "메모"
+    ],
+    "rows": [
+     [
+      "Georgia Power",
+      "내 사용량·요금제",
+      "전력 회사",
+      "지역 확인"
+     ],
+     [
+      "ENERGY STAR",
+      "효율 제품",
+      "정부",
+      "리베이트 찾기"
+     ],
+     [
+      "DSIRE",
+      "인센티브 검색",
+      "데이터베이스",
+      "주별"
+     ],
+     [
+      "LIHEAP",
+      "요금 지원",
+      "정부",
+      "소득 조건"
+     ],
+     [
+      "EnergySage",
+      "태양광 견적",
+      "비교 사이트",
+      "투자 큼"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "question",
+  "title": "전기·가스비 줄이려고 하는 습관은?",
+  "content": "효과 있었던 습관을 나눠 주세요.",
+  "image": "/images/money/topics/save-07.svg"
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "talk",
+  "title": "이번 달 에너지 절약 목표",
+  "content": "이번 달 한 가지만 바꿔 보세요. 목표를 한 줄로 적어 주세요.",
+  "image": "/images/money/topics/save-07.svg"
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "GasBuddy 소개와 가입 방법 — 주유소 가격 비교 앱",
+  "content": "주변 주유소의 휘발유 가격을 비교해 주는 앱이에요. 사용자 제보 기반이라 실제 가격과 다를 수 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "가격 비교",
+      "label": "주유소별",
+      "note": "사용자 제보",
+      "icon": "dollar"
+     },
+     {
+      "value": "지도 보기",
+      "label": "가능",
+      "note": "",
+      "icon": "map-pin"
+     },
+     {
+      "value": "무료",
+      "label": "이용",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "정확도",
+      "label": "변동",
+      "note": "직접 확인",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "가장 싼 주유소를 빨리 찾아요",
+     "경로 상의 주유소도 볼 수 있어요",
+     "무료로 써요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "가격이 실제와 다를 수 있어요",
+     "위치 정보가 수집돼요",
+     "싸다고 멀리 가면 손해일 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치",
+      "body": "앱을 설치해요."
+     },
+     {
+      "title": "위치 허용",
+      "body": "필요한 범위만 허용해요."
+     },
+     {
+      "title": "가격 비교",
+      "body": "가까운 주유소 가격을 확인해요."
+     },
+     {
+      "title": "거리 고려",
+      "body": "이동 거리 비용까지 계산해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "GasBuddy",
+      "desc": "주유소 가격 비교 앱",
+      "url": "https://www.gasbuddy.com/",
+      "tag": "앱"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "AAA 소개와 가입 방법 — 긴급출동·할인 멤버십",
+  "content": "자동차 긴급출동(견인·배터리 점프 등)과 여러 할인 혜택을 주는 멤버십이에요. 연회비가 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "긴급 출동",
+      "label": "핵심",
+      "note": "견인 등",
+      "icon": "car"
+     },
+     {
+      "value": "할인",
+      "label": "다양",
+      "note": "제휴처",
+      "icon": "tag"
+     },
+     {
+      "value": "연회비",
+      "label": "있음",
+      "note": "플랜 확인",
+      "icon": "dollar"
+     },
+     {
+      "value": "여행 서비스",
+      "label": "지원",
+      "note": "",
+      "icon": "globe"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "긴급 상황에서 도움을 받아요",
+     "여러 제휴 할인을 받아요",
+     "차 한 대보다 가족 단위로도 써요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "연회비가 있어요",
+     "다른 서비스와 중복될 수 있어요",
+     "플랜별 견인 거리 제한이 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "중복 확인",
+      "body": "이미 카드·보험에 긴급출동이 포함돼 있는지 확인해요."
+     },
+     {
+      "title": "플랜 비교",
+      "body": "견인 거리·혜택을 확인해요."
+     },
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 가입해요."
+     },
+     {
+      "title": "앱 설정",
+      "body": "긴급 요청 방법을 확인해 둬요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "AAA",
+      "desc": "긴급출동·할인 멤버십",
+      "url": "https://www.aaa.com/",
+      "tag": "멤버십"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "RepairPal 소개와 가입 방법 — 정비 견적 가이드·정비소 찾기",
+  "content": "수리 항목별 견적 범위를 확인하고 인증 정비소를 찾는 사이트예요. 정비소에서 받은 견적이 적정한지 가늠할 때 도움이 돼요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "견적 범위",
+      "label": "확인",
+      "note": "지역·차종별",
+      "icon": "dollar"
+     },
+     {
+      "value": "정비소 찾기",
+      "label": "가능",
+      "note": "",
+      "icon": "search"
+     },
+     {
+      "value": "증상 찾기",
+      "label": "제공",
+      "note": "",
+      "icon": "list"
+     },
+     {
+      "value": "참고용",
+      "label": "실제와 차이",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "수리 견적의 대략적인 가격대를 알 수 있어요",
+     "정비소를 비교해요",
+     "증상 설명이 도움이 돼요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "실제 견적과 다를 수 있어요",
+     "모든 정비소가 포함되는 건 아니에요",
+     "광고성 정보가 섞일 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "차종 입력",
+      "body": "내 차 정보를 입력해요."
+     },
+     {
+      "title": "수리 항목 선택",
+      "body": "예상 수리 항목을 선택해요."
+     },
+     {
+      "title": "견적 범위 확인",
+      "body": "지역 기준 견적 범위를 봐요."
+     },
+     {
+      "title": "정비소 비교",
+      "body": "3곳 이상 견적을 받아 비교해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "RepairPal",
+      "desc": "정비 견적 가이드·정비소 찾기",
+      "url": "https://repairpal.com/",
+      "tag": "정비"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "Kelley Blue Book (KBB) 소개와 가입 방법 — 중고차 시세·가치 확인",
+  "content": "중고차 시세를 확인하고 구입·판매 가격을 가늠하는 사이트예요. 차량 상태·주행거리·지역을 입력해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "시세 확인",
+      "label": "핵심",
+      "note": "상태 입력",
+      "icon": "tag"
+     },
+     {
+      "value": "매매 참고",
+      "label": "구입·판매",
+      "note": "",
+      "icon": "dollar"
+     },
+     {
+      "value": "신차 정보",
+      "label": "있음",
+      "note": "",
+      "icon": "car"
+     },
+     {
+      "value": "참고용",
+      "label": "시세",
+      "note": "",
+      "icon": "info"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "중고차 가격 협상에 근거를 줘요",
+     "내 차의 대략적인 가치를 알 수 있어요",
+     "무료로 확인해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "실제 거래가와 다를 수 있어요",
+     "상태 입력이 부정확하면 오차가 커요",
+     "광고가 많아요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "차량 정보 입력",
+      "body": "연식·모델·주행거리를 입력해요."
+     },
+     {
+      "title": "상태 선택",
+      "body": "실제 상태를 솔직하게 선택해요."
+     },
+     {
+      "title": "시세 확인",
+      "body": "거래 유형별 시세를 확인해요."
+     },
+     {
+      "title": "여러 곳과 비교",
+      "body": "다른 사이트·딜러 견적과 비교해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Kelley Blue Book (KBB)",
+      "desc": "중고차 시세·가치 확인",
+      "url": "https://www.kbb.com/",
+      "tag": "시세"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "자동차 유지비 서비스 비교",
+  "content": "문제 상황에 맞는 서비스를 고르세요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "자동차 유지비 서비스 비교",
+    "columns": [
+     "서비스",
+     "해결하는 문제",
+     "비용",
+     "메모"
+    ],
+    "rows": [
+     [
+      "GasBuddy",
+      "주유비",
+      "무료",
+      "거리 비용 함께 계산"
+     ],
+     [
+      "AAA",
+      "긴급 상황",
+      "연회비",
+      "다른 서비스와 중복 확인"
+     ],
+     [
+      "RepairPal",
+      "정비 견적",
+      "무료",
+      "참고용 범위"
+     ],
+     [
+      "KBB",
+      "중고차 가격",
+      "무료",
+      "실거래가와 차이 가능"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "차량 유지비 줄이는 정비 습관",
+  "content": "작은 정비가 큰 수리비를 막아요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "이번 달 점검",
+    "items": [
+     "타이어 공기압",
+     "엔진 오일 교환 주기",
+     "경고등 점검",
+     "불필요한 짐 줄이기",
+     "정비 기록 보관"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "정비비를 월 단위로 적립하세요",
+    "body": "정비는 예상보다 한꺼번에 와요. 월 $30~$50씩 따로 모아 두는 사람이 많아요."
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "info",
+  "title": "차 보험료 줄이는 방법",
+  "content": "같은 조건으로 3곳 이상 견적을 받아 비교하세요. 묶음·무사고·안전운전 할인을 모두 물어보세요.",
+  "image": "/images/money/topics/save-08.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 하세요",
+    "items": [
+     {
+      "title": "현재 증권 확인",
+      "body": "한도·자기부담금을 정리해요."
+     },
+     {
+      "title": "3곳 견적",
+      "body": "같은 조건으로 받아요."
+     },
+     {
+      "title": "할인 문의",
+      "body": "묶음·무사고·앱 할인."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "question",
+  "title": "차 유지비 줄이는 방법이 있나요?",
+  "content": "효과 있던 방법을 나눠 주세요.",
+  "image": "/images/money/topics/save-08.svg"
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "talk",
+  "title": "운전 습관 바꾸기",
+  "content": "연비를 높이는 운전 습관을 나눠 주세요.",
+  "image": "/images/money/topics/save-08.svg"
+ },
+ {
+  "topic": "자동차 유지비",
+  "kind": "talk",
+  "title": "운전 습관 점검",
+  "content": "연비·안전을 위해 지키는 습관을 가볍게 나눠 주세요.",
+  "image": "/images/money/topics/save-08.svg"
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "Too Good To Go 소개와 가입 방법 — 남는 음식을 싸게 사는 앱",
+  "content": "식당·카페·마트의 남는 음식을 \"서프라이즈 백\"으로 낮은 가격에 사는 앱이에요. 내용물은 가게 상황에 따라 달라요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "서프라이즈 백",
+      "label": "구성",
+      "note": "내용 미리 모름",
+      "icon": "gift"
+     },
+     {
+      "value": "저렴한 가격",
+      "label": "핵심",
+      "note": "남은 음식",
+      "icon": "tag"
+     },
+     {
+      "value": "픽업 시간",
+      "label": "정해짐",
+      "note": "앱 확인",
+      "icon": "clock"
+     },
+     {
+      "value": "지역",
+      "label": "제한",
+      "note": "매장 확인",
+      "icon": "map-pin"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "저렴하게 음식을 사요",
+     "음식물 낭비를 줄여요",
+     "새로운 가게를 알게 돼요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "내용물을 고를 수 없어요",
+     "픽업 시간이 정해져 있어요",
+     "지역에 따라 가게가 적어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱을 설치하고 가입해요."
+     },
+     {
+      "title": "지역 설정",
+      "body": "내 위치 주변 가게를 확인해요."
+     },
+     {
+      "title": "예약·결제",
+      "body": "서프라이즈 백을 예약해요."
+     },
+     {
+      "title": "픽업",
+      "body": "정해진 시간에 가서 받아요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Too Good To Go",
+      "desc": "남는 음식을 싸게 사는 앱",
+      "url": "https://www.toogoodtogo.com/en-us",
+      "tag": "앱"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "Groupon 소개와 가입 방법 — 식당·서비스 할인 쿠폰 마켓",
+  "content": "식당·마사지·체험 등의 할인 쿠폰을 사서 쓰는 사이트·앱이에요. 사용 조건과 유효기간을 꼭 확인해야 해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "할인 쿠폰",
+      "label": "구매",
+      "note": "사용 조건",
+      "icon": "ticket"
+     },
+     {
+      "value": "유효기간",
+      "label": "있음",
+      "note": "확인",
+      "icon": "clock"
+     },
+     {
+      "value": "환불",
+      "label": "정책 확인",
+      "note": "",
+      "icon": "refresh"
+     },
+     {
+      "value": "조건",
+      "label": "메뉴 제한 가능",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "식당·체험 할인을 받을 수 있어요",
+     "새로운 곳을 시도하기 좋아요",
+     "앱에서 관리해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "사용 조건·예약 제한이 있어요",
+     "유효기간을 놓치기 쉬워요",
+     "할인 때문에 더 쓰게 될 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "앱·사이트에서 가입해요."
+     },
+     {
+      "title": "조건 확인",
+      "body": "메뉴·시간·유효기간을 읽어요."
+     },
+     {
+      "title": "구매",
+      "body": "쓸 계획이 있는 것만 사요."
+     },
+     {
+      "title": "예약·사용",
+      "body": "미리 예약하고 쿠폰을 사용해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Groupon",
+      "desc": "식당·서비스 할인 쿠폰 마켓",
+      "url": "https://www.groupon.com/",
+      "tag": "쿠폰"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "Raise 소개와 가입 방법 — 할인된 기프트카드 구매·판매 마켓",
+  "content": "식당·마트·소매점의 기프트카드를 액면보다 낮게 사고팔 수 있는 마켓이에요. 사기·잔액 오류에 대한 보호 정책을 확인해야 해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "할인 기프트카드",
+      "label": "핵심",
+      "note": "액면보다 낮게",
+      "icon": "gift"
+     },
+     {
+      "value": "판매",
+      "label": "가능",
+      "note": "수수료",
+      "icon": "dollar"
+     },
+     {
+      "value": "보호",
+      "label": "정책 있음",
+      "note": "확인",
+      "icon": "shield"
+     },
+     {
+      "value": "잔액 확인",
+      "label": "필수",
+      "note": "구매 후",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "자주 가는 곳의 기프트카드를 싸게 사요",
+     "쓰지 않는 기프트카드를 팔 수 있어요",
+     "조건에 따라 보호 정책이 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "할인율이 작을 수 있어요",
+     "잔액 오류·사기 위험이 있어요",
+     "판매 시 수수료가 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "공식 사이트에서 가입해요."
+     },
+     {
+      "title": "가게·할인율 확인",
+      "body": "자주 가는 가게의 할인율을 확인해요."
+     },
+     {
+      "title": "구매 후 잔액 확인",
+      "body": "받으면 바로 잔액을 확인해요."
+     },
+     {
+      "title": "문제 시 신고",
+      "body": "보호 기간 안에 문의해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알아 둘 점",
+    "body": "구매 후 바로 잔액을 확인하고, 보호 정책 기간 안에 문제를 신고하세요."
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Raise",
+      "desc": "할인된 기프트카드 구매·판매 마켓",
+      "url": "https://www.raise.com/",
+      "tag": "마켓"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "OpenTable 소개와 가입 방법 — 식당 예약·포인트 적립",
+  "content": "식당을 예약하고 이용 후 포인트를 적립받는 예약 서비스예요. 지역·식당별로 혜택이 달라요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "식당 예약",
+      "label": "핵심",
+      "note": "앱·웹",
+      "icon": "calendar"
+     },
+     {
+      "value": "포인트",
+      "label": "일부",
+      "note": "조건 확인",
+      "icon": "coins"
+     },
+     {
+      "value": "후기",
+      "label": "제공",
+      "note": "",
+      "icon": "star"
+     },
+     {
+      "value": "취소 규정",
+      "label": "식당별",
+      "note": "확인",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "식당 예약이 편해요",
+     "리뷰와 메뉴를 확인해요",
+     "포인트를 쌓을 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "예약 취소 규정을 확인해야 해요",
+     "포인트 가치가 작을 수 있어요",
+     "일부 식당은 지원하지 않아요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "가입",
+      "body": "앱·사이트에서 가입해요."
+     },
+     {
+      "title": "식당 검색·예약",
+      "body": "날짜·인원을 선택해요."
+     },
+     {
+      "title": "방문·확인",
+      "body": "예약 확인을 받고 방문해요."
+     },
+     {
+      "title": "포인트 확인",
+      "body": "적립·사용 조건을 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "OpenTable",
+      "desc": "식당 예약·포인트 적립",
+      "url": "https://www.opentable.com/",
+      "tag": "예약"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "Upside 소개와 가입 방법 — 식당 결제 환급 앱",
+  "content": "식당·주유·식료품에서 오퍼를 먼저 선택하고 결제하면 환급을 받는 앱이에요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "오퍼 Claim",
+      "label": "결제 전",
+      "note": "필수",
+      "icon": "check"
+     },
+     {
+      "value": "식당·주유",
+      "label": "대상",
+      "note": "지역별",
+      "icon": "utensils"
+     },
+     {
+      "value": "환급",
+      "label": "현금성",
+      "note": "인출 조건",
+      "icon": "dollar"
+     },
+     {
+      "value": "카드 연결",
+      "label": "확인용",
+      "note": "",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "식당 결제에서도 환급이 가능해요",
+     "앱에서 오퍼를 한 번에 봐요",
+     "무료로 써요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "결제 전에 오퍼를 선택하는 습관이 필요해요",
+     "지역·매장별 오퍼가 달라요",
+     "환급 조건이 바뀔 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "앱 설치·가입",
+      "body": "앱을 설치하고 가입해요."
+     },
+     {
+      "title": "오퍼 확인",
+      "body": "가려는 곳의 오퍼를 확인해요."
+     },
+     {
+      "title": "오퍼 Claim",
+      "body": "결제 전에 선택해요."
+     },
+     {
+      "title": "환급 받기",
+      "body": "쌓인 환급을 인출해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Upside",
+      "desc": "식당 결제 환급 앱",
+      "url": "https://www.upside.com/",
+      "tag": "환급"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "외식비 줄이는 서비스 비교",
+  "content": "횟수를 줄이는 게 우선이고, 그다음 할인을 챙기세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "외식비 줄이는 서비스 비교",
+    "columns": [
+     "서비스",
+     "방식",
+     "절약 포인트",
+     "주의"
+    ],
+    "rows": [
+     [
+      "Too Good To Go",
+      "남는 음식 구매",
+      "가격이 낮음",
+      "내용물을 고를 수 없음"
+     ],
+     [
+      "Groupon",
+      "쿠폰 구매",
+      "체험·식당 할인",
+      "조건·유효기간"
+     ],
+     [
+      "Raise",
+      "기프트카드",
+      "액면 할인",
+      "잔액·사기 주의"
+     ],
+     [
+      "OpenTable",
+      "예약·포인트",
+      "포인트 적립",
+      "취소 규정"
+     ],
+     [
+      "Upside",
+      "결제 환급",
+      "현금 환급",
+      "결제 전 오퍼"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "팁·세금 포함한 총액으로 비교하세요",
+  "content": "메뉴 가격이 같아도 팁·세금·서비스료가 다르면 총액이 달라요. 결제 전에 총액을 확인하세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "이렇게 확인하세요",
+    "items": [
+     {
+      "title": "메뉴 가격",
+      "body": "세전 가격을 확인해요."
+     },
+     {
+      "title": "세금·팁·서비스료",
+      "body": "최종 결제액을 확인해요."
+     },
+     {
+      "title": "할인·환급 적용",
+      "body": "쿠폰·오퍼를 반영해요."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "외식비 줄이기 루틴",
+  "content": "횟수를 정하고 그 안에서 할인을 챙기세요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "이번 주 루틴",
+    "items": [
+     "이번 주 외식 횟수 정하기",
+     "할인·오퍼 확인 후 결정",
+     "포장이 이득인지 비교",
+     "집밥 대안 준비(밀프렙)"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "할인 때문에 더 가지 마세요",
+    "body": "할인이 있어서 더 자주 가면 절약이 아니에요. 원래 가던 횟수 안에서 챙기세요."
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "question",
+  "title": "외식비 줄이는 나만의 방법은?",
+  "content": "횟수·앱·도시락 등 방법을 나눠 주세요.",
+  "image": "/images/money/topics/save-09.svg"
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "talk",
+  "title": "이번 주 외식 횟수는?",
+  "content": "횟수만 적어도 좋아요.",
+  "image": "/images/money/topics/save-09.svg"
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "Libby (OverDrive) 소개와 가입 방법 — 도서관 카드로 전자책·오디오북 빌리기",
+  "content": "지역 도서관 카드로 전자책과 오디오북을 무료로 빌리는 앱이에요. 도서관마다 소장 도서와 대기 시간이 달라요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "도서관 카드",
+      "label": "필요",
+      "note": "무료 발급",
+      "icon": "user"
+     },
+     {
+      "value": "전자책·오디오북",
+      "label": "무료 대여",
+      "note": "대기 가능",
+      "icon": "book-open"
+     },
+     {
+      "value": "앱",
+      "label": "iOS·Android",
+      "note": "",
+      "icon": "phone"
+     },
+     {
+      "value": "반납",
+      "label": "자동",
+      "note": "",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "책을 사지 않고 무료로 읽어요",
+     "오디오북도 있어요",
+     "집에서 바로 빌려요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "인기 도서는 대기가 길어요",
+     "도서관마다 소장 도서가 달라요",
+     "한국어 도서가 적을 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "도서관 카드 만들기",
+      "body": "가까운 공공도서관에서 카드를 만들어요."
+     },
+     {
+      "title": "앱 설치",
+      "body": "Libby를 설치해요."
+     },
+     {
+      "title": "도서관 연결",
+      "body": "내 도서관을 선택하고 카드 번호를 입력해요."
+     },
+     {
+      "title": "대여",
+      "body": "책을 빌리고 반납일을 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Libby (OverDrive)",
+      "desc": "도서관 카드로 전자책·오디오북 빌리기",
+      "url": "https://www.libbyapp.com/",
+      "tag": "도서관"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "hoopla 소개와 가입 방법 — 도서관 회원용 영화·음악·책 무료 대여",
+  "content": "일부 도서관에서 제공하는 서비스로, 도서관 카드로 영화·음악·전자책 등을 무료로 이용할 수 있어요. 도서관마다 월 이용 한도가 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "도서관 연계",
+      "label": "필수",
+      "note": "도서관이 제공해야",
+      "icon": "building"
+     },
+     {
+      "value": "영화·음악·책",
+      "label": "제공",
+      "note": "",
+      "icon": "play"
+     },
+     {
+      "value": "월 한도",
+      "label": "있음",
+      "note": "도서관별",
+      "icon": "calendar"
+     },
+     {
+      "value": "대기 없음",
+      "label": "즉시 이용",
+      "note": "일부",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "대기 없이 바로 볼 수 있는 콘텐츠가 많아요",
+     "도서관 카드만 있으면 무료예요",
+     "앱으로 쓸 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "내 도서관이 제공하지 않을 수 있어요",
+     "월 이용 한도가 있어요",
+     "신작은 제한될 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "도서관 제공 여부 확인",
+      "body": "내 도서관이 지원하는지 확인해요."
+     },
+     {
+      "title": "가입",
+      "body": "도서관 카드 정보로 가입해요."
+     },
+     {
+      "title": "콘텐츠 검색",
+      "body": "영화·음악·책을 고르고 대여해요."
+     },
+     {
+      "title": "월 한도 확인",
+      "body": "이번 달 이용 횟수를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "hoopla",
+      "desc": "도서관 회원용 영화·음악·책 무료 대여",
+      "url": "https://www.hoopladigital.com/",
+      "tag": "도서관"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "Kanopy 소개와 가입 방법 — 도서관 회원용 영화 스트리밍",
+  "content": "도서관 카드로 영화와 다큐멘터리를 볼 수 있는 서비스예요. 도서관마다 월 이용 한도가 있어요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "도서관 카드",
+      "label": "필요",
+      "note": "도서관 제공 여부",
+      "icon": "user"
+     },
+     {
+      "value": "영화·다큐",
+      "label": "제공",
+      "note": "",
+      "icon": "video"
+     },
+     {
+      "value": "월 한도",
+      "label": "있음",
+      "note": "",
+      "icon": "calendar"
+     },
+     {
+      "value": "무료",
+      "label": "이용",
+      "note": "",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "무료로 양질의 영화·다큐를 봐요",
+     "구독료를 아낄 수 있어요",
+     "교육용 콘텐츠도 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "내 도서관이 지원하지 않을 수 있어요",
+     "월 한도가 있어요",
+     "최신 상업 영화는 적을 수 있어요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "도서관 지원 확인",
+      "body": "내 도서관이 제공하는지 확인해요."
+     },
+     {
+      "title": "가입",
+      "body": "도서관 카드로 가입해요."
+     },
+     {
+      "title": "영화 선택",
+      "body": "한도 안에서 시청해요."
+     },
+     {
+      "title": "기록",
+      "body": "이용 횟수를 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Kanopy",
+      "desc": "도서관 회원용 영화 스트리밍",
+      "url": "https://www.kanopy.com/",
+      "tag": "도서관"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "Museums for All 소개와 가입 방법 — 저소득 가구 박물관 입장료 할인",
+  "content": "EBT 카드 등 저소득 지원 프로그램 이용 가구에게 참여 박물관 입장료를 낮은 가격(또는 무료)에 제공하는 프로그램이에요. 참여 기관 확인이 필요해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "EBT 등 제시",
+      "label": "필요",
+      "note": "조건 확인",
+      "icon": "check"
+     },
+     {
+      "value": "참여 박물관",
+      "label": "지역별",
+      "note": "검색",
+      "icon": "map-pin"
+     },
+     {
+      "value": "입장료 할인",
+      "label": "있음",
+      "note": "기관마다",
+      "icon": "dollar"
+     },
+     {
+      "value": "가족 동반",
+      "label": "가능",
+      "note": "확인",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "문화 체험 비용을 줄여요",
+     "참여 박물관이 전국에 있어요",
+     "가족 단위로 쓸 수 있어요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "참여 기관이 한정돼요",
+     "증빙을 챙겨야 해요",
+     "조건이 기관마다 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "참여 기관 검색",
+      "body": "내 지역의 박물관을 찾아요."
+     },
+     {
+      "title": "조건 확인",
+      "body": "필요한 증빙을 확인해요."
+     },
+     {
+      "title": "방문",
+      "body": "증빙을 가지고 가요."
+     },
+     {
+      "title": "혜택 확인",
+      "body": "입장료 할인을 받아요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "Museums for All",
+      "desc": "저소득 가구 박물관 입장료 할인",
+      "url": "https://museums4all.org/",
+      "tag": "문화"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "국립공원 패스(America the Beautiful) 소개와 가입 방법 — 연간 국립공원 입장 패스",
+  "content": "국립공원·연방 휴양지 입장료를 줄일 수 있는 패스를 안내하는 공식 페이지예요. 연간 패스와 대상별 혜택이 있어요(자세한 조건 확인).\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "연간 패스",
+      "label": "있음",
+      "note": "구매",
+      "icon": "ticket"
+     },
+     {
+      "value": "대상별 혜택",
+      "label": "있음",
+      "note": "학생·시니어 등",
+      "icon": "users"
+     },
+     {
+      "value": "공식",
+      "label": "정부",
+      "note": "",
+      "icon": "shield"
+     },
+     {
+      "value": "자녀 혜택",
+      "label": "프로그램 있음",
+      "note": "확인",
+      "icon": "baby"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "공원을 자주 가면 본전이 나와요",
+     "대상별 할인·무료 혜택이 있어요",
+     "가족 단위로 사용해요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "방문 횟수가 적으면 손해예요",
+     "공원마다 요금 규정이 달라요",
+     "조건을 확인해야 해요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "방문 계획 세우기",
+      "body": "올해 갈 공원을 정해요."
+     },
+     {
+      "title": "본전 계산",
+      "body": "입장료 합계와 패스 가격을 비교해요."
+     },
+     {
+      "title": "구매",
+      "body": "공식 안내에서 구매해요."
+     },
+     {
+      "title": "사용 방법 확인",
+      "body": "차량·동반 인원 조건을 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "국립공원 패스(America the Beautiful)",
+      "desc": "연간 국립공원 입장 패스",
+      "url": "https://www.nps.gov/planyourvisit/passes.htm",
+      "tag": "정부"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "211 소개와 가입 방법 — 지역 지원·무료 서비스 안내",
+  "content": "전화·웹으로 식비·주거·상담·일자리 등 지역의 도움을 연결해 주는 안내 서비스예요. 지역 기관을 찾을 때 유용해요.\n소개는 참고용이고 추천·보증이 아니에요. 가입 조건·보상·수수료는 수시로 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "전화 211",
+      "label": "무료 안내",
+      "note": "지역별",
+      "icon": "phone"
+     },
+     {
+      "value": "웹 검색",
+      "label": "가능",
+      "note": "",
+      "icon": "search"
+     },
+     {
+      "value": "분야",
+      "label": "식비·주거·상담",
+      "note": "",
+      "icon": "heart-handshake"
+     },
+     {
+      "value": "언어 지원",
+      "label": "지역별",
+      "note": "확인",
+      "icon": "languages"
+     }
+    ]
+   },
+   {
+    "type": "proscons",
+    "prosTitle": "좋은 점",
+    "pros": [
+     "지역 지원 기관을 한 번에 찾아요",
+     "무료 안내예요",
+     "긴급 상황에서 도움이 돼요"
+    ],
+    "consTitle": "아쉬운 점",
+    "cons": [
+     "기관 정보가 최신이 아닐 수 있어요",
+     "지역별 차이가 커요",
+     "언어 지원은 지역마다 달라요"
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "가입·시작 순서",
+    "items": [
+     {
+      "title": "웹사이트 또는 전화",
+      "body": "내 우편번호로 검색해요."
+     },
+     {
+      "title": "분야 선택",
+      "body": "필요한 지원 분야를 선택해요."
+     },
+     {
+      "title": "기관 연락",
+      "body": "운영 시간·조건을 확인해요."
+     },
+     {
+      "title": "서류 준비",
+      "body": "신분증·소득 증빙 등을 준비해요."
+     }
+    ]
+   },
+   {
+    "type": "links",
+    "title": "공식 사이트",
+    "items": [
+     {
+      "title": "211",
+      "desc": "지역 지원·무료 서비스 안내",
+      "url": "https://www.211.org/",
+      "tag": "안내"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "무료·저렴한 생활 혜택 비교",
+  "content": "혜택마다 대상과 조건이 달라요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "무료·저렴한 생활 혜택 비교",
+    "columns": [
+     "혜택",
+     "대상",
+     "비용",
+     "메모"
+    ],
+    "rows": [
+     [
+      "Libby",
+      "도서관 회원",
+      "무료",
+      "대기 가능"
+     ],
+     [
+      "hoopla",
+      "도서관 회원",
+      "무료(월 한도)",
+      "도서관 제공 필요"
+     ],
+     [
+      "Kanopy",
+      "도서관 회원",
+      "무료(월 한도)",
+      "도서관 제공 필요"
+     ],
+     [
+      "Museums for All",
+      "EBT 등 이용 가구",
+      "입장료 할인",
+      "참여 기관만"
+     ],
+     [
+      "국립공원 패스",
+      "공원 방문자",
+      "유료 패스",
+      "방문 횟수 따라 본전"
+     ],
+     [
+      "211",
+      "모든 주민",
+      "무료 안내",
+      "지역 기관 연결"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "info",
+  "title": "도서관 카드 하나로 누리는 것들",
+  "content": "도서관 카드는 책뿐 아니라 전자책, 영화, 강좌, 아이 프로그램까지 연결돼요.",
+  "image": "/images/money/topics/save-10.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "이번 주 해 보세요",
+    "items": [
+     "가까운 공공도서관에서 카드 만들기",
+     "Libby로 전자책 빌려 보기",
+     "영화 서비스(hoopla·Kanopy) 지원 여부 확인",
+     "아이 프로그램 일정 확인",
+     "무료 행사 달력 보기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "\"무료\"인지 꼭 확인하세요",
+    "body": "무료 행사라도 주차비·사전 신청이 필요할 수 있어요. 공식 안내를 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "question",
+  "title": "우리 동네 무료 혜택 중 좋았던 것은?",
+  "content": "지역·종류를 나눠 주세요.",
+  "image": "/images/money/topics/save-10.svg"
+ },
+ {
+  "topic": "무료 생활 혜택",
+  "kind": "talk",
+  "title": "주말 무료 나들이 계획",
+  "content": "이번 주말 비용 없이 즐길 곳을 이야기해 보세요.",
+  "image": "/images/money/topics/save-10.svg"
+ }
+]
