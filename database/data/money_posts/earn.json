@@ -1345,5 +1345,408 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "온라인·재택 부업",
+  "kind": "info",
+  "title": "Rev(레브) 전사·자막 일감 시작하기: 지원 → 시험 → 일감 받기",
+  "content": "Rev는 녹음·영상을 글로 옮기는 **전사(Transcription)**, 자막(Caption), 번역 일감을 프리랜서에게 맡기는 플랫폼이에요. 정식 직원이 아니라 **일감을 하나씩 신청해서 하는 방식**이라, 시작 전에 구조를 이해하는 게 중요해요.",
+  "image": "/images/money/topics/earn-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "전사",
+      "label": "분당 $0.40~$1.10",
+      "note": "공식 안내",
+      "icon": "edit"
+     },
+     {
+      "value": "자막",
+      "label": "분당 $0.54~$1.10",
+      "note": "공식 안내",
+      "icon": "video"
+     },
+     {
+      "value": "번역 자막",
+      "label": "분당 $1.70~$4.00+",
+      "note": "언어별 차이",
+      "icon": "languages"
+     },
+     {
+      "value": "주급",
+      "label": "PayPal",
+      "note": "매주 지급",
+      "icon": "wallet"
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"분당 보수\"는 녹음 길이 기준이지, 내가 일한 시간이 아니에요",
+    "body": "1분짜리 녹음을 글로 옮기는 데 보통 **3분 정도** 걸린다는 게 업계의 흔한 기준이에요. 그래서 분당 보수를 그대로 시급으로 생각하면 안 되고, 실제 시급은 그보다 훨씬 낮아요. 처음엔 더 걸려요."
+   },
+   {
+    "type": "h",
+    "title": "지원하기"
+   },
+   {
+    "type": "steps",
+    "title": "지원 순서 (공식 안내 기준)",
+    "items": [
+     {
+      "title": "역할 고르기",
+      "body": "전사(Transcriptionist), 자막(Captioner), 번역 자막(Subtitle translator) 중 하나를 선택해요."
+     },
+     {
+      "title": "짧은 실력 평가 받기",
+      "body": "영어 실력과 문법을 평가하는 짧은 테스트를 봐요(번역은 번역 실력도 평가)."
+     },
+     {
+      "title": "샘플 제출",
+      "body": "평가용 샘플 작업을 제출해요."
+     },
+     {
+      "title": "결과 기다리기",
+      "body": "신청자가 많으면 **대기자 명단**에 들어갈 수 있어요. 공식 블로그는 지금도 신청은 받고 있다고 안내해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "승인까지 걸리는 시간",
+    "body": "3일~2주까지 다양하다는 후기가 있어요(밀린 정도에 따라 다름). 공식 자료에는 정확한 기간이 나오지 않으니, 지원 후 느긋하게 기다리세요."
+   },
+   {
+    "type": "h",
+    "title": "일감 받아서 일하기"
+   },
+   {
+    "type": "phone",
+    "title": "일감 찾는 화면",
+    "where": "list-item",
+    "label": "일감 목록(마켓플레이스)에서 원하는 파일 고르기",
+    "icon": "list",
+    "caption": "Rev에는 **일감 게시판**이 있어서, 올라온 녹음·영상 중 내용·보수·마감일을 보고 **직접 신청(claim)**해서 가져가요. 내 등급(grade)에 따라 볼 수 있는 일감의 양이 달라진다는 안내가 있어요.",
+    "headline": "Rev"
+   },
+   {
+    "type": "steps",
+    "title": "일감 진행 순서",
+    "items": [
+     {
+      "title": "목록에서 일감 고르기",
+      "body": "내용, 보수, 마감일을 확인해요."
+     },
+     {
+      "title": "신청(claim)하기",
+      "body": "마음에 드는 일감을 가져와요."
+     },
+     {
+      "title": "작업하기",
+      "body": "정해진 형식(스타일 가이드)에 맞춰 전사·자막을 만들어요."
+     },
+     {
+      "title": "제출",
+      "body": "검수를 거쳐 승인되면 보수가 쌓여요."
+     },
+     {
+      "title": "주급 받기",
+      "body": "PayPal로 매주 지급돼요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "시작 전에 계산해 보기"
+   },
+   {
+    "type": "bars",
+    "title": "전사 1시간 녹음의 예상 보수 (가상 예시)",
+    "sub": "분당 $0.50 가정 · 녹음 60분",
+    "items": [
+     {
+      "label": "녹음 길이 기준 보수",
+      "value": 30,
+      "display": "$30 (60분 × $0.50)"
+     },
+     {
+      "label": "실제 작업 시간(3배 가정)",
+      "value": 180,
+      "display": "180분(3시간)"
+     },
+     {
+      "label": "시급으로 환산",
+      "value": 10,
+      "display": "약 $10/시간",
+      "highlight": true
+     }
+    ],
+    "max": 180,
+    "source": "※ 가상 예시예요. 실제 보수·시간은 녹음 품질과 숙련도에 따라 달라져요."
+   },
+   {
+    "type": "checklist",
+    "title": "시작 전 체크",
+    "items": [
+     "조용한 환경과 좋은 이어폰이 있나요?",
+     "정확한 타이핑 속도가 어느 정도인지 알고 있나요?",
+     "처음엔 시급이 낮을 수 있다는 걸 알고 있나요?",
+     "수입은 자영업 소득으로 신고해야 해요"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 사이트는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Rev 공식: 전사가 되는 법(지원 안내)",
+      "url": "https://www.rev.com/blog/applying-to-be-a-rev-transcriptionist",
+      "kind": "공식 블로그"
+     },
+     {
+      "title": "Rev 공식: 자막 일감 소개",
+      "url": "https://www.rev.com/freelancers/captions",
+      "kind": "공식"
+     },
+     {
+      "title": "Rev 후기",
+      "url": "https://www.theworkathomewoman.com/rev-review/",
+      "kind": "후기·블로그"
+     },
+     {
+      "title": "전사 프리랜서 경험담",
+      "url": "https://www.rev.com/blog/transcription-blog/why-i-left-freelance-writing-to-be-a-rev-transcriptionist",
+      "kind": "공식 블로그(경험담)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "온라인·재택 부업",
+  "kind": "info",
+  "title": "재택 일자리 사기 구분하는 법: 수표 조심, 가짜 면접, 신고하는 곳까지",
+  "content": "재택 일자리 모집 중에는 사기가 섞여 있어요. 미국 연방거래위원회(FTC) 자료와 실제 피해 사례를 모아서, **어떤 신호가 위험한지**와 **의심될 때 무엇을 할지** 정리했어요.",
+  "image": "/images/money/topics/earn-03.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "가짜 재택 일자리의 흔한 수법"
+   },
+   {
+    "type": "checklist",
+    "title": "이런 신호가 있으면 의심하세요",
+    "items": [
+     "**문자·카카오톡·텔레그램** 같은 메신저로 먼저 연락이 왔다",
+     "화상통화나 전화 **실시간 대화를 거절**한다",
+     "맞춤법이 이상하고 **합격 통보가 너무 빠르다**",
+     "일을 시작하기 전에 **장비 구입비 명목으로 수표**를 보낸다",
+     "계약서에 서명하라며 **SSN 등 개인정보**를 바로 요구한다"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "수표를 받았다면: 쓰지 말고 은행에 먼저 확인하세요",
+    "body": "FTC에 보고된 사례에서, \"장비를 사라\"며 거의 $5,000짜리 수표를 보낸 회사가 있었어요. 은행에 가져갔더니 **가짜 수표**였고, 회사 자체가 존재하지 않았어요.\n가짜 수표는 처음엔 은행에 \"입금\"된 것처럼 보이다가, 며칠 뒤 **부도 처리**되면서 그 금액을 내가 물어내야 해요. **수표로 받은 돈을 쓰거나 일부를 돌려보내지 마세요.**"
+   },
+   {
+    "type": "h",
+    "title": "진짜 회사인지 확인하는 법"
+   },
+   {
+    "type": "steps",
+    "title": "확인 순서",
+    "items": [
+     {
+      "title": "회사 이름을 직접 검색",
+      "body": "메시지의 링크를 누르지 말고, **직접 검색**해서 회사의 공식 사이트를 찾아요."
+     },
+     {
+      "title": "공식 사이트에 있는 번호로 연락",
+      "body": "메시지에 적힌 번호가 아니라, 공식 사이트에 나온 **인사팀 연락처**로 전화·이메일해요."
+     },
+     {
+      "title": "그 사람이 진짜 직원인지 확인",
+      "body": "이름과 직함을 대고 그 사람이 맞는지 물어봐요."
+     },
+     {
+      "title": "실시간 대화 요청",
+      "body": "화상통화나 전화를 요청해 보세요. 거절하면 위험 신호예요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "신고하는 곳"
+   },
+   {
+    "type": "checklist",
+    "title": "의심되면 여기로",
+    "items": [
+     "미국: **ReportFraud.ftc.gov** 에 신고",
+     "이미 돈을 보냈다면 **은행·카드사**에 바로 연락",
+     "개인정보(SSN 등)를 알려줬다면 **IdentityTheft.gov** 에서 안내를 따르기",
+     "커뮤니티에도 알려서 다른 회원이 당하지 않게 하기"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 사이트는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "가짜 재택 채용 뉴스 보도(FTC 안내 인용)",
+      "url": "https://www.scrippsnews.com/business/jobs-employment/scammers-luring-job-hunters-with-fake-remote-jobs",
+      "kind": "뉴스 보도"
+     },
+     {
+      "title": "같은 보도(다른 지역 방송사)",
+      "url": "https://www.wcpo.com/money/consumer/dont-waste-your-money/scammers-luring-job-hunters-with-fake-remote-jobs",
+      "kind": "뉴스 보도"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "온라인·재택 부업",
+  "kind": "info",
+  "title": "We Work Remotely로 원격 일자리 찾기: 이력서·자기소개 쓰는 법",
+  "content": "We Work Remotely는 개발·디자인·고객지원·마케팅 같은 **원격 근무 정규직·계약직** 공고를 모아 놓은 사이트예요. 이 글은 **원격 지원서를 어떻게 써야 눈에 띄는지** 후기와 공식 블로그를 모아 정리했어요.",
+  "image": "/images/money/topics/earn-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "월 약 1,000개",
+      "label": "새 공고",
+      "note": "매달 추가",
+      "icon": "briefcase"
+     },
+     {
+      "value": "Slack 커뮤니티",
+      "label": "Learning Portal",
+      "note": "별도 가입",
+      "icon": "users"
+     },
+     {
+      "value": "이력서",
+      "label": "원격 경험 강조",
+      "note": "핵심",
+      "icon": "edit"
+     },
+     {
+      "value": "맞춤 지원",
+      "label": "공고마다 다르게",
+      "note": "복붙 금지",
+      "icon": "flag"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "이력서, 이렇게 고치세요"
+   },
+   {
+    "type": "checklist",
+    "title": "원격 이력서 체크리스트",
+    "items": [
+     "상단 요약에 \"**원격 근무를 원한다**\"고 분명히 썼나요?",
+     "주소 대신 \"**위치에 상관없이 근무 가능**\" 같은 표현을 썼나요? (현지 필수 공고는 예외)",
+     "**Zoom·Slack·Google Workspace** 같은 협업 도구 이름을 적었나요?",
+     "\"무엇을 했다\"가 아니라 \"**어떤 결과**를 냈다\"로 썼나요?",
+     "과거에 원격으로 일한 경험을 **따로 모아** 보여 줬나요?",
+     "공고의 핵심 단어(키워드)를 내 기술 목록에 넣었나요?"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "지원 전 준비"
+   },
+   {
+    "type": "steps",
+    "title": "이렇게 준비하세요",
+    "items": [
+     {
+      "title": "계정 만들기",
+      "body": "사이트에서 계정을 만들면 내 경력에 맞는 공고를 모아 볼 수 있어요."
+     },
+     {
+      "title": "회사 확인",
+      "body": "공고를 올린 회사가 실제 회사인지 검색해요."
+     },
+     {
+      "title": "공고마다 맞춤 지원",
+      "body": "같은 이력서를 복붙하지 말고, 공고의 요구사항에 맞춰 조금씩 고쳐요."
+     },
+     {
+      "title": "포트폴리오 준비",
+      "body": "보여줄 수 있는 결과물(링크·사진)을 미리 정리해요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "면접에서 자주 나오는 질문"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "\"스스로 관리하는 능력\"을 보여주세요",
+    "body": "원격 채용 담당자는 **자기관리·소통 능력**을 중요하게 봐요. \"저는 자기관리를 잘해요\"라고 말만 하지 말고, **실제로 혼자 일정을 관리해서 성과를 낸 경험**을 구체적으로 이야기하세요. 원격 근무 준비가 되어 있는지 묻는 질문도 자주 나와요."
+   },
+   {
+    "type": "compare",
+    "title": "비슷한 원격 구인 사이트",
+    "columns": [
+     "사이트",
+     "특징"
+    ],
+    "rows": [
+     [
+      "We Work Remotely",
+      "개발·디자인 등 다양한 분야, 월 1,000개+ 공고"
+     ],
+     [
+      "Working Nomads",
+      "디지털 노마드 대상, 금융·IT·마케팅 등"
+     ],
+     [
+      "Indeed(원격 필터)",
+      "전체 구인 사이트에서 원격만 거르기"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 사이트는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "We Work Remotely 공식 블로그: 지원서에서 돋보이는 법",
+      "url": "https://weworkremotely.com/blog/how-to-stand-out-in-remote-job-applications-simple-tips",
+      "kind": "공식 블로그"
+     },
+     {
+      "title": "원격 이력서 신호(채용 담당자 관점)",
+      "url": "https://wfh.team/blog/remote-resume-signals-that-help-recruiters-move-faster",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "원격 지원 팁 모음",
+      "url": "https://www.arbeitnow.com/blog/remote-job-application-tips",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
  }
 ]
