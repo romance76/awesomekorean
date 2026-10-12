@@ -306,6 +306,25 @@
     ]
    },
    {
+    "type": "shot",
+    "title": "Costco 사이트 첫 화면",
+    "src": "/images/money/shots/costco-member.jpg",
+    "pins": [
+     {
+      "x": 63,
+      "y": 21,
+      "text": "**Sign In / Register** — 로그인하거나 새로 가입해요."
+     },
+     {
+      "x": 3.5,
+      "y": 38.5,
+      "text": "**Membership** — 멤버십 종류(Gold Star·Executive)와 가격을 봐요."
+     }
+    ],
+    "caption": "멤버십 가입·갱신은 매장이나 사이트에서 할 수 있어요.",
+    "credit": "Costco 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "h",
     "title": "기본 멤버십 본전 계산"
    },
@@ -549,6 +568,30 @@
     "tone": "tip",
     "title": "냉동실(0°F)에서는 안전은 영원해요, \"맛\"이 문제예요",
     "body": "0°F(영하 18도)에서 얼리면 **안전 자체는 무기한**이에요. 아래 기간은 \"맛이 떨어지기 전까지\" 권장 기간이에요."
+   },
+   {
+    "type": "shot",
+    "title": "FoodSafety.gov 냉장·냉동 보관 기간표",
+    "src": "/images/money/shots/foodsafety-cold.jpg",
+    "pins": [
+     {
+      "x": 41.5,
+      "y": 79.3,
+      "text": "**Download ... as PDF** — 표를 PDF로 내려받아 인쇄해 냉장고에 붙여 두세요."
+     },
+     {
+      "x": 37,
+      "y": 73.8,
+      "text": "**FoodKeeper** — 650가지 식품 보관법을 찾아볼 수 있는 정부 앱·사이트예요."
+     },
+     {
+      "x": 82.5,
+      "y": 85,
+      "text": "**Freezer(냉동실)** 칸 — 0°F(-18°C)에서 보관할 때 기간이에요."
+     }
+    ],
+    "caption": "미국 정부의 식품별 **냉장고·냉동실 보관 기간표**예요. 아래로 내리면 고기·해산물 종류별로 나와요.",
+    "credit": "FoodSafety.gov(미국 정부) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "h",
@@ -1315,6 +1358,20 @@
     "title": "설치하고 쓰기"
    },
    {
+    "type": "shot",
+    "title": "Capital One Shopping 설치 화면",
+    "src": "/images/money/shots/capone-shopping.jpg",
+    "pins": [
+     {
+      "x": 46,
+      "y": 59,
+      "text": "**Add to Chrome - It is Free** — 누르면 크롬에 무료로 설치돼요."
+     }
+    ],
+    "caption": "컴퓨터 크롬 브라우저에서 이 사이트에 들어가면 설치 버튼이 나와요.",
+    "credit": "Capital One Shopping 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "사용 순서",
     "items": [
@@ -1591,6 +1648,25 @@
     "title": "Netflix 웹에서 해지하기"
    },
    {
+    "type": "shot",
+    "title": "Netflix 공식 도움말: 해지 방법",
+    "src": "/images/money/shots/netflix-cancel.jpg",
+    "pins": [
+     {
+      "x": 20,
+      "y": 56,
+      "text": "**Manage your membership** — 이 빨간 글씨를 누르면 내 멤버십 관리 화면으로 가요(로그인 필요)."
+     },
+     {
+      "x": 13,
+      "y": 96,
+      "text": "**Cancel** — 관리 화면에서 이 버튼을 눌러 해지해요."
+     }
+    ],
+    "caption": "Netflix 공식 도움말에 해지 순서가 그림과 함께 나와요.",
+    "credit": "Netflix 도움말 센터 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "해지 순서 (컴퓨터·브라우저 기준)",
     "items": [
@@ -1686,6 +1762,30 @@
    {
     "type": "h",
     "title": "옮기는 순서"
+   },
+   {
+    "type": "shot",
+    "title": "FCC 공식: 번호 그대로 옮기기(Porting) 안내",
+    "src": "/images/money/shots/fcc-porting.jpg",
+    "pins": [
+     {
+      "x": 68.4,
+      "y": 39.5,
+      "text": "**한국어** — 누르면 이 안내를 한국어로 볼 수 있어요."
+     },
+     {
+      "x": 47,
+      "y": 60.3,
+      "text": "**Getting the porting process started** — \"기존 통신사를 먼저 해지하지 마세요\"라는 핵심 안내가 여기 있어요."
+     },
+     {
+      "x": 71.4,
+      "y": 80.5,
+      "text": "**Start your complaint** — 번호 이동이 안 되면 여기서 FCC에 민원을 넣어요."
+     }
+    ],
+    "caption": "미국 연방통신위원회(FCC)의 번호 이동 안내예요. **한국어** 로도 볼 수 있어요.",
+    "credit": "FCC(미국 연방통신위원회) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2232,6 +2332,25 @@
     "title": "쿠폰 사이트의 구조"
    },
    {
+    "type": "shot",
+    "title": "FTC 사기 신고 사이트(ReportFraud.ftc.gov)",
+    "src": "/images/money/shots/ftc-reportfraud.jpg",
+    "pins": [
+     {
+      "x": 70,
+      "y": 68,
+      "text": "**Report Now(지금 신고)** — 파란 버튼을 누르면 질문에 차례로 답하며 신고해요."
+     },
+     {
+      "x": 51,
+      "y": 30.6,
+      "text": "**Languages(언어)** — 여기서 한국어 등 다른 언어를 고를 수 있어요."
+     }
+    ],
+    "caption": "주소 줄에 **reportfraud.ftc.gov** 를 입력하면 이 화면이 나와요. 무료이고, 신고 내용은 수사기관과 공유돼요.",
+    "credit": "FTC(미국 연방거래위원회) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "compare",
     "title": "대표적인 쿠폰 사이트",
     "columns": [
@@ -2449,6 +2568,25 @@
    {
     "type": "h",
     "title": "타이어 공기압"
+   },
+   {
+    "type": "shot",
+    "title": "NHTSA 공식 타이어 안전 페이지",
+    "src": "/images/money/shots/nhtsa-tires.jpg",
+    "pins": [
+     {
+      "x": 80,
+      "y": 36.2,
+      "text": "**Language** — 언어를 바꿀 수 있어요."
+     },
+     {
+      "x": 71.5,
+      "y": 90,
+      "text": "**Tire Safety Ratings** — 타이어 안전 등급을 찾아볼 수 있어요."
+     }
+    ],
+    "caption": "미국 도로교통안전국(NHTSA)의 타이어 안내예요. 공기압·마모 확인법과 타이어 안전 등급이 나와요.",
+    "credit": "NHTSA(미국 도로교통안전국) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "checklist",
@@ -3295,6 +3433,25 @@
    {
     "type": "h",
     "title": "확인할 것들"
+   },
+   {
+    "type": "shot",
+    "title": "귀넷 카운티 도서관 카드 안내 화면",
+    "src": "/images/money/shots/gwinnett-card.jpg",
+    "pins": [
+     {
+      "x": 9.1,
+      "y": 3,
+      "text": "**도서관 카드** 메뉴"
+     },
+     {
+      "x": 50,
+      "y": 24,
+      "text": "카드 발급 안내 제목"
+     }
+    ],
+    "caption": "동네 도서관 사이트에서 **Library Card(도서관 카드)** 메뉴를 찾으면 이런 화면이 나와요.",
+    "credit": "귀넷 카운티 공공 도서관 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "checklist",

@@ -1358,6 +1358,25 @@
     "title": "내 시급 계산하는 법"
    },
    {
+    "type": "shot",
+    "title": "FTC 사기 신고 사이트(ReportFraud.ftc.gov)",
+    "src": "/images/money/shots/ftc-reportfraud.jpg",
+    "pins": [
+     {
+      "x": 70,
+      "y": 68,
+      "text": "**Report Now(지금 신고)** — 파란 버튼을 누르면 질문에 차례로 답하며 신고해요."
+     },
+     {
+      "x": 51,
+      "y": 30.6,
+      "text": "**Languages(언어)** — 여기서 한국어 등 다른 언어를 고를 수 있어요."
+     }
+    ],
+    "caption": "주소 줄에 **reportfraud.ftc.gov** 를 입력하면 이 화면이 나와요. 무료이고, 신고 내용은 수사기관과 공유돼요.",
+    "credit": "FTC(미국 연방거래위원회) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이렇게 계산하세요",
     "items": [
@@ -1638,6 +1657,25 @@
     "title": "진짜 회사인지 확인하는 법"
    },
    {
+    "type": "shot",
+    "title": "FTC 사기 신고 사이트(ReportFraud.ftc.gov)",
+    "src": "/images/money/shots/ftc-reportfraud.jpg",
+    "pins": [
+     {
+      "x": 70,
+      "y": 68,
+      "text": "**Report Now(지금 신고)** — 파란 버튼을 누르면 질문에 차례로 답하며 신고해요."
+     },
+     {
+      "x": 51,
+      "y": 30.6,
+      "text": "**Languages(언어)** — 여기서 한국어 등 다른 언어를 고를 수 있어요."
+     }
+    ],
+    "caption": "주소 줄에 **reportfraud.ftc.gov** 를 입력하면 이 화면이 나와요. 무료이고, 신고 내용은 수사기관과 공유돼요.",
+    "credit": "FTC(미국 연방거래위원회) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "확인 순서",
     "items": [
@@ -1747,6 +1785,25 @@
    {
     "type": "h",
     "title": "지원 전 준비"
+   },
+   {
+    "type": "shot",
+    "title": "We Work Remotely 첫 화면",
+    "src": "/images/money/shots/wwr-home.jpg",
+    "pins": [
+     {
+      "x": 66,
+      "y": 9,
+      "text": "**Sign in** — 지원 기록을 남기려면 로그인(가입)해요."
+     },
+     {
+      "x": 92,
+      "y": 13,
+      "text": "**메뉴(줄 세 개)** — 분야별 일자리 목록(Categories)이 여기 있어요."
+     }
+    ],
+    "caption": "주소 줄에 **weworkremotely.com** 입력 → 일자리 찾기는 무료예요. (\"Post a job\"은 회사가 공고 올리는 버튼이라 누를 필요 없어요.)",
+    "credit": "We Work Remotely 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2175,6 +2232,25 @@
    {
     "type": "h",
     "title": "계산 순서 (IRS 기준)"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Form 1040-ES(예정세) 안내",
+    "src": "/images/money/shots/irs-1040es.jpg",
+    "pins": [
+     {
+      "x": 29,
+      "y": 83.5,
+      "text": "**Form 1040-ES** — 서식(PDF)을 열면 계산표와 납부일이 나와요."
+     },
+     {
+      "x": 71.4,
+      "y": 39.5,
+      "text": "**한국어** — 안내를 한국어로 볼 수 있어요."
+     }
+    ],
+    "caption": "분기별 세금 계산표(Worksheet)가 들어 있는 서식이에요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2665,6 +2741,20 @@
     "credit": "MileIQ 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
+    "type": "shot",
+    "title": "IRS: 마일리지 공제 단가 화면",
+    "src": "/images/money/shots/irs-mileage.jpg",
+    "pins": [
+     {
+      "x": 40,
+      "y": 68.4,
+      "text": "**Self-employed and business: 76 cents/mile** — 2026년 7~12월 업무 운전은 마일당 76센트예요."
+     }
+    ],
+    "caption": "IRS가 정한 **마일당 공제 금액**이에요. 해마다(올해는 중간에도) 바뀌니 신고 전에 이 페이지를 확인하세요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "MileIQ 사용법",
     "items": [
@@ -2772,6 +2862,30 @@
    {
     "type": "h",
     "title": "거래 전에 확인할 것"
+   },
+   {
+    "type": "shot",
+    "title": "Facebook 공식 고객 센터: Marketplace 사용 방법",
+    "src": "/images/money/shots/fb-safety.jpg",
+    "pins": [
+     {
+      "x": 57,
+      "y": 3.6,
+      "text": "**한국어** — 언어 버튼이에요. 영어로 나오면 여기서 바꿔요."
+     },
+     {
+      "x": 44,
+      "y": 45,
+      "text": "**Marketplace에서 물품 구매하기** — 사는 사람 입장 안내예요."
+     },
+     {
+      "x": 77,
+      "y": 65.5,
+      "text": "**Marketplace 신뢰 및 안전** — 사기 예방·신고 방법이 있어요."
+     }
+    ],
+    "caption": "Facebook 고객 센터는 **한국어**로도 볼 수 있어요. 직거래 전에 \"신뢰 및 안전\" 안내를 꼭 읽어 보세요.",
+    "credit": "Facebook 고객 센터 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2914,6 +3028,30 @@
    {
     "type": "h",
     "title": "당했다면"
+   },
+   {
+    "type": "shot",
+    "title": "Facebook 공식 고객 센터: Marketplace 사용 방법",
+    "src": "/images/money/shots/fb-safety.jpg",
+    "pins": [
+     {
+      "x": 57,
+      "y": 3.6,
+      "text": "**한국어** — 언어 버튼이에요. 영어로 나오면 여기서 바꿔요."
+     },
+     {
+      "x": 44,
+      "y": 45,
+      "text": "**Marketplace에서 물품 구매하기** — 사는 사람 입장 안내예요."
+     },
+     {
+      "x": 77,
+      "y": 65.5,
+      "text": "**Marketplace 신뢰 및 안전** — 사기 예방·신고 방법이 있어요."
+     }
+    ],
+    "caption": "Facebook 고객 센터는 **한국어**로도 볼 수 있어요. 직거래 전에 \"신뢰 및 안전\" 안내를 꼭 읽어 보세요.",
+    "credit": "Facebook 고객 센터 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -3153,6 +3291,20 @@
     "title": "가입하기"
    },
    {
+    "type": "shot",
+    "title": "Amazon Associates 첫 화면",
+    "src": "/images/money/shots/amazon-assoc.jpg",
+    "pins": [
+     {
+      "x": 46,
+      "y": 37,
+      "text": "**Sign up(가입)** — 노란 버튼을 누르면 가입이 시작돼요."
+     }
+    ],
+    "caption": "주소 줄에 **affiliate-program.amazon.com** 입력 → 이 화면에서 시작해요. 아마존 쇼핑 계정으로 로그인해서 신청해요.",
+    "credit": "Amazon Associates 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "가입 순서 (여러 가이드 공통)",
     "items": [
@@ -3270,6 +3422,25 @@
     "title": "쓸 수 있는 말, 쓰면 안 되는 말"
    },
    {
+    "type": "shot",
+    "title": "FTC 공식: 인플루언서 고지 안내(Disclosures 101)",
+    "src": "/images/money/shots/ftc-disclosures.jpg",
+    "pins": [
+     {
+      "x": 7.5,
+      "y": 49.9,
+      "text": "**bulkorder.ftc.gov 링크** — 소책자를 무료로 주문하거나 내려받는 곳이에요."
+     },
+     {
+      "x": 47,
+      "y": 69,
+      "text": "**Endorsement Guides** — 광고·추천에 대한 FTC 공식 기준 원문이에요."
+     }
+    ],
+    "caption": "미국 연방거래위원회(FTC)의 제휴·광고 고지 공식 안내예요. 무료 소책자(PDF)도 받을 수 있어요.",
+    "credit": "FTC(미국 연방거래위원회) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "compare",
     "title": "FTC 공식 예시",
     "columns": [
@@ -3368,6 +3539,25 @@
    {
     "type": "h",
     "title": "현실적인 6개월"
+   },
+   {
+    "type": "shot",
+    "title": "FTC 공식: 인플루언서 고지 안내(Disclosures 101)",
+    "src": "/images/money/shots/ftc-disclosures.jpg",
+    "pins": [
+     {
+      "x": 7.5,
+      "y": 49.9,
+      "text": "**bulkorder.ftc.gov 링크** — 소책자를 무료로 주문하거나 내려받는 곳이에요."
+     },
+     {
+      "x": 47,
+      "y": 69,
+      "text": "**Endorsement Guides** — 광고·추천에 대한 FTC 공식 기준 원문이에요."
+     }
+    ],
+    "caption": "미국 연방거래위원회(FTC)의 제휴·광고 고지 공식 안내예요. 무료 소책자(PDF)도 받을 수 있어요.",
+    "credit": "FTC(미국 연방거래위원회) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -3653,6 +3843,25 @@
     "title": "신청 순서"
    },
    {
+    "type": "shot",
+    "title": "Google AdSense 시작 화면",
+    "src": "/images/money/shots/adsense.jpg",
+    "pins": [
+     {
+      "x": 16,
+      "y": 70,
+      "text": "**Sign up(가입)** — 파란 버튼을 누르고 내 블로그 주소를 입력해요."
+     },
+     {
+      "x": 84,
+      "y": 4.3,
+      "text": "**Sign in(로그인)** — 이미 신청했다면 여기로 들어가 승인 상태를 봐요."
+     }
+    ],
+    "caption": "주소 줄에 **adsense.google.com** 입력 → 이 화면이 나와요. 구글(Gmail) 계정으로 신청해요.",
+    "credit": "Google AdSense 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "신청하는 방법",
     "items": [
@@ -3725,6 +3934,25 @@
    {
     "type": "h",
     "title": "저작권: 이것만은 조심하세요"
+   },
+   {
+    "type": "shot",
+    "title": "미국 저작권청 자주 묻는 질문",
+    "src": "/images/money/shots/copyright-gov.jpg",
+    "pins": [
+     {
+      "x": 13,
+      "y": 89,
+      "text": "**What Does Copyright Protect?** — 무엇이 저작권으로 보호되는지 펼쳐 봐요."
+     },
+     {
+      "x": 58,
+      "y": 4,
+      "text": "**Help** — 도움말 메뉴예요."
+     }
+    ],
+    "caption": "저작권 기본 질문이 정리된 미국 저작권청(copyright.gov) 공식 페이지예요.",
+    "credit": "미국 저작권청(U.S. Copyright Office) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "checklist",
@@ -3854,6 +4082,30 @@
    {
     "type": "h",
     "title": "1. 사업 형태 고르기"
+   },
+   {
+    "type": "shot",
+    "title": "SBA 공식 비즈니스 가이드",
+    "src": "/images/money/shots/sba-guide.jpg",
+    "pins": [
+     {
+      "x": 49,
+      "y": 25,
+      "text": "**Launch your business(사업 시작)** — 창업 순서가 모여 있는 칸이에요."
+     },
+     {
+      "x": 38,
+      "y": 48.6,
+      "text": "**Register your business** — 사업 등록 방법"
+     },
+     {
+      "x": 38,
+      "y": 53,
+      "text": "**Get federal and state tax ID numbers** — EIN 등 세금 번호 받기"
+     }
+    ],
+    "caption": "주소 줄에 **sba.gov/business-guide** 입력 → 창업 단계별 안내가 세 칸으로 나와요.",
+    "credit": "SBA(미국 중소기업청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "compare",
@@ -4117,6 +4369,30 @@
     "title": "만드는 순서"
    },
    {
+    "type": "shot",
+    "title": "조지아 주 법인 등록 사이트(eCorp)",
+    "src": "/images/money/shots/ga-ecorp.jpg",
+    "pins": [
+     {
+      "x": 9.5,
+      "y": 57.3,
+      "text": "**Business Search** — 쓰고 싶은 회사 이름이 이미 있는지 먼저 검색해요."
+     },
+     {
+      "x": 50,
+      "y": 57.3,
+      "text": "**Online Services** — 로그인 후 LLC 설립 신청을 해요."
+     },
+     {
+      "x": 9.5,
+      "y": 29,
+      "text": "**Annual Registration** — 설립 후 매년 하는 연간 등록이에요."
+     }
+    ],
+    "caption": "주소 줄에 **ecorp.sos.ga.gov** 입력 → 조지아 국무장관실 공식 법인 등록 사이트예요. LLC 신청은 **Online Services** 에서 해요.",
+    "credit": "조지아 국무장관실(Georgia Secretary of State) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "LLC 설립 순서",
     "items": [
@@ -4235,6 +4511,25 @@
     "highlight": 1
    },
    {
+    "type": "shot",
+    "title": "IRS: Form 1099-NEC 안내 화면",
+    "src": "/images/money/shots/irs-1099nec.jpg",
+    "pins": [
+     {
+      "x": 30,
+      "y": 59.5,
+      "text": "**Form 1099-NEC** — 서식(PDF)을 열어 볼 수 있어요."
+     },
+     {
+      "x": 44,
+      "y": 64,
+      "text": "**Instructions(작성 설명서)** — 칸마다 뭘 적는지 나와요."
+     }
+    ],
+    "caption": "IRS 공식 사이트에서 서식 원본과 설명서를 무료로 받을 수 있어요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "callout",
     "tone": "warn",
     "title": "서류 기준 금액 ≠ 신고해야 하는 금액",
@@ -4315,6 +4610,25 @@
    {
     "type": "h",
     "title": "Schedule C에 들어가는 것"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Schedule C 안내 화면",
+    "src": "/images/money/shots/irs-schc.jpg",
+    "pins": [
+     {
+      "x": 71.4,
+      "y": 51,
+      "text": "**한국어** — 이 안내를 한국어로 볼 수 있어요."
+     },
+     {
+      "x": 31,
+      "y": 84,
+      "text": "**Schedule C (Form 1040)** — 서식(PDF)이에요. 신고 프로그램을 쓰면 자동으로 채워져요."
+     }
+    ],
+    "caption": "Schedule C 서식과 설명서가 있는 IRS 공식 페이지예요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
