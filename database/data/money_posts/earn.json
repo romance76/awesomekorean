@@ -2578,6 +2578,59 @@
     "title": "지금 할 일"
    },
    {
+    "type": "shot",
+    "title": "DoorDash 공식 안내: 배달원 보험 기본",
+    "src": "/images/money/shots/dd-insurance.jpg",
+    "pins": [
+     {
+      "x": 47,
+      "y": 33.5,
+      "text": "**여기 설명** — 개인 보험사가 배달을 \"사업용 운전\"으로 보면 내 차 수리비(Collision) 청구를 **거절할 수 있다**고 적혀 있어요."
+     },
+     {
+      "x": 56.7,
+      "y": 13,
+      "text": "**Option 1** — 배달 일까지 보장하는 개인 보험(특약)을 드는 방법이에요."
+     },
+     {
+      "x": 56.7,
+      "y": 34.2,
+      "text": "**Option 2** — 사업용(Commercial) 자동차 보험을 드는 방법이에요."
+     },
+     {
+      "x": 67.5,
+      "y": 82,
+      "text": "**Not covered(보장 안 됨)** — DoorDash 보험은 **내 차 파손은 안 물어 줘요.** 내 보험이 배달을 보장해야 해요."
+     }
+    ],
+    "caption": "DoorDash가 직접 \"개인 보험만으로는 부족할 수 있다\"고 안내하는 화면이에요. 주소: **dasher.doordash.com** → Support → Insurance.",
+    "credit": "DoorDash 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "조지아 보험감독청(OCI): 자동차 보험 안내",
+    "src": "/images/money/shots/ga-oci.jpg",
+    "pins": [
+     {
+      "x": 26.5,
+      "y": 49.9,
+      "text": "**Report Complaints & Fraud** — 보험사 민원·사기 신고 메뉴예요."
+     },
+     {
+      "x": 15,
+      "y": 88.5,
+      "text": "**Auto** — 자동차 보험 안내 모음이에요."
+     },
+     {
+      "x": 55,
+      "y": 71.7,
+      "text": "**Liability Insurance** — 조지아에서 꼭 들어야 하는 책임보험 설명이에요."
+     }
+    ],
+    "caption": "보험사가 보험금을 부당하게 거절하면 조지아 주 보험감독청에 무료로 민원을 넣을 수 있어요. 주소: **oci.georgia.gov**",
+    "credit": "조지아 보험감독청(OCI) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "확인 순서",
     "items": [
@@ -2610,6 +2663,16 @@
     "title": "참고한 자료",
     "note": "여러 자료를 비교해서 운영팀이 쉬운 말로 다시 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
     "items": [
+     {
+      "title": "Insurance Basics for Dashers(DoorDash 공식)",
+      "url": "https://dasher.doordash.com/en-us/about/insurance",
+      "kind": "회사 공식"
+     },
+     {
+      "title": "Auto Insurance(조지아 보험감독청)",
+      "url": "https://oci.georgia.gov/insurance-resources/auto",
+      "kind": "주 정부(공식)"
+     },
      {
       "title": "자동차 보험이 배달 운전을 보장할까? (뉴스 보도)",
       "url": "https://www.fox9.com/money/does-auto-insurance-cover-delivery-driving",

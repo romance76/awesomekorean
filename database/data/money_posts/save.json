@@ -17,6 +17,51 @@
     "body": "가격표 밑에 작은 글씨로 \"$0.20/oz\" 처럼 적혀 있는 숫자예요. **같은 단위(온스·파운드 등)** 로 맞춰서 비교하면, 포장이 달라도 진짜 싼 걸 알 수 있어요."
    },
    {
+    "type": "shot",
+    "title": "NIST(미국 표준기술연구소): 단위가격 안내",
+    "src": "/images/money/shots/nist-shrink.jpg",
+    "pins": [
+     {
+      "x": 67.5,
+      "y": 62,
+      "text": "**Consumers use unit pricing...** — 소비자는 단위가격으로 제품 값을 비교할 수 있다는 설명이에요."
+     },
+     {
+      "x": 24,
+      "y": 91.4,
+      "text": "**What is Unit Pricing?** — 단위가격이 무엇인지 아래에 자세히 나와요."
+     }
+    ],
+    "caption": "미국 정부 표준기관이 \"양 줄이기(슈링크플레이션)\"를 알아채는 도구로 **단위가격**을 안내하는 페이지예요.",
+    "credit": "NIST(미국 표준기술연구소) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "steps",
+    "title": "마트 선반에서 이렇게 비교하세요",
+    "items": [
+     {
+      "title": "가격표를 찾기",
+      "body": "상품 바로 아래 선반에 붙은 흰색·노란색 가격표를 봐요."
+     },
+     {
+      "title": "작은 글씨 찾기",
+      "body": "큰 가격 옆이나 아래에 **\"$0.14/oz\"** 처럼 작게 적힌 숫자가 단위가격이에요."
+     },
+     {
+      "title": "단위가 같은지 확인",
+      "body": "한쪽이 oz, 다른 쪽이 lb면 1lb = 16oz로 맞춰요. (휴대폰 계산기: 가격 ÷ 용량)"
+     },
+     {
+      "title": "숫자가 작은 쪽 고르기",
+      "body": "단위가격이 작을수록 같은 양을 더 싸게 사는 거예요."
+     },
+     {
+      "title": "다 쓸 수 있는지 마지막 확인",
+      "body": "유통기한 안에 못 쓰면 큰 포장은 오히려 손해예요."
+     }
+    ]
+   },
+   {
     "type": "h",
     "title": "실제 예시: 수프 캔"
    },
@@ -111,6 +156,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스·가격은 수시로 바뀌니 공식 사이트로 다시 확인하세요.",
     "items": [
+     {
+      "title": "Uniform Unit Pricing(NIST 공식)",
+      "url": "https://www.nist.gov/programs-projects/uniform-unit-pricing-tools-consumers-fight-shrinkflation",
+      "kind": "정부(공식)"
+     },
      {
       "title": "단위가격 계산하고 비교하는 법",
       "url": "https://allseniors.org/articles/compare-grocery-unit-prices/",
@@ -721,6 +771,44 @@
     "title": "비교하는 기준"
    },
    {
+    "type": "shot",
+    "title": "USDA: 매달 발표하는 가정 식비 기준",
+    "src": "/images/money/shots/usda-foodcost.jpg",
+    "pins": [
+     {
+      "x": 26,
+      "y": 49.5,
+      "text": "**4가지 식단 기준** — Thrifty(알뜰)·Low-Cost·Moderate-Cost·Liberal 순서로 비싸져요."
+     },
+     {
+      "x": 25.5,
+      "y": 83.5,
+      "text": "**Latest Monthly Cost of Food Report** — 가장 최근 달의 식비 표예요. 눌러서 가족 수·나이별 금액을 봐요."
+     }
+    ],
+    "caption": "미국 농무부(USDA)가 \"집에서 해 먹을 때 한 달 식비\"를 매달 발표해요. 내 식비가 많은지 비교하는 기준으로 써요.",
+    "credit": "USDA(미국 농무부) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "FoodSafety.gov: 냉장·냉동 보관 기간표",
+    "src": "/images/money/shots/foodsafety-cold.jpg",
+    "pins": [
+     {
+      "x": 95,
+      "y": 88,
+      "text": "**Freezer(냉동실)** — 냉동 보관 기간이에요. 0°F(-18°C) 이하로 두면 안전하고, 기간은 맛·품질 기준이에요."
+     },
+     {
+      "x": 41.5,
+      "y": 79.3,
+      "text": "**Download Chart as PDF** — 표를 PDF로 받아 냉장고에 붙여 두면 편해요."
+     }
+    ],
+    "caption": "만들어서 **소분 냉동**할 때 얼마나 둬도 되는지 정부 표로 확인하세요.",
+    "credit": "FoodSafety.gov(미국 정부) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이렇게 비교해 보세요",
     "items": [
@@ -773,6 +861,16 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 지역·매장마다 다를 수 있으니 내 동네 매장에서 직접 확인하세요.",
     "items": [
+     {
+      "title": "USDA Food Plans: Monthly Cost of Food Reports",
+      "url": "https://www.fns.usda.gov/research/cnpp/usda-food-plans/cost-food-monthly-reports",
+      "kind": "정부(공식)"
+     },
+     {
+      "title": "Cold Food Storage Chart(FoodSafety.gov)",
+      "url": "https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts",
+      "kind": "정부(공식)"
+     },
      {
       "title": "냉동 보관 가이드(참고)",
       "url": "https://food.unl.edu/frozen-meat-safety/",
@@ -1063,6 +1161,26 @@
    {
     "type": "h",
     "title": "안 당하는 법"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Kroger 앱: 할인(Save) 화면",
+    "src": "/images/money/shots/app-kroger-2.jpg",
+    "pins": [
+     {
+      "x": 40.8,
+      "y": 34.5,
+      "text": "**Digital Coupons** — 디지털 쿠폰 모음이에요. 목록에 있는 상품 쿠폰만 \"Clip(담기)\" 하세요."
+     },
+     {
+      "x": 69,
+      "y": 71.3,
+      "text": "**Buy 2 Get 2 Free** 같은 문구 — \"더 사야 할인\" 조건이에요. 원래 2개가 필요했는지 먼저 생각하세요."
+     }
+    ],
+    "caption": "마트 앱의 할인 화면이에요. 쿠폰을 **장보기 목록에 있는 것만** 골라서 담으세요.",
+    "credit": "Kroger 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -1497,10 +1615,67 @@
     ]
    },
    {
+    "type": "h",
+    "title": "찾은 구독, 이렇게 해지하세요"
+   },
+   {
+    "type": "shot",
+    "title": "Apple 공식 도움말: 구독 해지",
+    "src": "/images/money/shots/apple-subs.jpg",
+    "pins": [
+     {
+      "x": 34.5,
+      "y": 48,
+      "text": "**Cancel a subscription** — 이 파란 버튼을 누르고 Apple 계정으로 로그인하면 구독 목록이 나와요."
+     },
+     {
+      "x": 62.5,
+      "y": 80.5,
+      "text": "**Cancel a subscription on your iPhone** — 아이폰에서 직접 하는 방법(설정 → 내 이름 → 구독)이 그림으로 나와요."
+     }
+    ],
+    "caption": "아이폰에서 결제한 구독은 Apple 도움말 페이지에서 바로 해지할 수 있어요. 주소: **support.apple.com/118428**",
+    "credit": "Apple 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "Google Play 공식 도움말: 구독 해지",
+    "src": "/images/money/shots/gplay-subs.jpg",
+    "pins": [
+     {
+      "x": 88.5,
+      "y": 4.1,
+      "text": "**Sign in** — 구독을 결제한 구글 계정으로 먼저 로그인해요."
+     },
+     {
+      "x": 26.5,
+      "y": 74.2,
+      "text": "**Cancel a subscription** — 이 버튼을 누르면 해지 순서가 차례로 나와요."
+     },
+     {
+      "x": 34.5,
+      "y": 81.8,
+      "text": "**Android phone & tablet** — 휴대폰에서 하는 방법을 보려면 이 탭을 눌러요."
+     }
+    ],
+    "caption": "안드로이드 폰(삼성 갤럭시 등)에서 결제한 구독은 Google Play 도움말에서 해지해요.",
+    "credit": "Google Play 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "sources",
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
     "items": [
+     {
+      "title": "Cancel a subscription from Apple(공식 도움말)",
+      "url": "https://support.apple.com/en-us/118428",
+      "kind": "회사 공식"
+     },
+     {
+      "title": "Cancel a subscription on Google Play(공식 도움말)",
+      "url": "https://support.google.com/googleplay/answer/7018481",
+      "kind": "회사 공식"
+     },
      {
       "title": "구독료 과소평가 연구(CNBC 보도)",
       "url": "https://www.cnbc.com/2022/09/06/consumers-underestimate-monthly-subscription-costs-by-at-least-100.html",
@@ -2027,6 +2202,55 @@
    },
    {
     "type": "h",
+    "title": "우리 동네 커버리지 확인하는 법"
+   },
+   {
+    "type": "steps",
+    "title": "5분이면 확인해요",
+    "items": [
+     {
+      "title": "어느 망을 빌려 쓰는지 확인",
+      "body": "알뜰폰 사이트 아래쪽이나 고객센터에서 확인해요. 예: **Mint Mobile은 T-Mobile 망**을 써요."
+     },
+     {
+      "title": "그 대형 통신사의 커버리지 지도 열기",
+      "body": "T-Mobile·Verizon·AT&T 모두 공식 사이트에 \"Coverage map\"이 있어요."
+     },
+     {
+      "title": "집·직장 주소 입력",
+      "body": "검색창에 주소나 ZIP 코드를 넣어요."
+     },
+     {
+      "title": "색깔 확인",
+      "body": "진한 색일수록 신호가 좋아요. 5G·4G 표시를 확인해요."
+     },
+     {
+      "title": "실제 사용자에게 물어보기",
+      "body": "지도는 실내 신호까지는 정확하지 않을 수 있어요. 이웃·교회 지인에게 물어보세요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "T-Mobile 공식 커버리지 지도",
+    "src": "/images/money/shots/tmo-coverage.jpg",
+    "pins": [
+     {
+      "x": 78.5,
+      "y": 38.3,
+      "text": "**Search address or location** — 집 주소나 ZIP 코드를 입력해요."
+     },
+     {
+      "x": 42.7,
+      "y": 13.5,
+      "text": "**Coverage** — 다른 지역·국제 로밍 지도도 이 메뉴에 있어요."
+     }
+    ],
+    "caption": "주소 줄에 **t-mobile.com/coverage** 입력 → 이 지도가 나와요. Mint Mobile 같은 T-Mobile 망 알뜰폰도 이 지도로 확인해요.",
+    "credit": "T-Mobile 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "h",
     "title": "가격만 보지 말고 총비용으로 비교"
    },
    {
@@ -2071,6 +2295,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 요금제·화면은 자주 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
     "items": [
+     {
+      "title": "T-Mobile Coverage Map(공식)",
+      "url": "https://www.t-mobile.com/coverage/coverage-map",
+      "kind": "회사 공식"
+     },
      {
       "title": "통신사 바꾸기 전 알아둘 것",
       "url": "https://www.whistleout.com/CellPhones/Guides/switching-carriers-5-important-things-to-know-first",
@@ -2272,6 +2501,31 @@
     "note": "※ \"양은 거의 비슷한데 훨씬 싸다\"는 후기가 많아요. 식당마다 달라요."
    },
    {
+    "type": "bars",
+    "title": "같은 식당 한 끼 비용 예시 (가상)",
+    "sub": "1인 기준, 팁·세금 제외",
+    "items": [
+     {
+      "label": "저녁 메인 + 음료",
+      "value": 30,
+      "display": "$30"
+     },
+     {
+      "label": "점심 메뉴 + 물",
+      "value": 16,
+      "display": "$16"
+     },
+     {
+      "label": "해피아워 애피타이저 2개 + 물",
+      "value": 14,
+      "display": "$14",
+      "highlight": true
+     }
+    ],
+    "max": 30,
+    "source": "※ 이해를 돕기 위한 가상 예시예요. 식당마다 가격이 달라요."
+   },
+   {
     "type": "h",
     "title": "주문할 때 아끼는 법"
    },
@@ -2300,6 +2554,36 @@
     "tone": "tip",
     "title": "외식 예산을 정해 두세요",
     "body": "여러 팁보다 **월 외식 예산을 미리 정해 두는 것**이 가장 효과적이라는 조언이 많아요. 외식을 \"가끔 하는 특별한 일\"로 만들면 자연히 줄어들어요."
+   },
+   {
+    "type": "h",
+    "title": "외식 전 5분 준비"
+   },
+   {
+    "type": "steps",
+    "title": "나가기 전에 확인하세요",
+    "items": [
+     {
+      "title": "식당 웹사이트나 구글 지도 열기",
+      "body": "식당 이름을 검색해서 공식 사이트나 구글 지도 정보를 봐요."
+     },
+     {
+      "title": "\"Happy Hour\" 시간 확인",
+      "body": "메뉴(Menu) 페이지에 해피아워 시간과 할인 메뉴가 나와요. 보통 늦은 오후~이른 저녁이에요."
+     },
+     {
+      "title": "\"Lunch\" 메뉴 확인",
+      "body": "점심 메뉴가 따로 있으면 저녁보다 싸요."
+     },
+     {
+      "title": "주문은 물부터",
+      "body": "음료값만 빼도 한 끼 금액이 크게 줄어요."
+     },
+     {
+      "title": "계산 전 영수증 확인",
+      "body": "서비스료(Service charge)가 이미 붙어 있으면 팁을 또 줄지 확인하세요."
+     }
+    ]
    },
    {
     "type": "sources",
@@ -2751,6 +3035,32 @@
     ]
    },
    {
+    "type": "steps",
+    "title": "정비비 통장 만드는 순서",
+    "items": [
+     {
+      "title": "월 적립액 정하기",
+      "body": "예: 차 가치 $20,000 × 1% ÷ 12 = 약 $17. 오래된 차는 $50~$100처럼 넉넉히 잡아요."
+     },
+     {
+      "title": "은행 앱에서 저축 계좌 하나 더 열기",
+      "body": "대부분 앱에서 \"Open account\" → Savings로 몇 분이면 돼요."
+     },
+     {
+      "title": "계좌 이름을 \"자동차 정비\"로 바꾸기",
+      "body": "이름을 붙여 두면 다른 데 쓰지 않게 돼요."
+     },
+     {
+      "title": "월급 다음 날 자동이체 걸기",
+      "body": "잊어버려도 저절로 쌓여요."
+     },
+     {
+      "title": "수리할 땐 이 통장에서만 꺼내기",
+      "body": "영수증은 사진으로 찍어 보관해요."
+     }
+    ]
+   },
+   {
     "type": "h",
     "title": "정비 사기 피하기"
    },
@@ -2765,10 +3075,39 @@
     ]
    },
    {
+    "type": "shot",
+    "title": "AAA 공인 정비소 찾기·수리비 예상",
+    "src": "/images/money/shots/aaa-repair.jpg",
+    "pins": [
+     {
+      "x": 93,
+      "y": 41,
+      "text": "**Location** — 내 ZIP 코드를 입력해요."
+     },
+     {
+      "x": 93,
+      "y": 68.5,
+      "text": "**SEARCH** — 가까운 AAA 공인 정비소 목록이 나와요. (할인 받으려면 AAA 회원 카드가 필요해요)"
+     },
+     {
+      "x": 41.5,
+      "y": 82.5,
+      "text": "**Repair Cost Estimator** — 수리 종류를 고르면 우리 동네 **예상 수리비**를 보여 줘요. 견적이 너무 비싼지 비교할 때 써요."
+     }
+    ],
+    "caption": "AAA(미국 자동차협회)의 공인 정비소 검색 화면이에요. 주소: **aaa.com/autorepair**",
+    "credit": "AAA 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "sources",
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스·정비 주기는 차종·제조사마다 다르니 꼭 내 차 설명서와 함께 확인하세요.",
     "items": [
+     {
+      "title": "AAA Approved Auto Repair(공식)",
+      "url": "https://www.aaa.com/autorepair/",
+      "kind": "단체 공식"
+     },
      {
       "title": "정비비 줄이는 법(AAA 계열)",
       "url": "https://cluballiance.aaa.com/the-extra-mile/advice/car/how-to-reduce-car-maintenance-expenses",
@@ -3034,10 +3373,64 @@
     ]
    },
    {
+    "type": "h",
+    "title": "온도조절기 이렇게 맞추세요"
+   },
+   {
+    "type": "steps",
+    "title": "계절별 설정 순서",
+    "items": [
+     {
+      "title": "여름, 집에서 깨어 있을 때",
+      "body": "온도조절기를 **Cool** 에 두고 **78°F** 로 맞춰요."
+     },
+     {
+      "title": "여름, 외출할 때",
+      "body": "**85°F** 로 올려요. 끄는 것보다 올려 두는 게 돌아와서 덜 힘들어요."
+     },
+     {
+      "title": "여름, 잘 때",
+      "body": "**82°F** + 천장 선풍기를 같이 켜요."
+     },
+     {
+      "title": "겨울, 낮",
+      "body": "**Heat** 에 두고 **68°F** 로 맞춰요."
+     },
+     {
+      "title": "겨울, 잘 때·외출할 때",
+      "body": "10~15도 더 낮춰요. 자동 조절기(Programmable/Smart)라면 시간표(Schedule)에 한 번만 넣어 두면 돼요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "ENERGY STAR 공식: 스마트 온도조절기",
+    "src": "/images/money/shots/estar-thermo.jpg",
+    "pins": [
+     {
+      "x": 95,
+      "y": 86.7,
+      "text": "**여기 설명** — 잠잘 때·외출할 때 자동으로 절약 온도로 바꿔 주는 기능이에요."
+     },
+     {
+      "x": 30,
+      "y": 23,
+      "text": "**Find Products** — 인증받은 제품을 찾아볼 수 있어요. 전기회사 리베이트가 있는지도 함께 확인하세요."
+     }
+    ],
+    "caption": "미국 정부의 에너지 절약 인증(ENERGY STAR) 사이트예요. 인증받은 스마트 온도조절기는 실제 절약 효과를 확인받은 제품이에요.",
+    "credit": "ENERGY STAR(미국 EPA) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "sources",
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
     "items": [
+     {
+      "title": "Smart Thermostats(ENERGY STAR 공식)",
+      "url": "https://www.energystar.gov/products/smart_thermostats",
+      "kind": "정부(공식)"
+     },
      {
       "title": "여름 절약 온도 설정 안내(뉴스)",
       "url": "https://local12.com/news/around-the-web/want-lower-electric-bills-heres-the-temperature-experts-recommend-thermostat-setting-save-money-air-conditioning",
@@ -3121,6 +3514,30 @@
     ]
    },
    {
+    "type": "shot",
+    "title": "Georgia Power 공식: 요금제 안내",
+    "src": "/images/money/shots/gapower-billing.jpg",
+    "pins": [
+     {
+      "x": 96,
+      "y": 16.5,
+      "text": "**My Account** — 로그인하면 고지서와 사용량 그래프를 볼 수 있어요."
+     },
+     {
+      "x": 74.5,
+      "y": 64,
+      "text": "**7 Rate Plans** — 요금제가 7가지 있어요. 아래로 내리면 하나씩 설명이 나와요."
+     },
+     {
+      "x": 11,
+      "y": 89,
+      "text": "**On/Off Peak Pricing** — 시간대별 요금제예요. 사람들이 덜 쓰는 시간에 더 싸요."
+     }
+    ],
+    "caption": "조지아 파워 고객이라면 내 계정에서 사용량을 보고, 내게 맞는 요금제로 바꿀 수 있어요. 주소: **georgiapower.com**",
+    "credit": "Georgia Power 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "callout",
     "tone": "tip",
     "title": "시간대별 요금제가 있는지 확인하세요",
@@ -3131,6 +3548,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
     "items": [
+     {
+      "title": "Georgia Power 요금제 안내(공식)",
+      "url": "https://www.georgiapower.com/residential/billing-and-rate-plans.html",
+      "kind": "회사 공식"
+     },
      {
       "title": "전기 사용량 관리 팁",
       "url": "https://energy.nh.gov/consumers/energy-efficiency/energy-efficiency-programs-and-services/tips-managing-your-electric",

@@ -704,6 +704,65 @@
    },
    {
     "type": "h",
+    "title": "실제 화면에서 용어 찾아보기"
+   },
+   {
+    "type": "shot",
+    "title": "Vanguard 공식 화면: VOO",
+    "src": "/images/money/shots/vanguard-voo.jpg",
+    "pins": [
+     {
+      "x": 28.5,
+      "y": 30.5,
+      "text": "**티커(Ticker)** — VOO처럼 알파벳으로 줄인 종목 코드예요. 검색창에 이걸 넣어요."
+     },
+     {
+      "x": 61.5,
+      "y": 66,
+      "text": "**Expense ratio(보수)** — ETF를 갖고 있는 동안 1년에 내는 비용이에요."
+     },
+     {
+      "x": 61.5,
+      "y": 80.5,
+      "text": "**Market price(시장 가격)** — 지금 사고팔리는 가격이에요."
+     },
+     {
+      "x": 13.3,
+      "y": 83,
+      "text": "**Buy(사기)** — 누르면 주문 화면으로 가요. 여기서 시장가·지정가를 골라요."
+     }
+    ],
+    "caption": "증권사 화면에는 위 용어들이 이렇게 나와요. Vanguard 사이트에서 **VOO** 를 검색한 화면이에요.",
+    "credit": "Vanguard(뱅가드) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "steps",
+    "title": "증권사 앱에서 처음 주문할 때 순서",
+    "items": [
+     {
+      "title": "검색창에 티커 입력",
+      "body": "예: VOO, AAPL"
+     },
+     {
+      "title": "종목 화면에서 Expense ratio·가격 확인",
+      "body": "ETF라면 보수가 낮은지 봐요."
+     },
+     {
+      "title": "Buy(사기) 누르기",
+      "body": "주문 화면이 열려요."
+     },
+     {
+      "title": "주문 유형 고르기",
+      "body": "**Market(시장가)** 또는 **Limit(지정가)**. 처음엔 지정가를 고르고 원하는 가격을 넣어요."
+     },
+     {
+      "title": "Review(검토) 화면 확인 후 제출",
+      "body": "수량·가격·총액을 다시 보고 Submit을 눌러요."
+     }
+    ]
+   },
+   {
+    "type": "h",
     "title": "시장가 vs 지정가, 언제 쓸까"
    },
    {
@@ -912,7 +971,7 @@
      [
       "추종 지수",
       "S&P 500",
-      "CRSP US Total Market",
+      "미국 전체 주식시장 지수",
       "S&P 500"
      ],
      [
@@ -920,6 +979,12 @@
       "대형주 약 500개",
       "대형+중형+소형(수천 개)",
       "대형주 약 500개"
+     ],
+     [
+      "보수(Expense ratio)",
+      "0.03%",
+      "0.03%",
+      "VOO·VTI보다 높은 편"
      ],
      [
       "구조",
@@ -935,7 +1000,49 @@
      ]
     ],
     "highlight": 1,
-    "note": "※ 보수·구성 종목 수는 운용사마다 발표 기준이 조금씩 달라요. 공식 사이트에서 최신 숫자를 확인하세요."
+    "note": "※ VOO·VTI 보수는 Vanguard 공식 페이지 기준(2026년 4월 28일 기준 0.03%)이에요. 지수 이름·보수·구성 종목은 바뀔 수 있으니 투자 전 운용사 공식 페이지에서 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "운용사 공식 화면에서 확인하기"
+   },
+   {
+    "type": "shot",
+    "title": "Vanguard 공식 화면: VOO",
+    "src": "/images/money/shots/vanguard-voo.jpg",
+    "pins": [
+     {
+      "x": 20,
+      "y": 52.5,
+      "text": "**Vanguard S&P 500 ETF** — 이름에 S&P 500이 있으면 미국 대형주 약 500개를 담는 상품이에요."
+     },
+     {
+      "x": 61.5,
+      "y": 66,
+      "text": "**Expense ratio(보수)** — 1년에 떼 가는 비용이에요. 0.03%면 $10,000당 1년에 약 $3이에요."
+     }
+    ],
+    "caption": "주소 줄에 **investor.vanguard.com** 입력 → 검색(Search)에 **VOO** 를 치면 이 화면이 나와요.",
+    "credit": "Vanguard(뱅가드) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "Vanguard 공식 화면: VTI",
+    "src": "/images/money/shots/vanguard-vti.jpg",
+    "pins": [
+     {
+      "x": 20,
+      "y": 60.5,
+      "text": "**Total Stock Market ETF** — 대형주뿐 아니라 중형·소형주까지 미국 주식 전체를 담아요."
+     },
+     {
+      "x": 61.5,
+      "y": 66,
+      "text": "**Expense ratio(보수)** — VOO와 비교해 보세요. 숫자가 낮을수록 비용이 적어요."
+     }
+    ],
+    "caption": "같은 방법으로 **VTI** 를 검색한 화면이에요. 이름에 **Total Stock Market(전체 주식시장)** 이 들어가요.",
+    "credit": "Vanguard(뱅가드) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
     "type": "h",
@@ -990,6 +1097,16 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 수수료·구성 종목은 운용사가 수시로 바꿔요. 투자 전 운용사 공식 페이지에서 최신 정보를 확인하세요.",
     "items": [
+     {
+      "title": "VOO 상품 페이지(Vanguard 공식)",
+      "url": "https://investor.vanguard.com/investment-products/etfs/profile/voo",
+      "kind": "운용사 공식"
+     },
+     {
+      "title": "VTI 상품 페이지(Vanguard 공식)",
+      "url": "https://investor.vanguard.com/investment-products/etfs/profile/vti",
+      "kind": "운용사 공식"
+     },
      {
       "title": "VOO vs VTI vs SPY 비교",
       "url": "https://dev.to/yonatan_naor_5642e43447ea/voo-vs-vti-vs-spy-which-sp-500-total-market-etf-is-best-2lkf",
@@ -1242,6 +1359,52 @@
     "body": "한 예시에서는 35% 세율 구간 투자자가 $10,000 배당을 **일반 배당으로 받으면 $3,500**, **적격 배당으로 받으면 $1,500** 세금을 낸다고 해요(예시 숫자, 세율 구간은 해마다 달라요)."
    },
    {
+    "type": "shot",
+    "title": "IRS: Topic 404 배당 안내",
+    "src": "/images/money/shots/irs-tc404.jpg",
+    "pins": [
+     {
+      "x": 82,
+      "y": 48.5,
+      "text": "**한국어** — 이 안내를 한국어로 볼 수 있어요."
+     },
+     {
+      "x": 23,
+      "y": 82.6,
+      "text": "**Qualified Dividends** — 적격 배당은 낮은 양도소득세율로 세금을 매긴다는 설명이에요."
+     },
+     {
+      "x": 80.5,
+      "y": 93.5,
+      "text": "**Form 1099-DIV** — 적격 배당 금액은 이 서류에 따로 적혀 와요."
+     }
+    ],
+    "caption": "IRS가 배당과 적격 배당을 설명하는 공식 페이지예요. 주소 줄에 **irs.gov/taxtopics/tc404** 입력.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "steps",
+    "title": "내 1099-DIV에서 확인하는 순서",
+    "items": [
+     {
+      "title": "증권사에서 1099-DIV 받기",
+      "body": "보통 2월 중순까지 증권사 사이트의 Tax documents(세금 서류) 메뉴에 올라와요."
+     },
+     {
+      "title": "Box 1a 보기",
+      "body": "그해 받은 **배당 전체** 금액이에요."
+     },
+     {
+      "title": "Box 1b 보기",
+      "body": "그중 **적격 배당** 금액이에요. 1b가 클수록 세금이 줄어요."
+     },
+     {
+      "title": "신고 프로그램·세무사에게 그대로 전달",
+      "body": "1b 금액에는 낮은 세율이 자동으로 적용돼요."
+     }
+    ]
+   },
+   {
     "type": "h",
     "title": "적격 배당이 되는 조건: 보유 기간"
    },
@@ -1313,6 +1476,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 세율·한도는 해마다 바뀌니 IRS 공식 안내로 확인하세요.",
     "items": [
+     {
+      "title": "Topic no. 404, Dividends(IRS 공식)",
+      "url": "https://www.irs.gov/taxtopics/tc404",
+      "kind": "정부(공식)"
+     },
      {
       "title": "적격 배당 설명(M1)",
       "url": "https://m1.com/knowledge-bank/qualified-dividends/",
@@ -1796,6 +1964,74 @@
     "highlight": 0
    },
    {
+    "type": "shot",
+    "title": "Investor.gov(미국 SEC): 529 플랜 설명",
+    "src": "/images/money/shots/investor-529.jpg",
+    "pins": [
+     {
+      "x": 30.5,
+      "y": 65.7,
+      "text": "**두 종류** — 학비를 미리 사 두는 **Prepaid tuition** 과 투자해서 불리는 **Education savings** 가 있어요."
+     },
+     {
+      "x": 30.5,
+      "y": 77.8,
+      "text": "**SEC가 관리하지 않아요** — 529는 각 주가 운영해요. 그래서 우리 주(조지아) 플랜을 먼저 봐요."
+     }
+    ],
+    "caption": "미국 증권거래위원회(SEC)의 투자자 교육 사이트예요. 529가 무엇인지 공식 설명이 나와요.",
+    "credit": "Investor.gov(미국 SEC) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "h",
+    "title": "조지아에서 529 여는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "Path2College 529 가입하기",
+    "items": [
+     {
+      "title": "조지아 공식 529 사이트 접속",
+      "body": "주소 줄에 **path2college529.com** 입력."
+     },
+     {
+      "title": "\"How our 529 works\" 읽기",
+      "body": "혜택과 조지아 주 소득세 공제(한도는 사이트에서 확인)를 봐요."
+     },
+     {
+      "title": "\"Open an account\" 누르기",
+      "body": "계좌 주인(보통 부모)과 수혜자(자녀) 이름·생년월일·SSN을 준비해요."
+     },
+     {
+      "title": "투자 방법 고르기",
+      "body": "잘 모르겠으면 자녀 나이에 맞춰 자동 조절되는 상품(Enrollment/Age-based)을 많이 골라요."
+     },
+     {
+      "title": "자동이체 걸기",
+      "body": "매달 조금씩 자동으로 넣으면 꾸준히 쌓여요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "조지아 공식 529: Path2College 첫 화면",
+    "src": "/images/money/shots/p2c-home.jpg",
+    "pins": [
+     {
+      "x": 27,
+      "y": 61,
+      "text": "**HOW OUR 529 WORKS** — 혜택과 규칙 설명이에요. 먼저 읽어 보세요."
+     },
+     {
+      "x": 96.5,
+      "y": 14,
+      "text": "**OPEN AN ACCOUNT** — 가입(계좌 열기) 버튼이에요."
+     }
+    ],
+    "caption": "조지아 주가 운영하는 529 플랜이에요.",
+    "credit": "Path2College 529(조지아 주) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "h",
     "title": "교육비로 인정되는 것"
    },
@@ -1846,6 +2082,16 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 규정은 주마다, 해마다 다르니 신청 전 공식 자료나 전문가로 확인하세요.",
     "items": [
+     {
+      "title": "529 Plans(Investor.gov, SEC 공식)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/529-plans",
+      "kind": "정부(공식)"
+     },
+     {
+      "title": "Path2College 529 Plan(조지아 공식)",
+      "url": "https://www.path2college529.com/",
+      "kind": "주 정부 플랜(공식)"
+     },
      {
       "title": "529 플랜 자격 비용 가이드",
       "url": "https://www.empower.com/the-currency/money/529-plan-qualified-expenses-what-counts",
@@ -1931,6 +2177,30 @@
     "note": "※ 계좌를 개설할 때 양식에서 다른 나이를 지정할 수 있다는 자료도 있어요. 정확한 조지아 규정은 공식 법령이나 전문가로 확인하세요."
    },
    {
+    "type": "shot",
+    "title": "Fidelity 공식: 수탁 계좌(UGMA/UTMA)",
+    "src": "/images/money/shots/fid-custodial.jpg",
+    "pins": [
+     {
+      "x": 61.5,
+      "y": 67,
+      "text": "**Transferred to the minor at a certain age** — 주마다 정해진 나이(18~25세)에 자녀에게 넘어간다고 적혀 있어요."
+     },
+     {
+      "x": 61.5,
+      "y": 84.9,
+      "text": "**Factored into financial aid** — 대학 학비 보조(FAFSA) 계산에 들어가요."
+     },
+     {
+      "x": 27.5,
+      "y": 37.5,
+      "text": "**Open a custodial account** — 계좌 열기 버튼이에요."
+     }
+    ],
+    "caption": "증권사가 직접 설명하는 UGMA/UTMA 계좌 화면이에요.",
+    "credit": "Fidelity 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "h",
     "title": "21세가 되면 무슨 일이 일어나나요"
    },
@@ -1953,6 +2223,36 @@
     ]
    },
    {
+    "type": "h",
+    "title": "UTMA 계좌 여는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "증권사에서 이렇게 열어요",
+    "items": [
+     {
+      "title": "증권사 사이트에서 \"Custodial account\" 찾기",
+      "body": "Fidelity·Schwab·Vanguard 등에 UGMA/UTMA 계좌가 있어요."
+     },
+     {
+      "title": "보호자(부모) 정보 + 자녀 정보 준비",
+      "body": "자녀 이름·생년월일·SSN이 필요해요."
+     },
+     {
+      "title": "조지아 주소로 신청",
+      "body": "조지아는 UTMA로 열려요. 신청서에 이전 나이가 어떻게 적히는지 확인해요."
+     },
+     {
+      "title": "입금하고 투자 고르기",
+      "body": "한 번 넣은 돈은 자녀 재산이라 다시 가져올 수 없어요."
+     },
+     {
+      "title": "종료 나이가 다가오면 증권사에 문의",
+      "body": "자녀 명의로 넘기는 절차를 안내받아요."
+     }
+    ]
+   },
+   {
     "type": "callout",
     "tone": "warn",
     "title": "투자 조언이 아니에요",
@@ -1963,6 +2263,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 규정은 주마다, 해마다 다르니 신청 전 공식 자료나 전문가로 확인하세요.",
     "items": [
+     {
+      "title": "Custodial account(Fidelity 공식)",
+      "url": "https://www.fidelity.com/open-account/custodial-account",
+      "kind": "증권사 공식"
+     },
      {
       "title": "UGMA/UTMA 주별 성년 나이",
       "url": "https://www.capitalgroup.com/advisor/account-resource-center/ugma-utma/age-of-majority.html",
@@ -2048,6 +2353,25 @@
     ]
    },
    {
+    "type": "shot",
+    "title": "연방 학자금 사이트: 학비 보조 계산 방법",
+    "src": "/images/money/shots/sa-calc.jpg",
+    "pins": [
+     {
+      "x": 15.3,
+      "y": 62,
+      "text": "**Student Aid Index (SAI)** — 우리 가정이 낼 수 있다고 보는 금액 지수예요. 자녀 명의 자산(UTMA)은 이 숫자를 더 올릴 수 있어요."
+     },
+     {
+      "x": 75.5,
+      "y": 70,
+      "text": "**여기 설명** — 실제 보조 금액은 **학교 재정 보조실(Financial aid office)** 이 정해요."
+     }
+    ],
+    "caption": "FAFSA를 내면 학교가 이 기준으로 보조금을 정해요. 자산이 **누구 이름인지**가 계산에 영향을 줘요. 주소: **studentaid.gov**",
+    "credit": "Federal Student Aid(미국 교육부) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "callout",
     "tone": "tip",
     "title": "아직 고민된다면 529를 먼저 추천하는 이유",
@@ -2064,6 +2388,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 규정은 주마다, 해마다 다르니 신청 전 공식 자료나 전문가로 확인하세요.",
     "items": [
+     {
+      "title": "How Financial Aid Is Calculated(교육부 공식)",
+      "url": "https://studentaid.gov/complete-aid-process/how-calculated",
+      "kind": "정부(공식)"
+     },
      {
       "title": "UGMA·UTMA 비교(Chase)",
       "url": "https://www.chase.com/personal/investments/learning-and-insights/article/ugma-vs-utma-custodial-accounts",
@@ -2369,6 +2698,48 @@
    },
    {
     "type": "h",
+    "title": "IRS 공식 서식 페이지"
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Form 1099-B 안내",
+    "src": "/images/money/shots/irs-1099b.jpg",
+    "pins": [
+     {
+      "x": 25,
+      "y": 58.5,
+      "text": "**여기 설명** — 증권사는 주식 등을 판 사람마다 이 서류를 보내야 해요."
+     },
+     {
+      "x": 43.5,
+      "y": 93.4,
+      "text": "**Form 1099-B (PDF)** — 서식 원본이에요. 칸마다 무엇이 적히는지 미리 볼 수 있어요."
+     }
+    ],
+    "caption": "주식·펀드를 판 내역이 적히는 서류예요. 주소 줄에 **irs.gov/forms-pubs/about-form-1099-b** 입력.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "IRS: Form 1099-DIV 안내",
+    "src": "/images/money/shots/irs-1099div.jpg",
+    "pins": [
+     {
+      "x": 44.5,
+      "y": 62.6,
+      "text": "**Form 1099-DIV (PDF)** — Box 1a(전체 배당)·1b(적격 배당)가 어디 있는지 확인해요."
+     },
+     {
+      "x": 59.5,
+      "y": 67,
+      "text": "**Instructions** — 칸마다 뜻을 설명하는 안내서예요."
+     }
+    ],
+    "caption": "배당금이 적히는 서류예요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "h",
     "title": "1099-B 확인할 때"
    },
    {
@@ -2423,6 +2794,16 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 세율 구간은 해마다 바뀌니 신고 전 IRS 공식 안내나 세무사로 확인하세요.",
     "items": [
+     {
+      "title": "About Form 1099-B(IRS 공식)",
+      "url": "https://www.irs.gov/forms-pubs/about-form-1099-b",
+      "kind": "정부(공식)"
+     },
+     {
+      "title": "About Form 1099-DIV(IRS 공식)",
+      "url": "https://www.irs.gov/forms-pubs/about-form-1099-div",
+      "kind": "정부(공식)"
+     },
      {
       "title": "Schedule D 세금 신고(Bankrate)",
       "url": "https://fidelity.com/news/article/default/202504072201BANKRATEBANKRATE1325727713",

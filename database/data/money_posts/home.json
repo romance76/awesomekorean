@@ -712,6 +712,25 @@
     "title": "결정하는 순서"
    },
    {
+    "type": "shot",
+    "title": "CFPB: 포인트·렌더 크레딧 설명",
+    "src": "/images/money/shots/cfpb-points.jpg",
+    "pins": [
+     {
+      "x": 65.8,
+      "y": 64,
+      "text": "**Points lower your interest rate** — 포인트는 클로징 때 돈을 더 내고 금리를 낮추는 거예요."
+     },
+     {
+      "x": 46,
+      "y": 83,
+      "text": "**Tip** — 이 집에 얼마나 살지 모르겠으면 포인트를 안 사는 게 나을 수 있다고 안내해요."
+     }
+    ],
+    "caption": "미국 소비자금융보호국(CFPB)의 공식 설명이에요. 검색창에 **CFPB discount points** 를 치면 나와요.",
+    "credit": "CFPB(미국 소비자금융보호국) 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이렇게 판단하세요",
     "items": [
@@ -738,6 +757,11 @@
     "title": "참고한 자료",
     "note": "여러 자료를 모아 운영팀이 정리했어요. 금리·조건은 매일 바뀌니 대출 담당자·공식 자료로 확인하세요.",
     "items": [
+     {
+      "title": "How should I use lender credits and points?(CFPB 공식)",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/what-are-discount-points-and-lender-credits-and-how-do-they-work-en-136/",
+      "kind": "정부(공식)"
+     },
      {
       "title": "모기지 포인트 사는 게 나을까",
       "url": "https://www.lower.com/mortgages/should-you-buy-down-your-mortgage-rate",
