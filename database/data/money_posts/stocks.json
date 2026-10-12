@@ -3204,5 +3204,1669 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "종목 비교",
+  "kind": "info",
+  "title": "같은 업종 두 회사 비교표 만들기: 매출·이익률·빚·PER 4칸이면 충분해요",
+  "content": "좋은 회사인지는 혼자 봐서는 알기 어려워요. 비슷한 사업을 하는 두 회사를 나란히 놓으면 차이가 보여요. 메모장에 네 칸(매출 성장, 이익률, 빚, PER)만 채워도 충분해요. 공식 서류에서 숫자를 찾는 곳과 비교할 때의 주의점을 정리했어요.\n- 같은 업종·비슷한 크기의 회사끼리 비교해요\n- 숫자는 10-K·10-Q(공식 서류)에서 가져와요\n- 한 번 비교로 결론 내지 말고 3년 흐름을 봐요",
+  "image": "/images/money/topics/stocks-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "4칸",
+      "label": "비교표",
+      "note": "성장·이익률·빚·PER",
+      "icon": "list"
+     },
+     {
+      "value": "2~3곳",
+      "label": "비교 대상",
+      "note": "같은 업종끼리",
+      "icon": "users"
+     },
+     {
+      "value": "3년",
+      "label": "흐름",
+      "note": "한 해만 보지 않기",
+      "icon": "calendar"
+     },
+     {
+      "value": "10-K",
+      "label": "숫자 출처",
+      "note": "공식 서류",
+      "icon": "book-open"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "왜 둘을 같이 봐야 하나요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "숫자는 혼자 있으면 의미가 없어요. \"순이익률 12%\"가 좋은지 나쁜지는 같은 업종 다른 회사가 몇 %인지 알아야 판단할 수 있어요. 그래서 비슷한 사업을 하는 두세 곳을 나란히 놓고 보는 거예요.",
+     "비교할 회사는 이름이 비슷한 곳이 아니라 **돈을 버는 방식이 비슷한 곳**으로 고르세요. 식당 체인과 소프트웨어 회사는 비교해도 의미가 없어요."
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "비교표 4칸",
+    "columns": [
+     "칸",
+     "계산·위치",
+     "뜻",
+     "주의"
+    ],
+    "rows": [
+     [
+      "매출 성장률",
+      "(올해 매출 − 작년 매출) ÷ 작년 매출",
+      "사업이 커지고 있나",
+      "한 해 급등은 일회성일 수 있어요"
+     ],
+     [
+      "순이익률",
+      "순이익 ÷ 매출",
+      "100원 팔아 몇 원 남기나",
+      "업종마다 보통 수준이 달라요"
+     ],
+     [
+      "빚(Total debt)",
+      "재무상태표의 부채",
+      "이자 부담, 불황 때 버틸 힘",
+      "이익 대비 빚이 급증하면 주의"
+     ],
+     [
+      "PER",
+      "주가 ÷ 주당순이익(EPS)",
+      "이익에 비해 주가가 몇 배",
+      "낮다고 싼 게 아니에요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "공식 서류의 숫자로 직접 계산하면 가장 정확해요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 두 회사의 순이익률 비교",
+    "sub": "매출 $1,000 기준",
+    "items": [
+     {
+      "label": "A 회사 순이익률 15%",
+      "value": 150,
+      "display": "순이익 $150"
+     },
+     {
+      "label": "B 회사 순이익률 5%",
+      "value": 50,
+      "display": "순이익 $50",
+      "highlight": true
+     }
+    ],
+    "max": 150,
+    "source": "※ 가상 예시예요. 이익률이 높다고 주가가 오른다는 뜻은 아니에요."
+   },
+   {
+    "type": "shot",
+    "title": "SEC EDGAR 회사 화면: 두 회사를 나란히 열기",
+    "src": "/images/money/shots/stk-edgar-co.jpg",
+    "pins": [
+     {
+      "x": 18.2,
+      "y": 23,
+      "text": "**회사 이름·티커·거래소** — 비교할 두 회사 모두 EDGAR에서 열고 같은 서류(10-K)를 고르세요."
+     },
+     {
+      "x": 36.4,
+      "y": 52.9,
+      "text": "**10-K·10-Q** — 숫자는 여기서 가져와요."
+     },
+     {
+      "x": 13.6,
+      "y": 38.2,
+      "text": "**Latest Filings** — 가장 최근 소식이 있는지 먼저 훑어요."
+     }
+    ],
+    "caption": "창을 두 개 열어 같은 연도 10-K를 나란히 보면 숫자를 비교하기 쉬워요.",
+    "credit": "미국 증권거래위원회(SEC) 공식 사이트 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "비교표 만드는 순서",
+    "items": [
+     {
+      "title": "회사 2~3곳을 정해요",
+      "body": "같은 업종, 비슷한 규모로 골라요."
+     },
+     {
+      "title": "각 회사 10-K에서 매출·순이익·부채를 적어요",
+      "body": "손익계산서와 재무상태표에 있어요. 최근 3년치를 적으면 흐름이 보여요."
+     },
+     {
+      "title": "순이익률과 성장률을 계산해요",
+      "body": "계산기로 충분해요. 표에 같은 단위(백만 달러 등)로 적으세요."
+     },
+     {
+      "title": "PER 은 증권사 앱에서 같이 봐요",
+      "body": "주가는 매일 변해서 같은 날 기준으로 비교하세요."
+     },
+     {
+      "title": "차이가 나는 이유를 한 줄로 써 봐요",
+      "body": "\"A가 이익률이 높은 이유는 …\" 한 줄이 써지면 이해한 거예요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "비교할 때 주의",
+    "items": [
+     "**회계연도**가 다르면 기간을 맞추기",
+     "**단위(천·백만)** 를 헷갈리지 않기",
+     "**일회성 이익·손실**이 있는지 주석 확인",
+     "회사 **규모 차이**가 너무 크면 비교가 어려워요",
+     "**내 판단 근거**를 표에 같이 적어 두기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "표를 만드는 것 자체가 공부예요",
+    "body": "표를 채우다 보면 어떤 숫자가 어디에 있는지 몸에 익어요. 결론이 안 나와도 괜찮아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Price-earnings ratio",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-pe-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "종목 비교",
+  "kind": "info",
+  "title": "매출 성장률과 이익률 계산법: 엑셀 없이 계산기로 10분이면 돼요",
+  "content": "회사가 잘하고 있는지 알려면 두 가지 계산이면 돼요. 매출이 얼마나 늘었나(성장률), 매출에서 얼마가 이익으로 남나(이익률)예요. 공식 서류에서 숫자를 찾아 계산기로 두 줄만 계산하는 법과, 숫자를 해석할 때 흔한 실수를 정리했어요.\n- 성장률 = (올해 − 작년) ÷ 작년\n- 이익률 = 이익 ÷ 매출\n- 총이익률·영업이익률·순이익률은 서로 다른 숫자예요",
+  "image": "/images/money/topics/stocks-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "성장률",
+      "label": "매출 변화",
+      "note": "(올해−작년)÷작년",
+      "icon": "trending-up"
+     },
+     {
+      "value": "이익률",
+      "label": "남기는 비율",
+      "note": "이익 ÷ 매출",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "3종류",
+      "label": "이익률",
+      "note": "총·영업·순",
+      "icon": "list"
+     },
+     {
+      "value": "계산기",
+      "label": "도구",
+      "note": "10분이면 충분",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "계산은 두 줄이에요"
+   },
+   {
+    "type": "text",
+    "body": [
+     "매출 성장률은 \"작년보다 몇 % 더 팔았나\"예요. 작년 매출이 $800억, 올해가 $880억이면 (880−800)÷800=0.10, 즉 **10%** 성장이에요. 이익률은 \"100원을 팔면 몇 원이 남나\"예요. 순이익이 $88억이고 매출이 $880억이면 **10%**예요.",
+     "같은 이익률이라도 어떤 이익을 기준으로 했는지가 중요해요. 손익계산서에서 위에서 아래로 내려가며 이익이 세 번 나와요."
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "이익 세 종류",
+    "columns": [
+     "이름",
+     "계산",
+     "뜻"
+    ],
+    "rows": [
+     [
+      "총이익(Gross profit)",
+      "매출 − 매출원가",
+      "물건·서비스를 만드는 데만 든 비용을 뺀 이익"
+     ],
+     [
+      "영업이익(Operating income)",
+      "총이익 − 판매·관리비 등",
+      "본업으로 번 이익"
+     ],
+     [
+      "순이익(Net income)",
+      "영업이익 − 이자·세금 등",
+      "모든 걸 뺀 뒤 남은 이익(EPS의 바탕)"
+     ]
+    ],
+    "highlight": 0,
+    "note": "회사 발표에서는 영업이익을 가장 먼저 보는 사람이 많아요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 같은 매출 $1,000에서 이익이 줄어드는 모습",
+    "sub": "한 회사의 손익계산서(가상)",
+    "items": [
+     {
+      "label": "매출",
+      "value": 1000,
+      "display": "$1,000"
+     },
+     {
+      "label": "총이익",
+      "value": 400,
+      "display": "$400"
+     },
+     {
+      "label": "영업이익",
+      "value": 150,
+      "display": "$150"
+     },
+     {
+      "label": "순이익",
+      "value": 100,
+      "display": "$100",
+      "highlight": true
+     }
+    ],
+    "max": 1000,
+    "source": "※ 가상 예시예요. 순이익률은 10%($100÷$1,000)예요."
+   },
+   {
+    "type": "steps",
+    "title": "공식 서류에서 숫자 찾기",
+    "items": [
+     {
+      "title": "10-K 손익계산서(Statements of Operations)를 열어요",
+      "body": "'Total net sales' 또는 'Revenue'가 매출이에요. 맨 위에 있어요."
+     },
+     {
+      "title": "최근 3년 매출을 옮겨 적어요",
+      "body": "표에는 보통 3년이 나란히 있어요."
+     },
+     {
+      "title": "성장률을 두 번 계산해요",
+      "body": "올해 vs 작년, 작년 vs 재작년. 성장이 빨라지는지 느려지는지 보여요."
+     },
+     {
+      "title": "순이익률도 3년치 계산해요",
+      "body": "이익률이 해마다 오르는지, 떨어지는지 보세요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "흔한 실수",
+    "items": [
+     "**일회성 이익**(자산 매각 등)으로 순이익이 부풀었는지",
+     "**환율 영향**(해외 매출이 큰 회사)",
+     "**회계연도**가 달력과 다른 회사",
+     "'**조정(Adjusted)**' 숫자와 **GAAP 숫자**를 섞어 쓰기",
+     "**한 해 숫자만** 보고 판단하기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "좋은 숫자 = 좋은 주식은 아니에요",
+    "body": "성장률·이익률이 좋은 회사의 주식은 이미 비싸게 거래될 수 있어요. 숫자는 회사를 이해하는 도구이고, 사도 되는 가격인지는 다른 질문이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Earnings per share",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/earnings-share",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "종목 비교",
+  "kind": "info",
+  "title": "업종(섹터) 11가지와 경기에 따라 달라지는 모습: 같은 업종끼리만 비교하는 이유",
+  "content": "주식시장은 보통 11개 업종(섹터)으로 나눠 불러요. 업종마다 이익이 나는 방식, 경기 영향, 보통 PER과 배당 수준이 달라서 다른 업종끼리 숫자를 비교하면 오해하기 쉬워요. 11개 업종 이름과, 경기에 민감한 업종과 덜 민감한 업종의 차이를 정리했어요.\n- 업종 분류는 기관마다 조금 달라요(대표: GICS 11개)\n- 경기민감: 소비재(선택)·금융·산업재·에너지 등\n- 방어적: 필수소비재·헬스케어·유틸리티 등",
+  "image": "/images/money/topics/stocks-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "11개",
+      "label": "대표 업종",
+      "note": "GICS 분류 기준",
+      "icon": "list"
+     },
+     {
+      "value": "경기민감",
+      "label": "경기 따라 출렁",
+      "note": "불황에 큰 영향",
+      "icon": "trending-up"
+     },
+     {
+      "value": "방어적",
+      "label": "상대적으로 안정",
+      "note": "그래도 손실 가능",
+      "icon": "shield"
+     },
+     {
+      "value": "같은 업종끼리",
+      "label": "비교 원칙",
+      "note": "PER·이익률",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "11개 업종"
+   },
+   {
+    "type": "compare",
+    "title": "대표 11개 업종(GICS)",
+    "columns": [
+     "업종",
+     "예시 사업",
+     "경기 영향",
+     "특징"
+    ],
+    "rows": [
+     [
+      "정보기술(Information Technology)",
+      "소프트웨어, 반도체",
+      "보통 큼",
+      "성장 기대가 커서 PER 높은 편"
+     ],
+     [
+      "헬스케어(Health Care)",
+      "제약, 병원, 의료기기",
+      "상대적으로 작음",
+      "규제·특허 위험"
+     ],
+     [
+      "금융(Financials)",
+      "은행, 보험",
+      "큼",
+      "금리 영향이 커요"
+     ],
+     [
+      "경기소비재(Consumer Discretionary)",
+      "자동차, 의류, 외식",
+      "큼",
+      "불황에 소비가 먼저 줄어요"
+     ],
+     [
+      "필수소비재(Consumer Staples)",
+      "식품, 생활용품",
+      "작음",
+      "불황에도 매출이 비교적 안정"
+     ],
+     [
+      "에너지(Energy)",
+      "석유, 가스",
+      "큼",
+      "유가에 크게 좌우"
+     ],
+     [
+      "유틸리티(Utilities)",
+      "전기, 가스, 수도",
+      "작음",
+      "배당이 많은 편, 금리에 민감"
+     ],
+     [
+      "산업재(Industrials)",
+      "항공, 건설, 물류",
+      "큼",
+      "기업 투자에 영향"
+     ],
+     [
+      "소재(Materials)",
+      "화학, 금속",
+      "큼",
+      "원자재 가격 영향"
+     ],
+     [
+      "부동산(Real Estate)",
+      "리츠(REIT)",
+      "중간",
+      "금리에 민감, 배당 많음"
+     ],
+     [
+      "커뮤니케이션(Communication Services)",
+      "통신, 미디어, 인터넷 플랫폼",
+      "중간",
+      "광고 경기 영향"
+     ]
+    ],
+    "highlight": 0,
+    "note": "분류는 기관마다 달라서 회사가 어느 업종인지 헷갈릴 수 있어요. 증권사 앱의 Sector 표시를 참고하세요."
+   },
+   {
+    "type": "text",
+    "body": [
+     "방어적 업종이라고 안전한 건 아니에요. 2008년 같은 큰 위기에서는 거의 모든 업종이 같이 내렸어요. 다만 경기가 나빠질 때 **덜 출렁이는 경향**이 있어서 포트폴리오에 섞는 경우가 많아요."
+    ]
+   },
+   {
+    "type": "steps",
+    "title": "업종을 비교에 활용하는 순서",
+    "items": [
+     {
+      "title": "내 회사가 어느 업종인지 확인해요",
+      "body": "증권사 앱 종목 화면의 Sector/Industry 항목에 있어요."
+     },
+     {
+      "title": "같은 업종의 대표 회사 2~3곳을 찾아요",
+      "body": "ETF의 상위 보유 종목 목록을 보면 쉬워요."
+     },
+     {
+      "title": "PER·이익률의 업종 평균을 확인해요",
+      "body": "업종 평균에서 크게 벗어난 회사는 이유를 찾아보세요."
+     },
+     {
+      "title": "내 포트폴리오가 한 업종에 몰리지 않았는지 봐요",
+      "body": "여러 종목이어도 모두 기술주면 같이 흔들려요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "업종 이해 확인",
+    "items": [
+     "내가 가진 종목의 **업종을 안다**",
+     "**경기 민감 정도**를 알고 있다",
+     "**한 업종 비중**이 너무 높지 않다",
+     "다른 업종과 **PER을 직접 비교하지** 않는다",
+     "**금리 변화**에 민감한 업종이 무엇인지 안다"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "내 직업과 같은 업종은 특히 조심하세요",
+    "body": "월급과 투자가 같은 업종에 몰리면 그 업종이 어려울 때 일자리와 투자가 같이 흔들려요. 분산은 업종에서도 필요해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Asset Allocation and Diversification",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/asset-allocation",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: 시가총액",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: PER",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-pe-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "PER·EPS",
+  "kind": "info",
+  "title": "PER 의 함정 4가지: 적자 회사, 일회성 이익, 성장주, '예상 PER'을 만났을 때",
+  "content": "PER은 쉽고 자주 쓰는 숫자지만 그대로 믿으면 틀릴 때가 많아요. 적자 회사에는 쓸 수 없고, 일회성 이익이 섞이면 왜곡되고, 성장 기대가 큰 회사는 높게 나오고, '예상 PER'은 의견이에요. 네 가지 함정과 확인법을 정리했어요.\n- PER = 주가 ÷ 최근 12개월 주당순이익(EPS)\n- 이익이 이상하면 PER도 이상해요\n- '선행(forward) PER'은 전문가 예상 기반이라 바뀔 수 있어요",
+  "image": "/images/money/topics/stocks-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "4가지",
+      "label": "함정",
+      "note": "PER만 믿지 말기",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "12개월",
+      "label": "기본 기준",
+      "note": "최근 이익",
+      "icon": "calendar"
+     },
+     {
+      "value": "Forward",
+      "label": "예상 PER",
+      "note": "의견 기반",
+      "icon": "info"
+     },
+     {
+      "value": "업종",
+      "label": "비교 기준",
+      "note": "같은 업종끼리",
+      "icon": "users"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 설명으로 정확한 뜻부터"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Price-earnings (P/E) Ratio",
+    "src": "/images/money/shots/stk-pe.jpg",
+    "pins": [
+     {
+      "x": 50,
+      "y": 42.8,
+      "text": "**Price-earnings (P/E) Ratio** — 주가수익비율이에요."
+     },
+     {
+      "x": 62.7,
+      "y": 55.3,
+      "text": "SEC 설명: 주가가 **과거나 다른 회사에 비해 높은지 낮은지** 가늠하는 방법이에요."
+     },
+     {
+      "x": 62.7,
+      "y": 63,
+      "text": "**현재 주가 ÷ 주당순이익(EPS)** 이고, EPS는 **최근 12개월 이익** ÷ 보통주 수예요."
+     }
+    ],
+    "caption": "SEC도 PER을 '가늠하는 방법'이라고 말해요. 결론이 아니라 질문을 만드는 숫자예요.",
+    "credit": "SEC Investor.gov 공식 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "PER 함정 4가지",
+    "columns": [
+     "함정",
+     "예",
+     "어떻게 확인하나"
+    ],
+    "rows": [
+     [
+      "① 적자 회사",
+      "EPS가 마이너스면 PER 계산 불가",
+      "'N/A'로 표시돼요. 매출·현금흐름을 대신 봐요"
+     ],
+     [
+      "② 일회성 이익",
+      "자산 매각으로 한 해만 이익이 큼 → PER이 낮아 보임",
+      "10-K 주석에서 일회성 항목 확인"
+     ],
+     [
+      "③ 성장주",
+      "이익이 작은데 빠르게 늘 것이라고 기대 → PER이 높음",
+      "매출 성장률과 함께 보기"
+     ],
+     [
+      "④ 예상(Forward) PER",
+      "분석가 예상 이익 사용",
+      "실제 실적과 달라질 수 있어요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "숫자를 볼 때는 '어떤 이익을 썼나'를 같이 물어보세요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 일회성 이익이 PER을 낮춰 보이게 해요",
+    "sub": "주가 $100 회사",
+    "items": [
+     {
+      "label": "정상 이익 EPS $2 → PER 50배",
+      "value": 50,
+      "display": "PER 50배"
+     },
+     {
+      "label": "일회성 포함 EPS $10 → PER 10배",
+      "value": 10,
+      "display": "PER 10배(착시)",
+      "highlight": true
+     }
+    ],
+    "max": 50,
+    "source": "※ 가상 예시예요. 일회성 이익이 사라지면 PER은 다시 높아져요."
+   },
+   {
+    "type": "steps",
+    "title": "PER을 볼 때 확인 순서",
+    "items": [
+     {
+      "title": "EPS가 플러스인지 봐요",
+      "body": "마이너스면 PER을 쓰지 않아요."
+     },
+     {
+      "title": "EPS가 최근 3년 어떻게 변했는지 봐요",
+      "body": "한 해만 갑자기 튀었다면 이유를 찾아요."
+     },
+     {
+      "title": "같은 업종 PER과 비교해요",
+      "body": "업종 평균과 크게 다르면 이유를 한 줄로 적어요."
+     },
+     {
+      "title": "Forward PER 인지 Trailing PER 인지 확인해요",
+      "body": "증권사 앱 화면에 표기가 있어요. Trailing은 과거 12개월, Forward는 예상이에요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "PER 해석 체크",
+    "items": [
+     "**어떤 이익**(GAAP/조정)을 썼는지",
+     "**일회성 항목**이 있는지",
+     "**Trailing vs Forward**",
+     "**같은 업종**과 비교",
+     "PER 말고 **현금흐름·성장**도 같이"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "PER이 낮다고 싼 주식은 아니에요",
+    "body": "시장이 \"이 회사 이익은 곧 줄 것\"이라고 보면 PER이 낮아져요. 낮은 PER은 값싼 신호일 수도, 경고일 수도 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: Price-earnings ratio",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-pe-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: Earnings per share",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/earnings-share",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "PER·EPS",
+  "kind": "info",
+  "title": "업종마다 다른 PER: '평균 PER'과 비교할 때 기억할 3가지 원칙",
+  "content": "PER 20배가 비싼지는 업종을 알아야 판단할 수 있어요. 성장이 빠른 업종은 PER이 높고, 성숙한 업종은 낮은 경우가 많아요. 같은 업종끼리 비교하는 법과 시장 평균과 비교할 때의 주의점을 정리했어요.\n- 업종마다 보통의 PER 수준이 달라요\n- 시장 평균 PER도 시기에 따라 달라요\n- 비교 기준은 '같은 업종 · 같은 시기 · 같은 방식'이에요",
+  "image": "/images/money/topics/stocks-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3원칙",
+      "label": "비교 기준",
+      "note": "업종·시기·방식",
+      "icon": "list"
+     },
+     {
+      "value": "업종",
+      "label": "보통 수준",
+      "note": "성장 vs 성숙",
+      "icon": "users"
+     },
+     {
+      "value": "시장",
+      "label": "평균 PER",
+      "note": "시기마다 달라요",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "1곳",
+      "label": "한 회사로",
+      "note": "결론 금지",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "왜 업종마다 다를까요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "앞으로 이익이 빠르게 늘 것이라고 기대하는 업종은 지금 이익이 작아도 주가가 높아서 PER이 높아져요. 반대로 매출이 안정적이고 성장이 느린 업종은 PER이 낮은 편이에요. 그래서 PER 20이라는 숫자 하나는 업종마다 의미가 달라요.",
+     "또 금리도 영향을 줘요. 금리가 오르면 미래 이익의 현재 가치가 줄어서 성장주의 PER이 먼저 눌리는 경우가 많아요."
+    ]
+   },
+   {
+    "type": "compare",
+    "title": "가상 예시: 업종별로 흔한 PER 수준(방향만)",
+    "columns": [
+     "업종 성격",
+     "PER 경향",
+     "이유"
+    ],
+    "rows": [
+     [
+      "빠른 성장(기술 등)",
+      "높은 편",
+      "미래 이익 기대가 커요"
+     ],
+     [
+      "안정적(필수소비재 등)",
+      "중간",
+      "이익이 꾸준해요"
+     ],
+     [
+      "경기 민감(에너지·소재 등)",
+      "이익이 좋을 때 낮아 보임",
+      "경기 정점에서는 이익이 곧 줄 수 있어요"
+     ],
+     [
+      "리츠·유틸리티",
+      "PER 대신 다른 지표",
+      "감가상각·배당이 커서 FFO 같은 지표를 써요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "숫자는 상황에 따라 크게 달라서 정확한 값을 외우기보다 '방향'만 기억하세요."
+   },
+   {
+    "type": "steps",
+    "title": "3원칙으로 비교하기",
+    "items": [
+     {
+      "title": "같은 업종끼리",
+      "body": "증권사 앱의 업종 평균 PER 또는 ETF의 PER과 비교해요."
+     },
+     {
+      "title": "같은 시기에",
+      "body": "주가는 매일 변해서 다른 날 PER을 비교하면 틀려요."
+     },
+     {
+      "title": "같은 방식으로",
+      "body": "둘 다 Trailing 인지 Forward 인지 맞춰요. 조정 이익/GAAP도 맞추세요."
+     }
+    ]
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 같은 PER 20배인데 해석이 달라요",
+    "sub": "업종 평균과 비교",
+    "items": [
+     {
+      "label": "업종 평균 10배 → 20배는 두 배",
+      "value": 10,
+      "display": "평균 PER 10배"
+     },
+     {
+      "label": "업종 평균 40배 → 20배는 절반",
+      "value": 40,
+      "display": "평균 PER 40배",
+      "highlight": true
+     }
+    ],
+    "max": 40,
+    "source": "※ 가상 예시예요. 실제 업종 평균은 시기마다 달라요."
+   },
+   {
+    "type": "checklist",
+    "title": "체크",
+    "items": [
+     "**업종 평균**을 먼저 찾았다",
+     "**같은 날 기준**으로 비교했다",
+     "Trailing/Forward를 **맞췄다**",
+     "**이상한 한 회사**는 이유를 찾았다",
+     "PER만으로 **결론 내지 않았다**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "시장 평균 PER도 기준이 아니에요",
+    "body": "시장 평균이 낮을 때도 큰 하락이 올 수 있고, 높을 때도 더 오르는 경우가 있어요. 평균과 비교해 '지금 사야 한다/팔아야 한다'를 정하는 데는 쓰지 마세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: Price-earnings ratio",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/price-earnings-pe-ratio",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: Asset Allocation and Diversification",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/asset-allocation",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "PER·EPS",
+  "kind": "info",
+  "title": "EPS 가 늘었는데 왜 이익은 그대로죠? 자사주 매입과 주식 보상이 주당 숫자에 미치는 영향",
+  "content": "EPS는 순이익을 주식 수로 나눈 값이라서, 순이익이 그대로여도 주식 수가 줄면 EPS가 늘어요. 반대로 주식 보상(스톡옵션·RSU)으로 주식 수가 늘면 EPS가 줄어요(희석). 자사주 매입이 EPS를 올리는 방식과 희석 EPS를 읽는 법을 정리했어요.\n- EPS = 순이익 ÷ 주식 수\n- 자사주 매입 → 주식 수 감소 → EPS 증가\n- 희석(Diluted) EPS 가 보통 더 보수적이에요",
+  "image": "/images/money/topics/stocks-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "분모",
+      "label": "주식 수",
+      "note": "EPS 의 아래 숫자",
+      "icon": "list"
+     },
+     {
+      "value": "매입",
+      "label": "자사주",
+      "note": "주식 수 줄이기",
+      "icon": "refresh"
+     },
+     {
+      "value": "희석",
+      "label": "Diluted",
+      "note": "주식 수 늘어난 경우",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "2개",
+      "label": "Basic·Diluted",
+      "note": "두 종류 EPS",
+      "icon": "chart-bar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 정의로 확인"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Earnings Per Share",
+    "src": "/images/money/shots/stk-eps.jpg",
+    "pins": [
+     {
+      "x": 45.5,
+      "y": 42.8,
+      "text": "**Earnings Per Share** — 주당순이익이에요."
+     },
+     {
+      "x": 58.2,
+      "y": 50.5,
+      "text": "SEC 정의: **순이익을 보통주 주식 수로 나눈 것**이에요. 즉 분자(이익)와 분모(주식 수) 둘 다 중요해요."
+     }
+    ],
+    "caption": "EPS가 늘었을 때 '이익이 늘었나, 주식 수가 줄었나'를 꼭 구분하세요.",
+    "credit": "SEC Investor.gov 공식 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 이익은 그대로, 주식 수만 줄었을 때",
+    "sub": "순이익 $1,000억 고정",
+    "items": [
+     {
+      "label": "주식 100억 주 → EPS $10",
+      "value": 10,
+      "display": "EPS $10"
+     },
+     {
+      "label": "주식 90억 주 → EPS 약 $11.1",
+      "value": 11.1,
+      "display": "EPS 약 $11.1 (+11%)",
+      "highlight": true
+     }
+    ],
+    "max": 11.1,
+    "source": "※ 가상 예시예요. 순이익은 그대로인데 EPS가 11% 늘어요."
+   },
+   {
+    "type": "compare",
+    "title": "Basic 과 Diluted EPS",
+    "columns": [
+     "구분",
+     "주식 수 기준",
+     "특징"
+    ],
+    "rows": [
+     [
+      "Basic EPS(기본)",
+      "지금 발행된 주식 수",
+      "단순하지만 낙관적일 수 있어요"
+     ],
+     [
+      "Diluted EPS(희석)",
+      "옵션·RSU 등이 모두 주식이 됐다고 가정",
+      "더 보수적, 뉴스에서 흔히 쓰는 EPS"
+     ]
+    ],
+    "highlight": 0,
+    "note": "10-K·10-Q 손익계산서 맨 아래에 두 숫자가 같이 나와요."
+   },
+   {
+    "type": "steps",
+    "title": "EPS가 늘었을 때 확인하는 법",
+    "items": [
+     {
+      "title": "순이익이 얼마나 늘었는지 먼저 봐요",
+      "body": "순이익이 그대로인데 EPS만 늘었다면 이유를 찾아요."
+     },
+     {
+      "title": "발행 주식 수의 변화를 봐요",
+      "body": "손익계산서 하단 'Shares used in computing EPS' 줄에 있어요."
+     },
+     {
+      "title": "자사주 매입 규모를 현금흐름표에서 봐요",
+      "body": "'Repurchases of common stock'(자사주 매입)이 크면 주식 수가 줄어요."
+     },
+     {
+      "title": "주식 보상(SBC) 규모도 봐요",
+      "body": "직원에게 주식을 많이 주면 주식 수가 다시 늘어요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "EPS 해석",
+    "items": [
+     "**순이익 변화**와 **주식 수 변화**를 구분",
+     "**Diluted EPS**를 우선",
+     "**자사주 매입 자금**이 어디서 나오는지(현금 vs 빚)",
+     "**주식 보상** 규모",
+     "**최근 3년 EPS 추세**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "자사주 매입이 항상 좋은 건 아니에요",
+    "body": "주가가 높을 때 큰돈으로 사들이면 오히려 주주 가치가 줄 수 있어요. 빚을 내서 사들이는 경우도 있어요. 매입 자금의 출처를 확인하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov: Earnings per share",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/earnings-share",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: How to Read a 10-K/10-Q",
+      "url": "https://www.investor.gov/news-alerts/investor-bulletins/how-read-10-k",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "SEC 공식: EDGAR 회사 검색",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch.html",
+      "kind": "정부(공식, SEC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포트폴리오",
+  "kind": "info",
+  "title": "자산 배분이란? 주식·채권·현금을 나누는 기준 2가지: 투자 기간과 위험 감수 정도",
+  "content": "종목을 고르기 전에 먼저 정할 것은 주식·채권·현금을 각각 얼마씩 둘지예요. SEC는 이를 자산 배분(Asset Allocation)이라고 부르며, 정답이 아니라 개인의 판단이라고 설명해요. 기준은 두 가지, 투자 기간(time horizon)과 위험 감수 능력(risk tolerance)이에요.\n- 자산 배분 = 주식·채권·현금으로 나누는 비율\n- 투자 기간이 길수록 변동을 견딜 여유가 커요\n- 위험 감수는 '능력'과 '마음' 둘 다예요",
+  "image": "/images/money/topics/stocks-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3가지",
+      "label": "주 자산",
+      "note": "주식·채권·현금",
+      "icon": "wallet"
+     },
+     {
+      "value": "2기준",
+      "label": "정하는 법",
+      "note": "기간·위험 감수",
+      "icon": "list"
+     },
+     {
+      "value": "개인",
+      "label": "정답 없음",
+      "note": "사람마다 달라요",
+      "icon": "users"
+     },
+     {
+      "value": "바뀜",
+      "label": "인생 단계",
+      "note": "시기마다 조정",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 설명 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Asset Allocation and Diversification",
+    "src": "/images/money/shots/stk-alloc.jpg",
+    "pins": [
+     {
+      "x": 57.3,
+      "y": 9.5,
+      "text": "**Asset Allocation and Diversification** — 자산 배분과 분산 투자를 설명하는 SEC 페이지예요."
+     },
+     {
+      "x": 60.9,
+      "y": 32.4,
+      "text": "**dividing your investments among ... stocks, bonds, and cash** — 투자금을 주식·채권·현금으로 나누는 것이에요."
+     },
+     {
+      "x": 45.5,
+      "y": 47.6,
+      "text": "**Investing Timeframe(Time Horizon)** — 목표를 이루기 위해 투자하는 기간이에요. 길수록 변동이 큰 투자를 감당하기 쉽다고 해요."
+     },
+     {
+      "x": 36.4,
+      "y": 66,
+      "text": "**Risk Tolerance** — 투자 원금의 일부나 전부를 잃을 수 있는 위험을 감당할 능력과 의지예요."
+     },
+     {
+      "x": 61.8,
+      "y": 87.6,
+      "text": "온라인 **위험 성향 설문**은 참고용이에요. 결과가 상품을 파는 회사에 유리하게 나올 수 있다고 SEC가 주의를 줘요."
+     }
+    ],
+    "caption": "정답이 아니라 '내가 왜 이 비율로 정했는지'를 설명할 수 있는 것이 중요해요.",
+    "credit": "SEC Investor.gov 공식 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "기준 두 가지",
+    "columns": [
+     "기준",
+     "질문",
+     "예"
+    ],
+    "rows": [
+     [
+      "투자 기간(Time horizon)",
+      "이 돈을 언제 쓸 건가요?",
+      "5년 안에 집 계약금 vs 30년 뒤 은퇴 자금"
+     ],
+     [
+      "위험 감수(Risk tolerance)",
+      "얼마까지 줄어도 잠을 잘 수 있나요?",
+      "-20%가 와도 팔지 않을 수 있는지"
+     ]
+    ],
+    "highlight": 0,
+    "note": "짧은 기간에 쓸 돈은 변동이 큰 자산에 오래 두지 마세요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 같은 사람도 목표마다 다를 수 있어요",
+    "sub": "목표별 주식 비중 예시(가상)",
+    "items": [
+     {
+      "label": "2년 뒤 쓸 돈",
+      "value": 10,
+      "display": "주식 10% 안팎"
+     },
+     {
+      "label": "10년 뒤 자녀 학비",
+      "value": 50,
+      "display": "주식 50% 안팎"
+     },
+     {
+      "label": "30년 뒤 은퇴 자금",
+      "value": 80,
+      "display": "주식 80% 안팎",
+      "highlight": true
+     }
+    ],
+    "max": 80,
+    "source": "※ 가상 예시예요. 정답이 아니라 '기간이 길수록 주식 비중을 높이는 경우가 많다'는 방향만 보여 줘요."
+   },
+   {
+    "type": "steps",
+    "title": "내 자산 배분 정하는 순서",
+    "items": [
+     {
+      "title": "돈을 쓸 시기별로 나눠요",
+      "body": "1~2년, 5~10년, 20년 이상으로 목표마다 구분해요."
+     },
+     {
+      "title": "비상금을 먼저 떼어 둬요",
+      "body": "비상금은 투자가 아니에요. 3~6개월 생활비를 저축계좌에 둬요."
+     },
+     {
+      "title": "각 목표에 맞는 주식·채권·현금 비율을 정해요",
+      "body": "정답이 없으니 이유를 한 줄로 적어요."
+     },
+     {
+      "title": "1년에 한 번 점검해요",
+      "body": "나이·직장·가족이 바뀌면 비율도 바뀌어요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**목표별 시기**를 정했다",
+     "**비상금**을 먼저 확보했다",
+     "**-20%**에도 팔지 않을 수 있다",
+     "**왜 이 비율인지** 설명할 수 있다",
+     "**1년에 한 번** 점검한다"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "나이로 정하는 '공식'은 참고만 하세요",
+    "body": "'100 − 나이 = 주식 비중' 같은 규칙은 간단하지만 모든 사람에게 맞지 않아요. 직업 안정성, 가족, 다른 자산에 따라 달라요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Asset Allocation and Diversification",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/asset-allocation",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov: 시가총액",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "Investor.gov 공식: Exchange-Traded Funds (ETFs)",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-2",
+      "kind": "정부(공식, SEC Investor.gov)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포트폴리오",
+  "kind": "info",
+  "title": "리밸런싱이란? 주식 비중이 60%에서 80%가 됐을 때 어떻게 하나요",
+  "content": "처음에 주식 60%, 채권 40%로 시작했는데 주식이 많이 올라 80%가 됐다면 위험이 처음 계획보다 커진 거예요. 이때 원래 비율로 되돌리는 것이 리밸런싱이에요. SEC 설명과 함께 언제·어떻게 하는지, 세금과 비용을 어떻게 줄이는지 정리했어요.\n- 리밸런싱 = 원래 정한 자산 비율로 되돌리기\n- 주기: 6개월·12개월 또는 비율이 크게 벗어났을 때\n- 자주 하면 비용·세금이 늘어요",
+  "image": "/images/money/topics/stocks-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "60→80%",
+      "label": "비중 변화",
+      "note": "주식이 올랐을 때",
+      "icon": "trending-up"
+     },
+     {
+      "value": "6·12개월",
+      "label": "주기 예시",
+      "note": "SEC 설명",
+      "icon": "calendar"
+     },
+     {
+      "value": "목표 비율",
+      "label": "되돌리기",
+      "note": "처음 계획으로",
+      "icon": "refresh"
+     },
+     {
+      "value": "세금",
+      "label": "주의",
+      "note": "팔면 세금이 생겨요",
+      "icon": "dollar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 설명 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Rebalancing",
+    "src": "/images/money/shots/stk-rebal.jpg",
+    "pins": [
+     {
+      "x": 36.4,
+      "y": 5.5,
+      "text": "**Rebalancing** — 시간이 지나면 어떤 투자는 더 빨리 자라서 처음 계획에서 벗어난다는 설명이에요."
+     },
+     {
+      "x": 62.3,
+      "y": 29.7,
+      "text": "**60% → 80% 예시** — 주식 비중이 시장 상승으로 80%가 됐다면, 일부를 팔거나 다른 자산에 더 넣어 원래 비율로 되돌려요."
+     },
+     {
+      "x": 54.5,
+      "y": 51.3,
+      "text": "SEC는 리밸런싱이 오른 것을 줄이고 덜 오른 것을 늘려서 **\"buy low and sell high\"** 하도록 돕는다고 설명해요."
+     },
+     {
+      "x": 61.8,
+      "y": 57.1,
+      "text": "**every six or 12 months** — 어떤 전문가는 6개월·12개월마다, 다른 전문가는 비중이 일정 %를 넘어서면 하라고 해요."
+     },
+     {
+      "x": 40.5,
+      "y": 72.4,
+      "text": "**target date fund** — 이 펀드는 운용사가 리밸런싱을 대신 해 줘요."
+     }
+    ],
+    "caption": "덜 자주 하는 편이 낫다고 SEC가 설명해요. 한 달에 한 번 같은 습관은 불필요해요.",
+    "credit": "SEC Investor.gov 공식 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 시장이 올라서 비율이 밀렸을 때",
+    "sub": "처음 주식 60%·채권 40%, 지금 $100,000",
+    "items": [
+     {
+      "label": "처음 주식 60%",
+      "value": 60,
+      "display": "$60,000"
+     },
+     {
+      "label": "지금 주식 80%",
+      "value": 80,
+      "display": "$80,000",
+      "highlight": true
+     },
+     {
+      "label": "되돌릴 때 팔 주식",
+      "value": 20,
+      "display": "약 $20,000 (채권으로 이동)"
+     }
+    ],
+    "max": 80,
+    "source": "※ 가상 예시예요. 실제로는 새 돈을 채권에 더 넣어서 맞추는 방법도 있어요."
+   },
+   {
+    "type": "compare",
+    "title": "리밸런싱 방법 3가지",
+    "columns": [
+     "방법",
+     "어떻게",
+     "장점",
+     "주의"
+    ],
+    "rows": [
+     [
+      "팔고 사기",
+      "오른 자산을 팔아 덜 오른 자산을 삼",
+      "한 번에 맞춰요",
+      "세금(과세 계좌)·수수료"
+     ],
+     [
+      "새 돈으로 맞추기",
+      "새로 넣는 돈을 부족한 자산에 넣음",
+      "팔지 않아서 세금 없음",
+      "시간이 걸려요"
+     ],
+     [
+      "자동 펀드 쓰기",
+      "타깃 데이트 펀드 등",
+      "운용사가 알아서 해요",
+      "비용(보수율) 확인"
+     ]
+    ],
+    "highlight": 0,
+    "note": "401(k)·IRA 안에서는 팔아도 세금이 바로 생기지 않는 경우가 많아요(계좌 종류 확인)."
+   },
+   {
+    "type": "steps",
+    "title": "리밸런싱 순서",
+    "items": [
+     {
+      "title": "목표 비율과 지금 비율을 적어요",
+      "body": "증권사 앱의 자산 구성(Allocation) 화면에 있어요."
+     },
+     {
+      "title": "기준을 정해요",
+      "body": "'1년에 한 번' 또는 '목표에서 5%p 이상 벗어나면'처럼 미리 정해요."
+     },
+     {
+      "title": "가장 쉬운 방법부터 해요",
+      "body": "새 입금액을 부족한 자산에 넣는 게 가장 간단해요."
+     },
+     {
+      "title": "과세 계좌라면 세금을 먼저 계산해요",
+      "body": "이익을 보고 팔면 양도소득세가 생겨요. 보유 기간(1년 이상)도 확인하세요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "확인",
+    "items": [
+     "**목표 비율**이 적혀 있다",
+     "**점검 시기**를 정했다",
+     "**새 돈으로** 맞출 수 있는지 먼저 본다",
+     "**세금·수수료**를 계산했다",
+     "감정이 아니라 **미리 정한 규칙**으로 한다"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "오른 자산을 팔기 어려운 건 정상이에요",
+    "body": "잘나가는 것을 줄이고 부진한 것을 늘리는 건 마음이 불편해요. 그래서 미리 규칙을 정해 두는 거예요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Asset Allocation and Diversification",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/asset-allocation",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: Topic 409 Capital Gains and Losses",
+      "url": "https://www.irs.gov/taxtopics/tc409",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포트폴리오",
+  "kind": "info",
+  "title": "한 종목에 몰빵하지 마세요: 집중 위험과 회사 주식(RSU)이 많을 때 줄이는 순서",
+  "content": "\"달걀을 한 바구니에 담지 말라\"는 말은 SEC도 분산 투자 설명에서 쓰는 표현이에요. 한 회사에 많이 몰려 있으면 그 회사 사정에 내 자산이 통째로 흔들려요. 특히 다니는 회사의 주식(RSU·ESPP)이 많이 쌓인 경우가 흔해요. 집중 위험을 알아보고 줄이는 순서를 정리했어요.\n- 한 종목 비중이 크면 그 회사 뉴스 하나에 크게 흔들려요\n- 월급도 같은 회사에서 받으면 위험이 겹쳐요\n- 줄일 때는 세금과 규정(내부자 거래 제한)을 확인해요",
+  "image": "/images/money/topics/stocks-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "한 종목",
+      "label": "집중 위험",
+      "note": "한 회사에 몰림",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "RSU",
+      "label": "회사 주식 보상",
+      "note": "월급과 위험이 겹쳐요",
+      "icon": "briefcase"
+     },
+     {
+      "value": "분산",
+      "label": "해결책",
+      "note": "여러 종목·ETF",
+      "icon": "list"
+     },
+     {
+      "value": "세금",
+      "label": "주의",
+      "note": "팔 때 확인",
+      "icon": "dollar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "SEC 설명: 분산이란"
+   },
+   {
+    "type": "shot",
+    "title": "SEC Investor.gov: Diversification",
+    "src": "/images/money/shots/stk-rebal.jpg",
+    "pins": [
+     {
+      "x": 60,
+      "y": 98.4,
+      "text": "**\"Don't put all your eggs in one basket\"** — 분산 투자는 돈을 여러 투자에 나눠서 위험을 줄이는 것이에요."
+     },
+     {
+      "x": 36.4,
+      "y": 5.5,
+      "text": "**Rebalancing** — 분산했더라도 시간이 지나면 한 종목이 커질 수 있어서 가끔 비율을 되돌려요."
+     }
+    ],
+    "caption": "분산해도 시장 전체가 내릴 위험은 남아요. 줄이는 건 '한 회사'의 위험이에요.",
+    "credit": "SEC Investor.gov 공식 화면을 직접 캡처했어요(2026년 10월 확인)."
+   },
+   {
+    "type": "compare",
+    "title": "집중 위험이 커지는 경우",
+    "columns": [
+     "상황",
+     "왜 위험한가",
+     "대응"
+    ],
+    "rows": [
+     [
+      "회사 RSU·ESPP 주식이 쌓임",
+      "월급 + 자산이 같은 회사에 묶여요",
+      "정해진 비율을 넘으면 일부 매도"
+     ],
+     [
+      "오른 종목을 계속 보유",
+      "비중이 점점 커져요",
+      "리밸런싱 규칙"
+     ],
+     [
+      "친구·SNS 추천으로 한 종목 구매",
+      "이유가 소문이에요",
+      "내가 확인한 이유가 있는지 점검"
+     ],
+     [
+      "ETF도 한 업종에 몰림",
+      "종목은 많아도 같이 움직여요",
+      "업종 비중 확인"
+     ]
+    ],
+    "highlight": 0,
+    "note": "비중 5~10% 같은 기준은 사람마다 달라요. 내가 감당할 수 있는 최대 손실로 정하세요."
+   },
+   {
+    "type": "bars",
+    "title": "가상 예시: 한 종목이 -50% 일 때",
+    "sub": "총 자산 $100,000, 그 종목 비중에 따라",
+    "items": [
+     {
+      "label": "비중 10% → 전체 -5%",
+      "value": 5,
+      "display": "-$5,000"
+     },
+     {
+      "label": "비중 30% → 전체 -15%",
+      "value": 15,
+      "display": "-$15,000"
+     },
+     {
+      "label": "비중 60% → 전체 -30%",
+      "value": 30,
+      "display": "-$30,000",
+      "highlight": true
+     }
+    ],
+    "max": 30,
+    "source": "※ 가상 예시예요. 한 종목이 반토막 나도 비중이 작으면 전체 충격이 작아요."
+   },
+   {
+    "type": "steps",
+    "title": "줄이는 순서",
+    "items": [
+     {
+      "title": "한 종목 비중을 계산해요",
+      "body": "증권사 앱의 Holdings 화면에서 종목별 비율을 봐요."
+     },
+     {
+      "title": "내가 정한 한도를 넘었는지 봐요",
+      "body": "한도를 미리 정해 두지 않았다면 '이 종목이 -50%여도 괜찮은 금액'을 기준으로 정해요."
+     },
+     {
+      "title": "회사 주식이면 회사의 거래 제한 기간(blackout)을 확인해요",
+      "body": "내부자는 실적 발표 전 등 특정 기간에 팔 수 없어요. 인사팀·사내 규정에 문의하세요."
+     },
+     {
+      "title": "세금을 계산하고 나눠서 팔아요",
+      "body": "RSU는 받을 때 소득으로 과세돼요. 팔 때 추가 이익이 있으면 양도소득세가 생겨요. 한 번에 팔기 어렵다면 정해진 기간에 나눠 파는 방법도 있어요."
+     },
+     {
+      "title": "나온 돈은 계획한 자산 배분에 맞춰 나눠요",
+      "body": "ETF 등 분산된 상품으로 옮기는 경우가 많아요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "점검",
+    "items": [
+     "**한 종목 비중 한도**를 정했다",
+     "**회사 주식 비중**을 안다",
+     "**거래 제한 기간**을 확인했다",
+     "**세금**을 계산했다",
+     "**비상금**은 투자와 별개로 있다"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "'애정'과 '확신'은 다른 감정이에요",
+    "body": "내 회사에 대한 확신이 클수록 비중이 커지기 쉬워요. 그래도 내 월급, 승진, 자산이 한 곳에 묶여 있다는 사실은 달라지지 않아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "세금·거래 제한은 개인 상황마다 달라서 세무 전문가·사내 규정 확인이 필요해요. 이 글은 일반 정보예요. 특정 종목·ETF를 사거나 팔라고 권하는 글이 아니며, 예로 든 회사 이름은 공식 화면을 보여 드리기 위한 것이에요. 주식·ETF는 **원금을 잃을 수 있어요**. 숫자와 일정은 자주 바뀌니 신청·거래 전에 공식 자료에서 최신 내용을 확인하세요. 투자 결정과 책임은 본인에게 있어요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "SEC·BLS·BEA·연준·IRS 등 공식 자료와 기업 공식 IR 페이지를 운영팀이 정리했어요(2026년 10월 확인). 숫자와 일정은 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Investor.gov 공식: Asset Allocation and Diversification",
+      "url": "https://www.investor.gov/introduction-investing/getting-started/asset-allocation",
+      "kind": "정부(공식, SEC Investor.gov)"
+     },
+     {
+      "title": "IRS 공식: Topic 409 Capital Gains and Losses",
+      "url": "https://www.irs.gov/taxtopics/tc409",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
  }
 ]
