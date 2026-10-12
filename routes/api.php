@@ -959,6 +959,16 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/info-generation/status', [\App\Http\Controllers\API\AdminInfoController::class, 'generationStatus']);
     Route::post('/info-generation/trigger', [\App\Http\Controllers\API\AdminInfoController::class, 'triggerGeneration']);
 
+    // MONEY 관리 (카페·가이드·카페 글 숨김) — 지우는 기능 없음
+    Route::get('/money/cafes', [\App\Http\Controllers\API\AdminMoneyController::class, 'cafes']);
+    Route::post('/money/cafes', [\App\Http\Controllers\API\AdminMoneyController::class, 'saveCafe']);
+    Route::put('/money/cafes/{id}', [\App\Http\Controllers\API\AdminMoneyController::class, 'saveCafe'])->whereNumber('id');
+    Route::get('/money/guides', [\App\Http\Controllers\API\AdminMoneyController::class, 'guides']);
+    Route::post('/money/guides', [\App\Http\Controllers\API\AdminMoneyController::class, 'saveGuide']);
+    Route::put('/money/guides/{id}', [\App\Http\Controllers\API\AdminMoneyController::class, 'saveGuide'])->whereNumber('id');
+    Route::get('/money/posts', [\App\Http\Controllers\API\AdminMoneyController::class, 'posts']);
+    Route::post('/money/posts/{id}/toggle', [\App\Http\Controllers\API\AdminMoneyController::class, 'togglePost'])->whereNumber('id');
+
     // 회원 내돈내산 리뷰 관리 (승인/반려/내리기/복구)
     Route::put('/associates-guide', [\App\Http\Controllers\API\AssociatesGuideController::class, 'save']);
     Route::post('/associates-guide/image', [\App\Http\Controllers\API\AssociatesGuideController::class, 'upload']);

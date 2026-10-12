@@ -46,6 +46,7 @@ export const ADMIN_ITEMS = [
   { to: '/admin/recipes', icon: 'utensils', label: '레시피', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/news', icon: 'newspaper', label: '뉴스', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/info', icon: 'book-open', label: '정보', pcGroup: 'content', legacyGroup: 'board', mobile: true },
+  { to: '/admin/money', icon: 'coins', label: 'MONEY', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/directory', icon: 'store', label: '업소록', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/groupbuy', icon: 'shopping-bag', label: '공동구매', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/music', icon: 'music', label: '음악', pcGroup: 'content', legacyGroup: 'board', mobile: true },

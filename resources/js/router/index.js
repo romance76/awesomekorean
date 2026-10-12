@@ -205,6 +205,7 @@ const routes = [
       { path: 'boards', component: p('admin/BoardManager') },
       { path: 'news', component: p('admin/AdminNews') },
       { path: 'info', component: p('admin/AdminInfo') },
+      { path: 'money', component: p('admin/AdminMoney') },
       { path: 'jobs', component: p('admin/AdminJobs') },
       { path: 'market', component: p('admin/AdminMarket') },
       { path: 'realestate', component: p('admin/AdminRealestate') },
