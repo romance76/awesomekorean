@@ -3100,8 +3100,8 @@
       "kind": "후기·가이드"
      },
      {
-      "title": "아마존 어소시에이트 수익 시작하기",
-      "url": "https://ecommercefastlane.com/?p=157218",
+      "title": "아마존 어소시에이트 가입 안내서",
+      "url": "https://amazon-affiliate-automatic.readthedocs.io/getting-started/signup-guide/",
       "kind": "후기·가이드"
      }
     ]
@@ -3308,6 +3308,378 @@
       "title": "아마존 어소시에이트 가이드",
       "url": "https://www.sellersprite.com/en/blog/how-to-become-an-amazon-affiliate",
       "kind": "후기·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "콘텐츠 수익",
+  "kind": "info",
+  "title": "유튜브 광고 수익(YPP) 신청하기: 조건부터 승인까지 (2026년 공식 기준)",
+  "content": "유튜브에서 광고 수익을 받으려면 **YouTube Partner Program(YPP)** 승인을 받아야 해요. 유튜브 공식 도움말을 기준으로 **정확한 조건과 신청 순서**를 정리했어요.",
+  "image": "/images/money/topics/earn-08.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "조건: 둘 중 하나를 채우면 돼요"
+   },
+   {
+    "type": "compare",
+    "title": "YPP 신청 조건 (공식 기준)",
+    "columns": [
+     "경로",
+     "조건"
+    ],
+    "rows": [
+     [
+      "영상(롱폼) 경로",
+      "구독자 1,000명 + 최근 12개월 **공개 롱폼 영상** 시청 시간 4,000시간"
+     ],
+     [
+      "쇼츠 경로",
+      "구독자 1,000명 + 최근 90일 **쇼츠(Shorts)** 조회수 1,000만 회"
+     ]
+    ],
+    "highlight": 0,
+    "note": "※ 쇼츠 피드 시청 시간은 롱폼 시간에 포함되지 않아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "2027년 2월부터 기준이 올라가요(예정)",
+    "body": "새로 신청하는 채널은 **8,000시간**(쇼츠는 2,000만 회)으로 조건이 올라간다는 안내가 있어요. 기존에 이미 승인된 채널은 영향이 없다고 해요. 신청 전에 유튜브 공식 안내에서 최신 기준을 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "조건 말고 추가로 필요한 것"
+   },
+   {
+    "type": "checklist",
+    "title": "추가 조건",
+    "items": [
+     "**커뮤니티 가이드라인 위반(제재)이 없어야** 해요(제재 기간이 끝나거나 이의제기가 받아들여지면 신청 가능)",
+     "구글 계정에 **2단계 인증**을 켜야 해요",
+     "YPP 운영 가능한 **국가·지역**에 거주해야 해요",
+     "**애드센스(AdSense) 계정**을 채널에 연결해야 해요"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "신청 순서 (공식)"
+   },
+   {
+    "type": "phone",
+    "title": "신청 메뉴",
+    "where": "left-center",
+    "label": "왼쪽 메뉴에서 \"수익 창출(Earn)\"",
+    "icon": "dollar",
+    "caption": "YouTube Studio에 들어가서 왼쪽 메뉴의 **Earn(수익 창출)** 을 눌러요. 조건을 채웠으면 **Apply Now(지금 신청)** 버튼이 보여요.",
+    "headline": "YouTube Studio"
+   },
+   {
+    "type": "steps",
+    "title": "신청하는 방법",
+    "items": [
+     {
+      "title": "YouTube Studio 열기",
+      "body": "내 계정 사진을 누르고 YouTube Studio로 들어가요."
+     },
+     {
+      "title": "Earn(수익 창출) 메뉴",
+      "body": "왼쪽 메뉴에서 선택해요."
+     },
+     {
+      "title": "Apply Now 누르기",
+      "body": "조건을 채웠는지 보여 줘요."
+     },
+     {
+      "title": "약관 동의",
+      "body": "YPP 기본 약관을 읽고 동의해요."
+     },
+     {
+      "title": "애드센스 연결",
+      "body": "계정이 없으면 이 과정에서 새로 만들 수 있어요."
+     },
+     {
+      "title": "심사 기다리기",
+      "body": "보통 **약 한 달** 걸려요. 조건을 채워도 채널 전체 내용을 심사해서 **승인이 보장되진 않아요.**"
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "조건 못 채워도 미리 신청은 가능해요",
+    "body": "아직 조건을 못 채웠어도 신청할 수 있지만, **조건을 채운 뒤에야 실제 심사**가 시작돼요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 공식 자료를 우선했고, 후기·블로그는 참고용으로 표시했어요. 조건은 수시로 바뀌어요.",
+    "items": [
+     {
+      "title": "유튜브 공식: Partner Program 신청 안내",
+      "url": "https://support.google.com/youtube/answer/72851",
+      "kind": "공식 도움말"
+     },
+     {
+      "title": "YPP 조건 2026년 정리",
+      "url": "https://air.io/en/monetization/youtube-partner-program-requirements-2026-the-complete-guide",
+      "kind": "후기·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "콘텐츠 수익",
+  "kind": "info",
+  "title": "Google AdSense로 내 블로그에 광고 달기: 승인받는 법",
+  "content": "내 블로그·사이트에 구글 광고를 달아 수익을 받는 **AdSense**는, 승인이 핵심이에요. 여러 가이드를 비교해서 **승인이 잘 나는 조건**을 정리했어요. (정확한 심사 기준은 구글이 공개하지 않아서, 여러 경험담을 종합했어요.)",
+  "image": "/images/money/topics/earn-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "만 18세",
+      "label": "신청 나이",
+      "note": "미만은 보호자 명의",
+      "icon": "user"
+     },
+     {
+      "value": "필수 페이지",
+      "label": "개인정보처리방침",
+      "note": "없으면 거절 1순위",
+      "icon": "paperclip"
+     },
+     {
+      "value": "최대 7영업일",
+      "label": "심사 기간",
+      "note": "넘으면 문의",
+      "icon": "clock"
+     },
+     {
+      "value": "무료",
+      "label": "신청 비용",
+      "note": "없음",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "신청 전에 준비할 것"
+   },
+   {
+    "type": "checklist",
+    "title": "승인 잘 받는 사이트의 공통점 (경험담 기준)",
+    "items": [
+     "**직접 쓴, 알맹이 있는 글**이 여러 개 있나요? (베낀 글·얇은 글은 거절되기 쉬워요)",
+     "**개인정보처리방침(Privacy Policy)** 페이지가 있나요?",
+     "**소개(About)·연락처(Contact)** 페이지가 있나요?",
+     "사이트 이동(메뉴)이 깔끔한가요?",
+     "진짜 방문자가 있고, 봇·스팸으로 늘린 트래픽이 아닌가요?"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "정해진 최소 글 수·방문자 수는 공식적으로 없어요",
+    "body": "여러 블로그가 \"15~25개 글은 있어야 한다\"고 말하지만, 이건 **경험적인 기준**이지 구글의 공식 규정은 아니에요. 글의 **질**이 양보다 중요하다는 의견이 많아요."
+   },
+   {
+    "type": "h",
+    "title": "신청 순서"
+   },
+   {
+    "type": "steps",
+    "title": "신청하는 방법",
+    "items": [
+     {
+      "title": "AdSense 사이트에서 가입",
+      "body": "내 사이트 주소와 이메일을 입력해요."
+     },
+     {
+      "title": "정책 동의",
+      "body": "AdSense 정책을 읽고 동의해요."
+     },
+     {
+      "title": "코드 받기",
+      "body": "작은 HTML 코드를 받아요."
+     },
+     {
+      "title": "코드를 사이트 head에 넣기",
+      "body": "**가장 많이 실수하는 단계**예요. 정확히 넣어야 해요."
+     },
+     {
+      "title": "사이트가 실제로 열려 있는 상태에서 검토 요청",
+      "body": "만들다 만 사이트는 승인이 안 나요."
+     },
+     {
+      "title": "심사 기다리기",
+      "body": "최대 7영업일 정도 걸린다는 경험담이 있어요. 넘으면 고객센터에 문의하세요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "승인이 안 됐다면"
+   },
+   {
+    "type": "checklist",
+    "title": "거절 사유 자주 나오는 것들",
+    "items": [
+     "내용이 **얇거나 가치가 적다**는 평가(가장 흔한 거절 사유)",
+     "**개인정보처리방침·연락처 페이지 누락**",
+     "다른 사이트 글을 베낀 것 같은 콘텐츠",
+     "아직 공개되지 않은(비공개) 사이트"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 공식 자료를 우선했고, 후기·블로그는 참고용으로 표시했어요. 조건은 수시로 바뀌어요.",
+    "items": [
+     {
+      "title": "AdSense 승인받는 법",
+      "url": "https://www.adpushup.com/blog/google-adsense-approval/",
+      "kind": "후기·가이드"
+     },
+     {
+      "title": "AdSense 빠르고 쉽게 승인받기",
+      "url": "https://www.nichepursuits.com/?p=1925",
+      "kind": "후기·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "콘텐츠 수익",
+  "kind": "info",
+  "title": "콘텐츠 수익, 저작권 지키면서 돈 버는 법 + 세금 신고",
+  "content": "콘텐츠로 돈을 벌 때 가장 조심해야 할 건 **저작권**이에요. 남의 음악·영상을 허락 없이 쓰면 수익이 날아갈 수 있어요. 안전하게 쓰는 법과 **번 돈 신고하는 법**을 정리했어요.",
+  "image": "/images/money/topics/earn-08.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "저작권: 이것만은 조심하세요"
+   },
+   {
+    "type": "checklist",
+    "title": "저작권 체크리스트",
+    "items": [
+     "배경음악은 **무료 라이선스(저작권 없는 음악)** 사이트에서만 받기",
+     "무료 음악도 **출처 표기 조건**이 있는지 확인하기",
+     "다른 사람의 영상·사진을 **허락 없이** 쓰지 않기",
+     "브랜드 로고·상표를 함부로 노출하지 않기",
+     "불확실하면 아예 쓰지 않기"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "저작권 신고가 쌓이면 수익이 정지될 수 있어요",
+    "body": "유튜브는 저작권 신고(Copyright strike)가 쌓이면 채널 수익화가 막히거나 채널 자체가 위험해질 수 있어요. 처음부터 안전한 소스만 쓰는 습관을 들이세요."
+   },
+   {
+    "type": "h",
+    "title": "여러 수익 구조 한눈에"
+   },
+   {
+    "type": "compare",
+    "title": "콘텐츠 수익 구조",
+    "columns": [
+     "방식",
+     "내용"
+    ],
+    "rows": [
+     [
+      "광고 수익",
+      "조건 충족 후 YPP·AdSense로 광고가 붙어요"
+     ],
+     [
+      "제휴 마케팅",
+      "다른 글(제휴 마케팅 주제 참고)처럼 링크로 수수료를 받아요"
+     ],
+     [
+      "후원·멤버십",
+      "구독자가 정기적으로 후원해요"
+     ],
+     [
+      "내 상품 판매",
+      "전자책·강의 등을 직접 팔아요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "번 돈, 세금 신고하기"
+   },
+   {
+    "type": "compare",
+    "title": "콘텐츠 수익 세금 요약",
+    "columns": [
+     "항목",
+     "내용"
+    ],
+    "rows": [
+     [
+      "소득 종류",
+      "자영업 소득"
+     ],
+     [
+      "신고 방법",
+      "Schedule C에 수입·비용 기록"
+     ],
+     [
+      "경비로 뺄 수 있는 것",
+      "카메라·마이크·조명·편집 소프트웨어 등 업무용 장비(증빙 필요)"
+     ],
+     [
+      "받는 서류",
+      "지급 플랫폼에서 1099 서류를 줄 수 있어요(기준 금액 이상일 때)"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "소액이라도 기록하세요",
+    "body": "서류를 못 받아도 수입은 신고 대상이에요. 어떤 플랫폼에서 언제 얼마를 받았는지 기록해 두면 연말에 편해요."
+   },
+   {
+    "type": "h",
+    "title": "꾸준히 하는 습관"
+   },
+   {
+    "type": "checklist",
+    "title": "초반에 도움 되는 습관",
+    "items": [
+     "올리는 요일·시간을 정해 두기",
+     "저작권 안전한 자료만 모아 두는 폴더 만들기",
+     "댓글에 답하며 소통하기",
+     "잘 된 콘텐츠를 분석해서 비슷한 걸 더 만들기"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 공식 자료를 우선했고, 후기·블로그는 참고용으로 표시했어요. 조건은 수시로 바뀌어요.",
+    "items": [
+     {
+      "title": "유튜브 공식: Partner Program 안내",
+      "url": "https://support.google.com/youtube/answer/72851",
+      "kind": "공식 도움말"
+     },
+     {
+      "title": "IRS 자영업 세금 센터",
+      "url": "https://www.irs.gov/businesses/small-businesses-self-employed/self-employed-individuals-tax-center",
+      "kind": "공식"
      }
     ]
    }
