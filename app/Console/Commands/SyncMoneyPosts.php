@@ -96,7 +96,7 @@ class SyncMoneyPosts extends Command
     {
         $out = ''; $inList = false;
         foreach (preg_split('/\R/u', trim($text)) as $line) {
-            $line = trim($line);
+            $line = trim(str_replace('**', '', $line));
             if ($line === '') continue;
             if (str_starts_with($line, '- ')) {
                 if (!$inList) { $out .= '<ul>'; $inList = true; }

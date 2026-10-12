@@ -8,6 +8,56 @@
   "blocks": [
    {
     "type": "h",
+    "title": "내 폰·컴퓨터로 CFPB 사이트 여는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "차근차근 따라 하세요",
+    "items": [
+     {
+      "title": "인터넷 앱(사파리·크롬)을 열고 맨 위 **주소 줄**을 누르세요",
+      "body": "구글 검색칸이 아니라 화면 맨 위에 길게 있는 줄이에요."
+     },
+     {
+      "title": "consumerfinance.gov/owning-a-home 을 그대로 입력하고 이동",
+      "body": "맨 위에 \"An official website of the United States government\"(미국 정부 공식 사이트) 줄이 보이면 진짜 사이트예요."
+     },
+     {
+      "title": "\"Buying a house: Tools and resources for homebuyers\" 화면이 뜨면 성공",
+      "body": "영어가 어려워도 괜찮아요. 아래 그림의 번호만 따라오세요."
+     },
+     {
+      "title": "화면을 천천히 아래로 밀어(스크롤) 내려가며 보고 싶은 도구를 누르세요",
+      "body": "체크리스트·계산기·견적서 설명이 줄지어 나와요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "CFPB \"내 집 사기\" 첫 화면",
+    "src": "/images/money/shots/cfpb-owning-home.jpg",
+    "pins": [
+     {
+      "x": 77.5,
+      "y": 13.5,
+      "text": "**Search**(돋보기) — 찾는 말을 영어로 직접 검색할 때 눌러요."
+     },
+     {
+      "x": 9.5,
+      "y": 22.6,
+      "text": "**Consumer Education** — 소비자 교육 자료 메뉴예요. 누르면 모기지·대출 안내가 펼쳐져요."
+     },
+     {
+      "x": 3.5,
+      "y": 87.5,
+      "text": "**Learn more** — \"Beware of Mortgage Closing Scams\"(클로징 직전 사기 주의) 안내예요. 송금하기 전에 꼭 읽어 보세요."
+     }
+    ],
+    "caption": "이 화면 아래로 더 내려가면 단계별 가이드와 체크리스트가 나와요. 모르는 영어 단어는 단어를 길게 눌러 번역을 켜 보세요.",
+    "credit": "CFPB(미국 소비자금융보호국) 공식 사이트 consumerfinance.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
     "title": "CFPB가 제공하는 것들"
    },
    {
@@ -217,6 +267,56 @@
   "blocks": [
    {
     "type": "h",
+    "title": "무료 상담 기관 찾는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "우편번호만 있으면 돼요",
+    "items": [
+     {
+      "title": "인터넷 앱을 열고 주소 줄에 **hud.gov/findacounselor** 입력",
+      "body": "위쪽에 \"An official website of the United States Government\" 줄이 있으면 정부 공식 사이트예요."
+     },
+     {
+      "title": "\"Search by zip code or state\" 아래 **Zip code** 칸을 누르고 우편번호 5자리 입력",
+      "body": "사는 곳 우편번호예요."
+     },
+     {
+      "title": "**Distance**(거리)에서 가까운 거리를 고르거나 State(주)에서 Georgia 선택",
+      "body": "조지아에 사시면 State 칸에서 Georgia를 고르면 돼요."
+     },
+     {
+      "title": "검색 버튼을 누르면 가까운 상담 기관 이름·전화번호가 나와요",
+      "body": "전화로 \"first-time homebuyer counseling, Korean interpreter?\" 하고 물어보면 통역 가능 여부를 알려줘요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "HUD 상담 기관 찾기 화면",
+    "src": "/images/money/shots/hud-counselor.jpg",
+    "pins": [
+     {
+      "x": 2.5,
+      "y": 61.6,
+      "text": "\"아래 검색으로 내 근처 HUD 인증 상담 기관을 찾으세요\"라는 안내 문구예요."
+     },
+     {
+      "x": 14.1,
+      "y": 96,
+      "text": "**Zip code** 칸 — 여기에 우편번호를 입력해요."
+     },
+     {
+      "x": 65,
+      "y": 96,
+      "text": "**State** 칸 — 우편번호 대신 주(State)로 찾을 때 골라요."
+     }
+    ],
+    "caption": "아래로 조금 더 내리면 검색 버튼과 결과 목록이 나와요.",
+    "credit": "HUD(미국 주택도시개발부) 공식 사이트 hud.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
     "title": "HUD 공인 상담사란"
    },
    {
@@ -335,6 +435,61 @@
   "content": "CFPB가 만든 공식 소비자 안내서(CHARM 북클릿)를 기준으로 **고정금리와 변동금리의 차이**, 그리고 변동금리의 위험을 정리했어요.",
   "image": "/images/money/topics/home-02.svg",
   "blocks": [
+   {
+    "type": "h",
+    "title": "요즘 금리를 CFPB 사이트에서 직접 보는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "금리 계산 화면 열기",
+    "items": [
+     {
+      "title": "인터넷 앱 주소 줄에 **consumerfinance.gov/owning-a-home/explore-rates** 입력",
+      "body": "정부 공식 사이트라 무료이고 가입이 필요 없어요."
+     },
+     {
+      "title": "\"Explore interest rates\" 화면에서 아래로 내려가 **Check current mortgage loan interest rates** 칸을 찾으세요",
+      "body": "회색 테두리 상자예요."
+     },
+     {
+      "title": "상자 안 파란 글씨 **Check the average rates for 30-year and 15-year mortgages at Freddie Mac** 를 누르세요",
+      "body": "요즘 평균 금리를 보여 주는 Freddie Mac 사이트로 넘어가요."
+     },
+     {
+      "title": "그 아래 줄들의 파란 **+** 를 눌러 신용점수·다운페이먼트·기간별 차이를 확인하세요",
+      "body": "누르면 내 상황과 비교한 금리 차이가 펼쳐져요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "CFPB 금리 탐색 화면",
+    "src": "/images/money/shots/cfpb-explore-rates.jpg",
+    "pins": [
+     {
+      "x": 2.5,
+      "y": 74.3,
+      "text": "**Freddie Mac 링크** — 지금 평균 모기지 금리를 볼 수 있는 곳이에요."
+     },
+     {
+      "x": 62.6,
+      "y": 85.6,
+      "text": "**+ (신용점수)** — 신용점수 625와 700이면 금리가 얼마나 다른지 보여줘요."
+     },
+     {
+      "x": 62.6,
+      "y": 88.5,
+      "text": "**+ (다운페이먼트)** — 10%와 25%를 냈을 때 차이예요."
+     },
+     {
+      "x": 62.6,
+      "y": 91.3,
+      "text": "**+ (대출 기간)** — 30년과 15년의 차이예요."
+     }
+    ],
+    "caption": "예시는 40만 달러 집, 신용점수 700, 다운페이먼트 10%, 30년 고정 기준이에요. 내 숫자와 다르면 \"방향\"만 참고하세요.",
+    "credit": "CFPB(미국 소비자금융보호국) 공식 사이트 화면을 직접 캡처했어요."
+   },
    {
     "type": "h",
     "title": "고정금리(Fixed-rate)"
