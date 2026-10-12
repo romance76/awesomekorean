@@ -1011,5 +1011,286 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "Rakuten(라쿠텐) 캐시백 제대로 쓰는 법: 가입부터 출금까지",
+  "content": "Rakuten은 쇼핑몰을 **거쳐서** 들어가 사면 일정 %를 돌려주는 캐시백 서비스예요. \"거쳐서\"가 핵심이라, 순서를 안 지키면 캐시백을 놓쳐요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "가입하기"
+   },
+   {
+    "type": "steps",
+    "title": "가입 순서",
+    "items": [
+     {
+      "title": "Rakuten.com에서 가입",
+      "body": "이메일로 2분 정도면 끝나요. 무료예요."
+     },
+     {
+      "title": "브라우저 확장 프로그램 설치(추천)",
+      "body": "설치하면 쇼핑몰에 들어갈 때 자동으로 알려 줘요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "캐시백 받는 순서 (가장 중요해요)"
+   },
+   {
+    "type": "phone",
+    "title": "꼭 Rakuten을 거쳐서 들어가세요",
+    "where": "center",
+    "label": "Rakuten 사이트·앱·확장 프로그램에서 \"들어가기\" 클릭",
+    "icon": "external-link",
+    "caption": "Rakuten에 로그인한 뒤, 사려는 쇼핑몰 링크를 **Rakuten을 통해서** 눌러야 해요. 즐겨찾기(북마크)로 바로 들어가면 **캐시백이 적용 안 돼요.**",
+    "headline": "Rakuten"
+   },
+   {
+    "type": "steps",
+    "title": "이렇게 쇼핑하세요",
+    "items": [
+     {
+      "title": "Rakuten에 로그인",
+      "body": "사이트·앱·확장 프로그램 중 하나로"
+     },
+     {
+      "title": "원하는 쇼핑몰 찾기",
+      "body": "캐시백 % 확인"
+     },
+     {
+      "title": "거기서 \"들어가기\" 클릭",
+      "body": "확장 프로그램이면 자동 팝업, 일부는 주황색 \"Activate Cash Back\" 버튼을 눌러야 해요"
+     },
+     {
+      "title": "같은 창에서 바로 구매",
+      "body": "다른 사이트로 샜다가 돌아오면 **추적이 끊겨서** 캐시백을 못 받을 수 있어요"
+     },
+     {
+      "title": "쿠폰은 Rakuten이 주는 것만",
+      "body": "다른 쿠폰 사이트의 코드를 쓰면 추적이 깨질 수 있어요"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "돈 받기"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "바로 안 주고, 분기별로 줘요",
+    "body": "캐시백이 쌓였다고 바로 인출되는 게 아니에요. 보통 **3개월(분기)마다** PayPal·수표 등으로 지급된다는 후기가 많아요. 최소 금액과 지급일은 공식 사이트에서 확인하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Rakuten 공식 확장 프로그램(크롬 스토어)",
+      "url": "https://chrome.google.com/webstore/detail/rakuten-cashback-browser/hnchgcelpejnpglbnaieofanfoikiepb/related?hl=en-US",
+      "kind": "공식(확장 프로그램 스토어)"
+     },
+     {
+      "title": "Rakuten 상세 후기",
+      "url": "https://www.dollarsprout.com/ebates-review/",
+      "kind": "후기·블로그"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "Rakuten 캐시백이 안 들어왔을 때: 원인과 신고하는 법",
+  "content": "캐시백이 \"분명 받았어야 하는데\" 안 들어오는 경우가 꽤 있어요. 가장 흔한 원인과, 놓쳤을 때 **신고하는 법**을 정리했어요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "안 들어오는 흔한 이유들"
+   },
+   {
+    "type": "checklist",
+    "title": "이것부터 확인하세요",
+    "items": [
+     "**북마크로 바로** 쇼핑몰에 들어갔나요? (Rakuten을 거치지 않으면 추적이 안 돼요)",
+     "**다른 쿠폰 사이트**의 코드를 썼나요? (추적이 깨질 수 있어요)",
+     "광고 차단 프로그램이나 VPN이 켜져 있었나요? (추적을 막을 수 있어요)",
+     "중간에 **다른 사이트로 나갔다가** 돌아와서 결제했나요?",
+     "결제를 **같은 세션 안에** 끝냈나요?"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "그래도 안 들어왔다면"
+   },
+   {
+    "type": "steps",
+    "title": "신고하는 순서",
+    "items": [
+     {
+      "title": "계정에서 상태 확인",
+      "body": "추적은 됐지만 \"보류(pending)\"나 \"제외(ineligible)\" 상태일 수 있어요. 바로 \"안 됐다\"고 단정하지 마세요."
+     },
+     {
+      "title": "Missing Cash Back 신고",
+      "body": "Rakuten 고객센터에서 \"캐시백 누락\" 신고를 해요."
+     },
+     {
+      "title": "정보 준비해서 제출",
+      "body": "쇼핑몰 이름, 주문 날짜, 주문번호, 결제 금액을 적어요."
+     },
+     {
+      "title": "기한 안에 신고",
+      "body": "거래 후 일정 기간(약 45일이라는 후기가 있어요, 공식 약관으로 확인) 안에 신고해야 해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "가맹점이 보고 안 하면 어쩔 수 없을 때도 있어요",
+    "body": "Rakuten 고객센터 안내에 따르면, **가맹점이 그 주문을 Rakuten에 알려 줘야만** 캐시백이 지급돼요. 모든 과정을 맞게 했어도 가맹점 쪽 문제로 지급이 늦어지거나 안 될 수 있어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Rakuten 캐시백 누락 원인과 해결",
+      "url": "https://joingerald.com/learn/financial-wellness/rakuten-missing-cash-back",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 앱",
+  "kind": "info",
+  "title": "Capital One Shopping: 가격 비교 + 쿠폰 자동 적용 확장 프로그램",
+  "content": "카드 회원이 아니어도 쓸 수 있는 무료 쇼핑 확장 프로그램이에요. 가격을 비교해 주고, 결제 때 쿠폰 코드를 자동으로 찾아 적용해 줘요.",
+  "image": "/images/money/topics/save-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료",
+      "label": "설치 비용",
+      "note": "카드 회원 아니어도 가능",
+      "icon": "check"
+     },
+     {
+      "value": "자동 쿠폰 적용",
+      "label": "결제 전에",
+      "note": "장바구니에서",
+      "icon": "ticket"
+     },
+     {
+      "value": "가격 비교",
+      "label": "Amazon 등",
+      "note": "다른 쇼핑몰과",
+      "icon": "search"
+     },
+     {
+      "value": "리워드",
+      "label": "기프트카드로 교환",
+      "note": "",
+      "icon": "gift"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "하는 일 3가지"
+   },
+   {
+    "type": "compare",
+    "title": "주요 기능",
+    "columns": [
+     "기능",
+     "내용"
+    ],
+    "rows": [
+     [
+      "쿠폰 자동 적용",
+      "장바구니·결제 화면에서 쓸 수 있는 쿠폰을 찾아 자동으로 넣어 줘요"
+     ],
+     [
+      "가격 비교",
+      "Amazon 등에서 물건을 볼 때 다른 쇼핑몰 가격과 비교해 줘요"
+     ],
+     [
+      "리워드 적립",
+      "링크를 거쳐 구매하면 적립금이 쌓이고, 기프트카드로 바꿀 수 있어요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "설치하고 쓰기"
+   },
+   {
+    "type": "steps",
+    "title": "사용 순서",
+    "items": [
+     {
+      "title": "확장 프로그램 설치",
+      "body": "크롬·파이어폭스 등 브라우저 스토어에서 설치해요."
+     },
+     {
+      "title": "계정 만들기(무료)",
+      "body": "카드 회원이 아니어도 가능해요."
+     },
+     {
+      "title": "쇼핑하며 자동 작동",
+      "body": "결제 화면에서 쿠폰을 자동으로 찾아 줘요."
+     },
+     {
+      "title": "적립금은 클릭해서 들어가야",
+      "body": "리워드(적립)를 받으려면 제공된 링크를 거쳐 구매해야 한다는 안내가 있어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "모든 사이트에서 되는 건 아니에요",
+    "body": "주요 쇼핑몰 위주로 잘 작동하고, 모든 사이트와 호환되는 건 아니라는 후기가 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "개인정보 처리 방침을 확인하세요",
+    "body": "브라우저 확장 프로그램은 방문 기록 등을 수집할 수 있어요. 설치 전에 **개인정보 처리 방침**을 확인하고, 필요한 권한만 허용하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Capital One Shopping(파이어폭스 확장)",
+      "url": "https://addons.mozilla.org/en-US/firefox/addon/wikibuy-for-firefox/",
+      "kind": "공식(확장 프로그램 스토어)"
+     },
+     {
+      "title": "Capital One Shopping 후기",
+      "url": "https://www.savvynewcanadians.com/capital-one-shopping-review/",
+      "kind": "후기·블로그"
+     }
+    ]
+   }
+  ]
  }
 ]
