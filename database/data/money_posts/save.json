@@ -1567,5 +1567,307 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "통신사 바꾸기 전 순서: 번호 유지하며 안전하게 옮기는 법",
+  "content": "통신사를 바꿀 때 **순서를 잘못하면 번호를 잃을 수 있어요.** 가장 중요한 건 \"새 통신사 가입이 끝난 뒤에 기존 통신사를 해지하는 것\"이에요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "옮기기 전 확인할 것"
+   },
+   {
+    "type": "checklist",
+    "title": "준비물 체크",
+    "items": [
+     "내 폰이 **잠금 해제(Unlock)**되어 있나요? (아이폰은 설정 › 일반 › 정보 › 캐리어 잠금에서 확인)",
+     "기존 통신사의 **계정 번호·PIN(이전 번호)**을 알고 있나요?",
+     "청구서에서 계정 번호를 찾을 수 있어요",
+     "**번호 이동 PIN**은 기존 통신사에 요청해야 할 수 있어요",
+     "*#06#을 눌러 **IMEI 번호**를 확인했나요?",
+     "남은 할부금·위약금이 있는지 확인했나요?"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "옮기는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "이 순서를 지키세요",
+    "items": [
+     {
+      "title": "잠금 해제 요청",
+      "body": "할부가 끝났고 연체가 없으면 보통 무료로 해 줘요."
+     },
+     {
+      "title": "호환성 확인",
+      "body": "새 통신사 사이트에서 IMEI로 내 폰이 되는지 확인해요."
+     },
+     {
+      "title": "새 통신사에 가입",
+      "body": "가입할 때 \"번호 유지(Port-in)\" 를 선택하고 기존 계정 정보를 입력해요."
+     },
+     {
+      "title": "이동 완료 기다리기",
+      "body": "몇 분~24시간 정도 걸려요."
+     },
+     {
+      "title": "새 유심(SIM)·eSIM 설치",
+      "body": "번호가 넘어온 뒤 새 통신사 네트워크에서 쓸 수 있게 설치해요."
+     },
+     {
+      "title": "그제서야 기존 통신사 해지",
+      "body": "**번호 이동이 끝난 뒤에만** 해지하세요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "제일 중요한 규칙: 먼저 해지하지 마세요",
+    "body": "번호가 넘어가는 동안은 기존 통신사에 번호가 **살아 있어야** 해요. 먼저 해지하면 번호를 이동할 수 없어요. 해지는 **항상 마지막 단계**예요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 요금제·화면은 자주 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "통신사 바꾸는 법 가이드",
+      "url": "https://clark.com/technology/how-to-switch-cell-phone-carrier/",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "번호 유지하며 통신사 바꾸기",
+      "url": "https://www.consumercellular.com/blog/?p=8587",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "Mint Mobile 가입·eSIM 설치하는 법 (공식 도움말 기준)",
+  "content": "Mint Mobile은 여러 달치를 미리 내면 월 요금이 낮아지는 **선결제형 알뜰 요금제**예요. 공식 도움말을 기준으로 eSIM 설치 순서를 정리했어요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "선결제",
+      "label": "3~12개월 단위",
+      "note": "미리 낼수록 저렴",
+      "icon": "dollar"
+     },
+     {
+      "value": "eSIM",
+      "label": "즉시 개통 가능",
+      "note": "약 10~15분(후기 기준)",
+      "icon": "phone"
+     },
+     {
+      "value": "잠금 해제 필수",
+      "label": "다른 통신사 폰",
+      "note": "잠겨 있으면 개통 안 돼요",
+      "icon": "lock"
+     },
+     {
+      "value": "대형사 망",
+      "label": "이용",
+      "note": "품질은 유사",
+      "icon": "globe"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "새로 가입하기"
+   },
+   {
+    "type": "steps",
+    "title": "신규 가입 순서",
+    "items": [
+     {
+      "title": "요금제 고르기",
+      "body": "앱 또는 사이트에서 데이터 용량과 선결제 기간을 선택해요."
+     },
+     {
+      "title": "결제",
+      "body": "선택한 기간만큼 한 번에 결제해요."
+     },
+     {
+      "title": "QR코드 받기",
+      "body": "이메일 또는 앱으로 eSIM용 QR코드를 받아요."
+     },
+     {
+      "title": "휴대폰 설정에서 스캔",
+      "body": "휴대폰의 셀룰러(모바일 데이터) 설정에서 QR코드를 스캔해요."
+     },
+     {
+      "title": "개통 확인",
+      "body": "보통 10~15분 안에 연결된다는 후기가 있어요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "기존 Mint 회선을 eSIM으로 바꾸기 (공식 안내)"
+   },
+   {
+    "type": "phone",
+    "title": "eSIM 전환 메뉴",
+    "where": "bottom-right",
+    "label": "계정(Account) › SIM Card › \"Order Replacement SIM\"",
+    "icon": "phone",
+    "caption": "Mint 공식 도움말에 따르면: 앱을 최신 버전으로 업데이트하고 로그인한 뒤, 화면 오른쪽 아래 **Account(계정)** 로 가요. **SIM Card** 항목에서 **\"Order Replacement SIM\"** 을 누르고 **\"Get an eSIM\"** 을 선택해요.",
+    "headline": "Mint Mobile"
+   },
+   {
+    "type": "steps",
+    "title": "공식 전환 순서",
+    "items": [
+     {
+      "title": "앱 업데이트·로그인",
+      "body": "최신 버전으로 업데이트해요."
+     },
+     {
+      "title": "Account(계정) 들어가기",
+      "body": "오른쪽 아래 메뉴"
+     },
+     {
+      "title": "SIM Card › Order Replacement SIM",
+      "body": "새 SIM 주문 메뉴"
+     },
+     {
+      "title": "Get an eSIM 선택",
+      "body": "이 옵션이 안 보이면 내 폰이 eSIM을 지원하지 않을 수 있어요."
+     },
+     {
+      "title": "\"이 폰에 설치할 건가요?\" 확인",
+      "body": "지금 쓰는 폰이 맞다고 선택해요."
+     },
+     {
+      "title": "결제 단계 통과",
+      "body": "Mint는 이 단계에서 **추가 요금이 없다**고 안내해요."
+     },
+     {
+      "title": "설치 완료",
+      "body": "안내에 따라 설치하고, 완료 확인 이메일을 기다려요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "잠긴 폰은 안 돼요",
+    "body": "다른 통신사에 **아직 잠겨 있는 폰(할부 안 끝남 등)**은 eSIM을 지원해도 Mint에서 개통이 안 될 수 있어요. 먼저 잠금을 풀어야 해요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 요금제·화면은 자주 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Mint Mobile 공식: 물리 SIM → eSIM 전환하기",
+      "url": "https://www.mintmobile.com/help/how-to-switch-from-psim-to-esim/",
+      "kind": "공식 도움말"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "통신비 비교",
+  "kind": "info",
+  "title": "알뜰 통신사(MVNO) 고르기 전에 커버리지부터 확인하세요",
+  "content": "요금이 싸다고 바로 바꾸면 안 돼요. **우리 집·직장에서 통화가 잘 터지는지**가 가격보다 중요할 수 있어요.",
+  "image": "/images/money/topics/save-06.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "왜 커버리지가 먼저일까요"
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "알뜰 통신사는 대형사 망을 \"빌려\" 써요",
+    "body": "Mint Mobile 같은 알뜰폰은 자체 기지국이 없고, 대형 통신사의 망을 빌려 써요. 망은 같아도 **우선순위가 밀려서** 혼잡한 시간대에 느려질 수 있다는 평가가 있어요."
+   },
+   {
+    "type": "h",
+    "title": "바꾸기 전 체크리스트"
+   },
+   {
+    "type": "checklist",
+    "title": "결정 전 확인",
+    "items": [
+     "지금 통신사의 망(**AT&T/T-Mobile/Verizon 중 어디**)을 빌려 쓰는 알뜰폰인지 확인",
+     "가족·지인 중 그 통신사 쓰는 사람에게 우리 동네 품질 물어보기",
+     "내 폰이 **eSIM을 지원**하는지, 그 알뜰폰과 **호환**되는지 확인",
+     "**국제전화·로밍** 조건이 내게 맞는지 확인",
+     "데이터 다 쓰면 **속도가 느려지는 기준**이 몇 GB인지 확인"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "가격만 보지 말고 총비용으로 비교"
+   },
+   {
+    "type": "compare",
+    "title": "비교할 때 놓치기 쉬운 것",
+    "columns": [
+     "항목",
+     "확인할 점"
+    ],
+    "rows": [
+     [
+      "선결제 할인",
+      "한 번에 많이 내서 싸 보여도, 환불 규정을 확인하세요"
+     ],
+     [
+      "속도 제한",
+      "일정 데이터를 넘으면 느려지는 \"소프트 캡\"이 있을 수 있어요"
+     ],
+     [
+      "핫스팟(테더링)",
+      "제한되거나 느린 경우가 있어요"
+     ],
+     [
+      "고객 지원",
+      "매장이 없고 온라인·앱으로만 가능한 곳이 많아요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "가족 중 한인 어르신이 있다면"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "매장 지원이 있는 곳도 고려하세요",
+    "body": "온라인 전용 알뜰폰은 문제가 생기면 혼자 해결해야 해요. 부모님 세대라면 **매장에서 상담받을 수 있는 통신사**가 더 편할 수 있어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 요금제·화면은 자주 바뀌니 공식 사이트에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "통신사 바꾸기 전 알아둘 것",
+      "url": "https://www.whistleout.com/CellPhones/Guides/switching-carriers-5-important-things-to-know-first",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
  }
 ]
