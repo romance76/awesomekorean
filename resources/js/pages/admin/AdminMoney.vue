@@ -118,6 +118,12 @@
         <label><span class="input-label">순서</span><input v-model.number="gEdit.sort_order" type="number" min="0" class="input-soft" /></label>
         <label class="flex items-end gap-2 text-sm font-bold text-ink pb-2"><input type="checkbox" v-model="gEdit.is_published" /> 공개 (MONEY 첫 화면에 보여요)</label>
       </div>
+      <label class="block">
+        <span class="input-label">꾸민 화면 구성 (고급 · JSON — 비우면 위 본문을 그대로 보여요)</span>
+        <textarea v-model="gEdit.blocksText" rows="8" class="input-soft font-mono text-xs" placeholder='[{"type":"hero", ...}]'></textarea>
+        <span v-if="blocksError" class="block text-xs text-rose-600 mt-1">{{ blocksError }}</span>
+        <span v-else class="block text-xs text-ink-muted mt-1">히어로·요약·도표·그래프·계산기·링크·다운로드 블록이 들어 있어요. 보통은 운영진이 만든 값을 그대로 두세요.</span>
+      </label>
       <div v-if="gEdit.contentText" class="rounded-xl border border-gray-100 bg-gray-50 p-3 max-h-80 overflow-y-auto">
         <div class="text-xs font-bold text-ink-muted mb-1">미리보기</div>
         <div class="money-intro text-sm text-ink-light" v-html="simpleToHtml(gEdit.contentText)"></div>
@@ -234,16 +240,21 @@ async function saveCafe() {
 }
 
 // ── 가이드 ──
-const guides = ref([]); const gEdit = ref(null)
+const guides = ref([]); const gEdit = ref(null); const blocksError = ref('')
 async function loadGuides() { try { const { data } = await axios.get('/api/admin/money/guides'); guides.value = data.data || [] } catch (e) { say(apiMsg(e, '가이드를 불러오지 못했어요'), 'error') } }
 function openGuide(g) {
-  gEdit.value = g ? { ...g, contentText: htmlToSimple(g.content) } : { id: null, cafe_id: null, slug: '', title: '', icon: '📘', summary: '', contentText: '## 1. 이게 뭔가요?\n\n## 2. 시작하는 순서\n- \n\n## 3. 자주 묻는 질문\n', is_published: false, sort_order: null }
+  gEdit.value = g ? { ...g, contentText: htmlToSimple(g.content), blocksText: g.blocks ? JSON.stringify(g.blocks, null, 2) : '' } : { id: null, cafe_id: null, slug: '', title: '', icon: '📘', summary: '', contentText: '## 1. 이게 뭔가요?\n\n## 2. 시작하는 순서\n- \n\n## 3. 자주 묻는 질문\n', is_published: false, sort_order: null }
 }
 async function saveGuide() {
   const g = gEdit.value
+  blocksError.value = ''
+  let blocks = null
+  if ((g.blocksText || '').trim()) {
+    try { blocks = JSON.parse(g.blocksText); if (!Array.isArray(blocks)) throw new Error('목록이어야 해요') } catch (e) { blocksError.value = 'JSON 형식이 맞지 않아요: ' + e.message; return }
+  }
   busy.value = true
   try {
-    const payload = { title: g.title, icon: g.icon, summary: g.summary, cafe_id: g.cafe_id || null, content: simpleToHtml(g.contentText), is_published: !!g.is_published, sort_order: g.sort_order ?? undefined }
+    const payload = { title: g.title, icon: g.icon, summary: g.summary, cafe_id: g.cafe_id || null, content: simpleToHtml(g.contentText), blocks, is_published: !!g.is_published, sort_order: g.sort_order ?? undefined }
     if (!g.id) payload.slug = g.slug
     const { data } = g.id ? await axios.put(`/api/admin/money/guides/${g.id}`, payload) : await axios.post('/api/admin/money/guides', payload)
     say(data.message || '저장했어요'); await loadGuides()

@@ -127,7 +127,7 @@ class MoneyController extends Controller
 
     public function guide($slug)
     {
-        $g = MoneyGuide::where('slug', $slug)->where('is_published', true)->firstOrFail(['slug', 'icon', 'title', 'summary', 'content', 'updated_at']);
+        $g = MoneyGuide::where('slug', $slug)->where('is_published', true)->firstOrFail(['slug', 'icon', 'title', 'summary', 'content', 'blocks', 'updated_at']);
         return response()->json(['success' => true, 'data' => $g]);
     }
 

@@ -1,0 +1,277 @@
+<template>
+<!-- 머니 가이드 블록 렌더러 — 글자만 쭉 쓰던 가이드를 히어로·요약·도표·그래프·계산기·링크·다운로드로 보여 준다.
+     모든 글자는 {{ }} (이스케이프) 로 출력 — 관리자가 넣은 값이 코드로 실행될 일 없음. 링크는 http(s) 와 /downloads 만 허용. -->
+<div class="space-y-5 gb">
+  <template v-for="(b, i) in blocks" :key="i">
+
+    <!-- 히어로 -->
+    <section v-if="b.type === 'hero'" class="relative overflow-hidden rounded-3xl p-6 md:p-9 text-white" :style="{ background: T.hero }">
+      <svg class="absolute inset-0 w-full h-full opacity-[.16]" viewBox="0 0 600 260" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+        <circle cx="520" cy="40" r="130" fill="#fff"/><circle cx="430" cy="220" r="70" fill="#fff"/>
+        <g fill="#fff"><rect x="330" y="150" width="26" height="90" rx="6"/><rect x="368" y="120" width="26" height="120" rx="6"/><rect x="406" y="86" width="26" height="154" rx="6"/></g>
+      </svg>
+      <div class="relative flex items-start gap-4">
+        <div class="hidden sm:flex w-16 h-16 rounded-2xl bg-white/20 backdrop-blur items-center justify-center shrink-0"><AppIcon :name="b.icon || 'sparkles'" :size="32" /></div>
+        <div class="min-w-0">
+          <div class="text-[12px] font-extrabold tracking-[2px] opacity-90">{{ b.kicker }}</div>
+          <h2 class="text-[26px] md:text-[34px] font-black leading-tight mt-1.5">{{ b.title }}</h2>
+          <p v-if="b.lead" class="mt-2.5 text-[15px] md:text-[16.5px] opacity-95 leading-relaxed max-w-2xl" v-html="rich(b.lead)"></p>
+        </div>
+      </div>
+      <div v-if="b.meta?.length" class="relative mt-6 grid grid-cols-2 md:grid-cols-4 gap-2.5">
+        <div v-for="(m, k) in b.meta" :key="k" class="rounded-2xl bg-white/15 backdrop-blur px-3.5 py-2.5">
+          <div class="flex items-center gap-1.5 text-[11.5px] font-bold opacity-85"><AppIcon :name="m.icon || 'info'" :size="13" />{{ m.label }}</div>
+          <div class="text-[15px] font-black mt-0.5">{{ m.value }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 한눈에 요약 -->
+    <section v-else-if="b.type === 'tldr'" class="rounded-3xl border-2 p-5 md:p-6" :class="T.soft">
+      <div class="flex items-center gap-2 font-black text-ink text-[17px]"><span class="w-8 h-8 rounded-xl flex items-center justify-center text-white" :class="T.solid"><AppIcon name="sparkles" :size="17" /></span>{{ b.title || '한눈에 보기' }}</div>
+      <ul class="mt-3 grid md:grid-cols-3 gap-3">
+        <li v-for="(it, k) in b.items" :key="k" class="rounded-2xl bg-white p-4 shadow-sm">
+          <div class="text-[26px] font-black leading-none" :class="T.text">{{ k + 1 }}</div>
+          <p class="mt-2 text-[14.5px] text-ink leading-relaxed" v-html="rich(it)"></p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 소제목 -->
+    <header v-else-if="b.type === 'h'" class="pt-3">
+      <h3 class="text-[22px] md:text-[24px] font-black text-ink flex items-center gap-2.5"><span class="w-1.5 h-7 rounded-full" :class="T.solid"></span>{{ b.title }}</h3>
+      <p v-if="b.sub" class="text-[14px] text-ink-muted mt-1 ml-4">{{ b.sub }}</p>
+    </header>
+
+    <!-- 글 -->
+    <section v-else-if="b.type === 'text'" class="card p-5 md:p-6 space-y-3 text-[15.5px] text-ink leading-[1.85]">
+      <p v-for="(p, k) in b.body" :key="k" v-html="rich(p)"></p>
+    </section>
+
+    <!-- 큰 숫자 -->
+    <section v-else-if="b.type === 'stats'" class="grid gap-3" :class="b.items.length > 2 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2'">
+      <div v-for="(s, k) in b.items" :key="k" class="card p-4 md:p-5 text-center">
+        <div class="text-[28px] md:text-[34px] font-black leading-none" :class="T.text">{{ s.value }}</div>
+        <div class="mt-2 text-[13.5px] font-extrabold text-ink">{{ s.label }}</div>
+        <div v-if="s.note" class="text-[12px] text-ink-muted mt-0.5">{{ s.note }}</div>
+      </div>
+    </section>
+
+    <!-- 순서(타임라인) -->
+    <section v-else-if="b.type === 'steps'" class="card p-5 md:p-6">
+      <h4 v-if="b.title" class="font-black text-ink text-[17px] mb-4">{{ b.title }}</h4>
+      <ol class="relative">
+        <li v-for="(s, k) in b.items" :key="k" class="relative pl-14 pb-6 last:pb-0">
+          <span v-if="k < b.items.length - 1" class="absolute left-[19px] top-10 bottom-0 w-0.5" :class="T.line"></span>
+          <span class="absolute left-0 top-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-[16px] shadow" :class="T.solid">{{ k + 1 }}</span>
+          <div class="font-extrabold text-ink text-[16px]">{{ s.title }}</div>
+          <p class="text-[14.5px] text-ink-light leading-relaxed mt-1" v-html="rich(s.body)"></p>
+          <a v-if="safe(s.link?.url)" :href="s.link.url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 mt-2 text-[13px] font-bold underline" :class="T.text">{{ s.link.label }} <AppIcon name="external-link" :size="13" /></a>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 비교표 -->
+    <section v-else-if="b.type === 'compare'" class="card p-4 md:p-6">
+      <h4 v-if="b.title" class="font-black text-ink text-[17px] mb-3">{{ b.title }}</h4>
+      <div class="overflow-x-auto -mx-1 px-1">
+        <table class="w-full text-[14px] border-separate border-spacing-0 min-w-[480px]">
+          <thead><tr>
+            <th v-for="(c, k) in b.columns" :key="k" class="text-left px-3 py-2.5 font-black text-[13px] first:rounded-tl-xl last:rounded-tr-xl" :class="k === b.highlight ? [T.solid, 'text-white'] : 'bg-gray-100 text-ink'">{{ c }}</th>
+          </tr></thead>
+          <tbody>
+            <tr v-for="(r, ri) in b.rows" :key="ri">
+              <td v-for="(c, k) in r" :key="k" class="px-3 py-2.5 border-b border-gray-100 align-top" :class="[k === 0 ? 'font-extrabold text-ink' : 'text-ink-light', k === b.highlight ? T.soft2 : '']">{{ c }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p v-if="b.note" class="text-[12px] text-ink-muted mt-2">{{ b.note }}</p>
+    </section>
+
+    <!-- 막대 그래프 -->
+    <section v-else-if="b.type === 'bars'" class="card p-5 md:p-6">
+      <h4 v-if="b.title" class="font-black text-ink text-[17px]">{{ b.title }}</h4>
+      <p v-if="b.sub" class="text-[13px] text-ink-muted mt-0.5">{{ b.sub }}</p>
+      <div class="mt-4 space-y-3">
+        <div v-for="(it, k) in b.items" :key="k">
+          <div class="flex justify-between text-[13.5px] mb-1"><span class="font-bold text-ink">{{ it.label }}</span><span class="font-black" :class="it.highlight ? T.text : 'text-ink-light'">{{ it.display || it.value + (b.unit || '') }}</span></div>
+          <div class="h-3.5 rounded-full bg-gray-100 overflow-hidden"><div class="h-full rounded-full transition-all" :class="it.highlight ? T.solid : 'bg-gray-300'" :style="{ width: pct(it.value, b) + '%' }"></div></div>
+          <div v-if="it.note" class="text-[12px] text-ink-muted mt-0.5">{{ it.note }}</div>
+        </div>
+      </div>
+      <p v-if="b.source" class="text-[11.5px] text-ink-muted mt-3">{{ b.source }}</p>
+    </section>
+
+    <!-- 장단점 -->
+    <section v-else-if="b.type === 'proscons'" class="grid md:grid-cols-2 gap-3">
+      <div class="rounded-3xl p-5 bg-emerald-50 border border-emerald-100"><div class="font-black text-emerald-800 flex items-center gap-1.5"><AppIcon name="thumbs-up" :size="17" />{{ b.prosTitle || '좋은 점' }}</div>
+        <ul class="mt-2.5 space-y-2"><li v-for="(p, k) in b.pros" :key="k" class="flex gap-2 text-[14.5px] text-ink"><AppIcon name="check" :size="16" class="text-emerald-600 mt-1" /><span v-html="rich(p)"></span></li></ul></div>
+      <div class="rounded-3xl p-5 bg-rose-50 border border-rose-100"><div class="font-black text-rose-800 flex items-center gap-1.5"><AppIcon name="alert-circle" :size="17" />{{ b.consTitle || '조심할 점' }}</div>
+        <ul class="mt-2.5 space-y-2"><li v-for="(p, k) in b.cons" :key="k" class="flex gap-2 text-[14.5px] text-ink"><AppIcon name="minus" :size="16" class="text-rose-500 mt-1" /><span v-html="rich(p)"></span></li></ul></div>
+    </section>
+
+    <!-- 알림 상자 -->
+    <section v-else-if="b.type === 'callout'" class="rounded-2xl border-l-4 p-4 md:p-5 flex gap-3" :class="CALL[b.tone || 'tip'].box">
+      <AppIcon :name="CALL[b.tone || 'tip'].icon" :size="22" class="shrink-0 mt-0.5" :class="CALL[b.tone || 'tip'].ico" />
+      <div><div class="font-black text-ink">{{ b.title }}</div><p class="text-[14.5px] text-ink-light leading-relaxed mt-0.5" v-html="rich(b.body)"></p></div>
+    </section>
+
+    <!-- 체크리스트 (눌러서 체크 · 인쇄) -->
+    <section v-else-if="b.type === 'checklist'" class="card p-5 md:p-6">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <h4 class="font-black text-ink text-[17px]">{{ b.title || '체크리스트' }}</h4>
+        <div class="flex items-center gap-2 text-[12.5px]"><span class="font-bold" :class="T.text">{{ doneCount(i) }} / {{ b.items.length }}</span>
+          <button type="button" @click="printPage" class="px-2.5 py-1 rounded-lg bg-gray-100 text-ink-light font-bold hover:bg-gray-200">인쇄</button></div>
+      </div>
+      <div class="h-2 rounded-full bg-gray-100 mt-3 overflow-hidden"><div class="h-full rounded-full transition-all" :class="T.solid" :style="{ width: (doneCount(i) / b.items.length * 100) + '%' }"></div></div>
+      <ul class="mt-3 space-y-1.5">
+        <li v-for="(it, k) in b.items" :key="k">
+          <label class="flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer hover:bg-gray-50" :class="checks[i + ':' + k] ? 'bg-gray-50' : ''">
+            <input type="checkbox" v-model="checks[i + ':' + k]" class="mt-1 w-[18px] h-[18px] accent-emerald-600" />
+            <span class="text-[14.5px]" :class="checks[i + ':' + k] ? 'line-through text-ink-muted' : 'text-ink'">{{ it }}</span>
+          </label>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 바로가기 링크 -->
+    <section v-else-if="b.type === 'links'">
+      <h4 v-if="b.title" class="font-black text-ink text-[17px] mb-3 flex items-center gap-2"><AppIcon name="external-link" :size="17" :class="T.text" />{{ b.title }}</h4>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <template v-for="(l, k) in b.items" :key="k">
+          <a v-if="safe(l.url)" :href="l.url" target="_blank" rel="noopener noreferrer" class="card p-4 flex gap-3 items-start hover:shadow-md hover:-translate-y-0.5 transition">
+            <span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :class="[T.soft, T.text]"><AppIcon name="globe" :size="19" /></span>
+            <span class="min-w-0"><span class="flex items-center gap-1.5 flex-wrap"><b class="text-ink text-[14.5px]">{{ l.title }}</b><i v-if="l.tag" class="not-italic text-[10.5px] font-black px-1.5 py-0.5 rounded-md bg-gray-100 text-ink-light">{{ l.tag }}</i></span>
+              <span class="block text-[13px] text-ink-muted mt-0.5 leading-snug">{{ l.desc }}</span>
+              <span class="block text-[11.5px] mt-1 truncate" :class="T.text">{{ host(l.url) }}</span></span>
+          </a>
+        </template>
+      </div>
+    </section>
+
+    <!-- 내려받기 -->
+    <section v-else-if="b.type === 'downloads'" class="rounded-3xl p-5 md:p-6 bg-gray-50 border border-gray-100">
+      <h4 class="font-black text-ink text-[17px] mb-3 flex items-center gap-2"><AppIcon name="download" :size="18" :class="T.text" />{{ b.title || '자료 내려받기' }}</h4>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <template v-for="(d, k) in b.items" :key="k">
+          <a v-if="safe(d.file)" :href="d.file" download class="rounded-2xl bg-white border border-gray-100 p-4 flex gap-3 items-center hover:shadow-md transition">
+            <span class="w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0" :class="T.solid"><AppIcon name="download" :size="20" /></span>
+            <span class="min-w-0"><b class="block text-ink text-[14.5px]">{{ d.title }}</b><span class="block text-[12.5px] text-ink-muted">{{ d.desc }}</span><span class="block text-[11px] font-black mt-0.5" :class="T.text">{{ d.kind || 'CSV' }}<template v-if="(d.kind || 'CSV') === 'CSV'"> · 엑셀·구글 시트에서 열려요</template></span></span>
+          </a>
+        </template>
+      </div>
+    </section>
+
+    <!-- 자주 묻는 질문 -->
+    <section v-else-if="b.type === 'faq'" class="card p-3 md:p-5">
+      <h4 class="font-black text-ink text-[17px] px-2 pt-2 pb-1">{{ b.title || '자주 묻는 질문' }}</h4>
+      <details v-for="(f, k) in b.items" :key="k" class="group border-b border-gray-100 last:border-0">
+        <summary class="flex items-center justify-between gap-3 cursor-pointer list-none px-2 py-3.5 font-extrabold text-ink text-[15px]">{{ f.q }}<AppIcon name="chevron-down" :size="18" class="shrink-0 text-ink-muted transition group-open:rotate-180" /></summary>
+        <p class="px-2 pb-4 text-[14.5px] text-ink-light leading-relaxed" v-html="rich(f.a)"></p>
+      </details>
+    </section>
+
+    <!-- 계산기: 주택 월 납입금 + PMI -->
+    <section v-else-if="b.type === 'calc' && b.kind === 'mortgage'" class="card p-5 md:p-6">
+      <h4 class="font-black text-ink text-[17px] flex items-center gap-2"><AppIcon name="chart-bar" :size="18" :class="T.text" />{{ b.title || '월 납입금 계산기' }}</h4>
+      <p class="text-[13px] text-ink-muted mt-0.5">숫자를 바꿔 보세요. 결과는 예시이고 실제 대출 조건과 다를 수 있어요.</p>
+      <div class="grid md:grid-cols-2 gap-5 mt-4">
+        <div class="space-y-3">
+          <label v-for="f in MORT_FIELDS" :key="f.k" class="block">
+            <span class="flex justify-between text-[13px] font-bold text-ink"><span>{{ f.l }}</span><span :class="T.text">{{ f.fmt(m[f.k]) }}</span></span>
+            <input type="range" v-model.number="m[f.k]" :min="f.min" :max="f.max" :step="f.step" class="w-full accent-emerald-600" />
+          </label>
+        </div>
+        <div>
+          <div class="rounded-2xl p-4 text-white" :style="{ background: T.hero }">
+            <div class="text-[12px] font-bold opacity-90">한 달에 내는 돈 (대출 원리금 + PMI)</div>
+            <div class="text-[34px] font-black leading-tight">{{ usd(mort.total) }}</div>
+          </div>
+          <div class="mt-3 h-4 rounded-full overflow-hidden flex bg-gray-100">
+            <div :class="T.solid" :style="{ width: mort.pPct + '%' }"></div><div class="bg-sky-400" :style="{ width: mort.iPct + '%' }"></div><div class="bg-amber-400" :style="{ width: mort.mPct + '%' }"></div>
+          </div>
+          <ul class="mt-2.5 space-y-1 text-[13.5px]">
+            <li class="flex justify-between"><span class="flex items-center gap-1.5"><i class="w-2.5 h-2.5 rounded-full" :class="T.solid"></i>원금 상환 (첫 달)</span><b>{{ usd(mort.princ) }}</b></li>
+            <li class="flex justify-between"><span class="flex items-center gap-1.5"><i class="w-2.5 h-2.5 rounded-full bg-sky-400"></i>이자 (첫 달)</span><b>{{ usd(mort.int) }}</b></li>
+            <li class="flex justify-between"><span class="flex items-center gap-1.5"><i class="w-2.5 h-2.5 rounded-full bg-amber-400"></i>PMI</span><b>{{ mort.pmi ? usd(mort.pmi) : '필요 없음 (20% 이상 선납)' }}</b></li>
+          </ul>
+          <div v-if="mort.pmi" class="mt-3 rounded-xl bg-amber-50 border border-amber-100 p-3 text-[13.5px] text-ink">
+            대출 잔액이 집값의 <b>80%</b> 아래로 내려가는 시점 = 약 <b>{{ mort.m80 }}개월({{ (mort.m80 / 12).toFixed(1) }}년)</b> 뒤. 이때부터 PMI 해지를 <b>요청</b>할 수 있어요. 요청 없이도 <b>78%</b>(약 {{ mort.m78 }}개월 뒤)에는 자동으로 끝나요.
+            <div class="text-[12px] text-ink-muted mt-1">PMI 총액(80% 도달까지) 약 {{ usd(mort.pmi * mort.m80) }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </template>
+</div>
+</template>
+
+<script setup>
+import { computed, reactive } from 'vue'
+import AppIcon from '../AppIcon.vue'
+
+const props = defineProps({ blocks: { type: Array, default: () => [] }, theme: { type: String, default: 'emerald' } })
+
+const THEMES = {
+  emerald: { hero: 'linear-gradient(135deg,#047857,#10b981 60%,#34d399)', solid: 'bg-emerald-600', text: 'text-emerald-700', soft: 'bg-emerald-50 border-emerald-100', soft2: 'bg-emerald-50/60', line: 'bg-emerald-200' },
+  sky:     { hero: 'linear-gradient(135deg,#0369a1,#0ea5e9 60%,#38bdf8)', solid: 'bg-sky-600', text: 'text-sky-700', soft: 'bg-sky-50 border-sky-100', soft2: 'bg-sky-50/60', line: 'bg-sky-200' },
+  amber:   { hero: 'linear-gradient(135deg,#b45309,#f59e0b 60%,#fbbf24)', solid: 'bg-amber-600', text: 'text-amber-700', soft: 'bg-amber-50 border-amber-100', soft2: 'bg-amber-50/60', line: 'bg-amber-200' },
+  rose:    { hero: 'linear-gradient(135deg,#be123c,#f43f5e 60%,#fb7185)', solid: 'bg-rose-600', text: 'text-rose-700', soft: 'bg-rose-50 border-rose-100', soft2: 'bg-rose-50/60', line: 'bg-rose-200' },
+  violet:  { hero: 'linear-gradient(135deg,#6d28d9,#8b5cf6 60%,#a78bfa)', solid: 'bg-violet-600', text: 'text-violet-700', soft: 'bg-violet-50 border-violet-100', soft2: 'bg-violet-50/60', line: 'bg-violet-200' },
+}
+const T = computed(() => THEMES[props.blocks.find(b => b.type === 'hero')?.theme || props.theme] || THEMES.emerald)
+
+const CALL = {
+  tip:  { box: 'bg-emerald-50 border-emerald-500', icon: 'sparkles', ico: 'text-emerald-600' },
+  warn: { box: 'bg-amber-50 border-amber-500', icon: 'alert-circle', ico: 'text-amber-600' },
+  info: { box: 'bg-sky-50 border-sky-500', icon: 'info', ico: 'text-sky-600' },
+}
+
+// 안전한 굵은 글씨: 먼저 전부 이스케이프한 뒤 **글** 만 <b> 로
+function rich(s) {
+  const e = String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  return e.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>')
+}
+const safe = (u) => typeof u === 'string' && (/^https:\/\//i.test(u) || /^\/downloads\/money\/[\w\-.]+$/.test(u))
+const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, '') } catch { return '' } }
+const pct = (v, b) => Math.max(2, Math.min(100, (Number(v) / (Number(b.max) || Math.max(...b.items.map(x => Number(x.value)))) ) * 100))
+const usd = (n) => '$' + Math.round(n).toLocaleString('en-US')
+
+const checks = reactive({})
+const doneCount = (i) => Object.keys(checks).filter(k => k.startsWith(i + ':') && checks[k]).length
+const printPage = () => window.print()
+
+// ── 주택 계산기 ──
+const m = reactive({ price: 450000, down: 10, rate: 6.5, years: 30, pmiRate: 0.8 })
+const MORT_FIELDS = [
+  { k: 'price', l: '집값', min: 150000, max: 1500000, step: 10000, fmt: usd },
+  { k: 'down', l: '선납금(다운페이먼트)', min: 3, max: 40, step: 1, fmt: v => v + '%' },
+  { k: 'rate', l: '대출 금리(연)', min: 3, max: 10, step: 0.125, fmt: v => v + '%' },
+  { k: 'years', l: '대출 기간', min: 10, max: 30, step: 5, fmt: v => v + '년' },
+  { k: 'pmiRate', l: 'PMI 연 요율(대출액 대비)', min: 0.3, max: 1.5, step: 0.1, fmt: v => v.toFixed(1) + '%' },
+]
+const mort = computed(() => {
+  const loan = m.price * (1 - m.down / 100)
+  const r = m.rate / 100 / 12
+  const n = m.years * 12
+  const pay = r === 0 ? loan / n : loan * r / (1 - Math.pow(1 + r, -n))
+  const int = loan * r
+  const princ = pay - int
+  const pmi = m.down >= 20 ? 0 : loan * (m.pmiRate / 100) / 12
+  // 잔액이 처음 집값(원래 가치)의 80%·78% 이하가 되는 달
+  const reach = (ratio) => {
+    let bal = loan
+    for (let k = 1; k <= n; k++) { bal = bal * (1 + r) - pay; if (bal <= m.price * ratio) return k }
+    return n
+  }
+  const total = pay + pmi
+  return { total, princ, int, pmi, m80: pmi ? reach(0.8) : 0, m78: pmi ? reach(0.78) : 0,
+    pPct: princ / total * 100, iPct: int / total * 100, mPct: pmi / total * 100 }
+})
+</script>
+
+<style>
+@media print { .gb a[download], .gb input[type=range] { display: none } }
+</style>

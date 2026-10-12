@@ -1,0 +1,35 @@
+[PMI 해지 요청 편지 양식 — 영어 원문 + 한글 설명]
+(괄호 [ ] 안을 내 정보로 바꿔서 대출 서비스 회사(Servicer)에 보내세요. 우편은 배달 확인 되는 방법 권장)
+
+[Date / 날짜]
+
+[Mortgage Servicer Name / 대출 서비스 회사 이름]
+[Servicer Address / 주소 — 월 청구서에 있어요]
+
+Re: Request to Cancel Private Mortgage Insurance (PMI)
+Loan Number: [대출 번호]
+Property Address: [집 주소]
+Borrower Name(s): [이름]
+
+Dear Sir or Madam,
+
+I am writing to request cancellation of private mortgage insurance (PMI) on the above loan under the Homeowners Protection Act.
+
+Based on my records, the unpaid principal balance of my loan has reached 80% or less of the original value of the property. [또는: Based on a recent appraisal, the current value supports a loan-to-value ratio of 80% or less.]
+
+I confirm that:
+1. My loan payments are current, and I have a good payment history (no payment 30+ days late in the past 12 months and none 60+ days late in the past 24 months).
+2. There are no subordinate liens (such as a second mortgage or HELOC) on the property.
+3. The value of the property has not declined below its original value.
+
+Please let me know in writing what additional documents, such as an appraisal, are required and the timeline for removing PMI from my monthly payment.
+
+Sincerely,
+[Signature]
+[Printed Name]
+[Phone / Email]
+
+------------------------------------------------------------
+* 이 양식은 일반 참고용이에요. 대출 회사마다 요구하는 서류(감정평가 등)가 달라서 먼저 전화로 절차를 물어보면 편해요.
+* 감정평가 비용은 보통 본인 부담이에요(수백 달러).
+* 법률·금융 전문가 상담을 대체하지 않아요.
