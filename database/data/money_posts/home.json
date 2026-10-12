@@ -1,1 +1,331 @@
-[]
+[
+ {
+  "topic": "첫 주택 구입",
+  "kind": "info",
+  "title": "CFPB 공식 \"내 집 사기\" 도구 활용하는 법",
+  "content": "미국 소비자금융보호국(CFPB)은 **무료로 Loan Estimate 비교, 월 납입금 계산** 같은 공식 도구를 제공해요. 어디서 뭘 볼 수 있는지 정리했어요.",
+  "image": "/images/money/topics/home-01.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "CFPB가 제공하는 것들"
+   },
+   {
+    "type": "compare",
+    "title": "주요 도구",
+    "columns": [
+     "도구",
+     "내용"
+    ],
+    "rows": [
+     [
+      "Buying a House 가이드",
+      "예산 잡기부터 클로징까지 단계별 안내, 계산기·체크리스트·사기 경고 포함"
+     ],
+     [
+      "Loan Estimate 설명",
+      "견적서의 각 항목이 무슨 뜻인지 줄마다 풀이"
+     ],
+     [
+      "월 상환금 계산기",
+      "내 상황에 맞는 예상 월 납입금 계산"
+     ],
+     [
+      "금리 탐색 도구",
+      "요즘 금리 수준을 가늠해 볼 수 있어요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "Loan Estimate(대출 견적서), 이렇게 비교하세요"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "2015년부터 표준 서식 2개로 통일됐어요",
+    "body": "CFPB 규정으로 대출 서류가 **Loan Estimate**와 **Closing Disclosure** 두 가지로 단순화됐어요. 모든 대출사가 같은 양식을 쓰기 때문에 **업체 간 비교가 쉬워요.**"
+   },
+   {
+    "type": "checklist",
+    "title": "Loan Estimate에서 확인할 것",
+    "items": [
+     "이자율과 APR",
+     "월 납입금(원금+이자+세금+보험 추정)",
+     "마감 비용(Closing Cost) 총액",
+     "**3페이지의 비교 박스**: 5년 동안 원금 상환액과 이자·보험료 등 총 지출액"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "금리를 고정(Lock)했다면"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "금리 고정 후 3일 안에 수정 견적서를 받아야 해요",
+    "body": "변동금리에서 고정금리로 락을 걸면, 대출사는 **3일 안에 수정된 Loan Estimate**를 줘야 한다는 규정이 있어요. 이 기간을 이용해 다른 곳과 비교해 볼 수 있어요."
+   },
+   {
+    "type": "h",
+    "title": "클로징 전"
+   },
+   {
+    "type": "checklist",
+    "title": "Closing Disclosure 확인",
+    "items": [
+     "클로징(최종 서명) **최소 3영업일 전**에 받아야 해요",
+     "Loan Estimate와 비교해서 **내용이 바뀌지 않았는지** 확인하세요",
+     "궁금한 점은 클로징 전에 대출 담당자에게 물어보세요"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 정책·금리는 수시로 바뀌니 공식 사이트에서 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: 내 집 사기 도구 3가지",
+      "url": "https://www.consumerfinance.gov/about-us/blog/three-tools-help-your-homebuying-process",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 모기지 쇼핑 통계 자료",
+      "url": "https://files.consumerfinance.gov/f/201501_cfpb_factsheet-the-consumer-mortgage-shopping-perspective.pdf",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "첫 주택 구입",
+  "kind": "info",
+  "title": "사전 승인(Pre-approval) 받는 법: 사전 자격(Pre-qualification)과 뭐가 다를까",
+  "content": "\"사전 자격\"과 \"사전 승인\"은 비슷해 보이지만 무게감이 완전히 달라요. 준비물과 받는 순서를 정리했어요.",
+  "image": "/images/money/topics/home-01.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "사전 자격 vs 사전 승인",
+    "columns": [
+     "",
+     "사전 자격(Pre-qualification)",
+     "사전 승인(Pre-approval)"
+    ],
+    "rows": [
+     [
+      "근거",
+      "내가 말한 숫자(자기 보고)",
+      "대출사가 서류를 **직접 확인**"
+     ],
+     [
+      "신뢰도",
+      "대략적인 추정",
+      "실제 대출 가능 금액"
+     ],
+     [
+      "오퍼 넣을 때",
+      "약하게 보일 수 있어요",
+      "판매자에게 더 신뢰받아요"
+     ]
+    ],
+    "highlight": 1
+   },
+   {
+    "type": "h",
+    "title": "준비물"
+   },
+   {
+    "type": "checklist",
+    "title": "사전 승인에 필요한 서류",
+    "items": [
+     "소득 증빙(W-2, 최근 급여명세서)",
+     "최근 몇 년치 세금 신고서",
+     "은행 계좌 명세서",
+     "신용 조회 동의"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "받는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "사전 승인 순서",
+    "items": [
+     {
+      "title": "서류 준비",
+      "body": "위 목록을 미리 모아 둬요."
+     },
+     {
+      "title": "3곳 이상 대출사에 신청",
+      "body": "대형 은행, 신협, 온라인 대출사를 섞어서 비교해 보세요."
+     },
+     {
+      "title": "서류 제출·신용 조회",
+      "body": "대출사가 서류를 검토해요."
+     },
+     {
+      "title": "사전 승인서 받기",
+      "body": "대출 가능 금액이 적힌 편지를 받아요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "사전 승인서는 유효기간이 있어요",
+    "body": "보통 **60~90일** 정도 유효하다는 안내가 많아요. 집을 오래 찾는다면 기간이 지나지 않았는지 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "어디서 비교할까"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "은행 + 신협 + 온라인 대출사, 섞어서 보세요",
+    "body": "성격이 다른 **3곳 이상**에서 견적을 받아 비교하는 걸 권해요. 서비스·금리·수수료 구조가 다 달라요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 정책·금리는 수시로 바뀌니 공식 사이트에서 확인하세요.",
+    "items": [
+     {
+      "title": "첫 주택 구입 체크리스트",
+      "url": "https://www.mortgageresearch.com/articles/first-time-home-buying-checklist/",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "주택 구입 체크리스트",
+      "url": "https://www.opendoor.com/articles/home-buying-checklist",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "첫 주택 구입",
+  "kind": "info",
+  "title": "HUD 공인 주택 상담사 무료로 만나는 법 + 인스펙션·감정평가 이해하기",
+  "content": "미국 주택도시개발부(HUD)는 **무료 주택 구입 상담**을 받을 수 있는 기관 목록을 운영해요. 활용법과 인스펙션·감정평가의 차이를 정리했어요.",
+  "image": "/images/money/topics/home-01.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "HUD 공인 상담사란"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "신용부터 다운페이먼트 지원까지 무료로 도와줘요",
+    "body": "HUD 공인 주택 상담사는 **신용 개선, 지역 다운페이먼트 지원 프로그램 찾기** 등을 도와줘요. HUD는 주별로 상담 기관 목록을 운영해요."
+   },
+   {
+    "type": "h",
+    "title": "FHA 대출 기본 정보"
+   },
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3.5%",
+      "label": "FHA 최소 다운페이먼트",
+      "note": "신용점수 580 이상 기준",
+      "icon": "home"
+     },
+     {
+      "value": "무료",
+      "label": "HUD 상담",
+      "note": "공인 기관",
+      "icon": "check"
+     },
+     {
+      "value": "주별 목록",
+      "label": "다운페이먼트 지원",
+      "note": "HUD가 정리",
+      "icon": "map-pin"
+     },
+     {
+      "value": "3~6개월",
+      "label": "전체 과정 기간",
+      "note": "집 찾기~입주까지",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "인스펙션(Inspection)이란"
+   },
+   {
+    "type": "checklist",
+    "title": "인스펙션에서 확인하는 것",
+    "items": [
+     "구조·지붕의 안전성",
+     "전기·배관 등 설비 상태",
+     "가전제품 작동 여부",
+     "결과 리포트를 받아서 **판매자와 수리 협상**에 활용할 수 있어요"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "감정평가(Appraisal)란"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "대출사가 고용한 감정사가 평가해요",
+    "body": "감정평가는 **대출사가 선정한 감정사**가 집의 시장 가치를 매겨요. 계약 가격 이상인지 확인하는 절차예요."
+   },
+   {
+    "type": "h",
+    "title": "감정가가 낮게 나오면"
+   },
+   {
+    "type": "compare",
+    "title": "감정가 < 계약가일 때 선택지",
+    "columns": [
+     "선택지",
+     "내용"
+    ],
+    "rows": [
+     [
+      "판매자가 가격 낮추기",
+      "협상으로 계약가를 감정가에 맞춤"
+     ],
+     [
+      "구매자가 차액 부담",
+      "대출로 못 메우는 차이를 현금으로 지불"
+     ],
+     [
+      "계약 재협상·철회",
+      "계약서의 감정 조항(Appraisal contingency)에 따라"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 정책·금리는 수시로 바뀌니 공식 사이트에서 확인하세요.",
+    "items": [
+     {
+      "title": "HUD 가이드 인용(DC 정부)",
+      "url": "https://dds.dc.gov/node/1691711",
+      "kind": "정부(지역, HUD 인용)"
+     },
+     {
+      "title": "주택 구입 단계 가이드",
+      "url": "https://joingerald.com/learn/money-basics/home-purchase-steps-guide",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ }
+]
