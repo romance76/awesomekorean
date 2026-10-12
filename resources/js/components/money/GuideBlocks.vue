@@ -51,6 +51,7 @@
     <!-- 큰 숫자 -->
     <section v-else-if="b.type === 'stats'" class="grid gap-3" :class="b.items.length > 2 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2'">
       <div v-for="(s, k) in b.items" :key="k" class="card p-4 md:p-5 text-center">
+        <AppIcon v-if="s.icon" :name="s.icon" :size="24" class="mx-auto mb-2" :class="T.text" />
         <div class="text-[28px] md:text-[34px] font-black leading-none" :class="T.text">{{ s.value }}</div>
         <div class="mt-2 text-[13.5px] font-extrabold text-ink">{{ s.label }}</div>
         <div v-if="s.note" class="text-[12px] text-ink-muted mt-0.5">{{ s.note }}</div>

@@ -11,7 +11,7 @@ class MoneyPost extends Model
 
     protected $fillable = ['cafe_id', 'category_id', 'user_id', 'kind', 'title', 'content'];
 
-    protected $casts = ['is_hidden' => 'boolean', 'is_pinned' => 'boolean'];
+    protected $casts = ['is_hidden' => 'boolean', 'is_pinned' => 'boolean', 'blocks' => 'array'];
 
     public function cafe()
     {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="960" height="300" role="img" aria-label="자녀·교육비 · 학자금 대출">
+<defs><linearGradient id="gkids6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b45309"/><stop offset="1" stop-color="#fbbf24"/></linearGradient></defs>
+<rect width="960" height="300" rx="28" fill="url(#gkids6)"/>
+<g fill="#fff" opacity=".13"><circle cx="840" cy="40" r="170"/><circle cx="700" cy="290" r="90"/><circle cx="110" cy="310" r="120"/></g>
+<g fill="#fff" opacity=".2"><rect x="650" y="170" width="34" height="90" rx="9"/><rect x="700" y="130" width="34" height="130" rx="9"/><rect x="750" y="90" width="34" height="170" rx="9"/><rect x="800" y="50" width="34" height="210" rx="9"/></g>
+<rect x="64" y="86" width="128" height="128" rx="34" fill="#fff" opacity=".22"/>
+<g transform="translate(88 110) scale(3)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></g>
+<text x="224" y="124" fill="#fff" opacity=".9" font-size="26" font-weight="700" font-family="'Pretendard','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif" letter-spacing="2">자녀·교육비 카페</text>
+<text x="224" y="190" fill="#fff" font-size="56" font-weight="900" font-family="'Pretendard','Noto Sans KR','Malgun Gothic','Apple SD Gothic Neo',sans-serif">학자금 대출</text>
+</svg>

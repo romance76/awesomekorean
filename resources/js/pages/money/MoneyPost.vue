@@ -16,7 +16,9 @@
       <div class="text-sm text-ink-muted mt-1.5 flex flex-wrap gap-x-3">
         <span>{{ post.user?.display_name || post.user?.name || '회원' }}</span><span>{{ fmt(post.created_at) }}</span><span>조회 {{ post.view_count }}</span>
       </div>
+      <img v-if="topicImage" :src="topicImage" :alt="(post.category?.name || '') + ' 주제 이미지'" class="w-full rounded-2xl mt-4" loading="lazy" />
       <div class="money-intro mt-5 text-[16px] text-ink leading-relaxed break-words" v-html="post.content"></div>
+      <GuideBlocks v-if="post.blocks?.length" :blocks="post.blocks" :theme="post.cafe?.theme || 'emerald'" class="mt-5" />
       <div v-if="canEdit" class="flex gap-2 justify-end mt-6">
         <RouterLink :to="`/money/write?id=${post.id}`" class="btn-secondary px-4 py-2 text-sm">수정</RouterLink>
         <button @click="remove" class="btn-secondary px-4 py-2 text-sm text-red-600">내리기</button>
@@ -38,6 +40,7 @@ import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
+import GuideBlocks from '../../components/money/GuideBlocks.vue'
 import MoneyHead from '../../components/money/MoneyHead.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { KIND_LABEL, KIND_CLASS, DISCLAIMER } from '../../components/money/moneyText'
@@ -46,6 +49,8 @@ const route = useRoute(); const router = useRouter()
 const auth = useAuthStore(); const site = useSiteStore()
 const post = ref(null); const notFound = ref(false)
 const fmt = (s) => (s ? String(s).slice(0, 16).replace('T', ' ') : '')
+// 운영팀이 올린 주제 이미지만 허용(정해진 폴더의 svg)
+const topicImage = computed(() => (/^\/images\/money\/topics\/[\w-]+\.svg$/.test(post.value?.image || '') ? post.value.image : ''))
 const canEdit = computed(() => post.value && auth.user && (auth.user.id === post.value.user_id || auth.isAdmin))
 
 async function load() {
