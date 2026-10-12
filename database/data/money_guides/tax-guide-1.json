@@ -1,0 +1,217 @@
+{
+ "slug": "tax-guide-1",
+ "summary": "서류 모으기부터 제출까지, 처음 하는 사람을 위한 흐름",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "slate",
+   "icon": "list",
+   "kicker": "MONEY GUIDE · 세금",
+   "title": "1040 세금 신고 기초",
+   "lead": "미국 개인 소득세 신고서 **Form 1040**의 큰 흐름이에요. 서류만 제대로 모으면 절반은 끝난 거예요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 7분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "보통"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "소득 → **공제** → 세율 적용 → **세액공제** → 이미 낸 세금과 비교 → 환급 또는 추가 납부.",
+    "**표준공제 vs 항목별 공제**는 큰 쪽을 선택해요(대부분 표준공제).",
+    "신고 기한은 **보통 4월 중순**. 연장해도 **세금 납부 기한은 연장되지 않아요.**"
+   ]
+  },
+  {
+   "type": "steps",
+   "title": "1040의 흐름",
+   "items": [
+    {
+     "title": "① 서류 모으기",
+     "body": "W-2, 1099, 1098, 이자·배당 서류 등. 아래 내려받기의 체크리스트를 활용하세요."
+    },
+    {
+     "title": "② 신고 신분(Filing status) 정하기",
+     "body": "Single, Married Filing Jointly 등 5가지. 신분에 따라 공제·세율이 달라져요."
+    },
+    {
+     "title": "③ 소득 합산 → 공제",
+     "body": "총소득에서 조정 항목을 빼고, **표준공제 또는 항목별 공제**를 빼요."
+    },
+    {
+     "title": "④ 세액 계산 → 세액공제",
+     "body": "계산된 세금에서 자녀·교육·저소득 등 **세액공제**를 빼요."
+    },
+    {
+     "title": "⑤ 이미 낸 세금과 비교",
+     "body": "급여에서 떼인 세금(Withholding)과 비교해 **환급**이나 **추가 납부**를 정해요."
+    },
+    {
+     "title": "⑥ 전자 제출(e-file)",
+     "body": "소프트웨어나 IRS 무료 신고(Free File)로 제출하고, 접수 확인을 보관하세요.",
+     "link": {
+      "label": "IRS: 신고 방법 안내",
+      "url": "https://www.irs.gov/filing/individuals/how-to-file"
+     }
+    }
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "표준공제 vs 항목별 공제",
+   "columns": [
+    "",
+    "표준공제(Standard)",
+    "항목별 공제(Itemized)"
+   ],
+   "rows": [
+    [
+     "방법",
+     "정해진 금액 하나",
+     "내가 쓴 항목을 합산"
+    ],
+    [
+     "적합한 사람",
+     "대부분",
+     "모기지 이자·주 세금·기부가 많은 사람"
+    ],
+    [
+     "서류",
+     "간단해요",
+     "영수증·기록이 필요해요"
+    ],
+    [
+     "선택 기준",
+     "**둘 중 큰 쪽**",
+     "**둘 중 큰 쪽**"
+    ]
+   ],
+   "highlight": 1,
+   "note": "※ 공제 금액은 매년 바뀌어요. IRS 사이트에서 올해 금액을 확인하세요."
+  },
+  {
+   "type": "stats",
+   "items": [
+    {
+     "value": "4월 중순",
+     "label": "신고 기한",
+     "note": "해마다 확인"
+    },
+    {
+     "value": "10월",
+     "label": "연장 신고 기한",
+     "note": "납부는 연장 안 됨"
+    },
+    {
+     "value": "W-2·1099",
+     "label": "핵심 서류",
+     "note": "1~2월에 도착"
+    },
+    {
+     "value": "Free File",
+     "label": "무료 신고",
+     "note": "소득 조건이 있어요"
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "이민자·유학생 주의",
+   "body": "체류 자격과 체류 기간에 따라 **거주자/비거주자**로 나뉘고 신고 서류가 달라요. 한국 금융계좌(은행·주식)가 있으면 **별도 신고(FBAR 등)** 가 필요할 수 있어요. 처음이라면 **세무사 상담**을 권해요."
+  },
+  {
+   "type": "checklist",
+   "title": "신고 전 체크리스트",
+   "items": [
+    "서류(W-2, 1099 등)를 모두 모았다",
+    "내 신고 신분을 정했다",
+    "표준공제와 항목별 공제를 비교했다",
+    "세액공제 대상(자녀·교육 등)을 확인했다",
+    "환급 계좌·라우팅 번호를 준비했다",
+    "제출 후 접수 확인과 사본을 보관했다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "IRS: 신고 안내",
+     "desc": "단계별 안내",
+     "url": "https://www.irs.gov/filing",
+     "tag": "정부"
+    },
+    {
+     "title": "IRS Free File",
+     "desc": "소득 조건 시 무료 신고",
+     "url": "https://www.irs.gov/filing/free-file-do-your-federal-taxes-for-free",
+     "tag": "정부"
+    },
+    {
+     "title": "IRS: 원천징수 계산기",
+     "desc": "내 급여에서 떼는 세금 점검",
+     "url": "https://www.irs.gov/individuals/tax-withholding-estimator",
+     "tag": "정부"
+    },
+    {
+     "title": "IRS: 세무 전문가 고르는 법",
+     "desc": "믿을 만한 세무사 찾기",
+     "url": "https://www.irs.gov/tax-professionals/choosing-a-tax-professional",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "세금 신고 서류 체크리스트",
+     "desc": "1~2월에 하나씩 확인해요",
+     "file": "/downloads/money/tax-docs-checklist.txt",
+     "kind": "TXT"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "환급은 언제 받나요?",
+     "a": "전자 신고 + 계좌 입금이 **가장 빨라요.** 서류 오류가 있으면 늦어져요. IRS의 환급 조회 도구를 이용하세요."
+    },
+    {
+     "q": "신고를 놓쳤어요",
+     "a": "가능한 한 빨리 제출하세요. **벌금과 이자**가 붙을 수 있어서 늦을수록 불리해요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

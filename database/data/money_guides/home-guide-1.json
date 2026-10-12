@@ -1,0 +1,210 @@
+{
+ "slug": "home-guide-1",
+ "summary": "PMI를 없앨 수 있는 조건과 시기를 계산하는 법",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "sky",
+   "icon": "home",
+   "kicker": "MONEY GUIDE · 내 집",
+   "title": "PMI 제거 조건, 한 장으로 정리",
+   "lead": "\"PMI는 언제 없어지나요?\"에 가장 많이 묻는 질문을 한 번에. **80%·78% 규칙**, 추가 상환 효과, 제거 요청 절차까지 정리했어요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 6분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "보통"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**80%**: 잔액이 처음 집값의 80% 이하 → **요청** 가능. **78%** → **자동 해지**.",
+    "**연체가 없고, 2차 대출이 없어야** 해요.",
+    "**추가 상환**을 하면 80% 도달 시점이 앞당겨져요."
+   ]
+  },
+  {
+   "type": "stats",
+   "items": [
+    {
+     "value": "80%",
+     "label": "해지 요청 가능",
+     "note": "잔액 ÷ 처음 집값"
+    },
+    {
+     "value": "78%",
+     "label": "자동 해지",
+     "note": "상환 일정 기준"
+    },
+    {
+     "value": "중도",
+     "label": "최종 해지",
+     "note": "상환 기간 중간 시점"
+    },
+    {
+     "value": "서면",
+     "label": "요청 방법",
+     "note": "대출 서비스 회사"
+    }
+   ]
+  },
+  {
+   "type": "h",
+   "title": "추가 상환하면 얼마나 빨라질까?",
+   "sub": "집값 $450,000 · 선납금 10% · 금리 6.5% · 30년 기준 계산 예시"
+  },
+  {
+   "type": "bars",
+   "title": "PMI 해지 요청 가능 시점(80%)까지 걸리는 기간",
+   "sub": "매달 추가로 원금을 갚으면",
+   "items": [
+    {
+     "label": "추가 상환 없음",
+     "value": 95,
+     "display": "7.9년"
+    },
+    {
+     "label": "매달 +$100",
+     "value": 78,
+     "display": "6.5년"
+    },
+    {
+     "label": "매달 +$300",
+     "value": 58,
+     "display": "4.8년"
+    },
+    {
+     "label": "매달 +$500",
+     "value": 46,
+     "display": "3.8년",
+     "highlight": true
+    }
+   ],
+   "max": 95,
+   "source": "※ 개월 수를 햇수로 환산한 계산 예시예요. 실제 상환 일정은 대출 조건에 따라 달라요."
+  },
+  {
+   "type": "calc",
+   "kind": "mortgage",
+   "title": "내 대출 조건으로 계산해 보기"
+  },
+  {
+   "type": "steps",
+   "title": "제거 요청 절차",
+   "items": [
+    {
+     "title": "현재 잔액과 처음 집값을 확인",
+     "body": "월 명세서·온라인 계정에서 잔액을, 계약서에서 **처음 집값(구매가·감정가 중 낮은 금액)** 을 확인해요."
+    },
+    {
+     "title": "대출 회사에 해지 기준 문의",
+     "body": "서비스 회사마다 **서류(서면 요청서·감정평가)** 가 달라요. 전화로 먼저 물어보세요."
+    },
+    {
+     "title": "서면 요청서 보내기",
+     "body": "아래 내려받기의 편지 양식을 활용하세요. **배달 확인**이 되는 방법으로 보내요."
+    },
+    {
+     "title": "처리 결과 확인",
+     "body": "승인되면 다음 청구서에 PMI가 빠졌는지 확인해요.",
+     "link": {
+      "label": "CFPB: PMI 언제 없앨 수 있나요",
+      "url": "https://www.consumerfinance.gov/ask-cfpb/when-can-i-remove-private-mortgage-insurance-pmi-from-my-loan-en-202/"
+     }
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "이런 경우엔 안 될 수 있어요",
+   "body": "최근 12개월 안에 연체가 있었거나, **HELOC 같은 2차 대출**이 있거나, 집값이 처음보다 **떨어졌다고 평가**되면 거절될 수 있어요. **FHA 대출**은 규칙이 달라요."
+  },
+  {
+   "type": "checklist",
+   "title": "제거 요청 전 체크리스트",
+   "items": [
+    "처음 집값(구매가/감정가)을 알고 있다",
+    "현재 잔액이 80% 이하다",
+    "연체 기록이 없다",
+    "2차 대출이 없다",
+    "서비스 회사의 서류 요구 사항을 확인했다",
+    "요청서를 배달 확인되는 방법으로 보냈다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "CFPB: PMI란?",
+     "desc": "기본 설명",
+     "url": "https://www.consumerfinance.gov/ask-cfpb/what-is-private-mortgage-insurance-en-122/",
+     "tag": "정부"
+    },
+    {
+     "title": "CFPB: PMI 언제 없앨 수 있나요?",
+     "desc": "80%·78% 규칙",
+     "url": "https://www.consumerfinance.gov/ask-cfpb/when-can-i-remove-private-mortgage-insurance-pmi-from-my-loan-en-202/",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "PMI 해지 요청 편지 양식",
+     "desc": "영어 원문 + 한글 설명",
+     "file": "/downloads/money/pmi-cancellation-letter.txt",
+     "kind": "TXT"
+    },
+    {
+     "title": "집 구입 총비용 계산표",
+     "desc": "월 주거비 계산",
+     "file": "/downloads/money/home-buying-cost-sheet.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "집값이 올랐는데 더 빨리 없앨 수 있나요?",
+     "a": "**현재 감정가**로 80% 이하라면 요청할 수 있는 경우가 있어요. 감정평가 비용과 PMI 절약액을 비교하세요."
+    },
+    {
+     "q": "재융자(refinance)하면 PMI가 없어지나요?",
+     "a": "새 대출의 선납금(집값 대비 자기 지분)이 20% 이상이면 없어질 수 있어요. 재융자 비용과 금리를 같이 계산하세요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

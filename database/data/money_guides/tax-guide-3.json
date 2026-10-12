@@ -1,0 +1,213 @@
+{
+ "slug": "tax-guide-3",
+ "summary": "식품·의료·보육·에너지 등 지원제도 찾는 순서",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "slate",
+   "icon": "heart-handshake",
+   "kicker": "MONEY GUIDE · 세금",
+   "title": "조지아 지원제도 찾는 법",
+   "lead": "식비·의료·보육·에너지 지원 등 **내가 받을 수 있는 제도**를 찾는 순서예요. 신청 전 **이민 신분별 자격**을 꼭 확인하세요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 6분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "쉬움"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**Georgia Gateway** 사이트에서 **식품 지원(SNAP)·Medicaid·보육 지원** 등을 한 번에 신청해요.",
+    "**자격은 소득·가족 수·이민 신분**에 따라 달라요. 자격이 안 되는 사람이 있어도 **자녀는 자격이 되는** 경우도 있어요.",
+    "**211**에 전화하면 지역 지원 기관을 안내받을 수 있어요."
+   ]
+  },
+  {
+   "type": "steps",
+   "title": "찾는 순서",
+   "items": [
+    {
+     "title": "내 상황 정리",
+     "body": "가족 수, 월 소득, 체류 신분, 지금 필요한 것(식비·의료·집세·보육)을 정리해요."
+    },
+    {
+     "title": "Georgia Gateway에서 확인",
+     "body": "주 정부 통합 신청 사이트에서 신청하거나 상태를 확인해요.",
+     "link": {
+      "label": "Georgia Gateway",
+      "url": "https://gateway.ga.gov/"
+     }
+    },
+    {
+     "title": "연방 지원제도 검색",
+     "body": "Benefits.gov의 **자격 확인 도구**로 해당 제도를 찾아요.",
+     "link": {
+      "label": "Benefits.gov",
+      "url": "https://www.benefits.gov/"
+     }
+    },
+    {
+     "title": "지역 지원 기관 찾기",
+     "body": "211에 전화하거나 웹사이트에서 **푸드 팬트리·임대료 지원·에너지 지원** 기관을 찾아요.",
+     "link": {
+      "label": "211",
+      "url": "https://www.211.org/"
+     }
+    },
+    {
+     "title": "서류 준비",
+     "body": "신분증, 소득 증명(급여명세서), 임대 계약서, 공과금 청구서 등을 준비해요."
+    }
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "주요 지원제도",
+   "columns": [
+    "분야",
+    "예시 제도",
+    "어디서 신청"
+   ],
+   "rows": [
+    [
+     "식비",
+     "SNAP(식품 지원), WIC(임산부·영유아)",
+     "주 정부 포털 / 지역 보건소"
+    ],
+    [
+     "의료",
+     "Medicaid, PeachCare for Kids",
+     "Georgia Gateway / 주 의료 서비스부"
+    ],
+    [
+     "보육",
+     "보육 지원 프로그램(CAPS)",
+     "주 보육 담당 기관"
+    ],
+    [
+     "에너지",
+     "난방·냉방 요금 지원(LIHEAP)",
+     "지역 지원 기관"
+    ],
+    [
+     "세금 지원",
+     "EITC(근로소득 세액공제)",
+     "세금 신고 때"
+    ]
+   ],
+   "highlight": 1,
+   "note": "※ 제도 이름과 조건은 개정될 수 있어요. 공식 사이트로 확인하세요."
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "이민 신분과 공공 혜택",
+   "body": "일부 제도는 **이민 신분**에 따라 자격이 제한돼요. 다만 **자녀가 시민권자·영주권자**라면 자녀 몫을 신청할 수 있는 경우도 있어요. 불안하면 **이민 전문 변호사나 지역 이민 지원 단체**에 먼저 상담하세요."
+  },
+  {
+   "type": "checklist",
+   "title": "신청 전 체크리스트",
+   "items": [
+    "가족 수와 월 소득을 정리했다",
+    "신분증·소득 증명·임대 계약서를 준비했다",
+    "Georgia Gateway에서 확인했다",
+    "Benefits.gov 자격 검색을 해 봤다",
+    "211에서 지역 기관을 찾았다",
+    "이민 신분 관련 걱정은 전문가와 상담했다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "Georgia Gateway",
+     "desc": "주 정부 통합 신청",
+     "url": "https://gateway.ga.gov/",
+     "tag": "주 정부"
+    },
+    {
+     "title": "Georgia DFCS",
+     "desc": "가정·아동 서비스부",
+     "url": "https://dfcs.georgia.gov/",
+     "tag": "주 정부"
+    },
+    {
+     "title": "Georgia DCH",
+     "desc": "주 건강부(의료 지원)",
+     "url": "https://dch.georgia.gov/",
+     "tag": "주 정부"
+    },
+    {
+     "title": "Benefits.gov",
+     "desc": "연방 지원제도 검색",
+     "url": "https://www.benefits.gov/",
+     "tag": "정부"
+    },
+    {
+     "title": "211",
+     "desc": "지역 지원 기관 안내",
+     "url": "https://www.211.org/",
+     "tag": "비영리"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "세금 신고 서류 체크리스트",
+     "desc": "EITC 등 신고용 서류를 확인해요",
+     "file": "/downloads/money/tax-docs-checklist.txt",
+     "kind": "TXT"
+    },
+    {
+     "title": "50/30/20 가계부",
+     "desc": "월 소득·지출을 정리해요",
+     "file": "/downloads/money/budget-50-30-20.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "신청하면 이민에 불이익이 있나요?",
+     "a": "제도와 개인 신분에 따라 **영향이 달라요.** 신청 전에 이민 변호사나 지원 단체에 확인하세요."
+    },
+    {
+     "q": "한국어로 도움받을 수 있나요?",
+     "a": "지역 한인 비영리 단체·211이 **통역·안내**를 제공하는 경우가 많아요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

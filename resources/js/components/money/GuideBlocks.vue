@@ -204,6 +204,70 @@
       </div>
     </section>
 
+    <!-- 계산기: 복리(예금·투자 불어나는 모습) -->
+    <section v-else-if="b.type === 'calc' && b.kind === 'compound'" class="card p-5 md:p-6">
+      <h4 class="font-black text-ink text-[17px] flex items-center gap-2"><AppIcon name="trending-up" :size="18" :class="T.text" />{{ b.title || '복리 계산기' }}</h4>
+      <p class="text-[13px] text-ink-muted mt-0.5">연 이율이 일정하다고 가정한 예시예요. 실제 수익은 달라지고, 투자는 원금을 잃을 수 있어요.</p>
+      <div class="grid md:grid-cols-2 gap-5 mt-4">
+        <div class="space-y-3">
+          <label v-for="f in COMP_FIELDS" :key="f.k" class="block">
+            <span class="flex justify-between text-[13px] font-bold text-ink"><span>{{ f.l }}</span><span :class="T.text">{{ f.fmt(c[f.k]) }}</span></span>
+            <input type="range" v-model.number="c[f.k]" :min="f.min" :max="f.max" :step="f.step" class="w-full accent-emerald-600" />
+          </label>
+        </div>
+        <div>
+          <div class="rounded-2xl p-4 text-white" :style="{ background: T.hero }"><div class="text-[12px] font-bold opacity-90">{{ c.years }}년 뒤 예상 금액</div><div class="text-[34px] font-black leading-tight">{{ usd(comp.fv) }}</div></div>
+          <div class="mt-3 h-4 rounded-full overflow-hidden flex bg-gray-100"><div class="bg-gray-400" :style="{ width: comp.contribPct + '%' }"></div><div :class="T.solid" :style="{ width: (100 - comp.contribPct) + '%' }"></div></div>
+          <ul class="mt-2.5 space-y-1 text-[13.5px]">
+            <li class="flex justify-between"><span class="flex items-center gap-1.5"><i class="w-2.5 h-2.5 rounded-full bg-gray-400"></i>내가 넣은 돈</span><b>{{ usd(comp.contrib) }}</b></li>
+            <li class="flex justify-between"><span class="flex items-center gap-1.5"><i class="w-2.5 h-2.5 rounded-full" :class="T.solid"></i>이자·수익(가정)</span><b>{{ usd(comp.gain) }}</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 계산기: 카드 연회비 손익분기 -->
+    <section v-else-if="b.type === 'calc' && b.kind === 'cardfee'" class="card p-5 md:p-6">
+      <h4 class="font-black text-ink text-[17px] flex items-center gap-2"><AppIcon name="coins" :size="18" :class="T.text" />{{ b.title || '연회비 카드, 본전 뽑을까?' }}</h4>
+      <p class="text-[13px] text-ink-muted mt-0.5">연회비 카드의 혜택이, 연회비 없는 2% 현금 환급 카드보다 큰지 비교해요.</p>
+      <div class="grid md:grid-cols-2 gap-5 mt-4">
+        <div class="space-y-3">
+          <label v-for="f in FEE_FIELDS" :key="f.k" class="block">
+            <span class="flex justify-between text-[13px] font-bold text-ink"><span>{{ f.l }}</span><span :class="T.text">{{ f.fmt(fee[f.k]) }}</span></span>
+            <input type="range" v-model.number="fee[f.k]" :min="f.min" :max="f.max" :step="f.step" class="w-full accent-emerald-600" />
+          </label>
+        </div>
+        <div>
+          <div class="rounded-2xl p-4 text-white" :style="{ background: feeCalc.net >= 0 ? T.hero : 'linear-gradient(135deg,#be123c,#f43f5e)' }">
+            <div class="text-[12px] font-bold opacity-90">연회비 카드 vs 연회비 없는 2% 카드</div>
+            <div class="text-[34px] font-black leading-tight">{{ feeCalc.net >= 0 ? '+' : '-' }}{{ usd(Math.abs(feeCalc.net)) }} / 년</div>
+            <div class="text-[13px] font-bold opacity-95">{{ feeCalc.net >= 0 ? '이 조건이면 연회비 카드가 더 이득이에요' : '이 조건이면 2% 카드가 더 이득이에요' }}</div>
+          </div>
+          <ul class="mt-3 space-y-1 text-[13.5px]">
+            <li class="flex justify-between"><span>연회비 카드: 포인트·환급 가치</span><b>{{ usd(feeCalc.reward) }}</b></li>
+            <li class="flex justify-between"><span>+ 내가 실제로 쓰는 혜택(크레딧)</span><b>{{ usd(fee.credits) }}</b></li>
+            <li class="flex justify-between"><span>− 연회비</span><b>-{{ usd(fee.fee) }}</b></li>
+            <li class="flex justify-between border-t border-gray-100 pt-1"><span>= 연회비 카드 순이익</span><b>{{ usd(feeCalc.total) }}</b></li>
+            <li class="flex justify-between"><span>2% 카드 환급액</span><b>{{ usd(feeCalc.flat) }}</b></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 계산기: 50/30/20 가계부 -->
+    <section v-else-if="b.type === 'calc' && b.kind === 'budget'" class="card p-5 md:p-6">
+      <h4 class="font-black text-ink text-[17px] flex items-center gap-2"><AppIcon name="wallet" :size="18" :class="T.text" />{{ b.title || '50/30/20 가계부 계산기' }}</h4>
+      <p class="text-[13px] text-ink-muted mt-0.5">세후 월 수입을 넣으면 필수·선택·저축 비율을 나눠 줘요. 정해진 정답이 아니라 출발점이에요.</p>
+      <label class="block mt-4"><span class="flex justify-between text-[13px] font-bold text-ink"><span>세후 월 수입</span><span :class="T.text">{{ usd(bud.income) }}</span></span>
+        <input type="range" v-model.number="bud.income" min="1500" max="20000" step="100" class="w-full accent-emerald-600" /></label>
+      <div class="mt-3 h-5 rounded-full overflow-hidden flex bg-gray-100"><div class="bg-sky-500" style="width:50%"></div><div class="bg-amber-400" style="width:30%"></div><div :class="T.solid" style="width:20%"></div></div>
+      <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+        <div class="rounded-2xl bg-sky-50 p-3"><div class="text-[12px] font-bold text-sky-700">필수 50%</div><div class="text-[20px] font-black text-ink">{{ usd(bud.income * 0.5) }}</div><div class="text-[11.5px] text-ink-muted">월세·모기지, 식비, 보험, 교통</div></div>
+        <div class="rounded-2xl bg-amber-50 p-3"><div class="text-[12px] font-bold text-amber-700">선택 30%</div><div class="text-[20px] font-black text-ink">{{ usd(bud.income * 0.3) }}</div><div class="text-[11.5px] text-ink-muted">외식, 여가, 구독</div></div>
+        <div class="rounded-2xl p-3" :class="T.soft"><div class="text-[12px] font-bold" :class="T.text">저축·빚 20%</div><div class="text-[20px] font-black text-ink">{{ usd(bud.income * 0.2) }}</div><div class="text-[11.5px] text-ink-muted">비상금, 투자, 빚 갚기</div></div>
+      </div>
+    </section>
+
   </template>
 </div>
 </template>
@@ -220,6 +284,13 @@ const THEMES = {
   amber:   { hero: 'linear-gradient(135deg,#b45309,#f59e0b 60%,#fbbf24)', solid: 'bg-amber-600', text: 'text-amber-700', soft: 'bg-amber-50 border-amber-100', soft2: 'bg-amber-50/60', line: 'bg-amber-200' },
   rose:    { hero: 'linear-gradient(135deg,#be123c,#f43f5e 60%,#fb7185)', solid: 'bg-rose-600', text: 'text-rose-700', soft: 'bg-rose-50 border-rose-100', soft2: 'bg-rose-50/60', line: 'bg-rose-200' },
   violet:  { hero: 'linear-gradient(135deg,#6d28d9,#8b5cf6 60%,#a78bfa)', solid: 'bg-violet-600', text: 'text-violet-700', soft: 'bg-violet-50 border-violet-100', soft2: 'bg-violet-50/60', line: 'bg-violet-200' },
+  orange:  { hero: 'linear-gradient(135deg,#c2410c,#f97316 60%,#fb923c)', solid: 'bg-orange-600', text: 'text-orange-700', soft: 'bg-orange-50 border-orange-100', soft2: 'bg-orange-50/60', line: 'bg-orange-200' },
+  teal:    { hero: 'linear-gradient(135deg,#0f766e,#14b8a6 60%,#2dd4bf)', solid: 'bg-teal-600', text: 'text-teal-700', soft: 'bg-teal-50 border-teal-100', soft2: 'bg-teal-50/60', line: 'bg-teal-200' },
+  indigo:  { hero: 'linear-gradient(135deg,#4338ca,#6366f1 60%,#818cf8)', solid: 'bg-indigo-600', text: 'text-indigo-700', soft: 'bg-indigo-50 border-indigo-100', soft2: 'bg-indigo-50/60', line: 'bg-indigo-200' },
+  slate:   { hero: 'linear-gradient(135deg,#334155,#475569 60%,#64748b)', solid: 'bg-slate-600', text: 'text-slate-700', soft: 'bg-slate-50 border-slate-200', soft2: 'bg-slate-50/60', line: 'bg-slate-200' },
+  blue:    { hero: 'linear-gradient(135deg,#1d4ed8,#3b82f6 60%,#60a5fa)', solid: 'bg-blue-600', text: 'text-blue-700', soft: 'bg-blue-50 border-blue-100', soft2: 'bg-blue-50/60', line: 'bg-blue-200' },
+  yellow:  { hero: 'linear-gradient(135deg,#a16207,#eab308 60%,#facc15)', solid: 'bg-yellow-600', text: 'text-yellow-700', soft: 'bg-yellow-50 border-yellow-100', soft2: 'bg-yellow-50/60', line: 'bg-yellow-200' },
+  pink:    { hero: 'linear-gradient(135deg,#be185d,#ec4899 60%,#f472b6)', solid: 'bg-pink-600', text: 'text-pink-700', soft: 'bg-pink-50 border-pink-100', soft2: 'bg-pink-50/60', line: 'bg-pink-200' },
 }
 const T = computed(() => THEMES[props.blocks.find(b => b.type === 'hero')?.theme || props.theme] || THEMES.emerald)
 
@@ -242,6 +313,39 @@ const usd = (n) => '$' + Math.round(n).toLocaleString('en-US')
 const checks = reactive({})
 const doneCount = (i) => Object.keys(checks).filter(k => k.startsWith(i + ':') && checks[k]).length
 const printPage = () => window.print()
+
+// ── 복리 계산기 ──
+const c = reactive({ start: 5000, monthly: 300, apy: 4.5, years: 10 })
+const COMP_FIELDS = [
+  { k: 'start', l: '처음 넣는 돈', min: 0, max: 100000, step: 500, fmt: usd },
+  { k: 'monthly', l: '매달 더 넣는 돈', min: 0, max: 3000, step: 50, fmt: usd },
+  { k: 'apy', l: '연 이율(가정)', min: 0, max: 12, step: 0.25, fmt: v => v + '%' },
+  { k: 'years', l: '기간', min: 1, max: 40, step: 1, fmt: v => v + '년' },
+]
+const comp = computed(() => {
+  const r = c.apy / 100 / 12, n = c.years * 12
+  const fv = r === 0 ? c.start + c.monthly * n : c.start * Math.pow(1 + r, n) + c.monthly * (Math.pow(1 + r, n) - 1) / r
+  const contrib = c.start + c.monthly * n
+  return { fv, contrib, gain: fv - contrib, contribPct: fv ? Math.min(100, contrib / fv * 100) : 100 }
+})
+
+// ── 카드 연회비 손익분기 ──
+const fee = reactive({ fee: 395, spend: 30000, rate: 3, credits: 200 })
+const FEE_FIELDS = [
+  { k: 'fee', l: '연회비', min: 0, max: 700, step: 5, fmt: usd },
+  { k: 'spend', l: '1년 카드 사용액', min: 5000, max: 100000, step: 1000, fmt: usd },
+  { k: 'rate', l: '평균 포인트·환급률(내 소비 기준)', min: 1, max: 6, step: 0.25, fmt: v => v + '%' },
+  { k: 'credits', l: '실제로 쓰는 카드 혜택(연)', min: 0, max: 1000, step: 25, fmt: usd },
+]
+const feeCalc = computed(() => {
+  const reward = fee.spend * fee.rate / 100
+  const total = reward + fee.credits - fee.fee
+  const flat = fee.spend * 0.02
+  return { reward, total, flat, net: total - flat }
+})
+
+// ── 50/30/20 ──
+const bud = reactive({ income: 5000 })
 
 // ── 주택 계산기 ──
 const m = reactive({ price: 450000, down: 10, rate: 6.5, years: 30, pmiRate: 0.8 })

@@ -1,0 +1,205 @@
+{
+ "slug": "insurance-guide-3",
+ "summary": "무료로 내 신용 정보를 잠그는 방법과 사기 예방",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "indigo",
+   "icon": "lock",
+   "kicker": "MONEY GUIDE · 보험",
+   "title": "Credit Freeze 하는 방법",
+   "lead": "내 SSN이 유출돼도 **새 대출·카드가 열리지 않도록** 신용 정보를 잠그는 방법이에요. **무료**이고 **신용점수에 영향이 없어요.**",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 5분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "쉬움"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**3대 신용기관(Equifax, Experian, TransUnion)** 모두에서 각각 해야 해요.",
+    "미국에서는 법에 따라 **무료**로 동결·해제할 수 있어요.",
+    "필요할 땐 **잠깐 해제**하고 다시 잠가요(대출·카드 신청 때)."
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "Freeze vs Fraud Alert",
+   "columns": [
+    "",
+    "Credit Freeze",
+    "Fraud Alert"
+   ],
+   "rows": [
+    [
+     "하는 일",
+     "신규 신용 열기를 **막아요**",
+     "신청 시 **본인 확인을 더 하게** 해요"
+    ],
+    [
+     "강도",
+     "강함",
+     "약함"
+    ],
+    [
+     "기간",
+     "내가 풀 때까지",
+     "보통 1년(연장 가능)"
+    ],
+    [
+     "비용",
+     "무료",
+     "무료"
+    ],
+    [
+     "신용점수 영향",
+     "없음",
+     "없음"
+    ]
+   ],
+   "highlight": 1
+  },
+  {
+   "type": "steps",
+   "title": "3곳에서 동결하기",
+   "items": [
+    {
+     "title": "계정을 만든다",
+     "body": "각 기관 사이트에서 **본인 인증**용 계정을 만들어요(SSN·주소·생일 필요).",
+     "link": {
+      "label": "Equifax 동결",
+      "url": "https://www.equifax.com/personal/credit-report-services/credit-freeze/"
+     }
+    },
+    {
+     "title": "동결 신청",
+     "body": "각 기관에서 \"Freeze\" 메뉴를 선택해요. 3곳 모두 해야 해요.",
+     "link": {
+      "label": "Experian 동결",
+      "url": "https://www.experian.com/freeze/center.html"
+     }
+    },
+    {
+     "title": "PIN·로그인 보관",
+     "body": "동결 해제에 필요한 PIN이나 비밀번호를 **안전한 곳**에 저장해요."
+    },
+    {
+     "title": "TransUnion도 확인",
+     "body": "3번째 기관에서도 동결해요(사이트에서 직접 확인)."
+    },
+    {
+     "title": "필요할 때만 잠깐 해제",
+     "body": "자동차 대출·카드·이사 임대 심사 전에 **어느 기관을 쓰는지 물어보고** 그곳만 해제하세요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "tip",
+   "title": "자녀·고령 부모도 동결할 수 있어요",
+   "body": "**미성년 자녀**의 신용 정보도 보호자가 동결할 수 있어요(기관별 안내 참고). 신용 이력이 없는 아이의 SSN이 도용되는 사례도 있어요."
+  },
+  {
+   "type": "proscons",
+   "prosTitle": "동결의 좋은 점",
+   "pros": [
+    "신규 대출·카드 도용을 막아줘요",
+    "무료예요",
+    "점수에는 영향이 없어요"
+   ],
+   "consTitle": "불편한 점",
+   "cons": [
+    "대출·카드 신청 전에 **해제해야** 해요",
+    "3곳을 각각 관리해야 해요",
+    "비밀번호·PIN 분실 시 복구 절차가 번거로워요"
+   ]
+  },
+  {
+   "type": "checklist",
+   "title": "오늘 할 일",
+   "items": [
+    "Equifax에서 동결했다",
+    "Experian에서 동결했다",
+    "TransUnion에서 동결했다",
+    "PIN·비밀번호를 안전하게 저장했다",
+    "무료 신용 보고서를 확인했다",
+    "이상한 계정이 있으면 신고 계획을 세웠다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "AnnualCreditReport.com",
+     "desc": "무료 신용 보고서(공식)",
+     "url": "https://www.annualcreditreport.com/",
+     "tag": "공식"
+    },
+    {
+     "title": "IdentityTheft.gov",
+     "desc": "신분 도용 신고·복구 계획",
+     "url": "https://www.identitytheft.gov/",
+     "tag": "정부"
+    },
+    {
+     "title": "CFPB: 신용 보고서·점수",
+     "desc": "소비자 도구",
+     "url": "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "월 구독 점검표",
+     "desc": "의심스러운 결제를 찾는 데도 도움돼요",
+     "file": "/downloads/money/subscription-audit.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "동결하면 기존 카드는 쓸 수 있나요?",
+     "a": "네. 이미 있는 계정은 그대로 써요. **새 계정**을 여는 것만 막아요."
+    },
+    {
+     "q": "이메일·문자로 온 동결 안내는 믿어도 되나요?",
+     "a": "**링크를 누르지 말고** 공식 사이트 주소를 직접 입력해서 들어가세요. 피싱이 많아요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}

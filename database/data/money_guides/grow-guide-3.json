@@ -1,0 +1,197 @@
+{
+ "slug": "grow-guide-3",
+ "summary": "세금을 지금 내느냐 나중에 내느냐 — 두 은퇴 계좌의 차이",
+ "blocks": [
+  {
+   "type": "hero",
+   "theme": "teal",
+   "icon": "wallet",
+   "kicker": "MONEY GUIDE · 불리기",
+   "title": "Roth IRA와 Traditional IRA",
+   "lead": "**세금을 지금 내는 계좌**와 **나중에 내는 계좌**의 차이예요. 내 지금 세율과 은퇴 후 세율을 비교하는 게 핵심이에요.",
+   "meta": [
+    {
+     "icon": "clock",
+     "label": "읽는 시간",
+     "value": "약 6분"
+    },
+    {
+     "icon": "star",
+     "label": "난이도",
+     "value": "보통"
+    },
+    {
+     "icon": "dollar",
+     "label": "필요 비용",
+     "value": "무료"
+    },
+    {
+     "icon": "calendar",
+     "label": "마지막 확인",
+     "value": "2026년 10월"
+    }
+   ]
+  },
+  {
+   "type": "tldr",
+   "title": "1분 요약",
+   "items": [
+    "**Traditional**: 넣을 때 세금 혜택(공제 가능), **꺼낼 때 과세**. **Roth**: 넣을 땐 이미 세금 낸 돈, 조건을 지키면 **꺼낼 때 비과세**.",
+    "**Roth는 소득 한도**가 있어요. 연 납입 한도는 **매년 바뀌니** IRS에서 확인하세요.",
+    "소득(Earned income)이 있어야 납입할 수 있어요."
+   ]
+  },
+  {
+   "type": "compare",
+   "title": "두 계좌 비교",
+   "columns": [
+    "",
+    "Traditional IRA",
+    "Roth IRA"
+   ],
+   "rows": [
+    [
+     "넣는 돈",
+     "세금 공제 가능(조건 있음)",
+     "세후 소득"
+    ],
+    [
+     "불어나는 동안",
+     "세금 이연",
+     "세금 없음"
+    ],
+    [
+     "꺼낼 때",
+     "일반 소득세 과세",
+     "조건 충족 시 **비과세**"
+    ],
+    [
+     "의무 인출(RMD)",
+     "일정 나이부터 있음",
+     "본인 생전에는 없음"
+    ],
+    [
+     "소득 한도",
+     "공제 여부에 한도",
+     "직접 납입에 소득 한도"
+    ],
+    [
+     "유리한 경우",
+     "지금 세율이 **높을 때**",
+     "지금 세율이 **낮을 때**(젊을 때)"
+    ]
+   ],
+   "highlight": 1,
+   "note": "※ 규정·한도는 매년 바뀌어요. IRS 사이트에서 올해 숫자를 확인하세요."
+  },
+  {
+   "type": "h",
+   "title": "어떻게 정할까요?"
+  },
+  {
+   "type": "steps",
+   "title": "결정 순서",
+   "items": [
+    {
+     "title": "직장 401(k) 회사 매칭부터",
+     "body": "회사가 **매칭**해 주는 만큼은 먼저 채우는 게 보통 우선이에요."
+    },
+    {
+     "title": "내 소득 확인",
+     "body": "Roth 소득 한도에 걸리는지 IRS 표로 확인해요.",
+     "link": {
+      "label": "IRS: Roth IRA",
+      "url": "https://www.irs.gov/retirement-plans/roth-iras"
+     }
+    },
+    {
+     "title": "지금 세율 vs 미래 세율",
+     "body": "지금이 낮은 구간이면 Roth가, 높은 구간이면 Traditional이 유리한 경우가 많아요."
+    },
+    {
+     "title": "한 곳에 몰지 않고 섞기",
+     "body": "두 종류를 **나눠 쓰면** 은퇴 후 세금을 조절할 수 있어요(세금 다각화)."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "warn",
+   "title": "인출 규칙을 꼭 확인하세요",
+   "body": "둘 다 일정 나이(보통 만 59½세) 전에 꺼내면 **세금과 10% 벌금**이 붙을 수 있어요. Roth는 **5년 규칙**도 있어요. 예외도 있으니 IRS 안내를 보세요."
+  },
+  {
+   "type": "calc",
+   "kind": "compound",
+   "title": "40년 동안 매달 적립하면?"
+  },
+  {
+   "type": "checklist",
+   "title": "가입 전 체크리스트",
+   "items": [
+    "일한 소득(Earned income)이 있다",
+    "올해 납입 한도를 IRS에서 확인했다",
+    "Roth 소득 한도에 해당하는지 확인했다",
+    "회사 401(k) 매칭을 먼저 활용했다",
+    "계좌를 열 금융기관의 수수료를 확인했다",
+    "무엇에 투자할지(ETF·펀드)를 정했다"
+   ]
+  },
+  {
+   "type": "links",
+   "title": "공식 자료",
+   "items": [
+    {
+     "title": "IRS: Roth IRA",
+     "desc": "규정·한도",
+     "url": "https://www.irs.gov/retirement-plans/roth-iras",
+     "tag": "정부"
+    },
+    {
+     "title": "IRS: Traditional IRA",
+     "desc": "공제 조건",
+     "url": "https://www.irs.gov/retirement-plans/traditional-iras",
+     "tag": "정부"
+    },
+    {
+     "title": "IRS: IRA 납입 한도",
+     "desc": "매년 갱신되는 숫자",
+     "url": "https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-ira-contribution-limits",
+     "tag": "정부"
+    }
+   ]
+  },
+  {
+   "type": "downloads",
+   "title": "자료 내려받기",
+   "items": [
+    {
+     "title": "은퇴 생활비 표",
+     "desc": "은퇴 후 필요한 돈을 계산해요",
+     "file": "/downloads/money/retirement-expenses.csv",
+     "kind": "CSV"
+    }
+   ]
+  },
+  {
+   "type": "faq",
+   "title": "자주 묻는 질문",
+   "items": [
+    {
+     "q": "둘 다 열 수 있나요?",
+     "a": "네, 가능하지만 **연 납입 한도는 합산**돼요. 소득에 따라 공제·납입 자격이 달라져요."
+    },
+    {
+     "q": "세금 신고 서류는요?",
+     "a": "Traditional 공제 등은 **세금 신고 때** 반영해요. 인출하면 1099-R 서류가 와요."
+    }
+   ]
+  },
+  {
+   "type": "callout",
+   "tone": "info",
+   "title": "알아 두세요",
+   "body": "이 가이드는 **일반 정보**예요. 조건·요율·세법은 수시로 바뀌고 개인 상황에 따라 달라서, 결정하기 전에 공식 사이트와 전문가(세무사·보험·금융 상담)에게 꼭 확인하세요."
+  }
+ ]
+}
