@@ -26,6 +26,21 @@
     "headline": "앱스토어 / Google Play"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Fetch 앱: 영수증 찍기 화면",
+    "src": "/images/money/shots/app-fetch-2.jpg",
+    "pins": [
+     {
+      "x": 50,
+      "y": 89,
+      "text": "**카메라 모양 버튼** — 앱 아래쪽 가운데에서 눌러 영수증을 찍어요."
+     }
+    ],
+    "caption": "영수증을 **카메라로 찍기만 하면** 포인트가 쌓여요. 영수증을 평평하게 펴고 네 모서리가 다 나오게 찍으세요.",
+    "credit": "Fetch 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "앱 설치",
     "items": [
@@ -300,6 +315,15 @@
     "headline": "보상"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Fetch 앱: 기프트카드로 바꾸기",
+    "src": "/images/money/shots/app-fetch-3.jpg",
+    "pins": [],
+    "caption": "모은 포인트는 **Rewards(리워드)** 메뉴에서 스타벅스·던킨 같은 기프트카드로 바꿔요.",
+    "credit": "Fetch 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "교환 순서 (공식 FAQ 기준)",
     "items": [
@@ -490,6 +514,24 @@
     "icon": "search",
     "caption": "아이폰은 **App Store**, 안드로이드는 **Google Play**에서 **Ibotta** 를 검색해요. 개발사가 **Ibotta** 인 앱을 설치하고 열어요. 가입은 이메일이나 안내에 나오는 방법으로 해요.",
     "headline": "앱스토어 / Google Play"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Ibotta 앱: 오퍼(할인) 목록",
+    "src": "/images/money/shots/app-ibotta-3.jpg",
+    "pins": [],
+    "caption": "먼저 가고 싶은 마트의 **오퍼(Offer)** 를 담고, 산 뒤에 영수증을 올려요. 사기 전에 담는 게 순서예요.",
+    "credit": "Ibotta 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Ibotta 앱: 기프트카드 받기",
+    "src": "/images/money/shots/app-ibotta-4.jpg",
+    "pins": [],
+    "caption": "번 돈은 계좌·PayPal·기프트카드로 받을 수 있어요.",
+    "credit": "Ibotta 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -750,6 +792,24 @@
    {
     "type": "h",
     "title": "함께 쓸 때 순서"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Ibotta 앱: 오퍼(할인) 목록",
+    "src": "/images/money/shots/app-ibotta-3.jpg",
+    "pins": [],
+    "caption": "먼저 가고 싶은 마트의 **오퍼(Offer)** 를 담고, 산 뒤에 영수증을 올려요. 사기 전에 담는 게 순서예요.",
+    "credit": "Ibotta 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Ibotta 앱: 기프트카드 받기",
+    "src": "/images/money/shots/app-ibotta-4.jpg",
+    "pins": [],
+    "caption": "번 돈은 계좌·PayPal·기프트카드로 받을 수 있어요.",
+    "credit": "Ibotta 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2208,6 +2268,24 @@
    {
     "type": "h",
     "title": "가입 순서"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "DoorDash Dasher 앱: 일할 지역 고르기",
+    "src": "/images/money/shots/app-doordash-2.jpg",
+    "pins": [],
+    "caption": "지도에서 색이 진한 곳(Busy·Very Busy)이 주문이 많은 곳이에요.",
+    "credit": "DoorDash Dasher 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "DoorDash Dasher 앱: 일정(Schedule)",
+    "src": "/images/money/shots/app-doordash-3.jpg",
+    "pins": [],
+    "caption": "**Schedule** 에서 일할 시간대를 미리 잡을 수 있어요.",
+    "credit": "DoorDash Dasher 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",

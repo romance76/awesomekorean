@@ -308,7 +308,7 @@
     <section v-else-if="b.type === 'shot'" class="card p-3 md:p-4">
       <div class="text-[12px] font-extrabold tracking-[1px]" :class="T.text">{{ b.kicker || '실제 화면' }}</div>
       <div class="text-[18px] font-black text-ink mt-0.5 mb-2">{{ b.title }}</div>
-      <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+      <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 mx-auto" :style="b.narrow ? 'max-width:300px' : ''">
         <img :src="b.src" :alt="b.title" class="w-full h-auto block" loading="lazy" />
         <span v-for="(p, pi) in (b.pins || [])" :key="pi" class="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white text-[16px] font-black shadow-lg ring-4 ring-white/80" :style="{ left: p.x + '%', top: p.y + '%' }">{{ pi + 1 }}</span>
       </div>

@@ -166,6 +166,24 @@
     "title": "시작하기"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Flipp 앱: 마트 전단 보기",
+    "src": "/images/money/shots/app-flipp-3.jpg",
+    "pins": [],
+    "caption": "여러 마트의 이번 주 전단이 한 화면에 모여 있어요. 마트 이름을 눌러 전단을 펼쳐요.",
+    "credit": "Flipp 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Flipp 앱: 가격 비교",
+    "src": "/images/money/shots/app-flipp-4.jpg",
+    "pins": [],
+    "caption": "찾는 물건 이름을 검색하면 마트별 가격이 나란히 나와요.",
+    "credit": "Flipp 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "가입 순서",
     "items": [
@@ -447,6 +465,26 @@
     "icon": "tag",
     "caption": "앱 설명에 따르면 **Weekly Sales** 메뉴에서 온라인·매장 세일을 함께 볼 수 있어요. 가입하면 포인트 카드(Smart Rewards) 신청과 적립 확인도 같이 할 수 있어요.",
     "headline": "H Mart"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "H Mart 앱 첫 화면",
+    "src": "/images/money/shots/app-hmart-1.jpg",
+    "pins": [
+     {
+      "x": 50,
+      "y": 89,
+      "text": "**Sale** — 아래 메뉴 가운데쯤, % 모양이에요."
+     },
+     {
+      "x": 18,
+      "y": 70,
+      "text": "**Weekly Deals** — 이번 주 특가 모음이에요."
+     }
+    ],
+    "caption": "아래 메뉴의 **Sale** 을 누르면 이번 주 세일이 나와요. 맨 위 **Weekly Deals** 도 확인하세요.",
+    "credit": "H Mart 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -866,6 +904,15 @@
     "headline": "Target"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Target 앱: Circle 가입 안내",
+    "src": "/images/money/shots/app-target-4.jpg",
+    "pins": [],
+    "caption": "Target 앱에서 **Circle** 에 가입하면 할인과 리워드를 받을 수 있어요.",
+    "credit": "Target 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "결제할 때",
     "items": [
@@ -1024,6 +1071,15 @@
     "title": "가입하기"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Rakuten 앱: 캐시백 확인",
+    "src": "/images/money/shots/app-rakuten-4.jpg",
+    "pins": [],
+    "caption": "**Confirmed**(확정)와 **Pending**(대기) 금액이 나뉘어 보여요. 확정이 되어야 출금할 수 있어요.",
+    "credit": "Rakuten 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "가입 순서",
     "items": [
@@ -1130,6 +1186,15 @@
    {
     "type": "h",
     "title": "그래도 안 들어왔다면"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Rakuten 앱: 캐시백 확인",
+    "src": "/images/money/shots/app-rakuten-4.jpg",
+    "pins": [],
+    "caption": "**Confirmed**(확정)와 **Pending**(대기) 금액이 나뉘어 보여요. 확정이 되어야 출금할 수 있어요.",
+    "credit": "Rakuten 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -1400,6 +1465,24 @@
    {
     "type": "h",
     "title": "설정하기"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Rocket Money 앱: 구독 취소 요청",
+    "src": "/images/money/shots/app-rocket-3.jpg",
+    "pins": [],
+    "caption": "**Start a cancellation**(취소 시작)을 누르면 앱이 해지를 대신 요청해 줘요. (수수료나 조건은 앱에서 꼭 확인하세요)",
+    "credit": "Rocket Money 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Rocket Money 앱: 지출 보기",
+    "src": "/images/money/shots/app-rocket-4.jpg",
+    "pins": [],
+    "caption": "월별 수입·지출을 한눈에 볼 수 있어요.",
+    "credit": "Rocket Money 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -1911,6 +1994,30 @@
     "title": "공식 이용 순서 (4단계)"
    },
    {
+    "type": "shot",
+    "narrow": true,
+    "title": "Too Good To Go 앱: 주변 가게 찾기",
+    "src": "/images/money/shots/app-tgtg-2.jpg",
+    "pins": [],
+    "caption": "내 위치 근처 가게의 **Surprise Bag(깜짝 가방)** 이 가격과 함께 나와요.",
+    "credit": "Too Good To Go 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Too Good To Go 앱: 예약하기",
+    "src": "/images/money/shots/app-tgtg-3.jpg",
+    "pins": [
+     {
+      "x": 49,
+      "y": 69,
+      "text": "**Reserve** — 초록 버튼이에요. 누르면 예약돼요."
+     }
+    ],
+    "caption": "마음에 드는 가게를 눌러 **Reserve(예약)** 를 누르면 돼요. 가져가는 시간대를 꼭 확인하세요.",
+    "credit": "Too Good To Go 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
     "type": "steps",
     "title": "이용 방법",
     "items": [
@@ -2203,6 +2310,41 @@
    {
     "type": "h",
     "title": "사용법"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "GasBuddy 앱: 지도에서 싼 주유소 찾기",
+    "src": "/images/money/shots/app-gasbuddy-1.jpg",
+    "pins": [
+     {
+      "x": 31,
+      "y": 94,
+      "text": "**FIND GAS** — 아래 메뉴에서 주유소를 찾는 곳이에요."
+     },
+     {
+      "x": 84,
+      "y": 11,
+      "text": "**List** — 지도 대신 목록(싼 순서)으로 볼 때 눌러요."
+     }
+    ],
+    "caption": "지도 위 빨간 표시가 주유소예요. 숫자가 그 집의 가격이에요. 아래 메뉴 **FIND GAS** 에서 보여요.",
+    "credit": "GasBuddy 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "GasBuddy 앱: 가격 목록",
+    "src": "/images/money/shots/app-gasbuddy-2.jpg",
+    "pins": [
+     {
+      "x": 86,
+      "y": 32,
+      "text": "**$3.44** 같은 큰 숫자 — 갤런(약 3.8리터)당 가격이에요."
+     }
+    ],
+    "caption": "가격이 낮은 순서로 주유소가 나와요. 오른쪽 숫자가 갤런당 가격이에요.",
+    "credit": "GasBuddy 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
@@ -2872,6 +3014,24 @@
    {
     "type": "h",
     "title": "시작하기"
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Libby 앱: 도서관 책 고르기",
+    "src": "/images/money/shots/app-libby-2.jpg",
+    "pins": [],
+    "caption": "도서관 카드로 로그인하면 이렇게 책 표지가 나와요. 마음에 드는 책을 눌러 **Borrow(빌리기)** 를 누르세요.",
+    "credit": "Libby 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
+   },
+   {
+    "type": "shot",
+    "narrow": true,
+    "title": "Libby 앱: 오디오북 듣기",
+    "src": "/images/money/shots/app-libby-3.jpg",
+    "pins": [],
+    "caption": "오디오북은 재생 버튼을 눌러 듣고, 속도도 바꿀 수 있어요.",
+    "credit": "Libby 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요."
    },
    {
     "type": "steps",
