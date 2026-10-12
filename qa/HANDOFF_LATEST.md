@@ -260,8 +260,8 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 ### 15-1. MONEY 운영팀 글 (Kay 기준: 노인도 따라 할 수 있게 — 실제 화면 캡처+번호 핀, 단계, 출처 필수, 글당 약 2,300자+, 주제당 3편)
 - 글 위치: `database/data/money_posts/<카페slug>.json` (배열, 항목 `topic`(= money_categories 이름과 정확히 같게)·kind·title·content·image(`/images/money/topics/<slug>-NN.svg`)·blocks). 배포 때마다 `php artisan money:sync-posts`(`app/Console/Commands/SyncMoneyPosts.php`)가 카페+제목 기준으로 새 글 추가·blocks 갱신. 작성자는 운영 계정.
 - 캡처: `public/images/money/shots/*.jpg`(1100×760, *.png 는 gitignore). 헤드리스 Chrome: `chrome --headless=new --window-size=1100,760 --screenshot=...` → PIL 로 jpg. 앱 화면은 App Store 공식 스크린샷(`app-<이름>-N.jpg`, narrow). **404 캡처 주의**(irs-aotc.jpg 는 404라 미사용·미커밋).
-- 진행표: earn 31 · save 30 · grow 30 · home 36 · insurance 36 · **tax 36(완료, `bb209a83`·`e79484be`)** · **cards 36(완료, `435dc1a2`·`7bf8bebd`, 2026-10-12 UTC 18:30)** · **stocks 27편 완료(2026-10-12, 주제 9개×3, 캡처 17장 stk-*.jpg)** · **kids 36편 완료(2026-10-12, 주제 12개×3, 캡처 kid-*.jpg)** · **남은 카페: retire(은퇴·노후) → relay(인증 릴레이) → talk(돈 이야기)**. 주제 목록은 `database/migrations/2026_10_12_130000_money_cafe_fronts.php`.
-- 다음 계정은 **retire 카페부터** 같은 방식으로(주제 6개씩 18편 단위 배포, 배포 후 `/api/money/cafes/<slug>/posts?per_page=100` 의 total 로 개수 확인).
+- 진행표: earn 31 · save 30 · grow 30 · home 36 · insurance 36 · **tax 36(완료, `bb209a83`·`e79484be`)** · **cards 36(완료, `435dc1a2`·`7bf8bebd`, 2026-10-12 UTC 18:30)** · **stocks 27편 완료(2026-10-12, 주제 9개×3, 캡처 17장 stk-*.jpg)** · **kids 36편 완료(2026-10-12, 주제 12개×3, 캡처 kid-*.jpg)** · **retire 36편 완료(2026-10-12, 주제 12개×3, 캡처 ret-*.jpg)** · **남은 카페: relay(인증 릴레이) · talk(돈 이야기) — 회원 참여 카페라 운영팀이 가짜 인증·경험담을 쓰면 안 됨(T8 '가짜 회원 글 금지'). 안내·질문 형 글만 쓸지 Kay 확인 필요**. 주제 목록은 `database/migrations/2026_10_12_130000_money_cafe_fronts.php`.
+- 다음 계정은 **Kay 확인 후 relay·talk** 같은 방식으로(주제 6개씩 18편 단위 배포, 배포 후 `/api/money/cafes/<slug>/posts?per_page=100` 의 total 로 개수 확인).
 - **tax 후반 18편 Kay/전문가 검수 필요**: CAPS 소득 기준(50% vs 30% SMI), AOTC·LLC SSN 조건 시작 연도, 2026.10.1 이민자 Medicaid·SNAP 자격 변경의 조지아 시행, MSP 소득 비율(약 100/120/135%), Lifeline 고객센터 번호, 조지아 퇴거 절차 세부(HB 404 출처 LegiScan). 숫자는 대부분 "공식 표 확인"으로 씀.
 
 ### 15-2. 내돈내산 (코드 `e374c04e`, `126d9177`, + 썸네일 이름 빼기)
@@ -276,3 +276,5 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 
 - **kids 검수 필요(Kay)**: 화면 숫자(선물세금 연 $19,000, kiddie tax $2,700·$13,500, K-12 529 연 $10,000(법 개정 가능), 대출 한도 $20,500/$50,000/Parent PLUS $20,000, 돌봄 세액공제 $3,000/$6,000, 대출 이자 공제 $2,500)·2026.7.1 이후 새 대출 Tiered Standard Plan(OBBBA)·HOPE/Zell Miller GPA·금액과 조지아 529 주 공제는 숫자를 안 썼음(공식 확인 안내)·이민 신분과 FAFSA 글·저축 시뮬레이션은 가상 계산. 글 이미지는 주제별(kids-01~12.svg). studentaid.gov 는 JS 앱이라 URL 존재 확인이 안 됨(화면 캡처로 대체).
 - 캡처 도구 메모: `chrome --headless=new --window-size=1100,760 --virtual-time-budget=12000 --screenshot=...` + PIL jpg. 긴 페이지는 높이 2400 으로 찍어 800씩 잘라 읽음.
+
+- **retire 검수 필요(Kay)**: 화면 숫자(2026 401(k) $24,500·추가 $8,000·60~63세 $11,250, IRA $7,500/$8,600, RMD 시작 73세·미인출 25%/10%, 연방 상속세 면제 2026 $15,000,000, FBAR $10,000, SSA 62세 70%·연 8% 지연 가산·FRA 67)·소셜연금 손익분기·4% 법칙 가상 계산·Medicare 가입 7개월·Medicaid 60개월 재산 이전 심사·조지아 은퇴소득 공제·주 상속세 없음은 '알려져 있다'로 표현(미확인). Medicare.gov 화면은 팝업·사람 사진 때문에 캡처 안 씀(글은 텍스트 위주). 글 이미지 retire-01~12.svg.

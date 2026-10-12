@@ -79,7 +79,7 @@ GPT 지시서의 AI 글 생성 파이프라인. API 키·월 예산·사실 확�
 ---
 
 ## T9. MONEY 카페 운영팀 글 채우기 — status: ready (Kay 지시로 계속 진행 중, 백그라운드 가능)
-기준·방법·진행표는 `qa/HANDOFF_LATEST.md` 15-1. 완료: earn·save·grow·home·insurance·tax(36)·cards(36)·stocks(27)·kids(36). **다음: retire** → relay → talk. 주제 6개(18편)씩 `scripts/ship.sh`(이미지+JSON만이면 SKIP_BUILD=1) 배포 → API total 확인 → 이 줄 갱신.
+기준·방법·진행표는 `qa/HANDOFF_LATEST.md` 15-1. 완료: earn·save·grow·home·insurance·tax(36)·cards(36)·stocks(27)·kids(36)·retire(36). **남음: relay·talk — 회원 참여 카페, Kay 확인 후 시작(안내·질문 형 글만, 가짜 인증 금지)** 주제 6개(18편)씩 `scripts/ship.sh`(이미지+JSON만이면 SKIP_BUILD=1) 배포 → API total 확인 → 이 줄 갱신.
 
 ## T10. 내돈내산 카테고리·썸네일 정리 — status: done (2026-10-12, HANDOFF 15-2)
 
