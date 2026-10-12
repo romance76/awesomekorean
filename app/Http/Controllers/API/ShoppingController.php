@@ -176,6 +176,8 @@ class ShoppingController extends Controller
             'amazon_images.*' => ['required', 'string', 'max:500', 'regex:' . self::AMAZON_IMG],
             'purchased' => 'accepted',
             'agree_rules' => 'accepted',
+            'purchase_price' => 'nullable|numeric|min:0|max:100000',
+            'purchased_on' => 'nullable|date|before_or_equal:today|after:2000-01-01',
         ];
         if ($creating) $rules['input'] = 'required|string';
         $data = $request->validate($rules, [
@@ -183,6 +185,8 @@ class ShoppingController extends Controller
             'amazon_images.min' => 'Amazon 상품 사진 주소를 한 개 이상 넣어주세요.',
             'amazon_images.*.regex' => 'Amazon 사진 주소가 아니에요. Amazon 상품 페이지에서 사진을 우클릭 → "이미지 주소 복사"한 주소(…media-amazon.com/…)를 붙여넣어주세요.',
             'purchased.accepted' => '"직접 구매해서 사용해 봤어요"에 체크해주세요.',
+            'purchase_price.numeric' => '구매 가격은 숫자로 입력해주세요. (예: 16.99)',
+            'purchased_on.before_or_equal' => '구매 날짜는 오늘보다 늦을 수 없어요.',
             'agree_rules.accepted' => '리뷰 작성 규칙에 동의해주세요.',
         ]);
 
@@ -265,6 +269,8 @@ class ShoppingController extends Controller
             'own_image_urls' => $data['photos'],
             'our_description' => $data['body'],
             'review_blocks' => $data['blocks'],
+            'purchase_price' => $data['purchase_price'] ?? null,
+            'purchased_on' => $data['purchased_on'] ?? null,
             'is_active' => true,
             'status' => $needsApproval ? 'pending' : 'published',
             'published_at' => $needsApproval ? null : now(),
@@ -299,6 +305,7 @@ class ShoppingController extends Controller
             'our_description' => $data['body'], 'review_blocks' => $data['blocks'],
             'amazon_image_urls' => $data['amazon_images'], 'image_url' => $data['amazon_images'][0],
             'own_image_urls' => $data['photos'],
+            'purchase_price' => $data['purchase_price'] ?? null, 'purchased_on' => $data['purchased_on'] ?? null,
         ];
         // 내려간 리뷰(hidden/rejected)를 고치면 다시 승인 대기로
         if (in_array($p->status, ['hidden', 'rejected'], true)) { $update['status'] = 'pending'; $update['admin_note'] = null; }

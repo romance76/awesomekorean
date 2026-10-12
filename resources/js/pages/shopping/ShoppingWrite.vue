@@ -61,6 +61,18 @@
             </div>
           </div>
 
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="lbl">내가 산 가격 ($) <span class="text-ink-faint font-normal">(선택)</span></label>
+              <input v-model="f.purchase_price" type="number" inputmode="decimal" step="0.01" min="0" class="input-soft" placeholder="예) 16.99" />
+            </div>
+            <div>
+              <label class="lbl">구매 날짜 <span class="text-ink-faint font-normal">(선택)</span></label>
+              <input v-model="f.purchased_on" type="date" :max="today" class="input-soft" />
+            </div>
+            <p class="hint col-span-2">주문내역에 나온 금액·날짜를 적어주세요. "구매 당시 가격"으로 표시되고, 지금 가격은 Amazon에서 확인하도록 안내돼요.</p>
+          </div>
+
           <div>
             <label class="lbl">Amazon 상품 사진 주소 <span class="text-red-500">*</span> <span class="text-ink-faint font-normal">(1~3개)</span></label>
             <div v-for="(u, i) in amazonImgs" :key="i" class="flex items-center gap-2 mb-1.5">
@@ -131,7 +143,8 @@ const tagSaving = ref(false)
 const tagMsg = ref('')
 const changeTag = ref(false)
 const rules = reactive({ min_chars: 60, min_photos: 0, first_approval: true })
-const f = reactive({ input: '', title: '', category: '', rating: 5, purchased: false, agree: false })
+const f = reactive({ input: '', title: '', category: '', rating: 5, purchased: false, agree: false, purchase_price: '', purchased_on: '' })
+const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10)
 const blocks = ref([{ id: 'b0', type: 'text', text: '' }])
 const amazonImgs = ref([''])
 const AMZ = /^https:\/\/[a-z0-9-]+\.(media-amazon\.com|ssl-images-amazon\.com)\/[A-Za-z0-9._%,+\-/~@=]+$/i
@@ -194,6 +207,8 @@ async function submit() {
     title: f.title.trim(), category: f.category || null, rating: f.rating,
     blocks: blocks.value.map(b => b.type === 'text' ? { type: 'text', text: b.text } : { type: 'image', url: b.url }),
     amazon_images: imgs, purchased: 1, agree_rules: 1,
+    purchase_price: f.purchase_price === '' || f.purchase_price === null ? null : f.purchase_price,
+    purchased_on: f.purchased_on || null,
   }
   if (!editId.value) payload.input = f.input.trim()
 
@@ -219,7 +234,7 @@ onMounted(async () => {
     if (editId.value) {
       const p = data.data.items.find(i => i.id === editId.value)
       if (!p) { router.replace('/dashboard?tab=reviews'); return }
-      Object.assign(f, { title: p.title, category: p.category || '', rating: p.rating || 5, purchased: true, agree: true })
+      Object.assign(f, { title: p.title, category: p.category || '', rating: p.rating || 5, purchased: true, agree: true, purchase_price: p.purchase_price ?? '', purchased_on: p.purchased_on || '' })
       amazonImgs.value = p.amazon_image_urls?.length ? [...p.amazon_image_urls] : ['']
       // 예전 방식으로 쓴 리뷰(블록 없음)는 글 + 사진을 이어붙여 보여준다
       const src = p.review_blocks?.length ? p.review_blocks

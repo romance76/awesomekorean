@@ -8,7 +8,7 @@ class AmazonProduct extends Model
 {
     protected $fillable = [
         'asin', 'amazon_url', 'affiliate_url', 'title', 'image_url', 'category',
-        'price', 'amazon_image_urls', 'own_image_urls',
+        'price', 'purchase_price', 'purchased_on', 'amazon_image_urls', 'own_image_urls',
         'our_description', 'review_blocks', 'display_order', 'is_featured', 'is_active',
         'user_id', 'status', 'rating', 'affiliate_tag', 'admin_note', 'published_at',
     ];
@@ -17,6 +17,8 @@ class AmazonProduct extends Model
         'is_featured'       => 'boolean',
         'is_active'         => 'boolean',
         'price'             => 'decimal:2',
+        'purchase_price'    => 'decimal:2',
+        'purchased_on'      => 'date:Y-m-d',
         'amazon_image_urls' => 'array',
         'own_image_urls'    => 'array',
         'review_blocks'     => 'array',

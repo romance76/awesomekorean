@@ -94,6 +94,10 @@
             ${{ Number(product.price).toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
             <span class="text-xs font-normal text-ink-faint block mt-0.5">참고 가격 — 실시간 Amazon 가격과 다를 수 있습니다</span>
           </div>
+          <div v-if="product.is_member_review && product.purchase_price" class="rounded-xl bg-gray-50 border border-gray-100 px-3 py-2 text-xs text-ink-light">
+            🧾 작성자 구매 당시 <b class="text-ink">${{ Number(product.purchase_price).toLocaleString(undefined, { minimumFractionDigits: 2 }) }}</b><span v-if="product.purchased_on"> ({{ product.purchased_on }} 구매)</span>
+            <span class="block text-[11px] text-ink-faint mt-0.5">지금 가격은 다를 수 있어요. 현재 가격은 Amazon에서 확인하세요.</span>
+          </div>
           <a v-if="product.status === 'published'" :href="`/go/amazon/${product.id}`" target="_blank" rel="noopener sponsored nofollow"
             class="btn-primary w-full flex items-center justify-center gap-1.5 py-3 text-sm font-bold">
             Amazon에서 보기 <AppIcon name="external-link" :size="14" />
