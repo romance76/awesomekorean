@@ -2183,6 +2183,300 @@
   ]
  },
  {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "Too Good To Go: 남은 음식을 반값 이하로 사는 법 (공식 안내 기준)",
+  "content": "식당·카페·마트에서 그날 안 팔린 음식을 **\"서프라이즈 백\"** 으로 싸게 파는 앱이에요. 공식 사이트의 4단계 설명을 기준으로 정리했어요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "약 1/3 가격",
+      "label": "평균 할인율",
+      "note": "분석 자료 기준",
+      "icon": "tag"
+     },
+     {
+      "value": "내용물 비공개",
+      "label": "서프라이즈",
+      "note": "카테고리는 예시로 알려줘요",
+      "icon": "gift"
+     },
+     {
+      "value": "영업 막판",
+      "label": "보통 올라오는 시간",
+      "note": "마감 전",
+      "icon": "clock"
+     },
+     {
+      "value": "무료",
+      "label": "앱 이용",
+      "note": "",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "공식 이용 순서 (4단계)"
+   },
+   {
+    "type": "steps",
+    "title": "이용 방법",
+    "items": [
+     {
+      "title": "주변 서프라이즈 백 찾기",
+      "body": "앱에서 내 주변 식당·마트의 서프라이즈 백을 둘러봐요."
+     },
+     {
+      "title": "선택하고 예약·결제",
+      "body": "마음에 드는 걸 골라 앱으로 결제해요."
+     },
+     {
+      "title": "정해진 시간에 가게 방문",
+      "body": "픽업 시간이 정해져 있어요."
+     },
+     {
+      "title": "앱 보여 주고 받기",
+      "body": "디지털 영수증(또는 앱 화면)을 보여 주고 가져가요."
+     }
+    ]
+   },
+   {
+    "type": "phone",
+    "title": "픽업 확인하는 화면",
+    "where": "bottom-center",
+    "label": "디지털 영수증(앱 화면)을 가게에 보여주기",
+    "icon": "check",
+    "caption": "픽업 장소에 가서 **앱의 디지털 영수증**을 직원에게 보여 주면 서프라이즈 백을 받을 수 있어요.",
+    "headline": "Too Good To Go"
+   },
+   {
+    "type": "h",
+    "title": "가격과 내용물"
+   },
+   {
+    "type": "compare",
+    "title": "알아 둘 점",
+    "columns": [
+     "항목",
+     "내용"
+    ],
+    "rows": [
+     [
+      "내용물",
+      "정해져 있지 않아요. 그날 남은 음식에 따라 달라져요"
+     ],
+     [
+      "가격",
+      "정가의 1/3 정도라는 분석도, 2/3 할인이라는 보도도 있어요 — 가게·지역마다 달라요"
+     ],
+     [
+      "안전",
+      "일반 판매 음식과 **같은 품질·안전 기준**을 지킨다고 안내해요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "자주 확인하세요",
+    "body": "물량이 한정돼 있어서, 인기 있는 가게는 금방 품절돼요. 자주 가는 동네 가게를 **앱에 즐겨찾기** 해 두고 알림을 받으세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Too Good To Go 공식: 앱 사용법",
+      "url": "https://www.toogoodtogo.com/en-gb/how-does-the-app-work",
+      "kind": "공식"
+     },
+     {
+      "title": "Too Good To Go 소개(뉴욕 식품정책센터)",
+      "url": "https://www.nycfoodpolicy.org/community-spotlight-too-good-to-go/",
+      "kind": "정보(비영리 기관)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "해피아워·점심 메뉴로 외식비 반으로 줄이기",
+  "content": "같은 식당, 같은 음식도 **시간대만 바꾸면** 훨씬 싸게 먹을 수 있어요. 구체적인 방법을 정리했어요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "해피아워는 술보다 안주가 이득"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "해피아워 애피타이저가 핵심이에요",
+    "body": "한 리뷰어는 \"해피아워는 술 때문이 아니라 **반값 애피타이저** 때문에 간다\"고 말해요. **이른 저녁**에 가서 할인되는 애피타이저 몇 개를 메인 메뉴처럼 먹는 방법도 있어요. 해피아워 시작 시간은 식당마다 다르니 미리 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "점심이 저녁보다 훨씬 싸요"
+   },
+   {
+    "type": "compare",
+    "title": "점심 vs 저녁 메뉴",
+    "columns": [
+     "",
+     "점심 메뉴",
+     "저녁 메뉴"
+    ],
+    "rows": [
+     [
+      "가격",
+      "더 저렴해요",
+      "더 비싸요"
+     ],
+     [
+      "양",
+      "저녁과 거의 비슷한 경우도 있어요",
+      "기준"
+     ]
+    ],
+    "highlight": 0,
+    "note": "※ \"양은 거의 비슷한데 훨씬 싸다\"는 후기가 많아요. 식당마다 달라요."
+   },
+   {
+    "type": "h",
+    "title": "주문할 때 아끼는 법"
+   },
+   {
+    "type": "checklist",
+    "title": "주문 팁",
+    "items": [
+     "음료는 **물**로, 비싼 칵테일·음료는 줄이기(음료가 전체 금액의 큰 비중을 차지해요)",
+     "애피타이저 몇 개를 **나눠 먹으면** 더 다양하게, 더 싸게 먹을 수 있어요",
+     "\"자동으로 업그레이드\"나 **서비스료 추가**가 있는지 영수증을 확인하세요",
+     "쿠폰·세트메뉴 사이트(Restaurant.com 등)는 **사용 조건을 먼저 읽기**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "서비스료가 많이 붙는 곳도 있어요",
+    "body": "최근 식당들이 서비스료를 추가하면서, 체감 가격이 생각보다 훨씬 높아질 수 있어요. 결제 전 영수증을 꼭 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "가장 확실한 방법"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "외식 예산을 정해 두세요",
+    "body": "여러 팁보다 **월 외식 예산을 미리 정해 두는 것**이 가장 효과적이라는 조언이 많아요. 외식을 \"가끔 하는 특별한 일\"로 만들면 자연히 줄어들어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "외식비 아끼는 법(재무 조언 사이트)",
+      "url": "https://www.ramseysolutions.com/budgeting/save-money-on-restaurants",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "외식 영수증 절약 가이드",
+      "url": "https://www.consumeraffairs.com/news/the-restaurant-bill-survival-guide-smart-hacks-to-eat-for-less-030526.html",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "외식 할인",
+  "kind": "info",
+  "title": "식당 할인 쿠폰 사이트 쓸 때 조심할 점",
+  "content": "Groupon이나 Restaurant.com 같은 사이트는 바로 돈을 아낄 수 있지만, **약관을 안 읽으면** 당황할 수 있어요.",
+  "image": "/images/money/topics/save-09.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "쿠폰 사이트의 구조"
+   },
+   {
+    "type": "compare",
+    "title": "대표적인 쿠폰 사이트",
+    "columns": [
+     "종류",
+     "내용"
+    ],
+    "rows": [
+     [
+      "Groupon류",
+      "정가보다 할인된 가격의 쿠폰을 미리 구매"
+     ],
+     [
+      "Restaurant.com류",
+      "정가 대비 % 또는 금액 할인 \"증서(certificate)\" 구매"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "구매 전 꼭 확인할 것"
+   },
+   {
+    "type": "checklist",
+    "title": "약관 체크리스트",
+    "items": [
+     "**최소 결제 금액** 조건이 있나요? (예: $50 이상 주문해야 적용)",
+     "**유효기간**이 있나요?",
+     "**특정 요일·시간**에만 쓸 수 있나요? (주말 제외 등)",
+     "**팁(Tip)**은 할인 전 금액 기준인지 확인하세요",
+     "사용 전 **예약이 필요한지** 확인하세요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"조건을 몰라서 손해 보는\" 경우가 많아요",
+    "body": "싸게 산 것 같아도 최소 주문 금액, 요일 제한 때문에 **실제로는 덜 아끼거나 오히려 더 쓰는** 경우가 있어요. 사기 전에 작은 글씨까지 읽으세요."
+   },
+   {
+    "type": "h",
+    "title": "추가 팁"
+   },
+   {
+    "type": "checklist",
+    "title": "더 아끼는 방법",
+    "items": [
+     "자주 가는 식당의 **이메일 뉴스레터**를 구독하면 비공개 할인을 받을 수 있어요",
+     "로열티(단골) 프로그램에 가입하되, **혜택 받으려고 더 쓰지 않기**",
+     "평일 점심, 비수기 시간대를 노리기"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "외식 할인 전략 모음",
+      "url": "https://www.thenewdaily.com.au/coupons/food-and-drink/effective-strategies-to-save-money-while-dining-out/C0DC028A",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
   "topic": "자동차 유지비",
   "kind": "info",
   "title": "GasBuddy로 가장 싼 주유소 찾는 법",
@@ -2281,7 +2575,7 @@
      },
      {
       "title": "GasBuddy로 싼 주유소 찾는 법",
-      "url": "https://www.aol.com/gasbuddy-cheapest-gas-prices-155829123.html",
+      "url": "https://thelocaltourist.com/?p=758",
       "kind": "정보·가이드"
      }
     ]
