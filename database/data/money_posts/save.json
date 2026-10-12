@@ -700,5 +700,316 @@
     ]
    }
   ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Kroger 디지털 쿠폰 담는 법: 공식 블로그 기준 정확한 순서",
+  "content": "Kroger(크로거) 계열 마트는 종이 쿠폰 대신 앱에서 쿠폰을 \"담아\" 두면 결제 때 자동으로 적용돼요. Kroger 공식 블로그를 기준으로 정확한 순서를 정리했어요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "계정 만들기"
+   },
+   {
+    "type": "steps",
+    "title": "가입 순서",
+    "items": [
+     {
+      "title": "쇼퍼스카드(Shopper's Card) 번호 준비",
+      "body": "회원카드가 없으면 매장이나 사이트에서 먼저 만들어요."
+     },
+     {
+      "title": "디지털 계정 설정 페이지 접속",
+      "body": "이름·이메일을 입력하고 비밀번호를 만들어요."
+     },
+     {
+      "title": "카드 번호 연결",
+      "body": "쇼퍼스카드 번호를 계정에 연결해요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "쿠폰 담기(Clip)"
+   },
+   {
+    "type": "phone",
+    "title": "쿠폰 담는 버튼",
+    "where": "center",
+    "label": "쿠폰마다 있는 파란색 \"Clip\" 버튼",
+    "icon": "ticket",
+    "caption": "디지털 쿠폰 페이지에서 내 매장에 맞는 쿠폰이 쭉 나와요. 부서별로 필터하거나 **\"Special Savings\"** 카테고리에서 찾을 수 있어요. 원하는 쿠폰을 찾으면 **파란색 \"Clip\" 버튼**을 누르면 돼요.",
+    "headline": "Kroger"
+   },
+   {
+    "type": "steps",
+    "title": "쿠폰 사용 순서",
+    "items": [
+     {
+      "title": "쿠폰 찾기",
+      "body": "부서별 필터나 검색으로 찾아요."
+     },
+     {
+      "title": "Clip 버튼 누르기",
+      "body": "내 쇼퍼스카드에 쿠폰이 저장돼요."
+     },
+     {
+      "title": "담은 쿠폰 확인",
+      "body": "페이지 위쪽의 **\"Coupons Clipped\"** 를 누르면 지금까지 담은 쿠폰을 볼 수 있어요."
+     },
+     {
+      "title": "결제 시 자동 적용",
+      "body": "매장에서 쇼퍼스카드(또는 대체 ID)로 계산하면 **자동으로 적용**돼요. 온라인 주문도 로그인 상태면 자동 적용돼요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "매주 바뀌는 특가(Weekly Digital Deals)"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "최대 5번까지 쓸 수 있어요",
+    "body": "매주 바뀌는 특가 쿠폰은 같은 방법으로 담지만, 공식 안내에 따르면 **만료 전까지 최대 5번** 사용할 수 있어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Kroger 공식 블로그: 쿠폰 쓰는 법",
+      "url": "https://www.kroger.com/blog/tipsandtricks/how-to-use-kroger-coupons",
+      "kind": "공식 블로그"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "Target Circle 가입하고 할인받는 법",
+  "content": "Target Circle은 무료 회원 혜택 프로그램이에요. 가입 방법과 매장·온라인에서 쓰는 법을 정리했어요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "무료",
+      "label": "가입 비용",
+      "note": "",
+      "icon": "check"
+     },
+     {
+      "value": "최대 75개",
+      "label": "한 번에 저장 가능한 오퍼",
+      "note": "",
+      "icon": "ticket"
+     },
+     {
+      "value": "1%",
+      "label": "적립(참고)",
+      "note": "포인트처럼 적립 후 사용",
+      "icon": "coins"
+     },
+     {
+      "value": "생일 할인",
+      "label": "혜택 중 하나",
+      "note": "",
+      "icon": "gift"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "가입하는 3가지 방법"
+   },
+   {
+    "type": "compare",
+    "title": "가입 경로",
+    "columns": [
+     "방법",
+     "내용"
+    ],
+    "rows": [
+     [
+      "Target.com·앱",
+      "계정을 만들면 자동으로 Target Circle에 가입돼요"
+     ],
+     [
+      "매장에서",
+      "계산할 때 전화번호를 알려 주면 가입할 수 있어요"
+     ],
+     [
+      "기존 회원",
+      "예전 Cartwheel 회원이나 RedCard 소지자는 자동 가입돼 있을 수 있어요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "할인 쓰는 법"
+   },
+   {
+    "type": "phone",
+    "title": "오퍼 저장하기",
+    "where": "list-item",
+    "label": "오퍼 목록에서 저장하고 싶은 할인 선택",
+    "icon": "tag",
+    "caption": "매주 새로운 할인(오퍼)이 올라와요. 금액 할인, 특정 카테고리 % 할인, Target Circle 전용 가격 등이 있어요. 마음에 드는 걸 **저장**해 두세요(최대 75개까지).",
+    "headline": "Target"
+   },
+   {
+    "type": "steps",
+    "title": "결제할 때",
+    "items": [
+     {
+      "title": "매장에서",
+      "body": "계산대 키패드에 전화번호를 입력하거나, 앱의 Target Wallet 바코드를 보여 줘요."
+     },
+     {
+      "title": "온라인에서",
+      "body": "로그인한 상태로 주문하면 자동 적용돼요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "그 밖의 혜택"
+   },
+   {
+    "type": "checklist",
+    "title": "추가로 챙길 수 있는 것",
+    "items": [
+     "생일 할인",
+     "가끔 미리 보는 세일 접근권",
+     "적립(1%)을 모아서 나중에 사용"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "Target Circle 가이드",
+      "url": "https://querysprout.com/what-is-target-circle/",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "Target Circle 사용법",
+      "url": "https://daily.slickdeals.net/stores/what-is-target-circle/",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "디지털 쿠폰",
+  "kind": "info",
+  "title": "쿠폰 때문에 오히려 더 쓰게 되는 이유 (연구 결과) + 안 당하는 법",
+  "content": "쿠폰을 쓰면 아낀다고 생각하기 쉽지만, 연구들을 보면 **오히려 더 쓰게 되는 경우**가 많아요. 왜 그런지, 어떻게 피할 수 있는지 정리했어요.",
+  "image": "/images/money/topics/save-03.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "연구 결과: 쿠폰 쓴 날, 평소 안 사던 걸 더 사요",
+    "body": "한 연구에 따르면 **$10 할인 쿠폰**을 쓴 날, 사람들은 평소보다 **평균 $1.59 더** 장을 봤어요. 그런데 그 추가 지출은 **원래 안 사던 품목**에 몰려 있었어요. \"할인받은 돈\"을 마치 공돈처럼 느껴서(멘탈 어카운팅) 쉽게 써 버린다는 게 연구자들의 설명이에요."
+   },
+   {
+    "type": "h",
+    "title": "모바일 쿠폰은 더 심해요"
+   },
+   {
+    "type": "bars",
+    "title": "모바일 쿠폰 사용 후 추가 지출 (연구 결과)",
+    "sub": "피츠버그의 한 마트 연구",
+    "items": [
+     {
+      "label": "가는 길에 있는 쿠폰",
+      "value": 13.83,
+      "display": "평균 $13.83 더 씀"
+     },
+     {
+      "label": "일부러 찾아가야 하는 쿠폰",
+      "value": 21.29,
+      "display": "평균 $21.29 더 씀",
+      "highlight": true
+     }
+    ],
+    "max": 22,
+    "source": "※ 추가 지출의 대부분은 쿠폰 받은 상품이 아니라 다른 물건에 쓰였어요."
+   },
+   {
+    "type": "h",
+    "title": "왜 이런 일이 생길까요"
+   },
+   {
+    "type": "checklist",
+    "title": "마케팅이 쓰는 수법",
+    "items": [
+     "\"$100 사면 $10 할인\" 같은 **더 사야 할인되는** 조건",
+     "\"오늘까지만!\" 같은 **놓칠까 봐 조급하게** 만드는 문구",
+     "할인받은 돈을 \"공돈\"처럼 느끼게 하는 심리"
+    ]
+   },
+   {
+    "type": "h",
+    "title": "안 당하는 법"
+   },
+   {
+    "type": "steps",
+    "title": "이렇게 하세요",
+    "items": [
+     {
+      "title": "원래 살 목록을 먼저 정하기",
+      "body": "쿠폰을 보기 **전에** 살 것을 정해요."
+     },
+     {
+      "title": "그 품목의 쿠폰만 쓰기",
+      "body": "다른 쿠폰에 혹하지 마세요."
+     },
+     {
+      "title": "최종 결제 금액으로 비교하기",
+      "body": "\"정가보다 쌌다\"가 아니라 \"원래 계획했던 예산보다 많이 썼는지\"를 보세요."
+     },
+     {
+      "title": "\"더 사면 할인\" 조건은 일단 멈추기",
+      "body": "정말 필요한지 한 번 더 생각하세요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "쿠폰을 버리라는 말이 아니에요",
+    "body": "쿠폰 자체는 \"공짜 돈\"이 맞아요. 문제는 **원래 안 살 것까지 사는 습관**이에요. 원래 사려던 것에만 쓰면 여전히 이득이에요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 서비스는 자주 업데이트돼서 화면·규칙이 달라질 수 있어요. **공식 안내를 우선**하세요.",
+    "items": [
+     {
+      "title": "쿠폰과 지출 심리 연구 정리",
+      "url": "https://jamaicaobserver.com/2025/03/09/coupon-trap-saving-becomes-overspending",
+      "kind": "뉴스 보도(연구 인용)"
+     },
+     {
+      "title": "모바일 쿠폰과 추가 지출 연구",
+      "url": "https://newsblog.drexel.edu/2013/06/04/how-mobile-coupons-make-you-buy-more-by-forcing-you-to-walk-through-the-store/",
+      "kind": "대학(연구 보도)"
+     }
+    ]
+   }
+  ]
  }
 ]
