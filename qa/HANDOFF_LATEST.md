@@ -192,3 +192,12 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 1. Kay: 메뉴 묶음 스위치 켜고 PC·휴대폰 확인 → 고칠 점 받기.
 2. **T6 2단계 MONEY 허브 계획서** 작성 → Kay 확인 → 구현. Kay 설명(확정): MONEY 첫 화면 = ① 분야별 **정보 공유 카페 12개**(돈 벌기·돈 아끼기·돈 불리기·부동산·주택·보험·금융 보호·세금·정부 혜택·신용카드·포인트·주식·자녀·교육비·은퇴·노후·돈 벌었어요 인증 릴레이·돈 이야기) — **가입 없이** 누구나 보고 답글, 글쓰기는 로그인, 나중에 카페 운영자 지정 ② **머니 가이드 = 설명 페이지**(운영자가 쓰는 글) ③ "분야별 카페 둘러보기" → **카페 전체 안내 페이지**(카페마다 대문 설명이 쭉), 각 카페를 누르면 맨 위 **대문**(다루는 것·처음 읽을 가이드·인기 정보·규칙) + 아래 정보/질문/소통 게시판. **머니 게시판은 없음**, 내돈내산 리뷰는 MONEY 와 별개(상단 단독), 동호회는 커뮤니티. 정식 이름 미정(관리자에서 변경).
 3. 그 외 대기열: T1 공동구매·T2 리더보드·T3 기프트카드·T4 카드 시험 — 모두 Kay 결정 대기(`qa/TASKS_QUEUE.md`).
+
+---
+
+## 12. MONEY 허브 (T6 2단계) 진행 기록 — 계획서 `qa/money_hub_plan.md` (Kay "시작해" 2026-10-12)
+- [x] 1) `aac0dea7` 표 3개(`money_cafes`·`money_posts`·`money_guides`) + 카페 12개·가이드 5개(비공개 초안), 모델, `MoneyController`(공개: `/api/money/hub`·`/cafes`·`/cafes/{slug}`·`/cafes/{slug}/posts`·`/posts/{id}`·`/guides`·`/guides/{slug}` / 로그인: POST·PUT·DELETE `/api/money/posts`), 댓글 종류 `money_post`, 글쓰기 포인트(`WritePoints::COUNTED_TYPES`)
+- [ ] 2) 화면: `/money` 허브 · `/money/cafes` 카페 안내 · `/money/cafe/:slug` 대문+게시판 · `/money/post/:id` · `/money/write` · `/money/guide/:slug` (샘플 `.claude/mockup/menu_grouping_sample.html` 의 MONEY 화면 모양, 초록 계열, 제목 자리 `MONEY › …`)
+- [ ] 3) 관리자 MONEY 관리(카페 이름·아이콘·한 줄·대문·순서·켜기 / 가이드 쓰기·공개 / 글 숨김·복구) + `adminMenu.js` + AdminTier
+- [ ] 4) 메뉴 묶음에서 MONEY 숨김 해제 (스위치는 Kay)
+- 알려진 작은 것: `hub()` 가 `withCount` 때문에 intro 까지 내려보냄(→ `select()` 로 줄이기).
