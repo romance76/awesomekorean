@@ -2295,319 +2295,6 @@
   ]
  },
  {
-  "topic": "IRA·401(k)",
-  "kind": "info",
-  "title": "2026년 IRA 납입 한도: IRS 공식 숫자",
-  "content": "IRA(개인 은퇴 계좌)에 1년에 얼마까지 넣을 수 있는지는 해마다 바뀌어요. IRS 공식 페이지 기준 **2026년 숫자**를 정리했어요.",
-  "image": "/images/money/topics/grow-08.svg",
-  "blocks": [
-   {
-    "type": "stats",
-    "items": [
-     {
-      "value": "$7,500",
-      "label": "2026년 기본 한도",
-      "note": "만 49세 이하",
-      "icon": "dollar"
-     },
-     {
-      "value": "$8,600",
-      "label": "50세 이상",
-      "note": "추가납입 $1,100 포함",
-      "icon": "trending-up"
-     },
-     {
-      "value": "Traditional+Roth 합산",
-      "label": "한도는 공유",
-      "note": "두 계좌 합쳐서",
-      "icon": "alert-circle"
-     },
-     {
-      "value": "2027년 4월 15일",
-      "label": "2026년분 납입 마감",
-      "note": "다음 해 세금 신고일까지",
-      "icon": "calendar"
-     }
-    ]
-   },
-   {
-    "type": "h",
-    "title": "핵심: 두 계좌를 합쳐서 계산해요"
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "각각 $7,500이 아니에요",
-    "body": "Traditional IRA와 Roth IRA를 **둘 다 가지고 있어도**, 두 계좌에 넣는 금액을 **합쳐서 $7,500(또는 $8,600)** 까지예요. 각각 따로 한도가 있는 게 아니에요."
-   },
-   {
-    "type": "h",
-    "title": "내 소득보다 많이 못 넣어요"
-   },
-   {
-    "type": "callout",
-    "tone": "info",
-    "title": "번 돈(Earned income)이 기준이에요",
-    "body": "납입액은 **그해 내가 일해서 번 소득**을 넘을 수 없어요. 소득이 $4,000이면 $7,500을 다 못 넣고 $4,000까지만 넣을 수 있어요(배우자 공동 납입 규정은 예외가 있어요)."
-   },
-   {
-    "type": "h",
-    "title": "납입 마감일"
-   },
-   {
-    "type": "callout",
-    "tone": "tip",
-    "title": "다음 해 세금 신고일까지 가능해요",
-    "body": "2026년도분 IRA 납입은 **2027년 4월 15일(세금 신고 마감일)** 까지 할 수 있어요. 올해가 지나도 아직 기회가 있어요."
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "투자 조언이 아니에요",
-    "body": "운영팀의 글은 교육용 일반 정보예요. 개인 상황에 따라 달라지니 필요하면 세무사와 상담하세요."
-   },
-   {
-    "type": "sources",
-    "title": "참고한 자료",
-    "note": "여러 자료를 모아 운영팀이 정리했어요. 납입 한도·소득 한도는 해마다 바뀌니 신고 전 IRS 공식 안내로 최종 확인하세요.",
-    "items": [
-     {
-      "title": "IRS 공식: IRA 납입 한도",
-      "url": "https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-ira-contribution-limits",
-      "kind": "정부(공식, IRS)"
-     }
-    ]
-   }
-  ]
- },
- {
-  "topic": "IRA·401(k)",
-  "kind": "info",
-  "title": "Roth IRA 소득 한도 넘으면 가입 못 할까?",
-  "content": "Roth IRA는 소득이 너무 높으면 직접 납입이 제한돼요. 한도가 어떻게 작동하는지, 넘으면 어떻게 하는지 정리했어요.",
-  "image": "/images/money/topics/grow-08.svg",
-  "blocks": [
-   {
-    "type": "callout",
-    "tone": "info",
-    "title": "구간(Phase-out)으로 줄어들어요",
-    "body": "한 번에 \"0 아니면 전액\"이 아니라, 소득이 일정 구간에 들어가면 **넣을 수 있는 금액이 서서히 줄어들다가** 완전히 막혀요. 정확한 소득 구간(MAGI 기준)은 해마다 바뀌니 **IRS 공식 발표**에서 그해 숫자를 확인하세요."
-   },
-   {
-    "type": "h",
-    "title": "Traditional IRA는 다르게 작동해요"
-   },
-   {
-    "type": "compare",
-    "title": "Roth vs Traditional, 소득 한도 차이",
-    "columns": [
-     "",
-     "Roth IRA",
-     "Traditional IRA"
-    ],
-    "rows": [
-     [
-      "납입 자체",
-      "소득이 높으면 제한됨",
-      "소득 상관없이 **누구나** 가능"
-     ],
-     [
-      "세금 공제",
-      "해당 없음(세후 돈으로 납입)",
-      "회사 은퇴 플랜이 있으면 **공제가 소득에 따라** 줄어들 수 있어요"
-     ]
-    ],
-    "highlight": 0
-   },
-   {
-    "type": "h",
-    "title": "소득이 높아서 Roth에 못 넣는다면"
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "\"백도어 로스\" 전략은 복잡해요",
-    "body": "소득 한도를 넘는 사람이 Traditional IRA에 넣었다가 Roth로 전환하는 **\"백도어(Backdoor) Roth\"** 방법이 있어요. 다만 기존에 다른 Traditional IRA 잔액이 있으면 **프로라타(Pro-rata) 규칙**이 적용돼 세금 계산이 복잡해질 수 있어요. 이건 **세무사와 함께** 진행하는 걸 권해요."
-   },
-   {
-    "type": "h",
-    "title": "어느 쪽이 나한테 유리할까"
-   },
-   {
-    "type": "steps",
-    "title": "간단한 판단 기준",
-    "items": [
-     {
-      "title": "지금 세율이 낮은 편이라면",
-      "body": "Roth가 유리할 수 있어요(지금 세금 내고 나중에 비과세)"
-     },
-     {
-      "title": "지금 세율이 높은 편이라면",
-      "body": "Traditional이 유리할 수 있어요(지금 공제받고 나중에 과세)"
-     },
-     {
-      "title": "확실치 않다면",
-      "body": "두 계좌에 나눠 넣는 방법도 있어요(세금 다각화)"
-     }
-    ]
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "투자 조언이 아니에요",
-    "body": "운영팀의 글은 교육용 일반 정보예요. 개인 상황에 따라 달라지니 필요하면 세무사와 상담하세요."
-   },
-   {
-    "type": "sources",
-    "title": "참고한 자료",
-    "note": "여러 자료를 모아 운영팀이 정리했어요. 납입 한도·소득 한도는 해마다 바뀌니 신고 전 IRS 공식 안내로 최종 확인하세요.",
-    "items": [
-     {
-      "title": "Roth·Traditional IRA 소득 한도 설명",
-      "url": "https://ptmoney.com/traditional-roth-ira-income-limits/",
-      "kind": "정보·가이드"
-     },
-     {
-      "title": "IRA 소득 한도 상세",
-      "url": "https://www.betterment.com/help/traditional-roth-ira-income-limits",
-      "kind": "증권사(정보)"
-     }
-    ]
-   }
-  ]
- },
- {
-  "topic": "IRA·401(k)",
-  "kind": "info",
-  "title": "401(k) 회사 매칭, 놓치지 않고 받는 법 + 베스팅 이해하기",
-  "content": "회사가 내 401(k)에 돈을 더 얹어 주는 \"매칭\"은 **놓치면 그냥 공짜 돈을 버리는 것**과 같아요. 작동 방식과 베스팅(소유권 확정) 규칙을 정리했어요.",
-  "image": "/images/money/topics/grow-08.svg",
-  "blocks": [
-   {
-    "type": "h",
-    "title": "매칭이 작동하는 방식"
-   },
-   {
-    "type": "callout",
-    "tone": "tip",
-    "title": "\"50% up to 5%\" 같은 식으로 표현돼요",
-    "body": "예를 들어 **\"내 급여의 5%까지, 그 절반을 회사가 매칭\"** 이라면, 내가 5% 넣으면 회사가 2.5%를 더 넣어 줘요. 그 이상 넣어도 회사 몫은 5% 기준에서 멈춰요."
-   },
-   {
-    "type": "compare",
-    "title": "매칭 방식 예시",
-    "columns": [
-     "방식",
-     "예시"
-    ],
-    "rows": [
-     [
-      "비율 매칭",
-      "내가 넣은 금액의 50%를 회사가 매칭(상한 있음)"
-     ],
-     [
-      "달러 대 달러",
-      "내가 넣은 만큼 회사도 똑같이(상한 있음)"
-     ]
-    ],
-    "highlight": 0,
-    "note": "※ 정확한 매칭 공식은 회사 플랜 설명서(Summary Plan Description)에서 확인하세요."
-   },
-   {
-    "type": "h",
-    "title": "베스팅(Vesting): 회사 돈은 바로 내 것이 아닐 수 있어요"
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "내가 넣은 돈은 항상 100% 내 것이에요",
-    "body": "베스팅은 **회사가 매칭해 준 돈**에만 적용돼요. 내가 직접 넣은 돈은 처음부터 전부 내 것이에요."
-   },
-   {
-    "type": "compare",
-    "title": "베스팅 방식",
-    "columns": [
-     "방식",
-     "설명"
-    ],
-    "rows": [
-     [
-      "즉시 베스팅",
-      "입사하자마자 회사 매칭도 100% 내 것"
-     ],
-     [
-      "단계적(Graded) 베스팅",
-      "예: 2년차 20%, 3년차 40%... 이런 식으로 점점 늘어남"
-     ],
-     [
-      "절벽형(Cliff) 베스팅",
-      "일정 기간(예: 5년) 전에 퇴사하면 매칭 전액을 못 가져가고, 채우면 한 번에 100%"
-     ]
-    ],
-    "highlight": 0
-   },
-   {
-    "type": "callout",
-    "tone": "info",
-    "title": "이직 전에 베스팅 일정을 확인하세요",
-    "body": "회사를 그만두기 직전이라면, **베스팅 기준일이 얼마 안 남았는지** 확인해 보세요. 며칠만 더 있으면 더 많이 가져갈 수도 있어요."
-   },
-   {
-    "type": "h",
-    "title": "처음 가입하는 순서"
-   },
-   {
-    "type": "steps",
-    "title": "가입 순서",
-    "items": [
-     {
-      "title": "가입 자격 확인",
-      "body": "일부 회사는 대기 기간·최소 나이 조건이 있어요."
-     },
-     {
-      "title": "회사 베네핏 시스템에서 가입",
-      "body": "자동 가입되는 회사도 있어요(원하지 않으면 거부할 수 있어요)."
-     },
-     {
-      "title": "매칭 받는 비율 이상으로 설정",
-      "body": "최소한 **매칭 전액**을 받을 수 있는 비율로 맞추세요."
-     },
-     {
-      "title": "투자 상품 선택",
-      "body": "제공되는 펀드 목록에서 골라요."
-     },
-     {
-      "title": "점차 비율 늘리기",
-      "body": "많은 플랜이 매년 자동으로 납입 비율을 올려 주는 기능을 제공해요."
-     }
-    ]
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "투자 조언이 아니에요",
-    "body": "운영팀의 글은 교육용 일반 정보예요. 개인 상황에 따라 달라지니 필요하면 세무사와 상담하세요."
-   },
-   {
-    "type": "sources",
-    "title": "참고한 자료",
-    "note": "여러 자료를 모아 운영팀이 정리했어요. 납입 한도·소득 한도는 해마다 바뀌니 신고 전 IRS 공식 안내로 최종 확인하세요.",
-    "items": [
-     {
-      "title": "401(k) 매칭 설명(Capital One)",
-      "url": "https://www.capitalone.com/learn-grow/money-management/what-is-401k-match-and-how-does-it-work/",
-      "kind": "은행(정보)"
-     },
-     {
-      "title": "401(k) 매칭·베스팅 설명",
-      "url": "https://www.moneycrashers.com/401k-employer-match-vesting-schedule/",
-      "kind": "정보·가이드"
-     }
-    ]
-   }
-  ]
- },
- {
   "topic": "529·UTMA",
   "kind": "info",
   "title": "529 플랜이 뭔가요? 교육비로 쓰면 왜 세금이 안 붙을까",
@@ -3243,6 +2930,369 @@
      {
       "title": "Schedule D 세금 신고(Bankrate)",
       "url": "https://fidelity.com/news/article/default/202504072201BANKRATEBANKRATE1325727713",
+      "kind": "정보·가이드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "2026년 IRA 납입 한도: IRS 공식 숫자",
+  "content": "IRA(개인 은퇴 계좌)에 1년에 얼마까지 넣을 수 있는지는 해마다 바뀌어요. IRS 공식 페이지 기준 **2026년 숫자**를 정리했어요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$7,500",
+      "label": "2026년 기본 한도",
+      "note": "만 49세 이하",
+      "icon": "dollar"
+     },
+     {
+      "value": "$8,600",
+      "label": "50세 이상",
+      "note": "추가납입 $1,100 포함",
+      "icon": "trending-up"
+     },
+     {
+      "value": "Traditional+Roth 합산",
+      "label": "한도는 공유",
+      "note": "두 계좌 합쳐서",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "2027년 4월 15일",
+      "label": "2026년분 납입 마감",
+      "note": "다음 해 세금 신고일까지",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "IRS 공식 페이지에서 직접 확인하기"
+   },
+   {
+    "type": "steps",
+    "title": "컴퓨터·폰 어느 쪽이든 똑같아요",
+    "items": [
+     {
+      "title": "인터넷 앱(사파리·크롬)을 열고 주소창을 누르세요",
+      "body": "검색창이 아니라 맨 위 **주소 입력 줄**이에요."
+     },
+     {
+      "title": "irs.gov 를 입력하고 이동",
+      "body": "맨 위에 \"An official website of the United States government\"(미국 정부 공식 사이트) 문구가 보이면 진짜예요."
+     },
+     {
+      "title": "검색창(돋보기)에 \"IRA contribution limits\" 입력",
+      "body": "화면 오른쪽 위 파란 줄에 있는 흰 검색칸이에요."
+     },
+     {
+      "title": "제목이 \"Retirement topics - IRA contribution limits\"인 결과를 누르세요",
+      "body": "아래 그림과 같은 화면이 나와요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "IRS 공식 페이지 화면",
+    "src": "/images/money/shots/irs-ira-limits.jpg",
+    "pins": [
+     {
+      "x": 71.6,
+      "y": 43.6,
+      "text": "**한국어** 를 누르면 같은 내용을 한국어로 볼 수 있어요. 영어가 어려우면 여기부터 누르세요."
+     },
+     {
+      "x": 29.3,
+      "y": 59.5,
+      "text": "**$7,500** — 2026년 기본 한도(만 49세 이하)예요."
+     },
+     {
+      "x": 36.4,
+      "y": 59.5,
+      "text": "**$8,600** — 만 50세 이상이면 이 금액까지 넣을 수 있어요."
+     }
+    ],
+    "caption": "페이지를 아래로 내리면 2025·2024년, 2023년 한도도 나와요. 해마다 숫자가 달라서 **해당 연도 줄**을 꼭 확인하세요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 irs.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "핵심: 두 계좌를 합쳐서 계산해요"
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "각각 $7,500이 아니에요",
+    "body": "Traditional IRA와 Roth IRA를 **둘 다 가지고 있어도**, 두 계좌에 넣는 금액을 **합쳐서 $7,500(또는 $8,600)** 까지예요. 각각 따로 한도가 있는 게 아니에요."
+   },
+   {
+    "type": "h",
+    "title": "내 소득보다 많이 못 넣어요"
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "번 돈(Earned income)이 기준이에요",
+    "body": "납입액은 **그해 내가 일해서 번 소득**을 넘을 수 없어요. 소득이 $4,000이면 $7,500을 다 못 넣고 $4,000까지만 넣을 수 있어요(배우자 공동 납입 규정은 예외가 있어요)."
+   },
+   {
+    "type": "h",
+    "title": "납입 마감일"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "다음 해 세금 신고일까지 가능해요",
+    "body": "2026년도분 IRA 납입은 **2027년 4월 15일(세금 신고 마감일)** 까지 할 수 있어요. 올해가 지나도 아직 기회가 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 개인 상황에 따라 달라지니 필요하면 세무사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 납입 한도·소득 한도는 해마다 바뀌니 신고 전 IRS 공식 안내로 최종 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: IRA 납입 한도",
+      "url": "https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-ira-contribution-limits",
+      "kind": "정부(공식, IRS)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "Roth IRA 소득 한도 넘으면 가입 못 할까?",
+  "content": "Roth IRA는 소득이 너무 높으면 직접 납입이 제한돼요. 한도가 어떻게 작동하는지, 넘으면 어떻게 하는지 정리했어요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "구간(Phase-out)으로 줄어들어요",
+    "body": "한 번에 \"0 아니면 전액\"이 아니라, 소득이 일정 구간에 들어가면 **넣을 수 있는 금액이 서서히 줄어들다가** 완전히 막혀요. 정확한 소득 구간(MAGI 기준)은 해마다 바뀌니 **IRS 공식 발표**에서 그해 숫자를 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "Traditional IRA는 다르게 작동해요"
+   },
+   {
+    "type": "compare",
+    "title": "Roth vs Traditional, 소득 한도 차이",
+    "columns": [
+     "",
+     "Roth IRA",
+     "Traditional IRA"
+    ],
+    "rows": [
+     [
+      "납입 자체",
+      "소득이 높으면 제한됨",
+      "소득 상관없이 **누구나** 가능"
+     ],
+     [
+      "세금 공제",
+      "해당 없음(세후 돈으로 납입)",
+      "회사 은퇴 플랜이 있으면 **공제가 소득에 따라** 줄어들 수 있어요"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "소득이 높아서 Roth에 못 넣는다면"
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"백도어 로스\" 전략은 복잡해요",
+    "body": "소득 한도를 넘는 사람이 Traditional IRA에 넣었다가 Roth로 전환하는 **\"백도어(Backdoor) Roth\"** 방법이 있어요. 다만 기존에 다른 Traditional IRA 잔액이 있으면 **프로라타(Pro-rata) 규칙**이 적용돼 세금 계산이 복잡해질 수 있어요. 이건 **세무사와 함께** 진행하는 걸 권해요."
+   },
+   {
+    "type": "h",
+    "title": "어느 쪽이 나한테 유리할까"
+   },
+   {
+    "type": "steps",
+    "title": "간단한 판단 기준",
+    "items": [
+     {
+      "title": "지금 세율이 낮은 편이라면",
+      "body": "Roth가 유리할 수 있어요(지금 세금 내고 나중에 비과세)"
+     },
+     {
+      "title": "지금 세율이 높은 편이라면",
+      "body": "Traditional이 유리할 수 있어요(지금 공제받고 나중에 과세)"
+     },
+     {
+      "title": "확실치 않다면",
+      "body": "두 계좌에 나눠 넣는 방법도 있어요(세금 다각화)"
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 개인 상황에 따라 달라지니 필요하면 세무사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 납입 한도·소득 한도는 해마다 바뀌니 신고 전 IRS 공식 안내로 최종 확인하세요.",
+    "items": [
+     {
+      "title": "Roth·Traditional IRA 소득 한도 설명",
+      "url": "https://ptmoney.com/traditional-roth-ira-income-limits/",
+      "kind": "정보·가이드"
+     },
+     {
+      "title": "IRA 소득 한도 상세",
+      "url": "https://www.betterment.com/help/traditional-roth-ira-income-limits",
+      "kind": "증권사(정보)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "401(k) 회사 매칭, 놓치지 않고 받는 법 + 베스팅 이해하기",
+  "content": "회사가 내 401(k)에 돈을 더 얹어 주는 \"매칭\"은 **놓치면 그냥 공짜 돈을 버리는 것**과 같아요. 작동 방식과 베스팅(소유권 확정) 규칙을 정리했어요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "매칭이 작동하는 방식"
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "\"50% up to 5%\" 같은 식으로 표현돼요",
+    "body": "예를 들어 **\"내 급여의 5%까지, 그 절반을 회사가 매칭\"** 이라면, 내가 5% 넣으면 회사가 2.5%를 더 넣어 줘요. 그 이상 넣어도 회사 몫은 5% 기준에서 멈춰요."
+   },
+   {
+    "type": "compare",
+    "title": "매칭 방식 예시",
+    "columns": [
+     "방식",
+     "예시"
+    ],
+    "rows": [
+     [
+      "비율 매칭",
+      "내가 넣은 금액의 50%를 회사가 매칭(상한 있음)"
+     ],
+     [
+      "달러 대 달러",
+      "내가 넣은 만큼 회사도 똑같이(상한 있음)"
+     ]
+    ],
+    "highlight": 0,
+    "note": "※ 정확한 매칭 공식은 회사 플랜 설명서(Summary Plan Description)에서 확인하세요."
+   },
+   {
+    "type": "h",
+    "title": "베스팅(Vesting): 회사 돈은 바로 내 것이 아닐 수 있어요"
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "내가 넣은 돈은 항상 100% 내 것이에요",
+    "body": "베스팅은 **회사가 매칭해 준 돈**에만 적용돼요. 내가 직접 넣은 돈은 처음부터 전부 내 것이에요."
+   },
+   {
+    "type": "compare",
+    "title": "베스팅 방식",
+    "columns": [
+     "방식",
+     "설명"
+    ],
+    "rows": [
+     [
+      "즉시 베스팅",
+      "입사하자마자 회사 매칭도 100% 내 것"
+     ],
+     [
+      "단계적(Graded) 베스팅",
+      "예: 2년차 20%, 3년차 40%... 이런 식으로 점점 늘어남"
+     ],
+     [
+      "절벽형(Cliff) 베스팅",
+      "일정 기간(예: 5년) 전에 퇴사하면 매칭 전액을 못 가져가고, 채우면 한 번에 100%"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "이직 전에 베스팅 일정을 확인하세요",
+    "body": "회사를 그만두기 직전이라면, **베스팅 기준일이 얼마 안 남았는지** 확인해 보세요. 며칠만 더 있으면 더 많이 가져갈 수도 있어요."
+   },
+   {
+    "type": "h",
+    "title": "처음 가입하는 순서"
+   },
+   {
+    "type": "steps",
+    "title": "가입 순서",
+    "items": [
+     {
+      "title": "가입 자격 확인",
+      "body": "일부 회사는 대기 기간·최소 나이 조건이 있어요."
+     },
+     {
+      "title": "회사 베네핏 시스템에서 가입",
+      "body": "자동 가입되는 회사도 있어요(원하지 않으면 거부할 수 있어요)."
+     },
+     {
+      "title": "매칭 받는 비율 이상으로 설정",
+      "body": "최소한 **매칭 전액**을 받을 수 있는 비율로 맞추세요."
+     },
+     {
+      "title": "투자 상품 선택",
+      "body": "제공되는 펀드 목록에서 골라요."
+     },
+     {
+      "title": "점차 비율 늘리기",
+      "body": "많은 플랜이 매년 자동으로 납입 비율을 올려 주는 기능을 제공해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 개인 상황에 따라 달라지니 필요하면 세무사와 상담하세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 납입 한도·소득 한도는 해마다 바뀌니 신고 전 IRS 공식 안내로 최종 확인하세요.",
+    "items": [
+     {
+      "title": "401(k) 매칭 설명(Capital One)",
+      "url": "https://www.capitalone.com/learn-grow/money-management/what-is-401k-match-and-how-does-it-work/",
+      "kind": "은행(정보)"
+     },
+     {
+      "title": "401(k) 매칭·베스팅 설명",
+      "url": "https://www.moneycrashers.com/401k-employer-match-vesting-schedule/",
       "kind": "정보·가이드"
      }
     ]

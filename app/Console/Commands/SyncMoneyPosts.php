@@ -40,7 +40,7 @@ class SyncMoneyPosts extends Command
         }
 
         $now = now();
-        $totalInserted = 0;
+        $totalInserted = 0; $totalUpdated = 0;
         foreach ($files as $file) {
             $slug = pathinfo($file, PATHINFO_FILENAME);
             $rows = json_decode(file_get_contents($file), true);
@@ -48,6 +48,7 @@ class SyncMoneyPosts extends Command
             if (!$cafe || !is_array($rows)) continue;
 
             $cats = DB::table('money_categories')->where('cafe_id', $cafe->id)->pluck('id', 'name')->all();
+            $existing = DB::table('money_posts')->where('cafe_id', $cafe->id)->where('user_id', $opsId)->pluck('id', 'title')->all();
             $existingTitles = DB::table('money_posts')->where('cafe_id', $cafe->id)->pluck('title')->flip()->all();
 
             $topicIdx = []; $perTopic = [];
@@ -59,6 +60,14 @@ class SyncMoneyPosts extends Command
                 $ti = $topicIdx[$topic];
                 if (!isset($cats[$topic])) continue;
                 $title = mb_substr($r['title'], 0, 200);
+                $blocksJson = !empty($r['blocks']) ? json_encode($r['blocks'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null;
+                if (isset($existing[$title])) {
+                    // 운영팀 글은 JSON 이 기준: 내용이 바뀌었으면 갱신 (회원 글·댓글·조회수는 건드리지 않음)
+                    $upd = DB::table('money_posts')->where('id', $existing[$title])->where('blocks', '!=', $blocksJson)
+                        ->update(['blocks' => $blocksJson, 'content' => $this->toHtml($r['content']), 'image' => $r['image'] ?? null, 'updated_at' => $now]);
+                    $totalUpdated += $upd;
+                    continue;
+                }
                 if (isset($existingTitles[$title])) continue;
 
                 $at = $now->copy()->subDays((int) floor($pi * 2.6 + $ti * 0.4))->subMinutes(($ti * 53 + $pi * 17) % 600);
@@ -67,7 +76,7 @@ class SyncMoneyPosts extends Command
                     'kind' => in_array($r['kind'], ['info', 'question', 'talk'], true) ? $r['kind'] : 'info',
                     'title' => $title, 'content' => $this->toHtml($r['content']),
                     'image' => $r['image'] ?? null,
-                    'blocks' => !empty($r['blocks']) ? json_encode($r['blocks'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null,
+                    'blocks' => $blocksJson,
                     'view_count' => 0, 'comment_count' => 0, 'is_hidden' => false, 'is_pinned' => false,
                     'created_at' => $at, 'updated_at' => $at,
                 ];
@@ -79,7 +88,7 @@ class SyncMoneyPosts extends Command
             if ($batch) $this->info("{$slug}: " . count($batch) . '개 추가');
         }
 
-        $this->info("총 {$totalInserted}개 새로 추가됐어요.");
+        $this->info("총 {$totalInserted}개 추가, {$totalUpdated}개 갱신됐어요.");
         return self::SUCCESS;
     }
 

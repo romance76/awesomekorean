@@ -304,6 +304,24 @@
       </div>
     </section>
 
+    <!-- 실제 화면 캡처 + 번호 표시: pins=[{x,y,text}] (x,y 는 사진 안 위치 %) -->
+    <section v-else-if="b.type === 'shot'" class="card p-3 md:p-4">
+      <div class="text-[12px] font-extrabold tracking-[1px]" :class="T.text">{{ b.kicker || '실제 화면' }}</div>
+      <div class="text-[18px] font-black text-ink mt-0.5 mb-2">{{ b.title }}</div>
+      <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+        <img :src="b.src" :alt="b.title" class="w-full h-auto block" loading="lazy" />
+        <span v-for="(p, pi) in (b.pins || [])" :key="pi" class="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white text-[16px] font-black shadow-lg ring-4 ring-white/80" :style="{ left: p.x + '%', top: p.y + '%' }">{{ pi + 1 }}</span>
+      </div>
+      <ol v-if="b.pins && b.pins.length" class="mt-3 space-y-2">
+        <li v-for="(p, pi) in b.pins" :key="pi" class="flex gap-2.5 items-start">
+          <span class="shrink-0 w-7 h-7 rounded-full bg-red-600 text-white text-[14px] font-black flex items-center justify-center">{{ pi + 1 }}</span>
+          <span class="text-[15.5px] text-ink leading-relaxed" v-html="rich(p.text)"></span>
+        </li>
+      </ol>
+      <p v-if="b.caption" class="text-[14.5px] text-ink-light leading-relaxed mt-2" v-html="rich(b.caption)"></p>
+      <p class="text-[11.5px] text-ink-muted mt-2">※ {{ b.credit || '공식 사이트 화면을 직접 캡처했어요.' }} 사이트가 개편되면 모양이 달라질 수 있어요. 번호는 눌러야 할 곳이에요.</p>
+    </section>
+
     <!-- 참고한 자료 -->
     <section v-else-if="b.type === 'sources'" class="rounded-2xl bg-gray-50 border border-gray-100 p-4">
       <div class="font-black text-ink text-[14.5px] flex items-center gap-2"><AppIcon name="book-open" :size="16" :class="T.text" />{{ b.title || '참고한 자료' }}</div>

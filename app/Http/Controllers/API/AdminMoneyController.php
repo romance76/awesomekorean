@@ -96,7 +96,7 @@ class AdminMoneyController extends Controller
             'summary' => 'nullable|string|max:300',
             'content' => 'nullable|string|max:200000',
             'blocks' => 'nullable|array|max:80',
-            'blocks.*.type' => 'required_with:blocks|string|in:hero,tldr,h,text,stats,steps,compare,bars,proscons,callout,checklist,links,downloads,faq,calc,phone,sources',
+            'blocks.*.type' => 'required_with:blocks|string|in:hero,tldr,h,text,stats,steps,compare,bars,proscons,callout,checklist,links,downloads,faq,calc,phone,shot,sources',
             'is_published' => 'nullable|boolean',
             'sort_order' => 'nullable|integer|min:0|max:10000',
             'cafe_id' => 'nullable|integer|exists:money_cafes,id',
