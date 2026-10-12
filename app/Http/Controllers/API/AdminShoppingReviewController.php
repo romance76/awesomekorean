@@ -59,8 +59,8 @@ class AdminShoppingReviewController extends Controller
         if ($first && $p->user) {
             try { WritePoints::award($p->user, AmazonProduct::class, $p->id, '내돈내산 리뷰 작성'); } catch (\Throwable $e) {}
         }
-        // 첫 리뷰처럼 승인 후 공개된 리뷰도 Entry 자동 지급 (같은 리뷰는 평생 1회라 다시 승인해도 중복 없음)
-        if ($p->user) {
+        // 어썸코리안 태그로 승인·공개된 리뷰만 응모권 (같은 리뷰는 평생 1회라 다시 승인해도 중복 없음)
+        if ($p->user && \App\Support\AmazonLink::isSiteTag($p->affiliate_tag)) {
             try { \App\Support\EntryService::awardReview($p->user, $p->id, $p->title); } catch (\Throwable $e) { report($e); }
         }
         ShoppingReviews::forget();

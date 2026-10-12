@@ -11,7 +11,7 @@
       <div class="mt-3 text-sm text-ink-light">
         내 Amazon Associates 태그:
         <b v-if="d.amazon_tag" class="text-amber-700">{{ d.amazon_tag }}</b>
-        <span v-else class="text-red-500">아직 없어요 — 태그가 있어야 리뷰를 쓸 수 있어요</span>
+        <span v-else class="text-red-500">아직 없어요 — 없어도 리뷰를 쓸 수 있어요 (Awesome Korean 링크 + 응모권)</span>
       </div>
       <div class="flex gap-2 mt-2">
         <input v-model="tagInput" class="input-soft flex-1" placeholder="예) myshop-20" maxlength="40" />
@@ -19,7 +19,7 @@
       </div>
       <p v-if="tagMsg" class="text-xs mt-1" :class="tagOk ? 'text-green-600' : 'text-red-500'">{{ tagMsg }}</p>
       <RouterLink to="/shopping/guide" class="inline-block mt-2 text-xs font-bold text-amber-700 underline">📘 Amazon Associates 가입 방법 보기</RouterLink>
-      <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">리뷰 속 "Amazon에서 보기" 링크에는 이 태그가 붙고, 수익은 내 Associates 계정으로 들어가요. 태그를 바꾸면 내 리뷰 링크도 모두 새 태그로 바뀌고, 태그를 지우면 내 리뷰는 숨겨져요.</p>
+      <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">리뷰 속 "Amazon에서 보기" 링크에는 이 태그가 붙고, 수익은 내 Associates 계정으로 들어가요. 태그를 바꾸면 내 리뷰 링크도 새 태그로 바뀌어요. 단, 응모권을 받은 리뷰는 Awesome Korean 링크가 그대로 유지돼요. 태그를 지우면 링크는 Awesome Korean으로 연결돼요.</p>
     </div>
 
     <!-- 합계 -->

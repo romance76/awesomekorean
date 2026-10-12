@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * 쇼핑 = "내돈내산 리뷰". 관리자가 올린 Amazon 제휴 상품(user_id = NULL)과
- * 회원이 자기 Associates 태그로 쓴 리뷰(user_id = 작성자)가 같은 테이블에 있다.
+ * 회원이 쓴 리뷰(user_id = 작성자)가 같은 테이블에 있다.
+ * 링크 태그 규칙(Kay 결정 2026-10-12): 운영 글·태그 없는 회원 → 어썸코리안 태그(회원에겐 리뷰 공개 시 응모권),
+ * 본인 Associates 태그가 있는 회원 → 본인 태그(응모권 없음).
  */
 class ShoppingController extends Controller
 {
@@ -32,6 +34,7 @@ class ShoppingController extends Controller
         unset($a['admin_note'], $a['affiliate_tag']);   // 내부용
         $a['is_hot'] = in_array($p->id, $hot, true);
         $a['is_member_review'] = $p->user_id !== null;
+        $a['uses_site_tag'] = $p->user_id === null || AmazonLink::isSiteTag($p->affiliate_tag);
         $a['author'] = $p->user_id && $p->relationLoaded('user') && $p->user
             ? ['id' => $p->user->id, 'name' => $p->user->nickname ?: $p->user->name, 'avatar' => $p->user->avatar] : null;
         return $a;
@@ -137,13 +140,15 @@ class ShoppingController extends Controller
         $tag = strtolower($tag);
         $user->forceFill(['amazon_tag' => $tag ?: null])->save();
 
-        // 이미 쓴 리뷰의 링크도 새 태그로 (태그를 지우면 리뷰는 내려가고 작성자가 다시 태그를 넣을 때까지 링크 없음)
-        AmazonProduct::where('user_id', $user->id)->get()->each(function (AmazonProduct $p) use ($tag) {
-            if ($tag) $p->update(['affiliate_tag' => $tag, 'affiliate_url' => AmazonLink::affiliateUrl($p->asin, $tag)]);
-            elseif ($p->status === 'published') $p->update(['status' => 'hidden', 'admin_note' => '작성자가 Amazon 태그를 삭제해 숨김']);
+        // 이미 쓴 리뷰 링크도 바꾼다. 단, 어썸코리안 태그로 써서 응모권을 받은 리뷰는 그대로 어썸코리안 태그를 유지한다.
+        $newTag = $tag ?: AmazonLink::siteTag();
+        $rewarded = \App\Models\EntryTransaction::where('user_id', $user->id)->where('idempotency_key', 'like', 'shopping_review:%')
+            ->pluck('idempotency_key')->map(fn ($k) => (int) substr($k, strlen('shopping_review:')))->all();
+        AmazonProduct::where('user_id', $user->id)->whereNotIn('id', $rewarded)->get()->each(function (AmazonProduct $p) use ($newTag) {
+            $p->update(['affiliate_tag' => $newTag, 'affiliate_url' => AmazonLink::affiliateUrl($p->asin, $newTag)]);
         });
 
-        return response()->json(['success' => true, 'message' => $tag ? '태그를 저장했어요. 내 리뷰 링크가 새 태그로 바뀌었어요.' : '태그를 삭제했어요.', 'data' => ['amazon_tag' => $tag ?: null]]);
+        return response()->json(['success' => true, 'message' => $tag ? '태그를 저장했어요. 앞으로 쓰는 리뷰는 내 태그로 연결돼요.' : '태그를 삭제했어요. 리뷰 링크는 Awesome Korean 링크로 연결돼요.', 'data' => ['amazon_tag' => $tag ?: null]]);
     }
 
     /** Amazon 이미지 주소만 허용 (Amazon 이 호스팅하는 걸 링크만 함 — 서버에 복사하지 않음) */
@@ -229,13 +234,11 @@ class ShoppingController extends Controller
         return response()->json(['success' => true, 'data' => ['url' => $url]]);
     }
 
-    /** POST /shopping/reviews — 내돈내산 리뷰 작성 (내 태그가 있어야 함) */
+    /** POST /shopping/reviews — 내돈내산 리뷰 작성 (본인 태그가 없으면 어썸코리안 태그) */
     public function storeReview(Request $request)
     {
         $user = $request->user();
-        if (!AmazonLink::isValidTag($user->amazon_tag)) {
-            return response()->json(['success' => false, 'message' => '먼저 마이페이지에서 내 Amazon Associates 태그를 등록해주세요.', 'needs_tag' => true], 422);
-        }
+        $tag = AmazonLink::isValidTag($user->amazon_tag) ? strtolower($user->amazon_tag) : AmazonLink::siteTag();
         $data = $this->validateReview($request, true);
 
         $asin = AmazonLink::extractAsin($data['input']);
@@ -252,8 +255,8 @@ class ShoppingController extends Controller
             'user_id' => $user->id,
             'asin' => $asin,
             'amazon_url' => AmazonLink::amazonUrl($asin),
-            'affiliate_url' => AmazonLink::affiliateUrl($asin, $user->amazon_tag),
-            'affiliate_tag' => strtolower($user->amazon_tag),
+            'affiliate_url' => AmazonLink::affiliateUrl($asin, $tag),
+            'affiliate_tag' => $tag,
             'title' => $data['title'],
             'category' => $data['category'] ?? null,
             'rating' => $data['rating'],
@@ -269,8 +272,10 @@ class ShoppingController extends Controller
 
         if (!$needsApproval) {
             try { WritePoints::award($user, AmazonProduct::class, $p->id, '내돈내산 리뷰 작성'); } catch (\Throwable $e) {}
-            // 작성 규칙(위 validateReview)을 모두 통과해 바로 공개된 리뷰 → Entry 자동 지급 (같은 리뷰 1회·하루 한도)
-            try { \App\Support\EntryService::awardReview($user, $p->id, $p->title); } catch (\Throwable $e) { report($e); }
+            // 어썸코리안 태그로 공개된 리뷰만 응모권 (같은 리뷰 1회·하루 한도)
+            if (AmazonLink::isSiteTag($p->affiliate_tag)) {
+                try { \App\Support\EntryService::awardReview($user, $p->id, $p->title); } catch (\Throwable $e) { report($e); }
+            }
         } else {
             $this->notifyAdmins('새 내돈내산 리뷰 승인 요청', "'{$p->title}' — 처음 리뷰를 쓴 회원의 글이에요. 확인 후 승인해주세요.", $p->id);
         }
@@ -338,6 +343,7 @@ class ShoppingController extends Controller
 
         return response()->json(['success' => true, 'data' => [
             'amazon_tag' => $user->amazon_tag,
+            'site_tag' => AmazonLink::siteTag(),
             'items' => $rows,
             'totals' => [
                 'reviews' => $items->count(),

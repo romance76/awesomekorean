@@ -42,6 +42,16 @@ class AmazonLink
         return "https://www.amazon.com/dp/{$asin}?tag=" . rawurlencode($tag);
     }
 
+    public static function siteTag(): string
+    {
+        return strtolower((string) config('services.amazon_associates.associate_tag'));
+    }
+
+    public static function isSiteTag(?string $tag): bool
+    {
+        return $tag !== null && strtolower($tag) === static::siteTag();
+    }
+
     /** Amazon Associates 스토어 ID 형식 — 영문/숫자/하이픈, 끝이 -숫자2자리 (예: abc-20, myshop-21) */
     public static function isValidTag(?string $tag): bool
     {

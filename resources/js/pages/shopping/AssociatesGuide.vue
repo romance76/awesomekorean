@@ -5,7 +5,7 @@
 
     <div class="card p-4 mb-4 text-sm text-ink-light leading-relaxed">
       <p><b>Amazon Associates</b>는 Amazon의 무료 제휴 프로그램이에요. 내가 쓴 리뷰의 링크로 누군가 Amazon에서 물건을 사면 Amazon이 <b>내게 수수료</b>를 줍니다.
-      Awesome Korean에서 내돈내산 리뷰를 쓰려면 이 가입이 먼저 필요하고, 가입하면 받는 <b>Store ID(태그)</b>를 사이트에 등록하면 돼요.</p>
+      내돈내산 리뷰는 계정 없이도 쓸 수 있어요(링크는 Awesome Korean으로 연결되고 응모권 1개 지급). 내 링크로 수수료를 받고 싶다면 이 가입을 하고, 받은 <b>Store ID(태그)</b>를 사이트에 등록하세요.</p>
       <p class="mt-2 text-xs text-ink-muted">가입은 무료이고, 아래 순서를 천천히 따라 하면 20~30분이면 끝나요. 화면 모양과 문구는 Amazon이 바꿀 수 있어요.</p>
       <a href="https://affiliate-program.amazon.com" target="_blank" rel="noopener noreferrer" class="btn-primary inline-flex items-center gap-1.5 px-4 py-2 text-sm font-bold mt-3">
         Amazon Associates 가입하러 가기 <AppIcon name="external-link" :size="14" />

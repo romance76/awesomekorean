@@ -5,19 +5,19 @@
 
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <VerifyGate v-else message="이메일 인증 후 리뷰를 쓸 수 있어요.">
-      <!-- 1) 태그가 없으면 먼저 등록 -->
-      <div v-if="!tag" class="card p-5 space-y-3">
-        <h2 class="font-bold text-ink">먼저 내 Amazon Associates 태그를 등록해주세요</h2>
-        <p class="text-xs text-ink-muted leading-relaxed">
-          내돈내산 리뷰는 <b>본인의 Amazon Associates 계정</b>이 있는 회원만 쓸 수 있어요.
-          리뷰의 "Amazon에서 보기" 링크에는 내 태그가 붙고, 그 링크로 생긴 수익은 <b>내 Associates 계정</b>으로 들어갑니다.
-          (Awesome Korean은 수익을 가져가지 않아요.)
-        </p>
-        <RouterLink to="/shopping/guide" class="block rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800 font-bold hover:bg-amber-100">📘 아직 Amazon Associates 계정이 없나요? 가입 방법 따라하기 →</RouterLink>
-        <TagForm v-model="tagInput" :saving="tagSaving" :msg="tagMsg" @save="saveTag" />
-      </div>
-
-      <form v-else @submit.prevent="submit" class="space-y-4">
+      <form @submit.prevent="submit" class="space-y-4">
+        <!-- 링크·응모권 안내: 본인 태그 있음 → 본인 태그 / 없음 → 어썸코리안 태그 + 응모권 -->
+        <div v-if="!editId" class="card p-4 text-xs leading-relaxed space-y-2">
+          <template v-if="tag">
+            <div class="font-bold text-ink text-sm">🔗 내 Amazon 태그(<b>{{ tag }}</b>)로 링크가 만들어져요</div>
+            <p class="text-ink-muted">이 리뷰의 "Amazon에서 보기" 링크로 생긴 수수료는 <b>내 Associates 계정</b>으로 들어가요. 본인 태그로 쓴 리뷰에는 응모권이 지급되지 않아요.</p>
+          </template>
+          <template v-else>
+            <div class="font-bold text-ink text-sm">🎟️ 리뷰가 공개되면 <b>응모권 1개</b>를 드려요</div>
+            <p class="text-ink-muted">Amazon Associates 계정이 없어도 리뷰를 쓸 수 있어요. 링크는 <b>Awesome Korean 링크</b>로 연결되고, 수수료는 Awesome Korean이 받아요.</p>
+            <p class="text-ink-muted">내 Associates 계정이 있다면 아래 "내 태그 등록"을 먼저 하세요. (<RouterLink to="/shopping/guide" class="underline font-bold text-amber-700">계정 만드는 법</RouterLink>)</p>
+          </template>
+        </div>
         <!-- 규칙 -->
         <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800 leading-relaxed">
           <div class="font-bold mb-1">🚫 리뷰 작성 규칙 — 꼭 읽어주세요</div>
@@ -36,7 +36,7 @@
           <div v-if="!editId">
             <label class="lbl">Amazon 상품 주소 또는 ASIN <span class="text-red-500">*</span></label>
             <input v-model="f.input" type="text" class="input-soft" placeholder="https://www.amazon.com/.../dp/B0XXXXXXXX" />
-            <p class="hint">amazon.com 상품 페이지 주소(…/dp/XXXXXXXXXX)나 ASIN 10자리를 붙여넣으세요. amzn.to 같은 짧은 주소는 안 돼요. 링크는 내 태그(<b>{{ tag }}</b>)로 자동 만들어져요.</p>
+            <p class="hint">amazon.com 상품 페이지 주소(…/dp/XXXXXXXXXX)나 ASIN 10자리를 붙여넣으세요. amzn.to 같은 짧은 주소는 안 돼요. 링크는 {{ tag ? `내 태그(${tag})` : 'Awesome Korean 태그' }}로 자동 만들어져요.</p>
           </div>
           <div v-else class="text-xs text-ink-muted">상품과 태그는 수정할 수 없어요. (ASIN {{ editAsin }})</div>
 
@@ -95,8 +95,8 @@
         </div>
 
         <div class="text-[11px] text-ink-faint text-center">
-          내 태그: <b>{{ tag }}</b> ·
-          <button type="button" class="underline" @click="changeTag = !changeTag">태그 변경</button>
+          <template v-if="tag">내 태그: <b>{{ tag }}</b> · </template>
+          <button type="button" class="underline" @click="changeTag = !changeTag">{{ tag ? '태그 변경' : '내 Amazon 태그 등록 (Associates 계정이 있는 분만)' }}</button>
         </div>
         <div v-if="changeTag" class="card p-4"><TagForm v-model="tagInput" :saving="tagSaving" :msg="tagMsg" @save="saveTag" /></div>
       </form>
@@ -198,7 +198,6 @@ async function submit() {
     router.replace(data.data?.status === 'published' ? `/shopping/${data.data.id}` : '/dashboard?tab=reviews')
   } catch (e) {
     const r = e.response?.data
-    if (r?.needs_tag) tag.value = null
     err.value = r?.errors ? Object.values(r.errors).flat().join('\n') : (r?.message || '저장하지 못했어요')
   }
   busy.value = false
