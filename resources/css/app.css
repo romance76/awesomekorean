@@ -187,11 +187,12 @@
     .site-hdr-drop-item { @apply block px-3.5 py-2 rounded-xl text-[14px] font-semibold whitespace-nowrap hover:bg-amber-50 hover:text-amber-700; }
 
     /* ─── 목록 페이지 제목 [묶음 이름 + 하위 탭] — GroupTitle.vue 와 info/index.blade.php 공용 ─── */
-    .grp-title { @apply flex items-center gap-2.5 text-xl font-bold text-ink whitespace-nowrap transition-colors hover:text-amber-600; }
+    .grp-title { @apply flex items-center gap-2.5 font-bold text-ink whitespace-nowrap transition-colors hover:text-amber-600; font-size: 20px; line-height: 1.4; }
     .grp-icon { @apply inline-flex items-center justify-center rounded-[10px] shrink-0 w-9 h-9 bg-amber-50 text-[18px] leading-none; }
     .grp-tabs { @apply flex gap-1 overflow-x-auto max-w-full; scrollbar-width: none; }
     .grp-tabs::-webkit-scrollbar { display: none; }
-    .grp-chip { @apply shrink-0 rounded-full border px-3 py-1 text-[13px] font-semibold whitespace-nowrap transition-colors; }
+    /* 글씨 크기는 text-* 를 @apply 하지 않고 직접 — @apply 하면 PC 글씨 키우기 규칙까지 딸려와 커진다 */
+    .grp-chip { @apply shrink-0 rounded-full border px-3 py-1 font-semibold whitespace-nowrap transition-colors; font-size: 13px; line-height: 1.5; }
     .grp-chip-on { @apply bg-[#fff1f5] text-[#FC226B] border-[#ffc2d6] font-bold; }
     .grp-chip-off { @apply bg-surface text-ink-light border-line hover:border-gray-300 hover:text-ink; }
     @media (min-width: 768px) {
@@ -200,6 +201,12 @@
         .grp-title { font-size: 21.5px; }          /* 다른 목록 제목(text-xl, PC 21.5px)과 같게 */
         .grp-chip { font-size: 13.5px; padding: 4px 13px; }
     }
+    /* 휴대폰 두 줄 배치: 1줄 [제목 …… 버튼들], 2줄 [탭 전체 폭]. 옆 버튼은 줄어들지 않게 */
+    .grp-stack { display: contents; }
+    .grp-stack > .grp-title { order: 1; }
+    .grp-stack > .grp-tabs { order: 3; flex-basis: 100%; width: 100%; margin-top: 8px; }
+    :has(> .grp-stack) { flex-wrap: wrap; }
+    :has(> .grp-stack) > :not(.grp-stack) { order: 2; flex-shrink: 0; white-space: nowrap; }
     html.easy-view:not(.ev-pause) .grp-chip { font-size: calc(13px * var(--fs, 1)); }
     html.easy-view:not(.ev-pause) .grp-title { font-size: calc(20px * var(--fs, 1)); }
 

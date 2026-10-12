@@ -5,7 +5,7 @@
         ->first(fn ($g) => $g['type'] === 'group' && count($g['items']) > 1 && collect($g['items'])->contains('key', 'info'));
 @endphp
 @if ($infoGrp)
-    <div class="flex min-w-0 {{ !empty($stack) ? 'flex-col items-start gap-2' : 'items-center gap-3' }}">
+    <div class="{{ !empty($stack) ? 'grp-stack' : 'flex min-w-0 items-center gap-3' }}">
         <a href="{{ $infoGrp['items'][0]['path'] }}" class="grp-title"><span class="grp-icon">{{ $infoGrp['icon'] ?: '📁' }}</span>{{ $infoGrp['label'] }}</a>
         <div class="grp-tabs" role="tablist" aria-label="{{ $infoGrp['label'] }} 메뉴">
             @foreach ($infoGrp['items'] as $m)

@@ -1,7 +1,9 @@
 <template>
   <!-- 목록 페이지 제목 자리 — 상단 메뉴 묶음이 켜져 있고 이 메뉴가 2개 이상짜리 묶음에 들어 있으면 [묶음 이름][하위 탭], 아니면 원래 제목(slot)
        모양(크기)은 app.css 의 .grp-* 클래스 — /info(Blade) 도 같은 클래스를 써서 항상 같게 보인다 -->
-  <div v-if="grp" class="flex min-w-0" :class="stack ? 'flex-col items-start gap-2' : 'items-center gap-3'">
+  <!-- stack(휴대폰): .grp-stack 이 자기 상자를 없애(display:contents) 제목·탭이 바깥 줄에 바로 들어간다 →
+       [제목 …… 옆 버튼(필터·글쓰기)] / [탭 줄 전체 폭] 두 줄 (app.css). 옆 버튼이 눌려 글자가 깨지지 않게 -->
+  <div v-if="grp" :class="stack ? 'grp-stack' : 'flex min-w-0 items-center gap-3'">
     <RouterLink :to="grp.items[0].path" class="grp-title">
       <span class="grp-icon">{{ grp.icon || '📁' }}</span>{{ grp.label }}
     </RouterLink>
