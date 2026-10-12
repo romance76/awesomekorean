@@ -1,0 +1,1572 @@
+[
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "info",
+  "title": "HYSA란? 일반 저축과 무엇이 다를까",
+  "content": "HYSA(High-Yield Savings Account)는 일반 저축보다 이율이 높은 저축계좌예요. 대부분 온라인 은행이 제공하고, 예금자 보호(FDIC/NCUA)가 적용되는 곳이 많아요. 이율은 수시로 바뀌어요.",
+  "image": "/images/money/topics/grow-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$250,000",
+      "label": "예금자 보호 한도",
+      "note": "은행·소유 형태별",
+      "icon": "shield"
+     },
+     {
+      "value": "변동",
+      "label": "HYSA 이율",
+      "note": "시장 따라 바뀜",
+      "icon": "trending-up"
+     },
+     {
+      "value": "비상금",
+      "label": "가장 어울림",
+      "note": "생활비 3~6개월",
+      "icon": "wallet"
+     },
+     {
+      "value": "1099-INT",
+      "label": "이자 소득 서류",
+      "note": "소액도 신고",
+      "icon": "paperclip"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "info",
+  "title": "예금자 보호 한도 알아두기",
+  "content": "은행·소유 형태별로 보호 한도가 있어요. 큰 금액은 여러 은행에 나누거나 소유 형태를 달리해 한도를 활용하는 방법이 있어요. 공식 사이트에서 최신 한도를 확인하세요.",
+  "image": "/images/money/topics/grow-01.svg"
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "info",
+  "title": "HYSA 고르는 기준",
+  "content": "이율(APY)뿐 아니라 월 수수료, 최소 예치금, 입출금 한도, 이체 속도, 앱 사용성을 보세요. 이율은 변하므로 정기적으로 비교하세요.",
+  "image": "/images/money/topics/grow-01.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "$10,000을 1년 두면 이자 (가상 이율)",
+    "sub": "이율은 수시로 바뀌어요",
+    "items": [
+     {
+      "label": "일반 저축 0.40%",
+      "value": 40,
+      "display": "$40"
+     },
+     {
+      "label": "HYSA 4.00%",
+      "value": 400,
+      "display": "$400",
+      "highlight": true
+     }
+    ],
+    "max": 450,
+    "source": "※ 이해를 돕는 가상 예시예요. 금리·수익은 수시로 달라지고 투자는 원금 손실이 있을 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "info",
+  "title": "비상금은 얼마가 적당할까",
+  "content": "보통 생활비 3~6개월치를 권해요. 직업이 불안정하거나 부양가족이 있다면 더 늘리는 사람도 있어요. 처음엔 한 달치부터 시작하세요.",
+  "image": "/images/money/topics/grow-01.svg"
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "info",
+  "title": "이자 소득의 세금",
+  "content": "이자 소득은 과세 대상이에요. 연말에 1099-INT 서류가 올 수 있고, 금액이 작아도 신고해야 해요.",
+  "image": "/images/money/topics/grow-01.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "계좌 고를 때 체크",
+    "items": [
+     "FDIC/NCUA 가입 기관인지",
+     "APY와 이율 변동 조건",
+     "월 수수료·최소 예치금",
+     "입출금 한도·이체 속도"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "info",
+  "title": "이율이 내려가면 어떻게 하나요",
+  "content": "HYSA 이율은 은행이 정해요. 이율이 내려가면 더 높은 곳으로 옮길 수 있어요. 옮길 때 이체 시간과 수수료를 확인하세요.",
+  "image": "/images/money/topics/grow-01.svg"
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "question",
+  "title": "비상금은 어디에 두시나요?",
+  "content": "이율, 접근성, 보호 한도 중 무엇을 가장 중시하는지 알려 주세요(은행 광고 제외).",
+  "image": "/images/money/topics/grow-01.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "비상금은 이렇게",
+    "body": "생활비 3~6개월치를 목표로 하되, 처음엔 한 달치부터 시작해도 좋아요. 자동이체로 매달 조금씩 쌓으세요."
+   }
+  ]
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "question",
+  "title": "HYSA 고를 때 가장 중요한 기준은?",
+  "content": "이율·수수료·앱 등 기준을 나눠 주세요.",
+  "image": "/images/money/topics/grow-01.svg"
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "talk",
+  "title": "비상금 한 달치 만들기 챌린지",
+  "content": "이번 달 비상금에 얼마를 넣을지 목표만 적어 주세요.",
+  "image": "/images/money/topics/grow-01.svg"
+ },
+ {
+  "topic": "고금리 저축계좌",
+  "kind": "talk",
+  "title": "자동이체의 힘",
+  "content": "자동이체를 설정한 뒤 달라진 점을 가볍게 나눠 주세요.",
+  "image": "/images/money/topics/grow-01.svg"
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "info",
+  "title": "CD란? 기간을 정하고 이자를 받는 예금",
+  "content": "CD(Certificate of Deposit)는 일정 기간 돈을 묶는 대신 이율을 고정해 받는 예금이에요. 만기 전에 인출하면 벌칙(이자 일부 차감)이 있어요.",
+  "image": "/images/money/topics/grow-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "고정",
+      "label": "이율",
+      "note": "만기까지 같음",
+      "icon": "check"
+     },
+     {
+      "value": "벌칙",
+      "label": "조기 해지",
+      "note": "이자 일부 차감",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "만기",
+      "label": "자동 갱신 주의",
+      "note": "알림 걸기",
+      "icon": "calendar"
+     },
+     {
+      "value": "사다리",
+      "label": "만기 분산",
+      "note": "1·2·3년 나눠",
+      "icon": "list"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "info",
+  "title": "CD 사다리(Ladder)란",
+  "content": "자금을 여러 개로 나눠 만기를 다르게 하는 방법이에요. 만기가 번갈아 오므로 현금 접근성과 높은 이율을 함께 노릴 수 있어요.",
+  "image": "/images/money/topics/grow-02.svg"
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "info",
+  "title": "CD 만기 전 인출하면?",
+  "content": "조기 해지 벌칙은 상품마다 달라요. 보통 일정 개월 이자만큼 차감돼요. 가입 전에 벌칙 조건을 확인하세요.",
+  "image": "/images/money/topics/grow-02.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "CD 사다리 만들기",
+    "items": [
+     {
+      "title": "금액을 나눈다",
+      "body": "예: 3등분"
+     },
+     {
+      "title": "만기를 다르게",
+      "body": "1년·2년·3년"
+     },
+     {
+      "title": "만기가 오면 갱신",
+      "body": "가장 긴 만기로 다시"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "info",
+  "title": "만기일 알림, 꼭 걸어 두세요",
+  "content": "만기 시 자동 갱신이 되는 경우가 많아요. 유예 기간 안에 갱신 여부를 직접 정하세요.",
+  "image": "/images/money/topics/grow-02.svg"
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "info",
+  "title": "CD vs HYSA, 어느 쪽이 나을까",
+  "content": "금리가 고정되는 CD는 금리 하락기에 유리하고, 금리 상승기에는 HYSA가 유리할 수 있어요. 쓸 날이 정해졌는지가 가장 중요한 기준이에요.",
+  "image": "/images/money/topics/grow-02.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "HYSA vs CD",
+    "columns": [
+     "",
+     "HYSA",
+     "CD"
+    ],
+    "rows": [
+     [
+      "이율",
+      "변동",
+      "고정"
+     ],
+     [
+      "인출",
+      "자유",
+      "만기 전 벌칙"
+     ],
+     [
+      "어울리는 돈",
+      "비상금",
+      "쓸 날이 정해진 돈"
+     ]
+    ],
+    "highlight": 2
+   }
+  ]
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "info",
+  "title": "CD 이자 세금",
+  "content": "이자는 받은 해에 과세될 수 있어요(만기에 받아도 발생 시점에 따라). 서류와 시기를 은행에 확인하세요.",
+  "image": "/images/money/topics/grow-02.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "만기일을 놓치지 마세요",
+    "body": "대부분 자동 갱신돼요. 유예 기간 안에 직접 결정하지 않으면 원치 않는 조건으로 이어질 수 있어요. 만기일 알림을 거세요."
+   }
+  ]
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "question",
+  "title": "CD 사다리, 해 보신 분?",
+  "content": "만기 구성을 어떻게 하셨는지 이야기해 주세요.",
+  "image": "/images/money/topics/grow-02.svg"
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "question",
+  "title": "CD vs HYSA, 어떤 걸 선택하세요?",
+  "content": "선택 이유를 나눠 주세요.",
+  "image": "/images/money/topics/grow-02.svg"
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "talk",
+  "title": "목돈 굴리기 계획",
+  "content": "이번 해 목돈 목적을 한 줄로 적어 보세요.",
+  "image": "/images/money/topics/grow-02.svg"
+ },
+ {
+  "topic": "CD·정기예금",
+  "kind": "talk",
+  "title": "은행 앱 쓰는 재미",
+  "content": "요즘 쓰기 편한 금융 앱의 기능을 이야기해 보세요(광고 제외).",
+  "image": "/images/money/topics/grow-02.svg"
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "info",
+  "title": "미국 국채란",
+  "content": "미국 정부가 발행하는 채권으로, 신용 위험이 낮다고 평가돼요. 하지만 금리가 변하면 만기 전에 팔 때 가격이 달라질 수 있어요.",
+  "image": "/images/money/topics/grow-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "정부 발행",
+      "label": "신용 위험 낮음",
+      "note": "그래도 금리 위험",
+      "icon": "shield"
+     },
+     {
+      "value": "T-Bill",
+      "label": "단기",
+      "note": "1년 이하",
+      "icon": "clock"
+     },
+     {
+      "value": "I Bond",
+      "label": "물가 연동",
+      "note": "구매 한도·조건",
+      "icon": "trending-up"
+     },
+     {
+      "value": "주 세금",
+      "label": "이자 면제 가능",
+      "note": "연방은 과세",
+      "icon": "paperclip"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "info",
+  "title": "T-Bill 기초",
+  "content": "1년 이하 단기 국채예요. 액면보다 싸게 사서 만기에 액면을 받는 구조라 그 차이가 이자예요.",
+  "image": "/images/money/topics/grow-03.svg"
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "info",
+  "title": "I Bond 기초",
+  "content": "물가 상승률에 연동되는 저축채권이에요. 구매 한도와 최소 보유 기간 등 조건이 있어요. 현재 조건은 공식 사이트에서 확인하세요.",
+  "image": "/images/money/topics/grow-03.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "T-Bill vs I Bond",
+    "columns": [
+     "",
+     "T-Bill",
+     "I Bond"
+    ],
+    "rows": [
+     [
+      "기간",
+      "단기(1년 이하)",
+      "최소 보유 기간 있음"
+     ],
+     [
+      "특징",
+      "할인 매입 후 만기에 액면",
+      "물가에 따라 이율 변동"
+     ],
+     [
+      "구매처",
+      "TreasuryDirect·증권사",
+      "TreasuryDirect"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ 조건은 변경될 수 있어요. 공식 사이트에서 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "info",
+  "title": "TreasuryDirect 계정 만들기",
+  "content": "정부 사이트에서 직접 국채를 살 수 있어요. 본인 인증과 은행 계좌 연결이 필요해요. 처음엔 절차가 낯설 수 있어요.",
+  "image": "/images/money/topics/grow-03.svg"
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "info",
+  "title": "국채 이자 세금",
+  "content": "국채 이자는 연방 소득세 대상이지만 주·지방 세금은 면제되는 경우가 있어요. 주마다 규정을 확인하세요.",
+  "image": "/images/money/topics/grow-03.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "TreasuryDirect 시작",
+    "items": [
+     {
+      "title": "계정 만들기",
+      "body": "본인 인증 필요"
+     },
+     {
+      "title": "은행 계좌 연결",
+      "body": "입금용"
+     },
+     {
+      "title": "상품 선택·구매",
+      "body": "금액·만기 선택"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "info",
+  "title": "국채 vs 예금, 비교하기",
+  "content": "예금은 은행 보호 한도가 있고, 국채는 정부 신용에 기반해요. 이율, 세금, 유동성을 같이 비교하세요.",
+  "image": "/images/money/topics/grow-03.svg"
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "question",
+  "title": "국채 투자 해 보신 분 있나요?",
+  "content": "어떤 상품과 이유로 시작했는지 알려 주세요.",
+  "image": "/images/money/topics/grow-03.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "채권 가격도 변해요",
+    "body": "국채는 부도 위험이 낮지만 금리가 오르면 만기 전에 팔 때 가격이 떨어질 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "question",
+  "title": "채권이 낯설게 느껴지는 이유는?",
+  "content": "궁금한 점을 적어 주세요.",
+  "image": "/images/money/topics/grow-03.svg"
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "talk",
+  "title": "금리 뉴스 쉽게 읽기",
+  "content": "금리 뉴스를 접하며 어려운 점을 나눠 주세요.",
+  "image": "/images/money/topics/grow-03.svg"
+ },
+ {
+  "topic": "미국 국채",
+  "kind": "talk",
+  "title": "\"안전자산\"이라는 말",
+  "content": "안전하다는 말의 의미를 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/grow-03.svg"
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "info",
+  "title": "주식 투자 시작 전, 이 순서로 보세요",
+  "content": "1) 비상금 2) 높은 이자 빚 상환 3) 목표 기간 정하기 4) 계좌 개설 5) 소액 적립. 빚과 비상금이 정리되지 않았다면 먼저 그것부터 해결하세요.",
+  "image": "/images/money/topics/grow-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "비상금 먼저",
+      "label": "순서",
+      "note": "그다음 투자",
+      "icon": "wallet"
+     },
+     {
+      "value": "분산",
+      "label": "한 곳에 몰지 않기",
+      "note": "여러 종목·ETF",
+      "icon": "grid"
+     },
+     {
+      "value": "장기",
+      "label": "시간이 도움",
+      "note": "5년 이상",
+      "icon": "clock"
+     },
+     {
+      "value": "손실 가능",
+      "label": "꼭 알기",
+      "note": "원금 보장 없음",
+      "icon": "alert-circle"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "info",
+  "title": "증권 계좌 종류",
+  "content": "일반 계좌와 은퇴 계좌(IRA·401k), 교육 계좌 등이 있어요. 세금 혜택이 있는 계좌를 먼저 활용하는 게 일반적이에요.",
+  "image": "/images/money/topics/grow-04.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "처음 시작하는 순서",
+    "items": [
+     {
+      "title": "목표·기간 정하기",
+      "body": "언제 쓸 돈인지"
+     },
+     {
+      "title": "계좌 열기",
+      "body": "일반·은퇴 계좌 선택"
+     },
+     {
+      "title": "비용 확인",
+      "body": "수수료·운용 보수"
+     },
+     {
+      "title": "소액 적립",
+      "body": "정해진 날 같은 금액"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "info",
+  "title": "개별 주식과 ETF의 차이",
+  "content": "개별 주식은 한 회사에 투자하고, ETF는 여러 종목을 한 번에 담아요. 분산이 필요하면 ETF가 쉬운 선택이에요.",
+  "image": "/images/money/topics/grow-04.svg"
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "info",
+  "title": "주식 용어 5개만 익히기",
+  "content": "- 티커: 종목 코드\n- 시가총액: 회사의 시장 가치\n- 배당: 이익 분배\n- 호가: 사고팔겠다는 가격\n- 시장가·지정가: 주문 방식",
+  "image": "/images/money/topics/grow-04.svg"
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "info",
+  "title": "투자 비용 확인하기",
+  "content": "수수료, 운용 보수, 환전·세금 비용이 있어요. 작은 비용도 오래 쌓이면 큰 차이를 만들어요.",
+  "image": "/images/money/topics/grow-04.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "시작 전 체크",
+    "items": [
+     "비상금이 있다",
+     "높은 이자 빚이 없다",
+     "5년 이상 쓰지 않을 돈이다",
+     "손실이 나도 팔지 않을 수 있다"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "info",
+  "title": "투자 실수 줄이는 습관",
+  "content": "충동 매매 줄이기, 정기 적립, 감정이 아닌 계획대로 하기. 단기 뉴스에 반응하지 않는 습관이 도움이 돼요.",
+  "image": "/images/money/topics/grow-04.svg"
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "question",
+  "title": "처음 주식을 시작한 계기는?",
+  "content": "어떤 점이 가장 어려웠는지 이야기해 주세요.",
+  "image": "/images/money/topics/grow-04.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "투자 조언이 아니에요",
+    "body": "운영팀의 글은 교육용 일반 정보예요. 특정 종목을 추천하지 않으며 투자 판단과 책임은 본인에게 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "question",
+  "title": "투자 공부, 어떻게 하세요?",
+  "content": "책·강의·공식 자료 등 방법을 나눠 주세요(광고 제외).",
+  "image": "/images/money/topics/grow-04.svg"
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "talk",
+  "title": "이번 달 투자 공부 목표",
+  "content": "이번 달 읽어 볼 자료를 한 줄로 적어 주세요.",
+  "image": "/images/money/topics/grow-04.svg"
+ },
+ {
+  "topic": "주식 기초",
+  "kind": "talk",
+  "title": "투자 처음 해 본 소감",
+  "content": "처음 샀을 때 기분을 가볍게 나눠 주세요.",
+  "image": "/images/money/topics/grow-04.svg"
+ },
+ {
+  "topic": "ETF",
+  "kind": "info",
+  "title": "ETF란 무엇인가",
+  "content": "ETF(Exchange-Traded Fund)는 여러 종목을 묶어 거래소에서 주식처럼 사고파는 상품이에요. 지수를 추종하는 ETF가 많아요.",
+  "image": "/images/money/topics/grow-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "한 번에 분산",
+      "label": "장점",
+      "note": "수백 개 종목",
+      "icon": "grid"
+     },
+     {
+      "value": "운용 보수",
+      "label": "낮을수록 좋음",
+      "note": "장기에 큰 차이",
+      "icon": "dollar"
+     },
+     {
+      "value": "거래소 거래",
+      "label": "실시간 가격",
+      "note": "주식처럼",
+      "icon": "trending-up"
+     },
+     {
+      "value": "지수 추종",
+      "label": "대부분의 ETF",
+      "note": "기준 지수 확인",
+      "icon": "chart-bar"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "ETF",
+  "kind": "info",
+  "title": "ETF 고를 때 보는 것",
+  "content": "추종 지수, 운용 보수, 거래량, 구성 종목 상위 비중을 확인하세요. 같은 지수를 따르는 ETF도 비용이 다를 수 있어요.",
+  "image": "/images/money/topics/grow-05.svg"
+ },
+ {
+  "topic": "ETF",
+  "kind": "info",
+  "title": "같은 ETF 여러 개 사면 안 되는 이유",
+  "content": "S&P 500 ETF와 비슷한 ETF를 여러 개 사면 대부분 겹쳐서 분산 효과가 크지 않아요.",
+  "image": "/images/money/topics/grow-05.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "ETF vs 뮤추얼펀드",
+    "columns": [
+     "",
+     "ETF",
+     "뮤추얼펀드"
+    ],
+    "rows": [
+     [
+      "거래",
+      "장중 실시간",
+      "하루 한 번 기준가"
+     ],
+     [
+      "최소 금액",
+      "주식 1주 단위",
+      "펀드마다 다름"
+     ],
+     [
+      "비용",
+      "낮은 편(상품별)",
+      "상품별 차이 큼"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "ETF",
+  "kind": "info",
+  "title": "ETF의 세금",
+  "content": "ETF도 배당과 매매 차익이 과세돼요. 보유 기간에 따라 세율이 달라요. 은퇴 계좌에서 투자하면 과세 시점이 달라져요.",
+  "image": "/images/money/topics/grow-05.svg"
+ },
+ {
+  "topic": "ETF",
+  "kind": "info",
+  "title": "운용 보수의 영향",
+  "content": "연 보수가 낮을수록 장기 수익에 유리해요. 작은 차이도 20~30년이면 큰 차이를 만들어요.",
+  "image": "/images/money/topics/grow-05.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "비용 차이의 힘 (가상 예시)",
+    "sub": "$10,000을 20년, 연 6% 가정",
+    "items": [
+     {
+      "label": "연 보수 0.05%",
+      "value": 31800,
+      "display": "약 $31,800",
+      "highlight": true
+     },
+     {
+      "label": "연 보수 1.00%",
+      "value": 26500,
+      "display": "약 $26,500"
+     }
+    ],
+    "max": 33000,
+    "source": "※ 이해를 돕는 가상 예시예요. 금리·수익은 수시로 달라지고 투자는 원금 손실이 있을 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "ETF",
+  "kind": "info",
+  "title": "ETF 주문 시 팁",
+  "content": "장 시작 직후나 마감 직전은 변동이 클 수 있어요. 지정가 주문을 활용하면 원치 않는 가격에 체결되는 걸 줄일 수 있어요.",
+  "image": "/images/money/topics/grow-05.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "ETF 고를 때",
+    "items": [
+     "추종 지수와 구성 종목 확인",
+     "운용 보수 확인",
+     "거래량·규모 확인",
+     "중복되는 ETF 피하기"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "ETF",
+  "kind": "question",
+  "title": "어떤 ETF를 보고 계세요?",
+  "content": "종목 추천이 아닌 고르는 기준 위주로 이야기해 주세요.",
+  "image": "/images/money/topics/grow-05.svg"
+ },
+ {
+  "topic": "ETF",
+  "kind": "question",
+  "title": "ETF vs 개별 주식, 선택 기준은?",
+  "content": "의견을 나눠 주세요.",
+  "image": "/images/money/topics/grow-05.svg"
+ },
+ {
+  "topic": "ETF",
+  "kind": "talk",
+  "title": "나만의 투자 원칙",
+  "content": "지키고 있는 원칙을 한 줄로 적어 보세요.",
+  "image": "/images/money/topics/grow-05.svg"
+ },
+ {
+  "topic": "ETF",
+  "kind": "talk",
+  "title": "ETF 처음 사 본 날",
+  "content": "처음 샀을 때 기분을 가볍게 이야기해 주세요.",
+  "image": "/images/money/topics/grow-05.svg"
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "info",
+  "title": "배당이란? 이익을 나눠 받는 방법",
+  "content": "회사가 이익 일부를 주주에게 나눠주는 걸 배당이라고 해요. 배당을 주지 않는 회사도 많아요. 배당 이력과 지속 가능성을 확인하세요.",
+  "image": "/images/money/topics/grow-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "선언일",
+      "label": "배당 발표",
+      "note": "회사가 정해요",
+      "icon": "megaphone"
+     },
+     {
+      "value": "배당락일",
+      "label": "이 전에 보유",
+      "note": "이후 매수는 제외",
+      "icon": "calendar"
+     },
+     {
+      "value": "지급일",
+      "label": "계좌 입금",
+      "note": "현금·재투자",
+      "icon": "dollar"
+     },
+     {
+      "value": "세금",
+      "label": "과세 소득",
+      "note": "1099-DIV",
+      "icon": "paperclip"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "info",
+  "title": "배당락일 전까지 보유해야 받아요",
+  "content": "배당을 받으려면 배당락일 전에 주식을 가지고 있어야 해요. 배당락일 당일에 사면 이번 배당은 못 받아요.",
+  "image": "/images/money/topics/grow-06.svg"
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "info",
+  "title": "배당 수익률의 함정",
+  "content": "주가가 떨어져서 수익률이 높아 보이는 경우가 있어요. 배당이 이익으로 감당 가능한지 확인하세요.",
+  "image": "/images/money/topics/grow-06.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "배당 받는 흐름",
+    "items": [
+     {
+      "title": "선언일",
+      "body": "배당 금액 발표"
+     },
+     {
+      "title": "배당락일 전까지 보유",
+      "body": "당일 매수는 제외"
+     },
+     {
+      "title": "지급일",
+      "body": "계좌에 입금"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "info",
+  "title": "배당 재투자(DRIP)란",
+  "content": "받은 배당으로 주식을 자동으로 더 사는 방법이에요. 복리 효과를 기대할 수 있지만 세금은 별도로 발생해요.",
+  "image": "/images/money/topics/grow-06.svg"
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "info",
+  "title": "배당 세금",
+  "content": "일반 배당과 Qualified 배당은 세율이 달라요. 보유 기간 조건이 있어요. 1099-DIV 서류를 확인하세요.",
+  "image": "/images/money/topics/grow-06.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "배당락일 전후 (가상 예시)",
+    "sub": "배당 $1 · 종가 $100 가정",
+    "items": [
+     {
+      "label": "배당락일 전",
+      "value": 100,
+      "display": "$100"
+     },
+     {
+      "label": "배당락일 후(조정)",
+      "value": 99,
+      "display": "$99"
+     },
+     {
+      "label": "받은 배당",
+      "value": 1,
+      "display": "$1",
+      "highlight": true
+     }
+    ],
+    "max": 100,
+    "source": "※ 이해를 돕는 가상 예시예요. 금리·수익은 수시로 달라지고 투자는 원금 손실이 있을 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "info",
+  "title": "배당 ETF의 특징",
+  "content": "여러 배당 기업을 한 번에 담을 수 있어요. 구성 기준과 보수를 확인하세요.",
+  "image": "/images/money/topics/grow-06.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "배당률이 높다고 좋은 게 아니에요",
+    "body": "주가가 크게 떨어져서 배당 수익률이 높아 보일 수 있어요. 이익으로 배당을 감당할 수 있는지, 줄어들 위험은 없는지 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "question",
+  "title": "배당 투자, 어떤 기준으로 보세요?",
+  "content": "배당 이력, 이익, 부채 등 기준을 나눠 주세요.",
+  "image": "/images/money/topics/grow-06.svg"
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "question",
+  "title": "배당만 보고 투자해도 될까요?",
+  "content": "의견을 나눠 주세요.",
+  "image": "/images/money/topics/grow-06.svg"
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "talk",
+  "title": "배당 알림, 기분 좋은 순간",
+  "content": "계좌에 배당이 들어왔을 때의 기분을 이야기해 보세요.",
+  "image": "/images/money/topics/grow-06.svg"
+ },
+ {
+  "topic": "배당 투자",
+  "kind": "talk",
+  "title": "배당 달력 만들기",
+  "content": "배당 일정을 정리하는 방법을 나눠 주세요.",
+  "image": "/images/money/topics/grow-06.svg"
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "복리란 이자에 이자가 붙는 구조예요",
+  "content": "수익이 다시 투자되어 불어나는 구조예요. 기간이 길수록 효과가 커져요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "시간",
+      "label": "핵심 변수",
+      "note": "일찍 시작이 유리",
+      "icon": "clock"
+     },
+     {
+      "value": "꾸준히",
+      "label": "적립식",
+      "note": "매달 같은 금액",
+      "icon": "refresh"
+     },
+     {
+      "value": "비용",
+      "label": "복리의 적",
+      "note": "보수 낮추기",
+      "icon": "dollar"
+     },
+     {
+      "value": "변동",
+      "label": "당연히 있음",
+      "note": "손실 구간도",
+      "icon": "trending-up"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "72의 법칙: 돈이 두 배 되는 시간",
+  "content": "72 ÷ 연 수익률(%) = 대략 두 배가 되는 햇수예요. 6%라면 약 12년이에요. 대략적인 계산법이에요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "매달 $300씩 투자하면 (가상 연 6%)",
+    "sub": "넣은 돈과 불어난 돈",
+    "items": [
+     {
+      "label": "10년 후",
+      "value": 49000,
+      "display": "약 $49,000"
+     },
+     {
+      "label": "20년 후",
+      "value": 138000,
+      "display": "약 $138,000"
+     },
+     {
+      "label": "30년 후",
+      "value": 301000,
+      "display": "약 $301,000",
+      "note": "넣은 돈은 $108,000",
+      "highlight": true
+     }
+    ],
+    "max": 301000,
+    "source": "※ 이해를 돕는 가상 예시예요. 금리·수익은 수시로 달라지고 투자는 원금 손실이 있을 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "일찍 시작하는 게 중요한 이유",
+  "content": "같은 금액이라도 시작 시기가 다르면 결과가 크게 달라져요. 지금 할 수 있는 금액으로 시작하는 게 중요해요.",
+  "image": "/images/money/topics/grow-07.svg"
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "적립식 투자의 장점",
+  "content": "정해진 날 같은 금액을 사면 가격이 오르내려도 평균 가격이 안정돼요. 감정에 흔들리지 않는 데 도움이 돼요.",
+  "image": "/images/money/topics/grow-07.svg"
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "수수료와 세금이 복리를 깎아요",
+  "content": "비용이 낮은 상품과 세금 혜택 계좌를 활용하면 복리 효과가 더 커져요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "복리를 키우는 3가지",
+    "items": [
+     {
+      "title": "일찍 시작",
+      "body": "시간이 가장 큰 힘"
+     },
+     {
+      "title": "꾸준히 넣기",
+      "body": "자동이체 설정"
+     },
+     {
+      "title": "비용 줄이기",
+      "body": "낮은 보수 상품"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "info",
+  "title": "시장이 떨어질 때 기억할 것",
+  "content": "장기 투자에서도 하락 구간은 와요. 계획한 기간 동안 유지할 수 있는 금액인지 먼저 확인하세요.",
+  "image": "/images/money/topics/grow-07.svg"
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "question",
+  "title": "장기 투자, 몇 년을 보세요?",
+  "content": "목표 기간과 이유를 나눠 주세요.",
+  "image": "/images/money/topics/grow-07.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "가장 흔한 실수",
+    "body": "시장이 떨어질 때 겁먹고 파는 것이에요. 계획한 기간 동안 유지할 수 있는 금액인지 먼저 따져 보세요."
+   }
+  ]
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "question",
+  "title": "시장이 떨어질 때 어떻게 하세요?",
+  "content": "대처 방법을 이야기해 주세요.",
+  "image": "/images/money/topics/grow-07.svg"
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "talk",
+  "title": "복리 계산기 해 보기",
+  "content": "가이드의 복리 계산기를 해 본 소감을 나눠 주세요.",
+  "image": "/images/money/topics/grow-07.svg"
+ },
+ {
+  "topic": "복리·장기 투자",
+  "kind": "talk",
+  "title": "10년 뒤의 나에게 한마디",
+  "content": "10년 뒤 이 계좌가 어떻게 되었으면 하는지 적어 보세요.",
+  "image": "/images/money/topics/grow-07.svg"
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "401(k)와 IRA, 뭐가 다를까",
+  "content": "401(k)는 회사를 통해 가입하는 은퇴 계좌이고, IRA는 개인이 여는 계좌예요. 둘 다 세금 혜택이 있지만 한도와 규정이 달라요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "회사 매칭",
+      "label": "먼저 챙기기",
+      "note": "공짜에 가까운 수익",
+      "icon": "gift"
+     },
+     {
+      "value": "Traditional",
+      "label": "넣을 때 혜택",
+      "note": "꺼낼 때 과세",
+      "icon": "paperclip"
+     },
+     {
+      "value": "Roth",
+      "label": "꺼낼 때 비과세",
+      "note": "조건 충족 시",
+      "icon": "check"
+     },
+     {
+      "value": "59½세",
+      "label": "인출 기준",
+      "note": "그 전은 벌금 가능",
+      "icon": "alert-circle"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "회사 매칭은 먼저 챙기세요",
+  "content": "회사가 일정 비율을 매칭해 준다면 그 만큼은 먼저 채우는 게 일반적이에요. 매칭 조건과 베스팅(소유권 확정) 기간을 확인하세요.",
+  "image": "/images/money/topics/grow-08.svg"
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "Traditional vs Roth 선택 기준",
+  "content": "지금 세율과 은퇴 후 예상 세율을 비교해 보세요. 두 가지를 섞어 쓰는 방법도 있어요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "Traditional vs Roth",
+    "columns": [
+     "",
+     "Traditional",
+     "Roth"
+    ],
+    "rows": [
+     [
+      "넣는 돈",
+      "공제 가능(조건)",
+      "세후 소득"
+     ],
+     [
+      "꺼낼 때",
+      "일반 소득세",
+      "조건 충족 시 비과세"
+     ],
+     [
+      "유리한 때",
+      "지금 세율이 높을 때",
+      "지금 세율이 낮을 때"
+     ]
+    ],
+    "highlight": 2,
+    "note": "※ 한도·규정은 매년 바뀌어요. IRS 안내를 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "납입 한도와 소득 한도",
+  "content": "한도는 매년 바뀌어요. IRS 사이트에서 올해 한도를 확인하세요. Roth는 소득 한도가 있어요.",
+  "image": "/images/money/topics/grow-08.svg"
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "조기 인출 규정",
+  "content": "일정 나이(보통 59½세) 전에 인출하면 세금과 벌금이 붙을 수 있어요. 예외 규정도 있으니 확인하세요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "우선순위 예시",
+    "items": [
+     {
+      "title": "회사 매칭까지 401(k)",
+      "body": "받을 수 있는 만큼 먼저"
+     },
+     {
+      "title": "IRA 한도 채우기",
+      "body": "Traditional/Roth 선택"
+     },
+     {
+      "title": "남으면 일반 계좌",
+      "body": "유동성 확보"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "info",
+  "title": "이직할 때 401(k) 처리",
+  "content": "이전 회사 계좌를 유지하거나 새 회사로 옮기거나 IRA로 롤오버할 수 있어요. 수수료와 투자 옵션을 비교해 결정하세요.",
+  "image": "/images/money/topics/grow-08.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "가입 전 체크",
+    "items": [
+     "올해 납입 한도 확인(IRS)",
+     "Roth 소득 한도 확인",
+     "회사 매칭 조건 확인",
+     "수수료·운용 보수 확인"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "question",
+  "title": "401(k) 매칭, 얼마나 받고 계세요?",
+  "content": "비율 정도만 알려 주세요(회사 이름 제외).",
+  "image": "/images/money/topics/grow-08.svg"
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "question",
+  "title": "Roth와 Traditional, 어떻게 나눠 쓰세요?",
+  "content": "선택 기준을 나눠 주세요.",
+  "image": "/images/money/topics/grow-08.svg"
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "talk",
+  "title": "은퇴 계좌 점검의 날",
+  "content": "이번 달 내 은퇴 계좌 잔액과 비용을 확인해 보세요.",
+  "image": "/images/money/topics/grow-08.svg"
+ },
+ {
+  "topic": "IRA·401(k)",
+  "kind": "talk",
+  "title": "은퇴 후 모습 상상하기",
+  "content": "은퇴 후 하고 싶은 일을 가볍게 이야기해 주세요.",
+  "image": "/images/money/topics/grow-08.svg"
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "info",
+  "title": "529 플랜이란",
+  "content": "교육비를 위한 세금 혜택 계좌예요. 교육비로 쓰면 수익에 세금이 붙지 않아요(조건). 주마다 세금 공제가 있는 경우도 있어요.",
+  "image": "/images/money/topics/grow-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "529",
+      "label": "교육비 전용",
+      "note": "수익 비과세(조건)",
+      "icon": "graduation-cap"
+     },
+     {
+      "value": "UTMA",
+      "label": "용도 자유",
+      "note": "자녀 재산",
+      "icon": "wallet"
+     },
+     {
+      "value": "소유권",
+      "label": "다른 점",
+      "note": "성인이 되면 자녀",
+      "icon": "key"
+     },
+     {
+      "value": "재정 보조",
+      "label": "영향 차이",
+      "note": "자녀 자산이 불리",
+      "icon": "chart-bar"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "info",
+  "title": "UTMA는 자녀 명의 일반 투자 계좌",
+  "content": "용도 제한이 없지만 자녀의 재산이에요. 성인이 되면 자녀가 통제권을 가져요.",
+  "image": "/images/money/topics/grow-09.svg"
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "info",
+  "title": "두 계좌를 비교하는 기준",
+  "content": "세금 혜택, 용도 자유, 통제권, 재정 보조 영향을 비교하세요. 교육이 목적이면 529가 먼저 검토돼요.",
+  "image": "/images/money/topics/grow-09.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "529 vs UTMA",
+    "columns": [
+     "",
+     "529",
+     "UTMA"
+    ],
+    "rows": [
+     [
+      "용도",
+      "교육비",
+      "제한 없음"
+     ],
+     [
+      "세금",
+      "교육비로 쓰면 수익 비과세",
+      "혜택 없음"
+     ],
+     [
+      "통제권",
+      "계좌 소유자",
+      "성인 되면 자녀"
+     ],
+     [
+      "안 쓰면",
+      "수익에 세금·추가 부담",
+      "문제 없음"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "info",
+  "title": "529가 남으면",
+  "content": "수혜자를 다른 가족으로 바꿀 수 있고, 조건 충족 시 일부를 Roth IRA로 옮길 수 있는 규정이 있어요.",
+  "image": "/images/money/topics/grow-09.svg"
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "info",
+  "title": "재정 보조와 계좌 소유",
+  "content": "소유자와 계좌 종류에 따라 재정 보조 계산에서 반영 비율이 달라요. 자녀 명의 자산이 불리한 경우가 많아요.",
+  "image": "/images/money/topics/grow-09.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "529가 남으면",
+    "body": "수혜자를 다른 가족으로 바꾸거나, 조건 충족 시 일부를 Roth IRA로 옮길 수 있는 규정이 있어요(한도·조건 있음). 최신 규정은 IRS 안내를 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "info",
+  "title": "얼마씩 모으면 될까",
+  "content": "목표 금액과 기간을 정해서 역산해 보세요. 작은 금액도 일찍 시작하면 효과가 커요.",
+  "image": "/images/money/topics/grow-09.svg"
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "question",
+  "title": "아이 교육비, 어떻게 준비하세요?",
+  "content": "계좌 종류와 금액 감각을 나눠 주세요.",
+  "image": "/images/money/topics/grow-09.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "매달 $200 적립 (가상 연 5%)",
+    "sub": "아이가 태어난 해부터",
+    "items": [
+     {
+      "label": "10년 후",
+      "value": 31000,
+      "display": "약 $31,000"
+     },
+     {
+      "label": "18년 후",
+      "value": 69800,
+      "display": "약 $69,800",
+      "note": "넣은 돈 $43,200",
+      "highlight": true
+     }
+    ],
+    "max": 70000,
+    "source": "※ 이해를 돕는 가상 예시예요. 금리·수익은 수시로 달라지고 투자는 원금 손실이 있을 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "question",
+  "title": "529와 UTMA, 어느 쪽이 맞을까요?",
+  "content": "고민을 나눠 주세요.",
+  "image": "/images/money/topics/grow-09.svg"
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "talk",
+  "title": "아이 이름으로 저축",
+  "content": "아이 이름으로 처음 저축한 날의 기분을 이야기해 보세요.",
+  "image": "/images/money/topics/grow-09.svg"
+ },
+ {
+  "topic": "529·UTMA",
+  "kind": "talk",
+  "title": "용돈 교육 팁",
+  "content": "아이에게 돈 교육을 하는 방법을 나눠 주세요.",
+  "image": "/images/money/topics/grow-09.svg"
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "info",
+  "title": "투자 소득의 종류",
+  "content": "배당, 이자, 매매 차익이 대표적이에요. 소득 종류에 따라 세율과 서류가 달라요.",
+  "image": "/images/money/topics/grow-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1년 미만",
+      "label": "단기 이익",
+      "note": "일반 소득세율",
+      "icon": "clock"
+     },
+     {
+      "value": "1년 초과",
+      "label": "장기 이익",
+      "note": "더 낮은 세율",
+      "icon": "trending-up"
+     },
+     {
+      "value": "배당",
+      "label": "Qualified 여부",
+      "note": "보유 기간 규정",
+      "icon": "paperclip"
+     },
+     {
+      "value": "1099-B",
+      "label": "매매 서류",
+      "note": "증권사가 발송",
+      "icon": "list"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "info",
+  "title": "단기 vs 장기 양도소득",
+  "content": "1년 이하 보유는 일반 소득세율, 1년을 넘기면 더 낮은 세율이 적용돼요. 절세를 위해 자주 팔지 않는 방법이 있어요.",
+  "image": "/images/money/topics/grow-10.svg"
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "info",
+  "title": "손실이 있으면 세금을 줄일 수 있어요",
+  "content": "실현한 손실은 이익과 상쇄돼요. 한도를 넘는 손실은 다음 해로 이월돼요. 규정을 확인하세요.",
+  "image": "/images/money/topics/grow-10.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "단기 vs 장기 양도소득",
+    "columns": [
+     "",
+     "단기",
+     "장기"
+    ],
+    "rows": [
+     [
+      "보유 기간",
+      "1년 이하",
+      "1년 초과"
+     ],
+     [
+      "세율",
+      "일반 소득세율",
+      "낮은 세율(소득 구간별)"
+     ],
+     [
+      "절세 팁",
+      "자주 팔지 않기",
+      "오래 보유"
+     ]
+    ],
+    "highlight": 2,
+    "note": "※ 세율은 소득·연도에 따라 달라요. IRS 안내를 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "info",
+  "title": "워시세일 규정",
+  "content": "손실을 보고 판 뒤 짧은 기간 안에 같은 종목을 다시 사면 손실이 인정되지 않을 수 있어요.",
+  "image": "/images/money/topics/grow-10.svg"
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "info",
+  "title": "1099-B, 1099-DIV 읽기",
+  "content": "증권사가 1~2월에 보내는 서류예요. 취득가와 매도가, 배당 유형이 적혀 있어요. 오류가 있으면 증권사에 문의하세요.",
+  "image": "/images/money/topics/grow-10.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "투자 세금 준비",
+    "items": [
+     {
+      "title": "1~2월 서류 받기",
+      "body": "1099-B·1099-DIV"
+     },
+     {
+      "title": "취득가 확인",
+      "body": "매입 가격 기록"
+     },
+     {
+      "title": "손실 활용 검토",
+      "body": "이익과 상쇄 가능"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "info",
+  "title": "은퇴 계좌의 세금 장점",
+  "content": "IRA·401(k) 안에서는 매매 차익에 즉시 세금이 붙지 않는 경우가 많아요. 인출 시 과세 규정을 확인하세요.",
+  "image": "/images/money/topics/grow-10.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "워시세일(Wash sale) 주의",
+    "body": "손실을 보고 판 뒤 짧은 기간 안에 같은 종목을 다시 사면 그 손실을 인정받지 못할 수 있어요. 규정을 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "question",
+  "title": "투자 세금, 어디서 도움받으세요?",
+  "content": "세무사·소프트웨어·IRS 안내 등을 나눠 주세요.",
+  "image": "/images/money/topics/grow-10.svg"
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "question",
+  "title": "세금을 고려한 매매 습관이 있나요?",
+  "content": "보유 기간 등 습관을 나눠 주세요.",
+  "image": "/images/money/topics/grow-10.svg"
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "talk",
+  "title": "세금 시즌 전 준비",
+  "content": "세금 시즌 전에 정리하는 서류가 있다면 적어 주세요.",
+  "image": "/images/money/topics/grow-10.svg"
+ },
+ {
+  "topic": "투자 세금",
+  "kind": "talk",
+  "title": "투자 기록 정리하기",
+  "content": "매수 기록을 정리하는 방법을 가볍게 나눠 주세요.",
+  "image": "/images/money/topics/grow-10.svg"
+ }
+]

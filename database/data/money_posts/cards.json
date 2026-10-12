@@ -1,0 +1,1844 @@
+[
+ {
+  "topic": "첫 신용카드",
+  "kind": "info",
+  "title": "신용 이력이 없을 때 첫 카드 시작하기",
+  "content": "이력이 없으면 승인이 어려울 수 있어요. 담보형 카드, 학생·초보자용 카드, 가족 카드의 추가 사용자 등으로 시작하는 방법이 있어요.",
+  "image": "/images/money/topics/cards-01.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "신용 이력",
+      "label": "쌓는 게 목표",
+      "note": "소액 + 전액 상환",
+      "icon": "star"
+     },
+     {
+      "value": "Secured card",
+      "label": "보증금 카드",
+      "note": "이력 없을 때",
+      "icon": "lock"
+     },
+     {
+      "value": "한도 사용률",
+      "label": "낮게 유지",
+      "note": "30% 아래",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "자동이체",
+      "label": "필수",
+      "note": "연체 방지",
+      "icon": "refresh"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "info",
+  "title": "Secured card란?",
+  "content": "보증금을 내고 같은 한도를 받는 카드예요. 일정 기간 잘 쓰면 보증금을 돌려받고 일반 카드로 바꿔 주는 경우가 있어요. 조건을 확인하세요.",
+  "image": "/images/money/topics/cards-01.svg"
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "info",
+  "title": "첫 카드 사용 규칙",
+  "content": "소액만 쓰고 전액 자동 납부하세요. 사용률은 낮게 유지하세요. 연체는 오래 남아요.",
+  "image": "/images/money/topics/cards-01.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "첫 카드 시작 순서",
+    "items": [
+     {
+      "title": "카드 종류 선택",
+      "body": "담보형·학생·초보자용"
+     },
+     {
+      "title": "소액만 쓰기",
+      "body": "구독 하나 정도"
+     },
+     {
+      "title": "전액 자동 납부",
+      "body": "연체 0"
+     },
+     {
+      "title": "6~12개월 후 점검",
+      "body": "한도 증액·상위 카드"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "info",
+  "title": "카드 신청과 신용 조회",
+  "content": "신청 시 하드 조회가 생겨서 점수가 소폭 내려갈 수 있어요. 여러 카드를 한꺼번에 신청하지 마세요.",
+  "image": "/images/money/topics/cards-01.svg"
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "info",
+  "title": "한국 신용 이력은 이전되나요?",
+  "content": "자동으로 이전되지 않아요. 일부 서비스는 해외 이력을 연결해 주기도 하지만 제한이 있어요. 신청 전에 조건을 확인하세요.",
+  "image": "/images/money/topics/cards-01.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "신청 전 체크",
+    "items": [
+     "연회비 확인",
+     "이자율(APR) 확인",
+     "보증금 환급 조건",
+     "신용 조회 영향 이해",
+     "자동이체 설정"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "info",
+  "title": "다음 단계로 가는 시점",
+  "content": "6~12개월 잘 쓰고 연체가 없다면 한도 증액이나 상위 카드로의 전환을 고려하세요.",
+  "image": "/images/money/topics/cards-01.svg"
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "question",
+  "title": "첫 카드는 어떻게 시작하셨나요?",
+  "content": "카드 종류와 팁을 나눠 주세요(카드사 광고 제외).",
+  "image": "/images/money/topics/cards-01.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "이력이 없어도 시작할 수 있어요",
+    "body": "담보형 카드나 가족 카드의 추가 사용자 등으로 이력을 쌓을 수 있어요. 한국 신용 이력은 자동으로 이전되지 않아요."
+   }
+  ]
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "question",
+  "title": "이력이 없어서 거절당한 경험이 있나요?",
+  "content": "대처 방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-01.svg"
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "talk",
+  "title": "내 첫 카드의 추억",
+  "content": "처음 카드를 받았을 때를 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/cards-01.svg"
+ },
+ {
+  "topic": "첫 신용카드",
+  "kind": "talk",
+  "title": "카드 사용 원칙 한 줄",
+  "content": "나만의 카드 사용 원칙을 한 줄로 적어 보세요.",
+  "image": "/images/money/topics/cards-01.svg"
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "info",
+  "title": "FICO 점수는 어떻게 구성될까",
+  "content": "납부 이력 약 35%, 사용 금액 약 30%, 이력 길이 약 15%, 신규 신용 약 10%, 신용 종류 약 10%예요. 모델마다 다를 수 있어요.",
+  "image": "/images/money/topics/cards-02.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "35%",
+      "label": "납부 이력",
+      "note": "가장 중요",
+      "icon": "check"
+     },
+     {
+      "value": "30%",
+      "label": "사용 금액",
+      "note": "사용률 낮게",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "15%",
+      "label": "이력 길이",
+      "note": "오래 유지",
+      "icon": "clock"
+     },
+     {
+      "value": "10% + 10%",
+      "label": "신규·종류",
+      "note": "필요할 때만",
+      "icon": "list"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "info",
+  "title": "점수 범위와 의미",
+  "content": "일반적으로 300~850 범위로 쓰이고, 점수가 높을수록 금리가 유리해요. 대출 업체마다 보는 모델이 달라요.",
+  "image": "/images/money/topics/cards-02.svg"
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "info",
+  "title": "점수를 가장 빨리 올리는 방법",
+  "content": "연체를 없애고 카드 사용률을 낮추는 것이 보통 효과가 커요. 결제일 전에 일부 상환하면 보고되는 사용률이 낮아져요.",
+  "image": "/images/money/topics/cards-02.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "점수 구성 비중 (일반적)",
+    "sub": "모델·사람에 따라 달라질 수 있어요",
+    "items": [
+     {
+      "label": "납부 이력",
+      "value": 35,
+      "display": "약 35%",
+      "highlight": true
+     },
+     {
+      "label": "사용 금액",
+      "value": 30,
+      "display": "약 30%",
+      "highlight": true
+     },
+     {
+      "label": "이력 길이",
+      "value": 15,
+      "display": "약 15%"
+     },
+     {
+      "label": "신규 신청",
+      "value": 10,
+      "display": "약 10%"
+     },
+     {
+      "label": "신용 종류",
+      "value": 10,
+      "display": "약 10%"
+     }
+    ],
+    "max": 40,
+    "source": "출처: myFICO 설명 기준의 일반적인 비중"
+   }
+  ]
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "info",
+  "title": "사용률(Utilization) 이해하기",
+  "content": "카드 한도 대비 사용 금액이에요. 낮을수록 좋고 30% 아래를 흔히 권해요.",
+  "image": "/images/money/topics/cards-02.svg"
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "info",
+  "title": "조회(Inquiry)의 종류",
+  "content": "내가 확인하는 소프트 조회는 영향이 없고, 신청 때 생기는 하드 조회는 일시적으로 영향을 줄 수 있어요.",
+  "image": "/images/money/topics/cards-02.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "점수 올리는 순서",
+    "items": [
+     {
+      "title": "보고서 확인",
+      "body": "틀린 정보 이의 신청"
+     },
+     {
+      "title": "연체 없애기",
+      "body": "자동이체"
+     },
+     {
+      "title": "사용률 낮추기",
+      "body": "결제일 전 상환"
+     },
+     {
+      "title": "오래된 카드 유지",
+      "body": "해지 신중히"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "info",
+  "title": "틀린 정보는 이의 신청",
+  "content": "무료 신용 보고서를 확인해서 오류가 있으면 신용기관에 이의를 제기하세요.",
+  "image": "/images/money/topics/cards-02.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "확인해도 점수는 안 내려가요",
+    "body": "내가 점수나 보고서를 확인하는 건 점수에 영향이 없어요. 새 대출·카드 신청 때 생기는 조회가 영향을 줄 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "question",
+  "title": "신용점수를 올린 경험이 있나요?",
+  "content": "어떤 방법이 효과적이었는지 나눠 주세요.",
+  "image": "/images/money/topics/cards-02.svg"
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "question",
+  "title": "점수는 얼마나 자주 확인하세요?",
+  "content": "확인 습관을 나눠 주세요.",
+  "image": "/images/money/topics/cards-02.svg"
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "talk",
+  "title": "신용점수 목표",
+  "content": "목표를 가볍게 적어 보세요(점수 공개 필수 아님).",
+  "image": "/images/money/topics/cards-02.svg"
+ },
+ {
+  "topic": "FICO 신용점수",
+  "kind": "talk",
+  "title": "신용 관리 응원방",
+  "content": "서로 응원의 말을 남겨요.",
+  "image": "/images/money/topics/cards-02.svg"
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "info",
+  "title": "캐시백 카드 종류",
+  "content": "어디서나 같은 % 환급(플랫), 분야별 차등 환급(카테고리), 분기별 로테이션이 있어요. 소비 패턴에 맞게 고르세요.",
+  "image": "/images/money/topics/cards-03.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "플랫 환급",
+      "label": "어디서나 같은 %",
+      "note": "관리 쉬움",
+      "icon": "dollar"
+     },
+     {
+      "value": "카테고리형",
+      "label": "분야별 높은 %",
+      "note": "조건 확인",
+      "icon": "tag"
+     },
+     {
+      "value": "전액 상환",
+      "label": "대원칙",
+      "note": "이자 > 환급",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "연회비",
+      "label": "본전 계산",
+      "note": "2% 카드 기준",
+      "icon": "coins"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "info",
+  "title": "플랫 2% 카드를 기준으로 삼으세요",
+  "content": "복잡한 카드와 비교할 때 플랫 2% 카드를 기준으로 삼으면 판단이 쉬워요.",
+  "image": "/images/money/topics/cards-03.svg"
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "info",
+  "title": "카테고리 카드의 함정",
+  "content": "환급 한도(분기·연)와 활성화 조건을 확인하세요. 한도 이후에는 환급률이 낮아져요.",
+  "image": "/images/money/topics/cards-03.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "연 지출 $30,000 환급 (가상 예시)",
+    "sub": "환급 구조별",
+    "items": [
+     {
+      "label": "플랫 2%",
+      "value": 600,
+      "display": "$600",
+      "highlight": true
+     },
+     {
+      "label": "등급형 3/2/1%",
+      "value": 600,
+      "display": "$600"
+     },
+     {
+      "label": "카테고리 집중형",
+      "value": 570,
+      "display": "$570"
+     },
+     {
+      "label": "환급 없음",
+      "value": 0,
+      "display": "$0"
+     }
+    ],
+    "max": 650,
+    "source": "※ 이해를 돕는 가상 예시예요. 카드 혜택·조건은 카드사가 수시로 바꿔요."
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "info",
+  "title": "환급 수령 방법",
+  "content": "명세서 크레딧, 계좌 입금, 기프트카드 등이 있어요. 수령 방식에 따라 가치가 다를 수 있어요.",
+  "image": "/images/money/topics/cards-03.svg"
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "info",
+  "title": "이자를 내면 환급은 의미가 없어요",
+  "content": "연 이자율은 환급률보다 훨씬 높아요. 전액 상환할 수 있는 만큼만 쓰세요.",
+  "image": "/images/money/topics/cards-03.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "환급 방식 비교",
+    "columns": [
+     "",
+     "플랫",
+     "카테고리형",
+     "로테이션"
+    ],
+    "rows": [
+     [
+      "관리",
+      "쉬움",
+      "보통",
+      "번거로움"
+     ],
+     [
+      "환급률",
+      "일정",
+      "분야별 높음",
+      "분기별 높음(한도)"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "info",
+  "title": "카드 2~3장 구성 예시",
+  "content": "플랫 카드 1장 + 내 큰 지출 분야 카드 1장이면 충분한 경우가 많아요. 관리 가능한 수를 유지하세요.",
+  "image": "/images/money/topics/cards-03.svg"
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "question",
+  "title": "캐시백 카드, 몇 장 쓰세요?",
+  "content": "구성과 이유를 나눠 주세요.",
+  "image": "/images/money/topics/cards-03.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "이자가 환급을 삼켜요",
+    "body": "$3,000 잔액에 연 22% 이자면 연 $660이에요. 환급(약 $60)보다 훨씬 커요. 전액 상환이 먼저예요."
+   }
+  ]
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "question",
+  "title": "환급을 어떻게 활용하세요?",
+  "content": "환급금 사용 방식을 나눠 주세요.",
+  "image": "/images/money/topics/cards-03.svg"
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "talk",
+  "title": "이번 달 캐시백은 얼마?",
+  "content": "환급 받은 금액을 가볍게 적어 보세요.",
+  "image": "/images/money/topics/cards-03.svg"
+ },
+ {
+  "topic": "캐시백 카드",
+  "kind": "talk",
+  "title": "카드 사용 습관",
+  "content": "결제일 확인 습관을 나눠 주세요.",
+  "image": "/images/money/topics/cards-03.svg"
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "info",
+  "title": "여행 카드가 주는 혜택",
+  "content": "해외 결제 수수료 면제, 여행 보험, 라운지, 수하물 혜택, 호텔·항공 포인트 등이 있어요. 연회비가 있는 경우가 많아요.",
+  "image": "/images/money/topics/cards-04.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "라운지",
+      "label": "이용 조건",
+      "note": "횟수·동반 확인",
+      "icon": "building"
+     },
+     {
+      "value": "해외 수수료",
+      "label": "없는 카드",
+      "note": "여행 필수 확인",
+      "icon": "globe"
+     },
+     {
+      "value": "여행 보험",
+      "label": "보장 조건",
+      "note": "카드로 결제 시",
+      "icon": "shield"
+     },
+     {
+      "value": "연회비",
+      "label": "본전",
+      "note": "여행 빈도 기준",
+      "icon": "coins"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "info",
+  "title": "해외 결제 수수료 확인",
+  "content": "일부 카드는 해외 결제에 수수료가 붙어요. 해외에서 쓸 카드는 수수료 면제 여부를 꼭 확인하세요.",
+  "image": "/images/money/topics/cards-04.svg"
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "info",
+  "title": "여행 보험·렌터카 보험",
+  "content": "카드로 항공권·렌터카를 결제하면 보험 혜택을 받는 경우가 있어요. 조건(결제 방식, 보장 범위)을 확인하세요.",
+  "image": "/images/money/topics/cards-04.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "여행 카드 vs 현금 환급 카드",
+    "columns": [
+     "",
+     "여행 카드",
+     "현금 환급 카드"
+    ],
+    "rows": [
+     [
+      "연회비",
+      "있는 편",
+      "없거나 낮음"
+     ],
+     [
+      "혜택",
+      "여행 중심",
+      "범용"
+     ],
+     [
+      "어울리는 사람",
+      "여행 자주",
+      "여행 적음"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "info",
+  "title": "라운지 이용 조건",
+  "content": "카드마다 이용 횟수, 동반자, 대상 라운지가 달라요. 최신 정책을 확인하세요.",
+  "image": "/images/money/topics/cards-04.svg"
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "info",
+  "title": "연회비 대비 가치 계산",
+  "content": "여행 횟수에 따라 가치가 크게 달라요. 연회비와 사용 혜택을 숫자로 비교하세요.",
+  "image": "/images/money/topics/cards-04.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "여행 카드 체크",
+    "items": [
+     "해외 결제 수수료 면제",
+     "여행 보험·렌터카 보험 조건",
+     "라운지 이용 조건",
+     "포인트 가치(내 방식)",
+     "연회비 본전"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "info",
+  "title": "여행 카드 vs 현금 환급 카드",
+  "content": "여행이 잦다면 여행 카드, 적다면 현금 환급 카드가 단순해요.",
+  "image": "/images/money/topics/cards-04.svg"
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "question",
+  "title": "여행 카드 쓰시나요?",
+  "content": "여행 빈도와 혜택 활용도를 나눠 주세요.",
+  "image": "/images/money/topics/cards-04.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "여행이 적으면 손해일 수 있어요",
+    "body": "혜택을 쓰지 않으면 연회비만 나가요. 1년에 몇 번 여행하는지 현실적으로 계산하세요."
+   }
+  ]
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "question",
+  "title": "해외에서 쓰기 좋은 결제 수단은?",
+  "content": "경험을 나눠 주세요.",
+  "image": "/images/money/topics/cards-04.svg"
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "talk",
+  "title": "다음 여행 계획",
+  "content": "가고 싶은 곳을 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/cards-04.svg"
+ },
+ {
+  "topic": "여행 카드",
+  "kind": "talk",
+  "title": "여행 짐 싸기 팁",
+  "content": "짐 싸기 팁을 나눠 주세요.",
+  "image": "/images/money/topics/cards-04.svg"
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "info",
+  "title": "마일리지 기초",
+  "content": "항공사 마일리지는 비행이나 제휴 카드 사용으로 쌓여요. 사용처, 좌석 등급, 시기에 따라 가치가 크게 달라요.",
+  "image": "/images/money/topics/cards-05.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "마일 가치",
+      "label": "사용처마다 다름",
+      "note": "내 방식으로 계산",
+      "icon": "send"
+     },
+     {
+      "value": "제휴 이전",
+      "label": "포인트→마일",
+      "note": "비율 확인",
+      "icon": "refresh"
+     },
+     {
+      "value": "소멸",
+      "label": "유효기간",
+      "note": "확인 필수",
+      "icon": "clock"
+     },
+     {
+      "value": "좌석 가용성",
+      "label": "변수",
+      "note": "비수기 유리",
+      "icon": "calendar"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "info",
+  "title": "마일 가치 계산",
+  "content": "(현금 항공권 가격 − 세금·수수료) ÷ 필요 마일로 계산해요. 노선마다 달라서 고정 숫자는 없어요.",
+  "image": "/images/money/topics/cards-05.svg"
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "info",
+  "title": "마일 소멸 규정 확인",
+  "content": "유효기간과 연장 조건이 있어요. 활동이 없으면 소멸되는 경우가 있어요.",
+  "image": "/images/money/topics/cards-05.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "마일 쓰는 순서",
+    "items": [
+     {
+      "title": "목표 노선 정하기",
+      "body": "출발·도착·시기"
+     },
+     {
+      "title": "필요 마일 확인",
+      "body": "예약 사이트"
+     },
+     {
+      "title": "포인트 이전 계산",
+      "body": "이전 비율·기간"
+     },
+     {
+      "title": "예약·수수료 확인",
+      "body": "세금·유류할증료"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "info",
+  "title": "제휴 포인트 이전",
+  "content": "카드 포인트를 항공사 마일로 옮길 수 있어요. 이전 비율과 시간을 확인하세요.",
+  "image": "/images/money/topics/cards-05.svg"
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "info",
+  "title": "보너스 좌석 예약 팁",
+  "content": "일정이 유연하고 비수기면 유리해요. 좌석 수가 한정되어 있어요.",
+  "image": "/images/money/topics/cards-05.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"1마일 = 1센트+\"는 사람마다 달라요",
+    "body": "마일 가치는 노선·시기·좌석 등급에 따라 크게 달라요. 광고 숫자를 그대로 믿지 말고 내 사용 방식으로 계산하세요."
+   }
+  ]
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "info",
+  "title": "세금·유류할증료는 별도",
+  "content": "마일로 발권해도 세금과 수수료를 내야 해요. 총비용을 확인하세요.",
+  "image": "/images/money/topics/cards-05.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "마일 모으기 전에",
+    "items": [
+     "자주 타는 항공사·동맹 확인",
+     "소멸 규정 확인",
+     "이전 파트너 확인",
+     "세금·수수료 별도 확인"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "question",
+  "title": "마일리지 쓰는 나만의 팁은?",
+  "content": "노하우를 나눠 주세요(광고 제외).",
+  "image": "/images/money/topics/cards-05.svg"
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "question",
+  "title": "마일리지를 모으는 방법은?",
+  "content": "방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-05.svg"
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "talk",
+  "title": "마일로 가고 싶은 곳",
+  "content": "꿈의 여행지를 이야기해 보세요.",
+  "image": "/images/money/topics/cards-05.svg"
+ },
+ {
+  "topic": "항공 마일리지",
+  "kind": "talk",
+  "title": "마일 모으는 재미",
+  "content": "모으는 재미를 나눠 주세요.",
+  "image": "/images/money/topics/cards-05.svg"
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "info",
+  "title": "호텔 포인트의 구조",
+  "content": "숙박 후 적립되거나 제휴 카드로 쌓이는 포인트예요. 호텔 체인마다 등급과 혜택이 달라요.",
+  "image": "/images/money/topics/cards-06.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "등급 혜택",
+      "label": "조식·업그레이드",
+      "note": "조건 확인",
+      "icon": "star"
+     },
+     {
+      "value": "포인트 가치",
+      "label": "객실·시기별",
+      "note": "변동",
+      "icon": "tag"
+     },
+     {
+      "value": "제휴 카드",
+      "label": "무료 숙박 등",
+      "note": "연회비 비교",
+      "icon": "gift"
+     },
+     {
+      "value": "리조트 요금",
+      "label": "별도 확인",
+      "note": "숨은 비용",
+      "icon": "alert-circle"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "info",
+  "title": "포인트 vs 현금 가격 비교",
+  "content": "포인트가 많이 필요한 날은 현금이 더 쌀 수 있어요. 매번 비교하세요.",
+  "image": "/images/money/topics/cards-06.svg"
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "info",
+  "title": "등급 혜택",
+  "content": "조식, 레이트 체크아웃, 업그레이드 등이 있어요. 조건은 체인마다 달라요.",
+  "image": "/images/money/topics/cards-06.svg",
+  "blocks": [
+   {
+    "type": "compare",
+    "title": "호텔 포인트 활용",
+    "columns": [
+     "",
+     "포인트 결제",
+     "현금 결제"
+    ],
+    "rows": [
+     [
+      "가치",
+      "시기별 차이 큼",
+      "정가·할인 확인"
+     ],
+     [
+      "추천",
+      "고가 성수기",
+      "저가·할인 기간"
+     ]
+    ],
+    "highlight": 1
+   }
+  ]
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "info",
+  "title": "리조트 요금 주의",
+  "content": "숙박 외에 리조트 요금이 별도로 붙는 곳이 있어요. 총비용을 확인하세요.",
+  "image": "/images/money/topics/cards-06.svg"
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "info",
+  "title": "무료 숙박 혜택 활용",
+  "content": "일부 카드는 매년 무료 숙박권을 줘요. 사용 기한과 조건을 확인하세요.",
+  "image": "/images/money/topics/cards-06.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "호텔 포인트 활용 순서",
+    "items": [
+     {
+      "title": "포인트 잔액·소멸 확인",
+      "body": "유효기간"
+     },
+     {
+      "title": "현금가와 비교",
+      "body": "시기별"
+     },
+     {
+      "title": "무료 숙박 혜택 확인",
+      "body": "카드 연회비 조건"
+     },
+     {
+      "title": "예약·변경 규정 확인",
+      "body": "취소 수수료"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "info",
+  "title": "포인트 소멸 확인",
+  "content": "활동이 없으면 소멸될 수 있어요. 규정을 확인하세요.",
+  "image": "/images/money/topics/cards-06.svg"
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "question",
+  "title": "호텔 포인트 활용해 보셨나요?",
+  "content": "경험을 나눠 주세요.",
+  "image": "/images/money/topics/cards-06.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "현금 가격과 꼭 비교하세요",
+    "body": "포인트가 많이 드는 날은 현금이 더 쌀 수 있어요. 매번 둘을 비교하세요."
+   }
+  ]
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "question",
+  "title": "가장 좋았던 호텔 혜택은?",
+  "content": "혜택 종류를 나눠 주세요(상호 제외).",
+  "image": "/images/money/topics/cards-06.svg"
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "talk",
+  "title": "여행 숙소 고르는 기준",
+  "content": "기준을 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/cards-06.svg"
+ },
+ {
+  "topic": "호텔 포인트",
+  "kind": "talk",
+  "title": "호텔 아침 식사 이야기",
+  "content": "여행 중 즐거운 순간을 나눠 주세요.",
+  "image": "/images/money/topics/cards-06.svg"
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "가입 보너스란",
+  "content": "일정 기간 안에 일정 금액을 쓰면 포인트나 현금 보너스를 주는 혜택이에요. 조건을 정확히 확인하세요.",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "최소 사용액",
+      "label": "기간 내 달성",
+      "note": "필요한 지출만",
+      "icon": "dollar"
+     },
+     {
+      "value": "첫해만",
+      "label": "보너스",
+      "note": "2년차 가치 따로",
+      "icon": "calendar"
+     },
+     {
+      "value": "신용 조회",
+      "label": "한 번에 많이 X",
+      "note": "5/24 등 규칙",
+      "icon": "search"
+     },
+     {
+      "value": "연회비",
+      "label": "첫해 면제?",
+      "note": "다음 해 확인",
+      "icon": "coins"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "보너스 조건 읽는 법",
+  "content": "최소 사용액, 기간, 지급 시점, 제외 항목을 확인하세요. 현금 서비스나 이체는 제외되는 경우가 많아요.",
+  "image": "/images/money/topics/cards-07.svg"
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "필요한 지출로 채우세요",
+  "content": "보너스를 위해 원래 안 살 걸 사면 손해예요. 평소 지출이 충분할 때 도전하세요.",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "보너스 도전 순서",
+    "items": [
+     {
+      "title": "필요 지출 확인",
+      "body": "기간·금액"
+     },
+     {
+      "title": "평소 지출로 달성",
+      "body": "무리한 소비 금지"
+     },
+     {
+      "title": "보너스 지급 확인",
+      "body": "명세서·포인트"
+     },
+     {
+      "title": "카드 계속 쓸지 결정",
+      "body": "연회비 전"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "첫해와 2년차 가치는 달라요",
+  "content": "보너스는 첫해에만 있어요. 2년차 이후의 연회비와 혜택으로 계속 쓸지 판단하세요.",
+  "image": "/images/money/topics/cards-07.svg"
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "신용 조회와 카드 수",
+  "content": "짧은 기간에 여러 카드를 신청하면 조회가 쌓이고 승인이 어려워질 수 있어요. 카드사별 규칙이 있어요.",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "보너스 때문에 더 쓰지 마세요",
+    "body": "조건을 채우려고 필요 없는 지출을 하면 이득이 사라져요. 평소 지출로 채울 수 있을 때만 도전하세요."
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "보너스 지급 확인",
+  "content": "지급 시점이 지나도 안 들어오면 카드사에 문의하세요. 명세서와 약관을 보관하세요.",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "신청 전 체크",
+    "items": [
+     "최소 사용액·기간",
+     "지급 시점",
+     "연회비·이자율",
+     "내 신용 상태",
+     "보너스 후 유지 여부"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "question",
+  "title": "가입 보너스 받아 보셨나요?",
+  "content": "조건 달성 팁을 나눠 주세요.",
+  "image": "/images/money/topics/cards-07.svg"
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "question",
+  "title": "보너스 때문에 신청했다가 후회한 적 있나요?",
+  "content": "교훈을 나눠 주세요.",
+  "image": "/images/money/topics/cards-07.svg"
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "talk",
+  "title": "보너스 도전 일정",
+  "content": "도전할 카드가 있다면 계획만 적어 보세요.",
+  "image": "/images/money/topics/cards-07.svg"
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "talk",
+  "title": "지출 계획 세우기",
+  "content": "큰 지출을 미리 계획하는 방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-07.svg"
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "카드 크레딧이란",
+  "content": "연회비 카드가 제공하는 정해진 금액의 혜택이에요. 쓰지 않으면 사라져요.",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "매달·분기·연",
+      "label": "혜택 주기",
+      "note": "기록하기",
+      "icon": "calendar"
+     },
+     {
+      "value": "활성화",
+      "label": "필요한 경우",
+      "note": "앱에서 등록",
+      "icon": "check"
+     },
+     {
+      "value": "사용 기한",
+      "label": "놓치면 0",
+      "note": "알림 설정",
+      "icon": "clock"
+     },
+     {
+      "value": "쓰지 않으면",
+      "label": "연회비만",
+      "note": "본전 점검",
+      "icon": "alert-circle"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "크레딧 종류와 주기",
+  "content": "매달·분기·반기·연 단위가 있어요. 주기마다 사용 기한이 달라요.",
+  "image": "/images/money/topics/cards-08.svg"
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "활성화가 필요한 혜택",
+  "content": "앱에서 등록해야 적용되는 경우가 있어요. 등록하지 않으면 혜택을 놓쳐요.",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "크레딧 시스템",
+    "items": [
+     {
+      "title": "혜택 목록 만들기",
+      "body": "금액·주기"
+     },
+     {
+      "title": "활성화·알림",
+      "body": "만료 한 달 전"
+     },
+     {
+      "title": "사용 기록",
+      "body": "명세서 확인"
+     },
+     {
+      "title": "연회비 전 점검",
+      "body": "순이익 계산"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "기록표로 관리하기",
+  "content": "혜택 이름, 주기, 금액, 기한, 사용 여부를 표로 정리하세요. 가이드의 기록표를 활용하세요.",
+  "image": "/images/money/topics/cards-08.svg"
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "쓰기 어려운 혜택은 제외하고 계산",
+  "content": "내가 실제로 쓰지 않을 혜택은 0으로 계산해야 정확해요.",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "연회비 대비 사용 혜택 (가상)",
+    "sub": "연회비 $395 기준",
+    "items": [
+     {
+      "label": "연회비",
+      "value": 395,
+      "display": "$395"
+     },
+     {
+      "label": "실제 사용한 혜택",
+      "value": 520,
+      "display": "$520",
+      "highlight": true
+     },
+     {
+      "label": "순이익",
+      "value": 125,
+      "display": "+$125"
+     }
+    ],
+    "max": 520,
+    "source": "※ 이해를 돕는 가상 예시예요. 카드 혜택·조건은 카드사가 수시로 바꿔요."
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "혜택 변경에 대비하기",
+  "content": "카드사가 혜택을 바꿀 수 있어요. 연 1회 점검하고 본전이 안 되면 다운그레이드하세요.",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "혜택 기록표를 쓰세요",
+    "body": "가이드의 카드 혜택 기록표로 기한과 사용 여부를 정리하면 놓치지 않아요."
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "question",
+  "title": "크레딧 놓친 적 있나요?",
+  "content": "방지 방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-08.svg"
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "question",
+  "title": "가장 유용한 크레딧은?",
+  "content": "종류를 나눠 주세요.",
+  "image": "/images/money/topics/cards-08.svg"
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "talk",
+  "title": "이번 달 크레딧 확인",
+  "content": "확인했다는 한마디를 남겨 보세요.",
+  "image": "/images/money/topics/cards-08.svg"
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "talk",
+  "title": "알림 설정 팁",
+  "content": "알림을 설정하는 방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-08.svg"
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "연회비 카드의 순이익 계산식",
+  "content": "순이익 = 환급·포인트 가치 + 실제로 쓴 혜택 − 연회비. 이 값을 연회비 없는 2% 카드의 환급과 비교하세요.",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "기준",
+      "label": "연회비 없는 2% 카드",
+      "note": "비교 대상",
+      "icon": "coins"
+     },
+     {
+      "value": "순이익",
+      "label": "환급+혜택−연회비",
+      "note": "직접 계산",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "다운그레이드",
+      "label": "해지 전 옵션",
+      "note": "이력 유지",
+      "icon": "refresh"
+     },
+     {
+      "value": "입학 보너스",
+      "label": "첫해만",
+      "note": "2년차는 제외",
+      "icon": "gift"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "포인트 가치는 보수적으로",
+  "content": "현금 환급 1센트를 기준으로 계산하고, 내 사용 방식이 더 높을 때 올려 보세요.",
+  "image": "/images/money/topics/cards-09.svg"
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "입학 보너스는 첫해만",
+  "content": "첫해에는 보너스를 포함해 계산하고, 2년차부터는 빼고 다시 비교하세요.",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "본전 계산",
+    "items": [
+     {
+      "title": "1년 지출 모으기",
+      "body": "명세서"
+     },
+     {
+      "title": "환급·포인트 가치 계산",
+      "body": "내 사용 방식"
+     },
+     {
+      "title": "실제 쓴 혜택 합산",
+      "body": "쓰지 않은 건 0"
+     },
+     {
+      "title": "연회비와 비교",
+      "body": "2% 카드 기준"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "쓰지 않을 혜택은 0원",
+  "content": "받을 수 있는 혜택이 많아도 쓰지 않으면 가치는 0이에요.",
+  "image": "/images/money/topics/cards-09.svg"
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "다운그레이드·상품 전환",
+  "content": "연회비 없는 카드로 바꾸면 이력과 한도를 유지하면서 연회비를 줄일 수 있어요. 카드사에 문의하세요.",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "bars",
+    "title": "순이익 비교 (가상 예시)",
+    "sub": "연 지출 $30,000",
+    "items": [
+     {
+      "label": "연회비 카드 순이익",
+      "value": 705,
+      "display": "$705"
+     },
+     {
+      "label": "2% 카드 환급",
+      "value": 600,
+      "display": "$600"
+     },
+     {
+      "label": "차이",
+      "value": 105,
+      "display": "+$105",
+      "note": "이 조건에선 연회비 카드가 유리",
+      "highlight": true
+     }
+    ],
+    "max": 750,
+    "source": "※ 이해를 돕는 가상 예시예요. 카드 혜택·조건은 카드사가 수시로 바꿔요."
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "연회비 청구 전 점검",
+  "content": "연회비가 청구되기 한 달 전에 계산해서 유지 여부를 결정하세요. 청구 후 환불 정책도 확인하세요.",
+  "image": "/images/money/topics/cards-09.svg"
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "question",
+  "title": "연회비 카드, 계속 쓰시나요?",
+  "content": "이유를 나눠 주세요.",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "해지 전에 다운그레이드를",
+    "body": "카드를 닫으면 신용 이력과 한도가 줄 수 있어요. 연회비 없는 카드로 바꾸는 옵션을 먼저 문의하세요."
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "question",
+  "title": "연회비를 줄인 경험이 있나요?",
+  "content": "방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-09.svg"
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "talk",
+  "title": "연회비 달력 만들기",
+  "content": "청구 시점을 달력에 적어 두는 방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-09.svg"
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "talk",
+  "title": "이번 달 카드 점검",
+  "content": "점검 습관을 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/cards-09.svg"
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "포인트 전환이란",
+  "content": "카드 포인트를 항공·호텔 파트너 포인트로 옮기는 거예요. 전환 비율과 파트너 목록은 카드마다 달라요.",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "전환 비율",
+      "label": "꼭 확인",
+      "note": "1:1이 아닐 수 있음",
+      "icon": "refresh"
+     },
+     {
+      "value": "파트너",
+      "label": "이전 가능 항공·호텔",
+      "note": "목록 확인",
+      "icon": "globe"
+     },
+     {
+      "value": "시간",
+      "label": "이전 소요",
+      "note": "즉시~며칠",
+      "icon": "clock"
+     },
+     {
+      "value": "되돌릴 수 없음",
+      "label": "주의",
+      "note": "확인 후 이전",
+      "icon": "alert-circle"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "전환하기 전에 확인할 것",
+  "content": "예약하려는 좌석·객실이 있는지, 전환 비율, 소요 시간, 파트너 계정 정보를 확인하세요.",
+  "image": "/images/money/topics/cards-10.svg"
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "되돌릴 수 없어요",
+  "content": "전환은 대부분 되돌릴 수 없어요. 신중히 결정하세요.",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "전환 전 체크",
+    "items": [
+     {
+      "title": "목표 확정",
+      "body": "예약 가능 여부 먼저"
+     },
+     {
+      "title": "전환 비율 확인",
+      "body": "보너스 이벤트"
+     },
+     {
+      "title": "소량 테스트",
+      "body": "소요 시간 확인"
+     },
+     {
+      "title": "전환 실행",
+      "body": "기록 보관"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "전환 보너스 이벤트",
+  "content": "가끔 전환 시 추가 보너스를 주는 이벤트가 있어요. 조건과 기간을 확인하세요.",
+  "image": "/images/money/topics/cards-10.svg"
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "포인트 현금화와 비교",
+  "content": "포인트를 현금으로 바꾸면 가치가 낮을 수 있어요. 전환과 비교하세요.",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "이전은 되돌릴 수 없어요",
+    "body": "포인트를 마일로 옮긴 뒤에는 되돌리지 못해요. 예약 가능한 좌석을 확인한 뒤에 전환하세요."
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "소량으로 테스트",
+  "content": "처음에는 소량으로 전환해서 시간과 절차를 확인해 보세요.",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "전환 체크",
+    "items": [
+     "전환 비율",
+     "이전 소요 시간",
+     "파트너 계정 정보",
+     "예약 가능 좌석",
+     "소멸 규정"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "question",
+  "title": "포인트 전환 해 보셨나요?",
+  "content": "경험을 나눠 주세요.",
+  "image": "/images/money/topics/cards-10.svg"
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "question",
+  "title": "전환이 어려웠던 점은?",
+  "content": "해결 방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-10.svg"
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "talk",
+  "title": "포인트 모으는 습관",
+  "content": "습관을 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/cards-10.svg"
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "talk",
+  "title": "여행 목표",
+  "content": "포인트로 가고 싶은 곳을 이야기해 보세요.",
+  "image": "/images/money/topics/cards-10.svg"
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "카드 분쟁(Chargeback)이란",
+  "content": "잘못된 청구나 받지 못한 상품에 대해 카드사에 이의를 제기하는 절차예요. 기한이 있으니 빨리 접수하세요.",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "60일",
+      "label": "신고 기한(일반)",
+      "note": "명세서 기준",
+      "icon": "calendar"
+     },
+     {
+      "value": "서면",
+      "label": "이의 제기",
+      "note": "증빙 첨부",
+      "icon": "paperclip"
+     },
+     {
+      "value": "임시 환불",
+      "label": "조사 중",
+      "note": "카드사 정책",
+      "icon": "refresh"
+     },
+     {
+      "value": "기록",
+      "label": "캡처·영수증",
+      "note": "꼭 보관",
+      "icon": "camera"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "먼저 판매자에게 문의하세요",
+  "content": "많은 경우 판매자와 먼저 해결을 시도해야 해요. 대화 기록을 남기세요.",
+  "image": "/images/money/topics/cards-11.svg"
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "분쟁에 필요한 증빙",
+  "content": "영수증, 주문 확인, 대화 기록, 사진 등을 모으세요.",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "분쟁 절차",
+    "items": [
+     {
+      "title": "판매자에게 먼저 문의",
+      "body": "기록 남기기"
+     },
+     {
+      "title": "카드사에 이의 제기",
+      "body": "기한 내"
+     },
+     {
+      "title": "증빙 제출",
+      "body": "영수증·대화 기록"
+     },
+     {
+      "title": "결과 확인",
+      "body": "재심 요청 가능"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "명세서는 바로 확인",
+  "content": "모르는 청구는 바로 신고하세요. 늦으면 보호가 줄어요.",
+  "image": "/images/money/topics/cards-11.svg"
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "임시 크레딧",
+  "content": "조사하는 동안 임시로 금액을 돌려주는 경우가 있어요. 카드사 정책을 확인하세요.",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "잘못된 청구는 기한이 중요해요",
+    "body": "명세서를 받으면 바로 확인하세요. 이의 제기 기한은 약관과 법에 정해져 있어요. 카드사에 확인하세요."
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "분쟁이 거절됐다면",
+  "content": "추가 증빙을 제출하거나 재심을 요청할 수 있어요.",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "분쟁 전 준비",
+    "items": [
+     "결제 내역 캡처",
+     "판매자 연락 기록",
+     "영수증·계약서",
+     "카드사 신고 접수 번호"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "question",
+  "title": "카드 분쟁 경험 있으신가요?",
+  "content": "진행 과정을 나눠 주세요.",
+  "image": "/images/money/topics/cards-11.svg"
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "question",
+  "title": "분쟁 증빙은 어떻게 모으세요?",
+  "content": "방법을 나눠 주세요.",
+  "image": "/images/money/topics/cards-11.svg"
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "talk",
+  "title": "명세서 확인 습관",
+  "content": "명세서 점검 습관을 가볍게 이야기해 보세요.",
+  "image": "/images/money/topics/cards-11.svg"
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "talk",
+  "title": "온라인 쇼핑 안전 팁",
+  "content": "안전한 쇼핑 습관을 나눠 주세요.",
+  "image": "/images/money/topics/cards-11.svg"
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "월 신용 관리 루틴",
+  "content": "자동이체 확인, 사용률 점검, 새 신청 신중히, 분기별 보고서 확인이 기본이에요.",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "30% 아래",
+      "label": "사용률 기준",
+      "note": "낮을수록 좋음",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "지각 0",
+      "label": "가장 중요",
+      "note": "자동이체",
+      "icon": "check"
+     },
+     {
+      "value": "보고서 확인",
+      "label": "정기적으로",
+      "note": "무료 사이트",
+      "icon": "search"
+     },
+     {
+      "value": "신용 동결",
+      "label": "신분 도용 대비",
+      "note": "무료",
+      "icon": "lock"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "사용률 낮추는 방법",
+  "content": "결제일 전에 일부 상환하거나 한도 증액을 요청하세요. 한도가 올라도 사용을 늘리지는 마세요.",
+  "image": "/images/money/topics/cards-12.svg"
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "연체 예방",
+  "content": "자동이체와 알림을 설정하세요. 한 번의 연체도 오래 남아요.",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "steps",
+    "title": "월 신용 관리 루틴",
+    "items": [
+     {
+      "title": "자동이체 확인",
+      "body": "최소 금액 이상"
+     },
+     {
+      "title": "사용률 점검",
+      "body": "결제일 전에 일부 상환"
+     },
+     {
+      "title": "신규 신청 신중히",
+      "body": "조회 최소화"
+     },
+     {
+      "title": "분기마다 보고서 확인",
+      "body": "틀린 정보 이의 신청"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "신용 보고서 오류 대처",
+  "content": "무료 신용 보고서를 확인하고 오류는 이의 신청하세요. 증빙을 첨부하면 도움이 돼요.",
+  "image": "/images/money/topics/cards-12.svg"
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "신용 동결",
+  "content": "신분 도용을 막기 위해 무료로 동결할 수 있어요. 대출·카드 신청 전에는 일시 해제하세요.",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "checklist",
+    "title": "신용 건강 체크",
+    "items": [
+     "모든 계정 자동이체",
+     "사용률 30% 아래",
+     "새 신청 계획 점검",
+     "무료 신용 보고서 확인",
+     "신용 동결 고려"
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "오래된 카드는 유지",
+  "content": "연회비 없는 오래된 카드는 이력 길이 유지에 도움이 돼요. 가끔 소액을 써서 유지하세요.",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "\"점수 올려 드려요\" 광고는 조심",
+    "body": "요금을 받고 기록을 지워 주겠다는 업체는 사기인 경우가 많아요. 틀린 정보는 무료로 직접 이의 신청할 수 있어요."
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "question",
+  "title": "신용 관리 어떻게 하세요?",
+  "content": "루틴을 나눠 주세요.",
+  "image": "/images/money/topics/cards-12.svg"
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "question",
+  "title": "신용 보고서 오류 겪으셨나요?",
+  "content": "해결 경험을 나눠 주세요.",
+  "image": "/images/money/topics/cards-12.svg"
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "talk",
+  "title": "신용 건강검진의 날",
+  "content": "이번 달 확인해 보세요.",
+  "image": "/images/money/topics/cards-12.svg"
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "talk",
+  "title": "연체 0 도전",
+  "content": "연체 없는 기간을 가볍게 자랑해 보세요.",
+  "image": "/images/money/topics/cards-12.svg"
+ }
+]
