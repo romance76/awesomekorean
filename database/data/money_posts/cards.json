@@ -2569,7 +2569,7 @@
   "topic": "항공 마일리지",
   "kind": "info",
   "title": "대한항공 스카이패스, 미국에서 모으기: 가입, 델타편 적립, 호텔 포인트 전환, 가족 합산, 마일 유효기간 10년",
-  "content": "한국을 오가는 가족에게 대한항공 스카이패스(SKYPASS)는 가장 익숙한 마일리지예요. 미국에 살면서도 스카이패스를 꾸준히 모을 수 있어요. 대한항공·델타 항공편 적립, 호텔 포인트 전환, 가족 마일 합산, 그리고 꼭 알아야 할 10년 유효기간과 아시아나 통합 소식까지 정리했어요.\n- 대한항공·델타 등 스카이팀 항공편을 스카이패스로 적립\n- 일부 호텔 포인트를 스카이패스로 전환 가능(비율은 제휴사가 정함)\n- 2008년 7월 이후 쌓은 마일은 보통 10년 뒤 소멸 — 오래된 마일부터 쓰기",
+  "content": "한국을 오가는 가족에게 대한항공 스카이패스(SKYPASS)는 가장 익숙한 마일리지예요. 미국에 살면서도 스카이패스를 꾸준히 모을 수 있어요. 대한항공·델타 항공편 적립, 호텔·카드 포인트 전환이 되는지, 가족 마일 합산, 그리고 꼭 알아야 할 10년 유효기간과 아시아나 통합 소식까지 정리했어요.\n- 대한항공·델타 등 스카이팀 항공편을 스카이패스로 적립하는 것이 중심\n- 미국 카드 포인트·호텔 포인트에서 옮기는 길은 제한적(메리어트 전환 목록에도 2026년 10월 현재 대한항공 없음)\n- 2008년 7월 이후 쌓은 마일은 보통 10년 뒤 소멸 — 오래된 마일부터 쓰기",
   "image": "/images/money/topics/cards-05.svg",
   "blocks": [
    {
@@ -2664,8 +2664,8 @@
      ],
      [
       "호텔 포인트 전환",
-      "일부 호텔 포인트(예: 메리어트 본보이)를 스카이패스로 전환",
-      "전환 비율·최소 단위는 호텔이 정하고 바뀔 수 있어요"
+      "2026년 10월 확인 결과 메리어트 본보이의 항공 전환 목록에 대한항공은 없어요",
+      "다른 호텔·카드 프로그램도 전환 목록에 대한항공이 있는지 직접 확인"
      ],
      [
       "제휴 신용카드",
@@ -2759,8 +2759,8 @@
       "kind": "항공사 공식"
      },
      {
-      "title": "메리어트 본보이 공식: 포인트 사용·전환",
-      "url": "https://www.marriott.com/loyalty.mi",
+      "title": "메리어트 본보이 공식: Transfer Points to Miles(항공 전환 목록)",
+      "url": "https://www.marriott.com/loyalty/redeem/travel/points-to-miles.mi",
       "kind": "호텔 공식"
      },
      {
@@ -3575,6 +3575,3357 @@
       "title": "CFPB 공식: Credit card agreement database",
       "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
       "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "가입 보너스 구조 이해하기: \"3개월 안에 $X 쓰면 보너스\", 사용 금액에 안 들어가는 것, 보너스가 들어오는 때",
+  "content": "새 카드 광고에서 가장 눈에 띄는 것이 가입 보너스(Welcome offer, Sign-up bonus)예요. \"3개월 안에 $500을 쓰면 $250\" 처럼 정해진 기간 안에 정해진 금액을 써야 받아요. 기간은 언제부터 세는지, 어떤 결제가 사용 금액에 들어가는지, 보너스는 언제 들어오는지 정리했어요.\n- 기간은 보통 \"카드를 받은 날\" 이 아니라 \"계좌가 열린 날\" 부터\n- 잔액 이체·현금 서비스·수수료·이자는 사용 금액에 안 들어가요\n- 보너스는 보통 조건을 채운 명세서가 마감된 뒤 몇 주 안에 들어와요",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "3개월",
+      "label": "흔한 기간",
+      "note": "계좌 개설일부터",
+      "icon": "calendar"
+     },
+     {
+      "value": "구매만",
+      "label": "사용 금액 인정",
+      "note": "반품하면 빠짐",
+      "icon": "shopping-cart"
+     },
+     {
+      "value": "몇 주",
+      "label": "보너스 입금",
+      "note": "명세서 마감 후",
+      "icon": "clock"
+     },
+     {
+      "value": "평소 지출로",
+      "label": "채울 수 있어야",
+      "note": "과소비 금지",
+      "icon": "wallet"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드사 페이지에서 보너스 조건 읽기"
+   },
+   {
+    "type": "shot",
+    "title": "가입 보너스 조건 예(Chase Freedom Flex)",
+    "src": "/images/money/shots/card-chase-flex.jpg",
+    "pins": [
+     {
+      "x": 51,
+      "y": 36.8,
+      "text": "**LIMITED-TIME OFFER** — 기간 한정 보너스라는 표시예요. 끝나면 금액이 바뀌어요."
+     },
+     {
+      "x": 46,
+      "y": 46,
+      "text": "**$200 → $250** — 평소 보너스보다 높게 바뀐 금액이에요. 보너스는 시기마다 달라요."
+     },
+     {
+      "x": 57.7,
+      "y": 66.6,
+      "text": "**Earn a $250 bonus** — 보너스 금액이에요."
+     },
+     {
+      "x": 68,
+      "y": 71.8,
+      "text": "**after you spend $500 ... in the first 3 months from account opening** — 조건: 계좌 개설 후 3개월 안에 구매 $500."
+     }
+    ],
+    "caption": "예로 든 화면일 뿐 추천이 아니에요. 같은 카드라도 사람·시기·신청 경로(웹, 지점, 초대장)에 따라 보너스가 다를 수 있어요.",
+    "credit": "Chase 공식 사이트 creditcards.chase.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "사용 금액에 들어가는 것, 안 들어가는 것"
+   },
+   {
+    "type": "compare",
+    "title": "보너스 사용 금액(일반적인 약관)",
+    "columns": [
+     "결제",
+     "인정?",
+     "설명"
+    ],
+    "rows": [
+     [
+      "일반 구매(마트·주유·온라인)",
+      "들어가요",
+      "반품·환불하면 그만큼 빠져요"
+     ],
+     [
+      "추가 사용자(가족 카드) 구매",
+      "보통 들어가요",
+      "카드사 약관 확인"
+     ],
+     [
+      "잔액 이체(Balance transfer)",
+      "안 들어가요",
+      "다른 카드 빚을 옮긴 것"
+     ],
+     [
+      "현금 서비스(Cash advance)",
+      "안 들어가요",
+      "수수료·이자도 비쌈"
+     ],
+     [
+      "연회비·이자·수수료",
+      "안 들어가요",
+      ""
+     ],
+     [
+      "상품권·머니오더 등 현금성 결제",
+      "안 들어갈 수 있어요",
+      "\"현금 대용\" 으로 보고 제외하는 카드가 있어요"
+     ]
+    ],
+    "highlight": 1
+   },
+   {
+    "type": "steps",
+    "title": "보너스 받는 순서",
+    "items": [
+     {
+      "title": "계좌 개설일 확인",
+      "body": "승인 이메일이나 앱의 \"Account opened\" 날짜가 기간의 시작이에요. 카드가 늦게 와도 기간은 이미 흐르고 있어요."
+     },
+     {
+      "title": "평소 지출로 채울 수 있는지 계산",
+      "body": "3개월 동안 원래 낼 마트·공과금·보험료를 합해 조건 금액이 넘는지 봐요. 모자라면 신청 시기를 늦추세요."
+     },
+     {
+      "title": "자주 내는 요금을 새 카드로",
+      "body": "휴대폰·인터넷·보험료 등을 잠시 새 카드로 바꿔요. 세금·렌트처럼 수수료가 붙는 결제는 계산해 보고."
+     },
+     {
+      "title": "앱에서 진행 상황 보기",
+      "body": "많은 카드사가 앱에 \"보너스까지 남은 금액\" 을 보여 줘요. 안 보이면 고객센터에 물어 기록을 남기세요."
+     },
+     {
+      "title": "보너스 입금 확인",
+      "body": "조건을 채운 명세서가 마감된 뒤 보통 몇 주 안에 들어와요. 8~10주가 지나도 없으면 문의하세요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "신청 전에 약관(작은 글씨)에서 찾을 것",
+    "items": [
+     "**기간과 금액** — \"first 3 months from account opening\" 같은 문장",
+     "**받을 수 없는 경우** — \"이 카드를 가졌거나 보너스를 받은 적이 있으면 제외\" 문구",
+     "**회수 조건** — 1년 안에 해지하거나 반품하면 보너스를 되가져갈 수 있다는 문구",
+     "**연회비** — 첫해 면제인지, 2년째부터 얼마인지"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "보너스 금액을 \"가치\" 로 바꿔 보기",
+    "body": "캐시백 $250은 그대로 $250이에요. 하지만 \"60,000포인트\" 는 쓰는 방법에 따라 $450~$1,000+까지 가치가 달라요. 포인트 보너스는 내가 실제로 쓸 방법(현금화, 항공 전환)을 기준으로 낮게 잡아 계산하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Chase 공식: Freedom Flex(예시)",
+      "url": "https://creditcards.chase.com/cash-back-credit-cards/freedom/flex",
+      "kind": "카드사 공식(예시)"
+     },
+     {
+      "title": "CFPB 공식: Credit card agreement database",
+      "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "가입 보너스 자격 규칙: \"이미 받은 적 있으면 안 돼요\" 문구, 카드사별 기간(24·48개월), Chase 5/24(비공식), 새 신청이 점수에 주는 영향",
+  "content": "같은 보너스를 계속 받을 수는 없어요. 카드사마다 \"이 카드를 가졌거나 최근 몇 년 안에 보너스를 받았다면 제외\" 같은 규칙이 있어요. 또 카드를 자주 신청하면 신용점수의 \"새 신용(10%)\" 요소에도 영향이 있어요. 신청 전에 확인할 규칙과 점수 영향을 정리했어요.\n- 규칙은 약관의 작은 글씨에 있어요 — 카드마다 다름\n- \"Chase 5/24\" 는 공식 발표가 아니라 경험으로 알려진 기준이에요\n- 하드 조회는 신용 보고서에 2년 남고, FICO는 최근 12개월 것만 계산해요",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "2년",
+      "label": "하드 조회 기록",
+      "note": "보고서에 남는 기간",
+      "icon": "calendar"
+     },
+     {
+      "value": "12개월",
+      "label": "FICO 계산 기간",
+      "note": "최근 조회만",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "24·48개월",
+      "label": "흔한 재보너스 기간",
+      "note": "카드사·카드마다",
+      "icon": "clock"
+     },
+     {
+      "value": "비공식",
+      "label": "Chase 5/24",
+      "note": "공식 발표 없음",
+      "icon": "help-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드사별로 흔히 보이는 문구"
+   },
+   {
+    "type": "compare",
+    "title": "보너스 제외 규칙 예(2026년 10월 확인, 약관이 기준)",
+    "columns": [
+     "카드사",
+     "흔한 문구",
+     "뜻"
+    ],
+    "rows": [
+     [
+      "American Express",
+      "\"이 카드를 가졌거나 가진 적이 있으면 보너스 없음\"",
+      "사실상 카드별 평생 1번인 경우가 많아요. 신청 중 \"보너스 대상 아님\" 안내가 뜨기도 해요"
+     ],
+     [
+      "Chase",
+      "\"이 카드를 지금 갖고 있거나 최근 24개월(일부 48개월) 안에 보너스를 받았으면 제외\"",
+      "카드 종류별로 기간이 달라요"
+     ],
+     [
+      "Citi",
+      "\"최근 48개월 안에 이 카드(또는 같은 계열) 보너스를 받았으면 제외\"",
+      "같은 포인트 계열 카드끼리 묶이기도 해요"
+     ],
+     [
+      "Capital One 등",
+      "카드마다 다름",
+      "페이지의 \"Offer details\" 확인"
+     ]
+    ],
+    "highlight": 0,
+    "note": "문구는 바뀌어요. 신청 화면의 \"Terms\" 를 꼭 열어 보세요."
+   },
+   {
+    "type": "h",
+    "title": "\"Chase 5/24\" 는 무엇인가요?"
+   },
+   {
+    "type": "text",
+    "body": [
+     "신용카드 커뮤니티에서는 **\"최근 24개월 동안 모든 카드사에서 새 카드를 5장 이상 열었으면 Chase가 대부분의 카드를 승인하지 않는다\"** 는 경험 규칙을 \"5/24\" 라고 불러요. Chase가 공식으로 발표한 규칙은 아니고, 많은 신청자의 경험으로 알려진 기준이에요. 그래서 예외가 있을 수 있고 바뀔 수도 있어요.",
+     "이런 비공식 규칙보다 더 중요한 것은 **내 신용과 생활에 무리가 없는 속도**예요. 1년에 카드를 여러 장 여는 것은 관리할 결제일·연회비·자동이체가 늘어난다는 뜻이기도 해요."
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "myFICO \"What is New Credit?\"",
+    "src": "/images/money/shots/card-fico-new.jpg",
+    "pins": [
+     {
+      "x": 41.5,
+      "y": 18.8,
+      "text": "**What is New Credit?** — 새 신용은 FICO 점수의 10%예요."
+     },
+     {
+      "x": 49,
+      "y": 31.3,
+      "text": "**inquiries remain ... two years / only consider ... last 12 months** — 조회 기록은 2년 남지만 점수는 최근 12개월 조회만 봐요."
+     },
+     {
+      "x": 42.7,
+      "y": 68.7,
+      "text": "**How many new accounts you have** — 새로 연 계좌 수도 봐요."
+     },
+     {
+      "x": 39.6,
+      "y": 84.7,
+      "text": "**Don't open new accounts too rapidly** — 기록이 짧은 사람은 특히 천천히 열라는 조언이에요."
+     }
+    ],
+    "caption": "새 계좌는 평균 계좌 나이도 낮춰요. 기록이 짧을수록 영향이 커요.",
+    "credit": "FICO(myFICO) 공식 사이트 myfico.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "신청 전 점검 순서",
+    "items": [
+     {
+      "title": "최근 24개월 새 카드 수 세기",
+      "body": "신용 보고서(AnnualCreditReport.com)에서 계좌 개설일을 보면 정확해요. 가족 카드 추가 사용자로 올라간 것도 보고서에 보일 수 있어요."
+     },
+     {
+      "title": "그 카드의 보너스 이력 확인",
+      "body": "전에 같은 카드나 같은 계열을 가졌는지, 보너스를 언제 받았는지 메모해 두세요."
+     },
+     {
+      "title": "큰 대출 일정 확인",
+      "body": "6~12개월 안에 집·차 대출이 있으면 새 카드 신청은 미루는 게 안전해요."
+     },
+     {
+      "title": "미리 승인 확인(Pre-approval)",
+      "body": "점수 영향 없는 조회로 가능성을 보고, 본 신청은 한 번에 하나씩."
+     },
+     {
+      "title": "거절되면 이유 편지 읽기",
+      "body": "거절 이유(Adverse action notice)가 우편으로 와요. 재심사(Reconsideration)를 전화로 요청할 수 있는 카드사도 있어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "하드 조회의 실제 영향",
+    "body": "하드 조회 1건은 보통 몇 점 정도의 작은 영향이고 시간이 지나면 사라져요. 하지만 짧은 기간에 여러 건이 쌓이고 새 계좌가 늘면 \"돈이 급한 사람\" 처럼 보일 수 있어요. 특히 신용 기록이 짧은 이민 초기에는 천천히 가세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "myFICO 공식: New Credit",
+      "url": "https://www.myfico.com/credit-education/credit-scores/new-credit",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "AnnualCreditReport.com 공식",
+      "url": "https://www.annualcreditreport.com/",
+      "kind": "공식(신용평가 3사 공동)"
+     },
+     {
+      "title": "Citi 공식: Double Cash(보너스 제외 문구 예)",
+      "url": "https://www.citi.com/credit-cards/citi-double-cash-credit-card",
+      "kind": "카드사 공식(예시)"
+     },
+     {
+      "title": "CFPB 공식: Credit card agreement database",
+      "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "가입 보너스",
+  "kind": "info",
+  "title": "가입 보너스 노리다 손해 보는 5가지 경우와 세금: 과소비, 대출 앞두고 신청, 보너스 회수, 연회비, 1099가 오는 보너스",
+  "content": "보너스는 \"원래 쓸 돈\" 으로 조건을 채울 때만 이득이에요. 보너스를 받으려고 안 살 물건을 사거나, 집 대출을 앞두고 카드를 열거나, 1년 안에 해지해 보너스를 뺏기면 오히려 손해예요. 흔한 함정 다섯 가지와 보너스의 세금 처리를 정리했어요.\n- 쓴 돈에서 받는 카드 보너스는 보통 소득이 아니라 \"할인\" 으로 봐요\n- 돈을 안 쓰고 받는 은행 계좌 보너스는 이자 소득 — 1099-INT가 와요\n- 보너스를 받고 바로 해지하면 회수(Clawback)될 수 있어요",
+  "image": "/images/money/topics/cards-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "보통 비과세",
+      "label": "사용 조건 카드 보너스",
+      "note": "구매 할인으로 봄",
+      "icon": "shield"
+     },
+     {
+      "value": "과세",
+      "label": "은행 계좌 보너스",
+      "note": "1099-INT",
+      "icon": "dollar"
+     },
+     {
+      "value": "$10 이상",
+      "label": "1099-INT 발송 기준",
+      "note": "IRS 양식 안내",
+      "icon": "mail"
+     },
+     {
+      "value": "1년",
+      "label": "흔한 해지 주의 기간",
+      "note": "보너스 회수 문구",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "손해 보는 5가지 경우"
+   },
+   {
+    "type": "compare",
+    "title": "보너스의 함정",
+    "columns": [
+     "경우",
+     "왜 손해",
+     "대신"
+    ],
+    "rows": [
+     [
+      "조건을 채우려 더 씀",
+      "$300 보너스를 받으려 $800을 더 쓰면 손해",
+      "평소 지출로 채울 수 있을 때만 신청"
+     ],
+     [
+      "잔액을 남겨 이자",
+      "연 20%+ 이자가 보너스를 금방 넘어요",
+      "매달 명세서 금액 전부 갚기"
+     ],
+     [
+      "집·차 대출 직전 신청",
+      "새 조회·새 계좌로 점수가 잠깐 내려가 금리가 오를 수 있어요",
+      "대출이 끝난 뒤 신청"
+     ],
+     [
+      "연회비 계산 안 함",
+      "첫해 면제 후 2년째 연회비",
+      "1년 뒤 계속 쓸지 미리 계산"
+     ],
+     [
+      "1년 안에 해지·반품",
+      "보너스를 되가져갈 수 있다는 약관",
+      "최소 1년은 유지, 다운그레이드 검토"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "steps",
+    "title": "보너스 신청 전 체크",
+    "items": [
+     {
+      "title": "3개월 지출 계획표",
+      "body": "원래 낼 돈(공과금·보험·마트)만으로 조건을 채우는지 적어 봐요."
+     },
+     {
+      "title": "대출 일정",
+      "body": "6~12개월 안에 큰 대출이 없는지."
+     },
+     {
+      "title": "연회비와 2년째 계획",
+      "body": "2년째 연회비를 낼 만큼 쓸 혜택이 있는지, 없으면 연회비 없는 카드로 바꿀 수 있는지."
+     },
+     {
+      "title": "가족과 상의",
+      "body": "배우자와 같은 카드를 따로 신청하면 각자 보너스를 받을 수 있는 경우도 있지만, 두 사람 모두의 신용 기록에 영향이 있어요."
+     },
+     {
+      "title": "기록 남기기",
+      "body": "신청일, 계좌 개설일, 조건 금액, 마감일, 보너스 입금일을 메모해요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "보너스와 세금"
+   },
+   {
+    "type": "shot",
+    "title": "IRS \"About Form 1099-INT\"",
+    "src": "/images/money/shots/card-irs-1099int.jpg",
+    "pins": [
+     {
+      "x": 31.5,
+      "y": 34.2,
+      "text": "**About Form 1099-INT, Interest Income** — 이자 소득 신고 서류 안내예요."
+     },
+     {
+      "x": 50.5,
+      "y": 51.2,
+      "text": "**at least $10** — 이자(은행 보너스 포함)가 $10 이상이면 금융기관이 1099-INT를 보내요."
+     },
+     {
+      "x": 32.7,
+      "y": 76.6,
+      "text": "**Form 1099-INT** — 양식 PDF예요. 받은 1099-INT는 세금 신고 때 넣어요."
+     }
+    ],
+    "caption": "1099가 오지 않아도 과세 소득이면 신고 대상이에요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 irs.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "compare",
+    "title": "보너스 종류별 세금(일반적인 처리, 개인 상황은 세무사 확인)",
+    "columns": [
+     "보너스",
+     "세금",
+     "서류"
+    ],
+    "rows": [
+     [
+      "카드 사용 조건 보너스(포인트·캐시백)",
+      "보통 소득 아님(구매 가격 할인)",
+      "없음"
+     ],
+     [
+      "은행 체킹·세이빙 개설 보너스",
+      "이자 소득",
+      "1099-INT"
+     ],
+     [
+      "돈을 안 써도 주는 카드 보너스·일부 추천 보너스",
+      "소득일 수 있음",
+      "1099-MISC가 오기도 해요"
+     ],
+     [
+      "사업용 카드 보너스",
+      "사업 경비 계산에 영향 가능",
+      "세무사 확인"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "보너스보다 중요한 것",
+    "body": "좋은 보너스는 해마다 다시 나와요. 놓쳐도 괜찮아요. 연체 없는 기록, 낮은 사용 비율, 오래된 계좌가 더 오래 가는 자산이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "IRS 공식: About Form 1099-INT",
+      "url": "https://www.irs.gov/forms-pubs/about-form-1099-int",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "IRS 공식: About Form 1099-MISC",
+      "url": "https://www.irs.gov/forms-pubs/about-form-1099-misc",
+      "kind": "정부(공식, IRS)"
+     },
+     {
+      "title": "myFICO 공식: New Credit",
+      "url": "https://www.myfico.com/credit-education/credit-scores/new-credit",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "카드 크레딧이 뭐예요: 식당·여행·구독·호텔 크레딧의 구조, 등록이 필요한 것, 연회비 대비 실제 가치 따지기",
+  "content": "연회비가 높은 카드는 \"매달 식당 $10\", \"1년 여행 $300\" 같은 크레딧(Credit)을 줘요. 정해진 곳에서 카드로 결제하면 나중에 명세서에서 그만큼 빼 주는 방식이에요. 광고에 적힌 크레딧을 다 더하면 연회비보다 커 보이지만, 실제로 내가 쓰는 것만 가치가 있어요. 크레딧의 구조와 가치 계산법을 정리했어요.\n- 크레딧 = 정해진 가게·기간에 결제하면 명세서에서 돌려주는 돈\n- 미리 등록(Enroll)해야 하는 크레딧이 많아요\n- 월·분기·반기별로 나뉘어 있어 안 쓰면 그 기간에 사라져요",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "명세서 차감",
+      "label": "크레딧 방식",
+      "note": "Statement credit",
+      "icon": "dollar"
+     },
+     {
+      "value": "등록 필요",
+      "label": "많은 크레딧",
+      "note": "앱의 혜택 메뉴",
+      "icon": "check"
+     },
+     {
+      "value": "월·분기·연",
+      "label": "기간별 사용",
+      "note": "이월 안 됨",
+      "icon": "calendar"
+     },
+     {
+      "value": "내가 쓰는 것만",
+      "label": "실제 가치",
+      "note": "광고 합계 아님",
+      "icon": "coins"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "고급 카드의 크레딧 예"
+   },
+   {
+    "type": "shot",
+    "title": "고연회비 카드 공식 페이지 예(American Express Platinum)",
+    "src": "/images/money/shots/card-amex-plat.jpg",
+    "pins": [
+     {
+      "x": 49.6,
+      "y": 76.3,
+      "text": "**Annual Fee** — 연회비. 고급 카드는 수백 달러예요(2026년 10월 화면 기준)."
+     },
+     {
+      "x": 50,
+      "y": 83.7,
+      "text": "**PREMIUM BENEFITS** — 이 아래에 크레딧·라운지 같은 혜택 목록이 이어져요."
+     },
+     {
+      "x": 48,
+      "y": 97,
+      "text": "**Global Lounge Collection** — 공항 라운지 혜택이에요. 크레딧과 함께 연회비 계산에 넣는 항목이에요."
+     },
+     {
+      "x": 7.7,
+      "y": 15,
+      "text": "**View All Cards** — 같은 회사의 다른 카드와 비교할 수 있어요."
+     }
+    ],
+    "caption": "예로 든 화면일 뿐 추천이 아니에요. 크레딧 종류·금액은 자주 바뀌고, 혜택마다 별도 약관이 있어요.",
+    "credit": "American Express 공식 사이트 americanexpress.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "크레딧의 종류"
+   },
+   {
+    "type": "compare",
+    "title": "흔한 카드 크레딧 종류",
+    "columns": [
+     "종류",
+     "어떻게 받나",
+     "조심할 점"
+    ],
+    "rows": [
+     [
+      "식당·배달 크레딧",
+      "정해진 식당·배달 앱 결제 시 매달 일정액",
+      "월 단위라 안 쓰면 그달에 사라짐"
+     ],
+     [
+      "여행 크레딧",
+      "항공·호텔·카드사 여행 사이트 결제 시",
+      "카드사 여행 사이트에서만 되는 경우"
+     ],
+     [
+      "항공 부가 요금 크레딧",
+      "지정한 항공사의 수하물·좌석 요금",
+      "항공권 값에는 안 되는 경우가 많음"
+     ],
+     [
+      "호텔 크레딧",
+      "카드사 제휴 호텔 예약",
+      "2박 이상·선불 예약 등 조건"
+     ],
+     [
+      "구독·스트리밍 크레딧",
+      "정해진 서비스 월 구독료",
+      "내가 원래 쓰는 서비스인지"
+     ],
+     [
+      "공항 보안 프로그램 크레딧",
+      "Global Entry·TSA PreCheck 신청비",
+      "보통 4~5년에 한 번"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "steps",
+    "title": "내게 맞는 크레딧인지 계산",
+    "items": [
+     {
+      "title": "광고의 크레딧 목록을 적기",
+      "body": "카드 페이지의 \"Benefits\" 와 각 혜택 약관(Terms)을 봐요."
+     },
+     {
+      "title": "\"원래 쓰는 돈\" 표시",
+      "body": "크레딧이 없어도 원래 쓸 돈(예: 매달 배달 앱)이면 가치 100%, 크레딧 때문에 새로 쓰게 되면 가치는 그보다 훨씬 낮아요."
+     },
+     {
+      "title": "기간 쪼개기",
+      "body": "월 $10 × 12개월이라도 바쁜 달에 못 쓰면 줄어요. 현실적으로 쓸 횟수로 계산해요."
+     },
+     {
+      "title": "합계 vs 연회비",
+      "body": "\"실제 쓸 크레딧 + 추가 포인트 가치 − 연회비\" 가 플러스인지 봐요(연회비 계산 글 참고)."
+     },
+     {
+      "title": "1년 뒤 다시 계산",
+      "body": "크레딧은 해마다 바뀌어요. 연회비 청구 전에 다시 따져 봐요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "크레딧 약관에서 볼 것",
+    "items": [
+     "**등록(Enrollment) 필요 여부** — 등록하기 전 결제는 인정 안 되는 경우",
+     "**가게 지정 방식** — 가게의 업종 코드나 지정 가맹점으로 판단",
+     "**기간 기준** — 달력 기준 월인지, 카드 기념일 기준 연인지",
+     "**들어오는 시간** — 명세서 차감까지 며칠~몇 주",
+     "**환불·취소 시** — 크레딧이 다시 빠질 수 있어요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "크레딧은 \"쿠폰북\" 이라고 생각하세요",
+    "body": "크레딧은 현금이 아니라 정해진 곳에서만 쓰는 쿠폰이에요. 쿠폰 때문에 연회비 $600을 내는 것이 맞는지, 그 돈으로 그냥 원하는 곳에 쓰는 게 나은지 따져 보세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "American Express 공식: Platinum Card(예시)",
+      "url": "https://www.americanexpress.com/us/credit-cards/card/platinum/",
+      "kind": "카드사 공식(예시)"
+     },
+     {
+      "title": "CFPB 공식: Credit card agreement database",
+      "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "Global Entry·TSA PreCheck 신청비를 카드 크레딧으로: 두 프로그램 차이, 비용, 신청 순서, 영주권자도 되나",
+  "content": "공항 보안 검색 줄과 입국 심사 줄을 줄여 주는 TSA PreCheck와 Global Entry는 많은 여행 카드가 신청비를 크레딧으로 돌려주는 혜택이에요. 한국을 오가는 분이라면 입국 심사가 빨라지는 Global Entry가 특히 편해요. 두 프로그램의 차이, 비용, 신청 순서, 카드 크레딧 받는 법을 정리했어요.\n- TSA PreCheck: 미국 공항 보안 검색 빠른 줄(신발·노트북 안 꺼냄), 5년\n- Global Entry: 미국 입국 심사 빠른 줄 + TSA PreCheck 포함, 5년, 면접 필요\n- 영주권자(LPR)도 Global Entry 신청 가능 — 카드 크레딧은 신청비를 그 카드로 내야 받아요",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "5년",
+      "label": "유효기간",
+      "note": "두 프로그램 모두",
+      "icon": "calendar"
+     },
+     {
+      "value": "$85 이하",
+      "label": "TSA PreCheck",
+      "note": "TSA 안내(업체별)",
+      "icon": "dollar"
+     },
+     {
+      "value": "$120",
+      "label": "Global Entry",
+      "note": "CBP 신청비",
+      "icon": "globe"
+     },
+     {
+      "value": "포함",
+      "label": "GE에 PreCheck",
+      "note": "KTN 번호 같이 사용",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "두 프로그램 비교"
+   },
+   {
+    "type": "compare",
+    "title": "TSA PreCheck vs Global Entry",
+    "columns": [
+     "항목",
+     "TSA PreCheck",
+     "Global Entry"
+    ],
+    "rows": [
+     [
+      "하는 일",
+      "미국 공항 출발 보안 검색 빠른 줄",
+      "해외에서 미국 들어올 때 입국 심사 빠르게 + PreCheck"
+     ],
+     [
+      "운영",
+      "교통안전청(TSA)",
+      "세관국경보호청(CBP)"
+     ],
+     [
+      "비용·기간",
+      "5년, $85 이하(등록 업체별)",
+      "5년, $120"
+     ],
+     [
+      "신청 대상",
+      "미국 시민권자·영주권자 등",
+      "미국 시민권자·영주권자, 일부 협정국 국민"
+     ],
+     [
+      "절차",
+      "온라인 신청 → 등록 센터 지문·사진",
+      "온라인 신청 → 조건부 승인 → 면접(공항 등)"
+     ],
+     [
+      "맞는 사람",
+      "국내선이 많은 분",
+      "한국 등 해외 여행이 있는 분"
+     ]
+    ],
+    "highlight": 2,
+    "note": "비용은 2026년 10월 공식 사이트 기준이에요. 바뀔 수 있어요."
+   },
+   {
+    "type": "shot",
+    "title": "CBP Global Entry 공식 페이지",
+    "src": "/images/money/shots/card-gentry.jpg",
+    "pins": [
+     {
+      "x": 50,
+      "y": 33.4,
+      "text": "**Global Entry** — 세관국경보호청(CBP)의 신뢰 여행자 프로그램이에요."
+     },
+     {
+      "x": 31.4,
+      "y": 26.2,
+      "text": "**Trusted Traveler Programs** — Global Entry·NEXUS·SENTRI 등 프로그램 모음이에요."
+     },
+     {
+      "x": 23.4,
+      "y": 79,
+      "text": "**Learn How to Use Global Entry at the Airport** — 입국 때 키오스크·얼굴 인식으로 통과하는 방법이에요."
+     }
+    ],
+    "caption": "실제 신청은 정부 공식 사이트 ttp.dhs.gov(Trusted Traveler Programs)에서 해요. 비슷한 이름의 대행 사이트는 수수료를 더 받아요.",
+    "credit": "미국 세관국경보호청(CBP) 공식 사이트 cbp.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "Global Entry 신청 순서",
+    "items": [
+     {
+      "title": "카드 크레딧 확인",
+      "body": "카드 앱 Benefits에서 \"Global Entry or TSA PreCheck credit\" 이 있는지, 몇 년마다 1번인지 봐요."
+     },
+     {
+      "title": "ttp.dhs.gov 에서 신청",
+      "body": "Login.gov 계정으로 로그인 → Global Entry 신청서 작성(최근 5년 주소·직장·여행 기록)."
+     },
+     {
+      "title": "신청비를 그 카드로 결제",
+      "body": "그래야 크레딧이 들어와요. 가족 신청비도 내 카드로 내면 되는지는 카드 약관 확인(1회 한도인 경우가 많아요)."
+     },
+     {
+      "title": "조건부 승인 후 면접",
+      "body": "공항 등록 센터 면접을 예약하거나, 해외에서 돌아올 때 공항에서 바로 면접(Enrollment on Arrival)을 할 수 있는 곳도 있어요. 여권·영주권 카드를 가져가요."
+     },
+     {
+      "title": "KTN 번호 등록",
+      "body": "승인되면 받는 번호(PASSID)가 TSA PreCheck용 KTN이에요. 항공사 예약·마일리지 계정에 넣어야 탑승권에 PreCheck가 찍혀요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "TSA PreCheck 공식 페이지",
+    "src": "/images/money/shots/card-precheck.jpg",
+    "pins": [
+     {
+      "x": 38.8,
+      "y": 42.9,
+      "text": "**TSA PreCheck®** — 교통안전청의 빠른 보안 검색 프로그램이에요."
+     },
+     {
+      "x": 39,
+      "y": 93.6,
+      "text": "**five years of benefits for $85 or less** — 5년에 $85 이하라는 안내예요."
+     },
+     {
+      "x": 17.2,
+      "y": 59,
+      "text": "**Enrollment Locations** — 지문·사진 등록 장소 찾기예요."
+     },
+     {
+      "x": 15.6,
+      "y": 75.3,
+      "text": "**Using Your KTN** — 받은 번호(KTN)를 항공 예약에 넣는 법이에요."
+     }
+    ],
+    "caption": "TSA PreCheck만 원하면 여기서 신청하고, Global Entry를 받으면 PreCheck는 따로 신청할 필요가 없어요.",
+    "credit": "미국 교통안전청(TSA) 공식 사이트 tsa.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "대행 사이트·문자 조심",
+    "body": "\"Global Entry 갱신 마감\" 같은 문자나 검색 광고의 대행 사이트는 정부 수수료보다 비싸게 받거나 개인정보를 노려요. 신청은 **ttp.dhs.gov**(Global Entry)와 **tsa.gov**(PreCheck) 공식 사이트에서만 하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "CBP 공식: Global Entry",
+      "url": "https://www.cbp.gov/travel/trusted-traveler-programs/global-entry",
+      "kind": "정부(공식, CBP)"
+     },
+     {
+      "title": "DHS 공식: Trusted Traveler Programs 신청",
+      "url": "https://ttp.dhs.gov/",
+      "kind": "정부(공식, DHS)"
+     },
+     {
+      "title": "TSA 공식: TSA PreCheck",
+      "url": "https://www.tsa.gov/precheck",
+      "kind": "정부(공식, TSA)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 크레딧",
+  "kind": "info",
+  "title": "카드 크레딧 놓치지 않는 관리법: 월·분기·반기·연 크레딧 달력 만들기, 앱에서 등록, 들어왔는지 확인",
+  "content": "크레딧이 많은 카드는 크레딧마다 기간이 달라서 놓치기 쉬워요. 매달 쓰는 식당 크레딧, 1월과 7월에 나뉘는 호텔 크레딧, 1년에 한 번 쓰는 항공 크레딧이 섞여 있으면 결국 절반만 쓰고 연회비만 내게 돼요. 크레딧 달력 만드는 법, 앱에서 등록하는 법, 들어왔는지 확인하는 법을 정리했어요.\n- 크레딧을 \"월·분기·반기·연\" 네 줄로 정리\n- 카드 앱의 혜택(Benefits) 메뉴에서 등록 여부 확인\n- 명세서에 \"Credit\" 줄이 찍혔는지 매달 확인",
+  "image": "/images/money/topics/cards-08.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "4줄",
+      "label": "크레딧 달력",
+      "note": "월·분기·반기·연",
+      "icon": "calendar"
+     },
+     {
+      "value": "1번",
+      "label": "등록",
+      "note": "대부분 한 번이면 유지",
+      "icon": "check"
+     },
+     {
+      "value": "매달",
+      "label": "명세서 확인",
+      "note": "\"Credit\" 줄",
+      "icon": "list"
+     },
+     {
+      "value": "알림",
+      "label": "휴대폰 달력",
+      "note": "기간 끝나기 전",
+      "icon": "bell"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "앱에서 혜택 찾기"
+   },
+   {
+    "type": "shot",
+    "title": "카드 앱의 혜택 화면 예(Amex)",
+    "src": "/images/money/shots/app-amex-3.jpg",
+    "pins": [
+     {
+      "x": 33.7,
+      "y": 29,
+      "text": "**Explore Benefits** — 내 카드 혜택 목록이에요. 크레딧마다 \"Enroll\" 버튼이 있는지 봐요."
+     },
+     {
+      "x": 74,
+      "y": 29,
+      "text": "**View All** — 전체 혜택과 사용 현황을 봐요."
+     },
+     {
+      "x": 45.4,
+      "y": 53.6,
+      "text": "**Global Lounge Collection** — 라운지처럼 \"쓰는 방법\" 이 따로 있는 혜택이에요."
+     },
+     {
+      "x": 42,
+      "y": 89.8,
+      "text": "**Membership** — 아래 탭. 혜택 메뉴가 여기 있어요."
+     }
+    ],
+    "caption": "앱의 Membership(또는 Benefits) 탭에서 내 카드의 크레딧과 혜택, 등록 버튼을 볼 수 있어요.",
+    "credit": "Amex 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "h",
+    "title": "크레딧 달력 만들기"
+   },
+   {
+    "type": "compare",
+    "title": "크레딧 달력 양식(예시)",
+    "columns": [
+     "주기",
+     "크레딧 예",
+     "언제 쓰나",
+     "알림"
+    ],
+    "rows": [
+     [
+      "매달",
+      "식당·배달·구독 크레딧",
+      "매달 1~10일 사이 한 번",
+      "매달 20일 \"이번 달 썼나?\""
+     ],
+     [
+      "분기(3개월)",
+      "일부 카드의 분기 크레딧",
+      "1·4·7·10월",
+      "분기 마지막 달 1일"
+     ],
+     [
+      "반기(6개월)",
+      "호텔·쇼핑 크레딧",
+      "1~6월, 7~12월",
+      "6월 1일, 12월 1일"
+     ],
+     [
+      "1년",
+      "항공 부가 요금·여행 크레딧",
+      "달력 연도 또는 카드 기념일 기준",
+      "11월 1일(연말 전)"
+     ],
+     [
+      "4~5년",
+      "Global Entry·PreCheck",
+      "만료 6개월 전",
+      "여권 만료와 함께 확인"
+     ]
+    ],
+    "note": "\"달력 연도\" 와 \"카드 기념일(Card anniversary)\" 기준이 섞여 있으니 약관에서 기준을 확인하세요."
+   },
+   {
+    "type": "steps",
+    "title": "처음 한 번 해 둘 일",
+    "items": [
+     {
+      "title": "혜택 목록 캡처",
+      "body": "앱의 혜택 화면을 캡처해 한 장에 모아요. 크레딧 이름, 금액, 주기, 등록 필요 여부를 적어요."
+     },
+     {
+      "title": "필요한 것은 바로 등록",
+      "body": "\"Enroll\" 이 있는 크레딧은 오늘 등록해요. 등록 전 결제는 보통 인정되지 않아요."
+     },
+     {
+      "title": "결제 수단 연결",
+      "body": "배달 앱·스트리밍 같은 크레딧은 그 서비스의 결제 카드를 이 카드로 바꿔 두면 자동으로 쓰여요."
+     },
+     {
+      "title": "휴대폰 달력에 반복 알림",
+      "body": "위 표처럼 기간 끝나기 전에 알림을 걸어요."
+     },
+     {
+      "title": "매달 명세서에서 확인",
+      "body": "크레딧이 들어오면 명세서에 \"Credit\" 또는 마이너스 금액으로 찍혀요. 안 들어왔으면 결제 후 몇 주 기다렸다가 고객센터에 물어봐요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "크레딧이 안 들어오는 흔한 이유",
+    "items": [
+     "**등록을 안 했다** — 등록 전에 결제",
+     "**다른 카드로 결제** — 가족 카드·다른 카드로 결제됨",
+     "**지정 가게가 아님** — 같은 브랜드라도 프랜차이즈 매장·제3자 판매는 제외될 수 있음",
+     "**상품권·선불 결제** — 크레딧 대상에서 빠지는 경우",
+     "**기간을 넘김** — 결제일이 아니라 \"거래 날짜\" 기준으로 판단"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "쓰지 않는 크레딧은 \"없는 것\" 으로",
+    "body": "크레딧을 다 쓰려고 필요 없는 소비를 하면 이득이 아니에요. 1년 동안 실제로 쓴 크레딧 합계를 적어 두면, 연회비 청구 때 \"계속 쓸지\" 를 쉽게 결정할 수 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "American Express 공식: Platinum Card 혜택(예시)",
+      "url": "https://www.americanexpress.com/us/credit-cards/card/platinum/",
+      "kind": "카드사 공식(예시)"
+     },
+     {
+      "title": "CFPB 공식: Credit card agreement database",
+      "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "연회비 카드가 내게 이득인지 계산표: 연회비 − (실제로 쓸 크레딧 + 더 얻는 포인트 가치), 첫해와 2년째 따로",
+  "content": "연회비 $95, $325, $895… 숫자만 보면 부담스럽지만, 실제로 쓰는 혜택이 연회비보다 크면 이득이고 작으면 손해예요. 감으로 정하지 말고 표로 계산해 보세요. 연회비 없는 2% 카드와 비교하는 계산법, 첫해(보너스 포함)와 2년째(보너스 없음)를 나눠 보는 이유를 정리했어요.\n- 비교 기준: \"연회비 없는 2% 캐시백 카드를 썼다면 받았을 돈\"\n- 크레딧은 실제로 쓸 금액만, 포인트는 내가 쓸 방법의 가치로\n- 첫해는 보너스 때문에 대부분 이득 — 2년째 계산이 진짜",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "$0 2% 카드",
+      "label": "비교 기준",
+      "note": "연회비 없는 정액형",
+      "icon": "coins"
+     },
+     {
+      "value": "2년째",
+      "label": "진짜 계산",
+      "note": "보너스 없는 해",
+      "icon": "calendar"
+     },
+     {
+      "value": "실제 사용분",
+      "label": "크레딧 가치",
+      "note": "광고 금액 아님",
+      "icon": "check"
+     },
+     {
+      "value": "낮게",
+      "label": "포인트 가치",
+      "note": "보수적으로 잡기",
+      "icon": "chart-bar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드 페이지에서 연회비 확인"
+   },
+   {
+    "type": "shot",
+    "title": "연회비가 있는 카드 공식 페이지 예(American Express Gold)",
+    "src": "/images/money/shots/card-amex-gold.jpg",
+    "pins": [
+     {
+      "x": 49.6,
+      "y": 73.6,
+      "text": "**Annual Fee** — 연회비. 계산의 출발점이에요(2026년 10월 화면 기준)."
+     },
+     {
+      "x": 50,
+      "y": 81,
+      "text": "**Savor Eating In & Dining Out** — 이 카드가 강조하는 분야(식당·마트)예요. 내 지출과 맞는지 봐요."
+     },
+     {
+      "x": 51,
+      "y": 93.4,
+      "text": "**Earn Membership Rewards points on dining, groceries...** — 포인트를 많이 주는 분야 설명이에요."
+     },
+     {
+      "x": 60,
+      "y": 15,
+      "text": "**카드 비교 줄** — 같은 회사의 다른 카드와 연회비·혜택을 비교할 수 있어요."
+     }
+    ],
+    "caption": "예로 든 화면일 뿐 추천이 아니에요. 적립률과 크레딧은 페이지 아래와 약관에서 확인하세요.",
+    "credit": "American Express 공식 사이트 americanexpress.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "계산표"
+   },
+   {
+    "type": "compare",
+    "title": "연회비 카드 계산 예시(가상의 숫자, 2년째 기준)",
+    "columns": [
+     "항목",
+     "계산",
+     "금액"
+    ],
+    "rows": [
+     [
+      "① 연회비",
+      "",
+      "−$325"
+     ],
+     [
+      "② 실제로 쓸 크레딧",
+      "배달·식당 크레딧 중 실제 쓸 것",
+      "+$150"
+     ],
+     [
+      "③ 이 카드로 받는 포인트 가치",
+      "식당·마트 연 $12,000 × 4포인트 × 1센트",
+      "+$480"
+     ],
+     [
+      "④ 2% 카드였다면 받았을 돈",
+      "연 $12,000 × 2%",
+      "−$240"
+     ],
+     [
+      "⑤ 1년 순이익",
+      "① + ② + ③ + ④",
+      "+$65"
+     ],
+     [
+      "포인트를 1.5센트 가치로 쓰면",
+      "③이 $720",
+      "+$305"
+     ]
+    ],
+    "highlight": 4,
+    "note": "포인트를 현금처럼 1센트로 쓰면 이득이 작고, 항공 전환으로 더 높게 쓰면 커져요. 그래서 \"내가 실제로 쓸 방법\" 이 중요해요."
+   },
+   {
+    "type": "steps",
+    "title": "우리 집 숫자로 계산하는 순서",
+    "items": [
+     {
+      "title": "카드가 많이 주는 분야의 연 지출",
+      "body": "그 카드의 높은 적립 분야(식당·마트·여행)에서 1년에 얼마 쓰는지 내역으로 확인해요."
+     },
+     {
+      "title": "포인트 가치 정하기",
+      "body": "현금화만 할 거면 보통 1센트 안팎, 항공 전환을 실제로 할 거면 그보다 높게. 모르면 1센트로 보수적으로."
+     },
+     {
+      "title": "크레딧은 실제 사용분만",
+      "body": "작년에 실제로 쓴 크레딧 합계가 가장 정확해요."
+     },
+     {
+      "title": "비교 카드 빼기",
+      "body": "연회비 없는 2% 카드로 같은 돈을 썼다면 받았을 금액을 빼요."
+     },
+     {
+      "title": "결과가 마이너스면",
+      "body": "연회비 없는 카드로 바꾸기(Product change)나 해지를 검토해요. \"연회비 낮추는 법\" 글 참고."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "계산에 넣기 쉬운 \"숨은 가치\"",
+    "items": [
+     "**여행 보험** — 실제로 청구할 일이 생기면 크지만 매년 가치로 넣기는 어려워요(작게)",
+     "**라운지** — 1년에 몇 번 가는지 × 라운지 1회 가치(작게)",
+     "**무료 수하물·우선 탑승(항공 카드)** — 가족 수 × 왕복 횟수 × 수하물 요금",
+     "**호텔 숙박권** — 실제로 쓸 호텔의 현금 가격"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "첫해 계산은 따로",
+    "body": "첫해에는 가입 보너스가 있어 대부분 이득으로 나와요. 하지만 2년째부터는 보너스가 없어요. 신청할 때부터 \"2년째에도 남는 장사인가?\" 를 계산해 두면, 연회비 청구 때 망설이지 않아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "American Express 공식: Gold Card(예시)",
+      "url": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
+      "kind": "카드사 공식(예시)"
+     },
+     {
+      "title": "CFPB 공식: Credit card agreement database",
+      "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "연회비 낮추는 법: 해지 대신 연회비 없는 카드로 바꾸기(Product change), 유지 혜택(Retention offer) 물어보기, 연회비 환불 기간",
+  "content": "연회비가 아깝다고 바로 해지하면 오래된 계좌가 닫혀 신용 기록의 길이와 사용 비율에 영향이 있어요. 해지 전에 해 볼 수 있는 방법이 있어요. 같은 카드사의 연회비 없는 카드로 바꾸기, 카드사에 유지 혜택을 물어보기, 연회비가 청구된 뒤 환불 기간 안에 결정하기예요.\n- Product change: 계좌 번호(기록)는 그대로 두고 카드 종류만 바꾸는 것\n- Retention offer: \"해지하려고 한다\" 고 하면 포인트·크레딧을 주는 경우가 있어요(보장 아님)\n- 많은 카드사가 연회비 청구 후 일정 기간 안에 해지하면 환불해 줘요(약관 확인)",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "그대로",
+      "label": "계좌 나이",
+      "note": "Product change 시",
+      "icon": "clock"
+     },
+     {
+      "value": "15%",
+      "label": "기록 길이 비중",
+      "note": "FICO",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "보장 없음",
+      "label": "유지 혜택",
+      "note": "물어보는 건 무료",
+      "icon": "help-circle"
+     },
+     {
+      "value": "약관 확인",
+      "label": "연회비 환불 기간",
+      "note": "흔히 30일 안팎",
+      "icon": "calendar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "왜 해지보다 바꾸기가 나을까?"
+   },
+   {
+    "type": "shot",
+    "title": "myFICO \"What is the Length of Your Credit History?\"",
+    "src": "/images/money/shots/card-fico-len.jpg",
+    "pins": [
+     {
+      "x": 45.6,
+      "y": 21.3,
+      "text": "**Length of Your Credit History** — 신용 기록의 길이 설명이에요."
+     },
+     {
+      "x": 49,
+      "y": 36.3,
+      "text": "**accounts for 15% of your FICO Score** — 기록 길이는 FICO 점수의 15%예요."
+     },
+     {
+      "x": 50.5,
+      "y": 73,
+      "text": "**age of your oldest account ... average age** — 가장 오래된 계좌, 가장 새 계좌, 평균 나이를 봐요."
+     }
+    ],
+    "caption": "Product change는 보통 같은 계좌를 유지하니 계좌 나이가 그대로예요(카드사 처리 방식 확인).",
+    "credit": "FICO(myFICO) 공식 사이트 myfico.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "compare",
+    "title": "연회비를 줄이는 3가지 방법",
+    "columns": [
+     "방법",
+     "어떻게",
+     "좋은 점",
+     "주의"
+    ],
+    "rows": [
+     [
+      "Product change(다운그레이드)",
+      "같은 카드사의 연회비 없는/낮은 카드로 변경 요청",
+      "계좌·한도·기록 유지, 보통 하드 조회 없음",
+      "바꿀 수 있는 카드는 카드사가 정함, 쌓인 포인트·혜택 확인"
+     ],
+     [
+      "Retention offer(유지 혜택)",
+      "고객센터에 \"연회비 때문에 해지를 고민 중\" 이라고 말함",
+      "포인트·크레딧·연회비 일부 면제를 줄 때가 있음",
+      "보장 없음, 받으면 일정 기간 유지 조건"
+     ],
+     [
+      "연회비 청구 후 해지",
+      "청구 후 환불 기간 안에 해지",
+      "연회비 환불",
+      "계좌가 닫힘 — 점수 영향 확인"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "steps",
+    "title": "고객센터 통화 순서",
+    "items": [
+     {
+      "title": "연회비 청구일 확인",
+      "body": "명세서에 \"Annual fee\" 가 찍힌 날을 확인하고, 약관의 환불 기간(흔히 30일 안팎)을 봐요."
+     },
+     {
+      "title": "포인트 먼저 정리",
+      "body": "바꾸거나 해지하면 포인트가 사라지거나 쓰는 방법이 줄 수 있어요. 먼저 쓰거나 같은 회사의 다른 카드로 옮겨요."
+     },
+     {
+      "title": "전화 또는 채팅",
+      "body": "카드 뒷면 번호로 전화해 \"연회비가 부담돼서 해지를 생각 중인데, 다른 방법이 있나요?\" 라고 물어요."
+     },
+     {
+      "title": "제안 비교",
+      "body": "유지 혜택, 바꿀 수 있는 카드 목록을 듣고, 연회비 계산 글의 표로 비교해요."
+     },
+     {
+      "title": "결과를 기록",
+      "body": "날짜, 담당자 이름, 제안 내용, 확인 번호를 적어 두세요. 다음 명세서에서 반영됐는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "Product change 전에 확인",
+    "items": [
+     "**새 카드에서 포인트를 어떻게 쓰나** — 전환 포인트가 캐시백으로만 쓰이게 될 수 있어요",
+     "**카드 번호가 바뀌나** — 자동결제 등록을 바꿔야 할 수 있어요",
+     "**보너스는 없어요** — 바꾼 카드의 가입 보너스는 보통 못 받아요",
+     "**바꾼 뒤 일정 기간 다시 못 바꾸는 규칙** — 카드사마다 있을 수 있어요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "첫 카드는 남겨 두세요",
+    "body": "이민 초기에 만든 첫 카드처럼 오래된 연회비 없는 카드는 거의 쓰지 않더라도 남겨 두는 게 보통 유리해요. 몇 달에 한 번 작은 금액을 써서 카드사가 \"사용 안 함\" 으로 닫지 않게 하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "myFICO 공식: Length of Credit History",
+      "url": "https://www.myfico.com/credit-education/credit-scores/length-of-credit-history",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "CFPB 공식: Credit card agreement database(연회비·환불 약관)",
+      "url": "https://www.consumerfinance.gov/credit-cards/agreements/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "연회비 계산",
+  "kind": "info",
+  "title": "카드 해지 전 체크리스트: 사용 비율이 올라가는 이유, 닫힌 계좌 기록, 포인트 먼저 쓰기, 자동결제 옮기기, 남은 잔액 돌려받기",
+  "content": "연회비가 아깝거나 쓰지 않는 카드를 정리하고 싶을 때가 있어요. 해지 자체가 나쁜 건 아니지만, 순서 없이 닫으면 신용점수가 내려가거나 포인트가 사라지거나 자동결제가 끊겨 연체가 생길 수 있어요. 해지 전에 확인할 것을 순서대로 정리했어요.\n- 해지하면 그 카드 한도가 빠져 전체 사용 비율이 올라가요\n- 좋은 기록으로 닫힌 계좌는 보통 보고서에 몇 년 더 남아요\n- 포인트·크레딧·자동결제·남은 잔액(Credit balance)을 먼저 정리",
+  "image": "/images/money/topics/cards-09.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "30%",
+      "label": "빚 금액 비중",
+      "note": "사용 비율 포함",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "↑",
+      "label": "해지 후 사용 비율",
+      "note": "한도 합계가 줄어서",
+      "icon": "trending-up"
+     },
+     {
+      "value": "먼저",
+      "label": "포인트 쓰기",
+      "note": "해지 시 소멸 가능",
+      "icon": "coins"
+     },
+     {
+      "value": "7영업일",
+      "label": "잔액 환불 요청 시",
+      "note": "FTC 안내",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "해지하면 점수가 왜 움직이나"
+   },
+   {
+    "type": "shot",
+    "title": "myFICO \"What is Amounts Owed?\"",
+    "src": "/images/money/shots/card-fico-debt.jpg",
+    "pins": [
+     {
+      "x": 44.4,
+      "y": 18.8,
+      "text": "**What is Amounts Owed?** — 빚 금액 요소 설명이에요."
+     },
+     {
+      "x": 48,
+      "y": 35,
+      "text": "**credit utilization** — 쓸 수 있는 한도 중 얼마를 쓰는지(사용 비율)가 빚 금액 자체보다 중요하다고 설명해요."
+     },
+     {
+      "x": 48.6,
+      "y": 50.8,
+      "text": "**determines 30% of a FICO Score** — 빚 금액 요소는 점수의 30%예요."
+     },
+     {
+      "x": 8.8,
+      "y": 60.5,
+      "text": "**Amount of Debt** — 왼쪽 메뉴에서 다른 요소 설명도 볼 수 있어요."
+     }
+    ],
+    "caption": "한도 $10,000 중 $2,000을 쓰면 20%예요. 한도 $5,000 카드를 닫으면 같은 $2,000이 40%가 돼요.",
+    "credit": "FICO(myFICO) 공식 사이트 myfico.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "bars",
+    "title": "카드 하나를 닫으면 사용 비율이 이렇게 변해요(예시)",
+    "sub": "전체 잔액 $2,000은 그대로, 한도 합계만 바뀔 때",
+    "items": [
+     {
+      "label": "해지 전: 한도 합계 $10,000",
+      "value": 20,
+      "display": "20%",
+      "note": "카드 A $5,000 + 카드 B $5,000"
+     },
+     {
+      "label": "카드 B 해지 후: 한도 $5,000",
+      "value": 40,
+      "display": "40%",
+      "note": "같은 잔액인데 비율 두 배",
+      "highlight": true
+     }
+    ],
+    "max": 50,
+    "source": "운영팀 계산",
+    "unit": "%"
+   },
+   {
+    "type": "steps",
+    "title": "해지 순서",
+    "items": [
+     {
+      "title": "포인트·캐시백 먼저 쓰기",
+      "body": "해지하면 남은 포인트가 사라지는 카드가 많아요. 현금화하거나 같은 회사 다른 카드로 옮겨요."
+     },
+     {
+      "title": "자동결제 옮기기",
+      "body": "이 카드로 나가는 휴대폰·보험·구독 결제를 다른 카드로 바꿔요. 바꾸지 않으면 결제 실패로 서비스가 끊기거나, 해지 후에도 청구가 남을 수 있어요."
+     },
+     {
+      "title": "잔액 0 만들기",
+      "body": "남은 대금을 다 갚아요. 잔액이 있는 채로 닫으면 그 잔액은 계속 갚아야 해요."
+     },
+     {
+      "title": "대안 먼저 물어보기",
+      "body": "연회비 때문이면 Product change(연회비 없는 카드로 변경)를 먼저 물어봐요."
+     },
+     {
+      "title": "해지 확인서 받기",
+      "body": "전화·채팅으로 해지 후 확인 번호와 날짜를 적고, 다음 달 신용 보고서에 \"Closed by consumer\" 로 올라갔는지 확인해요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "남은 잔액(Credit balance)이 있으면"
+   },
+   {
+    "type": "text",
+    "body": [
+     "반품·크레딧 때문에 카드에 마이너스 잔액(내가 받을 돈)이 남아 있을 수 있어요. FTC 안내에 따르면 카드사는 **1달러 넘는 받을 돈을 계좌에 반영하거나 돌려줘야** 하고, 서면으로 환불을 요청하면 **7영업일 안에** 보내야 해요. 6개월 넘게 남아 있으면 카드사가 돌려주려는 노력을 해야 해요. 해지 전에 환불을 요청하세요."
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "해지를 미루는 게 좋은 때",
+    "items": [
+     "**6~12개월 안에 집·차 대출** — 사용 비율·기록 변화가 없게",
+     "**가장 오래된 카드** — 연회비가 없으면 남겨 두기",
+     "**한도가 큰 카드** — 사용 비율 유지에 도움",
+     "**카드 기념일 전 보너스·크레딧 남음** — 쓰고 나서"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "닫힌 계좌 기록은 바로 사라지지 않아요",
+    "body": "좋은 기록으로 닫힌 계좌는 신용 보고서에 보통 몇 년(흔히 최대 10년) 더 남아 기록 길이에 도움을 줘요. 그래서 해지 직후 큰 변화는 주로 \"사용 비율\" 쪽이에요. 잔액을 낮게 유지하면 영향이 작아요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "myFICO 공식: Amounts Owed",
+      "url": "https://www.myfico.com/credit-education/credit-scores/amount-of-debt",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "FTC 공식: Using Credit Cards and Disputing Charges(잔액 환불)",
+      "url": "https://consumer.ftc.gov/articles/using-credit-cards-disputing-charges",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "AnnualCreditReport.com 공식",
+      "url": "https://www.annualcreditreport.com/",
+      "kind": "공식(신용평가 3사 공동)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "포인트를 항공 마일로 옮기는 \"전환 포인트\" 4가지: Amex MR, Chase UR, Citi ThankYou, Capital One Miles — 어떤 카드가 전환되나",
+  "content": "카드 포인트는 크게 두 종류예요. 캐시백처럼 정해진 가치로만 쓰는 포인트, 그리고 여러 항공사·호텔 회원 프로그램으로 옮길 수 있는 \"전환 포인트(Transferable points)\" 예요. 전환 포인트는 잘 쓰면 1포인트가 1센트보다 훨씬 가치 있을 수 있어요. 미국의 대표 전환 포인트 4가지와, 같은 회사 카드라도 전환이 안 되는 경우를 정리했어요.\n- 대표 4가지: American Express Membership Rewards, Chase Ultimate Rewards, Citi ThankYou, Capital One Miles\n- 비율은 1:1이 많지만 아닌 곳도 있어요(카드사 전환 화면에 표시)\n- 같은 회사라도 연회비 없는 카드는 전환이 막혀 있거나 제한된 경우가 있어요",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "4곳",
+      "label": "대표 전환 포인트",
+      "note": "미국 카드사",
+      "icon": "refresh"
+     },
+     {
+      "value": "1:1",
+      "label": "흔한 비율",
+      "note": "아닌 곳도 있음",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "되돌릴 수 없음",
+      "label": "전환 후",
+      "note": "모든 카드사 공통",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "수시로",
+      "label": "제휴사 변경",
+      "note": "추가·삭제",
+      "icon": "bell"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "전환 화면 예: Amex Membership Rewards"
+   },
+   {
+    "type": "shot",
+    "title": "American Express 포인트 전환 제휴사 화면",
+    "src": "/images/money/shots/card-amex-transfer.jpg",
+    "pins": [
+     {
+      "x": 18.8,
+      "y": 24.7,
+      "text": "**Transfer points to a partner loyalty program** — 포인트를 제휴 항공·호텔 프로그램으로 옮기는 화면이에요."
+     },
+     {
+      "x": 21.5,
+      "y": 61.6,
+      "text": "**Airline (16)** — 항공사 제휴 수(화면 당시). 눌러서 항공사만 볼 수 있어요."
+     },
+     {
+      "x": 33.8,
+      "y": 61.6,
+      "text": "**Hotels (4)** — 호텔 제휴예요."
+     },
+     {
+      "x": 46.4,
+      "y": 73,
+      "text": "**1,000 Points = 1,000 Avios** — 1:1 비율의 예예요."
+     },
+     {
+      "x": 52.5,
+      "y": 83.7,
+      "text": "**1,000 Points = 1,600 Aeromexico** — 1:1이 아닌 비율의 예예요. 비율은 제휴사마다 달라요."
+     }
+    ],
+    "caption": "화면 위 메뉴가 한국어로 보이는 것은 브라우저 언어 설정 때문이에요. 제휴사 목록과 비율은 바뀌니 전환 직전에 다시 확인하세요.",
+    "credit": "American Express 공식 사이트 americanexpress.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "4가지 전환 포인트 비교"
+   },
+   {
+    "type": "compare",
+    "title": "미국 대표 전환 포인트(2026년 10월 확인, 수시로 바뀜)",
+    "columns": [
+     "프로그램",
+     "대표 카드 계열",
+     "알아 둘 점"
+    ],
+    "rows": [
+     [
+      "American Express Membership Rewards",
+      "Gold·Platinum 등",
+      "항공 제휴가 많은 편, 일부 항공 전환에 소액 수수료가 붙기도 해요"
+     ],
+     [
+      "Chase Ultimate Rewards",
+      "Sapphire·Ink 계열, Freedom 계열",
+      "Freedom 포인트는 Sapphire 같은 카드와 합쳐야 전환 가능한 방식"
+     ],
+     [
+      "Citi ThankYou",
+      "Strata 등 계열",
+      "카드 종류에 따라 전환 가능 제휴사·비율이 달라요"
+     ],
+     [
+      "Capital One Miles",
+      "Venture 계열",
+      "대부분 1:1, 일부 2:1.5·2:1 등(공식 안내 참고)"
+     ]
+    ],
+    "note": "대한항공 스카이패스로 바로 옮기는 길은 2026년 10월 현재 주요 미국 카드 포인트에서 제한적이에요. 바뀔 수 있으니 각 카드사 전환 목록에서 확인하세요."
+   },
+   {
+    "type": "steps",
+    "title": "내 포인트가 전환되는지 확인",
+    "items": [
+     {
+      "title": "앱의 Rewards 메뉴 열기",
+      "body": "\"Transfer to partners\" 또는 \"Transfer points\" 메뉴가 보이면 전환 가능한 카드예요."
+     },
+     {
+      "title": "안 보이면 이유 확인",
+      "body": "연회비 없는 카드는 전환이 막혀 있거나 일부 제휴사만 되는 경우가 있어요. 같은 회사의 전환 가능한 카드와 포인트를 합치는 방식이 있는지 봐요."
+     },
+     {
+      "title": "가고 싶은 항공사가 목록에 있나",
+      "body": "항공 동맹을 이용하면 다른 항공사 마일로도 같은 동맹 항공편을 예약할 수 있어요(예: 스카이팀 항공편을 다른 스카이팀 회원사 마일로)."
+     },
+     {
+      "title": "비율 적기",
+      "body": "1,000포인트가 몇 마일이 되는지. 호텔은 1:1이 아닌 경우가 많아요."
+     },
+     {
+      "title": "지금은 옮기지 않기",
+      "body": "전환은 되돌릴 수 없어요. 실제 좌석을 찾기 전까지는 카드사 포인트로 두는 게 가장 유연해요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "전환 포인트가 필요 없는 사람",
+    "body": "1년에 한 번 한국 왕복 정도라면 캐시백 카드로 받은 돈으로 항공권을 사는 것이 더 쉽고 확실할 수 있어요. 전환 포인트는 좌석 검색과 비교에 시간을 쓸 수 있는 분에게 가치가 커요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "American Express 공식: Membership Rewards 전환",
+      "url": "https://global.americanexpress.com/rewards/transfer",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "Capital One 공식: Miles transfer partners 안내",
+      "url": "https://www.capitalone.com/learn-grow/money-management/venture-miles-transfer-partnerships/",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "Chase 공식: Ultimate Rewards",
+      "url": "https://www.chase.com/personal/credit-cards/ultimate-rewards",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "포인트 전환 실제 순서: 좌석 먼저 찾기, 항공사 계정 이름 맞추기, 전환하고 바로 예약 — 되돌릴 수 없어요",
+  "content": "포인트 전환에서 가장 흔한 실수는 \"일단 옮겨 놓고 나중에 좌석을 찾는 것\" 이에요. 옮긴 뒤에 좌석이 없으면 그 마일은 그 항공사에 묶여 버려요. 좌석 확인부터 전환, 예약까지 실수 없는 순서와, 이름 철자·가족 계정 같은 주의점을 정리했어요.\n- 순서: 좌석 확인 → 항공사 계정 확인 → 전환 → 바로 예약\n- 카드와 항공사 회원 이름이 같아야 전환되는 경우가 많아요\n- 대부분 즉시~며칠 안에 들어오지만 제휴사마다 달라요",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "좌석 먼저",
+      "label": "전환 전에",
+      "note": "가장 중요한 순서",
+      "icon": "search"
+     },
+     {
+      "value": "본인 이름",
+      "label": "받는 계정",
+      "note": "철자 일치",
+      "icon": "user"
+     },
+     {
+      "value": "즉시~며칠",
+      "label": "전환 시간",
+      "note": "제휴사마다",
+      "icon": "clock"
+     },
+     {
+      "value": "불가",
+      "label": "되돌리기",
+      "note": "전환 후 취소 안 됨",
+      "icon": "alert-circle"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드사 공식 안내: 전환 방법과 주의"
+   },
+   {
+    "type": "shot",
+    "title": "Capital One \"How to transfer miles\" 안내",
+    "src": "/images/money/shots/card-capone-howto.jpg",
+    "pins": [
+     {
+      "x": 41,
+      "y": 10,
+      "text": "**How to transfer Capital One miles to airline and hotel partners** — 전환 방법 안내예요."
+     },
+     {
+      "x": 50,
+      "y": 31.3,
+      "text": "**no way to transfer miles back** — 전환이 끝나면 되돌릴 수 없다고 적혀 있어요."
+     },
+     {
+      "x": 16.4,
+      "y": 72.4,
+      "text": "**Gift cards** — 전환 말고 다른 사용 방법들이에요. 가치는 방법마다 달라요."
+     },
+     {
+      "x": 18,
+      "y": 76.6,
+      "text": "**Cash back** — 명세서 차감·수표로 받는 방법이에요."
+     }
+    ],
+    "caption": "다른 카드사도 방식은 비슷해요: 로그인 → Rewards → Transfer → 제휴사 선택 → 항공사 회원번호 입력 → 확인.",
+    "credit": "Capital One 공식 사이트 capitalone.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "실수 없는 전환 순서",
+    "items": [
+     {
+      "title": "1. 항공사 사이트에서 마일 좌석 찾기",
+      "body": "전환할 항공사 사이트에 로그인해 원하는 날짜에 마일 좌석이 있는지, 필요한 마일과 세금이 얼마인지 확인해요. 전화로 물어봐도 돼요."
+     },
+     {
+      "title": "2. 항공사 계정 이름 확인",
+      "body": "항공사 회원 이름이 카드 소지자 이름과 같아야 해요(가운데 이름·성 순서 주의). 다르면 먼저 항공사에 이름 정정을 요청해요."
+     },
+     {
+      "title": "3. 카드사 앱에서 전환",
+      "body": "Rewards → Transfer → 항공사 선택 → 회원번호 입력. 처음 연결할 때 본인 확인 문자가 올 수 있어요."
+     },
+     {
+      "title": "4. 들어왔는지 확인",
+      "body": "즉시 들어오는 곳이 많지만 1~2일, 길게는 며칠 걸리는 곳도 있어요. 그동안 좌석이 사라질 수 있다는 위험이 있어요."
+     },
+     {
+      "title": "5. 바로 예약",
+      "body": "마일이 들어오면 바로 예약하고, 확인 번호와 전자항공권 번호를 저장해요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "카드 앱의 포인트 잔액 예(Amex)",
+    "src": "/images/money/shots/app-amex-2.jpg",
+    "pins": [
+     {
+      "x": 43,
+      "y": 76.3,
+      "text": "**Membership Rewards® Points** — 전환 가능한 포인트 프로그램 이름이에요."
+     },
+     {
+      "x": 40,
+      "y": 83.2,
+      "text": "**134,312** — 포인트 잔액이에요(앱 소개 화면의 예시 숫자)."
+     },
+     {
+      "x": 50,
+      "y": 48.9,
+      "text": "**Accounts** — 같은 프로그램에 묶인 카드들이에요. 포인트는 보통 한곳에 모여요."
+     }
+    ],
+    "caption": "앱 첫 화면 Rewards 칸에서 포인트 잔액을 보고, 눌러서 전환 메뉴로 가요.",
+    "credit": "Amex 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "checklist",
+    "title": "전환 전에 꼭 확인",
+    "items": [
+     "**좌석이 지금 있는가** — \"나중에 생기겠지\" 는 위험",
+     "**필요한 만큼만 전환** — 남는 마일은 그 항공사에 묶여요(보통 1,000단위로 전환)",
+     "**가족 계정으로 직접 전환** — 보통 본인 또는 카드사가 허용한 가족(추가 사용자 등)에게만 가능, 약관 확인",
+     "**전환 수수료** — 일부 카드사·제휴사는 소액 수수료",
+     "**유효기간** — 옮긴 마일의 유효기간 규칙은 그 항공사 것을 따라요"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "전환을 요구하는 연락은 사기",
+    "body": "\"포인트가 곧 소멸되니 이 링크에서 전환하세요\" 같은 문자·이메일은 피싱일 수 있어요. 전환은 **내가 직접 카드사 앱이나 공식 사이트에 로그인해서**만 하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Capital One 공식: Miles transfer partners 안내",
+      "url": "https://www.capitalone.com/learn-grow/money-management/venture-miles-transfer-partnerships/",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "American Express 공식: Membership Rewards 전환",
+      "url": "https://global.americanexpress.com/rewards/transfer",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "FTC 공식: Phishing 사기 피하기",
+      "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams",
+      "kind": "정부(공식, FTC)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "포인트 전환",
+  "kind": "info",
+  "title": "전환 비율·전환 보너스·호텔 포인트 전환: 1:1이 아닌 곳에서 손해 보지 않는 법, 메리어트 → 항공 마일, 대한항공은?",
+  "content": "전환 비율이 1:1이면 계산이 쉽지만, 2:1이나 3:1처럼 포인트가 줄어드는 곳도 있고, 가끔은 카드사가 \"이번 달 30% 더 드려요\" 같은 전환 보너스를 해요. 비율별로 실제 가치를 계산하는 법, 호텔 포인트를 항공 마일로 바꾸는 경우, 대한항공 마일로 옮기는 현실적인 길을 정리했어요.\n- 전환 후 가치 = 받은 마일 × 1마일 가치\n- 전환 보너스는 \"어차피 쓸 계획이 있을 때만\" 이득\n- 호텔 포인트 → 항공 마일은 보통 비율이 낮아요(예: 3:1)",
+  "image": "/images/money/topics/cards-10.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1:1",
+      "label": "대부분 항공",
+      "note": "카드 포인트 → 마일",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "2:1·3:1",
+      "label": "불리한 비율 예",
+      "note": "1,000 → 500·333",
+      "icon": "trending-up"
+     },
+     {
+      "value": "가끔",
+      "label": "전환 보너스",
+      "note": "기간 한정",
+      "icon": "gift"
+     },
+     {
+      "value": "확인",
+      "label": "대한항공 전환",
+      "note": "제휴사 목록에서",
+      "icon": "search"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드사 공식 안내의 비율 설명"
+   },
+   {
+    "type": "shot",
+    "title": "Capital One 전환 비율 안내",
+    "src": "/images/money/shots/card-capone-ratio.jpg",
+    "pins": [
+     {
+      "x": 17.3,
+      "y": 6,
+      "text": "**1:1 ratio** — 1,000마일 → 1,000마일(포인트)"
+     },
+     {
+      "x": 17.3,
+      "y": 22.9,
+      "text": "**2:1 ratio** — 1,000마일 → 500. 받는 양이 절반이에요."
+     },
+     {
+      "x": 24.2,
+      "y": 43.4,
+      "text": "**Capital One airline transfer partners** — 항공 제휴사 목록이에요."
+     },
+     {
+      "x": 41.8,
+      "y": 47.6,
+      "text": "**most offer a 1:1 conversion ratio** — 항공은 대부분 1:1이라는 설명이에요."
+     }
+    ],
+    "caption": "목록에 원하는 항공사가 없으면, 같은 항공 동맹의 다른 회원사로 옮겨 그 항공편을 예약하는 방법도 있어요.",
+    "credit": "Capital One 공식 사이트 capitalone.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "비율별 가치 계산"
+   },
+   {
+    "type": "compare",
+    "title": "10,000포인트를 옮기면(예시, 1마일 = 1.5센트로 가정)",
+    "columns": [
+     "비율",
+     "받는 마일",
+     "가치",
+     "1포인트당"
+    ],
+    "rows": [
+     [
+      "1:1",
+      "10,000",
+      "$150",
+      "1.5센트"
+     ],
+     [
+      "1:1 + 전환 보너스 30%",
+      "13,000",
+      "$195",
+      "1.95센트"
+     ],
+     [
+      "2:1.5",
+      "7,500",
+      "$112.50",
+      "1.125센트"
+     ],
+     [
+      "2:1",
+      "5,000",
+      "$75",
+      "0.75센트"
+     ],
+     [
+      "현금화(1포인트 = 1센트)",
+      "-",
+      "$100",
+      "1센트"
+     ]
+    ],
+    "highlight": 1,
+    "note": "비율이 나쁘면 현금화보다 못할 수 있어요. 마일 가치는 노선·날짜마다 달라요(마일 사용 글 참고)."
+   },
+   {
+    "type": "h",
+    "title": "호텔 포인트를 항공 마일로"
+   },
+   {
+    "type": "shot",
+    "title": "Marriott Bonvoy \"Transfer Points to Miles\"",
+    "src": "/images/money/shots/card-marriott-miles.jpg",
+    "pins": [
+     {
+      "x": 20.5,
+      "y": 80.9,
+      "text": "**Transfer Points to Miles** — 메리어트 포인트를 제휴 항공 마일로 옮기는 안내예요."
+     },
+     {
+      "x": 58,
+      "y": 21,
+      "text": "**Manage Points** — 포인트 전환·합치기 메뉴예요."
+     },
+     {
+      "x": 88,
+      "y": 4.7,
+      "text": "**Sign In Or Join** — 로그인 후 전환해요."
+     }
+    ],
+    "caption": "페이지 아래 제휴 항공사 표에서 비율을 확인해요. 2026년 10월 확인 때 대부분 항공사가 3:1(3포인트 → 1마일)이었고, 대한항공은 목록에 없었어요.",
+    "credit": "메리어트(Marriott Bonvoy) 공식 사이트 marriott.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "전환 보너스·호텔 전환을 쓸 때",
+    "items": [
+     {
+      "title": "쓸 계획부터",
+      "body": "전환 보너스가 나와도 6개월 안에 쓸 여행이 없으면 옮기지 마세요. 항공사가 마일 가격을 올리면 보너스가 사라지는 셈이에요."
+     },
+     {
+      "title": "호텔 → 항공 비율 확인",
+      "body": "메리어트 공식 표(2026년 10월 확인)는 대부분 항공사가 3포인트 → 1마일이고, 60,000포인트를 옮길 때마다 5,000마일을 더 주는 방식이에요(일부 항공사 제외). 바뀔 수 있으니 전환 직전에 다시 보세요."
+     },
+     {
+      "title": "대한항공 마일이 필요하면",
+      "body": "미국 카드·호텔 포인트에서 대한항공으로 바로 옮기는 길은 2026년 10월 현재 거의 없어요. 대한항공·델타 등 스카이팀 탑승 적립이 중심이고, 같은 스카이팀 항공편을 전환 가능한 다른 회원사 마일(예: 에어프랑스-KLM Flying Blue)로 예약하는 방법도 있어요."
+     },
+     {
+      "title": "최소 단위 확인",
+      "body": "보통 1,000포인트 단위, 호텔은 더 큰 단위일 수 있어요."
+     },
+     {
+      "title": "전환 후 바로 예약",
+      "body": "전환은 되돌릴 수 없어요(전환 순서 글 참고)."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "\"투기성 전환\" 은 금물",
+    "body": "마일은 항공사가 언제든 필요한 마일 수를 올릴 수 있어요(평가절하). 카드사 포인트로 두면 여러 곳 중 고를 수 있으니, 실제로 예약할 때 필요한 만큼만 옮기는 것이 안전해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "Capital One 공식: Miles transfer partners 안내",
+      "url": "https://www.capitalone.com/learn-grow/money-management/venture-miles-transfer-partnerships/",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "Marriott Bonvoy 공식: Transfer Points to Miles",
+      "url": "https://www.marriott.com/loyalty/redeem/travel/points-to-miles.mi",
+      "kind": "호텔 공식"
+     },
+     {
+      "title": "American Express 공식: Membership Rewards 전환",
+      "url": "https://global.americanexpress.com/rewards/transfer",
+      "kind": "카드사 공식"
+     },
+     {
+      "title": "대한항공 공식: SKYPASS",
+      "url": "https://www.koreanair.com/us/en/skypass",
+      "kind": "항공사 공식"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "카드 결제가 잘못됐을 때 60일 안에: 공정신용청구법(FCBA) 이의 제기 순서, 서면 편지 쓰는 법, 조사 기간 동안의 권리",
+  "content": "같은 결제가 두 번 찍혔거나, 반품했는데 환불이 안 됐거나, 주문한 물건이 오지 않았다면 연방 공정신용청구법(Fair Credit Billing Act, FCBA)에 따라 카드사에 이의를 제기할 수 있어요. 핵심은 \"그 잘못이 처음 나온 명세서를 받은 뒤 60일 안에, 서면으로\" 예요. 순서와 편지 쓰는 법, 조사 중 내 권리를 정리했어요.\n- 대상: 모르는 결제, 금액 오류, 받지 못한 물건, 반품 미환불, 계산 오류, 결제 반영 누락\n- 명세서를 보낸 날부터 60일 안에 카드사의 \"Billing error\" 주소로 서면 제출\n- 카드사는 30일 안에 접수 확인, 두 번의 결제 주기(최대 90일) 안에 해결해야 해요",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "60일",
+      "label": "이의 제기 기한",
+      "note": "명세서 발송일부터",
+      "icon": "calendar"
+     },
+     {
+      "value": "30일",
+      "label": "카드사 접수 확인",
+      "note": "서면으로",
+      "icon": "mail"
+     },
+     {
+      "value": "90일",
+      "label": "해결 최대 기간",
+      "note": "결제 주기 2번 이내",
+      "icon": "clock"
+     },
+     {
+      "value": "$50",
+      "label": "모르는 결제 책임 한도",
+      "note": "신용카드",
+      "icon": "shield"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "FTC 공식 안내"
+   },
+   {
+    "type": "shot",
+    "title": "FTC \"Using Credit Cards and Disputing Charges\"",
+    "src": "/images/money/shots/card-ftc-dispute.jpg",
+    "pins": [
+     {
+      "x": 49,
+      "y": 51.6,
+      "text": "**Using Credit Cards and Disputing Charges** — 카드 사용과 이의 제기에 관한 FTC 안내예요."
+     },
+     {
+      "x": 35.5,
+      "y": 85,
+      "text": "**your right to dispute billing errors** — 청구 오류에 이의를 제기할 권리가 있다는 설명이에요."
+     },
+     {
+      "x": 54,
+      "y": 4.5,
+      "text": "**Report Fraud** — 사기 피해를 FTC에 신고하는 곳이에요."
+     }
+    ],
+    "caption": "같은 페이지 아래에 이의 제기 편지 샘플이 있어요.",
+    "credit": "미국 연방거래위원회(FTC) 공식 사이트 consumer.ftc.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "shot",
+    "title": "FTC 안내: 청구 오류가 있을 때",
+    "src": "/images/money/shots/card-ftc-billing.jpg",
+    "pins": [
+     {
+      "x": 45,
+      "y": 45.8,
+      "text": "**What to Do If There's a Billing Error** — 청구 오류가 있을 때 할 일이에요."
+     },
+     {
+      "x": 41,
+      "y": 57.4,
+      "text": "**bill you twice / returned or never got** — 두 번 청구, 반품했거나 받지 못한 물건 같은 예예요."
+     },
+     {
+      "x": 63.6,
+      "y": 61.7,
+      "text": "**Fair Credit Billing Act (FCBA)** — 이 절차를 정한 연방법이에요."
+     },
+     {
+      "x": 43.6,
+      "y": 94.2,
+      "text": "**limits your responsibility for unauthorized charges to $50** — 모르는 결제의 책임은 최대 $50이에요."
+     }
+    ],
+    "caption": "FCBA는 신용카드 같은 회전 신용에 적용돼요. 자동차 할부 같은 대출에는 적용되지 않아요.",
+    "credit": "미국 연방거래위원회(FTC) 공식 사이트 consumer.ftc.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "steps",
+    "title": "이의 제기 순서",
+    "items": [
+     {
+      "title": "명세서에서 잘못된 결제 찾기",
+      "body": "날짜, 가맹점 이름, 금액을 적어요. 처음 보는 이름이면 가족이 쓴 건지, 가맹점 이름이 다르게 찍힌 건지 먼저 확인해요."
+     },
+     {
+      "title": "가게에 먼저 연락(가능하면)",
+      "body": "단순 실수(두 번 결제)는 가게가 바로 취소해 주는 경우가 많아요. 그래도 60일 기한은 계속 흐르니 늦추지 마세요."
+     },
+     {
+      "title": "카드사에 서면 이의 제기",
+      "body": "앱·웹의 \"Dispute a transaction\" 으로 시작해도 되지만, FCBA 보호를 확실히 받으려면 명세서에 적힌 **\"billing error\" 전용 주소**로 편지를 보내요. 등기(Certified mail, 수신 확인)로 보내면 증거가 남아요."
+     },
+     {
+      "title": "증거 첨부(사본)",
+      "body": "영수증, 반품 기록, 배송 조회, 가게와 주고받은 이메일. 원본은 내가 보관해요."
+     },
+     {
+      "title": "조사 기간 동안",
+      "body": "이의 제기한 금액(과 그 이자)은 안 내도 되고, 그 금액 때문에 연체로 보고할 수 없어요. **나머지 금액은 평소처럼** 갚아요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "편지에 넣을 것",
+    "items": [
+     "**이름·주소·카드 번호(뒤 4자리)**",
+     "**잘못된 결제의 날짜·가맹점·금액**",
+     "**왜 잘못인지 짧게** — \"같은 결제가 두 번\", \"3월 2일 반품, 환불 안 됨\"",
+     "**원하는 것** — 취소 또는 환불",
+     "**첨부한 증거 목록**"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "결과가 마음에 안 들면",
+    "body": "카드사가 조사 후 \"잘못이 없다\" 고 하면 이유를 서면으로 알려 줘야 하고, 그때부터 그 금액을 갚아야 해요. 계속 다툴 수 있지만, 그 사실을 신용평가회사에 \"이의 중\" 으로 알릴 수 있어요. 해결이 안 되면 CFPB에 민원을 넣을 수 있어요(다음 글 참고)."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "FTC 공식: Using Credit Cards and Disputing Charges",
+      "url": "https://consumer.ftc.gov/articles/using-credit-cards-disputing-charges",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "CFPB 공식: Submit a complaint",
+      "url": "https://www.consumerfinance.gov/complaint/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "물건·서비스에 문제가 있을 때 카드 분쟁: 가게와 먼저 해결, 카드사 이의 제기(차지백), 그래도 안 되면 CFPB 민원",
+  "content": "주문한 소파가 사진과 전혀 다르게 왔거나, 수리 업체가 돈만 받고 일을 끝내지 않았거나, 해지했는데 계속 청구되는 경우가 있어요. 이런 \"품질·서비스 문제\" 도 카드로 결제했다면 카드사를 통해 다툴 수 있는 길이 있어요. 가게와의 협상부터 카드사 이의 제기, 연방 소비자금융보호국(CFPB) 민원까지 순서를 정리했어요.\n- 먼저 가게와 해결하려고 노력한 기록이 중요해요\n- 연방법상 품질 분쟁 보호는 조건이 있어요(보통 $50 넘는 구매, 주 안 또는 청구지 주소에서 100마일 안)\n- 카드사 자체 분쟁 절차(차지백)는 그보다 넓게 받아 주는 경우가 많아요",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "먼저",
+      "label": "가게와 해결 시도",
+      "note": "기록 남기기",
+      "icon": "message-circle"
+     },
+     {
+      "value": "$50 초과",
+      "label": "FCBA 품질 분쟁",
+      "note": "+ 거리 조건",
+      "icon": "dollar"
+     },
+     {
+      "value": "15일",
+      "label": "CFPB 민원 회사 답변",
+      "note": "대부분 회사",
+      "icon": "clock"
+     },
+     {
+      "value": "무료",
+      "label": "CFPB 민원",
+      "note": "온라인·전화",
+      "icon": "check"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "3단계로 해결"
+   },
+   {
+    "type": "compare",
+    "title": "품질·서비스 문제 해결 단계",
+    "columns": [
+     "단계",
+     "할 일",
+     "기록"
+    ],
+    "rows": [
+     [
+      "1. 가게(판매자)",
+      "전화·이메일로 반품·환불·재작업 요청",
+      "날짜, 담당자, 이메일 저장, 사진"
+     ],
+     [
+      "2. 카드사 이의 제기",
+      "앱·웹 \"Dispute\" 또는 서면. 가게와 해결하려던 기록 첨부",
+      "접수 번호, 제출한 서류"
+     ],
+     [
+      "3. CFPB 민원",
+      "카드사 처리가 부당하면 consumerfinance.gov/complaint",
+      "민원 번호, 회사 답변"
+     ]
+    ],
+    "highlight": 1
+   },
+   {
+    "type": "steps",
+    "title": "카드사에 품질 분쟁을 넣는 순서",
+    "items": [
+     {
+      "title": "가게에 서면으로 요청",
+      "body": "이메일이나 편지로 \"무엇이 문제이고, 언제까지 무엇을 해 달라\" 고 써요. 답이 없거나 거절하면 그 기록이 증거예요."
+     },
+     {
+      "title": "카드사 앱에서 Dispute 시작",
+      "body": "해당 결제를 누르고 \"Dispute\" → 이유(Item not as described, Service not provided, Cancelled but still charged 등) 선택."
+     },
+     {
+      "title": "증거 올리기",
+      "body": "주문 확인서, 상품 설명 캡처, 받은 물건 사진, 가게와 주고받은 메시지, 반품 배송 조회 번호, 해지 확인 이메일."
+     },
+     {
+      "title": "임시 크레딧 확인",
+      "body": "조사 중 그 금액을 임시로 빼 주는 카드사가 많아요. 결과에 따라 확정되거나 다시 청구돼요."
+     },
+     {
+      "title": "가게의 반박에 답하기",
+      "body": "가게가 반박 자료를 내면 카드사가 다시 물어볼 수 있어요. 기한 안에 답하세요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드사 처리가 부당하다면: CFPB 민원"
+   },
+   {
+    "type": "shot",
+    "title": "CFPB 민원 접수 페이지",
+    "src": "/images/money/shots/card-cfpb-complaint.jpg",
+    "pins": [
+     {
+      "x": 28.5,
+      "y": 34.6,
+      "text": "**Submit a complaint about a financial product or service** — 금융 상품·서비스 민원을 접수하는 곳이에요."
+     },
+     {
+      "x": 21,
+      "y": 61.3,
+      "text": "**Most companies respond within 15 days** — 대부분 회사가 15일 안에 답한다고 안내해요."
+     },
+     {
+      "x": 19.4,
+      "y": 82.5,
+      "text": "**See how the complaint process works** — 민원 진행 과정을 영상으로 설명해요."
+     },
+     {
+      "x": 78,
+      "y": 92,
+      "text": "**Call (855) 411-2372** — 온라인이 어려우면 전화로도 접수할 수 있어요(통역 지원 안내 확인)."
+     }
+    ],
+    "caption": "CFPB는 민원을 카드사에 전달하고 답을 받아 줘요. 판사처럼 판결을 내리는 곳은 아니지만, 카드사가 다시 검토하는 계기가 돼요.",
+    "credit": "미국 소비자금융보호국(CFPB) 공식 사이트 consumerfinance.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "checklist",
+    "title": "민원에 쓸 내용",
+    "items": [
+     "**무슨 상품** — Credit card, 카드사 이름",
+     "**무슨 일** — 날짜순으로 짧게(가게 연락 → 카드사 이의 제기 → 결과)",
+     "**원하는 해결** — 환불, 기록 정정 등",
+     "**증거 첨부** — 카드사 답변 편지, 주고받은 이메일"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "구독 해지했는데 계속 청구될 때",
+    "body": "해지 확인 이메일을 캡처해 두고, 다음 청구가 오면 카드사에 \"Cancelled recurring charge\" 로 이의 제기하세요. 카드사 앱에서 그 가맹점 결제를 막는 기능(Block merchant)이 있으면 함께 쓰세요. 카드 번호를 바꾸는 것도 방법이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "CFPB 공식: Submit a complaint",
+      "url": "https://www.consumerfinance.gov/complaint/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "FTC 공식: Using Credit Cards and Disputing Charges",
+      "url": "https://consumer.ftc.gov/articles/using-credit-cards-disputing-charges",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "카드 분쟁",
+  "kind": "info",
+  "title": "카드 분실·도난·모르는 결제가 찍혔을 때: 앱에서 바로 잠그기, 신고 순서, 신용카드와 직불카드의 책임 차이",
+  "content": "지갑을 잃어버렸거나 휴대폰 알림에 내가 쓰지 않은 결제가 찍혔다면 몇 분 안에 할 일이 있어요. 신용카드는 연방법으로 모르는 결제의 책임이 최대 $50이고, 쓰이기 전에 신고하면 0원이에요. 직불카드는 신고 시점에 따라 책임이 커질 수 있어요. 바로 할 일과 신고 순서, 카드 종류별 책임을 정리했어요.\n- 1분: 카드 앱에서 \"잠금(Freeze/Lock)\"\n- 10분: 카드사에 분실·도난 신고, 모르는 결제 이의 제기, 새 카드 요청\n- 신용카드 책임 최대 $50(대부분 카드사는 $0 정책), 직불카드는 신고가 늦으면 책임이 커져요",
+  "image": "/images/money/topics/cards-11.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "1분",
+      "label": "앱에서 잠그기",
+      "note": "Freeze / Lock",
+      "icon": "lock"
+     },
+     {
+      "value": "$0",
+      "label": "쓰이기 전 신고",
+      "note": "신용·직불 모두",
+      "icon": "shield"
+     },
+     {
+      "value": "최대 $50",
+      "label": "신용카드 책임",
+      "note": "연방법",
+      "icon": "dollar"
+     },
+     {
+      "value": "2영업일",
+      "label": "직불카드 신고",
+      "note": "늦으면 책임 증가",
+      "icon": "clock"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "앱에서 바로 잠그기"
+   },
+   {
+    "type": "shot",
+    "title": "카드 앱의 잠금 버튼 예(Amex)",
+    "src": "/images/money/shots/app-amex-4.jpg",
+    "pins": [
+     {
+      "x": 50,
+      "y": 57.2,
+      "text": "**Freeze Card** — 카드를 임시로 잠가요. 지갑을 찾으면 다시 풀어요."
+     },
+     {
+      "x": 69.4,
+      "y": 57.2,
+      "text": "**Replace Card** — 도난이 확실하면 새 번호 카드를 요청해요."
+     },
+     {
+      "x": 44.6,
+      "y": 86,
+      "text": "**Frozen** — 잠긴 카드는 이렇게 표시돼요."
+     }
+    ],
+    "caption": "대부분 카드 앱에 카드를 잠그는 버튼이 있어요. 잠그면 새 결제가 막히고, 찾으면 다시 풀 수 있어요.",
+    "credit": "Amex 앱의 앱스토어 공식 소개 화면이에요. 앱이 업데이트되면 모양이 달라질 수 있어요.",
+    "narrow": true
+   },
+   {
+    "type": "steps",
+    "title": "순서대로 하세요",
+    "items": [
+     {
+      "title": "앱에서 잠그기",
+      "body": "잃어버렸는지 확실하지 않아도 일단 잠가요."
+     },
+     {
+      "title": "카드사에 신고",
+      "body": "카드 뒷면 번호(다른 카드의 뒷면이나 카드사 공식 사이트에서 찾기)나 앱의 \"Report lost or stolen\" 으로 신고해요. 신고 날짜·시간과 확인 번호를 적어요."
+     },
+     {
+      "title": "모르는 결제 이의 제기",
+      "body": "앱에서 결제별로 \"I don't recognize this\" 를 누르거나 상담원에게 말해요. 서면 확인(편지·이메일)도 남겨요."
+     },
+     {
+      "title": "자동결제 바꾸기",
+      "body": "새 카드 번호가 나오면 휴대폰·보험·구독 결제를 새 번호로 바꿔요."
+     },
+     {
+      "title": "신용 보고서 확인",
+      "body": "카드 외에 신분증·SSN이 함께 없어졌다면 명의 도용 대비가 필요해요. 보험·보호 카페의 명의 도용 글을 참고하세요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "카드 종류별 책임"
+   },
+   {
+    "type": "shot",
+    "title": "FTC 안내: 분실·도난 카드 책임 한도 표",
+    "src": "/images/money/shots/card-ftc-lost.jpg",
+    "pins": [
+     {
+      "x": 43.6,
+      "y": 7.5,
+      "text": "**Follow up immediately in writing** — 전화 신고 뒤 서면으로도 확인하라는 안내예요."
+     },
+     {
+      "x": 42.7,
+      "y": 32.4,
+      "text": "**Check your credit reports** — 무료 신용 보고서로 모르는 계좌가 없는지 확인해요."
+     },
+     {
+      "x": 31.6,
+      "y": 49,
+      "text": "**How To Limit Your Losses** — 손해를 줄이는 법, 아래에 책임 한도 표가 있어요."
+     },
+     {
+      "x": 42.5,
+      "y": 80.8,
+      "text": "**Credit card — 쓰이기 전 신고** — 책임 없음."
+     },
+     {
+      "x": 59.2,
+      "y": 69.6,
+      "text": "**ATM/Debit card** — 직불카드는 신고 시점에 따라 책임이 달라요."
+     }
+    ],
+    "caption": "표 아래쪽에 \"쓰인 뒤 신고\" 했을 때의 한도가 이어져요.",
+    "credit": "미국 연방거래위원회(FTC) 공식 사이트 consumer.ftc.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "compare",
+    "title": "모르는 결제의 책임(연방법 기준, FTC 안내)",
+    "columns": [
+     "상황",
+     "신용카드",
+     "직불(ATM·Debit) 카드"
+    ],
+    "rows": [
+     [
+      "쓰이기 전에 신고",
+      "$0",
+      "$0"
+     ],
+     [
+      "쓰인 뒤 신고",
+      "최대 $50",
+      "아래처럼 시점에 따라"
+     ],
+     [
+      "카드는 있는데 번호만 도용",
+      "$0",
+      "명세서 발송 후 60일 안에 신고하면 $0"
+     ],
+     [
+      "직불: 2영업일 안 신고",
+      "-",
+      "최대 $50"
+     ],
+     [
+      "직불: 2영업일 후 ~ 60일 안",
+      "-",
+      "최대 $500"
+     ],
+     [
+      "직불: 60일 넘게 신고 안 함",
+      "-",
+      "한도 없이 손해 볼 수 있음"
+     ]
+    ],
+    "highlight": 1,
+    "note": "많은 카드사·은행은 자체 \"Zero liability\" 정책으로 더 보호해 주지만, 약관 조건이 있어요. 그래서 일상 결제는 직불카드보다 신용카드가 안전한 편이에요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"카드사입니다\" 전화·문자 조심",
+    "body": "\"모르는 결제가 있어 확인하려고요, 카드 번호와 인증번호를 불러 주세요\" 는 사기 수법이에요. 카드사는 **인증번호(OTP)나 PIN을 묻지 않아요.** 끊고 카드 뒷면 번호로 직접 전화하세요. 사기 피해는 ReportFraud.ftc.gov에도 신고해요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "FTC 공식: Lost or Stolen Credit, ATM, and Debit Cards",
+      "url": "https://consumer.ftc.gov/articles/lost-or-stolen-credit-atm-and-debit-cards",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "FTC 공식: ReportFraud",
+      "url": "https://reportfraud.ftc.gov/",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "카드 사용 비율 관리: 30%·10% 기준의 진짜 뜻, 명세서 마감일 전에 갚기, 카드별·전체 비율, 한도 늘리기",
+  "content": "신용점수의 30%를 차지하는 \"빚 금액\" 에서 가장 중요한 것이 카드 사용 비율(Credit utilization)이에요. 한도 $1,000 카드에 $900이 찍혀 있으면, 매달 다 갚아도 보고되는 순간의 잔액 때문에 점수가 낮게 나올 수 있어요. 사용 비율이 계산되는 방식과 낮추는 방법을 정리했어요.\n- 사용 비율 = 보고된 잔액 ÷ 한도 (카드별과 전체 둘 다 봐요)\n- 보통 명세서 마감일의 잔액이 신용평가회사에 보고돼요\n- 30%는 \"넘지 않으면 좋은 선\", 점수가 높은 사람들은 훨씬 낮은 편(한 자릿수)",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "30%",
+      "label": "빚 금액 비중",
+      "note": "FICO 점수",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "30% 아래",
+      "label": "흔한 권장선",
+      "note": "낮을수록 좋음",
+      "icon": "trending-up"
+     },
+     {
+      "value": "마감일",
+      "label": "보고 기준 잔액",
+      "note": "결제일이 아님",
+      "icon": "calendar"
+     },
+     {
+      "value": "즉시",
+      "label": "회복 속도",
+      "note": "잔액 줄면 다음 보고에 반영",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "FICO 공식 안내: 점수 올리는 법"
+   },
+   {
+    "type": "shot",
+    "title": "myFICO \"How to repair your credit and improve your FICO Score\"",
+    "src": "/images/money/shots/card-fico-improve.jpg",
+    "pins": [
+     {
+      "x": 47.6,
+      "y": 21.3,
+      "text": "**How to repair your credit and improve your FICO Score** — 점수를 올리는 방법 안내예요."
+     },
+     {
+      "x": 59,
+      "y": 40.8,
+      "text": "**There is no quick way to fix a credit score** — 빨리 고치는 방법은 없다고 강조해요."
+     },
+     {
+      "x": 45,
+      "y": 75.5,
+      "text": "**1. Check your credit report for errors** — 첫 단계는 신용 보고서 오류 확인이에요. 같은 페이지 아래에 잔액을 낮게 유지하라는 안내가 이어져요."
+     }
+    ],
+    "caption": "\"점수를 빨리 올려 준다\" 는 광고를 믿지 말라는 경고도 함께 있어요.",
+    "credit": "FICO(myFICO) 공식 사이트 myfico.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "사용 비율 계산"
+   },
+   {
+    "type": "compare",
+    "title": "예시: 카드 3장(가상의 숫자)",
+    "columns": [
+     "카드",
+     "한도",
+     "마감일 잔액",
+     "카드별 비율"
+    ],
+    "rows": [
+     [
+      "카드 A",
+      "$1,000",
+      "$800",
+      "80%"
+     ],
+     [
+      "카드 B",
+      "$3,000",
+      "$300",
+      "10%"
+     ],
+     [
+      "카드 C",
+      "$6,000",
+      "$0",
+      "0%"
+     ],
+     [
+      "전체",
+      "$10,000",
+      "$1,100",
+      "11%"
+     ]
+    ],
+    "highlight": 0,
+    "note": "전체는 11%로 낮지만 카드 A 하나가 80%예요. 점수 모델은 카드별 높은 비율도 봐요."
+   },
+   {
+    "type": "bars",
+    "title": "같은 사람의 사용 비율, 갚는 날만 바꿔도",
+    "sub": "한 달 카드 지출 $1,500, 한도 합계 $5,000",
+    "items": [
+     {
+      "label": "결제일에 전액 갚기(마감일 잔액 보고)",
+      "value": 30,
+      "display": "30%",
+      "note": "마감일엔 $1,500이 남아 있음"
+     },
+     {
+      "label": "마감일 3일 전에 대부분 갚기",
+      "value": 4,
+      "display": "4%",
+      "note": "마감일 잔액 $200만 보고",
+      "highlight": true
+     }
+    ],
+    "max": 35,
+    "source": "운영팀 계산",
+    "unit": "%"
+   },
+   {
+    "type": "steps",
+    "title": "사용 비율 낮추는 방법",
+    "items": [
+     {
+      "title": "마감일(Closing date) 알기",
+      "body": "명세서 위쪽 \"Statement closing date\" 를 확인하고 달력에 적어요. 결제일(Due date)과 달라요."
+     },
+     {
+      "title": "마감일 며칠 전에 미리 갚기",
+      "body": "마감일 3~5일 전에 대부분을 갚으면 낮은 잔액이 보고돼요. 그래도 명세서에 남은 금액은 결제일까지 갚아요."
+     },
+     {
+      "title": "한 달에 두 번 갚기",
+      "body": "월급날마다 갚으면 잔액이 쌓이지 않아요."
+     },
+     {
+      "title": "카드별로 고르게",
+      "body": "한도 작은 카드에 몰지 말고 한도 큰 카드로 큰 결제를 해요."
+     },
+     {
+      "title": "한도 늘리기 요청",
+      "body": "6개월~1년 연체 없이 썼다면 앱에서 \"Request credit limit increase\" 를 해 봐요. 카드사에 따라 하드 조회가 생길 수 있으니 미리 물어보세요(한도 글 참고)."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "0%가 꼭 최고는 아니에요",
+    "body": "모든 카드 잔액이 계속 0으로 보고되면 \"카드를 쓰는 기록\" 이 약해 보일 수 있다는 의견도 있어요. 보통은 작은 금액이 한 장에 보고되고 나머지는 0인 정도가 무난해요. 무엇보다 **이자 내지 않기**가 먼저예요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "myFICO 공식: How to improve your FICO Score",
+      "url": "https://www.myfico.com/credit-education/improve-your-credit-score",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "myFICO 공식: Amounts Owed",
+      "url": "https://www.myfico.com/credit-education/credit-scores/amount-of-debt",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "CFPB 공식: Credit reports and scores",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "연체가 생겼을 때: 30일 전에 갚으면 보고되지 않는 이유, 연체 기록 7년, 선의 편지(Goodwill letter), 다시 안 늦는 법",
+  "content": "바빠서, 여행 중이라, 자동이체 계좌 잔고가 모자라서… 카드 대금을 놓치는 일은 누구에게나 생길 수 있어요. 중요한 건 얼마나 빨리 수습하느냐예요. 연체가 신용평가회사에 언제 보고되는지, 보고되면 얼마나 남는지, 지울 방법이 있는지, 다시 늦지 않는 방법을 정리했어요.\n- 신용평가회사에는 보통 결제일로부터 30일 이상 늦어야 연체로 보고돼요\n- 그 전에도 연체료와 연체 금리(Penalty APR)는 생길 수 있어요\n- 보고된 연체는 최대 7년 남지만, 시간이 지날수록 점수 영향은 줄어요",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "30일",
+      "label": "연체 보고 시점",
+      "note": "보통 30일 이상",
+      "icon": "calendar"
+     },
+     {
+      "value": "7년",
+      "label": "연체 기록",
+      "note": "보고서에 남는 기간",
+      "icon": "clock"
+     },
+     {
+      "value": "35%",
+      "label": "제때 갚기 비중",
+      "note": "FICO 점수",
+      "icon": "chart-bar"
+     },
+     {
+      "value": "자동이체",
+      "label": "최소액이라도",
+      "note": "재발 방지",
+      "icon": "refresh"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "연체는 점수에서 가장 큰 요소"
+   },
+   {
+    "type": "shot",
+    "title": "myFICO \"What is Payment History?\"",
+    "src": "/images/money/shots/card-fico-pay.jpg",
+    "pins": [
+     {
+      "x": 45,
+      "y": 18.8,
+      "text": "**What is Payment History?** — 제때 갚은 기록이에요."
+     },
+     {
+      "x": 49,
+      "y": 31.3,
+      "text": "**payment history makes up 35% of your score** — 점수에서 가장 큰 35%예요."
+     },
+     {
+      "x": 49,
+      "y": 57.5,
+      "text": "**A few late payments are not an automatic \"score-killer\"** — 전체 기록이 좋으면 한두 번 연체를 이겨낼 수 있다는 설명이에요."
+     }
+    ],
+    "caption": "얼마나 늦었는지(30·60·90일), 얼마나 최근인지, 몇 번인지에 따라 영향이 달라요.",
+    "credit": "FICO(myFICO) 공식 사이트 myfico.com 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "늦어진 날짜별로 생기는 일"
+   },
+   {
+    "type": "compare",
+    "title": "결제일을 놓쳤을 때(일반적인 흐름, 카드사마다 다름)",
+    "columns": [
+     "시점",
+     "생기는 일",
+     "할 일"
+    ],
+    "rows": [
+     [
+      "1~29일 늦음",
+      "연체료, 이자 없는 기간(Grace) 상실 가능, 신용 보고서에는 보통 아직 안 올라감",
+      "바로 갚고 연체료 면제 요청"
+     ],
+     [
+      "30일 이상",
+      "신용평가회사에 \"30 days late\" 보고 가능",
+      "즉시 갚고, 기록이 맞는지 확인"
+     ],
+     [
+      "60일 이상",
+      "연체 금리(Penalty APR) 적용될 수 있음(CARD Act 통지 규칙)",
+      "카드사와 상환 계획 상의"
+     ],
+     [
+      "90~180일",
+      "계좌 정지·상각(Charge-off), 추심 회사로 넘어갈 수 있음",
+      "무료 신용 상담(비영리) 도움"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "steps",
+    "title": "늦었다는 걸 알았을 때",
+    "items": [
+     {
+      "title": "오늘 바로 최소액 이상 갚기",
+      "body": "30일이 되기 전에 갚으면 신용 보고서에는 보통 연체로 올라가지 않아요."
+     },
+     {
+      "title": "고객센터에 연체료 면제 요청",
+      "body": "\"처음 늦었고 바로 갚았어요\" 라고 하면 한 번은 빼 주는 경우가 많아요."
+     },
+     {
+      "title": "이미 30일 넘게 보고됐다면",
+      "body": "보고 내용(날짜·금액)이 맞는지 신용 보고서에서 확인하고, 틀리면 이의 제기해요."
+     },
+     {
+      "title": "선의 편지(Goodwill letter)",
+      "body": "보고가 정확하더라도, 오래 잘 써 온 고객이고 특별한 사정(입원·가족 일)이 있었다면 카드사에 \"선의로 기록을 고쳐 달라\" 고 편지를 쓸 수 있어요. 들어줄 의무는 없고, 정확한 기록은 지우지 않는 회사도 많아요."
+     },
+     {
+      "title": "다시는 늦지 않게",
+      "body": "자동이체를 최소액 이상으로 걸고, 결제일 5일 전 알림을 켜요."
+     }
+    ]
+   },
+   {
+    "type": "checklist",
+    "title": "다시 늦지 않는 설정",
+    "items": [
+     "**자동이체(Autopay)** — \"Statement balance\" 가 가장 좋고, 최소한 \"Minimum\" 이라도",
+     "**결제일 바꾸기** — 월급날 직후로 결제일을 옮겨 달라고 요청할 수 있어요",
+     "**잔고 알림** — 자동이체 계좌 잔고가 일정 금액 아래면 문자",
+     "**우편 명세서 대신 앱 알림** — 이사·여행 중에도 받게"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "\"연체 기록 지워 줄게요\" 는 사기",
+    "body": "돈을 먼저 받고 정확한 연체 기록을 지워 준다는 신용 수리 업체는 조심하세요. 정확한 기록은 법적으로 지울 수 없어요. 연방 신용수리기관법(CROA)은 서비스 완료 전에 돈을 받는 것을 금지해요. 직접 무료로 할 수 있는 것(이의 제기, 선의 편지)부터 하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "myFICO 공식: Payment History",
+      "url": "https://www.myfico.com/credit-education/credit-scores/payment-history",
+      "kind": "FICO 공식"
+     },
+     {
+      "title": "FTC 공식: Fixing Your Credit FAQs",
+      "url": "https://consumer.ftc.gov/articles/fixing-your-credit-faqs",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "CFPB 공식: Credit reports and scores",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-reports-and-scores/",
+      "kind": "정부(공식, CFPB)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "신용 관리",
+  "kind": "info",
+  "title": "최소 결제액만 내면 생기는 일과 카드 빚 갚는 순서: $5,000을 최소액으로 갚으면 약 19년, 한도 증액 요청, 무료 비영리 상담",
+  "content": "명세서의 \"최소 결제액(Minimum payment)\" 만 내면 연체는 아니지만, 남은 금액에 연 20%대 이자가 계속 붙어요. 예를 들어 연 24% 카드에 $5,000이 있을 때 최소액만 내면 다 갚는 데 약 19년, 이자만 약 $8,900이 들어요. 최소액의 함정과 빚을 빨리 갚는 순서, 한도 증액 요청법, 무료 상담처를 정리했어요.\n- 같은 $5,000도 매달 $200씩 갚으면 3년, 이자 약 $2,000\n- 여러 카드 빚은 \"이자율 높은 것부터(눈사태)\" 또는 \"작은 것부터(눈덩이)\"\n- 막막하면 비영리 신용 상담(NFCC 회원 기관)에서 무료·저비용 상담",
+  "image": "/images/money/topics/cards-12.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "약 19년",
+      "label": "최소액만 낼 때",
+      "note": "$5,000, 연 24% 예시",
+      "icon": "clock"
+     },
+     {
+      "value": "약 $8,900",
+      "label": "그동안 이자",
+      "note": "같은 예시",
+      "icon": "alert-circle"
+     },
+     {
+      "value": "3년",
+      "label": "매달 $200씩",
+      "note": "이자 약 $2,000",
+      "icon": "calendar"
+     },
+     {
+      "value": "무료",
+      "label": "비영리 상담",
+      "note": "첫 상담 기준",
+      "icon": "heart-handshake"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "FTC 안내: 최소액만 내면 비싸져요"
+   },
+   {
+    "type": "shot",
+    "title": "FTC 안내: 카드 대금 갚기",
+    "src": "/images/money/shots/card-ftc-minpay.jpg",
+    "pins": [
+     {
+      "x": 35.3,
+      "y": 10.1,
+      "text": "**Make your credit card payments by the due date every month** — 매달 결제일까지 갚기."
+     },
+     {
+      "x": 49,
+      "y": 19.5,
+      "text": "**pay off your full balance ... grace period** — 전액을 갚으면 이자 없는 기간(Grace period)을 쓸 수 있어요."
+     },
+     {
+      "x": 50,
+      "y": 42,
+      "text": "**make at least the minimum payment ... more expensive** — 최소액만 내면 남은 금액에 이자가 붙어 더 비싸진다는 설명이에요."
+     },
+     {
+      "x": 49,
+      "y": 76.3,
+      "text": "**set up reminders** — 전자 결제라면 알림을 설정하라는 조언이에요."
+     }
+    ],
+    "caption": "명세서에도 \"최소액만 내면 다 갚는 데 몇 년, 총 얼마\" 를 보여 주는 안내 상자가 있어요(CARD Act).",
+    "credit": "미국 연방거래위원회(FTC) 공식 사이트 consumer.ftc.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "bars",
+    "title": "$5,000 카드 빚(연 24%)을 갚는 방법별 총 이자",
+    "sub": "운영팀 계산: 최소액 = 잔액의 1% + 그달 이자(최저 $25) 가정",
+    "items": [
+     {
+      "label": "최소액만",
+      "value": 8887,
+      "display": "$8,887",
+      "note": "약 234개월(19년 6개월)"
+     },
+     {
+      "label": "매달 $200 고정",
+      "value": 2001,
+      "display": "$2,001",
+      "note": "36개월"
+     },
+     {
+      "label": "매달 $300 고정",
+      "value": 1143,
+      "display": "$1,143",
+      "note": "21개월",
+      "highlight": true
+     }
+    ],
+    "max": 9000,
+    "source": "운영팀 계산(카드사마다 최소액 계산식 다름)",
+    "unit": "$"
+   },
+   {
+    "type": "h",
+    "title": "여러 카드 빚, 어떤 순서로?"
+   },
+   {
+    "type": "compare",
+    "title": "빚 갚는 두 가지 방법",
+    "columns": [
+     "방법",
+     "순서",
+     "좋은 점",
+     "맞는 사람"
+    ],
+    "rows": [
+     [
+      "눈사태(Avalanche)",
+      "이자율 높은 카드부터 추가로 갚기",
+      "총 이자가 가장 적음",
+      "계산대로 꾸준히 할 수 있는 분"
+     ],
+     [
+      "눈덩이(Snowball)",
+      "잔액 작은 카드부터 없애기",
+      "빨리 하나씩 끝나서 힘이 남",
+      "동기 부여가 필요한 분"
+     ]
+    ],
+    "highlight": 0,
+    "note": "두 방법 모두 \"나머지 카드는 최소액, 남는 돈은 한 카드에 몰기\" 가 공통이에요."
+   },
+   {
+    "type": "steps",
+    "title": "빚을 줄이는 순서",
+    "items": [
+     {
+      "title": "모든 카드 목록 만들기",
+      "body": "카드 이름, 잔액, 이자율(APR), 최소액, 결제일을 한 표에."
+     },
+     {
+      "title": "새 카드 사용 멈추기",
+      "body": "빚 갚는 동안은 직불카드나 현금으로 생활비를 써요."
+     },
+     {
+      "title": "매달 고정 금액 정하기",
+      "body": "최소액이 아니라 \"매달 $300\" 처럼 고정 금액을 자동이체로."
+     },
+     {
+      "title": "이자율 낮추기 요청",
+      "body": "카드사에 금리 인하나 상환 프로그램(Hardship program)을 물어봐요. 잔액 이체(0% 기간) 카드는 수수료(보통 3~5%)와 기간이 끝난 뒤 금리를 계산하고 써요."
+     },
+     {
+      "title": "혼자 어려우면 비영리 상담",
+      "body": "NFCC 회원 기관 같은 비영리 신용 상담에서 예산 상담, 부채 관리 계획(DMP)을 안내받을 수 있어요. 큰돈을 먼저 내라는 \"빚 탕감\" 업체는 조심하세요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "한도 증액 요청은 언제?"
+   },
+   {
+    "type": "checklist",
+    "title": "한도 증액(Credit limit increase) 체크",
+    "items": [
+     "**언제** — 6개월~1년 연체 없이 쓰고, 소득이 늘었을 때",
+     "**어떻게** — 앱의 \"Request credit limit increase\", 연 소득·월 주거비 입력",
+     "**하드 조회 여부** — 카드사마다 달라요. 요청 전에 \"하드 조회가 생기나요?\" 물어보기",
+     "**목적** — 사용 비율을 낮추려는 것. 한도가 늘었다고 더 쓰면 의미 없어요",
+     "**빚이 많을 때는** — 한도 증액보다 빚 줄이기가 먼저"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "빚 문제로 잠이 안 온다면",
+    "body": "혼자 고민하지 마세요. 카드사 상담원에게 사정을 말하면 일시적인 상환 프로그램을 주기도 해요. 비영리 상담 기관은 첫 상담을 무료로 하는 곳이 많아요. 집·차를 잃을 정도라면 파산 변호사 상담도 하나의 선택지예요."
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "금융 조언이 아니에요",
+    "body": "이 글은 일반 정보예요. 특정 카드를 권하는 글이 아니며, 예로 든 카드 이름은 이해를 돕기 위한 것이에요. 카드 혜택·연회비·가입 보너스·적립률·제휴사는 자주 바뀌어요(2026년 10월 확인). 신청 전에 **카드사 공식 페이지와 약관(Rates & Fees / Pricing & Terms)**에서 최신 조건을 꼭 확인하세요. 이 글에는 제휴(수수료) 링크가 없어요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "CFPB·FTC·myFICO 등 공식 자료와 카드사·항공사·호텔 공식 페이지를 운영팀이 정리했어요(2026년 10월 확인). 카드 조건과 숫자는 바뀔 수 있으니 공식 페이지에서 최신 내용을 확인하세요.",
+    "items": [
+     {
+      "title": "FTC 공식: Using Credit Cards and Disputing Charges(대금 갚기)",
+      "url": "https://consumer.ftc.gov/articles/using-credit-cards-disputing-charges",
+      "kind": "정부(공식, FTC)"
+     },
+     {
+      "title": "CFPB 공식: Credit cards",
+      "url": "https://www.consumerfinance.gov/consumer-tools/credit-cards/",
+      "kind": "정부(공식, CFPB)"
+     },
+     {
+      "title": "NFCC(전미 신용상담재단, 비영리)",
+      "url": "https://www.nfcc.org/",
+      "kind": "비영리 단체"
+     },
+     {
+      "title": "myFICO 공식: Amounts Owed",
+      "url": "https://www.myfico.com/credit-education/credit-scores/amount-of-debt",
+      "kind": "FICO 공식"
      }
     ]
    }
