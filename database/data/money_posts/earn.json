@@ -3796,6 +3796,52 @@
     "body": "EIN은 IRS만 발급하고 **비용이 없어요.** \"EIN 발급 대행\" 같은 사이트가 돈을 받는다면, 그건 내가 직접 할 수 있는 일을 대신 해 주는 대행 수수료일 뿐이에요."
    },
    {
+    "type": "steps",
+    "title": "EIN 신청 화면까지 가는 길",
+    "items": [
+     {
+      "title": "인터넷 앱 맨 위 **주소 줄**에 irs.gov 입력 후 이동",
+      "body": "위에 \"An official website of the United States government\" 줄이 보이면 진짜 IRS예요."
+     },
+     {
+      "title": "오른쪽 위 흰 검색칸에 \"EIN online\" 입력 후 검색",
+      "body": "돋보기 모양을 누르면 돼요."
+     },
+     {
+      "title": "\"Get an employer identification number\" 제목 결과 누르기",
+      "body": "아래 그림과 같은 화면이에요."
+     },
+     {
+      "title": "화면을 아래로 내려 \"Apply online now\" 버튼을 찾아 누르세요",
+      "body": "15분 안에 끝내야 하니 서류를 옆에 두고 시작하세요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "IRS EIN 신청 안내 화면",
+    "src": "/images/money/shots/irs-ein.jpg",
+    "pins": [
+     {
+      "x": 73.5,
+      "y": 38,
+      "text": "**한국어** — 누르면 같은 안내를 한국어로 볼 수 있어요."
+     },
+     {
+      "x": 24.5,
+      "y": 64.5,
+      "text": "**\"EIN에 돈을 받는 사이트를 조심하세요\"** — IRS에서 직접 신청하면 **무료**예요."
+     },
+     {
+      "x": 25,
+      "y": 78,
+      "text": "**15분 동안 아무것도 안 하면 처음부터 다시** 해야 해요. 중간 저장이 안 되니 서류를 미리 준비하세요."
+     }
+    ],
+    "caption": "맨 아래로 내려가면 파란 \"Apply online now\" 버튼이 있어요. 신청이 끝나면 EIN 확인서(PDF)를 꼭 **인쇄하거나 저장**하세요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 irs.gov 화면을 직접 캡처했어요."
+   },
+   {
     "type": "h",
     "title": "신청 전에 준비할 것"
    },
@@ -4236,6 +4282,30 @@
       "icon": "refresh"
      }
     ]
+   },
+   {
+    "type": "shot",
+    "title": "IRS Direct Pay 화면",
+    "src": "/images/money/shots/irs-directpay.jpg",
+    "pins": [
+     {
+      "x": 73.5,
+      "y": 38,
+      "text": "**한국어** — 같은 안내를 한국어로 볼 수 있어요."
+     },
+     {
+      "x": 25,
+      "y": 58,
+      "text": "**Free and secure / No sign-in required** — 무료이고 가입 없이 쓸 수 있다는 뜻이에요."
+     },
+     {
+      "x": 24,
+      "y": 80.7,
+      "text": "**Pay individual tax** — 개인 세금을 낼 때 이 파란 글씨를 누르세요."
+     }
+    ],
+    "caption": "irs.gov/payments/direct-pay 로 들어가면 이 화면이 나와요. 사업 세금이 아니라 **개인(자영업자 포함) 소득세**는 \"Pay individual tax\"예요.",
+    "credit": "IRS(미국 국세청) 공식 사이트 irs.gov 화면을 직접 캡처했어요."
    },
    {
     "type": "h",

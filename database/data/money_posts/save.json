@@ -1871,318 +1871,6 @@
   ]
  },
  {
-  "topic": "전기·가스비",
-  "kind": "info",
-  "title": "조지아 LIHEAP(저소득 난방비 지원) 신청하는 법",
-  "content": "겨울철 난방비가 부담되는 가정을 돕는 연방 지원 프로그램이에요. 조지아는 **지역 기관(Community Action Agency)** 을 통해 신청해요. 순서와 준비물을 정리했어요.",
-  "image": "/images/money/topics/save-07.svg",
-  "blocks": [
-   {
-    "type": "stats",
-    "items": [
-     {
-      "value": "소득 60% 이하",
-      "label": "주 중위소득 기준",
-      "note": "해마다 금액 바뀜",
-      "icon": "users"
-     },
-     {
-      "value": "선착순",
-      "label": "예산 소진 시 마감",
-      "note": "일찍 신청",
-      "icon": "clock"
-     },
-     {
-      "value": "노인·거동불편",
-      "label": "먼저 접수",
-      "note": "보통 더 이른 날짜",
-      "icon": "heart-handshake"
-     },
-     {
-      "value": "전력회사로 직접 지급",
-      "label": "내 손에 현금은 안 와요",
-      "note": "고지서 감액 방식",
-      "icon": "dollar"
-     }
-    ]
-   },
-   {
-    "type": "h",
-    "title": "신청 순서"
-   },
-   {
-    "type": "steps",
-    "title": "신청하는 법",
-    "items": [
-     {
-      "title": "내 지역 기관 찾기",
-      "body": "조지아 DFCS의 에너지 지원 기관 목록(dfcs.dhs.georgia.gov/energy-assistance)에서 내 카운티 담당 기관을 찾아요."
-     },
-     {
-      "title": "신청 시기 확인",
-      "body": "보통 **노인·거동불편자**는 더 이른 날짜(예: 11월·12월)부터, **일반 신청자**는 그 다음(예: 1월)부터 예약할 수 있어요. 해마다 날짜가 달라요."
-     },
-     {
-      "title": "예약 잡기",
-      "body": "많은 기관이 예약제로 운영해요."
-     },
-     {
-      "title": "서류 챙겨서 방문·제출",
-      "body": "아래 체크리스트 참고"
-     },
-     {
-      "title": "승인되면",
-      "body": "지원금은 **내가 아니라 전력회사로 직접** 지급돼요. 고지서에서 깎이는 방식이에요."
-     }
-    ]
-   },
-   {
-    "type": "h",
-    "title": "준비 서류"
-   },
-   {
-    "type": "checklist",
-    "title": "가져갈 서류",
-    "items": [
-     "최근 전기·가스 고지서",
-     "가구원 전원의 **최근 30일 소득 증빙**",
-     "가구원의 **사회보장번호(SSN)**",
-     "시민권 또는 합법 체류 증빙",
-     "SNAP·TANF 등 다른 지원을 받고 있다면 그 증빙(도움이 될 수 있어요)"
-    ]
-   },
-   {
-    "type": "callout",
-    "tone": "warn",
-    "title": "예산이 소진되면 마감돼요",
-    "body": "선착순이라 **예산이 떨어지면 신청 기간이 남아도 마감**될 수 있어요. 자격이 되면 가능한 한 일찍 신청하세요."
-   },
-   {
-    "type": "callout",
-    "tone": "info",
-    "title": "해마다 일정·금액이 달라요",
-    "body": "연방 예산 사정에 따라 **그 해 신청 시작일이 늦어질 수도** 있어요. 내 지역 기관에 전화해서 이번 시즌 일정을 직접 확인하는 게 가장 정확해요."
-   },
-   {
-    "type": "sources",
-    "title": "참고한 자료",
-    "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
-    "items": [
-     {
-      "title": "조지아 주 LIHEAP 신청 안내(공식 DHS 발표 보도)",
-      "url": "https://www.atlantanewsfirst.com/2025/12/02/applications-open-georgia-winter-heating-assistance-program/",
-      "kind": "뉴스 보도(주 정부 발표 인용)"
-     },
-     {
-      "title": "조지아 DFCS 에너지 지원 안내",
-      "url": "https://dfcs.georgia.gov/document/document/dfcsliheap115pdf/download",
-      "kind": "주 정부(공식)"
-     }
-    ]
-   }
-  ]
- },
- {
-  "topic": "전기·가스비",
-  "kind": "info",
-  "title": "에어컨·히터 온도 설정, 전기료 아끼는 구체적인 숫자",
-  "content": "\"적당히 아껴 쓰자\" 보다 **구체적인 온도와 절약 %** 를 알면 실천하기 쉬워요. 여러 공신력 있는 자료를 모아 정리했어요.",
-  "image": "/images/money/topics/save-07.svg",
-  "blocks": [
-   {
-    "type": "h",
-    "title": "여름철 에어컨"
-   },
-   {
-    "type": "compare",
-    "title": "추천 온도 (Energy Star 기준 인용)",
-    "columns": [
-     "상황",
-     "추천 온도"
-    ],
-    "rows": [
-     [
-      "집에 있고 깨어 있을 때",
-      "화씨 78도(약 섭씨 25.6도)"
-     ],
-     [
-      "외출 중",
-      "화씨 85도(약 섭씨 29.4도)"
-     ],
-     [
-      "잠잘 때",
-      "화씨 82도(약 섭씨 27.8도)"
-     ]
-    ],
-    "highlight": 1,
-    "note": "※ Energy Star(미국 에너지부·환경보호청 공동 프로그램)의 권장 기준을 인용한 자료예요."
-   },
-   {
-    "type": "bars",
-    "title": "에어컨 설정온도 1도 올릴 때마다 (DOE 추정)",
-    "sub": "",
-    "items": [
-     {
-      "label": "절약율",
-      "value": 3,
-      "display": "약 3% 냉방비 절약"
-     }
-    ],
-    "max": 5,
-    "source": "※ 중앙 에어컨 기준 추정치예요."
-   },
-   {
-    "type": "h",
-    "title": "겨울철 히터"
-   },
-   {
-    "type": "compare",
-    "title": "추천 온도",
-    "columns": [
-     "상황",
-     "추천 온도"
-    ],
-    "rows": [
-     [
-      "낮(활동 시간)",
-      "화씨 68도(약 섭씨 20도)"
-     ],
-     [
-      "밤(잘 때)",
-      "10~15도 더 낮춰도 돼요"
-     ]
-    ],
-    "highlight": 0,
-    "note": "※ \"8시간마다 1도 낮추면 1% 절약\"이라는 DOE 기준 어림법도 있어요."
-   },
-   {
-    "type": "callout",
-    "tone": "tip",
-    "title": "연 5~15% 절약된다는 추정도 있어요",
-    "body": "낮에는 68도, 밤에는 더 낮추는 습관만으로 **난방비의 5~15%** 를 아낄 수 있다는 추정이 있어요(Energy.gov 인용)."
-   },
-   {
-    "type": "h",
-    "title": "추가로 아끼는 방법"
-   },
-   {
-    "type": "checklist",
-    "title": "실천하기 쉬운 것들",
-    "items": [
-     "천장 선풍기를 같이 쓰면 **체감 온도를 낮춰** 설정온도를 올려도 덜 더워요(약 4도 효과)",
-     "프로그래머블(자동 조절) 온도조절기를 쓰면 깜빡하지 않고 자동으로 조절돼요",
-     "전기 히터(공간 난방기)는 많이 먹어요. 되도록 중앙 난방을 쓰세요",
-     "창문·문틈을 막으면 냉난방 효율이 올라가요"
-    ]
-   },
-   {
-    "type": "sources",
-    "title": "참고한 자료",
-    "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
-    "items": [
-     {
-      "title": "여름 절약 온도 설정 안내(뉴스)",
-      "url": "https://local12.com/news/around-the-web/want-lower-electric-bills-heres-the-temperature-experts-recommend-thermostat-setting-save-money-air-conditioning",
-      "kind": "뉴스 보도(Energy Star 인용)"
-     },
-     {
-      "title": "겨울 절약 팁(신협 자료)",
-      "url": "https://www.tinkerfcu.org/tips-to-save-on-your-electric-bill/",
-      "kind": "정보·가이드(DOE 인용)"
-     }
-    ]
-   }
-  ]
- },
- {
-  "topic": "전기·가스비",
-  "kind": "info",
-  "title": "전기·가스 고지서 읽는 법: 숫자가 갑자기 올랐을 때 확인할 것",
-  "content": "고지서의 숫자가 뭘 의미하는지 알면, 갑자기 요금이 오른 이유를 스스로 찾을 수 있어요.",
-  "image": "/images/money/topics/save-07.svg",
-  "blocks": [
-   {
-    "type": "h",
-    "title": "고지서의 핵심 숫자"
-   },
-   {
-    "type": "compare",
-    "title": "고지서에서 확인할 것",
-    "columns": [
-     "항목",
-     "의미"
-    ],
-    "rows": [
-     [
-      "사용량(kWh·therm)",
-      "전기는 kWh, 가스는 therm 단위로 내가 쓴 양"
-     ],
-     [
-      "기본요금",
-      "안 써도 내는 고정 비용"
-     ],
-     [
-      "사용요금",
-      "쓴 만큼 내는 비용"
-     ],
-     [
-      "세금·수수료",
-      "지자체·주 세금 등"
-     ]
-    ],
-    "highlight": 0
-   },
-   {
-    "type": "h",
-    "title": "요금이 올랐을 때 확인 순서"
-   },
-   {
-    "type": "steps",
-    "title": "이렇게 확인하세요",
-    "items": [
-     {
-      "title": "지난달과 비교",
-      "body": "사용량(kWh)이 늘었는지, 단가가 올랐는지 구분해요."
-     },
-     {
-      "title": "작년 같은 달과 비교",
-      "body": "계절 요인(냉난방)인지 확인해요."
-     },
-     {
-      "title": "사용 습관 돌아보기",
-      "body": "손님이 오래 머물렀거나, 새 가전을 들였는지 생각해 봐요."
-     },
-     {
-      "title": "전력회사 온라인 계정 확인",
-      "body": "많은 전력회사가 **시간대별·일별 사용량**을 보여 줘요."
-     },
-     {
-      "title": "여전히 이상하면 문의",
-      "body": "계량기 오류 가능성도 전력회사에 문의할 수 있어요."
-     }
-    ]
-   },
-   {
-    "type": "callout",
-    "tone": "tip",
-    "title": "시간대별 요금제가 있는지 확인하세요",
-    "body": "일부 전력회사는 **사용 시간대에 따라 요금이 다른** 요금제를 운영해요. 세탁·건조를 저렴한 시간대에 하면 아낄 수 있어요. 내 전력회사 계정에서 확인해 보세요."
-   },
-   {
-    "type": "sources",
-    "title": "참고한 자료",
-    "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
-    "items": [
-     {
-      "title": "전기 사용량 관리 팁",
-      "url": "https://energy.nh.gov/consumers/energy-efficiency/energy-efficiency-programs-and-services/tips-managing-your-electric",
-      "kind": "주 정부 기관(정보)"
-     }
-    ]
-   }
-  ]
- },
- {
   "topic": "외식 할인",
   "kind": "info",
   "title": "Too Good To Go: 남은 음식을 반값 이하로 사는 법 (공식 안내 기준)",
@@ -2784,6 +2472,368 @@
   ]
  },
  {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "조지아 LIHEAP(저소득 난방비 지원) 신청하는 법",
+  "content": "겨울철 난방비가 부담되는 가정을 돕는 연방 지원 프로그램이에요. 조지아는 **지역 기관(Community Action Agency)** 을 통해 신청해요. 순서와 준비물을 정리했어요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "stats",
+    "items": [
+     {
+      "value": "소득 60% 이하",
+      "label": "주 중위소득 기준",
+      "note": "해마다 금액 바뀜",
+      "icon": "users"
+     },
+     {
+      "value": "선착순",
+      "label": "예산 소진 시 마감",
+      "note": "일찍 신청",
+      "icon": "clock"
+     },
+     {
+      "value": "노인·거동불편",
+      "label": "먼저 접수",
+      "note": "보통 더 이른 날짜",
+      "icon": "heart-handshake"
+     },
+     {
+      "value": "전력회사로 직접 지급",
+      "label": "내 손에 현금은 안 와요",
+      "note": "고지서 감액 방식",
+      "icon": "dollar"
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "받을 수 있는 다른 지원도 한 번에 찾아보기"
+   },
+   {
+    "type": "steps",
+    "title": "정부 공식 지원 찾기 사이트 쓰는 법",
+    "items": [
+     {
+      "title": "인터넷 앱 주소 줄에 **benefits.gov** 입력 후 이동",
+      "body": "화면이 usa.gov 모양으로 바뀌어도 정상이에요. 미국 정부 공식 안내 사이트예요."
+     },
+     {
+      "title": "\"Find benefits by category\"(분야별로 지원 찾기) 아래 네모 칸을 누르세요",
+      "body": "궁금한 분야를 누르면 파란 체크 표시가 생겨요. 여러 개 골라도 돼요."
+     },
+     {
+      "title": "화면을 아래로 내려 **Find benefits**(지원 찾기) 버튼을 누르기",
+      "body": "질문에 \"예/아니오\"로 답하면 받을 가능성이 있는 지원 목록이 나와요."
+     },
+     {
+      "title": "목록에서 이름을 누르면 신청하는 곳과 필요한 서류가 나와요",
+      "body": "난방비·식비·의료비 지원이 같이 나오는 경우가 많아요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "benefits.gov 첫 화면",
+    "src": "/images/money/shots/benefits-gov.jpg",
+    "pins": [
+     {
+      "x": 77,
+      "y": 23.3,
+      "text": "**돋보기가 있는 칸** — 영어로 \"heating\"(난방) 처럼 찾는 말을 쓰고 돋보기를 눌러요."
+     },
+     {
+      "x": 3.5,
+      "y": 85,
+      "text": "**Select all** — 모든 분야를 한 번에 고를 때 눌러요."
+     },
+     {
+      "x": 3.5,
+      "y": 91,
+      "text": "**네모 칸들** — 가족(Children and families), 식비(Food) 등 궁금한 분야를 골라요."
+     }
+    ],
+    "caption": "캡처 화면 아래에도 분야 칸이 더 있어요. 손가락으로 천천히 밀어 내려 보세요.",
+    "credit": "USA.gov(미국 정부) 공식 사이트 benefits.gov 화면을 직접 캡처했어요."
+   },
+   {
+    "type": "h",
+    "title": "신청 순서"
+   },
+   {
+    "type": "steps",
+    "title": "신청하는 법",
+    "items": [
+     {
+      "title": "내 지역 기관 찾기",
+      "body": "조지아 DFCS의 에너지 지원 기관 목록(dfcs.dhs.georgia.gov/energy-assistance)에서 내 카운티 담당 기관을 찾아요."
+     },
+     {
+      "title": "신청 시기 확인",
+      "body": "보통 **노인·거동불편자**는 더 이른 날짜(예: 11월·12월)부터, **일반 신청자**는 그 다음(예: 1월)부터 예약할 수 있어요. 해마다 날짜가 달라요."
+     },
+     {
+      "title": "예약 잡기",
+      "body": "많은 기관이 예약제로 운영해요."
+     },
+     {
+      "title": "서류 챙겨서 방문·제출",
+      "body": "아래 체크리스트 참고"
+     },
+     {
+      "title": "승인되면",
+      "body": "지원금은 **내가 아니라 전력회사로 직접** 지급돼요. 고지서에서 깎이는 방식이에요."
+     }
+    ]
+   },
+   {
+    "type": "h",
+    "title": "준비 서류"
+   },
+   {
+    "type": "checklist",
+    "title": "가져갈 서류",
+    "items": [
+     "최근 전기·가스 고지서",
+     "가구원 전원의 **최근 30일 소득 증빙**",
+     "가구원의 **사회보장번호(SSN)**",
+     "시민권 또는 합법 체류 증빙",
+     "SNAP·TANF 등 다른 지원을 받고 있다면 그 증빙(도움이 될 수 있어요)"
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "warn",
+    "title": "예산이 소진되면 마감돼요",
+    "body": "선착순이라 **예산이 떨어지면 신청 기간이 남아도 마감**될 수 있어요. 자격이 되면 가능한 한 일찍 신청하세요."
+   },
+   {
+    "type": "callout",
+    "tone": "info",
+    "title": "해마다 일정·금액이 달라요",
+    "body": "연방 예산 사정에 따라 **그 해 신청 시작일이 늦어질 수도** 있어요. 내 지역 기관에 전화해서 이번 시즌 일정을 직접 확인하는 게 가장 정확해요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
+    "items": [
+     {
+      "title": "조지아 주 LIHEAP 신청 안내(공식 DHS 발표 보도)",
+      "url": "https://www.atlantanewsfirst.com/2025/12/02/applications-open-georgia-winter-heating-assistance-program/",
+      "kind": "뉴스 보도(주 정부 발표 인용)"
+     },
+     {
+      "title": "조지아 DFCS 에너지 지원 안내",
+      "url": "https://dfcs.georgia.gov/document/document/dfcsliheap115pdf/download",
+      "kind": "주 정부(공식)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "에어컨·히터 온도 설정, 전기료 아끼는 구체적인 숫자",
+  "content": "\"적당히 아껴 쓰자\" 보다 **구체적인 온도와 절약 %** 를 알면 실천하기 쉬워요. 여러 공신력 있는 자료를 모아 정리했어요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "여름철 에어컨"
+   },
+   {
+    "type": "compare",
+    "title": "추천 온도 (Energy Star 기준 인용)",
+    "columns": [
+     "상황",
+     "추천 온도"
+    ],
+    "rows": [
+     [
+      "집에 있고 깨어 있을 때",
+      "화씨 78도(약 섭씨 25.6도)"
+     ],
+     [
+      "외출 중",
+      "화씨 85도(약 섭씨 29.4도)"
+     ],
+     [
+      "잠잘 때",
+      "화씨 82도(약 섭씨 27.8도)"
+     ]
+    ],
+    "highlight": 1,
+    "note": "※ Energy Star(미국 에너지부·환경보호청 공동 프로그램)의 권장 기준을 인용한 자료예요."
+   },
+   {
+    "type": "bars",
+    "title": "에어컨 설정온도 1도 올릴 때마다 (DOE 추정)",
+    "sub": "",
+    "items": [
+     {
+      "label": "절약율",
+      "value": 3,
+      "display": "약 3% 냉방비 절약"
+     }
+    ],
+    "max": 5,
+    "source": "※ 중앙 에어컨 기준 추정치예요."
+   },
+   {
+    "type": "h",
+    "title": "겨울철 히터"
+   },
+   {
+    "type": "compare",
+    "title": "추천 온도",
+    "columns": [
+     "상황",
+     "추천 온도"
+    ],
+    "rows": [
+     [
+      "낮(활동 시간)",
+      "화씨 68도(약 섭씨 20도)"
+     ],
+     [
+      "밤(잘 때)",
+      "10~15도 더 낮춰도 돼요"
+     ]
+    ],
+    "highlight": 0,
+    "note": "※ \"8시간마다 1도 낮추면 1% 절약\"이라는 DOE 기준 어림법도 있어요."
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "연 5~15% 절약된다는 추정도 있어요",
+    "body": "낮에는 68도, 밤에는 더 낮추는 습관만으로 **난방비의 5~15%** 를 아낄 수 있다는 추정이 있어요(Energy.gov 인용)."
+   },
+   {
+    "type": "h",
+    "title": "추가로 아끼는 방법"
+   },
+   {
+    "type": "checklist",
+    "title": "실천하기 쉬운 것들",
+    "items": [
+     "천장 선풍기를 같이 쓰면 **체감 온도를 낮춰** 설정온도를 올려도 덜 더워요(약 4도 효과)",
+     "프로그래머블(자동 조절) 온도조절기를 쓰면 깜빡하지 않고 자동으로 조절돼요",
+     "전기 히터(공간 난방기)는 많이 먹어요. 되도록 중앙 난방을 쓰세요",
+     "창문·문틈을 막으면 냉난방 효율이 올라가요"
+    ]
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
+    "items": [
+     {
+      "title": "여름 절약 온도 설정 안내(뉴스)",
+      "url": "https://local12.com/news/around-the-web/want-lower-electric-bills-heres-the-temperature-experts-recommend-thermostat-setting-save-money-air-conditioning",
+      "kind": "뉴스 보도(Energy Star 인용)"
+     },
+     {
+      "title": "겨울 절약 팁(신협 자료)",
+      "url": "https://www.tinkerfcu.org/tips-to-save-on-your-electric-bill/",
+      "kind": "정보·가이드(DOE 인용)"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "topic": "전기·가스비",
+  "kind": "info",
+  "title": "전기·가스 고지서 읽는 법: 숫자가 갑자기 올랐을 때 확인할 것",
+  "content": "고지서의 숫자가 뭘 의미하는지 알면, 갑자기 요금이 오른 이유를 스스로 찾을 수 있어요.",
+  "image": "/images/money/topics/save-07.svg",
+  "blocks": [
+   {
+    "type": "h",
+    "title": "고지서의 핵심 숫자"
+   },
+   {
+    "type": "compare",
+    "title": "고지서에서 확인할 것",
+    "columns": [
+     "항목",
+     "의미"
+    ],
+    "rows": [
+     [
+      "사용량(kWh·therm)",
+      "전기는 kWh, 가스는 therm 단위로 내가 쓴 양"
+     ],
+     [
+      "기본요금",
+      "안 써도 내는 고정 비용"
+     ],
+     [
+      "사용요금",
+      "쓴 만큼 내는 비용"
+     ],
+     [
+      "세금·수수료",
+      "지자체·주 세금 등"
+     ]
+    ],
+    "highlight": 0
+   },
+   {
+    "type": "h",
+    "title": "요금이 올랐을 때 확인 순서"
+   },
+   {
+    "type": "steps",
+    "title": "이렇게 확인하세요",
+    "items": [
+     {
+      "title": "지난달과 비교",
+      "body": "사용량(kWh)이 늘었는지, 단가가 올랐는지 구분해요."
+     },
+     {
+      "title": "작년 같은 달과 비교",
+      "body": "계절 요인(냉난방)인지 확인해요."
+     },
+     {
+      "title": "사용 습관 돌아보기",
+      "body": "손님이 오래 머물렀거나, 새 가전을 들였는지 생각해 봐요."
+     },
+     {
+      "title": "전력회사 온라인 계정 확인",
+      "body": "많은 전력회사가 **시간대별·일별 사용량**을 보여 줘요."
+     },
+     {
+      "title": "여전히 이상하면 문의",
+      "body": "계량기 오류 가능성도 전력회사에 문의할 수 있어요."
+     }
+    ]
+   },
+   {
+    "type": "callout",
+    "tone": "tip",
+    "title": "시간대별 요금제가 있는지 확인하세요",
+    "body": "일부 전력회사는 **사용 시간대에 따라 요금이 다른** 요금제를 운영해요. 세탁·건조를 저렴한 시간대에 하면 아낄 수 있어요. 내 전력회사 계정에서 확인해 보세요."
+   },
+   {
+    "type": "sources",
+    "title": "참고한 자료",
+    "note": "여러 자료를 모아 운영팀이 정리했어요. 지원 프로그램의 기간·조건은 해마다 바뀌니 꼭 지역 기관에 다시 확인하세요.",
+    "items": [
+     {
+      "title": "전기 사용량 관리 팁",
+      "url": "https://energy.nh.gov/consumers/energy-efficiency/energy-efficiency-programs-and-services/tips-managing-your-electric",
+      "kind": "주 정부 기관(정보)"
+     }
+    ]
+   }
+  ]
+ },
+ {
   "topic": "무료 생활 혜택",
   "kind": "info",
   "title": "Libby 앱으로 도서관 전자책·오디오북 무료로 빌리는 법",
@@ -2908,6 +2958,48 @@
   "content": "도서관 카드가 책만을 위한 게 아니에요. 지역에 따라 **박물관·주립공원 무료 입장권**도 빌릴 수 있어요. 귀넷 카운티를 예시로 정리했어요.",
   "image": "/images/money/topics/save-10.svg",
   "blocks": [
+   {
+    "type": "steps",
+    "title": "귀넷 도서관 카드 안내 화면 찾는 법",
+    "items": [
+     {
+      "title": "인터넷 앱 주소 줄에 **gwinnettpl.org** 입력 후 이동",
+      "body": "귀넷 카운티 공공 도서관 공식 사이트예요."
+     },
+     {
+      "title": "화면 왼쪽 위 초록 줄의 **도서관 카드**를 누르세요",
+      "body": "아래 그림처럼 한국어로 \"도서관 카드를 발급받으세요\" 화면이 나와요."
+     },
+     {
+      "title": "아래로 내려 **온라인으로 신청** 또는 **가까운 도서관 방문** 중 편한 방법을 고르세요",
+      "body": "온라인 신청 후에도 신분증을 들고 도서관에서 카드를 받아야 하는 경우가 있어요."
+     }
+    ]
+   },
+   {
+    "type": "shot",
+    "title": "귀넷 카운티 도서관 카드 안내 화면",
+    "src": "/images/money/shots/gwinnett-card.jpg",
+    "pins": [
+     {
+      "x": 9.1,
+      "y": 3,
+      "text": "**도서관 카드** — 이 글자를 누르면 카드 발급 안내 화면으로 와요."
+     },
+     {
+      "x": 50,
+      "y": 24,
+      "text": "**도서관 카드를 발급받으세요** — 이 파란 제목이 보이면 제대로 들어온 거예요."
+     },
+     {
+      "x": 15,
+      "y": 98,
+      "text": "**English** 칸 — 맨 아래 왼쪽에서 언어를 바꿀 수 있어요."
+     }
+    ],
+    "caption": "사이트가 한국어로 번역돼 보이면 맨 아래 왼쪽 언어 선택 칸에서 바꿀 수 있어요. 다른 카운티도 도서관 사이트의 \"Library Card\" 메뉴에서 비슷하게 찾아요.",
+    "credit": "귀넷 카운티 공공 도서관 공식 사이트 gwinnettpl.org 화면을 직접 캡처했어요."
+   },
    {
     "type": "h",
     "title": "카드 만들기"
