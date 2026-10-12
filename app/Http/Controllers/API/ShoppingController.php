@@ -163,7 +163,7 @@ class ShoppingController extends Controller
     private function validateReview(Request $request, bool $creating): array
     {
         $min = max(10, \App\Support\PointRules::get('shopping_review_min_chars', 60));
-        $minPhotos = max(1, \App\Support\PointRules::get('shopping_review_min_photos', 2));
+        $minPhotos = max(0, \App\Support\PointRules::get('shopping_review_min_photos', 0));
         $rules = [
             'title'    => 'required|string|max:200',
             'category' => 'nullable|string|max:50',
@@ -208,7 +208,7 @@ class ShoppingController extends Controller
         if (mb_strlen($body) > 8000) {
             throw \Illuminate\Validation\ValidationException::withMessages(['blocks' => '리뷰가 너무 길어요. (최대 8000자)']);
         }
-        if (count(array_unique($photos)) < $minPhotos) {
+        if ($minPhotos > 0 && count(array_unique($photos)) < $minPhotos) {
             throw \Illuminate\Validation\ValidationException::withMessages(['blocks' => "직접 찍은 사진을 글 사이에 {$minPhotos}장 이상 넣어주세요."]);
         }
 
@@ -353,7 +353,7 @@ class ShoppingController extends Controller
                 'week_views' => (int) $rows->sum('week_views'),
                 'week_clicks' => (int) $rows->sum('week_clicks'),
             ],
-            'rules' => ['min_chars' => max(10, \App\Support\PointRules::get('shopping_review_min_chars', 60)), 'min_photos' => max(1, \App\Support\PointRules::get('shopping_review_min_photos', 2)), 'first_approval' => ShoppingReviews::needsApproval($user)],
+            'rules' => ['min_chars' => max(10, \App\Support\PointRules::get('shopping_review_min_chars', 60)), 'min_photos' => max(0, \App\Support\PointRules::get('shopping_review_min_photos', 0)), 'first_approval' => ShoppingReviews::needsApproval($user)],
         ]]);
     }
 

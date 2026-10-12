@@ -24,7 +24,7 @@
           <ul class="list-disc pl-4 space-y-0.5">
             <li><b>내 사이트·쇼핑몰·블로그·SNS·유튜브·가게 홍보나 광고는 금지</b>예요. 웹 주소, 이메일, 전화번호, 카톡/인스타 아이디를 넣을 수 없어요.</li>
             <li>직접 구입해서 써본 제품만, 솔직하게 장단점을 써주세요. (협찬·광고 글 금지)</li>
-            <li>직접 찍은 사진을 <b>글 사이사이에 2장 이상</b> 넣어주세요. (Amazon 사진만으로는 안 돼요)</li>
+            <li>직접 찍은 사진이나 주문내역 캡처를 글 사이에 넣으면 더 믿음이 가요. (캡처는 복사 후 리뷰 칸에 붙여넣기)</li>
             <li>다른 회원이 신고하면 리뷰가 내려갈 수 있고, 반복되면 작성 권한이 제한돼요.</li>
           </ul>
         </div>
@@ -65,11 +65,11 @@
             <label class="lbl">Amazon 상품 사진 주소 <span class="text-red-500">*</span> <span class="text-ink-faint font-normal">(1~3개)</span></label>
             <div v-for="(u, i) in amazonImgs" :key="i" class="flex items-center gap-2 mb-1.5">
               <img v-if="isAmazonImg(u)" :src="u" referrerpolicy="no-referrer" class="w-12 h-12 object-contain rounded border border-gray-100 bg-white flex-shrink-0" />
-              <input v-model="amazonImgs[i]" type="text" class="input-soft flex-1 text-xs" placeholder="https://m.media-amazon.com/images/I/....jpg" />
+              <input v-model="amazonImgs[i]" :ref="el => (imgInputs[i] = el)" type="text" class="input-soft flex-1 text-xs" placeholder="https://m.media-amazon.com/images/I/....jpg" @input="nextImgSlot(i)" />
               <button v-if="amazonImgs.length > 1" type="button" @click="amazonImgs.splice(i, 1)" class="text-red-500 text-xs px-1">삭제</button>
             </div>
             <button v-if="amazonImgs.length < 3" type="button" @click="amazonImgs.push('')" class="text-xs text-amber-600 hover:underline">+ 사진 주소 추가</button>
-            <p class="hint">Amazon 상품 페이지에서 상품 사진을 <b>마우스 오른쪽 클릭 → "이미지 주소 복사"</b> 해서 붙여넣으세요. 이 사진은 Amazon 서버의 것을 그대로 보여주는 링크라서, 다른 곳의 사진 주소는 쓸 수 없어요. 목록의 대표 사진으로도 쓰여요.</p>
+            <p class="hint">Amazon 상품 페이지에서 상품 사진을 <b>마우스 오른쪽 클릭 → "이미지 주소 복사"</b> 해서 붙여넣으세요. 붙여넣으면 다음 칸이 자동으로 생겨요(최대 3개). 이 사진은 Amazon 서버의 것을 그대로 보여주는 링크라서, 다른 곳의 사진 주소는 쓸 수 없어요. 목록의 대표 사진으로도 쓰여요.</p>
           </div>
 
           <div>
@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, defineComponent, h } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick, defineComponent, h } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
@@ -130,12 +130,19 @@ const tagInput = ref('')
 const tagSaving = ref(false)
 const tagMsg = ref('')
 const changeTag = ref(false)
-const rules = reactive({ min_chars: 60, min_photos: 2, first_approval: true })
+const rules = reactive({ min_chars: 60, min_photos: 0, first_approval: true })
 const f = reactive({ input: '', title: '', category: '', rating: 5, purchased: false, agree: false })
 const blocks = ref([{ id: 'b0', type: 'text', text: '' }])
 const amazonImgs = ref([''])
 const AMZ = /^https:\/\/[a-z0-9-]+\.(media-amazon\.com|ssl-images-amazon\.com)\/[A-Za-z0-9._%,+\-/~@=]+$/i
 const isAmazonImg = u => AMZ.test((u || '').trim())
+const imgInputs = []
+// 사진 주소를 붙여넣어 올바른 주소가 되면 다음 빈 칸을 자동으로 만들고 커서를 옮긴다 (최대 3칸)
+function nextImgSlot(i) {
+  if (!isAmazonImg(amazonImgs.value[i]) || i !== amazonImgs.value.length - 1 || amazonImgs.value.length >= 3) return
+  amazonImgs.value.push('')
+  nextTick(() => imgInputs[i + 1]?.focus())
+}
 const textLen = computed(() => blocks.value.filter(b => b.type === 'text').reduce((n, b) => n + (b.text || '').trim().length, 0))
 const photoCount = computed(() => blocks.value.filter(b => b.type === 'image').length)
 const editAsin = ref('')
@@ -178,7 +185,7 @@ async function submit() {
   if (!imgs.length) need.push('Amazon 상품 사진 주소')
   else if (imgs.some(u => !isAmazonImg(u))) need.push('Amazon 사진 주소 형식(…media-amazon.com/…)')
   if (textLen.value < rules.min_chars) need.push(`리뷰 내용(최소 ${rules.min_chars}자)`)
-  if (photoCount.value < rules.min_photos) need.push(`직접 찍은 사진 ${rules.min_photos}장 이상`)
+  if (rules.min_photos > 0 && photoCount.value < rules.min_photos) need.push(`직접 찍은 사진 ${rules.min_photos}장 이상`)
   if (!f.purchased) need.push('직접 구매 체크')
   if (!f.agree) need.push('규칙 동의 체크')
   if (need.length) { err.value = `다음 항목을 확인해주세요: ${need.join(', ')}`; return }
