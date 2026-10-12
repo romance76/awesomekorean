@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <MoneyHead :crumbs="[{ label: '분야별 카페', to: '/money/cafes' }, { label: cafe ? cafe.name : '카페' }]" />
+    <MoneyHead :crumbs="[{ label: '분야별 카페', to: '/money/cafes', mobileHide: true }, { label: cafe ? cafe.name : '카페' }]" />
 
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">카페를 찾을 수 없어요. <RouterLink to="/money/cafes" class="text-emerald-700 font-bold underline">카페 안내로</RouterLink></p>
 
@@ -170,7 +170,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import MoneyHead from '../../components/money/MoneyHead.vue'
@@ -178,7 +178,6 @@ import { KIND_LABEL, KIND_CLASS, DISCLAIMER } from '../../components/money/money
 import { themeOf, artOf } from '../../components/money/moneyThemes'
 
 const route = useRoute()
-const router = useRouter()
 const auth = useAuthStore()
 const cafe = ref(null); const categories = ref([]); const popular = ref([]); const guides = ref([]); const notFound = ref(false)
 const others = ref([])
@@ -222,10 +221,11 @@ async function load(n) {
   loadingPosts.value = false
 }
 function setKind(v) { kind.value = v; load(1) }
-// 주제 고르기: 주소(?topic=)에도 남겨 뒤로가기·공유가 되게. 대문 카드에서 누르면 게시판으로 내려간다
+// 주제 고르기: 대문 카드에서 누르면 게시판으로 내려간다.
+// 주소(?topic=)는 바꾸지 않는다 — App.vue 가 주소 전체를 key 로 써서, 주소가 바뀌면 화면 전체가 새로 그려져 깜빡이고 맨 위로 튐.
+// (다른 화면에서 ?topic= 으로 들어오는 것은 그대로 됨)
 function pickTopic(id, scroll = true) {
   topic.value = topic.value === id && id ? 0 : id
-  router.replace({ query: { ...route.query, topic: topic.value || undefined } })
   load(1)
   if (scroll) nextTick(() => scrollTo('board'))
 }

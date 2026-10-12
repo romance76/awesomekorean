@@ -5,10 +5,11 @@
       <span class="icon-chip w-9 h-9 bg-emerald-50 text-[18px] leading-none">{{ icon }}</span>
       <RouterLink v-if="crumbs.length" to="/money" class="text-emerald-700 hover:underline whitespace-nowrap">{{ label }}</RouterLink>
       <span v-else class="whitespace-nowrap">{{ label }}</span>
+      <!-- 휴대폰: 중간 단계(mobileHide)는 숨겨 제목이 잘리지 않게 (MONEY › 돈 벌기) -->
       <template v-for="(c, i) in crumbs" :key="i">
-        <span class="text-gray-300 font-normal">›</span>
-        <RouterLink v-if="c.to" :to="c.to" class="text-emerald-700 hover:underline truncate">{{ c.label }}</RouterLink>
-        <span v-else class="truncate">{{ c.label }}</span>
+        <span class="text-gray-300 font-normal" :class="c.mobileHide ? 'hidden sm:inline' : ''">›</span>
+        <RouterLink v-if="c.to" :to="c.to" class="text-emerald-700 hover:underline truncate" :class="c.mobileHide ? 'hidden sm:inline' : ''">{{ c.label }}</RouterLink>
+        <span v-else class="truncate" :class="c.mobileHide ? 'hidden sm:inline' : ''">{{ c.label }}</span>
       </template>
     </h1>
     <div v-if="$slots.default" class="ml-auto flex items-center gap-2"><slot /></div>
