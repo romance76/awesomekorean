@@ -132,6 +132,10 @@ class MusicController extends Controller
         if (!$apiKey) return response()->json(['success' => false, 'message' => 'YouTube API 키가 없습니다'], 500);
 
         $added = 0;
+        // 새 곡의 카테고리: 채널이 지정된 카테고리(스틸워터 등)의 곡이면 그 카테고리, 아니면 예전처럼 발라드(1).
+        // (예전엔 무조건 1 이라 스틸워터 재생목록을 넣으면 41곡이 발라드 공개 목록에 섞였음 — Kay 결정 2026-10-12)
+        $chanCats = rescue(fn () => app(\App\Services\YoutubeChannelResolver::class)->categoryChannels($apiKey), [], false);
+        $catFor = fn (?string $channelId) => ($channelId && isset($chanCats[$channelId])) ? $chanCats[$channelId] : 1;
 
         // 플레이리스트 URL 감지
         if (preg_match('/[?&]list=([a-zA-Z0-9_-]+)/', $url, $m)) {
@@ -159,7 +163,8 @@ class MusicController extends Controller
                     // DB에 트랙 저장 (없으면 생성) - 유저 업로드로 표시
                     $track = MusicTrack::firstOrCreate(
                         ['youtube_id' => $videoId],
-                        ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}", 'category_id' => 1, 'duration' => 0, 'sort_order' => 0, 'is_user_submitted' => true]
+                        ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($item['snippet']['videoOwnerChannelTitle'] ?? $channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}",
+                         'category_id' => $catFor($item['snippet']['videoOwnerChannelId'] ?? null), 'duration' => 0, 'sort_order' => 0, 'is_user_submitted' => true]
                     );
 
                     // 플레이리스트에 추가 (중복 체크)
@@ -202,7 +207,8 @@ class MusicController extends Controller
 
         $track = MusicTrack::firstOrCreate(
             ['youtube_id' => $videoId],
-            ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}", 'category_id' => 1, 'duration' => $seconds, 'sort_order' => 0, 'is_user_submitted' => true]
+            ['title' => mb_substr($title, 0, 200), 'artist' => mb_substr($channel, 0, 100), 'youtube_id' => $videoId, 'youtube_url' => "https://www.youtube.com/watch?v={$videoId}",
+             'category_id' => $catFor($item['snippet']['channelId'] ?? null), 'duration' => $seconds, 'sort_order' => 0, 'is_user_submitted' => true]
         );
 
         if (!UserPlaylistTrack::where('playlist_id', $plId)->where('track_id', $track->id)->exists()) {

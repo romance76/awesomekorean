@@ -12,6 +12,30 @@ use Illuminate\Support\Facades\Http;
 class YoutubeChannelResolver
 {
     /**
+     * 관리자가 채널을 지정해 둔 음악 카테고리(스틸워터·트로트새바람 등)의 [채널 ID => 카테고리 ID].
+     * 그 채널 영상은 그 카테고리에만 들어가야 한다 — 회원이 재생목록에 넣을 때 발라드로 가지 않게,
+     * 일반 키워드 수집이 발라드 같은 다른 카테고리로 가져가지 않게. (채널 URL 이 바뀌면 키가 바뀌어 다시 찾음, 하루 보관)
+     */
+    public function categoryChannels(string $apiKey): array
+    {
+        $cats = \App\Models\MusicCategory::whereNotNull('channel_url')->where('channel_url', '<>', '')->get(['id', 'channel_url']);
+        if ($cats->isEmpty()) return [];
+        $key = 'music_category_channels:' . md5($cats->map(fn ($c) => $c->id . '=' . $c->channel_url)->implode('|'));
+        return \Illuminate\Support\Facades\Cache::remember($key, now()->addDay(), function () use ($cats, $apiKey) {
+            $map = [];
+            foreach ($cats as $c) {
+                try {
+                    $id = $this->resolveChannelId($apiKey, $c->channel_url);
+                    if ($id) $map[$id] = (int) $c->id;
+                } catch (\Throwable $e) {
+                    \Log::warning('[음악] 카테고리 채널 확인 실패 #' . $c->id . ': ' . $e->getMessage());
+                }
+            }
+            return $map;
+        });
+    }
+
+    /**
      * 여러 형식의 YouTube 채널 입력을 channel ID(UCxxx)로 변환.
      * 지원: /channel/UCxxx, /@핸들(한글 포함), UCxxx 직접, /c/xxx, /user/xxx, 검색어
      */

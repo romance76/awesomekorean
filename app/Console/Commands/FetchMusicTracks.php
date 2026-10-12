@@ -22,6 +22,8 @@ class FetchMusicTracks extends Command
     // 공식 채널 우선(한국 가수·아이돌 카테고리). 경음악·채널 지정 카테고리는 해당 없음
     private $preferOfficial = false;
     private $strictJunk = false; // K-POP: 가사영상·커버·직캠 등 비공식 성격의 영상은 제외
+    // 채널이 지정된 카테고리(스틸워터 등)의 [채널 ID => 카테고리 ID] — 키워드 수집에서 그 채널 영상은 다른 카테고리로 가져오지 않는다
+    private $reservedChannels = [];
     private const OFFICIAL_PREF_SLUGS = ['kpop', 'ballad', 'trot', 'hiphop', 'rnb', 'ost'];
 
     private function canSearch(): bool
@@ -98,6 +100,7 @@ class FetchMusicTracks extends Command
             $this->error('YouTube API 키가 없습니다');
             return 1;
         }
+        $this->reservedChannels = rescue(fn () => app(\App\Services\YoutubeChannelResolver::class)->categoryChannels($apiKey), [], false);
 
         // auto_fetch=true 인 카테고리만 자동 수집 대상
         $categories = MusicCategory::where(function($q) {
@@ -232,6 +235,8 @@ class FetchMusicTracks extends Command
 
                 $title = $item['snippet']['title'] ?? '';
                 $channel = $item['snippet']['channelTitle'] ?? '';
+                $chId = $item['snippet']['channelId'] ?? null;
+                if ($chId && isset($this->reservedChannels[$chId]) && $this->reservedChannels[$chId] !== (int) $categoryId) continue;   // 채널 지정 카테고리의 영상
                 $seconds = $durations[$videoId] ?? 0;
 
                 // duration 정보 필수
@@ -325,6 +330,8 @@ class FetchMusicTracks extends Command
                             if (!$vid || MusicTrack::where('youtube_id', $vid)->exists()) continue;
                             $t = $item2['snippet']['title'] ?? '';
                             $c = $item2['snippet']['channelTitle'] ?? '';
+                            $ch2 = $item2['snippet']['channelId'] ?? null;
+                            if ($ch2 && isset($this->reservedChannels[$ch2]) && $this->reservedChannels[$ch2] !== (int) $categoryId) continue;
                             $sec2 = $fbDurations[$vid] ?? 0;
 
                             // duration 필수 + 2분30초(150초) 이상 5분 이하 (예전엔 10초 이상이라 짧은 곡이 들어왔음)
