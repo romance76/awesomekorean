@@ -260,8 +260,8 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 ### 15-1. MONEY 운영팀 글 (Kay 기준: 노인도 따라 할 수 있게 — 실제 화면 캡처+번호 핀, 단계, 출처 필수, 글당 약 2,300자+, 주제당 3편)
 - 글 위치: `database/data/money_posts/<카페slug>.json` (배열, 항목 `topic`(= money_categories 이름과 정확히 같게)·kind·title·content·image(`/images/money/topics/<slug>-NN.svg`)·blocks). 배포 때마다 `php artisan money:sync-posts`(`app/Console/Commands/SyncMoneyPosts.php`)가 카페+제목 기준으로 새 글 추가·blocks 갱신. 작성자는 운영 계정.
 - 캡처: `public/images/money/shots/*.jpg`(1100×760, *.png 는 gitignore). 헤드리스 Chrome: `chrome --headless=new --window-size=1100,760 --screenshot=...` → PIL 로 jpg. 앱 화면은 App Store 공식 스크린샷(`app-<이름>-N.jpg`, narrow). **404 캡처 주의**(irs-aotc.jpg 는 404라 미사용·미커밋).
-- 진행표: earn 31 · save 30 · grow 30 · home 36 · insurance 36 · **tax 36(완료, `bb209a83`·`e79484be`)** · **cards 36(완료, `435dc1a2`·`7bf8bebd`, 2026-10-12 UTC 18:30)** · **남은 카페: stocks(주식) → kids(자녀·교육비) → retire(은퇴·노후) → relay(인증 릴레이) → talk(돈 이야기)**. 주제 목록은 `database/migrations/2026_10_12_130000_money_cafe_fronts.php`.
-- 다음 계정은 **stocks 카페부터** 같은 방식으로(주제 6개씩 18편 단위 배포, 배포 후 `/api/money/cafes/<slug>/posts?per_page=100` 의 total 로 개수 확인).
+- 진행표: earn 31 · save 30 · grow 30 · home 36 · insurance 36 · **tax 36(완료, `bb209a83`·`e79484be`)** · **cards 36(완료, `435dc1a2`·`7bf8bebd`, 2026-10-12 UTC 18:30)** · **stocks 27편 완료(2026-10-12, 주제 9개×3, 캡처 17장 stk-*.jpg)** · **kids 36편 완료(2026-10-12, 주제 12개×3, 캡처 kid-*.jpg)** · **남은 카페: retire(은퇴·노후) → relay(인증 릴레이) → talk(돈 이야기)**. 주제 목록은 `database/migrations/2026_10_12_130000_money_cafe_fronts.php`.
+- 다음 계정은 **retire 카페부터** 같은 방식으로(주제 6개씩 18편 단위 배포, 배포 후 `/api/money/cafes/<slug>/posts?per_page=100` 의 total 로 개수 확인).
 - **tax 후반 18편 Kay/전문가 검수 필요**: CAPS 소득 기준(50% vs 30% SMI), AOTC·LLC SSN 조건 시작 연도, 2026.10.1 이민자 Medicaid·SNAP 자격 변경의 조지아 시행, MSP 소득 비율(약 100/120/135%), Lifeline 고객센터 번호, 조지아 퇴거 절차 세부(HB 404 출처 LegiScan). 숫자는 대부분 "공식 표 확인"으로 씀.
 
 ### 15-2. 내돈내산 (코드 `e374c04e`, `126d9177`, + 썸네일 이름 빼기)
@@ -270,3 +270,9 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 - **카테고리 이름을 바꿀 땐** JS 목록 + 기존 상품 옮기는 마이그레이션을 같이.
 - **cards 36편 검수 필요(Kay)**: 화면에 보인 금액(Amex Platinum $895·Gold $325, Freedom Flex $250, Double Cash $200), Global Entry $120, 스카이패스 유효기간·가족 합산·아시아나 통합, 미국 카드 포인트→대한항공 직접 전환 경로(메리어트 표에 대한항공 없음 확인 → 스카이패스 글 본문·제목 정정, 제목은 마이그레이션 `2026_10_13_240000` 로 DB 도 바꿈), 호텔 연박 무료 규칙.
 - 글 제목을 바꿀 땐: sync 가 제목 기준이라 JSON 만 바꾸면 새 글이 하나 더 생김 → **DB 제목을 바꾸는 마이그레이션을 같이** (migrate 가 sync 보다 먼저 돎).
+
+- **stocks 검수 필요(Kay)**: 화면 숫자(CPI 8월 +0.4%/3.4%, 고용 9월 +29,000/4.2%, GDP 2분기 2.2%, Apple·Microsoft 실적일)·10-K 60일/10-Q 40일(대형사 기준)·시가총액 구간. 레버리지 ETF SEC 경고는 정확한 URL을 못 찾아 링크 없음. 글 이미지는 주제별(stocks-01~09.svg).
+- **SNS 자동 게시는 아직 시작 전**(2026-10-12 서버 확인): 인스타·스레드 autopost_enabled=0, social_posts 비어 있음. Kay 가 첫 글 '지금 올리기' 확인 후 계정별 자동 게시를 켜야 8/12/19시(애틀랜타)부터 승인된 글이 올라감. 기존 MONEY 글은 관리자가 골라서 대기열에 넣어야 함.
+
+- **kids 검수 필요(Kay)**: 화면 숫자(선물세금 연 $19,000, kiddie tax $2,700·$13,500, K-12 529 연 $10,000(법 개정 가능), 대출 한도 $20,500/$50,000/Parent PLUS $20,000, 돌봄 세액공제 $3,000/$6,000, 대출 이자 공제 $2,500)·2026.7.1 이후 새 대출 Tiered Standard Plan(OBBBA)·HOPE/Zell Miller GPA·금액과 조지아 529 주 공제는 숫자를 안 썼음(공식 확인 안내)·이민 신분과 FAFSA 글·저축 시뮬레이션은 가상 계산. 글 이미지는 주제별(kids-01~12.svg). studentaid.gov 는 JS 앱이라 URL 존재 확인이 안 됨(화면 캡처로 대체).
+- 캡처 도구 메모: `chrome --headless=new --window-size=1100,760 --virtual-time-budget=12000 --screenshot=...` + PIL jpg. 긴 페이지는 높이 2400 으로 찍어 800씩 잘라 읽음.
