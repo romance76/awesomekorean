@@ -50,9 +50,8 @@
         <div class="p-4 lg:p-5 bg-amber-50/60 flex flex-col justify-center">
           <div v-if="heroProducts.length" class="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1"><AppIcon name="sparkles" :size="13" />새로 올라온 후기</div>
           <div v-if="heroProducts.length" class="grid grid-cols-4 lg:grid-cols-2 gap-2">
-            <RouterLink v-for="p in heroProducts" :key="p.id" :to="`/shopping/${p.id}`" class="rounded-xl overflow-hidden bg-white border border-gray-100 block hover:border-amber-200 transition-colors">
+            <RouterLink v-for="p in heroProducts" :key="p.id" :to="`/shopping/${p.id}`" :title="p.title" class="rounded-xl overflow-hidden bg-white border border-gray-100 block hover:border-amber-200 transition-colors">
               <div class="h-16 lg:h-24 bg-white flex items-center justify-center overflow-hidden p-1.5"><img :src="p.image_url" :alt="p.title" loading="lazy" decoding="async" class="max-w-full max-h-full object-contain" @error="e=>e.target.style.display='none'" /></div>
-              <div class="hidden lg:block px-2 pb-1.5 text-[11px] font-semibold text-ink truncate" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.title }}</div>
             </RouterLink>
           </div>
           <div v-else class="rounded-2xl bg-white border border-gray-100 p-6 text-center text-ink-muted">
