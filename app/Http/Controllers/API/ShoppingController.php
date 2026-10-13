@@ -172,7 +172,7 @@ class ShoppingController extends Controller
             'blocks.*.type' => 'required|in:text,image',
             'blocks.*.text' => 'nullable|string|max:5000',
             'blocks.*.url'  => 'nullable|string|max:300',
-            'amazon_images' => 'required|array|min:1|max:3',
+            'amazon_images' => 'required|array|min:1|max:10',
             'amazon_images.*' => ['required', 'string', 'max:500', 'regex:' . self::AMAZON_IMG],
             'purchased' => 'accepted',
             'agree_rules' => 'accepted',

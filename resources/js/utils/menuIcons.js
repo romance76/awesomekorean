@@ -23,6 +23,7 @@ export const MENU_ICONS = {
     comms: 'phone',
     shopping: 'shopping-bag',
     points: 'coins',
+    money: 'coins',
     dashboard: 'user',
 }
 
@@ -50,6 +51,7 @@ export const MENU_CHIP_COLORS = {
     comms: 'bg-emerald-50 text-emerald-600',
     shopping: 'bg-lime-50 text-lime-600',
     points: 'bg-amber-50 text-amber-600',
+    money: 'bg-yellow-50 text-yellow-600',
     dashboard: 'bg-gray-100 text-ink-light',
 }
 

@@ -74,14 +74,14 @@
           </div>
 
           <div>
-            <label class="lbl">Amazon 상품 사진 주소 <span class="text-red-500">*</span> <span class="text-ink-faint font-normal">(1~3개)</span></label>
+            <label class="lbl">Amazon 상품 사진 주소 <span class="text-red-500">*</span> <span class="text-ink-faint font-normal">(1~10개)</span></label>
             <div v-for="(u, i) in amazonImgs" :key="i" class="flex items-center gap-2 mb-1.5">
               <img v-if="isAmazonImg(u)" :src="u" referrerpolicy="no-referrer" class="w-12 h-12 object-contain rounded border border-gray-100 bg-white flex-shrink-0" />
               <input v-model="amazonImgs[i]" :ref="el => (imgInputs[i] = el)" type="text" class="input-soft flex-1 text-xs" placeholder="https://m.media-amazon.com/images/I/....jpg" @input="nextImgSlot(i)" />
               <button v-if="amazonImgs.length > 1" type="button" @click="amazonImgs.splice(i, 1)" class="text-red-500 text-xs px-1">삭제</button>
             </div>
-            <button v-if="amazonImgs.length < 3" type="button" @click="amazonImgs.push('')" class="text-xs text-amber-600 hover:underline">+ 사진 주소 추가</button>
-            <p class="hint">Amazon 상품 페이지에서 상품 사진을 <b>마우스 오른쪽 클릭 → "이미지 주소 복사"</b> 해서 붙여넣으세요. 붙여넣으면 다음 칸이 자동으로 생겨요(최대 3개). 이 사진은 Amazon 서버의 것을 그대로 보여주는 링크라서, 다른 곳의 사진 주소는 쓸 수 없어요. 목록의 대표 사진으로도 쓰여요.</p>
+            <button v-if="amazonImgs.length < 10" type="button" @click="amazonImgs.push('')" class="text-xs text-amber-600 hover:underline">+ 사진 주소 추가</button>
+            <p class="hint">Amazon 상품 페이지에서 상품 사진을 <b>마우스 오른쪽 클릭 → "이미지 주소 복사"</b> 해서 붙여넣으세요. 붙여넣으면 다음 칸이 자동으로 생겨요(최대 10개). 이 사진은 Amazon 서버의 것을 그대로 보여주는 링크라서, 다른 곳의 사진 주소는 쓸 수 없어요. 목록의 대표 사진으로도 쓰여요.</p>
           </div>
 
           <div>
@@ -148,9 +148,9 @@ const amazonImgs = ref([''])
 const AMZ = /^https:\/\/[a-z0-9-]+\.(media-amazon\.com|ssl-images-amazon\.com)\/[A-Za-z0-9._%,+\-/~@=]+$/i
 const isAmazonImg = u => AMZ.test((u || '').trim())
 const imgInputs = []
-// 사진 주소를 붙여넣어 올바른 주소가 되면 다음 빈 칸을 자동으로 만들고 커서를 옮긴다 (최대 3칸)
+// 사진 주소를 붙여넣어 올바른 주소가 되면 다음 빈 칸을 자동으로 만들고 커서를 옮긴다 (최대 10칸)
 function nextImgSlot(i) {
-  if (!isAmazonImg(amazonImgs.value[i]) || i !== amazonImgs.value.length - 1 || amazonImgs.value.length >= 3) return
+  if (!isAmazonImg(amazonImgs.value[i]) || i !== amazonImgs.value.length - 1 || amazonImgs.value.length >= 10) return
   amazonImgs.value.push('')
   nextTick(() => imgInputs[i + 1]?.focus())
 }

@@ -4,16 +4,16 @@
     <!-- 스와이프 가능한 탭 영역 -->
     <div ref="scrollEl" class="flex items-center h-13 overflow-x-auto scrollbar-hide scroll-smooth"
          @touchstart="onTouchStart" @touchend="onTouchEnd">
-      <component :is="item.external ? 'a' : RouterLink" v-for="item in favMenus" :key="item.path"
+      <component :is="item.external ? 'a' : RouterLink" v-for="item in favMenus" :key="item.groupKey || item.path"
         v-bind="item.external ? { href: item.path } : { to: item.path }"
         class="flex flex-col items-center justify-center gap-1 flex-shrink-0 transition-colors"
         :style="tabStyle"
-        :class="isActive(item.path) ? 'text-ink' : 'text-ink-light'">
+        :class="itemActive(item) ? 'text-ink' : 'text-ink-light'">
         <!-- 메뉴별 색 칩 (사이드 메뉴와 같은 색) — 활성은 진하게 + 테두리 -->
-        <span class="icon-chip w-8 h-7 transition-shadow" :class="[menuChipColor(item.key), isActive(item.path) ? 'ring-2 ring-black/15' : '']">
-          <AppIcon :name="menuIcon(item.key)" :size="18" :stroke-width="isActive(item.path) ? 2.4 : 2" />
+        <span class="icon-chip w-8 h-7 transition-shadow" :class="[menuChipColor(item.key), itemActive(item) ? 'ring-2 ring-black/15' : '']">
+          <AppIcon :name="menuIcon(item.key)" :size="18" :stroke-width="itemActive(item) ? 2.4 : 2" />
         </span>
-        <span class="text-[10px] leading-none whitespace-nowrap" :class="isActive(item.path) ? 'font-bold' : 'font-semibold'">{{ item.label }}</span>
+        <span class="text-[10px] leading-none whitespace-nowrap" :class="itemActive(item) ? 'font-bold' : 'font-semibold'">{{ item.label }}</span>
       </component>
     </div>
     <!-- 스와이프 인디케이터 (6개 이상일 때) -->
@@ -53,6 +53,10 @@ const tabStyle = computed(() => {
   }
   return { width: '75px', minWidth: '75px' }
 })
+
+function itemActive(item) {
+  return item.matchPaths ? item.matchPaths.some(isActive) : isActive(item.path)
+}
 
 function isActive(path) {
   if (path === '/') return route.path === '/'

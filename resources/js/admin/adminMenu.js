@@ -51,8 +51,8 @@ export const ADMIN_ITEMS = [
   { to: '/admin/groupbuy', icon: 'shopping-bag', label: '공동구매', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/music', icon: 'music', label: '음악', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/shorts', icon: 'video', label: '숏츠', pcGroup: 'content', legacyGroup: 'board', mobile: true },
-  // 쇼핑 기능은 도입하지 않기로 확정(공동구매·중고장터로 대체) — 지우지 않고 메뉴에서만 숨김
-  { to: '/admin/shopping', icon: 'shopping-cart', label: '쇼핑', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true, hideFromTabs: true },
+  // 내돈내산 리뷰(쇼핑) — 사이트에 공개돼 있어서 게시판 관리 상단 탭에도 보여야 함
+  { to: '/admin/shopping', icon: 'shopping-cart', label: '내돈내산', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/chats', icon: 'message-square', label: '채팅', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/games', icon: 'gamepad', label: '게임', pcGroup: 'content', legacyGroup: 'board', mobile: true, hold: true, hideFromTabs: true },
   // 포커는 독립 메뉴가 아니라 게임(/admin/games) 안의 하위 화면 — 상단 탭 목록에서는 제외하지만

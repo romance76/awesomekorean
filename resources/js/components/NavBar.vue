@@ -175,22 +175,48 @@
           <!-- 메뉴 목록 -->
           <div class="py-2">
             <template v-for="row in drawerRows" :key="row.key">
-            <!-- 묶음 제목 (묶음 메뉴가 켜져 있을 때) -->
-            <div v-if="row.kind === 'head'" class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted flex items-center gap-1.5">
-              <span>{{ row.icon }}</span>
-              <RouterLink v-if="row.hubPath" :to="row.hubPath" @click="mobileMenu=false" class="text-ink">{{ row.label }} 홈 ›</RouterLink>
-              <span v-else>{{ row.label }}</span>
+            <!-- 묶음 한 줄 (큰 글씨 + 묶음 단위 별) — 눌러서 그 묶음의 첫 화면으로 -->
+            <div v-if="row.kind === 'group'" class="flex items-center transition-colors mt-1"
+              :class="row.active ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
+              <a v-if="row.external" :href="row.path" class="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-4 text-[16px] font-extrabold text-ink">
+                <span class="icon-chip w-9 h-9" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
+                <span class="truncate">{{ row.label }}</span>
+              </a>
+              <RouterLink v-else :to="row.path" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-4 text-[16px] font-extrabold" :class="row.active ? 'text-amber-700' : 'text-ink'">
+                <span class="icon-chip w-9 h-9" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
+                <span class="truncate">{{ row.label }}</span>
+              </RouterLink>
+              <button @click.stop="navFavStore.toggleGroupFavorite(row.groupKey)"
+                class="px-3 py-2.5 flex-shrink-0 transition-colors"
+                :class="navFavStore.isGroupFavorite(row.groupKey) ? 'text-amber-400' : 'text-gray-300'"
+                :aria-label="(navFavStore.isGroupFavorite(row.groupKey) ? '하단바에서 빼기: ' : '하단바에 넣기: ') + row.label"
+                :title="navFavStore.isGroupFavorite(row.groupKey) ? '하단바에서 제거' : '하단바에 추가'">
+                <AppIcon name="star" :size="22" :filled="navFavStore.isGroupFavorite(row.groupKey)" />
+              </button>
             </div>
+            <!-- 묶음 안의 하위 메뉴 (작은 글씨, 별 없음) -->
+            <div v-else-if="row.sub" class="flex items-center transition-colors" :class="isActive(row.item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
+              <a v-if="row.item.external" :href="row.item.path" class="flex items-center gap-2.5 flex-1 min-w-0 py-1.5 pl-14 pr-4 text-[13px] text-ink-light">
+                <span class="icon-chip w-6 h-6" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="13" /></span>
+                <span>{{ row.label }}</span>
+              </a>
+              <RouterLink v-else :to="row.item.path" @click="mobileMenu=false"
+                class="flex items-center gap-2.5 flex-1 min-w-0 py-1.5 pl-14 pr-4 text-[13px]" :class="isActive(row.item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
+                <span class="icon-chip w-6 h-6" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="13" /></span>
+                <span>{{ row.label }}</span>
+              </RouterLink>
+            </div>
+            <!-- 묶음 메뉴가 꺼져 있을 때: 예전처럼 메뉴 한 줄씩 + 별 -->
             <div v-else
               class="flex items-center transition-colors"
               :class="isActive(row.item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
               <a v-if="row.item.external" :href="row.item.path"
-                class="flex items-center gap-3 flex-1 min-w-0 py-2 text-sm text-ink-light" :class="row.indent ? 'pl-7 pr-4' : 'px-4'">
+                class="flex items-center gap-3 flex-1 min-w-0 py-2 text-sm text-ink-light px-4">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="16" /></span>
                 <span>{{ row.label }}</span>
               </a>
               <RouterLink v-else :to="row.item.path" @click="mobileMenu=false"
-                class="flex items-center gap-3 flex-1 min-w-0 py-2 text-sm" :class="[row.indent ? 'pl-7 pr-4' : 'px-4', isActive(row.item.path) ? 'text-amber-700 font-bold' : 'text-ink-light']">
+                class="flex items-center gap-3 flex-1 min-w-0 py-2 text-sm px-4" :class="isActive(row.item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="16" /></span>
                 <span>{{ row.label }}</span>
               </RouterLink>
@@ -202,12 +228,24 @@
               </button>
             </div>
             </template>
-            <!-- MY (묶음 메뉴일 때: 친구는 상단 메뉴 대신 여기) -->
+            <!-- MY (묶음 메뉴일 때: 친구는 상단 메뉴 대신 여기) — 마이도 묶음처럼 한 줄 + 별 -->
             <template v-if="navGroups && auth.isLoggedIn">
-              <div class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted">🙂 MY</div>
-              <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm text-ink-light hover:bg-gray-50"><AppIcon name="user" :size="16" />마이페이지</RouterLink>
-              <RouterLink to="/dashboard?tab=messages" @click="mobileMenu=false" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm text-ink-light hover:bg-gray-50"><AppIcon name="mail" :size="16" />쪽지</RouterLink>
-              <RouterLink to="/friends" @click="mobileMenu=false" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm text-ink-light hover:bg-gray-50"><AppIcon name="heart-handshake" :size="16" />친구</RouterLink>
+              <div class="flex items-center transition-colors mt-1" :class="isActive('/dashboard') ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
+                <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-4 text-[16px] font-extrabold" :class="isActive('/dashboard') ? 'text-amber-700' : 'text-ink'">
+                  <span class="icon-chip w-9 h-9" :class="menuChipColor('dashboard')"><AppIcon :name="menuIcon('dashboard')" :size="18" /></span>
+                  <span>마이</span>
+                </RouterLink>
+                <button @click.stop="navFavStore.toggleGroupFavorite('dashboard')"
+                  class="px-3 py-2.5 flex-shrink-0 transition-colors"
+                  :class="navFavStore.isGroupFavorite('dashboard') ? 'text-amber-400' : 'text-gray-300'"
+                  :aria-label="(navFavStore.isGroupFavorite('dashboard') ? '하단바에서 빼기: ' : '하단바에 넣기: ') + '마이'"
+                  :title="navFavStore.isGroupFavorite('dashboard') ? '하단바에서 제거' : '하단바에 추가'">
+                  <AppIcon name="star" :size="22" :filled="navFavStore.isGroupFavorite('dashboard')" />
+                </button>
+              </div>
+              <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1.5 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="user" :size="13" />마이페이지</RouterLink>
+              <RouterLink to="/dashboard?tab=messages" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1.5 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="mail" :size="13" />쪽지</RouterLink>
+              <RouterLink to="/friends" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1.5 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="heart-handshake" :size="13" />친구</RouterLink>
             </template>
           </div>
           <!-- 즐겨찾기 안내 -->
@@ -441,9 +479,13 @@ const drawerRows = computed(() => {
   if (!navGroups.value) return visibleMenus.value.map(m => ({ kind: 'item', key: 'm:' + m.key + m.path, item: m, label: m.label }))
   const rows = []
   for (const g of navGroups.value) {
-    if (g.type === 'single') { rows.push({ kind: 'item', key: 'g:' + g.key, item: g.items[0], label: g.label }); continue }
-    rows.push({ kind: 'head', key: 'h:' + g.key, label: g.label, icon: g.icon, hubPath: g.type === 'hub' ? g.path : null })
-    for (const m of g.items) rows.push({ kind: 'item', key: g.key + ':' + m.key, item: m, label: m.label, indent: true })
+    const first = g.items[0]
+    rows.push({
+      kind: 'group', key: 'h:' + g.key, groupKey: g.key, label: g.label, path: g.path, external: g.external,
+      iconKey: g.type === 'hub' ? 'money' : first.key,
+      active: (g.type === 'hub' && isActive(g.path)) || g.items.some(m => !m.external && isActive(m.path)),
+    })
+    if (g.type === 'group') for (const m of g.items) rows.push({ kind: 'item', sub: true, key: g.key + ':' + m.key, item: m, label: m.label })
   }
   return rows
 })
