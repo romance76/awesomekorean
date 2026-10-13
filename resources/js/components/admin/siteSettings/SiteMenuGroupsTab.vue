@@ -47,7 +47,7 @@
             <img v-if="g.image" :src="g.image" alt="" class="h-6 max-w-[72px] object-contain rounded border border-gray-200 bg-white" />
             <label class="text-xs font-bold rounded-lg border border-gray-200 bg-white px-2 py-1 cursor-pointer" :class="uploadingId === g._id ? 'opacity-50' : ''">
               {{ uploadingId === g._id ? '올리는 중…' : (g.image ? '이미지 바꾸기' : '글씨 대신 이미지') }}
-              <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="uploadImage(g, $event)" />
+              <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="pickImage(g, $event)" />
             </label>
             <button v-if="g.image" type="button" @click="g.image = ''" class="text-[11px] text-red-500 underline">이미지 빼기</button>
           </span>
@@ -114,6 +114,7 @@
       <div v-if="groups.some(x => x.hidden)" class="text-xs text-ink-faint mt-2">숨김: {{ groups.filter(x => x.hidden).map(x => x.label).join(', ') }}</div>
     </div>
   </div>
+  <MenuImageCropper v-if="cropFile" :file="cropFile" @cancel="cropFile = null" @confirm="onCropped" />
 </div>
 </template>
 
@@ -121,6 +122,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useSiteStore } from '../../../stores/site'
+import MenuImageCropper from '../MenuImageCropper.vue'
 
 defineProps({ isMobile: { type: Boolean, default: false } })
 const site = useSiteStore()
@@ -177,14 +179,22 @@ function moveTo(gi, ii, target) {
 }
 function putIn(key, target) { if (target === '') return; groups.value[Number(target)].items.push(key) }
 const uploadingId = ref(null)
-async function uploadImage(g, e) {
+// 이미지를 고르면 바로 올리지 않고, 위치·크기를 맞추는 창(MenuImageCropper)을 먼저 띄운다
+const cropFile = ref(null); const cropGroup = ref(null)
+function pickImage(g, e) {
   const file = e.target.files?.[0]
   e.target.value = ''
   if (!file) return
-  if (file.size > 2 * 1024 * 1024) { say('2MB 이하 이미지만 올릴 수 있어요', 'error'); return }
+  if (file.size > 8 * 1024 * 1024) { say('8MB 이하 이미지를 골라 주세요', 'error'); return }
+  cropGroup.value = g; cropFile.value = file
+}
+async function onCropped(blob) {
+  const g = cropGroup.value
+  cropFile.value = null
+  if (!g || !blob) return
   uploadingId.value = g._id
   try {
-    const fd = new FormData(); fd.append('image', file)
+    const fd = new FormData(); fd.append('image', blob, 'menu.png')
     const { data } = await axios.post('/api/admin/settings/menu-groups/image', fd)
     g.image = data.data.url
     say('이미지를 올렸어요. 맨 위 "저장"을 눌러야 사이트에 반영돼요', 'success')
