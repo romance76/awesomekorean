@@ -299,3 +299,8 @@ Kay 확정 묶음: 홈 · 커뮤니티(게시판·Q&A·채팅·동호회) · 구
 - **숫자 검수(Kay/전문가)**: 새로 넣은 2026 숫자 중 CDCTC 2026 소득별 비율(20~50%), Medicare Part A $565/$311, KASF 마감, 조지아 서류 미비 학생 규정(2010~2020 자료만 확인됨), Georgia Promise $6,500 신청 기간은 시기에 따라 바뀜.
 - 휴대폰 안내 그림(`phone` 블록 41개)은 앱 화면처럼 다시 그렸지만(머리글·목록·탭, 버튼 이름 2줄) 여전히 모형이에요 — 실제 앱 캡처가 아님. 실제 앱 캡처는 앱스토어 소개 이미지 103장이 `public/images/money/shots/app-*.jpg` 에 더 있음(미사용) — 필요하면 글에 넣을 수 있음.
 - 글 제목을 바꾸면 sync 가 새 글을 만듦(제목 기준). 이번 작업은 제목을 바꾸지 않았음.
+
+## 17. MONEY 앱 소개 화면 묶음 추가 (2026-10-13, 0f4149cf)
+- `public/images/money/shots/m-<앱>.jpg` 19장(앱스토어 소개 화면 2~4장을 가로로 붙인 것)을 earn/save/insurance/grow 글 25곳에 `shot` 블록(핀 없음, 왼쪽부터 순서 설명)으로 추가. 라이브 일치 354/354.
+- 일부러 뺀 것: Swagbucks(영국 £ 화면), Target(할로윈 광고), Fetch 게임 슬라이드, Fiverr·Upwork·eBay·YouTube·Flipp·Libby·TGTG·DoorDash(사람 사진·홍보 문구뿐), Redfin·Zillow·Vanguard·Credit Karma·Capital One(글에 이미 비슷한 화면 있거나 내용과 안 맞음). 원본 `app-*.jpg` 일부는 아직 untracked(사용 안 함).
+- 휴대폰에서 3장 묶음은 작게 보이지만 눌러서 크게 보기(라이트박스)로 확인 가능.
