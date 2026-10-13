@@ -51,8 +51,11 @@ class PrizeClaimController extends Controller
             }
         }
 
+        // 이미 상품을 보냈거나(sent) 받았다고 확인한(confirmed) 건은 연락처 확인을 다시 묻지 않는다
+        // (보낸 뒤에는 아래 "받으셨나요?" 작은 카드로만 묻는다)
         $claims = SweepstakesPrizeClaim::where('user_id', $user->id)
             ->whereNull('contact_confirmed_at')
+            ->where(fn ($q) => $q->whereNull('delivery_status')->orWhereNotIn('delivery_status', ['sent', 'confirmed']))
             ->with(['sweepstakes.event:id,title'])
             ->orderBy('id')
             ->get();
