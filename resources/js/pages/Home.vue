@@ -85,26 +85,20 @@
           </div>
         </RouterLink>
 
-        <!-- 동호회 (블러시 핑크) -->
-        <RouterLink to="/clubs" class="min-h-[168px] bg-amber-50 border border-amber-100 rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 group hover:brightness-[0.98] transition-all">
+        <!-- MONEY 홍보 (동호회 자리) -->
+        <RouterLink to="/money" class="min-h-[168px] bg-emerald-50 border border-emerald-100 rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 group hover:brightness-[0.98] transition-all">
           <div class="flex items-center gap-1.5">
-            <AppIcon name="users" :size="13" class="text-amber-600" />
-            <span class="text-[10.5px] font-bold tracking-wider text-amber-700">동호회</span>
+            <AppIcon name="coins" :size="13" class="text-emerald-700" />
+            <span class="text-[10.5px] font-bold tracking-wider text-emerald-800">MONEY</span>
           </div>
-          <div v-if="clubs.length">
-            <div class="text-[16px] lg:text-[17px] font-extrabold tracking-[-0.03em] text-ink leading-tight">같은 취미, 우리 동네 모임</div>
-            <ul class="mt-2 space-y-1">
-              <li v-for="c in clubs.slice(0, 3)" :key="c.id" class="flex items-center justify-between gap-2 text-[12px] text-ink-light">
-                <span class="truncate">{{ c.name || c.title }}</span>
-                <span v-if="c.member_count != null" class="shrink-0 text-ink-faint tabular-nums">{{ c.member_count }}명</span>
-              </li>
+          <div>
+            <div class="text-[16px] lg:text-[18px] font-extrabold tracking-[-0.03em] text-ink leading-tight">미국 생활 돈 정보,<br>공식 자료로 정리했어요</div>
+            <ul class="mt-2 space-y-1 text-[12px] text-ink-light">
+              <li>세금·정부 혜택, 보험, 신용카드</li>
+              <li>자녀 교육비, 주식, 은퇴·노후</li>
             </ul>
           </div>
-          <div v-else>
-            <div class="text-[18px] lg:text-[21px] font-extrabold tracking-[-0.03em] text-ink leading-tight">같은 취미,<br>우리 동네 모임</div>
-            <div class="text-[11px] text-ink-light mt-1.5">첫 동호회를 만들고 이웃을 모아 보세요</div>
-          </div>
-          <span class="self-start text-[11px] font-bold bg-amber-500 text-white rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">{{ clubs.length ? '동호회 보기' : '동호회 만들기' }} →</span>
+          <span class="self-start text-[11px] font-bold bg-emerald-600 text-white rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">MONEY 보러 가기 →</span>
         </RouterLink>
 
         <!-- 내돈내산 리뷰 (오렌지→핫핑크) -->

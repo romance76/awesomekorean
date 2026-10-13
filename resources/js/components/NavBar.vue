@@ -109,7 +109,8 @@
           <component :is="g.external ? 'a' : 'RouterLink'" v-bind="g.external ? { href: g.path } : { to: g.path }"
             class="site-hdr-tab"
             :class="isGroupActive(g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off'">
-            {{ g.label }}<span v-if="g.type !== 'single' && g.items.length" class="text-[9px] opacity-50">▼</span>
+            <img v-if="g.image" :src="g.image" :alt="g.label" class="h-5 w-auto max-w-[120px] object-contain inline-block align-middle" />
+            <span v-else :style="g.color ? { color: g.color } : null">{{ g.label }}</span><span v-if="g.type !== 'single' && g.items.length" class="text-[9px] opacity-50">▼</span>
           </component>
           <div v-if="g.type !== 'single' && g.items.length"
             class="site-hdr-drop">
@@ -180,11 +181,11 @@
               :class="row.active ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
               <a v-if="row.external" :href="row.path" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-3.5 text-[15px] font-semibold text-gray-800">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
-                <span class="whitespace-nowrap">{{ row.label }}</span>
+                <img v-if="row.image" :src="row.image" :alt="row.label" class="h-5 w-auto max-w-[140px] object-contain" /><span v-else class="whitespace-nowrap" :style="row.color ? { color: row.color } : null">{{ row.label }}</span>
               </a>
               <RouterLink v-else :to="row.path" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-3.5 text-[15px] font-semibold" :class="row.active ? 'text-amber-700' : 'text-gray-800'">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="17" /></span>
-                <span class="whitespace-nowrap">{{ row.label }}</span>
+                <img v-if="row.image" :src="row.image" :alt="row.label" class="h-5 w-auto max-w-[140px] object-contain" /><span v-else class="whitespace-nowrap" :style="row.color ? { color: row.color } : null">{{ row.label }}</span>
               </RouterLink>
               <button v-if="row.hasSub" @click.stop="toggleOpen(row.groupKey)"
                 class="px-1.5 py-2 flex-shrink-0 text-ink-faint"
@@ -485,7 +486,7 @@ const navGroups = computed(() => {
     if (g.type === 'hub' ? !g.path : !items.length) continue
     const first = items[0]
     out.push({
-      key: g.key, type: g.type, icon: g.icon, items,
+      key: g.key, type: g.type, icon: g.icon, items, color: g.color || '', image: g.image || '',
       label: ko ? g.label : (g.label_en || g.label),
       path: g.type === 'hub' ? g.path : first.path,
       external: g.type === 'hub' ? false : !!first.external,
@@ -502,7 +503,7 @@ const drawerRows = computed(() => {
     const hasSub = g.type === 'group'
     const open = openGroups.value.has(g.key)
     rows.push({
-      kind: 'group', key: 'h:' + g.key, groupKey: g.key, label: g.label, path: g.path, external: g.external,
+      kind: 'group', key: 'h:' + g.key, groupKey: g.key, label: g.label, path: g.path, external: g.external, color: g.color, image: g.image,
       iconKey: g.type === 'hub' ? 'money' : first.key, hasSub, open,
       active: (g.type === 'hub' && isActive(g.path)) || g.items.some(m => !m.external && isActive(m.path)),
     })

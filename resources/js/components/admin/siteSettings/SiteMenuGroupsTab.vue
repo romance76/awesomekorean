@@ -39,6 +39,18 @@
           <input v-model="g.icon" maxlength="4" class="w-10 text-center rounded-lg border border-gray-200 bg-white py-1" aria-label="아이콘" />
           <input v-model="g.label" maxlength="30" class="flex-1 min-w-[120px] rounded-lg border border-gray-200 bg-white px-2 py-1 font-bold text-ink" aria-label="묶음 이름" />
           <input v-model="g.label_en" maxlength="40" placeholder="영어 이름" class="w-28 rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs" aria-label="영어 이름" />
+          <span class="inline-flex items-center gap-1" title="메뉴 글자색">
+            <input type="color" :value="g.color || '#1b1613'" @input="g.color = $event.target.value" class="w-8 h-7 rounded border border-gray-200 bg-white p-0.5" aria-label="글자색" />
+            <button v-if="g.color" type="button" @click="g.color = ''" class="text-[11px] text-ink-muted underline">기본색</button>
+          </span>
+          <span class="inline-flex items-center gap-1">
+            <img v-if="g.image" :src="g.image" alt="" class="h-6 max-w-[72px] object-contain rounded border border-gray-200 bg-white" />
+            <label class="text-xs font-bold rounded-lg border border-gray-200 bg-white px-2 py-1 cursor-pointer" :class="uploadingId === g._id ? 'opacity-50' : ''">
+              {{ uploadingId === g._id ? '올리는 중…' : (g.image ? '이미지 바꾸기' : '글씨 대신 이미지') }}
+              <input type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="uploadImage(g, $event)" />
+            </label>
+            <button v-if="g.image" type="button" @click="g.image = ''" class="text-[11px] text-red-500 underline">이미지 빼기</button>
+          </span>
           <select v-model="g.type" class="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs" aria-label="종류">
             <option value="single">혼자 메뉴</option>
             <option value="group">묶음 (하위 탭)</option>
@@ -96,7 +108,7 @@
     <div class="rounded-2xl border border-gray-100 bg-white p-4 h-fit">
       <div class="text-sm font-bold text-ink mb-2">미리보기 — 상단 메뉴</div>
       <div v-for="g in groups.filter(x => !x.hidden)" :key="g._id" class="py-2 border-b border-gray-50 last:border-0">
-        <div class="text-sm font-bold text-ink">{{ g.icon }} {{ g.label }} <span class="text-[11px] font-normal text-ink-faint">{{ typeLabel(g.type) }}</span></div>
+        <div class="text-sm font-bold text-ink" :style="g.color ? { color: g.color } : null"><img v-if="g.image" :src="g.image" :alt="g.label" class="h-5 inline-block align-middle mr-1" /><template v-else>{{ g.icon }} {{ g.label }}</template> <span class="text-[11px] font-normal text-ink-faint">{{ typeLabel(g.type) }}</span></div>
         <div v-if="g.type !== 'single' && g.items.length" class="text-xs text-ink-muted mt-0.5">└ {{ g.items.map(k => g.item_labels?.[k] || menuLabel(k)).join(' · ') }}</div>
       </div>
       <div v-if="groups.some(x => x.hidden)" class="text-xs text-ink-faint mt-2">숨김: {{ groups.filter(x => x.hidden).map(x => x.label).join(', ') }}</div>
@@ -120,7 +132,7 @@ const groups = ref([])
 const menus = ref([])
 const defaults = ref([])
 let uid = 0
-const withId = (arr) => arr.map(g => ({ hidden: false, path: '', label_en: '', icon: '', ...g, items: [...(g.items || [])], _id: ++uid }))
+const withId = (arr) => arr.map(g => ({ hidden: false, path: '', label_en: '', icon: '', color: '', image: '', ...g, items: [...(g.items || [])], _id: ++uid }))
 
 async function load() {
   loading.value = true; loadError.value = ''
@@ -164,6 +176,21 @@ function moveTo(gi, ii, target) {
   if (target !== 'out') groups.value[Number(target)].items.push(k)
 }
 function putIn(key, target) { if (target === '') return; groups.value[Number(target)].items.push(key) }
+const uploadingId = ref(null)
+async function uploadImage(g, e) {
+  const file = e.target.files?.[0]
+  e.target.value = ''
+  if (!file) return
+  if (file.size > 2 * 1024 * 1024) { say('2MB 이하 이미지만 올릴 수 있어요', 'error'); return }
+  uploadingId.value = g._id
+  try {
+    const fd = new FormData(); fd.append('image', file)
+    const { data } = await axios.post('/api/admin/settings/menu-groups/image', fd)
+    g.image = data.data.url
+    say('이미지를 올렸어요. 맨 위 "저장"을 눌러야 사이트에 반영돼요', 'success')
+  } catch (err) { say(err.response?.data?.message || '이미지를 올리지 못했어요', 'error') }
+  uploadingId.value = null
+}
 function addGroup() { groups.value.push(withId([{ key: 'g' + Date.now().toString(36), label: '새 묶음', icon: '📁', type: 'group', items: [] }])[0]) }
 function resetDefaults() { if (confirm('기본 묶음으로 되돌릴까요? (저장해야 반영돼요)')) groups.value = withId(defaults.value) }
 

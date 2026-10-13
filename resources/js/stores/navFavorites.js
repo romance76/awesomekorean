@@ -117,6 +117,7 @@ export const useNavFavoritesStore = defineStore('navFavorites', () => {
           // key 는 아이콘·색을 고르는 데 쓰인다 (묶음의 첫 메뉴 모양, 허브는 'money')
           key: hub ? g.key : first.key,
           groupKey: g.key,
+          color: g.color || '',
           label: ko ? g.label : (g.label_en || g.label),
           path: hub ? g.path : first.path,
           external: hub ? false : !!first.external,

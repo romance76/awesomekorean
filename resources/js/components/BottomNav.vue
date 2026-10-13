@@ -13,7 +13,7 @@
         <span class="icon-chip w-8 h-7 transition-shadow" :class="[menuChipColor(item.key), itemActive(item) ? 'ring-2 ring-black/15' : '']">
           <AppIcon :name="menuIcon(item.key)" :size="18" :stroke-width="itemActive(item) ? 2.4 : 2" />
         </span>
-        <span class="text-[10px] leading-none whitespace-nowrap" :class="itemActive(item) ? 'font-bold' : 'font-semibold'">{{ item.label }}</span>
+        <span class="text-[10px] leading-none whitespace-nowrap" :class="itemActive(item) ? 'font-bold' : 'font-semibold'" :style="item.color ? { color: item.color } : null">{{ item.label }}</span>
       </component>
     </div>
     <!-- 스와이프 인디케이터 (6개 이상일 때) -->

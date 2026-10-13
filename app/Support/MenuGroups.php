@@ -119,6 +119,13 @@ class MenuGroups
             }
             if ($itemLabels) $row['item_labels'] = $itemLabels;
             if ($path) $row['path'] = $path;
+            // 글자색(#rrggbb)·이미지(관리자가 올린 /storage/branding/menu/ 파일만) — 둘 다 선택 사항
+            $color = is_string($g['color'] ?? null) ? trim($g['color']) : '';
+            if ($color !== '' && !preg_match('/^#[0-9a-fA-F]{6}$/', $color)) return [null, "{$n}번째 묶음의 글자색이 올바르지 않아요."];
+            if ($color !== '') $row['color'] = strtolower($color);
+            $image = is_string($g['image'] ?? null) ? trim($g['image']) : '';
+            if ($image !== '' && !preg_match('#^/storage/branding/menu/[A-Za-z0-9._-]+(\?v=\d+)?$#', $image)) return [null, "{$n}번째 묶음의 이미지 주소가 올바르지 않아요. 다시 올려 주세요."];
+            if ($image !== '') $row['image'] = $image;
             if (!empty($g['hidden'])) $row['hidden'] = true;
             $out[] = $row;
         }

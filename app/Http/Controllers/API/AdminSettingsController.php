@@ -425,6 +425,25 @@ class AdminSettingsController extends Controller
         ]]);
     }
 
+    // 메뉴 묶음에 글씨 대신 쓸 이미지 (투명 배경 PNG 권장). 높이 96px 이하로 줄여 저장.
+    public function uploadMenuGroupImage(Request $request) {
+        $request->validate(['image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048'], [
+            'image.required' => '이미지를 골라 주세요.', 'image.image' => '이미지 파일만 올릴 수 있어요.',
+            'image.mimes' => 'png, jpg, webp 파일만 올릴 수 있어요.', 'image.max' => '2MB 이하 이미지만 올릴 수 있어요.',
+        ]);
+        try {
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->read($request->file('image')->getRealPath());
+            $img->scaleDown(height: 96);
+            $name = 'branding/menu/' . \Illuminate\Support\Str::random(14) . '.png';
+            \Illuminate\Support\Facades\Storage::disk('public')->put($name, (string) $img->toPng());
+        } catch (\Throwable $e) {
+            \Log::error('메뉴 이미지 업로드 실패: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '이미지를 저장하지 못했어요.'], 500);
+        }
+        return response()->json(['success' => true, 'data' => ['url' => '/storage/' . $name]]);
+    }
+
     public function saveMenuGroups(Request $request) {
         [$groups, $err] = \App\Support\MenuGroups::sanitize($request->input('groups'));
         if ($err) return response()->json(['success' => false, 'message' => $err], 422);
