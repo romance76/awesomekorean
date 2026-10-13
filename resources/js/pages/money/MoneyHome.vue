@@ -1,6 +1,6 @@
 <template>
 <div class="min-h-screen">
-  <div class="max-w-5xl mx-auto px-4 py-5">
+  <div class="max-w-7xl mx-auto px-4 py-5">
     <MoneyHead />
 
     <!-- 첫 안내 — 차분하게, 공식 자료 기반이라는 점을 먼저 -->
@@ -13,17 +13,17 @@
     <section class="mt-5">
       <h3 class="text-[17px] font-bold text-ink mb-2.5">분야를 골라 보세요</h3>
       <div v-if="loading" class="py-10 text-center text-ink-muted">불러오는 중...</div>
-      <div v-else class="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
         <RouterLink v-for="c in cafes" :key="c.slug" :to="`/money/cafe/${c.slug}`"
-          class="flex items-start gap-3 rounded-xl border bg-white p-3.5 hover:shadow-card transition-shadow"
+          class="flex items-center gap-3 rounded-xl border bg-white px-3.5 py-3 hover:shadow-card transition-shadow"
           :style="{ borderColor: themeOf(c.theme).line }">
           <span class="icon-chip w-10 h-10 shrink-0" :style="{ background: themeOf(c.theme).soft, color: themeOf(c.theme).accent }">
             <AppIcon :name="cafeIcon(c.slug)" :size="20" />
           </span>
           <span class="min-w-0">
             <span class="block font-bold text-ink text-[15px] leading-snug">{{ c.name }}</span>
-            <span class="block text-[12.5px] text-ink-muted mt-0.5 leading-snug line-clamp-2">{{ c.headline || c.summary }}</span>
-            <span class="block text-[12px] text-ink-faint mt-1">글 {{ c.post_count }}개</span>
+            <span class="block text-[12.5px] text-ink-muted mt-0.5 leading-snug line-clamp-1">{{ c.headline || c.summary }}</span>
+            <span class="block text-[12px] text-ink-faint mt-0.5">글 {{ c.post_count }}개</span>
           </span>
         </RouterLink>
       </div>
