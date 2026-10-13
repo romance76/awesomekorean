@@ -156,38 +156,43 @@
         <div v-if="mobileMenu" class="fixed top-0 left-0 bottom-0 bg-white z-[1000] shadow-2xl overflow-y-auto"
              style="width: 50vw; min-width: 176px; max-width: 300px; padding-top: var(--sat); padding-bottom: var(--sab)">
           <!-- 헤더 -->
-          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+          <div class="flex items-center justify-between px-4 py-2 border-b border-gray-50">
             <span class="text-sm font-bold text-ink">전체 메뉴</span>
             <button @click="mobileMenu=false" class="p-1 text-ink-faint hover:text-ink transition-colors">
               <AppIcon name="x" :size="20" />
             </button>
           </div>
           <!-- 검색 -->
-          <div class="px-3 py-2.5 border-b border-gray-50">
+          <div class="px-3 py-1.5 border-b border-gray-50">
             <form @submit.prevent="goSearch(); mobileMenu=false" class="relative">
               <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">
                 <AppIcon name="search" :size="16" />
               </button>
               <input v-model="searchQ" type="text" placeholder="검색"
-                class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 transition-all" />
+                class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 transition-all" />
             </form>
           </div>
           <!-- 메뉴 목록 -->
-          <div class="py-2">
+          <div class="py-1">
             <template v-for="row in drawerRows" :key="row.key">
             <!-- 묶음 한 줄 (큰 글씨 + 묶음 단위 별) — 눌러서 그 묶음의 첫 화면으로 -->
-            <div v-if="row.kind === 'group'" class="flex items-center transition-colors mt-1"
+            <div v-if="row.kind === 'group'" class="flex items-center transition-colors"
               :class="row.active ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
-              <a v-if="row.external" :href="row.path" class="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-4 text-[16px] font-extrabold text-ink">
-                <span class="icon-chip w-9 h-9" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
+              <a v-if="row.external" :href="row.path" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-4 text-[16px] font-extrabold text-ink">
+                <span class="icon-chip w-8 h-8" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
                 <span class="truncate">{{ row.label }}</span>
               </a>
-              <RouterLink v-else :to="row.path" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-4 text-[16px] font-extrabold" :class="row.active ? 'text-amber-700' : 'text-ink'">
-                <span class="icon-chip w-9 h-9" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
+              <RouterLink v-else :to="row.path" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-4 text-[16px] font-extrabold" :class="row.active ? 'text-amber-700' : 'text-ink'">
+                <span class="icon-chip w-8 h-8" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="17" /></span>
                 <span class="truncate">{{ row.label }}</span>
               </RouterLink>
+              <button v-if="row.hasSub" @click.stop="toggleOpen(row.groupKey)"
+                class="px-2 py-2 flex-shrink-0 text-ink-faint"
+                :aria-expanded="row.open" :aria-label="(row.open ? '접기: ' : '펼치기: ') + row.label">
+                <AppIcon name="chevron-down" :size="18" class="transition-transform" :class="row.open ? 'rotate-180' : ''" />
+              </button>
               <button @click.stop="navFavStore.toggleGroupFavorite(row.groupKey)"
-                class="px-3 py-2.5 flex-shrink-0 transition-colors"
+                class="pl-1 pr-3 py-1.5 flex-shrink-0 transition-colors"
                 :class="navFavStore.isGroupFavorite(row.groupKey) ? 'text-amber-400' : 'text-gray-300'"
                 :aria-label="(navFavStore.isGroupFavorite(row.groupKey) ? '하단바에서 빼기: ' : '하단바에 넣기: ') + row.label"
                 :title="navFavStore.isGroupFavorite(row.groupKey) ? '하단바에서 제거' : '하단바에 추가'">
@@ -196,12 +201,12 @@
             </div>
             <!-- 묶음 안의 하위 메뉴 (작은 글씨, 별 없음) -->
             <div v-else-if="row.sub" class="flex items-center transition-colors" :class="isActive(row.item.path) ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
-              <a v-if="row.item.external" :href="row.item.path" class="flex items-center gap-2.5 flex-1 min-w-0 py-1.5 pl-14 pr-4 text-[13px] text-ink-light">
+              <a v-if="row.item.external" :href="row.item.path" class="flex items-center gap-2.5 flex-1 min-w-0 py-1 pl-14 pr-4 text-[13px] text-ink-light">
                 <span class="icon-chip w-6 h-6" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="13" /></span>
                 <span>{{ row.label }}</span>
               </a>
               <RouterLink v-else :to="row.item.path" @click="mobileMenu=false"
-                class="flex items-center gap-2.5 flex-1 min-w-0 py-1.5 pl-14 pr-4 text-[13px]" :class="isActive(row.item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
+                class="flex items-center gap-2.5 flex-1 min-w-0 py-1 pl-14 pr-4 text-[13px]" :class="isActive(row.item.path) ? 'text-amber-700 font-bold' : 'text-ink-light'">
                 <span class="icon-chip w-6 h-6" :class="menuChipColor(row.item.key)"><AppIcon :name="menuIcon(row.item.key)" :size="13" /></span>
                 <span>{{ row.label }}</span>
               </RouterLink>
@@ -230,26 +235,33 @@
             </template>
             <!-- MY (묶음 메뉴일 때: 친구는 상단 메뉴 대신 여기) — 마이도 묶음처럼 한 줄 + 별 -->
             <template v-if="navGroups && auth.isLoggedIn">
-              <div class="flex items-center transition-colors mt-1" :class="isActive('/dashboard') ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
-                <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-2.5 px-4 text-[16px] font-extrabold" :class="isActive('/dashboard') ? 'text-amber-700' : 'text-ink'">
-                  <span class="icon-chip w-9 h-9" :class="menuChipColor('dashboard')"><AppIcon :name="menuIcon('dashboard')" :size="18" /></span>
+              <div class="flex items-center transition-colors" :class="isActive('/dashboard') ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
+                <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-4 text-[16px] font-extrabold" :class="isActive('/dashboard') ? 'text-amber-700' : 'text-ink'">
+                  <span class="icon-chip w-8 h-8" :class="menuChipColor('dashboard')"><AppIcon :name="menuIcon('dashboard')" :size="17" /></span>
                   <span>마이</span>
                 </RouterLink>
+                <button @click.stop="toggleOpen('dashboard')"
+                  class="px-2 py-2 flex-shrink-0 text-ink-faint"
+                  :aria-expanded="openGroups.has('dashboard')" :aria-label="openGroups.has('dashboard') ? '접기: 마이' : '펼치기: 마이'">
+                  <AppIcon name="chevron-down" :size="18" class="transition-transform" :class="openGroups.has('dashboard') ? 'rotate-180' : ''" />
+                </button>
                 <button @click.stop="navFavStore.toggleGroupFavorite('dashboard')"
-                  class="px-3 py-2.5 flex-shrink-0 transition-colors"
+                  class="pl-1 pr-3 py-1.5 flex-shrink-0 transition-colors"
                   :class="navFavStore.isGroupFavorite('dashboard') ? 'text-amber-400' : 'text-gray-300'"
                   :aria-label="(navFavStore.isGroupFavorite('dashboard') ? '하단바에서 빼기: ' : '하단바에 넣기: ') + '마이'"
                   :title="navFavStore.isGroupFavorite('dashboard') ? '하단바에서 제거' : '하단바에 추가'">
                   <AppIcon name="star" :size="22" :filled="navFavStore.isGroupFavorite('dashboard')" />
                 </button>
               </div>
-              <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1.5 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="user" :size="13" />마이페이지</RouterLink>
-              <RouterLink to="/dashboard?tab=messages" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1.5 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="mail" :size="13" />쪽지</RouterLink>
-              <RouterLink to="/friends" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1.5 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="heart-handshake" :size="13" />친구</RouterLink>
+              <template v-if="openGroups.has('dashboard')">
+                <RouterLink to="/dashboard" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="user" :size="13" />마이페이지</RouterLink>
+                <RouterLink to="/dashboard?tab=messages" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="mail" :size="13" />쪽지</RouterLink>
+                <RouterLink to="/friends" @click="mobileMenu=false" class="flex items-center gap-2.5 pl-14 pr-4 py-1 text-[13px] text-ink-light hover:bg-gray-50"><AppIcon name="heart-handshake" :size="13" />친구</RouterLink>
+              </template>
             </template>
           </div>
           <!-- 즐겨찾기 안내 -->
-          <div class="px-4 py-2.5 border-t border-gray-50 text-[11px] text-ink-faint flex items-center gap-1">
+          <div class="px-4 py-1.5 border-t border-gray-50 text-[11px] text-ink-faint flex items-center gap-1">
             <AppIcon name="star" :size="12" /> 눌러서 하단 메뉴에 추가/제거
           </div>
         </div>
@@ -302,6 +314,13 @@ const route = useRoute()
 const searchQ = ref('')
 const showDropdown = ref(false)
 const mobileMenu = ref(false)
+// 휴대폰 ☰ 에서 펼쳐 둔 묶음 (처음엔 모두 접힘 — 화살표를 누르면 하위 메뉴가 보임)
+const openGroups = ref(new Set())
+function toggleOpen(key) {
+  const next = new Set(openGroups.value)
+  next.has(key) ? next.delete(key) : next.add(key)
+  openGroups.value = next
+}
 const unreadCount = ref(0)
 const showNotifs = ref(false)
 // 알림 패널은 body 로 Teleport(상단바의 backdrop-blur 가 fixed 기준점을 바꾸므로) 후 벨 위치 기준으로 배치
@@ -480,12 +499,14 @@ const drawerRows = computed(() => {
   const rows = []
   for (const g of navGroups.value) {
     const first = g.items[0]
+    const hasSub = g.type === 'group'
+    const open = openGroups.value.has(g.key)
     rows.push({
       kind: 'group', key: 'h:' + g.key, groupKey: g.key, label: g.label, path: g.path, external: g.external,
-      iconKey: g.type === 'hub' ? 'money' : first.key,
+      iconKey: g.type === 'hub' ? 'money' : first.key, hasSub, open,
       active: (g.type === 'hub' && isActive(g.path)) || g.items.some(m => !m.external && isActive(m.path)),
     })
-    if (g.type === 'group') for (const m of g.items) rows.push({ kind: 'item', sub: true, key: g.key + ':' + m.key, item: m, label: m.label })
+    if (hasSub && open) for (const m of g.items) rows.push({ kind: 'item', sub: true, key: g.key + ':' + m.key, item: m, label: m.label })
   }
   return rows
 })
