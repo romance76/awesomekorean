@@ -162,8 +162,8 @@
     {
      "title": "부수입 수입·비용 기록표",
      "desc": "인증 글의 근거 자료",
-     "file": "/downloads/money/side-income-log.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/side-income-log.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

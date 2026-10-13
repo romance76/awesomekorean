@@ -184,8 +184,8 @@
     {
      "title": "50/30/20 가계부",
      "desc": "월 소득·지출을 정리해요",
-     "file": "/downloads/money/budget-50-30-20.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/budget-50-30-20.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

@@ -173,8 +173,8 @@
     {
      "title": "대학 비용 계산표",
      "desc": "장학금 반영 후 부족액을 계산해요",
-     "file": "/downloads/money/college-cost-planner.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/college-cost-planner.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

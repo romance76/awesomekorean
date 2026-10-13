@@ -184,8 +184,8 @@
     {
      "title": "대학 비용 계산표",
      "desc": "비용·장학금·부족액을 계산해요",
-     "file": "/downloads/money/college-cost-planner.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/college-cost-planner.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "세금 신고 서류 체크리스트",

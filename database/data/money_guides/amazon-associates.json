@@ -247,8 +247,8 @@
     {
      "title": "부수입 수입·비용 기록표",
      "desc": "월별 순수익이 자동 계산돼요",
-     "file": "/downloads/money/side-income-log.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/side-income-log.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

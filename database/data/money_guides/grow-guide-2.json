@@ -174,8 +174,8 @@
     {
      "title": "관심 종목 목록",
      "desc": "티커·이유·실적일·배당을 정리해요",
-     "file": "/downloads/money/watchlist.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/watchlist.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

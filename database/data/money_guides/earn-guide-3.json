@@ -191,8 +191,8 @@
     {
      "title": "부수입 수입·비용 기록표",
      "desc": "주문별 수입·수수료·순수익 기록",
-     "file": "/downloads/money/side-income-log.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/side-income-log.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

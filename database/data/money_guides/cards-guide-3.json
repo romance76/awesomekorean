@@ -210,8 +210,8 @@
     {
      "title": "50/30/20 가계부",
      "desc": "연체 없는 예산 만들기",
-     "file": "/downloads/money/budget-50-30-20.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/budget-50-30-20.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

@@ -166,8 +166,8 @@
     {
      "title": "부수입 수입·비용 기록표",
      "desc": "플랫폼별 수입을 정리해요",
-     "file": "/downloads/money/side-income-log.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/side-income-log.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

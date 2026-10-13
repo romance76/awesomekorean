@@ -183,14 +183,14 @@
     {
      "title": "50/30/20 가계부",
      "desc": "목표와 실제를 비교해요",
-     "file": "/downloads/money/budget-50-30-20.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/budget-50-30-20.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "월 구독 점검표",
      "desc": "고정비 줄이기",
-     "file": "/downloads/money/subscription-audit.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/subscription-audit.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

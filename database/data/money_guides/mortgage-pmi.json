@@ -90,7 +90,7 @@
 
     { "type": "downloads", "title": "자료 내려받기",
       "items": [
-        { "title": "집 구입 총비용 계산표", "desc": "월 주거비·PMI·처음 필요한 현금이 자동 계산돼요", "file": "/downloads/money/home-buying-cost-sheet.csv", "kind": "CSV" },
+        { "title": "집 구입 총비용 계산표", "desc": "월 주거비·PMI·처음 필요한 현금이 자동 계산돼요", "file": "/downloads/money/home-buying-cost-sheet.xlsx", "kind": "엑셀" },
         { "title": "PMI 해지 요청 편지 양식", "desc": "영어 원문 + 한글 설명. 이름·대출번호만 바꿔서 보내세요", "file": "/downloads/money/pmi-cancellation-letter.txt", "kind": "TXT" }
       ] },
 

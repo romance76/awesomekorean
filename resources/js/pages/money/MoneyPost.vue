@@ -3,8 +3,9 @@
     <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
     <div class="max-w-4xl">
 
+    <div v-if="post" class="flex justify-end mb-2"><MoneyFontSize /></div>
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">글을 찾을 수 없어요. 내려갔거나 주소가 바뀌었을 수 있어요.</p>
-    <article v-else-if="post" class="card p-5 md:p-7">
+    <article v-else-if="post" class="card p-5 md:p-7" :style="{ zoom: moneyFont.scale.value }">
       <div class="flex items-center gap-2 mb-2">
         <span class="text-[11px] font-bold rounded-full px-2 py-0.5" :class="KIND_CLASS[post.kind]">{{ KIND_LABEL[post.kind] }}</span>
         <span class="text-xs text-ink-muted">{{ post.cafe?.name }}</span>
@@ -51,6 +52,8 @@ import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import GuideBlocks from '../../components/money/GuideBlocks.vue'
+import MoneyFontSize from '../../components/money/MoneyFontSize.vue'
+import { moneyFont } from '../../components/money/moneyFont'
 import MoneyFrame from '../../components/money/MoneyFrame.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import CommentSection from '../../components/CommentSection.vue'

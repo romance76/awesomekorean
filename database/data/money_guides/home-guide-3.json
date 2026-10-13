@@ -177,8 +177,8 @@
     {
      "title": "집 구입 총비용 계산표",
      "desc": "월 주거비 계산에 활용해요",
-     "file": "/downloads/money/home-buying-cost-sheet.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/home-buying-cost-sheet.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

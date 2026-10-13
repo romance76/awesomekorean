@@ -169,8 +169,8 @@
     {
      "title": "관심 종목 목록",
      "desc": "관심 있는 ETF·종목을 정리해요",
-     "file": "/downloads/money/watchlist.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/watchlist.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

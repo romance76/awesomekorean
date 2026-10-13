@@ -161,8 +161,8 @@
     {
      "title": "부수입 수입·비용 기록표",
      "desc": "주간 기록에 활용하세요",
-     "file": "/downloads/money/side-income-log.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/side-income-log.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "인증 캡처 가리기 체크리스트",
@@ -173,8 +173,8 @@
     {
      "title": "월 구독 점검표",
      "desc": "절약 인증에도 좋아요",
-     "file": "/downloads/money/subscription-audit.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/subscription-audit.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

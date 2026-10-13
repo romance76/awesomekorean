@@ -168,8 +168,8 @@
     {
      "title": "은퇴 생활비 표",
      "desc": "은퇴 후 필요한 돈을 계산해요",
-     "file": "/downloads/money/retirement-expenses.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/retirement-expenses.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

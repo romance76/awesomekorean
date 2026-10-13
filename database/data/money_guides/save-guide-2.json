@@ -157,8 +157,8 @@
     {
      "title": "구독 점검표",
      "desc": "월 요금·연 환산·사용 횟수를 적어요",
-     "file": "/downloads/money/subscription-audit.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/subscription-audit.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

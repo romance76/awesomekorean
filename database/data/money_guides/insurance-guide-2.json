@@ -177,8 +177,8 @@
     {
      "title": "보험 견적 비교표",
      "desc": "회사별 보험료와 조건을 비교해요",
-     "file": "/downloads/money/insurance-quote-compare.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/insurance-quote-compare.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

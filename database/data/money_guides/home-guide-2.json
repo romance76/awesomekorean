@@ -179,8 +179,8 @@
     {
      "title": "집 구입 총비용 계산표",
      "desc": "재산세·보험료를 월 주거비에 포함해요",
-     "file": "/downloads/money/home-buying-cost-sheet.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/home-buying-cost-sheet.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

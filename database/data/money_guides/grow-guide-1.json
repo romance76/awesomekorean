@@ -203,8 +203,8 @@
     {
      "title": "저축 상품 비교표",
      "desc": "APY·최소 예치금·벌칙을 비교해요",
-     "file": "/downloads/money/savings-compare.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/savings-compare.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

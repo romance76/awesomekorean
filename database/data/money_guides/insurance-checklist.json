@@ -158,8 +158,8 @@
     {
      "title": "보험 견적 비교표",
      "desc": "3곳을 같은 항목으로 비교해요",
-     "file": "/downloads/money/insurance-quote-compare.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/insurance-quote-compare.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

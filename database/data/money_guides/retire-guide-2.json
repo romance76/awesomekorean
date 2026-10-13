@@ -194,8 +194,8 @@
     {
      "title": "은퇴 생활비 표",
      "desc": "의료비를 포함해 계산해요",
-     "file": "/downloads/money/retirement-expenses.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/retirement-expenses.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

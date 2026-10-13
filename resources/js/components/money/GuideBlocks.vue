@@ -65,7 +65,7 @@
         <li v-for="(s, k) in b.items" :key="k" class="relative pl-14 pb-6 last:pb-0">
           <span v-if="k < b.items.length - 1" class="absolute left-[19px] top-10 bottom-0 w-0.5" :class="T.line"></span>
           <span class="absolute left-0 top-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-[16px] shadow" :class="T.solid">{{ k + 1 }}</span>
-          <div class="font-extrabold text-ink text-[16px]">{{ s.title }}</div>
+          <div class="font-extrabold text-ink text-[16.5px]" v-html="rich(s.title)"></div>
           <p class="text-[14.5px] text-ink-light leading-relaxed mt-1" v-html="rich(s.body)"></p>
           <div v-if="s.btn" class="mt-2 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13.5px] font-black" :class="[T.soft, T.text]"><AppIcon :name="s.btn.icon || 'check'" :size="16" />누를 곳: {{ s.btn.label }}</div>
           <a v-if="safe(s.link?.url)" :href="s.link.url" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 mt-2 text-[13px] font-bold underline" :class="T.text">{{ s.link.label }} <AppIcon name="external-link" :size="13" /></a>
@@ -76,14 +76,26 @@
     <!-- 비교표 -->
     <section v-else-if="b.type === 'compare'" class="card p-4 md:p-6">
       <h4 v-if="b.title" class="font-black text-ink text-[17px] mb-3">{{ b.title }}</h4>
-      <div class="overflow-x-auto -mx-1 px-1">
-        <table class="w-full text-[14px] border-separate border-spacing-0 min-w-[480px]">
+      <!-- 휴대폰: 옆으로 밀지 않고 항목별 카드로 (첫 칸이 제목, 나머지는 "열 이름 + 내용") -->
+      <div class="md:hidden space-y-3">
+        <div v-for="(r, ri) in b.rows" :key="ri" class="rounded-2xl border border-gray-100 overflow-hidden">
+          <div class="px-4 py-2.5 font-black text-ink text-[15.5px] bg-gray-50" v-html="rich(r[0])"></div>
+          <dl class="divide-y divide-gray-50">
+            <div v-for="(c, k) in r.slice(1)" :key="k" class="px-4 py-2.5" :class="k + 1 === b.highlight ? T.soft2 : ''">
+              <dt class="text-[12.5px] font-extrabold" :class="k + 1 === b.highlight ? T.text : 'text-ink-muted'">{{ b.columns[k + 1] }}</dt>
+              <dd class="text-[15px] text-ink leading-relaxed mt-0.5" v-html="rich(c)"></dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+      <div class="hidden md:block overflow-x-auto -mx-1 px-1">
+        <table class="w-full text-[14.5px] border-separate border-spacing-0 min-w-[480px]">
           <thead><tr>
             <th v-for="(c, k) in b.columns" :key="k" class="text-left px-3 py-2.5 font-black text-[13px] first:rounded-tl-xl last:rounded-tr-xl" :class="k === b.highlight ? [T.solid, 'text-white'] : 'bg-gray-100 text-ink'">{{ c }}</th>
           </tr></thead>
           <tbody>
             <tr v-for="(r, ri) in b.rows" :key="ri">
-              <td v-for="(c, k) in r" :key="k" class="px-3 py-2.5 border-b border-gray-100 align-top" :class="[k === 0 ? 'font-extrabold text-ink' : 'text-ink-light', k === b.highlight ? T.soft2 : '']">{{ c }}</td>
+              <td v-for="(c, k) in r" :key="k" class="px-3 py-2.5 border-b border-gray-100 align-top" :class="[k === 0 ? 'font-extrabold text-ink' : 'text-ink-light', k === b.highlight ? T.soft2 : '']" v-html="rich(c)"></td>
             </tr>
           </tbody>
         </table>
@@ -131,7 +143,7 @@
         <li v-for="(it, k) in b.items" :key="k">
           <label class="flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer hover:bg-gray-50" :class="checks[i + ':' + k] ? 'bg-gray-50' : ''">
             <input type="checkbox" v-model="checks[i + ':' + k]" class="mt-1 w-[18px] h-[18px] accent-emerald-600" />
-            <span class="text-[14.5px]" :class="checks[i + ':' + k] ? 'line-through text-ink-muted' : 'text-ink'">{{ it }}</span>
+            <span class="text-[15px] leading-relaxed" :class="checks[i + ':' + k] ? 'line-through text-ink-muted' : 'text-ink'" v-html="rich(it)"></span>
           </label>
         </li>
       </ul>
@@ -159,7 +171,7 @@
         <template v-for="(d, k) in b.items" :key="k">
           <a v-if="safe(d.file)" :href="d.file" download class="rounded-2xl bg-white border border-gray-100 p-4 flex gap-3 items-center hover:shadow-md transition">
             <span class="w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0" :class="T.solid"><AppIcon name="download" :size="20" /></span>
-            <span class="min-w-0"><b class="block text-ink text-[14.5px]">{{ d.title }}</b><span class="block text-[12.5px] text-ink-muted">{{ d.desc }}</span><span class="block text-[11px] font-black mt-0.5" :class="T.text">{{ d.kind || 'CSV' }}<template v-if="(d.kind || 'CSV') === 'CSV'"> · 엑셀·구글 시트에서 열려요</template></span></span>
+            <span class="min-w-0"><b class="block text-ink text-[14.5px]">{{ d.title }}</b><span class="block text-[12.5px] text-ink-muted">{{ d.desc }}</span><span class="block text-[11px] font-black mt-0.5" :class="T.text">{{ d.kind || '엑셀' }}<template v-if="(d.kind || '엑셀') === '엑셀'"> · 엑셀·구글 시트·넘버스에서 열려요 · 노란 칸에 내 숫자를 넣으세요</template><template v-else> · 인쇄하거나 복사해서 쓰세요</template></span></span>
           </a>
         </template>
       </div>
@@ -286,11 +298,15 @@
             <rect x="28" y="212" width="144" height="26" rx="8" fill="#e5e7eb"/>
             <rect x="18" y="304" width="164" height="46" rx="0" fill="#fff"/>
             <circle cx="46" cy="327" r="9" fill="#d1d5db"/><circle cx="90" cy="327" r="9" fill="#d1d5db"/><circle cx="134" cy="327" r="9" fill="#d1d5db"/><circle cx="170" cy="327" r="9" fill="#d1d5db"/>
-            <g v-if="pt(b).rect"><rect :x="pt(b).x" :y="pt(b).y" :width="pt(b).w" :height="pt(b).h" rx="10" fill="rgba(245,158,11,.22)" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6 4"/></g>
+            <!-- 누를 곳: 실제 버튼처럼 이름을 써서 보여 줌 -->
+            <g v-if="pt(b).rect">
+              <rect :x="pt(b).x" :y="pt(b).y" :width="pt(b).w" :height="pt(b).h" rx="10" fill="#fff" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6 4"/>
+              <text :x="pt(b).x + pt(b).w / 2" :y="pt(b).y + pt(b).h / 2 + 4" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400e">{{ short(b.label) }}</text>
+            </g>
             <g v-else>
-              <circle :cx="pt(b).x" :cy="pt(b).y" r="26" fill="rgba(245,158,11,.25)"><animate attributeName="r" values="22;30;22" dur="1.6s" repeatCount="indefinite"/></circle>
-              <circle :cx="pt(b).x" :cy="pt(b).y" r="17" fill="#f59e0b"/>
-              <path :d="'M' + (pt(b).x + 12) + ' ' + (pt(b).y + 30) + ' l8 -6 m-8 6 l2 -10'" stroke="#374151" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <rect :x="btnX(b)" :y="pt(b).y - 15" width="112" height="30" rx="15" fill="#f59e0b"><animate attributeName="opacity" values="1;.78;1" dur="1.6s" repeatCount="indefinite"/></rect>
+              <text :x="btnX(b) + 56" :y="pt(b).y + 4" text-anchor="middle" font-size="10.5" font-weight="800" fill="#fff">{{ short(b.label) }}</text>
+              <path :d="'M' + (btnX(b) + 78) + ' ' + (pt(b).y + 30) + ' l8 -6 m-8 6 l2 -10'" stroke="#374151" stroke-width="3" fill="none" stroke-linecap="round"/>
             </g>
           </svg>
         </div>
@@ -422,6 +438,8 @@ const POS = {
   'list-item': { rect: true, x: 26, y: 140, w: 148, h: 32 }, 'big-card': { rect: true, x: 26, y: 86, w: 148, h: 50 },
 }
 const pt = (b) => POS[b.where] || POS['center']
+const short = (t) => { const x = String(t || '여기를 누르세요').replace(/\*\*/g, '').replace(/^["“]|["”]$/g, ''); return x.length > 15 ? x.slice(0, 14) + '…' : x }
+const btnX = (b) => Math.max(24, Math.min(64, pt(b).x - 56))
 
 // ── 주택 계산기 ──
 const m = reactive({ price: 450000, down: 10, rate: 6.5, years: 30, pmiRate: 0.8 })

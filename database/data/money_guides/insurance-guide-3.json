@@ -176,8 +176,8 @@
     {
      "title": "월 구독 점검표",
      "desc": "의심스러운 결제를 찾는 데도 도움돼요",
-     "file": "/downloads/money/subscription-audit.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/subscription-audit.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

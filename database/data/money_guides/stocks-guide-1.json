@@ -195,8 +195,8 @@
     {
      "title": "관심 종목 목록",
      "desc": "다음 실적일·배당 정보를 기록해요",
-     "file": "/downloads/money/watchlist.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/watchlist.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

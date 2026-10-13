@@ -163,14 +163,14 @@
     {
      "title": "마트 단위가격 비교표",
      "desc": "가격 ÷ 용량이 자동 계산돼요",
-     "file": "/downloads/money/grocery-unit-price.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/grocery-unit-price.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "50/30/20 가계부",
      "desc": "식비 목표를 정해요",
-     "file": "/downloads/money/budget-50-30-20.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/budget-50-30-20.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

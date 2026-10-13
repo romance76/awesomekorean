@@ -170,8 +170,8 @@
     {
      "title": "카드 비교표",
      "desc": "연회비·환급률·혜택을 넣으면 순이익이 계산돼요",
-     "file": "/downloads/money/card-compare.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/card-compare.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

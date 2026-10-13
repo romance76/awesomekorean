@@ -151,8 +151,8 @@
     {
      "title": "월 구독 점검표",
      "desc": "쓰지 않는 구독을 같이 정리해요",
-     "file": "/downloads/money/subscription-audit.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/subscription-audit.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

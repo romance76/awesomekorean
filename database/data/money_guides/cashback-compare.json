@@ -193,14 +193,14 @@
     {
      "title": "마트 단위가격 비교표",
      "desc": "상품·마트·가격·용량을 넣으면 단위가격이 계산돼요",
-     "file": "/downloads/money/grocery-unit-price.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/grocery-unit-price.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "월 구독 점검표",
      "desc": "쓰지 않는 구독을 찾아요",
-     "file": "/downloads/money/subscription-audit.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/subscription-audit.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

@@ -188,14 +188,14 @@
     {
      "title": "은퇴 생활비 표",
      "desc": "지금 지출 vs 은퇴 후 예상 지출",
-     "file": "/downloads/money/retirement-expenses.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/retirement-expenses.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "50/30/20 가계부",
      "desc": "지금 가계부 점검",
-     "file": "/downloads/money/budget-50-30-20.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/budget-50-30-20.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

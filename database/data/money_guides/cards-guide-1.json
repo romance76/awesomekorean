@@ -183,14 +183,14 @@
     {
      "title": "카드 비교표",
      "desc": "환급과 연회비를 비교해요",
-     "file": "/downloads/money/card-compare.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/card-compare.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "50/30/20 가계부",
      "desc": "카드 지출 규모 확인",
-     "file": "/downloads/money/budget-50-30-20.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/budget-50-30-20.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

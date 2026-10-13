@@ -141,14 +141,14 @@
     {
      "title": "카드 혜택(크레딧) 기록표",
      "desc": "주기·기한·실제 사용액을 적어요",
-     "file": "/downloads/money/card-credit-tracker.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/card-credit-tracker.xlsx",
+     "kind": "엑셀"
     },
     {
      "title": "카드 비교표",
      "desc": "연회비 대비 순이익",
-     "file": "/downloads/money/card-compare.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/card-compare.xlsx",
+     "kind": "엑셀"
     }
    ]
   },

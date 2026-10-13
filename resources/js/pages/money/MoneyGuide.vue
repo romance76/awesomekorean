@@ -2,8 +2,9 @@
 <MoneyFrame :crumbs="[{ label: '머니 가이드' }]">
     <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
     <div class="max-w-4xl">
+    <div v-if="g" class="flex justify-end mb-2"><MoneyFontSize /></div>
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">가이드를 찾을 수 없어요. <RouterLink to="/money" class="text-emerald-700 font-bold underline">MONEY 홈으로</RouterLink></p>
-    <article v-else-if="g">
+    <article v-else-if="g" :style="{ zoom: moneyFont.scale.value }">
       <template v-if="g.blocks?.length">
         <GuideBlocks :blocks="g.blocks" />
         <div class="text-[12px] text-ink-muted mt-3">마지막 수정 {{ String(g.updated_at || '').slice(0, 10) }}</div>
@@ -26,6 +27,8 @@ import { ref, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import GuideBlocks from '../../components/money/GuideBlocks.vue'
+import MoneyFontSize from '../../components/money/MoneyFontSize.vue'
+import { moneyFont } from '../../components/money/moneyFont'
 import MoneyFrame from '../../components/money/MoneyFrame.vue'
 import { DISCLAIMER } from '../../components/money/moneyText'
 

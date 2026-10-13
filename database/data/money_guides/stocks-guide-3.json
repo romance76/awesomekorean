@@ -170,8 +170,8 @@
     {
      "title": "관심 종목 목록",
      "desc": "배당락일·배당 여부를 기록해요",
-     "file": "/downloads/money/watchlist.csv",
-     "kind": "CSV"
+     "file": "/downloads/money/watchlist.xlsx",
+     "kind": "엑셀"
     }
    ]
   },
