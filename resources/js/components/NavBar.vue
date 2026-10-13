@@ -181,11 +181,11 @@
               :class="row.active ? 'bg-amber-50/70' : 'hover:bg-gray-50'">
               <a v-if="row.external" :href="row.path" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-3.5 text-[15px] font-semibold text-gray-800">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="18" /></span>
-                <img v-if="row.image" :src="row.image" :alt="row.label" class="h-9 w-auto max-w-[170px] object-contain" /><span v-else class="whitespace-nowrap" :style="row.color ? { color: row.color } : null">{{ row.label }}</span>
+                <img v-if="row.image" :src="row.image" alt="" class="h-8 w-auto max-w-[96px] object-contain shrink-0" /><span class="whitespace-nowrap" :style="row.color ? { color: row.color } : null">{{ row.label }}</span>
               </a>
               <RouterLink v-else :to="row.path" @click="mobileMenu=false" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-3.5 text-[15px] font-semibold" :class="row.active ? 'text-amber-700' : 'text-gray-800'">
                 <span class="icon-chip w-8 h-8" :class="menuChipColor(row.iconKey)"><AppIcon :name="menuIcon(row.iconKey)" :size="17" /></span>
-                <img v-if="row.image" :src="row.image" :alt="row.label" class="h-9 w-auto max-w-[170px] object-contain" /><span v-else class="whitespace-nowrap" :style="row.color ? { color: row.color } : null">{{ row.label }}</span>
+                <img v-if="row.image" :src="row.image" alt="" class="h-8 w-auto max-w-[96px] object-contain shrink-0" /><span class="whitespace-nowrap" :style="row.color ? { color: row.color } : null">{{ row.label }}</span>
               </RouterLink>
               <button v-if="row.hasSub" @click.stop="toggleOpen(row.groupKey)"
                 class="px-1.5 py-2 flex-shrink-0 text-ink-faint"
