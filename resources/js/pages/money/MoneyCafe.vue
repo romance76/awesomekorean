@@ -1,5 +1,5 @@
 <template>
-<MoneyFrame :crumbs="[{ label: cafe ? cafe.name : '카페' }]" :cafe-slug="String(route.params.slug || '')" :topic="topic" in-cafe @topic="pickTopic">
+<MoneyFrame :crumbs="[{ label: cafe ? cafe.name : '카페' }]" :cafe-slug="String(route.params.slug || '')">
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">카페를 찾을 수 없어요. <RouterLink to="/money" class="text-emerald-700 font-bold underline">MONEY 처음으로</RouterLink></p>
 
     <template v-else-if="cafe">
@@ -11,18 +11,12 @@
             <h2 class="text-[22px] md:text-[26px] font-black text-ink leading-tight">{{ cafe.name }}</h2>
             <p class="text-[15px] text-ink-light mt-1 leading-snug">{{ cafe.headline || cafe.summary }}</p>
             <p class="text-[12.5px] text-ink-muted mt-2">글 {{ totalPosts }}개 · 주제 {{ categories.length }}가지 · 공식 자료 기반 · 가입 없이 읽기</p>
+            <p v-if="readyGuides.length" class="mt-2 text-[13px] flex flex-wrap items-center gap-x-3 gap-y-0.5">
+              <span class="font-bold text-ink-light">처음이라면</span>
+              <RouterLink v-for="g in readyGuides.slice(0, 3)" :key="g.slug" :to="`/money/guide/${g.slug}`" class="font-semibold hover:underline" :style="{ color: t.accent }">{{ g.title }}</RouterLink>
+            </p>
           </div>
         </div>
-      </section>
-
-      <!-- ② 처음이라면 먼저 (있을 때만, 작게) -->
-      <section v-if="readyGuides.length" class="card mt-3 p-3.5 md:p-4">
-        <div class="text-[13px] font-bold text-ink mb-1">처음이라면 먼저 읽어 보세요</div>
-        <RouterLink v-for="g in readyGuides.slice(0, 3)" :key="g.slug" :to="`/money/guide/${g.slug}`"
-          class="flex items-center gap-2 py-2 text-[14.5px] text-ink hover:text-emerald-700 border-b border-gray-50 last:border-0">
-          <span class="truncate flex-1">{{ g.title }}</span>
-          <AppIcon name="chevron-right" :size="15" class="text-ink-faint shrink-0" />
-        </RouterLink>
       </section>
 
       <!-- ③ 게시판 — 바로 보이게 -->
@@ -34,9 +28,9 @@
         </div>
 
         <!-- 주제 고르기 (한 줄, 가로로 밀기) -->
-        <div v-if="categories.length" class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 mb-2 lg:hidden">
+        <div v-if="categories.length" class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 mb-2">
           <button type="button" @click="pickTopic(0)" class="mc-chip" :style="!topic ? chipOn : {}">전체</button>
-          <button v-for="c in categories" :key="c.id" type="button" @click="pickTopic(c.id)" class="mc-chip" :style="topic === c.id ? chipOn : {}">{{ c.name }}<span class="ml-1 text-[11px] opacity-60">{{ c.post_count || 0 }}</span></button>
+          <button v-for="c in categories.filter(k => (k.post_count || 0) > 0 || k.id === topic)" :key="c.id" type="button" @click="pickTopic(c.id)" class="mc-chip" :style="topic === c.id ? chipOn : {}">{{ c.name }}<span class="ml-1 text-[11px] opacity-60">{{ c.post_count || 0 }}</span></button>
         </div>
         <div class="flex items-center gap-2 flex-wrap mb-3">
           <div class="flex gap-1 bg-gray-100 rounded-xl p-1">

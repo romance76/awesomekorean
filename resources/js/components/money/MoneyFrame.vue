@@ -41,15 +41,6 @@
             <span class="flex-1 min-w-0 truncate">{{ c.name }}</span>
             <span class="text-[11.5px] font-normal text-ink-faint">{{ c.post_count }}</span>
           </RouterLink>
-          <!-- 지금 보는 분야만 주제를 펼침 -->
-          <div v-if="c.slug === cafeSlug && (c.categories || []).length" class="ml-[19px] mt-0.5 mb-1.5 pl-3 border-l border-line">
-            <button type="button" @click="pickTopic(0)" class="w-full flex items-center justify-between px-2 py-1 rounded text-[13px] text-left"
-              :class="!topic ? 'text-emerald-700 font-bold' : 'text-ink-muted hover:text-ink'"><span>전체</span></button>
-            <button v-for="k in c.categories" :key="k.id" type="button" @click="pickTopic(k.id)" class="w-full flex items-center justify-between gap-2 px-2 py-1 rounded text-[13px] text-left"
-              :class="topic === k.id ? 'text-emerald-700 font-bold' : 'text-ink-muted hover:text-ink'">
-              <span class="truncate">{{ k.name }}</span><span class="text-[11px] text-ink-faint shrink-0">{{ k.post_count || 0 }}</span>
-            </button>
-          </div>
         </template>
         <div class="border-t border-line mt-2 pt-2">
           <RouterLink to="/money#money-guides" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[14px] text-ink-light hover:bg-gray-50">
@@ -66,7 +57,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import MoneyHead from './MoneyHead.vue'
 import AppIcon from '../AppIcon.vue'
 import { cafeIcon } from './moneyThemes'
@@ -75,18 +65,10 @@ import { moneyNav, loadMoneyNav } from './moneyNav'
 const props = defineProps({
   crumbs: { type: Array, default: () => [] },
   cafeSlug: { type: String, default: '' },   // 지금 보는 분야
-  topic: { type: Number, default: 0 },        // 지금 고른 주제
-  inCafe: { type: Boolean, default: false },  // 분야 글 목록 화면이면 주제를 같은 화면에서 바꿈
 })
-const emit = defineEmits(['topic'])
-const router = useRouter()
 const open = ref(false)
 const cafes = computed(() => moneyNav.cafes)
 const current = computed(() => cafes.value.find(c => c.slug === props.cafeSlug) || null)
 
-function pickTopic(id) {
-  if (props.inCafe) emit('topic', id)
-  else router.push(id ? { path: `/money/cafe/${props.cafeSlug}`, query: { topic: id } } : `/money/cafe/${props.cafeSlug}`)
-}
 onMounted(loadMoneyNav)
 </script>

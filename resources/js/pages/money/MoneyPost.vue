@@ -1,5 +1,5 @@
 <template>
-<MoneyFrame :crumbs="post ? [{ label: post.cafe?.name, to: `/money/cafe/${post.cafe?.slug}` }] : []" :cafe-slug="post?.cafe?.slug || ''" :topic="post?.category?.id || 0">
+<MoneyFrame :crumbs="post ? [{ label: post.cafe?.name, to: `/money/cafe/${post.cafe?.slug}` }] : []" :cafe-slug="post?.cafe?.slug || ''">
     <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
     <div class="max-w-4xl">
 
