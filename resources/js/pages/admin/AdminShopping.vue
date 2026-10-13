@@ -39,7 +39,7 @@
             <span class="text-[12px] font-bold px-1.5 py-0.5 rounded" :class="product.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'">{{ product.is_active ? '활성' : '비활성' }}</span>
           </div>
           <div class="text-[16px] font-bold text-ink leading-snug break-words line-clamp-2">{{ product.title }}</div>
-          <div class="text-[13px] text-ink-muted mt-0.5">{{ product.category || '카테고리 없음' }} · {{ product.price ? '$' + Number(product.price).toLocaleString() : '가격 없음' }}</div>
+          <div class="text-[13px] text-ink-muted mt-0.5">{{ product.category || '카테고리 없음' }} · {{ product.price ? '$' + Number(product.price).toLocaleString() : (product.purchase_price ? '$' + Number(product.purchase_price).toLocaleString() + ' (작성자 구매가)' : '가격 없음') }}</div>
           <div class="text-[12px] text-ink-faint break-all">ASIN {{ product.asin }} · 클릭 {{ product.clicks }} · 순서 {{ product.display_order }}</div>
         </div>
       </div>
@@ -267,7 +267,11 @@
               </td>
               <td class="px-3 py-2 text-xs text-ink-light">{{ product.asin }}</td>
               <td class="px-3 py-2">{{ product.category || '-' }}</td>
-              <td class="px-3 py-2">{{ product.price ? '$' + Number(product.price).toLocaleString() : '-' }}</td>
+              <td class="px-3 py-2">
+                <template v-if="product.price">${{ Number(product.price).toLocaleString() }}</template>
+                <template v-else-if="product.purchase_price">${{ Number(product.purchase_price).toLocaleString() }}<span class="block text-[11px] text-ink-faint">작성자 구매가</span></template>
+                <template v-else>-</template>
+              </td>
               <td class="px-3 py-2">{{ product.display_order }}</td>
               <td class="px-3 py-2">{{ product.clicks }}</td>
               <td class="px-3 py-2">
