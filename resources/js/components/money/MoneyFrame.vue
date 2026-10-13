@@ -15,9 +15,6 @@
         <AppIcon :name="open ? 'chevron-up' : 'chevron-down'" :size="18" class="text-ink-faint shrink-0" />
       </button>
       <div v-if="open" class="mt-1.5 rounded-xl border border-line bg-white py-1 shadow-card">
-        <RouterLink to="/money" @click="open = false" class="flex items-center gap-2.5 px-3.5 py-2 text-[14px] text-ink-light hover:bg-gray-50">
-          <AppIcon name="home" :size="17" />MONEY 처음
-        </RouterLink>
         <RouterLink v-for="c in cafes" :key="c.slug" :to="`/money/cafe/${c.slug}`" @click="open = false"
           class="flex items-center gap-2.5 px-3.5 py-2 text-[14px] hover:bg-gray-50" :class="c.slug === cafeSlug ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-ink-light'">
           <AppIcon :name="cafeIcon(c.slug)" :size="17" />
@@ -30,10 +27,6 @@
     <div class="lg:flex lg:gap-6 lg:items-start">
       <!-- PC: 왼쪽 분야 메뉴 -->
       <aside class="hidden lg:block w-[228px] shrink-0 lg:sticky lg:top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1" aria-label="MONEY 분야">
-        <RouterLink to="/money" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[14px] hover:bg-gray-50"
-          :class="$route.path === '/money' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-ink-light'">
-          <AppIcon name="home" :size="17" />MONEY 처음
-        </RouterLink>
         <template v-for="c in cafes" :key="c.slug">
           <RouterLink :to="`/money/cafe/${c.slug}`" class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[14px] hover:bg-gray-50"
             :class="c.slug === cafeSlug ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-ink-light'">
