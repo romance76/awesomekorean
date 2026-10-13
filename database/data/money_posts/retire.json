@@ -3150,6 +3150,18 @@
     "body": "'70~80%'는 출발점이지 정답이 아니에요. 집이 있는지, 자녀가 독립했는지, 건강 상태가 어떤지에 따라 크게 달라요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "은퇴 후 생활비 계획표",
+      "desc": "은퇴 후 지출과 소셜연금을 넣으면 필요한 저축 총액이 나와요",
+      "file": "/downloads/money/retirement-expenses.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -3580,6 +3592,18 @@
     "tone": "info",
     "title": "숫자가 클수록 계획이 필요해요",
     "body": "필요 저축액이 커 보여도, 소셜연금 시작 시기·일하는 기간·생활비 조정으로 줄일 수 있어요. 전문가와 상담해 여러 시나리오를 비교하세요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "은퇴 후 생활비 계획표",
+      "desc": "은퇴 후 지출과 소셜연금을 넣으면 필요한 저축 총액이 나와요",
+      "file": "/downloads/money/retirement-expenses.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",

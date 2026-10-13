@@ -269,6 +269,18 @@
     "body": "성격이 다른 **3곳 이상**에서 견적을 받아 비교하는 걸 권해요. 서비스·금리·수수료 구조가 다 달라요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "집 살 때 한 달·처음 필요한 돈 계산표",
+      "desc": "월 주거비·PMI·처음 필요한 현금이 자동 계산돼요",
+      "file": "/downloads/money/home-buying-cost-sheet.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -1726,6 +1738,18 @@
     "highlight": 1
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "집 살 때 한 달·처음 필요한 돈 계산표",
+      "desc": "월 주거비·PMI·처음 필요한 현금이 자동 계산돼요",
+      "file": "/downloads/money/home-buying-cost-sheet.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -1938,6 +1962,18 @@
     "body": "다운페이먼트를 20% 미만으로 놓으면 아래 노란 상자에 **80% 도달(요청 가능) 시점과 78% 도달(자동 해지) 시점**이 나와요. 내 대출 서류의 날짜와 비교해 보세요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "PMI 해지 요청 편지 양식",
+      "desc": "영어 원문 + 한글 설명. 이름·대출번호만 바꿔서 보내세요",
+      "file": "/downloads/money/pmi-cancellation-letter.txt",
+      "kind": "TXT"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -2140,6 +2176,18 @@
     "tone": "warn",
     "title": "감정비를 쓰기 전에 대충 계산해 보세요",
     "body": "감정 결과가 기준에 못 미치면 **감정비만 날릴 수** 있어요. Zillow·Redfin 같은 시세와 최근 이웃 집 거래가로 먼저 대략 계산해 보고, 여유 있게 기준 아래일 때 신청하세요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "PMI 해지 요청 편지 양식",
+      "desc": "영어 원문 + 한글 설명. 이름·대출번호만 바꿔서 보내세요",
+      "file": "/downloads/money/pmi-cancellation-letter.txt",
+      "kind": "TXT"
+     }
+    ]
    },
    {
     "type": "faq",

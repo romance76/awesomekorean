@@ -289,24 +289,37 @@
           <svg viewBox="0 0 200 380" class="w-full h-auto" role="img" :aria-label="b.label || '누를 곳'">
             <rect x="6" y="6" width="188" height="368" rx="30" fill="#fff" stroke="#9ca3af" stroke-width="4"/>
             <rect x="78" y="14" width="44" height="8" rx="4" fill="#d1d5db"/>
-            <rect x="18" y="32" width="164" height="318" rx="14" fill="#f3f4f6"/>
-            <rect x="28" y="44" width="90" height="12" rx="6" fill="#d1d5db"/>
-            <text v-if="b.headline" x="30" y="76" font-size="11" font-weight="800" fill="#4b5563">{{ b.headline }}</text>
-            <rect x="28" y="88" width="144" height="46" rx="10" fill="#e5e7eb"/>
-            <rect x="28" y="144" width="144" height="26" rx="8" fill="#e5e7eb"/>
-            <rect x="28" y="178" width="144" height="26" rx="8" fill="#e5e7eb"/>
-            <rect x="28" y="212" width="144" height="26" rx="8" fill="#e5e7eb"/>
-            <rect x="18" y="304" width="164" height="46" rx="0" fill="#fff"/>
-            <circle cx="46" cy="327" r="9" fill="#d1d5db"/><circle cx="90" cy="327" r="9" fill="#d1d5db"/><circle cx="134" cy="327" r="9" fill="#d1d5db"/><circle cx="170" cy="327" r="9" fill="#d1d5db"/>
-            <!-- 누를 곳: 실제 버튼처럼 이름을 써서 보여 줌 -->
+            <rect x="18" y="28" width="164" height="326" rx="14" fill="#f9fafb"/>
+            <!-- 윗줄: 시간·배터리 -->
+            <text x="28" y="43" font-size="8" font-weight="700" fill="#6b7280">9:41</text>
+            <rect x="152" y="36" width="20" height="9" rx="2.5" fill="none" stroke="#6b7280" stroke-width="1.2"/><rect x="154" y="38" width="13" height="5" rx="1.2" fill="#6b7280"/>
+            <!-- 앱 머리글 -->
+            <rect x="18" y="50" width="164" height="30" fill="#065f46"/>
+            <path d="M30 65 l6 -6 m-6 6 l6 6" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            <text x="46" y="69" font-size="10.5" font-weight="800" fill="#fff">{{ b.headline || '앱 화면' }}</text>
+            <!-- 큰 배너 -->
+            <rect x="26" y="88" width="148" height="46" rx="10" fill="#d1fae5"/>
+            <rect x="36" y="98" width="70" height="8" rx="4" fill="#10b981"/><rect x="36" y="112" width="104" height="6" rx="3" fill="#a7f3d0"/><rect x="36" y="122" width="60" height="6" rx="3" fill="#a7f3d0"/>
+            <!-- 목록 -->
+            <g v-for="r in [144, 178, 212]" :key="r">
+              <rect x="26" :y="r" width="148" height="28" rx="9" fill="#fff" stroke="#e5e7eb"/>
+              <circle cx="42" :cy="r + 14" r="8" fill="#e5e7eb"/>
+              <rect x="56" :y="r + 7" width="74" height="6" rx="3" fill="#d1d5db"/><rect x="56" :y="r + 17" width="46" height="5" rx="2.5" fill="#e5e7eb"/>
+              <path :d="'M158 ' + (r + 10) + ' l5 4 l-5 4'" stroke="#9ca3af" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- 아래 탭 -->
+            <rect x="18" y="304" width="164" height="50" fill="#fff"/><line x1="18" y1="304" x2="182" y2="304" stroke="#e5e7eb"/>
+            <g fill="#d1d5db"><circle cx="46" cy="322" r="8"/><circle cx="90" cy="322" r="8"/><circle cx="134" cy="322" r="8"/><circle cx="170" cy="322" r="8"/></g>
+            <g fill="#e5e7eb"><rect x="36" y="336" width="20" height="4" rx="2"/><rect x="80" y="336" width="20" height="4" rx="2"/><rect x="124" y="336" width="20" height="4" rx="2"/><rect x="160" y="336" width="20" height="4" rx="2"/></g>
+            <!-- 누를 곳: 진짜 버튼처럼 이름을 크게 써서 보여 줌 -->
             <g v-if="pt(b).rect">
-              <rect :x="pt(b).x" :y="pt(b).y" :width="pt(b).w" :height="pt(b).h" rx="10" fill="#fff" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6 4"/>
-              <text :x="pt(b).x + pt(b).w / 2" :y="pt(b).y + pt(b).h / 2 + 4" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400e">{{ short(b.label) }}</text>
+              <rect :x="pt(b).x - 2" :y="pt(b).y - 2" :width="pt(b).w + 4" :height="pt(b).h + 4" rx="11" fill="#fff" stroke="#f59e0b" stroke-width="3.5" stroke-dasharray="7 4"/>
+              <text v-for="(ln, li) in lines(b.label)" :key="li" :x="pt(b).x + pt(b).w / 2" :y="pt(b).y + pt(b).h / 2 + 4 + (li - (lines(b.label).length - 1) / 2) * 12" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400e">{{ ln }}</text>
             </g>
             <g v-else>
-              <rect :x="btnX(b)" :y="pt(b).y - 15" width="112" height="30" rx="15" fill="#f59e0b"><animate attributeName="opacity" values="1;.78;1" dur="1.6s" repeatCount="indefinite"/></rect>
-              <text :x="btnX(b) + 56" :y="pt(b).y + 4" text-anchor="middle" font-size="10.5" font-weight="800" fill="#fff">{{ short(b.label) }}</text>
-              <path :d="'M' + (btnX(b) + 78) + ' ' + (pt(b).y + 30) + ' l8 -6 m-8 6 l2 -10'" stroke="#374151" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <rect :x="btnX(b)" :y="pt(b).y - 8 - lines(b.label).length * 7" width="112" :height="lines(b.label).length * 14 + 14" rx="14" fill="#f59e0b" stroke="#fff" stroke-width="2"><animate attributeName="opacity" values="1;.8;1" dur="1.6s" repeatCount="indefinite"/></rect>
+              <text v-for="(ln, li) in lines(b.label)" :key="li" :x="btnX(b) + 56" :y="pt(b).y + 4 + (li - (lines(b.label).length - 1) / 2) * 13" text-anchor="middle" font-size="10.5" font-weight="800" fill="#fff">{{ ln }}</text>
+              <path :d="'M' + (btnX(b) + 78) + ' ' + (pt(b).y + 8 + lines(b.label).length * 7) + ' l8 -6 m-8 6 l2 -10'" stroke="#374151" stroke-width="3" fill="none" stroke-linecap="round"/>
             </g>
           </svg>
         </div>
@@ -459,6 +472,15 @@ const POS = {
 const pt = (b) => POS[b.where] || POS['center']
 const short = (t) => { const x = String(t || '여기를 누르세요').replace(/\*\*/g, '').replace(/^["“]|["”]$/g, ''); return x.length > 15 ? x.slice(0, 14) + '…' : x }
 const btnX = (b) => Math.max(24, Math.min(64, pt(b).x - 56))
+// 버튼 이름을 두 줄까지 나눠 보여 줌 (한 줄 12자 안팎)
+const lines = (t) => {
+  const x = String(t || '여기를 누르세요').replace(/\*\*/g, '').replace(/^["“]|["”]$/g, '').trim()
+  if (x.length <= 12) return [x]
+  const mid = x.lastIndexOf(' ', 13)
+  const cut = mid > 4 ? mid : 12
+  const a = x.slice(0, cut).trim(), b = x.slice(cut).trim()
+  return [a, b.length > 13 ? b.slice(0, 12) + '…' : b]
+}
 
 // ── 주택 계산기 ──
 const m = reactive({ price: 450000, down: 10, rate: 6.5, years: 30, pmiRate: 0.8 })

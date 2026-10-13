@@ -153,6 +153,18 @@
     "body": "연방 연장(Form 4868)을 하면 조지아도 보통 자동으로 연장돼요. 하지만 **세금은 4월 15일까지** 내야 이자와 연체 벌금이 안 붙어요. 대략 계산해서 미리 내 두세요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "세금 신고 서류 체크리스트",
+      "desc": "1~2월에 모아 둘 서류 목록이에요",
+      "file": "/downloads/money/tax-docs-checklist.txt",
+      "kind": "TXT"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -762,6 +774,18 @@
     "body": "ADP, Workday, Paychex 같은 급여 앱에서 **전자 W-2**를 1월 중순쯤 먼저 받을 수 있어요. 종이 우편보다 빠르고 잃어버릴 걱정이 없어요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "세금 신고 서류 체크리스트",
+      "desc": "1~2월에 모아 둘 서류 목록이에요",
+      "file": "/downloads/money/tax-docs-checklist.txt",
+      "kind": "TXT"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -1128,6 +1152,18 @@
     "tone": "info",
     "title": "조지아 W-2 정보도 함께 확인",
     "body": "조지아 소득세가 떼어졌다면 W-2 Box 16~17에 나와요. 조지아 신고서(Form 500)에 이 금액을 넣어요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "세금 신고 서류 체크리스트",
+      "desc": "1~2월에 모아 둘 서류 목록이에요",
+      "file": "/downloads/money/tax-docs-checklist.txt",
+      "kind": "TXT"
+     }
+    ]
    },
    {
     "type": "faq",

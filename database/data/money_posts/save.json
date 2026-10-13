@@ -177,6 +177,18 @@
     "body": "단위가격이 낮아도 **유통기한 안에 다 못 쓰면** 버리는 돈이에요. 보관 공간과 가족 수를 먼저 생각하세요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "마트 단위가격 비교표",
+      "desc": "가격과 용량을 넣으면 단위당 가격과 제일 싼 곳이 나와요",
+      "file": "/downloads/money/grocery-unit-price.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -1927,6 +1939,18 @@
     "credit": "Google Play 공식 사이트 화면을 직접 캡처했어요. 사이트가 개편되면 모양이 달라질 수 있어요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "구독 정리표",
+      "desc": "매달 나가는 구독을 모아 연간 금액과 해지로 아끼는 돈을 계산해요",
+      "file": "/downloads/money/subscription-audit.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -2078,6 +2102,18 @@
     "body": "추가 기능은 유료지만, 기본적인 구독 찾기는 **$0(무료)로도 이용**할 수 있다는 후기가 있어요. 정확한 요금제는 공식 사이트에서 확인하세요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "구독 정리표",
+      "desc": "매달 나가는 구독을 모아 연간 금액과 해지로 아끼는 돈을 계산해요",
+      "file": "/downloads/money/subscription-audit.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -2200,6 +2236,18 @@
      "종료 **하루 전** 알림 설정",
      "가능하면 가상카드·일회용 카드로 가입해서 자동 결제를 막기",
      "체험판이 끝나기 전, 계속 쓸지 미리 결정해 두기"
+    ]
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "구독 정리표",
+      "desc": "매달 나가는 구독을 모아 연간 금액과 해지로 아끼는 돈을 계산해요",
+      "file": "/downloads/money/subscription-audit.xlsx",
+      "kind": "엑셀"
+     }
     ]
    },
    {

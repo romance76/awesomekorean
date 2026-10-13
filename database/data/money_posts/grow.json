@@ -131,6 +131,18 @@
     ]
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "예금·CD 이자 비교표",
+      "desc": "넣을 돈과 이율을 넣으면 1년 이자와 순서가 나와요",
+      "file": "/downloads/money/savings-compare.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -428,6 +440,18 @@
     "tone": "tip",
     "title": "둘 다 FDIC 보호를 받아요",
     "body": "어느 쪽을 고르든 **$250,000 한도**까지는 똑같이 안전해요. 결정은 \"접근성이 필요한가\"로 하면 돼요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "예금·CD 이자 비교표",
+      "desc": "넣을 돈과 이율을 넣으면 1년 이자와 순서가 나와요",
+      "file": "/downloads/money/savings-compare.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",
@@ -4531,6 +4555,18 @@
      ]
     ],
     "highlight": 0
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "예금·CD 이자 비교표",
+      "desc": "넣을 돈과 이율을 넣으면 1년 이자와 순서가 나와요",
+      "file": "/downloads/money/savings-compare.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",

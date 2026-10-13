@@ -2644,6 +2644,18 @@
     ]
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "부수입 기록장",
+      "desc": "수입·비용·순수익을 날짜별로 적고 세금으로 떼어 둘 돈을 계산해요",
+      "file": "/downloads/money/side-income-log.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -4044,6 +4056,18 @@
     ]
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "제휴 링크 고지 문구 예시",
+      "desc": "복사해서 글 맨 위·링크 근처에 쓰세요",
+      "file": "/downloads/money/affiliate-disclosure.txt",
+      "kind": "TXT"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -4186,6 +4210,18 @@
     "tone": "info",
     "title": "소액이라도 신고 대상이에요",
     "body": "서류(1099)를 못 받아도 번 돈은 신고해야 해요. 지급 내역과 날짜를 기록해 두세요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "부수입 기록장",
+      "desc": "수입·비용·순수익을 날짜별로 적고 세금으로 떼어 둘 돈을 계산해요",
+      "file": "/downloads/money/side-income-log.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",
@@ -5275,6 +5311,18 @@
     "body": "돈을 벌 **목적 없이** 하는 활동(취미)은 경비를 공제받지 못하고 신고 방식도 달라요. 꾸준히 이익을 내려고 하는 활동이면 \"사업\"으로 보는 경우가 많아요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "부수입 기록장",
+      "desc": "수입·비용·순수익을 날짜별로 적고 세금으로 떼어 둘 돈을 계산해요",
+      "file": "/downloads/money/side-income-log.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -5412,6 +5460,18 @@
      "내 기록(입금 내역, 송장, 캘린더)으로 **직접 계산**해서 신고해요",
      "은행·결제앱 내역을 정기적으로 캡처하거나 다운로드해 두세요",
      "경비 영수증은 사진으로 바로바로 보관하세요"
+    ]
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "부수입 기록장",
+      "desc": "수입·비용·순수익을 날짜별로 적고 세금으로 떼어 둘 돈을 계산해요",
+      "file": "/downloads/money/side-income-log.xlsx",
+      "kind": "엑셀"
+     }
     ]
    },
    {
@@ -5640,6 +5700,18 @@
      ]
     ],
     "highlight": 0
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "부수입 기록장",
+      "desc": "수입·비용·순수익을 날짜별로 적고 세금으로 떼어 둘 돈을 계산해요",
+      "file": "/downloads/money/side-income-log.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",

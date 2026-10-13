@@ -370,6 +370,18 @@
     "body": "새 보험이 시작되는 날과 기존 보험이 끝나는 날이 **같은 날**이어야 해요. 기존 보험부터 해지하면 공백이 생길 수 있어요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "보험 견적 비교표",
+      "desc": "회사별 견적을 같은 조건으로 적어 가장 싼 곳을 찾아요",
+      "file": "/downloads/money/insurance-quote-compare.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -4397,6 +4409,18 @@
     "body": "보험료 인상 통지가 오면 바로 갈아타기보다, **갱신 한 달 전쯤** 같은 조건 견적을 2~3곳 받아 지금 회사에 보여 주세요. 할인을 더 찾아 주는 경우도 있어요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "보험 견적 비교표",
+      "desc": "회사별 견적을 같은 조건으로 적어 가장 싼 곳을 찾아요",
+      "file": "/downloads/money/insurance-quote-compare.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -4722,6 +4746,18 @@
     "tone": "tip",
     "title": "겹치는 보장도 찾아보세요",
     "body": "신용카드의 렌터카 보험, 여행 보험, 회사 단체보험 등과 개인 보험이 겹치는 경우가 있어요. 겹치는 특약을 빼면 보험료가 줄어요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "보험 견적 비교표",
+      "desc": "회사별 견적을 같은 조건으로 적어 가장 싼 곳을 찾아요",
+      "file": "/downloads/money/insurance-quote-compare.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",

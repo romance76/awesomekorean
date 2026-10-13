@@ -503,6 +503,18 @@
     "body": "좋은 회사는 내일도 상장돼 있어요. 첫날에 사지 않아도 공부는 이미 끝난 거예요. 사기 전에 이 체크리스트 네 칸을 채울 수 있는지가 기준이에요."
    },
    {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "관심 종목 메모장",
+      "desc": "공부할 종목을 적어 두는 메모장이에요(추천 아님)",
+      "file": "/downloads/money/watchlist.xlsx",
+      "kind": "엑셀"
+     }
+    ]
+   },
+   {
     "type": "faq",
     "title": "자주 묻는 질문",
     "items": [
@@ -3641,6 +3653,18 @@
     "tone": "info",
     "title": "표를 만드는 것 자체가 공부예요",
     "body": "표를 채우다 보면 어떤 숫자가 어디에 있는지 몸에 익어요. 결론이 안 나와도 괜찮아요."
+   },
+   {
+    "type": "downloads",
+    "title": "쓰면 편한 파일 (내려받기)",
+    "items": [
+     {
+      "title": "관심 종목 메모장",
+      "desc": "공부할 종목을 적어 두는 메모장이에요(추천 아님)",
+      "file": "/downloads/money/watchlist.xlsx",
+      "kind": "엑셀"
+     }
+    ]
    },
    {
     "type": "faq",
