@@ -45,6 +45,10 @@ class MoneyController extends Controller
             ->with(['categories' => fn ($q) => $q->where('is_active', true)->select(['id', 'cafe_id', 'name', 'icon', 'sort_order'])])
             ->withCount(['posts as post_count' => fn ($q) => $q->where('is_hidden', false)])
             ->get();
+        // 왼쪽 메뉴에서 주제마다 글 개수를 보여 주려고
+        $counts = MoneyPost::where('is_hidden', false)->whereNotNull('category_id')
+            ->selectRaw('category_id, count(*) as n')->groupBy('category_id')->pluck('n', 'category_id');
+        foreach ($cafes as $c) foreach ($c->categories as $k) $k->post_count = (int) ($counts[$k->id] ?? 0);
         return response()->json(['success' => true, 'data' => $cafes]);
     }
 

@@ -1,8 +1,5 @@
 <template>
-<div class="min-h-screen">
-  <div class="max-w-7xl mx-auto px-4 py-5">
-    <MoneyHead :crumbs="[{ label: cafe ? cafe.name : '카페' }]" />
-
+<MoneyFrame :crumbs="[{ label: cafe ? cafe.name : '카페' }]" :cafe-slug="String(route.params.slug || '')" :topic="topic" in-cafe @topic="pickTopic">
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">카페를 찾을 수 없어요. <RouterLink to="/money" class="text-emerald-700 font-bold underline">MONEY 처음으로</RouterLink></p>
 
     <template v-else-if="cafe">
@@ -37,7 +34,7 @@
         </div>
 
         <!-- 주제 고르기 (한 줄, 가로로 밀기) -->
-        <div v-if="categories.length" class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 mb-2">
+        <div v-if="categories.length" class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 mb-2 lg:hidden">
           <button type="button" @click="pickTopic(0)" class="mc-chip" :style="!topic ? chipOn : {}">전체</button>
           <button v-for="c in categories" :key="c.id" type="button" @click="pickTopic(c.id)" class="mc-chip" :style="topic === c.id ? chipOn : {}">{{ c.name }}<span class="ml-1 text-[11px] opacity-60">{{ c.post_count || 0 }}</span></button>
         </div>
@@ -104,17 +101,9 @@
         <div v-if="cafe.intro" class="money-intro mt-4 pt-4 border-t border-line text-[15px] text-ink-light leading-relaxed" v-html="cafe.intro"></div>
       </details>
 
-      <div v-if="others.length" class="mt-5">
-        <div class="text-sm font-bold text-ink mb-2">다른 분야</div>
-        <div class="flex flex-wrap gap-2">
-          <RouterLink v-for="c in others" :key="c.slug" :to="`/money/cafe/${c.slug}`" class="mc-chip" :style="c.slug === cafe.slug ? chipOn : {}">{{ c.name }}</RouterLink>
-        </div>
-      </div>
-
       <p class="mt-6 text-[12.5px] text-ink-muted">{{ DISCLAIMER }}</p>
     </template>
-  </div>
-</div>
+</MoneyFrame>
 </template>
 
 <script setup>
@@ -122,7 +111,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
-import MoneyHead from '../../components/money/MoneyHead.vue'
+import MoneyFrame from '../../components/money/MoneyFrame.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import { KIND_LABEL, KIND_CLASS, DISCLAIMER } from '../../components/money/moneyText'
 import { themeOf, cafeIcon } from '../../components/money/moneyThemes'

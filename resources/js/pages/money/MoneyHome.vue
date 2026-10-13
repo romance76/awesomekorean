@@ -1,8 +1,5 @@
 <template>
-<div class="min-h-screen">
-  <div class="max-w-7xl mx-auto px-4 py-5">
-    <MoneyHead />
-
+<MoneyFrame>
     <!-- 첫 안내 — 차분하게, 공식 자료 기반이라는 점을 먼저 -->
     <section class="rounded-2xl border border-line bg-white px-5 py-5 md:px-7 md:py-6">
       <h2 class="text-[22px] md:text-[26px] font-black text-ink leading-snug">미국 생활 돈 정보</h2>
@@ -48,14 +45,13 @@
     <div v-else id="money-guides"></div>
 
     <p class="mt-8 pt-4 border-t border-line text-[12.5px] text-ink-muted">{{ DISCLAIMER }}</p>
-  </div>
-</div>
+</MoneyFrame>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-import MoneyHead from '../../components/money/MoneyHead.vue'
+import MoneyFrame from '../../components/money/MoneyFrame.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import { DISCLAIMER } from '../../components/money/moneyText'
 import { themeOf, cafeIcon } from '../../components/money/moneyThemes'

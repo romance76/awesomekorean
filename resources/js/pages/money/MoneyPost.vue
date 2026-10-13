@@ -1,9 +1,7 @@
 <template>
-<div class="min-h-screen">
-  <div class="max-w-7xl mx-auto px-4 py-5">
-    <MoneyHead :crumbs="post ? [{ label: post.cafe?.name, to: `/money/cafe/${post.cafe?.slug}` }] : []" />
+<MoneyFrame :crumbs="post ? [{ label: post.cafe?.name, to: `/money/cafe/${post.cafe?.slug}` }] : []" :cafe-slug="post?.cafe?.slug || ''" :topic="post?.category?.id || 0">
     <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl">
 
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">글을 찾을 수 없어요. 내려갔거나 주소가 바뀌었을 수 있어요.</p>
     <article v-else-if="post" class="card p-5 md:p-7">
@@ -43,8 +41,7 @@
       <CommentSection type="money_post" :typeId="post.id" />
     </div>
     </div>
-  </div>
-</div>
+</MoneyFrame>
 </template>
 
 <script setup>
@@ -54,7 +51,7 @@ import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useSiteStore } from '../../stores/site'
 import GuideBlocks from '../../components/money/GuideBlocks.vue'
-import MoneyHead from '../../components/money/MoneyHead.vue'
+import MoneyFrame from '../../components/money/MoneyFrame.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import CommentSection from '../../components/CommentSection.vue'
 import { KIND_LABEL, KIND_CLASS, DISCLAIMER } from '../../components/money/moneyText'
