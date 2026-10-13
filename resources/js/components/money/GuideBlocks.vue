@@ -324,10 +324,11 @@
     <section v-else-if="b.type === 'shot'" class="card p-3 md:p-4">
       <div class="text-[12px] font-extrabold tracking-[1px]" :class="T.text">{{ b.kicker || '실제 화면' }}</div>
       <div class="text-[18px] font-black text-ink mt-0.5 mb-2">{{ b.title }}</div>
-      <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 mx-auto" :style="b.narrow ? 'max-width:300px' : ''">
+      <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50 mx-auto cursor-zoom-in" :style="b.narrow ? 'max-width:300px' : ''" @click="zoom = b" role="button" tabindex="0" @keydown.enter="zoom = b" :aria-label="b.title + ' 크게 보기'">
         <img :src="b.src" :alt="b.title" class="w-full h-auto block" loading="lazy" />
         <span v-for="(p, pi) in (b.pins || [])" :key="pi" class="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-red-600 text-white text-[16px] font-black shadow-lg ring-4 ring-white/80" :style="{ left: p.x + '%', top: p.y + '%' }">{{ pi + 1 }}</span>
       </div>
+      <button type="button" @click="zoom = b" class="mt-2 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3.5 py-2 text-[13.5px] font-bold text-ink hover:bg-gray-50"><AppIcon name="search" :size="15" />눌러서 크게 보기</button>
       <ol v-if="b.pins && b.pins.length" class="mt-3 space-y-2">
         <li v-for="(p, pi) in b.pins" :key="pi" class="flex gap-2.5 items-start">
           <span class="shrink-0 w-7 h-7 rounded-full bg-red-600 text-white text-[14px] font-black flex items-center justify-center">{{ pi + 1 }}</span>
@@ -350,11 +351,28 @@
     </section>
 
   </template>
+
+  <!-- 캡처 크게 보기: 손가락으로 옆·아래로 밀어 보고, 바깥을 누르면 닫혀요 -->
+  <Teleport to="body">
+    <div v-if="zoom" class="fixed inset-0 z-[120] bg-black/85 flex flex-col" role="dialog" aria-modal="true" @click.self="zoom = null">
+      <div class="flex items-center justify-between gap-3 px-4 py-3 text-white shrink-0">
+        <div class="font-bold text-[15px] truncate">{{ zoom.title }}</div>
+        <button type="button" @click="zoom = null" class="rounded-full bg-white/20 px-4 py-2 text-[14px] font-bold">닫기</button>
+      </div>
+      <div class="flex-1 overflow-auto px-3 pb-6" @click.self="zoom = null">
+        <div class="relative mx-auto" style="width:1000px;max-width:none">
+          <img :src="zoom.src" :alt="zoom.title" class="w-full h-auto block rounded-lg bg-white" />
+          <span v-for="(p, pi) in (zoom.pins || [])" :key="pi" class="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-red-600 text-white text-[18px] font-black shadow-lg ring-4 ring-white/80" :style="{ left: p.x + '%', top: p.y + '%' }">{{ pi + 1 }}</span>
+        </div>
+        <p class="text-white/80 text-[13px] text-center mt-3">옆으로 밀어서 전체를 볼 수 있어요</p>
+      </div>
+    </div>
+  </Teleport>
 </div>
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import AppIcon from '../AppIcon.vue'
 
 const props = defineProps({ blocks: { type: Array, default: () => [] }, theme: { type: String, default: 'emerald' } })
@@ -391,6 +409,7 @@ const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, '') } c
 const pct = (v, b) => Math.max(2, Math.min(100, (Number(v) / (Number(b.max) || Math.max(...b.items.map(x => Number(x.value)))) ) * 100))
 const usd = (n) => '$' + Math.round(n).toLocaleString('en-US')
 
+const zoom = ref(null)
 const checks = reactive({})
 const doneCount = (i) => Object.keys(checks).filter(k => k.startsWith(i + ':') && checks[k]).length
 const printPage = () => window.print()
