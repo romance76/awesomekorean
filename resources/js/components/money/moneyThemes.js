@@ -20,3 +20,8 @@ export function artOf(cafe) {
   const parts = String(cafe?.art || '').trim().split(/\s+/).filter(Boolean)
   return { main: parts[0] || cafe?.icon || '💰', a: parts[1] || '✨', b: parts[2] || '💡' }
 }
+
+// 카페 → 선 아이콘 (이모지 대신. AppIcon 이름)
+const CAFE_ICONS = { earn: 'briefcase', save: 'wallet', grow: 'trending-up', home: 'home', insurance: 'shield', tax: 'file-text',
+  cards: 'credit-card', stocks: 'chart-bar', kids: 'graduation-cap', retire: 'sun', relay: 'trophy', talk: 'message-circle' }
+export const cafeIcon = (slug) => CAFE_ICONS[slug] || 'coins'

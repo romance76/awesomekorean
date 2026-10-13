@@ -1,7 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="max-w-7xl mx-auto px-4 py-5">
-    <MoneyHead :crumbs="post ? [{ label: post.cafe?.name + ' 카페', to: `/money/cafe/${post.cafe?.slug}` }] : []" />
+    <MoneyHead :crumbs="post ? [{ label: post.cafe?.name, to: `/money/cafe/${post.cafe?.slug}` }] : []" />
     <!-- 폭: 바깥은 다른 MONEY 화면과 같은 큰 폭(7xl) — MONEY 제목 줄 위치가 화면마다 흔들리지 않게. 글은 읽기 좋은 폭으로 가운데 -->
     <div class="max-w-4xl mx-auto">
 
@@ -9,14 +9,13 @@
     <article v-else-if="post" class="card p-5 md:p-7">
       <div class="flex items-center gap-2 mb-2">
         <span class="text-[11px] font-bold rounded-full px-2 py-0.5" :class="KIND_CLASS[post.kind]">{{ KIND_LABEL[post.kind] }}</span>
-        <span class="text-xs text-ink-muted">{{ post.cafe?.icon }} {{ post.cafe?.name }} 카페</span>
-        <RouterLink v-if="post.category" :to="`/money/cafe/${post.cafe?.slug}?topic=${post.category.id}`" class="text-[11px] font-semibold rounded px-1.5 py-0.5 bg-gray-100 text-ink-light hover:bg-gray-200">{{ post.category.icon }} {{ post.category.name }}</RouterLink>
+        <span class="text-xs text-ink-muted">{{ post.cafe?.name }}</span>
+        <RouterLink v-if="post.category" :to="`/money/cafe/${post.cafe?.slug}?topic=${post.category.id}`" class="text-[11px] font-semibold rounded px-1.5 py-0.5 bg-gray-100 text-ink-light hover:bg-gray-200">{{ post.category.name }}</RouterLink>
       </div>
       <h2 class="text-[22px] font-bold text-ink leading-snug">{{ post.title }}</h2>
       <div class="text-sm text-ink-muted mt-1.5 flex flex-wrap gap-x-3">
         <span>{{ post.user?.display_name || post.user?.name || '회원' }}</span><span>{{ fmt(post.created_at) }}</span><span>조회 {{ post.view_count }}</span>
       </div>
-      <img v-if="topicImage" :src="topicImage" :alt="(post.category?.name || '') + ' 주제 이미지'" class="w-full rounded-2xl mt-4" loading="lazy" />
       <div class="money-intro mt-5 text-[16px] text-ink leading-relaxed break-words" v-html="post.content"></div>
       <GuideBlocks v-if="post.blocks?.length" :blocks="post.blocks" :theme="post.cafe?.theme || 'emerald'" class="mt-5" />
       <div v-if="canEdit" class="flex gap-2 justify-end mt-6">

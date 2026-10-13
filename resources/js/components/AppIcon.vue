@@ -62,6 +62,8 @@ const ICONS = {
     'minus': '<line x1="5" y1="12" x2="19" y2="12"/>',
     'pin': '<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
     'check': '<polyline points="20 6 9 17 4 12"/>',
+    'credit-card': '<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',
+    'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>',
     'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
     'chevron-up': '<polyline points="18 15 12 9 6 15"/>',
     'chevron-left': '<polyline points="15 18 9 12 15 6"/>',

@@ -68,7 +68,7 @@ const routes = [
   { path: '/shopping/:id', name: 'shopping-detail', component: p('shopping/ShoppingDetail') },
   // MONEY 허브 (qa/money_hub_plan.md)
   { path: '/money', name: 'money', component: p('money/MoneyHome') },
-  { path: '/money/cafes', name: 'money-cafes', component: p('money/MoneyCafes') },
+  { path: '/money/cafes', redirect: '/money' },   // 카페 전체 안내는 허브(/money)로 합침
   { path: '/money/cafe/:slug', name: 'money-cafe', component: p('money/MoneyCafe') },
   { path: '/money/post/:id', name: 'money-post', component: p('money/MoneyPost') },
   { path: '/money/write', name: 'money-write', component: p('money/MoneyWrite'), meta: { auth: true } },

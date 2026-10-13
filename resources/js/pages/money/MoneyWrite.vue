@@ -10,7 +10,7 @@
         <span class="input-label">카페</span>
         <select v-model="cafe" :disabled="!!editId" class="input-soft">
           <option value="" disabled>어느 카페에 올릴까요?</option>
-          <option v-for="c in cafes" :key="c.slug" :value="c.slug">{{ c.icon }} {{ c.name }}</option>
+          <option v-for="c in cafes" :key="c.slug" :value="c.slug">{{ c.name }}</option>
         </select>
       </label>
       <!-- 주제: 카페마다 다름 (대문 주제 카드와 같음). 고르지 않아도 됨 -->
@@ -20,7 +20,7 @@
           <button type="button" @click="topic = 0" class="rounded-full border px-3 py-1 text-[13px] font-semibold"
             :class="!topic ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-white text-ink-light border-line'">선택 안 함</button>
           <button v-for="c in topics" :key="c.id" type="button" @click="topic = c.id" class="rounded-full border px-3 py-1 text-[13px] font-semibold"
-            :class="topic === c.id ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-white text-ink-light border-line'">{{ c.icon }} {{ c.name }}</button>
+            :class="topic === c.id ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-white text-ink-light border-line'">{{ c.name }}</button>
         </div>
       </div>
       <div>
