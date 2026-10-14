@@ -50,11 +50,11 @@
 
     <!-- 큰 숫자 -->
     <section v-else-if="b.type === 'stats'" class="grid gap-3" :class="b.items.length > 2 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2'">
-      <div v-for="(s, k) in b.items" :key="k" class="card p-4 md:p-5 text-center">
+      <div v-for="(s, k) in b.items" :key="k" class="card p-4 md:p-5 text-center gb-stat">
         <AppIcon v-if="s.icon" :name="s.icon" :size="24" class="mx-auto mb-2" :class="T.text" />
-        <div class="text-[28px] md:text-[34px] font-black leading-none" :class="T.text">{{ s.value }}</div>
-        <div class="mt-2 text-[13.5px] font-extrabold text-ink">{{ s.label }}</div>
-        <div v-if="s.note" class="text-[12px] text-ink-muted mt-0.5">{{ s.note }}</div>
+        <div class="gb-stat-v font-black" :class="T.text" :style="{ '--em': statEm(s.value) }">{{ s.value }}</div>
+        <div class="mt-2 text-[13.5px] font-extrabold text-ink break-keep">{{ s.label }}</div>
+        <div v-if="s.note" class="text-[12px] text-ink-muted mt-0.5 break-keep">{{ s.note }}</div>
       </div>
     </section>
 
@@ -404,6 +404,13 @@ const THEMES = {
   yellow:  { hero: 'linear-gradient(135deg,#a16207,#eab308 60%,#facc15)', solid: 'bg-yellow-600', text: 'text-yellow-700', soft: 'bg-yellow-50 border-yellow-100', soft2: 'bg-yellow-50/60', line: 'bg-yellow-200' },
   pink:    { hero: 'linear-gradient(135deg,#be185d,#ec4899 60%,#f472b6)', solid: 'bg-pink-600', text: 'text-pink-700', soft: 'bg-pink-50 border-pink-100', soft2: 'bg-pink-50/60', line: 'bg-pink-200' },
 }
+// 큰 숫자 칸: 가장 긴 낱말이 칸 너비에 한 줄로 들어가도록 글자 크기를 자동으로 줄인다(낱말 중간에서 끊기지 않게).
+// 글자 폭 추정: 한글·한자 1em, 대문자 .68, 소문자 .56, 숫자 .6, 쉼표·점 .3, 그 밖 .65
+function statEm(v) {
+  const w = (word) => [...word].reduce((a, ch) => a + (/[가-힣ㄱ-ㅎ一-鿿]/.test(ch) ? 1 : /[A-Z]/.test(ch) ? .68 : /[a-z]/.test(ch) ? .56 : /[0-9]/.test(ch) ? .6 : /[,.\-:]/.test(ch) ? .3 : .65), 0)
+  const words = String(v).trim().split(/\s+/)
+  return Math.max(1.6, Math.max(...words.map(w)) * 1.08).toFixed(2)
+}
 const T = computed(() => THEMES[props.blocks.find(b => b.type === 'hero')?.theme || props.theme] || THEMES.emerald)
 
 const CALL = {
@@ -512,5 +519,9 @@ const mort = computed(() => {
 </script>
 
 <style>
+/* 큰 숫자: 칸을 기준으로(cqw) 글자 크기를 정한다. 낱말 단위로만 줄바꿈하고, 균형 있게 나눈다 */
+.gb-stat { container-type: inline-size; }
+.gb-stat-v { --base: 28px; font-size: max(17px, min(var(--base), calc(100cqw / var(--em, 4)))); line-height: 1.12; word-break: keep-all; overflow-wrap: break-word; text-wrap: balance; }
+@media (min-width: 768px) { .gb-stat-v { --base: 34px; } }
 @media print { .gb a[download], .gb input[type=range] { display: none } }
 </style>
