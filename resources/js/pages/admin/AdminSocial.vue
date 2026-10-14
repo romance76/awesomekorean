@@ -4,7 +4,7 @@
     <span class="icon-chip w-9 h-9 bg-pink-50 text-pink-600"><AppIcon name="megaphone" :size="18" /></span> SNS 게시 (인스타그램·스레드)
   </h1>
   <p class="text-sm text-ink-muted mb-4">
-    MONEY 글·어썸코리안 이벤트·직접 쓴 글을 대기열에 모아, <b>승인한 것만</b> 정해 둔 시간(애틀랜타)에 올려요. 지우는 대신 "건너뛰기".
+    MONEY 글·어썸코리안 이벤트·직접 쓴 글을 대기열에 모아, <b>승인한 것만</b> 정해 둔 시간(애틀랜타)에 올려요. 인스타·스레드에서 직접 지운 글은 "목록에서 지우기"로 치우세요(SNS 쪽은 건드리지 않아요).
     계정 정보는 <RouterLink to="/admin/settings" class="underline font-bold text-pink-700">사이트 설정 › SNS 계정</RouterLink>.
   </p>
 
@@ -81,6 +81,7 @@
               <button @click="publishNow(p)" :disabled="busy === p.id" class="sbtn !border-pink-300 !text-pink-700">{{ busy === p.id ? '올리는 중…' : '지금 올리기' }}</button>
             </template>
             <a v-if="p.link_url" :href="p.link_url" target="_blank" class="sbtn">원본 보기 ↗</a>
+            <button @click="remove(p)" class="sbtn !border-red-200 !text-red-600">목록에서 지우기</button>
           </div>
         </div>
       </div>
@@ -228,10 +229,15 @@ async function regen(p) {
   try { const { data } = await axios.post(`/api/admin/social-posts/${p.id}/card`); p.image_url = data.data.image_url; say('카드뉴스를 다시 만들었어요') } catch (e) { say(errMsg(e), 'error') }
 }
 async function publishNow(p) {
-  if (!confirm(`지금 바로 ${pfName(p.platform)}에 올릴까요?\n\n"${p.title}"\n\n올린 글은 여기서 지울 수 없어요(SNS 앱에서 직접 지워야 해요).`)) return
+  if (!confirm(`지금 바로 ${pfName(p.platform)}에 올릴까요?\n\n"${p.title}"\n\n올린 글은 SNS 앱에서 직접 지워야 해요(여기 목록은 \"목록에서 지우기\"로 치울 수 있어요).`)) return
   busy.value = p.id
   try { const { data } = await axios.post(`/api/admin/social-posts/${p.id}/publish`); say(data.message); load(page.value) } catch (e) { say(errMsg(e), 'error'); load(page.value) }
   busy.value = null
+}
+async function remove(p) {
+  const posted = p.status === 'posted'
+  if (!confirm(`이 목록에서 지울까요?\n\n"${p.title}" (${pfName(p.platform)})\n\n` + (posted ? '이미 올라간 글은 인스타·스레드에 그대로 남아요. SNS 앱에서 직접 지운 글을 목록에서도 치울 때만 쓰세요.' : '아직 올리지 않은 글이에요. 지우면 다시 살릴 수 없어요.'))) return
+  try { await axios.delete(`/api/admin/social-posts/${p.id}`); say('목록에서 지웠어요'); load(page.value) } catch (e) { say(errMsg(e), 'error') }
 }
 async function loadCafes() { if (cafes.value.length) return; try { const { data } = await axios.get('/api/money/cafes'); cafes.value = data.data || data.cafes || [] } catch {} }
 async function loadEvents() { try { const { data } = await axios.get('/api/admin/social-posts/events'); events.value = data.data } catch {} }

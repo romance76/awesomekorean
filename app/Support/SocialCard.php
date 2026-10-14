@@ -106,6 +106,128 @@ class SocialCard
         return rtrim(config('app.url'), '/') . '/storage/' . $rel . '?v=' . substr(md5($bin), 0, 8);
     }
 
+    /**
+     * 캐러셀(여러 장) 한 장. type: cover(표지) | item(번호 + 소제목 + 불릿) | cta(마지막 안내)
+     * @param array $c cover: tag,title,sub,theme / item: n,total,title,lines,theme / cta: title,lines,theme
+     * @return string 공개 주소(https)
+     */
+    public static function slide(string $type, array $c, string $name): string
+    {
+        $bold = resource_path('fonts/NanumGothic-Bold.ttf');
+        $xbold = resource_path('fonts/NanumGothic-ExtraBold.ttf');
+        [$accentHex, $softHex, $inkHex] = self::THEMES[$c['theme'] ?? 'emerald'] ?? self::THEMES['emerald'];
+
+        $im = imagecreatetruecolor(self::W, self::H);
+        $col = fn (string $hex) => imagecolorallocate($im, hexdec(substr($hex, 1, 2)), hexdec(substr($hex, 3, 2)), hexdec(substr($hex, 5, 2)));
+        $white = $col('#ffffff'); $accent = $col($accentHex); $ink = $col($inkHex); $dark = $col('#1f1a17');
+        [$r1, $g1, $b1] = sscanf($softHex, '#%02x%02x%02x');
+        for ($y = 0; $y < self::H; $y++) {
+            $t = min(1, $y / (self::H * 0.8));
+            $line = imagecolorallocate($im, (int) ($r1 + (255 - $r1) * $t), (int) ($g1 + (255 - $g1) * $t), (int) ($b1 + (255 - $b1) * $t));
+            imageline($im, 0, $y, self::W, $y, $line);
+        }
+        imagefilledrectangle($im, 0, 0, self::W, 18, $accent);
+        $x = 90; $maxW = self::W - 180; $footH = 150;
+
+        // 아래 띠: 주소 + (item 이면) 쪽수
+        $footer = function (string $right = '') use ($im, $accent, $white, $xbold, $bold, $x) {
+            imagefilledrectangle($im, 0, self::H - 150, self::W, self::H, $accent);
+            imagettftext($im, 40, 0, $x, self::H - 62, $white, $xbold, 'awesomekorean.com');
+            if ($right !== '') {
+                $bb = imagettfbbox(38, 0, $bold, $right);
+                imagettftext($im, 38, 0, self::W - $x - ($bb[2] - $bb[0]), self::H - 62, $white, $bold, $right);
+            }
+        };
+
+        if ($type === 'cover') {
+            $tag = self::clean($c['tag'] ?? '어썸코리안');
+            $y = 190;
+            if ($tag !== '') {
+                $bb = imagettfbbox(32, 0, $bold, $tag); $tw = $bb[2] - $bb[0];
+                self::roundRect($im, $x, $y - 50, $x + $tw + 56, $y + 20, 34, $accent);
+                imagettftext($im, 32, 0, $x + 28, $y, $white, $bold, $tag);
+                $y += 150;
+            }
+            $title = self::clean($c['title'] ?? '');
+            $size = mb_strlen($title) > 40 ? 78 : (mb_strlen($title) > 26 ? 88 : 98);
+            foreach (self::wrap($title, $xbold, $size, $maxW, 5) as $ln) {
+                imagettftext($im, $size, 0, $x, $y, $dark, $xbold, $ln);
+                $y += (int) ($size * 1.42);
+            }
+            $y += 20;
+            imagefilledrectangle($im, $x, $y, $x + 130, $y + 9, $accent);
+            $y += 90;
+            foreach (self::wrap(self::clean($c['sub'] ?? ''), $bold, 44, $maxW, 3) as $ln) {
+                imagettftext($im, 44, 0, $x, $y, $ink, $bold, $ln);
+                $y += 66;
+            }
+            imagettftext($im, 42, 0, $x, self::H - 215, $accent, $xbold, '옆으로 넘겨서 보세요  >>');
+            $footer('');
+        } elseif ($type === 'item') {
+            $n = (int) ($c['n'] ?? 1);
+            imagefilledellipse($im, $x + 56, 205, 112, 112, $accent);
+            $nb = imagettfbbox(58, 0, $xbold, (string) $n);
+            imagettftext($im, 58, 0, (int) ($x + 56 - ($nb[2] - $nb[0]) / 2), 226, $white, $xbold, (string) $n);
+            $y = 400;
+            $title = self::clean($c['title'] ?? '');
+            $size = mb_strlen($title) > 24 ? 62 : 72;
+            foreach (self::wrap($title, $xbold, $size, $maxW, 3) as $ln) {
+                imagettftext($im, $size, 0, $x, $y, $dark, $xbold, $ln);
+                $y += (int) ($size * 1.4);
+            }
+            $y += 10;
+            imagefilledrectangle($im, $x, $y, $x + 110, $y + 8, $accent);
+            $y += 80;
+            foreach (array_slice($c['lines'] ?? [], 0, 4) as $p) {
+                $p = self::clean($p);
+                if ($p === '') continue;
+                $sub = self::wrap($p, $bold, 42, $maxW - 70, 4);
+                if ($y + count($sub) * 62 > self::H - $footH - 40) break;
+                imagefilledellipse($im, $x + 16, $y - 15, 22, 22, $accent);
+                foreach ($sub as $ln) {
+                    imagettftext($im, 42, 0, $x + 56, $y, $ink, $bold, $ln);
+                    $y += 62;
+                }
+                $y += 34;
+            }
+            $footer($n . ' / ' . (int) ($c['total'] ?? 0));
+        } else { // cta
+            $y = 330;
+            $title = self::clean($c['title'] ?? '더 자세한 내용은');
+            foreach (self::wrap($title, $xbold, 84, $maxW, 3) as $ln) {
+                imagettftext($im, 84, 0, $x, $y, $dark, $xbold, $ln);
+                $y += 120;
+            }
+            $y += 30;
+            foreach (array_slice($c['lines'] ?? [], 0, 3) as $p) {
+                $p = self::clean($p);
+                if ($p === '') continue;
+                foreach (self::wrap($p, $bold, 42, $maxW - 70, 3) as $ln) {
+                    imagettftext($im, 42, 0, $x + 56, $y, $ink, $bold, $ln);
+                    $y += 62;
+                }
+                imagefilledellipse($im, $x + 16, $y - 15 - 62, 22, 22, $accent);
+                $y += 30;
+            }
+            $y += 40;
+            self::roundRect($im, $x, $y, self::W - $x, $y + 150, 40, $accent);
+            $u = 'awesomekorean.com';
+            $bb = imagettfbbox(66, 0, $xbold, $u);
+            imagettftext($im, 66, 0, (int) ((self::W - ($bb[2] - $bb[0])) / 2), $y + 98, $white, $xbold, $u);
+            imagettftext($im, 40, 0, $x, $y + 260, $accent, $xbold, '저장해 두고, 필요한 분께 공유해 주세요');
+            $footer('');
+        }
+
+        $rel = 'social/' . now('America/New_York')->format('Ym') . '/' . preg_replace('/[^A-Za-z0-9_\-]/', '', $name) . '.jpg';
+        ob_start();
+        imagejpeg($im, null, 88);
+        $bin = ob_get_clean();
+        imagedestroy($im);
+        Storage::disk('public')->put($rel, $bin);
+
+        return rtrim(config('app.url'), '/') . '/storage/' . $rel . '?v=' . substr(md5($bin), 0, 8);
+    }
+
     /** 이모지·글꼴에 없는 기호를 빼고, 공백 정리 */
     public static function clean(string $s): string
     {

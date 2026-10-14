@@ -11,9 +11,9 @@ class SocialPost extends Model
     public const STATUSES = ['pending', 'approved', 'posted', 'failed', 'skipped'];
 
     protected $fillable = [
-        'source_type', 'source_id', 'platform', 'title', 'caption', 'link_url', 'image_url', 'video_url', 'status', 'priority',
+        'source_type', 'source_id', 'platform', 'title', 'caption', 'link_url', 'image_url', 'video_url', 'images', 'thread_parts', 'status', 'priority',
         'not_before', 'posted_at', 'external_id', 'external_url', 'error', 'attempts', 'approved_by', 'created_by',
     ];
 
-    protected $casts = ['not_before' => 'datetime', 'posted_at' => 'datetime'];
+    protected $casts = ['not_before' => 'datetime', 'posted_at' => 'datetime', 'images' => 'array', 'thread_parts' => 'array'];
 }

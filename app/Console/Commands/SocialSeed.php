@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  */
 class SocialSeed extends Command
 {
-    protected $signature = 'social:seed {--file=database/data/social_pieces.json} {--status=approved : approved 또는 pending} {--only= : 이 id 들만(쉼표)} {--launch : 승인 전 MONEY 글 대기열 삭제 + 새 MONEY 글 자동 등록 끄기 + 새 글 넣기} {--autopost= : on 또는 off — 계정의 자동 게시 켜기/끄기}';
+    protected $signature = 'social:seed {--file=database/data/social_pieces.json} {--status=approved : approved 또는 pending} {--only= : 이 id 들만(쉼표)} {--launch : 승인 전 MONEY 글 대기열 삭제 + 새 MONEY 글 자동 등록 끄기 + 새 글 넣기} {--autopost= : on 또는 off — 계정의 자동 게시 켜기/끄기} {--approve= : 승인 대기(pending) 중인 SNS 글(piece)의 id 들을 승인(쉼표)}';
     protected $description = 'SNS 글(JSON)을 게시 대기열에 넣기';
 
     public function handle(): int
@@ -23,6 +23,12 @@ class SocialSeed extends Command
             $on = $this->option('autopost') === 'on';
             $n = DB::table('social_accounts')->whereIn('platform', ['instagram', 'threads'])->update(['autopost_enabled' => $on ? 1 : 0]);
             $this->info('자동 게시 ' . ($on ? '켬' : '끔') . ": {$n}개 계정");
+            return self::SUCCESS;
+        }
+        if ($this->option('approve')) {
+            $ids = array_filter(array_map('intval', explode(',', (string) $this->option('approve'))));
+            $n = DB::table('social_posts')->where('source_type', 'piece')->whereIn('source_id', $ids)->where('status', 'pending')->update(['status' => 'approved', 'updated_at' => now()]);
+            $this->info("{$n}건 승인");
             return self::SUCCESS;
         }
         if ($this->option('launch')) {

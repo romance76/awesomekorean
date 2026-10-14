@@ -821,6 +821,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
         Route::post('/social-posts/events/{id}', [\App\Http\Controllers\API\AdminSocialPostController::class, 'enqueueEvent'])->whereNumber('id');
         Route::post('/social-posts/manual', [\App\Http\Controllers\API\AdminSocialPostController::class, 'storeManual']);
         Route::put('/social-posts/{id}', [\App\Http\Controllers\API\AdminSocialPostController::class, 'update'])->whereNumber('id');
+        Route::delete('/social-posts/{id}', [\App\Http\Controllers\API\AdminSocialPostController::class, 'destroy'])->whereNumber('id');
         Route::post('/social-posts/{id}/card', [\App\Http\Controllers\API\AdminSocialPostController::class, 'regenerateCard'])->whereNumber('id');
         Route::post('/social-posts/{id}/publish', [\App\Http\Controllers\API\AdminSocialPostController::class, 'publishNow'])->whereNumber('id')->middleware(['reauth', 'throttle:10,1']);
         Route::get('/api-keys', [AdminSettingsController::class, 'getApiKeys']);

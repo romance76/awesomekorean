@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-// 관리자 › 홍보·이벤트 › SNS 게시 (최고관리자 전용 — AdminTier social-posts). 지우기 없음: "건너뛰기"로.
+// 관리자 › 홍보·이벤트 › SNS 게시 (최고관리자 전용 — AdminTier social-posts). 목록에서 지우기는 목록 기록만 지워요(SNS 에 올라간 글은 그대로).
 class AdminSocialPostController extends Controller
 {
     private function audit(Request $r, string $action, $id, array $after = []): void
@@ -86,6 +86,16 @@ class AdminSocialPostController extends Controller
         $n = SocialPost::whereIn('id', $d['ids'])->whereIn('status', $from)->update($upd);
         $this->audit($r, 'STATUS social-post ' . $d['action'], 0, ['ids' => $d['ids'], 'changed' => $n]);
         return response()->json(['success' => true, 'changed' => $n]);
+    }
+
+    /** 목록에서 지우기 — 이 화면의 기록만 지워요. 인스타·스레드에 올라간 글은 건드리지 않아요(SNS 앱에서 직접 지운 글을 목록에서도 치울 때 사용). */
+    public function destroy(Request $r, int $id)
+    {
+        $p = SocialPost::findOrFail($id);
+        $snap = $p->only(['id', 'platform', 'status', 'title', 'external_url']);
+        $p->delete();
+        $this->audit($r, 'DELETE social-post', $id, $snap);
+        return response()->json(['success' => true, 'message' => '목록에서 지웠어요']);
     }
 
     /** 지금 바로 올리기(시험용) — 비밀번호 재확인 */

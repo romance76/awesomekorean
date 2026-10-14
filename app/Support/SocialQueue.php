@@ -131,7 +131,29 @@ class SocialQueue
         $n = 0;
         foreach ($p['platforms'] ?? SocialPost::PLATFORMS as $pf) {
             if (self::exists('piece', (int) $p['id'], $pf)) continue;
-            $img = null; $video = null;
+            $img = null; $video = null; $images = null; $parts = null;
+            if ($kind === 'carousel') {
+                if ($pf === 'instagram') {
+                    $images = self::carouselImages($p);
+                    $img = $images[0];
+                    $outro = "\n\n📌 더 자세한 단계별 안내는 프로필 링크 awesomekorean.com 에서 볼 수 있어요.\n\n※ 일반 정보예요(2026년 10월 기준). 금융·세무·법률 조언이 아니니 공식 안내를 꼭 확인하세요.";
+                    $list = [];
+                    foreach (($p['slides'] ?? []) as $i => $sl) $list[] = ($i + 1) . '. ' . $sl['h'];
+                    $cap = $p['ig'] . "\n\n넘겨서 보세요 👉\n" . implode("\n", $list) . $outro . "\n\n" . $tags . ' ' . ($p['tags'] ?? '');
+                    $cap = self::cut(trim($cap), 2150);
+                } else {
+                    $cap = self::cut($p['th'], 500);
+                    $parts = array_map(fn ($t) => self::cut(str_replace('{link}', $link, $t), 500), $p['th_parts'] ?? []);
+                    $img = null;
+                }
+                SocialPost::create([
+                    'source_type' => 'piece', 'source_id' => (int) $p['id'], 'platform' => $pf, 'title' => self::cut($p['title'], 200),
+                    'caption' => $cap, 'link_url' => $link, 'image_url' => $img, 'images' => $images, 'thread_parts' => $parts, 'status' => $status,
+                    'priority' => (int) ($p['priority'] ?? 8), 'created_by' => $byUser, 'approved_by' => $status === 'approved' ? $byUser : null,
+                ]);
+                $n++;
+                continue;
+            }
             if ($pf === 'instagram') {
                 $cap = $p['ig'];
                 if ($kind === 'money') {
@@ -154,6 +176,20 @@ class SocialQueue
             $n++;
         }
         return $n;
+    }
+
+    /** 캐러셀: 표지 + 장마다 한 장 + 마지막 안내 장 → 사진 주소 목록 */
+    public static function carouselImages(array $p): array
+    {
+        $slides = $p['slides'] ?? [];
+        $total = count($slides);
+        $theme = $p['theme'] ?? 'orange';
+        $urls = [SocialCard::slide('cover', ['tag' => $p['tag'] ?? '어썸코리안', 'title' => $p['title'], 'sub' => $p['sub'] ?? '', 'theme' => $theme], 'piece-' . $p['id'] . '-0')];
+        foreach ($slides as $i => $sl) {
+            $urls[] = SocialCard::slide('item', ['n' => $i + 1, 'total' => $total, 'title' => $sl['h'], 'lines' => $sl['b'] ?? [], 'theme' => $theme], 'piece-' . $p['id'] . '-' . ($i + 1));
+        }
+        $urls[] = SocialCard::slide('cta', ['title' => $p['cta_title'] ?? '더 자세한 내용은 어썸코리안에서', 'lines' => $p['cta_lines'] ?? ['단계별 안내와 계산표를 모아 뒀어요', '가입 없이 읽을 수 있어요'], 'theme' => $theme], 'piece-' . $p['id'] . '-9');
+        return $urls;
     }
 
     /** 어썸코리안 이벤트를 두 플랫폼에 넣음(우선순위 10). 넣은 개수 반환 */

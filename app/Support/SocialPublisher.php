@@ -79,6 +79,21 @@ class SocialPublisher
         $pub = self::check(Http::asForm()->timeout(30)->post(self::TH . "/{$uid}/threads_publish", ['creation_id' => $c['id'], 'access_token' => $tok]), '스레드 게시');
         $link = null;
         try { $link = Http::timeout(15)->get(self::TH . '/' . $pub['id'], ['fields' => 'permalink', 'access_token' => $tok])->json('permalink'); } catch (\Throwable) {}
+        // 이어 쓰기(답글 사슬): 메인 글에 이어서 자기 글에 답글로 올린다. 중간에 실패해도 메인 글은 그대로 두고 오류만 남긴다.
+        $prev = $pub['id'];
+        foreach ((array) $p->thread_parts as $i => $part) {
+            try {
+                sleep(3);
+                $c2 = self::check(Http::asForm()->timeout(30)->post(self::TH . "/{$uid}/threads", ['media_type' => 'TEXT', 'text' => $part, 'reply_to_id' => $prev, 'access_token' => $tok]), '스레드 이어 쓰기 ' . ($i + 1));
+                sleep(3);
+                $p2 = self::check(Http::asForm()->timeout(30)->post(self::TH . "/{$uid}/threads_publish", ['creation_id' => $c2['id'], 'access_token' => $tok]), '스레드 이어 쓰기 ' . ($i + 1) . ' 게시');
+                $prev = $p2['id'];
+            } catch (\Throwable $e) {
+                Log::warning('[social] thread part failed', ['id' => $p->id, 'part' => $i + 1, 'error' => $e->getMessage()]);
+                $p->forceFill(['error' => '메인 글은 올라갔지만 이어 쓰기 ' . ($i + 1) . '번째가 실패했어요: ' . mb_substr($e->getMessage(), 0, 300)])->save();
+                break;
+            }
+        }
         return [$pub['id'], $link];
     }
 
@@ -86,6 +101,8 @@ class SocialPublisher
     {
         if (!$p->image_url && !$p->video_url) throw new \RuntimeException('인스타그램은 사진이나 영상이 꼭 있어야 해요(카드뉴스 다시 만들기를 눌러 주세요).');
         $ig = $a->account_id; $tok = $a->access_token;
+        $imgs = array_values(array_filter((array) $p->images));
+        if (!$p->video_url && count($imgs) > 1) return self::instagramCarousel($p, $a, $imgs);
         $params = $p->video_url
             ? ['media_type' => 'REELS', 'video_url' => $p->video_url, 'caption' => $p->caption, 'share_to_feed' => 'true', 'access_token' => $tok]
             : ['image_url' => $p->image_url, 'caption' => $p->caption, 'access_token' => $tok];
@@ -98,6 +115,32 @@ class SocialPublisher
             sleep(5);
         }
         $pub = self::check(Http::asForm()->timeout(30)->post(self::IG . "/{$ig}/media_publish", ['creation_id' => $c['id'], 'access_token' => $tok]), '인스타 게시');
+        $link = null;
+        try { $link = Http::timeout(15)->get(self::IG . '/' . $pub['id'], ['fields' => 'permalink', 'access_token' => $tok])->json('permalink'); } catch (\Throwable) {}
+        return [$pub['id'], $link];
+    }
+
+    /** 여러 장(2~10장) 한 번에: 장마다 "묶음용" 사진을 만들고 → 묶음(CAROUSEL)을 만들고 → 게시 */
+    private static function instagramCarousel(SocialPost $p, SocialAccount $a, array $imgs): array
+    {
+        $ig = $a->account_id; $tok = $a->access_token;
+        $wait = function (string $id, int $tries) use ($tok) {
+            for ($i = 0; $i < $tries; $i++) {
+                $st = Http::timeout(15)->get(self::IG . '/' . $id, ['fields' => 'status_code', 'access_token' => $tok])->json('status_code');
+                if ($st === 'FINISHED') return;
+                if ($st === 'ERROR' || $st === 'EXPIRED') throw new \RuntimeException('인스타가 파일을 처리하지 못했어요(' . $st . '). 사진 주소가 열리는지 확인하세요.');
+                sleep(3);
+            }
+        };
+        $children = [];
+        foreach (array_slice($imgs, 0, 10) as $i => $url) {
+            $c = self::check(Http::asForm()->timeout(60)->post(self::IG . "/{$ig}/media", ['image_url' => $url, 'is_carousel_item' => 'true', 'access_token' => $tok]), '인스타 ' . ($i + 1) . '번째 사진 올리기');
+            $children[] = $c['id'];
+        }
+        foreach ($children as $cid) $wait($cid, 20);
+        $car = self::check(Http::asForm()->timeout(60)->post(self::IG . "/{$ig}/media", ['media_type' => 'CAROUSEL', 'children' => implode(',', $children), 'caption' => $p->caption, 'access_token' => $tok]), '인스타 묶음 만들기');
+        $wait($car['id'], 30);
+        $pub = self::check(Http::asForm()->timeout(60)->post(self::IG . "/{$ig}/media_publish", ['creation_id' => $car['id'], 'access_token' => $tok]), '인스타 게시');
         $link = null;
         try { $link = Http::timeout(15)->get(self::IG . '/' . $pub['id'], ['fields' => 'permalink', 'access_token' => $tok])->json('permalink'); } catch (\Throwable) {}
         return [$pub['id'], $link];
