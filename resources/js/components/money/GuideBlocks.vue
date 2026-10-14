@@ -519,6 +519,9 @@ const mort = computed(() => {
 </script>
 
 <style>
+/* 머니 글 전체: 낱말(띄어쓰기) 단위로만 줄을 바꾸고, 너무 긴 낱말(주소 등)만 억지로 끊는다 */
+.money-keep, .money-keep .gb, .money-keep .money-intro, .gb { word-break: keep-all; overflow-wrap: anywhere; }
+.gb table th, .gb table td { word-break: keep-all; }
 /* 큰 숫자: 칸을 기준으로(cqw) 글자 크기를 정한다. 낱말 단위로만 줄바꿈하고, 균형 있게 나눈다 */
 .gb-stat { container-type: inline-size; }
 .gb-stat-v { --base: 28px; font-size: max(17px, min(var(--base), calc(100cqw / var(--em, 4)))); line-height: 1.12; word-break: keep-all; overflow-wrap: break-word; text-wrap: balance; }

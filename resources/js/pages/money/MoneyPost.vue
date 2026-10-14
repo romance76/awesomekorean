@@ -5,7 +5,7 @@
 
     <div v-if="post" class="flex justify-end mb-2"><MoneyFontSize /></div>
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">글을 찾을 수 없어요. 내려갔거나 주소가 바뀌었을 수 있어요.</p>
-    <article v-else-if="post" class="card p-5 md:p-7" :style="{ zoom: moneyFont.scale.value }">
+    <article v-else-if="post" class="card p-5 md:p-7 money-keep" :style="{ zoom: moneyFont.scale.value }">
       <div class="flex items-center gap-2 mb-2">
         <span class="text-[11px] font-bold rounded-full px-2 py-0.5" :class="KIND_CLASS[post.kind]">{{ KIND_LABEL[post.kind] }}</span>
         <span class="text-xs text-ink-muted">{{ post.cafe?.name }}</span>

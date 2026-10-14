@@ -4,7 +4,7 @@
     <div class="max-w-4xl">
     <div v-if="g" class="flex justify-end mb-2"><MoneyFontSize /></div>
     <p v-if="notFound" class="card p-8 text-center text-ink-muted">가이드를 찾을 수 없어요. <RouterLink to="/money" class="text-emerald-700 font-bold underline">MONEY 홈으로</RouterLink></p>
-    <article v-else-if="g" :style="{ zoom: moneyFont.scale.value }">
+    <article v-else-if="g" class="money-keep" :style="{ zoom: moneyFont.scale.value }">
       <template v-if="g.blocks?.length">
         <GuideBlocks :blocks="g.blocks" />
         <div class="text-[12px] text-ink-muted mt-3">마지막 수정 {{ String(g.updated_at || '').slice(0, 10) }}</div>
