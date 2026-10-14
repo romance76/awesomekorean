@@ -368,13 +368,20 @@ class AdminSettingsController extends Controller
 
     // VAPID 키 생성
     public function generateVapid() {
-        // 이미 푸시 키가 있으면 새로 만들지 않는다 — 덮어쓰면 기존 구독자 전원의 푸시가 끊기고, 이 함수는 진짜 VAPID 키도 아니다(임시)
+        // 이미 푸시 키가 있으면 새로 만들지 않는다 — 덮어쓰면 기존 구독자 전원의 푸시가 끊김
         if (SiteSetting::where('key', 'vapid_public')->whereNotNull('value')->where('value', '!=', '')->exists()) {
             return response()->json(['success' => false, 'message' => '푸시 키가 이미 있어요. 덮어쓰면 기존 푸시 구독이 모두 끊겨서 막아 두었어요.'], 422);
         }
-        // 간단한 더미 키 생성 (실제로는 web-push 라이브러리 사용)
-        $public = base64_encode(random_bytes(65));
-        $private = base64_encode(random_bytes(32));
+        // 진짜 VAPID 키(P-256 곡선): 공개키는 65바이트(04||X||Y), 비공개키는 32바이트이며 둘 다 base64url(패딩 없음) 로 저장한다.
+        $res = function_exists('openssl_pkey_new') ? @openssl_pkey_new(['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC]) : false;
+        $ec = $res ? (openssl_pkey_get_details($res)['ec'] ?? null) : null;
+        if (!$ec || empty($ec['x']) || empty($ec['y']) || empty($ec['d'])) {
+            return response()->json(['success' => false, 'message' => '서버에서 푸시 키를 만들지 못했어요(OpenSSL 타원곡선 미지원).'], 500);
+        }
+        $b64u = fn (string $bin) => rtrim(strtr(base64_encode($bin), '+/', '-_'), '=');
+        $pad = fn (string $v) => str_pad($v, 32, "\0", STR_PAD_LEFT);
+        $public = $b64u("\x04" . $pad($ec['x']) . $pad($ec['y']));
+        $private = $b64u($pad($ec['d']));
         SiteSetting::updateOrCreate(['key'=>'vapid_public'], ['value'=>$public]);
         SiteSetting::updateOrCreate(['key'=>'vapid_private'], ['value'=>$private]);
         return response()->json(['success'=>true,'data'=>['public'=>$public,'private'=>$private]]);
