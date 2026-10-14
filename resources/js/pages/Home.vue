@@ -291,7 +291,7 @@
         <h2 class="text-[21px] lg:text-[26px] font-extrabold tracking-[-0.035em] text-white flex items-center gap-2">
           지금 가입하고 40포인트 받기 <AppIcon name="gift" :size="20" class="text-amber-300" />
         </h2>
-        <p class="mt-2.5 text-[14px] lg:text-[15px] text-white/70">회원가입 10P · 프로필 완성 30P — 포인트로 게임센터와 공동구매를 이용할 수 있어요.</p>
+        <p class="mt-2.5 text-[14px] lg:text-[15px] text-white/70">회원가입 10P · 프로필 완성 30P — 포인트로 공동구매를 이용할 수 있어요.</p>
       </div>
       <RouterLink to="/register" class="shrink-0 bg-white text-ink font-bold text-[15px] px-7 py-3.5 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
     </div>

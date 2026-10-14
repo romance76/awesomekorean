@@ -12,7 +12,7 @@ export const DEFAULT_FOOTER = {
     ] },
     { title: '콘텐츠', links: [
       { label: '뉴스', url: '/news' }, { label: '레시피', url: '/recipes' },
-      { label: '게임', url: '/games' }, { label: '음악', url: '/music' },
+      { label: '음악', url: '/music' },
     ] },
     { title: '안내', links: [
       { label: '소개', url: '/about' }, { label: '문의하기', url: '/contact' }, { label: '이용약관', url: '/terms' }, { label: '개인정보처리방침', url: '/privacy' },
