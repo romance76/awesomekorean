@@ -254,7 +254,7 @@ const showFilter = ref(false)
 const searchQ = ref('')   // 제목 검색 (휴대폰은 필터 창 안, PC 는 머리 줄)
 const showFavorites = ref(false)
 const favoritedList = ref(new Set())
-// 48시간 안에 올라온 글에는 제목 끝에 아주 작은 N
+// 48시간(2일) 안에 올라온 글에는 제목 끝에 아주 작은 N
 const isNewPost = (p) => !!p?.created_at && Date.now() - new Date(p.created_at).getTime() < 48 * 3600 * 1000
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const items = ref([])
