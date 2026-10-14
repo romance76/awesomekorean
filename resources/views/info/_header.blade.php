@@ -10,7 +10,13 @@
     // 상단 메뉴 묶음 (관리자 › 메뉴 묶음이 켜져 있을 때만) — NavBar.vue 와 같은 모양
     $navGroups = \App\Support\MenuGroups::publicGroups($menus ?? []);
     $isInfoGroup = fn ($g) => ($g['type'] === 'hub' && str_starts_with($g['path'], '/info')) || collect($g['items'])->contains(fn ($m) => str_starts_with($m['path'], '/info'));
+    // "큰 글씨로 보기" 기능 스위치 (관리자 > 시스템). 꺼져 있으면 아이콘을 숨기고 화면도 원래대로
+    $evRaw = \App\Models\SiteSetting::where('key', 'easy_view_enabled')->value('value');
+    $evOn = !in_array($evRaw, ['0', 0, false, 'false'], true);
 @endphp
+@if ($evOn)
+<script>try{var e=JSON.parse(localStorage.getItem('ak_easy_view')||'null');if(e&&e.level&&e.level!=='md'||e&&e.hc){var r=document.documentElement,l={lg:[1.25,1.2],xl:[1.5,1.4],md:[1,1]}[e.level]||[1,1];r.classList.add('easy-view');if(e.hc)r.classList.add('ev-hc');r.style.setProperty('--fs',l[0]);r.style.setProperty('--ui',l[1])}}catch(_){}</script>
+@endif
 {{-- 크기·간격은 app.css 의 .site-hdr-* 클래스 (NavBar.vue 와 공용) — 여기서 따로 숫자를 쓰지 말 것 --}}
 <nav class="site-hdr ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
     <div class="site-hdr-row">
@@ -31,20 +37,34 @@
         </div>
         <div class="flex-1 md:hidden"></div>
 
+        {{-- 큰 글씨로 보기 (EasyViewButton.vue 와 같은 모양·같은 저장 방식: localStorage ak_easy_view) — 로그인 중일 때만 --}}
+        @if ($evOn)
+        <div id="info-ev" class="relative flex-shrink-0" style="display:none">
+            <button id="info-ev-btn" type="button" aria-label="큰 글씨로 보기" title="큰 글씨로 보기" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors flex items-center justify-center" style="min-width:36px">
+                <span class="font-black leading-none ev-icon-text" style="font-size:17px">가<span style="font-size:11px">가</span></span>
+                <span id="info-ev-dot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FC226B]" style="display:none"></span>
+            </button>
+        </div>
+        @endif
+
         {{-- 알림벨 — 로그인 중일 때만 표시 --}}
         <div id="info-auth-notif" class="relative flex-shrink-0" style="display:none">
             <button id="info-notif-bell" type="button" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span id="info-notif-badge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full items-center justify-center font-bold" style="display:none">0</span>
             </button>
-            <div id="info-notif-dropdown" class="absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden" style="display:none; width:min(320px, calc(100vw - 2rem));">
-                <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50">
+            <div id="info-notif-dropdown" class="notif-panel absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden flex flex-col" style="display:none; width:min(320px, calc(100vw - 2rem)); max-height:70vh">
+                <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50 flex-shrink-0">
                     <span class="text-sm font-bold text-ink">알림</span>
-                    <button id="info-notif-readall" type="button" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors" style="display:none">전체 읽음</button>
+                    <span class="flex items-center gap-3">
+                        <button id="info-notif-readall" type="button" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors" style="display:none">전체 읽음</button>
+                        <button id="info-notif-clear" type="button" class="text-xs text-ink-muted hover:text-red-600 font-semibold transition-colors" style="display:none">읽은 알림 지우기</button>
+                    </span>
                 </div>
-                <div id="info-notif-list" class="max-h-80 overflow-y-auto">
+                <div id="info-notif-list" class="overflow-y-auto flex-1 min-h-0">
                     <div class="px-4 py-10 text-center text-sm text-ink-muted">알림이 없습니다</div>
                 </div>
+                <a href="/notifications" class="flex-shrink-0 block w-full py-2.5 text-center text-xs font-bold text-amber-700 bg-amber-50/70 hover:bg-amber-100/70 border-t border-gray-100">지난 알림 모두 보기 ›</a>
             </div>
         </div>
 
@@ -59,10 +79,15 @@
                 <div class="px-4 py-2.5 border-b border-gray-50">
                     <div id="info-auth-name" class="text-sm font-bold text-ink truncate"></div>
                     <div id="info-auth-email" class="text-xs text-ink-faint truncate"></div>
+                    <div class="flex items-center gap-3 mt-1">
+                        <a href="/points" class="text-xs text-amber-600 font-bold flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg><span id="info-auth-points">0</span>P</a>
+                        <a href="/entries" class="text-xs text-violet-600 font-bold flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg><span id="info-auth-entries">0</span></a>
+                    </div>
                 </div>
                 <a href="/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">마이페이지</a>
                 <a href="/dashboard?tab=messages" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">쪽지</a>
                 <a href="/friends" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">친구</a>
+                <div id="info-auth-admin" style="display:none"><div class="border-t border-gray-50 my-1"></div><a href="/admin" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">관리자</a></div>
                 <div class="border-t border-gray-50 my-1"></div>
                 <button id="info-auth-logout" type="button" class="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm text-ink-muted hover:bg-gray-50 transition-colors">로그아웃</button>
             </div>
@@ -78,8 +103,8 @@
         <div class="site-hdr-menu">
             @foreach ($navGroups as $g)
                 <div class="site-hdr-navitem">
-                    <a href="{{ $g['path'] }}" class="site-hdr-tab {{ $isInfoGroup($g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off' }}">
-                        {{ $g['label'] }}@if ($g['type'] !== 'single' && count($g['items']))<span class="text-[9px] opacity-50">▼</span>@endif
+                    <a href="{{ $g['path'] }}" class="site-hdr-tab {{ $isInfoGroup($g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off' }} {{ !empty($g['image']) ? '!h-auto' : '' }}">
+                        @if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-12 w-auto max-w-[220px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif@if ($g['type'] !== 'single' && count($g['items']))<span class="text-[9px] opacity-50">▼</span>@endif
                     </a>
                     @if ($g['type'] !== 'single' && count($g['items']))
                         <div class="site-hdr-drop">
@@ -131,7 +156,7 @@
                     @if ($g['type'] === 'single')
                         @php $m = $g['items'][0]; @endphp
                         <a href="{{ $m['path'] }}" class="flex items-center gap-3 px-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
-                            <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $g['icon'] ?: '•' }}</span><span>{{ $g['label'] }}</span>
+                            <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $g['icon'] ?: '•' }}</span>@if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-8 w-auto max-w-[160px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif
                         </a>
                     @else
                         <div class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted">{{ $g['icon'] }} @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="text-ink">{{ $g['label'] }} 홈 ›</a>@else{{ $g['label'] }}@endif</div>
@@ -238,6 +263,81 @@ function googleTranslateElementInit() {
 
         document.getElementById('info-auth-name').textContent = user.name || '';
         document.getElementById('info-auth-email').textContent = user.email || '';
+        document.getElementById('info-auth-points').textContent = Number(user.points || 0).toLocaleString();
+        document.getElementById('info-auth-entries').textContent = Number(user.entries || 0).toLocaleString();
+        if (user.role === 'admin' || user.role === 'super_admin') document.getElementById('info-auth-admin').style.display = 'block';
+
+        // ── 큰 글씨로 보기 (EasyViewButton.vue / useEasyView.js 와 같은 규칙·같은 저장 칸 ak_easy_view) ──
+        var evBox = document.getElementById('info-ev');
+        if (evBox) {
+            evBox.style.display = 'block';
+            var EV_KEY = 'ak_easy_view';
+            var EV_LEVELS = [{ v: 'md', l: '보통', fs: 1, ui: 1 }, { v: 'lg', l: '크게', fs: 1.25, ui: 1.2 }, { v: 'xl', l: '아주 크게', fs: 1.5, ui: 1.4 }];
+            var evLv = function (v) { for (var i = 0; i < EV_LEVELS.length; i++) if (EV_LEVELS[i].v === v) return EV_LEVELS[i]; return EV_LEVELS[0]; };
+            var evPrefs = (function () { try { var o = JSON.parse(localStorage.getItem(EV_KEY)); if (o && EV_LEVELS.some(function (x) { return x.v === o.level; })) return { level: o.level, hc: !!o.hc, ts: Number(o.ts) || 0 }; } catch (e) {} return { level: 'md', hc: false, ts: 0 }; })();
+            var evTimer = null;
+            var evApply = function () {
+                var root = document.documentElement, lv = evLv(evPrefs.level), on = lv.v !== 'md' || evPrefs.hc;
+                root.classList.toggle('easy-view', on); root.classList.toggle('ev-hc', on && evPrefs.hc);
+                if (on) { root.style.setProperty('--fs', String(lv.fs)); root.style.setProperty('--ui', String(lv.ui)); root.style.setProperty('--fs-h', String(+(1 + (lv.fs - 1) * 0.15).toFixed(3))); }
+                else { root.style.removeProperty('--fs'); root.style.removeProperty('--ui'); root.style.removeProperty('--fs-h'); }
+                document.getElementById('info-ev-dot').style.display = on ? 'block' : 'none';
+            };
+            var evPush = function () {
+                clearTimeout(evTimer);
+                evTimer = setTimeout(function () {
+                    fetch('/api/user/easy-view', { method: 'PUT', headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ level: evPrefs.level, hc: evPrefs.hc, ts: evPrefs.ts }) }).catch(function () {});
+                }, 600);
+            };
+            var evModal = null;
+            var evRender = function () {
+                if (!evModal) return;
+                evModal.querySelectorAll('[data-lv]').forEach(function (b) {
+                    var on = evPrefs.level === b.getAttribute('data-lv');
+                    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    b.style.borderColor = on ? '#FC226B' : '#e5e7eb'; b.style.background = on ? '#fff1f5' : ''; b.style.color = on ? '#FC226B' : '';
+                });
+                var hcBox = evModal.querySelector('[data-hc]'); hcBox.checked = evPrefs.hc;
+                var hcLab = hcBox.parentNode; hcLab.style.borderColor = evPrefs.hc ? '#FC226B' : '#e5e7eb'; hcLab.style.background = evPrefs.hc ? '#fff1f5' : '';
+            };
+            var evSet = function (p) {
+                evPrefs = { level: p.level !== undefined ? p.level : evPrefs.level, hc: p.hc !== undefined ? p.hc : evPrefs.hc, ts: Date.now() };
+                try { localStorage.setItem(EV_KEY, JSON.stringify(evPrefs)); localStorage.setItem('ak_easy_view_hint', '1'); } catch (e) {}
+                evApply(); evPush(); evRender();
+            };
+            // 이 폰의 값과 내 계정의 값 중 더 최근에 바꾼 쪽을 따른다 (useEasyView.js 의 syncEasyViewFromUser 와 같음)
+            if (typeof user.easy_view_prefs === 'string' && user.easy_view_prefs) {
+                var pp = user.easy_view_prefs.split('|'), sts = Number(pp[2]) || 0;
+                if (EV_LEVELS.some(function (x) { return x.v === pp[0]; }) && sts > evPrefs.ts) { evPrefs = { level: pp[0], hc: pp[1] === '1', ts: sts }; try { localStorage.setItem(EV_KEY, JSON.stringify(evPrefs)); } catch (e) {} }
+            }
+            evApply();
+            var evOpen = function () {
+                if (!evModal) {
+                    evModal = document.createElement('div');
+                    evModal.className = 'fixed inset-0 z-[9996] flex items-end sm:items-center justify-center';
+                    var lvBtns = EV_LEVELS.map(function (o) {
+                        return '<button type="button" data-lv="' + o.v + '" class="rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5" style="min-height:72px;border-color:#e5e7eb"><span class="font-extrabold" style="font-size:' + (15 * o.fs) + 'px;line-height:1.1">가</span><span class="text-[13px] font-bold">' + o.l + '</span></button>';
+                    }).join('');
+                    evModal.innerHTML = '<div class="absolute inset-0 bg-black/40" data-close="1"></div>'
+                        + '<div class="relative bg-white w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-5 space-y-4" style="padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));font-size:16px" role="dialog" aria-label="큰 글씨로 보기">'
+                        + '<div class="flex items-center justify-between"><div class="text-[19px] font-extrabold text-ink">큰 글씨로 보기</div><button type="button" data-close="1" class="w-11 h-11 -mr-2 rounded-full text-ink-light text-[22px]" aria-label="닫기">✕</button></div>'
+                        + '<div><div class="text-[14px] text-ink-light mb-2">글씨 크기</div><div class="grid grid-cols-3 gap-2" role="group" aria-label="글씨 크기">' + lvBtns + '</div></div>'
+                        + '<label class="flex items-center gap-3 rounded-2xl border-2 px-4 cursor-pointer" style="min-height:56px;border-color:#e5e7eb"><input type="checkbox" data-hc="1" style="width:24px;height:24px;accent-color:#FC226B"><span class="text-[16px] font-bold text-ink">글씨 진하게·선명하게</span></label>'
+                        + '<div class="flex gap-2"><button type="button" data-reset="1" class="flex-1 rounded-2xl border-2 border-gray-200 text-[15px] font-bold text-ink-light" style="min-height:52px">처음 상태로</button><button type="button" data-close="1" class="flex-1 rounded-2xl bg-[#FC226B] text-white text-[16px] font-extrabold" style="min-height:52px">닫기</button></div>'
+                        + '<p class="text-[12px] text-ink-faint text-center leading-snug">한 번 정하면 기억해요. 다시 들어오거나 다른 기기에서 로그인해도 같은 크기로 보여요.</p></div>';
+                    evModal.addEventListener('click', function (e) {
+                        var t = e.target;
+                        if (t.closest && t.closest('[data-close]')) { evModal.style.display = 'none'; return; }
+                        var lvb = t.closest && t.closest('[data-lv]'); if (lvb) { evSet({ level: lvb.getAttribute('data-lv') }); return; }
+                        if (t.closest && t.closest('[data-reset]')) { evSet({ level: 'md', hc: false }); }
+                    });
+                    evModal.querySelector('[data-hc]').addEventListener('change', function (e) { evSet({ hc: e.target.checked }); });
+                    document.body.appendChild(evModal);
+                }
+                evModal.style.display = 'flex'; evRender();
+            };
+            document.getElementById('info-ev-btn').addEventListener('click', evOpen);
+        }
 
         // UserAvatar.vue 와 같은 규칙: 전체 크기 = 휴대폰(430px 이하) 46 / 그 외 58, 등급 링이 있으면 사진 지름 62%, 없으면 74%
         var avatar = document.getElementById('info-auth-avatar');
@@ -329,6 +429,7 @@ function googleTranslateElementInit() {
                 badge.style.display = 'none';
             }
             document.getElementById('info-notif-readall').style.display = list.some(function (n) { return !n.read_at; }) ? 'inline-block' : 'none';
+            document.getElementById('info-notif-clear').style.display = list.some(function (n) { return n.read_at; }) ? 'inline-block' : 'none';
 
             var container = document.getElementById('info-notif-list');
             container.innerHTML = '';
@@ -348,17 +449,25 @@ function googleTranslateElementInit() {
                 dot.className = n.read_at ? 'w-2 h-2 flex-shrink-0' : 'w-2 h-2 bg-amber-400 rounded-full flex-shrink-0 mt-1.5';
                 var textWrap = document.createElement('div');
                 textWrap.className = 'min-w-0 flex-1';
+                textWrap.style.overflowWrap = 'anywhere';
                 var titleEl = document.createElement('div');
-                titleEl.className = 'text-xs font-semibold text-ink truncate';
+                titleEl.className = 'text-xs font-semibold text-ink break-words line-clamp-2';
                 titleEl.textContent = n.title || '';
                 var contentEl = document.createElement('div');
-                contentEl.className = 'text-xs text-ink-muted truncate';
+                contentEl.className = 'text-xs text-ink-muted break-words line-clamp-2';
                 contentEl.textContent = n.content || '';
                 var dateEl = document.createElement('div');
                 dateEl.className = 'text-[11px] text-ink-faint mt-0.5';
                 dateEl.textContent = formatNotifDate(n.created_at);
                 textWrap.appendChild(titleEl); textWrap.appendChild(contentEl); textWrap.appendChild(dateEl);
-                row.appendChild(dot); row.appendChild(textWrap);
+                var del = document.createElement('button');
+                del.type = 'button'; del.textContent = '✕'; del.title = '지우기'; del.setAttribute('aria-label', '이 알림 지우기');
+                del.className = 'flex-shrink-0 w-6 h-6 -mr-1 rounded-full text-ink-faint hover:bg-gray-100 hover:text-red-600 flex items-center justify-center text-sm leading-none';
+                del.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    fetch('/api/notifications/' + n.id, { method: 'DELETE', headers: authHeaders() }).then(loadNotifs).catch(function () {});
+                });
+                row.appendChild(dot); row.appendChild(textWrap); row.appendChild(del);
                 item.appendChild(row);
                 item.addEventListener('click', function () { clickNotif(n); });
                 container.appendChild(item);
@@ -366,7 +475,7 @@ function googleTranslateElementInit() {
         }
 
         function loadNotifs() {
-            fetch('/api/notifications', { headers: authHeaders() })
+            fetch('/api/notifications?limit=8', { headers: authHeaders() })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     var list = (data.data && data.data.data) || data.data || [];
@@ -385,6 +494,9 @@ function googleTranslateElementInit() {
         });
         document.getElementById('info-notif-readall').addEventListener('click', function () {
             fetch('/api/notifications/read', { method: 'POST', headers: authHeaders() }).then(loadNotifs).catch(function () {});
+        });
+        document.getElementById('info-notif-clear').addEventListener('click', function () {
+            fetch('/api/notifications/clear', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()), body: JSON.stringify({ scope: 'read' }) }).then(loadNotifs).catch(function () {});
         });
         document.addEventListener('click', function (e) {
             if (!notifBox.contains(e.target)) notifDropdown.style.display = 'none';

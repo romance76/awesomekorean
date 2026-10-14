@@ -58,6 +58,7 @@ class MenuGroups
             if ($type === 'hub' ? empty($g['path']) : !$items) continue;
             $out[] = [
                 'key' => $g['key'], 'label' => $g['label'], 'icon' => $g['icon'] ?? '', 'type' => $type, 'items' => $items,
+                'color' => $g['color'] ?? '', 'image' => $g['image'] ?? '',
                 'path' => $type === 'hub' ? $g['path'] : $items[0]['path'],
             ];
         }
