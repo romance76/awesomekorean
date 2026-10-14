@@ -37,66 +37,69 @@
         </div>
         <div class="flex-1 md:hidden"></div>
 
-        {{-- 큰 글씨로 보기 (EasyViewButton.vue 와 같은 모양·같은 저장 방식: localStorage ak_easy_view) — 로그인 중일 때만 --}}
-        @if ($evOn)
-        <div id="info-ev" class="relative flex-shrink-0" style="display:none">
-            <button id="info-ev-btn" type="button" aria-label="큰 글씨로 보기" title="큰 글씨로 보기" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors flex items-center justify-center" style="min-width:36px">
-                <span class="font-black leading-none ev-icon-text" style="font-size:17px">가<span style="font-size:11px">가</span></span>
-                <span id="info-ev-dot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FC226B]" style="display:none"></span>
-            </button>
-        </div>
-        @endif
-
-        {{-- 알림벨 — 로그인 중일 때만 표시 --}}
-        <div id="info-auth-notif" class="relative flex-shrink-0" style="display:none">
-            <button id="info-notif-bell" type="button" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                <span id="info-notif-badge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full items-center justify-center font-bold" style="display:none">0</span>
-            </button>
-            <div id="info-notif-dropdown" class="notif-panel absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden flex flex-col" style="display:none; width:min(320px, calc(100vw - 2rem)); max-height:70vh">
-                <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50 flex-shrink-0">
-                    <span class="text-sm font-bold text-ink">알림</span>
-                    <span class="flex items-center gap-3">
-                        <button id="info-notif-readall" type="button" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors" style="display:none">전체 읽음</button>
-                        <button id="info-notif-clear" type="button" class="text-xs text-ink-muted hover:text-red-600 font-semibold transition-colors" style="display:none">읽은 알림 지우기</button>
-                    </span>
-                </div>
-                <div id="info-notif-list" class="overflow-y-auto flex-1 min-h-0">
-                    <div class="px-4 py-10 text-center text-sm text-ink-muted">알림이 없습니다</div>
-                </div>
-                <a href="/notifications" class="flex-shrink-0 block w-full py-2.5 text-center text-xs font-bold text-amber-700 bg-amber-50/70 hover:bg-amber-100/70 border-t border-gray-100">지난 알림 모두 보기 ›</a>
+        {{-- 오른쪽 묶음: NavBar.vue 의 <div class="flex items-center gap-1.5 flex-shrink-0"> 와 같은 한 덩어리 (간격이 달라 검색창 위치가 흔들리던 문제) --}}
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+            {{-- 큰 글씨로 보기 (EasyViewButton.vue 와 같은 모양·같은 저장 방식: localStorage ak_easy_view) — 로그인 중일 때만 --}}
+            @if ($evOn)
+            <div id="info-ev" class="relative flex-shrink-0" style="display:none">
+                <button id="info-ev-btn" type="button" aria-label="큰 글씨로 보기" title="큰 글씨로 보기" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors flex items-center justify-center" style="min-width:36px">
+                    <span class="font-black leading-none ev-icon-text" style="font-size:17px">가<span style="font-size:11px">가</span></span>
+                    <span id="info-ev-dot" class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FC226B]" style="display:none"></span>
+                </button>
             </div>
-        </div>
+            @endif
 
-        <div id="info-auth-guest" class="flex items-center gap-1.5 flex-shrink-0">
-            <a href="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-surface px-3 py-1.5 rounded-full transition-colors">로그인</a>
-            <a href="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">시작하기</a>
-        </div>
-        <div id="info-auth-user" class="relative flex-shrink-0" style="display:none">
-            {{-- NavBar.vue 의 UserAvatar 와 같은 크기(휴대폰 46px · 그 외 58px) + 등급 링 — 아래 스크립트가 채움 --}}
-            <button id="info-auth-avatar" type="button" class="block -my-1 rounded-full relative" aria-label="내 메뉴"></button>
-            <div id="info-auth-dropdown" class="absolute right-0 top-14 bg-white rounded-2xl shadow-lift py-2 w-52 z-50" style="display:none">
-                <div class="px-4 py-2.5 border-b border-gray-50">
-                    <div id="info-auth-name" class="text-sm font-bold text-ink truncate"></div>
-                    <div id="info-auth-email" class="text-xs text-ink-faint truncate"></div>
-                    <div class="flex items-center gap-3 mt-1">
-                        <a href="/points" class="text-xs text-amber-600 font-bold flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg><span id="info-auth-points">0</span>P</a>
-                        <a href="/entries" class="text-xs text-violet-600 font-bold flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg><span id="info-auth-entries">0</span></a>
+            {{-- 알림벨 — 로그인 중일 때만 표시 --}}
+            <div id="info-auth-notif" class="relative flex-shrink-0" style="display:none">
+                <button id="info-notif-bell" type="button" class="relative p-2 text-ink-light hover:text-amber-500 transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span id="info-notif-badge" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full items-center justify-center font-bold" style="display:none">0</span>
+                </button>
+                <div id="info-notif-dropdown" class="notif-panel absolute right-0 top-10 bg-white rounded-2xl shadow-lift z-50 overflow-hidden flex flex-col" style="display:none; width:min(320px, calc(100vw - 2rem)); max-height:70vh">
+                    <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50 flex-shrink-0">
+                        <span class="text-sm font-bold text-ink">알림</span>
+                        <span class="flex items-center gap-3">
+                            <button id="info-notif-readall" type="button" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors" style="display:none">전체 읽음</button>
+                            <button id="info-notif-clear" type="button" class="text-xs text-ink-muted hover:text-red-600 font-semibold transition-colors" style="display:none">읽은 알림 지우기</button>
+                        </span>
                     </div>
+                    <div id="info-notif-list" class="overflow-y-auto flex-1 min-h-0">
+                        <div class="px-4 py-10 text-center text-sm text-ink-muted">알림이 없습니다</div>
+                    </div>
+                    <a href="/notifications" class="flex-shrink-0 block w-full py-2.5 text-center text-xs font-bold text-amber-700 bg-amber-50/70 hover:bg-amber-100/70 border-t border-gray-100">지난 알림 모두 보기 ›</a>
                 </div>
-                <a href="/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">마이페이지</a>
-                <a href="/dashboard?tab=messages" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">쪽지</a>
-                <a href="/friends" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">친구</a>
-                <div id="info-auth-admin" style="display:none"><div class="border-t border-gray-50 my-1"></div><a href="/admin" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">관리자</a></div>
-                <div class="border-t border-gray-50 my-1"></div>
-                <button id="info-auth-logout" type="button" class="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm text-ink-muted hover:bg-gray-50 transition-colors">로그아웃</button>
             </div>
-        </div>
 
-        {{-- EN 번역 토글 — 로그인 여부와 무관하게 항상 표시 (NavBar.vue와 동일하게 Google Translate 쿠키 플립 방식) --}}
-        <button id="info-lang-toggle" type="button" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-surface hover:bg-line transition-colors flex-shrink-0" title="Translate to English">
-            <span translate="no" class="notranslate">EN</span>
-        </button>
+            <div id="info-auth-guest" class="flex items-center gap-1.5 flex-shrink-0">
+                <a href="/login" class="text-[13px] font-semibold text-ink-light hover:text-ink hover:bg-surface px-3 py-1.5 rounded-full transition-colors">로그인</a>
+                <a href="/register" class="text-[13px] text-white font-bold px-4 py-1.5 rounded-full transition-all shadow-btn" style="background-image:linear-gradient(135deg,#FF8A4D,#FC226B)">시작하기</a>
+            </div>
+            <div id="info-auth-user" class="relative flex-shrink-0" style="display:none">
+                {{-- NavBar.vue 의 UserAvatar 와 같은 크기(휴대폰 46px · 그 외 58px) + 등급 링 — 아래 스크립트가 채움 --}}
+                <button id="info-auth-avatar" type="button" class="block -my-1 rounded-full relative" aria-label="내 메뉴"></button>
+                <div id="info-auth-dropdown" class="absolute right-0 top-14 bg-white rounded-2xl shadow-lift py-2 w-52 z-50" style="display:none">
+                    <div class="px-4 py-2.5 border-b border-gray-50">
+                        <div id="info-auth-name" class="text-sm font-bold text-ink truncate"></div>
+                        <div id="info-auth-email" class="text-xs text-ink-faint truncate"></div>
+                        <div class="flex items-center gap-3 mt-1">
+                            <a href="/points" class="text-xs text-amber-600 font-bold flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg><span id="info-auth-points">0</span>P</a>
+                            <a href="/entries" class="text-xs text-violet-600 font-bold flex items-center gap-1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg><span id="info-auth-entries">0</span></a>
+                        </div>
+                    </div>
+                    <a href="/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">마이페이지</a>
+                    <a href="/dashboard?tab=messages" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">쪽지</a>
+                    <a href="/friends" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-ink-light hover:bg-amber-50/60 hover:text-ink transition-colors">친구</a>
+                    <div id="info-auth-admin" style="display:none"><div class="border-t border-gray-50 my-1"></div><a href="/admin" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">관리자</a></div>
+                    <div class="border-t border-gray-50 my-1"></div>
+                    <button id="info-auth-logout" type="button" class="w-full flex items-center gap-2.5 text-left px-4 py-2.5 text-sm text-ink-muted hover:bg-gray-50 transition-colors">로그아웃</button>
+                </div>
+            </div>
+
+            {{-- EN 번역 토글 — 로그인 여부와 무관하게 항상 표시 (NavBar.vue와 동일하게 Google Translate 쿠키 플립 방식) --}}
+            <button id="info-lang-toggle" type="button" translate="no" class="notranslate text-[11px] font-bold px-2.5 py-1.5 rounded-full text-ink-muted bg-surface hover:bg-line transition-colors flex-shrink-0" title="Translate to English">
+                <span translate="no" class="notranslate">EN</span>
+            </button>
+        </div>
     </div>
     @if ($navGroups)
     <div class="border-t border-gray-50 hidden md:block">
