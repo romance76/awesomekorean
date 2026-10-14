@@ -29,8 +29,8 @@
   <!-- 플레이어 UI (영상 제외) — 모바일은 전체화면 -->
   <div v-if="showPlayer"
     class="fixed z-[9998] bg-[#1a1a2e] flex flex-col overflow-hidden"
-    :class="isMobile ? 'inset-0' : ['rounded-2xl shadow-2xl border border-white/10', isMusicPage && window_w >= 1024 ? 'w-[280px]' : 'w-[300px]']"
-    :style="isMobile ? {} : { right: posRight + 'px', top: posTop + 'px', maxHeight: '75vh' }">
+                :class="isMobile ? 'inset-0' : 'rounded-2xl shadow-2xl border border-white/10'"
+    :style="isMobile ? {} : { right: posRight + 'px', top: posTop + 'px', width: (isMusicPage && window_w >= 1024 ? playerW : 300) + 'px', maxHeight: 'calc(100vh - ' + (posTop + 16) + 'px)' }">
 
     <!-- 헤더 -->
     <div @mousedown="!isMobile && startDrag($event)" @touchstart.passive="!isMobile && startDrag($event)"
@@ -152,6 +152,36 @@ function calcMusicPageTop() {
   return window.innerWidth < 1024 ? Math.max(window.innerHeight - 520, 80) : 170
 }
 
+// 음악 페이지(PC): 오른쪽 빈 칸(#music-player-slot)을 따라가서, 창 크기가 변해도 목록과 겹치지 않고 스크롤하면 헤더 아래에 붙는다.
+// 칸이 플레이어(280px)보다 좁으면 플레이어를 칸 너비(최소 232px)로 줄인다. 사용자가 끌어서 옮겼으면(userMoved) 자동으로 옮기지 않는다.
+const playerW = ref(280)
+let userMoved = false
+function musicSlotPos() {
+  const el = document.getElementById('music-player-slot')
+  if (!el || window.innerWidth < 1024) return null
+  const r = el.getBoundingClientRect()
+  if (r.width < 40) return null
+  const nav = document.querySelector('nav.site-hdr')
+  const navBottom = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 90
+  const vw = document.documentElement.clientWidth
+  const w = Math.min(280, Math.max(232, Math.round(r.width)))
+  const left = Math.min(r.left, vw - w - 8)
+  return { right: Math.max(8, Math.round(vw - left - w)), top: Math.round(Math.max(r.top, navBottom + 12)), w }
+}
+function syncMusicPos(force = false) {
+  if (force) userMoved = false
+  if (userMoved) return
+  const p = musicSlotPos()
+  if (p) { posRight.value = p.right; posTop.value = p.top; playerW.value = p.w }
+  else { posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop(); playerW.value = 280 }
+}
+// 어떤 경우에도 화면 밖으로 나가지 않게 가둔다 (창을 줄였을 때 아래·오른쪽이 잘리는 문제)
+function clampPos() {
+  const maxRight = Math.max(8, window.innerWidth - 240)
+  posRight.value = Math.max(8, Math.min(maxRight, posRight.value))
+  posTop.value = Math.max(8, Math.min(window.innerHeight - 160, posTop.value))
+}
+
 // YouTube 플로팅 위치: 펼침이면 앵커 위치, 아니면 화면 밖 (오디오만)
 const ytPos = ref({ x: -9999, y: -9999, w: 1, h: 1 })
 
@@ -186,6 +216,7 @@ function startDrag(e) {
 function onDrag(e) {
   if (!dragging) return
   const ev = e.touches ? e.touches[0] : e
+  userMoved = true
   posRight.value = Math.max(0, Math.min(window.innerWidth - 340, posStart.right - (ev.clientX - dragStart.x)))
   posTop.value = Math.max(0, Math.min(window.innerHeight - 100, posStart.top + (ev.clientY - dragStart.y)))
   updateYTPosition()
@@ -401,14 +432,14 @@ watch(() => music.currentTrack?.youtubeId, (vid) => {
   isShutdown.value = false; userPaused = false
   if (!isMobile.value) isExpanded.value = true   // 모바일은 미니바로 시작
   updateMediaSession()
-  if (isMusicPage.value) { posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
+  if (isMusicPage.value) { syncMusicPos(true) }
   else { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
   if (liveVideoId() === vid) { updateYTPosition(); return }   // 플레이어가 스스로 넘어간 곡 — 다시 불러오지 않음
   nextTick(() => { loadVideo(vid, 0); updateYTPosition() })
 })
 
 watch(isMusicPage, (isMp) => {
-  if (isMp && !isShutdown.value && !isMobile.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop(); nextTick(updateYTPosition) }
+  if (isMp && !isShutdown.value && !isMobile.value) { isExpanded.value = true; syncMusicPos(true); nextTick(updateYTPosition) }
 })
 watch(isMusicPage, (isMp) => { if (isMp && isMobile.value && !ytPlayer && !isShutdown.value) prepareEmptyPlayer() })
 watch(isMusicPage, (isMp, wasMp) => {
@@ -416,17 +447,25 @@ watch(isMusicPage, (isMp, wasMp) => {
 })
 watch(isShortsPage, (is) => { if (is) { try { ytPlayer?.pauseVideo() } catch {}; music.isPlaying = false } })
 
+let scrollRaf = 0
+function onScrollSync() {
+  if (scrollRaf || !isMusicPage.value || !isExpanded.value || isMobile.value) return
+  scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; syncMusicPos(false); updateYTPosition() })
+}
+
 function onResize() {
   window_w.value = window.innerWidth
-  if (isMusicPage.value && isExpanded.value) { posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
+  if (isMusicPage.value && isExpanded.value) syncMusicPos(false)
+  clampPos()
   updateYTPosition()
 }
 
 onMounted(() => {
   window.addEventListener('resize', onResize)
   // 위치 동기화 타이머 (드래그 등에서 정확도 보장)
-  positionTimer = setInterval(updateYTPosition, 500)
-  if (isMusicPage.value && !isShutdown.value && !isMobile.value) { isExpanded.value = true; posRight.value = calcMusicPageRight(); posTop.value = calcMusicPageTop() }
+  positionTimer = setInterval(() => { updateYTPosition(); if (isMusicPage.value && isExpanded.value && !isMobile.value) syncMusicPos(false) }, 500)
+  window.addEventListener('scroll', onScrollSync, { passive: true })
+  if (isMusicPage.value && !isShutdown.value && !isMobile.value) { isExpanded.value = true; syncMusicPos(true) }
   if (music.currentTrack?.youtubeId) { if (!isMobile.value) isExpanded.value = true; nextTick(() => createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)) }
   document.addEventListener('visibilitychange', onVisibilityChange)
   setupMediaSessionHandlers()
@@ -434,7 +473,7 @@ onMounted(() => {
 })
 watch(() => music.isPlaying, (p) => { if (p) acquireWakeLock(); else releaseWakeLock() })
 watch(() => music.hasTrack, (h) => { if (!h) releaseWakeLock() })
-onUnmounted(() => { document.removeEventListener('visibilitychange', onVisibilityChange); releaseWakeLock(); if (progressTimer) clearInterval(progressTimer); if (positionTimer) clearInterval(positionTimer); window.removeEventListener('resize', onResize) })
+onUnmounted(() => { document.removeEventListener('visibilitychange', onVisibilityChange); releaseWakeLock(); if (progressTimer) clearInterval(progressTimer); if (positionTimer) clearInterval(positionTimer); window.removeEventListener('resize', onResize); window.removeEventListener('scroll', onScrollSync) })
 </script>
 
 <style scoped>

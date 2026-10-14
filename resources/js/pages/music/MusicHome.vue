@@ -137,6 +137,9 @@
         <Pagination v-if="activeCat && !showFavorites && !activePL" :page="trackPage" :lastPage="trackLastPage" @page="loadCategoryPage" />
       </div>
 
+      <!-- 오른쪽 빈 칸 = 떠 있는 플레이어(MiniPlayer)가 앉는 자리. 화면 크기에 따라 이 칸 위치를 따라가요 -->
+      <div id="music-player-slot" class="hidden lg:block lg:col-span-3" aria-hidden="true"></div>
+
     </div>
 
     <!-- 모바일: YouTube 링크 추가 시트 -->
