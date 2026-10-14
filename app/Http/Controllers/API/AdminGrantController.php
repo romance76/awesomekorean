@@ -30,6 +30,7 @@ class AdminGrantController extends Controller
             'description' => 'required|string|min:2|max:150',
             'method' => 'required|in:zelle,cash,check,other',
             'memo' => 'nullable|string|max:120',
+            'direction' => 'nullable|in:add,subtract',
         ], ['amount.min' => '금액은 $0.50 이상이어야 해요.', 'amount.max' => '한 번에 $10,000 까지 기록할 수 있어요.', 'description.required' => '무엇을 구매했는지 적어 주세요.']);
 
         if (!Schema::hasColumn('payments', 'pay_method')) {
@@ -39,23 +40,30 @@ class AdminGrantController extends Controller
         $methods = ['zelle' => 'Zelle', 'cash' => '현금(Cash)', 'check' => '수표(Check)', 'other' => '기타'];
         $note = trim($methods[$data['method']] . (!empty($data['memo']) ? ' · ' . $data['memo'] : ''));
         $amount = round((float) $data['amount'], 2);
+        // 차감: 잘못 기록했거나 돌려준 돈을 "마이너스 금액" 기록으로 남긴다. 매출·누적 구매에서 그만큼 빠지고 인보이스는 만들지 않는다.
+        // (status 'refunded' + 음수 금액 → Revenue::NET_SQL 이 amount 를 그대로 합산, 인보이스 훅은 인보이스가 없어 아무것도 안 함)
+        $subtract = ($data['direction'] ?? 'add') === 'subtract';
+        if ($subtract) $note = '차감 · ' . $note;
 
         $payment = Payment::create([
             'user_id' => (int) $data['user_id'],
             'kind' => $data['kind'],
-            'amount' => $amount,
+            'amount' => $subtract ? -$amount : $amount,
             'currency' => 'USD',
-            'description' => $data['description'],
-            'status' => 'captured',            // 받은 돈으로 기록 → 매출에 잡히고 인보이스가 자동 발행됨
+            'description' => $subtract ? ('차감: ' . $data['description']) : $data['description'],
+            'status' => $subtract ? 'refunded' : 'captured',   // 지급: 받은 돈 → 매출에 잡히고 인보이스 자동 발행
             'captured_at' => now(),
             'pay_method' => 'manual',
             'pay_note' => mb_substr($note, 0, 200),
         ]);
 
-        $this->audit($request, 'MANUAL_PAYMENT payments/' . $payment->id, 'payments', $payment->id, [
-            'reason' => $note, 'amount_usd' => $amount, 'kind' => $data['kind'], 'user_id' => (int) $data['user_id'], 'description' => $data['description'],
+        $this->audit($request, ($subtract ? 'MANUAL_PAYMENT_SUBTRACT payments/' : 'MANUAL_PAYMENT payments/') . $payment->id, 'payments', $payment->id, [
+            'reason' => $note, 'amount_usd' => $subtract ? -$amount : $amount, 'kind' => $data['kind'], 'user_id' => (int) $data['user_id'], 'description' => $data['description'],
         ]);
 
+        if ($subtract) {
+            return response()->json(['success' => true, 'message' => '$' . number_format($amount, 2) . ' 를 차감했어요. 매출과 누적 구매에서 빠져요.', 'data' => ['payment_id' => $payment->id, 'invoice_no' => null]], 201);
+        }
         $invoiceNo = null;
         try { $invoiceNo = \App\Models\Invoice::where('payment_id', $payment->id)->value('invoice_no'); } catch (\Throwable $e) {}
         return response()->json([

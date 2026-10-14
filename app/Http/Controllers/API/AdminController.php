@@ -573,7 +573,7 @@ class AdminController extends Controller
 
         // 요약 통계
         $summary = [
-            'total_spent_usd' => Payment::where('user_id',$id)->where('status','completed')->sum('amount'),
+            'total_spent_usd' => round((float) (Payment::where('user_id',$id)->selectRaw('COALESCE(SUM(' . \App\Support\Revenue::NET_SQL . '),0) AS net')->value('net') ?? 0), 2),
             'total_points_earned' => (int)\App\Models\PointLog::where('user_id',$id)->where('amount','>',0)->sum('amount'),
             'total_points_spent' => abs((int)\App\Models\PointLog::where('user_id',$id)->where('amount','<',0)->sum('amount')),
             'posts_total' => $posts->count() + $jobs->count() + $market->count() + $realestate->count() + $events->count() + $qa->count() + $clubs->count(),

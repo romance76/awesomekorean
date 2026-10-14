@@ -82,19 +82,20 @@
 
       <!-- 실제 구매 금액 -->
       <div class="card p-3.5 space-y-2">
-        <h2 class="text-[15px] font-bold text-ink">실제 받은 구매 금액 기록 <span v-if="!isSuper" class="text-[12px] font-normal text-ink-faint">· 최고관리자만</span></h2>
-        <p class="text-[12px] text-ink-muted leading-relaxed">카드가 아닌 방법(Zelle·현금·수표)으로 <b>이미 받은 돈</b>을 기록해요. 매출에 잡히고 <b>인보이스가 자동 발행</b>돼요. 새 광고·상위노출을 대신 열어 주지는 않아요(그건 해당 관리 화면에서). 비밀번호 재확인이 필요해요.</p>
+        <h2 class="text-[15px] font-bold text-ink">실제 받은 구매 금액 지급 / 차감 <span v-if="!isSuper" class="text-[12px] font-normal text-ink-faint">· 최고관리자만</span></h2>
+        <p class="text-[12px] text-ink-muted leading-relaxed"><b>지급</b>: 카드가 아닌 방법(Zelle·현금·수표)으로 <b>이미 받은 돈</b>을 기록해요. 매출에 잡히고 <b>인보이스가 자동 발행</b>돼요. <b>차감</b>: 잘못 기록했거나 돌려준 돈을 마이너스로 기록해 매출·누적 구매에서 빼요(인보이스는 만들지 않아요). 새 광고·상위노출을 대신 열어 주지는 않아요. 비밀번호 재확인이 필요해요.</p>
         <template v-if="isSuper">
+          <div class="grid grid-cols-2 gap-1 bg-gray-100 rounded-xl p-1"><button type="button" @click="mp.sign = 1" class="min-h-[40px] rounded-lg font-bold text-[14px]" :class="mp.sign === 1 ? 'bg-white text-emerald-700 shadow-sm' : 'text-ink-muted'">+ 지급</button><button type="button" @click="mp.sign = -1" class="min-h-[40px] rounded-lg font-bold text-[14px]" :class="mp.sign === -1 ? 'bg-white text-red-600 shadow-sm' : 'text-ink-muted'">− 차감</button></div>
           <div class="grid grid-cols-2 gap-2">
             <select v-model="mp.kind" class="input-soft px-3 min-h-[46px]"><option v-for="k in kinds" :key="k.v" :value="k.v">{{ k.l }}</option></select>
-            <div class="flex items-center gap-1"><span class="text-ink-muted font-bold">$</span><input v-model.number="mp.amount" type="number" inputmode="decimal" min="0.5" step="0.01" placeholder="받은 금액" class="input-soft w-full px-3 min-h-[46px]" /></div>
+            <div class="flex items-center gap-1"><span class="text-ink-muted font-bold">$</span><input v-model.number="mp.amount" type="number" inputmode="decimal" min="0.5" step="0.01" :placeholder="mp.sign === 1 ? '받은 금액' : '뺄 금액'" class="input-soft w-full px-3 min-h-[46px]" /></div>
           </div>
-          <input v-model="mp.description" type="text" maxlength="150" placeholder="무엇을 구매했나요? (예: 배너 광고 30일 — 홈 왼쪽 프리미엄)" class="input-soft w-full px-3 min-h-[46px]" />
+          <input v-model="mp.description" type="text" maxlength="150" :placeholder="mp.sign === 1 ? '무엇을 구매했나요? (예: 배너 광고 30일 — 홈 왼쪽 프리미엄)' : '왜 빼나요? (예: 중복 기록, 환불해 줌)'" class="input-soft w-full px-3 min-h-[46px]" />
           <div class="grid grid-cols-2 gap-2">
             <select v-model="mp.method" class="input-soft px-3 min-h-[46px]"><option value="zelle">Zelle</option><option value="cash">현금</option><option value="check">수표</option><option value="other">기타</option></select>
             <input v-model="mp.memo" type="text" maxlength="120" placeholder="메모 (선택, 예: 확인번호)" class="input-soft px-3 min-h-[46px]" />
           </div>
-          <button @click="recordPayment" :disabled="busy || !mp.amount || mp.description.trim().length < 2" class="w-full min-h-[48px] rounded-xl bg-amber-500 text-white font-bold disabled:opacity-40">구매 금액 기록 + 인보이스 발행</button>
+          <button @click="recordPayment" :disabled="busy || !mp.amount || mp.description.trim().length < 2" class="w-full min-h-[48px] rounded-xl text-white font-bold disabled:opacity-40" :class="mp.sign === 1 ? 'bg-amber-500' : 'bg-red-500'">{{ mp.sign === 1 ? '구매 금액 기록 + 인보이스 발행' : '구매 금액 차감 기록' }}</button>
           <p v-if="lastInvoice" class="text-[13px] text-emerald-700">기록했어요. <button @click="openInvoice(lastInvoice.payment_id)" class="underline font-bold">정식 인보이스 열기 {{ lastInvoice.invoice_no || '' }}</button></p>
         </template>
       </div>
@@ -144,7 +145,7 @@
       </div>
       <template #footer>
         <div v-if="logSel" class="flex flex-wrap gap-2">
-          <button v-if="logSel.kind === 'payment'" @click="openInvoice(logSel.id)" class="min-h-[46px] px-4 rounded-xl bg-amber-50 text-amber-700 font-bold text-[14px]">정식 인보이스 열기</button>
+          <button v-if="logSel.kind === 'payment' && Number(logSel.amount) > 0" @click="openInvoice(logSel.id)" class="min-h-[46px] px-4 rounded-xl bg-amber-50 text-amber-700 font-bold text-[14px]">정식 인보이스 열기</button>
           <button @click="goMember(logSel.user_id)" class="min-h-[46px] px-4 rounded-xl bg-gray-100 text-ink-light font-bold text-[14px]">이 회원으로 지급하기</button>
         </div>
       </template>
@@ -245,14 +246,18 @@ async function giveEntries() {
 
 // ── 실제 구매 금액 ──
 const kinds = [{ v: 'banner', l: '배너 광고' }, { v: 'text_ad', l: '텍스트 광고' }, { v: 'promotion', l: '상위노출' }, { v: 'flyer', l: 'NEW 전면광고' }, { v: 'event_request', l: '경품 이벤트 의뢰' }]
-const mp = reactive({ kind: 'banner', amount: null, description: '', method: 'zelle', memo: '' })
+const mp = reactive({ sign: 1, kind: 'banner', amount: null, description: '', method: 'zelle', memo: '' })
 const lastInvoice = ref(null)
 async function recordPayment() {
   const u = picked.value
-  if (!await confirmAction({ title: '구매 금액 기록', message: `'${u.nickname || u.name}' 회원이 ${kinds.find(k => k.v === mp.kind).l}(으)로 $${money(mp.amount)} 를 ${mp.method === 'zelle' ? 'Zelle' : mp.method === 'cash' ? '현금' : mp.method === 'check' ? '수표' : '기타 방법'}로 냈다고 기록합니다. 매출에 잡히고 인보이스가 발행돼요.`, kind: 'danger', confirmLabel: '기록하기' })) return
+  const how = mp.method === 'zelle' ? 'Zelle' : mp.method === 'cash' ? '현금' : mp.method === 'check' ? '수표' : '기타 방법'
+  const msg = mp.sign === 1
+    ? `'${u.nickname || u.name}' 회원이 ${kinds.find(k => k.v === mp.kind).l}(으)로 $${money(mp.amount)} 를 ${how}로 냈다고 기록합니다. 매출에 잡히고 인보이스가 발행돼요.`
+    : `'${u.nickname || u.name}' 회원의 ${kinds.find(k => k.v === mp.kind).l} 구매 금액에서 $${money(mp.amount)} 를 차감합니다(${how}). 매출과 누적 구매에서 빠지고 인보이스는 만들지 않아요. 사유: ${mp.description.trim()}`
+  if (!await confirmAction({ title: mp.sign === 1 ? '구매 금액 기록' : '구매 금액 차감', message: msg, kind: 'danger', confirmLabel: mp.sign === 1 ? '기록하기' : '차감하기' })) return
   busy.value = true
   try {
-    const { data } = await axios.post('/api/admin/grants/manual-payment', { user_id: u.id, kind: mp.kind, amount: mp.amount, description: mp.description.trim(), method: mp.method, memo: mp.memo.trim() || undefined })
+    const { data } = await axios.post('/api/admin/grants/manual-payment', { user_id: u.id, kind: mp.kind, amount: mp.amount, description: mp.description.trim(), method: mp.method, memo: mp.memo.trim() || undefined, direction: mp.sign === 1 ? 'add' : 'subtract' })
     say(data.message || '기록했어요'); lastInvoice.value = data.data || null
     mp.amount = null; mp.description = ''; mp.memo = ''; await refreshBal()
   } catch (e) { say(apiMsg(e, '기록하지 못했어요'), true) }

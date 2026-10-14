@@ -807,6 +807,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     // 시크릿/결제 자격증명이 포함되는 엔드포인트는 super_admin만 접근 가능
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
+        // 회원 등급(레벨 1~15) 직접 지정 — 슈퍼관리자 전용(누적 포인트를 등급 범위로 맞춤, 감사 로그에 남음)
+        Route::post('/users/{id}/grade', [\App\Http\Controllers\API\AdminMemberGradeController::class, 'set'])->whereNumber('id')->middleware('throttle:60,1');
         Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe'])->middleware(['role:admin,super_admin', 'reauth']);
         Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway'])->middleware(['role:admin,super_admin', 'reauth']);
         // 사이트 공식 SNS 계정(인스타그램·스레드) 정보 — 저장은 비밀번호 재확인

@@ -428,6 +428,18 @@
               <button @click="saveUser" class="btn-primary mt-3 px-5 py-2">권한 저장</button>
             </div>
 
+            <!-- 회원 등급(레벨) — 슈퍼관리자 전용 -->
+            <div v-if="auth.user?.role === 'super_admin'" class="border-t border-gray-100 pt-4">
+              <h3 class="flex items-center gap-1.5 text-sm font-bold text-ink mb-1"><AppIcon name="star" :size="14" />회원 등급(레벨) 지정 <span class="text-[11px] font-normal text-ink-faint">· 슈퍼관리자 전용</span></h3>
+              <p class="text-[11px] text-ink-muted mb-2">지금 <b class="text-ink">Lv.{{ userData.user.grade_level || 1 }} {{ gradeName(userData.user.grade_level || 1) }}</b> · 누적 포인트 {{ Number(userData.user.lifetime_points || 0).toLocaleString() }}P. 등급을 고르면 누적 포인트(평생 획득량)를 그 등급 범위로 맞춰요. 쓸 수 있는 포인트 잔액은 그대로이고, 변경 내용은 감사 로그에 남아요.</p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <select v-model.number="gradePick" class="input-soft px-3 py-1.5">
+                  <option v-for="g in gradeTiers" :key="g.level" :value="g.level">Lv.{{ g.level }} {{ g.icon }} {{ g.label }} ({{ g.min.toLocaleString() }}P~)</option>
+                </select>
+                <button @click="saveGrade" :disabled="!gradePick" class="btn-primary px-4 py-2 disabled:opacity-40">등급 지정</button>
+              </div>
+            </div>
+
             <!-- 계정 정지 -->
             <div class="border-t border-gray-100 pt-4">
               <h3 class="flex items-center gap-1.5 text-sm font-bold text-ink mb-2"><AppIcon name="alert-circle" :size="14" />계정 정지</h3>
@@ -609,7 +621,7 @@ async function loadUsers(p = 1) {
 async function openUser(u) {
   activeUser.value = u; userLoading.value = true; userData.value = null
   userTab.value = 'summary'; tempPassword.value = ''; newPassword.value = ''; banReason.value = ''
-  try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data; friendRequestVal.value = userData.value?.user?.allow_friend_request ? 'true' : 'false'; origUser = JSON.parse(JSON.stringify(userData.value?.user || {})) } catch {}
+  try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data; friendRequestVal.value = userData.value?.user?.allow_friend_request ? 'true' : 'false'; origUser = JSON.parse(JSON.stringify(userData.value?.user || {})); loadGradeTiers(); gradePick.value = userData.value?.user?.grade_level || 1 } catch {}
   userLoading.value = false
 }
 
@@ -641,6 +653,21 @@ async function resetPassword() {
       newPassword.value = ''
     }
   } catch (e) { say(apiMsg(e, '비밀번호를 초기화하지 못했어요'), 'error') }
+}
+
+// 회원 등급(레벨) 지정 — 슈퍼관리자
+const gradeTiers = ref([]); const gradePick = ref(null)
+const gradeName = (lv) => gradeTiers.value.find(g => g.level === lv)?.label || ''
+async function loadGradeTiers() { if (gradeTiers.value.length) return; try { const { data } = await axios.get('/api/member-grades'); gradeTiers.value = data.data || [] } catch {} }
+async function saveGrade() {
+  const u = userData.value?.user; if (!u || !gradePick.value) return
+  const t = gradeTiers.value.find(g => g.level === gradePick.value)
+  if (!await confirmAction({ title: '회원 등급 지정', message: `'${u.name}' 회원을 Lv.${t.level} ${t.label}로 맞춥니다. 누적 포인트(평생 획득량)가 이 등급 범위로 조정돼요. 포인트 잔액은 그대로예요.`, kind: 'danger', confirmLabel: '등급 지정' })) return
+  try {
+    const { data } = await axios.post(`/api/admin/users/${u.id}/grade`, { level: gradePick.value })
+    u.lifetime_points = data.data.lifetime_points; u.grade_level = data.data.level
+    say(data.message || '등급을 맞췄어요')
+  } catch (e) { say(apiMsg(e, '등급을 바꾸지 못했어요'), 'error') }
 }
 
 async function forceVerifyEmail() {
