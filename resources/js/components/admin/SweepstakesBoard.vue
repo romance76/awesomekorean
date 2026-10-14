@@ -273,13 +273,16 @@
           </div>
         </div>
 
-        <div class="mt-3 text-[13px] font-bold text-ink-light">직접 처리했을 때</div>
-        <div class="grid grid-cols-3 gap-2 mt-1.5">
-          <button @click="setStatus('sent')" :disabled="busy" class="min-h-[44px] rounded-xl bg-gray-100 text-ink text-[13px] font-bold">직접 보냄</button>
-          <button @click="setStatus('confirmed')" :disabled="busy" class="min-h-[44px] rounded-xl bg-emerald-50 text-emerald-700 text-[13px] font-bold">수령 확인</button>
-          <button @click="setStatus('pending')" :disabled="busy" class="min-h-[44px] rounded-xl bg-gray-100 text-ink-light text-[13px] font-bold">대기로</button>
+        <div class="mt-4 text-[14px] font-bold text-ink">지급 상태 직접 바꾸기</div>
+        <p class="text-[12.5px] text-ink-muted mt-0.5">쪽지가 아니라 이메일·우편 등으로 직접 처리했다면 여기서 상태를 골라 주세요. ✓ 표시된 칸이 지금 상태예요.</p>
+        <div class="grid grid-cols-3 gap-2 mt-1.5" role="radiogroup" aria-label="지급 상태">
+          <button v-for="o in STATUS_OPTS" :key="o.v" type="button" role="radio" :aria-checked="curSt === o.v" @click="setStatus(o.v)" :disabled="busy"
+            class="min-h-[52px] rounded-xl border-2 text-[13px] font-bold px-1 leading-tight disabled:opacity-60" :class="curSt === o.v ? o.on : 'border-gray-200 bg-white text-ink-light'">
+            <span v-if="curSt === o.v">✓ </span>{{ savingSt === o.v ? '저장 중...' : o.l }}
+          </button>
         </div>
         <button @click="saveCostOnly" :disabled="busy" class="mt-2 w-full min-h-[44px] rounded-xl border border-gray-200 text-ink-light text-[13px] font-bold">쓴 금액만 저장</button>
+        <p v-if="stMsg" class="mt-2 text-[13.5px] font-bold break-words" :class="stMsg.error ? 'text-red-600' : 'text-emerald-700'" role="status">{{ stMsg.text }}</p>
 
         <div class="mt-4 text-[14px] font-bold text-ink">처리 이력</div>
         <div class="mt-1.5 space-y-2">
@@ -325,6 +328,14 @@ const form = ref({ prize_type: 'digital', link: '', message: '', cost: '' })
 const busy = ref(false)
 const confirmSend = ref(false)
 const err = ref('')
+const stMsg = ref(null)         // 상태·금액 버튼 바로 아래에 보여 주는 결과 줄 { text, error }
+const savingSt = ref('')
+const STATUS_OPTS = [
+  { v: 'pending', l: '안 보냄', on: 'border-amber-400 bg-amber-50 text-amber-800' },
+  { v: 'sent', l: '직접 보냄', on: 'border-blue-500 bg-blue-50 text-blue-800' },
+  { v: 'confirmed', l: '수령 확인', on: 'border-emerald-500 bg-emerald-50 text-emerald-800' },
+]
+const curSt = computed(() => (panel.value && panel.value.c.delivery_status) || 'pending')
 const msg = ref(null)
 let msgTimer = null
 function say(text, error = false) { msg.value = { text, error }; clearTimeout(msgTimer); msgTimer = setTimeout(() => { msg.value = null }, 3500) }
@@ -410,7 +421,7 @@ async function loadPanelLogs() {
 function openPanel(c, item) {
   panel.value = { c: { ...c }, item }
   form.value = { prize_type: c.prize_type || 'digital', link: '', message: '', cost: c.cost_usd != null ? String(c.cost_usd) : '' }
-  confirmSend.value = false; err.value = ''; panelLogs.value = []
+  confirmSend.value = false; err.value = ''; stMsg.value = null; panelLogs.value = []
   document.body.style.overflow = 'hidden'
   loadPanelLogs()
 }
@@ -442,23 +453,24 @@ async function doSend() {
 }
 async function setStatus(st) {
   if (busy.value) return
-  busy.value = true; err.value = ''
+  if (st === curSt.value) { stMsg.value = { text: `이미 '${stLabel(st)}' 상태예요. 다른 칸을 눌러 바꿔 주세요.`, error: false }; return }
+  busy.value = true; savingSt.value = st; err.value = ''; stMsg.value = null
   try {
     const body = { delivery_status: st, prize_type: form.value.prize_type }
     if (form.value.cost !== '') body.cost_usd = Number(form.value.cost)
     const { data } = await axios.put(`/api/admin/prize-claims/${panel.value.c.id}`, body)
-    applyClaim(data.data); say('상태를 바꿨어요'); loadSummary(); loadPanelLogs()
-  } catch (e) { err.value = e.response?.data?.message || '저장하지 못했어요' }
-  busy.value = false
+    applyClaim(data.data); stMsg.value = { text: `✓ '${stLabel(st)}' 상태로 바꿨어요`, error: false }; say('상태를 바꿨어요'); loadSummary(); loadPanelLogs()
+  } catch (e) { stMsg.value = { text: e.response?.data?.message || '저장하지 못했어요. 다시 눌러 주세요.', error: true } }
+  busy.value = false; savingSt.value = ''
 }
 async function saveCostOnly() {
   if (busy.value) return
-  if (form.value.cost === '') { err.value = '금액을 입력해 주세요'; return }
-  busy.value = true; err.value = ''
+  if (form.value.cost === '') { stMsg.value = { text: '금액을 입력해 주세요', error: true }; return }
+  busy.value = true; err.value = ''; stMsg.value = null
   try {
     const { data } = await axios.put(`/api/admin/prize-claims/${panel.value.c.id}`, { cost_usd: Number(form.value.cost) })
-    applyClaim(data.data); say('금액을 저장했어요'); loadSummary(); loadPanelLogs()
-  } catch (e) { err.value = e.response?.data?.message || '저장하지 못했어요' }
+    applyClaim(data.data); stMsg.value = { text: '✓ 쓴 금액을 저장했어요', error: false }; say('금액을 저장했어요'); loadSummary(); loadPanelLogs()
+  } catch (e) { stMsg.value = { text: e.response?.data?.message || '저장하지 못했어요. 다시 눌러 주세요.', error: true } }
   busy.value = false
 }
 
