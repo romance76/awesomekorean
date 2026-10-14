@@ -500,5 +500,5 @@ watch(() => route.params.board, (newBoard, oldBoard) => {
 </script>
 
 <style scoped>
-.new-n { display:inline-grid; place-items:center; width:10px; height:10px; margin-left:4px; border-radius:3px; background:#ef4444; color:#fff; font-size:7px; font-weight:900; line-height:1; vertical-align:middle; transform:translateY(-1px); }
+.new-n { display:inline-block; margin-left:3px; color:#ef4444; font-size:10px; font-weight:600; line-height:1; letter-spacing:0; vertical-align:super; font-family:inherit; }
 </style>
