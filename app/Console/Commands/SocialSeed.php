@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
  */
 class SocialSeed extends Command
 {
-    protected $signature = 'social:seed {--file=database/data/social_pieces.json} {--status=approved : approved 또는 pending} {--only= : 이 id 들만(쉼표)} {--launch : 승인 전 MONEY 글 대기열 삭제 + 새 MONEY 글 자동 등록 끄기 + 새 글 넣기} {--autopost= : on 또는 off — 계정의 자동 게시 켜기/끄기} {--approve= : 승인 대기(pending) 중인 SNS 글(piece)의 id 들을 승인(쉼표)}';
+    protected $signature = 'social:seed {--file=database/data/social_pieces.json} {--status=approved : approved 또는 pending} {--only= : 이 id 들만(쉼표)} {--launch : 승인 전 MONEY 글 대기열 삭제 + 새 MONEY 글 자동 등록 끄기 + 새 글 넣기} {--autopost= : on 또는 off — 계정의 자동 게시 켜기/끄기} {--reseed : --only 로 고른 글의 승인 대기·예약 줄을 지우고 다시 만들기} {--approve= : 승인 대기(pending) 중인 SNS 글(piece)의 id 들을 승인(쉼표)}';
     protected $description = 'SNS 글(JSON)을 게시 대기열에 넣기';
 
     public function handle(): int
@@ -35,6 +35,11 @@ class SocialSeed extends Command
             $del = DB::table('social_posts')->where('source_type', 'money_post')->where('status', 'pending')->delete();
             SocialQueue::saveSettings(['auto_money' => false]);
             $this->info("승인 전 MONEY 글 대기열 {$del}건 삭제, 새 MONEY 글 자동 등록 끔");
+        }
+        if ($this->option('reseed') && $this->option('only')) {
+            $ids = array_filter(array_map('intval', explode(',', (string) $this->option('only'))));
+            $del = DB::table('social_posts')->where('source_type', 'piece')->whereIn('source_id', $ids)->whereIn('status', ['pending', 'approved'])->delete();
+            $this->info("다시 만들기: {$del}줄 지움");
         }
         $pieces = json_decode((string) file_get_contents(base_path($this->option('file'))), true);
         if (!is_array($pieces)) { $this->error('파일을 읽지 못했어요'); return self::FAILURE; }

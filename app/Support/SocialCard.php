@@ -161,7 +161,7 @@ class SocialCard
                 imagettftext($im, 44, 0, $x, $y, $ink, $bold, $ln);
                 $y += 66;
             }
-            imagettftext($im, 42, 0, $x, self::H - 215, $accent, $xbold, '옆으로 넘겨서 보세요  >>');
+            imagettftext($im, 42, 0, $x, self::H - 185, $accent, $xbold, '옆으로 넘겨서 보세요  >>');
             $footer('');
         } elseif ($type === 'item') {
             $n = (int) ($c['n'] ?? 1);
@@ -178,17 +178,22 @@ class SocialCard
             $y += 10;
             imagefilledrectangle($im, $x, $y, $x + 110, $y + 8, $accent);
             $y += 80;
-            foreach (array_slice($c['lines'] ?? [], 0, 4) as $p) {
-                $p = self::clean($p);
-                if ($p === '') continue;
-                $sub = self::wrap($p, $bold, 42, $maxW - 70, 4);
-                if ($y + count($sub) * 62 > self::H - $footH - 40) break;
-                imagefilledellipse($im, $x + 16, $y - 15, 22, 22, $accent);
+            // 글줄이 많으면 글자를 조금 줄여서 전부 들어가게 한다
+            $limitY = self::H - $footH - 40;
+            $items = array_values(array_filter(array_map([self::class, 'clean'], array_slice($c['lines'] ?? [], 0, 4)), fn ($t) => $t !== ''));
+            foreach ([[42, 62, 34], [38, 56, 28], [34, 50, 24]] as [$fs, $lh, $gap]) {
+                $wrapped = array_map(fn ($t) => self::wrap($t, $bold, $fs, $maxW - 70, 5), $items);
+                $h = 0;
+                foreach ($wrapped as $w) $h += count($w) * $lh + $gap;
+                if ($y + $h <= $limitY) break;
+            }
+            foreach ($wrapped as $sub) {
+                imagefilledellipse($im, $x + 16, $y - (int) ($fs * 0.36), 22, 22, $accent);
                 foreach ($sub as $ln) {
-                    imagettftext($im, 42, 0, $x + 56, $y, $ink, $bold, $ln);
-                    $y += 62;
+                    imagettftext($im, $fs, 0, $x + 56, $y, $ink, $bold, $ln);
+                    $y += $lh;
                 }
-                $y += 34;
+                $y += $gap;
             }
             $footer($n . ' / ' . (int) ($c['total'] ?? 0));
         } else { // cta
