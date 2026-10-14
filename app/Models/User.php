@@ -31,7 +31,7 @@ class User extends Authenticatable implements JWTSubject
     // - entries: Point와 완전히 분리된 별도 자산. App\Support\EntryService 경유만
     //   허용 — Point와의 교환 경로가 생기지 않도록 이 모델 안에 변환 헬퍼를 두지 않는다.
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'two_factor_last_step'];
 
 
     // 비밀번호가 바뀌면(재설정/변경/관리자 초기화 모두) 시각을 기록 — 이전에 발급된 로그인 토큰을 무효로 만드는 기준.

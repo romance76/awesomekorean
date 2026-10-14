@@ -45,10 +45,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function login(email, password, remember = true) {
+  async function login(email, password, remember = true, twoFactorCode = '') {
     // remember 설정 저장 — 이후 세션에서도 재적용
     localStorage.setItem(PERSIST_KEY, remember ? '1' : '0')
-    const { data } = await axios.post('/api/login', { email, password })
+    // twoFactorCode: 2단계 인증을 켠 계정만 보낸다(서버가 two_factor_required 로 요구할 때)
+    const body = twoFactorCode ? { email, password, two_factor_code: twoFactorCode } : { email, password }
+    const { data } = await axios.post('/api/login', body)
     setAuth(data.data.token, data.data.user)
     return data
   }

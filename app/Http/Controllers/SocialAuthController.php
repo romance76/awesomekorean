@@ -108,6 +108,11 @@ class SocialAuthController extends Controller
             return redirect('/login?social_error=maintenance');
         }
 
+        // 2단계 인증을 켠 계정은 소셜 로그인으로 코드 확인을 건너뛸 수 없으니, 이메일·비밀번호 + 인증 코드로만 로그인하게 한다
+        if (\App\Support\TwoFactor::enabled($user)) {
+            return redirect('/login?social_error=two_factor');
+        }
+
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);
 
         // abs() 필요한 이유: AuthController::login()의 동일 버그 수정 참고

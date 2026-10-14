@@ -50,6 +50,8 @@ Broadcast::routes(['middleware' => ['auth:api']]);
 // ─── Public Auth ───
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,10'); // 10분당 10회
 Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
+// CSP 보고 전용 모드의 위반 보고 수신 (브라우저가 자동으로 보냄, 로그인 불필요, 종류별로 하루 1건만 기록)
+Route::post('/csp-report', [AppHttpControllersAPICspReportController::class, 'store'])->middleware('throttle:60,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,10');
 Route::post('/auth/refresh', [AuthController::class, 'refresh'])->middleware('throttle:30,1');
 // Issue #8: 비밀번호 찾기/재설정 Rate Limit
@@ -481,6 +483,13 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/me/prize-claims/{id}/confirm', [\App\Http\Controllers\API\PrizeClaimController::class, 'confirm'])->whereNumber('id');
     Route::post('/me/prize-claims/{id}/received', [\App\Http\Controllers\API\PrizeClaimController::class, 'received'])->whereNumber('id');
 
+    // 관리자·운영자 2단계 인증(인증 앱 6자리 코드) 설정 — 켜기/끄기/복구 코드. 스스로 켠 계정만 로그인 때 코드를 요구한다
+    Route::get('/me/2fa', [\App\Http\Controllers\API\TwoFactorController::class, 'status']);
+    Route::post('/me/2fa/setup', [\App\Http\Controllers\API\TwoFactorController::class, 'setup'])->middleware('throttle:10,1');
+    Route::post('/me/2fa/confirm', [\App\Http\Controllers\API\TwoFactorController::class, 'confirm'])->middleware('throttle:10,1');
+    Route::post('/me/2fa/recovery', [\App\Http\Controllers\API\TwoFactorController::class, 'regenerate'])->middleware('throttle:10,1');
+    Route::post('/me/2fa/disable', [\App\Http\Controllers\API\TwoFactorController::class, 'disable'])->middleware('throttle:10,1');
+
     Route::post('/reports', [ReportController::class, 'store']);
 
     // Wallet (게임 호환)
@@ -811,6 +820,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
         Route::get('/settings/all', [AdminSettingsController::class, 'getAll']);
         // 회원 등급(레벨 1~15) 직접 지정 — 슈퍼관리자 전용(누적 포인트를 등급 범위로 맞춤, 감사 로그에 남음)
         Route::post('/users/{id}/grade', [\App\Http\Controllers\API\AdminMemberGradeController::class, 'set'])->whereNumber('id')->middleware('throttle:60,1');
+        // 폰·복구 코드를 모두 잃은 관리자의 2단계 인증 해제 — 최고관리자 전용
+        Route::post('/users/{id}/2fa/reset', [\App\Http\Controllers\API\TwoFactorController::class, 'adminReset'])->whereNumber('id')->middleware('throttle:20,1');
         Route::post('/settings/stripe', [AdminSettingsController::class, 'saveStripe'])->middleware(['role:admin,super_admin', 'reauth']);
         Route::post('/settings/payment-gateway', [AdminSettingsController::class, 'savePaymentGateway'])->middleware(['role:admin,super_admin', 'reauth']);
         // 사이트 공식 SNS 계정(인스타그램·스레드) 정보 — 저장은 비밀번호 재확인

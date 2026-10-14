@@ -90,6 +90,7 @@ export const ADMIN_ITEMS = [
 
   // ── 시스템 ──
   { to: '/admin/accounts', icon: 'mail', label: '계정·이메일 현황', pcGroup: 'system', legacyGroup: 'system', mobile: true },
+  { to: '/admin/two-factor', icon: 'shield', label: '2단계 인증', pcGroup: 'system', legacyGroup: 'system', mobile: true },
   { to: '/admin/todos', icon: 'list', label: '할 일 목록', pcGroup: 'system', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/audit-log', icon: 'shield', label: '감사 로그', pcGroup: 'system', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/analytics', icon: 'chart-bar', label: '방문 분석', pcGroup: 'system', legacyGroup: 'system', mobile: true, minTier: 3 },

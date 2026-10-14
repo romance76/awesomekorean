@@ -373,7 +373,15 @@ class AdminSettingsController extends Controller
             return response()->json(['success' => false, 'message' => '푸시 키가 이미 있어요. 덮어쓰면 기존 푸시 구독이 모두 끊겨서 막아 두었어요.'], 422);
         }
         // 진짜 VAPID 키(P-256 곡선): 공개키는 65바이트(04||X||Y), 비공개키는 32바이트이며 둘 다 base64url(패딩 없음) 로 저장한다.
-        $res = function_exists('openssl_pkey_new') ? @openssl_pkey_new(['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC]) : false;
+        $opts = ['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC, 'private_key_bits' => 2048];
+        $res = function_exists('openssl_pkey_new') ? @openssl_pkey_new($opts) : false;
+        if (!$res && function_exists('openssl_pkey_new')) {
+            // 서버에 openssl.cnf 가 없을 때를 대비해 최소 설정 파일로 한 번 더 시도
+            $cnf = tempnam(sys_get_temp_dir(), 'ossl');
+            file_put_contents($cnf, "[req]\ndistinguished_name=req_dn\n[req_dn]\n");
+            $res = @openssl_pkey_new($opts + ['config' => $cnf]);
+            @unlink($cnf);
+        }
         $ec = $res ? (openssl_pkey_get_details($res)['ec'] ?? null) : null;
         if (!$ec || empty($ec['x']) || empty($ec['y']) || empty($ec['d'])) {
             return response()->json(['success' => false, 'message' => '서버에서 푸시 키를 만들지 못했어요(OpenSSL 타원곡선 미지원).'], 500);

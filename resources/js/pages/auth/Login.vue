@@ -12,6 +12,12 @@
     <form @submit.prevent="handleLogin" class="space-y-4">
       <div><label class="input-label">이메일</label><input v-model="form.email" type="email" required class="input-soft" /></div>
       <div><label class="input-label">비밀번호</label><PasswordInput v-model="form.password" required class="input-soft" /></div>
+      <!-- 2단계 인증을 켠 계정: 비밀번호가 맞으면 인증 앱의 6자리 코드(또는 복구 코드)를 한 번 더 받는다 -->
+      <div v-if="needCode">
+        <label class="input-label">인증 코드</label>
+        <input v-model="twoFactorCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="20" placeholder="인증 앱의 6자리 코드" class="input-soft tracking-widest" autofocus />
+        <p class="text-[12px] text-ink-muted mt-1">폰을 잃어버렸다면 저장해 둔 복구 코드(예: abcde-12345)를 입력하세요.</p>
+      </div>
       <!-- Issue #4: 로그인 유지 토글 -->
       <label class="flex items-center gap-2 text-sm text-ink-light cursor-pointer select-none">
         <input v-model="remember" type="checkbox" class="accent-amber-500 w-4 h-4" />
@@ -58,13 +64,19 @@ const router = useRouter()
 const route = useRoute()
 const form = reactive({ email: '', password: '' })
 const error = ref('')
+const needCode = ref(false)
+const twoFactorCode = ref('')
 const submitting = ref(false)
 // Issue #4: 이전 선택 복원 (기본 true)
 const remember = ref(localStorage.getItem('sk_auth_persist') !== '0')
 async function handleLogin() {
   submitting.value = true; error.value = ''
-  try { await auth.login(form.email, form.password, remember.value); router.push(safeRedirect(route.query.redirect)) }
-  catch (e) { error.value = e.response?.data?.message || '로그인 실패' }
+  try { await auth.login(form.email, form.password, remember.value, needCode.value ? twoFactorCode.value.trim() : ''); router.push(safeRedirect(route.query.redirect)) }
+  catch (e) {
+    // 2단계 인증을 켠 계정: 코드 입력 칸을 보여 주고 같은 화면에서 이어서 로그인한다
+    if (e.response?.data?.two_factor_required) needCode.value = true
+    error.value = e.response?.data?.message || '로그인 실패'
+  }
   finally { submitting.value = false }
 }
 const socialErrorMessages = {
@@ -72,6 +84,7 @@ const socialErrorMessages = {
   banned: '정지된 계정입니다.',
   maintenance: '지금은 사이트 점검 중이라 관리자·운영자만 로그인할 수 있어요.',
   signup_closed: '지금은 새 가입을 받지 않아요. 이미 가입한 계정으로 로그인해 주세요.',
+  two_factor: '2단계 인증을 켠 계정은 소셜 로그인을 쓸 수 없어요. 이메일과 비밀번호로 로그인하고 인증 코드를 입력해 주세요.',
   1: '소셜 로그인에 실패했습니다. 다시 시도해주세요.',
 }
 onMounted(() => {

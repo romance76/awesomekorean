@@ -243,6 +243,7 @@ const routes = [
       { path: 'revenue', redirect: to => ({ path: '/admin/payments', query: { ...to.query, tab: 'revenue' } }) },
       { path: 'security', component: p('admin/AdminSecurity') },
       { path: 'accounts', component: p('admin/AdminAccounts') },
+      { path: 'two-factor', component: p('admin/AdminTwoFactor') },
       { path: 'todos', component: p('admin/AdminTodos') },
       { path: 'audit-log', component: p('admin/AdminAuditLog') },
       { path: 'analytics', component: p('admin/AdminAnalytics') },

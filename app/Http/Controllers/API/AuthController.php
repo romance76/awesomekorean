@@ -159,6 +159,14 @@ class AuthController extends Controller
             return response()->json(\App\Support\SiteFlags::maintenancePayload(), 503, ['Retry-After' => '300']);
         }
 
+        // 관리자 2단계 인증: 스스로 켠 계정만 해당(대부분의 계정은 이 줄을 그냥 지나간다). 비밀번호가 맞아도 코드가 없거나 틀리면
+        // 방금 발급한 토큰을 폐기하고 코드를 요구한다. 틀린 코드는 비밀번호 틀림과 같이 시도 횟수에 센다(6자리 대입 방어).
+        if ($tf = \App\Support\TwoFactor::challenge($user, $request->input('two_factor_code'))) {
+            try { JWTAuth::invalidate(JWTAuth::getToken()); } catch (\Exception $e) {}
+            if (!empty($tf['invalid'])) foreach ($keys as $k => [$max, $decay]) \Illuminate\Support\Facades\RateLimiter::hit($k, $decay);
+            return response()->json(['success' => false, 'two_factor_required' => true, 'message' => $tf['message']], 422);
+        }
+
         $user->update(['last_login_at' => now(), 'login_count' => $user->login_count + 1]);
 
         // 일일 로그인 보너스 (P2B-2: DB 동적)

@@ -118,3 +118,7 @@ Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('login_failures')->
 
 // 오래된 알림 정리: 읽은 알림은 60일 뒤, 안 읽은 알림도 180일 뒤에 지움 (종 모양에는 최근 몇 개만 보이고, 전체 목록은 /notifications)
 Schedule::command('notifications:prune')->dailyAt('04:10');
+
+// DB 자동 백업: 매일 새벽(뉴욕) 03:50 — 덤프를 gzip 으로 storage/app/backups 에 두고 7일 지난 것은 정리. 결과는 storage/logs/db-backup.log.
+// 서버 밖 사본은 .env 의 BACKUP_UPLOAD_CMD 로 (설정 방법·복구 연습은 qa/DB_BACKUP.md)
+Schedule::command('db:backup')->dailyAt('03:50')->timezone('America/New_York')->withoutOverlapping(120)->appendOutputTo(storage_path('logs/db-backup.log'));
