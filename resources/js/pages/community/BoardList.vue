@@ -498,8 +498,3 @@ watch(() => route.params.board, (newBoard, oldBoard) => {
   }
 })
 </script>
-
-<style scoped>
-.new-n { display:inline-block; position:relative; box-sizing:border-box; width:10px; height:10px; margin-left:4px; border-radius:3px; background:#ef4444; vertical-align:middle; transform:translateY(-1px); }
-.new-n b { position:absolute; left:50%; top:50%; font-size:10px; font-weight:500; color:#fff; line-height:1; transform:translate(-50%,-50%) scale(.5); }
-</style>

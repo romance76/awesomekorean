@@ -100,7 +100,7 @@
                                 </div>
                                 <div class="p-3">
                                     <span class="badge-primary !text-[11px] !px-2">{{ $post->category }}</span>
-                                    <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug mt-1">{{ $post->title }}</div>
+                                    <div class="text-sm font-semibold text-ink line-clamp-2 leading-snug mt-1">{{ $post->title }}@if ($post->published_at && $post->published_at->gt(now()->subHours(48)))<span class="new-n" title="새 글" aria-label="새 글"><b>N</b></span>@endif</div>
                                     <span class="text-xs text-ink-muted mt-1 block">👁 {{ $post->view_count }} · {{ $post->published_at->format('Y.m.d') }}</span>
                                 </div>
                             </a>
@@ -117,7 +117,7 @@
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         <span class="badge-primary flex-shrink-0">{{ $post->category }}</span>
                                     </div>
-                                    <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ $post->title }}</div>
+                                    <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ $post->title }}@if ($post->published_at && $post->published_at->gt(now()->subHours(48)))<span class="new-n" title="새 글" aria-label="새 글"><b>N</b></span>@endif</div>
                                     @if ($post->excerpt)
                                         <p class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ \Illuminate\Support\Str::limit(strip_tags($post->excerpt), 160) }}</p>
                                     @endif

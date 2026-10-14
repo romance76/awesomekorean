@@ -121,7 +121,7 @@
             :class="playing?.id === track.id ? 'bg-amber-50' : ''">
             <span class="text-xs text-ink-faint w-5 text-center">{{ i + 1 + (trackPage - 1) * 12 }}</span>
             <div class="flex-1 min-w-0" @click="playTrack(track)">
-              <div class="text-sm font-medium text-ink truncate flex items-center gap-1"><AppIcon v-if="playing?.id === track.id" name="play" :size="12" :filled="true" class="text-amber-500" /><span class="truncate">{{ track.title }}</span></div>
+              <div class="text-sm font-medium text-ink truncate flex items-center gap-1"><AppIcon v-if="playing?.id === track.id" name="play" :size="12" :filled="true" class="text-amber-500" /><span class="truncate">{{ track.title }}</span><span v-if="isNewTrack(track)" class="new-n flex-shrink-0" title="새 곡" aria-label="새 곡"><b>N</b></span></div>
               <div class="text-xs text-ink-muted">{{ track.artist }} {{ track.duration ? '· ' + formatDuration(track.duration) : '' }}</div>
             </div>
             <!-- 즐겨찾기 버튼 -->
@@ -210,6 +210,8 @@ const playlists = ref([])
 const plTracks = ref([])
 const favoriteTracks = ref([])
 const favIds = ref(new Set())
+// 48시간 안에 올라온 곡에는 제목 옆에 작은 N
+const isNewTrack = (t) => !!t?.created_at && Date.now() - new Date(t.created_at).getTime() < 48 * 3600 * 1000
 const plTrackIds = ref(new Set())
 const activeCat = ref(null)
 const activePL = ref(null)
