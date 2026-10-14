@@ -199,27 +199,29 @@ class SocialCard
         } else { // cta
             $y = 330;
             $title = self::clean($c['title'] ?? '더 자세한 내용은');
-            foreach (self::wrap($title, $xbold, 84, $maxW, 3) as $ln) {
-                imagettftext($im, 84, 0, $x, $y, $dark, $xbold, $ln);
-                $y += 120;
+            foreach (self::wrap($title, $xbold, 68, $maxW, 4) as $ln) {
+                imagettftext($im, 68, 0, $x, $y, $dark, $xbold, $ln);
+                $y += 100;
             }
-            $y += 30;
+            $y += 20;
             foreach (array_slice($c['lines'] ?? [], 0, 3) as $p) {
                 $p = self::clean($p);
                 if ($p === '') continue;
-                foreach (self::wrap($p, $bold, 42, $maxW - 70, 3) as $ln) {
-                    imagettftext($im, 42, 0, $x + 56, $y, $ink, $bold, $ln);
-                    $y += 62;
+                $sub = self::wrap($p, $bold, 40, $maxW - 70, 3);
+                if ($y + count($sub) * 58 > 930) break;
+                imagefilledellipse($im, $x + 16, $y - 14, 22, 22, $accent);
+                foreach ($sub as $ln) {
+                    imagettftext($im, 40, 0, $x + 56, $y, $ink, $bold, $ln);
+                    $y += 58;
                 }
-                imagefilledellipse($im, $x + 16, $y - 15 - 62, 22, 22, $accent);
-                $y += 30;
+                $y += 26;
             }
-            $y += 40;
-            self::roundRect($im, $x, $y, self::W - $x, $y + 150, 40, $accent);
+            // 아래쪽 고정: 안내 문장 + 주소 칸 (아래 띠에 닿지 않게)
+            imagettftext($im, 38, 0, $x, 1000, $accent, $xbold, '저장해 두고, 필요한 분께 공유해 주세요');
+            self::roundRect($im, $x, 1035, self::W - $x, 1165, 40, $accent);
             $u = 'awesomekorean.com';
-            $bb = imagettfbbox(66, 0, $xbold, $u);
-            imagettftext($im, 66, 0, (int) ((self::W - ($bb[2] - $bb[0])) / 2), $y + 98, $white, $xbold, $u);
-            imagettftext($im, 40, 0, $x, $y + 260, $accent, $xbold, '저장해 두고, 필요한 분께 공유해 주세요');
+            $bb = imagettfbbox(64, 0, $xbold, $u);
+            imagettftext($im, 64, 0, (int) ((self::W - ($bb[2] - $bb[0])) / 2), 1118, $white, $xbold, $u);
             $footer('');
         }
 
