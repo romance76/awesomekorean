@@ -1,0 +1,1172 @@
+[
+ {
+  "final": "소확행",
+  "group": "test",
+  "rep": 70,
+  "ids": [
+   70,
+   140,
+   161,
+   176,
+   188
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "f1_student",
+  "group": "test",
+  "rep": 38,
+  "ids": [
+   38,
+   139,
+   179
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "민지NY",
+  "group": "test",
+  "rep": 16,
+  "ids": [
+   16,
+   173,
+   174
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "atl_korean",
+  "group": "test",
+  "rep": 14,
+  "ids": [
+   14,
+   167
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "dmv_korean",
+  "group": "test",
+  "rep": 27,
+  "ids": [
+   27,
+   150,
+   200
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "ryan_s_dc",
+  "group": "test",
+  "rep": 107,
+  "ids": [
+   107,
+   155,
+   191
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "jersey_girl",
+  "group": "test",
+  "rep": 25,
+  "ids": [
+   25,
+   157,
+   190
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "버지니아맘",
+  "group": "test",
+  "rep": 34,
+  "ids": [
+   34,
+   196
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "싱글맘",
+  "group": "test",
+  "rep": 115,
+  "ids": [
+   115,
+   197
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "housewife_us",
+  "group": "test",
+  "rep": 118,
+  "ids": [
+   118,
+   137
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "student_life",
+  "group": "test",
+  "rep": 117,
+  "ids": [
+   117,
+   192
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "의료보험맨",
+  "group": "test",
+  "rep": 46,
+  "ids": [
+   46,
+   143,
+   187
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "worker_bee",
+  "group": "test",
+  "rep": 116,
+  "ids": [
+   116,
+   136,
+   162
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "daegu_in_US",
+  "group": "test",
+  "rep": 91,
+  "ids": [
+   91,
+   146,
+   169
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "고양이집사",
+  "group": "test",
+  "rep": 58,
+  "ids": [
+   58
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "게임러",
+  "group": "test",
+  "rep": 60,
+  "ids": [
+   60
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "프리랜서",
+  "group": "test",
+  "rep": 113,
+  "ids": [
+   113,
+   156,
+   185
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "ask_me_this",
+  "group": "test",
+  "rep": 134,
+  "ids": [
+   134
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "uscis_hopeful",
+  "group": "test",
+  "rep": 39,
+  "ids": [
+   39,
+   153,
+   201
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "부동산초보",
+  "group": "test",
+  "rep": 42,
+  "ids": [
+   42,
+   164
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "small_joy",
+  "group": "test",
+  "rep": 77,
+  "ids": [
+   77,
+   170
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "제주도민",
+  "group": "test",
+  "rep": 88,
+  "ids": [
+   88,
+   142
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "해피베이",
+  "group": "test",
+  "rep": 18,
+  "ids": [
+   18,
+   159
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "인천교민",
+  "group": "test",
+  "rep": 85,
+  "ids": [
+   85
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "질문있어요",
+  "group": "test",
+  "rep": 124,
+  "ids": [
+   124,
+   172
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "chicagoBear",
+  "group": "test",
+  "rep": 12,
+  "ids": [
+   12
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "LA한인",
+  "group": "test",
+  "rep": 33,
+  "ids": [
+   33,
+   147
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "동부사람",
+  "group": "test",
+  "rep": 22,
+  "ids": [
+   22,
+   182
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "요리초보",
+  "group": "test",
+  "rep": 59,
+  "ids": [
+   59,
+   145
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "us_life_kr",
+  "group": "test",
+  "rep": 78,
+  "ids": [
+   78,
+   135
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "부산아줌마",
+  "group": "test",
+  "rep": 83,
+  "ids": [
+   83,
+   198
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "궁금이",
+  "group": "test",
+  "rep": 122,
+  "ids": [
+   122,
+   178
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "애틀랜타교민",
+  "group": "test",
+  "rep": 6,
+  "ids": [
+   6,
+   165
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "플로리다교민",
+  "group": "test",
+  "rep": 35,
+  "ids": [
+   35,
+   193
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "dogdad_LA",
+  "group": "test",
+  "rep": 64,
+  "ids": [
+   64
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "고민중",
+  "group": "test",
+  "rep": 128,
+  "ids": [
+   128,
+   184
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "이민5년차",
+  "group": "test",
+  "rep": 29,
+  "ids": [
+   29,
+   158,
+   175
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "immigrant_life",
+  "group": "test",
+  "rep": 41,
+  "ids": [
+   41,
+   171
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "한인1세",
+  "group": "test",
+  "rep": 73,
+  "ids": [
+   73,
+   160
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "need_advice",
+  "group": "test",
+  "rep": 133,
+  "ids": [
+   133,
+   195,
+   199
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "brian_lee_atl",
+  "group": "test",
+  "rep": 97,
+  "ids": [
+   97,
+   152
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "cat_mom_ny",
+  "group": "test",
+  "rep": 65,
+  "ids": [
+   65
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "chris_s",
+  "group": "test",
+  "rep": 105,
+  "ids": [
+   105
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "학생B",
+  "group": "test",
+  "rep": 110,
+  "ids": [
+   110
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "curious_cat",
+  "group": "test",
+  "rep": 129,
+  "ids": [
+   129
+  ],
+  "roles": [
+   "business"
+  ]
+ },
+ {
+  "final": "visa_runner",
+  "group": "test",
+  "rep": 40,
+  "ids": [
+   40
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "wondering_kr",
+  "group": "test",
+  "rep": 132,
+  "ids": [
+   132
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "뉴욕사는언니",
+  "group": "test",
+  "rep": 3,
+  "ids": [
+   3
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "house_hunter",
+  "group": "test",
+  "rep": 51,
+  "ids": [
+   51
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "서울남자LA",
+  "group": "test",
+  "rep": 82,
+  "ids": [
+   82
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "코리안드림",
+  "group": "test",
+  "rep": 19,
+  "ids": [
+   19,
+   149
+  ],
+  "roles": [
+   "business"
+  ]
+ },
+ {
+  "final": "seoul_to_LA",
+  "group": "test",
+  "rep": 89,
+  "ids": [
+   89,
+   148
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "gwangju_mom",
+  "group": "test",
+  "rep": 93,
+  "ids": [
+   93,
+   163,
+   168
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "강아지아빠",
+  "group": "test",
+  "rep": 57,
+  "ids": [
+   57,
+   151,
+   186
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "travel_bug",
+  "group": "test",
+  "rep": 63,
+  "ids": [
+   63
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "초보질문",
+  "group": "test",
+  "rep": 125,
+  "ids": [
+   125,
+   181
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "NYmom",
+  "group": "test",
+  "rep": 10,
+  "ids": [
+   10
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "socal_life",
+  "group": "test",
+  "rep": 11,
+  "ids": [
+   11,
+   138
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "dallas_ko",
+  "group": "test",
+  "rep": 13,
+  "ids": [
+   13
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "greencard_wait",
+  "group": "test",
+  "rep": 36,
+  "ids": [
+   36,
+   166
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "h1b_warrior",
+  "group": "test",
+  "rep": 37,
+  "ids": [
+   37
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "mich_y_chi",
+  "group": "test",
+  "rep": 102,
+  "ids": [
+   102
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "취업준비생",
+  "group": "test",
+  "rep": 48,
+  "ids": [
+   48
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "코리안타운",
+  "group": "test",
+  "rep": 72,
+  "ids": [
+   72
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "여행좋아",
+  "group": "test",
+  "rep": 56,
+  "ids": [
+   56,
+   189
+  ],
+  "roles": [
+   "business",
+   "user"
+  ]
+ },
+ {
+  "final": "LA맘",
+  "group": "test",
+  "rep": 2,
+  "ids": [
+   2
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "시카고아재",
+  "group": "test",
+  "rep": 4,
+  "ids": [
+   4,
+   194
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "달라스댁",
+  "group": "test",
+  "rep": 5,
+  "ids": [
+   5
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "seattle",
+  "group": "test",
+  "rep": 15,
+  "ids": [
+   15
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "미국새내기",
+  "group": "test",
+  "rep": 30,
+  "ids": [
+   30
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "착한엄마",
+  "group": "local",
+  "rep": 227,
+  "ids": [
+   227
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "학부모",
+  "group": "local",
+  "rep": 218,
+  "ids": [
+   218
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "조용한초보맘",
+  "group": "local",
+  "rep": 220,
+  "ids": [
+   220
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "초보일반인",
+  "group": "local",
+  "rep": 313,
+  "ids": [
+   313
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "grape_heart",
+  "group": "local",
+  "rep": 221,
+  "ids": [
+   221
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "프리랜서_jihye",
+  "group": "local",
+  "rep": 291,
+  "ids": [
+   291
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "심심한간호사",
+  "group": "local",
+  "rep": 261,
+  "ids": [
+   261
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "게으른오빠",
+  "group": "local",
+  "rep": 223,
+  "ids": [
+   223
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "kiwi_panda",
+  "group": "local",
+  "rep": 253,
+  "ids": [
+   253
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "대범한학부모",
+  "group": "local",
+  "rep": 217,
+  "ids": [
+   217
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "조용한주부",
+  "group": "local",
+  "rep": 335,
+  "ids": [
+   335
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "귀여운여행자",
+  "group": "local",
+  "rep": 276,
+  "ids": [
+   276
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "느긋한아빠",
+  "group": "local",
+  "rep": 502,
+  "ids": [
+   502
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "jiho_note",
+  "group": "local",
+  "rep": 259,
+  "ids": [
+   259
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "조용한동생",
+  "group": "local",
+  "rep": 228,
+  "ids": [
+   228
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "지나가는언니",
+  "group": "local",
+  "rep": 465,
+  "ids": [
+   465
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "착한도시인",
+  "group": "local",
+  "rep": 296,
+  "ids": [
+   296
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "당찬도시인",
+  "group": "local",
+  "rep": 230,
+  "ids": [
+   230
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "말없는학부모",
+  "group": "local",
+  "rep": 288,
+  "ids": [
+   288
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "귀여운디자이너",
+  "group": "local",
+  "rep": 252,
+  "ids": [
+   252
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "mike_fire",
+  "group": "local",
+  "rep": 412,
+  "ids": [
+   412
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "우울한초보자",
+  "group": "local",
+  "rep": 550,
+  "ids": [
+   550
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "purple_song",
+  "group": "local",
+  "rep": 226,
+  "ids": [
+   226
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "까칠한대학생",
+  "group": "local",
+  "rep": 229,
+  "ids": [
+   229
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "우울한취준생",
+  "group": "local",
+  "rep": 231,
+  "ids": [
+   231
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "까칠한초보맘",
+  "group": "local",
+  "rep": 1041,
+  "ids": [
+   1041
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "눈치빠른독서가",
+  "group": "local",
+  "rep": 1134,
+  "ids": [
+   1134
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "언니_note",
+  "group": "local",
+  "rep": 1333,
+  "ids": [
+   1333
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "학생_nm2s",
+  "group": "local",
+  "rep": 235,
+  "ids": [
+   235
+  ],
+  "roles": [
+   "user"
+  ]
+ },
+ {
+  "final": "wild_cool",
+  "group": "local",
+  "rep": 340,
+  "ids": [
+   340
+  ],
+  "roles": [
+   "user"
+  ]
+ }
+]
