@@ -98,7 +98,7 @@
             <button v-for="b in boards" :key="b.id" @click="showFavorites=false; activeBoard=b; activeItem=null; loadPosts()"
               class="w-full text-left px-3 py-2 text-xs transition-colors"
               :class="!showFavorites && activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
-              {{ b.name }}<span v-if="b.has_new" class="new-n" title="새 글이 있어요" aria-label="새 글 있음">N</span>
+              {{ b.name }}<span v-if="b.has_new" class="new-n" title="새 글이 있어요" aria-label="새 글 있음"><b>N</b></span>
             </button>
             <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
               class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50"
@@ -190,7 +190,7 @@
                 <span v-if="item.category" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">#{{ item.category }}</span>
                 <span v-if="isHot(item)" class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">인기</span>
               </div>
-              <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title }}<span v-if="isNewPost(item)" class="new-n" title="새 글" aria-label="새 글">N</span></div>
+              <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title }}<span v-if="isNewPost(item)" class="new-n" title="새 글" aria-label="새 글"><b>N</b></span></div>
               <p v-if="excerpt(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ excerpt(item) }}</p>
               <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-2 text-xs text-ink-muted">
                 <button @click.stop="openPopup(item.user?.id)" class="inline-flex items-center gap-1.5 font-medium text-ink hover:text-amber-700 transition-colors">
@@ -500,5 +500,6 @@ watch(() => route.params.board, (newBoard, oldBoard) => {
 </script>
 
 <style scoped>
-.new-n { display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box; width:12px; height:12px; margin-left:4px; border-radius:3px; background:#ef4444; color:#fff; font-size:8px; font-weight:500; line-height:1; letter-spacing:0; vertical-align:middle; transform:translateY(-1px); font-family:inherit; }
+.new-n { display:inline-block; position:relative; box-sizing:border-box; width:10px; height:10px; margin-left:4px; border-radius:3px; background:#ef4444; vertical-align:middle; transform:translateY(-1px); }
+.new-n b { position:absolute; left:50%; top:50%; font-size:10px; font-weight:500; color:#fff; line-height:1; transform:translate(-50%,-50%) scale(.5); }
 </style>
