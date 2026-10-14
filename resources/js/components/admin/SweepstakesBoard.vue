@@ -250,8 +250,8 @@
         <!-- 상품 종류 -->
         <div class="mt-4 text-[14px] font-bold text-ink mb-1.5">상품 종류</div>
         <div class="grid grid-cols-2 gap-2">
-          <button v-for="o in [{v:'digital',l:'디지털 (링크·코드)'},{v:'physical',l:'실물 (배송)'}]" :key="o.v" @click="form.prize_type = o.v"
-            class="min-h-[48px] rounded-xl border-2 text-[15px] font-bold" :class="form.prize_type === o.v ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-gray-200 text-ink'">{{ o.l }}</button>
+          <button v-for="o in [{v:'digital',l:'디지털',s:'링크·코드를 쪽지로 보내요'},{v:'physical',l:'실물',s:'물건은 택배·우편으로 따로 부쳐요'}]" :key="o.v" @click="form.prize_type = o.v"
+            class="min-h-[60px] rounded-xl border-2 py-1.5 px-1 leading-tight" :class="form.prize_type === o.v ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-gray-200 text-ink'"><span class="block text-[15px] font-bold">{{ o.l }}</span><span class="block text-[11.5px] font-medium opacity-80 mt-0.5">{{ o.s }}</span></button>
         </div>
 
         <template v-if="form.prize_type === 'digital'">
@@ -260,8 +260,9 @@
           <p class="text-[12px] text-ink-faint mt-1">보내면 당첨자 쪽지함으로 전달되고 알림이 가요. 링크·코드는 이력에는 남기지 않아요.</p>
         </template>
         <template v-else>
-          <label class="block mt-3 text-[14px] font-bold text-ink">안내 메시지 (비워 두면 기본 안내가 가요)</label>
+          <label class="block mt-3 text-[14px] font-bold text-ink">당첨자에게 보낼 쪽지 (비워 두면 기본 안내가 가요)</label>
           <textarea v-model="form.message" rows="3" maxlength="1500" placeholder="기본: 받으실 주소와 연락처를 이 쪽지로 답장해 주세요." class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-[16px]"></textarea>
+          <p class="text-[12px] text-ink-faint mt-1">쪽지로는 주소·연락처를 묻는 안내만 가요. 물건은 주소를 받은 뒤 직접 부쳐 주세요.</p>
         </template>
         <label v-if="form.prize_type === 'digital'" class="block mt-3 text-[14px] font-bold text-ink">추가 안내 (선택)</label>
         <textarea v-if="form.prize_type === 'digital'" v-model="form.message" rows="2" maxlength="1500" placeholder="예: 사용 기한, 사용 방법" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-[16px]"></textarea>
@@ -270,9 +271,9 @@
         <input v-model="form.cost" type="number" inputmode="decimal" min="0" step="0.01" :placeholder="panel.c.default_cost != null ? ('비워 두면 ' + usd(panel.c.default_cost) + ' 로 계산') : '예: 10.00'" class="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2.5 text-[16px]" />
 
         <p v-if="err" class="mt-2 text-[14px] text-red-600">{{ err }}</p>
-        <button v-if="!confirmSend" @click="askSend" :disabled="busy" class="mt-4 w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-extrabold disabled:opacity-50">{{ panel.c.delivery_status === 'pending' ? '쪽지로 보내기' : '다시 보내기' }}</button>
+        <button v-if="!confirmSend" @click="askSend" :disabled="busy" class="mt-4 w-full min-h-[52px] rounded-xl bg-amber-500 text-white text-[16px] font-extrabold disabled:opacity-50">{{ sendLabel }}</button>
         <div v-else class="mt-4 rounded-xl border-2 border-amber-300 bg-amber-50 p-3">
-          <div class="text-[15px] font-bold text-amber-900">{{ panel.c.nickname || panel.c.name }} 님에게 지금 보낼까요?</div>
+          <div class="text-[15px] font-bold text-amber-900">{{ panel.c.nickname || panel.c.name }} 님에게 {{ isPhysical ? '배송 안내 쪽지를 지금 보낼까요? (물건은 따로 부쳐야 해요)' : '링크·코드를 지금 보낼까요?' }}</div>
           <div class="grid grid-cols-2 gap-2 mt-2">
             <button @click="confirmSend = false" :disabled="busy" class="min-h-[48px] rounded-xl bg-white border border-gray-200 text-ink text-[15px] font-bold">아니요</button>
             <button @click="doSend" :disabled="busy" class="min-h-[48px] rounded-xl bg-amber-500 text-white text-[15px] font-extrabold disabled:opacity-50">{{ busy ? '보내는 중...' : '보내기' }}</button>
@@ -384,11 +385,17 @@ function logDetail(l) {
   return ''
 }
 // 지금 상태에서 관리자가 무엇을 하면 되는지 (상태별 한 줄 안내)
+const isPhysical = computed(() => form.value.prize_type === 'physical')
+const sendLabel = computed(() => panel.value && panel.value.c.delivery_status !== 'pending' ? '쪽지 다시 보내기' : (isPhysical.value ? '배송 안내 쪽지 보내기' : '링크·코드 쪽지로 보내기'))
 const nextTodo = computed(() => {
   const st = curSt.value
-  if (st === 'sent') return { cls: 'bg-blue-50 text-blue-900', title: '👉 지금은 기다리는 중이에요', text: '당첨자가 받았다고 확인하면 자동으로 "수령 확인"이 돼요. 따로 연락으로 받았다고 알려왔다면 아래 "지급 상태 직접 바꾸기"에서 "수령 확인"을 눌러 주세요.' }
+  if (st === 'sent') return isPhysical.value
+    ? { cls: 'bg-blue-50 text-blue-900', title: '👉 당첨자 답장을 기다리는 중이에요', text: '당첨자가 쪽지로 주소를 답장하면 물건을 택배·우편으로 부쳐 주세요. 당첨자가 받았다고 확인하면 자동으로 "수령 확인"이 돼요. 따로 연락으로 받았다고 알려왔다면 아래 "지급 상태 직접 바꾸기"에서 "수령 확인"을 눌러 주세요.' }
+    : { cls: 'bg-blue-50 text-blue-900', title: '👉 지금은 기다리는 중이에요', text: '당첨자가 받았다고 확인하면 자동으로 "수령 확인"이 돼요. 따로 연락으로 받았다고 알려왔다면 아래 "지급 상태 직접 바꾸기"에서 "수령 확인"을 눌러 주세요.' }
   if (st === 'confirmed') return { cls: 'bg-emerald-50 text-emerald-900', title: '✅ 끝났어요', text: '당첨자가 받은 것까지 확인됐어요. 더 할 일이 없어요.' }
-  return { cls: 'bg-amber-50 text-amber-900', title: '👉 해야 할 일: 상품 보내기', text: '아래 분홍색 "쪽지로 보내기"를 누르면 당첨자에게 전달돼요. 쪽지가 아니라 이메일·우편 등으로 직접 보냈다면 아래 "지급 상태 직접 바꾸기"에서 "직접 보냄"을 눌러 주세요.' }
+  return isPhysical.value
+    ? { cls: 'bg-amber-50 text-amber-900', title: '👉 해야 할 일: 당첨자에게 배송 안내 보내기', text: '아래 분홍색 "배송 안내 쪽지 보내기"를 누르면 당첨자에게 주소·연락처를 묻는 쪽지가 가요. 물건은 주소를 받은 뒤 직접 부쳐 주세요. 이미 이메일 등으로 안내했다면 아래 "지급 상태 직접 바꾸기"에서 "직접 보냄"을 눌러 주세요.' }
+    : { cls: 'bg-amber-50 text-amber-900', title: '👉 해야 할 일: 링크·코드 보내기', text: '링크나 코드를 입력하고 아래 분홍색 "링크·코드 쪽지로 보내기"를 누르면 당첨자에게 전달돼요. 쪽지가 아니라 이메일 등으로 직접 보냈다면 아래 "지급 상태 직접 바꾸기"에서 "직접 보냄"을 눌러 주세요.' }
 })
 const actionChip = (a) => ({ received_by_winner: 'bg-emerald-100 text-emerald-700', digital_sent: 'bg-blue-100 text-blue-700', physical_notice_sent: 'bg-violet-100 text-violet-700', cost_set: 'bg-gray-100 text-ink-light' }[a] || 'bg-amber-100 text-amber-800')
 const short = (dt) => dt ? new Date(dt).toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : ''
@@ -471,7 +478,7 @@ async function doSend() {
     if (form.value.cost !== '') body.cost_usd = Number(form.value.cost)
     const { data } = await axios.post(`/api/admin/prize-claims/${panel.value.c.id}/deliver`, body)
     applyClaim(data.data); confirmSend.value = false; form.value.link = ''
-    say('쪽지로 보냈어요'); loadSummary(); loadPanelLogs()
+    say(isPhysical.value ? '배송 안내 쪽지를 보냈어요' : '쪽지로 보냈어요'); loadSummary(); loadPanelLogs()
   } catch (e) { err.value = e.response?.data?.message || '보내지 못했어요. 다시 시도해 주세요.' }
   busy.value = false
 }
