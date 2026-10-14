@@ -206,7 +206,7 @@
     <div v-if="logsLoading" class="py-10 text-center text-ink-muted text-[15px]">불러오는 중...</div>
     <div v-for="l in logs" :key="l.id" class="px-3.5 py-3 border-b border-gray-50 last:border-0">
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-[12px] font-bold px-2 py-0.5 rounded-full" :class="actionChip(l.action)">{{ actionLabel(l.action) }}</span>
+        <span class="text-[12px] font-bold px-2 py-0.5 rounded-full" :class="actionChip(l.action)">{{ actionLabel(l.action) }}{{ logDetail(l) }}</span>
         <span class="text-[15px] font-bold text-ink">{{ l.winner_name || '-' }}</span>
         <span class="text-[13px] text-ink-muted truncate">{{ l.sweepstakes_title }}</span>
       </div>
@@ -231,6 +231,12 @@
           <button @click="closePanel" class="w-11 h-11 -mt-1 -mr-2 rounded-full text-ink-light text-[22px] shrink-0" aria-label="닫기">✕</button>
         </div>
         <span class="inline-block mt-2 text-[12px] font-bold px-2.5 py-1 rounded-full" :class="stChip(panel.c.delivery_status)">{{ stLabel(panel.c.delivery_status) }}<span v-if="panel.c.sent_at"> · {{ tAtl(panel.c.sent_at) }}</span></span>
+
+        <!-- 지금 상태에서 관리자가 할 일 -->
+        <div class="mt-3 rounded-xl px-3 py-2.5 text-[14px] leading-relaxed" :class="nextTodo.cls" role="status">
+          <div class="font-extrabold">{{ nextTodo.title }}</div>
+          <div class="font-medium mt-0.5">{{ nextTodo.text }}</div>
+        </div>
 
         <!-- 당첨자 연락처 -->
         <div class="mt-3 rounded-xl bg-gray-50 p-3 text-[14px] space-y-0.5">
@@ -287,7 +293,7 @@
         <div class="mt-4 text-[14px] font-bold text-ink">처리 이력</div>
         <div class="mt-1.5 space-y-2">
           <div v-for="l in panelLogs" :key="l.id" class="text-[13px] rounded-lg bg-gray-50 px-3 py-2">
-            <div><b>{{ actionLabel(l.action) }}</b><span v-if="l.actor_name" class="text-ink-muted"> · 처리 {{ l.actor_name }}</span></div>
+            <div><b>{{ actionLabel(l.action) }}{{ logDetail(l) }}</b><span v-if="l.actor_name" class="text-ink-muted"> · 처리 {{ l.actor_name }}</span></div>
             <div class="text-ink-faint tabular-nums">{{ tAtl(l.created_at) }} (애틀랜타) · {{ tUtc(l.created_at) }} (UTC)</div>
             <div v-if="l.note" class="text-ink-light break-words">📝 {{ l.note }}</div>
           </div>
@@ -366,6 +372,24 @@ const stLabel = (s) => ({ pending: '안 보냄', sent: '보냄', confirmed: '수
 const stChip = (s) => ({ sent: 'bg-blue-100 text-blue-700', confirmed: 'bg-emerald-100 text-emerald-700' }[s] || 'bg-amber-100 text-amber-800')
 const ACTIONS = { digital_sent: '디지털 상품 보냄', physical_notice_sent: '실물 안내 보냄', resent: '다시 보냄', received_by_winner: '당첨자 수령 확인', status_changed: '상태 변경', cost_set: '금액 입력', note: '메모' }
 const actionLabel = (a) => ACTIONS[a] || a
+// 이력 한 줄에 "무엇으로 바뀌었는지"를 붙여 준다 (예: 상태 변경 → 수령 확인)
+function logDetail(l) {
+  const m = l.meta
+  if (!m || m.value === undefined || m.value === null) return ''
+  if (l.action === 'status_changed') {
+    if (m.field === 'delivery_status') return ' → ' + stLabel(m.value)
+    if (m.field === 'prize_type') return ' → ' + (m.value === 'physical' ? '실물' : '디지털')
+  }
+  if (l.action === 'cost_set') return ' → ' + usd(m.value)
+  return ''
+}
+// 지금 상태에서 관리자가 무엇을 하면 되는지 (상태별 한 줄 안내)
+const nextTodo = computed(() => {
+  const st = curSt.value
+  if (st === 'sent') return { cls: 'bg-blue-50 text-blue-900', title: '👉 지금은 기다리는 중이에요', text: '당첨자가 받았다고 확인하면 자동으로 "수령 확인"이 돼요. 따로 연락으로 받았다고 알려왔다면 아래 "지급 상태 직접 바꾸기"에서 "수령 확인"을 눌러 주세요.' }
+  if (st === 'confirmed') return { cls: 'bg-emerald-50 text-emerald-900', title: '✅ 끝났어요', text: '당첨자가 받은 것까지 확인됐어요. 더 할 일이 없어요.' }
+  return { cls: 'bg-amber-50 text-amber-900', title: '👉 해야 할 일: 상품 보내기', text: '아래 분홍색 "쪽지로 보내기"를 누르면 당첨자에게 전달돼요. 쪽지가 아니라 이메일·우편 등으로 직접 보냈다면 아래 "지급 상태 직접 바꾸기"에서 "직접 보냄"을 눌러 주세요.' }
+})
 const actionChip = (a) => ({ received_by_winner: 'bg-emerald-100 text-emerald-700', digital_sent: 'bg-blue-100 text-blue-700', physical_notice_sent: 'bg-violet-100 text-violet-700', cost_set: 'bg-gray-100 text-ink-light' }[a] || 'bg-amber-100 text-amber-800')
 const short = (dt) => dt ? new Date(dt).toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : ''
 const tAtl = (iso) => iso ? new Date(iso).toLocaleString('ko-KR', { timeZone: 'America/New_York', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : ''
