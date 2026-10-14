@@ -7,6 +7,7 @@ use App\Models\MoneyPost;
 use App\Models\SiteSetting;
 use App\Models\SocialPost;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * SNS 자동 게시 대기열에 글을 넣는 곳 (캡션·카드뉴스 만들기 포함).
@@ -144,7 +145,7 @@ class SocialQueue
                 } else {
                     $cap = self::cut($p['th'], 500);
                     $parts = array_map(fn ($t) => self::cut(str_replace('{link}', $link, $t), 500), $p['th_parts'] ?? []);
-                    $img = null;
+                    $img = self::v2Images($p)[0] ?? null;   // 디자인된 표지가 있으면 스레드 첫 글에도 붙인다
                 }
                 SocialPost::create([
                     'source_type' => 'piece', 'source_id' => (int) $p['id'], 'platform' => $pf, 'title' => self::cut($p['title'], 200),
@@ -178,9 +179,27 @@ class SocialQueue
         return $n;
     }
 
+    /** 디자인된 카드 파일이 있으면 [표지, 1…N, 마지막] 주소 목록, 없으면 빈 배열 */
+    public static function v2Images(array $p): array
+    {
+        $disk = Storage::disk('public');
+        $n = count($p['slides'] ?? []);
+        $names = array_merge(range(0, $n), [9]);
+        $urls = [];
+        foreach ($names as $i) {
+            $rel = 'social/v2/piece-' . $p['id'] . '-' . $i . '.jpg';
+            if (!$disk->exists($rel)) return [];
+            $urls[] = rtrim(config('app.url'), '/') . '/storage/' . $rel . '?v=' . $disk->lastModified($rel);
+        }
+        return $urls;
+    }
+
     /** 캐러셀: 표지 + 장마다 한 장 + 마지막 안내 장 → 사진 주소 목록 */
     public static function carouselImages(array $p): array
     {
+        // 미리 디자인해서 올려 둔 카드(storage/app/public/social/v2/piece-ID-N.jpg)가 있으면 그걸 쓴다
+        $v2 = self::v2Images($p);
+        if ($v2) return $v2;
         $slides = $p['slides'] ?? [];
         $total = count($slides);
         $theme = $p['theme'] ?? 'orange';
