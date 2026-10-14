@@ -63,10 +63,19 @@ class SocialPublisher
     {
         $uid = $a->account_id; $tok = $a->access_token;
         $params = ['text' => $p->caption, 'access_token' => $tok];
-        if ($p->image_url) { $params['media_type'] = 'IMAGE'; $params['image_url'] = $p->image_url; }
+        if ($p->video_url) { $params['media_type'] = 'VIDEO'; $params['video_url'] = $p->video_url; }
+        elseif ($p->image_url) { $params['media_type'] = 'IMAGE'; $params['image_url'] = $p->image_url; }
         else { $params['media_type'] = 'TEXT'; }
-        $c = self::check(Http::asForm()->timeout(30)->post(self::TH . "/{$uid}/threads", $params), '스레드 글 만들기');
-        if ($p->image_url) sleep(10);   // 사진은 처리 시간이 필요 (Meta 권장 대기)
+        $c = self::check(Http::asForm()->timeout(60)->post(self::TH . "/{$uid}/threads", $params), '스레드 글 만들기');
+        if ($p->video_url) {
+            // 영상은 처리가 끝날 때까지(최대 6분) 확인
+            for ($i = 0; $i < 36; $i++) {
+                $st = Http::timeout(15)->get(self::TH . '/' . $c['id'], ['fields' => 'status,error_message', 'access_token' => $tok])->json();
+                if (($st['status'] ?? '') === 'FINISHED') break;
+                if (in_array($st['status'] ?? '', ['ERROR', 'EXPIRED'], true)) throw new \RuntimeException('스레드가 영상을 처리하지 못했어요(' . ($st['error_message'] ?? $st['status']) . ').');
+                sleep(10);
+            }
+        } elseif ($p->image_url) sleep(10);   // 사진은 처리 시간이 필요 (Meta 권장 대기)
         $pub = self::check(Http::asForm()->timeout(30)->post(self::TH . "/{$uid}/threads_publish", ['creation_id' => $c['id'], 'access_token' => $tok]), '스레드 게시');
         $link = null;
         try { $link = Http::timeout(15)->get(self::TH . '/' . $pub['id'], ['fields' => 'permalink', 'access_token' => $tok])->json('permalink'); } catch (\Throwable) {}
@@ -75,14 +84,17 @@ class SocialPublisher
 
     private static function instagram(SocialPost $p, SocialAccount $a): array
     {
-        if (!$p->image_url) throw new \RuntimeException('인스타그램은 사진이 꼭 있어야 해요(카드뉴스 다시 만들기를 눌러 주세요).');
+        if (!$p->image_url && !$p->video_url) throw new \RuntimeException('인스타그램은 사진이나 영상이 꼭 있어야 해요(카드뉴스 다시 만들기를 눌러 주세요).');
         $ig = $a->account_id; $tok = $a->access_token;
-        $c = self::check(Http::asForm()->timeout(40)->post(self::IG . "/{$ig}/media", ['image_url' => $p->image_url, 'caption' => $p->caption, 'access_token' => $tok]), '인스타 사진 올리기');
-        // 처리 끝날 때까지 최대 60초 확인
-        for ($i = 0; $i < 12; $i++) {
+        $params = $p->video_url
+            ? ['media_type' => 'REELS', 'video_url' => $p->video_url, 'caption' => $p->caption, 'share_to_feed' => 'true', 'access_token' => $tok]
+            : ['image_url' => $p->image_url, 'caption' => $p->caption, 'access_token' => $tok];
+        $c = self::check(Http::asForm()->timeout(60)->post(self::IG . "/{$ig}/media", $params), $p->video_url ? '인스타 릴스 올리기' : '인스타 사진 올리기');
+        // 처리 끝날 때까지 확인 (사진 최대 60초, 영상 최대 6분)
+        for ($i = 0; $i < ($p->video_url ? 72 : 12); $i++) {
             $st = Http::timeout(15)->get(self::IG . '/' . $c['id'], ['fields' => 'status_code', 'access_token' => $tok])->json('status_code');
             if ($st === 'FINISHED') break;
-            if ($st === 'ERROR' || $st === 'EXPIRED') throw new \RuntimeException('인스타가 사진을 처리하지 못했어요(' . $st . '). 사진 주소가 열리는지 확인하세요.');
+            if ($st === 'ERROR' || $st === 'EXPIRED') throw new \RuntimeException('인스타가 파일을 처리하지 못했어요(' . $st . '). 주소가 열리는지 확인하세요.');
             sleep(5);
         }
         $pub = self::check(Http::asForm()->timeout(30)->post(self::IG . "/{$ig}/media_publish", ['creation_id' => $c['id'], 'access_token' => $tok]), '인스타 게시');

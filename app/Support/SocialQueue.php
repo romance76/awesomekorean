@@ -112,6 +112,50 @@ class SocialQueue
         return $n;
     }
 
+    /**
+     * 우리가 정보에서 SNS용으로 다시 만든 글(database/data/social_pieces.json 한 건)을 대기열에 넣음.
+     * kind: video(릴스·스레드 영상) | site(사이트 소개) | talk(스레드 대화 유도, 사진 없음) | (기본) 돈 정보 카드.
+     * 같은 piece id + 플랫폼은 한 번만. 넣은 개수 반환.
+     */
+    public static function enqueuePiece(array $p, string $status = 'approved', ?int $byUser = null): int
+    {
+        $base = rtrim(config('app.url'), '/');
+        $link = $base . ($p['link'] ?? '/');
+        if (!empty($p['money_title'])) {
+            $id = MoneyPost::where('is_hidden', false)->where('title', 'like', '%' . $p['money_title'] . '%')->orderBy('id')->value('id');
+            if (!$id) throw new \RuntimeException('MONEY 글을 못 찾았어요: ' . $p['money_title']);
+            $link = $base . '/money/post/' . $id;
+        }
+        $kind = $p['kind'] ?? 'money';
+        $tags = self::settings()['hashtags'];
+        $n = 0;
+        foreach ($p['platforms'] ?? SocialPost::PLATFORMS as $pf) {
+            if (self::exists('piece', (int) $p['id'], $pf)) continue;
+            $img = null; $video = null;
+            if ($pf === 'instagram') {
+                $cap = $p['ig'];
+                if ($kind === 'money') {
+                    $cap .= "\n\n📌 전체 글(화면 캡처·단계별 안내)은 프로필 링크 awesomekorean.com › MONEY 에서 볼 수 있어요.\n\n※ 일반 정보예요(2026년 10월 기준). 금융·세무·법률 조언이 아니니 공식 안내를 꼭 확인하세요.";
+                }
+                if (!str_contains($cap, '#')) $cap .= "\n\n" . $tags . ' ' . ($p['tags'] ?? '#생활정보 #한인정보');
+                $cap = self::cut($cap, 2150);
+                if ($kind === 'video') $video = $base . $p['video'];
+                else $img = SocialCard::make(['tag' => $p['tag'] ?? '어썸코리안', 'title' => $p['title'], 'lines' => $p['lines'] ?? [],
+                    'theme' => $p['theme'] ?? 'orange', 'footer' => '저장해 두고 필요할 때 꺼내 보세요'], 'piece-' . $p['id']);
+            } else {
+                $cap = self::cut($p['th'], 440) . ($kind === 'video' || $kind === 'talk' ? '' : "\n\n자세히 👉 " . $link);
+                if ($kind === 'video') $video = $base . $p['video'];
+            }
+            SocialPost::create([
+                'source_type' => 'piece', 'source_id' => (int) $p['id'], 'platform' => $pf, 'title' => self::cut($p['title'], 200),
+                'caption' => $cap, 'link_url' => $link, 'image_url' => $img, 'video_url' => $video, 'status' => $status,
+                'priority' => (int) ($p['priority'] ?? 5), 'created_by' => $byUser, 'approved_by' => $status === 'approved' ? $byUser : null,
+            ]);
+            $n++;
+        }
+        return $n;
+    }
+
     /** 어썸코리안 이벤트를 두 플랫폼에 넣음(우선순위 10). 넣은 개수 반환 */
     public static function enqueueEvent(Event $ev, ?int $byUser = null): int
     {
