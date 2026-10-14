@@ -2,7 +2,10 @@
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
     <PageHeader title="알림" icon="bell" :back="false">
-      <template #actions><button @click="markAllRead" class="btn-ghost text-xs">전체 읽음</button></template>
+      <template #actions>
+        <button @click="markAllRead" class="btn-ghost text-xs">전체 읽음</button>
+        <button @click="clearRead" class="btn-ghost text-xs !text-red-600">읽은 알림 지우기</button>
+      </template>
     </PageHeader>
 
     <!-- 통합검색 -->
@@ -40,6 +43,7 @@
               <div v-if="n.content" class="text-xs text-ink-muted mt-0.5">{{ n.content }}</div>
               <div class="text-xs text-ink-faint mt-1">{{ formatDate(n.created_at) }}</div>
             </div>
+            <button @click.stop="removeNotif(n)" class="flex-shrink-0 w-8 h-8 rounded-full text-ink-faint hover:bg-gray-100 hover:text-red-600 flex items-center justify-center" aria-label="이 알림 지우기" title="지우기">✕</button>
           </div>
         </div>
       </div>
@@ -142,6 +146,14 @@ function openNotif(n) {
   if (n.type === 'message' && n.data?.sender_id && window.openMessageThread) { window.openMessageThread(n.data.sender_id); return }
   const dest = resolveNotifRoute(n)
   if (dest) router.push(dest)
+}
+
+async function removeNotif(n) {
+  try { await axios.delete(`/api/notifications/${n.id}`); notifs.value = notifs.value.filter(x => x.id !== n.id) } catch {}
+}
+async function clearRead() {
+  if (!confirm('읽은 알림을 모두 지울까요?\n(안 읽은 알림은 그대로 남아요)')) return
+  try { await axios.post('/api/notifications/clear', { scope: 'read' }); await reload() } catch {}
 }
 
 async function markAllRead() {

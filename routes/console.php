@@ -114,3 +114,6 @@ Schedule::command('flyers:cleanup')->everyThirtyMinutes()->withoutOverlapping();
 
 // 로그인 실패 기록은 30일만 보관
 Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('login_failures')->where('created_at', '<', now()->subDays(30))->delete())->dailyAt('04:20');
+
+// 오래된 알림 정리: 읽은 알림은 60일 뒤, 안 읽은 알림도 180일 뒤에 지움 (종 모양에는 최근 몇 개만 보이고, 전체 목록은 /notifications)
+Schedule::command('notifications:prune')->dailyAt('04:10');

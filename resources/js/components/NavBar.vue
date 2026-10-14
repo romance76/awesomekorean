@@ -42,7 +42,10 @@
             <div v-if="showNotifs" class="notif-panel bg-white rounded-2xl shadow-lift overflow-hidden flex flex-col" :style="notifStyle">
               <div class="px-4 py-3 flex items-center justify-between border-b border-gray-50 flex-shrink-0">
                 <span class="text-sm font-bold text-ink">알림</span>
-                <button v-if="notifList.some(n=>!n.read_at)" @click="markAllRead" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors">전체 읽음</button>
+                <span class="flex items-center gap-3">
+                  <button v-if="notifList.some(n=>!n.read_at)" @click="markAllRead" class="text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors">전체 읽음</button>
+                  <button v-if="notifList.some(n=>n.read_at)" @click="clearRead" class="text-xs text-ink-muted hover:text-red-600 font-semibold transition-colors">읽은 알림 지우기</button>
+                </span>
               </div>
               <div class="overflow-y-auto flex-1 min-h-0" style="-webkit-overflow-scrolling: touch;">
                 <div v-if="!notifList.length" class="px-4 py-10 text-center">
@@ -60,9 +63,11 @@
                       <div class="text-xs text-ink-muted break-words line-clamp-2">{{ n.content }}</div>
                       <div class="text-[11px] text-ink-faint mt-0.5">{{ formatNotifDate(n.created_at) }}</div>
                     </div>
+                    <button @click.stop="removeNotif(n)" class="flex-shrink-0 w-6 h-6 -mr-1 rounded-full text-ink-faint hover:bg-gray-100 hover:text-red-600 flex items-center justify-center text-sm leading-none" aria-label="이 알림 지우기" title="지우기">✕</button>
                   </div>
                 </div>
               </div>
+              <button @click="goAllNotifs" class="flex-shrink-0 w-full py-2.5 text-xs font-bold text-amber-700 bg-amber-50/70 hover:bg-amber-100/70 border-t border-gray-100">지난 알림 모두 보기 ›</button>
             </div>
             </Teleport>
           </div>
@@ -409,7 +414,7 @@ const visibleMenus = computed(() => {
 async function loadUnread() {
   if (!auth.isLoggedIn) return
   try {
-    const { data } = await axios.get('/api/notifications')
+    const { data } = await axios.get('/api/notifications', { params: { limit: 8 } })   // 종 모양에는 최근 8개만 — 예전 알림은 '지난 알림 모두 보기'
     unreadCount.value = data.unread_count || 0
     notifList.value = data.data?.data || data.data || []
   } catch {}
@@ -429,6 +434,23 @@ async function toggleNotifs() {
   showNotifs.value = !showNotifs.value
   if (showNotifs.value) { placeNotifs(); await loadUnread() }
 }
+
+async function removeNotif(n) {
+  try {
+    const { data } = await axios.delete(`/api/notifications/${n.id}`)
+    notifList.value = notifList.value.filter(x => x.id !== n.id)
+    unreadCount.value = data.unread_count ?? unreadCount.value
+  } catch {}
+}
+async function clearRead() {
+  try {
+    const { data } = await axios.post('/api/notifications/clear', { scope: 'read' })
+    notifList.value = notifList.value.filter(n => !n.read_at)
+    unreadCount.value = data.unread_count ?? unreadCount.value
+    loadUnread()
+  } catch {}
+}
+function goAllNotifs() { showNotifs.value = false; router.push('/notifications') }
 
 async function markAllRead() {
   try {

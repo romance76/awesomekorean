@@ -26,7 +26,9 @@ class NotificationController extends Controller
             $query->whereNull('read_at');
         }
 
-        $notifs = $query->orderByDesc('created_at')->paginate(20);
+        // 종 모양 드롭다운은 최근 몇 개만(limit), 전체 목록 화면은 20개씩
+        $per = max(1, min(50, (int) $request->query('limit', 20)));
+        $notifs = $query->orderByDesc('created_at')->paginate($per);
         $unread = Notification::where('user_id', auth()->id())->whereNull('read_at')->count();
         return response()->json(['success' => true, 'data' => $notifs, 'unread_count' => $unread]);
     }
@@ -34,6 +36,23 @@ class NotificationController extends Controller
     public function markRead() {
         Notification::where('user_id', auth()->id())->whereNull('read_at')->update(['read_at' => now()]);
         return response()->json(['success' => true]);
+    }
+
+    /** 알림 하나 지우기 (내 알림만) */
+    public function destroy($id) {
+        $n = Notification::where('user_id', auth()->id())->where('id', $id)->delete();
+        $unread = Notification::where('user_id', auth()->id())->whereNull('read_at')->count();
+        return response()->json(['success' => true, 'deleted' => $n, 'unread_count' => $unread]);
+    }
+
+    /** 한꺼번에 지우기: scope=read(읽은 알림만, 기본) | all(전부) */
+    public function clear(Request $request) {
+        $scope = $request->input('scope') === 'all' ? 'all' : 'read';
+        $q = Notification::where('user_id', auth()->id());
+        if ($scope === 'read') $q->whereNotNull('read_at');
+        $n = $q->delete();
+        $unread = Notification::where('user_id', auth()->id())->whereNull('read_at')->count();
+        return response()->json(['success' => true, 'deleted' => $n, 'unread_count' => $unread]);
     }
 
     public function markOneRead($id) {

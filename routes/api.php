@@ -458,6 +458,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read', [NotificationController::class, 'markRead']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markOneRead']);
+    Route::post('/notifications/clear', [NotificationController::class, 'clear'])->middleware('throttle:30,1');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->whereNumber('id');
 
     Route::get('/points/history', [PointController::class, 'history']);
     Route::get('/points/balance', [PointController::class, 'balance']);
