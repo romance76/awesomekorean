@@ -66,6 +66,7 @@ class InfoPublicController extends Controller
                 'label' => $m['label'] ?? $m['key'],
                 'path' => $m['path'] ?? "/{$m['key']}",
                 'icon' => $m['icon'] ?? '',
+                'login_required' => !empty($m['login_required']),
             ])
             ->values()
             ->all();

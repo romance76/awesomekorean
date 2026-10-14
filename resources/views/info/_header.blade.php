@@ -102,7 +102,7 @@
     <div class="border-t border-gray-50 hidden md:block">
         <div class="site-hdr-menu">
             @foreach ($navGroups as $g)
-                <div class="site-hdr-navitem">
+                <div class="site-hdr-navitem" @if (!empty($g['login_required'])) data-lr="1" style="display:none" @endif>
                     <a href="{{ $g['path'] }}" class="site-hdr-tab {{ $isInfoGroup($g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off' }} {{ !empty($g['image']) ? '!h-auto' : '' }}">
                         @if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-12 w-auto max-w-[220px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif{!! ($g['type'] !== 'single' && count($g['items'])) ? '<span class="text-[9px] opacity-50">▼</span>' : '' !!}
                     </a>
@@ -110,7 +110,7 @@
                         <div class="site-hdr-drop">
                             @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="site-hdr-drop-item text-ink-light">{{ $g['icon'] }} {{ $g['label'] }} 홈</a>@endif
                             @foreach ($g['items'] as $m)
-                                <a href="{{ $m['path'] }}" class="site-hdr-drop-item {{ str_starts_with($m['path'], '/info') ? 'text-amber-700' : 'text-ink-light' }}">{{ $m['label'] }}</a>
+                                <a href="{{ $m['path'] }}" @if (!empty($m['login_required'])) data-lr="1" style="display:none" @endif class="site-hdr-drop-item {{ str_starts_with($m['path'], '/info') ? 'text-amber-700' : 'text-ink-light' }}">{{ $m['label'] }}</a>
                             @endforeach
                         </div>
                     @endif
@@ -124,7 +124,7 @@
             {{-- 관리자 페이지 "메뉴 구성"에서 저장한 순서/활성화 상태(site_settings.menu_config)를
                  그대로 따름 — 홈(NavBar.vue)과 동일한 소스를 사용해 개수/순서가 어긋나지 않도록 함. --}}
             @foreach ($menus as $item)
-                <a href="{{ $item['path'] }}"
+                <a href="{{ $item['path'] }}" @if (!empty($item['login_required'])) data-lr="1" style="display:none" @endif
                    class="text-[13px] font-semibold px-3 py-2.5 border-b-2 whitespace-nowrap transition-colors duration-150 {{ $item['path'] === '/info' ? 'border-amber-400 text-amber-600' : 'border-transparent text-ink-light hover:text-ink' }}">
                     {{ $item['label'] }}
                 </a>
@@ -155,13 +155,13 @@
                 @foreach ($navGroups as $g)
                     @if ($g['type'] === 'single')
                         @php $m = $g['items'][0]; @endphp
-                        <a href="{{ $m['path'] }}" class="flex items-center gap-3 px-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
+                        <a href="{{ $m['path'] }}" @if (!empty($m['login_required'])) data-lr="1" style="display:none" @endif class="flex items-center gap-3 px-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
                             <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $g['icon'] ?: '•' }}</span>@if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-8 w-auto max-w-[160px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif
                         </a>
                     @else
                         <div class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted">{{ $g['icon'] }} @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="text-ink">{{ $g['label'] }} 홈 ›</a>@else{{ $g['label'] }}@endif</div>
                         @foreach ($g['items'] as $m)
-                            <a href="{{ $m['path'] }}" class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
+                            <a href="{{ $m['path'] }}" @if (!empty($m['login_required'])) data-lr="1" style="display:none" @endif class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
                                 <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $m['icon'] ?: '•' }}</span><span>{{ $m['label'] }}</span>
                             </a>
                         @endforeach
@@ -169,7 +169,7 @@
                 @endforeach
             @else
             @foreach ($menus as $item)
-                <a href="{{ $item['path'] }}"
+                <a href="{{ $item['path'] }}" @if (!empty($item['login_required'])) data-lr="1" style="display:none" @endif
                    class="flex items-center gap-3 px-4 py-2 text-sm {{ $item['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
                     <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $item['icon'] ?: '•' }}</span>
                     <span>{{ $item['label'] }}</span>
@@ -259,6 +259,7 @@ function googleTranslateElementInit() {
 
         document.getElementById('info-auth-guest').style.display = 'none';
         var userBox = document.getElementById('info-auth-user');
+        document.querySelectorAll('[data-lr]').forEach(function (el) { el.style.display = ''; });   // 로그인해야 보이는 메뉴
         userBox.style.display = 'block';
 
         document.getElementById('info-auth-name').textContent = user.name || '';

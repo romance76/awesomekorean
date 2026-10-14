@@ -59,6 +59,8 @@ class MenuGroups
             $out[] = [
                 'key' => $g['key'], 'label' => $g['label'], 'icon' => $g['icon'] ?? '', 'type' => $type, 'items' => $items,
                 'color' => $g['color'] ?? '', 'image' => $g['image'] ?? '',
+                // 묶음 안 메뉴가 전부 "로그인해야 보임"이면 묶음도 로그인 전에는 숨김 (NavBar.vue 와 같게)
+                'login_required' => $items && collect($items)->every(fn ($it) => !empty($it['login_required'])),
                 'path' => $type === 'hub' ? $g['path'] : $items[0]['path'],
             ];
         }
