@@ -98,7 +98,7 @@
             <button v-for="b in boards" :key="b.id" @click="showFavorites=false; activeBoard=b; activeItem=null; loadPosts()"
               class="w-full text-left px-3 py-2 text-xs transition-colors"
               :class="!showFavorites && activeBoard?.id === b.id ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">
-              {{ b.name }}
+              {{ b.name }}<span v-if="b.has_new" class="new-n" title="새 글이 있어요" aria-label="새 글 있음">N</span>
             </button>
             <button v-if="auth.isLoggedIn" @click="showFavorites=true; activeItem=null; loadFavoritesPage()"
               class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50"
@@ -190,7 +190,7 @@
                 <span v-if="item.category" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">#{{ item.category }}</span>
                 <span v-if="isHot(item)" class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">인기</span>
               </div>
-              <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title }}</div>
+              <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title }}<span v-if="isNewPost(item)" class="new-n" title="새 글" aria-label="새 글">N</span></div>
               <p v-if="excerpt(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ excerpt(item) }}</p>
               <div class="flex flex-wrap items-center gap-x-2.5 sm:gap-x-3 gap-y-1 mt-2 text-xs text-ink-muted">
                 <button @click.stop="openPopup(item.user?.id)" class="inline-flex items-center gap-1.5 font-medium text-ink hover:text-amber-700 transition-colors">
@@ -254,6 +254,8 @@ const showFilter = ref(false)
 const searchQ = ref('')   // 제목 검색 (휴대폰은 필터 창 안, PC 는 머리 줄)
 const showFavorites = ref(false)
 const favoritedList = ref(new Set())
+// 48시간 안에 올라온 글에는 제목 끝에 아주 작은 N
+const isNewPost = (p) => !!p?.created_at && Date.now() - new Date(p.created_at).getTime() < 48 * 3600 * 1000
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const items = ref([])
 const boards = ref([])
@@ -496,3 +498,7 @@ watch(() => route.params.board, (newBoard, oldBoard) => {
   }
 })
 </script>
+
+<style scoped>
+.new-n { display:inline-grid; place-items:center; width:14px; height:14px; margin-left:5px; border-radius:4px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; line-height:1; vertical-align:middle; transform:translateY(-1px); }
+</style>
