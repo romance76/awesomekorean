@@ -46,17 +46,23 @@ composer install --no-dev --optimize-autoloader --no-interaction -q 2>&1 | tail 
 log "▶ Step 2b/7: migrate (빌드 전)"
 php8.2 artisan migrate --force 2>&1 | tail -5 >> "$LOG" || log "⚠️ migrate returned non-zero"
 
-log "▶ Step 3/7: npm install"
-(npm ci --silent 2>/dev/null || npm install --silent) 2>&1 | tail -5 >> "$LOG" || fail "npm-install" "dependency resolution"
+# GitHub 빌드 컴퓨터에서 이미 만들어 올린 빌드(public/build_next)가 있으면(PREBUILT=1) 서버 빌드를 건너뛴다 (약 3분 → 몇 초).
+# 없으면 예전처럼 서버에서 직접 빌드한다.
+if [ "${PREBUILT:-0}" = "1" ] && [ -f public/build_next/manifest.json ]; then
+  log "▶ Step 3-4/7: GitHub 에서 미리 만든 빌드 사용 (서버 빌드 생략)"
+else
+  log "▶ Step 3/7: npm install"
+  (npm ci --silent 2>/dev/null || npm install --silent) 2>&1 | tail -5 >> "$LOG" || fail "npm-install" "dependency resolution"
 
-log "▶ Step 4/7: vite build (NODE_OPTIONS=--max-old-space-size=1024)"
-export NODE_OPTIONS='--max-old-space-size=1024'
-# 새 빌드는 임시 폴더(public/build_next)에 만들고 끝나면 한 번에 교체한다.
-# (예전엔 public/build 를 먼저 지우고 1~3분간 빌드해서, 그동안 Vite manifest 가 없어 사이트 전체가 500 이었음)
-rm -rf public/build_next
-VITE_OUT_DIR=public/build_next npm run build 2>&1 | tail -10 >> "$LOG"
-# 빌드가 실패하면 기존 public/build 는 그대로 두고 중단 — 사이트는 이전 버전으로 계속 동작
-[ -f public/build_next/manifest.json ] || fail "vite-build" "빌드 실패(기존 빌드 유지) — OOM 여부 확인 (free -m)"
+  log "▶ Step 4/7: vite build (NODE_OPTIONS=--max-old-space-size=1024)"
+  export NODE_OPTIONS='--max-old-space-size=1024'
+  # 새 빌드는 임시 폴더(public/build_next)에 만들고 끝나면 한 번에 교체한다.
+  # (예전엔 public/build 를 먼저 지우고 1~3분간 빌드해서, 그동안 Vite manifest 가 없어 사이트 전체가 500 이었음)
+  rm -rf public/build_next
+  VITE_OUT_DIR=public/build_next npm run build 2>&1 | tail -10 >> "$LOG"
+  # 빌드가 실패하면 기존 public/build 는 그대로 두고 중단 — 사이트는 이전 버전으로 계속 동작
+  [ -f public/build_next/manifest.json ] || fail "vite-build" "빌드 실패(기존 빌드 유지) — OOM 여부 확인 (free -m)"
+fi
 
 log "▶ Step 5/7: manifest copy + 빌드 교체"
 # 직전 빌드의 해시 파일을 14일간 보존: 오래 열어 둔 탭/설치형 앱이 옛 chunk 를 요청해도 404 가 나지 않게 함

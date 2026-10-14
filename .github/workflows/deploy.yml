@@ -19,22 +19,89 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
-    # 주의: frontend 빌드는 서버에서 수행합니다.
-    # GitHub Actions runner 에는 .env(VITE_REVERB_APP_KEY 등)가 없어서
-    # 여기서 build 하면 Pusher/Reverb 키가 비어있는 번들이 만들어지고
-    # Vue 앱 전체가 로드되지 않는 문제가 있었습니다.
-    # deploy.sh 가 서버의 .env 를 읽어서 올바르게 빌드합니다.
+    # 프런트 빌드(vite)는 GitHub 의 빌드 컴퓨터(CPU 2개)에서 한다 — 서버(CPU 1개)에서 하면 약 3분, 여기서는 1분 안쪽.
+    # 빌드에 필요한 VITE_* 값(공개 키: Reverb·Firebase 웹 키 등)은 저장소 Variables 에 서버 .env 와 같은 값으로 넣어 두었다.
+    # 서버 .env 가 바뀌면 같은 이름의 Variables 도 같이 바꿀 것 (gh variable set 이름 --body 값).
+    # 러너 빌드가 실패하면 예전 방식(서버에서 직접 빌드)으로 자동으로 이어서 배포한다 — 배포가 멈추지 않게.
     steps:
-      - name: Deploy via SSH (server builds with proper .env)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node (서버와 같은 20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build frontend on runner
+        id: build
+        continue-on-error: true
+        env:
+          VITE_APP_NAME: ${{ vars.VITE_APP_NAME }}
+          VITE_REVERB_APP_KEY: ${{ vars.VITE_REVERB_APP_KEY }}
+          VITE_REVERB_HOST: ${{ vars.VITE_REVERB_HOST }}
+          VITE_REVERB_PORT: ${{ vars.VITE_REVERB_PORT }}
+          VITE_REVERB_SCHEME: ${{ vars.VITE_REVERB_SCHEME }}
+          VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ vars.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_VAPID_KEY: ${{ vars.VITE_FIREBASE_VAPID_KEY }}
+          VITE_OUT_DIR: public/build_next
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: |
+          set -e
+          test -n "$VITE_REVERB_APP_KEY" || { echo "VITE_REVERB_APP_KEY 가 비어 있음 — 저장소 Variables 확인"; exit 1; }
+          npm ci --no-audit --no-fund
+          npm run build
+          test -f public/build_next/manifest.json
+          tar czf /tmp/build_next.tgz -C public build_next
+          ls -la /tmp/build_next.tgz
+
+      - name: Upload build to server
+        id: upload
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_HOST: ${{ secrets.SERVER_HOST }}
+          DEPLOY_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          set -e
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes /tmp/build_next.tgz "$DEPLOY_USER@$DEPLOY_HOST:/tmp/build_next.tgz"
+
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          PREBUILT_OK: ${{ steps.build.outcome == 'success' && steps.upload.outcome == 'success' }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           command_timeout: 20m
+          envs: PREBUILT_OK
           script: |
             set -e
             cd /var/www/awesomekorean
-            bash deploy.sh
+            if [ "$PREBUILT_OK" = "true" ] && [ -f /tmp/build_next.tgz ]; then
+              echo "러너에서 만든 빌드로 배포"
+              git config --global --add safe.directory /var/www/awesomekorean 2>/dev/null || true
+              # deploy.sh 가 실행 중에 자기 자신이 바뀌지 않도록, 새 코드를 먼저 받아 둔다
+              git fetch origin main
+              git reset --hard origin/main
+              rm -rf public/build_next
+              tar xzf /tmp/build_next.tgz -C public
+              rm -f /tmp/build_next.tgz
+              PREBUILT=1 bash deploy.sh
+            else
+              echo "러너 빌드를 못 써서 서버에서 직접 빌드(예전 방식)"
+              bash deploy.sh
+            fi
             echo "Deployed successfully to awesomekorean.com!"
