@@ -89,6 +89,11 @@ class MarketController extends Controller
         $item = MarketItem::with(['user:id,name,nickname,avatar,lifetime_points', 'reservations' => function($q) {
             $q->where('status', 'pending')->where('hold_until', '>', now())->with('buyer:id,name,nickname');
         }])->findOrFail($id);
+        // 숨긴 글(status=hidden)은 목록에 안 나오고, 주소를 알아도 주인·관리자만 열 수 있다
+        if ($item->status === 'hidden') {
+            $me = auth()->user();
+            if (!$me || ((int) $me->id !== (int) $item->user_id && !in_array($me->role, ['admin', 'super_admin'], true))) abort(404);
+        }
         $item->increment('view_count');
 
         // 현재 활성 홀드 정보
@@ -258,6 +263,9 @@ class MarketController extends Controller
     {
         $item = $this->findOwnedOrAdmin(MarketItem::class, $id);
         $data = $request->only('title', 'content', 'price', 'category', 'condition', 'status', 'is_negotiable', 'hold_enabled', 'hold_price_per_6h', 'hold_max_hours');
+        if (isset($data['status']) && !in_array($data['status'], ['active', 'reserved', 'sold', 'hidden'], true)) {
+            return response()->json(['success' => false, 'message' => '올바르지 않은 상태예요'], 422);
+        }
         if ($request->has('thumbnail_index')) {
             $max = is_array($item->images) ? count($item->images) - 1 : 0;
             $data['thumbnail_index'] = max(0, min($max, (int) $request->thumbnail_index));

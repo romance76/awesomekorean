@@ -59,8 +59,8 @@
             <div class="flex items-center justify-between mb-2">
               <div class="flex items-center gap-2 flex-wrap">
                 <span
-                  :class="{'badge-green':item.status==='active','badge-primary':item.status==='reserved','badge-gray':item.status==='sold'}">
-                  {{ {active:'판매중',reserved:'예약중',sold:'판매완료'}[item.status] }}
+                  :class="{'badge-green':item.status==='active','badge-primary':item.status==='reserved','badge-gray':item.status==='sold' || item.status==='hidden'}">
+                  {{ {active:'판매중',reserved:'예약중',sold:'판매완료',hidden:'숨김'}[item.status] }}
                 </span>
                 <span class="badge-gray !text-[11px]">{{ conditionLabel }}</span>
                 <span v-if="item.is_negotiable" class="text-[11px] text-amber-600 font-semibold">가격협의</span>
@@ -179,6 +179,17 @@
             <RouterLink :to="`/market/write?edit=${item.id}`" class="btn-secondary flex-1 py-2 text-xs"><AppIcon name="edit" :size="12" />수정</RouterLink>
             <button @click="deleteItem" class="flex-1 inline-flex items-center justify-center gap-1 bg-red-50 text-red-600 font-semibold py-2 rounded-lg text-xs hover:bg-red-100 transition-colors"><AppIcon name="trash" :size="12" />삭제</button>
           </div>
+        </div>
+
+        <!-- 내 글 관리: 주인·관리자 — 수정 / 목록에서 숨기기 / 삭제 -->
+        <div v-if="isOwner || isStaff" class="card p-3 flex items-center gap-2 flex-wrap">
+          <span class="text-xs font-bold text-ink-muted mr-1">{{ isOwner ? '내 글 관리' : '관리자' }}</span>
+          <RouterLink v-if="isOwner" :to="`/market/write?edit=${item.id}`" class="btn-secondary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="12" />수정</RouterLink>
+          <button @click="toggleHidden" :disabled="busyMgr" class="btn-secondary px-3 py-1.5 text-xs disabled:opacity-50">
+            <AppIcon :name="item.status === 'hidden' ? 'eye' : 'eye-off'" :size="12" />{{ item.status === 'hidden' ? '숨김 해제' : '목록에서 숨기기' }}
+          </button>
+          <button @click="deleteItem" :disabled="busyMgr" class="inline-flex items-center gap-1 bg-red-50 text-red-600 font-semibold px-3 py-1.5 rounded-lg text-xs hover:bg-red-100 transition-colors disabled:opacity-50"><AppIcon name="trash" :size="12" />삭제</button>
+          <span v-if="item.status === 'hidden'" class="text-xs text-amber-700 font-semibold">지금은 목록에 안 보여요 (나만 볼 수 있어요)</span>
         </div>
 
         <!-- 상세 설명 -->
@@ -341,6 +352,8 @@ const categories = [
 ]
 
 const isOwner = computed(() => item.value && String(item.value.user_id) === String(auth.user?.id))
+const isStaff = computed(() => ['admin', 'super_admin'].includes(auth.user?.role) && !isOwner.value)
+const busyMgr = ref(false)
 const isActiveBuyer = computed(() => item.value?.active_hold && String(item.value.active_hold.buyer_id) === String(auth.user?.id))
 const conditionLabel = computed(() => ({new:'새상품',like_new:'거의 새것',good:'양호',fair:'보통'})[item.value?.condition] || '')
 const categoryLabel = computed(() => categories.find(c => c.value === item.value?.category)?.label || '전체')
@@ -477,8 +490,20 @@ function sendMessage() { msgModal.value = true }
 // 신고
 const showReport = ref(false)
 async function deleteItem() {
-  if (!await showConfirm('정말 삭제하시겠습니까?')) return
+  if (!await showConfirm('정말 삭제하시겠습니까? 삭제하면 되돌릴 수 없어요. (목록에서만 감추려면 "숨기기"를 쓰세요)')) return
+  busyMgr.value = true
   try { await axios.delete(`/api/market/${item.value.id}`); router.push('/market') } catch {}
+  busyMgr.value = false
+}
+// 목록에서 숨기기 ↔ 숨김 해제 (글은 그대로 두고 목록·검색에서만 안 보이게)
+async function toggleHidden() {
+  const hide = item.value.status !== 'hidden'
+  busyMgr.value = true
+  try {
+    await axios.put(`/api/market/${item.value.id}`, { status: hide ? 'hidden' : 'active' })
+    item.value.status = hide ? 'hidden' : 'active'
+  } catch {}
+  busyMgr.value = false
 }
 
 function formatDateTime(dt) { if (!dt) return ''; const d = new Date(dt); return d.toLocaleDateString('ko-KR') + ' ' + d.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) }
