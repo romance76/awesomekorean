@@ -104,7 +104,7 @@
             @foreach ($navGroups as $g)
                 <div class="site-hdr-navitem">
                     <a href="{{ $g['path'] }}" class="site-hdr-tab {{ $isInfoGroup($g) ? 'site-hdr-tab-on' : 'site-hdr-tab-off' }} {{ !empty($g['image']) ? '!h-auto' : '' }}">
-                        @if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-12 w-auto max-w-[220px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif@if ($g['type'] !== 'single' && count($g['items']))<span class="text-[9px] opacity-50">▼</span>@endif
+                        @if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-12 w-auto max-w-[220px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif{!! ($g['type'] !== 'single' && count($g['items'])) ? '<span class="text-[9px] opacity-50">▼</span>' : '' !!}
                     </a>
                     @if ($g['type'] !== 'single' && count($g['items']))
                         <div class="site-hdr-drop">
