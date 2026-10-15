@@ -60,8 +60,12 @@ class SeoHead
         return $first === '' || in_array($first, self::SPA_SEGMENTS, true);
     }
 
-    /** 검색에 노출하지 않을 화면(개인·관리·로그인·검색 결과) — 주소의 첫 마디 */
-    public const NOINDEX = ['admin', 'login', 'register', 'forgot-password', 'email-verified', 'auth', 'dashboard', 'messages', 'notifications', 'points', 'entries', 'ad-apply', 'comms', 'search', '404'];
+    /**
+     * 검색에 노출하지 않을 화면(개인·관리·로그인·검색 결과) — 주소의 첫 마디.
+     * market·realestate: 지금은 전부 외부(eBay·realtor.com)에서 가져온 상품·매물이라 구글 색인에서 제외(2026-10-14 사용자 결정).
+     * 회원이 올린 글이 쌓이면 여기서 빼고 색인을 다시 연다.
+     */
+    public const NOINDEX = ['admin', 'login', 'register', 'forgot-password', 'email-verified', 'auth', 'dashboard', 'messages', 'notifications', 'points', 'entries', 'ad-apply', 'comms', 'search', '404', 'market', 'realestate'];
 
     /**
      * 광고(구글 애드센스) 코드를 아예 불러오지 않을 화면 — 주소의 첫 마디. 검색 제외 화면(로그인·관리자·개인 화면) +

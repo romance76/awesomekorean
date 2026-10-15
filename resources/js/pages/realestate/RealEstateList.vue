@@ -149,6 +149,10 @@
         <span v-if="!activeCat" class="text-xs text-ink-muted ml-2">{{ reType==='rent' ? '모든 렌트 매물' : reType==='sale' ? '모든 매매 매물' : '모든 룸메이트 매물' }}</span>
       </template>
     </div>
+    <!-- 외부(realtor.com)에서 가져온 매물이 섞여 있을 때 먼저 알려 준다 (문의·계약은 원본 사이트에서) -->
+    <div v-if="!loading && items.some(i => i.source === 'scraped')" class="mb-3 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-700 leading-relaxed">
+      <b>외부 매물</b> 표시가 있는 매물은 realtor.com 등 외부 사이트에서 가져온 정보예요. 문의와 계약은 상세 화면의 "원본 매물 보기"를 눌러 원본 사이트에서 해 주세요.
+    </div>
 
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
@@ -226,6 +230,7 @@
             <span v-if="item.property_type" class="badge-gray font-bold">
               {{ propertyTypeLabel(item.property_type) }}
             </span>
+            <span v-if="item.source === 'scraped'" class="badge-gray !text-[11px]">외부 매물</span>
           </div>
 
           <!-- 2. 가격 -->
@@ -282,6 +287,7 @@
               <span v-if="item.promotion_tier === 'national'" class="inline-flex items-center gap-0.5 text-[11px] bg-red-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="globe" :size="10" />전국구</span>
               <span v-else-if="item.promotion_tier === 'state_plus'" class="inline-flex items-center gap-0.5 text-[11px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="star" :size="10" />주+</span>
               <span v-else-if="item.promotion_tier === 'sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="megaphone" :size="10" />스폰서</span>
+              <span v-if="item.source === 'scraped'" class="badge-gray !text-[11px] !px-1.5">외부 매물</span>
             </div>
             <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
             <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">

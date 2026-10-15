@@ -126,7 +126,7 @@
         <div class="px-5 py-4">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <span class="badge-primary">{{ activeItem.subcategory || activeItem.category }}</span>
+              <span class="badge-primary">{{ activeItem.subcategory || catLabel(activeItem.category) }}</span>
               <h2 class="text-lg font-bold text-ink mt-2">{{ activeItem.name }}</h2>
               <div class="flex items-center gap-1 mt-1"><span class="text-amber-400">{{'★'.repeat(Math.round(activeItem.rating))}}</span><span class="text-sm text-ink-light">{{ activeItem.rating }}</span><span class="text-xs text-ink-muted">({{ activeItem.review_count }}리뷰)</span></div>
             </div>
@@ -295,7 +295,7 @@
             <span class="text-xs text-ink-muted">{{ item.rating || 0 }}</span>
             <span class="text-[11px] text-ink-faint">({{ item.review_count || 0 }})</span>
           </div>
-          <div class="text-[11px] text-ink-muted mt-1">{{ item.subcategory || item.category }}</div>
+          <div class="text-[11px] text-ink-muted mt-1">{{ item.subcategory || catLabel(item.category) }}</div>
           <div class="text-[11px] text-ink-muted mt-1 flex items-center gap-1">
             <span class="inline-flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ item.city }}, {{ item.state }}</span>
             <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
@@ -492,6 +492,12 @@ const bizCategories = [
   { value: 'beauty', label: '미용' },{ value: 'medical', label: '의료' },{ value: 'professional', label: '전문서비스' },
   { value: 'auto', label: '자동차' },{ value: 'realestate', label: '부동산' },{ value: 'education', label: '교육' },{ value: 'religion', label: '종교' },{ value: 'etc', label: '기타' },
 ]
+// 업종 표시: 세부 업종(subcategory)이 없는 업소는 영어 코드(etc·medical·beauty…) 대신 한글 이름으로 보여 준다
+function catLabel(c) {
+  if (!c) return '기타'
+  if (c === 'grocery') return '마트'
+  return bizCategories.find(b => b.value === c)?.label || c
+}
 
 const showFavorites = ref(false)
 const favorited = ref(new Set())

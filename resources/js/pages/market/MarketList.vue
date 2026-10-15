@@ -110,6 +110,10 @@
         <span v-if="!activeCat" class="text-xs text-ink-muted ml-2">모든 중고 물품을 볼 수 있습니다</span>
       </template>
     </div>
+    <!-- 외부(eBay)에서 가져온 상품이 섞여 있을 때 먼저 알려 준다 (여기서 구매·결제는 안 됨) -->
+    <div v-if="!loading && items.some(i => i.source === 'scraped')" class="mb-3 rounded-lg bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-700 leading-relaxed">
+      <b>eBay 상품</b> 표시가 있는 물건은 eBay에서 가져온 상품이에요. 여기서 직접 구매·결제할 수 없고, 상세 화면의 "원본 매물 보기"를 누르면 eBay로 이동해요.
+    </div>
 
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
@@ -174,6 +178,7 @@
                 <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[11px] bg-blue-500 text-white font-bold px-1.5 py-px rounded">⭐주+</span>
                 <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[11px] bg-amber-500 text-white font-bold px-1.5 py-px rounded">📢스폰</span>
                 <span v-else-if="isBoosted(item)" class="text-[11px] bg-purple-500 text-white font-bold px-1.5 py-px rounded">🚀 상위노출</span>
+                <span v-if="item.source === 'scraped'" class="badge-blue !text-[11px] !px-1.5">eBay 상품</span>
                 <span v-if="item.is_negotiable" class="badge-green !text-[11px] !px-1.5">가격협의</span>
                 <span v-if="item.hold_enabled" class="badge-blue !text-[11px] !px-1.5">홀드가능</span>
               </div>
@@ -222,6 +227,7 @@
               <span v-else-if="item.promotion_tier === 'state_plus'" class="text-[11px] bg-blue-500 text-white font-bold px-1.5 py-0.5 rounded">⭐ 주+</span>
               <span v-else-if="item.promotion_tier === 'sponsored'" class="text-[11px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">📢 스폰서</span>
               <span v-else-if="isBoosted(item)" class="text-[11px] bg-purple-500 text-white font-bold px-1.5 py-0.5 rounded">🚀 상위노출</span>
+              <span v-if="item.source === 'scraped'" class="badge-blue !text-[11px] !px-1.5">eBay 상품</span>
             </div>
             <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
             <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">

@@ -60,7 +60,7 @@ class BusinessController extends Controller
             return true;
         });
 
-        $query = Business::query()
+        $query = Business::query()->visible()
             ->select('id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
                      'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
                      'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
@@ -129,7 +129,7 @@ class BusinessController extends Controller
 
                     if (!empty($pageIds)) {
                         $idList = implode(',', $pageIds);
-                        $results = Business::query()
+                        $results = Business::query()->visible()
                             ->select('id', 'name', 'category', 'subcategory', 'address', 'city', 'state',
                                      'phone', 'lat', 'lng', 'images', 'logo', 'rating', 'review_count',
                                      'view_count', 'is_verified', 'is_claimed', 'promotion_tier',
@@ -191,7 +191,7 @@ class BusinessController extends Controller
 
         // 공통 필터 빌더
         $baseQuery = function () use ($request, $category, $state, $search, $selectCols, $hasLocation) {
-            $q = Business::query()->select($selectCols)
+            $q = Business::query()->visible()->select($selectCols)
                 ->when($category, fn($q, $v) => $q->where('category', $v))
                 ->when($search, fn($q, $v) => $q->where('name', 'like', "%{$v}%"))
                 ->when($state, fn($q, $v) => $q->where('state', $v))
@@ -236,7 +236,7 @@ class BusinessController extends Controller
                 $pageIds = array_slice($randomIds, $offset, $perPage);
                 if (!empty($pageIds)) {
                     $idList = implode(',', $pageIds);
-                    $mainItems = Business::query()->select($this->selectCols())
+                    $mainItems = Business::query()->visible()->select($this->selectCols())
                         ->whereIn('id', $pageIds)->orderByRaw("FIELD(id, {$idList})")->get();
                     $this->transformImages($mainItems);
                     $mainData = [
@@ -314,7 +314,7 @@ class BusinessController extends Controller
 
     public function show($id)
     {
-        $biz = Business::with('reviews.user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
+        $biz = Business::visible()->with('reviews.user:id,name,nickname,avatar,lifetime_points')->findOrFail($id);
         $biz->increment('view_count');
         $adj = $this->adjacentPair(Business::class, $id, 'name', ['category' => $biz->category]);
         return response()->json(['success' => true, 'data' => $biz, 'prev' => $adj['prev'], 'next' => $adj['next']]);

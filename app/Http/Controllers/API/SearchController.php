@@ -15,7 +15,7 @@ class SearchController extends Controller
         $results['posts'] = Post::visible()->inActiveBoard()->where('title', 'like', "%{$q}%")->select('id','title','view_count','created_at')->limit(5)->get();
         $results['jobs'] = JobPost::active()->where('title', 'like', "%{$q}%")->select('id','title','company','city','state')->limit(5)->get();
         $results['market'] = MarketItem::where('status','active')->where('title', 'like', "%{$q}%")->select('id','title','price')->limit(5)->get();
-        $results['businesses'] = Business::where('name', 'like', "%{$q}%")->select('id','name','category','city')->limit(5)->get();
+        $results['businesses'] = Business::visible()->where('name', 'like', "%{$q}%")->select('id','name','category','city')->limit(5)->get();
         $results['events'] = Event::where('title', 'like', "%{$q}%")->select('id','title','start_date','venue')->limit(5)->get();
         // is_hidden 필터 없이 숨김 처리된 질문까지 검색에 노출되던 문제 함께 수정
         $results['qa'] = QaPost::where('is_hidden', false)->where('title', 'like', "%{$q}%")->select('id','title','bounty_points','is_resolved')->limit(5)->get();
