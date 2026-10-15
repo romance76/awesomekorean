@@ -51,7 +51,7 @@ Broadcast::routes(['middleware' => ['auth:api']]);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,10'); // 10분당 10회
 Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
 // CSP 보고 전용 모드의 위반 보고 수신 (브라우저가 자동으로 보냄, 로그인 불필요, 종류별로 하루 1건만 기록)
-Route::post('/csp-report', [AppHttpControllersAPICspReportController::class, 'store'])->middleware('throttle:60,1');
+Route::post('/csp-report', [\App\Http\Controllers\API\CspReportController::class, 'store'])->middleware('throttle:60,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,10');
 Route::post('/auth/refresh', [AuthController::class, 'refresh'])->middleware('throttle:30,1');
 // Issue #8: 비밀번호 찾기/재설정 Rate Limit
