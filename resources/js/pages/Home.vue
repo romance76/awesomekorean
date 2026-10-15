@@ -170,15 +170,27 @@
 
   <!-- ═════ 2. 이벤트 배너 (관리자 히어로 배너 슬라이드 — 사진 + 좌측 스크림) ═════ -->
   <div v-if="heroBanners.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
-    <section class="relative overflow-hidden rounded-card shadow-card aspect-[1232/222]"
+    <!-- 모바일: 가로로 긴 이미지는 글씨가 안 보이니 이미지 대신 텍스트 카드(제목·소제목·버튼)로 보여줌 -->
+    <section class="relative overflow-hidden rounded-card shadow-card md:aspect-[1232/222]"
       @mouseenter="pauseHero" @mouseleave="resumeHero">
-      <Transition name="hero">
+      <Transition name="hero" mode="out-in">
         <div v-if="heroBanners[heroIdx]" :key="heroIdx" @click="clickHeroBanner(heroBanners[heroIdx])"
-          class="absolute inset-0 cursor-pointer"
+          class="cursor-pointer md:absolute md:inset-0"
           :style="{ background: heroBanners[heroIdx].bg_color || '#1B1613' }">
+          <div v-if="heroBanners[heroIdx].title" class="md:hidden flex flex-col justify-center px-5 pt-6 pb-8 min-h-[150px]"
+            :style="{ color: heroBanners[heroIdx].text_color || '#FFFFFF' }">
+            <span v-if="heroBanners[heroIdx].subtitle" class="self-start text-[12px] font-bold tracking-[0.06em] text-amber-200">
+              {{ heroBanners[heroIdx].subtitle }}
+            </span>
+            <div class="text-[22px] leading-tight font-extrabold tracking-[-0.03em] mt-1.5 break-keep">
+              {{ heroBanners[heroIdx].title }}
+            </div>
+            <span class="self-start mt-4 bg-white text-ink font-bold text-[13px] px-5 py-2.5 rounded-full">참여하기</span>
+          </div>
           <img v-if="heroBannerImage(heroBanners[heroIdx])" :src="heroBannerImage(heroBanners[heroIdx])" alt=""
-            class="absolute inset-0 w-full h-full object-cover" />
-          <template v-if="!heroBanners[heroIdx].image_only">
+            :class="['absolute inset-0 w-full h-full object-cover', heroBanners[heroIdx].title ? 'hidden md:block' : '']" />
+          <div v-if="!heroBanners[heroIdx].title && heroBannerImage(heroBanners[heroIdx])" class="md:hidden aspect-[1232/222]"></div>
+          <div v-if="!heroBanners[heroIdx].image_only" class="hidden md:block absolute inset-0">
             <div class="absolute inset-0 banner-scrim"></div>
             <div class="relative h-full flex flex-col justify-center px-6 md:px-11 max-w-[62%]">
               <span v-if="heroBanners[heroIdx].subtitle" class="self-start text-[10.5px] md:text-[11px] font-bold tracking-[0.1em] text-amber-200">
@@ -189,7 +201,7 @@
               </div>
               <span class="self-start mt-4 md:mt-5 bg-white text-ink font-bold text-[13px] md:text-sm px-5 py-2.5 rounded-full">참여하기</span>
             </div>
-          </template>
+          </div>
         </div>
       </Transition>
       <div v-if="heroBanners.length > 1" class="absolute bottom-4 right-5 flex gap-1.5">
