@@ -23,7 +23,7 @@ use App\Models\Comment;
  * - --limit=N: import 하는 questions 수를 N 개로 제한 (디버그용)
  *
  * 더미 유저:
- *   email = "naver_dummy_{md5(fake_name)[:10]}@somekorean.local"
+ *   email = "naver_dummy_{md5(fake_name)[:10]}@awesomekorean.local"
  *   같은 fake_name 은 같은 user 로 재사용
  *   role = 'user', password 는 임의 (로그인 불가)
  */
@@ -186,7 +186,7 @@ class ImportNaverQa extends Command
         if (isset($cache[$fakeName])) return $cache[$fakeName];
 
         $emailHash = substr(md5($fakeName), 0, 10);
-        $email = "naver_dummy_{$emailHash}@somekorean.local";
+        $email = "naver_dummy_{$emailHash}@awesomekorean.local";
 
         $user = User::where('email', $email)->first();
         if (!$user) {

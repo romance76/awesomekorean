@@ -118,7 +118,7 @@ class AdminAccountsController extends Controller
             ->get(['id', 'email', 'role', 'name', 'nickname', 'email_verified_at', 'last_login_at'])
             ->map(function ($u) {
                 $domain = strtolower(substr(strrchr($u->email, '@') ?: '@', 1));
-                $isTest = in_array($domain, ['test.com', 'example.com', 'somekorean.local'], true);
+                $isTest = in_array($domain, ['test.com', 'example.com', 'awesomekorean.local'], true);
                 $invalid = !filter_var($u->email, FILTER_VALIDATE_EMAIL) || preg_match('/\.(con|cmo|ocm|comm)$/i', $domain);
                 return [
                     'id' => $u->id, 'email' => $u->email, 'name' => $u->nickname ?: $u->name, 'role' => $u->role,

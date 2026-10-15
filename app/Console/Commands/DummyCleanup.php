@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * 남길 100명: database/data/dummy_members_100.json (이름 뒤 숫자를 뗀 이름, 합쳐질 계정 목록 포함)
  * 순서: ① 합쳐질 계정의 글을 대표 계정으로 옮김 ② 지워질 회원의 글을 100명에게 나눠 옮김 ③ Q&A 를 약 1,000개로 줄임
  *       ④ 날짜 바꾸기 ⑤ 이름 바꾸기 ⑥ 나머지 가상 회원 삭제 ⑦ 숫자(댓글 수 등) 다시 세기
- * 안전장치: 관리자·슈퍼관리자와 @test.com/@somekorean.local 이 아닌 계정은 절대 건드리지 않고,
+ * 안전장치: 관리자·슈퍼관리자와 @test.com/@awesomekorean.local 이 아닌 계정은 절대 건드리지 않고,
  *           결제·광고·경품 기록이 있는 가상 회원은 지우지 않는다(목록으로 알려 줌).
  */
 class DummyCleanup extends Command
@@ -39,7 +39,7 @@ class DummyCleanup extends Command
         if (!is_array($sel) || count($sel) !== 100) { $this->error('남길 회원 명단(100명)을 읽지 못했어요'); return self::FAILURE; }
 
         // ── 대상 구분 ──
-        $dummy = DB::table('users')->where(fn ($q) => $q->where('email', 'like', '%@test.com')->orWhere('email', 'like', '%@somekorean.local'))
+        $dummy = DB::table('users')->where(fn ($q) => $q->where('email', 'like', '%@test.com')->orWhere('email', 'like', '%@awesomekorean.local'))
             ->whereNotIn('role', ['admin', 'super_admin'])->pluck('id')->all();
         $dummySet = array_flip($dummy);
         $rep = []; $mergeMap = []; $keep = []; $keepGroup = [];
@@ -167,7 +167,7 @@ class DummyCleanup extends Command
             DB::statement('UPDATE group_buys g SET current_participants = (SELECT COUNT(*) FROM group_buy_participants x WHERE x.group_buy_id = g.id)');
         });
 
-        $this->info('끝났어요. 가상 회원 ' . DB::table('users')->where(fn ($q) => $q->where('email', 'like', '%@test.com')->orWhere('email', 'like', '%@somekorean.local'))->whereNotIn('role', ['admin', 'super_admin'])->count() . '명 남음');
+        $this->info('끝났어요. 가상 회원 ' . DB::table('users')->where(fn ($q) => $q->where('email', 'like', '%@test.com')->orWhere('email', 'like', '%@awesomekorean.local'))->whereNotIn('role', ['admin', 'super_admin'])->count() . '명 남음');
         return self::SUCCESS;
     }
 }

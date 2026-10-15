@@ -16,7 +16,7 @@ class SyncMoneyPosts extends Command
     protected $signature = 'money:sync-posts';
     protected $description = 'database/data/money_posts/*.json 의 운영팀 글을 DB와 동기화 (배포마다 실행, 중복 없음)';
 
-    private const OPS_EMAIL = 'money-ops@somekorean.local';
+    private const OPS_EMAIL = 'money-ops@awesomekorean.local';
 
     public function handle(): int
     {

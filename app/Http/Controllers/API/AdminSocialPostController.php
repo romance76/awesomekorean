@@ -134,7 +134,7 @@ class AdminSocialPostController extends Controller
         $d = $r->validate(['cafe' => 'nullable|string|max:60', 'limit' => 'required|integer|min:1|max:30']);
         $q = MoneyPost::where('is_hidden', false)
             ->whereNotIn('id', SocialPost::where('source_type', 'money_post')->select('source_id'))
-            ->whereIn('user_id', DB::table('users')->where('email', 'money-ops@somekorean.local')->select('id'))
+            ->whereIn('user_id', DB::table('users')->where('email', 'money-ops@awesomekorean.local')->select('id'))
             ->orderBy('id');
         if (!empty($d['cafe'])) $q->where('cafe_id', MoneyCafe::where('slug', $d['cafe'])->value('id') ?? 0);
         $n = 0;

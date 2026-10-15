@@ -466,7 +466,7 @@ async function loadPage(p = 1) {
 
   const params = { page: p, per_page: 20 }
   if (search.value) params.search = search.value
-  // 썸코리안 이벤트는 event_type으로, 나머지는 category로
+  // 어썸코리안 이벤트는 event_type으로, 나머지는 category로
   const catInfo = eventCategories.find(c => c.value === activeCat.value)
   if (activeCat.value && catInfo?.isType) params.event_type = activeCat.value
   else if (activeCat.value) params.category = activeCat.value

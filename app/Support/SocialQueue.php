@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * SNS 자동 게시 대기열에 글을 넣는 곳 (캡션·카드뉴스 만들기 포함).
  *  - MONEY 운영팀 글: 새 글만 자동(social:enqueue), 예전 글은 관리자가 골라서 넣기
- *  - 어썸코리안 이벤트(event_type somekorean·sweepstakes): 만들어지면 자동, 우선순위 높게
+ *  - 어썸코리안 이벤트(event_type awesomekorean·sweepstakes): 만들어지면 자동, 우선순위 높게
  *  - 관리자 직접 쓰기
  * 같은 원본+플랫폼은 한 번만 들어간다. 계획서 qa/sns_autopost_plan.md
  */
@@ -24,7 +24,7 @@ class SocialQueue
         'times' => ['08:00', '12:00', '19:00'], 'hashtags' => '#미국생활 #애틀랜타한인 #미국한인 #어썸코리안',
         'auto_events' => true, 'auto_money' => true,
     ];
-    public const EVENT_TYPES = ['somekorean', 'sweepstakes'];
+    public const EVENT_TYPES = ['awesomekorean', 'sweepstakes'];
 
     // 카페별 해시태그 하나씩 더
     private const CAFE_TAGS = [
@@ -280,7 +280,7 @@ class SocialQueue
         $added = ['money' => 0, 'events' => 0];
         if ($s['auto_money']) {
             $last = (int) SiteSetting::where('key', 'social_money_last_id')->value('value');
-            $opsId = DB::table('users')->where('email', 'money-ops@somekorean.local')->value('id');
+            $opsId = DB::table('users')->where('email', 'money-ops@awesomekorean.local')->value('id');
             $q = MoneyPost::where('id', '>', $last)->where('is_hidden', false)->orderBy('id');
             if ($opsId) $q->where('user_id', $opsId);
             $max = $last;
