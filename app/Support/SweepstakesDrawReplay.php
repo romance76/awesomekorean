@@ -165,6 +165,14 @@ class SweepstakesDrawReplay
         if (array_key_exists('show_logo', $theme)) {
             $out['show_logo'] = filter_var($theme['show_logo'], FILTER_VALIDATE_BOOLEAN);
         }
+        // 섞는 시간(초): 0 = 자동, 그 외 8~60 으로 제한 (순수 연출 값 — 당첨 결과와 무관)
+        if (array_key_exists('spin_seconds', $theme) && is_numeric($theme['spin_seconds'])) {
+            $n = (int) round((float) $theme['spin_seconds']);
+            $out['spin_seconds'] = $n <= 0 ? 0 : max(8, min(60, $n));
+        }
+        if (array_key_exists('sound_on', $theme)) {
+            $out['sound_on'] = filter_var($theme['sound_on'], FILTER_VALIDATE_BOOLEAN);
+        }
 
         return $out ?: null;
     }

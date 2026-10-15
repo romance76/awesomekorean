@@ -14,7 +14,22 @@ export const DEFAULT_THEME = Object.freeze({
   prize_image_url: '',
   background_image_url: '',
   show_logo: true,
+  // 공 섞는 시간(초): 추첨 시작 ~ 당첨 공이 파이프로 나오기 시작할 때까지. 0 = 자동(약 15~20초 랜덤)
+  spin_seconds: 0,
+  // 효과음 사용 (화면의 스피커 버튼으로 보는 사람이 직접 끌 수도 있음)
+  sound_on: true,
 })
+
+/** 섞는 시간 허용 범위(초) */
+export const SPIN_MIN = 8
+export const SPIN_MAX = 60
+
+/** 섞는 시간 정리: 0/잘못된 값 = 0(자동), 그 외 8~60 정수 */
+export function clampSpinSeconds(v) {
+  const n = Math.round(Number(v))
+  if (!Number.isFinite(n) || n <= 0) return 0
+  return Math.min(SPIN_MAX, Math.max(SPIN_MIN, n))
+}
 
 const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
 
@@ -58,6 +73,8 @@ export function mergeTheme(theme) {
     prize_image_url: safeUrl(t.prize_image_url),
     background_image_url: safeUrl(t.background_image_url),
     show_logo: t.show_logo !== false,
+    spin_seconds: clampSpinSeconds(t.spin_seconds),
+    sound_on: t.sound_on !== false,
   }
 }
 

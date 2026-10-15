@@ -47,6 +47,36 @@
       </div>
     </div>
 
+    <!-- 추첨 시간 · 소리 -->
+    <div>
+      <div class="text-xs font-bold text-ink-muted mb-2">추첨 시간 · 소리</div>
+      <div class="border border-gray-100 rounded-xl p-3 bg-white space-y-3">
+        <div>
+          <label class="input-label">공 섞는 시간 (추첨 시작 ~ 당첨 공이 나오기 시작할 때까지)</label>
+          <div class="flex items-center gap-2 flex-wrap">
+            <input type="number" inputmode="numeric" min="8" max="60" step="1" :value="spinSeconds || ''"
+              @change="setSpin($event.target.value)" placeholder="자동"
+              class="input-soft px-3 w-24 text-center" aria-label="공 섞는 시간(초)" />
+            <span class="text-sm text-ink">초</span>
+            <button type="button" v-for="s in SPIN_QUICK" :key="s" @click="setSpin(s)"
+              class="px-2.5 py-1.5 rounded-lg border text-xs font-bold"
+              :class="spinSeconds === s ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-gray-200 text-ink hover:border-amber-400'">{{ s }}초</button>
+            <button type="button" @click="setSpin(0)"
+              class="px-2.5 py-1.5 rounded-lg border text-xs font-bold"
+              :class="!spinSeconds ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-gray-200 text-ink hover:border-amber-400'">자동</button>
+          </div>
+          <p class="text-[11px] text-ink-faint mt-1.5 leading-snug">
+            8~60초. 비우거나 "자동"이면 매번 약 15~20초 사이로 달라집니다. 공이 파이프를 지나 떨어지는 장면(약 3초)은 따로 더해져요.
+            등수가 여러 개면 등수마다 같은 시간이 적용됩니다. 연출 시간일 뿐 당첨 결과에는 영향이 없습니다.
+          </p>
+        </div>
+        <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
+          <input type="checkbox" class="w-4 h-4 accent-amber-500" :checked="theme.sound_on !== false" @change="setField('sound_on', $event.target.checked)" />
+          효과음 사용 <span class="text-xs text-ink-faint">(보는 사람은 화면의 스피커 버튼으로 끌 수 있어요)</span>
+        </label>
+      </div>
+    </div>
+
     <!-- 이미지 -->
     <div>
       <div class="text-xs font-bold text-ink-muted mb-2">이미지</div>
@@ -134,6 +164,17 @@ function setColorText(k, v) {
   if (/^#[0-9a-fA-F]{6}$/.test(s)) update({ [k]: s.toLowerCase() })
 }
 function setField(k, v) { update({ [k]: v }) }
+
+// 섞는 시간(초): 0 = 자동, 그 외 8~60 으로 제한
+const SPIN_QUICK = [10, 15, 20, 30]
+const spinSeconds = computed(() => {
+  const n = Math.round(Number(theme.value.spin_seconds))
+  return Number.isFinite(n) && n > 0 ? Math.min(60, Math.max(8, n)) : 0
+})
+function setSpin(v) {
+  const n = Math.round(Number(v))
+  update({ spin_seconds: !Number.isFinite(n) || n <= 0 ? 0 : Math.min(60, Math.max(8, n)) })
+}
 function applyPreset(p) { update({ ...p.theme, ball_colors: [...p.theme.ball_colors] }) }
 
 function setBall(i, v) { const a = [...balls.value]; a[i] = v; update({ ball_colors: a }) }

@@ -40,6 +40,10 @@
         </transition>
       </template>
 
+      <!-- 효과음 켜기/끄기 (보는 사람이 직접) -->
+      <button v-if="t.sound_on && !glError && !loading" type="button" class="snd-btn glass-chip absolute bottom-2.5 left-3 w-9 h-9 rounded-full text-base flex items-center justify-center"
+        :aria-label="soundMuted ? '효과음 켜기' : '효과음 끄기'" :title="soundMuted ? '효과음 켜기' : '효과음 끄기'" @click="toggleSound">{{ soundMuted ? '🔇' : '🔊' }}</button>
+
       <!-- WebGL 불가 / 로딩 -->
       <div v-if="glError" class="absolute inset-0 flex items-center justify-center text-center px-6 text-sm text-white/90">
         <div>
@@ -82,6 +86,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { mergeTheme, hexToInt, hexToRgba, lightenHex, readableOn } from '../composables/useLotteryTheme'
+import { createLotterySound } from '../composables/useLotterySound'
 
 const props = defineProps({
   theme: { type: Object, default: () => ({}) },
@@ -174,6 +179,16 @@ const statusLabel = computed(() => {
 })
 
 const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+// ── 효과음 (WebAudio 합성, 연출 전용) ──
+const snd = createLotterySound()
+const soundMuted = ref(snd.isMuted())
+watch(() => t.value.sound_on, (v) => snd.setAllowed(v), { immediate: true })
+function toggleSound() {
+  soundMuted.value = !soundMuted.value
+  snd.setMuted(soundMuted.value)   // 켤 때는 클릭 동작 안이라 바로 소리 가능
+}
+
 // 연출 시간(초). select 는 매 play() 마다 10~15초 사이 랜덤 (순수 연출용 — 당첨 결과와 무관)
 const DUR = reduced ? { mix: 1.6, select: 2.0, eject: 2.0 } : { mix: 4.5, select: 12, eject: 3.4 }
 const HOLD = reduced ? 1.0 : 2.2   // 등수 사이 공개 후 대기(초)
@@ -182,14 +197,24 @@ let liftDur = reduced ? 1.0 : 2.8  // select 마지막 '당첨 공 상승' 구�
 let liftAt = selDur - liftDur
 let nearMiss = []            // 아쉬운 공 이벤트 [{ start, peak, ball, state }]
 let push = 0, flash = 0, tensionV = 0
-function pickSelectDuration() {
-  selDur = reduced ? DUR.select : 10 + Math.random() * 5
+// 이번 등수의 섞는 시간 = mix(mixLen) + select. 관리자가 정한 spin_seconds(8~60) 가 있으면 그 총합에 맞추고, 없으면(0) 기존처럼 select 10~15초 랜덤.
+function pickSelectDuration(mixLen = 0) {
+  const spin = reduced ? 0 : t.value.spin_seconds
+  liftDur = reduced ? 1.0 : 2.8
+  if (spin > 0) {
+    selDur = Math.max(4, spin - mixLen)
+    liftDur = Math.min(2.8, selDur * 0.4)
+  } else {
+    selDur = reduced ? DUR.select : 10 + Math.random() * 5
+  }
   liftAt = Math.max(0.3, selDur - liftDur)
   nearMiss = []
-  const n = reduced ? 0 : (selDur > 12.4 ? 3 : 2)
-  const peaks = n === 3 ? [0.6, 0.8, 0.93] : [0.7, 0.92]
+  // 짧은 시간일수록 '아쉬운 공' 횟수를 줄여서 서로 겹치지 않게
+  const n = reduced || liftAt < 2.4 ? 0 : (selDur > 12.4 ? 3 : (selDur > 7.5 ? 2 : 1))
+  const peaks = n === 3 ? [0.6, 0.8, 0.93] : (n === 2 ? [0.7, 0.92] : [0.85])
   const first = 1.4, win = 1.5, last = liftAt - 0.5
-  for (let i = 0; i < n; i++) nearMiss.push({ start: first + (n > 1 ? (i * (last - first - win)) / (n - 1) : 0), peak: peaks[i], ball: null })
+  const gap = Math.max(0, last - first - win)
+  for (let i = 0; i < n; i++) nearMiss.push({ start: first + (n > 1 ? (i * gap) / (n - 1) : 0), peak: peaks[i], ball: null })
 }
 
 // ── 장면 상수 ──
@@ -221,6 +246,7 @@ let IDQ = null
 let lastNow = 0, simClock = 0
 let aspect = 1.6
 let camDist = 14, camBlend = 0
+let camFollow = 0, camZoom = 0, camFx = 0, camFy = 0   // 카메라 연출: 당첨 공 따라가기 / 줌인 / 마지막 공 위치
 let dropState = null, restedAt = 0, revealAt = 0
 let emitAcc = 0
 let perfEma = 16, perfFrames = 0
@@ -762,6 +788,7 @@ function pickCarrier() {
   carrier.userData.mode = 'rise'
   carrier.userData.from = carrier.position.clone()
   flash = 1
+  snd.lift()
 }
 
 function setPhase(p) {
@@ -788,14 +815,32 @@ function resize() {
   if (aspectChanged && scene) { scene.background?.dispose?.(); scene.background = makeBgTexture(t.value) }
 }
 
-function updateCamera(tt) {
-  const slow = reduced ? 0 : 1
-  const ang = Math.sin(tt * 0.13) * 0.09 * slow
+function updateCamera(tt, dt = 1 / 60, elapsed = 0) {
+  const slow = reduced ? 0 : 1   // '모션 줄이기' 설정이면 아래 연출은 모두 꺼짐
+  // ── 카메라 연출 목표 ──
+  //  시작: 살짝 멀리서 다가오는 오프닝 / 공이 파이프로 나올 때: 따라가며 줌인 / 떨어져 안착: 더 가까이 /
+  //  발표: 당첨 공을 천천히 돌며 크게 보여 줌 (1등만 가장 크게)
+  const cm = carrier?.userData?.mode
+  let fT = 0, zT = 0
+  if (slow && carrier) {
+    if (cm === 'pipe') { fT = 0.6; zT = 0.35 }
+    else if (cm === 'drop') { fT = 0.75; zT = 0.6 }
+    else if (cm === 'settle') { fT = 0.8; zT = 0.75 }
+    else if (ph === 'reveal' && cm === 'rest') { fT = 0.55; zT = (!multi.value || runIdx >= plan.value.length - 1) ? 1 : 0.6 }
+  }
+  if (carrier) { camFx = carrier.position.x; camFy = carrier.position.y }
+  camFollow += (fT - camFollow) * Math.min(1, dt * 2.2)
+  camZoom += (zT - camZoom) * Math.min(1, dt * 1.4)
+  const openK = slow && ph === 'mix' ? smooth(clamp01(1 - elapsed / 1.6)) : 0
+
+  const ang = Math.sin(tt * 0.13) * 0.09 * slow + camBlend * Math.sin(tt * 0.45) * 0.1 * slow
   const mshift = multi.value ? 1 : 0   // 다중 당첨: 진열된 작은 공이 아래에서 잘리지 않도록 살짝 위로/멀리
-  const dist = camDist * (1 + mshift * 0.05 + Math.sin(tt * 0.09) * 0.015 * slow - camBlend * 0.04 - push * 0.05)
+  const dist = camDist * (1 + mshift * 0.05 + Math.sin(tt * 0.09) * 0.015 * slow - camBlend * 0.04 - push * 0.05 - camZoom * 0.2 + openK * 0.07)
   // select 막바지: 파이프 입구 쪽으로 천천히 밀고 들어가며 미세하게 흔들림
   const shake = reduced ? 0 : Math.max(0, push - 0.5) * 0.02
-  const tx = SCENE_CX + camBlend * 0.5 + push * 0.45 + Math.sin(tt * 41) * shake, ty = SCENE_CY - mshift * 0.45 + camBlend * 0.1 + push * 0.5 + Math.cos(tt * 37) * shake
+  let tx = SCENE_CX + camBlend * 0.5 + push * 0.45 + Math.sin(tt * 41) * shake
+  let ty = SCENE_CY - mshift * 0.45 + camBlend * 0.1 + push * 0.5 + Math.cos(tt * 37) * shake
+  if (camFollow > 0.001) { tx += (camFx - tx) * 0.6 * camFollow; ty += (camFy - ty) * 0.55 * camFollow }
   camera.position.set(tx + Math.sin(ang) * dist, ty + 1.05 + Math.sin(tt * 0.11) * 0.08 * slow, Math.cos(ang) * dist)
   camera.lookAt(tx, ty - 0.1, 0)
 }
@@ -817,6 +862,7 @@ function frame(now) {
     setPhase('eject'); elapsed = 0
     if (!carrier) pickCarrier()
     carrier.userData.mode = 'pipe'
+    snd.eject()
   }
 
   // select: 아쉬운 공 / 당첨 공 상승 이벤트
@@ -825,7 +871,7 @@ function frame(now) {
     for (const nm of nearMiss) {
       if (!nm.ball && elapsed >= nm.start) {
         nm.ball = pickPoolBall(PIPE_A)
-        if (nm.ball) { nm.ball.userData.mode = 'near'; nm.ball.userData.from = nm.ball.position.clone(); nm.ball.userData.nmStart = nm.start; nm.ball.userData.peak = nm.peak; nm.ball.userData.seed2 = Math.random() * 6 }
+        if (nm.ball) { snd.near(); nm.ball.userData.mode = 'near';nm.ball.userData.from = nm.ball.position.clone(); nm.ball.userData.nmStart = nm.start; nm.ball.userData.peak = nm.peak; nm.ball.userData.seed2 = Math.random() * 6 }
       }
     }
     if (!carrier && elapsed >= liftAt) pickCarrier()
@@ -855,6 +901,7 @@ function frame(now) {
   // 긴장감: select 동안 서서히 상승 (0~1), 마지막 상승 구간에서 최대
   const tgtTension = ph === 'select' ? Math.pow(selT, 1.4) : 0
   tensionV += (tgtTension - tensionV) * Math.min(1, dt * (ph === 'select' ? 6 : 2.5))
+  snd.tick(dt, ph, tensionV)   // 섞는 동안 웅웅 + 딱딱 (긴장될수록 빨라짐)
   const pulseRate = 3 + tensionV * 9
   const pulse = 0.5 + 0.5 * Math.sin(elapsed * pulseRate)
   push += ((ph === 'select' ? smooth(selT) : 0) - push) * Math.min(1, dt * (ph === 'select' ? 4 : 1.4))
@@ -896,6 +943,7 @@ function frame(now) {
     const restY = CH_FLOOR + BR * sc
     if (carrier.position.y <= restY) {
       carrier.position.y = restY
+      snd.thump(Math.abs(ds.vy) / 9)   // 바닥에 닿을 때마다 쿵 (세게 떨어질수록 크게)
       if (ds.bounces < 2 && Math.abs(ds.vy) > 1.2) { ds.vy = -ds.vy * 0.34; ds.bounces++ } else { ds.vy = 0; cu.mode = 'settle'; dropState = null; restedAt = tt }
     }
     haloK = 0.9
@@ -913,6 +961,7 @@ function frame(now) {
       const w = plan.value[runIdx]
       const lastRank = runIdx >= plan.value.length - 1
       emitSparkles(lastRank ? 90 : 30, CX, CH_FLOOR + FINAL_R, CZ + 0.5)
+      snd.reveal(lastRank)
       revealedCount = runIdx + 1
       emit('rank-reveal', { rank: w.rank, ticket: w.ticket, name: w.name, prizeLabel: w.prizeLabel })
       if (lastRank) {
@@ -982,7 +1031,7 @@ function frame(now) {
     s.position.y = u.by + Math.cos(tt * u.sp * 0.8 + u.ph) * u.amp
   }
   updateSparkle(dt)
-  updateCamera(tt)
+  updateCamera(tt, dt, elapsed)
 
   if (reflector) reflector.visible = useReflector
   if (useComposer && composer) composer.render(dt)
@@ -1015,15 +1064,19 @@ function startRank(i) {
   playTicket = w.ticket
   curWinner.value = { ...w }
   carrier = null
-  pickSelectDuration()   // 이번 등수의 select 길이 (10~15초 랜덤, 연출 전용)
   curMix = i === 0 ? DUR.mix : (reduced ? 0.5 : 2.5)
+  // 관리자 '공 섞는 시간'이 있으면 mix 도 그 안에 맞춘다 (mix + select = spin_seconds)
+  if (!reduced && t.value.spin_seconds > 0) curMix = Math.min(curMix, t.value.spin_seconds * 0.35)
+  pickSelectDuration(curMix)   // 이번 등수의 select 길이 (자동이면 10~15초 랜덤, 연출 전용)
   push = 0; tensionV = 0; flash = 0
   setPhase('mix')
+  snd.start()
   emit('rank-start', { rank: w.rank, index: i, total: plan.value.length })
 }
 
 async function play() {
   if (!canPlay.value) return
+  snd.unlock()   // 버튼을 누른 순간 소리 허용 (브라우저 자동재생 정책)
   resetRunBalls()
   revealedCount = 0
   played.value = false
@@ -1050,6 +1103,7 @@ function skip() {
   setPhase('reveal')
   revealAt = simClock
   emitSparkles(90, CX, CH_FLOOR + FINAL_R, CZ + 0.5)
+  snd.unlock(); snd.reveal(true)
   for (let i = revealedCount; i < list.length; i++) emit('rank-reveal', { rank: list[i].rank, ticket: list[i].ticket, name: list[i].name, prizeLabel: list[i].prizeLabel })
   revealedCount = list.length
   played.value = true; running.value = false
@@ -1168,6 +1222,7 @@ onBeforeUnmount(() => {
   raf = 0
   document.removeEventListener('visibilitychange', onVisibility)
   ro?.disconnect(); io?.disconnect()
+  snd.dispose()
   disposeScene()
   try { bloomPass?.dispose?.(); composer?.dispose?.() } catch (e) { /* ignore */ }
   composer = null; bloomPass = null; renderPass = null
