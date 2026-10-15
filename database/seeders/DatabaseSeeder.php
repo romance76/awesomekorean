@@ -735,7 +735,7 @@ class DatabaseSeeder extends Seeder
             ['key'=>'site_name','value'=>'AwesomeKorean','group'=>'general'],
             ['key'=>'site_description','value'=>'미국 한인 커뮤니티','group'=>'general'],
             ['key'=>'primary_color','value'=>'#F59E0B','group'=>'appearance'],
-            ['key'=>'logo_url','value'=>'/images/logo_00.jpg','group'=>'appearance'],
+            ['key'=>'logo_url','value'=>'/images/logo.png','group'=>'appearance'],
             ['key'=>'contact_email','value'=>'info@awesomekorean.com','group'=>'general'],
         ];
         foreach ($settings as $s) SiteSetting::create($s);
