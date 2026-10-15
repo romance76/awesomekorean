@@ -101,6 +101,7 @@
     </div>
     <div class="col-span-12 lg:col-span-7">
 
+    <GroupBuyGuide v-if="!loading && !showFavorites" variant="compact" />
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="!items.length" class="py-16 text-center">
@@ -176,6 +177,7 @@ import AdSlot from '../../components/AdSlot.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import AppIcon from '../../components/AppIcon.vue'
 import GroupTitle from '../../components/GroupTitle.vue'
+import GroupBuyGuide from '../../components/groupbuy/GroupBuyGuide.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
