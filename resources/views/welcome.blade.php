@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @if(config('services.stripe.key'))<meta name="stripe-key" content="{{ config('services.stripe.key') }}">@endif
-    <title>AwesomeKorean — 미국 한인 커뮤니티</title>
-    <meta name="description" content="미국 한인 커뮤니티 플랫폼. 커뮤니티, 구인구직, 중고장터, 한인 업소록을 한 곳에서.">
+    {{-- 제목·설명·키워드·canonical·공유 미리보기·검색 제외·구조화 데이터: 관리자 > 사이트 설정(SEO·회사 정보)의 값을 쓰고, 값이 없으면 예전과 같은 기본 문구 (App\Support\SeoHead) --}}
+    {!! \App\Support\SeoHead::tags(request()) !!}
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     @php
