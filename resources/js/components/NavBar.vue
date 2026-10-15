@@ -491,7 +491,8 @@ if (typeof window !== 'undefined') {
 
 function isActive(path) {
   if (path === '/') return route.path === '/'
-  return route.path.startsWith(path)
+  // '/new' 가 '/news' 까지 켜 버리지 않게: 경로 마디(/) 단위로만 일치
+  return route.path === path || route.path.startsWith(path.replace(/\/$/, '') + '/')
 }
 
 // 상단 메뉴 묶음 (관리자 › 사이트 설정 › 메뉴 묶음 — 켜져 있을 때만). 메뉴 하나하나의 이름·경로·숨김 규칙은 visibleMenus 그대로 따름

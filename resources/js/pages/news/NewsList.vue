@@ -223,7 +223,7 @@
                   <span class="text-[11px] text-ink-muted">{{ item.source }}</span>
                   <span v-if="item.ai_status === 'done'" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500 text-white">AI 해설</span>
                 </div>
-                <div class="text-sm font-bold text-ink line-clamp-2 leading-snug">{{ item.title }}</div>
+                <div class="text-sm font-bold text-ink line-clamp-2 leading-snug">{{ item.title }}<span v-if="isNewNews(item)" class="new-n" title="오늘 가져온 뉴스" aria-label="새 뉴스"><b>N</b></span></div>
                 <p v-if="snippet(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ snippet(item) }}</p>
                 <div class="flex items-center gap-2 mt-1">
                   <span class="text-xs text-ink-muted flex items-center gap-1"><AppIcon name="eye" :size="12" />{{ item.view_count }} · {{ formatDate(item.published_at) }}</span>
@@ -371,6 +371,8 @@ const lastPage = ref(1)
 // 썸네일 로드 실패한 뉴스는 목록에서 제거 (깨진 이미지 노출 방지)
 function dropNewsItem(id) { items.value = items.value.filter(n => n.id !== id) }
 
+// 오늘(24시간 안에) 가져온 뉴스 — 수집 시각 기준, 없으면 발행 시각
+const isNewNews = (n) => { const t = new Date(n?.created_at || n?.published_at || 0).getTime(); return !!t && Date.now() - t < 24 * 3600 * 1000 }
 function formatDate(dt) {
   if (!dt) return ''
   const h = Math.floor((Date.now() - new Date(dt).getTime()) / 3600000)

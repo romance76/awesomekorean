@@ -374,6 +374,7 @@ const form = reactive({
   venue: '', address: '', city: '', state: '', price: 0, content: '',
   max_attendees: 0, url: '', reward_points: 0, reward_entries: '',
 })
+if (route.query.category && categories.some(c => c.value === route.query.category)) form.category = String(route.query.category)
 const imageFile = ref(null)
 const previewImg = ref(null)
 const error = ref('')

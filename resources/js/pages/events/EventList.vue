@@ -103,6 +103,7 @@
     </div>
     <div class="col-span-12 lg:col-span-10 min-w-0">
 
+    <EventCategoryGuide v-if="!activeItem && !showFavorites && !loading && items.length && guideCat" variant="compact" :category="guideCat" />
     <div class="mb-2">
       <span v-if="showFavorites" class="font-bold text-red-600 text-sm inline-flex items-center gap-1"><AppIcon name="bookmark" :size="14" />내 북마크</span>
       <template v-else>
@@ -203,6 +204,7 @@
 
     <!-- 목록 -->
     <div v-else-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
+    <EventCategoryGuide v-else-if="!items.length && guideCat" :category="guideCat" />
     <div v-else-if="!items.length" class="py-16 text-center">
       <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="calendar" :size="28" :stroke-width="1.5" /></div>
       <p class="text-sm text-ink-muted">검색 결과 없음</p>
@@ -324,6 +326,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import GroupTitle from '../../components/GroupTitle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
+import EventCategoryGuide from '../../components/events/EventCategoryGuide.vue'
 const { showConfirm } = useModal()
 const recentDraws = ref([])
 let recentDrawsLoaded = false
@@ -414,6 +417,8 @@ const eventCategories = [
   { value: 'sports', label: '⚽ 스포츠' },{ value: 'food', label: '🍽️ 음식' },
 ]
 const items = ref([])
+// 카테고리를 골랐을 때만 안내(전체 보기·북마크·검색 중에는 안내 없음)
+const guideCat = computed(() => (activeCat.value && !search.value && !showFavorites.value) ? activeCat.value : '')
 const loading = ref(true)
 const page = ref(1)
 const lastPage = ref(1)

@@ -60,7 +60,7 @@ function itemActive(item) {
 
 function isActive(path) {
   if (path === '/') return route.path === '/'
-  return route.path.startsWith(path)
+  return route.path === path || route.path.startsWith(path.replace(/\/$/, '') + '/')
 }
 
 // 스와이프 트래킹 (인디케이터용)
