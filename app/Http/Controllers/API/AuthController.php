@@ -140,7 +140,8 @@ class AuthController extends Controller
 
         if (!$token = JWTAuth::attempt($request->only('email', 'password'))) {
             foreach ($keys as $k => [$max, $decay]) \Illuminate\Support\Facades\RateLimiter::hit($k, $decay);
-            try { \Illuminate\Support\Facades\DB::table('login_failures')->insert(['email' => mb_substr($email, 0, 190), 'ip' => (string) $request->ip(), 'created_at' => now()]); } catch (\Throwable $e) {}
+            // 배포 후 점검 스크립트(@example.invalid — 실제로 있을 수 없는 주소)의 실패는 관리자 '로그인 실패' 목록에 쌓지 않는다
+            if (!str_ends_with($email, '@example.invalid')) try { \Illuminate\Support\Facades\DB::table('login_failures')->insert(['email' => mb_substr($email, 0, 190), 'ip' => (string) $request->ip(), 'created_at' => now()]); } catch (\Throwable $e) {}
             return response()->json(['success' => false, 'message' => '이메일 또는 비밀번호가 올바르지 않습니다'], 401);
         }
         \Illuminate\Support\Facades\RateLimiter::clear('login-acct-ip:' . sha1($email . '|' . $request->ip()));
