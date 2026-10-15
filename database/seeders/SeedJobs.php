@@ -10,6 +10,12 @@ class SeedJobs extends Seeder
 {
     public function run(): void
     {
+        // 운영 서버에서는 실행 금지 — 실제 글을 전부 지우고 가짜(더미) 구인글을 채우는 시더 (2026-10-15 더미 정리 후 되살아나는 것 방지)
+        if (app()->environment('production')) {
+            $this->command?->warn('SeedJobs 는 운영 환경에서 실행하지 않습니다.');
+            return;
+        }
+
         // 기존 job_posts 전부 삭제
         JobPost::query()->delete();
 

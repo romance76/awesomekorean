@@ -390,7 +390,7 @@ const router = useRouter()
 const route = useRoute()
 
 const form = reactive({
-  post_type: 'hiring',
+  post_type: route.query.type === 'seeking' ? 'seeking' : 'hiring',
   title: '',
   company: '',
   category: '',

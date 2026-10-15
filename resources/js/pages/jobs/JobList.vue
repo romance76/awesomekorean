@@ -150,11 +150,15 @@
 
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-sm text-ink-muted">로딩중...</div>
+    <JobsGuide v-else-if="!items.length && !hasActiveFilter" :post-type="postType" :scope="locationLimited ? 'local' : 'all'"
+      @switch-type="switchType" @show-nationwide="showNationwide" />
     <div v-else-if="!items.length" class="py-16 text-center">
       <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon :name="postType === 'hiring' ? 'briefcase' : 'user'" :size="28" :stroke-width="1.5" /></div>
       <p class="text-sm text-ink-muted">검색 결과가 없습니다</p>
     </div>
-    <div v-else class="card overflow-hidden">
+    <template v-else>
+    <JobsGuide v-if="!showFavorites" variant="compact" :post-type="postType" />
+    <div class="card overflow-hidden">
       <template v-for="(item, i) in items" :key="item.id">
       <div @click="goDetail(item)"
         class="px-4 py-3.5 border-b border-gray-50 transition cursor-pointer"
@@ -216,6 +220,7 @@
       <MobileBanner v-if="i === 4" page="jobs" class="lg:hidden" />
       </template>
     </div>
+    </template>
 
     <!-- 📝 텍스트 인라인: 페이지네이션 위 한 줄 -->
     <TextInlineAd page="jobs" class="mt-3" />
@@ -246,6 +251,7 @@ import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import MobileBanner from '../../components/MobileBanner.vue'
 import TextInlineAd from '../../components/TextInlineAd.vue'
 import AppIcon from '../../components/AppIcon.vue'
+import JobsGuide from '../../components/jobs/JobsGuide.vue'
 
 const auth = useAuthStore()
 const bStore = useBookmarkStore()
@@ -446,6 +452,13 @@ function buildLocationParams() {
   }
   return p
 }
+
+// 안내 화면용: 검색어·카테고리·북마크 필터가 없을 때만 '글이 없다'는 안내를 보여준다
+const hasActiveFilter = computed(() => !!search.value || !!activeCat.value || showFavorites.value)
+// 지역(내 위치/도시) 제한 때문에 비어 있을 수 있는 상태인지
+const locationLimited = computed(() => String(selectedCityIdx.value) !== '-1')
+function switchType(t) { postType.value = t; activeCat.value = ''; loadPage() }
+function showNationwide() { selectedCityIdx.value = '-1'; onCityChange() }
 
 async function loadPage(p = 1) {
   loading.value = true
