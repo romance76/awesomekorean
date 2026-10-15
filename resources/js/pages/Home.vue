@@ -40,18 +40,34 @@
           </div>
         </RouterLink>
 
-        <!-- 오픈 채팅방 (블랙) -->
-        <RouterLink to="/chat" class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 text-white group hover:brightness-110 transition-all">
+        <!-- 랜덤 음악 플레이어 (블랙) — 곡은 음악듣기에서 무작위로, 재생은 사이트 공용 플레이어, 더 보기 → /music -->
+        <div class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 text-white">
           <div class="flex items-center gap-2">
-            <span class="live-pulse shrink-0"></span>
-            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">오픈 채팅방</span>
+            <span class="live-pulse shrink-0" :class="musicPlayingHere ? '' : 'opacity-40'"></span>
+            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">랜덤 음악</span>
+            <RouterLink to="/music" class="ml-auto text-[11px] font-bold text-white/80 hover:text-white">더 보기 →</RouterLink>
           </div>
-          <div>
-            <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ liveStats.chat_users.toLocaleString() }}명</div>
-            <div class="text-[12px] text-white/65 mt-1.5">{{ liveStats.chat_users > 0 ? '지금 채팅방에서 대화 중이에요' : '채팅방에서 첫 대화를 시작해 보세요' }}</div>
+          <div v-if="musicPick" class="flex items-center gap-3 min-w-0">
+            <button type="button" @click="toggleHomeMusic" :aria-label="musicPlayingHere ? '일시정지' : '재생'"
+              class="relative w-[60px] h-[60px] shrink-0 rounded-xl overflow-hidden bg-white/10 group">
+              <img v-if="musicThumb" :src="musicThumb" alt="" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
+              <span class="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/50 transition-colors">
+                <span v-if="musicPlayingHere" class="flex items-center" style="gap:3px"><span class="block bg-white rounded-sm" style="width:3px;height:14px"></span><span class="block bg-white rounded-sm" style="width:3px;height:14px"></span></span>
+                <AppIcon v-else name="play" :size="22" :filled="true" />
+              </span>
+            </button>
+            <div class="min-w-0">
+              <div class="text-[14px] lg:text-[15px] font-extrabold leading-snug line-clamp-2 break-words">{{ musicPick.title }}</div>
+              <div v-if="musicPick.artist" class="text-[11.5px] text-white/60 mt-0.5 truncate">{{ musicPick.artist }}</div>
+            </div>
           </div>
-          <span class="self-start text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">채팅 입장 →</span>
-        </RouterLink>
+          <div v-else class="text-[13px] text-white/65">{{ musicLoading ? '노래를 고르는 중이에요…' : '음악듣기에서 노래를 골라 보세요' }}</div>
+          <div class="flex items-center gap-2">
+            <button type="button" @click="pickRandomMusic(true)" :disabled="musicLoading"
+              class="text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5 disabled:opacity-60">🔀 다른 노래</button>
+            <span class="text-[10.5px] text-white/45">눌러서 바로 들어요</span>
+          </div>
+        </div>
 
         <!-- 인기 주식: 미국 주요 지수/지표 8개를 4초마다 로테이션 + 대표 종목 3개 (미국식 색: 상승 초록 / 하락 빨강) -->
         <RouterLink to="/stocks" class="min-h-[168px] bg-surface rounded-card p-4 lg:p-5 flex flex-col group hover:brightness-95 transition-all">
@@ -120,21 +136,33 @@
           <span class="self-start text-[11px] font-bold bg-white text-amber-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">후기 보러 가기 →</span>
         </RouterLink>
 
-        <!-- 오늘 사이트 이용자 (블랙) -->
-        <div class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3">
+        <!-- 오늘 사이트 이용자 ↔ 오픈 채팅방 (블랙, 4.5초마다 번갈아) -->
+        <div class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 text-white">
           <div class="flex items-center gap-2">
             <span class="live-pulse shrink-0"></span>
-            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">오늘 사이트 이용자</span>
+            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">{{ liveSlide === 0 ? '오늘 사이트 이용자' : '오픈 채팅방' }}</span>
+            <span class="ml-auto flex items-center gap-1" aria-hidden="true">
+              <span v-for="n in 2" :key="n" class="w-1.5 h-1.5 rounded-full transition-colors" :class="liveSlide === n - 1 ? 'bg-white' : 'bg-white/25'"></span>
+            </span>
           </div>
-          <div>
-            <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.today_visitors.toLocaleString() }}명</div>
-            <div class="text-[12px] text-white/65 mt-1.5">오늘 다녀간 사람 수예요 · 지금 접속 중 {{ liveStats.online_now.toLocaleString() }}명</div>
-          </div>
-          <div class="flex flex-wrap gap-1.5">
-            <button v-for="t in trendingTags.slice(0, 4)" :key="t"
-              @click="router.push({path:'/search',query:{q:t}})"
-              class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
-          </div>
+          <template v-if="liveSlide === 0">
+            <div>
+              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.today_visitors.toLocaleString() }}명</div>
+              <div class="text-[12px] text-white/65 mt-1.5">오늘 다녀간 사람 수예요 · 지금 접속 중 {{ liveStats.online_now.toLocaleString() }}명</div>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button v-for="t in trendingTags.slice(0, 4)" :key="t"
+                @click="router.push({path:'/search',query:{q:t}})"
+                class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
+            </div>
+          </template>
+          <template v-else>
+            <div>
+              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ liveStats.chat_users.toLocaleString() }}명</div>
+              <div class="text-[12px] text-white/65 mt-1.5">{{ liveStats.chat_users > 0 ? '지금 채팅방에서 대화 중이에요' : '채팅방에서 첫 대화를 시작해 보세요' }}</div>
+            </div>
+            <RouterLink to="/chat" class="self-start text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5">채팅 입장 →</RouterLink>
+          </template>
         </div>
     </div>
 
@@ -335,6 +363,7 @@ import AppIcon from '../components/AppIcon.vue'
 import { menuIcon, menuChipColor } from '../utils/menuIcons'
 import { useLocation } from '../composables/useLocation'
 import axios from 'axios'
+import { useMusicStore } from '../stores/music'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -415,6 +444,42 @@ const favorites = [
 
 // ── 실시간 숫자 / 마퀴 ──────────────────────────────────────
 const liveStats = ref({ today_visitors: 0, online_now: 0, chat_users: 0 })
+// ── 랜덤 음악 타일: 무작위 카테고리에서 곡 하나를 골라 보여 주고, 재생은 사이트 공용 플레이어(musicStore)로 ──
+const musicStore = useMusicStore()
+const musicPick = ref(null)
+const musicLoading = ref(false)
+const musicList = ref([])
+const musicPlayingHere = computed(() => !!musicPick.value && musicStore.isPlaying && musicStore.currentTrack?.id === musicPick.value.id)
+const musicThumb = computed(() => musicPick.value ? (musicPick.value.thumbnail_url || musicPick.value.thumbnail || (musicPick.value.youtube_id ? `https://i.ytimg.com/vi/${musicPick.value.youtube_id}/mqdefault.jpg` : '')) : '')
+const asPlayable = (t) => ({ ...t, youtubeId: t.youtube_id, thumbnail: t.thumbnail_url || t.thumbnail })
+async function pickRandomMusic(autoplay = false) {
+  if (musicLoading.value) return
+  musicLoading.value = true
+  try {
+    const { data: c } = await axios.get('/api/music/categories')
+    const cats = (c.data || []).filter(x => x.is_active !== false && x.is_active !== 0)
+    for (let tries = 0; tries < 3; tries++) {
+      const cat = cats[Math.floor(Math.random() * cats.length)]
+      if (!cat) break
+      const { data: t } = await axios.get(`/api/music/tracks/${cat.id}`, { params: { per_page: 12 } })
+      const list = (t.data?.data || []).filter(x => x.youtube_id)
+      if (list.length) {
+        musicList.value = list
+        musicPick.value = list[0]
+        if (autoplay) { musicStore.playlist = list.map(asPlayable); musicStore.play(asPlayable(list[0])) }
+        break
+      }
+    }
+  } catch {}
+  musicLoading.value = false
+}
+function toggleHomeMusic() {
+  const t = musicPick.value
+  if (!t) return
+  if (musicStore.currentTrack?.id === t.id) { musicStore.toggle(); return }
+  musicStore.playlist = (musicList.value.length ? musicList.value : [t]).map(asPlayable)
+  musicStore.play(asPlayable(t))
+}
 const liveSlide = ref(0)                 // 0: 오늘 방문자, 1: 채팅방 사용자
 const tickerRaw = ref([])
 const nowMs = ref(Date.now())
@@ -616,7 +681,7 @@ onMounted(async () => {
   loadReviewPicks()
   loadWeather()
   loadMarketQuotes()
-  loadLive(); loadTicker()
+  loadLive(); loadTicker(); pickRandomMusic()
   liveTimers = [
     setInterval(() => { liveSlide.value = (liveSlide.value + 1) % 2 }, 4500),
     setInterval(() => { nowMs.value = Date.now() }, 30000),
