@@ -6,10 +6,13 @@ use App\Models\InfoPost;
 use Illuminate\Http\Response;
 
 // 어썸코리안 본 사이트엔 sitemap.xml이 아예 없었음(SPA 캐치올이 모든 경로를
-// HTML로 응답) — 우선 '정보' 탭 글들부터 제공. 나머지 섹션(커뮤니티/중고장터 등)은
-// 로그인 필요/휘발성 콘텐츠라 검색엔진 색인 대상이 아니라서 범위에서 제외.
+// HTML로 응답) — 우선 '정보' 탭 글들부터 제공했다. 주요 메뉴의 목록 화면(로그인 없이 볼 수 있는 공개 화면)은
+// 10/14 에 추가: SECTION_PAGES. 지식인에서 가져온 Q&A·수집 매물(중고장터/부동산)·번역 뉴스는 처리 방침이 정해질 때까지 뺀다.
 class SitemapController extends Controller
 {
+    /** 사이트맵에 넣는 공개 메뉴 화면 (목록 화면만, 글·매물 하나하나는 넣지 않는다) */
+    public const SECTION_PAGES = ['/community', '/jobs', '/directory', '/events', '/clubs', '/groupbuy', '/about', '/contact', '/terms', '/privacy'];
+
     public function index(): Response
     {
         $posts = InfoPost::published()->orderByDesc('published_at')->get(['slug', 'updated_at']);
@@ -18,6 +21,9 @@ class SitemapController extends Controller
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         $xml .= '  <url><loc>' . e(url('/')) . '</loc></url>' . "\n";
         $xml .= '  <url><loc>' . e(route('info.index')) . '</loc></url>' . "\n";
+        foreach (self::SECTION_PAGES as $path) {
+            $xml .= '  <url><loc>' . e(url($path)) . '</loc></url>' . "\n";
+        }
 
         foreach ($posts as $post) {
             $xml .= '  <url>';

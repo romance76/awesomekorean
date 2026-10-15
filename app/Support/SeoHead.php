@@ -45,6 +45,22 @@ class SeoHead
     /** 검색에 노출하지 않을 화면(개인·관리·로그인·검색 결과) — 주소의 첫 마디 */
     public const NOINDEX = ['admin', 'login', 'register', 'forgot-password', 'email-verified', 'auth', 'dashboard', 'messages', 'notifications', 'points', 'entries', 'ad-apply', 'comms', 'search', '404'];
 
+    /**
+     * 광고(구글 애드센스) 코드를 아예 불러오지 않을 화면 — 주소의 첫 마디. 검색 제외 화면(로그인·관리자·개인 화면) +
+     * 자동으로 모아 온 콘텐츠(숏츠·음악·수집 매물)와, 처리 방침이 아직 정해지지 않은 가져온 콘텐츠(지식인 Q&A·번역 뉴스).
+     * 애드센스는 복사·수집된 콘텐츠나 로그인·관리자 화면에 광고를 붙이면 정책 위반이다. 방침이 정해져 광고를 켜도 되면 여기서 뺀다.
+     */
+    public static function noAdsSections(): array
+    {
+        return array_merge(self::NOINDEX, ['shorts', 'music', 'market', 'realestate', 'qa', 'news']);
+    }
+
+    public static function adsAllowed(string $path): bool
+    {
+        $first = strtolower(explode('/', trim($path, '/'))[0] ?? '');
+        return !in_array($first, self::noAdsSections(), true);
+    }
+
     private static function clip(string $s, int $max): string
     {
         $s = trim(preg_replace('/\s+/u', ' ', $s));
