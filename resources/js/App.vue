@@ -124,7 +124,8 @@ const footerCfg = computed(() => {
 })
 const footerSns = computed(() => {
   const s = footerCfg.value.sns || {}
-  return [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['twitter', 'Twitter/X'], ['youtube', 'YouTube'], ['threads', 'Threads']]
+  // Threads 계정 정지(2026-10-15) 동안 푸터 링크를 숨김 — 풀리면 아래 목록에 ['threads', 'Threads'] 를 다시 넣기 (저장된 주소는 그대로 남아 있음)
+  return [['facebook', 'Facebook'], ['instagram', 'Instagram'], ['twitter', 'Twitter/X'], ['youtube', 'YouTube']]
     .filter(([k]) => /^https?:\/\//i.test(s[k] || '')).map(([k, label]) => ({ label, url: s[k] }))
 })
 if (auth.isLoggedIn) bookmarkStore.loadAll()
