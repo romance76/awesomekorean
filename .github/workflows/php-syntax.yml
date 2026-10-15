@@ -92,6 +92,10 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      # 화면(SPA) 라우터의 최상위 주소와 서버의 404 판단 목록(SeoHead::SPA_SEGMENTS)이 같은지 — 어긋나면 새 화면이 404 상태로 내려가 검색에 안 잡힘
+      - name: SPA route list matches the server
+        run: node qa/scripts/check_spa_segments.cjs
+
       - name: Vite build (check only)
         env:
           NODE_OPTIONS: --max-old-space-size=4096

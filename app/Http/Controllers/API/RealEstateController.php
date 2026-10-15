@@ -183,6 +183,21 @@ class RealEstateController extends Controller
     public function update(Request $request, $id)
     {
         $listing = $this->findOwnedOrAdmin(RealEstateListing::class, $id);
+        // 수정에도 등록과 같은 규칙 — 검증이 없어 엉뚱한 구분값·무제한 길이·잘못된 이메일이 저장될 수 있었다
+        $request->validate([
+            'title' => 'sometimes|required|string|max:200',
+            'content' => 'sometimes|required|string|max:20000',
+            'type' => 'sometimes|required|in:rent,sale,roommate',
+            'property_type' => 'sometimes|required|string|max:30',
+            'price' => 'sometimes|required|numeric|min:0',
+            'deposit' => 'sometimes|nullable|numeric|min:0',
+            'address' => 'sometimes|nullable|string|max:200',
+            'city' => 'sometimes|nullable|string|max:100',
+            'state' => 'sometimes|nullable|string|max:10',
+            'zipcode' => 'sometimes|nullable|string|max:10',
+            'contact_phone' => 'sometimes|nullable|string|max:30',
+            'contact_email' => 'sometimes|nullable|email|max:100',
+        ]);
         $data = $request->only('title', 'content', 'type', 'property_type', 'price', 'deposit', 'address', 'city', 'state', 'zipcode', 'bedrooms', 'bathrooms', 'sqft', 'contact_phone', 'contact_email', 'is_active');
 
         // zipcode 변경시 좌표 재지오코딩

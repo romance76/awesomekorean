@@ -42,6 +42,24 @@ class SeoHead
         'privacy' => ['개인정보처리방침', '어썸코리안 개인정보처리방침.'],
     ];
 
+    /**
+     * 화면(SPA 라우터, resources/js/router/index.js)이 실제로 보여 주는 주소의 첫 마디. 여기에 없는 주소는 서버가 HTTP 404 로 내려
+     * 검색엔진이 "없는 페이지"로 알게 한다(전에는 모든 주소가 200 이라 "소프트 404"로 잡혔다). 'info'·'go' 는 서버가 따로 처리하는 주소.
+     * ★ 라우터에 새 최상위 주소를 추가하면 여기에도 추가해야 한다(안 하면 그 화면은 열리지만 상태가 404 라 검색에 안 잡힌다).
+     *   (qa/scripts/post_deploy_smoke.sh 는 목록의 주요 화면이 200 인지 확인한다)
+     */
+    public const SPA_SEGMENTS = ['about', 'ad-apply', 'admin', 'auth', 'chat', 'clubs', 'comms', 'community', 'contact', 'dashboard', 'directory', 'easy-test', 'elder',
+        'email-verified', 'entries', 'events', 'forgot-password', 'friends', 'games', 'go', 'grades', 'groupbuy', 'info', 'jobs', 'login', 'market', 'messages', 'money', 'music',
+        'new', 'news', 'notifications', 'points', 'poker7', 'privacy', 'profile', 'qa', 'realestate', 'recipes', 'register', 'search', 'shopping', 'shorts', 'stocks', 'sweepstakes', 'terms'];
+
+    /** 홈('')이거나 화면이 있는 주소이면 true. '404' 화면 자체와 목록에 없는 주소는 false(→ 서버가 404 상태로 내림) */
+    public static function isKnownPath(string $path): bool
+    {
+        $path = (string) preg_replace('/[?#].*$/s', '', $path);
+        $first = strtolower(explode('/', trim($path, '/'))[0] ?? '');
+        return $first === '' || in_array($first, self::SPA_SEGMENTS, true);
+    }
+
     /** 검색에 노출하지 않을 화면(개인·관리·로그인·검색 결과) — 주소의 첫 마디 */
     public const NOINDEX = ['admin', 'login', 'register', 'forgot-password', 'email-verified', 'auth', 'dashboard', 'messages', 'notifications', 'points', 'entries', 'ad-apply', 'comms', 'search', '404'];
 
@@ -104,7 +122,7 @@ class SeoHead
             'description' => self::clip($desc, 300),
             'keywords' => self::clip((string) ($s['meta_keywords'] ?? ''), 500),
             'canonical' => $origin . ($isHome ? '/' : '/' . implode('/', $segs)),
-            'noindex' => in_array($first, self::NOINDEX, true),
+            'noindex' => in_array($first, self::NOINDEX, true) || !self::isKnownPath($path),
             'site_name' => $siteName,
             'image' => $image,
             'logo' => $logo,

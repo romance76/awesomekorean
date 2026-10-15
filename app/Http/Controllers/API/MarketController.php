@@ -262,7 +262,18 @@ class MarketController extends Controller
     public function update(Request $request, $id)
     {
         $item = $this->findOwnedOrAdmin(MarketItem::class, $id);
+        // 수정에도 등록과 같은 규칙(필수·길이·숫자 범위) — 검증이 없어 음수 가격·무제한 길이(500 오류)가 가능했다
+        $request->validate([
+            'title' => 'sometimes|required|string|max:200',
+            'content' => 'sometimes|required|string|max:10000',
+            'price' => 'sometimes|required|numeric|min:0|max:10000000',
+            'category' => 'sometimes|required|string|max:50',
+            'condition' => 'sometimes|required|string|max:30',
+            'hold_price_per_6h' => 'sometimes|nullable|numeric|min:0|max:100000',
+            'hold_max_hours' => 'sometimes|nullable|integer|min:6|max:168',
+        ]);
         $data = $request->only('title', 'content', 'price', 'category', 'condition', 'status', 'is_negotiable', 'hold_enabled', 'hold_price_per_6h', 'hold_max_hours');
+        foreach (['title', 'content'] as $k) if (isset($data[$k]) && is_string($data[$k])) $data[$k] = \App\Support\PlainText::clean($data[$k]);   // HTML 태그는 저장하지 않음
         if (isset($data['status']) && !in_array($data['status'], ['active', 'reserved', 'sold', 'hidden'], true)) {
             return response()->json(['success' => false, 'message' => '올바르지 않은 상태예요'], 422);
         }

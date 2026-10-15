@@ -32,6 +32,8 @@ Route::get('/favicon.ico', fn () => response()->file(\App\Support\BrandIcons::fa
     'Cache-Control' => 'public, max-age=3600',
 ]));
 
-Route::get('/{any}', function () {
-    return view('welcome');
+// 화면(SPA) 캐치올. 라우터에 없는 주소(와 /404)는 같은 화면을 HTTP 404 상태로 내려 검색엔진이 "없는 페이지"로 알게 한다
+// (예전엔 모든 주소가 200 이라 구글이 "소프트 404"로 판단). 화면 목록은 App\Support\SeoHead::SPA_SEGMENTS.
+Route::get('/{any}', function (\Illuminate\Http\Request $request) {
+    return response(view('welcome'), \App\Support\SeoHead::isKnownPath($request->path()) ? 200 : 404);
 })->where('any', '.*');

@@ -282,6 +282,24 @@ class JobController extends Controller
     public function update(Request $request, $id)
     {
         $job = $this->findOwnedOrAdmin(JobPost::class, $id);
+        // 수정에도 등록과 같은 규칙 — 검증이 없어 잘못된 이메일·무제한 길이·엉뚱한 구분값이 저장될 수 있었다
+        $request->validate([
+            'title' => 'sometimes|required|string|max:200',
+            'content' => 'sometimes|required|string|max:20000',
+            'company' => 'sometimes|nullable|string|max:100',
+            'category' => 'sometimes|required|string|max:30',
+            'type' => 'sometimes|required|in:full,part,contract',
+            'post_type' => 'sometimes|in:hiring,seeking',
+            'salary_min' => 'sometimes|nullable|integer|min:0',
+            'salary_max' => 'sometimes|nullable|integer|min:0',
+            'salary_type' => 'sometimes|nullable|in:hourly,monthly,yearly',
+            'city' => 'sometimes|nullable|string|max:100',
+            'state' => 'sometimes|nullable|string|max:10',
+            'zipcode' => 'sometimes|nullable|string|max:10',
+            'contact_email' => 'sometimes|nullable|email|max:100',
+            'contact_phone' => 'sometimes|nullable|string|max:30',
+            'expires_at' => 'sometimes|nullable|date',
+        ]);
         try {
             $data = $request->only('post_type', 'title', 'company', 'content', 'category', 'type', 'salary_min', 'salary_max', 'salary_type', 'city', 'state', 'zipcode', 'contact_email', 'contact_phone', 'expires_at', 'is_active', 'lat', 'lng');
             foreach (['salary_min','salary_max','salary_type','city','state','zipcode','contact_email','contact_phone','expires_at','lat','lng'] as $k) {

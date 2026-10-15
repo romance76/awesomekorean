@@ -13,12 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 class SecurityHeaders
 {
     public const REPORT_ONLY_POLICY = "default-src 'self'; "
-        . "script-src 'self' 'unsafe-inline' https://js.stripe.com https://translate.google.com https://translate.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://unpkg.com https://www.youtube.com https://s.ytimg.com; "
-        . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://translate.googleapis.com; "
+        . "script-src 'self' 'unsafe-inline' https://js.stripe.com https://translate.google.com https://translate.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://partner.googleadservices.com https://www.googletagservices.com https://unpkg.com https://www.youtube.com https://s.ytimg.com; "
+        . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://translate.googleapis.com https://www.gstatic.com; "
         . "img-src 'self' data: blob: https:; "
         . "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; "
-        . "connect-src 'self' wss://awesomekorean.com https://api.open-meteo.com https://air-quality-api.open-meteo.com https://api.zippopotam.us https://nominatim.openstreetmap.org https://*.google-analytics.com https://*.googleapis.com https://*.firebaseio.com https://api.stripe.com; "
-        . "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://www.openstreetmap.org; "
+        . "connect-src 'self' wss://awesomekorean.com https://api.open-meteo.com https://air-quality-api.open-meteo.com https://api.zippopotam.us https://nominatim.openstreetmap.org https://*.google-analytics.com https://*.googleapis.com https://*.firebaseio.com https://api.stripe.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google; "
+        . "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://www.openstreetmap.org https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google; "
         . "media-src 'self' blob: https:; worker-src 'self' blob:; manifest-src 'self'; "
         . "base-uri 'self'; object-src 'none'; form-action 'self'; report-uri /api/csp-report";
 

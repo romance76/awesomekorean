@@ -26,6 +26,9 @@ expect "정보 글 목록" 200 "$BASE/info"
 expect "빌드 파일 목록(manifest)" 200 "$BASE/build/manifest.json"
 expect "사이트맵" 200 "$BASE/sitemap-main.xml"
 expect "robots.txt" 200 "$BASE/robots.txt"
+expect "없는 주소는 진짜 404(구글 소프트 404 방지)" 404 "$BASE/this-page-does-not-exist-smoke-test"
+expect "공개 목록 per_page 상한(500 요청도 200)" 200 "$BASE/api/posts?per_page=500" -H 'Accept: application/json'
+expect "공개 목록 per_page 음수도 오류 없음(200)" 200 "$BASE/api/posts?per_page=-5" -H 'Accept: application/json'
 
 echo "== API"
 expect "공개 설정" 200 "$BASE/api/settings/public"

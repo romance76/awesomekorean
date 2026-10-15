@@ -128,6 +128,16 @@ class PostController extends Controller
     public function update(Request $request, $id)
     {
         $post = $this->findOwnedOrAdmin(Post::class, $id);
+        // 수정에도 등록과 같은 규칙: 빈 제목·내용, 길이 초과(500 오류), 금칙어(등록 때만 걸러지던 것)를 막는다
+        $request->validate([
+            'title' => 'sometimes|required|string|max:200',
+            'content' => 'sometimes|required|string|max:20000',
+            'category' => 'sometimes|nullable|string|max:50',
+        ]);
+        $bad = BadWordFilter::firstMatch((string) $request->input('title', '') . ' ' . (string) $request->input('content', ''));
+        if ($bad !== null) {
+            return response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어 게시할 수 없습니다.'], 422);
+        }
         $in = $request->only('title', 'content', 'category');
         foreach (['title', 'content'] as $k) if (isset($in[$k]) && is_string($in[$k])) $in[$k] = PlainText::clean($in[$k]);   // HTML 태그는 저장하지 않음
         $post->update($in);
