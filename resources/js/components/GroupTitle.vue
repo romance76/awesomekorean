@@ -7,7 +7,7 @@
     <RouterLink :to="grp.items[0].path" class="grp-title">
       <span class="grp-icon">{{ grp.icon || '📁' }}</span>{{ grp.label }}
     </RouterLink>
-    <div class="grp-tabs" role="tablist" :aria-label="grp.label + ' 메뉴'">
+    <div class="grp-tabs" :class="{ 'grp-many': grp.items.length >= 4 }" role="tablist" :aria-label="grp.label + ' 메뉴'">
       <component v-for="m in grp.items" :key="m.key" :is="m.external ? 'a' : 'RouterLink'" v-bind="m.external ? { href: m.path } : { to: m.path }"
         role="tab" :aria-selected="m.key === menuKey"
         class="grp-chip" :class="m.key === menuKey ? 'grp-chip-on' : 'grp-chip-off'">{{ m.label }}</component>

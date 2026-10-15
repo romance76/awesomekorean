@@ -215,12 +215,16 @@
     }
     .lg\:hidden > .flex.mb-2:has(+ :empty) { margin-bottom: 0; }
     /* 폭이 넉넉하면 탭을 제목 바로 옆에 붙이고 옆 버튼은 오른쪽 끝 — 줄이 하나 줄어 위아래가 덜 길어진다.
-       [등록] 버튼이 없으면(로그인 전) 400px 부터, 있으면 470px 부터 */
+       탭이 3개 이하일 때만 좁은 폭에서: [등록] 버튼이 없으면 400px 부터, 있으면 470px 부터. 탭이 4개 이상(.grp-many)이면 640px 부터 */
     @media (min-width: 400px) {
-        :has(> .grp-stack):not(:has(> div > .btn-primary)) .grp-stack > .grp-tabs { order: 2; flex: 0 1 auto; width: auto; min-width: 0; margin: 0 0 0 12px; }
-        :has(> .grp-stack):not(:has(> div > .btn-primary)) > :not(.grp-stack) { order: 3; margin-left: auto; }
+        :has(> .grp-stack):not(:has(> div > .btn-primary)):not(:has(.grp-many)) .grp-stack > .grp-tabs { order: 2; flex: 0 1 auto; width: auto; min-width: 0; margin: 0 0 0 12px; }
+        :has(> .grp-stack):not(:has(> div > .btn-primary)):not(:has(.grp-many)) > :not(.grp-stack) { order: 3; margin-left: auto; }
     }
     @media (min-width: 470px) {
+        :has(> .grp-stack):not(:has(.grp-many)) .grp-stack > .grp-tabs { order: 2; flex: 0 1 auto; width: auto; min-width: 0; margin: 0 0 0 12px; }
+        :has(> .grp-stack):not(:has(.grp-many)) > :not(.grp-stack) { order: 3; margin-left: auto; }
+    }
+    @media (min-width: 640px) {
         .grp-stack > .grp-tabs { order: 2; flex: 0 1 auto; width: auto; min-width: 0; margin: 0 0 0 12px; }
         :has(> .grp-stack) > :not(.grp-stack) { order: 3; margin-left: auto; }
     }
