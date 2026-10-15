@@ -1,6 +1,6 @@
 // 3D 추첨 무대 테마: 기본값 + 병합 + 헬퍼
 // 사이트 로고 기본 경로 (NavBar 의 siteStore.logoUrl 기본값과 동일)
-export const DEFAULT_LOGO = '/images/logo.png'
+export const DEFAULT_LOGO = '/images/logo.png?v=20261015'
 
 export const DEFAULT_THEME = Object.freeze({
   bg_top: '#1b2a63',

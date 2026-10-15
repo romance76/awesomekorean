@@ -36,7 +36,7 @@ export const useSiteStore = defineStore('site', () => {
   const siteName = ref('AwesomeKorean')
   // 서버가 첫 응답에 심어 준 현재 로고 주소를 먼저 사용 (설정을 불러오기 전에 옛 기본 로고가 비치는 깜빡임 방지)
   const boot = (typeof window !== 'undefined' && window.__BOOT__) || {}
-  const logoUrl = ref(boot.logo_url || '/images/logo.png')
+  const logoUrl = ref(boot.logo_url || '/images/logo.png?v=20261015')
   const logoDarkUrl = ref(boot.logo_dark_url || '') // 다크 배경(푸터 등)용 — 미설정 시 컴포넌트가 텍스트로 폴백
   const menus = ref([])
   const loaded = ref(false)
@@ -111,7 +111,7 @@ export const useSiteStore = defineStore('site', () => {
       if (data.data) {
         settings.value = data.data
         siteName.value = data.data.site_name || 'AwesomeKorean'
-        logoUrl.value = data.data.logo_url || '/images/logo.png'
+        logoUrl.value = data.data.logo_url || '/images/logo.png?v=20261015'
         logoDarkUrl.value = data.data.logo_dark_url || ''
         applyFlags(data.data)
         // 메뉴 설정도 여기서 파싱

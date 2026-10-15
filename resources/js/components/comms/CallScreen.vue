@@ -18,7 +18,7 @@
             </div>
           </div>
           <div class="relative inline-block">
-            <img :src="isElderCall ? '/images/logo.png' : (incomingCall?.caller_avatar || '/images/default-avatar.svg')"
+            <img :src="isElderCall ? '/images/logo.png?v=20261015' : (incomingCall?.caller_avatar || '/images/default-avatar.svg')"
                  class="w-24 h-24 rounded-full object-cover border-[3px] animate-pulse-ring"
                  :class="isElderCall ? 'border-purple-500/50' : 'border-green-500/50'"
                  @error="$event.target.src = '/images/default-avatar.svg'">
@@ -75,7 +75,7 @@
 
         <!-- Remote user avatar + name -->
         <div class="text-center mb-4">
-          <img :src="isElderCall ? '/images/logo.png' : (remoteUser?.avatar || '/images/default-avatar.svg')"
+          <img :src="isElderCall ? '/images/logo.png?v=20261015' : (remoteUser?.avatar || '/images/default-avatar.svg')"
                class="w-28 h-28 rounded-full object-cover border-[3px] border-white/15 mx-auto"
                @error="$event.target.src = '/images/default-avatar.svg'">
           <p class="text-2xl font-bold mt-4">{{ isElderCall ? '안심서비스' : remoteUser?.name }}</p>

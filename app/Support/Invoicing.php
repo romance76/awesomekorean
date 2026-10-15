@@ -314,7 +314,7 @@ class Invoicing
             'address' => $pick('address', 'company_address'),
             'phone' => $pick('phone', 'contact_phone'),
             'email' => $pick('email', 'contact_email'),
-            'logo' => self::absoluteUrl($pick('logo_url') ?: '/images/logo.png'),
+            'logo' => self::absoluteUrl($pick('logo_url') ?: '/images/logo.png?v=20261015'),
             'url' => rtrim((string) config('app.url'), '/'),
         ];
     }

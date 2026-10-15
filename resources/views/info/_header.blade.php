@@ -6,7 +6,7 @@
      바꿔치기한다. --}}
 @php
     // 본 사이트(siteStore.logoUrl)와 같은 로고 — 관리자 설정(site_settings.logo_url), 없으면 기본 로고
-    $logoUrl = \App\Models\SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png';
+    $logoUrl = \App\Models\SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png?v=20261015';
     // 상단 메뉴 묶음 (관리자 › 메뉴 묶음이 켜져 있을 때만) — NavBar.vue 와 같은 모양
     $navGroups = \App\Support\MenuGroups::publicGroups($menus ?? []);
     $isInfoGroup = fn ($g) => ($g['type'] === 'hub' && str_starts_with($g['path'], '/info')) || collect($g['items'])->contains(fn ($m) => str_starts_with($m['path'], '/info'));
