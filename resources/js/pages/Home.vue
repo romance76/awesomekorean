@@ -179,13 +179,15 @@
           :style="{ background: heroBanners[heroIdx].bg_color || '#1B1613' }">
           <div v-if="heroBanners[heroIdx].title" class="md:hidden flex flex-col justify-center px-5 pt-6 pb-8 min-h-[150px]"
             :style="{ color: heroBanners[heroIdx].text_color || '#FFFFFF' }">
-            <span v-if="heroBanners[heroIdx].subtitle" class="self-start text-[12px] font-bold tracking-[0.06em] text-amber-200">
-              {{ heroBanners[heroIdx].subtitle }}
-            </span>
-            <div class="text-[22px] leading-tight font-extrabold tracking-[-0.03em] mt-1.5 break-keep">
+            <div class="text-[21px] leading-tight font-extrabold tracking-[-0.03em] break-keep">
               {{ heroBanners[heroIdx].title }}
             </div>
-            <span class="self-start mt-4 bg-white text-ink font-bold text-[13px] px-5 py-2.5 rounded-full">참여하기</span>
+            <div v-if="heroPeriod(heroBanners[heroIdx])" class="mt-2 text-[13px] font-semibold opacity-90">
+              📅 {{ heroPeriod(heroBanners[heroIdx]) }}
+            </div>
+            <p v-if="heroBanners[heroIdx].event_info?.summary || heroBanners[heroIdx].subtitle"
+              class="mt-3 text-[14px] leading-relaxed opacity-95 whitespace-pre-line break-keep">{{ heroBanners[heroIdx].event_info?.summary || heroBanners[heroIdx].subtitle }}</p>
+            <span class="self-start mt-4 bg-white text-ink font-bold text-[13px] px-5 py-2.5 rounded-full">자세한 내용보기 →</span>
           </div>
           <img v-if="heroBannerImage(heroBanners[heroIdx])" :src="heroBannerImage(heroBanners[heroIdx])" alt=""
             :class="['absolute inset-0 w-full h-full object-cover', heroBanners[heroIdx].title ? 'hidden md:block' : '']" />
@@ -372,6 +374,13 @@ function startHeroSlide() {
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && heroBanners.value.length > 1) startHeroSlide() }
 onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInterval) clearInterval(indexInterval); liveTimers.forEach(clearInterval); cancelAnimationFrame(tickerRaf) })
+
+// 모바일 배너 카드의 이벤트 기간 — "2026년 4월 30일 ~ 2026년 11월 30일"
+function heroPeriod(b) {
+  const f = (d) => { const m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]}년 ${+m[2]}월 ${+m[3]}일` : '' }
+  const s = f(b?.event_info?.start_date), e = f(b?.event_info?.end_date)
+  return s && e ? `${s} ~ ${e}` : (e ? `~ ${e}` : s)
+}
 
 // 영어 모드면 image_url_en 우선 사용, 없으면 기본(한글) 이미지로 폴백
 function heroBannerImage(b) {

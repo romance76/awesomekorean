@@ -12,7 +12,7 @@ class HeroBannerController extends Controller
 {
     use CompressesUploads;
 
-    const PUBLIC_CACHE_KEY = 'hero_banners_public';
+    const PUBLIC_CACHE_KEY = 'hero_banners_public_v2';
 
     public function index()
     {

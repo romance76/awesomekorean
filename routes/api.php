@@ -167,7 +167,19 @@ Route::get('/hero-banners', function () {
     $data = \Illuminate\Support\Facades\Cache::remember(
         \App\Http\Controllers\API\HeroBannerController::PUBLIC_CACHE_KEY,
         1800,
-        fn () => \App\Models\HeroBanner::active()->orderBy('sort_order')->get()
+        fn () => \App\Models\HeroBanner::active()->orderBy('sort_order')->with('event:id,title,description,content,start_date,end_date')->get()
+            ->map(function ($b) {
+                // 모바일 배너 카드용: 이벤트 기간 + 본문 첫 문단(최대 140자)
+                $ev = $b->event;
+                $text = trim(strip_tags((string) ($ev?->content ?: ($ev?->description ?? ''))));
+                $first = trim(preg_split('/\R\s*\R/u', $text)[0] ?? '');
+                $b->setAttribute('event_info', $ev ? [
+                    'start_date' => $ev->start_date, 'end_date' => $ev->end_date,
+                    'summary' => mb_strimwidth($first, 0, 140, '…'),
+                ] : null);
+                $b->unsetRelation('event');
+                return $b;
+            })
     );
     return response()->json(['success' => true, 'data' => $data]);
 });
