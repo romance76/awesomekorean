@@ -32,6 +32,15 @@ Route::get('/favicon.ico', fn () => response()->file(\App\Support\BrandIcons::fa
     'Cache-Control' => 'public, max-age=3600',
 ]));
 
+// 운영하지 않는 서비스(게임·안심서비스·세븐포커) 화면 주소 — 열리지 않고 홈으로 영구 이동.
+// (관리자 /admin/games 등과 /api/* 는 이 규칙과 무관: 첫 구간이 정확히 games|elder|poker7 인 주소만)
+Route::redirect('/games', '/', 301);
+Route::redirect('/elder', '/', 301);
+Route::redirect('/poker7', '/', 301);
+Route::get('/games/{any}', fn () => redirect('/', 301))->where('any', '.*');
+Route::get('/elder/{any}', fn () => redirect('/', 301))->where('any', '.*');
+Route::get('/poker7/{any}', fn () => redirect('/', 301))->where('any', '.*');
+
 // 화면(SPA) 캐치올. 라우터에 없는 주소(와 /404)는 같은 화면을 HTTP 404 상태로 내려 검색엔진이 "없는 페이지"로 알게 한다
 // (예전엔 모든 주소가 200 이라 구글이 "소프트 404"로 판단). 화면 목록은 App\Support\SeoHead::SPA_SEGMENTS.
 Route::get('/{any}', function (\Illuminate\Http\Request $request) {

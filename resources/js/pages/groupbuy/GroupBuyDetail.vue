@@ -26,6 +26,8 @@
               :class="gb.status==='confirmed' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">확정</RouterLink>
             <RouterLink to="/groupbuy?status=completed" class="block w-full text-left px-3 py-2 text-xs transition-colors"
               :class="gb.status==='completed' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">완료</RouterLink>
+            <RouterLink to="/groupbuy?status=ended" class="block w-full text-left px-3 py-2 text-xs transition-colors"
+              :class="gb.display_status==='ended' ? 'bg-amber-50 text-amber-700 font-bold' : 'text-ink-light hover:bg-amber-50/50'">마감</RouterLink>
             <button v-if="auth.isLoggedIn" @click="$router.push('/groupbuy?fav=1')"
               class="w-full text-left px-3 py-2 text-xs transition-colors border-t border-gray-50 text-ink-light hover:bg-red-50/50 flex items-center gap-1">
               <AppIcon name="bookmark" :size="12" />내 북마크<span v-if="gbFavCount > 0" class="ml-0.5">({{ gbFavCount }})</span>
@@ -36,14 +38,14 @@
       </div>
 
       <!-- ══════════ CENTER: Detail ══════════ -->
-      <main class="col-span-12 lg:col-span-7 md:col-span-7" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'opacity-60' : ''">
-        <div class="card overflow-hidden" :class="gb.status === 'completed' || gb.status === 'cancelled' ? 'ring-1 ring-gray-200' : ''">
+      <main class="col-span-12 lg:col-span-7 md:col-span-7" :class="['completed', 'cancelled', 'ended'].includes(gb.display_status || gb.status) ? 'opacity-60' : ''">
+        <div class="card overflow-hidden" :class="['completed', 'cancelled', 'ended'].includes(gb.display_status || gb.status) ? 'ring-1 ring-gray-200' : ''">
 
           <!-- Header: status + title + organizer -->
           <div class="px-3 lg:px-5 py-3 lg:py-4 border-b border-gray-50">
             <div class="flex items-center gap-2 flex-wrap mb-2">
-              <span class="text-xs px-2.5 py-0.5 rounded-full font-bold" :class="statusClass(gb.status)">
-                {{ statusLabel(gb.status) }}
+              <span class="text-xs px-2.5 py-0.5 rounded-full font-bold" :class="statusClass(gb.display_status || gb.status)">
+                {{ statusLabel(gb.display_status || gb.status) }}
               </span>
               <span class="badge-gray">
                 {{ categoryLabel(gb.category) }}
@@ -463,7 +465,7 @@ const myParticipation = computed(() => {
 
 const canJoin = computed(() => {
   if (!gb.value) return false
-  return gb.value.status === 'recruiting' && gb.value.is_approved && !myParticipation.value && !isOwner.value
+  return (gb.value.display_status || gb.value.status) === 'recruiting' && gb.value.is_approved && !myParticipation.value && !isOwner.value
 })
 
 const progressPct = computed(() => {
@@ -539,7 +541,7 @@ function categoryLabel(cat) {
 }
 
 function statusLabel(s) {
-  return { recruiting: '모집중', confirmed: '확정', completed: '완료', cancelled: '취소', pending: '승인대기' }[s] || s
+  return { recruiting: '모집중', confirmed: '확정', completed: '완료', cancelled: '취소', pending: '승인대기', ended: '마감' }[s] || s
 }
 
 function statusClass(s) {
@@ -547,6 +549,7 @@ function statusClass(s) {
     recruiting: 'bg-green-100 text-green-700',
     confirmed: 'bg-blue-100 text-blue-700',
     completed: 'bg-gray-200 text-gray-600',
+    ended: 'bg-gray-200 text-gray-600',
     cancelled: 'bg-red-100 text-red-600',
     pending: 'bg-yellow-100 text-yellow-700',
   }[s] || 'bg-gray-100 text-gray-700'

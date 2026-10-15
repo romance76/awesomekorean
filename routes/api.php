@@ -273,12 +273,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/user/delete', [ProfileController::class, 'deleteAccount']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
-    Route::post('/posts', [PostController::class, 'store'])->middleware('verified.email');
+    Route::post('/posts', [PostController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/posts/{id}', [PostController::class, 'update']);
     Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     Route::post('/posts/{id}/like', [PostController::class, 'toggleLike']);
 
-    Route::post('/jobs', [JobController::class, 'store'])->middleware('verified.email');
+    Route::post('/jobs', [JobController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/jobs/{id}', [JobController::class, 'update']);
     Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
     Route::post('/jobs/{id}/apply', [JobController::class, 'apply']);
@@ -295,7 +295,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'update']);
     Route::delete('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'destroy']);
 
-    Route::post('/market', [MarketController::class, 'store'])->middleware('verified.email');
+    Route::post('/market', [MarketController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/market/{id}', [MarketController::class, 'update']);
     Route::delete('/market/{id}', [MarketController::class, 'destroy']);
 
@@ -335,7 +335,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/businesses/{id}/promote', [BusinessController::class, 'promote']);
     Route::post('/businesses/{id}/promote/confirm', [BusinessController::class, 'promoteConfirm'])->middleware('throttle:20,1');
 
-    Route::post('/businesses', [BusinessController::class, 'store'])->middleware('verified.email');
+    Route::post('/businesses', [BusinessController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::post('/businesses/{id}/reviews', [BusinessController::class, 'storeReview'])->middleware('verified.email');
     Route::post('/businesses/{id}/claim', [BusinessController::class, 'claim']);
     Route::get('/my-businesses', [BusinessController::class, 'myBusinesses']);
@@ -345,7 +345,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/my-businesses/{bizId}/menus/{menuId}', [BusinessController::class, 'updateMenu']);
     Route::delete('/my-businesses/{bizId}/menus/{menuId}', [BusinessController::class, 'deleteMenu']);
 
-    Route::post('/realestate', [RealEstateController::class, 'store'])->middleware('verified.email');
+    Route::post('/realestate', [RealEstateController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/realestate/{id}', [RealEstateController::class, 'update']);
     Route::delete('/realestate/{id}', [RealEstateController::class, 'destroy']);
     Route::post('/realestate/{id}/complete', [RealEstateController::class, 'complete']);
@@ -356,7 +356,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/stocks/watchlist', [\App\Http\Controllers\API\StockController::class, 'addWatch'])->middleware('throttle:30,1');
     Route::delete('/stocks/watchlist/{symbol}', [\App\Http\Controllers\API\StockController::class, 'removeWatch']);
     Route::post('/chat/presence', [\App\Http\Controllers\API\SiteLiveController::class, 'chatPing'])->middleware('throttle:30,1');
-    Route::post('/clubs', [ClubController::class, 'store'])->middleware('verified.email');
+    Route::post('/clubs', [ClubController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/clubs/{id}', [ClubController::class, 'update']);
     Route::post('/clubs/{id}/update', [ClubController::class, 'update']);
     Route::post('/clubs/{id}/transfer-owner', [ClubController::class, 'transferOwner']);
@@ -380,26 +380,26 @@ Route::middleware('auth:api')->group(function () {
 
     // Recipes (유저 작성/평점/찜)
     Route::get('/recipes/my/favorites', [RecipeController::class, 'myFavorites']);
-    Route::post('/recipes', [RecipeController::class, 'store'])->middleware('verified.email');
+    Route::post('/recipes', [RecipeController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/recipes/{id}', [RecipeController::class, 'update']);
     Route::delete('/recipes/{id}', [RecipeController::class, 'destroy']);
     Route::post('/recipes/{id}/rate', [RecipeController::class, 'rate']);
     Route::delete('/recipes/{id}/comments/{commentId}', [RecipeController::class, 'deleteComment']);
     Route::post('/recipes/{id}/favorite', [RecipeController::class, 'toggleFavorite']);
 
-    Route::post('/groupbuys', [GroupBuyController::class, 'store'])->middleware('verified.email');
+    Route::post('/groupbuys', [GroupBuyController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/groupbuys/{id}', [GroupBuyController::class, 'update']);
     Route::delete('/groupbuys/{id}', [GroupBuyController::class, 'destroy']);
     Route::post('/groupbuys/{id}/join', [GroupBuyController::class, 'join']);
     Route::post('/groupbuys/{id}/cancel', [GroupBuyController::class, 'cancelParticipation']);
 
-    Route::post('/events', [EventController::class, 'store'])->middleware('verified.email');
+    Route::post('/events', [EventController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/events/{id}', [EventController::class, 'update']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
     Route::post('/events/{id}/attend', [EventController::class, 'toggleAttend']);
     Route::post('/events/{id}/proof', [EventController::class, 'submitProof']);
 
-    Route::post('/qa', [QaController::class, 'store'])->middleware('verified.email');
+    Route::post('/qa', [QaController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::put('/qa/{id}', [QaController::class, 'update']);
     Route::delete('/qa/{id}', [QaController::class, 'destroy']);
     Route::post('/qa/{id}/answer', [QaController::class, 'answer'])->middleware('verified.email');
@@ -407,7 +407,7 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('/qa/{id}/answer/{answerId}', [QaController::class, 'deleteAnswer']);
     Route::post('/qa/{id}/answer/{answerId}/like', [QaController::class, 'likeAnswer']);
 
-    Route::post('/shorts', [ShortController::class, 'store'])->middleware('verified.email');
+    Route::post('/shorts', [ShortController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::post('/shorts/{id}/like', [ShortController::class, 'toggleLike']);
     Route::post('/shorts/{id}/viewed', [ShortController::class, 'markViewed']);
 

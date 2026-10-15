@@ -63,6 +63,8 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($uid) return Limit::perMinute(400)->by('u:' . $uid);
             return Limit::perMinute(300)->by($request->ip());
         });
+        // 새 글 등록 전용 제한(회원당 분당 5회·하루 50회, 관리자 제외) — App\Support\WriteLimits
+        RateLimiter::for('content-write', \App\Support\WriteLimits::resolver());
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e, Request $request) {

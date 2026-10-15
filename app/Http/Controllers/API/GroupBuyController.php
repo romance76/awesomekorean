@@ -30,7 +30,12 @@ class GroupBuyController extends Controller
     {
         $query = GroupBuy::with('user:id,name,nickname,avatar,lifetime_points')
             ->approved()
-            ->when($request->status, fn($q, $v) => $q->where('status', $v))
+            // '모집중'은 마감일이 안 지난 것만, '마감'(ended)은 모집중인데 마감일이 지난 것
+            ->when($request->status, function ($q, $v) {
+                if ($v === 'ended') return $q->deadlinePassed();
+                $q->where('status', $v);
+                if ($v === 'recruiting') $q->stillOpen();
+            })
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
             ->when($request->search, fn($q, $v) => $q->where(function($q2) use ($v) {
                 $q2->where('title', 'like', "%{$v}%")->orWhere('content', 'like', "%{$v}%");

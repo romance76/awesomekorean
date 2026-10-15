@@ -112,13 +112,13 @@
       <template v-for="(item, i) in items" :key="item.id">
       <RouterLink :to="'/groupbuy/' + item.id"
         class="list-row !px-4 sm:!px-5 !py-4"
-        :class="item.status === 'completed' || item.status === 'cancelled' ? 'opacity-50' : ''">
+        :class="['completed', 'cancelled', 'ended'].includes(item.display_status || item.status) ? 'opacity-50' : ''">
         <div class="flex items-start justify-between gap-3">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5 mb-1">
               <span
-                :class="{'badge-green':item.status==='recruiting','badge-blue':item.status==='confirmed','badge-gray':item.status==='completed','badge-red':item.status==='cancelled'}">
-                {{ {recruiting:'모집중',confirmed:'확정',completed:'완료',cancelled:'취소'}[item.status] || item.status }}
+                :class="{'badge-green':(item.display_status||item.status)==='recruiting','badge-blue':item.status==='confirmed','badge-gray':['completed','ended'].includes(item.display_status||item.status),'badge-red':item.status==='cancelled'}">
+                {{ {recruiting:'모집중',confirmed:'확정',completed:'완료',cancelled:'취소',ended:'마감'}[item.display_status || item.status] || item.status }}
               </span>
               <span v-if="item.category" class="badge-primary">{{ item.category }}</span>
               <span v-if="myJoinedIds.has(item.id)" class="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-bold bg-amber-400 text-white"><AppIcon name="check" :size="11" />참여중</span>
@@ -134,7 +134,7 @@
             <div class="mt-2 flex items-center gap-2">
               <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
                 <div class="h-full rounded-full transition-all"
-                  :class="item.status==='recruiting' ? 'bg-amber-400' : 'bg-green-400'"
+                  :class="(item.display_status||item.status)==='recruiting' ? 'bg-amber-400' : (item.display_status==='ended' ? 'bg-gray-300' : 'bg-green-400')"
                   :style="{width: Math.min(100, (item.current_participants/(item.max_participants||item.min_participants||1))*100)+'%'}"></div>
               </div>
               <span class="text-xs text-ink-muted whitespace-nowrap">{{ item.current_participants }}명/{{ item.max_participants || item.min_participants }}명</span>
@@ -187,7 +187,7 @@ const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
 const statusFilter = ref('')
 const statusFilters = [
   { value: '', label: '전체' },{ value: 'recruiting', label: '모집중' },
-  { value: 'confirmed', label: '확정' },{ value: 'completed', label: '완료' },
+  { value: 'confirmed', label: '확정' },{ value: 'completed', label: '완료' },{ value: 'ended', label: '마감' },
 ]
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 

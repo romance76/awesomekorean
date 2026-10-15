@@ -105,47 +105,10 @@ const routes = [
   { path: '/chat/:id', name: 'chat-room', component: p('chat/ChatRooms'), meta: { auth: true } },
 
   // Games (인기 게임만 라우트, 나머지는 GameLobby에서 접근)
-  { path: '/games', name: 'games', component: p('games/GameLobby') },
-  { path: '/games/casino', component: p('games/CasinoLobby') },
-  { path: '/games/animals', component: p('games/GameAnimals') },
-  { path: '/games/memory', component: p('games/MemoryGame') },
-  { path: '/games/bingo', component: p('games/BingoGame') },
-  { path: '/games/2048', component: p('games/Game2048') },
-  { path: '/games/omok', component: p('games/OmokGame') },
-  { path: '/games/gostop', component: p('games/GoStop') },           // 허브(모드 선택) — Issue #25
-  { path: '/games/gostop/solo', component: p('games/GoStopSolo') },   // 솔로 AI
-  { path: '/games/holdem', component: p('games/HoldemSolo') },
-  { path: '/games/poker', component: p('games/PokerLobby'), meta: { auth: true } },
-  { path: '/games/poker/play', component: p('games/PokerPlay'), meta: { auth: true } },
-  { path: '/games/poker/multi', component: p('games/PokerMulti'), meta: { auth: true } },
-  { path: '/games/poker/tournament/:id', component: p('games/PokerTournamentWait'), meta: { auth: true } },
-  { path: '/games/poker/tutorial', component: p('games/PokerTutorial') },
-  { path: '/games/blackjack', component: p('games/Blackjack') },
-  { path: '/games/wordle', component: p('games/GameWordle') },
-  { path: '/games/hangul', component: p('games/GameHangul') },
-  { path: '/games/counting', component: p('games/GameCounting') },
-  { path: '/games/colors', component: p('games/GameColors') },
-  { path: '/games/snake', component: p('games/GameSnake') },
-  { path: '/games/typing', component: p('games/GameTyping') },
-  { path: '/games/spelling', component: p('games/GameSpelling') },
-  { path: '/games/proverb', component: p('games/GameProverb') },
-  { path: '/games/wordchain', component: p('games/GameWordChain') },
-  { path: '/games/wordblank', component: p('games/GameWordBlank') },
-  { path: '/games/wordcard', component: p('games/GameWordCard') },
-  { path: '/games/satwords', component: p('games/GameSATWords') },
-  { path: '/games/stroop', component: p('games/GameStroop') },
-  { path: '/games/puzzle', component: p('games/GamePuzzle') },
-  { path: '/games/shapes', component: p('games/GameShapes') },
-  { path: '/games/speedcalc', component: p('games/GameSpeedCalc') },
-  { path: '/games/stocksim', component: p('games/GameStockSim') },
-  { path: '/games/uslife', component: p('games/GameUSLife') },
-  { path: '/games/seniormemory', component: p('games/GameSeniorMemory') },
-  { path: '/games/towerdefense', component: p('games/GameTowerDefense') },
-  { path: '/games/slots', component: p('games/GameSlots') },
-  { path: '/games/idiom', component: p('games/GameIdiom') },
-  { path: '/games/flag', component: p('games/GameFlag') },
-  { path: '/games/leaderboard', component: p('games/Leaderboard') },
-  { path: '/games/shop', component: p('games/PointShop'), meta: { auth: true } },
+  // 운영하지 않는 서비스(게임·안심서비스·세븐포커): 주소로 직접 들어와도 열리지 않고 홈으로 보낸다 (서버도 같은 주소를 301 로 홈에 보냄 — routes/web.php)
+  { path: '/games/:rest(.*)*', redirect: '/' },
+  { path: '/elder/:rest(.*)*', redirect: '/' },
+  { path: '/poker7/:rest(.*)*', redirect: '/' },
 
   // Shorts
   { path: '/shorts', name: 'shorts', component: p('shorts/ShortsHome') },
@@ -158,9 +121,6 @@ const routes = [
   { path: '/comms', name: 'comms', component: p('comms/CommsHome'), meta: { auth: true } },
 
   // Elder
-  { path: '/elder', name: 'elder', component: p('elder/ElderHome') },
-  { path: '/elder/checkin', component: p('elder/ElderCheckin'), meta: { auth: true } },
-  { path: '/elder/guardian', component: p('elder/GuardianDashboard'), meta: { auth: true } },
 
   // User
   { path: '/friends', name: 'friends', component: p('friends/FriendList'), meta: { auth: true } },
@@ -258,8 +218,6 @@ const routes = [
   },
 
   // 세븐포커
-  { path: '/poker7',          component: p('games/SevenPokerLobby'), meta: { auth: true } },
-  { path: '/poker7/room/:id', component: p('games/SevenPokerRoom'),  meta: { auth: true } },
 
   // 404
   { path: '/404', name: 'not-found', component: p('NotFound') },
