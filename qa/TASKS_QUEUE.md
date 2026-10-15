@@ -83,6 +83,18 @@ GPT 지시서의 AI 글 생성 파이프라인. API 키·월 예산·사실 확�
 
 ## T10. 내돈내산 카테고리·썸네일 정리 — status: done (2026-10-12, HANDOFF 15-2)
 
+## T11. 수집 콘텐츠 정리 배포 (업소록 숨김 24곳) — status: needs_kay  (기록 `qa/HANDOFF_2026-10-14.md` 1번)
+브랜치 `handoff-2026-10-14` 의 `01566b0`(장터·부동산 출처 배지+색인 제외, 업소록 한글 업종 표시+`hidden_at` 숨김)이 **아직 운영에 안 올라감**. Kay 에게 24곳 목록(HANDOFF_2026-10-14 1번) 확인 → OK 면 브랜치를 main 에 합쳐 push(**push 전에 "배포해도 될까요?" 승인 받기**) → `bash qa/scripts/post_deploy_smoke.sh` → 라이브 `/directory`·`/market`·`/realestate` 확인. 애매한 5곳·영어 이름 약 470곳은 검토 표를 만들어 Kay 가 고르게(삭제 금지, 숨김만).
+
+## T12. 로그인 후 사이트 점검(QA) — status: needs_kay  (Claude 혼자 불가)
+운영 사이트에서 Claude 는 계정 생성·로그인·글쓰기 금지. Kay 가 앱 안 브라우저에서 직접 로그인 + "[점검 시험]" 시험 글 허락 → 가입 후 흐름·글쓰기·수정·삭제·댓글·답글·좋아요·신고·쪽지·친구·마이페이지·장터·구인·관리자를 같이 눌러 보고 시험 글은 지움. 체크리스트 `qa/SITE_QA_2026-10-14.md` D. 같이 **검증 없는 쓰기 함수**(업소 정보·메뉴·사진, 이력서, 쇼핑 후기, 구인 지원, 친구 신청, 행사 참석, 주식 관심종목)에 소유자 확인·길이·형식 검사 추가.
+
+## T13. 공동구매 마감 자동 종료·환불 — status: needs_kay  (돈 관련 → 승인 필수)
+지금은 마감일이 지나면 화면에 "마감"으로 **표시만** 함(`GroupBuy::display_status`). DB `status` 는 'recruiting' 그대로, 자동 종료·참여자 포인트 환불 작업 없음. T1(공동구매 구조 변경) 결정과 함께 정할 것. 환불은 `groupbuy_refund` 경로(`GroupBuyController::destroy/adminReject/cancelParticipation`) 참고.
+
+## T14. 작은 후속 — status: ready (Kay 승인 없이 가능한 것만)
+1. 댓글·답글·좋아요 전용 횟수 제한(`app/Support/WriteLimits.php` 방식, 새 `RateLimiter::for` 를 `bootstrap/app.php` 에 등록). 2. `/comms`("안심 커뮤니케이션")가 안심 서비스(제외 대상)인지 Kay 에게 물어보기. 3. 공개 화면의 h1 없는 목록(커뮤니티·Q&A·업소록·뉴스·레시피·정보)과 alt 없는 이미지, 로그인 화면 터치 영역(44px)·가입 폼 `name`/`autocomplete` 정리(`qa/SITE_QA_2026-10-14.md` B-8~10). ※ 만든 2FA(`/admin/two-factor`)는 코드만 있고 **켜는 건 Kay**(HANDOFF 옛 "2FA 보류"와 달리 선택 기능으로 배포됨).
+
 ---
 
 ## 보류/금지 (손대지 말 것)

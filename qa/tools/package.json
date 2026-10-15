@@ -1,0 +1,10 @@
+{
+  "name": "awesomekorean-qa-tools",
+  "private": true,
+  "description": "PHP 가 없는 PC 에서 문법·단위 시험·참조 점검을 하는 도구 (README.md 참고)",
+  "dependencies": {
+    "@php-wasm/node": "^3.1.54",
+    "@php-wasm/universal": "^3.1.54",
+    "@vue/compiler-sfc": "^3.5.44"
+  }
+}
