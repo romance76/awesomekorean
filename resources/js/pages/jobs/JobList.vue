@@ -58,11 +58,11 @@
         </div>
       </div>
       <!-- 선택된 필터 태그 -->
-      <div class="flex items-center gap-1.5 overflow-x-auto">
+      <div class="flex items-center gap-1.5 overflow-x-auto empty:hidden">
         <span :class="postType === 'hiring' ? 'badge-primary' : 'badge-blue'">
           {{ postType === 'hiring' ? '구인' : '구직' }}
         </span>
-        <span class="badge-gray">
+        <span v-if="String(selectedCityIdx) !== '-2'" class="badge-gray">
           <AppIcon name="map-pin" :size="11" />{{ selectedCityIdx == -1 ? '전국' : (koreanCities[selectedCityIdx]?.label || '내 위치') }}
         </span>
         <span v-if="search" class="badge-gray">

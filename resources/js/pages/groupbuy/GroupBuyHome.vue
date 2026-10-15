@@ -15,11 +15,11 @@
           <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/create" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 overflow-x-auto">
+      <div class="flex items-center gap-1.5 overflow-x-auto empty:hidden">
         <span v-if="statusFilter" class="badge-green">
           {{ statusFilters.find(s => s.value === statusFilter)?.label || statusFilter }}
         </span>
-        <span class="badge-gray">
+        <span v-if="String(selectedCityIdx) !== '-2'" class="badge-gray">
           <AppIcon name="map-pin" :size="11" />{{ selectedCityIdx == -1 ? '전국' : (myCity?.label || '내 위치') }}
         </span>
       </div>

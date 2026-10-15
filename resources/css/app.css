@@ -207,8 +207,20 @@
     .grp-stack > .grp-tabs { order: 3; flex-basis: 100%; width: 100%; margin-top: 8px; }
     :has(> .grp-stack) { flex-wrap: wrap; }
     :has(> .grp-stack) > :not(.grp-stack) { order: 2; flex-shrink: 0; white-space: nowrap; }
-    /* 폭이 440px 이상이면(큰 휴대폰·태블릿·좁은 PC 창) 탭을 제목 바로 옆에 붙이고 옆 버튼은 오른쪽 끝 — 줄이 하나 줄어 위아래가 덜 길어진다 */
-    @media (min-width: 440px) {
+    /* 휴대폰·작은 창: 제목 옆 [필터][등록] 버튼을 작게 — 탭과 한 줄에 다 들어가게. 아래 필터 태그 줄이 비면(기본 '내 위치' 등) 그 간격도 뺀다 */
+    @media (max-width: 639px) {
+        :has(> .grp-stack) > :not(.grp-stack) { gap: 6px; }
+        :has(> .grp-stack) > :not(.grp-stack) > .btn-secondary,
+        :has(> .grp-stack) > :not(.grp-stack) > .btn-primary { padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+    }
+    .lg\:hidden > .flex.mb-2:has(+ :empty) { margin-bottom: 0; }
+    /* 폭이 넉넉하면 탭을 제목 바로 옆에 붙이고 옆 버튼은 오른쪽 끝 — 줄이 하나 줄어 위아래가 덜 길어진다.
+       [등록] 버튼이 없으면(로그인 전) 400px 부터, 있으면 470px 부터 */
+    @media (min-width: 400px) {
+        :has(> .grp-stack):not(:has(> div > .btn-primary)) .grp-stack > .grp-tabs { order: 2; flex: 0 1 auto; width: auto; min-width: 0; margin: 0 0 0 12px; }
+        :has(> .grp-stack):not(:has(> div > .btn-primary)) > :not(.grp-stack) { order: 3; margin-left: auto; }
+    }
+    @media (min-width: 470px) {
         .grp-stack > .grp-tabs { order: 2; flex: 0 1 auto; width: auto; min-width: 0; margin: 0 0 0 12px; }
         :has(> .grp-stack) > :not(.grp-stack) { order: 3; margin-left: auto; }
     }

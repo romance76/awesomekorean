@@ -15,14 +15,14 @@
           <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="btn-primary !px-3 !py-2 !text-xs"><AppIcon name="plus" :size="14" />만들기</RouterLink>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+      <div class="flex items-center gap-1.5 overflow-x-auto empty:hidden scrollbar-hide">
         <span v-if="type" class="badge-primary">
           {{ types.find(t => t.value === type)?.label }}
         </span>
         <span v-if="catFilter" class="badge-primary">
           {{ clubCategories.find(c => c.value === catFilter)?.label }}
         </span>
-        <span class="badge-gray">
+        <span v-if="String(selectedCityIdx) !== '-2'" class="badge-gray">
           <AppIcon name="map-pin" :size="12" />{{ selectedCityIdx == -1 ? '전국' : (myCity?.label || '내 위치') }}
         </span>
       </div>
