@@ -247,6 +247,26 @@ class AdminPrizeDeliveryController extends Controller
         return response()->json(['success' => true, 'data' => $rows]);
     }
 
+    /**
+     * 보낸 경품들을 "뉴욕 시간 기준 월"로 묶는다: [['month'=>'2026-11','count'=>n,'usd'=>합계], ...] 최신 달부터 $limit 개.
+     * 입력 행: sent_at(UTC 시각 문자열), usd(그 건의 금액). 고정 오프셋 대신 시간대 이름을 쓰므로 겨울·여름 경계 모두 정확하다.
+     */
+    public static function monthlyBuckets(iterable $rows, int $limit = 12): array
+    {
+        $utc = new \DateTimeZone('UTC');
+        $ny = new \DateTimeZone('America/New_York');
+        $b = [];
+        foreach ($rows as $r) {
+            $ym = (new \DateTimeImmutable((string) $r->sent_at, $utc))->setTimezone($ny)->format('Y-m');
+            $b[$ym]['count'] = ($b[$ym]['count'] ?? 0) + 1;
+            $b[$ym]['usd'] = ($b[$ym]['usd'] ?? 0.0) + (float) $r->usd;
+        }
+        krsort($b);
+        $out = [];
+        foreach (array_slice($b, 0, $limit, true) as $ym => $v) $out[] = ['month' => (string) $ym, 'count' => $v['count'], 'usd' => round($v['usd'], 2)];
+        return $out;
+    }
+
     public function summary()
     {
         $this->requireSuperAdmin();
@@ -257,10 +277,8 @@ class AdminPrizeDeliveryController extends Controller
         $total = (float) $sent()->sum(DB::raw($costExpr));
         $month = (float) $sent()->where('c.sent_at', '>=', $monthStart)->sum(DB::raw($costExpr));
         $estimated = (int) $sent()->whereNull('c.cost_usd')->count();   // 금액을 직접 입력하지 않아 상품 가치로 계산한 건수
-        $byMonth = $sent()->whereNotNull('c.sent_at')
-            ->selectRaw("DATE_FORMAT(CONVERT_TZ(c.sent_at,'+00:00','-04:00'),'%Y-%m') as ym, COUNT(*) as n, SUM({$costExpr}) as usd")
-            ->groupBy('ym')->orderByDesc('ym')->limit(12)->get()
-            ->map(fn ($r) => ['month' => $r->ym, 'count' => (int) $r->n, 'usd' => round((float) $r->usd, 2)])->values();
+        // 월별 묶기는 DB 시간대 표나 고정 오프셋에 기대지 않고 PHP 에서 뉴욕 시간으로 계산한다(여름 -04:00·겨울 -05:00 모두 정확)
+        $byMonth = collect(self::monthlyBuckets($sent()->whereNotNull('c.sent_at')->get(['c.sent_at', DB::raw("{$costExpr} as usd")])));
         $pendingQ = fn () => $base()->where(function ($q) {
             $q->whereNull('c.delivery_status')->orWhere('c.delivery_status', 'pending');
         });

@@ -154,7 +154,9 @@ class User extends Authenticatable implements JWTSubject
         $this->increment('points', $amount);
         // 회원 등급은 지갑(points)과 무관하게 누적 획득량(lifetime_points)만으로
         // 산정 — 상위노출 등으로 포인트를 쓰다가 강등되는 문제 방지.
-        if ($amount > 0) {
+        // 환불('...refund')은 "썼던 포인트를 돌려주는 것"이라 등급 기준을 올리지 않는다 — 걸었다 지우기(Q&A 현상금)·공동구매 취소 등을
+        // 반복해 등급을 올리는 것을 막는다 (전단 환불 FlyerService::refund 가 이미 쓰던 원칙을 모든 환불에 적용).
+        if ($amount > 0 && !str_ends_with($type, 'refund')) {
             $this->increment('lifetime_points', $amount);
         }
         $payload = [
