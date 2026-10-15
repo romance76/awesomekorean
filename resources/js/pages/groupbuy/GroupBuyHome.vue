@@ -101,13 +101,12 @@
     </div>
     <div class="col-span-12 lg:col-span-7">
 
-    <GroupBuyGuide v-if="!loading && !showFavorites" variant="compact" />
+    <GroupBuyGuide v-if="!loading && !showFavorites && items.length" variant="compact" />
     <!-- 목록 -->
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
-    <div v-else-if="!items.length" class="py-16 text-center">
-      <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="shopping-bag" :size="28" :stroke-width="1.5" /></div>
-      <p class="text-sm text-ink-light font-semibold">검색 결과가 없습니다</p>
-      <p class="text-xs text-ink-muted mt-1">다른 도시를 선택하거나 '전국'으로 검색해보세요</p>
+    <div v-else-if="!items.length">
+      <p class="text-xs text-ink-muted text-center mb-3">조건에 맞는 공동구매가 없어요. 다른 도시를 선택하거나 '전국'으로 검색해 보세요.</p>
+      <GroupBuyGuide />
     </div>
     <div v-else class="card overflow-hidden divide-y divide-[#DDD4CA] dark:divide-white/15">
       <template v-for="(item, i) in items" :key="item.id">

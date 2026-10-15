@@ -82,7 +82,6 @@ const routes = [
 
   // GroupBuy
   { path: '/groupbuy', name: 'groupbuy', component: p('groupbuy/GroupBuyHome') },
-  { path: '/groupbuy/guide', name: 'groupbuy-guide', component: p('groupbuy/GroupBuyGuidePage') },
   { path: '/groupbuy/create', name: 'groupbuy-create', component: p('groupbuy/GroupBuyCreate'), meta: { auth: true } },
   { path: '/groupbuy/:id', name: 'groupbuy-detail', component: p('groupbuy/GroupBuyDetail') },
 

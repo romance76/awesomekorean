@@ -1,16 +1,16 @@
 <template>
   <!-- 접힌 안내: 목록 위 한 줄 -->
   <div v-if="variant === 'compact'" class="gbg mb-3">
-    <RouterLink to="/groupbuy/guide"
+    <button type="button" @click="open = !open" :aria-expanded="open"
       class="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-lime-100 bg-lime-50/70 hover:bg-lime-50 text-left transition">
       <span class="flex items-center gap-2 text-sm font-bold text-lime-800">
         <AppIcon name="info" :size="15" />공동구매 이용안내 — 참여 방법 · 열기 · 결제 · 환불
       </span>
-      <AppIcon name="chevron-right" :size="16" class="text-lime-600" />
-    </RouterLink>
+      <AppIcon :name="open ? 'chevron-up' : 'chevron-down'" :size="16" class="text-lime-600" />
+    </button>
   </div>
 
-  <section v-else class="gbg space-y-4">
+  <section v-if="variant !== 'compact' || open" class="gbg space-y-4" :class="variant === 'compact' ? 'mb-4' : ''">
     <div class="card overflow-hidden">
       <div class="px-5 py-7 sm:px-8 sm:py-9 text-center bg-gradient-to-b from-lime-50 to-white">
         <div class="icon-chip w-14 h-14 mx-auto mb-3 bg-lime-100 text-lime-600"><AppIcon name="shopping-bag" :size="28" /></div>
@@ -20,9 +20,8 @@
           같은 물건을 사려는 이웃이 모이면 인원수에 따라 가격이 내려가는 장터예요. 참여하는 방법과 직접 여는 방법, 결제·환불 규칙을 한눈에 정리했어요.
         </p>
         <div class="mt-5 flex flex-col sm:flex-row gap-2 justify-center">
-          <RouterLink to="/groupbuy" class="btn-primary px-5 py-3 rounded-xl text-sm justify-center"><AppIcon name="shopping-bag" :size="15" />진행 중인 공동구매 보기</RouterLink>
-          <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/create" class="btn-secondary px-5 py-3 rounded-xl text-sm justify-center"><AppIcon name="edit" :size="15" />공동구매 열기</RouterLink>
-          <RouterLink v-else :to="{ path: '/login', query: { redirect: '/groupbuy/create' } }" class="btn-secondary px-5 py-3 rounded-xl text-sm justify-center"><AppIcon name="log-in" :size="15" />로그인하고 열기</RouterLink>
+          <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/create" class="btn-primary px-5 py-3 rounded-xl text-sm justify-center"><AppIcon name="edit" :size="15" />공동구매 열기</RouterLink>
+          <RouterLink v-else :to="{ path: '/login', query: { redirect: '/groupbuy/create' } }" class="btn-primary px-5 py-3 rounded-xl text-sm justify-center"><AppIcon name="log-in" :size="15" />로그인하고 열기</RouterLink>
         </div>
       </div>
     </div>
@@ -90,6 +89,7 @@ import AppIcon from '../AppIcon.vue'
 
 defineProps({ variant: { type: String, default: 'full' } })   // 'full' | 'compact'
 const auth = useAuthStore()
+const open = ref(false)
 const tab = ref('join')
 const tabs = [{ key: 'join', label: '🛒 참여하기' }, { key: 'open', label: '📣 열기(개설)' }]
 
