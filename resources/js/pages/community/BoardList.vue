@@ -188,7 +188,7 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <span v-if="!activeBoard" class="badge-primary flex-shrink-0">{{ item.board?.name || '자유' }}</span>
                 <span v-if="item.category" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">#{{ item.category }}</span>
-                <span v-if="isHot(item)" class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">인기</span>
+                <span v-if="hotIds.has(item.id)" class="text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700">인기</span>
               </div>
               <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title }}<span v-if="isNewPost(item)" class="new-n" title="새 글" aria-label="새 글"><b>N</b></span></div>
               <p v-if="excerpt(item)" class="text-[13px] text-ink-light leading-relaxed mt-1 line-clamp-2 break-words">{{ excerpt(item) }}</p>
@@ -358,6 +358,12 @@ function thumbOf(item) {
 function isHot(item) {
   return (item.like_count || 0) >= 10 || (item.comment_count || 0) >= 8
 }
+// '인기' 표시는 지금 보고 있는 목록(게시판) 안에서 반응이 가장 많은 글 3개에만 — 모든 글에 붙지 않게
+const hotIds = computed(() => new Set(
+  items.value.filter(isHot)
+    .sort((a, b) => ((b.like_count || 0) + (b.comment_count || 0)) - ((a.like_count || 0) + (a.comment_count || 0)))
+    .slice(0, 3).map(i => i.id)
+))
 
 function openPopup(userId) {
   if (userId && window.openUserPopup) window.openUserPopup(userId)
