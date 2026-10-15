@@ -51,7 +51,7 @@
 <!-- ───────── PC 화면 ───────── -->
 <div v-else>
   <div class="mb-4">
-    <div class="text-xs text-ink-muted">관리자 › 서비스 › 업소 클레임</div>
+    <div class="text-xs text-ink-muted">관리자 › 신고·문의 › 업소 클레임</div>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="store" :size="20" /></span>
       업소 클레임 관리
@@ -86,7 +86,7 @@
       class="text-xs px-3 py-1 rounded-full transition-colors"
       :class="filter===f ? 'bg-amber-400 text-white font-bold shadow-btn' : 'bg-gray-100 text-ink-muted hover:bg-gray-200'">
       {{ {all:'전체',pending:'대기',approved:'승인',rejected:'거절'}[f] }}
-      <span class="ml-1 text-[11px]">({{ filter==='all' ? stats.total : stats[f] || 0 }})</span>
+      <span class="ml-1 text-[11px]">({{ f==='all' ? stats.total : stats[f] || 0 }})</span>
     </button>
     <button @click="loadClaims" class="ml-auto btn-secondary !px-3 !py-1 !text-xs"><AppIcon name="refresh" :size="12" /> 새로고침</button>
   </div>

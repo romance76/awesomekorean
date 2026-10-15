@@ -99,7 +99,7 @@
   <!-- 헤더 — 다른 게시판 관리 화면(AdminBoardManager)과 동일한 형식 -->
   <div class="mb-4 flex items-start justify-between flex-wrap gap-2">
     <div>
-      <div class="text-xs text-ink-muted">관리자 › 게시판 관리 › 정보</div>
+      <div class="text-xs text-ink-muted">관리자 › 콘텐츠 › 정보</div>
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 text-lg">📘</span>
         정보 관리

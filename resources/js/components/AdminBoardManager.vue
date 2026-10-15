@@ -110,7 +110,7 @@
 
   <!-- 포인트 -->
   <div v-else-if="activeTab === 'point'" class="space-y-2.5">
-    <div class="text-[14px] text-ink-muted">💡 {{ label }} 전용 포인트 규칙이에요. 전체 포인트는 [시스템 › 포인트 설정]에서 바꿔요.</div>
+    <div class="text-[14px] text-ink-muted">💡 {{ label }} 전용 포인트 규칙이에요. 전체 포인트는 [광고·매출 › 가격/할인 › 포인트 설정]에서 바꿔요.</div>
     <div v-for="(def, key) in pointSchema" :key="key" class="border rounded-2xl p-3.5" :class="def.is_deduction ? 'bg-red-50 border-red-100' : 'bg-white border-gray-100'">
       <div class="text-[16px] font-bold text-ink">{{ def.label }}</div>
       <div class="grid grid-cols-2 gap-2 mt-2">
@@ -186,7 +186,7 @@
   <!-- 헤더 -->
   <div class="mb-4 flex items-start justify-between">
     <div>
-      <div class="text-xs text-ink-muted">관리자 › 게시판 관리 › {{ label }}</div>
+      <div class="text-xs text-ink-muted">관리자 › 콘텐츠 › {{ label }}</div>
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
         <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600 text-lg">{{ icon }}</span>
         {{ label }} 관리
@@ -347,7 +347,7 @@
 
     <!-- 💰 포인트 -->
     <div v-else-if="activeTab==='point'">
-      <div class="text-sm text-ink-light mb-3">💡 <strong>{{ label }} 전용</strong> 포인트 규칙. 전역 포인트는 [시스템 › 포인트 설정]에서 관리합니다.</div>
+      <div class="text-sm text-ink-light mb-3">💡 <strong>{{ label }} 전용</strong> 포인트 규칙. 전역 포인트는 [광고·매출 › 가격/할인 › 포인트 설정]에서 관리합니다.</div>
       <table class="w-full text-sm border border-gray-100">
         <thead class="bg-gray-50 text-ink-light">
           <tr>

@@ -183,7 +183,7 @@
   <!-- 헤더 — 다른 게시판 관리 화면(AdminInfo 등)과 동일한 형식 -->
   <div class="mb-4 flex items-start justify-between flex-wrap gap-2">
     <div>
-      <div class="text-xs text-ink-muted">관리자 › 게시판 관리 › 쇼핑</div>
+      <div class="text-xs text-ink-muted">관리자 › 콘텐츠 › 내돈내산</div>
       <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
         <span class="icon-chip w-9 h-9 bg-lime-50 text-lime-600 text-lg">🛍️</span>
         쇼핑 관리 (Amazon 제휴)

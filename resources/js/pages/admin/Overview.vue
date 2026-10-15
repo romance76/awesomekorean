@@ -44,7 +44,7 @@
     <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
       <div class="text-[15px] font-bold text-ink mb-2">게시판별 현황 <span class="text-[12px] font-normal text-ink-muted">(눌러서 관리)</span></div>
       <div class="grid grid-cols-2 gap-2">
-        <RouterLink v-for="b in report.boards" :key="b.slug" :to="`/admin/${b.slug}`" class="border border-gray-100 rounded-xl p-2.5 min-h-[76px] active:bg-amber-50">
+        <RouterLink v-for="b in report.boards" :key="b.slug" :to="boardAdminPath(b.slug)" class="border border-gray-100 rounded-xl p-2.5 min-h-[76px] active:bg-amber-50">
           <div class="flex items-center justify-between"><span class="text-[18px]">{{ b.icon }}</span><span v-if="b.reports > 0" class="bg-red-500 text-white text-[12px] font-bold px-1.5 rounded-full">{{ b.reports }}</span></div>
           <div class="text-[15px] font-bold text-ink">{{ b.label }}</div>
           <div class="text-[12px] text-ink-muted">{{ b.total.toLocaleString() }}건 · 오늘 +{{ b.today }}</div>
@@ -155,7 +155,7 @@
         <span class="icon-chip w-7 h-7 bg-emerald-50 text-emerald-600"><AppIcon name="list" :size="14" /></span>게시판별 현황 (클릭하여 관리)
       </div>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-        <RouterLink v-for="b in report.boards" :key="b.slug" :to="`/admin/${b.slug}`"
+        <RouterLink v-for="b in report.boards" :key="b.slug" :to="boardAdminPath(b.slug)"
           class="border border-gray-100 rounded-xl p-3 hover:bg-amber-50 hover:border-amber-200 transition-colors">
           <div class="flex items-center justify-between">
             <div class="text-lg">{{ b.icon }}</div>
@@ -251,6 +251,9 @@ import { ref, onMounted, computed, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import ContentSyncPanel from '../../components/ContentSyncPanel.vue'
+
+// 게시판별 현황 칸 → 그 관리 화면. 서버가 주는 이름(slug)이 화면 주소와 다른 것만 바꿔 준다 (업소록: business → directory)
+const boardAdminPath = (slug) => `/admin/${slug === 'business' ? 'directory' : slug}`
 
 // 관리자 휴대폰 화면이면 카드로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))

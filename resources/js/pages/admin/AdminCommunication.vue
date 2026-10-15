@@ -39,7 +39,7 @@
 <!-- ───────── PC 화면 ───────── -->
 <div v-else>
   <div class="mb-4">
-    <div class="text-xs text-ink-muted">관리자 › 회원 › 소통 관리</div>
+    <div class="text-xs text-ink-muted">관리자 › 콘텐츠 › 소통 관리</div>
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mt-1">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="message-circle" :size="20" /></span>
       소통 관리
