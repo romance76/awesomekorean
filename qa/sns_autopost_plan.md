@@ -1,6 +1,6 @@
 # SNS 자동 게시 계획서 (인스타그램 · 스레드)
 
-작성: 2026-10-12 UTC 19:00 (애틀랜타 오후 3:00) · 상태: **Kay 확인 대기** (확인 전에는 게시 기능을 만들지 않음)
+작성: 2026-10-12 UTC 19:00 (애틀랜타 오후 3:00) · 상태: **Kay "제안대로" 확정(2026-10-12 UTC 19:50) → 1차 구현 배포**
 이미 한 것: 관리자 › 사이트 설정 › **SNS 계정** 탭 — 계정 정보 저장(아래 4번).
 
 ---
@@ -70,3 +70,13 @@
 5. 스케줄러·하루 한도·재시도·토큰 자동 연장·비상 스위치·알림.
 6. 새 MONEY 글 자동 대기열 등록.
 각 단계 끝에 `scripts/ship.sh` 배포 + 화면 확인 + 서버 롤백 시험.
+
+
+---
+
+## 9. Kay 확정 (2026-10-12) + 구현 기록
+- 결정: 6번 제안 그대로 — 인스타 하루 2 · 스레드 3, **승인한 글만**, MONEY 운영팀 글, 인스타는 카드뉴스 1장, 애틀랜타 08:00·12:00·19:00.
+- 추가 요청: **사이트 기본 정보 글(직접 쓰기)**, **어썸코리안 이벤트 자동 게시**(event_type somekorean·sweepstakes, 우선순위 10).
+- 계정 연결(2026-10-12): Meta 앱 "AwesomeKorean Social"(개발자 계정 Kibo Park 개인 페이스북), 인스타 비즈니스 @awesomekoreanusa (ID 17841447024640960, Instagram 로그인 방식 — 페이스북 페이지 없이), 스레드 @awesomekoreanusa (ID 39486725670941285). 두 토큰 읽기 시험 HTTP 200. 토큰 만료 2026-12-11 → 매주 월 03:20 자동 연장(social:enqueue --refresh).
+- 코드: 표 `social_posts`, `app/Support/SocialQueue.php`(대기열·캡션), `SocialCard.php`(1080×1350 카드뉴스, resources/fonts/NanumGothic, storage/app/public/social/), `SocialPublisher.php`(게시·토큰 연장), 명령 `social:enqueue`(매시간 :07, 새 MONEY 글은 기준점 social_money_last_id 이후만) · `social:publish`(5분마다, 시간대 10분 창에서 하루 1번씩), Event 모델 created 훅, 관리자 `/admin/social`(홍보·이벤트 그룹, 최고관리자), API `/api/admin/social-posts*`(AdminTier 3, 지금 올리기는 비밀번호 재확인), 비상 스위치 `social_autopost`.
+- 계정별 "자동 게시" 체크(사이트 설정 › SNS 계정)가 꺼져 있으면 예약 게시 안 함 — **Kay 가 첫 글을 "지금 올리기"로 확인한 뒤 켜기**.
