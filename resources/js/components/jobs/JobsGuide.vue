@@ -1,6 +1,6 @@
 <template>
   <!-- 접힌 안내: 글이 있을 때 목록 위에 한 줄로 -->
-  <div v-if="variant === 'compact'" class="mb-3">
+  <div v-if="variant === 'compact'" class="jg mb-3">
     <button type="button" @click="open = !open" :aria-expanded="open"
       class="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border text-left transition"
       :class="isHiring ? 'bg-amber-50/70 border-amber-100 hover:bg-amber-50' : 'bg-blue-50/70 border-blue-100 hover:bg-blue-50'">
@@ -21,7 +21,7 @@
   </div>
 
   <!-- 전체 안내: 글이 하나도 없을 때 -->
-  <section v-else class="space-y-4" :aria-labelledby="'jobs-guide-title-' + postType">
+  <section v-else class="jg space-y-4" :aria-labelledby="'jobs-guide-title-' + postType">
     <div class="card overflow-hidden">
       <div class="px-5 py-7 sm:px-8 sm:py-9 text-center" :class="isHiring ? 'bg-gradient-to-b from-amber-50 to-white' : 'bg-gradient-to-b from-blue-50 to-white'">
         <div class="icon-chip w-14 h-14 mx-auto mb-3" :class="isHiring ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'">
@@ -169,6 +169,8 @@ const tips = computed(() => (isHiring.value
 </script>
 
 <style scoped>
+/* 한글은 낱말 중간이 아니라 띄어쓰기에서 줄바꿈 (아주 긴 낱말만 예외로 꺾음) */
+.jg, .jg * { word-break: keep-all; overflow-wrap: break-word; }
 .step-no {
   flex-shrink: 0;
   width: 28px;
