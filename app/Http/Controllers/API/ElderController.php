@@ -22,10 +22,6 @@ class ElderController extends Controller
         $min = \App\Support\PointRules::get('checkin_min', 5);
         $max = \App\Support\PointRules::get('checkin_max', $min);
         $amount = $max > $min ? random_int($min, $max) : $min;
-        // 포인트는 하루(뉴욕 시간 기준) 한 번만 준다 — 체크인 기록은 매번 남기되, 같은 요청을 반복해 포인트를 쌓는 것을 막는다
-        if ($amount > 0 && !\Illuminate\Support\Facades\Cache::add('elder_checkin_pts:' . auth()->id() . ':' . now('America/New_York')->format('Ymd'), 1, 172800)) {
-            $amount = 0;
-        }
         if ($amount > 0) {
             auth()->user()->addPoints($amount, '안심서비스 체크인', 'earn', ['type' => \App\Models\ElderCheckinLog::class, 'id' => $log->id]);
         }

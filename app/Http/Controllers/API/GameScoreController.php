@@ -43,9 +43,8 @@ class GameScoreController extends Controller
         $pointPerGame = (int) ($perGame ?? GameSetting::where('game_type', 'global')->where('key', 'point_per_game')->first()?->value ?? 5);
 
         if ($score > 0) {
-            // 최대 point_per_game, 그리고 하루 지급 한도(App\Support\GameRewardCap) 안에서만 — 같은 요청을 반복해 포인트를 쌓는 것을 막는다
-            $pointReward = \App\Support\GameRewardCap::grant($user->id, min($score, $pointPerGame));
-            if ($pointReward > 0) $user->addPoints($pointReward, "게임 보상 ({$gameType}): {$score}점");
+            $pointReward = min($score, $pointPerGame); // 최대 point_per_game
+            $user->addPoints($pointReward, "게임 보상 ({$gameType}): {$score}점");
         }
 
         return response()->json([

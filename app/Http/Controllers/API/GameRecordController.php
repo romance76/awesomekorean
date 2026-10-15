@@ -69,16 +69,12 @@ class GameRecordController extends Controller
         $prevTimeMs = null;
 
         // 1) 레벨업 포인트 — 이긴 경우에만
-        // (포인트는 하루 지급 한도 안에서만 — 같은 요청을 반복해 포인트를 쌓는 것을 막는다. App\Support\GameRewardCap)
         if ($won && $leveledUp) {
-            $give = \App\Support\GameRewardCap::grant($user->id, self::LEVEL_UP_POINTS);
-            if ($give > 0) {
-                $user->addPoints($give, "게임 레벨업 ($slug Lv.$level)", 'earn', [
-                    'type' => GameRecord::class,
-                    'id'   => null,
-                ]);
-                $pointsEarned += $give;
-            }
+            $user->addPoints(self::LEVEL_UP_POINTS, "게임 레벨업 ($slug Lv.$level)", 'earn', [
+                'type' => GameRecord::class,
+                'id'   => null,
+            ]);
+            $pointsEarned += self::LEVEL_UP_POINTS;
         }
 
         // 2) 신기록 — 이긴 경우에만 + time_ms 가 기존보다 작을 때
@@ -104,12 +100,8 @@ class GameRecordController extends Controller
             }
 
             if ($newRecord) {
-                // 신기록 자체(리더보드 기록)는 그대로 저장하고, 포인트만 하루 한도 안에서 준다
-                $give = \App\Support\GameRewardCap::grant($user->id, self::NEW_RECORD_POINTS);
-                if ($give > 0) {
-                    $user->addPoints($give, "게임 신기록 ($slug Lv.$level)", 'earn');
-                    $pointsEarned += $give;
-                }
+                $user->addPoints(self::NEW_RECORD_POINTS, "게임 신기록 ($slug Lv.$level)", 'earn');
+                $pointsEarned += self::NEW_RECORD_POINTS;
             }
         }
 

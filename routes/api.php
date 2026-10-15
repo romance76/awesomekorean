@@ -259,7 +259,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // 게임 결과 기록 (레벨업 +3P, 신기록 +10P)
-    Route::post('/games/result', [\App\Http\Controllers\API\GameRecordController::class, 'store'])->middleware('throttle:60,1');
+    Route::post('/games/result', [\App\Http\Controllers\API\GameRecordController::class, 'store']);
 
     // 온라인 heartbeat
     Route::post('/heartbeat', function () {
@@ -505,7 +505,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/games/gostop/settle', [CasinoGameController::class, 'gostopSettle'])->middleware('throttle:20,1');
 
     // Games
-    Route::post('/games/scores', [GameScoreController::class, 'store'])->middleware('throttle:60,1');
+    Route::post('/games/scores', [GameScoreController::class, 'store']);
     Route::get('/games/my-scores', [GameScoreController::class, 'myScores']);
 
     // Music playlists
@@ -537,7 +537,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/elder/register-ward', [ElderController::class, 'registerWard']);
     Route::get('/elder/my-wards', [ElderController::class, 'myWards']);
     Route::post('/elder/save-schedule', [ElderController::class, 'saveSchedule']);
-    Route::post('/elder/checkin', [ElderController::class, 'checkin'])->middleware('throttle:30,1');
+    Route::post('/elder/checkin', [ElderController::class, 'checkin']);
     Route::post('/elder/sos', [ElderController::class, 'sos']);
     Route::get('/elder/checkin-history', [ElderController::class, 'checkinHistory']);
     Route::get('/elder/guardian/wards', [ElderController::class, 'guardianWards']);
