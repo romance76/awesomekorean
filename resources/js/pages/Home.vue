@@ -377,7 +377,7 @@ onUnmounted(() => { if (heroInterval) clearInterval(heroInterval); if (indexInte
 
 // 모바일 배너 카드의 이벤트 기간 — "2026년 4월 30일 ~ 2026년 11월 30일"
 function heroPeriod(b) {
-  const f = (d) => { const m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[1]}년 ${+m[2]}월 ${+m[3]}일` : '' }
+  const f = (d) => d ? new Date(d).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }) : '' // 이벤트 화면과 같은 방식(브라우저 시간대)
   const s = f(b?.event_info?.start_date), e = f(b?.event_info?.end_date)
   return s && e ? `${s} ~ ${e}` : (e ? `~ ${e}` : s)
 }
