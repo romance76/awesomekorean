@@ -138,48 +138,83 @@
 
 </nav>
 
-    {{-- 모바일 메뉴 (슬라이드) — nav 밖에 둬야 fixed 가 화면 기준으로 동작(NavBar.vue 는 body 로 Teleport). NavBar.vue 와 동일한 구성. 하단바 즐겨찾기(별)는 SPA 전용이라 제외 --}}
+    {{-- 모바일 메뉴 (슬라이드) — nav 밖에 둬야 fixed 가 화면 기준으로 동작(NavBar.vue 는 body 로 Teleport).
+         NavBar.vue 의 ☰ 메뉴와 같은 모양: 묶음 한 줄(아이콘 칩·큰 글씨·▾·★), 처음엔 접힘, ▾ 를 누르면 하위 메뉴, ★ 는 하단바 묶음 즐겨찾기(같은 저장 칸 sk_nav_fav_groups).
+         아이콘은 App\Support\MenuIcons (본 사이트 AppIcon 과 같은 그림). NavBar.vue 의 ☰ 를 바꾸면 여기도 같이 바꿀 것 --}}
+    @php $infoPath = fn ($p) => str_starts_with($p, '/info'); @endphp
     <div id="info-menu-overlay" class="fixed inset-0 bg-black/40 z-[999]" style="display:none"></div>
-    <div id="info-menu-panel" class="fixed top-0 left-0 bottom-0 w-[85vw] max-w-sm bg-white z-[1000] shadow-2xl overflow-y-auto" style="display:none">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+    <div id="info-menu-panel" class="fixed top-0 left-0 bottom-0 bg-white z-[1000] shadow-2xl overflow-y-auto" style="display:none; width: 78vw; min-width: 250px; max-width: 330px; padding-top: var(--sat); padding-bottom: var(--sab)">
+        <div class="flex items-center justify-between px-4 py-2 border-b border-gray-50">
             <span class="text-sm font-bold text-ink">전체 메뉴</span>
-            <button id="info-menu-close" type="button" class="p-1 text-ink-faint hover:text-ink transition-colors" aria-label="닫기">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
+            <button id="info-menu-close" type="button" class="p-1 text-ink-faint hover:text-ink transition-colors" aria-label="닫기">{!! \App\Support\MenuIcons::svg('x', 20) !!}</button>
         </div>
-        <div class="px-3 py-2.5 border-b border-gray-50">
-            <form action="/search" method="GET">
-                <input type="text" name="q" placeholder="궁금한 것을 검색해 보세요"
-                    class="w-full bg-surface border-[1.5px] border-line rounded-full px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-faint">
+        <div class="px-3 py-1.5 border-b border-gray-50">
+            <form action="/search" method="GET" class="relative">
+                <button type="submit" aria-label="검색" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-faint">{!! \App\Support\MenuIcons::svg('search', 16) !!}</button>
+                <input type="text" name="q" placeholder="검색"
+                    class="w-full bg-surface border-[1.5px] border-line rounded-full pl-10 pr-4 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus:bg-white focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 transition-all">
             </form>
         </div>
-        <div class="py-2">
+        <div class="py-1">
             @if ($navGroups)
                 @foreach ($navGroups as $g)
-                    @if ($g['type'] === 'single')
-                        @php $m = $g['items'][0]; @endphp
-                        <a href="{{ $m['path'] }}" @if (!empty($m['login_required'])) data-lr="1" style="display:none" @endif class="flex items-center gap-3 px-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
-                            <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $g['icon'] ?: '•' }}</span>@if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="{{ $g['label'] }}" class="h-8 w-auto max-w-[160px] object-contain block">@else<span @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>@endif
-                        </a>
-                    @else
-                        <div class="px-4 pt-3 pb-1 text-[12px] font-extrabold text-ink-muted">{{ $g['icon'] }} @if ($g['type'] === 'hub')<a href="{{ $g['path'] }}" class="text-ink">{{ $g['label'] }} 홈 ›</a>@else{{ $g['label'] }}@endif</div>
-                        @foreach ($g['items'] as $m)
-                            <a href="{{ $m['path'] }}" @if (!empty($m['login_required'])) data-lr="1" style="display:none" @endif class="flex items-center gap-3 pl-7 pr-4 py-2 text-sm {{ $m['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
-                                <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $m['icon'] ?: '•' }}</span><span>{{ $m['label'] }}</span>
+                    @php
+                        $first = $g['items'][0] ?? null;
+                        $iconKey = $g['type'] === 'hub' ? 'money' : ($first['key'] ?? '');
+                        $hasSub = $g['type'] === 'group';
+                        $active = ($g['type'] === 'hub' && $infoPath($g['path'])) || collect($g['items'])->contains(fn ($m) => $infoPath($m['path']));
+                    @endphp
+                    <div @if (!empty($g['login_required'])) data-lr="1" style="display:none" @endif>
+                        <div class="flex items-center transition-colors {{ $active ? 'bg-amber-50/70' : 'hover:bg-gray-50' }}">
+                            <a href="{{ $g['path'] }}" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-3.5 text-[15px] font-semibold {{ $active ? 'text-amber-700' : 'text-gray-800' }}">
+                                <span class="icon-chip w-8 h-8 {{ \App\Support\MenuIcons::chip($iconKey) }}">{!! \App\Support\MenuIcons::forKey($iconKey, 17) !!}</span>@if (!empty($g['image']))<img src="{{ $g['image'] }}" alt="" class="h-8 w-auto max-w-[96px] object-contain shrink-0">@endif<span class="whitespace-nowrap" @if (!empty($g['color']))style="color:{{ $g['color'] }}"@endif>{{ $g['label'] }}</span>
                             </a>
-                        @endforeach
-                    @endif
+                            @if ($hasSub)
+                                <button type="button" data-open-toggle="{{ $g['key'] }}" class="px-1.5 py-2 flex-shrink-0 text-ink-faint" aria-expanded="false" aria-label="펼치기: {{ $g['label'] }}"><span class="inline-block transition-transform" data-chev>{!! \App\Support\MenuIcons::svg('chevron-down', 18) !!}</span></button>
+                            @endif
+                            <button type="button" data-fav-group="{{ $g['key'] }}" class="pl-0.5 pr-2.5 py-1.5 flex-shrink-0 transition-colors text-gray-300" aria-label="하단바에 넣기: {{ $g['label'] }}" title="하단바에 추가">{!! \App\Support\MenuIcons::svg('star', 20) !!}</button>
+                        </div>
+                        @if ($hasSub)
+                            <div data-sub="{{ $g['key'] }}" style="display:none">
+                                @foreach ($g['items'] as $m)
+                                    <div @if (!empty($m['login_required'])) data-lr="1" style="display:none" @endif class="flex items-center transition-colors {{ $infoPath($m['path']) ? 'bg-amber-50/70' : 'hover:bg-gray-50' }}">
+                                        <a href="{{ $m['path'] }}" class="flex items-center gap-2.5 flex-1 min-w-0 py-1 pl-14 pr-4 text-[13px] {{ $infoPath($m['path']) ? 'text-amber-700 font-bold' : 'font-normal text-ink-light' }}">
+                                            <span class="icon-chip w-6 h-6 {{ \App\Support\MenuIcons::chip($m['key']) }}">{!! \App\Support\MenuIcons::forKey($m['key'], 13) !!}</span>
+                                            <span>{{ $m['label'] }}</span>
+                                        </a>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                 @endforeach
+                {{-- MY (로그인했을 때만, NavBar.vue 와 같게) — 마이도 묶음처럼 한 줄 + ▾ + ★ --}}
+                <div data-lr="1" style="display:none">
+                    <div class="flex items-center transition-colors hover:bg-gray-50">
+                        <a href="/dashboard" class="flex items-center gap-3 flex-1 min-w-0 py-1 px-3.5 text-[15px] font-semibold text-gray-800">
+                            <span class="icon-chip w-8 h-8 {{ \App\Support\MenuIcons::chip('dashboard') }}">{!! \App\Support\MenuIcons::forKey('dashboard', 17) !!}</span><span>마이</span>
+                        </a>
+                        <button type="button" data-open-toggle="dashboard" class="px-1.5 py-2 flex-shrink-0 text-ink-faint" aria-expanded="false" aria-label="펼치기: 마이"><span class="inline-block transition-transform" data-chev>{!! \App\Support\MenuIcons::svg('chevron-down', 18) !!}</span></button>
+                        <button type="button" data-fav-group="dashboard" class="pl-0.5 pr-2.5 py-1.5 flex-shrink-0 transition-colors text-gray-300" aria-label="하단바에 넣기: 마이" title="하단바에 추가">{!! \App\Support\MenuIcons::svg('star', 20) !!}</button>
+                    </div>
+                    <div data-sub="dashboard" style="display:none">
+                        <a href="/dashboard" class="flex items-center gap-2.5 pl-14 pr-4 py-1 text-[13px] text-ink-light hover:bg-gray-50">{!! \App\Support\MenuIcons::svg('user', 13) !!}마이페이지</a>
+                        <a href="/dashboard?tab=messages" class="flex items-center gap-2.5 pl-14 pr-4 py-1 text-[13px] text-ink-light hover:bg-gray-50">{!! \App\Support\MenuIcons::svg('mail', 13) !!}쪽지</a>
+                        <a href="/friends" class="flex items-center gap-2.5 pl-14 pr-4 py-1 text-[13px] text-ink-light hover:bg-gray-50">{!! \App\Support\MenuIcons::svg('heart-handshake', 13) !!}친구</a>
+                    </div>
+                </div>
             @else
-            @foreach ($menus as $item)
-                <a href="{{ $item['path'] }}" @if (!empty($item['login_required'])) data-lr="1" style="display:none" @endif
-                   class="flex items-center gap-3 px-4 py-2 text-sm {{ $item['path'] === '/info' ? 'bg-amber-50/70 text-amber-700 font-bold' : 'text-ink-light hover:bg-gray-50' }}">
-                    <span class="icon-chip w-8 h-8 bg-surface text-base">{{ $item['icon'] ?: '•' }}</span>
-                    <span>{{ $item['label'] }}</span>
-                </a>
-            @endforeach
+                @foreach ($menus as $item)
+                    <div @if (!empty($item['login_required'])) data-lr="1" style="display:none" @endif class="flex items-center transition-colors {{ $infoPath($item['path']) ? 'bg-amber-50/70' : 'hover:bg-gray-50' }}">
+                        <a href="{{ $item['path'] }}" class="flex items-center gap-3 flex-1 min-w-0 py-2 px-4 text-sm {{ $infoPath($item['path']) ? 'text-amber-700 font-bold' : 'text-ink-light' }}">
+                            <span class="icon-chip w-8 h-8 {{ \App\Support\MenuIcons::chip($item['key'] ?? '') }}">{!! \App\Support\MenuIcons::forKey($item['key'] ?? '', 16) !!}</span>
+                            <span>{{ $item['label'] }}</span>
+                        </a>
+                    </div>
+                @endforeach
             @endif
         </div>
+        <div class="px-4 py-1.5 border-t border-gray-50 text-[11px] text-ink-faint flex items-center gap-1">{!! \App\Support\MenuIcons::svg('star', 12) !!} 눌러서 하단 메뉴에 추가/제거</div>
     </div>
 
 {{-- Google Translate 위젯 — welcome.blade.php(SPA)와 동일한 초기화. 이 페이지는 SPA
@@ -226,6 +261,62 @@ function googleTranslateElementInit() {
         document.getElementById('info-menu-btn').addEventListener('click', function () { setMenu(panel.style.display === 'none'); });
         document.getElementById('info-menu-close').addEventListener('click', function () { setMenu(false); });
         overlay.addEventListener('click', function () { setMenu(false); });
+    } catch (e) {}
+
+    // ☰ 메뉴의 묶음 펼치기(▾)·하단바 즐겨찾기(★) — NavBar.vue / navFavorites.js 와 같은 규칙, 같은 저장 칸(sk_nav_fav_groups·sk_nav_favorites)
+    try {
+        var panelEl = document.getElementById('info-menu-panel');
+        var GROUPS = @json(collect($navGroups ?? [])->map(fn ($g) => ['key' => $g['key'], 'items' => collect($g['items'])->pluck('key')->values()])->values());
+        var GKEY = 'sk_nav_fav_groups', OKEY = 'sk_nav_favorites';
+        var DEFAULT_KEYS = ['home', 'community', 'games', 'chat', 'dashboard'];
+        var GROUP_DEFAULTS = ['home', 'community', 'money', 'dashboard'];
+        var groupFavs = function () {
+            try { var s = JSON.parse(localStorage.getItem(GKEY)); if (Array.isArray(s)) return s; } catch (e) {}
+            var old = DEFAULT_KEYS;
+            try { var p = JSON.parse(localStorage.getItem(OKEY)); if (Array.isArray(p) && p.length >= 3) old = p; } catch (e) {}
+            var out = [];
+            GROUPS.forEach(function (g) {
+                if (old.indexOf(g.key) >= 0 || g.items.some(function (k) { return old.indexOf(k) >= 0; })) out.push(g.key);
+            });
+            if (old.indexOf('dashboard') >= 0) out.push('dashboard');
+            if (out.length >= 3) return out;
+            return GROUP_DEFAULTS.filter(function (k) { return k === 'dashboard' || GROUPS.some(function (g) { return g.key === k; }); });
+        };
+        var paintStars = function () {
+            var favs = groupFavs();
+            panelEl.querySelectorAll('[data-fav-group]').forEach(function (b) {
+                var on = favs.indexOf(b.getAttribute('data-fav-group')) >= 0;
+                b.classList.toggle('text-amber-400', on);
+                b.classList.toggle('text-gray-300', !on);
+                var svg = b.querySelector('svg');
+                if (svg) svg.setAttribute('fill', on ? 'currentColor' : 'none');
+                var label = (b.getAttribute('aria-label') || '').split(': ')[1] || '';
+                b.setAttribute('aria-label', (on ? '하단바에서 빼기: ' : '하단바에 넣기: ') + label);
+                b.title = on ? '하단바에서 제거' : '하단바에 추가';
+            });
+        };
+        paintStars();
+        panelEl.querySelectorAll('[data-fav-group]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                var key = b.getAttribute('data-fav-group'), cur = groupFavs().slice(), i = cur.indexOf(key);
+                if (i >= 0) { if (cur.length <= 3) return; cur.splice(i, 1); } else { cur.push(key); }   // 최소 3개는 유지
+                try { localStorage.setItem(GKEY, JSON.stringify(cur)); } catch (e) {}
+                paintStars();
+            });
+        });
+        panelEl.querySelectorAll('[data-open-toggle]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                var key = b.getAttribute('data-open-toggle');
+                var sub = panelEl.querySelector('[data-sub="' + key + '"]');
+                var open = sub.style.display === 'none';
+                sub.style.display = open ? 'block' : 'none';
+                b.setAttribute('aria-expanded', open ? 'true' : 'false');
+                var label = (b.getAttribute('aria-label') || '').split(': ')[1] || '';
+                b.setAttribute('aria-label', (open ? '접기: ' : '펼치기: ') + label);
+                var chev = b.querySelector('[data-chev]');
+                if (chev) chev.style.transform = open ? 'rotate(180deg)' : '';
+            });
+        });
     } catch (e) {}
 
     // EN 번역 토글 — 로그인 여부와 무관하게 항상 동작해야 하므로 별도 try 블록

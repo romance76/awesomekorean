@@ -11,6 +11,8 @@ node php.js run t_writelimits.php ../../app/Support/WriteLimits.php         # �
 node refcheck.js                 # 바뀐 php 의 클래스·메서드·라우트 존재 점검 (거짓 경고 있음: Eloquent 정적 메서드 등)
 node rulecheck.js                # git diff 에 새로 들어간 검증 규칙 문자열이 진짜 규칙 이름인지
 node vuecheck.cjs ../../resources/js/pages/groupbuy/GroupBuyHome.vue   # Vue 템플릿·스크립트 컴파일 오류 (npm i 한 폴더에서)
+node ../../qa/tools/gen_menu_icons.cjs   # app/Support/MenuIcons.php 다시 만들기 (본 사이트 아이콘을 바꾼 뒤)
+node php.js run t_blade_drawer.php ../../app/Support/MenuIcons.php ../../resources/views/info/_header.blade.php   # /info ☰ 메뉴 Blade 를 작은 변환기로 돌려 보는 시험
 node routesegs.js                # 라우터 첫 구간 목록 (SeoHead::SPA_SEGMENTS 와 비교용, CI 는 qa/scripts/check_spa_segments.cjs)
 node writeaudit.js               # 쓰기 함수(store/update…)에 검증이 있는지 훑어 보는 목록
 node todosim.js && node todofinal.js   # database/migrations 의 할 일(admin_todos) 마이그레이션을 재생해 목록을 재구성(운영 DB 를 못 읽을 때의 근사치)
