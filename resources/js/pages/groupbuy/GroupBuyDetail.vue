@@ -177,7 +177,7 @@
             <div class="flex items-center gap-3 flex-wrap">
               <!-- 참여하기 -->
               <button v-if="canJoin"
-                @click="showJoinModal = true"
+                @click="joinDone = false; showJoinModal = true"
                 class="btn-primary px-6 py-2.5 text-sm">
                 <AppIcon name="heart-handshake" :size="16" />참여하기
               </button>
@@ -325,14 +325,14 @@
           </div>
 
           <!-- Quantity -->
-          <div>
+          <div v-if="!joinDone">
             <label class="input-label">수량</label>
             <input v-model.number="joinQuantity" type="number" min="1" max="10"
               class="input-soft" />
           </div>
 
           <!-- Payment method -->
-          <div v-if="gb.payment_method !== 'none'">
+          <div v-if="!joinDone && gb.payment_method !== 'none'">
             <label class="input-label">결제 방법</label>
 
             <!-- point only -->
@@ -378,12 +378,12 @@
           </div>
 
           <!-- No payment needed -->
-          <div v-if="!gb.payment_method || gb.payment_method === 'none'" class="bg-emerald-50 rounded-xl p-3 text-center">
+          <div v-if="!joinDone && (!gb.payment_method || gb.payment_method === 'none')" class="bg-emerald-50 rounded-xl p-3 text-center">
             <div class="text-sm text-emerald-700 font-semibold">결제 없이 참여 가능합니다</div>
           </div>
 
           <!-- 정보 제공 동의 — 완료되면 이름·전화·이메일이 개설자에게 전달된다 -->
-          <label class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition-colors"
+          <label v-if="!joinDone" class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition-colors"
             :class="joinConsent ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
             <input v-model="joinConsent" type="checkbox" class="mt-0.5 accent-amber-500" />
             <div class="text-xs text-ink-light leading-relaxed">
@@ -393,7 +393,7 @@
           </label>
 
           <!-- Submit join -->
-          <button @click="submitJoin" :disabled="joining || !joinConsent"
+          <button v-if="!joinDone" @click="submitJoin" :disabled="joining || !joinConsent"
             class="btn-primary w-full py-3 text-sm disabled:opacity-50">
             {{ joining ? '참여 처리 중...' : '참여 확정' }}
           </button>
@@ -403,6 +403,7 @@
             <span class="text-emerald-700 text-sm font-medium inline-flex items-center gap-1"><AppIcon name="check" :size="14" />참여가 완료되었습니다!</span>
             <div v-if="gb.fulfillment === 'coupon'" class="text-xs text-emerald-700 mt-1">공동구매가 완료되면 마이페이지 "내 쿠폰"에 쿠폰이 나와요.</div>
           </div>
+          <button v-if="joinDone" @click="showJoinModal = false" class="btn-primary w-full py-3 text-sm">확인</button>
         </div>
       </div>
     </div>
