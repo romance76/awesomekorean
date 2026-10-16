@@ -76,6 +76,57 @@ class StockController extends Controller
         })->values();
     }
 
+    // ── 회사 이름으로 티커 찾기 ───────────────────────────────
+    // 한글 회사 이름은 Yahoo 검색이 못 알아들어서, 자주 찾는 종목만 미리 짝지어 둔다 (그 밖의 한글은 결과 없음)
+    private const KO_ALIASES = [
+        '애플' => 'AAPL', '마이크로소프트' => 'MSFT', '엔비디아' => 'NVDA', '테슬라' => 'TSLA', '아마존' => 'AMZN',
+        '구글' => 'GOOGL', '알파벳' => 'GOOGL', '메타' => 'META', '페이스북' => 'META', '넷플릭스' => 'NFLX',
+        '인텔' => 'INTC', '에이엠디' => 'AMD', '팔란티어' => 'PLTR', '브로드컴' => 'AVGO', '마이크론' => 'MU',
+        '티에스엠씨' => 'TSM', '퀄컴' => 'QCOM', '오라클' => 'ORCL', '어도비' => 'ADBE', '세일즈포스' => 'CRM',
+        '코카콜라' => 'KO', '펩시' => 'PEP', '스타벅스' => 'SBUX', '맥도날드' => 'MCD', '월마트' => 'WMT',
+        '코스트코' => 'COST', '타겟' => 'TGT', '홈디포' => 'HD', '나이키' => 'NKE', '디즈니' => 'DIS',
+        '비자' => 'V', '마스터카드' => 'MA', '페이팔' => 'PYPL', '존슨앤존슨' => 'JNJ', '화이자' => 'PFE',
+        '보잉' => 'BA', '엑슨모빌' => 'XOM', '쉐브론' => 'CVX', '제이피모건' => 'JPM', '뱅크오브아메리카' => 'BAC',
+        '버크셔' => 'BRK-B', '우버' => 'UBER', '에어비앤비' => 'ABNB', '쿠팡' => 'CPNG', '포드' => 'F',
+        '지엠' => 'GM', '리비안' => 'RIVN', '코인베이스' => 'COIN', '로빈후드' => 'HOOD', '스노우플레이크' => 'SNOW',
+        '스페이스엑스' => 'SPCX', '에스앤피' => 'SPY', '나스닥' => 'QQQ', '다우' => 'DIA',
+    ];
+
+    public function search(Request $request)
+    {
+        $q = trim((string) $request->query('q'));
+        if (mb_strlen($q) < 1 || mb_strlen($q) > 40) return response()->json(['success' => true, 'data' => []]);
+        $key = 'stock-search-' . md5(mb_strtolower($q));
+        $rows = Cache::remember($key, 600, function () use ($q) {
+            $out = [];
+            // 한글이 들어 있으면 짝지어 둔 이름에서 먼저 찾는다 (띄어쓰기 무시)
+            if (preg_match('/[가-힣]/u', $q)) {
+                $needle = str_replace(' ', '', $q);
+                foreach (self::KO_ALIASES as $ko => $sym) {
+                    if (mb_strpos($ko, $needle) !== false || mb_strpos($needle, $ko) !== false) $out[$sym] = ['symbol' => $sym, 'name' => $ko, 'exchange' => ''];
+                }
+                // 짝지어 둔 이름으로 찾은 종목은 영문 이름·거래소를 Yahoo 로 보충
+                $q2 = $out ? implode(' ', array_slice(array_keys($out), 0, 1)) : null;
+                if (!$q2) return array_values($out);
+                $q = $q2;
+            }
+            try {
+                $res = \Illuminate\Support\Facades\Http::withHeaders(['User-Agent' => 'Mozilla/5.0'])->timeout(8)
+                    ->get('https://query1.finance.yahoo.com/v1/finance/search', ['q' => $q, 'quotesCount' => 10, 'newsCount' => 0, 'listsCount' => 0]);
+                foreach (($res->successful() ? ($res->json('quotes') ?? []) : []) as $r) {
+                    $sym = $r['symbol'] ?? null;
+                    if (!$sym || !in_array($r['quoteType'] ?? '', ['EQUITY', 'ETF'], true)) continue;
+                    if (!preg_match('/^[A-Z0-9.\-]{1,10}$/', $sym)) continue;      // 외국 거래소(005930.KS 등)·선물·지수 제외
+                    if (str_contains($sym, '.')) continue;
+                    $ko = array_search($sym, self::KO_ALIASES, true);
+                    $out[$sym] = ['symbol' => $sym, 'name' => $r['shortname'] ?? $r['longname'] ?? $sym, 'exchange' => $r['exchDisp'] ?? '', 'ko' => $ko ?: null] + ($out[$sym] ?? []);
+                }
+            } catch (\Throwable $e) {}
+            return array_slice(array_values($out), 0, 8);
+        });
+        return response()->json(['success' => true, 'data' => $rows]);
+    }
+
     // ── 어닝 캘린더 ───────────────────────────────────────────
     public function earnings(Request $request)
     {

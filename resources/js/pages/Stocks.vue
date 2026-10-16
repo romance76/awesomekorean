@@ -24,9 +24,22 @@
   <div class="card overflow-hidden">
     <div class="px-4 py-3 border-b border-line flex items-center gap-2 flex-wrap">
       <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="star" :size="15" class="text-amber-500" />내 관심종목</div>
-      <form v-if="auth.isLoggedIn" @submit.prevent="addTicker" class="ml-auto flex items-center gap-1.5">
-        <input v-model="ticker" type="text" maxlength="12" placeholder="티커 입력 (예: AAPL)" class="input-soft !w-44 !py-1.5 !px-3 !text-xs uppercase" />
-        <button type="submit" :disabled="adding || !ticker.trim()" class="btn-primary !px-3 !py-1.5 !text-xs disabled:opacity-50">{{ adding ? '확인 중…' : '추가' }}</button>
+      <form v-if="auth.isLoggedIn" @submit.prevent="submitSearch" class="ml-auto relative flex items-center gap-1.5 w-full sm:w-auto">
+        <input v-model="ticker" type="text" maxlength="40" autocomplete="off" placeholder="회사 이름 또는 티커 (예: 애플, Apple, AAPL)"
+          @input="onTickerInput" @focus="showSuggest = suggestions2.length > 0" @blur="hideSuggestSoon"
+          class="input-soft flex-1 sm:!w-60 !py-1.5 !px-3 !text-xs" />
+        <button type="submit" :disabled="adding || !ticker.trim()" class="btn-primary !px-3 !py-1.5 !text-xs disabled:opacity-50 shrink-0">{{ adding ? '확인 중…' : '추가' }}</button>
+        <!-- 검색 결과: 눌러서 바로 추가 -->
+        <div v-if="showSuggest && (suggestions2.length || searching)" class="absolute left-0 right-0 sm:left-auto sm:w-[22rem] top-full mt-1 z-20 bg-white rounded-xl border border-line shadow-lg overflow-hidden">
+          <div v-if="searching && !suggestions2.length" class="px-3 py-2.5 text-xs text-ink-muted">찾는 중…</div>
+          <button v-for="r in suggestions2" :key="r.symbol" type="button" @mousedown.prevent="pickResult(r)"
+            class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-amber-50 border-b border-line last:border-0">
+            <span class="font-black text-xs text-ink w-14 shrink-0">{{ r.symbol }}</span>
+            <span class="min-w-0 flex-1 text-xs text-ink-light truncate">{{ r.name }}<span v-if="r.ko" class="text-ink-faint"> · {{ r.ko }}</span></span>
+            <span v-if="r.exchange" class="text-[10px] text-ink-faint shrink-0">{{ r.exchange }}</span>
+            <span v-if="watchSet.has(r.symbol)" class="text-[10px] text-amber-600 font-bold shrink-0">담음</span>
+          </button>
+        </div>
       </form>
     </div>
     <div v-if="addError" class="px-4 py-2 text-xs text-red-600 bg-red-50">{{ addError }}</div>
@@ -37,19 +50,20 @@
     </div>
     <template v-else>
       <div v-if="!myList.length && !loading" class="px-4 py-8 text-center">
-        <p class="text-sm text-ink-muted">아직 담은 종목이 없어요. 티커를 입력하거나 아래에서 골라 보세요.</p>
+        <p class="text-sm text-ink-muted">아직 담은 종목이 없어요. 회사 이름이나 티커를 검색하거나 아래에서 골라 보세요.</p>
         <div class="flex flex-wrap gap-1.5 justify-center mt-3">
           <button v-for="t in suggestions" :key="t" @click="ticker = t; addTicker()" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-ink-light hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-colors">+ {{ t }}</button>
         </div>
       </div>
       <table v-else class="w-full text-sm">
         <thead><tr class="text-xs text-ink-muted border-b border-line">
-          <th class="text-left font-medium px-4 py-2">종목</th><th class="text-right font-medium px-2 py-2">현재가</th>
+          <th class="text-left font-medium px-3 sm:px-4 py-2">종목</th><th class="px-1 py-2 font-medium text-center">1개월</th><th class="text-right font-medium px-2 py-2">현재가</th>
           <th class="text-right font-medium px-2 py-2">전일대비</th><th class="w-10"></th>
         </tr></thead>
         <tbody>
           <tr v-for="w in myList" :key="w.symbol" class="border-b border-line last:border-0">
-            <td class="px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate max-w-[160px]">{{ w.name }}</div></td>
+            <td class="px-3 sm:px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate max-w-[84px] sm:max-w-[140px]">{{ w.name }}</div></td>
+            <td class="px-1 py-2.5"><MiniChart :points="w.sparkline" :up="Number(w.change_pct) >= 0" /></td>
             <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ w.price != null ? fmt(w.price) : '-' }}</td>
             <td class="px-2 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">
               <template v-if="w.change_pct != null">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change) }}<div class="text-[11px]">{{ fmtSigned(w.change_pct) }}%</div></template>
@@ -67,9 +81,10 @@
     <table class="w-full text-sm">
       <tbody>
         <tr v-for="w in watchlist" :key="w.symbol" class="border-b border-line last:border-0">
-          <td class="px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted">{{ w.name }}</div></td>
+          <td class="px-3 sm:px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted">{{ w.name }}</div></td>
+          <td class="px-1 py-2.5"><MiniChart :points="w.sparkline" :up="Number(w.change_pct) >= 0" /></td>
           <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ fmt(w.price) }}</td>
-          <td class="px-4 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change_pct) }}%</td>
+          <td class="px-3 sm:px-4 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change_pct) }}%</td>
         </tr>
       </tbody>
     </table>
@@ -131,6 +146,7 @@ import axios from 'axios'
 import { useAuthStore } from '../stores/auth'
 import AppIcon from '../components/AppIcon.vue'
 import PageHeader from '../components/PageHeader.vue'
+import MiniChart from '../components/MiniChart.vue'
 
 const auth = useAuthStore()
 const TOP = 8
@@ -206,6 +222,38 @@ async function loadMine() {
   if (!auth.isLoggedIn) return
   try { const { data } = await axios.get('/api/stocks/watchlist'); myList.value = data.data || [] } catch {}
 }
+// 회사 이름 검색 (입력이 멈추면 0.3초 뒤 서버에 물어봄)
+const suggestions2 = ref([])
+const showSuggest = ref(false)
+const searching = ref(false)
+let searchTimer = null
+let searchSeq = 0
+function onTickerInput() {
+  addError.value = ''
+  clearTimeout(searchTimer)
+  const text = ticker.value.trim()
+  if (!text) { suggestions2.value = []; showSuggest.value = false; return }
+  searching.value = true; showSuggest.value = true
+  const seq = ++searchSeq
+  searchTimer = setTimeout(async () => {
+    try {
+      const { data } = await axios.get('/api/stocks/search', { params: { q: text } })
+      if (seq === searchSeq) suggestions2.value = data.data || []
+    } catch { if (seq === searchSeq) suggestions2.value = [] }
+    if (seq === searchSeq) searching.value = false
+  }, 300)
+}
+function hideSuggestSoon() { setTimeout(() => { showSuggest.value = false }, 150) }
+function pickResult(r) { ticker.value = r.symbol; showSuggest.value = false; addTicker() }
+function submitSearch() {
+  // 정확히 같은 티커가 결과에 있으면 그것을, 아직 검색 결과가 없고 티커 모양이면 그대로, 아니면 맨 위 결과를 추가
+  const text = ticker.value.trim().toUpperCase()
+  const exact = suggestions2.value.find(r => r.symbol === text)
+  const looksTicker = /^[A-Z0-9.^=-]{1,12}$/.test(text)
+  const top = exact || (looksTicker && !suggestions2.value.length ? { symbol: text } : suggestions2.value[0])
+  if (top) pickResult(top)
+  else addError.value = '찾는 종목이 없어요. 영문 회사 이름이나 티커로 다시 검색해 보세요.'
+}
 async function addTicker() {
   const t = ticker.value.trim().toUpperCase()
   if (!t || adding.value) return
@@ -213,7 +261,7 @@ async function addTicker() {
   try {
     const { data } = await axios.post('/api/stocks/watchlist', { symbol: t })
     myList.value = data.data || []
-    ticker.value = ''
+    ticker.value = ''; suggestions2.value = []
   } catch (e) { addError.value = e.response?.data?.message || '추가하지 못했어요. 잠시 후 다시 시도해 주세요.' }
   adding.value = false
 }

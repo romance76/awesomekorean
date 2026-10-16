@@ -142,6 +142,7 @@ Route::middleware('ingest.auth')->prefix('news-ingest')->group(function () {
 Route::get('/external-headlines', [\App\Http\Controllers\API\ExternalHeadlineController::class, 'index']);
 Route::get('/market-quotes', [\App\Http\Controllers\API\MarketQuoteController::class, 'index']);
 Route::get('/stocks/earnings', [\App\Http\Controllers\API\StockController::class, 'earnings']);
+Route::get('/stocks/search', [\App\Http\Controllers\API\StockController::class, 'search'])->middleware('throttle:60,1');
 Route::get('/site/live-stats', [\App\Http\Controllers\API\SiteLiveController::class, 'stats']);
 Route::get('/site/ticker', [\App\Http\Controllers\API\SiteLiveController::class, 'ticker']);
 Route::post('/site/ping', [\App\Http\Controllers\API\SiteLiveController::class, 'ping'])->middleware('throttle:30,1');

@@ -131,7 +131,9 @@ let userPaused = false
 let wakeLock = null
 const isShortsPage = computed(() => route.path.startsWith('/shorts'))
 const isMusicPage = computed(() => route.path.startsWith('/music'))
-const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShutdown.value && !isShortsPage.value)
+// 홈 화면에서는 홈의 음악 타일이 재생·소리 조절을 맡으므로 아래 띠/둥근 버튼은 숨김 (다른 화면에서는 그대로)
+const isHomePage = computed(() => route.path === '/')
+const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShutdown.value && !isShortsPage.value && !isHomePage.value)
 // 전체화면 창(채팅·쪽지)이 열려 있으면 얇은 띠 모드 — 그 창들이 띠 높이만큼 아래를 비우도록 CSS 변수(--mini-strip)로 알려준다
 const showStrip = computed(() => showMiniBtn.value && isMobile.value)
 watch([showStrip, immersiveActive], ([on, imm]) => {
