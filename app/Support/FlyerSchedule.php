@@ -135,6 +135,31 @@ class FlyerSchedule
         return OpenEvent::discountPct('flyer_usd') > 0 ? min($min, 50) : $min;
     }
 
+    /** 추가한 주 1개당, 그 주 기본 가격의 몇 %를 더 받는지 (기본 50) */
+    public static function extraStatePct(): int
+    {
+        return max(0, min(100, PointRules::get('flyer_extra_state_pct', 50)));
+    }
+
+    /** 내 주 외에 더할 수 있는 주의 최대 개수 (기본 3) */
+    public static function maxExtraStates(): int
+    {
+        return max(0, min(10, PointRules::get('flyer_max_extra_states', 3)));
+    }
+
+    /** 추가한 주의 시간 가격 — 그 주 가격의 extraStatePct % (최소 1센트) */
+    public static function extraHourPrice(string $regionKey, int $hour): int
+    {
+        return max(1, (int) round(self::hourPrice($regionKey, $hour) * self::extraStatePct() / 100));
+    }
+
+    /** 내 주 주변(인접) 주 — 추가 주를 고를 때 빠른 선택용 */
+    public static function neighborStates(?string $state): array
+    {
+        $k = strtoupper((string) $state);
+        return array_values(array_filter(StateNeighbors::neighbors($k), fn($s) => $s !== $k && self::isState($s)));
+    }
+
     public static function maxDays(): int
     {
         return max(1, PointRules::get('flyer_max_days', 30));

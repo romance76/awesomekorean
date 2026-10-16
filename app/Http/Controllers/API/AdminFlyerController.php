@@ -24,7 +24,7 @@ class AdminFlyerController extends Controller
         $page = $q->paginate(20);
         $page->getCollection()->transform(function (FlyerAd $ad) {
             $schedule = [];
-            foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->orderBy('slot_date')->orderBy('slot_hour')->get() as $s) {
+            foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->where('region_key', $ad->region_key)->orderBy('slot_date')->orderBy('slot_hour')->get() as $s) {
                 $schedule[$s->slot_date->toDateString()][] = $s->slot_hour;
             }
             $arr = $ad->toArray();

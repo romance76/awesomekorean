@@ -20,7 +20,7 @@
           <div class="flex items-center gap-2 mb-1 flex-wrap">
             <span class="text-xs font-bold text-amber-600">{{ kindLabel(ad.kind) }}</span>
             <span v-if="ad.live" class="text-[10px] font-black text-white bg-amber-500 px-1.5 py-0.5 rounded-full">지금 방송 중</span>
-            <span class="text-[11px] text-ink-faint">{{ ad.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(ad.region_key) }}</span>
+            <span class="text-[11px] text-ink-faint">{{ ad.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(ad.region_key) + (ad.extra_states?.length ? ' + ' + ad.extra_states.join(', ') : '') }}</span>
           </div>
           <h1 class="text-lg font-bold text-ink">{{ ad.title }}</h1>
           <p v-if="ad.description" class="text-sm text-ink-light mt-2 whitespace-pre-wrap">{{ ad.description }}</p>

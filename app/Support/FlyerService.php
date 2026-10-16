@@ -87,13 +87,13 @@ class FlyerService
     public static function release(FlyerAd $ad, bool $futureOnly, string $reason): int
     {
         return DB::transaction(function () use ($ad, $futureOnly, $reason) {
-            $now = FlyerSchedule::now($ad->region_key);
             $slots = FlyerSlot::where('flyer_ad_id', $ad->id)->get();
 
             $amount = 0;
             $ids = [];
             foreach ($slots as $s) {
                 if ($futureOnly) {
+                    $now = FlyerSchedule::now($s->region_key);   // 추가 주는 시간대가 다를 수 있어 슬롯의 주 기준
                     $isFuture = $s->slot_date->toDateString() > $now->toDateString()
                         || ($s->slot_date->toDateString() === $now->toDateString() && $s->slot_hour > $now->hour);
                     if (!$isFuture) continue;
@@ -129,11 +129,11 @@ class FlyerService
         if (!$p || $p->status !== 'authorized') {
             throw new \DomainException('카드 보류가 확인되지 않은 신청이에요.');
         }
-        $now = FlyerSchedule::now($ad->region_key);
         $expiredIds = [];
         $expired = 0;
         $keep = 0;
         foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->get() as $s) {
+            $now = FlyerSchedule::now($s->region_key);
             $d = $s->slot_date->toDateString();
             if ($d < $now->toDateString() || ($d === $now->toDateString() && $s->slot_hour < $now->hour)) {
                 $expired += (int) $s->price; $expiredIds[] = $s->id;
@@ -160,10 +160,10 @@ class FlyerService
     public static function refundExpiredSlots(FlyerAd $ad): int
     {
         return DB::transaction(function () use ($ad) {
-            $now = FlyerSchedule::now($ad->region_key);
             $refund = 0;
             $ids = [];
             foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->get() as $s) {
+                $now = FlyerSchedule::now($s->region_key);
                 $d = $s->slot_date->toDateString();
                 $expired = $d < $now->toDateString() || ($d === $now->toDateString() && $s->slot_hour < $now->hour);
                 if ($expired) { $refund += (int) $s->price; $ids[] = $s->id; }

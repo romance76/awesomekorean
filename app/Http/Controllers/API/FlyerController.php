@@ -38,6 +38,7 @@ class FlyerController extends Controller
             'image_url' => $ad->image_url,
             'scope' => $ad->scope,
             'region_key' => $ad->region_key,
+            'extra_states' => $ad->extra_states ?: [],
         ];
     }
 
@@ -47,6 +48,20 @@ class FlyerController extends Controller
         $state = strtoupper((string) $request->input('state'));
         if ($scope === 'state' && !FlyerSchedule::isState($state)) $scope = 'national';
         return [$scope, $scope === 'state' ? $state : null, FlyerSchedule::regionKey($scope, $state)];
+    }
+
+    /** 요청의 추가 주 목록 → 올바른 주 코드만, 내 주·중복 제외, 최대 개수까지. 전국이면 비어 있음 */
+    private function resolveExtras(Request $request, string $scope, ?string $state): array
+    {
+        if ($scope !== 'state') return [];
+        $raw = $request->input('extra_states', []);
+        if (is_string($raw)) $raw = explode(',', $raw);
+        $out = [];
+        foreach ((array) $raw as $c) {
+            $c = strtoupper(trim((string) $c));
+            if ($c !== $state && FlyerSchedule::isState($c) && !in_array($c, $out, true)) $out[] = $c;
+        }
+        return $out;
     }
 
     /**
@@ -98,7 +113,7 @@ class FlyerController extends Controller
         $now = FlyerSchedule::now($ad->region_key);
         $schedule = [];
         $live = false;
-        foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->orderBy('slot_date')->orderBy('slot_hour')->get() as $s) {
+        foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->where('region_key', $ad->region_key)->orderBy('slot_date')->orderBy('slot_hour')->get() as $s) {
             $d = $s->slot_date->toDateString();
             $schedule[$d][] = $s->slot_hour;
             if ($d === $now->toDateString() && $s->slot_hour === $now->hour && $ad->status === 'approved') $live = true;
@@ -154,18 +169,33 @@ class FlyerController extends Controller
         $dates = [];
         for ($i = 0; $i < $days; $i++) $dates[] = $start->copy()->addDays($i)->toDateString();
 
-        $booked = [];
-        foreach (FlyerSlot::where('region_key', $region)->whereIn('slot_date', $dates)->get(['slot_date', 'slot_hour']) as $s) {
-            $booked[$s->slot_hour][] = $s->slot_date->toDateString();
-        }
+        $extras = array_slice($this->resolveExtras($request, $scope, $state), 0, FlyerSchedule::maxExtraStates());
+        $regions = array_merge([$region], $extras);
 
-        // 블록(몇 시간씩 묶은 칸) — 칸 안의 어느 시간이든 선택한 날짜 중 하루라도 예약돼 있으면 그 칸은 "예약됨"
+        // 주마다 이미 예약된 시간 — $booked 는 내 주 기준(기존 화면 호환), 칸의 "예약됨"은 고른 모든 주를 본다
+        $bookedBy = [];   // region => hour => [dates]
+        foreach (FlyerSlot::whereIn('region_key', $regions)->whereIn('slot_date', $dates)->get(['region_key', 'slot_date', 'slot_hour']) as $s) {
+            $bookedBy[$s->region_key][$s->slot_hour][] = $s->slot_date->toDateString();
+        }
+        $booked = $bookedBy[$region] ?? [];
+
+        // 블록(몇 시간씩 묶은 칸) — 칸 안의 어느 시간이든 선택한 날짜 중 하루라도 (고른 주 중 어느 한 곳에서든) 예약돼 있으면 그 칸은 "예약됨"
         $prices = FlyerSchedule::priceTable($region);
-        $blocks = array_map(fn($b) => [
-            'start' => $b['start'], 'end' => $b['end'], 'hours' => $b['hours'],
-            'price' => array_sum(array_map(fn($h) => $prices[$h], $b['hours'])),   // 하루 기준(센트)
-            'booked' => (bool) array_filter($b['hours'], fn($h) => !empty($booked[$h])),
-        ], FlyerSchedule::blocks());
+        $natPrices = FlyerSchedule::priceTable(FlyerSchedule::NATIONAL);
+        $blocks = array_map(function ($b) use ($prices, $natPrices, $regions, $extras, $bookedBy) {
+            $blockedIn = [];
+            foreach ($regions as $r) {
+                if (array_filter($b['hours'], fn($h) => !empty($bookedBy[$r][$h]))) $blockedIn[] = $r;
+            }
+            return [
+                'start' => $b['start'], 'end' => $b['end'], 'hours' => $b['hours'],
+                'price' => array_sum(array_map(fn($h) => $prices[$h], $b['hours'])),   // 하루 기준(센트) — 내 주
+                'extra_price' => array_sum(array_map(fn($h) => array_sum(array_map(fn($x) => FlyerSchedule::extraHourPrice($x, $h), $extras)), $b['hours'])),   // 추가 주 합계(하루)
+                'national_price' => array_sum(array_map(fn($h) => $natPrices[$h], $b['hours'])),   // 전국이었다면(하루)
+                'booked' => (bool) $blockedIn,
+                'booked_states' => $blockedIn,
+            ];
+        }, FlyerSchedule::blocks());
 
         return response()->json(['success' => true, 'data' => [
             'scope' => $scope,
@@ -184,6 +214,11 @@ class FlyerController extends Controller
             'max_days' => FlyerSchedule::maxDays(),
             'window_days' => FlyerSchedule::windowDays(),
             'min_order_cents' => FlyerSchedule::minOrderCents(),
+            // 추가 주 — 고른 주(검증된 것), 주변 주(빠른 선택), 최대 개수, 추가 주 가격 비율(%)
+            'extra_states' => $extras,
+            'neighbor_states' => $scope === 'state' ? FlyerSchedule::neighborStates($state) : [],
+            'max_extra_states' => FlyerSchedule::maxExtraStates(),
+            'extra_pct' => FlyerSchedule::extraStatePct(),
         ]]);
     }
 
@@ -213,6 +248,8 @@ class FlyerController extends Controller
             'days' => 'required|integer|min:1',
             'hours' => 'required|array|min:1|max:24',
             'hours.*' => 'integer|min:0|max:23',
+            'extra_states' => 'nullable|array|max:10',
+            'extra_states.*' => 'string|size:2',
         ], [
             'image.required' => '전단 이미지를 올려주세요.',
             'image.max' => '이미지는 6MB 이하로 올려주세요.',
@@ -246,15 +283,36 @@ class FlyerController extends Controller
             return response()->json(['success' => false, 'message' => '시간은 칸 단위(예: 오전 11시~오후 2시)로 선택해주세요.'], 422);
         }
 
+        // 추가 주: 내 주와 같은 시간 칸을 그 주에서도 함께 산다 (시간은 각 주의 현지 시각). 가격은 그 주 가격의 extraStatePct %
+        $extras = $this->resolveExtras($request, $scope, $state);
+        if (count($extras) > FlyerSchedule::maxExtraStates()) {
+            return response()->json(['success' => false, 'message' => '추가할 수 있는 주는 최대 ' . FlyerSchedule::maxExtraStates() . '개예요.'], 422);
+        }
+        if ($request->filled('extra_states') && $scope !== 'state') {
+            return response()->json(['success' => false, 'message' => '전국 광고에는 주를 추가할 수 없어요.'], 422);
+        }
+
         $rows = [];
         $total = 0;
+        $nationalTotal = 0;
         for ($i = 0; $i < $days; $i++) {
             $d = $start->copy()->addDays($i);
             foreach ($hours as $h) {
                 $price = FlyerSchedule::hourPrice($region, $h);
                 $total += $price;
                 $rows[] = ['region_key' => $region, 'slot_date' => $d->toDateString(), 'slot_hour' => $h, 'price' => $price];
+                foreach ($extras as $x) {
+                    $xp = FlyerSchedule::extraHourPrice($x, $h);
+                    $total += $xp;
+                    $rows[] = ['region_key' => $x, 'slot_date' => $d->toDateString(), 'slot_hour' => $h, 'price' => $xp];
+                }
+                $nationalTotal += FlyerSchedule::hourPrice(FlyerSchedule::NATIONAL, $h);
             }
+        }
+        $homeCount = $days * count($hours);
+        // 추가 주가 많아져 전국 가격 이상이 되면 전국이 더 이득 — 전국으로 신청하도록 안내
+        if ($extras && $total >= $nationalTotal) {
+            return response()->json(['success' => false, 'message' => '선택한 주 합계($' . number_format($total / 100, 2) . ')가 전국 가격($' . number_format($nationalTotal / 100, 2) . ') 이상이에요. 전국으로 신청하면 더 저렴해요.'], 422);
         }
 
         $user = $request->user();
@@ -271,14 +329,15 @@ class FlyerController extends Controller
 
         // 카드 입력만 하다 떠난 신청이 잡고 있던 시간 정리 → 사전 점검 (최종 보루는 DB UNIQUE)
         FlyerService::purgeStale();
-        $taken = FlyerSlot::where('region_key', $region)
+        $taken = FlyerSlot::whereIn('region_key', array_merge([$region], $extras))
             ->whereIn('slot_date', array_unique(array_column($rows, 'slot_date')))
-            ->whereIn('slot_hour', $hours)->get(['slot_date', 'slot_hour']);
+            ->whereIn('slot_hour', $hours)->get(['region_key', 'slot_date', 'slot_hour']);
         if ($taken->isNotEmpty()) {
+            $where = $taken->pluck('region_key')->unique()->values()->all();
             return response()->json([
                 'success' => false,
-                'message' => '이미 다른 광고가 예약한 시간이 있어요. 다른 시간을 골라주세요.',
-                'conflicts' => $taken->map(fn($s) => ['date' => $s->slot_date->toDateString(), 'hour' => $s->slot_hour])->values(),
+                'message' => '이미 다른 광고가 예약한 시간이 있어요' . ($extras ? ' (' . implode(', ', $where) . ')' : '') . '. 다른 시간이나 주를 골라주세요.',
+                'conflicts' => $taken->map(fn($s) => ['state' => $s->region_key, 'date' => $s->slot_date->toDateString(), 'hour' => $s->slot_hour])->values(),
             ], 409);
         }
 
@@ -287,7 +346,7 @@ class FlyerController extends Controller
 
         // 1) 전단 + 시간 슬롯을 먼저 "결제 대기(awaiting_payment)"로 잡는다 (카드 입력하는 동안 다른 광고주가 못 가져가게)
         try {
-            $ad = DB::transaction(function () use ($user, $data, $scope, $region, $start, $days, $rows, $total, $imageUrl) {
+            $ad = DB::transaction(function () use ($user, $data, $scope, $region, $extras, $start, $days, $rows, $total, $imageUrl, $homeCount) {
                 $ad = FlyerAd::create([
                     'user_id' => $user->id,
                     'title' => $data['title'],
@@ -298,10 +357,11 @@ class FlyerController extends Controller
                     'image_url' => $imageUrl,
                     'scope' => $scope,
                     'region_key' => $region,
+                    'extra_states' => $extras ?: null,
                     'status' => 'awaiting_payment',
                     'total_price' => $total,            // 카드 결제 건은 센트
                     'payment_method' => 'card',
-                    'hours_count' => count($rows),
+                    'hours_count' => $homeCount,        // 시간 수는 내 주 기준 (추가 주는 같은 시간을 함께 사는 것)
                     'start_date' => $start->toDateString(),
                     'end_date' => $start->copy()->addDays($days - 1)->toDateString(),
                 ]);

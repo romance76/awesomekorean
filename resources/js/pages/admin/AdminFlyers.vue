@@ -25,7 +25,7 @@
         </div>
         <div class="text-[16px] font-bold text-ink leading-snug break-words mt-1">{{ f.title }}</div>
         <div class="text-[13px] text-ink-muted mt-1 break-words">{{ f.user?.nickname || f.user?.name }} · {{ f.user?.email }}</div>
-        <div class="text-[13px] text-ink-muted mt-0.5">{{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간</div>
+        <div class="text-[13px] text-ink-muted mt-0.5">{{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) + (f.extra_states?.length ? ' + ' + f.extra_states.join(', ') : '') }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간</div>
         <div class="flex items-center gap-2 flex-wrap mt-1">
           <b class="text-[16px] text-ink tabular-nums">{{ adMoney(f, f.total_price) }}</b>
           <span class="px-1.5 py-0.5 rounded text-[12px] font-bold" :class="f.payment_method === 'card' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ payLabel(f) }}</span>
@@ -118,7 +118,7 @@
           <span class="font-bold text-ink">{{ f.title }}</span>
         </div>
         <div class="text-xs text-ink-muted mt-1">
-          {{ f.user?.nickname || f.user?.name }} ({{ f.user?.email }}) · {{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간 · <b>{{ adMoney(f, f.total_price) }}</b> <span class="px-1 py-0.5 rounded text-[10px] font-bold" :class="f.payment_method === 'card' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ f.payment_method === 'card' ? (f.payment_status === 'captured' ? '카드 청구됨' : f.payment_status === 'authorized' ? '카드 보류 중' : '카드') : '포인트 결제' }}</span>
+          {{ f.user?.nickname || f.user?.name }} ({{ f.user?.email }}) · {{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) + (f.extra_states?.length ? ' + ' + f.extra_states.join(', ') : '') }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간 · <b>{{ adMoney(f, f.total_price) }}</b> <span class="px-1 py-0.5 rounded text-[10px] font-bold" :class="f.payment_method === 'card' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ f.payment_method === 'card' ? (f.payment_status === 'captured' ? '카드 청구됨' : f.payment_status === 'authorized' ? '카드 보류 중' : '카드') : '포인트 결제' }}</span>
         </div>
         <p v-if="f.description" class="text-xs text-ink-light mt-1 line-clamp-2">{{ f.description }}</p>
         <div class="text-xs text-ink-muted mt-1">

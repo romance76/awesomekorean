@@ -53,7 +53,7 @@
           <button type="button" @click="form.scope = 'state'" class="border-2 rounded-xl p-3 text-left transition-colors"
             :class="form.scope === 'state' ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200 hover:border-amber-200'">
             <div class="font-bold text-sm text-ink">📍 내 지역 (주 단위)</div>
-            <div class="text-[11px] text-ink-muted mt-0.5">그 주 방문자에게만 · 시간당 {{ usd(basePrice('state')) }}~</div>
+            <div class="text-[11px] text-ink-muted mt-0.5">그 주 방문자에게만 · 시간당 {{ usd(basePrice('state')) }}~ <span class="text-amber-700">(주변 주 추가 가능)</span></div>
           </button>
           <button type="button" @click="form.scope = 'national'" class="border-2 rounded-xl p-3 text-left transition-colors"
             :class="form.scope === 'national' ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200 hover:border-amber-200'">
@@ -66,6 +66,37 @@
           <select v-model="form.state" class="input-soft">
             <option v-for="s in US_STATES" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }})</option>
           </select>
+        </div>
+
+        <!-- 추가 주: 내 주 + 주변 주까지 함께 노출 -->
+        <div v-if="form.scope === 'state' && maxExtra > 0" class="rounded-xl border border-amber-100 bg-amber-50/40 p-3 space-y-2.5">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <label class="input-label !mb-0">주변 주도 함께 노출 <span class="text-ink-faint font-normal">(선택 · 최대 {{ maxExtra }}개)</span></label>
+            <span class="text-[11px] text-amber-700 font-semibold">추가한 주 1개당 그 주 가격의 {{ extraPct }}%만 더 내요</span>
+          </div>
+          <div v-if="form.extra_states.length" class="flex flex-wrap gap-1.5">
+            <button v-for="c in form.extra_states" :key="c" type="button" @click="toggleExtra(c)"
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-xs font-bold">
+              {{ stateName(c) }} ({{ c }}) <span aria-hidden="true">&times;</span><span class="sr-only">빼기</span>
+            </button>
+          </div>
+          <div v-if="neighborChoices.length">
+            <div class="text-[11px] text-ink-muted mb-1">내 주({{ form.state }}) 바로 옆 주 — 눌러서 추가</div>
+            <div class="flex flex-wrap gap-1.5">
+              <button v-for="c in neighborChoices" :key="c" type="button" @click="toggleExtra(c)" :disabled="!form.extra_states.includes(c) && extraFull"
+                class="px-2.5 py-1 rounded-full border text-xs font-bold transition-colors disabled:opacity-40"
+                :class="form.extra_states.includes(c) ? 'bg-amber-100 border-amber-400 text-amber-800' : 'bg-white border-gray-200 text-ink-light hover:border-amber-300'">
+                {{ form.extra_states.includes(c) ? '✓ ' : '+ ' }}{{ stateName(c) }} ({{ c }})
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <select v-model="pickState" class="input-soft flex-1 !py-1.5 !text-xs" :disabled="extraFull">
+              <option value="">다른 주 추가…</option>
+              <option v-for="s in otherStates" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }})</option>
+            </select>
+          </div>
+          <p v-if="extraFull" class="text-[11px] text-ink-muted">최대 {{ maxExtra }}개까지 추가할 수 있어요.</p>
         </div>
       </div>
 
@@ -104,10 +135,11 @@
               :class="blockClass(b)">
               <div class="text-[13px] font-bold leading-tight">{{ blockLabel(b) }}</div>
               <div class="text-[10px] leading-tight mt-0.5 opacity-80">{{ b.end - b.start }}시간 · {{ blockTag(b) }}</div>
-              <div class="text-xs font-bold mt-1">{{ b.booked ? '예약됨' : usd(b.price) + '/일' }}</div>
+              <div class="text-xs font-bold mt-1">{{ b.booked ? '예약됨' : usd(b.price + (b.extra_price || 0)) + '/일' }}</div>
+              <div v-if="b.booked && form.extra_states.length && b.booked_states?.length" class="text-[10px] leading-tight mt-0.5">{{ b.booked_states.join(', ') }}</div>
             </button>
           </div>
-          <p class="text-[11px] text-ink-faint mt-2">시간은 몇 시간씩 묶인 칸으로 팔아요. 피크({{ peakLabel }})는 이용자가 많아 비싸고 새벽(자정~오전 6시)은 저렴해요. “예약됨”은 같은 지역에서 다른 광고주가 이미 쓰는 시간이 들어 있는 칸이에요.</p>
+          <p class="text-[11px] text-ink-faint mt-2">시간은 몇 시간씩 묶인 칸으로 팔아요. 피크({{ peakLabel }})는 이용자가 많아 비싸고 새벽(자정~오전 6시)은 저렴해요. “예약됨”은 고른 지역(주) 중 한 곳에서라도 다른 광고주가 이미 쓰는 시간이 들어 있는 칸이에요.<span v-if="form.extra_states.length"> 주를 함께 고르면 각 주의 현지 시각으로 같은 시간 칸이 방송돼요.</span></p>
         </div>
       </div>
 
@@ -116,9 +148,18 @@
         <div class="space-y-1.5 text-sm">
           <div class="flex justify-between"><span class="text-ink-muted">방송 시간</span><span class="font-semibold">{{ form.hours.length }}시간/일 × {{ form.days }}일 = {{ slotCount }}시간</span></div>
           <div v-if="form.hours.length" class="flex justify-between gap-4"><span class="text-ink-muted flex-shrink-0">시간대</span><span class="text-right text-xs">{{ hourRanges(form.hours).join(', ') }}</span></div>
+          <div v-if="form.extra_states.length && form.hours.length" class="rounded-lg bg-gray-50 px-3 py-2 text-xs space-y-0.5">
+            <div class="flex justify-between"><span class="text-ink-muted">{{ stateName(form.state) }}</span><span class="font-semibold">{{ usd(homeTotal) }}</span></div>
+            <div class="flex justify-between"><span class="text-ink-muted">추가 주 {{ form.extra_states.length }}개 ({{ form.extra_states.join(', ') }}) · 각 {{ extraPct }}%</span><span class="font-semibold">{{ usd(extraTotal) }}</span></div>
+            <div class="flex justify-between text-ink-faint"><span>같은 시간을 전국으로 샀다면</span><span>{{ usd(nationalTotal) }}</span></div>
+          </div>
           <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-amber-600">{{ usd(total) }}</span></div>
         </div>
         <p v-if="error" class="text-sm text-red-500 mt-3">{{ error }}</p>
+        <div v-if="nationalBetter" class="mt-3 text-xs bg-sky-50 border border-sky-200 text-sky-800 rounded-lg px-3 py-2 flex items-center justify-between gap-2 flex-wrap">
+          <span>선택한 주 합계가 전국 가격({{ usd(nationalTotal) }}) 이상이에요. 전국이 더 저렴해요.</span>
+          <button type="button" class="btn-secondary !px-3 !py-1 !text-xs" @click="goNational">전국으로 바꾸기</button>
+        </div>
         <ul v-if="missing.length" class="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 space-y-0.5">
           <li v-for="m in missing" :key="m">• {{ m }}</li>
         </ul>
@@ -141,7 +182,7 @@
             <span class="text-[11px] font-bold px-1.5 py-0.5 rounded border" :class="STATUS_LABEL[m.status]?.cls">{{ STATUS_LABEL[m.status]?.text }}</span>
             <span class="text-sm font-semibold text-ink truncate">{{ m.title }}</span>
           </div>
-          <div class="text-[11px] text-ink-muted mt-0.5">{{ m.scope === 'national' ? '전국' : stateName(m.region_key) }} · {{ fmtDay(m.start_date) }}~{{ fmtDay(m.end_date) }} · {{ m.hours_count }}시간 · {{ adMoney(m, m.total_price) }}</div>
+          <div class="text-[11px] text-ink-muted mt-0.5">{{ m.scope === 'national' ? '전국' : stateName(m.region_key) + (m.extra_states?.length ? ' + ' + m.extra_states.join(', ') : '') }} · {{ fmtDay(m.start_date) }}~{{ fmtDay(m.end_date) }} · {{ m.hours_count }}시간 · {{ adMoney(m, m.total_price) }}</div>
           <div v-if="m.status === 'approved'" class="text-[11px] text-ink-faint">노출 {{ fmt(m.view_count) }} · 클릭 {{ fmt(m.click_count) }}</div>
           <div v-if="m.reject_reason && m.status !== 'approved'" class="text-[11px] text-red-500">{{ m.reject_reason }}</div>
         </div>
@@ -194,8 +235,9 @@ const site = useSiteStore()
 
 const form = reactive({
   title: '', kind: 'open', description: '', phone: '', link_url: '',
-  scope: 'state', state: 'GA', start_date: '', days: 7, hours: [],
+  scope: 'state', state: 'GA', extra_states: [], start_date: '', days: 7, hours: [],
 })
+const pickState = ref('')
 const file = ref(null)
 const preview = ref('')
 const fileInput = ref(null)
@@ -218,7 +260,27 @@ const dayChoices = computed(() => {
 
 const price = (h) => Number(av.value?.prices?.[h] ?? 0)
 const slotCount = computed(() => form.hours.length * form.days)
-const total = computed(() => form.hours.reduce((s, h) => s + price(h), 0) * form.days)
+// 합계는 선택한 칸 기준: 내 주 + 추가 주 (서버가 칸마다 내려주는 하루 가격 × 며칠)
+const pickedBlocks = computed(() => blocks.value.filter(b => blockOn(b)))
+const homeTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + b.price, 0) * form.days)
+const extraTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.extra_price || 0), 0) * form.days)
+const nationalTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.national_price || 0), 0) * form.days)
+const total = computed(() => homeTotal.value + extraTotal.value)
+const nationalBetter = computed(() => form.scope === 'state' && form.extra_states.length > 0 && nationalTotal.value > 0 && total.value >= nationalTotal.value)
+
+// 추가 주
+const maxExtra = computed(() => av.value?.max_extra_states ?? 3)
+const extraPct = computed(() => av.value?.extra_pct ?? 50)
+const extraFull = computed(() => form.extra_states.length >= maxExtra.value)
+const neighborChoices = computed(() => av.value?.neighbor_states || [])
+const otherStates = computed(() => US_STATES.filter(s => s.code !== form.state && !form.extra_states.includes(s.code)))
+function toggleExtra(c) {
+  const i = form.extra_states.indexOf(c)
+  if (i >= 0) form.extra_states.splice(i, 1)
+  else if (!extraFull.value) form.extra_states.push(c)
+}
+watch(pickState, (c) => { if (c) { toggleExtra(c); pickState.value = '' } })
+function goNational() { form.extra_states = []; form.scope = 'national' }
 const belowMin = computed(() => !!av.value && total.value > 0 && total.value < (av.value.min_order_cents || 0))
 // 신청 버튼이 눌리지 않는 이유 — 비어 있는 필수 항목을 버튼 위에 알려준다
 const missing = computed(() => {
@@ -228,6 +290,7 @@ const missing = computed(() => {
   if (!form.hours.length) m.push('③ 방송할 시간 칸을 하나 이상 골라주세요')
   if (!form.start_date) m.push('③ 시작일을 골라주세요')
   if (belowMin.value) m.push(`최소 결제 금액은 ${usd(av.value.min_order_cents)} 예요`)
+  if (nationalBetter.value) m.push('전국으로 신청하는 편이 더 저렴해요 (위의 "전국으로 바꾸기")')
   return m
 })
 const canSubmit = computed(() => missing.value.length === 0)
@@ -268,15 +331,19 @@ async function loadAvailability() {
   const my = ++seq
   try {
     const { data } = await axios.get('/api/flyers/availability', {
-      params: { scope: form.scope, state: form.scope === 'state' ? form.state : undefined, start_date: form.start_date || undefined, days: form.days },
+      params: { scope: form.scope, state: form.scope === 'state' ? form.state : undefined, extra_states: form.scope === 'state' && form.extra_states.length ? form.extra_states.join(',') : undefined, start_date: form.start_date || undefined, days: form.days },
     })
     if (my !== seq) return
     av.value = data.data
     if (!form.start_date || form.start_date < av.value.min_date) form.start_date = av.value.min_date
     form.hours = form.hours.filter(h => !(av.value.blocks || []).some(b => b.booked && b.hours.includes(h)))   // 예약된 칸은 선택에서 제외
+    form.extra_states = (av.value.extra_states || form.extra_states).slice()                                   // 서버가 확인한 추가 주만 유지
   } catch {}
 }
-watch(() => [form.scope, form.state, form.start_date, form.days], loadAvailability)
+// 내 주를 바꾸면 그 주가 추가 주 목록에 있을 수 없으니 뺀다. 전국이면 추가 주는 없음
+watch(() => form.state, (st) => { form.extra_states = form.extra_states.filter(c => c !== st) })
+watch(() => form.scope, (sc) => { if (sc !== 'state') form.extra_states = [] })
+watch(() => [form.scope, form.state, form.start_date, form.days, form.extra_states.join(',')], loadAvailability)
 
 async function loadMine() {
   try { mine.value = (await axios.get('/api/flyers/my')).data.data || [] } catch {}
@@ -291,7 +358,7 @@ async function submit() {
   try {
     const fd = new FormData()
     ;['title', 'kind', 'description', 'phone', 'link_url', 'scope', 'start_date'].forEach(k => form[k] !== '' && fd.append(k, form[k]))
-    if (form.scope === 'state') fd.append('state', form.state)
+    if (form.scope === 'state') { fd.append('state', form.state); form.extra_states.forEach(c => fd.append('extra_states[]', c)) }
     fd.append('days', form.days)
     form.hours.forEach(h => fd.append('hours[]', h))
     fd.append('image', file.value)
