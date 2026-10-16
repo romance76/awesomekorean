@@ -105,6 +105,15 @@
               </div>
             </div>
           </div>
+          <!-- 휴대폰: 오른쪽 열이 없으므로 대표 종목 3개를 아래에 한 줄로 -->
+          <div v-if="watchlist.length" class="sm:hidden mt-2.5 pt-2.5 border-t border-line grid grid-cols-3 gap-1.5">
+            <div v-for="w in watchlist.slice(0, 3)" :key="w.symbol" class="min-w-0">
+              <div class="text-[10.5px] font-extrabold text-ink truncate">{{ w.symbol }}</div>
+              <div class="text-[10.5px] font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
+                {{ Number(w.change_pct) >= 0 ? '▲' : '▼' }}{{ Math.abs(Number(w.change_pct)).toFixed(1) }}%
+              </div>
+            </div>
+          </div>
         </RouterLink>
 
         <!-- MONEY 홍보 (동호회 자리) -->
