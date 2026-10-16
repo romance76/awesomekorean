@@ -12,7 +12,7 @@
         </GroupTitle>
         <div class="flex items-center gap-2">
           <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="filter" :size="13" />필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/manage" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="list" :size="13" />내 공구 관리</RouterLink>
+          <RouterLink v-if="auth.isLoggedIn" to="/dashboard?tab=groupbuy" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="list" :size="13" />내 공구 관리</RouterLink>
           <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/create" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
         </div>
       </div>
@@ -78,7 +78,7 @@
           <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/manage" class="btn-secondary px-3 py-1.5 text-xs"><AppIcon name="list" :size="13" />내 공구 관리</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/dashboard?tab=groupbuy" class="btn-secondary px-3 py-1.5 text-xs"><AppIcon name="list" :size="13" />내 공구 관리</RouterLink>
         <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/create" class="btn-primary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
       </div>
     </div>

@@ -1,21 +1,20 @@
 <template>
-<div class="min-h-screen">
-  <div class="page-main px-4 py-5">
-    <PageHeader title="내 공동구매 관리" icon="heart-handshake" chip="bg-lime-50 text-lime-600" fallback="/groupbuy" />
-
-    <div v-if="loading" class="text-center text-sm text-ink-muted py-10">불러오는 중...</div>
-
-    <div v-else-if="!items.length" class="card p-8 text-center space-y-3">
-      <div class="text-sm text-ink-muted">아직 연 공동구매가 없어요.</div>
-      <RouterLink to="/groupbuy/create" class="btn-primary px-5 py-2 text-sm inline-flex"><AppIcon name="edit" :size="14" />공동구매 열기</RouterLink>
+<div class="space-y-4">
+  <div class="card p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-lime-50 text-lime-600"><AppIcon name="heart-handshake" :size="15" /></span>내 공동구매</h2>
+      <RouterLink to="/groupbuy/create" class="btn-primary px-4 py-1.5 text-xs"><AppIcon name="plus" :size="13" /> 열기</RouterLink>
     </div>
 
-    <div v-else class="space-y-4">
-      <div v-for="g in items" :key="g.id" class="card p-4 space-y-3">
+    <div v-if="loading" class="text-sm text-ink-faint py-6 text-center">불러오는 중...</div>
+    <div v-else-if="!items.length" class="text-sm text-ink-faint py-6 text-center">아직 연 공동구매가 없습니다</div>
+
+    <div v-else class="space-y-3">
+      <div v-for="g in items" :key="g.id" class="border border-gray-100 rounded-xl p-3 space-y-3">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0">
-            <RouterLink :to="`/groupbuy/${g.id}`" class="font-bold text-ink hover:underline break-words">{{ g.title }}</RouterLink>
-            <div class="text-xs text-ink-muted mt-0.5">
+            <RouterLink :to="`/groupbuy/${g.id}`" class="text-sm font-semibold text-ink hover:text-amber-600 transition-colors break-words">{{ g.title }}</RouterLink>
+            <div class="text-xs text-ink-faint mt-0.5">
               {{ g.tier === 'small' ? '소액 공동구매' : '사업자 공동구매' }}
               <template v-if="g.deadline"> · 마감 {{ fmtDate(g.deadline) }}</template>
             </div>
@@ -42,7 +41,7 @@
         </div>
 
         <div>
-          <button @click="toggle(g.id)" class="text-xs font-semibold text-ink-light flex items-center gap-1">
+          <button @click="toggle(g.id)" class="text-xs font-semibold text-ink-light">
             참가자 {{ g.participants.length }}명 {{ openId === g.id ? '접기' : '보기' }}
           </button>
           <div v-if="openId === g.id" class="mt-2 space-y-1">
@@ -56,6 +55,10 @@
             </div>
           </div>
         </div>
+
+        <div class="flex items-center gap-1.5 pt-2 border-t border-gray-100">
+          <RouterLink :to="`/groupbuy/${g.id}`" class="flex-1 flex items-center justify-center gap-1 text-xs font-bold py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"><AppIcon name="eye" :size="12" /> 미리보기</RouterLink>
+        </div>
       </div>
     </div>
 
@@ -67,8 +70,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import AppIcon from '../../components/AppIcon.vue'
-import PageHeader from '../../components/PageHeader.vue'
+import AppIcon from '../AppIcon.vue'
 
 const items = ref([])
 const loading = ref(true)

@@ -86,7 +86,7 @@ const routes = [
   // GroupBuy
   { path: '/groupbuy', name: 'groupbuy', component: p('groupbuy/GroupBuyHome') },
   { path: '/groupbuy/create', name: 'groupbuy-create', component: p('groupbuy/GroupBuyCreate'), meta: { auth: true } },
-  { path: '/groupbuy/manage', name: 'groupbuy-manage', component: p('groupbuy/GroupBuyManage'), meta: { auth: true } },
+  { path: '/groupbuy/manage', redirect: '/dashboard?tab=groupbuy' },   // 내 공동구매 관리는 마이페이지 탭에서
   { path: '/groupbuy/:id', name: 'groupbuy-detail', component: p('groupbuy/GroupBuyDetail') },
 
   // Events
