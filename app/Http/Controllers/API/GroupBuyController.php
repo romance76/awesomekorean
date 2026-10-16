@@ -225,6 +225,10 @@ class GroupBuyController extends Controller
         // 등급: 예상 최대 총액 $500 미만이면 소액(자동 승인, 인원 50명·기간 2주 이하), 그 이상이면 사업자(등록증 + 관리자 승인, 기간 1개월 이하)
         $isStaff = in_array(auth()->user()->role ?? '', ['admin', 'super_admin', 'moderator'], true);
         $scope = $request->scope;
+        // 전국 공동구매는 우선 쿠폰용만 연다(택배용 전국은 아직 열지 않음, 2026-10-16)
+        if ($scope === GroupBuyTier::SCOPE_NATIONAL && $request->fulfillment !== 'coupon') {
+            return response()->json(['success' => false, 'message' => '전국 공동구매는 우선 쿠폰용만 열 수 있어요. 택배용은 기본(내 주 + 인접 주) 범위로 열어 주세요.'], 422);
+        }
         // 기본(지역) 범위 = 작성자 주 + 인접 주. 주를 알아야 하므로 지역 공동구매는 주(State)가 필요하다. 전국은 어디서나 보인다.
         $targetStates = null;
         if ($scope === GroupBuyTier::SCOPE_LOCAL) {

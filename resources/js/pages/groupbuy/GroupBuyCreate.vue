@@ -90,15 +90,16 @@
       <div>
         <label class="input-label mb-2">수령 방식 <span class="text-red-400">*</span></label>
         <div class="grid grid-cols-2 gap-2">
-          <label v-for="o in FULFILLMENTS" :key="o.value" class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition"
-            :class="form.fulfillment === o.value ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:bg-gray-50'">
-            <input v-model="form.fulfillment" type="radio" :value="o.value" class="mt-0.5 accent-amber-500" />
+          <label v-for="o in FULFILLMENTS" :key="o.value" class="flex items-start gap-2 p-3 rounded-xl border transition"
+            :class="[form.fulfillment === o.value ? 'border-amber-400 bg-amber-50' : 'border-gray-200', (o.value === 'delivery' && form.scope === 'national') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50']">
+            <input v-model="form.fulfillment" type="radio" :value="o.value" :disabled="o.value === 'delivery' && form.scope === 'national'" class="mt-0.5 accent-amber-500" />
             <div>
               <div class="text-sm font-semibold text-ink">{{ o.label }}</div>
               <div class="text-xs text-ink-muted">{{ o.desc }}</div>
             </div>
           </label>
         </div>
+        <div class="text-xs text-ink-muted mt-1.5">택배용은 배송·교환·환불을 개설자가 직접 책임져요. 전국 공동구매는 우선 쿠폰용만 열 수 있어요.</div>
       </div>
 
       <!-- 6-2. 범위 (기본 = 내 주 + 인접 주 / 전국) -->
@@ -121,7 +122,7 @@
             <input v-model="form.scope" type="radio" value="national" class="mt-0.5 accent-amber-500" />
             <div>
               <div class="text-sm font-semibold text-ink">전국</div>
-              <div class="text-xs text-ink-muted">모든 주에 보여요 · 사업자 등록증 필수 · 디파짓 ×{{ NATIONAL_DEPOSIT_MULTIPLIER }}</div>
+              <div class="text-xs text-ink-muted">모든 주에 보여요 · 쿠폰용만 · 사업자 등록증 필수 · 디파짓 ×{{ NATIONAL_DEPOSIT_MULTIPLIER }}</div>
             </div>
           </label>
         </div>
@@ -288,7 +289,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
@@ -397,6 +398,9 @@ const depositPreview = computed(() => {
 const deadlineMin = computed(() => dateStr(1))
 const deadlineMax = computed(() => dateStr(isSmall.value ? SMALL_MAX_DAYS : BUSINESS_MAX_DAYS))
 
+// 전국은 우선 쿠폰용만 — 전국을 고르면 쿠폰용으로 맞춘다
+watch(() => form.scope, v => { if (v === 'national') form.fulfillment = 'coupon' })
+
 // 사진 관리
 const photoList = ref([])
 
@@ -451,6 +455,7 @@ async function submit() {
   if (!form.content.trim()) { error.value = '상세 설명을 입력해주세요'; return }
   if (!form.max_participants || form.max_participants < 2) { error.value = '최대 인원을 입력해주세요'; return }
   if (!form.fulfillment) { error.value = '수령 방식(택배용/쿠폰용)을 골라주세요'; return }
+  if (form.scope === 'national' && form.fulfillment !== 'coupon') { error.value = '전국 공동구매는 우선 쿠폰용만 열 수 있어요'; return }
   if (form.scope === 'local' && !isUsState(form.state)) { error.value = '지역 공동구매는 State(주)를 정확히 입력해주세요. 예: GA'; return }
   if (!form.total_quantity || form.total_quantity < 1) { error.value = '총 수량(개)을 입력해주세요'; return }
   if (!form.deadline) { error.value = '마감일을 정해주세요'; return }
