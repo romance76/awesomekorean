@@ -115,6 +115,10 @@ class GoogleAnalyticsData
             ['dateRanges' => $range, 'dimensions' => [['name' => 'pagePath'], ['name' => 'pageTitle']], 'metrics' => [['name' => 'screenPageViews'], ['name' => 'activeUsers']], 'orderBys' => [['metric' => ['metricName' => 'screenPageViews'], 'desc' => true]], 'limit' => 10],
             ['dateRanges' => $range, 'dimensions' => [['name' => 'sessionDefaultChannelGroup']], 'metrics' => [['name' => 'sessions']], 'orderBys' => [['metric' => ['metricName' => 'sessions'], 'desc' => true]], 'limit' => 8],
             ['dateRanges' => $range, 'dimensions' => [['name' => 'country']], 'metrics' => [['name' => 'activeUsers']], 'orderBys' => [['metric' => ['metricName' => 'activeUsers'], 'desc' => true]], 'limit' => 8],
+            // '다른 사이트'(Referral) 유입이 정확히 어느 사이트에서 왔는지 — 출처(세션 소스)별 방문 수
+            ['dateRanges' => $range, 'dimensions' => [['name' => 'sessionSource']], 'metrics' => [['name' => 'sessions']],
+                'dimensionFilter' => ['filter' => ['fieldName' => 'sessionDefaultChannelGroup', 'stringFilter' => ['matchType' => 'EXACT', 'value' => 'Referral']]],
+                'orderBys' => [['metric' => ['metricName' => 'sessions'], 'desc' => true]], 'limit' => 12],
         ]]);
         if (!$batch) return [null, $err];
 
@@ -131,6 +135,7 @@ class GoogleAnalyticsData
             'pages' => self::rows($r[2] ?? null, ['path', 'title'], ['views', 'users']),
             'channels' => self::rows($r[3] ?? null, ['channel'], ['sessions']),
             'countries' => self::rows($r[4] ?? null, ['country'], ['users']),
+            'referrals' => self::rows($r[5] ?? null, ['source'], ['sessions']),
         ], null];
     }
 }

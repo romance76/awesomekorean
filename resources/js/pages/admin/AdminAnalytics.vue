@@ -70,6 +70,11 @@
         <div v-if="!dash.channels.length" class="px-4 py-5 text-[14px] text-ink-muted text-center">아직 데이터가 없어요</div>
       </div>
       <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-50"><div class="text-[15px] font-bold text-ink">다른 사이트에서 온 곳</div><div class="text-[12px] text-ink-faint">유입 경로의 “다른 사이트”를 출처별로 나눈 것이에요</div></div>
+        <div v-for="r in (dash.referrals || [])" :key="r.source" class="px-4 py-2.5 border-b border-gray-50 last:border-0 text-[14px] flex justify-between gap-3"><span class="text-ink break-all">{{ r.source }}</span><b class="tabular-nums shrink-0">{{ num(r.sessions) }}</b></div>
+        <div v-if="!(dash.referrals || []).length" class="px-4 py-5 text-[14px] text-ink-muted text-center">{{ dash.referrals ? '아직 데이터가 없어요' : '10분 뒤 새로 받아오면 나타나요 (새로고침)' }}</div>
+      </div>
+      <div class="bg-white border border-gray-100 rounded-2xl overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-50 text-[15px] font-bold text-ink">국가별 방문자</div>
         <div v-for="c in dash.countries" :key="c.country" class="px-4 py-2.5 border-b border-gray-50 last:border-0 text-[14px] flex justify-between"><span class="text-ink">{{ c.country }}</span><b class="tabular-nums">{{ num(c.users) }}</b></div>
         <div v-if="!dash.countries.length" class="px-4 py-5 text-[14px] text-ink-muted text-center">아직 데이터가 없어요</div>
@@ -182,6 +187,11 @@
             <div class="px-4 py-3 border-b border-gray-50 text-sm font-bold text-ink">어디서 들어왔나 (유입 경로)</div>
             <div v-for="c in dash.channels" :key="c.channel" class="px-4 py-2 border-b border-gray-50 last:border-0 text-xs flex justify-between"><span class="text-ink">{{ channelLabel(c.channel) }}</span><span class="font-semibold text-ink">{{ num(c.sessions) }}</span></div>
             <div v-if="!dash.channels.length" class="px-4 py-4 text-xs text-ink-muted text-center">아직 데이터가 없어요</div>
+          </div>
+          <div class="card overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-50"><div class="text-sm font-bold text-ink">다른 사이트에서 온 곳</div><div class="text-[11px] text-ink-faint">유입 경로의 “다른 사이트”를 출처별로 나눈 것</div></div>
+            <div v-for="r in (dash.referrals || [])" :key="r.source" class="px-4 py-2 border-b border-gray-50 last:border-0 text-xs flex justify-between gap-3"><span class="text-ink break-all">{{ r.source }}</span><span class="font-semibold text-ink shrink-0">{{ num(r.sessions) }}</span></div>
+            <div v-if="!(dash.referrals || []).length" class="px-4 py-4 text-xs text-ink-muted text-center">{{ dash.referrals ? '아직 데이터가 없어요' : '10분 뒤 새로 받아오면 나타나요 (새로고침)' }}</div>
           </div>
           <div class="card overflow-hidden">
             <div class="px-4 py-3 border-b border-gray-50 text-sm font-bold text-ink">국가별 방문자</div>

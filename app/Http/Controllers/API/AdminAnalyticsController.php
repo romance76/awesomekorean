@@ -66,15 +66,15 @@ class AdminAnalyticsController extends Controller
     public function dashboard(Request $request)
     {
         $days = in_array((int) $request->query('days'), [7, 28, 90], true) ? (int) $request->query('days') : 7;
-        if ($request->boolean('fresh')) Cache::forget("ga-dash:$days");
+        if ($request->boolean('fresh')) Cache::forget("ga-dash2:$days");
 
-        $cached = Cache::get("ga-dash:$days");
+        $cached = Cache::get("ga-dash2:$days");
         if ($cached) return response()->json(['success' => true, 'data' => $cached]);
 
         [$data, $err] = GA::dashboard($days);
         if (!$data) return response()->json(['success' => false, 'message' => $err ?: '불러오지 못했어요.'], 422);
         $data['fetched_at'] = now()->toIso8601String();
-        Cache::put("ga-dash:$days", $data, 600);
+        Cache::put("ga-dash2:$days", $data, 600);
         return response()->json(['success' => true, 'data' => $data]);
     }
 

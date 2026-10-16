@@ -63,7 +63,9 @@
         <div class="h-full bg-amber-400 rounded-full transition-all" :style="{ width: music.progress + '%' }"></div>
       </div>
       <button @click="music.setMuted(!music.muted)" :class="music.muted ? 'text-red-400' : 'text-gray-500 hover:text-white'" :aria-label="music.muted ? '소리 켜기' : '소리 끄기'" :title="music.muted ? '소리 켜기' : '소리 끄기'"><AppIcon :name="music.muted ? 'volume-x' : 'volume-2'" :size="14" /></button>
-      <input type="range" min="0" max="100" v-model="volume" @input="setVolume" class="w-12 h-1 accent-amber-500" style="appearance:auto;" />
+      <input v-if="!isIOS" type="range" min="0" max="100" v-model="volume" @input="setVolume" class="w-12 h-1 accent-amber-500" style="appearance:auto;" />
+      <!-- 아이폰·아이패드는 웹페이지가 소리 크기를 바꿀 수 없다(iOS 제한) — 기기의 볼륨 버튼을 쓰도록 안내 -->
+      <span v-else class="text-[11px] text-gray-400 leading-tight whitespace-nowrap">볼륨은 기기 옆 버튼으로</span>
     </div>
 
     <!-- 플레이리스트 -->
@@ -127,6 +129,7 @@ let positionTimer = null
 let currentVideoId = null
 
 const isMobile = computed(() => window_w.value < 1024)
+const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
 let userPaused = false
 let wakeLock = null
 const isShortsPage = computed(() => route.path.startsWith('/shorts'))
