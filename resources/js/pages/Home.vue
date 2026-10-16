@@ -96,21 +96,16 @@
                   :stroke="Number(currentIndex.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
               </svg>
             </div>
-            <div v-if="watchlist.length" class="w-[86px] shrink-0 hidden sm:flex flex-col justify-center gap-1 border-l border-line pl-2.5">
-              <div v-for="w in watchlist.slice(0, 3)" :key="w.symbol" class="text-[10px]">
-                <div class="text-ink-muted truncate font-semibold">{{ w.symbol }}</div>
-                <div class="font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
-                  {{ Number(w.change_pct) >= 0 ? '▲' : '▼' }}{{ Math.abs(Number(w.change_pct)).toFixed(1) }}%
-                </div>
-              </div>
-            </div>
           </div>
-          <!-- 휴대폰: 오른쪽 열이 없으므로 대표 종목 3개를 아래에 한 줄로 -->
-          <div v-if="watchlist.length" class="sm:hidden mt-2.5 pt-2.5 border-t border-line grid grid-cols-3 gap-1.5">
-            <div v-for="w in watchlist.slice(0, 3)" :key="w.symbol" class="min-w-0">
-              <div class="text-[10.5px] font-extrabold text-ink truncate">{{ w.symbol }}</div>
-              <div class="text-[10.5px] font-bold" :class="Number(w.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
-                {{ Number(w.change_pct) >= 0 ? '▲' : '▼' }}{{ Math.abs(Number(w.change_pct)).toFixed(1) }}%
+          <!-- 내 관심종목(★) + 대표 종목이 오른쪽에서 왼쪽으로 쭉 흐름 (마우스를 올리면 멈춤) -->
+          <div v-if="stockMarquee.length" class="mt-2 pt-2 border-t border-line overflow-hidden stock-marquee-wrap" aria-label="내 관심종목과 대표 종목 시세">
+            <div class="stock-marquee flex w-max gap-4" :style="{ animationDuration: Math.max(14, stockMarquee.length * 2.6) + 's' }">
+              <div v-for="(w, k) in [...stockMarquee, ...stockMarquee]" :key="k" class="flex items-center gap-1.5 shrink-0 text-[11px] leading-none" :aria-hidden="k >= stockMarquee.length ? 'true' : undefined">
+                <span v-if="w.mine" class="text-amber-500">★</span>
+                <span class="font-extrabold text-ink">{{ w.symbol }}</span>
+                <span class="font-bold tabular-nums" :class="Number(w.change_pct) >= 0 ? 'text-[#16A34A]' : 'text-[#DC2626]'">
+                  {{ Number(w.change_pct) >= 0 ? '▲' : '▼' }}{{ Math.abs(Number(w.change_pct)).toFixed(1) }}%
+                </span>
               </div>
             </div>
           </div>
@@ -400,6 +395,7 @@ const headlinePage = ref(0)
 const weather = ref(null)
 const indices = ref([])
 const watchlist = ref([])
+const myWatch = ref([])           // 로그인한 회원의 관심종목 (홈 시세 마퀴에 먼저 흐름)
 const indexIdx = ref(0)
 let indexInterval = null
 const heroBanners = ref([])
@@ -661,7 +657,17 @@ async function loadMarketQuotes() {
     watchlist.value = data.data?.watchlist || []
     if (!indexInterval) startIndexRotation()
   } catch {}
+  if (auth.isLoggedIn) {
+    try { const { data } = await axios.get('/api/stocks/watchlist'); myWatch.value = data.data || [] } catch {}
+  }
 }
+// 시세 마퀴: 내 관심종목(★) 먼저, 이어서 대표 종목 (겹치는 건 한 번만)
+const stockMarquee = computed(() => {
+  const mine = myWatch.value.filter(w => w.change_pct != null).map(w => ({ symbol: w.symbol, change_pct: w.change_pct, mine: true }))
+  const seen = new Set(mine.map(w => w.symbol))
+  const rep = watchlist.value.filter(w => w.change_pct != null && !seen.has(w.symbol)).map(w => ({ symbol: w.symbol, change_pct: w.change_pct, mine: false }))
+  return [...mine, ...rep]
+})
 
 // 외부 공개 API(무인증) 직접 호출 — 사이트 axios 인스턴스는 Authorization 헤더가
 // 기본 적용돼 있어 제3자 API에 토큰이 새지 않도록 순수 fetch 사용
@@ -787,6 +793,11 @@ onMounted(async () => {
 .live-swap-leave-to { opacity: 0; transform: translateY(-6px); }
 /* 라이브 티커 marquee — 움직임은 스크립트(tickerFrame)가 transform 으로 처리 */
 .ticker-track { will-change: transform; }
+/* 인기 주식 칸 시세 마퀴 */
+.stock-marquee { animation: stock-marquee 30s linear infinite; will-change: transform; }
+.stock-marquee-wrap:hover .stock-marquee { animation-play-state: paused; }
+@keyframes stock-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .stock-marquee { animation: none; } }
 
 /* 실시간 접속 펄스 */
 .live-pulse {
