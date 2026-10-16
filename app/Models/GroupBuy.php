@@ -3,7 +3,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 class GroupBuy extends Model
 {
-    protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','current_participants','lat','lng','city','state','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
+    protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','total_quantity','current_participants','lat','lng','city','state','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
     protected $casts = ['images'=>'array','discount_tiers'=>'array','deadline'=>'datetime','approved_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','original_price'=>'decimal:2','group_price'=>'decimal:2','is_approved'=>'boolean'];
     protected $appends = ['display_status'];
     // 화면에 보이는 상태 — 모집중인데 마감일이 지났으면 'ended'(마감). DB의 status 는 그대로 둠(환불·정산은 별도 승인 사항)

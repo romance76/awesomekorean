@@ -71,6 +71,47 @@ class GroupBuyController extends Controller
         return response()->json(['success' => true, 'data' => $ids]);
     }
 
+    // 내가 연 공동구매 관리(대시보드): 진행 상태·참가자 현황. 참가자 연락처(전화·이메일)는 완료·수락 + 수수료 결제 기능이 생기기 전까지 열지 않는다.
+    public function myOpened()
+    {
+        $rows = GroupBuy::where('user_id', auth()->id())->orderByDesc('id')->limit(50)->get();
+        $parts = GroupBuyParticipant::whereIn('group_buy_id', $rows->pluck('id'))
+            ->where('status', '!=', 'cancelled')
+            ->with('user:id,name,nickname')
+            ->orderByDesc('id')->get()->groupBy('group_buy_id');
+
+        $data = $rows->map(function ($gb) use ($parts) {
+            $list = $parts->get($gb->id, collect());
+            $sold = (int) $list->whereIn('status', ['pending', 'paid'])->sum('quantity');
+            $stage = $gb->rejection_reason ? 'rejected'
+                : (!$gb->is_approved ? 'pending_approval'
+                : ($gb->display_status === 'ended' ? 'ended' : $gb->status));
+            return [
+                'id' => $gb->id,
+                'title' => $gb->title,
+                'stage' => $stage,   // pending_approval / rejected / recruiting / confirmed / completed / cancelled / ended
+                'rejection_reason' => $gb->rejection_reason,
+                'tier' => GroupBuyTier::tier($gb->group_price, $gb->original_price, $gb->max_participants, $gb->total_quantity),
+                'price' => $gb->current_price,
+                'deadline' => $gb->deadline,
+                'current_participants' => (int) $gb->current_participants,
+                'min_participants' => (int) $gb->min_participants,
+                'max_participants' => $gb->max_participants,
+                'total_quantity' => $gb->total_quantity,
+                'sold_quantity' => $sold,
+                'participants' => $list->map(fn ($p) => [
+                    'id' => $p->id,
+                    'name' => $p->user->nickname ?: $p->user->name,
+                    'quantity' => (int) $p->quantity,
+                    'status' => $p->status,
+                    'joined_at' => $p->created_at,
+                ])->values(),
+            ];
+        })->values();
+
+        return response()->json(['success' => true, 'data' => $data, 'contacts_locked' => true]);
+    }
+
     public function show($id)
     {
         $gb = GroupBuy::with(['user:id,name,nickname,avatar,lifetime_points', 'participants' => function($q) {
@@ -133,6 +174,7 @@ class GroupBuyController extends Controller
             'original_price' => 'required|numeric|min:0',
             'min_participants' => 'required|integer|min:2',
             'max_participants' => 'nullable|integer|min:2',
+            'total_quantity' => 'required|integer|min:1|max:100000',
             'category' => 'required|string',
             'end_type' => 'required|in:target_met,time_limit,flexible',
             'payment_method' => 'required|in:point,none',   // 참가자는 카드로 결제하지 않는다(2026-10-16)
@@ -144,8 +186,13 @@ class GroupBuyController extends Controller
 
         // 등급: 예상 최대 총액 $500 미만이면 소액(자동 승인, 인원 50명·기간 2주 이하), 그 이상이면 사업자(등록증 + 관리자 승인, 기간 1개월 이하)
         $isStaff = in_array(auth()->user()->role ?? '', ['admin', 'super_admin', 'moderator'], true);
-        $tier = GroupBuyTier::tier($request->group_price, $request->original_price, $request->max_participants);
+        $tier = GroupBuyTier::tier($request->group_price, $request->original_price, $request->max_participants, $request->total_quantity);
         if (!$isStaff) {
+            // 개설자는 동시에 하나만: 승인 대기·모집 중인 공동구매가 있으면 새로 열 수 없다(반려·취소·마감된 것은 제외)
+            $hasOpen = GroupBuy::where('user_id', auth()->id())->where('status', 'recruiting')->whereNull('rejection_reason')->stillOpen()->exists();
+            if ($hasOpen) {
+                return response()->json(['success' => false, 'message' => '진행 중인 공동구매가 있어요. 끝나거나 취소된 뒤에 새로 열 수 있어요. (개설자는 동시에 1개)'], 422);
+            }
             if (!$request->deadline) {
                 return response()->json(['success' => false, 'message' => '마감일을 정해 주세요. (소액 공동구매는 최대 ' . GroupBuyTier::SMALL_MAX_DAYS . '일, 그 이상은 최대 ' . GroupBuyTier::BUSINESS_MAX_DAYS . '일)'], 422);
             }
@@ -185,6 +232,7 @@ class GroupBuyController extends Controller
             'discount_tiers' => $request->discount_tiers ? json_decode($request->discount_tiers, true) : null,
             'min_participants' => $request->min_participants,
             'max_participants' => $request->max_participants,
+            'total_quantity' => $request->total_quantity,
             'current_participants' => 0,
             'lat' => $request->lat,
             'lng' => $request->lng,
@@ -338,6 +386,14 @@ class GroupBuyController extends Controller
         }
 
         $quantity = max(1, (int) $request->input('quantity', 1));
+        // 총 수량이 정해진 공동구매는 남은 수량까지만 (소액 공동구매 50개 한도)
+        if ($gb->total_quantity) {
+            $taken = (int) GroupBuyParticipant::where('group_buy_id', $gb->id)->whereIn('status', ['pending', 'paid'])->sum('quantity');
+            if ($taken + $quantity > (int) $gb->total_quantity) {
+                $left = max(0, (int) $gb->total_quantity - $taken);
+                return response()->json(['success' => false, 'message' => $left > 0 ? "남은 수량은 {$left}개예요. 수량을 줄여 주세요." : '준비한 수량이 모두 찼어요.'], 400);
+            }
+        }
         // $1 = 100P
         $amount = $gb->current_price * $quantity * 100;
         $paymentType = 'none';

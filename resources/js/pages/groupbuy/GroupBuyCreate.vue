@@ -86,6 +86,14 @@
         </div>
       </div>
 
+      <!-- 7-0. 총 수량 -->
+      <div>
+        <label class="input-label">총 수량(개) <span class="text-red-400">*</span>
+          <span class="text-xs text-ink-muted font-normal">참가자가 살 수 있는 전체 개수</span></label>
+        <input v-model.number="form.total_quantity" type="number" min="1" placeholder="예: 30"
+          class="input-soft px-3" />
+      </div>
+
       <!-- 7-1. 등급 안내 (가격·인원에 따라 자동) -->
       <div class="rounded-xl p-3 text-xs leading-relaxed"
         :class="isSmall ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'">
@@ -94,10 +102,10 @@
           <span v-if="estTotal > 0" class="font-normal">(예상 최대 총액 ${{ estTotal.toLocaleString() }})</span>
         </div>
         <div v-if="isSmall">
-          총액 ${{ SMALL_TOTAL_LIMIT }} 미만 · 최대 {{ SMALL_MAX_PEOPLE }}명 · 마감 {{ SMALL_MAX_DAYS }}일 이내. 사업자 등록증 없이 등록할 수 있어요.
+          총액 ${{ SMALL_TOTAL_LIMIT }} 미만 · 최대 {{ SMALL_MAX_PEOPLE }}명 · {{ SMALL_MAX_QUANTITY }}개 · 마감 {{ SMALL_MAX_DAYS }}일 이내. 사업자 등록증 없이 등록할 수 있어요.
         </div>
         <div v-else>
-          예상 총액이 ${{ SMALL_TOTAL_LIMIT }} 이상이거나 인원이 {{ SMALL_MAX_PEOPLE }}명을 넘으면 사업자 등록증과 관리자 승인이 필요하고, 마감은 {{ BUSINESS_MAX_DAYS }}일(1개월) 이내예요.
+          예상 총액이 ${{ SMALL_TOTAL_LIMIT }} 이상이거나 인원이 {{ SMALL_MAX_PEOPLE }}명, 수량이 {{ SMALL_MAX_QUANTITY }}개를 넘으면 사업자 등록증과 관리자 승인이 필요하고, 마감은 {{ BUSINESS_MAX_DAYS }}일(1개월) 이내예요.
           <button v-if="smallFit" type="button" @click="fitSmall" class="underline font-semibold ml-1">소액으로 맞추기 (최대 {{ smallFit }}명)</button>
         </div>
       </div>
@@ -263,6 +271,7 @@ const form = reactive({
   product_url: '',
   min_participants: 2,
   max_participants: 50,
+  total_quantity: null,
   deadline: '',
   end_type: 'target_met',
   payment_method: 'none',
@@ -274,30 +283,34 @@ const form = reactive({
 // 등급 — 서버 App\Support\GroupBuyTier 와 같은 숫자(바꿀 때 함께 바꾼다)
 const SMALL_TOTAL_LIMIT = 500
 const SMALL_MAX_PEOPLE = 50
+const SMALL_MAX_QUANTITY = 50
 const SMALL_MAX_DAYS = 14
 const BUSINESS_MAX_DAYS = 31
 const maxPeopleCap = 10000
 
-// 예상 최대 총액 = (공동구매 최저가 || 원래 가격) × 최대 인원
+// 예상 최대 총액 = (공동구매 최저가 || 원래 가격) × (총 수량 || 최대 인원)
 const estTotal = computed(() => {
   const price = Number(form.group_price || form.original_price || 0)
-  return price * Number(form.max_participants || 0)
+  return price * Number(form.total_quantity || form.max_participants || 0)
 })
-// 최대 인원이 없거나 50명을 넘으면 총액을 알 수 없으므로 사업자 등급
+// 최대 인원이 없거나 50명을 넘거나, 수량이 50개를 넘으면 사업자 등급
 const isSmall = computed(() => {
   const max = Number(form.max_participants || 0)
-  if (max < 1 || max > SMALL_MAX_PEOPLE) return false
+  const qty = Number(form.total_quantity || 0)
+  if (max < 1 || max > SMALL_MAX_PEOPLE || qty > SMALL_MAX_QUANTITY) return false
   return estTotal.value < SMALL_TOTAL_LIMIT
 })
-// 소액으로 유지할 수 있는 최대 인원 (2명도 못 채우면 0)
+// 소액으로 유지할 수 있는 최대 인원·수량 (2개도 못 채우면 0)
 const smallFit = computed(() => {
   const price = Number(form.group_price || form.original_price || 0)
   if (price <= 0) return 0
-  const fit = Math.min(SMALL_MAX_PEOPLE, Math.floor((SMALL_TOTAL_LIMIT - 0.01) / price))
+  const fit = Math.min(SMALL_MAX_PEOPLE, SMALL_MAX_QUANTITY, Math.floor((SMALL_TOTAL_LIMIT - 0.01) / price))
   return fit >= 2 ? fit : 0
 })
 function fitSmall() {
-  if (smallFit.value) form.max_participants = smallFit.value
+  if (!smallFit.value) return
+  form.max_participants = Math.min(Number(form.max_participants) || smallFit.value, smallFit.value)
+  form.total_quantity = Math.min(Number(form.total_quantity) || smallFit.value, smallFit.value)
   if (form.min_participants > form.max_participants) form.min_participants = Math.min(2, form.max_participants)
 }
 
@@ -363,6 +376,7 @@ async function submit() {
   if (!form.title.trim()) { error.value = '제목을 입력해주세요'; return }
   if (!form.content.trim()) { error.value = '상세 설명을 입력해주세요'; return }
   if (!form.max_participants || form.max_participants < 2) { error.value = '최대 인원을 입력해주세요'; return }
+  if (!form.total_quantity || form.total_quantity < 1) { error.value = '총 수량(개)을 입력해주세요'; return }
   if (!form.deadline) { error.value = '마감일을 정해주세요'; return }
   if (form.deadline > deadlineMax.value) {
     error.value = isSmall.value
@@ -385,6 +399,7 @@ async function submit() {
     if (form.product_url) fd.append('product_url', form.product_url)
     fd.append('min_participants', form.min_participants)
     fd.append('max_participants', form.max_participants)
+    fd.append('total_quantity', form.total_quantity)
     if (form.deadline) fd.append('deadline', form.deadline)
     fd.append('end_type', form.end_type)
     fd.append('payment_method', form.payment_method)

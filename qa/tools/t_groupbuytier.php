@@ -20,5 +20,10 @@ check('small fit: $10 -> 49 people', T::maxPeopleForSmall(10, 0) === 49);
 check('small fit capped at 50', T::maxPeopleForSmall(1, 0) === 50 && T::maxPeopleForSmall(0, 0) === 50);
 check('small fit: $300 fits only 1 person -> 0 (not possible)', T::maxPeopleForSmall(300, 0) === 0);
 check('small fit result is really small', T::tier(30, 0, T::maxPeopleForSmall(30, 0)) === T::SMALL && T::tier(30, 0, T::maxPeopleForSmall(30, 0) + 1) === T::BUSINESS);
+check('quantity over 50 is business even if people and total are small', T::tier(1, 0, 10, 51) === T::BUSINESS);
+check('quantity 50 at $9 (450) is small', T::tier(9, 0, 10, 50) === T::SMALL);
+check('total uses quantity when given: $30 x 10 people but 40 items = 1200 -> business', T::tier(30, 0, 10, 40) === T::BUSINESS);
+check('total uses quantity when given: $30 x 50 people but only 10 items = 300 -> small', T::tier(30, 0, 50, 10) === T::SMALL);
+check('items falls back to max people', T::items(30, null) === 30 && T::items(30, 0) === 30 && T::items(30, 12) === 12);
 echo "\n$ok passed, $bad failed\n";
 }
