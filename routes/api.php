@@ -837,6 +837,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::post('/system/clear-cache', [AdminSettingsController::class, 'clearCache'])->middleware('role:admin,super_admin');
     Route::post('/system/sync-all-content', [AdminSettingsController::class, 'syncAllContent'])->middleware('role:admin,super_admin');
     Route::get('/system/sync-all-content/status', [AdminSettingsController::class, 'syncAllContentStatus']);
+    Route::get('/system/auto-collect-status', [AdminSettingsController::class, 'autoCollectStatus']);
     Route::post('/settings/company', [AdminSettingsController::class, 'saveCompany'])->middleware('role:admin,super_admin');
     Route::post('/settings/site', [AdminSettingsController::class, 'saveSite'])->middleware('role:admin,super_admin');
     Route::post('/settings/footer', [AdminSettingsController::class, 'saveFooter'])->middleware('role:admin,super_admin');

@@ -52,6 +52,44 @@
     <summary class="text-xs text-ink-muted cursor-pointer select-none">자세한 로그 보기</summary>
     <pre class="mt-2 text-xs bg-surface rounded-lg p-3 whitespace-pre-wrap max-h-64 overflow-y-auto">{{ syncLog }}</pre>
   </details>
+
+  <!-- 자동(스케줄러) 수집 현황 — 위의 체크리스트는 버튼을 누른 수동 실행의 기록이고, 자동 수집은 여기에 나온다 -->
+  <div class="mt-4 pt-3 border-t border-gray-100">
+    <div class="flex items-center justify-between gap-2 flex-wrap">
+      <div class="text-sm font-bold text-ink">자동 수집 현황</div>
+      <button @click="loadAuto" :disabled="autoLoading" class="text-xs text-amber-700 font-bold disabled:opacity-50">{{ autoLoading ? '불러오는 중...' : '새로고침' }}</button>
+    </div>
+    <div class="text-[11px] text-ink-muted mt-0.5 leading-relaxed">서버가 알아서 돌리는 수집이에요. 위 체크리스트는 버튼을 누른 때의 기록만 보여서 날짜가 오래돼 보일 수 있어요.</div>
+    <div v-if="autoPaused" class="mt-2 text-xs rounded-lg bg-amber-50 text-amber-800 px-3 py-2">비상 스위치로 자동 수집(음악·뉴스·쇼츠)이 멈춰 있어요.</div>
+
+    <div v-if="autoError" class="mt-2 text-xs text-red-600">{{ autoError }}</div>
+    <div v-else-if="autoRows.length" class="mt-2 space-y-1.5">
+      <div v-for="r in autoRows" :key="r.key" class="flex items-start gap-2 text-xs rounded-lg border px-2.5 py-2" :class="autoBox(r.state)">
+        <span class="mt-1 w-2 h-2 rounded-full shrink-0" :class="autoDot(r.state)"></span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="font-semibold">{{ r.label }}</span>
+            <span class="text-[11px]" :class="r.state === 'fail' ? 'text-red-600 font-bold' : r.state === 'late' ? 'text-amber-700 font-bold' : 'text-ink-muted'">{{ autoStateLabel(r) }}</span>
+          </div>
+          <div class="text-[11px] text-ink-muted mt-0.5">
+            {{ r.schedule }}
+            <template v-if="r.last_ok_at"> · 마지막 성공 {{ ago(r.last_ok_at) }}</template>
+            <template v-else-if="r.state === 'never'"> · 아직 자동 실행 기록이 없어요 (다음 실행부터 기록돼요)</template>
+            <template v-if="r.last_fail_at && r.state === 'fail'"> · 마지막 실패 {{ ago(r.last_fail_at) }}</template>
+          </div>
+          <div v-if="r.has_content_metric" class="text-[11px] mt-0.5" :class="r.state === 'late' ? 'text-amber-700' : 'text-ink-muted'">
+            새 콘텐츠가 마지막으로 들어온 때: {{ r.latest_content_at ? ago(r.latest_content_at) : '없음' }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else-if="autoLoading" class="mt-2 text-xs text-ink-muted">불러오는 중...</div>
+
+    <details v-if="autoLog" class="mt-2">
+      <summary class="text-xs text-ink-muted cursor-pointer select-none">자동 수집 로그 끝부분 (실패 이유 확인용)</summary>
+      <pre class="mt-2 text-[11px] bg-surface rounded-lg p-3 whitespace-pre-wrap break-words max-h-72 overflow-y-auto">{{ autoLog }}</pre>
+    </details>
+  </div>
 </div>
 </template>
 
@@ -170,7 +208,43 @@ async function checkExisting() {
   } catch {}
 }
 
-onMounted(checkExisting)
+// ─── 자동 수집 현황 ───
+const autoRows = ref([])
+const autoLog = ref('')
+const autoPaused = ref(false)
+const autoLoading = ref(false)
+const autoError = ref('')
+
+async function loadAuto() {
+  autoLoading.value = true
+  autoError.value = ''
+  try {
+    const { data } = await axios.get('/api/admin/system/auto-collect-status')
+    autoRows.value = data.data || []
+    autoLog.value = data.log_tail || ''
+    autoPaused.value = !!data.paused
+  } catch (e) {
+    autoError.value = e.response?.data?.message || '자동 수집 현황을 불러오지 못했어요'
+  }
+  autoLoading.value = false
+}
+
+// "3시간 전", "2일 전"
+function ago(iso) {
+  const t = new Date(iso).getTime()
+  if (!t) return ''
+  const sec = Math.max(0, Math.floor((Date.now() - t) / 1000))
+  if (sec < 90) return '방금'
+  if (sec < 3600) return `${Math.floor(sec / 60)}분 전`
+  if (sec < 86400) return `${Math.floor(sec / 3600)}시간 전`
+  const d = Math.floor(sec / 86400)
+  return `${d}일 전 (${new Date(t).getMonth() + 1}/${new Date(t).getDate()})`
+}
+const autoStateLabel = r => ({ ok: '정상', late: '새 콘텐츠가 오래 없어요', fail: '마지막 실행 실패', never: '기록 대기' }[r.state] || r.state)
+const autoDot = s => ({ ok: 'bg-green-500', late: 'bg-amber-500', fail: 'bg-red-500', never: 'bg-gray-300' }[s] || 'bg-gray-300')
+const autoBox = s => ({ ok: 'border-gray-100', late: 'border-amber-300 bg-amber-50/50', fail: 'border-red-200 bg-red-50/50', never: 'border-gray-100' }[s] || 'border-gray-100')
+
+onMounted(() => { checkExisting(); loadAuto() })
 
 onUnmounted(() => {
   clearInterval(poll)

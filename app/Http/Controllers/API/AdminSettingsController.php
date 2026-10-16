@@ -1072,6 +1072,20 @@ class AdminSettingsController extends Controller
      * (실제 생성은 시간당 체크인 루틴이 수행), 실시간 생성 진행률(완료/목표)을
      * info_generation_status에서 가져와 detail로 덧붙인다.
      */
+    /**
+     * GET /api/admin/system/auto-collect-status — 자동(스케줄러) 수집의 항목별 마지막 성공/실패 시각과 새 콘텐츠가 마지막으로 들어온 시각.
+     * 위의 syncAllContentStatus 는 관리자가 버튼을 눌렀을 때의 기록이라 자동 수집은 거기에 나오지 않는다.
+     */
+    public function autoCollectStatus() {
+        return response()->json([
+            'success' => true,
+            'data' => \App\Support\AutoCollectStatus::snapshot(),
+            'log_tail' => \App\Support\AutoCollectStatus::logTail(),
+            'paused' => \App\Support\EmergencySwitches::on('auto_collect'),
+            'now' => now()->toIso8601String(),
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+
     public function syncAllContentStatus() {
         $logPath = storage_path('logs/manual-sync-all.log');
         $progressPath = storage_path('logs/manual-sync-all-progress.json');
