@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!hideOnChatRoom" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-50 md:hidden"
+  <div v-if="!hideOnChatRoom && !pageKeyboardOpen" class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-100 z-50 md:hidden"
        style="padding-bottom: var(--sab)">
     <!-- 스와이프 가능한 탭 영역 -->
     <div ref="scrollEl" class="flex items-center h-13 overflow-x-auto scrollbar-hide scroll-smooth"
@@ -31,6 +31,7 @@ import { useRoute, RouterLink } from 'vue-router'
 import { useNavFavoritesStore } from '../stores/navFavorites'
 import AppIcon from './AppIcon.vue'
 import { menuIcon, menuChipColor } from '../utils/menuIcons'
+import { pageKeyboardOpen } from '../composables/useKeyboardViewport'
 
 const route = useRoute()
 const navStore = useNavFavoritesStore()

@@ -8,7 +8,7 @@
   </div>
 
   <!-- 모바일: 음악은 항상 아주 얇은 띠로 — 채팅·쪽지 같은 전체화면 창에서는 맨 아래, 그 밖의 화면에서는 하단 메뉴 바로 위 -->
-  <div v-if="showStrip && !(immersiveActive && keyboardOpenGlobal)"
+  <div v-if="showStrip && !pageKeyboardOpen && !(immersiveActive && keyboardOpenGlobal)"
     class="fixed left-0 right-0 z-[9998] bg-[#1a1a2e] text-white flex items-center gap-2 px-3 cursor-pointer select-none overflow-hidden"
     :class="immersiveActive ? '' : 'rounded-t-lg'"
     :style="immersiveActive
@@ -104,7 +104,7 @@ import { useRoute } from 'vue-router'
 import { useMusicStore } from '../stores/music'
 import { immersiveActive, dockExtent } from '../composables/useImmersive'
 import { useChatStore } from '../stores/chat'
-import { keyboardOpenGlobal } from '../composables/useKeyboardViewport'
+import { keyboardOpenGlobal, pageKeyboardOpen } from '../composables/useKeyboardViewport'
 import AppIcon from './AppIcon.vue'
 
 const music = useMusicStore()

@@ -14,6 +14,19 @@ import { ref, watch, onMounted, onUnmounted } from 'vue'
 // 어느 전체화면 창이든 키보드가 열려 있으면 true — 음악 띠가 키보드와 입력창 사이에 끼어 보이지 않도록 숨기는 데 쓴다
 export const keyboardOpenGlobal = ref(false)
 
+// 일반 페이지(검색창·입력칸)에서 휴대폰 키보드가 올라와 있으면 true.
+// iOS Safari 는 키보드가 올라오면 보이는 영역만 줄이고 화면 아래 고정 요소(하단 메뉴·음악 띠)를 키보드 바로 위, 페이지 한가운데에 떠 보이게 한다
+// → 키보드가 열려 있는 동안은 하단 메뉴·음악 띠를 숨긴다 (닫히면 원래대로)
+export const pageKeyboardOpen = ref(false)
+if (typeof window !== 'undefined' && !window.__akKbWatch) {
+  window.__akKbWatch = true
+  const isMobileW = () => window.innerWidth < 768
+  const upd = () => { pageKeyboardOpen.value = isMobileW() && textInputFocused() }
+  window.addEventListener('focusin', () => setTimeout(upd, 0))
+  window.addEventListener('focusout', () => setTimeout(upd, 150))   // 입력칸 사이를 옮겨 갈 때 깜빡이지 않게 잠깐 기다림
+  window.addEventListener('pagehide', () => { pageKeyboardOpen.value = false })
+}
+
 function textInputFocused() {
   const a = typeof document !== 'undefined' ? document.activeElement : null
   return !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'submit', 'file'].includes(a.type)) || a.isContentEditable)
