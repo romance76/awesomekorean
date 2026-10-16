@@ -298,7 +298,8 @@ async function loadPage(p = 1) {
   if (viewScope.value === 'national') params.scope = 'national'
   else if (viewScope.value === 'mine' && auth.user?.state) { params.scope = 'mine'; params.state = auth.user.state }
 
-  if (radius.value !== '0') {
+  // 내 지역/전국 보기는 주(State) 기준이다. 반경 검색은 '전체' 보기에서만 쓴다(등록 화면은 좌표를 저장하지 않아 반경으로 거르면 글이 모두 빠진다)
+  if (viewScope.value === 'all' && radius.value !== '0') {
     let lat, lng
     const idx = parseInt(selectedCityIdx.value)
     if (idx >= 0) {
