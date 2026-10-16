@@ -122,7 +122,7 @@ trait CompressesUploads
      *  - 저장 이름은 무작위 + 허용 목록의 확장자로 우리가 정한다 (.php/.html 등이 그대로 저장돼 실행/스크립트로 열리는 것 방지)
      * @return string public 디스크 안의 상대 경로
      */
-    protected function storeSafeFile(UploadedFile $file, string $dir, array $allowed): string
+    protected function storeSafeFile(UploadedFile $file, string $dir, array $allowed, string $disk = 'public'): string
     {
         $mime = (string) $file->getMimeType();
         $ext = $allowed[$mime] ?? null;
@@ -135,7 +135,17 @@ trait CompressesUploads
             throw \Illuminate\Validation\ValidationException::withMessages(['file' => '허용되지 않는 파일 형식이에요. (PDF, 이미지, 문서, 압축 파일만 가능)']);
         }
         $name = \Illuminate\Support\Str::random(40) . '.' . $ext;
-        return $file->storeAs($dir, $name, 'public');
+        return $file->storeAs($dir, $name, $disk);
+    }
+
+    /**
+     * 사업자등록증처럼 남에게 보이면 안 되는 서류를 비공개 디스크(local, 주소로 직접 열 수 없음)에 저장한다.
+     * 열람은 권한을 확인하는 전용 주소로만 한다.
+     * @return string local 디스크 안의 상대 경로
+     */
+    protected function storePrivateDocument(UploadedFile $file, string $dir): string
+    {
+        return $this->storeSafeFile($file, $dir, self::SAFE_DOC_TYPES, 'local');
     }
 
     /**

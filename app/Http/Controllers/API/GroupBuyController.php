@@ -77,6 +77,26 @@ class GroupBuyController extends Controller
         return response()->json(['success' => true, 'data' => $ids]);
     }
 
+    // 사업자등록증 열람 — 올린 본인과 관리자·운영자만. 파일은 비공개 디스크에 있고(예전 것은 공개 디스크), 주소로 직접 열 수 없다.
+    public function businessDoc($id)
+    {
+        $gb = GroupBuy::findOrFail($id);
+        $user = auth()->user();
+        $isStaff = in_array($user->role ?? '', ['admin', 'super_admin', 'moderator'], true);
+        if (!$isStaff && $gb->user_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => '권한이 없습니다.'], 403);
+        }
+        $path = ltrim(preg_replace('#^/storage/#', '', (string) ($gb->getAttributes()['business_doc'] ?? '')), '/');
+        if ($path === '') {
+            return response()->json(['success' => false, 'message' => '등록된 사업자 등록증이 없습니다.'], 404);
+        }
+        $disk = Storage::disk('local')->exists($path) ? 'local' : (Storage::disk('public')->exists($path) ? 'public' : null);
+        if (!$disk) {
+            return response()->json(['success' => false, 'message' => '파일을 찾을 수 없습니다.'], 404);
+        }
+        return Storage::disk($disk)->response($path, null, ['Cache-Control' => 'private, no-store', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
     // 내가 연 공동구매 관리(대시보드): 진행 상태·참가자 현황. 참가자 연락처(전화·이메일)는 완료·수락 + 수수료 결제 기능이 생기기 전까지 열지 않는다.
     public function myOpened()
     {
@@ -223,7 +243,7 @@ class GroupBuyController extends Controller
 
         $businessDoc = null;
         if ($request->hasFile('business_doc')) {
-            $businessDoc = preg_replace('#^/storage/#', '', $this->storeDocument($request->file('business_doc'), 'groupbuys/docs'));
+            $businessDoc = $this->storePrivateDocument($request->file('business_doc'), 'groupbuys/docs');   // 비공개 디스크: 주소로 직접 열 수 없음
         }
 
         $gb = GroupBuy::create([
@@ -301,10 +321,8 @@ class GroupBuyController extends Controller
         }
 
         if ($request->hasFile('business_doc')) {
-            if ($gb->business_doc) {
-                Storage::disk('public')->delete($gb->business_doc);
-            }
-            $data['business_doc'] = preg_replace('#^/storage/#', '', $this->storeDocument($request->file('business_doc'), 'groupbuys/docs'));
+            $gb->deleteBusinessDoc();
+            $data['business_doc'] = $this->storePrivateDocument($request->file('business_doc'), 'groupbuys/docs');
         }
 
         $gb->update(array_filter($data, fn($v) => $v !== null));
@@ -334,9 +352,7 @@ class GroupBuyController extends Controller
                 Storage::disk('public')->delete($img);
             }
         }
-        if ($gb->business_doc) {
-            Storage::disk('public')->delete($gb->business_doc);
-        }
+        $gb->deleteBusinessDoc();
 
         $gb->update(['status' => 'cancelled']);
         $gb->delete();

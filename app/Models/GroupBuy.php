@@ -1,11 +1,33 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 class GroupBuy extends Model
 {
     protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','total_quantity','current_participants','lat','lng','city','state','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
     protected $casts = ['images'=>'array','discount_tiers'=>'array','deadline'=>'datetime','approved_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','original_price'=>'decimal:2','group_price'=>'decimal:2','is_approved'=>'boolean'];
-    protected $appends = ['display_status'];
+    // 사업자등록증 경로는 응답에 싣지 않는다(공개 목록·상세로 새어 나가지 않게). 있는지만 has_business_doc 로 알려 주고, 열람은 GroupBuyController::businessDoc 로만 한다.
+    protected $hidden = ['business_doc'];
+    protected $appends = ['display_status', 'has_business_doc'];
+
+    protected static function booted()
+    {
+        // 어떤 경로로 지워지든(작성자·관리자·선택 삭제) 올려 둔 서류 파일이 서버에 남지 않게 한다
+        static::deleted(function (GroupBuy $gb) { $gb->deleteBusinessDoc(); });
+    }
+
+    public function getHasBusinessDocAttribute() { return !empty($this->attributes['business_doc'] ?? null); }
+
+    /** 사업자등록증 파일을 비공개·공개 디스크 양쪽에서 지운다(예전에 공개 디스크에 저장된 것 포함) */
+    public function deleteBusinessDoc(): void
+    {
+        $path = $this->attributes['business_doc'] ?? null;
+        if (!$path) return;
+        $path = ltrim(preg_replace('#^/storage/#', '', $path), '/');
+        Storage::disk('local')->delete($path);
+        Storage::disk('public')->delete($path);
+    }
+
     // 화면에 보이는 상태 — 모집중인데 마감일이 지났으면 'ended'(마감). DB의 status 는 그대로 둠(환불·정산은 별도 승인 사항)
     public function getDisplayStatusAttribute() {
         if (($this->attributes['status'] ?? null) === 'recruiting' && $this->deadline && $this->deadline->isPast()) return 'ended';

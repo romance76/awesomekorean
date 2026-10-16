@@ -197,6 +197,7 @@ Route::get('/recipes/{id}/comments', [RecipeController::class, 'comments']);
 Route::get('/groupbuys', [GroupBuyController::class, 'index']);
 Route::get('/groupbuys/my-joined', [GroupBuyController::class, 'myJoined'])->middleware('auth:api');
 Route::get('/groupbuys/my-opened', [GroupBuyController::class, 'myOpened'])->middleware('auth:api');
+Route::get('/groupbuys/{id}/business-doc', [GroupBuyController::class, 'businessDoc'])->middleware('auth:api');
 Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
 Route::get('/events', [EventController::class, 'index']);
