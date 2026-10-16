@@ -330,7 +330,6 @@ const extraTopup = ref(0)
 const baseCharge = computed(() => cardNeed.value > 0 ? Math.max(cardNeed.value, minCents.value) : 0)
 const charge = computed(() => baseCharge.value > 0 ? baseCharge.value + extraTopup.value : 0)   // 카드로 결제할 금액
 const topupAmount = computed(() => charge.value > 0 ? charge.value - cardNeed.value : 0)        // 광고 잔액으로 적립될 금액
-watch([total, useCredit], () => { payMin.value = false; minDeclined.value = false })   // 금액이 바뀌면 다시 묻는다
 function cancelApply() {
   Object.assign(form, { hours: [], extra_states: [] }); payMin.value = false; minDeclined.value = false
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -470,6 +469,9 @@ async function cancel(m) {
     await Promise.all([auth.fetchUser(), loadAvailability(), loadMine()])
   } catch (e) { site.toast(e.response?.data?.message || '취소 실패', 'error') }
 }
+
+// 금액이 바뀌면 최소 금액 동의를 다시 묻는다 (total 이 쓰는 값들이 모두 정의된 뒤에 걸어야 함)
+watch([total, useCredit], () => { payMin.value = false; minDeclined.value = false })   // 금액이 바뀌면 다시 묻는다
 
 onMounted(async () => {
   const myState = (auth.user?.state || '').toUpperCase()
