@@ -1,7 +1,7 @@
 <template>
 <Teleport to="body">
   <Transition name="modal">
-    <div v-if="visible" class="fixed inset-0 z-[100] flex items-center justify-center" @click.self="type !== 'alert' && onCancel()">
+    <div v-if="visible" class="fixed inset-0 z-[10100] flex items-center justify-center" @click.self="type !== 'alert' && onCancel()">
       <div class="absolute inset-0 bg-black/40"></div>
       <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-modal">
         <!-- 헤더 -->
