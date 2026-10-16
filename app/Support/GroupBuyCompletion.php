@@ -58,21 +58,24 @@ class GroupBuyCompletion
     {
         if (!in_array($gb->status, ['recruiting', 'confirmed'], true) || $gb->accepted_at) return '이미 끝났거나 수락할 수 없는 공동구매예요.';
         if (!$gb->is_approved) return '아직 승인되지 않은 공동구매예요.';
-        $t = self::totals($gb);
-        if ($t['people'] < 1) return '참가자가 아직 없어요.';
-        $deadlinePassed = $gb->deadline && $gb->deadline->isPast();
-        if (!$deadlinePassed && $gb->status !== 'confirmed' && $t['people'] < (int) $gb->min_participants) {
-            return '마감일이 지났거나 최소 인원(' . (int) $gb->min_participants . '명)이 모이면 수락할 수 있어요.';
-        }
+        // 마감일 전이든 사람이 덜 모였든, 참가자가 한 명이라도 있으면 지금 마감(조기 마감)하고 현재 참가자까지 공동구매 가격을 적용해 완료할 수 있다.
+        if (self::activeParticipants($gb)->count() < 1) return '참가자가 아직 없어요. 참가자가 있어야 마감하고 완료할 수 있어요.';
         return null;
+    }
+
+    /** 마감일이 아직 남았는데 마감한 조기 마감인지 */
+    public static function isEarly(GroupBuy $gb): bool
+    {
+        return (bool) ($gb->deadline && $gb->deadline->isFuture());
     }
 
     /** 완료 처리: 상태·금액 기록, 쿠폰 발급(쿠폰형), 참가자·개설자 알림 */
     public static function finalize(GroupBuy $gb, int $totalCents, int $feeCents): int
     {
         $issued = 0;
-        DB::transaction(function () use ($gb, $totalCents, $feeCents, &$issued) {
-            $gb->update(['status' => 'completed', 'accepted_at' => now(), 'total_cents' => $totalCents, 'fee_cents' => $feeCents]);
+        $early = self::isEarly($gb);
+        DB::transaction(function () use ($gb, $totalCents, $feeCents, $early, &$issued) {
+            $gb->update(['status' => 'completed', 'accepted_at' => now(), 'total_cents' => $totalCents, 'fee_cents' => $feeCents, 'closed_reason' => $early ? 'early' : null]);
             $issued = GroupBuyCoupons::issueFor($gb);
         });
 
@@ -82,12 +85,14 @@ class GroupBuyCompletion
         } catch (\Throwable $e) { report($e); }
 
         $isCoupon = $gb->fulfillment === 'coupon';
+        // 조기 마감이면 "일찍 마감했지만 지금까지 참여한 분들에게는 공동구매 가격이 적용된다"고 알린다
+        $lead = $early ? "'{$gb->title}' 공동구매가 일찍 마감됐어요. 지금까지 참여하신 분들께 공동구매 가격이 그대로 적용돼요. " : "'{$gb->title}' 공동구매가 끝났어요. ";
         foreach (self::activeParticipants($gb) as $p) {
             GroupBuyNotify::send(
-                (int) $p->user_id, 'groupbuy_completed', '참여한 공동구매가 완료되었어요',
+                (int) $p->user_id, 'groupbuy_completed', $early ? '참여한 공동구매가 조기 마감되어 완료됐어요' : '참여한 공동구매가 완료되었어요',
                 $isCoupon
-                    ? "'{$gb->title}' 공동구매가 끝났어요. 마이페이지 \"내 쿠폰\"에서 쿠폰을 확인하세요. 동의하신 대로 이름·전화번호·이메일이 개설자에게 제공됐고, 개설자가 연락드릴 수 있어요."
-                    : "'{$gb->title}' 공동구매가 끝났어요. 동의하신 대로 이름·전화번호·이메일이 개설자에게 제공됐고, 개설자가 연락드릴 거예요.",
+                    ? $lead . '마이페이지 "내 쿠폰"에서 쿠폰을 확인하세요. 동의하신 대로 이름·전화번호·이메일이 개설자에게 제공됐고, 개설자가 연락드릴 수 있어요.'
+                    : $lead . '동의하신 대로 이름·전화번호·이메일이 개설자에게 제공됐고, 개설자가 연락드릴 거예요.',
                 ['groupbuy_id' => $gb->id, 'url' => $isCoupon ? '/dashboard?tab=mycoupons' : '/groupbuy/' . $gb->id]
             );
         }
@@ -96,7 +101,8 @@ class GroupBuyCompletion
     }
 
     /**
-     * 조기 마감(수락하지 않고 종료): 마감일 전이든 후든, 사람이 덜 모였든 상관없이 모든 참여를 취소한다.
+     * 공구 취소(수락하지 않고 종료): 마감일 전이든 후든, 사람이 덜 모였든 상관없이 모든 참여를 취소한다.
+     * (참가자 일부라도 공동구매 가격을 적용해 끝내고 싶으면 이게 아니라 "조기 마감하고 완료"(accept)를 쓴다.)
      * 참가자 포인트는 환불하고, 낸 디파짓은 돌려주지 않는다. 참가자(손님)에게는 "피치 못할 사정으로 취소됐다"는 안내를
      * 알림(+이메일)으로 반드시 보낸다. $note 는 개설자가 덧붙이는 한마디(선택).
      * @return int 안내를 보낸 참가자 수

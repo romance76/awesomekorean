@@ -31,7 +31,8 @@
 
         <div v-if="g.stage === 'rejected' && g.rejection_reason" class="bg-red-50 text-red-700 rounded-xl p-3 text-xs">반려 사유: {{ g.rejection_reason }}</div>
         <div v-else-if="g.stage === 'pending_approval'" class="bg-amber-50 text-amber-800 rounded-xl p-3 text-xs">관리자가 사업자 등록증을 확인하는 중이에요. 승인되면 목록에 공개되고 알림이 와요.</div>
-        <div v-else-if="g.stage === 'cancelled' && g.closed_reason === 'declined'" class="bg-gray-50 text-ink-muted rounded-xl p-3 text-xs">조기 마감했어요. 모든 참여가 취소됐고, 참가자에게 취소 안내를 보냈어요. 참가자 포인트는 돌려줬고 낸 디파짓은 환불되지 않아요.</div>
+        <div v-else-if="g.stage === 'cancelled' && g.closed_reason === 'declined'" class="bg-gray-50 text-ink-muted rounded-xl p-3 text-xs">공구를 취소했어요. 모든 참여가 취소됐고, 참가자에게 취소 안내를 보냈어요. 참가자 포인트는 돌려줬고 낸 디파짓은 환불되지 않아요.</div>
+        <div v-else-if="g.stage === 'completed' && g.closed_reason === 'early'" class="bg-lime-50 text-lime-800 rounded-xl p-3 text-xs">마감일 전에 조기 마감하고 완료했어요. 마감 때까지 참여한 분들께 공동구매 가격이 적용됐어요.</div>
 
         <div class="grid grid-cols-3 gap-2 text-center">
           <div class="bg-[#F4F6F8] rounded-xl py-2">
@@ -52,17 +53,21 @@
         <div v-if="g.accept" class="rounded-xl border border-lime-200 bg-lime-50/50 p-3 space-y-2">
           <div class="text-sm font-semibold text-ink">공동구매 마무리</div>
           <div v-if="g.accept.can_accept" class="text-xs text-ink-light leading-relaxed">
-            지금까지 신청 기준 예상 총액 <b>${{ money(g.accept.total_cents) }}</b>, 수수료 <b>${{ money(g.accept.fee_cents) }}</b>
+            <b>조기 마감하고 완료</b>하면 지금까지 참여한 {{ g.participants.length }}명에게 <b>현재 공동구매 가격(${{ Number(g.price || 0).toLocaleString() }})</b>이 그대로 적용돼요.
+            예상 총액 <b>${{ money(g.accept.total_cents) }}</b>, 수수료 <b>${{ money(g.accept.fee_cents) }}</b>
             <template v-if="g.accept.deposit_cents"> − 낸 디파짓 ${{ money(g.accept.deposit_cents) }}</template>
             → <b>{{ g.accept.due_cents > 0 ? `카드로 $${money(g.accept.due_cents)} 결제` : '추가 결제 없음' }}</b>.
-            수락하면 참가자 정보(이름·전화·이메일)를 볼 수 있고{{ g.fulfillment === 'coupon' ? ', 참가자에게 쿠폰이 발급돼요' : '' }}.
+            완료하면 참가자 정보(이름·전화·이메일)를 볼 수 있고{{ g.fulfillment === 'coupon' ? ', 참가자에게 쿠폰이 발급돼요' : '' }}.
           </div>
           <div v-else class="text-xs text-ink-muted">{{ g.accept.blocked_reason }}</div>
           <div class="grid grid-cols-2 gap-2">
-            <button @click="startAccept(g)" :disabled="!g.accept.can_accept || busy" class="py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold disabled:opacity-40">수락하고 완료</button>
-            <button @click="declineGb(g)" :disabled="busy" class="py-2.5 rounded-xl bg-white border border-red-200 text-red-600 text-sm font-bold disabled:opacity-50">조기 마감 (모두 취소)</button>
+            <button @click="startAccept(g)" :disabled="!g.accept.can_accept || busy" class="py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-bold disabled:opacity-40 leading-tight">조기 마감하고<br />완료</button>
+            <button @click="declineGb(g)" :disabled="busy" class="py-2.5 rounded-xl bg-white border border-red-200 text-red-600 text-sm font-bold disabled:opacity-50 leading-tight">공구 취소<br />(모두 취소)</button>
           </div>
-          <div class="text-[11px] text-ink-muted">마감일 전이거나 사람이 덜 모였어도 지금 끝낼 수 있어요. 조기 마감하면 모든 참여가 취소되고 참가자에게 취소 안내가 가요. 낸 디파짓은 환불되지 않고, 참가자 포인트는 돌려줘요.</div>
+          <div class="text-[11px] text-ink-muted space-y-0.5">
+            <div><b>조기 마감하고 완료</b> — 마감일 전이거나 사람이 덜 모였어도 지금 모집을 닫고, 참가자가 한 명이라도 있으면 그분들까지 공동구매 가격으로 진행해요.</div>
+            <div><b>공구 취소</b> — 공동구매를 접어요. 모든 참여가 취소되고 참가자에게 취소 안내가 가요. 낸 디파짓은 환불되지 않고, 참가자 포인트는 돌려줘요.</div>
+          </div>
         </div>
 
         <!-- 쿠폰 관리 (완료된 쿠폰형) -->
@@ -215,7 +220,9 @@ const STAGES = {
   ended: { label: '마감', cls: 'bg-gray-200 text-gray-600' },
 }
 // 수락하지 않고 종료한 것은 '취소' 대신 '종료'로 보여 준다
-const stageInfo = g => (g.stage === 'cancelled' && g.closed_reason === 'declined') ? { label: '조기 마감', cls: 'bg-gray-200 text-gray-500' } : (STAGES[g.stage] || { label: g.stage, cls: 'bg-gray-100 text-gray-500' })
+const stageInfo = g => (g.stage === 'cancelled' && g.closed_reason === 'declined') ? { label: '공구 취소', cls: 'bg-gray-200 text-gray-500' }
+  : (g.stage === 'completed' && g.closed_reason === 'early') ? { label: '조기 마감 완료', cls: 'bg-gray-200 text-gray-600' }
+  : (STAGES[g.stage] || { label: g.stage, cls: 'bg-gray-100 text-gray-500' })
 const COUPON_STATUS = {
   unused: { label: '미사용', cls: 'bg-emerald-100 text-emerald-700' },
   pending: { label: '확인 중', cls: 'bg-amber-100 text-amber-700' },
@@ -254,10 +261,13 @@ const pay = reactive({ open: false, secret: '', gbId: null, total_cents: 0, fee_
 async function startAccept(g) {
   if (busy.value) return
   const a = g.accept
+  const early = g.deadline && new Date(g.deadline).getTime() > Date.now()
   const ok = await showConfirm(
-    `지금까지 신청 기준으로 수락할까요?\n예상 총액 $${money(a.total_cents)} · 수수료 $${money(a.fee_cents)}` +
+    (early ? `마감일이 아직 남았지만 지금 마감하고 완료할까요?\n` : `지금 완료할까요?\n`) +
+    `지금까지 참여한 ${g.participants.length}명에게 현재 공동구매 가격($${Number(g.price || 0).toLocaleString()})이 적용돼요.\n` +
+    `예상 총액 $${money(a.total_cents)} · 수수료 $${money(a.fee_cents)}` +
     (a.deposit_cents ? ` − 디파짓 $${money(a.deposit_cents)}` : '') +
-    `\n→ ${a.due_cents > 0 ? `카드로 $${money(a.due_cents)} 결제` : '추가 결제 없음'}`, '공동구매 수락')
+    `\n→ ${a.due_cents > 0 ? `카드로 $${money(a.due_cents)} 결제` : '추가 결제 없음'}\n\n마감하면 더 이상 참여할 수 없어요.`, early ? '조기 마감하고 완료' : '공동구매 완료')
   if (!ok) return
   busy.value = true; error.value = ''; notice.value = ''
   try {
@@ -291,8 +301,9 @@ function cancelCard() { if (!pay.busy) pay.open = false }   // 청구는 카드 
 async function declineGb(g) {
   const people = g.participants.length
   const ok = await showConfirm(
-    `조기 마감할까요?\n모든 참여가 취소되고 참가자 ${people}명의 포인트는 돌려줘요. 낸 디파짓은 환불되지 않고, 되돌릴 수 없어요.\n\n` +
-    `참가자에게 "개설자의 피치 못할 사정으로 취소되었다"는 안내 메시지를 보내겠습니까?`, '조기 마감')
+    `공구를 취소할까요?\n모든 참여가 취소되고 참가자 ${people}명의 포인트는 돌려줘요. 낸 디파짓은 환불되지 않고, 되돌릴 수 없어요.\n` +
+    `(일부 참가자에게라도 공동구매 가격을 적용하려면 취소하지 말고 "조기 마감하고 완료"를 눌러 주세요.)\n\n` +
+    `참가자에게 "개설자의 피치 못할 사정으로 취소되었다"는 안내 메시지를 보내겠습니까?`, '공구 취소')
   if (!ok) return
   // 참가자에게 덧붙일 한마디(선택) — 취소를 누르거나 비워 두면 기본 안내만 간다
   const note = await showPrompt('참가자에게 전하고 싶은 말이 있으면 적어 주세요. (선택)', '취소 안내에 덧붙이기', '예: 재료 수급이 어려워졌어요. 죄송합니다.')
