@@ -163,9 +163,10 @@ class GroupBuyController extends Controller
                     'valid_days' => (int) $gb->coupon_valid_days, 'extended' => (bool) $gb->coupon_extended_at,
                     'counts' => ['unused' => (int) ($counts['unused'] ?? 0), 'pending' => (int) ($counts['pending'] ?? 0), 'used' => (int) ($counts['used'] ?? 0), 'expired' => (int) ($counts['expired'] ?? 0)],
                 ] : null,
-                'participants' => $list->map(fn ($p) => array_filter([
+                'participants' => $list->values()->map(fn ($p, $i) => array_filter([
                     'id' => $p->id,
-                    'name' => $p->user->nickname ?: $p->user->name,
+                    // 이름은 완료·수수료 결제 전에는 보여 주지 않는다(참가자 1, 참가자 2 …)
+                    'name' => $contactsOpen ? ($p->user->nickname ?: $p->user->name) : '참가자 ' . ($i + 1),
                     'quantity' => (int) $p->quantity,
                     'status' => $p->status,
                     'joined_at' => $p->created_at,
@@ -215,6 +216,9 @@ class GroupBuyController extends Controller
                 ->whereIn('status', ['pending', 'paid'])
                 ->first();
         }
+
+        // 참여자 신원(이름·아이디)은 공개하지 않는다 — 개설자에게도 공동구매를 완료하고 수수료를 결제한 뒤에야 제공된다(참여할 때 그렇게 동의받음). 본인과 관리자만 자기 줄/전체를 본다.
+        $this->maskParticipants($gb->participants);
 
         $adj = $this->adjacentPair(GroupBuy::class, $id, 'title', ['category' => $gb->category]);
         return response()->json([
@@ -502,15 +506,19 @@ class GroupBuyController extends Controller
             'data' => ['completed' => true, 'issued' => $issued]]);
     }
 
-    /** POST /api/groupbuys/{id}/decline — 수락하지 않고 종료. 참가자 포인트는 돌려주고, 낸 디파짓은 돌려주지 않는다 */
-    public function declineGroupBuy($id)
+    /**
+     * POST /api/groupbuys/{id}/decline {note?} — 조기 마감(모두 취소). 마감일 전이든 사람이 덜 모였든 개설자가 이 시점에 끝낼 수 있다.
+     * 참가자 포인트는 돌려주고 낸 디파짓은 돌려주지 않으며, 참가자 모두에게 "피치 못할 사정으로 취소됐다"는 안내를 보낸다.
+     */
+    public function declineGroupBuy(Request $request, $id)
     {
+        $request->validate(['note' => 'nullable|string|max:200']);
         $gb = $this->ownedGroupBuy($id);
         if (!in_array($gb->status, ['recruiting', 'confirmed'], true) || $gb->accepted_at || !$gb->is_approved) {
             return response()->json(['success' => false, 'message' => '종료할 수 없는 공동구매예요.'], 422);
         }
-        GroupBuyCompletion::decline($gb);
-        return response()->json(['success' => true, 'message' => '수락하지 않고 종료했어요. 참가자에게는 포인트가 돌아갔고, 낸 디파짓은 환불되지 않아요.']);
+        $n = GroupBuyCompletion::decline($gb, $request->input('note'));
+        return response()->json(['success' => true, 'message' => "조기 마감했어요. 참가자 {$n}명에게 취소 안내를 보냈고 포인트는 돌려줬어요. 낸 디파짓은 환불되지 않아요.", 'data' => ['notified' => $n]]);
     }
 
     /** POST /api/groupbuys/{id}/deposit/confirm — 카드 확인(보류)이 끝났음을 알림. 클라이언트 말만 믿지 않고 Stripe 에서 실제 상태를 조회해 검증한다. */
@@ -809,8 +817,24 @@ class GroupBuyController extends Controller
             ->where('status', '!=', 'cancelled')
             ->orderByDesc('created_at')
             ->get();
+        $this->maskParticipants($participants);
 
         return response()->json(['success' => true, 'data' => $participants]);
+    }
+
+    /**
+     * 참여자 목록에서 다른 사람의 신원을 가린다(본인·관리자·운영자는 제외). 사람 수와 수량은 그대로 보인다.
+     * 이름·전화·이메일은 개설자가 공동구매를 완료(수락 + 수수료 결제)한 뒤 "내 공동구매"에서만 제공된다.
+     */
+    private function maskParticipants($participants): void
+    {
+        $viewer = auth('api')->user();
+        $staff = $viewer && in_array($viewer->role, ['admin', 'super_admin', 'moderator'], true);
+        foreach ($participants as $p) {
+            if ($staff || ($viewer && (int) $p->user_id === (int) $viewer->id)) continue;
+            $p->setRelation('user', (new \App\Models\User)->forceFill(['id' => null, 'name' => '참여자', 'nickname' => '참여자', 'avatar' => null, 'lifetime_points' => 0]));
+            $p->makeHidden(['user_id']);
+        }
     }
 
     // --- Admin Methods ---

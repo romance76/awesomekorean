@@ -95,16 +95,28 @@ class GroupBuyCompletion
         return $issued;
     }
 
-    /** 수락하지 않고 종료: 참가자 포인트 환불, 디파짓은 돌려주지 않는다 */
-    public static function decline(GroupBuy $gb): void
+    /**
+     * 조기 마감(수락하지 않고 종료): 마감일 전이든 후든, 사람이 덜 모였든 상관없이 모든 참여를 취소한다.
+     * 참가자 포인트는 환불하고, 낸 디파짓은 돌려주지 않는다. 참가자(손님)에게는 "피치 못할 사정으로 취소됐다"는 안내를
+     * 알림(+이메일)으로 반드시 보낸다. $note 는 개설자가 덧붙이는 한마디(선택).
+     * @return int 안내를 보낸 참가자 수
+     */
+    public static function decline(GroupBuy $gb, ?string $note = null): int
     {
-        DB::transaction(function () use ($gb) {
-            foreach ($gb->participants()->whereIn('status', ['pending', 'paid'])->get() as $p) {
+        $note = $note !== null ? trim($note) : null;
+        $sent = 0;
+        DB::transaction(function () use ($gb, $note, &$sent) {
+            foreach ($gb->participants()->whereIn('status', ['pending', 'paid'])->with('user:id,email')->get() as $p) {
+                $refunded = false;
                 if ($p->status === 'paid' && $p->payment_type === 'point' && $p->paid_amount > 0 && $p->user) {
                     $p->user->addPoints($p->paid_amount, "공동구매 종료 환불: {$gb->title}", 'groupbuy_refund', ['type' => GroupBuy::class, 'id' => $gb->id]);
+                    $refunded = true;
                 }
                 $p->update(['status' => 'refunded']);
-                GroupBuyNotify::send((int) $p->user_id, 'groupbuy_cancelled', '참여한 공동구매가 종료되었어요', "'{$gb->title}' 공동구매가 개설자의 결정으로 종료됐어요. 낸 포인트는 돌려드렸어요.", ['groupbuy_id' => $gb->id]);
+                $text = "'{$gb->title}' 공동구매가 개설자의 피치 못할 사정으로 취소되었어요. 참여하신 내용은 모두 취소됐고" . ($refunded ? ' 낸 포인트는 돌려드렸어요.' : ' 결제하신 금액은 없어요.') . ' 불편을 드려 죄송해요.' . ($note ? "\n개설자의 말: {$note}" : '');
+                GroupBuyNotify::send((int) $p->user_id, 'groupbuy_cancelled', '참여한 공동구매가 취소되었어요', $text, ['groupbuy_id' => $gb->id, 'url' => '/groupbuy/' . $gb->id]);
+                GroupBuyNotify::mail($p->user->email ?? null, '[어썸코리안] 참여한 공동구매가 취소되었어요', $text);
+                $sent++;
             }
             // 수수료 결제를 시작만 하고 끝내지 않은 카드 보류가 있으면 청구 없이 풀어 준다
             if ($gb->fee_payment_id && ($pay = Payment::find($gb->fee_payment_id))) {
@@ -112,5 +124,6 @@ class GroupBuyCompletion
             }
             $gb->update(['status' => 'cancelled', 'closed_reason' => 'declined']);
         });
+        return $sent;
     }
 }
