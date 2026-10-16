@@ -68,10 +68,10 @@
             </div>
           </div>
           <div v-else class="text-[13px] text-white/65">{{ musicLoading ? '노래를 고르는 중이에요…' : '음악듣기에서 노래를 골라 보세요' }}</div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 min-w-0">
             <button type="button" @click="pickRandomMusic('next')" :disabled="musicLoading"
-              class="text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5 disabled:opacity-60">🔀 다른 노래</button>
-            <span class="text-[10.5px] text-white/45">{{ musicStore.muted ? '🔇 소리는 스피커를 눌러 켜요' : '눌러서 바로 들어요' }}</span>
+              class="shrink-0 whitespace-nowrap text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5 disabled:opacity-60">다른 노래</button>
+            <span class="min-w-0 truncate text-[10.5px]" :class="musicStore.muted ? 'text-red-300/80' : 'text-white/45'">{{ musicStore.muted ? '소리 꺼짐 · 스피커로 켜기' : '눌러서 바로 들어요' }}</span>
           </div>
         </div>
 
