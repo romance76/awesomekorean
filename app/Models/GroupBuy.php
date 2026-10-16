@@ -4,10 +4,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 class GroupBuy extends Model
 {
-    protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','total_quantity','current_participants','lat','lng','city','state','scope','fulfillment','target_states','deposit_cents','deposit_payment_id','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
-    protected $casts = ['images'=>'array','discount_tiers'=>'array','target_states'=>'array','deadline'=>'datetime','approved_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','original_price'=>'decimal:2','group_price'=>'decimal:2','is_approved'=>'boolean'];
+    protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','total_quantity','current_participants','lat','lng','city','state','scope','fulfillment','target_states','deposit_cents','deposit_payment_id','use_mode','use_place','use_url','use_instructions','promo_code','store_pin_hash','coupon_valid_days','coupon_extended_at','total_cents','fee_cents','fee_payment_id','accepted_at','closed_reason','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
+    protected $casts = ['images'=>'array','discount_tiers'=>'array','target_states'=>'array','coupon_extended_at'=>'datetime','accepted_at'=>'datetime','deadline'=>'datetime','approved_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','original_price'=>'decimal:2','group_price'=>'decimal:2','is_approved'=>'boolean'];
     // 사업자등록증 경로는 응답에 싣지 않는다(공개 목록·상세로 새어 나가지 않게). 있는지만 has_business_doc 로 알려 주고, 열람은 GroupBuyController::businessDoc 로만 한다.
-    protected $hidden = ['business_doc'];
+    // 매장 PIN(해시)과 개설자 할인 코드(쿠폰을 가진 사람에게만 보임)도 공개 응답에 싣지 않는다.
+    protected $hidden = ['business_doc', 'store_pin_hash', 'promo_code'];
     protected $appends = ['display_status', 'has_business_doc'];
 
     protected static function booted()
@@ -37,6 +38,7 @@ class GroupBuy extends Model
     public function scopeDeadlinePassed($q) { return $q->where('status', 'recruiting')->whereNotNull('deadline')->where('deadline', '<=', now()); }
     public function user() { return $this->belongsTo(User::class); }
     public function participants() { return $this->hasMany(GroupBuyParticipant::class); }
+    public function coupons() { return $this->hasMany(GroupBuyCoupon::class); }
     public function approver() { return $this->belongsTo(User::class, 'approved_by'); }
     public function scopeNearby($q,$lat,$lng,$r=50) { return $q->selectRaw("*, (3959*acos(cos(radians(?))*cos(radians(lat))*cos(radians(lng)-radians(?))+sin(radians(?))*sin(radians(lat)))) AS distance",[$lat,$lng,$lat])->having('distance','<',$r); }
     public function scopeApproved($q) { return $q->where('is_approved', true); }

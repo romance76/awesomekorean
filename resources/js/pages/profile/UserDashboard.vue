@@ -644,6 +644,9 @@
     <!-- ═══ 내 공동구매 탭 (내가 연 공동구매 관리) ═══ -->
     <MyGroupBuys v-else-if="tab==='groupbuy'" />
 
+    <!-- ═══ 내 쿠폰 탭 (참여한 공동구매의 쿠폰·QR) ═══ -->
+    <MyCoupons v-else-if="tab==='mycoupons'" />
+
     <!-- ═══ 내돈내산 리뷰 탭 (태그·조회수·댓글·HOT) ═══ -->
     <div v-else-if="tab==='reviews'">
       <MyShoppingReviews />
@@ -1094,6 +1097,7 @@ import AdApplyEmbed from '../ads/AdApply.vue'
 import FlyerApply from '../new/FlyerApply.vue'
 import MyShoppingReviews from '../shopping/MyShoppingReviews.vue'
 import MyGroupBuys from '../../components/groupbuy/MyGroupBuys.vue'
+import MyCoupons from '../../components/groupbuy/MyCoupons.vue'
 import PromotionSection from '../../components/PromotionSection.vue'
 import { usePromoCheckout, promoEndpoint } from '../../composables/usePromoCheckout'
 import { useLangStore } from '../../stores/lang'
@@ -1126,6 +1130,7 @@ const allTabs = [
   { key: 'jobs',       icon: 'briefcase',     label: '내 구인',     menuKey: 'jobs' },
   { key: 'realestate', icon: 'home',          label: '내 부동산',   menuKey: 'realestate' },
   { key: 'groupbuy',   icon: 'heart-handshake', label: '내 공동구매', menuKey: 'groupbuy' },
+  { key: 'mycoupons',  icon: 'ticket',        label: '내 쿠폰',     menuKey: 'groupbuy' },
   { key: 'ads',        icon: 'megaphone',     label: '광고 신청' },
   { key: 'reviews',    icon: 'shopping-bag',  label: '내 리뷰',     menuKey: 'shopping' },
   { key: 'flyer',      icon: 'sparkles',      label: 'NEW 전면광고 신청', menuKey: 'flyers' },

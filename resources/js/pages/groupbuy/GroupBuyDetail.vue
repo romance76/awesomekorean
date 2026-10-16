@@ -382,15 +382,26 @@
             <div class="text-sm text-emerald-700 font-semibold">결제 없이 참여 가능합니다</div>
           </div>
 
+          <!-- 정보 제공 동의 — 완료되면 이름·전화·이메일이 개설자에게 전달된다 -->
+          <label class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition-colors"
+            :class="joinConsent ? 'border-amber-400 bg-amber-50' : 'border-gray-200'">
+            <input v-model="joinConsent" type="checkbox" class="mt-0.5 accent-amber-500" />
+            <div class="text-xs text-ink-light leading-relaxed">
+              <b class="text-ink">정보 제공 동의 (필수)</b><br>
+              공동구매가 성공적으로 완료되면 제 <b>이름(어썸코리안 아이디)·전화번호·이메일</b>이 공동구매를 연 사람에게 전달되고, 개설자가 연락할 수 있어요. 동의하지 않으면 참여할 수 없어요.
+            </div>
+          </label>
+
           <!-- Submit join -->
-          <button @click="submitJoin" :disabled="joining"
-            class="btn-primary w-full py-3 text-sm">
+          <button @click="submitJoin" :disabled="joining || !joinConsent"
+            class="btn-primary w-full py-3 text-sm disabled:opacity-50">
             {{ joining ? '참여 처리 중...' : '참여 확정' }}
           </button>
 
           <!-- Join done -->
           <div v-if="joinDone" class="bg-emerald-50 rounded-xl p-3 text-center">
             <span class="text-emerald-700 text-sm font-medium inline-flex items-center gap-1"><AppIcon name="check" :size="14" />참여가 완료되었습니다!</span>
+            <div v-if="gb.fulfillment === 'coupon'" class="text-xs text-emerald-700 mt-1">공동구매가 완료되면 마이페이지 "내 쿠폰"에 쿠폰이 나와요.</div>
           </div>
         </div>
       </div>
@@ -446,6 +457,7 @@ const lightboxImg = ref(null)
 // Join modal state
 const showJoinModal = ref(false)
 const joinQuantity = ref(1)
+const joinConsent = ref(false)   // 완료되면 이름·전화·이메일이 개설자에게 제공됨에 동의
 const joinPaymentType = ref('point')
 const joining = ref(false)
 const joinDone = ref(false)
@@ -627,7 +639,7 @@ async function submitJoin() {
   joinDone.value = false
 
   try {
-    const payload = { quantity: joinQuantity.value }
+    const payload = { quantity: joinQuantity.value, consent: joinConsent.value }
     if (gb.value.payment_method && gb.value.payment_method !== 'none') {
       payload.payment_type = gb.value.payment_method === 'both' ? joinPaymentType.value : gb.value.payment_method
     }

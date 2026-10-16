@@ -87,6 +87,7 @@ const routes = [
   { path: '/groupbuy', name: 'groupbuy', component: p('groupbuy/GroupBuyHome') },
   { path: '/groupbuy/create', name: 'groupbuy-create', component: p('groupbuy/GroupBuyCreate'), meta: { auth: true } },
   { path: '/groupbuy/manage', redirect: '/dashboard?tab=groupbuy' },   // 내 공동구매 관리는 마이페이지 탭에서
+  { path: '/groupbuy/coupon/:code', name: 'groupbuy-coupon-check', component: p('groupbuy/CouponCheck') },   // 가게가 손님 QR 을 찍으면 열리는 쿠폰 확인 페이지(로그인 없이 PIN)
   { path: '/groupbuy/:id', name: 'groupbuy-detail', component: p('groupbuy/GroupBuyDetail') },
 
   // Events

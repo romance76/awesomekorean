@@ -102,6 +102,50 @@
         <div class="text-xs text-ink-muted mt-1.5">택배용은 배송·교환·환불을 개설자가 직접 책임져요. 전국 공동구매는 우선 쿠폰용만 열 수 있어요.</div>
       </div>
 
+      <!-- 6-1b. 쿠폰 사용 방식 (쿠폰용일 때) -->
+      <div v-if="form.fulfillment === 'coupon'" class="rounded-xl border border-amber-200 bg-amber-50/40 p-3 space-y-3">
+        <div class="text-sm font-semibold text-ink">쿠폰은 어떻게 쓰나요? <span class="text-red-400">*</span></div>
+        <div class="grid grid-cols-3 gap-2">
+          <label v-for="o in USE_MODES" :key="o.value" class="flex items-start gap-1.5 p-2.5 rounded-xl border transition text-xs"
+            :class="[form.use_mode === o.value ? 'border-amber-400 bg-amber-50' : 'border-gray-200 bg-white', (o.value !== 'online' && form.scope === 'national') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer']">
+            <input v-model="form.use_mode" type="radio" :value="o.value" :disabled="o.value !== 'online' && form.scope === 'national'" class="mt-0.5 accent-amber-500" />
+            <div><div class="font-semibold text-ink">{{ o.label }}</div><div class="text-ink-muted">{{ o.desc }}</div></div>
+          </label>
+        </div>
+        <div v-if="form.scope === 'national'" class="text-xs text-ink-muted">전국 쿠폰은 우선 온라인 사용만 열 수 있어요. 매장 사용은 추후 열려요.</div>
+
+        <template v-if="form.use_mode !== 'online'">
+          <div>
+            <label class="input-label">사용 장소 (가게 이름·주소) <span class="text-red-400">*</span></label>
+            <input v-model="form.use_place" type="text" maxlength="200" placeholder="예: OO식당, 123 Main St, Suwanee GA" class="input-soft px-3" />
+          </div>
+          <div>
+            <label class="input-label">매장 확인 PIN (숫자 4자리) <span class="text-red-400">*</span></label>
+            <input v-model="form.store_pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" class="input-soft px-3 w-32 tracking-widest" />
+            <div class="text-xs text-ink-muted mt-1">가게 직원이 손님 쿠폰을 확인할 때 입력해요. 직원에게만 알려 주세요.</div>
+          </div>
+        </template>
+        <template v-if="form.use_mode !== 'store'">
+          <div>
+            <label class="input-label">온라인 사용 주소 <span class="text-red-400">*</span></label>
+            <input v-model="form.use_url" type="url" maxlength="500" placeholder="https://..." class="input-soft px-3" />
+          </div>
+          <div>
+            <label class="input-label">온라인 사용 방법 <span class="text-red-400">*</span></label>
+            <textarea v-model="form.use_instructions" rows="3" maxlength="1000" placeholder="예: 주문할 때 메모에 쿠폰 번호를 적어 주세요" class="input-soft px-3"></textarea>
+          </div>
+        </template>
+        <div>
+          <label class="input-label">내 할인 코드 (선택)</label>
+          <input v-model="form.promo_code" type="text" maxlength="100" placeholder="쇼핑몰의 할인 코드가 있으면 쿠폰 화면에 같이 보여요" class="input-soft px-3" />
+        </div>
+        <div>
+          <label class="input-label">쿠폰 유효기간 (일) <span class="text-red-400">*</span></label>
+          <input v-model.number="form.coupon_valid_days" type="number" min="7" max="365" class="input-soft px-3 w-32" />
+          <div class="text-xs text-ink-muted mt-1">공동구매가 완료된 날부터 며칠 쓸 수 있는지 (7~365일). 한 번 연장할 수 있어요.</div>
+        </div>
+      </div>
+
       <!-- 6-2. 범위 (기본 = 내 주 + 인접 주 / 전국) -->
       <div>
         <label class="input-label mb-2">공동구매 범위 <span class="text-red-400">*</span></label>
@@ -352,6 +396,13 @@ const form = reactive({
   total_quantity: null,
   scope: 'local',
   fulfillment: '',
+  use_mode: 'store',
+  use_place: '',
+  use_url: '',
+  use_instructions: '',
+  promo_code: '',
+  store_pin: '',
+  coupon_valid_days: 30,
   deadline: '',
   end_type: 'target_met',
   payment_method: 'none',
@@ -368,6 +419,12 @@ const SMALL_MAX_DAYS = 14
 const BUSINESS_MAX_DAYS = 31
 const maxPeopleCap = 10000
 const NATIONAL_DEPOSIT_MULTIPLIER = 3   // 전국 디파짓 배수 (서버 GroupBuyTier::NATIONAL_DEPOSIT_MULTIPLIER)
+
+const USE_MODES = [
+  { value: 'store', label: '매장', desc: '가게에서 QR·번호로 확인' },
+  { value: 'online', label: '온라인', desc: '내 사이트·주문에서 번호로 확인' },
+  { value: 'both', label: '둘 다', desc: '매장과 온라인 모두' },
+]
 
 const FULFILLMENTS = [
   { value: 'delivery', label: '택배용', desc: '상품을 택배·배송으로 받아요' },
@@ -431,7 +488,7 @@ const deadlineMin = computed(() => dateStr(1))
 const deadlineMax = computed(() => dateStr(isSmall.value ? SMALL_MAX_DAYS : BUSINESS_MAX_DAYS))
 
 // 전국은 우선 쿠폰용만 — 전국을 고르면 쿠폰용으로 맞춘다
-watch(() => form.scope, v => { if (v === 'national') form.fulfillment = 'coupon' })
+watch(() => form.scope, v => { if (v === 'national') { form.fulfillment = 'coupon'; form.use_mode = 'online' } })
 
 // 사진 관리
 const photoList = ref([])
@@ -488,6 +545,13 @@ async function submit() {
   if (!form.max_participants || form.max_participants < 2) { error.value = '최대 인원을 입력해주세요'; return }
   if (!form.fulfillment) { error.value = '수령 방식(택배용/쿠폰용)을 골라주세요'; return }
   if (form.scope === 'national' && form.fulfillment !== 'coupon') { error.value = '전국 공동구매는 우선 쿠폰용만 열 수 있어요'; return }
+  if (form.fulfillment === 'coupon') {
+    if (form.use_mode !== 'online' && !form.use_place.trim()) { error.value = '매장 사용 장소(가게 이름·주소)를 입력해주세요'; return }
+    if (form.use_mode !== 'online' && !/^\d{4}$/.test(form.store_pin)) { error.value = '매장 확인 PIN은 숫자 4자리예요'; return }
+    if (form.use_mode !== 'store' && !/^https?:\/\//i.test(form.use_url.trim())) { error.value = '온라인 사용 주소는 https:// 로 시작하는 주소를 입력해주세요'; return }
+    if (form.use_mode !== 'store' && !form.use_instructions.trim()) { error.value = '온라인 사용 방법을 적어주세요'; return }
+    if (!form.coupon_valid_days || form.coupon_valid_days < 7 || form.coupon_valid_days > 365) { error.value = '쿠폰 유효기간은 7~365일로 정해주세요'; return }
+  }
   if (form.scope === 'local' && !isUsState(form.state)) { error.value = '지역 공동구매는 State(주)를 정확히 입력해주세요. 예: GA'; return }
   if (!form.total_quantity || form.total_quantity < 1) { error.value = '총 수량(개)을 입력해주세요'; return }
   if (!form.deadline) { error.value = '마감일을 정해주세요'; return }
@@ -515,6 +579,13 @@ async function submit() {
     fd.append('total_quantity', form.total_quantity)
     fd.append('scope', form.scope)
     fd.append('fulfillment', form.fulfillment)
+    if (form.fulfillment === 'coupon') {
+      fd.append('use_mode', form.use_mode)
+      if (form.use_mode !== 'online') { fd.append('use_place', form.use_place.trim()); fd.append('store_pin', form.store_pin) }
+      if (form.use_mode !== 'store') { fd.append('use_url', form.use_url.trim()); fd.append('use_instructions', form.use_instructions.trim()) }
+      if (form.promo_code.trim()) fd.append('promo_code', form.promo_code.trim())
+      fd.append('coupon_valid_days', form.coupon_valid_days)
+    }
     if (form.deadline) fd.append('deadline', form.deadline)
     fd.append('end_type', form.end_type)
     fd.append('payment_method', form.payment_method)

@@ -65,6 +65,23 @@ class GroupBuyTier
         return $base * ($scope === self::SCOPE_NATIONAL ? self::NATIONAL_DEPOSIT_MULTIPLIER : 1);
     }
 
+    /**
+     * 완료 때 총액 수수료(센트) — 총액(센트)에 구간별 요율. 구간제(이상~미만), 범위(지역/전국)와 상관없이 같은 표.
+     *   $500 미만 정액 $5 / $500~999 2% / $1,000~1,999 2% / $2,000~2,999 3.5% / $3,000~3,999 5% / $4,000~4,999 6% / $5,000~9,999 7% / $10,000 이상 8%
+     * 총액이 0이면 수수료도 0. 이 값에서 이미 낸 디파짓을 빼고 모자란 만큼만 결제한다.
+     */
+    public static function feeCents(int $totalCents): int
+    {
+        if ($totalCents <= 0) return 0;
+        if ($totalCents < 50000) return 500;
+        // [이 금액(센트) 이상이면, 요율의 만분율(bp)]
+        $bands = [[1000000, 800], [500000, 700], [400000, 600], [300000, 500], [200000, 350], [50000, 200]];
+        foreach ($bands as [$from, $bp]) {
+            if ($totalCents >= $from) return (int) round($totalCents * $bp / 10000);
+        }
+        return 500;
+    }
+
     /** 해당 등급에서 허용되는 마감까지의 최대 일수 */
     public static function maxDays(string $tier): int
     {

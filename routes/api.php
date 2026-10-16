@@ -198,6 +198,11 @@ Route::get('/groupbuys', [GroupBuyController::class, 'index']);
 Route::get('/groupbuys/my-joined', [GroupBuyController::class, 'myJoined'])->middleware('auth:api');
 Route::get('/groupbuys/my-opened', [GroupBuyController::class, 'myOpened'])->middleware('auth:api');
 Route::get('/groupbuys/{id}/business-doc', [GroupBuyController::class, 'businessDoc'])->middleware('auth:api');
+// 가게 쪽 쿠폰 확인 — QR 을 일반 카메라로 찍으면 열리는 페이지가 부른다. 로그인 없이 PIN 으로도 접근(틀리면 시도 제한). 개설자가 로그인했으면 PIN 없이.
+Route::post('/coupon-check/{code}/lookup', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'storeLookup'])->middleware('throttle:60,1');
+Route::post('/coupon-check/{code}/accept', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'storeAccept'])->middleware('throttle:30,1');
+Route::post('/coupon-check/{code}/status', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'storeStatus'])->middleware('throttle:120,1');
+Route::post('/coupon-check/{code}/confirm-code', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'storeConfirmCode'])->middleware('throttle:30,1');
 Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
 Route::get('/events', [EventController::class, 'index']);
@@ -408,6 +413,20 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/groupbuys', [GroupBuyController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
     Route::post('/groupbuys/{id}/deposit/confirm', [GroupBuyController::class, 'confirmDeposit']);
+    Route::get('/coupons', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'index']);
+    Route::get('/coupons/{id}', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'show']);
+    Route::post('/coupons/{id}/respond', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'respond'])->middleware('throttle:60,1');
+    Route::post('/coupons/{id}/undo', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'undo'])->middleware('throttle:30,1');
+    Route::post('/coupons/{id}/report', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'report'])->middleware('throttle:10,1');
+    // 개설자: 내 공동구매의 쿠폰
+    Route::post('/groupbuys/coupons/{couponId}/undo', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'ownerUndo'])->middleware('throttle:30,1');
+    Route::get('/groupbuys/{id}/coupons', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'ownerIndex']);
+    Route::post('/groupbuys/{id}/coupons/use', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'ownerUse'])->middleware('throttle:30,1');
+    Route::post('/groupbuys/{id}/coupons/extend', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'ownerExtend'])->middleware('throttle:10,1');
+    Route::get('/groupbuys/{id}/accept-preview', [GroupBuyController::class, 'acceptPreview']);
+    Route::post('/groupbuys/{id}/accept', [GroupBuyController::class, 'accept']);
+    Route::post('/groupbuys/{id}/accept/confirm', [GroupBuyController::class, 'acceptConfirm']);
+    Route::post('/groupbuys/{id}/decline', [GroupBuyController::class, 'declineGroupBuy']);
     Route::put('/groupbuys/{id}', [GroupBuyController::class, 'update']);
     Route::delete('/groupbuys/{id}', [GroupBuyController::class, 'destroy']);
     Route::post('/groupbuys/{id}/join', [GroupBuyController::class, 'join']);

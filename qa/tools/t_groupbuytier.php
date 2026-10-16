@@ -31,5 +31,15 @@ check('small deposit is $5 (local)', T::deposit(T::SMALL, 'local', 10) === 5);
 check('business deposit by period: 3d $5, 7d $7, 14d $10, 15d+ $15', T::deposit(T::BUSINESS, 'local', 3) === 5 && T::deposit(T::BUSINESS, 'local', 7) === 7 && T::deposit(T::BUSINESS, 'local', 14) === 10 && T::deposit(T::BUSINESS, 'local', 15) === 15 && T::deposit(T::BUSINESS, 'local', 31) === 15);
 check('national deposit is x3', T::deposit(T::BUSINESS, 'national', 3) === 15 && T::deposit(T::BUSINESS, 'national', 7) === 21 && T::deposit(T::BUSINESS, 'national', 14) === 30 && T::deposit(T::BUSINESS, 'national', 31) === 45);
 check('national multiplier constant is 3', T::NATIONAL_DEPOSIT_MULTIPLIER === 3);
+// 완료 때 총액 수수료 (센트)
+check('fee: nothing sold = $0', T::feeCents(0) === 0);
+check('fee: under $500 is flat $5', T::feeCents(100) === 500 && T::feeCents(49999) === 500);
+check('fee: $500 and $750 are 2%', T::feeCents(50000) === 1000 && T::feeCents(75000) === 1500);
+check('fee: $999.99 still 2%, $1,000 and $1,999.99 2%', T::feeCents(99999) === 2000 && T::feeCents(100000) === 2000 && T::feeCents(199999) === 4000);
+check('fee: $2,000 is 3.5% = $70, $2,500 is 3.5%', T::feeCents(200000) === 7000 && T::feeCents(250000) === 8750);
+check('fee: $3,000 is 5% = $150, $3,999.99 5%', T::feeCents(300000) === 15000 && T::feeCents(399999) === 20000);
+check('fee: $4,000 is 6%, $5,000 is 7%, $9,999.99 7%', T::feeCents(400000) === 24000 && T::feeCents(500000) === 35000 && T::feeCents(999999) === 70000);
+check('fee: $10,000 is 8% = $800 and more', T::feeCents(1000000) === 80000 && T::feeCents(2500000) === 200000);
+check('fee never decreases at band edges except by design (monotonic check on 100 samples)', (function () { $prev = 0; for ($c = 0; $c <= 1500000; $c += 15000) { $f = T::feeCents($c); if ($f < $prev) return false; $prev = $f; } return true; })());
 echo "\n$ok passed, $bad failed\n";
 }

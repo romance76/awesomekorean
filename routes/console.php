@@ -117,7 +117,8 @@ Schedule::command('flyers:cleanup')->everyThirtyMinutes()->withoutOverlapping();
 Artisan::command('groupbuys:cleanup', function () {
     $stale = \App\Support\GroupBuyDeposit::purgeStale();
     $held = \App\Support\GroupBuyDeposit::expireHolds();
-    $this->info("결제 미완료 정리 {$stale}건, 보류 만료 자동 반려 {$held}건");
+    $cp = \App\Support\GroupBuyCouponUse::maintenance();   // 쿠폰 만료 정리·응답 시간 지난 확인 요청 취소·만료 3일 전 알림
+    $this->info("결제 미완료 정리 {$stale}건, 보류 만료 자동 반려 {$held}건, 쿠폰 만료 {$cp['expired']}장·확인 시간 초과 {$cp['timeouts']}건·만료 알림 {$cp['reminded']}장");
 })->purpose('공동구매 디파짓 결제 대기/보류 만료 정리');
 Schedule::command('groupbuys:cleanup')->everyThirtyMinutes()->withoutOverlapping();
 

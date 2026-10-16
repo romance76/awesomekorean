@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use App\Models\GroupBuy;
 use App\Models\GroupBuyParticipant;
 use App\Models\Notification;
+use App\Support\DirectPayments;
+use App\Support\GroupBuyCompletion;
 use App\Support\GroupBuyDeposit;
 use App\Support\GroupBuyTier;
 use App\Support\UsStates;
@@ -112,12 +114,23 @@ class GroupBuyController extends Controller
         $payments = \App\Models\Payment::whereIn('id', $rows->pluck('deposit_payment_id')->filter())->get()->keyBy('id');
         $parts = GroupBuyParticipant::whereIn('group_buy_id', $rows->pluck('id'))
             ->where('status', '!=', 'cancelled')
-            ->with('user:id,name,nickname')
+            ->with('user:id,name,nickname,phone,email')
             ->orderByDesc('id')->get()->groupBy('group_buy_id');
+        $couponCounts = \App\Models\GroupBuyCoupon::whereIn('group_buy_id', $rows->pluck('id'))
+            ->selectRaw('group_buy_id, status, COUNT(*) c')->groupBy('group_buy_id', 'status')->get()->groupBy('group_buy_id');
 
-        $data = $rows->map(function ($gb) use ($parts, $payments) {
+        $data = $rows->map(function ($gb) use ($parts, $payments, $couponCounts) {
             $list = $parts->get($gb->id, collect());
             $sold = (int) $list->whereIn('status', ['pending', 'paid'])->sum('quantity');
+            // 참가자 연락처(이름·전화·이메일)는 완료·수락 + 수수료 결제가 끝난 공동구매에서만 연다 (참가자가 참여할 때 제공에 동의함)
+            $contactsOpen = $gb->status === 'completed' && $gb->accepted_at;
+            $counts = $couponCounts->get($gb->id, collect())->pluck('c', 'status');
+            $accept = null;
+            if (in_array($gb->status, ['recruiting', 'confirmed'], true) && $gb->is_approved && !$gb->accepted_at) {
+                $why = GroupBuyCompletion::ineligible($gb);
+                $t = GroupBuyCompletion::totals($gb);
+                $accept = ['can_accept' => $why === null, 'blocked_reason' => $why, 'total_cents' => $t['total_cents'], 'fee_cents' => $t['fee_cents'], 'deposit_cents' => $t['deposit_cents'], 'due_cents' => $t['due_cents']];
+            }
             $stage = $gb->rejection_reason ? 'rejected'
                 : (!$gb->is_approved ? 'pending_approval'
                 : ($gb->display_status === 'ended' ? 'ended' : $gb->status));
@@ -140,17 +153,28 @@ class GroupBuyController extends Controller
                 'max_participants' => $gb->max_participants,
                 'total_quantity' => $gb->total_quantity,
                 'sold_quantity' => $sold,
-                'participants' => $list->map(fn ($p) => [
+                'accept' => $accept,
+                'closed_reason' => $gb->closed_reason,
+                'total_cents' => $gb->total_cents,
+                'fee_cents' => $gb->fee_cents,
+                'contacts_open' => (bool) $contactsOpen,
+                'coupon' => $gb->fulfillment === 'coupon' ? [
+                    'use_mode' => $gb->use_mode, 'use_place' => $gb->use_place, 'use_url' => $gb->use_url,
+                    'valid_days' => (int) $gb->coupon_valid_days, 'extended' => (bool) $gb->coupon_extended_at,
+                    'counts' => ['unused' => (int) ($counts['unused'] ?? 0), 'pending' => (int) ($counts['pending'] ?? 0), 'used' => (int) ($counts['used'] ?? 0), 'expired' => (int) ($counts['expired'] ?? 0)],
+                ] : null,
+                'participants' => $list->map(fn ($p) => array_filter([
                     'id' => $p->id,
                     'name' => $p->user->nickname ?: $p->user->name,
                     'quantity' => (int) $p->quantity,
                     'status' => $p->status,
                     'joined_at' => $p->created_at,
-                ])->values(),
+                    'contact' => $contactsOpen ? ['name' => $p->user->name, 'phone' => $p->user->phone, 'email' => $p->user->email] : null,
+                ], fn ($v) => $v !== null))->values(),
             ];
         })->values();
 
-        return response()->json(['success' => true, 'data' => $data, 'contacts_locked' => true]);
+        return response()->json(['success' => true, 'data' => $data]);
     }
 
     public function show($id)
@@ -234,6 +258,10 @@ class GroupBuyController extends Controller
         if ($scope === GroupBuyTier::SCOPE_NATIONAL && $request->fulfillment !== 'coupon') {
             return response()->json(['success' => false, 'message' => '전국 공동구매는 우선 쿠폰용만 열 수 있어요. 택배용은 기본(내 주 + 인접 주) 범위로 열어 주세요.'], 422);
         }
+        // 쿠폰형은 쿠폰을 어떻게 쓰는지(매장/온라인), 사용 장소·주소·방법, 매장 PIN, 유효기간을 개설자가 정한다
+        $useData = $this->couponUseData($request, $scope);
+        if ($useData instanceof \Illuminate\Http\JsonResponse) return $useData;
+
         // 기본(지역) 범위 = 작성자 주 + 인접 주. 주를 알아야 하므로 지역 공동구매는 주(State)가 필요하다. 전국은 어디서나 보인다.
         $targetStates = null;
         if ($scope === GroupBuyTier::SCOPE_LOCAL) {
@@ -300,6 +328,7 @@ class GroupBuyController extends Controller
             'scope' => $scope,
             'fulfillment' => $request->fulfillment,
             'target_states' => $targetStates,
+            ...$useData,
             'status' => $needsDeposit ? 'awaiting_deposit' : 'recruiting',
             'end_type' => $request->end_type,
             'payment_method' => $request->payment_method,
@@ -335,6 +364,153 @@ class GroupBuyController extends Controller
         }
 
         return response()->json(['success' => true, 'tier' => $tier, 'scope' => $scope, 'deposit' => $deposit, 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
+    }
+
+    /**
+     * 쿠폰형 공동구매의 사용 방식 입력을 검사해 저장할 칸으로 바꾼다. 택배형은 빈 값. 잘못되면 422 응답을 돌려준다.
+     * 전국은 온라인 사용만(매장 사용은 추후). 매장 사용이 있으면 매장 PIN(숫자 4자리)이 필요하다.
+     * @return array|\Illuminate\Http\JsonResponse
+     */
+    private function couponUseData(Request $request, string $scope)
+    {
+        if ($request->fulfillment !== 'coupon') return ['use_mode' => null, 'coupon_valid_days' => 30];
+
+        $mode = (string) $request->input('use_mode', $scope === GroupBuyTier::SCOPE_NATIONAL ? 'online' : 'store');
+        if (!in_array($mode, ['store', 'online', 'both'], true)) {
+            return response()->json(['success' => false, 'message' => '쿠폰 사용 방식(매장/온라인)을 골라 주세요.'], 422);
+        }
+        if ($scope === GroupBuyTier::SCOPE_NATIONAL && $mode !== 'online') {
+            return response()->json(['success' => false, 'message' => '전국 쿠폰 공동구매는 우선 온라인 사용만 열 수 있어요. 매장 사용은 추후 열려요.'], 422);
+        }
+
+        $rules = [
+            'coupon_valid_days' => 'nullable|integer|min:7|max:365',
+            'promo_code' => 'nullable|string|max:100',
+        ];
+        $messages = [
+            'coupon_valid_days.min' => '쿠폰 유효기간은 7일 이상으로 정해 주세요.', 'coupon_valid_days.max' => '쿠폰 유효기간은 365일까지 정할 수 있어요.',
+            'use_place.required' => '매장 사용 장소(가게 이름·주소)를 입력해 주세요.', 'store_pin.required' => '매장 확인 PIN(숫자 4자리)을 정해 주세요.',
+            'store_pin.regex' => '매장 확인 PIN은 숫자 4자리예요.', 'use_url.required' => '온라인 사용 주소를 입력해 주세요.', 'use_url.url' => '온라인 사용 주소는 https:// 로 시작하는 주소여야 해요.',
+            'use_instructions.required' => '온라인 사용 방법을 적어 주세요.',
+        ];
+        if ($mode !== 'online') { $rules['use_place'] = 'required|string|max:200'; $rules['store_pin'] = ['required', 'regex:/^\d{4}$/']; }
+        if ($mode !== 'store') { $rules['use_url'] = ['required', 'url', 'max:500', 'regex:#^https?://#i']; $rules['use_instructions'] = 'required|string|max:1000'; }
+        $request->validate($rules, $messages);
+
+        return [
+            'use_mode' => $mode,
+            'use_place' => $mode !== 'online' ? trim((string) $request->use_place) : null,
+            'use_url' => $mode !== 'store' ? trim((string) $request->use_url) : null,
+            'use_instructions' => $mode !== 'store' ? trim((string) $request->use_instructions) : null,
+            'promo_code' => $request->promo_code ? trim((string) $request->promo_code) : null,
+            'store_pin_hash' => $mode !== 'online' ? \Illuminate\Support\Facades\Hash::make((string) $request->store_pin) : null,
+            'coupon_valid_days' => (int) ($request->coupon_valid_days ?: 30),
+        ];
+    }
+
+    // ─── 완료·수락 (개설자) ───────────────────────────────────────────────
+
+    private function ownedGroupBuy($id): GroupBuy
+    {
+        return GroupBuy::where('user_id', auth()->id())->findOrFail($id);
+    }
+
+    private function totalsPayload(array $t): array
+    {
+        return [
+            'people' => $t['people'], 'quantity' => $t['quantity'], 'price_cents' => $t['price_cents'],
+            'total_cents' => $t['total_cents'], 'fee_cents' => $t['fee_cents'], 'deposit_cents' => $t['deposit_cents'],
+            'due_cents' => $t['due_cents'], 'waived_cents' => $t['waived_cents'], 'staff' => $t['staff'],
+        ];
+    }
+
+    /** GET /api/groupbuys/{id}/accept-preview — 수락하면 총액이 얼마이고 수수료·결제액이 얼마인지 미리 보여 준다 */
+    public function acceptPreview($id)
+    {
+        $gb = $this->ownedGroupBuy($id);
+        $why = GroupBuyCompletion::ineligible($gb);
+        return response()->json(['success' => true, 'data' => array_merge($this->totalsPayload(GroupBuyCompletion::totals($gb)), ['can_accept' => $why === null, 'blocked_reason' => $why])]);
+    }
+
+    /**
+     * POST /api/groupbuys/{id}/accept — 수락(완료). 낼 수수료가 없으면 바로 완료·쿠폰 발급, 있으면 카드 결제 창을 열 정보를 준다.
+     * 참가자 정보(이름·전화·이메일) 열람과 쿠폰 발급은 수수료 결제가 끝난 뒤에만 이루어진다.
+     */
+    public function accept($id)
+    {
+        $gb = $this->ownedGroupBuy($id);
+        if ($why = GroupBuyCompletion::ineligible($gb)) {
+            return response()->json(['success' => false, 'message' => $why], 422);
+        }
+        $t = GroupBuyCompletion::totals($gb);
+
+        if ($t['due_cents'] <= 0) {
+            $issued = GroupBuyCompletion::finalize($gb, $t['total_cents'], $t['fee_cents']);
+            return response()->json(['success' => true, 'message' => '공동구매가 완료되었어요.' . ($gb->fulfillment === 'coupon' ? " 참가자에게 쿠폰 {$issued}장이 발급됐어요." : '') . ' 참가자 정보는 "내 공동구매"에서 확인하세요.',
+                'data' => array_merge($this->totalsPayload($t), ['needs_card' => false, 'completed' => true])]);
+        }
+
+        // 이전에 시작만 하고 끝내지 않은 수수료 결제가 있으면 청구 없이 풀고 새로 만든다 (금액이 바뀌었을 수 있음)
+        if ($gb->fee_payment_id && ($old = \App\Models\Payment::find($gb->fee_payment_id))) {
+            app(DirectPayments::class)->release($old);
+        }
+        try {
+            [$payment, $secret] = app(DirectPayments::class)->begin(
+                auth()->user(), \App\Models\Payment::KIND_GROUPBUY, GroupBuy::class, $gb->id, $t['due_cents'],
+                "공동구매 완료 수수료: {$gb->title}"
+            );
+            $gb->update(['fee_payment_id' => $payment->id, 'fee_cents' => $t['fee_cents'], 'total_cents' => $t['total_cents']]);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            \Log::error('공동구매 수수료 결제 생성 실패: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '결제를 시작하지 못했어요. 잠시 후 다시 시도해주세요.'], 502);
+        }
+        return response()->json(['success' => true, 'message' => '카드를 확인해 주세요.',
+            'data' => array_merge($this->totalsPayload($t), ['needs_card' => true, 'client_secret' => $secret])]);
+    }
+
+    /** POST /api/groupbuys/{id}/accept/confirm — 카드 확인이 끝났음을 알림. Stripe 에서 직접 확인하고 청구한 뒤 완료·쿠폰 발급 */
+    public function acceptConfirm($id)
+    {
+        $gb = $this->ownedGroupBuy($id);
+        if ($gb->status === 'completed' && $gb->accepted_at) {
+            return response()->json(['success' => true, 'message' => '이미 완료된 공동구매예요.', 'data' => ['completed' => true]]);
+        }
+        if ($why = GroupBuyCompletion::ineligible($gb)) {
+            return response()->json(['success' => false, 'message' => $why], 422);
+        }
+        $payment = $gb->fee_payment_id ? \App\Models\Payment::find($gb->fee_payment_id) : null;
+        if (!$payment) {
+            return response()->json(['success' => false, 'message' => '결제 정보를 찾을 수 없어요. 처음부터 다시 수락해 주세요.'], 422);
+        }
+        $dp = app(DirectPayments::class);
+        try {
+            if ($payment->status !== 'captured') {
+                $dp->markAuthorized($payment);
+                $dp->capture($payment);
+            }
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            \Log::error('공동구매 수수료 청구 실패: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '결제 확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.'], 502);
+        }
+        $t = GroupBuyCompletion::totals($gb);
+        $issued = GroupBuyCompletion::finalize($gb, $t['total_cents'], $t['fee_cents']);
+        return response()->json(['success' => true, 'message' => '수수료가 결제됐고 공동구매가 완료되었어요.' . ($gb->fulfillment === 'coupon' ? " 참가자에게 쿠폰 {$issued}장이 발급됐어요." : '') . ' 참가자 정보는 "내 공동구매"에서 확인하세요.',
+            'data' => ['completed' => true, 'issued' => $issued]]);
+    }
+
+    /** POST /api/groupbuys/{id}/decline — 수락하지 않고 종료. 참가자 포인트는 돌려주고, 낸 디파짓은 돌려주지 않는다 */
+    public function declineGroupBuy($id)
+    {
+        $gb = $this->ownedGroupBuy($id);
+        if (!in_array($gb->status, ['recruiting', 'confirmed'], true) || $gb->accepted_at || !$gb->is_approved) {
+            return response()->json(['success' => false, 'message' => '종료할 수 없는 공동구매예요.'], 422);
+        }
+        GroupBuyCompletion::decline($gb);
+        return response()->json(['success' => true, 'message' => '수락하지 않고 종료했어요. 참가자에게는 포인트가 돌아갔고, 낸 디파짓은 환불되지 않아요.']);
     }
 
     /** POST /api/groupbuys/{id}/deposit/confirm — 카드 확인(보류)이 끝났음을 알림. 클라이언트 말만 믿지 않고 Stripe 에서 실제 상태를 조회해 검증한다. */
@@ -499,6 +675,10 @@ class GroupBuyController extends Controller
         if ($gb->deadline && $gb->deadline->isPast()) {
             return response()->json(['success' => false, 'message' => '마감 기한이 지났습니다.'], 400);
         }
+        // 공동구매가 완료되면 이름·전화번호·이메일이 개설자에게 제공된다 — 동의하지 않으면 참여할 수 없다(이용약관 제26조의2, 개인정보처리방침)
+        if (!$request->boolean('consent')) {
+            return response()->json(['success' => false, 'message' => '공동구매가 완료되면 이름(아이디)·전화번호·이메일이 개설자에게 제공돼요. 동의하셔야 참여할 수 있어요.'], 422);
+        }
         $existing = GroupBuyParticipant::where('group_buy_id', $id)
             ->where('user_id', $user->id)
             ->whereIn('status', ['pending', 'paid'])
@@ -571,6 +751,7 @@ class GroupBuyController extends Controller
                 'payment_type' => $paymentType,
                 'payment_id' => $paymentId,
                 'status' => $status,
+                'consent_at' => now(),
             ]);
 
             $gb->increment('current_participants');
@@ -599,6 +780,10 @@ class GroupBuyController extends Controller
 
         if ($gb->status === 'confirmed') {
             return response()->json(['success' => false, 'message' => '확정된 공동구매는 취소할 수 없습니다.'], 400);
+        }
+        // 완료되어 쿠폰이 발급됐거나 종료된 공동구매는 참여를 취소할 수 없다
+        if (in_array($gb->status, ['completed', 'cancelled'], true)) {
+            return response()->json(['success' => false, 'message' => '이미 끝난 공동구매는 참여를 취소할 수 없습니다.'], 400);
         }
 
         DB::transaction(function() use ($gb, $user, $participant) {
@@ -719,17 +904,9 @@ class GroupBuyController extends Controller
             return response()->json(['success' => false, 'message' => '완료 처리할 수 없는 상태입니다.'], 400);
         }
 
-        $gb->update(['status' => 'completed']);
-
-        $organizer = \App\Models\User::find($gb->user_id);
-        if ($organizer) {
-            \App\Support\MilestonePoints::award($organizer, 'groupbuy_complete', GroupBuy::class, $gb->id, "공동구매 완료: {$gb->title}");
-        }
-
-        $this->notify($gb->user_id, 'groupbuy_completed', '공동구매가 완료 처리되었습니다', "'{$gb->title}' 공동구매가 완료 처리되었습니다.", ['groupbuy_id' => $id]);
-        foreach ($gb->participants()->where('status', 'paid')->pluck('user_id') as $participantId) {
-            $this->notify($participantId, 'groupbuy_completed', '참여한 공동구매가 완료되었습니다', "'{$gb->title}' 공동구매가 완료 처리되었습니다.", ['groupbuy_id' => $id]);
-        }
+        // 관리자가 대신 완료 처리: 개설자 수락과 같은 완료 처리(쿠폰 발급·알림)를 하되 수수료는 받지 않는다(관리자 조치)
+        $t = GroupBuyCompletion::totals($gb);
+        GroupBuyCompletion::finalize($gb, $t['total_cents'], 0);
 
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);
     }
