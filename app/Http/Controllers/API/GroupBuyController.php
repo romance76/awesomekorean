@@ -244,7 +244,8 @@ class GroupBuyController extends Controller
             'is_approved' => $autoApprove,
             'approved_at' => $autoApprove ? now() : null,
             'category' => $request->category,
-            'deadline' => $request->deadline,
+            // 날짜만 고르므로 "그날 밤(미국 동부 기준)까지"로 저장한다. 그대로 저장하면 서버(UTC) 자정이라 미국에서는 하루 일찍 마감돼 보인다.
+            'deadline' => $request->deadline ? \Carbon\Carbon::parse($request->deadline, 'America/New_York')->endOfDay()->utc() : null,
         ]);
 
         return response()->json(['success' => true, 'tier' => $tier, 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
