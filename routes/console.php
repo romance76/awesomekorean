@@ -113,6 +113,14 @@ Artisan::command('flyers:cleanup', function () {
 })->purpose('NEW 전면광고 결제 대기/보류 만료 정리');
 Schedule::command('flyers:cleanup')->everyThirtyMinutes()->withoutOverlapping();
 
+// 공동구매 디파짓: 카드 입력만 하고 떠난 임시 글 정리 + 카드 보류(약 7일)가 만료되기 전에 오래 승인 못 한 사업자 공동구매 자동 반려(청구 없음)
+Artisan::command('groupbuys:cleanup', function () {
+    $stale = \App\Support\GroupBuyDeposit::purgeStale();
+    $held = \App\Support\GroupBuyDeposit::expireHolds();
+    $this->info("결제 미완료 정리 {$stale}건, 보류 만료 자동 반려 {$held}건");
+})->purpose('공동구매 디파짓 결제 대기/보류 만료 정리');
+Schedule::command('groupbuys:cleanup')->everyThirtyMinutes()->withoutOverlapping();
+
 // 로그인 실패 기록은 30일만 보관
 Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('login_failures')->where('created_at', '<', now()->subDays(30))->delete())->dailyAt('04:20');
 

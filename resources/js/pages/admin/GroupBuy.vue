@@ -46,6 +46,9 @@
               <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
               <div class="text-[17px] font-bold text-ink mb-1">{{ sheet.kind === 'approve' ? '공동구매를 승인할까요?' : '공동구매를 거절할까요?' }}</div>
               <p class="text-[15px] text-ink-light mb-3 break-words">{{ sheet.item.title }}</p>
+              <p v-if="sheet.item.deposit_cents" class="text-[13px] mb-3 rounded-xl px-3 py-2" :class="sheet.kind === 'approve' ? 'bg-amber-50 text-amber-800' : 'bg-gray-50 text-ink-muted'">
+                {{ sheet.kind === 'approve' ? `승인하면 개설자 카드에 디파짓 $${(sheet.item.deposit_cents / 100).toFixed(2)}가 청구돼요.` : `거절하면 개설자 카드에는 청구되지 않아요 (디파짓 $${(sheet.item.deposit_cents / 100).toFixed(2)} 보류 해제).` }}
+              </p>
               <textarea v-if="sheet.kind === 'reject'" v-model="reason" rows="3" maxlength="200" placeholder="거절 사유 (등록자에게 전달돼요)" aria-label="거절 사유" class="w-full rounded-xl border border-gray-200 px-3 py-3 mb-3"></textarea>
               <button @click="doSheet" :disabled="busy || (sheet.kind === 'reject' && !reason.trim())" class="w-full min-h-[52px] rounded-xl text-white text-[16px] font-bold disabled:opacity-40" :class="sheet.kind === 'approve' ? 'bg-emerald-500' : 'bg-red-500'">{{ busy ? '처리 중...' : (sheet.kind === 'approve' ? '승인하기' : '거절하기') }}</button>
               <button @click="closeSheet" :disabled="busy" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
@@ -119,7 +122,7 @@ async function doSheet() {
   const { kind, item } = sheet.value
   try {
     if (kind === 'approve') await axios.post(`/api/admin/groupbuys/${item.id}/approve`)
-    else await axios.post(`/api/admin/groupbuys/${item.id}/reject`, { reason: reason.value.trim() })
+    else await axios.post(`/api/admin/groupbuys/${item.id}/reject`, { rejection_reason: reason.value.trim() })
     sheet.value = null; say(kind === 'approve' ? '승인했어요' : '거절했어요'); loadPending()
   } catch (e) { say(e.response?.data?.message || '처리하지 못했어요', true) }
   finally { busy.value = false }
@@ -149,7 +152,9 @@ async function loadPending() {
 }
 
 async function approve(id) {
-  if (!confirm('승인하시겠습니까?')) return
+  const it = pending.value.find(p => p.id === id)
+  const dep = it?.deposit_cents ? ` 개설자 카드에 디파짓 $${(it.deposit_cents / 100).toFixed(2)}가 청구됩니다.` : ''
+  if (!confirm('승인하시겠습니까?' + dep)) return
   try { await axios.post(`/api/admin/groupbuys/${id}/approve`); loadPending() }
   catch (e) { alert(e.response?.data?.message || '실패') }
 }
@@ -157,7 +162,7 @@ async function approve(id) {
 async function reject(id) {
   const reason = prompt('거절 사유를 입력하세요:')
   if (!reason) return
-  try { await axios.post(`/api/admin/groupbuys/${id}/reject`, { reason }); loadPending() }
+  try { await axios.post(`/api/admin/groupbuys/${id}/reject`, { rejection_reason: reason }); loadPending() }
   catch (e) { alert(e.response?.data?.message || '실패') }
 }
 

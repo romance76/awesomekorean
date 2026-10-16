@@ -255,6 +255,7 @@ const kinds = [
   { key: '', label: '전체' }, { key: 'points', label: '포인트 구매' }, { key: 'direct', label: '달러 직접 결제' },
   { key: 'event_request', label: '경품 이벤트 의뢰' }, { key: 'flyer', label: 'NEW 전면광고' },
   { key: 'banner', label: '배너 광고' }, { key: 'text_ad', label: '텍스트 광고' }, { key: 'promotion', label: '상위노출(카드)' },
+  { key: 'groupbuy_deposit', label: '공동구매 디파짓' },
 ]
 const KIND = {
   points: { text: '포인트 구매', cls: 'bg-blue-50 text-blue-600 border-blue-200' },

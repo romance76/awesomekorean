@@ -24,6 +24,11 @@
           <span class="text-xs px-2 py-0.5 rounded-full font-bold flex-shrink-0" :class="stageInfo(g.stage).cls">{{ stageInfo(g.stage).label }}</span>
         </div>
 
+        <div v-if="g.deposit_cents" class="text-xs text-ink-muted">
+          디파짓 ${{ (g.deposit_cents / 100).toFixed(2) }} ·
+          {{ { held: '카드 보류 중 (승인되면 청구)', charged: '결제 완료', released: '청구 없이 해제됨' }[g.deposit_state] || '' }}
+        </div>
+
         <div v-if="g.stage === 'rejected' && g.rejection_reason" class="bg-red-50 text-red-700 rounded-xl p-3 text-xs">반려 사유: {{ g.rejection_reason }}</div>
         <div v-else-if="g.stage === 'pending_approval'" class="bg-amber-50 text-amber-800 rounded-xl p-3 text-xs">관리자가 사업자 등록증을 확인하는 중이에요. 승인되면 목록에 공개되고 알림이 와요.</div>
 

@@ -154,7 +154,11 @@
           <button v-if="smallFit && form.scope !== 'national'" type="button" @click="fitSmall" class="underline font-semibold ml-1">소액으로 맞추기 (최대 {{ smallFit }}명)</button>
         </div>
         <div class="mt-1.5 pt-1.5 border-t border-black/10">
-          열 때 디파짓 <b>${{ depositPreview }}</b> (환불되지 않아요{{ form.scope === 'national' ? `, 전국 ×${NATIONAL_DEPOSIT_MULTIPLIER} 적용` : '' }}). 결제 기능이 열리기 전에는 받지 않고 안내만 해요.
+          <template v-if="isStaff">관리자·운영자는 디파짓 없이 열 수 있어요. (일반 개설자 디파짓 ${{ depositPreview }})</template>
+          <template v-else>
+            열 때 디파짓 <b>${{ depositPreview }}</b> (환불되지 않아요{{ form.scope === 'national' ? `, 전국 ×${NATIONAL_DEPOSIT_MULTIPLIER} 적용` : '' }}).
+            등록을 누르면 카드 결제 창이 열려요. {{ isSmall ? '소액은 바로 청구돼요.' : '사업자 공동구매는 관리자가 승인할 때 청구되고, 승인되지 않으면 청구되지 않아요.' }}
+          </template>
         </div>
       </div>
 
@@ -285,6 +289,29 @@
       </div>
     </div>
   </div>
+
+  <!-- 디파짓 카드 결제 창 -->
+  <Teleport to="body">
+    <div v-if="pay.open" class="fixed inset-0 z-[10001] bg-black/55 flex items-end sm:items-center justify-center" @click.self="cancelCard">
+      <div class="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl p-5" role="dialog" aria-modal="true"
+        :style="{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }">
+        <div class="text-[17px] font-bold text-ink mb-1">공동구매 개설 디파짓</div>
+        <div class="flex items-center justify-between bg-lime-50 rounded-xl px-4 py-3 mb-3">
+          <span class="text-sm font-bold text-lime-700">디파짓</span>
+          <span class="text-xl font-black text-lime-700">${{ (pay.cents / 100).toFixed(2) }}</span>
+        </div>
+        <p class="text-[13px] text-ink-muted mb-3 leading-relaxed">
+          <template v-if="pay.chargeNow">카드를 확인하면 <b>바로 청구</b>되고 공동구매가 열려요.</template>
+          <template v-else>지금은 <b>청구되지 않아요.</b> 관리자가 사업자 등록증을 확인해 승인하면 그때 청구되고, 승인되지 않으면 청구 없이 끝나요.</template>
+          열고 난 뒤 <b>디파짓은 환불되지 않아요.</b> 인보이스는 마이페이지 › 결제에서 볼 수 있어요.
+        </p>
+        <StripeCardForm :client-secret="pay.secret" :button-label="pay.chargeNow ? '카드 확인하고 결제·등록하기' : '카드 확인하고 등록하기'" @authorized="onCardAuthorized" />
+        <p v-if="pay.busy" class="text-xs text-ink-muted mt-2">마무리하는 중...</p>
+        <p v-if="pay.error" class="text-xs text-red-500 mt-2">{{ pay.error }}</p>
+        <button @click="cancelCard" :disabled="pay.busy" class="w-full mt-2 py-2.5 rounded-xl bg-gray-100 text-ink text-sm font-bold disabled:opacity-50">취소 (청구 없음)</button>
+      </div>
+    </div>
+  </Teleport>
 </div>
 </template>
 
@@ -296,6 +323,8 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import { stateRegion, isUsState, normalizeState } from '../../utils/usStates'
+import StripeCardForm from '../../components/StripeCardForm.vue'
+import { useModal } from '../../composables/useModal'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -378,6 +407,9 @@ function dateStr(addDays) {
   const p = n => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
 }
+// 관리자·운영자는 디파짓이 없다 (서버 GroupBuyController::store 와 같은 규칙)
+const isStaff = computed(() => ['admin', 'super_admin', 'moderator'].includes(auth.user?.role))
+
 // 기본(지역) 범위에 포함되는 주 = 작성자 주 + 인접 주
 const regionList = computed(() => stateRegion(form.state))
 
@@ -501,9 +533,19 @@ async function submit() {
     // 사업자 등록증
     if (!isSmall.value && businessDoc.value) fd.append('business_doc', businessDoc.value)
 
-    await axios.post('/api/groupbuys', fd, {
+    const { data } = await axios.post('/api/groupbuys', fd, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
+
+    // 디파짓 카드 결제가 필요한 개설자: 글은 임시로 저장돼 있고, 카드를 확인하면 열린다
+    if (data?.needs_card) {
+      Object.assign(pay, {
+        open: true, secret: data.data.client_secret, gbId: data.data.group_buy_id,
+        cents: data.data.deposit_cents, chargeNow: !!data.data.charge_now, busy: false, error: '',
+      })
+      submitting.value = false
+      return
+    }
 
     router.push('/groupbuy')
   } catch (e) {
@@ -513,6 +555,32 @@ async function submit() {
   }
 
   submitting.value = false
+}
+
+// ─── 디파짓 카드 결제 ───
+const { showAlert } = useModal()
+const pay = reactive({ open: false, secret: '', gbId: null, cents: 0, chargeNow: false, busy: false, error: '' })
+
+// 카드 확인(보류)이 끝나면 서버가 Stripe 에서 직접 확인하고 글을 연다 (소액은 바로 청구·공개, 사업자는 승인 때 청구)
+async function onCardAuthorized() {
+  pay.busy = true; pay.error = ''
+  try {
+    const { data } = await axios.post(`/api/groupbuys/${pay.gbId}/deposit/confirm`)
+    pay.open = false
+    await showAlert(data?.message || '접수됐어요', '공동구매 등록')
+    router.push('/dashboard?tab=groupbuy')
+  } catch (e) {
+    pay.busy = false
+    pay.error = e.response?.data?.message || '결제를 마치지 못했어요. 다시 시도해 주세요.'
+  }
+}
+
+// 카드 창을 닫으면 임시 글을 지우고 청구 없이 끝낸다 (입력한 내용은 화면에 그대로 남아 있어 다시 등록할 수 있다)
+async function cancelCard() {
+  if (pay.busy) return
+  const id = pay.gbId
+  pay.open = false
+  try { await axios.delete(`/api/groupbuys/${id}`) } catch {}
 }
 
 // 유저 프로필에서 도시/주 자동 채우기

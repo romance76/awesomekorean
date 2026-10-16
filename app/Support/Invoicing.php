@@ -183,6 +183,9 @@ class Invoicing
         } elseif ($kind === Payment::KIND_PROMOTION) {
             $name = $desc !== '' ? $desc : '상위노출';
             $en = self::enDetail('Featured listing (promotion)', $desc);
+        } elseif ($kind === Payment::KIND_GROUPBUY) {
+            $name = $desc !== '' ? $desc : '공동구매 개설 디파짓';
+            $en = self::enDetail('Group buy opening deposit', $desc);
         } else {
             $name = $desc !== '' ? $desc : '결제';
             $en = 'Payment';
@@ -341,6 +344,7 @@ class Invoicing
             Payment::KIND_BANNER => ['배너 광고', 'Banner advertising'],
             Payment::KIND_TEXT_AD => ['텍스트 광고', 'Text advertising'],
             Payment::KIND_PROMOTION => ['상위노출', 'Featured listing'],
+            Payment::KIND_GROUPBUY => ['공동구매 개설 디파짓', 'Group buy opening deposit'],
         ];
         return [
             'inv' => $invoice,

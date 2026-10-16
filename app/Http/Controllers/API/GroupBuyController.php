@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GroupBuy;
 use App\Models\GroupBuyParticipant;
 use App\Models\Notification;
+use App\Support\GroupBuyDeposit;
 use App\Support\GroupBuyTier;
 use App\Support\UsStates;
 use App\Events\NewNotification;
@@ -35,7 +36,7 @@ class GroupBuyController extends Controller
         $adminView = $request->boolean('admin') && $staff && in_array($staff->role, ['admin', 'super_admin', 'moderator'], true);
         $query = GroupBuy::with('user:id,name,nickname,avatar,lifetime_points')
             ->when($adminView && $request->has('is_approved'), function ($q) use ($request) {
-                $q->where('is_approved', $request->boolean('is_approved'));
+                $q->where('is_approved', $request->boolean('is_approved'))->where('status', '!=', 'awaiting_deposit');   // 카드 결제를 마치지 않은 임시 글은 승인 대상이 아님
                 if (!$request->boolean('is_approved')) $q->whereNull('rejection_reason');   // 반려된 것은 대기 목록에서 제외
             }, fn($q) => $q->approved())
             // '모집중'은 마감일이 안 지난 것만, '마감'(ended)은 모집중인데 마감일이 지난 것
@@ -107,13 +108,14 @@ class GroupBuyController extends Controller
     // 내가 연 공동구매 관리(대시보드): 진행 상태·참가자 현황. 참가자 연락처(전화·이메일)는 완료·수락 + 수수료 결제 기능이 생기기 전까지 열지 않는다.
     public function myOpened()
     {
-        $rows = GroupBuy::where('user_id', auth()->id())->orderByDesc('id')->limit(50)->get();
+        $rows = GroupBuy::where('user_id', auth()->id())->where('status', '!=', 'awaiting_deposit')->orderByDesc('id')->limit(50)->get();
+        $payments = \App\Models\Payment::whereIn('id', $rows->pluck('deposit_payment_id')->filter())->get()->keyBy('id');
         $parts = GroupBuyParticipant::whereIn('group_buy_id', $rows->pluck('id'))
             ->where('status', '!=', 'cancelled')
             ->with('user:id,name,nickname')
             ->orderByDesc('id')->get()->groupBy('group_buy_id');
 
-        $data = $rows->map(function ($gb) use ($parts) {
+        $data = $rows->map(function ($gb) use ($parts, $payments) {
             $list = $parts->get($gb->id, collect());
             $sold = (int) $list->whereIn('status', ['pending', 'paid'])->sum('quantity');
             $stage = $gb->rejection_reason ? 'rejected'
@@ -128,6 +130,9 @@ class GroupBuyController extends Controller
                 'scope' => $gb->scope ?: 'local',
                 'fulfillment' => $gb->fulfillment,
                 'target_states' => $gb->target_states,
+                'deposit_cents' => (int) $gb->deposit_cents,
+                // 디파짓 상태: held = 카드 보류 중(승인 때 청구) / charged = 청구됨 / released = 청구 없이 풀림 / null = 디파짓 없음
+                'deposit_state' => ($pay = $payments->get($gb->deposit_payment_id)) ? ['authorized' => 'held', 'captured' => 'charged', 'released' => 'released'][$pay->status] ?? $pay->status : null,
                 'price' => $gb->current_price,
                 'deadline' => $gb->deadline,
                 'current_participants' => (int) $gb->current_participants,
@@ -258,6 +263,9 @@ class GroupBuyController extends Controller
             }
         }
         $autoApprove = $isStaff || $tier === GroupBuyTier::SMALL;
+        // 관리자·운영자는 디파짓을 내지 않는다. 그 밖의 개설자는 카드로 디파짓을 내야 글이 열린다(결제 전에는 임시 글 awaiting_deposit)
+        $needsDeposit = !$isStaff;
+        if ($needsDeposit) GroupBuyDeposit::purgeStale(auth()->id());   // 이전에 카드 입력만 하다 떠난 임시 글 정리
 
         $images = [];
         if ($request->hasFile('images')) {
@@ -292,18 +300,70 @@ class GroupBuyController extends Controller
             'scope' => $scope,
             'fulfillment' => $request->fulfillment,
             'target_states' => $targetStates,
-            'status' => 'recruiting',
+            'status' => $needsDeposit ? 'awaiting_deposit' : 'recruiting',
             'end_type' => $request->end_type,
             'payment_method' => $request->payment_method,
-            'is_approved' => $autoApprove,
-            'approved_at' => $autoApprove ? now() : null,
+            'is_approved' => !$needsDeposit && $autoApprove,
+            'approved_at' => (!$needsDeposit && $autoApprove) ? now() : null,
             'category' => $request->category,
             // 날짜만 고르므로 "그날 밤(미국 동부 기준)까지"로 저장한다. 그대로 저장하면 서버(UTC) 자정이라 미국에서는 하루 일찍 마감돼 보인다.
             'deadline' => $request->deadline ? \Carbon\Carbon::parse($request->deadline, 'America/New_York')->endOfDay()->utc() : null,
         ]);
 
         $days = $gb->deadline ? max(1, (int) ceil(($gb->deadline->getTimestamp() - time()) / 86400)) : 1;
-        return response()->json(['success' => true, 'tier' => $tier, 'scope' => $scope, 'deposit' => GroupBuyTier::deposit($tier, $scope, $days), 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
+        $deposit = GroupBuyTier::deposit($tier, $scope, $days);
+
+        if ($needsDeposit) {
+            // 카드 보류용 결제 생성 — 사용자가 카드를 확인하면 /deposit/confirm 으로 마무리한다
+            try {
+                [, $clientSecret] = GroupBuyDeposit::begin($gb, auth()->user(), $deposit * 100);
+            } catch (\DomainException $e) {
+                GroupBuyDeposit::purge($gb);
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            } catch (\Throwable $e) {
+                \Log::error('공동구매 디파짓 결제 생성 실패: ' . $e->getMessage());
+                GroupBuyDeposit::purge($gb);
+                return response()->json(['success' => false, 'message' => '결제를 시작하지 못했어요. 잠시 후 다시 시도해주세요.'], 502);
+            }
+            return response()->json([
+                'success' => true,
+                'message' => '카드를 확인해 주세요.',
+                'needs_card' => true,
+                'tier' => $tier, 'scope' => $scope, 'deposit' => $deposit,
+                'data' => ['group_buy_id' => $gb->id, 'client_secret' => $clientSecret, 'deposit_cents' => $deposit * 100, 'charge_now' => $tier === GroupBuyTier::SMALL],
+            ], 201);
+        }
+
+        return response()->json(['success' => true, 'tier' => $tier, 'scope' => $scope, 'deposit' => $deposit, 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
+    }
+
+    /** POST /api/groupbuys/{id}/deposit/confirm — 카드 확인(보류)이 끝났음을 알림. 클라이언트 말만 믿지 않고 Stripe 에서 실제 상태를 조회해 검증한다. */
+    public function confirmDeposit($id)
+    {
+        $gb = GroupBuy::where('user_id', auth()->id())->findOrFail($id);
+        if ($gb->status !== 'awaiting_deposit') {
+            return response()->json(['success' => true, 'message' => '이미 접수된 공동구매예요.', 'data' => ['group_buy_id' => $gb->id, 'is_approved' => (bool) $gb->is_approved]]);
+        }
+        try {
+            $result = GroupBuyDeposit::confirm($gb);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        } catch (\Throwable $e) {
+            \Log::error('공동구매 디파짓 확인 실패: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => '결제 확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.'], 502);
+        }
+        $gb->refresh();
+        if ($result === 'held') {
+            \App\Support\AdminNotifier::send(2, 'groupbuy_submitted', '새 사업자 공동구매가 승인을 기다리고 있어요', "'{$gb->title}' 공동구매가 승인을 기다리고 있어요.", '/admin/groupbuy', ['groupbuy_id' => $gb->id]);
+        }
+        $money = '$' . number_format($gb->deposit_cents / 100, 2);
+        return response()->json([
+            'success' => true,
+            'message' => $result === 'captured'
+                ? "디파짓 {$money}가 결제됐고, 공동구매가 열렸어요."
+                : "접수됐어요. 관리자가 승인하면 그때 카드에 디파짓 {$money}가 청구돼요. 승인되지 않으면 청구되지 않아요.",
+            'data' => ['group_buy_id' => $gb->id, 'is_approved' => (bool) $gb->is_approved, 'charged' => $result === 'captured'],
+        ]);
     }
 
     public function update(Request $request, $id)
@@ -367,6 +427,12 @@ class GroupBuyController extends Controller
             return response()->json(['success' => false, 'message' => '확정된 공동구매는 삭제할 수 없습니다.'], 403);
         }
 
+        // 카드 결제를 마치지 않은 임시 글(카드 창 닫기·취소): 청구 없이 보류를 풀고 깨끗이 지운다
+        if ($gb->status === 'awaiting_deposit') {
+            GroupBuyDeposit::purge($gb);
+            return response()->json(['success' => true, 'message' => '취소했어요. 카드에는 청구되지 않았습니다.']);
+        }
+
         // Refund all paid participants
         $paidParticipants = $gb->participants()->where('status', 'paid')->get();
         foreach ($paidParticipants as $p) {
@@ -383,10 +449,17 @@ class GroupBuyController extends Controller
         }
         $gb->deleteBusinessDoc();
 
+        // 카드 보류만 잡혀 있고 아직 청구 전이면 청구 없이 풀어 준다. 이미 청구된 디파짓은 환불하지 않는다(개설 후 철회·삭제).
+        $deposit = GroupBuyDeposit::payment($gb);
+        $wasCharged = $deposit && $deposit->status === 'captured';
+        GroupBuyDeposit::release($gb);
+
         $gb->update(['status' => 'cancelled']);
         $gb->delete();
 
-        return response()->json(['success' => true, 'message' => '공동구매가 삭제되었습니다.']);
+        return response()->json(['success' => true, 'message' => $wasCharged
+            ? '공동구매가 삭제되었습니다. 이미 결제된 디파짓은 환불되지 않아요.'
+            : '공동구매가 삭제되었습니다.']);
     }
 
     /**
@@ -574,6 +647,15 @@ class GroupBuyController extends Controller
         if ($res = $this->assertGroupBuyAdmin()) return $res;
 
         $gb = GroupBuy::findOrFail($id);
+        if ($gb->status === 'awaiting_deposit') {
+            return response()->json(['success' => false, 'message' => '개설자가 아직 디파짓 카드 결제를 마치지 않았어요.'], 422);
+        }
+        // 사업자 공동구매는 승인할 때 개설자 카드에 디파짓이 청구된다(보류 → 청구). 보류가 만료됐으면 승인하지 않고 안내한다.
+        try {
+            GroupBuyDeposit::capture($gb);
+        } catch (\DomainException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
         $gb->update([
             'is_approved' => true,
             'approved_by' => auth()->id(),
@@ -596,6 +678,8 @@ class GroupBuyController extends Controller
     {
         if ($res = $this->assertGroupBuyAdmin()) return $res;
 
+        // 관리자 화면은 사유를 reason 으로 보내고 있었다 — 예전에는 이름이 달라 반려가 항상 422 로 실패했다. 어느 이름이든 받는다.
+        $request->merge(['rejection_reason' => $request->input('rejection_reason', $request->input('reason'))]);
         $request->validate(['rejection_reason' => 'required|string|max:500']);
 
         $gb = GroupBuy::findOrFail($id);
@@ -616,6 +700,8 @@ class GroupBuyController extends Controller
                 'is_approved' => false,
                 'rejection_reason' => $request->rejection_reason,
             ]);
+            // 아직 청구 전(카드 보류)인 디파짓은 청구 없이 풀어 준다. 이미 청구된 것(소액·승인 후 반려)은 건드리지 않는다.
+            GroupBuyDeposit::release($gb);
         });
 
         $this->notify($gb->user_id, 'groupbuy_rejected', '공동구매가 반려되었습니다', "'{$gb->title}' 공동구매가 반려되었습니다. 사유: {$request->rejection_reason}", ['groupbuy_id' => $id]);

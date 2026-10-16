@@ -407,6 +407,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/recipes/{id}/favorite', [RecipeController::class, 'toggleFavorite']);
 
     Route::post('/groupbuys', [GroupBuyController::class, 'store'])->middleware(['verified.email', 'throttle:content-write']);
+    Route::post('/groupbuys/{id}/deposit/confirm', [GroupBuyController::class, 'confirmDeposit']);
     Route::put('/groupbuys/{id}', [GroupBuyController::class, 'update']);
     Route::delete('/groupbuys/{id}', [GroupBuyController::class, 'destroy']);
     Route::post('/groupbuys/{id}/join', [GroupBuyController::class, 'join']);
