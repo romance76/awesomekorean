@@ -86,6 +86,47 @@
         </div>
       </div>
 
+      <!-- 6-1. 수령 방식 -->
+      <div>
+        <label class="input-label mb-2">수령 방식 <span class="text-red-400">*</span></label>
+        <div class="grid grid-cols-2 gap-2">
+          <label v-for="o in FULFILLMENTS" :key="o.value" class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition"
+            :class="form.fulfillment === o.value ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:bg-gray-50'">
+            <input v-model="form.fulfillment" type="radio" :value="o.value" class="mt-0.5 accent-amber-500" />
+            <div>
+              <div class="text-sm font-semibold text-ink">{{ o.label }}</div>
+              <div class="text-xs text-ink-muted">{{ o.desc }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 6-2. 범위 (기본 = 내 주 + 인접 주 / 전국) -->
+      <div>
+        <label class="input-label mb-2">공동구매 범위 <span class="text-red-400">*</span></label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition"
+            :class="form.scope === 'local' ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:bg-gray-50'">
+            <input v-model="form.scope" type="radio" value="local" class="mt-0.5 accent-amber-500" />
+            <div>
+              <div class="text-sm font-semibold text-ink">기본 (내 주 + 인접 주)</div>
+              <div class="text-xs text-ink-muted">
+                <template v-if="regionList.length">{{ regionList.join(' · ') }}</template>
+                <template v-else>아래 State 를 입력하면 포함되는 주가 나와요</template>
+              </div>
+            </div>
+          </label>
+          <label class="flex items-start gap-2 p-3 rounded-xl border cursor-pointer transition"
+            :class="form.scope === 'national' ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:bg-gray-50'">
+            <input v-model="form.scope" type="radio" value="national" class="mt-0.5 accent-amber-500" />
+            <div>
+              <div class="text-sm font-semibold text-ink">전국</div>
+              <div class="text-xs text-ink-muted">모든 주에 보여요 · 사업자 등록증 필수 · 디파짓 ×{{ NATIONAL_DEPOSIT_MULTIPLIER }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <!-- 7-0. 총 수량 -->
       <div>
         <label class="input-label">총 수량(개) <span class="text-red-400">*</span>
@@ -104,9 +145,15 @@
         <div v-if="isSmall">
           총액 ${{ SMALL_TOTAL_LIMIT }} 미만 · 최대 {{ SMALL_MAX_PEOPLE }}명 · {{ SMALL_MAX_QUANTITY }}개 · 마감 {{ SMALL_MAX_DAYS }}일 이내. 사업자 등록증 없이 등록할 수 있어요.
         </div>
+        <div v-else-if="form.scope === 'national'">
+          전국 공동구매는 총액과 상관없이 사업자 등록증과 관리자 승인이 필요하고, 마감은 {{ BUSINESS_MAX_DAYS }}일(1개월) 이내예요.
+        </div>
         <div v-else>
           예상 총액이 ${{ SMALL_TOTAL_LIMIT }} 이상이거나 인원이 {{ SMALL_MAX_PEOPLE }}명, 수량이 {{ SMALL_MAX_QUANTITY }}개를 넘으면 사업자 등록증과 관리자 승인이 필요하고, 마감은 {{ BUSINESS_MAX_DAYS }}일(1개월) 이내예요.
-          <button v-if="smallFit" type="button" @click="fitSmall" class="underline font-semibold ml-1">소액으로 맞추기 (최대 {{ smallFit }}명)</button>
+          <button v-if="smallFit && form.scope !== 'national'" type="button" @click="fitSmall" class="underline font-semibold ml-1">소액으로 맞추기 (최대 {{ smallFit }}명)</button>
+        </div>
+        <div class="mt-1.5 pt-1.5 border-t border-black/10">
+          열 때 디파짓 <b>${{ depositPreview }}</b> (환불되지 않아요{{ form.scope === 'national' ? `, 전국 ×${NATIONAL_DEPOSIT_MULTIPLIER} 적용` : '' }}). 결제 기능이 열리기 전에는 받지 않고 안내만 해요.
         </div>
       </div>
 
@@ -247,6 +294,7 @@ import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import PageHeader from '../../components/PageHeader.vue'
+import { stateRegion, isUsState, normalizeState } from '../../utils/usStates'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -272,6 +320,8 @@ const form = reactive({
   min_participants: 2,
   max_participants: 50,
   total_quantity: null,
+  scope: 'local',
+  fulfillment: '',
   deadline: '',
   end_type: 'target_met',
   payment_method: 'none',
@@ -287,6 +337,12 @@ const SMALL_MAX_QUANTITY = 50
 const SMALL_MAX_DAYS = 14
 const BUSINESS_MAX_DAYS = 31
 const maxPeopleCap = 10000
+const NATIONAL_DEPOSIT_MULTIPLIER = 3   // 전국 디파짓 배수 (서버 GroupBuyTier::NATIONAL_DEPOSIT_MULTIPLIER)
+
+const FULFILLMENTS = [
+  { value: 'delivery', label: '택배용', desc: '상품을 택배·배송으로 받아요' },
+  { value: 'coupon', label: '쿠폰용', desc: '쿠폰·이용권을 받아 매장 등에서 써요' },
+]
 
 // 예상 최대 총액 = (공동구매 최저가 || 원래 가격) × (총 수량 || 최대 인원)
 const estTotal = computed(() => {
@@ -295,6 +351,7 @@ const estTotal = computed(() => {
 })
 // 최대 인원이 없거나 50명을 넘거나, 수량이 50개를 넘으면 사업자 등급
 const isSmall = computed(() => {
+  if (form.scope === 'national') return false   // 전국은 총액과 상관없이 사업자 등급
   const max = Number(form.max_participants || 0)
   const qty = Number(form.total_quantity || 0)
   if (max < 1 || max > SMALL_MAX_PEOPLE || qty > SMALL_MAX_QUANTITY) return false
@@ -320,6 +377,23 @@ function dateStr(addDays) {
   const p = n => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
 }
+// 기본(지역) 범위에 포함되는 주 = 작성자 주 + 인접 주
+const regionList = computed(() => stateRegion(form.state))
+
+// 열 때 디파짓 안내 (서버 GroupBuyTier::deposit 과 같은 규칙): 소액 $5, 사업자 기간별 $5/$7/$10/$15, 전국 ×3
+const depositPreview = computed(() => {
+  let base = 5
+  if (!isSmall.value) {
+    let days = 1
+    if (form.deadline) {
+      const end = new Date(form.deadline + 'T23:59:59')
+      days = Math.max(1, Math.ceil((end - new Date()) / 86400000))
+    }
+    base = days <= 3 ? 5 : days <= 7 ? 7 : days <= 14 ? 10 : 15
+  }
+  return base * (form.scope === 'national' ? NATIONAL_DEPOSIT_MULTIPLIER : 1)
+})
+
 const deadlineMin = computed(() => dateStr(1))
 const deadlineMax = computed(() => dateStr(isSmall.value ? SMALL_MAX_DAYS : BUSINESS_MAX_DAYS))
 
@@ -376,6 +450,8 @@ async function submit() {
   if (!form.title.trim()) { error.value = '제목을 입력해주세요'; return }
   if (!form.content.trim()) { error.value = '상세 설명을 입력해주세요'; return }
   if (!form.max_participants || form.max_participants < 2) { error.value = '최대 인원을 입력해주세요'; return }
+  if (!form.fulfillment) { error.value = '수령 방식(택배용/쿠폰용)을 골라주세요'; return }
+  if (form.scope === 'local' && !isUsState(form.state)) { error.value = '지역 공동구매는 State(주)를 정확히 입력해주세요. 예: GA'; return }
   if (!form.total_quantity || form.total_quantity < 1) { error.value = '총 수량(개)을 입력해주세요'; return }
   if (!form.deadline) { error.value = '마감일을 정해주세요'; return }
   if (form.deadline > deadlineMax.value) {
@@ -400,11 +476,13 @@ async function submit() {
     fd.append('min_participants', form.min_participants)
     fd.append('max_participants', form.max_participants)
     fd.append('total_quantity', form.total_quantity)
+    fd.append('scope', form.scope)
+    fd.append('fulfillment', form.fulfillment)
     if (form.deadline) fd.append('deadline', form.deadline)
     fd.append('end_type', form.end_type)
     fd.append('payment_method', form.payment_method)
     if (form.city) fd.append('city', form.city)
-    if (form.state) fd.append('state', form.state)
+    if (form.state) fd.append('state', normalizeState(form.state))
 
     // 할인 티어
     const validTiers = form.discount_tiers.filter(t => t.min_people && t.discount_pct)

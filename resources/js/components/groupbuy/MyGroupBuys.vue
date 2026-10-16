@@ -16,6 +16,8 @@
             <RouterLink :to="`/groupbuy/${g.id}`" class="text-sm font-semibold text-ink hover:text-amber-600 transition-colors break-words">{{ g.title }}</RouterLink>
             <div class="text-xs text-ink-faint mt-0.5">
               {{ g.tier === 'small' ? '소액 공동구매' : '사업자 공동구매' }}
+              · {{ g.scope === 'national' ? '전국' : (g.target_states && g.target_states.length ? g.target_states.join('·') : '지역') }}
+              <template v-if="g.fulfillment"> · {{ g.fulfillment === 'coupon' ? '쿠폰용' : '택배용' }}</template>
               <template v-if="g.deadline"> · 마감 {{ fmtDate(g.deadline) }}</template>
             </div>
           </div>

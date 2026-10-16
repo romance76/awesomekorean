@@ -25,5 +25,11 @@ check('quantity 50 at $9 (450) is small', T::tier(9, 0, 10, 50) === T::SMALL);
 check('total uses quantity when given: $30 x 10 people but 40 items = 1200 -> business', T::tier(30, 0, 10, 40) === T::BUSINESS);
 check('total uses quantity when given: $30 x 50 people but only 10 items = 300 -> small', T::tier(30, 0, 50, 10) === T::SMALL);
 check('items falls back to max people', T::items(30, null) === 30 && T::items(30, 0) === 30 && T::items(30, 12) === 12);
+check('national is always business, even for a tiny free item', T::tier(0, 0, 5, 5, 'national') === T::BUSINESS && T::tier(1, 0, 2, 2, T::SCOPE_NATIONAL) === T::BUSINESS);
+check('local scope behaves as before', T::tier(8, 0, 40, 40, 'local') === T::SMALL && T::tier(30, 0, 20, 20, 'local') === T::BUSINESS);
+check('small deposit is $5 (local)', T::deposit(T::SMALL, 'local', 10) === 5);
+check('business deposit by period: 3d $5, 7d $7, 14d $10, 15d+ $15', T::deposit(T::BUSINESS, 'local', 3) === 5 && T::deposit(T::BUSINESS, 'local', 7) === 7 && T::deposit(T::BUSINESS, 'local', 14) === 10 && T::deposit(T::BUSINESS, 'local', 15) === 15 && T::deposit(T::BUSINESS, 'local', 31) === 15);
+check('national deposit is x3', T::deposit(T::BUSINESS, 'national', 3) === 15 && T::deposit(T::BUSINESS, 'national', 7) === 21 && T::deposit(T::BUSINESS, 'national', 14) === 30 && T::deposit(T::BUSINESS, 'national', 31) === 45);
+check('national multiplier constant is 3', T::NATIONAL_DEPOSIT_MULTIPLIER === 3);
 echo "\n$ok passed, $bad failed\n";
 }

@@ -4,8 +4,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 class GroupBuy extends Model
 {
-    protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','total_quantity','current_participants','lat','lng','city','state','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
-    protected $casts = ['images'=>'array','discount_tiers'=>'array','deadline'=>'datetime','approved_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','original_price'=>'decimal:2','group_price'=>'decimal:2','is_approved'=>'boolean'];
+    protected $fillable = ['user_id','title','content','images','product_url','business_doc','original_price','group_price','discount_tiers','min_participants','max_participants','total_quantity','current_participants','lat','lng','city','state','scope','fulfillment','target_states','status','end_type','payment_method','is_approved','approved_by','approved_at','rejection_reason','category','deadline'];
+    protected $casts = ['images'=>'array','discount_tiers'=>'array','target_states'=>'array','deadline'=>'datetime','approved_at'=>'datetime','lat'=>'decimal:7','lng'=>'decimal:7','original_price'=>'decimal:2','group_price'=>'decimal:2','is_approved'=>'boolean'];
     // 사업자등록증 경로는 응답에 싣지 않는다(공개 목록·상세로 새어 나가지 않게). 있는지만 has_business_doc 로 알려 주고, 열람은 GroupBuyController::businessDoc 로만 한다.
     protected $hidden = ['business_doc'];
     protected $appends = ['display_status', 'has_business_doc'];

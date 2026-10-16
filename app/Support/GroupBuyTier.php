@@ -32,13 +32,37 @@ class GroupBuyTier
         return $price * self::items($maxPeople, $quantity);
     }
 
-    /** 최대 인원이 없으면(무제한) 총액을 알 수 없으므로 사업자 등급. 인원·수량이 소액 한도를 넘어도 사업자 */
-    public static function tier($groupPrice, $originalPrice, $maxPeople, $quantity = null): string
+    /** 범위: local = 작성자 주 + 인접 주(기본), national = 전국 */
+    public const SCOPE_LOCAL = 'local';
+    public const SCOPE_NATIONAL = 'national';
+    /** 전국 공동구매 디파짓 배수 (2026-10-16 우선 책정) */
+    public const NATIONAL_DEPOSIT_MULTIPLIER = 3;
+
+    /**
+     * 최대 인원이 없으면(무제한) 총액을 알 수 없으므로 사업자 등급. 인원·수량이 소액 한도를 넘어도 사업자.
+     * 전국 공동구매는 총액과 상관없이 항상 사업자 등급(등록증 + 관리자 승인).
+     */
+    public static function tier($groupPrice, $originalPrice, $maxPeople, $quantity = null, string $scope = self::SCOPE_LOCAL): string
     {
+        if ($scope === self::SCOPE_NATIONAL) return self::BUSINESS;
         $max = (int) $maxPeople;
         $qty = (int) $quantity;
         if ($max < 1 || $max > self::SMALL_MAX_PEOPLE || $qty > self::SMALL_MAX_QUANTITY) return self::BUSINESS;
         return self::estimatedTotal($groupPrice, $originalPrice, $max, $qty) < self::SMALL_TOTAL_LIMIT ? self::SMALL : self::BUSINESS;
+    }
+
+    /**
+     * 열 때 받는 디파짓(달러, 환불 안 함). 소액은 $5, 사업자는 기간별 $5(3일)/$7(1주)/$10(2주)/$15(1개월), 전국은 거기에 ×3.
+     * 결제 기능이 열리기 전까지는 안내용 숫자다.
+     */
+    public static function deposit(string $tier, string $scope, int $days): int
+    {
+        if ($tier === self::SMALL) {
+            $base = 5;
+        } else {
+            $base = $days <= 3 ? 5 : ($days <= 7 ? 7 : ($days <= 14 ? 10 : 15));
+        }
+        return $base * ($scope === self::SCOPE_NATIONAL ? self::NATIONAL_DEPOSIT_MULTIPLIER : 1);
     }
 
     /** 해당 등급에서 허용되는 마감까지의 최대 일수 */

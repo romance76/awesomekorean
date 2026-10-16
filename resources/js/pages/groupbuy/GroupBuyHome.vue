@@ -105,6 +105,12 @@
 
     <GroupBuyGuide v-if="!loading && !showFavorites && items.length" variant="compact" />
     <!-- 목록 -->
+    <!-- 범위: 내 지역(내 주 + 인접 주) + 전국 / 전국만 / 전체 -->
+    <div class="flex items-center gap-1.5 mb-3 overflow-x-auto">
+      <button v-for="v in viewScopes" :key="v.value" @click="viewScope = v.value; loadPage()"
+        class="px-3 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap transition"
+        :class="viewScope === v.value ? 'bg-amber-50 text-amber-700 border-amber-300' : 'border-gray-200 text-ink-light hover:bg-gray-50'">{{ v.label }}</button>
+    </div>
     <div v-if="loading" class="text-center py-12 text-ink-muted">로딩중...</div>
     <div v-else-if="!items.length">
       <p class="text-xs text-ink-muted text-center mb-3">조건에 맞는 공동구매가 없어요. 다른 도시를 선택하거나 '전국'으로 검색해 보세요.</p>
@@ -123,6 +129,8 @@
                 {{ {recruiting:'모집중',confirmed:'확정',completed:'완료',cancelled:'취소',ended:'마감'}[item.display_status || item.status] || item.status }}
               </span>
               <span v-if="item.category" class="badge-primary">{{ item.category }}</span>
+              <span v-if="item.scope === 'national'" class="badge-blue">전국</span>
+              <span v-if="item.fulfillment" class="badge-gray">{{ item.fulfillment === 'coupon' ? '쿠폰' : '택배' }}</span>
               <span v-if="myJoinedIds.has(item.id)" class="inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded-full font-bold bg-amber-400 text-white"><AppIcon name="check" :size="11" />참여중</span>
             </div>
             <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
@@ -187,6 +195,13 @@ const route = useRoute()
 const showFavorites = ref(false)
 const favorited = ref(new Set())
 const favCount = computed(() => bStore.getBookmarkedIds(BM_TYPE).length)
+// 범위 보기 — 로그인한 회원의 주가 있으면 '내 지역(내 주 + 인접 주) + 전국'이 기본, 아니면 전체
+const viewScopes = [
+  { value: 'mine', label: '내 지역 + 전국' },
+  { value: 'national', label: '전국만' },
+  { value: 'all', label: '전체' },
+]
+const viewScope = ref(auth.user?.state ? 'mine' : 'all')
 const statusFilter = ref('')
 const statusFilters = [
   { value: '', label: '전체' },{ value: 'recruiting', label: '모집중' },
@@ -280,6 +295,8 @@ async function loadPage(p = 1) {
   const params = { page: p, per_page: 20 }
   if (search.value) params.search = search.value
   if (statusFilter.value) params.status = statusFilter.value
+  if (viewScope.value === 'national') params.scope = 'national'
+  else if (viewScope.value === 'mine' && auth.user?.state) { params.scope = 'mine'; params.state = auth.user.state }
 
   if (radius.value !== '0') {
     let lat, lng

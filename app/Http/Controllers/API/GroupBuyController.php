@@ -6,6 +6,7 @@ use App\Models\GroupBuy;
 use App\Models\GroupBuyParticipant;
 use App\Models\Notification;
 use App\Support\GroupBuyTier;
+use App\Support\UsStates;
 use App\Events\NewNotification;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
@@ -44,6 +45,12 @@ class GroupBuyController extends Controller
                 if ($v === 'recruiting') $q->stillOpen();
             })
             ->when($request->category, fn($q, $v) => $q->where('category', $v))
+            // 내 지역: 전국 공동구매 + 내 주가 보일 주에 들어 있는 지역 공동구매(+ 예전 글처럼 보일 주가 정해지지 않은 것). scope=national 이면 전국만
+            ->when($request->scope === 'national', fn($q) => $q->where('scope', 'national'))
+            ->when($request->scope === 'mine' && UsStates::isState($request->state), function ($q) use ($request) {
+                $st = UsStates::normalize($request->state);
+                $q->where(fn($w) => $w->where('scope', 'national')->orWhereNull('target_states')->orWhereJsonContains('target_states', $st));
+            })
             ->when($request->search, fn($q, $v) => $q->where(function($q2) use ($v) {
                 $q2->where('title', 'like', "%{$v}%")->orWhere('content', 'like', "%{$v}%");
             }));
@@ -117,7 +124,10 @@ class GroupBuyController extends Controller
                 'title' => $gb->title,
                 'stage' => $stage,   // pending_approval / rejected / recruiting / confirmed / completed / cancelled / ended
                 'rejection_reason' => $gb->rejection_reason,
-                'tier' => GroupBuyTier::tier($gb->group_price, $gb->original_price, $gb->max_participants, $gb->total_quantity),
+                'tier' => GroupBuyTier::tier($gb->group_price, $gb->original_price, $gb->max_participants, $gb->total_quantity, $gb->scope ?: 'local'),
+                'scope' => $gb->scope ?: 'local',
+                'fulfillment' => $gb->fulfillment,
+                'target_states' => $gb->target_states,
                 'price' => $gb->current_price,
                 'deadline' => $gb->deadline,
                 'current_participants' => (int) $gb->current_participants,
@@ -201,6 +211,8 @@ class GroupBuyController extends Controller
             'min_participants' => 'required|integer|min:2',
             'max_participants' => 'nullable|integer|min:2',
             'total_quantity' => 'required|integer|min:1|max:100000',
+            'scope' => 'required|in:local,national',          // local = 내 주 + 인접 주, national = 전국
+            'fulfillment' => 'required|in:delivery,coupon',   // delivery = 택배, coupon = 쿠폰
             'category' => 'required|string',
             'end_type' => 'required|in:target_met,time_limit,flexible',
             'payment_method' => 'required|in:point,none',   // 참가자는 카드로 결제하지 않는다(2026-10-16)
@@ -212,7 +224,16 @@ class GroupBuyController extends Controller
 
         // 등급: 예상 최대 총액 $500 미만이면 소액(자동 승인, 인원 50명·기간 2주 이하), 그 이상이면 사업자(등록증 + 관리자 승인, 기간 1개월 이하)
         $isStaff = in_array(auth()->user()->role ?? '', ['admin', 'super_admin', 'moderator'], true);
-        $tier = GroupBuyTier::tier($request->group_price, $request->original_price, $request->max_participants, $request->total_quantity);
+        $scope = $request->scope;
+        // 기본(지역) 범위 = 작성자 주 + 인접 주. 주를 알아야 하므로 지역 공동구매는 주(State)가 필요하다. 전국은 어디서나 보인다.
+        $targetStates = null;
+        if ($scope === GroupBuyTier::SCOPE_LOCAL) {
+            $targetStates = UsStates::region($request->state);
+            if (!$targetStates) {
+                return response()->json(['success' => false, 'message' => '지역 공동구매는 주(State)를 정확히 입력해 주세요. 예: GA'], 422);
+            }
+        }
+        $tier = GroupBuyTier::tier($request->group_price, $request->original_price, $request->max_participants, $request->total_quantity, $scope);
         if (!$isStaff) {
             // 개설자는 동시에 하나만: 승인 대기·모집 중인 공동구매가 있으면 새로 열 수 없다(반려·취소·마감된 것은 제외)
             $hasOpen = GroupBuy::where('user_id', auth()->id())->where('status', 'recruiting')->whereNull('rejection_reason')->stillOpen()->exists();
@@ -263,7 +284,10 @@ class GroupBuyController extends Controller
             'lat' => $request->lat,
             'lng' => $request->lng,
             'city' => $request->city,
-            'state' => $request->state,
+            'state' => $request->state ? UsStates::normalize($request->state) : null,
+            'scope' => $scope,
+            'fulfillment' => $request->fulfillment,
+            'target_states' => $targetStates,
             'status' => 'recruiting',
             'end_type' => $request->end_type,
             'payment_method' => $request->payment_method,
@@ -274,7 +298,8 @@ class GroupBuyController extends Controller
             'deadline' => $request->deadline ? \Carbon\Carbon::parse($request->deadline, 'America/New_York')->endOfDay()->utc() : null,
         ]);
 
-        return response()->json(['success' => true, 'tier' => $tier, 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
+        $days = $gb->deadline ? max(1, (int) ceil(($gb->deadline->getTimestamp() - time()) / 86400)) : 1;
+        return response()->json(['success' => true, 'tier' => $tier, 'scope' => $scope, 'deposit' => GroupBuyTier::deposit($tier, $scope, $days), 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
     }
 
     public function update(Request $request, $id)
