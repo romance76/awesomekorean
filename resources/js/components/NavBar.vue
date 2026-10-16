@@ -360,9 +360,8 @@ const defaultMenus = [
   { key: 'events', label: '이벤트', label_en: 'Events', icon: '🎉', path: '/events', enabled: true },
   { key: 'flyers', label: 'NEW', label_en: 'NEW', icon: '🆕', path: '/new', enabled: true },
   { key: 'news', label: '뉴스', label_en: 'News', icon: '📰', path: '/news', enabled: true },
-  // 서버사이드 Blade로 렌더링되는 페이지라(검색엔진용 실제 title/meta 태그 필요)
-  // Vue Router가 아니라 일반 브라우저 네비게이션으로 이동해야 함 — external: true
-  { key: 'info', label: '정보', label_en: 'Info', icon: '📘', path: '/info', enabled: true, external: true },
+  // 정보는 서버사이드 Blade 페이지(검색엔진용)지만, 사이트 안 이동은 InfoFrame 라우트로 — 음악이 끊기지 않음
+  { key: 'info', label: '정보', label_en: 'Info', icon: '📘', path: '/info', enabled: true },
   { key: 'recipes', label: '레시피', label_en: 'Recipes', icon: '🍳', path: '/recipes', enabled: true },
   { key: 'clubs', label: '동호회', label_en: 'Clubs', icon: '👥', path: '/clubs', enabled: true },
   { key: 'games', label: '게임', label_en: 'Games', icon: '🎮', path: '/games', enabled: true },

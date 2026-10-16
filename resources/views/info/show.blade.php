@@ -18,8 +18,13 @@
     <meta property="article:published_time" content="{{ $post->published_at->toIso8601String() }}">
     <meta property="article:section" content="{{ $post->category }}">
     @include('partials.head-icons')
+    @if (request()->boolean('embed'))
+    {{-- 사이트 안에서 틀(iframe)로 보여 줄 때: 분석·광고는 바깥 페이지 것만 쓰고, 검색엔진에는 원래 주소만 알린다 --}}
+    <meta name="robots" content="noindex,follow">
+    @else
     @include('partials.analytics')
     @include('partials.adsense')
+    @endif
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
     @vite(['resources/css/app.css'])

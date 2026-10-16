@@ -17,6 +17,7 @@
 @if ($evOn)
 <script>try{var e=JSON.parse(localStorage.getItem('ak_easy_view')||'null');if(e&&e.level&&e.level!=='md'||e&&e.hc){var r=document.documentElement,l={lg:[1.25,1.2],xl:[1.5,1.4],md:[1,1]}[e.level]||[1,1];r.classList.add('easy-view');if(e.hc)r.classList.add('ev-hc');r.style.setProperty('--fs',l[0]);r.style.setProperty('--ui',l[1])}}catch(_){}</script>
 @endif
+@unless (request()->boolean('embed'))
 {{-- 크기·간격은 app.css 의 .site-hdr-* 클래스 (NavBar.vue 와 공용) — 여기서 따로 숫자를 쓰지 말 것 --}}
 <nav class="site-hdr ev-header bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
     <div class="site-hdr-row">
@@ -600,3 +601,4 @@ function googleTranslateElementInit() {
     } catch (e) {}
 })();
 </script>
+@endunless

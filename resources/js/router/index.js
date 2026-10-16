@@ -42,6 +42,9 @@ const routes = [
   // Market
   { path: '/market', name: 'market', component: p('market/MarketList') },
   { path: '/stocks', name: 'stocks', component: p('Stocks') },
+  // 정보(/info) — 서버가 그리는 페이지를 사이트 안에서 틀로 보여 줌 (음악이 끊기지 않게). 직접 주소 접속은 서버가 그대로 처리
+  { path: '/info', name: 'info', component: p('InfoFrame') },
+  { path: '/info/:slug(.*)', name: 'info-show', component: p('InfoFrame') },
   { path: '/market/write', name: 'market-write', component: p('market/MarketWrite'), meta: { auth: true } },
   { path: '/market/:id', name: 'market-detail', component: p('market/MarketDetail') },
 

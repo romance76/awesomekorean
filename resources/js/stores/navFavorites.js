@@ -26,8 +26,8 @@ const ALL_MENUS = [
   { key: 'elder', label: '안심서비스', label_en: 'Elder Care', icon: '💙', path: '/elder' },
   { key: 'comms', label: '안심 커뮤', label_en: 'Comms', icon: '📞', path: '/comms' },
   { key: 'shopping', label: '쇼핑', label_en: 'Shopping', icon: '🛍️', path: '/shopping' },
-  // 서버에서 그리는 페이지(검색엔진용) — 라우터가 아니라 일반 이동 (햄버거 메뉴와 동일)
-  { key: 'info', label: '정보', label_en: 'Info', icon: '📘', path: '/info', external: true },
+  // 서버에서 그리는 페이지(검색엔진용)지만 사이트 안 이동은 InfoFrame 라우트로 (음악이 끊기지 않음)
+  { key: 'info', label: '정보', label_en: 'Info', icon: '📘', path: '/info' },
   { key: 'dashboard', label: 'MY', label_en: 'My', icon: '👤', path: '/dashboard' },
 ]
 

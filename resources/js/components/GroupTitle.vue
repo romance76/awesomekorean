@@ -39,7 +39,7 @@ const grp = computed(() => {
   const cfg = Object.fromEntries((site.menuConfig || []).map(m => [m.key, m]))
   const items = g.items.map(k => cfg[k] ? { ...cfg[k], key: k } : null).filter(m => m
     && m.enabled !== false && (!m.admin_only || auth.isAdmin) && (!m.login_required || auth.isLoggedIn) && m.path)
-    .map(m => ({ key: m.key, path: m.path, external: m.path.startsWith('/info'), label: ko ? (g.item_labels?.[m.key] || m.label) : (m.label_en || m.label) }))
+    .map(m => ({ key: m.key, path: m.path, external: false, label: ko ? (g.item_labels?.[m.key] || m.label) : (m.label_en || m.label) }))
   if (items.length < 2 || !items.some(m => m.key === props.menuKey)) return null
   return { label: ko ? g.label : (g.label_en || g.label), icon: g.icon, items }
 })
