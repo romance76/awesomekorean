@@ -5,14 +5,16 @@
   <p class="text-sm text-ink-muted -mt-2 mb-5">미국 시장 기준이에요. 모든 시간은 미국 동부시간(ET)이고, 시세는 15분마다 갱신돼요. <span class="text-ink-faint">· 지금 {{ nowET }}</span></p>
 
   <!-- ── 주요 지수 ───────────────────────────────────── -->
-  <div class="font-bold text-sm text-ink mb-2">주요 지수 · 지표</div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 mb-6">
-    <div v-for="x in indices" :key="x.symbol" class="card p-3">
-      <div class="text-xs font-bold text-ink-light truncate">{{ x.name }}</div>
-      <div class="text-lg font-black text-ink tabular-nums mt-0.5">{{ fmt(x.price) }}</div>
-      <div class="text-xs font-bold tabular-nums" :class="clr(x.change_pct)">{{ arrow(x.change_pct) }} {{ fmtSigned(x.change) }} ({{ fmtSigned(x.change_pct) }}%)</div>
-      <svg v-if="x.sparkline?.length > 1" viewBox="0 0 100 24" class="w-full h-6 mt-1.5" preserveAspectRatio="none">
-        <path :d="spark(x.sparkline)" fill="none" :stroke="Number(x.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.6" vector-effect="non-scaling-stroke" />
+  <div class="font-bold text-xs text-ink-muted mb-1.5">주요 지수 · 지표 <span class="font-normal text-ink-faint">(참고용)</span></div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-5">
+    <div v-for="x in indices" :key="x.symbol" class="card !rounded-xl px-2.5 py-1.5 flex items-center gap-2">
+      <div class="min-w-0 flex-1">
+        <div class="text-[10.5px] font-semibold text-ink-muted truncate leading-tight">{{ x.name }}</div>
+        <div class="text-[13px] font-extrabold text-ink tabular-nums leading-tight">{{ fmt(x.price) }}</div>
+        <div class="text-[10.5px] font-bold tabular-nums leading-tight" :class="clr(x.change_pct)">{{ arrow(x.change_pct) }} {{ fmtSigned(x.change_pct) }}%</div>
+      </div>
+      <svg v-if="x.sparkline?.length > 1" viewBox="0 0 100 24" class="w-10 h-6 shrink-0" preserveAspectRatio="none">
+        <path :d="spark(x.sparkline)" fill="none" :stroke="Number(x.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" />
       </svg>
     </div>
     <div v-if="!indices.length && !loading" class="col-span-full text-sm text-ink-muted py-4 text-center">시세를 불러오는 중이에요. 잠시 후 다시 확인해 주세요.</div>

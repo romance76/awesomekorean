@@ -23,9 +23,10 @@ class YahooQuotes
         'BTC-USD' => 'Bitcoin USD',
     ];
 
-    /** 메인 위젯 옆에 보이는 기본 종목 */
+    /** 증권 페이지 '대표 종목' 10개 (홈 위젯은 앞의 3개만 사용) */
     public const WATCHLIST = [
         'AAPL' => 'Apple', 'NVDA' => 'NVIDIA', 'TSLA' => 'Tesla', 'MSFT' => 'Microsoft', 'AMZN' => 'Amazon',
+        'GOOGL' => 'Alphabet (Google)', 'META' => 'Meta', 'AVGO' => 'Broadcom', 'BRK-B' => 'Berkshire Hathaway', 'JPM' => 'JPMorgan Chase',
     ];
 
     private const HEADERS = ['User-Agent' => 'Mozilla/5.0'];
