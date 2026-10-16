@@ -29,8 +29,14 @@ class GroupBuyController extends Controller
 
     public function index(Request $request)
     {
+        // 관리자 화면(admin=1 + is_approved=0)은 승인 대기 목록을 봐야 하는데 예전에는 이 조건이 무시돼 승인된 글만 나왔다(사업자 공동구매는 승인이 필요하므로 반드시 필요)
+        $staff = auth('api')->user();
+        $adminView = $request->boolean('admin') && $staff && in_array($staff->role, ['admin', 'super_admin', 'moderator'], true);
         $query = GroupBuy::with('user:id,name,nickname,avatar,lifetime_points')
-            ->approved()
+            ->when($adminView && $request->has('is_approved'), function ($q) use ($request) {
+                $q->where('is_approved', $request->boolean('is_approved'));
+                if (!$request->boolean('is_approved')) $q->whereNull('rejection_reason');   // 반려된 것은 대기 목록에서 제외
+            }, fn($q) => $q->approved())
             // '모집중'은 마감일이 안 지난 것만, '마감'(ended)은 모집중인데 마감일이 지난 것
             ->when($request->status, function ($q, $v) {
                 if ($v === 'ended') return $q->deadlinePassed();

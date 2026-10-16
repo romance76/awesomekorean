@@ -33,7 +33,7 @@
             <span>최소 {{ item.min_participants }}명</span>
             <button v-if="item.user?.id" @click="goUser(item.user)" class="min-h-[40px] text-blue-600 font-bold text-[14px]">{{ item.user?.name }}</button>
           </div>
-          <a v-if="item.business_doc" :href="item.business_doc" target="_blank" rel="noopener noreferrer" class="mt-1 flex items-center justify-center min-h-[46px] rounded-xl bg-amber-50 text-amber-700 text-[15px] font-bold">📎 사업자등록증 보기</a>
+          <a v-if="item.business_doc" :href="docUrl(item.business_doc)" target="_blank" rel="noopener noreferrer" class="mt-1 flex items-center justify-center min-h-[46px] rounded-xl bg-amber-50 text-amber-700 text-[15px] font-bold">📎 사업자등록증 보기</a>
           <div v-if="item.content" class="text-[14px] text-ink-light mt-2 bg-gray-50 rounded-xl px-3 py-2 break-words line-clamp-4">{{ item.content }}</div>
           <div class="grid grid-cols-2 gap-2 mt-3">
             <button @click="ask('approve', item)" class="min-h-[50px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold">승인</button>
@@ -75,7 +75,7 @@
                 <span class="inline-flex items-center gap-1"><AppIcon name="dollar" :size="11" /> ${{ item.original_price }} → ${{ item.group_price }}</span>
                 <span class="inline-flex items-center gap-1"><AppIcon name="users" :size="11" /> 최소 {{ item.min_participants }}명</span>
                 <button @click="$emit('openUser', item.user)" class="text-blue-600 hover:underline transition-colors inline-flex items-center gap-1"><AppIcon name="user" :size="11" /> {{ item.user?.name }}</button>
-                <a v-if="item.business_doc" :href="item.business_doc" target="_blank" class="text-amber-700 hover:underline transition-colors inline-flex items-center gap-1"><AppIcon name="paperclip" :size="11" /> 사업자등록증</a>
+                <a v-if="item.business_doc" :href="docUrl(item.business_doc)" target="_blank" class="text-amber-700 hover:underline transition-colors inline-flex items-center gap-1"><AppIcon name="paperclip" :size="11" /> 사업자등록증</a>
                 <span class="text-ink-faint">{{ item.created_at?.slice(0,10) }}</span>
               </div>
               <div v-if="item.content" class="text-xs text-ink-light mt-2 line-clamp-2">{{ item.content }}</div>
@@ -129,6 +129,8 @@ onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTim
 const showUser = ref(false)
 const selectedUserId = ref(null)
 const pending = ref([])
+// 사업자 등록증은 'groupbuys/docs/…' 로 저장돼 있어 그대로는 링크가 깨진다 → 저장소 주소를 붙인다
+const docUrl = p => (!p ? '' : /^(https?:)?\/\//.test(p) || p.startsWith('/') ? p : '/storage/' + p)
 
 async function loadPending() {
   try {
