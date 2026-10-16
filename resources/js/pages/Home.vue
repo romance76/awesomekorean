@@ -45,9 +45,15 @@
           <div class="flex items-center gap-2">
             <span class="live-pulse shrink-0" :class="musicPlayingHere ? '' : 'opacity-40'"></span>
             <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">랜덤 음악</span>
-            <RouterLink to="/music" class="ml-auto text-[11px] font-bold text-white/80 hover:text-white">더 보기 →</RouterLink>
+            <button v-if="musicStore.hasTrack" type="button" @click="musicStore.setMuted(!musicStore.muted)"
+              class="ml-auto w-6 h-6 rounded-full flex items-center justify-center transition-colors"
+              :class="musicStore.muted ? 'bg-red-500/25 text-red-300' : 'bg-white/10 text-white/80 hover:text-white'"
+              :aria-label="musicStore.muted ? '소리 켜기' : '소리 끄기'" :title="musicStore.muted ? '소리 꺼짐 — 눌러서 소리 켜기' : '소리 끄기'">
+              <AppIcon :name="musicStore.muted ? 'volume-x' : 'volume-2'" :size="13" />
+            </button>
+            <RouterLink to="/music" class="text-[11px] font-bold text-white/80 hover:text-white" :class="musicStore.hasTrack ? '' : 'ml-auto'">더 보기 →</RouterLink>
           </div>
-          <div v-if="musicPick" class="flex items-center gap-3 min-w-0">
+          <div v-if="musicShown" class="flex items-center gap-3 min-w-0">
             <button type="button" @click="toggleHomeMusic" :aria-label="musicPlayingHere ? '일시정지' : '재생'"
               class="relative w-[60px] h-[60px] shrink-0 rounded-xl overflow-hidden bg-white/10 group">
               <img v-if="musicThumb" :src="musicThumb" alt="" class="w-full h-full object-cover" @error="e=>e.target.style.display='none'" />
@@ -57,15 +63,15 @@
               </span>
             </button>
             <div class="min-w-0">
-              <div class="text-[14px] lg:text-[15px] font-extrabold leading-snug line-clamp-2 break-words">{{ musicPick.title }}</div>
-              <div v-if="musicPick.artist" class="text-[11.5px] text-white/60 mt-0.5 truncate">{{ musicPick.artist }}</div>
+              <div class="text-[14px] lg:text-[15px] font-extrabold leading-snug line-clamp-2 break-words">{{ musicShown.title }}</div>
+              <div v-if="musicShown.artist" class="text-[11.5px] text-white/60 mt-0.5 truncate">{{ musicShown.artist }}</div>
             </div>
           </div>
           <div v-else class="text-[13px] text-white/65">{{ musicLoading ? '노래를 고르는 중이에요…' : '음악듣기에서 노래를 골라 보세요' }}</div>
           <div class="flex items-center gap-2">
-            <button type="button" @click="pickRandomMusic(true)" :disabled="musicLoading"
+            <button type="button" @click="pickRandomMusic('next')" :disabled="musicLoading"
               class="text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5 disabled:opacity-60">🔀 다른 노래</button>
-            <span class="text-[10.5px] text-white/45">눌러서 바로 들어요</span>
+            <span class="text-[10.5px] text-white/45">{{ musicStore.muted ? '🔇 소리는 스피커를 눌러 켜요' : '눌러서 바로 들어요' }}</span>
           </div>
         </div>
 
@@ -352,7 +358,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLangStore } from '../stores/lang'
@@ -449,10 +455,24 @@ const musicStore = useMusicStore()
 const musicPick = ref(null)
 const musicLoading = ref(false)
 const musicList = ref([])
-const musicPlayingHere = computed(() => !!musicPick.value && musicStore.isPlaying && musicStore.currentTrack?.id === musicPick.value.id)
-const musicThumb = computed(() => musicPick.value ? (musicPick.value.thumbnail_url || musicPick.value.thumbnail || (musicPick.value.youtube_id ? `https://i.ytimg.com/vi/${musicPick.value.youtube_id}/mqdefault.jpg` : '')) : '')
+// 이미 재생 중인 곡이 있으면(예: 음악듣기에서 고른 곡) 그 곡을 보여 주고, 홈이 새 곡으로 바꿔 틀지 않는다
+const musicShown = computed(() => musicStore.hasTrack ? musicStore.currentTrack : musicPick.value)
+const musicPlayingHere = computed(() => musicStore.hasTrack && musicStore.isPlaying)
+const musicThumb = computed(() => { const t = musicShown.value; return t ? (t.thumbnail_url || t.thumbnail || (t.youtube_id || t.youtubeId ? `https://i.ytimg.com/vi/${t.youtube_id || t.youtubeId}/mqdefault.jpg` : '')) : '' })
 const asPlayable = (t) => ({ ...t, youtubeId: t.youtube_id, thumbnail: t.thumbnail_url || t.thumbnail })
-async function pickRandomMusic(autoplay = false) {
+function startMusic(list, { auto = false } = {}) {
+  musicStore.playlist = list.map(asPlayable)
+  if (auto) {
+    // 자동 재생: 처음엔 소리 없이. 회원이 스피커로 소리를 켠 적이 있으면 소리 켠 채로 (브라우저가 막으면 소리 없이)
+    musicStore.homeAutoDone = true
+    musicStore.autoStarted = true
+    musicStore.muted = !musicStore.soundPref()
+    musicStore.play(asPlayable(list[0]), { keep: true })
+  } else {
+    musicStore.play(asPlayable(list[0]), { keep: musicStore.muted })   // 소리 끈 상태였다면 그대로
+  }
+}
+async function pickRandomMusic(mode = 'load') {   // 'load' 접속 시 / 'auto' 접속 시 자동 재생 / 'next' 다른 노래 버튼
   if (musicLoading.value) return
   musicLoading.value = true
   try {
@@ -461,12 +481,13 @@ async function pickRandomMusic(autoplay = false) {
     for (let tries = 0; tries < 3; tries++) {
       const cat = cats[Math.floor(Math.random() * cats.length)]
       if (!cat) break
-      const { data: t } = await axios.get(`/api/music/tracks/${cat.id}`, { params: { per_page: 12 } })
+      const { data: t } = await axios.get(`/api/music/tracks/${cat.id}`, { params: { per_page: 12 } })   // 요청마다 무작위 순서
       const list = (t.data?.data || []).filter(x => x.youtube_id)
       if (list.length) {
         musicList.value = list
         musicPick.value = list[0]
-        if (autoplay) { musicStore.playlist = list.map(asPlayable); musicStore.play(asPlayable(list[0])) }
+        if (mode === 'next') startMusic(list)
+        else if (mode === 'auto' && !musicStore.hasTrack && !musicStore.homeAutoDone) startMusic(list, { auto: true })
         break
       }
     }
@@ -474,12 +495,12 @@ async function pickRandomMusic(autoplay = false) {
   musicLoading.value = false
 }
 function toggleHomeMusic() {
+  if (musicStore.hasTrack) { musicStore.requestToggle(); return }
   const t = musicPick.value
   if (!t) return
-  if (musicStore.currentTrack?.id === t.id) { musicStore.toggle(); return }
-  musicStore.playlist = (musicList.value.length ? musicList.value : [t]).map(asPlayable)
-  musicStore.play(asPlayable(t))
+  startMusic(musicList.value.length ? musicList.value : [t])
 }
+watch(() => musicStore.hasTrack, (has) => { if (!has && !musicPick.value) pickRandomMusic() })
 const liveSlide = ref(0)                 // 0: 오늘 방문자, 1: 채팅방 사용자
 const tickerRaw = ref([])
 const nowMs = ref(Date.now())
@@ -681,7 +702,9 @@ onMounted(async () => {
   loadReviewPicks()
   loadWeather()
   loadMarketQuotes()
-  loadLive(); loadTicker(); pickRandomMusic()
+  loadLive(); loadTicker()
+  // 이미 재생 중인 곡이 있으면 건드리지 않음, 없으면 무작위 곡을 소리 없이 자동 재생
+  if (!musicStore.hasTrack) pickRandomMusic('auto')
   liveTimers = [
     setInterval(() => { liveSlide.value = (liveSlide.value + 1) % 2 }, 4500),
     setInterval(() => { nowMs.value = Date.now() }, 30000),

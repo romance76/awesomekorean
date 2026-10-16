@@ -23,6 +23,7 @@
       <AppIcon v-else name="play" :size="12" :filled="true" />
     </button>
     <button @click.stop="doNext" class="w-7 h-6 text-gray-400 flex items-center justify-center" aria-label="다음 곡"><AppIcon name="chevron-right" :size="14" /></button>
+    <button @click.stop="music.setMuted(!music.muted)" class="w-7 h-6 flex items-center justify-center" :class="music.muted ? 'text-red-400' : 'text-gray-400'" :aria-label="music.muted ? '소리 켜기' : '소리 끄기'"><AppIcon :name="music.muted ? 'volume-x' : 'volume-2'" :size="14" /></button>
     <div class="absolute left-0 top-0 h-[1.5px] bg-[#FF8A4D]" :style="{ width: music.progress + '%' }"></div>
   </div>
 
@@ -61,7 +62,7 @@
       <div class="flex-1 h-1 bg-gray-700 rounded-full mx-1 cursor-pointer" @click="seekTo">
         <div class="h-full bg-amber-400 rounded-full transition-all" :style="{ width: music.progress + '%' }"></div>
       </div>
-      <span class="text-gray-500"><AppIcon name="megaphone" :size="12" /></span>
+      <button @click="music.setMuted(!music.muted)" :class="music.muted ? 'text-red-400' : 'text-gray-500 hover:text-white'" :aria-label="music.muted ? '소리 켜기' : '소리 끄기'" :title="music.muted ? '소리 켜기' : '소리 끄기'"><AppIcon :name="music.muted ? 'volume-x' : 'volume-2'" :size="14" /></button>
       <input type="range" min="0" max="100" v-model="volume" @input="setVolume" class="w-12 h-1 accent-amber-500" style="appearance:auto;" />
     </div>
 
@@ -310,6 +311,7 @@ async function createPlayer(videoId, startAt = 0) {
     events: {
       onReady: (e) => {
         e.target.setVolume(volume.value)
+        if (music.muted) { try { e.target.mute() } catch {} }
         const ids = queueFrom(videoId)
         if (ids.length > 1 && e.target.loadPlaylist) e.target.loadPlaylist({ playlist: ids, index: 0, startSeconds: startAt })
         else { if (startAt > 0) e.target.seekTo(startAt, true); e.target.playVideo() }
@@ -345,7 +347,7 @@ function onPlayerStateChange(e) {
     syncCurrentFromPlayer()
     music.isPlaying = true
     // 자동재생 차단 대비로 음소거 상태에서 시작했다면 재생이 시작된 뒤 소리 복구
-    if (mutedFallback) { mutedFallback = false; setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(volume.value) } catch {} }, 300) }
+    if (mutedFallback && !music.muted) { mutedFallback = false; setTimeout(() => { try { ytPlayer.unMute(); ytPlayer.setVolume(volume.value) } catch {} }, 300) }
   }
   if (e.data === window.YT.PlayerState.PAUSED) music.isPlaying = false
 }
@@ -368,7 +370,7 @@ async function prepareEmptyPlayer() {
     playerVars: { controls: 1, modestbranding: 1, rel: 0, playsinline: 1 },
     events: {
       onReady: (e) => {
-        try { e.target.setVolume(volume.value) } catch {}
+        try { e.target.setVolume(volume.value); if (music.muted) e.target.mute() } catch {}
         startProgressTimer(); nextTick(updateYTPosition)
         preparing = false
         if (pendingVideo) { const p = pendingVideo; pendingVideo = null; loadVideo(p.videoId, p.startAt) }
@@ -386,6 +388,8 @@ function ensureStarted() {
       if (userPaused || !music.hasTrack || !ytPlayer?.getPlayerState) return
       const s = ytPlayer.getPlayerState()
       if (s === 1 || s === 3) return
+      // 홈 자동 재생이 브라우저에 막혔으면 소리 없이 시작 (소리는 스피커로 켜기)
+      if (music.autoStarted) { music.muted = true; ytPlayer.mute(); ytPlayer.playVideo(); return }
       mutedFallback = true
       ytPlayer.mute(); ytPlayer.playVideo()
     } catch {}
@@ -407,7 +411,7 @@ function syncCurrentFromPlayer() {
   const vid = liveVideoId()
   if (!vid || vid === music.currentTrack?.youtubeId) return
   const t = music.playlist.find(x => x.youtubeId === vid)
-  if (t) { currentVideoId = vid; music.play(t) }
+  if (t) { currentVideoId = vid; music.play(t, { keep: true }) }
 }
 
 function loadVideo(videoId, startAt = 0) {
@@ -415,7 +419,7 @@ function loadVideo(videoId, startAt = 0) {
     const ids = queueFrom(videoId)
     if (ids.length > 1 && ytPlayer.loadPlaylist) ytPlayer.loadPlaylist({ playlist: ids, index: 0, startSeconds: startAt })
     else ytPlayer.loadVideoById({ videoId, startSeconds: startAt })
-    currentVideoId = videoId; if (isMobile.value) ensureStarted(); return } } catch {}
+    currentVideoId = videoId; if (isMobile.value || music.autoStarted) ensureStarted(); return } } catch {}
   // 미리 만든 플레이어가 아직 준비 중이면 준비 완료 후 재생 (파괴·재생성 금지)
   if (preparing) { pendingVideo = { videoId, startAt }; return }
   createPlayer(videoId, startAt)
@@ -427,10 +431,12 @@ function startProgressTimer() {
 }
 
 // Watchers
+watch(() => music.muted, (m) => { try { if (!ytPlayer?.mute) return; if (m) ytPlayer.mute(); else { ytPlayer.unMute(); ytPlayer.setVolume(volume.value) } } catch {} })
+watch(() => music.toggleTick, () => togglePlay())
 watch(() => music.currentTrack?.youtubeId, (vid) => {
   if (!vid) return
   isShutdown.value = false; userPaused = false
-  if (!isMobile.value) isExpanded.value = true   // 모바일은 미니바로 시작
+  if (!isMobile.value && !music.autoStarted) isExpanded.value = true   // 모바일은 미니바로 시작, 홈 자동 재생은 둥근 버튼으로 조용히
   updateMediaSession()
   if (isMusicPage.value) { syncMusicPos(true) }
   else { posRight.value = 16; posTop.value = Math.max(window.innerHeight - 550, 80) }
