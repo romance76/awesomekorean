@@ -99,7 +99,7 @@
           </div>
           <!-- 내 관심종목(★) + 대표 종목이 오른쪽에서 왼쪽으로 쭉 흐름 (마우스를 올리면 멈춤) -->
           <div v-if="stockMarquee.length" class="mt-2 pt-2 border-t border-line overflow-hidden stock-marquee-wrap" aria-label="내 관심종목과 대표 종목 시세">
-            <div class="stock-marquee flex w-max gap-4" :style="{ animationDuration: Math.max(14, stockMarquee.length * 2.6) + 's' }">
+            <div class="stock-marquee flex w-max gap-4" :style="{ animationDuration: Math.max(30, stockMarquee.length * 5.5) + 's' }">
               <div v-for="(w, k) in [...stockMarquee, ...stockMarquee]" :key="k" class="flex items-center gap-1.5 shrink-0 text-[11px] leading-none" :aria-hidden="k >= stockMarquee.length ? 'true' : undefined">
                 <span v-if="w.mine" class="text-amber-500">★</span>
                 <span class="font-extrabold text-ink">{{ w.symbol }}</span>
