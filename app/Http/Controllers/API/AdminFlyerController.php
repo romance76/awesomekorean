@@ -56,10 +56,24 @@ class AdminFlyerController extends Controller
                 FlyerService::notify($ad->user_id, '전면광고 자동 취소', "예약한 시간이 모두 지나 승인 전에 만료되어 취소되었어요. 카드에는 청구되지 않았습니다.", $ad->id);
                 return response()->json(['success' => true, 'message' => '예약 시간이 모두 지나 자동 취소했어요 (청구 없음).']);
             }
-            $ad->update(['status' => 'approved', 'approved_at' => now(), 'reject_reason' => null, 'total_price' => $r['captured']]);
+            $ad->update(['status' => 'approved', 'approved_at' => now(), 'reject_reason' => null, 'total_price' => $r['price']]);
             $note = $r['expired'] ? ' (이미 지난 시간 ' . FlyerService::money($ad, $r['expired']) . ' 제외)' : '';
-            FlyerService::notify($ad->user_id, '전면광고 승인', "'{$ad->title}' 전단이 승인되었어요. 예약한 시간에 NEW 게시판 상단에 방송됩니다. 카드에 " . FlyerService::money($ad, $r['captured']) . "가 청구되었어요.{$note}", $ad->id);
-            return response()->json(['success' => true, 'message' => '승인했어요. ' . FlyerService::money($ad, $r['captured']) . ' 청구됨.' . $note]);
+            $extra = ($r['credit_used'] ? ' 광고 잔액 ' . FlyerService::money($ad, $r['credit_used']) . ' 사용.' : '') . ($r['topup'] ? ' 남은 ' . FlyerService::money($ad, $r['topup']) . '는 광고 잔액으로 적립되었어요.' : '');
+            FlyerService::notify($ad->user_id, '전면광고 승인', "'{$ad->title}' 전단이 승인되었어요. 예약한 시간에 NEW 게시판 상단에 방송됩니다. 카드에 " . FlyerService::money($ad, $r['captured']) . "가 청구되었어요.{$extra}{$note}", $ad->id);
+            return response()->json(['success' => true, 'message' => '승인했어요. ' . FlyerService::money($ad, $r['captured']) . ' 청구됨.' . $extra . $note]);
+        }
+
+        // ── 광고 잔액만으로 낸 신청 (카드 청구 없음) ──
+        if (FlyerService::isCredit($ad)) {
+            $r = FlyerService::approveCredit($ad);
+            if ($r['remaining'] === 0) {
+                FlyerService::notify($ad->user_id, '전면광고 자동 취소', "예약한 시간이 모두 지나 승인 전에 만료되어 취소되었어요. 쓰신 광고 잔액은 돌려드렸어요.", $ad->id);
+                return response()->json(['success' => true, 'message' => '예약 시간이 모두 지나 자동 취소했어요 (광고 잔액 반환).']);
+            }
+            $ad->update(['status' => 'approved', 'approved_at' => now(), 'reject_reason' => null, 'total_price' => $r['price']]);
+            $note = $r['expired'] ? ' (이미 지난 시간 ' . FlyerService::money($ad, $r['expired']) . '는 잔액으로 반환)' : '';
+            FlyerService::notify($ad->user_id, '전면광고 승인', "'{$ad->title}' 전단이 승인되었어요. 예약한 시간에 NEW 게시판 상단에 방송됩니다. 광고 잔액 " . FlyerService::money($ad, $r['credit_used']) . "를 사용했어요.{$note}", $ad->id);
+            return response()->json(['success' => true, 'message' => '승인했어요. 광고 잔액 ' . FlyerService::money($ad, $r['credit_used']) . ' 사용.' . $note]);
         }
 
         // ── 포인트로 선결제한 기존 신청 ──
@@ -99,8 +113,8 @@ class AdminFlyerController extends Controller
 
         $card = FlyerService::isCard($ad);
         $moneyNote = $card
-            ? ($wasPending ? '카드에는 청구되지 않았습니다' : FlyerService::money($ad, $amount) . ' 환불')
-            : FlyerService::money($ad, $amount) . ' 환불';
+            ? ($wasPending ? '카드에는 청구되지 않았습니다. 쓰신 광고 잔액이 있으면 돌려드렸어요' : FlyerService::money($ad, $amount) . ' 환불')
+            : (FlyerService::isCredit($ad) ? '광고 잔액 ' . FlyerService::money($ad, $amount) . ' 반환' : FlyerService::money($ad, $amount) . ' 환불');
         FlyerService::notify($ad->user_id, $wasPending ? '전단 광고 반려' : '전단 광고 게시 중단', "'{$ad->title}' — {$reason} ({$moneyNote})", $ad->id);
 
         return response()->json(['success' => true, 'message' => "처리했어요. {$moneyNote}."]);

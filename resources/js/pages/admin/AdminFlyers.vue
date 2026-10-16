@@ -28,7 +28,7 @@
         <div class="text-[13px] text-ink-muted mt-0.5">{{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) + (f.extra_states?.length ? ' + ' + f.extra_states.join(', ') : '') }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간</div>
         <div class="flex items-center gap-2 flex-wrap mt-1">
           <b class="text-[16px] text-ink tabular-nums">{{ adMoney(f, f.total_price) }}</b>
-          <span class="px-1.5 py-0.5 rounded text-[12px] font-bold" :class="f.payment_method === 'card' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ payLabel(f) }}</span>
+          <span class="px-1.5 py-0.5 rounded text-[12px] font-bold" :class="['card', 'credit'].includes(f.payment_method) ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ payLabel(f) }}</span>
         </div>
       </div>
     </div>
@@ -71,14 +71,14 @@
         <div v-if="sheet.mode === 'approve'" class="space-y-3">
           <div class="text-[17px] font-bold text-ink">전단을 승인할까요?</div>
           <p class="text-[15px] text-ink-light leading-relaxed break-words">‘{{ sheet.f.title }}’<br />
-            <template v-if="sheet.f.payment_method === 'card'">승인하면 광고주의 카드에 <b class="text-ink">{{ adMoney(sheet.f, sheet.f.total_price) }}</b>가 청구돼요. (이미 지난 시간이 있으면 그만큼 뺀 금액만 청구)</template>
+            <template v-if="sheet.f.payment_method === 'card'">승인하면 광고주의 카드에 <b class="text-ink">{{ adMoney(sheet.f, chargeOf(sheet.f)) }}</b>가 청구돼요.<template v-if="sheet.f.credit_used_cents"> (광고 금액 {{ adMoney(sheet.f, sheet.f.total_price) }} 중 광고 잔액 {{ adMoney(sheet.f, sheet.f.credit_used_cents) }} 사용)</template><template v-if="sheet.f.topup_cents"> 광고 금액보다 더 낸 {{ adMoney(sheet.f, sheet.f.topup_cents) }}는 광고주의 광고 잔액으로 적립돼요.</template> (이미 지난 시간이 있으면 그만큼 뺀 금액만 청구)</template>
             <template v-else>포인트로 먼저 결제된 신청이에요. 승인하면 예약한 시간에 방송돼요.</template></p>
           <button @click="doApprove" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : '승인하기' }}</button>
           <button @click="closeSheet" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
         </div>
         <div v-else class="space-y-3">
           <div class="text-[17px] font-bold text-ink">{{ sheet.f.status === 'pending' ? '전단 반려' : '게시 중단' }}</div>
-          <p class="text-[14px] text-ink-muted break-words">‘{{ sheet.f.title }}’ — {{ sheet.f.status === 'pending' ? (sheet.f.payment_method === 'card' ? '청구 없이 취소되고 시간대가 다시 열려요.' : '전액 환불되고 시간대가 다시 열려요.') : '남은 시간만큼 환불돼요.' }} 사유는 광고주에게 전달돼요.</p>
+          <p class="text-[14px] text-ink-muted break-words">‘{{ sheet.f.title }}’ — {{ sheet.f.status === 'pending' ? (['card', 'credit'].includes(sheet.f.payment_method) ? '청구 없이 취소되고(쓰신 광고 잔액은 돌려줘요) 시간대가 다시 열려요.' : '전액 환불되고 시간대가 다시 열려요.') : '남은 시간만큼 환불돼요.' }} 사유는 광고주에게 전달돼요.</p>
           <textarea v-model="reason" rows="3" maxlength="200" placeholder="사유" aria-label="사유" class="w-full rounded-xl border border-gray-200 px-3 py-3"></textarea>
           <button @click="doReject" :disabled="busy" class="w-full min-h-[52px] rounded-xl bg-red-500 text-white text-[16px] font-bold disabled:opacity-50">{{ busy ? '처리 중...' : (sheet.f.status === 'pending' ? '반려하기' : '게시 중단하기') }}</button>
           <button @click="closeSheet" :disabled="busy" class="w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
@@ -118,7 +118,7 @@
           <span class="font-bold text-ink">{{ f.title }}</span>
         </div>
         <div class="text-xs text-ink-muted mt-1">
-          {{ f.user?.nickname || f.user?.name }} ({{ f.user?.email }}) · {{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) + (f.extra_states?.length ? ' + ' + f.extra_states.join(', ') : '') }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간 · <b>{{ adMoney(f, f.total_price) }}</b> <span class="px-1 py-0.5 rounded text-[10px] font-bold" :class="f.payment_method === 'card' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ f.payment_method === 'card' ? (f.payment_status === 'captured' ? '카드 청구됨' : f.payment_status === 'authorized' ? '카드 보류 중' : '카드') : '포인트 결제' }}</span>
+          {{ f.user?.nickname || f.user?.name }} ({{ f.user?.email }}) · {{ f.scope === 'national' ? '🇺🇸 전국' : '📍 ' + stateName(f.region_key) + (f.extra_states?.length ? ' + ' + f.extra_states.join(', ') : '') }} ({{ tzLabel(f.tz) }}) · {{ f.hours_count }}시간 · <b>{{ adMoney(f, f.total_price) }}</b> <span class="px-1 py-0.5 rounded text-[10px] font-bold" :class="['card', 'credit'].includes(f.payment_method) ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">{{ payLabel(f) }}</span>
         </div>
         <p v-if="f.description" class="text-xs text-ink-light mt-1 line-clamp-2">{{ f.description }}</p>
         <div class="text-xs text-ink-muted mt-1">
@@ -133,7 +133,7 @@
 
         <div class="flex gap-2 mt-3">
           <button v-if="f.status === 'pending'" @click="approve(f)" class="btn-primary px-4 py-1.5 rounded-lg text-xs">승인</button>
-          <button v-if="f.status === 'pending' || f.status === 'approved'" @click="reject(f)" class="px-4 py-1.5 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">{{ f.status === 'pending' ? (f.payment_method === 'card' ? '반려(청구 없이 취소)' : '반려(전액 환불)') : '게시 중단(남은 시간 환불)' }}</button>
+          <button v-if="f.status === 'pending' || f.status === 'approved'" @click="reject(f)" class="px-4 py-1.5 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">{{ f.status === 'pending' ? (['card', 'credit'].includes(f.payment_method) ? '반려(청구 없이 취소)' : '반려(전액 환불)') : '게시 중단(남은 시간 환불)' }}</button>
           <RouterLink v-if="f.status === 'approved'" :to="`/new/${f.id}`" class="px-3 py-1.5 text-xs text-ink-muted hover:text-amber-600">전단 보기</RouterLink>
         </div>
       </div>
@@ -177,7 +177,9 @@ const reason = ref('')
 const busy = ref(false)
 const openSchedule = ref(new Set())
 let msgTimer = null
-const payLabel = (f) => f.payment_method === 'card' ? (f.payment_status === 'captured' ? '카드 청구됨' : f.payment_status === 'authorized' ? '카드 보류 중' : '카드') : '포인트 결제'
+// 카드로 청구되는 금액 = 광고 금액 − 쓴 광고 잔액 + 더 낸 금액(광고 잔액으로 적립)
+const chargeOf = (f) => Math.max(0, Number(f.total_price || 0) - Number(f.credit_used_cents || 0)) + Number(f.topup_cents || 0)
+const payLabel = (f) => f.payment_method === 'credit' ? '광고 잔액 결제' : f.payment_method === 'card' ? ((f.payment_status === 'captured' ? '카드 청구됨' : f.payment_status === 'authorized' ? '카드 보류 중' : '카드') + (f.credit_used_cents ? ' + 잔액 ' + adMoney(f, f.credit_used_cents) : '') + (f.topup_cents ? ' · 적립 ' + adMoney(f, f.topup_cents) : '')) : '포인트 결제'
 function toggleSchedule(id) { const n = new Set(openSchedule.value); n.has(id) ? n.delete(id) : n.add(id); openSchedule.value = n }
 function goPage(n) { if (n >= 1 && n <= lastPage.value) { page.value = n; load() } }
 function closeSheet() { if (!busy.value) sheet.value = null }
@@ -222,7 +224,7 @@ async function act(path, f, body = {}) {
 }
 
 function approve(f) {
-  if (f.payment_method === 'card' && !window.confirm(`승인하면 광고주의 카드에 ${adMoney(f, f.total_price)}가 청구됩니다. (이미 지난 시간이 있으면 그만큼 뺀 금액만 청구) 승인할까요?`)) return
+  if (f.payment_method === 'card' && !window.confirm(`승인하면 광고주의 카드에 ${adMoney(f, chargeOf(f))}가 청구됩니다. (이미 지난 시간이 있으면 그만큼 뺀 금액만 청구) 승인할까요?`)) return
   act('approve', f)
 }
 function reject(f) {

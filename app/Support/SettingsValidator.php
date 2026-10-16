@@ -56,6 +56,12 @@ class SettingsValidator
             foreach ($n as $i => $h) { if ($h < 0 || $h > 24 || ($i > 0 && $h <= $n[$i - 1])) return '시각은 0~24, 오름차순이어야 해요'; }
             return null;
         }
+        if (preg_match('/^flyer_tier[1-4]_states$/', $key)) {
+            if ($v === '') return null;
+            if (!preg_match('/^[A-Za-z]{2}(,[A-Za-z]{2}){0,59}$/', $v)) return '주 약어를 쉼표로만 입력해 주세요 (예: CA,NY,NJ)';
+            foreach (explode(',', strtoupper($v)) as $c) { if (!FlyerSchedule::isState($c)) return "'{$c}' 는 올바른 주 약어가 아니에요"; }
+            return null;
+        }
         if (str_ends_with($key, '.rss_source')) {
             return (mb_strlen($v) <= 100 && !preg_match('/[<>]/', $v)) ? null : '출처 이름은 100자 이하, < > 없이 입력해 주세요';
         }

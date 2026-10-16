@@ -75,7 +75,7 @@ export function usd(cents) {
 
 /** 신청 건의 금액 표기 — 카드 결제 건은 $ , 예전 포인트 결제 건은 P */
 export function adMoney(ad, amount) {
-  return ad?.payment_method === 'card' ? usd(amount) : Number(amount || 0).toLocaleString() + 'P'
+  return ['card', 'credit'].includes(ad?.payment_method) ? usd(amount) : Number(amount || 0).toLocaleString() + 'P'
 }
 
 export const STATUS_LABEL = {

@@ -6,6 +6,7 @@
     </PageHeader>
     <p class="text-sm text-ink-muted mb-5">라디오 광고처럼 <b>하루 중 원하는 시간대</b>를 골라 사세요. 고른 시간에 NEW 게시판 맨 위에 전단이 통째로 나가고, 남은 시간은 다른 광고주가 쓸 수 있어요.</p>
 
+    <div v-if="creditCents > 0" class="mb-3 inline-flex items-center gap-1.5 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-xs font-bold px-3 py-1.5">내 광고 잔액 {{ usd(creditCents) }} <span class="font-normal text-sky-700">· 신청할 때 쓸 수 있어요</span></div>
     <VerifyGate message="이메일 인증 후 전면광고를 신청할 수 있어요.">
     <form @submit.prevent="submit" class="space-y-4">
       <!-- 1. 전단 내용 -->
@@ -49,23 +50,13 @@
       <!-- 2. 노출 지역 -->
       <div class="card p-5 space-y-3">
         <h2 class="font-bold text-ink text-sm flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-amber-500 text-white text-xs flex items-center justify-center">2</span>노출 지역</h2>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" @click="form.scope = 'state'" class="border-2 rounded-xl p-3 text-left transition-colors"
-            :class="form.scope === 'state' ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200 hover:border-amber-200'">
-            <div class="font-bold text-sm text-ink">📍 내 지역 (주 단위)</div>
-            <div class="text-[11px] text-ink-muted mt-0.5">그 주 방문자에게만 · 시간당 {{ usd(basePrice('state')) }}~ <span class="text-amber-700">(주변 주 추가 가능)</span></div>
-          </button>
-          <button type="button" @click="form.scope = 'national'" class="border-2 rounded-xl p-3 text-left transition-colors"
-            :class="form.scope === 'national' ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200 hover:border-amber-200'">
-            <div class="font-bold text-sm text-ink">🇺🇸 전국</div>
-            <div class="text-[11px] text-ink-muted mt-0.5">전국 어디서 봐도 · 시간당 {{ usd(basePrice('national')) }}~</div>
-          </button>
-        </div>
+        <p class="text-xs text-ink-muted">전단은 <b>선택한 주(State) 방문자</b>에게 보여요. 한인이 많은 주일수록 가격이 높고, 주마다 한 달(24시간) 가격이 달라요.</p>
         <div v-if="form.scope === 'state'">
           <label class="input-label">주 (State)</label>
           <select v-model="form.state" class="input-soft">
-            <option v-for="s in US_STATES" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }})</option>
+            <option v-for="s in US_STATES" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }}){{ monthLabel(s.code) }}</option>
           </select>
+          <p v-if="monthLabel(form.state)" class="text-[11px] text-ink-muted mt-1">{{ stateName(form.state) }}: 하루 종일(24시간) 한 달 노출하면 정가{{ monthLabel(form.state).replace(' · ', ' ') }}예요. 원하는 시간·기간만 골라 살 수 있어요.</p>
         </div>
 
         <!-- 추가 주: 내 주 + 주변 주까지 함께 노출 -->
@@ -93,7 +84,7 @@
           <div class="flex items-center gap-2">
             <select v-model="pickState" class="input-soft flex-1 !py-1.5 !text-xs" :disabled="extraFull">
               <option value="">다른 주 추가…</option>
-              <option v-for="s in otherStates" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }})</option>
+              <option v-for="s in otherStates" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }}){{ monthLabel(s.code) }}</option>
             </select>
           </div>
           <p v-if="extraFull" class="text-[11px] text-ink-muted">최대 {{ maxExtra }}개까지 추가할 수 있어요.</p>
@@ -151,22 +142,65 @@
           <div v-if="form.extra_states.length && form.hours.length" class="rounded-lg bg-gray-50 px-3 py-2 text-xs space-y-0.5">
             <div class="flex justify-between"><span class="text-ink-muted">{{ stateName(form.state) }}</span><span class="font-semibold">{{ usd(homeTotal) }}</span></div>
             <div class="flex justify-between"><span class="text-ink-muted">추가 주 {{ form.extra_states.length }}개 ({{ form.extra_states.join(', ') }}) · 각 {{ extraPct }}%</span><span class="font-semibold">{{ usd(extraTotal) }}</span></div>
-            <div class="flex justify-between text-ink-faint"><span>같은 시간을 전국으로 샀다면</span><span>{{ usd(nationalTotal) }}</span></div>
           </div>
-          <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">총 비용</span><span class="text-xl font-black text-amber-600">{{ usd(total) }}</span></div>
+          <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">광고 금액</span><span class="text-xl font-black text-amber-600">{{ usd(total) }}</span></div>
         </div>
+
+        <!-- 내 광고 잔액 (환불 없이 쌓인 금액 — 신청에 쓸 수 있어요) -->
+        <label v-if="creditCents > 0 && total > 0" class="mt-3 flex items-center gap-2 rounded-xl bg-sky-50 border border-sky-200 px-3 py-2.5 text-sm cursor-pointer">
+          <input type="checkbox" v-model="useCredit" class="w-4 h-4 accent-amber-500" />
+          <span class="text-sky-900">내 광고 잔액 <b>{{ usd(creditCents) }}</b> 사용 <span v-if="useCredit" class="text-sky-700">(−{{ usd(creditUse) }})</span></span>
+        </label>
+
+        <!-- 결제 내역 -->
+        <div v-if="total > 0 && (creditUse > 0 || topupAmount > 0)" class="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs space-y-0.5">
+          <div v-if="creditUse > 0" class="flex justify-between"><span class="text-ink-muted">광고 잔액 사용</span><span class="font-semibold">−{{ usd(creditUse) }}</span></div>
+          <div class="flex justify-between"><span class="text-ink-muted">카드 결제</span><span class="font-semibold">{{ charge > 0 ? usd(charge) : '없음 (잔액으로 충분)' }}</span></div>
+          <div v-if="topupAmount > 0" class="flex justify-between text-emerald-700"><span>남는 금액 → 광고 잔액으로 적립 (환불 불가)</span><span class="font-semibold">+{{ usd(topupAmount) }}</span></div>
+        </div>
+
         <p v-if="error" class="text-sm text-red-500 mt-3">{{ error }}</p>
-        <div v-if="nationalBetter" class="mt-3 text-xs bg-sky-50 border border-sky-200 text-sky-800 rounded-lg px-3 py-2 flex items-center justify-between gap-2 flex-wrap">
-          <span>선택한 주 합계가 전국 가격({{ usd(nationalTotal) }}) 이상이에요. 전국이 더 저렴해요.</span>
-          <button type="button" class="btn-secondary !px-3 !py-1 !text-xs" @click="goNational">전국으로 바꾸기</button>
+
+        <!-- 최소 결제 금액 미만: 최소 금액으로 결제할지 먼저 묻는다 -->
+        <div v-if="belowMin && !payMin && !minDeclined" class="mt-3 rounded-xl border-2 border-amber-300 bg-amber-50 p-3.5">
+          <div class="text-sm font-bold text-amber-900">카드 결제는 최소 {{ usd(minCents) }} 이상부터 가능해요 (지금 {{ usd(cardNeed) }})</div>
+          <p class="text-sm text-amber-900 mt-1"><b>{{ usd(minCents) }}으로 결제하시겠어요?</b></p>
+          <p class="text-[11px] text-amber-800 mt-1">남는 {{ usd(minCents - cardNeed) }}는 <b>광고 잔액으로 쌓여</b> 다음 광고 신청 때 쓸 수 있어요. 단, 환불은 되지 않아요.</p>
+          <div class="flex gap-2 mt-2.5">
+            <button type="button" class="btn-primary flex-1 !py-2 !text-sm" @click="payMin = true">네, {{ usd(minCents) }}으로 진행</button>
+            <button type="button" class="btn-secondary flex-1 !py-2 !text-sm" @click="minDeclined = true">아니요</button>
+          </div>
         </div>
+        <div v-else-if="belowMin && minDeclined" class="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-ink-light">
+          <p class="font-semibold text-ink">최소 결제 금액 {{ usd(minCents) }}을 채우려면</p>
+          <p class="mt-1">위에서 <b>방송 시간·일수</b>를 늘리거나 <b>지역(주)</b>을 더하시거나, 신청을 취소해 주세요.</p>
+          <div class="flex gap-2 mt-2.5">
+            <button type="button" class="btn-secondary flex-1 !py-2 !text-xs" @click="minDeclined = false">다시 고르기</button>
+            <button type="button" class="btn-ghost flex-1 !py-2 !text-xs" @click="cancelApply">신청 취소</button>
+          </div>
+        </div>
+        <div v-else-if="belowMin && payMin" class="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900 flex items-start justify-between gap-2">
+          <span>최소 결제 금액 <b>{{ usd(minCents) }}</b>으로 진행해요. 남는 {{ usd(minCents - cardNeed) }}는 <b>광고 잔액으로 적립</b>되어 다음 신청에 쓸 수 있고, <b>환불은 되지 않아요</b>.</span>
+          <button type="button" class="underline font-semibold shrink-0" @click="payMin = false">변경</button>
+        </div>
+
+        <!-- 더 많이 충전하기 (선택): 더 낸 금액은 광고 잔액으로 쌓여요 -->
+        <div v-if="cardNeed > 0 && (!belowMin || payMin)" class="mt-3">
+          <div class="text-xs font-bold text-ink-light mb-1.5">광고 잔액 더 충전하기 <span class="font-normal text-ink-faint">(선택 · 다음 광고에 사용 · 환불 불가)</span></div>
+          <div class="flex flex-wrap gap-1.5">
+            <button v-for="c in TOPUP_CHOICES" :key="c" type="button" @click="extraTopup = c"
+              class="px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition-colors"
+              :class="extraTopup === c ? 'bg-amber-50 border-amber-400 text-amber-700' : 'bg-white border-gray-200 text-ink-light hover:border-amber-200'">{{ c === 0 ? '충전 안 함' : '+' + usd(c) }}</button>
+          </div>
+        </div>
+
         <ul v-if="missing.length" class="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 space-y-0.5">
           <li v-for="m in missing" :key="m">• {{ m }}</li>
         </ul>
         <button type="submit" :disabled="submitting || !canSubmit" class="btn-primary w-full py-3 rounded-xl text-sm mt-4 disabled:opacity-50">
-          {{ submitting ? '준비 중...' : `${usd(total)} 카드로 신청하기` }}
+          {{ submitting ? '준비 중...' : (charge > 0 ? `${usd(charge)} 카드로 신청하기` : '광고 잔액으로 신청하기') }}
         </button>
-        <p class="text-[11px] text-ink-faint mt-2">다음 단계에서 카드를 확인하지만 <b>지금은 청구되지 않아요.</b> 관리자가 승인하면 그때 카드에 청구되고, 반려되거나 승인 전에 취소하면 한 푼도 청구되지 않습니다.</p>
+        <p class="text-[11px] text-ink-faint mt-2">다음 단계에서 카드를 확인하지만 <b>지금은 청구되지 않아요.</b> 관리자가 승인하면 그때 카드에 청구되고, 반려되거나 승인 전에 취소하면 한 푼도 청구되지 않습니다. <b class="text-red-600">승인되어 청구된 뒤에는 환불되지 않아요.</b></p>
       </div>
     </form>
     </VerifyGate>
@@ -188,7 +222,7 @@
         </div>
         <div class="flex flex-col gap-1 flex-shrink-0">
           <RouterLink :to="`/new/${m.id}`" class="text-xs text-ink-muted hover:text-amber-600 text-center">보기</RouterLink>
-          <button v-if="m.status === 'pending'" @click="cancel(m)" class="text-xs text-red-400 hover:text-red-600">{{ m.payment_method === 'card' ? '신청 취소' : '취소·환불' }}</button>
+          <button v-if="m.status === 'pending'" @click="cancel(m)" class="text-xs text-red-400 hover:text-red-600">{{ ['card', 'credit'].includes(m.payment_method) ? '신청 취소' : '취소·환불' }}</button>
         </div>
       </div>
     </div>
@@ -204,7 +238,8 @@
         </div>
         <div class="rounded-xl bg-amber-50 p-3 mb-4 text-sm">
           <div class="flex justify-between"><span class="text-ink-muted">NEW 전면광고 {{ checkout.hours }}시간</span><b class="text-amber-600">{{ usd(checkout.total) }}</b></div>
-          <p class="text-[11px] text-ink-muted mt-1.5">지금은 카드에 청구되지 않아요. 관리자가 승인하면 그때 {{ usd(checkout.total) }}가 청구되고, 반려되면 청구 없이 취소돼요.</p>
+          <p v-if="checkout.topup > 0" class="text-[11px] text-emerald-700 mt-1">이 중 {{ usd(checkout.topup) }}는 광고 잔액으로 적립돼요 (환불 불가, 다음 광고에 사용).</p>
+          <p class="text-[11px] text-ink-muted mt-1.5">지금은 카드에 청구되지 않아요. 관리자가 승인하면 그때 {{ usd(checkout.total) }}가 청구되고, 반려되면 청구 없이 취소돼요. 청구된 뒤에는 환불되지 않아요.</p>
         </div>
         <StripeCardForm :client-secret="checkout.clientSecret" button-label="카드 확인하고 신청 완료" @authorized="onAuthorized" />
         <p class="text-[11px] text-ink-faint mt-2 text-center">선택한 시간은 30분 동안만 잡아둬요. 창을 닫으면 풀립니다.</p>
@@ -250,7 +285,7 @@ const fmt = (n) => Number(n || 0).toLocaleString()
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i)
 
 // 전국 / 주 기본 가격 안내용 (피크/심야 배율 적용 전 낮 시간대 가격)
-const basePrices = ref({ national: 60, state: 30 })   // 센트
+const basePrices = ref({ state: 30 })   // 센트
 const basePrice = (s) => basePrices.value[s]
 
 const dayChoices = computed(() => {
@@ -264,9 +299,10 @@ const slotCount = computed(() => form.hours.length * form.days)
 const pickedBlocks = computed(() => blocks.value.filter(b => blockOn(b)))
 const homeTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + b.price, 0) * form.days)
 const extraTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.extra_price || 0), 0) * form.days)
-const nationalTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.national_price || 0), 0) * form.days)
 const total = computed(() => homeTotal.value + extraTotal.value)
-const nationalBetter = computed(() => form.scope === 'state' && form.extra_states.length > 0 && nationalTotal.value > 0 && total.value >= nationalTotal.value)
+// 주별 한 달(24시간) 정가 안내 — 서버가 내려주는 값 (할인 전, 센트)
+const stateMonth = computed(() => av.value?.state_month_cents || {})
+const monthLabel = (code) => stateMonth.value[code] ? ` · ${usd(stateMonth.value[code]).replace(/\.00$/, '')}/월` : ''
 
 // 추가 주
 const maxExtra = computed(() => av.value?.max_extra_states ?? 3)
@@ -280,8 +316,25 @@ function toggleExtra(c) {
   else if (!extraFull.value) form.extra_states.push(c)
 }
 watch(pickState, (c) => { if (c) { toggleExtra(c); pickState.value = '' } })
-function goNational() { form.extra_states = []; form.scope = 'national' }
-const belowMin = computed(() => !!av.value && total.value > 0 && total.value < (av.value.min_order_cents || 0))
+const minCents = computed(() => av.value?.min_order_cents || 0)
+// 광고 잔액(환불 없이 쌓인 금액): 먼저 쓰고, 남은 금액(cardNeed)만 카드로. 카드는 최소 결제 금액 이상으로만.
+const creditCents = computed(() => av.value?.credit_cents || 0)
+const useCredit = ref(true)
+const creditUse = computed(() => useCredit.value ? Math.min(creditCents.value, total.value) : 0)
+const cardNeed = computed(() => total.value - creditUse.value)
+const belowMin = computed(() => !!av.value && cardNeed.value > 0 && cardNeed.value < minCents.value)
+const payMin = ref(false)         // "최소 금액으로 결제" 동의
+const minDeclined = ref(false)    // "아니요" — 시간·일수·지역을 늘리거나 취소
+const TOPUP_CHOICES = [0, 500, 1000, 2000, 5000]   // 더 충전(센트) — 더 낸 금액은 광고 잔액으로 적립
+const extraTopup = ref(0)
+const baseCharge = computed(() => cardNeed.value > 0 ? Math.max(cardNeed.value, minCents.value) : 0)
+const charge = computed(() => baseCharge.value > 0 ? baseCharge.value + extraTopup.value : 0)   // 카드로 결제할 금액
+const topupAmount = computed(() => charge.value > 0 ? charge.value - cardNeed.value : 0)        // 광고 잔액으로 적립될 금액
+watch([total, useCredit], () => { payMin.value = false; minDeclined.value = false })   // 금액이 바뀌면 다시 묻는다
+function cancelApply() {
+  Object.assign(form, { hours: [], extra_states: [] }); payMin.value = false; minDeclined.value = false
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 // 신청 버튼이 눌리지 않는 이유 — 비어 있는 필수 항목을 버튼 위에 알려준다
 const missing = computed(() => {
   const m = []
@@ -289,8 +342,7 @@ const missing = computed(() => {
   if (!file.value) m.push('① 전단 이미지를 올려주세요')
   if (!form.hours.length) m.push('③ 방송할 시간 칸을 하나 이상 골라주세요')
   if (!form.start_date) m.push('③ 시작일을 골라주세요')
-  if (belowMin.value) m.push(`최소 결제 금액은 ${usd(av.value.min_order_cents)} 예요`)
-  if (nationalBetter.value) m.push('전국으로 신청하는 편이 더 저렴해요 (위의 "전국으로 바꾸기")')
+  if (belowMin.value && !payMin.value) m.push(`최소 결제 금액 ${usd(minCents.value)}에 맞춰 진행 여부를 골라 주세요`)
   return m
 })
 const canSubmit = computed(() => missing.value.length === 0)
@@ -359,11 +411,23 @@ async function submit() {
     const fd = new FormData()
     ;['title', 'kind', 'description', 'phone', 'link_url', 'scope', 'start_date'].forEach(k => form[k] !== '' && fd.append(k, form[k]))
     if (form.scope === 'state') { fd.append('state', form.state); form.extra_states.forEach(c => fd.append('extra_states[]', c)) }
+    fd.append('use_credit', useCredit.value ? '1' : '0')
+    if (belowMin.value && payMin.value) fd.append('pay_min', '1')
+    if (cardNeed.value > 0 && extraTopup.value > 0) fd.append('extra_topup_cents', String(extraTopup.value))
     fd.append('days', form.days)
     form.hours.forEach(h => fd.append('hours[]', h))
     fd.append('image', file.value)
     const { data } = await axios.post('/api/flyers', fd)
-    checkout.value = { id: data.data.flyer_id, clientSecret: data.data.client_secret, total: data.data.total_cents, hours: data.data.hours_count }
+    if (data.data.credit_only) {   // 광고 잔액만으로 충분 — 카드 단계 없이 접수 완료
+      site.toast(data.message || '신청이 접수됐어요', 'success', 7000)
+      Object.assign(form, { title: '', description: '', phone: '', link_url: '', hours: [] })
+      file.value = null; preview.value = ''
+      if (fileInput.value) fileInput.value.value = ''
+      await Promise.all([loadAvailability(), loadMine()])
+      submitting.value = false
+      return
+    }
+    checkout.value = { id: data.data.flyer_id, clientSecret: data.data.client_secret, total: data.data.total_cents, hours: data.data.hours_count, topup: data.data.topup_cents || 0 }
   } catch (e) {
     const r = e.response
     error.value = r?.data?.message || Object.values(r?.data?.errors || {})[0]?.[0] || '신청에 실패했어요. 잠시 후 다시 시도해주세요.'
@@ -398,8 +462,8 @@ async function closeCheckout() {
 }
 
 async function cancel(m) {
-  const card = m.payment_method === 'card'
-  if (!await showConfirm(card ? `'${m.title}' 신청을 취소할까요? (카드에는 청구되지 않았어요)` : `'${m.title}' 신청을 취소하고 ${adMoney(m, m.total_price)}를 환불받을까요?`)) return
+  const card = ['card', 'credit'].includes(m.payment_method)
+  if (!await showConfirm(card ? `'${m.title}' 신청을 취소할까요? (카드에는 청구되지 않았어요${m.credit_used_cents ? '. 쓰신 광고 잔액은 돌려드려요' : ''})` : `'${m.title}' 신청을 취소하고 ${adMoney(m, m.total_price)}를 환불받을까요?`)) return
   try {
     const { data } = await axios.post(`/api/flyers/${m.id}/cancel`)
     site.toast(data.message, 'success')
@@ -413,11 +477,8 @@ onMounted(async () => {
   await loadAvailability()
   // 안내용 기본 가격 (낮 12시 = 배율 100%)
   try {
-    const [n, s] = await Promise.all([
-      axios.get('/api/flyers/availability', { params: { scope: 'national', days: 1 } }),
-      axios.get('/api/flyers/availability', { params: { scope: 'state', state: form.state, days: 1 } }),
-    ])
-    basePrices.value = { national: n.data.data.prices[12], state: s.data.data.prices[12] }
+    const s = await axios.get('/api/flyers/availability', { params: { scope: 'state', state: form.state, days: 1 } })
+    basePrices.value = { state: s.data.data.prices[12] }
   } catch {}
   loadMine()
 })

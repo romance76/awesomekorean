@@ -32,7 +32,35 @@ class FlyerService
     /** 금액 표기: 카드는 $12.34, 포인트는 1,234P */
     public static function money(FlyerAd $ad, int $amount): string
     {
-        return self::isCard($ad) ? '$' . number_format($amount / 100, 2) : number_format($amount) . 'P';
+        return in_array($ad->payment_method, ['card', 'credit'], true) ? '$' . number_format($amount / 100, 2) : number_format($amount) . 'P';
+    }
+
+    /** 광고 잔액만으로 낸 신청 (카드 없이) */
+    public static function isCredit(FlyerAd $ad): bool
+    {
+        return $ad->payment_method === 'credit';
+    }
+
+    /** 신청에 쓴 광고 잔액을 돌려준다 */
+    private static function restoreCredit(FlyerAd $ad, int $cents, string $reason): void
+    {
+        if ($cents > 0) AdCredit::add($ad->user_id, $cents, 'restore', $reason, FlyerAd::class, $ad->id);
+    }
+
+    /** 슬롯을 "이미 지난 시간"과 "남은 시간"으로 나눈다 (슬롯의 주 기준 현지 시각). @return array{0:int[],1:int,2:int} [지난 슬롯 id, 지난 금액, 남은 금액] */
+    private static function splitExpired(FlyerAd $ad): array
+    {
+        $ids = []; $expired = 0; $keep = 0;
+        foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->get() as $s) {
+            $now = FlyerSchedule::now($s->region_key);
+            $d = $s->slot_date->toDateString();
+            if ($d < $now->toDateString() || ($d === $now->toDateString() && $s->slot_hour < $now->hour)) {
+                $expired += (int) $s->price; $ids[] = $s->id;
+            } else {
+                $keep += (int) $s->price;
+            }
+        }
+        return [$ids, $expired, $keep];
     }
 
     public static function payment(FlyerAd $ad): ?Payment
@@ -57,7 +85,8 @@ class FlyerService
         DB::transaction(function () use ($ad, $reason) {
             FlyerSlot::where('flyer_ad_id', $ad->id)->delete();
             if ($p = self::payment($ad)) app(DirectPayments::class)->release($p);
-            $ad->update(['status' => 'cancelled', 'reject_reason' => $reason]);
+            self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청이 취소되어 광고 잔액 반환: {$ad->title}");
+            $ad->update(['status' => 'cancelled', 'reject_reason' => $reason, 'credit_used_cents' => 0, 'topup_cents' => 0]);
         });
     }
 
@@ -107,9 +136,31 @@ class FlyerService
                 $p = self::payment($ad);
                 if ($p) {
                     $dp = app(DirectPayments::class);
-                    if (in_array($p->status, ['pending', 'authorized'], true)) $dp->release($p);   // 아직 청구 전 → 보류 해제
-                    elseif ($amount > 0) $dp->refund($p, $amount);                                  // 청구 후 → 남은 시간 부분 환불
+                    if (in_array($p->status, ['pending', 'authorized'], true)) {
+                        // 아직 청구 전 → 보류만 풀고, 이 신청에 쓴 광고 잔액은 전부 돌려준다 (추가로 결제하려던 금액은 청구된 적 없음)
+                        $dp->release($p);
+                        self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청 취소·반려로 광고 잔액 반환: {$ad->title}");
+                        $ad->update(['credit_used_cents' => 0, 'topup_cents' => 0]);
+                    } elseif ($amount > 0) {
+                        // 청구 후 남은 시간 환불: 광고 잔액으로 낸 몫은 잔액으로, 나머지는 카드로. 더 낸 금액(잔액으로 적립된 것)은 환불하지 않음
+                        $C = (int) $ad->credit_used_cents;
+                        $toCredit = min($amount, $C);
+                        $toCard = $amount - $toCredit;
+                        if ($toCredit > 0) {
+                            self::restoreCredit($ad, $toCredit, "전면광고 게시 중단으로 광고 잔액 반환: {$ad->title}");
+                            $ad->update(['credit_used_cents' => $C - $toCredit]);
+                        }
+                        if ($toCard > 0) $dp->refund($p, $toCard);
+                    }
+                } else {
+                    self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청 취소·반려로 광고 잔액 반환: {$ad->title}");
+                    $ad->update(['credit_used_cents' => 0, 'topup_cents' => 0]);
                 }
+            } elseif (self::isCredit($ad)) {
+                // 광고 잔액으로만 낸 신청 — 풀어준 시간만큼 잔액으로 돌려준다
+                $back = min($amount, (int) $ad->credit_used_cents);
+                self::restoreCredit($ad, $back, "전면광고 신청 취소·반려·중단으로 광고 잔액 반환: {$ad->title}");
+                $ad->update(['credit_used_cents' => max(0, (int) $ad->credit_used_cents - $back)]);
             } elseif ($amount > 0) {
                 self::refund($ad->user_id, $amount, $reason, $ad->id);
             }
@@ -119,9 +170,11 @@ class FlyerService
 
     /**
      * (카드) 승인: 이미 지나간 시간을 뺀 금액만 청구하고, 그 시간대 슬롯은 정리한다.
+     *  - 광고 잔액을 쓴 신청이면 카드로는 (광고 금액 − 쓴 잔액)만 청구, 지난 시간 때문에 남는 잔액은 되돌려준다.
+     *  - 광고 금액보다 더 결제한 금액(topup)은 함께 청구하고, 청구가 끝나면 광고 잔액으로 적립한다.
      * 청구에 실패하면(보류 만료/카드 문제) 신청을 취소하고 예외를 던진다.
      *
-     * @return array{captured:int,expired:int,remaining:int} 센트 / 센트 / 남은 슬롯 수
+     * @return array{captured:int,expired:int,remaining:int,price:int,topup:int,credit_used:int} 센트
      */
     public static function approveCard(FlyerAd $ad): array
     {
@@ -129,31 +182,52 @@ class FlyerService
         if (!$p || $p->status !== 'authorized') {
             throw new \DomainException('카드 보류가 확인되지 않은 신청이에요.');
         }
-        $expiredIds = [];
-        $expired = 0;
-        $keep = 0;
-        foreach (FlyerSlot::where('flyer_ad_id', $ad->id)->get() as $s) {
-            $now = FlyerSchedule::now($s->region_key);
-            $d = $s->slot_date->toDateString();
-            if ($d < $now->toDateString() || ($d === $now->toDateString() && $s->slot_hour < $now->hour)) {
-                $expired += (int) $s->price; $expiredIds[] = $s->id;
-            } else {
-                $keep += (int) $s->price;
-            }
-        }
+        [$expiredIds, $expired, $keep] = self::splitExpired($ad);
         if ($keep <= 0) {
             self::abandon($ad, '예약한 시간이 모두 지나 자동 취소');
-            return ['captured' => 0, 'expired' => $expired, 'remaining' => 0];
+            return ['captured' => 0, 'expired' => $expired, 'remaining' => 0, 'price' => 0, 'topup' => 0, 'credit_used' => 0];
         }
+        $C = (int) $ad->credit_used_cents;
+        $T = (int) $ad->topup_cents;
+        $creditEff = min($C, $keep);
+        $capture = ($keep - $creditEff) + $T;
+        $captured = 0;
         try {
-            $captured = app(DirectPayments::class)->capture($p, $keep);
+            $dp = app(DirectPayments::class);
+            if ($capture >= CardLimits::STRIPE_MIN_CENTS) {
+                $captured = $dp->capture($p, $capture);
+            } else {
+                $dp->release($p);   // 청구할 금액이 카드사 최소(50¢)에도 못 미치면 청구하지 않고 보류만 푼다
+                $T = 0;
+            }
         } catch (\Throwable $e) {
             \Log::error('전단 광고 카드 청구 실패: ' . $e->getMessage());
             self::abandon($ad, '카드 청구에 실패해 취소되었습니다');
             throw new \DomainException('카드 청구에 실패해서 신청을 취소했어요 (보류가 만료됐거나 카드에 문제가 있을 수 있어요).');
         }
         if ($expiredIds) FlyerSlot::whereIn('id', $expiredIds)->delete();
-        return ['captured' => $captured, 'expired' => $expired, 'remaining' => FlyerSlot::where('flyer_ad_id', $ad->id)->count()];
+        if ($T > 0 && $captured > 0) {
+            AdCredit::add($ad->user_id, $T, 'topup', "전면광고 결제 후 남은 금액 적립: {$ad->title}", FlyerAd::class, $ad->id);
+        }
+        self::restoreCredit($ad, $C - $creditEff, "전면광고 지난 시간만큼 광고 잔액 반환: {$ad->title}");
+        $ad->update(['credit_used_cents' => $creditEff, 'topup_cents' => $T]);
+        return ['captured' => $captured, 'expired' => $expired, 'remaining' => FlyerSlot::where('flyer_ad_id', $ad->id)->count(), 'price' => $keep, 'topup' => $T, 'credit_used' => $creditEff];
+    }
+
+    /** (광고 잔액만으로 낸 신청) 승인: 이미 지나간 시간만큼 잔액을 돌려주고 슬롯을 정리한다 */
+    public static function approveCredit(FlyerAd $ad): array
+    {
+        [$expiredIds, $expired, $keep] = self::splitExpired($ad);
+        if ($keep <= 0) {
+            self::abandon($ad, '예약한 시간이 모두 지나 자동 취소');
+            return ['expired' => $expired, 'remaining' => 0, 'price' => 0, 'credit_used' => 0];
+        }
+        $C = (int) $ad->credit_used_cents;
+        $creditEff = min($C, $keep);
+        if ($expiredIds) FlyerSlot::whereIn('id', $expiredIds)->delete();
+        self::restoreCredit($ad, $C - $creditEff, "전면광고 지난 시간만큼 광고 잔액 반환: {$ad->title}");
+        $ad->update(['credit_used_cents' => $creditEff]);
+        return ['expired' => $expired, 'remaining' => FlyerSlot::where('flyer_ad_id', $ad->id)->count(), 'price' => $keep, 'credit_used' => $creditEff];
     }
 
     /** (포인트·기존 신청) 승인 시점에 이미 지나간 시간은 방송되지 않았으므로 자동 환불 + 슬롯 삭제. 환불액 반환 */

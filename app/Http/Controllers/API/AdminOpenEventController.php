@@ -137,8 +137,8 @@ class AdminOpenEventController extends Controller
         $rows[] = ['group' => '광고', 'label' => '텍스트 광고 입찰 100P 기준 실제 차감', 'original' => $this->pt(100), 'event' => $this->pt($this->evAmount($c, 'banner', 100))];
 
         // 달러 전단 광고
-        foreach ([['flyer_price_state', 30, '주(State) 전단 광고 (시간당 기본)'], ['flyer_price_national', 60, '전국 전단 광고 (시간당 기본)']] as [$k, $d, $label]) {
-            $cents = $raw($k, $d);
+        foreach ([['GA', '주(State) 전단 광고 (시간당 기본)'], [\App\Support\FlyerSchedule::NATIONAL, '전국 전단 광고 (시간당 기본)']] as [$region, $label]) {
+            $cents = (int) round(\App\Support\FlyerSchedule::baseHourCents($region));
             $rows[] = ['group' => '달러 결제', 'label' => $label, 'original' => '$' . number_format($cents / 100, 2), 'event' => '$' . number_format($this->evAmount($c, 'flyer_usd', $cents, 1) / 100, 2)];
         }
 

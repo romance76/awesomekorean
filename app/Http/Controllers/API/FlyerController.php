@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FlyerAd;
 use App\Models\FlyerSlot;
 use App\Models\Payment;
+use App\Support\AdCredit;
 use App\Support\DirectPayments;
 use App\Support\FlyerSchedule;
 use App\Support\FlyerService;
@@ -213,13 +214,28 @@ class FlyerController extends Controller
             'booked' => (object) $booked,
             'max_days' => FlyerSchedule::maxDays(),
             'window_days' => FlyerSchedule::windowDays(),
-            'min_order_cents' => FlyerSchedule::minOrderCents(),
+            'min_order_cents' => $this->cardMinCents(),
             // 추가 주 — 고른 주(검증된 것), 주변 주(빠른 선택), 최대 개수, 추가 주 가격 비율(%)
             'extra_states' => $extras,
             'neighbor_states' => $scope === 'state' ? FlyerSchedule::neighborStates($state) : [],
+            'credit_cents' => ($u = auth('api')->user()) ? AdCredit::balance($u->id) : 0,
+            // 주별 한 달(24시간) 정가 — 신청 화면에서 주를 고를 때 가격을 보여 주기 위함 (할인 전, 센트)
+            'state_month_cents' => collect(FlyerSchedule::states())->mapWithKeys(fn($st) => [$st => FlyerSchedule::stateMonthCents($st)])->all(),
+            'state_tiers' => collect(FlyerSchedule::states())->mapWithKeys(fn($st) => [$st => FlyerSchedule::tierOf($st)])->all(),
             'max_extra_states' => FlyerSchedule::maxExtraStates(),
             'extra_pct' => FlyerSchedule::extraStatePct(),
         ]]);
+    }
+
+    /** 카드 결제 최소 금액(센트) — 관리자 결제 설정의 "최소 결제금액"(기본 $5). 오픈 이벤트 할인으로 합계가 작아져도 이 기준은 그대로 */
+    private function cardMinCents(): int
+    {
+        return \App\Support\CardLimits::minCents();
+    }
+
+    private function usd(int $cents): string
+    {
+        return '$' . number_format($cents / 100, 2);
     }
 
     /** GET /api/flyers/my */
@@ -257,6 +273,9 @@ class FlyerController extends Controller
         ]);
 
         $scope = $data['scope'];
+        if ($scope === 'national') {
+            return response()->json(['success' => false, 'message' => '전국 광고는 더 이상 판매하지 않아요. 노출할 지역(주)을 골라 주세요.'], 422);
+        }
         $state = $scope === 'state' ? strtoupper($data['state']) : null;
         if ($scope === 'state' && !FlyerSchedule::isState($state)) {
             return response()->json(['success' => false, 'message' => '올바른 주(State)를 선택해주세요.'], 422);
@@ -294,7 +313,6 @@ class FlyerController extends Controller
 
         $rows = [];
         $total = 0;
-        $nationalTotal = 0;
         for ($i = 0; $i < $days; $i++) {
             $d = $start->copy()->addDays($i);
             foreach ($hours as $h) {
@@ -306,25 +324,37 @@ class FlyerController extends Controller
                     $total += $xp;
                     $rows[] = ['region_key' => $x, 'slot_date' => $d->toDateString(), 'slot_hour' => $h, 'price' => $xp];
                 }
-                $nationalTotal += FlyerSchedule::hourPrice(FlyerSchedule::NATIONAL, $h);
             }
         }
         $homeCount = $days * count($hours);
-        // 추가 주가 많아져 전국 가격 이상이 되면 전국이 더 이득 — 전국으로 신청하도록 안내
-        if ($extras && $total >= $nationalTotal) {
-            return response()->json(['success' => false, 'message' => '선택한 주 합계($' . number_format($total / 100, 2) . ')가 전국 가격($' . number_format($nationalTotal / 100, 2) . ') 이상이에요. 전국으로 신청하면 더 저렴해요.'], 422);
-        }
 
         $user = $request->user();
 
-        // 달러 카드 결제 — 최소 결제 금액 (카드 수수료 때문에 아주 작은 건은 받지 않음)
-        $min = FlyerSchedule::minOrderCents();
-        if ($total < $min) {
-            return response()->json(['success' => false, 'message' => '신청 합계가 최소 결제 금액 $' . number_format($min / 100, 2) . ' 보다 작아요. 시간이나 기간을 늘려주세요.'], 422);
-        }
-        $gateway = app(StripeGateway::class);
-        if (!$gateway->configured()) {
-            return response()->json(['success' => false, 'message' => '카드 결제 설정이 아직 준비되지 않았어요. 관리자에게 문의해주세요.'], 503);
+        // ── 결제 금액 ──
+        //  1) 광고 잔액(use_credit, 기본 사용)으로 먼저 낸다.
+        //  2) 남은 금액(cardNeed)은 카드로. 카드는 최소 결제 금액($5) 미만으로는 받지 않으므로, 모자라면 먼저 "최소 금액으로 결제하시겠어요?"를 묻고
+        //     동의(pay_min)하면 최소 금액을 결제한다. 사용자가 더 많이 충전하려면 extra_topup_cents 로 더한다.
+        //  3) 광고 금액보다 더 결제한 금액(topup)은 환불되지 않고, 승인되어 청구되면 광고 잔액으로 쌓여 다음 신청에 쓸 수 있다.
+        $creditUse = $request->boolean('use_credit', true) ? min(AdCredit::balance($user->id), $total) : 0;
+        $cardNeed = $total - $creditUse;
+        $min = $this->cardMinCents();
+        $charge = 0;   // 카드로 결제할 금액 (0 = 광고 잔액만으로 충분)
+        $topup = 0;
+        if ($cardNeed > 0) {
+            $base = max($cardNeed, $min);
+            if ($base > $cardNeed && !$request->boolean('pay_min')) {
+                return response()->json([
+                    'success' => false, 'code' => 'below_min', 'min_cents' => $min, 'total_cents' => $cardNeed,
+                    'message' => '카드 결제는 최소 ' . $this->usd($min) . ' 이상부터 가능해요 (지금 ' . $this->usd($cardNeed) . '). ' . $this->usd($min) . '으로 결제하시거나, 시간·일수·지역(주)을 늘려 주세요.',
+                ], 422);
+            }
+            $extraTopup = max(0, min(100000, (int) $request->input('extra_topup_cents', 0)));
+            $charge = $base + $extraTopup;
+            $topup = $charge - $cardNeed;
+            $gateway = app(StripeGateway::class);
+            if (!$gateway->configured()) {
+                return response()->json(['success' => false, 'message' => '카드 결제 설정이 아직 준비되지 않았어요. 관리자에게 문의해주세요.'], 503);
+            }
         }
 
         // 카드 입력만 하다 떠난 신청이 잡고 있던 시간 정리 → 사전 점검 (최종 보루는 DB UNIQUE)
@@ -346,7 +376,7 @@ class FlyerController extends Controller
 
         // 1) 전단 + 시간 슬롯을 먼저 "결제 대기(awaiting_payment)"로 잡는다 (카드 입력하는 동안 다른 광고주가 못 가져가게)
         try {
-            $ad = DB::transaction(function () use ($user, $data, $scope, $region, $extras, $start, $days, $rows, $total, $imageUrl, $homeCount) {
+            $ad = DB::transaction(function () use ($user, $data, $scope, $region, $extras, $start, $days, $rows, $total, $imageUrl, $homeCount, $charge, $topup, $creditUse) {
                 $ad = FlyerAd::create([
                     'user_id' => $user->id,
                     'title' => $data['title'],
@@ -358,9 +388,11 @@ class FlyerController extends Controller
                     'scope' => $scope,
                     'region_key' => $region,
                     'extra_states' => $extras ?: null,
-                    'status' => 'awaiting_payment',
-                    'total_price' => $total,            // 카드 결제 건은 센트
-                    'payment_method' => 'card',
+                    'status' => $charge > 0 ? 'awaiting_payment' : 'pending',   // 카드를 안 쓰면(잔액만) 바로 승인 대기
+                    'total_price' => $total,            // 카드·잔액 건은 센트 (광고 자체 금액)
+                    'payment_method' => $charge > 0 ? 'card' : 'credit',
+                    'topup_cents' => $topup,
+                    'credit_used_cents' => $creditUse,
                     'hours_count' => $homeCount,        // 시간 수는 내 주 기준 (추가 주는 같은 시간을 함께 사는 것)
                     'start_date' => $start->toDateString(),
                     'end_date' => $start->copy()->addDays($days - 1)->toDateString(),
@@ -369,8 +401,15 @@ class FlyerController extends Controller
                 FlyerSlot::insert(array_map(fn($r) => $r + [
                     'flyer_ad_id' => $ad->id, 'created_at' => $stamp, 'updated_at' => $stamp,
                 ], $rows));
+                // 광고 잔액 차감 — 그 사이 잔액이 줄었으면 전체를 되돌린다
+                if ($creditUse > 0 && !AdCredit::spend($user->id, $creditUse, "전면광고 신청에 광고 잔액 사용: {$ad->title}", FlyerAd::class, $ad->id)) {
+                    throw new \DomainException('credit_changed');
+                }
                 return $ad;
             });
+        } catch (\DomainException $e) {
+            $cleanupImage();
+            return response()->json(['success' => false, 'message' => '광고 잔액이 바뀌었어요. 화면을 새로 고친 뒤 다시 신청해 주세요.'], 409);
         } catch (\Illuminate\Database\QueryException $e) {
             $cleanupImage();
             if (($e->errorInfo[1] ?? 0) === 1062) {
@@ -379,16 +418,27 @@ class FlyerController extends Controller
             throw $e;
         }
 
+        // 잔액만으로 충분한 신청: 카드 없이 바로 승인 대기로 접수
+        if ($charge <= 0) {
+            \App\Support\AdminNotifier::send(2, 'flyer_submitted', '새 NEW 전단 광고 신청이 도착했습니다', "'{$ad->title}' 전단이 승인을 기다리고 있어요.", '/admin/flyers?status=pending', ['flyer_id' => $ad->id]);
+            return response()->json([
+                'success' => true,
+                'message' => '신청이 접수됐어요. 광고 잔액 ' . $this->usd($creditUse) . '를 사용했고, 관리자 승인 후 예약한 시간에 방송돼요. 승인 전에 취소하면 잔액이 돌아와요.',
+                'data' => ['flyer_id' => $ad->id, 'credit_only' => true, 'credit_used_cents' => $creditUse, 'hours_count' => $ad->hours_count],
+            ], 201);
+        }
+
         // 2) 카드 보류용 결제 생성 (실제 청구는 관리자가 승인할 때)
         try {
             [$payment, $clientSecret] = app(DirectPayments::class)->begin(
-                $user, Payment::KIND_FLYER, FlyerAd::class, $ad->id, $total,
+                $user, Payment::KIND_FLYER, FlyerAd::class, $ad->id, $charge,
                 "NEW 전면광고: {$ad->title} ({$ad->hours_count}시간)"
             );
             $ad->update(['payment_id' => $payment->id]);
         } catch (\Throwable $e) {
             \Log::error('전면광고 결제 생성 실패: ' . $e->getMessage());
             FlyerSlot::where('flyer_ad_id', $ad->id)->delete();
+            if ($creditUse > 0) AdCredit::add($user->id, $creditUse, 'restore', "전면광고 결제를 시작하지 못해 광고 잔액 반환: {$ad->title}", FlyerAd::class, $ad->id);
             $ad->delete();
             $cleanupImage();
             // 카드 최소 결제 금액 미만이면 쉬운 안내 문구(422), 그 밖의 오류는 기존 안내(502)
@@ -399,7 +449,7 @@ class FlyerController extends Controller
         return response()->json([
             'success' => true,
             'message' => '카드를 확인해주세요. 지금은 청구되지 않고, 관리자가 승인하면 그때 청구돼요.',
-            'data' => ['flyer_id' => $ad->id, 'client_secret' => $clientSecret, 'total_cents' => $total, 'hours_count' => $ad->hours_count],
+            'data' => ['flyer_id' => $ad->id, 'client_secret' => $clientSecret, 'total_cents' => $charge, 'topup_cents' => $topup, 'credit_used_cents' => $creditUse, 'hours_count' => $ad->hours_count],
         ], 201);
     }
 
@@ -442,11 +492,12 @@ class FlyerController extends Controller
         if (!in_array($ad->status, ['pending', 'awaiting_payment'], true)) {
             return response()->json(['success' => false, 'message' => '승인 대기 중인 신청만 취소할 수 있어요.'], 422);
         }
+        $hadCredit = (int) $ad->credit_used_cents;   // release 가 되돌리고 0 으로 만들기 전 값
         $amount = FlyerService::release($ad, false, "NEW 전단 광고 신청 취소: {$ad->title}");
         $ad->update(['status' => 'cancelled']);
         $msg = FlyerService::isCard($ad)
-            ? '취소되었어요. 카드에는 청구되지 않았습니다.'
-            : '취소되었어요. ' . FlyerService::money($ad, $amount) . '가 환불되었습니다.';
+            ? '취소되었어요. 카드에는 청구되지 않았습니다.' . ($hadCredit > 0 ? ' 쓰신 광고 잔액은 돌려드렸어요.' : '')
+            : (FlyerService::isCredit($ad) ? '취소되었어요. 광고 잔액 ' . FlyerService::money($ad, $amount) . '가 돌아왔어요.' : '취소되었어요. ' . FlyerService::money($ad, $amount) . '가 환불되었습니다.');
         return response()->json(['success' => true, 'message' => $msg]);
     }
 }

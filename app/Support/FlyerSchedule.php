@@ -70,27 +70,120 @@ class FlyerSchedule
         return PointRules::get('flyer_night_end_hour', 6);
     }
 
+    /** 시간(0~23)의 가격 배율(%) — 피크/새벽/일반 */
+    private static function hourPct(int $hour): int
+    {
+        [$peakStart, $peakEnd] = self::peakRange();
+        if ($hour >= $peakStart && $hour < $peakEnd) return PointRules::get('flyer_peak_pct', 150);
+        if ($hour < self::nightEnd()) return PointRules::get('flyer_night_pct', 50);
+        return 100;
+    }
+
+    /** 배율을 모두 더한 값 (하루 24시간의 "기본 시간 수" — 예: 새벽 6시간×0.5 + 피크 7시간×1.5 + 나머지 11시간 = 24.5) */
+    private static function dayWeight(): float
+    {
+        $w = 0.0;
+        for ($h = 0; $h < 24; $h++) $w += self::hourPct($h) / 100;
+        return $w;
+    }
+
+    /** 단계별 기본 주 목록 (관리자가 flyer_tier1_states ~ flyer_tier4_states 로 바꿀 수 있음) — 한인 인구가 많은 상위 20개 주 */
+    public const TIER_STATES = [1 => 'CA,NY,NJ,TX,VA', 2 => 'WA,IL,GA,MD,FL', 3 => 'PA,MA,HI,CO,AZ', 4 => 'NV,NC,SC,OH,OR,MI'];
+    /** 1단계를 1000(=100%)로 본 단계별 상대 가격(‰): 2단계 40%, 3단계 25%, 4단계 15%, 그 밖의 주 2.8% */
+    private const TIER_WEIGHT = [1 => 1000, 2 => 400, 3 => 250, 4 => 150];
+    private const OTHER_WEIGHT = 28;
+
+    /** 그 주가 몇 단계인지 (1~4, 어느 단계에도 없으면 0 = 그 밖의 주) */
+    public static function tierOf(string $state): int
+    {
+        $s = strtoupper(trim($state));
+        foreach ([1, 2, 3, 4] as $t) {
+            $list = array_map('trim', explode(',', strtoupper(PointRules::raw("flyer_tier{$t}_states", self::TIER_STATES[$t]))));
+            if (in_array($s, $list, true)) return $t;
+        }
+        return 0;
+    }
+
+    /** 그 주의 상대 가격 비중 (1단계 = 1000) */
+    private static function stateWeight(string $state): int
+    {
+        $t = self::tierOf($state);
+        return max(0, $t > 0 ? PointRules::get("flyer_tier{$t}_permille", self::TIER_WEIGHT[$t]) : PointRules::get('flyer_other_permille', self::OTHER_WEIGHT));
+    }
+
+    /**
+     * 한 주의 한 달(30일 × 24시간) 정가 — 센트.
+     * 기준가(모든 주를 한 달 내내 정가로 다 팔았을 때의 합계) 를 51곳의 상대 가격 비중으로 나눈 몫이다 (같은 단계는 같은 가격).
+     */
+    public static function stateMonthCents(string $state): int
+    {
+        static $table = null;
+        if ($table === null) {
+            $base = max(0, PointRules::get('flyer_national_month_usd', 6000)) * 100;
+            $w = [];
+            foreach (self::states() as $st) $w[$st] = self::stateWeight($st);
+            $sum = max(1, array_sum($w));
+            $table = [];
+            foreach ($w as $st => $weight) $table[$st] = (int) round($base * $weight / $sum);
+        }
+        return $table[strtoupper(trim($state))] ?? 0;
+    }
+
+    /**
+     * 시간당 "기본" 가격(배율 적용 전) — 센트. 관리자가 정한 "전국 한 달(30일 × 24시간) 최종 금액"(flyer_national_month_usd)이 있으면
+     * 그 금액에서 계산하고(주는 전국 ÷ flyer_state_ratio), 0 이면 예전 시간당 가격 설정을 쓴다.
+     */
+    public static function baseHourCents(string $regionKey): float
+    {
+        $monthUsd = PointRules::get('flyer_national_month_usd', 6000);
+        if ($monthUsd > 0) {
+            $monthCents = $regionKey === self::NATIONAL ? $monthUsd * 100 : self::stateMonthCents($regionKey);
+            return $monthCents / (30 * max(0.1, self::dayWeight()));
+        }
+        return (float) ($regionKey === self::NATIONAL ? PointRules::get('flyer_price_national', 60) : PointRules::get('flyer_price_state', 30));
+    }
+
+    /**
+     * 하루 24시간의 정가(할인 전) [hour => 센트]. 한 시간 가격은 정수 센트라 올림·내림 오차가 쌓이므로,
+     * 하루 합계가 목표 금액에 최대한 가깝도록 오차를 시간에 걸쳐 나눠 담는다 (한 달 합계가 관리자가 정한 금액에 거의 맞음).
+     * $factor 는 추가 주처럼 일부만 받을 때(예: 0.5)의 비율.
+     */
+    public static function dayPrices(string $regionKey, float $factor = 1.0): array
+    {
+        $w = [];
+        for ($h = 0; $h < 24; $h++) $w[$h] = self::hourPct($h) / 100;
+        $W = array_sum($w);
+        $monthUsd = PointRules::get('flyer_national_month_usd', 6000);
+        $out = [];
+        if ($monthUsd > 0 && $W > 0) {
+            $day = self::baseHourCents($regionKey) * $W * $factor;   // = 한 달 금액 × factor ÷ 30
+            $cum = 0.0; $prev = 0;
+            for ($h = 0; $h < 24; $h++) {
+                $cum += $w[$h];
+                $cur = (int) round($day * $cum / $W);
+                $out[$h] = max(1, $cur - $prev);
+                $prev = max($prev, $cur);
+            }
+            return $out;
+        }
+        $base = self::baseHourCents($regionKey) * $factor;
+        for ($h = 0; $h < 24; $h++) $out[$h] = max(1, (int) round($base * $w[$h]));
+        return $out;
+    }
+
     /** 시간(0~23)의 가격 — 센트(¢, 100 = $1). 예전 포인트 신청 건과 숫자 단위만 같다. $regionKey 는 'ALL' 또는 주 코드 */
     public static function hourPrice(string $regionKey, int $hour): int
     {
-        $base = $regionKey === self::NATIONAL
-            ? PointRules::get('flyer_price_national', 60)
-            : PointRules::get('flyer_price_state', 30);
-
-        [$peakStart, $peakEnd] = self::peakRange();
-        $pct = 100;
-        if ($hour >= $peakStart && $hour < $peakEnd) $pct = PointRules::get('flyer_peak_pct', 150);
-        elseif ($hour < self::nightEnd()) $pct = PointRules::get('flyer_night_pct', 50);
-
         // 오픈 이벤트 기간에는 달러 결제 할인 (최소 1센트 — 0원 결제가 되지 않게)
-        return OpenEvent::apply((int) round($base * $pct / 100), 'flyer_usd', 1);
+        return OpenEvent::apply(self::dayPrices($regionKey)[$hour], 'flyer_usd', 1);
     }
 
     /** 24시간 가격표 [hour => price] */
     public static function priceTable(string $regionKey): array
     {
+        $d = self::dayPrices($regionKey);
         $t = [];
-        for ($h = 0; $h < 24; $h++) $t[$h] = self::hourPrice($regionKey, $h);
+        for ($h = 0; $h < 24; $h++) $t[$h] = OpenEvent::apply($d[$h], 'flyer_usd', 1);
         return $t;
     }
 
@@ -150,7 +243,7 @@ class FlyerSchedule
     /** 추가한 주의 시간 가격 — 그 주 가격의 extraStatePct % (최소 1센트) */
     public static function extraHourPrice(string $regionKey, int $hour): int
     {
-        return max(1, (int) round(self::hourPrice($regionKey, $hour) * self::extraStatePct() / 100));
+        return OpenEvent::apply(self::dayPrices($regionKey, self::extraStatePct() / 100)[$hour], 'flyer_usd', 1);
     }
 
     /** 내 주 주변(인접) 주 — 추가 주를 고를 때 빠른 선택용 */
