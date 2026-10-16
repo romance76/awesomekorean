@@ -826,8 +826,8 @@
         <div v-else class="space-y-2">
           <div v-for="p in payments" :key="p.id" class="border border-gray-100 rounded-xl p-4 hover:bg-amber-50/30 transition-colors">
             <div class="flex items-center justify-between mb-2">
-              <div class="text-sm font-bold text-ink">포인트 구매 — {{ p.points_purchased?.toLocaleString() }}P</div>
-              <span class="text-xs px-2 py-0.5 rounded-full font-bold" :class="p.status==='completed'?'bg-emerald-50 text-emerald-700':'bg-gray-100 text-ink-muted'">{{ p.status==='completed'?'완료':'대기' }}</span>
+              <div class="text-sm font-bold text-ink min-w-0 break-words">{{ payTitle(p) }}</div>
+              <span class="text-xs px-2 py-0.5 rounded-full font-bold flex-shrink-0" :class="payStatus(p).cls">{{ payStatus(p).label }}</span>
             </div>
             <div class="flex items-center justify-between text-xs text-ink-muted">
               <div>
@@ -1734,6 +1734,21 @@ async function saveSchedule(w) {
 // ─── 결제 ───
 const payments = ref([])
 async function loadPayments() { try { const { data } = await axios.get('/api/payments/history'); payments.value = data.data?.data || data.data || []; if (data.summary) Object.assign(paySummary, data.summary) } catch {} }
+// 결제 내역 한 줄의 이름·상태 — 결제 종류(kind)별로. 예전에는 모두 "포인트 구매 — 0P / 대기"로 보였다.
+const PAY_KIND = { flyer: 'NEW 전면광고', event_request: '경품 이벤트 의뢰', banner: '배너 광고', text_ad: '텍스트 광고', promotion: '상위노출', groupbuy_deposit: '공동구매 개설 디파짓' }
+function payTitle(p) {
+  if (!p.kind || p.kind === 'points') return `포인트 구매 — ${Number(p.points_purchased || 0).toLocaleString()}P`
+  const name = PAY_KIND[p.kind] || '카드 결제'
+  return p.description && p.description !== name ? `${name} — ${p.description.replace(/^[^:]*:\s*/, '')}` : name
+}
+function payStatus(p) {
+  const s = p.status
+  if (s === 'completed' || s === 'captured') return { label: '결제 완료', cls: 'bg-emerald-50 text-emerald-700' }
+  if (s === 'authorized') return { label: '카드 보류 중', cls: 'bg-amber-50 text-amber-700' }
+  if (s === 'released') return { label: '청구 없이 해제', cls: 'bg-gray-100 text-ink-muted' }
+  if (s === 'refunded') return { label: '환불됨', cls: 'bg-blue-50 text-blue-700' }
+  return { label: '대기', cls: 'bg-gray-100 text-ink-muted' }
+}
 // 위쪽 "내 카드 결제" 칸 — 처음 열 때 한 번 불러온다 (결제 탭을 안 열어도 보이게)
 const paySummary = reactive({ paid_total: 0, paid_month: 0, held: 0 })
 const money2 = (v) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
