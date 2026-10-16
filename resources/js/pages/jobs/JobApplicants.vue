@@ -20,13 +20,15 @@
 
       <p v-if="a.message" class="text-sm text-ink-light mt-3 whitespace-pre-wrap">{{ a.message }}</p>
 
-      <div v-if="a.resume" class="mt-3 bg-gray-50 rounded-xl p-3 text-xs space-y-1">
-        <div class="font-bold text-ink flex items-center gap-1"><AppIcon name="briefcase" :size="12" /> {{ a.resume.title }}</div>
-        <div v-if="a.resume.summary" class="text-ink-muted">{{ a.resume.summary }}</div>
+      <div v-if="a.resume || a.resume_snapshot" class="mt-3 bg-gray-50 rounded-xl p-3 text-xs space-y-1">
+        <div class="font-bold text-ink flex items-center gap-1"><AppIcon :name="resumeOf(a).kind === 'uploaded' ? 'paperclip' : 'briefcase'" :size="12" /> {{ resumeOf(a).title }}
+          <span class="font-normal text-ink-faint">· {{ resumeOf(a).kind === 'uploaded' ? '올린 파일' : '직접 쓴 이력서' }}</span></div>
+        <div v-if="resumeOf(a).summary" class="text-ink-muted line-clamp-2">{{ resumeOf(a).summary }}</div>
         <div class="text-ink-faint flex flex-wrap gap-2 mt-1">
-          <span v-if="a.resume.phone">{{ a.resume.phone }}</span>
-          <span v-if="a.resume.email">{{ a.resume.email }}</span>
+          <span v-if="resumeOf(a).phone">{{ resumeOf(a).phone }}</span>
+          <span v-if="resumeOf(a).email">{{ resumeOf(a).email }}</span>
         </div>
+        <button type="button" @click="openResume(a)" class="btn-secondary !px-3 !py-1.5 !text-xs mt-1.5"><AppIcon name="printer" :size="12" />이력서 보기 · 인쇄</button>
       </div>
 
       <div class="flex gap-2 mt-3">
@@ -42,6 +44,7 @@
       </div>
     </div>
   </div>
+  <ResumePreviewModal v-model="showResume" :resume="viewResume" :file-url="viewFileUrl" />
 </div>
 </template>
 <script setup>
@@ -53,9 +56,21 @@ import AppIcon from '../../components/AppIcon.vue'
 import UserAvatar from '../../components/UserAvatar.vue'
 import PageHeader from '../../components/PageHeader.vue'
 import DetailHeader from '../../components/DetailHeader.vue'
+import ResumePreviewModal from '../../components/resume/ResumePreviewModal.vue'
 const { showConfirm } = useModal()
 
 const route = useRoute()
+// 지원 당시 이력서 내용(복사본)이 있으면 그것을, 없으면(예전 지원서) 지금 이력서를 보여 준다
+const resumeOf = (a) => a.resume_snapshot || a.resume || {}
+const showResume = ref(false)
+const viewResume = ref(null)
+const viewFileUrl = ref('')
+function openResume(a) {
+  const r = resumeOf(a)
+  viewResume.value = r
+  viewFileUrl.value = r.kind === 'uploaded' ? `/api/job-applications/${a.id}/resume-file` : ''
+  showResume.value = true
+}
 const jobId = route.params.id
 const job = ref(null)
 const applicants = ref([])

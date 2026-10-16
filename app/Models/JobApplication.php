@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class JobApplication extends Model
 {
     protected $fillable = [
-        'job_post_id', 'user_id', 'resume_id', 'message', 'status',
+        'job_post_id', 'user_id', 'resume_id', 'resume_snapshot', 'message', 'status',
     ];
+
+    protected $casts = ['resume_snapshot' => 'array'];
 
     public function jobPost() { return $this->belongsTo(JobPost::class); }
     public function user() { return $this->belongsTo(User::class); }

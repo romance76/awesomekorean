@@ -135,7 +135,7 @@
           <!-- ══════════ 지원 모달 ══════════ -->
           <Teleport to="body">
             <div v-if="showApplyModal" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40" @click.self="showApplyModal = false">
-              <div class="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-md mx-4 overflow-hidden">
+              <div class="bg-white rounded-2xl shadow-2xl w-[94vw] max-w-lg mx-4 overflow-hidden max-h-[92vh] flex flex-col">
                 <!-- 모달 헤더 -->
                 <div class="px-5 py-4 border-b border-gray-50 bg-amber-50">
                   <div class="flex items-center justify-between">
@@ -156,55 +156,16 @@
                 </div>
 
                 <!-- 로그인 됨 -->
-                <div v-else class="p-5">
-                  <!-- 이력서 로딩 중 -->
-                  <div v-if="resumeLoading" class="text-center py-6 text-ink-muted text-sm">이력서 확인 중...</div>
-
-                  <!-- 이력서 있음 → 가져와서 지원 -->
-                  <div v-else-if="myResume">
-                    <div class="bg-emerald-50 rounded-xl p-4 mb-4">
-                      <div class="flex items-center gap-2 mb-2">
-                        <span class="icon-chip w-6 h-6 bg-emerald-100 text-emerald-600"><AppIcon name="check" :size="14" /></span>
-                        <span class="text-sm font-bold text-emerald-700">내 이력서</span>
-                      </div>
-                      <div class="text-sm text-ink font-semibold">{{ myResume.title }}</div>
-                      <div class="text-xs text-ink-muted mt-1">
-                        {{ myResume.name }} · {{ myResume.category ? categoryLabel(myResume.category) : '' }}
-                        <span v-if="myResume.city"> · {{ myResume.city }}</span>
-                      </div>
-                    </div>
-
-                    <button @click="submitApplication"
-                      :disabled="applySubmitting"
-                      class="btn-primary w-full py-3 text-sm">
-                      {{ applySubmitting ? '지원 중...' : '이 이력서로 지원하기' }}
+                <div v-else class="p-5 overflow-y-auto">
+                  <!-- 지원 완료 전: 이력서를 골라 지원 (올린 파일 · 직접 쓴 이력서 모두 미리보기 가능) -->
+                  <template v-if="!applyDone">
+                    <ResumeManager v-model="selectedResumeId" selectable @loaded="l => resumeCount = l.length" />
+                    <button v-if="resumeCount" @click="submitApplication" :disabled="applySubmitting || !selectedResumeId"
+                      class="btn-primary w-full py-3 text-sm mt-3">
+                      {{ applySubmitting ? '지원 중...' : '선택한 이력서로 지원하기' }}
                     </button>
-
-                    <div class="flex items-center gap-2 mt-3">
-                      <router-link to="/dashboard?tab=resume" @click="showApplyModal = false"
-                        class="btn-soft flex-1 py-2 text-xs">
-                        이력서 수정하기
-                      </router-link>
-                    </div>
-                  </div>
-
-                  <!-- 이력서 없음 → 작성 유도 -->
-                  <div v-else class="text-center">
-                    <div class="icon-chip w-14 h-14 bg-gray-100 text-gray-300 mx-auto mb-3"><AppIcon name="edit" :size="28" :stroke-width="1.5" /></div>
-                    <p class="text-sm text-ink-light mb-1">등록된 이력서가 없습니다</p>
-                    <p class="text-xs text-ink-muted mb-5">이력서를 먼저 작성하면 간편하게 지원할 수 있어요</p>
-
-                    <div class="flex flex-col gap-2">
-                      <router-link to="/dashboard?tab=resume" @click="showApplyModal = false"
-                        class="btn-primary w-full py-3 text-sm">
-                        이력서 작성하기
-                      </router-link>
-                      <button @click="applyDirect"
-                        class="btn-ghost w-full py-2 text-xs">
-                        이력서 없이 바로 연락하기
-                      </button>
-                    </div>
-                  </div>
+                    <button @click="applyDirect" class="btn-ghost w-full py-2 text-xs mt-1">이력서 없이 바로 연락하기</button>
+                  </template>
 
                   <!-- 지원 완료 메시지 -->
                   <div v-if="applyDone" class="mt-4 bg-blue-50 rounded-xl p-3 text-center">
@@ -305,6 +266,7 @@
 </template>
 
 <script setup>
+import ResumeManager from '../../components/resume/ResumeManager.vue'
 import { useModal } from '../../composables/useModal'
 import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, watch, onMounted } from 'vue'
@@ -338,8 +300,8 @@ const nearbyLabel = ref('')
 
 // ── Apply modal state ──
 const showApplyModal = ref(false)
-const myResume = ref(null)
-const resumeLoading = ref(false)
+const selectedResumeId = ref(null)
+const resumeCount = ref(0)
 const applySubmitting = ref(false)
 const applyDone = ref(false)
 
@@ -430,23 +392,13 @@ function formatDate(dt) {
 async function openApplyModal() {
   showApplyModal.value = true
   applyDone.value = false
-  if (!auth.isLoggedIn) return
-
-  // 내 이력서 불러오기
-  resumeLoading.value = true
-  myResume.value = null
-  try {
-    const { data } = await axios.get('/api/my-resume')
-    myResume.value = data.data
-  } catch {}
-  resumeLoading.value = false
 }
 
 async function submitApplication() {
-  if (!job.value || !myResume.value) return
+  if (!job.value || !selectedResumeId.value) return
   applySubmitting.value = true
   try {
-    await axios.post(`/api/jobs/${job.value.id}/apply`, { resume_id: myResume.value.id })
+    await axios.post(`/api/jobs/${job.value.id}/apply`, { resume_id: selectedResumeId.value })
     applyDone.value = true
   } catch (e) {
     // 이미 지원했거나 에러

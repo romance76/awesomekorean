@@ -304,7 +304,11 @@ Route::middleware('auth:api')->group(function () {
 
     // 이력서
     Route::get('/my-resume', [\App\Http\Controllers\API\ResumeController::class, 'myResume']);
-    Route::post('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'store']);
+    Route::get('/my-resumes', [\App\Http\Controllers\API\ResumeController::class, 'myResumes']);
+    Route::post('/resumes', [\App\Http\Controllers\API\ResumeController::class, 'store'])->middleware('throttle:30,1');
+    Route::post('/resumes/upload', [\App\Http\Controllers\API\ResumeController::class, 'upload'])->middleware('throttle:15,1');
+    Route::get('/resumes/{id}/file', [\App\Http\Controllers\API\ResumeController::class, 'file'])->whereNumber('id');
+    Route::get('/job-applications/{id}/resume-file', [\App\Http\Controllers\API\ResumeController::class, 'applicationFile'])->whereNumber('id');
     Route::put('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'update']);
     Route::delete('/resumes/{id}', [\App\Http\Controllers\API\ResumeController::class, 'destroy']);
 

@@ -369,10 +369,18 @@ class JobController extends Controller
             return response()->json(['success' => false, 'message' => '이미 지원한 공고입니다'], 422);
         }
 
+        // 낼 이력서: 내 것(지운 것 제외)만. 직접 쓴 이력서는 지금 내용을 지원서에 복사해 두어 나중에 고쳐도 낸 지원서는 그대로
+        $resume = null;
+        if ($request->filled('resume_id')) {
+            $resume = \App\Models\Resume::where('user_id', auth()->id())->active()->find($request->resume_id);
+            if (!$resume) return response()->json(['success' => false, 'message' => '선택한 이력서를 찾을 수 없어요'], 422);
+        }
+
         $application = JobApplication::create([
             'job_post_id' => $id,
             'user_id' => auth()->id(),
-            'resume_id' => $request->resume_id,
+            'resume_id' => $resume?->id,
+            'resume_snapshot' => $resume?->snapshot(),
             'message' => $request->message,
         ]);
 
@@ -393,7 +401,7 @@ class JobController extends Controller
     // 내 지원 내역
     public function myApplications()
     {
-        $apps = JobApplication::with(['jobPost:id,title,company,city,state,category', 'resume:id,title'])
+        $apps = JobApplication::with(['jobPost:id,title,company,city,state,category', 'resume:id,title,kind'])
             ->where('user_id', auth()->id())
             ->orderByDesc('created_at')
             ->paginate(20);

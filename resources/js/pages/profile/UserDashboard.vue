@@ -1028,76 +1028,12 @@
       </div>
     </div>
 
-    <!-- ═══ 이력서 탭 ═══ -->
+    <!-- ═══ 이력서 탭 ═══ (직접 쓴 이력서 · 올린 이력서 파일을 여러 개 두고, 지원할 때 골라 냄) -->
     <div v-else-if="tab==='resume'" class="space-y-4">
       <div class="card p-5">
-        <h2 class="flex items-center gap-2 font-bold text-ink mb-4"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="newspaper" :size="15" /></span>이력서 관리</h2>
-        <div class="space-y-3">
-          <div>
-            <label class="input-label">이력서 제목</label>
-            <input v-model="resume.title" placeholder="예: 요식업 경력 3년 구직자" class="input-soft" />
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label class="input-label">이름</label><input v-model="resume.name" class="input-soft" /></div>
-            <div><label class="input-label">연락처</label><input v-model="resume.phone" class="input-soft" /></div>
-          </div>
-          <div>
-            <label class="input-label">이메일</label>
-            <input v-model="resume.email" type="email" class="input-soft" />
-          </div>
-          <div>
-            <label class="input-label">자기소개</label>
-            <textarea v-model="resume.introduction" rows="4" placeholder="간단한 자기소개를 작성해주세요" class="input-soft"></textarea>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="input-label">희망 직종</label>
-              <select v-model="resume.desired_category" class="input-soft">
-                <option value="">선택해주세요</option>
-                <option value="restaurant">요식업</option><option value="it">IT</option><option value="beauty">미용</option>
-                <option value="driving">운전</option><option value="retail">판매</option><option value="office">사무직</option>
-                <option value="construction">건설</option><option value="medical">의료</option><option value="education">교육</option><option value="etc">기타</option>
-              </select>
-            </div>
-            <div>
-              <label class="input-label">희망 근무형태</label>
-              <select v-model="resume.desired_type" class="input-soft">
-                <option value="full">풀타임</option><option value="part">파트타임</option><option value="contract">계약직</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label class="input-label">희망 급여</label>
-            <input v-model="resume.desired_salary" placeholder="예: 시급 $18 이상, 월급 $3000 이상" class="input-soft" />
-          </div>
-          <div>
-            <label class="input-label">경력사항</label>
-            <textarea v-model="resume.experience" rows="4" placeholder="경력사항을 작성해주세요" class="input-soft"></textarea>
-          </div>
-          <div>
-            <label class="input-label">학력</label>
-            <textarea v-model="resume.education" rows="3" placeholder="학력사항을 작성해주세요" class="input-soft"></textarea>
-          </div>
-          <div>
-            <label class="input-label">보유기술</label>
-            <textarea v-model="resume.skills" rows="3" placeholder="보유 기술을 작성해주세요" class="input-soft"></textarea>
-          </div>
-          <div>
-            <label class="input-label">자격증</label>
-            <textarea v-model="resume.certifications" rows="3" placeholder="자격증을 작성해주세요" class="input-soft"></textarea>
-          </div>
-          <div class="flex items-center gap-3 pt-2 border-t border-gray-100">
-            <label class="text-xs font-bold text-ink-light">공개 여부</label>
-            <button @click="resume.is_public=!resume.is_public" class="relative w-10 h-5 rounded-full transition"
-              :class="resume.is_public ? 'bg-amber-400' : 'bg-gray-300'">
-              <span class="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all"
-                :class="resume.is_public ? 'left-5' : 'left-0.5'"></span>
-            </button>
-            <span class="text-xs text-ink-muted">{{ resume.is_public ? '공개 (구인 업체가 볼 수 있음)' : '비공개' }}</span>
-          </div>
-          <div v-if="resumeMsg" class="text-sm" :class="resumeMsgType==='success' ? 'text-emerald-600' : 'text-red-500'">{{ resumeMsg }}</div>
-          <button @click="saveResume" :disabled="resumeSaving" class="btn-primary px-6">{{ resumeSaving ? '저장 중...' : '저장하기' }}</button>
-        </div>
+        <h2 class="flex items-center gap-2 font-bold text-ink mb-1"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="newspaper" :size="15" /></span>내 이력서</h2>
+        <p class="text-xs text-ink-muted mb-4">구인 공고에 지원할 때 여기 있는 이력서 중 하나를 골라 낼 수 있어요. 미리보기와 인쇄(레터지)도 돼요.</p>
+        <ResumeManager />
       </div>
     </div>
 
@@ -1135,6 +1071,7 @@
 </template>
 
 <script setup>
+import ResumeManager from '../../components/resume/ResumeManager.vue'
 import PasswordInput from '../../components/PasswordInput.vue'
 import ChatComposer from '../../components/ChatComposer.vue'
 
