@@ -81,15 +81,31 @@
         </div>
         <div>
           <label class="input-label">최대 인원</label>
-          <input v-model.number="form.max_participants" type="number" min="2" placeholder="50"
+          <input v-model.number="form.max_participants" type="number" min="2" :max="maxPeopleCap" placeholder="50"
             class="input-soft px-3" />
+        </div>
+      </div>
+
+      <!-- 7-1. 등급 안내 (가격·인원에 따라 자동) -->
+      <div class="rounded-xl p-3 text-xs leading-relaxed"
+        :class="isSmall ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'">
+        <div class="font-semibold mb-0.5">
+          {{ isSmall ? '소액 공동구매 · 바로 등록됩니다' : '사업자 공동구매 · 관리자 승인이 필요합니다' }}
+          <span v-if="estTotal > 0" class="font-normal">(예상 최대 총액 ${{ estTotal.toLocaleString() }})</span>
+        </div>
+        <div v-if="isSmall">
+          총액 ${{ SMALL_TOTAL_LIMIT }} 미만 · 최대 {{ SMALL_MAX_PEOPLE }}명 · 마감 {{ SMALL_MAX_DAYS }}일 이내. 사업자 등록증 없이 등록할 수 있어요.
+        </div>
+        <div v-else>
+          예상 총액이 ${{ SMALL_TOTAL_LIMIT }} 이상이거나 인원이 {{ SMALL_MAX_PEOPLE }}명을 넘으면 사업자 등록증과 관리자 승인이 필요하고, 마감은 {{ BUSINESS_MAX_DAYS }}일(1개월) 이내예요.
+          <button v-if="smallFit" type="button" @click="fitSmall" class="underline font-semibold ml-1">소액으로 맞추기 (최대 {{ smallFit }}명)</button>
         </div>
       </div>
 
       <!-- 8. 마감일 -->
       <div>
-        <label class="input-label">마감일</label>
-        <input v-model="form.deadline" type="date"
+        <label class="input-label">마감일 <span class="text-xs text-ink-muted font-normal">(최대 {{ isSmall ? SMALL_MAX_DAYS + '일' : '1개월' }})</span></label>
+        <input v-model="form.deadline" type="date" :min="deadlineMin" :max="deadlineMax"
           class="input-soft px-3" />
       </div>
 
@@ -130,8 +146,6 @@
         <select v-model="form.payment_method" class="input-soft px-3">
           <option value="none">참가비 없음 (무료 참여)</option>
           <option value="point">포인트로 결제</option>
-          <option value="stripe">카드(Stripe)로 결제</option>
-          <option value="both">포인트 또는 카드 중 선택</option>
         </select>
       </div>
 
@@ -180,7 +194,7 @@
       </div>
 
       <!-- 12. 사업자 등록증 -->
-      <div>
+      <div v-if="!isSmall">
         <label class="input-label">사업자 등록증 <span class="text-red-400">*</span></label>
         <div class="mt-1">
           <label class="flex items-center gap-2 rounded-xl bg-[#F4F6F8] text-ink-muted px-4 py-3 cursor-pointer hover:bg-amber-50 transition-colors">
@@ -193,7 +207,7 @@
       </div>
 
       <!-- 안내문 -->
-      <div class="bg-amber-50 rounded-xl p-3">
+      <div v-if="!isSmall" class="bg-amber-50 rounded-xl p-3">
         <div class="flex items-start gap-2">
           <span class="text-amber-500 flex-shrink-0"><AppIcon name="alert-circle" :size="16" /></span>
           <div class="text-xs text-amber-800 leading-relaxed">
@@ -219,7 +233,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
@@ -256,6 +270,45 @@ const form = reactive({
   city: '',
   state: '',
 })
+
+// 등급 — 서버 App\Support\GroupBuyTier 와 같은 숫자(바꿀 때 함께 바꾼다)
+const SMALL_TOTAL_LIMIT = 500
+const SMALL_MAX_PEOPLE = 50
+const SMALL_MAX_DAYS = 14
+const BUSINESS_MAX_DAYS = 31
+const maxPeopleCap = 10000
+
+// 예상 최대 총액 = (공동구매 최저가 || 원래 가격) × 최대 인원
+const estTotal = computed(() => {
+  const price = Number(form.group_price || form.original_price || 0)
+  return price * Number(form.max_participants || 0)
+})
+// 최대 인원이 없거나 50명을 넘으면 총액을 알 수 없으므로 사업자 등급
+const isSmall = computed(() => {
+  const max = Number(form.max_participants || 0)
+  if (max < 1 || max > SMALL_MAX_PEOPLE) return false
+  return estTotal.value < SMALL_TOTAL_LIMIT
+})
+// 소액으로 유지할 수 있는 최대 인원 (2명도 못 채우면 0)
+const smallFit = computed(() => {
+  const price = Number(form.group_price || form.original_price || 0)
+  if (price <= 0) return 0
+  const fit = Math.min(SMALL_MAX_PEOPLE, Math.floor((SMALL_TOTAL_LIMIT - 0.01) / price))
+  return fit >= 2 ? fit : 0
+})
+function fitSmall() {
+  if (smallFit.value) form.max_participants = smallFit.value
+  if (form.min_participants > form.max_participants) form.min_participants = Math.min(2, form.max_participants)
+}
+
+function dateStr(addDays) {
+  const d = new Date()
+  d.setDate(d.getDate() + addDays)
+  const p = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+const deadlineMin = computed(() => dateStr(1))
+const deadlineMax = computed(() => dateStr(isSmall.value ? SMALL_MAX_DAYS : BUSINESS_MAX_DAYS))
 
 // 사진 관리
 const photoList = ref([])
@@ -309,7 +362,15 @@ const submitting = ref(false)
 async function submit() {
   if (!form.title.trim()) { error.value = '제목을 입력해주세요'; return }
   if (!form.content.trim()) { error.value = '상세 설명을 입력해주세요'; return }
-  if (!businessDoc.value) { error.value = '사업자 등록증을 첨부해주세요'; return }
+  if (!form.max_participants || form.max_participants < 2) { error.value = '최대 인원을 입력해주세요'; return }
+  if (!form.deadline) { error.value = '마감일을 정해주세요'; return }
+  if (form.deadline > deadlineMax.value) {
+    error.value = isSmall.value
+      ? `소액 공동구매는 마감일을 ${SMALL_MAX_DAYS}일 안으로 정해주세요`
+      : '마감일은 1개월 안으로 정해주세요'
+    return
+  }
+  if (!isSmall.value && !businessDoc.value) { error.value = '예상 총액이 $' + SMALL_TOTAL_LIMIT + ' 이상이면 사업자 등록증을 첨부해주세요'; return }
 
   submitting.value = true
   error.value = ''
@@ -340,7 +401,7 @@ async function submit() {
     photoList.value.forEach(p => fd.append('images[]', p.file))
 
     // 사업자 등록증
-    fd.append('business_doc', businessDoc.value)
+    if (!isSmall.value && businessDoc.value) fd.append('business_doc', businessDoc.value)
 
     await axios.post('/api/groupbuys', fd, {
       headers: { 'Content-Type': 'multipart/form-data' }

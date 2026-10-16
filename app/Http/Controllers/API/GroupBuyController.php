@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\GroupBuy;
 use App\Models\GroupBuyParticipant;
 use App\Models\Notification;
+use App\Support\GroupBuyTier;
 use App\Events\NewNotification;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
@@ -134,12 +135,31 @@ class GroupBuyController extends Controller
             'max_participants' => 'nullable|integer|min:2',
             'category' => 'required|string',
             'end_type' => 'required|in:target_met,time_limit,flexible',
-            'payment_method' => 'required|in:point,stripe,both,none',
+            'payment_method' => 'required|in:point,none',   // 참가자는 카드로 결제하지 않는다(2026-10-16)
             'images.*' => 'nullable|image|max:5120',
             'business_doc' => 'nullable|file|max:10240',
             'discount_tiers' => 'nullable|json',
             'deadline' => 'nullable|date|after:now',
         ]);
+
+        // 등급: 예상 최대 총액 $500 미만이면 소액(자동 승인, 인원 50명·기간 2주 이하), 그 이상이면 사업자(등록증 + 관리자 승인, 기간 1개월 이하)
+        $isStaff = in_array(auth()->user()->role ?? '', ['admin', 'super_admin', 'moderator'], true);
+        $tier = GroupBuyTier::tier($request->group_price, $request->original_price, $request->max_participants);
+        if (!$isStaff) {
+            if (!$request->deadline) {
+                return response()->json(['success' => false, 'message' => '마감일을 정해 주세요. (소액 공동구매는 최대 ' . GroupBuyTier::SMALL_MAX_DAYS . '일, 그 이상은 최대 ' . GroupBuyTier::BUSINESS_MAX_DAYS . '일)'], 422);
+            }
+            if (\Carbon\Carbon::parse($request->deadline)->gt(now()->addDays(GroupBuyTier::maxDays($tier))->endOfDay())) {
+                $msg = $tier === GroupBuyTier::SMALL
+                    ? '소액 공동구매(총액 $' . GroupBuyTier::SMALL_TOTAL_LIMIT . ' 미만)는 마감일을 오늘부터 ' . GroupBuyTier::SMALL_MAX_DAYS . '일 안으로 정해 주세요.'
+                    : '마감일은 오늘부터 ' . GroupBuyTier::BUSINESS_MAX_DAYS . '일(1개월) 안으로 정해 주세요.';
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            if ($tier === GroupBuyTier::BUSINESS && !$request->hasFile('business_doc')) {
+                return response()->json(['success' => false, 'message' => '예상 총액이 $' . GroupBuyTier::SMALL_TOTAL_LIMIT . ' 이상이면 사업자 등록증을 첨부해야 합니다.'], 422);
+            }
+        }
+        $autoApprove = $isStaff || $tier === GroupBuyTier::SMALL;
 
         $images = [];
         if ($request->hasFile('images')) {
@@ -173,12 +193,13 @@ class GroupBuyController extends Controller
             'status' => 'recruiting',
             'end_type' => $request->end_type,
             'payment_method' => $request->payment_method,
-            'is_approved' => false,
+            'is_approved' => $autoApprove,
+            'approved_at' => $autoApprove ? now() : null,
             'category' => $request->category,
             'deadline' => $request->deadline,
         ]);
 
-        return response()->json(['success' => true, 'data' => $gb->load('user:id,name,nickname')], 201);
+        return response()->json(['success' => true, 'tier' => $tier, 'auto_approved' => $autoApprove, 'data' => $gb->load('user:id,name,nickname')], 201);
     }
 
     public function update(Request $request, $id)
@@ -194,6 +215,7 @@ class GroupBuyController extends Controller
             'content' => 'sometimes|string',
             'original_price' => 'sometimes|numeric|min:0',
             'min_participants' => 'sometimes|integer|min:2',
+            'payment_method' => 'sometimes|in:point,none',
             'images.*' => 'nullable|image|max:5120',
             'business_doc' => 'nullable|file|max:10240',
             'discount_tiers' => 'nullable|json',
