@@ -226,6 +226,8 @@ class FlyerController extends Controller
             'credit_cents' => ($u = auth('api')->user()) ? AdCredit::balance($u->id) : 0,
             // 주별 한 달(24시간) 정가 — 신청 화면에서 주를 고를 때 가격을 보여 주기 위함 (할인 전, 센트)
             'state_month_cents' => collect(FlyerSchedule::states())->mapWithKeys(fn($st) => [$st => FlyerSchedule::stateMonthCents($st)])->all(),
+            // 오픈 기념 이벤트 할인을 적용한 한 달(24시간 × 30일) 가격 — 주 선택 목록에서 정가 옆에 보여 주기 위함 (이벤트가 없으면 정가와 같다)
+            'state_month_event_cents' => collect(FlyerSchedule::states())->mapWithKeys(fn($st) => [$st => 30 * array_sum(array_map(fn($p) => \App\Support\OpenEvent::apply($p, 'flyer_usd', 1), FlyerSchedule::dayPrices($st)))])->all(),
             'state_tiers' => collect(FlyerSchedule::states())->mapWithKeys(fn($st) => [$st => FlyerSchedule::tierOf($st)])->all(),
             'max_extra_states' => FlyerSchedule::maxExtraStates(),
             'extra_pct' => FlyerSchedule::extraStatePct(),

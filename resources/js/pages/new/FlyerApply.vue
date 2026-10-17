@@ -56,7 +56,13 @@
           <select v-model="form.state" class="input-soft">
             <option v-for="s in US_STATES" :key="s.code" :value="s.code">{{ s.name }} ({{ s.code }}){{ monthLabel(s.code) }}</option>
           </select>
-          <p v-if="monthLabel(form.state)" class="text-[11px] text-ink-muted mt-1">{{ stateName(form.state) }}: 하루 종일(24시간) 한 달 노출하면 정가{{ monthLabel(form.state).replace(' · ', ' ') }}예요. 원하는 시간·기간만 골라 살 수 있어요.</p>
+          <p v-if="monthLabel(form.state)" class="text-[11px] text-ink-muted mt-1">
+            {{ stateName(form.state) }}: 하루 종일(24시간) 한 달 노출하면 정가 <b>{{ usd(stateMonth[form.state]) }}/월</b>이에요.
+            <template v-if="eventMonth(form.state)">
+              <span class="block mt-1 text-pink-700 font-semibold">🎉 오픈 기념 이벤트{{ eventPct ? ` ${eventPct}%` : '' }} 할인 적용 → <b class="text-[13px]">{{ usd(eventMonth(form.state)) }}/월</b> <span class="font-normal">(−{{ usd(stateMonth[form.state] - eventMonth(form.state)) }})</span></span>
+            </template>
+            원하는 시간·기간만 골라 살 수 있어요.
+          </p>
         </div>
 
         <!-- 추가 주: 내 주 + 주변 주까지 함께 노출 -->
@@ -320,7 +326,18 @@ const discountAmount = computed(() => Math.max(0, listTotal.value - total.value)
 const savedPct = computed(() => listTotal.value > 0 ? Math.round((discountAmount.value / listTotal.value) * 1000) / 10 : 0)
 // 주별 한 달(24시간) 정가 안내 — 서버가 내려주는 값 (할인 전, 센트)
 const stateMonth = computed(() => av.value?.state_month_cents || {})
-const monthLabel = (code) => stateMonth.value[code] ? ` · ${usd(stateMonth.value[code]).replace(/\.00$/, '')}/월` : ''
+// 이벤트 할인을 적용한 한 달 가격 (서버가 내려줌). 정가보다 낮을 때만 "정가 → 할인가"로 보여 준다
+const stateMonthEvent = computed(() => av.value?.state_month_event_cents || {})
+const eventMonth = (code) => {
+  const list = stateMonth.value[code], ev = stateMonthEvent.value[code]
+  return list && ev && ev < list ? ev : 0
+}
+const monthLabel = (code) => {
+  const list = stateMonth.value[code]
+  if (!list) return ''
+  const ev = eventMonth(code)
+  return ev ? ` · ${usd(list)} → ${usd(ev)}/월` : ` · ${usd(list).replace(/\.00$/, '')}/월`
+}
 
 // 추가 주
 const maxExtra = computed(() => av.value?.max_extra_states ?? 3)
