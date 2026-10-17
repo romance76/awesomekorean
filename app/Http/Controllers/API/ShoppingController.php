@@ -221,8 +221,8 @@ class ShoppingController extends Controller
             if ($why = ShoppingReviews::violation($text)) {
                 abort(response()->json(['success' => false, 'message' => "[{$where}] " . $why], 422));
             }
-            if (BadWordFilter::contains($text)) {
-                abort(response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어요.'], 422));
+            if ($bad = BadWordFilter::firstMatch($text)) {
+                abort(response()->json(['success' => false, 'message' => "[{$where}] 부적절한 표현이 포함되어 있어요. (걸린 단어: {$bad})"], 422));
             }
         }
         $data['blocks'] = $blocks; $data['body'] = $body; $data['photos'] = array_values(array_unique($photos));

@@ -71,6 +71,9 @@ class BadWordFilter
     {
         if (trim($text) === '') return null;
 
+        // '씹어먹다·씹히다·씹는' 처럼 음식을 씹는 정상적인 말은 '씹' 욕설로 오해하지 않도록 먼저 뺀다
+        $text = preg_replace('/씹(어|는|을|으|히|혀|다|기|힘|고|지|던|은|네)/u', '', $text) ?? $text;
+
         $normalized = self::normalize($text);
 
         foreach (self::KOREAN as $word) {
