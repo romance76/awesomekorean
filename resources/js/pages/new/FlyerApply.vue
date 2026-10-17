@@ -143,6 +143,16 @@
             <div class="flex justify-between"><span class="text-ink-muted">{{ stateName(form.state) }}</span><span class="font-semibold">{{ usd(homeTotal) }}</span></div>
             <div class="flex justify-between"><span class="text-ink-muted">추가 주 {{ form.extra_states.length }}개 ({{ form.extra_states.join(', ') }}) · 각 {{ extraPct }}%</span><span class="font-semibold">{{ usd(extraTotal) }}</span></div>
           </div>
+          <!-- 가격 계산 내역: 정가 → 오픈 기념 이벤트 할인 → 광고 금액 -->
+          <div v-if="form.hours.length && discountAmount > 0" class="rounded-lg bg-pink-50 border border-pink-100 px-3 py-2.5 text-xs space-y-1">
+            <div class="font-bold text-pink-700">🎉 오픈 기념 이벤트 할인이 적용됐어요</div>
+            <div class="flex justify-between"><span class="text-ink-muted">정가 (할인 전)</span><span class="font-semibold">{{ usd(listTotal) }}</span></div>
+            <div class="flex justify-between text-pink-700"><span>오픈 기념 이벤트 할인 {{ eventPct ? eventPct + '%' : '' }}</span><span class="font-semibold">−{{ usd(discountAmount) }}</span></div>
+            <p class="text-[11px] text-ink-faint leading-relaxed">
+              정가는 {{ stateName(form.state) }}의 선택한 시간대 가격을 합한 금액이에요{{ form.days === 30 && form.hours.length === 24 ? `(하루 종일 한 달 정가와 같아요)` : '' }}.
+              할인은 시간마다 적용해 센트 단위로 반올림하고 시간당 최소 1센트를 받아서, 실제로는 <b>{{ savedPct }}%</b> 줄어든 금액이에요.
+            </p>
+          </div>
           <div class="flex justify-between items-baseline pt-2 border-t border-gray-100"><span class="font-bold text-ink">광고 금액</span><span class="text-xl font-black text-amber-600">{{ usd(total) }}</span></div>
         </div>
 
@@ -300,6 +310,14 @@ const pickedBlocks = computed(() => blocks.value.filter(b => blockOn(b)))
 const homeTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + b.price, 0) * form.days)
 const extraTotal = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.extra_price || 0), 0) * form.days)
 const total = computed(() => homeTotal.value + extraTotal.value)
+// 계산 내역: 정가(할인 전) → 오픈 이벤트 할인 → 광고 금액. 서버가 칸마다 정가(list_price)를 같이 내려 준다.
+const listHome = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.list_price ?? b.price), 0) * form.days)
+const listExtra = computed(() => pickedBlocks.value.reduce((s, b) => s + (b.list_extra_price ?? b.extra_price ?? 0), 0) * form.days)
+const listTotal = computed(() => listHome.value + listExtra.value)
+const eventPct = computed(() => av.value?.event_discount_pct || 0)
+const discountAmount = computed(() => Math.max(0, listTotal.value - total.value))
+// 실제로 줄어든 비율 — 시간마다 센트 단위로 반올림하고 시간당 최소 1센트를 받기 때문에 이벤트 할인율과 조금 다를 수 있다
+const savedPct = computed(() => listTotal.value > 0 ? Math.round((discountAmount.value / listTotal.value) * 1000) / 10 : 0)
 // 주별 한 달(24시간) 정가 안내 — 서버가 내려주는 값 (할인 전, 센트)
 const stateMonth = computed(() => av.value?.state_month_cents || {})
 const monthLabel = (code) => stateMonth.value[code] ? ` · ${usd(stateMonth.value[code]).replace(/\.00$/, '')}/월` : ''

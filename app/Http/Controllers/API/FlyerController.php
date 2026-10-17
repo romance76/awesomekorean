@@ -183,7 +183,10 @@ class FlyerController extends Controller
         // 블록(몇 시간씩 묶은 칸) — 칸 안의 어느 시간이든 선택한 날짜 중 하루라도 (고른 주 중 어느 한 곳에서든) 예약돼 있으면 그 칸은 "예약됨"
         $prices = FlyerSchedule::priceTable($region);
         $natPrices = FlyerSchedule::priceTable(FlyerSchedule::NATIONAL);
-        $blocks = array_map(function ($b) use ($prices, $natPrices, $regions, $extras, $bookedBy) {
+        // 할인 전 정가(하루, 센트) — 신청 화면이 "정가 → 오픈 이벤트 할인 → 광고 금액" 계산 내역을 보여 주기 위함
+        $listDay = FlyerSchedule::dayPrices($region);
+        $listExtraDay = array_map(fn($x) => FlyerSchedule::dayPrices($x, FlyerSchedule::extraStatePct() / 100), $extras);
+        $blocks = array_map(function ($b) use ($prices, $natPrices, $regions, $extras, $bookedBy, $listDay, $listExtraDay) {
             $blockedIn = [];
             foreach ($regions as $r) {
                 if (array_filter($b['hours'], fn($h) => !empty($bookedBy[$r][$h]))) $blockedIn[] = $r;
@@ -192,6 +195,8 @@ class FlyerController extends Controller
                 'start' => $b['start'], 'end' => $b['end'], 'hours' => $b['hours'],
                 'price' => array_sum(array_map(fn($h) => $prices[$h], $b['hours'])),   // 하루 기준(센트) — 내 주
                 'extra_price' => array_sum(array_map(fn($h) => array_sum(array_map(fn($x) => FlyerSchedule::extraHourPrice($x, $h), $extras)), $b['hours'])),   // 추가 주 합계(하루)
+                'list_price' => array_sum(array_map(fn($h) => $listDay[$h], $b['hours'])),   // 정가(할인 전, 하루) — 내 주
+                'list_extra_price' => array_sum(array_map(fn($h) => array_sum(array_map(fn($d) => $d[$h], $listExtraDay)), $b['hours'])),   // 정가(할인 전, 하루) — 추가 주 합계
                 'national_price' => array_sum(array_map(fn($h) => $natPrices[$h], $b['hours'])),   // 전국이었다면(하루)
                 'booked' => (bool) $blockedIn,
                 'booked_states' => $blockedIn,
@@ -224,6 +229,8 @@ class FlyerController extends Controller
             'state_tiers' => collect(FlyerSchedule::states())->mapWithKeys(fn($st) => [$st => FlyerSchedule::tierOf($st)])->all(),
             'max_extra_states' => FlyerSchedule::maxExtraStates(),
             'extra_pct' => FlyerSchedule::extraStatePct(),
+            // 오픈 기념 이벤트의 전단 광고(달러 결제) 할인율(%) — 진행 중이 아니면 0
+            'event_discount_pct' => \App\Support\OpenEvent::discountPct('flyer_usd'),
         ]]);
     }
 
