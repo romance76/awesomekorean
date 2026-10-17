@@ -44,10 +44,11 @@
         </div>
 
         <!-- 회원 리뷰: 글자 그대로(HTML 해석 안 함) -->
-        <div v-if="product.is_member_review && !product.uses_site_tag" class="card p-4">
+        <div v-if="product.is_member_review" class="card p-4">
           <div class="flex items-center gap-2 mb-2 flex-wrap">
             <span class="text-amber-400 text-base">{{ '★'.repeat(product.rating || 0) }}<span class="text-gray-300">{{ '★'.repeat(5 - (product.rating || 0)) }}</span></span>
-            <span class="text-xs font-bold text-ink-light">✍️ {{ product.author?.name }}님의 내돈내산 리뷰</span>
+            <span v-if="product.uses_site_tag" class="text-xs font-bold text-ink-light">✍️ Awesome Korean의 추천 이유</span>
+            <span v-else class="text-xs font-bold text-ink-light">✍️ {{ product.author?.name }}님의 내돈내산 리뷰</span>
           </div>
           <!-- 글 + 사진 블록 (예전 방식으로 쓴 글은 본문만) -->
           <template v-if="product.review_blocks?.length">
