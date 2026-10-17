@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class PopupBanner extends Model
 {
     protected $fillable = [
-        'title','type','image_url','content','width','height',
+        'title','type','layout','image_url','content','extra','width','height',
         'link_url','display_mode','is_active','start_at','end_at','sort_order',
     ];
 
     protected $casts = [
+        'extra'     => 'array',      // 전체창(layout=fullscreen) 문구
         'is_active' => 'boolean',
         'width'     => 'integer',
         'height'    => 'integer',

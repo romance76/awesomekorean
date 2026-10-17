@@ -780,6 +780,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     // 팝업 배너 관리
     Route::get('/popup-banners', [\App\Http\Controllers\API\PopupBannerController::class, 'index']);
     Route::post('/popup-banners', [\App\Http\Controllers\API\PopupBannerController::class, 'store']);
+    Route::post('/popup-banners/image', [\App\Http\Controllers\API\PopupBannerController::class, 'uploadImage'])->middleware('throttle:30,1');
     Route::post('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'update']); // multipart 편의상 POST 허용
     Route::put('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'update']);
     Route::delete('/popup-banners/{id}', [\App\Http\Controllers\API\PopupBannerController::class, 'destroy']);

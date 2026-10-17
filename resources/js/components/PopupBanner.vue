@@ -1,5 +1,7 @@
 <template>
-<Teleport to="body">
+<!-- 전체창 형식: 화면 전체를 덮는 안내(소프트 오픈 등) -->
+<FullscreenBanner v-if="current && current.layout === 'fullscreen'" :key="current.id" :banner="current" @close="closeFull" />
+<Teleport to="body" v-else>
   <div v-if="current" class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/60 p-4"
     @click.self="close">
     <div class="relative bg-white rounded-xl shadow-2xl overflow-hidden max-w-[95vw] max-h-[90vh]"
@@ -36,6 +38,7 @@ import { sanitizeHtml } from '../utils/sanitizeHtml'
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import FullscreenBanner from './FullscreenBanner.vue'
 
 const router = useRouter()
 const queue = ref([])
@@ -74,6 +77,21 @@ function close() {
     try { localStorage.setItem(storageKey(b), '1') } catch {}
   }
   hideToday.value = false
+  if (currentIdx.value < queue.value.length - 1) {
+    currentIdx.value++
+  } else {
+    queue.value = []
+    currentIdx.value = 0
+  }
+}
+
+// 전체창 배너 닫기 — "오늘 하루 열지 않음"이 체크됐거나 하루 1회 배너면 오늘은 다시 안 띄운다
+function closeFull(hide) {
+  const b = current.value
+  if (!b) return
+  if (hide || b.display_mode === 'once_per_day') {
+    try { localStorage.setItem(storageKey(b), '1') } catch {}
+  }
   if (currentIdx.value < queue.value.length - 1) {
     currentIdx.value++
   } else {

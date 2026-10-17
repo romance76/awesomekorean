@@ -6,7 +6,7 @@
     <div v-for="b in banners" :key="b.id" class="bg-white border border-gray-100 rounded-2xl p-3 flex items-center gap-3">
       <button @click="editBanner(b)" class="flex items-center gap-3 min-w-0 flex-1 text-left min-h-[64px]">
         <span class="shrink-0 w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center overflow-hidden"><img v-if="b.type === 'image' && b.image_url" :src="b.image_url" alt="" loading="lazy" class="w-full h-full object-cover" /><AppIcon v-else :name="b.type === 'image' ? 'image' : 'edit'" :size="20" /></span>
-        <span class="min-w-0"><span class="block text-[15px] font-bold text-ink truncate">{{ b.title }}</span><span class="block text-[12px] text-ink-muted truncate">{{ b.type === 'image' ? '이미지' : `텍스트 ${b.width}×${b.height}` }} · {{ b.display_mode === 'once_per_day' ? '하루 1회' : '매번' }}<template v-if="b.start_at || b.end_at"> · {{ fmt(b.start_at) }}~{{ fmt(b.end_at) }}</template></span></span>
+        <span class="min-w-0"><span class="block text-[15px] font-bold text-ink truncate">{{ b.title }}</span><span class="block text-[12px] text-ink-muted truncate">{{ b.layout === 'fullscreen' ? '전체창' : b.type === 'image' ? '이미지' : `텍스트 ${b.width}×${b.height}` }} · {{ b.display_mode === 'once_per_day' ? '하루 1회' : '매번' }}<template v-if="b.start_at || b.end_at"> · {{ fmt(b.start_at) }}~{{ fmt(b.end_at) }}</template></span></span>
       </button>
       <button type="button" role="switch" :aria-checked="!!b.is_active" :aria-label="b.title + ' 활성'" @click="toggleActive(b)" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="b.is_active ? 'bg-emerald-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="b.is_active ? 'left-[26px]' : 'left-[4px]'"></span></button>
     </div>
@@ -20,6 +20,12 @@
         <div class="text-[17px] font-bold text-ink mb-3">{{ editId ? '팝업 배너 수정' : '새 팝업 배너' }}</div>
         <div class="space-y-3">
         <input v-model="form.title" placeholder="관리용 제목 (예: 신년 이벤트 공지)" aria-label="관리용 제목" class="w-full min-h-[50px] rounded-xl border border-gray-200 px-3" />
+        <div class="grid grid-cols-2 gap-1 bg-gray-100 rounded-xl p-1"><button type="button" @click="form.layout = 'modal'" class="min-h-[44px] rounded-lg text-[15px] font-bold" :class="form.layout !== 'fullscreen' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">🪟 가운데 팝업</button><button type="button" @click="setFullscreen" class="min-h-[44px] rounded-lg text-[15px] font-bold" :class="form.layout === 'fullscreen' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">📱 전체창</button></div>
+        <template v-if="form.layout === 'fullscreen'">
+          <FullscreenBannerFields v-model="form.extra" />
+          <button type="button" @click="previewOpen = true" class="w-full min-h-[48px] rounded-xl bg-pink-50 text-pink-600 text-[15px] font-bold">👀 미리보기</button>
+        </template>
+        <template v-if="form.layout !== 'fullscreen'">
         <div class="grid grid-cols-2 gap-1 bg-gray-100 rounded-xl p-1"><button type="button" @click="form.type = 'text'" class="min-h-[44px] rounded-lg text-[15px] font-bold" :class="form.type === 'text' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">📝 텍스트</button><button type="button" @click="form.type = 'image'" class="min-h-[44px] rounded-lg text-[15px] font-bold" :class="form.type === 'image' ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">🖼️ 이미지</button></div>
         <div v-if="form.type === 'image'" class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">이미지 업로드</div><input type="file" accept="image/*" @change="onFile" class="block w-full text-[14px]" /><img v-if="form.image_url && !pickedFile" :src="form.image_url" alt="" class="max-h-32 rounded-lg border border-gray-200" /><div v-if="pickedFile" class="text-[12px] text-green-600">선택됨: {{ pickedFile.name }}</div></div>
         <template v-else>
@@ -27,6 +33,7 @@
           <div class="grid grid-cols-2 gap-2"><label class="block"><span class="block text-[12px] text-ink-muted mb-1">가로 (px)</span><input v-model.number="form.width" type="number" inputmode="numeric" min="200" max="1200" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label><label class="block"><span class="block text-[12px] text-ink-muted mb-1">세로 (px)</span><input v-model.number="form.height" type="number" inputmode="numeric" min="150" max="900" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label></div>
         </template>
         <input v-model="form.link_url" placeholder="클릭 시 이동 URL (선택)" aria-label="이동 URL" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
+        </template>
         <label class="block"><span class="block text-[12px] text-ink-muted mb-1">표시 빈도</span><select v-model="form.display_mode" class="w-full min-h-[48px] rounded-xl border border-gray-200 bg-white px-3"><option value="once_per_day">하루에 한 번</option><option value="every_visit">매번 방문 시</option></select></label>
         <label class="block"><span class="block text-[12px] text-ink-muted mb-1">시작 일시 (선택)</span><input v-model="form.start_at" type="datetime-local" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
         <label class="block"><span class="block text-[12px] text-ink-muted mb-1">종료 일시 (선택)</span><input v-model="form.end_at" type="datetime-local" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" /></label>
@@ -64,6 +71,13 @@
           <input v-model="form.title" placeholder="예: 신년 이벤트 공지" class="input-soft !px-3 !py-1.5 text-sm" />
         </div>
         <div>
+          <label class="input-label">형식</label>
+          <select :value="form.layout || 'modal'" @change="e => e.target.value === 'fullscreen' ? setFullscreen() : (form.layout = 'modal')" class="input-soft !px-3 !py-1.5 text-sm">
+            <option value="modal">🪟 가운데 팝업 (텍스트·이미지)</option>
+            <option value="fullscreen">📱 전체창 (화면 전체 안내)</option>
+          </select>
+        </div>
+        <div v-if="form.layout !== 'fullscreen'">
           <label class="input-label">타입</label>
           <select v-model="form.type" class="input-soft !px-3 !py-1.5 text-sm">
             <option value="text">📝 텍스트</option>
@@ -72,8 +86,14 @@
         </div>
       </div>
 
+      <!-- 전체창 형식 -->
+      <div v-if="form.layout === 'fullscreen'" class="space-y-3">
+        <FullscreenBannerFields v-model="form.extra" />
+        <button type="button" @click="previewOpen = true" class="btn-ghost !px-3 !py-1.5 text-xs">👀 미리보기 (저장 전에도 볼 수 있어요)</button>
+      </div>
+
       <!-- 이미지 타입 -->
-      <div v-if="form.type === 'image'" class="space-y-2">
+      <div v-else-if="form.type === 'image'" class="space-y-2">
         <label class="input-label">이미지 업로드</label>
         <input type="file" accept="image/*" @change="onFile" class="text-xs" />
         <div v-if="form.image_url && !pickedFile" class="mt-1">
@@ -149,7 +169,7 @@
       <div class="flex-1 min-w-0">
         <div class="text-sm font-bold text-ink truncate">{{ b.title }}</div>
         <div class="text-[11px] text-ink-muted">
-          {{ b.type === 'image' ? '이미지' : `텍스트 ${b.width}×${b.height}` }}
+          {{ b.layout === 'fullscreen' ? '전체창' : b.type === 'image' ? '이미지' : `텍스트 ${b.width}×${b.height}` }}
           · {{ b.display_mode === 'once_per_day' ? '하루 1회' : '매번' }}
           <span v-if="b.start_at || b.end_at"> · 기간 {{ fmt(b.start_at) }}~{{ fmt(b.end_at) }}</span>
         </div>
@@ -166,12 +186,17 @@
     </div>
   </div>
 </div>
+
+<!-- 전체창 배너 미리보기 (저장 전 문구 그대로) -->
+<FullscreenBanner v-if="previewOpen" :banner="previewBanner" preview @close="previewOpen = false" />
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
+import FullscreenBanner from '../../components/FullscreenBanner.vue'
+import FullscreenBannerFields from '../../components/admin/FullscreenBannerFields.vue'
 
 // 관리자 휴대폰 화면이면 카드 + 아래에서 올라오는 시트로 보여 줌 (AdminLayout 이 알려 줌)
 const adminIsMobile = inject('adminIsMobile', ref(false))
@@ -183,8 +208,28 @@ const editId = ref(null)
 const saving = ref(false)
 const pickedFile = ref(null)
 
+// 전체창 기본 문구(소프트 오픈 안내) — 새로 만들 때 채워 둔다
+const DEFAULT_EXTRA = {
+  eyebrow: 'SOFT OPEN', headline: '어썸코리안이 문을 열었어요!',
+  subtitle: '미국 한인 이웃과 나누고, 찾고, 함께 아끼는 커뮤니티예요. 지금은 소프트 오픈 기간이라 오픈 기념 혜택을 드려요.',
+  show_open_event: true, features_title: '이렇게 써 보세요',
+  features_text: '🛒|중고장터|/market|이웃과 사고팔아요\n🤝|공동구매|/groupbuy|함께 사면 더 싸요\n💼|구인구직|/jobs|한인 일자리를 찾아요\n🏠|부동산|/realestate|렌트·매매 매물\n🍜|업소록|/directory|맛집·병원·가게\n💬|커뮤니티|/community|이웃과 이야기해요\n❓|Q&A|/qa|궁금한 건 물어보세요\n🎁|이벤트|/events|경품과 혜택\n💰|머니|/money|알뜰 정보와 혜택',
+  img_desktop: '/images/banners/soft-open-pc.jpg', img_mobile: '/images/banners/soft-open-m.jpg',
+  hotspots_desktop: [{"type":"close","x":95.51,"y":2.02,"w":3.23,"h":5.74},{"type":"cta","x":5.26,"y":86.61,"w":36.84,"h":6.8},{"type":"check","x":16.93,"y":94.47,"w":13.4,"h":3.08},{"type":"link","x":3.83,"y":59.51,"w":12.92,"h":7.44,"link":"/market","label":"중고장터"},{"type":"link","x":17.34,"y":59.51,"w":13.04,"h":7.44,"link":"/groupbuy","label":"공동구매"},{"type":"link","x":30.98,"y":59.51,"w":13.16,"h":7.44,"link":"/jobs","label":"구인구직"},{"type":"link","x":3.83,"y":68.01,"w":12.92,"h":7.65,"link":"/realestate","label":"부동산"},{"type":"link","x":17.34,"y":68.01,"w":13.04,"h":7.65,"link":"/directory","label":"업소록"},{"type":"link","x":30.98,"y":68.01,"w":13.16,"h":7.65,"link":"/community","label":"커뮤니티"},{"type":"link","x":3.83,"y":76.73,"w":12.92,"h":7.97,"link":"/qa","label":"Q&A"},{"type":"link","x":17.34,"y":76.73,"w":13.04,"h":7.97,"link":"/events","label":"이벤트"},{"type":"link","x":30.98,"y":76.73,"w":13.16,"h":7.97,"link":"/money","label":"머니"}],
+  hotspots_mobile: [{"type":"cta","x":20.96,"y":89,"w":57.87,"h":7.18},{"type":"link","x":13.62,"y":50.54,"w":22.77,"h":11.24,"link":"/market","label":"중고장터"},{"type":"link","x":38.51,"y":50.54,"w":22.98,"h":11.24,"link":"/groupbuy","label":"공동구매"},{"type":"link","x":63.62,"y":50.54,"w":22.77,"h":11.24,"link":"/jobs","label":"구인구직"},{"type":"link","x":13.62,"y":63.1,"w":22.77,"h":11.36,"link":"/realestate","label":"부동산"},{"type":"link","x":38.51,"y":63.1,"w":22.98,"h":11.36,"link":"/directory","label":"업소록"},{"type":"link","x":63.62,"y":63.1,"w":22.77,"h":11.36,"link":"/community","label":"커뮤니티"},{"type":"link","x":13.62,"y":75.78,"w":22.77,"h":11.36,"link":"/qa","label":"Q&A"},{"type":"link","x":38.51,"y":75.78,"w":22.98,"h":11.36,"link":"/events","label":"이벤트"},{"type":"link","x":63.62,"y":75.78,"w":22.77,"h":11.36,"link":"/money","label":"머니"}],
+  note: '소프트 오픈 기간이라 부족한 점이 있을 수 있어요. 불편한 점이나 바라는 점은 문의하기로 알려 주세요. 함께 만들어 가요!',
+  cta_label: '둘러보기', cta_link: '',
+}
+const previewOpen = ref(false)
+const previewBanner = computed(() => ({ id: 'preview', layout: 'fullscreen', extra: form.value.extra || {}, display_mode: form.value.display_mode }))
+function setFullscreen() {
+  form.value.layout = 'fullscreen'
+  form.value.type = 'text'
+  if (!form.value.extra || !form.value.extra.headline) form.value.extra = { ...DEFAULT_EXTRA }
+}
+
 const DEFAULT_FORM = {
-  title: '', type: 'text',
+  title: '', type: 'text', layout: 'modal', extra: null,
   image_url: '', content: '',
   width: 500, height: 300,
   link_url: '', display_mode: 'once_per_day',
@@ -227,16 +272,19 @@ function onFile(e) {
 
 async function saveForm() {
   if (!form.value.title) { alert('제목을 입력하세요'); return }
-  if (form.value.type === 'text' && !form.value.content) { alert('본문을 입력하세요'); return }
-  if (form.value.type === 'image' && !pickedFile.value && !form.value.image_url) { alert('이미지를 선택하세요'); return }
+  const full = form.value.layout === 'fullscreen'
+  if (full && !(form.value.extra?.headline || '').trim()) { alert('큰 제목을 입력하세요'); return }
+  if (!full && form.value.type === 'text' && !form.value.content) { alert('본문을 입력하세요'); return }
+  if (!full && form.value.type === 'image' && !pickedFile.value && !form.value.image_url) { alert('이미지를 선택하세요'); return }
   saving.value = true
   try {
     const fd = new FormData()
     Object.entries(form.value).forEach(([k, v]) => {
-      if (v === null || v === undefined) return
+      if (v === null || v === undefined || k === 'extra') return
       if (typeof v === 'boolean') fd.append(k, v ? '1' : '0')
       else fd.append(k, v)
     })
+    if (full) fd.append('extra', JSON.stringify(form.value.extra || {}))   // 전체창 문구는 JSON 글자로 보낸다
     if (pickedFile.value) fd.append('image', pickedFile.value)
     const url = editId.value ? `/api/admin/popup-banners/${editId.value}` : '/api/admin/popup-banners'
     await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
