@@ -217,9 +217,9 @@ class ShoppingController extends Controller
         }
 
         $data['title'] = trim(strip_tags($data['title']));
-        foreach ([$data['title'], $body] as $text) {
+        foreach (['제목' => $data['title'], '리뷰 내용' => $body] as $where => $text) {
             if ($why = ShoppingReviews::violation($text)) {
-                abort(response()->json(['success' => false, 'message' => $why], 422));
+                abort(response()->json(['success' => false, 'message' => "[{$where}] " . $why], 422));
             }
             if (BadWordFilter::contains($text)) {
                 abort(response()->json(['success' => false, 'message' => '부적절한 표현이 포함되어 있어요.'], 422));
