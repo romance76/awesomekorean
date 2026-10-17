@@ -13,10 +13,14 @@
 
   <div class="p-3 space-y-2" @paste="onPaste">
     <template v-for="(b, i) in blocks" :key="b.id">
-      <textarea v-if="b.type === 'text'" v-model="b.text" rows="3" :ref="el => setRef(b.id, el)"
-        class="w-full rounded-lg border border-transparent hover:border-gray-200 focus:border-amber-300 focus:outline-none px-2 py-1.5 text-sm leading-relaxed resize-none overflow-hidden"
-        :placeholder="i === 0 ? '얼마나 오래, 어떻게 써봤는지 / 좋은 점 / 아쉬운 점을 자유롭게 써주세요. 사진은 위의 [사진 넣기]로 넣거나, 주문내역 같은 캡처 화면을 복사해서 여기에 붙여넣기(Ctrl+V) 하세요.' : '이어서 쓰기...'"
-        @input="autosize($event.target); mark(i, $event)" @focus="mark(i, $event)" @click="mark(i, $event)" @keyup="mark(i, $event)"></textarea>
+      <div v-if="b.type === 'text'" class="relative">
+        <!-- 걸린 글자 표시: 글 칸 뒤에 같은 글을 깔고 걸린 부분만 빨갛게 칠한다 (글 칸은 배경이 투명) -->
+        <div v-if="hasFlag(b.text)" class="flag-mirror absolute inset-0 w-full rounded-lg border border-transparent px-2 py-1.5 text-sm leading-relaxed text-transparent pointer-events-none whitespace-pre-wrap break-words overflow-hidden" aria-hidden="true" v-html="flagHtml(b.text)"></div>
+        <textarea v-model="b.text" rows="3" :ref="el => setRef(b.id, el)"
+          class="relative w-full rounded-lg border border-transparent hover:border-gray-200 focus:border-amber-300 focus:outline-none px-2 py-1.5 text-sm leading-relaxed resize-none overflow-hidden bg-transparent"
+          :placeholder="i === 0 ? '얼마나 오래, 어떻게 써봤는지 / 좋은 점 / 아쉬운 점을 자유롭게 써주세요. 사진은 위의 [사진 넣기]로 넣거나, 주문내역 같은 캡처 화면을 복사해서 여기에 붙여넣기(Ctrl+V) 하세요.' : '이어서 쓰기...'"
+          @input="autosize($event.target); mark(i, $event)" @focus="mark(i, $event)" @click="mark(i, $event)" @keyup="mark(i, $event)"></textarea>
+      </div>
       <div v-else class="relative rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
         <img :src="b.url" alt="" class="w-full max-h-96 object-contain" />
         <div class="absolute top-1.5 right-1.5 flex gap-1">
@@ -35,7 +39,7 @@
 import { ref, computed, nextTick, onMounted } from 'vue'
 import axios from 'axios'
 
-const props = defineProps({ modelValue: { type: Array, required: true }, minPhotos: { type: Number, default: 0 } })
+const props = defineProps({ modelValue: { type: Array, required: true }, minPhotos: { type: Number, default: 0 }, flag: { type: String, default: '' } })
 const emit = defineEmits(['update:modelValue'])
 
 const blocks = computed({ get: () => props.modelValue, set: v => emit('update:modelValue', v) })
@@ -43,6 +47,25 @@ const photoCount = computed(() => blocks.value.filter(b => b.type === 'image').l
 const busy = ref(false)
 const err = ref('')
 const refs = {}
+
+// 걸린 글자(flag)를 글 속에서 찾는 식 — 글자 사이에 공백·기호를 끼워 넣은 경우도 같이 찾는다 (필터가 그런 우회도 막기 때문)
+const flagSrc = computed(() => {
+  const w = (props.flag || '').trim()
+  if (!w) return ''
+  const esc = c => c.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&')
+  const gap = '[\\s*._~^#+=()\\[\\]{}<>/|?,;:"\'`-]*'
+  return [...w].filter(c => !/\s/.test(c)).map(esc).join(gap)
+})
+const escHtml = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const hasFlag = text => !!flagSrc.value && new RegExp(flagSrc.value, 'iu').test(text || '')
+function flagHtml(text) {
+  const src = text || ''
+  if (!flagSrc.value) return escHtml(src)
+  const re = new RegExp(flagSrc.value, 'giu')
+  let out = '', last = 0, m
+  while ((m = re.exec(src)) && m[0]) { out += escHtml(src.slice(last, m.index)) + '<mark class="flag-hit">' + escHtml(m[0]) + '</mark>'; last = m.index + m[0].length }
+  return out + escHtml(src.slice(last)) + '\n'
+}
 const focus = { idx: -1, pos: 0 }
 let uid = 0
 const nid = () => `b${Date.now()}_${uid++}`
@@ -123,3 +146,6 @@ function move(i, d) {
 
 onMounted(() => nextTick(() => Object.values(refs).forEach(autosize)))
 </script>
+<style scoped>
+.flag-mirror :deep(.flag-hit) { background: #fecaca; color: transparent; border-bottom: 2px solid #ef4444; border-radius: 2px; }
+</style>

@@ -42,7 +42,7 @@
 
           <div>
             <label class="lbl">제목 <span class="text-red-500">*</span></label>
-            <input v-model="f.title" type="text" maxlength="200" class="input-soft" placeholder="예) 스탠리 푸어오버 6개월 써본 후기" />
+            <input v-model="f.title" type="text" maxlength="200" class="input-soft" :class="flag.field === 'title' && titleHit ? '!border-red-400 !bg-red-50' : ''" placeholder="예) 스탠리 푸어오버 6개월 써본 후기" />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -86,7 +86,7 @@
 
           <div>
             <label class="lbl">리뷰 내용 + 직접 찍은 사진 <span class="text-red-500">*</span></label>
-            <ReviewBlockEditor v-model="blocks" :minPhotos="rules.min_photos" />
+            <ReviewBlockEditor v-model="blocks" :minPhotos="rules.min_photos" :flag="flag.field === 'body' ? flag.text : ''" />
             <div class="text-right text-[11px]" :class="textLen < rules.min_chars ? 'text-red-500' : 'text-ink-faint'">글 {{ textLen }}자 · 최소 {{ rules.min_chars }}자</div>
           </div>
 
@@ -159,6 +159,9 @@ const photoCount = computed(() => blocks.value.filter(b => b.type === 'image').l
 const editAsin = ref('')
 const busy = ref(false)
 const err = ref('')
+// 서버가 "이 글자가 문제"라고 알려주면 글 속 그 자리를 빨갛게 표시한다
+const flag = reactive({ field: '', text: '' })
+const titleHit = computed(() => !!flag.text && f.title.toLowerCase().includes(flag.text.toLowerCase()))
 
 // 태그 입력 폼 (등록/변경 공용)
 const TagForm = defineComponent({
@@ -189,6 +192,7 @@ async function saveTag() {
 
 async function submit() {
   err.value = ''
+  flag.field = ''; flag.text = ''
   const need = []
   const imgs = amazonImgs.value.map(u => u.trim()).filter(Boolean)
   if (!editId.value && !f.input.trim()) need.push('상품 주소 또는 ASIN')
@@ -219,6 +223,10 @@ async function submit() {
   } catch (e) {
     const r = e.response?.data
     err.value = r?.errors ? Object.values(r.errors).flat().join('\n') : (r?.message || '저장하지 못했어요')
+    if (r?.flag) {
+      flag.field = r.flag_field || ''; flag.text = r.flag
+      nextTick(() => document.querySelector('mark.flag-hit')?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+    }
   }
   busy.value = false
 }

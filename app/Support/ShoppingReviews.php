@@ -20,19 +20,24 @@ class ShoppingReviews
      * 리뷰 글에 넣으면 안 되는 홍보성 내용. 걸리면 사람이 읽을 사유를 돌려주고, 없으면 null.
      *  - 웹주소/도메인, 이메일, 메신저 아이디·연락 유도, 전화번호
      */
-    public static function violation(string $text): ?string
+    public static function violation(string $text, ?string &$hit = null): ?string
     {
         $t = mb_strtolower($text);
-        if (preg_match('#https?://|www\.|[a-z0-9\-]+\.(com|net|org|co|kr|io|shop|store|biz|info|me|us|app|link|ly|to)\b#iu', $t)) {
+        $hit = null;   // 걸린 글자 — 글쓰기 화면에서 그 자리에 빨간 표시를 하는 데 쓴다
+        if (preg_match('#https?://\S*|www\.\S*|[a-z0-9\-]+\.(com|net|org|co|kr|io|shop|store|biz|info|me|us|app|link|ly|to)\b#iu', $t, $m)) {
+            $hit = $m[0];
             return '리뷰 글에는 웹사이트·쇼핑몰 주소를 넣을 수 없어요. (내 사이트/가게 홍보는 금지예요)';
         }
-        if (preg_match('/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/iu', $t)) {
+        if (preg_match('/[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/iu', $t, $m)) {
+            $hit = $m[0];
             return '리뷰 글에는 이메일 주소를 넣을 수 없어요.';
         }
-        if (preg_match('/(카톡|카카오톡|카카오\s*id|텔레그램|telegram|whatsapp|왓츠앱|line\s*id|위챗|wechat|인스타|instagram|유튜브\s*채널|구독)/iu', $t)) {
+        if (preg_match('/(카톡|카카오톡|카카오\s*id|텔레그램|telegram|whatsapp|왓츠앱|line\s*id|위챗|wechat|인스타|instagram|유튜브\s*채널|구독)/iu', $t, $m)) {
+            $hit = $m[0];
             return '리뷰 글에는 SNS·메신저 아이디나 채널 홍보를 넣을 수 없어요.';
         }
-        if (preg_match('/(\+?1[\s\-.]?)?\(?\d{3}\)?[\s\-.]\d{3}[\s\-.]\d{4}/u', $t)) {
+        if (preg_match('/(\+?1[\s\-.]?)?\(?\d{3}\)?[\s\-.]\d{3}[\s\-.]\d{4}/u', $t, $m)) {
+            $hit = $m[0];
             return '리뷰 글에는 전화번호를 넣을 수 없어요.';
         }
         return null;
