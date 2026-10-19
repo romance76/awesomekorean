@@ -818,6 +818,9 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/revenue/summary', [\App\Http\Controllers\API\AdminRevenueController::class, 'summary']);
     Route::get('/revenue/list', [\App\Http\Controllers\API\AdminRevenueController::class, 'list']);
     Route::post('/payments/{id}/refund', [AdminController::class, 'refundPayment'])->middleware('role:admin,super_admin');
+    // 결제 정리(시험 결제 삭제) — 최고관리자 전용. 미리보기는 아무것도 바꾸지 않고, 삭제는 재확인(reauth) + 백업 후 한 트랜잭션
+    Route::post('/payments/purge/preview', [\App\Http\Controllers\API\AdminPaymentPurgeController::class, 'preview'])->middleware(['role:super_admin', 'throttle:30,1']);
+    Route::post('/payments/purge', [\App\Http\Controllers\API\AdminPaymentPurgeController::class, 'purge'])->middleware(['role:super_admin', 'reauth', 'throttle:10,1']);
     // 인보이스(결제 영수증): 목록·상세·미리보기는 관리자, 재발송·무효·자동발송 설정은 최고관리자 (AdminTier 표 + 컨트롤러에서 이중 확인)
     Route::get('/invoices', [\App\Http\Controllers\API\AdminInvoiceController::class, 'index']);
     Route::post('/invoices/auto-mail', [\App\Http\Controllers\API\AdminInvoiceController::class, 'setAutoMail'])->middleware('throttle:20,1');

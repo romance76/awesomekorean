@@ -123,6 +123,7 @@
   <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-4">
     <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="wallet" :size="20" /></span>
     오더/결제 관리
+    <span class="ml-auto"><PaymentPurge @done="load()" /></span>
   </h1>
 
   <!-- 필터 -->
@@ -304,6 +305,7 @@ import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import SortTh from '../../components/SortTh.vue'
 import InvoiceTab from '../../components/admin/InvoiceTab.vue'
+import PaymentPurge from '../../components/admin/PaymentPurge.vue'
 import InvoiceDetail from '../../components/admin/InvoiceDetail.vue'
 // 매출·결제 통합(할 일 #90) — "매출/결제 현황" 을 별도 화면이 아니라 이 화면의 탭 하나로
 import Revenue from './Revenue.vue'
