@@ -285,7 +285,7 @@ class Invoicing
     public static function oneLine(string $msg, int $max = 200): string
     {
         $msg = preg_replace('/\s+/u', ' ', $msg) ?? $msg;
-        $msg = preg_replace('/\b(re_[A-Za-z0-9_\-]{8,}|sk_[A-Za-z0-9_\-]{8,}|Bearer\s+\S+)/', '***', $msg) ?? $msg;
+        $msg = preg_replace('/\b(re_[A-Za-z0-9_\-]{8,}|sk_[A-Za-z0-9_\-]{8,}|rk_[A-Za-z0-9_\-]{8,}|Bearer\s+\S+)/', '***', $msg) ?? $msg;
         return mb_substr(trim($msg), 0, $max);
     }
 
