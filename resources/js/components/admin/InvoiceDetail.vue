@@ -129,7 +129,7 @@ let toastTimer = null
 const btnBase = computed(() => 'w-full rounded-xl font-bold ' + (props.mobile ? 'min-h-[50px] text-[16px]' : 'py-2.5 text-sm'))
 const btnGray = computed(() => 'w-full rounded-xl font-bold bg-gray-100 text-ink ' + (props.mobile ? 'min-h-[50px] text-[16px]' : 'py-2.5 text-sm'))
 
-const PAY_STATUS = { completed: '완료', captured: '청구됨', refunded: '환불됨', authorized: '승인됨', pending: '대기', released: '보류 해제', failed: '실패' }
+const PAY_STATUS = { completed: '완료', captured: '청구됨', refunded: '환불됨', authorized: '카드 보류(미청구)', pending: '대기', released: '보류 해제', failed: '실패' }
 const emailChanged = computed(() => !!inv.value?.member_email_now && inv.value.member_email_now !== inv.value.billing_email)
 
 function say(text, error = false) {

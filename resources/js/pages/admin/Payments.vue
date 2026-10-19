@@ -363,7 +363,7 @@ function say(text, error = false) {
   clearTimeout(toastTimer)
   toastTimer = setTimeout(() => { toast.value = null }, 3000)
 }
-const statusChips = [{ v: '', l: '전체' }, { v: 'completed', l: '완료' }, { v: 'pending', l: '대기' }, { v: 'refunded', l: '환불됨' }, { v: 'cancelled', l: '취소됨' }, { v: 'authorized', l: '승인됨' }, { v: 'captured', l: '청구됨' }]
+const statusChips = [{ v: '', l: '전체' }, { v: 'completed', l: '완료' }, { v: 'pending', l: '대기' }, { v: 'refunded', l: '환불됨' }, { v: 'cancelled', l: '취소됨' }, { v: 'authorized', l: '카드 보류(미청구)' }, { v: 'captured', l: '청구됨' }]
 function statusClass(s) {
   return { completed: 'bg-green-100 text-green-700', captured: 'bg-green-100 text-green-700', authorized: 'bg-blue-100 text-blue-700', pending: 'bg-amber-100 text-amber-700', refunded: 'bg-red-100 text-red-700', cancelled: 'bg-gray-200 text-gray-500' }[s] || 'bg-gray-100 text-gray-700'
 }
@@ -389,7 +389,7 @@ watch(() => isMobile.value && !!detailItem.value, locked => { document.body.styl
 onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTimer) })
 const stats = reactive({ totalRevenue: 0, totalOrders: 0, totalRefunds: 0, monthRevenue: 0 })
 
-function statusLabel(s) { return { completed:'완료', pending:'대기', refunded:'환불됨', cancelled:'취소됨', authorized:'승인됨', captured:'청구됨' }[s] || s }
+function statusLabel(s) { return { completed:'완료', pending:'대기', refunded:'환불됨', cancelled:'취소됨', authorized:'카드 보류(미청구)', captured:'청구됨' }[s] || s }
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') + ' ' + new Date(dt).toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit'}) : '' }
 
 async function load(p = 1) {
