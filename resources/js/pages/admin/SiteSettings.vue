@@ -253,6 +253,7 @@ const payment = reactive({
   stripe_publishable_key: '',
   stripe_secret_key: '',
   stripe_webhook_secret: '',
+  stripe_account_email: 'awesomekoreanusa@gmail.com',   // 저장된 값이 없을 때의 기본 안내(저장하면 그 값이 쓰임)
   stripe_test_mode: true,
   mode: 'test',
   card_enabled: true,
@@ -335,6 +336,7 @@ function applySettings(data) {
   if (data.stripe_publishable_key) payment.stripe_publishable_key = data.stripe_publishable_key
   if (data.stripe_secret_key) payment.stripe_secret_key = data.stripe_secret_key
   if (data.stripe_webhook_secret) payment.stripe_webhook_secret = data.stripe_webhook_secret
+  if (data.stripe_account_email) payment.stripe_account_email = data.stripe_account_email
   if (data.stripe_test_mode !== undefined) payment.stripe_test_mode = data.stripe_test_mode === '1' || data.stripe_test_mode === true
   if (data.seo) Object.assign(seo, data.seo)
 }
@@ -450,6 +452,7 @@ async function saveStripeKeys() {
       stripe_publishable_key: payment.stripe_publishable_key,
       stripe_secret_key: payment.stripe_secret_key,
       stripe_webhook_secret: payment.stripe_webhook_secret,
+      stripe_account_email: payment.stripe_account_email,
       stripe_test_mode: payment.stripe_test_mode,
     })
     showToast('Stripe 키가 저장되었습니다.')

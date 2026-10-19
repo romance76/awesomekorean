@@ -310,8 +310,9 @@ class AdminSettingsController extends Controller
             'stripe_publishable_key' => ['nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-•]*$/'],
             'stripe_secret_key' => ['nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-•]*$/'],
             'stripe_webhook_secret' => ['nullable', 'string', 'max:200', 'regex:/^[A-Za-z0-9_\-•]*$/'],
+            'stripe_account_email' => ['nullable', 'email', 'max:120'],   // Stripe 가입(로그인) 이메일 — 잊지 않으려는 메모용, 비밀번호는 저장하지 않는다
         ]);
-        foreach (['stripe_publishable_key','stripe_secret_key','stripe_webhook_secret','stripe_test_mode'] as $k) {
+        foreach (['stripe_publishable_key','stripe_secret_key','stripe_webhook_secret','stripe_test_mode','stripe_account_email'] as $k) {
             if ($request->has($k)) {
                 if (is_string($request->$k) && str_contains($request->$k, '•')) continue;   // 화면에서 가려 보여준 값을 그대로 보낸 것 — 바꾸지 않음
                 SiteSetting::updateOrCreate(['key'=>$k], ['value'=>$request->$k]);

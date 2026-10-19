@@ -35,6 +35,16 @@
     <!-- Stripe API 키 입력 -->
     <div class="space-y-4 mb-5">
       <div>
+        <label class="input-label">Stripe 가입 이메일 <span class="text-ink-faint">(로그인 아이디 메모)</span></label>
+        <input
+          v-model="payment.stripe_account_email"
+          type="email"
+          class="input-field text-sm"
+          placeholder="you@example.com"
+        />
+        <p class="text-xs text-ink-faint mt-1">dashboard.stripe.com 로그인에 쓰는 이메일이에요. <b>비밀번호는 여기에 적지 마세요.</b></p>
+      </div>
+      <div>
         <label class="input-label">Publishable Key</label>
         <input
           v-model="payment.stripe_publishable_key"
