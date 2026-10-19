@@ -9,7 +9,7 @@ chk() { # 설명 기대코드 메서드 경로
 echo "스모크 테스트: $BASE"
 chk "홈 화면"                          200 GET  /
 chk "장터 화면"                        200 GET  /market
-chk "광고 신청 화면"                   200 GET  /ads/apply
+chk "광고 신청 화면"                   200 GET  /ad-apply
 chk "상위노출 가격 설정(공개)"         200 GET  "/api/promotion/settings?resource=market"
 chk "카드 최소 결제 금액(공개)"        200 GET  /api/payments/card-limits
 chk "결제 내역은 로그인 필요"          401 GET  /api/payments/history
