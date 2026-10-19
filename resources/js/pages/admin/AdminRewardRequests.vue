@@ -17,7 +17,7 @@
       <a :href="'/storage/' + a.proof_file" target="_blank" rel="noopener noreferrer" class="mt-2 flex items-center justify-center min-h-[46px] rounded-xl bg-blue-50 text-blue-700 text-[15px] font-bold">제출 파일 보기</a>
       <div class="grid grid-cols-2 gap-2 mt-3">
         <button @click="ask('approve', a)" :disabled="busy" class="min-h-[50px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold disabled:opacity-50">승인 + 지급</button>
-        <button @click="ask('reject', a)" :disabled="busy" class="min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold disabled:opacity-50">반려</button>
+        <button @click="ask('reject', a)" :disabled="busy" class="min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold disabled:opacity-50">거절</button>
       </div>
     </div>
   </template>
@@ -47,11 +47,11 @@
           <p class="text-[15px] text-ink-light mb-3 break-words">“{{ sheet.item.title }}” 작성자에게 <b class="text-amber-600">{{ (amounts[sheet.item.id] || 0).toLocaleString() }}P</b>를 지급해요.</p>
         </template>
         <template v-else>
-          <div class="text-[17px] font-bold text-ink mb-1">제출을 반려할까요?</div>
+          <div class="text-[17px] font-bold text-ink mb-1">제출을 거절할까요?</div>
           <p class="text-[14px] text-ink-muted mb-2 break-words">{{ sheet.item.user?.nickname || sheet.item.user?.name }} — {{ sheet.item.event?.title }}</p>
-          <textarea v-model="reason" rows="3" maxlength="200" placeholder="반려 사유 (선택)" aria-label="반려 사유" class="w-full rounded-xl border border-gray-200 px-3 py-3 mb-3"></textarea>
+          <textarea v-model="reason" rows="3" maxlength="200" placeholder="거절 사유 (선택)" aria-label="거절 사유" class="w-full rounded-xl border border-gray-200 px-3 py-3 mb-3"></textarea>
         </template>
-        <button @click="doSheet" :disabled="busy" class="w-full min-h-[52px] rounded-xl text-white text-[16px] font-bold disabled:opacity-50" :class="sheet.kind === 'reject' ? 'bg-red-500' : 'bg-emerald-500'">{{ busy ? '처리 중...' : (sheet.kind === 'reject' ? '반려하기' : '지급하기') }}</button>
+        <button @click="doSheet" :disabled="busy" class="w-full min-h-[52px] rounded-xl text-white text-[16px] font-bold disabled:opacity-50" :class="sheet.kind === 'reject' ? 'bg-red-500' : 'bg-emerald-500'">{{ busy ? '처리 중...' : (sheet.kind === 'reject' ? '거절하기' : '지급하기') }}</button>
         <button @click="closeSheet" :disabled="busy" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
       </div>
     </div>
@@ -84,7 +84,7 @@
         <div class="text-xs text-ink-muted mt-0.5">보상 Entry {{ a.event?.completion_entries ?? 1 }}개 · <a :href="'/storage/'+a.proof_file" target="_blank" class="text-blue-600 hover:underline">제출 파일 보기</a></div>
       </div>
       <button @click="approveEvent(a)" :disabled="busyId===a.id" class="text-xs font-bold bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 disabled:opacity-50">승인+지급</button>
-      <button @click="rejectEvent(a)" :disabled="busyId===a.id" class="text-xs font-bold bg-gray-100 text-ink-light px-3 py-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-50">반려</button>
+      <button @click="rejectEvent(a)" :disabled="busyId===a.id" class="text-xs font-bold bg-gray-100 text-ink-light px-3 py-1.5 rounded-lg hover:bg-gray-200 disabled:opacity-50">거절</button>
     </div>
   </div>
 
@@ -126,7 +126,7 @@ async function doSheet() {
   const { kind, item } = sheet.value
   try {
     if (kind === 'approve') { await axios.post(`/api/admin/rewards/event-proofs/${item.id}/approve`); eventProofs.value = eventProofs.value.filter(x => x.id !== item.id); say('지급했어요') }
-    else if (kind === 'reject') { await axios.post(`/api/admin/rewards/event-proofs/${item.id}/reject`, { reason: reason.value.trim() }); eventProofs.value = eventProofs.value.filter(x => x.id !== item.id); say('반려했어요') }
+    else if (kind === 'reject') { await axios.post(`/api/admin/rewards/event-proofs/${item.id}/reject`, { reason: reason.value.trim() }); eventProofs.value = eventProofs.value.filter(x => x.id !== item.id); say('거절했어요') }
     else { await axios.post(`/api/admin/rewards/recipes/${item.id}/pay`, { amount: amounts[item.id] }); recipeCandidates.value = recipeCandidates.value.filter(x => x.id !== item.id); say('지급했어요') }
     sheet.value = null
   } catch (e) { say(e.response?.data?.message || '처리하지 못했어요', true) }
@@ -171,7 +171,7 @@ async function approveEvent(a) {
 }
 
 async function rejectEvent(a) {
-  const reason = prompt('반려 사유(선택):') || ''
+  const reason = prompt('거절 사유(선택):') || ''
   busyId.value = a.id
   try {
     await axios.post(`/api/admin/rewards/event-proofs/${a.id}/reject`, { reason })

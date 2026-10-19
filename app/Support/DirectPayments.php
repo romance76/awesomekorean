@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
  *   begin()           카드 보류용 intent 생성 + payments(pending)
  *   markAuthorized()  사용자가 카드를 확인(보류 성공)했는지 Stripe 에서 직접 조회해 검증 → authorized
  *   capture()         승인 — 실제 청구 (일부만 청구 가능) → captured
- *   release()         반려/취소 — 청구 없이 보류 해제 → released
+ *   release()         거절/취소 — 청구 없이 보류 해제 → released
  *   refund()          청구 후 일부/전액 환불 → refunded_amount 누적 (전액이면 refunded)
  *
  * 금액은 Stripe 와 맞추기 쉽게 호출부에서는 센트(int), payments.amount 는 달러(decimal).

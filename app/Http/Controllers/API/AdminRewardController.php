@@ -58,7 +58,7 @@ class AdminRewardController extends Controller
         $attendee->update(['proof_status' => 'rejected', 'reviewed_at' => now()]);
 
         $reason = $request->input('reason', '');
-        $this->notify($attendee->user_id, 'event_proof_rejected', '이벤트 완료 인증이 반려되었습니다', "'{$attendee->event->title}' 완료 인증이 반려되었습니다." . ($reason ? " 사유: {$reason}" : ' 다시 제출해주세요.'), ['event_id' => $attendee->event_id]);
+        $this->notify($attendee->user_id, 'event_proof_rejected', '이벤트 완료 인증이 거절되었습니다', "'{$attendee->event->title}' 완료 인증이 거절되었습니다." . ($reason ? " 사유: {$reason}" : ' 다시 제출해주세요.'), ['event_id' => $attendee->event_id]);
 
         return response()->json(['success' => true, 'data' => $attendee->fresh()]);
     }

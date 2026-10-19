@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
  *   begin()     임시 글(awaiting_deposit) + 카드 보류 결제 생성
  *   confirm()   카드 확인(보류)을 Stripe 에서 검증 → 소액은 바로 청구·공개, 사업자는 보류 유지(관리자 승인 때 청구)
  *   capture()   관리자 승인 때 청구 (보류가 만료됐으면 오류)
- *   release()   반려·취소 때 청구 없이 보류 해제
+ *   release()   거절·취소 때 청구 없이 보류 해제
  *   purge()     결제를 마치지 않은 임시 글 정리(보류 해제 + 파일·글 삭제)
  *
  * 디파짓은 환불하지 않는다: 청구된 뒤(소액 즉시 / 사업자 승인 후)에는 되돌리지 않고, 청구 전(보류)인 것만 풀린다.
@@ -72,7 +72,7 @@ class GroupBuyDeposit
             throw $e;
         } catch (\Throwable $e) {
             \Log::warning('공동구매 디파짓 청구 실패(보류가 만료됐을 수 있음): ' . $e->getMessage());
-            throw new \DomainException('개설자의 카드 보류가 만료돼 청구하지 못했어요. 반려하고 개설자에게 다시 등록해 달라고 안내해 주세요.');
+            throw new \DomainException('개설자의 카드 보류가 만료돼 청구하지 못했어요. 거절하고 개설자에게 다시 등록해 달라고 안내해 주세요.');
         }
     }
 
@@ -93,7 +93,7 @@ class GroupBuyDeposit
         $gb->delete();
     }
 
-    /** 카드 보류 기간(6일)이 지나도록 승인되지 않은 사업자 공동구매를 자동 반려(보류 해제) — Stripe 보류는 약 7일 뒤 만료되기 때문 */
+    /** 카드 보류 기간(6일)이 지나도록 승인되지 않은 사업자 공동구매를 자동 거절(보류 해제) — Stripe 보류는 약 7일 뒤 만료되기 때문 */
     public const HOLD_DAYS = 6;
 
     public static function expireHolds(): int

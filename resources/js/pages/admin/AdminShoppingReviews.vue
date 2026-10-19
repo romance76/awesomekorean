@@ -34,7 +34,7 @@
       <p v-if="r.admin_note" class="text-[13px] text-red-500">메모: {{ r.admin_note }}</p>
       <div class="grid grid-cols-2 gap-2 mt-2">
         <button v-if="r.status === 'pending' || r.status === 'rejected'" @click="mAct(r, 'approve')" class="min-h-[50px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold">승인</button>
-        <button v-if="r.status === 'pending'" @click="mAct(r, 'reject', true)" class="min-h-[50px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">반려</button>
+        <button v-if="r.status === 'pending'" @click="mAct(r, 'reject', true)" class="min-h-[50px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold">거절</button>
         <button v-if="r.status === 'published'" @click="mAct(r, 'hide', true)" class="min-h-[50px] rounded-xl bg-red-50 text-red-600 text-[16px] font-bold col-span-2">내리기</button>
         <button v-if="r.status === 'hidden'" @click="mAct(r, 'restore')" class="min-h-[50px] rounded-xl bg-emerald-500 text-white text-[16px] font-bold col-span-2">복구</button>
       </div>
@@ -49,13 +49,13 @@
     <div v-if="sheet" class="alv-m fixed inset-0 z-[70] bg-black/45 flex items-end" @click.self="closeSheet">
       <div class="w-full bg-white rounded-t-3xl px-4 pt-2 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" :style="{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }">
         <div class="w-10 h-1 rounded bg-gray-200 mx-auto mb-3"></div>
-        <div class="text-[17px] font-bold text-ink mb-1">{{ sheet.path === 'approve' ? '리뷰를 승인할까요?' : sheet.path === 'restore' ? '리뷰를 다시 공개할까요?' : sheet.path === 'hide' ? '리뷰를 내릴까요?' : '리뷰를 반려할까요?' }}</div>
+        <div class="text-[17px] font-bold text-ink mb-1">{{ sheet.path === 'approve' ? '리뷰를 승인할까요?' : sheet.path === 'restore' ? '리뷰를 다시 공개할까요?' : sheet.path === 'hide' ? '리뷰를 내릴까요?' : '리뷰를 거절할까요?' }}</div>
         <p class="text-[15px] text-ink-light mb-3 break-words">{{ sheet.r.title }}</p>
         <template v-if="sheet.ask">
           <label class="block text-[14px] font-bold text-ink mb-1" for="sr-reason">사유 (작성자에게 전달돼요)</label>
           <textarea id="sr-reason" v-model="reason" rows="3" maxlength="300" class="w-full rounded-xl border border-gray-200 px-3 py-3 mb-3"></textarea>
         </template>
-        <button @click="doSheet" :disabled="busy || (sheet.ask && !reason.trim())" class="w-full min-h-[52px] rounded-xl text-white text-[16px] font-bold disabled:opacity-40" :class="sheet.ask ? 'bg-red-500' : 'bg-emerald-500'">{{ busy ? '처리 중...' : (sheet.path === 'approve' ? '승인하기' : sheet.path === 'restore' ? '다시 공개' : sheet.path === 'hide' ? '내리기' : '반려하기') }}</button>
+        <button @click="doSheet" :disabled="busy || (sheet.ask && !reason.trim())" class="w-full min-h-[52px] rounded-xl text-white text-[16px] font-bold disabled:opacity-40" :class="sheet.ask ? 'bg-red-500' : 'bg-emerald-500'">{{ busy ? '처리 중...' : (sheet.path === 'approve' ? '승인하기' : sheet.path === 'restore' ? '다시 공개' : sheet.path === 'hide' ? '내리기' : '거절하기') }}</button>
         <button @click="closeSheet" :disabled="busy" class="mt-2 w-full min-h-[50px] rounded-xl bg-gray-100 text-ink text-[16px] font-bold">취소</button>
       </div>
     </div>
@@ -96,7 +96,7 @@
         <p v-if="r.admin_note" class="text-[11px] text-red-500 mt-1">메모: {{ r.admin_note }}</p>
         <div class="flex gap-2 mt-2 flex-wrap">
           <button v-if="r.status === 'pending' || r.status === 'rejected'" @click="act(r, 'approve')" class="btn-primary px-3 py-1 rounded-lg text-xs">승인</button>
-          <button v-if="r.status === 'pending'" @click="act(r, 'reject', true)" class="px-3 py-1 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">반려</button>
+          <button v-if="r.status === 'pending'" @click="act(r, 'reject', true)" class="px-3 py-1 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">거절</button>
           <button v-if="r.status === 'published'" @click="act(r, 'hide', true)" class="px-3 py-1 rounded-lg text-xs font-bold border border-red-200 text-red-500 hover:bg-red-50">내리기</button>
           <button v-if="r.status === 'hidden'" @click="act(r, 'restore')" class="btn-primary px-3 py-1 rounded-lg text-xs">복구</button>
           <a :href="`/shopping/${r.id}`" target="_blank" class="px-3 py-1 text-xs text-ink-muted hover:text-amber-600">상세 보기</a>
@@ -139,9 +139,9 @@ onBeforeUnmount(() => { document.body.style.overflow = ''; clearTimeout(toastTim
 
 const tabs = [
   { key: 'pending', label: '승인 대기' }, { key: 'hidden', label: '내려감(신고)' },
-  { key: 'published', label: '공개 중' }, { key: 'rejected', label: '반려' }, { key: 'all', label: '전체' },
+  { key: 'published', label: '공개 중' }, { key: 'rejected', label: '거절' }, { key: 'all', label: '전체' },
 ]
-const LABEL = { pending: '승인 대기', published: '공개 중', hidden: '내려감', rejected: '반려됨' }
+const LABEL = { pending: '승인 대기', published: '공개 중', hidden: '내려감', rejected: '거절됨' }
 const ST = {
   pending: 'bg-amber-50 text-amber-700 border-amber-200', published: 'bg-green-50 text-green-700 border-green-200',
   hidden: 'bg-red-50 text-red-600 border-red-200', rejected: 'bg-gray-100 text-gray-500 border-gray-200',

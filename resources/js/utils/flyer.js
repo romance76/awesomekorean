@@ -82,6 +82,6 @@ export const STATUS_LABEL = {
   awaiting_payment: { text: '카드 확인 중', cls: 'bg-gray-100 text-gray-500 border-gray-200' },
   pending: { text: '승인 대기', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
   approved: { text: '게시 중', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  rejected: { text: '반려', cls: 'bg-red-50 text-red-600 border-red-200' },
+  rejected: { text: '거절', cls: 'bg-red-50 text-red-600 border-red-200' },
   cancelled: { text: '취소', cls: 'bg-gray-100 text-gray-500 border-gray-200' },
 }

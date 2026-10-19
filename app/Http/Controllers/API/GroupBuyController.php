@@ -39,7 +39,7 @@ class GroupBuyController extends Controller
         $query = GroupBuy::with('user:id,name,nickname,avatar,lifetime_points')
             ->when($adminView && $request->has('is_approved'), function ($q) use ($request) {
                 $q->where('is_approved', $request->boolean('is_approved'))->where('status', '!=', 'awaiting_deposit');   // 카드 결제를 마치지 않은 임시 글은 승인 대상이 아님
-                if (!$request->boolean('is_approved')) $q->whereNull('rejection_reason');   // 반려된 것은 대기 목록에서 제외
+                if (!$request->boolean('is_approved')) $q->whereNull('rejection_reason');   // 거절된 것은 대기 목록에서 제외
             }, fn($q) => $q->approved())
             // '모집중'은 마감일이 안 지난 것만, '마감'(ended)은 모집중인데 마감일이 지난 것
             ->when($request->status, function ($q, $v) {
@@ -276,7 +276,7 @@ class GroupBuyController extends Controller
         }
         $tier = GroupBuyTier::tier($request->group_price, $request->original_price, $request->max_participants, $request->total_quantity, $scope);
         if (!$isStaff) {
-            // 개설자는 동시에 하나만: 승인 대기·모집 중인 공동구매가 있으면 새로 열 수 없다(반려·취소·마감된 것은 제외)
+            // 개설자는 동시에 하나만: 승인 대기·모집 중인 공동구매가 있으면 새로 열 수 없다(거절·취소·마감된 것은 제외)
             $hasOpen = GroupBuy::where('user_id', auth()->id())->where('status', 'recruiting')->whereNull('rejection_reason')->stillOpen()->exists();
             if ($hasOpen) {
                 return response()->json(['success' => false, 'message' => '진행 중인 공동구매가 있어요. 끝나거나 취소된 뒤에 새로 열 수 있어요. (개설자는 동시에 1개)'], 422);
@@ -887,20 +887,20 @@ class GroupBuyController extends Controller
     {
         if ($res = $this->assertGroupBuyAdmin()) return $res;
 
-        // 관리자 화면은 사유를 reason 으로 보내고 있었다 — 예전에는 이름이 달라 반려가 항상 422 로 실패했다. 어느 이름이든 받는다.
+        // 관리자 화면은 사유를 reason 으로 보내고 있었다 — 예전에는 이름이 달라 거절가 항상 422 로 실패했다. 어느 이름이든 받는다.
         $request->merge(['rejection_reason' => $request->input('rejection_reason', $request->input('reason'))]);
         $request->validate(['rejection_reason' => 'required|string|max:500']);
 
         $gb = GroupBuy::findOrFail($id);
 
-        // 승인됐다가 반려되는 경우 이미 결제 참여한 사람들의 포인트를
+        // 승인됐다가 거절되는 경우 이미 결제 참여한 사람들의 포인트를
         // destroy()와 동일한 방식으로 환불 — 실측 확인된 자금 유실 버그
-        // (반려해도 참여자 포인트가 그대로 사라지고 있었음)
+        // (거절해도 참여자 포인트가 그대로 사라지고 있었음)
         DB::transaction(function () use ($gb, $request) {
             $paidParticipants = $gb->participants()->where('status', 'paid')->get();
             foreach ($paidParticipants as $p) {
                 if ($p->payment_type === 'point' && $p->paid_amount > 0) {
-                    $p->user->addPoints($p->paid_amount, "공동구매 반려 환불: {$gb->title}", 'groupbuy_refund', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
+                    $p->user->addPoints($p->paid_amount, "공동구매 거절 환불: {$gb->title}", 'groupbuy_refund', ['type' => \App\Models\GroupBuy::class, 'id' => $gb->id]);
                 }
                 $p->update(['status' => 'refunded']);
             }
@@ -909,11 +909,11 @@ class GroupBuyController extends Controller
                 'is_approved' => false,
                 'rejection_reason' => $request->rejection_reason,
             ]);
-            // 아직 청구 전(카드 보류)인 디파짓은 청구 없이 풀어 준다. 이미 청구된 것(소액·승인 후 반려)은 건드리지 않는다.
+            // 아직 청구 전(카드 보류)인 디파짓은 청구 없이 풀어 준다. 이미 청구된 것(소액·승인 후 거절)은 건드리지 않는다.
             GroupBuyDeposit::release($gb);
         });
 
-        $this->notify($gb->user_id, 'groupbuy_rejected', '공동구매가 반려되었습니다', "'{$gb->title}' 공동구매가 반려되었습니다. 사유: {$request->rejection_reason}", ['groupbuy_id' => $id]);
+        $this->notify($gb->user_id, 'groupbuy_rejected', '공동구매가 거절되었습니다', "'{$gb->title}' 공동구매가 거절되었습니다. 사유: {$request->rejection_reason}", ['groupbuy_id' => $id]);
 
         return response()->json(['success' => true, 'data' => $gb->fresh()->load('user:id,name,nickname')]);
     }

@@ -216,7 +216,7 @@
         <button type="submit" :disabled="submitting || !canSubmit" class="btn-primary w-full py-3 rounded-xl text-sm mt-4 disabled:opacity-50">
           {{ submitting ? '준비 중...' : (charge > 0 ? `${usd(charge)} 카드로 신청하기` : '광고 잔액으로 신청하기') }}
         </button>
-        <p class="text-[11px] text-ink-faint mt-2">다음 단계에서 카드를 확인하지만 <b>지금은 청구되지 않아요.</b> 관리자가 승인하면 그때 카드에 청구되고, 반려되거나 승인 전에 취소하면 한 푼도 청구되지 않습니다. <b class="text-red-600">승인되어 청구된 뒤에는 환불되지 않아요.</b></p>
+        <p class="text-[11px] text-ink-faint mt-2">다음 단계에서 카드를 확인하지만 <b>지금은 청구되지 않아요.</b> 관리자가 승인하면 그때 카드에 청구되고, 거절되거나 승인 전에 취소하면 한 푼도 청구되지 않습니다. <b class="text-red-600">승인되어 청구된 뒤에는 환불되지 않아요.</b></p>
       </div>
     </form>
     </VerifyGate>
@@ -255,7 +255,7 @@
         <div class="rounded-xl bg-amber-50 p-3 mb-4 text-sm">
           <div class="flex justify-between"><span class="text-ink-muted">NEW 전면광고 {{ checkout.hours }}시간</span><b class="text-amber-600">{{ usd(checkout.total) }}</b></div>
           <p v-if="checkout.topup > 0" class="text-[11px] text-emerald-700 mt-1">이 중 {{ usd(checkout.topup) }}는 광고 잔액으로 적립돼요 (환불 불가, 다음 광고에 사용).</p>
-          <p class="text-[11px] text-ink-muted mt-1.5">지금은 카드에 청구되지 않아요. 관리자가 승인하면 그때 {{ usd(checkout.total) }}가 청구되고, 반려되면 청구 없이 취소돼요. 청구된 뒤에는 환불되지 않아요.</p>
+          <p class="text-[11px] text-ink-muted mt-1.5">지금은 카드에 청구되지 않아요. 관리자가 승인하면 그때 {{ usd(checkout.total) }}가 청구되고, 거절되면 청구 없이 취소돼요. 청구된 뒤에는 환불되지 않아요.</p>
         </div>
         <StripeCardForm :client-secret="checkout.clientSecret" button-label="카드 확인하고 신청 완료" @authorized="onAuthorized" />
         <p class="text-[11px] text-ink-faint mt-2 text-center">선택한 시간은 30분 동안만 잡아둬요. 창을 닫으면 풀립니다.</p>

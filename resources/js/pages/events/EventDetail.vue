@@ -111,7 +111,7 @@
               <span class="text-xs text-emerald-600 font-bold">✓ 승인되어 Entry 가 지급되었습니다.</span>
             </template>
             <template v-else>
-              <span v-if="myProofStatus === 'rejected'" class="text-xs text-red-500 block mb-1.5">반려되었습니다. 다시 제출해주세요.</span>
+              <span v-if="myProofStatus === 'rejected'" class="text-xs text-red-500 block mb-1.5">거절되었습니다. 다시 제출해주세요.</span>
               <label class="inline-flex items-center gap-1.5 text-xs font-bold bg-amber-400 text-white px-3 py-1.5 rounded-lg hover:bg-amber-500 cursor-pointer transition-colors">
                 <AppIcon name="upload" :size="12" /> {{ proofUploading ? '업로드중...' : '인증 파일 제출' }}
                 <input type="file" class="hidden" :disabled="proofUploading" @change="submitProof" />

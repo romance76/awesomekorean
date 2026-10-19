@@ -144,7 +144,7 @@ const product = ref(null)
 const loading = ref(true)
 const selectedIdx = ref(0)
 const reportOpen = ref(false)
-const statusText = { pending: '승인 대기 중', hidden: '내려간 리뷰', rejected: '반려됨' }
+const statusText = { pending: '승인 대기 중', hidden: '내려간 리뷰', rejected: '거절됨' }
 async function removeMine() {
   if (!await showConfirm('이 리뷰를 삭제할까요?')) return
   try { await axios.delete(`/api/shopping/reviews/${product.value.id}`); router.replace('/dashboard?tab=reviews') } catch {}

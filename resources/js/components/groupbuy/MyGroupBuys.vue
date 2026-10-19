@@ -29,7 +29,7 @@
           {{ { held: '카드 보류 중 (승인되면 청구)', charged: '결제 완료', released: '청구 없이 해제됨' }[g.deposit_state] || '' }}
         </div>
 
-        <div v-if="g.stage === 'rejected' && g.rejection_reason" class="bg-red-50 text-red-700 rounded-xl p-3 text-xs">반려 사유: {{ g.rejection_reason }}</div>
+        <div v-if="g.stage === 'rejected' && g.rejection_reason" class="bg-red-50 text-red-700 rounded-xl p-3 text-xs">거절 사유: {{ g.rejection_reason }}</div>
         <div v-else-if="g.stage === 'pending_approval'" class="bg-amber-50 text-amber-800 rounded-xl p-3 text-xs">관리자가 사업자 등록증을 확인하는 중이에요. 승인되면 목록에 공개되고 알림이 와요.</div>
         <div v-else-if="g.stage === 'cancelled' && g.closed_reason === 'declined'" class="bg-gray-50 text-ink-muted rounded-xl p-3 text-xs">공구를 취소했어요. 모든 참여가 취소됐고, 참가자에게 취소 안내를 보냈어요. 참가자 포인트는 돌려줬고 낸 디파짓은 환불되지 않아요.</div>
         <div v-else-if="g.stage === 'completed' && g.closed_reason === 'early'" class="bg-lime-50 text-lime-800 rounded-xl p-3 text-xs">마감일 전에 조기 마감하고 완료했어요. 마감 때까지 참여한 분들께 공동구매 가격이 적용됐어요.</div>
@@ -212,7 +212,7 @@ const extendDays = reactive({})
 
 const STAGES = {
   pending_approval: { label: '승인 대기', cls: 'bg-amber-100 text-amber-700' },
-  rejected: { label: '반려됨', cls: 'bg-red-100 text-red-600' },
+  rejected: { label: '거절됨', cls: 'bg-red-100 text-red-600' },
   recruiting: { label: '모집 중', cls: 'bg-emerald-100 text-emerald-700' },
   confirmed: { label: '확정', cls: 'bg-sky-100 text-sky-700' },
   completed: { label: '완료', cls: 'bg-gray-200 text-gray-600' },

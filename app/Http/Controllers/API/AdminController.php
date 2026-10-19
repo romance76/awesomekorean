@@ -477,7 +477,7 @@ class AdminController extends Controller
                 $payment = Payment::whereKey($id)->lockForUpdate()->firstOrFail();
                 // 직접 결제(전단·경품 의뢰)는 포인트가 없고 상품(전단 시간대 등)과 묶여 있어 여기서 돌려주면 상품이 그대로 남음 — 해당 화면으로 안내
                 if (($payment->kind ?? 'points') === \App\Models\Payment::KIND_FLYER) {
-                    throw new \DomainException('전단 광고 카드 결제는 "전단 관리"에서 그 전단을 중지·반려하면 남은 시간만큼 자동으로 카드 환불돼요. (전단 #' . ($payment->ref_id ?? '?') . ')');
+                    throw new \DomainException('전단 광고 카드 결제는 "전단 관리"에서 그 전단을 중지·거절하면 남은 시간만큼 자동으로 카드 환불돼요. (전단 #' . ($payment->ref_id ?? '?') . ')');
                 }
                 if (($payment->kind ?? 'points') !== \App\Models\Payment::KIND_POINTS) {
                     throw new \DomainException('직접 결제는 이 화면에서 환불할 수 없어요. Stripe 대시보드에서 환불한 뒤 해당 의뢰를 취소해 주세요.');

@@ -9,7 +9,7 @@ class Payment extends Model
     public const KIND_BANNER = 'banner';        // 배너(이미지) 광고 — 카드 보류 후 관리자 승인 시 청구
     public const KIND_TEXT_AD = 'text_ad';      // 텍스트 인라인 광고 — 위와 같음
     public const KIND_PROMOTION = 'promotion';  // 상위노출 카드 결제 — 바로 청구, 환불 없음
-    public const KIND_GROUPBUY = 'groupbuy_deposit';  // 공동구매 개설 디파짓 — 소액은 바로 청구, 사업자는 카드 보류 후 관리자 승인 시 청구(반려 시 청구 없음)
+    public const KIND_GROUPBUY = 'groupbuy_deposit';  // 공동구매 개설 디파짓 — 소액은 바로 청구, 사업자는 카드 보류 후 관리자 승인 시 청구(거절 시 청구 없음)
     /** 달러 직접 결제 종류 (포인트 구매가 아닌 것) */
     public const DIRECT_KINDS = [self::KIND_EVENT_REQUEST, self::KIND_FLYER, self::KIND_BANNER, self::KIND_TEXT_AD, self::KIND_PROMOTION, self::KIND_GROUPBUY];
 

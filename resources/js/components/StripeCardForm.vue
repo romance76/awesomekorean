@@ -14,7 +14,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 // 달러 직접 결제용 카드 입력 — "카드 보류(승인 후 청구)" PaymentIntent 의 client_secret 으로 카드를 확인한다.
-// 보류가 잡히면(requires_capture) 'authorized' 를 알리고, 실제 청구/반려 처리는 서버가 한다.
+// 보류가 잡히면(requires_capture) 'authorized' 를 알리고, 실제 청구/거절 처리는 서버가 한다.
 const props = defineProps({
   clientSecret: { type: String, required: true },
   buttonLabel: { type: String, default: '카드 확인하고 신청하기' },

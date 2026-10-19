@@ -10,7 +10,7 @@ use App\Support\FlyerService;
 use Illuminate\Http\Request;
 
 /**
- * NEW 전단 광고 관리자 — 승인 / 반려(전액 환불) / 게시 중 내리기(남은 시간 환불).
+ * NEW 전단 광고 관리자 — 승인 / 거절(전액 환불) / 게시 중 내리기(남은 시간 환불).
  */
 class AdminFlyerController extends Controller
 {
@@ -102,9 +102,9 @@ class AdminFlyerController extends Controller
         }
 
         $wasPending = $ad->status === 'pending';
-        $reason = $request->input('reason') ?: '운영 정책에 맞지 않아 반려되었습니다.';
+        $reason = $request->input('reason') ?: '운영 정책에 맞지 않아 거절되었습니다.';
         try {
-            $amount = FlyerService::release($ad, !$wasPending, "NEW 전단 광고 " . ($wasPending ? '반려' : '게시 중단') . " 환불: {$ad->title}");
+            $amount = FlyerService::release($ad, !$wasPending, "NEW 전단 광고 " . ($wasPending ? '거절' : '게시 중단') . " 환불: {$ad->title}");
         } catch (\Throwable $e) {
             \Log::error('전면광고 환불 실패: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => '환불 처리에 실패했어요. Stripe 대시보드에서 확인해주세요: ' . $e->getMessage()], 502);
@@ -115,7 +115,7 @@ class AdminFlyerController extends Controller
         $moneyNote = $card
             ? ($wasPending ? '카드에는 청구되지 않았습니다. 쓰신 광고 잔액이 있으면 돌려드렸어요' : FlyerService::money($ad, $amount) . ' 환불')
             : (FlyerService::isCredit($ad) ? '광고 잔액 ' . FlyerService::money($ad, $amount) . ' 반환' : FlyerService::money($ad, $amount) . ' 환불');
-        FlyerService::notify($ad->user_id, $wasPending ? '전단 광고 반려' : '전단 광고 게시 중단', "'{$ad->title}' — {$reason} ({$moneyNote})", $ad->id);
+        FlyerService::notify($ad->user_id, $wasPending ? '전단 광고 거절' : '전단 광고 게시 중단', "'{$ad->title}' — {$reason} ({$moneyNote})", $ad->id);
 
         return response()->json(['success' => true, 'message' => "처리했어요. {$moneyNote}."]);
     }

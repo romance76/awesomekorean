@@ -170,7 +170,7 @@
       <div class="card p-4">
         <div class="text-xs text-ink-muted">승인 대기 중(카드 보류)</div>
         <div class="text-2xl font-black text-amber-600 mt-1">{{ usd(sum.held.amount) }}</div>
-        <div class="text-[11px] text-ink-faint mt-0.5">{{ sum.held.count }}건 · 승인하면 청구, 반려하면 해제</div>
+        <div class="text-[11px] text-ink-faint mt-0.5">{{ sum.held.count }}건 · 승인하면 청구, 거절하면 해제</div>
         <div class="text-[11px] text-red-500 mt-1.5">기간 내 환불 {{ usd(sum.refunded) }}</div>
       </div>
     </div>

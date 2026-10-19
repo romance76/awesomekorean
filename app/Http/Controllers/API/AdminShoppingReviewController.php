@@ -11,7 +11,7 @@ use App\Support\WritePoints;
 use Illuminate\Http\Request;
 
 /**
- * 회원 내돈내산 리뷰 관리자 — 첫 리뷰 승인/반려, 신고 누적·문제 리뷰 내리기, 복구.
+ * 회원 내돈내산 리뷰 관리자 — 첫 리뷰 승인/거절, 신고 누적·문제 리뷰 내리기, 복구.
  */
 class AdminShoppingReviewController extends Controller
 {
@@ -72,11 +72,11 @@ class AdminShoppingReviewController extends Controller
     {
         $request->validate(['reason' => 'nullable|string|max:200']);
         $p = AmazonProduct::whereNotNull('user_id')->findOrFail($id);
-        $reason = $request->input('reason') ?: '리뷰 작성 규칙에 맞지 않아 반려되었어요.';
+        $reason = $request->input('reason') ?: '리뷰 작성 규칙에 맞지 않아 거절되었어요.';
         $p->update(['status' => 'rejected', 'admin_note' => $reason]);
         ShoppingReviews::forget();
-        $this->notify($p, '내돈내산 리뷰가 반려됐어요', "'{$p->title}' — {$reason} 내용을 고쳐서 다시 올려주세요.");
-        return response()->json(['success' => true, 'message' => '반려했어요.']);
+        $this->notify($p, '내돈내산 리뷰가 거절됐어요', "'{$p->title}' — {$reason} 내용을 고쳐서 다시 올려주세요.");
+        return response()->json(['success' => true, 'message' => '거절했어요.']);
     }
 
     /** 문제 있는 리뷰 내리기 (신고 확인 후) */

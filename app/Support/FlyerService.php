@@ -10,12 +10,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
- * 전단 광고 취소/반려/승인 시 슬롯 해제 + 환불.
+ * 전단 광고 취소/거절/승인 시 슬롯 해제 + 환불.
  *
  * 결제 방식은 두 가지가 공존한다.
- *  - card   : 달러 카드 결제(현재). 신청 때 카드를 "보류"만 하고, 승인하면 청구, 반려/취소하면 보류 해제.
+ *  - card   : 달러 카드 결제(현재). 신청 때 카드를 "보류"만 하고, 승인하면 청구, 거절/취소하면 보류 해제.
  *             total_price / slot.price 는 센트.
- *  - points : 예전에 포인트로 선결제한 건(기존 신청). 반려/취소하면 포인트 환불. total_price / slot.price 는 포인트.
+ *  - points : 예전에 포인트로 선결제한 건(기존 신청). 거절/취소하면 포인트 환불. total_price / slot.price 는 포인트.
  */
 class FlyerService
 {
@@ -139,7 +139,7 @@ class FlyerService
                     if (in_array($p->status, ['pending', 'authorized'], true)) {
                         // 아직 청구 전 → 보류만 풀고, 이 신청에 쓴 광고 잔액은 전부 돌려준다 (추가로 결제하려던 금액은 청구된 적 없음)
                         $dp->release($p);
-                        self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청 취소·반려로 광고 잔액 반환: {$ad->title}");
+                        self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청 취소·거절로 광고 잔액 반환: {$ad->title}");
                         $ad->update(['credit_used_cents' => 0, 'topup_cents' => 0]);
                     } elseif ($amount > 0) {
                         // 청구 후 남은 시간 환불: 광고 잔액으로 낸 몫은 잔액으로, 나머지는 카드로. 더 낸 금액(잔액으로 적립된 것)은 환불하지 않음
@@ -153,13 +153,13 @@ class FlyerService
                         if ($toCard > 0) $dp->refund($p, $toCard);
                     }
                 } else {
-                    self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청 취소·반려로 광고 잔액 반환: {$ad->title}");
+                    self::restoreCredit($ad, (int) $ad->credit_used_cents, "전면광고 신청 취소·거절로 광고 잔액 반환: {$ad->title}");
                     $ad->update(['credit_used_cents' => 0, 'topup_cents' => 0]);
                 }
             } elseif (self::isCredit($ad)) {
                 // 광고 잔액으로만 낸 신청 — 풀어준 시간만큼 잔액으로 돌려준다
                 $back = min($amount, (int) $ad->credit_used_cents);
-                self::restoreCredit($ad, $back, "전면광고 신청 취소·반려·중단으로 광고 잔액 반환: {$ad->title}");
+                self::restoreCredit($ad, $back, "전면광고 신청 취소·거절·중단으로 광고 잔액 반환: {$ad->title}");
                 $ad->update(['credit_used_cents' => max(0, (int) $ad->credit_used_cents - $back)]);
             } elseif ($amount > 0) {
                 self::refund($ad->user_id, $amount, $reason, $ad->id);

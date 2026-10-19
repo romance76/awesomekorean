@@ -6,7 +6,7 @@ use Stripe\StripeClient;
 
 /**
  * Stripe 호출을 한 곳에 모은 얇은 래퍼 — 달러 직접 결제(NEW 전면광고, 경품 이벤트 의뢰)용.
- * "카드 보류(authorize) → 승인 시 청구(capture) / 반려 시 보류 해제(cancel)" 흐름을 쓴다.
+ * "카드 보류(authorize) → 승인 시 청구(capture) / 거절 시 보류 해제(cancel)" 흐름을 쓴다.
  * 테스트에서는 이 클래스를 상속해 컨테이너에 바인딩해서 가짜로 바꿀 수 있다.
  */
 class StripeGateway

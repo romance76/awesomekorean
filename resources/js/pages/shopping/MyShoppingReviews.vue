@@ -78,7 +78,7 @@ const ST = {
   published: { text: '공개 중', cls: 'bg-green-50 text-green-700 border-green-200' },
   pending: { text: '승인 대기', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
   hidden: { text: '내려감', cls: 'bg-red-50 text-red-600 border-red-200' },
-  rejected: { text: '반려됨', cls: 'bg-red-50 text-red-600 border-red-200' },
+  rejected: { text: '거절됨', cls: 'bg-red-50 text-red-600 border-red-200' },
 }
 const summary = computed(() => {
   const t = d.value.totals || {}
