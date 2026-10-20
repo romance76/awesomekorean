@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Support\EventImporter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,7 +30,10 @@ class ImportExternalEvents extends Command
         if ($codes->isEmpty()) { $this->warn('가져올 주가 없어요.'); return self::SUCCESS; }
 
         $tot = ['fetched' => 0, 'created' => 0, 'updated' => 0]; $failed = 0;
-        foreach ($codes as $code) {
+        $total = $codes->count();
+        foreach ($codes->values() as $i => $code) {
+            // 관리자 화면의 진행 표시용(몇 번째 주를 가져오는 중인지)
+            Cache::put('event_import_progress', ['done' => $i, 'total' => $total, 'current' => $code, 'fetched' => $tot['fetched'], 'created' => $tot['created'], 'started_at' => $startedAt ??= now()->toIso8601String()], 3600);
             $r = EventImporter::importState($code, $days);
             $this->line(sprintf('%s: 가져옴 %d · 새로 %d · 갱신 %d%s', $code, $r['fetched'], $r['created'], $r['updated'], $r['error'] ? ' ⚠ ' . $r['error'] : ''));
             foreach ($tot as $k => $_) $tot[$k] += $r[$k];
@@ -38,6 +42,7 @@ class ImportExternalEvents extends Command
                 if (str_contains($r['error'], '401') || str_contains($r['error'], '429')) break; // 키 문제·한도 초과면 더 돌려도 소용없음
             }
         }
+        Cache::forget('event_import_progress');
         $pruned = EventImporter::prune();
         $this->info("합계: 가져옴 {$tot['fetched']} · 새로 {$tot['created']} · 갱신 {$tot['updated']} · 정리 {$pruned}");
         return $failed ? self::FAILURE : self::SUCCESS;

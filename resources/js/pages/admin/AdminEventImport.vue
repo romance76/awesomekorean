@@ -47,7 +47,15 @@
         <button @click="setAll(false)" :disabled="busy" class="btn-secondary !px-3 !py-1.5 text-xs">모두 끄기</button>
         <button @click="runAll" :disabled="busy || info.running || !info.key_set" class="btn-primary !px-4 !py-1.5 text-xs disabled:opacity-40">{{ info.running ? '가져오는 중…' : '켜 둔 주 지금 모두 가져오기' }}</button>
       </div>
-      <p v-if="info.running" class="text-xs text-amber-600">가져오는 중이에요(몇 분 걸려요). <button class="underline" @click="load">새로 고침</button>으로 진행을 확인하세요.</p>
+      <div v-if="info.running" class="rounded-xl bg-amber-50 border border-amber-200 p-3 space-y-2" role="status" aria-live="polite">
+        <div class="flex items-center gap-2 text-sm font-bold text-amber-800">
+          <span class="inline-block w-4 h-4 rounded-full border-2 border-amber-500 border-t-transparent animate-spin"></span>
+          <template v-if="info.progress && info.progress.total">가져오는 중… {{ info.progress.done }} / {{ info.progress.total }}개 주<span v-if="info.progress.current"> (지금: {{ info.progress.current }})</span></template>
+          <template v-else>가져오는 중이에요…</template>
+        </div>
+        <div v-if="info.progress && info.progress.total" class="h-2 rounded-full bg-amber-100 overflow-hidden"><div class="h-full bg-amber-500 transition-all" :style="{ width: Math.round(info.progress.done / info.progress.total * 100) + '%' }"></div></div>
+        <p class="text-xs text-amber-700">지금까지 {{ info.progress?.fetched || 0 }}건 확인 · 새로 {{ info.progress?.created || 0 }}건 추가. 몇 분 걸려요. 이 화면은 자동으로 갱신돼요.</p>
+      </div>
       <div class="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
         <div v-for="s in info.states" :key="s.code" class="rounded-xl border p-3 flex flex-col gap-1.5" :class="s.enabled ? 'border-gray-200 bg-white' : 'border-gray-100 bg-gray-50 opacity-70'">
           <div class="flex items-center gap-2">
@@ -111,7 +119,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -170,8 +178,18 @@ const saveKey = () => act(async () => {
   keyInput.value = ''
   say(data.message); await load()
 })
+// 브라우저 확인창(confirm)은 막히면 버튼이 무반응이 되므로, 같은 버튼을 5초 안에 한 번 더 눌러야 실행되는 방식으로 확인
+const asked = ref('')
+let askTimer = null
+function twice(key, hint) {
+  if (asked.value === key) { asked.value = ''; clearTimeout(askTimer); return true }
+  asked.value = key; say(hint + ' — 맞으면 같은 버튼을 한 번 더 누르세요', true)
+  clearTimeout(askTimer); askTimer = setTimeout(() => { asked.value = ''; msg.value = '' }, 5000)
+  return false
+}
+
 const clearKey = () => act(async () => {
-  if (!confirm('저장해 둔 API 키를 지울까요? (서버 설정 키가 있으면 그것을 씁니다)')) return
+  if (!twice('clearKey', '저장해 둔 API 키를 지울까요?')) return
   const { data } = await axios.put('/api/admin/event-import/key', { key: '' })
   say(data.message); await load()
 })
@@ -192,13 +210,17 @@ const runOne = (s) => act(async () => {
   await Promise.all([load(), loadEvents(1)])
 })
 const runAll = () => act(async () => {
-  if (!confirm('켜 둔 모든 주를 지금 가져올까요? 몇 분 걸려요.')) return
-  const { data } = await axios.post('/api/admin/event-import/run', {}, { timeout: 30000 }).catch(e => {
-    // 백그라운드 실행은 응답이 먼저 오거나 시간이 오래 걸려 끊길 수 있어, 끊겨도 진행 상태를 다시 읽는다
-    if (!e.response) return { data: { success: true, message: '백그라운드로 가져오는 중이에요. 잠시 뒤 새로 고침하세요.' } }
-    throw e
-  })
-  say(data.message, data.success)
+  say('가져오기를 시작하는 중…', true)
+  info.value.running = true   // 눌렀다는 것이 바로 보이게
+  let r
+  try {
+    r = (await axios.post('/api/admin/event-import/run', {}, { timeout: 20000 })).data
+  } catch (e) {
+    // 백그라운드 실행은 응답이 먼저 오거나 시간이 오래 걸려 끊길 수 있어, 응답이 없어도 진행 상태를 다시 읽는다
+    if (e.response) { info.value.running = false; throw e }
+    r = { success: true, message: '가져오기를 시작했어요. 아래에 진행 상황이 표시돼요.' }
+  }
+  say(r.message, r.success)
   await load()
 })
 const toggleEvent = (e) => act(async () => {
@@ -206,11 +228,18 @@ const toggleEvent = (e) => act(async () => {
   e.is_active = data.is_active
 })
 const delEvent = (e) => act(async () => {
-  if (!confirm(`"${e.title}" 을(를) 삭제할까요?`)) return
+  if (!twice('del' + e.id, `"${e.title}" 을(를) 삭제할까요?`)) return
   await axios.delete(`/api/admin/event-import/events/${e.id}`)
   events.value = events.value.filter(x => x.id !== e.id)
   await load()
 })
 
+// 가져오는 중이면 4초마다 진행 상태를 다시 읽고, 끝나면 행사 목록도 새로 고침
+let poll = null
+watch(() => info.value.running, (on) => {
+  clearInterval(poll)
+  if (on) poll = setInterval(async () => { await load(); if (!info.value.running) { say('가져오기가 끝났어요.', true); loadEvents(1) } }, 4000)
+})
 onMounted(() => { load(); loadEvents(1) })
+onBeforeUnmount(() => { clearInterval(poll); clearTimeout(askTimer) })
 </script>

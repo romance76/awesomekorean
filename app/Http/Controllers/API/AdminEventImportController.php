@@ -31,6 +31,7 @@ class AdminEventImportController extends Controller
             'key_source' => EventImporter::keySource(),
             'key_masked' => EventImporter::maskedKey(),
             'running' => (bool) Cache::get(self::RUNNING),
+            'progress' => Cache::get(self::RUNNING) ? Cache::get('event_import_progress') : null,
             'states' => $states,
             'total' => (int) $counts->sum('c'),
             'upcoming_by_category' => $byCat,
@@ -77,12 +78,14 @@ class AdminEventImportController extends Controller
             return response()->json(['success' => !$r['error'], 'message' => $r['error'] ?: "{$state}: 가져옴 {$r['fetched']} · 새로 {$r['created']} · 갱신 {$r['updated']}", 'data' => $r]);
         }
 
-        Cache::put(self::RUNNING, 'all', 3600);
+        Cache::put(self::RUNNING, 'all', 1500); // 도중에 프로세스가 죽어도 25분 뒤엔 다시 실행 가능
+        Cache::put('event_import_progress', ['done' => 0, 'total' => (int) DB::table('event_import_states')->where('enabled', true)->count(), 'current' => '', 'fetched' => 0, 'created' => 0], 1500);
         $respond = response()->json(['success' => true, 'message' => '켜 둔 모든 주를 백그라운드로 가져오는 중이에요. 몇 분 걸려요 — 새로 고침하면 진행이 보여요.']);
         if (function_exists('fastcgi_finish_request')) {
             $respond->send();
             fastcgi_finish_request();
         }
+        ignore_user_abort(true);
         set_time_limit(0);
         try { \Artisan::call('events:import'); } finally { Cache::forget(self::RUNNING); }
         return $respond;
