@@ -248,6 +248,7 @@
             </div>
             <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">🎁 경품추첨</div>
             <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+            <div v-else-if="item.source === 'ticketmaster'" class="text-ink-faint text-[11px] font-semibold">🎟️ 티켓</div>
             <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
           </div>
         </div>
@@ -291,7 +292,8 @@
               <UserName v-if="item.user?.name" :userId="item.user?.id" :name="item.user?.name" className="text-xs font-medium text-ink" />
               <span v-else>{{ item.organizer || item.company || '어썸코리안' }}</span>
             </span>
-            <span v-if="item.start_date || item.created_at">{{ fmtDate(item.start_date || item.created_at) }}</span>
+            <span v-if="item.start_date" class="font-semibold text-ink-light">{{ evWhen(item.start_date) }}</span>
+            <span v-else-if="item.created_at">{{ fmtDate(item.created_at) }}</span>
             <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="13" />{{ item.city }}<template v-if="item.state">, {{ item.state }}</template></span>
             <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
             <span class="flex items-center gap-0.5 tabular-nums" :aria-label="'참가 ' + (item.attendee_count || 0)"><AppIcon name="users" :size="13" />{{ item.attendee_count || 0 }}</span>
@@ -302,6 +304,7 @@
         <div class="flex-shrink-0 text-right self-start">
           <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">경품추첨</div>
           <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+          <div v-else-if="item.source === 'ticketmaster'" class="text-ink-faint text-[11px] font-semibold">🎟️ 티켓</div>
           <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
         </div>
       </div>
@@ -343,6 +346,14 @@ const route = useRoute()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
 function evExcerpt(item) { return String(item.content || item.description || '').replace(/\s+/g, ' ').trim().slice(0, 140) }
+// 행사 일정: "10월 25일(토) 오후 7:00" — 앞으로 열릴 행사를 "방금/n일 전"처럼 보이지 않게
+function evWhen(dt) {
+  if (!dt) return ''
+  const d = new Date(dt)
+  const date = d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
+  const time = d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })
+  return `${date} ${time}`
+}
 function fmtDate(dt) {
   if (!dt) return ''
   const d = new Date(dt)

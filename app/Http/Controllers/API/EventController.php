@@ -55,6 +55,12 @@ class EventController extends Controller
         } else {
             $query->orderByDesc('created_at');
         }
+        // 앞으로 열릴 행사는 날짜가 가까운 순: 공식(고정) → 경품 추첨 → 회원이 올린 행사 → 외부에서 가져온 행사, 각각 날짜순. 지난 행사 보기는 최신 순 그대로.
+        if (!$request->boolean('past')) {
+            $query->reorder()->orderByDesc('is_pinned')
+                ->orderByRaw("CASE WHEN event_type = 'sweepstakes' THEN 0 WHEN source IS NULL THEN 1 ELSE 2 END")
+                ->orderBy('start_date');
+        }
 
         return response()->json(['success' => true, 'data' => $query->paginate($request->per_page ?? 20)]);
     }
