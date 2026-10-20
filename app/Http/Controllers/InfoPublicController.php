@@ -119,6 +119,12 @@ class InfoPublicController extends Controller
 
     public function show(Request $request, string $slug)
     {
+        // 합쳐서 내린 옛 글 주소는 남긴 글로 영구 이동(301) — 이미 색인된 주소가 404 가 되지 않게 (config/info_redirects.php)
+        $to = (config('info_redirects', []))[$slug] ?? null;
+        if ($to && $to !== $slug && InfoPost::published()->where('slug', $to)->exists()) {
+            return redirect()->route('info.show', ['slug' => $to], 301);
+        }
+
         $post = InfoPost::published()->where('slug', $slug)->firstOrFail();
         $this->countView($request, $post);
 
