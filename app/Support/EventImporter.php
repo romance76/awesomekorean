@@ -120,6 +120,7 @@ class EventImporter
         $from = Carbon::now('UTC')->startOfHour();
         $end = $from->copy()->addDays($days);
         $pools = [];
+        $seen = [];
         try {
             foreach (self::SEGMENTS as $i => $seg) {
                 $res = Http::timeout(20)->retry(2, 1500, throw: false)->get(self::ENDPOINT, [
@@ -138,10 +139,10 @@ class EventImporter
                 if ($res->status() === 429) { $out['error'] = '요청 한도를 넘었어요(429) — 잠시 뒤 다시 시도하세요'; return self::record($code, $out); }
                 if (!$res->ok()) { $out['error'] = 'Ticketmaster 응답 오류 ' . $res->status(); return self::record($code, $out); }
 
-                $withImg = []; $noImg = []; $seen = [];
+                $withImg = []; $noImg = [];
                 foreach (($res->json()['_embedded']['events'] ?? []) as $e) {
                     $c = self::map($e, $code, $seg['category']);
-                    if (!$c || isset($seen[$c['group']])) continue;   // 같은 투어·팀의 다른 날짜는 하나만
+                    if (!$c || isset($seen[$c['group']])) continue;   // 같은 투어·팀의 다른 날짜는 하나만(분류 묶음이 달라도 중복 제거)
                     $seen[$c['group']] = true;
                     if ($c['row']['image_url']) $withImg[] = $c; else $noImg[] = $c;
                 }
@@ -223,7 +224,9 @@ class EventImporter
         } catch (\Throwable $ex) { return null; }
 
         $cls = $e['classifications'][0] ?? [];
-        if (preg_match('/festival|fair|expo|parade/i', $title)) $category = 'festival';
+        // 카테고리는 요청한 후보 묶음이 아니라 행사 자신의 주 분류(segment)로 정한다
+        // ("기타" 묶음에도 스포츠 경기 등이 섞여 내려오기 때문)
+        $category = self::categoryFor($cls['segment']['name'] ?? '', $cls['genre']['name'] ?? '', $title) ?? $category;
 
         // 이미지: 16:9 중 폭 640 이상 가장 작은 것, 없으면 가장 큰 것
         $img = null;
@@ -266,6 +269,19 @@ class EventImporter
                 'url' => $e['url'] ?? null,
             ],
         ];
+    }
+
+    /** Ticketmaster 분류 → 우리 카테고리 (모르면 null) */
+    public static function categoryFor(string $segment, string $genre, string $title): ?string
+    {
+        $seg = strtolower(trim($segment));
+        $gen = strtolower(trim($genre));
+        if ($seg === 'sports') return 'sports';
+        if (in_array($gen, ['basketball', 'baseball', 'football', 'hockey', 'soccer', 'wrestling', 'motorsports/racing', 'golf', 'tennis', 'ice skating', 'boxing', 'volleyball', 'lacrosse', 'rugby', 'track & field', 'martial arts'], true)) return 'sports';
+        if (preg_match('/festival|\bfair\b|\bexpo\b|parade/i', $title)) return 'festival';
+        if (in_array($seg, ['music', 'arts & theatre', 'film'], true)) return 'concert';
+        if ($seg === 'miscellaneous') return 'festival';
+        return null;
     }
 
     /** 한글 안내문(일시·장소·티켓·소개)을 붙여 events 한 줄로 완성 */
