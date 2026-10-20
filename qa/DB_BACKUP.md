@@ -79,3 +79,28 @@ BACKUP_REMOTE_PRUNE_CMD="rclone lsf gdrivecrypt:awesomekorean-backups/ --include
 ```
    서버 밖 정리는 **방금 올린 파일이 서버 밖에 실제로 보일 때만**(`rclone lsf … | grep -q .`) 실행됩니다.
 5. 시험: 서버에서 `sudo -u www-data php8.2 artisan db:backup` 을 한 번 실행 → 드라이브에 파일이 생겼는지, 서버·드라이브에 새 파일 1개만 남았는지 확인. 그다음 `db:restore-check`(복구 연습)도 한 번.
+
+
+## 웹 브라우저만으로 하는 방법 — 구글 Apps Script (rclone·명령어 설치 불필요)
+구글 쪽은 전부 브라우저에서 하고, 서버 쪽은 `.env` 한 줄만 넣으면 됩니다. 받는 코드는 `qa/tools/gdrive_backup_receiver.gs`.
+- 서버가 백업 파일을 이 웹 앱 주소로 보냄 → 내 드라이브 `awesomekorean-backups` 폴더에 저장 → 저장이 확인되면 **그 전 백업은 휴지통으로**(30일 뒤 자동 삭제, 그 안에는 복구 가능).
+- 서버에 구글 로그인 정보(토큰)가 남지 않습니다. 서버가 아는 것은 "웹 앱 주소 + 비밀 토큰"뿐이고, 이것으로는 **올리기만** 되고 내 드라이브를 읽을 수는 없습니다.
+- ⚠️ 한계(실제로 해 보고 확인 필요): 한 번에 보낼 수 있는 크기에 구글 쪽 제한이 있습니다(대략 수십 MB). 백업이 그보다 커지면 실패하므로 첫 실행 결과를 꼭 확인하세요. 파일은 암호화하지 않고 내 구글 드라이브(비공개)에 저장됩니다.
+
+### 구글 쪽 (브라우저)
+1. script.google.com → **새 프로젝트** → 이름 `awesomekorean-backup-receiver`.
+2. 기본 `Code.gs` 내용을 지우고 `qa/tools/gdrive_backup_receiver.gs` 내용을 통째로 붙여넣기 → 저장.
+3. 왼쪽 **프로젝트 설정(톱니바퀴) → 스크립트 속성 → 스크립트 속성 추가**: 속성 `BACKUP_TOKEN`, 값은 **영문·숫자 30자 이상 아무거나**(직접 만든 긴 비밀번호). 저장. (이 값은 아래 `.env` 에도 똑같이 넣습니다. 채팅·메일에 쓰지 마세요.)
+4. 오른쪽 위 **배포 → 새 배포 → 유형: 웹 앱**: 실행 사용자 **나**, 액세스 권한 **모든 사용자** → 배포. 드라이브 접근 허용 창이 뜨면 **고급 → 허용**(내 계정으로 폴더를 만들고 파일을 저장하는 권한).
+5. 나오는 **웹 앱 URL**(`https://script.google.com/macros/s/…/exec`)을 복사.
+
+### 서버 쪽 (브라우저로 서버에 들어가기)
+- DigitalOcean 사이트 → Droplets → 해당 서버 → **Access → Launch Droplet Console** (브라우저 안의 검은 터미널 창).
+- `.env` 를 엽니다: `nano /var/www/awesomekorean/.env` → 맨 아래에 아래 두 줄을 넣고(URL·TOKEN 자리 교체) `Ctrl+O` 엔터, `Ctrl+X`:
+```
+BACKUP_UPLOAD_CMD="base64 -w0 {file} | curl -sS -L --fail --max-time 900 --data-binary @- -H 'Content-Type: text/plain' 'https://script.google.com/macros/s/여기에-웹앱-주소/exec?token=여기에-토큰&name='{name} | grep -q '^ok'"
+BACKUP_PRUNE_AFTER_UPLOAD=true
+```
+  (서버 밖의 이전 백업 정리는 구글 쪽 코드가 하므로 `BACKUP_REMOTE_PRUNE_CMD` 는 필요 없습니다. 서버 안의 이전 백업은 `BACKUP_PRUNE_AFTER_UPLOAD=true` 가 지웁니다.)
+- 첫 백업: `cd /var/www/awesomekorean && sudo -u www-data php8.2 artisan db:backup` → "서버 밖 복사 완료" 가 나오고, 드라이브 `awesomekorean-backups` 폴더에 `db_날짜_시각.sql.gz` 가 생기면 성공. 이 폴더에는 항상 **가장 최근 1개만** 보입니다(이전 것은 휴지통).
+- 복구 확인(한 달에 한 번): `sudo -u www-data php8.2 artisan db:restore-check`.

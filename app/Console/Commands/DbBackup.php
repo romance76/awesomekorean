@@ -81,7 +81,8 @@ class DbBackup extends Command
         $upload = trim((string) env('BACKUP_UPLOAD_CMD', ''));
         $uploaded = false;
         if ($upload !== '') {
-            $u = new Process(['bash', '-c', str_replace('{file}', escapeshellarg($final), $upload)], null, null, null, 1800);
+            // {file} = 백업 파일 전체 경로, {name} = 파일 이름만 (둘 다 따옴표로 안전하게 감싸서 들어간다)
+            $u = new Process(['bash', '-c', str_replace(['{file}', '{name}'], [escapeshellarg($final), escapeshellarg(basename($final))], $upload)], null, null, null, 1800);
             $u->run();
             if (!$u->isSuccessful()) return $this->bad('서버 밖 복사 실패: ' . self::tail($u->getErrorOutput() ?: $u->getOutput()));
             $this->info('서버 밖 복사 완료');
