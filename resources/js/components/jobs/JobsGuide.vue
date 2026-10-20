@@ -94,7 +94,7 @@
       <AppIcon name="shield" :size="17" class="text-gray-500 mt-0.5 flex-shrink-0" />
       <p class="text-xs text-ink-light leading-relaxed">
         <b class="text-ink">안전하게 이용하세요.</b>
-        주민등록번호·여권번호·계좌번호 같은 민감한 정보는 글에 적지 마세요.
+        소셜번호·여권번호·계좌번호 같은 민감한 정보는 글에 적지 마세요.
         일을 시작하기 전에 돈을 먼저 보내라고 하는 곳은 조심해 주세요.
       </p>
     </div>
