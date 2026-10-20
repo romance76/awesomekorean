@@ -818,6 +818,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::get('/revenue/summary', [\App\Http\Controllers\API\AdminRevenueController::class, 'summary']);
     Route::get('/revenue/list', [\App\Http\Controllers\API\AdminRevenueController::class, 'list']);
     Route::post('/payments/{id}/refund', [AdminController::class, 'refundPayment'])->middleware('role:admin,super_admin');
+    // 시험(더미) 계정 정리 1단계 — 읽기 전용 미리보기(@test.com 계정이 어떤 표에 몇 줄의 기록을 갖는지). 최고관리자 전용
+    Route::get('/dummy-cleanup/preview', [\App\Http\Controllers\API\AdminDummyCleanupController::class, 'preview'])->middleware(['role:super_admin', 'throttle:20,1']);
     // 결제 정리(시험 결제 삭제) — 최고관리자 전용. 미리보기는 아무것도 바꾸지 않고, 삭제는 재확인(reauth) + 백업 후 한 트랜잭션
     Route::post('/payments/purge/preview', [\App\Http\Controllers\API\AdminPaymentPurgeController::class, 'preview'])->middleware(['role:super_admin', 'throttle:30,1']);
     Route::post('/payments/purge', [\App\Http\Controllers\API\AdminPaymentPurgeController::class, 'purge'])->middleware(['role:super_admin', 'reauth', 'throttle:10,1']);
