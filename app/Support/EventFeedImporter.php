@@ -52,7 +52,7 @@ class EventFeedImporter
         '/\b(korean|korea|k-?pop|hangul|hanbok|chuseok|seollal|lunar new year|k-?town|koreatown|taekwondo|k-?drama)\b/i' => 8,
         '/\b(asian|aapi|apia|pan-?asian|asia)\b/i' => 4,
     ];
-    private const PENALTY = '/\b(happy hour|trivia|bingo|yoga|pilates|zumba|fitness|exercise|class(es)?|lesson|workshop|storytime|story time|meeting|hearing|commission|board|council|committee|support group|open mic|game night|networking|webinar|training|seminar|volunteer|litter|cleanup|clinic|office hours|orientation|walking tour|farmers? market|book club|craft(s)? night|paint(ing)? night)\b/i';
+    private const PENALTY = '/\b(happy hour|trivia|bingo|yoga|pilates|zumba|fitness|exercise|class(es)?|lesson|workshop|storytime|story time|meeting|hearing|commission|board|council|committee|support group|open mic|game night|networking|webinar|training|seminar|volunteer|litter|cleanup|clinic|office hours|orientation|walking tour|farmers? market|book club|craft(s)? night|paint(ing)? night|toddler|preschool|lounge|nightclub|21\+|bar crawl|drag brunch|dj night)\b/i';
 
     public static function limits(): array
     {
@@ -556,8 +556,8 @@ class EventFeedImporter
         }
         $url = $a['url'] ?? null;
         if (!$url) return null;
-        $state = strtoupper(trim((string) ($a['state'] ?? '')));
-        if (strlen($state) !== 2) $state = $src->state;
+        // 주는 출처가 속한 주로 통일한다 — 원본 장소 정보의 주가 틀린 경우가 있다(예: 시카고 행사에 NY·MO 로 적힘)
+        $state = $src->state;
         return [
             'title' => $title, 'start' => $start, 'end' => $end, 'allday' => $allday, 'tz' => $tz,
             'venue' => !empty($a['venue']) ? self::text($a['venue'], 250) : null, 'address' => !empty($a['address']) ? self::text($a['address'], 250) : null,
@@ -624,8 +624,8 @@ class EventFeedImporter
     private static function isDup(string $norm, Carbon $start, array $taken): bool
     {
         foreach ($taken as [$n, $d]) {
+            if ($n === $norm) return true;                       // 제목이 같으면 날짜가 달라도 같은 행사(여러 날 열리는 행사의 날짜별 항목)
             if (abs($d->diffInDays($start, false)) > 1) continue;
-            if ($n === $norm) return true;
             if (min(strlen($n), strlen($norm)) >= 12 && (str_contains($n, $norm) || str_contains($norm, $n))) return true;
         }
         return false;
@@ -664,6 +664,8 @@ class EventFeedImporter
     private static function category(string $title, string $cats): string
     {
         $t = $title . ' ' . $cats;
+        // 공연 이름이 분명하면 제목에 festival 이 들어 있어도 공연(예: "Festival Ballet … The Nutcracker")
+        if (preg_match('/\b(ballet|symphony|orchestra|concert|nutcracker|opera|musical|recital)\b/i', $title) && !preg_match('/\b(film|theat(er|re)|tango|lantern|lights)\s+festival\b/i', $title)) return 'concert';
         if (preg_match('/\b(festival|fest|parade|fair|expo|carnival|market)\b/i', $t)) return 'festival';
         if (preg_match('/\b(vs\.?|game|match|marathon|5k|race|tournament|rodeo|championship|nba|nfl|mlb|nhl|mls)\b/i', $t)) return 'sports';
         if (preg_match('/\b(concert|symphony|orchestra|ballet|opera|musical|theat(er|re)|live|comedy|film|movie|show|tour|band|music)\b/i', $t)) return 'concert';

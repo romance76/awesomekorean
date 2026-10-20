@@ -339,32 +339,32 @@ class EventImporter
     /** 영어 → 한국어 자동 번역(무료 Google 엔드포인트, 같은 문장은 60일 캐시). 실패하면 원문 그대로 */
     public static function translate(string $text): string
     {
-        $text = trim(mb_substr(preg_replace('/\s+/', ' ', $text), 0, 1200));
+        // 줄바꿈(문단)은 남긴 채 번역한다. 한 번에 최대 1800자 — 요청 횟수를 줄여야 무료 번역이 막히지 않는다
+        $text = trim(mb_substr((string) preg_replace('/[ \t]+/', ' ', str_replace("\r", '', $text)), 0, 1800));
         if ($text === '') return '';
-        $cached = Cache::get('tm_ko_' . md5($text));
+        $ckey = 'tm_ko2_' . md5($text);
+        $cached = Cache::get($ckey);
         if (is_string($cached) && $cached !== '') return $cached;
-        // 1) Google 무료 번역 — 요청이 몰리면 429 로 막히므로 천천히 두 번까지 다시 시도
+        // 1) Google 무료 번역(POST) — 요청이 몰리면 429 로 막히므로 천천히 다시 시도
         for ($try = 0; $try < 3; $try++) {
             try {
-                $res = Http::timeout(15)->get('https://translate.googleapis.com/translate_a/single', [
-                    'client' => 'gtx', 'sl' => 'en', 'tl' => 'ko', 'dt' => 't', 'q' => $text,
-                ]);
+                $res = Http::asForm()->timeout(25)->post('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t', ['q' => $text]);
                 $arr = $res->ok() ? $res->json() : null;
                 if (is_array($arr) && !empty($arr[0])) {
                     $out = '';
                     foreach ($arr[0] as $seg) { if (isset($seg[0])) $out .= $seg[0]; }
                     $out = trim($out);
-                    if ($out !== '') { Cache::put('tm_ko_' . md5($text), $out, now()->addDays(60)); usleep(400000); return $out; }
+                    if ($out !== '') { Cache::put($ckey, $out, now()->addDays(60)); usleep(1200000); return $out; }
                 }
-                if ($res->status() === 429 || $res->status() >= 500) sleep(2 * ($try + 1)); else break;
-            } catch (\Throwable $e) { sleep(1); }
+                if ($res->status() === 429 || $res->status() >= 500) sleep(3 * ($try + 1)); else break;
+            } catch (\Throwable $e) { sleep(2); }
         }
         // 2) 대체 번역(MyMemory 무료, 요청당 500자 제한) — Google 이 막혔을 때만
         try {
             $res = Http::timeout(15)->get('https://api.mymemory.translated.net/get', ['q' => mb_substr($text, 0, 480), 'langpair' => 'en|ko']);
             $t = $res->ok() ? (string) ($res->json()['responseData']['translatedText'] ?? '') : '';
             if ($t !== '' && stripos($t, 'MYMEMORY WARNING') === false && preg_match('/[가-힣]/u', $t)) {
-                Cache::put('tm_ko_' . md5($text), $t, now()->addDays(60));
+                Cache::put($ckey, $t, now()->addDays(60));
                 usleep(400000);
                 return $t;
             }
@@ -383,18 +383,20 @@ class EventImporter
             $tags = array_values(array_unique($tm[0]));
             $text = trim((string) preg_replace('/\s*#[\p{L}\p{N}_]+/u', '', $text));
         }
-        // 문단은 한 줄 비우고, 긴 문단은 300자 안팎(몇 문장)마다 줄을 바꿔 읽기 쉽게
+        // 소개문 전체를 한 번에 번역한 뒤(문단 줄바꿈은 번역기가 유지), 문단 사이는 한 줄 비우고
+        // 긴 문단은 문장 단위로 150자 안팎마다 줄을 바꿔 읽기 쉽게 한다
+        $ko = self::translate((string) preg_replace('/\n+/', "\n", $text));
         $paras = [];
-        foreach (preg_split('/\n+/', $text) as $para) {
+        foreach (preg_split('/\n+/', $ko) as $para) {
             $para = trim((string) preg_replace('/[ \t]+/', ' ', $para));
             if ($para === '') continue;
-            $chunks = []; $cur = '';
+            $lines = []; $cur = '';
             foreach (preg_split('/(?<=[.!?])\s+/u', $para) as $sentence) {
-                if ($cur !== '' && mb_strlen($cur) + mb_strlen($sentence) + 1 > 300) { $chunks[] = $cur; $cur = ''; }
+                if ($cur !== '' && mb_strlen($cur) + mb_strlen($sentence) + 1 > 150) { $lines[] = $cur; $cur = ''; }
                 $cur = ltrim($cur . ' ' . $sentence);
             }
-            if ($cur !== '') $chunks[] = $cur;
-            $paras[] = implode("\n", array_map(fn ($c) => self::translate($c), $chunks));
+            if ($cur !== '') $lines[] = $cur;
+            $paras[] = implode("\n", $lines);
         }
         $out = implode("\n\n", $paras);
         if ($tags) $out .= "\n\n" . implode(' ', $tags);

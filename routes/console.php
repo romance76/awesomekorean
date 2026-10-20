@@ -57,6 +57,9 @@ Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->whe
 //  05:30 Ticketmaster(켜 둔 주마다 인기 상위 N개), 06:30 공식 피드(관광청·시청·카운티, 중요 행사만: 주 10·카운티 3·도시 2)
 \App\Support\AutoCollectStatus::watch(Schedule::command('events:import'), 'events')->weeklyOn(0, '05:30')->timezone('America/New_York')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
 \App\Support\AutoCollectStatus::watch(Schedule::command('events:import-feeds'), 'event_feeds')->weeklyOn(0, '06:30')->timezone('America/New_York')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
+//  같은 작업을 한 번 더(07:30 / 08:30): 무료 번역이 몰려 막혀 영어로 남은 문장을, 번역 캐시 덕분에 가볍게 채워 넣는다
+Schedule::command('events:import')->weeklyOn(0, '07:30')->timezone('America/New_York')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
+Schedule::command('events:import-feeds')->weeklyOn(0, '08:30')->timezone('America/New_York')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
 Schedule::command('reservations:expire')->everyMinute()->withoutOverlapping(10);
 Schedule::command('promotions:expire')->everyMinute()->withoutOverlapping(10);
 Schedule::command('events:remind')->everyThirtyMinutes();
