@@ -46,6 +46,15 @@ class InfoIngestController extends Controller
 
         $publish = (bool) ($data['publish'] ?? false);
 
+        // 공식 출처 링크(외부 주소, 사진 라이선스 링크 제외)가 하나도 없는 글은 바로 공개하지 않고 초안으로 저장한다.
+        // (구글 애드센스 "가치 낮은 콘텐츠" 대응 — 기존 글 53편에 출처를 붙인 뒤 같은 상태가 다시 쌓이지 않게. 관리자 > 정보 관리에서 출처를 붙이고 공개)
+        $heldNoSource = false;
+        if ($publish && !preg_match('#<a\s[^>]*href=["\']https?://(?!(?:www\.)?awesomekorean\.com|creativecommons\.org)#i', $data['body'])) {
+            $publish = false;
+            $heldNoSource = true;
+            \Log::warning('[정보 글] 출처 링크가 없어 초안으로 저장: ' . mb_substr($data['title'], 0, 80));
+        }
+
         $post = InfoPost::create([
             'title' => $data['title'],
             'slug' => $slug,
@@ -68,7 +77,11 @@ class InfoIngestController extends Controller
             $this->bumpProgress();
         }
 
-        return response()->json(['success' => true, 'id' => $post->id, 'slug' => $post->slug], 201);
+        return response()->json([
+            'success' => true, 'id' => $post->id, 'slug' => $post->slug,
+            'published' => (bool) $post->is_published,
+            'held_reason' => $heldNoSource ? 'no_source_link' : null,   // 'no_source_link' 이면 초안으로 저장됨 — 공식 출처 링크를 본문에 넣어 다시 보내거나 관리자에서 붙여 공개
+        ], 201);
     }
 
     public function generationStatus()
