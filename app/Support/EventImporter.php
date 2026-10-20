@@ -24,7 +24,10 @@ class EventImporter
     private const ENDPOINT = 'https://app.ticketmaster.com/discovery/v2/events.json';
     private const WINDOW_DAYS = 30;     // 한 번에 30일씩 끊어서 요청(요청 하나당 최대 1000건 제한 회피)
     private const MAX_PAGES = 5;        // 창 하나당 최대 5쪽 × 200건 (API 깊은 쪽수 제한 1000건)
-    private const SKIP_TITLE = '/\b(parking|shuttle|vip upgrade|upgrade|add[- ]?on|premium seating package|camping)\b/i';
+    // 행사가 아닌 상품(주차·업그레이드·시즌권·멤버십·구장 투어 등)은 가져오지 않는다
+    private const SKIP_TITLE = '/\b(parking|shuttle|upgrade|add[- ]?on|camping|season pass|season ticket|membership|gift card|premium seating package|club seats?|suite rental|stadium tours?)\b|^tours?:/i';
+    // 제목이 "… Pass" 로 끝나는 정기권(축제 이용권은 제외)
+    private const SKIP_PASS = '/\bpass$/i';
 
     // 티켓마스터 분류(segment) → 우리 카테고리
     private const SEGMENT_MAP = [
@@ -142,6 +145,7 @@ class EventImporter
         $id = $e['id'] ?? null;
         $title = trim((string) ($e['name'] ?? ''));
         if (!$id || $title === '' || preg_match(self::SKIP_TITLE, $title)) return null;
+        if (preg_match(self::SKIP_PASS, $title) && !preg_match('/fest/i', $title)) return null;
         if (strtolower($e['dates']['status']['code'] ?? '') === 'cancelled') return null;
 
         $v = $e['_embedded']['venues'][0] ?? [];
@@ -218,7 +222,14 @@ class EventImporter
     /** 지난 가져온 행사 정리 (끝난 지 7일 지났고 참가자가 없는 것만) */
     public static function prune(): int
     {
-        return Event::where('source', self::SOURCE)->where('start_date', '<', now()->subDays(7))
+        $n = Event::where('source', self::SOURCE)->where('start_date', '<', now()->subDays(7))
             ->where('attendee_count', 0)->delete();
+        // 예전에 들어온 비행사 상품(시즌권·구장 투어 등)도 함께 정리
+        $n += Event::where('source', self::SOURCE)->where('attendee_count', 0)->where(function ($q) {
+            foreach (['%season pass%', '%season ticket%', '%membership%', '%gift card%', 'tour:%', 'tours:%', '%stadium tour%', '% pass'] as $like) {
+                $q->orWhere('title', 'like', $like);
+            }
+        })->where('title', 'not like', '%fest%')->delete();
+        return $n;
     }
 }
