@@ -464,16 +464,16 @@ class DatabaseSeeder extends Seeder
     private function seedEvents()
     {
         $events = [
-            ['t'=>'한인 문화 축제','cat'=>'culture'],
-            ['t'=>'한인 네트워킹 모임','cat'=>'networking'],
+            ['t'=>'한인 문화 축제','cat'=>'festival'],
+            ['t'=>'한인 네트워킹 모임','cat'=>'community'],
             ['t'=>'한글학교 발표회','cat'=>'education'],
             ['t'=>'한인 교회 바자회','cat'=>'community'],
-            ['t'=>'K-POP 댄스 워크샵','cat'=>'culture'],
+            ['t'=>'K-POP 댄스 워크샵','cat'=>'education'],
             ['t'=>'한인 골프 대회','cat'=>'sports'],
-            ['t'=>'한식 쿠킹 클래스','cat'=>'food'],
-            ['t'=>'한인 비즈니스 세미나','cat'=>'networking'],
+            ['t'=>'한식 쿠킹 클래스','cat'=>'education'],
+            ['t'=>'한인 비즈니스 세미나','cat'=>'education'],
             ['t'=>'어린이 한국어 캠프','cat'=>'education'],
-            ['t'=>'한인 자선 음악회','cat'=>'culture'],
+            ['t'=>'한인 자선 음악회','cat'=>'concert'],
         ];
 
         for ($i = 0; $i < 100; $i++) {

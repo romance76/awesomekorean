@@ -412,9 +412,9 @@ function eventStatusLabel(item) {
   return '진행중'
 }
 const eventCategories = [
-  { value: '', label: '전체' },{ value: 'awesomekorean', label: '⭐ 어썸코리안', isType: true },{ value: 'sweepstakes', label: '🎁 경품 추첨', isType: true },{ value: 'culture', label: '🎭 문화' },{ value: 'networking', label: '🤝 네트워킹' },
-  { value: 'education', label: '📚 교육' },{ value: 'community', label: '👥 커뮤니티' },
-  { value: 'sports', label: '⚽ 스포츠' },{ value: 'food', label: '🍽️ 음식' },
+  { value: '', label: '전체' },{ value: 'awesomekorean', label: '⭐ 어썸코리안', isType: true },{ value: 'sweepstakes', label: '🎁 경품 추첨', isType: true },{ value: 'festival', label: '🎪 지역 축제·행사' },{ value: 'concert', label: '🎤 콘서트·공연' },
+  { value: 'sports', label: '⚽ 스포츠' },{ value: 'community', label: '👥 모임·커뮤니티' },
+  { value: 'education', label: '📚 교육·체험' },
 ]
 const items = ref([])
 // 카테고리를 골랐을 때만 안내(전체 보기·북마크·검색 중에는 안내 없음)

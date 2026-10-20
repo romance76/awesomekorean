@@ -357,20 +357,16 @@ const totalValue = computed(() => {
 })
 
 const categories = [
-  { value: 'culture', label: '🎭 문화' },
-  { value: 'networking', label: '🤝 네트워킹' },
-  { value: 'education', label: '📚 교육/세미나' },
-  { value: 'community', label: '🏘️ 커뮤니티' },
+  { value: 'festival', label: '🎪 지역 축제·행사' },
+  { value: 'concert', label: '🎤 콘서트·공연' },
   { value: 'sports', label: '⚽ 스포츠' },
-  { value: 'food', label: '🍽️ 음식/맛집' },
-  { value: 'music', label: '🎵 음악/공연' },
-  { value: 'religion', label: '⛪ 종교' },
-  { value: 'business', label: '💼 비즈니스' },
+  { value: 'community', label: '👥 모임·커뮤니티' },
+  { value: 'education', label: '📚 교육·체험' },
   { value: 'other', label: '📋 기타' },
 ]
 
 const form = reactive({
-  title: '', category: 'culture', organizer: '', start_date: '', end_date: '',
+  title: '', category: 'festival', organizer: '', start_date: '', end_date: '',
   venue: '', address: '', city: '', state: '', price: 0, content: '',
   max_attendees: 0, url: '', reward_points: 0, reward_entries: '',
 })
@@ -494,7 +490,7 @@ onMounted(async () => {
       const { data } = await axios.get(`/api/events/${editId.value}`)
       const e = data.data
       Object.assign(form, {
-        title: e.title || '', category: e.category || 'culture', organizer: e.organizer || '',
+        title: e.title || '', category: e.category || 'festival', organizer: e.organizer || '',
         start_date: e.start_date ? e.start_date.slice(0, 16) : '',
         end_date: e.end_date ? e.end_date.slice(0, 16) : '',
         venue: e.venue || '', address: e.address || '', city: e.city || '', state: e.state || '',
