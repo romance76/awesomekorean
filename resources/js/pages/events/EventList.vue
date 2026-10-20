@@ -185,7 +185,7 @@
           </button>
         </div>
         <!-- 본문 -->
-        <div class="px-5 lg:px-6 py-5 text-sm text-ink-light whitespace-pre-wrap leading-relaxed">{{ activeItem.content || activeItem.description }}</div>
+        <div class="px-5 lg:px-6 py-5 text-sm text-ink-light whitespace-pre-wrap leading-relaxed"><LinkifiedText :text="activeItem.content || activeItem.description" /></div>
         <div class="px-5 lg:px-6 py-3 border-t border-gray-50 flex gap-4 items-center">
           <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(activeItem.id)" @toggle="toggleFav(activeItem)" size="lg" />
           <ShareButton :title="activeItem.title" :text="(activeItem.content || '').slice(0, 100)" label="공유" />
@@ -348,6 +348,7 @@ import GroupTitle from '../../components/GroupTitle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
 import EventCategoryGuide from '../../components/events/EventCategoryGuide.vue'
+import LinkifiedText from '../../components/events/LinkifiedText.vue'
 import { catName, evWhen, openExternal, mapUrl, officialSite } from '../../utils/eventCategory'
 const { showConfirm } = useModal()
 const recentDraws = ref([])

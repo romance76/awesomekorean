@@ -320,8 +320,8 @@ class EventImporter
         $lines[] = "🎫 티켓: {$ticket}";
         $body = implode("\n", $lines);
 
-        if ($c['info'])  $body .= "\n\n■ 소개\n" . self::translate($c['info']);
-        if ($c['note'])  $body .= "\n\n■ 안내\n" . self::translate($c['note']);
+        if ($c['info'])  $body .= "\n\n■ 소개\n" . self::translateLong($c['info'], 1200);
+        if ($c['note'])  $body .= "\n\n■ 안내\n" . self::translateLong($c['note'], 1200);
         $body .= "\n\n※ 일정·가격·좌석은 바뀔 수 있어요. 티켓 구매와 최신 정보는 아래 '티켓·상세 보기'(Ticketmaster)에서 확인하세요.";
 
         $row['content'] = mb_substr($body, 0, 4000);
@@ -375,15 +375,30 @@ class EventImporter
     /** 긴 글을 문장 단위로 나눠(한 번에 450자 이내) 번역해 이어 붙인다. 못 번역한 조각은 원문 그대로 */
     public static function translateLong(string $text, int $maxChars = 1800): string
     {
-        $text = trim(mb_substr(preg_replace('/[ \t]+/', ' ', $text), 0, $maxChars));
+        $text = trim(mb_substr(str_replace("\r", '', $text), 0, $maxChars));
         if ($text === '') return '';
-        $chunks = []; $cur = '';
-        foreach (preg_split('/(?<=[.!?])\s+/u', $text) as $sentence) {
-            if ($cur !== '' && mb_strlen($cur) + mb_strlen($sentence) + 1 > 450) { $chunks[] = $cur; $cur = ''; }
-            $cur = ltrim($cur . ' ' . $sentence);
+        // 해시태그는 번역하지 않고 맨 아래에 따로 모은다
+        $tags = [];
+        if (preg_match_all('/#[\p{L}\p{N}_]+/u', $text, $tm)) {
+            $tags = array_values(array_unique($tm[0]));
+            $text = trim((string) preg_replace('/\s*#[\p{L}\p{N}_]+/u', '', $text));
         }
-        if ($cur !== '') $chunks[] = $cur;
-        return implode(' ', array_map(fn ($c) => self::translate($c), $chunks));
+        // 문단은 한 줄 비우고, 긴 문단은 300자 안팎(몇 문장)마다 줄을 바꿔 읽기 쉽게
+        $paras = [];
+        foreach (preg_split('/\n+/', $text) as $para) {
+            $para = trim((string) preg_replace('/[ \t]+/', ' ', $para));
+            if ($para === '') continue;
+            $chunks = []; $cur = '';
+            foreach (preg_split('/(?<=[.!?])\s+/u', $para) as $sentence) {
+                if ($cur !== '' && mb_strlen($cur) + mb_strlen($sentence) + 1 > 300) { $chunks[] = $cur; $cur = ''; }
+                $cur = ltrim($cur . ' ' . $sentence);
+            }
+            if ($cur !== '') $chunks[] = $cur;
+            $paras[] = implode("\n", array_map(fn ($c) => self::translate($c), $chunks));
+        }
+        $out = implode("\n\n", $paras);
+        if ($tags) $out .= "\n\n" . implode(' ', $tags);
+        return $out;
     }
 
     /** @return bool 새로 만들었으면 true, 갱신이면 false */

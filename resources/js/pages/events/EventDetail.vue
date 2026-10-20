@@ -120,7 +120,7 @@
           </div>
 
           <!-- 본문 -->
-          <div class="px-4 lg:px-6 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ event.content || event.description }}</div>
+          <div class="px-4 lg:px-6 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap"><LinkifiedText :text="event.content || event.description" /></div>
 
           <!-- 외부에서 가져온 행사(Ticketmaster): 원본 페이지로 연결 + 출처 표시 -->
           <div v-if="(event.source === 'ticketmaster' || event.source === 'feed') && event.url" class="px-4 lg:px-5 py-3 border-t border-gray-50">
@@ -189,6 +189,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
+import LinkifiedText from '../../components/events/LinkifiedText.vue'
 import { catName, evWhen, openExternal, mapUrl, officialSite } from '../../utils/eventCategory'
 const recentDraws = ref([])
 import axios from 'axios'

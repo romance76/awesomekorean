@@ -468,7 +468,19 @@ class EventFeedImporter
                 $cand = trim((string) ($cut[0] ?? ''));
                 if (mb_strlen($cand) > mb_strlen($best)) $best = $cand;
             }
-            if ($best !== '') $d['overview'] = trim((string) preg_replace('/\s*\n\s*/', ' ', mb_substr($best, 0, 3000)));
+            if ($best !== '') {
+                // 문단(줄)은 살리되, 문장이 끝나지 않았는데 줄이 바뀐 곳은 이어 붙인다
+                $paras = []; $buf = '';
+                foreach (preg_split('/\n/', mb_substr($best, 0, 3000)) as $line) {
+                    $line = trim($line);
+                    if ($line === '') continue;
+                    if ($buf !== '' && mb_strlen($buf) >= 40 && !preg_match('/[.!?:)"”\']$/u', $buf)) { $buf .= ' ' . $line; continue; }
+                    if ($buf !== '') $paras[] = $buf;
+                    $buf = $line;
+                }
+                if ($buf !== '') $paras[] = $buf;
+                $d['overview'] = implode("\n", $paras);
+            }
         }
         return $d;
     }
@@ -492,6 +504,19 @@ class EventFeedImporter
         $t = html_entity_decode(strip_tags((string) preg_replace('#<(script|style)[^>]*>.*?</\1>#is', ' ', (string) $html)), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $t = trim((string) preg_replace('/\s+/u', ' ', str_replace("\xC2\xA0", ' ', $t)));
         return mb_substr($t, 0, $max);
+    }
+
+    /** text() 와 같지만 줄바꿈(문단)은 남긴다 — 소개문을 읽기 좋게 보여 주기 위해 */
+    private static function textKeep(?string $html, int $max = 2500): string
+    {
+        $h = (string) preg_replace('#<(script|style)[^>]*>.*?</\1>#is', ' ', (string) $html);
+        $h = (string) preg_replace('#<(br|/p|/div|/li|/h[1-6])[^>]*>#i', "\n", $h);
+        $t = str_replace("\xC2\xA0", ' ', html_entity_decode(strip_tags($h), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        $lines = array_values(array_filter(
+            array_map(fn ($l) => trim((string) preg_replace('/[ \t]+/u', ' ', $l)), preg_split('/\r?\n/', $t)),
+            fn ($l) => $l !== ''
+        ));
+        return mb_substr(implode("\n", $lines), 0, $max);
     }
 
     /** 읽은 값을 같은 모양으로 정리 (날짜가 없으면 null) */
@@ -542,8 +567,8 @@ class EventFeedImporter
             'image' => !empty($a['image']) && preg_match('#^https?://#i', (string) $a['image']) ? mb_substr(str_replace('http://', 'https://', $a['image']), 0, 250) : null,
             'url' => mb_substr($url, 0, 250),
             'desc' => (function () use ($a) {
-                $d = self::text($a['desc'] ?? '', 2500);
-                $o = self::text($a['overview'] ?? '', 2500);
+                $d = self::textKeep($a['desc'] ?? '', 2500);
+                $o = self::textKeep($a['overview'] ?? '', 2500);
                 return mb_strlen($o) > mb_strlen($d) ? $o : $d;   // 페이지 본문 소개문이 더 길면 그것을 사용
             })(),
             'price' => $price, 'admission' => $admission,
