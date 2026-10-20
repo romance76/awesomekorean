@@ -39,3 +39,18 @@ export function openExternal(url) {
   if (w) { try { w.opener = null } catch (e) { /* 무시 */ } }
   else window.location.assign(url) // 팝업이 막힌 환경에서는 같은 창으로라도 열기
 }
+
+/** 지도에서 보기 주소(구글 지도 검색) — 장소·주소가 있으면 그것으로, 없고 좌표만 있으면 좌표로 */
+export function mapUrl(e) {
+  if (!e) return ''
+  const place = [e.venue, e.address, e.city, e.state].filter(Boolean).join(', ')
+  if (place && (e.venue || e.address)) return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(place)
+  if (e.lat && e.lng) return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(e.lat + ',' + e.lng)
+  return ''
+}
+
+/** 본문의 "🔗 공식 웹사이트: URL" 줄에서 주소를 꺼낸다(공식 피드 행사) */
+export function officialSite(e) {
+  const m = e && e.content ? String(e.content).match(/🔗 공식 웹사이트: (https?:\/\/\S+)/) : null
+  return m ? m[1] : ''
+}

@@ -343,19 +343,47 @@ class EventImporter
         if ($text === '') return '';
         $cached = Cache::get('tm_ko_' . md5($text));
         if (is_string($cached) && $cached !== '') return $cached;
+        // 1) Google 무료 번역 — 요청이 몰리면 429 로 막히므로 천천히 두 번까지 다시 시도
+        for ($try = 0; $try < 3; $try++) {
+            try {
+                $res = Http::timeout(15)->get('https://translate.googleapis.com/translate_a/single', [
+                    'client' => 'gtx', 'sl' => 'en', 'tl' => 'ko', 'dt' => 't', 'q' => $text,
+                ]);
+                $arr = $res->ok() ? $res->json() : null;
+                if (is_array($arr) && !empty($arr[0])) {
+                    $out = '';
+                    foreach ($arr[0] as $seg) { if (isset($seg[0])) $out .= $seg[0]; }
+                    $out = trim($out);
+                    if ($out !== '') { Cache::put('tm_ko_' . md5($text), $out, now()->addDays(60)); usleep(400000); return $out; }
+                }
+                if ($res->status() === 429 || $res->status() >= 500) sleep(2 * ($try + 1)); else break;
+            } catch (\Throwable $e) { sleep(1); }
+        }
+        // 2) 대체 번역(MyMemory 무료, 요청당 500자 제한) — Google 이 막혔을 때만
         try {
-            $res = Http::timeout(15)->get('https://translate.googleapis.com/translate_a/single', [
-                'client' => 'gtx', 'sl' => 'en', 'tl' => 'ko', 'dt' => 't', 'q' => $text,
-            ]);
-            $arr = $res->ok() ? $res->json() : null;
-            if (is_array($arr) && !empty($arr[0])) {
-                $out = '';
-                foreach ($arr[0] as $seg) { if (isset($seg[0])) $out .= $seg[0]; }
-                $out = trim($out);
-                if ($out !== '') { Cache::put('tm_ko_' . md5($text), $out, now()->addDays(60)); usleep(150000); return $out; }
+            $res = Http::timeout(15)->get('https://api.mymemory.translated.net/get', ['q' => mb_substr($text, 0, 480), 'langpair' => 'en|ko']);
+            $t = $res->ok() ? (string) ($res->json()['responseData']['translatedText'] ?? '') : '';
+            if ($t !== '' && stripos($t, 'MYMEMORY WARNING') === false && preg_match('/[가-힣]/u', $t)) {
+                Cache::put('tm_ko_' . md5($text), $t, now()->addDays(60));
+                usleep(400000);
+                return $t;
             }
         } catch (\Throwable $e) {}
         return $text;
+    }
+
+    /** 긴 글을 문장 단위로 나눠(한 번에 450자 이내) 번역해 이어 붙인다. 못 번역한 조각은 원문 그대로 */
+    public static function translateLong(string $text, int $maxChars = 1800): string
+    {
+        $text = trim(mb_substr(preg_replace('/[ \t]+/', ' ', $text), 0, $maxChars));
+        if ($text === '') return '';
+        $chunks = []; $cur = '';
+        foreach (preg_split('/(?<=[.!?])\s+/u', $text) as $sentence) {
+            if ($cur !== '' && mb_strlen($cur) + mb_strlen($sentence) + 1 > 450) { $chunks[] = $cur; $cur = ''; }
+            $cur = ltrim($cur . ' ' . $sentence);
+        }
+        if ($cur !== '') $chunks[] = $cur;
+        return implode(' ', array_map(fn ($c) => self::translate($c), $chunks));
     }
 
     /** @return bool 새로 만들었으면 true, 갱신이면 false */

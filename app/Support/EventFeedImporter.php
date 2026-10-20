@@ -386,7 +386,8 @@ class EventFeedImporter
             if (is_array($img)) $img = $img['url'] ?? null;
             $off = $e['offers'] ?? [];
             if (is_array($off) && array_is_list($off)) $off = $off[0] ?? [];
-            $out[] = self::item([
+            $det = self::pageDetails($html, $pageUrl);   // 시간·요금·전화·공식 웹사이트·전체 소개문(페이지 본문)
+            $out[] = self::item($det + [
                 'title' => $e['name'], 'start' => self::s($e['startDate'] ?? null) ?: null, 'end' => self::s($e['endDate'] ?? null) ?: null, 'tz' => self::STATE_TZ[$src->state] ?? 'America/New_York',
                 'venue' => self::s($loc['name'] ?? null) ?: null, 'address' => self::s($addr['streetAddress'] ?? null) ?: null, 'city' => self::s($addr['addressLocality'] ?? null) ?: null,
                 'state' => self::s($addr['addressRegion'] ?? null) ?: null, 'zip' => self::s($addr['postalCode'] ?? null) ?: null,
@@ -423,11 +424,53 @@ class EventFeedImporter
         $desc = preg_match('#itemprop=["\']description["\'][^>]*>(.*?)</span>#is', $html, $m) ? $m[1] : '';
         $img = preg_match('#<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)#i', $html, $m) ? $m[1] : null;
         if ($name === '' || !$start) return [];
-        return [self::item([
+        return [self::item(self::pageDetails($html, $pageUrl) + [
             'title' => $name, 'start' => $start, 'end' => $end, 'tz' => self::STATE_TZ[$src->state] ?? 'America/New_York',
             'venue' => null, 'address' => null, 'city' => $src->city, 'state' => $src->state, 'image' => $img ? self::absUrl($img, $pageUrl) : null,
             'url' => $pageUrl, 'desc' => $desc, 'cats' => '',
         ], $src)];
+    }
+
+    private static function htmlToText(string $html): string
+    {
+        $h = (string) preg_replace('#<(script|style|noscript|svg)[^>]*>.*?</\1>#is', ' ', $html);
+        $h = (string) preg_replace('#<(br|/p|/div|/li|/h[1-6]|/tr|/section|/header|/footer|/nav|/ul|/option)[^>]*>#i', "\n", $h);
+        $t = str_replace("\xC2\xA0", ' ', html_entity_decode(strip_tags($h), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        $lines = array_map(fn ($l) => trim((string) preg_replace('/[ \t]+/u', ' ', $l)), preg_split('/\r?\n/', $t));
+        return implode("\n", array_values(array_filter($lines, fn ($l) => $l !== '')));
+    }
+
+    /**
+     * 행사 페이지 본문에서 JSON-LD 에 없는 상세를 읽는다: 시간(From/Hours), 요금(Admission/Cost), 전화, 공식 웹사이트 링크, 전체 소개문(Overview).
+     * 사이트마다 다르지만 관광청 사이트(Simpleview 등)는 이런 표기가 거의 같다. 못 찾으면 빈 값.
+     */
+    private static function pageDetails(string $html, string $pageUrl): array
+    {
+        $d = ['hours' => null, 'admission' => null, 'phone' => null, 'website' => null, 'overview' => null];
+        $text = self::htmlToText($html);
+        if (preg_match('/^(?:From|Hours?|Times?|When|Event Hours):\s*(.{4,140})$/im', $text, $m)) $d['hours'] = trim($m[1]);
+        if (preg_match('/^(?:Admission|Cost|Price|Prices|Ticket Price|Tickets|Fees?):\s*(.{1,120})$/im', $text, $m)) $d['admission'] = trim($m[1]);
+        if (preg_match('/^Phone:\s*([\d\-\(\)\+\.\s]{7,22})/im', $text, $m)) $d['phone'] = trim($m[1]);
+        if (preg_match_all('#<a[^>]+href=["\']([^"\']+)["\'][^>]*>(.*?)</a>#is', $html, $am, PREG_SET_ORDER)) {
+            foreach ($am as $a) {
+                $label = trim((string) preg_replace('/\s+/', ' ', strip_tags($a[2])));
+                $u = html_entity_decode($a[1]);
+                if (preg_match('/^(go to website|visit website|official website|event website|website|visit site)$/i', $label) && preg_match('#^https?://#i', $u)
+                    && parse_url($u, PHP_URL_HOST) !== parse_url($pageUrl, PHP_URL_HOST)) { $d['website'] = $u; break; }
+            }
+        }
+        // "Overview" 제목이 탭과 본문에 두 번 나오는 사이트가 있어, 뒤따르는 글이 가장 긴 쪽을 소개문으로 쓴다
+        if (preg_match_all('/^Overview\s*$/im', $text, $mm, PREG_OFFSET_CAPTURE)) {
+            $best = '';
+            foreach ($mm[0] as [$tok, $off]) {
+                $rest = substr($text, $off + strlen($tok));
+                $cut = preg_split('/^(?:Map|Share|Related|You May Also Like|Nearby|Directions|Back to|Sign up|Newsletter|Reviews)\b.*$/im', $rest, 2);
+                $cand = trim((string) ($cut[0] ?? ''));
+                if (mb_strlen($cand) > mb_strlen($best)) $best = $cand;
+            }
+            if ($best !== '') $d['overview'] = trim((string) preg_replace('/\s*\n\s*/', ' ', mb_substr($best, 0, 3000)));
+        }
+        return $d;
     }
 
     private static function absUrl(string $u, string $base): string
@@ -462,11 +505,15 @@ class EventFeedImporter
         try {
             if (!$start && !empty($a['start'])) {
                 $s = trim((string) $a['start']);
+                // "2026-11-06T00:00:00Z" 처럼 자정 UTC 로 적힌 값은 시간이 아니라 날짜만 알려 주는 표기라서 그 날짜로 본다
+                if (preg_match('/^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.0+)?(?:Z|[+-]00:?00)?$/', $s, $dm)) $s = $dm[1];
                 if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $s)) { $allday = true; $s .= ' 12:00:00'; }
                 $start = Carbon::parse($s, $tz)->utc();
             }
             if (!$end && !empty($a['end'])) {
                 $e = trim((string) $a['end']);
+                if (preg_match('/^(\d{4}-\d{2}-\d{2})T23:59:59(?:\.\d+)?(?:Z|[+-]00:?00)?$/', $e, $dm)) $e = $dm[1];
+                if (preg_match('/^(\d{4}-\d{2}-\d{2})T00:00:00(?:\.0+)?(?:Z|[+-]00:?00)?$/', $e, $dm)) $e = $dm[1];
                 if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $e)) $e .= ' 12:00:00';
                 $end = Carbon::parse($e, $tz)->utc();
             }
@@ -476,6 +523,11 @@ class EventFeedImporter
         if (isset($a['price']) && $a['price'] !== '' && $a['price'] !== null) {
             if (is_numeric($a['price'])) $price = (float) $a['price'];
             elseif (preg_match('/\$\s*([\d,]+(?:\.\d+)?)/', (string) $a['price'], $pm)) $price = (float) str_replace(',', '', $pm[1]);
+        }
+        $admission = !empty($a['admission']) ? self::text($a['admission'], 140) : null;
+        if ($price === null && $admission) {
+            if (preg_match('/\b(free|no charge|no cost|complimentary)\b/i', $admission)) $price = 0.0;
+            elseif (preg_match('/\$\s*([\d,]+(?:\.\d+)?)/', $admission, $pm2)) $price = (float) str_replace(',', '', $pm2[1]);
         }
         $url = $a['url'] ?? null;
         if (!$url) return null;
@@ -488,7 +540,16 @@ class EventFeedImporter
             'zip' => !empty($a['zip']) ? mb_substr((string) $a['zip'], 0, 10) : null,
             'lat' => isset($a['lat']) && is_numeric($a['lat']) ? (float) $a['lat'] : null, 'lng' => isset($a['lng']) && is_numeric($a['lng']) ? (float) $a['lng'] : null,
             'image' => !empty($a['image']) && preg_match('#^https?://#i', (string) $a['image']) ? mb_substr(str_replace('http://', 'https://', $a['image']), 0, 250) : null,
-            'url' => mb_substr($url, 0, 250), 'desc' => self::text($a['desc'] ?? '', 900), 'price' => $price,
+            'url' => mb_substr($url, 0, 250),
+            'desc' => (function () use ($a) {
+                $d = self::text($a['desc'] ?? '', 2500);
+                $o = self::text($a['overview'] ?? '', 2500);
+                return mb_strlen($o) > mb_strlen($d) ? $o : $d;   // 페이지 본문 소개문이 더 길면 그것을 사용
+            })(),
+            'price' => $price, 'admission' => $admission,
+            'hours' => !empty($a['hours']) ? self::text($a['hours'], 160) : null,
+            'phone' => !empty($a['phone']) ? mb_substr(trim((string) $a['phone']), 0, 30) : null,
+            'website' => !empty($a['website']) && preg_match('#^https?://#i', (string) $a['website']) ? mb_substr((string) $a['website'], 0, 250) : null,
             'cats' => self::text($a['cats'] ?? '', 200),
         ];
     }
@@ -631,10 +692,21 @@ class EventFeedImporter
         $lines = [];
         if ($titleKo !== '' && mb_strtolower($titleKo) !== mb_strtolower($c['title'])) $lines[] = "📝 한글 제목: {$titleKo}";
         $lines[] = "📅 일정: {$when}" . ($c['allday'] ? '' : ' (현지 시간)');
+        if (!empty($c['hours'])) $lines[] = '🕒 시간: ' . EventImporter::translate($c['hours']);
         if ($where) $lines[] = "📍 장소: {$where}";
-        $lines[] = '🎫 요금: ' . ($c['price'] === null ? '원본 페이지에서 확인하세요' : ($c['price'] == 0 ? '무료' : '$' . rtrim(rtrim(number_format($c['price'], 2), '0'), '.') . ' ~'));
+        if ($c['price'] !== null) {
+            $priceText = $c['price'] == 0 ? '무료' : '$' . rtrim(rtrim(number_format($c['price'], 2), '0'), '.') . ' ~';
+            if (!empty($c['admission']) && $c['price'] != 0) $priceText .= ' (' . EventImporter::translate($c['admission']) . ')';
+        } elseif (!empty($c['admission'])) {
+            $priceText = EventImporter::translate($c['admission']);
+        } else {
+            $priceText = '원본 페이지에서 확인하세요';
+        }
+        $lines[] = "🎫 요금: {$priceText}";
+        if (!empty($c['phone'])) $lines[] = "📞 문의: {$c['phone']}";
+        if (!empty($c['website'])) $lines[] = "🔗 공식 웹사이트: {$c['website']}";
         $body = implode("\n", $lines);
-        if ($c['desc'] !== '') $body .= "\n\n■ 소개\n" . EventImporter::translate(mb_substr($c['desc'], 0, 600));
+        if ($c['desc'] !== '') $body .= "\n\n■ 소개\n" . EventImporter::translateLong($c['desc'], 1800);
         $body .= "\n\n※ 출처: {$c['src']->name} · 일정과 요금은 바뀔 수 있어요. 자세한 내용은 아래 '원본 행사 보기'에서 확인하세요.";
 
         return [

@@ -171,6 +171,11 @@
             class="btn-primary block w-full py-2.5 text-sm text-center">{{ activeItem.source === 'feed' ? '🔗 원본 행사 보기 (새 탭)' : '🎟️ 티켓·상세 보기 (새 탭)' }}</a>
           <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: {{ activeItem.source === 'feed' ? (activeItem.organizer || '공식 사이트') : 'Ticketmaster' }} · 일정·요금은 바뀔 수 있어요</p>
         </div>
+        <!-- 지도·공식 웹사이트 바로가기 -->
+        <div v-if="mapUrl(activeItem) || officialSite(activeItem)" class="px-5 py-3 border-b border-gray-50 flex flex-wrap gap-2">
+          <a v-if="mapUrl(activeItem)" :href="mapUrl(activeItem)" target="_blank" rel="noopener noreferrer" @click.prevent="openExternal(mapUrl(activeItem))" class="btn-secondary !px-4 !py-2 text-sm">📍 지도에서 보기</a>
+          <a v-if="officialSite(activeItem)" :href="officialSite(activeItem)" target="_blank" rel="noopener noreferrer nofollow" @click.prevent="openExternal(officialSite(activeItem))" class="btn-secondary !px-4 !py-2 text-sm">🌐 공식 웹사이트</a>
+        </div>
         <!-- 참여 버튼 (공식 이벤트) -->
         <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
           <button @click="$router.push(activeItem.event_url)"
@@ -251,7 +256,7 @@
               <div class="text-xs text-ink-faint"><template v-if="!activeCat">{{ catName(item.category) }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
             </div>
             <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">🎁 경품추첨</div>
-            <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+            <div v-else-if="Number(item.price) > 0" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
             <div v-else-if="item.source === 'ticketmaster' || item.source === 'feed'" class="text-ink-faint text-[11px] font-semibold">{{ item.source === 'feed' ? '🔗 공식' : '🎟️ 티켓' }}</div>
             <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
           </div>
@@ -309,7 +314,7 @@
           class="w-24 h-16 sm:w-32 sm:h-20 object-cover rounded-lg bg-gray-100 flex-shrink-0 self-start" @error="e => e.target.style.display = 'none'" />
         <div class="flex-shrink-0 text-right self-start">
           <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">경품추첨</div>
-          <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
+          <div v-else-if="Number(item.price) > 0" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
           <div v-else-if="item.source === 'ticketmaster' || item.source === 'feed'" class="text-ink-faint text-[11px] font-semibold">{{ item.source === 'feed' ? '🔗 공식' : '🎟️ 티켓' }}</div>
           <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
         </div>
@@ -343,7 +348,7 @@ import GroupTitle from '../../components/GroupTitle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
 import EventCategoryGuide from '../../components/events/EventCategoryGuide.vue'
-import { catName, evWhen, openExternal } from '../../utils/eventCategory'
+import { catName, evWhen, openExternal, mapUrl, officialSite } from '../../utils/eventCategory'
 const { showConfirm } = useModal()
 const recentDraws = ref([])
 let recentDrawsLoaded = false
