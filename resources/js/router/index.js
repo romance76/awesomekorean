@@ -219,6 +219,7 @@ const routes = [
       { path: 'sweepstakes', component: p('admin/AdminSweepstakes') },
       { path: 'sweepstakes-rules', component: p('admin/AdminSweepstakesRules') },
       { path: 'event-import', component: p('admin/AdminEventImport') },
+      { path: 'event-feeds', component: p('admin/AdminEventFeeds') },
       { path: 'system', component: p('admin/System') },
     ]
   },

@@ -337,7 +337,7 @@ class EventImporter
     }
 
     /** 영어 → 한국어 자동 번역(무료 Google 엔드포인트, 같은 문장은 60일 캐시). 실패하면 원문 그대로 */
-    private static function translate(string $text): string
+    public static function translate(string $text): string
     {
         $text = trim(mb_substr(preg_replace('/\s+/', ' ', $text), 0, 1200));
         if ($text === '') return '';

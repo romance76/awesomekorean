@@ -171,7 +171,7 @@ async function load() {
 async function loadEvents(page = 1) {
   evLoading.value = true
   try {
-    const params = { page, per_page: 30 }
+    const params = { page, per_page: 30, source: 'ticketmaster' }
     for (const k of ['state', 'category', 'is_active', 'q']) if (f.value[k] !== '') params[k] = f.value[k]
     const { data } = await axios.get('/api/admin/event-import/events', { params })
     events.value = data.data.data || []

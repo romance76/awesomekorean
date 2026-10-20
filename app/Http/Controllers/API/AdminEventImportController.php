@@ -103,25 +103,27 @@ class AdminEventImportController extends Controller
     /** 가져온 행사 목록 (숨긴 것 포함) */
     public function events(Request $request)
     {
-        $q = Event::where('source', EventImporter::SOURCE)
+        // 가져온 행사 목록: Ticketmaster(ticketmaster) + 공식 피드(feed). source 로 한쪽만 볼 수도 있음
+        $sources = in_array($request->source, [EventImporter::SOURCE, 'feed'], true) ? [$request->source] : [EventImporter::SOURCE, 'feed'];
+        $q = Event::whereIn('source', $sources)
             ->when($request->state, fn ($q, $v) => $q->where('state', strtoupper($v)))
             ->when($request->category, fn ($q, $v) => $q->where('category', $v))
             ->when($request->has('is_active') && $request->is_active !== '', fn ($q) => $q->where('is_active', $request->boolean('is_active')))
             ->when($request->q, fn ($q, $v) => $q->where(fn ($q2) => $q2->where('title', 'like', "%{$v}%")->orWhere('venue', 'like', "%{$v}%")->orWhere('city', 'like', "%{$v}%")))
             ->orderBy('start_date');
-        return response()->json(['success' => true, 'data' => $q->select('id', 'title', 'category', 'venue', 'city', 'state', 'start_date', 'is_active', 'url', 'image_url')->paginate(min(100, (int) ($request->per_page ?: 30)))]);
+        return response()->json(['success' => true, 'data' => $q->select('id', 'title', 'category', 'venue', 'city', 'state', 'start_date', 'is_active', 'url', 'image_url', 'source', 'organizer')->paginate(min(100, (int) ($request->per_page ?: 30)))]);
     }
 
     public function toggleEvent(int $id)
     {
-        $ev = Event::where('source', EventImporter::SOURCE)->findOrFail($id);
+        $ev = Event::whereIn('source', [EventImporter::SOURCE, 'feed'])->findOrFail($id);
         $ev->update(['is_active' => !$ev->is_active]);
         return response()->json(['success' => true, 'is_active' => $ev->is_active]);
     }
 
     public function destroyEvent(int $id)
     {
-        Event::where('source', EventImporter::SOURCE)->findOrFail($id)->delete();
+        Event::whereIn('source', [EventImporter::SOURCE, 'feed'])->findOrFail($id)->delete();
         return response()->json(['success' => true]);
     }
 }

@@ -21,11 +21,12 @@ export function catName(code) {
   return NAMES[code] || code
 }
 
-/** 행사 일정: "10월 25일(토) 오후 7:00" */
-export function evWhen(dt) {
+/** 행사 일정: "10월 25일(토) 오후 7:00" (withTime=false 면 날짜만) */
+export function evWhen(dt, withTime = true) {
   if (!dt) return ''
   const d = new Date(dt)
   const date = d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
+  if (!withTime) return date   // 공식 피드 행사는 날짜만(시간은 본문에 현지 시간으로 안내)
   const time = d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })
   return `${date} ${time}`
 }

@@ -139,7 +139,7 @@
           <div class="flex items-center gap-1.5 flex-wrap mb-2">
             <span v-if="activeItem.category" class="badge-primary">{{ catName(activeItem.category) }}</span>
             <span v-if="activeItem.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700">🎁 경품 추첨</span>
-            <span v-else-if="activeItem.source === 'ticketmaster' && !activeItem.price" class="badge bg-gray-100 text-ink-light">티켓 가격은 원본에서 확인</span>
+            <span v-else-if="(activeItem.source === 'ticketmaster' || activeItem.source === 'feed') && !activeItem.price" class="badge bg-gray-100 text-ink-light">{{ activeItem.source === 'feed' ? '요금은 원본에서 확인' : '티켓 가격은 원본에서 확인' }}</span>
             <span v-else-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
             <span v-else class="badge-blue">${{ activeItem.price }}</span>
             <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">{{ eventStatusLabel(activeItem) }}</span>
@@ -166,10 +166,10 @@
         <SweepstakesPanel v-if="activeItem.event_type === 'sweepstakes' && activeItem.sweepstakes" :event="activeItem" :recent-draws="recentDraws" @updated="d => activeItem = d" />
 
         <!-- 외부에서 가져온 행사(Ticketmaster): 원본 페이지로 연결 + 출처 표시 -->
-        <div v-if="activeItem.source === 'ticketmaster' && activeItem.url" class="px-5 py-3 border-b border-gray-50">
+        <div v-if="(activeItem.source === 'ticketmaster' || activeItem.source === 'feed') && activeItem.url" class="px-5 py-3 border-b border-gray-50">
           <a :href="activeItem.url" target="_blank" rel="noopener noreferrer nofollow" @click.prevent="openExternal(activeItem.url)"
-            class="btn-primary block w-full py-2.5 text-sm text-center">🎟️ 티켓·상세 보기 (새 탭)</a>
-          <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: Ticketmaster · 일정·가격은 바뀔 수 있어요</p>
+            class="btn-primary block w-full py-2.5 text-sm text-center">{{ activeItem.source === 'feed' ? '🔗 원본 행사 보기 (새 탭)' : '🎟️ 티켓·상세 보기 (새 탭)' }}</a>
+          <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: {{ activeItem.source === 'feed' ? (activeItem.organizer || '공식 사이트') : 'Ticketmaster' }} · 일정·요금은 바뀔 수 있어요</p>
         </div>
         <!-- 참여 버튼 (공식 이벤트) -->
         <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
@@ -252,7 +252,7 @@
             </div>
             <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">🎁 경품추첨</div>
             <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
-            <div v-else-if="item.source === 'ticketmaster'" class="text-ink-faint text-[11px] font-semibold">🎟️ 티켓</div>
+            <div v-else-if="item.source === 'ticketmaster' || item.source === 'feed'" class="text-ink-faint text-[11px] font-semibold">{{ item.source === 'feed' ? '🔗 공식' : '🎟️ 티켓' }}</div>
             <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
           </div>
         </div>
@@ -296,7 +296,7 @@
               <UserName v-if="item.user?.name" :userId="item.user?.id" :name="item.user?.name" className="text-xs font-medium text-ink" />
               <span v-else>{{ item.organizer || item.company || '어썸코리안' }}</span>
             </span>
-            <span v-if="item.start_date" class="font-semibold text-ink-light">{{ evWhen(item.start_date) }}</span>
+            <span v-if="item.start_date" class="font-semibold text-ink-light">{{ evWhen(item.start_date, item.source !== 'feed') }}</span>
             <span v-else-if="item.created_at">{{ fmtDate(item.created_at) }}</span>
             <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="13" />{{ item.city }}<template v-if="item.state">, {{ item.state }}</template></span>
             <span v-if="item.distance !== undefined && item.distance !== null" class="text-amber-600 font-semibold">{{ Number(item.distance).toFixed(1) }}mi</span>
@@ -310,7 +310,7 @@
         <div class="flex-shrink-0 text-right self-start">
           <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">경품추첨</div>
           <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
-          <div v-else-if="item.source === 'ticketmaster'" class="text-ink-faint text-[11px] font-semibold">🎟️ 티켓</div>
+          <div v-else-if="item.source === 'ticketmaster' || item.source === 'feed'" class="text-ink-faint text-[11px] font-semibold">{{ item.source === 'feed' ? '🔗 공식' : '🎟️ 티켓' }}</div>
           <div v-else class="text-emerald-600 text-xs font-bold">무료</div>
         </div>
       </div>

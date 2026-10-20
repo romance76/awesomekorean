@@ -123,9 +123,9 @@
           <div class="px-4 lg:px-6 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ event.content || event.description }}</div>
 
           <!-- 외부에서 가져온 행사(Ticketmaster): 원본 페이지로 연결 + 출처 표시 -->
-          <div v-if="event.source === 'ticketmaster' && event.url" class="px-4 lg:px-5 py-3 border-t border-gray-50">
-            <a :href="event.url" target="_blank" rel="noopener noreferrer nofollow" @click.prevent="openExternal(event.url)" class="btn-primary block w-full py-3 text-sm text-center">🎟️ 티켓·상세 보기 (새 탭)</a>
-            <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: Ticketmaster · 일정·가격은 바뀔 수 있어요</p>
+          <div v-if="(event.source === 'ticketmaster' || event.source === 'feed') && event.url" class="px-4 lg:px-5 py-3 border-t border-gray-50">
+            <a :href="event.url" target="_blank" rel="noopener noreferrer nofollow" @click.prevent="openExternal(event.url)" class="btn-primary block w-full py-3 text-sm text-center">{{ event.source === 'feed' ? '🔗 원본 행사 보기 (새 탭)' : '🎟️ 티켓·상세 보기 (새 탭)' }}</a>
+            <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: {{ event.source === 'feed' ? (event.organizer || '공식 사이트') : 'Ticketmaster' }} · 일정·요금은 바뀔 수 있어요</p>
           </div>
           <!-- 공식 이벤트 참여하기 버튼 -->
           <div v-if="event.event_url || event.event_type === 'awesomekorean'" class="px-4 lg:px-5 py-3 border-t border-gray-50">
