@@ -601,7 +601,7 @@ class EventFeedImporter
                     $r = Http::withHeaders(['User-Agent' => self::UA])->timeout(15)->get('https://nominatim.openstreetmap.org/search', ['q' => $q, 'format' => 'json', 'limit' => 1, 'countrycodes' => 'us']);
                     $j = $r->ok() ? $r->json() : null;
                     if (is_array($j) && !empty($j[0]['lat']) && !empty($j[0]['lon'])) $hit = [(float) $j[0]['lat'], (float) $j[0]['lon']];
-                } catch (Throwable $e) {}
+                } catch (\Throwable $e) {}
                 Cache::put($key, $hit, now()->addDays(90));
                 sleep(1);   // Nominatim 이용 규칙: 초당 1건 이하
             }
