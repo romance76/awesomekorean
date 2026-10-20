@@ -31,6 +31,17 @@
       </div>
     </div>
 
+    <!-- 번역 -->
+    <div class="card p-4 lg:p-5 space-y-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="font-bold text-ink">한글 번역</div>
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full" :class="info.translator?.official_key ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'">{{ info.translator?.engine }}</span>
+      </div>
+      <p class="text-xs text-ink-muted leading-relaxed">행사 소개문을 한글로 옮겨요. 무료 비공식 번역은 요청이 몰리면 막혀서 영어로 남기 때문에, <b>Google Cloud Translation API</b>를 켜 두는 것을 권해요(월 50만 자 무료). 관리자 › API 키에 <code>google_translate</code> 로 키를 등록하거나, 이미 있는 Google Places 키의 프로젝트에서 "Cloud Translation API"를 사용 설정하면 돼요.</p>
+      <p v-if="info.translator?.last_error" class="text-[11px] text-red-500 break-words">마지막 오류: {{ info.translator.last_error }}</p>
+      <button @click="testTranslate" :disabled="busy" class="btn-secondary !px-4 !py-1.5 text-sm">번역 시험</button>
+    </div>
+
     <!-- 출처 -->
     <div class="card p-4 lg:p-5 space-y-3">
       <div class="flex items-center gap-2 flex-wrap">
@@ -163,6 +174,15 @@ const saveLimits = () => act(async () => {
   const { data } = await axios.put('/api/admin/event-feeds/limits', limits.value)
   limits.value = { ...data.limits }
   say(data.message)
+})
+const testTranslate = () => act(async () => {
+  try {
+    const { data } = await axios.post('/api/admin/event-feeds/translate-test')
+    say(data.message, data.success)
+  } catch (e) {
+    say(e.response?.data?.message || '번역 시험에 실패했어요', false)
+  }
+  await load()
 })
 const toggleSource = (s) => act(async () => {
   const { data } = await axios.post(`/api/admin/event-feeds/sources/${s.key}/toggle`)

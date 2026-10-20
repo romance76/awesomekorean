@@ -336,39 +336,88 @@ class EventImporter
         return array_key_exists($k, self::GENRE_KO) ? self::GENRE_KO[$k] : $name;
     }
 
-    /** 영어 → 한국어 자동 번역(무료 Google 엔드포인트, 같은 문장은 60일 캐시). 실패하면 원문 그대로 */
+    /** 번역에 쓰는 정식 Google Cloud Translation API 키: 전용 키(google_translate)가 있으면 그것, 없으면 같은 구글 프로젝트의 Places 키 */
+    private static function translateKey(): ?string
+    {
+        try {
+            return \App\Models\ApiKey::keyFor('google_translate') ?: \App\Models\ApiKey::keyFor('google_places') ?: null;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private static bool $officialDown = false;     // 이번 실행에서 정식 API 가 실패했으면 더 시도하지 않는다(시간 낭비 방지)
+    private static bool $unofficialDown = false;   // 무료 비공식 번역이 막혔으면 이번 실행에서는 더 시도하지 않는다
+
+    /** 정식 API 로 번역. 실패 이유는 translate_last_error 에 남겨 관리자 화면에서 볼 수 있게 한다 */
+    private static function translateOfficial(string $text): ?string
+    {
+        $key = self::translateKey();
+        if (!$key || self::$officialDown) return null;
+        try {
+            $res = Http::asForm()->timeout(30)->post('https://translation.googleapis.com/language/translate/v2', [
+                'q' => $text, 'source' => 'en', 'target' => 'ko', 'format' => 'text', 'key' => $key,
+            ]);
+            $t = $res->ok() ? trim((string) ($res->json()['data']['translations'][0]['translatedText'] ?? '')) : '';
+            if ($t !== '') { Cache::forget('translate_last_error'); return $t; }
+            $msg = (string) ($res->json()['error']['message'] ?? ('HTTP ' . $res->status()));
+            Cache::put('translate_last_error', mb_substr($msg, 0, 300), now()->addDays(2));
+            self::$officialDown = true;
+        } catch (\Throwable $e) {
+            Cache::put('translate_last_error', mb_substr($e->getMessage(), 0, 300), now()->addDays(2));
+            self::$officialDown = true;
+        }
+        return null;
+    }
+
+    /** 번역 상태(관리자 화면용): 어떤 방식을 쓰는지, 마지막 오류 */
+    public static function translatorStatus(): array
+    {
+        return [
+            'engine' => self::translateKey() ? 'Google Cloud Translation API(정식)' : '무료 비공식 번역(자주 막혀요)',
+            'official_key' => (bool) self::translateKey(),
+            'last_error' => Cache::get('translate_last_error'),
+        ];
+    }
+
+    /** 관리자 "번역 시험": 짧은 문장을 번역해 보고 결과·오류를 돌려준다 */
+    public static function translateTest(): array
+    {
+        $key = self::translateKey();
+        if (!$key) return ['ok' => false, 'error' => '번역용 Google API 키가 없어요. 관리자 › API 키에 google_translate 를 등록하세요.'];
+        self::$officialDown = false;
+        $out = self::translateOfficial('The city invites you to celebrate arts and culture at the park.');
+        return $out ? ['ok' => true, 'text' => $out] : ['ok' => false, 'error' => (string) Cache::get('translate_last_error', '알 수 없는 오류')];
+    }
+
+    /** 영어 → 한국어 자동 번역(같은 문장은 60일 캐시). 정식 API 우선, 실패하면 무료 방식, 그래도 안 되면 원문 그대로 */
     public static function translate(string $text): string
     {
-        // 줄바꿈(문단)은 남긴 채 번역한다. 한 번에 최대 1800자 — 요청 횟수를 줄여야 무료 번역이 막히지 않는다
+        // 줄바꿈(문단)은 남긴 채 번역한다. 한 번에 최대 1800자
         $text = trim(mb_substr((string) preg_replace('/[ \t]+/', ' ', str_replace("\r", '', $text)), 0, 1800));
         if ($text === '') return '';
         $ckey = 'tm_ko2_' . md5($text);
         $cached = Cache::get($ckey);
         if (is_string($cached) && $cached !== '') return $cached;
-        // 1) Google 무료 번역(POST) — 요청이 몰리면 429 로 막히므로 천천히 다시 시도
-        for ($try = 0; $try < 3; $try++) {
+
+        // 1) 정식 Google Cloud Translation API
+        $official = self::translateOfficial($text);
+        if ($official !== null && $official !== '') { Cache::put($ckey, $official, now()->addDays(60)); return $official; }
+
+        // 2) 무료 비공식 방식 — 한 번이라도 막히면 이번 실행에서는 포기(시간만 늘어나므로)
+        if (!self::$unofficialDown) {
             try {
-                $res = Http::asForm()->timeout(25)->post('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t', ['q' => $text]);
+                $res = Http::timeout(15)->get('https://translate.googleapis.com/translate_a/single', ['client' => 'gtx', 'sl' => 'en', 'tl' => 'ko', 'dt' => 't', 'q' => $text]);
                 $arr = $res->ok() ? $res->json() : null;
                 if (is_array($arr) && !empty($arr[0])) {
                     $out = '';
                     foreach ($arr[0] as $seg) { if (isset($seg[0])) $out .= $seg[0]; }
                     $out = trim($out);
-                    if ($out !== '') { Cache::put($ckey, $out, now()->addDays(60)); usleep(1200000); return $out; }
+                    if ($out !== '') { Cache::put($ckey, $out, now()->addDays(60)); usleep(800000); return $out; }
                 }
-                if ($res->status() === 429 || $res->status() >= 500) sleep(3 * ($try + 1)); else break;
-            } catch (\Throwable $e) { sleep(2); }
+                self::$unofficialDown = true;
+            } catch (\Throwable $e) { self::$unofficialDown = true; }
         }
-        // 2) 대체 번역(MyMemory 무료, 요청당 500자 제한) — Google 이 막혔을 때만
-        try {
-            $res = Http::timeout(15)->get('https://api.mymemory.translated.net/get', ['q' => mb_substr($text, 0, 480), 'langpair' => 'en|ko']);
-            $t = $res->ok() ? (string) ($res->json()['responseData']['translatedText'] ?? '') : '';
-            if ($t !== '' && stripos($t, 'MYMEMORY WARNING') === false && preg_match('/[가-힣]/u', $t)) {
-                Cache::put($ckey, $t, now()->addDays(60));
-                usleep(400000);
-                return $t;
-            }
-        } catch (\Throwable $e) {}
         return $text;
     }
 

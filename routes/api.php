@@ -1075,6 +1075,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
 
     // 공식 지역 행사 피드(관광청·시청·카운티) — 출처 켜기/끄기, 주·카운티·도시 몫, 지금 한 번 실행(평소엔 매주 일요일 자동)
     Route::get('/event-feeds', [\App\Http\Controllers\API\AdminEventFeedController::class, 'index']);
+    Route::post('/event-feeds/translate-test', [\App\Http\Controllers\API\AdminEventFeedController::class, 'translateTest'])->middleware('throttle:20,1');
     Route::put('/event-feeds/limits', [\App\Http\Controllers\API\AdminEventFeedController::class, 'saveLimits']);
     Route::post('/event-feeds/sources/{key}/toggle', [\App\Http\Controllers\API\AdminEventFeedController::class, 'toggleSource'])->where('key', '[a-z0-9_]+');
     Route::post('/event-feeds/run', [\App\Http\Controllers\API\AdminEventFeedController::class, 'run'])->middleware('throttle:6,1');

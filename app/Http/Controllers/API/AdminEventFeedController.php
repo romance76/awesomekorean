@@ -30,11 +30,19 @@ class AdminEventFeedController extends Controller
         return response()->json(['success' => true, 'data' => [
             'sources' => $sources,
             'limits' => EventFeedImporter::limits(),
+            'translator' => \App\Support\EventImporter::translatorStatus(),
             'running' => (bool) Cache::get(self::RUNNING),
             'total' => (int) $byState->sum(),
             'by_state' => $byState,
             'last_run_at' => DB::table('event_feed_sources')->max('last_run_at'),
         ]])->header('Cache-Control', 'no-store');
+    }
+
+    /** 번역 시험: 정식 Google 번역 API 로 짧은 문장을 번역해 본다(키·API 사용 설정 확인용) */
+    public function translateTest()
+    {
+        $r = \App\Support\EventImporter::translateTest();
+        return response()->json(['success' => $r['ok'], 'message' => $r['ok'] ? ('번역 성공: ' . $r['text']) : ('번역 실패: ' . $r['error']), 'data' => $r]);
     }
 
     public function saveLimits(Request $request)

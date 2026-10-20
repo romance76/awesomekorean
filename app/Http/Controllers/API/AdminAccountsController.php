@@ -29,6 +29,7 @@ class AdminAccountsController extends Controller
         'amazon_client_secret' => ['아마존 로그인 (비밀값)', '아마존 로그인'],
         'youtube' => ['YouTube Data API', '음악·숏츠 자동 수집'],
         'google_places' => ['Google Places API', '업소록 자동 수집·장소 검색'],
+        'google_translate' => ['Google Cloud Translation API', '지역 행사 소개문 한글 번역(없으면 Places 키로 시도)'],
         'google_analytics' => ['구글 애널리틱스 (측정 ID)', '방문 분석 — 사이트 추적 코드'],
         'ga_property_id' => ['구글 애널리틱스 (속성 ID)', '관리자 방문 분석 화면의 데이터 조회'],
         'ga_service_account' => ['구글 애널리틱스 서비스 계정', '관리자 방문 분석 화면의 데이터 조회'],
