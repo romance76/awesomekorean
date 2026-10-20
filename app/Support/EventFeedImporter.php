@@ -585,8 +585,36 @@ class EventFeedImporter
         return 'festival';
     }
 
+    /** 좌표가 없는 행사는 장소·주소·도시 이름으로 위치를 찾는다(OpenStreetMap Nominatim, 결과는 90일 캐시) — 좌표가 있어야 "내 위치 반경" 목록에 나온다 */
+    private static function geocode(array $c): ?array
+    {
+        $tries = [];
+        if (!empty($c['venue']) && !empty($c['city'])) $tries[] = $c['venue'] . ', ' . $c['city'] . ', ' . $c['state'];
+        if (!empty($c['address']) && !empty($c['city'])) $tries[] = trim($c['address'] . ', ' . $c['city'] . ', ' . $c['state'] . ' ' . ($c['zip'] ?? ''));
+        if (!empty($c['city'])) $tries[] = $c['city'] . ', ' . $c['state'];
+        foreach ($tries as $q) {
+            $key = 'geo_' . md5(mb_strtolower($q));
+            $hit = Cache::get($key);
+            if ($hit === null) {
+                $hit = false;
+                try {
+                    $r = Http::withHeaders(['User-Agent' => self::UA])->timeout(15)->get('https://nominatim.openstreetmap.org/search', ['q' => $q, 'format' => 'json', 'limit' => 1, 'countrycodes' => 'us']);
+                    $j = $r->ok() ? $r->json() : null;
+                    if (is_array($j) && !empty($j[0]['lat']) && !empty($j[0]['lon'])) $hit = [(float) $j[0]['lat'], (float) $j[0]['lon']];
+                } catch (Throwable $e) {}
+                Cache::put($key, $hit, now()->addDays(90));
+                sleep(1);   // Nominatim 이용 규칙: 초당 1건 이하
+            }
+            if (is_array($hit)) return $hit;
+        }
+        return null;
+    }
+
     private static function buildRow(array $c): array
     {
+        if ($c['lat'] === null || $c['lng'] === null) {
+            if ($g = self::geocode($c)) { [$c['lat'], $c['lng']] = $g; }
+        }
         $local = $c['start']->copy()->setTimezone($c['tz']);
         $fmt = function (Carbon $d, bool $time) {
             $h = (int) $d->format('G');
