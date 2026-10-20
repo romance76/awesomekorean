@@ -53,3 +53,29 @@ zcat storage/app/backups/db_20261014_035000.sql.gz | mysql -u 사용자 -p aweso
 ## DB 사용자 권한 참고
 `mysqldump` 는 `SELECT`, `LOCK TABLES`(생략 가능), `SHOW VIEW`, `TRIGGER`, `EVENT` 권한이 있으면 전부 받습니다. 일부 권한이 없으면 루틴·이벤트·트리거를 뺀 최소 백업으로 자동 재시도하고, 그 사실을 로그에 남깁니다(표 데이터는 전부 들어갑니다).
 `.env` 값은 `php artisan config:cache` 를 쓰지 않는 현재 방식에서 바로 반영됩니다 (config:cache 를 쓰게 되면 `BACKUP_UPLOAD_CMD` 를 config 파일로 옮겨야 합니다).
+
+
+## 구글 드라이브로 서버 밖 백업 + "새 백업이 올라가면 이전 것은 지우기" (Kay 결정 2026-10-19)
+구글 드라이브(약 500GB 사용 가능)에 올리고, 새 백업이 올라간 뒤에는 그 전 백업을 지웁니다. DB 가 작아 용량은 문제없습니다.
+
+### 동작 (코드는 배포됨 — `app/Console/Commands/DbBackup.php`)
+1. 새 백업을 만들고 끝까지 만들어졌는지 확인(gzip 검사 + 덤프 끝 표시).
+2. `BACKUP_UPLOAD_CMD` 로 서버 밖에 올림. **실패하면 여기서 끝나고 이전 백업은 그대로 남음.**
+3. 올리기가 성공했을 때만, `BACKUP_PRUNE_AFTER_UPLOAD=true` 이면
+   - 서버 밖의 이전 백업을 `BACKUP_REMOTE_PRUNE_CMD` 로 지우고 (`{name}` = 방금 올린 파일 이름),
+   - 서버 안의 이전 백업도 지움(방금 만든 1개만 남김).
+- 켜지 않으면(기본) 예전처럼 7일 보관·최근 3개 유지입니다.
+- ⚠️ 이전 것을 지우므로 **항상 최신 백업 1개만** 남습니다. 오늘 백업이 깨진 줄 모르고 지나가면 되돌아갈 곳이 없으니, 확인 명령(`db:backup --verify`, 한 달에 한 번 `db:restore-check`)을 꼭 해 두세요. 불안하면 서버 밖 정리 명령의 `--min-age 12h` 를 `--min-age 60h` 로 바꾸면 2~3일치가 남습니다.
+
+### 설정 순서 (서버 접속이 필요한 부분은 서버 접속 권한이 있는 사람이 한 번만)
+1. **내 컴퓨터**에 rclone 설치(rclone.org/downloads) 후 터미널에서 `rclone authorize "drive"` 실행 → 브라우저가 열리면 백업용으로 쓸 구글 계정으로 로그인·허용 → 터미널에 나오는 `{"access_token":...}` 한 줄을 복사. (이 줄은 비밀번호와 같으니 채팅·메일에 붙이지 말 것)
+2. **서버**에 rclone 설치(`sudo apt install rclone` 또는 rclone.org 안내) 후 `rclone config`: `n`(새 저장소) → 이름 `gdrive` → 종류 `drive` → client id/secret 은 엔터 → **scope 는 `drive.file`**(rclone 이 만든 파일만 접근, 드라이브 전체는 못 봄) → "Use auto config?" 는 `n` → 1번의 한 줄 붙여넣기 → 나머지는 엔터.
+3. (권장) 개인정보가 들어 있으니 암호화: `rclone config` 에서 `n` → 이름 `gdrivecrypt` → 종류 `crypt` → 저장 위치 `gdrive:awesomekorean-backups` → 비밀번호 설정(**꼭 따로 적어 보관** — 잃으면 백업을 못 엽니다).
+4. 서버 `.env` 에 추가(암호화하지 않으면 `gdrivecrypt` 를 `gdrive` 로):
+```
+BACKUP_UPLOAD_CMD="rclone copy {file} gdrivecrypt:awesomekorean-backups/"
+BACKUP_PRUNE_AFTER_UPLOAD=true
+BACKUP_REMOTE_PRUNE_CMD="rclone lsf gdrivecrypt:awesomekorean-backups/ --include {name} | grep -q . && rclone delete gdrivecrypt:awesomekorean-backups/ --include 'db_*.sql.gz' --min-age 12h"
+```
+   서버 밖 정리는 **방금 올린 파일이 서버 밖에 실제로 보일 때만**(`rclone lsf … | grep -q .`) 실행됩니다.
+5. 시험: 서버에서 `sudo -u www-data php8.2 artisan db:backup` 을 한 번 실행 → 드라이브에 파일이 생겼는지, 서버·드라이브에 새 파일 1개만 남았는지 확인. 그다음 `db:restore-check`(복구 연습)도 한 번.

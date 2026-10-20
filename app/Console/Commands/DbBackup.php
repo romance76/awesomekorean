@@ -79,13 +79,36 @@ class DbBackup extends Command
 
         // 서버 밖 사본 (선택)
         $upload = trim((string) env('BACKUP_UPLOAD_CMD', ''));
+        $uploaded = false;
         if ($upload !== '') {
             $u = new Process(['bash', '-c', str_replace('{file}', escapeshellarg($final), $upload)], null, null, null, 1800);
             $u->run();
             if (!$u->isSuccessful()) return $this->bad('서버 밖 복사 실패: ' . self::tail($u->getErrorOutput() ?: $u->getOutput()));
             $this->info('서버 밖 복사 완료');
+            $uploaded = true;
         } else {
             $this->warn('BACKUP_UPLOAD_CMD 가 비어 있어 서버 밖 사본은 만들지 않았어요 (qa/DB_BACKUP.md 참고)');
+        }
+
+        // 새 백업이 서버 밖에 올라간 뒤에만, 그 전 백업을 지운다 (Kay 결정 2026-10-19: "백업되면 그전에 있던 건 지운다").
+        // 새 백업이 끝까지 만들어졌고(위 verifyFile) 서버 밖 복사도 성공했을 때만 실행 — 실패하면 이 단계까지 오지 않아 이전 백업이 그대로 남는다.
+        // 켜는 법: .env 에 BACKUP_PRUNE_AFTER_UPLOAD=true. 서버 밖 이전 백업 정리는 BACKUP_REMOTE_PRUNE_CMD 로 ({name} = 방금 올린 파일 이름, {file} = 전체 경로)
+        if ($uploaded && filter_var(env('BACKUP_PRUNE_AFTER_UPLOAD', false), FILTER_VALIDATE_BOOLEAN)) {
+            $remotePrune = trim((string) env('BACKUP_REMOTE_PRUNE_CMD', ''));
+            if ($remotePrune !== '') {
+                $cmd = str_replace(['{file}', '{name}'], [escapeshellarg($final), escapeshellarg(basename($final))], $remotePrune);
+                $r = new Process(['bash', '-o', 'pipefail', '-c', $cmd], null, null, null, 600);
+                $r->run();
+                if ($r->isSuccessful()) {
+                    $this->info('서버 밖의 이전 백업 정리 완료');
+                } else {
+                    $this->warn('서버 밖의 이전 백업 정리는 실패했어요(새 백업은 올라갔어요): ' . self::tail($r->getErrorOutput() ?: $r->getOutput()));
+                    Log::warning('[db:backup] 서버 밖 이전 백업 정리 실패');
+                }
+            }
+            foreach (glob($dir . '/db_*.sql.gz') ?: [] as $old) {
+                if ($old !== $final && @unlink($old)) $this->line('이전 백업 삭제(새 백업이 서버 밖에 올라감): ' . basename($old));
+            }
         }
         return self::SUCCESS;
     }
