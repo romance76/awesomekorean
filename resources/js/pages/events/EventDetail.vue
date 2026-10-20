@@ -35,7 +35,7 @@
             <div class="flex items-center gap-2 flex-wrap mb-2">
               <span v-if="event.event_type === 'awesomekorean'" class="inline-flex items-center gap-0.5 text-xs bg-amber-400 text-white px-2 py-0.5 rounded-full font-bold"><AppIcon name="star" :size="11" />어썸코리안 공식</span>
               <span v-if="event.completion_entries > 0" class="badge-green"><AppIcon name="gift" :size="11" />완료 인증 Entry {{ event.completion_entries }}개</span>
-              <span class="badge-primary">{{ event.category || '이벤트' }}</span>
+              <span class="badge-primary">{{ catName(event.category) }}</span>
               <span v-if="event.is_free || !event.price" class="badge-green">무료</span>
               <span v-else class="badge-blue">${{ Number(event.price).toLocaleString() }}</span>
               <span v-if="isPast" class="badge-gray">종료됨</span>
@@ -55,8 +55,8 @@
               <div class="flex items-center gap-2 text-ink-light">
                 <AppIcon name="calendar" :size="16" class="text-ink-faint" />
                 <div>
-                  <div class="font-medium">{{ formatDate(event.start_date) }}</div>
-                  <div v-if="event.end_date" class="text-xs text-ink-faint">~ {{ formatDate(event.end_date) }}</div>
+                  <div class="font-medium">{{ event.source === 'ticketmaster' ? evWhen(event.start_date) : formatDate(event.start_date) }}</div>
+                  <div v-if="event.end_date && event.source !== 'ticketmaster'" class="text-xs text-ink-faint">~ {{ formatDate(event.end_date) }}</div>
                 </div>
               </div>
               <div v-if="event.venue || event.city" class="flex items-center gap-2 text-ink-light">
@@ -124,7 +124,7 @@
 
           <!-- 외부에서 가져온 행사(Ticketmaster): 원본 페이지로 연결 + 출처 표시 -->
           <div v-if="event.source === 'ticketmaster' && event.url" class="px-4 lg:px-5 py-3 border-t border-gray-50">
-            <a :href="event.url" target="_blank" rel="noopener noreferrer nofollow" class="btn-primary block w-full py-3 text-sm text-center">🎟️ 티켓·상세 보기</a>
+            <a :href="event.url" target="_blank" rel="noopener noreferrer nofollow" @click.prevent="openExternal(event.url)" class="btn-primary block w-full py-3 text-sm text-center">🎟️ 티켓·상세 보기 (새 탭)</a>
             <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: Ticketmaster · 일정·가격은 바뀔 수 있어요</p>
           </div>
           <!-- 공식 이벤트 참여하기 버튼 -->
@@ -184,6 +184,7 @@ import AppIcon from '../../components/AppIcon.vue'
 import DetailHeaderTools from '../../components/DetailHeaderTools.vue'
 import BookmarkToggle from '../../components/BookmarkToggle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
+import { catName, evWhen, openExternal } from '../../utils/eventCategory'
 const recentDraws = ref([])
 import axios from 'axios'
 const { showConfirm } = useModal()

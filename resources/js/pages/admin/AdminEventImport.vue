@@ -39,6 +39,17 @@
       <p class="text-[11px] text-ink-faint">키 저장·삭제는 최고관리자만 할 수 있어요.</p>
     </div>
 
+    <!-- 주마다 가져올 개수 -->
+    <div class="card p-4 lg:p-5 space-y-2">
+      <div class="font-bold text-ink">주마다 가져올 행사 수</div>
+      <p class="text-xs text-ink-muted leading-relaxed">각 주에서 가장 인기 있는 행사만 이 개수만큼 가져와요(음악·스포츠·공연·축제를 골고루, 같은 투어의 중복 일정은 하나만). 영어 소개문은 자동으로 한글 번역해요. 다음 가져오기부터 적용돼요.</p>
+      <div class="flex items-center gap-2">
+        <input v-model.number="perState" type="number" min="3" max="40" inputmode="numeric" aria-label="주마다 가져올 행사 수" class="input-soft !w-24 !py-2 text-sm text-right tabular-nums" />
+        <span class="text-sm text-ink-muted">개 / 주</span>
+        <button @click="savePerState" :disabled="busy" class="btn-secondary !px-4 !py-2 text-sm">저장</button>
+      </div>
+    </div>
+
     <!-- 주 목록 -->
     <div class="card p-4 lg:p-5 space-y-3">
       <div class="flex items-center gap-2 flex-wrap">
@@ -132,6 +143,7 @@ const msg = ref('')
 const msgOk = ref(true)
 const info = ref({ states: [], total: 0, key_set: false, running: false })
 const keyInput = ref('')
+const perState = ref(12)
 
 const events = ref([])
 const meta = ref({ current_page: 1, last_page: 1, total: 0 })
@@ -151,6 +163,7 @@ async function load() {
   try {
     const { data } = await axios.get('/api/admin/event-import')
     info.value = data.data
+    if (!perStateTouched) perState.value = data.data.per_state || 12
   } catch (e) { say(errText(e, '불러오지 못했어요'), false) }
   loading.value = false
 }
@@ -192,6 +205,13 @@ const clearKey = () => act(async () => {
   if (!twice('clearKey', '저장해 둔 API 키를 지울까요?')) return
   const { data } = await axios.put('/api/admin/event-import/key', { key: '' })
   say(data.message); await load()
+})
+let perStateTouched = false
+const savePerState = () => act(async () => {
+  perStateTouched = true
+  const { data } = await axios.put('/api/admin/event-import/settings', { per_state: perState.value })
+  perState.value = data.per_state
+  say(data.message)
 })
 const toggleState = (s) => act(async () => {
   const { data } = await axios.post(`/api/admin/event-import/states/${s.code}/toggle`)

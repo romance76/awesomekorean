@@ -137,7 +137,7 @@
         <!-- 일반 이벤트: 헤더 (제목 · 배지) -->
         <div v-else class="px-5 lg:px-6 pt-5 pb-3">
           <div class="flex items-center gap-1.5 flex-wrap mb-2">
-            <span v-if="activeItem.category" class="badge-primary">{{ activeItem.category }}</span>
+            <span v-if="activeItem.category" class="badge-primary">{{ catName(activeItem.category) }}</span>
             <span v-if="activeItem.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700">🎁 경품 추첨</span>
             <span v-else-if="activeItem.source === 'ticketmaster' && !activeItem.price" class="badge bg-gray-100 text-ink-light">티켓 가격은 원본에서 확인</span>
             <span v-else-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
@@ -149,10 +149,14 @@
             <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(activeItem.id)" @toggle="toggleFav(activeItem)" size="lg" class="flex-shrink-0" />
           </div>
         </div>
+        <!-- 행사 이미지(외부에서 가져온 행사 등) -->
+        <div v-if="activeItem.image_url && activeItem.event_type !== 'awesomekorean'" class="h-48 lg:h-64 bg-gray-100 overflow-hidden">
+          <img :src="activeItem.image_url" :alt="activeItem.title" referrerpolicy="no-referrer" class="w-full h-full object-cover" @error="e => e.target.parentElement.style.display = 'none'" />
+        </div>
         <!-- 공통 정보 -->
         <div class="px-5 lg:px-6 py-3 bg-gray-50/50 border-t border-b border-gray-50">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-ink-light">
-            <div class="flex items-center gap-1.5"><AppIcon name="calendar" :size="14" class="text-ink-faint flex-shrink-0" />{{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</div>
+            <div class="flex items-center gap-1.5"><AppIcon name="calendar" :size="14" class="text-ink-faint flex-shrink-0" /><template v-if="activeItem.source === 'ticketmaster'">{{ evWhen(activeItem.start_date) }}</template><template v-else>{{ formatDate(activeItem.start_date) }}{{ activeItem.end_date ? ' ~ ' + formatDate(activeItem.end_date) : '' }}</template></div>
             <div v-if="activeItem.venue || activeItem.city" class="flex items-center gap-1.5"><AppIcon name="map-pin" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.venue || activeItem.city }}</div>
             <div v-if="activeItem.organizer" class="flex items-center gap-1.5"><AppIcon name="building" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.organizer }}</div>
             <div class="flex items-center gap-1.5 flex-wrap"><AppIcon name="users" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.attendee_count || 0 }}명 참가<span class="text-ink-faint">·</span><AppIcon name="eye" :size="14" class="text-ink-faint flex-shrink-0" />{{ activeItem.view_count || 0 }}회</div>
@@ -163,8 +167,8 @@
 
         <!-- 외부에서 가져온 행사(Ticketmaster): 원본 페이지로 연결 + 출처 표시 -->
         <div v-if="activeItem.source === 'ticketmaster' && activeItem.url" class="px-5 py-3 border-b border-gray-50">
-          <a :href="activeItem.url" target="_blank" rel="noopener noreferrer nofollow"
-            class="btn-primary block w-full py-2.5 text-sm text-center">🎟️ 티켓·상세 보기</a>
+          <a :href="activeItem.url" target="_blank" rel="noopener noreferrer nofollow" @click.prevent="openExternal(activeItem.url)"
+            class="btn-primary block w-full py-2.5 text-sm text-center">🎟️ 티켓·상세 보기 (새 탭)</a>
           <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: Ticketmaster · 일정·가격은 바뀔 수 있어요</p>
         </div>
         <!-- 참여 버튼 (공식 이벤트) -->
@@ -244,7 +248,7 @@
             <div class="icon-chip w-12 h-12" :class="item.event_type === 'sweepstakes' ? 'bg-amber-50 text-amber-500' : 'bg-amber-50 text-amber-500'"><AppIcon :name="item.event_type === 'sweepstakes' ? 'gift' : 'calendar'" :size="22" /></div>
             <div class="flex-1 min-w-0">
               <div class="text-sm font-semibold text-ink truncate">{{ item.title }}</div>
-              <div class="text-xs text-ink-faint"><template v-if="!activeCat">{{ item.category || '기타' }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
+              <div class="text-xs text-ink-faint"><template v-if="!activeCat">{{ catName(item.category) }} · </template><template v-if="item.organizer && !item.user">{{ item.organizer }}</template><UserName v-else :userId="item.user?.id" :name="item.organizer || item.user?.name" /></div>
             </div>
             <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">🎁 경품추첨</div>
             <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
@@ -281,7 +285,7 @@
           <div class="flex items-center gap-1.5 flex-wrap">
             <span v-if="item.event_type === 'awesomekorean'" class="badge bg-amber-400 text-white font-bold flex-shrink-0">공식</span>
             <span v-if="item.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700 flex-shrink-0">경품 추첨</span>
-            <span v-if="!activeCat && item.category" class="badge-primary flex-shrink-0">{{ item.category }}</span>
+            <span v-if="!activeCat && item.category" class="badge-primary flex-shrink-0">{{ catName(item.category) }}</span>
             <span v-if="eventStatusLabel(item)" class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">{{ eventStatusLabel(item) }}</span>
           </div>
           <div class="text-[15px] font-bold text-ink leading-snug mt-1 line-clamp-2 break-words">{{ item.title || item.name }}</div>
@@ -301,6 +305,8 @@
             <BookmarkToggle v-if="auth.isLoggedIn" :active="favorited.has(item.id)" @toggle="toggleFav(item)" size="sm" class="ml-auto" />
           </div>
         </div>
+        <img v-if="item.image_url && item.event_type !== 'awesomekorean'" :src="item.image_url" alt="" loading="lazy" referrerpolicy="no-referrer"
+          class="w-24 h-16 sm:w-32 sm:h-20 object-cover rounded-lg bg-gray-100 flex-shrink-0 self-start" @error="e => e.target.style.display = 'none'" />
         <div class="flex-shrink-0 text-right self-start">
           <div v-if="item.event_type === 'sweepstakes'" class="text-amber-600 font-black text-xs">경품추첨</div>
           <div v-else-if="item.price" class="text-amber-600 font-black text-sm">${{ Number(item.price).toLocaleString() }}</div>
@@ -337,6 +343,7 @@ import GroupTitle from '../../components/GroupTitle.vue'
 import SweepstakesPanel from '../../components/events/SweepstakesPanel.vue'
 import ShareButton from '../../components/ShareButton.vue'
 import EventCategoryGuide from '../../components/events/EventCategoryGuide.vue'
+import { catName, evWhen, openExternal } from '../../utils/eventCategory'
 const { showConfirm } = useModal()
 const recentDraws = ref([])
 let recentDrawsLoaded = false
@@ -346,14 +353,6 @@ const route = useRoute()
 const { city, radius: locRadius, locationQuery, koreanCities, init: initLocation, selectKoreanCity, setRadius } = useLocation()
 
 function evExcerpt(item) { return String(item.content || item.description || '').replace(/\s+/g, ' ').trim().slice(0, 140) }
-// 행사 일정: "10월 25일(토) 오후 7:00" — 앞으로 열릴 행사를 "방금/n일 전"처럼 보이지 않게
-function evWhen(dt) {
-  if (!dt) return ''
-  const d = new Date(dt)
-  const date = d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
-  const time = d.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' })
-  return `${date} ${time}`
-}
 function fmtDate(dt) {
   if (!dt) return ''
   const d = new Date(dt)

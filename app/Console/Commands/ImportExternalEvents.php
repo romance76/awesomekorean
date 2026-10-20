@@ -29,13 +29,13 @@ class ImportExternalEvents extends Command
         $codes = $one ? $q->where('code', $one)->pluck('code') : $q->where('enabled', true)->pluck('code');
         if ($codes->isEmpty()) { $this->warn('가져올 주가 없어요.'); return self::SUCCESS; }
 
-        $tot = ['fetched' => 0, 'created' => 0, 'updated' => 0]; $failed = 0;
+        $tot = ['fetched' => 0, 'created' => 0, 'updated' => 0, 'removed' => 0]; $failed = 0;
         $total = $codes->count();
         foreach ($codes->values() as $i => $code) {
             // 관리자 화면의 진행 표시용(몇 번째 주를 가져오는 중인지)
             Cache::put('event_import_progress', ['done' => $i, 'total' => $total, 'current' => $code, 'fetched' => $tot['fetched'], 'created' => $tot['created'], 'started_at' => $startedAt ??= now()->toIso8601String()], 3600);
             $r = EventImporter::importState($code, $days);
-            $this->line(sprintf('%s: 가져옴 %d · 새로 %d · 갱신 %d%s', $code, $r['fetched'], $r['created'], $r['updated'], $r['error'] ? ' ⚠ ' . $r['error'] : ''));
+            $this->line(sprintf('%s: 대표 행사 %d · 새로 %d · 갱신 %d · 정리 %d%s', $code, $r['fetched'], $r['created'], $r['updated'], $r['removed'], $r['error'] ? ' ⚠ ' . $r['error'] : ''));
             foreach ($tot as $k => $_) $tot[$k] += $r[$k];
             if ($r['error']) {
                 $failed++;
@@ -44,7 +44,7 @@ class ImportExternalEvents extends Command
         }
         Cache::forget('event_import_progress');
         $pruned = EventImporter::prune();
-        $this->info("합계: 가져옴 {$tot['fetched']} · 새로 {$tot['created']} · 갱신 {$tot['updated']} · 정리 {$pruned}");
+        $this->info("합계: 대표 행사 {$tot['fetched']} · 새로 {$tot['created']} · 갱신 {$tot['updated']} · 교체 정리 {$tot['removed']} · 지난 행사 정리 {$pruned}");
         return $failed ? self::FAILURE : self::SUCCESS;
     }
 }

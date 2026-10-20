@@ -5,38 +5,57 @@ namespace App\Support;
 use App\Models\Event;
 use App\Models\SiteSetting;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 /**
- * 외부 지역 행사 가져오기 — Ticketmaster Discovery API (콘서트·스포츠·공연·가족 행사 등).
+ * 외부 지역 행사 가져오기 — Ticketmaster Discovery API (콘서트·스포츠·공연·축제 등).
  *
- * - 주(State)별로 앞으로 N일 치 행사를 가져와 events 테이블에 넣는다(source='ticketmaster').
+ * - 주(State)마다 "가장 인기 있는" 행사만 N개(기본 12, 관리자 화면에서 조절) 가져온다.
+ *   분류(음악·스포츠·공연·기타)별로 인기순 후보를 받아 몫을 나눠 골고루 고르고, 같은 투어·팀의 중복 일정은 하나만 둔다.
+ * - 한국어로 보여 준다: 분류·장르를 한글로, 일시·장소·티켓 가격을 한글 안내로 만들고, 영어 소개문은 자동 번역(캐시).
  * - 같은 행사는 (source, source_id)로 찾아 갱신한다. 관리자가 숨긴(is_active=false) 행사는 다시 켜지 않는다.
+ * - 이번에 고른 목록에서 빠진 이전 가져오기 행사는 지운다(참가자가 있는 것은 남김).
  * - 외부 행사는 완료 인증 보상(Entry·포인트)을 주지 않는다(reward_*=0).
  * - API 키: 관리자 화면에서 저장(암호화)하거나 .env 의 TICKETMASTER_API_KEY. 화면 저장값이 우선.
  */
 class EventImporter
 {
     public const SOURCE = 'ticketmaster';
+    public const DEFAULT_PER_STATE = 12;
     private const KEY_SETTING = 'ticketmaster_api_key';
+    private const PER_STATE_SETTING = 'event_import_per_state';
     private const ENDPOINT = 'https://app.ticketmaster.com/discovery/v2/events.json';
-    private const WINDOW_DAYS = 30;     // 한 번에 30일씩 끊어서 요청(요청 하나당 최대 1000건 제한 회피)
-    private const MAX_PAGES = 5;        // 창 하나당 최대 5쪽 × 200건 (API 깊은 쪽수 제한 1000건)
+
+    // 분류별 후보 요청: 우리 카테고리, 가져올 몫(비율), 인기순 후보 수
+    private const SEGMENTS = [
+        ['name' => 'Music', 'category' => 'concert', 'weight' => 0.35, 'size' => 60],
+        ['name' => 'Sports', 'category' => 'sports', 'weight' => 0.25, 'size' => 50],
+        ['name' => 'Arts & Theatre', 'category' => 'concert', 'weight' => 0.15, 'size' => 40],
+        ['name' => 'Miscellaneous', 'category' => 'festival', 'weight' => 0.25, 'size' => 50],
+    ];
+
     // 행사가 아닌 상품(주차·업그레이드·시즌권·멤버십·구장 투어 등)은 가져오지 않는다
     private const SKIP_TITLE = '/\b(parking|shuttle|upgrade|add[- ]?on|camping|season pass|season ticket|membership|gift card|premium seating package|club seats?|suite rental|stadium tours?)\b|^tours?:/i';
     // 제목이 "… Pass" 로 끝나는 정기권(축제 이용권은 제외)
     private const SKIP_PASS = '/\bpass$/i';
 
-    // 티켓마스터 분류(segment) → 우리 카테고리
-    private const SEGMENT_MAP = [
-        'music' => 'concert',
-        'sports' => 'sports',
-        'arts & theatre' => 'concert',
-        'film' => 'concert',
-        'miscellaneous' => 'festival',
+    private const SEGMENT_KO = [
+        'music' => '음악', 'sports' => '스포츠', 'arts & theatre' => '공연·예술', 'film' => '영화', 'miscellaneous' => '기타 행사',
     ];
+    private const GENRE_KO = [
+        'rock' => '록', 'pop' => '팝', 'hip-hop/rap' => '힙합/랩', 'r&b' => 'R&B', 'country' => '컨트리', 'metal' => '메탈',
+        'alternative' => '얼터너티브', 'dance/electronic' => '댄스/일렉트로닉', 'classical' => '클래식', 'jazz' => '재즈',
+        'latin' => '라틴', 'folk' => '포크', 'reggae' => '레게', 'k-pop' => 'K-POP', 'blues' => '블루스', 'religious' => '종교 음악',
+        'world' => '월드뮤직', 'basketball' => '농구', 'baseball' => '야구', 'football' => '풋볼', 'hockey' => '하키', 'soccer' => '축구',
+        'theatre' => '연극', 'musical' => '뮤지컬', 'comedy' => '코미디', 'family' => '가족', 'dance' => '무용', 'opera' => '오페라',
+        'circus & specialty acts' => '서커스·특별 공연', 'magic & illusion' => '마술', 'fairs & festivals' => '페어·축제',
+        'wrestling' => '레슬링', 'motorsports/racing' => '모터스포츠', 'golf' => '골프', 'tennis' => '테니스', 'ice skating' => '아이스 스케이팅',
+        'hobby/special interest expos' => '박람회·전시', 'community/civic' => '지역 행사', 'other' => '',
+    ];
+    private const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
 
     public static function apiKey(): ?string
     {
@@ -76,51 +95,71 @@ class EventImporter
         );
     }
 
+    /** 주마다 가져올 행사 수 (3~40, 기본 12) */
+    public static function perState(): int
+    {
+        $v = (int) SiteSetting::where('key', self::PER_STATE_SETTING)->value('value');
+        return ($v >= 3 && $v <= 40) ? $v : self::DEFAULT_PER_STATE;
+    }
+
+    public static function savePerState(int $n): void
+    {
+        SiteSetting::updateOrCreate(['key' => self::PER_STATE_SETTING], ['value' => (string) max(3, min(40, $n)), 'group' => 'events']);
+    }
+
     /**
-     * 한 주의 행사를 가져온다.
-     * @return array{fetched:int,created:int,updated:int,error:?string}
+     * 한 주의 대표 행사를 가져온다.
+     * @return array{fetched:int,created:int,updated:int,removed:int,error:?string}
      */
     public static function importState(string $code, int $days = 90): array
     {
-        $out = ['fetched' => 0, 'created' => 0, 'updated' => 0, 'error' => null];
+        $out = ['fetched' => 0, 'created' => 0, 'updated' => 0, 'removed' => 0, 'error' => null];
         $key = self::apiKey();
         if (!$key) { $out['error'] = 'API 키가 없어요'; return self::record($code, $out); }
 
         $from = Carbon::now('UTC')->startOfHour();
         $end = $from->copy()->addDays($days);
+        $pools = [];
         try {
-            for ($ws = $from->copy(); $ws < $end; $ws->addDays(self::WINDOW_DAYS)) {
-                $we = $ws->copy()->addDays(self::WINDOW_DAYS);
-                if ($we > $end) $we = $end->copy();
-                $page = 0; $totalPages = 1;
-                while ($page < min($totalPages, self::MAX_PAGES)) {
-                    $res = Http::timeout(20)->retry(2, 1500, throw: false)->get(self::ENDPOINT, [
-                        'apikey' => $key,
-                        'countryCode' => 'US',
-                        'stateCode' => $code,
-                        'size' => 200,
-                        'page' => $page,
-                        'sort' => 'date,asc',
-                        'startDateTime' => $ws->format('Y-m-d\TH:i:s\Z'),
-                        'endDateTime' => $we->format('Y-m-d\TH:i:s\Z'),
-                        'includeTBA' => 'no',
-                        'includeTest' => 'no',
-                    ]);
-                    if ($res->status() === 401) { $out['error'] = 'API 키가 올바르지 않아요(401)'; return self::record($code, $out); }
-                    if ($res->status() === 429) { $out['error'] = '요청 한도를 넘었어요(429) — 잠시 뒤 다시 시도하세요'; return self::record($code, $out); }
-                    if (!$res->ok()) { $out['error'] = 'Ticketmaster 응답 오류 ' . $res->status(); return self::record($code, $out); }
+            foreach (self::SEGMENTS as $i => $seg) {
+                $res = Http::timeout(20)->retry(2, 1500, throw: false)->get(self::ENDPOINT, [
+                    'apikey' => $key,
+                    'countryCode' => 'US',
+                    'stateCode' => $code,
+                    'classificationName' => $seg['name'],
+                    'size' => $seg['size'],
+                    'sort' => 'relevance,desc',
+                    'startDateTime' => $from->format('Y-m-d\TH:i:s\Z'),
+                    'endDateTime' => $end->format('Y-m-d\TH:i:s\Z'),
+                    'includeTBA' => 'no',
+                    'includeTest' => 'no',
+                ]);
+                if ($res->status() === 401) { $out['error'] = 'API 키가 올바르지 않아요(401)'; return self::record($code, $out); }
+                if ($res->status() === 429) { $out['error'] = '요청 한도를 넘었어요(429) — 잠시 뒤 다시 시도하세요'; return self::record($code, $out); }
+                if (!$res->ok()) { $out['error'] = 'Ticketmaster 응답 오류 ' . $res->status(); return self::record($code, $out); }
 
-                    $json = $res->json();
-                    $totalPages = (int) ($json['page']['totalPages'] ?? 1);
-                    foreach (($json['_embedded']['events'] ?? []) as $e) {
-                        $row = self::map($e, $code);
-                        if (!$row) continue;
-                        $out['fetched']++;
-                        self::upsert($row) ? $out['created']++ : $out['updated']++;
-                    }
-                    $page++;
-                    usleep(250000); // 초당 5회 제한 안쪽으로
+                $withImg = []; $noImg = []; $seen = [];
+                foreach (($res->json()['_embedded']['events'] ?? []) as $e) {
+                    $c = self::map($e, $code, $seg['category']);
+                    if (!$c || isset($seen[$c['group']])) continue;   // 같은 투어·팀의 다른 날짜는 하나만
+                    $seen[$c['group']] = true;
+                    if ($c['row']['image_url']) $withImg[] = $c; else $noImg[] = $c;
                 }
+                $pools[$i] = array_merge($withImg, $noImg);   // 이미지 있는 행사 먼저(인기순 유지)
+                usleep(250000); // 초당 5회 제한 안쪽으로
+            }
+
+            $kept = [];
+            foreach (self::pick($pools, self::perState()) as $c) {
+                $row = self::finalize($c);
+                $out['fetched']++;
+                self::upsert($row) ? $out['created']++ : $out['updated']++;
+                $kept[] = $row['source_id'];
+            }
+            // 이번 목록에서 빠진 예전 가져오기 행사 정리(참가자가 있는 것은 남김)
+            if ($kept) {
+                $out['removed'] = Event::where('source', self::SOURCE)->where('state', $code)
+                    ->whereNotIn('source_id', $kept)->where('attendee_count', 0)->delete();
             }
         } catch (\Throwable $e) {
             report($e);
@@ -139,14 +178,36 @@ class EventImporter
         return $out;
     }
 
-    /** 티켓마스터 행사 1건 → events 칸 배열 (쓸 수 없는 행사는 null) */
-    public static function map(array $e, string $stateFallback = ''): ?array
+    /** 분류별 몫(비율)대로 인기순 후보에서 고르고, 모자라면 남은 후보로 채운 뒤 날짜순으로 */
+    private static function pick(array $pools, int $n): array
+    {
+        $quota = [];
+        foreach (self::SEGMENTS as $i => $seg) $quota[$i] = (int) floor($n * $seg['weight']);
+        $rem = $n - array_sum($quota);
+        for ($i = 0; $rem > 0; $i = ($i + 1) % count(self::SEGMENTS)) { $quota[$i]++; $rem--; }
+
+        $picked = []; $left = [];
+        foreach ($pools as $i => $rows) {
+            $picked = array_merge($picked, array_slice($rows, 0, $quota[$i]));
+            $left = array_merge($left, array_slice($rows, $quota[$i]));
+        }
+        if (count($picked) < $n) $picked = array_merge($picked, array_slice($left, 0, $n - count($picked)));
+        usort($picked, fn ($a, $b) => $a['row']['start_date'] <=> $b['row']['start_date']);
+        return $picked;
+    }
+
+    /**
+     * 티켓마스터 행사 1건 → ['row' => events 기본 칸, 'group' => 중복 묶음 키, ...한글 안내를 만들 재료]
+     * (쓸 수 없는 행사는 null)
+     */
+    public static function map(array $e, string $stateFallback = '', string $category = 'festival'): ?array
     {
         $id = $e['id'] ?? null;
         $title = trim((string) ($e['name'] ?? ''));
         if (!$id || $title === '' || preg_match(self::SKIP_TITLE, $title)) return null;
         if (preg_match(self::SKIP_PASS, $title) && !preg_match('/fest/i', $title)) return null;
-        if (strtolower($e['dates']['status']['code'] ?? '') === 'cancelled') return null;
+        $status = strtolower($e['dates']['status']['code'] ?? '');
+        if (in_array($status, ['cancelled', 'canceled'], true)) return null;
 
         $v = $e['_embedded']['venues'][0] ?? [];
         $tz = $v['timezone'] ?? ($e['dates']['timezone'] ?? 'UTC');
@@ -160,46 +221,122 @@ class EventImporter
                 return null;
             }
         } catch (\Throwable $ex) { return null; }
-        $start = $start->setTimezone(config('app.timezone'));
 
         $cls = $e['classifications'][0] ?? [];
-        $segment = strtolower($cls['segment']['name'] ?? '');
-        $genre = $cls['genre']['name'] ?? null;
-        $sub = $cls['subGenre']['name'] ?? null;
-        $category = self::SEGMENT_MAP[$segment] ?? 'festival';
         if (preg_match('/festival|fair|expo|parade/i', $title)) $category = 'festival';
 
-        // 이미지: 16:9 중 폭 640 이상 가장 작은 것, 없으면 첫 번째
+        // 이미지: 16:9 중 폭 640 이상 가장 작은 것, 없으면 가장 큰 것
         $img = null;
         $imgs = $e['images'] ?? [];
         usort($imgs, fn ($a, $b) => ($a['width'] ?? 0) <=> ($b['width'] ?? 0));
-        foreach ($imgs as $i) { if (($i['ratio'] ?? '') === '16_9' && ($i['width'] ?? 0) >= 640) { $img = $i['url']; break; } }
-        $img = $img ?: ($imgs[0]['url'] ?? null);
+        foreach ($imgs as $i) { if (($i['ratio'] ?? '') === '16_9' && ($i['width'] ?? 0) >= 640) { $img = $i['url'] ?? null; break; } }
+        $img = $img ?: ($imgs ? ($imgs[count($imgs) - 1]['url'] ?? null) : null);
 
-        $price = $e['priceRanges'][0]['min'] ?? null;
-        $kind = collect([$cls['segment']['name'] ?? null, $genre, $sub])->filter(fn ($x) => $x && strtolower($x) !== 'undefined')->unique()->implode(' · ');
-        $info = trim(implode("\n\n", array_filter([$e['info'] ?? null, $e['pleaseNote'] ?? null])));
-        $content = trim(($kind ? "{$kind}\n\n" : '') . $info . "\n\n출처: Ticketmaster — 티켓·상세 정보는 아래 '티켓·상세 보기'에서 확인하세요.");
+        $pr = $e['priceRanges'][0] ?? [];
+        $attractions = collect($e['_embedded']['attractions'] ?? []);
+        $group = $attractions->first()['id'] ?? mb_strtolower(preg_replace('/[^a-z0-9]+/i', '', $title));
 
         return [
-            'source_id' => (string) $id,
-            'title' => mb_substr($title, 0, 250),
-            'description' => mb_substr($kind ?: 'Ticketmaster 행사', 0, 250),
-            'content' => mb_substr($content, 0, 4000),
-            'image_url' => $img,
-            'category' => $category,
-            'organizer' => mb_substr($e['promoter']['name'] ?? 'Ticketmaster', 0, 250),
-            'venue' => isset($v['name']) ? mb_substr($v['name'], 0, 250) : null,
-            'address' => isset($v['address']['line1']) ? mb_substr($v['address']['line1'], 0, 250) : null,
-            'city' => isset($v['city']['name']) ? mb_substr($v['city']['name'], 0, 100) : null,
-            'state' => $v['state']['stateCode'] ?? $stateFallback,
-            'zipcode' => isset($v['postalCode']) ? mb_substr($v['postalCode'], 0, 10) : null,
-            'lat' => $v['location']['latitude'] ?? null,
-            'lng' => $v['location']['longitude'] ?? null,
-            'start_date' => $start,
-            'price' => $price,
-            'url' => $e['url'] ?? null,
+            'group' => (string) $group,
+            'tz' => $tz,
+            'start' => $start,
+            'segment' => $cls['segment']['name'] ?? '',
+            'genre' => $cls['genre']['name'] ?? '',
+            'sub' => $cls['subGenre']['name'] ?? '',
+            'performers' => $attractions->pluck('name')->filter()->unique()->take(6)->values()->all(),
+            'info' => trim((string) ($e['info'] ?? '')),
+            'note' => trim((string) ($e['pleaseNote'] ?? '')),
+            'min' => $pr['min'] ?? null,
+            'max' => $pr['max'] ?? null,
+            'row' => [
+                'source_id' => (string) $id,
+                'title' => mb_substr($title, 0, 250),
+                'image_url' => $img,
+                'category' => $category,
+                'organizer' => mb_substr($e['promoter']['name'] ?? 'Ticketmaster', 0, 250),
+                'venue' => isset($v['name']) ? mb_substr($v['name'], 0, 250) : null,
+                'address' => isset($v['address']['line1']) ? mb_substr($v['address']['line1'], 0, 250) : null,
+                'city' => isset($v['city']['name']) ? mb_substr($v['city']['name'], 0, 100) : null,
+                'state' => $v['state']['stateCode'] ?? $stateFallback,
+                'zipcode' => isset($v['postalCode']) ? mb_substr($v['postalCode'], 0, 10) : null,
+                'lat' => $v['location']['latitude'] ?? null,
+                'lng' => $v['location']['longitude'] ?? null,
+                'start_date' => $start->copy()->setTimezone(config('app.timezone')),
+                'price' => $pr['min'] ?? null,
+                'url' => $e['url'] ?? null,
+            ],
         ];
+    }
+
+    /** 한글 안내문(일시·장소·티켓·소개)을 붙여 events 한 줄로 완성 */
+    private static function finalize(array $c): array
+    {
+        $row = $c['row'];
+        $kind = collect([$c['segment'], $c['genre'], $c['sub']])
+            ->filter(fn ($x) => $x && strtolower($x) !== 'undefined')
+            ->map(fn ($x) => self::ko($x))->filter()->unique()->implode(' · ');
+
+        $local = $c['start']->copy()->setTimezone($c['tz']);
+        $h = (int) $local->format('G');
+        $when = sprintf('%d년 %d월 %d일(%s) %s %d:%s', $local->year, $local->month, $local->day,
+            self::WEEKDAY_KO[(int) $local->format('w')], $h < 12 ? '오전' : '오후', ($h % 12) ?: 12, $local->format('i'));
+
+        $where = collect([$row['venue'], $row['address'], $row['city'], trim(($row['state'] ?? '') . ' ' . ($row['zipcode'] ?? ''))])
+            ->filter()->implode(', ');
+
+        if ($c['min'] !== null) {
+            $fmt = fn ($n) => '$' . rtrim(rtrim(number_format((float) $n, 2), '0'), '.');
+            $ticket = $fmt($c['min']) . (($c['max'] !== null && (float) $c['max'] > (float) $c['min']) ? ' ~ ' . $fmt($c['max']) : '') . ' (수수료 별도)';
+        } else {
+            $ticket = '가격은 Ticketmaster 에서 확인하세요';
+        }
+
+        $lines = [];
+        if ($kind) $lines[] = "🎵 분류: {$kind}";
+        if ($c['performers'] && !(count($c['performers']) === 1 && mb_strtolower($c['performers'][0]) === mb_strtolower($row['title']))) {
+            $lines[] = '🎤 출연·팀: ' . implode(', ', $c['performers']);
+        }
+        $lines[] = "📅 일시: {$when} (현지 시간)";
+        if ($where) $lines[] = "📍 장소: {$where}";
+        $lines[] = "🎫 티켓: {$ticket}";
+        $body = implode("\n", $lines);
+
+        if ($c['info'])  $body .= "\n\n■ 소개\n" . self::translate($c['info']);
+        if ($c['note'])  $body .= "\n\n■ 안내\n" . self::translate($c['note']);
+        $body .= "\n\n※ 일정·가격·좌석은 바뀔 수 있어요. 티켓 구매와 최신 정보는 아래 '티켓·상세 보기'(Ticketmaster)에서 확인하세요.";
+
+        $row['content'] = mb_substr($body, 0, 4000);
+        $row['description'] = mb_substr(trim(($kind ? $kind . ' · ' : '') . $local->format('n/j') . ' ' . ($row['venue'] ?? '')), 0, 250);
+        return $row;
+    }
+
+    private static function ko(string $name): string
+    {
+        $k = mb_strtolower(trim($name));
+        if (isset(self::SEGMENT_KO[$k])) return self::SEGMENT_KO[$k];
+        return array_key_exists($k, self::GENRE_KO) ? self::GENRE_KO[$k] : $name;
+    }
+
+    /** 영어 → 한국어 자동 번역(무료 Google 엔드포인트, 같은 문장은 60일 캐시). 실패하면 원문 그대로 */
+    private static function translate(string $text): string
+    {
+        $text = trim(mb_substr(preg_replace('/\s+/', ' ', $text), 0, 1200));
+        if ($text === '') return '';
+        $cached = Cache::get('tm_ko_' . md5($text));
+        if (is_string($cached) && $cached !== '') return $cached;
+        try {
+            $res = Http::timeout(15)->get('https://translate.googleapis.com/translate_a/single', [
+                'client' => 'gtx', 'sl' => 'en', 'tl' => 'ko', 'dt' => 't', 'q' => $text,
+            ]);
+            $arr = $res->ok() ? $res->json() : null;
+            if (is_array($arr) && !empty($arr[0])) {
+                $out = '';
+                foreach ($arr[0] as $seg) { if (isset($seg[0])) $out .= $seg[0]; }
+                $out = trim($out);
+                if ($out !== '') { Cache::put('tm_ko_' . md5($text), $out, now()->addDays(60)); usleep(150000); return $out; }
+            }
+        } catch (\Throwable $e) {}
+        return $text;
     }
 
     /** @return bool 새로 만들었으면 true, 갱신이면 false */
@@ -207,9 +344,7 @@ class EventImporter
     {
         $ev = Event::where('source', self::SOURCE)->where('source_id', $row['source_id'])->first();
         if ($ev) {
-            // 관리자가 바꾼 것(숨김·카테고리·고정)은 건드리지 않고 외부 정보만 새로 고침
-            unset($row['category']);
-            $ev->update($row);
+            $ev->update($row);   // 숨김(is_active)·참가자 수 등은 건드리지 않음
             return false;
         }
         Event::create($row + [
@@ -219,12 +354,11 @@ class EventImporter
         return true;
     }
 
-    /** 지난 가져온 행사 정리 (끝난 지 7일 지났고 참가자가 없는 것만) */
+    /** 지난 가져온 행사 정리 (끝난 지 7일 지났고 참가자가 없는 것만) + 행사가 아닌 상품 */
     public static function prune(): int
     {
         $n = Event::where('source', self::SOURCE)->where('start_date', '<', now()->subDays(7))
             ->where('attendee_count', 0)->delete();
-        // 예전에 들어온 비행사 상품(시즌권·구장 투어 등)도 함께 정리
         $n += Event::where('source', self::SOURCE)->where('attendee_count', 0)->where(function ($q) {
             foreach (['%season pass%', '%season ticket%', '%membership%', '%gift card%', 'tour:%', 'tours:%', '%stadium tour%', '% pass'] as $like) {
                 $q->orWhere('title', 'like', $like);

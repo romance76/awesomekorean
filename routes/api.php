@@ -1065,6 +1065,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     // 지역 행사 가져오기 (Ticketmaster) — 주별 켜기/끄기, API 키, 가져온 행사 숨김/삭제
     Route::get('/event-import', [\App\Http\Controllers\API\AdminEventImportController::class, 'index']);
     Route::put('/event-import/key', [\App\Http\Controllers\API\AdminEventImportController::class, 'saveKey'])->middleware('throttle:10,1');
+    Route::put('/event-import/settings', [\App\Http\Controllers\API\AdminEventImportController::class, 'savePerState']);
     Route::post('/event-import/states/all', [\App\Http\Controllers\API\AdminEventImportController::class, 'setAllStates']);
     Route::post('/event-import/states/{code}/toggle', [\App\Http\Controllers\API\AdminEventImportController::class, 'toggleState'])->where('code', '[A-Za-z]{2}');
     Route::post('/event-import/run', [\App\Http\Controllers\API\AdminEventImportController::class, 'run'])->middleware('throttle:6,1');

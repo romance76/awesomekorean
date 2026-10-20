@@ -30,6 +30,7 @@ class AdminEventImportController extends Controller
             'key_set' => (bool) EventImporter::apiKey(),
             'key_source' => EventImporter::keySource(),
             'key_masked' => EventImporter::maskedKey(),
+            'per_state' => EventImporter::perState(),
             'running' => (bool) Cache::get(self::RUNNING),
             'progress' => Cache::get(self::RUNNING) ? Cache::get('event_import_progress') : null,
             'states' => $states,
@@ -44,6 +45,14 @@ class AdminEventImportController extends Controller
         $data = $request->validate(['key' => 'nullable|string|max:120']);
         EventImporter::saveKey($data['key'] ?? null);
         return response()->json(['success' => true, 'message' => ($data['key'] ?? '') === '' ? 'API 키를 지웠어요' : 'API 키를 저장했어요', 'key_set' => (bool) EventImporter::apiKey(), 'key_masked' => EventImporter::maskedKey()]);
+    }
+
+    /** 주마다 가져올 행사 수 (3~40) */
+    public function savePerState(Request $request)
+    {
+        $data = $request->validate(['per_state' => 'required|integer|min:3|max:40']);
+        EventImporter::savePerState((int) $data['per_state']);
+        return response()->json(['success' => true, 'message' => "주마다 {$data['per_state']}개씩 가져오도록 저장했어요 (다음 가져오기부터 적용)", 'per_state' => EventImporter::perState()]);
     }
 
     /** 주 하나 켜기/끄기 */
@@ -75,7 +84,7 @@ class AdminEventImportController extends Controller
             Cache::put(self::RUNNING, $state, 600);
             set_time_limit(180);
             try { $r = EventImporter::importState($state); } finally { Cache::forget(self::RUNNING); }
-            return response()->json(['success' => !$r['error'], 'message' => $r['error'] ?: "{$state}: 가져옴 {$r['fetched']} · 새로 {$r['created']} · 갱신 {$r['updated']}", 'data' => $r]);
+            return response()->json(['success' => !$r['error'], 'message' => $r['error'] ?: "{$state}: 대표 행사 {$r['fetched']}개 (새로 {$r['created']} · 갱신 {$r['updated']} · 정리 {$r['removed']})", 'data' => $r]);
         }
 
         Cache::put(self::RUNNING, 'all', 1500); // 도중에 프로세스가 죽어도 25분 뒤엔 다시 실행 가능
