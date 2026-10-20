@@ -53,6 +53,8 @@ Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->whe
 // 통화 정리 중지(2026-10-10): 음성통화 기능 비활성(VOICE_CALL_ENABLED=false) + 서버 부하 절감. 재개하려면 주석 해제.
 // Schedule::command('calls:cleanup')->everyFiveMinutes()->withoutOverlapping();
 // 매분 작업은 서버가 작아 이전 실행이 안 끝났으면 겹쳐 실행하지 않는다(잠금은 10분 뒤 자동 해제)
+// 지역 행사(Ticketmaster): 관리자 화면에서 켜 둔 주의 앞으로 90일 행사를 매일 새벽에 가져옴
+\App\Support\AutoCollectStatus::watch(Schedule::command('events:import'), 'events')->dailyAt('05:30')->skip($autoCollectPaused)->withoutOverlapping()->appendOutputTo($contentLog);
 Schedule::command('reservations:expire')->everyMinute()->withoutOverlapping(10);
 Schedule::command('promotions:expire')->everyMinute()->withoutOverlapping(10);
 Schedule::command('events:remind')->everyThirtyMinutes();

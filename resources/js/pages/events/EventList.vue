@@ -139,6 +139,7 @@
           <div class="flex items-center gap-1.5 flex-wrap mb-2">
             <span v-if="activeItem.category" class="badge-primary">{{ activeItem.category }}</span>
             <span v-if="activeItem.event_type === 'sweepstakes'" class="badge bg-amber-50 text-amber-700">🎁 경품 추첨</span>
+            <span v-else-if="activeItem.source === 'ticketmaster' && !activeItem.price" class="badge bg-gray-100 text-ink-light">티켓 가격은 원본에서 확인</span>
             <span v-else-if="!activeItem.price || activeItem.price == 0" class="badge-green">무료</span>
             <span v-else class="badge-blue">${{ activeItem.price }}</span>
             <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-gray-100 text-ink-light">{{ eventStatusLabel(activeItem) }}</span>
@@ -160,6 +161,12 @@
         <!-- 경품 추첨(Sweepstakes): 경품 · 추첨 연출 · 참가 -->
         <SweepstakesPanel v-if="activeItem.event_type === 'sweepstakes' && activeItem.sweepstakes" :event="activeItem" :recent-draws="recentDraws" @updated="d => activeItem = d" />
 
+        <!-- 외부에서 가져온 행사(Ticketmaster): 원본 페이지로 연결 + 출처 표시 -->
+        <div v-if="activeItem.source === 'ticketmaster' && activeItem.url" class="px-5 py-3 border-b border-gray-50">
+          <a :href="activeItem.url" target="_blank" rel="noopener noreferrer nofollow"
+            class="btn-primary block w-full py-2.5 text-sm text-center">🎟️ 티켓·상세 보기</a>
+          <p class="text-[11px] text-ink-faint text-center mt-1.5">출처: Ticketmaster · 일정·가격은 바뀔 수 있어요</p>
+        </div>
         <!-- 참여 버튼 (공식 이벤트) -->
         <div v-if="activeItem.event_url" class="px-5 py-3 border-b border-gray-50">
           <button @click="$router.push(activeItem.event_url)"

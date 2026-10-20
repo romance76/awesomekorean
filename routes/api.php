@@ -1062,6 +1062,16 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::put('/amazon-products/{id}', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'update']);
     Route::delete('/amazon-products/{id}', [\App\Http\Controllers\API\AdminAmazonProductController::class, 'destroy']);
 
+    // 지역 행사 가져오기 (Ticketmaster) — 주별 켜기/끄기, API 키, 가져온 행사 숨김/삭제
+    Route::get('/event-import', [\App\Http\Controllers\API\AdminEventImportController::class, 'index']);
+    Route::put('/event-import/key', [\App\Http\Controllers\API\AdminEventImportController::class, 'saveKey'])->middleware('throttle:10,1');
+    Route::post('/event-import/states/all', [\App\Http\Controllers\API\AdminEventImportController::class, 'setAllStates']);
+    Route::post('/event-import/states/{code}/toggle', [\App\Http\Controllers\API\AdminEventImportController::class, 'toggleState'])->where('code', '[A-Za-z]{2}');
+    Route::post('/event-import/run', [\App\Http\Controllers\API\AdminEventImportController::class, 'run'])->middleware('throttle:6,1');
+    Route::get('/event-import/events', [\App\Http\Controllers\API\AdminEventImportController::class, 'events']);
+    Route::post('/event-import/events/{id}/toggle', [\App\Http\Controllers\API\AdminEventImportController::class, 'toggleEvent'])->whereNumber('id');
+    Route::delete('/event-import/events/{id}', [\App\Http\Controllers\API\AdminEventImportController::class, 'destroyEvent'])->whereNumber('id');
+
     // Admin Shorts
     Route::get('/shorts', [AdminController::class, 'shortsList']);
     Route::delete('/shorts/{id}', [AdminController::class, 'shortsDelete']);

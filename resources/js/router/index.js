@@ -218,6 +218,7 @@ const routes = [
       { path: 'entry-settings', component: p('admin/AdminEntrySettings') },
       { path: 'sweepstakes', component: p('admin/AdminSweepstakes') },
       { path: 'sweepstakes-rules', component: p('admin/AdminSweepstakesRules') },
+      { path: 'event-import', component: p('admin/AdminEventImport') },
       { path: 'system', component: p('admin/System') },
     ]
   },

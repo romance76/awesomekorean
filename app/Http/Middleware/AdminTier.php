@@ -43,6 +43,8 @@ class AdminTier
             ['ANY', '#^settings(/|$)#', 3],
             ['ANY', '#^(api-keys|firebase|security|accounts-overview|analytics|open-event|todos|audit-log)(/|$)#', 3],
             ['ANY', '#^system(/|$)#', 3],
+            // 지역 행사 가져오기: 외부 서비스 API 키는 최고관리자 전용(나머지 켜기/끄기·숨김은 관리자, 삭제는 아래 DELETE 규칙으로 최고관리자)
+            ['ANY', '#^event-import/key$#', 3],
             // 시스템 상태 카드·비상 스위치(가입 보너스/경품 반복 일정/자동 수집 일시중지) — 최고관리자 전용
             ['ANY', '#^(system-status|emergency-switches)(/|$)#', 3],
             // SNS 자동 게시(인스타·스레드) — 사이트 이름으로 바깥에 글이 나가므로 최고관리자 전용

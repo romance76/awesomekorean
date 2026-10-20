@@ -34,6 +34,7 @@ class AutoCollectStatus
             'places'      => ['업소록(구글 장소)', '매주 일요일 03:30', fn () => \App\Models\Business::max('updated_at'), 24 * 10],
             'realestate'  => ['부동산 매물', '매일 05:00·05:15', fn () => \App\Models\RealEstateListing::where('source', 'scraped')->max('created_at'), 36],
             'marketitems' => ['중고장터(eBay)', '매일 05:45', fn () => \App\Models\MarketItem::where('source', 'scraped')->max('created_at'), 36],
+            'events'      => ['지역 행사(Ticketmaster)', '매일 05:30', fn () => \App\Models\Event::where('source', 'ticketmaster')->max('created_at'), 24 * 4],
             'info'        => ['정보 글', '매일 06:15 요청', fn () => \App\Models\InfoPost::max('created_at'), 36],
         ];
     }

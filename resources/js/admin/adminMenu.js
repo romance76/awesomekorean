@@ -78,6 +78,8 @@ export const ADMIN_ITEMS = [
   { to: '/admin/social', icon: 'megaphone', label: 'SNS 게시 (인스타·스레드)', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes-rules', icon: 'book-open', label: '경품 추첨 공식 규정', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
+  { to: '/admin/event-import', icon: 'ticket', label: '지역 행사 가져오기', pcGroup: 'promo', legacyGroup: 'system', mobile: true,
+    isNew: true, newDesc: '미국 30개 주의 콘서트·스포츠·축제를 Ticketmaster 에서 자동으로 가져옵니다. 주별 켜기/끄기와 가져온 행사 숨김을 관리해요.' },
   { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },
   { to: '/admin/popup-banners', icon: 'message-square', label: '팝업 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },
 

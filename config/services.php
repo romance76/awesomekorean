@@ -40,6 +40,11 @@ return [
         'api_key' => env('YOUTUBE_API_KEY'),
     ],
 
+    // 지역 행사 가져오기(Ticketmaster Discovery API). 관리자 화면에서 저장한 키가 있으면 그쪽이 우선.
+    'ticketmaster' => [
+        'key' => env('TICKETMASTER_API_KEY'),
+    ],
+
     'stripe' => [
         'key'            => env('STRIPE_KEY'),
         'secret'         => env('STRIPE_SECRET'),
