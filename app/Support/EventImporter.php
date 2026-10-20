@@ -33,12 +33,13 @@ class EventImporter
     private const SEGMENTS = [
         ['name' => 'Music', 'category' => 'concert', 'weight' => 0.35, 'size' => 60],
         ['name' => 'Sports', 'category' => 'sports', 'weight' => 0.25, 'size' => 50],
-        ['name' => 'Arts & Theatre', 'category' => 'concert', 'weight' => 0.15, 'size' => 40],
-        ['name' => 'Miscellaneous', 'category' => 'festival', 'weight' => 0.25, 'size' => 50],
+        ['name' => 'Arts & Theatre', 'category' => 'concert', 'weight' => 0.10, 'size' => 40],
+        ['name' => 'Miscellaneous', 'category' => 'concert', 'weight' => 0.15, 'size' => 40],   // 순회 쇼·가족 공연 등
+        ['name' => 'Fairs & Festivals', 'category' => 'festival', 'weight' => 0.15, 'size' => 30], // 진짜 축제·페어
     ];
 
     // 행사가 아닌 상품(주차·업그레이드·시즌권·멤버십·구장 투어 등)은 가져오지 않는다
-    private const SKIP_TITLE = '/\b(parking|shuttle|upgrade|add[- ]?on|camping|season pass|season ticket|membership|gift card|premium seating package|club seats?|suite rental|stadium tours?)\b|^tours?:/i';
+    private const SKIP_TITLE = '/\b(parking|shuttle|upgrade|add[- ]?on|camping|season pass|season ticket|membership|gift card|premium seating package|club seats?|suite rental|stadium tours?|vip|hospitality|suites?)\b|^tours?:/i';
     // 제목이 "… Pass" 로 끝나는 정기권(축제 이용권은 제외)
     private const SKIP_PASS = '/\bpass$/i';
 
@@ -279,8 +280,10 @@ class EventImporter
         if ($seg === 'sports') return 'sports';
         if (in_array($gen, ['basketball', 'baseball', 'football', 'hockey', 'soccer', 'wrestling', 'motorsports/racing', 'golf', 'tennis', 'ice skating', 'boxing', 'volleyball', 'lacrosse', 'rugby', 'track & field', 'martial arts'], true)) return 'sports';
         if (preg_match('/festival|\bfair\b|\bexpo\b|parade/i', $title)) return 'festival';
-        if (in_array($seg, ['music', 'arts & theatre', 'film'], true)) return 'concert';
-        if ($seg === 'miscellaneous') return 'festival';
+        if (in_array($gen, ['fairs & festivals', 'community/civic', 'hobby/special interest expos'], true)) return 'festival';
+        if (in_array($gen, ['lecture/seminar', 'educational'], true)) return 'education';
+        // 음악·공연·영화와 "기타"(Disney On Ice 같은 순회 쇼·가족 공연)는 모두 보러 가는 공연
+        if (in_array($seg, ['music', 'arts & theatre', 'film', 'miscellaneous'], true)) return 'concert';
         return null;
     }
 
@@ -376,7 +379,7 @@ class EventImporter
         $n = Event::where('source', self::SOURCE)->where('start_date', '<', now()->subDays(7))
             ->where('attendee_count', 0)->delete();
         $n += Event::where('source', self::SOURCE)->where('attendee_count', 0)->where(function ($q) {
-            foreach (['%season pass%', '%season ticket%', '%membership%', '%gift card%', 'tour:%', 'tours:%', '%stadium tour%', '% pass'] as $like) {
+            foreach (['%season pass%', '%season ticket%', '%membership%', '%gift card%', 'tour:%', 'tours:%', '%stadium tour%', '% pass', '%suites -%', '% vip %', '%hospitality%'] as $like) {
                 $q->orWhere('title', 'like', $like);
             }
         })->where('title', 'not like', '%fest%')->delete();
