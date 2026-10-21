@@ -81,13 +81,18 @@ class FetchStockNews extends Command
                 $image = $this->extractImage($item);
                 if (!$image && $ogLeft > 0) { $ogLeft--; $image = $this->fetchOgImage($link) ?? ''; }
 
-                StockNews::create([
-                    'source' => $name, 'title' => mb_substr($title, 0, 500),
-                    'summary' => $summary !== '' ? mb_substr($summary, 0, 200) : null,
-                    'url' => mb_substr($link, 0, 1000), 'url_hash' => $hash,
-                    'image_url' => $image ?: ($image === '' ? '' : null), 'lang' => $lang, 'published_at' => $pub,
-                ]);
-                $created++;
+                // 기사 한 건을 못 저장해도(예: 칸 길이·인코딩 문제) 나머지 기사·정리 작업은 계속한다 — 예전엔 한 건 오류로 명령 전체가 실패로 표시됐다
+                try {
+                    StockNews::create([
+                        'source' => $name, 'title' => mb_substr($title, 0, 500),
+                        'summary' => $summary !== '' ? mb_substr($summary, 0, 200) : null,
+                        'url' => mb_substr($link, 0, 1000), 'url_hash' => $hash,
+                        'image_url' => $image ?: ($image === '' ? '' : null), 'lang' => $lang, 'published_at' => $pub,
+                    ]);
+                    $created++;
+                } catch (\Throwable $e) {
+                    $this->warn("[{$name}] 저장 실패: " . mb_substr($e->getMessage(), 0, 140));
+                }
             }
             $this->info("[{$name}] 신규 {$created}건");
             $total += $created;
