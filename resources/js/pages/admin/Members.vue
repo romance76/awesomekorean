@@ -165,14 +165,14 @@
             <div class="border border-gray-100 rounded-xl p-3">
               <div class="flex items-center gap-1.5 text-xs font-bold text-ink-light mb-2"><AppIcon name="list" :size="13" />콘텐츠 분포</div>
               <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="list" :size="12" />게시글</span><span class="font-bold text-amber-600">{{ userData.posts?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="briefcase" :size="12" />구인</span><span class="font-bold text-amber-600">{{ userData.jobs?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="shopping-cart" :size="12" />장터</span><span class="font-bold text-amber-600">{{ userData.market?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="building" :size="12" />부동산</span><span class="font-bold text-amber-600">{{ userData.realestate?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="users" :size="12" />동호회</span><span class="font-bold text-amber-600">{{ userData.clubs?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="calendar" :size="12" />이벤트</span><span class="font-bold text-amber-600">{{ userData.events?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="help-circle" :size="12" />Q&A</span><span class="font-bold text-amber-600">{{ userData.qa?.length || 0 }}</span></div>
-                <div class="flex justify-between border-b border-gray-50 py-1"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="message-circle" :size="12" />댓글</span><span class="font-bold text-amber-600">{{ userData.comments?.length || 0 }}</span></div>
+                <button type="button" @click="goContent('posts')" :disabled="!userData.posts?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="list" :size="12" />게시글</span><span class="font-bold text-amber-600">{{ userData.posts?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('jobs')" :disabled="!userData.jobs?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="briefcase" :size="12" />구인</span><span class="font-bold text-amber-600">{{ userData.jobs?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('market')" :disabled="!userData.market?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="shopping-cart" :size="12" />장터</span><span class="font-bold text-amber-600">{{ userData.market?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('realestate')" :disabled="!userData.realestate?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="building" :size="12" />부동산</span><span class="font-bold text-amber-600">{{ userData.realestate?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('clubs')" :disabled="!userData.clubs?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="users" :size="12" />동호회</span><span class="font-bold text-amber-600">{{ userData.clubs?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('events')" :disabled="!userData.events?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="calendar" :size="12" />이벤트</span><span class="font-bold text-amber-600">{{ userData.events?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('qa')" :disabled="!userData.qa?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="help-circle" :size="12" />Q&A</span><span class="font-bold text-amber-600">{{ userData.qa?.length || 0 }}</span></button>
+                <button type="button" @click="goContent('comments')" :disabled="!userData.comments?.length" class="flex justify-between border-b border-gray-50 py-1 w-full text-left rounded transition-colors enabled:hover:bg-amber-50 enabled:cursor-pointer disabled:cursor-default" title="눌러서 글 보기"><span class="flex items-center gap-1 text-ink-light"><AppIcon name="message-circle" :size="12" />댓글</span><span class="font-bold text-amber-600">{{ userData.comments?.length || 0 }}</span></button>
               </div>
             </div>
 
@@ -274,7 +274,7 @@
           <!-- 📝 콘텐츠 (전체 유형) -->
           <div v-show="userTab==='content'" class="p-4 space-y-4">
             <!-- 게시글 -->
-            <div v-if="userData.posts?.length">
+            <div v-if="userData.posts?.length" id="ct-posts" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="list" :size="13" />커뮤니티 게시글 ({{ userData.posts.length }})</div>
               <div v-for="post in userData.posts" :key="post.id"
                 class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/40 transition-colors">
@@ -286,7 +286,7 @@
               </div>
             </div>
             <!-- 구인 -->
-            <div v-if="userData.jobs?.length">
+            <div v-if="userData.jobs?.length" id="ct-jobs" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-indigo-700 mb-2"><AppIcon name="briefcase" :size="13" />구인/구직 ({{ userData.jobs.length }})</div>
               <div v-for="j in userData.jobs" :key="j.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-indigo-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
@@ -297,7 +297,7 @@
               </div>
             </div>
             <!-- 장터 -->
-            <div v-if="userData.market?.length">
+            <div v-if="userData.market?.length" id="ct-market" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="shopping-cart" :size="13" />중고장터 ({{ userData.market.length }})</div>
               <div v-for="m in userData.market" :key="m.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
@@ -308,7 +308,7 @@
               </div>
             </div>
             <!-- 부동산 -->
-            <div v-if="userData.realestate?.length">
+            <div v-if="userData.realestate?.length" id="ct-realestate" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-blue-700 mb-2"><AppIcon name="building" :size="13" />부동산 ({{ userData.realestate.length }})</div>
               <div v-for="r in userData.realestate" :key="r.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-blue-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
@@ -319,7 +319,7 @@
               </div>
             </div>
             <!-- 동호회 -->
-            <div v-if="userData.clubs?.length">
+            <div v-if="userData.clubs?.length" id="ct-clubs" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-green-700 mb-2"><AppIcon name="users" :size="13" />동호회 ({{ userData.clubs.length }})</div>
               <div v-for="cl in userData.clubs" :key="cl.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-green-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
@@ -330,7 +330,7 @@
               </div>
             </div>
             <!-- 이벤트 -->
-            <div v-if="userData.events?.length">
+            <div v-if="userData.events?.length" id="ct-events" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="calendar" :size="13" />이벤트 ({{ userData.events.length }})</div>
               <div v-for="ev in userData.events" :key="ev.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
@@ -341,7 +341,7 @@
               </div>
             </div>
             <!-- Q&A -->
-            <div v-if="userData.qa?.length">
+            <div v-if="userData.qa?.length" id="ct-qa" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-violet-700 mb-2"><AppIcon name="help-circle" :size="13" />Q&A ({{ userData.qa.length }})</div>
               <div v-for="q in userData.qa" :key="q.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-violet-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
@@ -497,7 +497,7 @@
 </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, computed, nextTick, onMounted, inject } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useRouter } from 'vue-router'
@@ -555,6 +555,12 @@ const search = ref(''); const roleFilter = ref(''); const statusFilter = ref('')
 const page = ref(1); const lastPage = ref(1); const totalUsers = ref(0)
 
 const activeUser = ref(null); const userData = ref(null); const userLoading = ref(false)
+// 요약의 '콘텐츠 분포' 숫자를 누르면 해당 글 목록으로 이동 (댓글은 댓글 탭)
+function goContent(key) {
+  if (key === 'comments') { userTab.value = 'comments'; return }
+  userTab.value = 'content'
+  nextTick(() => document.getElementById('ct-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
 const userTab = ref('summary'); const banReason = ref(''); const addPoints = ref(0)
 const addEntries = ref(0); const entryDesc = ref(''); const givingEntries = ref(false)
 const entryMsg = ref(''); const entryOk = ref(false)
