@@ -43,6 +43,8 @@ class SyncAllContent extends Command
                 ['key' => 'realestate_sale',  'label' => '부동산(매매)'],
                 ['key' => 'realestate_rent',  'label' => '부동산(렌트)'],
                 ['key' => 'market_scrape',    'label' => '중고장터'],
+                ['key' => 'events',           'label' => '지역 행사'],
+                ['key' => 'event_feeds',      'label' => '공식 행사 피드'],
                 ['key' => 'info',             'label' => '정보'],
             ]
         );
@@ -85,6 +87,9 @@ class SyncAllContent extends Command
         $run('realestate_sale', '부동산(매매)', fn() => \Artisan::call('realestate:scrape', ['--type' => 'sale']));
         $run('realestate_rent', '부동산(렌트)', fn() => \Artisan::call('realestate:scrape', ['--type' => 'rent']));
         $run('market_scrape', '중고장터', fn() => \Artisan::call('market:scrape'));
+        // 지역 행사는 평소 매주 일요일에만 자동으로 돌고, 이 버튼을 누르면 그때도 같이 가져온다
+        $run('events', '지역 행사', fn() => \Artisan::call('events:import'));
+        $run('event_feeds', '공식 행사 피드', fn() => \Artisan::call('events:import-feeds'));
         $run('info', '정보', fn() => \Artisan::call('info:trigger-generation'));
 
         $this->info('=== 전체 완료 ===');

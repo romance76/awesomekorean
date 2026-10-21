@@ -52,7 +52,7 @@
     <AppIcon name="phone" :size="16" />휴대폰 화면
   </button>
   <!-- 사이드바 -->
-  <aside class="w-60 bg-white border-r border-gray-100 hidden lg:flex flex-col h-screen sticky top-0">
+  <aside class="w-60 shrink-0 bg-white border-r border-gray-100 hidden lg:flex flex-col h-screen sticky top-0">
     <div class="p-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
         <img v-if="siteStore.logoUrl && !logoError" :src="siteStore.logoUrl" alt="AwesomeKorean" class="h-7 w-auto max-w-[140px] object-contain" @error="logoError = true" />
@@ -134,7 +134,7 @@
   </div>
 
   <!-- 메인 -->
-  <main class="flex-1 lg:mt-0 mt-14">
+  <main class="flex-1 min-w-0 lg:mt-0 mt-14">
     <!-- 서브 탭 (콘텐츠/서비스/시스템일 때) -->
     <div v-if="currentSubTabs.length" class="lg:hidden bg-white border-b border-gray-100 px-4 py-0 flex gap-0 overflow-x-auto scrollbar-hide">
       <RouterLink v-for="tab in currentSubTabs" :key="tab.to" :to="tab.to"
