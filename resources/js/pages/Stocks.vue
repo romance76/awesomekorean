@@ -29,7 +29,7 @@
   <!-- ── 왼쪽: 증권가 뉴스 / 오른쪽: 내 종목·대표 종목 탭 ───── -->
   <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 mb-6 items-start">
 
-    <!-- 뉴스 (야후 파이낸스 형식: 큰 기사 + 오른쪽 목록 + 작은 카드 + 나머지 목록) -->
+    <!-- 뉴스 (야후 파이낸스 형식: 큰 기사 + 오른쪽 목록 + 작은 카드) -->
     <section class="min-w-0">
       <div class="flex items-center gap-2 mb-3">
         <h2 class="text-[17px] font-extrabold text-ink">증권가 뉴스</h2>
@@ -66,20 +66,6 @@
             </div>
           </a>
         </div>
-
-        <!-- 나머지 목록 -->
-        <ul>
-          <li v-for="n in rest" :key="n.id" class="border-b border-line last:border-0">
-            <a :href="n.url" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-3 py-3">
-              <div class="min-w-0 flex-1">
-                <div class="text-[14.5px] font-bold text-ink leading-snug group-hover:underline">{{ n.title }}</div>
-                <div v-if="n.summary" class="text-[12.5px] text-ink-muted mt-0.5 line-clamp-1">{{ n.summary }}</div>
-                <div class="text-[11px] text-ink-faint mt-0.5">{{ srcLine(n) }}</div>
-              </div>
-              <img v-if="n.image_url" :src="n.image_url" alt="" loading="lazy" referrerpolicy="no-referrer" class="w-20 h-14 rounded-lg object-cover shrink-0 bg-gray-100" @error="$event.target.style.display = 'none'" />
-            </a>
-          </li>
-        </ul>
       </template>
       <p class="text-[10.5px] text-ink-faint mt-3">제목과 요약만 보여 주고, 기사 전문은 각 언론사 사이트에서 볼 수 있어요. 영문 기사는 제목을 자동 번역해서 부정확할 수 있어요.</p>
     </section>
@@ -339,13 +325,12 @@ const canScroll = ref(false)
 function updateScroll() { const el = idxEl.value; canScroll.value = !!el && el.scrollWidth > el.clientWidth + 4 }
 function scrollIdx(dir) { idxEl.value?.scrollBy({ left: dir * 340, behavior: 'smooth' }) }
 
-// 증권가 뉴스: 대표 기사 1 + 오른쪽 목록 4 + 작은 카드 3 + 나머지 (그림 있는 기사를 앞쪽 카드에 우선 배치)
+// 증권가 뉴스: 대표 기사 1 + 오른쪽 목록 4 + 작은 카드 3 (그림 있는 기사를 앞쪽 카드에 우선 배치)
 const news = ref([])
 const newsLoading = ref(true)
 const hero = computed(() => news.value.find(n => n.image_url) || news.value[0])
 const cards = computed(() => news.value.filter(n => n.image_url && n !== hero.value).slice(0, 3))
 const side = computed(() => news.value.filter(n => n !== hero.value && !cards.value.includes(n)).slice(0, 4))
-const rest = computed(() => news.value.filter(n => n !== hero.value && !cards.value.includes(n) && !side.value.includes(n)))
 function srcLine(n) {
   return `${n.source}${n.lang === 'en' ? ' · 영문 기사(제목 번역)' : n.lang === 'en_raw' ? ' · 영문 기사' : ''} · ${timeAgo(n.published_at)}`
 }
@@ -356,7 +341,7 @@ function timeAgo(t) {
   return `${Math.floor(m / 1440)}일 전`
 }
 async function loadNews() {
-  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 40 } }); news.value = data.data || [] } catch {}
+  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 20 } }); news.value = data.data || [] } catch {}
   newsLoading.value = false
 }
 
