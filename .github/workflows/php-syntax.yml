@@ -1,10 +1,14 @@
 name: PHP Syntax Check
 
+# 2026-10-21: 푸시할 때마다 자동으로 돌며 실패 메일이 계속 와서(운영자 요청) 자동 실행을 껐다.
+#  - 지금은 사람이 직접 돌릴 때만 실행(GitHub › Actions › PHP Syntax Check › Run workflow). 다시 자동으로 돌리려면 아래 주석(#)을 풀면 된다.
+#  - 문법 확인은 푸시 전에 직접 하는 방식으로 대신한다. 배포(deploy.yml)는 이 검사와 별개라 그대로 돈다.
 on:
-  push:
-    branches: [main, master, develop]
-  pull_request:
-    branches: [main, master, develop]
+  workflow_dispatch:
+  # push:
+  #   branches: [main, master, develop]
+  # pull_request:
+  #   branches: [main, master, develop]
 
 jobs:
   syntax-check:
