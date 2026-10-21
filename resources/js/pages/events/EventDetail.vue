@@ -228,6 +228,7 @@ const eventActionLabel = computed(() => {
   if (url.includes('realestate')) return '🏠 리스팅 등록하러 가기'
   if (url.includes('music')) return '🎵 음악듣기 바로가기'
   if (url.includes('chat')) return '💬 채팅방 입장하기'
+  if (url.includes('ad-apply')) return '📣 광고 신청하러 가기'
   return '🎯 참여하기'
 })
 
