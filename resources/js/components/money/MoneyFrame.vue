@@ -19,6 +19,7 @@
           class="flex items-center gap-2.5 px-3.5 py-2 text-[14px] hover:bg-gray-50" :class="c.slug === cafeSlug ? 'text-emerald-700 font-bold bg-emerald-50/60' : 'text-ink-light'">
           <AppIcon :name="cafeIcon(c.slug)" :size="17" />
           <span class="flex-1">{{ c.name }}</span>
+          <span v-if="c.new_count > 0" class="badge-green !text-[10px] !px-1.5 !py-0 shrink-0">NEW</span>
           <span class="text-[12px] text-ink-faint">{{ c.post_count }}</span>
         </RouterLink>
       </div>
@@ -32,6 +33,7 @@
             :class="c.slug === cafeSlug ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-ink-light'">
             <AppIcon :name="cafeIcon(c.slug)" :size="17" />
             <span class="flex-1 min-w-0 truncate">{{ c.name }}</span>
+            <span v-if="c.new_count > 0" class="badge-green !text-[10px] !px-1.5 !py-0 shrink-0 font-bold">NEW</span>
             <span class="text-[11.5px] font-normal text-ink-faint">{{ c.post_count }}</span>
           </RouterLink>
         </template>

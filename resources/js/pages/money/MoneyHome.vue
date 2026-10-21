@@ -18,7 +18,7 @@
             <AppIcon :name="cafeIcon(c.slug)" :size="20" />
           </span>
           <span class="min-w-0">
-            <span class="block font-bold text-ink text-[15px] leading-snug">{{ c.name }}</span>
+            <span class="flex items-center gap-1.5 font-bold text-ink text-[15px] leading-snug">{{ c.name }}<span v-if="c.new_count > 0" class="badge-green !text-[10px] !px-1.5 !py-0" :title="`최근 7일 새 글 ${c.new_count}개`">NEW</span></span>
             <span class="block text-[12.5px] text-ink-muted mt-0.5 leading-snug line-clamp-1">{{ c.headline || c.summary }}</span>
             <span class="block text-[12px] text-ink-faint mt-0.5">글 {{ c.post_count }}개</span>
           </span>

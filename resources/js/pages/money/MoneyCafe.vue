@@ -30,7 +30,7 @@
         <!-- 주제 고르기 (한 줄, 가로로 밀기) -->
         <div v-if="categories.length" class="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1 mb-2 md:flex-wrap md:overflow-visible">
           <button type="button" @click="pickTopic(0)" class="mc-chip" :style="!topic ? chipOn : {}">전체</button>
-          <button v-for="c in categories.filter(k => (k.post_count || 0) > 0 || k.id === topic)" :key="c.id" type="button" @click="pickTopic(c.id)" class="mc-chip" :style="topic === c.id ? chipOn : {}">{{ c.name }}<span class="ml-1 text-[11px] opacity-60">{{ c.post_count || 0 }}</span></button>
+          <button v-for="c in categories.filter(k => (k.post_count || 0) > 0 || k.id === topic)" :key="c.id" type="button" @click="pickTopic(c.id)" class="mc-chip" :style="topic === c.id ? chipOn : {}">{{ c.name }}<span class="ml-1 text-[11px] opacity-60">{{ c.post_count || 0 }}</span><span v-if="c.new_count > 0" class="badge-green !text-[9.5px] !px-1 !py-0 ml-1 align-middle">NEW</span></button>
         </div>
         <div class="flex items-center gap-2 flex-wrap mb-3">
           <div class="flex gap-1 bg-gray-100 rounded-xl p-1">

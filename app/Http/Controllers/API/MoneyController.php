@@ -21,10 +21,13 @@ class MoneyController extends Controller
 {
     use AdminAuthorizes;
 
-    // 허브 첫 화면용: 카페 목록(최근 7일 새 글 수 포함) + 공개된 가이드
+    // 이 기간 안에 올라온 글이 있으면 화면에 NEW 를 붙인다 (분야·세부 카테고리 공통)
+    private const NEW_DAYS = 7;
+
+    // 허브 첫 화면용: 카페 목록(최근 새 글 수 포함) + 공개된 가이드
     public function hub()
     {
-        $since = now()->subDays(7);
+        $since = now()->subDays(self::NEW_DAYS);
         $cafes = MoneyCafe::where('is_active', true)->orderBy('sort_order')
             ->select(['id', 'slug', 'name', 'icon', 'summary', 'headline', 'theme', 'art', 'sort_order'])
             ->with(['categories' => fn ($q) => $q->where('is_active', true)->select(['id', 'cafe_id', 'name', 'icon', 'sort_order'])])
@@ -40,15 +43,21 @@ class MoneyController extends Controller
     // 카페 전체 안내 페이지: 카페마다 큰 문구·그림·주제
     public function cafes()
     {
+        $since = now()->subDays(self::NEW_DAYS);
         $cafes = MoneyCafe::where('is_active', true)->orderBy('sort_order')
             ->select(['id', 'slug', 'name', 'icon', 'summary', 'headline', 'theme', 'art', 'sort_order'])
             ->with(['categories' => fn ($q) => $q->where('is_active', true)->select(['id', 'cafe_id', 'name', 'icon', 'sort_order'])])
-            ->withCount(['posts as post_count' => fn ($q) => $q->where('is_hidden', false)])
+            ->withCount([
+                'posts as post_count' => fn ($q) => $q->where('is_hidden', false),
+                'posts as new_count' => fn ($q) => $q->where('is_hidden', false)->where('created_at', '>=', $since),
+            ])
             ->get();
-        // 왼쪽 메뉴에서 주제마다 글 개수를 보여 주려고
+        // 왼쪽 메뉴에서 주제마다 글 개수·새 글 수를 보여 주려고
         $counts = MoneyPost::where('is_hidden', false)->whereNotNull('category_id')
             ->selectRaw('category_id, count(*) as n')->groupBy('category_id')->pluck('n', 'category_id');
-        foreach ($cafes as $c) foreach ($c->categories as $k) $k->post_count = (int) ($counts[$k->id] ?? 0);
+        $newCounts = MoneyPost::where('is_hidden', false)->whereNotNull('category_id')->where('created_at', '>=', $since)
+            ->selectRaw('category_id, count(*) as n')->groupBy('category_id')->pluck('n', 'category_id');
+        foreach ($cafes as $c) foreach ($c->categories as $k) { $k->post_count = (int) ($counts[$k->id] ?? 0); $k->new_count = (int) ($newCounts[$k->id] ?? 0); }
         return response()->json(['success' => true, 'data' => $cafes]);
     }
 
@@ -61,7 +70,9 @@ class MoneyController extends Controller
             ->get(['id', 'name', 'icon', 'hint']);
         $counts = MoneyPost::where('cafe_id', $cafe->id)->where('is_hidden', false)->whereNotNull('category_id')
             ->selectRaw('category_id, count(*) as n')->groupBy('category_id')->pluck('n', 'category_id');
-        $categories->each(fn ($c) => $c->post_count = (int) ($counts[$c->id] ?? 0));
+        $newCounts = MoneyPost::where('cafe_id', $cafe->id)->where('is_hidden', false)->whereNotNull('category_id')->where('created_at', '>=', now()->subDays(self::NEW_DAYS))
+            ->selectRaw('category_id, count(*) as n')->groupBy('category_id')->pluck('n', 'category_id');
+        $categories->each(function ($c) use ($counts, $newCounts) { $c->post_count = (int) ($counts[$c->id] ?? 0); $c->new_count = (int) ($newCounts[$c->id] ?? 0); });
         $popular = MoneyPost::where('cafe_id', $cafe->id)->where('is_hidden', false)
             ->orderByDesc('view_count')->limit(5)->get(['id', 'title', 'kind', 'view_count', 'comment_count']);
         // 이 카페 가이드: 공개된 것은 링크, 아직 준비 중인 것은 제목만 (무엇이 올라올지 미리 보여 줌)
