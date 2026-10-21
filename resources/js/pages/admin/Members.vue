@@ -71,7 +71,7 @@
               </td>
               <td v-if="!activeUser" class="px-3 py-2.5 text-xs text-ink-muted">{{ u.email }}</td>
               <td class="px-3 py-2.5 text-center"><span class="text-[11px] px-2 py-0.5 rounded-full font-bold" :class="roleClass(u.role)">{{ roleLabel(u.role) }}</span></td>
-              <td class="px-3 py-2.5 text-center text-xs text-amber-600 font-semibold">{{ u.points||0 }}</td>
+              <td class="px-3 py-2.5 text-center text-xs text-amber-600 font-semibold">{{ u.role === 'super_admin' ? '∞' : (u.points||0) }}</td>
               <td class="px-3 py-2.5 text-center"><span :class="u.is_banned?'text-red-500':'text-green-500'" class="text-[11px] font-bold">{{ u.is_banned ? '정지' : '활동' }}</span></td>
               <td class="px-3 py-2.5 text-[11px] text-ink-faint">{{ u.created_at?.slice(2,10) }}</td>
             </tr>
@@ -119,7 +119,7 @@
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <div class="bg-amber-50 rounded-xl p-3">
                 <div class="text-xs text-amber-700 font-bold">보유 포인트</div>
-                <div class="text-2xl font-black text-amber-600 mt-1">{{ userData.user.points || 0 }}<span class="text-xs">P</span></div>
+                <div class="text-2xl font-black text-amber-600 mt-1">{{ isUnlimited ? '∞' : (userData.user.points || 0) }}<span class="text-xs">P</span></div>
                 <div class="text-[11px] text-ink-muted mt-0.5">게임 {{ userData.user.game_points||0 }}P</div>
               </div>
               <div class="bg-green-50 rounded-xl p-3">
@@ -143,11 +143,11 @@
             <div class="grid grid-cols-2 gap-3">
               <div class="border border-gray-100 rounded-xl p-3">
                 <div class="text-xs text-ink-muted font-bold">누적 획득 포인트</div>
-                <div class="text-lg font-black text-emerald-600 mt-1">+{{ (userData.summary?.total_points_earned || 0).toLocaleString() }}P</div>
+                <div class="text-lg font-black text-emerald-600 mt-1">{{ isUnlimited ? '∞' : '+' + (userData.summary?.total_points_earned || 0).toLocaleString() + 'P' }}</div>
               </div>
               <div class="border border-gray-100 rounded-xl p-3">
                 <div class="text-xs text-ink-muted font-bold">누적 사용 포인트</div>
-                <div class="text-lg font-black text-amber-600 mt-1">-{{ (userData.summary?.total_points_spent || 0).toLocaleString() }}P</div>
+                <div class="text-lg font-black text-amber-600 mt-1">{{ isUnlimited ? '∞' : '-' + (userData.summary?.total_points_spent || 0).toLocaleString() + 'P' }}</div>
               </div>
             </div>
 
@@ -221,7 +221,7 @@
           <div v-show="userTab==='points'" class="p-4">
             <div class="flex items-center gap-3 mb-3">
               <div class="bg-amber-50 rounded-xl px-4 py-2">
-                <div class="text-xl font-black text-amber-600">{{ userData.user.points||0 }}P</div>
+                <div class="text-xl font-black text-amber-600">{{ isUnlimited ? '∞' : (userData.user.points||0) + 'P' }}</div>
                 <div class="text-[11px] text-ink-muted">보유 포인트</div>
               </div>
               <div class="bg-blue-50 rounded-xl px-4 py-2">
@@ -245,7 +245,7 @@
           <div v-show="userTab==='entries'" class="p-4">
             <div class="flex items-center gap-3 mb-3">
               <div class="bg-amber-50 rounded-xl px-4 py-2">
-                <div class="text-xl font-black text-amber-600">🎟 {{ Number(userData.user.entries||0).toLocaleString() }}</div>
+                <div class="text-xl font-black text-amber-600">🎟 {{ isUnlimited ? '∞' : Number(userData.user.entries||0).toLocaleString() }}</div>
                 <div class="text-[11px] text-ink-muted">보유 Entry</div>
               </div>
               <div class="flex gap-2 ml-auto">
@@ -561,6 +561,7 @@ function goContent(key) {
   userTab.value = 'content'
   nextTick(() => document.getElementById('ct-' + key)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
 }
+const isUnlimited = computed(() => userData.value?.user?.role === 'super_admin')   // 슈퍼관리자는 포인트·Entry 무제한 표시(이코노미 합계에서도 제외)
 const userTab = ref('summary'); const banReason = ref(''); const addPoints = ref(0)
 const addEntries = ref(0); const entryDesc = ref(''); const givingEntries = ref(false)
 const entryMsg = ref(''); const entryOk = ref(false)

@@ -721,12 +721,23 @@ class AdminBoardController extends Controller
             'today_revenue' => $net(\App\Models\Payment::where('created_at', '>=', $todayStart)),
         ];
 
-        // 포인트
+        // 포인트·Entry 이코노미 — 슈퍼관리자(값이 무제한으로 표시되는 계정)의 적립·소비·잔액은 합계에 넣지 않는다
+        $adminIds = \App\Models\User::where('role', 'super_admin')->pluck('id')->all();
+        $pointLogs = fn () => PointLog::whereNotIn('user_id', $adminIds);
         $pointStats = [
-            'total_issued' => PointLog::where('amount', '>', 0)->where('created_at', '>=', $since)->sum('amount'),
-            'total_spent' => abs(PointLog::where('amount', '<', 0)->where('created_at', '>=', $since)->sum('amount')),
-            'today_issued' => PointLog::where('amount', '>', 0)->whereDate('created_at', today())->sum('amount'),
-            'today_spent' => abs(PointLog::where('amount', '<', 0)->whereDate('created_at', today())->sum('amount')),
+            'total_issued' => $pointLogs()->where('amount', '>', 0)->where('created_at', '>=', $since)->sum('amount'),
+            'total_spent' => abs($pointLogs()->where('amount', '<', 0)->where('created_at', '>=', $since)->sum('amount')),
+            'today_issued' => $pointLogs()->where('amount', '>', 0)->whereDate('created_at', today())->sum('amount'),
+            'today_spent' => abs($pointLogs()->where('amount', '<', 0)->whereDate('created_at', today())->sum('amount')),
+            'circulating' => (int) \App\Models\User::whereNotIn('id', $adminIds)->sum('points'),   // 지금 회원들이 들고 있는 포인트 합계
+        ];
+        $entryLogs = fn () => \App\Models\EntryTransaction::whereNotIn('user_id', $adminIds);
+        $entryStats = [
+            'total_issued' => $entryLogs()->where('amount', '>', 0)->where('created_at', '>=', $since)->sum('amount'),
+            'total_spent' => abs($entryLogs()->where('amount', '<', 0)->where('created_at', '>=', $since)->sum('amount')),
+            'today_issued' => $entryLogs()->where('amount', '>', 0)->whereDate('created_at', today())->sum('amount'),
+            'today_spent' => abs($entryLogs()->where('amount', '<', 0)->whereDate('created_at', today())->sum('amount')),
+            'circulating' => (int) \App\Models\User::whereNotIn('id', $adminIds)->sum('entries'),
         ];
 
         // 광고
@@ -748,6 +759,8 @@ class AdminBoardController extends Controller
             'boards' => $boards,
             'payments' => $paymentStats,
             'points' => $pointStats,
+            'entries' => $entryStats,
+            'economy_excluded_admins' => count($adminIds),
             'banners' => $bannerStats,
             'users' => $userStats,
             'top_posters' => DB::table('users')

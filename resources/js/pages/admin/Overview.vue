@@ -29,16 +29,8 @@
       </RouterLink>
     </div>
 
-    <!-- 포인트 이코노미 -->
-    <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
-      <div class="text-[15px] font-bold text-ink mb-2">포인트 이코노미</div>
-      <div class="grid grid-cols-2 gap-2.5">
-        <div class="bg-green-50 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">누적 적립</div><div class="text-[18px] font-bold tabular-nums text-green-600">+{{ Number(report.points.total_issued).toLocaleString() }}</div></div>
-        <div class="bg-red-50 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">누적 소비</div><div class="text-[18px] font-bold tabular-nums text-red-600">-{{ Number(report.points.total_spent).toLocaleString() }}</div></div>
-        <div class="bg-green-50/60 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">오늘 적립</div><div class="text-[18px] font-bold tabular-nums text-green-500">+{{ Number(report.points.today_issued).toLocaleString() }}</div></div>
-        <div class="bg-red-50/60 rounded-xl px-3 py-2"><div class="text-[12px] text-ink-muted">오늘 소비</div><div class="text-[18px] font-bold tabular-nums text-red-500">-{{ Number(report.points.today_spent).toLocaleString() }}</div></div>
-      </div>
-    </div>
+    <!-- 이코노미 (포인트 · Entry · 매출) -->
+    <EconomyPanel :report="report" />
 
     <!-- 게시판별 현황 -->
     <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
@@ -136,18 +128,8 @@
       </RouterLink>
     </div>
 
-    <!-- 포인트 이코노미 -->
-    <div class="card p-4 mb-4">
-      <div class="flex items-center gap-2 font-bold text-sm text-ink mb-3">
-        <span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="14" /></span>포인트 이코노미
-      </div>
-      <div class="grid grid-cols-4 gap-3 text-center">
-        <div><div class="text-lg font-bold text-green-600">+{{ Number(report.points.total_issued).toLocaleString() }}</div><div class="text-xs text-ink-muted">누적 적립</div></div>
-        <div><div class="text-lg font-bold text-red-600">-{{ Number(report.points.total_spent).toLocaleString() }}</div><div class="text-xs text-ink-muted">누적 소비</div></div>
-        <div><div class="text-lg font-bold text-green-500">+{{ Number(report.points.today_issued).toLocaleString() }}</div><div class="text-xs text-ink-muted">오늘 적립</div></div>
-        <div><div class="text-lg font-bold text-red-500">-{{ Number(report.points.today_spent).toLocaleString() }}</div><div class="text-xs text-ink-muted">오늘 소비</div></div>
-      </div>
-    </div>
+    <!-- 이코노미 (포인트 · Entry · 매출) -->
+    <EconomyPanel :report="report" />
 
     <!-- 게시판별 현황 -->
     <div class="card p-4 mb-4">
@@ -251,6 +233,7 @@ import { ref, onMounted, computed, inject } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 import ContentSyncPanel from '../../components/ContentSyncPanel.vue'
+import EconomyPanel from './EconomyPanel.vue'
 
 // 게시판별 현황 칸 → 그 관리 화면. 서버가 주는 이름(slug)이 화면 주소와 다른 것만 바꿔 준다 (업소록: business → directory)
 const boardAdminPath = (slug) => `/admin/${slug === 'business' ? 'directory' : slug}`
