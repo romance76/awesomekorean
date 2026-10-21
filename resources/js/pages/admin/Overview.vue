@@ -30,7 +30,7 @@
     </div>
 
     <!-- 이코노미 (포인트 · Entry · 매출) -->
-    <EconomyPanel :report="report" />
+    <EconomyPanel :report="report" @changed="refreshQuiet" />
 
     <!-- 게시판별 현황 -->
     <div class="bg-white border border-gray-100 rounded-2xl p-3.5">
@@ -129,7 +129,7 @@
     </div>
 
     <!-- 이코노미 (포인트 · Entry · 매출) -->
-    <EconomyPanel :report="report" />
+    <EconomyPanel :report="report" @changed="refreshQuiet" />
 
     <!-- 게시판별 현황 -->
     <div class="card p-4 mb-4">
@@ -248,6 +248,11 @@ const loading = ref(true)
 const pendingReports = computed(() =>
   report.value?.boards?.reduce((sum, b) => sum + (b.reports || 0), 0) || 0
 )
+
+// 이코노미 정리 직후: 화면을 '불러오는 중'으로 바꾸지 않고 숫자만 새로 받는다 (정리 결과 창이 닫히지 않게)
+async function refreshQuiet() {
+  try { report.value = (await axios.get('/api/admin/board-manager/full-report')).data.data } catch {}
+}
 
 async function reload() {
   loading.value = true
