@@ -107,7 +107,7 @@
           <div class="min-w-0 flex-1">
             <div class="text-[13.5px] font-semibold text-ink leading-snug">{{ n.title }}</div>
             <div v-if="n.summary" class="text-[12px] text-ink-muted mt-0.5 line-clamp-1">{{ n.summary }}</div>
-            <div class="text-[11px] text-ink-faint mt-0.5">{{ n.source }}<span v-if="n.lang === 'en'"> · 영문 기사(제목 번역)</span> · {{ timeAgo(n.published_at) }}</div>
+            <div class="text-[11px] text-ink-faint mt-0.5">{{ n.source }}<span v-if="n.lang === 'en'"> · 영문 기사(제목 번역)</span><span v-else-if="n.lang === 'en_raw'"> · 영문 기사</span> · {{ timeAgo(n.published_at) }}</div>
           </div>
           <img v-if="n.image_url" :src="n.image_url" alt="" loading="lazy" referrerpolicy="no-referrer" class="w-16 h-12 rounded-lg object-cover shrink-0 bg-gray-100" @error="$event.target.style.display = 'none'" />
         </a>

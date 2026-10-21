@@ -20,12 +20,12 @@ class FetchStockNews extends Command
     // 이름 => [RSS 주소, 언어, 증시 관련 단어가 제목에 있는 기사만 담을지]
     private array $feeds = [
         '한국경제'     => ['https://www.hankyung.com/feed/finance', 'ko', false],
-        '연합인포맥스' => ['https://news.einfomax.co.kr/rss/allArticle.xml', 'ko', false],
+        '연합인포맥스' => ['https://news.einfomax.co.kr/rss/allArticle.xml', 'ko', true],
         '연합뉴스'     => ['https://www.yna.co.kr/rss/economy.xml', 'ko', true],
         'CNBC'         => ['https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=15839069', 'en', false],
     ];
 
-    private const KEYWORDS = ['증시', '주가', '주식', '코스피', '코스닥', '나스닥', '다우', 'S&P', '뉴욕', '월가', '연준', 'Fed', '금리', '환율', '달러', '국채', '비트코인', '실적', '반도체', '엔비디아', '테슬라', '애플', '상장', 'IPO', 'ETF', '증권', '투자'];
+    private const KEYWORDS = ['증시', '주가', '주식', '코스피', '코스닥', '나스닥', '다우', 'S&P', '뉴욕', '월가', '연준', 'Fed', '금리', '환율', '달러', '국채', '비트코인', '실적', '반도체', '엔비디아', '테슬라', '애플', '상장', 'IPO', 'ETF', '증권', '투자', '채권', '외환', 'FX', '국고', '시황', '선물', '유가', '금통위'];
 
     private const KEEP_MONTHS = 2;      // 이 기간이 지난 기사는 삭제
     private const PER_FEED = 25;        // 소스당 최신 N건만 확인
@@ -58,12 +58,10 @@ class FetchStockNews extends Command
                 if ($filter && !$this->isStockRelated($title . ' ' . $summary)) continue;
 
                 if ($lang === 'en') {
-                    if ($translated >= self::MAX_TRANSLATE) continue;
-                    $ko = trim(EventImporter::translate($title));
-                    if ($ko === '' || $ko === $title) continue;      // 번역 실패 시 영문 제목을 그대로 노출하지 않고 다음 실행에 다시 시도
-                    $title = $ko;
                     $summary = '';                                    // 영문 요약은 번역하지 않음
-                    $translated++;
+                    $ko = $translated < self::MAX_TRANSLATE ? trim(EventImporter::translate($title)) : '';
+                    if ($ko !== '' && $ko !== $title) { $title = $ko; $translated++; }
+                    else $lang = 'en_raw';                            // 번역이 안 되면 영문 제목으로 먼저 올리고, 다음 실행에서 다시 번역 시도
                 }
 
                 try {
@@ -82,6 +80,13 @@ class FetchStockNews extends Command
             }
             $this->info("[{$name}] 신규 {$created}건");
             $total += $created;
+        }
+
+        // 번역이 안 돼 영문 제목으로 올라간 기사를 다시 번역해 본다 (번역 API가 복구되면 자동으로 한국어로 바뀜)
+        foreach (StockNews::where('lang', 'en_raw')->orderByDesc('published_at')->limit(self::MAX_TRANSLATE)->get() as $row) {
+            $ko = trim(EventImporter::translate($row->title));
+            if ($ko !== '' && $ko !== $row->title) $row->update(['title' => mb_substr($ko, 0, 500), 'lang' => 'en']);
+            else break;                                               // 아직 막혀 있으면 이번 실행에서는 더 시도하지 않음
         }
 
         // 2개월이 지난 기사는 삭제 (매 실행마다 확인)
