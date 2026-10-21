@@ -13,8 +13,8 @@
           </RouterLink>
         </GroupTitle>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="btn-secondary text-xs px-3 py-2"><AppIcon name="search" :size="14" />필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary text-xs px-3 py-2"><AppIcon name="edit" :size="14" />글쓰기</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary act-btn"><AppIcon name="search" :size="14" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />글쓰기</RouterLink>
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
@@ -80,7 +80,7 @@
           <option value="views">조회순</option>
           <option value="comments">댓글순</option>
         </select>
-        <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary px-4 py-2"><AppIcon name="edit" :size="15" />글쓰기</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/community/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />글쓰기</RouterLink>
       </div>
     </div>
 

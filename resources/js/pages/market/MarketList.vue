@@ -11,8 +11,8 @@
           </h1>
         </GroupTitle>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs"><AppIcon name="filter" :size="13" />필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/market/write" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary act-btn"><AppIcon name="filter" :size="14" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/market/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto empty:hidden">
@@ -79,7 +79,7 @@
           <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/market/write" class="btn-primary px-3 py-1.5 text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/market/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
       </div>
     </div>
 

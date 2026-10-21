@@ -39,7 +39,7 @@
           <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
           <button type="submit" class="btn-primary px-3 py-1.5 rounded-lg text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary px-3 py-1.5 rounded-lg text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
       </div>
     </div>
 
@@ -51,10 +51,10 @@
           구인구직
         </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="btn-secondary px-3 py-2 rounded-lg text-xs">
+          <button @click="showFilter = true" class="btn-secondary act-btn">
             <AppIcon name="filter" :size="13" />필터
           </button>
-          <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary px-3 py-2 rounded-lg text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
+          <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
         </div>
       </div>
       <!-- 선택된 필터 태그 -->

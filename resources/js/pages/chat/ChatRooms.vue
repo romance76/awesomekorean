@@ -10,7 +10,7 @@
           채팅
         </h1>
       </GroupTitle>
-      <button @click="showCreate = true" class="btn-primary text-sm px-4 py-2 flex items-center gap-1 shrink-0"><AppIcon name="plus" :size="15" />새 채팅</button>
+      <button @click="showCreate = true" class="btn-primary act-btn"><AppIcon name="plus" :size="14" />새 채팅</button>
     </div>
 
     <div class="grid grid-cols-12 gap-4">

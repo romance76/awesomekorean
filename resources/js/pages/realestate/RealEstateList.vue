@@ -9,8 +9,8 @@
           부동산
         </h1>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="btn-secondary px-3 py-2 text-xs"><AppIcon name="search" :size="13" />필터</button>
-          <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary px-3 py-2 text-xs"><AppIcon name="edit" :size="13" />등록</RouterLink>
+          <button @click="showFilter = true" class="btn-secondary act-btn"><AppIcon name="search" :size="14" />필터</button>
+          <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
         </div>
       </div>
 
@@ -97,7 +97,7 @@
           <input v-model="search" type="text" placeholder="검색..." class="input-soft px-3 py-1.5 text-sm w-40" />
           <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
         </form>
-        <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary px-3 py-1.5 text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />등록</RouterLink>
+        <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
       </div>
     </div>
 

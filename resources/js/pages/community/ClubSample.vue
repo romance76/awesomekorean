@@ -96,7 +96,7 @@
   <div class="fixed left-0 right-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-line">
     <div class="page-main px-4 py-3 flex items-center justify-between gap-3">
       <div class="text-xs text-ink-muted leading-snug">마음에 드세요?<br><b class="text-ink">우리 동네 동호회를 직접 만들어 보세요.</b></div>
-      <RouterLink to="/clubs/create" class="btn-primary flex-shrink-0"><AppIcon name="plus" :size="15" />동호회 만들기</RouterLink>
+      <RouterLink to="/clubs/create" class="btn-primary act-btn"><AppIcon name="plus" :size="14" />동호회 만들기</RouterLink>
     </div>
   </div>
 </div>

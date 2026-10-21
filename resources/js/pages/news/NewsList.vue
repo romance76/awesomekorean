@@ -13,7 +13,7 @@
           </RouterLink>
         </GroupTitle>
         <div class="flex items-center gap-2">
-          <button @click="showFilter = true" class="btn-secondary !text-xs !px-3 !py-2"><AppIcon name="search" :size="14" />필터</button>
+          <button @click="showFilter = true" class="btn-secondary act-btn"><AppIcon name="search" :size="14" />필터</button>
         </div>
       </div>
       <div class="flex items-center gap-1.5 overflow-x-auto">
