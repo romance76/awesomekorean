@@ -269,7 +269,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-[330px_1fr] gap-5">
         <!-- 왼쪽: 렌트/매매 매물 2건을 위아래로 (이미지 폭 300px 고정) -->
-        <div class="grid gap-4 content-start">
+        <div class="grid grid-cols-[minmax(0,1fr)] gap-4 content-start">
           <RouterLink v-for="re in homeRealEstateCards" :key="re.id" :to="re.to" class="group block">
             <div class="w-full aspect-[16/10] rounded-2xl overflow-hidden bg-surface border border-line">
               <img v-if="re.image" :src="re.image" alt=""
@@ -286,7 +286,7 @@
         </div>
 
         <!-- 오른쪽: 여러 게시판 최신글 (썸네일 없이, 2줄로 압축) -->
-        <div class="grid content-start">
+        <div class="grid grid-cols-[minmax(0,1fr)] content-start">
           <RouterLink v-for="p in sidePosts" :key="p.id" :to="`/community/${p.board?.slug || 'free'}/${p.id}`"
             class="group block py-2 border-b border-line last:border-b-0">
             <div class="flex items-center justify-between gap-2">
