@@ -418,12 +418,8 @@ html.easy-view:not(.ev-pause) .ev-header .gap-1\.5{gap:2px}
 /* 어느 한 화면의 요소가 폭을 넘쳐도 아이폰에서 화면이 좌우로 밀리지 않게 (clip 은 sticky 를 깨지 않음) */
 html, body { overflow-x: clip; }
 
-/* 목록 화면 맨 위 [필터][글쓰기·등록·질문하기·만들기·새 채팅] 버튼 크기 통일 — 커뮤니티의 필터·글쓰기 버튼을 기준으로.
-   휴대폰·태블릿(1024px 미만)은 작은 알약, PC 는 한 단계 크게. 제목 옆 자동 축소 규칙(.grp-stack)보다 우선. */
-.act-btn { padding: 8px 12px !important; font-size: 12px !important; line-height: 1.25rem !important; border-radius: 9999px !important; gap: 6px !important; white-space: nowrap; flex-shrink: 0; }
+/* 목록 화면 맨 위 [필터][글쓰기·등록·질문하기·만들기·새 채팅] 버튼 크기 통일 — 커뮤니티 머리줄의 필터·글쓰기 버튼(작은 둥근 네모)이 기준.
+   화면 폭과 상관없이 같은 크기·모양. 제목 옆 자동 축소 규칙(.grp-stack)과 같은 값이라 어디서나 똑같이 보인다. */
+.act-btn { padding: 6px 10px !important; font-size: 12px !important; line-height: 1.25rem !important; border-radius: 8px !important; gap: 6px !important; white-space: nowrap; flex-shrink: 0; }
 .act-btn.btn-primary { border: 1px solid transparent; }   /* 필터(테두리 있음)와 높이를 같게 */
 .act-btn svg { width: 14px; height: 14px; }
-@media (min-width: 1024px) {
-  .act-btn { padding: 8px 16px !important; font-size: 14px !important; }
-  .act-btn svg { width: 15px; height: 15px; }
-}
