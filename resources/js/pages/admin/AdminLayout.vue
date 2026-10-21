@@ -52,7 +52,7 @@
     <AppIcon name="phone" :size="16" />휴대폰 화면
   </button>
   <!-- 사이드바 -->
-  <aside class="w-52 bg-white border-r border-gray-100 hidden lg:flex flex-col h-screen sticky top-0">
+  <aside class="w-60 bg-white border-r border-gray-100 hidden lg:flex flex-col h-screen sticky top-0">
     <div class="p-4 border-b border-gray-100">
       <div class="flex items-center gap-2">
         <img v-if="siteStore.logoUrl && !logoError" :src="siteStore.logoUrl" alt="AwesomeKorean" class="h-7 w-auto max-w-[140px] object-contain" @error="logoError = true" />
@@ -69,13 +69,36 @@
         </div>
       </div>
     </div>
-    <nav class="flex-1 overflow-y-auto py-2">
-      <RouterLink v-for="item in mainMenu" :key="item.to" :to="item.to"
-        class="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors"
-        :class="isMainActive(item) ? 'bg-amber-50 text-amber-700 font-bold border-r-2 border-amber-500' : 'text-ink-light hover:bg-amber-50/50'">
-        <span class="icon-chip w-7 h-7" :class="item.chip"><AppIcon :name="item.icon" :size="15" /></span>
-        <span>{{ item.label }}</span>
-      </RouterLink>
+    <!-- 그룹을 펼치면 관련된 화면이 소제목 아래 모여 보이는 사이드 메뉴 (현재 화면이 있는 그룹은 자동으로 펼쳐짐) -->
+    <nav class="flex-1 overflow-y-auto py-2" aria-label="관리자 메뉴">
+      <template v-for="g in sidebarTree" :key="g.key">
+        <RouterLink v-if="!g.sections.length" :to="g.to"
+          class="flex items-center gap-2.5 px-4 py-2 text-sm transition-colors"
+          :class="isMainActive(g) ? 'bg-amber-50 text-amber-700 font-bold border-r-2 border-amber-500' : 'text-ink-light hover:bg-amber-50/50'">
+          <span class="icon-chip w-7 h-7" :class="g.chip"><AppIcon :name="g.icon" :size="15" /></span>
+          <span>{{ g.label }}</span>
+        </RouterLink>
+        <template v-else>
+          <button type="button" @click="toggleGroup(g.key)" :aria-expanded="isOpen(g.key)"
+            class="w-full flex items-center gap-2.5 px-4 py-2 text-sm transition-colors text-left"
+            :class="isMainActive(g) ? 'text-amber-700 font-bold' : 'text-ink hover:bg-amber-50/50'">
+            <span class="icon-chip w-7 h-7" :class="g.chip"><AppIcon :name="g.icon" :size="15" /></span>
+            <span class="flex-1">{{ g.label }}</span>
+            <AppIcon :name="isOpen(g.key) ? 'chevron-down' : 'chevron-right'" :size="14" class="text-ink-muted" />
+          </button>
+          <div v-show="isOpen(g.key)" class="pb-1">
+            <template v-for="sec in g.sections" :key="sec.title">
+              <div v-if="sec.title" class="pl-[3.25rem] pr-4 pt-2 pb-0.5 text-[11px] font-bold text-ink-muted tracking-wide">{{ sec.title }}</div>
+              <RouterLink v-for="it in sec.items" :key="it.to" :to="it.to"
+                class="flex items-center gap-1.5 pl-[3.25rem] pr-3 py-1.5 text-[13px] transition-colors"
+                :class="isItemActive(it) ? 'bg-amber-50 text-amber-700 font-bold border-r-2 border-amber-500' : 'text-ink-light hover:bg-amber-50/50'">
+                <span>{{ it.label }}</span>
+                <NewFeatureBadge v-if="it.isNew" :desc="it.newDesc || it.label" />
+              </RouterLink>
+            </template>
+          </div>
+        </template>
+      </template>
     </nav>
     <div class="p-3 border-t border-gray-100">
       <RouterLink to="/" class="flex items-center gap-1.5 text-xs text-ink-muted hover:text-amber-600 transition-colors py-1"><AppIcon name="home" :size="14" /> 사이트로 돌아가기</RouterLink>
@@ -113,7 +136,7 @@
   <!-- 메인 -->
   <main class="flex-1 lg:mt-0 mt-14">
     <!-- 서브 탭 (콘텐츠/서비스/시스템일 때) -->
-    <div v-if="currentSubTabs.length" class="bg-white border-b border-gray-100 px-4 py-0 flex gap-0 overflow-x-auto scrollbar-hide">
+    <div v-if="currentSubTabs.length" class="lg:hidden bg-white border-b border-gray-100 px-4 py-0 flex gap-0 overflow-x-auto scrollbar-hide">
       <RouterLink v-for="tab in currentSubTabs" :key="tab.to" :to="tab.to"
         class="flex items-center gap-1.5 px-3 py-3 text-xs font-bold border-b-2 transition-colors whitespace-nowrap"
         :class="$route.path === tab.to ? 'border-amber-500 text-amber-700' : 'border-transparent text-ink-muted hover:text-ink-light'">
@@ -144,7 +167,7 @@ import AdminMobileHome from './AdminMobileHome.vue'
 import ReauthSheet from '../../components/admin/ReauthSheet.vue'
 import ConfirmSheet from '../../components/admin/ConfirmSheet.vue'
 import { installReauthInterceptor } from '../../composables/useReauth'
-import { PC_GROUPS, ADMIN_ITEMS, itemsByPcGroup } from '../../admin/adminMenu'
+import { PC_GROUPS, ADMIN_ITEMS, SECTION_ORDER, itemsByPcGroup } from '../../admin/adminMenu'
 
 const auth = useAuthStore()
 const siteStore = useSiteStore()
@@ -289,6 +312,32 @@ function tabsFor(group) {
   return visibleFor(tabs)
 }
 provide('adminTabsFor', tabsFor)
+
+// PC 사이드바 트리: 그룹 → 소제목(section) → 화면. 보이는 화면만(등급·메뉴 설정 반영)
+const sidebarTree = computed(() => PC_GROUPS.map(g => {
+  const items = g.key === 'home' ? [] : tabsFor(g.key)
+  const order = SECTION_ORDER[g.key] || []
+  const bySection = new Map()
+  items.forEach(it => {
+    const key = it.section || ''
+    if (!bySection.has(key)) bySection.set(key, [])
+    bySection.get(key).push(it)
+  })
+  const sections = [...order, ''].filter(k => bySection.has(k)).map(k => ({ title: k, items: bySection.get(k) }))
+  return { key: g.key, group: g.key, to: g.to, label: g.label, icon: g.icon, chip: g.chip, sections }
+}))
+const NAV_OPEN_KEY = 'ak_admin_nav_open'
+function readOpen() { try { const v = JSON.parse(localStorage.getItem(NAV_OPEN_KEY) || '[]'); return Array.isArray(v) ? v : [] } catch { return [] } }
+const openGroups = ref(readOpen())
+function isOpen(key) { return openGroups.value.includes(key) }
+function saveOpen() { try { localStorage.setItem(NAV_OPEN_KEY, JSON.stringify(openGroups.value)) } catch {} }
+function toggleGroup(key) {
+  openGroups.value = isOpen(key) ? openGroups.value.filter(k => k !== key) : [...openGroups.value, key]
+  saveOpen()
+}
+// 다른 그룹으로 이동하면 그 그룹을 펼쳐 둠
+watch(currentPcGroup, (k) => { if (k && k !== 'home' && !isOpen(k)) { openGroups.value = [...openGroups.value, k]; saveOpen() } }, { immediate: true })
+function isItemActive(it) { return route.path === it.to || route.path.startsWith(it.to + '/') }
 provide('adminIsMobile', isMobileLayout)
 
 const groupLabels = Object.fromEntries(PC_GROUPS.map(g => [g.key, g.label]))

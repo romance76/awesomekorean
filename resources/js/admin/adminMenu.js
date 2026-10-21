@@ -78,9 +78,9 @@ export const ADMIN_ITEMS = [
   { to: '/admin/social', icon: 'megaphone', label: 'SNS 게시 (인스타·스레드)', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes-rules', icon: 'book-open', label: '경품 추첨 공식 규정', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
-  { to: '/admin/event-import', icon: 'ticket', label: '지역 행사 가져오기', pcGroup: 'promo', legacyGroup: 'system', mobile: true,
+  { to: '/admin/event-import', icon: 'ticket', label: '지역 행사 가져오기', pcGroup: 'content', legacyGroup: 'system', mobile: true,
     isNew: true, newDesc: '미국 30개 주의 콘서트·스포츠·축제를 Ticketmaster 에서 자동으로 가져옵니다. 주별 켜기/끄기와 가져온 행사 숨김을 관리해요.' },
-  { to: '/admin/event-feeds', icon: 'calendar', label: '공식 행사 피드(축제)', pcGroup: 'promo', legacyGroup: 'system', mobile: true,
+  { to: '/admin/event-feeds', icon: 'calendar', label: '공식 행사 피드(축제)', pcGroup: 'content', legacyGroup: 'system', mobile: true,
     isNew: true, newDesc: '관광청·시청·카운티의 공식 행사 중 한인이 갈 만한 큰 행사만 매주 일요일에 자동으로 가져옵니다(주 10·카운티 3·도시 2).' },
   { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },
   { to: '/admin/popup-banners', icon: 'message-square', label: '팝업 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },
@@ -102,6 +102,31 @@ export const ADMIN_ITEMS = [
   { to: '/admin/entry-settings', icon: 'ticket', label: 'Entry 설정', pcGroup: 'system', legacyGroup: 'system', mobile: true },
   { to: '/admin/system', icon: 'monitor', label: '시스템', pcGroup: 'system', legacyGroup: 'system', mobile: true },
 ]
+
+// ── 사이드바 소제목(section) ──
+// PC 사이드바는 그룹을 펼치면 관련된 화면끼리 소제목 아래 모여 보인다. 주소·그룹 키는 그대로이고 화면 묶음만 정한다.
+// 여기에 없는 화면은 소제목 없이 그룹 맨 아래에 나온다.
+export const SECTION_ORDER = {
+  content: ['커뮤니티', '생활·거래', '미디어·정보'],
+  money: ['광고', '결제·지급'],
+  promo: ['이벤트·추첨', '배너·SNS'],
+  system: ['설정', '계정·보안', '운영 기록'],
+}
+const SECTION_OF = {
+  '커뮤니티': ['/admin/community', '/admin/qa', '/admin/clubs', '/admin/chats', '/admin/communication'],
+  '생활·거래': ['/admin/market', '/admin/jobs', '/admin/realestate', '/admin/directory', '/admin/groupbuy', '/admin/events', '/admin/event-import', '/admin/event-feeds'],
+  '미디어·정보': ['/admin/news', '/admin/info', '/admin/money', '/admin/recipes', '/admin/music', '/admin/shorts', '/admin/shopping'],
+  '광고': ['/admin/ad-center', '/admin/banners', '/admin/flyers', '/admin/pricing'],
+  '결제·지급': ['/admin/payments', '/admin/grants'],
+  '이벤트·추첨': ['/admin/open-event', '/admin/sweepstakes', '/admin/sweepstakes-rules'],
+  '배너·SNS': ['/admin/hero-banners', '/admin/popup-banners', '/admin/social'],
+  '설정': ['/admin/settings', '/admin/entry-settings', '/admin/system'],
+  '계정·보안': ['/admin/accounts', '/admin/two-factor'],
+  '운영 기록': ['/admin/todos', '/admin/audit-log', '/admin/analytics'],
+}
+for (const [section, paths] of Object.entries(SECTION_OF)) {
+  for (const it of ADMIN_ITEMS) if (paths.includes(it.to)) it.section = section
+}
 
 // 그룹(pcGroup)별 화면 목록 — PC 상단 서브탭, 검색에 사용
 export function itemsByPcGroup(group) {
