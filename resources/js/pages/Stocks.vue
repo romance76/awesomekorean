@@ -4,116 +4,151 @@
   <PageHeader title="증권" icon="trending-up" :back="false" />
   <p class="text-sm text-ink-muted -mt-2 mb-5">미국 시장 기준이에요. 모든 시간은 미국 동부시간(ET)이고, 시세는 15분마다 갱신돼요. <span class="text-ink-faint">· 지금 {{ nowET }}</span></p>
 
-  <!-- ── 주요 지수 ───────────────────────────────────── -->
-  <div class="font-bold text-xs text-ink-muted mb-1.5">주요 지수 · 지표 <span class="font-normal text-ink-faint">(참고용)</span></div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-1.5 mb-5">
-    <div v-for="x in indices" :key="x.symbol" class="card !rounded-xl px-2.5 py-1.5 flex items-center gap-2">
-      <div class="min-w-0 flex-1">
-        <div class="text-[10.5px] font-semibold text-ink-muted truncate leading-tight">{{ x.name }}</div>
-        <div class="text-[13px] font-extrabold text-ink tabular-nums leading-tight">{{ fmt(x.price) }}</div>
-        <div class="text-[10.5px] font-bold tabular-nums leading-tight" :class="clr(x.change_pct)">{{ arrow(x.change_pct) }} {{ fmtSigned(x.change_pct) }}%</div>
-      </div>
-      <svg v-if="x.sparkline?.length > 1" viewBox="0 0 100 24" class="w-10 h-6 shrink-0" preserveAspectRatio="none">
-        <path :d="spark(x.sparkline)" fill="none" :stroke="Number(x.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-      </svg>
-    </div>
-    <div v-if="!indices.length && !loading" class="col-span-full text-sm text-ink-muted py-4 text-center">시세를 불러오는 중이에요. 잠시 후 다시 확인해 주세요.</div>
-  </div>
-
-  <!-- 관심종목(왼쪽) / 대표 종목(오른쪽) -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 items-start">
-  <!-- ── 내 관심종목 ─────────────────────────────────── -->
-  <div class="card overflow-hidden">
-    <div class="px-4 py-3 border-b border-line flex items-center gap-2 flex-wrap">
-      <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="star" :size="15" class="text-amber-500" />내 관심종목</div>
-      <form v-if="auth.isLoggedIn" @submit.prevent="submitSearch" class="ml-auto relative flex items-center gap-1.5 w-full sm:w-auto">
-        <input v-model="ticker" type="text" maxlength="40" autocomplete="off" placeholder="회사 이름 또는 티커 (예: 애플, Apple, AAPL)"
-          @input="onTickerInput" @focus="showSuggest = suggestions2.length > 0" @blur="hideSuggestSoon"
-          class="input-soft flex-1 sm:!w-60 !py-1.5 !px-3 !text-xs" />
-        <button type="submit" :disabled="adding || !ticker.trim()" class="btn-primary !px-3 !py-1.5 !text-xs disabled:opacity-50 shrink-0">{{ adding ? '확인 중…' : '추가' }}</button>
-        <!-- 검색 결과: 눌러서 바로 추가 -->
-        <div v-if="showSuggest && (suggestions2.length || searching)" class="absolute left-0 right-0 sm:left-auto sm:w-[22rem] top-full mt-1 z-20 bg-white rounded-xl border border-line shadow-lg overflow-hidden">
-          <div v-if="searching && !suggestions2.length" class="px-3 py-2.5 text-xs text-ink-muted">찾는 중…</div>
-          <button v-for="r in suggestions2" :key="r.symbol" type="button" @mousedown.prevent="pickResult(r)"
-            class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-amber-50 border-b border-line last:border-0">
-            <span class="font-black text-xs text-ink w-14 shrink-0">{{ r.symbol }}</span>
-            <span class="min-w-0 flex-1 text-xs text-ink-light truncate">{{ r.name }}<span v-if="r.ko" class="text-ink-faint"> · {{ r.ko }}</span></span>
-            <span v-if="r.exchange" class="text-[10px] text-ink-faint shrink-0">{{ r.exchange }}</span>
-            <span v-if="watchSet.has(r.symbol)" class="text-[10px] text-amber-600 font-bold shrink-0">담음</span>
-          </button>
-        </div>
-      </form>
-    </div>
-    <div v-if="addError" class="px-4 py-2 text-xs text-red-600 bg-red-50">{{ addError }}</div>
-
-    <div v-if="!auth.isLoggedIn" class="px-4 py-8 text-center text-sm text-ink-muted">
-      로그인하면 보고 싶은 종목을 티커로 담아 두고, 언제든 지울 수 있어요.
-      <div class="mt-3"><RouterLink to="/login" class="btn-primary !px-4 !py-2 !text-xs">로그인</RouterLink></div>
-    </div>
-    <template v-else>
-      <div v-if="!myList.length && !loading" class="px-4 py-8 text-center">
-        <p class="text-sm text-ink-muted">아직 담은 종목이 없어요. 회사 이름이나 티커를 검색하거나 아래에서 골라 보세요.</p>
-        <div class="flex flex-wrap gap-1.5 justify-center mt-3">
-          <button v-for="t in suggestions" :key="t" @click="ticker = t; addTicker()" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-ink-light hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-colors">+ {{ t }}</button>
-        </div>
-      </div>
-      <table v-else class="w-full text-sm">
-        <thead><tr class="text-xs text-ink-muted border-b border-line">
-          <th class="text-left font-medium px-3 sm:px-4 py-2">종목</th><th class="px-1 py-2 font-medium text-center">1개월</th><th class="text-right font-medium px-2 py-2">현재가</th>
-          <th class="text-right font-medium px-2 py-2">전일대비</th><th class="w-10"></th>
-        </tr></thead>
-        <tbody>
-          <tr v-for="w in myList" :key="w.symbol" class="border-b border-line last:border-0">
-            <td class="px-3 sm:px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate max-w-[84px] sm:max-w-[140px]">{{ w.name }}</div></td>
-            <td class="px-1 py-2.5"><MiniChart :points="w.sparkline" :up="Number(w.change_pct) >= 0" /></td>
-            <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ w.price != null ? fmt(w.price) : '-' }}</td>
-            <td class="px-2 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">
-              <template v-if="w.change_pct != null">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change) }}<div class="text-[11px]">{{ fmtSigned(w.change_pct) }}%</div></template>
-            </td>
-            <td class="px-2 text-center"><button @click="removeTicker(w.symbol)" class="text-ink-faint hover:text-red-500 p-1" title="목록에서 지우기"><AppIcon name="x" :size="14" /></button></td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
-  </div>
-
-  <!-- ── 대표 종목 ───────────────────────────────────── -->
-  <div class="card overflow-hidden">
-    <div class="px-4 py-3 border-b border-line font-bold text-sm text-ink">대표 종목</div>
-    <table class="w-full text-sm">
-      <tbody>
-        <tr v-for="w in watchlist" :key="w.symbol" class="border-b border-line last:border-0">
-          <td class="px-3 sm:px-4 py-2.5"><div class="font-black text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted">{{ w.name }}</div></td>
-          <td class="px-1 py-2.5"><MiniChart :points="w.sparkline" :up="Number(w.change_pct) >= 0" /></td>
-          <td class="px-2 py-2.5 text-right tabular-nums font-semibold">{{ fmt(w.price) }}</td>
-          <td class="px-3 sm:px-4 py-2.5 text-right tabular-nums font-bold" :class="clr(w.change_pct)">{{ arrow(w.change_pct) }} {{ fmtSigned(w.change_pct) }}%</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  </div>
-
-  <!-- ── 증권가 뉴스 ─────────────────────────────────── -->
-  <div class="card overflow-hidden mb-6">
-    <div class="px-4 py-3 border-b border-line flex items-center gap-2">
-      <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="newspaper" :size="15" class="text-amber-600" />증권가 뉴스</div>
-      <span class="ml-auto text-[11px] text-ink-faint">누르면 언론사 원문으로 이동해요</span>
-    </div>
-    <div v-if="newsLoading" class="py-8 text-center text-sm text-ink-muted">불러오는 중…</div>
-    <div v-else-if="!news.length" class="py-8 text-center text-sm text-ink-muted">뉴스를 준비하고 있어요. 잠시 후 다시 확인해 주세요.</div>
-    <ul v-else>
-      <li v-for="n in news" :key="n.id" class="border-b border-line last:border-0">
-        <a :href="n.url" target="_blank" rel="noopener noreferrer" class="flex items-start gap-3 px-4 py-2.5 hover:bg-gray-50">
-          <div class="min-w-0 flex-1">
-            <div class="text-[13.5px] font-semibold text-ink leading-snug">{{ n.title }}</div>
-            <div v-if="n.summary" class="text-[12px] text-ink-muted mt-0.5 line-clamp-1">{{ n.summary }}</div>
-            <div class="text-[11px] text-ink-faint mt-0.5">{{ n.source }}<span v-if="n.lang === 'en'"> · 영문 기사(제목 번역)</span><span v-else-if="n.lang === 'en_raw'"> · 영문 기사</span> · {{ timeAgo(n.published_at) }}</div>
+  <!-- ── 주요 지수 (야후 파이낸스 스타일 띠) ─────────────── -->
+  <div class="card !rounded-xl mb-5 relative">
+    <button v-show="canScroll" @click="scrollIdx(-1)" aria-label="이전 지수" class="hidden md:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-white via-white to-transparent text-ink-muted hover:text-ink">‹</button>
+    <div ref="idxEl" @scroll="updateScroll" class="flex overflow-x-auto snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div v-for="x in indices" :key="x.symbol" class="snap-start shrink-0 w-[168px] px-3.5 py-2.5 border-r border-line last:border-0 flex items-center gap-2">
+        <div class="min-w-0 flex-1">
+          <div class="text-[12px] font-bold text-[#0B5FFF] truncate leading-tight">{{ x.name }}</div>
+          <div class="text-[15px] font-extrabold text-ink tabular-nums leading-snug">{{ fmt(x.price) }}</div>
+          <div class="text-[11.5px] font-bold tabular-nums leading-tight whitespace-nowrap" :class="clr(x.change_pct)">
+            <template v-if="x.change != null">{{ fmtSigned(x.change) }} </template>{{ fmtSigned(x.change_pct) }}%
           </div>
-          <img v-if="n.image_url" :src="n.image_url" alt="" loading="lazy" referrerpolicy="no-referrer" class="w-16 h-12 rounded-lg object-cover shrink-0 bg-gray-100" @error="$event.target.style.display = 'none'" />
-        </a>
-      </li>
-    </ul>
-    <p class="px-4 py-2 text-[10.5px] text-ink-faint border-t border-line">제목과 요약만 보여 주고, 기사 전문은 각 언론사 사이트에서 볼 수 있어요. 영문 기사는 제목을 자동 번역해서 부정확할 수 있어요.</p>
+        </div>
+        <svg v-if="x.sparkline?.length > 1" viewBox="0 0 100 24" class="w-11 h-7 shrink-0" preserveAspectRatio="none">
+          <path :d="spark(x.sparkline)" fill="none" :stroke="Number(x.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+        </svg>
+      </div>
+      <div v-if="!indices.length && !loading" class="w-full text-sm text-ink-muted py-5 text-center">시세를 불러오는 중이에요. 잠시 후 다시 확인해 주세요.</div>
+    </div>
+    <button v-show="canScroll" @click="scrollIdx(1)" aria-label="다음 지수" class="hidden md:flex absolute right-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-l from-white via-white to-transparent text-ink-muted hover:text-ink">›</button>
+  </div>
+  <div class="text-[10.5px] text-ink-faint -mt-3.5 mb-5 px-1">주요 지수·지표는 참고용이에요.</div>
+
+  <!-- ── 왼쪽: 증권가 뉴스 / 오른쪽: 내 종목·대표 종목 탭 ───── -->
+  <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 mb-6 items-start">
+
+    <!-- 뉴스 (야후 파이낸스 형식: 큰 기사 + 오른쪽 목록 + 작은 카드 + 나머지 목록) -->
+    <section class="min-w-0">
+      <div class="flex items-center gap-2 mb-3">
+        <h2 class="text-[17px] font-extrabold text-ink">증권가 뉴스</h2>
+        <span class="ml-auto text-[11px] text-ink-faint">누르면 언론사 원문으로 이동해요</span>
+      </div>
+      <div v-if="newsLoading" class="card py-10 text-center text-sm text-ink-muted">불러오는 중…</div>
+      <div v-else-if="!news.length" class="card py-10 text-center text-sm text-ink-muted">뉴스를 준비하고 있어요. 잠시 후 다시 확인해 주세요.</div>
+      <template v-else>
+        <!-- 대표 기사 + 오른쪽 목록 -->
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_230px] gap-4 pb-4 border-b border-line">
+          <a :href="hero.url" target="_blank" rel="noopener noreferrer" class="group block min-w-0">
+            <img v-if="hero.image_url" :src="hero.image_url" alt="" referrerpolicy="no-referrer" class="w-full aspect-[16/9] object-cover rounded-xl bg-gray-100 mb-3" @error="$event.target.style.display = 'none'" />
+            <h3 class="text-[22px] leading-snug font-extrabold text-ink group-hover:underline">{{ hero.title }}</h3>
+            <p v-if="hero.summary" class="text-[14px] text-ink-light leading-relaxed mt-1.5 line-clamp-3">{{ hero.summary }}</p>
+            <div class="text-[11.5px] text-ink-faint mt-1.5">{{ srcLine(hero) }}</div>
+          </a>
+          <ul class="md:border-l md:border-line md:pl-4 space-y-3.5">
+            <li v-for="n in side" :key="n.id">
+              <a :href="n.url" target="_blank" rel="noopener noreferrer" class="block group">
+                <div class="text-[14px] font-bold text-ink leading-snug group-hover:underline line-clamp-3">{{ n.title }}</div>
+                <div class="text-[11px] text-ink-faint mt-0.5">{{ srcLine(n) }}</div>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 작은 카드 3개 -->
+        <div v-if="cards.length" class="grid grid-cols-1 sm:grid-cols-3 gap-4 py-4 border-b border-line">
+          <a v-for="n in cards" :key="n.id" :href="n.url" target="_blank" rel="noopener noreferrer" class="group flex sm:block gap-3 min-w-0">
+            <img v-if="n.image_url" :src="n.image_url" alt="" loading="lazy" referrerpolicy="no-referrer" class="w-24 h-[68px] sm:w-full sm:h-auto sm:aspect-[16/10] object-cover rounded-lg bg-gray-100 shrink-0 sm:mb-2" @error="$event.target.style.display = 'none'" />
+            <div class="min-w-0">
+              <div class="text-[14px] font-bold text-ink leading-snug group-hover:underline line-clamp-3">{{ n.title }}</div>
+              <div class="text-[11px] text-ink-faint mt-0.5">{{ srcLine(n) }}</div>
+            </div>
+          </a>
+        </div>
+
+        <!-- 나머지 목록 -->
+        <ul>
+          <li v-for="n in rest" :key="n.id" class="border-b border-line last:border-0">
+            <a :href="n.url" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-3 py-3">
+              <div class="min-w-0 flex-1">
+                <div class="text-[14.5px] font-bold text-ink leading-snug group-hover:underline">{{ n.title }}</div>
+                <div v-if="n.summary" class="text-[12.5px] text-ink-muted mt-0.5 line-clamp-1">{{ n.summary }}</div>
+                <div class="text-[11px] text-ink-faint mt-0.5">{{ srcLine(n) }}</div>
+              </div>
+              <img v-if="n.image_url" :src="n.image_url" alt="" loading="lazy" referrerpolicy="no-referrer" class="w-20 h-14 rounded-lg object-cover shrink-0 bg-gray-100" @error="$event.target.style.display = 'none'" />
+            </a>
+          </li>
+        </ul>
+      </template>
+      <p class="text-[10.5px] text-ink-faint mt-3">제목과 요약만 보여 주고, 기사 전문은 각 언론사 사이트에서 볼 수 있어요. 영문 기사는 제목을 자동 번역해서 부정확할 수 있어요.</p>
+    </section>
+
+    <!-- 오른쪽 탭: 내 관심종목 / 대표 종목 -->
+    <aside class="card overflow-hidden lg:sticky lg:top-20">
+      <div class="p-2 flex gap-1.5 border-b border-line">
+        <button v-for="t in sideTabs" :key="t.v" @click="sideTab = t.v"
+          class="flex-1 py-2 rounded-xl text-[13px] font-bold border transition-colors"
+          :class="sideTab === t.v ? 'border-[#0B5FFF] text-[#0B5FFF] bg-blue-50/40' : 'border-transparent text-ink-muted hover:bg-gray-50'">{{ t.label }}</button>
+      </div>
+
+      <!-- 내 관심종목 -->
+      <div v-show="sideTab === 'mine'">
+        <form v-if="auth.isLoggedIn" @submit.prevent="submitSearch" class="p-3 relative flex items-center gap-1.5">
+          <input v-model="ticker" type="text" maxlength="40" autocomplete="off" placeholder="회사 이름 또는 티커 (예: 애플, AAPL)"
+            @input="onTickerInput" @focus="showSuggest = suggestions2.length > 0" @blur="hideSuggestSoon"
+            class="input-soft flex-1 min-w-0 !py-1.5 !px-3 !text-xs" />
+          <button type="submit" :disabled="adding || !ticker.trim()" class="btn-primary !px-3 !py-1.5 !text-xs disabled:opacity-50 shrink-0">{{ adding ? '확인 중…' : '추가' }}</button>
+          <div v-if="showSuggest && (suggestions2.length || searching)" class="absolute left-3 right-3 top-full -mt-1 z-20 bg-white rounded-xl border border-line shadow-lg overflow-hidden">
+            <div v-if="searching && !suggestions2.length" class="px-3 py-2.5 text-xs text-ink-muted">찾는 중…</div>
+            <button v-for="r in suggestions2" :key="r.symbol" type="button" @mousedown.prevent="pickResult(r)"
+              class="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-amber-50 border-b border-line last:border-0">
+              <span class="font-black text-xs text-ink w-14 shrink-0">{{ r.symbol }}</span>
+              <span class="min-w-0 flex-1 text-xs text-ink-light truncate">{{ r.name }}<span v-if="r.ko" class="text-ink-faint"> · {{ r.ko }}</span></span>
+              <span v-if="watchSet.has(r.symbol)" class="text-[10px] text-amber-600 font-bold shrink-0">담음</span>
+            </button>
+          </div>
+        </form>
+        <div v-if="addError" class="px-4 py-2 text-xs text-red-600 bg-red-50">{{ addError }}</div>
+
+        <div v-if="!auth.isLoggedIn" class="px-4 py-8 text-center text-sm text-ink-muted">
+          로그인하면 보고 싶은 종목을 티커로 담아 두고, 언제든 지울 수 있어요.
+          <div class="mt-3"><RouterLink to="/login" class="btn-primary !px-4 !py-2 !text-xs">로그인</RouterLink></div>
+        </div>
+        <template v-else>
+          <div v-if="!myList.length && !loading" class="px-4 py-6 text-center">
+            <p class="text-sm text-ink-muted">아직 담은 종목이 없어요. 회사 이름이나 티커를 검색하거나 아래에서 골라 보세요.</p>
+            <div class="flex flex-wrap gap-1.5 justify-center mt-3">
+              <button v-for="t in suggestions" :key="t" @click="ticker = t; addTicker()" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 text-ink-light hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 transition-colors">+ {{ t }}</button>
+            </div>
+          </div>
+          <ul v-else>
+            <li v-for="w in myList" :key="w.symbol" class="px-3.5 py-2.5 border-t border-line flex items-center gap-2">
+              <div class="min-w-0 flex-1"><div class="font-black text-[13px] text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate">{{ w.name }}</div></div>
+              <svg v-if="w.sparkline?.length > 1" viewBox="0 0 100 24" class="w-11 h-6 shrink-0" preserveAspectRatio="none"><path :d="spark(w.sparkline)" fill="none" :stroke="Number(w.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" /></svg>
+              <div class="text-right tabular-nums w-[78px] shrink-0">
+                <div class="text-[13px] font-bold text-ink">{{ w.price != null ? fmt(w.price) : '-' }}</div>
+                <div v-if="w.change_pct != null" class="text-[11.5px] font-bold" :class="clr(w.change_pct)">{{ fmtSigned(w.change_pct) }}%</div>
+              </div>
+              <button @click="removeTicker(w.symbol)" class="text-ink-faint hover:text-red-500 p-1 shrink-0" title="목록에서 지우기"><AppIcon name="x" :size="14" /></button>
+            </li>
+          </ul>
+        </template>
+      </div>
+
+      <!-- 대표 종목 -->
+      <ul v-show="sideTab === 'top'">
+        <li v-for="w in watchlist" :key="w.symbol" class="px-3.5 py-2.5 border-t border-line first:border-0 flex items-center gap-2">
+          <div class="min-w-0 flex-1"><div class="font-black text-[13px] text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate">{{ w.name }}</div></div>
+          <svg v-if="w.sparkline?.length > 1" viewBox="0 0 100 24" class="w-11 h-6 shrink-0" preserveAspectRatio="none"><path :d="spark(w.sparkline)" fill="none" :stroke="Number(w.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" /></svg>
+          <div class="text-right tabular-nums w-[78px] shrink-0">
+            <div class="text-[13px] font-bold text-ink">{{ fmt(w.price) }}</div>
+            <div class="text-[11.5px] font-bold" :class="clr(w.change_pct)">{{ fmtSigned(w.change_pct) }}%</div>
+          </div>
+        </li>
+        <li v-if="!watchlist.length && !loading" class="px-4 py-8 text-center text-sm text-ink-muted">시세를 불러오는 중이에요.</li>
+      </ul>
+    </aside>
   </div>
 
   <!-- ── 실적 발표(어닝) 캘린더 ─────────────────────────── -->
@@ -166,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, computed, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../stores/auth'
 import AppIcon from '../components/AppIcon.vue'
@@ -294,9 +329,26 @@ async function removeTicker(symbol) {
   try { const { data } = await axios.delete(`/api/stocks/watchlist/${encodeURIComponent(symbol)}`); myList.value = data.data || [] } catch {}
 }
 
-// 증권가 뉴스
+// 오른쪽 탭
+const sideTabs = [{ v: 'mine', label: '내 관심종목' }, { v: 'top', label: '대표 종목' }]
+const sideTab = ref('mine')
+
+// 지수 띠 좌우 이동
+const idxEl = ref(null)
+const canScroll = ref(false)
+function updateScroll() { const el = idxEl.value; canScroll.value = !!el && el.scrollWidth > el.clientWidth + 4 }
+function scrollIdx(dir) { idxEl.value?.scrollBy({ left: dir * 340, behavior: 'smooth' }) }
+
+// 증권가 뉴스: 대표 기사 1 + 오른쪽 목록 4 + 작은 카드 3 + 나머지 (그림 있는 기사를 앞쪽 카드에 우선 배치)
 const news = ref([])
 const newsLoading = ref(true)
+const hero = computed(() => news.value.find(n => n.image_url) || news.value[0])
+const cards = computed(() => news.value.filter(n => n.image_url && n !== hero.value).slice(0, 3))
+const side = computed(() => news.value.filter(n => n !== hero.value && !cards.value.includes(n)).slice(0, 4))
+const rest = computed(() => news.value.filter(n => n !== hero.value && !cards.value.includes(n) && !side.value.includes(n)))
+function srcLine(n) {
+  return `${n.source}${n.lang === 'en' ? ' · 영문 기사(제목 번역)' : n.lang === 'en_raw' ? ' · 영문 기사' : ''} · ${timeAgo(n.published_at)}`
+}
 function timeAgo(t) {
   const m = Math.max(0, Math.round((Date.now() - new Date(t).getTime()) / 60000))
   if (m < 60) return `${m || 1}분 전`
@@ -304,7 +356,7 @@ function timeAgo(t) {
   return `${Math.floor(m / 1440)}일 전`
 }
 async function loadNews() {
-  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 20 } }); news.value = data.data || [] } catch {}
+  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 40 } }); news.value = data.data || [] } catch {}
   newsLoading.value = false
 }
 
@@ -319,6 +371,7 @@ onMounted(async () => {
     watchlist.value = data.data?.watchlist || []
   } catch {}
   loading.value = false
+  await nextTick(); updateScroll()
 })
 onUnmounted(() => clearInterval(clockTimer))
 </script>
