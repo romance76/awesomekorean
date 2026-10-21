@@ -277,6 +277,9 @@
             <AppIcon name="camera" :size="14" /> {{ previewImg ? '변경' : '업로드' }}
             <input type="file" accept="image/*" @change="onImage" class="hidden" />
           </label>
+          <button v-if="previewImg" type="button" @click="removeImage" class="btn-soft text-xs !text-red-500">
+            <AppIcon name="trash" :size="14" /> 제거
+          </button>
         </div>
         <p v-if="fieldErrors.image" class="text-xs text-red-500 mt-1">{{ fieldErrors.image }}</p>
       </div>
@@ -373,6 +376,7 @@ const form = reactive({
 if (route.query.category && categories.some(c => c.value === route.query.category)) form.category = String(route.query.category)
 const imageFile = ref(null)
 const previewImg = ref(null)
+const removeImg = ref(false)   // 수정할 때 이미지를 없애겠다는 표시 (서버에 remove_image 로 보냄)
 const error = ref('')
 const submitting = ref(false)
 const fieldErrors = reactive({})
@@ -386,11 +390,19 @@ function onImage(e) {
   if (!file) return
   imageFile.value = file
   previewImg.value = URL.createObjectURL(file)
+  removeImg.value = false
 }
 function onBannerPick(file) {
   imageFile.value = file
   previewImg.value = URL.createObjectURL(file)
+  removeImg.value = false
   delete fieldErrors.image
+}
+// 이미지 제거 — 새로 고른 파일이면 고른 것을 취소하고, 이미 올라간 이미지면 저장할 때 서버에서 지운다
+function removeImage() {
+  imageFile.value = null
+  previewImg.value = null
+  removeImg.value = true
 }
 
 function validateSweepstakes() {
@@ -452,6 +464,7 @@ async function submit() {
     fd.set('official_rules_url', legacyRulesUrl.value || RULES_PATH)
     fd.set('no_purchase_required_text', sw.no_purchase_required_text || DEFAULT_NO_PURCHASE)
     if (imageFile.value) fd.append('image', imageFile.value)
+    else if (removeImg.value) fd.append('remove_image', '1')
   } else {
     Object.entries(form).forEach(([k, v]) => {
       if (k === 'max_attendees' && !v) return // 0/빈값 = 무제한, 보내지 않음
@@ -459,6 +472,7 @@ async function submit() {
     })
     if (form.price == 0) fd.set('is_free', '1')
     if (imageFile.value) fd.append('image', imageFile.value)
+    else if (removeImg.value) fd.append('remove_image', '1')
   }
 
   try {

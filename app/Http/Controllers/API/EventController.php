@@ -348,6 +348,8 @@ class EventController extends Controller
 
         if ($request->hasFile('image')) {
             $fields['image_url'] = $this->storeCompressedImage($request->file('image'), 'events', 1400, 82);
+        } elseif ($request->boolean('remove_image')) {
+            $fields['image_url'] = null;   // 수정 화면의 "제거" — 새 이미지를 함께 올린 경우에는 위가 우선
         }
 
         $event->update($fields);
