@@ -210,7 +210,8 @@
   <div v-if="heroBanners.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
     <!-- 모바일: 가로로 긴 이미지는 글씨가 안 보이니 이미지 대신 텍스트 카드(제목·소제목·버튼)로 보여줌 -->
     <section class="relative overflow-hidden rounded-card shadow-card md:aspect-[1232/222]"
-      @mouseenter="pauseHero" @mouseleave="resumeHero">
+      @mouseenter="pauseHero" @mouseleave="resumeHero"
+      @touchstart.passive="heroTouchStart" @touchend="heroTouchEnd" @touchcancel="resumeHero">
       <Transition name="hero" mode="out-in">
         <div v-if="heroBanners[heroIdx]" :key="heroIdx" @click="clickHeroBanner(heroBanners[heroIdx])"
           class="cursor-pointer md:absolute md:inset-0"
@@ -410,6 +411,25 @@ function clickHeroBanner(b) {
 function startHeroSlide() {
   if (heroBanners.value.length <= 1) return
   heroInterval = setInterval(() => { heroIdx.value = (heroIdx.value + 1) % heroBanners.value.length }, 7000)
+}
+// 손으로 밀어서(스와이프) 다음/이전 배너 보기 — 만지는 동안은 자동으로 안 넘어가고, 놓으면 다시 자동
+let heroTouchX = 0, heroTouchY = 0
+function heroTouchStart(e) {
+  const t = e.touches && e.touches[0]
+  if (!t) return
+  heroTouchX = t.clientX; heroTouchY = t.clientY
+  pauseHero()
+}
+function heroTouchEnd(e) {
+  const t = e.changedTouches && e.changedTouches[0]
+  const n = heroBanners.value.length
+  if (t && n > 1) {
+    const dx = t.clientX - heroTouchX, dy = t.clientY - heroTouchY
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      heroIdx.value = (heroIdx.value + (dx < 0 ? 1 : n - 1)) % n   // 왼쪽으로 밀면 다음, 오른쪽으로 밀면 이전
+    }
+  }
+  resumeHero()
 }
 function pauseHero() { if (heroInterval) { clearInterval(heroInterval); heroInterval = null } }
 function resumeHero() { if (!heroInterval && heroBanners.value.length > 1) startHeroSlide() }
