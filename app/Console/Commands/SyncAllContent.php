@@ -36,6 +36,7 @@ class SyncAllContent extends Command
                 ['key' => 'news',             'label' => '뉴스'],
                 ['key' => 'headlines',        'label' => '언론사 헤드라인'],
                 ['key' => 'stocks',           'label' => '주식 시세'],
+                ['key' => 'stocknews',        'label' => '증권가 뉴스'],
                 ['key' => 'shorts',           'label' => '쇼츠'],
                 ['key' => 'music',            'label' => '음악'],
                 ['key' => 'recipes',          'label' => '레시피'],
@@ -66,6 +67,7 @@ class SyncAllContent extends Command
         $run('news', '뉴스', fn() => \Artisan::call('news:fetch'));
         $run('headlines', '언론사 헤드라인', fn() => \Artisan::call('headlines:fetch'));
         $run('stocks', '주식 시세', fn() => \Artisan::call('market:fetch'));
+        $run('stocknews', '증권가 뉴스', fn() => \Artisan::call('stocknews:fetch'));
         $run('shorts', '쇼츠', function () {
             // 한국 비율은 shorts:fetch 안에서 관리자 설정(board.shorts.korea_ratio)을
             // 직접 읽으므로 여기서 하드코딩하지 않음.

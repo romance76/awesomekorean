@@ -93,6 +93,29 @@
   </div>
   </div>
 
+  <!-- ── 증권가 뉴스 ─────────────────────────────────── -->
+  <div class="card overflow-hidden mb-6">
+    <div class="px-4 py-3 border-b border-line flex items-center gap-2">
+      <div class="font-bold text-sm text-ink flex items-center gap-1.5"><AppIcon name="newspaper" :size="15" class="text-amber-600" />증권가 뉴스</div>
+      <span class="ml-auto text-[11px] text-ink-faint">누르면 언론사 원문으로 이동해요</span>
+    </div>
+    <div v-if="newsLoading" class="py-8 text-center text-sm text-ink-muted">불러오는 중…</div>
+    <div v-else-if="!news.length" class="py-8 text-center text-sm text-ink-muted">뉴스를 준비하고 있어요. 잠시 후 다시 확인해 주세요.</div>
+    <ul v-else>
+      <li v-for="n in news" :key="n.id" class="border-b border-line last:border-0">
+        <a :href="n.url" target="_blank" rel="noopener noreferrer" class="flex items-start gap-3 px-4 py-2.5 hover:bg-gray-50">
+          <div class="min-w-0 flex-1">
+            <div class="text-[13.5px] font-semibold text-ink leading-snug">{{ n.title }}</div>
+            <div v-if="n.summary" class="text-[12px] text-ink-muted mt-0.5 line-clamp-1">{{ n.summary }}</div>
+            <div class="text-[11px] text-ink-faint mt-0.5">{{ n.source }}<span v-if="n.lang === 'en'"> · 영문 기사(제목 번역)</span> · {{ timeAgo(n.published_at) }}</div>
+          </div>
+          <img v-if="n.image_url" :src="n.image_url" alt="" loading="lazy" referrerpolicy="no-referrer" class="w-16 h-12 rounded-lg object-cover shrink-0 bg-gray-100" @error="$event.target.style.display = 'none'" />
+        </a>
+      </li>
+    </ul>
+    <p class="px-4 py-2 text-[10.5px] text-ink-faint border-t border-line">제목과 요약만 보여 주고, 기사 전문은 각 언론사 사이트에서 볼 수 있어요. 영문 기사는 제목을 자동 번역해서 부정확할 수 있어요.</p>
+  </div>
+
   <!-- ── 실적 발표(어닝) 캘린더 ─────────────────────────── -->
   <div class="card overflow-hidden mb-6">
     <div class="px-4 py-3 border-b border-line flex items-center gap-2 flex-wrap">
@@ -271,9 +294,24 @@ async function removeTicker(symbol) {
   try { const { data } = await axios.delete(`/api/stocks/watchlist/${encodeURIComponent(symbol)}`); myList.value = data.data || [] } catch {}
 }
 
+// 증권가 뉴스
+const news = ref([])
+const newsLoading = ref(true)
+function timeAgo(t) {
+  const m = Math.max(0, Math.round((Date.now() - new Date(t).getTime()) / 60000))
+  if (m < 60) return `${m || 1}분 전`
+  if (m < 1440) return `${Math.floor(m / 60)}시간 전`
+  return `${Math.floor(m / 1440)}일 전`
+}
+async function loadNews() {
+  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 20 } }); news.value = data.data || [] } catch {}
+  newsLoading.value = false
+}
+
 onMounted(async () => {
   tickClock(); clockTimer = setInterval(tickClock, 30000)
   loadEarnings(0)
+  loadNews()
   loadMine()
   try {
     const { data } = await axios.get('/api/market-quotes')

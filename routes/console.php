@@ -33,6 +33,8 @@ $contentLog = storage_path('logs/content-sync.log');
 
 // 홈 화면 인기 주식 위젯 + 증권 페이지 시세: 15분마다 갱신
 \App\Support\AutoCollectStatus::watch(Schedule::command('market:fetch'), 'market')->everyFifteenMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
+// 증권 페이지 "증권가 뉴스": 증권·시황 언론사 RSS 제목·요약·링크, 15분마다 (영문 기사는 제목만 번역)
+\App\Support\AutoCollectStatus::watch(Schedule::command('stocknews:fetch'), 'stocknews')->everyFifteenMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
 \App\Support\AutoCollectStatus::watch(Schedule::command('earnings:fetch'), 'earnings')->everySixHours()->withoutOverlapping()->appendOutputTo($contentLog);
 Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->where('visit_date', '<', now('America/New_York')->subDays(45)->toDateString())->delete())->dailyAt('04:10');
 

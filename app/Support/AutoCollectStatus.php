@@ -27,6 +27,7 @@ class AutoCollectStatus
             'news'        => ['뉴스', '2시간마다', fn () => \App\Models\News::max('created_at'), 6],
             'headlines'   => ['언론사 헤드라인', '30분마다', null, null],
             'market'      => ['주식 시세', '15분마다', fn () => \App\Models\MarketQuote::max('updated_at'), 1],
+            'stocknews'   => ['증권가 뉴스', '15분마다 (2개월 지난 기사 자동 삭제)', fn () => \App\Models\StockNews::max('created_at'), 6],
             'earnings'    => ['실적 발표', '6시간마다', null, null],
             'shorts'      => ['쇼츠', '하루 3번 (09:40·15:40·21:40 UTC)', fn () => \App\Models\Short::max('created_at'), 20],
             'music'       => ['음악', '하루 4번', fn () => \App\Models\MusicTrack::max('created_at'), 14],
