@@ -78,9 +78,10 @@ export const ADMIN_ITEMS = [
   { to: '/admin/social', icon: 'megaphone', label: 'SNS 게시 (인스타·스레드)', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes', icon: 'gift', label: '경품 추첨 관리', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
   { to: '/admin/sweepstakes-rules', icon: 'book-open', label: '경품 추첨 공식 규정', pcGroup: 'promo', legacyGroup: 'system', mobile: true, minTier: 3 },
-  { to: '/admin/event-import', icon: 'ticket', label: '지역 행사 가져오기', pcGroup: 'content', legacyGroup: 'system', mobile: true,
+  // 이벤트 화면(/admin/events)의 탭으로 들어가서 메뉴에서는 숨김(주소는 그대로 동작)
+  { to: '/admin/event-import', icon: 'ticket', label: '지역 행사 가져오기', pcGroup: 'content', legacyGroup: 'system', mobile: true, hideFromTabs: true,
     isNew: true, newDesc: '미국 30개 주의 콘서트·스포츠·축제를 Ticketmaster 에서 자동으로 가져옵니다. 주별 켜기/끄기와 가져온 행사 숨김을 관리해요.' },
-  { to: '/admin/event-feeds', icon: 'calendar', label: '공식 행사 피드(축제)', pcGroup: 'content', legacyGroup: 'system', mobile: true,
+  { to: '/admin/event-feeds', icon: 'calendar', label: '공식 행사 피드(축제)', pcGroup: 'content', legacyGroup: 'system', mobile: true, hideFromTabs: true,
     isNew: true, newDesc: '관광청·시청·카운티의 공식 행사 중 한인이 갈 만한 큰 행사만 매주 일요일에 자동으로 가져옵니다(주 10·카운티 3·도시 2).' },
   { to: '/admin/hero-banners', icon: 'image', label: '히어로 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },
   { to: '/admin/popup-banners', icon: 'message-square', label: '팝업 배너', pcGroup: 'promo', legacyGroup: 'system', mobile: true },
@@ -114,7 +115,7 @@ export const SECTION_ORDER = {
 }
 const SECTION_OF = {
   '소통': ['/admin/community', '/admin/qa', '/admin/clubs', '/admin/chats', '/admin/communication'],
-  '생활·거래': ['/admin/market', '/admin/jobs', '/admin/realestate', '/admin/directory', '/admin/groupbuy', '/admin/events', '/admin/event-import', '/admin/event-feeds'],
+  '생활·거래': ['/admin/market', '/admin/jobs', '/admin/realestate', '/admin/directory', '/admin/groupbuy', '/admin/events'],
   '미디어·정보': ['/admin/news', '/admin/info', '/admin/money', '/admin/recipes', '/admin/music', '/admin/shorts', '/admin/shopping'],
   '광고': ['/admin/ad-center', '/admin/banners', '/admin/flyers', '/admin/pricing'],
   '결제·지급': ['/admin/payments', '/admin/grants'],

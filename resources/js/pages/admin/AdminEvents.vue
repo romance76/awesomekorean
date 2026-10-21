@@ -9,8 +9,12 @@
     :extra-cols='[{"key":"category","label":"카테고리"},{"key":"event_type","label":"유형"},{"key":"city","label":"도시"},{"key":"attendee_count","label":"참가자"},{"key":"start_date","label":"시작일"}]'
     :setting-schema="settingSchema"
     :point-schema="pointSchema"
+    :custom-tabs="[{ key: 'import', label: '지역 행사 가져오기', icon: 'ticket', position: 'end' }, { key: 'feeds', label: '공식 행사 피드', icon: 'calendar', position: 'end' }]"
     @open-user="u => { selectedUserId = u?.id; showUser = true }"
-  />
+  >
+    <template #tab-import><AdminEventImport /></template>
+    <template #tab-feeds><AdminEventFeeds /></template>
+  </AdminBoardManager>
   <AdminUserModal :show="showUser" :user-id="selectedUserId" @close="showUser=false" />
 </div>
 </template>
@@ -19,6 +23,8 @@
 import { ref } from 'vue'
 import AdminBoardManager from '../../components/AdminBoardManager.vue'
 import AdminUserModal from '../../components/AdminUserModal.vue'
+import AdminEventImport from './AdminEventImport.vue'
+import AdminEventFeeds from './AdminEventFeeds.vue'
 
 const showUser = ref(false)
 const selectedUserId = ref(null)

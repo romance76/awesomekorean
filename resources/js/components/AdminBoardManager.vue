@@ -492,13 +492,15 @@ const tabs = computed(() => {
   ]
   // afterCategory 위치의 커스텀 탭 (예: 공구 승인)
   const afterCat = (props.customTabs || []).filter(t => !t.position || t.position === 'afterCategory')
+  // position 'end' = 신고 탭 뒤 맨 끝 (예: 이벤트의 지역 행사 가져오기)
+  const atEnd = (props.customTabs || []).filter(t => t.position === 'end')
   const rest = [
     { key: 'set',   icon: 'settings',     label: '설정' },
     { key: 'point', icon: 'coins',        label: '포인트' },
     { key: 'ban',   icon: 'megaphone',    label: '배너/광고', badge: bannerStats.value?.pending || 0 },
     { key: 'rep',   icon: 'alert-circle', label: '신고', badge: overview.value?.pending_reports || 0 },
   ]
-  return [...base, ...afterCat, ...rest]
+  return [...base, ...afterCat, ...rest, ...atEnd]
 })
 
 const overview = ref({})
