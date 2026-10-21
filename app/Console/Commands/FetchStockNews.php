@@ -161,13 +161,13 @@ class FetchStockNews extends Command
             $html = curl_exec($ch);
             curl_close($ch);
             if (!$html) return null;
-            if (preg_match('/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i', $html, $m)
-                || preg_match('/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i', $html, $m)) {
+            if (preg_match('/<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']/i', $html, $m)
+                || preg_match('/<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']/i', $html, $m)) {
                 $src = html_entity_decode($m[1]);
                 if (preg_match('/(logo|default|noimage|no_image|pixel|banner)/i', $src)) return null;
                 return $src;
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             // 이미지 없이 진행
         }
         return null;
