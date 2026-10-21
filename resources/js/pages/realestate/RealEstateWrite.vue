@@ -38,7 +38,6 @@
           <select v-model="form.type" class="input-soft px-3">
             <option value="rent">🔑 렌트</option>
             <option value="sale">🏠 매매</option>
-            <option value="roommate">👥 룸메이트</option>
           </select></div>
         <div><label class="input-label">종류</label>
           <select v-model="form.property_type" class="input-soft px-3">

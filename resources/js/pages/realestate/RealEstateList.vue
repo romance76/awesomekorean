@@ -355,7 +355,6 @@ const reType = ref('rent') // rent | sale | roommate
 const reTypeTabs = [
   { value: 'rent',     label: '렌트',     icon: 'key',   activeBg: 'text-blue-600' },
   { value: 'sale',     label: '매매',     icon: 'home',  activeBg: 'text-red-600' },
-  { value: 'roommate', label: '룸메이트', icon: 'users', activeBg: 'text-green-600' },
 ]
 
 function changeReType(v) {
@@ -613,7 +612,7 @@ onMounted(async () => {
   await loadConfig(); viewMode.value = getDefaultView('realestate')
 
   // URL 쿼리 파라미터 반영 (?type=sale|rent|roommate, cat, fav) — Issue #23
-  if (['rent', 'sale', 'roommate'].includes(route.query.type)) {
+  if (['rent', 'sale'].includes(route.query.type)) {
     reType.value = route.query.type
   }
   if (route.query.cat) activeCat.value = route.query.cat

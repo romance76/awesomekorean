@@ -13,7 +13,7 @@
     :class="immersiveActive ? '' : 'rounded-t-lg'"
     :style="immersiveActive
       ? { bottom: 0, height: 'calc(24px + env(safe-area-inset-bottom, 0px))', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }
-      : { bottom: 'calc(60px + env(safe-area-inset-bottom, 0px))', height: '24px' }"
+      : { bottom: navH + 'px', height: navH ? '24px' : 'calc(24px + env(safe-area-inset-bottom, 0px))', paddingBottom: navH ? '0' : 'env(safe-area-inset-bottom, 0px)' }"
     @click="expand">
     <span class="text-[#FF8A4D] flex-shrink-0"><AppIcon name="music" :size="12" /></span>
     <span class="flex-1 min-w-0 text-[11px] truncate text-gray-200">{{ music.currentTrack?.title }}<span v-if="music.currentTrack?.artist" class="text-gray-500"> · {{ music.currentTrack.artist }}</span></span>
@@ -136,7 +136,16 @@ const isShortsPage = computed(() => route.path.startsWith('/shorts'))
 const isMusicPage = computed(() => route.path.startsWith('/music'))
 // 홈 화면에서는 홈의 음악 타일이 재생·소리 조절을 맡으므로 아래 띠/둥근 버튼은 숨김 (다른 화면에서는 그대로)
 const isHomePage = computed(() => route.path === '/')
-const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShutdown.value && !isShortsPage.value && !isHomePage.value)
+// 관리자 화면에서는 플레이어를 아예 보이지 않게 함 (들어가면 재생도 멈춤)
+const inAdmin = computed(() => route.path.startsWith('/admin'))
+const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShutdown.value && !isShortsPage.value && !isHomePage.value && !inAdmin.value)
+// 얇은 띠는 아래 메뉴 바(BottomNav) 바로 위에 딱 붙게 — 메뉴 바의 실제 높이를 재서 쓴다(768px 이상에서는 메뉴 바가 없어 0)
+const navH = ref(60)
+function measureNav() {
+  const el = document.getElementById('bottom-nav')
+  const h = el && el.offsetParent !== null ? Math.round(el.getBoundingClientRect().height) : 0
+  if (h !== navH.value) navH.value = h
+}
 // 전체화면 창(채팅·쪽지)이 열려 있으면 얇은 띠 모드 — 그 창들이 띠 높이만큼 아래를 비우도록 CSS 변수(--mini-strip)로 알려준다
 const showStrip = computed(() => showMiniBtn.value && isMobile.value)
 watch([showStrip, immersiveActive], ([on, imm]) => {
@@ -145,7 +154,8 @@ watch([showStrip, immersiveActive], ([on, imm]) => {
   root.setProperty('--mini-strip-page', on && !imm ? '24px' : '0px')                                       // 일반 페이지 맨 아래 여백에 더할 높이
 }, { immediate: true })
 onUnmounted(() => { document.documentElement.style.setProperty('--mini-strip', '0px'); document.documentElement.style.setProperty('--mini-strip-page', '0px') })
-const showPlayer = computed(() => (music.hasTrack || (isMusicPage.value && !isMobile.value)) && isExpanded.value && !isShutdown.value)
+const showPlayer = computed(() => (music.hasTrack || (isMusicPage.value && !isMobile.value)) && isExpanded.value && !isShutdown.value && !inAdmin.value)
+watch(inAdmin, v => { if (v && music.hasTrack) shutdown() }, { immediate: true })
 
 const posRight = ref(16)
 const posTop = ref(170)
@@ -474,7 +484,7 @@ function onResize() {
 onMounted(() => {
   window.addEventListener('resize', onResize)
   // 위치 동기화 타이머 (드래그 등에서 정확도 보장)
-  positionTimer = setInterval(() => { updateYTPosition(); if (isMusicPage.value && isExpanded.value && !isMobile.value) syncMusicPos(false) }, 500)
+  positionTimer = setInterval(() => { measureNav(); updateYTPosition(); if (isMusicPage.value && isExpanded.value && !isMobile.value) syncMusicPos(false) }, 500)
   window.addEventListener('scroll', onScrollSync, { passive: true })
   if (isMusicPage.value && !isShutdown.value && !isMobile.value) { isExpanded.value = true; syncMusicPos(true) }
   if (music.currentTrack?.youtubeId) { if (!isMobile.value) isExpanded.value = true; nextTick(() => createPlayer(music.currentTrack.youtubeId, music.currentTime || 0)) }
