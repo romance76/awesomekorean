@@ -757,6 +757,11 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::delete('/boards/{id}', [AdminController::class, 'deleteBoard']);
     Route::get('/reports', [AdminController::class, 'reports']);
     Route::put('/reports/{id}', [AdminController::class, 'updateReport']);
+    // 신고로 인한 게시판 정지 (정지 창 정보 · 정지 실행 · 정지 현황 · 해제). 정지 3회 누적이면 계정 이용 정지
+    Route::get('/reports/{id}/suspend-info', [\App\Http\Controllers\API\AdminSuspensionController::class, 'info']);
+    Route::post('/reports/{id}/suspend', [\App\Http\Controllers\API\AdminSuspensionController::class, 'suspend'])->middleware('throttle:60,1');
+    Route::get('/board-suspensions', [\App\Http\Controllers\API\AdminSuspensionController::class, 'index']);
+    Route::post('/board-suspensions/{id}/lift', [\App\Http\Controllers\API\AdminSuspensionController::class, 'lift'])->middleware('throttle:60,1');
     Route::delete('/reports/{id}', [AdminController::class, 'deleteReport'])->middleware(['role:super_admin', 'throttle:60,1']);   // 시험 신고 삭제 — 최고관리자 전용
     Route::get('/friends', [AdminController::class, 'friends']);
     Route::get('/banners', [AdminController::class, 'bannerList']);

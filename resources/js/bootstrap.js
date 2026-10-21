@@ -76,6 +76,10 @@ axios.interceptors.response.use(
         if (error.response?.status === 503 && error.response?.data?.maintenance) {
             try { window.dispatchEvent(new CustomEvent('ak:maintenance', { detail: error.response.data })); } catch { /* 무시 */ }
         }
+        // 신고로 이용이 정지된 게시판: 서버가 403 + {code:'board_suspended', board, until, permanent} 로 답하면 App.vue 가 정지 안내를 띄운다
+        if (error.response?.status === 403 && error.response?.data?.code === 'board_suspended') {
+            try { window.dispatchEvent(new CustomEvent('ak:board-suspended', { detail: error.response.data })); } catch { /* 무시 */ }
+        }
         return Promise.reject(error);
     }
 );

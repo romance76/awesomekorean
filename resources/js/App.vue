@@ -36,6 +36,8 @@
 
     <!-- 점검 모드(관리자 사이트 설정): 일반 회원에게는 점검 안내만. 관리자·운영자 화면과 로그인 화면은 그대로 열린다 -->
     <MaintenanceNotice v-if="showMaintenance" />
+    <!-- 신고로 이용이 정지된 게시판에 들어갔을 때 -->
+    <BoardSuspendedNotice v-else-if="boardBlock" :info="boardBlock" />
     <main v-else>
       <router-view v-slot="{ Component }" :key="route.fullPath">
         <keep-alive :include="['Home']">
@@ -104,6 +106,7 @@ import FlyerPrompt from './components/FlyerPrompt.vue'
 import InstallAppPrompt from './components/InstallAppPrompt.vue'
 import WinnerPrizePrompt from './components/WinnerPrizePrompt.vue'
 import MaintenanceNotice from './components/MaintenanceNotice.vue'
+import BoardSuspendedNotice from './components/BoardSuspendedNotice.vue'
 import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 
 import { useBookmarkStore } from './stores/bookmarks'
@@ -177,6 +180,13 @@ if (typeof window !== 'undefined') {
     showUserPopup.value = true
   }
 }
+
+// 신고로 정지된 게시판: 서버가 막으면(ak:board-suspended) 안내 화면을 보여 주고, 다른 주소로 이동하면 닫는다
+const boardBlock = ref(null)
+function onBoardSuspended(e) { boardBlock.value = e.detail || {} }
+onMounted(() => window.addEventListener('ak:board-suspended', onBoardSuspended))
+onUnmounted(() => window.removeEventListener('ak:board-suspended', onBoardSuspended))
+watch(() => route.fullPath, () => { boardBlock.value = null })
 
 // 점검 안내를 보여 줄지: 점검 중이고, 관리자·운영자가 아니고, 로그인/관리자/비밀번호 찾기 화면이 아닐 때
 // (그 화면들은 점검 중에도 열려 있어야 관리자가 스스로 잠기지 않는다)

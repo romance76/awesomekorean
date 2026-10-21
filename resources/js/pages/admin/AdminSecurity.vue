@@ -45,10 +45,11 @@
         </li>
       </ol>
       <div v-if="r.status === 'pending'" class="grid grid-cols-2 gap-2 mt-3">
-        <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" class="min-h-[48px] rounded-xl bg-emerald-500 text-white text-[15px] font-bold disabled:opacity-50">해결</button>
-        <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold disabled:opacity-50">기각</button>
+        <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" class="min-h-[48px] rounded-xl bg-gray-100 text-ink text-[15px] font-bold disabled:opacity-50">문제 없음</button>
+        <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" class="min-h-[48px] rounded-xl bg-emerald-500 text-white text-[15px] font-bold disabled:opacity-50">처리 완료</button>
+        <button @click="openSuspend(r)" :disabled="busyId === r.id" class="col-span-2 min-h-[48px] rounded-xl bg-red-500 text-white text-[15px] font-bold disabled:opacity-50">게시판 정지</button>
       </div>
-      <button v-if="r.status !== 'pending'" @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="mt-3 min-h-[48px] w-full rounded-xl border border-gray-200 text-[15px] font-bold text-ink-light disabled:opacity-50">다시 대기로 돌리기</button>
+      <button v-if="r.status !== 'pending'" @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="mt-3 min-h-[48px] w-full rounded-xl border border-gray-200 text-[15px] font-bold text-ink-light disabled:opacity-50">처리 취소 (확인 대기로 되돌리기)</button>
       <button @click="openNote(r)" class="mt-2 min-h-[44px] w-full rounded-xl border border-gray-200 text-[14px] font-bold text-ink-light">{{ r.admin_note ? '메모 고치기' : '메모 추가' }}</button>
       <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="mt-2 min-h-[44px] w-full rounded-xl border border-red-200 text-[14px] font-bold text-red-600 disabled:opacity-50">신고 삭제</button>
     </div>
@@ -240,12 +241,22 @@
         </select>
         <select v-model="reportFilter.status" @change="reportFilter.page=1; loadReports()" class="input-soft !w-auto !px-2 !py-1 !text-xs">
           <option value="">전체 상태</option>
-          <option value="pending">대기중</option>
-          <option value="resolved">해결됨</option>
-          <option value="dismissed">기각됨</option>
+          <option value="pending">확인 대기</option>
+          <option value="resolved">처리 완료</option>
+          <option value="dismissed">문제 없음(기각)</option>
         </select>
       </div>
     </div>
+
+    <details class="px-4 py-2.5 border-b border-gray-50 bg-amber-50/40 text-[12px] text-ink-light">
+      <summary class="cursor-pointer font-bold text-ink">신고를 어떻게 처리하나요? (눌러서 보기)</summary>
+      <ul class="mt-2 space-y-1 leading-relaxed list-disc pl-4">
+        <li><b>문제 없음</b> — 내용을 확인해 보니 문제가 없어서 아무 조치 없이 닫아요. 신고를 무시하는 게 아니라 "확인했고 이상 없음"으로 기록돼요.</li>
+        <li><b>처리 완료</b> — 확인하고 조치(글 숨김·경고 등)를 끝냈을 때 닫아요.</li>
+        <li><b>게시판 정지</b> — 글쓴이가 그 게시판을 며칠(또는 영구) 못 쓰게 막아요. 정지된 회원이 들어가면 "신고로 인하여 정지되어 사용할 수 없습니다"가 나와요. <b>정지가 3번 쌓이면 계정 이용이 정지</b>되고, 로그인할 때 "관리자에게 문의해 주세요"가 나와요.</li>
+        <li><b>처리 취소</b> — 잘못 닫았을 때 다시 "확인 대기"로 되돌려요. 이미 건 게시판 정지는 아래 <b>정지 현황</b>에서 따로 풀어요.</li>
+      </ul>
+    </details>
 
     <div class="overflow-x-auto">
       <table class="w-full text-xs min-w-[900px]">
@@ -282,10 +293,11 @@
               <td class="px-3 py-2.5 whitespace-nowrap text-ink-light">{{ r.status === 'pending' ? '—' : handlerName(r) }}</td>
               <td class="px-3 py-2.5 text-right whitespace-nowrap" @click.stop>
                 <template v-if="r.status === 'pending'">
-                  <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" class="bg-green-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors">해결</button>
-                  <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" class="ml-1 bg-gray-300 text-ink-light text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-400 disabled:opacity-50 transition-colors">기각</button>
+                  <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" title="확인해 보니 문제가 없어서 아무 조치 없이 닫아요 (신고를 무시하는 게 아니라 '이상 없음'으로 확인한 거예요)" class="bg-gray-300 text-ink-light text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-400 disabled:opacity-50 transition-colors">문제 없음</button>
+                  <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" title="확인하고 조치(글 숨김·경고 등)를 끝냈을 때 닫아요" class="ml-1 bg-green-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors">처리 완료</button>
+                  <button @click="openSuspend(r)" :disabled="busyId === r.id" title="글쓴이가 그 게시판을 일정 기간(또는 영구) 못 쓰게 막아요. 3번 쌓이면 계정 이용이 정지돼요" class="ml-1 bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">게시판 정지</button>
                 </template>
-                <button v-else @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 disabled:opacity-50 transition-colors">다시 대기로</button>
+                <button v-else @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" title="잘못 닫았을 때 다시 '확인 대기'로 되돌려요 (이미 건 게시판 정지는 아래 '정지 현황'에서 풀어요)" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 disabled:opacity-50 transition-colors">처리 취소</button>
                 <button @click="toggleLog(r)" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 transition-colors">{{ openLogId === r.id ? '접기' : '이력' }}</button>
                 <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors">삭제</button>
               </td>
@@ -324,6 +336,66 @@
         :class="p === reportPagination.currentPage ? 'bg-amber-400 text-white' : 'text-ink-muted hover:bg-gray-100'">{{ p }}</button>
       <button @click="goReportPage(reportFilter.page + 1)" :disabled="reportFilter.page >= reportPagination.lastPage" class="px-3 h-8 rounded-lg text-xs font-bold text-ink-muted hover:bg-gray-100 disabled:opacity-40">다음</button>
     </div>
+  </div>
+
+  <!-- 게시판 정지 현황 -->
+  <div class="mt-6 card overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-50 flex items-center gap-2 font-bold text-sm text-ink">
+      <span class="icon-chip w-7 h-7 bg-red-50 text-red-600"><AppIcon name="alert-circle" :size="14" /></span>게시판 정지 현황
+      <span class="text-xs font-semibold text-ink-faint">지금 정지 중 {{ suspensions.length }}건 · 정지 3번이면 계정 이용 정지</span>
+    </div>
+    <div v-if="!suspensions.length" class="px-4 py-6 text-sm text-ink-muted text-center">정지 중인 회원이 없어요.</div>
+    <table v-else class="w-full text-xs">
+      <thead class="bg-gray-50 text-ink-muted"><tr class="text-left">
+        <th class="px-3 py-2 font-semibold">회원</th><th class="px-3 py-2 font-semibold">게시판</th><th class="px-3 py-2 font-semibold">정지 기간</th><th class="px-3 py-2 font-semibold">누적</th><th class="px-3 py-2 font-semibold">사유</th><th class="px-3 py-2 font-semibold text-right">처리</th>
+      </tr></thead>
+      <tbody>
+        <tr v-for="s in suspensions" :key="s.id" class="border-t border-gray-50 align-top">
+          <td class="px-3 py-2.5"><div class="font-semibold text-ink">{{ s.user?.name || '—' }}</div><div class="text-ink-faint">{{ s.user?.email }}</div></td>
+          <td class="px-3 py-2.5 whitespace-nowrap">{{ s.board }}</td>
+          <td class="px-3 py-2.5 whitespace-nowrap">{{ s.permanent ? '영구' : fullTime(s.ends_at) + '까지' }}</td>
+          <td class="px-3 py-2.5 whitespace-nowrap"><b :class="s.strikes >= 3 ? 'text-red-600' : 'text-ink'">{{ s.strikes }}/3회</b><span v-if="s.user?.is_banned" class="ml-1 text-[10px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-bold">계정 정지</span></td>
+          <td class="px-3 py-2.5 text-ink-muted max-w-[240px] truncate" :title="s.reason">{{ s.reason || '—' }}</td>
+          <td class="px-3 py-2.5 text-right"><button @click="liftSuspension(s)" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50">정지 풀기</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 게시판 정지 창 (PC·휴대폰 공용) -->
+<div v-if="susp.open" class="fixed inset-0 z-[80] bg-black/40 flex items-end md:items-center justify-center p-3" @click.self="susp.open = false">
+  <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-4 shadow-xl">
+    <div class="flex items-center mb-2"><div class="text-[16px] font-extrabold text-ink">게시판 정지</div><button class="ml-auto text-ink-muted text-xl leading-none px-1" @click="susp.open = false" aria-label="닫기">×</button></div>
+    <div v-if="susp.loading" class="py-8 text-center text-sm text-ink-muted">불러오는 중…</div>
+    <div v-else-if="susp.error && !susp.info" class="text-sm text-red-600 py-4">{{ susp.error }}</div>
+    <template v-else-if="susp.info">
+      <div v-if="!susp.info.owner" class="rounded-xl bg-yellow-50 text-yellow-800 text-[13px] p-3 mb-3">글쓴이를 찾을 수 없어요. 글이 이미 지워졌을 수 있어요.</div>
+      <div v-else-if="susp.info.is_staff_target" class="rounded-xl bg-yellow-50 text-yellow-800 text-[13px] p-3 mb-3">운영진 계정은 신고로 정지할 수 없어요.</div>
+      <template v-else>
+        <div class="rounded-xl bg-gray-50 p-3 text-[13px] mb-3">
+          <div>정지 대상: <b class="text-ink">{{ susp.info.owner.name }}</b> <span class="text-ink-faint">({{ susp.info.owner.email }})</span></div>
+          <div class="mt-0.5">지금까지 정지 <b :class="susp.info.owner.strikes >= susp.info.max_strikes - 1 ? 'text-red-600' : 'text-ink'">{{ susp.info.owner.strikes }}회</b> · 이번에 정지하면 <b>{{ susp.info.owner.strikes + 1 }}회</b><span v-if="susp.info.owner.strikes + 1 >= susp.info.max_strikes" class="text-red-600 font-bold"> → 계정 이용이 정지돼요</span></div>
+        </div>
+        <label class="block text-[12px] font-bold text-ink-light mb-1">어느 게시판을 막을까요?</label>
+        <select v-model="susp.board" class="w-full input-soft !py-2 !px-3 text-sm mb-3">
+          <option v-for="b in susp.info.boards" :key="b.key" :value="b.key">{{ b.label }}{{ b.key === susp.info.suggested_board ? ' (신고된 글이 있는 게시판)' : '' }}</option>
+        </select>
+        <label class="block text-[12px] font-bold text-ink-light mb-1">얼마나 막을까요?</label>
+        <div class="flex flex-wrap gap-1.5 mb-3">
+          <button v-for="d in suspDurations" :key="d.v" type="button" @click="susp.days = d.v"
+            class="px-3 py-1.5 rounded-full border text-[12px] font-bold" :class="susp.days === d.v ? 'bg-red-500 text-white border-red-500' : 'bg-white text-ink-light border-gray-200'">{{ d.l }}</button>
+        </div>
+        <label class="block text-[12px] font-bold text-ink-light mb-1">메모 (선택 · 처리 이력에 남아요)</label>
+        <textarea v-model="susp.note" rows="2" maxlength="500" class="w-full input-soft !py-2 !px-3 text-sm mb-3" placeholder="예: 광고성 글 반복"></textarea>
+        <p class="text-[11px] text-ink-faint leading-relaxed mb-3">정지되면 이 회원은 선택한 게시판에 들어갈 수 없고, "이 게시판은 신고로 인하여 정지되어 사용할 수 없습니다" 안내가 나와요. 이 신고는 "처리 완료"로 닫혀요.</p>
+        <div v-if="susp.error" class="text-[12px] text-red-600 mb-2">{{ susp.error }}</div>
+        <div class="flex gap-2">
+          <button type="button" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-ink-light" @click="susp.open = false">취소</button>
+          <button type="button" :disabled="susp.busy || !susp.board" class="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-bold disabled:opacity-40" @click="submitSuspend">{{ susp.busy ? '처리 중…' : '정지하기' }}</button>
+        </div>
+      </template>
+    </template>
   </div>
 </div>
 </template>
@@ -396,10 +468,10 @@ function handlerName(r) {
   if (r.handler) return r.handler.nickname || r.handler.name
   return lastHandledLog(r)?.actor_name || '기록 없음'
 }
-const logLabel = (a) => ({ created: '신고 접수', resolved: '해결', dismissed: '기각', reopened: '다시 대기', note: '메모', hide_content: '콘텐츠 숨김', restore_content: '콘텐츠 복구', status: '상태 변경' }[a] || a)
+const logLabel = (a) => ({ created: '신고 접수', resolved: '처리 완료', dismissed: '문제 없음', reopened: '처리 취소', suspend: '게시판 정지', note: '메모', hide_content: '콘텐츠 숨김', restore_content: '콘텐츠 복구', status: '상태 변경' }[a] || a)
 const logClass = (a) => ({
   created: 'bg-blue-50 text-blue-700', resolved: 'bg-green-100 text-green-700', dismissed: 'bg-gray-200 text-ink-light',
-  reopened: 'bg-yellow-100 text-yellow-700', note: 'bg-amber-50 text-amber-700', hide_content: 'bg-red-50 text-red-600', restore_content: 'bg-green-50 text-green-700',
+  reopened: 'bg-yellow-100 text-yellow-700', note: 'bg-amber-50 text-amber-700', hide_content: 'bg-red-50 text-red-600', restore_content: 'bg-green-50 text-green-700', suspend: 'bg-red-100 text-red-700',
 }[a] || 'bg-gray-100 text-ink-light')
 const reportPageNumbers = computed(() => {
   const last = reportPagination.value.lastPage, cur = reportPagination.value.currentPage
@@ -442,9 +514,9 @@ function say(text, error = false) {
   clearTimeout(toastTimer)
   toastTimer = setTimeout(() => { toast.value = null }, 3000)
 }
-const reportStatusChips = [{ v: 'pending', l: '대기중' }, { v: 'resolved', l: '해결됨' }, { v: 'dismissed', l: '기각' }, { v: '', l: '전체' }]
+const reportStatusChips = [{ v: 'pending', l: '확인 대기' }, { v: 'resolved', l: '처리 완료' }, { v: 'dismissed', l: '문제 없음' }, { v: '', l: '전체' }]
 const reportTypes = [{ v: 'User', l: '사용자' }, { v: 'Post', l: '게시글' }, { v: 'MarketItem', l: '중고장터' }, { v: 'RealEstateListing', l: '부동산' }, { v: 'Comment', l: '댓글' }, { v: 'ChatMessage', l: '채팅' }, { v: 'GroupBuy', l: '공동구매' }]
-const reportStatusLabel = (st) => ({ pending: '대기중', resolved: '해결됨', dismissed: '기각' }[st] || st)
+const reportStatusLabel = (st) => ({ pending: '확인 대기', resolved: '처리 완료', dismissed: '문제 없음' }[st] || st)
 const pendingCount = ref(0)
 const mTabs = computed(() => [
   { key: 'reports', label: '신고', badge: pendingCount.value },
@@ -518,6 +590,7 @@ onMounted(async () => {
   loadPendingCount()
   loadIpBans()
   loadReports()
+  loadSuspensions()
   loadBannedUsers()
   loadLoginLocks()
   loadServerBans()
@@ -613,6 +686,46 @@ async function deleteReport(r) {
     say('신고를 삭제했어요')
   } catch (e) { say(e.response?.data?.message || '삭제하지 못했어요', true) }
   finally { busyId.value = null }
+}
+
+// 게시판 정지 — 신고를 확인한 뒤 글쓴이를 그 게시판에서 일정 기간(또는 영구) 막는다. 3번 쌓이면 계정 이용 정지(서버가 처리)
+const suspDurations = [{ v: 7, l: '7일' }, { v: 30, l: '30일' }, { v: 90, l: '3개월' }, { v: 180, l: '6개월' }, { v: 365, l: '1년' }, { v: 0, l: '영구' }]
+const susp = ref({ open: false, loading: false, busy: false, report: null, info: null, board: '', days: 30, note: '', error: '' })
+const suspensions = ref([])
+async function loadSuspensions() {
+  try { suspensions.value = (await axios.get('/api/admin/board-suspensions')).data.data || [] } catch { /* 목록만 못 불러온 것 */ }
+}
+async function openSuspend(r) {
+  susp.value = { open: true, loading: true, busy: false, report: r, info: null, board: '', days: 30, note: '', error: '' }
+  try {
+    const info = (await axios.get('/api/admin/reports/' + r.id + '/suspend-info')).data.data
+    susp.value.info = info
+    susp.value.board = info.suggested_board || info.boards?.[0]?.key || ''
+  } catch (e) { susp.value.error = e.response?.data?.message || '정보를 불러오지 못했어요.' }
+  susp.value.loading = false
+}
+async function submitSuspend() {
+  const st = susp.value
+  if (st.busy || !st.board) return
+  st.busy = true; st.error = ''
+  try {
+    const { data } = await axios.post('/api/admin/reports/' + st.report.id + '/suspend', { board_key: st.board, days: st.days || null, note: st.note || null })
+    if (data?.data) Object.assign(st.report, data.data)
+    // 상태 필터가 걸린 목록에서는 처리된 신고를 목록에서 바로 뺌
+    if (reportFilter.value.status && reportFilter.value.status !== 'resolved') reports.value = reports.value.filter(x => x.id !== st.report.id)
+    st.open = false
+    loadPendingCount(); loadSuspensions()
+    say(data.message || '정지했어요')
+  } catch (e) { st.error = e.response?.data?.message || '정지하지 못했어요.' }
+  st.busy = false
+}
+async function liftSuspension(s) {
+  if (!await confirmAction({ title: '게시판 정지 풀기', message: `${s.user?.name || '이 회원'} 님의 "${s.board}" 정지를 풀까요?`, kind: 'danger', confirmLabel: '풀기' })) return
+  try {
+    await axios.post('/api/admin/board-suspensions/' + s.id + '/lift')
+    suspensions.value = suspensions.value.filter(x => x.id !== s.id)
+    say('정지를 풀었어요')
+  } catch (e) { say(e.response?.data?.message || '풀지 못했어요', true) }
 }
 
 async function saveNote(r) {

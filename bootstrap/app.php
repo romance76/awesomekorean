@@ -50,6 +50,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\CheckMaintenance::class,
         ]);
         $middleware->api(append: [
+            \App\Http\Middleware\EnforceBoardSuspension::class,   // 신고로 게시판 이용이 정지된 회원은 그 게시판을 쓸 수 없다
             \App\Http\Middleware\UpdateLastActive::class,
         ]);
         // API 전체 요청 수 제한(아래 'api' 규칙) — 정의만 있고 실제로 적용되지 않던 것을 켠다
