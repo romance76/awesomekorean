@@ -298,7 +298,6 @@
                   <button @click="openSuspend(r)" :disabled="busyId === r.id" title="글쓴이가 그 게시판을 일정 기간(또는 영구) 못 쓰게 막아요. 3번 쌓이면 계정 이용이 정지돼요" class="ml-1 bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">게시판 정지</button>
                 </template>
                 <button v-else @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" title="잘못 닫았을 때 다시 '확인 대기'로 되돌려요 (이미 건 게시판 정지는 아래 '정지 현황'에서 풀어요)" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 disabled:opacity-50 transition-colors">처리 취소</button>
-                <button @click="toggleLog(r)" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 transition-colors">{{ openLogId === r.id ? '접기' : '이력' }}</button>
                 <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors">삭제</button>
               </td>
             </tr>
