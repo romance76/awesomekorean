@@ -143,7 +143,7 @@ const showMiniBtn = computed(() => music.hasTrack && !isExpanded.value && !isShu
 const navH = ref(60)
 function measureNav() {
   const el = document.getElementById('bottom-nav')
-  const h = el && el.offsetParent !== null ? Math.round(el.getBoundingClientRect().height) : 0
+  const h = el ? Math.round(el.getBoundingClientRect().height) : 0   // display:none 이면 0 (fixed 요소는 offsetParent 가 항상 null 이라 쓰지 않음)
   if (h !== navH.value) navH.value = h
 }
 // 전체화면 창(채팅·쪽지)이 열려 있으면 얇은 띠 모드 — 그 창들이 띠 높이만큼 아래를 비우도록 CSS 변수(--mini-strip)로 알려준다
