@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\InfoPost;
 use App\Models\SiteSetting;
 use Illuminate\Console\Command;
 
@@ -18,6 +19,7 @@ class TriggerInfoGeneration extends Command
     protected $description = "'정보' 게시판 자동 생성 요청 등록 (실제 생성은 시간당 체크인 루틴이 수행)";
 
     private const SETTING_KEY = 'info_generation_status';
+    private const CURSOR_KEY   = 'info_daily_category';
 
     public function handle(): int
     {
@@ -41,14 +43,26 @@ class TriggerInfoGeneration extends Command
             return self::SUCCESS;
         }
 
+        // 하루 1편 — 11개 카테고리를 순서대로 돌아가며 한 개씩 배정(루틴은 status 의 category 로 글을 쓴다)
+        $category = self::nextCategory();
         SiteSetting::updateOrCreate(['key' => self::SETTING_KEY], [
             'value' => json_encode([
-                'status' => 'running', 'completed' => 0, 'target' => 10,
+                'status' => 'running', 'completed' => 0, 'target' => 1, 'category' => $category,
                 'requested_by' => '자동 스케줄', 'started_at' => now()->toIso8601String(),
             ]),
             'group' => 'info',
         ]);
-        $this->info('생성 요청 등록됨 — 시간당 체크인 루틴이 실제 생성을 수행함(최대 1시간 내 시작)');
+        SiteSetting::updateOrCreate(['key' => self::CURSOR_KEY], ['value' => $category, 'group' => 'info']);
+        $this->info("생성 요청 등록됨(카테고리: {$category}, 1편) — 시간당 체크인 루틴이 실제 생성을 수행함(최대 1시간 내 시작)");
         return self::SUCCESS;
+    }
+
+    /** 마지막으로 배정한 카테고리의 다음 것 (기록이 없으면 첫 번째) */
+    public static function nextCategory(): string
+    {
+        $list = InfoPost::CATEGORIES;
+        $last = SiteSetting::where('key', self::CURSOR_KEY)->value('value');
+        $i = array_search($last, $list, true);
+        return $list[$i === false ? 0 : ($i + 1) % count($list)];
     }
 }
