@@ -259,16 +259,14 @@
     </details>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-xs min-w-[900px]">
+      <table class="w-full text-xs">
         <thead class="bg-gray-50 text-ink-muted">
           <tr class="text-left">
             <th class="px-3 py-2 font-semibold w-[68px]">상태</th>
             <th class="px-3 py-2 font-semibold">유형 · 대상</th>
             <th class="px-3 py-2 font-semibold">사유 / 내용</th>
-            <th class="px-3 py-2 font-semibold">신고자</th>
-            <th class="px-3 py-2 font-semibold">신고 시각</th>
-            <th class="px-3 py-2 font-semibold">처리 시각</th>
-            <th class="px-3 py-2 font-semibold">처리자</th>
+            <th class="px-3 py-2 font-semibold">신고자 · 신고 시각</th>
+            <th class="px-3 py-2 font-semibold">처리자 · 처리 시각</th>
             <th class="px-3 py-2 font-semibold text-right">처리</th>
           </tr>
         </thead>
@@ -280,30 +278,37 @@
                   :class="{'bg-yellow-100 text-yellow-700': r.status==='pending', 'bg-green-100 text-green-700': r.status==='resolved', 'bg-gray-100 text-ink-light': r.status==='dismissed'}">{{ reportStatusLabel(r.status) }}</span>
               </td>
               <td class="px-3 py-2.5 whitespace-nowrap"><span class="badge-blue">{{ formatType(r.reportable_type) }}</span> <span class="text-ink-faint">#{{ r.reportable_id }}</span></td>
-              <td class="px-3 py-2.5 max-w-[280px]">
+              <td class="px-3 py-2.5 max-w-[240px]">
                 <div class="font-semibold text-ink truncate" :title="r.reason">{{ r.reason }}</div>
                 <div v-if="r.content" class="text-ink-muted truncate" :title="r.content">{{ r.content }}</div>
                 <div v-if="r.admin_note" class="mt-0.5 text-amber-700 truncate" :title="r.admin_note">📝 {{ r.admin_note }}</div>
               </td>
-              <td class="px-3 py-2.5 whitespace-nowrap text-ink-light">{{ r.reporter ? (r.reporter.nickname || r.reporter.name) : '—' }}</td>
-              <td class="px-3 py-2.5 whitespace-nowrap tabular-nums text-ink-light" :title="utcTime(r.created_at)">{{ fullTime(r.created_at) }}</td>
-              <td class="px-3 py-2.5 whitespace-nowrap tabular-nums" :class="r.status==='pending' ? 'text-ink-faint' : 'text-ink-light'" :title="r.handled_at ? utcTime(r.handled_at) : ''">
-                {{ r.status === 'pending' ? '—' : fullTime(r.handled_at) }}<span v-if="r.status !== 'pending' && handledEstimated(r)" class="ml-1 text-[10px] text-amber-600" title="옛 기록이라 정확한 처리 시각이 남아 있지 않아 마지막 수정 시각으로 표시한 값이에요">(추정)</span>
+              <td class="px-3 py-2.5 text-ink-light">
+                <div class="font-semibold">{{ r.reporter ? (r.reporter.nickname || r.reporter.name) : '—' }}</div>
+                <div class="tabular-nums text-ink-faint text-[11px]" :title="utcTime(r.created_at)">{{ fullTime(r.created_at) }}</div>
               </td>
-              <td class="px-3 py-2.5 whitespace-nowrap text-ink-light">{{ r.status === 'pending' ? '—' : handlerName(r) }}</td>
-              <td class="px-3 py-2.5 text-right whitespace-nowrap" @click.stop>
+              <td class="px-3 py-2.5" :class="r.status==='pending' ? 'text-ink-faint' : 'text-ink-light'">
+                <template v-if="r.status === 'pending'">—</template>
+                <template v-else>
+                  <div class="font-semibold">{{ handlerName(r) }}</div>
+                  <div class="tabular-nums text-ink-faint text-[11px]" :title="r.handled_at ? utcTime(r.handled_at) : ''">{{ fullTime(r.handled_at) }}<span v-if="handledEstimated(r)" class="ml-1 text-[10px] text-amber-600" title="옛 기록이라 정확한 처리 시각이 남아 있지 않아 마지막 수정 시각으로 표시한 값이에요">(추정)</span></div>
+                </template>
+              </td>
+              <td class="px-3 py-2.5" @click.stop>
+                <div class="flex flex-wrap justify-end gap-1">
                 <template v-if="r.status === 'pending'">
                   <button @click="resolveReport(r, 'dismissed')" :disabled="busyId === r.id" title="확인해 보니 문제가 없어서 아무 조치 없이 닫아요 (신고를 무시하는 게 아니라 '이상 없음'으로 확인한 거예요)" class="bg-gray-300 text-ink-light text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-gray-400 disabled:opacity-50 transition-colors">문제 없음</button>
-                  <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" title="확인하고 조치(글 숨김·경고 등)를 끝냈을 때 닫아요" class="ml-1 bg-green-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors">처리 완료</button>
-                  <button @click="openSuspend(r)" :disabled="busyId === r.id" title="글쓴이가 그 게시판을 일정 기간(또는 영구) 못 쓰게 막아요. 3번 쌓이면 계정 이용이 정지돼요" class="ml-1 bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">게시판 정지</button>
+                  <button @click="resolveReport(r, 'resolved')" :disabled="busyId === r.id" title="확인하고 조치(글 숨김·경고 등)를 끝냈을 때 닫아요" class="bg-green-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors">처리 완료</button>
+                  <button @click="openSuspend(r)" :disabled="busyId === r.id" title="글쓴이가 그 게시판을 일정 기간(또는 영구) 못 쓰게 막아요. 3번 쌓이면 계정 이용이 정지돼요" class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors">게시판 정지</button>
                 </template>
                 <button v-else @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" title="잘못 닫았을 때 다시 '확인 대기'로 되돌려요 (이미 건 게시판 정지는 아래 '정지 현황'에서 풀어요)" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 disabled:opacity-50 transition-colors">처리 취소</button>
-                <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors">삭제</button>
+                <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors">삭제</button>
+                </div>
               </td>
             </tr>
             <!-- 처리 이력(타임라인) + 메모 -->
             <tr v-if="openLogId === r.id" class="bg-gray-50/70">
-              <td colspan="8" class="px-4 py-3">
+              <td colspan="6" class="px-4 py-3">
                 <div class="text-[11px] font-bold text-ink-muted mb-2">처리 이력 (신고 #{{ r.id }})</div>
                 <ol class="space-y-1.5">
                   <li v-for="l in (r.logs || [])" :key="l.id" class="flex items-start gap-3">
