@@ -19,11 +19,6 @@
             listing?.type === 'sale' ? 'bg-white text-red-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
           <AppIcon name="home" :size="13" /> 매매
         </RouterLink>
-        <RouterLink to="/realestate?type=roommate"
-          :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
-            listing?.type === 'roommate' ? 'bg-white text-green-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
-          <AppIcon name="users" :size="13" /> 룸메이트
-        </RouterLink>
       </div>
       <div class="justify-self-end">
         <DetailHeaderTools section="realestate" list-path="/realestate" write-path="/realestate/write" />
