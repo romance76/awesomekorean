@@ -50,6 +50,7 @@
       </div>
       <button v-if="r.status !== 'pending'" @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="mt-3 min-h-[48px] w-full rounded-xl border border-gray-200 text-[15px] font-bold text-ink-light disabled:opacity-50">다시 대기로 돌리기</button>
       <button @click="openNote(r)" class="mt-2 min-h-[44px] w-full rounded-xl border border-gray-200 text-[14px] font-bold text-ink-light">{{ r.admin_note ? '메모 고치기' : '메모 추가' }}</button>
+      <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="mt-2 min-h-[44px] w-full rounded-xl border border-red-200 text-[14px] font-bold text-red-600 disabled:opacity-50">신고 삭제</button>
     </div>
     <div v-if="reportPagination.lastPage > 1" class="flex items-center justify-between gap-2 pt-1">
       <button @click="goReportPage(reportFilter.page - 1)" :disabled="reportFilter.page <= 1" class="min-h-[48px] px-5 rounded-xl bg-white border border-gray-200 text-[15px] font-bold disabled:opacity-40">이전</button>
@@ -286,6 +287,7 @@
                 </template>
                 <button v-else @click="resolveReport(r, 'pending')" :disabled="busyId === r.id" class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 disabled:opacity-50 transition-colors">다시 대기로</button>
                 <button @click="toggleLog(r)" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 text-ink-light hover:bg-gray-50 transition-colors">{{ openLogId === r.id ? '접기' : '이력' }}</button>
+                <button v-if="isSuperAdmin" @click="deleteReport(r)" :disabled="busyId === r.id" class="ml-1 text-[11px] font-bold px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors">삭제</button>
               </td>
             </tr>
             <!-- 처리 이력(타임라인) + 메모 -->
@@ -327,6 +329,7 @@
 </template>
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from 'vue'
+import { useAuthStore } from '../../stores/auth'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
@@ -593,6 +596,22 @@ async function resolveReport(r, status) {
     if (reportFilter.value.status && reportFilter.value.status !== status) reports.value = reports.value.filter(x => x.id !== r.id)
     loadPendingCount()
   } catch { if (isMobile.value) say('처리하지 못했어요', true) }
+  finally { busyId.value = null }
+}
+
+// 시험 신고 삭제 — 최고관리자만 (처리 이력도 같이 지워지고, 신고로 숨긴 글이 있으면 다시 보이게 돼요)
+const isSuperAdmin = computed(() => useAuthStore().user?.role === 'super_admin')
+async function deleteReport(r) {
+  if (!await confirmAction({ title: '신고 삭제', message: `신고 #${r.id} (${r.reason || '사유 없음'})와 처리 이력을 지울까요? 되돌릴 수 없어요.`, kind: 'danger', confirmLabel: '삭제' })) return
+  try {
+    busyId.value = r.id
+    await axios.delete('/api/admin/reports/' + r.id)
+    reports.value = reports.value.filter(x => x.id !== r.id)
+    if (reportPagination.value.total > 0) reportPagination.value.total--
+    if (openLogId.value === r.id) openLogId.value = null
+    loadPendingCount()
+    say('신고를 삭제했어요')
+  } catch (e) { say(e.response?.data?.message || '삭제하지 못했어요', true) }
   finally { busyId.value = null }
 }
 

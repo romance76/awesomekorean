@@ -757,6 +757,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin')->group(f
     Route::delete('/boards/{id}', [AdminController::class, 'deleteBoard']);
     Route::get('/reports', [AdminController::class, 'reports']);
     Route::put('/reports/{id}', [AdminController::class, 'updateReport']);
+    Route::delete('/reports/{id}', [AdminController::class, 'deleteReport'])->middleware(['role:super_admin', 'throttle:60,1']);   // 시험 신고 삭제 — 최고관리자 전용
     Route::get('/friends', [AdminController::class, 'friends']);
     Route::get('/banners', [AdminController::class, 'bannerList']);
     Route::get('/ad-settings', [\App\Http\Controllers\API\AdminSettingsController::class, 'getAdPageSettings']);

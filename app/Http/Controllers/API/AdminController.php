@@ -223,6 +223,33 @@ class AdminController extends Controller
         if ($request->status) $q->where('status', $request->status);
         return response()->json(['success'=>true,'data'=>$q->paginate(20)]);
     }
+    /**
+     * 신고 삭제 — 최고관리자 전용(시험 신고 정리용). 처리 이력도 함께 지운다.
+     * 신고 때문에 숨긴 콘텐츠가 아직 숨겨진 채라면 지우기 전에 원래대로 보이게 되돌린다(신고가 없어졌는데 글만 숨겨져 남는 일을 막는다).
+     */
+    public function deleteReport(Request $request, $id) {
+        $report = Report::findOrFail($id);
+        $actor = auth()->user();
+        try {
+            $lastHide = $report->logs()->where('action', 'hide_content')->max('id');
+            $lastRestore = $report->logs()->where('action', 'restore_content')->max('id');
+            if ($lastHide && (!$lastRestore || $lastRestore < $lastHide) && class_exists($report->reportable_type)) {
+                $target = $report->reportable_type::find($report->reportable_id);
+                if ($target) {
+                    $fillable = $target->getFillable();
+                    if (in_array('is_hidden', $fillable, true)) $target->forceFill(['is_hidden' => false])->save();
+                    elseif (in_array('is_active', $fillable, true)) $target->forceFill(['is_active' => true])->save();
+                }
+            }
+        } catch (\Throwable $e) {}
+        DB::transaction(function () use ($report) {
+            $report->logs()->delete();
+            $report->delete();
+        });
+        \Log::warning('[신고 삭제] 최고관리자 ' . $actor->id . ' 가 신고 #' . $id . ' 삭제 (' . $report->reportable_type . '#' . $report->reportable_id . ', 사유: ' . mb_substr((string) $report->reason, 0, 60) . ')');
+        return response()->json(['success' => true, 'message' => '신고를 삭제했어요.']);
+    }
+
     public function updateReport(Request $request, $id) {
         $report = Report::findOrFail($id);
         $request->validate(['admin_note' => 'nullable|string|max:1000'], ['admin_note.max' => '메모는 1000자까지 쓸 수 있어요.']);
