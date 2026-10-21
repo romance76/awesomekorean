@@ -88,7 +88,7 @@
           </button>
           <div v-show="isOpen(g.key)" class="pb-1">
             <template v-for="sec in g.sections" :key="sec.title">
-              <div v-if="sec.title" class="pl-[3.25rem] pr-4 pt-2 pb-0.5 text-[11px] font-bold text-ink-muted tracking-wide">{{ sec.title }}</div>
+              <div v-if="sec.title" class="mx-3 mt-2 mb-0.5 pl-3 pr-2 py-0.5 rounded bg-gray-100 text-[11px] font-bold text-ink-muted tracking-wide">{{ sec.title }}</div>
               <RouterLink v-for="it in sec.items" :key="it.to" :to="it.to"
                 class="flex items-center gap-1.5 pl-[3.25rem] pr-3 py-1.5 text-[13px] transition-colors"
                 :class="isItemActive(it) ? 'bg-amber-50 text-amber-700 font-bold border-r-2 border-amber-500' : 'text-ink-light hover:bg-amber-50/50'">

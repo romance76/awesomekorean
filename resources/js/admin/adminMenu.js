@@ -107,13 +107,13 @@ export const ADMIN_ITEMS = [
 // PC 사이드바는 그룹을 펼치면 관련된 화면끼리 소제목 아래 모여 보인다. 주소·그룹 키는 그대로이고 화면 묶음만 정한다.
 // 여기에 없는 화면은 소제목 없이 그룹 맨 아래에 나온다.
 export const SECTION_ORDER = {
-  content: ['커뮤니티', '생활·거래', '미디어·정보'],
+  content: ['소통', '생활·거래', '미디어·정보'],
   money: ['광고', '결제·지급'],
   promo: ['이벤트·추첨', '배너·SNS'],
   system: ['설정', '계정·보안', '운영 기록'],
 }
 const SECTION_OF = {
-  '커뮤니티': ['/admin/community', '/admin/qa', '/admin/clubs', '/admin/chats', '/admin/communication'],
+  '소통': ['/admin/community', '/admin/qa', '/admin/clubs', '/admin/chats', '/admin/communication'],
   '생활·거래': ['/admin/market', '/admin/jobs', '/admin/realestate', '/admin/directory', '/admin/groupbuy', '/admin/events', '/admin/event-import', '/admin/event-feeds'],
   '미디어·정보': ['/admin/news', '/admin/info', '/admin/money', '/admin/recipes', '/admin/music', '/admin/shorts', '/admin/shopping'],
   '광고': ['/admin/ad-center', '/admin/banners', '/admin/flyers', '/admin/pricing'],
