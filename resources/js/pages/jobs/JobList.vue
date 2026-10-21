@@ -454,7 +454,8 @@ function buildLocationParams() {
 }
 
 // 안내 화면용: 검색어·카테고리·북마크 필터가 없을 때만 '글이 없다'는 안내를 보여준다
-const hasActiveFilter = computed(() => !!search.value || !!activeCat.value || showFavorites.value)
+// 카테고리만 고른 빈 목록은 '검색 결과 없음'이 아니라 안내 화면을 보여 주므로 제외
+const hasActiveFilter = computed(() => !!search.value || showFavorites.value)
 // 지역(내 위치/도시) 제한 때문에 비어 있을 수 있는 상태인지
 const locationLimited = computed(() => String(selectedCityIdx.value) !== '-1')
 function switchType(t) { postType.value = t; activeCat.value = ''; loadPage() }
