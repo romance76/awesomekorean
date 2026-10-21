@@ -39,14 +39,14 @@
       <div v-else-if="!news.length" class="card py-10 text-center text-sm text-ink-muted">뉴스를 준비하고 있어요. 잠시 후 다시 확인해 주세요.</div>
       <template v-else>
         <!-- 대표 기사 + 오른쪽 목록 -->
-        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_230px] gap-4 pb-4 border-b border-line">
-          <a :href="hero.url" target="_blank" rel="noopener noreferrer" class="group block min-w-0">
+        <div class="grid grid-cols-1 gap-4 pb-4 border-b border-line" :class="hero ? 'md:grid-cols-[minmax(0,1fr)_230px]' : ''">
+          <a v-if="hero" :href="hero.url" target="_blank" rel="noopener noreferrer" class="group block min-w-0">
             <img v-if="hero.image_url" :src="hero.image_url" alt="" referrerpolicy="no-referrer" class="w-full aspect-[16/9] object-cover rounded-xl bg-gray-100 mb-3" @error="$event.target.style.display = 'none'" />
             <h3 class="text-[22px] leading-snug font-extrabold text-ink group-hover:underline">{{ hero.title }}</h3>
             <p v-if="hero.summary" class="text-[14px] text-ink-light leading-relaxed mt-1.5 line-clamp-3">{{ hero.summary }}</p>
             <div class="text-[11.5px] text-ink-faint mt-1.5">{{ srcLine(hero) }}</div>
           </a>
-          <ul class="md:border-l md:border-line md:pl-4 space-y-3.5">
+          <ul class="space-y-3.5" :class="hero ? 'md:border-l md:border-line md:pl-4' : ''">
             <li v-for="n in side" :key="n.id">
               <a :href="n.url" target="_blank" rel="noopener noreferrer" class="block group">
                 <div class="text-[14px] font-bold text-ink leading-snug group-hover:underline line-clamp-3">{{ n.title }}</div>
@@ -328,9 +328,9 @@ function scrollIdx(dir) { idxEl.value?.scrollBy({ left: dir * 340, behavior: 'sm
 // 증권가 뉴스: 대표 기사 1 + 오른쪽 목록 4 + 작은 카드 3 (그림 있는 기사를 앞쪽 카드에 우선 배치)
 const news = ref([])
 const newsLoading = ref(true)
-const hero = computed(() => news.value.find(n => n.image_url) || news.value[0])
+const hero = computed(() => news.value.find(n => n.image_url) || null)   // 왼쪽 큰 기사·작은 카드는 그림 있는 기사만
 const cards = computed(() => news.value.filter(n => n.image_url && n !== hero.value).slice(0, 3))
-const side = computed(() => news.value.filter(n => n !== hero.value && !cards.value.includes(n)).slice(0, 4))
+const side = computed(() => news.value.filter(n => n !== hero.value && !cards.value.includes(n)).slice(0, hero.value ? 4 : 8))
 function srcLine(n) {
   return `${n.source}${n.lang === 'en' ? ' · 영문 기사(제목 번역)' : n.lang === 'en_raw' ? ' · 영문 기사' : ''} · ${timeAgo(n.published_at)}`
 }
@@ -341,7 +341,7 @@ function timeAgo(t) {
   return `${Math.floor(m / 1440)}일 전`
 }
 async function loadNews() {
-  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 20 } }); news.value = data.data || [] } catch {}
+  try { const { data } = await axios.get('/api/stock-news', { params: { limit: 40 } }); news.value = data.data || [] } catch {}
   newsLoading.value = false
 }
 

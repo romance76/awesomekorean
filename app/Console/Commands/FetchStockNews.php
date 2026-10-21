@@ -34,12 +34,14 @@ class FetchStockNews extends Command
 
     private const KEEP_MONTHS = 2;      // 이 기간이 지난 기사는 삭제
     private const PER_FEED = 60;        // 소스당 최신 N건만 확인
+    private const OG_PER_RUN = 20;      // 한 번에 기사 페이지에서 대표 이미지를 찾아볼 최대 건수 (실행 시간 보호)
     private const MAX_TRANSLATE = 12;   // 한 번에 번역할 영문 제목 수 (번역 요청 절약)
 
     public function handle(): int
     {
         $total = 0;
         $translated = 0;
+        $ogLeft = self::OG_PER_RUN;
 
         foreach ($this->feeds as $name => [$url, $lang, $filter]) {
             $xml = $this->loadRss($url);
@@ -75,16 +77,27 @@ class FetchStockNews extends Command
                     $pub = now();
                 }
 
+                // RSS에 그림이 없으면 기사 페이지의 대표 이미지(og:image)를 찾는다. 못 찾으면 '' 로 남겨 다시 시도하지 않음
+                $image = $this->extractImage($item);
+                if (!$image && $ogLeft > 0) { $ogLeft--; $image = $this->fetchOgImage($link) ?? ''; }
+
                 StockNews::create([
                     'source' => $name, 'title' => mb_substr($title, 0, 500),
                     'summary' => $summary !== '' ? mb_substr($summary, 0, 200) : null,
                     'url' => mb_substr($link, 0, 1000), 'url_hash' => $hash,
-                    'image_url' => $this->extractImage($item), 'lang' => $lang, 'published_at' => $pub,
+                    'image_url' => $image ?: ($image === '' ? '' : null), 'lang' => $lang, 'published_at' => $pub,
                 ]);
                 $created++;
             }
             $this->info("[{$name}] 신규 {$created}건");
             $total += $created;
+        }
+
+        // 예전에 그림 없이 들어온 기사에도 대표 이미지를 채워 넣는다 (남은 횟수만큼, 최신 기사부터)
+        if ($ogLeft > 0) {
+            foreach (StockNews::whereNull('image_url')->orderByDesc('published_at')->limit($ogLeft)->get() as $row) {
+                $row->update(['image_url' => $this->fetchOgImage($row->url) ?? '']);
+            }
         }
 
         // 번역이 안 돼 영문 제목으로 올라간 기사를 다시 번역해 본다 (번역 API가 복구되면 자동으로 한국어로 바뀜)
@@ -128,6 +141,30 @@ class FetchStockNews extends Command
             }
         }
         if (isset($item->enclosure) && $item->enclosure->attributes()->url) return (string) $item->enclosure->attributes()->url;
+        return null;
+    }
+
+    /** 기사 페이지 앞부분만 받아 og:image 를 찾는다 (로고·기본 이미지는 제외) */
+    private function fetchOgImage(string $url): ?string
+    {
+        try {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_TIMEOUT => 8, CURLOPT_USERAGENT => 'Mozilla/5.0 (compatible; AwesomeKorean/1.0)', CURLOPT_RANGE => '0-60000',
+            ]);
+            $html = curl_exec($ch);
+            curl_close($ch);
+            if (!$html) return null;
+            if (preg_match('/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i', $html, $m)
+                || preg_match('/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i', $html, $m)) {
+                $src = html_entity_decode($m[1]);
+                if (preg_match('/(logo|default|noimage|no_image|pixel|banner)/i', $src)) return null;
+                return $src;
+            }
+        } catch (Throwable $e) {
+            // 이미지 없이 진행
+        }
         return null;
     }
 
