@@ -209,7 +209,8 @@
   <!-- ═════ 2. 이벤트 배너 (관리자 히어로 배너 슬라이드 — 사진 + 좌측 스크림) ═════ -->
   <div v-if="heroBanners.length" class="max-w-7xl mx-auto px-4 lg:px-6 pt-4 lg:pt-5">
     <!-- 모바일: 가로로 긴 이미지는 글씨가 안 보이니 이미지 대신 텍스트 카드(제목·소제목·버튼)로 보여줌 -->
-    <section class="relative overflow-hidden rounded-card shadow-card md:aspect-[1232/222]"
+    <section class="relative overflow-hidden rounded-card shadow-card md:[aspect-ratio:var(--hero-ar,1232/222)] md:transition-[aspect-ratio] md:duration-300"
+      :style="heroBoxStyle"
       @mouseenter="pauseHero" @mouseleave="resumeHero"
       @touchstart.passive="heroTouchStart" @touchend="heroTouchEnd" @touchcancel="resumeHero">
       <Transition name="hero" mode="out-in">
@@ -365,7 +366,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useLangStore } from '../stores/lang'
@@ -403,6 +404,24 @@ const indexIdx = ref(0)
 let indexInterval = null
 const heroBanners = ref([])
 const heroIdx = ref(0)
+// 배너 그림마다 가로:세로 비율을 미리 알아 두고, PC 배너 칸을 그 비율로 맞춰 그림이 잘리지 않게 한다.
+// 너무 세로로 긴 그림이 홈을 밀어내지 않도록 비율은 2:1 ~ 5.55:1 사이로 제한한다(그보다 세로로 길면 위아래가 조금 잘림). 폰 화면은 영향 없음.
+const heroRatios = reactive({})
+const HERO_MIN_RATIO = 2, HERO_MAX_RATIO = 1232 / 222
+const heroBoxStyle = computed(() => {
+  const b = heroBanners.value[heroIdx.value]
+  const r = b ? heroRatios[b.id] : 0
+  return r ? { '--hero-ar': String(Math.min(HERO_MAX_RATIO, Math.max(HERO_MIN_RATIO, r)).toFixed(4)) } : {}
+})
+function measureHeroImages(list) {
+  for (const b of list) {
+    const src = heroBannerImage(b)
+    if (!src || heroRatios[b.id]) continue
+    const im = new Image()
+    im.onload = () => { if (im.naturalWidth && im.naturalHeight) heroRatios[b.id] = im.naturalWidth / im.naturalHeight }
+    im.src = src
+  }
+}
 let heroInterval = null
 
 function clickHeroBanner(b) {
@@ -752,6 +771,7 @@ onMounted(async () => {
   try {
     const { data } = await axios.get('/api/hero-banners')
     heroBanners.value = data.data || []
+    measureHeroImages(heroBanners.value)
     startHeroSlide()
   } catch {}
   // 로그인한 회원이 프로필에 위치를 저장해뒀으면(위치 선택 페이지들과 동일한
