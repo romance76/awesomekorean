@@ -17,18 +17,23 @@ class FetchStockNews extends Command
     protected $signature   = 'stocknews:fetch';
     protected $description = '증권가 뉴스(증권·시황 RSS)를 stock_news 에 가져오기';
 
-    // 이름 => [RSS 주소, 언어, 증시 관련 단어가 제목에 있는 기사만 담을지]
+    // 이름 => [RSS 주소, 언어, 미국 주식 관련 기사만 담을지 (한국 증시 기사는 제외)]
     private array $feeds = [
-        '한국경제'     => ['https://www.hankyung.com/feed/finance', 'ko', false],
+        '한국경제'     => ['https://www.hankyung.com/feed/finance', 'ko', true],
         '연합인포맥스' => ['https://news.einfomax.co.kr/rss/allArticle.xml', 'ko', true],
         '연합뉴스'     => ['https://www.yna.co.kr/rss/economy.xml', 'ko', true],
         'CNBC'         => ['https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=15839069', 'en', false],
     ];
 
-    private const KEYWORDS = ['증시', '주가', '주식', '코스피', '코스닥', '나스닥', '다우', 'S&P', '뉴욕', '월가', '연준', 'Fed', '금리', '환율', '달러', '국채', '비트코인', '실적', '반도체', '엔비디아', '테슬라', '애플', '상장', 'IPO', 'ETF', '증권', '투자', '채권', '외환', 'FX', '국고', '시황', '선물', '유가', '금통위'];
+    // 미국 주식 관련 표시 (제목에 하나라도 있으면 미국 기사로 본다)
+    public const US_WORDS = ['뉴욕증시', '뉴욕 증시', '뉴욕', '월가', '월스트리트', '美', '미국', '나스닥', '다우', 'S&P', '러셀', '연준', '파월', 'FOMC', '엔비디아', '테슬라', '애플', '마이크로소프트', '알파벳', '구글', '아마존', '메타', '브로드컴', '팔란티어', 'AMD', '인텔', '넷플릭스', '오라클', '스페이스X', '서학개미', '해외주식', 'NVDA', 'TSLA', 'AAPL', 'MSFT'];
+    // 한국 증시·시장 기사 표시 (제목에 이게 있고 미국 표시가 없으면 제외)
+    public const KR_WORDS = ['코스피', '코스닥', '국내 증시', '국내증시', '한국거래소', '금통위', '국고', '달러-원', '원·달러', '원/달러', '삼성전자', 'SK하이닉스', '개미'];
+    // 제목에 미국 표시가 없어도 요약에 이 단어가 있으면 미국 증시 기사로 본다
+    public const US_STRONG = ['뉴욕증시', '뉴욕 증시', '나스닥', 'S&P', '다우', '월가'];
 
     private const KEEP_MONTHS = 2;      // 이 기간이 지난 기사는 삭제
-    private const PER_FEED = 25;        // 소스당 최신 N건만 확인
+    private const PER_FEED = 60;        // 소스당 최신 N건만 확인
     private const MAX_TRANSLATE = 12;   // 한 번에 번역할 영문 제목 수 (번역 요청 절약)
 
     public function handle(): int
@@ -55,7 +60,7 @@ class FetchStockNews extends Command
                 if (StockNews::where('url_hash', $hash)->exists()) continue;
 
                 $summary = $this->clean((string) ($item->description ?? ''));
-                if ($filter && !$this->isStockRelated($title . ' ' . $summary)) continue;
+                if ($filter && !self::isUsStock($title, $summary)) continue;
 
                 if ($lang === 'en') {
                     $summary = '';                                    // 영문 요약은 번역하지 않음
@@ -96,12 +101,15 @@ class FetchStockNews extends Command
         return self::SUCCESS;
     }
 
-    private function isStockRelated(string $text): bool
+    /** 미국 주식 관련 기사인지 — 한국 증시 기사는 제외 */
+    public static function isUsStock(string $title, string $summary = ''): bool
     {
-        foreach (self::KEYWORDS as $w) {
-            if (mb_stripos($text, $w) !== false) return true;
-        }
-        return false;
+        $has = function (string $text, array $words): bool {
+            foreach ($words as $w) { if (mb_stripos($text, $w) !== false) return true; }
+            return false;
+        };
+        if ($has($title, self::US_WORDS)) return true;
+        return !$has($title, self::KR_WORDS) && $has($summary, self::US_STRONG);
     }
 
     private function clean(string $s): string
