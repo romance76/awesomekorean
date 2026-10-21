@@ -216,7 +216,7 @@
         <div v-if="heroBanners[heroIdx]" :key="heroIdx" @click="clickHeroBanner(heroBanners[heroIdx])"
           class="cursor-pointer md:absolute md:inset-0"
           :style="{ background: heroBanners[heroIdx].bg_color || '#1B1613' }">
-          <div v-if="heroBanners[heroIdx].title" class="md:hidden flex flex-col justify-center px-5 pt-6 pb-8 min-h-[150px]"
+          <div v-if="heroBanners[heroIdx].title && !heroBanners[heroIdx].image_url_mobile" class="md:hidden flex flex-col justify-center px-5 pt-6 pb-8 min-h-[150px]"
             :style="{ color: heroBanners[heroIdx].text_color || '#FFFFFF' }">
             <div class="text-[21px] leading-tight font-extrabold tracking-[-0.03em] break-keep">
               {{ heroBanners[heroIdx].title }}
@@ -228,9 +228,11 @@
               class="mt-3 text-[14px] leading-relaxed opacity-95 whitespace-pre-line break-keep">{{ heroBanners[heroIdx].event_info?.summary || heroBanners[heroIdx].subtitle }}</p>
             <span class="self-start mt-4 bg-white text-ink font-bold text-[13px] px-5 py-2.5 rounded-full">자세한 내용보기 →</span>
           </div>
+          <!-- 폰 전용 이미지(관리자 › 히어로 배너 › 핸드폰용)가 있으면 폰에서는 이 그림을 그대로(비율 유지) 보여 준다 -->
+          <img v-if="heroBanners[heroIdx].image_url_mobile" :src="heroBanners[heroIdx].image_url_mobile" alt="" class="md:hidden block w-full h-auto" />
           <img v-if="heroBannerImage(heroBanners[heroIdx])" :src="heroBannerImage(heroBanners[heroIdx])" alt=""
-            :class="['absolute inset-0 w-full h-full object-cover', heroBanners[heroIdx].title ? 'hidden md:block' : '']" />
-          <div v-if="!heroBanners[heroIdx].title && heroBannerImage(heroBanners[heroIdx])" class="md:hidden aspect-[1232/222]"></div>
+            :class="['absolute inset-0 w-full h-full object-cover', (heroBanners[heroIdx].title || heroBanners[heroIdx].image_url_mobile) ? 'hidden md:block' : '']" />
+          <div v-if="!heroBanners[heroIdx].title && !heroBanners[heroIdx].image_url_mobile && heroBannerImage(heroBanners[heroIdx])" class="md:hidden aspect-[1232/222]"></div>
           <div v-if="!heroBanners[heroIdx].image_only" class="hidden md:block absolute inset-0">
             <div class="absolute inset-0 banner-scrim"></div>
             <div class="relative h-full flex flex-col justify-center px-6 md:px-11 max-w-[62%]">

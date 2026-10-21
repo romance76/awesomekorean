@@ -6,7 +6,7 @@
     <div v-for="b in banners" :key="b.id" class="bg-white border border-gray-100 rounded-2xl p-3 flex items-center gap-3">
       <button @click="editBanner(b)" class="flex items-center gap-3 min-w-0 flex-1 text-left min-h-[64px]">
         <span class="shrink-0 w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center" :style="{ backgroundColor: b.bg_color || '#F5A623' }"><img v-if="b.image_url" :src="b.image_url" alt="" loading="lazy" class="w-full h-full object-cover" /><span v-else class="text-white text-[13px] font-bold">{{ b.sort_order }}</span></span>
-        <span class="min-w-0"><span class="block text-[15px] font-bold text-ink truncate">{{ b.title }}</span><span class="block text-[12px] text-ink-muted truncate">{{ b.image_url ? '이미지' : '텍스트' }}<template v-if="b.image_url_en"> · EN 이미지</template><template v-if="b.image_only"> · 이미지 전용</template><template v-if="b.link_type && b.link_type !== 'none'"> · {{ b.link_type }}</template></span></span>
+        <span class="min-w-0"><span class="block text-[15px] font-bold text-ink truncate">{{ b.title }}</span><span class="block text-[12px] text-ink-muted truncate">{{ b.image_url ? '이미지' : '텍스트' }}<template v-if="b.image_url_mobile"> · 폰 이미지</template><template v-if="b.image_url_en"> · EN 이미지</template><template v-if="b.image_only"> · 이미지 전용</template><template v-if="b.link_type && b.link_type !== 'none'"> · {{ b.link_type }}</template></span></span>
       </button>
       <button type="button" role="switch" :aria-checked="!!b.is_active" :aria-label="b.title + ' 활성'" @click="toggleActive(b)" class="relative shrink-0 w-[54px] h-[32px] rounded-full transition-colors" :class="b.is_active ? 'bg-emerald-500' : 'bg-gray-300'"><span class="absolute top-[4px] w-6 h-6 bg-white rounded-full shadow transition-all" :class="b.is_active ? 'left-[26px]' : 'left-[4px]'"></span></button>
     </div>
@@ -21,11 +21,17 @@
         <div class="space-y-3">
         <input v-model="form.title" placeholder="제목 (예: 🐛 버그를 잡아라!)" aria-label="제목" class="w-full min-h-[50px] rounded-xl border border-gray-200 px-3" />
         <input v-model="form.subtitle" placeholder="소제목 (선택)" aria-label="소제목" class="w-full min-h-[48px] rounded-xl border border-gray-200 px-3" />
-        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">배경 이미지 (한글 / 기본)</div>
+        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">PC용 배경 이미지 (한글 / 기본)</div>
+          <div class="text-[12px] text-ink-faint">권장 2464×444px (가로로 긴 띠, 비율 5.5:1)</div>
           <input type="file" accept="image/*" @change="onFile" class="block w-full text-[14px]" />
           <div v-if="pickedFile" class="text-[12px] text-green-600">선택됨: {{ pickedFile.name }}</div>
           <div v-else-if="form.image_url" class="flex items-center gap-3"><img :src="form.image_url" alt="" class="max-h-20 rounded-lg border border-gray-200" /><button type="button" @click="clearImage" class="min-h-[44px] px-3 text-[13px] font-bold text-red-500">이미지 제거</button></div></div>
-        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">배경 이미지 (영어, 선택)</div>
+        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">핸드폰용 배경 이미지 (선택)</div>
+          <div class="text-[12px] text-ink-faint">권장 가로 1080px, 세로 540~1080px (비율 2:1 ~ 1:1). 비우면 폰에서는 제목·소제목 글자 카드로 보여요.</div>
+          <input type="file" accept="image/*" @change="onFileMobile" class="block w-full text-[14px]" />
+          <div v-if="pickedFileMobile" class="text-[12px] text-green-600">선택됨: {{ pickedFileMobile.name }}</div>
+          <div v-else-if="form.image_url_mobile" class="flex items-center gap-3"><img :src="form.image_url_mobile" alt="" class="max-h-20 rounded-lg border border-gray-200" /><button type="button" @click="clearImageMobile" class="min-h-[44px] px-3 text-[13px] font-bold text-red-500">이미지 제거</button></div></div>
+        <div class="space-y-1"><div class="text-[13px] font-bold text-ink-muted">PC용 배경 이미지 (영어, 선택)</div>
           <input type="file" accept="image/*" @change="onFileEn" class="block w-full text-[14px]" />
           <div v-if="pickedFileEn" class="text-[12px] text-green-600">선택됨: {{ pickedFileEn.name }}</div>
           <div v-else-if="form.image_url_en" class="flex items-center gap-3"><img :src="form.image_url_en" alt="" class="max-h-20 rounded-lg border border-gray-200" /><button type="button" @click="clearImageEn" class="min-h-[44px] px-3 text-[13px] font-bold text-red-500">이미지 제거</button></div></div>
@@ -78,7 +84,8 @@
       <!-- 이미지 업로드 -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
         <div>
-          <label class="input-label">배경 이미지 (한글 / 기본)</label>
+          <label class="input-label">PC용 배경 이미지 (한글 / 기본)</label>
+          <div class="text-[11px] text-ink-faint mb-1">권장 2464×444px (가로로 긴 띠, 비율 5.5:1)</div>
           <input type="file" accept="image/*" @change="onFile" class="text-xs" />
           <div v-if="pickedFile" class="text-[11px] text-green-600 mt-1">선택됨: {{ pickedFile.name }}</div>
           <div v-else-if="form.image_url" class="mt-1">
@@ -87,7 +94,17 @@
           </div>
         </div>
         <div>
-          <label class="input-label">배경 이미지 (영어, 선택 — 사이트 언어가 영어일 때 대신 표시)</label>
+          <label class="input-label">핸드폰용 배경 이미지 (선택)</label>
+          <div class="text-[11px] text-ink-faint mb-1">권장 가로 1080px, 세로 540~1080px (비율 2:1 ~ 1:1). 비우면 폰에서는 제목·소제목 글자 카드로 보여요.</div>
+          <input type="file" accept="image/*" @change="onFileMobile" class="text-xs" />
+          <div v-if="pickedFileMobile" class="text-[11px] text-green-600 mt-1">선택됨: {{ pickedFileMobile.name }}</div>
+          <div v-else-if="form.image_url_mobile" class="mt-1">
+            <img :src="form.image_url_mobile" class="max-h-20 rounded-lg border border-gray-200" />
+            <button type="button" @click="clearImageMobile" class="ml-2 text-[11px] text-red-500 hover:text-red-600 transition-colors">이미지 제거</button>
+          </div>
+        </div>
+        <div>
+          <label class="input-label">PC용 배경 이미지 (영어, 선택 — 사이트 언어가 영어일 때 대신 표시)</label>
           <input type="file" accept="image/*" @change="onFileEn" class="text-xs" />
           <div v-if="pickedFileEn" class="text-[11px] text-green-600 mt-1">선택됨: {{ pickedFileEn.name }}</div>
           <div v-else-if="form.image_url_en" class="mt-1">
@@ -167,6 +184,7 @@
         <div class="text-sm font-bold text-ink truncate">{{ b.title }}</div>
         <div class="text-[11px] text-ink-muted truncate">
           <span class="inline-flex items-center gap-0.5"><AppIcon :name="b.image_url ? 'image' : 'edit'" :size="10" />{{ b.image_url ? '이미지' : '텍스트' }}</span>
+          <span v-if="b.image_url_mobile"> · 폰 이미지 있음</span>
           <span v-if="b.image_url_en"> · EN 이미지 있음</span>
           <span v-if="b.image_only"> · 이미지 전용</span>
           <span v-if="b.subtitle"> · {{ b.subtitle }}</span>
@@ -202,10 +220,11 @@ const editId = ref(null)
 const saving = ref(false)
 const pickedFile = ref(null)
 const pickedFileEn = ref(null)
+const pickedFileMobile = ref(null)
 
 const DEFAULT_FORM = {
   title: '', subtitle: '',
-  image_url: '', image_url_en: '', image_only: false,
+  image_url: '', image_url_en: '', image_url_mobile: '', image_only: false,
   bg_color: '#F5A623', text_color: '#FFFFFF',
   link_type: 'none', event_id: null, link_page: '', link_url: '',
   sort_order: 0, is_active: true,
@@ -250,6 +269,15 @@ function clearImageEn() {
   pickedFileEn.value = null
 }
 
+function onFileMobile(e) {
+  pickedFileMobile.value = e.target.files?.[0] || null
+}
+
+function clearImageMobile() {
+  form.value.image_url_mobile = ''
+  pickedFileMobile.value = null
+}
+
 async function saveForm() {
   if (!form.value.title) { alert('제목을 입력하세요'); return }
   saving.value = true
@@ -262,6 +290,7 @@ async function saveForm() {
     })
     if (pickedFile.value) fd.append('image', pickedFile.value)
     if (pickedFileEn.value) fd.append('image_en', pickedFileEn.value)
+    if (pickedFileMobile.value) fd.append('image_mobile', pickedFileMobile.value)
     const url = editId.value ? `/api/admin/hero-banners/${editId.value}` : '/api/admin/hero-banners'
     await axios.post(url, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
     resetForm()
@@ -278,6 +307,7 @@ function editBanner(b) {
   form.value = { ...DEFAULT_FORM, ...b }
   pickedFile.value = null
   pickedFileEn.value = null
+  pickedFileMobile.value = null
   showForm.value = true
 }
 
