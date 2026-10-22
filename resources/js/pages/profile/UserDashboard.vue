@@ -11,11 +11,11 @@
       <!-- 숫자가 길어도 카드 밖으로 잘리지 않게 자릿수에 따라 글자 크기를 줄인다 -->
       <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-4 sm:p-5 text-white shadow-card min-w-0 overflow-hidden">
         <div class="text-sm opacity-90">내 포인트</div>
-        <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.user?.points)">{{ (auth.user?.points || 0).toLocaleString() }}<span class="text-sm font-bold ml-0.5 opacity-90">P</span></div>
+        <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.isUnlimited ? 0 : auth.user?.points)">{{ auth.isUnlimited ? '∞' : (auth.user?.points || 0).toLocaleString() }}<span v-if="!auth.isUnlimited" class="text-sm font-bold ml-0.5 opacity-90">P</span></div>
       </div>
       <div class="bg-gradient-to-r from-[#FF8A4D] to-[#FC226B] rounded-2xl p-4 sm:p-5 text-white shadow-card min-w-0 overflow-hidden">
         <div class="text-sm opacity-90 flex items-center gap-1"><AppIcon name="ticket" :size="14" />내 Entry</div>
-        <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.user?.entries)">{{ (auth.user?.entries || 0).toLocaleString() }}</div>
+        <div class="font-black tabular-nums leading-tight whitespace-nowrap" :class="statNumSize(auth.isUnlimited ? 0 : auth.user?.entries)">{{ auth.isUnlimited ? '∞' : (auth.user?.entries || 0).toLocaleString() }}</div>
       </div>
       <!-- 내 카드 결제: 광고·상위노출 등에 카드로 낸 돈 (포인트·Entry 와 별개, 누르면 결제 내역·인보이스) -->
       <button type="button" @click="switchTab('payments')" class="col-span-2 sm:col-span-1 text-left bg-white border-2 border-[#FC226B]/30 rounded-2xl p-4 sm:p-5 shadow-card min-w-0 overflow-hidden hover:border-[#FC226B]/60 transition-colors">
@@ -168,7 +168,7 @@
         <div class="flex items-center justify-between mb-4">
           <h2 class="flex items-center gap-2 font-bold text-ink"><span class="icon-chip w-7 h-7 bg-amber-50 text-amber-600"><AppIcon name="coins" :size="15" /></span>포인트</h2>
         </div>
-        <div class="text-3xl font-black text-amber-600 mb-4">{{ (auth.user?.points || ptBalance).toLocaleString() }}P</div>
+        <div class="text-3xl font-black text-amber-600 mb-4">{{ auth.isUnlimited ? '∞' : (auth.user?.points || ptBalance).toLocaleString() + 'P' }}</div>
         <!-- 포인트는 팔지 않음 (Kay 결정 2026-10-11) — 활동으로만 모으고, 기프트카드 교환은 준비 중 -->
         <div v-if="!pointSalesOpen" class="border-t border-gray-100 pt-4 mt-4 mb-4">
           <div class="bg-amber-50 rounded-xl p-3 text-[13px] text-ink-light leading-relaxed">
@@ -208,17 +208,9 @@
           </button>
         </div>
         <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-amber-600" />적립/사용 내역</h3>
-        <div v-if="!ptHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
-        <div v-else class="max-h-80 overflow-y-auto pr-2 divide-y divide-gray-50">
-          <div v-for="h in ptHistory" :key="h.id" class="flex items-center justify-between py-1.5">
-            <!-- 데스크톱: 한줄 / 모바일: 두줄 -->
-            <div class="flex items-center gap-2 min-w-0 flex-1 sm:flex-row flex-col sm:items-center items-start">
-              <span class="text-xs text-ink truncate">{{ h.reason }}</span>
-              <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(h.created_at) }}</span>
-            </div>
-            <span :class="h.amount>0?'text-emerald-600':'text-red-500'" class="text-xs font-bold flex-shrink-0 ml-3">{{ h.amount>0?'+':'' }}{{ h.amount }}P</span>
-          </div>
-        </div>
+        <div v-if="auth.isUnlimited" class="rounded-xl bg-gray-50 border border-gray-100 p-3 text-[13px] text-ink-light leading-relaxed">최고 관리자는 포인트·Entry가 <b>무제한(∞)</b>이라 잔액과 적립·사용 내역을 숫자로 보여 주지 않아요.</div>
+        <div v-else-if="!ptHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
+        <LedgerList v-else :items="ptHistory" unit="P" field="reason" :fmt="fmtDate" />
       </div>
     </div>
 
@@ -231,7 +223,7 @@
             <AppIcon name="gift" :size="13" /> Sweepstakes 보기
           </RouterLink>
         </div>
-        <div class="text-3xl font-black text-amber-600 mb-4">🎟 {{ (auth.user?.entries ?? enBalance).toLocaleString() }}</div>
+        <div class="text-3xl font-black text-amber-600 mb-4">🎟 {{ auth.isUnlimited ? '∞' : (auth.user?.entries ?? enBalance).toLocaleString() }}</div>
       </div>
 
       <div class="card p-5">
@@ -282,16 +274,9 @@
 
       <div class="card p-5">
         <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-2"><AppIcon name="list" :size="14" class="text-amber-600" />Entry 내역</h3>
-        <div v-if="!enHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
-        <div v-else class="max-h-80 overflow-y-auto pr-2 divide-y divide-gray-50">
-          <div v-for="h in enHistory" :key="h.id" class="flex items-center justify-between py-1.5">
-            <div class="flex items-center gap-2 min-w-0 flex-1 sm:flex-row flex-col sm:items-center items-start">
-              <span class="text-xs text-ink truncate">{{ h.description }}</span>
-              <span class="text-xs text-ink-faint flex-shrink-0">{{ fmtDate(h.created_at) }}</span>
-            </div>
-            <span :class="h.amount>0?'text-emerald-600':'text-red-500'" class="text-xs font-bold flex-shrink-0 ml-3">{{ h.amount>0?'+':'' }}{{ h.amount }}E</span>
-          </div>
-        </div>
+        <div v-if="auth.isUnlimited" class="rounded-xl bg-gray-50 border border-gray-100 p-3 text-[13px] text-ink-light leading-relaxed">최고 관리자는 포인트·Entry가 <b>무제한(∞)</b>이라 잔액과 적립·사용 내역을 숫자로 보여 주지 않아요.</div>
+        <div v-else-if="!enHistory.length" class="text-sm text-ink-faint py-4 text-center">내역이 없습니다</div>
+        <LedgerList v-else :items="enHistory" unit="E" field="description" :fmt="fmtDate" />
       </div>
     </div>
 
@@ -1080,6 +1065,7 @@
 import ResumeManager from '../../components/resume/ResumeManager.vue'
 import PasswordInput from '../../components/PasswordInput.vue'
 import ChatComposer from '../../components/ChatComposer.vue'
+import LedgerList from '../../components/LedgerList.vue'
 
 // 포인트/Entry 카드 숫자 크기: 자릿수(쉼표 포함)가 많을수록 작게
 function statNumSize(n) {

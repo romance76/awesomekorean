@@ -21,6 +21,8 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => ['admin', 'super_admin'].includes(user.value?.role))
   const isStaff = computed(() => ['admin', 'super_admin', 'moderator'].includes(user.value?.role))
+  // 최고관리자는 포인트·Entry 를 숫자 대신 무제한(∞)으로 보여 준다 (관리자 회원 화면 Members.vue 와 같은 규칙)
+  const isUnlimited = computed(() => user.value?.role === 'super_admin')
   // 서버 EnsureEmailVerified 미들웨어와 같은 기준 — 이메일 미인증 일반 회원은 글쓰기 불가
   // (관리자 사이트 설정에서 "이메일 인증 필수"를 끄면 막지 않는다 — 값이 없으면 필수)
   const unverifiedMember = computed(() =>
@@ -299,5 +301,5 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, isStaff, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance, replaceToken }
+  return { startSessionWatch, expireSession, refreshToken, verifyAdminNow, user, token, isLoggedIn, isAdmin, isStaff, isUnlimited, needsVerification, justVerified, announceVerified, rememberVerifyReturn, takeVerifyReturn, initPromise, initialize, login, loginWithToken, register, logout, fetchUser, resolveInit, updatePoints, refreshBalance, replaceToken }
 })

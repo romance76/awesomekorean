@@ -340,7 +340,7 @@
               <div class="bg-blue-50 rounded-xl p-3">
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-ink-light">내 포인트</span>
-                  <span class="text-sm font-bold text-blue-600">{{ auth.user?.points?.toLocaleString() || 0 }}P</span>
+                  <span class="text-sm font-bold text-blue-600">{{ auth.isUnlimited ? '∞' : (auth.user?.points?.toLocaleString() || 0) + 'P' }}</span>
                 </div>
                 <div class="text-xs text-ink-faint mt-1">
                   차감 예정: {{ (currentPrice * 100 * joinQuantity).toLocaleString() }}P
@@ -363,7 +363,7 @@
                 <input v-model="joinPaymentType" type="radio" value="point" class="accent-amber-500" />
                 <div>
                   <div class="text-sm font-semibold text-ink">포인트 결제</div>
-                  <div class="text-xs text-ink-faint">보유: {{ auth.user?.points?.toLocaleString() || 0 }}P</div>
+                  <div class="text-xs text-ink-faint">보유: {{ auth.isUnlimited ? '∞' : (auth.user?.points?.toLocaleString() || 0) + 'P' }}</div>
                 </div>
               </label>
               <label class="flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-colors"

@@ -46,7 +46,7 @@
     </div>
 
     <div v-if="auth.isLoggedIn" class="mt-3">
-      <div class="text-xs text-ink-muted mb-1.5">내 Entry 잔액: <span class="font-bold text-amber-600">🎟 {{ auth.user?.entries || 0 }}</span> · 이미 응모: {{ sw.my_entries || 0 }}</div>
+      <div class="text-xs text-ink-muted mb-1.5">내 Entry 잔액: <span class="font-bold text-amber-600">🎟 {{ auth.isUnlimited ? '∞' : (auth.user?.entries || 0) }}</span> · 이미 응모: {{ sw.my_entries || 0 }}</div>
       <button @click="enterModalOpen = true" :disabled="sw.status !== 'active'" class="btn-primary w-full py-3 disabled:opacity-40">🎟 Entry 사용해서 참가하기</button>
       <SweepstakesEnterModal :show="enterModalOpen" :sweepstakes="sw" :balance="Number(auth.user?.entries) || 0"
         @close="enterModalOpen = false" @entered="onEntered" />
