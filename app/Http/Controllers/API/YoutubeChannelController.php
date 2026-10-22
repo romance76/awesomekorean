@@ -242,16 +242,22 @@ class YoutubeChannelController extends Controller
         $q = YoutubeChannel::query();
         $st = (string) $request->query('status', '');
         if (in_array($st, ['pending', 'approved', 'rejected'], true)) $q->where('status', $st);
+        $cat = (string) $request->query('category', '');
+        if ($cat !== '' && isset($this->categories()[$cat])) $q->where('category', $cat);
         $s = trim((string) $request->query('q', ''));
         if ($s !== '') $q->where(function ($w) use ($s) { $w->where('title', 'like', '%' . $s . '%')->orWhere('handle', 'like', '%' . $s . '%'); });
-        $page = $q->orderByRaw("status = 'pending' desc")->orderByDesc('id')->paginate(30);
+        $page = $q->orderByRaw("status = 'pending' desc")->orderByDesc('id')->paginate(min(100, max(1, (int) $request->query('per_page', 30))));
         return response()->json(['success' => true, 'data' => [
             'items' => $page->getCollection()->map(fn ($c) => $this->card($c) + [
                 'status' => $c->status, 'channel_id' => $c->channel_id, 'user_id' => $c->user_id, 'reject_reason' => $c->reject_reason,
                 'featured_until' => $c->featured_until, 'last_synced_at' => $c->last_synced_at, 'created_at' => $c->created_at, 'owner_user_id' => $c->owner_user_id,
-                'videos' => YoutubeVideo::where('youtube_channel_id', $c->id)->count(),
+                'videos' => YoutubeVideo::where('youtube_channel_id', $c->id)->count(), 'view_count' => (int) $c->view_count,
             ])->all(),
+            'category_counts' => YoutubeChannel::where('status', 'approved')->selectRaw('category, count(*) as n')->groupBy('category')->pluck('n', 'category'),
             'counts' => [
+                'total' => YoutubeChannel::count(),
+                'verified' => YoutubeChannel::whereNotNull('verified_at')->count(),
+                'today' => YoutubeChannel::where('created_at', '>=', now()->startOfDay())->count(),
                 'pending' => YoutubeChannel::where('status', 'pending')->count(),
                 'approved' => YoutubeChannel::where('status', 'approved')->count(),
                 'rejected' => YoutubeChannel::where('status', 'rejected')->count(),
