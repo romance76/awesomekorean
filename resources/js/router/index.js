@@ -28,6 +28,11 @@ const routes = [
   { path: '/community/:board', name: 'board', component: p('community/BoardList') },
   { path: '/community/:board/:id', name: 'post-detail', component: p('community/BoardList') },
 
+  // 한인 유튜버
+  { path: '/youtubers', name: 'youtubers', component: p('youtubers/YoutubeList') },
+  { path: '/youtubers/apply', name: 'youtubers-apply', component: p('youtubers/YoutubeApply'), meta: { auth: true } },
+  { path: '/youtubers/:id', name: 'youtuber-detail', component: p('youtubers/YoutubeChannel') },
+
   // Q&A
   { path: '/qa', name: 'qa', component: p('qa/QaList') },
   { path: '/qa/write', name: 'qa-write', component: p('qa/QAWrite'), meta: { auth: true } },
@@ -176,6 +181,7 @@ const routes = [
       { path: 'market', component: p('admin/AdminMarket') },
       { path: 'realestate', component: p('admin/AdminRealestate') },
       { path: 'clubs', component: p('admin/AdminClubs') },
+      { path: 'youtubers', component: p('admin/AdminYoutubers') },
       { path: 'qa', component: p('admin/AdminQa') },
       { path: 'recipes', component: p('admin/AdminRecipes') },
       { path: 'events', component: p('admin/AdminEvents') },

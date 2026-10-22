@@ -36,6 +36,8 @@ $contentLog = storage_path('logs/content-sync.log');
 // 증권 페이지 "증권가 뉴스": 증권·시황 언론사 RSS 제목·요약·링크, 15분마다 (영문 기사는 제목만 번역)
 \App\Support\AutoCollectStatus::watch(Schedule::command('stocknews:fetch'), 'stocknews')->everyFifteenMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
 \App\Support\AutoCollectStatus::watch(Schedule::command('earnings:fetch'), 'earnings')->everySixHours()->withoutOverlapping()->appendOutputTo($contentLog);
+// 한인 유튜버: 승인된 채널의 정보·최근 영상·쇼츠를 유튜브에서 6시간마다 새로 읽기 (채널당 약 3유닛)
+Schedule::command('youtubers:sync --limit=100')->cron('20 */6 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
 Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->where('visit_date', '<', now('America/New_York')->subDays(45)->toDateString())->delete())->dailyAt('04:10');
 
 // 음악 트랙 자동 수집 (하루 4번 분할, 한국 100%, 1년 보관 — 2026-10-10 30일에서 연장)

@@ -116,6 +116,22 @@ Route::get('/businesses/claims/{claim}/verify-email', [BusinessController::class
 Route::get('/realestate', [RealEstateController::class, 'index']);
 Route::get('/realestate/promotion-slots', [RealEstateController::class, 'promotionSlots']);
 Route::get('/realestate/{id}', [RealEstateController::class, 'show']);
+// 한인 유튜버 소개 (/youtubers): 공개 목록·채널·영상, 회원 신청(이메일 인증 필요, 관리자 승인 후 공개), 관리자 승인·등록
+Route::middleware('auth:api')->get('/youtubers/mine', [\App\Http\Controllers\API\YoutubeChannelController::class, 'mine']);
+Route::get('/youtubers', [\App\Http\Controllers\API\YoutubeChannelController::class, 'index']);
+Route::get('/youtubers/{id}', [\App\Http\Controllers\API\YoutubeChannelController::class, 'show'])->whereNumber('id');
+Route::get('/youtubers/{id}/videos', [\App\Http\Controllers\API\YoutubeChannelController::class, 'videos'])->whereNumber('id');
+Route::middleware(['auth:api', 'verified.email', 'throttle:content-write'])->post('/youtubers', [\App\Http\Controllers\API\YoutubeChannelController::class, 'store']);
+Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers')->group(function () {
+    $c = \App\Http\Controllers\API\YoutubeChannelController::class;
+    Route::get('/', [$c, 'adminIndex']);
+    Route::post('/', [$c, 'adminStore']);
+    Route::post('/{id}/approve', [$c, 'approve'])->whereNumber('id');
+    Route::post('/{id}/reject', [$c, 'reject'])->whereNumber('id');
+    Route::post('/{id}/resync', [$c, 'resync'])->whereNumber('id');
+    Route::put('/{id}', [$c, 'update'])->whereNumber('id');
+    Route::delete('/{id}', [$c, 'destroy'])->whereNumber('id');
+});
 Route::get('/clubs', [ClubController::class, 'index']);
 Route::get('/clubs/promotion-slots', [ClubController::class, 'promotionSlots']);
 Route::get('/clubs/{id}', [ClubController::class, 'show']);

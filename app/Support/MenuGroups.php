@@ -24,7 +24,7 @@ class MenuGroups
             ['key' => 'buysell', 'label' => '사고팔기', 'label_en' => 'Buy & Sell', 'icon' => '🛒', 'type' => 'group', 'items' => ['market', 'groupbuy']],
             ['key' => 'bizads', 'label' => '업소·광고', 'label_en' => 'Business & Ads', 'icon' => '🏪', 'type' => 'group', 'items' => ['directory', 'flyers']],
             ['key' => 'life', 'label' => '생활정보', 'label_en' => 'Living', 'icon' => '📘', 'type' => 'group', 'items' => ['info', 'news', 'recipes', 'events']],
-            ['key' => 'fun', 'label' => '즐길거리', 'label_en' => 'Fun', 'icon' => '🎵', 'type' => 'group', 'items' => ['shorts', 'music']],
+            ['key' => 'fun', 'label' => 'YOUTUBE', 'label_en' => 'YouTube', 'icon' => '📺', 'type' => 'group', 'items' => ['youtubers', 'shorts', 'music']],
             ['key' => 'shopping', 'label' => '내돈내산 리뷰', 'label_en' => 'Reviews', 'icon' => '🛍️', 'type' => 'single', 'items' => ['shopping']],
             // 2단계에서 첫 화면(/money)을 만든 뒤 숨김을 푼다
             ['key' => 'money', 'label' => 'MONEY', 'label_en' => 'MONEY', 'icon' => '💰', 'type' => 'hub', 'path' => '/money', 'hidden' => true, 'items' => []],

@@ -35,6 +35,7 @@ class SeoHead
         'clubs' => ['동호회', '취미와 관심사가 같은 한인 동호회 모임.'],
         'groupbuy' => ['공동구매', '한인 이웃과 함께 사면 더 저렴한 공동구매.'],
         'money' => ['MONEY', '미국 생활 돈 정보 — 세금·정부 혜택, 보험, 신용카드, 자녀 교육비, 주식, 은퇴·노후를 공식 자료로 정리했어요.'],
+        'youtubers' => ['한인 유튜버', '미국 한인 유튜버 채널 모음 — 생활·이민·먹방·육아·재테크 분야별로 찾아보고 영상과 쇼츠를 바로 보세요.'],
         'shopping' => ['내돈내산 리뷰', '아마존 후기를 한국어로 나누는 내돈내산 리뷰.'],
         'about' => ['소개', '어썸코리안은 미국 한인을 위한 커뮤니티입니다.'],
         'contact' => ['문의하기', '어썸코리안에 문의하세요.'],
@@ -50,7 +51,7 @@ class SeoHead
      */
     public const SPA_SEGMENTS = ['about', 'ad-apply', 'admin', 'auth', 'chat', 'clubs', 'comms', 'community', 'contact', 'dashboard', 'directory', 'easy-test', 'elder',
         'email-verified', 'entries', 'events', 'forgot-password', 'friends', 'games', 'go', 'grades', 'groupbuy', 'info', 'jobs', 'login', 'market', 'messages', 'money', 'music',
-        'new', 'news', 'notifications', 'points', 'poker7', 'privacy', 'profile', 'qa', 'realestate', 'recipes', 'register', 'search', 'shopping', 'shorts', 'stocks', 'sweepstakes', 'terms'];
+        'new', 'news', 'notifications', 'points', 'poker7', 'privacy', 'profile', 'qa', 'realestate', 'recipes', 'register', 'search', 'shopping', 'shorts', 'stocks', 'sweepstakes', 'terms', 'youtubers'];
 
     /** 홈('')이거나 화면이 있는 주소이면 true. '404' 화면 자체와 목록에 없는 주소는 false(→ 서버가 404 상태로 내림) */
     public static function isKnownPath(string $path): bool
@@ -93,7 +94,8 @@ class SeoHead
         $isId = fn ($v) => is_string($v) && ctype_digit($v) && strlen($v) <= 10;
         if ($n === 2 && $isId($segs[1])) {
             $map = ['jobs' => \App\Models\JobPost::class, 'recipes' => \App\Models\RecipePost::class, 'events' => \App\Models\Event::class,
-                'qa' => \App\Models\QaPost::class, 'clubs' => \App\Models\Club::class, 'groupbuy' => \App\Models\GroupBuy::class];
+                'qa' => \App\Models\QaPost::class, 'clubs' => \App\Models\Club::class, 'groupbuy' => \App\Models\GroupBuy::class,
+                'youtubers' => \App\Models\YoutubeChannel::class];
             if (isset($map[$first])) return [$map[$first], (int) $segs[1]];
         }
         if ($n === 3 && $first === 'community' && $isId($segs[2])) return [\App\Models\Post::class, (int) $segs[2]];
@@ -112,7 +114,7 @@ class SeoHead
             if (!$t) return null;
             [$model, $id] = $t;
             $row = $model::query()->find($id);
-            if (!$row) return ['missing' => true];
+            if (!$row || ($row instanceof \App\Models\YoutubeChannel && $row->status !== 'approved')) return ['missing' => true];
             $title = (string) ($row->title ?? $row->name ?? '');
             $body = (string) ($row->content ?? $row->description ?? '');
             $body = html_entity_decode(strip_tags((string) preg_replace('#<(br|/p|/div|/li)[^>]*>#i', ' ', $body)), ENT_QUOTES, 'UTF-8');
