@@ -12,12 +12,12 @@
         <!-- 구인/구직 세그먼트 -->
         <div class="flex bg-gray-100 rounded-lg p-0.5">
           <button @click="postType = 'hiring'; loadPage()"
-            :class="['flex items-center gap-1 px-3 py-[5px] text-xs font-semibold rounded-md transition whitespace-nowrap',
+            :class="['flex items-center gap-1 px-3 py-[3px] text-xs font-semibold rounded-md transition whitespace-nowrap',
               postType === 'hiring' ? 'bg-white text-amber-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
             <AppIcon name="briefcase" :size="13" />구인
           </button>
           <button @click="postType = 'seeking'; loadPage()"
-            :class="['flex items-center gap-1 px-3 py-[5px] text-xs font-semibold rounded-md transition whitespace-nowrap',
+            :class="['flex items-center gap-1 px-3 py-[3px] text-xs font-semibold rounded-md transition whitespace-nowrap',
               postType === 'seeking' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
             <AppIcon name="user" :size="13" />구직
           </button>

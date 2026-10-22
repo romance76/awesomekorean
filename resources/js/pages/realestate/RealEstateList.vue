@@ -76,7 +76,7 @@
         <div class="flex bg-gray-100 rounded-lg p-0.5">
           <button v-for="t in reTypeTabs" :key="t.value"
             @click="changeReType(t.value)"
-            :class="['px-3 py-[5px] text-xs font-bold rounded-md transition-colors whitespace-nowrap flex items-center gap-1',
+            :class="['px-3 py-[3px] text-xs font-bold rounded-md transition-colors whitespace-nowrap flex items-center gap-1',
               reType===t.value ? `${t.activeBg} bg-white shadow-sm` : 'text-ink-muted hover:text-ink']">
             <AppIcon :name="t.icon" :size="13" /> {{ t.label }}
           </button>
