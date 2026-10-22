@@ -6,10 +6,11 @@
       <p class="text-xs text-ink-muted mb-3">이미지를 끌어서 위치를 옮기고, 아래 막대(또는 마우스 휠·두 손가락)로 크기를 맞춰 주세요. 네모 안에 보이는 부분이 메뉴에 나와요. <b>아래 "실제 메뉴 미리보기"에서 바로 확인</b>하세요.</p>
       <div class="mx-auto" style="max-width:380px">
 
-      <div class="flex gap-1.5 mb-2" role="group" aria-label="네모 비율">
+      <div class="flex flex-wrap gap-1.5 mb-1" role="group" aria-label="네모 비율 (가로:세로)">
         <button v-for="r in RATIOS" :key="r.v" type="button" @click="setRatio(r.v)"
-          class="px-3 py-1 rounded-lg border text-xs font-bold" :class="ratio === r.v ? 'border-pink-400 bg-pink-50 text-pink-600' : 'border-gray-200 text-ink-light'">{{ r.l }}</button>
+          class="px-2.5 py-1 rounded-lg border text-xs font-bold" :class="ratio === r.v ? 'border-pink-400 bg-pink-50 text-pink-600' : 'border-gray-200 text-ink-light'">{{ r.l }}</button>
       </div>
+      <p class="text-[11px] text-ink-faint mb-2">숫자가 클수록 가로로 길쭉한 모양이에요 (가로:세로).</p>
 
       <!-- 편집 영역: 체크무늬 = 투명한 부분 -->
       <div ref="box" class="relative mx-auto select-none overflow-hidden rounded-xl border border-gray-300"
@@ -68,7 +69,8 @@ const props = defineProps({ file: { type: File, required: true }, groups: { type
 const emit = defineEmits(['confirm', 'cancel'])
 
 // 메뉴에 나오는 이미지는 가로로 긴 모양이 많아서 비율을 고를 수 있게
-const RATIOS = [{ v: 1, l: '정사각 1:1' }, { v: 2, l: '가로 2:1' }, { v: 3, l: '가로 3:1' }, { v: 4, l: '가로 4:1' }]
+// (메뉴에서는 높이 48px·가로 최대 220px 안에 들어가므로 4.5:1 보다 더 긴 모양은 줄어들어 보여요)
+const RATIOS = [{ v: 1, l: '정사각 1:1' }, { v: 1.5, l: '1.5:1' }, { v: 2, l: '2:1' }, { v: 2.5, l: '2.5:1' }, { v: 3, l: '3:1' }, { v: 3.5, l: '3.5:1' }, { v: 4, l: '4:1' }, { v: 4.5, l: '4.5:1' }]
 const W = 320                         // 편집 영역 가로(px)
 const OUT_W = 800                     // 결과 이미지 가로(px) — 서버가 높이 96px 이하로 다시 줄여요
 const ratio = ref(3)
