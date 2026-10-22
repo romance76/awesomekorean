@@ -129,7 +129,7 @@
               <div class="flex items-center gap-2 mb-2">
                 <span class="badge-primary">{{ activeItem.board?.name }}</span>
               </div>
-              <h2 class="text-lg font-bold text-ink">{{ activeItem.title }}</h2>
+              <h2 class="text-lg font-bold text-ink break-words">{{ activeItem.title }}</h2>
               <div class="flex items-center gap-3 mt-2 text-xs text-ink-muted">
                 <button @click="openPopup(activeItem.user?.id)" class="hover:text-amber-700 transition-colors">{{ activeItem.user?.name }}</button>
                 <span>{{ formatDate(activeItem.created_at) }}</span>
@@ -138,7 +138,12 @@
                 <span class="flex items-center gap-1"><AppIcon name="message-circle" :size="13" />{{ activeItem.comment_count }}</span>
               </div>
             </div>
-            <div class="px-5 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap">{{ activeItem.content }}</div>
+            <!-- 첨부 이미지 (목록 썸네일로는 보이는데 상세에서 빠져 있던 것) -->
+            <div v-if="(activeItem.images || []).length" class="px-5 pt-5 space-y-3">
+              <img v-for="(img, i) in activeItem.images" :key="i" :src="imgUrl(img)" alt="" loading="lazy" decoding="async"
+                class="block w-full max-w-full h-auto rounded-xl border border-gray-100 bg-gray-50" @error="e => e.target.style.display = 'none'" />
+            </div>
+            <div class="px-5 py-5 text-sm text-ink-light leading-relaxed whitespace-pre-wrap break-words">{{ activeItem.content }}</div>
             <div class="px-5 py-3 border-t border-gray-50 flex gap-4 items-center">
               <button @click="toggleLike" class="text-sm flex items-center gap-1.5 font-semibold transition-colors" :class="liked ? 'text-red-500' : 'text-ink-muted hover:text-red-400'"><AppIcon name="heart" :size="16" :filled="liked" /> 좋아요 {{ activeItem.like_count }}</button>
               <BookmarkToggle :active="favoritedList.has(activeItem.id)" @toggle="toggleFavList(activeItem)" size="lg" />
@@ -348,6 +353,10 @@ async function toggleBookmark() {
 // 목록 한 줄 정리용: 본문 미리보기 / 대표 사진 / 인기 표시
 function excerpt(item) {
   return String(item.content || '').replace(/\s+/g, ' ').trim().slice(0, 140)
+}
+function imgUrl(path) {
+  const p = String(path || '')
+  return p.startsWith('http') || p.startsWith('/storage/') ? p : '/storage/' + p
 }
 function thumbOf(item) {
   const path = (item.images || [])[0]
