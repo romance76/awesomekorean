@@ -132,11 +132,15 @@ function scrollTo(id) { document.getElementById(id)?.scrollIntoView({ behavior: 
 async function loadCafe() {
   notFound.value = false; cafe.value = null
   topic.value = Number(route.query.topic) || 0
+  kind.value = ['info', 'question', 'talk'].includes(route.query.kind) ? route.query.kind : ''
+  sort.value = ['views', 'comments'].includes(route.query.sort) ? route.query.sort : ''
+  search.value = String(route.query.q || '')
+  const startPage = Math.max(1, Number(route.query.page) || 1)
   try {
     const { data } = await axios.get(`/api/money/cafes/${route.params.slug}`)
     cafe.value = data.data.cafe; categories.value = data.data.categories || []
     guides.value = data.data.guides || []
-    load(1)
+    load(startPage)
     if (topic.value) nextTick(() => scrollTo('board'))
   } catch { notFound.value = true }
   if (!others.value.length) {
@@ -152,9 +156,25 @@ async function load(n) {
     posts.value = data.data.data || []; page.value = data.data.current_page || n; lastPage.value = data.data.last_page || 1
   } catch { posts.value = [] }
   loadingPosts.value = false
+  rememberView()
+}
+// 고른 주제·종류·정렬·검색어·쪽 번호를 "현재 기록 주소"에만 몰래 적어 둔다(history.replaceState).
+// 라우터를 거치면 App.vue 가 주소 전체를 key 로 써서 화면이 통째로 새로 그려지고 맨 위로 튀기 때문에 라우터는 건드리지 않는다.
+// 글을 보고 뒤로 가면 이 주소로 돌아오므로 같은 주제·쪽이 그대로 나온다.
+function rememberView() {
+  try {
+    const q = new URLSearchParams()
+    if (topic.value) q.set('topic', topic.value)
+    if (kind.value) q.set('kind', kind.value)
+    if (sort.value) q.set('sort', sort.value)
+    if (search.value) q.set('q', search.value)
+    if (page.value > 1) q.set('page', page.value)
+    const qs = q.toString()
+    const url = window.location.pathname + (qs ? '?' + qs : '') + window.location.hash
+    if (url !== window.location.pathname + window.location.search + window.location.hash) window.history.replaceState(window.history.state, '', url)
+  } catch {}
 }
 function setKind(v) { kind.value = v; load(1) }
-// 주소(?topic=)는 바꾸지 않는다 — App.vue 가 주소 전체를 key 로 써서, 주소가 바뀌면 화면 전체가 새로 그려져 깜빡이고 맨 위로 튐.
 function pickTopic(id) {
   topic.value = topic.value === id && id ? 0 : id
   load(1)
