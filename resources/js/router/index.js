@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { installLateralReplace } from './lateralReplace'
 
 // Glob-based lazy loading (이전 실패 원인: template literal import 사용 → 하위 디렉토리 누락)
 const pages = import.meta.glob('../pages/**/*.vue')
@@ -244,6 +245,9 @@ const router = createRouter({
     return savedPosition || { top: 0 }
   },
 })
+
+// 같은 메뉴 묶음의 탭끼리 옮길 때는 이동 기록을 쌓지 않고 바꿔 끼움 → 뒤로가기가 그 묶음에 들어오기 전 화면으로 간다
+installLateralReplace(router)
 
 // 서버가 이메일 인증을 요구하는(verified.email) 새 글 작성 화면들 — 미인증
 // 회원이 폼을 끝까지 채운 뒤 제출 단계에서야 막히지 않도록 진입부터 차단
