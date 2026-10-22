@@ -51,7 +51,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
 const categories = ref([
-  { key: 'life', label: '생활·이민' }, { key: 'food', label: '먹방·맛집' }, { key: 'family', label: '육아·교육' }, { key: 'money', label: '재테크·세금' },
+  { key: 'life', label: '생활·이민' }, { key: 'food', label: '먹방·맛집' }, { key: 'family', label: '육아·교육' }, { key: 'money', label: '재테크·세금' }, { key: 'realestate', label: '부동산' },
   { key: 'travel', label: '여행' }, { key: 'beauty', label: '뷰티·패션' }, { key: 'vlog', label: '일상 vlog' }, { key: 'etc', label: '기타' },
 ])
 const url = ref('')

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class YoutubeChannel extends Model
 {
     public const CATEGORIES = [
-        'life' => '생활·이민', 'food' => '먹방·맛집', 'family' => '육아·교육', 'money' => '재테크·세금', 'travel' => '여행',
+        'life' => '생활·이민', 'food' => '먹방·맛집', 'family' => '육아·교육', 'money' => '재테크·세금', 'realestate' => '부동산', 'travel' => '여행',
         'beauty' => '뷰티·패션', 'vlog' => '일상 vlog', 'etc' => '기타',
     ];
 
