@@ -102,7 +102,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import MoneyFrame from '../../components/money/MoneyFrame.vue'
@@ -111,6 +111,7 @@ import { KIND_LABEL, KIND_CLASS, DISCLAIMER } from '../../components/money/money
 import { themeOf, cafeIcon } from '../../components/money/moneyThemes'
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 const cafe = ref(null); const categories = ref([]); const guides = ref([]); const notFound = ref(false)
 const others = ref([])
@@ -158,21 +159,18 @@ async function load(n) {
   loadingPosts.value = false
   rememberView()
 }
-// 고른 주제·종류·정렬·검색어·쪽 번호를 "현재 기록 주소"에만 몰래 적어 둔다(history.replaceState).
-// 라우터를 거치면 App.vue 가 주소 전체를 key 로 써서 화면이 통째로 새로 그려지고 맨 위로 튀기 때문에 라우터는 건드리지 않는다.
+// 고른 주제·종류·정렬·검색어·쪽 번호를 지금 기록 주소의 ?query 로 바꿔 둔다(router.replace — 새 기록을 쌓지 않음).
 // 글을 보고 뒤로 가면 이 주소로 돌아오므로 같은 주제·쪽이 그대로 나온다.
+// 이 라우트는 meta.stableKey 라서 주소가 바뀌어도 App.vue 가 화면을 새로 그리지 않는다(깜빡임·맨 위로 튐 없음).
 function rememberView() {
-  try {
-    const q = new URLSearchParams()
-    if (topic.value) q.set('topic', topic.value)
-    if (kind.value) q.set('kind', kind.value)
-    if (sort.value) q.set('sort', sort.value)
-    if (search.value) q.set('q', search.value)
-    if (page.value > 1) q.set('page', page.value)
-    const qs = q.toString()
-    const url = window.location.pathname + (qs ? '?' + qs : '') + window.location.hash
-    if (url !== window.location.pathname + window.location.search + window.location.hash) window.history.replaceState(window.history.state, '', url)
-  } catch {}
+  const q = {}
+  if (topic.value) q.topic = String(topic.value)
+  if (kind.value) q.kind = kind.value
+  if (sort.value) q.sort = sort.value
+  if (search.value) q.q = search.value
+  if (page.value > 1) q.page = String(page.value)
+  const same = JSON.stringify(Object.entries(q).sort()) === JSON.stringify(Object.entries(route.query).map(([k, v]) => [k, String(v)]).sort())
+  if (!same) router.replace({ path: route.path, query: q, hash: route.hash }).catch(() => {})
 }
 function setKind(v) { kind.value = v; load(1) }
 function pickTopic(id) {

@@ -39,9 +39,9 @@
     <!-- 신고로 이용이 정지된 게시판에 들어갔을 때 -->
     <BoardSuspendedNotice v-else-if="boardBlock" :info="boardBlock" />
     <main v-else>
-      <router-view v-slot="{ Component }" :key="route.fullPath">
+      <router-view v-slot="{ Component }" :key="viewKey">
         <keep-alive :include="['Home']">
-          <component :is="Component" :key="route.fullPath" />
+          <component :is="Component" :key="viewKey" />
         </keep-alive>
       </router-view>
     </main>
@@ -112,6 +112,8 @@ import { DEFAULT_FOOTER, readSavedFooter } from './utils/footerDefaults'
 import { useBookmarkStore } from './stores/bookmarks'
 
 const route = useRoute()
+// 화면을 새로 그리는 기준: 보통은 주소 전체, meta.stableKey 인 화면(머니 카페 목록)은 ?query 가 바뀌어도 유지
+const viewKey = computed(() => (route.meta?.stableKey ? route.path : route.fullPath))
 const siteStore = useSiteStore()
 const auth = useAuthStore()
 const bookmarkStore = useBookmarkStore()

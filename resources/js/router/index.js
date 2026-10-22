@@ -78,7 +78,7 @@ const routes = [
   // MONEY 허브 (qa/money_hub_plan.md)
   { path: '/money', name: 'money', component: p('money/MoneyHome') },
   { path: '/money/cafes', redirect: '/money' },   // 카페 전체 안내는 허브(/money)로 합침
-  { path: '/money/cafe/:slug', name: 'money-cafe', component: p('money/MoneyCafe') },
+  { path: '/money/cafe/:slug', name: 'money-cafe', component: p('money/MoneyCafe'), meta: { stableKey: true } },   // 주제·쪽 선택을 주소에 적어도 화면을 새로 그리지 않음(App.vue viewKey)
   { path: '/money/post/:id', name: 'money-post', component: p('money/MoneyPost') },
   { path: '/money/write', name: 'money-write', component: p('money/MoneyWrite'), meta: { auth: true } },
   { path: '/money/guide/:slug', name: 'money-guide', component: p('money/MoneyGuide') },
