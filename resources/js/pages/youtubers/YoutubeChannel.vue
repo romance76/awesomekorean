@@ -133,7 +133,8 @@ async function loadChannel() {
   try {
     const { data } = await axios.get(`/api/youtubers/${route.params.id}`)
     ch.value = data.data
-    if (document) document.title = `${ch.value.title} | 어썸코리안`
+    document.title = `${ch.value.title} | 어썸코리안`
+    if (!ch.value.videos_total && ch.value.shorts_total) tab.value = 'short'   // 쇼츠만 올리는 채널은 쇼츠 탭부터
     await loadVideos(1)
   } catch { ch.value = null } finally { loading.value = false }
 }
