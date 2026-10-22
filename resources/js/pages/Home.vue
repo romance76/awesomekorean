@@ -781,7 +781,7 @@ onMounted(async () => {
   loadReviewPicks()
   loadWeather()
   loadMarketQuotes()
-  loadLive(); loadTicker()
+  loadLive(); loadTicker(); loadSignupPerks()
   // 이미 재생 중인 곡이 있으면 건드리지 않음, 없으면 무작위 곡을 소리 없이 자동 재생
   if (!musicStore.hasTrack) pickRandomMusic('auto')
   liveTimers = [
