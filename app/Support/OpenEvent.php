@@ -236,9 +236,15 @@ class OpenEvent
     public static function publicInfo(): array
     {
         $state = self::state();
-        if ($state !== 'active') return ['active' => false];
+        // 가입·프로필 완성 보너스: base = 관리자 설정값, now = 지금 실제로 받는 값(오픈 이벤트 배수 반영). 홈 가입 배너 문구에 쓴다.
+        $signup = ['base' => (int) PointRules::raw('signup_bonus', '10'), 'now' => PointRules::get('signup_bonus', 10)];
+        $profile = ['base' => (int) PointRules::raw('profile_complete_bonus', '30'), 'now' => PointRules::get('profile_complete_bonus', 30)];
+        if ($state !== 'active') return ['active' => false, 'signup' => $signup, 'profile' => $profile];
         $c = self::config();
         return [
+            'signup' => $signup,
+            'profile' => $profile,
+            'earn_multiplier' => self::earnMultiplier(),
             'active' => true,
             'headline' => $c['headline'],
             'subline' => $c['subline'],

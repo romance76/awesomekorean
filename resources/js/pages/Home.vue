@@ -345,9 +345,9 @@
     <div v-if="!auth.isLoggedIn" class="bg-night rounded-card px-7 py-8 lg:px-12 lg:py-11 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
       <div>
         <h2 class="text-[21px] lg:text-[26px] font-extrabold tracking-[-0.035em] text-white flex items-center gap-2">
-          지금 가입하고 40포인트 받기 <AppIcon name="gift" :size="20" class="text-amber-300" />
+          지금 가입하고 {{ signupPerks.total }}포인트 받기 <AppIcon name="gift" :size="20" class="text-amber-300" />
         </h2>
-        <p class="mt-2.5 text-[14px] lg:text-[15px] text-white/70">회원가입 10P · 프로필 완성 30P — 포인트로 공동구매를 이용할 수 있어요.</p>
+        <p class="mt-2.5 text-[14px] lg:text-[15px] text-white/70">회원가입 {{ signupPerks.signup }}P · 프로필 완성 {{ signupPerks.profile }}P<template v-if="signupPerks.mult > 1"> (오픈 이벤트 {{ signupPerks.mult }}배{{ signupPerks.until }})</template> — 포인트로 공동구매를 이용할 수 있어요.</p>
       </div>
       <RouterLink to="/register" class="shrink-0 bg-white text-ink font-bold text-[15px] px-7 py-3.5 rounded-full transition-transform hover:-translate-y-0.5">무료로 시작하기</RouterLink>
     </div>
@@ -573,6 +573,18 @@ function relTime(iso) {
 }
 async function loadLive() {
   try { const { data } = await axios.get('/api/site/live-stats'); liveStats.value = { ...liveStats.value, ...(data.data || {}) } } catch {}
+}
+// 가입 배너의 포인트 숫자: 관리자 설정값(+오픈 이벤트 배수)을 서버에서 읽는다. 읽기 전까지는 기본값(10·30)
+const signupPerks = ref({ signup: 10, profile: 30, total: 40, mult: 1, until: '' })
+async function loadSignupPerks() {
+  try {
+    const { data } = await axios.get('/api/open-event')
+    const d = data.data || {}
+    const sg = d.signup?.now ?? 10, pf = d.profile?.now ?? 30
+    const m = d.active ? Number(d.earn_multiplier || 1) : 1
+    const until = d.active && d.ends_on ? `, ${Number(String(d.ends_on).slice(5, 7))}월 ${Number(String(d.ends_on).slice(8, 10))}일까지` : ''
+    signupPerks.value = { signup: sg, profile: pf, total: sg + pf, mult: m, until }
+  } catch {}
 }
 async function loadTicker() {
   try { const { data } = await axios.get('/api/site/ticker'); tickerRaw.value = data.data?.items || [] } catch {}
