@@ -510,6 +510,7 @@ const allMenuDefs = [
   { key: 'recipes',   label: '레시피',   label_en: 'Recipes',    icon: '🍳', path: '/recipes', hasCardView: true },
   { key: 'clubs',     label: '동호회',   label_en: 'Clubs',      icon: '👥', path: '/clubs' },
   { key: 'games',     label: '게임',     label_en: 'Games',      icon: '🎮', path: '/games' },
+  { key: 'youtubers', label: '한인 유튜버', label_en: 'YouTubers', icon: '📺', path: '/youtubers' },
   { key: 'shorts',    label: '숏츠',     label_en: 'Shorts',     icon: '📱', path: '/shorts' },
   { key: 'music',     label: '음악듣기', label_en: 'Music',      icon: '🎵', path: '/music' },
   { key: 'groupbuy',  label: '공동구매', label_en: 'Group Buy',  icon: '🤝', path: '/groupbuy' },
