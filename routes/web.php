@@ -44,5 +44,6 @@ Route::get('/poker7/{any}', fn () => redirect('/', 301))->where('any', '.*');
 // 화면(SPA) 캐치올. 라우터에 없는 주소(와 /404)는 같은 화면을 HTTP 404 상태로 내려 검색엔진이 "없는 페이지"로 알게 한다
 // (예전엔 모든 주소가 200 이라 구글이 "소프트 404"로 판단). 화면 목록은 App\Support\SeoHead::SPA_SEGMENTS.
 Route::get('/{any}', function (\Illuminate\Http\Request $request) {
-    return response(view('welcome'), \App\Support\SeoHead::isKnownPath($request->path()) ? 200 : 404);
+    $missing = (\App\Support\SeoHead::detail($request->path())['missing'] ?? false);   // 상세 글 주소인데 그 글이 없으면 404 (구글이 없는 페이지로 알게)
+    return response(view('welcome'), \App\Support\SeoHead::isKnownPath($request->path()) && !$missing ? 200 : 404);
 })->where('any', '.*');

@@ -83,6 +83,47 @@ class SeoHead
         return !in_array($first, self::noAdsSections(), true);
     }
 
+    /** 상세 글 주소 → [모델, 주소 끝의 id]. 글 상세가 아닌 주소(목록·작성·수정 등)는 null */
+    public static function detailTarget(string $path): ?array
+    {
+        $path = (string) preg_replace('/[?#].*$/s', '', $path);
+        $segs = array_values(array_filter(explode('/', trim($path, '/')), fn ($x) => $x !== ''));
+        $first = strtolower($segs[0] ?? '');
+        $n = count($segs);
+        $isId = fn ($v) => is_string($v) && ctype_digit($v) && strlen($v) <= 10;
+        if ($n === 2 && $isId($segs[1])) {
+            $map = ['jobs' => \App\Models\JobPost::class, 'recipes' => \App\Models\RecipePost::class, 'events' => \App\Models\Event::class,
+                'qa' => \App\Models\QaPost::class, 'clubs' => \App\Models\Club::class, 'groupbuy' => \App\Models\GroupBuy::class];
+            if (isset($map[$first])) return [$map[$first], (int) $segs[1]];
+        }
+        if ($n === 3 && $first === 'community' && $isId($segs[2])) return [\App\Models\Post::class, (int) $segs[2]];
+        if ($n === 3 && $first === 'money' && $segs[1] === 'post' && $isId($segs[2])) return [\App\Models\MoneyPost::class, (int) $segs[2]];
+        return null;
+    }
+
+    /**
+     * 상세 글의 검색용 제목·설명을 DB 에서 읽는다. 반환: null(상세 주소가 아님/오류) · ['missing'=>true](글이 없음 → 서버가 404) ·
+     * ['title','description','noindex'](글이 있음). 숨김·비활성 글은 noindex. 어떤 오류가 나도 null 이라 기존 메뉴별 문구로 돌아간다.
+     */
+    public static function detail(string $path): ?array
+    {
+        try {
+            $t = self::detailTarget($path);
+            if (!$t) return null;
+            [$model, $id] = $t;
+            $row = $model::query()->find($id);
+            if (!$row) return ['missing' => true];
+            $title = (string) ($row->title ?? $row->name ?? '');
+            $body = (string) ($row->content ?? $row->description ?? '');
+            $body = html_entity_decode(strip_tags((string) preg_replace('#<(br|/p|/div|/li)[^>]*>#i', ' ', $body)), ENT_QUOTES, 'UTF-8');
+            $hidden = (isset($row->is_hidden) && $row->is_hidden) || (isset($row->is_active) && !$row->is_active)
+                || (isset($row->is_public) && !$row->is_public) || (isset($row->is_approved) && !$row->is_approved);
+            return ['title' => self::clip($title, 70), 'description' => self::clip($body, 155), 'noindex' => $hidden];
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
     private static function clip(string $s, int $max): string
     {
         $s = trim(preg_replace('/\s+/u', ' ', $s));
@@ -98,7 +139,7 @@ class SeoHead
     }
 
     /** 순수 계산: 설정($s)·요청 경로·사이트 주소 → 태그에 들어갈 값 */
-    public static function build(array $s, string $path, string $origin): array
+    public static function build(array $s, string $path, string $origin, ?array $detail = null): array
     {
         $origin = rtrim($origin, '/');
         $path = (string) preg_replace('/[?#].*$/s', '', $path);   // 주소의 ?검색어·#해시는 canonical 에 넣지 않는다
@@ -118,6 +159,11 @@ class SeoHead
             $desc = $sectionDesc;
         }
 
+        if ($detail) {   // 상세 글: 그 글의 제목·본문 앞부분을 쓴다(없으면 위의 메뉴별 문구 그대로)
+            if (($detail['title'] ?? '') !== '') $title = $detail['title'] . ' | ' . self::SHORT_NAME;
+            if (($detail['description'] ?? '') !== '') $desc = $detail['description'];
+        }
+
         $logo = self::abs($s['logo_url'] ?? null, $origin);
         $image = self::abs($s['seo_og_image'] ?? null, $origin) ?: $logo;
 
@@ -126,7 +172,7 @@ class SeoHead
             'description' => self::clip($desc, 300),
             'keywords' => self::clip((string) ($s['meta_keywords'] ?? ''), 500),
             'canonical' => $origin . ($isHome ? '/' : '/' . implode('/', $segs)),
-            'noindex' => in_array($first, self::NOINDEX, true) || !self::isKnownPath($path),
+            'noindex' => in_array($first, self::NOINDEX, true) || !self::isKnownPath($path) || !empty($detail['noindex']),
             'site_name' => $siteName,
             'image' => $image,
             'logo' => $logo,
@@ -190,7 +236,7 @@ class SeoHead
             });
             $path = $request ? '/' . ltrim((string) $request->path(), '/') : '/';
             $origin = rtrim((string) config('app.url'), '/') ?: ($request ? $request->getSchemeAndHttpHost() : '');
-            return self::render(self::build(is_array($s) ? $s : [], $path, $origin));
+            return self::render(self::build(is_array($s) ? $s : [], $path, $origin, self::detail($path)));
         } catch (\Throwable $e) {
             return '    <title>' . self::e(self::DEFAULT_TITLE) . "</title>\n    <meta name=\"description\" content=\"" . self::e(self::DEFAULT_DESCRIPTION) . "\">\n";
         }
