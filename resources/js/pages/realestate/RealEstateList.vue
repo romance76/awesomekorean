@@ -73,29 +73,29 @@
 
       <div class="flex items-center gap-2 flex-wrap">
         <!-- 렌트/매매/룸메이트 세그먼트 -->
-        <div class="flex bg-gray-100 rounded-xl p-1">
+        <div class="flex bg-gray-100 rounded-lg p-0.5">
           <button v-for="t in reTypeTabs" :key="t.value"
             @click="changeReType(t.value)"
-            :class="['px-3 py-1.5 text-xs font-bold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1',
+            :class="['px-3 py-[5px] text-xs font-bold rounded-md transition-colors whitespace-nowrap flex items-center gap-1',
               reType===t.value ? `${t.activeBg} bg-white shadow-sm` : 'text-ink-muted hover:text-ink']">
             <AppIcon :name="t.icon" :size="13" /> {{ t.label }}
           </button>
         </div>
 
         <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
-        <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto px-2 py-1.5 pr-8 text-xs font-semibold bg-amber-50">
+        <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto bg-amber-50 act-input">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
             <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
           </optgroup>
         </select>
-        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="input-soft w-auto px-2 py-1.5 pr-8 text-xs">
+        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="input-soft w-auto act-input">
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft px-3 py-1.5 text-sm w-40" />
-          <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 act-input" />
+          <button type="submit" class="btn-primary act-btn">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/realestate/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
       </div>

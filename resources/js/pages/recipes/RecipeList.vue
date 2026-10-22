@@ -72,8 +72,8 @@
       </GroupTitle>
       <div class="flex items-center gap-2 flex-wrap">
         <form @submit.prevent="onSearch" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
-          <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 act-input" />
+          <button type="submit" class="btn-primary act-btn">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/recipes/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />내 레시피 등록</RouterLink>
       </div>
@@ -118,7 +118,7 @@
           <!-- 정렬 (찜 탭 아닐 때만) -->
           <div v-if="!showFavorites" class="flex gap-1 items-center">
             <button v-if="sort === 'random'" @click="reshuffle" class="btn-soft px-2.5 py-1 text-xs rounded-full font-bold" title="새로 섞기"><AppIcon name="refresh" :size="12" />섞기</button>
-            <select v-model="sort" @change="onSortChange" class="input-soft w-auto pl-2.5 pr-8 py-1 text-xs">
+            <select v-model="sort" @change="onSortChange" class="input-soft w-auto act-input">
               <option value="random">🎲 랜덤 (기본)</option>
               <option value="rating">⭐ 별점 높은 순</option>
               <option value="popular">👁 많이 본 순</option>

@@ -34,8 +34,8 @@
                 @if ($activeCategory)
                     <input type="hidden" name="category" value="{{ $activeCategory }}">
                 @endif
-                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft flex-1 text-xs py-2">
-                <button type="submit" class="btn-primary text-xs px-3 py-2">검색</button>
+                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft flex-1 act-input">
+                <button type="submit" class="btn-primary act-btn">검색</button>
             </form>
             @if ($categories)
             <div class="flex gap-1.5 overflow-x-auto scrollbar-hide mt-2">
@@ -53,8 +53,8 @@
                 @if ($activeCategory)
                     <input type="hidden" name="category" value="{{ $activeCategory }}">
                 @endif
-                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft w-48 text-xs py-1.5">
-                <button type="submit" class="btn-primary px-4 py-2">검색</button>
+                <input type="text" name="q" value="{{ $search }}" placeholder="정보 검색..." class="input-soft w-48 act-input">
+                <button type="submit" class="btn-primary act-btn">검색</button>
             </form>
         </div>
 

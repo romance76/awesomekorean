@@ -10,21 +10,21 @@
 
       <div class="flex items-center gap-2 flex-wrap">
         <!-- 구인/구직 세그먼트 -->
-        <div class="flex bg-gray-100 rounded-xl p-1">
+        <div class="flex bg-gray-100 rounded-lg p-0.5">
           <button @click="postType = 'hiring'; loadPage()"
-            :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+            :class="['flex items-center gap-1 px-3 py-[5px] text-xs font-semibold rounded-md transition whitespace-nowrap',
               postType === 'hiring' ? 'bg-white text-amber-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
             <AppIcon name="briefcase" :size="13" />구인
           </button>
           <button @click="postType = 'seeking'; loadPage()"
-            :class="['flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-lg transition whitespace-nowrap',
+            :class="['flex items-center gap-1 px-3 py-[5px] text-xs font-semibold rounded-md transition whitespace-nowrap',
               postType === 'seeking' ? 'bg-white text-blue-600 shadow-sm' : 'text-ink-muted hover:text-ink']">
             <AppIcon name="user" :size="13" />구직
           </button>
         </div>
 
         <select v-model="selectedCityIdx" @change="onCityChange"
-          class="input-soft w-auto px-2.5 py-1.5 pr-8 text-xs font-semibold">
+          class="input-soft w-auto act-input">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
@@ -32,12 +32,12 @@
           </optgroup>
         </select>
         <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()"
-          class="input-soft w-auto px-2 py-1.5 pr-7 text-xs">
+          class="input-soft w-auto act-input">
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
-          <button type="submit" class="btn-primary px-3 py-1.5 rounded-lg text-xs">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 act-input" />
+          <button type="submit" class="btn-primary act-btn">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/jobs/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>
       </div>

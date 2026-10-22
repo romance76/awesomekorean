@@ -64,19 +64,19 @@
       </GroupTitle>
       <div class="flex items-center gap-2 flex-wrap">
         <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
-        <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs font-semibold">
+        <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft w-auto act-input">
           <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
           <option value="-1">🇺🇸 전국</option>
           <optgroup label="한인 밀집 도시">
             <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
           </optgroup>
         </select>
-        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs">
+        <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadPage()" class="input-soft w-auto act-input">
           <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
         </select>
         <form @submit.prevent="loadPage()" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
-          <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 act-input" />
+          <button type="submit" class="btn-primary act-btn">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/dashboard?tab=groupbuy" class="btn-secondary act-btn"><AppIcon name="list" :size="14" />내 공구 관리</RouterLink>
         <RouterLink v-if="auth.isLoggedIn" to="/groupbuy/create" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />등록</RouterLink>

@@ -8,8 +8,8 @@
         {{ pageTitle }}
       </h1>
       <form @submit.prevent="load(1)" class="flex gap-1">
-        <input v-model="search" type="text" placeholder="검색..." class="input-soft w-28 py-1.5 text-xs" />
-        <button type="submit" class="btn-primary text-xs px-3 py-1.5">검색</button>
+        <input v-model="search" type="text" placeholder="검색..." class="input-soft w-28 act-input" />
+        <button type="submit" class="btn-primary act-btn">검색</button>
       </form>
     </div>
     <div class="lg:hidden mb-3"><button @click="goWrite" class="w-full btn-primary py-2 text-sm font-bold">내 리뷰 쓰기</button></div>
@@ -22,10 +22,10 @@
       </h1>
       <div class="flex gap-2 items-center">
         <form @submit.prevent="load(1)" class="flex gap-1">
-          <input v-model="search" type="text" placeholder="상품 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
-          <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+          <input v-model="search" type="text" placeholder="상품 검색..." class="input-soft w-40 act-input" />
+          <button type="submit" class="btn-primary act-btn">검색</button>
         </form>
-        <button @click="goWrite" class="btn-primary px-3 py-1.5 text-xs font-bold">내 리뷰 쓰기</button>
+        <button @click="goWrite" class="btn-primary act-btn">내 리뷰 쓰기</button>
       </div>
     </div>
 

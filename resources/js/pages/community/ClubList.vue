@@ -78,20 +78,20 @@
         </div>
         <template v-if="type !== 'online'">
           <AppIcon name="map-pin" :size="16" class="text-amber-600" />
-          <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft !w-auto !pl-3 !py-1.5 !text-xs font-semibold">
+          <select v-model="selectedCityIdx" @change="onCityChange" class="input-soft !w-auto act-input">
             <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
             <option value="-1">🇺🇸 전국</option>
             <optgroup label="한인 밀집 도시">
               <option v-for="(c, i) in koreanCities" :key="i" :value="i">{{ c.label }}</option>
             </optgroup>
           </select>
-          <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="input-soft !w-auto !pl-3 !py-1.5 !text-xs">
+          <select v-if="selectedCityIdx !== '-1' && selectedCityIdx !== -1" v-model="radius" @change="loadClubs()" class="input-soft !w-auto act-input">
             <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
           </select>
         </template>
         <form @submit.prevent="loadClubs()" class="flex gap-1.5">
-          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
-          <button type="submit" class="btn-primary !px-3 !py-1.5 !text-xs">검색</button>
+          <input v-model="search" type="text" placeholder="검색..." class="input-soft w-40 act-input" />
+          <button type="submit" class="btn-primary act-btn">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/clubs/create" class="btn-primary act-btn"><AppIcon name="plus" :size="14" />동호회 만들기</RouterLink>
       </div>

@@ -69,8 +69,8 @@
       </GroupTitle>
       <div class="flex items-center gap-2">
         <form @submit.prevent="loadQa()" class="flex items-center gap-1.5">
-          <input v-model="searchQ" type="search" placeholder="질문 검색..." class="input-soft w-44 text-xs py-1.5" />
-          <button type="submit" class="btn-secondary px-3 py-1.5 text-xs">검색</button>
+          <input v-model="searchQ" type="search" placeholder="질문 검색..." class="input-soft w-44 act-input" />
+          <button type="submit" class="btn-secondary act-btn">검색</button>
         </form>
         <RouterLink v-if="auth.isLoggedIn" to="/qa/write" class="btn-primary act-btn"><AppIcon name="edit" :size="14" />질문하기</RouterLink>
       </div>

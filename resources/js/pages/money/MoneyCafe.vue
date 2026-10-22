@@ -37,12 +37,12 @@
             <button v-for="k in kinds" :key="k.v" type="button" @click="setKind(k.v)" class="px-3 py-1 rounded-lg text-[13px] font-semibold"
               :class="kind === k.v ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'">{{ k.l }}</button>
           </div>
-          <select v-model="sort" @change="load(1)" class="input-soft w-auto text-xs py-1.5">
+          <select v-model="sort" @change="load(1)" class="input-soft w-auto act-input">
             <option value="">최신순</option><option value="views">조회순</option><option value="comments">답글순</option>
           </select>
           <form @submit.prevent="load(1)" class="ml-auto flex gap-1.5 min-w-0">
-            <input v-model="search" type="search" placeholder="제목 검색" class="input-soft w-36 sm:w-48 text-xs py-1.5" />
-            <button type="submit" class="btn-secondary px-3 py-1.5 text-xs">검색</button>
+            <input v-model="search" type="search" placeholder="제목 검색" class="input-soft w-36 sm:w-48 act-input" />
+            <button type="submit" class="btn-secondary act-btn">검색</button>
           </form>
         </div>
 

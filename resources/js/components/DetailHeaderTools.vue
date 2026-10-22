@@ -7,20 +7,20 @@
 <div class="flex items-center gap-2 flex-nowrap whitespace-nowrap">
   <template v-if="location">
     <span class="text-amber-600"><AppIcon name="map-pin" :size="15" /></span>
-    <select v-model="idx" @change="onCity" aria-label="지역" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs font-semibold">
+    <select v-model="idx" @change="onCity" aria-label="지역" class="input-soft w-auto act-input">
       <option value="-2" v-if="myCity">📌 내 위치 ({{ myCity.label || myCity.name }})</option>
       <option value="-1">🇺🇸 전국</option>
       <optgroup label="한인 밀집 도시">
         <option v-for="(c, i) in koreanCities" :key="i" :value="String(i)">{{ c.label }}</option>
       </optgroup>
     </select>
-    <select v-if="idx !== '-1'" v-model="rad" @change="goList(false)" aria-label="반경" class="input-soft w-auto pl-2.5 pr-8 py-1.5 text-xs">
+    <select v-if="idx !== '-1'" v-model="rad" @change="goList(false)" aria-label="반경" class="input-soft w-auto act-input">
       <option value="10">10mi</option><option value="30">30mi</option><option value="50">50mi</option><option value="100">100mi</option>
     </select>
   </template>
   <form v-if="search" @submit.prevent="goList(true)" class="flex gap-1">
     <input v-model="q" type="text" :placeholder="placeholder" aria-label="검색" class="input-soft w-40 px-3 py-1.5 text-sm" />
-    <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+    <button type="submit" class="btn-primary act-btn">검색</button>
   </form>
   <RouterLink v-if="writePath && auth.isLoggedIn" :to="writePath" class="btn-primary px-3 py-1.5 text-xs whitespace-nowrap"><AppIcon name="edit" :size="13" />{{ writeLabel }}</RouterLink>
 </div>

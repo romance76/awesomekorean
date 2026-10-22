@@ -71,10 +71,10 @@
       </GroupTitle>
       <div class="flex items-center gap-2">
         <form @submit.prevent="loadPosts()" class="flex items-center gap-1.5">
-          <input v-model="searchQ" type="search" placeholder="글 검색..." class="input-soft w-44 text-xs py-1.5" />
-          <button type="submit" class="btn-secondary px-3 py-1.5 text-xs">검색</button>
+          <input v-model="searchQ" type="search" placeholder="글 검색..." class="input-soft w-44 act-input" />
+          <button type="submit" class="btn-secondary act-btn">검색</button>
         </form>
-        <select v-model="sortBy" @change="loadPosts()" class="input-soft w-auto text-xs py-1.5">
+        <select v-model="sortBy" @change="loadPosts()" class="input-soft w-auto act-input">
           <option value="latest">최신순</option>
           <option value="popular">인기순</option>
           <option value="views">조회순</option>

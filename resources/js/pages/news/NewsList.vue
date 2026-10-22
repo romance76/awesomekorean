@@ -56,8 +56,8 @@
         </RouterLink>
       </GroupTitle>
       <form @submit.prevent="loadNews()" class="flex gap-1">
-        <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="input-soft w-40 px-3 py-1.5 text-sm" />
-        <button type="submit" class="btn-primary px-3 py-1.5 text-xs">검색</button>
+        <input v-model="searchQ" type="text" placeholder="뉴스 검색..." class="input-soft w-40 act-input" />
+        <button type="submit" class="btn-primary act-btn">검색</button>
       </form>
     </div>
 
