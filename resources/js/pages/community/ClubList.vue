@@ -146,10 +146,10 @@
         </div>
         <div class="flex items-center gap-3 mb-3">
           <!-- 동호회 대표 이미지가 있으면 그 이미지, 없으면(또는 못 불러오면) 기본 사람 아이콘 -->
-          <div v-if="clubImg(club)" class="w-12 h-12 shrink-0 rounded-xl overflow-hidden bg-white border border-gray-100">
+          <div v-if="clubImg(club)" class="w-16 h-16 shrink-0 rounded-2xl overflow-hidden bg-white border border-gray-100">
             <img :src="clubImg(club)" alt="" loading="lazy" class="w-full h-full object-cover" @error="failedImg = new Set(failedImg).add(club.id)" />
           </div>
-          <div v-else class="icon-chip w-12 h-12 bg-teal-50 text-teal-600"><AppIcon name="users" :size="24" /></div>
+          <div v-else class="icon-chip w-16 h-16 bg-teal-50 text-teal-600"><AppIcon name="users" :size="30" /></div>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-bold text-ink truncate">{{ club.name }}</div>
             <div class="text-xs text-ink-muted">{{ club.category }} · {{ club.type === 'online' ? '온라인' : '지역' }}</div>
