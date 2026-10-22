@@ -125,6 +125,7 @@
                 <td class="px-3 py-2.5 text-center">
                   <span v-if="c.verified" class="text-[11px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-semibold" :title="`회원 #${c.owner_user_id}`">인증됨</span>
                   <span v-else class="text-[11px] text-ink-faint">-</span>
+                  <div v-if="c.outreach_sent_at" class="text-[10.5px] text-blue-600 mt-0.5 whitespace-nowrap" title="안내 메시지를 보낸 날">안내 {{ c.outreach_via === 'email' ? '메일' : 'DM' }} {{ String(c.outreach_sent_at).slice(5, 10) }}</div>
                 </td>
                 <td class="px-3 py-2.5 text-center text-xs text-ink-faint">{{ c.view_count || 0 }}</td>
                 <td class="px-3 py-2.5 text-[11px] text-ink-faint whitespace-nowrap">{{ String(c.created_at || '').slice(0, 10) }}</td>
@@ -133,6 +134,7 @@
                     <button v-if="c.status !== 'approved'" @click="act(c, 'approve')" class="px-2 py-1 rounded-lg text-[11.5px] font-bold bg-green-500 text-white hover:bg-green-600">승인</button>
                     <button v-if="c.status !== 'rejected'" @click="reject(c)" class="px-2 py-1 rounded-lg text-[11.5px] font-bold bg-gray-100 text-ink-light hover:bg-gray-200">거절</button>
                     <button @click="update(c, { is_featured: !c.is_featured })" class="px-2 py-1 rounded-lg text-[11.5px] font-bold" :class="c.is_featured ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-ink-light hover:bg-gray-200'">{{ c.is_featured ? '추천 해제' : '추천' }}</button>
+                    <button v-if="c.status === 'approved' && !c.verified" @click="openOutreach(c)" class="px-2 py-1 rounded-lg text-[11.5px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100" title="이 채널에 안내 메시지 보내기">안내</button>
                     <button @click="act(c, 'resync')" class="px-2 py-1 rounded-lg text-[11.5px] font-bold bg-gray-100 text-ink-light hover:bg-gray-200" title="유튜브에서 정보·영상 새로 읽기">새로 읽기</button>
                     <button v-if="c.verified" @click="unverify(c)" class="px-2 py-1 rounded-lg text-[11.5px] font-bold bg-gray-100 text-ink-light hover:bg-gray-200" title="잘못 인증된 경우 주인 인증을 풀어요">인증 해제</button>
                     <button @click="remove(c)" class="px-2 py-1 rounded-lg text-[11.5px] font-bold text-red-500 hover:bg-red-50">삭제</button>
@@ -175,6 +177,66 @@
       </div>
     </div>
 
+    <!-- 안내 메시지: 한글·영어 × DM·이메일 문구 관리 + 채널에 보내기 -->
+    <div v-else-if="tab === 'outreach'">
+      <div v-if="!o" class="text-center py-8 text-ink-muted">불러오는 중...</div>
+      <div v-else class="grid lg:grid-cols-2 gap-4">
+        <!-- 왼쪽: 문구 편집 -->
+        <div class="card p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-sm font-bold text-ink">문구 관리</div>
+            <button @click="saveOutreach" :disabled="busy" class="btn-primary px-4 py-1.5 text-xs">저장</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label class="block"><span class="block text-[11.5px] text-ink-muted mb-0.5">보내는 사람 이름</span>
+              <input v-model="o.sender_name" type="text" maxlength="60" class="input-soft w-full px-3 py-1.5" placeholder="예: 홍길동" /></label>
+            <label class="block"><span class="block text-[11.5px] text-ink-muted mb-0.5">연락 이메일 <span class="text-ink-faint">(답장 받을 주소)</span></span>
+              <input v-model="o.contact_email" type="email" class="input-soft w-full px-3 py-1.5" :placeholder="o.default_contact || 'name@example.com'" /></label>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button v-for="t in typeList" :key="t.key" @click="editType = t.key" class="px-3 py-1.5 rounded-full text-[12.5px] border transition-colors"
+              :class="editType === t.key ? 'bg-amber-500 text-white border-amber-500 font-bold' : 'bg-white text-ink-light border-gray-200'">{{ t.label }}</button>
+          </div>
+          <label v-if="isEmail(editType)" class="block"><span class="block text-[11.5px] text-ink-muted mb-0.5">메일 제목</span>
+            <input v-model="o.templates[editType].subject" type="text" maxlength="200" class="input-soft w-full px-3 py-1.5" /></label>
+          <label class="block"><span class="block text-[11.5px] text-ink-muted mb-0.5">내용</span>
+            <textarea v-model="o.templates[editType].body" rows="16" class="input-soft w-full px-3 py-2 text-[13px] leading-relaxed"></textarea></label>
+          <p class="text-[11.5px] text-ink-faint">보낼 때 자동으로 바뀌는 칸: <code>{채널명}</code> <code>{채널주소}</code> <code>{보내는이름}</code> <code>{연락이메일}</code> · 영어 문구: <code>{channel}</code> <code>{url}</code> <code>{name}</code> <code>{email}</code></p>
+        </div>
+
+        <!-- 오른쪽: 채널에 보내기 -->
+        <div class="card p-4 space-y-3">
+          <div class="text-sm font-bold text-ink">채널에 보내기 <span class="font-normal text-ink-muted">— 왼쪽에서 고른 문구({{ typeLabel(editType) }})로 채워져요</span></div>
+          <select v-model="sendChannelId" class="input-soft w-full px-3 py-1.5">
+            <option value="">채널을 고르세요</option>
+            <option v-for="c in sendChannels" :key="c.id" :value="c.id">{{ c.title }}{{ c.verified ? ' (인증됨)' : '' }}{{ c.outreach_sent_at ? ' · 안내함' : '' }}</option>
+          </select>
+          <div v-if="sendChannel?.outreach_sent_at" class="text-[12px] rounded-lg bg-blue-50 text-blue-700 px-3 py-2">
+            이미 안내했어요 ({{ sendChannel.outreach_via === 'email' ? '메일' : 'DM' }} · {{ String(sendChannel.outreach_sent_at).slice(0, 10) }}). 또 보내기 전에 확인하세요.
+            <button @click="markSent(false)" class="ml-2 underline">표시 지우기</button>
+          </div>
+          <template v-if="sendChannel">
+            <input v-if="isEmail(editType)" v-model.trim="sendTo" type="email" class="input-soft w-full px-3 py-1.5" placeholder="받는 사람 이메일 (채널 '정보' 탭의 비즈니스 이메일)" />
+            <input v-if="isEmail(editType)" v-model="previewSubject" type="text" class="input-soft w-full px-3 py-1.5" placeholder="제목" />
+            <textarea v-model="previewBody" rows="14" class="input-soft w-full px-3 py-2 text-[13px] leading-relaxed"></textarea>
+            <div class="flex flex-wrap items-center gap-2">
+              <button @click="copyText" class="btn-secondary px-3 py-1.5 text-xs">{{ copied ? '복사됨' : '내용 복사' }}</button>
+              <template v-if="isEmail(editType)">
+                <button @click="openMailApp" class="btn-secondary px-3 py-1.5 text-xs" title="내 메일 프로그램(Gmail 등)이 열려요. 도메인 평판에 안전해요">메일 앱으로 열기</button>
+                <button @click="sendNow" :disabled="busy" class="btn-primary px-3 py-1.5 text-xs" title="사이트 메일로 바로 발송해요">사이트에서 바로 발송</button>
+              </template>
+              <a v-else :href="`https://www.youtube.com/channel/${sendChannel.channel_id}`" target="_blank" rel="noopener noreferrer" class="btn-secondary px-3 py-1.5 text-xs">유튜브 채널 열기 ↗</a>
+              <button @click="markSent(true)" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100">보냄으로 표시</button>
+            </div>
+            <p class="text-[11.5px] text-ink-faint">
+              유튜브 DM은 사이트가 대신 보낼 수 없어서 <b>복사해 붙여 넣은 뒤 "보냄으로 표시"</b>를 눌러 기록해요.
+              <template v-if="isEmail(editType)">모르는 사람에게 처음 보내는 메일은 <b>"메일 앱으로 열기"</b>가 더 안전해요. 사이트에서 바로 발송은 하루 {{ o.daily_cap }}통까지(오늘 {{ o.sent_today }}통 보냄), 답장은 연락 이메일로 가요.</template>
+            </p>
+          </template>
+        </div>
+      </div>
+    </div>
+
     <!-- 분야 -->
     <div v-else-if="tab === 'cats'">
       <div class="text-sm text-ink-muted mb-3">공개 중인 채널의 분야별 개수예요. 누르면 그 분야의 채널 목록으로 가요. 채널의 분야는 목록 표에서 바꿀 수 있어요.</div>
@@ -205,7 +267,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -232,6 +294,7 @@ const addResults = ref([])
 const tabs = computed(() => [
   { key: 'list', label: '채널', icon: 'video' },
   { key: 'pending', label: '승인 대기', icon: 'clock', badge: counts.value.pending || 0 },
+  { key: 'outreach', label: '안내 메시지', icon: 'message-circle' },
   { key: 'cats', label: '분야', icon: 'list' },
   { key: 'add', label: '직접 등록', icon: 'plus' },
 ])
@@ -260,7 +323,103 @@ async function load(p = 1) {
   } catch (e) { say(e.response?.data?.message || '목록을 불러오지 못했어요.', false) }
   finally { loading.value = false }
 }
-function setTab(k) { tab.value = k; msg.value = ''; if (k === 'list' || k === 'pending' || k === 'cats') load(1) }
+function setTab(k) {
+  tab.value = k; msg.value = ''
+  if (k === 'list' || k === 'pending' || k === 'cats') load(1)
+  if (k === 'outreach') loadOutreach()
+}
+
+// ── 안내 메시지: 문구 4종 관리 + 채널에 보내기 ──
+const typeList = [
+  { key: 'ko_dm', label: '한글 DM' }, { key: 'ko_email', label: '한글 이메일' },
+  { key: 'en_dm', label: 'English DM' }, { key: 'en_email', label: 'English Email' },
+]
+const o = ref(null)
+const editType = ref('ko_dm')
+const sendChannels = ref([])
+const sendChannelId = ref('')
+const sendTo = ref('')
+const previewSubject = ref('')
+const previewBody = ref('')
+const copied = ref(false)
+const sendChannel = computed(() => sendChannels.value.find(c => c.id === sendChannelId.value) || null)
+function isEmail(t) { return t.endsWith('_email') }
+function typeLabel(t) { return typeList.find(x => x.key === t)?.label || '' }
+
+function fill(text) {
+  const c = sendChannel.value
+  if (!c || !o.value) return text
+  const url = `${o.value.site_url}/youtubers/${c.id}`
+  const name = o.value.sender_name || ''
+  const email = o.value.contact_email || o.value.default_contact || ''
+  return String(text || '')
+    .replaceAll('{채널명}', c.title).replaceAll('{channel}', c.title)
+    .replaceAll('{채널주소}', url).replaceAll('{url}', url)
+    .replaceAll('{보내는이름}', name).replaceAll('{name}', name)
+    .replaceAll('{연락이메일}', email).replaceAll('{email}', email)
+}
+function refreshPreview() {
+  const t = o.value?.templates?.[editType.value]
+  if (!t) return
+  previewSubject.value = fill(t.subject)
+  previewBody.value = fill(t.body)
+}
+watch([sendChannelId, editType, () => o.value?.templates?.[editType.value]?.body, () => o.value?.templates?.[editType.value]?.subject, () => o.value?.sender_name, () => o.value?.contact_email], refreshPreview)
+
+async function loadOutreach() {
+  try {
+    const { data } = await axios.get('/api/admin/youtubers/outreach')
+    o.value = data.data
+    const r = await axios.get('/api/admin/youtubers', { params: { status: 'approved', per_page: 100 } })
+    sendChannels.value = r.data.data?.items || []
+    refreshPreview()
+  } catch (e) { say(e.response?.data?.message || '안내 문구를 불러오지 못했어요.', false) }
+}
+async function saveOutreach() {
+  busy.value = true
+  try {
+    const { data } = await axios.put('/api/admin/youtubers/outreach', { sender_name: o.value.sender_name, contact_email: o.value.contact_email, templates: o.value.templates })
+    say(data.message || '저장했어요.')
+    o.value = { ...o.value, ...data.data }
+  } catch (e) { say(e.response?.data?.message || '저장하지 못했어요.', false) }
+  finally { busy.value = false }
+}
+function openOutreach(c) {
+  sendChannelId.value = c.id
+  tab.value = 'outreach'
+  msg.value = ''
+  loadOutreach().then(() => { sendChannelId.value = c.id })
+}
+async function copyText() {
+  const text = isEmail(editType.value) ? `${previewSubject.value}\n\n${previewBody.value}` : previewBody.value
+  try { await navigator.clipboard.writeText(text); copied.value = true; setTimeout(() => { copied.value = false }, 1500) } catch { say('복사하지 못했어요. 글을 직접 선택해서 복사해 주세요.', false) }
+}
+function openMailApp() {
+  const url = `mailto:${encodeURIComponent(sendTo.value)}?subject=${encodeURIComponent(previewSubject.value)}&body=${encodeURIComponent(previewBody.value)}`
+  if (url.length > 7000) { say('내용이 길어서 메일 앱으로 바로 넘기기 어려워요. "내용 복사"를 눌러 메일 앱에 붙여 넣어 주세요.', false); return }
+  window.location.href = url
+}
+async function markSent(sent) {
+  if (!sendChannel.value) return
+  try {
+    const { data } = await axios.post(`/api/admin/youtubers/${sendChannel.value.id}/outreach/mark`, { sent, via: isEmail(editType.value) ? 'email' : 'dm' })
+    say(data.message || '저장했어요.')
+    await loadOutreach()
+    load(page.value)
+  } catch (e) { say(e.response?.data?.message || '표시하지 못했어요.', false) }
+}
+async function sendNow() {
+  if (!sendTo.value) return say('받는 사람 이메일을 입력해 주세요.', false)
+  if (!window.confirm(`사이트 메일로 ${sendTo.value} 에게 바로 발송할까요?\n(모르는 사람에게 처음 보내는 메일은 '메일 앱으로 열기'가 더 안전해요)`)) return
+  busy.value = true
+  try {
+    const { data } = await axios.post(`/api/admin/youtubers/${sendChannel.value.id}/outreach/send`, { to: sendTo.value, subject: previewSubject.value, body: previewBody.value })
+    say(data.message || '보냈어요.')
+    await loadOutreach()
+    load(page.value)
+  } catch (e) { say(e.response?.data?.message || '메일을 보내지 못했어요.', false) }
+  finally { busy.value = false }
+}
 function goCategory(k) { category.value = k; status.value = 'approved'; tab.value = 'list'; load(1) }
 
 async function call(fn, okText) {

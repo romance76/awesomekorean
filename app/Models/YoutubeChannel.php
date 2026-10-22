@@ -13,10 +13,11 @@ class YoutubeChannel extends Model
 
     protected $fillable = ['user_id', 'channel_id', 'handle', 'title', 'description', 'intro', 'thumbnail_url', 'banner_url', 'category', 'subscriber_count',
         'video_count', 'status', 'reject_reason', 'is_featured', 'featured_until', 'latest_video_at', 'last_synced_at', 'view_count',
-        'owner_user_id', 'verified_at', 'claim_user_id', 'claim_code', 'claim_requested_at', 'bumped_at'];
+        'owner_user_id', 'verified_at', 'claim_user_id', 'claim_code', 'claim_requested_at', 'bumped_at',
+        'outreach_sent_at', 'outreach_via', 'outreach_to'];
 
     protected $casts = ['is_featured' => 'boolean', 'featured_until' => 'datetime', 'latest_video_at' => 'datetime', 'last_synced_at' => 'datetime',
-        'verified_at' => 'datetime', 'claim_requested_at' => 'datetime', 'bumped_at' => 'datetime'];
+        'verified_at' => 'datetime', 'claim_requested_at' => 'datetime', 'bumped_at' => 'datetime', 'outreach_sent_at' => 'datetime'];
 
     public function videos()
     {

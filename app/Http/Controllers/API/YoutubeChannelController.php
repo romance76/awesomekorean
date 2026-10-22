@@ -235,6 +235,72 @@ class YoutubeChannelController extends Controller
         return response()->json(['success' => true, 'message' => '저장했어요.']);
     }
 
+    // ───────── 안내 메시지 (관리자) ─────────
+
+    public function outreachGet()
+    {
+        $o = \App\Support\YoutubeOutreach::get();
+        $o['site_url'] = rtrim((string) config('app.url'), '/');
+        $o['default_contact'] = (string) \App\Models\SiteSetting::where('key', 'contact_email')->value('value');
+        $o['sent_today'] = (int) \Illuminate\Support\Facades\Cache::get($this->outreachCapKey(), 0);
+        $o['daily_cap'] = self::OUTREACH_DAILY_CAP;
+        return response()->json(['success' => true, 'data' => $o]);
+    }
+
+    public function outreachSave(Request $request)
+    {
+        [$saved, $err] = \App\Support\YoutubeOutreach::save($request->all());
+        if (!$saved) return response()->json(['success' => false, 'message' => $err], 422);
+        return response()->json(['success' => true, 'message' => '저장했어요.', 'data' => $saved]);
+    }
+
+    private const OUTREACH_DAILY_CAP = 20;
+
+    private function outreachCapKey(): string
+    {
+        return 'yt_outreach_sent_' . now()->toDateString();
+    }
+
+    /** 이메일 직접 발송 — 사이트 메일(Resend)로 보낸다. 하루 20통까지, 답장은 연락 이메일로 오게 한다. */
+    public function outreachSend(Request $request, $id)
+    {
+        $c = YoutubeChannel::findOrFail($id);
+        $data = $request->validate(['to' => 'required|email:rfc|max:190', 'subject' => 'required|string|max:200', 'body' => 'required|string|max:6000'], [
+            'to.required' => '받는 사람 이메일을 입력해 주세요.', 'to.email' => '받는 사람 이메일 형식이 올바르지 않아요.',
+            'subject.required' => '제목을 입력해 주세요.', 'body.required' => '내용을 입력해 주세요.',
+        ]);
+        $cap = $this->outreachCapKey();
+        if ((int) \Illuminate\Support\Facades\Cache::get($cap, 0) >= self::OUTREACH_DAILY_CAP) {
+            return response()->json(['success' => false, 'message' => '하루에 직접 보낼 수 있는 안내 메일은 ' . self::OUTREACH_DAILY_CAP . '통까지예요. 내일 다시 보내거나 "메일 앱으로 열기"를 쓰세요.'], 429);
+        }
+        $o = \App\Support\YoutubeOutreach::get();
+        $reply = $o['contact_email'] !== '' ? $o['contact_email'] : (string) \App\Models\SiteSetting::where('key', 'contact_email')->value('value');
+        try {
+            \Illuminate\Support\Facades\Mail::raw($data['body'], function ($m) use ($data, $reply) {
+                $m->to($data['to'])->subject($data['subject']);
+                if ($reply !== '' && filter_var($reply, FILTER_VALIDATE_EMAIL)) $m->replyTo($reply);
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => '메일을 보내지 못했어요: ' . mb_substr($e->getMessage(), 0, 160)], 500);
+        }
+        \Illuminate\Support\Facades\Cache::put($cap, (int) \Illuminate\Support\Facades\Cache::get($cap, 0) + 1, now()->endOfDay());
+        $c->update(['outreach_sent_at' => now(), 'outreach_via' => 'email', 'outreach_to' => $data['to']]);
+        return response()->json(['success' => true, 'message' => $data['to'] . ' 로 보냈어요.']);
+    }
+
+    /** DM 을 직접 보낸 뒤(또는 메일 앱으로 보낸 뒤) '보냄'으로 표시하거나 표시를 지운다 */
+    public function outreachMark(Request $request, $id)
+    {
+        $c = YoutubeChannel::findOrFail($id);
+        if ($request->boolean('sent', true)) {
+            $via = in_array($request->input('via'), ['dm', 'email'], true) ? $request->input('via') : 'dm';
+            $c->update(['outreach_sent_at' => now(), 'outreach_via' => $via]);
+            return response()->json(['success' => true, 'message' => '보냄으로 표시했어요.']);
+        }
+        $c->update(['outreach_sent_at' => null, 'outreach_via' => null, 'outreach_to' => null]);
+        return response()->json(['success' => true, 'message' => '표시를 지웠어요.']);
+    }
+
     // ───────── 관리자 ─────────
 
     public function adminIndex(Request $request)
@@ -251,6 +317,7 @@ class YoutubeChannelController extends Controller
             'items' => $page->getCollection()->map(fn ($c) => $this->card($c) + [
                 'status' => $c->status, 'channel_id' => $c->channel_id, 'user_id' => $c->user_id, 'reject_reason' => $c->reject_reason,
                 'featured_until' => $c->featured_until, 'last_synced_at' => $c->last_synced_at, 'created_at' => $c->created_at, 'owner_user_id' => $c->owner_user_id,
+                'outreach_sent_at' => $c->outreach_sent_at, 'outreach_via' => $c->outreach_via,
                 'videos' => YoutubeVideo::where('youtube_channel_id', $c->id)->count(), 'view_count' => (int) $c->view_count,
             ])->all(),
             'category_counts' => YoutubeChannel::where('status', 'approved')->selectRaw('category, count(*) as n')->groupBy('category')->pluck('n', 'category'),

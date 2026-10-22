@@ -137,6 +137,10 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers'
     Route::post('/{id}/reject', [$c, 'reject'])->whereNumber('id');
     Route::post('/{id}/resync', [$c, 'resync'])->whereNumber('id');
     Route::post('/{id}/unverify', [$c, 'unverify'])->whereNumber('id');
+    Route::get('/outreach', [$c, 'outreachGet']);                                          // 안내 메시지 문구(한글·영어 × DM·이메일)
+    Route::put('/outreach', [$c, 'outreachSave']);
+    Route::post('/{id}/outreach/send', [$c, 'outreachSend'])->whereNumber('id')->middleware('throttle:20,1');   // 이메일 직접 발송
+    Route::post('/{id}/outreach/mark', [$c, 'outreachMark'])->whereNumber('id');                               // 보냄 표시
     Route::put('/{id}', [$c, 'update'])->whereNumber('id');
     Route::delete('/{id}', [$c, 'destroy'])->whereNumber('id');
 });
