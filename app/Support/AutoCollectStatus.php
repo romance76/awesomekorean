@@ -37,14 +37,14 @@ class AutoCollectStatus
             'marketitems' => ['중고장터(eBay)', '매일 05:45', fn () => \App\Models\MarketItem::where('source', 'scraped')->max('created_at'), 36],
             'events'      => ['지역 행사(Ticketmaster)', '매주 일요일 05:30(애틀랜타)', fn () => \App\Models\Event::where('source', 'ticketmaster')->max('updated_at'), 24 * 9],
             'event_feeds' => ['지역 행사(공식 피드)', '매주 일요일 06:30(애틀랜타)', fn () => \App\Models\Event::where('source', 'feed')->max('updated_at'), 24 * 9],
-            'info'        => ['정보 글(머니+)', '매일 06:15 · 하루 1편, 11개 분야 순서대로 (다음: ' . self::nextInfoCategory() . ')', fn () => \App\Models\InfoPost::max('created_at'), 36],
+            'info'        => ['정보 글(생활정보)', '매일 06:15 · 하루 ' . \App\Console\Commands\TriggerInfoGeneration::DAILY_TARGET . '편, 11개 분야 순서대로 (다음: ' . self::nextInfoCategory() . ')', fn () => \App\Models\InfoPost::max('created_at'), 36],
         ];
     }
 
     private static function nextInfoCategory(): string
     {
         try {
-            return \App\Console\Commands\TriggerInfoGeneration::nextCategory();
+            return implode('·', \App\Console\Commands\TriggerInfoGeneration::nextCategories(\App\Console\Commands\TriggerInfoGeneration::DAILY_TARGET));
         } catch (\Throwable $e) {
             return '-';
         }

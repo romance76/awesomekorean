@@ -84,6 +84,16 @@ class InfoIngestController extends Controller
         ], 201);
     }
 
+    /** 중복 주제를 피하려고 루틴이 기존 글 제목을 보는 목록 (공개·초안 모두, 카테고리로 좁힐 수 있음) */
+    public function titles(Request $request)
+    {
+        $q = InfoPost::query()->orderByDesc('id');
+        $cat = (string) $request->query('category', '');
+        if ($cat !== '' && in_array($cat, InfoPost::CATEGORIES, true)) $q->where('category', $cat);
+        $limit = min(400, max(1, (int) $request->query('limit', 150)));
+        return response()->json(['success' => true, 'data' => $q->limit($limit)->get(['id', 'title', 'slug', 'category', 'is_published', 'published_at'])]);
+    }
+
     public function generationStatus()
     {
         return response()->json($this->readStatus());

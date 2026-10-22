@@ -20,6 +20,8 @@ class TriggerInfoGeneration extends Command
 
     private const SETTING_KEY = 'info_generation_status';
     private const CURSOR_KEY   = 'info_daily_category';
+    /** 하루에 쓰는 글 수 — 카테고리 순서를 이 개수만큼 이어서 배정한다(사용자 결정 2026-10-22: 하루 3편) */
+    public const DAILY_TARGET = 3;
 
     public function handle(): int
     {
@@ -43,26 +45,35 @@ class TriggerInfoGeneration extends Command
             return self::SUCCESS;
         }
 
-        // 하루 1편 — 11개 카테고리를 순서대로 돌아가며 한 개씩 배정(루틴은 status 의 category 로 글을 쓴다)
-        $category = self::nextCategory();
+        // 하루 3편 — 11개 카테고리를 순서대로 돌아가며 3개를 이어서 배정(루틴은 status 의 categories 순서대로 한 편씩 쓴다)
+        $categories = self::nextCategories(self::DAILY_TARGET);
         SiteSetting::updateOrCreate(['key' => self::SETTING_KEY], [
             'value' => json_encode([
-                'status' => 'running', 'completed' => 0, 'target' => 1, 'category' => $category,
+                'status' => 'running', 'completed' => 0, 'target' => count($categories), 'category' => $categories[0], 'categories' => $categories,
                 'requested_by' => '자동 스케줄', 'started_at' => now()->toIso8601String(),
-            ]),
+            ], JSON_UNESCAPED_UNICODE),
             'group' => 'info',
         ]);
-        SiteSetting::updateOrCreate(['key' => self::CURSOR_KEY], ['value' => $category, 'group' => 'info']);
-        $this->info("생성 요청 등록됨(카테고리: {$category}, 1편) — 시간당 체크인 루틴이 실제 생성을 수행함(최대 1시간 내 시작)");
+        SiteSetting::updateOrCreate(['key' => self::CURSOR_KEY], ['value' => end($categories), 'group' => 'info']);
+        $this->info('생성 요청 등록됨(카테고리: ' . implode(', ', $categories) . ', ' . count($categories) . '편) — 정기 루틴이 실제 생성을 수행함');
         return self::SUCCESS;
     }
 
     /** 마지막으로 배정한 카테고리의 다음 것 (기록이 없으면 첫 번째) */
     public static function nextCategory(): string
     {
+        return self::nextCategories(1)[0];
+    }
+
+    /** 마지막으로 배정한 카테고리 다음부터 $n 개(11개를 넘으면 처음으로 돌아감) */
+    public static function nextCategories(int $n): array
+    {
         $list = InfoPost::CATEGORIES;
         $last = SiteSetting::where('key', self::CURSOR_KEY)->value('value');
         $i = array_search($last, $list, true);
-        return $list[$i === false ? 0 : ($i + 1) % count($list)];
+        $start = $i === false ? 0 : ($i + 1) % count($list);
+        $out = [];
+        for ($k = 0; $k < max(1, $n); $k++) $out[] = $list[($start + $k) % count($list)];
+        return $out;
     }
 }

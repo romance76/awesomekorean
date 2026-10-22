@@ -158,6 +158,7 @@ Route::get('/news/{id}', [NewsController::class, 'show']);
 // '정보' 탭 자동 생성 파이프라인 전용 (일반 인증과 무관, ingest.auth 미들웨어로 보호)
 Route::middleware('ingest.auth')->prefix('info-ingest')->group(function () {
     Route::get('/keywords', [\App\Http\Controllers\API\InfoIngestController::class, 'keywords']);
+    Route::get('/titles', [\App\Http\Controllers\API\InfoIngestController::class, 'titles']);
     Route::post('/posts', [\App\Http\Controllers\API\InfoIngestController::class, 'store']);
     Route::get('/generation/status', [\App\Http\Controllers\API\InfoIngestController::class, 'generationStatus']);
     Route::post('/generation/complete', [\App\Http\Controllers\API\InfoIngestController::class, 'generationComplete']);
