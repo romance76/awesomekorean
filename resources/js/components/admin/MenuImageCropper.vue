@@ -1,9 +1,10 @@
 <template>
 <Teleport to="body">
   <div class="fixed inset-0 z-[1100] bg-black/60 flex items-center justify-center p-4" @click.self="$emit('cancel')">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[380px] p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[1100px] max-h-[94vh] overflow-y-auto p-4">
       <h3 class="font-bold text-ink text-base mb-0.5">메뉴 이미지 맞추기</h3>
-      <p class="text-xs text-ink-muted mb-3">이미지를 끌어서 위치를 옮기고, 아래 막대(또는 마우스 휠·두 손가락)로 크기를 맞춰 주세요. 네모 안에 보이는 부분이 메뉴에 나와요.</p>
+      <p class="text-xs text-ink-muted mb-3">이미지를 끌어서 위치를 옮기고, 아래 막대(또는 마우스 휠·두 손가락)로 크기를 맞춰 주세요. 네모 안에 보이는 부분이 메뉴에 나와요. <b>아래 "실제 메뉴 미리보기"에서 바로 확인</b>하세요.</p>
+      <div class="mx-auto" style="max-width:380px">
 
       <div class="flex gap-1.5 mb-2" role="group" aria-label="네모 비율">
         <button v-for="r in RATIOS" :key="r.v" type="button" @click="setRatio(r.v)"
@@ -24,7 +25,33 @@
         <button type="button" @click="reset" class="text-[11px] underline text-ink-muted">처음대로</button>
       </div>
 
-      <div class="flex gap-2 mt-4">
+      </div>
+
+      <!-- 실제 메뉴 미리보기: 사이트 상단 메뉴(PC)와 같은 크기·같은 스타일로, 지금 맞추는 이미지를 그 자리에 끼워 보여 줌 -->
+      <div class="mt-4">
+        <div class="text-[11.5px] font-bold text-ink-muted mb-1">실제 메뉴 미리보기 (PC 상단 메뉴, 실제 크기)</div>
+        <div class="border border-gray-200 rounded-xl bg-white overflow-x-auto">
+          <div class="site-hdr-menu pointer-events-none select-none" style="min-width:max-content">
+            <div v-for="g in previewGroups" :key="g.id" class="site-hdr-navitem">
+              <span class="site-hdr-tab relative" :class="[g.mine ? 'site-hdr-tab-on' : 'site-hdr-tab-off', g.image ? '!h-auto' : '']">
+                <img v-if="g.image" :src="g.image" :alt="g.label" class="h-12 w-auto max-w-[220px] object-contain block" />
+                <span v-else :style="g.color ? { color: g.color } : null">{{ g.label }}</span><span v-if="g.hasSub" class="text-[9px] opacity-50">▼</span>
+                <span v-if="g.mine" class="absolute -top-0.5 left-1/2 -translate-x-1/2 text-[9px] font-bold text-white bg-pink-500 rounded-full px-1.5 leading-4 whitespace-nowrap">지금 맞추는 중</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-2 flex items-center gap-3 flex-wrap">
+          <span class="text-[11.5px] font-bold text-ink-muted">휴대폰 메뉴에서는</span>
+          <span class="inline-flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 bg-white">
+            <img v-if="myPreviewImg" :src="myPreviewImg" alt="" class="h-8 w-auto max-w-[96px] object-contain" />
+            <span class="text-[13px] font-semibold text-ink">{{ myLabel }}</span>
+          </span>
+          <span class="text-[11px] text-ink-faint">PC는 높이 48px(가로 최대 220px), 휴대폰은 높이 32px(가로 최대 96px)로 나와요.</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-4 mx-auto" style="max-width:380px">
         <button type="button" @click="$emit('cancel')" class="flex-1 min-h-[44px] rounded-xl border border-gray-200 text-sm font-bold text-ink-light active:bg-gray-50">취소</button>
         <button type="button" @click="confirm" :disabled="!ready || busy" class="flex-1 min-h-[44px] rounded-xl btn-primary justify-center text-sm font-bold disabled:opacity-50">{{ busy ? '처리 중…' : '이대로 올리기' }}</button>
       </div>
@@ -34,9 +61,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
-const props = defineProps({ file: { type: File, required: true } })
+// groups: 사이트 상단 메뉴 묶음 목록(미리보기용), groupId: 지금 이미지를 맞추는 묶음의 _id
+const props = defineProps({ file: { type: File, required: true }, groups: { type: Array, default: () => [] }, groupId: { type: [String, Number], default: null } })
 const emit = defineEmits(['confirm', 'cancel'])
 
 // 메뉴에 나오는 이미지는 가로로 긴 모양이 많아서 비율을 고를 수 있게
@@ -68,7 +96,37 @@ function clamp() {
 }
 function reset() { zoom.value = 1; ox.value = 0; oy.value = 0 }
 function setRatio(v) { ratio.value = v; reset() }
-function onLoad(e) { imgW.value = e.target.naturalWidth; imgH.value = e.target.naturalHeight; reset(); ready.value = true }
+let srcEl = null
+function onLoad(e) { srcEl = e.target; imgW.value = e.target.naturalWidth; imgH.value = e.target.naturalHeight; reset(); ready.value = true }
+
+// ── 실제 메뉴 미리보기: 편집 중인 모습 그대로를 작은 그림으로 만들어 메뉴 줄에 끼워 넣는다 ──
+const PREVIEW_W = 480
+const myPreviewImg = ref('')
+let raf = 0
+function renderPreview() {
+  if (!ready.value || !srcEl) return
+  const k = PREVIEW_W / W
+  const canvas = document.createElement('canvas')
+  canvas.width = PREVIEW_W; canvas.height = Math.round(H.value * k)
+  const ctx = canvas.getContext('2d')
+  ctx.imageSmoothingQuality = 'high'
+  const dw = imgW.value * scale.value * k, dh = imgH.value * scale.value * k
+  ctx.drawImage(srcEl, canvas.width / 2 + ox.value * k - dw / 2, canvas.height / 2 + oy.value * k - dh / 2, dw, dh)
+  myPreviewImg.value = canvas.toDataURL('image/png')
+}
+function schedulePreview() { cancelAnimationFrame(raf); raf = requestAnimationFrame(renderPreview) }
+watch([zoom, ox, oy, ratio, ready], schedulePreview)
+
+const myGroup = computed(() => props.groups.find(g => g._id === props.groupId) || null)
+const myLabel = computed(() => myGroup.value?.label || '메뉴')
+const previewGroups = computed(() => props.groups.filter(g => !g.hidden || g._id === props.groupId).map(g => {
+  const mine = g._id === props.groupId
+  return {
+    id: g._id, mine, label: g.label, color: g.color || '',
+    image: mine ? (myPreviewImg.value || g.image || '') : (g.image || ''),
+    hasSub: g.type !== 'single' && (g.items || []).length > 0,
+  }
+}))
 
 const pointers = new Map()
 let lastDist = 0
@@ -105,5 +163,5 @@ function confirm() {
 }
 
 onMounted(() => { url.value = URL.createObjectURL(props.file) })
-onUnmounted(() => { if (url.value) URL.revokeObjectURL(url.value) })
+onUnmounted(() => { cancelAnimationFrame(raf); if (url.value) URL.revokeObjectURL(url.value) })
 </script>

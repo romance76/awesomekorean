@@ -114,7 +114,7 @@
       <div v-if="groups.some(x => x.hidden)" class="text-xs text-ink-faint mt-2">숨김: {{ groups.filter(x => x.hidden).map(x => x.label).join(', ') }}</div>
     </div>
   </div>
-  <MenuImageCropper v-if="cropFile" :file="cropFile" @cancel="cropFile = null" @confirm="onCropped" />
+  <MenuImageCropper v-if="cropFile" :file="cropFile" :groups="groups" :group-id="cropGroup?._id" @cancel="cropFile = null" @confirm="onCropped" />
 </div>
 </template>
 
