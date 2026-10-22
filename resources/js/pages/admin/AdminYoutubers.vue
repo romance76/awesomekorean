@@ -38,6 +38,7 @@
 
       <div class="flex flex-wrap items-center gap-2 flex-1">
         <span class="text-[11.5px] font-bold px-2 py-0.5 rounded-full" :class="statusClass(c.status)">{{ statusLabel(c.status) }}</span>
+        <span v-if="c.verified" class="text-[11.5px] font-bold px-2 py-0.5 rounded-full bg-green-50 text-green-700">주인 인증됨 (회원 #{{ c.owner_user_id }})</span>
         <select :value="c.category" @change="e => update(c, { category: e.target.value })" class="input-soft !w-auto !py-1 text-[12.5px]">
           <option v-for="k in categories" :key="k.key" :value="k.key">{{ k.label }}</option>
         </select>
@@ -52,6 +53,7 @@
         <button v-if="c.status !== 'approved'" @click="act(c, 'approve')" class="px-3 py-1.5 rounded-lg text-[12.5px] font-bold bg-green-500 text-white hover:bg-green-600">승인</button>
         <button v-if="c.status !== 'rejected'" @click="reject(c)" class="px-3 py-1.5 rounded-lg text-[12.5px] font-bold bg-gray-100 text-ink-light hover:bg-gray-200">거절</button>
         <button @click="act(c, 'resync')" class="px-3 py-1.5 rounded-lg text-[12.5px] font-bold bg-gray-100 text-ink-light hover:bg-gray-200" title="유튜브에서 정보·영상 새로 읽기">새로 읽기</button>
+        <button v-if="c.verified" @click="unverify(c)" class="px-3 py-1.5 rounded-lg text-[12.5px] font-bold bg-gray-100 text-ink-light hover:bg-gray-200" title="잘못 인증된 경우 주인 인증을 풀어요">인증 해제</button>
         <button @click="remove(c)" class="px-3 py-1.5 rounded-lg text-[12.5px] font-bold text-red-500 hover:bg-red-50">삭제</button>
       </div>
     </div>
@@ -116,6 +118,10 @@ function reject(c) {
   const reason = window.prompt('거절 사유를 적어 주세요 (신청자에게 보여요, 비워도 돼요)', '')
   if (reason === null) return
   call(() => axios.post(`/api/admin/youtubers/${c.id}/reject`, { reason }), '거절했어요.')
+}
+function unverify(c) {
+  if (!window.confirm(`'${c.title}' 채널의 주인 인증을 해제할까요?`)) return
+  call(() => axios.post(`/api/admin/youtubers/${c.id}/unverify`), '해제했어요.')
 }
 function update(c, body) { call(() => axios.put(`/api/admin/youtubers/${c.id}`, body), '저장했어요.') }
 function remove(c) {

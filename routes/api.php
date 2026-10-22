@@ -122,6 +122,13 @@ Route::get('/youtubers', [\App\Http\Controllers\API\YoutubeChannelController::cl
 Route::get('/youtubers/{id}', [\App\Http\Controllers\API\YoutubeChannelController::class, 'show'])->whereNumber('id');
 Route::get('/youtubers/{id}/videos', [\App\Http\Controllers\API\YoutubeChannelController::class, 'videos'])->whereNumber('id');
 Route::middleware(['auth:api', 'verified.email', 'throttle:content-write'])->post('/youtubers', [\App\Http\Controllers\API\YoutubeChannelController::class, 'store']);
+Route::middleware(['auth:api', 'verified.email', 'throttle:30,1'])->group(function () {
+    $yc = \App\Http\Controllers\API\YoutubeChannelController::class;
+    Route::post('/youtubers/{id}/claim', [$yc, 'claim'])->whereNumber('id');              // 내 채널 인증: 코드 받기
+    Route::post('/youtubers/{id}/claim/verify', [$yc, 'verifyClaim'])->whereNumber('id'); // 인증 확인
+    Route::post('/youtubers/{id}/bump', [$yc, 'bump'])->whereNumber('id');                // 주인 혜택: 끌어올리기
+    Route::put('/youtubers/{id}/owner', [$yc, 'ownerUpdate'])->whereNumber('id');         // 주인 혜택: 소개·분야 수정
+});
 Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers')->group(function () {
     $c = \App\Http\Controllers\API\YoutubeChannelController::class;
     Route::get('/', [$c, 'adminIndex']);
@@ -129,6 +136,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers'
     Route::post('/{id}/approve', [$c, 'approve'])->whereNumber('id');
     Route::post('/{id}/reject', [$c, 'reject'])->whereNumber('id');
     Route::post('/{id}/resync', [$c, 'resync'])->whereNumber('id');
+    Route::post('/{id}/unverify', [$c, 'unverify'])->whereNumber('id');
     Route::put('/{id}', [$c, 'update'])->whereNumber('id');
     Route::delete('/{id}', [$c, 'destroy'])->whereNumber('id');
 });

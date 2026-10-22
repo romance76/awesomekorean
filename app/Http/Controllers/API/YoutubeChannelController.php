@@ -25,7 +25,7 @@ class YoutubeChannelController extends Controller
             'id' => $c->id, 'title' => $c->title, 'handle' => $c->handle, 'category' => $c->category,
             'category_label' => $this->categories()[$c->category] ?? '기타',
             'thumbnail_url' => $c->thumbnail_url, 'subscriber_count' => (int) $c->subscriber_count,
-            'intro' => $c->intro, 'is_featured' => (bool) $c->is_featured,
+            'intro' => $c->intro, 'is_featured' => (bool) $c->is_featured, 'verified' => (bool) $c->verified_at,
             'latest_video_at' => $c->latest_video_at, 'latest_thumb' => $c->latest_thumb ?? null,
         ];
     }
@@ -54,7 +54,7 @@ class YoutubeChannelController extends Controller
         $sort = (string) $request->query('sort', 'latest');
         if ($sort === 'subs') $q->orderByDesc('subscriber_count');
         elseif ($sort === 'new') $q->orderByDesc('id');
-        else $q->orderByRaw('latest_video_at is null')->orderByDesc('latest_video_at');
+        else $q->orderByRaw("GREATEST(COALESCE(bumped_at, '1970-01-01'), COALESCE(latest_video_at, '1970-01-01')) DESC");   // 끌어올리기(주인 인증 혜택)도 새 업로드처럼 맨 위로
         $page = $q->paginate(min(48, max(1, (int) $request->query('per_page', 24))));
         $this->withLatestThumbs($page->getCollection());
 
@@ -85,7 +85,14 @@ class YoutubeChannelController extends Controller
             'url' => 'https://www.youtube.com/channel/' . $c->channel_id,
             'videos_total' => YoutubeVideo::where('youtube_channel_id', $c->id)->where('is_short', false)->count(),
             'shorts_total' => YoutubeVideo::where('youtube_channel_id', $c->id)->where('is_short', true)->count(),
+            'is_owner' => false, 'my_claim_code' => null, 'bump_available_at' => null,
         ];
+        $me = auth('api')->user();
+        if ($me) {
+            $d['is_owner'] = (bool) ($c->owner_user_id && (int) $c->owner_user_id === (int) $me->id);
+            if (!$c->verified_at && (int) $c->claim_user_id === (int) $me->id && $this->claimFresh($c)) $d['my_claim_code'] = $c->claim_code;
+            if ($d['is_owner'] && $c->bumped_at && $c->bumped_at->gt(now()->subDay())) $d['bump_available_at'] = $c->bumped_at->copy()->addDay();
+        }
         return response()->json(['success' => true, 'data' => $d]);
     }
 
@@ -146,6 +153,88 @@ class YoutubeChannelController extends Controller
         return response()->json(['success' => true, 'data' => $rows]);
     }
 
+    // ───────── 채널 주인 인증 ─────────
+    // 방법: 인증 코드를 받아 → 유튜브 채널 '설명'에 붙여 넣고 → 사이트가 유튜브에서 설명을 읽어 코드가 있으면 주인으로 인정한다.
+    // (채널 설명은 주인만 고칠 수 있어서 별도 로그인 없이 확인된다)
+
+    private function claimFresh(YoutubeChannel $c): bool
+    {
+        return $c->claim_code && $c->claim_requested_at && $c->claim_requested_at->gt(now()->subDays(3));
+    }
+
+    public function claim(Request $request, $id)
+    {
+        $c = YoutubeChannel::where('status', 'approved')->find($id);
+        if (!$c) return response()->json(['success' => false, 'message' => '채널을 찾을 수 없어요.'], 404);
+        if ($c->verified_at) return response()->json(['success' => false, 'message' => '이미 주인 인증이 끝난 채널이에요. 본인 채널인데 다른 분이 인증했다면 문의해 주세요.'], 409);
+        $user = $request->user();
+        if ($c->claim_user_id && (int) $c->claim_user_id !== (int) $user->id && $this->claimFresh($c) && $c->claim_requested_at->gt(now()->subDay())) {
+            return response()->json(['success' => false, 'message' => '다른 분이 인증을 진행 중이에요. 하루 뒤에 다시 시도해 주세요.'], 409);
+        }
+        if (!((int) $c->claim_user_id === (int) $user->id && $this->claimFresh($c))) {
+            $c->claim_user_id = $user->id;
+            $c->claim_code = 'awesomekorean-' . strtoupper(\Illuminate\Support\Str::random(8));
+            $c->claim_requested_at = now();
+            $c->save();
+        }
+        return response()->json(['success' => true, 'data' => ['code' => $c->claim_code, 'studio_url' => 'https://studio.youtube.com/channel/' . $c->channel_id . '/editing/details']]);
+    }
+
+    public function verifyClaim(Request $request, $id)
+    {
+        $c = YoutubeChannel::where('status', 'approved')->find($id);
+        if (!$c) return response()->json(['success' => false, 'message' => '채널을 찾을 수 없어요.'], 404);
+        $user = $request->user();
+        if ($c->verified_at) return response()->json(['success' => false, 'message' => '이미 인증이 끝난 채널이에요.'], 409);
+        if ((int) $c->claim_user_id !== (int) $user->id || !$this->claimFresh($c)) {
+            return response()->json(['success' => false, 'message' => '인증 코드를 먼저 받아 주세요. (코드는 3일 동안 유효해요)'], 422);
+        }
+        $info = YoutubeSync::fetchChannel(['id' => $c->channel_id]);
+        if (!$info) return response()->json(['success' => false, 'message' => '유튜브에서 채널 정보를 읽지 못했어요. 잠시 후 다시 눌러 주세요.'], 502);
+        if (stripos((string) $info['description'], (string) $c->claim_code) === false) {
+            return response()->json(['success' => false, 'message' => '채널 설명에서 인증 코드를 찾지 못했어요. 코드를 설명에 붙여 넣고 "게시"를 눌렀는지 확인해 주세요. (유튜브에 반영되는 데 몇 분 걸릴 수 있어요)'], 422);
+        }
+        $c->fill(array_intersect_key($info, array_flip(['handle', 'title', 'description', 'thumbnail_url', 'banner_url', 'subscriber_count', 'video_count'])));
+        $c->owner_user_id = $user->id;
+        $c->verified_at = now();
+        $c->claim_user_id = null;
+        $c->claim_code = null;
+        $c->claim_requested_at = null;
+        $c->save();
+        return response()->json(['success' => true, 'message' => '채널 주인 인증이 끝났어요! 이제 인증 혜택을 쓸 수 있어요. (채널 설명의 코드는 지워도 돼요)']);
+    }
+
+    private function ownedBy(Request $request, $id): ?YoutubeChannel
+    {
+        $c = YoutubeChannel::where('status', 'approved')->find($id);
+        return ($c && $c->owner_user_id && (int) $c->owner_user_id === (int) $request->user()->id) ? $c : null;
+    }
+
+    /** 혜택: 목록 맨 위로 끌어올리기 (하루 1번) */
+    public function bump(Request $request, $id)
+    {
+        $c = $this->ownedBy($request, $id);
+        if (!$c) return response()->json(['success' => false, 'message' => '인증된 주인만 쓸 수 있어요.'], 403);
+        if ($c->bumped_at && $c->bumped_at->gt(now()->subDay())) {
+            $left = (int) ceil(now()->diffInMinutes($c->bumped_at->copy()->addDay(), false) / 60);
+            return response()->json(['success' => false, 'message' => "끌어올리기는 하루에 한 번이에요. 약 {$left}시간 뒤에 다시 할 수 있어요."], 429);
+        }
+        $c->update(['bumped_at' => now()]);
+        return response()->json(['success' => true, 'message' => '목록 맨 위로 올렸어요!']);
+    }
+
+    /** 혜택: 내 채널 소개 문구·분야 직접 수정 */
+    public function ownerUpdate(Request $request, $id)
+    {
+        $c = $this->ownedBy($request, $id);
+        if (!$c) return response()->json(['success' => false, 'message' => '인증된 주인만 쓸 수 있어요.'], 403);
+        $data = $request->validate(['intro' => 'sometimes|nullable|string|max:300', 'category' => 'sometimes|string|max:30']);
+        if (isset($data['category']) && !isset($this->categories()[$data['category']])) return response()->json(['success' => false, 'message' => '분야가 올바르지 않아요.'], 422);
+        if (array_key_exists('intro', $data)) $data['intro'] = $data['intro'] === null ? null : trim($data['intro']);
+        $c->update($data);
+        return response()->json(['success' => true, 'message' => '저장했어요.']);
+    }
+
     // ───────── 관리자 ─────────
 
     public function adminIndex(Request $request)
@@ -159,7 +248,7 @@ class YoutubeChannelController extends Controller
         return response()->json(['success' => true, 'data' => [
             'items' => $page->getCollection()->map(fn ($c) => $this->card($c) + [
                 'status' => $c->status, 'channel_id' => $c->channel_id, 'user_id' => $c->user_id, 'reject_reason' => $c->reject_reason,
-                'featured_until' => $c->featured_until, 'last_synced_at' => $c->last_synced_at, 'created_at' => $c->created_at,
+                'featured_until' => $c->featured_until, 'last_synced_at' => $c->last_synced_at, 'created_at' => $c->created_at, 'owner_user_id' => $c->owner_user_id,
                 'videos' => YoutubeVideo::where('youtube_channel_id', $c->id)->count(),
             ])->all(),
             'counts' => [
@@ -218,6 +307,13 @@ class YoutubeChannelController extends Controller
         $c = YoutubeChannel::findOrFail($id);
         $ok = YoutubeSync::sync($c);
         return response()->json(['success' => $ok, 'message' => $ok ? '유튜브에서 새로 읽어 왔어요.' : '읽어 오지 못했어요. (API 키·채널 상태 확인)']);
+    }
+
+    public function unverify($id)
+    {
+        $c = YoutubeChannel::findOrFail($id);
+        $c->update(['owner_user_id' => null, 'verified_at' => null, 'claim_user_id' => null, 'claim_code' => null, 'claim_requested_at' => null]);
+        return response()->json(['success' => true, 'message' => '주인 인증을 해제했어요.']);
     }
 
     public function destroy($id)

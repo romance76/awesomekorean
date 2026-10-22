@@ -59,7 +59,7 @@
         <div class="p-3.5 flex items-center gap-3">
           <img v-if="c.thumbnail_url" :src="c.thumbnail_url" alt="" loading="lazy" class="w-11 h-11 rounded-full object-cover bg-surface shrink-0" @error="e => e.target.style.display = 'none'" />
           <div class="min-w-0">
-            <div class="text-[14.5px] font-bold text-ink truncate">{{ c.title }}</div>
+            <div class="text-[14.5px] font-bold text-ink truncate">{{ c.title }}<span v-if="c.verified" class="ml-1 inline-block align-middle text-[10.5px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded-full" title="채널 주인이 직접 인증했어요">✔ 인증</span></div>
             <div class="text-[12px] text-ink-muted">구독자 {{ fmtCount(c.subscriber_count) }}</div>
           </div>
         </div>
