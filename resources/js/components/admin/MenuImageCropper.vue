@@ -10,7 +10,15 @@
         <button v-for="r in RATIOS" :key="r.v" type="button" @click="setRatio(r.v)"
           class="px-2.5 py-1 rounded-lg border text-xs font-bold" :class="ratio === r.v ? 'border-pink-400 bg-pink-50 text-pink-600' : 'border-gray-200 text-ink-light'">{{ r.l }}</button>
       </div>
-      <p class="text-[11px] text-ink-faint mb-2">숫자가 클수록 가로로 길쭉한 모양이에요 (가로:세로).</p>
+      <!-- 칩 사이 값(1.2:1, 1.75:1 …)도 직접 맞출 수 있게: 막대 또는 숫자 입력 -->
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-[11px] font-bold text-ink-muted shrink-0">직접 조절</span>
+        <input type="range" :min="RATIO_MIN" :max="RATIO_MAX" step="0.05" :value="ratio" @input="setRatioKeep($event.target.value)" class="flex-1 accent-[#FC226B]" aria-label="네모 비율 직접 조절" />
+        <input type="number" :min="RATIO_MIN" :max="RATIO_MAX" step="0.05" :value="Number(ratio.toFixed(2))" @change="setRatioKeep($event.target.value)"
+          class="w-[68px] px-2 py-1 rounded-lg border border-gray-200 text-xs font-bold text-ink text-center tabular-nums" aria-label="가로 비율 숫자" />
+        <span class="text-xs font-bold text-ink-muted shrink-0">: 1</span>
+      </div>
+      <p class="text-[11px] text-ink-faint mb-2">숫자가 클수록 가로로 길쭉한 모양이에요 (가로:세로). 1~5 사이에서 0.05 단위로 정할 수 있어요.</p>
 
       <!-- 편집 영역: 체크무늬 = 투명한 부분 -->
       <div ref="box" class="relative mx-auto select-none overflow-hidden rounded-xl border border-gray-300"
@@ -73,6 +81,7 @@ const emit = defineEmits(['confirm', 'cancel'])
 const RATIOS = [{ v: 1, l: '정사각 1:1' }, { v: 1.5, l: '1.5:1' }, { v: 2, l: '2:1' }, { v: 2.5, l: '2.5:1' }, { v: 3, l: '3:1' }, { v: 3.5, l: '3.5:1' }, { v: 4, l: '4:1' }, { v: 4.5, l: '4.5:1' }]
 const W = 320                         // 편집 영역 가로(px)
 const OUT_W = 800                     // 결과 이미지 가로(px) — 서버가 높이 96px 이하로 다시 줄여요
+const RATIO_MIN = 1, RATIO_MAX = 5
 const ratio = ref(3)
 const H = computed(() => Math.round(W / ratio.value))
 const url = ref('')
@@ -98,6 +107,13 @@ function clamp() {
 }
 function reset() { zoom.value = 1; ox.value = 0; oy.value = 0 }
 function setRatio(v) { ratio.value = v; reset() }
+// 막대·숫자로 직접 바꿀 때는 이미지 위치·크기를 그대로 두고 네모 모양만 바꾼다(끌면서 계속 바뀌어도 처음으로 돌아가지 않게)
+function setRatioKeep(v) {
+  const n = Math.round(Number(v) * 20) / 20
+  if (!Number.isFinite(n)) return
+  ratio.value = Math.max(RATIO_MIN, Math.min(RATIO_MAX, n))
+  clamp()
+}
 let srcEl = null
 function onLoad(e) { srcEl = e.target; imgW.value = e.target.naturalWidth; imgH.value = e.target.naturalHeight; reset(); ready.value = true }
 
