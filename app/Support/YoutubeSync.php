@@ -103,6 +103,8 @@ class YoutubeSync
             $sn = $it['snippet'] ?? [];
             if (!$vid || !isset($details[$vid])) continue;                                    // 삭제·비공개 영상은 건너뜀
             if (($details[$vid]['status']['privacyStatus'] ?? 'public') !== 'public') continue;
+            // 올린 사람이 '다른 사이트에서 재생 허용'을 꺼 둔 영상은 사이트에서 재생이 안 되므로 목록에서 뺀다(이미 저장된 것도 지움)
+            if (($details[$vid]['status']['embeddable'] ?? true) === false) { YoutubeVideo::where('video_id', $vid)->delete(); continue; }
             $secs = self::seconds((string) ($details[$vid]['contentDetails']['duration'] ?? ''));
             $pub = $it['contentDetails']['videoPublishedAt'] ?? ($sn['publishedAt'] ?? null);
             $thumb = $sn['thumbnails']['medium']['url'] ?? ($sn['thumbnails']['default']['url'] ?? null);
