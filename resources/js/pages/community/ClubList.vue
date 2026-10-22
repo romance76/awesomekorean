@@ -145,7 +145,11 @@
           <span v-else class="inline-flex items-center gap-0.5 text-[11px] bg-purple-500 text-white font-bold px-1.5 py-0.5 rounded-md"><AppIcon name="sparkles" :size="11" />상위노출</span>
         </div>
         <div class="flex items-center gap-3 mb-3">
-          <div class="icon-chip w-12 h-12 bg-teal-50 text-teal-600"><AppIcon name="users" :size="24" /></div>
+          <!-- 동호회 대표 이미지가 있으면 그 이미지, 없으면(또는 못 불러오면) 기본 사람 아이콘 -->
+          <div v-if="clubImg(club)" class="w-12 h-12 shrink-0 rounded-xl overflow-hidden bg-white border border-gray-100">
+            <img :src="clubImg(club)" alt="" loading="lazy" class="w-full h-full object-cover" @error="failedImg = new Set(failedImg).add(club.id)" />
+          </div>
+          <div v-else class="icon-chip w-12 h-12 bg-teal-50 text-teal-600"><AppIcon name="users" :size="24" /></div>
           <div class="flex-1 min-w-0">
             <div class="text-sm font-bold text-ink truncate">{{ club.name }}</div>
             <div class="text-xs text-ink-muted">{{ club.category }} · {{ club.type === 'online' ? '온라인' : '지역' }}</div>
@@ -182,6 +186,14 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+
+// 동호회 카드의 대표 이미지(club.image). 상세 화면은 이미 이 이미지를 쓰는데 목록 카드만 기본 아이콘이었다.
+const failedImg = ref(new Set())
+function clubImg(c) {
+  const p = c?.image
+  if (!p || failedImg.value.has(c.id)) return ''
+  return String(p).startsWith('http') ? p : `/storage/${p}`
+}
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useRoute } from 'vue-router'
 import { useLocation } from '../../composables/useLocation'
