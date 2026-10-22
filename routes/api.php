@@ -163,6 +163,12 @@ Route::middleware('ingest.auth')->prefix('info-ingest')->group(function () {
     Route::get('/generation/status', [\App\Http\Controllers\API\InfoIngestController::class, 'generationStatus']);
     Route::post('/generation/complete', [\App\Http\Controllers\API\InfoIngestController::class, 'generationComplete']);
 });
+// 머니+ 글 등록 루틴 전용 (같은 ingest.auth 토큰)
+Route::middleware('ingest.auth')->prefix('money-ingest')->group(function () {
+    Route::get('/meta', [\App\Http\Controllers\API\MoneyIngestController::class, 'meta']);
+    Route::get('/titles', [\App\Http\Controllers\API\MoneyIngestController::class, 'titles']);
+    Route::post('/posts', [\App\Http\Controllers\API\MoneyIngestController::class, 'store'])->middleware('throttle:30,1');
+});
 // 뉴스 "AI 해설" 파이프라인 전용 (같은 ingest.auth 토큰)
 Route::middleware('ingest.auth')->prefix('news-ingest')->group(function () {
     Route::get('/pending', [\App\Http\Controllers\API\NewsIngestController::class, 'pending']);
