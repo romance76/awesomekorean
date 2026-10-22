@@ -93,7 +93,8 @@
             <div class="w-10 h-10 rounded-full bg-amber-400 text-white flex items-center justify-center text-lg font-bold">{{ (userData?.user?.name||'?')[0] }}</div>
             <div>
               <div class="font-bold text-ink">{{ userData?.user?.name }}</div>
-              <div class="text-[11px] text-ink-muted">{{ userData?.user?.email }} · ID: {{ userData?.user?.id }}</div>
+              <div class="text-[11px] text-ink-muted">{{ userData?.user?.email }} · ID: {{ userData?.user?.id }}
+                <span v-if="userData?.user" class="ml-1 font-bold" :class="userData.user.email_verified_at ? 'text-green-700' : 'text-red-600'">· {{ userData.user.email_verified_at ? '이메일 인증됨' : '이메일 미인증' }}</span></div>
             </div>
           </div>
           <div class="flex items-center gap-3">
@@ -211,6 +212,7 @@
             <div class="mt-2"><label class="input-label !text-xs !mb-0.5">소개</label><textarea v-model="userData.user.bio" rows="2" class="input-soft px-3 py-1.5"></textarea></div>
             <div class="mt-2 flex items-center gap-4 text-[11px] text-ink-faint">
               <span>가입: {{ userData.user.created_at?.slice(0,10) }}</span>
+              <span :class="userData.user.email_verified_at ? 'text-green-700 font-semibold' : 'text-red-600 font-semibold'">이메일 인증: {{ userData.user.email_verified_at ? '완료 (' + fmtVerified(userData.user.email_verified_at) + ')' : '미인증' }}</span>
               <span>최근: {{ userData.user.last_login_at?.slice(0,10) || '없음' }}</span>
               <span>로그인 {{ userData.user.login_count || 0 }}회</span>
             </div>
@@ -236,7 +238,7 @@
             <div v-if="!userData.points?.length" class="py-4 text-center text-ink-muted text-sm">포인트 내역 없음</div>
             <div v-for="pt in userData.points" :key="pt.id" class="py-2 border-b border-gray-50 flex justify-between text-xs">
               <span class="text-ink-muted">{{ pt.created_at?.slice(0,10) }}</span>
-              <span class="text-ink-light">{{ pt.reason }}</span>
+              <span class="text-ink-light">{{ pt.reason }}<span v-if="pt.note" class="block text-[11px] text-amber-700">{{ pt.note }}</span></span>
               <span :class="pt.amount>0?'text-green-600':'text-red-600'" class="font-bold">{{ pt.amount>0?'+':'' }}{{ pt.amount }}P</span>
             </div>
           </div>
@@ -277,78 +279,106 @@
             <div v-if="userData.posts?.length" id="ct-posts" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="list" :size="13" />커뮤니티 게시글 ({{ userData.posts.length }})</div>
               <div v-for="post in userData.posts" :key="post.id"
-                class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/40 transition-colors">
+                class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-amber-50/40 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ post.title }}</div>
                   <div class="text-[11px] text-ink-faint">{{ post.created_at?.slice(0,10) }} · {{ post.view_count||0 }}회 · ❤️ {{ post.like_count||0 }}</div>
                 </div>
-                <a :href="`/board/${post.board_id}/${post.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('posts:'+post.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='posts:'+post.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='posts:'+post.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(post) }}</div>
+                  <a :href="`/community/free/${post.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
             <!-- 구인 -->
             <div v-if="userData.jobs?.length" id="ct-jobs" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-indigo-700 mb-2"><AppIcon name="briefcase" :size="13" />구인/구직 ({{ userData.jobs.length }})</div>
-              <div v-for="j in userData.jobs" :key="j.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-indigo-50/30 transition-colors">
+              <div v-for="j in userData.jobs" :key="j.id" class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-indigo-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ j.title }}</div>
                   <div class="text-[11px] text-ink-faint">{{ j.company }} · {{ j.city }}, {{ j.state }} · {{ j.created_at?.slice(0,10) }}</div>
                 </div>
-                <a :href="`/jobs/${j.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('jobs:'+j.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='jobs:'+j.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='jobs:'+j.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(j) }}</div>
+                  <a :href="`/jobs/${j.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
             <!-- 장터 -->
             <div v-if="userData.market?.length" id="ct-market" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="shopping-cart" :size="13" />중고장터 ({{ userData.market.length }})</div>
-              <div v-for="m in userData.market" :key="m.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/30 transition-colors">
+              <div v-for="m in userData.market" :key="m.id" class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-amber-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ m.title }}</div>
                   <div class="text-[11px] text-ink-faint">${{ Number(m.price||0).toLocaleString() }} · {{ m.status }} · {{ m.created_at?.slice(0,10) }}</div>
                 </div>
-                <a :href="`/market/${m.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('market:'+m.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='market:'+m.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='market:'+m.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(m) }}</div>
+                  <a :href="`/market/${m.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
             <!-- 부동산 -->
             <div v-if="userData.realestate?.length" id="ct-realestate" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-blue-700 mb-2"><AppIcon name="building" :size="13" />부동산 ({{ userData.realestate.length }})</div>
-              <div v-for="r in userData.realestate" :key="r.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-blue-50/30 transition-colors">
+              <div v-for="r in userData.realestate" :key="r.id" class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-blue-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ r.title }}</div>
                   <div class="text-[11px] text-ink-faint">${{ Number(r.price||0).toLocaleString() }} · {{ {rent:'렌트',sale:'매매',roommate:'룸메'}[r.type] }} · {{ r.city }}, {{ r.state }}</div>
                 </div>
-                <a :href="`/realestate/${r.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('realestate:'+r.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='realestate:'+r.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='realestate:'+r.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(r) }}</div>
+                  <a :href="`/realestate/${r.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
             <!-- 동호회 -->
             <div v-if="userData.clubs?.length" id="ct-clubs" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-green-700 mb-2"><AppIcon name="users" :size="13" />동호회 ({{ userData.clubs.length }})</div>
-              <div v-for="cl in userData.clubs" :key="cl.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-green-50/30 transition-colors">
+              <div v-for="cl in userData.clubs" :key="cl.id" class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-green-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ cl.name }}</div>
                   <div class="text-[11px] text-ink-faint">{{ cl.category }} · {{ cl.member_count||0 }}명 · {{ cl.created_at?.slice(0,10) }}</div>
                 </div>
-                <a :href="`/clubs/${cl.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('clubs:'+cl.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='clubs:'+cl.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='clubs:'+cl.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(cl) }}</div>
+                  <a :href="`/clubs/${cl.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
             <!-- 이벤트 -->
             <div v-if="userData.events?.length" id="ct-events" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-2"><AppIcon name="calendar" :size="13" />이벤트 ({{ userData.events.length }})</div>
-              <div v-for="ev in userData.events" :key="ev.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-amber-50/30 transition-colors">
+              <div v-for="ev in userData.events" :key="ev.id" class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-amber-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ ev.title }}</div>
                   <div class="text-[11px] text-ink-faint">{{ ev.event_date?.slice(0,10) }} · {{ ev.city }}, {{ ev.state }}</div>
                 </div>
-                <a :href="`/events/${ev.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('events:'+ev.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='events:'+ev.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='events:'+ev.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(ev) }}</div>
+                  <a :href="`/events/${ev.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
             <!-- Q&A -->
             <div v-if="userData.qa?.length" id="ct-qa" class="scroll-mt-2">
               <div class="flex items-center gap-1.5 text-xs font-bold text-violet-700 mb-2"><AppIcon name="help-circle" :size="13" />Q&A ({{ userData.qa.length }})</div>
-              <div v-for="q in userData.qa" :key="q.id" class="py-2 border-b border-gray-50 flex items-center gap-2 hover:bg-violet-50/30 transition-colors">
+              <div v-for="q in userData.qa" :key="q.id" class="py-2 border-b border-gray-50 flex flex-wrap items-center gap-2 hover:bg-violet-50/30 transition-colors">
                 <div class="flex-1 min-w-0">
                   <div class="text-sm font-medium text-ink truncate">{{ q.title }}</div>
                   <div class="text-[11px] text-ink-faint">{{ q.category }} · ❤️ {{ q.like_count||0 }} · {{ q.created_at?.slice(0,10) }}</div>
                 </div>
-                <a :href="`/qa/${q.id}`" target="_blank" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">보기</a>
+                <button type="button" @click="toggleRow('qa:'+q.id)" class="text-[11px] bg-gray-100 hover:bg-gray-200 text-ink-light px-2 py-1 rounded-lg transition-colors">{{ openRow==='qa:'+q.id ? '닫기' : '보기' }}</button>
+                <div v-if="openRow==='qa:'+q.id" class="basis-full order-last mt-1 mb-1 rounded-lg bg-surface border border-line p-3 text-xs text-ink-light">
+                  <div class="whitespace-pre-wrap break-words max-h-56 overflow-y-auto leading-relaxed">{{ bodyOf(q) }}</div>
+                  <a :href="`/qa/${q.id}`" target="_blank" class="inline-block mt-2 text-[11px] font-semibold text-amber-700 hover:underline">사이트에서 열기 ↗</a>
+                </div>
               </div>
             </div>
 
@@ -625,9 +655,15 @@ async function loadUsers(p = 1) {
   loading.value = false
 }
 
+// 콘텐츠 탭: '보기'를 누르면 그 줄 아래에 글 내용을 펼친다(전체 화면으로 이동하지 않음)
+const openRow = ref('')
+function toggleRow(k) { openRow.value = openRow.value === k ? '' : k }
+function bodyOf(it) { return String(it?.content || it?.description || it?.body || '').replace(/<[^>]+>/g, ' ').trim() || '(본문 없음)' }
+function fmtVerified(v) { return String(v || '').replace('T', ' ').slice(0, 16) }
+
 async function openUser(u) {
   activeUser.value = u; userLoading.value = true; userData.value = null
-  userTab.value = 'summary'; tempPassword.value = ''; newPassword.value = ''; banReason.value = ''
+  openRow.value = ''; userTab.value = 'summary'; tempPassword.value = ''; newPassword.value = ''; banReason.value = ''
   try { const { data } = await axios.get(`/api/admin/users/${u.id}/detail`); userData.value = data.data; friendRequestVal.value = userData.value?.user?.allow_friend_request ? 'true' : 'false'; origUser = JSON.parse(JSON.stringify(userData.value?.user || {})); loadGradeTiers(); gradePick.value = userData.value?.user?.grade_level || 1 } catch {}
   userLoading.value = false
 }

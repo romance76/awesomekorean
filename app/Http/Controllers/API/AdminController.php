@@ -607,6 +607,8 @@ class AdminController extends Controller
             'ads_active' => \App\Models\BannerAd::where('user_id',$id)->where('status','active')->count(),
         ];
 
+        $points = $this->annotatePointLogs($points);
+
         return response()->json(['success'=>true,'data'=>[
             'user'=>$user, 'summary'=>$summary,
             'posts'=>$posts, 'payments'=>$payments,
@@ -616,6 +618,34 @@ class AdminController extends Controller
             'events'=>$events, 'qa'=>$qa,
             'banners'=>$banners, 'reports_filed'=>$reports_filed,
         ]]);
+    }
+
+    /**
+     * 포인트 내역에 "기본 10P + 오픈 이벤트 2배 +10P" 같은 풀이(note)를 붙인다 — 관리자 회원 상세 화면용(읽기 전용, DB 는 안 바꿈).
+     * 오픈 이벤트 기간(미국 동부 날짜)에 적립된 기록 중, 사유가 알려진 적립 규칙이고 금액이 (기본값 × 배수)와 정확히 같을 때만 붙인다.
+     */
+    private function annotatePointLogs($logs)
+    {
+        try {
+            $cfg = \App\Support\OpenEvent::config();
+            $m = (int) ($cfg['earn']['multiplier'] ?? 1);
+            if (empty($cfg['enabled']) || empty($cfg['earn']['on']) || $m <= 1) return $logs;
+            $from = \Carbon\Carbon::parse($cfg['starts_on'], 'America/New_York')->startOfDay();
+            $to = \Carbon\Carbon::parse($cfg['ends_on'], 'America/New_York')->endOfDay();
+            $keyByReason = ['회원가입 보너스' => 'signup_bonus', '프로필 완성 보너스' => 'profile_complete_bonus', '게시글 작성' => 'post_write', '글 작성' => 'post_write',
+                '댓글 작성' => 'comment_write', '좋아요 받음' => 'like_reward_amount', '좋아요 보상' => 'like_reward_amount'];
+            foreach ($logs as $l) {
+                $key = $keyByReason[trim((string) $l->reason)] ?? null;
+                if (!$key || $l->amount <= 0 || !$l->created_at || !$l->created_at->between($from, $to)) continue;
+                $base = (int) \App\Support\PointRules::raw($key, '0');
+                if ($base > 0 && (int) $l->amount === $base * $m) {
+                    $l->setAttribute('note', "기본 {$base}P + 오픈 이벤트 {$m}배 +" . ($l->amount - $base) . 'P');
+                }
+            }
+        } catch (\Throwable $e) {
+            // 풀이는 덤이라 실패하면 그냥 원래 내역만 보여 준다
+        }
+        return $logs;
     }
 
     // 회원 정보 수정 (관리자)
