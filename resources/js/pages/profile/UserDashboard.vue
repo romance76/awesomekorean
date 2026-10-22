@@ -25,12 +25,20 @@
       </button>
     </div>
 
-    <!-- 탭: 스크롤 없이 1~2줄로 전부 노출 -->
-    <div class="flex flex-wrap gap-1 mb-4 bg-gray-100 rounded-xl p-1">
-      <button v-for="t in tabs" :key="t.key" @click="switchTab(t.key)"
-        class="flex items-center gap-1.5 text-xs sm:text-sm py-2 px-2.5 sm:px-3.5 rounded-lg transition whitespace-nowrap"
-        :class="tab===t.key ? 'bg-white text-ink font-semibold shadow-sm' : 'text-ink-muted hover:text-ink'"><AppIcon :name="t.icon" :size="14" /> {{ t.label }}</button>
+    <!-- 탭: 위에는 큰 탭만(메뉴가 늘어나도 한 줄), 고른 큰 탭의 작은 탭은 아래 한 줄 -->
+    <div class="flex gap-1 mb-2 bg-gray-100 rounded-xl p-1" role="tablist" aria-label="마이페이지 메뉴">
+      <button v-for="g in tabGroups" :key="g.key" type="button" role="tab" :aria-selected="activeGroup?.key === g.key" @click="switchTab(g.items[0].key)"
+        class="flex-1 min-w-0 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 py-2 px-1 sm:px-3 rounded-lg transition text-[11px] sm:text-sm leading-tight"
+        :class="activeGroup?.key === g.key ? 'bg-white text-ink font-bold shadow-sm' : 'text-ink-muted hover:text-ink'">
+        <AppIcon :name="g.icon" :size="16" /><span class="whitespace-nowrap">{{ g.label }}</span>
+      </button>
     </div>
+    <div v-if="activeGroup && activeGroup.items.length > 1" class="flex flex-wrap gap-1.5 mb-4 px-0.5" role="tablist" :aria-label="activeGroup.label + ' 세부 메뉴'">
+      <button v-for="t in activeGroup.items" :key="t.key" type="button" role="tab" :aria-selected="tab === t.key" @click="switchTab(t.key)"
+        class="flex items-center gap-1.5 text-xs sm:text-[13px] py-1.5 px-3 rounded-full border transition whitespace-nowrap"
+        :class="tab === t.key ? 'bg-amber-50 border-amber-300 text-amber-700 font-bold' : 'bg-white border-gray-200 text-ink-light hover:border-amber-200 hover:text-ink'"><AppIcon :name="t.icon" :size="13" />{{ t.label }}</button>
+    </div>
+    <div v-else class="mb-4"></div>
 
     <!-- ═══ 프로필 탭 ═══ -->
     <div v-if="tab==='profile'" class="space-y-4">
@@ -1120,13 +1128,13 @@ const allTabs = [
   { key: 'ads',        icon: 'megaphone',     label: '광고 신청' },
   { key: 'reviews',    icon: 'shopping-bag',  label: '내 리뷰',     menuKey: 'shopping' },
   { key: 'flyer',      icon: 'sparkles',      label: 'NEW 전면광고 신청', menuKey: 'flyers' },
-  { key: 'calls',      icon: 'phone',         label: '통화내역',    menuKey: 'comms' },
   { key: 'bookmarks',  icon: 'bookmark',      label: '북마크' },
-  { key: 'elder',      icon: 'shield',        label: '안심',        menuKey: 'elder' },
   { key: 'payments',   icon: 'wallet',        label: '결제' },
   { key: 'mybiz',      icon: 'store',         label: '내 업소',     menuKey: 'directory' },
   { key: 'resume',     icon: 'newspaper',     label: '이력서',      menuKey: 'jobs' },
 ]
+// 없어진 탭(예: 예전 ?tab=calls·elder 주소)으로 들어오면 프로필로
+if (!allTabs.find(t => t.key === tab.value)) tab.value = 'profile'
 
 const tabs = computed(() => {
   const mc = siteStore.menuConfig
@@ -1141,6 +1149,28 @@ const tabs = computed(() => {
     return true
   })
 })
+
+// 큰 탭(묶음): 위에는 이것만 보이고, 고른 묶음의 작은 탭이 아래 한 줄로 나온다. 새 탭은 알맞은 묶음의 tabs 에 키를 넣으면 된다.
+const TAB_GROUPS = [
+  { key: 'me',    icon: 'user',      label: '내 정보',     tabs: ['profile', 'resume'] },
+  { key: 'money', icon: 'wallet',    label: '포인트·결제', tabs: ['points', 'entries', 'payments', 'mycoupons'] },
+  { key: 'act',   icon: 'edit',      label: '내 활동',     tabs: ['posts', 'reviews', 'market', 'jobs', 'realestate', 'groupbuy'] },
+  { key: 'biz',   icon: 'megaphone', label: '광고·사업',   tabs: ['ads', 'flyer', 'mybiz'] },
+  { key: 'talk',  icon: 'mail',      label: '쪽지·저장',   tabs: ['messages', 'bookmarks'] },
+]
+const tabGroups = computed(() => {
+  const vis = tabs.value
+  const used = new Set()
+  const out = TAB_GROUPS.map(g => {
+    const items = g.tabs.map(k => vis.find(t => t.key === k)).filter(Boolean)
+    items.forEach(t => used.add(t.key))
+    return { ...g, items }
+  }).filter(g => g.items.length)
+  const rest = vis.filter(t => !used.has(t.key))   // 어느 묶음에도 안 넣은 새 탭은 '기타'에 모음
+  if (rest.length) out.push({ key: 'etc', icon: 'list', label: '기타', items: rest })
+  return out
+})
+const activeGroup = computed(() => tabGroups.value.find(g => g.items.some(t => t.key === tab.value)) || tabGroups.value[0] || null)
 
 const loaded = reactive({})
 
