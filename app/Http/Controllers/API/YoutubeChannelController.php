@@ -37,7 +37,7 @@ class YoutubeChannelController extends Controller
         if (!$ids) return $channels;
         $pick = fn ($short) => YoutubeVideo::whereIn('youtube_channel_id', $ids)->where('is_short', $short)->orderByDesc('published_at')->get(['youtube_channel_id', 'thumbnail_url'])
             ->unique('youtube_channel_id')->pluck('thumbnail_url', 'youtube_channel_id');
-        $latest = $pick(false) + $pick(true);   // 일반 영상이 없는 채널은 최근 쇼츠 썸네일로 대신
+        $latest = $pick(false)->union($pick(true)->all());   // 일반 영상이 없는 채널은 최근 쇼츠 썸네일로 대신
         foreach ($channels as $c) $c->latest_thumb = $latest[$c->id] ?? null;
         return $channels;
     }
