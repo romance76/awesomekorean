@@ -68,8 +68,8 @@
       <div class="flex items-start gap-2">
         <input v-model="form.marketing_consent" type="checkbox" id="mailconsent" class="mt-1 rounded accent-amber-500" />
         <label for="mailconsent" class="text-xs text-ink-light">
-          <b class="text-ink">[선택]</b> {{ MAIL_CONSENT_TITLE }}
-          <span class="block text-ink-muted mt-0.5">{{ MAIL_CONSENT_BODY }}</span>
+          <b class="text-ink">{{ mc.optional }}</b> {{ mc.title }}
+          <span class="block text-ink-muted mt-0.5">{{ mc.body }}</span>
         </label>
       </div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
@@ -81,7 +81,8 @@
 </div>
 </template>
 <script setup>
-import { MAIL_CONSENT_TITLE, MAIL_CONSENT_BODY } from '../../utils/mailConsent'
+import { mailConsentText } from '../../utils/mailConsent'
+import { useLangStore } from '../../stores/lang'
 import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -94,6 +95,8 @@ const site = useSiteStore()
 site.load()   // 가입 허용 여부·비밀번호 최소 길이 같은 공개 설정 (이미 불러왔으면 그대로 사용)
 const router = useRouter()
 const form = reactive({ name: '', nickname: '', email: '', password: '', password_confirmation: '', allow_friend_request: true, marketing_consent: false })
+const langStore = useLangStore()
+const mc = computed(() => mailConsentText(langStore.locale))   // 사이트 언어(영어/한국어)에 맞는 수신 동의 문구
 const error = ref('')
 const submitting = ref(false)
 const agreeTerms = ref(false)

@@ -153,14 +153,14 @@
 
         <!-- 광고·소식 메일 수신 동의: 바로 저장되는 스위치(아래 "저장하기"와 별개) -->
         <div class="border border-gray-100 rounded-xl p-4 mt-4">
-          <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="mail" :size="14" class="text-amber-600" />메일 수신 설정</h3>
+          <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="mail" :size="14" class="text-amber-600" />{{ mc.heading }}</h3>
           <label class="flex items-start gap-2.5 cursor-pointer">
             <input type="checkbox" class="mt-1 rounded accent-amber-500" :checked="mailConsent" :disabled="mailBusy" @change="saveMailConsent($event.target.checked)" />
-            <span class="text-sm text-ink"><b>{{ MAIL_CONSENT_TITLE }}</b>
-              <span class="block text-xs text-ink-light mt-1 leading-relaxed">{{ MAIL_CONSENT_BODY }}</span>
+            <span class="text-sm text-ink"><b>{{ mc.title }}</b>
+              <span class="block text-xs text-ink-light mt-1 leading-relaxed">{{ mc.body }}</span>
             </span>
           </label>
-          <p class="text-xs text-ink-muted mt-2">{{ MAIL_CONSENT_REGION }}<span v-if="auth.user && !auth.user.email_verified_at"> 이메일 인증을 마친 뒤부터 보내 드려요.</span></p>
+          <p class="text-xs text-ink-muted mt-2">{{ mc.region }}<span v-if="auth.user && !auth.user.email_verified_at">{{ mc.needVerify }}</span></p>
           <p v-if="mailMsg" class="text-xs mt-1" :class="mailMsgType==='success'?'text-green-600':'text-red-500'">{{ mailMsg }}</p>
         </div>
 
@@ -1083,7 +1083,7 @@
 </template>
 
 <script setup>
-import { MAIL_CONSENT_TITLE, MAIL_CONSENT_BODY, MAIL_CONSENT_REGION } from '../../utils/mailConsent'
+import { mailConsentText } from '../../utils/mailConsent'
 import ResumeManager from '../../components/resume/ResumeManager.vue'
 import PasswordInput from '../../components/PasswordInput.vue'
 import ChatComposer from '../../components/ChatComposer.vue'
@@ -1259,7 +1259,8 @@ async function loadPublicRooms() {
   } catch (e) {}
 }
 
-// 광고·소식 메일 수신 동의
+// 광고·소식 메일 수신 동의(사이트 언어에 맞는 문구)
+const mc = computed(() => mailConsentText(langStore.locale))
 const mailConsent = ref(false)
 const mailBusy = ref(false)
 const mailMsg = ref('')
@@ -1273,8 +1274,8 @@ async function saveMailConsent(v) {
     const { data } = await axios.put('/api/user/email-consent', { consent: v, source: 'profile' })
     mailConsent.value = !!data.data?.consent
     if (auth.user) { auth.user.marketing_email_consent = mailConsent.value; auth.user.marketing_consent_asked_at = new Date().toISOString() }
-    mailMsgType.value = 'success'; mailMsg.value = mailConsent.value ? '메일 수신을 켰어요.' : '메일 수신을 껐어요.'
-  } catch { mailConsent.value = !v; mailMsgType.value = 'error'; mailMsg.value = '저장하지 못했어요. 잠시 뒤 다시 해 주세요.' }
+    mailMsgType.value = 'success'; mailMsg.value = mailConsent.value ? mc.value.on : mc.value.off
+  } catch { mailConsent.value = !v; mailMsgType.value = 'error'; mailMsg.value = mc.value.saveFail }
   finally { mailBusy.value = false }
 }
 
