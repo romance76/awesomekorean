@@ -4,24 +4,30 @@
 //   메뉴를 새로 눌러 들어온 경우는 평소처럼 처음 상태.
 // 사용: const listMem = useListMemory('market', { activeCat, search, page })
 //        onMounted 안의 첫 목록 불러오기를  loadPage(listMem.restore())  로 바꾼다(되살린 쪽 번호를 돌려줌, 없으면 1).
-import { watch } from 'vue'
+import { watch, onBeforeUnmount } from 'vue'
 
 export function useListMemory(key, refs) {
   const K = 'listMem:' + key
   const names = Object.keys(refs)
+  // 뒤로·앞으로 돌아온 경우의 이전 기록은 만들어지는 즉시 읽어 둔다(아래 save() 가 덮어쓰기 전에)
+  let prev = null
+  try { if (window.history.state?.forward) prev = JSON.parse(sessionStorage.getItem(K) || 'null') } catch { prev = null }
 
-  watch(names.map(n => () => refs[n].value), () => {
+  function save() {
     try {
       const d = {}
       names.forEach(n => { d[n] = refs[n].value })
       sessionStorage.setItem(K, JSON.stringify(d))
     } catch { /* 저장이 막혀도 목록은 그대로 동작 */ }
-  })
+  }
+  // 처음 상태(레시피의 무작위 seed 등)도 기록해 둬야, 아무것도 안 바꾸고 글만 보고 와도 같은 모습으로 돌아온다
+  if (!prev) save()
+  watch(names.map(n => () => refs[n].value), save)
+  onBeforeUnmount(save)
 
   function restore() {
     try {
-      if (!window.history.state?.forward) return 1
-      const d = JSON.parse(sessionStorage.getItem(K) || 'null')
+      const d = prev
       if (!d) return 1
       names.forEach(n => { if (n !== 'page' && n in d) refs[n].value = d[n] })
       return Number(d.page) > 0 ? Number(d.page) : 1
