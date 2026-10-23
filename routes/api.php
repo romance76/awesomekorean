@@ -52,6 +52,7 @@ Route::post('/register', [AuthController::class, 'register'])->middleware('throt
 Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
 // 광고·소식 메일 수신 거부 링크(메일 맨 아래). 서명 링크라 로그인 없이 한 번 누르면 끊기고, POST 는 메일 앱의 원클릭 수신 거부용
 // 정기 메일 맨 아래 광고 띠 클릭(클릭 수만 세고 광고주 주소로 이동)
+Route::get('/email/flyer-click/{id}', [\App\Http\Controllers\API\EmailAdClickController::class, 'flyer'])->whereNumber('id')->middleware('throttle:120,1');
 Route::get('/email/ad-click/{id}', [\App\Http\Controllers\API\EmailAdClickController::class, 'click'])->whereNumber('id')->middleware('throttle:120,1');
 Route::match(['get', 'post'], '/email/unsubscribe/{user}', [\App\Http\Controllers\API\EmailConsentController::class, 'unsubscribe'])->middleware(['signed', 'throttle:30,1'])->name('email.unsubscribe');
 // CSP 보고 전용 모드의 위반 보고 수신 (브라우저가 자동으로 보냄, 로그인 불필요, 종류별로 하루 1건만 기록)

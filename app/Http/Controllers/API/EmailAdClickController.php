@@ -10,6 +10,17 @@ use App\Support\WeeklyDigest;
 // 받는 사람이 누구인지는 기록하지 않는다(광고별 클릭 수만).
 class EmailAdClickController extends Controller
 {
+    /** 전면광고 메일의 "자세히 보기"/이미지 클릭: 전면광고 클릭 수를 올리고 광고주 주소로 이동 */
+    public function flyer(int $id)
+    {
+        $ad = \App\Models\FlyerAd::where('status', 'approved')->find($id);
+        $to = $ad ? trim((string) $ad->link_url) : '';
+        $internal = $to !== '' && str_starts_with($to, '/') && !str_starts_with($to, '//');
+        if (!$ad || $to === '' || (!$internal && !preg_match('#^https?://#i', $to))) return redirect('/');
+        $ad->increment('click_count');
+        return $internal ? redirect($to) : redirect()->away($to);
+    }
+
     public function click(int $id)
     {
         $ad = BannerAd::find($id);

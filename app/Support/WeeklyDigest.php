@@ -308,29 +308,44 @@ class WeeklyDigest
         ];
     }
 
-    /** 전면광고 메일 한 통의 값. $ad 가 없으면 샘플 전면광고(미리보기·시험 발송용) */
-    public static function flyerPayload(?User $user, ?\App\Models\FlyerAd $ad = null, bool $isTest = false, ?string $lang = null): array
+    /**
+     * 전면광고 메일 한 통의 값. $ads: 없으면(null) 샘플 전면광고 1건, FlyerAd 하나 또는 목록(한 통에 최대 3건 묶음).
+     * 각 광고는 items 에 담기고, 소개 문구의 {지역}·{종류} 와 제목줄은 첫 번째 광고를 기준으로 한다.
+     */
+    public static function flyerPayload(?User $user, $ads = null, bool $isTest = false, ?string $lang = null): array
     {
         $lang = $lang ? self::normLang($lang) : self::langOf($user);
         $en = $lang === 'en';
         $t = self::labels($lang);
         $kinds = $en ? ['open' => 'Grand Opening', 'closing' => 'Closing Sale', 'sale' => 'Sale'] : ['open' => '신장개업', 'closing' => '폐업 정리', 'sale' => '세일'];
-        $sample = !$ad;
-        if ($ad) $region = $ad->scope === 'national' ? ($en ? 'Nationwide' : '전국') : strtoupper((string) $ad->region_key) . ($en ? ' & nearby areas' : ' 및 인접 지역');
-        else $region = $en ? 'your area' : '우리 동네';
+        $list = $ads instanceof \App\Models\FlyerAd ? [$ads] : ($ads ? array_values(is_array($ads) ? $ads : $ads->all()) : []);
+        $sample = count($list) === 0;
         $fmt = $en ? 'M j' : 'n월 j일';
+        $items = [];
+        foreach ($list as $ad) {
+            $region = $ad->scope === 'national' ? ($en ? 'Nationwide' : '전국') : strtoupper((string) $ad->region_key) . ($en ? ' & nearby areas' : ' 및 인접 지역');
+            $items[] = [
+                'title' => $ad->title, 'kindLabel' => $kinds[$ad->kind] ?? ($en ? 'News' : '소식'), 'description' => $ad->description, 'phone' => $ad->phone,
+                'linkUrl' => $ad->link_url ? url('/api/email/flyer-click/' . $ad->id) : null,   // 클릭 수를 세고 광고주 주소로 보낸다
+                'image' => self::absolute($ad->image_url), 'region' => $region,
+                'period' => $ad->start_date?->format($fmt) . ($en ? ' – ' : ' ~ ') . $ad->end_date?->format($fmt),
+            ];
+        }
+        if ($sample) {
+            $items[] = [
+                'title' => $en ? 'Sample ad — Grand opening in your neighborhood!' : '샘플 전면광고 — 우리 동네 신장개업!', 'kindLabel' => $kinds['open'],
+                'description' => $en ? 'The advertiser\'s description goes here. This paragraph is a sample to show the layout.' : '전면광고를 신청한 광고주의 소개글이 여기에 들어가요. 이 문단은 모양을 보여 주기 위한 샘플입니다.',
+                'phone' => '(000) 000-0000', 'linkUrl' => null, 'image' => url('/images/email/sample-flyer.jpg'),
+                'region' => $en ? 'your area' : '우리 동네', 'period' => $en ? 'Mon DD – Mon DD' : '○월 ○일 ~ ○월 ○일',
+            ];
+        }
+        $first = $items[0];
         return [
             'lang' => $lang, 't' => $t,
             'name' => $user?->nickname ?: $user?->name ?: $t['member'],
             'sample' => $sample,
-            'title' => $ad->title ?? ($en ? 'Sample ad — Grand opening in your neighborhood!' : '샘플 전면광고 — 우리 동네 신장개업!'),
-            'kindLabel' => $ad ? ($kinds[$ad->kind] ?? ($en ? 'News' : '소식')) : $kinds['open'],
-            'description' => $ad->description ?? ($en ? 'The advertiser\'s description goes here. This paragraph is a sample to show the layout.' : '전면광고를 신청한 광고주의 소개글이 여기에 들어가요. 이 문단은 모양을 보여 주기 위한 샘플입니다.'),
-            'phone' => $ad->phone ?? '(000) 000-0000',
-            'linkUrl' => $ad ? ($ad->link_url ?: null) : null,
-            'image' => $ad ? self::absolute($ad->image_url) : url('/images/email/sample-flyer.jpg'),
-            'region' => $region,
-            'period' => $ad ? ($ad->start_date?->format($fmt) . ($en ? ' – ' : ' ~ ') . $ad->end_date?->format($fmt)) : ($en ? 'Mon DD – Mon DD' : '○월 ○일 ~ ○월 ○일'),
+            'items' => $items, 'moreCount' => count($items) - 1,
+            'title' => $first['title'], 'kindLabel' => $first['kindLabel'], 'region' => $first['region'],
             'notice' => self::setting(self::noticeKey('flyer', $lang)),
             'texts' => self::texts('flyer' . self::sfx($lang)),
             'editMode' => false,
@@ -349,8 +364,8 @@ class WeeklyDigest
     {
         $lang = self::normLang($lang);
         if ($type === 'flyer') {
-            $ad = \App\Models\FlyerAd::where('status', 'approved')->orderByDesc('approved_at')->first();   // 승인된 실제 전면광고가 있으면 그것으로, 없으면 샘플
-            return new \App\Mail\FlyerAdMail(self::flyerPayload($user, $sample ? null : $ad, true, $lang));
+            $ads = \App\Models\FlyerAd::where('status', 'approved')->orderByDesc('approved_at')->limit(3)->get();   // 승인된 실제 전면광고가 있으면 그것들(최대 3건 묶음)로, 없으면 샘플
+            return new \App\Mail\FlyerAdMail(self::flyerPayload($user, $sample ? null : $ads, true, $lang));
         }
         return new \App\Mail\WeeklyDigestMail(self::payload($user, $state, null, true, $sample, $lang));
     }

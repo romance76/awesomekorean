@@ -95,6 +95,26 @@
     <p class="text-[11px] text-ink-faint mt-1">시험 메일은 입력한 주소 한 곳으로만 가고, 광고 노출 집계·발송 기록에는 반영되지 않아요. 위 체크 상태 그대로 보내져요.</p>
   </div>
 
+  <!-- 전면광고 자동 발송 예정표 -->
+  <div class="card p-4 mb-4">
+    <h2 class="font-bold text-ink text-sm mb-1">4. 전면광고 자동 발송 예정표</h2>
+    <p class="text-xs text-ink-muted mb-2">승인된 전면광고는 광고 기간을 7일 단위로 나눠 <b>각 주의 마지막 날</b>에 해당 지역 동의 회원에게 자동으로 갑니다(광고주 무료 혜택). 회원은 주 1통 이하, 월요일은 쉬고, 받는 사람 현지 오전 10시에 보내요. 실제 발송 스위치가 켜져야 나갑니다.</p>
+    <p v-if="!st || !st.flyer_schedule.length" class="text-sm text-ink-muted">지금 진행 중이거나 예정된 승인 전면광고가 없어요.</p>
+    <div v-else class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead><tr class="text-xs text-ink-muted text-left"><th class="py-1">광고</th><th class="py-1">지역</th><th class="py-1">기간</th><th class="py-1">발송 날짜(주 마지막 날)</th><th class="py-1 text-right">받을 회원</th><th class="py-1 text-right">보낸 통수</th></tr></thead>
+        <tbody>
+          <tr v-for="f in st.flyer_schedule" :key="f.id" class="border-t border-gray-50 align-top">
+            <td class="py-1.5 pr-2">{{ f.title }}</td><td class="py-1.5 pr-2 whitespace-nowrap">{{ f.scope }}</td>
+            <td class="py-1.5 pr-2 whitespace-nowrap text-xs">{{ f.start }} ~ {{ f.end }}</td>
+            <td class="py-1.5 pr-2 text-xs"><span v-for="d in f.due_dates" :key="d" class="inline-block mr-1.5 mb-0.5 rounded-full px-2 py-0.5" :class="d === f.next_due ? 'bg-amber-100 text-amber-800 font-bold' : 'bg-gray-100 text-ink-muted'">{{ d.slice(5) }}</span></td>
+            <td class="py-1.5 text-right">{{ f.recipients }}</td><td class="py-1.5 text-right">{{ f.sent }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- 광고별 집계 -->
   <div class="card p-4">
     <h2 class="font-bold text-ink text-sm mb-2">광고 띠 집계 (최근 28일)</h2>

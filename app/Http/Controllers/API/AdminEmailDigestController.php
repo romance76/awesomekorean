@@ -34,6 +34,7 @@ class AdminEmailDigestController extends Controller
                 'digest' => WeeklyDigest::setting(WeeklyDigest::noticeKey('digest', 'ko')), 'digest_en' => WeeklyDigest::setting(WeeklyDigest::noticeKey('digest', 'en')),
                 'flyer' => WeeklyDigest::setting(WeeklyDigest::noticeKey('flyer', 'ko')), 'flyer_en' => WeeklyDigest::setting(WeeklyDigest::noticeKey('flyer', 'en')),
             ],
+            'flyer_schedule' => \App\Support\FlyerMailer::schedule(),
             'en_members' => (clone $eligible)->where('language', 'en')->count(),
             'from' => config('mail.from.address'),
             'schedule' => '매주 월요일, 받는 사람 현지 시각 오전 ' . WeeklyDigest::SEND_HOUR . '시',

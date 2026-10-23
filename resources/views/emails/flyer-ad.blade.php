@@ -20,17 +20,21 @@
       <p style="font-size:15px;line-height:1.7;margin:0 0 4px;">{{ str_replace(':name', $name, $t['greeting']) }}</p>
       <p style="font-size:13.5px;line-height:1.7;color:#666;margin:0 0 14px;"><span {!! $editMode ? 'data-edit-key="intro" data-single="1" data-placeholder="intro" data-raw="' . e($texts['intro']) . '"' : '' !!}>{{ str_replace(['{지역}', '{종류}', '{region}', '{kind}'], [$region, $kindLabel, $region, $kindLabel], $texts['intro']) }}</span> <span style="color:#aaa;">{{ $t['ad_label'] }}</span></p>
 
-      @if($image)
-      @if($linkUrl)<a href="{{ $linkUrl }}" style="text-decoration:none;">@endif
-      <img src="{{ $image }}" alt="{{ $title }}" width="552" style="width:100%;max-width:100%;height:auto;border:0;border-radius:12px;display:block;">
-      @if($linkUrl)</a>@endif
-      @endif
-
-      <h1 style="font-size:19px;line-height:1.4;margin:14px 0 6px;color:#111;">{{ $title }}</h1>
-      <div style="font-size:12px;color:#b45309;margin-bottom:8px;">📅 {{ $period }}</div>
-      @if($description)<p style="font-size:14px;line-height:1.75;color:#444;margin:0 0 12px;white-space:pre-line;">{{ $description }}</p>@endif
-      @if($phone)<p style="font-size:14px;margin:0 0 14px;">📞 <a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}" style="color:#111;font-weight:700;text-decoration:none;">{{ $phone }}</a></p>@endif
-      @if($linkUrl)<div style="text-align:center;margin:6px 0 14px;"><a href="{{ $linkUrl }}" style="display:inline-block;background:#FC226B;color:#ffffff;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;">{{ $t['flyer_btn'] }}</a></div>@endif
+      @foreach($items as $it)
+      <div style="{{ $loop->first ? '' : 'border-top:1px solid #f0f0f0;margin-top:18px;padding-top:18px;' }}">
+        @if($it['image'])
+        @if($it['linkUrl'])<a href="{{ $it['linkUrl'] }}" style="text-decoration:none;">@endif
+        <img src="{{ $it['image'] }}" alt="{{ $it['title'] }}" width="552" style="width:100%;max-width:100%;height:auto;border:0;border-radius:12px;display:block;">
+        @if($it['linkUrl'])</a>@endif
+        @endif
+        <h1 style="font-size:19px;line-height:1.4;margin:14px 0 6px;color:#111;">{{ $it['title'] }}</h1>
+        <div style="font-size:12px;color:#b45309;margin-bottom:8px;">📅 {{ $it['period'] }}@if(count($items) > 1) · {{ $it['kindLabel'] }}@endif</div>
+        @if($it['description'])<p style="font-size:14px;line-height:1.75;color:#444;margin:0 0 12px;white-space:pre-line;">{{ $it['description'] }}</p>@endif
+        @if($it['phone'])<p style="font-size:14px;margin:0 0 14px;">📞 <a href="tel:{{ preg_replace('/[^0-9+]/', '', $it['phone']) }}" style="color:#111;font-weight:700;text-decoration:none;">{{ $it['phone'] }}</a></p>@endif
+        @if($it['linkUrl'])<div style="text-align:center;margin:6px 0 4px;"><a href="{{ $it['linkUrl'] }}" style="display:inline-block;background:#FC226B;color:#ffffff;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;">{{ $t['flyer_btn'] }}</a></div>@endif
+      </div>
+      @endforeach
+      <div style="height:14px;"></div>
 
       @if(!empty($notice) || $editMode)
       <div style="background:#f8f7f4;border:1px solid #eeeae0;border-radius:10px;padding:12px 14px;margin:6px 0 14px;font-size:12.5px;line-height:1.7;color:#666;white-space:pre-line;min-height:18px;" {!! $editMode ? 'data-edit-key="notice" data-placeholder="안내 문구를 쓰려면 여기를 누르세요 / Click to add a notice (hidden in real emails when empty)"' : '' !!}>{{ $notice }}</div>

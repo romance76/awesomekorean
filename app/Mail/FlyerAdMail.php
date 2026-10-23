@@ -19,7 +19,9 @@ class FlyerAdMail extends Mailable
     {
         $t = $this->data['t'];
         $prefix = !empty($this->data['isTest']) ? $t['test_prefix'] : '';
-        return new Envelope(subject: $prefix . str_replace([':kind', ':title'], [$this->data['kindLabel'], $this->data['title']], $t['subject_flyer']));
+        $more = (int) ($this->data['moreCount'] ?? 0);
+        $title = $this->data['title'] . ($more > 0 ? (($this->data['lang'] ?? 'ko') === 'en' ? " and {$more} more" : " 외 {$more}건") : '');
+        return new Envelope(subject: $prefix . str_replace([':kind', ':title'], [$this->data['kindLabel'], $title], $t['subject_flyer']));
     }
 
     public function headers(): Headers
