@@ -151,6 +151,19 @@
           </div>
         </div>
 
+        <!-- 광고·소식 메일 수신 동의: 바로 저장되는 스위치(아래 "저장하기"와 별개) -->
+        <div class="border border-gray-100 rounded-xl p-4 mt-4">
+          <h3 class="flex items-center gap-1.5 font-bold text-ink text-sm mb-3"><AppIcon name="mail" :size="14" class="text-amber-600" />메일 수신 설정</h3>
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" class="mt-1 rounded accent-amber-500" :checked="mailConsent" :disabled="mailBusy" @change="saveMailConsent($event.target.checked)" />
+            <span class="text-sm text-ink"><b>{{ MAIL_CONSENT_TITLE }}</b>
+              <span class="block text-xs text-ink-light mt-1 leading-relaxed">{{ MAIL_CONSENT_BODY }}</span>
+            </span>
+          </label>
+          <p class="text-xs text-ink-muted mt-2">{{ MAIL_CONSENT_REGION }}<span v-if="auth.user && !auth.user.email_verified_at"> 이메일 인증을 마친 뒤부터 보내 드려요.</span></p>
+          <p v-if="mailMsg" class="text-xs mt-1" :class="mailMsgType==='success'?'text-green-600':'text-red-500'">{{ mailMsg }}</p>
+        </div>
+
         <div class="mb-4 mt-4">
           <label class="input-label">언어</label>
           <select v-model="pf.language" class="input-soft w-auto"><option value="ko">한국어</option><option value="en">English</option></select>
@@ -1070,6 +1083,7 @@
 </template>
 
 <script setup>
+import { MAIL_CONSENT_TITLE, MAIL_CONSENT_BODY, MAIL_CONSENT_REGION } from '../../utils/mailConsent'
 import ResumeManager from '../../components/resume/ResumeManager.vue'
 import PasswordInput from '../../components/PasswordInput.vue'
 import ChatComposer from '../../components/ChatComposer.vue'
@@ -1245,8 +1259,28 @@ async function loadPublicRooms() {
   } catch (e) {}
 }
 
+// 광고·소식 메일 수신 동의
+const mailConsent = ref(false)
+const mailBusy = ref(false)
+const mailMsg = ref('')
+const mailMsgType = ref('success')
+async function loadMailConsent() {
+  try { const { data } = await axios.get('/api/user/email-consent'); mailConsent.value = !!data.data?.consent } catch {}
+}
+async function saveMailConsent(v) {
+  mailBusy.value = true; mailMsg.value = ''
+  try {
+    const { data } = await axios.put('/api/user/email-consent', { consent: v, source: 'profile' })
+    mailConsent.value = !!data.data?.consent
+    if (auth.user) { auth.user.marketing_email_consent = mailConsent.value; auth.user.marketing_consent_asked_at = new Date().toISOString() }
+    mailMsgType.value = 'success'; mailMsg.value = mailConsent.value ? '메일 수신을 켰어요.' : '메일 수신을 껐어요.'
+  } catch { mailConsent.value = !v; mailMsgType.value = 'error'; mailMsg.value = '저장하지 못했어요. 잠시 뒤 다시 해 주세요.' }
+  finally { mailBusy.value = false }
+}
+
 function loadProfile() {
   const u = auth.user
+  loadMailConsent()
   if (u) {
     Object.assign(pf, { name: u.name, nickname: u.nickname, bio: u.bio, phone: u.phone ? formatPhone(u.phone) : '', address1: u.address1, address2: u.address2, city: u.city, state: u.state, zipcode: u.zipcode, default_radius: u.default_radius || 30, language: u.language || 'ko', allow_friend_request: u.allow_friend_request !== false, allow_messages: u.allow_messages !== false, allow_elder_service: !!u.allow_elder_service, free_public_room_id: u.free_public_room_id || null })
   }

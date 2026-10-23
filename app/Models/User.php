@@ -108,6 +108,9 @@ class User extends Authenticatable implements JWTSubject
             'allow_friend_request' => 'boolean',
             'allow_messages' => 'boolean',
             'allow_elder_service' => 'boolean',
+            'marketing_email_consent' => 'boolean',
+            'marketing_consent_at' => 'datetime',
+            'marketing_consent_asked_at' => 'datetime',
         ];
     }
 

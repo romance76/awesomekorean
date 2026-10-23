@@ -77,6 +77,8 @@
     <!-- 상위노출 카드 결제 공용 창 (usePromoCheckout) -->
     <PromoCheckoutModal />
     <BottomNav v-if="showNav" />
+    <!-- 광고·소식 메일 수신 동의 안내(아직 답하지 않은 로그인 회원에게만) -->
+    <EmailConsentBanner />
     <!-- 하단 메뉴 높이만큼 비워 두는 칸 — 앱(홈 화면 추가) 모드는 하단 메뉴가 홈 표시줄 영역(safe-area)만큼 더 높아서 그 값도 더한다 -->
     <div v-if="showNav" class="md:hidden" style="height: calc(4.25rem * var(--ui, 1) + var(--sab, 0px) + var(--mini-strip-page, 0px))"></div>
   </div>
@@ -92,6 +94,7 @@ import { useAuthStore } from './stores/auth'
 import NavBar from './components/NavBar.vue'
 import OpenEventBanner from './components/OpenEventBanner.vue'
 import BottomNav from './components/BottomNav.vue'
+import EmailConsentBanner from './components/EmailConsentBanner.vue'
 import PromoCheckoutModal from './components/PromoCheckoutModal.vue'
 import UserPopup from './components/UserPopup.vue'
 import MessageThreadPopup from './components/MessageThreadPopup.vue'

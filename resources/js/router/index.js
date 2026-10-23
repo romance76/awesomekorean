@@ -22,6 +22,7 @@ const routes = [
   { path: '/auth/social-callback', name: 'social-callback', component: p('auth/SocialCallback') },
   // 이메일 인증 완료 착지 — beforeEach 가 항상 원래 페이지로 보내므로 컴포넌트는 렌더되지 않음
   { path: '/email-verified', name: 'email-verified', component: p('Home') },
+  { path: '/email-unsubscribed', name: 'email-unsubscribed', component: p('auth/EmailUnsubscribed') },   // 메일 수신 거부 링크를 누른 뒤 도착
 
   // Community
   { path: '/community', name: 'community', component: p('community/BoardList') },

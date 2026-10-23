@@ -65,6 +65,13 @@
           <RouterLink to="/privacy" target="_blank" class="text-amber-600 underline hover:text-amber-700 transition-colors">개인정보처리방침</RouterLink>에 동의합니다 (필수)
         </label>
       </div>
+      <div class="flex items-start gap-2">
+        <input v-model="form.marketing_consent" type="checkbox" id="mailconsent" class="mt-1 rounded accent-amber-500" />
+        <label for="mailconsent" class="text-xs text-ink-light">
+          <b class="text-ink">[선택]</b> {{ MAIL_CONSENT_TITLE }}
+          <span class="block text-ink-muted mt-0.5">{{ MAIL_CONSENT_BODY }}</span>
+        </label>
+      </div>
       <div v-if="error" class="text-red-500 text-sm">{{ error }}</div>
       <button type="submit" :disabled="submitting || !agreeTerms" class="btn-primary w-full">{{ submitting ? '가입 중...' : '회원가입' }}</button>
     </form>
@@ -74,6 +81,7 @@
 </div>
 </template>
 <script setup>
+import { MAIL_CONSENT_TITLE, MAIL_CONSENT_BODY } from '../../utils/mailConsent'
 import PasswordInput from '../../components/PasswordInput.vue'
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -85,7 +93,7 @@ const auth = useAuthStore()
 const site = useSiteStore()
 site.load()   // 가입 허용 여부·비밀번호 최소 길이 같은 공개 설정 (이미 불러왔으면 그대로 사용)
 const router = useRouter()
-const form = reactive({ name: '', nickname: '', email: '', password: '', password_confirmation: '', allow_friend_request: true })
+const form = reactive({ name: '', nickname: '', email: '', password: '', password_confirmation: '', allow_friend_request: true, marketing_consent: false })
 const error = ref('')
 const submitting = ref(false)
 const agreeTerms = ref(false)

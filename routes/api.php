@@ -50,6 +50,8 @@ Broadcast::routes(['middleware' => ['auth:api']]);
 // ─── Public Auth ───
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,10'); // 10분당 10회
 Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
+// 광고·소식 메일 수신 거부 링크(메일 맨 아래). 서명 링크라 로그인 없이 한 번 누르면 끊기고, POST 는 메일 앱의 원클릭 수신 거부용
+Route::match(['get', 'post'], '/email/unsubscribe/{user}', [\App\Http\Controllers\API\EmailConsentController::class, 'unsubscribe'])->middleware(['signed', 'throttle:30,1'])->name('email.unsubscribe');
 // CSP 보고 전용 모드의 위반 보고 수신 (브라우저가 자동으로 보냄, 로그인 불필요, 종류별로 하루 1건만 기록)
 Route::post('/csp-report', [\App\Http\Controllers\API\CspReportController::class, 'store'])->middleware('throttle:60,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,10');
@@ -324,6 +326,10 @@ Route::middleware('auth:api')->group(function () {
     });
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/user/profile', [ProfileController::class, 'update']);
+    // 광고·소식 메일 수신 동의(마이페이지 스위치·안내 배너)
+    Route::get('/user/email-consent', [\App\Http\Controllers\API\EmailConsentController::class, 'show']);
+    Route::put('/user/email-consent', [\App\Http\Controllers\API\EmailConsentController::class, 'update'])->middleware('throttle:30,1');
+    Route::post('/user/email-consent/later', [\App\Http\Controllers\API\EmailConsentController::class, 'later'])->middleware('throttle:30,1');
     Route::put('/user/easy-view', [ProfileController::class, 'saveEasyView'])->middleware('throttle:60,1');
     Route::post('/user/avatar', [ProfileController::class, 'uploadAvatar']);
     Route::delete('/user/delete', [ProfileController::class, 'deleteAccount']);

@@ -33,6 +33,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users',
             'password' => $this->passwordRules(),
             'nickname' => 'nullable|string|max:50',
+            'marketing_consent' => 'nullable|boolean',
         ]);
 
         $user = User::create([
@@ -43,6 +44,9 @@ class AuthController extends Controller
             'language' => 'ko',
             'allow_friend_request' => $request->allow_friend_request ?? true,
         ]);
+
+        // 광고·소식 메일 수신 동의(선택, 기본 체크 안 됨) — 체크한 경우에만 동의 기록을 남긴다
+        if ($request->boolean('marketing_consent')) \App\Support\EmailConsent::grant($user, 'register', $request->ip());
 
         // 가입 보너스 (P2B-2: DB 동적)
         // 비상 스위치 "가입 보너스 지급 멈추기"가 켜져 있으면 포인트·Entry 가입 보너스를 주지 않는다 (가입 자체는 그대로)
