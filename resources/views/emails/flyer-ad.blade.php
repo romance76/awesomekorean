@@ -18,7 +18,7 @@
 
     <div style="padding:22px 24px 8px;">
       <p style="font-size:15px;line-height:1.7;margin:0 0 4px;">{{ $name }}님, 안녕하세요!</p>
-      <p style="font-size:13.5px;line-height:1.7;color:#666;margin:0 0 14px;">{{ $region }} 지역 한인 업체의 <b>{{ $kindLabel }}</b> 소식을 알려 드려요. <span style="color:#aaa;">(광고)</span></p>
+      <p style="font-size:13.5px;line-height:1.7;color:#666;margin:0 0 14px;">{{ $region }}의 한인 업체 <b>{{ $kindLabel }}</b> 소식을 알려 드려요. <span style="color:#aaa;">(광고)</span></p>
 
       @if($image)
       @if($linkUrl)<a href="{{ $linkUrl }}" style="text-decoration:none;">@endif

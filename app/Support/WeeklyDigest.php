@@ -178,7 +178,7 @@ class WeeklyDigest
         $addr = self::postalAddress();
         $kinds = ['open' => '신장개업', 'closing' => '폐업 정리', 'sale' => '세일'];
         $sample = !$ad;
-        $region = $ad ? ($ad->scope === 'national' ? '전국' : strtoupper((string) $ad->region_key) . ' 및 인접 지역') : '우리 지역';
+        $region = $ad ? ($ad->scope === 'national' ? '전국' : strtoupper((string) $ad->region_key) . ' 및 인접 지역') : '우리 동네';
         return [
             'name' => $user?->nickname ?: $user?->name ?: '회원',
             'sample' => $sample,
