@@ -25,14 +25,16 @@ export function useListMemory(key, refs) {
   watch(names.map(n => () => refs[n].value), save)
   onBeforeUnmount(save)
 
+  let restored = false
   function restore() {
     try {
       const d = prev
       if (!d) return 1
       names.forEach(n => { if (n !== 'page' && n in d) refs[n].value = d[n] })
+      restored = true
       return Number(d.page) > 0 ? Number(d.page) : 1
     } catch { return 1 }
   }
 
-  return { restore }
+  return { restore, wasRestored: () => restored }
 }

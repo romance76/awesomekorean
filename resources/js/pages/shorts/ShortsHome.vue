@@ -619,8 +619,24 @@ function onLayerClick() {
   togglePlay()
 }
 
+// 다른 화면에 갔다가 뒤로 오면, 서버가 매번 새로 섞어 주는 목록 대신 보던 목록과 보던 영상 위치를 그대로 쓴다
+const FEED_KEY = 'shortsFeed'
+function saveFeed() {
+  try { if (shorts.value.length) sessionStorage.setItem(FEED_KEY, JSON.stringify({ shorts: shorts.value, idx: idx.value, page, lastPage })) } catch {}
+}
+function restoreFeed() {
+  try {
+    if (!window.history.state?.forward) return false
+    const d = JSON.parse(sessionStorage.getItem(FEED_KEY) || 'null')
+    if (!d || !Array.isArray(d.shorts) || !d.shorts.length) return false
+    shorts.value = d.shorts; idx.value = Math.min(Math.max(0, d.idx || 0), d.shorts.length - 1); page = d.page || 1; lastPage = d.lastPage || 1
+    return true
+  } catch { return false }
+}
+watch(idx, saveFeed)
+
 onMounted(async () => {
-  try { shorts.value = await fetchPage(1) } catch {}
+  if (!restoreFeed()) { try { shorts.value = await fetchPage(1) } catch {}; saveFeed() }
   loading.value = false
   preloadThumbs()
   window.addEventListener('keydown', onKeydown)

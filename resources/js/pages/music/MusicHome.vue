@@ -198,6 +198,7 @@
 <script setup>
 import { useModal } from '../../composables/useModal'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 import { useAuthStore } from '../../stores/auth'
 import { useMusicStore } from '../../stores/music'
 import AppIcon from '../../components/AppIcon.vue'
@@ -477,11 +478,17 @@ async function importYoutube() {
   importing.value = false
 }
 
+const listMem = useListMemory('music', { activeCat, trackSeed, trackPage })
+
 onMounted(async () => {
   try {
     const { data } = await axios.get('/api/music/categories')
     categories.value = data.data || []
-    if (categories.value.length) selectCategory(categories.value[0])
+    // 다른 화면에 갔다가 뒤로 오면 보던 카테고리·쪽·순서(seed)를 그대로(처음 카테고리로 돌아가지 않게)
+    const pg = listMem.restore()
+    const back = listMem.wasRestored() && activeCat.value && categories.value.find(c => c.id === activeCat.value.id)
+    if (back) { activeCat.value = back; activePL.value = null; showFavorites.value = false; await loadCategoryPage(pg) }
+    else if (categories.value.length) selectCategory(categories.value[0])
   } catch {}
   await loadPlaylists()
   // 즐겨찾기 ID 로드

@@ -145,6 +145,7 @@
 <script setup>
 import { SHOPPING_ALL, SHOPPING_CATEGORIES } from '../../utils/shoppingCategories'
 import { ref, computed, onMounted } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 import { useRoute, useRouter } from 'vue-router'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
@@ -193,9 +194,11 @@ async function load(p = 1) {
   loading.value = false
 }
 
+const listMem = useListMemory('shopping', { category, search, chip, page })   // 상세에서 뒤로 오면 고른 분류·칩·검색·쪽 유지
+
 onMounted(() => {
   if (route.query.category) category.value = route.query.category
   if (route.query.search) search.value = String(route.query.search)
-  load()
+  load(listMem.restore())
 })
 </script>
