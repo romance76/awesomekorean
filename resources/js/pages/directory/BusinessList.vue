@@ -382,6 +382,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useInlineDetailBack } from '../../composables/useInlineDetailBack'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -411,6 +412,7 @@ const activeCat = ref('')
 const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const activeItem = ref(null)
+useInlineDetailBack(activeItem, () => closeDetail())   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
 const activeReviews = ref([])
 const bizPrev = ref(null) // 같은 카테고리 내 이전 (서버 prev)
 const bizNext = ref(null) // 같은 카테고리 내 다음 (서버 next)

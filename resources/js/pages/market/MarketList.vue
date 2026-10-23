@@ -268,6 +268,7 @@
 import { useModal } from '../../composables/useModal'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted, watch } from 'vue'
+import { useInlineDetailBack } from '../../composables/useInlineDetailBack'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -306,6 +307,7 @@ const marketCategories = [
 const items = ref([])
 const loading = ref(true)
 const activeItem = ref(null)
+useInlineDetailBack(activeItem, () => { activeItem.value = null })   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
 const currentIdx = ref(-1)
 function openItem(item) {
   router.push(`/market/${item.id}`)

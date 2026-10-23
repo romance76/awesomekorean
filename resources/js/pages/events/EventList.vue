@@ -334,6 +334,7 @@
 import { useModal } from '../../composables/useModal'
 import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useInlineDetailBack } from '../../composables/useInlineDetailBack'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -380,6 +381,7 @@ const activeCat = ref('')
 const { loadConfig, getDefaultView } = useMenuConfig()
 const viewMode = ref('list')
 const activeItem = ref(null)
+useInlineDetailBack(activeItem, () => { activeItem.value = null })   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
 // 수정·삭제 권한: 경품 추첨은 최고관리자만(시작 후 참가자가 생기면 잠김), 일반 이벤트는 작성자·관리자
 const canEditActive = computed(() => {
   const it = activeItem.value

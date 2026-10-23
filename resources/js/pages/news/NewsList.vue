@@ -253,6 +253,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useInlineDetailBack } from '../../composables/useInlineDetailBack'
 
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -279,6 +280,7 @@ const categories = ref([])
 const allNewToday = ref(0)
 const activeCat = ref(null)
 const activeItem = ref(null)
+useInlineDetailBack(activeItem, () => closeDetail())   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
 const searchQ = ref('')
 const showEnglish = ref(false)
 
