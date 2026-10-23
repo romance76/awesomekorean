@@ -485,9 +485,9 @@ onMounted(async () => {
     const { data } = await axios.get('/api/music/categories')
     categories.value = data.data || []
     // 다른 화면에 갔다가 뒤로 오면 보던 카테고리·쪽·순서(seed)를 그대로(처음 카테고리로 돌아가지 않게)
-    const pg = listMem.restore()
+    listMem.restore()   // activeCat·trackSeed·trackPage 를 되살림
     const back = listMem.wasRestored() && activeCat.value && categories.value.find(c => c.id === activeCat.value.id)
-    if (back) { activeCat.value = back; activePL.value = null; showFavorites.value = false; await loadCategoryPage(pg) }
+    if (back) { activeCat.value = back; activePL.value = null; showFavorites.value = false; await loadCategoryPage(trackPage.value || 1) }
     else if (categories.value.length) selectCategory(categories.value[0])
   } catch {}
   await loadPlaylists()
