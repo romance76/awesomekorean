@@ -240,6 +240,7 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
 import { useBookmarkStore } from '../../stores/bookmarks'
@@ -481,6 +482,7 @@ async function loadPage(p = 1) {
 }
 
 
+const listMem = useListMemory('jobs', { postType, activeCat, search, page })   // 상세에서 뒤로 오면 고른 분류·검색·쪽 유지
 onMounted(async () => {
   bStore.loadAll()
   // URL 쿼리 파라미터 반영
@@ -506,7 +508,7 @@ onMounted(async () => {
     selectedCityIdx.value = '-1'
     radius.value = '0'
   }
-  loadPage()
+  loadPage(listMem.restore())
 })
 </script>
 <style scoped>

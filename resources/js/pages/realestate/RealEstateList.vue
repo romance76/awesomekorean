@@ -327,6 +327,7 @@
 import { useModal } from '../../composables/useModal'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 import { useInlineDetailBack } from '../../composables/useInlineDetailBack'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
@@ -608,6 +609,7 @@ async function loadPage(p = 1) {
   loading.value = false
 }
 
+const listMem = useListMemory('realestate', { reType, activeCat, search, page })   // 상세에서 뒤로 오면 고른 분류·검색·쪽 유지
 onMounted(async () => {
   const savedLoc = locFilter.get('realestate') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
@@ -632,7 +634,7 @@ onMounted(async () => {
   if (route.query.search) search.value = String(route.query.search)
 
   if (showFavorites.value) loadFavoritesPage()
-  else loadPage()
+  else loadPage(listMem.restore())
 })
 
 watch(() => route.params.id, (newId, oldId) => {

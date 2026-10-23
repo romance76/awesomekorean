@@ -186,6 +186,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 
 // 동호회 카드의 대표 이미지(club.image). 상세 화면은 이미 이 이미지를 쓰는데 목록 카드만 기본 아이콘이었다.
 const failedImg = ref(new Set())
@@ -352,6 +353,7 @@ async function loadMyClubs() {
   try { const { data } = await axios.get('/api/my-clubs'); myClubs.value = data.data || [] } catch {}
 }
 
+const listMem = useListMemory('clubs', { catFilter, type, search })   // 상세에서 뒤로 오면 고른 분류·검색 유지
 onMounted(async () => {
   const savedLoc = locFilter.get('clubs') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
@@ -360,6 +362,7 @@ onMounted(async () => {
   else { selectedCityIdx.value = '-1'; radius.value = '0' }
   if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
   if (route.query.search) search.value = String(route.query.search)
+  listMem.restore()
   loadClubs()
   loadMyClubs()
 })

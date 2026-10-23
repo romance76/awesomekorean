@@ -268,6 +268,7 @@
 import { useModal } from '../../composables/useModal'
 import { useRoute, useRouter } from 'vue-router'
 import { ref, computed, onMounted, watch } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 import { useInlineDetailBack } from '../../composables/useInlineDetailBack'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
@@ -484,6 +485,7 @@ watch(() => route.query, (q) => {
   loadPage()
 })
 
+const listMem = useListMemory('market', { activeCat, search, page })   // 상세에서 뒤로 오면 고른 분류·검색·쪽 유지
 onMounted(async () => {
   const savedLoc = locFilter.get('market') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
@@ -500,7 +502,7 @@ onMounted(async () => {
     radius.value = '0'
   }
   if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
-  loadPage()
+  loadPage(listMem.restore())
 })
 
 watch([selectedCityIdx, radius], ([c, r]) => { locFilter.set('market', { cityIdx: c, radius: r }) })

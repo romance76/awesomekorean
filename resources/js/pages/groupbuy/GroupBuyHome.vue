@@ -176,6 +176,7 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { ref, computed, watch, onMounted } from 'vue'
+import { useListMemory } from '../../composables/useListMemory'
 import { useLocationFilterStore } from '../../stores/locationFilter'
 import { useLocation } from '../../composables/useLocation'
 import { useAuthStore } from '../../stores/auth'
@@ -366,6 +367,7 @@ async function loadFavoritesPage() {
   loading.value = false
 }
 
+const listMem = useListMemory('groupbuy', { viewScope, statusFilter, search, page })   // 상세에서 뒤로 오면 고른 보기·상태·검색·쪽 유지
 onMounted(async () => {
   const savedLoc = locFilter.get('groupbuy') // 상세 화면에서 돌아올 때 위치·반경 유지
   bStore.loadAll()
@@ -380,7 +382,7 @@ onMounted(async () => {
   }
   if (savedLoc && !(String(savedLoc.cityIdx) === '-2' && !myCity.value)) { selectedCityIdx.value = String(savedLoc.cityIdx); radius.value = String(savedLoc.radius) }
   if (route.query.search) search.value = String(route.query.search)
-  loadPage()
+  loadPage(listMem.restore())
 })
 
 watch(() => route.params.id, (newId, oldId) => {
