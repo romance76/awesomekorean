@@ -6,6 +6,8 @@
 import { watch, onBeforeUnmount } from 'vue'
 
 // keep: 글을 열 때 같이 바뀌어 버리는 목록 필터(예: 열린 글의 분류로 activeCat 이 바뀜)를 { 이름: ref } 로 넘기면, 닫을 때 원래 값으로 되돌린다.
+let cleaning = false   // 표시 기록 정리(뒤로 한 칸)가 진행 중인지
+
 export function useInlineDetailBack(activeItem, close, keep = {}) {
   const marked = () => !!window.history.state?.inlineDetail
   let listScrollY = 0
@@ -39,7 +41,13 @@ export function useInlineDetailBack(activeItem, close, keep = {}) {
 
   // 상세를 펼친 채 다른 화면으로 갔다가 뒤로 오면, 쌓아 둔 기록(표시)이 남은 채로 목록이 새로 만들어진다.
   // 그대로 두면 "뒤로"를 한 번 더 눌러야 하므로, 상세가 닫힌 상태로 표시 기록에 서 있다면 바로 한 칸 물러서 정리한다.
-  if (marked()) setTimeout(() => { if (!activeItem.value && marked()) window.history.back() }, 0)
+  if (marked()) setTimeout(() => {
+    // 같은 순간에 두 번 실행돼 두 칸 물러나지 않도록, 이미 물러서는 중이면(popstate 가 오기 전) 건너뛴다
+    if (activeItem.value || !marked() || cleaning) return
+    cleaning = true
+    window.addEventListener('popstate', () => { cleaning = false }, { once: true })
+    window.history.back()
+  }, 0)
 
   // 사용자가 뒤로가기를 눌러 표시 없는 기록으로 돌아왔는데 상세가 열려 있으면 상세만 닫는다
   const onPop = () => {
