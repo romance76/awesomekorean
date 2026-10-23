@@ -140,6 +140,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-dige
     Route::put('/address', [$c, 'saveAddress']);
     Route::put('/live', [$c, 'setLive']);
     Route::get('/preview', [$c, 'preview']);
+    Route::put('/notice', [$c, 'saveNotice']);
     Route::post('/test', [$c, 'test'])->middleware('throttle:10,1');
 });
 Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers')->group(function () {

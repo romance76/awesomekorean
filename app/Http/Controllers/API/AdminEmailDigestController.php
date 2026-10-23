@@ -30,6 +30,8 @@ class AdminEmailDigestController extends Controller
             'live_switch' => WeeklyDigest::setting(WeeklyDigest::SETTING_LIVE) === '1',
             'lock_reason' => WeeklyDigest::lockReason(),
             'postal_address' => WeeklyDigest::postalAddress(),
+            'notice_digest' => WeeklyDigest::setting(WeeklyDigest::SETTING_NOTICE_DIGEST),
+            'notice_flyer' => WeeklyDigest::setting(WeeklyDigest::SETTING_NOTICE_FLYER),
             'from' => config('mail.from.address'),
             'schedule' => '매주 월요일, 받는 사람 현지 시각 오전 ' . WeeklyDigest::SEND_HOUR . '시',
             'eligible_total' => $total,
@@ -63,25 +65,39 @@ class AdminEmailDigestController extends Controller
         return $this->status();
     }
 
-    /** 미리보기(HTML) — 선택한 주 기준으로 광고 띠가 어떻게 뽑히는지 확인 */
+    /** 안내 문구 저장 — type: digest(월요일 소식 메일) | flyer(전면광고 메일). 비우면 메일에 나오지 않는다 */
+    public function saveNotice(Request $request)
+    {
+        $d = $request->validate(['type' => 'required|in:digest,flyer', 'text' => 'nullable|string|max:600']);
+        $key = $d['type'] === 'flyer' ? WeeklyDigest::SETTING_NOTICE_FLYER : WeeklyDigest::SETTING_NOTICE_DIGEST;
+        WeeklyDigest::save($key, trim((string) ($d['text'] ?? '')));
+        return $this->status();
+    }
+
+    /** 미리보기(HTML). type=digest 는 광고 띠가 어떻게 뽑히는지, type=flyer 는 전면광고 메일 모양을 본다. sample=1 이면 샘플 광고/샘플 전면광고로 채운다 */
     public function preview(Request $request)
     {
-        $data = WeeklyDigest::payload(null, $request->query('state') ?: 'GA', null, true);
-        return response()->json(['success' => true, 'html' => view('emails.weekly-digest', $data)->render(), 'ads' => count($data['ads'])]);
+        $type = $request->query('type') === 'flyer' ? 'flyer' : 'digest';
+        $sample = $request->boolean('sample');
+        $mail = WeeklyDigest::testMailable($type, null, $request->query('state') ?: 'GA', $sample);
+        $view = $type === 'flyer' ? 'emails.flyer-ad' : 'emails.weekly-digest';
+        return response()->json(['success' => true, 'html' => view($view, $mail->data)->render(), 'ads' => count($mail->data['ads'] ?? []), 'sample_flyer' => $type === 'flyer' ? (bool) $mail->data['sample'] : false]);
     }
 
     /** 시험 발송 — 입력한 주소 한 곳으로만 보낸다(광고 노출 집계·발송 기록에는 반영하지 않음) */
     public function test(Request $request)
     {
-        $d = $request->validate(['email' => 'required|email', 'state' => 'nullable|string|max:2']);
+        $d = $request->validate(['email' => 'required|email', 'state' => 'nullable|string|max:2', 'type' => 'nullable|in:digest,flyer', 'sample' => 'nullable|boolean']);
         $user = User::where('email', $d['email'])->first();
-        $data = WeeklyDigest::payload($user, $d['state'] ?? null, null, true);
+        $mail = WeeklyDigest::testMailable($d['type'] ?? 'digest', $user, $d['state'] ?? null, (bool) ($d['sample'] ?? false));
+        $data = $mail->data;
         try {
-            Mail::to($d['email'])->send(new WeeklyDigestMail($data));
+            Mail::to($d['email'])->send($mail);
         } catch (\Throwable $e) {
             \Log::warning('[주간 소식 메일] 시험 발송 실패: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => '시험 메일을 보내지 못했어요: ' . mb_substr($e->getMessage(), 0, 120)], 500);
         }
-        return response()->json(['success' => true, 'message' => $d['email'] . ' 로 시험 메일을 보냈어요(광고 ' . count($data['ads']) . '개).']);
+        $extra = ($d['type'] ?? 'digest') === 'flyer' ? '(전면광고 메일' . (!empty($data['sample']) ? ' · 샘플 내용' : '') . ')' : '(광고 ' . count($data['ads']) . '개)';
+        return response()->json(['success' => true, 'message' => $d['email'] . ' 로 시험 메일을 보냈어요' . $extra . '.']);
     }
 }

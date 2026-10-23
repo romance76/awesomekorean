@@ -20,6 +20,8 @@ class WeeklyDigest
 {
     public const SETTING_LIVE = 'weekly_digest_live';        // '1' 이면 실제 발송 허용
     public const SETTING_ADDRESS = 'mail_postal_address';    // 메일 맨 아래에 적는 우편 주소
+    public const SETTING_NOTICE_DIGEST = 'digest_mail_notice';  // 소식 메일에 붙이는 안내 문구(비우면 없음)
+    public const SETTING_NOTICE_FLYER = 'flyer_mail_notice';    // 전면광고 메일에 붙이는 안내 문구(비우면 없음)
     public const SEND_HOUR = 9;                              // 받는 사람 현지 시각(월요일 오전 9시)
 
     public static function setting(string $key): string
@@ -141,15 +143,26 @@ class WeeklyDigest
         DB::table('email_ad_stats')->updateOrInsert(['banner_ad_id' => $adId, 'stat_date' => $today], ['clicks' => DB::raw('COALESCE(clicks,0)+1')]);
     }
 
-    /** 메일 한 통에 필요한 값 묶음. $user 가 null 이면 미리보기용(수신 거부 링크 없음) */
-    public static function payload(?User $user, ?string $state = null, ?string $city = null, bool $isTest = false): array
+    /** 실제 광고가 없어도 광고 띠 모양을 볼 수 있게 하는 "샘플 광고"(미리보기·시험 발송 전용, 클릭 링크 없음) */
+    public static function sampleAds(): array
+    {
+        return array_map(fn($i) => [
+            'id' => 0, 'title' => "샘플 광고 {$i} (모양 확인용)", 'img' => url("/images/email/sample-ad-{$i}.jpg"), 'href' => null,
+        ], [1, 2, 3]);
+    }
+
+    /** 메일 한 통에 필요한 값 묶음. $user 가 null 이면 미리보기용(수신 거부 링크 없음). $sample 이면 광고 띠를 샘플 광고로 3개까지 채운다 */
+    public static function payload(?User $user, ?string $state = null, ?string $city = null, bool $isTest = false, bool $sample = false): array
     {
         $st = $state ?: ($user?->state);
         $addr = self::postalAddress();
+        $ads = self::pickAds($st, $city ?: $user?->city);
+        if ($sample && count($ads) < 3) $ads = array_merge($ads, array_slice(self::sampleAds(), 0, 3 - count($ads)));
         return [
             'name' => $user?->nickname ?: $user?->name ?: '회원',
             'articles' => self::articles(),
-            'ads' => self::pickAds($st, $city ?: $user?->city),
+            'ads' => $ads,
+            'notice' => self::setting(self::SETTING_NOTICE_DIGEST),
             'unsubscribeUrl' => $user ? EmailConsent::unsubscribeUrl($user) : null,
             'address' => $addr !== '' ? $addr : '(우편 주소 미설정 — 시험용 메일입니다)',
             'isTest' => $isTest || $addr === '',
@@ -157,6 +170,44 @@ class WeeklyDigest
             'logoUrl' => self::absolute(SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png?v=20261015'),
             'siteUrl' => url('/'),
         ];
+    }
+
+    /** 전면광고 메일 한 통의 값. $ad 가 없으면 샘플 전면광고(미리보기·시험 발송용) */
+    public static function flyerPayload(?User $user, ?\App\Models\FlyerAd $ad = null, bool $isTest = false): array
+    {
+        $addr = self::postalAddress();
+        $kinds = ['open' => '신장개업', 'closing' => '폐업 정리', 'sale' => '세일'];
+        $sample = !$ad;
+        $region = $ad ? ($ad->scope === 'national' ? '전국' : strtoupper((string) $ad->region_key) . ' 및 인접 지역') : '우리 지역';
+        return [
+            'name' => $user?->nickname ?: $user?->name ?: '회원',
+            'sample' => $sample,
+            'title' => $ad->title ?? '샘플 전면광고 — 우리 동네 신장개업!',
+            'kindLabel' => $ad ? ($kinds[$ad->kind] ?? '소식') : '신장개업',
+            'description' => $ad->description ?? '전면광고를 신청한 광고주의 소개글이 여기에 들어가요. 이 문단은 모양을 보여 주기 위한 샘플입니다.',
+            'phone' => $ad->phone ?? '(000) 000-0000',
+            'linkUrl' => $ad ? ($ad->link_url ?: null) : null,
+            'image' => $ad ? self::absolute($ad->image_url) : url('/images/email/sample-flyer.jpg'),
+            'region' => $region,
+            'period' => $ad ? ($ad->start_date?->format('n월 j일') . ' ~ ' . $ad->end_date?->format('n월 j일')) : '○월 ○일 ~ ○월 ○일',
+            'notice' => self::setting(self::SETTING_NOTICE_FLYER),
+            'unsubscribeUrl' => $user ? EmailConsent::unsubscribeUrl($user) : null,
+            'address' => $addr !== '' ? $addr : '(우편 주소 미설정 — 시험용 메일입니다)',
+            'isTest' => $isTest || $addr === '' || $sample,
+            'dateLabel' => now('America/New_York')->format('Y년 n월 j일'),
+            'logoUrl' => self::absolute(SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png?v=20261015'),
+            'siteUrl' => url('/'),
+        ];
+    }
+
+    /** 관리자 미리보기·시험 발송용 메일 만들기. type: digest(월요일 소식 메일) | flyer(전면광고 메일) */
+    public static function testMailable(string $type, ?User $user, ?string $state, bool $sample): \Illuminate\Mail\Mailable
+    {
+        if ($type === 'flyer') {
+            $ad = \App\Models\FlyerAd::where('status', 'approved')->orderByDesc('approved_at')->first();   // 승인된 실제 전면광고가 있으면 그것으로, 없으면 샘플
+            return new \App\Mail\FlyerAdMail(self::flyerPayload($user, $sample ? null : $ad, true));
+        }
+        return new \App\Mail\WeeklyDigestMail(self::payload($user, $state, null, true, $sample));
     }
 
     private static function absolute(?string $u): ?string

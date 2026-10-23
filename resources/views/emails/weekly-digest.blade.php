@@ -19,6 +19,11 @@
       <p style="font-size:15px;line-height:1.7;margin:0 0 6px;">{{ $name }}님, 안녕하세요!</p>
       <p style="font-size:14px;line-height:1.7;color:#555;margin:0 0 16px;">이번 주에 올라온 미국 한인 생활 정보를 모았어요.</p>
 
+      @if(!empty($notice))
+      {{-- 관리자가 "안내 문구"에 적은 글(공지·알림). 비어 있으면 나오지 않음 --}}
+      <div style="background:#fff7e6;border:1px solid #fcd9a0;border-radius:10px;padding:12px 14px;margin:0 0 6px;font-size:13px;line-height:1.7;color:#7c4a03;white-space:pre-line;">{{ $notice }}</div>
+      @endif
+
       @if(count($articles['info']))
       <h2 style="font-size:16px;margin:18px 0 8px;color:#111;">📘 이번 주 생활정보</h2>
       @foreach($articles['info'] as $a)
