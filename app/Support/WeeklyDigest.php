@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\URL;
 /**
  * 월요일 정기 소식 메일(qa/EMAIL_AD_PLAN.md).
  *  - 본문: 이번 주 새 정보 글 + MONEY+ 새 글
- *  - 맨 아래: "우리 동네 광고" 띠 — 사이드(양옆) 배너 광고 중 받는 회원의 주·인접 주에 맞는 것을 무작위로 3~5개(정지 배너)
+ *  - 맨 아래: "우리 동네 광고" 띠 — 사이드(양옆) 배너 광고 중 받는 회원의 주·인접 주에 맞는 것을 무작위로 최대 6개(정지 배너)
  * 실제 발송은 두 가지가 모두 갖춰져야 열린다: ① 우편 주소 저장(법적으로 광고 메일에 필수) ② 관리자가 "실제 발송"을 켬.
  */
 class WeeklyDigest
@@ -93,32 +93,64 @@ class WeeklyDigest
         return $d->format('o') . '-W' . $d->format('W');
     }
 
-    /** 본문에 넣을 글들 */
-    public static function articles(): array
+    /**
+     * 본문에 넣을 글들.
+     *  - info: 이번 주 생활정보 3개(카드)
+     *  - boards: 게시판(카테고리)별로 최근 7일 동안 올라온 글 수와 제목 몇 개를 간단히 나열
+     *    (글이 하나도 없는 게시판은 뺀다. 장터·부동산·구인·동호회는 받는 사람의 주·인접 주 글만, 주를 모르면 전체)
+     */
+    public static function articles(?string $state = null): array
     {
-        $out = ['info' => [], 'money' => []];
+        $out = ['info' => [], 'boards' => []];
         $since = now()->subDays(7);
-        $info = InfoPost::published()->where('published_at', '>=', $since)->orderByDesc('published_at')->limit(5)->get();
-        if ($info->count() < 3) $info = InfoPost::published()->orderByDesc('published_at')->limit(5)->get();
+        $info = InfoPost::published()->where('published_at', '>=', $since)->orderByDesc('published_at')->limit(3)->get();
+        if ($info->count() < 3) $info = InfoPost::published()->orderByDesc('published_at')->limit(3)->get();
         foreach ($info as $p) {
             $out['info'][] = [
                 'title' => $p->title, 'tag' => $p->category, 'excerpt' => \Illuminate\Support\Str::limit(trim((string) ($p->excerpt ?: strip_tags((string) $p->body))), 90),
                 'url' => url('/info/' . $p->slug), 'image' => $p->cover_image_url ? self::absolute($p->cover_image_url) : null,
             ];
         }
-        $money = MoneyPost::where(fn($q) => $q->whereNull('is_hidden')->orWhere('is_hidden', false))->orderByDesc('created_at')->limit(3)->get();
-        foreach ($money as $m) {
-            $out['money'][] = ['title' => $m->title, 'url' => url('/money/post/' . $m->id)];
+
+        $st = strtoupper(trim((string) $state));
+        $near = $st !== '' ? StateNeighbors::neighbors($st) : [];
+        $local = fn($q) => $near ? $q->whereIn('state', $near) : $q;   // 주 컬럼이 있는 게시판만 지역으로 거른다
+        $notHidden = fn($q) => $q->where(fn($w) => $w->whereNull('is_hidden')->orWhere('is_hidden', false));
+
+        $sections = [
+            ['icon' => '💬', 'label' => '커뮤니티', 'more' => '/community', 'q' => fn() => $notHidden(\App\Models\Post::query()), 'url' => fn($r) => url('/community/free/' . $r->id)],
+            ['icon' => '❓', 'label' => 'Q&A', 'more' => '/qa', 'q' => fn() => $notHidden(\App\Models\QaPost::query()), 'url' => fn($r) => url('/qa/' . $r->id)],
+            ['icon' => '💼', 'label' => '구인구직', 'more' => '/jobs', 'q' => fn() => $local(\App\Models\JobPost::active()), 'url' => fn($r) => url('/jobs/' . $r->id)],
+            ['icon' => '🛒', 'label' => '중고장터', 'more' => '/market', 'q' => fn() => $local(\App\Models\MarketItem::where(fn($w) => $w->whereNull('source')->orWhere('source', '!=', 'scraped'))->where('status', 'active')), 'url' => fn($r) => url('/market/' . $r->id)],
+            ['icon' => '🏠', 'label' => '부동산', 'more' => '/realestate', 'q' => fn() => $local(\App\Models\RealEstateListing::active()->where(fn($w) => $w->whereNull('source')->orWhere('source', '!=', 'scraped'))), 'url' => fn($r) => url('/realestate/' . $r->id)],
+            ['icon' => '👥', 'label' => '동호회(새로 생김)', 'more' => '/clubs', 'q' => fn() => $local(\App\Models\Club::where('is_active', true)->where('is_public', true)), 'url' => fn($r) => url('/clubs/' . $r->id), 'titleCol' => 'name'],
+            ['icon' => '🤝', 'label' => '공동구매', 'more' => '/groupbuy', 'q' => fn() => \App\Models\GroupBuy::approved()->where('status', 'recruiting'), 'url' => fn($r) => url('/groupbuy/' . $r->id)],
+            ['icon' => '💰', 'label' => 'MONEY+', 'more' => '/money', 'q' => fn() => $notHidden(MoneyPost::query()), 'url' => fn($r) => url('/money/post/' . $r->id)],
+        ];
+        foreach ($sections as $sec) {
+            try {
+                $q = ($sec['q'])()->where('created_at', '>=', $since);
+                $count = (clone $q)->count();
+                if ($count < 1) continue;
+                $col = $sec['titleCol'] ?? 'title';
+                $rows = $q->orderByDesc('created_at')->limit(3)->get();
+                $out['boards'][] = [
+                    'icon' => $sec['icon'], 'label' => $sec['label'], 'count' => $count, 'more' => url($sec['more']),
+                    'items' => $rows->map(fn($r) => ['title' => \Illuminate\Support\Str::limit((string) $r->{$col}, 46), 'url' => ($sec['url'])($r)])->all(),
+                ];
+            } catch (\Throwable $e) {
+                \Log::warning('[주간 소식 메일] ' . $sec['label'] . ' 목록을 만들지 못했어요: ' . $e->getMessage());   // 한 게시판 오류가 메일 전체를 막지 않게
+            }
         }
         return $out;
     }
 
     /**
-     * 맨 아래 광고 띠에 실을 광고 3~5개.
+     * 맨 아래 광고 띠에 실을 광고 최대 6개.
      * 후보: 사이드(left/right) 배너 중 진행 중이고, 범위가 전국이거나 받는 회원의 주·인접 주(또는 같은 도시)인 것.
      * 최근 28일 동안 메일에 많이 실린 광고일수록 뽑힐 확률을 낮춰 골고루 돌린다. 한 광고주당 1개만.
      */
-    public static function pickAds(?string $state, ?string $city = null, int $max = 5): array
+    public static function pickAds(?string $state, ?string $city = null, int $max = 6): array
     {
         $st = strtoupper(trim((string) $state));
         $near = $st !== '' ? StateNeighbors::neighbors($st) : [];
@@ -137,7 +169,7 @@ class WeeklyDigest
             ->whereIn('banner_ad_id', $cands->pluck('id'))->groupBy('banner_ad_id')->pluck(DB::raw('SUM(sent)'), 'banner_ad_id');
         $pool = $cands->map(fn($a) => ['ad' => $a, 'w' => 1 / (1 + (int) ($recent[$a->id] ?? 0))])->all();
 
-        $n = min(count($pool), random_int(3, max(3, $max)));
+        $n = min(count($pool), $max);   // 광고 띠는 최대 6개(후보가 더 적으면 있는 만큼)
         $picked = [];
         while (count($picked) < $n && $pool) {
             $sum = array_sum(array_column($pool, 'w'));
@@ -172,19 +204,19 @@ class WeeklyDigest
     {
         return array_map(fn($i) => [
             'id' => 0, 'title' => "샘플 광고 {$i} (모양 확인용)", 'img' => url("/images/email/sample-ad-{$i}.jpg"), 'href' => null,
-        ], [1, 2, 3]);
+        ], [1, 2, 3, 4, 5, 6]);
     }
 
-    /** 메일 한 통에 필요한 값 묶음. $user 가 null 이면 미리보기용(수신 거부 링크 없음). $sample 이면 광고 띠를 샘플 광고로 3개까지 채운다 */
+    /** 메일 한 통에 필요한 값 묶음. $user 가 null 이면 미리보기용(수신 거부 링크 없음). $sample 이면 광고 띠를 샘플 광고로 6개까지 채운다 */
     public static function payload(?User $user, ?string $state = null, ?string $city = null, bool $isTest = false, bool $sample = false): array
     {
         $st = $state ?: ($user?->state);
         $addr = self::postalAddress();
         $ads = self::pickAds($st, $city ?: $user?->city);
-        if ($sample && count($ads) < 3) $ads = array_merge($ads, array_slice(self::sampleAds(), 0, 3 - count($ads)));
+        if ($sample && count($ads) < 6) $ads = array_merge($ads, array_slice(self::sampleAds(), 0, 6 - count($ads)));
         return [
             'name' => $user?->nickname ?: $user?->name ?: '회원',
-            'articles' => self::articles(),
+            'articles' => self::articles($st),
             'ads' => $ads,
             'notice' => self::setting(self::SETTING_NOTICE_DIGEST),
             'texts' => self::texts('digest'),

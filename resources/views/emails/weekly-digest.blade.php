@@ -36,18 +36,25 @@
       <div style="text-align:center;margin:6px 0 4px;"><a href="{{ $siteUrl }}/info" style="font-size:13px;color:#FC226B;text-decoration:none;font-weight:700;">생활정보 더 보기 →</a></div>
       @endif
 
-      @if(count($articles['money']))
-      <h2 style="font-size:16px;margin:22px 0 8px;color:#111;">💰 MONEY+ 새 글</h2>
-      <ul style="margin:0 0 6px;padding:0 0 0 18px;font-size:14px;line-height:1.8;">
-        @foreach($articles['money'] as $m)
-        <li><a href="{{ $m['url'] }}" style="color:#111;text-decoration:none;">{{ $m['title'] }}</a></li>
-        @endforeach
-      </ul>
+      @if(count($articles['boards']))
+      <h2 style="font-size:16px;margin:22px 0 4px;color:#111;">📋 이번 주 게시판 새 글</h2>
+      <div style="font-size:12px;color:#999;margin-bottom:8px;">최근 7일 동안 올라온 글이에요</div>
+      @foreach($articles['boards'] as $b)
+      <div style="margin:0 0 12px;">
+        <div style="font-size:14px;font-weight:700;color:#111;">{{ $b['icon'] }} {{ $b['label'] }} <span style="font-size:12px;font-weight:400;color:#b45309;">새 글 {{ $b['count'] }}개</span></div>
+        <ul style="margin:4px 0 0;padding:0 0 0 18px;font-size:13px;line-height:1.75;color:#555;">
+          @foreach($b['items'] as $it)
+          <li><a href="{{ $it['url'] }}" style="color:#444;text-decoration:none;">{{ $it['title'] }}</a></li>
+          @endforeach
+        </ul>
+        @if($b['count'] > count($b['items']))<a href="{{ $b['more'] }}" style="font-size:12px;color:#FC226B;text-decoration:none;margin-left:18px;">더 보기 →</a>@endif
+      </div>
+      @endforeach
       @endif
     </div>
 
     @if(count($ads))
-    {{-- 맨 아래: 우리 동네 광고 띠 (정지 배너, 보낼 때마다 무작위 3~5개) --}}
+    {{-- 맨 아래: 우리 동네 광고 띠 (정지 배너, 보낼 때마다 무작위 최대 6개) --}}
     <div style="padding:18px 24px 20px;background:#fafaf8;border-top:1px solid #f0f0ee;margin-top:14px;">
       <div style="font-size:12px;color:#888;margin-bottom:10px;">📢 <span {!! $editMode ? 'data-edit-key="ad_title" data-single="1" data-placeholder="광고 띠 제목"' : '' !!}>{{ $texts['ad_title'] }}</span> <span style="color:#bbb;">(광고)</span></div>
       <div style="text-align:center;font-size:0;">
