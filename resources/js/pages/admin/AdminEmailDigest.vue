@@ -54,8 +54,14 @@
   <!-- 미리보기 + 안내 문구 + 시험 발송 -->
   <div class="card p-4 mb-4">
     <h2 class="font-bold text-ink text-sm mb-2">3. 메일 모양 보기 · 안내 문구 · 시험 발송</h2>
-    <div class="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit mb-3">
-      <button v-for="t in types" :key="t.key" type="button" class="px-3 py-1.5 rounded-lg text-[13px] font-semibold" :class="type === t.key ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'" @click="pickType(t.key)">{{ t.label }}</button>
+    <div class="flex flex-wrap items-center gap-3 mb-3">
+      <div class="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
+        <button v-for="t in types" :key="t.key" type="button" class="px-3 py-1.5 rounded-lg text-[13px] font-semibold" :class="type === t.key ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'" @click="pickType(t.key)">{{ t.label }}</button>
+      </div>
+      <div class="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit" role="tablist" aria-label="메일 언어">
+        <button v-for="l in langs" :key="l.key" type="button" class="px-3 py-1.5 rounded-lg text-[13px] font-semibold" :class="lang === l.key ? 'bg-white text-ink shadow-sm' : 'text-ink-muted'" @click="pickLang(l.key)">{{ l.label }}</button>
+      </div>
+      <span class="text-[11px] text-ink-faint">회원이 정한 언어(영어를 고른 회원 {{ st ? st.en_members : 0 }}명)대로 한국어/영어 메일이 나가요. 문구·안내 문구는 언어별로 따로 저장돼요.</span>
     </div>
     <p class="text-xs text-ink-muted mb-3">{{ type === 'digest' ? '매주 월요일 모든 동의 회원에게 가는 소식 메일입니다. 맨 아래에 사이드 광고 띠가 들어갑니다.' : '전면광고를 신청한 광고주의 광고를, 각 주의 마지막 날 해당 지역 동의 회원에게 자동으로 보내는 메일입니다(광고주 혜택, 무료). 지금은 모양 확인과 시험 발송만 연결돼 있어요.' }}</p>
 
@@ -114,6 +120,9 @@ const state = ref('GA')
 const preview = ref('')
 const type = ref('digest')
 const types = [{ key: 'digest', label: '월요일 소식 메일' }, { key: 'flyer', label: '전면광고 메일' }]
+const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }]
+const lang = ref('ko')
+const noticeOf = () => (st.value?.notices || {})[type.value + (lang.value === 'en' ? '_en' : '')] || ''
 const sample = ref(true)
 const sampleFlyer = ref(false)
 const notice = ref('')
@@ -124,18 +133,24 @@ const msgOk = ref(true)
 
 function say(text, ok = true) { msg.value = text; msgOk.value = ok }
 async function load() {
-  try { const { data } = await axios.get('/api/admin/email-digest'); st.value = data.data; addr.value = data.data.postal_address || ''; notice.value = type.value === 'flyer' ? (data.data.notice_flyer || '') : (data.data.notice_digest || '') } catch { say('상태를 불러오지 못했어요.', false) }
+  try { const { data } = await axios.get('/api/admin/email-digest'); st.value = data.data; addr.value = data.data.postal_address || ''; notice.value = noticeOf() } catch { say('상태를 불러오지 못했어요.', false) }
 }
 function pickType(t) {
   type.value = t
-  notice.value = t === 'flyer' ? (st.value?.notice_flyer || '') : (st.value?.notice_digest || '')
+  notice.value = noticeOf()
+  msg.value = ''
+  loadPreview()
+}
+function pickLang(l) {
+  lang.value = l
+  notice.value = noticeOf()
   msg.value = ''
   loadPreview()
 }
 async function saveNotice() {
   busy.value = true
   try {
-    const { data } = await axios.put('/api/admin/email-digest/notice', { type: type.value, text: notice.value })
+    const { data } = await axios.put('/api/admin/email-digest/notice', { type: type.value, lang: lang.value, text: notice.value })
     st.value = data.data; say('안내 문구를 저장했어요.')
   } catch (e) { say(e.response?.data?.message || '저장하지 못했어요.', false); busy.value = false; return }
   busy.value = false
@@ -161,6 +176,7 @@ function onFrame(e) {
   const style = doc.createElement('style')
   style.textContent = '[data-edit-key]{cursor:text;outline:1px dashed #f0b44c;outline-offset:2px;border-radius:4px;transition:background .15s}[data-edit-key]:hover{background:rgba(252,211,77,.18)}[data-edit-key]:focus{outline:2px solid #FC226B;background:#fff}[data-edit-key]:empty:before{content:attr(data-placeholder);color:#b8a98f}'
   doc.head.appendChild(style)
+  doc.addEventListener('click', ev => { if (ev.target.closest && ev.target.closest('a')) ev.preventDefault() })   // 미리보기 안의 링크는 눌러도 이동하지 않는다(수신 거부 버튼도 모양만 보기)
   doc.querySelectorAll('[data-edit-key]').forEach(el => {
     el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'false')
     el.title = '눌러서 직접 고치기'
@@ -183,8 +199,8 @@ async function saveEdit(key, value) {
   const f = document.querySelector('iframe'); keepScroll = f?.contentDocument?.documentElement?.scrollTop || 0
   busy.value = true
   try {
-    if (key === 'notice') { const { data } = await axios.put('/api/admin/email-digest/notice', { type: type.value, text: value }); st.value = data.data; notice.value = value }
-    else { const { data } = await axios.put('/api/admin/email-digest/text', { type: type.value, key, value }); st.value = data.data }
+    if (key === 'notice') { const { data } = await axios.put('/api/admin/email-digest/notice', { type: type.value, lang: lang.value, text: value }); st.value = data.data; notice.value = value }
+    else { const { data } = await axios.put('/api/admin/email-digest/text', { type: type.value, lang: lang.value, key, value }); st.value = data.data }
     say('저장했어요.')
   } catch (e) { say(e.response?.data?.message || '저장하지 못했어요.', false) }
   finally { busy.value = false }
@@ -193,14 +209,14 @@ async function saveEdit(key, value) {
 async function loadPreview() {
   busy.value = true
   try {
-    const { data } = await axios.get('/api/admin/email-digest/preview', { params: { type: type.value, state: state.value.toUpperCase(), sample: sample.value ? 1 : 0 } })
+    const { data } = await axios.get('/api/admin/email-digest/preview', { params: { type: type.value, lang: lang.value, state: state.value.toUpperCase(), sample: sample.value ? 1 : 0 } })
     preview.value = data.html; previewAds.value = data.ads; sampleFlyer.value = !!data.sample_flyer
   }
   catch { say('미리보기를 불러오지 못했어요.', false) } finally { busy.value = false }
 }
 async function sendTest() {
   busy.value = true; msg.value = ''
-  try { const { data } = await axios.post('/api/admin/email-digest/test', { email: testEmail.value, state: state.value.toUpperCase(), type: type.value, sample: sample.value }); say(data.message) }
+  try { const { data } = await axios.post('/api/admin/email-digest/test', { email: testEmail.value, state: state.value.toUpperCase(), type: type.value, lang: lang.value, sample: sample.value }); say(data.message) }
   catch (e) { say(e.response?.data?.message || '시험 메일을 보내지 못했어요.', false) } finally { busy.value = false }
 }
 onMounted(() => { load(); loadPreview() })

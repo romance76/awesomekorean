@@ -18,14 +18,14 @@ use Illuminate\Support\Facades\Mail;
  */
 class SendWeeklyDigest extends Command
 {
-    protected $signature = 'mail:weekly-digest {--test= : 이 주소로 시험 메일 한 통} {--state= : 시험 메일의 받는 사람 주(예: GA)} {--type=digest : 시험 메일 종류(digest|flyer)} {--sample : 샘플 광고로 채움} {--limit=250 : 한 번 실행에 보낼 최대 통수}';
+    protected $signature = 'mail:weekly-digest {--test= : 이 주소로 시험 메일 한 통} {--state= : 시험 메일의 받는 사람 주(예: GA)} {--type=digest : 시험 메일 종류(digest|flyer)} {--sample : 샘플 광고로 채움} {--lang=ko : 시험 메일 언어(ko|en)} {--limit=250 : 한 번 실행에 보낼 최대 통수}';
     protected $description = '월요일 정기 소식 메일(맨 아래 지역 광고 띠 포함). 우편 주소가 없으면 실제 발송은 잠김';
 
     public function handle(): int
     {
         if ($test = trim((string) $this->option('test'))) {
             $user = User::where('email', $test)->first();
-            $mail = WeeklyDigest::testMailable($this->option('type') === 'flyer' ? 'flyer' : 'digest', $user, $this->option('state') ?: null, (bool) $this->option('sample'));
+            $mail = WeeklyDigest::testMailable($this->option('type') === 'flyer' ? 'flyer' : 'digest', $user, $this->option('state') ?: null, (bool) $this->option('sample'), $this->option('lang'));
             Mail::to($test)->send($mail);
             $this->info("시험 메일을 {$test} 로 보냈어요(" . $this->option('type') . ', 광고 ' . count($mail->data['ads'] ?? []) . '개).');
             return self::SUCCESS;

@@ -30,8 +30,11 @@ class AdminEmailDigestController extends Controller
             'live_switch' => WeeklyDigest::setting(WeeklyDigest::SETTING_LIVE) === '1',
             'lock_reason' => WeeklyDigest::lockReason(),
             'postal_address' => WeeklyDigest::postalAddress(),
-            'notice_digest' => WeeklyDigest::setting(WeeklyDigest::SETTING_NOTICE_DIGEST),
-            'notice_flyer' => WeeklyDigest::setting(WeeklyDigest::SETTING_NOTICE_FLYER),
+            'notices' => [
+                'digest' => WeeklyDigest::setting(WeeklyDigest::noticeKey('digest', 'ko')), 'digest_en' => WeeklyDigest::setting(WeeklyDigest::noticeKey('digest', 'en')),
+                'flyer' => WeeklyDigest::setting(WeeklyDigest::noticeKey('flyer', 'ko')), 'flyer_en' => WeeklyDigest::setting(WeeklyDigest::noticeKey('flyer', 'en')),
+            ],
+            'en_members' => (clone $eligible)->where('language', 'en')->count(),
             'from' => config('mail.from.address'),
             'schedule' => '매주 월요일, 받는 사람 현지 시각 오전 ' . WeeklyDigest::SEND_HOUR . '시',
             'eligible_total' => $total,
@@ -68,20 +71,20 @@ class AdminEmailDigestController extends Controller
     /** 안내 문구 저장 — type: digest(월요일 소식 메일) | flyer(전면광고 메일). 비우면 메일에 나오지 않는다 */
     public function saveNotice(Request $request)
     {
-        $d = $request->validate(['type' => 'required|in:digest,flyer', 'text' => 'nullable|string|max:600']);
-        $key = $d['type'] === 'flyer' ? WeeklyDigest::SETTING_NOTICE_FLYER : WeeklyDigest::SETTING_NOTICE_DIGEST;
-        WeeklyDigest::save($key, trim((string) ($d['text'] ?? '')));
+        $d = $request->validate(['type' => 'required|in:digest,flyer', 'lang' => 'nullable|in:ko,en', 'text' => 'nullable|string|max:600']);
+        WeeklyDigest::save(WeeklyDigest::noticeKey($d['type'], WeeklyDigest::normLang($d['lang'] ?? 'ko')), trim((string) ($d['text'] ?? '')));
         return $this->status();
     }
 
     /** 미리보기 안에서 직접 고친 문구 저장. key: intro | ad_title (빈 값이면 기본 문구로 되돌림) */
     public function saveText(Request $request)
     {
-        $d = $request->validate(['type' => 'required|in:digest,flyer', 'key' => 'required|string', 'value' => 'nullable|string|max:200']);
-        if (!array_key_exists($d['key'], WeeklyDigest::TEXT_DEFAULTS[$d['type']] ?? [])) {
+        $d = $request->validate(['type' => 'required|in:digest,flyer', 'lang' => 'nullable|in:ko,en', 'key' => 'required|string', 'value' => 'nullable|string|max:200']);
+        $typeKey = $d['type'] . (($d['lang'] ?? 'ko') === 'en' ? '_en' : '');
+        if (!array_key_exists($d['key'], WeeklyDigest::TEXT_DEFAULTS[$typeKey] ?? [])) {
             return response()->json(['success' => false, 'message' => '고칠 수 없는 문구예요.'], 422);
         }
-        WeeklyDigest::saveText($d['type'], $d['key'], (string) ($d['value'] ?? ''));
+        WeeklyDigest::saveText($typeKey, $d['key'], (string) ($d['value'] ?? ''));
         return $this->status();
     }
 
@@ -90,7 +93,7 @@ class AdminEmailDigestController extends Controller
     {
         $type = $request->query('type') === 'flyer' ? 'flyer' : 'digest';
         $sample = $request->boolean('sample');
-        $mail = WeeklyDigest::testMailable($type, null, $request->query('state') ?: 'GA', $sample);
+        $mail = WeeklyDigest::testMailable($type, null, $request->query('state') ?: 'GA', $sample, $request->query('lang'));
         $view = $type === 'flyer' ? 'emails.flyer-ad' : 'emails.weekly-digest';
         $data = $mail->data; $data['editMode'] = true;   // 미리보기에서만 "직접 고치기" 표시가 붙는다(실제 메일·시험 메일에는 없음)
         return response()->json(['success' => true, 'html' => view($view, $data)->render(), 'ads' => count($mail->data['ads'] ?? []), 'sample_flyer' => $type === 'flyer' ? (bool) $mail->data['sample'] : false]);
@@ -99,9 +102,9 @@ class AdminEmailDigestController extends Controller
     /** 시험 발송 — 입력한 주소 한 곳으로만 보낸다(광고 노출 집계·발송 기록에는 반영하지 않음) */
     public function test(Request $request)
     {
-        $d = $request->validate(['email' => 'required|email', 'state' => 'nullable|string|max:2', 'type' => 'nullable|in:digest,flyer', 'sample' => 'nullable|boolean']);
+        $d = $request->validate(['email' => 'required|email', 'state' => 'nullable|string|max:2', 'type' => 'nullable|in:digest,flyer', 'lang' => 'nullable|in:ko,en', 'sample' => 'nullable|boolean']);
         $user = User::where('email', $d['email'])->first();
-        $mail = WeeklyDigest::testMailable($d['type'] ?? 'digest', $user, $d['state'] ?? null, (bool) ($d['sample'] ?? false));
+        $mail = WeeklyDigest::testMailable($d['type'] ?? 'digest', $user, $d['state'] ?? null, (bool) ($d['sample'] ?? false), $d['lang'] ?? 'ko');
         $data = $mail->data;
         try {
             Mail::to($d['email'])->send($mail);
