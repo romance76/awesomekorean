@@ -51,6 +51,8 @@ Broadcast::routes(['middleware' => ['auth:api']]);
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,10'); // 10분당 10회
 Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('auth.verify-email');
 // 광고·소식 메일 수신 거부 링크(메일 맨 아래). 서명 링크라 로그인 없이 한 번 누르면 끊기고, POST 는 메일 앱의 원클릭 수신 거부용
+// 정기 메일 맨 아래 광고 띠 클릭(클릭 수만 세고 광고주 주소로 이동)
+Route::get('/email/ad-click/{id}', [\App\Http\Controllers\API\EmailAdClickController::class, 'click'])->whereNumber('id')->middleware('throttle:120,1');
 Route::match(['get', 'post'], '/email/unsubscribe/{user}', [\App\Http\Controllers\API\EmailConsentController::class, 'unsubscribe'])->middleware(['signed', 'throttle:30,1'])->name('email.unsubscribe');
 // CSP 보고 전용 모드의 위반 보고 수신 (브라우저가 자동으로 보냄, 로그인 불필요, 종류별로 하루 1건만 기록)
 Route::post('/csp-report', [\App\Http\Controllers\API\CspReportController::class, 'store'])->middleware('throttle:60,1');
@@ -130,6 +132,15 @@ Route::middleware(['auth:api', 'verified.email', 'throttle:30,1'])->group(functi
     Route::post('/youtubers/{id}/claim/verify', [$yc, 'verifyClaim'])->whereNumber('id'); // 인증 확인
     Route::post('/youtubers/{id}/bump', [$yc, 'bump'])->whereNumber('id');                // 주인 혜택: 끌어올리기
     Route::put('/youtubers/{id}/owner', [$yc, 'ownerUpdate'])->whereNumber('id');         // 주인 혜택: 소개·분야 수정
+});
+// 관리자 > 메일 발송(월요일 정기 소식 메일): 최고관리자 전용(AdminTier)
+Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-digest')->group(function () {
+    $c = \App\Http\Controllers\API\AdminEmailDigestController::class;
+    Route::get('/', [$c, 'status']);
+    Route::put('/address', [$c, 'saveAddress']);
+    Route::put('/live', [$c, 'setLive']);
+    Route::get('/preview', [$c, 'preview']);
+    Route::post('/test', [$c, 'test'])->middleware('throttle:10,1');
 });
 Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers')->group(function () {
     $c = \App\Http\Controllers\API\YoutubeChannelController::class;

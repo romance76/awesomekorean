@@ -209,6 +209,7 @@ const routes = [
       { path: 'ad-center', component: p('admin/AdminAdCenter') },
       { path: 'banners', component: p('admin/Banners') },
       { path: 'flyers', component: p('admin/AdminFlyers') },
+      { path: 'email-digest', component: p('admin/AdminEmailDigest') },
       { path: 'ad-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'pricing', component: p('admin/AdminPricingCenter') },
       { path: 'payments', component: p('admin/Payments') },

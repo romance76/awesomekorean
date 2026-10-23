@@ -58,6 +58,7 @@ class AdminTier
             ['POST', '#^users/\d+/(impersonate|reset-password)$#', 3],
             ['DELETE', '#^users/\d+$#', 3],
             ['ANY', '#^(point-settings|entry-settings|ad-settings|ad-slot-prices|pricing-promotions)(/|$)#', 3],
+            ['ANY', '#^email-digest(/|$)#', 3],   // 월요일 정기 소식 메일 설정·시험 발송은 최고관리자 전용
             ['ANY', '#^(sweepstakes|sweepstakes-.+|prize-claims|entries)(/|$)#', 3],
             ['POST', '#^(fetch-music|fetch-news|fetch-shorts)$#', 3],
             ['ANY', '#^recipes/(clear-all|bulk-delete|sync|sync-all)$#', 3],
