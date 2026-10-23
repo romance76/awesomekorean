@@ -242,6 +242,8 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
+    // 같은 화면 안에서 기록만 되돌리는 경우(펼친 글 닫기 등)에는 위치를 건드리지 않는다
+    if (!savedPosition && to.fullPath === from.fullPath) return false
     if (!savedPosition) return { top: 0 }
     // 뒤로·앞으로 이동: 목록 내용이 아직 불러와지는 중이면 화면이 짧아서 저장한 위치로 못 가므로,
     // 문서가 충분히 길어질 때까지(최대 4초) 기다렸다가 그 위치로 돌아간다.

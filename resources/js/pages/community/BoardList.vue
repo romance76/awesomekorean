@@ -284,7 +284,7 @@ const lastPage = ref(1)
 
 // 인라인 상세
 const activeItem = ref(null)
-useInlineDetailBack(activeItem, () => closeDetail())   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
+useInlineDetailBack(activeItem, () => closeDetail(), { activeBoard, mobileBoardId })   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
 const currentIdx = ref(-1)
 const adjPrev = ref(null) // 같은 게시판 내 이전글 (서버 prev)
 const adjNext = ref(null) // 같은 게시판 내 다음글 (서버 next)

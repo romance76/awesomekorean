@@ -280,7 +280,7 @@ const categories = ref([])
 const allNewToday = ref(0)
 const activeCat = ref(null)
 const activeItem = ref(null)
-useInlineDetailBack(activeItem, () => closeDetail())   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
+useInlineDetailBack(activeItem, () => closeDetail(), { activeCat })   // 상세를 펼친 채 뒤로가기 → 목록으로(메뉴 밖으로 나가지 않게)
 const searchQ = ref('')
 const showEnglish = ref(false)
 

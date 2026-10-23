@@ -5,9 +5,12 @@
 //   목록에서 스크롤을 내려 글을 열었다면, 닫을 때 그 위치로 되돌린다(목록이 다시 그려지길 기다리며 몇 번 맞춤).
 import { watch, onBeforeUnmount } from 'vue'
 
-export function useInlineDetailBack(activeItem, close) {
+// keep: 글을 열 때 같이 바뀌어 버리는 목록 필터(예: 열린 글의 분류로 activeCat 이 바뀜)를 { 이름: ref } 로 넘기면, 닫을 때 원래 값으로 되돌린다.
+export function useInlineDetailBack(activeItem, close, keep = {}) {
   const marked = () => !!window.history.state?.inlineDetail
   let listScrollY = 0
+  let kept = {}
+  let byBack = false   // 브라우저 뒤로가기로 닫는 중일 때만 필터·스크롤을 되돌린다(분류 버튼·'목록' 버튼으로 닫을 때는 그대로)
 
   function restoreScroll(y) {
     if (!(y > 0)) return
@@ -22,10 +25,15 @@ export function useInlineDetailBack(activeItem, close) {
   watch(() => !!activeItem.value, (open) => {
     if (open) {
       listScrollY = window.scrollY
+      kept = {}
+      Object.keys(keep).forEach(k => { kept[k] = keep[k].value })
       if (!marked()) window.history.pushState({ ...window.history.state, inlineDetail: 1 }, '')
     } else {
       if (marked()) window.history.back()
-      restoreScroll(listScrollY)
+      if (byBack) {
+        Object.keys(kept).forEach(k => { keep[k].value = kept[k] })
+        restoreScroll(listScrollY)
+      }
     }
   }, { flush: 'sync' })   // 글을 여는 코드가 곧바로 맨 위로 스크롤하기 전에, 목록의 스크롤 위치를 먼저 기억해야 해서 즉시 실행
 
@@ -34,7 +42,9 @@ export function useInlineDetailBack(activeItem, close) {
   if (marked()) setTimeout(() => { if (!activeItem.value && marked()) window.history.back() }, 0)
 
   // 사용자가 뒤로가기를 눌러 표시 없는 기록으로 돌아왔는데 상세가 열려 있으면 상세만 닫는다
-  const onPop = () => { if (activeItem.value && !marked()) close() }
+  const onPop = () => {
+    if (activeItem.value && !marked()) { byBack = true; try { close() } finally { byBack = false } }
+  }
   window.addEventListener('popstate', onPop)
   onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
 }
