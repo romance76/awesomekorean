@@ -27,7 +27,7 @@ export function useInlineDetailBack(activeItem, close) {
       if (marked()) window.history.back()
       restoreScroll(listScrollY)
     }
-  })
+  }, { flush: 'sync' })   // 글을 여는 코드가 곧바로 맨 위로 스크롤하기 전에, 목록의 스크롤 위치를 먼저 기억해야 해서 즉시 실행
 
   // 상세를 펼친 채 다른 화면으로 갔다가 뒤로 오면, 쌓아 둔 기록(표시)이 남은 채로 목록이 새로 만들어진다.
   // 그대로 두면 "뒤로"를 한 번 더 눌러야 하므로, 상세가 닫힌 상태로 표시 기록에 서 있다면 바로 한 칸 물러서 정리한다.
