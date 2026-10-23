@@ -74,6 +74,17 @@ class AdminEmailDigestController extends Controller
         return $this->status();
     }
 
+    /** 미리보기 안에서 직접 고친 문구 저장. key: intro | ad_title (빈 값이면 기본 문구로 되돌림) */
+    public function saveText(Request $request)
+    {
+        $d = $request->validate(['type' => 'required|in:digest,flyer', 'key' => 'required|string', 'value' => 'nullable|string|max:200']);
+        if (!array_key_exists($d['key'], WeeklyDigest::TEXT_DEFAULTS[$d['type']] ?? [])) {
+            return response()->json(['success' => false, 'message' => '고칠 수 없는 문구예요.'], 422);
+        }
+        WeeklyDigest::saveText($d['type'], $d['key'], (string) ($d['value'] ?? ''));
+        return $this->status();
+    }
+
     /** 미리보기(HTML). type=digest 는 광고 띠가 어떻게 뽑히는지, type=flyer 는 전면광고 메일 모양을 본다. sample=1 이면 샘플 광고/샘플 전면광고로 채운다 */
     public function preview(Request $request)
     {
@@ -81,7 +92,8 @@ class AdminEmailDigestController extends Controller
         $sample = $request->boolean('sample');
         $mail = WeeklyDigest::testMailable($type, null, $request->query('state') ?: 'GA', $sample);
         $view = $type === 'flyer' ? 'emails.flyer-ad' : 'emails.weekly-digest';
-        return response()->json(['success' => true, 'html' => view($view, $mail->data)->render(), 'ads' => count($mail->data['ads'] ?? []), 'sample_flyer' => $type === 'flyer' ? (bool) $mail->data['sample'] : false]);
+        $data = $mail->data; $data['editMode'] = true;   // 미리보기에서만 "직접 고치기" 표시가 붙는다(실제 메일·시험 메일에는 없음)
+        return response()->json(['success' => true, 'html' => view($view, $data)->render(), 'ads' => count($mail->data['ads'] ?? []), 'sample_flyer' => $type === 'flyer' ? (bool) $mail->data['sample'] : false]);
     }
 
     /** 시험 발송 — 입력한 주소 한 곳으로만 보낸다(광고 노출 집계·발송 기록에는 반영하지 않음) */

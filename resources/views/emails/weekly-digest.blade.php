@@ -17,11 +17,11 @@
     </div>
     <div style="padding:22px 24px 6px;">
       <p style="font-size:15px;line-height:1.7;margin:0 0 6px;">{{ $name }}님, 안녕하세요!</p>
-      <p style="font-size:14px;line-height:1.7;color:#555;margin:0 0 16px;">이번 주에 올라온 미국 한인 생활 정보를 모았어요.</p>
+      <p style="font-size:14px;line-height:1.7;color:#555;margin:0 0 16px;"@if($editMode) data-edit-key="intro" data-single="1" data-placeholder="소개 문구" @endif>{{ $texts['intro'] }}</p>
 
-      @if(!empty($notice))
-      {{-- 관리자가 "안내 문구"에 적은 글(공지·알림). 비어 있으면 나오지 않음 --}}
-      <div style="background:#fff7e6;border:1px solid #fcd9a0;border-radius:10px;padding:12px 14px;margin:0 0 6px;font-size:13px;line-height:1.7;color:#7c4a03;white-space:pre-line;">{{ $notice }}</div>
+      @if(!empty($notice) || $editMode)
+      {{-- 관리자가 "안내 문구"에 적은 글(공지·알림). 비어 있으면 실제 메일에는 나오지 않고, 미리보기에서만 빈 칸이 보인다 --}}
+      <div style="background:#fff7e6;border:1px solid #fcd9a0;border-radius:10px;padding:12px 14px;margin:0 0 6px;font-size:13px;line-height:1.7;color:#7c4a03;white-space:pre-line;min-height:18px;"@if($editMode) data-edit-key="notice" data-placeholder="안내 문구를 쓰려면 여기를 누르세요 (비워 두면 실제 메일에는 나오지 않아요)" @endif>{{ $notice }}</div>
       @endif
 
       @if(count($articles['info']))
@@ -49,7 +49,7 @@
     @if(count($ads))
     {{-- 맨 아래: 우리 동네 광고 띠 (정지 배너, 보낼 때마다 무작위 3~5개) --}}
     <div style="padding:18px 24px 20px;background:#fafaf8;border-top:1px solid #f0f0ee;margin-top:14px;">
-      <div style="font-size:12px;color:#888;margin-bottom:10px;">📢 우리 동네 광고 <span style="color:#bbb;">(광고)</span></div>
+      <div style="font-size:12px;color:#888;margin-bottom:10px;">📢 <span@if($editMode) data-edit-key="ad_title" data-single="1" data-placeholder="광고 띠 제목" @endif>{{ $texts['ad_title'] }}</span> <span style="color:#bbb;">(광고)</span></div>
       <div style="text-align:center;font-size:0;">
         @foreach($ads as $ad)
         <div style="display:inline-block;width:48%;min-width:240px;max-width:100%;vertical-align:top;margin:0 0 10px;box-sizing:border-box;padding:0 4px;">

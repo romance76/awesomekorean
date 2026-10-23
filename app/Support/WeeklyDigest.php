@@ -22,7 +22,31 @@ class WeeklyDigest
     public const SETTING_ADDRESS = 'mail_postal_address';    // 메일 맨 아래에 적는 우편 주소
     public const SETTING_NOTICE_DIGEST = 'digest_mail_notice';  // 소식 메일에 붙이는 안내 문구(비우면 없음)
     public const SETTING_NOTICE_FLYER = 'flyer_mail_notice';    // 전면광고 메일에 붙이는 안내 문구(비우면 없음)
-    public const SEND_HOUR = 9;                              // 받는 사람 현지 시각(월요일 오전 9시)
+    public const SETTING_TEXTS = 'mail_texts';                    // 미리보기 안에서 직접 고친 문구들(JSON)
+    public const SEND_HOUR = 9;
+
+    /** 메일 안에서 관리자가 직접 고칠 수 있는 문구와 기본값. 법적 안내(수신 동의 설명·수신 거부·우편 주소)는 여기에 넣지 않는다 */
+    public const TEXT_DEFAULTS = [
+        'digest' => ['intro' => '이번 주에 올라온 미국 한인 생활 정보를 모았어요.', 'ad_title' => '우리 동네 광고'],
+        'flyer' => ['intro' => '{지역}의 한인 업체 {종류} 소식을 알려 드려요.'],   // {지역}·{종류} 는 광고마다 자동으로 바뀜
+    ];
+
+    /** 저장된 문구에 기본값을 겹친 최종 문구 */
+    public static function texts(string $type): array
+    {
+        $saved = json_decode(self::setting(self::SETTING_TEXTS) ?: '{}', true) ?: [];
+        return array_merge(self::TEXT_DEFAULTS[$type] ?? [], array_filter($saved[$type] ?? [], fn($v) => is_string($v) && trim($v) !== ''));
+    }
+
+    /** 문구 하나 저장(빈 값이면 기본값으로 되돌림) */
+    public static function saveText(string $type, string $key, string $value): void
+    {
+        $saved = json_decode(self::setting(self::SETTING_TEXTS) ?: '{}', true) ?: [];
+        $value = trim($value);
+        if ($value === '' || $value === (self::TEXT_DEFAULTS[$type][$key] ?? null)) unset($saved[$type][$key]);
+        else $saved[$type][$key] = $value;
+        self::save(self::SETTING_TEXTS, json_encode($saved, JSON_UNESCAPED_UNICODE));
+    }                              // 받는 사람 현지 시각(월요일 오전 9시)
 
     public static function setting(string $key): string
     {
@@ -163,6 +187,8 @@ class WeeklyDigest
             'articles' => self::articles(),
             'ads' => $ads,
             'notice' => self::setting(self::SETTING_NOTICE_DIGEST),
+            'texts' => self::texts('digest'),
+            'editMode' => false,
             'unsubscribeUrl' => $user ? EmailConsent::unsubscribeUrl($user) : null,
             'address' => $addr !== '' ? $addr : '(우편 주소 미설정 — 시험용 메일입니다)',
             'isTest' => $isTest || $addr === '',
@@ -191,6 +217,8 @@ class WeeklyDigest
             'region' => $region,
             'period' => $ad ? ($ad->start_date?->format('n월 j일') . ' ~ ' . $ad->end_date?->format('n월 j일')) : '○월 ○일 ~ ○월 ○일',
             'notice' => self::setting(self::SETTING_NOTICE_FLYER),
+            'texts' => self::texts('flyer'),
+            'editMode' => false,
             'unsubscribeUrl' => $user ? EmailConsent::unsubscribeUrl($user) : null,
             'address' => $addr !== '' ? $addr : '(우편 주소 미설정 — 시험용 메일입니다)',
             'isTest' => $isTest || $addr === '' || $sample,

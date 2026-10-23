@@ -79,7 +79,8 @@
       <span class="text-xs text-ink-faint" v-if="type === 'digest'">광고 {{ previewAds }}개</span>
       <span class="text-xs text-ink-faint" v-else>{{ sampleFlyer ? '샘플 내용으로 표시 중' : '승인된 실제 전면광고로 표시 중' }}</span>
     </div>
-    <iframe v-if="preview" :srcdoc="preview" class="w-full rounded-xl border border-gray-200 bg-white" style="height:640px" title="메일 미리보기"></iframe>
+    <p class="text-xs text-amber-800 bg-amber-50 rounded-lg px-3 py-2 mb-2">✏️ 아래 미리보기 안의 <b>점선 표시가 뜨는 글</b>(소개 문구{{ type === 'digest' ? '·광고 띠 제목' : '' }}·안내 문구)을 <b>눌러서 바로 고칠 수 있어요.</b> 다른 곳을 누르면 자동 저장돼요. 비워서 저장하면 기본 문구로 돌아가요. (수신 거부·우편 주소 같은 법적 안내는 고칠 수 없어요)</p>
+    <iframe v-if="preview" :srcdoc="preview" class="w-full rounded-xl border border-gray-200 bg-white" style="height:640px" title="메일 미리보기" @load="onFrame"></iframe>
     <div class="flex flex-wrap items-center gap-2 mt-3">
       <input v-model="testEmail" type="email" placeholder="시험 메일 받을 이메일" class="input-soft act-input flex-1 min-w-[220px]" />
       <button class="btn-primary act-btn" :disabled="busy || !testEmail" @click="sendTest">시험 메일 보내기</button>
@@ -151,6 +152,43 @@ async function toggleLive() {
   busy.value = true
   try { const { data } = await axios.put('/api/admin/email-digest/live', { live: turnOn }); st.value = data.data; say(turnOn ? '실제 발송을 켰어요.' : '실제 발송을 껐어요.') }
   catch (e) { say(e.response?.data?.message || '바꾸지 못했어요.', false) } finally { busy.value = false }
+}
+let keepScroll = 0
+// 미리보기 안의 글을 눌러 직접 고치기: 표시(data-edit-key)가 붙은 글만 편집 가능, 포커스를 잃으면 자동 저장
+function onFrame(e) {
+  const doc = e.target.contentDocument
+  if (!doc) return
+  const style = doc.createElement('style')
+  style.textContent = '[data-edit-key]{cursor:text;outline:1px dashed #f0b44c;outline-offset:2px;border-radius:4px;transition:background .15s}[data-edit-key]:hover{background:rgba(252,211,77,.18)}[data-edit-key]:focus{outline:2px solid #FC226B;background:#fff}[data-edit-key]:empty:before{content:attr(data-placeholder);color:#b8a98f}'
+  doc.head.appendChild(style)
+  doc.querySelectorAll('[data-edit-key]').forEach(el => {
+    el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'false')
+    el.title = '눌러서 직접 고치기'
+    let before = ''
+    el.addEventListener('focus', () => {
+      if (el.dataset.raw) el.textContent = el.dataset.raw   // {지역}·{종류} 같은 자리표시가 든 원본 문구를 보여 준다
+      before = el.innerText.trim()
+    })
+    el.addEventListener('keydown', ev => { if (ev.key === 'Enter' && el.dataset.single) { ev.preventDefault(); el.blur() } })
+    el.addEventListener('paste', ev => { ev.preventDefault(); const t = (ev.clipboardData || window.clipboardData).getData('text'); doc.execCommand('insertText', false, el.dataset.single ? t.replace(/\s+/g, ' ') : t) })
+    el.addEventListener('blur', () => {
+      const v = el.innerText.replace(/ /g, ' ').trim()
+      if (v === before) { if (el.dataset.raw) loadPreview(); return }
+      saveEdit(el.dataset.editKey, v)
+    })
+  })
+  if (keepScroll) { doc.documentElement.scrollTop = keepScroll; doc.body.scrollTop = keepScroll; keepScroll = 0 }
+}
+async function saveEdit(key, value) {
+  const f = document.querySelector('iframe'); keepScroll = f?.contentDocument?.documentElement?.scrollTop || 0
+  busy.value = true
+  try {
+    if (key === 'notice') { const { data } = await axios.put('/api/admin/email-digest/notice', { type: type.value, text: value }); st.value = data.data; notice.value = value }
+    else { const { data } = await axios.put('/api/admin/email-digest/text', { type: type.value, key, value }); st.value = data.data }
+    say('저장했어요.')
+  } catch (e) { say(e.response?.data?.message || '저장하지 못했어요.', false) }
+  finally { busy.value = false }
+  loadPreview()
 }
 async function loadPreview() {
   busy.value = true

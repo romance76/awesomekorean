@@ -18,7 +18,7 @@
 
     <div style="padding:22px 24px 8px;">
       <p style="font-size:15px;line-height:1.7;margin:0 0 4px;">{{ $name }}님, 안녕하세요!</p>
-      <p style="font-size:13.5px;line-height:1.7;color:#666;margin:0 0 14px;">{{ $region }}의 한인 업체 <b>{{ $kindLabel }}</b> 소식을 알려 드려요. <span style="color:#aaa;">(광고)</span></p>
+      <p style="font-size:13.5px;line-height:1.7;color:#666;margin:0 0 14px;"><span@if($editMode) data-edit-key="intro" data-single="1" data-raw="{{ $texts['intro'] }}" data-placeholder="소개 문구" @endif>{{ str_replace(['{지역}', '{종류}'], [$region, $kindLabel], $texts['intro']) }}</span> <span style="color:#aaa;">(광고)</span></p>
 
       @if($image)
       @if($linkUrl)<a href="{{ $linkUrl }}" style="text-decoration:none;">@endif
@@ -32,8 +32,8 @@
       @if($phone)<p style="font-size:14px;margin:0 0 14px;">📞 <a href="tel:{{ preg_replace('/[^0-9+]/', '', $phone) }}" style="color:#111;font-weight:700;text-decoration:none;">{{ $phone }}</a></p>@endif
       @if($linkUrl)<div style="text-align:center;margin:6px 0 14px;"><a href="{{ $linkUrl }}" style="display:inline-block;background:#FC226B;color:#ffffff;padding:12px 26px;border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;">자세히 보기</a></div>@endif
 
-      @if(!empty($notice))
-      <div style="background:#f8f7f4;border:1px solid #eeeae0;border-radius:10px;padding:12px 14px;margin:6px 0 14px;font-size:12.5px;line-height:1.7;color:#666;white-space:pre-line;">{{ $notice }}</div>
+      @if(!empty($notice) || $editMode)
+      <div style="background:#f8f7f4;border:1px solid #eeeae0;border-radius:10px;padding:12px 14px;margin:6px 0 14px;font-size:12.5px;line-height:1.7;color:#666;white-space:pre-line;min-height:18px;"@if($editMode) data-edit-key="notice" data-placeholder="안내 문구를 쓰려면 여기를 누르세요 (비워 두면 실제 메일에는 나오지 않아요)" @endif>{{ $notice }}</div>
       @endif
     </div>
 
