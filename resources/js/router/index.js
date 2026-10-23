@@ -242,7 +242,18 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
-    return savedPosition || { top: 0 }
+    if (!savedPosition) return { top: 0 }
+    // 뒤로·앞으로 이동: 목록 내용이 아직 불러와지는 중이면 화면이 짧아서 저장한 위치로 못 가므로,
+    // 문서가 충분히 길어질 때까지(최대 4초) 기다렸다가 그 위치로 돌아간다.
+    return new Promise((resolve) => {
+      const t0 = Date.now()
+      const tick = () => {
+        const tall = document.documentElement.scrollHeight >= savedPosition.top + window.innerHeight - 40
+        if (tall || Date.now() - t0 > 4000) resolve(savedPosition)
+        else setTimeout(tick, 100)
+      }
+      setTimeout(tick, 60)
+    })
   },
 })
 

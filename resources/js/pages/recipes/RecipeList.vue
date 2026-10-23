@@ -347,7 +347,7 @@ watch(() => route.query, (q) => {
   loadPage()
 })
 
-const listMem = useListMemory('recipes', { activeCat, search, sort, page })   // 상세에서 뒤로 오면 고른 분류·검색·정렬·쪽 유지
+const listMem = useListMemory('recipes', { activeCat, search, sort, page, randomSeed })   // 상세에서 뒤로 오면 고른 분류·검색·정렬·쪽 유지
 onMounted(async () => {
   bStore.loadAll()
   await loadConfig()
