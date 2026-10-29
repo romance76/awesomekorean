@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Mail;
 // 관리자 > 손님 메일: 주소 붙여 넣기 → 대기열, 소개 메일 문구, 실제 발송 스위치·하루 한도, 시험 발송, 수신 거부 목록
 class AdminOutreachController extends Controller
 {
+    /** 문구 입력 검사 규칙(저장·미리보기 공통). 자세한 정리(길이·HTML)는 Outreach::normalize 가 한 번 더 한다 */
+    private const TEXT_RULES = [
+        'texts' => 'nullable|array',
+        'texts.*.subject' => 'nullable|string|max:300', 'texts.*.hero_title' => 'nullable|string|max:300', 'texts.*.hero_sub' => 'nullable|string|max:400',
+        'texts.*.body' => 'nullable|string|max:20000', 'texts.*.features_title' => 'nullable|string|max:200', 'texts.*.button' => 'nullable|string|max:200',
+        'texts.*.closing' => 'nullable|string|max:1500',
+        'texts.*.features' => 'nullable|array|max:12', 'texts.*.features.*' => 'array',
+        'texts.*.features.*.icon' => 'nullable|string|max:30', 'texts.*.features.*.title' => 'nullable|string|max:200', 'texts.*.features.*.desc' => 'nullable|string|max:600',
+    ];
+
     public function status()
     {
         $counts = DB::table('outreach_recipients')->select('status', DB::raw('COUNT(*) c'))->groupBy('status')->pluck('c', 'status');
@@ -30,8 +40,8 @@ class AdminOutreachController extends Controller
             'defaults' => Outreach::DEFAULTS,
             'counts' => ['queued' => (int) ($counts['queued'] ?? 0), 'sent' => (int) ($counts['sent'] ?? 0), 'failed' => (int) ($counts['failed'] ?? 0)],
             'suppressed_total' => DB::table('email_suppressions')->count(),
-            'recent' => DB::table('outreach_recipients')->orderByDesc('updated_at')->limit(60)->get(['id', 'email', 'status', 'sent_count', 'last_sent_at', 'error']),
-            'suppressed' => DB::table('email_suppressions')->orderByDesc('id')->limit(60)->get(['email', 'source', 'created_at']),
+            'recent' => DB::table('outreach_recipients')->orderByDesc('updated_at')->limit(100)->get(['id', 'email', 'status', 'sent_count', 'last_sent_at', 'error']),
+            'suppressed' => DB::table('email_suppressions')->orderByDesc('id')->limit(300)->get(['email', 'source', 'created_at']),
         ]]);
     }
 
@@ -48,9 +58,7 @@ class AdminOutreachController extends Controller
     {
         $d = $request->validate([
             'lang' => 'nullable|in:ko,en,both', 'daily_cap' => 'nullable|integer|min:1|max:2000',
-            'texts' => 'nullable|array',
-            'texts.*.subject' => 'nullable|string|max:150', 'texts.*.body' => 'nullable|string|max:4000', 'texts.*.button' => 'nullable|string|max:40',
-        ]);
+        ] + self::TEXT_RULES);
         if (!empty($d['lang'])) Outreach::save(Outreach::SETTING_LANG, $d['lang']);
         if (!empty($d['daily_cap'])) Outreach::save(Outreach::SETTING_CAP, (string) $d['daily_cap']);
         foreach (['ko', 'en'] as $l) if (isset($d['texts'][$l])) Outreach::saveTexts($l, $d['texts'][$l]);
@@ -91,13 +99,13 @@ class AdminOutreachController extends Controller
         return $this->status();
     }
 
-    /** 미리보기(HTML) */
+    /** 미리보기(HTML) — 저장하지 않은 화면의 문구(texts)로도 만들어 볼 수 있다 */
     public function preview(Request $request)
     {
-        $lang = in_array($request->query('lang'), ['ko', 'en', 'both'], true) ? $request->query('lang') : Outreach::lang();
-        $data = Outreach::payload('sample@example.com', true, $lang);
+        $d = $request->validate(['lang' => 'nullable|in:ko,en,both'] + self::TEXT_RULES);
+        $lang = $d['lang'] ?? Outreach::lang();
+        $data = Outreach::payload('sample@example.com', false, $lang, $d['texts'] ?? null);
         $data['unsubscribeUrl'] = url('/outreach-unsubscribe?sample=1');
-        $data['isTest'] = false;
         return response()->json(['success' => true, 'subject' => $data['subject'], 'html' => view('emails.outreach', $data)->render()]);
     }
 

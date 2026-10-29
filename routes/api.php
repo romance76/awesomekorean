@@ -157,7 +157,7 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-outr
     Route::post('/clear-queue', [$c, 'clearQueue']);
     Route::post('/suppress', [$c, 'suppress']);
     Route::post('/remove/{id}', [$c, 'remove'])->whereNumber('id');
-    Route::get('/preview', [$c, 'preview']);
+    Route::post('/preview', [$c, 'preview'])->middleware('throttle:60,1');
     Route::post('/test', [$c, 'test'])->middleware('throttle:10,1');
 });
 Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers')->group(function () {
