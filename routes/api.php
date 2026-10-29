@@ -55,6 +55,8 @@ Route::get('/verify-email/{user}', [AuthController::class, 'verifyEmail'])->midd
 Route::get('/email/flyer-click/{id}', [\App\Http\Controllers\API\EmailAdClickController::class, 'flyer'])->whereNumber('id')->middleware('throttle:120,1');
 Route::get('/email/ad-click/{id}', [\App\Http\Controllers\API\EmailAdClickController::class, 'click'])->whereNumber('id')->middleware('throttle:120,1');
 Route::match(['get', 'post'], '/email/unsubscribe/{user}', [\App\Http\Controllers\API\EmailConsentController::class, 'unsubscribe'])->middleware(['signed', 'throttle:30,1'])->name('email.unsubscribe');
+// 손님 메일(소개 메일) 수신 거부: 확인 페이지에서 체크 후 POST, 메일 앱의 원클릭 수신 거부도 같은 주소
+Route::post('/email/outreach-unsubscribe', [\App\Http\Controllers\API\OutreachUnsubscribeController::class, 'unsubscribe'])->middleware(['signed', 'throttle:30,1'])->name('email.outreach-unsubscribe');
 // CSP 보고 전용 모드의 위반 보고 수신 (브라우저가 자동으로 보냄, 로그인 불필요, 종류별로 하루 1건만 기록)
 Route::post('/csp-report', [\App\Http\Controllers\API\CspReportController::class, 'store'])->middleware('throttle:60,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,10');
@@ -143,6 +145,19 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-dige
     Route::get('/preview', [$c, 'preview']);
     Route::put('/notice', [$c, 'saveNotice']);
     Route::put('/text', [$c, 'saveText']);
+    Route::post('/test', [$c, 'test'])->middleware('throttle:10,1');
+});
+// 관리자 > 손님 메일(소개 메일): 최고관리자 전용(AdminTier)
+Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-outreach')->group(function () {
+    $c = \App\Http\Controllers\API\AdminOutreachController::class;
+    Route::get('/', [$c, 'status']);
+    Route::post('/add', [$c, 'add']);
+    Route::put('/settings', [$c, 'saveSettings']);
+    Route::put('/live', [$c, 'setLive']);
+    Route::post('/clear-queue', [$c, 'clearQueue']);
+    Route::post('/suppress', [$c, 'suppress']);
+    Route::post('/remove/{id}', [$c, 'remove'])->whereNumber('id');
+    Route::get('/preview', [$c, 'preview']);
     Route::post('/test', [$c, 'test'])->middleware('throttle:10,1');
 });
 Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/youtubers')->group(function () {

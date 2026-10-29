@@ -277,7 +277,7 @@ class WeeklyDigest
         return $lang === 'en' ? $d->format('F j, Y') : $d->format('Y년 n월 j일');
     }
 
-    private static function logo(): ?string
+    public static function logo(): ?string
     {
         return self::absolute(SiteSetting::where('key', 'logo_url')->value('value') ?: '/images/logo.png?v=20261015');
     }

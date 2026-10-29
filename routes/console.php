@@ -40,6 +40,8 @@ $contentLog = storage_path('logs/content-sync.log');
 // 전면광고 광고주 특권 메일: 매시간 확인하되 같은 잠금(우편 주소 + 실제 발송 스위치)이 풀리기 전에는 아무것도 보내지 않는다. 받는 사람 현지 오전 10시, 월요일은 쉼
 Schedule::command('mail:flyer-ads')->hourly()->withoutOverlapping()->appendOutputTo(storage_path('logs/flyer-mail.log'));
 Schedule::command('mail:weekly-digest')->cron('7 * * * 1,2')->withoutOverlapping()->appendOutputTo(storage_path('logs/weekly-digest.log'));
+// 손님 메일(소개 메일): 매분 조금씩(기본 10통), 하루 한도·실제 발송 스위치·우편 주소가 없으면 아무것도 안 보냄
+Schedule::command('mail:outreach')->everyMinute()->withoutOverlapping(5)->appendOutputTo(storage_path('logs/outreach-mail.log'));
 // 한인 유튜버: 승인된 채널의 정보·최근 영상·쇼츠를 유튜브에서 6시간마다 새로 읽기 (채널당 약 3유닛)
 Schedule::command('youtubers:sync --limit=100')->cron('20 */6 * * *')->withoutOverlapping()->appendOutputTo($contentLog);
 Schedule::call(fn() => \Illuminate\Support\Facades\DB::table('site_visits')->where('visit_date', '<', now('America/New_York')->subDays(45)->toDateString())->delete())->dailyAt('04:10');

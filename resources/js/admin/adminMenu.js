@@ -67,6 +67,7 @@ export const ADMIN_ITEMS = [
   { to: '/admin/banners', icon: 'megaphone', label: '광고 목록', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   { to: '/admin/flyers', icon: 'megaphone', label: 'NEW 전단 광고', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   { to: '/admin/email-digest', icon: 'mail', label: '메일 발송', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
+  { to: '/admin/email-outreach', icon: 'mail', label: '손님 메일', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   { to: '/admin/pricing', icon: 'coins', label: '가격/할인', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
   // 매출/결제 현황은 할 일 #90 에서 결제/오더 화면의 탭으로 통합됨 — 메뉴 항목은 하나로 합침(주소는 /admin/revenue → 리다이렉트로 유지)
   { to: '/admin/payments', icon: 'wallet', label: '결제/오더 · 매출 · 인보이스', pcGroup: 'money', legacyGroup: 'ad', mobile: true },
@@ -119,7 +120,7 @@ const SECTION_OF = {
   '소통': ['/admin/community', '/admin/qa', '/admin/clubs', '/admin/youtubers', '/admin/chats', '/admin/communication'],
   '생활·거래': ['/admin/market', '/admin/jobs', '/admin/realestate', '/admin/directory', '/admin/groupbuy', '/admin/events'],
   '미디어·정보': ['/admin/news', '/admin/info', '/admin/money', '/admin/recipes', '/admin/music', '/admin/shorts', '/admin/shopping'],
-  '광고': ['/admin/ad-center', '/admin/banners', '/admin/flyers', '/admin/email-digest', '/admin/pricing'],
+  '광고': ['/admin/ad-center', '/admin/banners', '/admin/flyers', '/admin/email-digest', '/admin/email-outreach', '/admin/pricing'],
   '결제·지급': ['/admin/payments', '/admin/grants'],
   '이벤트·추첨': ['/admin/open-event', '/admin/sweepstakes', '/admin/sweepstakes-rules'],
   '배너·SNS': ['/admin/hero-banners', '/admin/popup-banners', '/admin/social'],

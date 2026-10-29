@@ -101,3 +101,13 @@
 | 남은 일 | | 개인정보처리방침에 메일 수신 항목 추가, 가입·마이페이지·배너 수신 동의 문구 영문화, 실제 메일 앱 표시 확인, 동의 회원 수 늘리기 |
 
 전면광고 발송 규칙 상세는 `app/Support/FlyerMailer.php` 머리말 참고(미룬 몫은 원래 날짜로부터 13일 안, 광고가 끝나면 더는 보내지 않음).
+
+## 10. 손님 메일(소개 메일) — 2026-10-28 추가
+회원이 아닌 업체·단체 주소로 보내는 **관리자 수동 소개 메일**. 위 원칙(동의 회원만)과는 별개 기능이고, 정기 소식 메일과 발송이 섞이지 않는다.
+- 화면: 관리자 › 광고·매출 › **손님 메일** (`/admin/email-outreach`, 최고관리자 전용). 주소를 붙여 넣으면 대기열 → 스케줄러(`mail:outreach`, 매분 10통)가 하루 한도 안에서 `noreply@` 로 발송.
+- 잠금: 우편 주소(정기 메일과 같은 설정) + "실제 발송" 스위치가 모두 있어야 나간다. 기본 하루 한도 100통(화면에서 변경).
+- 걸러지는 주소: 수신 거부 목록(`email_suppressions`, 영구) · 수신을 끈 적 있는 회원 · 이미 보낸 주소(다시 보내기 체크 시만 재발송) · 중복·잘못된 형식.
+- 수신 거부: 메일의 버튼 → `/outreach-unsubscribe` 확인 페이지(체크 후 확인) → 서명된 POST 로 `email_suppressions` 에 기록. 메일 앱 원클릭(List-Unsubscribe-Post)도 같은 주소.
+- 제목에 "(광고)" 자동, 맨 아래 수신 거부 버튼·우편 주소 항상 포함. 한국어/영어/두 언어 선택, 제목·본문 화면에서 수정.
+- 코드: `app/Support/Outreach.php`, `AdminOutreachController`, `OutreachUnsubscribeController`, `SendOutreach`, `resources/views/emails/outreach.blade.php`, `AdminOutreach.vue`, `OutreachUnsubscribe.vue`.
+- 남은 일: 반송(bounce)·스팸 신고 웹훅 자동 제외(Resend 웹훅), 실제 메일 앱 표시 확인.

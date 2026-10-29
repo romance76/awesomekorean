@@ -22,6 +22,7 @@ const routes = [
   { path: '/auth/social-callback', name: 'social-callback', component: p('auth/SocialCallback') },
   // 이메일 인증 완료 착지 — beforeEach 가 항상 원래 페이지로 보내므로 컴포넌트는 렌더되지 않음
   { path: '/email-verified', name: 'email-verified', component: p('Home') },
+  { path: '/outreach-unsubscribe', name: 'outreach-unsubscribe', component: p('auth/OutreachUnsubscribe') },   // 손님(소개) 메일의 수신 거부 확인 페이지
   { path: '/email-unsubscribed', name: 'email-unsubscribed', component: p('auth/EmailUnsubscribed') },   // 메일 수신 거부 링크를 누른 뒤 도착
 
   // Community
@@ -210,6 +211,7 @@ const routes = [
       { path: 'banners', component: p('admin/Banners') },
       { path: 'flyers', component: p('admin/AdminFlyers') },
       { path: 'email-digest', component: p('admin/AdminEmailDigest') },
+      { path: 'email-outreach', component: p('admin/AdminOutreach') },
       { path: 'ad-settings', redirect: '/admin/pricing' },  // 가격/할인 센터로 통합
       { path: 'pricing', component: p('admin/AdminPricingCenter') },
       { path: 'payments', component: p('admin/Payments') },
