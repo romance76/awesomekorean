@@ -145,7 +145,7 @@ class Outreach
                 if (!is_array($f)) continue;
                 $title = mb_substr(trim((string) ($f['title'] ?? '')), 0, 60);
                 if ($title === '') continue;
-                $list[] = ['icon' => mb_substr(trim((string) ($f['icon'] ?? '')), 0, 8), 'title' => $title, 'desc' => mb_substr(trim((string) ($f['desc'] ?? '')), 0, 220), 'link' => self::cleanLink((string) ($f['link'] ?? ''))];
+                $list[] = ['icon' => mb_substr(trim((string) ($f['icon'] ?? '')), 0, 8), 'title' => $title, 'desc' => mb_substr(trim((string) ($f['desc'] ?? '')), 0, 220), 'link' => self::cleanLink((string) ($f['link'] ?? '')), 'h' => max(0, min(600, (int) ($f['h'] ?? 0)))];
             }
             $out['features'] = $list;
         }

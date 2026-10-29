@@ -182,10 +182,13 @@
             <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === cur.features.length - 1" @click="move(i, 1)">▼</button>
             <button type="button" class="text-xs text-red-600 px-1" @click="cur.features.splice(i, 1)">삭제</button>
           </div>
-          <input v-model="f.link" maxlength="200" placeholder="눌렀을 때 이동할 주소 예) /directory (비우면 링크 없음)" class="input-soft w-full mt-1 text-xs" />
+          <div class="flex gap-1.5 mt-1">
+            <input v-model="f.link" maxlength="200" placeholder="눌렀을 때 이동할 주소 예) /directory (비우면 링크 없음)" class="input-soft flex-1 min-w-0 text-xs" />
+            <input v-model.number="f.h" type="number" min="0" max="600" step="10" placeholder="높이 자동" title="카드 높이(px) — 비우면 글 길이에 맞춰요" class="input-soft w-24 text-xs" />
+          </div>
         </div>
         <button v-if="cur.features.length < 8" type="button" class="btn-secondary act-btn mt-2" @click="cur.features.push({ icon: '✨', title: '새 카드', desc: '설명을 입력하세요', link: '' })">+ 카드 추가</button>
-        <p class="text-[11px] text-ink-faint mt-2">카드 글자는 위 메일 화면에서 눌러 고치세요. 주소는 <code>/directory</code> 처럼 사이트 안 주소나 https:// 주소를 쓸 수 있어요. 카드를 모두 지우면 기본 카드가 다시 나와요.</p>
+        <p class="text-[11px] text-ink-faint mt-2">카드 높이는 위 메일 화면에서 <b>카드 오른쪽 아래 모서리를 끌어서</b> 조절하거나, 위 칸에 숫자(px)를 넣으세요(가로 폭은 "한 줄에 카드 N개"로 정해져요). 카드 글자는 위 메일 화면에서 눌러 고치세요. 주소는 <code>/directory</code> 처럼 사이트 안 주소나 https:// 주소를 쓸 수 있어요. 카드를 모두 지우면 기본 카드가 다시 나와요.</p>
         <div class="mt-3 pt-3 border-t border-gray-100">
           <div class="font-bold text-ink text-sm mb-1">버튼 링크</div>
           <label class="lbl">큰 버튼 ("{{ cur.button }}") — 비우면 홈페이지</label>
@@ -326,6 +329,15 @@ function wireFrame() {
   const doc = frame.value?.contentDocument
   if (!doc) return
   doc.querySelectorAll('a').forEach(a => a.addEventListener('click', e => e.preventDefault()))
+  // 카드 오른쪽 아래 모서리를 끌어 높이를 늘이고 줄인다 — 놓는 순간의 높이를 저장
+  doc.addEventListener('mouseup', () => {
+    doc.querySelectorAll('[data-card]').forEach(el => {
+      if (!el.style.height) return
+      const f = cur.value.features[+el.dataset.card]
+      if (f) { f.h = Math.round(el.offsetHeight); renderedSig = sig() }
+      el.style.minHeight = el.offsetHeight + 'px'; el.style.height = ''
+    })
+  })
   doc.querySelectorAll('[data-ek]').forEach(node => {
     node.contentEditable = 'true'
     node.spellcheck = false

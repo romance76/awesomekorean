@@ -13,6 +13,7 @@
 @if($ed)
 {{-- 관리자 편집 화면 전용: 눌러서 바로 고칠 수 있는 곳에 점선이 보인다(실제 메일·시험 메일에는 없음) --}}
 <style>
+  [data-card] { resize:vertical; overflow:auto; }
   [data-ek] { outline:1px dashed rgba(120,120,120,0.45); outline-offset:3px; border-radius:4px; cursor:text; min-height:1em; }
   [data-ek]:hover { outline-color:#FC226B; }
   [data-ek]:focus { outline:2px solid #FC226B; }
@@ -72,7 +73,7 @@
           @php $href = $ed ? '' : \App\Support\Outreach::resolveLink($f['link'] ?? '', $siteUrl); @endphp
           <td class="col" width="{{ $cellW }}%" valign="top" style="padding:{{ $small ? '4px' : '6px' }};">
             @if($href !== '')<a href="{{ $href }}" style="display:block;text-decoration:none;color:inherit;">@endif
-            <div style="background:#fff8f4;border:1px solid #fde4d8;border-radius:{{ $small ? '14px' : '16px' }};padding:{{ $small ? '14px 12px 12px' : '18px 16px 16px' }};">
+            <div {!! $ed ? 'data-card="' . $fi . '"' : '' !!} style="box-sizing:border-box;{{ (int) ($f['h'] ?? 0) > 0 ? 'min-height:' . (int) $f['h'] . 'px;' : '' }}background:#fff8f4;border:1px solid #fde4d8;border-radius:{{ $small ? '14px' : '16px' }};padding:{{ $small ? '14px 12px 12px' : '18px 16px 16px' }};">
               @if($f['icon'] !== '' || $ed)
               <div style="width:{{ $small ? '38px' : '46px' }};height:{{ $small ? '38px' : '46px' }};line-height:{{ $small ? '38px' : '46px' }};border-radius:12px;background:#ffffff;border:1px solid #fde4d8;text-align:center;font-size:{{ $small ? '19px' : '23px' }};margin-bottom:{{ $small ? '8px' : '10px' }};"><span {!! $ed ? 'data-ek="f.' . $fi . '.icon" data-single="1"' : '' !!}>{{ $f['icon'] }}</span></div>
               @endif
