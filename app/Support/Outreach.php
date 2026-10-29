@@ -42,6 +42,7 @@ class Outreach
                 ['icon' => '📰', 'title' => '뉴스 · 한인 유튜버', 'desc' => '미국 한인 소식과 한인 유튜버 채널을 한곳에 모아 봐요.', 'link' => '/news'],
                 ['icon' => '🍳', 'title' => '레시피 · 음악', 'desc' => '집밥 레시피와 즐겨 듣는 한국 음악까지, 쉬어 가는 공간도 있어요.', 'link' => '/recipes'],
             ],
+            'styles' => [],
             'card_cols' => '2',
             'button_link' => '',
             'promo_link' => '/ad-apply',
@@ -70,6 +71,7 @@ class Outreach
                 ['icon' => '📰', 'title' => 'News & YouTubers', 'desc' => 'Korean-American news and Korean YouTuber channels, collected in one place.', 'link' => '/news'],
                 ['icon' => '🍳', 'title' => 'Recipes & music', 'desc' => 'Home-cooking recipes and Korean music for when you want to relax.', 'link' => '/recipes'],
             ],
+            'styles' => [],
             'card_cols' => '2',
             'button_link' => '',
             'promo_link' => '/ad-apply',
@@ -114,6 +116,19 @@ class Outreach
         return $v > 0 ? min($v, 2000) : self::DEFAULT_CAP;
     }
 
+    /** 글상자 하나의 위치·간격·정렬·글자 크기 조절값을 인라인 style 문자열로(여백은 어느 메일 앱에서나 먹는 margin 으로만 표현) */
+    public static function styleCss($styles, string $key): string
+    {
+        $v = is_array($styles) ? ($styles[$key] ?? null) : null;
+        if (!is_array($v)) return '';
+        $css = '';
+        if (!empty($v['align'])) $css .= 'text-align:' . $v['align'] . ';';
+        foreach (['mt' => 'margin-top', 'mb' => 'margin-bottom', 'ml' => 'margin-left', 'mr' => 'margin-right', 'fs' => 'font-size'] as $f => $prop) {
+            if (isset($v[$f])) $css .= $prop . ':' . (int) $v[$f] . 'px;';
+        }
+        return $css;
+    }
+
     /** 링크는 "/사이트안주소" 또는 http(s):// 주소만 허용(그 밖의 값은 비움) */
     public static function cleanLink(string $link): string
     {
@@ -137,6 +152,19 @@ class Outreach
             if (array_key_exists($k, $raw)) $out[$k] = mb_substr(trim((string) $raw[$k]), 0, $max);
         }
         foreach (['button_link', 'promo_link'] as $k) if (isset($out[$k])) $out[$k] = self::cleanLink($out[$k]);
+        if (array_key_exists('styles', $raw) && is_array($raw['styles'])) {
+            $styles = [];
+            foreach ($raw['styles'] as $k => $v) {
+                if (!is_string($k) || !is_array($v) || !preg_match('/^(hero_title|hero_sub|features_title|closing|promo_title|promo_text|promo_note|f\.\d{1,2}\.(title|desc))$/', $k)) continue;
+                $one = [];
+                if (in_array($v['align'] ?? '', ['left', 'center', 'right'], true)) $one['align'] = $v['align'];
+                foreach (['mt' => [-40, 120], 'mb' => [-40, 120], 'ml' => [0, 200], 'mr' => [0, 200], 'fs' => [9, 60]] as $f => $range) {
+                    if (isset($v[$f]) && is_numeric($v[$f])) $one[$f] = max($range[0], min($range[1], (int) $v[$f]));
+                }
+                if ($one) $styles[$k] = $one;
+            }
+            $out['styles'] = $styles;
+        }
         if (isset($out['card_cols']) && !in_array($out['card_cols'], ['2', '3', '4'], true)) $out['card_cols'] = '';
         if (array_key_exists('body', $raw)) $out['body'] = self::cleanHtml((string) $raw['body']);
         if (array_key_exists('features', $raw) && is_array($raw['features'])) {

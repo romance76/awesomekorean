@@ -163,6 +163,22 @@
       <button type="button" class="tb" title="서식 지우기" @mousedown.prevent="fexec('removeFormat')">지우기</button>
       <span class="ml-auto text-[11px] text-ink-faint">{{ previewBusy ? '갱신 중…' : '메일 화면 · 직접 고치기' }}</span>
     </div>
+    <div class="border-x border-gray-200 bg-white px-3 py-2 text-sm">
+      <div v-if="!selKey" class="text-[12px] text-ink-faint">💡 메일 화면의 글상자(제목·설명·카드 글 등)를 한 번 누르면 여기서 <b>정렬·위아래·좌우 간격·글자 크기</b>를 조절할 수 있어요.</div>
+      <div v-else class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+        <b class="text-ink">✏️ {{ keyLabel(selKey) }}</b>
+        <span class="flex items-center gap-1">정렬
+          <button v-for="a in [['left','⇤ 왼쪽'],['center','↔ 가운데'],['right','⇥ 오른쪽']]" :key="a[0]" type="button" class="tb" :class="selVals.align === a[0] ? '!bg-amber-50 !border-amber-300' : ''" @click="setAlign(a[0])">{{ a[1] }}</button>
+        </span>
+        <span v-for="s in [['mt','위 간격'],['mb','아래 간격'],['ml','왼쪽 간격'],['mr','오른쪽 간격'],['fs','글자 크기']]" :key="s[0]" class="flex items-center gap-1">
+          {{ s[1] }}
+          <button type="button" class="tb" @click="nudge(s[0], s[0] === 'fs' ? -1 : -4)">−</button>
+          <b class="w-8 text-center">{{ selVals[s[0]] }}</b>
+          <button type="button" class="tb" @click="nudge(s[0], s[0] === 'fs' ? 1 : 4)">+</button>
+        </span>
+        <button type="button" class="text-xs text-red-600 underline" @click="resetBox">이 글상자 되돌리기</button>
+      </div>
+    </div>
     <iframe ref="frame" :srcdoc="previewHtml" class="w-full h-[820px] rounded-b-xl border border-t-0 border-gray-200 bg-white" sandbox="allow-same-origin" @load="wireFrame"></iframe>
 
     <!-- 카드·안내 박스 관리 -->
@@ -180,7 +196,7 @@
             <span class="flex-1 min-w-0 truncate">{{ f.title }}</span>
             <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === 0" @click="move(i, -1)">▲</button>
             <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === cur.features.length - 1" @click="move(i, 1)">▼</button>
-            <button type="button" class="text-xs text-red-600 px-1" @click="cur.features.splice(i, 1)">삭제</button>
+            <button type="button" class="text-xs text-red-600 px-1" @click="removeCard(i)">삭제</button>
           </div>
           <div class="flex gap-1.5 mt-1">
             <input v-model="f.link" maxlength="200" placeholder="눌렀을 때 이동할 주소 예) /directory (비우면 링크 없음)" class="input-soft flex-1 min-w-0 text-xs" />
@@ -236,7 +252,7 @@ const testEmail = ref(''); const supRaw = ref(''); const supFilter = ref('')
 const cap = ref(100)
 const editLang = ref('ko')
 const previewHtml = ref(''); const previewSubject = ref(''); const previewBusy = ref(false)
-const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', card_cols: '2', button_link: '', promo_link: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '' })
+const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', card_cols: '2', button_link: '', promo_link: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '', styles: {} })
 const form = reactive({ lang: 'ko', texts: { ko: empty(), en: empty() } })
 const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'both', label: '두 언어 모두' }]
 const cur = computed(() => form.texts[editLang.value])
@@ -254,7 +270,7 @@ function fill(d, keepEdit = false) {
   cap.value = d.daily_cap
   if (!keepEdit) {
     form.lang = d.lang
-    for (const l of ['ko', 'en']) form.texts[l] = clone(d.texts[l])
+    for (const l of ['ko', 'en']) { form.texts[l] = clone(d.texts[l]); if (!form.texts[l].styles || Array.isArray(form.texts[l].styles)) form.texts[l].styles = {} }
   }
 }
 async function run(fn, okMsg) {
@@ -297,10 +313,75 @@ function resetText() {
   if (!st.value || !window.confirm('이 언어의 문구를 기본 문구로 되돌릴까요? (저장 버튼을 눌러야 확정돼요)')) return
   form.texts[editLang.value] = clone(st.value.defaults[editLang.value])
 }
+// 카드 순서·삭제에 맞춰 카드별 글상자 조절값(f.번호.title/desc)도 같이 옮긴다
+function remapStyles(fn) {
+  const st = cur.value.styles || {}; const out = {}
+  for (const [k, v] of Object.entries(st)) {
+    const m = k.match(/^f\.(\d+)\.(.+)$/)
+    if (!m) { out[k] = v; continue }
+    const ni = fn(+m[1]); if (ni !== null) out['f.' + ni + '.' + m[2]] = v
+  }
+  cur.value.styles = out
+}
 function move(i, d) {
   const a = cur.value.features; const j = i + d
   if (j < 0 || j >= a.length) return
   ;[a[i], a[j]] = [a[j], a[i]]
+  remapStyles(n => (n === i ? j : n === j ? i : n))
+}
+function removeCard(i) {
+  cur.value.features.splice(i, 1)
+  remapStyles(n => (n === i ? null : n > i ? n - 1 : n))
+}
+
+// ── 글상자 위치·간격·정렬·글자 크기 조절 ──
+// 메일 앱에서 확실히 먹는 방식(정렬·margin·글자 크기)만 쓴다. 눌러 선택하면 위 조절 막대가 열리고, 바꾸는 즉시 화면에 반영·저장 대기.
+const STYLABLE = /^(hero_title|hero_sub|features_title|closing|promo_title|promo_text|promo_note|f\.\d+\.(title|desc))$/
+const KEY_NAMES = { hero_title: '큰 제목', hero_sub: '큰 제목 아래 설명', features_title: '카드 영역 제목', closing: '마무리 글', promo_title: '광고 안내 제목', promo_text: '광고 안내 설명', promo_note: '광고 안내 작은 글' }
+const selKey = ref('')
+const selVals = reactive({ align: '', mt: 0, mb: 0, ml: 0, mr: 0, fs: 14 })
+let selEl = null
+function keyLabel(k) {
+  const m = k.match(/^f\.(\d+)\.(title|desc)$/)
+  return m ? '카드 ' + (+m[1] + 1) + (m[2] === 'title' ? ' 제목' : ' 설명') : (KEY_NAMES[k] || k)
+}
+function selectBox(node) {
+  const key = node.dataset.ek
+  if (!STYLABLE.test(key)) { selKey.value = ''; selEl = null; return }
+  selEl = node; selKey.value = key
+  const cs = node.ownerDocument.defaultView.getComputedStyle(node)
+  const saved = (cur.value.styles && cur.value.styles[key]) || {}
+  const al = cs.textAlign === 'start' ? 'left' : cs.textAlign
+  selVals.align = saved.align || (['left', 'center', 'right'].includes(al) ? al : 'left')
+  selVals.mt = saved.mt ?? (parseInt(cs.marginTop) || 0)
+  selVals.mb = saved.mb ?? (parseInt(cs.marginBottom) || 0)
+  selVals.ml = saved.ml ?? (parseInt(cs.marginLeft) || 0)
+  selVals.mr = saved.mr ?? (parseInt(cs.marginRight) || 0)
+  selVals.fs = saved.fs ?? Math.round(parseFloat(cs.fontSize) || 14)
+}
+const CSS_PROP = { mt: 'marginTop', mb: 'marginBottom', ml: 'marginLeft', mr: 'marginRight', fs: 'fontSize' }
+const RANGE = { mt: [-40, 120], mb: [-40, 120], ml: [0, 200], mr: [0, 200], fs: [9, 60] }
+function saveStyle(prop, value) {   // 바꾼 항목만 저장한다(안 건드린 항목은 기본 모양 그대로)
+  if (!cur.value.styles || Array.isArray(cur.value.styles)) cur.value.styles = {}
+  cur.value.styles[selKey.value] = { ...(cur.value.styles[selKey.value] || {}), [prop]: value }
+  renderedSig = sig()   // 이미 화면에 반영했으므로 다시 그리지 않는다
+}
+function nudge(prop, d) {
+  const [lo, hi] = RANGE[prop]
+  const v = Math.max(lo, Math.min(hi, (+selVals[prop] || 0) + d))
+  selVals[prop] = v
+  if (selEl) selEl.style[CSS_PROP[prop]] = v + 'px'
+  saveStyle(prop, v)
+}
+function setAlign(a) {
+  selVals.align = a
+  if (selEl) selEl.style.textAlign = a
+  saveStyle('align', a)
+}
+function resetBox() {
+  if (cur.value.styles) delete cur.value.styles[selKey.value]
+  selKey.value = ''; selEl = null
+  clearTimeout(timer); refreshPreview()   // 다시 그려서 기본 모양으로
 }
 
 // ── 메일 화면 안에서 바로 고치기 ──
@@ -342,6 +423,7 @@ function wireFrame() {
     node.contentEditable = 'true'
     node.spellcheck = false
     node.addEventListener('input', () => onFrameInput(node))
+    node.addEventListener('focus', () => selectBox(node))
     node.addEventListener('paste', e => {   // 붙여 넣을 때는 서식 없이 글자만
       e.preventDefault()
       const t = (e.clipboardData || window.clipboardData).getData('text/plain')
