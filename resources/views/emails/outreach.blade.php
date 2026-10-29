@@ -13,7 +13,7 @@
 </head>
 <body style="margin:0;padding:0;background:#f4f1ec;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#1a1a1a;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:#f4f1ec;">{{ $blocks[0]['t']['hero_sub'] }}</div>
-<div style="max-width:740px;margin:0 auto;padding:22px 12px 28px;">
+<div style="max-width:900px;margin:0 auto;padding:22px 12px 28px;">
   @if($isTest)
   <div style="background:#fff7e6;border:1px solid #fcd9a0;color:#92400e;font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:12px;text-align:center;">시험 메일입니다 / Test email — 수신 거부 링크는 이 주소로 실제 연결돼요 / The unsubscribe link below is live for this address.</div>
   @endif

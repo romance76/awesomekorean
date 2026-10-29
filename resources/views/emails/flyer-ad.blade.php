@@ -6,7 +6,7 @@
 <title>{{ $title }}</title>
 </head>
 <body style="margin:0;padding:0;background:#f6f6f4;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#1a1a1a;">
-<div style="max-width:600px;margin:0 auto;padding:24px 14px;">
+<div style="max-width:900px;margin:0 auto;padding:24px 14px;">
   @if($isTest)
   <div style="background:#fff7e6;border:1px solid #fcd9a0;color:#92400e;font-size:12px;padding:8px 12px;border-radius:8px;margin-bottom:12px;text-align:center;">{{ $t['test_banner'] }}{{ $sample ? $t['sample_note'] : '' }}</div>
   @endif
