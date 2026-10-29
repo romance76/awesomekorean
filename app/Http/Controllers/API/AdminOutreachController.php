@@ -22,6 +22,8 @@ class AdminOutreachController extends Controller
         'texts.*.promo_show' => 'nullable|in:0,1', 'texts.*.promo_badge' => 'nullable|string|max:100', 'texts.*.promo_title' => 'nullable|string|max:300',
         'texts.*.promo_text' => 'nullable|string|max:1000', 'texts.*.promo_button' => 'nullable|string|max:200', 'texts.*.promo_note' => 'nullable|string|max:800',
         'texts.*.features' => 'nullable|array|max:12', 'texts.*.features.*' => 'array',
+        'texts.*.features.*.link' => 'nullable|string|max:300', 'texts.*.card_cols' => 'nullable|in:2,3,4',
+        'texts.*.button_link' => 'nullable|string|max:300', 'texts.*.promo_link' => 'nullable|string|max:300',
         'texts.*.features.*.icon' => 'nullable|string|max:30', 'texts.*.features.*.title' => 'nullable|string|max:200', 'texts.*.features.*.desc' => 'nullable|string|max:600',
     ];
 

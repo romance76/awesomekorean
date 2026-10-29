@@ -33,15 +33,18 @@ class Outreach
             'body' => '<p>안녕하세요, 어썸코리안입니다.</p><p>미국에 사시는 한인 여러분이 필요한 <b>정보와 이웃, 일자리와 거래</b>를 한곳에서 편하게 찾으실 수 있도록 어썸코리안을 새로 열었습니다.</p><p>한인 업체와 단체 여러분께는 <b>우리 동네 손님을 만나는 홍보 공간</b>이 되어 드립니다. 아래에서 어떤 일을 할 수 있는지 살펴보세요.</p>',
             'features_title' => '이런 것을 할 수 있어요',
             'features' => [
-                ['icon' => '🏪', 'title' => '한인 업소록', 'desc' => '우리 동네 한인 식당·병원·미용실·변호사를 찾고, 내 가게도 등록해 알릴 수 있어요.'],
-                ['icon' => '💼', 'title' => '구인구직', 'desc' => '한인 업체의 채용 공고를 한눈에 보고, 사람을 구하는 글도 쉽게 올려요.'],
-                ['icon' => '🛒', 'title' => '중고장터 · 부동산', 'desc' => '이웃끼리 믿고 사고팔고, 렌트·매물 정보도 함께 찾아요.'],
-                ['icon' => '🎁', 'title' => '공동구매 · 이벤트', 'desc' => '한인 업체의 특별 할인과 경품 이벤트 소식을 한곳에서 확인해요.'],
-                ['icon' => '💬', 'title' => '커뮤니티 · Q&A', 'desc' => '비자, 세금, 육아, 맛집까지 미국 생활 궁금증을 물어보고 답해 주세요.'],
-                ['icon' => '💡', 'title' => '생활정보 MONEY', 'desc' => '보험·세금·정부 혜택을 화면 캡처와 함께 따라 하기 쉽게 정리했어요.'],
-                ['icon' => '📰', 'title' => '뉴스 · 한인 유튜버', 'desc' => '미국 한인 소식과 한인 유튜버 채널을 한곳에 모아 봐요.'],
-                ['icon' => '🍳', 'title' => '레시피 · 음악', 'desc' => '집밥 레시피와 즐겨 듣는 한국 음악까지, 쉬어 가는 공간도 있어요.'],
+                ['icon' => '🏪', 'title' => '한인 업소록', 'desc' => '우리 동네 한인 식당·병원·미용실·변호사를 찾고, 내 가게도 등록해 알릴 수 있어요.', 'link' => '/directory'],
+                ['icon' => '💼', 'title' => '구인구직', 'desc' => '한인 업체의 채용 공고를 한눈에 보고, 사람을 구하는 글도 쉽게 올려요.', 'link' => '/jobs'],
+                ['icon' => '🛒', 'title' => '중고장터 · 부동산', 'desc' => '이웃끼리 믿고 사고팔고, 렌트·매물 정보도 함께 찾아요.', 'link' => '/market'],
+                ['icon' => '🎁', 'title' => '공동구매 · 이벤트', 'desc' => '한인 업체의 특별 할인과 경품 이벤트 소식을 한곳에서 확인해요.', 'link' => '/groupbuy'],
+                ['icon' => '💬', 'title' => '커뮤니티 · Q&A', 'desc' => '비자, 세금, 육아, 맛집까지 미국 생활 궁금증을 물어보고 답해 주세요.', 'link' => '/community'],
+                ['icon' => '💡', 'title' => '생활정보 MONEY', 'desc' => '보험·세금·정부 혜택을 화면 캡처와 함께 따라 하기 쉽게 정리했어요.', 'link' => '/money'],
+                ['icon' => '📰', 'title' => '뉴스 · 한인 유튜버', 'desc' => '미국 한인 소식과 한인 유튜버 채널을 한곳에 모아 봐요.', 'link' => '/news'],
+                ['icon' => '🍳', 'title' => '레시피 · 음악', 'desc' => '집밥 레시피와 즐겨 듣는 한국 음악까지, 쉬어 가는 공간도 있어요.', 'link' => '/recipes'],
             ],
+            'card_cols' => '2',
+            'button_link' => '',
+            'promo_link' => '/ad-apply',
             'promo_show' => '1',
             'promo_badge' => '🎉 오픈 기념',
             'promo_title' => '2026년은 광고가 무료예요 — 미리 자리를 잡으세요',
@@ -58,15 +61,18 @@ class Outreach
             'body' => '<p>Hello, and welcome to Awesome Korean.</p><p>We have opened a new home for Koreans living in the U.S. to find <b>information, neighbors, jobs and deals</b> in one place.</p><p>For Korean businesses and organizations, it is a <b>place to reach local customers</b>. Take a look at what you can do below.</p>',
             'features_title' => 'What you can do here',
             'features' => [
-                ['icon' => '🏪', 'title' => 'Business directory', 'desc' => 'Find Korean restaurants, clinics, salons and lawyers near you - and list your own business too.'],
-                ['icon' => '💼', 'title' => 'Jobs', 'desc' => 'Browse openings from Korean businesses, or post a listing to find the right person.'],
-                ['icon' => '🛒', 'title' => 'Marketplace & real estate', 'desc' => 'Buy and sell with trusted neighbors, and look for rentals and listings.'],
-                ['icon' => '🎁', 'title' => 'Group buys & events', 'desc' => 'See special deals and giveaways from Korean businesses in one place.'],
-                ['icon' => '💬', 'title' => 'Community & Q&A', 'desc' => 'Ask and answer questions about visas, taxes, parenting, restaurants and everyday life.'],
-                ['icon' => '💡', 'title' => 'MONEY guides', 'desc' => 'Insurance, taxes and government benefits, explained step by step with screenshots.'],
-                ['icon' => '📰', 'title' => 'News & YouTubers', 'desc' => 'Korean-American news and Korean YouTuber channels, collected in one place.'],
-                ['icon' => '🍳', 'title' => 'Recipes & music', 'desc' => 'Home-cooking recipes and Korean music for when you want to relax.'],
+                ['icon' => '🏪', 'title' => 'Business directory', 'desc' => 'Find Korean restaurants, clinics, salons and lawyers near you - and list your own business too.', 'link' => '/directory'],
+                ['icon' => '💼', 'title' => 'Jobs', 'desc' => 'Browse openings from Korean businesses, or post a listing to find the right person.', 'link' => '/jobs'],
+                ['icon' => '🛒', 'title' => 'Marketplace & real estate', 'desc' => 'Buy and sell with trusted neighbors, and look for rentals and listings.', 'link' => '/market'],
+                ['icon' => '🎁', 'title' => 'Group buys & events', 'desc' => 'See special deals and giveaways from Korean businesses in one place.', 'link' => '/groupbuy'],
+                ['icon' => '💬', 'title' => 'Community & Q&A', 'desc' => 'Ask and answer questions about visas, taxes, parenting, restaurants and everyday life.', 'link' => '/community'],
+                ['icon' => '💡', 'title' => 'MONEY guides', 'desc' => 'Insurance, taxes and government benefits, explained step by step with screenshots.', 'link' => '/money'],
+                ['icon' => '📰', 'title' => 'News & YouTubers', 'desc' => 'Korean-American news and Korean YouTuber channels, collected in one place.', 'link' => '/news'],
+                ['icon' => '🍳', 'title' => 'Recipes & music', 'desc' => 'Home-cooking recipes and Korean music for when you want to relax.', 'link' => '/recipes'],
             ],
+            'card_cols' => '2',
+            'button_link' => '',
+            'promo_link' => '/ad-apply',
             'promo_show' => '1',
             'promo_badge' => '🎉 Grand opening',
             'promo_title' => 'Advertising is free in 2026 - reserve your spot early',
@@ -78,7 +84,7 @@ class Outreach
         ],
     ];
 
-    private const STR_LIMITS = ['subject' => 150, 'hero_title' => 120, 'hero_sub' => 200, 'features_title' => 60, 'button' => 40, 'closing' => 600, 'promo_show' => 1, 'promo_badge' => 40, 'promo_title' => 100, 'promo_text' => 400, 'promo_button' => 40, 'promo_note' => 300];
+    private const STR_LIMITS = ['subject' => 150, 'hero_title' => 120, 'hero_sub' => 200, 'features_title' => 60, 'button' => 40, 'closing' => 600, 'promo_show' => 1, 'promo_badge' => 40, 'promo_title' => 100, 'promo_text' => 400, 'promo_button' => 40, 'promo_note' => 300, 'card_cols' => 1, 'button_link' => 200, 'promo_link' => 200];
     private const ALLOWED_TAGS = '<p><br><b><strong><i><em><u><h2><h3><ul><ol><li><a><span><div><blockquote>';
     /** 메일 클라이언트는 CSS 클래스를 믿을 수 없어서, 에디터가 만든 태그마다 기본 모양을 인라인으로 입힌다(관리자가 고른 색·정렬이 뒤에 붙어 우선) */
     private const EMAIL_STYLES = [
@@ -108,6 +114,21 @@ class Outreach
         return $v > 0 ? min($v, 2000) : self::DEFAULT_CAP;
     }
 
+    /** 링크는 "/사이트안주소" 또는 http(s):// 주소만 허용(그 밖의 값은 비움) */
+    public static function cleanLink(string $link): string
+    {
+        $link = mb_substr(trim($link), 0, 200);
+        return preg_match('#^(/[^\s]*|https?://[^\s]+)$#i', $link) ? $link : '';
+    }
+
+    /** 메일에 넣을 완전한 주소. 비어 있거나 잘못되면 $fallback */
+    public static function resolveLink(?string $link, string $siteUrl, string $fallback = ''): string
+    {
+        $link = self::cleanLink((string) $link);
+        if ($link === '') return $fallback;
+        return str_starts_with($link, '/') ? rtrim($siteUrl, '/') . $link : $link;
+    }
+
     /** 에디터·화면에서 들어온 값을 모양에 맞게 정리(길이 제한, HTML 정리). 보내지 않은 항목은 건드리지 않는다 */
     public static function normalize(array $raw): array
     {
@@ -115,6 +136,8 @@ class Outreach
         foreach (self::STR_LIMITS as $k => $max) {
             if (array_key_exists($k, $raw)) $out[$k] = mb_substr(trim((string) $raw[$k]), 0, $max);
         }
+        foreach (['button_link', 'promo_link'] as $k) if (isset($out[$k])) $out[$k] = self::cleanLink($out[$k]);
+        if (isset($out['card_cols']) && !in_array($out['card_cols'], ['2', '3', '4'], true)) $out['card_cols'] = '';
         if (array_key_exists('body', $raw)) $out['body'] = self::cleanHtml((string) $raw['body']);
         if (array_key_exists('features', $raw) && is_array($raw['features'])) {
             $list = [];
@@ -122,7 +145,7 @@ class Outreach
                 if (!is_array($f)) continue;
                 $title = mb_substr(trim((string) ($f['title'] ?? '')), 0, 60);
                 if ($title === '') continue;
-                $list[] = ['icon' => mb_substr(trim((string) ($f['icon'] ?? '')), 0, 8), 'title' => $title, 'desc' => mb_substr(trim((string) ($f['desc'] ?? '')), 0, 220)];
+                $list[] = ['icon' => mb_substr(trim((string) ($f['icon'] ?? '')), 0, 8), 'title' => $title, 'desc' => mb_substr(trim((string) ($f['desc'] ?? '')), 0, 220), 'link' => self::cleanLink((string) ($f['link'] ?? ''))];
             }
             $out['features'] = $list;
         }

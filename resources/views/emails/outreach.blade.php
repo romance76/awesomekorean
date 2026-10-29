@@ -47,7 +47,7 @@
       <div style="display:inline-block;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:800;letter-spacing:1.5px;padding:6px 16px;border-radius:999px;margin-bottom:18px;">{{ $en ? 'NOW OPEN' : '새로 오픈했어요' }}</div>
       <h1 class="hero-h" {!! $ed ? 'data-ek="hero_title"' : '' !!} style="margin:0 0 14px;font-size:29px;line-height:1.4;color:#ffffff;font-weight:800;">{!! nl2br(e($t['hero_title'])) !!}</h1>
       <p {!! $ed ? 'data-ek="hero_sub" data-single="1"' : '' !!} style="margin:0 0 26px;font-size:15px;line-height:1.75;color:#ffffff;opacity:0.95;">{{ $t['hero_sub'] }}</p>
-      <a href="{{ $siteUrl }}" {!! $ed ? 'data-ek="button" data-single="1"' : '' !!} style="display:inline-block;padding:15px 36px;border-radius:999px;background:#ffffff;color:#FC226B;font-size:16px;font-weight:800;text-decoration:none;">{{ $t['button'] }}</a>
+      <a href="{{ \App\Support\Outreach::resolveLink($t['button_link'] ?? '', $siteUrl, $siteUrl) }}" {!! $ed ? 'data-ek="button" data-single="1"' : '' !!} style="display:inline-block;padding:15px 36px;border-radius:999px;background:#ffffff;color:#FC226B;font-size:16px;font-weight:800;text-decoration:none;">{{ $t['button'] }}</a>
     </div>
 
     {{-- 본문(에디터로 쓴 글) --}}
@@ -55,26 +55,34 @@
     <div style="padding:32px 30px 10px;background:#ffffff;"><div {!! $ed ? 'data-ek="body" style="min-height:60px;"' : '' !!}>{!! $b['bodyHtml'] !!}</div></div>
     @endif
 
-    {{-- 기능 카드 --}}
+    {{-- 기능 카드: 열 수(2~4)는 관리자가 고르고, 카드마다 연결 링크를 걸 수 있다 --}}
     @if(count($t['features']))
+    @php
+      $cols = in_array(($t['card_cols'] ?? '2'), ['2', '3', '4'], true) ? (int) $t['card_cols'] : 2;
+      $small = $cols >= 3;
+      $cellW = floor(100 / $cols);
+    @endphp
     <div style="padding:14px 22px 10px;background:#ffffff;">
       <div {!! $ed ? 'data-ek="features_title" data-single="1"' : '' !!} style="text-align:center;font-size:21px;font-weight:800;color:#111111;margin:10px 0 0;">{{ $t['features_title'] }}</div>
       <div style="width:40px;height:4px;background:#FC226B;margin:10px auto 16px;border-radius:2px;"></div>
-      @foreach(array_chunk($t['features'], 2, true) as $row)
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+      @foreach(array_chunk($t['features'], $cols, true) as $row)
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;table-layout:fixed;">
         <tr>
           @foreach($row as $fi => $f)
-          <td class="col" width="50%" valign="top" style="padding:6px;">
-            <div style="background:#fff8f4;border:1px solid #fde4d8;border-radius:16px;padding:18px 16px 16px;">
+          @php $href = $ed ? '' : \App\Support\Outreach::resolveLink($f['link'] ?? '', $siteUrl); @endphp
+          <td class="col" width="{{ $cellW }}%" valign="top" style="padding:{{ $small ? '4px' : '6px' }};">
+            @if($href !== '')<a href="{{ $href }}" style="display:block;text-decoration:none;color:inherit;">@endif
+            <div style="background:#fff8f4;border:1px solid #fde4d8;border-radius:{{ $small ? '14px' : '16px' }};padding:{{ $small ? '14px 12px 12px' : '18px 16px 16px' }};">
               @if($f['icon'] !== '' || $ed)
-              <div style="width:46px;height:46px;line-height:46px;border-radius:14px;background:#ffffff;border:1px solid #fde4d8;text-align:center;font-size:23px;margin-bottom:10px;"><span {!! $ed ? 'data-ek="f.' . $fi . '.icon" data-single="1"' : '' !!}>{{ $f['icon'] }}</span></div>
+              <div style="width:{{ $small ? '38px' : '46px' }};height:{{ $small ? '38px' : '46px' }};line-height:{{ $small ? '38px' : '46px' }};border-radius:12px;background:#ffffff;border:1px solid #fde4d8;text-align:center;font-size:{{ $small ? '19px' : '23px' }};margin-bottom:{{ $small ? '8px' : '10px' }};"><span {!! $ed ? 'data-ek="f.' . $fi . '.icon" data-single="1"' : '' !!}>{{ $f['icon'] }}</span></div>
               @endif
-              <div {!! $ed ? 'data-ek="f.' . $fi . '.title" data-single="1"' : '' !!} style="font-size:15.5px;font-weight:800;color:#111111;margin-bottom:5px;line-height:1.4;">{{ $f['title'] }}</div>
-              @if($f['desc'] !== '' || $ed)<div {!! $ed ? 'data-ek="f.' . $fi . '.desc"' : '' !!} style="font-size:13px;line-height:1.7;color:#666666;">{{ $f['desc'] }}</div>@endif
+              <div {!! $ed ? 'data-ek="f.' . $fi . '.title" data-single="1"' : '' !!} style="font-size:{{ $small ? '14px' : '15.5px' }};font-weight:800;color:#111111;margin-bottom:4px;line-height:1.4;">{{ $f['title'] }}</div>
+              @if($f['desc'] !== '' || $ed)<div {!! $ed ? 'data-ek="f.' . $fi . '.desc"' : '' !!} style="font-size:{{ $small ? '12px' : '13px' }};line-height:1.65;color:#666666;">{{ $f['desc'] }}</div>@endif
             </div>
+            @if($href !== '')</a>@endif
           </td>
           @endforeach
-          @if(count($row) === 1)<td class="col" width="50%" style="padding:6px;"></td>@endif
+          @for($pad = count($row); $pad < $cols; $pad++)<td class="col" width="{{ $cellW }}%" style="padding:4px;"></td>@endfor
         </tr>
       </table>
       @endforeach
@@ -87,7 +95,7 @@
       <div style="display:inline-block;background:#f5b942;color:#5b3a00;font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:12px;"><span {!! $ed ? 'data-ek="promo_badge" data-single="1"' : '' !!}>{{ $t['promo_badge'] }}</span></div>
       <div {!! $ed ? 'data-ek="promo_title" data-single="1"' : '' !!} style="font-size:21px;line-height:1.45;font-weight:800;color:#3b2a00;margin-bottom:10px;">{{ $t['promo_title'] }}</div>
       <div {!! $ed ? 'data-ek="promo_text"' : '' !!} style="font-size:14.5px;line-height:1.8;color:#5c4a1d;">{{ $t['promo_text'] }}</div>
-      <a href="{{ $siteUrl }}/ad-apply" {!! $ed ? 'data-ek="promo_button" data-single="1"' : '' !!} style="display:inline-block;margin-top:16px;padding:13px 30px;border-radius:999px;background:#3b2a00;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['promo_button'] }}</a>
+      <a href="{{ \App\Support\Outreach::resolveLink($t['promo_link'] ?? '', $siteUrl, $siteUrl . '/ad-apply') }}" {!! $ed ? 'data-ek="promo_button" data-single="1"' : '' !!} style="display:inline-block;margin-top:16px;padding:13px 30px;border-radius:999px;background:#3b2a00;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['promo_button'] }}</a>
       <div {!! $ed ? 'data-ek="promo_note"' : '' !!} style="margin-top:14px;font-size:11.5px;line-height:1.7;color:#8a7440;">{{ $t['promo_note'] }}</div>
     </div>
     @endif
@@ -95,7 +103,7 @@
     {{-- 마무리 --}}
     <div style="margin:14px 22px 22px;padding:28px 22px;background:#1f2430;border-radius:18px;text-align:center;">
       <div {!! $ed ? 'data-ek="closing"' : '' !!} style="font-size:17px;line-height:1.85;color:#ffffff;font-weight:700;">{!! nl2br(e($t['closing'])) !!}</div>
-      <a href="{{ $siteUrl }}" style="display:inline-block;margin-top:20px;padding:13px 32px;border-radius:999px;background:#FC226B;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['button'] }}</a>
+      <a href="{{ \App\Support\Outreach::resolveLink($t['button_link'] ?? '', $siteUrl, $siteUrl) }}" style="display:inline-block;margin-top:20px;padding:13px 32px;border-radius:999px;background:#FC226B;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['button'] }}</a>
     </div>
     @endforeach
 

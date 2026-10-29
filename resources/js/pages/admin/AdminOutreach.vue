@@ -169,15 +169,30 @@
     <div class="grid md:grid-cols-2 gap-4 mt-4">
       <div class="rounded-xl border border-gray-200 p-3">
         <div class="font-bold text-ink text-sm mb-2">기능 카드 관리 <span class="text-ink-faint font-normal">({{ cur.features.length }}/8)</span></div>
-        <div v-for="(f, i) in cur.features" :key="i" class="flex items-center gap-2 py-1 border-b border-gray-50 text-sm">
-          <span class="w-6 text-center">{{ f.icon }}</span>
-          <span class="flex-1 min-w-0 truncate">{{ f.title }}</span>
-          <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === 0" @click="move(i, -1)">▲</button>
-          <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === cur.features.length - 1" @click="move(i, 1)">▼</button>
-          <button type="button" class="text-xs text-red-600 px-1" @click="cur.features.splice(i, 1)">삭제</button>
+        <div class="flex items-center gap-2 mb-2 text-sm">
+          <span class="text-ink-muted text-xs">한 줄에 카드</span>
+          <button v-for="n in ['2', '3', '4']" :key="n" type="button" class="px-3 py-1 rounded-lg text-[13px] font-semibold border" :class="(cur.card_cols || '2') === n ? 'bg-amber-50 border-amber-300 text-amber-800' : 'border-gray-200 text-ink-muted'" @click="cur.card_cols = n">{{ n }}개</button>
+          <span class="text-[11px] text-ink-faint">(3·4개면 카드가 작아져요)</span>
         </div>
-        <button v-if="cur.features.length < 8" type="button" class="btn-secondary act-btn mt-2" @click="cur.features.push({ icon: '✨', title: '새 카드', desc: '설명을 입력하세요' })">+ 카드 추가</button>
-        <p class="text-[11px] text-ink-faint mt-2">카드 글자는 위 메일 화면에서 눌러 고치세요. 카드를 모두 지우면 기본 카드가 다시 나와요.</p>
+        <div v-for="(f, i) in cur.features" :key="i" class="py-1.5 border-b border-gray-50 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-6 text-center">{{ f.icon }}</span>
+            <span class="flex-1 min-w-0 truncate">{{ f.title }}</span>
+            <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === 0" @click="move(i, -1)">▲</button>
+            <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === cur.features.length - 1" @click="move(i, 1)">▼</button>
+            <button type="button" class="text-xs text-red-600 px-1" @click="cur.features.splice(i, 1)">삭제</button>
+          </div>
+          <input v-model="f.link" maxlength="200" placeholder="눌렀을 때 이동할 주소 예) /directory (비우면 링크 없음)" class="input-soft w-full mt-1 text-xs" />
+        </div>
+        <button v-if="cur.features.length < 8" type="button" class="btn-secondary act-btn mt-2" @click="cur.features.push({ icon: '✨', title: '새 카드', desc: '설명을 입력하세요', link: '' })">+ 카드 추가</button>
+        <p class="text-[11px] text-ink-faint mt-2">카드 글자는 위 메일 화면에서 눌러 고치세요. 주소는 <code>/directory</code> 처럼 사이트 안 주소나 https:// 주소를 쓸 수 있어요. 카드를 모두 지우면 기본 카드가 다시 나와요.</p>
+        <div class="mt-3 pt-3 border-t border-gray-100">
+          <div class="font-bold text-ink text-sm mb-1">버튼 링크</div>
+          <label class="lbl">큰 버튼 ("{{ cur.button }}") — 비우면 홈페이지</label>
+          <input v-model="cur.button_link" maxlength="200" placeholder="예) /directory" class="input-soft w-full text-sm mb-2" />
+          <label class="lbl">광고 안내 박스 버튼 — 비우면 광고 신청 페이지</label>
+          <input v-model="cur.promo_link" maxlength="200" placeholder="/ad-apply" class="input-soft w-full text-sm" />
+        </div>
       </div>
       <div class="rounded-xl border border-gray-200 p-3">
         <div class="font-bold text-ink text-sm mb-2">광고 안내 박스 (노란 점선 박스)</div>
@@ -218,7 +233,7 @@ const testEmail = ref(''); const supRaw = ref(''); const supFilter = ref('')
 const cap = ref(100)
 const editLang = ref('ko')
 const previewHtml = ref(''); const previewSubject = ref(''); const previewBusy = ref(false)
-const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '' })
+const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', card_cols: '2', button_link: '', promo_link: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '' })
 const form = reactive({ lang: 'ko', texts: { ko: empty(), en: empty() } })
 const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'both', label: '두 언어 모두' }]
 const cur = computed(() => form.texts[editLang.value])
