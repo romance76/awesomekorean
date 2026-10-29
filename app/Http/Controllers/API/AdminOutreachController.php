@@ -19,6 +19,8 @@ class AdminOutreachController extends Controller
         'texts.*.subject' => 'nullable|string|max:300', 'texts.*.hero_title' => 'nullable|string|max:300', 'texts.*.hero_sub' => 'nullable|string|max:400',
         'texts.*.body' => 'nullable|string|max:20000', 'texts.*.features_title' => 'nullable|string|max:200', 'texts.*.button' => 'nullable|string|max:200',
         'texts.*.closing' => 'nullable|string|max:1500',
+        'texts.*.promo_show' => 'nullable|in:0,1', 'texts.*.promo_badge' => 'nullable|string|max:100', 'texts.*.promo_title' => 'nullable|string|max:300',
+        'texts.*.promo_text' => 'nullable|string|max:1000', 'texts.*.promo_button' => 'nullable|string|max:200', 'texts.*.promo_note' => 'nullable|string|max:800',
         'texts.*.features' => 'nullable|array|max:12', 'texts.*.features.*' => 'array',
         'texts.*.features.*.icon' => 'nullable|string|max:30', 'texts.*.features.*.title' => 'nullable|string|max:200', 'texts.*.features.*.desc' => 'nullable|string|max:600',
     ];
@@ -102,9 +104,9 @@ class AdminOutreachController extends Controller
     /** 미리보기(HTML) — 저장하지 않은 화면의 문구(texts)로도 만들어 볼 수 있다 */
     public function preview(Request $request)
     {
-        $d = $request->validate(['lang' => 'nullable|in:ko,en,both'] + self::TEXT_RULES);
+        $d = $request->validate(['lang' => 'nullable|in:ko,en,both', 'edit' => 'nullable|boolean'] + self::TEXT_RULES);
         $lang = $d['lang'] ?? Outreach::lang();
-        $data = Outreach::payload('sample@example.com', false, $lang, $d['texts'] ?? null);
+        $data = Outreach::payload('sample@example.com', false, $lang, $d['texts'] ?? null, (bool) ($d['edit'] ?? false));
         $data['unsubscribeUrl'] = url('/outreach-unsubscribe?sample=1');
         return response()->json(['success' => true, 'subject' => $data['subject'], 'html' => view('emails.outreach', $data)->render()]);
     }

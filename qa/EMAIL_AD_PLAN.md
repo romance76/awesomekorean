@@ -111,3 +111,5 @@
 - 제목에 "(광고)" 자동, 맨 아래 수신 거부 버튼·우편 주소 항상 포함. 한국어/영어/두 언어 선택, 제목·본문 화면에서 수정.
 - 코드: `app/Support/Outreach.php`, `AdminOutreachController`, `OutreachUnsubscribeController`, `SendOutreach`, `resources/views/emails/outreach.blade.php`, `AdminOutreach.vue`, `OutreachUnsubscribe.vue`.
 - 남은 일: 반송(bounce)·스팸 신고 웹훅 자동 제외(Resend 웹훅), 실제 메일 앱 표시 확인.
+- (10-28 추가) 편집 화면은 메일 모양 그대로 보이는 미리보기 안에서 점선 글자를 눌러 바로 고치는 방식(서버가 `edit=true` 로 `data-ek` 표시를 붙여 그려 주고, 화면이 iframe 안의 입력을 form 에 반영). 기능 카드는 아래 "카드 관리"에서 추가·삭제·순서.
+- (10-28 추가) **광고 안내 박스**(노란 점선): "2026년은 광고가 무료예요 — 미리 자리를 잡으세요" + 광고 신청(/ad-apply) 버튼. 나중에 유료로 바꿀 때 부담이 없도록 문구는 "오픈 기념·기간 한정"으로 쓰고, 맨 아래에 "기간·범위·조건이 달라지거나 종료될 수 있다"는 안내를 기본 포함(화면에서 켜고 끌 수 있고 문구 수정 가능). 본문·카드의 "무료 홍보/무료 등록" 단정 표현은 뺐다.

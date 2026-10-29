@@ -30,10 +30,10 @@ class Outreach
             'subject' => '어썸코리안이 새로 문을 열었어요 - 미국 한인 생활의 모든 것',
             'hero_title' => "미국 한인 생활의 모든 것,\n어썸코리안이 문을 열었습니다",
             'hero_sub' => '찾고, 거래하고, 물어보고, 함께 나누는 미국 한인 커뮤니티',
-            'body' => '<p>안녕하세요, 어썸코리안입니다.</p><p>미국에 사시는 한인 여러분이 필요한 <b>정보와 이웃, 일자리와 거래</b>를 한곳에서 편하게 찾으실 수 있도록 어썸코리안을 새로 열었습니다.</p><p>한인 업체와 단체 여러분께는 <b>우리 동네 손님을 만나는 무료 홍보 공간</b>이 되어 드립니다. 아래에서 어떤 일을 할 수 있는지 살펴보세요.</p>',
+            'body' => '<p>안녕하세요, 어썸코리안입니다.</p><p>미국에 사시는 한인 여러분이 필요한 <b>정보와 이웃, 일자리와 거래</b>를 한곳에서 편하게 찾으실 수 있도록 어썸코리안을 새로 열었습니다.</p><p>한인 업체와 단체 여러분께는 <b>우리 동네 손님을 만나는 홍보 공간</b>이 되어 드립니다. 아래에서 어떤 일을 할 수 있는지 살펴보세요.</p>',
             'features_title' => '이런 것을 할 수 있어요',
             'features' => [
-                ['icon' => '🏪', 'title' => '한인 업소록', 'desc' => '우리 동네 한인 식당·병원·미용실·변호사를 찾고, 내 가게도 무료로 등록해 알릴 수 있어요.'],
+                ['icon' => '🏪', 'title' => '한인 업소록', 'desc' => '우리 동네 한인 식당·병원·미용실·변호사를 찾고, 내 가게도 등록해 알릴 수 있어요.'],
                 ['icon' => '💼', 'title' => '구인구직', 'desc' => '한인 업체의 채용 공고를 한눈에 보고, 사람을 구하는 글도 쉽게 올려요.'],
                 ['icon' => '🛒', 'title' => '중고장터 · 부동산', 'desc' => '이웃끼리 믿고 사고팔고, 렌트·매물 정보도 함께 찾아요.'],
                 ['icon' => '🎁', 'title' => '공동구매 · 이벤트', 'desc' => '한인 업체의 특별 할인과 경품 이벤트 소식을 한곳에서 확인해요.'],
@@ -42,6 +42,12 @@ class Outreach
                 ['icon' => '📰', 'title' => '뉴스 · 한인 유튜버', 'desc' => '미국 한인 소식과 한인 유튜버 채널을 한곳에 모아 봐요.'],
                 ['icon' => '🍳', 'title' => '레시피 · 음악', 'desc' => '집밥 레시피와 즐겨 듣는 한국 음악까지, 쉬어 가는 공간도 있어요.'],
             ],
+            'promo_show' => '1',
+            'promo_badge' => '🎉 오픈 기념',
+            'promo_title' => '2026년은 광고가 무료예요 — 미리 자리를 잡으세요',
+            'promo_text' => '오픈을 기념해 2026년 동안 광고를 무료로 열어 두었어요. 지역별 광고 자리는 한정되어 있으니 미리 신청해 두세요.',
+            'promo_button' => '무료 광고 신청하기',
+            'promo_note' => '※ 무료 광고는 오픈 기념 혜택으로, 운영 상황에 따라 기간·범위·조건이 달라지거나 종료될 수 있어요. 최신 내용은 광고 신청 페이지를 기준으로 해요.',
             'button' => '어썸코리안 둘러보기',
             'closing' => "미국 한인 커뮤니티 1등,\n그것이 어썸코리안이 꿈꾸는 모습입니다.\n여러분의 첫 방문이 큰 힘이 됩니다. 감사합니다.",
         ],
@@ -49,10 +55,10 @@ class Outreach
             'subject' => 'Awesome Korean is now open - everything for Korean life in the U.S.',
             'hero_title' => "Everything for Korean life in the U.S.\nAwesome Korean has just opened",
             'hero_sub' => 'Find, trade, ask and share - the community for Koreans across America',
-            'body' => '<p>Hello, and welcome to Awesome Korean.</p><p>We have opened a new home for Koreans living in the U.S. to find <b>information, neighbors, jobs and deals</b> in one place.</p><p>For Korean businesses and organizations, it is a <b>free place to reach local customers</b>. Take a look at what you can do below.</p>',
+            'body' => '<p>Hello, and welcome to Awesome Korean.</p><p>We have opened a new home for Koreans living in the U.S. to find <b>information, neighbors, jobs and deals</b> in one place.</p><p>For Korean businesses and organizations, it is a <b>place to reach local customers</b>. Take a look at what you can do below.</p>',
             'features_title' => 'What you can do here',
             'features' => [
-                ['icon' => '🏪', 'title' => 'Business directory', 'desc' => 'Find Korean restaurants, clinics, salons and lawyers near you - and list your own business for free.'],
+                ['icon' => '🏪', 'title' => 'Business directory', 'desc' => 'Find Korean restaurants, clinics, salons and lawyers near you - and list your own business too.'],
                 ['icon' => '💼', 'title' => 'Jobs', 'desc' => 'Browse openings from Korean businesses, or post a listing to find the right person.'],
                 ['icon' => '🛒', 'title' => 'Marketplace & real estate', 'desc' => 'Buy and sell with trusted neighbors, and look for rentals and listings.'],
                 ['icon' => '🎁', 'title' => 'Group buys & events', 'desc' => 'See special deals and giveaways from Korean businesses in one place.'],
@@ -61,12 +67,18 @@ class Outreach
                 ['icon' => '📰', 'title' => 'News & YouTubers', 'desc' => 'Korean-American news and Korean YouTuber channels, collected in one place.'],
                 ['icon' => '🍳', 'title' => 'Recipes & music', 'desc' => 'Home-cooking recipes and Korean music for when you want to relax.'],
             ],
+            'promo_show' => '1',
+            'promo_badge' => '🎉 Grand opening',
+            'promo_title' => 'Advertising is free in 2026 - reserve your spot early',
+            'promo_text' => 'To celebrate our opening, advertising is free throughout 2026. Ad spots are limited in each region, so apply early.',
+            'promo_button' => 'Apply for a free ad',
+            'promo_note' => '* Free advertising is an opening promotion. Its period, scope and conditions may change or end depending on how we operate. The ad application page always has the latest details.',
             'button' => 'Visit Awesome Korean',
             'closing' => "Our goal: the number one Korean community in the U.S.\nYour first visit means a lot to us. Thank you!",
         ],
     ];
 
-    private const STR_LIMITS = ['subject' => 150, 'hero_title' => 120, 'hero_sub' => 200, 'features_title' => 60, 'button' => 40, 'closing' => 600];
+    private const STR_LIMITS = ['subject' => 150, 'hero_title' => 120, 'hero_sub' => 200, 'features_title' => 60, 'button' => 40, 'closing' => 600, 'promo_show' => 1, 'promo_badge' => 40, 'promo_title' => 100, 'promo_text' => 400, 'promo_button' => 40, 'promo_note' => 300];
     private const ALLOWED_TAGS = '<p><br><b><strong><i><em><u><h2><h3><ul><ol><li><a><span><div><blockquote>';
     /** 메일 클라이언트는 CSS 클래스를 믿을 수 없어서, 에디터가 만든 태그마다 기본 모양을 인라인으로 입힌다(관리자가 고른 색·정렬이 뒤에 붙어 우선) */
     private const EMAIL_STYLES = [
@@ -293,7 +305,7 @@ class Outreach
     }
 
     /** $override: ['ko' => [...], 'en' => [...]] 저장 전 문구로 미리보기할 때만 */
-    public static function payload(string $email, ?bool $isTest = false, ?string $lang = null, ?array $override = null): array
+    public static function payload(string $email, ?bool $isTest = false, ?string $lang = null, ?array $override = null, bool $edit = false): array
     {
         $lang = $lang ?: self::lang();
         $langs = $lang === 'both' ? ['ko', 'en'] : [$lang];
@@ -301,13 +313,13 @@ class Outreach
         $blocks = []; $subjects = [];
         foreach ($langs as $l) {
             $t = self::texts($l, $override[$l] ?? null);
-            $blocks[] = ['lang' => $l, 't' => $t, 'bodyHtml' => self::cleanHtml($t['body'], true)];
+            $blocks[] = ['lang' => $l, 't' => $t, 'bodyHtml' => self::cleanHtml($t['body'], !$edit)];
             $subjects[] = $t['subject'];
         }
         $addr = WeeklyDigest::postalAddress();
         return [
             'subject' => '(광고) ' . implode(' / ', $subjects),
-            'blocks' => $blocks, 'langs' => $langs, 'email' => $email, 'isTest' => (bool) $isTest,
+            'blocks' => $blocks, 'langs' => $langs, 'email' => $email, 'isTest' => (bool) $isTest, 'edit' => $edit,
             'siteUrl' => rtrim(url('/'), '/'), 'logoUrl' => WeeklyDigest::logo(),
             'unsubscribeUrl' => $urls['page'], 'unsubscribeApi' => $urls['api'],
             'address' => $addr !== '' ? $addr : '(우편 주소 미설정 — 시험용 메일입니다 / Postal address not set — test email)',

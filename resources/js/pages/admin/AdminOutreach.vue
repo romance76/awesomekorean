@@ -126,7 +126,7 @@
   <!-- 메일 편집 + 실시간 미리보기 -->
   <div v-if="st" class="card p-4 mb-4">
     <h2 class="font-bold text-ink text-sm mb-1">메일 꾸미기</h2>
-    <p class="text-xs text-ink-muted mb-3">왼쪽에서 고치면 오른쪽 미리보기에 바로 반영돼요. 제목 앞에는 "(광고)"가, 맨 아래에는 수신 거부 버튼·우편 주소가 항상 자동으로 들어가요.</p>
+    <p class="text-xs text-ink-muted mb-3">아래 메일 화면에서 <b>점선이 보이는 글자를 직접 눌러 고치세요</b>(제목·설명·본문·카드·광고 안내·마무리 글 모두). 본문 글은 도구 막대로 굵게·색·목록·링크를 넣을 수 있어요. 제목 앞의 "(광고)", 맨 아래 수신 거부 버튼·우편 주소는 항상 자동으로 들어가요.</p>
 
     <div class="flex flex-wrap items-center gap-3 mb-3">
       <div class="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
@@ -139,49 +139,56 @@
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-4 items-start">
-      <!-- 편집 -->
-      <div class="min-w-0 space-y-3">
-        <div><label class="lbl">메일 제목</label><input v-model="cur.subject" maxlength="150" class="input-soft w-full" /></div>
-        <div><label class="lbl">큰 제목 (맨 위 핑크 영역, 줄바꿈 가능)</label><textarea v-model="cur.hero_title" rows="2" maxlength="120" class="input-soft w-full"></textarea></div>
-        <div><label class="lbl">큰 제목 아래 한 줄 설명</label><input v-model="cur.hero_sub" maxlength="200" class="input-soft w-full" /></div>
-        <div>
-          <label class="lbl">본문 (굵게·색·제목·목록·링크를 쓸 수 있어요)</label>
-          <RichTextEditor v-model="cur.body" />
-        </div>
-        <div>
-          <label class="lbl">기능 카드 영역 제목</label>
-          <input v-model="cur.features_title" maxlength="60" class="input-soft w-full mb-2" />
-          <div class="space-y-2">
-            <div v-for="(f, i) in cur.features" :key="i" class="rounded-xl border border-gray-200 p-2.5 bg-gray-50/60">
-              <div class="flex gap-2 items-center">
-                <input v-model="f.icon" maxlength="4" class="input-soft w-14 text-center text-lg" title="이모지 아이콘" />
-                <input v-model="f.title" maxlength="60" placeholder="카드 제목" class="input-soft flex-1 min-w-0 font-semibold" />
-                <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === 0" @click="move(i, -1)">▲</button>
-                <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === cur.features.length - 1" @click="move(i, 1)">▼</button>
-                <button type="button" class="text-xs text-red-600 px-1" @click="cur.features.splice(i, 1)">삭제</button>
-              </div>
-              <textarea v-model="f.desc" rows="2" maxlength="220" placeholder="카드 설명" class="input-soft w-full mt-1.5 text-sm"></textarea>
-            </div>
-          </div>
-          <button v-if="cur.features.length < 8" type="button" class="btn-secondary act-btn mt-2" @click="cur.features.push({ icon: '✨', title: '', desc: '' })">+ 카드 추가</button>
-        </div>
-        <div><label class="lbl">버튼 글자</label><input v-model="cur.button" maxlength="40" class="input-soft w-full" /></div>
-        <div><label class="lbl">맨 아래 마무리 글 (어두운 박스, 줄바꿈 가능)</label><textarea v-model="cur.closing" rows="3" maxlength="600" class="input-soft w-full"></textarea></div>
-        <div class="flex flex-wrap gap-2 pt-1">
-          <button class="btn-primary act-btn" :disabled="busy" @click="saveContent">저장</button>
-          <button class="btn-secondary act-btn" :disabled="busy" @click="resetText">이 언어 기본 문구로 되돌리기</button>
-        </div>
-      </div>
+    <div class="mb-3"><label class="lbl">메일 제목 (받는 사람의 메일함에 보이는 제목)</label><input v-model="cur.subject" maxlength="150" class="input-soft w-full" /></div>
 
-      <!-- 미리보기 -->
-      <div class="min-w-0 lg:sticky lg:top-3">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-xs text-ink-muted truncate">제목: {{ previewSubject }}</span>
-          <span class="text-[11px] text-ink-faint shrink-0">{{ previewBusy ? '갱신 중…' : '실시간 미리보기' }}</span>
+    <!-- 도구 막대 (본문 글에 적용) -->
+    <div class="sticky top-0 z-10 flex flex-wrap items-center gap-1 px-2 py-1.5 border border-gray-200 rounded-t-xl bg-gray-50">
+      <button type="button" class="tb" title="굵게" @mousedown.prevent="fexec('bold')"><b>B</b></button>
+      <button type="button" class="tb" title="기울임" @mousedown.prevent="fexec('italic')"><i>I</i></button>
+      <button type="button" class="tb" title="밑줄" @mousedown.prevent="fexec('underline')"><u>U</u></button>
+      <span class="tb-sep"></span>
+      <button type="button" class="tb font-bold" title="큰 제목" @mousedown.prevent="fexec('formatBlock', 'h2')">제목</button>
+      <button type="button" class="tb font-bold text-[12px]" title="작은 제목" @mousedown.prevent="fexec('formatBlock', 'h3')">소제목</button>
+      <button type="button" class="tb" title="일반 글" @mousedown.prevent="fexec('formatBlock', 'p')">본문</button>
+      <button type="button" class="tb" title="강조 박스" @mousedown.prevent="fexec('formatBlock', 'blockquote')">❝</button>
+      <span class="tb-sep"></span>
+      <button v-for="c in colors" :key="c.v" type="button" class="tb-color" :style="{ background: c.v }" :title="c.t" @mousedown.prevent="fexec('foreColor', c.v)"></button>
+      <span class="tb-sep"></span>
+      <button type="button" class="tb" title="글머리표 목록" @mousedown.prevent="fexec('insertUnorderedList')">• 목록</button>
+      <button type="button" class="tb" title="번호 목록" @mousedown.prevent="fexec('insertOrderedList')">1. 목록</button>
+      <button type="button" class="tb" title="왼쪽 정렬" @mousedown.prevent="fexec('justifyLeft')">⇤</button>
+      <button type="button" class="tb" title="가운데 정렬" @mousedown.prevent="fexec('justifyCenter')">↔</button>
+      <span class="tb-sep"></span>
+      <button type="button" class="tb" title="링크 넣기" @mousedown.prevent="addLink">🔗 링크</button>
+      <button type="button" class="tb" title="서식 지우기" @mousedown.prevent="fexec('removeFormat')">지우기</button>
+      <span class="ml-auto text-[11px] text-ink-faint">{{ previewBusy ? '갱신 중…' : '메일 화면 · 직접 고치기' }}</span>
+    </div>
+    <iframe ref="frame" :srcdoc="previewHtml" class="w-full h-[820px] rounded-b-xl border border-t-0 border-gray-200 bg-white" sandbox="allow-same-origin" @load="wireFrame"></iframe>
+
+    <!-- 카드·안내 박스 관리 -->
+    <div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="rounded-xl border border-gray-200 p-3">
+        <div class="font-bold text-ink text-sm mb-2">기능 카드 관리 <span class="text-ink-faint font-normal">({{ cur.features.length }}/8)</span></div>
+        <div v-for="(f, i) in cur.features" :key="i" class="flex items-center gap-2 py-1 border-b border-gray-50 text-sm">
+          <span class="w-6 text-center">{{ f.icon }}</span>
+          <span class="flex-1 min-w-0 truncate">{{ f.title }}</span>
+          <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === 0" @click="move(i, -1)">▲</button>
+          <button type="button" class="text-xs text-ink-muted px-1" :disabled="i === cur.features.length - 1" @click="move(i, 1)">▼</button>
+          <button type="button" class="text-xs text-red-600 px-1" @click="cur.features.splice(i, 1)">삭제</button>
         </div>
-        <iframe :srcdoc="previewHtml" class="w-full h-[680px] rounded-xl border border-gray-200 bg-white" sandbox=""></iframe>
+        <button v-if="cur.features.length < 8" type="button" class="btn-secondary act-btn mt-2" @click="cur.features.push({ icon: '✨', title: '새 카드', desc: '설명을 입력하세요' })">+ 카드 추가</button>
+        <p class="text-[11px] text-ink-faint mt-2">카드 글자는 위 메일 화면에서 눌러 고치세요. 카드를 모두 지우면 기본 카드가 다시 나와요.</p>
       </div>
+      <div class="rounded-xl border border-gray-200 p-3">
+        <div class="font-bold text-ink text-sm mb-2">광고 안내 박스 (노란 점선 박스)</div>
+        <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="accent-amber-600" :checked="cur.promo_show !== '0'" @change="cur.promo_show = $event.target.checked ? '1' : '0'" /> 메일에 "광고 무료 · 미리 자리 잡기" 박스 넣기</label>
+        <p class="text-[11px] text-ink-faint mt-2 leading-relaxed">박스 안 문구는 위 메일 화면에서 직접 고쳐요. 버튼은 광고 신청 페이지(/ad-apply)로 연결돼요. 나중에 유료로 바뀔 때 부담이 없도록, 기본 문구는 "오픈 기념 · 기간 한정"으로 쓰고 맨 아래에 "기간·조건이 달라지거나 종료될 수 있다"는 안내를 넣어 두었어요.</p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2 pt-4">
+      <button class="btn-primary act-btn" :disabled="busy" @click="saveContent">저장</button>
+      <button class="btn-secondary act-btn" :disabled="busy" @click="resetText">이 언어 기본 문구로 되돌리기</button>
     </div>
   </div>
 
@@ -202,7 +209,6 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import axios from 'axios'
 import AppIcon from '../../components/AppIcon.vue'
-import RichTextEditor from '../../components/admin/RichTextEditor.vue'
 
 const st = ref(null)
 const busy = ref(false)
@@ -212,7 +218,7 @@ const testEmail = ref(''); const supRaw = ref(''); const supFilter = ref('')
 const cap = ref(100)
 const editLang = ref('ko')
 const previewHtml = ref(''); const previewSubject = ref(''); const previewBusy = ref(false)
-const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '' })
+const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '' })
 const form = reactive({ lang: 'ko', texts: { ko: empty(), en: empty() } })
 const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'both', label: '두 언어 모두' }]
 const cur = computed(() => form.texts[editLang.value])
@@ -279,21 +285,80 @@ function move(i, d) {
   ;[a[i], a[j]] = [a[j], a[i]]
 }
 
-// 실시간 미리보기: 고치는 글 기준(두 언어 모두 선택 시에도 지금 고치는 언어 하나만 보여 준다), 입력이 멈추고 0.8초 뒤 갱신
+// ── 메일 화면 안에서 바로 고치기 ──
+// 미리보기를 서버가 "편집 모드"(data-ek 표시)로 그려 주고, iframe 안의 글자를 눌러 고치면 그 값이 바로 form 에 들어간다.
+const frame = ref(null)
+const colors = [
+  { v: '#111111', t: '검정' }, { v: '#FC226B', t: '핑크(브랜드)' }, { v: '#666666', t: '회색' },
+  { v: '#2563eb', t: '파랑' }, { v: '#16a34a', t: '초록' }, { v: '#d97706', t: '주황' },
+]
+const sig = () => JSON.stringify([editLang.value, cur.value])
+let renderedSig = ''   // 지금 화면에 그려진 내용의 지문 — iframe 안에서 고친 변경은 다시 그리지 않아 커서가 튀지 않는다
+
+function setByKey(key, val) {
+  const m = key.match(/^f\.(\d+)\.(icon|title|desc)$/)
+  if (m) { const f = cur.value.features[+m[1]]; if (f) f[m[2]] = val }
+  else cur.value[key] = val
+}
+function onFrameInput(node) {
+  const key = node.dataset.ek
+  let val = key === 'body' ? node.innerHTML : node.innerText.replace(/ /g, ' ').replace(/\n+$/, '')
+  if (key === 'body' && val === '<br>') val = ''
+  setByKey(key, val)
+  renderedSig = sig()
+}
+function wireFrame() {
+  const doc = frame.value?.contentDocument
+  if (!doc) return
+  doc.querySelectorAll('a').forEach(a => a.addEventListener('click', e => e.preventDefault()))
+  doc.querySelectorAll('[data-ek]').forEach(node => {
+    node.contentEditable = 'true'
+    node.spellcheck = false
+    node.addEventListener('input', () => onFrameInput(node))
+    node.addEventListener('paste', e => {   // 붙여 넣을 때는 서식 없이 글자만
+      e.preventDefault()
+      const t = (e.clipboardData || window.clipboardData).getData('text/plain')
+      doc.execCommand('insertText', false, node.dataset.single ? t.replace(/\s+/g, ' ') : t)
+    })
+    if (node.dataset.single) node.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault() })
+  })
+}
+function fexec(cmd, arg = null) {
+  const doc = frame.value?.contentDocument
+  if (!doc) return
+  frame.value.contentWindow.focus()
+  try { doc.execCommand('styleWithCSS', false, true) } catch { /* 일부 브라우저는 지원하지 않음 */ }
+  doc.execCommand(cmd, false, arg)
+  const n = doc.activeElement?.closest?.('[data-ek]')
+  if (n) onFrameInput(n)
+}
+function addLink() {
+  const url = window.prompt('연결할 주소(https:// 로 시작)를 입력하세요')
+  if (!url) return
+  if (!/^(https?:\/\/|mailto:)/i.test(url)) { window.alert('https:// 또는 http:// 로 시작하는 주소만 넣을 수 있어요.'); return }
+  fexec('createLink', url)
+}
+
+// 실시간 미리보기: 고치는 글 기준(두 언어 모두 선택 시에도 지금 고치는 언어 하나만 보여 준다)
 let timer = null
 async function refreshPreview() {
   previewBusy.value = true
+  renderedSig = sig()
   try {
-    const { data } = await axios.post('/api/admin/email-outreach/preview', { lang: editLang.value, texts: { [editLang.value]: form.texts[editLang.value] } })
+    const { data } = await axios.post('/api/admin/email-outreach/preview', { lang: editLang.value, edit: true, texts: { [editLang.value]: form.texts[editLang.value] } })
     previewHtml.value = data.html; previewSubject.value = data.subject
   } catch { /* 미리보기는 실패해도 편집을 막지 않는다 */ }
   finally { previewBusy.value = false }
 }
-watch(() => [editLang.value, form.texts[editLang.value]], () => { clearTimeout(timer); timer = setTimeout(refreshPreview, 800) }, { deep: true })
+watch(sig, (s) => { if (s === renderedSig) return; clearTimeout(timer); timer = setTimeout(refreshPreview, 400) })
 
 onMounted(load)
 </script>
 
 <style scoped>
+.tb { min-width: 30px; height: 30px; padding: 0 8px; border-radius: 8px; font-size: 13px; color: #374151; background: #fff; border: 1px solid #e5e7eb; }
+.tb:hover { background: #fff7e6; border-color: #fcd9a0; }
+.tb-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 4px; }
+.tb-color { width: 20px; height: 20px; border-radius: 999px; border: 2px solid #fff; box-shadow: 0 0 0 1px #d1d5db; }
 .lbl { display: block; font-size: 12px; color: #6b7280; margin-bottom: 4px; }
 </style>
