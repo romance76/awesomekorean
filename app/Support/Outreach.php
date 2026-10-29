@@ -43,6 +43,7 @@ class Outreach
                 ['icon' => '🍳', 'title' => '레시피 · 음악', 'desc' => '집밥 레시피와 즐겨 듣는 한국 음악까지, 쉬어 가는 공간도 있어요.', 'link' => '/recipes'],
             ],
             'styles' => [],
+            'icon_pos' => 'inline',
             'card_cols' => '2',
             'button_link' => '',
             'promo_link' => '/ad-apply',
@@ -72,6 +73,7 @@ class Outreach
                 ['icon' => '🍳', 'title' => 'Recipes & music', 'desc' => 'Home-cooking recipes and Korean music for when you want to relax.', 'link' => '/recipes'],
             ],
             'styles' => [],
+            'icon_pos' => 'inline',
             'card_cols' => '2',
             'button_link' => '',
             'promo_link' => '/ad-apply',
@@ -86,7 +88,7 @@ class Outreach
         ],
     ];
 
-    private const STR_LIMITS = ['subject' => 150, 'hero_title' => 120, 'hero_sub' => 200, 'features_title' => 60, 'button' => 40, 'closing' => 600, 'promo_show' => 1, 'promo_badge' => 40, 'promo_title' => 100, 'promo_text' => 400, 'promo_button' => 40, 'promo_note' => 300, 'card_cols' => 1, 'button_link' => 200, 'promo_link' => 200];
+    private const STR_LIMITS = ['subject' => 150, 'hero_title' => 120, 'hero_sub' => 200, 'features_title' => 60, 'button' => 40, 'closing' => 600, 'promo_show' => 1, 'promo_badge' => 40, 'promo_title' => 100, 'promo_text' => 400, 'promo_button' => 40, 'promo_note' => 300, 'card_cols' => 1, 'button_link' => 200, 'promo_link' => 200, 'icon_pos' => 6];
     private const ALLOWED_TAGS = '<p><br><b><strong><i><em><u><h2><h3><ul><ol><li><a><span><div><blockquote>';
     /** 메일 클라이언트는 CSS 클래스를 믿을 수 없어서, 에디터가 만든 태그마다 기본 모양을 인라인으로 입힌다(관리자가 고른 색·정렬이 뒤에 붙어 우선) */
     private const EMAIL_STYLES = [
@@ -124,7 +126,7 @@ class Outreach
         $css = '';
         if (!empty($v['align'])) $css .= 'text-align:' . $v['align'] . ';';
         foreach (['mt' => 'margin-top', 'mb' => 'margin-bottom', 'ml' => 'margin-left', 'mr' => 'margin-right', 'fs' => 'font-size'] as $f => $prop) {
-            if (isset($v[$f])) $css .= $prop . ':' . (int) $v[$f] . 'px;';
+            if (isset($v[$f])) $css .= $prop . ':' . max(0, (int) $v[$f]) . 'px;';   // 음수 여백은 Gmail 이 무시해서 쓰지 않는다
         }
         return $css;
     }
@@ -158,13 +160,14 @@ class Outreach
                 if (!is_string($k) || !is_array($v) || !preg_match('/^(hero_title|hero_sub|features_title|closing|promo_title|promo_text|promo_note|f\.\d{1,2}\.(title|desc))$/', $k)) continue;
                 $one = [];
                 if (in_array($v['align'] ?? '', ['left', 'center', 'right'], true)) $one['align'] = $v['align'];
-                foreach (['mt' => [-40, 120], 'mb' => [-40, 120], 'ml' => [0, 200], 'mr' => [0, 200], 'fs' => [9, 60]] as $f => $range) {
+                foreach (['mt' => [0, 120], 'mb' => [0, 120], 'ml' => [0, 200], 'mr' => [0, 200], 'fs' => [9, 60]] as $f => $range) {
                     if (isset($v[$f]) && is_numeric($v[$f])) $one[$f] = max($range[0], min($range[1], (int) $v[$f]));
                 }
                 if ($one) $styles[$k] = $one;
             }
             $out['styles'] = $styles;
         }
+        if (isset($out['icon_pos']) && !in_array($out['icon_pos'], ['top', 'inline'], true)) $out['icon_pos'] = '';
         if (isset($out['card_cols']) && !in_array($out['card_cols'], ['2', '3', '4'], true)) $out['card_cols'] = '';
         if (array_key_exists('body', $raw)) $out['body'] = self::cleanHtml((string) $raw['body']);
         if (array_key_exists('features', $raw) && is_array($raw['features'])) {

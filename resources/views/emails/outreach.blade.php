@@ -62,6 +62,8 @@
       $cols = in_array(($t['card_cols'] ?? '2'), ['2', '3', '4'], true) ? (int) $t['card_cols'] : 2;
       $small = $cols >= 3;
       $cellW = floor(100 / $cols);
+      $inline = ($t['icon_pos'] ?? 'inline') === 'inline';
+      $isz = $small ? 38 : 46;
     @endphp
     <div style="padding:14px 22px 10px;background:#ffffff;">
       <div {!! $ed ? 'data-ek="features_title" data-single="1"' : '' !!} style="text-align:center;font-size:21px;font-weight:800;color:#111111;margin:10px 0 0;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'features_title') }}">{{ $t['features_title'] }}</div>
@@ -74,10 +76,13 @@
           <td class="col" width="{{ $cellW }}%" valign="top" style="padding:{{ $small ? '4px' : '6px' }};">
             @if($href !== '')<a href="{{ $href }}" style="display:block;text-decoration:none;color:inherit;">@endif
             <div {!! $ed ? 'data-card="' . $fi . '"' : '' !!} style="box-sizing:border-box;{{ (int) ($f['h'] ?? 0) > 0 ? 'min-height:' . (int) $f['h'] . 'px;' : '' }}background:#fff8f4;border:1px solid #fde4d8;border-radius:{{ $small ? '14px' : '16px' }};padding:{{ $small ? '14px 12px 12px' : '18px 16px 16px' }};">
+              @if($inline)<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;"><tr><td valign="middle" width="{{ $isz + 12 }}" style="width:{{ $isz + 12 }}px;padding:0 12px 0 0;">@endif
               @if($f['icon'] !== '' || $ed)
-              <div style="width:{{ $small ? '38px' : '46px' }};height:{{ $small ? '38px' : '46px' }};line-height:{{ $small ? '38px' : '46px' }};border-radius:12px;background:#ffffff;border:1px solid #fde4d8;text-align:center;font-size:{{ $small ? '19px' : '23px' }};margin-bottom:{{ $small ? '8px' : '10px' }};"><span {!! $ed ? 'data-ek="f.' . $fi . '.icon" data-single="1"' : '' !!}>{{ $f['icon'] }}</span></div>
+              <div style="width:{{ $isz }}px;height:{{ $isz }}px;line-height:{{ $isz }}px;border-radius:12px;background:#ffffff;border:1px solid #fde4d8;text-align:center;font-size:{{ $small ? '19px' : '23px' }};margin-bottom:{{ $inline ? '0' : ($small ? '8px' : '10px') }};"><span {!! $ed ? 'data-ek="f.' . $fi . '.icon" data-single="1"' : '' !!}>{{ $f['icon'] }}</span></div>
               @endif
-              <div {!! $ed ? 'data-ek="f.' . $fi . '.title" data-single="1"' : '' !!} style="font-size:{{ $small ? '14px' : '15.5px' }};font-weight:800;color:#111111;margin-bottom:4px;line-height:1.4;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'f.' . $fi . '.title') }}">{{ $f['title'] }}</div>
+              @if($inline)</td><td valign="middle">@endif
+              <div {!! $ed ? 'data-ek="f.' . $fi . '.title" data-single="1"' : '' !!} style="font-size:{{ $small ? '14px' : '15.5px' }};font-weight:800;color:#111111;margin-bottom:{{ $inline ? '0' : '4px' }};line-height:1.4;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'f.' . $fi . '.title') }}">{{ $f['title'] }}</div>
+              @if($inline)</td></tr></table><div style="height:8px;line-height:8px;font-size:0;">&nbsp;</div>@endif
               @if($f['desc'] !== '' || $ed)<div {!! $ed ? 'data-ek="f.' . $fi . '.desc"' : '' !!} style="font-size:{{ $small ? '12px' : '13px' }};line-height:1.65;color:#666666;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'f.' . $fi . '.desc') }}">{{ $f['desc'] }}</div>@endif
             </div>
             @if($href !== '')</a>@endif

@@ -164,7 +164,7 @@
       <span class="ml-auto text-[11px] text-ink-faint">{{ previewBusy ? '갱신 중…' : '메일 화면 · 직접 고치기' }}</span>
     </div>
     <div class="border-x border-gray-200 bg-white px-3 py-2 text-sm">
-      <div v-if="!selKey" class="text-[12px] text-ink-faint">💡 메일 화면의 글상자(제목·설명·카드 글 등)를 한 번 누르면 여기서 <b>정렬·위아래·좌우 간격·글자 크기</b>를 조절할 수 있어요.</div>
+      <div v-if="!selKey" class="text-[12px] text-ink-faint">💡 메일 화면의 글상자(제목·설명·카드 글 등)를 한 번 누르면 여기서 <b>정렬·위아래·좌우 간격·글자 크기</b>를 조절할 수 있어요. (간격은 0 이상만 — Gmail 은 음수 간격을 무시해서, 아이콘 옆에 제목을 놓는 건 "아이콘 위치" 옵션을 쓰세요) <button type="button" class="text-xs text-red-600 underline ml-2" @click="resetAllBoxes">모든 글상자 조절 초기화</button></div>
       <div v-else class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
         <b class="text-ink">✏️ {{ keyLabel(selKey) }}</b>
         <span class="flex items-center gap-1">정렬
@@ -189,6 +189,10 @@
           <span class="text-ink-muted text-xs">한 줄에 카드</span>
           <button v-for="n in ['2', '3', '4']" :key="n" type="button" class="px-3 py-1 rounded-lg text-[13px] font-semibold border" :class="(cur.card_cols || '2') === n ? 'bg-amber-50 border-amber-300 text-amber-800' : 'border-gray-200 text-ink-muted'" @click="cur.card_cols = n">{{ n }}개</button>
           <span class="text-[11px] text-ink-faint">(3·4개면 카드가 작아져요)</span>
+        </div>
+        <div class="flex items-center gap-2 mb-2 text-sm">
+          <span class="text-ink-muted text-xs">아이콘 위치</span>
+          <button v-for="o in [['inline', '제목 옆'], ['top', '제목 위']]" :key="o[0]" type="button" class="px-3 py-1 rounded-lg text-[13px] font-semibold border" :class="(cur.icon_pos || 'inline') === o[0] ? 'bg-amber-50 border-amber-300 text-amber-800' : 'border-gray-200 text-ink-muted'" @click="cur.icon_pos = o[0]">{{ o[1] }}</button>
         </div>
         <div v-for="(f, i) in cur.features" :key="i" class="py-1.5 border-b border-gray-50 text-sm">
           <div class="flex items-center gap-2">
@@ -252,7 +256,7 @@ const testEmail = ref(''); const supRaw = ref(''); const supFilter = ref('')
 const cap = ref(100)
 const editLang = ref('ko')
 const previewHtml = ref(''); const previewSubject = ref(''); const previewBusy = ref(false)
-const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', card_cols: '2', button_link: '', promo_link: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '', styles: {} })
+const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', card_cols: '2', button_link: '', promo_link: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '', icon_pos: 'inline', styles: {} })
 const form = reactive({ lang: 'ko', texts: { ko: empty(), en: empty() } })
 const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'both', label: '두 언어 모두' }]
 const cur = computed(() => form.texts[editLang.value])
@@ -360,7 +364,7 @@ function selectBox(node) {
   selVals.fs = saved.fs ?? Math.round(parseFloat(cs.fontSize) || 14)
 }
 const CSS_PROP = { mt: 'marginTop', mb: 'marginBottom', ml: 'marginLeft', mr: 'marginRight', fs: 'fontSize' }
-const RANGE = { mt: [-40, 120], mb: [-40, 120], ml: [0, 200], mr: [0, 200], fs: [9, 60] }
+const RANGE = { mt: [0, 120], mb: [0, 120], ml: [0, 200], mr: [0, 200], fs: [9, 60] }
 function saveStyle(prop, value) {   // 바꾼 항목만 저장한다(안 건드린 항목은 기본 모양 그대로)
   if (!cur.value.styles || Array.isArray(cur.value.styles)) cur.value.styles = {}
   cur.value.styles[selKey.value] = { ...(cur.value.styles[selKey.value] || {}), [prop]: value }
@@ -377,6 +381,11 @@ function setAlign(a) {
   selVals.align = a
   if (selEl) selEl.style.textAlign = a
   saveStyle('align', a)
+}
+function resetAllBoxes() {
+  if (!window.confirm('이 언어의 모든 글상자 위치·간격·정렬·크기 조절을 기본 모양으로 되돌릴까요?')) return
+  cur.value.styles = {}; selKey.value = ''; selEl = null
+  clearTimeout(timer); refreshPreview()
 }
 function resetBox() {
   if (cur.value.styles) delete cur.value.styles[selKey.value]
