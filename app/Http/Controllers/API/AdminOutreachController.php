@@ -94,6 +94,31 @@ class AdminOutreachController extends Controller
         return $this->status();
     }
 
+    /** 이미 보낸/실패한 주소를 다시 대기열에 넣는다(수신 거부 주소·수신을 끈 회원은 자동으로 뺀다) */
+    public function requeue(Request $request)
+    {
+        $d = $request->validate(['which' => 'required|in:sent,failed,all']);
+        $statuses = $d['which'] === 'sent' ? ['sent'] : ($d['which'] === 'failed' ? ['failed'] : ['sent', 'failed']);
+        $rows = DB::table('outreach_recipients')->whereIn('status', $statuses)
+            ->whereNotExists(fn($q) => $q->select(DB::raw(1))->from('email_suppressions')->whereColumn('email_suppressions.email', 'outreach_recipients.email'))
+            ->get(['id', 'email']);
+        $optedOut = array_flip(Outreach::memberOptedOut($rows->pluck('email')->all()));
+        $ids = $rows->filter(fn($r) => !isset($optedOut[mb_strtolower($r->email)]))->pluck('id')->all();
+        foreach (array_chunk($ids, 500) as $chunk) {
+            DB::table('outreach_recipients')->whereIn('id', $chunk)->update(['status' => 'queued', 'error' => null, 'updated_at' => now()]);
+        }
+        return response()->json(['success' => true, 'count' => count($ids), 'skipped' => $rows->count() - count($ids), 'data' => $this->status()->getData(true)['data']]);
+    }
+
+    /** 저장된 모든 주소를 CSV 로 내려받기 */
+    public function export()
+    {
+        $rows = DB::table('outreach_recipients')->orderBy('id')->get(['email', 'status', 'sent_count', 'last_sent_at', 'created_at']);
+        $lines = ["email,status,sent_count,last_sent_at,added_at"];
+        foreach ($rows as $r) $lines[] = implode(',', [$r->email, $r->status, $r->sent_count, $r->last_sent_at, $r->created_at]);
+        return response("\xEF\xBB\xBF" . implode("\n", $lines) . "\n", 200, ['Content-Type' => 'text/csv; charset=UTF-8', 'Content-Disposition' => 'attachment; filename="outreach-emails.csv"']);
+    }
+
     /** 수신 거부 목록에 직접 추가(전화·답장으로 "보내지 말라"고 한 주소) */
     public function suppress(Request $request)
     {

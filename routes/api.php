@@ -155,6 +155,8 @@ Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-outr
     Route::put('/settings', [$c, 'saveSettings']);
     Route::put('/live', [$c, 'setLive']);
     Route::post('/clear-queue', [$c, 'clearQueue']);
+    Route::post('/requeue', [$c, 'requeue']);
+    Route::get('/export', [$c, 'export']);
     Route::post('/suppress', [$c, 'suppress']);
     Route::post('/remove/{id}', [$c, 'remove'])->whereNumber('id');
     Route::post('/preview', [$c, 'preview'])->middleware('throttle:60,1');

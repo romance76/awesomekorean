@@ -77,6 +77,12 @@
         <h2 class="font-bold text-ink text-sm">대기열 · 발송 기록 <span class="text-ink-faint font-normal">({{ filteredRecent.length }}/{{ st.recent.length }})</span></h2>
         <button v-if="st.counts.queued" class="text-xs text-red-600 underline" :disabled="busy" @click="clearQueue">대기 중 모두 비우기</button>
       </div>
+      <div class="flex flex-wrap items-center gap-2 mb-2 p-2 rounded-lg bg-gray-50 text-xs">
+        <span class="text-ink-muted">다시 보내기:</span>
+        <button type="button" class="btn-secondary act-btn" :disabled="busy || !st.counts.sent" @click="requeue('sent')">보낸 주소 {{ st.counts.sent }}개 전부 대기열에</button>
+        <button type="button" class="btn-secondary act-btn" :disabled="busy || !st.counts.failed" @click="requeue('failed')">실패 {{ st.counts.failed }}개만 대기열에</button>
+        <button type="button" class="btn-secondary act-btn ml-auto" :disabled="busy" @click="exportCsv">전체 주소 CSV 내려받기</button>
+      </div>
       <div class="flex flex-wrap items-center gap-1.5 mb-2">
         <button v-for="f in [['all', '전체'], ['queued', '대기'], ['sent', '보냄'], ['failed', '실패']]" :key="f[0]" type="button" class="px-2.5 py-1 rounded-lg text-[12px] font-semibold border" :class="recentFilter === f[0] ? 'bg-amber-50 border-amber-300 text-amber-800' : 'border-gray-200 text-ink-muted'" @click="recentFilter = f[0]">{{ f[1] }} {{ f[0] === 'all' ? st.recent.length : st.recent.filter(r => r.status === f[0]).length }}</button>
         <input v-model="recentQ" placeholder="주소 검색" class="input-soft text-xs w-32 ml-auto" />
@@ -322,6 +328,17 @@ const clearQueue = () => run(async () => {
   if (!window.confirm('대기 중인 주소를 모두 비울까요? (이미 보낸 기록은 그대로예요)')) return
   const { data } = await axios.post('/api/admin/email-outreach/clear-queue'); fill(data.data, true)
 }, '비웠어요.')
+const requeue = (which) => run(async () => {
+  const label = which === 'sent' ? '이미 보낸 주소를 전부' : '실패한 주소를'
+  if (!window.confirm(label + ' 다시 대기열에 넣을까요? (수신 거부한 주소는 자동으로 빠져요. 같은 사람에게 같은 메일이 또 가니 꼭 필요할 때만 하세요.)')) return
+  const { data } = await axios.post('/api/admin/email-outreach/requeue', { which }); fill(data.data, true)
+  say(data.count + '개를 대기열에 넣었어요' + (data.skipped ? ' (수신 거부 등 ' + data.skipped + '개 제외)' : '') + '.')
+})
+const exportCsv = () => run(async () => {
+  const { data } = await axios.get('/api/admin/email-outreach/export', { responseType: 'blob' })
+  const url = URL.createObjectURL(data); const a = document.createElement('a')
+  a.href = url; a.download = 'outreach-emails.csv'; a.click(); URL.revokeObjectURL(url)
+})
 const removeOne = (id) => run(async () => { const { data } = await axios.post('/api/admin/email-outreach/remove/' + id); fill(data.data, true) })
 const addSuppress = () => run(async () => {
   const { data } = await axios.post('/api/admin/email-outreach/suppress', { emails: supRaw.value }); fill(data.data, true); supRaw.value = ''
