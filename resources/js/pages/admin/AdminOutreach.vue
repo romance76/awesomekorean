@@ -74,15 +74,19 @@
   <div v-if="st" class="grid lg:grid-cols-2 gap-4 mb-4">
     <div class="card p-4 min-w-0">
       <div class="flex items-center justify-between mb-2">
-        <h2 class="font-bold text-ink text-sm">대기열 · 발송 기록 <span class="text-ink-faint font-normal">(최근 {{ st.recent.length }})</span></h2>
+        <h2 class="font-bold text-ink text-sm">대기열 · 발송 기록 <span class="text-ink-faint font-normal">({{ filteredRecent.length }}/{{ st.recent.length }})</span></h2>
         <button v-if="st.counts.queued" class="text-xs text-red-600 underline" :disabled="busy" @click="clearQueue">대기 중 모두 비우기</button>
       </div>
+      <div class="flex flex-wrap items-center gap-1.5 mb-2">
+        <button v-for="f in [['all', '전체'], ['queued', '대기'], ['sent', '보냄'], ['failed', '실패']]" :key="f[0]" type="button" class="px-2.5 py-1 rounded-lg text-[12px] font-semibold border" :class="recentFilter === f[0] ? 'bg-amber-50 border-amber-300 text-amber-800' : 'border-gray-200 text-ink-muted'" @click="recentFilter = f[0]">{{ f[1] }} {{ f[0] === 'all' ? st.recent.length : st.recent.filter(r => r.status === f[0]).length }}</button>
+        <input v-model="recentQ" placeholder="주소 검색" class="input-soft text-xs w-32 ml-auto" />
+      </div>
       <div v-if="!st.recent.length" class="text-sm text-ink-faint py-2">아직 넣은 주소가 없어요.</div>
-      <div v-else class="overflow-auto max-h-[360px]">
+      <div v-else class="overflow-auto max-h-[520px]">
         <table class="w-full text-sm">
           <thead class="sticky top-0 bg-white"><tr class="text-left text-xs text-ink-muted border-b"><th class="py-1.5 pr-3">주소</th><th class="pr-3">상태</th><th class="pr-3">보낸 시각</th><th></th></tr></thead>
           <tbody>
-            <tr v-for="r in st.recent" :key="r.id" class="border-b border-gray-50">
+            <tr v-for="r in filteredRecent" :key="r.id" class="border-b border-gray-50">
               <td class="py-1.5 pr-3 break-all">{{ r.email }}</td>
               <td class="pr-3 whitespace-nowrap">
                 <span class="text-xs rounded-full px-2 py-0.5" :class="{ 'bg-amber-50 text-amber-700': r.status === 'queued', 'bg-green-50 text-green-700': r.status === 'sent', 'bg-red-50 text-red-700': r.status === 'failed' }">{{ { queued: '대기', sent: '보냄', failed: '실패' }[r.status] }}</span>
@@ -260,6 +264,11 @@ const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', feat
 const form = reactive({ lang: 'ko', texts: { ko: empty(), en: empty() } })
 const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'both', label: '두 언어 모두' }]
 const cur = computed(() => form.texts[editLang.value])
+const recentFilter = ref('all'); const recentQ = ref('')
+const filteredRecent = computed(() => {
+  const q = recentQ.value.trim().toLowerCase()
+  return (st.value?.recent || []).filter(r => (recentFilter.value === 'all' || r.status === recentFilter.value) && (!q || r.email.includes(q)))
+})
 const filteredSup = computed(() => {
   const q = supFilter.value.trim().toLowerCase()
   return (st.value?.suppressed || []).filter(s => !q || s.email.includes(q))

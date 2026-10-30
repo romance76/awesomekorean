@@ -44,7 +44,7 @@ class AdminOutreachController extends Controller
             'defaults' => Outreach::DEFAULTS,
             'counts' => ['queued' => (int) ($counts['queued'] ?? 0), 'sent' => (int) ($counts['sent'] ?? 0), 'failed' => (int) ($counts['failed'] ?? 0)],
             'suppressed_total' => DB::table('email_suppressions')->count(),
-            'recent' => DB::table('outreach_recipients')->orderByDesc('updated_at')->limit(100)->get(['id', 'email', 'status', 'sent_count', 'last_sent_at', 'error']),
+            'recent' => DB::table('outreach_recipients')->orderByRaw("FIELD(status, 'queued', 'failed', 'sent')")->orderBy('id')->limit(2000)->get(['id', 'email', 'status', 'sent_count', 'last_sent_at', 'error']),
             'suppressed' => DB::table('email_suppressions')->orderByDesc('id')->limit(300)->get(['email', 'source', 'created_at']),
         ]]);
     }
