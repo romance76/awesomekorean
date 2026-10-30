@@ -64,7 +64,10 @@
             </template>
           </div>
         </div>
-        <div class="border-t border-white/10 pt-4 flex items-center justify-between gap-4 text-xs text-gray-500">
+        <nav aria-label="약관 및 법적 고지" class="border-t border-white/10 pt-3 pb-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
+          <RouterLink v-for="l in LEGAL_LINKS" :key="l.to" :to="l.to" class="hover:text-amber-400 transition-colors">{{ l.label }}</RouterLink>
+        </nav>
+        <div class="border-t border-white/10 pt-4 mt-2 flex items-center justify-between gap-4 text-xs text-gray-500">
           <span>{{ footerCfg.copyright }}</span>
           <span v-if="footerSns.length" class="flex items-center gap-3">
             <a v-for="s in footerSns" :key="s.label" :href="s.url" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition-colors">{{ s.label }}</a>
@@ -126,6 +129,11 @@ const commHub = ref(null)
 siteStore.load()
 
 // 푸터: 관리자 "푸터 편집"에서 저장한 값이 있으면 그걸, 없으면 기본 푸터
+// 약관·법적 고지 링크는 관리자가 푸터를 따로 저장해 둔 경우에도 항상 보이게 고정
+const LEGAL_LINKS = [
+  { to: '/terms', label: '이용약관' }, { to: '/privacy', label: '개인정보처리방침' },
+  { to: '/email-policy', label: '이메일 무단수집거부' }, { to: '/legal', label: '책임의 한계와 법적고지' }, { to: '/contact', label: '문의하기' },
+]
 const footerCfg = computed(() => {
   const saved = readSavedFooter(siteStore.settings?.footer_config)
   return { ...DEFAULT_FOOTER, ...(saved || {}), columns: (saved?.columns || DEFAULT_FOOTER.columns) }

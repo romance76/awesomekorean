@@ -8,6 +8,8 @@
             <a href="/contact" class="hover:text-amber-400">문의하기</a>
             <a href="/privacy" class="hover:text-amber-400">개인정보처리방침</a>
             <a href="/terms" class="hover:text-amber-400">이용약관</a>
+            <a href="/email-policy" class="hover:text-amber-400">이메일 무단수집거부</a>
+            <a href="/legal" class="hover:text-amber-400">책임의 한계와 법적고지</a>
             <a href="/info" class="hover:text-amber-400">정보 전체</a>
         </nav>
         @endunless

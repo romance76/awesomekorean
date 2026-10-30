@@ -16,6 +16,7 @@ export const DEFAULT_FOOTER = {
     ] },
     { title: '안내', links: [
       { label: '소개', url: '/about' }, { label: '문의하기', url: '/contact' }, { label: '이용약관', url: '/terms' }, { label: '개인정보처리방침', url: '/privacy' },
+      { label: '이메일 무단수집거부', url: '/email-policy' }, { label: '책임의 한계와 법적고지', url: '/legal' },
     ] },
   ],
   copyright: '© 2026 AwesomeKorean. All rights reserved.',

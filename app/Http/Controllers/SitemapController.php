@@ -11,7 +11,7 @@ use Illuminate\Http\Response;
 class SitemapController extends Controller
 {
     /** 사이트맵에 넣는 공개 메뉴 화면 (목록 화면만, 글·매물 하나하나는 넣지 않는다) */
-    public const SECTION_PAGES = ['/community', '/jobs', '/directory', '/events', '/clubs', '/groupbuy', '/about', '/contact', '/terms', '/privacy'];
+    public const SECTION_PAGES = ['/community', '/jobs', '/directory', '/events', '/clubs', '/groupbuy', '/about', '/contact', '/terms', '/privacy', '/email-policy', '/legal'];
 
     public function index(): Response
     {

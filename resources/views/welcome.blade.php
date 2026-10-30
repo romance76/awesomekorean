@@ -76,7 +76,8 @@
                 <a href="/info">정보</a> · <a href="/qa">Q&amp;A</a> · <a href="/community">커뮤니티</a> · <a href="/jobs">구인구직</a> ·
                 <a href="/market">중고장터</a> · <a href="/realestate">부동산</a> · <a href="/directory">업소록</a> · <a href="/news">뉴스</a> ·
                 <a href="/groupbuy">공동구매</a> · <a href="/events">이벤트</a> · <a href="/shopping">내돈내산 리뷰</a> ·
-                <a href="/about">소개</a> · <a href="/contact">문의</a> · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a>
+                <a href="/about">소개</a> · <a href="/contact">문의</a> · <a href="/privacy">개인정보처리방침</a> · <a href="/terms">이용약관</a> ·
+                <a href="/email-policy">이메일 무단수집거부</a> · <a href="/legal">책임의 한계와 법적고지</a>
             </nav>
             @if($seoPosts->count())
                 <h2 style="font-size:18px;margin:0 0 8px">최신 정보 글</h2>

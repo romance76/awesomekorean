@@ -1,6 +1,7 @@
 <template>
 <div class="min-h-screen">
   <div class="page-main px-4 py-5">
+    <LegalNav />
     <h1 class="flex items-center gap-2.5 text-xl font-bold text-ink mb-6">
       <span class="icon-chip w-9 h-9 bg-amber-50 text-amber-600"><AppIcon name="book-open" :size="20" /></span>
       이용약관
@@ -23,6 +24,7 @@ import { sanitizeHtml } from '../../utils/sanitizeHtml'
 import { ref, computed, onMounted } from 'vue'
 import { useSiteStore } from '../../stores/site'
 import AppIcon from '../../components/AppIcon.vue'
+import LegalNav from '../../components/static/LegalNav.vue'
 const content = ref('')
 // 관리자가 HTML 태그를 직접 입력하는 경우와 줄글만 입력하는 경우를 모두
 // 지원 — HTML 태그가 없으면 줄바꿈만 <br>로 변환해 그대로 표시.

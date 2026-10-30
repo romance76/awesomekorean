@@ -153,6 +153,8 @@ const routes = [
   { path: '/contact', name: 'contact', component: p('static/Contact') },
   { path: '/terms', name: 'terms', component: p('static/Terms') },
   { path: '/privacy', name: 'privacy', component: p('static/Privacy') },
+  { path: '/email-policy', name: 'email-policy', component: p('static/EmailPolicy') },   // 이메일 무단수집거부
+  { path: '/legal', name: 'legal', component: p('static/LegalNotice') },                  // 책임의 한계와 법적고지
   { path: '/profile/edit', component: p('profile/ProfileEdit'), meta: { auth: true } },
   { path: '/profile/:id', name: 'profile', component: p('profile/UserProfile') },
   { path: '/dashboard', name: 'dashboard', component: p('profile/UserDashboard'), meta: { auth: true } },
