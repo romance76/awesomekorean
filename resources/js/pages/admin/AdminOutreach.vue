@@ -143,6 +143,13 @@
       </div>
     </div>
 
+    <div v-if="form.lang === 'bi'" class="mb-3 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2 text-[12.5px] text-amber-900 leading-relaxed">
+      <b>한/영 나란히</b>: 한국어 글 아래에 영어 글이 같이 들어가요(제목·카드·광고 안내·마무리 모두). 한국어와 영어 글은 위의 <b>"고치는 글"</b> 버튼으로 각각 고치고, 합친 실제 모양은 아래 버튼으로 확인하세요.
+      <span class="inline-flex gap-1 ml-2 align-middle">
+        <button type="button" class="px-2.5 py-1 rounded-lg text-[12px] font-semibold border" :class="previewMode === 'edit' ? 'bg-white border-amber-300' : 'border-transparent text-amber-700'" @click="previewMode = 'edit'; refreshPreview()">고치는 화면</button>
+        <button type="button" class="px-2.5 py-1 rounded-lg text-[12px] font-semibold border" :class="previewMode === 'bi' ? 'bg-white border-amber-300' : 'border-transparent text-amber-700'" @click="previewMode = 'bi'; refreshPreview()">합친 모양 보기</button>
+      </span>
+    </div>
     <div class="mb-3"><label class="lbl">메일 제목 (받는 사람의 메일함에 보이는 제목)</label><input v-model="cur.subject" maxlength="150" class="input-soft w-full" /></div>
 
     <!-- 도구 막대 (본문 글에 적용) -->
@@ -262,7 +269,7 @@ const editLang = ref('ko')
 const previewHtml = ref(''); const previewSubject = ref(''); const previewBusy = ref(false)
 const empty = () => ({ subject: '', hero_title: '', hero_sub: '', body: '', features_title: '', features: [], button: '', closing: '', card_cols: '2', button_link: '', promo_link: '', promo_show: '1', promo_badge: '', promo_title: '', promo_text: '', promo_button: '', promo_note: '', icon_pos: 'inline', styles: {} })
 const form = reactive({ lang: 'ko', texts: { ko: empty(), en: empty() } })
-const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'both', label: '두 언어 모두' }]
+const langs = [{ key: 'ko', label: '한국어' }, { key: 'en', label: 'English' }, { key: 'bi', label: '한/영 나란히 (추천)' }, { key: 'both', label: '두 언어 따로 이어서' }]
 const cur = computed(() => form.texts[editLang.value])
 const recentFilter = ref('all'); const recentQ = ref('')
 const filteredRecent = computed(() => {
@@ -304,7 +311,7 @@ const saveCap = () => run(async () => {
 const saveContent = () => run(async () => {
   const { data } = await axios.put('/api/admin/email-outreach/settings', { lang: form.lang, texts: form.texts }); fill(data.data, true)
 }, '메일 내용을 저장했어요.')
-function pickSendLang(k) { form.lang = k; if (k !== 'both') editLang.value = k; axios.put('/api/admin/email-outreach/settings', { lang: k }).catch(() => {}) }
+function pickSendLang(k) { form.lang = k; if (k === 'ko' || k === 'en') editLang.value = k; previewMode.value = 'edit'; refreshPreview(); axios.put('/api/admin/email-outreach/settings', { lang: k }).catch(() => {}) }
 const toggleLive = () => run(async () => {
   const turnOn = !st.value.live_switch
   if (turnOn && !window.confirm('실제 발송을 켜면 대기열의 주소로 바로 메일이 나가기 시작해요 (하루 한도 ' + st.value.daily_cap + '통). 시험 발송으로 모양을 확인하셨나요?')) return
@@ -468,11 +475,16 @@ function addLink() {
 
 // 실시간 미리보기: 고치는 글 기준(두 언어 모두 선택 시에도 지금 고치는 언어 하나만 보여 준다)
 let timer = null
+const previewMode = ref('edit')   // edit: 고치는 화면 / bi: 한·영을 합친 실제 모양(읽기 전용)
 async function refreshPreview() {
   previewBusy.value = true
   renderedSig = sig()
   try {
-    const { data } = await axios.post('/api/admin/email-outreach/preview', { lang: editLang.value, edit: true, texts: { [editLang.value]: form.texts[editLang.value] } })
+    const merged = previewMode.value === 'bi'
+    const body = merged
+      ? { lang: 'bi', edit: false, texts: { ko: form.texts.ko, en: form.texts.en } }
+      : { lang: editLang.value, edit: true, texts: { [editLang.value]: form.texts[editLang.value] } }
+    const { data } = await axios.post('/api/admin/email-outreach/preview', body)
     previewHtml.value = data.html; previewSubject.value = data.subject
   } catch { /* 미리보기는 실패해도 편집을 막지 않는다 */ }
   finally { previewBusy.value = false }

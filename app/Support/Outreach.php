@@ -109,7 +109,7 @@ class Outreach
     public static function lang(): string
     {
         $l = self::setting(self::SETTING_LANG);
-        return in_array($l, ['ko', 'en', 'both'], true) ? $l : 'ko';
+        return in_array($l, ['ko', 'en', 'both', 'bi'], true) ? $l : 'bi';   // bi = 한국어·영어를 한 화면에 나란히(받는 사람 언어를 알 수 없을 때 기본)
     }
 
     public static function dailyCap(): int
@@ -362,7 +362,8 @@ class Outreach
     public static function payload(string $email, ?bool $isTest = false, ?string $lang = null, ?array $override = null, bool $edit = false): array
     {
         $lang = $lang ?: self::lang();
-        $langs = $lang === 'both' ? ['ko', 'en'] : [$lang];
+        $bi = $lang === 'bi';
+        $langs = ($lang === 'both' || $bi) ? ['ko', 'en'] : [$lang];
         $urls = self::unsubscribeUrls($email);
         $blocks = []; $subjects = [];
         foreach ($langs as $l) {
@@ -370,6 +371,7 @@ class Outreach
             $blocks[] = ['lang' => $l, 't' => $t, 'bodyHtml' => self::cleanHtml($t['body'], !$edit)];
             $subjects[] = $t['subject'];
         }
+        if ($bi) $blocks = [$blocks[0] + ['en' => $blocks[1]]];   // 한 블록 안에 영어를 같이 담는다
         $addr = WeeklyDigest::postalAddress();
         return [
             'subject' => '(광고) ' . implode(' / ', $subjects),

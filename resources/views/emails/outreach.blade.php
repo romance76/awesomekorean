@@ -41,20 +41,23 @@
     </div>
 
     @foreach($blocks as $b)
-    @php $t = $b['t']; $en = $b['lang'] === 'en'; @endphp
+    @php $t = $b['t']; $en = $b['lang'] === 'en'; $E = $b['en'] ?? null; @endphp
 
     {{-- 히어로 --}}
     <div style="background:#FC226B;background-image:linear-gradient(135deg,#FC226B 0%,#FF5C7A 55%,#FF8A4C 100%);padding:46px 28px 44px;text-align:center;{{ $loop->index > 0 ? 'border-top:6px solid #ffffff;' : '' }}">
-      <div style="display:inline-block;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:800;letter-spacing:1.5px;padding:6px 16px;border-radius:999px;margin-bottom:18px;">{{ $en ? 'NOW OPEN' : '새로 오픈했어요' }}</div>
-      <h1 class="hero-h" {!! $ed ? 'data-ek="hero_title"' : '' !!} style="margin:0 0 14px;font-size:29px;line-height:1.4;color:#ffffff;font-weight:800;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'hero_title') }}">{!! nl2br(e($t['hero_title'])) !!}</h1>
-      <p {!! $ed ? 'data-ek="hero_sub" data-single="1"' : '' !!} style="margin:0 0 26px;font-size:15px;line-height:1.75;color:#ffffff;opacity:0.95;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'hero_sub') }}">{{ $t['hero_sub'] }}</p>
-      <a href="{{ \App\Support\Outreach::resolveLink($t['button_link'] ?? '', $siteUrl, $siteUrl) }}" {!! $ed ? 'data-ek="button" data-single="1"' : '' !!} style="display:inline-block;padding:15px 36px;border-radius:999px;background:#ffffff;color:#FC226B;font-size:16px;font-weight:800;text-decoration:none;">{{ $t['button'] }}</a>
+      <div style="display:inline-block;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:800;letter-spacing:1.5px;padding:6px 16px;border-radius:999px;margin-bottom:18px;">{{ $E ? '새로 오픈했어요 · NOW OPEN' : ($en ? 'NOW OPEN' : '새로 오픈했어요') }}</div>
+      <h1 class="hero-h" {!! $ed ? 'data-ek="hero_title"' : '' !!} style="margin:0 0 {{ $E ? '6px' : '14px' }};font-size:29px;line-height:1.4;color:#ffffff;font-weight:800;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'hero_title') }}">{!! nl2br(e($t['hero_title'])) !!}</h1>
+      @if($E)<div style="margin:0 0 16px;font-size:18px;line-height:1.5;color:#ffffff;font-weight:600;opacity:0.92;">{!! nl2br(e($E['t']['hero_title'])) !!}</div>@endif
+      <p {!! $ed ? 'data-ek="hero_sub" data-single="1"' : '' !!} style="margin:0 0 {{ $E ? '4px' : '26px' }};font-size:15px;line-height:1.75;color:#ffffff;opacity:0.95;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'hero_sub') }}">{{ $t['hero_sub'] }}</p>
+      @if($E)<p style="margin:0 0 26px;font-size:13px;line-height:1.7;color:#ffffff;opacity:0.85;">{{ $E['t']['hero_sub'] }}</p>@endif
+      <a href="{{ \App\Support\Outreach::resolveLink($t['button_link'] ?? '', $siteUrl, $siteUrl) }}" {!! $ed ? 'data-ek="button" data-single="1"' : '' !!} style="display:inline-block;padding:15px 36px;border-radius:999px;background:#ffffff;color:#FC226B;font-size:16px;font-weight:800;text-decoration:none;">{{ $t['button'] }}{{ $E ? ' · ' . $E['t']['button'] : '' }}</a>
     </div>
 
     {{-- 본문(에디터로 쓴 글) --}}
     @if($ed || $b['bodyHtml'] !== '')
     <div style="padding:32px 30px 10px;background:#ffffff;"><div {!! $ed ? 'data-ek="body" style="min-height:60px;"' : '' !!}>{!! $b['bodyHtml'] !!}</div></div>
     @endif
+    @if($E && $E['bodyHtml'] !== '')<div style="padding:0 30px 10px;background:#ffffff;"><div style="border-top:1px dashed #e5e7eb;padding-top:18px;">{!! $E['bodyHtml'] !!}</div></div>@endif
 
     {{-- 기능 카드: 열 수(2~4)는 관리자가 고르고, 카드마다 연결 링크를 걸 수 있다 --}}
     @if(count($t['features']))
@@ -67,6 +70,7 @@
     @endphp
     <div style="padding:14px 22px 10px;background:#ffffff;">
       <div {!! $ed ? 'data-ek="features_title" data-single="1"' : '' !!} style="text-align:center;font-size:21px;font-weight:800;color:#111111;margin:10px 0 0;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'features_title') }}">{{ $t['features_title'] }}</div>
+      @if($E)<div style="text-align:center;font-size:14px;color:#888888;margin-top:2px;">{{ $E['t']['features_title'] }}</div>@endif
       <div style="width:40px;height:4px;background:#FC226B;margin:10px auto 16px;border-radius:2px;"></div>
       @foreach(array_chunk($t['features'], $cols, true) as $row)
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;table-layout:fixed;">
@@ -82,8 +86,10 @@
               @endif
               @if($inline)</td><td valign="middle">@endif
               <div {!! $ed ? 'data-ek="f.' . $fi . '.title" data-single="1"' : '' !!} style="font-size:{{ $small ? '14px' : '15.5px' }};font-weight:800;color:#111111;margin-bottom:{{ $inline ? '0' : '4px' }};line-height:1.4;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'f.' . $fi . '.title') }}">{{ $f['title'] }}</div>
+              @if($E && isset($E['t']['features'][$fi]))<div style="font-size:11.5px;line-height:1.4;color:#999999;margin-top:2px;">{{ $E['t']['features'][$fi]['title'] }}</div>@endif
               @if($inline)</td></tr></table><div style="height:8px;line-height:8px;font-size:0;">&nbsp;</div>@endif
               @if($f['desc'] !== '' || $ed)<div {!! $ed ? 'data-ek="f.' . $fi . '.desc"' : '' !!} style="font-size:{{ $small ? '12px' : '13px' }};line-height:1.65;color:#666666;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'f.' . $fi . '.desc') }}">{{ $f['desc'] }}</div>@endif
+              @if($E && ($E['t']['features'][$fi]['desc'] ?? '') !== '')<div style="font-size:11.5px;line-height:1.6;color:#999999;margin-top:5px;">{{ $E['t']['features'][$fi]['desc'] }}</div>@endif
             </div>
             @if($href !== '')</a>@endif
           </td>
@@ -98,18 +104,22 @@
     {{-- 광고 안내 박스(관리자가 켜고 끌 수 있음) --}}
     @if(($t['promo_show'] ?? '1') === '1')
     <div style="margin:16px 22px 6px;padding:26px 24px 22px;background:#fff9e6;background-image:linear-gradient(135deg,#fff9e6 0%,#ffefd2 100%);border:2px dashed #f5b942;border-radius:18px;text-align:center;">
-      <div style="display:inline-block;background:#f5b942;color:#5b3a00;font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:12px;"><span {!! $ed ? 'data-ek="promo_badge" data-single="1"' : '' !!}>{{ $t['promo_badge'] }}</span></div>
+      <div style="display:inline-block;background:#f5b942;color:#5b3a00;font-size:12px;font-weight:800;padding:5px 14px;border-radius:999px;margin-bottom:12px;"><span {!! $ed ? 'data-ek="promo_badge" data-single="1"' : '' !!}>{{ $t['promo_badge'] }}{{ $E ? ' · ' . $E['t']['promo_badge'] : '' }}</span></div>
       <div {!! $ed ? 'data-ek="promo_title" data-single="1"' : '' !!} style="font-size:21px;line-height:1.45;font-weight:800;color:#3b2a00;margin-bottom:10px;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'promo_title') }}">{{ $t['promo_title'] }}</div>
+      @if($E)<div style="font-size:15px;line-height:1.5;font-weight:700;color:#7a5f1f;margin:-2px 0 10px;">{{ $E['t']['promo_title'] }}</div>@endif
       <div {!! $ed ? 'data-ek="promo_text"' : '' !!} style="font-size:14.5px;line-height:1.8;color:#5c4a1d;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'promo_text') }}">{{ $t['promo_text'] }}</div>
-      <a href="{{ \App\Support\Outreach::resolveLink($t['promo_link'] ?? '', $siteUrl, $siteUrl . '/ad-apply') }}" {!! $ed ? 'data-ek="promo_button" data-single="1"' : '' !!} style="display:inline-block;margin-top:16px;padding:13px 30px;border-radius:999px;background:#3b2a00;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['promo_button'] }}</a>
+      @if($E)<div style="font-size:12.5px;line-height:1.7;color:#7a6a3d;margin-top:8px;">{{ $E['t']['promo_text'] }}</div>@endif
+      <a href="{{ \App\Support\Outreach::resolveLink($t['promo_link'] ?? '', $siteUrl, $siteUrl . '/ad-apply') }}" {!! $ed ? 'data-ek="promo_button" data-single="1"' : '' !!} style="display:inline-block;margin-top:16px;padding:13px 30px;border-radius:999px;background:#3b2a00;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['promo_button'] }}{{ $E ? ' · ' . $E['t']['promo_button'] : '' }}</a>
       <div {!! $ed ? 'data-ek="promo_note"' : '' !!} style="margin-top:14px;font-size:11.5px;line-height:1.7;color:#8a7440;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'promo_note') }}">{{ $t['promo_note'] }}</div>
+      @if($E)<div style="margin-top:8px;font-size:11px;line-height:1.7;color:#a08c55;">{{ $E['t']['promo_note'] }}</div>@endif
     </div>
     @endif
 
     {{-- 마무리 --}}
     <div style="margin:14px 22px 22px;padding:28px 22px;background:#1f2430;border-radius:18px;text-align:center;">
       <div {!! $ed ? 'data-ek="closing"' : '' !!} style="font-size:17px;line-height:1.85;color:#ffffff;font-weight:700;{{ \App\Support\Outreach::styleCss($t['styles'] ?? [], 'closing') }}">{!! nl2br(e($t['closing'])) !!}</div>
-      <a href="{{ \App\Support\Outreach::resolveLink($t['button_link'] ?? '', $siteUrl, $siteUrl) }}" style="display:inline-block;margin-top:20px;padding:13px 32px;border-radius:999px;background:#FC226B;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['button'] }}</a>
+      @if($E)<div style="margin-top:12px;font-size:13.5px;line-height:1.75;color:#cbd5e1;font-weight:500;">{!! nl2br(e($E['t']['closing'])) !!}</div>@endif
+      <a href="{{ \App\Support\Outreach::resolveLink($t['button_link'] ?? '', $siteUrl, $siteUrl) }}" style="display:inline-block;margin-top:20px;padding:13px 32px;border-radius:999px;background:#FC226B;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">{{ $t['button'] }}{{ $E ? ' · ' . $E['t']['button'] : '' }}</a>
     </div>
     @endforeach
 

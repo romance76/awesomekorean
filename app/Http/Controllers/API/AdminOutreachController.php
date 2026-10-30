@@ -61,7 +61,7 @@ class AdminOutreachController extends Controller
     public function saveSettings(Request $request)
     {
         $d = $request->validate([
-            'lang' => 'nullable|in:ko,en,both', 'daily_cap' => 'nullable|integer|min:1|max:2000',
+            'lang' => 'nullable|in:ko,en,both,bi', 'daily_cap' => 'nullable|integer|min:1|max:2000',
         ] + self::TEXT_RULES);
         if (!empty($d['lang'])) Outreach::save(Outreach::SETTING_LANG, $d['lang']);
         if (!empty($d['daily_cap'])) Outreach::save(Outreach::SETTING_CAP, (string) $d['daily_cap']);
@@ -106,7 +106,7 @@ class AdminOutreachController extends Controller
     /** 미리보기(HTML) — 저장하지 않은 화면의 문구(texts)로도 만들어 볼 수 있다 */
     public function preview(Request $request)
     {
-        $d = $request->validate(['lang' => 'nullable|in:ko,en,both', 'edit' => 'nullable|boolean'] + self::TEXT_RULES);
+        $d = $request->validate(['lang' => 'nullable|in:ko,en,both,bi', 'edit' => 'nullable|boolean'] + self::TEXT_RULES);
         $lang = $d['lang'] ?? Outreach::lang();
         $data = Outreach::payload('sample@example.com', false, $lang, $d['texts'] ?? null, (bool) ($d['edit'] ?? false));
         $data['unsubscribeUrl'] = url('/outreach-unsubscribe?sample=1');
@@ -116,7 +116,7 @@ class AdminOutreachController extends Controller
     /** 시험 발송 — 입력한 주소 한 곳으로만(잠겨 있어도 가능, 대기열·하루 한도에는 반영하지 않음) */
     public function test(Request $request)
     {
-        $d = $request->validate(['email' => 'required|email', 'lang' => 'nullable|in:ko,en,both']);
+        $d = $request->validate(['email' => 'required|email', 'lang' => 'nullable|in:ko,en,both,bi']);
         try {
             Mail::to($d['email'])->send(new OutreachMail(Outreach::payload(mb_strtolower($d['email']), true, $d['lang'] ?? null)));
         } catch (\Throwable $e) {
