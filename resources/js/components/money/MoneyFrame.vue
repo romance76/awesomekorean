@@ -42,6 +42,18 @@
             <AppIcon name="book-open" :size="17" />처음 읽는 가이드
           </RouterLink>
         </div>
+        <!-- 메뉴 아래 빈자리: 읽는 방법 안내 + 글쓰기 -->
+        <div class="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/50 px-3.5 py-3.5">
+          <div class="flex items-center gap-1.5 text-[13.5px] font-bold text-emerald-800"><AppIcon name="sparkles" :size="15" />이렇게 읽어 보세요</div>
+          <ul class="mt-2 space-y-1.5 text-[12.5px] leading-snug text-ink-light">
+            <li>① 왼쪽에서 궁금한 분야를 고르세요</li>
+            <li>② 글 안의 사진과 번호를 따라 하시면 돼요</li>
+            <li>③ 금액·날짜는 공식 사이트에서 한 번 더 확인하세요</li>
+          </ul>
+          <RouterLink to="/money/write" class="mt-3 flex items-center justify-center gap-1 rounded-lg bg-white border border-emerald-200 py-2 text-[12.5px] font-bold text-emerald-700 hover:bg-emerald-50">
+            <AppIcon name="edit" :size="13" />내 경험 올리기
+          </RouterLink>
+        </div>
       </aside>
 
       <div class="min-w-0 flex-1"><slot /></div>

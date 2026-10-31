@@ -32,8 +32,8 @@
         <h3 class="text-[17px] font-bold text-ink">처음이라면 먼저 읽어 보세요</h3>
         <button v-if="guides.length > SHOW" type="button" @click="all = !all" class="text-[13px] font-bold text-emerald-700">{{ all ? '접기' : `전체 ${guides.length}편 보기` }}</button>
       </div>
-      <div class="rounded-xl border border-line bg-white divide-y divide-gray-100 overflow-hidden">
-        <RouterLink v-for="g in shown" :key="g.slug" :to="`/money/guide/${g.slug}`" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50">
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
+        <RouterLink v-for="g in shown" :key="g.slug" :to="`/money/guide/${g.slug}`" class="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 hover:bg-gray-50">
           <span class="min-w-0 flex-1">
             <span class="block text-[15px] font-semibold text-ink leading-snug truncate">{{ g.title }}</span>
             <span v-if="g.summary" class="block text-[12.5px] text-ink-muted truncate">{{ g.summary }}</span>
