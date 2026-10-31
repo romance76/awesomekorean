@@ -8,6 +8,7 @@ use App\Models\BusinessClaim;
 use App\Models\BusinessMenu;
 use App\Models\BusinessMenuOption;
 use App\Models\BusinessReview;
+use App\Support\NewBadge;
 use App\Support\ThumbHelper;
 use App\Traits\AdminAuthorizes;
 use App\Traits\CompressesUploads;
@@ -217,11 +218,16 @@ class BusinessController extends Controller
 
         $cacheBase = "biz_pd_{$category}_{$state}_{$search}_" . ($hasLocation ? 'loc' : 'nat');
 
+        // 새로 등록된 업소는 (상위노출 다음으로) 맨 위 — 기간은 회원 수에 따라 다름
+        $newDays = NewBadge::days();
+        $cutoff = now()->subDays($newDays);
+
         // 메인 목록 (랜덤 — 단, 이미지 있는 업소가 먼저 나오도록 1차 정렬)
         $mainQuery = $baseQuery();
         if ($hasLocation) {
             $seed = (int) ($request->rand_seed ?? 0);
-            $mainQuery->orderByRaw(self::IMAGE_RANK_SQL)
+            $mainQuery->orderByRaw('(created_at >= ?) DESC', [$cutoff])
+                ->orderByRaw(self::IMAGE_RANK_SQL)
                 ->orderByRaw($seed > 0 ? "RAND({$seed})" : 'RAND()');
         } else {
             $randCacheKey = "biz_rand_{$category}_{$state}_nat_v2";
@@ -232,6 +238,19 @@ class BusinessController extends Controller
                     ->limit(500)->pluck('id')->toArray();
             });
             if (!empty($randomIds)) {
+                // 캐시된 랜덤 순서 앞쪽에 새 업소를 끼워 넣음 (상위노출 업소는 그대로 맨 앞)
+                $newIds = (clone $mainQuery)->select('id')->where('created_at', '>=', $cutoff)
+                    ->reorder()->orderByDesc('created_at')->limit(200)->pluck('id')->all();
+                if ($newIds) {
+                    $promoIds = array_flip((clone $mainQuery)->select('id')->whereIn('id', $randomIds)
+                        ->whereNotNull('promotion_tier')->where('promotion_tier', '!=', 'none')
+                        ->reorder()->pluck('id')->all());
+                    $newIds = array_values(array_filter($newIds, fn($i) => !isset($promoIds[$i])));
+                    $newSet = array_flip($newIds);
+                    $head = array_values(array_filter($randomIds, fn($i) => isset($promoIds[$i])));
+                    $tail = array_values(array_filter($randomIds, fn($i) => !isset($promoIds[$i]) && !isset($newSet[$i])));
+                    $randomIds = array_merge($head, $newIds, $tail);
+                }
                 $offset = ($page - 1) * $perPage;
                 $pageIds = array_slice($randomIds, $offset, $perPage);
                 if (!empty($pageIds)) {
@@ -273,6 +292,7 @@ class BusinessController extends Controller
                 'main' => $mainData,
                 'sidebar_popular' => $popularData,
                 'sidebar_latest' => $latestData,
+                'new_days' => $newDays,
             ],
         ]);
     }

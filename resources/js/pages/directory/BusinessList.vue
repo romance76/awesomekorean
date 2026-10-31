@@ -488,8 +488,9 @@ async function submitClaim() {
   } catch(e) { alert(e.response?.data?.message || '신청 실패') }
 }
 
-// 최근 7일 안에 등록된 업소에 빨간 N 표시 (업소는 글보다 드물게 올라와서 48시간보다 길게)
-const isNewBiz = (b) => !!b?.created_at && Date.now() - new Date(b.created_at).getTime() < 7 * 24 * 3600 * 1000
+// 새로 등록된 업소에 빨간 N 표시 — 기간은 서버가 회원 수에 따라 정함(1000명 이하 7일 … 10000명 초과 1일)
+const newDays = ref(7)
+const isNewBiz = (b) => !!b?.created_at && Date.now() - new Date(b.created_at).getTime() < newDays.value * 24 * 3600 * 1000
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') : '' }
 const bizCategories = [
   { value: '', label: '전체' },{ value: 'restaurant', label: '음식점' },{ value: 'mart', label: '마트' },
@@ -598,6 +599,7 @@ async function loadPage(p = 1) {
     const pd = data.data || {}
     items.value = pd.main?.data || []
     lastPage.value = pd.main?.last_page || 1
+    if (pd.new_days) newDays.value = pd.new_days
     // 사이드바 데이터도 함께 받음 (SidebarWidgets API 호출 제거)
     if (pd.sidebar_popular) sidebarPopular.value = pd.sidebar_popular
     if (pd.sidebar_latest) sidebarLatest.value = pd.sidebar_latest
