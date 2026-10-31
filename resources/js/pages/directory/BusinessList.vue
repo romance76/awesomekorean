@@ -287,7 +287,7 @@
             <span v-else-if="item.promotion_tier === 'sponsored'" class="inline-flex items-center gap-0.5 text-[11px] bg-amber-500 text-white font-bold px-1.5 py-px rounded"><AppIcon name="megaphone" :size="10" />스폰서</span>
           </div>
           <div class="flex items-start justify-between gap-1">
-            <div class="text-sm font-bold text-ink truncate">{{ item.name }}</div>
+            <div class="text-sm font-bold text-ink truncate">{{ item.name }}<span v-if="isNewBiz(item)" class="new-n" title="새로 등록된 업소" aria-label="새 업소"><b>N</b></span></div>
             <span v-if="item.is_claimed" class="inline-flex items-center text-[11px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-full flex-shrink-0"><AppIcon name="check" :size="11" /></span>
           </div>
           <div class="flex items-center gap-1 mt-0.5">
@@ -317,7 +317,7 @@
         class="list-row border-b border-gray-50">
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
-            <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}</div>
+            <div class="text-sm font-semibold text-ink truncate">{{ item.title || item.name }}<span v-if="isNewBiz(item)" class="new-n" title="새로 등록된 업소" aria-label="새 업소"><b>N</b></span></div>
             <div class="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5 flex-wrap">
               <span v-if="item.user?.name || item.company || item.organizer">{{ item.user?.name || item.company || item.organizer }}</span>
               <span v-if="item.city" class="flex items-center gap-0.5"><AppIcon name="map-pin" :size="11" />{{ item.city }}, {{ item.state }}</span>
@@ -488,6 +488,8 @@ async function submitClaim() {
   } catch(e) { alert(e.response?.data?.message || '신청 실패') }
 }
 
+// 최근 7일 안에 등록된 업소에 빨간 N 표시 (업소는 글보다 드물게 올라와서 48시간보다 길게)
+const isNewBiz = (b) => !!b?.created_at && Date.now() - new Date(b.created_at).getTime() < 7 * 24 * 3600 * 1000
 function formatDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') : '' }
 const bizCategories = [
   { value: '', label: '전체' },{ value: 'restaurant', label: '음식점' },{ value: 'mart', label: '마트' },
