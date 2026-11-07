@@ -802,30 +802,36 @@ onMounted(async () => {
   // 비로그인·프로필 주소 없음 → 접속 IP 기반 대략 위치(반경 30마일)로 대체.
   // (예전엔 await 이 빠져 있어서 IP 조회가 끝나기 전에 아래 줄이 실행돼 버려
   //  사실상 늘 "전국"으로만 동작 — 아틀란타에서 봐도 플러싱·댈러스 매물이 섞여 보이던 원인)
-  await initLocation()
-  const loc = locationQuery.value
-  const [p, j, m, r, ev, gb, rc, cl, bz, hl] = await Promise.allSettled([
+  // 위치와 상관없는 목록(커뮤니티·이벤트·공동구매·레시피·동호회·헤드라인)은 위치 조회를
+  // 기다리지 않고 바로 불러온다 — 비로그인 방문자는 IP 위치 조회가 느리면 홈 전체가 빈 화면으로 보였음.
+  const noLocLoad = Promise.allSettled([
     axios.get('/api/posts?per_page=10'),
-    axios.get('/api/jobs', { params: { per_page: 10, ...loc } }),
-    axios.get('/api/market', { params: { per_page: 10, ...loc } }),
-    axios.get('/api/realestate', { params: { per_page: 6, ...loc } }),
     axios.get('/api/events?per_page=6'),
     axios.get('/api/groupbuys?per_page=6'),
     axios.get('/api/recipes?per_page=6'),
     axios.get('/api/clubs?per_page=6'),
-    axios.get('/api/businesses', { params: { per_page: 6, ...loc } }),
     axios.get('/api/external-headlines?per_page=40'),
+  ]).then(([p, ev, gb, rc, cl, hl]) => {
+    if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
+    if (ev.status === 'fulfilled') events.value = ev.value.data?.data?.data || []
+    if (gb.status === 'fulfilled') groupbuys.value = gb.value.data?.data?.data || []
+    if (rc.status === 'fulfilled') recipes.value = rc.value.data?.data?.data || []
+    if (cl.status === 'fulfilled') clubs.value = cl.value.data?.data?.data || []
+    if (hl.status === 'fulfilled') headlines.value = hl.value.data?.data || []
+  })
+  await initLocation()
+  const loc = locationQuery.value
+  const [j, m, r, bz] = await Promise.allSettled([
+    axios.get('/api/jobs', { params: { per_page: 10, ...loc } }),
+    axios.get('/api/market', { params: { per_page: 10, ...loc } }),
+    axios.get('/api/realestate', { params: { per_page: 6, ...loc } }),
+    axios.get('/api/businesses', { params: { per_page: 6, ...loc } }),
   ])
-  if (p.status === 'fulfilled') posts.value = p.value.data?.data?.data || []
   if (j.status === 'fulfilled') jobs.value = j.value.data?.data?.data || []
   if (m.status === 'fulfilled') market.value = m.value.data?.data?.data || []
   if (r.status === 'fulfilled') realestate.value = r.value.data?.data?.data || r.value.data?.data || []
-  if (ev.status === 'fulfilled') events.value = ev.value.data?.data?.data || []
-  if (gb.status === 'fulfilled') groupbuys.value = gb.value.data?.data?.data || []
-  if (rc.status === 'fulfilled') recipes.value = rc.value.data?.data?.data || []
-  if (cl.status === 'fulfilled') clubs.value = cl.value.data?.data?.data || []
   if (bz.status === 'fulfilled') businesses.value = bz.value.data?.data?.data || []
-  if (hl.status === 'fulfilled') headlines.value = hl.value.data?.data || []
+  await noLocLoad
 
   // 부동산/중고장터 등은 한인 밀집 지역을 매일 랜덤으로 돌며 스크랩하는
   // 특성상 오늘은 내 반경 안에 매물이 아예 없을 수도 있음 — 그 경우 섹션이

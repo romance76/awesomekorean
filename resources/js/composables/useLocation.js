@@ -43,7 +43,11 @@ async function fetchIpLocation() {
       let v = null
       let ok = false
       try {
-        const res = await fetch('/api/geo/ip', { headers: { Accept: 'application/json' } })
+        // 응답이 늦으면 3.5초 뒤 포기하고 위치 없이(전국) 진행 — 목록이 무한정 기다리지 않게
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), 3500)
+        let res
+        try { res = await fetch('/api/geo/ip', { headers: { Accept: 'application/json' }, signal: ctrl.signal }) } finally { clearTimeout(timer) }
         if (res.ok) {
           const j = await res.json()
           ok = true
