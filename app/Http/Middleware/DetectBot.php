@@ -13,7 +13,9 @@ class DetectBot
     /**
      * 봇 감지 및 레이트 리미팅 미들웨어
      * - 로그인된 유저: 무제한 (JWT 토큰 존재 시)
-     * - 비로그인 일반 API: IP당 분당 300회
+     * - 비로그인 일반 API(쓰기 등): IP당 분당 300회
+     * - 비로그인 읽기(GET/HEAD): IP당 분당 1500회 — 홈 화면 1회가 API 26개를 부르고, 같은 IP(통신사 공용 IP·매장/사무실 와이파이)의
+     *   여러 방문자가 한도를 나눠 쓰므로 300회로는 비로그인 화면이 통째로 비어 보였음
      * - 로그인/회원가입/비밀번호 등 auth 엔드포인트: IP당 분당 20회 (brute force 방지)
      * - Honeypot: 'website_url' 히든 필드가 채워지면 차단
      */
@@ -42,8 +44,9 @@ class DetectBot
             'api/forgot-password', 'api/verify-email',
         ]);
 
-        $limit = $isAuthEndpoint ? 20 : 300;
-        $rateLimitKey = ($isAuthEndpoint ? 'auth_rate:' : 'api_rate:') . $ip;
+        $isRead = $request->isMethod('GET') || $request->isMethod('HEAD');
+        $limit = $isAuthEndpoint ? 20 : ($isRead ? 1500 : 300);
+        $rateLimitKey = ($isAuthEndpoint ? 'auth_rate:' : ($isRead ? 'api_read:' : 'api_rate:')) . $ip;
         $currentCount = (int) Cache::get($rateLimitKey, 0);
 
         if ($currentCount >= $limit) {
