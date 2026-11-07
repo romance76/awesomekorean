@@ -274,6 +274,9 @@ Route::post('/coupon-check/{code}/status', [\App\Http\Controllers\API\GroupBuyCo
 Route::post('/coupon-check/{code}/confirm-code', [\App\Http\Controllers\API\GroupBuyCouponController::class, 'storeConfirmCode'])->middleware('throttle:30,1');
 Route::get('/groupbuys/{id}', [GroupBuyController::class, 'show']);
 Route::get('/groupbuys/{id}/participants', [GroupBuyController::class, 'participants']);
+// 회원 프로필 보기 — 비로그인도 열람 가능. 비로그인·타인에게는 ProfileController::show 가
+// 이름·닉네임·아바타·등급(레벨)만 돌려주므로(포인트·거주지·소개 등은 본인/관리자만) 공개해도 안전하다.
+Route::get('/users/{id}', [ProfileController::class, 'show'])->whereNumber('id')->middleware('throttle:120,1');
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
 Route::get('/sweepstakes-rules', [\App\Http\Controllers\API\SweepstakesRulesController::class, 'show']);
@@ -655,7 +658,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/elder/guardian/wards', [ElderController::class, 'guardianWards']);
 
     Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
-    Route::get('/users/{id}', [ProfileController::class, 'show']);
     Route::get('/users/{id}/posts', [ProfileController::class, 'posts']);
 
     // ─── 안심 커뮤니케이션 ───
