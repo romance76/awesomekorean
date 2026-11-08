@@ -14,8 +14,9 @@ class DetectBot
      * 봇 감지 및 레이트 리미팅 미들웨어
      * - 로그인된 유저: 무제한 (JWT 토큰 존재 시)
      * - 비로그인 일반 API(쓰기 등): IP당 분당 300회
-     * - 비로그인 읽기(GET/HEAD): IP당 분당 1500회 — 홈 화면 1회가 API 26개를 부르고, 같은 IP(통신사 공용 IP·매장/사무실 와이파이)의
-     *   여러 방문자가 한도를 나눠 쓰므로 300회로는 비로그인 화면이 통째로 비어 보였음
+     * - 비로그인 읽기(GET/HEAD): 앱에서는 제한하지 않는다 — 공개 페이지는 누구에게나 항상 보여야 하고(홈 1회가 API 26개),
+     *   같은 IP를 쓰는 방문자(통신사 공용 IP·매장/사무실)나 서버가 보는 IP가 프록시 하나로 뭉쳐 보이는 경우에도
+     *   한 곳이 한도를 채우면 모든 방문자의 화면이 빈 화면이 되기 때문. 과도한 수집(스크래퍼) 차단은 서버(nginx) 쪽 몫
      * - 로그인/회원가입/비밀번호 등 auth 엔드포인트: IP당 분당 20회 (brute force 방지)
      * - Honeypot: 'website_url' 히든 필드가 채워지면 차단
      */
@@ -37,6 +38,11 @@ class DetectBot
             return $next($request);
         }
 
+        // 2-1) 읽기(GET/HEAD)는 세지도 막지도 않는다 (위 설명 참고)
+        if ($request->isMethod('GET') || $request->isMethod('HEAD')) {
+            return $next($request);
+        }
+
         // 3) auth 엔드포인트는 별도 (낮은) 제한 — brute force 방지용
         $path = $request->path();
         $isAuthEndpoint = in_array($path, [
@@ -44,14 +50,13 @@ class DetectBot
             'api/forgot-password', 'api/verify-email',
         ]);
 
-        $isRead = $request->isMethod('GET') || $request->isMethod('HEAD');
-        $limit = $isAuthEndpoint ? 20 : ($isRead ? 1500 : 300);
+        $limit = $isAuthEndpoint ? 20 : 300;
         // 분 단위 창(window)마다 키를 새로 만든다 — 예전엔 "읽고 → 0이면 60초 유효기간으로 저장, 아니면 +1" 이라
         // 홈 화면처럼 요청이 동시에 여러 개 올 때 유효기간이 없는 카운터가 생겨(Redis/파일 캐시에서 INCR 이 새 키를
         // 만들면 TTL 이 없음) 영원히 쌓이다가 그 IP 를 계속 429 로 막는 문제가 있었다. 이제는 키 이름이 분마다 바뀌고
         // (add 로 TTL 을 원자적으로 걸고 increment 로 +1) 혹시 TTL 이 빠져도 다음 분엔 다른 키라서 영향이 없다.
         $window = intdiv(time(), 60);
-        $rateLimitKey = ($isAuthEndpoint ? 'auth_rate:' : ($isRead ? 'api_read:' : 'api_rate:')) . $ip . ':' . $window;
+        $rateLimitKey = ($isAuthEndpoint ? 'auth_rate:' : 'api_rate:') . $ip . ':' . $window;
         Cache::add($rateLimitKey, 0, 120);
         $currentCount = (int) Cache::increment($rateLimitKey);
 

@@ -62,8 +62,9 @@ return Application::configure(basePath: dirname(__DIR__))
             $uid = null;
             try { $uid = auth('api')->id(); } catch (\Throwable $e) {}   // 서명이 맞는 토큰만 회원으로 인정 (가짜 토큰으로 제한 우회 방지)
             if ($uid) return Limit::perMinute(400)->by('u:' . $uid);
-            // 비회원 읽기(GET/HEAD)는 홈 한 번에 API 26개 + 같은 IP 공유 방문자를 감안해 넉넉히, 쓰기는 기존대로
-            if ($request->isMethod('GET') || $request->isMethod('HEAD')) return Limit::perMinute(1500)->by('r:' . $request->ip());
+            // 비회원 읽기(GET/HEAD)는 제한하지 않는다 — 공개 페이지는 항상 보여야 하고, 같은 IP 공유·프록시로 IP가 뭉쳐 보여도 화면이 비지 않게.
+            // (과도한 수집 차단은 서버(nginx) 쪽에서). 쓰기는 기존대로.
+            if ($request->isMethod('GET') || $request->isMethod('HEAD')) return Limit::none();
             return Limit::perMinute(300)->by($request->ip());
         });
         // 새 글 등록 전용 제한(회원당 분당 5회·하루 50회, 관리자 제외) — App\Support\WriteLimits

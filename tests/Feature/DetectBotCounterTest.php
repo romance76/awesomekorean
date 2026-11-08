@@ -35,17 +35,12 @@ class DetectBotCounterTest extends TestCase
         return (new DetectBot())->handle($req, fn () => response('ok', 200));
     }
 
-    public function test_guest_reads_allow_1500_per_minute_then_429(): void
+    public function test_guest_reads_are_never_blocked(): void
     {
-        for ($i = 1; $i <= 1500; $i++) {
+        for ($i = 1; $i <= 3000; $i++) {
             $this->assertSame(200, $this->hit('GET', '203.0.113.10')->getStatusCode(), "GET #{$i}");
         }
-        $blocked = $this->hit('GET', '203.0.113.10');
-        $this->assertSame(429, $blocked->getStatusCode());
-        $body = json_decode($blocked->getContent(), true);
-        $this->assertFalse($body['success']);
-        $this->assertGreaterThanOrEqual(1, $body['retry_after']);
-        $this->assertLessThanOrEqual(60, $body['retry_after']);
+        $this->assertSame(200, $this->hit('HEAD', '203.0.113.10')->getStatusCode());
     }
 
     public function test_guest_writes_keep_300_per_minute_and_reads_do_not_use_up_the_write_budget(): void
