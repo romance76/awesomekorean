@@ -46,21 +46,21 @@ class DetectBot
 
         $isRead = $request->isMethod('GET') || $request->isMethod('HEAD');
         $limit = $isAuthEndpoint ? 20 : ($isRead ? 1500 : 300);
-        $rateLimitKey = ($isAuthEndpoint ? 'auth_rate:' : ($isRead ? 'api_read:' : 'api_rate:')) . $ip;
-        $currentCount = (int) Cache::get($rateLimitKey, 0);
+        // 분 단위 창(window)마다 키를 새로 만든다 — 예전엔 "읽고 → 0이면 60초 유효기간으로 저장, 아니면 +1" 이라
+        // 홈 화면처럼 요청이 동시에 여러 개 올 때 유효기간이 없는 카운터가 생겨(Redis/파일 캐시에서 INCR 이 새 키를
+        // 만들면 TTL 이 없음) 영원히 쌓이다가 그 IP 를 계속 429 로 막는 문제가 있었다. 이제는 키 이름이 분마다 바뀌고
+        // (add 로 TTL 을 원자적으로 걸고 increment 로 +1) 혹시 TTL 이 빠져도 다음 분엔 다른 키라서 영향이 없다.
+        $window = intdiv(time(), 60);
+        $rateLimitKey = ($isAuthEndpoint ? 'auth_rate:' : ($isRead ? 'api_read:' : 'api_rate:')) . $ip . ':' . $window;
+        Cache::add($rateLimitKey, 0, 120);
+        $currentCount = (int) Cache::increment($rateLimitKey);
 
-        if ($currentCount >= $limit) {
+        if ($currentCount > $limit) {
             return response()->json([
                 'success' => false,
                 'message' => '너무 많은 요청입니다. 잠시 후 다시 시도하세요.',
-                'retry_after' => 60,
+                'retry_after' => max(1, 60 - (time() % 60)),
             ], 429);
-        }
-
-        if ($currentCount === 0) {
-            Cache::put($rateLimitKey, 1, 60);
-        } else {
-            Cache::increment($rateLimitKey);
         }
 
         return $next($request);
