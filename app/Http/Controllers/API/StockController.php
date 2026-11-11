@@ -147,6 +147,21 @@ class StockController extends Controller
             }
         });
         if (!$data) return response()->json(['success' => false, 'message' => '차트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'], 502);
+
+        // 1일 말고는 야후가 주는 chartPreviousClose 가 "그 기간 시작 전 종가"라서 전일 종가가 아니다 → 일봉 최근 5일에서 직전 거래일 종가를 따로 구한다
+        if ($rangeKey !== '1d') {
+            $prev = Cache::remember("stock-prev-close:{$symbol}", 900, function () use ($symbol) {
+                try {
+                    $res = \Illuminate\Support\Facades\Http::withHeaders(['User-Agent' => 'Mozilla/5.0'])->timeout(8)
+                        ->get('https://query1.finance.yahoo.com/v8/finance/chart/' . urlencode($symbol), ['range' => '5d', 'interval' => '1d']);
+                    $closes = array_values(array_filter($res->json('chart.result.0.indicators.quote.0.close') ?? [], fn ($v) => $v !== null));
+                    return count($closes) >= 2 ? round((float) $closes[count($closes) - 2], 4) : null;
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            });
+            if ($prev) $data['prev_close'] = $prev;
+        }
         return response()->json(['success' => true, 'range' => $rangeKey, 'data' => $data]);
     }
 
