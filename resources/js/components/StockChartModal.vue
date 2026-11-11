@@ -8,7 +8,7 @@
               <span class="text-lg font-black text-ink">{{ symbol }}</span>
               <span class="text-xs text-ink-muted truncate">{{ info?.name || name }}</span>
             </div>
-            <div v-if="shown" class="flex items-baseline gap-2 mt-0.5 tabular-nums">
+            <div v-if="shown && !loading" class="flex items-baseline gap-2 mt-0.5 tabular-nums">
               <span class="text-2xl font-extrabold text-ink">{{ money(shown.c) }}</span>
               <span class="text-sm font-bold" :class="up ? 'text-[#16A34A]' : 'text-[#DC2626]'">{{ signed(diff) }} ({{ signed(pct) }}%)</span>
               <span class="text-[11px] text-ink-faint">{{ hover ? fmtTime(shown.t, true) : rangeLabel }}</span>
