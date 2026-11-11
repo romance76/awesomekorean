@@ -8,7 +8,7 @@
   <div class="card !rounded-xl mb-5 relative">
     <button v-show="canScroll" @click="scrollIdx(-1)" aria-label="이전 지수" class="hidden md:flex absolute left-0 top-0 bottom-0 z-10 w-7 items-center justify-center bg-gradient-to-r from-white via-white to-transparent text-ink-muted hover:text-ink">‹</button>
     <div ref="idxEl" @scroll="updateScroll" class="flex overflow-x-auto snap-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div v-for="x in indices" :key="x.symbol" class="snap-start shrink-0 w-[168px] px-3.5 py-2.5 border-r border-line last:border-0 flex items-center gap-2">
+      <div v-for="x in indices" :key="x.symbol" role="button" tabindex="0" @click="openChart(x.symbol, x.name)" @keydown.enter="openChart(x.symbol, x.name)" class="snap-start shrink-0 w-[168px] px-3.5 py-2.5 border-r border-line last:border-0 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
         <div class="min-w-0 flex-1">
           <div class="text-[12px] font-bold text-[#0B5FFF] truncate leading-tight">{{ x.name }}</div>
           <div class="text-[15px] font-extrabold text-ink tabular-nums leading-snug">{{ fmt(x.price) }}</div>
@@ -109,14 +109,14 @@
             </div>
           </div>
           <ul v-else>
-            <li v-for="w in myList" :key="w.symbol" class="px-3.5 py-2.5 border-t border-line flex items-center gap-2">
+            <li v-for="w in myList" :key="w.symbol" role="button" tabindex="0" @click="openChart(w.symbol, w.name)" @keydown.enter="openChart(w.symbol, w.name)" class="px-3.5 py-2.5 border-t border-line flex items-center gap-2 cursor-pointer hover:bg-gray-50">
               <div class="min-w-0 flex-1"><div class="font-black text-[13px] text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate">{{ w.name }}</div></div>
               <svg v-if="w.sparkline?.length > 1" viewBox="0 0 100 24" class="w-11 h-6 shrink-0" preserveAspectRatio="none"><path :d="spark(w.sparkline)" fill="none" :stroke="Number(w.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" /></svg>
               <div class="text-right tabular-nums w-[78px] shrink-0">
                 <div class="text-[13px] font-bold text-ink">{{ w.price != null ? fmt(w.price) : '-' }}</div>
                 <div v-if="w.change_pct != null" class="text-[11.5px] font-bold" :class="clr(w.change_pct)">{{ fmtSigned(w.change_pct) }}%</div>
               </div>
-              <button @click="removeTicker(w.symbol)" class="text-ink-faint hover:text-red-500 p-1 shrink-0" title="목록에서 지우기"><AppIcon name="x" :size="14" /></button>
+              <button @click.stop="removeTicker(w.symbol)" class="text-ink-faint hover:text-red-500 p-1 shrink-0" title="목록에서 지우기"><AppIcon name="x" :size="14" /></button>
             </li>
           </ul>
         </template>
@@ -124,7 +124,7 @@
 
       <!-- 대표 종목 -->
       <ul v-show="sideTab === 'top'">
-        <li v-for="w in watchlist" :key="w.symbol" class="px-3.5 py-2.5 border-t border-line first:border-0 flex items-center gap-2">
+        <li v-for="w in watchlist" :key="w.symbol" role="button" tabindex="0" @click="openChart(w.symbol, w.name)" @keydown.enter="openChart(w.symbol, w.name)" class="px-3.5 py-2.5 border-t border-line first:border-0 flex items-center gap-2 cursor-pointer hover:bg-gray-50">
           <div class="min-w-0 flex-1"><div class="font-black text-[13px] text-ink">{{ w.symbol }}</div><div class="text-[11px] text-ink-muted truncate">{{ w.name }}</div></div>
           <svg v-if="w.sparkline?.length > 1" viewBox="0 0 100 24" class="w-11 h-6 shrink-0" preserveAspectRatio="none"><path :d="spark(w.sparkline)" fill="none" :stroke="Number(w.change_pct) >= 0 ? '#16A34A' : '#DC2626'" stroke-width="1.5" vector-effect="non-scaling-stroke" /></svg>
           <div class="text-right tabular-nums w-[78px] shrink-0">
@@ -183,6 +183,7 @@
 
   <p class="text-[10.5px] text-ink-faint mt-3">시세는 지연될 수 있고 투자 판단의 책임은 본인에게 있어요.</p>
 </div>
+<StockChartModal v-if="chartSym" :symbol="chartSym" :name="chartName" @close="chartSym = ''" />
 </div>
 </template>
 
@@ -193,6 +194,7 @@ import { useAuthStore } from '../stores/auth'
 import AppIcon from '../components/AppIcon.vue'
 import PageHeader from '../components/PageHeader.vue'
 import MiniChart from '../components/MiniChart.vue'
+import StockChartModal from '../components/StockChartModal.vue'
 
 const auth = useAuthStore()
 const TOP = 8
@@ -252,6 +254,11 @@ async function loadEarnings(w) {
   if (week.value === w) earnLoading.value = false
 }
 function setWeek(w) { week.value = w; loadEarnings(w) }
+
+// 종목을 누르면 상세 차트 팝업
+const chartSym = ref('')
+const chartName = ref('')
+function openChart(symbol, name) { chartSym.value = symbol; chartName.value = name || '' }
 
 // 숫자/색 (미국식: 상승 초록, 하락 빨강)
 const fmt = v => Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

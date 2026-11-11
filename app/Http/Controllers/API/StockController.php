@@ -92,6 +92,64 @@ class StockController extends Controller
         '스페이스엑스' => 'SPCX', '에스앤피' => 'SPY', '나스닥' => 'QQQ', '다우' => 'DIA',
     ];
 
+    /** 종목 상세 차트(팝업용): 기간별 가격 흐름. Yahoo chart API 결과를 기간마다 5분(1일 차트는 1분) 캐시 */
+    private const CHART_RANGES = [
+        '1d'  => ['range' => '1d',  'interval' => '5m',  'ttl' => 60],
+        '5d'  => ['range' => '5d',  'interval' => '30m', 'ttl' => 300],
+        '1mo' => ['range' => '1mo', 'interval' => '1d',  'ttl' => 900],
+        '6mo' => ['range' => '6mo', 'interval' => '1d',  'ttl' => 1800],
+        '1y'  => ['range' => '1y',  'interval' => '1d',  'ttl' => 3600],
+        '5y'  => ['range' => '5y',  'interval' => '1wk', 'ttl' => 3600],
+    ];
+
+    public function chart(Request $request)
+    {
+        $symbol = strtoupper(trim((string) $request->query('symbol', '')));
+        if (!preg_match('/^[A-Z0-9.\-=^]{1,15}$/', $symbol)) {
+            return response()->json(['success' => false, 'message' => '종목 코드가 올바르지 않아요.'], 422);
+        }
+        $rangeKey = (string) $request->query('range', '1mo');
+        $cfg = self::CHART_RANGES[$rangeKey] ?? null;
+        if (!$cfg) return response()->json(['success' => false, 'message' => '지원하지 않는 기간이에요.'], 422);
+
+        $data = Cache::remember("stock-chart:{$symbol}:{$rangeKey}", $cfg['ttl'], function () use ($symbol, $cfg) {
+            try {
+                $res = \Illuminate\Support\Facades\Http::withHeaders(['User-Agent' => 'Mozilla/5.0'])->timeout(10)
+                    ->get('https://query1.finance.yahoo.com/v8/finance/chart/' . urlencode($symbol), ['range' => $cfg['range'], 'interval' => $cfg['interval']]);
+                if (!$res->successful()) return null;
+                $r = $res->json('chart.result.0');
+                if (!$r) return null;
+                $q = $r['indicators']['quote'][0] ?? [];
+                $times = $r['timestamp'] ?? [];
+                $points = [];
+                foreach ($times as $i => $t) {
+                    $c = $q['close'][$i] ?? null;
+                    if ($c === null) continue;
+                    $points[] = ['t' => $t, 'c' => round((float) $c, 4), 'v' => $q['volume'][$i] ?? null];
+                }
+                if (count($points) < 2) return null;
+                $m = $r['meta'] ?? [];
+                return [
+                    'symbol' => $m['symbol'] ?? $symbol,
+                    'name' => $m['shortName'] ?? $m['longName'] ?? $symbol,
+                    'currency' => $m['currency'] ?? 'USD',
+                    'price' => $m['regularMarketPrice'] ?? end($points)['c'],
+                    'prev_close' => $m['chartPreviousClose'] ?? null,
+                    'day_high' => $m['regularMarketDayHigh'] ?? null,
+                    'day_low' => $m['regularMarketDayLow'] ?? null,
+                    'week52_high' => $m['fiftyTwoWeekHigh'] ?? null,
+                    'week52_low' => $m['fiftyTwoWeekLow'] ?? null,
+                    'volume' => $m['regularMarketVolume'] ?? null,
+                    'points' => $points,
+                ];
+            } catch (\Throwable $e) {
+                return null;
+            }
+        });
+        if (!$data) return response()->json(['success' => false, 'message' => '차트를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'], 502);
+        return response()->json(['success' => true, 'range' => $rangeKey, 'data' => $data]);
+    }
+
     public function search(Request $request)
     {
         $q = trim((string) $request->query('q'));

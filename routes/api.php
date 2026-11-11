@@ -223,6 +223,7 @@ Route::get('/external-headlines', [\App\Http\Controllers\API\ExternalHeadlineCon
 Route::get('/stock-news', [\App\Http\Controllers\API\StockNewsController::class, 'index']);
 Route::get('/market-quotes',[\App\Http\Controllers\API\MarketQuoteController::class, 'index']);
 Route::get('/stocks/earnings', [\App\Http\Controllers\API\StockController::class, 'earnings']);
+Route::get('/stocks/chart', [\App\Http\Controllers\API\StockController::class, 'chart'])->middleware('throttle:60,1');
 Route::get('/stocks/search', [\App\Http\Controllers\API\StockController::class, 'search'])->middleware('throttle:60,1');
 Route::get('/site/live-stats', [\App\Http\Controllers\API\SiteLiveController::class, 'stats']);
 Route::get('/site/ticker', [\App\Http\Controllers\API\SiteLiveController::class, 'ticker']);
