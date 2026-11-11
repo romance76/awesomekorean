@@ -136,6 +136,12 @@ Route::middleware(['auth:api', 'verified.email', 'throttle:30,1'])->group(functi
     Route::post('/youtubers/{id}/bump', [$yc, 'bump'])->whereNumber('id');                // 주인 혜택: 끌어올리기
     Route::put('/youtubers/{id}/owner', [$yc, 'ownerUpdate'])->whereNumber('id');         // 주인 혜택: 소개·분야 수정
 });
+// 관리자 > 소통 > 자동 게시 (더미 회원 번역 글): 최고관리자 전용(AdminTier)
+Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/auto-seed')->group(function () {
+    $c = \App\Http\Controllers\API\AdminAutoSeedController::class;
+    Route::get('/', [$c, 'show']);
+    Route::put('/', [$c, 'update']);
+});
 // 관리자 > 메일 발송(월요일 정기 소식 메일): 최고관리자 전용(AdminTier)
 Route::middleware(['auth:api', 'admin', 'admin.tier'])->prefix('admin/email-digest')->group(function () {
     $c = \App\Http\Controllers\API\AdminEmailDigestController::class;
@@ -201,6 +207,12 @@ Route::middleware('ingest.auth')->prefix('money-ingest')->group(function () {
     Route::get('/meta', [\App\Http\Controllers\API\MoneyIngestController::class, 'meta']);
     Route::get('/titles', [\App\Http\Controllers\API\MoneyIngestController::class, 'titles']);
     Route::post('/posts', [\App\Http\Controllers\API\MoneyIngestController::class, 'store'])->middleware('throttle:30,1');
+});
+// 커뮤니티·Q&A 자동 게시 루틴 전용 (같은 ingest.auth 토큰) — 규칙·상한은 서버가 다시 확인
+Route::middleware('ingest.auth')->prefix('seed-ingest')->group(function () {
+    Route::get('/status', [\App\Http\Controllers\API\SeedIngestController::class, 'status']);
+    Route::post('/community', [\App\Http\Controllers\API\SeedIngestController::class, 'community'])->middleware('throttle:20,1');
+    Route::post('/qa', [\App\Http\Controllers\API\SeedIngestController::class, 'qa'])->middleware('throttle:20,1');
 });
 // 뉴스 "AI 해설" 파이프라인 전용 (같은 ingest.auth 토큰)
 Route::middleware('ingest.auth')->prefix('news-ingest')->group(function () {

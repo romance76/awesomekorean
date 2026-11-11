@@ -41,6 +41,7 @@ export const ADMIN_ITEMS = [
   { to: '/admin/jobs', icon: 'briefcase', label: '구인구직', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/realestate', icon: 'building', label: '부동산', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/qa', icon: 'help-circle', label: 'Q&A', pcGroup: 'content', legacyGroup: 'board', mobile: true },
+  { to: '/admin/auto-seed', icon: 'sparkles', label: '자동 게시', pcGroup: 'content', legacyGroup: 'board', mobile: true, minTier: 3 },
   { to: '/admin/events', icon: 'calendar', label: '이벤트', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/clubs', icon: 'users', label: '동호회', pcGroup: 'content', legacyGroup: 'board', mobile: true },
   { to: '/admin/youtubers', icon: 'video', label: '한인 유튜버', pcGroup: 'content', legacyGroup: 'board', mobile: true },
@@ -117,7 +118,7 @@ export const SECTION_ORDER = {
   system: ['설정', '계정·보안', '운영 기록'],
 }
 const SECTION_OF = {
-  '소통': ['/admin/community', '/admin/qa', '/admin/clubs', '/admin/youtubers', '/admin/chats', '/admin/communication'],
+  '소통': ['/admin/community', '/admin/qa', '/admin/auto-seed', '/admin/clubs', '/admin/youtubers', '/admin/chats', '/admin/communication'],
   '생활·거래': ['/admin/market', '/admin/jobs', '/admin/realestate', '/admin/directory', '/admin/groupbuy', '/admin/events'],
   '미디어·정보': ['/admin/news', '/admin/info', '/admin/money', '/admin/recipes', '/admin/music', '/admin/shorts', '/admin/shopping'],
   '광고': ['/admin/ad-center', '/admin/banners', '/admin/flyers', '/admin/email-digest', '/admin/email-outreach', '/admin/pricing'],
