@@ -152,10 +152,6 @@
             <div class="flex items-center gap-1.5">
               <AppIcon name="map-pin" :size="13" class="shrink-0 opacity-90" />
               <span class="text-[13px] font-bold truncate min-w-0" :title="weatherPlace">{{ weatherPlace }}</span>
-              <span class="ml-auto flex items-center gap-0.5 bg-white/15 rounded-full p-0.5 shrink-0">
-                <button v-for="t in [['hourly','시간별'],['daily','일별']]" :key="t[0]" type="button" @click="weatherTab = t[0]"
-                  class="text-[10.5px] font-bold px-2 py-0.5 rounded-full transition-colors" :class="weatherTab === t[0] ? 'bg-white text-[#1F4A9E]' : 'text-white/80'">{{ t[1] }}</button>
-              </span>
             </div>
             <div class="flex items-center gap-3">
               <AppIcon :name="weatherIcon(weather.code)" :size="34" class="shrink-0" />
@@ -166,10 +162,15 @@
               </div>
             </div>
             <a v-if="weather.alert" :href="weather.alert.url" target="_blank" rel="noopener noreferrer"
-              class="flex items-center gap-1.5 text-[11.5px] font-bold bg-amber-400 text-[#4A2C00] rounded-full px-2.5 py-1">
+              class="flex items-center gap-1.5 text-[11.5px] font-bold bg-[#E8365D] text-white rounded-full px-2.5 py-1">
               <AppIcon name="bell" :size="12" class="shrink-0" /><span class="truncate">{{ weather.alert.label }}</span><span class="ml-auto shrink-0">→</span>
             </a>
-            <div class="grid grid-cols-5 gap-1 text-center bg-white/10 rounded-xl py-2 px-1">
+            <div class="bg-white/10 rounded-xl py-2 px-1 flex flex-col">
+            <span class="flex items-center gap-0.5 bg-white/15 rounded-full p-0.5 self-start ml-1 mb-1.5">
+              <button v-for="t in [['hourly','시간별'],['daily','일별']]" :key="t[0]" type="button" @click="weatherTab = t[0]"
+                class="text-[10.5px] font-bold px-2 py-0.5 rounded-full transition-colors" :class="weatherTab === t[0] ? 'bg-white text-[#1F4A9E]' : 'text-white/80'">{{ t[1] }}</button>
+            </span>
+            <div class="grid grid-cols-5 gap-1 text-center">
               <template v-if="weatherTab === 'hourly'">
                 <div v-for="h in weather.hourly" :key="h.hour" class="flex flex-col items-center gap-1">
                   <span class="text-[10.5px] text-white/75 whitespace-nowrap">{{ hourLabel(h.hour) }}</span>
@@ -184,6 +185,7 @@
                   <span class="text-[11px] font-bold tabular-nums">{{ d.max }}° <span class="text-white/60 font-medium">{{ d.min }}°</span></span>
                 </div>
               </template>
+            </div>
             </div>
           </template>
           <div v-else class="flex-1 flex items-center justify-center text-[12px] text-white/70">날씨를 불러오는 중이에요…</div>
