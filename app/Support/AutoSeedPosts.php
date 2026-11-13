@@ -239,6 +239,7 @@ class AutoSeedPosts
         $slot = $slots[(int) ($st['plan'][$kind]['done'] ?? 0)] ?? null;
         $at = $slot ? Carbon::parse($slot) : now();
         if ($at->gt(now())) $at = now()->copy();
+        $at = $at->copy()->setTimezone(config('app.timezone'));   // 저장은 서버 시간대 기준 (애틀랜타 시각 그대로 저장하면 5시간 어긋남)
 
         $boards = DB::table('boards')->where('is_active', true)->pluck('id', 'name');
         $cats = DB::table('qa_categories')->pluck('id', 'name');
