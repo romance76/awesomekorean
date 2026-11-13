@@ -773,7 +773,7 @@ async function loadWeatherAlert(lat, lon) {
     if (!f.length) return null
     f.sort((x, y) => (SEVERITY_RANK[y.properties.severity] || 0) - (SEVERITY_RANK[x.properties.severity] || 0))
     const ev = f[0].properties.event
-    return { label: ALERT_KO[ev] || ev, url: `https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}` }
+    return { label: ALERT_KO[ev] || ev, url: 'https://weather.com/' }
   } catch { return null }
 }
 // 내 동네 날씨 — 위치: 프로필 주소 → 접속 위치(IP) → 애틀랜타 근교
