@@ -161,20 +161,18 @@
               <AppIcon :name="weatherIcon(weather.code)" :size="34" class="shrink-0" />
               <div class="text-[32px] lg:text-[36px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ weather.temp }}<span class="text-[16px] font-bold align-top ml-0.5">°F</span></div>
               <div class="ml-auto min-w-0 text-right">
-                <a v-if="weather.alert" :href="weather.alert.url" target="_blank" rel="noopener noreferrer"
-                  class="inline-flex items-center gap-1 max-w-full text-[11px] font-bold bg-amber-400 text-[#4A2C00] rounded-full px-2 py-1">
-                  <AppIcon name="bell" :size="11" class="shrink-0" /><span class="truncate">{{ weather.alert.label }}</span>
-                </a>
-                <template v-else>
-                  <div class="text-[12.5px] font-bold">{{ weatherLabel(weather.code) }}</div>
-                  <div class="text-[11px] text-white/75 mt-0.5">최고 {{ weather.maxT }}° · 최저 {{ weather.minT }}°</div>
-                </template>
+                <div class="text-[12.5px] font-bold">{{ weatherLabel(weather.code) }}</div>
+                <div class="text-[11px] text-white/75 mt-0.5 whitespace-nowrap">최고 {{ weather.maxT }}° · 최저 {{ weather.minT }}°</div>
               </div>
             </div>
+            <a v-if="weather.alert" :href="weather.alert.url" target="_blank" rel="noopener noreferrer"
+              class="flex items-center gap-1.5 text-[11.5px] font-bold bg-amber-400 text-[#4A2C00] rounded-full px-2.5 py-1">
+              <AppIcon name="bell" :size="12" class="shrink-0" /><span class="truncate">{{ weather.alert.label }}</span><span class="ml-auto shrink-0">→</span>
+            </a>
             <div class="grid grid-cols-5 gap-1 text-center bg-white/10 rounded-xl py-2 px-1">
               <template v-if="weatherTab === 'hourly'">
                 <div v-for="h in weather.hourly" :key="h.hour" class="flex flex-col items-center gap-1">
-                  <span class="text-[10.5px] text-white/75">{{ hourLabel(h.hour) }}</span>
+                  <span class="text-[10.5px] text-white/75 whitespace-nowrap">{{ hourLabel(h.hour) }}</span>
                   <AppIcon :name="weatherIcon(h.code)" :size="16" />
                   <span class="text-[12px] font-bold tabular-nums">{{ h.temp }}°</span>
                 </div>
@@ -765,7 +763,7 @@ const ALERT_KO = {
 }
 const SEVERITY_RANK = { Extreme: 4, Severe: 3, Moderate: 2, Minor: 1 }
 const DOW_KO = ['일', '월', '화', '수', '목', '금', '토']
-function hourLabel(h) { return h === 0 ? '밤 12시' : h === 12 ? '낮 12시' : (h < 12 ? '오전 ' : '오후 ') + (h % 12) + '시' }
+function hourLabel(h) { return (h % 12 || 12) + (h < 12 ? 'am' : 'pm') }
 // 미국 기상청 현재 경보 중 가장 심한 것 하나 (미국 밖·실패하면 없음)
 async function loadWeatherAlert(lat, lon) {
   try {
@@ -783,7 +781,7 @@ async function loadWeather() {
   try {
     const c = locCity.value
     const lat = c?.lat || 34.0904, lon = c?.lng || -84.0733
-    weatherPlace.value = c?.name ? (c.state ? `${c.name}, ${c.state}` : c.name) : 'Suwanee, GA'
+    weatherPlace.value = c?.name || 'Suwanee'
     const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit&forecast_days=6`)
     const w = await wRes.json()
     const nowIdx = w.hourly.time.findIndex(t => t === w.current.time.slice(0, 13) + ':00')
