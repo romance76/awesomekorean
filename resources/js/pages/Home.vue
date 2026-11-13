@@ -146,33 +146,49 @@
           <span class="self-start text-[11px] font-bold bg-white text-amber-600 rounded-full px-3 py-1.5 group-hover:translate-x-0.5 transition-transform">후기 보러 가기 →</span>
         </RouterLink>
 
-        <!-- 오늘 사이트 이용자 ↔ 오픈 채팅방 (블랙, 4.5초마다 번갈아) -->
-        <div class="min-h-[168px] bg-night rounded-card p-4 lg:p-5 flex flex-col justify-between gap-3 text-white">
-          <div class="flex items-center gap-2">
-            <span class="live-pulse shrink-0"></span>
-            <span class="text-[10.5px] font-bold tracking-wider text-[#9C9088]">{{ liveSlide === 0 ? '오늘 사이트 이용자' : '오픈 채팅방' }}</span>
-            <span class="ml-auto flex items-center gap-1" aria-hidden="true">
-              <span v-for="n in 2" :key="n" class="w-1.5 h-1.5 rounded-full transition-colors" :class="liveSlide === n - 1 ? 'bg-white' : 'bg-white/25'"></span>
-            </span>
-          </div>
-          <template v-if="liveSlide === 0">
-            <div>
-              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none text-white tabular-nums">{{ liveStats.today_visitors.toLocaleString() }}명</div>
-              <div class="text-[12px] text-white/65 mt-1.5">오늘 다녀간 사람 수예요 · 지금 접속 중 {{ liveStats.online_now.toLocaleString() }}명</div>
+        <!-- 내 동네 날씨: 로그인 회원은 프로필 주소, 없으면 접속 위치(IP) 기준. 시간별/일별 + 기상청 경보 -->
+        <div class="min-h-[168px] rounded-card p-4 lg:p-5 flex flex-col justify-between gap-2.5 text-white bg-gradient-to-br from-[#2F7BD9] via-[#2B65C4] to-[#1F4A9E]">
+          <template v-if="weather">
+            <div class="flex items-center gap-1.5">
+              <AppIcon name="map-pin" :size="13" class="shrink-0 opacity-90" />
+              <span class="text-[13px] font-bold truncate">{{ weatherPlace }}</span>
+              <span class="ml-auto flex items-center gap-0.5 bg-white/15 rounded-full p-0.5 shrink-0">
+                <button v-for="t in [['hourly','시간별'],['daily','일별']]" :key="t[0]" type="button" @click="weatherTab = t[0]"
+                  class="text-[10.5px] font-bold px-2 py-0.5 rounded-full transition-colors" :class="weatherTab === t[0] ? 'bg-white text-[#1F4A9E]' : 'text-white/80'">{{ t[1] }}</button>
+              </span>
             </div>
-            <div class="flex flex-wrap gap-1.5">
-              <button v-for="t in trendingTags.slice(0, 4)" :key="t"
-                @click="router.push({path:'/search',query:{q:t}})"
-                class="text-[11.5px] font-semibold text-white/85 bg-white/10 px-2.5 py-1 rounded-full transition-colors hover:bg-white/20">#{{ t }}</button>
+            <div class="flex items-center gap-3">
+              <AppIcon :name="weatherIcon(weather.code)" :size="34" class="shrink-0" />
+              <div class="text-[32px] lg:text-[36px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ weather.temp }}<span class="text-[16px] font-bold align-top ml-0.5">°F</span></div>
+              <div class="ml-auto min-w-0 text-right">
+                <a v-if="weather.alert" :href="weather.alert.url" target="_blank" rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 max-w-full text-[11px] font-bold bg-amber-400 text-[#4A2C00] rounded-full px-2 py-1">
+                  <AppIcon name="bell" :size="11" class="shrink-0" /><span class="truncate">{{ weather.alert.label }}</span>
+                </a>
+                <template v-else>
+                  <div class="text-[12.5px] font-bold">{{ weatherLabel(weather.code) }}</div>
+                  <div class="text-[11px] text-white/75 mt-0.5">최고 {{ weather.maxT }}° · 최저 {{ weather.minT }}°</div>
+                </template>
+              </div>
+            </div>
+            <div class="grid grid-cols-5 gap-1 text-center bg-white/10 rounded-xl py-2 px-1">
+              <template v-if="weatherTab === 'hourly'">
+                <div v-for="h in weather.hourly" :key="h.hour" class="flex flex-col items-center gap-1">
+                  <span class="text-[10.5px] text-white/75">{{ hourLabel(h.hour) }}</span>
+                  <AppIcon :name="weatherIcon(h.code)" :size="16" />
+                  <span class="text-[12px] font-bold tabular-nums">{{ h.temp }}°</span>
+                </div>
+              </template>
+              <template v-else>
+                <div v-for="d in weather.daily" :key="d.date" class="flex flex-col items-center gap-1">
+                  <span class="text-[10.5px] text-white/75">{{ d.dow }}</span>
+                  <AppIcon :name="weatherIcon(d.code)" :size="16" />
+                  <span class="text-[11px] font-bold tabular-nums">{{ d.max }}° <span class="text-white/60 font-medium">{{ d.min }}°</span></span>
+                </div>
+              </template>
             </div>
           </template>
-          <template v-else>
-            <div>
-              <div class="text-[24px] lg:text-[28px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ liveStats.chat_users.toLocaleString() }}명</div>
-              <div class="text-[12px] text-white/65 mt-1.5">{{ liveStats.chat_users > 0 ? '지금 채팅방에서 대화 중이에요' : '채팅방에서 첫 대화를 시작해 보세요' }}</div>
-            </div>
-            <RouterLink to="/chat" class="self-start text-[11px] font-bold bg-white text-ink rounded-full px-3 py-1.5">채팅 입장 →</RouterLink>
-          </template>
+          <div v-else class="flex-1 flex items-center justify-center text-[12px] text-white/70">날씨를 불러오는 중이에요…</div>
         </div>
     </div>
 
@@ -381,7 +397,7 @@ import { useMusicStore } from '../stores/music'
 
 const router = useRouter()
 const auth = useAuthStore()
-const { locationQuery, init: initLocation } = useLocation()
+const { city: locCity, locationQuery, init: initLocation } = useLocation()
 const lang = useLangStore()
 const bannerStore = useBannerStore()
 const hasHomeAds = computed(() => bannerStore.getLeft('home').length > 0 || bannerStore.getRight('home').length > 0)
@@ -397,6 +413,8 @@ const businesses = ref([])
 const headlines = ref([])
 const headlinePage = ref(0)
 const weather = ref(null)
+const weatherTab = ref('hourly')
+const weatherPlace = ref('')
 const indices = ref([])
 const watchlist = ref([])
 const myWatch = ref([])           // 로그인한 회원의 관심종목 (홈 시세 마퀴에 먼저 흐름)
@@ -735,15 +753,39 @@ const stockMarquee = computed(() => {
 
 // 외부 공개 API(무인증) 직접 호출 — 사이트 axios 인스턴스는 Authorization 헤더가
 // 기본 적용돼 있어 제3자 API에 토큰이 새지 않도록 순수 fetch 사용
+const ALERT_KO = {
+  'Freeze Watch': '동결 주의보', 'Freeze Warning': '동결 경보', 'Hard Freeze Warning': '강한 동결 경보', 'Frost Advisory': '서리 주의보',
+  'Winter Storm Watch': '겨울폭풍 주의보', 'Winter Storm Warning': '겨울폭풍 경보', 'Winter Weather Advisory': '겨울 날씨 주의',
+  'Tornado Watch': '토네이도 주의보', 'Tornado Warning': '토네이도 경보',
+  'Severe Thunderstorm Watch': '강한 뇌우 주의보', 'Severe Thunderstorm Warning': '강한 뇌우 경보',
+  'Flood Watch': '홍수 주의보', 'Flood Warning': '홍수 경보', 'Flood Advisory': '침수 주의', 'Flash Flood Warning': '돌발 홍수 경보',
+  'Heat Advisory': '폭염 주의', 'Excessive Heat Warning': '폭염 경보', 'Wind Advisory': '강풍 주의', 'High Wind Warning': '강풍 경보',
+  'Red Flag Warning': '산불 위험 경보', 'Dense Fog Advisory': '짙은 안개 주의', 'Fire Weather Watch': '산불 기상 주의보',
+  'Special Weather Statement': '기상 특보', 'Hurricane Warning': '허리케인 경보', 'Tropical Storm Warning': '열대폭풍 경보',
+}
+const SEVERITY_RANK = { Extreme: 4, Severe: 3, Moderate: 2, Minor: 1 }
+const DOW_KO = ['일', '월', '화', '수', '목', '금', '토']
+function hourLabel(h) { return h === 0 ? '밤 12시' : h === 12 ? '낮 12시' : (h < 12 ? '오전 ' : '오후 ') + (h % 12) + '시' }
+// 미국 기상청 현재 경보 중 가장 심한 것 하나 (미국 밖·실패하면 없음)
+async function loadWeatherAlert(lat, lon) {
+  try {
+    const r = await fetch(`https://api.weather.gov/alerts/active?point=${lat.toFixed(4)},${lon.toFixed(4)}`, { headers: { Accept: 'application/geo+json' } })
+    if (!r.ok) return null
+    const f = (await r.json()).features || []
+    if (!f.length) return null
+    f.sort((x, y) => (SEVERITY_RANK[y.properties.severity] || 0) - (SEVERITY_RANK[x.properties.severity] || 0))
+    const ev = f[0].properties.event
+    return { label: ALERT_KO[ev] || ev, url: `https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}` }
+  } catch { return null }
+}
+// 내 동네 날씨 — 위치: 프로필 주소 → 접속 위치(IP) → 애틀랜타 근교
 async function loadWeather() {
   try {
-    const lat = 34.0904, lon = -84.0733 // Suwanee, GA
-    const [wRes, aRes] = await Promise.all([
-      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=America%2FNew_York&temperature_unit=fahrenheit&forecast_days=2`),
-      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi&timezone=America%2FNew_York`),
-    ])
+    const c = locCity.value
+    const lat = c?.lat || 34.0904, lon = c?.lng || -84.0733
+    weatherPlace.value = c?.name ? (c.state ? `${c.name}, ${c.state}` : c.name) : 'Suwanee, GA'
+    const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit&forecast_days=6`)
     const w = await wRes.json()
-    const a = await aRes.json()
     const nowIdx = w.hourly.time.findIndex(t => t === w.current.time.slice(0, 13) + ':00')
     const startIdx = nowIdx >= 0 ? nowIdx : 0
     weather.value = {
@@ -751,13 +793,18 @@ async function loadWeather() {
       code: w.current.weather_code,
       maxT: Math.round(w.daily.temperature_2m_max[0]),
       minT: Math.round(w.daily.temperature_2m_min[0]),
-      aqi: a?.current?.us_aqi ?? null,
-      hourly: w.hourly.time.slice(startIdx + 1, startIdx + 5).map((t, i) => ({
-        hour: new Date(t).getHours(),
-        temp: Math.round(w.hourly.temperature_2m[startIdx + 1 + i]),
-        code: w.hourly.weather_code[startIdx + 1 + i],
+      alert: null,
+      hourly: [1, 3, 5, 7, 9].map(k => ({
+        hour: Number(w.hourly.time[startIdx + k].slice(11, 13)),
+        temp: Math.round(w.hourly.temperature_2m[startIdx + k]),
+        code: w.hourly.weather_code[startIdx + k],
+      })),
+      daily: w.daily.time.slice(1, 6).map((d, i) => ({
+        date: d, dow: DOW_KO[new Date(d + 'T12:00:00').getDay()],
+        max: Math.round(w.daily.temperature_2m_max[i + 1]), min: Math.round(w.daily.temperature_2m_min[i + 1]), code: w.daily.weather_code[i + 1],
       })),
     }
+    loadWeatherAlert(lat, lon).then(a => { if (weather.value) weather.value.alert = a })
   } catch {}
 }
 
@@ -779,7 +826,6 @@ async function loadReviewPicks() {
 onMounted(async () => {
   tickerRaf = requestAnimationFrame(tickerFrame)
   loadReviewPicks()
-  loadWeather()
   loadMarketQuotes()
   loadLive(); loadTicker(); loadSignupPerks()
   // 이미 재생 중인 곡이 있으면 건드리지 않음, 없으면 무작위 곡을 소리 없이 자동 재생
@@ -820,6 +866,7 @@ onMounted(async () => {
     if (hl.status === 'fulfilled') headlines.value = hl.value.data?.data || []
   })
   await initLocation()
+  loadWeather()
   const loc = locationQuery.value
   const [j, m, r, bz] = await Promise.allSettled([
     axios.get('/api/jobs', { params: { per_page: 10, ...loc } }),
