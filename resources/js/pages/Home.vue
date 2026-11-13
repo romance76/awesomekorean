@@ -147,11 +147,11 @@
         </RouterLink>
 
         <!-- 내 동네 날씨: 로그인 회원은 프로필 주소, 없으면 접속 위치(IP) 기준. 시간별/일별 + 기상청 경보 -->
-        <div class="min-h-[168px] rounded-card p-4 lg:p-5 flex flex-col justify-between gap-2.5 text-white bg-gradient-to-br from-[#2F7BD9] via-[#2B65C4] to-[#1F4A9E]">
+        <div class="min-h-[168px] rounded-card p-3.5 lg:p-5 flex flex-col justify-between gap-2.5 text-white bg-gradient-to-br from-[#2F7BD9] via-[#2B65C4] to-[#1F4A9E]">
           <template v-if="weather">
             <div class="flex items-center gap-1.5">
               <AppIcon name="map-pin" :size="13" class="shrink-0 opacity-90" />
-              <span class="text-[13px] font-bold truncate">{{ weatherPlace }}</span>
+              <span class="text-[13px] font-bold truncate min-w-0" :title="weatherPlace">{{ weatherPlace }}</span>
               <span class="ml-auto flex items-center gap-0.5 bg-white/15 rounded-full p-0.5 shrink-0">
                 <button v-for="t in [['hourly','시간별'],['daily','일별']]" :key="t[0]" type="button" @click="weatherTab = t[0]"
                   class="text-[10.5px] font-bold px-2 py-0.5 rounded-full transition-colors" :class="weatherTab === t[0] ? 'bg-white text-[#1F4A9E]' : 'text-white/80'">{{ t[1] }}</button>
@@ -162,7 +162,7 @@
               <div class="text-[32px] lg:text-[36px] font-extrabold tracking-[-0.04em] leading-none tabular-nums">{{ weather.temp }}<span class="text-[16px] font-bold align-top ml-0.5">°F</span></div>
               <div class="ml-auto min-w-0 text-right">
                 <div class="text-[12.5px] font-bold">{{ weatherLabel(weather.code) }}</div>
-                <div class="text-[11px] text-white/75 mt-0.5 whitespace-nowrap">최고 {{ weather.maxT }}° · 최저 {{ weather.minT }}°</div>
+                <div class="text-[11px] text-white/75 mt-0.5 whitespace-nowrap leading-tight">최고 {{ weather.maxT }}°<br />최저 {{ weather.minT }}°</div>
               </div>
             </div>
             <a v-if="weather.alert" :href="weather.alert.url" target="_blank" rel="noopener noreferrer"
