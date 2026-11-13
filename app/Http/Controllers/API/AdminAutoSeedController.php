@@ -21,6 +21,7 @@ class AdminAutoSeedController extends Controller
             'config' => $c,
             'member_count' => AutoSeedPosts::memberCount(),
             'author_count' => count(AutoSeedPosts::authorPool()),
+            'pool_left' => ['community' => count(AutoSeedPosts::remaining('community')), 'qa' => count(AutoSeedPosts::remaining('qa'))],
             'running' => $reason === null,
             'stopped_reason' => $reason,
             'today' => collect($s['plan'])->map(fn ($p, $kind) => [

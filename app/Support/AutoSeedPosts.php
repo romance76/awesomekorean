@@ -165,32 +165,100 @@ class AutoSeedPosts
         return in_array(self::sourceKey($url), self::state()['seen_sources'] ?? [], true);
     }
 
-    /** 커뮤니티 글 작성 — 포인트 지급 없음(실제 활동이 아니라 시드 글) */
-    public static function createCommunity(int $authorId, int $boardId, string $title, string $content): Post
+    /** 커뮤니티 글 작성 — 포인트 지급 없음(실제 활동이 아니라 시드 글). $at 이 있으면 그 시각에 쓴 것으로 기록 */
+    public static function createCommunity(int $authorId, int $boardId, string $title, string $content, ?Carbon $at = null): Post
     {
-        return Post::create([
+        $post = new Post();
+        $attrs = [
             'board_id' => $boardId, 'user_id' => $authorId,
             'title' => PlainText::clean($title), 'content' => PlainText::clean($content),
-        ]);
+        ];
+        if ($at) $attrs += ['created_at' => $at, 'updated_at' => $at, 'view_count' => random_int(5, 60)];
+        $post->forceFill($attrs)->save();
+        return $post;
     }
 
     /** Q&A 질문과(있으면) 답변 작성. 답변은 질문자와 다른 더미 회원이 쓴다. */
-    public static function createQa(int $authorId, ?int $categoryId, string $title, string $content, array $answers = []): QaPost
+    public static function createQa(int $authorId, ?int $categoryId, string $title, string $content, array $answers = [], ?Carbon $at = null): QaPost
     {
-        $post = QaPost::create([
+        $post = new QaPost();
+        $attrs = [
             'user_id' => $authorId, 'category_id' => $categoryId,
             'title' => PlainText::clean($title), 'content' => PlainText::clean($content), 'bounty_points' => 0,
-        ]);
+        ];
+        if ($at) $attrs += ['created_at' => $at, 'updated_at' => $at, 'view_count' => random_int(5, 60)];
+        $post->forceFill($attrs)->save();
+
         $pool = self::authorPool();
         $avoid = [$authorId];
+        $answerAt = $at ? $at->copy() : null;
         foreach ($answers as $text) {
             $text = trim((string) $text);
             if ($text === '') continue;
             $uid = self::pickAuthor($avoid, $pool) ?? $authorId;
             $avoid[] = $uid;
-            QaAnswer::create(['qa_post_id' => $post->id, 'user_id' => $uid, 'content' => PlainText::clean($text)]);
+            $row = new QaAnswer();
+            $attrs = ['qa_post_id' => $post->id, 'user_id' => $uid, 'content' => PlainText::clean($text)];
+            if ($answerAt) {
+                $answerAt = $answerAt->copy()->addMinutes(random_int(8, 120));
+                if ($answerAt->gt(now())) $answerAt = now()->copy();
+                $attrs += ['created_at' => $answerAt, 'updated_at' => $answerAt];
+            }
+            $row->forceFill($attrs)->save();
             $post->increment('answer_count');
         }
         return $post;
+    }
+
+    // ── 미리 써 둔 글 모음(database/data/auto_seed_pool.json)에서 하나씩 꺼내 올리기 ──
+
+    private static ?array $poolCache = null;
+
+    public static function pool(): array
+    {
+        return self::$poolCache ??= (json_decode((string) @file_get_contents(database_path('data/auto_seed_pool.json')), true) ?: []);
+    }
+
+    /** 아직 안 올린 글 (같은 제목이 이미 있으면 올린 것으로 본다) */
+    public static function remaining(string $kind): array
+    {
+        $items = self::pool()[$kind] ?? [];
+        if (!$items) return [];
+        $table = $kind === 'qa' ? 'qa_posts' : 'posts';
+        $done = DB::table($table)->whereIn('title', array_column($items, 'title'))->pluck('title')->all();
+        return array_values(array_filter($items, fn ($i) => !in_array($i['title'], $done, true)));
+    }
+
+    /** 모음에서 무작위로 하나를 올리고 글 번호를 돌려준다(올릴 글이 없으면 null). 그 칸의 예정 시각에 쓴 것으로 기록한다. */
+    public static function postNext(string $kind): ?int
+    {
+        $items = self::remaining($kind);
+        shuffle($items);
+        $st = self::state();
+        $slots = $st['plan'][$kind]['slots'] ?? [];
+        $slot = $slots[(int) ($st['plan'][$kind]['done'] ?? 0)] ?? null;
+        $at = $slot ? Carbon::parse($slot) : now();
+        if ($at->gt(now())) $at = now()->copy();
+
+        $boards = DB::table('boards')->where('is_active', true)->pluck('id', 'name');
+        $cats = DB::table('qa_categories')->pluck('id', 'name');
+        foreach ($items as $it) {
+            $authorId = self::pickAuthor($st['recent_authors'] ?? []);
+            if (!$authorId) return null;
+            if ($kind === 'qa') {
+                $catId = $cats[$it['category']] ?? null;
+                if (!$catId) continue;
+                $post = self::createQa($authorId, (int) $catId, $it['title'], $it['content'], $it['answers'] ?? [], $at);
+                $path = '/qa/' . $post->id;
+            } else {
+                $boardId = $boards[$it['board']] ?? null;
+                if (!$boardId) continue;
+                $post = self::createCommunity($authorId, (int) $boardId, $it['title'], $it['content'], $at);
+                $path = '/community/' . (DB::table('boards')->where('id', $boardId)->value('slug') ?: $boardId) . '/' . $post->id;
+            }
+            self::record($kind, $post->id, $authorId, $it['title'], null, $path);
+            return $post->id;
+        }
+        return null;
     }
 }

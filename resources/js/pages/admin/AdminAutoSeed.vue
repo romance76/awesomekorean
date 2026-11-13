@@ -17,6 +17,12 @@
     <p class="text-xs text-ink-muted mt-1">전체 회원 {{ st.member_count.toLocaleString() }}명 / 상한 {{ st.config.member_cap.toLocaleString() }}명 · 글쓴이로 쓸 가상 회원 {{ st.author_count }}명</p>
   </div>
 
+  <div v-if="st && st.pool_left" class="card p-3 mb-4 text-sm" :class="(st.pool_left.community < 10 || st.pool_left.qa < 10) ? 'border border-amber-300 bg-amber-50/60' : ''">
+    <b>올릴 글 남은 수</b> — 커뮤니티 {{ st.pool_left.community }}개 · Q&A {{ st.pool_left.qa }}개
+    <span class="text-xs text-ink-muted"> (하루 5~7개씩 쓰면 약 {{ Math.floor(Math.min(st.pool_left.community, st.pool_left.qa) / Math.max(1, st.config.daily_max)) }}일치)</span>
+    <p v-if="st.pool_left.community < 10 || st.pool_left.qa < 10" class="text-xs text-amber-800 mt-1">글이 곧 떨어져요. Claude에게 "자동 게시 글 더 채워줘"라고 요청해 주세요.</p>
+  </div>
+
   <div v-if="st" class="grid grid-cols-2 gap-3 mb-4">
     <div v-for="k in kinds" :key="k.key" class="card p-3">
       <div class="text-xs text-ink-muted">오늘 {{ k.label }}</div>

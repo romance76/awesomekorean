@@ -122,6 +122,10 @@ Schedule::command('market:expire-scraped')->dailyAt('06:00')->appendOutputTo($co
 // 루틴(외부 세션)이 수행.
 \App\Support\AutoCollectStatus::watch(Schedule::command('info:trigger-generation'), 'info')->dailyAt('06:15')->appendOutputTo($contentLog);
 
+// 커뮤니티·Q&A 자동 게시: 하루 5~7개씩 무작위 시각에, 미리 써 둔 글을 가상 회원 이름으로 올림.
+// 회원 수가 상한(기본 3,000명)을 넘거나 관리자가 끄면 저절로 멈춤 (관리자 > 소통 > 자동 게시).
+Schedule::command('autoseed:post')->everyTenMinutes()->withoutOverlapping()->appendOutputTo($contentLog);
+
 // NEW 전면광고: 카드 입력만 하고 떠난 신청이 잡은 시간 정리 + 카드 보류(약 7일)가 만료되기 전에 오래 승인 못 한 신청 자동 취소
 Artisan::command('flyers:cleanup', function () {
     $stale = \App\Support\FlyerService::purgeStale();
